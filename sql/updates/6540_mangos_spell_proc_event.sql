@@ -1,0 +1,3 @@
+DELETE FROM spell_proc_event WHERE entry IN(38319);
+INSERT INTO `spell_proc_event` VALUES
+(38319,0,0,0,0,0x0000000000000000,0x00004000,0,0);

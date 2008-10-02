@@ -1,0 +1,2 @@
+-- revert to default database values
+UPDATE `quest_template` SET `SpecialFlags`= 10, `ReqCreatureOrGOId1` = 0, `ReqCreatureOrGOId2` = 0, `ReqCreatureOrGOId3`= 0, `ReqCreatureOrGOId4`= 0, `ReqCreatureOrGOCount1` = 0, `ReqCreatureOrGOCount2` = 0, `ReqCreatureOrGOCount3` = 0, `ReqCreatureOrGOCount4`= 0, `ReqSpellCast1` = 0, `ReqSpellCast2` = 0, `ReqSpellCast3` = 0, `ReqSpellCast4` = 0 WHERE `entry` IN (5929, 5930);

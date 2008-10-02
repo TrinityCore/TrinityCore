@@ -1,0 +1,1 @@
+UPDATE account SET username = UPPER(username);

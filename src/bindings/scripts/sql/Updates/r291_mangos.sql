@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `ScriptName` = 'mob_spawn_of_fankriss' WHERE `entry` = 15630;

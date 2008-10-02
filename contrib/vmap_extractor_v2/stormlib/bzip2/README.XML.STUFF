@@ -1,0 +1,31 @@
+The script xmlproc.sh takes an xml file as input,
+and processes it to create .pdf, .html or .ps output.
+It uses format.pl, a perl script to format <pre> blocks nicely,
+ and add CDATA tags so writers do not have to use eg. &lt; 
+
+The file "entities.xml" must be edited to reflect current
+version, year, etc.
+
+
+Usage:
+
+  xmlproc.sh -v manual.xml
+  Validates an xml file to ensure no dtd-compliance errors
+
+  xmlproc.sh -html manual.xml
+  Output: manual.html
+
+  xmlproc.sh -pdf manual.xml
+  Output: manual.pdf
+
+  xmlproc.sh -ps manual.xml
+  Output: manual.ps
+
+
+Notum bene: 
+- pdfxmltex barfs if given a filename with an underscore in it
+
+- xmltex won't work yet - there's a bug in passivetex
+    which we are all waiting for Sebastian to fix.
+  So we are going the xml -> pdf -> ps route for the time being,
+    using pdfxmltex.

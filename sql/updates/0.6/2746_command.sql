@@ -1,0 +1,1 @@
+UPDATE `command` SET `help` = 'Syntax: .npcflag #npcflag\r\n\r\nSet the NPC flags of creature template of the selected creature and selected creature to #npcflag. NPC flags will applied to all creatures of selected creature template after server restart or grid unload/load.' WHERE `name` = 'npcflag';

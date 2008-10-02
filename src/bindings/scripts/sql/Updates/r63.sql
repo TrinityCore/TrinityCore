@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `ScriptName` = 'npc_bartleby' WHERE `entry` IN (6090);

@@ -1,0 +1,1 @@
+UPDATE `item_template` SET `ScriptName` = 'item_zezzaks_shard' WHERE `entry` = 31463;

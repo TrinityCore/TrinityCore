@@ -1,0 +1,1 @@
+UPDATE command SET `help` = 'Syntax: .addmove #creature_guid [#waittime]\r\n\r\nAdd your current location as a waypoint for creature with guid #creature_guid. And optional add wait time.' WHERE `name` = 'addmove';

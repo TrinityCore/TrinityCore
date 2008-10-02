@@ -1,0 +1,1 @@
+ALTER TABLE `uptime` ENGINE=MyISAM;

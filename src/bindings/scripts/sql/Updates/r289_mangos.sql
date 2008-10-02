@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `scriptname` = 'npc_creditmarker_visit_with_ancestors' WHERE `entry` IN (18840,18841,18842,18843);

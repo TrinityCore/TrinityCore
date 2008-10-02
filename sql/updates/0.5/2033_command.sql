@@ -1,0 +1,2 @@
+UPDATE command SET `help` = 'Syntax: .learn #parameter\r\n\r\nSelected character learn a spell of id #parameter. If GM want to learn all default spells for Game Masters, use the syntax .learn all Character selection in this case ignored.' WHERE `name` = 'learn';
+UPDATE command SET `help` = 'Syntax: .unlearn #startspell #endspell\r\n\r\nUnlearn for selected player the range of spells between id #startspell and #endspell. If no #endspell is provided, just unlearn spell of id #startspell.' WHERE `name` = 'unlearn';

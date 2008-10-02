@@ -1,0 +1,1 @@
+ALTER TABLE `mail_items` ADD  KEY `idx_receiver` (`receiver`);

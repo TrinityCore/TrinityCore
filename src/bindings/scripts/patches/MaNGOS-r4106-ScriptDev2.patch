@@ -1,0 +1,40 @@
+Index: configure.ac
+===================================================================
+--- configure.ac	(revision 4106)
++++ configure.ac	(working copy)
+@@ -192,7 +192,9 @@
+    src/mangosd/Makefile
+    src/mangosd/mangosd.conf
+    src/bindings/Makefile
+-   src/bindings/universal/Makefile
++   src/bindings/ScriptDev2/Makefile
++   src/bindings/ScriptDev2/sql/Makefile
++   src/bindings/ScriptDev2/sql/Updates/Makefile
+ ])
+ 
+ ## Disabled Makefiles, until they are ready for a successful make and
+Index: src/bindings/Makefile.am
+===================================================================
+--- src/bindings/Makefile.am	(revision 4106)
++++ src/bindings/Makefile.am	(working copy)
+@@ -14,4 +14,4 @@
+ # along with this program; if not, write to the Free Software
+ # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ 
+-SUBDIRS = universal
++SUBDIRS = ScriptDev2
+Index: src/mangosd/Makefile.am
+===================================================================
+--- src/mangosd/Makefile.am	(revision 4106)
++++ src/mangosd/Makefile.am	(working copy)
+@@ -33,8 +33,8 @@
+ 	WorldRunnable.h
+ 
+ ## Link world daemon against the shared library
+-mangos_worldd_LDADD = ../bindings/universal/libmangosscript.la ../game/libmangosgame.a ../shared/libmangosdatabase.a ../shared/libmangosconfig.a ../shared/libmangosauth.a ../shared/libmangosshared.a ../shared/libmangosvmaps.a ../shared/libmangosnetwork.a ../framework/libmangosframework.a ../../dep/src/zthread/libZThread.la ../../dep/src/g3dlite/libg3dlite.a
+-mangos_worldd_LDFLAGS = -L../../dep/src/zthread  -L../../dep/src/g3dlite -L../bindings/universal/ $(MYSQL_LIBS) -L$(libdir) $(ZLIB) $(COMPATLIB) $(SSLLIB) -export-dynamic
++mangos_worldd_LDADD = ../bindings/ScriptDev2/libmangosscript.la ../game/libmangosgame.a ../shared/libmangosdatabase.a ../shared/libmangosconfig.a ../shared/libmangosauth.a ../shared/libmangosshared.a ../shared/libmangosvmaps.a ../shared/libmangosnetwork.a ../framework/libmangosframework.a ../../dep/src/zthread/libZThread.la ../../dep/src/g3dlite/libg3dlite.a
++mangos_worldd_LDFLAGS = -L../../dep/src/zthread  -L../../dep/src/g3dlite -L../bindings/ScriptDev2/ $(MYSQL_LIBS) -L$(libdir) $(ZLIB) $(COMPATLIB) $(SSLLIB) -export-dynamic
+ 
+ ## Additional files to include when running 'make dist'
+ #  Include world daemon configuration

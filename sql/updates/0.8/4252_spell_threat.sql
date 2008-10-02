@@ -1,0 +1,4 @@
+INSERT INTO spell_threat VALUES
+(20243,101),
+(30016,101),
+(30022,101);
