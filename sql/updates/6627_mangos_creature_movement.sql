@@ -1,0 +1,1 @@
+ALTER TABLE creature_movement MODIFY COLUMN id int(10) unsigned NOT NULL COMMENT 'Creature GUID';

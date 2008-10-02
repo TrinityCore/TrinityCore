@@ -1,0 +1,4 @@
+DELETE FROM `spell_affect` WHERE `entry` IN (31670,31672);
+INSERT INTO `spell_affect` VALUES 
+(31670,0,0,0,0,0,0,0x500000200,0),
+(31672,0,0,0,0,0,0,0x500000200,0);

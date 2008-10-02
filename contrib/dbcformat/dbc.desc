@@ -1,0 +1,241 @@
+ENTRY ItemSetEntry
+
+UNUSED INDEX setid
+UNUSED STR  setname
+UNKNOWN[7]
+UNUSED UINT flags//, const
+UNUSED UINT required_item_id[8]
+UNKNOWN[48]
+UINT spells[8]
+UINT items_to_triggerspell[8] //items_to_triggerspell[0] -- for spells[0]
+UINT required_skill_id//only 2 items sets have requirements
+UINT required_skill_value
+
+ENDENTRY
+
+
+ENTRY TalentEntry
+
+    INDEX TalentID
+    UINT TalentTree
+    UNKNOWN [2]
+    UINT RankID[5]
+    UNKNOWN[12]
+
+ENDENTRY
+
+
+ENTRY emoteentry
+
+    INDEX Id
+    UNUSED STR name
+	UINT textid
+    UNUSED  UINT textid2
+    UNUSED  UINT textid3
+	UNUSED  UINT textid4
+    UNKNOWN
+    UNUSED UINT textid5
+    UNKNOWN
+    UNUSED UINT textid6
+    UNKNOWN[9]
+
+ENDENTRY
+
+ENTRY SpellEntry
+
+    INDEX Id                                    
+    UINT School
+    UNKNOWN [2]
+    UINT Category
+	  UNKNOWN
+    UINT Attributes
+    UINT AttributesEx
+    UNKNOWN [3]
+    UINT Targets                               
+    UINT TargetCreatureType                    
+    UINT RequiresSpellFocus     
+	  UNKNOWN
+    UINT CasterAuraState                       
+    UINT CastingTimeIndex                  
+    UINT RecoveryTime
+    UINT CategoryRecoveryTime
+    UINT InterruptFlags
+    UINT AuraInterruptFlags
+    UINT ChannelInterruptFlags                 
+    UINT procFlags
+    UINT procChance
+    UINT procCharges
+    UINT maxLevel
+    UINT baseLevel
+    UINT spellLevel
+    UINT DurationIndex
+    UINT powerType
+    UINT manaCost
+    UINT manaCostPerlevel                      
+    UINT manaPerSecond
+    UINT manaPerSecondPerLevel
+    UINT rangeIndex
+    FLOAT speed
+    UINT modalNextSpell
+    UNKNOWN                              
+    UINT Totem[2]                              
+    UINT Reagent[8]                            
+    UINT ReagentCount[8]                       
+    UINT EquippedItemClass                     
+    UINT EquippedItemSubClass                  
+    UINT Effect[3] // 59 - 61                           
+    UINT EffectDieSides[3]                     
+    UINT EffectBaseDice[3]                     
+    FLOAT EffectDicePerLevel[3]                
+    FLOAT EffectRealPointsPerLevel[3]            
+    INT EffectBasePoints[3] // 74 - 76
+	  UNKNOWN [3]
+	  UINT EffectImplicitTargetA[3] // 80 - 82
+    UINT EffectImplicitTargetB[3] // 83 - 85
+    UINT EffectRadiusIndex[3]                  
+    UINT EffectApplyAuraName[3] // 89 - 91               
+    UINT EffectAmplitude[3]                    
+    UINT Effectunknown[3]                      
+    UINT EffectChainTarget[3]                  
+    UINT EffectItemType[3]                     
+    UINT EffectMiscValue[3] // 104 - 106                 
+    UINT EffectTriggerSpell[3]                 
+    FLOAT EffectPointsPerComboPoint[3]           
+    UINT SpellVisual                           
+    UNKNOWN                             
+    UINT SpellIconID                          
+    UINT activeIconID
+	  UINT spellPriority                         
+    UNUSED STR Name
+    UNUSED STR NameAlt1
+    UNUSED STR NameAlt2
+    UNUSED STR NameAlt3
+    UNUSED STR NameAlt4
+    UNUSED STR NameAlt5
+    UNUSED STR NameAlt6
+    UNUSED STR NameAlt7
+    UNUSED STR NameFlags
+    UINT Rank
+    UINT RankAlt1
+    UINT RankAlt2
+    UINT RankAlt3
+    UINT RankAlt4
+    UINT RankAlt5
+    UINT RankAlt6
+    UINT RankAlt7
+    UINT RankFlags
+    UNUSED STR Description
+    UNUSED STR DescriptionAlt1
+    UNUSED STR DescriptionAlt2
+    UNUSED STR DescriptionAlt3
+    UNUSED STR DescriptionAlt4
+    UNUSED STR DescriptionAlt5
+    UNUSED STR DescriptionAlt6
+    UNUSED STR DescriptionAlt7
+    UNUSED UINT DescriptionFlags
+    UNUSED STR BuffDescription
+    UNUSED STR BuffDescriptionAlt1
+    UNUSED STR BuffDescriptionAlt2
+    UNUSED STR BuffDescriptionAlt3
+    UNUSED STR BuffDescriptionAlt4
+    UNUSED STR BuffDescriptionAlt5
+    UNUSED STR BuffDescriptionAlt6
+    UNUSED STR BuffDescriptionAlt7
+    UINT ManaCostPercentage
+    UINT StartRecoveryCategory
+    UINT StartRecoveryTime
+	  UINT field156 //nice name
+    UNKNOWN[2]
+    UINT SpellFamilyName
+    UNKNOWN[11]
+ENDENTRY
+
+ENTRY SpellCastTime
+    INDEX ID
+    UINT CastTime
+	UNKNOWN[2]
+ENDENTRY
+
+ENTRY SpellRadius
+    INDEX ID
+    FLOAT Radius
+    UNKNOWN
+    FLOAT Radius2
+ENDENTRY
+
+ENTRY SpellRange
+    INDEX ID
+    FLOAT minRange
+    FLOAT maxRange
+    UNKNOWN[18]
+	UNKNOWN//some flag
+ENDENTRY
+
+ENTRY SpellDuration
+    INDEX ID
+    UINT Duration1
+    UINT Duration2
+    UINT Duration3
+ENDENTRY
+
+ENTRY AreaTableEntry
+
+    UINT ID
+    UNUSED UINT map
+    UINT zone
+    INDEX exploreFlag
+	UNKNOWN[6]
+	UINT area_level
+    UNUSED STR name
+    UNKNOWN[9]
+
+ENDENTRY
+
+
+ENTRY FactionEntry
+	INDEX ID
+	INT reputationListID
+
+	UNKNOWN[7]
+	UINT something1
+	UINT something2 
+	UINT something3
+	UINT something4
+	UINT something5
+	UINT something6
+	UINT something7
+	UINT something8
+	UINT something9
+	UINT faction
+
+	UNUSED STR name 
+	UNKNOWN[17]
+
+ENDENTRY
+
+
+ENTRY FactionTemplateEntry
+	INDEX ID
+	UINT faction
+	UNKNOWN
+	UINT fightsupport
+	UINT friendly
+	UINT hostile
+	UNKNOWN[8]
+ENDENTRY
+
+
+ENTRY ItemDisplayTemplateEntry
+
+	UINT ID
+	UNUSED STR modelFile
+	UNKNOWN
+	UNUSED STR imageFile
+	UNKNOWN
+	UNUSED STR invImageFile
+	UNKNOWN[5]
+	UINT seed
+	UNKNOWN [10]
+	UINT randomPropertyID 
+
+ENDENTRY

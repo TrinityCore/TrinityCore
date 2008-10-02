@@ -1,0 +1,22 @@
+/* Magister's Terrace */
+UPDATE `instance_template` SET `script` = 'instance_magisters_terrace' WHERE `map` = 585;
+UPDATE `creature_template` SET `ScriptName` = 'boss_selin_fireheart' WHERE `entry` = 24723;
+UPDATE `creature_template` SET `ScriptName` = 'mob_fel_crystal' WHERE `entry` = 24722;
+UPDATE `creature_template` SET `ScriptName` = 'boss_vexallus' WHERE `entry` = 24744;
+UPDATE `creature_template` SET `ScriptName` = 'mob_pure_energy' WHERE `entry` = 24745;
+UPDATE `creature_template` SET `ScriptName` = 'boss_priestess_delrissa' WHERE `entry` = 24560;
+UPDATE `creature_template` SET `ScriptName` = 'boss_kagani_nightstrike' WHERE `entry` = 24557;
+UPDATE `creature_template` SET `ScriptName` = 'boss_ellris_duskhallow' WHERE `entry` = 24558;
+UPDATE `creature_template` SET `ScriptName` = 'mob_imp' WHERE `entry` = 24656;
+UPDATE `creature_template` SET `ScriptName` = 'boss_eramas_brightblaze' WHERE `entry` = 24554;
+UPDATE `creature_template` SET `ScriptName` = 'boss_yazzai' WHERE `entry` = 24561;
+UPDATE `creature_template` SET `ScriptName` = 'boss_warlord_salaris' WHERE `entry` = 24559;
+UPDATE `creature_template` SET `ScriptName` = 'boss_garaxxas' WHERE `entry` = 24555;
+UPDATE `creature_template` SET `ScriptName` = 'mob_sliver' WHERE `entry` = 24552;
+UPDATE `creature_template` SET `ScriptName` = 'boss_apoko' WHERE `entry` = 24553;
+UPDATE `creature_template` SET `ScriptName` = 'boss_zelfan' WHERE `entry` = 24556;
+UPDATE `creature_template` SET `ScriptName` = 'boss_felblood_kaelthas' WHERE `entry` = 24664;
+UPDATE `creature_template` SET `ScriptName` = 'mob_arcane_sphere' WHERE `entry` = 24708;
+UPDATE `creature_template` SET `ScriptName` = 'mob_felkael_phoenix' WHERE `entry` = 24674;
+UPDATE `creature_template` SET `ScriptName` = 'mob_felkael_phoenix_egg' WHERE `entry` = 24675;
+UPDATE `creature_template` SET `ScriptName` = 'mob_felkael_flamestrike' WHERE `entry` = 24666;

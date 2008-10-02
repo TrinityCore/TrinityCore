@@ -1,0 +1,2 @@
+INSERT INTO `command` (`name`,`security`,`help`) VALUES ('spawndist',2,'Syntax: .spawndist #dist\r\n\r\nAdjust spawndistance of selected creature to dist.');
+INSERT INTO `command` (`name`,`security`,`help`) VALUES ('spawntime',2,'Syntax: .spawntime #time \r\n\r\nAdjust spawntime of selected creature to time.');

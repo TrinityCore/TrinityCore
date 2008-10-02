@@ -1,0 +1,14 @@
+--- TO DO ---
+Simple list of things we need to do.
+
+--- ScriptDev2 Framework ---
+Move all text out of C++ code and into SD2 database.
+
+--- Scripting with Priorities ---
+1) Boss AI and Boss Event scripts
+2) Specific NPC AI, Gossip, Quest, Event scripts
+3) Spell and Item scripts
+
+--- Core Problems ---
+
+- Spell scripts are only scriptable within the core. Spell scripts should be done in SD2 since they are very specialized.

@@ -1,0 +1,17 @@
+# list of map names
+
+509 #AhnQiraj  
+469 #BlackwingLair
+189 #MonasteryInstances
+030 #PVPZone01
+037 #PVPZone02
+033 #Shadowfang
+533 #Stratholme Raid
+209 #TanarisInstance
+309 #Zul'gurub
+560 #HillsbradPast
+534 #HyjalPast
+532 #Karazahn
+543 #HellfireRampart
+568 #ZulAman
+564 #BlackTemple

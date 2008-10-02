@@ -1,0 +1,1 @@
+UPDATE spell_proc_event SET ppmRate = '10.5' WHERE entry = 30823;

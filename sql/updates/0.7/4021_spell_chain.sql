@@ -1,0 +1,5 @@
+DELETE FROM `spell_chain` WHERE `spell_id` IN (25251, 30335);
+
+INSERT INTO `spell_chain` VALUES
+(25251,23894,23881,5),
+(30335,25251,23881,6);

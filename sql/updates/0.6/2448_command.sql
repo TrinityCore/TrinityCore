@@ -1,0 +1,3 @@
+DELETE FROM command WHERE `name` = 'addgrave';
+UPDATE command SET `help` = 'Syntax: .neargrave [alliance|horde]\r\n\r\nFind nearest graveyard linked to zone (or only nearest from accepts alliance or horde faction ghosts).' WHERE `name` = 'neargrave';
+UPDATE command SET `help` = 'Syntax: .linkgrave #graveyard_id [alliance|horde]\r\n\r\nLink current zone to graveyard for any (or alliance/horde faction ghosts). This let character ghost from zone teleport to graveyard after die if graveyard is nearest from linked to zone and accept ghost of this faction. Add only single graveyard at another map and only if no graveyards linked (or planned linked at same map).' WHERE `name` = 'linkgrave';

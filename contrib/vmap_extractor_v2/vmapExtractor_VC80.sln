@@ -1,0 +1,19 @@
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual C++ Express 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vmapExtractor", "vmapExtractor_VC80.vcproj", "{87335BBF-5DA8-4FEC-A51E-1FB948F2FFE9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug Ansi Static|Win32 = Debug Ansi Static|Win32
+		Release Ansi Static|Win32 = Release Ansi Static|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{87335BBF-5DA8-4FEC-A51E-1FB948F2FFE9}.Debug Ansi Static|Win32.ActiveCfg = Debug Ansi Static|Win32
+		{87335BBF-5DA8-4FEC-A51E-1FB948F2FFE9}.Debug Ansi Static|Win32.Build.0 = Debug Ansi Static|Win32
+		{87335BBF-5DA8-4FEC-A51E-1FB948F2FFE9}.Release Ansi Static|Win32.ActiveCfg = Release Ansi Static|Win32
+		{87335BBF-5DA8-4FEC-A51E-1FB948F2FFE9}.Release Ansi Static|Win32.Build.0 = Release Ansi Static|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

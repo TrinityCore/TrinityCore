@@ -1,0 +1,1 @@
+update creature_template set scriptname = "mob_cyclone" where entry = 18412;

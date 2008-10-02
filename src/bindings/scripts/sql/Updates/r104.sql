@@ -1,0 +1,1 @@
+UPDATE `gameobject_template` SET `ScriptName`='go_orb_of_command' WHERE `entry`='179879';

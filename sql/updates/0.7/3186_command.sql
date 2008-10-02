@@ -1,0 +1,1 @@
+INSERT INTO `command` VALUES('removequest',3,'Syntax: .removequest #quest_id\r\n\r\nSet quest #quest_id state to not completed and not active (and remove from active quest list) for selected player.');

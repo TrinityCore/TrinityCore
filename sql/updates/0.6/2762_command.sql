@@ -1,0 +1,1 @@
+INSERT INTO `command` VALUES('addquest','3','Syntax: .addquest #quest_id\r\n\r\nAdd to character quest log quest #quest_id. Quest started from item can\'t be added by this command but correct .additem call provided in command output.');

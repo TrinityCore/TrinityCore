@@ -1,0 +1,1 @@
+UPDATE spell_proc_event SET procflags=65536 where entry=16164;

@@ -1,0 +1,3 @@
+DELETE FROM spell_affect WHERE entry IN (28746);
+INSERT INTO spell_affect VALUES
+ (28746,1,0,0,0,0,0,0x0000000100000406,0);

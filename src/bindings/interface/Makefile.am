@@ -1,0 +1,52 @@
+# Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+## Process this file with automake to produce Makefile.in
+
+## Sub-directories to parse
+
+## Build MaNGOS script library as shared library.
+#  libmangosscript shared library will later be reused by world server daemon.
+lib_LTLIBRARIES = libtrinityscript.la
+
+libtrinityscript_la_CPPFLAGS = \
+$(MYSQL_INCLUDES) \
+$(POSTGRE_INCLUDES) \
+-I$(top_srcdir)/dep/include \
+-I$(top_srcdir)/src/shared \
+-I$(top_srcdir)/src/framework \
+-I$(top_srcdir)/src/game
+
+libtrinityscript_la_SOURCES = \
+	ScriptMgr.cpp \
+	ScriptMgr.h \
+	config.h \
+	system.cpp \
+	Scripts/sc_default.cpp \
+	Scripts/sc_defines.cpp \
+	Scripts/sc_defines.h
+
+## libtool settings
+#  API versioning
+libtrinityscript_la_LIBFLAGS = -version-info 0:0:1
+libtrinityscript_la_LIBADD = $(MYSQL_LIBS) $(POSTGRE_LIBS)
+
+## Additional files to include when running 'make dist'
+#  Scripts defaults.
+EXTRA_DIST = \
+	Scripts/sc_default.cpp \
+	Scripts/sc_defines.cpp \
+	Scripts/sc_defines.h
