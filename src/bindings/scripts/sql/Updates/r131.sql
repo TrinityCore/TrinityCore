@@ -1,1 +1,0 @@
-UPDATE `creature_template` SET `ScriptName` = 'npc_henze_faulk' WHERE `entry`= 6172;
