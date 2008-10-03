@@ -1,1 +1,0 @@
-ALTER TABLE `character_kill` MODIFY COLUMN `guid` INT(11);

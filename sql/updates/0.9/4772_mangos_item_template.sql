@@ -1,1 +1,0 @@
-UPDATE `item_template` SET `subclass` = '0' where `class` = '0';

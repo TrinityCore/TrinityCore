@@ -1,1 +1,0 @@
-UPDATE `command` SET `help` = 'Syntax: .pinfo [$player_name] [rep]\r\n\r\nOutput account information for selected player or player find by $player_name. If "rep" parameter provided show reputation information for player.' WHERE `name` = 'pinfo'; 

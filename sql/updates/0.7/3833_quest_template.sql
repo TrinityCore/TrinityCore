@@ -1,1 +1,0 @@
-ALTER TABLE `quest_template` CHANGE COLUMN `RewXP` `RewXpOrMoney` int(11) unsigned not null default '0';

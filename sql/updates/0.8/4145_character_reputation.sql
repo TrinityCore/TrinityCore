@@ -1,1 +1,0 @@
-ALTER TABLE `character_reputation` DROP `reputation`;

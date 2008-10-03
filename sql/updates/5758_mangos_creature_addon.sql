@@ -1,2 +1,0 @@
-ALTER TABLE `creature_addon` ADD `moveflags` int(10) unsigned NOT NULL default '0' AFTER `emote`;
-ALTER TABLE `creature_template_addon` ADD `moveflags` int(10) unsigned NOT NULL default '0' AFTER `emote`;

@@ -1,1 +1,0 @@
-INSERT INTO `command` VALUES('sendmail',1,'Syntax: .sendmail #playername #subject #text\r\n\r\nSend a mail to a player. Note: subject may not contain spaces.');

@@ -1,1 +1,0 @@
-ALTER TABLE `creature_template` ADD COLUMN `flags_extra` int(10) unsigned NOT NULL default '0' after `mechanic_immune_mask`;
