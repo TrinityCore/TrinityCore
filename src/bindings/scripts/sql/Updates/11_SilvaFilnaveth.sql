@@ -1,1 +1,0 @@
-UPDATE `creature` SET `id` = 11798, `curhealth` = 3857 WHERE `guid` = 46833;

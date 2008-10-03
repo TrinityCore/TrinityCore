@@ -1,2 +1,0 @@
-UPDATE `creature_template` SET `ScriptName` = 'npc_great_bear_spirit' WHERE `entry` = 11956;
-UPDATE `creature_template` SET `ScriptName` = 'npcs_rutgar_and_frankal.cpp' WHERE `entry` IN (15170, 15171);
