@@ -1,1 +1,0 @@
-UPDATE `instance_template` SET `reset_delay` = 0;

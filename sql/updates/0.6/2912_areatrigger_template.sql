@@ -1,1 +1,0 @@
-ALTER TABLE `areatrigger_template` ADD `required_level` SMALLINT NOT NULL DEFAULT '0' AFTER `name` ;

@@ -1,1 +1,0 @@
-ALTER TABLE `creature` ADD COLUMN `spawnMask` tinyint(3) unsigned NOT NULL default '1' AFTER `map`;

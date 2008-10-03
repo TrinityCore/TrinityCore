@@ -1,1 +1,0 @@
-ALTER TABLE `instance` ADD `data` LONGTEXT;

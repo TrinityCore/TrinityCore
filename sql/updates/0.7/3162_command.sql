@@ -1,1 +1,0 @@
-UPDATE `command` SET `help`='Syntax: .recall\r\n\r\nTeleport you to the place where you have been before using the .tele command.' WHERE `name`='recall';

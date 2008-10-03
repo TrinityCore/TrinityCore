@@ -1,1 +1,0 @@
-ALTER TABLE `character` ADD KEY `idx_name` (`name`);

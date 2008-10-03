@@ -1,1 +1,0 @@
-ALTER TABLE `instance_template` ADD `script` varchar(255) NOT NULL default '';
