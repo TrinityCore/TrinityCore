@@ -229,6 +229,42 @@ AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([atexit ftime gethostbyaddr gethostbyname gethostname gettimeofday memmove memset pow realpath select socket sqrt strchr strdup strerror strstr])
 
+## Check what to do with ACE library
+AC_LANG_PUSH([C++])
+AC_CHECK_HEADER([ace/Reactor.h], [tri_have_ace_headers=yes], [tri_have_ace_headers=no])
+AC_CHECK_LIB([ACE], [main], [tri_have_ace_lib=yes], [tri_have_ace_lib=no])
+AC_LANG_POP([C++])
+
+AC_MSG_CHECKING([whether to build ACE])
+if test X$tri_have_ace_headers = Xyes -a X$tri_have_ace_lib = Xyes;
+then
+  tri_need_to_build_ace=no
+  ACE_LIBS="-lACE"
+  ACE_INCLUDES=""
+  AC_MSG_RESULT([no])
+else
+  if test X$tri_have_ace_headers = Xno -a X$tri_have_ace_lib = Xno; then
+    tri_need_to_build_ace=yes
+    AC_MSG_RESULT([yes])
+  else
+    if test X$tri_have_ace_headers = Xyes; then
+       AC_MSG_ERROR([looks like you have ACE headers, but you do not have ACE libs installed])
+    else
+       tri_need_to_build_ace=yes
+       AC_MSG_RESULT([yes, over-install])
+    fi
+  fi
+fi
+
+if test X$tri_need_to_build_ace = Xyes; then
+   CXXFLAGS="-I\$(top_srcdir)/dep/ACE_wrappers -I\$(top_builddir)/dep/ACE_wrappers $CXXFLAGS"
+   ACE_LIBS="\$(top_builddir)/dep/ACE_wrappers/ace/libACE.la"
+else
+   ACE_LIBS="-lACE"
+fi
+
+AM_CONDITIONAL([TRI_BUILD_ACE], [test X$tri_need_to_build_ace = Xyes])
+
 ## Export defined variables
 AC_SUBST(ZLIB)
 AC_SUBST(COMPATLIB)
@@ -241,6 +277,7 @@ AC_SUBST(DOXYGEN)
 AC_SUBST(MANGOSD_DEBUG_INFO)
 AC_SUBST(MANGOSD_ENABLE_CLI)
 AC_SUBST(MANGOSD_ENABLE_RA)
+AC_SUBST(ACE_LIBS)
 
 ## Set output files.
 AC_CONFIG_HEADERS([config.h])
@@ -269,7 +306,9 @@ AC_CONFIG_FILES([
 ])
 
 ## Configure ACE
-AC_CONFIG_SUBDIRS([dep/ACE_wrappers])
+if test X$tri_need_to_build_ace = Xyes; then
+  AC_CONFIG_SUBDIRS([dep/ACE_wrappers])
+fi
 
 ## Disabled Makefiles, until they are ready for a successful make and
 #  make dist run.

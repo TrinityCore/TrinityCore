@@ -24,8 +24,6 @@ trinity_realm_CPPFLAGS = \
 $(MYSQL_INCLUDES) \
 $(POSTGRE_INCLUDES) \
 -I$(top_srcdir)/dep/include \
--I$(top_srcdir)/dep/ACE_wrappers \
--I$(top_builddir)/dep/ACE_wrappers \
 -I$(top_srcdir)/src/framework \
 -I$(top_srcdir)/src/shared \
 -D_TRINITY_REALM_CONFIG='"$(sysconfdir)/trinityrealm.conf"'
@@ -44,11 +42,10 @@ trinity_realm_LDADD =  \
 $(top_builddir)/src/shared/libshared.a \
 $(top_builddir)/src/framework/libmangosframework.a \
 $(top_builddir)/dep/src/sockets/libmangossockets.a \
-$(top_builddir)/dep/ACE_wrappers/ace/libACE.la \
 $(top_builddir)/dep/src/zthread/libZThread.la
 
 ## Linker flags
-trinity_realm_LDFLAGS = $(MYSQL_LIBS) $(POSTGRE_LIBS) $(ZLIB) $(COMPATLIB) $(SSLLIB)
+trinity_realm_LDFLAGS = $(MYSQL_LIBS) $(POSTGRE_LIBS) $(ZLIB) $(COMPATLIB) $(SSLLIB) $(ACE_LIBS)
 
 ## Additional files to install
 sysconf_DATA = \

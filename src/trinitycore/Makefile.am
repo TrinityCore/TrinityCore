@@ -24,8 +24,6 @@ trinity_core_CPPFLAGS = \
 $(MYSQL_INCLUDES) \
 $(POSTGRE_INCLUDES) \
 -I$(top_srcdir)/dep/include \
--I$(top_srcdir)/dep/ACE_wrappers \
--I$(top_builddir)/dep/ACE_wrappers \
 -I$(top_srcdir)/src/shared \
 -I$(top_srcdir)/src/framework \
 -I$(top_srcdir)/src/game \
@@ -51,7 +49,6 @@ $(top_builddir)/src/shared/vmap/libvmaps.a \
 $(top_builddir)/src/framework/libmangosframework.a \
 $(top_builddir)/dep/src/sockets/libmangossockets.a \
 $(top_builddir)/dep/src/zthread/libZThread.la \
-$(top_builddir)/dep/ACE_wrappers/ace/libACE.la \
 $(top_builddir)/dep/src/g3dlite/libg3dlite.a
 
 if USE_TSCRIPTS
@@ -61,7 +58,7 @@ trinity_core_LDADD += $(top_builddir)/src/bindings/interface/libtrinityscript.la
 endif
 
 ## Linker flags
-trinity_core_LDFLAGS = $(MYSQL_LIBS) $(POSTGRE_LIBS) $(ZLIB) $(COMPATLIB) $(SSLLIB) -export-dynamic
+trinity_core_LDFLAGS = $(MYSQL_LIBS) $(POSTGRE_LIBS) $(ZLIB) $(COMPATLIB) $(SSLLIB) $(ACE_LIBS) -export-dynamic
 
 ## Additional files to install
 sysconf_DATA = \
