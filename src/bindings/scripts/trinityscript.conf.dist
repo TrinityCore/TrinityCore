@@ -1,5 +1,5 @@
-# ScriptDev2 Configuration file
-# This file must be placed within the directory which holds mangosd.conf and realmd.conf
+# TrinityScript Configuration file
+# This file must be placed within the directory which holds TrinityCore.conf and TrinityRealm.conf
 ConfVersion=2008100201
 
 # Database connection settings for the world server.
@@ -8,7 +8,7 @@ ConfVersion=2008100201
 #                Named pipes: mySQL required adding "enable-named-pipe" to [mysqld] section my.ini
 #          .;/path/to/unix_socket;username;password;database - use Unix sockets at Unix/Linux
 #                Unix sockets: experimental, not tested
-ScriptDev2DatabaseInfo     = "127.0.0.1;3306;mangos;mangos;scriptdev2"
+TScriptDatabaseInfo = "127.0.0.1;3306;trinity;trinity;trinityscript"
 
 # Setting for current locale to use
 Locale = 0
