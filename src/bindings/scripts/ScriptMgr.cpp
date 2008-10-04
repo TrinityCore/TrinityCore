@@ -80,8 +80,8 @@ uint32 EAI_ErrorLevel;
 
 //*** End EventAI data ***
 
-DatabaseMysql ScriptDev2DB;
-Config SD2Config;
+DatabaseMysql TScriptDB;
+Config TScriptConfig;
 uint32 Locale;
 
 void FillSpellSummary();
@@ -597,41 +597,41 @@ void LoadDatabase()
 {
     //Get db string from file
     char const* dbstring = NULL;
-    if (!SD2Config.GetString("ScriptDev2DatabaseInfo", &dbstring))
-        error_log("SD2: Missing ScriptDev2 Database Info from configuration file");
+    if(!TScriptConfig.GetString("TScriptDatabaseInfo", &dbstring))
+        error_log("TSCR: Missing Trinity Script Database Info in configuration file");
 
     //Initilize connection to DB
-    if (!dbstring || !ScriptDev2DB.Initialize(dbstring))
-        error_db_log("SD2: Unable to connect to Database");
+    if(!dbstring || !TScriptDB.Initialize(dbstring))
+        error_db_log("TSCR: Unable to connect to Database");
     else
     {
         //***Preform all DB queries here***
         QueryResult *result;
 
         //Get Version information
-        result = ScriptDev2DB.PQuery("SELECT `version`"
-            "FROM `sd2_db_version`");
+        result = TScriptDB.PQuery("SELECT `version`"
+            "FROM `script_db_version`");
 
         if (result)
         {
             Field *fields = result->Fetch();
             outstring_log(" ");
-            outstring_log("SD2: Database version is: %s", fields[0].GetString());
+            outstring_log("TSCR: Database version is: %s", fields[0].GetString());
             outstring_log(" ");
             delete result;
 
-        }else error_db_log("SD2: Missing sd2_db_version information.");
+        }else error_db_log("TSCR: Missing script_db_version information.");
 
         // Drop existing Event AI Localized Text hash map
         EventAI_LocalizedTextMap.clear();
 
         // Gather EventAI Localized Texts
-        result = ScriptDev2DB.PQuery("SELECT `id`,`locale_1`,`locale_2`,`locale_3`,`locale_4`,`locale_5`,`locale_6`,`locale_7`,`locale_8`"
+        result = TScriptDB.PQuery("SELECT `id`,`locale_1`,`locale_2`,`locale_3`,`locale_4`,`locale_5`,`locale_6`,`locale_7`,`locale_8`"
             "FROM `eventai_localized_texts`");
 
         if(result)
         {
-            outstring_log("Loading EAI Localized Texts....");
+            outstring_log("TSCR: Loading EAI Localized Texts....");
             barGoLink bar(result->GetRowCount());
             uint32 count = 0;
 
@@ -661,19 +661,19 @@ void LoadDatabase()
             delete result;
 
             outstring_log("");
-            outstring_log("SD2: Loaded %u EventAI Localized Texts", count);
-        }else outstring_log("SD2: WARNING >> Loaded 0 EventAI Localized Texts. Database table `eventai_localized_texts` is empty");
+            outstring_log("TSCR: Loaded %u EventAI Localized Texts", count);
+        }else outstring_log("TSCR: WARNING >> Loaded 0 EventAI Localized Texts. Database table `eventai_localized_texts` is empty");
 
         // Drop Existing Script Localized Text Hash Map
         Script_LocalizedTextMap.clear();
 
         // Gather Script Localized Texts
-        result = ScriptDev2DB.PQuery("SELECT `id`,`locale_1`,`locale_2`,`locale_3`,`locale_4`,`locale_5`,`locale_6`,`locale_7`,`locale_8`"
+        result = TScriptDB.PQuery("SELECT `id`,`locale_1`,`locale_2`,`locale_3`,`locale_4`,`locale_5`,`locale_6`,`locale_7`,`locale_8`"
             "FROM `script_localized_texts`");
 
         if(result)
         {
-            outstring_log("Loading Script Localized Texts....");
+            outstring_log("TSCR: Loading Script Localized Texts....");
             barGoLink bar(result->GetRowCount());
             uint32 count = 0;
 
@@ -703,18 +703,18 @@ void LoadDatabase()
             delete result;
 
             outstring_log("");
-            outstring_log("SD2: Loaded %u Script Localized Texts", count);
-        }else outstring_log("SD2: WARNING >> Loaded 0 Script Localized Texts. Database table `script_localized_texts` is empty");
+            outstring_log("TSCR: Loaded %u Script Localized Texts", count);
+        }else outstring_log("TSCR: WARNING >> Loaded 0 Script Localized Texts. Database table `script_localized_texts` is empty");
 
         //Drop existing EventAI Text hash map
         EventAI_Text_Map.clear();
 
         //Gather EventAI Text Entries
-        result = ScriptDev2DB.PQuery("SELECT `id`,`text` FROM `eventai_texts`");
+        result = TScriptDB.PQuery("SELECT `id`,`text` FROM `eventai_texts`");
 
         if (result)
         {
-            outstring_log( "SD2: Loading EventAI_Texts...");
+            outstring_log( "TSCR: Loading EventAI_Texts...");
             barGoLink bar(result->GetRowCount());
             uint32 Count = 0;
 
@@ -728,7 +728,7 @@ void LoadDatabase()
                 std::string text = fields[1].GetString();
 
                 if (!strlen(text.c_str()))
-                    error_db_log("SD2: EventAI text %u is empty", i);
+                    error_db_log("TSCR: EventAI text %u is empty", i);
 
                 EventAI_Text_Map[i] = text;
                 ++Count;
@@ -738,12 +738,12 @@ void LoadDatabase()
             delete result;
 
             outstring_log("");
-            outstring_log("SD2: >> Loaded %u EventAI_Texts", Count);
+            outstring_log("TSCR: >> Loaded %u EventAI_Texts", Count);
 
-        }else outstring_log("SD2: WARNING >> Loaded 0 EventAI_Texts. DB table `EventAI_Texts` is empty.");
+        }else outstring_log("TSCR: WARNING >> Loaded 0 EventAI_Texts. DB table `EventAI_Texts` is empty.");
 
         //Gather event data
-        result = ScriptDev2DB.PQuery("SELECT `id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`"
+        result = TScriptDB.PQuery("SELECT `id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`"
             "FROM `eventai_summons`");
 
         //Drop Existing EventSummon Map
@@ -751,7 +751,7 @@ void LoadDatabase()
 
         if (result)
         {
-            outstring_log( "SD2: Loading EventAI_Summons...");
+            outstring_log( "TSCR: Loading EventAI_Summons...");
             barGoLink bar(result->GetRowCount());
             uint32 Count = 0;
 
@@ -777,12 +777,12 @@ void LoadDatabase()
 
             delete result;
             outstring_log("");
-            outstring_log("SD2: >> Loaded %u EventAI_Summons", Count);
+            outstring_log("TSCR: >> Loaded %u EventAI_Summons", Count);
 
-        }else outstring_log("SD2: WARNING >> Loaded 0 EventAI_Summons. DB table `EventAI_Summons` is empty.");
+        }else outstring_log("TSCR: WARNING >> Loaded 0 EventAI_Summons. DB table `EventAI_Summons` is empty.");
 
         //Gather event data
-        result = ScriptDev2DB.PQuery("SELECT `id`,`creature_id`,`event_type`,`event_inverse_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action1_type`,`action1_param1`,`action1_param2`,`action1_param3`,`action2_type`,`action2_param1`,`action2_param2`,`action2_param3`,`action3_type`,`action3_param1`,`action3_param2`,`action3_param3`"
+        result = TScriptDB.PQuery("SELECT `id`,`creature_id`,`event_type`,`event_inverse_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action1_type`,`action1_param1`,`action1_param2`,`action1_param3`,`action2_type`,`action2_param1`,`action2_param2`,`action2_param3`,`action3_type`,`action3_param1`,`action3_param2`,`action3_param3`"
             "FROM `eventai_scripts`");
 
         //Drop Existing EventAI List
@@ -790,7 +790,7 @@ void LoadDatabase()
 
         if (result)
         {
-            outstring_log( "SD2: Loading EventAI_Scripts...");
+            outstring_log( "TSCR: Loading EventAI_Scripts...");
             barGoLink bar(result->GetRowCount());
             uint32 Count = 0;
 
@@ -815,106 +815,106 @@ void LoadDatabase()
 
                 //Report any errors in event
                 if (temp.event_type >= EVENT_T_END)
-                    error_db_log("SD2: Event %u has incorrect event type. Maybe DB requires updated version of SD2.", i);
+                    error_db_log("TSCR: Event %u has incorrect event type. Maybe DB requires updated version of SD2.", i);
 
                 //No chance of this event occuring
                 if (temp.event_chance == 0)
-                    error_db_log("SD2: Event %u has 0 percent chance. Event will never trigger!", i);
+                    error_db_log("TSCR: Event %u has 0 percent chance. Event will never trigger!", i);
                 //Chance above 100, force it to be 100
                 if (temp.event_chance > 100)
                 {
-                    error_db_log("SD2: Creature %u are using event %u with more than 100 percent chance. Adjusting to 100 percent.", temp.creature_id, i);
+                    error_db_log("TSCR: Creature %u are using event %u with more than 100 percent chance. Adjusting to 100 percent.", temp.creature_id, i);
                     temp.event_chance = 100;
                 }
 
                 //Individual event checks
                 switch (temp.event_type)
                 {
-                case EVENT_T_HP:
-                case EVENT_T_MANA:
-                case EVENT_T_TARGET_HP:
-                    {
-                        if (temp.event_param2 > 100)
-                            error_db_log("SD2: Creature %u are using percentage event(%u) with param2 (MinPercent) > 100. Event will never trigger! ", temp.creature_id, i);
-
-                        if (temp.event_param1 <= temp.event_param2)
-                            error_db_log("SD2: Creature %u are using percentage event(%u) with param1 <= param2 (MaxPercent <= MinPercent). Event will never trigger! ", temp.creature_id, i);
-
-                        if (temp.event_flags & EFLAG_REPEATABLE && !temp.event_param3 && !temp.event_param4)
+                    case EVENT_T_HP:
+                    case EVENT_T_MANA:
+                    case EVENT_T_TARGET_HP:
                         {
-                            error_db_log("SD2: Creature %u has param3 and param4=0 (RepeatMin/RepeatMax) but cannot be repeatable without timers. Removing EFLAG_REPEATABLE for event %u.", temp.creature_id, i);
-                            temp.event_flags &= ~EFLAG_REPEATABLE;
-                        }
-                    }
-                    break;
+                            if (temp.event_param2 > 100)
+                                error_db_log("TSCR: Creature %u are using percentage event(%u) with param2 (MinPercent) > 100. Event will never trigger! ", temp.creature_id, i);
 
-                case EVENT_T_SPELLHIT:
-                    {
-                        if (temp.event_param1)
-                        {
-                            SpellEntry const* pSpell = GetSpellStore()->LookupEntry(temp.event_param1);
-                            if (!pSpell)
+                            if (temp.event_param1 <= temp.event_param2)
+                                error_db_log("TSCR: Creature %u are using percentage event(%u) with param1 <= param2 (MaxPercent <= MinPercent). Event will never trigger! ", temp.creature_id, i);
+
+                            if (temp.event_flags & EFLAG_REPEATABLE && !temp.event_param3 && !temp.event_param4)
                             {
-                                error_db_log("SD2: Creature %u has non-existant SpellID(%u) defined in event %u.", temp.creature_id, temp.event_param1, i);
-                                continue;
+                                error_db_log("TSCR: Creature %u has param3 and param4=0 (RepeatMin/RepeatMax) but cannot be repeatable without timers. Removing EFLAG_REPEATABLE for event %u.", temp.creature_id, i);
+                                temp.event_flags &= ~EFLAG_REPEATABLE;
+                            }
+                        }
+                        break;
+
+                    case EVENT_T_SPELLHIT:
+                        {
+                            if (temp.event_param1)
+                            {
+                                SpellEntry const* pSpell = GetSpellStore()->LookupEntry(temp.event_param1);
+                                if (!pSpell)
+                                {
+                                    error_db_log("TSCR: Creature %u has non-existant SpellID(%u) defined in event %u.", temp.creature_id, temp.event_param1, i);
+                                    continue;
+                                }
+
+                                if (temp.event_param2_s != -1 && temp.event_param2 != pSpell->SchoolMask)
+                                    error_db_log("TSCR: Creature %u has param1(spellId %u) but param2 is not -1 and not equal to spell's school mask. Event %u can never trigger.", temp.creature_id, temp.event_param1, i);
                             }
 
-                            if (temp.event_param2_s != -1 && temp.event_param2 != pSpell->SchoolMask)
-                                error_db_log("SD2: Creature %u has param1(spellId %u) but param2 is not -1 and not equal to spell's school mask. Event %u can never trigger.", temp.creature_id, temp.event_param1, i);
+                            //TODO: fix this system with SPELL_SCHOOL_MASK. Current complicate things, using int32(-1) instead of just 0
+                            //SPELL_SCHOOL_MASK_NONE = 0 and does not exist, thus it can not ever trigger or be used in SpellHit()
+                            if (temp.event_param2_s != -1 && temp.event_param2_s > SPELL_SCHOOL_MASK_ALL)
+                                error_db_log("TSCR: Creature %u is using invalid SpellSchoolMask(%u) defined in event %u.", temp.creature_id, temp.event_param2, i);
+
+                            if (temp.event_param4 < temp.event_param3)
+                                error_db_log("TSCR: Creature %u are using repeatable event(%u) with param4 < param3 (RepeatMax < RepeatMin). Event will never repeat.", temp.creature_id, i);
                         }
+                        break;
 
-                        //TODO: fix this system with SPELL_SCHOOL_MASK. Current complicate things, using int32(-1) instead of just 0
-                        //SPELL_SCHOOL_MASK_NONE = 0 and does not exist, thus it can not ever trigger or be used in SpellHit()
-                        if (temp.event_param2_s != -1 && temp.event_param2_s > SPELL_SCHOOL_MASK_ALL)
-                            error_db_log("SD2: Creature %u is using invalid SpellSchoolMask(%u) defined in event %u.", temp.creature_id, temp.event_param2, i);
-
-                        if (temp.event_param4 < temp.event_param3)
-                            error_db_log("SD2: Creature %u are using repeatable event(%u) with param4 < param3 (RepeatMax < RepeatMin). Event will never repeat.", temp.creature_id, i);
-                    }
-                    break;
-
-                case EVENT_T_RANGE:
-                case EVENT_T_OOC_LOS:
-                case EVENT_T_FRIENDLY_HP:
-                case EVENT_T_FRIENDLY_IS_CC:
-                case EVENT_T_FRIENDLY_MISSING_BUFF:
-                    {
-                        if (temp.event_param4 < temp.event_param3)
-                            error_db_log("SD2: Creature %u are using repeatable event(%u) with param4 < param3 (RepeatMax < RepeatMin). Event will never repeat.", temp.creature_id, i);
-                    }
-                    break;
-
-                case EVENT_T_TIMER:
-                case EVENT_T_TIMER_OOC:
-                    {
-                        if (temp.event_param2 < temp.event_param1)
-                            error_db_log("SD2: Creature %u are using timed event(%u) with param2 < param1 (InitialMax < InitialMin). Event will never repeat.", temp.creature_id, i);
-
-                        if (temp.event_param4 < temp.event_param3)
-                            error_db_log("SD2: Creature %u are using repeatable event(%u) with param4 < param3 (RepeatMax < RepeatMin). Event will never repeat.", temp.creature_id, i);
-                    }
-                    break;
-
-                case EVENT_T_KILL:
-                case EVENT_T_TARGET_CASTING:
-                    {
-                        if (temp.event_param2 < temp.event_param1)
-                            error_db_log("SD2: Creature %u are using event(%u) with param2 < param1 (RepeatMax < RepeatMin). Event will never repeat.", temp.creature_id, i);
-                    }
-                    break;
-
-                case EVENT_T_AGGRO:
-                case EVENT_T_DEATH:
-                case EVENT_T_EVADE:
-                case EVENT_T_SPAWNED:
-                    {
-                        if (temp.event_flags & EFLAG_REPEATABLE)
+                    case EVENT_T_RANGE:
+                    case EVENT_T_OOC_LOS:
+                    case EVENT_T_FRIENDLY_HP:
+                    case EVENT_T_FRIENDLY_IS_CC:
+                    case EVENT_T_FRIENDLY_MISSING_BUFF:
                         {
-                            error_db_log("SD2: Creature %u has EFLAG_REPEATABLE set. Event can never be repeatable. Removing flag for event %u.", temp.creature_id, i);
-                            temp.event_flags &= ~EFLAG_REPEATABLE;
+                            if (temp.event_param4 < temp.event_param3)
+                                error_db_log("TSCR: Creature %u are using repeatable event(%u) with param4 < param3 (RepeatMax < RepeatMin). Event will never repeat.", temp.creature_id, i);
                         }
-                    }
-                    break;
+                        break;
+
+                    case EVENT_T_TIMER:
+                    case EVENT_T_TIMER_OOC:
+                        {
+                            if (temp.event_param2 < temp.event_param1)
+                                error_db_log("TSCR: Creature %u are using timed event(%u) with param2 < param1 (InitialMax < InitialMin). Event will never repeat.", temp.creature_id, i);
+
+                            if (temp.event_param4 < temp.event_param3)
+                                error_db_log("TSCR: Creature %u are using repeatable event(%u) with param4 < param3 (RepeatMax < RepeatMin). Event will never repeat.", temp.creature_id, i);
+                        }
+                        break;
+
+                    case EVENT_T_KILL:
+                    case EVENT_T_TARGET_CASTING:
+                        {
+                            if (temp.event_param2 < temp.event_param1)
+                                error_db_log("TSCR: Creature %u are using event(%u) with param2 < param1 (RepeatMax < RepeatMin). Event will never repeat.", temp.creature_id, i);
+                        }
+                        break;
+
+                    case EVENT_T_AGGRO:
+                    case EVENT_T_DEATH:
+                    case EVENT_T_EVADE:
+                    case EVENT_T_SPAWNED:
+                        {
+                            if (temp.event_flags & EFLAG_REPEATABLE)
+                            {
+                                error_db_log("TSCR: Creature %u has EFLAG_REPEATABLE set. Event can never be repeatable. Removing flag for event %u.", temp.creature_id, i);
+                                temp.event_flags &= ~EFLAG_REPEATABLE;
+                            }
+                        }
+                        break;
                 };
 
                 for (uint32 j = 0; j < MAX_ACTIONS; j++)
@@ -927,110 +927,110 @@ void LoadDatabase()
                     //Report any errors in actions
                     switch (temp.action[j].type)
                     {
-                    case ACTION_T_SAY:
-                    case ACTION_T_YELL:
-                    case ACTION_T_TEXTEMOTE:
-                        if (GetEventAIText(temp.action[j].param1) == DEFAULT_TEXT)
-                            error_db_log("SD2: Event %u Action %u refrences missing Localized_Text entry", i, j+1);
-                        break;
+                        case ACTION_T_SAY:
+                        case ACTION_T_YELL:
+                        case ACTION_T_TEXTEMOTE:
+                            if (GetEventAIText(temp.action[j].param1) == DEFAULT_TEXT)
+                                error_db_log("TSCR: Event %u Action %u refrences missing Localized_Text entry", i, j+1);
+                            break;
 
-                    case ACTION_T_SOUND:
-                        if (!GetSoundEntriesStore()->LookupEntry(temp.action[j].param1))
-                            error_db_log("SD2: Event %u Action %u uses non-existant SoundID %u.", i, j+1, temp.action[j].param1);
-                        break;
+                        case ACTION_T_SOUND:
+                            if (!GetSoundEntriesStore()->LookupEntry(temp.action[j].param1))
+                                error_db_log("TSCR: Event %u Action %u uses non-existant SoundID %u.", i, j+1, temp.action[j].param1);
+                            break;
 
-                    case ACTION_T_RANDOM_SAY:
-                    case ACTION_T_RANDOM_YELL:
-                    case ACTION_T_RANDOM_TEXTEMOTE:
-                        if ((temp.action[j].param1 != 0xffffffff && GetEventAIText(temp.action[j].param1) == DEFAULT_TEXT) ||
-                            (temp.action[j].param2 != 0xffffffff && GetEventAIText(temp.action[j].param2) == DEFAULT_TEXT) ||
-                            (temp.action[j].param3 != 0xffffffff && GetEventAIText(temp.action[j].param3) == DEFAULT_TEXT))
-                            error_db_log("SD2: Event %u Action %u refrences missing Localized_Text entry", i, j+1);
-                        break;
+                        case ACTION_T_RANDOM_SAY:
+                        case ACTION_T_RANDOM_YELL:
+                        case ACTION_T_RANDOM_TEXTEMOTE:
+                            if ((temp.action[j].param1 != 0xffffffff && GetEventAIText(temp.action[j].param1) == DEFAULT_TEXT) ||
+                                (temp.action[j].param2 != 0xffffffff && GetEventAIText(temp.action[j].param2) == DEFAULT_TEXT) ||
+                                (temp.action[j].param3 != 0xffffffff && GetEventAIText(temp.action[j].param3) == DEFAULT_TEXT))
+                                error_db_log("TSCR: Event %u Action %u refrences missing Localized_Text entry", i, j+1);
+                            break;
 
-                    case ACTION_T_CAST:
-                        {
-                            if (!GetSpellStore()->LookupEntry(temp.action[j].param1))
-                                error_db_log("SD2: Event %u Action %u uses non-existant SpellID %u.", i, j+1, temp.action[j].param1);
+                        case ACTION_T_CAST:
+                            {
+                                if (!GetSpellStore()->LookupEntry(temp.action[j].param1))
+                                    error_db_log("TSCR: Event %u Action %u uses non-existant SpellID %u.", i, j+1, temp.action[j].param1);
 
+                                if (temp.action[j].param2 >= TARGET_T_END)
+                                    error_db_log("TSCR: Event %u Action %u uses incorrect Target type", i, j+1);
+                            }
+                            break;
+
+                        case ACTION_T_REMOVEAURASFROMSPELL:
+                            {
+                                if (!GetSpellStore()->LookupEntry(temp.action[j].param2))
+                                    error_db_log("TSCR: Event %u Action %u uses non-existant SpellID %u.", i, j+1, temp.action[j].param2);
+
+                                if (temp.action[j].param1 >= TARGET_T_END)
+                                    error_db_log("TSCR: Event %u Action %u uses incorrect Target type", i, j+1);
+                            }
+                            break;
+
+                        case ACTION_T_CASTCREATUREGO:
+                            {
+                                if (!GetSpellStore()->LookupEntry(temp.action[j].param2))
+                                    error_db_log("TSCR: Event %u Action %u uses non-existant SpellID %u.", i, j+1, temp.action[j].param2);
+
+                                if (temp.action[j].param3 >= TARGET_T_END)
+                                    error_db_log("TSCR: Event %u Action %u uses incorrect Target type", i, j+1);
+                            }
+                            break;
+
+                        //2nd param target
+                        case ACTION_T_SUMMON_ID:
+                            {
+                                if (EventAI_Summon_Map.find(temp.action[j].param3) == EventAI_Summon_Map.end())
+                                    error_db_log("TSCR: Event %u Action %u summons missing EventAI_Summon %u", i, j+1, temp.action[j].param3);
+
+                                if (temp.action[j].param2 >= TARGET_T_END)
+                                    error_db_log("TSCR: Event %u Action %u uses incorrect Target type", i, j+1);
+                            }
+                            break;
+
+                        case ACTION_T_SUMMON:
+                        case ACTION_T_THREAT_SINGLE_PCT:
+                        case ACTION_T_QUEST_EVENT:
+                        case ACTION_T_SET_UNIT_FLAG:
+                        case ACTION_T_REMOVE_UNIT_FLAG:
+                        case ACTION_T_SET_INST_DATA64:
                             if (temp.action[j].param2 >= TARGET_T_END)
-                                error_db_log("SD2: Event %u Action %u uses incorrect Target type", i, j+1);
-                        }
-                        break;
+                                error_db_log("TSCR: Event %u Action %u uses incorrect Target type", i, j+1);
+                            break;
 
-                    case ACTION_T_REMOVEAURASFROMSPELL:
-                        {
-                            if (!GetSpellStore()->LookupEntry(temp.action[j].param2))
-                                error_db_log("SD2: Event %u Action %u uses non-existant SpellID %u.", i, j+1, temp.action[j].param2);
-
-                            if (temp.action[j].param1 >= TARGET_T_END)
-                                error_db_log("SD2: Event %u Action %u uses incorrect Target type", i, j+1);
-                        }
-                        break;
-
-                    case ACTION_T_CASTCREATUREGO:
-                        {
-                            if (!GetSpellStore()->LookupEntry(temp.action[j].param2))
-                                error_db_log("SD2: Event %u Action %u uses non-existant SpellID %u.", i, j+1, temp.action[j].param2);
-
+                        //3rd param target
+                        case ACTION_T_SET_UNIT_FIELD:
                             if (temp.action[j].param3 >= TARGET_T_END)
-                                error_db_log("SD2: Event %u Action %u uses incorrect Target type", i, j+1);
-                        }
-                        break;
+                                error_db_log("TSCR: Event %u Action %u uses incorrect Target type", i, j+1);
+                            break;
 
-                    //2nd param target
-                    case ACTION_T_SUMMON_ID:
-                        {
-                            if (EventAI_Summon_Map.find(temp.action[j].param3) == EventAI_Summon_Map.end())
-                                error_db_log("SD2: Event %u Action %u summons missing EventAI_Summon %u", i, j+1, temp.action[j].param3);
+                        case ACTION_T_SET_PHASE:
+                            if (temp.action[j].param1 > 31)
+                                error_db_log("TSCR: Event %u Action %u attempts to set phase > 31. Phase mask cannot be used past phase 31.", i, j+1);
+                            break;
 
-                            if (temp.action[j].param2 >= TARGET_T_END)
-                                error_db_log("SD2: Event %u Action %u uses incorrect Target type", i, j+1);
-                        }
-                        break;
+                        case ACTION_T_INC_PHASE:
+                            if (!temp.action[j].param1)
+                                error_db_log("TSCR: Event %u Action %u is incrementing phase by 0. Was this intended?", i, j+1);
+                            break;
 
-                    case ACTION_T_SUMMON:
-                    case ACTION_T_THREAT_SINGLE_PCT:
-                    case ACTION_T_QUEST_EVENT:
-                    case ACTION_T_SET_UNIT_FLAG:
-                    case ACTION_T_REMOVE_UNIT_FLAG:
-                    case ACTION_T_SET_INST_DATA64:
-                        if (temp.action[j].param2 >= TARGET_T_END)
-                            error_db_log("SD2: Event %u Action %u uses incorrect Target type", i, j+1);
-                        break;
+                        case ACTION_T_KILLED_MONSTER:
+                            if (temp.event_type != EVENT_T_DEATH)
+                                outstring_log("TSCR WARNING: Event %u Action %u calling ACTION_T_KILLED_MONSTER outside of EVENT_T_DEATH", i, j+1);
+                            break;
 
-                    //3rd param target
-                    case ACTION_T_SET_UNIT_FIELD:
-                        if (temp.action[j].param3 >= TARGET_T_END)
-                            error_db_log("SD2: Event %u Action %u uses incorrect Target type", i, j+1);
-                        break;
+                        case ACTION_T_SET_INST_DATA:
+                            if (temp.action[j].param2 > 3)
+                                error_db_log("TSCR: Event %u Action %u attempts to set instance data above encounter state 3. Custom case?", i, j+1);
+                            break;
 
-                    case ACTION_T_SET_PHASE:
-                        if (temp.action[j].param1 > 31)
-                            error_db_log("SD2: Event %u Action %u attempts to set phase > 31. Phase mask cannot be used past phase 31.", i, j+1);
-                        break;
-
-                    case ACTION_T_INC_PHASE:
-                        if (!temp.action[j].param1)
-                            error_db_log("SD2: Event %u Action %u is incrementing phase by 0. Was this intended?", i, j+1);
-                        break;
-
-                    case ACTION_T_KILLED_MONSTER:
-                        if (temp.event_type != EVENT_T_DEATH)
-                            outstring_log("SD2 WARNING: Event %u Action %u calling ACTION_T_KILLED_MONSTER outside of EVENT_T_DEATH", i, j+1);
-                        break;
-
-                    case ACTION_T_SET_INST_DATA:
-                        if (temp.action[j].param2 > 3)
-                            error_db_log("SD2: Event %u Action %u attempts to set instance data above encounter state 3. Custom case?", i, j+1);
-                        break;
-
-                    default:
-                        break;
+                        default:
+                            break;
                     }
 
                     if (temp.action[j].type >= ACTION_T_END)
-                        error_db_log("SD2: Event %u Action %u has incorrect action type. Maybe DB requires updated version of SD2.", i, j+1);
+                        error_db_log("TSCR: Event %u Action %u has incorrect action type. Maybe DB requires updated version of SD2.", i, j+1);
                 }
 
                 //Add to list
@@ -1041,12 +1041,12 @@ void LoadDatabase()
 
             delete result;
             outstring_log("");
-            outstring_log("SD2: >> Loaded %u EventAI_Events", Count);
+            outstring_log("TSCR: >> Loaded %u EventAI_Events", Count);
 
-        }else outstring_log("SD2: WARNING >> Loaded 0 EventAI_Scripts. DB table `EventAI_Scripts` is empty.");
+        }else outstring_log("TSCR: WARNING >> Loaded 0 EventAI_Scripts. DB table `EventAI_Scripts` is empty.");
 
         // Gather Script Text 
-        result = ScriptDev2DB.PQuery("SELECT `id`, `sound`, `type`, `language`, `text`"
+        result = TScriptDB.PQuery("SELECT `id`, `sound`, `type`, `language`, `text`"
             "FROM `script_texts`;");
 
         // Drop Existing Script Text Map
@@ -1054,7 +1054,7 @@ void LoadDatabase()
 
         if(result)
         {
-            outstring_log("SD2: Loading Script Text...");
+            outstring_log("TSCR: Loading Script Text...");
             barGoLink bar(result->GetRowCount());
             uint32 count = 0;
 
@@ -1073,11 +1073,11 @@ void LoadDatabase()
                 if (temp.SoundId)
                 {
                     if (!GetSoundEntriesStore()->LookupEntry(temp.SoundId))
-                        error_db_log("SD2: Id %u in table script_texts has soundid %u but sound does not exist.",i,temp.SoundId);
+                        error_db_log("TSCR: Id %u in table script_texts has soundid %u but sound does not exist.",i,temp.SoundId);
                 }
 
                 if(!strlen(temp.Text.c_str()))
-                    error_db_log("SD2: Id %u in table script_texts has no text.", i);
+                    error_db_log("TSCR: Id %u in table script_texts has no text.", i);
 
                 Script_TextMap[i] = temp;
                 ++count;
@@ -1087,12 +1087,12 @@ void LoadDatabase()
             delete result;
 
             outstring_log("");
-            outstring_log("SD2: Loaded %u Script Texts", count);
+            outstring_log("TSCR: Loaded %u Script Texts", count);
 
-        }else outstring_log("SD2 WARNING >> Loaded 0 Script Texts. Database table `script_texts` is empty.");
+        }else outstring_log("TSCR WARNING >> Loaded 0 Script Texts. Database table `script_texts` is empty.");
 
         //Free database thread and resources
-        ScriptDev2DB.HaltDelayThread();
+        TScriptDB.HaltDelayThread();
 
         //***End DB queries***
     }
@@ -1119,67 +1119,61 @@ void ScriptsFree()
 MANGOS_DLL_EXPORT
 void ScriptsInit()
 {
-    //ScriptDev2 startup
-    outstring_log("");
-    outstring_log(" MMM  MMM    MM");
-    outstring_log("M  MM M  M  M  M");
-    outstring_log("MM    M   M   M");
-    outstring_log(" MMM  M   M  M");
-    outstring_log("   MM M   M MMMM");
-    outstring_log("MM  M M  M ");
-    outstring_log(" MMM  MMM  http://www.scriptdev2.com");
-    outstring_log("");
-
-    outstring_log("ScriptDev2 initializing %s", _FULLVERSION);
-
+    //Trinity Script startup 
+    outstring_log("|_   _| __(_)_ __ (_) |_ _   _/ ___|  ___ _ __(_)_ __ | |_ ");
+    outstring_log("  | || '__| | '_ \\| | __| | | \\___ \\ / __| \\'__| | \\'_ \\| __|");
+    outstring_log("  | || |  | | | | | | |_| |_| |___) | (__| |  | | |_) | |_ ");
+    outstring_log("  |_||_|  |_|_| |_|_|\\__|\\__, |____/ \\___|_|  |_| .__/ \\__|");
+    outstring_log("                         |___/                  |_|        ");
+    outstring_log("Trinity Script initializing %s", _FULLVERSION);
     outstring_log("");
 
     //Get configuration file
-    if (!SD2Config.SetSource(_TRINITY_SCRIPT_CONFIG))
-        error_log("SD2: Unable to open configuration file, Database will be unaccessible");
-    else outstring_log("SD2: Using configuration file %s", _TRINITY_SCRIPT_CONFIG);
+    if (!TScriptConfig.SetSource(_TRINITY_SCRIPT_CONFIG))
+        error_log("TSCR: Unable to open configuration file, Database will be unaccessible");
+    else outstring_log("TSCR: Using configuration file %s", _TRINITY_SCRIPT_CONFIG);
 
 
     //Check config file version
-    if (SD2Config.GetIntDefault("ConfVersion", 0) != _TSCRIPTCONFVERSION)
-        error_log("SD2: Configuration file version doesn't match expected version. Some config variables may be wrong or missing.");
+    if (TScriptConfig.GetIntDefault("ConfVersion", 0) != _TSCRIPTCONFVERSION)
+        error_log("TSCR: Configuration file version doesn't match expected version. Some config variables may be wrong or missing.");
 
     //Locale
-    Locale = SD2Config.GetIntDefault("Locale", 0);
+    Locale = TScriptConfig.GetIntDefault("Locale", 0);
 
     if (Locale > 8)
     {
         Locale = 0;
-        error_log("SD2: Locale set to invalid language id. Defaulting to 0.");
+        error_log("TSCR: Locale set to invalid language id. Defaulting to 0.");
     }
 
-    outstring_log("SD2: Using locale %u", Locale);
+    outstring_log("TSCR: Using locale %u", Locale);
     outstring_log("");
 
-    EAI_ErrorLevel = SD2Config.GetIntDefault("EAIErrorLevel", 1);
+    EAI_ErrorLevel = TScriptConfig.GetIntDefault("EAIErrorLevel", 1);
 
     switch (EAI_ErrorLevel)
     {
-    case 0:
-        outstring_log("SD2: EventAI Error Reporting level set to 0 (Startup Errors only)");
-        break;
+        case 0:
+            outstring_log("TSCR: EventAI Error Reporting level set to 0 (Startup Errors only)");
+            break;
 
-    case 1:
-        outstring_log("SD2: EventAI Error Reporting level set to 1 (Startup errors and Runtime event errors)");
-        break;
+        case 1:
+            outstring_log("TSCR: EventAI Error Reporting level set to 1 (Startup errors and Runtime event errors)");
+            break;
 
-    case 2:
-        outstring_log("SD2: EventAI Error Reporting level set to 2 (Startup errors, Runtime event errors, and Creation errors)");
-        break;
+        case 2:
+            outstring_log("TSCR: EventAI Error Reporting level set to 2 (Startup errors, Runtime event errors, and Creation errors)");
+            break;
 
-    default:
-        outstring_log("SD2: Unknown EventAI Error Reporting level. Defaulting to 1 (Startup errors and Runtime event errors)");
-        EAI_ErrorLevel = 1;
-        break;
+        default:
+            outstring_log("TSCR: Unknown EventAI Error Reporting level. Defaulting to 1 (Startup errors and Runtime event errors)");
+            EAI_ErrorLevel = 1;
+            break;
     }
     outstring_log("");
 
-    //Load database (must be called after SD2Config.SetSource)
+    //Load database (must be called after TScriptConfig.SetSource)
     LoadDatabase();
 
     nrscripts = 0;
@@ -1697,7 +1691,7 @@ void ScriptsInit()
 
     // -------------------
 
-    outstring_log("SD2: Loaded %u C++ Scripts", nrscripts);
+    outstring_log("TSCR: Loaded %u C++ Scripts", nrscripts);
     outstring_log("");
 }
 
@@ -1707,7 +1701,7 @@ void ScriptsInit()
 const char* GetEventAILocalizedText(uint32 entry)
 {
     if (entry == 0xffffffff)
-        error_log("SD2: Entry = -1, GetEventAILocalizedText should not be called in this case.");
+        error_log("TSCR: Entry = -1, GetEventAILocalizedText should not be called in this case.");
 
     const char* temp = NULL;
 
@@ -1715,7 +1709,7 @@ const char* GetEventAILocalizedText(uint32 entry)
 
     if (i == EventAI_LocalizedTextMap.end())
     {
-        error_log("SD2: EventAI Localized Text %u not found", entry);
+        error_log("TSCR: EventAI Localized Text %u not found", entry);
         return DEFAULT_TEXT;
     }
 
@@ -1768,7 +1762,7 @@ const char* GetScriptLocalizedText(uint32 entry)
 
     if (i == Script_LocalizedTextMap.end())
     {
-        error_log("SD2: Script Localized Text %u not found", entry);
+        error_log("TSCR: Script Localized Text %u not found", entry);
         return DEFAULT_TEXT;
     }
 
@@ -1816,14 +1810,14 @@ const char* GetScriptLocalizedText(uint32 entry)
 const char* GetEventAIText(uint32 entry)
 {
     if(entry == 0xffffffff)
-        error_log("SD2: Entry = -1, GetEventAIText should not be called in this case.");
+        error_log("TSCR: Entry = -1, GetEventAIText should not be called in this case.");
 
     const char* str = NULL;
 
     HM_NAMESPACE::hash_map<uint32, std::string>::iterator itr = EventAI_Text_Map.find(entry);
     if(itr == EventAI_Text_Map.end())
     {
-        error_log("SD2 ERROR: Unable to find EventAI Text %u", entry);
+        error_log("TSCR: Unable to find EventAI Text %u", entry);
         return DEFAULT_TEXT;
     }
 
@@ -1842,7 +1836,7 @@ void ProcessScriptText(uint32 id, WorldObject* pSource, Unit* target)
 {
     if (!pSource)
     {
-        error_log("SD2: ProcessScriptText invalid Source pointer.");
+        error_log("TSCR: ProcessScriptText invalid Source pointer.");
         return;
     }
 
@@ -1850,7 +1844,7 @@ void ProcessScriptText(uint32 id, WorldObject* pSource, Unit* target)
 
     if (i == Script_TextMap.end())
     {
-        error_log("SD2: ProcessScriptText could not find id %u.",id);
+        error_log("TSCR: ProcessScriptText could not find id %u.",id);
         return;
     }
 
@@ -1864,7 +1858,7 @@ void ProcessScriptText(uint32 id, WorldObject* pSource, Unit* target)
             pSource->SendMessageToSet(&data,false);
         }
         else
-            error_log("SD2: ProcessScriptText id %u tried to process invalid soundid %u.",id,(*i).second.SoundId);
+            error_log("TSCR: ProcessScriptText id %u tried to process invalid soundid %u.",id,(*i).second.SoundId);
     }
 
     switch((*i).second.Type)
@@ -1889,14 +1883,14 @@ void ProcessScriptText(uint32 id, WorldObject* pSource, Unit* target)
             {
                 if (target && target->GetTypeId() == TYPEID_PLAYER)
                     pSource->MonsterWhisper((*i).second.Text.c_str(), target->GetGUID());
-                else error_log("SD2: ProcessScriptText id %u cannot whisper without target unit (TYPEID_PLAYER).", id);
+                else error_log("TSCR: ProcessScriptText id %u cannot whisper without target unit (TYPEID_PLAYER).", id);
             }break;
 
         case CHAT_TYPE_BOSS_WHISPER:
             {
                 if (target && target->GetTypeId() == TYPEID_PLAYER)
                     pSource->MonsterWhisper((*i).second.Text.c_str(), target->GetGUID(), true);
-                else error_log("SD2: ProcessScriptText id %u cannot whisper without target unit (TYPEID_PLAYER).", id);
+                else error_log("TSCR: ProcessScriptText id %u cannot whisper without target unit (TYPEID_PLAYER).", id);
             }break;
     }
 }
@@ -1930,7 +1924,7 @@ bool GossipHello ( Player * player, Creature *_Creature )
 MANGOS_DLL_EXPORT
 bool GossipSelect( Player *player, Creature *_Creature, uint32 sender, uint32 action )
 {
-    debug_log("SD2: Gossip selection, sender: %d, action: %d",sender, action);
+    debug_log("TSCR: Gossip selection, sender: %d, action: %d",sender, action);
 
     Script *tmpscript = GetScriptByName(_Creature->GetScriptName());
     if(!tmpscript || !tmpscript->pGossipSelect) return false;
@@ -1942,7 +1936,7 @@ bool GossipSelect( Player *player, Creature *_Creature, uint32 sender, uint32 ac
 MANGOS_DLL_EXPORT
 bool GossipSelectWithCode( Player *player, Creature *_Creature, uint32 sender, uint32 action, const char* sCode )
 {
-    debug_log("SD2: Gossip selection with code, sender: %d, action: %d",sender, action);
+    debug_log("TSCR: Gossip selection with code, sender: %d, action: %d",sender, action);
 
     Script *tmpscript = GetScriptByName(_Creature->GetScriptName());
     if(!tmpscript || !tmpscript->pGossipSelectWithCode) return false;

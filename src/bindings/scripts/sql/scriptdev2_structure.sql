@@ -99,7 +99,7 @@ PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Localized Script Text';
 
 
-DROP TABLE IF EXISTS `sd2_db_version`;
-CREATE TABLE `sd2_db_version` (
-`version` varchar(255) NOT NULL default '' COMMENT 'Database version string'
+DROP TABLE IF EXISTS `script_db_version`;
+CREATE TABLE `script_db_version` (
+`version` varchar(255) NOT NULL default '' COMMENT 'Script Database version string'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;

@@ -26,7 +26,7 @@ class WorldObject;
 //MAX visible range (size of grid)
 #define VISIBLE_RANGE   (166.0f)
 
-#define DEFAULT_TEXT    "<ScriptDev2 Text Entry Missing!>"
+#define DEFAULT_TEXT    "<Trinity Script Text Entry Missing!>"
 
 //
 struct Script
