@@ -17,7 +17,11 @@
 ## Process this file with automake to produce Makefile.in
 
 ## Sub-directories to parse
-SUBDIRS = include lib src ACE_wrappers
+SUBDIRS = include lib src
+
+if TRI_BUILD_ACE
+SUBDIRS += ACE_wrappers
+endif
 
 ## Additional files to include when running 'make dist'
 #  Nothing yet.

@@ -30,8 +30,6 @@ libshared_a_CPPFLAGS = \
 $(MYSQL_INCLUDES) \
 $(POSTGRE_INCLUDES) \
 -I$(top_srcdir)/dep/include \
--I$(top_srcdir)/dep/ACE_wrappers \
--I$(top_builddir)/dep/ACE_wrappers \
 -I$(top_srcdir)/src/framework
 
 #  libmangosshared library will later be reused by ...
