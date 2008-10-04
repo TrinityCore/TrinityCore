@@ -362,10 +362,10 @@ class World
         void SetPlayerLimit(int32 limit, bool needUpdate = false);
 
         //player Queue
-        typedef std::list<WorldSocket*> Queue;
-        void AddQueuedPlayer(WorldSocket* Socket);
-        void RemoveQueuedPlayer(WorldSocket* Socket);
-        int32 GetQueuePos(WorldSocket* Socket);
+        typedef std::list<WorldSession*> Queue;
+        void AddQueuedPlayer(WorldSession*);
+        void RemoveQueuedPlayer(WorldSession*);
+        int32 GetQueuePos(WorldSession*);
         uint32 GetQueueSize() const { return m_QueuedPlayer.size(); }
 
         /// \todo Actions on m_allowMovement still to be implemented
@@ -525,6 +525,10 @@ class World
 
         //Player Queue
         Queue m_QueuedPlayer;
+        
+        //sessions that are added async
+        void AddSession_(WorldSession* s);
+        ZThread::LockedQueue<WorldSession*, ZThread::FastMutex> addSessQueue;
 };
 
 extern uint32 realmID;

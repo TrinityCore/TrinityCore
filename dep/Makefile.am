@@ -17,7 +17,7 @@
 ## Process this file with automake to produce Makefile.in
 
 ## Sub-directories to parse
-SUBDIRS = include lib src
+SUBDIRS = include lib src ACE_wrappers
 
 ## Additional files to include when running 'make dist'
 #  Nothing yet.

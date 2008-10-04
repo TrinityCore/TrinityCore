@@ -132,6 +132,13 @@ ObjectMgr::~ObjectMgr()
 
     for(ItemMap::iterator itr = mAitems.begin(); itr != mAitems.end(); ++itr)
         delete itr->second;
+
+    for (CacheVendorItemMap::iterator itr = m_mCacheVendorItemMap.begin(); itr != m_mCacheVendorItemMap.end(); ++itr)
+        for (VendorItemList::iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
+            delete (*itr2);
+
+    for (CacheTrainerSpellMap::iterator itr = m_mCacheTrainerSpellMap.begin(); itr != m_mCacheTrainerSpellMap.end(); ++itr)
+        itr->second.Clear();
 }
 
 Group * ObjectMgr::GetGroupByLeader(const uint64 &guid) const
@@ -254,12 +261,12 @@ uint32 ObjectMgr::GetAuctionOutBid(uint32 currentBid)
 //does not clear ram
 void ObjectMgr::SendAuctionWonMail( AuctionEntry *auction )
 {
-    Item *pItem = objmgr.GetAItem(auction->item_guidlow);
+    Item *pItem = GetAItem(auction->item_guidlow);
     if(!pItem)
         return;
 
     uint64 bidder_guid = MAKE_NEW_GUID(auction->bidder, 0, HIGHGUID_PLAYER);
-    Player *bidder = objmgr.GetPlayer(bidder_guid);
+    Player *bidder = GetPlayer(bidder_guid);
 
     uint32 bidder_accId = 0;
 
@@ -327,7 +334,7 @@ void ObjectMgr::SendAuctionWonMail( AuctionEntry *auction )
         if (bidder)
             bidder->GetSession()->SendAuctionBidderNotification( auction->location, auction->Id, bidder_guid, 0, 0, auction->item_template);
         else
-            objmgr.RemoveAItem(pItem->GetGUIDLow());        // we have to remove the item, before we delete it !!
+            RemoveAItem(pItem->GetGUIDLow());               // we have to remove the item, before we delete it !!
 
         // will delete item or place to receiver mail list
         WorldSession::SendMailTo(bidder, MAIL_AUCTION, MAIL_STATIONERY_AUCTION, auction->location, auction->bidder, msgAuctionWonSubject.str(), itemTextId, &mi, 0, 0, MAIL_CHECK_MASK_AUCTION);
@@ -336,7 +343,7 @@ void ObjectMgr::SendAuctionWonMail( AuctionEntry *auction )
     else
     {
         CharacterDatabase.PExecute("DELETE FROM item_instance WHERE guid='%u'", pItem->GetGUIDLow());
-        objmgr.RemoveAItem(pItem->GetGUIDLow());            // we have to remove the item, before we delete it !!
+        RemoveAItem(pItem->GetGUIDLow());                   // we have to remove the item, before we delete it !!
         delete pItem;
     }
 }
@@ -344,7 +351,7 @@ void ObjectMgr::SendAuctionWonMail( AuctionEntry *auction )
 void ObjectMgr::SendAuctionSalePendingMail( AuctionEntry * auction )
 {
     uint64 owner_guid = MAKE_NEW_GUID(auction->owner, 0, HIGHGUID_PLAYER);
-    Player *owner = objmgr.GetPlayer(owner_guid);
+    Player *owner = GetPlayer(owner_guid);
 
     // owner exist (online or offline)
     if(owner || GetPlayerAccountIdByGUID(owner_guid))
@@ -375,7 +382,7 @@ void ObjectMgr::SendAuctionSalePendingMail( AuctionEntry * auction )
 void ObjectMgr::SendAuctionSuccessfulMail( AuctionEntry * auction )
 {
     uint64 owner_guid = MAKE_NEW_GUID(auction->owner, 0, HIGHGUID_PLAYER);
-    Player *owner = objmgr.GetPlayer(owner_guid);
+    Player *owner = GetPlayer(owner_guid);
 
     uint32 owner_accId = 0;
     if(!owner)
@@ -414,7 +421,7 @@ void ObjectMgr::SendAuctionSuccessfulMail( AuctionEntry * auction )
 //does not clear ram
 void ObjectMgr::SendAuctionExpiredMail( AuctionEntry * auction )
 {                                                           //return an item in auction to its owner by mail
-    Item *pItem = objmgr.GetAItem(auction->item_guidlow);
+    Item *pItem = GetAItem(auction->item_guidlow);
     if(!pItem)
     {
         sLog.outError("Auction item (GUID: %u) not found, and lost.",auction->item_guidlow);
@@ -422,7 +429,7 @@ void ObjectMgr::SendAuctionExpiredMail( AuctionEntry * auction )
     }
 
     uint64 owner_guid = MAKE_NEW_GUID(auction->owner, 0, HIGHGUID_PLAYER);
-    Player *owner = objmgr.GetPlayer(owner_guid);
+    Player *owner = GetPlayer(owner_guid);
 
     uint32 owner_accId = 0;
     if(!owner)
@@ -437,7 +444,7 @@ void ObjectMgr::SendAuctionExpiredMail( AuctionEntry * auction )
         if ( owner )
             owner->GetSession()->SendAuctionOwnerNotification( auction );
         else
-            objmgr.RemoveAItem(pItem->GetGUIDLow());        // we have to remove the item, before we delete it !!
+            RemoveAItem(pItem->GetGUIDLow());               // we have to remove the item, before we delete it !!
 
         MailItemsInfo mi;
         mi.AddItem(auction->item_guidlow, auction->item_template, pItem);
@@ -450,7 +457,7 @@ void ObjectMgr::SendAuctionExpiredMail( AuctionEntry * auction )
     else
     {
         CharacterDatabase.PExecute("DELETE FROM item_instance WHERE guid='%u'",pItem->GetGUIDLow());
-        objmgr.RemoveAItem(pItem->GetGUIDLow());            // we have to remove the item, before we delete it !!
+        RemoveAItem(pItem->GetGUIDLow());                   // we have to remove the item, before we delete it !!
         delete pItem;
     }
 }
@@ -1736,7 +1743,7 @@ void ObjectMgr::LoadAuctionItems()
         uint32 item_guid        = fields[0].GetUInt32();
         uint32 item_template    = fields[1].GetUInt32();
 
-        ItemPrototype const *proto = objmgr.GetItemPrototype(item_template);
+        ItemPrototype const *proto = GetItemPrototype(item_template);
 
         if(!proto)
         {
@@ -3687,7 +3694,7 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
             }
             case SCRIPT_COMMAND_QUEST_EXPLORED:
             {
-                Quest const* quest = objmgr.GetQuestTemplate(tmp.datalong);
+                Quest const* quest = GetQuestTemplate(tmp.datalong);
                 if(!quest)
                 {
                     sLog.outErrorDb("Table `%s` has invalid quest (ID: %u) in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id %u",tablename,tmp.datalong,tmp.id);
@@ -3767,7 +3774,7 @@ void ObjectMgr::LoadGameObjectScripts()
 
 void ObjectMgr::LoadQuestEndScripts()
 {
-    objmgr.LoadScripts(sQuestEndScripts,  "quest_end_scripts");
+    LoadScripts(sQuestEndScripts,  "quest_end_scripts");
 
     // check ids
     for(ScriptMapMap::const_iterator itr = sQuestEndScripts.begin(); itr != sQuestEndScripts.end(); ++itr)
@@ -3779,7 +3786,7 @@ void ObjectMgr::LoadQuestEndScripts()
 
 void ObjectMgr::LoadQuestStartScripts()
 {
-    objmgr.LoadScripts(sQuestStartScripts,"quest_start_scripts");
+    LoadScripts(sQuestStartScripts,"quest_start_scripts");
 
     // check ids
     for(ScriptMapMap::const_iterator itr = sQuestStartScripts.begin(); itr != sQuestStartScripts.end(); ++itr)
@@ -3791,7 +3798,7 @@ void ObjectMgr::LoadQuestStartScripts()
 
 void ObjectMgr::LoadSpellScripts()
 {
-    objmgr.LoadScripts(sSpellScripts, "spell_scripts");
+    LoadScripts(sSpellScripts, "spell_scripts");
 
     // check ids
     for(ScriptMapMap::const_iterator itr = sSpellScripts.begin(); itr != sSpellScripts.end(); ++itr)
@@ -3826,7 +3833,7 @@ void ObjectMgr::LoadSpellScripts()
 
 void ObjectMgr::LoadEventScripts()
 {
-    objmgr.LoadScripts(sEventScripts, "event_scripts");
+    LoadScripts(sEventScripts, "event_scripts");
 
     std::set<uint32> evt_scripts;
     // Load all possible script entries from gameobjects
@@ -4230,7 +4237,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 
         Player *pl = 0;
         if (serverUp)
-            pl = objmgr.GetPlayer((uint64)m->receiver);
+            pl = GetPlayer((uint64)m->receiver);
         if (pl && pl->m_mailsLoaded)
         {                                                   //this code will run very improbably (the time is between 4 and 5 am, in game is online a player, who has old mail
             //his in mailbox and he has already listed his mails )
@@ -4503,20 +4510,20 @@ uint16 ObjectMgr::GetTaxiMount( uint32 id, uint32 team )
         if (team == ALLIANCE)
         {
             mount_entry = node->alliance_mount_type;
-            CreatureInfo const *ci = objmgr.GetCreatureTemplate(mount_entry);
+            CreatureInfo const *ci = GetCreatureTemplate(mount_entry);
             if(ci)
                 mount_id = ci->DisplayID_A;
         }
         if (team == HORDE)
         {
             mount_entry = node->horde_mount_type;
-            CreatureInfo const *ci = objmgr.GetCreatureTemplate(mount_entry);
+            CreatureInfo const *ci = GetCreatureTemplate(mount_entry);
             if(ci)
                 mount_id = ci->DisplayID_H;
         }
     }
 
-    CreatureModelInfo const *minfo = objmgr.GetCreatureModelInfo(mount_id);
+    CreatureModelInfo const *minfo = GetCreatureModelInfo(mount_id);
     if(!minfo)
     {
         sLog.outErrorDb("Taxi mount (Entry: %u) for taxi node (Id: %u) for team %u has model %u not found in table `creature_model_info`, can't load. ",
@@ -4808,7 +4815,7 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 
         if(at.requiredItem)
         {
-            ItemPrototype const *pProto = objmgr.GetItemPrototype(at.requiredItem);
+            ItemPrototype const *pProto = GetItemPrototype(at.requiredItem);
             if(!pProto)
             {
                 sLog.outError("Key item %u does not exist for trigger %u, removing key requirement.", at.requiredItem, Trigger_ID);
@@ -4817,7 +4824,7 @@ void ObjectMgr::LoadAreaTriggerTeleports()
         }
         if(at.requiredItem2)
         {
-            ItemPrototype const *pProto = objmgr.GetItemPrototype(at.requiredItem2);
+            ItemPrototype const *pProto = GetItemPrototype(at.requiredItem2);
             if(!pProto)
             {
                 sLog.outError("Second item %u not exist for trigger %u, remove key requirement.", at.requiredItem2, Trigger_ID);
@@ -4827,7 +4834,7 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 
         if(at.heroicKey)
         {
-            ItemPrototype const *pProto = objmgr.GetItemPrototype(at.heroicKey);
+            ItemPrototype const *pProto = GetItemPrototype(at.heroicKey);
             if(!pProto)
             {
                 sLog.outError("Heroic key item %u not exist for trigger %u, remove key requirement.", at.heroicKey, Trigger_ID);
@@ -4837,7 +4844,7 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 
         if(at.heroicKey2)
         {
-            ItemPrototype const *pProto = objmgr.GetItemPrototype(at.heroicKey2);
+            ItemPrototype const *pProto = GetItemPrototype(at.heroicKey2);
             if(!pProto)
             {
                 sLog.outError("Heroic second key item %u not exist for trigger %u, remove key requirement.", at.heroicKey2, Trigger_ID);
@@ -5445,7 +5452,7 @@ std::string ObjectMgr::GeneratePetName(uint32 entry)
 
     if(list0.empty() || list1.empty())
     {
-        CreatureInfo const *cinfo = objmgr.GetCreatureTemplate(entry);
+        CreatureInfo const *cinfo = GetCreatureTemplate(entry);
         char* petname = GetPetName(cinfo->family, sWorld.GetDefaultDbcLocale());
         if(!petname)
             petname = cinfo->Name;
@@ -5539,10 +5546,10 @@ void ObjectMgr::LoadReputationOnKill()
         repOnKill.repfaction1          = fields[1].GetUInt32();
         repOnKill.repfaction2          = fields[2].GetUInt32();
         repOnKill.is_teamaward1        = fields[3].GetBool();
-        repOnKill.reputration_max_cap1 = fields[4].GetUInt32();
+        repOnKill.reputation_max_cap1  = fields[4].GetUInt32();
         repOnKill.repvalue1            = fields[5].GetInt32();
         repOnKill.is_teamaward2        = fields[6].GetBool();
-        repOnKill.reputration_max_cap2 = fields[7].GetUInt32();
+        repOnKill.reputation_max_cap2  = fields[7].GetUInt32();
         repOnKill.repvalue2            = fields[8].GetInt32();
         repOnKill.team_dependent       = fields[9].GetUInt8();
 
@@ -6097,12 +6104,12 @@ void ObjectMgr::LoadGameObjectForQuests()
     sLog.outString( ">> Loaded %u GameObject for quests", count );
 }
 
-bool ObjectMgr::LoadMangosStrings(DatabaseType& db, char const* table, bool positive_entries)
+bool ObjectMgr::LoadMangosStrings(DatabaseType& db, char const* table, int32 min_value, int32 max_value)
 {
     // cleanup affected map part for reloading case
     for(MangosStringLocaleMap::iterator itr = mMangosStringLocaleMap.begin(); itr != mMangosStringLocaleMap.end();)
     {
-        if(itr->first > 0 && positive_entries || itr->first < 0 && !positive_entries)
+        if(itr->first >= min_value && itr->first <= max_value)
         {
             MangosStringLocaleMap::iterator itr2 = itr;
             ++itr;
@@ -6121,12 +6128,14 @@ bool ObjectMgr::LoadMangosStrings(DatabaseType& db, char const* table, bool posi
         bar.step();
 
         sLog.outString("");
-        if(positive_entries)                                // error only in case internal strings
+        if(min_value > 0)                                   // error only in case internal strings
             sLog.outErrorDb(">> Loaded 0 mangos strings. DB table `%s` is empty. Cannot continue.",table);
         else
-            sLog.outString(">> Loaded 0 mangos strings. DB table `%s` is empty.",table);
+            sLog.outString(">> Loaded 0 string templates. DB table `%s` is empty.",table);
         return false;
     }
+
+    uint32 count = 0;
 
     barGoLink bar(result->GetRowCount());
 
@@ -6142,27 +6151,24 @@ bool ObjectMgr::LoadMangosStrings(DatabaseType& db, char const* table, bool posi
             sLog.outString("Table `%s` contain reserved entry 0, ignored.",table);
             continue;
         }
-        else if(entry < 0)
+        else if(entry < min_value || entry > max_value)
         {
-            if(positive_entries)
-            {
-                sLog.outString("Table `%s` contain unexpected negative entry %i, ignored.",table,entry);
-                continue;
-            }
-        }
-        else
-        {
-            if(!positive_entries)
-            {
-                sLog.outString("Table `%s` contain unexpected positive entry %i, ignored.",table,entry);
-                continue;
-            }
+            int32 start = min_value > 0 ? min_value : max_value;
+            int32 end   = min_value > 0 ? max_value : min_value;
+            sLog.outString("Table `%s` contain entry %i out of allowed range (%d - %d), ignored.",table,entry,start,end);
+            continue;
         }
 
         MangosStringLocale& data = mMangosStringLocaleMap[entry];
 
-        if(data.Content.size() < 1)
-            data.Content.resize(1);
+        if(data.Content.size() > 0)
+        {
+            sLog.outString("Table `%s` contain data for already loaded entry  %i (from another table?), ignored.",table,entry);
+            continue;
+        }
+
+        data.Content.resize(1);
+        ++count;
 
         // 0 -> default, idx in to idx+1
         data.Content[0] = fields[1].GetCppString();
@@ -6188,7 +6194,11 @@ bool ObjectMgr::LoadMangosStrings(DatabaseType& db, char const* table, bool posi
     delete result;
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u MaNGOS strings from table %s", mMangosStringLocaleMap.size(),table);
+    if(min_value > 0)                                       // internal mangos strings
+        sLog.outString( ">> Loaded %u MaNGOS strings from table %s", count,table);
+    else
+        sLog.outString( ">> Loaded %u string templates from %s", count,table);
+
     return true;
 }
 
@@ -6499,14 +6509,350 @@ SkillRangeType GetSkillRangeType(SkillLineEntry const *pSkill, bool racial)
     }
 }
 
+void ObjectMgr::LoadGameTele()
+{
+    m_GameTeleMap.clear();                                  // for relaod case
+
+    uint32 count = 0;
+    QueryResult *result = WorldDatabase.Query("SELECT id, position_x, position_y, position_z, orientation, map, name FROM game_tele");
+
+    if( !result )
+    {
+        barGoLink bar( 1 );
+
+        bar.step();
+
+        sLog.outString();
+        sLog.outErrorDb(">> Loaded `game_tele`, table is empty!");
+        return;
+    }
+
+    barGoLink bar( result->GetRowCount() );
+
+    do
+    {
+        bar.step();
+
+        Field *fields = result->Fetch();
+
+        uint32 id         = fields[0].GetUInt32();
+
+        GameTele gt;
+
+        gt.position_x     = fields[1].GetFloat();
+        gt.position_y     = fields[2].GetFloat();
+        gt.position_z     = fields[3].GetFloat();
+        gt.orientation    = fields[4].GetFloat();
+        gt.mapId          = fields[5].GetUInt32();
+        gt.name           = fields[6].GetCppString();
+
+        if(!MapManager::IsValidMapCoord(gt.mapId,gt.position_x,gt.position_y,gt.position_z,gt.orientation))
+        {
+            sLog.outErrorDb("Wrong position for id %u (name: %s) in `game_tele` table, ignoring.",id,gt.name.c_str());
+            continue;
+        }
+
+        if(!Utf8toWStr(gt.name,gt.wnameLow))
+        {
+            sLog.outErrorDb("Wrong UTF8 name for id %u in `game_tele` table, ignoring.",id);
+            continue;
+        }
+
+        wstrToLower( gt.wnameLow );
+
+        m_GameTeleMap[id] = gt;
+
+        ++count;
+    }
+    while (result->NextRow());
+
+    delete result;
+
+    sLog.outString();
+    sLog.outString( ">> Loaded %u game tele's", count );
+}
+
+GameTele const* ObjectMgr::GetGameTele(std::string name) const
+{
+    // explicit name case
+    std::wstring wname;
+    if(!Utf8toWStr(name,wname))
+        return false;
+
+    // converting string that we try to find to lower case
+    wstrToLower( wname );
+
+    for(GameTeleMap::const_iterator itr = m_GameTeleMap.begin(); itr != m_GameTeleMap.end(); ++itr)
+        if(itr->second.wnameLow == wname)
+            return &itr->second;
+
+    return NULL;
+}
+
+bool ObjectMgr::AddGameTele(GameTele& tele)
+{
+    // find max id
+    uint32 new_id = 0;
+    for(GameTeleMap::const_iterator itr = m_GameTeleMap.begin(); itr != m_GameTeleMap.end(); ++itr)
+        if(itr->first > new_id)
+            new_id = itr->first;
+    
+    // use next
+    ++new_id;
+
+    if(!Utf8toWStr(tele.name,tele.wnameLow))
+        return false;
+
+    wstrToLower( tele.wnameLow );
+
+    m_GameTeleMap[new_id] = tele;
+
+    return WorldDatabase.PExecuteLog("INSERT INTO game_tele (id,position_x,position_y,position_z,orientation,map,name) VALUES (%u,%f,%f,%f,%f,%d,'%s')",
+        new_id,tele.position_x,tele.position_y,tele.position_z,tele.orientation,tele.mapId,tele.name.c_str());
+}
+
+bool ObjectMgr::DeleteGameTele(std::string name)
+{
+    // explicit name case
+    std::wstring wname;
+    if(!Utf8toWStr(name,wname))
+        return false;
+
+    // converting string that we try to find to lower case
+    wstrToLower( wname );
+
+    for(GameTeleMap::iterator itr = m_GameTeleMap.begin(); itr != m_GameTeleMap.end(); ++itr)
+    {
+        if(itr->second.wnameLow == wname)
+        {
+            WorldDatabase.PExecuteLog("DELETE FROM game_tele WHERE name = '%s'",itr->second.name.c_str());
+            m_GameTeleMap.erase(itr);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void ObjectMgr::LoadTrainerSpell()
+{
+    // For reload case 
+    for (CacheTrainerSpellMap::iterator itr = m_mCacheTrainerSpellMap.begin(); itr != m_mCacheTrainerSpellMap.end(); ++itr)
+        itr->second.Clear();
+    m_mCacheTrainerSpellMap.clear();
+
+    QueryResult *result = WorldDatabase.PQuery("SELECT entry, spell,spellcost,reqskill,reqskillvalue,reqlevel FROM npc_trainer");
+
+    if( !result )
+    {
+        barGoLink bar( 1 );
+
+        bar.step();
+
+        sLog.outString();
+        sLog.outErrorDb(">> Loaded `npc_trainer`, table is empty!");
+        return;
+    }
+
+    barGoLink bar( result->GetRowCount() );
+
+    uint32 count = 0,entry,spell;
+    do
+    {
+        bar.step();
+
+        Field* fields = result->Fetch();
+
+        entry  = fields[0].GetUInt32();
+        spell  = fields[1].GetUInt32();
+
+        if(!GetCreatureTemplate(entry))
+        {
+            sLog.outErrorDb("Table `npc_trainer` have entry for not existed creature template (Entry: %u), ignore", entry);
+            continue;
+        }
+
+        SpellEntry const *spellinfo = sSpellStore.LookupEntry(spell);
+        if(!spellinfo)
+        {
+            sLog.outErrorDb("Table `npc_trainer` for Trainer (Entry: %u ) has non existing spell %u, ignore", entry,spell);
+            continue;
+        }
+
+        if(!SpellMgr::IsSpellValid(spellinfo))
+        {
+            sLog.outErrorDb("Table `npc_trainer` for Trainer (Entry: %u) has broken learning spell %u, ignore", entry, spell);
+            continue;
+        }
+
+        TrainerSpell* pTrainerSpell = new TrainerSpell();
+        pTrainerSpell->spell         = spell;
+        pTrainerSpell->spellcost     = fields[2].GetUInt32();
+        pTrainerSpell->reqskill      = fields[3].GetUInt32();
+        pTrainerSpell->reqskillvalue = fields[4].GetUInt32();
+        pTrainerSpell->reqlevel      = fields[5].GetUInt32();
+
+        if(!pTrainerSpell->reqlevel)
+            pTrainerSpell->reqlevel = spellinfo->spellLevel;
+
+
+        TrainerSpellData& data = m_mCacheTrainerSpellMap[entry];
+
+        if(SpellMgr::IsProfessionSpell(spell))
+            data.trainerType = 2;
+
+        data.spellList.push_back(pTrainerSpell);
+        ++count;
+
+    } while (result->NextRow());
+    delete result;
+
+    sLog.outString();
+    sLog.outString( ">> Loaded Trainers %d", count );
+}
+
+void ObjectMgr::LoadVendors()
+{
+    // For reload case 
+    for (CacheVendorItemMap::iterator itr = m_mCacheVendorItemMap.begin(); itr != m_mCacheVendorItemMap.end(); ++itr)
+    {
+        for (VendorItemList::iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
+            delete (*itr2);
+    }
+    m_mCacheVendorItemMap.clear();
+
+    QueryResult *result = WorldDatabase.PQuery("SELECT entry, item, maxcount, incrtime, ExtendedCost FROM npc_vendor");
+    if( !result )
+    {
+        barGoLink bar( 1 );
+
+        bar.step();
+
+        sLog.outString();
+        sLog.outErrorDb(">> Loaded `npc_vendor`, table is empty!");
+        return;
+    }
+
+    barGoLink bar( result->GetRowCount() );
+
+    uint32 count = 0;
+    uint32 entry, item_id, ExtendedCost;
+    do
+    {
+        bar.step();
+        Field* fields = result->Fetch();
+
+        entry = fields[0].GetUInt32();
+        if(!GetCreatureTemplate(entry))
+        {
+            sLog.outErrorDb("Table `npc_vendor` have data for not existed creature template (Entry: %u), ignore", entry);
+            continue;
+        }
+
+        item_id  = fields[1].GetUInt32();
+        if(!GetItemPrototype(item_id))
+        {
+            sLog.outErrorDb("Table `npc_vendor` for Vendor (Entry: %u) have in item list non-existed item (%u), ignore",entry,item_id);
+            continue;
+        }
+
+        ExtendedCost = fields[4].GetUInt32();
+        if(ExtendedCost && !sItemExtendedCostStore.LookupEntry(ExtendedCost))
+        {
+            sLog.outErrorDb("Table `npc_vendor` have Item (Entry: %u) with wrong ExtendedCost (%u) for vendor (%u), ignore",item_id,ExtendedCost,entry);
+            continue;
+        }
+
+        VendorItemList& vList = m_mCacheVendorItemMap[entry];
+
+        if(vList.size() >= MAX_VENDOR_ITEMS)
+        {
+            sLog.outErrorDb( "Table `npc_vendor` has too many items (%u >= %i) for vendor (Entry: %u), ignore", vList.size(), MAX_VENDOR_ITEMS, entry);
+            continue;
+        }
+
+        VendorItem* pVendorItem = new VendorItem();
+        pVendorItem->item         = item_id;
+        pVendorItem->maxcount     = fields[2].GetUInt32();
+        pVendorItem->incrtime     = fields[3].GetUInt32();
+        pVendorItem->ExtendedCost = ExtendedCost;
+
+        vList.push_back(pVendorItem);
+        ++count;
+
+    } while (result->NextRow());
+    delete result;
+
+    sLog.outString();
+    sLog.outString( ">> Loaded %d Vendors ", count );
+}
+
+void ObjectMgr::LoadNpcTextId()
+{
+
+    m_mCacheNpcTextIdMap.clear();
+
+    QueryResult* result = WorldDatabase.PQuery("SELECT npc_guid, textid FROM npc_gossip");
+    if( !result )
+    {
+        barGoLink bar( 1 );
+
+        bar.step();
+
+        sLog.outString();
+        sLog.outErrorDb(">> Loaded `npc_gossip`, table is empty!");
+        return;
+    }
+
+    barGoLink bar( result->GetRowCount() );
+
+    uint32 count = 0;
+    uint32 guid,textid;
+    do
+    {
+        bar.step();
+
+        Field* fields = result->Fetch();
+
+        guid   = fields[0].GetUInt32();
+        textid = fields[1].GetUInt32();
+
+        if (!GetCreatureData(guid))
+        {
+            sLog.outErrorDb("Table `npc_gossip` have not existed creature (GUID: %u) entry, ignore. ",guid);
+            continue;
+        }
+        if (!GetGossipText(textid))
+        {
+            sLog.outErrorDb("Table `npc_gossip` for creature (GUID: %u) have wrong Textid (%u), ignore. ", guid, textid);
+            continue;
+        }
+
+        m_mCacheNpcTextIdMap[guid] = textid ;
+        ++count;
+
+    } while (result->NextRow());
+    delete result;
+
+    sLog.outString();
+    sLog.outString( ">> Loaded %d NpcTextId ", count );
+}
+
+// Functions for scripting access
 const char* GetAreaTriggerScriptNameById(uint32 id)
 {
     return objmgr.GetAreaTriggerScriptName(id);
 }
 
-
-bool LoadMangosStrings(DatabaseType& db, char const* table)
+bool LoadMangosStrings(DatabaseType& db, char const* table,int32 start_value, int32 end_value)
 {
+    if(start_value >= 0 || start_value <= end_value)        // start/end reversed for negative values
+    {
+        sLog.outError("Table '%s' attempt loaded with invalid range (%d - %d), use (%d - %d) instead.",table,start_value,end_value,-1,std::numeric_limits<int32>::min());
+        start_value = -1;
+        end_value = std::numeric_limits<int32>::min();
+    }
+
     // for scripting localized strings allowed use _only_ negative entries
-    return objmgr.LoadMangosStrings(db,table,false);
+    return objmgr.LoadMangosStrings(db,table,end_value,start_value);
 }

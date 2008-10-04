@@ -127,7 +127,7 @@ struct MANGOS_DLL_DECL boss_omor_the_unscarredAI : public ScriptedAI
     {
         if( !m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessablePlaceFor(m_creature) )
         {
-            if (m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
+            if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                 return;
 
             float attackRadius = m_creature->GetAttackDistance(who);
@@ -258,6 +258,8 @@ struct MANGOS_DLL_DECL boss_omor_the_unscarredAI : public ScriptedAI
                 Shadowbolt_Timer = 4000+rand()%2500;
             }
         }else Shadowbolt_Timer -= diff;
+
+        DoMeleeAttackIfReady();
     }
 };
 

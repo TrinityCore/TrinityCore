@@ -523,6 +523,7 @@ void Spell::FillTargetMap()
                 }
                 case SPELL_EFFECT_RESURRECT:
                 case SPELL_EFFECT_PARRY:
+                case SPELL_EFFECT_BLOCK:
                 case SPELL_EFFECT_CREATE_ITEM:
                 case SPELL_EFFECT_TRIGGER_SPELL:
                 case SPELL_EFFECT_TRIGGER_MISSILE:
@@ -3476,16 +3477,22 @@ uint8 Spell::CanCast(bool strict)
         {
             case SPELL_EFFECT_DUMMY:
             {
-                // Execute
-                if(m_spellInfo->SpellIconID == 1648)
+                if(m_spellInfo->SpellIconID == 1648)        // Execute
                 {
                     if(!m_targets.getUnitTarget() || m_targets.getUnitTarget()->GetHealth() > m_targets.getUnitTarget()->GetMaxHealth()*0.2)
                         return SPELL_FAILED_BAD_TARGETS;
                 }
-                else if (m_spellInfo->Id == 51582)
+                else if (m_spellInfo->Id == 51582)          // Rocket Boots Engaged
                 {
                     if(m_caster->IsInWater())
                         return SPELL_FAILED_ONLY_ABOVEWATER;
+                }
+                else if(m_spellInfo->SpellIconID==156)      // Holy Shock
+                {
+                    // spell different for friends and enemies
+                    // hart version required facing
+                    if(m_targets.getUnitTarget() && !m_caster->IsFriendlyTo(m_targets.getUnitTarget()) && !m_caster->HasInArc( M_PI, target ))
+                        return SPELL_FAILED_UNIT_NOT_INFRONT;
                 }
                 break;
             }
@@ -4231,61 +4238,9 @@ uint8 Spell::CheckRange(bool strict)
             return SPELL_FAILED_OUT_OF_RANGE;               //0x5A;
         if(dist < min_range)
             return SPELL_FAILED_TOO_CLOSE;
-        if( !m_IsTriggeredSpell && m_caster->GetTypeId() == TYPEID_PLAYER &&
-            !IsPositiveSpell(m_spellInfo->Id) && !m_caster->HasInArc( M_PI, target ) )
-        {
-            // Spell-Family Related Checks
-            switch (m_spellInfo->SpellFamilyName)
-            {
-                case SPELLFAMILY_PRIEST:
-                {
-                    // Shadow Word: Death, castable without facing
-                    if (m_spellInfo->SpellFamilyFlags & 0x200000000LL)
-                        return 0;                           // this is not TARGET_FLAG_DEST_LOCATION so we can return safely
-                    break;
-                }
-                case SPELLFAMILY_PALADIN:
-                {
-                    // Holy Shock, require facing
-                    if (m_spellInfo->SpellFamilyFlags & 0x200000LL)
-                        return SPELL_FAILED_UNIT_NOT_INFRONT;
-                    break;
-                }
-                case SPELLFAMILY_WARRIOR:
-                {
-                    // Charge, require facing
-                    if (m_spellInfo->SpellFamilyFlags & 1)
-                        return SPELL_FAILED_UNIT_NOT_INFRONT;
-                    break;
-                }
-            }
-
-            // Ranged Weapon
-            if (IsRangedSpell())
-                return SPELL_FAILED_UNIT_NOT_INFRONT;
-
-            // Melee Combat
-            if (m_spellInfo->rangeIndex == 2)
-                return SPELL_FAILED_UNIT_NOT_INFRONT;
-
-            // Missile Effect
-            if (m_spellInfo->speed > 0)
-                return SPELL_FAILED_UNIT_NOT_INFRONT;
-
-            // Channeled Spells need facing
-            if (IsChanneledSpell(m_spellInfo))
-                return SPELL_FAILED_UNIT_NOT_INFRONT;
-
-            // Direct Damage and charge effects
-            for (uint8 i=0;i<3;++i)
-            {
-                if (m_spellInfo->Effect[i] == SPELL_EFFECT_SCHOOL_DAMAGE ||
-                    m_spellInfo->Effect[i] == SPELL_EFFECT_POWER_BURN ||
-                    m_spellInfo->Effect[i] == SPELL_EFFECT_HEALTH_LEECH ||
-                    m_spellInfo->Effect[i] == SPELL_EFFECT_CHARGE)
-                    return SPELL_FAILED_UNIT_NOT_INFRONT;
-            }
-        }
+        if( m_caster->GetTypeId() == TYPEID_PLAYER &&
+            (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc( M_PI, target ) )
+            return SPELL_FAILED_UNIT_NOT_INFRONT;
     }
 
     if(m_targets.m_targetMask == TARGET_FLAG_DEST_LOCATION && m_targets.m_destX != 0 && m_targets.m_destY != 0 && m_targets.m_destZ != 0)

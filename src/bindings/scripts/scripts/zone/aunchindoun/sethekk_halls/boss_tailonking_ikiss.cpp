@@ -104,7 +104,7 @@ struct MANGOS_DLL_DECL boss_talon_king_ikissAI : public ScriptedAI
                 DoPlaySoundToSet(m_creature,SOUND_INTRO);
             }
 
-            if (m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
+            if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                 return;
 
             float attackRadius = m_creature->GetAttackDistance(who);

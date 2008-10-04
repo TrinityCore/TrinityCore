@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\"
+				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="WIN32;_DEBUG;MANGOS_DEBUG;_WINDOWS;_USRDLL;SCRIPT"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -73,7 +73,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\"
+				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SCRIPT"
 				RuntimeLibrary="0"
 				EnableEnhancedInstructionSet="1"

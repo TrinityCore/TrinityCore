@@ -19,6 +19,44 @@
 #ifndef MANGOSSERVER_COMMON_H
 #define MANGOSSERVER_COMMON_H
 
+// config.h needs to be included 1st
+// TODO this thingy looks like hack ,but its not, need to
+// make separate header however, because It makes mess here.
+#ifdef HAVE_CONFIG_H
+// Remove Some things that we will define 
+// This is in case including another config.h 
+// before trinity config.h 
+#ifdef PACKAGE
+#undef PACKAGE
+#endif //PACKAGE
+#ifdef PACKAGE_BUGREPORT
+#undef PACKAGE_BUGREPORT
+#endif //PACKAGE_BUGREPORT
+#ifdef PACKAGE_NAME
+#undef PACKAGE_NAME
+#endif //PACKAGE_NAME
+#ifdef PACKAGE_STRING
+#undef PACKAGE_STRING
+#endif //PACKAGE_STRING
+#ifdef PACKAGE_TARNAME
+#undef PACKAGE_TARNAME
+#endif //PACKAGE_TARNAME
+#ifdef PACKAGE_VERSION
+#undef PACKAGE_VERSION
+#endif //PACKAGE_VERSION
+#ifdef VERSION
+#undef VERSION
+#endif //VERSION
+# include "config.h"
+#undef PACKAGE
+#undef PACKAGE_BUGREPORT
+#undef PACKAGE_NAME
+#undef PACKAGE_STRING
+#undef PACKAGE_TARNAME
+#undef PACKAGE_VERSION
+#undef VERSION
+#endif //HAVE_CONFIG_H
+
 #include "Platform/Define.h"
 
 #if COMPILER == COMPILER_MICROSOFT
@@ -42,10 +80,6 @@
 #pragma warning(disable:4005)
 #endif                                                      // __SHOW_STUPID_WARNINGS__
 #endif                                                      // __GNUC__
-
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
 
 #include "Utilities/HashMap.h"
 #include <stdio.h>
@@ -76,8 +110,8 @@
 #include <zthread/Thread.h>
 
 #if PLATFORM == PLATFORM_WINDOWS
-#  define FD_SETSIZE 1024
-#  include <winsock2.h>
+#  define FD_SETSIZE 4096
+#  include <ace/config-all.h>
 // XP winver - needed to compile with standard leak check in MemoryLeaks.h
 // uncomment later if needed
 //#define _WIN32_WINNT 0x0501

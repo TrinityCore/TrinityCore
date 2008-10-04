@@ -78,7 +78,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectUnused,                                   // 20 SPELL_EFFECT_DODGE                    one spell: Dodge
     &Spell::EffectUnused,                                   // 21 SPELL_EFFECT_EVADE                    one spell: Evade (DND)
     &Spell::EffectParry,                                    // 22 SPELL_EFFECT_PARRY
-    &Spell::EffectUnused,                                   // 23 SPELL_EFFECT_BLOCK                    one spell: Block
+    &Spell::EffectBlock,                                    // 23 SPELL_EFFECT_BLOCK                    one spell: Block
     &Spell::EffectCreateItem,                               // 24 SPELL_EFFECT_CREATE_ITEM
     &Spell::EffectUnused,                                   // 25 SPELL_EFFECT_WEAPON
     &Spell::EffectUnused,                                   // 26 SPELL_EFFECT_DEFENSE                  one spell: Defense
@@ -5328,6 +5328,14 @@ void Spell::EffectParry(uint32 /*i*/)
     {
         ((Player*)unitTarget)->SetCanParry(true);
     }
+}
+
+void Spell::EffectBlock(uint32 /*i*/)
+{
+    if (unitTarget->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    ((Player*)unitTarget)->SetCanBlock(true);
 }
 
 void Spell::EffectMomentMove(uint32 i)

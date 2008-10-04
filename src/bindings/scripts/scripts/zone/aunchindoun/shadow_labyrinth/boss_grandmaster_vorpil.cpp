@@ -114,7 +114,7 @@ struct MANGOS_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
                 Intro = true;
             }
 
-            if (m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
+            if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                 return;
 
             float attackRadius = m_creature->GetAttackDistance(who);

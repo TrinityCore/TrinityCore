@@ -20,16 +20,16 @@
     \ingroup mangosd
 */
 
-#include "Master.h"
-#include "sockets/SocketHandler.h"
-#include "sockets/ListenSocket.h"
-#include "WorldSocket.h"
+#include <ace/OS_NS_signal.h>
+
 #include "WorldSocketMgr.h"
+#include "Common.h"
+#include "Master.h"
+#include "WorldSocket.h"
 #include "WorldRunnable.h"
 #include "World.h"
 #include "Log.h"
 #include "Timer.h"
-#include <signal.h>
 #include "Policies/SingletonImp.h"
 #include "SystemConfig.h"
 #include "Config/ConfigEnv.h"
@@ -43,6 +43,8 @@
 #include "sockets/Utility.h"
 #include "sockets/Parse.h"
 #include "sockets/Socket.h"
+#include "sockets/SocketHandler.h"
+#include "sockets/ListenSocket.h"
 
 #ifdef WIN32
 #include "ServiceWin32.h"
@@ -79,18 +81,20 @@ public:
             uint32 curtime = getMSTime();
             //DEBUG_LOG("anti-freeze: time=%u, counters=[%u; %u]",curtime,Master::m_masterLoopCounter,World::m_worldLoopCounter);
 
-            // normal work
-            if(m_loops != Master::m_masterLoopCounter)
-            {
-                m_lastchange = curtime;
-                m_loops = Master::m_masterLoopCounter;
-            }
-            // possible freeze 
-            else if(getMSTimeDiff(m_lastchange,curtime) > _delaytime)
-            {
-                sLog.outError("Main/Sockets Thread hangs, kicking out server!");
-                *((uint32 volatile*)NULL) = 0;                       // bang crash
-            }
+            // There is no Master anymore 
+            // TODO: clear the rest of the code 
+//            // normal work
+//            if(m_loops != Master::m_masterLoopCounter)
+//            {
+//                m_lastchange = curtime;
+//                m_loops = Master::m_masterLoopCounter;
+//            }
+//            // possible freeze 
+//            else if(getMSTimeDiff(m_lastchange,curtime) > _delaytime)
+//            {
+//                sLog.outError("Main/Sockets Thread hangs, kicking out server!");
+//                *((uint32 volatile*)NULL) = 0;                       // bang crash
+//            }
 
             // normal work
             if(w_loops != World::m_worldLoopCounter)
@@ -107,6 +111,77 @@ public:
         }
         sLog.outString("Anti-freeze thread exiting without problems.");
     }
+};
+
+class RARunnable : public ZThread::Runnable
+{
+public:
+  uint32 numLoops, loopCounter;
+
+  RARunnable ()
+  {
+    uint32 socketSelecttime = sWorld.getConfig (CONFIG_SOCKET_SELECTTIME);
+    numLoops = (sConfig.GetIntDefault ("MaxPingTime", 30) * (MINUTE * 1000000 / socketSelecttime));
+    loopCounter = 0;
+  }
+
+  void
+  checkping ()
+  {
+    // ping if need
+    if ((++loopCounter) == numLoops)
+      {
+        loopCounter = 0;
+        sLog.outDetail ("Ping MySQL to keep connection alive");
+        delete WorldDatabase.Query ("SELECT 1 FROM command LIMIT 1");
+        delete loginDatabase.Query ("SELECT 1 FROM realmlist LIMIT 1");
+        delete CharacterDatabase.Query ("SELECT 1 FROM bugreport LIMIT 1");
+      }
+  }
+
+  void
+  run (void)
+  {
+    SocketHandler h;
+
+    // Launch the RA listener socket
+    ListenSocket<RASocket> RAListenSocket (h);
+    bool usera = sConfig.GetBoolDefault ("Ra.Enable", false);
+
+    if (usera)
+      {
+        port_t raport = sConfig.GetIntDefault ("Ra.Port", 3443);
+        std::string stringip = sConfig.GetStringDefault ("Ra.IP", "0.0.0.0");
+        ipaddr_t raip;
+        if (!Utility::u2ip (stringip, raip))
+          sLog.outError ("MaNGOS RA can not bind to ip %s", stringip.c_str ());
+        else if (RAListenSocket.Bind (raip, raport))
+          sLog.outError ("MaNGOS RA can not bind to port %d on %s", raport, stringip.c_str ());
+        else
+          {
+            h.Add (&RAListenSocket);
+
+            sLog.outString ("Starting Remote access listner on port %d on %s", raport, stringip.c_str ());
+          }
+      }
+
+    // Socket Selet time is in microseconds , not miliseconds!!
+    uint32 socketSelecttime = sWorld.getConfig (CONFIG_SOCKET_SELECTTIME);
+
+    // if use ra spend time waiting for io, if not use ra ,just sleep
+    if (usera)
+      while (!World::m_stopEvent)
+        {
+          h.Select (0, socketSelecttime);
+          checkping ();
+        }
+    else
+      while (!World::m_stopEvent)
+        {
+          ZThread::Thread::sleep (static_cast<unsigned long> (socketSelecttime / 1000));
+          checkping ();
+        }
+  }
 };
 
 Master::Master()
@@ -154,21 +229,6 @@ int Master::Run()
     ///- Initialize the World
     sWorld.SetInitialWorldSettings();
 
-    ///- Launch the world listener socket
-    port_t wsport = sWorld.getConfig(CONFIG_PORT_WORLD);
-    std::string bind_ip = sConfig.GetStringDefault("BindIP", "0.0.0.0");
-
-    SocketHandler h;
-    ListenSocket<WorldSocket> worldListenSocket(h);
-    if (worldListenSocket.Bind(bind_ip.c_str(),wsport))
-    {
-        clearOnlineAccounts();
-        sLog.outError("MaNGOS cannot bind to %s:%d",bind_ip.c_str(), wsport);
-        return 1;
-    }
-
-    h.Add(&worldListenSocket);
-
     ///- Catch termination signals
     _HookSignals();
 
@@ -188,25 +248,8 @@ int Master::Run()
         ///- Launch CliRunnable thread
         ZThread::Thread td1(new CliRunnable);
     }
-
-    ///- Launch the RA listener socket
-    ListenSocket<RASocket> RAListenSocket(h);
-    if (sConfig.GetBoolDefault("Ra.Enable", false))
-    {
-        port_t raport = sConfig.GetIntDefault( "Ra.Port", 3443 );
-        std::string stringip = sConfig.GetStringDefault( "Ra.IP", "0.0.0.0" );
-        ipaddr_t raip;
-        if(!Utility::u2ip(stringip, raip))
-            sLog.outError( "MaNGOS RA can not bind to ip %s", stringip.c_str());
-        else if (RAListenSocket.Bind(raip, raport))
-            sLog.outError( "MaNGOS RA can not bind to port %d on %s", raport, stringip.c_str());
-        else
-        {
-            h.Add(&RAListenSocket);
-
-            sLog.outString("Starting Remote access listner on port %d on %s", raport, stringip.c_str());
-        }
-    }
+    
+    ZThread::Thread td2(new RARunnable);
 
     ///- Handle affinity for multiple processors and process priority on Windows
     #ifdef WIN32
@@ -271,34 +314,19 @@ int Master::Run()
         t.setPriority(ZThread::High);
     }
 
-    ///- Wait for termination signal
-    while (!World::m_stopEvent)
+    ///- Launch the world listener socket
+  port_t wsport = sWorld.getConfig (CONFIG_PORT_WORLD);
+  std::string bind_ip = sConfig.GetStringDefault ("BindIP", "0.0.0.0");
+
+  if (sWorldSocketMgr->StartNetwork (wsport, bind_ip.c_str ()) == -1)
     {
-        ++Master::m_masterLoopCounter;
-#ifdef WIN32
-        if (m_ServiceStatus == 0) World::m_stopEvent = true;
-        while (m_ServiceStatus == 2) Sleep(1000);
-#endif
-        if (realPrevTime > realCurrTime)
-            realPrevTime = 0;
-
-        realCurrTime = getMSTime();
-        sWorldSocketMgr.Update( getMSTimeDiff(realPrevTime,realCurrTime) );
-        realPrevTime = realCurrTime;
-
-        h.Select(0, socketSelecttime);
-
-        // ping if need
-        if( (++loopCounter) == numLoops )
-        {
-            loopCounter = 0;
-            sLog.outDetail("Ping MySQL to keep connection alive");
-            delete WorldDatabase.Query("SELECT 1 FROM command LIMIT 1");
-            delete loginDatabase.Query("SELECT 1 FROM realmlist LIMIT 1");
-            delete CharacterDatabase.Query("SELECT 1 FROM bugreport LIMIT 1");
-        }
+      sLog.outError ("Failed to start network");
+      World::m_stopEvent = true;
+      // go down and shutdown the server
     }
 
+    sWorldSocketMgr->Wait ();
+    
     // set server offline
     loginDatabase.PExecute("UPDATE realmlist SET color = 2 WHERE id = '%d'",realmID);
 
@@ -308,7 +336,8 @@ int Master::Run()
     // when the main thread closes the singletons get unloaded
     // since worldrunnable uses them, it will crash if unloaded after master
     t.wait();
-
+    td2.wait ();
+    
     ///- Clean database before leaving
     clearOnlineAccounts();
 

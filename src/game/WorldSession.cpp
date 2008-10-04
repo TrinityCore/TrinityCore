@@ -20,6 +20,7 @@
     \ingroup u2w
 */
 
+#include "WorldSocket.h"
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
 #include "Log.h"
@@ -42,10 +43,15 @@
 /// WorldSession constructor
 WorldSession::WorldSession(uint32 id, WorldSocket *sock, uint32 sec, bool tbc, time_t mute_time, LocaleConstant locale) :
 LookingForGroup_auto_join(false), LookingForGroup_auto_add(false), m_muteTime(mute_time),
-_player(NULL), _socket(sock),_security(sec), _accountId(id), m_isTBC(tbc),
+_player(NULL), m_Socket(sock),_security(sec), _accountId(id), m_isTBC(tbc),
 m_sessionDbcLocale(sWorld.GetAvailableDbcLocale(locale)), m_sessionDbLocaleIndex(objmgr.GetIndexForLocale(locale)),
 _logoutTime(0), m_playerLoading(false), m_playerLogout(false), m_playerRecentlyLogout(false), m_latency(0)
 {
+   if (sock)
+     {
+       m_Address = sock->GetRemoteAddress ();
+       sock->AddReference ();
+     }
 }
 
 /// WorldSession destructor
@@ -56,10 +62,12 @@ WorldSession::~WorldSession()
         LogoutPlayer(true);
 
     /// - If have unclosed socket, close it
-    if(_socket)
-        _socket->CloseSocket();
-
-    _socket = NULL;
+  if (m_Socket)
+    {
+      m_Socket->CloseSocket ();   
+      m_Socket->RemoveReference ();
+      m_Socket = NULL;
+    }
 
     ///- empty incoming packet queue
     while(!_recvQueue.empty())
@@ -67,6 +75,8 @@ WorldSession::~WorldSession()
         WorldPacket *packet = _recvQueue.next();
         delete packet;
     }
+    
+    sWorld.RemoveQueuedPlayer(this);
 }
 
 void WorldSession::SizeError(WorldPacket const& packet, uint32 size) const
@@ -81,16 +91,10 @@ char const* WorldSession::GetPlayerName() const
     return GetPlayer() ? GetPlayer()->GetName() : "<none>";
 }
 
-/// Set the WorldSocket associated with this session
-void WorldSession::SetSocket(WorldSocket *sock)
-{
-    _socket = sock;
-}
-
 /// Send a packet to the client
 void WorldSession::SendPacket(WorldPacket const* packet)
 {
-    if (!_socket)
+    if (!m_Socket)
         return;
     #ifdef MANGOS_DEBUG
     // Code for network use statistic
@@ -124,16 +128,18 @@ void WorldSession::SendPacket(WorldPacket const* packet)
         sendLastPacketCount = 1;
         sendLastPacketBytes = packet->wpos();               // wpos is real written size
     }
-    #endif                                                  // !MANGOS_DEBUG
+#endif                                                  // !MANGOS_DEBUG
 
-    _socket->SendPacket(packet);
+  if (m_Socket->SendPacket (*packet) == -1)
+    {
+      m_Socket->CloseSocket ();
+    }
 }
 
 /// Add an incoming packet to the queue
-void WorldSession::QueuePacket(WorldPacket& packet)
+void WorldSession::QueuePacket(WorldPacket* new_packet)
 {
-    WorldPacket *pck = new WorldPacket(packet);
-    _recvQueue.add(pck);
+    _recvQueue.add(new_packet);
 }
 
 /// Logging helper for unexpected opcodes
@@ -148,6 +154,13 @@ void WorldSession::logUnexpectedOpcode(WorldPacket* packet, const char *reason)
 /// Update the WorldSession (triggered by World update)
 bool WorldSession::Update(uint32 /*diff*/)
 {
+  if (m_Socket)
+    if (m_Socket->IsClosed ())
+      { 
+        m_Socket->RemoveReference ();
+        m_Socket = NULL;
+      }
+  
     WorldPacket *packet;
 
     ///- Retrieve packets from the receive queue and call the appropriate handlers
@@ -210,10 +223,10 @@ bool WorldSession::Update(uint32 /*diff*/)
 
     ///- If necessary, log the player out
     time_t currTime = time(NULL);
-    if (!_socket || (ShouldLogOut(currTime) && !m_playerLoading))
+    if (!m_Socket || (ShouldLogOut(currTime) && !m_playerLoading))
         LogoutPlayer(true);
 
-    if (!_socket)
+    if (!m_Socket)
         return false;                                       //Will remove this session from the world session map
 
     return true;
@@ -343,7 +356,7 @@ void WorldSession::LogoutPlayer(bool Save)
 
         // remove player from the group if he is:
         // a) in group; b) not in raid group; c) logging out normally (not being kicked or disconnected)
-        if(_player->GetGroup() && !_player->GetGroup()->isRaidGroup() && _socket)
+        if(_player->GetGroup() && !_player->GetGroup()->isRaidGroup() && m_Socket)
             _player->RemoveFromGroup();
 
         ///- Remove the player from the world
@@ -385,12 +398,10 @@ void WorldSession::LogoutPlayer(bool Save)
 /// Kick a player out of the World
 void WorldSession::KickPlayer()
 {
-    if(!_socket)
-        return;
-
-    // player will be logout and session will removed in next update tick
-    _socket->CloseSocket();
-    _socket = NULL;
+  if (m_Socket)
+    {
+      m_Socket->CloseSocket ();
+    }
 }
 
 /// Cancel channeling handler
@@ -461,3 +472,22 @@ void WorldSession::Handle_Depricated( WorldPacket& recvPacket )
         LookupOpcodeName(recvPacket.GetOpcode()),
         recvPacket.GetOpcode());
 }
+
+void WorldSession::SendAuthWaitQue(uint32 position)
+ {
+     if(position == 0)
+     {
+         WorldPacket packet( SMSG_AUTH_RESPONSE, 1 );
+         packet << uint8( AUTH_OK );
+         SendPacket(&packet);
+     }
+     else
+     {
+         WorldPacket packet( SMSG_AUTH_RESPONSE, 5 );
+         packet << uint8( AUTH_WAIT_QUEUE );
+         packet << uint32 (position);
+         SendPacket(&packet);
+     }
+ }
+ 
+

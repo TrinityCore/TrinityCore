@@ -1,0 +1,1345 @@
+PLANNED MAJOR CHANGES "SOMETIME IN THE FUTURE" (i.e., exact beta not known)
+===========================================================================
+
+. RPM packaging as part of the release process by the doc_group (Remedy and user community)
+
+. Remove BCB6, BCB2006, and the borland MPC template after the release of x.6.6
+
+USER VISIBLE CHANGES BETWEEN ACE-5.6.5 and ACE-5.6.6
+====================================================
+
+. Added an option to the ACE_Process_Options class to use a wchar_t
+  environment buffer on Windows.
+
+. A new configure option, --enable-rcsid, was added to the autoconf build.
+  This is used to embed RCS IDs in object files.
+
+. A new method was added: void ACE_Time_Value::msec (ACE_UINT64&)
+  This method, like the existing msec(ACE_UINT64&)const method, obtains the
+  time value in milliseconds and stores it in the passed ACE_UINT64 object.
+  This method was added so that msec(ACE_UINT64&) can be called on both
+  const and non-const ACE_Time_Value objects without triggering compile errors.
+  Fixes Bugzilla #3336.
+
+. Added ACE_Stack_Trace class to allow users to obtain a stack trace
+  within their application on supported platforms. A new conversion
+  character, the question mark, was added to ACE_Log_Msg for stack
+  trace logging.
+
+. Added iterator support to ACE_Message_Queue_Ex class. The resulted in
+  the addition of ACE_Message_Queue_Ex_Iterator class and
+  ACE_Message_Queue_Ex_Reverse_Iterator class.
+
+. Renamed gperf to ace_gperf to prevent clashes with the regular gperf
+  tool that is available in linux distributions
+
+. Added support for FC9
+
+. Added support for OpenSuSE 11.0
+
+. Improved support for GCC 4.2 and 4.3
+
+. Added support for CodeGear C++ Builder 2009
+
+USER VISIBLE CHANGES BETWEEN ACE-5.6.4 and ACE-5.6.5
+====================================================
+
+. Added new Monitoring lib that can be used to store and retrieve
+  counters. This is disabled by default because it is not 100%
+  finished yet, with the next release it will be enabled by default
+
+. Fixed bug in ACE_Service_Config when it was used from a thread
+  not spawned by ACE
+
+. Add VxWorks 6.x kernel mode with shared library support to ACE
+
+. Extended the implementation of Unbounded_Set, which has been
+  renamed Unbounded_Set_Ex, to accept a second parameter which is
+  a comparator that implements operator() which returns true if
+  the items are equivalent.  Unbounded_Set has been reimplemented
+  in terms of Unbounded_Set_Ex using a comparator that uses operator==,
+  which captures the previous behavior.
+
+. Added support for Intel C++ on MacOSX
+
+USER VISIBLE CHANGES BETWEEN ACE-5.6.3 and ACE-5.6.4
+====================================================
+
+. Reworked the relationship between ACE_Service_Config and
+  ACE_Service_Gestalt
+
+. Improved autoconf support
+
+. Improved AIX with gcc support
+
+. Improved OpenVMS support
+
+. Improved VxWorks support
+
+USER VISIBLE CHANGES BETWEEN ACE-5.6.2 and ACE-5.6.3
+====================================================
+
+. Deprecated Visual Age 5 and older
+
+. Closed a rare race condition hole whereby ACE_Atomic_Op<> function
+  pointers would not be fully initialized prior to use.  See bugzilla
+  3185 for details.
+
+. Tweaks to support MacOS X Leopard (10.5 and 10.5.1) on Intel
+
+. Fixed compile problems with MinGW with GCC 4.2. Do note that we do see
+  much more test failures then when using GCC 3.4.
+
+. Changed to use synchronous exception handling with msvc 8/9 which is the
+  default. Asynchrous exception handling does catch access violations but
+  it leads to lower performance and other problems. See also bugzilla 3169
+
+. Make ace_main extern C with VxWorks so that it doesn't get mangled
+
+. Fixed compile errors and warnings for VxWorks 6.6
+
+. Added an MPC generator for the WindRiver Workbench 2.6 which is shipped
+  with VxWorks 6.4
+
+. Added support for CodeGear C++ Builder 2007 with December 2007 update
+  installed
+
+. Added support for VxWorks 5.5.1
+
+. Implemented the const reverse iterator for ACE_Hash_Map_Manager_Ex
+
+. Increased support for using ACE_Hash_Map_Manager_Ex with STL <algorithm>
+  functions based on latest standard C++ draft
+
+USER VISIBLE CHANGES BETWEEN ACE-5.6.1 and ACE-5.6.2
+====================================================
+
+. ACE-ified the UUID class, which will change user applications slightly.
+
+. Added support for Sun Studio 12
+
+. Added support for Intel C++ 10.1
+
+. Fixed runtime problems with VxWorks 6.x in kernel mode, several improvements
+  have been made to ACE, but also some problems in the VxWorks kernel have
+  been found for which WindRiver has made patches.
+
+. Added support for VxWorks 6.5 kernel mode
+
+. Added support for MacOS 10.5
+
+. Support for MacOS 10.4 is now deprecated.
+
+. Added support for OpenSuSE 10.3
+
+. Added support for RedHat 5.1
+
+. Added support for Microsoft Visual Studio 2008
+
+. Added support for Fedora Core 8
+
+. Added support for Ubuntu 7.10
+
+. With Ubuntu 7.04 and 7.10 we can't use visibility, that results in
+  unresolved externals when building some tests. With lsb_release we
+  now detect Ubuntu 7.04 and 7.10 automatically and then we disable
+  visibility
+
+. Removed deprecated (un)subscribe methods from ACE_SOCK_Dgram_Mcast
+
+. Added an additional replace() method to ACE_OuptutCDR for replacing a
+  ACE_CDR::Short value. Also added write_long_placeholder() and
+  write_short_placeholder() to properly align the stream's write pointer,
+  write a placeholder value and return the placeholder's pointer. The pointer
+  can later be used in a call to replace() to replace the placeholder with a
+  different value.
+
+. Initial support for VxWorks 6.6
+
+. Removed support for pthread draft 4, 6, & 7. This makes the ACE threading
+  code much cleaner
+
+. Improved autoconf support
+
+. Fixed TSS emulation problems
+
+. Changed ACE_thread_t and ACE_hthread_t to int for VxWorks kernel mode. All
+  thread creation methods do have an additional const char* argument to
+  specify the task name, this now also works with pthread support enabled
+
+. Use bool in much more interfaces where this is possible
+
+. Added support for Debian Etch
+
+. Fixed ACE CDR LongDouble support on VxWorks 6.x
+
+. Added Microsoft Visual Studio 2008 project files to the release packages
+
+. Fixed a few bugs in the ACE_Vector template
+
+USER VISIBLE CHANGES BETWEEN ACE-5.6 and ACE-5.6.1
+====================================================
+
+. Added support for CodeGear RAD Studio 2007
+
+. Added support for CodeGear C++ Builder 2007 Update 3
+
+. Modified the definiton of ACE_DEFAULT_THREAD_KEYS on Windows so it
+  is based on the version of the OS as defined by Microsoft in this web
+  page: http://tinyurl.com/2jqcmd
+  This fixes bugzilla #2753
+
+USER VISIBLE CHANGES BETWEEN ACE-5.5.10 and ACE-5.6
+====================================================
+
+. OpenVMS 8.3 on IA64 port
+
+. Added autoconf support for Intel C++ 10.0
+
+. Improved autoconf support on Linux, Solaris, NetBSD and HPUX
+
+. CodeGear C++ Builder 2007 Update 2 support
+
+. The netsvcs's client logging daemon has a new configuration option,
+  -llocal-ip[:local-port], which can be used to specify the local IP
+  address and port number for the client logging daemon's connection to
+  the server logging daemon. If the -l option is specified with an IP
+  address but not a port number, an unused port number is selected.
+
+. A new ACE+TAO port to LabVIEW RT 8.2 with Pharlap ETS. The host build
+  environment is Windows with Microsoft Visual Studio .NET 2003 (VC7.1).
+  Please see the ACE-INSTALL.html file for build instructions.
+
+USER VISIBLE CHANGES BETWEEN ACE-5.5.9 and ACE-5.5.10
+====================================================
+
+. The ACE_utsname struct, used in the ACE_OS::uname() function when the
+  platform doesn't provide the standard utsname struct, was changed. It
+  defines a number of text fields and their types were changed from
+  ACE_TCHAR[] to char[] in order to be consistent with all other platforms.
+  This removes the need to write different code for platforms where
+  ACE_LACKS_UTSNAME_T is set and that have wide characters (most probably
+  Windows). Fixes Bugzilla #2665.
+
+. The ACE::daemonize() "close_all_handles" parameter was changed from
+  an "int" to a "bool" to better reflect how it is used.
+
+. VxWorks 6.5 support. Compilation of the core libraries has been validated
+  but no runtime testing has been performed.
+
+. CodeGear C++ Builder 2007 support.
+
+. The FaCE utility was moved from the ACE_wrappers/apps directory to
+  ACE_wrappers/contrib. It is used for testing ACE+TAO apps on WinCE.
+  See the ACE_wrappers/contrib/FaCE/README file for more information.
+
+. ACE_INET_Addr::set (u_short port, char *host_name, ...) now favors IPv6
+  addresses when compiled with ACE_HAS_IPV6 defined and the supplied address
+  family is AF_UNSPEC. This means that if host_name has an IPv6 address in
+  DNS or /etc/hosts, that will be used over an IPv4 address. If no IPv6
+  address exists for host_name, then its IPv4 address will be used.
+
+. Intel C++ 10.0 support
+
+. Support for the version of vc8 for 64-bit (AMD64) shipped with the Microsoft
+  Platform SDK.
+
+. Fixed ACE_Vector::swap() (bugzilla #2951).
+
+. Make use of the Atomic_Op optimizations on Intel EM64T processors. The
+  Atomic_Op is now several times faster on EM64T then with previous versions
+  of ACE
+
+USER VISIBLE CHANGES BETWEEN ACE-5.5.8 and ACE-5.5.9
+====================================================
+
+. Use Intel C++ specific optimizations for Linux on IA64
+
+. Improved support for ACE_OS::fgetc. Added support for ACE_OS::fputc,
+  ACE_OS::getc, ACE_OS::putc and ACE_OS::ungetc.
+
+. Added support for ACE_OS::log2(double) and improved support for
+  ACE::log2(u_long).
+
+. Shared library builds on AIX now produce a libxxx.so file instead of the
+  previous practice of producing libxxx.a(shr.o).
+
+. GCC 4.1.2 that comes with Fedora 7 seems to have a fix for the visibility
+  attribute we use for the singletons. F7 users will therefore need to
+  define the following in your config.h file.
+  ACE_GCC_HAS_TEMPLATE_INSTANTIATION_VISIBILITY_ATTRS 1
+
+. Fixed (rare) problem in TP_Reactor where incorrect event handler was
+  resumed.
+
+. Reduced footprint on some platforms, particularly those that use
+  g++ >= 3.3.
+
+USER VISIBLE CHANGES BETWEEN ACE-5.5.7 and ACE-5.5.8
+====================================================
+
+. Extended ACE_Event constructor with optional LPSECURITY_ATTRIBUTES
+  argument
+
+. Added support for QT4
+
+. Added support to integrate with the FOX Toolkit (www.fox-toolkit.org)
+
+. Added support for Microsoft Visual Studio Code Name "Orcas", which is
+  the msvc9 beta
+
+. Added ability to provide an optional priority when calling
+  ACE_Message_Queue_Ex::enqueue_prio(). There was previously no way
+  to specify a priority for queueing.
+
+. Removed support for Visual Age on Windows.
+
+. ACE will compile once again with ACE_LACKS_CDR_ALIGNMENT #defined.
+
+. ACE_Process_Manager::terminate() no longer removes the process from the
+  process descriptor table; the pid remains available in order to call
+  ACE_Process_Manager::wait().
+
+USER VISIBLE CHANGES BETWEEN ACE-5.5.6 and ACE-5.5.7
+====================================================
+
+. ACE 5.5 contained a set of pragmas which prevented Visual Studio 2005 (VC8)
+  from issuing warnings where C run-time functions are used but a more
+  secure alternative is available. For more information on the C run-time
+  issues and Microsoft's response, please see the following MSDN page:
+  http://msdn2.microsoft.com/en-us/library/8ef0s5kh(VS.80).aspx.
+  In this beta, the pragmas which prevented the warnings have been removed.
+  The ACE library has been reviewed and most of the use of "unsafe" functions
+  has been fixed where possible. Since not all of the warnings emanating from
+  ACE are situations that can or should be fixed, the ACE VC8 projects will
+  prevent the warnings while building the ACE kit and its contained examples,
+  tests, etc. The warnings are disabled by adding Microsoft-specified macros
+  to the compile line via MPC. If desired, the warnings can be re-enabled by
+  regenerating the project files with different MPC features. Note, however,
+  that while ACE without warnings caused by the new C run-time functions, your
+  application builds may trigger these warnings either by use of the "unsafe"
+  C run-time functions or via use of an inlined ACE_OS method which uses it.
+  If the warning is caused by an ACE_OS method, there is a more safe alternate
+  available, probably located by appending _r to the method name (e.g.,
+  instead of using ACE_OS::ctime(), use ACE_OS::ctime_r()).
+  There are other cases where the compiler may have issued warnings and ACE
+  prevented this via a #pragma. These #pragmas have been removed as well.
+  This may cause your application builds to trigger more warnings from VC8
+  than past ACE versions. You should review your code and either correct
+  the code or disable the warnings locally, as appropriate.
+
+. The "release" argument to a number of ACE_String_Base<> methods was changed
+  from int to bool to more accurately reflect its purpose. The following
+  methods were changed:
+
+            ACE_String_Base (const CHAR *s,
+                             ACE_Allocator *the_allocator = 0,
+                             int release = 1);
+          to
+            ACE_String_Base (const CHAR *s,
+                             ACE_Allocator *the_allocator = 0,
+                             bool release = true);
+
+            ACE_String_Base (const CHAR *s,
+                             size_type len,
+                             ACE_Allocator *the_allocator = 0,
+                             int release = 1);
+          to
+            ACE_String_Base (const CHAR *s,
+                             size_type len,
+                             ACE_Allocator *the_allocator = 0,
+                             bool release = true);
+
+            void set (const CHAR * s, int release = 1);
+          to
+            void set (const CHAR * s, bool release = true);
+
+            void set (const CHAR * s, size_type len, int release);
+          to
+            void set (const CHAR * s, size_type len, bool release);
+
+            void clear (int release = 0);
+          to
+            void clear (bool release = false);
+
+  Since ACE_String_Base forms the basis of the ACE_CString and ACE_TString
+  classes, this may ripple out to user application code. If you encounter
+  errors in this area while building your applications, replace the
+  int argument you are passing to the method now with either true or false.
+
+. Solutions for the eVC3/4 platform have been removed from this
+  release.  Note that we package WinCE projects/workspaces for use
+  with VC8.
+
+. There were 3 new ACE_Log_Msg logging format specifiers added to make logging
+  easier for types that may change sizes across platforms. These all take one
+  argument, and the new formats are:
+    %b - format a ssize_t value
+    %B - format a size_t value
+    %: - format a time_t value
+
+. The ace/Time_Request_Reply.h and ace/Time_Request_Reply.cpp files were
+  moved from $ACE_ROOT/ace to $ACE_ROOT/netsvcs/lib. The time arguments in
+  the public API to ACE_Time_Request were changed from ACE_UINT32 to time_t
+  and the portions of the on-wire protocol that contains time was changed from
+  ACE_UINT32 to ACE_UINT64. Thus, code that uses the ACE_Time_Request class
+  to transfer time information will not interoperate properly with prior
+  ACE versions. This will affect uses of the netsvcs time clerk/server.
+
+. The portion of the ACE_Name_Request class that carries the on-wire seconds
+  portion of a timeout value was changed from ACE_UINT32 to ACE_UINT64. This
+  means that Name server/clients at ACE 5.5.7 and higher will not interoperate
+  properly with previous ACE versions' name servers/clients.
+
+. In the ACE_Log_Record (ACE_Log_Priority, long, long) constructor, the
+  second argument, long time_stamp, was changed to be of type time_t. This
+  aligns the type with the expected value, a time stamp such as that returned
+  from ACE_OS::time().
+
+. Added support for VxWorks 6.x cross compilation using a Windows host
+  system
+
+. Added support for VxWorks 6.x using the diab compiler
+
+. The destructor of ACE_Event_Handler no longer calls
+  purge_pending_notifications().  Please see bugzilla #2845 for the full
+  rationale.
+  (http://deuce.doc.wustl.edu/bugzilla/show_bug.cgi?id=2845)
+
+USER VISIBLE CHANGES BETWEEN ACE-5.5.5 and ACE-5.5.6
+====================================================
+
+. The ACE_TYPENAME macro has been added to those that are not
+  available when the ACE_LACKS_DEPRECATED_MACROS config option is set
+  (it is not set by default). You are encouraged to replace the use of
+  ACE_TYPENAME with the C++ typename keyword before the ACE_TYPENAME
+  macros is removed from ACE in the future.
+
+. A new script, rm_exception_macros.pl, has been added to help users
+  remove the use of the ACE exception macros from their own code.
+
+USER VISIBLE CHANGES BETWEEN ACE-5.5.4 and ACE-5.5.5
+====================================================
+
+. The prebuild MPC keyword is now supported by the gnuace project type.
+  This fixes Bugzilla #2713.
+
+. Support for Windows earlier than NT 4 SP2 was removed. ACE will not build
+  for Windows 95, 98, Me, etc. out of the box any longer.
+
+. Reformat stringified IPv6 addresses to use [addr]:port when printing
+  addresses that contain ':' such as "::1".
+
+. Added method to ACE_INET_Addr to determine if address is IPv6 or
+  IPv4 multicast.
+
+. Fixed a bug in ACE_Async_Timer_Adapter_Timer_Queue_Adapter<TQ> where the
+  gettimeofday function of the timer queue was ignored when setting the alarm.
+
+. Fixed a problem where, on Solaris 9 onwards, calling
+  ACE_OS::thr_create(THR_NEW_LWP) more than 2^15 (65535) times in a
+  process will fail.  See changelog entry from "Wed Jan 3 22:31:05 UTC
+  2007 Chris Cleeland <cleeland_c@ociweb.com>" for more information.
+
+. Fixed a bug in ACE_QtReactor where the two select() calls in that function
+  might select on different handler sets.
+
+. ACE_SOCK_IO::recvv(iovec[], size_t, const ACE_Time_Value* = 0) and
+  ACE_SOCK_IO::sendv (const iovec[], size_t, const ACE_Time_Value* = 0) methods
+  were changed to specify the iovec count argument as int instead of size_t
+  since it gets reduced to int in the underlying OS calls (usually).
+
+. The following deprecated methods were removed:
+
+    ssize_t ACE_SOCK_IO::recv (iovec iov[],
+                               size_t n,
+                               const ACE_Time_Value *timeout = 0) const;
+
+    ssize_t ACE_SOCK_IO::recv (iovec *io_vec,
+                               const ACE_Time_Value *timeout = 0) const;
+
+    ssize_t ACE_SOCK_IO::send (const iovec iov[],
+                               size_t n,
+                               const ACE_Time_Value *timeout = 0) const;
+
+    These were previously replaced with more specific recvv() and sendv()
+    methods.
+
+. The ACE_Service_Repository::find(const ACE_TCHAR name[],
+                                   const ACE_Service_Type **srp = 0,
+                                   int ignore_suspended = true) const
+  method's 'ignore_suspended' parameter was changed from int to bool to
+  reflect it's purpose as a yes/no indicator.
+
+. Added --enable-ace-reactor-notification-queue configure script
+  option to the autoconf build for enabling the Reactor's userspace
+  notification queue (defines ACE_HAS_REACTOR_NOTIFICATION_QUEUE in
+  config.h).
+
+. The int ACE_OutputCDR::consolidate(void) method was contributed by
+  Howard Finer at Sonus Networks. This method consolidates any continuation
+  blocks used by an ACE_OutputCDR object into a single block. It's useful for
+  situations which require access to a single memory area containing the
+  encoded stream, regardless of its length, when the length cannot be known
+  in advance.
+
+. There are a number of new methods defined on ACE_String_Base<CHAR>:
+
+        size_t capacity (void) const:  This method returns the number
+            of allocated CHAR units in the string object.
+
+        void fast_resize (size_t): This method manage the sizing/reallocating
+            of the string, but doesn't do the memory setting of resize().
+
+        bool operator!= (const CHAR *) const
+        bool operator== (const CHAR *) const: These methods compare the
+            string with a nul-terminated CHAR* string.
+
+        nonmember functions operator== and operator!= where also added
+            that compare const ACE_String_Base and const CHAR*; these make
+            it possible to switch ACE_String and CHAR* on either side of
+            the operator.
+
+  Thank you to Kelly Hickel <kfh at mqsoftware dot com> for these additions.
+
+. There are 2 new build options on the traditional make command:
+  dmalloc and mtrace. When specified at build time (e.g. make mtrace=1)
+  the PLATFORM_DMALLOC_CPPFLAGS and/or PLATFORM_MTRACE_CPPFLAGS values
+  are added to CPPFLAGS. For dmalloc, the PLATFORM_DMALLOC_LDFLAGS and
+  PLATFORM_DMALLOC_LIBS are added to LDFLAGS and LIBS, respectively.
+  Thank you to Howard Finer for supplying these additions.
+
+. Added the ability to specify additional purify and quantify command-line
+  options by setting PLATFORM_PURIFY_OPTIONS and PLATFORM_QUANTIFY_OPTIONS,
+  respectively. Thank you to Howard Finer for supplying these additions.
+
+. Added the ability to use trio (http://sourceforge.net/projects/ctrio/)
+  if platform lacks decent support for vsnprintf. trio support is
+  enabled by defining trio=1 in plaform_macros.GNU
+
+. Removed Irix 5, DGUX, and m88k support
+
+. Improved LynxOS 4.2 support
+
+. VxWorks 6.4 support
+
+. Added support for FC6. Because the GCC 4.1.1 version that gets shipped
+  has a fix for the visibility attribute we use for the singletons
+  you will need to define the following in your config.h file. This can't be
+  done automatically because SuSE 10.2 gets shipped with GCC 4.1.2 but
+  doesn't have the same fix
+  ACE_GCC_HAS_TEMPLATE_INSTANTIATION_VISIBILITY_ATTRS 1
+
+. RTEMS port
+
+USER VISIBLE CHANGES BETWEEN ACE-5.5.3 and ACE-5.5.4
+====================================================
+
+. Added appropriate intptr_t and uintptr_t typedefs on platforms that
+  don't provide them (i.e. when ACE_LACKS_INTPTR_T is defined).
+
+. Added ability to explicitly choose support for 32 bit or 64 bit file
+  offsets on all platforms.  Define the _FILE_OFFSET_BITS preprocessor
+  symbol to either 32 or 64 to choose the desired number of file
+  offset bits.  This preprocessor symbol is supported natively by most
+  UNIX and UNIX-like operating systems, and supported by ACE on
+  Windows.  Use the new ACE_OFF_T typedef to refer to file offsets
+  across UNIX and Windows portably.
+
+. 64-bit file offsets are now enabled by default in Win64
+  configurations.
+
+. Improved support for 64 bit platforms (64 bit addresses, etc).
+
+. Added STL-style traits, iterators and a swap() method to the
+  ACE_Array_Base<> class template.
+
+. Added STL-style traits and iterator accessors to the
+  ACE_Hash_Map_Manager_Ex<> class template, as well as new find() and
+  unbind() methods that return (as an "out" parameter) and accept
+  iterators, respectively.
+
+. Greatly improved event handler dispatch performance in
+  select()-based reactors (e.g. ACE_Select_Reactor and ACE_TP_Reactor)
+  for large handle sets on Windows. Previous event handler search
+  were linear, and are now constant on average.
+
+. Addressed a number of Coverity errors (CHECKED_RETURN, DEADCODE,
+  LOCK, USE_AFTER_FREE, RESOURCE_LEAK, FORWARD_NULL).
+
+. Added STL-style "element_type" trait to all ACE auto_ptr class
+  templates.
+
+. Removed support for LynxOS 3.x.
+
+. Resolved Bugzilla #2701 to ensure fini() is called for all
+  Service Objects upon calling ACE_Service_Config::close()
+
+. VxWorks 5.5.2 has been tested, for ACE the support is exactly
+  the same as for VxWorks 5.5.1. No specific defines or flags have
+  to be used.
+
+USER VISIBLE CHANGES BETWEEN ACE-5.5.2 and ACE-5.5.3
+====================================================
+
+. Added the base projects for executionmanager_stub and plan_generator.
+
+. Added the ACE_Hash_MultiMap_Manager class and its test file.
+
+. Changed the ACE_Synch_Options::operator[] method to return bool rather than
+  int. The value returned is a yes/no indication of whether or not the
+  specified option(s) are set in the object.
+
+. Changed the prototype(s) for ACE::debug () to return (and take) a
+  bool. This is consistent with the original intent for this
+  feature. If you have been using it like 'ACE::debug () > 0' or
+  'ACE::debug (1)', you may have to rebuild ACE. The value of the
+  ACE_DEBUG environment variable can be used to specify the initial
+  value for ACE::debug(), at the process start up.
+
+. An assembler (within a C source file) based implementation for SPARC
+  of atomic operations suitable for use with the
+  ACE_Atomic_Op<ACE_Thread_Mutex, long> and
+  ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long> specializations has
+  been added.  Currently, it can only be enabled by setting the
+  atomic_ops_sparc make macro to 1 when using the GNUACE build system with
+  the Solaris SunCC compiler.  It should be noted that this requires the
+  -xarch=v8plus (or higher) be added to the CFLAGS make macro or the
+  assembler code will not compile.
+
+. The ACE_Message_Queue_Ex_N<class ACE_MESSAGE_TYPE, ACE_SYNCH_DECL> class
+  is new, contributed by Guy Peleg <guy dot peleg at amdocs dot com>.
+  ACE_Message_Queue_Ex_N<class ACE_MESSAGE_TYPE, ACE_SYNCH_DECL> is
+  similar to ACE_Message_Queue_Ex in that the object queued is a
+  template parameter. However, ACE_Message_Queue_Ex_N allows the
+  enqueueing and dequeueing of multiple chained objects at once. This
+  wasn't added to ACE_Message_Queue_Ex because the chained object
+  functionality requires the ACE_MESSAGE_TYPE class to have a
+  ACE_MESSAGE_TYPE *next (void) const method, analogous to
+  ACE_Message_Block::next(), to follow the chain and this would
+  probably break existing applications using ACE_Message_Queue_Ex.
+  The ACE_wrappers/tests/Message_Queue_Test_Ex.cpp test has an example of
+  how to use the new class.
+
+. The selector and comparator function pointer arguments to ACE_OS::scandir()
+  and ACE_Dirent_Selector are now marked as extern "C" to enforce their
+  use with a C RTL function. User code that defines functions which are
+  passed as the selector or comparator arguments which are not declared
+  extern "C" may generate compile warnings. To resolve this, add extern "C"
+  to the function's signature. See ACE_wrappers/tests/Dirent_Test.cpp for
+  an example.
+
+. To address a problem in the ACE string interface that prevented
+  substring or character searches in very large strings (e.g. greater
+  than the maximum value of an ssize_t type) from being correctly
+  reported to the caller, the find(), rfind() and strstr() methods now
+  return an unsigned integer (size_t) instead of a signed one
+  (ssize_t). Affected classes include:
+
+    * ACE_CString
+    * ACE_WString
+    * ACE_TString
+    * ACE_NS_WString
+
+  Unless you have been explicitly using -1 instead of npos when
+  comparing the return value of find(), rfind() and strstr(), and/or
+  assigning the return value to ssize_t you should not see any
+  difference. A new size_type typedef has been added to the ACE string
+  class to aid developers.  This typedef is analogous to the standard
+  C++ string::size_type typedef.
+
+  The ACE_String_Base<>::strstr() documentation and the default
+  rfind() argument erroneously referred to -1 instead of npos. Those
+  instances have been corrected.
+
+  To summarize, a "no position" condition is denoted using the npos
+  constant, not -1. It can be referred directly by scoping it with the
+  appropriate string class (e.g. ACE_CString::npos, ACE_WString::npos,
+  etc).
+
+. Changing the shared library extension for hpux ia64 to ".so". On
+  HP-UX 11i Version 1.5 the naming scheme is lib*.sl for PA and
+  lib*.so on IPF.
+
+. The ACE_Refcounted_Auto_Ptr reset() and release() methods were changed
+  per Bugzilla #1925. They will both now detach from the underlying
+  ACE_Refcounted_Auto_Ptr_Rep object; reset() will create a new one for
+  the new pointer specified as its argument. This change may cause referenced
+  objects to be deleted in cases where previous ACE versions would not have.
+
+. The return type of "ACE_Refcounted_Auto_Ptr::null (void) const" changed
+  from int to bool. It's possible values, true and false, have not changed.
+
+. TTY_IO now accepts "none" as a valid parity value. Due to this change
+  'parityenb' member is now deprecated and will be removed in the future.
+  The users of TTY_IO class should change their code to use only 'paritymode'
+  member for parity control and leave 'parityenb' unchanged (it is
+  enabled by default in class constructor).
+
+. Support for Intel C++ 9.1 on Windows and Linux
+
+. VxWorks 6.3 support
+
+. Fixed Bugzilla #2648 to make sure ACE_Service_Object::fini()
+  is called iff ACE_Service_Object::init() succeeded, as per
+  C++NPv2.
+
+. Added preliminary support for Mac OS X 10.4 on Intel CPU's.
+
+. Fixed Bugzilla #2602 to re-enable XML Service Configurator
+  file support.
+
+USER VISIBLE CHANGES BETWEEN ACE-5.5.1 and ACE-5.5.2
+====================================================
+
+. Added support for:
+   - VxWorks 6.2 for the rtp model using pthread support
+   - OpenVMS 8.2 for Alpha
+
+. Removed code and configurations that provided support for:
+   - Visual C++ 6.0 and 7.0
+   - Chorus
+   - pSOS
+   - KAI C++ on all platforms
+
+. Explicit template instantiation support has been removed. This effectively
+  removes support for Sun Forte 6 and 7 which required explicit template
+  instantiation to build ACE reliably.
+
+. Added support for multiple independent Service Repositories through
+  configuration contexts called "Gestalt". Full backwards compatibility
+  is maintained through the existing ACE_Service_Config static methods,
+  while direct individual repository access is enabled through instances
+  of the new ACE_Service_Gestalt class. ACE_Service_Config has changed to
+  a specialization of ACE_Service_Gestalt and is only responsible for the
+  process-wide configuration.
+
+. To support dynamically-sized ACE_Log_Record messages, the netsvcs
+  logging components now use ACE CDR encoding and transfer mechanisms
+  inspired by the examples in Chapter 4 of the C++NPv1 book.
+  The client and server logging daemons in ACE 5.5.2 and forward will
+  not interoperate with those in previous ACE versions.
+
+. Added a wrapper for the sendfile API (ACE_OS::sendfile()).
+
+. Added support for netlink sockets on Linux.
+
+. Added a new method, ACE_Task::last_thread(). This method returns the thread
+  ID (ACE_thread_t) of the last thread to exit from the ACE_Task object.
+  Users checking to see if a thread is the last one out (for example, to know
+  when to perform cleanup operations) should compare the current thread ID to
+  the return value from last_thread(). This is a change from the previously
+  recommended practice (C++NPv2, page 189) of comparing the return value of
+  thr_count() with 0.
+
+. Changed the first argument to ACE_OS::strptime() to be 'const' which
+  matches its usual usage in POSIX strptime(). This change allows users to
+  pass const strings in - a common use case.
+
+. Made part of the file support in ACE 64bit but we have some places where
+  32bit types are used, this could lead to some conversion warnings which
+  will be addressed in the near future, but getting everything 64bit
+  compliant is a lot of work.
+
+USER VISIBLE CHANGES BETWEEN ACE-5.5 and ACE-5.5.1
+====================================================
+
+. Added support for the --enable-symbol-visibility configure option
+  to the autoconf build infrastructure instead of solely relying on
+  feature tests to enable/disable symbol visibility support.  This
+  avoids build problems with icc, etc.
+
+. Added support for the --enable-fl-reactor configure option to the
+  autoconf build infrastructure to build the ACE_FlReactor library.
+
+. Added support for the --enable-qt-reactor configure option to the
+  autoconf build infrastructure to build the ACE_QtReactor library.
+
+. Added support for the --enable-xt-reactor configure option to the
+  autoconf build infrastructure to build the ACE_XtReactor library.
+
+. Fixed a bug that would cause timer IDs from ACE_Timer_Heap to be
+  improperly duplicated under certain conditions (Bugzilla #2447).
+
+. Fixed ACE_SSL_Context::private_key(), context(), and dh_params() methods
+  to allow retrying a file load after a failed call.
+
+. Fixed ACE_SSL_Asynch_Stream so it can be instantiated; also moved the
+  declarations for ACE_SSL_Asynch_Read_Stream_Result,
+  ACE_SSL_Asynch_Write_Stream_Result, and ACE_SSL_Asynch_Result classes
+  to the ace/SSL/SSL_Asynch_Stream.h file so applications can see them.
+
+USER VISIBLE CHANGES BETWEEN ACE-5.4.10 and ACE-5.5
+====================================================
+
+. Added a platform macros option "templates=manual", currently only
+  applies to AIX 5.3 with XL 7 compiler.  It allows the user to tell the
+  compiler to set -qnotempinc and -qnotemplateregistry and works well
+  in static builds.
+
+. ACE and its tests compile error free with GCC 4.1 pre release.
+
+. ACE_Recursive_Thread_Mutex::get_nesting_level() fixed for 64-bit Windows
+  XP on amd64/EM64T hardware.
+
+. Many build-time fixes for Windows Mobile 5 and Windows PocketPC 2003 using
+  Visual Studio .NET 2005 (VC8).
+
+. Added support for the --enable-tk-reactor configure option to the
+  autoconf build infrastructure to build the ACE_TkReactor library.
+
+USER VISIBLE CHANGES BETWEEN ACE-5.4.9 and ACE-5.4.10
+====================================================
+
+. Fixed a bug in ACE_Timer_Heap_T::cancel().
+
+. Improved ACE_Time_Value support for boundary conditions.
+
+. Fixed problems with operator placement delete on certain C++ compilers.
+
+. Fixed a bug with the ACE_SPIPE_Acceptor on Windows.
+
+. Correctly set sockaddr_in.sin_len and sockaddr_in6.sin6_len on
+  platforms that have these fields.
+
+. Avoided problems with namespace pollution for max() macros.
+
+. Many fixes for ACE_LACKS* and ACE_HAS* macros for autoconfig.
+
+USER VISIBLE CHANGES BETWEEN ACE-5.4.8 and ACE-5.4.9
+====================================================
+
+. Added dozens of new ACE_LACKS and ACE_HAS defines which are used to
+  simplify the ACE_OS layer
+
+. Constructors of ACE_Time_Value have been made explicit to prevent
+  implicit conversions.
+
+. Added a shutdown() method to ACE_Barrier. The new method aborts the
+  wait by all threads.
+
+. Changed the behavior of ACE_Message_Queue::enqueue_head() and
+  enqueue_tail(). If the enqueued message block has other blocks
+  chained to it via its next() pointer, the entire chain of blocks
+  will be enqueued at once.
+
+. Improved the support for high-resolution timers with
+  ACE_Timer_Queue_Adapter.
+
+. Make it possible to disable file caching in JAWS.
+
+. Improved ACE_Pipe implementation so that it uses localhost to avoid
+  firewall problems.
+
+. Added Unicode support to the Service Configurator.
+
+USER VISIBLE CHANGES BETWEEN ACE-5.4.7 and ACE-5.4.8
+====================================================
+
+. Improved IPv6 support
+
+. Improved 64bit portability
+
+. TTY_IO overhaul
+  - Improved documentation.
+  - It is now possible to request infinite timeout in portable manner.
+    This can be achieved by setting negative value to readtimeoutmsec.
+  - Various bugs fixed and portability issues resolved.
+
+. Subset ACE for TAO and TAO Services
+
+. Support for Intel C++ 9.0 on Windows and Linux
+
+. Support for Microsoft Visual Studio 2005 (aka VC8) for Win32 as well
+  as the Windows CE platforms Pocket PC 2003 and Windows Mobile 5.
+  Solution/project files are generated with an appended "_vc8" for
+  Win32 and "_WinCE" for the CE platforms. See
+  ACE_wrappers/docs/CE-status.txt for more information.
+
+. Completed implementation of ACE_Dev_Poll_Reactor using the Linux epoll
+  facility; tested on Red Hat Enterprise Linux 4.
+
+. The in-memory size of an ACE_RB_Tree will be smaller due to rearranged
+  placement of pointers.
+
+. Added an optimization to CDR stream to ignores alignment when marshaling
+  data.  Use this new ACE_LACKS_CDR_ALIGNMENT compile-time option only
+  when the ACE_DISABLE_SWAP_ON_READ macro is enabled.  This new option
+  requires ACE CDR engine to do both marshaling and demarshaling, and
+  when this option is enabled the encoded streams are no longer
+  compliant with the CORBA CDR specification.
+
+. Developed Feature Oriented Customizer (FOCUS) tool to enable
+  specialization of middleware frameworks such as Reactor and Protocol
+  framework.  FOCUS provides an XML based transformation engine, where
+  the transformations to specialize the components are captured in XML
+  file and a weaver specializes the code.
+
+. Added support for unrolling ACE_OS::memcpy copy loop where
+  applicable to improve performance. Autoconf tests empirically
+  determine whether loop unrolling is at least 10% better than default
+  version.
+
+. Added support for an ACE "versioned" namespace.  When enabled, ACE
+  library sources will be placed within a namespace of the user's
+  choice or a namespace of the form ACE_5_4_7 by default, where
+  "5_4_7" is the ACE major, minor and beta versions.  The default may
+  be overridden by defining the ACE_VERSIONED_NAMESPACE_NAME
+  preprocessor symbol.  Enable overall versioned namespace support by
+  adding "versioned_namespace=1" to your MPC default.features file.
+
+USER VISIBLE CHANGES BETWEEN ACE-5.4.6 and ACE-5.4.7
+====================================================
+
+. Support for shared libraries with VxWorks
+
+. Support for Solaris 10 on x86 with Sun Studio 10 (C++ 5.7).
+
+. Extended ACE_OS::event_xxx implementation to support platforms
+  having either PThread support with Process Shared condition
+  variables or POSIX semaphores with named (process shared)
+  semaphore support or using the new FIFO based semaphores.
+
+. ACE_OS::closesocket() no longer calls ACE_OS::shutdown() on any platform
+  while closing the socket. It previously called ACE_OS::shutdown() on
+  HP-UX. Removing this call fixes the fork-and-close programming paradigm
+  that's common to many networked applications.
+
+. RMCast
+   - Support for message fragmentation. This will allow
+     for messages larger than 64K.
+   - Support for flow control.
+   - Timed recv() in RMCast::Socket.
+   - Per-instance configurable protocol parameters (e.g., message
+     retention time, NAK timeout, etc).
+
+USER VISIBLE CHANGES BETWEEN ACE-5.4.5 and ACE-5.4.6
+====================================================
+
+. Updated RMCast to include
+   - Reactor-compatible interface.
+   - Message unavailability reporting.
+   - Protocol documentation.
+
+. Added support for 64bit Visual Age on AIX
+
+. Improved g++ 4.0 support.  A number of RTTI related problems have been
+  fixed.
+
+. Smaller footprint.
+
+. Fixed memory leaks ACE_DLL and ACE_Log_Msg classes.
+
+. The ACE::ICMP_Socket and ACE::Ping_Socket classes were moved out of
+  the ACE namespace and "flattened" to ACE_ICMP_Socket and
+  ACE_Ping_Socket to be consistent with the rest of ACE.
+
+. ACE_INET_Addr::set_address() - fixed a possible struct member
+  alignment issue when building an IPv4-mapped IPv6 address.
+
+. Added a new ACE::wild_match() function to match a string based on
+  wildcards.
+
+. Added efficient overloads for string concatenation to the
+  ACE_String_Base class.
+
+. Added support for the use of pthread_getschedparam on MacOS X.
+
+. Fixed an issue with static initialization of TSS related classes on
+  static builds for Windows.
+
+USER VISIBLE CHANGES BETWEEN ACE-5.4.4 and ACE-5.4.5
+====================================================
+
+. Remove special handling in the Thread Specific Storage(TSS) code
+  that released the TSS key for ACE_TSS<TYPE>.  ACE_TSS<TYPE> has
+  been changed to explicitly free the TSS key when necessary.
+
+. On Win32 systems: detect thread termination via a hook in DLLMain
+  for ACE.dll.  This allows cleanup of TSS objects for non-ACE threads
+  that use ACE functions.  The most common case was threads that used
+  ACE logging.  Formerly any TSS objects created by these threads would
+  be leaked.
+
+. Added support for GNU G++ 4.0.  The x.4.5 beta takes advantage of
+  g++ 4.0's symbol visibility.  This feature is conceptually similar
+  to MS Windows "__declspec(dllexport)" DLL functionality.  Using this
+  new g++ feature results in substantially improved ACE/TAO/CIAO
+  shared library binaries.  A subset of the improvements include the
+  following:
+
+      * The number of unnecessarily exported DSO/DLL symbols is
+        greatly reduced, resulting in faster program start times.
+      * Smaller footprint.
+      * Improved performance since run-time indirection of internal
+        symbols is no longer needed.
+
+  No changes to the ACE/TAO sources were necessary to support this
+  feature since the required visibility attributes were hidden behind
+  the various "*_Export" macros (formerly only useful for MS Windows
+  DLLs) used throughout ACE/TAO.
+
+. The ACE_Reactor destructor will now call close() on the referenced reactor
+  implementation. This assures that all handlers are notified before the
+  ACE_Reactor object that's most likely referenced in these handlers is
+  invalid. Although this should not be a user-visible change, it did catch
+  some ACE tests off guard destroying reactor implementations and ACE_Reactor
+  interfaces in the wrong order, so it may come up in the field as well.
+  When using dynamically allocated reactor implementations, do not destroy
+  the implementation object before the ACE_Reactor interface object. Use of
+  the ACE_Reactor constructor's delete_implementation argument (with a value
+  of 1) is recommended when dynamically allocating reactor implementations.
+
+. Improved performance of HTBP by not requiring a lookup of peer hostname.
+
+. Added new ACE_SizeCDR stream which allows one to calculate size of the
+  representation without writing anything.
+
+. Number of improvements in RMCast, reliable multicast implementation.
+
+USER VISIBLE CHANGES BETWEEN ACE-5.4.3 and ACE-5.4.4
+====================================================
+
+. The ace-config script has been replaced by pkg-config metadata files
+  which are installed in ${prefix}/lib/pkgconfig by the automake build.
+
+. Remove ACE_OS::gets() implementation.  While this ACE implementation
+  of gets() did not contain the security holes that all standard
+  gets() implementations have, keeping it around only serves to foster
+  confusion since (1) some may incorrectly assume that this
+  ACE-specific gets() implementation has the same holes as standard
+  ones, and (2) invoking it with a default size argument so that it
+  looks like a standard gets() call results in behavior that is
+  different from the standard.  Use ACE_OS::fgets() instead.
+
+. Removed ACE_Unbounded_Set_Ex, this gave the false idea that it had
+  thread safe iterators. Use ACE_Unbounded_Set instead
+
+. Improved VxWorks support for static libraries. Shared libraries do cause
+  several known problems which will be fixed in the x.4.5 release.
+
+. Removed the usage of the ACE_x_cast macros, we are using the C++ casts
+  from now on. The ACE_x_cast macros are deprecated and will be removed
+  after the x.5.1 release
+
+. Some improvements in autoconf support; better detection of available
+  OS and compiler features.
+
+. Fixed bugs in ACE TSS emulation
+
+USER VISIBLE CHANGES BETWEEN ACE-5.4.2 and ACE-5.4.3
+====================================================
+
+. Improved Cygwin 1.5.12 support, 90% of the tests now succeed
+
+. Improved OpenVMS support.
+
+. Added ability to use fltk with Cygwin/MinGW
+
+. Added ACE_INT64 that defines a native 64 bit type.
+
+. Added 'q' as usable specifier for ACE_Log_Msg to print out int64 bit number.
+
+. Added better support for Intel C++ compilers.
+
+. Improved HPUX support.
+
+. Added a new directory ("ACE_wrappers/protocols/ace") for new protocols
+  that are not directly components of ACE, but are relate to ACE and
+  defined a new protocol, HTBP (Hypertext Tunneling, Bidirectional
+  Protocol) providing ACE_Acceptor/Connector/Stream semantics over a
+  connection owned by an HTTP proxy. Test cases in
+  ACE_wrappers/tests/HTBP provide examples of use.
+
+. Performace enhancement in TP_Reactor's handle_timer_events method [Bug
+  1971].
+
+. Various changes to permit ACE to execute on HP NonStop platform (e.g
+  support for its pthreads version).
+
+. Updated HP NonStop configuration files (config-tandem-nsk).
+
+. The "ACE" pseudo-namespace is now a true C++ namespace.  Transitional
+  pseudo-namespaces that were only meant to be used internally by ACE,
+  such as "ACE_Sock_Connect", no longer exist.
+
+. ACE_CDR::Boolean type is now a true C++ "bool" on all platforms except
+  MSVC++ 6.  We plan to deprecate MSVC++ 6 support sometime after the
+  x.5 release of ACE+TAO+CIAO, so we recommend you start migrating to a
+  later version of MSVC++.
+
+. More GNU g++ 3.4.x fixes.
+
+. Added ICMP and "ping" socket support.
+
+. Added mkstemp() emulation.
+
+. Fixed problem on Linux < 2.5.47 platforms where equality comparison of
+  two logically equal sockaddr_in structure instances would incorrectly
+  fail.
+
+. Support for wide characters has been improved on non-Windows
+  platforms.
+
+. A number of Windows CE problems have been fixed.
+
+. ACE's loading of DLLs (for example, as a result of loading synamic
+  services) has been changed to use the native OS's facilities for
+  locating the DLL instead of searching LD_LIBRARY_PATH (or its
+  equivalent) then loading the DLL using a full pathname. This restores
+  enforcement of a platform's loading and security policy.  To use the
+  old DLL locating method, add ACE_MUST_HELP_DLOPEN_SEARCH_PATH to your
+  config.h file before building ACE.
+
+. A number of errors in the APG example programs have been corrected.
+
+. Select_Reactor and Priority_Reactor performance improved. [Bug 1890]
+
+. Wide-char functionality on POSIX (Linux, etc.)
+
+. TSS memory leak fixes [Bug 1542]
+
+. Ported to HPUX 11i v2 on Itanium
+
+. Added code to ACE for platform RedHat AS 3.0 on Opteron.
+
+. Changed ACE::crc32() family of functions to NOT fold in the length of
+  the string/buffer/iovec into the CRC.
+
+
+USER VISIBLE CHANGES BETWEEN ACE-5.4.1 and ACE-5.4.2
+====================================================
+
+. Support for g++ 3.4.1.
+
+. All ACE Makefiles, project files, etc, are now generated by OCI's
+  "MakeProjectCreator" (MPC) tool.  Makefiles and project files for
+  commonly used configurations have been pre-generated and distributed
+  with the beta(s).  Please see:
+
+  $ACE_ROOT/ACE-INSTALL.html
+
+  for information on how to use MPC with ACE.
+
+. Improved Doxygen documentation.
+
+. Reduced header file dependencies, which should speedup compilation
+  and help minimize static footprint.
+
+. ACE now requires support for the following standard C++ features:
+
+  - "bool" keyword
+
+  - "mutable" keyword
+
+  - "explicit" keyword
+
+  - C++ casts (e.g. static_cast<>, reinterpret_cast<>, dynamic_cast<>
+    and const_cast<>)
+
+  If you're using a compiler that does NOT support these features
+  please contact Steve Huston <shuston@riverace.com> for support.
+
+. Changed the select()-based reactor implementations to scan for
+  broken handles to remove based on the registered handles, not on
+  event handlers.  This allows for bad handles to be removed from the
+  reactor even if the event handler doesn't implement get_handle() the
+  way we expect.
+
+. Support for Pthreads native recursive mutexes was added. This
+  capability is specified to ACE_OS::mutex_init() as an optional
+  argument, lock_type. To fix confusion from an earlier attempt to add
+  this functionality, the meaning of the old 'type' argument to
+  ACE_OS::thread_mutex_init() is changed. It previously combined the
+  scope and type. Now it is just the type (e.g. recursive), as the
+  scope is inherent in the method used. For clarification on
+  ACE_HAS_RECURSIVE_MUTEXES, it means that the platform is capable of
+  them, not that they always are, as one would expect. However, before
+  Pthreads had recursion added, it was never optional. Now it is.
+
+. Initial support for new Linux sys_epoll() interface in
+  Dev_Poll_Reactor.  The obsolete Linux /dev/epoll interface is no
+  longer supported.
+
+. Improved Cygwin support.
+  - Threading works without problems.
+  - Problems with shared memory, process shared mutexes, multicast and
+    some other small things still exist.
+
+. New OpenVMS port.
+  -  This is for the latest version of OpenVMS with all available ECOs
+     applied. Basic stuff works without problems.  Advanced features
+     still need some work.
+
+. Usage of ASYS_INLINE is deprecated in ACE.  Use ACE_INLINE instead.
+
+. All inline source files now end in ".inl".  The previous ".i"
+  extension is generally used for preprocessed C sources.
+
+. Autoconf support has been improved and fixed on a number of
+  platforms, including the BSD variants (e.g. FreeBSD).  It is still
+  not the preferred way to configure most platforms, but it is ready
+  for wider testing. Please report any problems found to
+  ace-bugs@cs.wustl.edu.
+
+. A number of fixes were made to quiet compile errors and warnings on
+  64-bit Windows.
+
+. For builds on AIX using Visual Age C++, the make rtti option default
+  was changed to 1, enabling RTTI by default.
+
+. ACE_Service_Repository::remove() has a new, optional argument that
+  can receive the service record pointer for the removed service. If
+  the pointer is returned to the caller, it is not deleted. If the
+  pointer is not returned to the caller (the default) it is deleted
+  (this is the historic behavior).
+
+. The tutorials in ACE_wrappers/docs have been removed. They were not
+  being maintained and caused confusion in a number of cases. Now that
+  there are complete examples that match the printed books (C++NPv1,
+  C++NPv2, APG), the older tutorials are no longer useful.  Please see
+
+  $ACE_ROOT/examples/C++NPv1/
+  $ACE_ROOT/examples/C++NPv2/
+  $ACE_ROOT/examples/APG/
+
+  for the source code of the examples in those books.
+
+. ACE_String_Base::fast_clear() is a new method which sets the string
+  length to 0. Doesn't release string-allocated memory, but if the
+  memory was externally supplied, it is no longer referenced from the
+  string object.
+
+. A true C++ "bool" is now used as the CDR stream boolean type, if
+  supported by the compiler.
+
+. Renamed AIX 5L configuration header from config-aix5.1.h to
+  config-aix-5.x.h.
+
+. All C++ equality, relational and logical operators now return bool
+  instead of int, as is the norm for modern C++.
+
+. Added new ACE_OS::realpath() implementation.  Contributed by Olli
+  Savia  <ops at iki dot fi>
+
+
+USER VISIBLE CHANGES BETWEEN ACE-5.4 and ACE-5.4.1
+====================================================
+
+ACE
+---
+
+. Fixed "make install" support in ACE+autoconf configurations.
+
+. Fixed autoconf support on Solaris.
+
+. Corrected invalid `aux' directory (on MS Windows) found in ACE
+  distribution.
+
+. ACE/TAO build now without problems with MinGW and all ACE tests run
+  now without problems
+
+. Added some more support for the new CBuilderX Preview compiler, this
+  is not 100% ready yet because the compiler is still a preview and
+  has its own problems.
+
+. Added Visual SlickEdit 8.1 MPC template
+
+. Added workaround for compile problems in Borland Release builds
+
+. Cygwin 1.5.9 is now supported
+
+. Tests for IPV6 have been added
+
+. Implement lstat() so that it'll use stat() on platforms that don't
+  support lstat().
+
+. Problems related to ACE_Event_Handler usage in WFMO_Reactor was
+  fixed.
+
+. A wrapper for rmdir () has been added.
+
+. Threads spawned in thread-per-connection mode never inherited the
+  priority. This problem was fixed and this fix is consistent with the
+  C++ NPV* books.
+
+. Fixed memory leaks with ACE_String_Base::resize ()
+
+. Enable the usage of native recursive mutexes for the implementation
+  of ACE recursive mutexes on Linux.
+
+. The ACE Proactor framework can now be enabled for AIX 5.2. Since AIO
+  functionality is not run-time enabled by default on AIX 5.2, the ACE
+  Proactor code is not built by default on AIX. To enable it, the
+  config.h file must contain #define ACE_HAS_AIO_CALLS before
+  including the config-aix-5.1.h file.
+
+. The ACE_POSIX_CB_Proactor implementation is now built on all
+  platforms except LynxOS.
+
+
+USER VISIBLE CHANGES BETWEEN ACE-5.3.6 and ACE-5.4
+==================================================
+
+ACE:
+---
+. Added a new makefile commandline flag, static_link, that can be
+  used to force static linking when static_libs_only is turned on. It
+  uses the new STATIC_LINK_FLAG variable and is currently only
+  implemented for for GNU ld, i.e., it adds the "-static" option to
+  LDFLAGS. It's turned off by default since using it causes the
+  footprint to go up by almost 1 MB on Linux, since it links all the
+  system and compiler .a files, but can be turned on if users
+  want/need to use it, by enabling both static_libs_only and static_link.
+
+
+. Added macros ACE_USES_GPROF which enables users to use gprof in a
+  multithreaded environment with ACE libs.
+
+. Added a new functor template class, ACE_Malloc_Lock_Adapter_T,
+  that's used by ACE_Malloc_T as a factory for the ACE_LOCK template
+  parameter, and allows the use of locking strategy classes, like
+  ACE_Process_Semaphore and ACE_Thread_Semaphore that don't have a
+  satisfactory ctor taking a single required ACE_TCHAR* parameter, to
+  be adapted to work with ACE_Malloc_T.
+
+. The source code examples from "The ACE Programmer's Guide" book by
+  Huston, Syyid, and Johnston, are now located in
+  $ACE_ROOT/examples/APG.
+
+. Support for GNU autoconf is now in ACE. Please see ACE-INSTALL.html
+  for details.
+
+. Fixed problems that prevented ACE from being compiled on LynxOS
+  4.0.0.
+
+. Fixed compilation error which prevented ACE from being compiled when
+  ACE_COMPILE_TIMEPROBES was set to 1.
+
+. Preliminary support for Tandem NSK has been added.
+
+. Lots of bug fixes with TLI and XPG5. Please see $ACE_ROOT/ChangeLog
+  for details.
+
+. Fixed ACE_OS::event_timedwait() and ACE_OS::event_wait() so that
+  they use a while loop around the ACE_OS::cond_[timed]wait() calls to
+  avoid problems with spurious wakeups, etc.
+
+. ACE's wrapper around getipnodebyname() and getipnodebyaddr () has
+  been made go through the IPv4-only case on ACE_WIN32. Since Windows
+  IPv6 implementation doesn't offer support (at thistime) for
+  getipnodebyname() the code has been changed to use the IPV4 part of
+  the code.
+
+. Install with Borland C++ of ACE library fixed
+
+ACEXML:
+-------
+
+. Fixed memory leak in ACEXML parser.
+
+. Fixed implementations of rewind() in all the CharStreams. They were
+  broken previously.
+
+. Fixed bugs in the parser associated with incorrect handling of PE
+  References for keywords.

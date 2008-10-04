@@ -1805,8 +1805,13 @@ uint8 Guild::_CanStoreItem_InSpecificSlot( uint8 tab, uint8 slot, GuildItemPosCo
     if(need_space > count)
         need_space = count;
 
-    dest.push_back(GuildItemPosCount(slot,need_space));
-    count -= need_space;
+    GuildItemPosCount newPosition = GuildItemPosCount(slot,need_space);
+    if(!newPosition.isContainedIn(dest))
+    {
+        dest.push_back(newPosition);
+        count -= need_space;
+    }
+
     return EQUIP_ERR_OK;
 }
 
@@ -1836,11 +1841,15 @@ uint8 Guild::_CanStoreItem_InTab( uint8 tab, GuildItemPosCountVec &dest, uint32&
                 if(need_space > count)
                     need_space = count;
 
-                dest.push_back(GuildItemPosCount(j,need_space));
-                count -= need_space;
+                GuildItemPosCount newPosition = GuildItemPosCount(j,need_space);
+                if(!newPosition.isContainedIn(dest))
+                {
+                    dest.push_back(newPosition);
+                    count -= need_space;
 
-                if(count==0)
-                    return EQUIP_ERR_OK;
+                    if(count==0)
+                        return EQUIP_ERR_OK;
+                }
             }
         }
         else
@@ -1849,11 +1858,15 @@ uint8 Guild::_CanStoreItem_InTab( uint8 tab, GuildItemPosCountVec &dest, uint32&
             if(need_space > count)
                 need_space = count;
 
-            dest.push_back(GuildItemPosCount(j,need_space));
-            count -= need_space;
+            GuildItemPosCount newPosition = GuildItemPosCount(j,need_space);
+            if(!newPosition.isContainedIn(dest))
+            {
+                dest.push_back(newPosition);
+                count -= need_space;
 
-            if(count==0)
-                return EQUIP_ERR_OK;
+                if(count==0)
+                    return EQUIP_ERR_OK;
+            }
         }
     }
     return EQUIP_ERR_OK;
@@ -1938,3 +1951,13 @@ void Guild::SendGuildBankTabText(WorldSession *session, uint8 TabId)
     data << tab->Text;
     session->SendPacket(&data);
 }
+
+bool GuildItemPosCount::isContainedIn(GuildItemPosCountVec const &vec) const
+{
+    for(GuildItemPosCountVec::const_iterator itr = vec.begin(); itr != vec.end();++itr)
+        if(itr->slot == this->slot)
+            return true;
+
+    return false;
+}
+

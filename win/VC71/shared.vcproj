@@ -21,7 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\dep\include;..\..\dep\include\g3dlite;..\..\src\framework;..\..\src\shared"
+				AdditionalIncludeDirectories="..\..\dep\include;..\..\dep\include\g3dlite;..\..\src\framework;..\..\src\shared;..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
@@ -77,7 +77,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\dep\include;..\..\dep\include\g3dlite;..\..\src\framework;..\..\src\shared"
+				AdditionalIncludeDirectories="..\..\dep\include;..\..\dep\include\g3dlite;..\..\src\framework;..\..\src\shared;..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="WIN32;_DEBUG;MANGOS_DEBUG;_LIB"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"

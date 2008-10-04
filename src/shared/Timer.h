@@ -22,7 +22,7 @@
 #include "Platform/CompilerDefs.h"
 
 #if PLATFORM == PLATFORM_WINDOWS
-#   include <windows.h>
+#   include <ace/config-all.h>
 #   include <mmsystem.h>
 #   include <time.h>
 #else

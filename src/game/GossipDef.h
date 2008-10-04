@@ -108,9 +108,14 @@ class MANGOS_DLL_SPEC GossipMenu
         void AddMenuItem(uint8 Icon, char const* Message, bool Coded = false);
         void AddMenuItem(uint8 Icon, char const* Message, uint32 dtSender, uint32 dtAction, char const* BoxMessage, uint32 BoxMoney, bool Coded = false);
 
-        unsigned int MenuItemCount()
+        unsigned int MenuItemCount() const
         {
             return m_gItems.size();
+        }
+
+        bool Empty() const
+        {
+            return m_gItems.empty();
         }
 
         GossipMenuItem const& GetItem( unsigned int Id )
@@ -137,10 +142,16 @@ class QuestMenu
         void AddMenuItem( uint32 QuestId, uint8 Icon);
         void ClearMenu();
 
-        uint8 MenuItemCount()
+        uint8 MenuItemCount() const
         {
             return m_qItems.size();
         }
+
+        bool Empty() const
+        {
+            return m_qItems.empty();
+        }
+
         bool HasItem( uint32 questid );
 
         QuestMenuItem const& GetItem( uint16 Id )
@@ -155,16 +166,18 @@ class QuestMenu
 class MANGOS_DLL_SPEC PlayerMenu
 {
     private:
-        GossipMenu* pGossipMenu;
-        QuestMenu* pQuestMenu;
+        GossipMenu mGossipMenu;
+        QuestMenu  mQuestMenu;
         WorldSession* pSession;
 
     public:
         PlayerMenu( WorldSession *Session );
         ~PlayerMenu();
 
-        GossipMenu* GetGossipMenu() { return pGossipMenu; }
-        QuestMenu* GetQuestMenu() { return pQuestMenu; }
+        GossipMenu& GetGossipMenu() { return mGossipMenu; }
+        QuestMenu& GetQuestMenu() { return mQuestMenu; }
+
+        bool Empty() const { return mGossipMenu.Empty() && mQuestMenu.Empty(); }
 
         void ClearMenus();
         uint32 GossipOptionSender( unsigned int Selection );

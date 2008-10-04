@@ -1119,9 +1119,10 @@ void ScriptsFree()
 MANGOS_DLL_EXPORT
 void ScriptsInit()
 {
-    //Trinity Script startup 
+    //Trinity Script startup
+    outstring_log(" _____     _       _ _         ____            _       _");
     outstring_log("|_   _| __(_)_ __ (_) |_ _   _/ ___|  ___ _ __(_)_ __ | |_ ");
-    outstring_log("  | || '__| | '_ \\| | __| | | \\___ \\ / __| \\'__| | \\'_ \\| __|");
+    outstring_log("  | || '__| | '_ \\| | __| | | \\___ \\ / __| \'__| | \'_ \\| __|");
     outstring_log("  | || |  | | | | | | |_| |_| |___) | (__| |  | | |_) | |_ ");
     outstring_log("  |_||_|  |_|_| |_|_|\\__|\\__, |____/ \\___|_|  |_| .__/ \\__|");
     outstring_log("                         |___/                  |_|        ");

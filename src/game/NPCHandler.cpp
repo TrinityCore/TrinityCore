@@ -129,9 +129,6 @@ void WorldSession::SendTrainerList( uint64 guid,std::string strTitle )
     if(GetPlayer()->hasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
 
-    // Lazy loading at first access
-    unit->LoadTrainerSpells();
-
     // trainer list loaded at check;
     if(!unit->isCanTrainingOf(_player,true))
         return;
@@ -144,39 +141,46 @@ void WorldSession::SendTrainerList( uint64 guid,std::string strTitle )
         return;
     }
 
-    Creature::SpellsList const& trainer_spells = unit->GetTrainerSpells();
+    TrainerSpellData const* trainer_spells = unit->GetTrainerSpells();
+    if(!trainer_spells)
+    {
+        sLog.outDebug( "WORLD: SendTrainerList - Training spells not found for creature (GUID: %u Entry: %u)", guid, unit->GetEntry());
+        return;
+    }
 
-    WorldPacket data( SMSG_TRAINER_LIST, 8+4+4+trainer_spells.size()*38 + strTitle.size()+1);
+    WorldPacket data( SMSG_TRAINER_LIST, 8+4+4+trainer_spells->spellList.size()*38 + strTitle.size()+1);
     data << guid;
-    data << uint32(unit->GetTrainerType());
+    data << uint32(trainer_spells->trainerType);
 
     size_t count_pos = data.wpos();
-    data << uint32(trainer_spells.size());
+    data << uint32(trainer_spells->spellList.size());
 
     // reputation discount
     float fDiscountMod = _player->GetReputationPriceDiscount(unit);
 
     uint32 count = 0;
-    for(Creature::SpellsList::const_iterator itr = trainer_spells.begin(); itr != trainer_spells.end(); ++itr)
+    for(TrainerSpellList::const_iterator itr = trainer_spells->spellList.begin(); itr != trainer_spells->spellList.end(); ++itr)
     {
-        if(!_player->IsSpellFitByClassAndRace(itr->spell->Id))
+        TrainerSpell const* tSpell = *itr;
+
+        if(!_player->IsSpellFitByClassAndRace(tSpell->spell))
             continue;
 
         ++count;
 
-        bool primary_prof_first_rank = spellmgr.IsPrimaryProfessionFirstRankSpell(itr->spell->Id);
+        bool primary_prof_first_rank = spellmgr.IsPrimaryProfessionFirstRankSpell(tSpell->spell);
 
-        SpellChainNode const* chain_node = spellmgr.GetSpellChainNode(itr->spell->Id);
+        SpellChainNode const* chain_node = spellmgr.GetSpellChainNode(tSpell->spell);
 
-        data << uint32(itr->spell->Id);
-        data << uint8(_player->GetTrainerSpellState(&*itr));
-        data << uint32(floor(itr->spellcost * fDiscountMod));
+        data << uint32(tSpell->spell);
+        data << uint8(_player->GetTrainerSpellState(tSpell));
+        data << uint32(floor(tSpell->spellcost * fDiscountMod));
 
         data << uint32(primary_prof_first_rank ? 1 : 0);    // primary prof. learn confirmation dialog
         data << uint32(primary_prof_first_rank ? 1 : 0);    // must be equal prev. field to have learn button in enabled state
-        data << uint8(itr->reqlevel ? itr->reqlevel : itr->spell->spellLevel);
-        data << uint32(itr->reqskill);
-        data << uint32(itr->reqskillvalue);
+        data << uint8(tSpell->reqlevel);
+        data << uint32(tSpell->reqskill);
+        data << uint32(tSpell->reqskillvalue);
         data << uint32(chain_node ? (chain_node->prev ? chain_node->prev : chain_node->req) : 0);
         data << uint32(chain_node && chain_node->prev ? chain_node->req : 0);
         data << uint32(0);
@@ -209,26 +213,16 @@ void WorldSession::HandleTrainerBuySpellOpcode( WorldPacket & recv_data )
     if(GetPlayer()->hasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
 
-    // Lazy loading at first access
-    unit->LoadTrainerSpells();
-
     if(!unit->isCanTrainingOf(_player,true))
         return;
 
-    TrainerSpell const* trainer_spell = NULL;
-
     // check present spell in trainer spell list
-    Creature::SpellsList const& trainer_spells = unit->GetTrainerSpells();
-    for(Creature::SpellsList::const_iterator itr = trainer_spells.begin(); itr != trainer_spells.end(); ++itr)
-    {
-        if(itr->spell->Id == spellId)
-        {
-            trainer_spell = &*itr;
-            break;
-        }
-    }
+    TrainerSpellData const* trainer_spells = unit->GetTrainerSpells();
+    if(!trainer_spells)
+        return; 
 
     // not found, cheat?
+    TrainerSpell const* trainer_spell = trainer_spells->Find(spellId);
     if(!trainer_spell)
         return;
 
@@ -254,7 +248,7 @@ void WorldSession::HandleTrainerBuySpellOpcode( WorldPacket & recv_data )
     _player->ModifyMoney( -int32(nSpellCost) );
 
     // learn explicitly to prevent lost money at lags, learning spell will be only show spell animation
-    _player->learnSpell(trainer_spell->spell->Id);
+    _player->learnSpell(trainer_spell->spell);
 
     data.Initialize(SMSG_TRAINER_BUY_SUCCEEDED, 12);
     data << uint64(guid) << uint32(spellId);

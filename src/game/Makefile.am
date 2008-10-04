@@ -30,6 +30,8 @@ libgame_a_CPPFLAGS = \
 $(MYSQL_INCLUDES) \
 $(POSTGRE_INCLUDES) \
 -I$(top_srcdir)/dep/include \
+-I$(top_srcdir)/dep/ACE_wrappers \
+-I$(top_builddir)/dep/ACE_wrappers \
 -I$(top_srcdir)/src/framework \
 -I$(top_srcdir)/src/shared \
 -I$(top_srcdir)/src/shared/vmap

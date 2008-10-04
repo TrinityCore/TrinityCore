@@ -42,6 +42,7 @@
 
 #include <string>
 #include <map>
+#include <limits>
 
 extern SQLStorage sCreatureStorage;
 extern SQLStorage sCreatureDataAddonStorage;
@@ -59,6 +60,19 @@ class ArenaTeam;
 class Path;
 class TransportPath;
 class Item;
+
+struct GameTele
+{
+    float  position_x;
+    float  position_y;
+    float  position_z;
+    float  orientation;
+    uint32 mapId;
+    std::string name;
+    std::wstring wnameLow;
+};
+
+typedef HM_NAMESPACE::hash_map<uint32, GameTele > GameTeleMap;
 
 struct ScriptInfo
 {
@@ -143,10 +157,10 @@ struct ReputationOnKillEntry
     uint32 repfaction1;
     uint32 repfaction2;
     bool is_teamaward1;
-    uint32 reputration_max_cap1;
+    uint32 reputation_max_cap1;
     int32 repvalue1;
     bool is_teamaward2;
-    uint32 reputration_max_cap2;
+    uint32 reputation_max_cap2;
     int32 repvalue2;
     bool team_dependent;
 };
@@ -210,6 +224,23 @@ struct PlayerCondition
         return (lc.condition == condition && lc.value1 == value1 && lc.value2 == value2);
     }
 };
+
+// NPC gossip text id
+typedef HM_NAMESPACE::hash_map<uint32, uint32> CacheNpcTextIdMap;
+
+// Vendors
+struct VendorItem
+{
+    uint32 item;
+    uint32 maxcount;
+    uint32 incrtime;
+    uint32 ExtendedCost;
+};
+typedef std::vector<VendorItem*> VendorItemList;
+
+typedef HM_NAMESPACE::hash_map<uint32, VendorItemList> CacheVendorItemMap;
+
+typedef HM_NAMESPACE::hash_map<uint32, TrainerSpellData> CacheTrainerSpellMap;
 
 enum SkillRangeType
 {
@@ -466,8 +497,8 @@ class ObjectMgr
         void LoadEventScripts();
         void LoadSpellScripts();
 
-        bool LoadMangosStrings(DatabaseType& db, char const* table, bool positive_entries);
-        bool LoadMangosStrings() { return LoadMangosStrings(WorldDatabase,"mangos_string",true); }
+        bool LoadMangosStrings(DatabaseType& db, char const* table, int32 min_value, int32 max_value);
+        bool LoadMangosStrings() { return LoadMangosStrings(WorldDatabase,"mangos_string",1,std::numeric_limits<int32>::max()); }
         void LoadPetCreateSpells();
         void LoadCreatureLocales();
         void LoadCreatureTemplates();
@@ -512,6 +543,11 @@ class ObjectMgr
         void LoadReputationOnKill();
 
         void LoadWeatherZoneChances();
+        void LoadGameTele();
+
+        void LoadNpcTextId();
+        void LoadVendors();
+        void LoadTrainerSpell();
 
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint32 level);
@@ -664,6 +700,44 @@ class ObjectMgr
 
             return mConditions[condition_id].Meets(player);
         }
+
+        GameTele const* GetGameTele(uint32 id) const
+        {
+            GameTeleMap::const_iterator itr = m_GameTeleMap.find(id);
+            if(itr==m_GameTeleMap.end()) return NULL;
+            return &itr->second;
+        }
+        GameTele const* GetGameTele(std::string name) const;
+        GameTeleMap const& GetGameTeleMap() const { return m_GameTeleMap; }
+        bool AddGameTele(GameTele& data);
+        bool DeleteGameTele(std::string name);
+
+        uint32 GetNpcGossip(uint32 entry) const
+        {
+            CacheNpcTextIdMap::const_iterator iter = m_mCacheNpcTextIdMap.find(entry);
+            if(iter == m_mCacheNpcTextIdMap.end())
+                return 0;
+            
+            return iter->second;
+        }
+
+        TrainerSpellData const* GetNpcTrainerSpells(uint32 entry) const
+        {
+            CacheTrainerSpellMap::const_iterator  iter = m_mCacheTrainerSpellMap.find(entry);
+            if(iter == m_mCacheTrainerSpellMap.end())
+                return NULL;
+
+            return &iter->second;
+        }
+
+        VendorItemList const* GetNpcVendorItemList(uint32 entry) const
+        {
+            CacheVendorItemMap::const_iterator  iter = m_mCacheVendorItemMap.find(entry);
+            if(iter == m_mCacheVendorItemMap.end())
+                return NULL;
+
+            return &iter->second;
+        }
     protected:
         uint32 m_auctionid;
         uint32 m_mailid;
@@ -721,6 +795,8 @@ class ObjectMgr
 
         GraveYardMap        mGraveYardMap;
 
+        GameTeleMap         m_GameTeleMap;
+
         typedef             std::vector<LocaleConstant> LocalForIndex;
         LocalForIndex        m_LocalForIndex;
         int GetOrNewIndexForLocale(LocaleConstant loc);
@@ -770,11 +846,15 @@ class ObjectMgr
         typedef std::vector<PlayerCondition> ConditionStore;
         ConditionStore mConditions;
 
+        CacheNpcTextIdMap m_mCacheNpcTextIdMap;
+        CacheVendorItemMap m_mCacheVendorItemMap;
+        CacheTrainerSpellMap m_mCacheTrainerSpellMap;
 };
 
 #define objmgr MaNGOS::Singleton<ObjectMgr>::Instance()
-#endif
 
 // scripting access functions
-bool MANGOS_DLL_SPEC LoadMangosStrings(DatabaseType& db, char const* table);
+bool MANGOS_DLL_SPEC LoadMangosStrings(DatabaseType& db, char const* table,int32 start_value = -1, int32 end_value = std::numeric_limits<int32>::min());
 MANGOS_DLL_SPEC const char* GetAreaTriggerScriptNameById(uint32 id);
+
+#endif

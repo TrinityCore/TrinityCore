@@ -221,7 +221,7 @@ struct MANGOS_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
                     pInstance->SetData(TYPE_NETHEKURSE,IN_PROGRESS);
             }
 
-            if( m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE )
+            if(!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE )
                 return;
 
             if( IsIntroEvent || !IsMainEvent )

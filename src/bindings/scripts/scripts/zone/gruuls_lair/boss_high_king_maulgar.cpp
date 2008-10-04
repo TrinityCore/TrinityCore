@@ -344,13 +344,13 @@ struct MANGOS_DLL_DECL boss_kiggler_the_crazedAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (!who || m_creature->getVictim())
-            return;
-
-        if (who->isTargetableForAttack() && who->isInAccessablePlaceFor(m_creature) && m_creature->IsHostileTo(who))
+        if (!m_creature->getVictim() && who->isTargetableForAttack() && who->isInAccessablePlaceFor(m_creature) && m_creature->IsHostileTo(who))
         {
+            if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
+                return;
+
             float attackRadius = m_creature->GetAttackDistance(who);
-            if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->GetDistanceZ(who) <= CREATURE_Z_ATTACK_RANGE && m_creature->IsWithinLOSInMap(who))
+            if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
             {
                 if(who->HasStealthAura())
                     who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
@@ -459,13 +459,13 @@ struct MANGOS_DLL_DECL boss_blindeye_the_seerAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (!who || m_creature->getVictim())
-            return;
-
-        if (who->isTargetableForAttack() && who->isInAccessablePlaceFor(m_creature) && m_creature->IsHostileTo(who))
+        if (!m_creature->getVictim() && who->isTargetableForAttack() && who->isInAccessablePlaceFor(m_creature) && m_creature->IsHostileTo(who))
         {
+            if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
+                return;
+
             float attackRadius = m_creature->GetAttackDistance(who);
-            if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->GetDistanceZ(who) <= CREATURE_Z_ATTACK_RANGE && m_creature->IsWithinLOSInMap(who))
+            if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
             {
                 if(who->HasStealthAura())
                     who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
@@ -559,13 +559,13 @@ struct MANGOS_DLL_DECL boss_krosh_firehandAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (!who || m_creature->getVictim())
-            return;
-
-        if (who->isTargetableForAttack() && who->isInAccessablePlaceFor(m_creature) && m_creature->IsHostileTo(who))
+        if (!m_creature->getVictim() && who->isTargetableForAttack() && who->isInAccessablePlaceFor(m_creature) && m_creature->IsHostileTo(who))
         {
+            if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
+                return;
+
             float attackRadius = m_creature->GetAttackDistance(who);
-            if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->GetDistanceZ(who) <= CREATURE_Z_ATTACK_RANGE && m_creature->IsWithinLOSInMap(who))
+            if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
             {
                 if(who->HasStealthAura())
                     who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);

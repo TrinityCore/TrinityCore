@@ -670,7 +670,7 @@ enum KeyRingSlots
 struct ItemPosCount
 {
     ItemPosCount(uint16 _pos, uint8 _count) : pos(_pos), count(_count) {}
-    bool isContainedIn(std::vector<ItemPosCount>&);
+    bool isContainedIn(std::vector<ItemPosCount> const& vec) const;
     uint16 pos;
     uint8 count;
 };
@@ -1741,7 +1741,9 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         uint32 GetShieldBlockValue() const;                 // overwrite Unit version (virtual)
         bool CanParry() const { return m_canParry; }
-        void SetCanParry(bool value) { m_canParry = value; }
+        void SetCanParry(bool value);
+        bool CanBlock() const { return m_canBlock; }
+        void SetCanBlock(bool value);
         bool CanDualWield() const { return m_canDualWield; }
         void SetCanDualWield(bool value) { m_canDualWield = value; }
 
@@ -2201,6 +2203,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         uint32 m_WeaponProficiency;
         uint32 m_ArmorProficiency;
         bool m_canParry;
+        bool m_canBlock;
         bool m_canDualWield;
         uint8 m_swingErrorMsg;
         float m_ammoDPS;

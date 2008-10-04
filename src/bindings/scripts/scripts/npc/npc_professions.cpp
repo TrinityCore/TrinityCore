@@ -496,17 +496,17 @@ void SendConfirmUnlearn_npc_prof_alchemy(Player *player, Creature *_Creature, ui
         switch(eCreature)
         {
             case 22427:                                     //Zarevhi
-                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_TRANSMUTE, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(player));
+                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_TRANSMUTE, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(player),false);
                                                             //unknown textID ()
                 player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
                 break;
             case 19052:                                     //Lorokeem
-                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_ELIXIR, GOSSIP_SENDER_CHECK, action,    BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(player));
+                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_ELIXIR, GOSSIP_SENDER_CHECK, action,    BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(player),false);
                                                             //unknown textID ()
                 player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
                 break;
             case 17909:                                     //Lauranna Thar'well
-                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_POTION, GOSSIP_SENDER_CHECK, action,    BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(player));
+                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_POTION, GOSSIP_SENDER_CHECK, action,    BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(player),false);
                                                             //unknown textID ()
                 player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
                 break;
@@ -766,23 +766,23 @@ void SendConfirmUnlearn_npc_prof_blacksmith(Player *player, Creature *_Creature,
             case 11178:                                     //Borgosh Corebender
             case 5164:                                      //Grumnus Steelshaper
             case 11177:                                     //Okothos Ironrager
-                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_SMITH_SPEC, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_ARMORORWEAPON, DoLowUnlearnCost(player));
+                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_SMITH_SPEC, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_ARMORORWEAPON, DoLowUnlearnCost(player),false);
                                                             //unknown textID (TALK_UNLEARN_AXEORWEAPON)
                 player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
                 break;
 
             case 11191:
-                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_HAMMER, GOSSIP_SENDER_CHECK, action,    BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(player));
+                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_HAMMER, GOSSIP_SENDER_CHECK, action,    BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(player),false);
                                                             //unknown textID (TALK_HAMMER_UNLEARN)
                 player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
                 break;
             case 11192:
-                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_AXE, GOSSIP_SENDER_CHECK, action,       BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(player));
+                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_AXE, GOSSIP_SENDER_CHECK, action,       BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(player),false);
                                                             //unknown textID (TALK_AXE_UNLEARN)
                 player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
                 break;
             case 11193:
-                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_SWORD, GOSSIP_SENDER_CHECK, action,     BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(player));
+                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_SWORD, GOSSIP_SENDER_CHECK, action,     BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(player),false);
                                                             //unknown textID (TALK_SWORD_UNLEARN)
                 player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
                 break;
@@ -919,19 +919,19 @@ void SendConfirmUnlearn_npc_prof_leather(Player *player, Creature *_Creature, ui
         {
             case 7866:                                      //Peter Galen
             case 7867:                                      //Thorkaf Dragoneye
-                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_DRAGON, GOSSIP_SENDER_CHECK, action,    BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(player));
+                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_DRAGON, GOSSIP_SENDER_CHECK, action,    BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(player),false);
                                                             //unknown textID ()
                 player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
                 break;
             case 7868:                                      //Sarah Tanner
             case 7869:                                      //Brumn Winterhoof
-                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_ELEMENTAL, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(player));
+                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_ELEMENTAL, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(player),false);
                                                             //unknown textID ()
                 player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
                 break;
             case 7870:                                      //Caryssia Moonhunter
             case 7871:                                      //Se'Jib
-                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_TRIBAL, GOSSIP_SENDER_CHECK, action,    BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(player));
+                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_TRIBAL, GOSSIP_SENDER_CHECK, action,    BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(player),false);
                                                             //unknown textID ()
                 player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
                 break;
@@ -1122,17 +1122,17 @@ void SendConfirmUnlearn_npc_prof_tailor(Player *player, Creature *_Creature, uin
         switch(eCreature)
         {
             case 22213:                                     //Gidge Spellweaver
-                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_SPELLFIRE, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(player));
+                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_SPELLFIRE, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(player),false);
                                                             //unknown textID ()
                 player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
                 break;
             case 22208:                                     //Nasmara Moonsong
-                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_MOONCLOTH, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(player));
+                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_MOONCLOTH, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(player),false);
                                                             //unknown textID ()
                 player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
                 break;
             case 22212:                                     //Andrion Darkspinner
-                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_SHADOWEAVE, GOSSIP_SENDER_CHECK, action,BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(player));
+                player->ADD_GOSSIP_ITEM_EXTENDED( 0, GOSSIP_UNLEARN_SHADOWEAVE, GOSSIP_SENDER_CHECK, action,BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(player),false);
                                                             //unknown textID ()
                 player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
                 break;

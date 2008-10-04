@@ -1554,7 +1554,6 @@ bool ChatHandler::HandleModifyBitCommand(const char* args)
     return true;
 }
 
-//Teleport by game_tele entry
 bool ChatHandler::HandleModifyHonorCommand (const char* args)
 {
     if (!*args)
@@ -1584,31 +1583,12 @@ bool ChatHandler::HandleTeleCommand(const char * args)
 
     Player* _player = m_session->GetPlayer();
 
-    char* cId = extractKeyFromLink((char*)args,"Htele");    // string or [name] Shift-click form |color|Htele:name|h[name]|h|r
-    if(!cId)
-        return false;
+    // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
+    GameTele const* tele = extractGameTeleFromLink((char*)args);
 
-    std::string name = cId;
-    WorldDatabase.escape_string(name);
-
-    QueryResult *result = WorldDatabase.PQuery("SELECT position_x,position_y,position_z,orientation,map FROM game_tele WHERE name = '%s'",name.c_str());
-    if (!result)
+    if (!tele)
     {
         SendSysMessage(LANG_COMMAND_TELE_NOTFOUND);
-        SetSentErrorMessage(true);
-        return false;
-    }
-    Field *fields = result->Fetch();
-    float x = fields[0].GetFloat();
-    float y = fields[1].GetFloat();
-    float z = fields[2].GetFloat();
-    float ort = fields[3].GetFloat();
-    int mapid = fields[4].GetUInt16();
-    delete result;
-
-    if(!MapManager::IsValidMapCoord(mapid,x,y,x,ort))
-    {
-        PSendSysMessage(LANG_INVALID_TARGET_COORD,x,y,mapid);
         SetSentErrorMessage(true);
         return false;
     }
@@ -1623,7 +1603,7 @@ bool ChatHandler::HandleTeleCommand(const char * args)
     else
         _player->SaveRecallPosition();
 
-    _player->TeleportTo(mapid, x, y, z, ort);
+    _player->TeleportTo(tele->mapId, tele->position_x, tele->position_y, tele->position_z, tele->orientation);
     return true;
 }
 
@@ -1702,34 +1682,36 @@ bool ChatHandler::HandleLookupTeleCommand(const char * args)
         return false;
 
     std::string namepart = str;
-    WorldDatabase.escape_string(namepart);
-    QueryResult *result = WorldDatabase.PQuery("SELECT name FROM game_tele WHERE name "_LIKE_" '""%%%s%%""'",namepart.c_str());
-    if (!result)
-    {
-        SendSysMessage(LANG_COMMAND_TELE_NOREQUEST);
-        SetSentErrorMessage(true);
-        return false;
-    }
-    std::string reply;
-    for (uint64 i=0; i < result->GetRowCount(); i++)
-    {
-        Field *fields = result->Fetch();
-        reply += "  |cffffffff|Htele:";
-        reply += fields[0].GetCppString();
-        reply += "|h[";
-        reply += fields[0].GetCppString();
-        reply += "]|h|r\n";
-        result->NextRow();
-    }
-    delete result;
+    std::wstring wnamepart;
 
-    if(reply.empty())
+    if(!Utf8toWStr(namepart,wnamepart))
+        return false;
+
+    // converting string that we try to find to lower case
+    wstrToLower( wnamepart );
+
+    GameTeleMap const & teleMap = objmgr.GetGameTeleMap();
+
+    std::ostringstream reply;
+    for(GameTeleMap::const_iterator itr = teleMap.begin(); itr != teleMap.end(); ++itr)
+    {
+        GameTele const* tele = &itr->second;
+
+        if(tele->wnameLow.find(wnamepart) == std::wstring::npos)
+            continue;
+
+        reply << "  |cffffffff|Htele:";
+        reply << itr->first;
+        reply << "|h[";
+        reply << tele->name;
+        reply << "]|h|r\n";
+    }
+
+    if(reply.str().empty())
         SendSysMessage(LANG_COMMAND_TELE_NOLOCATION);
     else
-    {
-        reply = GetMangosString(LANG_COMMAND_TELE_LOCATION) + reply;
-        SendSysMessage(reply.c_str());
-    }
+        PSendSysMessage(LANG_COMMAND_TELE_LOCATION,reply.str().c_str());
+
     return true;
 }
 
@@ -1861,16 +1843,6 @@ bool ChatHandler::HandleNameTeleCommand(const char * args)
     if(!pName)
         return false;
 
-    char* tail = strtok(NULL, "");
-    if(!tail)
-        return false;
-
-    char* cId = extractKeyFromLink((char*)tail,"Htele");    // string or [name] Shift-click form |color|Htele:name|h[name]|h|r
-    if(!cId)
-        return false;
-
-    std::string location = cId;
-
     std::string name = pName;
 
     if(!normalizePlayerName(name))
@@ -1880,26 +1852,15 @@ bool ChatHandler::HandleNameTeleCommand(const char * args)
         return false;
     }
 
-    WorldDatabase.escape_string(location);
-    QueryResult *result = WorldDatabase.PQuery("SELECT position_x,position_y,position_z,orientation,map FROM game_tele WHERE name = '%s'",location.c_str());
-    if (!result)
+    char* tail = strtok(NULL, "");
+    if(!tail)
+        return false;
+
+    // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
+    GameTele const* tele = extractGameTeleFromLink(tail);
+    if(!tele)
     {
         SendSysMessage(LANG_COMMAND_TELE_NOTFOUND);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    Field *fields = result->Fetch();
-    float x = fields[0].GetFloat();
-    float y = fields[1].GetFloat();
-    float z = fields[2].GetFloat();
-    float ort = fields[3].GetFloat();
-    int mapid = fields[4].GetUInt16();
-    delete result;
-
-    if(!MapManager::IsValidMapCoord(mapid,x,y,x,ort))
-    {
-        PSendSysMessage(LANG_INVALID_TARGET_COORD,x,y,mapid);
         SetSentErrorMessage(true);
         return false;
     }
@@ -1915,7 +1876,7 @@ bool ChatHandler::HandleNameTeleCommand(const char * args)
             return false;
         }
 
-        PSendSysMessage(LANG_TELEPORTING_TO, chr->GetName(),"", location.c_str());
+        PSendSysMessage(LANG_TELEPORTING_TO, chr->GetName(),"", tele->name.c_str());
 
         if (m_session->GetPlayer()->IsVisibleGloballyFor(chr))
             ChatHandler(chr).PSendSysMessage(LANG_TELEPORTED_TO_BY, m_session->GetPlayer()->GetName());
@@ -1930,12 +1891,12 @@ bool ChatHandler::HandleNameTeleCommand(const char * args)
         else
             chr->SaveRecallPosition();
 
-        chr->TeleportTo(mapid,x,y,z,chr->GetOrientation());
+        chr->TeleportTo(tele->mapId,tele->position_x,tele->position_y,tele->position_z,tele->orientation);
     }
     else if (uint64 guid = objmgr.GetPlayerGUIDByName(name.c_str()))
     {
-        PSendSysMessage(LANG_TELEPORTING_TO, name.c_str(), GetMangosString(LANG_OFFLINE), location.c_str());
-        Player::SavePositionInDB(mapid,x,y,z,ort,MapManager::Instance().GetZoneId(mapid,x,y),guid);
+        PSendSysMessage(LANG_TELEPORTING_TO, name.c_str(), GetMangosString(LANG_OFFLINE), tele->name.c_str());
+        Player::SavePositionInDB(tele->mapId,tele->position_x,tele->position_y,tele->position_z,tele->orientation,MapManager::Instance().GetZoneId(tele->mapId,tele->position_x,tele->position_y),guid);
     }
     else
         PSendSysMessage(LANG_NO_PLAYER, name.c_str());
@@ -1957,37 +1918,16 @@ bool ChatHandler::HandleGroupTeleCommand(const char * args)
         return false;
     }
 
-    char* cId = extractKeyFromLink((char*)args,"Htele");    // string or [name] Shift-click form |color|Htele:name|h[name]|h|r
-    if(!cId)
-        return false;
-
-    std::string location = cId;
-
-    WorldDatabase.escape_string(location);
-    QueryResult *result = WorldDatabase.PQuery("SELECT position_x,position_y,position_z,orientation,map FROM game_tele WHERE name = '%s'",location.c_str());
-    if (!result)
+    // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
+    GameTele const* tele = extractGameTeleFromLink((char*)args);
+    if(!tele)
     {
         SendSysMessage(LANG_COMMAND_TELE_NOTFOUND);
         SetSentErrorMessage(true);
         return false;
     }
-    Field *fields = result->Fetch();
-    float x = fields[0].GetFloat();
-    float y = fields[1].GetFloat();
-    float z = fields[2].GetFloat();
-    float ort = fields[3].GetFloat();
-    int mapid = fields[4].GetUInt16();
-    delete result;
-
-    if(!MapManager::IsValidMapCoord(mapid,x,y,z,ort))
-    {
-        PSendSysMessage(LANG_INVALID_TARGET_COORD,x,y,mapid);
-        SetSentErrorMessage(true);
-        return false;
-    }
 
     Group *grp = player->GetGroup();
-
     if(!grp)
     {
         PSendSysMessage(LANG_NOT_IN_GROUP,player->GetName());
@@ -2008,7 +1948,7 @@ bool ChatHandler::HandleGroupTeleCommand(const char * args)
             continue;
         }
 
-        PSendSysMessage(LANG_TELEPORTING_TO, pl->GetName(),"", location.c_str());
+        PSendSysMessage(LANG_TELEPORTING_TO, pl->GetName(),"", tele->name.c_str());
 
         if (m_session->GetPlayer() != pl && m_session->GetPlayer()->IsVisibleGloballyFor(pl))
             ChatHandler(pl).PSendSysMessage(LANG_TELEPORTED_TO_BY, m_session->GetPlayer()->GetName());
@@ -2023,7 +1963,7 @@ bool ChatHandler::HandleGroupTeleCommand(const char * args)
         else
             pl->SaveRecallPosition();
 
-        pl->TeleportTo(mapid, x, y, z, ort);
+        pl->TeleportTo(tele->mapId, tele->position_x, tele->position_y, tele->position_z, tele->orientation);
     }
 
     return true;

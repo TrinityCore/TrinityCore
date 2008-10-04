@@ -22,7 +22,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\shared\vmap;..\..\src\framework;..\..\src\shared"
+				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\shared\vmap;..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="WIN32;_DEBUG;MANGOS_DEBUG;_LIB;"
 				StringPooling="FALSE"
 				MinimalRebuild="FALSE"
@@ -78,7 +78,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\shared\vmap;..\..\src\framework;..\..\src\shared"
+				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\shared\vmap;..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"

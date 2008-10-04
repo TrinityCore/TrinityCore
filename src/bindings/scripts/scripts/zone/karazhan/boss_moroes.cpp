@@ -193,18 +193,18 @@ struct MANGOS_DLL_DECL boss_moroesAI : public ScriptedAI
             while(AddList.size() > 4)
                 AddList.erase((AddList.begin())+(rand()%AddList.size()));
 
-            uint8 j = 0;
+            uint8 i = 0;
             for(std::vector<uint32>::iterator itr = AddList.begin(); itr != AddList.end(); ++itr)
             {
                 uint32 entry = *itr;
 
-                pCreature = m_creature->SummonCreature(entry, Locations[j][0], Locations[j][1], POS_Z, ORIENT, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                pCreature = m_creature->SummonCreature(entry, Locations[i][0], Locations[i][1], POS_Z, ORIENT, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                 if(pCreature)
                 {
-                    AddGUID[j] = pCreature->GetGUID();
-                    AddId[j] = entry;
+                    AddGUID[i] = pCreature->GetGUID();
+                    AddId[i] = entry;
                 }
-                ++j;
+                ++i;
             }
 
             FirstTime = false;
