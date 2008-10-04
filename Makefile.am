@@ -17,7 +17,7 @@
 ## Process this file with automake to produce Makefile.in
 
 ## Sub-directories to parse
-SUBDIRS = dep doc sql src
+SUBDIRS = dep doc src
 
 ## Additional files to include when running 'make dist'
 # Win32 project workspace for Visual Studio .NET 2003
