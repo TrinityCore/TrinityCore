@@ -21,6 +21,7 @@
 */
 
 #include "Common.h"
+//#include "WorldSocket.h"
 #include "Database/DatabaseEnv.h"
 #include "Config/ConfigEnv.h"
 #include "SystemConfig.h"
@@ -50,7 +51,6 @@
 #include "GlobalEvents.h"
 #include "GameEvent.h"
 #include "Database/DatabaseImpl.h"
-#include "WorldSocket.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 #include "InstanceSaveMgr.h"
@@ -123,6 +123,8 @@ World::~World()
     VMAP::VMapFactory::clear();
 
     if(m_resultQueue) delete m_resultQueue;
+    
+    //TODO free addSessQueue
 }
 
 /// Find a player in a specified zone
@@ -173,36 +175,101 @@ bool World::RemoveSession(uint32 id)
     return true;
 }
 
-/// Add a session to the session list
 void World::AddSession(WorldSession* s)
 {
-    ASSERT(s);
-
-    WorldSession* old = m_sessions[s->GetAccountId()];
-    m_sessions[s->GetAccountId()] = s;
-
-    // if session already exist, prepare to it deleting at next world update
-    if(old)
-        m_kicked_sessions.insert(old);
+  addSessQueue.add(s);
 }
 
-int32 World::GetQueuePos(WorldSocket* socket)
+void
+World::AddSession_ (WorldSession* s)
+{
+  ASSERT (s);
+
+  //NOTE - Still there is race condition in WorldSession* being used in the Sockets
+
+  ///- kick already loaded player with same account (if any) and remove session
+  ///- if player is in loading and want to load again, return
+  if (!RemoveSession (s->GetAccountId ()))
+    {
+      s->KickPlayer ();
+      m_kicked_sessions.insert (s);
+      return;
+    }
+
+  WorldSession* old = m_sessions[s->GetAccountId ()];
+  m_sessions[s->GetAccountId ()] = s;
+
+  // if session already exist, prepare to it deleting at next world update
+  // NOTE - KickPlayer() should be called on "old" in RemoveSession()
+  if (old)
+    m_kicked_sessions.insert (old);
+
+  uint32 Sessions = GetActiveAndQueuedSessionCount ();
+  uint32 pLimit = GetPlayerAmountLimit ();
+  uint32 QueueSize = GetQueueSize (); //number of players in the queue
+  bool inQueue = false;
+  //so we don't count the user trying to 
+  //login as a session and queue the socket that we are using
+  --Sessions;
+
+  if (pLimit > 0 && Sessions >= pLimit && s->GetSecurity () == SEC_PLAYER )
+    {
+      AddQueuedPlayer (s);
+      UpdateMaxSessionCounters ();
+      sLog.outDetail ("PlayerQueue: Account id %u is in Queue Position (%u).", s->GetAccountId (), ++QueueSize);
+      return;
+    }
+  
+  WorldPacket packet(SMSG_AUTH_RESPONSE, 1 + 4 + 1 + 4 + 1);
+  packet << uint8 (AUTH_OK);
+  packet << uint32 (0); // unknown random value...
+  packet << uint8 (0);
+  packet << uint32 (0);
+  packet << uint8 (s->IsTBC () ? 1 : 0); // 0 - normal, 1 - TBC, must be set in database manually for each account
+  s->SendPacket (&packet);
+
+  UpdateMaxSessionCounters ();
+
+  // Updates the population
+  if (pLimit > 0)
+    {
+      float popu = GetActiveSessionCount (); //updated number of users on the server
+      popu /= pLimit;
+      popu *= 2;
+      loginDatabase.PExecute ("UPDATE realmlist SET population = '%f' WHERE id = '%d'", popu, realmID);
+      sLog.outDetail ("Server Population (%f).", popu);
+    }
+}
+
+int32 World::GetQueuePos(WorldSession* sess)
 {
     uint32 position = 1;
 
     for(Queue::iterator iter = m_QueuedPlayer.begin(); iter != m_QueuedPlayer.end(); ++iter, ++position)
-        if((*iter) == socket)
+        if((*iter) == sess)
             return position;
 
     return 0;
 }
 
-void World::AddQueuedPlayer(WorldSocket* socket)
+void World::AddQueuedPlayer(WorldSession* sess)
 {
-    m_QueuedPlayer.push_back(socket);
+    m_QueuedPlayer.push_back (sess);
+    
+    // The 1st SMSG_AUTH_RESPONSE needs to contain other info too.
+    WorldPacket packet (SMSG_AUTH_RESPONSE, 1 + 4 + 1 + 4 + 1);
+    packet << uint8 (AUTH_WAIT_QUEUE);
+    packet << uint32 (0); // unknown random value...
+    packet << uint8 (0);
+    packet << uint32 (0);
+    packet << uint8 (sess->IsTBC () ? 1 : 0); // 0 - normal, 1 - TBC, must be set in database manually for each account
+    packet << uint32(GetQueuePos (sess));
+    sess->SendPacket (&packet);
+    
+    //sess->SendAuthWaitQue (GetQueuePos (sess));
 }
 
-void World::RemoveQueuedPlayer(WorldSocket* socket)
+void World::RemoveQueuedPlayer(WorldSession* sess)
 {
     // sessions count including queued to remove (if removed_session set)
     uint32 sessions = GetActiveSessionCount();
@@ -213,10 +280,10 @@ void World::RemoveQueuedPlayer(WorldSocket* socket)
     // if session not queued then we need decrease sessions count (Remove socked callet before session removing from session list)
     bool decrease_session = true;
 
-    // search socket to remove and count skipped positions
+    // search to remove and count skipped positions
     for(;iter != m_QueuedPlayer.end(); ++iter, ++position)
     {
-        if(*iter==socket)
+        if(*iter==sess)
         {
             Queue::iterator iter2 = iter;
             ++iter;
@@ -236,7 +303,7 @@ void World::RemoveQueuedPlayer(WorldSocket* socket)
     // accept first in queue
     if( (!m_playerLimit || sessions < m_playerLimit) && !m_QueuedPlayer.empty() )
     {
-        WorldSocket * socket = m_QueuedPlayer.front();
+        WorldSession * socket = m_QueuedPlayer.front();
         socket->SendAuthWaitQue(0);
         m_QueuedPlayer.pop_front();
 
@@ -1014,6 +1081,18 @@ void World::SetInitialWorldSettings()
 
     sLog.outString( "Loading BattleMasters..." );
     objmgr.LoadBattleMastersEntry();
+
+    sLog.outString( "Loading GameTeleports..." );
+    objmgr.LoadGameTele();
+
+    sLog.outString( "Loading Npc Text Id..." );
+    objmgr.LoadNpcTextId();                                 // must be after load Creature and NpcText
+
+    sLog.outString( "Loading vendors..." );
+    objmgr.LoadVendors();                                   // must be after load CreatureTemplate and ItemTemplate
+
+    sLog.outString( "Loading trainers..." );
+    objmgr.LoadTrainerSpell();                              // must be after load CreatureTemplate
 
     sLog.outString( "Loading Waypoints..." );
     WaypointMgr.Load();
@@ -2068,9 +2147,10 @@ void World::KickAllLess(AccountTypes sec)
 void World::KickAllQueued()
 {
     // session not removed at kick and will removed in next update tick
-    for (Queue::iterator itr = m_QueuedPlayer.begin(); itr != m_QueuedPlayer.end(); ++itr)
-        if(WorldSession* session = (*itr)->GetSession())
-            session->KickPlayer();
+  //TODO here
+//    for (Queue::iterator itr = m_QueuedPlayer.begin(); itr != m_QueuedPlayer.end(); ++itr)
+//        if(WorldSession* session = (*itr)->GetSession())
+//            session->KickPlayer();
 
     m_QueuedPlayer.empty();
 }
@@ -2320,6 +2400,12 @@ void World::SendServerMessage(uint32 type, const char *text, Player* player)
 
 void World::UpdateSessions( time_t diff )
 {
+    while(!addSessQueue.empty())
+    {
+      WorldSession* sess = addSessQueue.next ();
+      AddSession_ (sess);
+    }
+        
     ///- Delete kicked sessions at add new session
     for (std::set<WorldSession*>::iterator itr = m_kicked_sessions.begin(); itr != m_kicked_sessions.end(); ++itr)
         delete *itr;

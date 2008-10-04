@@ -11,9 +11,6 @@
 ## Process this file with autoconf to produce a configure script.
 
 ## Prelude, basic settings for Autoconf
-#  PACKAGE:            mangos
-#  VERSION:            0.12.0 (trunk)
-#  BUG-REPORT-ADDRESS: mangos-devs@lists.sourceforge.net
 AC_INIT( [trinitycore], [0.0.1], [devs@trinitycore.org])
 
 AC_CONFIG_SRCDIR([src/shared/Base.cpp])
@@ -274,8 +271,17 @@ AC_CONFIG_FILES([
    src/bindings/interface/Makefile
 ])
 
+## Configure ACE
+AC_CONFIG_SUBDIRS([dep/ACE_wrappers])
+
 ## Disabled Makefiles, until they are ready for a successful make and
 #  make dist run.
+
+AC_CONFIG_COMMANDS([default],[
+  echo ""
+  echo "Configuration of TrinityCore $PACKAGE_VERSION is now complete."
+  echo ""
+ ],[PACKAGE_VERSION=$PACKAGE_VERSION])
 
 ## Output files.
 AC_OUTPUT

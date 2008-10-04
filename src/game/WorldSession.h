@@ -88,7 +88,7 @@ class MANGOS_DLL_SPEC WorldSession
         Player* GetPlayer() const { return _player; }
         char const* GetPlayerName() const;
         void SetSecurity(uint32 security) { _security = security; }
-        void SetSocket(WorldSocket *sock);
+        std::string& GetRemoteAddress() { return m_Address; }
         void SetPlayer(Player *plr) { _player = plr; }
         bool IsTBC() const { return m_isTBC; }
 
@@ -110,8 +110,11 @@ class MANGOS_DLL_SPEC WorldSession
         void LogoutPlayer(bool Save);
         void KickPlayer();
 
-        void QueuePacket(WorldPacket& packet);
+        void QueuePacket(WorldPacket* new_packet);
         bool Update(uint32 diff);
+        
+        /// Handle the authentication waiting queue (to be completed)
+        void SendAuthWaitQue(uint32 position);
 
         //void SendTestCreatureQueryOpcode( uint32 entry, uint64 guid, uint32 testvalue );
         void SendNameQueryOpcode(Player* p);
@@ -618,7 +621,8 @@ class MANGOS_DLL_SPEC WorldSession
         // logging helper
         void logUnexpectedOpcode(WorldPacket *packet, const char * reason);
         Player *_player;
-        WorldSocket *_socket;
+        WorldSocket *m_Socket;
+        std::string m_Address;
 
         uint32 _security;
         uint32 _accountId;

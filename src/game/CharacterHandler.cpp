@@ -19,7 +19,7 @@
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
 #include "WorldPacket.h"
-#include "WorldSocket.h"
+#include "SharedDefines.h"
 #include "WorldSession.h"
 #include "Opcodes.h"
 #include "Log.h"
@@ -366,7 +366,7 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
     data << (uint8)CHAR_CREATE_SUCCESS;
     SendPacket( &data );
 
-    std::string IP_str = _socket ? _socket->GetRemoteAddress().c_str() : "-";
+    std::string IP_str = GetRemoteAddress().c_str();
     sLog.outBasic("Account: %d (IP: %s) Create Character:[%s]",GetAccountId(),IP_str.c_str(),name.c_str());
     sLog.outChar("Account: %d (IP: %s) Create Character:[%s]",GetAccountId(),IP_str.c_str(),name.c_str());
 }
@@ -416,7 +416,7 @@ void WorldSession::HandleCharDeleteOpcode( WorldPacket & recv_data )
     if(accountId != GetAccountId())
         return;
 
-    std::string IP_str = _socket ? _socket->GetRemoteAddress().c_str() : "-";
+    std::string IP_str = GetRemoteAddress();
     sLog.outBasic("Account: %d (IP: %s) Delete Character:[%s] (guid:%u)",GetAccountId(),IP_str.c_str(),name.c_str(),GUID_LOPART(guid));
     sLog.outChar("Account: %d (IP: %s) Delete Character:[%s] (guid: %u)",GetAccountId(),IP_str.c_str(),name.c_str(),GUID_LOPART(guid));
 
@@ -734,7 +734,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
     if(pCurrChar->isGameMaster())
         SendNotification("GM mode is ON");
 
-    std::string IP_str = _socket ? _socket->GetRemoteAddress().c_str() : "-";
+    std::string IP_str = GetRemoteAddress();
     sLog.outChar("Account: %d (IP: %s) Login Character:[%s] (guid:%u)",GetAccountId(),IP_str.c_str(),pCurrChar->GetName() ,pCurrChar->GetGUID());
 
     m_playerLoading = false;
@@ -966,7 +966,7 @@ void WorldSession::HandleChangePlayerNameOpcode(WorldPacket& recv_data)
     CharacterDatabase.PExecute("UPDATE characters set name = '%s', at_login = at_login & ~ %u WHERE guid ='%u'", newname.c_str(), uint32(AT_LOGIN_RENAME),GUID_LOPART(guid));
     CharacterDatabase.PExecute("DELETE FROM character_declinedname WHERE guid ='%u'", GUID_LOPART(guid));
 
-    std::string IP_str = _socket ? _socket->GetRemoteAddress().c_str() : "-";
+    std::string IP_str = GetRemoteAddress();
     sLog.outChar("Account: %d (IP: %s) Character:[%s] (guid:%u) Changed name to: %s",GetAccountId(),IP_str.c_str(),oldname.c_str(),GUID_LOPART(guid),newname.c_str());
 
     WorldPacket data(SMSG_CHAR_RENAME,1+8+(newname.size()+1));

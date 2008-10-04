@@ -34,6 +34,7 @@
 typedef DatabasePostgre DatabaseType;
 #define _LIKE_          "ILIKE"
 #define _TABLE_SIM_     "\""
+#define _CONCAT3_(A,B,C) "( " A " || " B " || " C " )"
 #else
 #include "Database/QueryResultMysql.h"
 #include "Database/QueryResultSqlite.h"
@@ -43,6 +44,7 @@ typedef DatabasePostgre DatabaseType;
 typedef DatabaseMysql DatabaseType;
 #define _LIKE_          "LIKE"
 #define _TABLE_SIM_     "`"
+#define _CONCAT3_(A,B,C) "CONCAT( " A " , " B " , " C " )"
 #endif
 
 extern DatabaseType WorldDatabase;

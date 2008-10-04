@@ -2990,9 +2990,9 @@ float Unit::GetUnitParryChance() const
         Player const* player = (Player const*)this;
         if(player->CanParry() )
         {
-            Item *tmpitem = ((Player*)this)->GetWeaponForAttack(BASE_ATTACK,true);
+            Item *tmpitem = player->GetWeaponForAttack(BASE_ATTACK,true);
             if(!tmpitem)
-                tmpitem = ((Player*)this)->GetWeaponForAttack(OFF_ATTACK,true);
+                tmpitem = player->GetWeaponForAttack(OFF_ATTACK,true);
 
             if(tmpitem)
                 chance = GetFloatValue(PLAYER_PARRY_PERCENTAGE);
@@ -3017,11 +3017,15 @@ float Unit::GetUnitBlockChance() const
 
     if(GetTypeId() == TYPEID_PLAYER)
     {
-        Item *tmpitem = ((Player const*)this)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-        if(tmpitem && !tmpitem->IsBroken() && tmpitem->GetProto()->Block)
-            return GetFloatValue(PLAYER_BLOCK_PERCENTAGE);
-        else
-            return 0.0f;
+        Player const* player = (Player const*)this;
+        if(player->CanBlock() )
+        {
+            Item *tmpitem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+            if(tmpitem && !tmpitem->IsBroken() && tmpitem->GetProto()->Block)
+                return GetFloatValue(PLAYER_BLOCK_PERCENTAGE);
+        }
+        // is player but has no block ability or no not broken shield equiped
+        return 0.0f;
     }
     else
     {
@@ -3415,7 +3419,7 @@ bool Unit::isInAccessablePlaceFor(Creature const* c) const
     if(IsInWater())
         return c->canSwim();
     else
-        return c->canWalk();
+        return c->canWalk() || c->canFly();
 }
 
 bool Unit::IsInWater() const

@@ -1,4 +1,4 @@
-/*
+/* 
  * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -16,164 +16,218 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/// \addtogroup u2w
-/// @{
-/// \file
+/** \addtogroup u2w User to World Communication
+ * @{
+ * \file WorldSocket.h
+ * \author Derex <derex101@gmail.com>
+ */
 
-#ifndef __WORLDSOCKET_H
-#define __WORLDSOCKET_H
+#ifndef _WORLDSOCKET_H
+#define	_WORLDSOCKET_H
 
-#include "sockets/TcpSocket.h"
-#include "Auth/AuthCrypt.h"
+#include <ace/Basic_Types.h>
+#include <ace/Synch_Traits.h>
+#include <ace/Svc_Handler.h>
+#include <ace/SOCK_Stream.h>
+#include <ace/SOCK_Acceptor.h>
+#include <ace/Acceptor.h>
+#include <ace/Thread_Mutex.h>
+#include <ace/Guard_T.h>
+#include <ace/Unbounded_Queue.h>
+#include <ace/Message_Block.h>
 
-enum ResponseCodes
-{
-    RESPONSE_SUCCESS                                       = 0x00,
-    RESPONSE_FAILURE                                       = 0x01,
-    RESPONSE_CANCELLED                                     = 0x02,
-    RESPONSE_DISCONNECTED                                  = 0x03,
-    RESPONSE_FAILED_TO_CONNECT                             = 0x04,
-    RESPONSE_CONNECTED                                     = 0x05,
-    RESPONSE_VERSION_MISMATCH                              = 0x06,
+#if !defined (ACE_LACKS_PRAGMA_ONCE)
+#pragma once
+#endif /* ACE_LACKS_PRAGMA_ONCE */
 
-    CSTATUS_CONNECTING                                     = 0x07,
-    CSTATUS_NEGOTIATING_SECURITY                           = 0x08,
-    CSTATUS_NEGOTIATION_COMPLETE                           = 0x09,
-    CSTATUS_NEGOTIATION_FAILED                             = 0x0A,
-    CSTATUS_AUTHENTICATING                                 = 0x0B,
+#include "Common.h"
+#include "Auth/AuthCrypt.h" 
 
-    AUTH_OK                                                = 0x0C,
-    AUTH_FAILED                                            = 0x0D,
-    AUTH_REJECT                                            = 0x0E,
-    AUTH_BAD_SERVER_PROOF                                  = 0x0F,
-    AUTH_UNAVAILABLE                                       = 0x10,
-    AUTH_SYSTEM_ERROR                                      = 0x11,
-    AUTH_BILLING_ERROR                                     = 0x12,
-    AUTH_BILLING_EXPIRED                                   = 0x13,
-    AUTH_VERSION_MISMATCH                                  = 0x14,
-    AUTH_UNKNOWN_ACCOUNT                                   = 0x15,
-    AUTH_INCORRECT_PASSWORD                                = 0x16,
-    AUTH_SESSION_EXPIRED                                   = 0x17,
-    AUTH_SERVER_SHUTTING_DOWN                              = 0x18,
-    AUTH_ALREADY_LOGGING_IN                                = 0x19,
-    AUTH_LOGIN_SERVER_NOT_FOUND                            = 0x1A,
-    AUTH_WAIT_QUEUE                                        = 0x1B,
-    AUTH_BANNED                                            = 0x1C,
-    AUTH_ALREADY_ONLINE                                    = 0x1D,
-    AUTH_NO_TIME                                           = 0x1E,
-    AUTH_DB_BUSY                                           = 0x1F,
-    AUTH_SUSPENDED                                         = 0x20,
-    AUTH_PARENTAL_CONTROL                                  = 0x21,
-    AUTH_LOCKED_ENFORCED                                   = 0x22,
-
-    REALM_LIST_IN_PROGRESS                                 = 0x23,
-    REALM_LIST_SUCCESS                                     = 0x24,
-    REALM_LIST_FAILED                                      = 0x25,
-    REALM_LIST_INVALID                                     = 0x26,
-    REALM_LIST_REALM_NOT_FOUND                             = 0x27,
-
-    ACCOUNT_CREATE_IN_PROGRESS                             = 0x28,
-    ACCOUNT_CREATE_SUCCESS                                 = 0x29,
-    ACCOUNT_CREATE_FAILED                                  = 0x2A,
-
-    CHAR_LIST_RETRIEVING                                   = 0x2B,
-    CHAR_LIST_RETRIEVED                                    = 0x2C,
-    CHAR_LIST_FAILED                                       = 0x2D,
-
-    CHAR_CREATE_IN_PROGRESS                                = 0x2E,
-    CHAR_CREATE_SUCCESS                                    = 0x2F,
-    CHAR_CREATE_ERROR                                      = 0x30,
-    CHAR_CREATE_FAILED                                     = 0x31,
-    CHAR_CREATE_NAME_IN_USE                                = 0x32,
-    CHAR_CREATE_DISABLED                                   = 0x33,
-    CHAR_CREATE_PVP_TEAMS_VIOLATION                        = 0x34,
-    CHAR_CREATE_SERVER_LIMIT                               = 0x35,
-    CHAR_CREATE_ACCOUNT_LIMIT                              = 0x36,
-    CHAR_CREATE_SERVER_QUEUE                               = 0x37,
-    CHAR_CREATE_ONLY_EXISTING                              = 0x38,
-    CHAR_CREATE_EXPANSION                                  = 0x39,
-
-    CHAR_DELETE_IN_PROGRESS                                = 0x3A,
-    CHAR_DELETE_SUCCESS                                    = 0x3B,
-    CHAR_DELETE_FAILED                                     = 0x3C,
-    CHAR_DELETE_FAILED_LOCKED_FOR_TRANSFER                 = 0x3D,
-    CHAR_DELETE_FAILED_GUILD_LEADER                        = 0x3E,
-    CHAR_DELETE_FAILED_ARENA_CAPTAIN                       = 0x3F,
-
-    CHAR_LOGIN_IN_PROGRESS                                 = 0x40,
-    CHAR_LOGIN_SUCCESS                                     = 0x41,
-    CHAR_LOGIN_NO_WORLD                                    = 0x42,
-    CHAR_LOGIN_DUPLICATE_CHARACTER                         = 0x43,
-    CHAR_LOGIN_NO_INSTANCES                                = 0x44,
-    CHAR_LOGIN_FAILED                                      = 0x45,
-    CHAR_LOGIN_DISABLED                                    = 0x46,
-    CHAR_LOGIN_NO_CHARACTER                                = 0x47,
-    CHAR_LOGIN_LOCKED_FOR_TRANSFER                         = 0x48,
-    CHAR_LOGIN_LOCKED_BY_BILLING                           = 0x49,
-
-    CHAR_NAME_SUCCESS                                      = 0x4A,
-    CHAR_NAME_FAILURE                                      = 0x4B,
-    CHAR_NAME_NO_NAME                                      = 0x4C,
-    CHAR_NAME_TOO_SHORT                                    = 0x4D,
-    CHAR_NAME_TOO_LONG                                     = 0x4E,
-    CHAR_NAME_INVALID_CHARACTER                            = 0x4F,
-    CHAR_NAME_MIXED_LANGUAGES                              = 0x50,
-    CHAR_NAME_PROFANE                                      = 0x51,
-    CHAR_NAME_RESERVED                                     = 0x52,
-    CHAR_NAME_INVALID_APOSTROPHE                           = 0x53,
-    CHAR_NAME_MULTIPLE_APOSTROPHES                         = 0x54,
-    CHAR_NAME_THREE_CONSECUTIVE                            = 0x55,
-    CHAR_NAME_INVALID_SPACE                                = 0x56,
-    CHAR_NAME_CONSECUTIVE_SPACES                           = 0x57,
-    CHAR_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS        = 0x58,
-    CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 0x59,
-    CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 0x5A,
-};
-
+class ACE_Message_Block;
 class WorldPacket;
-class SocketHandler;
 class WorldSession;
 
-/// Handle connection with the client software
-class WorldSocket : public TcpSocket
+/// Handler that can communicate over stream sockets.
+typedef ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH> WorldHandler;
+
+/**
+ * WorldSocket.
+ * 
+ * This class is responsible for the comunication with 
+ * remote clients.
+ * Most methods return -1 on failure. 
+ * The class uses refferece counting.
+ *
+ * For output the class uses one buffer (64K usually) and 
+ * a queue where it stores packet if there is no place on 
+ * the queue. The reason this is done, is because the server 
+ * does realy a lot of small-size writes to it, and it doesn't 
+ * scale well to allocate memory for every. When something is 
+ * writen to the output buffer the socket is not immideately 
+ * activated for output (again for the same reason), there 
+ * is 10ms celling (thats why there is Update() method). 
+ * This concept is simmilar to TCP_CORK, but TCP_CORK 
+ * usses 200ms celling. As result overhead generated by 
+ * sending packets from "producer" threads is minimal, 
+ * and doing a lot of writes with small size is tollerated.
+ * 
+ * The calls to Upate () method are managed by WorldSocketMgr
+ * and ReactorRunnable.
+ * 
+ * For input ,the class uses one 1024 bytes buffer on stack 
+ * to which it does recv() calls. And then recieved data is 
+ * distributed where its needed. 1024 matches pritey well the 
+ * traffic generated by client for now.
+ *  
+ * The input/output do speculative reads/writes (AKA it tryes 
+ * to read all data avaible in the kernel buffer or tryes to 
+ * write everything avaible in userspace buffer), 
+ * which is ok for using with Level and Edge Trigered IO 
+ * notification.
+ * 
+ */
+class WorldSocket : protected WorldHandler
 {
-    public:
-        WorldSocket(ISocketHandler&);
-        ~WorldSocket();
+public:
+  /// Declare some friends
+  friend class ACE_Acceptor< WorldSocket, ACE_SOCK_ACCEPTOR >;
+  friend class WorldSocketMgr;
+  friend class ReactorRunnable;
 
-        void SendPacket(WorldPacket const* packet);
-        void CloseSocket();
+  /// Declare the acceptor for this class
+  typedef ACE_Acceptor< WorldSocket, ACE_SOCK_ACCEPTOR > Acceptor;
 
-        void OnAccept();
-        void OnRead();
-        void OnDelete();
+  /// Mutex type used for various syncronizations.
+  typedef ACE_Thread_Mutex LockType;
+  typedef ACE_Guard<LockType> GuardType;
 
-        void Update(time_t diff);
-        // Player Queue
-        void SendAuthWaitQue(uint32 position);
+  /// Queue for storing packets for which there is no space.
+  typedef ACE_Unbounded_Queue< WorldPacket* > PacketQueueT;
 
-        WorldSession* GetSession() const { return _session; }
-    protected:
-        void SendSinglePacket();
+  /// Check if socket is closed.
+  bool IsClosed (void) const;
 
-    protected:
-        void _HandleAuthSession(WorldPacket& recvPacket);
-        void _HandlePing(WorldPacket& recvPacket);
+  /// Close the socket.
+  void CloseSocket (void);
 
-    private:
-        AuthCrypt _crypt;
-        uint32 _seed;
-        uint32 _cmd;
-        uint16 _remaining;
-        WorldSession* _session;
+  /// Get address of connected peer.
+  const std::string& GetRemoteAddress (void) const;
 
-        ZThread::LockedQueue<WorldPacket*,ZThread::FastMutex> _sendQueue;
+  /// Send A packet on the socket, this function is reentrant.
+  /// @param pct packet to send
+  /// @return -1 of failure
+  int SendPacket (const WorldPacket& pct);
 
-        uint32 m_LastPingMSTime;
-        uint32 m_OverSpeedPings;
+  /// Add refference to this object.
+  long AddReference (void);
 
-        // internal checks
-        void SizeError(WorldPacket const& packet, uint32 size) const;
+  /// Remove refference to this object.
+  long RemoveReference (void);
+
+protected:
+  /// things called by ACE framework.
+  WorldSocket (void);
+  virtual ~WorldSocket (void);
+
+  /// Called on open ,the void* is the acceptor.
+  virtual int open (void *);
+
+  /// Called on failures inside of the acceptor, don't call from your code.
+  virtual int close (int);
+
+  /// Called when we can read from the socket.
+  virtual int handle_input (ACE_HANDLE = ACE_INVALID_HANDLE);
+
+  /// Called when the socket can write.
+  virtual int handle_output (ACE_HANDLE = ACE_INVALID_HANDLE);
+
+  /// Called when connection is closed or error happens.
+  virtual int handle_close (ACE_HANDLE = ACE_INVALID_HANDLE,
+                            ACE_Reactor_Mask = ACE_Event_Handler::ALL_EVENTS_MASK);
+
+  /// Called by WorldSocketMgr/ReactorRunnable.
+  int Update (void);
+
+private:
+  /// Helper functions for processing incoming data.
+  int handle_input_header (void);
+  int handle_input_payload (void);
+  int handle_input_missing_data (void);
+
+  /// Help functions to mark/unmark the socket for output.
+  /// @param g the guard is for m_OutBufferLock, the function will release it
+  int cancel_wakeup_output (GuardType& g);
+  int schedule_wakeup_output (GuardType& g);
+
+  /// process one incoming packet.
+  /// @param new_pct received packet ,note that you need to delete it. 
+  int ProcessIncoming (WorldPacket* new_pct);
+
+  /// Called by ProcessIncoming() on CMSG_AUTH_SESSION.
+  int HandleAuthSession (WorldPacket& recvPacket);
+
+  /// Called by ProcessIncoming() on CMSG_PING.
+  int HandlePing (WorldPacket& recvPacket);
+
+  /// Try to write WorldPacket to m_OutBuffer ,return -1 if no space
+  /// Need to be called with m_OutBufferLock lock held
+  int iSendPacket (const WorldPacket& pct);
+
+  /// Flush m_PacketQueue if there are packets in it
+  /// Need to be called with m_OutBufferLock lock held
+  /// @return true if it wrote to the buffer ( AKA you need 
+  /// to mark the socket for output ).
+  bool iFlushPacketQueue ();
+
+private:
+  /// Time in which the last ping was received
+  ACE_Time_Value m_LastPingTime;
+  
+  /// Keep track of overspeed pings ,to prevent ping flood.
+  uint32 m_OverSpeedPings;
+
+  /// Address of the remote peer
+  std::string m_Address;
+
+  /// Class used for managing encryption of the headers
+  AuthCrypt m_Crypt;
+
+  /// Mutex lock to protect m_Session
+  LockType m_SessionLock;
+
+  /// Session to which recieved packets are routed
+  WorldSession* m_Session;
+
+  /// here are stored the fragmens of the recieved data
+  WorldPacket* m_RecvWPct;
+
+  /// This block actually refers to m_RecvWPct contents,
+  /// which alows easy and safe writing to it. 
+  /// It wont free memory when its deleted. m_RecvWPct takes care of freeing.
+  ACE_Message_Block m_RecvPct;
+
+  /// Fragment of the recieved header.
+  ACE_Message_Block m_Header;
+
+  /// Mutex for protecting otuput related data.
+  LockType m_OutBufferLock;
+
+  /// Buffer used for writing output.
+  ACE_Message_Block *m_OutBuffer;
+
+  /// Size of the m_OutBuffer.
+  size_t m_OutBufferSize;
+
+  /// Here are stored packets for which there was no space on m_OutBuffer,
+  /// this alows not-to kick player if its buffer is overflowed.
+  PacketQueueT m_PacketQueue;
+
+  /// True if the socket is registered with the reactor for output
+  bool m_OutActive;
+
+  uint32 m_Seed;
 };
-#endif
+
+#endif	/* _WORLDSOCKET_H */
+
 /// @}

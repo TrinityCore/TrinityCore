@@ -193,8 +193,9 @@ ChatCommand * ChatHandler::getCommandTable()
     static ChatCommand reloadCommandTable[] =
     {
         { "all",            SEC_ADMINISTRATOR,  &ChatHandler::HandleReloadAllCommand,           "", NULL },
-        { "all_quest",      SEC_ADMINISTRATOR,  &ChatHandler::HandleReloadAllQuestCommand,      "", NULL },
         { "all_loot",       SEC_ADMINISTRATOR,  &ChatHandler::HandleReloadAllLootCommand,       "", NULL },
+        { "all_npc",        SEC_ADMINISTRATOR,  &ChatHandler::HandleReloadAllNpcCommand,        "", NULL },
+        { "all_quest",      SEC_ADMINISTRATOR,  &ChatHandler::HandleReloadAllQuestCommand,      "", NULL },
         { "all_scripts",    SEC_ADMINISTRATOR,  &ChatHandler::HandleReloadAllScriptsCommand,    "", NULL },
         { "all_spell",      SEC_ADMINISTRATOR,  &ChatHandler::HandleReloadAllSpellCommand,      "", NULL },
         { "all_item",       SEC_ADMINISTRATOR,  &ChatHandler::HandleReloadAllItemCommand,       "", NULL },
@@ -212,6 +213,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "disenchant_loot_template",    SEC_ADMINISTRATOR, &ChatHandler::HandleReloadLootTemplatesDisenchantCommand, "", NULL },
         { "fishing_loot_template",       SEC_ADMINISTRATOR, &ChatHandler::HandleReloadLootTemplatesFishingCommand,    "", NULL },
         { "game_graveyard_zone",         SEC_ADMINISTRATOR, &ChatHandler::HandleReloadGameGraveyardZoneCommand,       "", NULL },
+        { "game_tele",                   SEC_ADMINISTRATOR, &ChatHandler::HandleReloadGameTeleCommand,                "", NULL },
         { "gameobject_involvedrelation", SEC_ADMINISTRATOR, &ChatHandler::HandleReloadGOQuestInvRelationsCommand,     "", NULL },
         { "gameobject_loot_template",    SEC_ADMINISTRATOR, &ChatHandler::HandleReloadLootTemplatesGameobjectCommand, "", NULL },
         { "gameobject_questrelation",    SEC_ADMINISTRATOR, &ChatHandler::HandleReloadGOQuestRelationsCommand,        "", NULL },
@@ -219,6 +221,9 @@ ChatCommand * ChatHandler::getCommandTable()
         { "item_enchantment_template",   SEC_ADMINISTRATOR, &ChatHandler::HandleReloadItemEnchantementsCommand,       "", NULL },
         { "item_loot_template",          SEC_ADMINISTRATOR, &ChatHandler::HandleReloadLootTemplatesItemCommand,       "", NULL },
         { "mangos_string",               SEC_ADMINISTRATOR, &ChatHandler::HandleReloadMangosStringCommand,            "", NULL },
+        { "npc_gossip",                  SEC_ADMINISTRATOR, &ChatHandler::HandleReloadNpcGossipCommand,               "", NULL },
+        { "npc_trainer",                 SEC_ADMINISTRATOR, &ChatHandler::HandleReloadNpcTrainerCommand,              "", NULL },
+        { "npc_vendor",                  SEC_ADMINISTRATOR, &ChatHandler::HandleReloadNpcVendorCommand,               "", NULL },
         { "page_text",                   SEC_ADMINISTRATOR, &ChatHandler::HandleReloadPageTextsCommand,               "", NULL },
         { "pickpocketing_loot_template", SEC_ADMINISTRATOR, &ChatHandler::HandleReloadLootTemplatesPickpocketingCommand,"",NULL},
         { "prospecting_loot_template",   SEC_ADMINISTRATOR, &ChatHandler::HandleReloadLootTemplatesProspectingCommand,"", NULL },
@@ -264,6 +269,14 @@ ChatCommand * ChatHandler::getCommandTable()
         { NULL,             0,                  NULL,                                           "", NULL }
     };
 
+    static ChatCommand lookupPlayerCommandTable[] =
+    {
+        { "ip",            SEC_GAMEMASTER,     &ChatHandler::HandleLookupPlayerIpCommand,       "", NULL },
+        { "account",       SEC_GAMEMASTER,     &ChatHandler::HandleLookupPlayerAccountCommand,  "", NULL },
+        { "email",         SEC_GAMEMASTER,     &ChatHandler::HandleLookupPlayerEmailCommand,    "", NULL },
+        { NULL,            0,                  NULL,                                            "", NULL }
+    };
+
     static ChatCommand lookupCommandTable[] =
     {
         { "area",           SEC_MODERATOR,      &ChatHandler::HandleLookupAreaCommand,          "", NULL },
@@ -274,6 +287,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "itemset",        SEC_ADMINISTRATOR,  &ChatHandler::HandleLookupItemSetCommand,       "", NULL },
         { "object",         SEC_ADMINISTRATOR,  &ChatHandler::HandleLookupObjectCommand,        "", NULL },
         { "quest",          SEC_ADMINISTRATOR,  &ChatHandler::HandleLookupQuestCommand,         "", NULL },
+        { "player",         SEC_GAMEMASTER,     NULL,                                           "", lookupPlayerCommandTable },
         { "skill",          SEC_ADMINISTRATOR,  &ChatHandler::HandleLookupSkillCommand,         "", NULL },
         { "spell",          SEC_ADMINISTRATOR,  &ChatHandler::HandleLookupSpellCommand,         "", NULL },
         { "tele",           SEC_MODERATOR,      &ChatHandler::HandleLookupTeleCommand,          "", NULL },
@@ -1101,3 +1115,17 @@ uint32 ChatHandler::extractSpellIdFromLink(char* text)
     return talentEntry->RankID[rank];
 }
 
+GameTele const* ChatHandler::extractGameTeleFromLink(char* text)
+{
+    // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
+    char* cId = extractKeyFromLink(text,"Htele");
+    if(!cId)
+        return false;
+
+    // id case (explicit or from shift link)
+    if(cId[0] >= '0' || cId[0] >= '9')
+        if(uint32 id = atoi(cId))
+            return objmgr.GetGameTele(id);
+
+    return objmgr.GetGameTele(cId);
+}

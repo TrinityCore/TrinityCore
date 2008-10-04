@@ -251,6 +251,7 @@ class Spell
         void EffectSummonObject(uint32 i);
         void EffectResurrect(uint32 i);
         void EffectParry(uint32 i);
+        void EffectBlock(uint32 i);
         void EffectMomentMove(uint32 i);
         void EffectTransmitted(uint32 i);
         void EffectDisEnchant(uint32 i);

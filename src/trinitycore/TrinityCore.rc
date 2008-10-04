@@ -52,8 +52,8 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_SYS_DEFAULT
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,1,6700,670
- PRODUCTVERSION 0,1,6700,670
+ FILEVERSION 0,2,6721,676
+ PRODUCTVERSION 0,2,6721,676
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -69,12 +69,12 @@ BEGIN
         BLOCK "080004b0"
         BEGIN
             VALUE "FileDescription", "TrinityCore"
-            VALUE "FileVersion", "0, 1, 6700, 670"
+            VALUE "FileVersion", "0, 2, 6721, 676"
             VALUE "InternalName", "TrinityCore"
             VALUE "LegalCopyright", "Copyright (C) 2008"
             VALUE "OriginalFilename", "TrinityCore.exe"
             VALUE "ProductName", "TrinityCore"
-            VALUE "ProductVersion", "0, 1, 6700, 670"
+            VALUE "ProductVersion", "0, 2, 6721, 676"
         END
     END
     BLOCK "VarFileInfo"

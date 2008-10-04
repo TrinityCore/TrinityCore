@@ -91,38 +91,34 @@ void GossipMenu::ClearMenu()
     m_gItems.clear();
 }
 
-PlayerMenu::PlayerMenu( WorldSession *Session )
+PlayerMenu::PlayerMenu( WorldSession *session ) : pSession(session)
 {
-    pGossipMenu = new GossipMenu();
-    pQuestMenu  = new QuestMenu();
-    pSession    = Session;
 }
 
 PlayerMenu::~PlayerMenu()
 {
-    delete pGossipMenu;
-    delete pQuestMenu;
+    ClearMenus();
 }
 
 void PlayerMenu::ClearMenus()
 {
-    pGossipMenu->ClearMenu();
-    pQuestMenu->ClearMenu();
+    mGossipMenu.ClearMenu();
+    mQuestMenu.ClearMenu();
 }
 
 uint32 PlayerMenu::GossipOptionSender( unsigned int Selection )
 {
-    return pGossipMenu->MenuItemSender( Selection );
+    return mGossipMenu.MenuItemSender( Selection );
 }
 
 uint32 PlayerMenu::GossipOptionAction( unsigned int Selection )
 {
-    return pGossipMenu->MenuItemAction( Selection );
+    return mGossipMenu.MenuItemAction( Selection );
 }
 
 bool PlayerMenu::GossipOptionCoded( unsigned int Selection )
 {
-    return pGossipMenu->MenuItemCoded( Selection );
+    return mGossipMenu.MenuItemCoded( Selection );
 }
 
 void PlayerMenu::SendGossipMenu( uint32 TitleTextId, uint64 npcGUID )
@@ -131,11 +127,11 @@ void PlayerMenu::SendGossipMenu( uint32 TitleTextId, uint64 npcGUID )
     data << npcGUID;
     data << uint32(0);                                      // new 2.4.0
     data << uint32( TitleTextId );
-    data << uint32( pGossipMenu->MenuItemCount() );         // max count 0x0F
+    data << uint32( mGossipMenu.MenuItemCount() );         // max count 0x0F
 
-    for ( unsigned int iI = 0; iI < pGossipMenu->MenuItemCount(); iI++ )
+    for ( unsigned int iI = 0; iI < mGossipMenu.MenuItemCount(); iI++ )
     {
-        GossipMenuItem const& gItem = pGossipMenu->GetItem(iI);
+        GossipMenuItem const& gItem = mGossipMenu.GetItem(iI);
         data << uint32( iI );
         data << uint8( gItem.m_gIcon );
         // icons:
@@ -150,11 +146,11 @@ void PlayerMenu::SendGossipMenu( uint32 TitleTextId, uint64 npcGUID )
         data << gItem.m_gBoxMessage;                        // accept text (related to money) pop up box, 2.0.3
     }
 
-    data << uint32( pQuestMenu->MenuItemCount() );          // max count 0x20
+    data << uint32( mQuestMenu.MenuItemCount() );          // max count 0x20
 
-    for ( uint16 iI = 0; iI < pQuestMenu->MenuItemCount(); iI++ )
+    for ( uint16 iI = 0; iI < mQuestMenu.MenuItemCount(); iI++ )
     {
-        QuestMenuItem const& qItem = pQuestMenu->GetItem(iI);
+        QuestMenuItem const& qItem = mQuestMenu.GetItem(iI);
         uint32 questID = qItem.m_qId;
         Quest const* pQuest = objmgr.GetQuestTemplate(questID);
 
@@ -357,11 +353,12 @@ void PlayerMenu::SendQuestGiverQuestList( QEmote eEmote, std::string Title, uint
     data << Title;
     data << uint32(eEmote._Delay );                         // player emote
     data << uint32(eEmote._Emote );                         // NPC emote
-    data << uint8 ( pQuestMenu->MenuItemCount() );
+    data << uint8 ( mQuestMenu.MenuItemCount() );
 
-    for ( uint16 iI = 0; iI < pQuestMenu->MenuItemCount(); iI++ )
+    for ( uint16 iI = 0; iI < mQuestMenu.MenuItemCount(); iI++ )
     {
-        QuestMenuItem qmi=pQuestMenu->GetItem(iI);
+        QuestMenuItem const& qmi = mQuestMenu.GetItem(iI);
+
         uint32 questID = qmi.m_qId;
         Quest const *pQuest = objmgr.GetQuestTemplate(questID);
 

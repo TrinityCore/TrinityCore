@@ -595,7 +595,7 @@ struct SpellEntry
     uint32    Targets;                                      // 14
     uint32    TargetCreatureType;                           // 15
     uint32    RequiresSpellFocus;                           // 16
-    //uint32    FacingCasterFlags;                          // 17 not used
+    uint32    FacingCasterFlags;                            // 17
     uint32    CasterAuraState;                              // 18
     uint32    TargetAuraState;                              // 19
     uint32    CasterAuraStateNot;                           // 20

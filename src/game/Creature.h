@@ -125,15 +125,6 @@ struct CreatureItem
     uint32 ExtendedCost;
 };
 
-struct TrainerSpell
-{
-    SpellEntry const* spell;
-    uint32 spellcost;
-    uint32 reqskill;
-    uint32 reqskillvalue;
-    uint32 reqlevel;
-};
-
 enum CreatureFlagsExtra
 {
     CREATURE_FLAG_EXTRA_INSTANCE_BIND   = 0x00000001,       // creature kill bind instance with killer and killer's group
@@ -300,6 +291,29 @@ enum InhabitTypeValues
 #pragma pack(pop)
 #endif
 
+struct TrainerSpell
+{
+    uint32 spell;
+    uint32 spellcost;
+    uint32 reqskill;
+    uint32 reqskillvalue;
+    uint32 reqlevel;
+};
+
+typedef std::vector<TrainerSpell*> TrainerSpellList;
+
+struct TrainerSpellData
+{
+    TrainerSpellData() : trainerType(0) {}
+
+    TrainerSpellList spellList;
+    uint32 trainerType;                                     // trainer type based at trainer spells, can be different from creature_template value.
+                                                            // req. for correct show non-prof. trainers like weaponmaster, allowed values 0 and 2.
+
+    void Clear();
+    TrainerSpell const* Find(uint32 spell_id) const;
+};
+
 typedef std::list<GossipOption> GossipOptionList;
 
 typedef std::map<uint32,time_t> CreatureSpellCooldowns;
@@ -440,14 +454,7 @@ class MANGOS_DLL_SPEC Creature : public Unit
             return NULL;
         }
 
-        /*********************************************************/
-        /***                    TRAINER SYSTEM                 ***/
-        /*********************************************************/
-        typedef std::list<TrainerSpell> SpellsList;
-        void LoadTrainerSpells();                           // must be called before access to trainer spells, lazy loading at first call
-        void ReloadTrainerSpells() { m_trainerSpellsLoaded = false; LoadTrainerSpells(); }
-        SpellsList const& GetTrainerSpells() const { return m_trainer_spells; }
-        uint32 GetTrainerType() const { return m_trainer_type; }
+        TrainerSpellData const* GetTrainerSpells() const;
 
         CreatureInfo const *GetCreatureInfo() const { return m_creatureInfo; }
         CreatureDataAddon const* GetCreatureAddon() const;
@@ -558,11 +565,6 @@ class MANGOS_DLL_SPEC Creature : public Unit
         CreatureItems m_vendor_items;
         bool m_itemsLoaded;                                 // vendor items loading state
 
-        // trainer spells
-        bool m_trainerSpellsLoaded;                         // trainer spells loading state
-        SpellsList m_trainer_spells;
-        uint32 m_trainer_type;                              // trainer type based at trainer spells, can be different from creature_template value.
-                                                            // req. for correct show non-prof. trainers like weaponmaster.
         void _RealtimeSetCreatureInfo();
 
         static float _GetHealthMod(int32 Rank);
@@ -580,7 +582,6 @@ class MANGOS_DLL_SPEC Creature : public Unit
 
         bool m_gossipOptionLoaded;
         GossipOptionList m_goptions;
-        uint32 m_NPCTextId;                                 // cached value
 
         uint8 m_emoteState;
         bool m_isPet;                                       // set only in Pet::Pet

@@ -33,6 +33,7 @@
 #include "World.h"
 #include "GameEvent.h"
 #include "SpellMgr.h"
+#include "AccountMgr.h"
 #include "WaypointManager.h"
 #include "Util.h"
 #include <cctype>
@@ -207,7 +208,7 @@ bool ChatHandler::HandleTargetObjectCommand(const char* args)
             WorldDatabase.escape_string(name);
             result = WorldDatabase.PQuery(
                 "SELECT guid, id, position_x, position_y, position_z, orientation, map, (POW(position_x - %f, 2) + POW(position_y - %f, 2) + POW(position_z - %f, 2)) AS order_ "
-                "FROM gameobject,gameobject_template WHERE gameobject_template.entry = gameobject.id AND map = %i AND name "_LIKE_" '""%%%s%%""' ORDER BY order_ ASC LIMIT 1",
+                "FROM gameobject,gameobject_template WHERE gameobject_template.entry = gameobject.id AND map = %i AND name "_LIKE_" "_CONCAT3_("'%%'","'%s'","'%%'")" ORDER BY order_ ASC LIMIT 1",
                 pl->GetPositionX(), pl->GetPositionY(), pl->GetPositionZ(), pl->GetMapId(),name.c_str());
         }
     }
@@ -3945,4 +3946,101 @@ bool ChatHandler::HandleLearnAllRecipesCommand(const char* args)
     }
 
     return false;
+}
+
+bool ChatHandler::HandleLookupPlayerIpCommand(const char* args)
+{
+  
+    if(!*args)
+        return false;
+
+    std::string ip = strtok((char*)args, " ");
+    char* limit_str = strtok(NULL, " ");
+    int32 limit = limit_str ? atoi(limit_str) : -1;
+
+    loginDatabase.escape_string(ip);
+
+    QueryResult* result = loginDatabase.PQuery("SELECT id,username FROM account WHERE last_ip = '%s'", ip.c_str());
+
+    return LookupPlayerSearchCommand(result,limit);
+}
+
+bool ChatHandler::HandleLookupPlayerAccountCommand(const char* args)
+{
+    if(!*args)
+        return false;
+
+    std::string account = strtok((char*)args, " ");
+    char* limit_str = strtok(NULL, " ");
+    int32 limit = limit_str ? atoi(limit_str) : -1;
+
+    if(!AccountMgr::normilizeString(account))
+        return false;
+
+    loginDatabase.escape_string(account);
+
+    QueryResult* result = loginDatabase.PQuery("SELECT id,username FROM account WHERE username = '%s'", account.c_str());
+
+    return LookupPlayerSearchCommand(result,limit);
+}
+
+bool ChatHandler::HandleLookupPlayerEmailCommand(const char* args)
+{
+  
+    if(!*args)
+        return false;
+
+    std::string email = strtok((char*)args, " ");
+    char* limit_str = strtok(NULL, " ");
+    int32 limit = limit_str ? atoi(limit_str) : -1;
+
+    loginDatabase.escape_string(email);
+
+    QueryResult* result = loginDatabase.PQuery("SELECT id,username FROM account WHERE email = '%s'", email.c_str());
+
+    return LookupPlayerSearchCommand(result,limit);
+}
+
+bool ChatHandler::LookupPlayerSearchCommand(QueryResult* result, int32 limit)
+{
+    if(!result)
+    {
+        PSendSysMessage(LANG_NO_PLAYERS_FOUND);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    int i =0;
+    do
+    {
+        Field* fields = result->Fetch();
+        uint32 acc_id = fields[0].GetUInt32();
+        std::string acc_name = fields[1].GetCppString();
+        
+        QueryResult* chars = CharacterDatabase.PQuery("SELECT guid,name FROM characters WHERE account = '%u'", acc_id);
+        if(chars)
+        {
+            PSendSysMessage(LANG_LOOKUP_PLAYER_ACCOUNT,acc_name.c_str(),acc_id);
+
+            uint64 guid = 0;
+            std::string name;
+
+            do
+            {
+                Field* charfields = chars->Fetch();
+                guid = charfields[0].GetUInt64();
+                name = charfields[1].GetCppString();
+
+                PSendSysMessage(LANG_LOOKUP_PLAYER_CHARACTER,name.c_str(),guid);
+                ++i;
+
+            } while( chars->NextRow() && ( limit == -1 || i < limit ) );
+
+            delete chars;
+        }
+    } while(result->NextRow());
+
+    delete result;
+
+    return true;
 }

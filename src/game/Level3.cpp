@@ -61,11 +61,11 @@ bool ChatHandler::HandleReloadCommand(const char* arg)
 bool ChatHandler::HandleReloadAllCommand(const char*)
 {
     HandleReloadAreaTriggerTeleportCommand("");
-    //HandleReloadAreaTriggerTavernCommand(""); -- reloaded in HandleReloadAreaTriggerTavernCommand
-    //HandleReloadQuestAreaTriggersCommand(""); -- reloaded in HandleReloadAllQuestCommand
     HandleReloadSkillFishingBaseLevelCommand("");
 
+    HandleReloadAllAreaCommand("");
     HandleReloadAllLootCommand("");
+    HandleReloadAllNpcCommand("");
     HandleReloadAllQuestCommand("");
     HandleReloadAllSpellCommand("");
     HandleReloadAllItemCommand("");
@@ -73,13 +73,32 @@ bool ChatHandler::HandleReloadAllCommand(const char*)
     HandleReloadCommandCommand("");
     HandleReloadReservedNameCommand("");
     HandleReloadMangosStringCommand("");
+    HandleReloadGameTeleCommand("");
     return true;
 }
 
 bool ChatHandler::HandleReloadAllAreaCommand(const char*)
 {
+    //HandleReloadQuestAreaTriggersCommand(""); -- reloaded in HandleReloadAllQuestCommand
     HandleReloadAreaTriggerTeleportCommand("");
-    //HandleReloadAreaTriggerTavernCommand(""); -- reloaded in HandleReloadAreaTriggerTavernCommand
+    HandleReloadAreaTriggerTavernCommand("");
+    HandleReloadGameGraveyardZoneCommand("");
+    return true;
+}
+
+bool ChatHandler::HandleReloadAllLootCommand(const char*)
+{
+    sLog.outString( "Re-Loading Loot Tables..." );
+    LoadLootTables();
+    SendGlobalSysMessage("DB tables `*_loot_template` reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadAllNpcCommand(const char* /*args*/)
+{
+    HandleReloadNpcGossipCommand("a");
+    HandleReloadNpcTrainerCommand("a");
+    HandleReloadNpcVendorCommand("a");
     return true;
 }
 
@@ -91,14 +110,6 @@ bool ChatHandler::HandleReloadAllQuestCommand(const char* /*args*/)
     sLog.outString( "Re-Loading Quests Relations..." );
     objmgr.LoadQuestRelations();
     SendGlobalSysMessage("DB tables `*_questrelation` and `*_involvedrelation` reloaded.");
-    return true;
-}
-
-bool ChatHandler::HandleReloadAllLootCommand(const char*)
-{
-    sLog.outString( "Re-Loading Loot Tables..." );
-    LoadLootTables();
-    SendGlobalSysMessage("DB tables `*_loot_template` reloaded.");
     return true;
 }
 
@@ -317,6 +328,30 @@ bool ChatHandler::HandleReloadMangosStringCommand(const char*)
     sLog.outString( "Re-Loading mangos_string Table!" );
     objmgr.LoadMangosStrings();
     SendGlobalSysMessage("DB table `mangos_string` reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadNpcGossipCommand(const char*)
+{
+    sLog.outString( "Re-Loading `npc_gossip` Table!" );
+    objmgr.LoadNpcTextId();
+    SendGlobalSysMessage("DB table `npc_gossip` reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadNpcTrainerCommand(const char*)
+{
+    sLog.outString( "Re-Loading `npc_trainer` Table!" );
+    objmgr.LoadTrainerSpell();
+    SendGlobalSysMessage("DB table `npc_trainer` reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadNpcVendorCommand(const char*)
+{
+    sLog.outString( "Re-Loading `npc_vendor` Table!" );
+    objmgr.LoadVendors();
+    SendGlobalSysMessage("DB table `npc_vendor` reloaded.");
     return true;
 }
 
@@ -547,6 +582,17 @@ bool ChatHandler::HandleReloadGameGraveyardZoneCommand(const char* /*arg*/)
     objmgr.LoadGraveyardZones();
 
     SendGlobalSysMessage("DB table `game_graveyard_zone` reloaded.");
+
+    return true;
+}
+
+bool ChatHandler::HandleReloadGameTeleCommand(const char* /*arg*/)
+{
+    sLog.outString( "Re-Loading Game Tele coordinates...");
+
+    objmgr.LoadGameTele();
+
+    SendGlobalSysMessage("DB table `game_tele` reloaded.");
 
     return true;
 }
@@ -3869,28 +3915,29 @@ bool ChatHandler::HandleAddTeleCommand(const char * args)
 {
     if(!*args)
         return false;
-    QueryResult *result;
+
     Player *player=m_session->GetPlayer();
-    if (!player) return false;
+    if (!player)
+        return false;
 
     std::string name = args;
-    WorldDatabase.escape_string(name);
-    result = WorldDatabase.PQuery("SELECT id FROM game_tele WHERE name = '%s'",name.c_str());
-    if (result)
+
+    if(objmgr.GetGameTele(name))
     {
         SendSysMessage(LANG_COMMAND_TP_ALREADYEXIST);
-        delete result;
         SetSentErrorMessage(true);
         return false;
     }
 
-    float x = player->GetPositionX();
-    float y = player->GetPositionY();
-    float z = player->GetPositionZ();
-    float ort = player->GetOrientation();
-    int mapid = player->GetMapId();
+    GameTele tele;
+    tele.position_x  = player->GetPositionX();
+    tele.position_y  = player->GetPositionY();
+    tele.position_z  = player->GetPositionZ();
+    tele.orientation = player->GetOrientation();
+    tele.mapId       = player->GetMapId();
+    tele.name        = name;
 
-    if(WorldDatabase.PExecuteLog("INSERT INTO game_tele (position_x,position_y,position_z,orientation,map,name) VALUES (%f,%f,%f,%f,%d,'%s')",x,y,z,ort,mapid,name.c_str()))
+    if(objmgr.AddGameTele(tele))
     {
         SendSysMessage(LANG_COMMAND_TP_ADDED);
     }
@@ -3910,27 +3957,15 @@ bool ChatHandler::HandleDelTeleCommand(const char * args)
         return false;
 
     std::string name = args;
-    WorldDatabase.escape_string(name);
 
-    QueryResult *result=WorldDatabase.PQuery("SELECT id FROM game_tele WHERE name = '%s'",name.c_str());
-    if (!result)
+    if(!objmgr.DeleteGameTele(name))
     {
         SendSysMessage(LANG_COMMAND_TELE_NOTFOUND);
         SetSentErrorMessage(true);
         return false;
     }
-    delete result;
 
-    if(WorldDatabase.PExecuteLog("DELETE FROM game_tele WHERE name = '%s'",name.c_str()))
-    {
-        SendSysMessage(LANG_COMMAND_TP_DELETED);
-    }
-    else
-    {
-        SendSysMessage(LANG_COMMAND_TP_DELETEERR);
-        SetSentErrorMessage(true);
-        return false;
-    }
+    SendSysMessage(LANG_COMMAND_TP_DELETED);
     return true;
 }
 
@@ -4758,7 +4793,7 @@ bool ChatHandler::HandleBanListCommand(const char* args)
     Field *fields = NULL;
     if(Type == "ip")
     {
-        result = loginDatabase.PQuery("SELECT ip FROM ip_banned WHERE ip "_LIKE_" '""%%%s%%""'",Filter.c_str());
+        result = loginDatabase.PQuery("SELECT ip FROM ip_banned WHERE ip "_LIKE_" "_CONCAT3_("'%%'","'%s'","'%%'"),Filter.c_str());
         if(!result)
         {
             PSendSysMessage(LANG_BANLIST_NOIP);
@@ -4777,7 +4812,7 @@ bool ChatHandler::HandleBanListCommand(const char* args)
     //lookup accountid
     if(Type == "account")
     {
-        result = loginDatabase.PQuery("SELECT id FROM account WHERE username "_LIKE_" '""%%%s%%""' ",Filter.c_str());
+        result = loginDatabase.PQuery("SELECT id FROM account WHERE username "_LIKE_" "_CONCAT3_("'%%'","'%s'","'%%'"),Filter.c_str());
         if (!result)
         {
             PSendSysMessage(LANG_BANLIST_NOACCOUNT);
@@ -4787,7 +4822,7 @@ bool ChatHandler::HandleBanListCommand(const char* args)
     }
     else if(Type == "characters")
     {
-        result = CharacterDatabase.PQuery("SELECT account FROM characters, WHERE name "_LIKE_" '""%%%s%%""' ",Filter.c_str());
+        result = CharacterDatabase.PQuery("SELECT account FROM characters, WHERE name "_LIKE_" "_CONCAT3_("'%%'","'%s'","'%%'"),Filter.c_str());
         if (!result)
         {
             PSendSysMessage(LANG_BANLIST_NOCHARACTER);

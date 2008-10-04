@@ -116,6 +116,11 @@ enum SpellModOp
 
 #define MAX_SPELLMOD 32
 
+enum SpellFacingFlags
+{
+    SPELL_FACING_FLAG_INFRONT = 0x0001
+};
+
 #define BASE_MINDAMAGE 1.0f
 #define BASE_MAXDAMAGE 2.0f
 #define BASE_ATTACK_TIME 2000

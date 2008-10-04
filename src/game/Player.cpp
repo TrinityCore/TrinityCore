@@ -356,6 +356,7 @@ Player::Player (WorldSession *session): Unit()
     m_WeaponProficiency = 0;
     m_ArmorProficiency = 0;
     m_canParry = false;
+    m_canBlock = false;
     m_canDualWield = false;
     m_ammoDPS = 0.0f;
 
@@ -616,8 +617,6 @@ bool Player::Create( uint32 guidlow, std::string name, uint8 race, uint8 class_,
         for(int i=0; i<4 ;i++)
             ++action_itr[i];
     }
-
-    UpdateBlockPercentage();
 
     for (PlayerCreateInfoItems::const_iterator item_id_itr = info->item.begin(); item_id_itr!=info->item.end(); ++item_id_itr++)
     {
@@ -2248,12 +2247,8 @@ void Player::InitStatsForLevel(bool reapplyMods)
     for (uint8 i = 0; i < 7; ++i)
         SetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1+i, 0.0f);
 
-    // Base parry percents
-    SetFloatValue(PLAYER_PARRY_PERCENTAGE, 5.0f);
-
-    //Base block percentage
-    SetFloatValue(PLAYER_BLOCK_PERCENTAGE, 5.0f);
-
+    SetFloatValue(PLAYER_PARRY_PERCENTAGE, 0.0f);
+    SetFloatValue(PLAYER_BLOCK_PERCENTAGE, 0.0f);
     SetUInt32Value(PLAYER_SHIELD_BLOCK, 0);
 
     // Dodge percentage
@@ -3286,11 +3281,6 @@ void Player::InitVisibleBits()
     for(uint16 i = PLAYER_QUEST_LOG_1_1; i < PLAYER_QUEST_LOG_25_2; i+=4)
         updateVisualBits.SetBit(i);
 
-    for(uint16 i = 0; i < INVENTORY_SLOT_BAG_END; i++)
-    {
-        updateVisualBits.SetBit((uint16)(PLAYER_FIELD_INV_SLOT_HEAD + i*2));
-        updateVisualBits.SetBit((uint16)(PLAYER_FIELD_INV_SLOT_HEAD + (i*2) + 1));
-    }
     //Players visible items are not inventory stuff
     //431) = 884 (0x374) = main weapon
     for(uint16 i = 0; i < EQUIPMENT_SLOT_END; i++)
@@ -3405,18 +3395,18 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
         return TRAINER_SPELL_RED;
 
     // known spell
-    if(HasSpell(trainer_spell->spell->Id))
+    if(HasSpell(trainer_spell->spell))
         return TRAINER_SPELL_GRAY;
 
     // check race/class requirement
-    if(!IsSpellFitByClassAndRace(trainer_spell->spell->Id))
+    if(!IsSpellFitByClassAndRace(trainer_spell->spell))
         return TRAINER_SPELL_RED;
 
     // check level requirement
-    if(getLevel() < ( trainer_spell->reqlevel ? trainer_spell->reqlevel : trainer_spell->spell->spellLevel))
+    if(getLevel() < trainer_spell->reqlevel)
         return TRAINER_SPELL_RED;
 
-    if(SpellChainNode const* spell_chain = spellmgr.GetSpellChainNode(trainer_spell->spell->Id))
+    if(SpellChainNode const* spell_chain = spellmgr.GetSpellChainNode(trainer_spell->spell))
     {
         // check prev.rank requirement
         if(spell_chain->prev && !HasSpell(spell_chain->prev))
@@ -3431,14 +3421,17 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
     if(trainer_spell->reqskill && GetBaseSkillValue(trainer_spell->reqskill) < trainer_spell->reqskillvalue)
         return TRAINER_SPELL_RED;
 
-    // secondary prof. or not prof. spell
-    uint32 skill = trainer_spell->spell->EffectMiscValue[1];
+    // exist, already checked at loading
+    SpellEntry const* spell = sSpellStore.LookupEntry(trainer_spell->spell);
 
-    if(trainer_spell->spell->Effect[1] != SPELL_EFFECT_SKILL || !IsPrimaryProfessionSkill(skill))
+    // secondary prof. or not prof. spell
+    uint32 skill = spell->EffectMiscValue[1];
+
+    if(spell->Effect[1] != SPELL_EFFECT_SKILL || !IsPrimaryProfessionSkill(skill))
         return TRAINER_SPELL_GREEN;
 
     // check primary prof. limit
-    if(spellmgr.IsPrimaryProfessionFirstRankSpell(trainer_spell->spell->Id) && GetFreePrimaryProffesionPoints() == 0)
+    if(spellmgr.IsPrimaryProfessionFirstRankSpell(spell->Id) && GetFreePrimaryProffesionPoints() == 0)
         return TRAINER_SPELL_RED;
 
     return TRAINER_SPELL_GREEN;
@@ -4876,9 +4869,7 @@ void Player::UpdateSkillsToMaxSkillsForLevel()
             SetUInt32Value(PLAYER_SKILL_VALUE_INDEX(i),MAKE_SKILL_VALUE(max,max));
 
         if(pskill == SKILL_DEFENSE)
-        {
-            UpdateBlockPercentage();
-        }
+            UpdateDefenseBonusesMod();
     }
 }
 
@@ -5790,7 +5781,7 @@ void Player::RewardReputation(Unit *pVictim, float rate)
         donerep1 = int32(donerep1*rate);
         FactionEntry const *factionEntry1 = sFactionStore.LookupEntry(Rep->repfaction1);
         uint32 current_reputation_rank1 = GetReputationRank(factionEntry1);
-        if(factionEntry1 && current_reputation_rank1 <= Rep->reputration_max_cap1)
+        if(factionEntry1 && current_reputation_rank1 <= Rep->reputation_max_cap1)
             ModifyFactionReputation(factionEntry1, donerep1);
 
         // Wiki: Team factions value divided by 2
@@ -5808,7 +5799,7 @@ void Player::RewardReputation(Unit *pVictim, float rate)
         donerep2 = int32(donerep2*rate);
         FactionEntry const *factionEntry2 = sFactionStore.LookupEntry(Rep->repfaction2);
         uint32 current_reputation_rank2 = GetReputationRank(factionEntry2);
-        if(factionEntry2 && current_reputation_rank2 <= Rep->reputration_max_cap2)
+        if(factionEntry2 && current_reputation_rank2 <= Rep->reputation_max_cap2)
             ModifyFactionReputation(factionEntry2, donerep2);
 
         // Wiki: Team factions value divided by 2
@@ -11552,19 +11543,19 @@ void Player::PrepareQuestMenu( uint64 guid )
             return;
     }
 
-    QuestMenu *qm = PlayerTalkClass->GetQuestMenu();
-    qm->ClearMenu();
+    QuestMenu &qm = PlayerTalkClass->GetQuestMenu();
+    qm.ClearMenu();
 
     for(QuestRelations::const_iterator i = pObjectQIR->lower_bound(pObject->GetEntry()); i != pObjectQIR->upper_bound(pObject->GetEntry()); ++i)
     {
         uint32 quest_id = i->second;
         QuestStatus status = GetQuestStatus( quest_id );
         if ( status == QUEST_STATUS_COMPLETE && !GetQuestRewardStatus( quest_id ) )
-            qm->AddMenuItem(quest_id, DIALOG_STATUS_REWARD_REP);
+            qm.AddMenuItem(quest_id, DIALOG_STATUS_REWARD_REP);
         else if ( status == QUEST_STATUS_INCOMPLETE )
-            qm->AddMenuItem(quest_id, DIALOG_STATUS_INCOMPLETE);
+            qm.AddMenuItem(quest_id, DIALOG_STATUS_INCOMPLETE);
         else if (status == QUEST_STATUS_AVAILABLE )
-            qm->AddMenuItem(quest_id, DIALOG_STATUS_CHAT);
+            qm.AddMenuItem(quest_id, DIALOG_STATUS_CHAT);
     }
 
     for(QuestRelations::const_iterator i = pObjectQR->lower_bound(pObject->GetEntry()); i != pObjectQR->upper_bound(pObject->GetEntry()); ++i)
@@ -11576,23 +11567,27 @@ void Player::PrepareQuestMenu( uint64 guid )
         QuestStatus status = GetQuestStatus( quest_id );
 
         if (pQuest->IsAutoComplete() && CanTakeQuest(pQuest, false))
-            qm->AddMenuItem(quest_id, DIALOG_STATUS_REWARD_REP);
+            qm.AddMenuItem(quest_id, DIALOG_STATUS_REWARD_REP);
         else if ( status == QUEST_STATUS_NONE && CanTakeQuest( pQuest, false ) )
-            qm->AddMenuItem(quest_id, DIALOG_STATUS_AVAILABLE);
+            qm.AddMenuItem(quest_id, DIALOG_STATUS_AVAILABLE);
     }
 }
 
 void Player::SendPreparedQuest( uint64 guid )
 {
-    QuestMenu* pQuestMenu = PlayerTalkClass->GetQuestMenu();
-    if( !pQuestMenu || pQuestMenu->MenuItemCount() < 1 )
+    QuestMenu& questMenu = PlayerTalkClass->GetQuestMenu();
+    if( questMenu.Empty() )
         return;
 
-    uint32 status = pQuestMenu->GetItem(0).m_qIcon;
-    if ( pQuestMenu->MenuItemCount() == 1 )
+    QuestMenuItem const& qmi0 = questMenu.GetItem( 0 );
+
+    uint32 status = qmi0.m_qIcon;
+
+    // single element case
+    if ( questMenu.MenuItemCount() == 1 )
     {
         // Auto open -- maybe also should verify there is no greeting
-        uint32 quest_id = pQuestMenu->GetItem(0).m_qId;
+        uint32 quest_id = qmi0.m_qId;
         Quest const* pQuest = objmgr.GetQuestTemplate(quest_id);
         if ( pQuest )
         {
@@ -11607,6 +11602,7 @@ void Player::SendPreparedQuest( uint64 guid )
                 PlayerTalkClass->SendQuestGiverQuestDetails( pQuest, guid, true );
         }
     }
+    // multiply entries
     else
     {
         QEmote qe;
@@ -13773,13 +13769,6 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
         }
     }
 
-    //Unmount Player from previous mount, so speed bug with mount is no more...
-    if(IsMounted())
-    {
-        Unmount();
-        RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
-    }
-
     _LoadDeclinedNames(holder->GetResult(PLAYER_LOGIN_QUERY_LOADDECLINEDNAMES));
 
     return true;
@@ -15626,16 +15615,12 @@ void Player::Uncharm()
 
 void Player::BuildPlayerChat(WorldPacket *data, uint8 msgtype, std::string text, uint32 language) const
 {
-    bool pre = (msgtype==CHAT_MSG_EMOTE);
-
     *data << (uint8)msgtype;
     *data << (uint32)language;
     *data << (uint64)GetGUID();
     *data << (uint32)language;                               //language 2.1.0 ?
     *data << (uint64)GetGUID();
-    *data << (uint32)(text.length()+1+(pre?3:0));
-    if(pre)
-        data->append("%s ",3);
+    *data << (uint32)(text.length()+1);
     *data << text;
     *data << (uint8)chatTag();
 }
@@ -17151,6 +17136,10 @@ void Player::SendInitialPacketsBeforeAddToMap()
     data << uint32(secsToTimeBitFields(sWorld.GetGameTime()));
     data << (float)0.01666667f;                             // game speed
     GetSession()->SendPacket( &data );
+
+    // set fly flag if in fly form or taxi flight to prevent visually drop at ground in showup moment
+    if(HasAuraType(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED) || isInFlight())
+        SetUnitMovementFlags(GetUnitMovementFlags() | MOVEMENTFLAG_FLYING2);
 }
 
 void Player::SendInitialPacketsAfterAddToMap()
@@ -17162,9 +17151,9 @@ void Player::SendInitialPacketsAfterAddToMap()
     // same auras state lost at far teleport, send it one more time in this case also
     static const AuraType auratypes[] =
     {
-        SPELL_AURA_MOD_FEAR,     SPELL_AURA_TRANSFORM, SPELL_AURA_WATER_WALK,
-        SPELL_AURA_FEATHER_FALL, SPELL_AURA_HOVER,     SPELL_AURA_SAFE_FALL,
-        SPELL_AURA_FLY,          SPELL_AURA_NONE
+        SPELL_AURA_MOD_FEAR,     SPELL_AURA_TRANSFORM,                 SPELL_AURA_WATER_WALK,
+        SPELL_AURA_FEATHER_FALL, SPELL_AURA_HOVER,                     SPELL_AURA_SAFE_FALL,
+        SPELL_AURA_FLY,          SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED, SPELL_AURA_NONE
     };
     for(AuraType const* itr = &auratypes[0]; itr && itr[0] != SPELL_AURA_NONE; ++itr)
     {
@@ -18116,15 +18105,29 @@ void Player::UpdateUnderwaterState( Map* m, float x, float y, float z )
         m_isunderwater |= 0x80;
 }
 
-bool ItemPosCount::isContainedIn(ItemPosCountVec &vec)
+void Player::SetCanParry( bool value )
 {
-    for(ItemPosCountVec::const_iterator itr = vec.begin(); itr != vec.end();++itr)
-    {
-        if(itr->pos == this->pos/* && itr->count == this.count*/)
-        {
-            return true;
-        }
-    }
-    return false;
+    if(m_canParry==value)
+        return; 
+
+    m_canParry = value;
+    UpdateParryPercentage();
 }
 
+void Player::SetCanBlock( bool value )
+{
+    if(m_canBlock==value)
+        return; 
+
+    m_canBlock = value;
+    UpdateBlockPercentage();
+}
+
+bool ItemPosCount::isContainedIn(ItemPosCountVec const& vec) const
+{
+    for(ItemPosCountVec::const_iterator itr = vec.begin(); itr != vec.end();++itr)
+        if(itr->pos == this->pos)
+            return true;
+
+    return false;
+}

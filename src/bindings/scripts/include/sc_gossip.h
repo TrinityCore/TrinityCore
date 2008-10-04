@@ -1,6 +1,6 @@
 /* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-* This program is free software licensed under GPL version 2
-* Please see the included DOCS/LICENSE.TXT for more information */
+ * This program is free software licensed under GPL version 2
+ * Please see the included DOCS/LICENSE.TXT for more information */
 
 #ifndef SC_PLAYER_H
 #define SC_PLAYER_H
@@ -31,12 +31,12 @@
 #define GOSSIP_TEXT_OFFICERS            "The officers` lounge"
 
 #define GOSSIP_TEXT_ALTERACVALLEY       "Alterac Valley"
-#define GOSSIP_TEXT_ARATHIBASIN         "Arathi Basin" 
+#define GOSSIP_TEXT_ARATHIBASIN         "Arathi Basin"
 #define GOSSIP_TEXT_WARSONGULCH         "Warsong Gulch"
 #define GOSSIP_TEXT_ARENA               "Arena"
 #define GOSSIP_TEXT_EYEOFTHESTORM       "Eye of The Storm"
 
-#define GOSSIP_TEXT_DRUID               "Druid" 
+#define GOSSIP_TEXT_DRUID               "Druid"
 #define GOSSIP_TEXT_HUNTER              "Hunter"
 #define GOSSIP_TEXT_PRIEST              "Priest"
 #define GOSSIP_TEXT_ROGUE               "Rogue"
@@ -131,8 +131,8 @@ extern uint32 GetSkillLevel(Player *player,uint32 skill);
 // d - Action (identifys this Menu Item)
 // e - Text to be displayed in pop up box
 // f - Money value in pop up box
-#define ADD_GOSSIP_ITEM(a,b,c,d)   PlayerTalkClass->GetGossipMenu()->AddMenuItem(a,b,c,d,"",0)
-#define ADD_GOSSIP_ITEM_EXTENDED(a,b,c,d,e,f)   PlayerTalkClass->GetGossipMenu()->AddMenuItem(a,b,c,d,e,f)
+#define ADD_GOSSIP_ITEM(a,b,c,d)   PlayerTalkClass->GetGossipMenu().AddMenuItem(a,b,c,d,"",0)
+#define ADD_GOSSIP_ITEM_EXTENDED(a,b,c,d,e,f,g)   PlayerTalkClass->GetGossipMenu().AddMenuItem(a,b,c,d,e,f,g)
 
 // This fuction Sends the current menu to show to client, a - NPCTEXTID(uint32) , b - npc guid(uint64)
 #define SEND_GOSSIP_MENU(a,b)      PlayerTalkClass->SendGossipMenu(a,b)

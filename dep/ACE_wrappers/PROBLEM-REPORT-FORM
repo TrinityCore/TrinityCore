@@ -1,0 +1,90 @@
+[Please use the PRF form below to submit bug reports, problem reports,
+ etc., to the ACE developers and interested users.  Send to
+ ace-bugs@cs.wustl.edu.  If you are using OCI, PrismTech, or
+ Riverace's versions of ACE do not send bugs to this mailing list, but
+ instead contact those companies for support.  Please also send your
+ PRF as plain ASCII text, _not_ uuencoded or as an attachment.
+
+ We prefer that all bug reports be submitted through our bug tracking
+ system.  See $ACE_ROOT/docs/usage-bugzilla.html for more information
+ about how to do this.  If you are unsure as to whether your problem
+ is a real bug or not then please submit your question to the mailing
+ list using the following form.  Not using the problem report form
+ will make it harder or impossible to identify the problem, and in
+ many cases we will be unable to help at all.  Also please try to
+ browse bugzilla and the ChangeLog files to find out if your problem
+ has been solved in a more recent version of ACE.
+
+ To ensure that you see responses, please do one of the following:
+
+    1) Subscribe to the ace-bugs mail list, by sending email with
+       contents "subscribe ace-bugs" to majordomo@cs.wustl.edu.
+
+    2) Or, monitor the comp.soft-sys.ace newsgroup for responses.
+
+ Replace/remove all the explanatory text in brackets before mailing.
+
+ Please send this form as ASCII text only.  Do _not_ send it as an
+ attachment, or as tar'ed, compressed and/or uuencoded text.  And
+ limit line lengths to less than 80 characters.
+
+ PLEASE make your Subject: line as descriptive as possible.
+ Subjects like "ACE bug" or "bug report" are not helpful!
+ Also, do _not_ include the word "help" in the Subject!]
+
+ When including your config.h and platform_macros.GNU files as requested
+ below, only include the contents if you use the recommended method of
+ including the platform-specific file in your file. If you use a link
+ to the platform-specific file, simply state which one - DO NOT
+ include an entire platform-specific configuration file in the form.
+
+8<----------8<----------8<----------8<----------8<----------8<----------8<----
+
+To: ace-bugs@cs.wustl.edu
+Subject: [area]: [synopsis]
+
+    ACE VERSION: 5.6.6
+
+    HOST MACHINE and OPERATING SYSTEM:
+        If on Windows based OS's, which version of WINSOCK do you
+        use?:
+
+    TARGET MACHINE and OPERATING SYSTEM, if different from HOST:
+    COMPILER NAME AND VERSION (AND PATCHLEVEL):
+
+    THE $ACE_ROOT/ace/config.h FILE [if you use a link to a platform-
+    specific file, simply state which one]:
+
+    THE $ACE_ROOT/include/makeinclude/platform_macros.GNU FILE [if you
+    use a link to a platform-specific file, simply state which one
+    (unless this isn't used in this case, e.g., with Microsoft Visual
+    C++)]:
+
+    CONTENTS OF $ACE_ROOT/bin/MakeProjectCreator/config/default.features
+    (used by MPC when you generate your own makefiles):
+
+    AREA/CLASS/EXAMPLE AFFECTED:
+[What example failed?  What module failed to compile?]
+
+    DOES THE PROBLEM AFFECT:
+        COMPILATION?
+        LINKING?
+            On Unix systems, did you run make realclean first?
+        EXECUTION?
+        OTHER (please specify)?
+[Please indicate whether ACE, your application, or both are affected.]
+
+    SYNOPSIS:
+[Brief description of the problem]
+
+    DESCRIPTION:
+[Detailed description of problem.  Don't just say "<blah>
+doesn't work, here's a fix," explain what your program does
+to get to the <blah> state. ]
+
+    REPEAT BY:
+[What you did to get the error; include test program or session
+transcript if at all possible.  ]
+
+    SAMPLE FIX/WORKAROUND:
+[If available ]

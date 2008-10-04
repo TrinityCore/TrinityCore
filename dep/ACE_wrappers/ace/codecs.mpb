@@ -1,0 +1,8 @@
+// -*- MPC -*-
+// $Id: codecs.mpb 80826 2008-03-04 14:51:23Z wotte $
+
+feature(ace_codecs) {
+  Source_Files(ACE_COMPONENTS) {
+    Codecs.cpp
+  }
+}

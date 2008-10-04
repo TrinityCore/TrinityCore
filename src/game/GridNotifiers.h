@@ -112,7 +112,7 @@ namespace MaNGOS
         bool i_toSelf;
         bool i_ownTeamOnly;
         float i_dist;
-        MessageDistDeliverer(Player &pl, WorldPacket *msg, bool to_self, bool ownTeamOnly, float dist) : i_player(pl), i_message(msg), i_toSelf(to_self), i_ownTeamOnly(ownTeamOnly), i_dist(dist) {}
+        MessageDistDeliverer(Player &pl, WorldPacket *msg, float dist, bool to_self, bool ownTeamOnly) : i_player(pl), i_message(msg), i_dist(dist), i_toSelf(to_self), i_ownTeamOnly(ownTeamOnly) {}
         void Visit(PlayerMapType &m);
         template<class SKIP> void Visit(GridRefManager<SKIP> &) {}
     };

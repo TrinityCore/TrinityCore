@@ -37,12 +37,16 @@ GuardAI::GuardAI(Creature &c) : i_creature(c), i_victimGuid(0), i_state(STATE_NO
 
 void GuardAI::MoveInLineOfSight(Unit *u)
 {
+    // Ignore Z for flying creatures
+    if ( !i_creature.canFly() && i_creature.GetDistanceZ(u) > CREATURE_Z_ATTACK_RANGE )
+        return;
+
     if( !i_creature.getVictim() && u->isTargetableForAttack() &&
         ( u->IsHostileToPlayers() || i_creature.IsHostileTo(u) /*|| u->getVictim() && i_creature.IsFriendlyTo(u->getVictim())*/ ) &&
         u->isInAccessablePlaceFor(&i_creature))
     {
         float attackRadius = i_creature.GetAttackDistance(u);
-        if(i_creature.IsWithinDistInMap(u,attackRadius) && i_creature.GetDistanceZ(u) <= CREATURE_Z_ATTACK_RANGE)
+        if(i_creature.IsWithinDistInMap(u,attackRadius))
         {
             //Need add code to let guard support player
             AttackStart(u);
