@@ -53,7 +53,8 @@ CREATE TABLE `arena_team_member` (
   `played_week` int(10) unsigned NOT NULL default '0',
   `wons_week` int(10) unsigned NOT NULL default '0',
   `played_season` int(10) unsigned NOT NULL default '0',
-  `wons_season` int(10) unsigned NOT NULL default '0'
+  `wons_season` int(10) unsigned NOT NULL default '0',
+  `points_to_add` int(10) unsigned NOT NULL default '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -1207,6 +1208,23 @@ CREATE TABLE `petition_sign` (
 LOCK TABLES `petition_sign` WRITE;
 /*!40000 ALTER TABLE `petition_sign` DISABLE KEYS */;
 /*!40000 ALTER TABLE `petition_sign` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `saved_variables`
+--
+DROP TABLE IF EXISTS `saved_variables`;
+CREATE TABLE `saved_variables` (                                                                             
+    `NextArenaPointDistributionTime` timestamp NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Variable Saves';
+
+--
+-- Dumping data for table `saved_variables`
+--
+
+LOCK TABLES `saved_variables` WRITE;
+/*!40000 ALTER TABLE `saved_variables` DISABLE KEYS */;
+/*!40000 ALTER TABLE `saved_variables` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
