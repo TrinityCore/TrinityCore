@@ -32,6 +32,39 @@ struct SpellEntry;
 #define TIME_INTERVAL_LOOK   5000
 #define VISIBILITY_RANGE    10000
 
+//Spell targets used by SelectSpell
+enum SelectTarget
+{
+    SELECT_TARGET_DONTCARE = 0,                             //All target types allowed
+
+    SELECT_TARGET_SELF,                                     //Only Self casting
+
+    SELECT_TARGET_SINGLE_ENEMY,                             //Only Single Enemy
+    SELECT_TARGET_AOE_ENEMY,                                //Only AoE Enemy
+    SELECT_TARGET_ANY_ENEMY,                                //AoE or Single Enemy
+
+    SELECT_TARGET_SINGLE_FRIEND,                            //Only Single Friend
+    SELECT_TARGET_AOE_FRIEND,                               //Only AoE Friend
+    SELECT_TARGET_ANY_FRIEND,                               //AoE or Single Friend
+};
+
+//Spell Effects used by SelectSpell
+enum SelectEffect
+{
+    SELECT_EFFECT_DONTCARE = 0,                             //All spell effects allowed
+    SELECT_EFFECT_DAMAGE,                                   //Spell does damage
+    SELECT_EFFECT_HEALING,                                  //Spell does healing
+    SELECT_EFFECT_AURA,                                     //Spell applies an aura
+};
+
+//Selection method used by SelectTarget
+enum SelectAggroTarget
+{
+    SELECT_TARGET_RANDOM = 0,                               //Just selects a random target
+    SELECT_TARGET_TOPAGGRO,                                 //Selects targes from top aggro to bottom
+    SELECT_TARGET_BOTTOMAGGRO,                              //Selects targets from bottom aggro to top
+};
+
 class MANGOS_DLL_SPEC CreatureAI
 {
     public:

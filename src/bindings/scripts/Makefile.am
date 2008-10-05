@@ -40,7 +40,6 @@ include/precompiled.h \
 include/sc_creature.cpp \
 include/sc_creature.h \
 include/sc_gossip.h \
-include/sc_grid_searchers.h \
 include/sc_instance.h \
 include/sc_item.h \
 scripts/areatrigger/areatrigger_scripts.cpp \
@@ -418,4 +417,5 @@ install-data-hook:
 	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(sysconfdir)/$$dest; \
 	  fi; \
 	done
+
 

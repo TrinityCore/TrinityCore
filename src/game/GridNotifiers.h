@@ -709,6 +709,31 @@ namespace MaNGOS
             Unit* const i_funit;
     };
 
+    class NearestAssistCreatureInCreatureRangeCheck
+    {
+        public:
+            NearestAssistCreatureInCreatureRangeCheck(Creature* obj,Unit* enemy, float range)
+                : i_obj(obj), i_enemy(enemy), i_range(range) {}
+
+            bool operator()(Creature* u)
+            {
+                if(u->getFaction() == i_obj->getFaction() && !u->isInCombat() && !u->GetCharmerOrOwnerGUID() && u->IsHostileTo(i_enemy) && u->isAlive()&& i_obj->IsWithinDistInMap(u, i_range) && i_obj->IsWithinLOSInMap(u))
+                {
+                    i_range = i_obj->GetDistance(u);         // use found unit range as new range limit for next check
+                    return true;
+                }
+                return false;
+            }
+            float GetLastRange() const { return i_range; }
+        private:
+            Creature* const i_obj;
+            Unit* const i_enemy;
+            float  i_range;
+
+            // prevent clone this object
+            NearestAssistCreatureInCreatureRangeCheck(NearestAssistCreatureInCreatureRangeCheck const&);
+    };
+
     class AnyAssistCreatureInRangeCheck
     {
         public:
@@ -798,6 +823,110 @@ namespace MaNGOS
     private:
         WorldObject const* i_obj;
         float i_range;
+    };
+
+    // Searchers used by ScriptedAI
+    class MostHPMissingInRange
+    {
+    public:
+        MostHPMissingInRange(Unit const* obj, float range, uint32 hp) : i_obj(obj), i_range(range), i_hp(hp) {}
+        bool operator()(Unit* u)
+        {
+            if(u->isAlive() && u->isInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) && u->GetMaxHealth() - u->GetHealth() > i_hp)
+            {
+                i_hp = u->GetMaxHealth() - u->GetHealth();
+                return true;
+            }
+            return false;
+        }
+    private:
+        Unit const* i_obj;
+        float i_range;
+        uint32 i_hp;
+    };
+
+    class FriendlyCCedInRange
+    {
+    public:
+        FriendlyCCedInRange(Unit const* obj, float range) : i_obj(obj), i_range(range) {}
+        bool operator()(Unit* u)
+        {
+            if(u->isAlive() && u->isInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) &&
+                (u->isFeared() || u->isCharmed() || u->isFrozen() || u->hasUnitState(UNIT_STAT_STUNDED) || u->hasUnitState(UNIT_STAT_STUNDED) || u->hasUnitState(UNIT_STAT_CONFUSED)))
+            {
+                return true;
+            }
+            return false;
+        }
+    private:
+        Unit const* i_obj;
+        float i_range;
+    };
+
+    class FriendlyMissingBuffInRange
+    {
+    public:
+        FriendlyMissingBuffInRange(Unit const* obj, float range, uint32 spellid) : i_obj(obj), i_range(range), i_spell(spellid) {}
+        bool operator()(Unit* u)
+        {
+            if(u->isAlive() && u->isInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) && 
+                !(u->HasAura(i_spell, 0) || u->HasAura(i_spell, 1) || u->HasAura(i_spell, 2)))
+            {
+                return true;
+            }
+            return false;
+        }
+    private:
+        Unit const* i_obj;
+        float i_range;
+        uint32 i_spell;
+    };
+
+    class AllFriendlyCreaturesInGrid
+    {
+    public:
+        AllFriendlyCreaturesInGrid(Unit const* obj) : pUnit(obj) {}
+        bool operator() (Unit* u)
+        {
+            if(u->isAlive() && u->GetVisibility() == VISIBILITY_ON && u->IsFriendlyTo(pUnit))
+                return true;
+
+            return false;
+        }
+    private:
+        Unit const* pUnit;
+    };
+
+    class AllGameObjectsWithEntryInGrid
+    {
+    public:
+        AllGameObjectsWithEntryInGrid(uint32 ent) : entry(ent) {}
+        bool operator() (GameObject* g)
+        {
+            if(g->GetEntry() == entry)
+                return true;
+
+            return false;
+        }
+    private:
+        uint32 entry;
+    };
+
+    class AllCreaturesOfEntryInRange
+    {
+    public:
+        AllCreaturesOfEntryInRange(Unit const* obj, uint32 ent, float ran) : pUnit(obj), entry(ent), range(ran) {}
+        bool operator() (Unit* u)
+        {
+            if(u->GetEntry() == entry && pUnit->IsWithinDistInMap(u, range))
+                return true;
+
+            return false;
+        }
+    private:
+        Unit const* pUnit;
+        uint32 entry;
+        float range;
     };
 
     #ifndef WIN32
