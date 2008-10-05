@@ -5,7 +5,6 @@
 #include "precompiled.h"
 #include "Item.h"
 #include "Spell.h"
-#include "WorldPacket.h"
 
 // Spell summary for ScriptedAI::SelectSpell
 struct TSpellSummary {
@@ -202,10 +201,7 @@ void ScriptedAI::DoPlaySoundToSet(Unit* unit, uint32 sound)
         return;
     }
 
-    WorldPacket data(4);
-    data.SetOpcode(SMSG_PLAY_SOUND);
-    data << uint32(sound);
-    unit->SendMessageToSet(&data,false);
+    unit->SendPlaySound(sound, false);
 }
 
 Creature* ScriptedAI::DoSpawnCreature(uint32 id, float x, float y, float z, float angle, uint32 type, uint32 despawntime)
