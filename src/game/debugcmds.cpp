@@ -216,7 +216,7 @@ bool ChatHandler::HandlePlaySound2Command(const char* args)
         return false;
 
     uint32 soundid = atoi(args);
-    m_session->GetPlayer()->PlaySound(soundid, false);
+    m_session->GetPlayer()->SendPlaySound(soundid, false);
     return true;
 }
 

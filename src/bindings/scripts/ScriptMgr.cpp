@@ -1853,10 +1853,7 @@ void ProcessScriptText(uint32 id, WorldObject* pSource, Unit* target)
     {
         if(GetSoundEntriesStore()->LookupEntry((*i).second.SoundId))
         {
-            WorldPacket data(4);
-            data.SetOpcode(SMSG_PLAY_SOUND);
-            data << uint32((*i).second.SoundId);
-            pSource->SendMessageToSet(&data,false);
+            pSource->SendPlaySound((*i).second.SoundId, false);
         }
         else
             error_log("TSCR: ProcessScriptText id %u tried to process invalid soundid %u.",id,(*i).second.SoundId);
