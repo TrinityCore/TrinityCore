@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="ACE_Wraper"
+	Name="ACE_Wrappers"
 	ProjectGUID="{7C74F49E-FECA-1BAD-6757-8A6348EA12C8}"
 	SccProjectName=""
 	SccLocalPath="">
@@ -2011,10 +2011,10 @@
 				RelativePath="..\..\dep\ACE_wrappers\ace\os_include\os_dlfcn.h">
 			</File>
 			<File
-				RelativePath="..\..\dep\ACE_wrappers\ace\os_include\os_errno.h">
+				RelativePath="..\..\dep\ACE_wrappers\ace\OS_Errno.h">
 			</File>
 			<File
-				RelativePath="..\..\dep\ACE_wrappers\ace\OS_Errno.h">
+				RelativePath="..\..\dep\ACE_wrappers\ace\os_include\os_errno.h">
 			</File>
 			<File
 				RelativePath="..\..\dep\ACE_wrappers\ace\os_include\os_fcntl.h">
@@ -2299,10 +2299,10 @@
 				RelativePath="..\..\dep\ACE_wrappers\ace\os_include\os_stdlib.h">
 			</File>
 			<File
-				RelativePath="..\..\dep\ACE_wrappers\ace\os_include\os_string.h">
+				RelativePath="..\..\dep\ACE_wrappers\ace\OS_String.h">
 			</File>
 			<File
-				RelativePath="..\..\dep\ACE_wrappers\ace\OS_String.h">
+				RelativePath="..\..\dep\ACE_wrappers\ace\os_include\os_string.h">
 			</File>
 			<File
 				RelativePath="..\..\dep\ACE_wrappers\ace\os_include\os_strings.h">
@@ -2335,10 +2335,10 @@
 				RelativePath="..\..\dep\ACE_wrappers\ace\OS_Thread_Adapter.h">
 			</File>
 			<File
-				RelativePath="..\..\dep\ACE_wrappers\ace\os_include\os_time.h">
+				RelativePath="..\..\dep\ACE_wrappers\ace\os_include\sys\os_time.h">
 			</File>
 			<File
-				RelativePath="..\..\dep\ACE_wrappers\ace\os_include\sys\os_time.h">
+				RelativePath="..\..\dep\ACE_wrappers\ace\os_include\os_time.h">
 			</File>
 			<File
 				RelativePath="..\..\dep\ACE_wrappers\ace\os_include\sys\os_timeb.h">
