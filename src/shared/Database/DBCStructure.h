@@ -471,9 +471,10 @@ struct MapEntry
 
     // Helpers
     bool IsExpansionMap() const { return addon != 0; }
-    bool Instanceable() const { return map_type == MAP_INSTANCE || map_type == MAP_RAID; }
-    // NOTE: this duplicate of Instanceable(), but Instanceable() can be changed when BG also will be instanceable
+
+
     bool IsDungeon() const { return map_type == MAP_INSTANCE || map_type == MAP_RAID; }
+    bool Instanceable() const { return map_type == MAP_INSTANCE || map_type == MAP_RAID || map_type == MAP_BATTLEGROUND || map_type == MAP_ARENA; }
     bool IsRaid() const { return map_type == MAP_RAID; }
     bool IsBattleGround() const { return map_type == MAP_BATTLEGROUND; }
     bool IsBattleArena() const { return map_type == MAP_ARENA; }

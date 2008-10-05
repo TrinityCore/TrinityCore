@@ -310,6 +310,8 @@ class ObjectMgr
         ArenaTeam* GetArenaTeamByCapitan(uint64 const& guid) const;
         void AddArenaTeam(ArenaTeam* arenateam) { mArenaTeamSet.insert( arenateam ); }
         void RemoveArenaTeam(ArenaTeam* arenateam) { mArenaTeamSet.erase( arenateam ); }
+        ArenaTeamSet::iterator GetArenaTeamSetBegin() { return mArenaTeamSet.begin(); }
+        ArenaTeamSet::iterator GetArenaTeamSetEnd() { return mArenaTeamSet.end(); }
 
         static CreatureInfo const *GetCreatureTemplate( uint32 id );
         CreatureModelInfo const *GetCreatureModelInfo( uint32 modelid );

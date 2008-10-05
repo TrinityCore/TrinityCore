@@ -141,7 +141,17 @@ Map* MapInstanced::GetInstance(const WorldObject* obj)
             uint32 NewInstanceId = 0;                       // instanceId of the resulting map
             Player* player = (Player*)obj;
 
-            // TODO: battlegrounds and arenas
+            if(IsBattleGroundOrArena())
+            {
+                // instantiate or find existing bg map for player
+                // the instance id is set in battlegroundid
+                NewInstanceId = player->GetBattleGroundId();
+                assert(NewInstanceId);
+                map = _FindMap(NewInstanceId);
+                if(!map)
+                    map = CreateBattleGround(NewInstanceId);
+                return map;
+            }
 
             InstancePlayerBind *pBind = player->GetBoundInstance(GetId(), player->GetDifficulty());
             InstanceSave *pSave = pBind ? pBind->save : NULL;

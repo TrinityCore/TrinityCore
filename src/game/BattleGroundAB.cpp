@@ -50,6 +50,13 @@ void BattleGroundAB::Update(time_t diff)
         {
             m_Events |= 0x01;
 
+            // setup here, only when at least one player has ported to the map
+            if(!SetupBattleGround())
+            {
+                EndNow();
+                return;
+            }
+
             sLog.outDebug("Arathi Basin: entering state STATUS_WAIT_JOIN ...");
 
             // despawn banners, auras and buffs

@@ -149,12 +149,27 @@ class ArenaTeam
         void LoadStatsFromDB(uint32 ArenaTeamId);
         void LoadPlayerStats(ArenaTeamMember* member);
 
+        void SaveToDB();
+
         void BroadcastPacket(WorldPacket *packet);
 
         void Roster(WorldSession *session);
         void Query(WorldSession *session);
         void Stats(WorldSession *session);
         void InspectStats(WorldSession *session, uint64 guid);
+
+        uint32 GetPoints(uint32 MemberRating);
+        float GetChanceAgainst(uint32 rating);
+        int32 WonAgainstChance(float chance);
+        void MemberWon(Player * plr, uint32 againstrating);
+        int32 LostAgainstChance(float chance);
+        void MemberLost(Player * plr, uint32 againstrating);
+
+        void UpdateArenaPointsHelper();
+
+        void FinishWeek();
+
+        void NotifyStatsChanged();
 
     protected:
 

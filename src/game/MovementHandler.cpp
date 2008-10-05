@@ -130,22 +130,28 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         _player->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
 
     // battleground state preper
-    if(_player->InBattleGround())
+    // only add to bg group and object, if the player was invited (else he entered through command)
+    if(_player->InBattleGround() && _player->IsInvitedForBattleGroundInstance(_player->GetBattleGroundId()))
     {
         BattleGround *bg = _player->GetBattleGround();
         if(bg)
         {
+            bg->AddPlayer(_player);
             if(bg->GetMapId() == _player->GetMapId())       // we teleported to bg
             {
-                if(!bg->GetBgRaid(_player->GetTeam()))      // first player joined
+                // get the team this way, because arenas might 'override' the teams.
+                uint32 team = bg->GetPlayerTeam(_player->GetGUID());
+                if(!team)
+                    team = _player->GetTeam();
+                if(!bg->GetBgRaid(team))      // first player joined
                 {
                     Group *group = new Group;
-                    bg->SetBgRaid(_player->GetTeam(), group);
+                    bg->SetBgRaid(team, group);
                     group->Create(_player->GetGUIDLow(), _player->GetName());
                 }
                 else                                        // raid already exist
                 {
-                    bg->GetBgRaid(_player->GetTeam())->AddMember(_player->GetGUID(), _player->GetName());
+                    bg->GetBgRaid(team)->AddMember(_player->GetGUID(), _player->GetName());
                 }
             }
         }
@@ -365,20 +371,29 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
 
     if(movementInfo.z < -500.0f)
     {
-        // NOTE: this is actually called many times while falling
-        // even after the player has been teleported away
-        // TODO: discard movement packets after the player is rooted
-        if(GetPlayer()->isAlive())
+        if(GetPlayer()->InBattleGround() 
+            && GetPlayer()->GetBattleGround() 
+            && GetPlayer()->GetBattleGround()->HandlePlayerUnderMap(_player))
         {
-            GetPlayer()->EnvironmentalDamage(GetPlayer()->GetGUID(),DAMAGE_FALL_TO_VOID, GetPlayer()->GetMaxHealth());
-            // change the death state to CORPSE to prevent the death timer from
-            // starting in the next player update
-            GetPlayer()->KillPlayer();
-            GetPlayer()->BuildPlayerRepop();
+            // do nothing, the handle already did if returned true
         }
+        else
+        {
+            // NOTE: this is actually called many times while falling
+            // even after the player has been teleported away
+            // TODO: discard movement packets after the player is rooted
+            if(GetPlayer()->isAlive())
+            {
+                GetPlayer()->EnvironmentalDamage(GetPlayer()->GetGUID(),DAMAGE_FALL_TO_VOID, GetPlayer()->GetMaxHealth());
+                // change the death state to CORPSE to prevent the death timer from
+                // starting in the next player update
+                GetPlayer()->KillPlayer();
+                GetPlayer()->BuildPlayerRepop();
+            }
 
-        // cancel the death timer here if started
-        GetPlayer()->RepopAtGraveyard();
+            // cancel the death timer here if started
+            GetPlayer()->RepopAtGraveyard();
+        }
     }
 }
 

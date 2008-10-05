@@ -437,16 +437,6 @@ LogColors = ""
 #        Default: 1 (true)
 #                 0 (false)
 #
-#    Battleground.QueueAnnouncer.Enable
-#        Enable queue announcer posting to chat
-#        Default: 1 (true)
-#                 0 (false)
-#
-#    Battleground.QueueAnnouncer.PlayerOnly
-#        Enable queue announcer posting to chat
-#        Default: 0 (false)
-#                 1 (true)
-#
 #    CastUnstuck
 #        Allow cast or not Unstuck spell at .start or client Help option use
 #        Default: 1 (true)
@@ -537,8 +527,6 @@ MaxArenaPoints = 5000
 StartPlayerLevel = 1
 ActivateWeather = 1
 Battleground.CastDeserter = 1
-Battleground.QueueAnnouncer.Enable = 1
-Battleground.QueueAnnouncer.PlayerOnly = 0
 CastUnstuck = 1
 Instance.IgnoreLevel = 0
 Instance.IgnoreRaid = 0
@@ -1025,3 +1013,43 @@ Ra.IP = 0.0.0.0
 Ra.Port = 3443
 Ra.MinLevel = 3
 Ra.Secure = 1
+
+###################################################################################################################
+#
+# Rated arena matches config
+#
+# MaxRatingDifference: the maximum rating difference between two groups in rated matches
+#             Default: 0 (disable, rating difference is discarded)  
+#
+# RatingDiscardTimer: after the specified milliseconds has passed, 
+#                     rating information will be discarded when selecting teams for matches
+#                     also initiates an update by this timer
+#             Default: 60000
+#
+# AutoDistributePoints: set if arena points should be distributed automatically, or by GM command
+#             Default: 0 (disable) (recommended): use gm command or sql query to distribute the points
+#                      1 (enable): arena points are distributed automatically
+#
+# AutoDistributeInterval: how often should the distribution take place 
+#                         if automatic distribution is enabled
+#                         in days
+#             Default: 7 (weekly)
+#
+###################################################################################################################
+
+Arena.MaxRatingDifference = 0
+Arena.RatingDiscardTimer = 60000
+Arena.AutoDistributePoints = 0
+Arena.AutoDistributeInterval = 7
+
+###################################################################################################################
+#
+# Battleground config
+#
+# PrematureFinishTimer: the time to end the bg if there are less than minplayersperteam on one side
+#                       in milliseconds, 0 - disabled
+#              Default: 0 
+#
+###################################################################################################################
+
+BattleGround.PrematureFinishTimer = 0

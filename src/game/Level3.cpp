@@ -46,6 +46,7 @@
 #include "Config/ConfigEnv.h"
 #include "Util.h"
 #include "ItemEnchantmentMgr.h"
+#include "BattleGroundMgr.h"
 #include "InstanceSaveMgr.h"
 #include "InstanceData.h"
 
@@ -5455,5 +5456,11 @@ bool ChatHandler::HandleInstanceSaveDataCommand(const char * /*args*/)
     }
 
     ((InstanceMap*)map)->GetInstanceData()->SaveToDB();
+    return true;
+}
+
+bool ChatHandler::HandleFlushArenaPointsCommand(const char * /*args*/)
+{
+    sBattleGroundMgr.DistributeArenaPoints();
     return true;
 }

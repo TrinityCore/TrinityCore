@@ -47,6 +47,13 @@ void BattleGroundRL::Update(time_t diff)
         {
             m_Events |= 0x01;
 
+            // setup here, only when at least one player has ported to the map
+            if(!SetupBattleGround())
+            {
+                EndNow();
+                return;
+            }
+
             for(uint32 i = BG_RL_OBJECT_DOOR_1; i <= BG_RL_OBJECT_DOOR_2; i++)
                 SpawnBGObject(i, RESPAWN_IMMEDIATELY);
 
@@ -73,6 +80,9 @@ void BattleGroundRL::Update(time_t diff)
             for(uint32 i = BG_RL_OBJECT_DOOR_1; i <= BG_RL_OBJECT_DOOR_2; i++)
                 DoorOpen(i);
 
+            for(uint32 i = BG_RL_OBJECT_BUFF_1; i <= BG_RL_OBJECT_BUFF_2; i++)
+                SpawnBGObject(i, 60);
+
             SendMessageToAll(LANG_ARENA_BEGUN);
             SetStatus(STATUS_IN_PROGRESS);
             SetStartDelayTime(0);
@@ -80,6 +90,11 @@ void BattleGroundRL::Update(time_t diff)
             for(BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                 if(Player *plr = objmgr.GetPlayer(itr->first))
                     plr->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
+
+            if(!GetPlayersCountByTeam(ALLIANCE) && GetPlayersCountByTeam(HORDE))
+                EndBattleGround(HORDE);
+            else if(GetPlayersCountByTeam(ALLIANCE) && !GetPlayersCountByTeam(HORDE))
+                EndBattleGround(ALLIANCE);
         }
     }
 
@@ -96,11 +111,23 @@ void BattleGroundRL::AddPlayer(Player *plr)
     BattleGroundRLScore* sc = new BattleGroundRLScore;
 
     m_PlayerScores[plr->GetGUID()] = sc;
+
+    UpdateWorldState(0xbb8, GetAlivePlayersCountByTeam(ALLIANCE));
+    UpdateWorldState(0xbb9, GetAlivePlayersCountByTeam(HORDE));
 }
 
 void BattleGroundRL::RemovePlayer(Player *plr, uint64 guid)
 {
+    if(GetStatus() == STATUS_WAIT_LEAVE)
+        return;
 
+    UpdateWorldState(0xbb8, GetAlivePlayersCountByTeam(ALLIANCE));
+    UpdateWorldState(0xbb9, GetAlivePlayersCountByTeam(HORDE));
+
+    if(!GetAlivePlayersCountByTeam(ALLIANCE) && GetPlayersCountByTeam(HORDE))
+        EndBattleGround(HORDE);
+    else if(GetPlayersCountByTeam(ALLIANCE) && !GetAlivePlayersCountByTeam(HORDE))
+        EndBattleGround(ALLIANCE);
 }
 
 void BattleGroundRL::HandleKillPlayer(Player *player, Player *killer)
@@ -114,17 +141,27 @@ void BattleGroundRL::HandleKillPlayer(Player *player, Player *killer)
         return;
     }
 
-    BattleGround::HandleKillPlayer(player, killer);
+    BattleGround::HandleKillPlayer(player,killer);
 
-    uint32 killer_team_index = GetTeamIndexByTeamId(killer->GetTeam());
+    UpdateWorldState(0xbb8, GetAlivePlayersCountByTeam(ALLIANCE));
+    UpdateWorldState(0xbb9, GetAlivePlayersCountByTeam(HORDE));
 
-    ++m_TeamKills[killer_team_index];                       // add kills to killer's team
-
-    if(m_TeamKills[killer_team_index] >= GetPlayersCountByTeam(player->GetTeam()))
+    if(!GetAlivePlayersCountByTeam(ALLIANCE))
     {
         // all opponents killed
-        EndBattleGround(killer->GetTeam());
+        EndBattleGround(HORDE);
     }
+    else if(!GetAlivePlayersCountByTeam(HORDE))
+    {
+        // all opponents killed
+        EndBattleGround(ALLIANCE);
+    }
+}
+
+bool BattleGroundRL::HandlePlayerUnderMap(Player *player)
+{
+    player->TeleportTo(GetMapId(),1285.810547,1667.896851,39.957642,player->GetOrientation(),false);
+    return true;
 }
 
 void BattleGroundRL::HandleAreaTrigger(Player *Source, uint32 Trigger)
@@ -150,17 +187,26 @@ void BattleGroundRL::HandleAreaTrigger(Player *Source, uint32 Trigger)
     //    HandleTriggerBuff(buff_guid,Source);
 }
 
+void BattleGroundRL::FillInitialWorldStates(WorldPacket &data)
+{
+    data << uint32(0xbb8) << uint32(GetAlivePlayersCountByTeam(ALLIANCE));           // 7
+    data << uint32(0xbb9) << uint32(GetAlivePlayersCountByTeam(HORDE));           // 8
+    data << uint32(0xbba) << uint32(1);           // 9
+}
+
 void BattleGroundRL::ResetBGSubclass()
 {
-    m_TeamKills[BG_TEAM_ALLIANCE] = 0;
-    m_TeamKills[BG_TEAM_HORDE]    = 0;
+
 }
 
 bool BattleGroundRL::SetupBattleGround()
 {
     // gates
-    if(    !AddObject(BG_RL_OBJECT_DOOR_1, BG_RL_OBJECT_TYPE_DOOR_1, 1293.561f, 1601.938f, 31.60557f, -1.457349f, 0, 0, -0.6658813f, 0.7460576f, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_RL_OBJECT_DOOR_2, BG_RL_OBJECT_TYPE_DOOR_2, 1278.648f, 1730.557f, 31.60557f, 1.684245f, 0, 0, 0.7460582f, 0.6658807f, RESPAWN_IMMEDIATELY))
+    if(    !AddObject(BG_RL_OBJECT_DOOR_1, BG_RL_OBJECT_TYPE_DOOR_1, 1293.561, 1601.938, 31.60557, -1.457349, 0, 0, -0.6658813, 0.7460576, RESPAWN_IMMEDIATELY)
+        || !AddObject(BG_RL_OBJECT_DOOR_2, BG_RL_OBJECT_TYPE_DOOR_2, 1278.648, 1730.557, 31.60557, 1.684245, 0, 0, 0.7460582, 0.6658807, RESPAWN_IMMEDIATELY)
+    // buffs
+        || !AddObject(BG_RL_OBJECT_BUFF_1, BG_RL_OBJECT_TYPE_BUFF_1, 1328.719971, 1632.719971, 36.730400, -1.448624, 0, 0, 0.6626201, -0.7489557, 120)
+        || !AddObject(BG_RL_OBJECT_BUFF_2, BG_RL_OBJECT_TYPE_BUFF_2, 1243.300049, 1699.170044, 34.872601, -0.06981307, 0, 0, 0.03489945, -0.9993908, 120))
     {
         sLog.outErrorDb("BatteGroundRL: Failed to spawn some object!");
         return false;
