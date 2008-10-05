@@ -1644,6 +1644,40 @@ bool Creature::IsVisibleInGridForPlayer(Player* pl) const
     return false;
 }
 
+void Creature::DoFleeToGetAssistance(float radius) // Optional parameter
+{
+    if (!getVictim())
+        return;
+
+    Creature* pCreature = NULL;
+
+    CellPair p(MaNGOS::ComputeCellPair(GetPositionX(), GetPositionY()));
+    Cell cell(p);
+    cell.data.Part.reserved = ALL_DISTRICT;
+    cell.SetNoCreate();
+
+    MaNGOS::NearestAssistCreatureInCreatureRangeCheck u_check(this,getVictim(),radius);
+    MaNGOS::CreatureLastSearcher<MaNGOS::NearestAssistCreatureInCreatureRangeCheck> searcher(pCreature, u_check);
+
+    TypeContainerVisitor<MaNGOS::CreatureLastSearcher<MaNGOS::NearestAssistCreatureInCreatureRangeCheck>, GridTypeMapContainer >  grid_creature_searcher(searcher);
+
+    CellLock<GridReadGuard> cell_lock(cell, p);
+    cell_lock->Visit(cell_lock, grid_creature_searcher, *(GetMap()));
+
+    if(!GetMotionMaster()->empty() && (GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE))
+        GetMotionMaster()->Clear(false);
+    if(pCreature == NULL)
+    {
+        GetMotionMaster()->MoveIdle();
+        GetMotionMaster()->MoveFleeing(getVictim());
+    }
+    else
+    {
+        GetMotionMaster()->MoveIdle();
+        GetMotionMaster()->MovePoint(0,pCreature->GetPositionX(),pCreature->GetPositionY(),pCreature->GetPositionZ());
+    }
+}
+
 void Creature::CallAssistence()
 {
     if( !m_AlreadyCallAssistence && getVictim() && !isPet() && !isCharmed())

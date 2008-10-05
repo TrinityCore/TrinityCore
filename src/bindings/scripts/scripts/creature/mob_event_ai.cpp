@@ -79,6 +79,7 @@ struct MANGOS_DLL_DECL Mob_EventAI : public ScriptedAI
     bool MeleeEnabled;                                      //If we allow melee auto attack
     uint32 AttackDistance;                                  //Distance to attack from
     float AttackAngle;                                      //Angle of attack
+    uint32 TimetoFleeLeft;                                  //For fleeing
 
     void AttackTarget(Unit* pTarget, bool Follow)
     {
@@ -774,8 +775,9 @@ struct MANGOS_DLL_DECL Mob_EventAI : public ScriptedAI
             break;
         case ACTION_T_FLEE:
             {
-                //TODO: Replace with Flee movement generator
-                m_creature->CastSpell(m_creature, SPELL_RUN_AWAY, true);
+                TimetoFleeLeft = 8000;
+                m_creature->DoFleeToGetAssistance();
+                IsFleeing = true;
             }
             break;
         case ACTION_T_QUEST_EVENT_ALL:
@@ -954,6 +956,7 @@ struct MANGOS_DLL_DECL Mob_EventAI : public ScriptedAI
     void JustRespawned()
     {
         InCombat = false;
+        IsFleeing = false;
         Reset();
 
         //Handle Spawned Events
@@ -1014,6 +1017,7 @@ struct MANGOS_DLL_DECL Mob_EventAI : public ScriptedAI
         m_creature->SetLootRecipient(NULL);
 
         InCombat = false;
+        IsFleeing = false;
         Reset();
 
         //Handle Evade events
@@ -1034,6 +1038,7 @@ struct MANGOS_DLL_DECL Mob_EventAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         InCombat = false;
+        IsFleeing = false;
         Reset();
 
         //Handle Evade events
@@ -1131,7 +1136,7 @@ struct MANGOS_DLL_DECL Mob_EventAI : public ScriptedAI
         if (!who)
             return;
 
-        if (who->isTargetableForAttack())
+        if (who->isTargetableForAttack() && !IsFleeing)
         {
             //Begin melee attack if we are within range
             if (CombatMovementEnabled)
@@ -1223,6 +1228,20 @@ struct MANGOS_DLL_DECL Mob_EventAI : public ScriptedAI
 
         //Must return if creature isn't alive. Normally select hostil target and get victim prevent this
         if (!m_creature->isAlive())
+            return;
+
+        if ((TimetoFleeLeft < diff || (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE && m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FLEEING_MOTION_TYPE)) && IsFleeing)
+        {
+            m_creature->GetMotionMaster()->Clear(false);
+            m_creature->SetNoCallAssistence(false);
+            m_creature->CallAssistence();
+            m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+            IsFleeing = false;
+        } 
+        else
+            TimetoFleeLeft -= diff;
+
+        if(IsFleeing)
             return;
 
         //Events are only updated once every EVENT_UPDATE_TIME ms to prevent lag with large amount of events

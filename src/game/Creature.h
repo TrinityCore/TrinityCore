@@ -510,6 +510,7 @@ class MANGOS_DLL_SPEC Creature : public Unit
 
         void CallAssistence();
         void SetNoCallAssistence(bool val) { m_AlreadyCallAssistence = val; }
+        void DoFleeToGetAssistance(float radius = 50);
 
         MovementGeneratorType GetDefaultMovementType() const { return m_defaultMovementType; }
         void SetDefaultMovementType(MovementGeneratorType mgt) { m_defaultMovementType = mgt; }
