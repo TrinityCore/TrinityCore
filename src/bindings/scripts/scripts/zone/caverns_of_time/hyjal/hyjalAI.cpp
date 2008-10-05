@@ -316,18 +316,18 @@ void hyjalAI::Retreat()
 
     // First get all creatures.
     std::list<Creature*> creatures;
-    AllFriendlyCreaturesInGrid creature_check(m_creature);
-    MaNGOS::CreatureListSearcher<AllFriendlyCreaturesInGrid> creature_searcher(creatures, creature_check);
+    MaNGOS::AllFriendlyCreaturesInGrid creature_check(m_creature);
+    MaNGOS::CreatureListSearcher<MaNGOS::AllFriendlyCreaturesInGrid> creature_searcher(creatures, creature_check);
     TypeContainerVisitor
-        <MaNGOS::CreatureListSearcher<AllFriendlyCreaturesInGrid>,
+        <MaNGOS::CreatureListSearcher<MaNGOS::AllFriendlyCreaturesInGrid>,
         GridTypeMapContainer> creature_visitor(creature_searcher);
 
     // Then get all Ancient Gem Veins. NOTE: Grid Search will only be able to find those in the grid.
     std::list<GameObject*> goList;
-    AllGameObjectsWithEntryInGrid go_check(185557);
-    MaNGOS::GameObjectListSearcher<AllGameObjectsWithEntryInGrid> go_search(goList, go_check);
+    MaNGOS::AllGameObjectsWithEntryInGrid go_check(185557);
+    MaNGOS::GameObjectListSearcher<MaNGOS::AllGameObjectsWithEntryInGrid> go_search(goList, go_check);
     TypeContainerVisitor
-        <MaNGOS::GameObjectListSearcher<AllGameObjectsWithEntryInGrid>, GridTypeMapContainer> go_visit(go_search);
+        <MaNGOS::GameObjectListSearcher<MaNGOS::AllGameObjectsWithEntryInGrid>, GridTypeMapContainer> go_visit(go_search);
 
     CellLock<GridReadGuard> cell_lock(cell, pair);
                                                             // Get Creatures

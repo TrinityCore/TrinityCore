@@ -2307,10 +2307,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\include\sc_grid_searchers.h"
-				>
-			</File>
-			<File
 				RelativePath="..\include\sc_instance.h"
 				>
 			</File>

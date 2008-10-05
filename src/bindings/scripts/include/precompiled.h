@@ -6,9 +6,14 @@
 #define SC_PRECOMPILED_H
 
 #include "../ScriptMgr.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "Unit.h"
+#include "GameObject.h"
 #include "sc_creature.h"
 #include "sc_gossip.h"
-#include "sc_grid_searchers.h"
 #include "sc_instance.h"
 
 #ifdef WIN32

@@ -23,7 +23,6 @@ EndScriptData */
 
 #include "precompiled.h"
 #include "def_black_temple.h"
-#include "sc_grid_searchers.h"
 
 struct Location
 {
@@ -327,9 +326,9 @@ struct MANGOS_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
 
         std::list<Creature*> ChannelerList;
 
-        AllCreaturesOfEntryInRange check(m_creature, CREATURE_CHANNELER, 50);
-        MaNGOS::CreatureListSearcher<AllCreaturesOfEntryInRange> searcher(ChannelerList, check);
-        TypeContainerVisitor<MaNGOS::CreatureListSearcher<AllCreaturesOfEntryInRange>, GridTypeMapContainer> visitor(searcher);
+        MaNGOS::AllCreaturesOfEntryInRange check(m_creature, CREATURE_CHANNELER, 50);
+        MaNGOS::CreatureListSearcher<MaNGOS::AllCreaturesOfEntryInRange> searcher(ChannelerList, check);
+        TypeContainerVisitor<MaNGOS::CreatureListSearcher<MaNGOS::AllCreaturesOfEntryInRange>, GridTypeMapContainer> visitor(searcher);
 
         CellLock<GridReadGuard> cell_lock(cell, pair);
         cell_lock->Visit(cell_lock, visitor, *(m_creature->GetMap()));
