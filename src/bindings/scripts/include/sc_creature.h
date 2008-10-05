@@ -72,6 +72,9 @@ struct MANGOS_DLL_DECL ScriptedAI : public CreatureAI
     //Bool for if we are in combat or not
     bool InCombat;
 
+    //For fleeing
+    bool IsFleeing;
+
     //*************
     //Pure virtual functions
     //*************
