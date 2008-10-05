@@ -232,6 +232,7 @@ class MANGOS_DLL_SPEC Group
             SendUpdate();
         }
         void SetBattlegroundGroup(BattleGround *bg) { m_bgGroup = bg; }
+        uint32 CanJoinBattleGroundQueue(uint32 bgTypeId, uint32 bgQueueType, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot);
 
         void ChangeMembersGroup(const uint64 &guid, const uint8 &group);
         void ChangeMembersGroup(Player *player, const uint8 &group);

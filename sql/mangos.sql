@@ -198,6 +198,7 @@ INSERT INTO `command` VALUES
 ('debug setvalue',3,'Syntax: .debug setvalue #field #value #isInt\r\n\r\nSet the field #field of the selected creature with value #value. If no creature is selected, set the content of your field.\r\n\r\nUse a #isInt of value 1 if #value is an integer.'),
 ('debug standstate',2,'Syntax: .debug standstate #emoteid\r\n\r\nChange the emote of your character while standing to #emoteid.'),
 ('debug update',3,'Syntax: .debug update #field #value\r\n\r\nUpdate the field #field of the selected character or creature with value #value.\r\n\r\nIf no #value is provided, display the content of field #field.'),
+('debug arena',3,'Syntax: .debug arena\r\n\r\n Toggles arena 1v1 or normal mode.'),
 ('delticket',2,'Syntax: .delticket all\r\n        .delticket #num\r\n        .delticket $character_name\r\n\rall to dalete all tickets at server, $character_name to delete ticket of this character, #num to delete ticket #num.'),
 ('demorph',2,'Syntax: .demorph\r\n\r\nDemorph the selected player.'),
 ('die',3,'Syntax: .die\r\n\r\nKill the selected player. If no player is selected, it will kill you.'),
@@ -208,6 +209,7 @@ INSERT INTO `command` VALUES
 ('event start',2,'Syntax: .event start #event_id\r\nStart event #event_id. Set start time for event to current moment (change not saved in DB).'),
 ('event stop',2,'Syntax: .event stop #event_id\r\nStop event #event_id. Set start time for event to time in past that make current moment is event stop time (change not saved in DB).'),
 ('explorecheat',3,'Syntax: .explorecheat #flag\r\n\r\nReveal  or hide all maps for the selected player. If no player is selected, hide or reveal maps to you.\r\n\r\nUse a #flag of value 1 to reveal, use a #flag value of 0 to hide all maps.'),
+('flusharenapoints',3,'Syntax: .flusharenapoints\r\n\r\nUse it to distribute arena points based on arena team ratings, and start a new week.'),
 ('gm',1,'Syntax: .gm on/off\r\n\r\nEnable or Disable GM MODE'),
 ('gm fly',3,'Syntax: .gm fly on/off\r\nEnable/disable gm fly mode.'),
 ('gm list',0,'Syntax: .gm list\r\n\r\nDisplay a list of available Game Masters.'),
@@ -1363,6 +1365,7 @@ CREATE TABLE `instance_template` (
 LOCK TABLES `instance_template` WRITE;
 /*!40000 ALTER TABLE `instance_template` DISABLE KEYS */;
 INSERT INTO `instance_template` VALUES
+(30,0,10,0,50,0,NULL,NULL,NULL,NULL,''),
 (33,0,22,30,10,7200,NULL,NULL,NULL,NULL,''),
 (34,0,24,32,10,7200,NULL,NULL,NULL,NULL,''),
 (36,0,15,20,10,7200,NULL,NULL,NULL,NULL,''),
@@ -1386,9 +1389,15 @@ INSERT INTO `instance_template` VALUES
 (409,0,60,0,40,604800,NULL,NULL,NULL,NULL,''),
 (429,0,55,60,5,7200,NULL,NULL,NULL,NULL,''),
 (469,0,60,0,40,604800,NULL,NULL,NULL,NULL,''),
+(489,0,10,0,50,0,NULL,NULL,NULL,NULL,''),
 (509,0,60,0,20,259200,NULL,NULL,NULL,NULL,''),
+(529,0,10,0,50,0,NULL,NULL,NULL,NULL,''),
 (531,0,60,0,40,604800,NULL,NULL,NULL,NULL,''),
-(533,0,60,0,40,604800,NULL,NULL,NULL,NULL,'');
+(533,0,60,0,40,604800,NULL,NULL,NULL,NULL,''),
+(559,0,10,0,50,0,NULL,NULL,NULL,NULL,''),
+(562,0,10,0,50,0,NULL,NULL,NULL,NULL,''),
+(566,0,10,0,50,0,NULL,NULL,NULL,NULL,''),
+(572,0,10,0,50,0,NULL,NULL,NULL,NULL,'');
 /*!40000 ALTER TABLE `instance_template` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2566,8 +2575,24 @@ INSERT INTO `mangos_string` VALUES
 (708,'%s is Away from Keyboard: %s',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (709,'Do not Disturb',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (710,'Away from Keyboard',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
-(711,'Queue status for %s (Lvl: %u to %u)\nQueued alliances: %u (Need at least %u more)\nQueued hordes: %u (Need at least %u more)',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
-(712,'|cffff0000[BG Queue Announcer]:|r %s -- [%u-%u] A: %u (Need: %u), H: %u (Needs %u)|r',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+(711,'Your group is too large for this battleground. Please regroup to join.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(712,'Your group is too large for this arena. Please regroup to join.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(713,'Your group has members not in your arena team. Please regroup to join.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(714,'Your group does not have enough players to join this match.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(715,'The Gold Team wins!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(716,'The Green Team wins!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(717, 'There aren\'t enough players in this battleground. It will end soon unless some more players join to balance the fight.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(718, 'Your group has an offline member. Please remove him before joining.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(719, 'Your group has players from the opposing faction. You can\'t join the battleground as a group.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(720, 'Your group has players from different battleground brakets. You can\'t join as group.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(721, 'Someone in your party is already in this battleground queue. (S)he must leave it before joining as group.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(722, 'Someone in your party is Deserter. You can\'t join as group.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(723, 'Someone in your party is already in three battleground queues. You cannot join as group.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(724, 'You cannot teleport to a battleground or arena map.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(725, 'You cannot summon players to a battleground or arena map.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(726, 'You must be in GM mode to teleport to a player in a battleground.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(727, 'You cannot teleport to a battleground from another battleground. Please leave the current battleground first.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(728, 'Arena testing turned %s',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `mangos_string` ENABLE KEYS */;
 UNLOCK TABLES;
 

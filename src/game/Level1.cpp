@@ -315,7 +315,14 @@ bool ChatHandler::HandleNamegoCommand(const char* args)
 
         Map* pMap = MapManager::Instance().GetMap(m_session->GetPlayer()->GetMapId(),m_session->GetPlayer());
 
-        if(pMap->Instanceable())
+        if(pMap->IsBattleGroundOrArena())
+        {
+            // cannot summon to bg
+            SendSysMessage(LANG_CANNOT_SUMMON_TO_BG);
+            SetSentErrorMessage(true);
+            return false;
+        }
+        else if(pMap->IsDungeon())
         {
             Map* cMap = MapManager::Instance().GetMap(chr->GetMapId(),chr);
             if( cMap->Instanceable() && cMap->GetInstanceId() != pMap->GetInstanceId() )
@@ -401,7 +408,27 @@ bool ChatHandler::HandleGonameCommand(const char* args)
     if (chr)
     {
         Map* cMap = MapManager::Instance().GetMap(chr->GetMapId(),chr);
-        if(cMap->Instanceable())
+        if(cMap->IsBattleGroundOrArena())
+        {
+            // only allow if gm mode is on
+            if (!_player->isGameMaster())
+            {
+                SendSysMessage(LANG_CANNOT_GO_TO_BG_GM);
+                SetSentErrorMessage(true);
+                return false;
+            }
+            // if already in a bg, don't let port to other
+            else if (_player->GetBattleGroundId())
+            {
+                SendSysMessage(LANG_CANNOT_GO_TO_BG_FROM_BG);
+                SetSentErrorMessage(true);
+                return false;
+            }
+            // all's well, set bg id
+            // when porting out from the bg, it will be reset to 0
+            _player->SetBattleGroundId(chr->GetBattleGroundId());
+        }
+        else if(cMap->IsDungeon())
         {
             Map* pMap = MapManager::Instance().GetMap(_player->GetMapId(),_player);
 
@@ -1585,10 +1612,17 @@ bool ChatHandler::HandleTeleCommand(const char * args)
 
     // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
     GameTele const* tele = extractGameTeleFromLink((char*)args);
-
     if (!tele)
     {
         SendSysMessage(LANG_COMMAND_TELE_NOTFOUND);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    MapEntry const * me = sMapStore.LookupEntry(tele->mapId);
+    if(!me || me->IsBattleGroundOrArena())
+    {
+        SendSysMessage(LANG_CANNOT_TELE_TO_BG);
         SetSentErrorMessage(true);
         return false;
     }
@@ -1865,6 +1899,14 @@ bool ChatHandler::HandleNameTeleCommand(const char * args)
         return false;
     }
 
+    MapEntry const * me = sMapStore.LookupEntry(tele->mapId);
+    if(!me || me->IsBattleGroundOrArena())
+    {
+        SendSysMessage(LANG_CANNOT_TELE_TO_BG);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
     Player *chr = objmgr.GetPlayer(name.c_str());
     if (chr)
     {
@@ -1927,6 +1969,13 @@ bool ChatHandler::HandleGroupTeleCommand(const char * args)
         return false;
     }
 
+    MapEntry const * me = sMapStore.LookupEntry(tele->mapId);
+    if(!me || me->IsBattleGroundOrArena())
+    {
+        SendSysMessage(LANG_CANNOT_TELE_TO_BG);
+        SetSentErrorMessage(true);
+        return false;
+    }
     Group *grp = player->GetGroup();
     if(!grp)
     {

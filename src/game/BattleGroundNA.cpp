@@ -47,6 +47,12 @@ void BattleGroundNA::Update(time_t diff)
         if (!(m_Events & 0x01))
         {
             m_Events |= 0x01;
+            // setup here, only when at least one player has ported to the map
+            if(!SetupBattleGround())
+            {
+                EndNow();
+                return;
+            }
             for(uint32 i = BG_NA_OBJECT_DOOR_1; i <= BG_NA_OBJECT_DOOR_4; i++)
                 SpawnBGObject(i, RESPAWN_IMMEDIATELY);
 
@@ -73,6 +79,9 @@ void BattleGroundNA::Update(time_t diff)
             for(uint32 i = BG_NA_OBJECT_DOOR_1; i <= BG_NA_OBJECT_DOOR_2; i++)
                 DoorOpen(i);
 
+            for(uint32 i = BG_NA_OBJECT_BUFF_1; i <= BG_NA_OBJECT_BUFF_2; i++)
+                SpawnBGObject(i, 60);
+
             SendMessageToAll(LANG_ARENA_BEGUN);
             SetStatus(STATUS_IN_PROGRESS);
             SetStartDelayTime(0);
@@ -80,6 +89,11 @@ void BattleGroundNA::Update(time_t diff)
             for(BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                 if(Player *plr = objmgr.GetPlayer(itr->first))
                     plr->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
+
+            if(!GetPlayersCountByTeam(ALLIANCE) && GetPlayersCountByTeam(HORDE))
+                EndBattleGround(HORDE);
+            else if(GetPlayersCountByTeam(ALLIANCE) && !GetPlayersCountByTeam(HORDE))
+                EndBattleGround(ALLIANCE);
         }
     }
 
@@ -96,11 +110,23 @@ void BattleGroundNA::AddPlayer(Player *plr)
     BattleGroundNAScore* sc = new BattleGroundNAScore;
 
     m_PlayerScores[plr->GetGUID()] = sc;
+
+    UpdateWorldState(0xa0f, GetAlivePlayersCountByTeam(ALLIANCE));
+    UpdateWorldState(0xa10, GetAlivePlayersCountByTeam(HORDE));
 }
 
 void BattleGroundNA::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
 {
+    if(GetStatus() == STATUS_WAIT_LEAVE)
+        return;
 
+    UpdateWorldState(0xa0f, GetAlivePlayersCountByTeam(ALLIANCE));
+    UpdateWorldState(0xa10, GetAlivePlayersCountByTeam(HORDE));
+
+    if(!GetAlivePlayersCountByTeam(ALLIANCE) && GetPlayersCountByTeam(HORDE))
+        EndBattleGround(HORDE);
+    else if(GetPlayersCountByTeam(ALLIANCE) && !GetAlivePlayersCountByTeam(HORDE))
+        EndBattleGround(ALLIANCE);
 }
 
 void BattleGroundNA::HandleKillPlayer(Player *player, Player *killer)
@@ -114,17 +140,27 @@ void BattleGroundNA::HandleKillPlayer(Player *player, Player *killer)
         return;
     }
 
-    BattleGround::HandleKillPlayer(player, killer);
+    BattleGround::HandleKillPlayer(player,killer);
 
-    uint32 killer_team_index = GetTeamIndexByTeamId(killer->GetTeam());
+    UpdateWorldState(0xa0f, GetAlivePlayersCountByTeam(ALLIANCE));
+    UpdateWorldState(0xa10, GetAlivePlayersCountByTeam(HORDE));
 
-    ++m_TeamKills[killer_team_index];                       // add kills to killer's team
-
-    if(m_TeamKills[killer_team_index] >= GetPlayersCountByTeam(player->GetTeam()))
+    if(!GetAlivePlayersCountByTeam(ALLIANCE))
     {
         // all opponents killed
-        EndBattleGround(killer->GetTeam());
+        EndBattleGround(HORDE);
     }
+    else if(!GetAlivePlayersCountByTeam(HORDE))
+    {
+        // all opponents killed
+        EndBattleGround(ALLIANCE);
+    }
+}
+
+bool BattleGroundNA::HandlePlayerUnderMap(Player *player)
+{
+    player->TeleportTo(GetMapId(),4055.504395,2919.660645,13.611241,player->GetOrientation(),false);
+    return true;
 }
 
 void BattleGroundNA::HandleAreaTrigger(Player *Source, uint32 Trigger)
@@ -149,19 +185,28 @@ void BattleGroundNA::HandleAreaTrigger(Player *Source, uint32 Trigger)
     //    HandleTriggerBuff(buff_guid,Source);
 }
 
+void BattleGroundNA::FillInitialWorldStates(WorldPacket &data)
+{
+    data << uint32(0xa0f) << uint32(GetAlivePlayersCountByTeam(ALLIANCE));           // 7
+    data << uint32(0xa10) << uint32(GetAlivePlayersCountByTeam(HORDE));           // 8
+    data << uint32(0xa11) << uint32(1);           // 9
+}
+
 void BattleGroundNA::ResetBGSubclass()
 {
-    m_TeamKills[BG_TEAM_ALLIANCE] = 0;
-    m_TeamKills[BG_TEAM_HORDE]    = 0;
+
 }
 
 bool BattleGroundNA::SetupBattleGround()
 {
     // gates
-    if(    !AddObject(BG_NA_OBJECT_DOOR_1, BG_NA_OBJECT_TYPE_DOOR_1, 4031.854f, 2966.833f, 12.6462f, -2.648788f, 0, 0, 0.9697962f, -0.2439165f, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_NA_OBJECT_DOOR_2, BG_NA_OBJECT_TYPE_DOOR_2, 4081.179f, 2874.97f, 12.39171f, 0.4928045f, 0, 0, 0.2439165f, 0.9697962f, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_NA_OBJECT_DOOR_3, BG_NA_OBJECT_TYPE_DOOR_3, 4023.709f, 2981.777f, 10.70117f, -2.648788f, 0, 0, 0.9697962f, -0.2439165f, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_NA_OBJECT_DOOR_4, BG_NA_OBJECT_TYPE_DOOR_4, 4090.064f, 2858.438f, 10.23631f, 0.4928045f, 0, 0, 0.2439165f, 0.9697962f, RESPAWN_IMMEDIATELY))
+    if(    !AddObject(BG_NA_OBJECT_DOOR_1, BG_NA_OBJECT_TYPE_DOOR_1, 4031.854, 2966.833, 12.6462, -2.648788, 0, 0, 0.9697962, -0.2439165, RESPAWN_IMMEDIATELY)
+        || !AddObject(BG_NA_OBJECT_DOOR_2, BG_NA_OBJECT_TYPE_DOOR_2, 4081.179, 2874.97, 12.39171, 0.4928045, 0, 0, 0.2439165, 0.9697962, RESPAWN_IMMEDIATELY)
+        || !AddObject(BG_NA_OBJECT_DOOR_3, BG_NA_OBJECT_TYPE_DOOR_3, 4023.709, 2981.777, 10.70117, -2.648788, 0, 0, 0.9697962, -0.2439165, RESPAWN_IMMEDIATELY)
+        || !AddObject(BG_NA_OBJECT_DOOR_4, BG_NA_OBJECT_TYPE_DOOR_4, 4090.064, 2858.438, 10.23631, 0.4928045, 0, 0, 0.2439165, 0.9697962, RESPAWN_IMMEDIATELY)
+    // buffs
+        || !AddObject(BG_NA_OBJECT_BUFF_1, BG_NA_OBJECT_TYPE_BUFF_1, 4009.189941, 2895.250000, 13.052700, -1.448624, 0, 0, 0.6626201, -0.7489557, 120)
+        || !AddObject(BG_NA_OBJECT_BUFF_2, BG_NA_OBJECT_TYPE_BUFF_2, 4103.330078, 2946.350098, 13.051300, -0.06981307, 0, 0, 0.03489945, -0.9993908, 120))
     {
         sLog.outErrorDb("BatteGroundNA: Failed to spawn some object!");
         return false;

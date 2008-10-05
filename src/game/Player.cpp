@@ -346,8 +346,8 @@ Player::Player (WorldSession *session): Unit()
     m_bgBattleGroundID = 0;
     for (int j=0; j < PLAYER_MAX_BATTLEGROUND_QUEUES; j++)
     {
-        m_bgBattleGroundQueueID[j].bgType  = 0;
-        m_bgBattleGroundQueueID[j].invited = false;
+        m_bgBattleGroundQueueID[j].bgQueueType  = 0;
+        m_bgBattleGroundQueueID[j].invitedToInstance = 0;
     }
     m_bgTeam = 0;
 
@@ -1439,7 +1439,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     MapEntry const* mEntry = sMapStore.LookupEntry(mapid);
 
     // don't let enter battlegrounds without assigned battleground id (for example through areatrigger)...
-    if(!InBattleGround() && mEntry->IsBattleGround() && !GetSession()->GetSecurity())
+    // don't let gm level > 1 either
+    if(!InBattleGround() && mEntry->IsBattleGroundOrArena())
         return false;
 
     bool tbc = GetSession()->IsTBC() && sWorld.getConfig(CONFIG_EXPANSION) > 0;
@@ -3452,6 +3453,29 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
         Guild* guild = objmgr.GetGuildById(guildId);
         if(guild)
             guild->DelMember(guid);
+    }
+
+    // remove from arena teams
+    uint32 at_id = GetArenaTeamIdFromDB(playerguid,ARENA_TEAM_2v2);
+    if(at_id != 0)
+    {
+        ArenaTeam * at = objmgr.GetArenaTeamById(at_id);
+        if(at)
+            at->DelMember(playerguid);
+    }
+    at_id = GetArenaTeamIdFromDB(playerguid,ARENA_TEAM_3v3);
+    if(at_id != 0)
+    {
+        ArenaTeam * at = objmgr.GetArenaTeamById(at_id);
+        if(at)
+            at->DelMember(playerguid);
+    }
+    at_id = GetArenaTeamIdFromDB(playerguid,ARENA_TEAM_5v5);
+    if(at_id != 0)
+    {
+        ArenaTeam * at = objmgr.GetArenaTeamById(at_id);
+        if(at)
+            at->DelMember(playerguid);
     }
 
     // the player was uninvited already on logout so just remove from group
@@ -5883,6 +5907,10 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor)
     // need call before fields update to have chance move yesterday data to appropriate fields before today data change.
     UpdateHonorFields();
 
+    // do not reward honor in arenas, but return true to enable onkill spellproc
+    if(InBattleGround() && GetBattleGround() && GetBattleGround()->isArena())
+        return true;
+
     if(honor <= 0)
     {
         if(!uVictim || uVictim == this || uVictim->HasAuraType(SPELL_AURA_NO_PVP_CREDIT))
@@ -6046,12 +6074,12 @@ uint32 Player::GetRankFromDB(uint64 guid)
 
 uint32 Player::GetArenaTeamIdFromDB(uint64 guid, uint8 type)
 {
-    // need fix it!
     QueryResult *result = CharacterDatabase.PQuery("SELECT arenateamid FROM arena_team_member WHERE guid='%u'", GUID_LOPART(guid));
     if(result)
     {
-        // init id to 0, check the arena type before assigning a value to id
-        uint32 id = 0;
+        bool found = false;
+        // init id to find the type of the arenateam
+        uint32 id = (*result)[0].GetUInt32();
         do
         {
             QueryResult *result2 = CharacterDatabase.PQuery("SELECT type FROM arena_team WHERE arenateamid='%u'", id);
@@ -6062,13 +6090,13 @@ uint32 Player::GetArenaTeamIdFromDB(uint64 guid, uint8 type)
                 if(dbtype == type)
                 {
                     // if the type matches, we've found the id
-                    id = (*result)[0].GetUInt32();
+                    found = true;
                     break;
                 }
             }
         } while(result->NextRow());
         delete result;
-        return id;
+        if(found) return id;
     }
     // no arenateam for the specified guid, return 0
     return 0;
@@ -7709,19 +7737,34 @@ void Player::SendInitWorldStates()
             data << uint32(0xa5f) << uint32(0x0);           // 35
             break;
         case 3698:                                          // Nagrand Arena
-            data << uint32(0xa0f) << uint32(0x0);           // 7
-            data << uint32(0xa10) << uint32(0x0);           // 8
-            data << uint32(0xa11) << uint32(0x0);           // 9
+            if (bg && bg->GetTypeID() == BATTLEGROUND_NA)
+                bg->FillInitialWorldStates(data);
+            else
+            {
+                data << uint32(0xa0f) << uint32(0x0);           // 7
+                data << uint32(0xa10) << uint32(0x0);           // 8
+                data << uint32(0xa11) << uint32(0x0);           // 9 show
+            }
             break;
         case 3702:                                          // Blade's Edge Arena
-            data << uint32(0x9f0) << uint32(0x0);           // 7
-            data << uint32(0x9f1) << uint32(0x0);           // 8
-            data << uint32(0x9f3) << uint32(0x0);           // 9
+            if (bg && bg->GetTypeID() == BATTLEGROUND_BE)
+                bg->FillInitialWorldStates(data);
+            else
+            {
+                data << uint32(0x9f0) << uint32(0x0);           // 7 gold
+                data << uint32(0x9f1) << uint32(0x0);           // 8 green
+                data << uint32(0x9f3) << uint32(0x0);           // 9 show
+            }
             break;
         case 3968:                                          // Ruins of Lordaeron
-            data << uint32(0xbb8) << uint32(0x0);           // 7
-            data << uint32(0xbb9) << uint32(0x0);           // 8
-            data << uint32(0xbba) << uint32(0x0);           // 9
+            if (bg && bg->GetTypeID() == BATTLEGROUND_RL)
+                bg->FillInitialWorldStates(data);
+            else
+            {
+                data << uint32(0xbb8) << uint32(0x0);           // 7 gold 
+                data << uint32(0xbb9) << uint32(0x0);           // 8 green
+                data << uint32(0xbba) << uint32(0x0);           // 9 show
+            }
             break;
         case 3703:                                          // Shattrath City
             break;
@@ -14710,8 +14753,10 @@ void Player::SaveToDB()
     // first save/honor gain after midnight will also update the player's honor fields
     UpdateHonorFields();
 
-    // Must saved before enter into BattleGround
-    if(InBattleGround())
+    // players aren't saved on battleground maps
+    uint32 mapid = IsBeingTeleported() ? GetTeleportDest().mapid : GetMapId();
+    const MapEntry * me = sMapStore.LookupEntry(mapid);
+    if(!me || me->IsBattleGroundOrArena())
         return;
 
     int is_save_resting = HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) ? 1 : 0;
@@ -17460,7 +17505,8 @@ bool Player::InArena() const
 
 bool Player::GetBGAccessByLevel(uint32 bgTypeId) const
 {
-    BattleGround *bg = sBattleGroundMgr.GetBattleGround(bgTypeId);
+    // get a template bg instead of running one
+    BattleGround *bg = sBattleGroundMgr.GetBattleGroundTemplate(bgTypeId);
     if(!bg)
         return false;
 

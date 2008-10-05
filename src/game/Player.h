@@ -1802,24 +1802,32 @@ class MANGOS_DLL_SPEC Player : public Unit
         static uint32 GetMaxLevelForBattleGroundQueueId(uint32 queue_id);
         uint32 GetBattleGroundQueueIdFromLevel() const;
 
-        uint32 GetBattleGroundQueueId(uint32 index) const { return m_bgBattleGroundQueueID[index].bgType; }
-        uint32 GetBattleGroundQueueIndex(uint32 bgType) const
+        bool InBattleGroundQueue() const 	 
+	    { 	 
+	        for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++) 	 
+                if (m_bgBattleGroundQueueID[i].bgQueueType != 0) 	 
+	                return true; 	 
+	        return false; 	 
+	    }
+
+        uint32 GetBattleGroundQueueId(uint32 index) const { return m_bgBattleGroundQueueID[index].bgQueueType; }
+        uint32 GetBattleGroundQueueIndex(uint32 bgQueueType) const
         {
             for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
-                if (m_bgBattleGroundQueueID[i].bgType == bgType)
+                if (m_bgBattleGroundQueueID[i].bgQueueType == bgQueueType)
                     return i;
             return PLAYER_MAX_BATTLEGROUND_QUEUES;
         }
-        bool IsInvitedForBattleGroundType(uint32 bgType) const
+        bool IsInvitedForBattleGroundQueueType(uint32 bgQueueType) const
         {
             for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
-                if (m_bgBattleGroundQueueID[i].bgType == bgType)
-                    return m_bgBattleGroundQueueID[i].invited;
+                if (m_bgBattleGroundQueueID[i].bgQueueType == bgQueueType)
+                    return m_bgBattleGroundQueueID[i].invitedToInstance != 0;
             return PLAYER_MAX_BATTLEGROUND_QUEUES;
         }
-        bool InBattleGroundQueueForBattleGroundType(uint32 bgType) const
+        bool InBattleGroundQueueForBattleGroundQueueType(uint32 bgQueueType) const
         {
-            return GetBattleGroundQueueIndex(bgType) < PLAYER_MAX_BATTLEGROUND_QUEUES;
+            return GetBattleGroundQueueIndex(bgQueueType) < PLAYER_MAX_BATTLEGROUND_QUEUES;
         }
 
         void SetBattleGroundId(uint32 val)  { m_bgBattleGroundID = val; }
@@ -1827,34 +1835,47 @@ class MANGOS_DLL_SPEC Player : public Unit
         {
             for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
             {
-                if (m_bgBattleGroundQueueID[i].bgType == 0 || m_bgBattleGroundQueueID[i].bgType == val)
+                if (m_bgBattleGroundQueueID[i].bgQueueType == 0 || m_bgBattleGroundQueueID[i].bgQueueType == val)
                 {
-                    m_bgBattleGroundQueueID[i].bgType = val;
-                    m_bgBattleGroundQueueID[i].invited = false;
+                    m_bgBattleGroundQueueID[i].bgQueueType = val;
+                    m_bgBattleGroundQueueID[i].invitedToInstance = 0;
                     return i;
                 }
             }
             return PLAYER_MAX_BATTLEGROUND_QUEUES;
         }
+        bool HasFreeBattleGroundQueueId()
+        {
+            for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
+                if (m_bgBattleGroundQueueID[i].bgQueueType == 0)
+                    return true;
+            return false;
+        }
         void RemoveBattleGroundQueueId(uint32 val)
         {
             for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
             {
-                if (m_bgBattleGroundQueueID[i].bgType == val)
+                if (m_bgBattleGroundQueueID[i].bgQueueType == val)
                 {
-                    m_bgBattleGroundQueueID[i].bgType = 0;
-                    m_bgBattleGroundQueueID[i].invited = false;
+                    m_bgBattleGroundQueueID[i].bgQueueType = 0;
+                    m_bgBattleGroundQueueID[i].invitedToInstance = 0;
                     return;
                 }
             }
         }
-        void SetInviteForBattleGroundType(uint32 bgType)
+        void SetInviteForBattleGroundQueueType(uint32 bgQueueType, uint32 instanceId)
         {
             for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
-                if (m_bgBattleGroundQueueID[i].bgType == bgType)
-                    m_bgBattleGroundQueueID[i].invited = true;
+                if (m_bgBattleGroundQueueID[i].bgQueueType == bgQueueType)
+                    m_bgBattleGroundQueueID[i].invitedToInstance = instanceId;
         }
-
+        bool IsInvitedForBattleGroundInstance(uint32 instanceId) const
+        {
+            for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
+                if (m_bgBattleGroundQueueID[i].invitedToInstance == instanceId)
+                    return true;
+            return false;
+        }
         uint32 GetBattleGroundEntryPointMap() const { return m_bgEntryPointMap; }
         float GetBattleGroundEntryPointX() const { return m_bgEntryPointX; }
         float GetBattleGroundEntryPointY() const { return m_bgEntryPointY; }
@@ -2034,8 +2055,8 @@ class MANGOS_DLL_SPEC Player : public Unit
         */
         struct BgBattleGroundQueueID_Rec
         {
-            uint32 bgType;
-            bool   invited;
+            uint32 bgQueueType;
+            uint32 invitedToInstance;
         };
         BgBattleGroundQueueID_Rec m_bgBattleGroundQueueID[PLAYER_MAX_BATTLEGROUND_QUEUES];
         uint32 m_bgEntryPointMap;
@@ -2049,7 +2070,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         time_t m_bgAfkReportedTimer;
         uint32 m_contestedPvPTimer;
 
-        uint32 m_bgTeam;                                    // what side the player will be added to
+        uint32 m_bgTeam;    // what side the player will be added to
 
         /*********************************************************/
         /***                    QUEST SYSTEM                   ***/

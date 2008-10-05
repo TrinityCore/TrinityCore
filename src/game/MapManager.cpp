@@ -107,7 +107,7 @@ MapManager::_GetBaseMap(uint32 id)
         Guard guard(*this);
 
         const MapEntry* entry = sMapStore.LookupEntry(id);
-        if (entry && entry->IsDungeon())
+        if (entry && entry->Instanceable())
         {
             m = new MapInstanced(id, i_gridCleanUpDelay, 0);
         }

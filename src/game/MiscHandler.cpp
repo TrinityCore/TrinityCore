@@ -846,6 +846,10 @@ void WorldSession::HandleCorpseReclaimOpcode(WorldPacket &recv_data)
     if (GetPlayer()->isAlive())
         return;
 
+    if (BattleGround * bg = _player->GetBattleGround())
+        if(bg->isArena())
+            return;
+
     // body not released yet
     if(!GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         return;

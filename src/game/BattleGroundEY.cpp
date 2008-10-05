@@ -54,6 +54,13 @@ void BattleGroundEY::Update(time_t diff)
         {
             m_Events |= 0x01;
 
+            // setup here, only when at least one player has ported to the map
+            if(!SetupBattleGround())
+            {
+                EndNow();
+                return;
+            }
+
             SpawnBGObject(BG_EY_OBJECT_DOOR_A, RESPAWN_IMMEDIATELY);
             SpawnBGObject(BG_EY_OBJECT_DOOR_H, RESPAWN_IMMEDIATELY);
 
@@ -572,7 +579,17 @@ void BattleGroundEY::HandleKillPlayer(Player *player, Player *killer)
 
 void BattleGroundEY::EventPlayerDroppedFlag(Player *Source)
 {
-    // Drop allowed in any BG state
+    if(GetStatus() != STATUS_IN_PROGRESS)
+    {
+        // if not running, do not cast things at the dropper player, neither send unnecessary messages
+        // just take off the aura
+        if(IsFlagPickedup() && GetFlagPickerGUID() == Source->GetGUID())
+        {
+            SetFlagPicker(0);
+            Source->RemoveAurasDueToSpell(BG_EY_NETHERSTORM_FLAG_SPELL);
+        }
+        return;
+    }
 
     if(!IsFlagPickedup())
         return;

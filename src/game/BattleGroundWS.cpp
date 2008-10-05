@@ -49,6 +49,13 @@ void BattleGroundWS::Update(time_t diff)
         {
             m_Events |= 0x01;
 
+            // setup here, only when at least one player has ported to the map
+            if(!SetupBattleGround())
+            {
+                EndNow();
+                return;
+            }
+
             for(uint32 i = BG_WS_OBJECT_DOOR_A_1; i <= BG_WS_OBJECT_DOOR_H_4; i++)
             {
                 SpawnBGObject(i, RESPAWN_IMMEDIATELY);
@@ -285,7 +292,32 @@ void BattleGroundWS::EventPlayerCapturedFlag(Player *Source)
 
 void BattleGroundWS::EventPlayerDroppedFlag(Player *Source)
 {
-    // Drop allowed in any BG state
+    if(GetStatus() != STATUS_IN_PROGRESS)
+    {
+        // if not running, do not cast things at the dropper player (prevent spawning the "dropped" flag), neither send unnecessary messages
+        // just take off the aura
+        if(Source->GetTeam() == ALLIANCE)
+        {
+            if(!this->IsHordeFlagPickedup())
+                return;
+            if(GetHordeFlagPickerGUID() == Source->GetGUID())
+            {
+                SetHordeFlagPicker(0);
+                Source->RemoveAurasDueToSpell(BG_WS_SPELL_WARSONG_FLAG);
+            }
+        }
+        else
+        {
+            if(!this->IsAllianceFlagPickedup())
+                return;
+            if(GetAllianceFlagPickerGUID() == Source->GetGUID())
+            {
+                SetAllianceFlagPicker(0);
+                Source->RemoveAurasDueToSpell(BG_WS_SPELL_SILVERWING_FLAG);
+            }
+        }
+        return;
+    }
 
     const char *message = "";
     uint8 type = 0;

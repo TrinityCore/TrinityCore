@@ -47,6 +47,12 @@ void BattleGroundBE::Update(time_t diff)
         if (!(m_Events & 0x01))
         {
             m_Events |= 0x01;
+            // setup here, only when at least one player has ported to the map
+            if(!SetupBattleGround())
+            {
+                EndNow();
+                return;
+            }
             for(uint32 i = BG_BE_OBJECT_DOOR_1; i <= BG_BE_OBJECT_DOOR_4; i++)
                 SpawnBGObject(i, RESPAWN_IMMEDIATELY);
 
@@ -86,6 +92,11 @@ void BattleGroundBE::Update(time_t diff)
             for(BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                 if(Player *plr = objmgr.GetPlayer(itr->first))
                     plr->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
+
+            if(!GetPlayersCountByTeam(ALLIANCE) && GetPlayersCountByTeam(HORDE))
+                EndBattleGround(HORDE);
+            else if(GetPlayersCountByTeam(ALLIANCE) && !GetPlayersCountByTeam(HORDE))
+                EndBattleGround(ALLIANCE);
         }
     }
 
@@ -102,11 +113,23 @@ void BattleGroundBE::AddPlayer(Player *plr)
     BattleGroundBEScore* sc = new BattleGroundBEScore;
 
     m_PlayerScores[plr->GetGUID()] = sc;
+
+    UpdateWorldState(0x9f1, GetAlivePlayersCountByTeam(ALLIANCE));
+    UpdateWorldState(0x9f0, GetAlivePlayersCountByTeam(HORDE));
 }
 
 void BattleGroundBE::RemovePlayer(Player *plr, uint64 guid)
 {
+    if(GetStatus() == STATUS_WAIT_LEAVE)
+        return;
 
+    UpdateWorldState(0x9f1, GetAlivePlayersCountByTeam(ALLIANCE));
+    UpdateWorldState(0x9f0, GetAlivePlayersCountByTeam(HORDE));
+
+    if(!GetAlivePlayersCountByTeam(ALLIANCE) && GetPlayersCountByTeam(HORDE))
+        EndBattleGround(HORDE);
+    else if(GetPlayersCountByTeam(ALLIANCE) && !GetAlivePlayersCountByTeam(HORDE))
+        EndBattleGround(ALLIANCE);
 }
 
 void BattleGroundBE::HandleKillPlayer(Player *player, Player *killer)
@@ -120,17 +143,27 @@ void BattleGroundBE::HandleKillPlayer(Player *player, Player *killer)
         return;
     }
 
-    BattleGround::HandleKillPlayer(player, killer);
+    BattleGround::HandleKillPlayer(player,killer);
 
-    uint32 killer_team_index = GetTeamIndexByTeamId(killer->GetTeam());
+    UpdateWorldState(0x9f1, GetAlivePlayersCountByTeam(ALLIANCE));
+    UpdateWorldState(0x9f0, GetAlivePlayersCountByTeam(HORDE));
 
-    ++m_TeamKills[killer_team_index];                       // add kills to killer's team
-
-    if(m_TeamKills[killer_team_index] >= GetPlayersCountByTeam(player->GetTeam()))
+    if(!GetAlivePlayersCountByTeam(ALLIANCE))
     {
         // all opponents killed
-        EndBattleGround(killer->GetTeam());
+        EndBattleGround(HORDE);
     }
+    else if(!GetAlivePlayersCountByTeam(HORDE))
+    {
+        // all opponents killed
+        EndBattleGround(ALLIANCE);
+    }
+}
+
+bool BattleGroundBE::HandlePlayerUnderMap(Player *player)
+{
+    player->TeleportTo(GetMapId(),6238.930176,262.963470,0.889519,player->GetOrientation(),false);
+    return true;
 }
 
 void BattleGroundBE::HandleAreaTrigger(Player *Source, uint32 Trigger)
@@ -159,10 +192,16 @@ void BattleGroundBE::HandleAreaTrigger(Player *Source, uint32 Trigger)
     //    HandleTriggerBuff(buff_guid,Source);
 }
 
+void BattleGroundBE::FillInitialWorldStates(WorldPacket &data)
+{
+    data << uint32(0x9f1) << uint32(GetAlivePlayersCountByTeam(ALLIANCE));           // 7
+    data << uint32(0x9f0) << uint32(GetAlivePlayersCountByTeam(HORDE));           // 8
+    data << uint32(0x9f3) << uint32(1);           // 9
+}
+
 void BattleGroundBE::ResetBGSubclass()
 {
-    m_TeamKills[BG_TEAM_ALLIANCE] = 0;
-    m_TeamKills[BG_TEAM_HORDE]    = 0;
+
 }
 
 bool BattleGroundBE::SetupBattleGround()
