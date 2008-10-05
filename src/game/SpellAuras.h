@@ -283,6 +283,7 @@ class MANGOS_DLL_SPEC Aura
         void SetRemoveMode(AuraRemoveMode mode) { m_removeMode = mode; }
 
         int32 m_procCharges;
+        void SetAuraProcCharges(int32 charges) { m_procCharges = charges; }
 
         virtual Unit* GetTriggerTarget() const { return m_target; }
 

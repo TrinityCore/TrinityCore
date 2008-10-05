@@ -267,6 +267,8 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
     m_caster = Caster;
     m_selfContainer = NULL;
     m_triggeringContainer = triggeringContainer;
+    m_magnetPair.first = false;
+    m_magnetPair.second = NULL;
     m_deletable = true;
     m_delayAtDamageCount = 0;
 
@@ -946,6 +948,14 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
 {
     if(!unit || !effectMask)
         return;
+
+    // remove spell_magnet aura after first spell redirect and destroy target if its totem
+    if(m_magnetPair.first && m_magnetPair.second && m_magnetPair.second == unit)
+    {
+        if(unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->isTotem())
+            unit->DealDamage(unit,unit->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+        return;
+    }
 
     // Recheck immune (only for delayed spells)
     if( m_spellInfo->speed && (
@@ -4837,7 +4847,7 @@ CurrentSpellTypes Spell::GetCurrentContainer()
 bool Spell::CheckTarget( Unit* target, uint32 eff, bool hitPhase )
 {
     // Check targets for creature type mask and remove not appropriate (skip explicit self target case, maybe need other explicit targets)
-    if(m_spellInfo->EffectImplicitTargetA[eff]!=TARGET_SELF )
+    if(m_spellInfo->EffectImplicitTargetA[eff]!=TARGET_SELF && !m_magnetPair.first)
     {
         if (!CheckTargetCreatureType(target))
             return false;
@@ -4918,8 +4928,12 @@ Unit* Spell::SelectMagnetTarget()
         {
             if(Unit* magnet = (*itr)->GetCaster())
             {
-                if(magnet->IsWithinLOSInMap(m_caster))
+                if((*itr)->m_procCharges>0 && magnet->IsWithinLOSInMap(m_caster))
                 {
+                    (*itr)->SetAuraProcCharges((*itr)->m_procCharges-1);
+                    m_magnetPair.first = true;
+                    m_magnetPair.second = magnet;
+
                     target = magnet;
                     m_targets.setUnitTarget(target);
                     break;

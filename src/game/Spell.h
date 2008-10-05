@@ -335,6 +335,7 @@ class Spell
         void SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap);
 
         Unit* SelectMagnetTarget();
+        std::pair <bool,Unit *> m_magnetPair;
         bool CheckTarget( Unit* target, uint32 eff, bool hitPhase );
 
         void SendCastResult(uint8 result);
