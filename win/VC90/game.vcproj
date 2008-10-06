@@ -1032,14 +1032,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\ObjectPosSelector.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\ObjectPosSelector.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\game\Pet.cpp"
 				>
 			</File>
