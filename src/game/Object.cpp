@@ -41,8 +41,6 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 
-#include "ObjectPosSelector.h"
-
 #include "TemporarySummon.h"
 
 uint32 GuidHigh2TypeId(uint32 guid_hi)
@@ -1430,84 +1428,6 @@ Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, floa
     return pCreature;
 }
 
-namespace MaNGOS
-{
-    class NearUsedPosDo
-    {
-        public:
-            NearUsedPosDo(WorldObject const& obj, WorldObject const* searcher, float angle, ObjectPosSelector& selector)
-                : i_object(obj), i_searcher(searcher), i_angle(angle), i_selector(selector) {}
-
-            void operator()(Corpse*) const {}
-            void operator()(DynamicObject*) const {}
-
-            void operator()(Creature* c) const
-            {
-                // skip self or target
-                if(c==i_searcher || c==&i_object)
-                    return;
-
-                float x,y,z;
-
-                if( !c->isAlive() || c->hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNDED | UNIT_STAT_DISTRACTED) ||
-                    !c->GetMotionMaster()->GetDestination(x,y,z) )
-                {
-                    x = c->GetPositionX();
-                    y = c->GetPositionY();
-                }
-
-                add(c,x,y);
-            }
-
-            template<class T>
-                void operator()(T* u) const
-            {
-                // skip self or target
-                if(u==i_searcher || u==&i_object)
-                    return;
-
-                float x,y;
-
-                x = u->GetPositionX();
-                y = u->GetPositionY();
-
-                add(u,x,y);
-            }
-
-            // we must add used pos that can fill places around center
-            void add(WorldObject* u, float x, float y) const
-            {
-                // dist include size of u
-                float dist2d = i_object.GetDistance2d(x,y);
-
-                // u is too nearest to i_object
-                if(dist2d + i_object.GetObjectSize() + u->GetObjectSize() < i_selector.m_dist - i_selector.m_size)
-                    return;
-
-                // u is too far away from i_object
-                if(dist2d + i_object.GetObjectSize() - u->GetObjectSize() > i_selector.m_dist + i_selector.m_size)
-                    return;
-
-                float angle = i_object.GetAngle(u)-i_angle;
-
-                // move angle to range -pi ... +pi
-                while( angle > M_PI)
-                    angle -= 2.0f * M_PI;
-                while(angle < -M_PI)
-                    angle += 2.0f * M_PI;
-
-                i_selector.AddUsedPos(u->GetObjectSize(),angle,dist2d + i_object.GetObjectSize());
-            }
-        private:
-            WorldObject const& i_object;
-            WorldObject const* i_searcher;
-            float              i_angle;
-            ObjectPosSelector& i_selector;
-    };
-}                                                           // namespace MaNGOS
-
-//===================================================================================================
-
 void WorldObject::GetNearPoint2D(float &x, float &y, float distance2d, float absAngle ) const
 {
     x = GetPositionX() + (GetObjectSize() + distance2d) * cos(absAngle);
@@ -1520,122 +1440,8 @@ void WorldObject::GetNearPoint2D(float &x, float &y, float distance2d, float abs
 void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, float &z, float searcher_size, float distance2d, float absAngle ) const
 {
     GetNearPoint2D(x,y,distance2d+searcher_size,absAngle);
+    
     z = GetPositionZ();
-
-    // if detection disabled, return first point
-    if(!sWorld.getConfig(CONFIG_DETECT_POS_COLLISION))
-    {
-        UpdateGroundPositionZ(x,y,z);                       // update to LOS height if available
-        return;
-    }
-
-    // or remember first point
-    float first_x = x;
-    float first_y = y;
-    bool first_los_conflict = false;                        // first point LOS problems
-
-    // prepare selector for work
-    ObjectPosSelector selector(GetPositionX(),GetPositionY(),GetObjectSize(),distance2d+searcher_size);
-
-    // adding used positions around object
-    {
-        CellPair p(MaNGOS::ComputeCellPair(GetPositionX(), GetPositionY()));
-        Cell cell(p);
-        cell.data.Part.reserved = ALL_DISTRICT;
-        cell.SetNoCreate();
-
-        MaNGOS::NearUsedPosDo u_do(*this,searcher,absAngle,selector);
-        MaNGOS::WorldObjectWorker<MaNGOS::NearUsedPosDo> worker(u_do);
-
-        TypeContainerVisitor<MaNGOS::WorldObjectWorker<MaNGOS::NearUsedPosDo>, GridTypeMapContainer  > grid_obj_worker(worker);
-        TypeContainerVisitor<MaNGOS::WorldObjectWorker<MaNGOS::NearUsedPosDo>, WorldTypeMapContainer > world_obj_worker(worker);
-
-        CellLock<GridReadGuard> cell_lock(cell, p);
-        cell_lock->Visit(cell_lock, grid_obj_worker,  *MapManager::Instance().GetMap(GetMapId(), this));
-        cell_lock->Visit(cell_lock, world_obj_worker, *MapManager::Instance().GetMap(GetMapId(), this));
-    }
-
-    // maybe can just place in primary position
-    if( selector.CheckOriginal() )
-    {
-        UpdateGroundPositionZ(x,y,z);                       // update to LOS height if available
-
-        if(IsWithinLOS(x,y,z))
-            return;
-
-        first_los_conflict = true;                          // first point have LOS problems
-    }
-
-    float angle;                                            // candidate of angle for free pos
-
-    // special case when one from list empty and then empty side preferred
-    if(selector.FirstAngle(angle))
-    {
-        GetNearPoint2D(x,y,distance2d,absAngle+angle);
-        z = GetPositionZ();
-        UpdateGroundPositionZ(x,y,z);                       // update to LOS height if available
-
-        if(IsWithinLOS(x,y,z))
-            return;
-    }
-
-    // set first used pos in lists
-    selector.InitializeAngle();
-
-    // select in positions after current nodes (selection one by one)
-    while(selector.NextAngle(angle))                        // angle for free pos
-    {
-        GetNearPoint2D(x,y,distance2d,absAngle+angle);
-        z = GetPositionZ();
-        UpdateGroundPositionZ(x,y,z);                       // update to LOS height if available
-
-        if(IsWithinLOS(x,y,z))
-            return;
-    }
-
-    // BAD NEWS: not free pos (or used or have LOS problems)
-    // Attempt find _used_ pos without LOS problem
-
-    if(!first_los_conflict)
-    {
-        x = first_x;
-        y = first_y;
-
-        UpdateGroundPositionZ(x,y,z);                       // update to LOS height if available
-        return;
-    }
-
-    // special case when one from list empty and then empty side preferred
-    if( selector.IsNonBalanced() )
-    {
-        if(!selector.FirstAngle(angle))                     // _used_ pos
-        {
-            GetNearPoint2D(x,y,distance2d,absAngle+angle);
-            z = GetPositionZ();
-            UpdateGroundPositionZ(x,y,z);                   // update to LOS height if available
-
-            if(IsWithinLOS(x,y,z))
-                return;
-        }
-    }
-
-    // set first used pos in lists
-    selector.InitializeAngle();
-
-    // select in positions after current nodes (selection one by one)
-    while(selector.NextUsedAngle(angle))                    // angle for used pos but maybe without LOS problem
-    {
-        GetNearPoint2D(x,y,distance2d,absAngle+angle);
-        z = GetPositionZ();
-        UpdateGroundPositionZ(x,y,z);                       // update to LOS height if available
-
-        if(IsWithinLOS(x,y,z))
-            return;
-    }
-
-    // BAD BAD NEWS: all found pos (free and used) have LOS problem :(
-    x = first_x;
-    y = first_y;
-
-    UpdateGroundPositionZ(x,y,z);                           // update to LOS height if available
+    
+    UpdateGroundPositionZ(x,y,z);
 }

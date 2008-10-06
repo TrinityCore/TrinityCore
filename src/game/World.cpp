@@ -739,8 +739,6 @@ void World::LoadConfigSettings(bool reload)
     if(m_configs[CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF] > 255)
         m_configs[CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF] = 255;
 
-    m_configs[CONFIG_DETECT_POS_COLLISION] = sConfig.GetBoolDefault("DetectPosCollision", true);
-
     m_configs[CONFIG_RESTRICTED_LFG_CHANNEL] = sConfig.GetBoolDefault("Channel.RestrictedLfg", true);
     m_configs[CONFIG_SILENTLY_GM_JOIN_TO_CHANNEL] = sConfig.GetBoolDefault("Channel.SilentlyGMJoin", false);
 

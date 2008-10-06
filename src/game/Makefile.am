@@ -182,8 +182,6 @@ $(srcdir)/ObjectGridLoader.h \
 $(srcdir)/Object.h \
 $(srcdir)/ObjectMgr.cpp \
 $(srcdir)/ObjectMgr.h \
-$(srcdir)/ObjectPosSelector.cpp \
-$(srcdir)/ObjectPosSelector.h \
 $(srcdir)/Opcodes.cpp \
 $(srcdir)/Opcodes.h \
 $(srcdir)/Path.h \
