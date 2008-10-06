@@ -20,7 +20,7 @@
 SUBDIRS = dep doc src
 
 ## Additional files to include when running 'make dist'
-EXTRA_DIST = win contrib sql
+EXTRA_DIST = win
 
 
 
