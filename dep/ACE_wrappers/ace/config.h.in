@@ -2047,10 +2047,6 @@
 /* Configure for use on Irix 6 */
 #undef IRIX6
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
-#undef LT_OBJDIR
-
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
 
