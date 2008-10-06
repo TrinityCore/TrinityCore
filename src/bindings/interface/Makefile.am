@@ -25,28 +25,28 @@ lib_LTLIBRARIES = libtrinityscript.la
 libtrinityscript_la_CPPFLAGS = \
 $(MYSQL_INCLUDES) \
 $(POSTGRE_INCLUDES) \
+$(TRINI_INCLUDES) \
 -I$(top_srcdir)/dep/include \
 -I$(top_srcdir)/src/shared \
 -I$(top_srcdir)/src/framework \
 -I$(top_srcdir)/src/game
 
 libtrinityscript_la_SOURCES = \
-	ScriptMgr.cpp \
-	ScriptMgr.h \
-	config.h \
-	system.cpp \
-	Scripts/sc_default.cpp \
-	Scripts/sc_defines.cpp \
-	Scripts/sc_defines.h
+$(srcdir)/ScriptMgr.cpp \
+$(srcdir)/ScriptMgr.h \
+$(srcdir)/config.h \
+$(srcdir)/system.cpp \
+$(srcdir)/Scripts/sc_default.cpp \
+$(srcdir)/Scripts/sc_defines.cpp \
+$(srcdir)/Scripts/sc_defines.h
 
 ## libtool settings
 #  API versioning
-libtrinityscript_la_LIBFLAGS = -version-info 0:0:1
+libtrinityscript_la_LIBFLAGS = -version-info 0:0:0
 libtrinityscript_la_LIBADD = $(MYSQL_LIBS) $(POSTGRE_LIBS)
 
 ## Additional files to include when running 'make dist'
 #  Scripts defaults.
 EXTRA_DIST = \
-	Scripts/sc_default.cpp \
-	Scripts/sc_defines.cpp \
-	Scripts/sc_defines.h
+        Readme.txt
+

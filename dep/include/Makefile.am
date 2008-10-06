@@ -60,7 +60,6 @@ EXTRA_DIST += \
 	mysql/config-os2.h \
 	mysql/config-win.h \
 	mysql/errmsg.h \
-	mysql/libmysqld.def \
 	mysql/Libmysql.def \
 	mysql/m_ctype.h \
 	mysql/m_string.h \
@@ -166,31 +165,32 @@ EXTRA_DIST += \
 
 #  Sockets header files for Win32 builds
 EXTRA_DIST += \
-	sockets\Base64.h \
-	sockets\CircularBuffer.h \
-	sockets\IFile.h \
-	sockets\Ipv4Address.h \
-	sockets\Ipv6Address.h \
-	sockets\ISocketHandler.h \
-	sockets\ListenSocket.h \
-	sockets\Mutex.h \
-	sockets\Parse.h \
-	sockets\RandomNumber.h \
-	sockets\ResolvServer.h \
-	sockets\ResolvSocket.h \
-	sockets\SctpSocket.h \
-	sockets\Socket.h \
-	sockets\socket_include.h \
-	sockets\SocketAddress.h \
-	sockets\SocketHandler.h \
-	sockets\sockets-config.h \
-	sockets\StdLog.h \
-	sockets\StdoutLog.h \
-	sockets\TcpSocket.h \
-	sockets\Thread.h \
-	sockets\UdpSocket.h \
-	sockets\Uid.h \
-	sockets\Utility.h
+	sockets/Base64.h \
+	sockets/Exception.h \
+	sockets/File.h \
+	sockets/IFile.h \
+	sockets/Ipv4Address.h \
+	sockets/Ipv6Address.h \
+	sockets/ISocketHandler.h \
+	sockets/ListenSocket.h \
+	sockets/Lock.h \
+	sockets/Mutex.h \
+	sockets/Parse.h \
+	sockets/ResolvServer.h \
+	sockets/ResolvSocket.h \
+	sockets/SctpSocket.h \
+	sockets/SocketAddress.h \
+	sockets/Socket.h \
+	sockets/SocketHandler.h \
+	sockets/socket_include.h \
+	sockets/sockets-config.h \
+	sockets/StdLog.h \
+	sockets/StdoutLog.h \
+	sockets/StreamSocket.h \
+	sockets/TcpSocket.h \
+	sockets/Thread.h \
+	sockets/UdpSocket.h \
+	sockets/Utility.h
 
 #  VLD header files for Win32 builds
 EXTRA_DIST += \

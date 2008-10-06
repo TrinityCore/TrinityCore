@@ -30,6 +30,7 @@ $(POSTGRE_INCLUDES) \
 -I$(top_srcdir)/src/framework \
 -I$(top_srcdir)/src/game \
 -I$(srcdir)/include \
+$(TRINI_INCLUDES) \
 -D_TRINITY_SCRIPT_CONFIG='"$(sysconfdir)/trinityscript.conf"'
 
 libtrinityscript_la_SOURCES = \
@@ -41,7 +42,6 @@ include/sc_creature.cpp \
 include/sc_creature.h \
 include/sc_gossip.h \
 include/sc_instance.h \
-include/sc_item.h \
 scripts/areatrigger/areatrigger_scripts.cpp \
 scripts/boss/boss_emeriss.cpp \
 scripts/boss/boss_lethon.cpp \
@@ -395,16 +395,12 @@ system.cpp
 libtrinityscript_la_LIBFLAGS = -version-info 0:0:1
 libtrinityscript_la_LIBADD =  $(MYSQL_LIBS) $(POSTGRE_LIBS)
 
-## Additional files to include when running 'make dist'
-# Scripts defaults.
-EXTRA_DIST = \
-	Scripts/sc_default.cpp \
-	Scripts/sc_defines.cpp \
-	Scripts/sc_defines.h
-
 ## Additional files to install
 sysconf_DATA = \
 	trinityscript.conf.dist
+
+EXTRA_DIST =  \
+        trinityscript.conf.dist
 
 ## Prevend overwrite of the config file, if its already installed
 install-data-hook:
