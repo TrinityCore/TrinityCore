@@ -104,8 +104,6 @@ struct MANGOS_DLL_DECL mob_stolen_soulAI : public ScriptedAI
                     DoCast(m_creature->getVictim(), SPELL_MOONFIRE);
                     Class_Timer = 10000;
                     break;
-                default:
-                    break;
             }
         }else Class_Timer -= diff;
 
@@ -204,8 +202,8 @@ struct MANGOS_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
 
                 if (!InCombat)
                 {
-                    Aggro(who);
                     InCombat = true;
+                    Aggro(who);
                 }
             }
         }

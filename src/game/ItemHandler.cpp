@@ -680,13 +680,16 @@ void WorldSession::SendListInventory( uint64 vendorguid )
 
     // Stop the npc if moving
     pCreature->StopMoving();
-    // load vendor items if not yet
-    pCreature->LoadGoods();
 
-    uint8 numitems = pCreature->GetItemCount();
+    VendorItemData const* vItems = pCreature->GetVendorItems();
+    if(!vItems)
+    {
+        _player->SendSellError( SELL_ERR_CANT_FIND_VENDOR, NULL, 0, 0);
+        return;
+    }
+
+    uint8 numitems = vItems->GetItemCount();
     uint8 count = 0;
-    uint32 ptime = time(NULL);
-    uint32 diff;
 
     WorldPacket data( SMSG_LIST_INVENTORY, (8+1+numitems*8*4) );
     data << uint64(vendorguid);
@@ -694,37 +697,24 @@ void WorldSession::SendListInventory( uint64 vendorguid )
 
     float discountMod = _player->GetReputationPriceDiscount(pCreature);
 
-    ItemPrototype const *pProto;
     for(int i = 0; i < numitems; i++ )
     {
-        CreatureItem* crItem = pCreature->GetItem(i);
-        if( crItem )
+        if(VendorItem const* crItem = vItems->GetItem(i))
         {
-            pProto = objmgr.GetItemPrototype(crItem->id);
-            if( pProto )
+            if(ItemPrototype const *pProto = objmgr.GetItemPrototype(crItem->item))
             {
                 if((pProto->AllowableClass & _player->getClassMask()) == 0 && pProto->Bonding == BIND_WHEN_PICKED_UP && !_player->isGameMaster())
                     continue;
-                ++count;
-                if( crItem->incrtime != 0 && (crItem->lastincr + crItem->incrtime <= ptime) )
-                {
-                    diff = uint32((ptime - crItem->lastincr)/crItem->incrtime);
-                    if( (crItem->count + diff * pProto->BuyCount) <= crItem->maxcount )
-                        crItem->count += diff * pProto->BuyCount;
-                    else
-                        crItem->count = crItem->maxcount;
-                    crItem->lastincr = ptime;
-                }
-                data << uint32(count);
-                data << uint32(crItem->id);
-                data << uint32(pProto->DisplayInfoID);
-                data << uint32(crItem->maxcount <= 0 ? 0xFFFFFFFF : crItem->count);
 
-                uint32 price = pProto->BuyPrice;
+                ++count;
 
                 // reputation discount
-                price = uint32(floor(pProto->BuyPrice * discountMod));
+                uint32 price = uint32(floor(pProto->BuyPrice * discountMod));
 
+                data << uint32(count);
+                data << uint32(crItem->item);
+                data << uint32(pProto->DisplayInfoID);
+                data << uint32(crItem->maxcount <= 0 ? 0xFFFFFFFF : pCreature->GetVendorItemCurrentCount(crItem));
                 data << uint32(price);
                 data << uint32(pProto->MaxDurability);
                 data << uint32(pProto->BuyCount);

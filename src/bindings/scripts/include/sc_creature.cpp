@@ -35,8 +35,8 @@ void ScriptedAI::MoveInLineOfSight(Unit *who)
 
             if (!InCombat)
             {
-                Aggro(who);
                 InCombat = true;
+                Aggro(who);
             }
         }
     }
@@ -54,8 +54,8 @@ void ScriptedAI::AttackStart(Unit* who)
 
         if (!InCombat)
         {
-            Aggro(who);
             InCombat = true;
+            Aggro(who);
         }
     }
 }
@@ -582,8 +582,8 @@ void Scripted_NoMovementAI::MoveInLineOfSight(Unit *who)
 
             if (!InCombat)
             {
-                Aggro(who);
                 InCombat = true;
+                Aggro(who);
             }
         }
     }
@@ -601,8 +601,8 @@ void Scripted_NoMovementAI::AttackStart(Unit* who)
 
         if (!InCombat)
         {
-            Aggro(who);
             InCombat = true;
+            Aggro(who);
         }
     }
 }

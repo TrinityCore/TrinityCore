@@ -200,8 +200,8 @@ struct MANGOS_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
 
             if( !InCombat )
             {
-                Aggro(who);
                 InCombat = true;
+                Aggro(who);
             }
         }
     }
@@ -237,8 +237,8 @@ struct MANGOS_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
 
                 if( !InCombat )
                 {
-                    Aggro(who);
                     InCombat = true;
+                    Aggro(who);
                 }
             }
         }

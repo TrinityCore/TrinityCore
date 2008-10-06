@@ -3681,6 +3681,11 @@ uint8 Spell::CanCast(bool strict)
                     (!m_targets.getItemTarget() || !m_targets.getItemTarget()->GetProto()->LockID || m_targets.getItemTarget()->GetOwner() != m_caster ) )
                     return SPELL_FAILED_BAD_TARGETS;
 
+                // In BattleGround players can use only flags and banners
+                if( ((Player*)m_caster)->InBattleGround() &&
+                    !((Player*)m_caster)->isAllowUseBattleGroundObject() )
+                    return SPELL_FAILED_TRY_AGAIN;
+
                 // get the lock entry
                 LockEntry const *lockInfo = NULL;
                 if (GameObject* go=m_targets.getGOTarget())

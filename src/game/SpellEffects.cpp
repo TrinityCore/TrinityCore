@@ -52,6 +52,8 @@
 #include "Language.h"
 #include "SocialMgr.h"
 #include "Util.h"
+#include "TemporarySummon.h"
+
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -1006,10 +1008,78 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastSpell(m_caster,42337,true,NULL);
                     return;
                 }
+                case 37573:                                 //Temporal Phase Modulator
+                {
+                    if(!unitTarget)
+                        return;
+
+                    TemporarySummon* tempSummon = dynamic_cast<TemporarySummon*>(unitTarget);
+                    if(!tempSummon)
+                        return;
+
+                    uint32 health = tempSummon->GetHealth();
+                    const uint32 entry_list[6] = {21821, 21820, 21817};
+
+                    float x = tempSummon->GetPositionX();
+                    float y = tempSummon->GetPositionY();
+                    float z = tempSummon->GetPositionZ();
+                    float o = tempSummon->GetOrientation();
+
+                    tempSummon->UnSummon();
+
+                    Creature* pCreature = m_caster->SummonCreature(entry_list[urand(0, 2)], x, y, z, o,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,180000);
+                    if (!pCreature)
+                        return;
+
+                    pCreature->SetHealth(health);
+
+                    if(pCreature->AI())
+                        pCreature->AI()->AttackStart(m_caster);
+
+                    return;
+                }
+                case 34665:                                 //Administer Antidote
+                {
+                    if(!unitTarget || m_caster->GetTypeId() != TYPEID_PLAYER )
+                        return;
+
+                    if(!unitTarget)
+                        return;
+
+                    TemporarySummon* tempSummon = dynamic_cast<TemporarySummon*>(unitTarget);
+                    if(!tempSummon)
+                        return;
+
+                    uint32 health = tempSummon->GetHealth();
+
+                    float x = tempSummon->GetPositionX();
+                    float y = tempSummon->GetPositionY();
+                    float z = tempSummon->GetPositionZ();
+                    float o = tempSummon->GetOrientation();
+                    tempSummon->UnSummon();
+
+                    Creature* pCreature = m_caster->SummonCreature(16992, x, y, z, o,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,180000);
+                    if (!pCreature)
+                        return;
+
+                    pCreature->SetHealth(health);
+                    ((Player*)m_caster)->KilledMonster(16992,pCreature->GetGUID());
+
+                    if (pCreature->AI())
+                        pCreature->AI()->AttackStart(m_caster);
+
+                    return;
+                }
+                case 44997:                                 // Converting Sentry
+                {
+                    //Converted Sentry Credit
+                    m_caster->CastSpell(m_caster, 45009, true);
+                    return;
+                }                
                 case 45030:                                 // Impale Emissary
                 {
                     // Emissary of Hate Credit
-                    m_caster->CastSpell(m_caster,45088,true);
+                    m_caster->CastSpell(m_caster, 45088, true);
                     return;
                 }
                 case 50243:                                 // Teach Language
@@ -1099,6 +1169,16 @@ void Spell::EffectDummy(uint32 i)
                             data << uint64(m_caster->GetGUID());
                             ((Player*)m_caster)->GetSession()->SendPacket(&data);
                         }
+                    }
+                    return;
+                }
+                case 32826:
+                {
+                    if ( unitTarget && unitTarget->GetTypeId() == TYPEID_UNIT )
+                    {
+                        //Polymorph Cast Visual Rank 1
+                        const uint32 spell_list[6] = {32813, 32816, 32817, 32818, 32819, 32820};
+                        unitTarget->CastSpell( unitTarget, spell_list[urand(0, 5)], true); 
                     }
                     return;
                 }
@@ -2760,27 +2840,26 @@ void Spell::EffectOpenLock(uint32 /*i*/)
         if( goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune ||
             goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.losOK )
         {
-            if(BattleGround *bg = player->GetBattleGround())// in battleground
+            //isAllowUseBattleGroundObject() already called in CanCast()
+            // in battleground check
+            if(BattleGround *bg = player->GetBattleGround())
             {
-                if( !player->IsMounted() &&                 // not mounted
-                    !player->HasStealthAura() &&            // not stealthed
-                    !player->HasInvisibilityAura() &&       // not invisible
-                    player->isAlive() )                     // live player
-                {
-                    // check if it's correct bg
-                    if(bg && bg->GetTypeID() == BATTLEGROUND_AB)
-                        bg->EventPlayerClickedOnFlag(player, gameObjTarget);
-
-                    return;
-                }
+                // check if it's correct bg
+                if(bg && bg->GetTypeID() == BATTLEGROUND_AB)
+                    bg->EventPlayerClickedOnFlag(player, gameObjTarget);
+                return;
             }
         }
         else if (goInfo->type == GAMEOBJECT_TYPE_FLAGSTAND)
         {
+            //isAllowUseBattleGroundObject() already called in CanCast()
+            // in battleground check
             if(BattleGround *bg = player->GetBattleGround())
+            {
                 if(bg->GetTypeID() == BATTLEGROUND_EY)
                     bg->EventPlayerClickedOnFlag(player, gameObjTarget);
-            return;
+                return;
+            }
         }
         lockId = gameObjTarget->GetLockId();
         guid = gameObjTarget->GetGUID();
@@ -4749,6 +4828,16 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     break;
             }
             unitTarget->CastSpell(unitTarget, spellId, true);
+            break;
+        }
+        //5,000 Gold
+        case 46642:
+        {
+            if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            ((Player*)unitTarget)->ModifyMoney(50000000);
+
             break;
         }
     }

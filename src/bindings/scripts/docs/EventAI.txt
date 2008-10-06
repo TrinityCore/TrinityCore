@@ -679,6 +679,7 @@ Another example: the number "5" (101 in Binary, selecting first and third option
 2       4           CAST_FORCE_CAST                Forces spell to cast even if the target is possibly out of range or the creature is possibly out of mana
 3       8           CAST_NO_MELEE_IF_OOM           Prevents creature from entering melee if out of mana or out of range
 4       16          CAST_FORCE_TARGET_SELF         Forces the target to cast this spell on itself
+5       32          CAST_AURA_NOT_PRESENT          Only casts the spell on the target if the target does not have the aura from that spell on itself already.
 
 NOTE: You can add the numbers in the decimal column to combine flags. 
  For example if you wanted to use CAST_NO_MELEE_IF_OOM(8) and CAST_TRIGGERED(2) you would simply use 10 in the cast flags field (8 + 2 = 10).

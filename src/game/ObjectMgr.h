@@ -228,18 +228,8 @@ struct PlayerCondition
 // NPC gossip text id
 typedef HM_NAMESPACE::hash_map<uint32, uint32> CacheNpcTextIdMap;
 
-// Vendors
-struct VendorItem
-{
-    uint32 item;
-    uint32 maxcount;
-    uint32 incrtime;
-    uint32 ExtendedCost;
-};
-typedef std::vector<VendorItem*> VendorItemList;
 
-typedef HM_NAMESPACE::hash_map<uint32, VendorItemList> CacheVendorItemMap;
-
+typedef HM_NAMESPACE::hash_map<uint32, VendorItemData> CacheVendorItemMap;
 typedef HM_NAMESPACE::hash_map<uint32, TrainerSpellData> CacheTrainerSpellMap;
 
 enum SkillRangeType
@@ -257,6 +247,16 @@ SkillRangeType GetSkillRangeType(SkillLineEntry const *pSkill, bool racial);
 #define MAX_INTERNAL_PLAYER_NAME 15                         // max server internal player name length ( > MAX_PLAYER_NAME for support declined names )
 
 bool normalizePlayerName(std::string& name);
+
+struct MANGOS_DLL_SPEC LanguageDesc
+{
+    Language lang_id;
+    uint32   spell_id;
+    uint32   skill_id;
+};
+
+extern LanguageDesc lang_description[LANGUAGES_COUNT];
+MANGOS_DLL_SPEC LanguageDesc const* GetLanguageDescByID(uint32 lang);
 
 class PlayerDumpReader;
 
@@ -732,7 +732,7 @@ class ObjectMgr
             return &iter->second;
         }
 
-        VendorItemList const* GetNpcVendorItemList(uint32 entry) const
+        VendorItemData const* GetNpcVendorItemList(uint32 entry) const
         {
             CacheVendorItemMap::const_iterator  iter = m_mCacheVendorItemMap.find(entry);
             if(iter == m_mCacheVendorItemMap.end())
@@ -740,6 +740,9 @@ class ObjectMgr
 
             return &iter->second;
         }
+        void AddVendorItem(uint32 entry,uint32 item, uint32 maxcount, uint32 incrtime, uint32 ExtendedCost);
+        bool RemoveVendorItem(uint32 entry,uint32 item);
+        bool IsVendorItemValid( uint32 vendor_entry, uint32 item, uint32 maxcount, uint32 ptime, uint32 ExtendedCost, Player* pl = NULL ) const;
     protected:
         uint32 m_auctionid;
         uint32 m_mailid;
