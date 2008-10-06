@@ -665,8 +665,8 @@ struct MANGOS_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
 
             if (!InCombat)
             {
-                Aggro(who);
                 InCombat = true;
+                Aggro(who);
             }
         }
     }

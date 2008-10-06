@@ -115,8 +115,8 @@ struct MANGOS_DLL_DECL boss_talon_king_ikissAI : public ScriptedAI
 
                 if (!InCombat)
                 {
-                    Aggro(who);
                     InCombat = true;
+                    Aggro(who);
                 }
             }
         }

@@ -163,9 +163,6 @@ class MANGOS_DLL_SPEC instance_molten_core : public ScriptedInstance
                 case ID_FLAMEWAKERPRIEST:
                     FlamewakerPriest = creature->GetGUID();
                     break;
-
-                default:
-                    return;
             }
         }
 

@@ -125,8 +125,8 @@ struct MANGOS_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
 
                 if (!InCombat)
                 {
-                    Aggro(who);
                     InCombat = true;
+                    Aggro(who);
                 }
             }
         }

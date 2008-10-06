@@ -582,7 +582,7 @@ class MANGOS_DLL_SPEC GameObject : public WorldObject
         std::set<uint32> m_unique_users;
         uint32 m_usetimes;
 
-        uint32 m_DBTableGuid;
+        uint32 m_DBTableGuid;                               ///< For new or temporary gameobjects is 0 for saved it is lowguid
         GameObjectInfo const* m_goInfo;
     private:
         void SwitchDoorOrButton(bool activate);

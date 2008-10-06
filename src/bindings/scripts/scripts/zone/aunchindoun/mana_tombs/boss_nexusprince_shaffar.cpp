@@ -106,8 +106,8 @@ struct MANGOS_DLL_DECL boss_nexusprince_shaffarAI : public ScriptedAI
 
                 if (!InCombat)
                 {
-                    Aggro(who);
                     InCombat = true;
+                    Aggro(who);
                 }
             }
         }

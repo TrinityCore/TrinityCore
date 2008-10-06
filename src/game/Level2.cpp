@@ -1237,14 +1237,6 @@ bool ChatHandler::HandleAddVendorItemCommand(const char* args)
     if (!*args)
         return false;
 
-    Creature* vendor = getSelectedCreature();
-    if (!vendor || !vendor->isVendor())
-    {
-        SendSysMessage(LANG_COMMAND_VENDORSELECTION);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
     char* pitem  = extractKeyFromLink((char*)args,"Hitem");
     if (!pitem)
     {
@@ -1252,6 +1244,7 @@ bool ChatHandler::HandleAddVendorItemCommand(const char* args)
         SetSentErrorMessage(true);
         return false;
     }
+
     uint32 itemId = atol(pitem);
 
     char* fmaxcount = strtok(NULL, " ");                    //add maxcount, default: 0
@@ -1267,41 +1260,20 @@ bool ChatHandler::HandleAddVendorItemCommand(const char* args)
     char* fextendedcost = strtok(NULL, " ");                //add ExtendedCost, default: 0
     uint32 extendedcost = fextendedcost ? atol(fextendedcost) : 0;
 
-    ItemPrototype const *pProto = objmgr.GetItemPrototype(itemId);
-    if(!pProto)
+    Creature* vendor = getSelectedCreature();
+
+    uint32 vendor_entry = vendor ? vendor->GetEntry() : 0;
+
+    if(!objmgr.IsVendorItemValid(vendor_entry,itemId,maxcount,incrtime,extendedcost,m_session->GetPlayer()))
     {
-        PSendSysMessage(LANG_ITEM_NOT_FOUND, itemId);
         SetSentErrorMessage(true);
         return false;
     }
 
-    if(extendedcost && !sItemExtendedCostStore.LookupEntry(extendedcost))
-    {
-        PSendSysMessage(LANG_BAD_VALUE, extendedcost);
-        SetSentErrorMessage(true);
-        return false;
-    }
+    objmgr.AddVendorItem(vendor_entry,itemId,maxcount,incrtime,extendedcost);
 
-    // load vendor items if not yet
-    vendor->LoadGoods();
+    ItemPrototype const* pProto = objmgr.GetItemPrototype(itemId);
 
-    if(vendor->FindItem(itemId))
-    {
-        PSendSysMessage(LANG_ITEM_ALREADY_IN_LIST,itemId);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    if (vendor->GetItemCount() >= MAX_VENDOR_ITEMS)
-    {
-        SendSysMessage(LANG_COMMAND_ADDVENDORITEMITEMS);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    // add to DB and to current ingame vendor
-    WorldDatabase.PExecuteLog("INSERT INTO npc_vendor (entry,item,maxcount,incrtime,extendedcost) VALUES('%u','%u','%u','%u','%u')",vendor->GetEntry(), itemId, maxcount,incrtime,extendedcost);
-    vendor->AddItem(itemId,maxcount,incrtime,extendedcost);
     PSendSysMessage(LANG_ITEM_ADDED_TO_LIST,itemId,pProto->Name1,maxcount,incrtime,extendedcost);
     return true;
 }
@@ -1329,25 +1301,16 @@ bool ChatHandler::HandleDelVendorItemCommand(const char* args)
     }
     uint32 itemId = atol(pitem);
 
-    ItemPrototype const *pProto = objmgr.GetItemPrototype(itemId);
-    if(!pProto)
-    {
-        PSendSysMessage(LANG_ITEM_NOT_FOUND, itemId);
-        SetSentErrorMessage(true);
-        return false;
-    }
 
-    // load vendor items if not yet
-    vendor->LoadGoods();
-
-    if (!vendor->RemoveItem(itemId))
+    if(!objmgr.RemoveVendorItem(vendor->GetEntry(),itemId))
     {
         PSendSysMessage(LANG_ITEM_NOT_IN_LIST,itemId);
         SetSentErrorMessage(true);
         return false;
     }
 
-    WorldDatabase.PExecuteLog("DELETE FROM npc_vendor WHERE entry='%u' AND item='%u'",vendor->GetEntry(), itemId);
+    ItemPrototype const* pProto = objmgr.GetItemPrototype(itemId);
+
     PSendSysMessage(LANG_ITEM_DELETED_FROM_LIST,itemId,pProto->Name1);
     return true;
 }

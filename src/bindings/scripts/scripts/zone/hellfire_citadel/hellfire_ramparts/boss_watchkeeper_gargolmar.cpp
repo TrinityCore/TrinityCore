@@ -108,8 +108,8 @@ struct MANGOS_DLL_DECL boss_watchkeeper_gargolmarAI : public ScriptedAI
 
                 if (!InCombat)
                 {
-                    Aggro(who);
                     InCombat = true;
+                    Aggro(who);
                 }
             }
             else if (!HasTaunted && m_creature->IsWithinDistInMap(who, 60.0f))

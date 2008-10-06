@@ -215,8 +215,8 @@ struct MANGOS_DLL_DECL advisorbase_ai : public ScriptedAI
 
                 if (!InCombat)
                 {
-                    Aggro(who);
                     InCombat = true;
+                    Aggro(who);
                 }
             }
         }
@@ -234,8 +234,8 @@ struct MANGOS_DLL_DECL advisorbase_ai : public ScriptedAI
 
             if (!InCombat)
             {
-                Aggro(who);
                 InCombat = true;
+                Aggro(who);
             }
         }
     }
@@ -863,13 +863,9 @@ struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
                             DoYell(SAY_SUMMON_PHOENIX1, LANG_UNIVERSAL, NULL);
                             DoPlaySoundToSet(m_creature, SOUND_SUMMON_PHOENIX1);
                             break;
-
                         case 1:
                             DoYell(SAY_SUMMON_PHOENIX2, LANG_UNIVERSAL, NULL);
                             DoPlaySoundToSet(m_creature, SOUND_SUMMON_PHOENIX2);
-                            break;
-
-                        default:
                             break;
                     }
 
@@ -1252,8 +1248,8 @@ struct MANGOS_DLL_DECL boss_grand_astromancer_capernianAI : public advisorbase_a
 
             if (!InCombat)
             {
-                Aggro(who);
                 InCombat = true;
+                Aggro(who);
             }
         }
     }

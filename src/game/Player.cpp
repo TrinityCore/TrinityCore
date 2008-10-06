@@ -5794,7 +5794,7 @@ void Player::RewardReputation(Unit *pVictim, float rate)
     if(!pVictim || pVictim->GetTypeId() == TYPEID_PLAYER)
         return;
 
-    ReputationOnKillEntry const* Rep = objmgr.GetReputationOnKilEntry(pVictim->GetEntry());
+    ReputationOnKillEntry const* Rep = objmgr.GetReputationOnKilEntry(((Creature*)pVictim)->GetCreatureInfo()->Entry);
 
     if(!Rep)
         return;
@@ -16380,20 +16380,28 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
         return false;
     }
 
-    // load vendor items if not yet
-    pCreature->LoadGoods();
+    VendorItemData const* vItems = pCreature->GetVendorItems();
+    if(!vItems || vItems->Empty())
+    {
+        SendBuyError( BUY_ERR_CANT_FIND_ITEM, pCreature, item, 0);
+        return false;
+    }
 
-    CreatureItem* crItem = pCreature->FindItem(item);
+    VendorItem const* crItem = vItems->FindItem(item);
     if(!crItem)
     {
         SendBuyError( BUY_ERR_CANT_FIND_ITEM, pCreature, item, 0);
         return false;
     }
 
-    if( crItem->maxcount != 0 && crItem->count < count )
+    // check current item amount if it limited
+    if( crItem->maxcount != 0 )
     {
-        SendBuyError( BUY_ERR_ITEM_ALREADY_SOLD, pCreature, item, 0);
-        return false;
+        if(pCreature->GetVendorItemCurrentCount(crItem) < pProto->BuyCount * count )
+        {
+            SendBuyError( BUY_ERR_ITEM_ALREADY_SOLD, pCreature, item, 0);
+            return false;
+        }
     }
 
     if( uint32(GetReputationRank(pProto->RequiredReputationFaction)) < pProto->RequiredReputationRank)
@@ -16508,17 +16516,16 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
 
         if(Item *it = StoreNewItem( dest, item, true ))
         {
-            if( crItem->maxcount != 0 )
-                crItem->count -= pProto->BuyCount * count;
+            uint32 new_count = pCreature->UpdateVendorItemCurrentCount(crItem,pProto->BuyCount * count);
 
             WorldPacket data(SMSG_BUY_ITEM, (8+4+4+4));
             data << pCreature->GetGUID();
-            data << (uint32)crItem->id;                     // entry
-            data << (uint32)crItem->count;
+            data << (uint32)crItem->item;
+            data << (uint32)(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
             data << (uint32)count;
             GetSession()->SendPacket(&data);
 
-            SendNewItem(it, count, true, false, false);
+            SendNewItem(it, pProto->BuyCount*count, true, false, false);
         }
     }
     else if( IsEquipmentPos( bag, slot ) )
@@ -16548,17 +16555,16 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
 
         if(Item *it = EquipNewItem( dest, item, pProto->BuyCount * count, true ))
         {
-            if( crItem->maxcount != 0 )
-                crItem->count -= pProto->BuyCount * count;
+            uint32 new_count = pCreature->UpdateVendorItemCurrentCount(crItem,pProto->BuyCount * count);
 
             WorldPacket data(SMSG_BUY_ITEM, (8+4+4+4));
             data << pCreature->GetGUID();
-            data << (uint32)crItem->id;                     // entry
-            data << (uint32)crItem->count;
+            data << (uint32)crItem->item;
+            data << (uint32)(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
             data << (uint32)count;
             GetSession()->SendPacket(&data);
 
-            SendNewItem(it, count, true, false, false);
+            SendNewItem(it, pProto->BuyCount*count, true, false, false);
 
             AutoUnequipOffhandIfNeed();
         }
@@ -16569,7 +16575,7 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
         return false;
     }
 
-    return crItem->maxcount!=0?true:false;
+    return crItem->maxcount!=0;
 }
 
 uint32 Player::GetMaxPersonalArenaRatingRequirement()
@@ -17174,7 +17180,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     // set fly flag if in fly form or taxi flight to prevent visually drop at ground in showup moment
     if(HasAuraType(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED) || isInFlight())
-        SetUnitMovementFlags(GetUnitMovementFlags() | MOVEMENTFLAG_FLYING2);
+        AddUnitMovementFlag(MOVEMENTFLAG_FLYING2);
 }
 
 void Player::SendInitialPacketsAfterAddToMap()
@@ -18166,4 +18172,15 @@ bool ItemPosCount::isContainedIn(ItemPosCountVec const& vec) const
             return true;
 
     return false;
+}
+
+bool Player::isAllowUseBattleGroundObject()
+{
+    return ( //InBattleGround() &&                            // in battleground - not need, check in other cases
+             !IsMounted() &&                                  // not mounted
+             !HasStealthAura() &&                             // not stealthed
+             !HasInvisibilityAura() &&                        // not invisible
+             !HasAura(SPELL_RECENTLY_DROPPED_FLAG, 0) &&      // can't pickup
+             isAlive()                                        // live player
+           );
 }

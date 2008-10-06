@@ -61,8 +61,8 @@ struct MANGOS_DLL_DECL npc_ragged_johnAI : public ScriptedAI
 
                 if (!InCombat)
                 {
-                    Aggro(who);
                     InCombat = true;
+                    Aggro(who);
                 }
             }
         }

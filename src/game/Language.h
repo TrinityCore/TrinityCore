@@ -303,6 +303,7 @@ enum MangosStrings
     LANG_LOOKUP_PLAYER_ACCOUNT          = 328,
     LANG_LOOKUP_PLAYER_CHARACTER        = 329,
     LANG_NO_PLAYERS_FOUND               = 330,
+    LANG_EXTENDED_COST_NOT_EXIST        = 331,
 
     // Room for more level 2
 

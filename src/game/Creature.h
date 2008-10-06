@@ -112,19 +112,6 @@ struct GossipOption
     std::string Option;
 };
 
-struct CreatureItem
-{
-    CreatureItem(uint32 _item, uint32 _maxcount, uint32 _incrtime, uint32 _ExtendedCost)
-        : id(_item), count(_maxcount), maxcount(_maxcount), incrtime(_incrtime), ExtendedCost(_ExtendedCost), lastincr((uint32)time(NULL)) {}
-
-    uint32 id;
-    uint32 count;
-    uint32 maxcount;
-    uint32 incrtime;
-    uint32 lastincr;
-    uint32 ExtendedCost;
-};
-
 enum CreatureFlagsExtra
 {
     CREATURE_FLAG_EXTRA_INSTANCE_BIND   = 0x00000001,       // creature kill bind instance with killer and killer's group
@@ -291,6 +278,56 @@ enum InhabitTypeValues
 #pragma pack(pop)
 #endif
 
+// Vendors
+struct VendorItem
+{
+    VendorItem(uint32 _item, uint32 _maxcount, uint32 _incrtime, uint32 _ExtendedCost)
+        : item(_item), maxcount(_maxcount), incrtime(_incrtime), ExtendedCost(_ExtendedCost) {}
+
+    uint32 item;
+    uint32 maxcount;                                        // 0 for infinity item amount
+    uint32 incrtime;                                        // time for restore items amount if maxcount != 0
+    uint32 ExtendedCost;
+};
+typedef std::vector<VendorItem*> VendorItemList;
+
+struct VendorItemData
+{
+    VendorItemList m_items;
+
+    VendorItem* GetItem(uint32 slot) const
+    {
+        if(slot>=m_items.size()) return NULL;
+        return m_items[slot];
+    }
+    bool Empty() const { return m_items.empty(); }
+    uint8 GetItemCount() const { return m_items.size(); }
+    void AddItem( uint32 item, uint32 maxcount, uint32 ptime, uint32 ExtendedCost)
+    {
+        m_items.push_back(new VendorItem(item, maxcount, ptime, ExtendedCost));
+    }
+    bool RemoveItem( uint32 item_id );
+    VendorItem const* FindItem(uint32 item_id) const;
+
+    void Clear()
+    {
+        for (VendorItemList::iterator itr = m_items.begin(); itr != m_items.end(); ++itr)
+            delete (*itr);
+    }
+};
+
+struct VendorItemCount
+{
+    explicit VendorItemCount(uint32 _item, uint32 _count)
+        : itemId(_item), count(_count), lastIncrementTime(time(NULL)) {}
+
+    uint32 itemId;
+    uint32 count;
+    time_t lastIncrementTime;
+};
+
+typedef std::list<VendorItemCount> VendorItemCounts;
+
 struct TrainerSpell
 {
     uint32 spell;
@@ -418,41 +455,9 @@ class MANGOS_DLL_SPEC Creature : public Unit
         uint32 GetCurrentEquipmentId() { return m_equipmentId; }
         float GetSpellDamageMod(int32 Rank);
 
-        /*********************************************************/
-        /***                    VENDOR SYSTEM                  ***/
-        /*********************************************************/
-        void LoadGoods();                                   // must be called before access to vendor items, lazy loading at first call
-        void ReloadGoods() { m_itemsLoaded = false; LoadGoods(); }
-
-        CreatureItem* GetItem(uint32 slot)
-        {
-            if(slot>=m_vendor_items.size()) return NULL;
-            return &m_vendor_items[slot];
-        }
-        uint8 GetItemCount() const { return m_vendor_items.size(); }
-        void AddItem( uint32 item, uint32 maxcount, uint32 ptime, uint32 ExtendedCost)
-        {
-            m_vendor_items.push_back(CreatureItem(item, maxcount, ptime, ExtendedCost));
-        }
-        bool RemoveItem( uint32 item_id )
-        {
-            for(CreatureItems::iterator i = m_vendor_items.begin(); i != m_vendor_items.end(); ++i )
-            {
-                if(i->id==item_id)
-                {
-                    m_vendor_items.erase(i);
-                    return true;
-                }
-            }
-            return false;
-        }
-        CreatureItem* FindItem(uint32 item_id)
-        {
-            for(CreatureItems::iterator i = m_vendor_items.begin(); i != m_vendor_items.end(); ++i )
-                if(i->id==item_id)
-                    return &*i;
-            return NULL;
-        }
+        VendorItemData const* GetVendorItems() const;
+        uint32 GetVendorItemCurrentCount(VendorItem const* vItem);
+        uint32 UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 used_count);
 
         TrainerSpellData const* GetTrainerSpells() const;
 
@@ -562,9 +567,7 @@ class MANGOS_DLL_SPEC Creature : public Unit
         bool InitEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);
 
         // vendor items
-        typedef std::vector<CreatureItem> CreatureItems;
-        CreatureItems m_vendor_items;
-        bool m_itemsLoaded;                                 // vendor items loading state
+        VendorItemCounts m_vendorItemCounts;
 
         void _RealtimeSetCreatureInfo();
 
@@ -592,7 +595,7 @@ class MANGOS_DLL_SPEC Creature : public Unit
         uint32 m_regenTimer;
         MovementGeneratorType m_defaultMovementType;
         Cell m_currentCell;                                 // store current cell where creature listed
-        uint32 m_DBTableGuid;
+        uint32 m_DBTableGuid;                               ///< For new or temporary creatures is 0 for saved it is lowguid
         uint32 m_equipmentId;
 
         bool m_AlreadyCallAssistence;

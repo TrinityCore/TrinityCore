@@ -34,62 +34,6 @@
 
 bool ChatHandler::load_command_table = true;
 
-LanguageDesc lang_description[LANGUAGES_COUNT] =
-{
-    { LANG_ADDON,           0, 0                       },
-    { LANG_UNIVERSAL,       0, 0                       },
-    { LANG_ORCISH,        669, SKILL_LANG_ORCISH       },
-    { LANG_DARNASSIAN,    671, SKILL_LANG_DARNASSIAN   },
-    { LANG_TAURAHE,       670, SKILL_LANG_TAURAHE      },
-    { LANG_DWARVISH,      672, SKILL_LANG_DWARVEN      },
-    { LANG_COMMON,        668, SKILL_LANG_COMMON       },
-    { LANG_DEMONIC,       815, SKILL_LANG_DEMON_TONGUE },
-    { LANG_TITAN,         816, SKILL_LANG_TITAN        },
-    { LANG_THALASSIAN,    813, SKILL_LANG_THALASSIAN   },
-    { LANG_DRACONIC,      814, SKILL_LANG_DRACONIC     },
-    { LANG_KALIMAG,       817, SKILL_LANG_OLD_TONGUE   },
-    { LANG_GNOMISH,      7340, SKILL_LANG_GNOMISH      },
-    { LANG_TROLL,        7341, SKILL_LANG_TROLL        },
-    { LANG_GUTTERSPEAK, 17737, SKILL_LANG_GUTTERSPEAK  },
-    { LANG_DRAENEI,     29932, SKILL_LANG_DRAENEI      },
-    { LANG_ZOMBIE,          0, 0                       },
-    { LANG_GNOMISH_BINARY,  0, 0                       },
-    { LANG_GOBLIN_BINARY,   0, 0                       }
-};
-
-LanguageDesc const* GetLanguageDescByID(uint32 lang)
-{
-    for(int i = 0; i < LANGUAGES_COUNT; ++i)
-    {
-        if(uint32(lang_description[i].lang_id) == lang)
-            return &lang_description[i];
-    }
-
-    return NULL;
-}
-
-LanguageDesc const* GetLanguageDescBySpell(uint32 spell_id)
-{
-    for(int i = 0; i < LANGUAGES_COUNT; ++i)
-    {
-        if(lang_description[i].spell_id == spell_id)
-            return &lang_description[i];
-    }
-
-    return NULL;
-}
-
-LanguageDesc const* GetLanguageDescBySkill(uint32 skill_id)
-{
-    for(int i = 0; i < LANGUAGES_COUNT; ++i)
-    {
-        if(lang_description[i].skill_id == skill_id)
-            return &lang_description[i];
-    }
-
-    return NULL;
-}
-
 ChatCommand * ChatHandler::getCommandTable()
 {
     static ChatCommand serverCommandTable[] =

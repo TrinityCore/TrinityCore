@@ -2338,6 +2338,7 @@ INSERT INTO `mangos_string` VALUES
 (328,'Characters at account %s (Id: %u)',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (329,'  %s (GUID %u)',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (330,'No players found!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(331,'Extended item cost %u not exist',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (400,'|cffff0000[System Message]:|rScripts reloaded',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (401,'You change security level of %s to %i.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (402,'%s changed your security level to %i.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
@@ -10485,6 +10486,7 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `quest_template`;
 CREATE TABLE `quest_template` (
   `entry` mediumint(8) unsigned NOT NULL default '0',
+  `Method` tinyint(3) unsigned NOT NULL default '2',
   `ZoneOrSort` smallint(6) NOT NULL default '0',
   `SkillOrClass` smallint(6) NOT NULL default '0',
   `MinLevel` tinyint(3) unsigned NOT NULL default '0',

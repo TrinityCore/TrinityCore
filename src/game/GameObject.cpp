@@ -54,6 +54,8 @@ GameObject::GameObject() : WorldObject()
     m_charges = 5;
     m_cooldownTime = 0;
     m_goInfo = NULL;
+
+    m_DBTableGuid = 0;
 }
 
 GameObject::~GameObject()
@@ -108,7 +110,6 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, float x, float
 
     Object::_Create(guidlow, goinfo->id, HIGHGUID_GAMEOBJECT);
 
-    m_DBTableGuid = guidlow;
     m_goInfo = goinfo;
 
     if (goinfo->type >= MAX_GAMEOBJECT_TYPE)
@@ -478,7 +479,7 @@ void GameObject::getFishLoot(Loot *fishloot)
 
 void GameObject::SaveToDB()
 {
-    // this should only be used when the creature has already been loaded
+    // this should only be used when the gameobject has already been loaded
     // perferably after adding to map, because mapid may not be valid otherwise
     GameObjectData const *data = objmgr.GetGOData(m_DBTableGuid);
     if(!data)
@@ -496,7 +497,9 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask)
 
     if (!goI)
         return;
-
+    
+    if (!m_DBTableGuid)
+        m_DBTableGuid = GetGUIDLow();
     // update in loaded data (changing data only in this place)
     GameObjectData& data = objmgr.NewGOData(m_DBTableGuid);
 
@@ -566,13 +569,11 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
     uint32 animprogress = data->animprogress;
     uint32 go_state = data->go_state;
 
-    uint32 stored_guid = guid;
+    m_DBTableGuid = guid;
     if (map->GetInstanceId() != 0) guid = objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT);
 
     if (!Create(guid,entry, map, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state) )
         return false;
-
-    m_DBTableGuid = stored_guid;
 
     switch(GetGOInfo()->type)
     {
@@ -589,7 +590,7 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
             {
                 m_spawnedByDefault = true;
                 m_respawnDelayTime = data->spawntimesecs;
-                m_respawnTime = objmgr.GetGORespawnTime(stored_guid, map->GetInstanceId());
+                m_respawnTime = objmgr.GetGORespawnTime(m_DBTableGuid, map->GetInstanceId());
 
                                                             // ready to respawn
                 if(m_respawnTime && m_respawnTime <= time(NULL))
@@ -1158,12 +1159,9 @@ void GameObject::Use(Unit* user)
 
             Player* player = (Player*)user;
 
-            if( player->InBattleGround() &&                 // in battleground
-                !player->IsMounted() &&                     // not mounted
-                !player->HasStealthAura() &&                // not stealthed
-                !player->HasInvisibilityAura() &&           // not invisible
-                player->isAlive())                          // live player
+            if( player->isAllowUseBattleGroundObject() )
             {
+                // in battleground check
                 BattleGround *bg = player->GetBattleGround();
                 if(!bg)
                     return;
@@ -1186,13 +1184,9 @@ void GameObject::Use(Unit* user)
 
             Player* player = (Player*)user;
 
-            if( player->InBattleGround() &&                 // in battleground
-                !player->IsMounted() &&                     // not mounted
-                !player->HasStealthAura() &&                // not stealthed
-                !player->HasInvisibilityAura() &&           // not invisible
-                !player->HasAura(SPELL_RECENTLY_DROPPED_FLAG, 0) &&  // can't pickup
-                player->isAlive())                          // live player
+            if( player->isAllowUseBattleGroundObject() )     
             {
+                // in battleground check
                 BattleGround *bg = player->GetBattleGround();
                 if(!bg)
                     return;

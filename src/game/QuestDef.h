@@ -114,7 +114,7 @@ enum __QuestFlags
 {
     // Flags used at server and sended to client
     QUEST_FLAGS_STAY_ALIVE     = 1,                         // Not used currently
-    QUEST_FLAGS_EVENT          = 2,                         // Not used currently
+    QUEST_FLAGS_PARTY_ACCEPT   = 2,                         // Not used currently. If player in party, all players that can accept this quest will receive confirmation box to accept quest CMSG_QUEST_CONFIRM_ACCEPT/SMSG_QUEST_CONFIRM_ACCEPT
     QUEST_FLAGS_EXPLORATION    = 4,                         // Not used currently
     QUEST_FLAGS_SHARABLE       = 8,                         // Can be shared: Player::CanShareQuest()
     //QUEST_FLAGS_NONE2        = 16,                        // Not used currently
@@ -167,6 +167,7 @@ class Quest
 
         // table data accessors:
         uint32 GetQuestId() const { return QuestId; }
+        uint32 GetQuestMethod() const { return QuestMethod; }
         int32  GetZoneOrSort() const { return ZoneOrSort; }
         int32  GetSkillOrClass() const { return SkillOrClass; }
         uint32 GetMinLevel() const { return MinLevel; }
@@ -212,7 +213,7 @@ class Quest
         uint32 GetQuestStartScript() const { return QuestStartScript; }
         uint32 GetQuestCompleteScript() const { return QuestCompleteScript; }
         bool   IsRepeatable() const { return QuestFlags & QUEST_MANGOS_FLAGS_REPEATABLE; }
-        bool   IsAutoComplete() const { return Objectives.empty(); }
+        bool   IsAutoComplete() const { return QuestMethod ? false : true; }
         uint32 GetFlags() const { return QuestFlags; }
         bool   IsDaily() const { return QuestFlags & QUEST_FLAGS_DAILY; }
 
@@ -255,6 +256,7 @@ class Quest
         // table data
     protected:
         uint32 QuestId;
+        uint32 QuestMethod;
         int32  ZoneOrSort;
         int32  SkillOrClass;
         uint32 MinLevel;

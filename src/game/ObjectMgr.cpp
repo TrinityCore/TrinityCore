@@ -70,6 +70,40 @@ bool normalizePlayerName(std::string& name)
     return true;
 }
 
+LanguageDesc lang_description[LANGUAGES_COUNT] =
+{
+    { LANG_ADDON,           0, 0                       },
+    { LANG_UNIVERSAL,       0, 0                       },
+    { LANG_ORCISH,        669, SKILL_LANG_ORCISH       },
+    { LANG_DARNASSIAN,    671, SKILL_LANG_DARNASSIAN   },
+    { LANG_TAURAHE,       670, SKILL_LANG_TAURAHE      },
+    { LANG_DWARVISH,      672, SKILL_LANG_DWARVEN      },
+    { LANG_COMMON,        668, SKILL_LANG_COMMON       },
+    { LANG_DEMONIC,       815, SKILL_LANG_DEMON_TONGUE },
+    { LANG_TITAN,         816, SKILL_LANG_TITAN        },
+    { LANG_THALASSIAN,    813, SKILL_LANG_THALASSIAN   },
+    { LANG_DRACONIC,      814, SKILL_LANG_DRACONIC     },
+    { LANG_KALIMAG,       817, SKILL_LANG_OLD_TONGUE   },
+    { LANG_GNOMISH,      7340, SKILL_LANG_GNOMISH      },
+    { LANG_TROLL,        7341, SKILL_LANG_TROLL        },
+    { LANG_GUTTERSPEAK, 17737, SKILL_LANG_GUTTERSPEAK  },
+    { LANG_DRAENEI,     29932, SKILL_LANG_DRAENEI      },
+    { LANG_ZOMBIE,          0, 0                       },
+    { LANG_GNOMISH_BINARY,  0, 0                       },
+    { LANG_GOBLIN_BINARY,   0, 0                       }
+};
+
+LanguageDesc const* GetLanguageDescByID(uint32 lang)
+{
+    for(int i = 0; i < LANGUAGES_COUNT; ++i)
+    {
+        if(uint32(lang_description[i].lang_id) == lang)
+            return &lang_description[i];
+    }
+
+    return NULL;
+}
+
 ObjectMgr::ObjectMgr()
 {
     m_hiCharGuid        = 1;
@@ -134,8 +168,7 @@ ObjectMgr::~ObjectMgr()
         delete itr->second;
 
     for (CacheVendorItemMap::iterator itr = m_mCacheVendorItemMap.begin(); itr != m_mCacheVendorItemMap.end(); ++itr)
-        for (VendorItemList::iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
-            delete (*itr2);
+        itr->second.Clear();
 
     for (CacheTrainerSpellMap::iterator itr = m_mCacheTrainerSpellMap.begin(); itr != m_mCacheTrainerSpellMap.end(); ++itr)
         itr->second.Clear();
@@ -2697,35 +2730,35 @@ void ObjectMgr::LoadQuests()
 
     mExclusiveQuestGroups.clear();
 
-    //                                                0      1           2             3         4           5     6              7
-    QueryResult *result = WorldDatabase.Query("SELECT entry, ZoneOrSort, SkillOrClass, MinLevel, QuestLevel, Type, RequiredRaces, RequiredSkillValue,"
-    //   8                    9                  10                     11                   12                     13                   14                15
+    //                                                0      1       2           3             4         5           6     7              8
+    QueryResult *result = WorldDatabase.Query("SELECT entry, Method, ZoneOrSort, SkillOrClass, MinLevel, QuestLevel, Type, RequiredRaces, RequiredSkillValue,"
+    //   9                    10                 11                     12                   13                     14                   15                16
         "RepObjectiveFaction, RepObjectiveValue, RequiredMinRepFaction, RequiredMinRepValue, RequiredMaxRepFaction, RequiredMaxRepValue, SuggestedPlayers, LimitTime,"
-    //   16          17            18           19           20           21              22                23         24            25
+    //   17          18            19           20           21           22              23                24         25            26
         "QuestFlags, SpecialFlags, CharTitleId, PrevQuestId, NextQuestId, ExclusiveGroup, NextQuestInChain, SrcItemId, SrcItemCount, SrcSpell,"
-    //   26     27       28          29               30                31       32              33              34              35
+    //   27     28       29          30               31                32       33              34              35              36
         "Title, Details, Objectives, OfferRewardText, RequestItemsText, EndText, ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4,"
-    //   36          37          38          39          40             41             42             43
+    //   37          38          39          40          41             42             43             44
         "ReqItemId1, ReqItemId2, ReqItemId3, ReqItemId4, ReqItemCount1, ReqItemCount2, ReqItemCount3, ReqItemCount4,"
-    //   44            45            46            47            48               49               50               51               52             53             54             55
+    //   45            46            47            48            49               50               51               52               53             54             54             55
         "ReqSourceId1, ReqSourceId2, ReqSourceId3, ReqSourceId4, ReqSourceCount1, ReqSourceCount2, ReqSourceCount3, ReqSourceCount4, ReqSourceRef1, ReqSourceRef2, ReqSourceRef3, ReqSourceRef4,"
-    //   56                  57                  58                  59                  60                     61                     62                     63
+    //   57                  58                  59                  60                  61                     62                     63                     64
         "ReqCreatureOrGOId1, ReqCreatureOrGOId2, ReqCreatureOrGOId3, ReqCreatureOrGOId4, ReqCreatureOrGOCount1, ReqCreatureOrGOCount2, ReqCreatureOrGOCount3, ReqCreatureOrGOCount4,"
-    //   64             65             66             67
+    //   65             66             67             68
         "ReqSpellCast1, ReqSpellCast2, ReqSpellCast3, ReqSpellCast4,"
-    //   68                69                70                71                72                73
+    //   69                70                71                72                73                74
         "RewChoiceItemId1, RewChoiceItemId2, RewChoiceItemId3, RewChoiceItemId4, RewChoiceItemId5, RewChoiceItemId6,"
-    //   74                   75                   76                   77                   78                   79
+    //   75                   76                   77                   78                   79                   80
         "RewChoiceItemCount1, RewChoiceItemCount2, RewChoiceItemCount3, RewChoiceItemCount4, RewChoiceItemCount5, RewChoiceItemCount6,"
-    //   80          81          82          83          84             85             86             87
+    //   81          82          83          84          85             86             87             88
         "RewItemId1, RewItemId2, RewItemId3, RewItemId4, RewItemCount1, RewItemCount2, RewItemCount3, RewItemCount4,"
-    //   88              89              90              91              92              93            94            95            96            97
+    //   89              90              91              92              93              94            95            96            97            98
         "RewRepFaction1, RewRepFaction2, RewRepFaction3, RewRepFaction4, RewRepFaction5, RewRepValue1, RewRepValue2, RewRepValue3, RewRepValue4, RewRepValue5,"
-    //   98             99                100       101           102                103               104         105     106     107
+    //   99             100               101       102           103                104               105         106     107     108
         "RewOrReqMoney, RewMoneyMaxLevel, RewSpell, RewSpellCast, RewMailTemplateId, RewMailDelaySecs, PointMapId, PointX, PointY, PointOpt,"
-    //   108            109            110            111           112              113            114                115                116                117
+    //   109            110            111            112           113              114            115                116                117                118
         "DetailsEmote1, DetailsEmote2, DetailsEmote3, DetailsEmote4,IncompleteEmote, CompleteEmote, OfferRewardEmote1, OfferRewardEmote2, OfferRewardEmote3, OfferRewardEmote4,"
-    //   118          119
+    //   119          120
         "StartScript, CompleteScript"
         " FROM quest_template");
     if(result == NULL)
@@ -2760,6 +2793,11 @@ void ObjectMgr::LoadQuests()
         Quest * qinfo = iter->second;
 
         // additional quest integrity checks (GO, creature_template and item_template must be loaded already)
+
+        if( qinfo->GetQuestMethod() >= 3 )
+        {
+            sLog.outErrorDb("Quest %u has `Method` = %u, expected values are 0, 1 or 2.",qinfo->GetQuestId(),qinfo->GetQuestMethod());
+        }
 
         if (qinfo->QuestFlags & ~QUEST_MANGOS_FLAGS_DB_ALLOWED)
         {
@@ -6148,14 +6186,14 @@ bool ObjectMgr::LoadMangosStrings(DatabaseType& db, char const* table, int32 min
 
         if(entry==0)
         {
-            sLog.outString("Table `%s` contain reserved entry 0, ignored.",table);
+            sLog.outErrorDb("Table `%s` contain reserved entry 0, ignored.",table);
             continue;
         }
         else if(entry < min_value || entry > max_value)
         {
             int32 start = min_value > 0 ? min_value : max_value;
             int32 end   = min_value > 0 ? max_value : min_value;
-            sLog.outString("Table `%s` contain entry %i out of allowed range (%d - %d), ignored.",table,entry,start,end);
+            sLog.outErrorDb("Table `%s` contain entry %i out of allowed range (%d - %d), ignored.",table,entry,start,end);
             continue;
         }
 
@@ -6163,7 +6201,7 @@ bool ObjectMgr::LoadMangosStrings(DatabaseType& db, char const* table, int32 min
 
         if(data.Content.size() > 0)
         {
-            sLog.outString("Table `%s` contain data for already loaded entry  %i (from another table?), ignored.",table,entry);
+            sLog.outErrorDb("Table `%s` contain data for already loaded entry  %i (from another table?), ignored.",table,entry);
             continue;
         }
 
@@ -6656,19 +6694,27 @@ void ObjectMgr::LoadTrainerSpell()
 
     barGoLink bar( result->GetRowCount() );
 
-    uint32 count = 0,entry,spell;
+    uint32 count = 0;
     do
     {
         bar.step();
 
         Field* fields = result->Fetch();
 
-        entry  = fields[0].GetUInt32();
-        spell  = fields[1].GetUInt32();
+        uint32 entry  = fields[0].GetUInt32();
+        uint32 spell  = fields[1].GetUInt32();
 
-        if(!GetCreatureTemplate(entry))
+        CreatureInfo const* cInfo = GetCreatureTemplate(entry);
+
+        if(!cInfo)
         {
             sLog.outErrorDb("Table `npc_trainer` have entry for not existed creature template (Entry: %u), ignore", entry);
+            continue;
+        }
+
+        if(!(cInfo->npcflag & UNIT_NPC_FLAG_TRAINER))
+        {
+            sLog.outErrorDb("Table `npc_trainer` have data for not creature template (Entry: %u) without trainer flag, ignore", entry);
             continue;
         }
 
@@ -6715,10 +6761,7 @@ void ObjectMgr::LoadVendors()
 {
     // For reload case 
     for (CacheVendorItemMap::iterator itr = m_mCacheVendorItemMap.begin(); itr != m_mCacheVendorItemMap.end(); ++itr)
-    {
-        for (VendorItemList::iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
-            delete (*itr2);
-    }
+        itr->second.Clear();
     m_mCacheVendorItemMap.clear();
 
     QueryResult *result = WorldDatabase.PQuery("SELECT entry, item, maxcount, incrtime, ExtendedCost FROM npc_vendor");
@@ -6736,48 +6779,23 @@ void ObjectMgr::LoadVendors()
     barGoLink bar( result->GetRowCount() );
 
     uint32 count = 0;
-    uint32 entry, item_id, ExtendedCost;
     do
     {
         bar.step();
         Field* fields = result->Fetch();
 
-        entry = fields[0].GetUInt32();
-        if(!GetCreatureTemplate(entry))
-        {
-            sLog.outErrorDb("Table `npc_vendor` have data for not existed creature template (Entry: %u), ignore", entry);
+        uint32 entry        = fields[0].GetUInt32();
+        uint32 item_id      = fields[1].GetUInt32();
+        uint32 maxcount     = fields[2].GetUInt32();
+        uint32 incrtime     = fields[3].GetUInt32();
+        uint32 ExtendedCost = fields[4].GetUInt32();
+
+        if(!IsVendorItemValid(entry,item_id,maxcount,incrtime,ExtendedCost))
             continue;
-        }
 
-        item_id  = fields[1].GetUInt32();
-        if(!GetItemPrototype(item_id))
-        {
-            sLog.outErrorDb("Table `npc_vendor` for Vendor (Entry: %u) have in item list non-existed item (%u), ignore",entry,item_id);
-            continue;
-        }
+        VendorItemData& vList = m_mCacheVendorItemMap[entry];
 
-        ExtendedCost = fields[4].GetUInt32();
-        if(ExtendedCost && !sItemExtendedCostStore.LookupEntry(ExtendedCost))
-        {
-            sLog.outErrorDb("Table `npc_vendor` have Item (Entry: %u) with wrong ExtendedCost (%u) for vendor (%u), ignore",item_id,ExtendedCost,entry);
-            continue;
-        }
-
-        VendorItemList& vList = m_mCacheVendorItemMap[entry];
-
-        if(vList.size() >= MAX_VENDOR_ITEMS)
-        {
-            sLog.outErrorDb( "Table `npc_vendor` has too many items (%u >= %i) for vendor (Entry: %u), ignore", vList.size(), MAX_VENDOR_ITEMS, entry);
-            continue;
-        }
-
-        VendorItem* pVendorItem = new VendorItem();
-        pVendorItem->item         = item_id;
-        pVendorItem->maxcount     = fields[2].GetUInt32();
-        pVendorItem->incrtime     = fields[3].GetUInt32();
-        pVendorItem->ExtendedCost = ExtendedCost;
-
-        vList.push_back(pVendorItem);
+        vList.AddItem(item_id,maxcount,incrtime,ExtendedCost);
         ++count;
 
     } while (result->NextRow());
@@ -6838,6 +6856,109 @@ void ObjectMgr::LoadNpcTextId()
     sLog.outString( ">> Loaded %d NpcTextId ", count );
 }
 
+void ObjectMgr::AddVendorItem( uint32 entry,uint32 item, uint32 maxcount, uint32 incrtime, uint32 extendedcost )
+{
+    VendorItemData& vList = m_mCacheVendorItemMap[entry];
+    vList.AddItem(item,maxcount,incrtime,extendedcost);
+
+    WorldDatabase.PExecuteLog("INSERT INTO npc_vendor (entry,item,maxcount,incrtime,extendedcost) VALUES('%u','%u','%u','%u','%u')",entry, item, maxcount,incrtime,extendedcost);
+}
+
+bool ObjectMgr::RemoveVendorItem( uint32 entry,uint32 item )
+{
+    CacheVendorItemMap::iterator  iter = m_mCacheVendorItemMap.find(entry);
+    if(iter == m_mCacheVendorItemMap.end())
+        return false;
+
+    if(!iter->second.FindItem(item))
+        return false;
+
+    iter->second.RemoveItem(item);
+    WorldDatabase.PExecuteLog("DELETE FROM npc_vendor WHERE entry='%u' AND item='%u'",entry, item);
+    return true;
+}
+
+bool ObjectMgr::IsVendorItemValid( uint32 vendor_entry, uint32 item_id, uint32 maxcount, uint32 incrtime, uint32 ExtendedCost, Player* pl ) const
+{
+    CreatureInfo const* cInfo = GetCreatureTemplate(vendor_entry);
+    if(!cInfo)
+    {
+        if(pl)
+            ChatHandler(pl).SendSysMessage(LANG_COMMAND_VENDORSELECTION);
+        else
+            sLog.outErrorDb("Table `npc_vendor` have data for not existed creature template (Entry: %u), ignore", vendor_entry);
+        return false;
+    }
+
+    if(!(cInfo->npcflag & UNIT_NPC_FLAG_VENDOR))
+    {
+        if(pl)
+            ChatHandler(pl).SendSysMessage(LANG_COMMAND_VENDORSELECTION);
+        else
+            sLog.outErrorDb("Table `npc_vendor` have data for not creature template (Entry: %u) without vendor flag, ignore", vendor_entry);
+        return false;
+    }
+
+    if(!GetItemPrototype(item_id))
+    {
+        if(pl)
+            ChatHandler(pl).PSendSysMessage(LANG_ITEM_NOT_FOUND, item_id);
+        else
+            sLog.outErrorDb("Table `npc_vendor` for Vendor (Entry: %u) have in item list non-existed item (%u), ignore",vendor_entry,item_id);
+        return false;
+    }
+
+    if(ExtendedCost && !sItemExtendedCostStore.LookupEntry(ExtendedCost))
+    {
+        if(pl)
+            ChatHandler(pl).PSendSysMessage(LANG_EXTENDED_COST_NOT_EXIST,ExtendedCost);
+        else
+            sLog.outErrorDb("Table `npc_vendor` have Item (Entry: %u) with wrong ExtendedCost (%u) for vendor (%u), ignore",item_id,ExtendedCost,vendor_entry);
+        return false;
+    }
+
+    if(maxcount > 0 && incrtime == 0)
+    {
+        if(pl)
+            ChatHandler(pl).PSendSysMessage("MaxCount!=0 (%u) but IncrTime==0", maxcount);
+        else
+            sLog.outErrorDb( "Table `npc_vendor` has `maxcount` (%u) for item %u of vendor (Entry: %u) but `incrtime`=0, ignore", maxcount, item_id, vendor_entry);
+        return false;
+    }
+    else if(maxcount==0 && incrtime > 0)
+    {
+        if(pl)
+            ChatHandler(pl).PSendSysMessage("MaxCount==0 but IncrTime<>=0");
+        else
+            sLog.outErrorDb( "Table `npc_vendor` has `maxcount`=0 for item %u of vendor (Entry: %u) but `incrtime`<>0, ignore", item_id, vendor_entry);
+        return false;
+    }
+
+    VendorItemData const* vItems = GetNpcVendorItemList(vendor_entry);
+    if(!vItems)
+        return true;                                        // later checks for non-empty lists
+
+    if(vItems->FindItem(item_id))
+    {
+        if(pl)
+            ChatHandler(pl).PSendSysMessage(LANG_ITEM_ALREADY_IN_LIST,item_id);
+        else
+            sLog.outErrorDb( "Table `npc_vendor` has duplicate items %u for vendor (Entry: %u), ignore", item_id, vendor_entry);
+        return false;
+    }
+
+    if(vItems->GetItemCount() >= MAX_VENDOR_ITEMS)
+    {
+        if(pl)
+            ChatHandler(pl).SendSysMessage(LANG_COMMAND_ADDVENDORITEMITEMS);
+        else
+            sLog.outErrorDb( "Table `npc_vendor` has too many items (%u >= %i) for vendor (Entry: %u), ignore", vItems->GetItemCount(), MAX_VENDOR_ITEMS, vendor_entry);
+        return false;
+    }
+
+    return true;
+}
+
 // Functions for scripting access
 const char* GetAreaTriggerScriptNameById(uint32 id)
 {
@@ -6848,7 +6969,7 @@ bool LoadMangosStrings(DatabaseType& db, char const* table,int32 start_value, in
 {
     if(start_value >= 0 || start_value <= end_value)        // start/end reversed for negative values
     {
-        sLog.outError("Table '%s' attempt loaded with invalid range (%d - %d), use (%d - %d) instead.",table,start_value,end_value,-1,std::numeric_limits<int32>::min());
+        sLog.outErrorDb("Table '%s' attempt loaded with invalid range (%d - %d), use (%d - %d) instead.",table,start_value,end_value,-1,std::numeric_limits<int32>::min());
         start_value = -1;
         end_value = std::numeric_limits<int32>::min();
     }

@@ -264,8 +264,6 @@ struct MANGOS_DLL_DECL npc_manaforge_control_consoleAI : public ScriptedAI
                     }
                     ++Phase;
                     break;
-                default:
-                    break;
             }
         } else Event_Timer -= diff;
 
