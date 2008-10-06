@@ -18,6 +18,7 @@
 
 #include "Common.h"
 #include "WorldSocket.h" 
+
 #include <ace/Message_Block.h>
 #include <ace/OS_NS_string.h>
 #include <ace/OS_NS_unistd.h>
@@ -66,9 +67,6 @@ struct ClientPktHeader
 #else
 #pragma pack(pop)
 #endif
-
-// used when testing to alow login without password and encryption
-// #define _NETCODE_FAKE_AUTH
 
 WorldSocket::WorldSocket (void) :
 WorldHandler (),
@@ -158,7 +156,7 @@ WorldSocket::SendPacket (const WorldPacket& pct)
       while (p < pct.size ())
         {
           for (uint32 j = 0; j < 16 && p < pct.size (); j++)
-            sWorldLog.Log ("%.2X ", const_cast<WorldPacket&>(pct)[p++]);
+            sWorldLog.Log ("%.2X ", const_cast<WorldPacket&> (pct)[p++]);
 
           sWorldLog.Log ("\n");
         }
@@ -311,14 +309,14 @@ WorldSocket::handle_output (ACE_HANDLE)
 
   if (send_len == 0)
     return this->cancel_wakeup_output (Guard);
-  
-// TODO SO_NOSIGPIPE on platforms that support it
+
+  // TODO SO_NOSIGPIPE on platforms that support it
 #ifdef MSG_NOSIGNAL
   ssize_t n = this->peer ().send (m_OutBuffer->rd_ptr (), send_len, MSG_NOSIGNAL);
 #else
   ssize_t n = this->peer ().send (m_OutBuffer->rd_ptr (), send_len);
 #endif // MSG_NOSIGNAL
-          
+
   if (n == 0)
     return -1;
   else if (n == -1)
@@ -425,15 +423,15 @@ WorldSocket::handle_input_header (void)
 
   ACE_NEW_RETURN (m_RecvWPct, WorldPacket ((uint16) header.cmd, header.size), -1);
 
-  if(header.size > 0)
-  {
-     m_RecvWPct->resize (header.size);  
-     m_RecvPct.base ((char*) m_RecvWPct->contents (), m_RecvWPct->size ());
-  }
+  if (header.size > 0)
+    {
+      m_RecvWPct->resize (header.size);
+      m_RecvPct.base ((char*) m_RecvWPct->contents (), m_RecvWPct->size ());
+    }
   else
-  {
-     ACE_ASSERT(m_RecvPct.space() == 0);
-  }
+    {
+      ACE_ASSERT (m_RecvPct.space () == 0);
+    }
 
 
   return 0;
@@ -598,7 +596,7 @@ int
 WorldSocket::ProcessIncoming (WorldPacket* new_pct)
 {
   ACE_ASSERT (new_pct);
-  
+
   // manage memory ;)
   ACE_Auto_Ptr<WorldPacket> aptr (new_pct);
 
@@ -713,16 +711,6 @@ WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
              account.c_str (),
              clientSeed);
 
-#if defined _NETCODE_FAKE_AUTH
-  bool dontchechtheacc = false;
-  uint8 digest_fake[sizeof (digest)];
-  memset ((void*) digest_fake, '\0', sizeof (digest_fake));
-  if (memcmp ((void*) digest, (void*) digest_fake, sizeof (digest_fake)) == 0)
-    {
-      dontchechtheacc = true;
-    }
-#endif //_NETCODE_FAKE_AUTH
-
   // Get the account information from the realmd database
   std::string safe_account = account; // Duplicate, else will screw the SHA hash verification below
   loginDatabase.escape_string (safe_account);
@@ -785,7 +773,8 @@ WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
   const char* vStr = v.AsHexStr (); //Must be freed by OPENSSL_free()
   const char* vold = fields[6].GetString ();
 
-  DEBUG_LOG ("WorldSocket::HandleAuthSession: (s,v) check s: %s v_old: %s v_new: %s",
+  DEBUG_LOG ("WorldSocket::HandleAuthSession: "
+             "(s,v) check s: %s v_old: %s v_new: %s",
              sStr,
              vold,
              vStr);
@@ -797,25 +786,18 @@ WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
                           "WHERE username = '%s'",
                           safe_account.c_str ());
 
-#if defined _NETCODE_FAKE_AUTH
-  if (!dontchechtheacc)
+  if (!vold || strcmp (vStr, vold))
     {
-#endif
-      if (!vold || strcmp (vStr, vold))
-        {
-          packet.Initialize (SMSG_AUTH_RESPONSE, 1);
-          packet << uint8 (AUTH_UNKNOWN_ACCOUNT);
-          SendPacket (packet);
-          delete result;
-          OPENSSL_free ((void*) sStr);
-          OPENSSL_free ((void*) vStr);
+      packet.Initialize (SMSG_AUTH_RESPONSE, 1);
+      packet << uint8 (AUTH_UNKNOWN_ACCOUNT);
+      SendPacket (packet);
+      delete result;
+      OPENSSL_free ((void*) sStr);
+      OPENSSL_free ((void*) vStr);
 
-          sLog.outError ("WorldSocket::HandleAuthSession: User not logged.");
-          return -1;
-        }
-#if defined _NETCODE_FAKE_AUTH
+      sLog.outBasic ("WorldSocket::HandleAuthSession: User not logged.");
+      return -1;
     }
-#endif
 
   OPENSSL_free ((void*) sStr);
   OPENSSL_free ((void*) vStr);
@@ -830,7 +812,7 @@ WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
           SendPacket (packet);
 
           delete result;
-          sLog.outError ("WorldSocket::HandleAuthSession: Sent Auth Response (Account IP differs).");
+          sLog.outBasic ("WorldSocket::HandleAuthSession: Sent Auth Response (Account IP differs).");
           return -1;
         }
     }
@@ -847,72 +829,65 @@ WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
   delete result;
 
-#if defined _NETCODE_FAKE_AUTH
-  if (!dontchechtheacc)
+  // Re-check account ban (same check as in realmd) 
+  QueryResult *banresult =
+          loginDatabase.PQuery ("SELECT "
+                                "bandate, "
+                                "unbandate "
+                                "FROM account_banned "
+                                "WHERE id = '%u' "
+                                "AND active = 1",
+                                id);
+
+  if (banresult) // if account banned
     {
-#endif
-      // Re-check account ban (same check as in realmd) 
-      QueryResult *banresult =
-              loginDatabase.PQuery ("SELECT "
-                                    "bandate, "
-                                    "unbandate "
-                                    "FROM account_banned "
-                                    "WHERE id = '%u' "
-                                    "AND active = 1",
-                                    id);
+      packet.Initialize (SMSG_AUTH_RESPONSE, 1);
+      packet << uint8 (AUTH_BANNED);
+      SendPacket (packet);
 
-      if (banresult) // if account banned
-        {
-          packet.Initialize (SMSG_AUTH_RESPONSE, 1);
-          packet << uint8 (AUTH_BANNED);
-          SendPacket (packet);
+      delete banresult;
 
-          delete banresult;
-
-          sLog.outError ("WorldSocket::HandleAuthSession: Sent Auth Response (Account banned).");
-          return -1;
-        }
-
-      // Check locked state for server
-      AccountTypes allowedAccountType = sWorld.GetPlayerSecurityLimit ();
-
-      if (allowedAccountType > SEC_PLAYER && security < allowedAccountType)
-        {
-          WorldPacket Packet (SMSG_AUTH_RESPONSE, 1);
-          Packet << uint8 (AUTH_UNAVAILABLE);
-
-          SendPacket (packet);
-
-          sLog.outBasic ("WorldSocket::HandleAuthSession: User tryes to login but his security level is not enough");
-          return -1;
-        }
-
-      // Check that Key and account name are the same on client and server
-      Sha1Hash sha;
-
-      uint32 t = 0;
-      uint32 seed = m_Seed;
-
-      sha.UpdateData (account);
-      sha.UpdateData ((uint8 *) & t, 4);
-      sha.UpdateData ((uint8 *) & clientSeed, 4);
-      sha.UpdateData ((uint8 *) & seed, 4);
-      sha.UpdateBigNumbers (&K, NULL);
-      sha.Finalize ();
-
-      if (memcmp (sha.GetDigest (), digest, 20))
-        {
-          packet.Initialize (SMSG_AUTH_RESPONSE, 1);
-          packet << uint8 (AUTH_FAILED);
-
-          SendPacket (packet);
-
-          sLog.outError ("WorldSocket::HandleAuthSession: Sent Auth Response (authentification failed).");
-          return -1;
-        }
-#if defined _NETCODE_FAKE_AUTH
+      sLog.outBasic ("WorldSocket::HandleAuthSession: Sent Auth Response (Account banned).");
+      return -1;
     }
-#endif
+
+  // Check locked state for server
+  AccountTypes allowedAccountType = sWorld.GetPlayerSecurityLimit ();
+
+  if (allowedAccountType > SEC_PLAYER && security < allowedAccountType)
+    {
+      WorldPacket Packet (SMSG_AUTH_RESPONSE, 1);
+      Packet << uint8 (AUTH_UNAVAILABLE);
+
+      SendPacket (packet);
+
+      sLog.outBasic ("WorldSocket::HandleAuthSession: User tryes to login but his security level is not enough");
+      return -1;
+    }
+
+  // Check that Key and account name are the same on client and server
+  Sha1Hash sha;
+
+  uint32 t = 0;
+  uint32 seed = m_Seed;
+
+  sha.UpdateData (account);
+  sha.UpdateData ((uint8 *) & t, 4);
+  sha.UpdateData ((uint8 *) & clientSeed, 4);
+  sha.UpdateData ((uint8 *) & seed, 4);
+  sha.UpdateBigNumbers (&K, NULL);
+  sha.Finalize ();
+
+  if (memcmp (sha.GetDigest (), digest, 20))
+    {
+      packet.Initialize (SMSG_AUTH_RESPONSE, 1);
+      packet << uint8 (AUTH_FAILED);
+
+      SendPacket (packet);
+
+      sLog.outBasic ("WorldSocket::HandleAuthSession: Sent Auth Response (authentification failed).");
+      return -1;
+    }
 
   std::string address = this->GetRemoteAddress ();
 
@@ -934,15 +909,8 @@ WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
   // Althought atm the socket is singlethreaded
   ACE_NEW_RETURN (m_Session, WorldSession (id, this, security, tbc, mutetime, locale), -1);
 
-#if defined _NETCODE_FAKE_AUTH
-  if (!dontchechtheacc)
-    {
-#endif
-      this->m_Crypt.SetKey (&K);
-      this->m_Crypt.Init ();
-#if defined _NETCODE_FAKE_AUTH
-    }
-#endif
+  m_Crypt.SetKey (&K);
+  m_Crypt.Init ();
 
   // In case needed sometime the second arg is in microseconds 1 000 000 = 1 sec
   ACE_OS::sleep (ACE_Time_Value (0, 10000));
@@ -1043,8 +1011,8 @@ WorldSocket::iSendPacket (const WorldPacket& pct)
 #if ACE_BYTE_ORDER == ACE_BIG_ENDIAN
   header.cmd = ACE_SWAP_WORD (header.cmd)
 #endif
-          
-  header.size = (uint16) pct.size () + 2;
+
+          header.size = (uint16) pct.size () + 2;
   header.size = ACE_HTONS (header.size);
 
   m_Crypt.EncryptSend ((uint8*) & header, sizeof (header));
