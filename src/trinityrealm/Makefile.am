@@ -23,6 +23,7 @@ bin_PROGRAMS = trinity-realm
 trinity_realm_CPPFLAGS = \
 $(MYSQL_INCLUDES) \
 $(POSTGRE_INCLUDES) \
+$(TRINI_INCLUDES) \
 -I$(top_srcdir)/dep/include \
 -I$(top_srcdir)/src/framework \
 -I$(top_srcdir)/src/shared \
@@ -45,7 +46,7 @@ $(top_builddir)/dep/src/sockets/libmangossockets.a \
 $(top_builddir)/dep/src/zthread/libZThread.la
 
 ## Linker flags
-trinity_realm_LDFLAGS = $(MYSQL_LIBS) $(POSTGRE_LIBS) $(ZLIB) $(COMPATLIB) $(SSLLIB) $(ACE_LIBS)
+trinity_realm_LDFLAGS = $(MYSQL_LIBS) $(POSTGRE_LIBS) $(ZLIB) $(COMPATLIB) $(SSLLIB) $(TRINI_LIBS)
 
 ## Additional files to install
 sysconf_DATA = \
@@ -64,6 +65,5 @@ install-data-hook:
 	done
 
 ## Additional files to include when running 'make dist'
-#  Include realm list daemon configuration
-# EXTRA_DIST =  
+EXTRA_DIST =  trinityrealm.conf.dist
 

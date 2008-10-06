@@ -20,6 +20,7 @@ noinst_LIBRARIES = libvmaps.a
 
 ## Preprocessor flags
 libvmaps_a_CPPFLAGS = \
+$(TRINI_INCLUDES) \
 -I$(top_srcdir)/dep/include \
 -I$(top_srcdir)/dep/include/g3dlite
 

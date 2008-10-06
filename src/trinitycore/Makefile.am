@@ -23,6 +23,7 @@ bin_PROGRAMS = trinity-core
 trinity_core_CPPFLAGS = \
 $(MYSQL_INCLUDES) \
 $(POSTGRE_INCLUDES) \
+$(TRINI_INCLUDES) \
 -I$(top_srcdir)/dep/include \
 -I$(top_srcdir)/src/shared \
 -I$(top_srcdir)/src/framework \
@@ -58,11 +59,14 @@ trinity_core_LDADD += $(top_builddir)/src/bindings/interface/libtrinityscript.la
 endif
 
 ## Linker flags
-trinity_core_LDFLAGS = $(MYSQL_LIBS) $(POSTGRE_LIBS) $(ZLIB) $(COMPATLIB) $(SSLLIB) $(ACE_LIBS) -export-dynamic
+trinity_core_LDFLAGS = $(MYSQL_LIBS) $(POSTGRE_LIBS) $(ZLIB) $(COMPATLIB) $(SSLLIB) $(TRINI_LIBS) -export-dynamic
 
 ## Additional files to install
 sysconf_DATA = \
 	trinitycore.conf.dist
+
+EXTRA_DIST =  \
+        trinitycore.conf.dist
 
 ## Prevend overwrite of the config file, if its already installed
 install-data-hook:

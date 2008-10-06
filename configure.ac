@@ -18,7 +18,7 @@ AC_CONFIG_SRCDIR([src/shared/Base.cpp])
 ## Prelude, basic settings for Automake
 #  Turn on all warnings and error messages, and enforce GNU
 #  standards for the package.
-AM_INIT_AUTOMAKE([-Wall -Werror gnu])
+AM_INIT_AUTOMAKE([-Wall -Werror gnu tar-pax])
 AM_MAINTAINER_MODE
 
 ## Prevent the configure script from continuing any further if
@@ -258,10 +258,10 @@ else
 fi
 
 if test X$tri_need_to_build_ace = Xyes; then
-   CXXFLAGS="-I\$(top_srcdir)/dep/ACE_wrappers -I\$(top_builddir)/dep/ACE_wrappers $CXXFLAGS"
-   ACE_LIBS="\$(top_builddir)/dep/ACE_wrappers/ace/libACE.la"
+   TRINI_INCLUDES="-I\$(top_srcdir)/dep/ACE_wrappers -I\$(top_builddir)/dep/ACE_wrappers $TRINI_INCLUDES"
+   TRINI_LIBS="\$(top_builddir)/dep/ACE_wrappers/ace/libACE.la $TRINI_LIBS"
 else
-   ACE_LIBS="-lACE"
+   TRINI_LIBS="-lACE $TRINI_LIBS"
 fi
 
 AM_CONDITIONAL([TRI_BUILD_ACE], [test X$tri_need_to_build_ace = Xyes])
@@ -278,7 +278,8 @@ AC_SUBST(DOXYGEN)
 AC_SUBST(MANGOSD_DEBUG_INFO)
 AC_SUBST(MANGOSD_ENABLE_CLI)
 AC_SUBST(MANGOSD_ENABLE_RA)
-AC_SUBST(ACE_LIBS)
+AC_SUBST(TRINI_INCLUDES)
+AC_SUBST(TRINI_LIBS)
 
 ## Set output files.
 AC_CONFIG_HEADERS([config.h])

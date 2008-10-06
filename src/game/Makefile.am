@@ -29,6 +29,7 @@ noinst_LIBRARIES = libgame.a
 libgame_a_CPPFLAGS = \
 $(MYSQL_INCLUDES) \
 $(POSTGRE_INCLUDES) \
+$(TRINI_INCLUDES) \
 -I$(top_srcdir)/dep/include \
 -I$(top_srcdir)/src/framework \
 -I$(top_srcdir)/src/shared \

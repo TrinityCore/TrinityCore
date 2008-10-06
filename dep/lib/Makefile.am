@@ -40,11 +40,12 @@ EXTRA_DIST += \
 	x64_Debug/libeay32.dll   \
 	x64_Debug/libeay32.lib   \
 	x64_Debug/libmySQL.dll   \
-	x64_Debug/libmySQL.lib
+	x64_Debug/libmysql.lib
 
 # Release libraries for Win64 builds.
 EXTRA_DIST += \
 	x64_release/libeay32.dll   \
 	x64_release/libeay32.lib   \
 	x64_release/libmySQL.dll   \
-	x64_release/libmySQL.lib
+	x64_release/libmysql.lib
+
