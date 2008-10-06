@@ -18,20 +18,21 @@ AC_CONFIG_SRCDIR([src/shared/Base.cpp])
 ## Prelude, basic settings for Automake
 #  Turn on all warnings and error messages, and enforce GNU
 #  standards for the package.
-AM_INIT_AUTOMAKE([-Wall -Werror])
+AM_INIT_AUTOMAKE([-Wall -Werror gnu])
 AM_MAINTAINER_MODE
 
 ## Prevent the configure script from continuing any further if
 # configuration is being performed in the top-level directory.
 # The idea is to prevent this ,because some maintainers tend 
-# to break "off src dir" builds.
+# to break parallel build trees (a.k.a. VPATH builds).
 if test "$srcdir" = "." && test "$enable_maintainer_mode" != "yes"; then
   AC_MSG_ERROR(
      [
       Please configure and build in a directory other than the
       top-level source directory. This is needed because a lot
-      of maintainers tend to break "off src dir" builds. This
-      is kinda real ensurance they wont do it. 
+      of maintainers tend to break parallel build trees 
+      (a.k.a. VPATH builds). This is kinda real ensurance they 
+      will not do it (by enforcing everybody to do VPATH builds).
 
       For example, try the following from the top-level source
       directory:
@@ -44,8 +45,8 @@ if test "$srcdir" = "." && test "$enable_maintainer_mode" != "yes"; then
       This will create a build space in the directory `objdir' and
       start a build in that directory.
 
-      If however you realy want to build in src dir,
-      then use --enable-maintainer-mode switch.
+      If however you realy want to disable this error,
+      use --enable-maintainer-mode switch.
      ])
 fi
 
