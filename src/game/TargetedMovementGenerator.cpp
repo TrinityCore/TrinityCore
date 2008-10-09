@@ -47,7 +47,7 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
     if( !i_target.isValid() || !&owner )
         return;
 
-    if( owner.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNDED | UNIT_STAT_DISTRACTED) )
+    if( owner.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED) )
         return;
 
     // prevent redundant micro-movement for pets, other followers.
@@ -127,7 +127,7 @@ TargetedMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
     if( !&owner || !owner.isAlive())
         return true;
 
-    if( owner.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNDED | UNIT_STAT_FLEEING | UNIT_STAT_DISTRACTED) )
+    if( owner.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_FLEEING | UNIT_STAT_DISTRACTED) )
         return true;
 
     // prevent movement while casting spells with cast time or channel time

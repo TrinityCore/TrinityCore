@@ -25,6 +25,7 @@
 #include "ArenaTeam.h"
 #include "World.h"
 #include "SocialMgr.h"
+#include "Language.h"
 
 void WorldSession::HandleInspectArenaStatsOpcode(WorldPacket & recv_data)
 {
@@ -117,7 +118,7 @@ void WorldSession::HandleArenaTeamAddMemberOpcode(WorldPacket & recv_data)
     {
         //SendArenaTeamCommandResult(ARENA_TEAM_INVITE_SS,"",Invitedname,ARENA_TEAM_PLAYER_NOT_FOUND_S);
                                                             // can't find related opcode
-        SendNotification("%s is not high enough level to join your team", player->GetName());
+        SendNotification(LANG_HIS_ARENA_LEVEL_REQ_ERROR, player->GetName());
         return;
     }
 
@@ -154,7 +155,7 @@ void WorldSession::HandleArenaTeamAddMemberOpcode(WorldPacket & recv_data)
     {
         // should send an "arena team is full" or the likes message, I just don't know the proper values so... ERR_INTERNAL
 //        SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", "", ERR_ARENA_TEAM_INTERNAL);
-        SendNotification("Your arena team is full, %s cannot join it.", player->GetName());
+        SendNotification(LANG_YOUR_ARENA_TEAM_FULL, player->GetName());
         return;
     }
 

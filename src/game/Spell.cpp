@@ -986,7 +986,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
 
                 if( !(m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_NO_INITIAL_AGGRO) )
                 {
-                    if(!unit->IsStandState() && !unit->hasUnitState(UNIT_STAT_STUNDED))
+                    if(!unit->IsStandState() && !unit->hasUnitState(UNIT_STAT_STUNNED))
                         unit->SetStandState(PLAYER_STATE_NONE);
 
                     if(!unit->isInCombat() && unit->GetTypeId() != TYPEID_PLAYER && ((Creature*)unit)->AI())
@@ -2407,7 +2407,7 @@ void Spell::update(uint32 difftime)
                         cancel();
 
                     // check for incapacitating player states
-                    if( m_caster->hasUnitState(UNIT_STAT_STUNDED | UNIT_STAT_CONFUSED))
+                    if( m_caster->hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_CONFUSED))
                         cancel();
 
                     // check if player has turned if flag is set

@@ -353,6 +353,7 @@ ChatCommand * ChatHandler::getCommandTable()
 
     static ChatCommand gmCommandTable[] =
     {
+        { "chat",           SEC_MODERATOR,      &ChatHandler::HandleGMChatCommand,              "", NULL },
         { "list",           SEC_PLAYER,         &ChatHandler::HandleGMListCommand,              "", NULL },
         { "visible",        SEC_MODERATOR,      &ChatHandler::HandleVisibleCommand,             "", NULL },
         { "fly",            SEC_ADMINISTRATOR,  &ChatHandler::HandleFlyModeCommand,             "", NULL },
@@ -507,18 +508,29 @@ const char *ChatHandler::GetMangosString(int32 entry)
     return m_session->GetMangosString(entry);
 }
 
-bool ChatHandler::hasStringAbbr(const char* s1, const char* s2)
+bool ChatHandler::hasStringAbbr(const char* name, const char* part)
 {
-    for(;;)
+    // non "" command
+    if( *name )
     {
-        if( !*s2 )
-            return true;
-        else if( !*s1 )
+        // "" part from non-"" command
+        if( !*part )
             return false;
-        else if( tolower( *s1 ) != tolower( *s2 ) )
-            return false;
-        ++s1; ++s2;
+
+        for(;;)
+        {
+            if( !*part )
+                return true;
+            else if( !*name )
+                return false;
+            else if( tolower( *name ) != tolower( *part ) )
+                return false;
+            ++name; ++part;
+        }
     }
+    // allow with any for ""
+
+    return true;
 }
 
 void ChatHandler::SendSysMessage(const char *str)
@@ -594,13 +606,9 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand *table, const char* text, st
 
     while (*text == ' ') ++text;
 
-    if(!cmd.length())
-        return false;
-
     for(uint32 i = 0; table[i].Name != NULL; i++)
     {
-        // allow pass "" command name in table
-        if(strlen(table[i].Name) && !hasStringAbbr(table[i].Name, cmd.c_str()))
+        if( !hasStringAbbr(table[i].Name, cmd.c_str()) )
             continue;
 
         // select subcommand from child commands list
@@ -688,8 +696,7 @@ bool ChatHandler::ShowHelpForSubCommands(ChatCommand *table, char const* cmd, ch
         if(m_session->GetSecurity() < table[i].SecurityLevel)
             continue;
 
-        if(strlen(table[i].Name) && !hasStringAbbr(table[i].Name, subcmd))
-            continue;
+        if( !hasStringAbbr(table[i].Name, subcmd) )
 
         (list += "\n    ") += table[i].Name;
     }
@@ -717,7 +724,7 @@ bool ChatHandler::ShowHelpForCommand(ChatCommand *table, const char* cmd)
             if(m_session->GetSecurity() < table[i].SecurityLevel)
                 continue;
 
-            if(strlen(table[i].Name) && !hasStringAbbr(table[i].Name, cmd))
+            if( !hasStringAbbr(table[i].Name, cmd) )
                 continue;
 
             // have subcommand

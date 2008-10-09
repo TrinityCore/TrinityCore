@@ -265,8 +265,8 @@ Player::Player (WorldSession *session): Unit()
     if(GetSession()->GetSecurity() >= SEC_GAMEMASTER)
         SetAcceptTicket(true);
 
-    // players always and GM if set in config accept whispers by default
-    if(GetSession()->GetSecurity() == SEC_PLAYER || sWorld.getConfig(CONFIG_GM_WISPERING_TO))
+    // players always accept 
+    if(GetSession()->GetSecurity() == SEC_PLAYER)
         SetAcceptWhispers(true);
 
     m_curSelection = 0;
@@ -1415,7 +1415,7 @@ uint8 Player::chatTag() const
     // 0x4 - gm
     // 0x2 - dnd
     // 0x1 - afk
-    if(isGameMaster())
+    if(isGMChat())
         return 4;
     else if(isDND())
         return 3;
@@ -1555,10 +1555,13 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             }
         }
 
-        SetSemaphoreTeleport(false);
-
         if(!GetSession()->PlayerLogout())
+        {
+            // don't reset teleport semaphore while logging out, otherwise m_teleport_dest won't be used in Player::SaveToDB
+            SetSemaphoreTeleport(false);
+
             UpdateZone(GetZoneId());
+        }
 
         // new zone
         if(old_zone != GetZoneId())
@@ -9322,6 +9325,11 @@ uint8 Player::CanEquipItem( uint8 slot, uint16 &dest, Item *pItem, bool swap, bo
         ItemPrototype const *pProto = pItem->GetProto();
         if( pProto )
         {
+            // May be here should be more stronger checks; STUNNED checked
+            // ROOT, CONFUSED, DISTRACTED, FLEEING this needs to be checked.
+            if (not_loading && hasUnitState(UNIT_STAT_STUNNED))
+                return EQUIP_ERR_YOU_ARE_STUNNED;
+
             if(pItem->IsBindedNotWith(GetGUID()))
                 return EQUIP_ERR_DONT_OWN_THAT_ITEM;
 
@@ -9345,6 +9353,9 @@ uint8 Player::CanEquipItem( uint8 slot, uint16 &dest, Item *pItem, bool swap, bo
 
             if(isInCombat()&& pProto->Class == ITEM_CLASS_WEAPON && m_weaponChangeTimer != 0)
                 return EQUIP_ERR_CANT_DO_RIGHT_NOW;         // maybe exist better err
+
+            if(IsNonMeleeSpellCasted(false))
+                return EQUIP_ERR_CANT_DO_RIGHT_NOW;
 
             uint8 eslot = FindEquipSlot( pProto, slot, swap );
             if( eslot == NULL_SLOT )
@@ -13798,16 +13809,45 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     {
         switch(sWorld.getConfig(CONFIG_GM_LOGIN_STATE))
         {
-            case 0:                                         // disable
-                break;
-            case 1:                                         // enable
-                SetGameMaster(true);
-                break;
+            default:
+            case 0:                      break;             // disable
+            case 1: SetGameMaster(true); break;             // enable
             case 2:                                         // save state
-                if(gmstate)
+                if(gmstate & PLAYER_EXTRA_GM_ON)
                     SetGameMaster(true);
                 break;
+        }
+
+        switch(sWorld.getConfig(CONFIG_GM_ACCEPT_TICKETS))
+        {
             default:
+            case 0:                        break;           // disable
+            case 1: SetAcceptTicket(true); break;           // enable
+            case 2:                                         // save state
+            if(gmstate & PLAYER_EXTRA_GM_ACCEPT_TICKETS)
+                SetAcceptTicket(true);
+            break;
+        }
+
+        switch(sWorld.getConfig(CONFIG_GM_CHAT))
+        {
+            default:
+            case 0:                  break;                 // disable
+            case 1: SetGMChat(true); break;                 // enable
+            case 2:                                         // save state
+                if(gmstate & PLAYER_EXTRA_GM_CHAT)
+                    SetGMChat(true);
+                break;
+        }
+
+        switch(sWorld.getConfig(CONFIG_GM_WISPERING_TO))
+        {
+            default:
+            case 0:                          break;         // disable
+            case 1: SetAcceptWhispers(true); break;         // enable
+            case 2:                                         // save state
+                if(gmstate & PLAYER_EXTRA_ACCEPT_WHISPERS)
+                    SetAcceptWhispers(true);
                 break;
         }
     }
@@ -14877,7 +14917,7 @@ void Player::SaveToDB()
         ss << "0";
 
     ss << ", ";
-    ss << (isGameMaster()? 1 : 0);
+    ss << m_ExtraFlags;
 
     ss << ", ";
     ss << uint32(m_stableSlots);                            // to prevent save uint8 as char
@@ -16387,12 +16427,14 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
         return false;
     }
 
-    VendorItem const* crItem = vItems->FindItem(item);
-    if(!crItem)
+    size_t vendor_slot = vItems->FindItemSlot(item);
+    if(vendor_slot >= vItems->GetItemCount())
     {
         SendBuyError( BUY_ERR_CANT_FIND_ITEM, pCreature, item, 0);
         return false;
     }
+
+    VendorItem const* crItem = vItems->m_items[vendor_slot];
 
     // check current item amount if it limited
     if( crItem->maxcount != 0 )
@@ -16520,7 +16562,7 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
 
             WorldPacket data(SMSG_BUY_ITEM, (8+4+4+4));
             data << pCreature->GetGUID();
-            data << (uint32)crItem->item;
+            data << (uint32)(vendor_slot+1);                // numbered from 1 at client
             data << (uint32)(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
             data << (uint32)count;
             GetSession()->SendPacket(&data);
@@ -16559,7 +16601,7 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
 
             WorldPacket data(SMSG_BUY_ITEM, (8+4+4+4));
             data << pCreature->GetGUID();
-            data << (uint32)crItem->item;
+            data << (uint32)(vendor_slot+1);                // numbered from 1 at client
             data << (uint32)(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
             data << (uint32)count;
             GetSession()->SendPacket(&data);

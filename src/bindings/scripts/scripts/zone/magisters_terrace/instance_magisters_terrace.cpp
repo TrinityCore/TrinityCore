@@ -16,7 +16,7 @@
 
 /* ScriptData
 SDName: Instance_Magisters_Terrace
-SD%Complete: 100
+SD%Complete: 60
 SDComment:  Designed only for Selin Fireheart
 SDCategory: Magister's Terrace
 EndScriptData */
@@ -118,15 +118,24 @@ struct MANGOS_DLL_DECL instance_magisters_terrace : public ScriptedInstance
     {
         switch(entry)
         {
-            case 24723:
-                SelinGUID = creature->GetGUID();
-                break;
-            case 24560:
-                DelrissaGUID = creature->GetGUID();
-                break;
-            case 24722:
-                FelCrystals.push_back(creature->GetGUID());
-                break;
+            case 24723: SelinGUID = creature->GetGUID(); break;
+            case 24560: DelrissaGUID = creature->GetGUID(); break;
+            case 24722: FelCrystals.push_back(creature->GetGUID()); break;
+        }
+    }
+
+    void OnObjectCreate(GameObject* go)
+    {
+        switch(go->GetEntry())
+        {
+            case 187896:  VexallusDoorGUID = go->GetGUID();       break;
+            //SunwellRaid Gate 02
+            case 187979:  SelinDoorGUID = go->GetGUID();          break;
+            //Assembly Chamber Door
+            case 188065:  SelinEncounterDoorGUID = go->GetGUID(); break;
+            case 187770:  DelrissaDoorGUID = go->GetGUID();       break;
+            case 188165:  KaelStatue[0] = go->GetGUID();          break;
+            case 188166:  KaelStatue[1] = go->GetGUID();          break;
         }
     }
 
@@ -163,19 +172,6 @@ struct MANGOS_DLL_DECL instance_magisters_terrace : public ScriptedInstance
             }
         }
         return 0;
-    }
-
-    void OnObjectCreate(GameObject* go)
-    {
-        switch(go->GetEntry())
-        {
-            case 187896:  VexallusDoorGUID = go->GetGUID();       break;
-            case 187979:  SelinDoorGUID = go->GetGUID();          break;
-            case 188118:  SelinEncounterDoorGUID = go->GetGUID(); break;
-            case 187770:  DelrissaDoorGUID = go->GetGUID();       break;
-            case 188165:  KaelStatue[0] = go->GetGUID();          break;
-            case 188166:  KaelStatue[1] = go->GetGUID();          break;
-        }
     }
 };
 

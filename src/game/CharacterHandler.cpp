@@ -36,6 +36,7 @@
 #include "PlayerDump.h"
 #include "SocialMgr.h"
 #include "Util.h"
+#include "Language.h"
 
 class LoginQueryHolder : public SqlQueryHolder
 {
@@ -718,13 +719,13 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
     if(pCurrChar->HasAtLoginFlag(AT_LOGIN_RESET_SPELLS))
     {
         pCurrChar->resetSpells();
-        SendNotification("Spells has been reset.");
+        SendNotification(LANG_RESET_SPELLS);
     }
 
     if(pCurrChar->HasAtLoginFlag(AT_LOGIN_RESET_TALENTS))
     {
         pCurrChar->resetTalents(true);
-        SendNotification("Talents has been reset.");
+        SendNotification(LANG_RESET_TALENTS);
     }
 
     // show time before shutdown if shutdown planned.
@@ -732,7 +733,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
         sWorld.ShutdownMsg(true,pCurrChar);
 
     if(pCurrChar->isGameMaster())
-        SendNotification("GM mode is ON");
+        SendNotification(LANG_GM_ON);
 
     std::string IP_str = GetRemoteAddress();
     sLog.outChar("Account: %d (IP: %s) Login Character:[%s] (guid:%u)",GetAccountId(),IP_str.c_str(),pCurrChar->GetName() ,pCurrChar->GetGUID());

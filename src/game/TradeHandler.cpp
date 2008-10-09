@@ -26,6 +26,7 @@
 #include "Player.h"
 #include "Item.h"
 #include "SocialMgr.h"
+#include "Language.h"
 
 enum TradeStatus
 {
@@ -255,7 +256,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
     // not accept case incorrect money amount
     if( _player->tradeGold > _player->GetMoney() )
     {
-        SendNotification( "You do not have enough gold" );
+        SendNotification(LANG_NOT_ENOUGH_GOLD);
         _player->pTrader->GetSession()->SendTradeStatus(TRADE_STATUS_BACK_TO_TRADE);
         _player->acceptTrade = false;
         return;
@@ -264,7 +265,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
     // not accept case incorrect money amount
     if( _player->pTrader->tradeGold > _player->pTrader->GetMoney() )
     {
-        _player->pTrader->GetSession( )->SendNotification( "You do not have enough gold" );
+        _player->pTrader->GetSession( )->SendNotification(LANG_NOT_ENOUGH_GOLD);
         SendTradeStatus(TRADE_STATUS_BACK_TO_TRADE);
         _player->pTrader->acceptTrade = false;
         return;
@@ -338,16 +339,16 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
         // in case of missing space report error
         if(!myCanCompleteTrade)
         {
-            SendNotification("You do not have enough free slots");
-            GetPlayer( )->pTrader->GetSession( )->SendNotification("Your partner does not have enough free bag slots");
+            SendNotification(LANG_NOT_FREE_TRADE_SLOTS);
+            GetPlayer( )->pTrader->GetSession( )->SendNotification(LANG_NOT_PARTNER_FREE_TRADE_SLOTS);
             SendTradeStatus(TRADE_STATUS_BACK_TO_TRADE);
             _player->pTrader->GetSession()->SendTradeStatus(TRADE_STATUS_BACK_TO_TRADE);
             return;
         }
         else if (!hisCanCompleteTrade)
         {
-            SendNotification("Your partner does not have enough free bag slots");
-            GetPlayer()->pTrader->GetSession()->SendNotification("You do not have enough free slots");
+            SendNotification(LANG_NOT_PARTNER_FREE_TRADE_SLOTS);
+            GetPlayer()->pTrader->GetSession()->SendNotification(LANG_NOT_FREE_TRADE_SLOTS);
             SendTradeStatus(TRADE_STATUS_BACK_TO_TRADE);
             _player->pTrader->GetSession()->SendTradeStatus(TRADE_STATUS_BACK_TO_TRADE);
             return;
@@ -461,7 +462,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if( GetPlayer()->hasUnitState(UNIT_STAT_STUNDED) )
+    if( GetPlayer()->hasUnitState(UNIT_STAT_STUNNED) )
     {
         SendTradeStatus(TRADE_STATUS_YOU_STUNNED);
         return;
@@ -507,7 +508,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if( pOther->hasUnitState(UNIT_STAT_STUNDED) )
+    if( pOther->hasUnitState(UNIT_STAT_STUNNED) )
     {
         SendTradeStatus(TRADE_STATUS_TARGET_STUNNED);
         return;

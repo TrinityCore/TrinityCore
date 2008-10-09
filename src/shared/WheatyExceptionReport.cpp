@@ -8,6 +8,7 @@
 #pragma warning(disable:4312)
 #pragma warning(disable:4311)
 #include <windows.h>
+#include <tlhelp32.h>
 #include <stdio.h>
 #include <tchar.h>
 #define _NO_CVCONST_H
@@ -327,6 +328,54 @@ void WheatyExceptionReport::PrintSystemInfo()
 }
 
 //===========================================================================
+void WheatyExceptionReport::printTracesForAllThreads()
+{
+  HANDLE hThreadSnap = INVALID_HANDLE_VALUE; 
+  THREADENTRY32 te32; 
+ 
+  DWORD dwOwnerPID = GetCurrentProcessId();
+  m_hProcess = GetCurrentProcess();
+  // Take a snapshot of all running threads  
+  hThreadSnap = CreateToolhelp32Snapshot( TH32CS_SNAPTHREAD, 0 ); 
+  if( hThreadSnap == INVALID_HANDLE_VALUE ) 
+    return; 
+ 
+  // Fill in the size of the structure before using it. 
+  te32.dwSize = sizeof(THREADENTRY32 ); 
+ 
+  // Retrieve information about the first thread,
+  // and exit if unsuccessful
+  if( !Thread32First( hThreadSnap, &te32 ) ) 
+  {
+    CloseHandle( hThreadSnap );    // Must clean up the
+                                   //   snapshot object!
+    return;
+  }
+
+  // Now walk the thread list of the system,
+  // and display information about each thread
+  // associated with the specified process
+  do 
+  { 
+    if( te32.th32OwnerProcessID == dwOwnerPID )
+    {
+        CONTEXT context;
+        context.ContextFlags = 0xffffffff;
+        HANDLE threadHandle = OpenThread(THREAD_GET_CONTEXT | THREAD_QUERY_INFORMATION,false, te32.th32ThreadID);
+        if(threadHandle && GetThreadContext(threadHandle, &context))
+        {
+            WriteStackDetails( &context, false, threadHandle );
+        }
+        CloseHandle(threadHandle);
+    }
+  } while( Thread32Next(hThreadSnap, &te32 ) ); 
+
+//  Don't forget to clean up the snapshot object.
+  CloseHandle( hThreadSnap );
+}
+
+
+//===========================================================================
 // Open the report file, and write the desired information to it.  Called by
 // WheatyUnhandledExceptionFilter
 //===========================================================================
@@ -411,7 +460,8 @@ PEXCEPTION_POINTERS pExceptionInfo )
 
     CONTEXT trashableContext = *pCtx;
 
-    WriteStackDetails( &trashableContext, false );
+    WriteStackDetails( &trashableContext, false, NULL );
+    printTracesForAllThreads();
 
 //    #ifdef _M_IX86                                          // X86 Only!
 
@@ -419,7 +469,7 @@ PEXCEPTION_POINTERS pExceptionInfo )
     _tprintf( _T("Local Variables And Parameters\r\n") );
 
     trashableContext = *pCtx;
-    WriteStackDetails( &trashableContext, true );
+    WriteStackDetails( &trashableContext, true, NULL );
 
     _tprintf( _T("========================\r\n") );
     _tprintf( _T("Global Variables\r\n") );
@@ -551,7 +601,7 @@ struct CSymbolInfoPackage : public SYMBOL_INFO_PACKAGE
 //============================================================
 void WheatyExceptionReport::WriteStackDetails(
 PCONTEXT pContext,
-bool bWriteVariables )                                      // true if local/params should be output
+bool bWriteVariables, HANDLE pThreadHandle)                                      // true if local/params should be output
 {
     _tprintf( _T("\r\nCall stack:\r\n") );
 
@@ -591,7 +641,7 @@ bool bWriteVariables )                                      // true if local/par
         // Get the next stack frame
         if ( ! StackWalk64(  dwMachineType,
             m_hProcess,
-            GetCurrentThread(),
+            pThreadHandle != NULL ? pThreadHandle : GetCurrentThread(),
             &sf,
             pContext,
             0,

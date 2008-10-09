@@ -52,8 +52,8 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_SYS_DEFAULT
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,3,6731,680
- PRODUCTVERSION 0,3,6731,680
+ FILEVERSION 0,4,6743,685
+ PRODUCTVERSION 0,4,6743,685
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -69,12 +69,12 @@ BEGIN
         BLOCK "080004b0"
         BEGIN
             VALUE "FileDescription", "TrinityRealm"
-            VALUE "FileVersion", "0, 3, 6731, 680"
+            VALUE "FileVersion", "0, 4, 6743, 685"
             VALUE "InternalName", "TrinityRealm"
             VALUE "LegalCopyright", "Copyright (C) 2008"
             VALUE "OriginalFilename", "TrinityRealm.exe"
             VALUE "ProductName", "TrinityRealm"
-            VALUE "ProductVersion", "0, 3, 6731, 680"
+            VALUE "ProductVersion", "0, 4, 6743, 685"
         END
     END
     BLOCK "VarFileInfo"

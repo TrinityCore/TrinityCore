@@ -30,6 +30,7 @@
 #include "CreatureAI.h"
 #include "Util.h"
 #include "Pet.h"
+#include "Language.h"
 
 void WorldSession::HandlePetAction( WorldPacket & recv_data )
 {
@@ -395,7 +396,7 @@ void WorldSession::HandlePetRename( WorldPacket & recv_data )
 
     if((!ObjectMgr::IsValidPetName(name)) || (objmgr.IsReservedName(name)))
     {
-        SendNotification("Invalid name");
+        SendNotification(LANG_PET_INVALID_NAME);
         return;
     }
     pet->SetName(name);
@@ -415,7 +416,7 @@ void WorldSession::HandlePetRename( WorldPacket & recv_data )
         Utf8toWStr(name,wname);
         if(!ObjectMgr::CheckDeclinedNames(GetMainPartOfName(wname,0),declinedname))
         {
-            SendNotification("Invalid name");
+            SendNotification(LANG_PET_INVALID_NAME);
             return;
         }
     }

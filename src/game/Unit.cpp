@@ -470,7 +470,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         if(pVictim != this)
             RemoveSpellsCausingAura(SPELL_AURA_MOD_INVISIBILITY);
 
-        if(pVictim->GetTypeId() == TYPEID_PLAYER && !pVictim->IsStandState() && !pVictim->hasUnitState(UNIT_STAT_STUNDED))
+        if(pVictim->GetTypeId() == TYPEID_PLAYER && !pVictim->IsStandState() && !pVictim->hasUnitState(UNIT_STAT_STUNNED))
             pVictim->SetStandState(PLAYER_STATE_NONE);
     }
 
@@ -2149,7 +2149,7 @@ void Unit::DoAttackDamage (Unit *pVictim, uint32 *damage, CleanDamage *cleanDama
 
 void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool extra )
 {
-    if(hasUnitState(UNIT_STAT_CONFUSED | UNIT_STAT_STUNDED | UNIT_STAT_FLEEING) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED) )
+    if(hasUnitState(UNIT_STAT_CONFUSED | UNIT_STAT_STUNNED | UNIT_STAT_FLEEING) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED) )
         return;
 
     if (!pVictim->isAlive())
@@ -2961,7 +2961,7 @@ uint32 Unit::GetDefenseSkillValue(Unit const* target) const
 
 float Unit::GetUnitDodgeChance() const
 {
-    if(hasUnitState(UNIT_STAT_STUNDED))
+    if(hasUnitState(UNIT_STAT_STUNNED))
         return 0.0f;
     if( GetTypeId() == TYPEID_PLAYER )
         return GetFloatValue(PLAYER_DODGE_PERCENTAGE);
@@ -2980,7 +2980,7 @@ float Unit::GetUnitDodgeChance() const
 
 float Unit::GetUnitParryChance() const
 {
-    if ( IsNonMeleeSpellCasted(false) || hasUnitState(UNIT_STAT_STUNDED))
+    if ( IsNonMeleeSpellCasted(false) || hasUnitState(UNIT_STAT_STUNNED))
         return 0.0f;
 
     float chance = 0.0f;
@@ -3012,7 +3012,7 @@ float Unit::GetUnitParryChance() const
 
 float Unit::GetUnitBlockChance() const
 {
-    if ( IsNonMeleeSpellCasted(false) || hasUnitState(UNIT_STAT_STUNDED))
+    if ( IsNonMeleeSpellCasted(false) || hasUnitState(UNIT_STAT_STUNNED))
         return 0.0f;
 
     if(GetTypeId() == TYPEID_PLAYER)
@@ -7985,7 +7985,7 @@ bool Unit::IsImmunedToSpell(SpellEntry const* spellInfo, bool useCharges)
     //FIX ME this hack: don't get feared if stunned
     if (spellInfo->Mechanic == MECHANIC_FEAR )
     {
-        if ( hasUnitState(UNIT_STAT_STUNDED) )
+        if ( hasUnitState(UNIT_STAT_STUNNED) )
             return true;
     }
 
@@ -8662,7 +8662,7 @@ bool Unit::isVisibleForOrDetect(Unit const* u, bool detect, bool inVisibleList) 
         return true;
 
     //If a mob or player is stunned he will not be able to detect stealth
-    if (u->hasUnitState(UNIT_STAT_STUNDED) && (u != this))
+    if (u->hasUnitState(UNIT_STAT_STUNNED) && (u != this))
         return false;
 
     // Creature can detect target only in aggro radius
@@ -9136,7 +9136,7 @@ bool Unit::SelectHostilTarget()
 
     if(target)
     {
-        if(!hasUnitState(UNIT_STAT_STUNDED))
+        if(!hasUnitState(UNIT_STAT_STUNNED))
             SetInFront(target);
         ((Creature*)this)->AI()->AttackStart(target);
         return true;

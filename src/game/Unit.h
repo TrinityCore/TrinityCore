@@ -346,7 +346,7 @@ enum UnitState
     UNIT_STAT_DIED            = 0x0001,
     UNIT_STAT_MELEE_ATTACKING = 0x0002,                     // player is melee attacking someone
     //UNIT_STAT_MELEE_ATTACK_BY = 0x0004,                     // player is melee attack by someone
-    UNIT_STAT_STUNDED         = 0x0008,
+    UNIT_STAT_STUNNED         = 0x0008,
     UNIT_STAT_ROAMING         = 0x0010,
     UNIT_STAT_CHASE           = 0x0020,
     UNIT_STAT_SEARCHING       = 0x0040,
@@ -756,7 +756,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         bool CanFreeMove() const
         {
             return !hasUnitState(UNIT_STAT_CONFUSED | UNIT_STAT_FLEEING | UNIT_STAT_IN_FLIGHT |
-                UNIT_STAT_ROOT | UNIT_STAT_STUNDED | UNIT_STAT_DISTRACTED ) && GetOwnerGUID()==0;
+                UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED ) && GetOwnerGUID()==0;
         }
 
         uint32 getLevel() const { return GetUInt32Value(UNIT_FIELD_LEVEL); }

@@ -16,7 +16,7 @@
 
 /* ScriptData
 SDName: Boss_Selin_Fireheart
-SD%Complete: 99
+SD%Complete: 90
 SDComment: Heroic and Normal Support. Needs further testing.
 SDCategory: Magister's Terrace
 EndScriptData */
@@ -73,7 +73,7 @@ struct MANGOS_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
             for(uint8 i = 0; i < size; ++i)
             {
                 uint64 guid = pInstance->GetData64(DATA_FEL_CRYSTAL);
-                outstring_log("Selin: Adding Fel Crystal %u to list", guid);
+                debug_log("SD2: Selin: Adding Fel Crystal %u to list", guid);
                 Crystals.push_back(guid);
             }
         }
@@ -116,9 +116,9 @@ struct MANGOS_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
             }
 
             GameObject* Door = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DATA_SELIN_ENCOUNTER_DOOR));
-            if(Door)
-                Door->SetGoState(0);                        // Close the door. Open it only in JustDied.
-
+            if( Door )
+                Door->SetGoState(0);                        // Open the big encounter door. Close it in Aggro and open it only in JustDied(and here)
+                                                            // Small door opened after event are expected to be closed by default
             // Set Inst data for encounter
             pInstance->SetData(DATA_SELIN_EVENT, NOT_STARTED);
         }else error_log(ERROR_INST_DATA);
@@ -160,10 +160,11 @@ struct MANGOS_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
                 }
             }
         }
-        if(CrystalChosen)
+        if( CrystalChosen )
         {
             DoYell(SAY_ENERGY, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_ENERGY);
+
             CrystalChosen->CastSpell(CrystalChosen, SPELL_FEL_CRYSTAL_COSMETIC, true);
 
             float x, y, z;                                  // coords that we move to, close to the crystal.
@@ -185,7 +186,7 @@ struct MANGOS_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
         {
             //Creature* pCrystal = ((Creature*)Unit::GetUnit(*m_creature, FelCrystals[i]));
             Creature* pCrystal = ((Creature*)Unit::GetUnit(*m_creature, *itr));
-            if(pCrystal && pCrystal->isAlive())
+            if( pCrystal && pCrystal->isAlive())
                 pCrystal->DealDamage(pCrystal, pCrystal->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
         }
     }
@@ -194,6 +195,13 @@ struct MANGOS_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
     {
         DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
         DoPlaySoundToSet(m_creature, SOUND_AGGRO);
+
+        if( pInstance )
+        {
+            GameObject* EncounterDoor = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DATA_SELIN_ENCOUNTER_DOOR));
+            if( EncounterDoor )
+                EncounterDoor->SetGoState(1);               //Close the encounter door, open it in JustDied/Reset
+        }
     }
 
     void KilledUnit(Unit* victim)
@@ -245,9 +253,14 @@ struct MANGOS_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
         }
 
         pInstance->SetData(DATA_SELIN_EVENT, DONE);         // Encounter complete!
+
         GameObject* EncounterDoor = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_SELIN_ENCOUNTER_DOOR));
-        if(EncounterDoor)
-            EncounterDoor->SetGoState(1);                   // Open the door
+        if( EncounterDoor )
+            EncounterDoor->SetGoState(0);                   // Open the encounter door
+
+        GameObject* ContinueDoor = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DATA_SELIN_DOOR));
+        if( ContinueDoor )
+            ContinueDoor->SetGoState(0);                    // Open the door leading further in
 
         ShatterRemainingCrystals();
     }
@@ -302,23 +315,27 @@ struct MANGOS_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
 
         }else
         {
-            if(IsDraining)
-                if(EmpowerTimer < diff)
+            if( IsDraining )
             {
-                IsDraining = false;
-                DrainingCrystal = false;
-                DoYell(SAY_EMPOWERED, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_EMPOWERED);
-                Unit* CrystalChosen = Unit::GetUnit(*m_creature, CrystalGUID);
-                if(CrystalChosen && CrystalChosen->isAlive())
-                    // Use Deal Damage to kill it, not setDeathState.
-                    CrystalChosen->DealDamage(CrystalChosen, CrystalChosen->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                if( EmpowerTimer < diff )
+                {
+                    IsDraining = false;
+                    DrainingCrystal = false;
 
-                CrystalGUID = 0;
+                    DoYell(SAY_EMPOWERED, LANG_UNIVERSAL, NULL);
+                    DoPlaySoundToSet(m_creature, SOUND_EMPOWERED);
 
-                m_creature->GetMotionMaster()->Clear();
-                m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
-            }else EmpowerTimer -= diff;
+                    Unit* CrystalChosen = Unit::GetUnit(*m_creature, CrystalGUID);
+                    if( CrystalChosen && CrystalChosen->isAlive() )
+                        // Use Deal Damage to kill it, not setDeathState.
+                        CrystalChosen->DealDamage(CrystalChosen, CrystalChosen->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+
+                    CrystalGUID = 0;
+
+                    m_creature->GetMotionMaster()->Clear();
+                    m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+                }else EmpowerTimer -= diff;
+            }
         }
 
         DoMeleeAttackIfReady();                             // No need to check if we are draining crystal here, as the spell has a stun.

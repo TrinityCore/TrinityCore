@@ -41,8 +41,8 @@ PlayerSocial::~PlayerSocial()
 
 bool PlayerSocial::AddToSocialList(uint32 friend_guid, bool ignore)
 {
-    // prevent list (client-side) overflow
-    if(m_playerSocialMap.size() >= (255-1))
+    // client limit
+    if(m_playerSocialMap.size() >= 50)
         return false;
 
     uint32 flag = SOCIAL_FLAG_FRIEND;
@@ -180,6 +180,10 @@ void SocialMgr::GetFriendInfo(Player *player, uint32 friendGUID, FriendInfo &fri
     bool allowTwoSideWhoList = sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_WHO_LIST);
     bool gmInWhoList = sWorld.getConfig(CONFIG_GM_IN_WHO_LIST) || security > SEC_PLAYER;
 
+    PlayerSocialMap::iterator itr = player->GetSocial()->m_playerSocialMap.find(friendGUID);
+    if(itr != player->GetSocial()->m_playerSocialMap.end())
+        friendInfo.Note = itr->second.Note;
+
     // PLAYER see his team only and PLAYER can't see MODERATOR, GAME MASTER, ADMINISTRATOR characters
     // MODERATOR, GAME MASTER, ADMINISTRATOR can see all
     if( pFriend && pFriend->GetName() &&
@@ -218,25 +222,23 @@ void SocialMgr::SendFriendStatus(Player *player, FriendsResult result, uint32 fr
 
     WorldPacket data;
     MakeFriendStatusPacket(result, friend_guid, &data);
+    GetFriendInfo(player, friend_guid, fi);
     switch(result)
     {
-        case FRIEND_ONLINE:
-            GetFriendInfo(player, friend_guid, fi);
-            data << uint8(fi.Status);
-            data << uint32(fi.Area);
-            data << uint32(fi.Level);
-            data << uint32(fi.Class);
-            break;
-        case FRIEND_ADDED_ONLINE:
-            GetFriendInfo(player, friend_guid, fi);
-            data << name;
-            data << uint8(fi.Status);
-            data << uint32(fi.Area);
-            data << uint32(fi.Level);
-            data << uint32(fi.Class);
-            break;
         case FRIEND_ADDED_OFFLINE:
-            data << name;
+        case FRIEND_ADDED_ONLINE:
+            data << fi.Note;
+            break;
+    }
+
+    switch(result)
+    {
+        case FRIEND_ADDED_ONLINE:
+        case FRIEND_ONLINE:
+            data << uint8(fi.Status);
+            data << uint32(fi.Area);
+            data << uint32(fi.Level);
+            data << uint32(fi.Class);
             break;
     }
 
@@ -299,8 +301,8 @@ PlayerSocial *SocialMgr::LoadFromDB(QueryResult *result, uint32 guid)
 
         social->m_playerSocialMap[friend_guid] = FriendInfo(flags, note);
 
-        // prevent list (client-side) overflow
-        if(social->m_playerSocialMap.size() >= 255)
+        // client limit
+        if(social->m_playerSocialMap.size() >= 50)
             break;
     }
     while( result->NextRow() );

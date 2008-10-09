@@ -79,8 +79,8 @@ class WheatyExceptionReport
         static LONG WINAPI WheatyUnhandledExceptionFilter(
             PEXCEPTION_POINTERS pExceptionInfo );
 
+        static void printTracesForAllThreads();
     private:
-
         // where report info is extracted and generated
         static void GenerateExceptionReport( PEXCEPTION_POINTERS pExceptionInfo );
         static void PrintSystemInfo();
@@ -92,7 +92,7 @@ class WheatyExceptionReport
         static BOOL GetLogicalAddress(  PVOID addr, PTSTR szModule, DWORD len,
             DWORD& section, DWORD_PTR& offset );
 
-        static void WriteStackDetails( PCONTEXT pContext, bool bWriteVariables );
+        static void WriteStackDetails( PCONTEXT pContext, bool bWriteVariables, HANDLE pThreadHandle);
 
         static BOOL CALLBACK EnumerateSymbolsCallback(PSYMBOL_INFO,ULONG, PVOID);
 

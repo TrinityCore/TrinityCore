@@ -69,7 +69,7 @@ class ChatHandler
         int ParseCommands(const char* text);
 
     protected:
-        bool hasStringAbbr(const char* s1, const char* s2);
+        bool hasStringAbbr(const char* name, const char* part);
         void SendGlobalSysMessage(const char *str);
 
         bool ExecuteCommandInTable(ChatCommand *table, const char* text, std::string fullcommand);
@@ -94,6 +94,7 @@ class ChatHandler
         bool HandleAnnounceCommand(const char* args);
         bool HandleNotifyCommand(const char* args);
         bool HandleGMmodeCommand(const char* args);
+        bool HandleGMChatCommand(const char* args);
         bool HandleVisibleCommand(const char* args);
         bool HandleGPSCommand(const char* args);
         bool HandleTaxiCheatCommand(const char* args);
