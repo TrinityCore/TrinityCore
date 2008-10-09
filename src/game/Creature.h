@@ -308,6 +308,7 @@ struct VendorItemData
     }
     bool RemoveItem( uint32 item_id );
     VendorItem const* FindItem(uint32 item_id) const;
+    size_t FindItemSlot(uint32 item_id) const;
 
     void Clear()
     {

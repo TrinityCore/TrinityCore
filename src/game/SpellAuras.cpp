@@ -3189,7 +3189,7 @@ void Aura::HandleAuraModStun(bool apply, bool Real)
 
     if (apply)
     {
-        m_target->addUnitState(UNIT_STAT_STUNDED);
+        m_target->addUnitState(UNIT_STAT_STUNNED);
         m_target->SetUInt64Value(UNIT_FIELD_TARGET, 0);
 
         m_target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_ROTATE);
@@ -3213,7 +3213,7 @@ void Aura::HandleAuraModStun(bool apply, bool Real)
         if(m_target->HasAuraType(SPELL_AURA_MOD_STUN))
             return;
 
-        m_target->clearUnitState(UNIT_STAT_STUNDED);
+        m_target->clearUnitState(UNIT_STAT_STUNNED);
         m_target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_ROTATE);
 
         if(!m_target->hasUnitState(UNIT_STAT_ROOT))         // prevent allow move if have also root effect
@@ -3442,7 +3442,7 @@ void Aura::HandleAuraModRoot(bool apply, bool Real)
                                                             // probably wrong
         m_target->RemoveFlag(UNIT_FIELD_FLAGS,(apply_stat<<16));
 
-        if(!m_target->hasUnitState(UNIT_STAT_STUNDED))      // prevent allow move if have also stun effect
+        if(!m_target->hasUnitState(UNIT_STAT_STUNNED))      // prevent allow move if have also stun effect
         {
             if(m_target->getVictim() && m_target->isAlive())
                 m_target->SetUInt64Value (UNIT_FIELD_TARGET,m_target->getVictim()->GetGUID() );

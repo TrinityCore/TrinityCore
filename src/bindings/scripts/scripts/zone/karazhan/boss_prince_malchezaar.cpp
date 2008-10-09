@@ -399,7 +399,7 @@ struct MANGOS_DLL_DECL boss_malchezaarAI : public ScriptedAI
             EnfeebleResetTimer=0;
         }else EnfeebleResetTimer -= diff;
 
-        if(m_creature->hasUnitState(UNIT_STAT_STUNDED))     //While shifting to phase 2 malchezaar stuns himself
+        if(m_creature->hasUnitState(UNIT_STAT_STUNNED))     //While shifting to phase 2 malchezaar stuns himself
             return;
 
         if(m_creature->GetUInt64Value(UNIT_FIELD_TARGET)!=m_creature->getVictim()->GetGUID())

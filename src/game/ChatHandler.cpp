@@ -58,7 +58,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
     LanguageDesc const* langDesc = GetLanguageDescByID(lang);
     if(!langDesc)
     {
-        SendNotification("Unknown language");
+        SendNotification(LANG_UNKNOWN_LANGUAGE);
         return;
     }
     if(langDesc->skill_id != 0 && !_player->HasSkill(langDesc->skill_id))
@@ -76,7 +76,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
         }
         if(!foundAura)
         {
-            SendNotification("You don't know that language");
+            SendNotification(LANG_NOT_LEARNED_LANGUAGE);
             return;
         }
     }

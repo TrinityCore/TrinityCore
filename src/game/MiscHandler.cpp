@@ -1426,7 +1426,7 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recv_data)
     if (GetSecurity() >= SEC_ADMINISTRATOR)
         GetPlayer()->TeleportTo(mapid,PositionX,PositionY,PositionZ,Orientation);
     else
-        SendNotification("You do not have permission to perform that function");
+        SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
     sLog.outDebug("Received worldport command from player %s", GetPlayer()->GetName());
 }
 
@@ -1435,63 +1435,57 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
     CHECK_PACKET_SIZE(recv_data, 1);
 
     sLog.outDebug("Received opcode CMSG_WHOIS");
-    std::string charname, acc, email, lastip, msg;
+    std::string charname;
     recv_data >> charname;
 
     if (GetSecurity() < SEC_ADMINISTRATOR)
     {
-        SendNotification("You do not have permission to perform that function");
+        SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
         return;
     }
 
     if(charname.empty())
     {
-        SendNotification("Please provide character name");
+        SendNotification(LANG_NEED_CHARACTER_NAME);
         return;
     }
-
-    uint32 accid;
-    Field *fields;
 
     Player *plr = objmgr.GetPlayer(charname.c_str());
 
-    if(plr)
-        accid = plr->GetSession()->GetAccountId();
-    else
+    if(!plr)
     {
-        SendNotification("Player %s not found or offline", charname.c_str());
+        SendNotification(LANG_PLAYER_NOT_EXIST_OR_OFFLINE, charname.c_str());
         return;
     }
 
-    if(!accid)
-    {
-        SendNotification("Account for character %s not found", charname.c_str());
-        return;
-    }
+    uint32 accid = plr->GetSession()->GetAccountId();
 
     QueryResult *result = loginDatabase.PQuery("SELECT username,email,last_ip FROM account WHERE id=%u", accid);
-    if(result)
+    if(!result)
     {
-        fields = result->Fetch();
-        acc = fields[0].GetCppString();
-        if(acc.empty())
-            acc = "Unknown";
-        email = fields[1].GetCppString();
-        if(email.empty())
-            email = "Unknown";
-        lastip = fields[2].GetCppString();
-        if(lastip.empty())
-            lastip = "Unknown";
-        msg = charname + "'s " + "account is " + acc + ", e-mail: " + email + ", last ip: " + lastip;
-
-        WorldPacket data(SMSG_WHOIS, msg.size()+1);
-        data << msg;
-        _player->GetSession()->SendPacket(&data);
+        SendNotification(LANG_ACCOUNT_FOR_PLAYER_NOT_FOUND, charname.c_str());
+        return;
     }
-    else
-        SendNotification("Account for character %s not found", charname.c_str());
+
+    Field *fields = result->Fetch();
+    std::string acc = fields[0].GetCppString();
+    if(acc.empty())
+        acc = "Unknown";
+    std::string email = fields[1].GetCppString();
+    if(email.empty())
+        email = "Unknown";
+    std::string lastip = fields[2].GetCppString();
+    if(lastip.empty())
+        lastip = "Unknown";
+
+    std::string msg = charname + "'s " + "account is " + acc + ", e-mail: " + email + ", last ip: " + lastip;
+
+    WorldPacket data(SMSG_WHOIS, msg.size()+1);
+    data << msg;
+    _player->GetSession()->SendPacket(&data);
 
     delete result;
+
     sLog.outDebug("Received whois command from player %s for character %s", GetPlayer()->GetName(), charname.c_str());
 }
 

@@ -87,7 +87,7 @@ struct MANGOS_DLL_DECL boss_twinemperorsAI : public ScriptedAI
         AfterTeleportTimer = 0;
         Abuse_Bug_Timer = 10000 + rand()%7000;
         BugsTimer = 2000;
-        m_creature->clearUnitState(UNIT_STAT_STUNDED);
+        m_creature->clearUnitState(UNIT_STAT_STUNNED);
         DontYellWhenDead = false;
         EnrageTimer = 15*60000;
     }
@@ -290,7 +290,7 @@ struct MANGOS_DLL_DECL boss_twinemperorsAI : public ScriptedAI
         DoStopAttack();
         DoResetThreat();
         DoCast(m_creature, SPELL_TWIN_TELEPORT_VISUAL);
-        m_creature->addUnitState(UNIT_STAT_STUNDED);
+        m_creature->addUnitState(UNIT_STAT_STUNNED);
         AfterTeleport = true;
         AfterTeleportTimer = 2000;
         tspellcasted = false;
@@ -302,9 +302,9 @@ struct MANGOS_DLL_DECL boss_twinemperorsAI : public ScriptedAI
         {
             if (!tspellcasted)
             {
-                m_creature->clearUnitState(UNIT_STAT_STUNDED);
+                m_creature->clearUnitState(UNIT_STAT_STUNNED);
                 DoCast(m_creature, SPELL_TWIN_TELEPORT);
-                m_creature->addUnitState(UNIT_STAT_STUNDED);
+                m_creature->addUnitState(UNIT_STAT_STUNNED);
             }
 
             tspellcasted = true;
@@ -312,7 +312,7 @@ struct MANGOS_DLL_DECL boss_twinemperorsAI : public ScriptedAI
             if (AfterTeleportTimer < diff)
             {
                 AfterTeleport = false;
-                m_creature->clearUnitState(UNIT_STAT_STUNDED);
+                m_creature->clearUnitState(UNIT_STAT_STUNNED);
                 Unit *nearu = PickNearestPlayer();
                 //DoYell(nearu->GetName(), LANG_UNIVERSAL, 0);
                 AttackStart(nearu);

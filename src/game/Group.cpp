@@ -623,14 +623,14 @@ void Group::CountRollVote(uint64 playerGUID, uint64 Guid, uint32 NumberOfPlayers
         break;
         case 1:                                             //player choose Need
         {
-            SendLootRoll(0, playerGUID, 1, 1, *roll);
+            SendLootRoll(0, playerGUID, 0, 0, *roll);
             ++roll->totalNeed;
             itr->second = NEED;
         }
         break;
         case 2:                                             //player choose Greed
         {
-            SendLootRoll(0, playerGUID, 2, 2, *roll);
+            SendLootRoll(0, playerGUID, 128, 2, *roll);
             ++roll->totalGreed;
             itr->second = GREED;
         }

@@ -6679,6 +6679,8 @@ void ObjectMgr::LoadTrainerSpell()
         itr->second.Clear();
     m_mCacheTrainerSpellMap.clear();
 
+    std::set<uint32> skip_trainers;
+
     QueryResult *result = WorldDatabase.PQuery("SELECT entry, spell,spellcost,reqskill,reqskillvalue,reqlevel FROM npc_trainer");
 
     if( !result )
@@ -6714,7 +6716,11 @@ void ObjectMgr::LoadTrainerSpell()
 
         if(!(cInfo->npcflag & UNIT_NPC_FLAG_TRAINER))
         {
-            sLog.outErrorDb("Table `npc_trainer` have data for not creature template (Entry: %u) without trainer flag, ignore", entry);
+            if(skip_trainers.count(entry) == 0)
+            {
+                sLog.outErrorDb("Table `npc_trainer` have data for not creature template (Entry: %u) without trainer flag, ignore", entry);
+                skip_trainers.insert(entry);
+            }
             continue;
         }
 
@@ -6764,6 +6770,8 @@ void ObjectMgr::LoadVendors()
         itr->second.Clear();
     m_mCacheVendorItemMap.clear();
 
+    std::set<uint32> skip_vendors;
+
     QueryResult *result = WorldDatabase.PQuery("SELECT entry, item, maxcount, incrtime, ExtendedCost FROM npc_vendor");
     if( !result )
     {
@@ -6790,7 +6798,7 @@ void ObjectMgr::LoadVendors()
         uint32 incrtime     = fields[3].GetUInt32();
         uint32 ExtendedCost = fields[4].GetUInt32();
 
-        if(!IsVendorItemValid(entry,item_id,maxcount,incrtime,ExtendedCost))
+        if(!IsVendorItemValid(entry,item_id,maxcount,incrtime,ExtendedCost,NULL,&skip_vendors))
             continue;
 
         VendorItemData& vList = m_mCacheVendorItemMap[entry];
@@ -6878,7 +6886,7 @@ bool ObjectMgr::RemoveVendorItem( uint32 entry,uint32 item )
     return true;
 }
 
-bool ObjectMgr::IsVendorItemValid( uint32 vendor_entry, uint32 item_id, uint32 maxcount, uint32 incrtime, uint32 ExtendedCost, Player* pl ) const
+bool ObjectMgr::IsVendorItemValid( uint32 vendor_entry, uint32 item_id, uint32 maxcount, uint32 incrtime, uint32 ExtendedCost, Player* pl, std::set<uint32>* skip_vendors ) const
 {
     CreatureInfo const* cInfo = GetCreatureTemplate(vendor_entry);
     if(!cInfo)
@@ -6892,10 +6900,16 @@ bool ObjectMgr::IsVendorItemValid( uint32 vendor_entry, uint32 item_id, uint32 m
 
     if(!(cInfo->npcflag & UNIT_NPC_FLAG_VENDOR))
     {
-        if(pl)
-            ChatHandler(pl).SendSysMessage(LANG_COMMAND_VENDORSELECTION);
-        else
-            sLog.outErrorDb("Table `npc_vendor` have data for not creature template (Entry: %u) without vendor flag, ignore", vendor_entry);
+        if(!skip_vendors || skip_vendors->count(vendor_entry)==0)
+        {
+            if(pl)
+                ChatHandler(pl).SendSysMessage(LANG_COMMAND_VENDORSELECTION);
+            else
+                sLog.outErrorDb("Table `npc_vendor` have data for not creature template (Entry: %u) without vendor flag, ignore", vendor_entry);
+
+            if(skip_vendors)
+                skip_vendors->insert(vendor_entry);
+        }
         return false;
     }
 

@@ -111,7 +111,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
         // TODO: find correct opcode
         if(_player->getLevel() < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
         {
-            SendNotification(GetMangosString(LANG_ARENA_ONE_TOOLOW), 70);
+            SendNotification(LANG_ARENA_ONE_TOOLOW, 70);
             return;
         }
 
@@ -530,7 +530,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
     if(type != 9 && _player->getLevel() < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
     {
         // player is too low level to join an arena team
-        SendNotification("You must be level %u to join an arena team!",sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL));
+        SendNotification(LANG_YOUR_ARENA_LEVEL_REQ_ERROR,sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL));
         return;
     }
 

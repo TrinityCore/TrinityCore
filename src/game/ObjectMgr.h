@@ -742,7 +742,7 @@ class ObjectMgr
         }
         void AddVendorItem(uint32 entry,uint32 item, uint32 maxcount, uint32 incrtime, uint32 ExtendedCost);
         bool RemoveVendorItem(uint32 entry,uint32 item);
-        bool IsVendorItemValid( uint32 vendor_entry, uint32 item, uint32 maxcount, uint32 ptime, uint32 ExtendedCost, Player* pl = NULL ) const;
+        bool IsVendorItemValid( uint32 vendor_entry, uint32 item, uint32 maxcount, uint32 ptime, uint32 ExtendedCost, Player* pl = NULL, std::set<uint32>* skip_vendors = NULL ) const;
     protected:
         uint32 m_auctionid;
         uint32 m_mailid;

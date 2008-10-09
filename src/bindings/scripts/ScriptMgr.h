@@ -1,6 +1,6 @@
 /* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-* This program is free software licensed under GPL version 2
-* Please see the included DOCS/LICENSE.TXT for more information */
+ * This program is free software licensed under GPL version 2
+ * Please see the included DOCS/LICENSE.TXT for more information */
 
 #ifndef SCRIPTMGR_H
 #define SCRIPTMGR_H
@@ -21,14 +21,10 @@ class Map;
 class Unit;
 class WorldObject;
 
-#define MAX_SCRIPTS     1000            //72 bytes each (approx 71kb)
+#define MAX_SCRIPTS         1000                            //72 bytes each (approx 71kb)
+#define VISIBLE_RANGE       (166.0f)                        //MAX visible range (size of grid)
+#define DEFAULT_TEXT        "<Trinity Script Text Entry Missing!>"
 
-//MAX visible range (size of grid)
-#define VISIBLE_RANGE   (166.0f)
-
-#define DEFAULT_TEXT    "<Trinity Script Text Entry Missing!>"
-
-//
 struct Script
 {
     Script() :
@@ -40,7 +36,7 @@ pGOChooseReward(NULL),pReceiveEmote(NULL),pItemUse(NULL), GetAI(NULL), GetInstan
 
 std::string Name;
 
-// -- Quest/gossip Methods to be scripted --
+// Quest/gossip Methods to be scripted
 bool (*pGossipHello         )(Player*, Creature*);
 bool (*pQuestAccept         )(Player*, Creature*, Quest const* );
 bool (*pGossipSelect        )(Player*, Creature*, uint32 , uint32  );
@@ -61,7 +57,6 @@ bool (*pItemUse             )(Player*, Item*, SpellCastTargets const& );
 
 CreatureAI* (*GetAI)(Creature*);
 InstanceData* (*GetInstanceData)(Map*);
-// -----------------------------------------
 };
 
 extern int nrscripts;
@@ -69,13 +64,12 @@ extern Script *m_scripts[MAX_SCRIPTS];
 
 // Localized Text function
 const char* GetEventAILocalizedText(uint32 entry);
-const char* GetScriptLocalizedText(uint32 entry);
 
 //EventAI text function
-const char* GetEventAIText(uint32 entry); // TODO: Locales
+const char* GetEventAIText(uint32 entry);                   // TODO: Locales
 
-// Script Text function
-void ProcessScriptText(uint32 id, WorldObject* pSource, Unit* target = NULL); // TODO: Locales
+//Generic scripting text function
+void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target = NULL);
 
 #if COMPILER == COMPILER_GNU
 #define FUNC_PTR(name,callconvention,returntype,parameters)    typedef returntype(*name)parameters __attribute__ ((callconvention));

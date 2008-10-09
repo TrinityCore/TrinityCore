@@ -79,6 +79,7 @@ class MANGOS_DLL_SPEC WorldSession
 
         void SendPacket(WorldPacket const* packet);
         void SendNotification(const char *format,...) ATTR_PRINTF(2,3);
+        void SendNotification(int32 string_id,...);
         void SendLfgResult(uint32 type, uint32 entry, uint8 lfg_type);
         void SendPartyResult(PartyOperation operation, std::string member, PartyResult res);
         void SendAreaTriggerMessage(const char* Text, ...) ATTR_PRINTF(2,3);

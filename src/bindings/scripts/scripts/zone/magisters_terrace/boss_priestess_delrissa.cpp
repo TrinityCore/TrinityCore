@@ -1002,7 +1002,7 @@ struct MANGOS_DLL_DECL boss_garaxxasAI : public boss_priestess_guestAI
                 Freezing_Trap_Timer = 30000;
             }else Freezing_Trap_Timer -= diff;
 
-            if(!m_creature->getVictim()->hasUnitState(UNIT_STAT_STUNDED | UNIT_STAT_ROOT | UNIT_STAT_CONFUSED | UNIT_STAT_DISTRACTED))
+            if(!m_creature->getVictim()->hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT | UNIT_STAT_CONFUSED | UNIT_STAT_DISTRACTED))
                 DoMeleeAttackIfReady();
         }else
         {
