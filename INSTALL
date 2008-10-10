@@ -1,0 +1,51 @@
+Installing Trinity Core is fairly simple on a Linux machine, assuming
+you have all required applications
+
+The most important ones are:
+
+	* make
+	* automake
+	* autoconf
+	* gcc
+
+After that, you can simply run these commands:
+
+	* autoreconf --install --force
+	* ./configure
+
+The configure script will tell you if you miss any libraries, and
+if so, which ones. You can then download them from your preferred
+package provider (apt-get, emerge, yum, and the alikes).
+
+When you have all required packages, be sure to properly configure
+your build of Trinity Core:
+
+	* ./configure --help
+
+That command will tell you which config options are available. For
+the most part, the following should be used:
+
+	* --enable-cli
+	* --enable-ra
+	* --with-mysql
+	* --prefix=/home/trinitycore
+	* --datadir=/home/trinitycore/dat
+	* --sysconfdir=/home/trinitycore/etc
+
+Of course, replace the paths in prefix, datadir, and sysconfdir
+with the directories you wish to install Trinity Core to. The
+datadir is where maps, DBCs, and SQLs are stored. The sysconfdir
+is where configuration files are stored.
+
+When you've configured your build, simply run:
+
+	* make
+
+And finally, to install Trinity Core:
+
+	* make install
+
+Done! Trinity Core should now be installed. Now you will need to
+apply database updates where necessary. Furthermore, you must
+configure your installation by editing the config files in the
+sysconfdir.
