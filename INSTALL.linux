@@ -37,6 +37,12 @@ with the directories you wish to install Trinity Core to. The
 datadir is where maps, DBCs, and SQLs are stored. The sysconfdir
 is where configuration files are stored.
 
+When you're ready to execute your configuration, do:
+
+	* mkdir build
+	* cd build
+	* ../configure --options --go --here
+
 When you've configured your build, simply run:
 
 	* make
