@@ -67,9 +67,21 @@ AC_PROG_INSTALL
 AM_PROG_CC_C_O
 
 # Check if enable scripts
-AC_ARG_ENABLE([scripts], AC_HELP_STRING([--enable-scripts], [Enable TrinityScripts (default: yes) ]), [], [enable_scripts=yes])
+AC_ARG_ENABLE([scripts], AC_HELP_STRING([--enable-scripts], [Enable TrinityScripts (default: check) ]), [], [enable_scripts=yes])
 
-AM_CONDITIONAL([USE_TSCRIPTS], [test X$enable_scripts = Xyes])
+AC_MSG_CHECKING(whether to build scripting module)
+if test X$enable_scripts = Xyes -a -d $srcdir/src/bindings/scripts/scripts; then
+  tri_build_scripts=yes
+  AC_MSG_RESULT(yes)
+else
+  tri_build_scripts=no
+  AC_MSG_RESULT(no)
+  if test X$enable_scripts = Xyes; then
+    AC_MSG_WARN([src/bindings/scripts/scripts folder does not exist, scripts will be disabled])
+  fi
+fi
+
+AM_CONDITIONAL([USE_TSCRIPTS], [test X$tri_build_scripts = Xyes])
 
 # Check for doxygen
 AC_ARG_ENABLE(doxygen, AC_HELP_STRING([--enable-doxygen], [turn on generating documentation]))
@@ -303,9 +315,12 @@ AC_CONFIG_FILES([
    src/trinityrealm/Makefile
    src/trinitycore/Makefile
    src/bindings/Makefile
-   src/bindings/scripts/Makefile
    src/bindings/interface/Makefile
 ])
+
+if test X$tri_build_scripts = Xyes; then
+AC_CONFIG_FILES([src/bindings/scripts/Makefile])
+fi
 
 ## Configure ACE
 if test X$tri_need_to_build_ace = Xyes; then
