@@ -153,6 +153,28 @@ enum WorldConfigs
     CONFIG_DEATH_SICKNESS_LEVEL,
     CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVP,
     CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVE,
+
+	CONFIG_PLAYER_START_HONOR,
+	CONFIG_PLAYER_START_ARENAPTS,
+	CONFIG_GM_START_LEVEL,
+	CONFIG_INSTANT_LOGOUT,
+	CONFIG_BG_START_MUSIC,
+	CONFIG_START_ALL_SPELLS,
+	CONFIG_QUEUE_FOR_GM,
+	CONFIG_HONOR_AFTER_DUEL,
+	CONFIG_KICK_FROM_GMISLAND,
+	CONFIG_START_ALL_EXPLORED,
+	CONFIG_DISABLE_BREATHING,
+	CONFIG_DISABLE_RES_SICKNESS,
+	CONFIG_START_ALL_REP,
+	CONFIG_ALWAYS_MAXSKILL,
+	CONFIG_START_ALL_TAXI,
+	CONFIG_PVP_TOKEN_ENABLE,
+	CONFIG_PVP_TOKEN_MAP_TYPE,
+	CONFIG_PVP_TOKEN_ID,
+	CONFIG_PVP_TOKEN_COUNT,
+	CONFIG_NO_RESET_TALENT_COST,
+
     CONFIG_THREAT_RADIUS,
     CONFIG_DECLINED_NAMES_USED,
     CONFIG_LISTEN_RANGE_SAY,
@@ -457,6 +479,8 @@ class World
         void ScriptCommandStart(ScriptInfo const& script, uint32 delay, Object* source, Object* target);
         bool IsScriptScheduled() const { return !m_scriptSchedule.empty(); }
 
+	static float PlayerStartGold() { return m_PlayerStartGold; }
+
         // for max speed access
         static float GetMaxVisibleDistanceForCreature() { return m_MaxVisibleDistanceForCreature; }
         static float GetMaxVisibleDistanceForPlayer()   { return m_MaxVisibleDistanceForPlayer;   }
@@ -511,6 +535,8 @@ class World
 
         uint32 m_ShutdownTimer;
         uint32 m_ShutdownMask;
+
+	static float m_PlayerStartGold;
 
         // for max speed access
         static float m_MaxVisibleDistanceForCreature;

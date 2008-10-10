@@ -25,6 +25,7 @@
 #include "ObjectMgr.h"
 #include "MapManager.h"
 #include "Language.h"
+#include "World.h"
 #include "Util.h"
 
 BattleGroundAB::BattleGroundAB()
@@ -107,7 +108,13 @@ void BattleGroundAB::Update(time_t diff)
             DoorOpen(BG_AB_OBJECT_GATE_A);
             DoorOpen(BG_AB_OBJECT_GATE_H);
 
-            PlaySoundToAll(SOUND_BG_START);
+            if(sWorld.getConfig(CONFIG_BG_START_MUSIC))
+			{
+				PlaySoundToAll(SOUND_BG_START);
+				PlaySoundToAll(SOUND_BG_START_L70ETC); //MUSIC
+			}
+			else
+				PlaySoundToAll(SOUND_BG_START);
             SetStatus(STATUS_IN_PROGRESS);
 
             for(BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
