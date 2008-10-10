@@ -10,10 +10,15 @@ similar to this one:
 
  Trinity Core is a derivation/rewrite of MaNGOS, which was originally written
  by Team Python and the WoW Daemon Team. Many people further helped Trinity Core
- by submitting bug reports, code patches, and suggestions.
+ by submitting bug reports, code patches, and suggestions. Thanks to the
+ community!
 
- Special thanks should also go out to the WowwoW team. We have gained help from
+ Special thanks should go out to the WowwoW team. We have gained help from
  them many times in the creation of this project. Keep up the good work guys.
+
+ Thanks to the ImpConfig developer (dythzer) for the custom configuration patch.
+
+ Thanks to the ScriptDev2 team (http://www.scriptdev2.com) for scripts.
 
 The easiest policy with this file is to thank everyone who contributes to the
 project, without judging the value of the contribution.

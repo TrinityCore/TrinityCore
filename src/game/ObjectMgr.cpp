@@ -2081,6 +2081,12 @@ void ObjectMgr::LoadPlayerInfo()
         //                                                0     1      2      3
         QueryResult *result = WorldDatabase.Query("SELECT race, class, Spell, Active FROM playercreateinfo_spell");
 
+	QueryResult *result = NULL;
+	if(sWorld.getConfig(CONFIG_START_ALL_SPELLS))
+		result = WorldDatabase.Query("SELECT race, class, Spell, Active FROM playercreateinfo_spell_custom");
+	else
+		result = WorldDatabase.Query("SELECT race, class, Spell, Active FROM playercreateinfo_spell");
+
         uint32 count = 0;
 
         if (!result)
@@ -2089,7 +2095,7 @@ void ObjectMgr::LoadPlayerInfo()
 
             sLog.outString();
             sLog.outString( ">> Loaded %u player create spells", count );
-            sLog.outErrorDb( "Error loading `playercreateinfo_spell` table or empty table.");
+            sLog.outErrorDb( "Error loading player starting spells or empty table.");
         }
         else
         {

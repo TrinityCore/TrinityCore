@@ -62,6 +62,7 @@ INSTANTIATE_SINGLETON_1( World );
 volatile bool World::m_stopEvent = false;
 volatile uint32 World::m_worldLoopCounter = 0;
 
+float World::m_PlayerStartGold = 0; // starting gold
 float World::m_MaxVisibleDistanceForCreature  = DEFAULT_VISIBILITY_DISTANCE;
 float World::m_MaxVisibleDistanceForPlayer    = DEFAULT_VISIBILITY_DISTANCE;
 float World::m_MaxVisibleDistanceForObject    = DEFAULT_VISIBILITY_DISTANCE;
@@ -768,6 +769,47 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_LISTEN_RANGE_TEXTEMOTE] = sConfig.GetIntDefault("ListenRange.TextEmote", 25);
     m_configs[CONFIG_LISTEN_RANGE_YELL]      = sConfig.GetIntDefault("ListenRange.Yell", 300);
 
+	m_PlayerStartGold = sConfig.GetFloatDefault("PlayerStart.Gold", 0);
+	if(m_PlayerStartGold < 0)
+		m_PlayerStartGold = 0;
+
+	if(m_PlayerStartGold > MAX_MONEY_AMOUNT)
+		m_PlayerStartGold = MAX_MONEY_AMOUNT;
+
+	m_configs[CONFIG_PLAYER_START_HONOR] = sConfig.GetIntDefault("PlayerStart.HonorPoints", 0);
+	if(m_configs[CONFIG_PLAYER_START_HONOR] < 0)
+		m_configs[CONFIG_PLAYER_START_HONOR] = 0;
+
+	m_configs[CONFIG_PLAYER_START_ARENAPTS] = sConfig.GetIntDefault("PlayerStart.ArenaPoints", 0);
+	if(m_configs[CONFIG_PLAYER_START_ARENAPTS] < 0)
+		m_configs[CONFIG_PLAYER_START_ARENAPTS] = 0;
+
+	m_configs[CONFIG_GM_START_LEVEL] = sConfig.GetIntDefault("GamemasterStartLevel", 70);
+	if(m_configs[CONFIG_GM_START_LEVEL] < 1)
+		m_configs[CONFIG_GM_START_LEVEL] = 1;
+
+	m_configs[CONFIG_INSTANT_LOGOUT] = sConfig.GetBoolDefault("PlayerInstantLogout", false);
+	m_configs[CONFIG_BG_START_MUSIC] = sConfig.GetBoolDefault("MusicInBattleground", false);
+	m_configs[CONFIG_START_ALL_SPELLS] = sConfig.GetBoolDefault("PlayerStart.AllSpells", false);
+	// Leaving GM queue option out for now, it's not 100% functional with the ACE patch
+	//m_configs[CONFIG_QUEUE_FOR_GM] = sConfig.GetBoolDefault("EnableQueueForGMs", false);
+	m_configs[CONFIG_HONOR_AFTER_DUEL] = sConfig.GetIntDefault("HonorPointsAfterDuel", 0);
+	if(m_configs[CONFIG_HONOR_AFTER_DUEL] < 0)
+		m_configs[CONFIG_HONOR_AFTER_DUEL]= 0;
+	m_configs[CONFIG_KICK_FROM_GMISLAND] = sConfig.GetBoolDefault("AntiCheat.GMIsland", false);
+	m_configs[CONFIG_START_ALL_EXPLORED] = sConfig.GetBoolDefault("PlayerStart.MapsExplored", false);
+	m_configs[CONFIG_DISABLE_BREATHING] = sConfig.GetBoolDefault("DisableWaterBreath", false);
+	m_configs[CONFIG_DISABLE_RES_SICKNESS] = sConfig.GetBoolDefault("DisableResurrectSickness", false);
+	m_configs[CONFIG_START_ALL_REP] = sConfig.GetBoolDefault("PlayerStart.AllReputation", false);
+	m_configs[CONFIG_ALWAYS_MAXSKILL] = sConfig.GetBoolDefault("AlwaysMaxWeaponSkill", false);
+	m_configs[CONFIG_START_ALL_TAXI] = sConfig.GetBoolDefault("PlayerStart.AllFlightPaths", false);
+	m_configs[CONFIG_PVP_TOKEN_ENABLE] = sConfig.GetBoolDefault("PvPToken.Enable", false);
+	m_configs[CONFIG_PVP_TOKEN_MAP_TYPE] = sConfig.GetIntDefault("PvPToken.MapAllowType", 4);
+	m_configs[CONFIG_PVP_TOKEN_ID] = sConfig.GetIntDefault("PvPToken.ItemID", 29434);
+	m_configs[CONFIG_PVP_TOKEN_COUNT] = sConfig.GetIntDefault("PvPToken.ItemCount", 1);
+	if(m_configs[CONFIG_PVP_TOKEN_COUNT] < 1)
+		m_configs[CONFIG_PVP_TOKEN_COUNT] = 1;
+	m_configs[CONFIG_NO_RESET_TALENT_COST] = sConfig.GetBoolDefault("NoResetTalentsCost", false);
 
     m_configs[CONFIG_ARENA_MAX_RATING_DIFFERENCE] = sConfig.GetIntDefault("Arena.MaxRatingDifference", 0);
     m_configs[CONFIG_ARENA_RATING_DISCARD_TIMER] = sConfig.GetIntDefault("Arena.RatingDiscardTimer",300000);

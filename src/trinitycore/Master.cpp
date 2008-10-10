@@ -239,6 +239,11 @@ int Master::Run()
     // set server online
     loginDatabase.PExecute("UPDATE realmlist SET color = 0, population = 0 WHERE id = '%d'",realmID);
 
+	// Create table: has_logged_in_before - used for certain custom options
+	sLog.outBasic("ImpConfig: Creating/Checking table 'has_logged_in_before'...");
+	CharacterDatabase.PExecute("CREATE TABLE IF NOT EXISTS `has_logged_in_before` (`guid` int(11) unsigned NOT NULL default '0', PRIMARY KEY (`guid`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='ImpConfig check';");
+	sLog.outBasic("ImpConfig: Done...");
+
 #ifdef WIN32
     if (sConfig.GetBoolDefault("Console.Enable", true) && (m_ServiceStatus == -1)/* need disable console in service mode*/)
 #else

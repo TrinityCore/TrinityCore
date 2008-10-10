@@ -114,3 +114,19 @@ RealmsStateUpdateDelay = 20
 WrongPass.MaxCount = 0
 WrongPass.BanTime = 600
 WrongPass.BanType = 0
+
+###################################################################################################################
+# CLIENT BUILD OPTIONS
+#
+#	Client Builds:
+#
+#	MinBuild
+#		The minium client build allowed to connect
+#
+#	MaxBuild
+#		The maximum client build allowed to connect
+#
+###################################################################################################################
+
+MinBuild = 8606
+MaxBuild = 8606

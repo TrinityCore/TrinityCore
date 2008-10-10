@@ -1074,4 +1074,113 @@ Network.OutKBuff = -1
 Network.OutUBuff = 65536
 Network.TcpNodelay = 1
 
+###################################################################################################################
+# CUSTOM SERVER OPTIONS
+#
+#	PlayerStart.Gold
+#		Amount of gold that new players will start with.
+#		If you want to start with silver, use for example 0.1 (for 10s)
+#		Default: 0
+#
+#	PlayerStart.HonorPoints
+#		Amount of honor that new players will start with
+#		Default: 0
+#
+#	PlayerStart.ArenaPoints
+#		Amount of arena points that new players will start with
+#		Default: 0
+#
+#	PlayerStart.AllReputation
+#		Players will start with most of the high level reputations that are needed for items, mounts etc.
+#		If there are any reputation faction you want to be added, just tell me.
+#
+#	PlayerStart.AllSpells
+#		If enabled, players will start with all their class spells (not talents). Useful for instant 70 servers.
+#		You must import playercreateinfo_spell_custom.sql, it's included in the SQL folder.
+#		Default: 0 - off
+#				 1 - on
+#
+#	PlayerStart.MapsExplored
+#		Players will start with all maps explored if enabled
+#
+#	PlayerStart.AllFlightPaths
+#		Players will start with all flight paths (Note: ALL flight paths, not only player's team)
+#
+#	AntiCheat.GMIsland
+#		If a player enters GM island, he will get teleported away. This will prevent cheaters from buying GM stuff
+#		on servers with a GM mall. GM's will not get teleported away.
+#
+#	GamemasterStartLevel
+#		GM starting level
+#		Default: 70 Min,max: 1 - 255
+#
+#	PlayerInstantLogout
+#		Enable or disable instant logout for all players (NOT in combat/while dueling/while falling)
+#		Default: 0 - off
+#			 	1 - on
+#
+#	MusicInBattleground
+#		If enabled, "L70ETC - Power of the horde" will be played when BG starts ;)
+#
+#	EnableQueueForGMs
+#      NOTE: This option currently does not work due to ACE patch
+#		GMs will also be added to the login queue (not gmlvl 3+) if enabled. Useful for GM servers.
+#		Default: 0 - off
+#				 1 - on
+#
+#	HonorPointsAfterDuel
+#		The amount of honor points the duel winner will get after a duel.
+#		Default: 0 - disable
+#
+#	DisableWaterBreath
+#		Disable/enable waterbreathing for players
+#
+#	DisableResurrectSickness
+#		Players wont get any resurrect sickness when speaking with a spirit healer if this is enabled+
+#
+#	AlwaysMaxWeaponSkill
+#		Players will automatically gain max weapon/defense skill when logging in, leveling up etc.
+#
+#	PvPToken.Enable
+#		Enable/disable PvP Token System. Players will get a token after slaying another player that gives honor.
+#
+#	PvPToken.MapAllowType
+#		Where players can receive the pvp token
+#		4 - In all maps
+#		3 - In battlegrounds only
+#		2 - In FFA areas only (gurubashi arena etc)
+#		1 - In battlegrounds AND FFA areas only
+#
+#	PvPToken.ItemID
+#		The item players will get after killing someone if PvP Token system is enabled.
+#		Default: 29434 - Badge of justice
+#
+#	PvPToken.ItemCount
+#		Modify the item ID count - Default: 1
+#
+#	NoResetTalentsCost
+#		Enable or disable no cost when reseting talents
+#
+###################################################################################################################
 
+PlayerStart.Gold = 0
+PlayerStart.HonorPoints = 0
+PlayerStart.ArenaPoints = 0
+PlayerStart.AllReputation = 0
+PlayerStart.AllSpells = 0
+PlayerStart.MapsExplored = 0
+PlayerStart.AllFlightPaths = 0
+AntiCheat.GMIsland = 0
+GamemasterStartLevel = 70
+PlayerInstantLogout = 0
+MusicInBattleground = 0
+EnableQueueForGMs = 0
+HonorPointsAfterDuel = 0
+DisableWaterBreath = 0
+DisableResurrectSickness = 0
+AlwaysMaxWeaponSkill = 0
+PvPToken.Enable = 0
+PvPToken.MapAllowType = 4
+PvPToken.ItemID = 29434
+PvPToken.ItemCount = 1
+NoResetTalentsCost = 0

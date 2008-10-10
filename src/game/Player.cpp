@@ -578,7 +578,25 @@ bool Player::Create( uint32 guidlow, std::string name, uint8 race, uint8 class_,
     SetUInt32Value( PLAYER_FIELD_YESTERDAY_CONTRIBUTION, 0 );
 
     // set starting level
-    SetUInt32Value( UNIT_FIELD_LEVEL, sWorld.getConfig(CONFIG_START_PLAYER_LEVEL) );
+	if(GetSession()->GetSecurity() >= SEC_MODERATOR)
+		SetUInt32Value( UNIT_FIELD_LEVEL, sWorld.getConfig(CONFIG_GM_START_LEVEL) ); //ImpConfig
+	else
+		SetUInt32Value( UNIT_FIELD_LEVEL, sWorld.getConfig(CONFIG_START_PLAYER_LEVEL) );
+	// set starting gold
+	SetUInt32Value( PLAYER_FIELD_COINAGE, sWorld.PlayerStartGold()*10000 );
+
+	// set starting honor
+	SetUInt32Value( PLAYER_FIELD_HONOR_CURRENCY, sWorld.getConfig(CONFIG_PLAYER_START_HONOR) );
+
+	// set starting arena pts
+	SetUInt32Value( PLAYER_FIELD_ARENA_CURRENCY, sWorld.getConfig(CONFIG_PLAYER_START_ARENAPTS) );
+
+	// start with every map explored
+	if(sWorld.getConfig(CONFIG_START_ALL_EXPLORED))
+	{
+		for (uint8 i=0; i<64; i++)
+			SetFlag(PLAYER_EXPLORED_ZONES_1+i,0xFFFFFFFF);
+	}
 
     // Played time
     m_Last_tick = time(NULL);
@@ -754,8 +772,8 @@ void Player::HandleDrowning()
     if(!m_isunderwater)
         return;
 
-    //if have water breath , then remove bar
-    if(waterbreath || isGameMaster() || !isAlive())
+    //if players is GM, have waterbreath, dead or breathing is disabled
+    if(sWorld.getConfig(CONFIG_DISABLE_BREATHING) || waterbreath || isGameMaster() || !isAlive())
     {
         StopMirrorTimer(BREATH_TIMER);
         m_isunderwater = 0;
@@ -2127,6 +2145,9 @@ void Player::GiveLevel(uint32 level)
     InitTaxiNodesForLevel();
 
     UpdateAllStats();
+
+    if(sWorld.getConfig(CONFIG_ALWAYS_MAXSKILL)) // Max weapon skill when leveling up
+    UpdateSkillsToMaxSkillsForLevel();
 
     // set current level health and mana/energy to maximum after applying all mods.
     SetHealth(GetMaxHealth());
@@ -3601,6 +3622,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     CharacterDatabase.PExecute("DELETE FROM mail_items WHERE receiver = '%u'",guid);
     CharacterDatabase.PExecute("DELETE FROM character_pet WHERE owner = '%u'",guid);
     CharacterDatabase.PExecute("DELETE FROM character_pet_declinedname WHERE owner = '%u'",guid);
+    CharacterDatabase.PExecute("DELETE FROM has_logged_in_before WHERE guid = %u",guid);
     CharacterDatabase.CommitTransaction();
 
     //loginDatabase.PExecute("UPDATE realmcharacters SET numchars = numchars - 1 WHERE acctid = %d AND realmid = %d", accountId, realmID);
@@ -3725,7 +3747,7 @@ void Player::ResurrectPlayer(float restore_percent, bool updateToWorld, bool app
     // some items limited to specific map
     DestroyZoneLimitedItem( true, GetZoneId());
 
-    if(!applySickness || getLevel() <= 10)
+    if(sWorld.getConfig(CONFIG_DISABLE_RES_SICKNESS) || !applySickness || getLevel() <= 10)
         return;
 
     //Characters from level 1-10 are not affected by resurrection sickness.
@@ -5897,7 +5919,7 @@ void Player::UpdateHonorFields()
 ///Calculate the amount of honor gained based on the victim
 ///and the size of the group for which the honor is divided
 ///An exact honor value can also be given (overriding the calcs)
-bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor)
+bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor, bool pvptoken)
 {
     // 'Inactive' this aura prevents the player from gaining honor points and battleground tokens
     if(GetDummyAura(SPELL_AURA_PLAYER_INACTIVE))
@@ -6016,6 +6038,42 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor)
     ModifyHonorPoints(int32(honor));
 
     ApplyModUInt32Value(PLAYER_FIELD_TODAY_CONTRIBUTION, uint32(honor), true);
+
+	if( sWorld.getConfig(CONFIG_PVP_TOKEN_ENABLE) && pvptoken )
+	{
+		if(!uVictim || uVictim == this || uVictim->HasAuraType(SPELL_AURA_NO_PVP_CREDIT))
+			return true;
+
+		if(uVictim->GetTypeId() == TYPEID_PLAYER)
+		{
+			// Check if allowed to receive it in current map
+			uint8 MapType = sWorld.getConfig(CONFIG_PVP_TOKEN_MAP_TYPE);
+			if(MapType == 1 && !InBattleGround() && !HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_FFA_PVP) || MapType == 2 && !HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_FFA_PVP) || MapType == 3 && !InBattleGround())
+				return true;
+
+			uint32 noSpaceForCount = 0;
+			uint32 itemId = sWorld.getConfig(CONFIG_PVP_TOKEN_ID);
+			int32 count = sWorld.getConfig(CONFIG_PVP_TOKEN_COUNT);
+
+			// check space and find places
+			ItemPosCountVec dest;
+			uint8 msg = CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, itemId, count, &noSpaceForCount );
+			if( msg != EQUIP_ERR_OK )   // convert to possible store amount
+				count = noSpaceForCount;
+
+			if( count == 0 || dest.empty()) // can't add any
+			{
+				// -- TODO: Send to mailbox if no space
+				ChatHandler(this).PSendSysMessage("You don't have any space in your bags for a token.");
+				return true;
+			}
+
+			Item* item = StoreNewItem( dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
+			SendNewItem(item,count,true,false);
+			ChatHandler(this).PSendSysMessage("You have been awarded a token for slaying another player.");
+		}
+	}
+
     return true;
 }
 
@@ -6383,6 +6441,13 @@ void Player::DuelComplete(DuelCompleteType type)
         duel->opponent->ClearComboPoints();
     else if(duel->opponent->GetComboTarget()==GetPetGUID())
         duel->opponent->ClearComboPoints();
+
+	// Honor points after duel (the winner) - ImpConfig
+	if(sWorld.getConfig(CONFIG_HONOR_AFTER_DUEL > 0))
+	{
+		uint32 amount = sWorld.getConfig(CONFIG_HONOR_AFTER_DUEL);
+		duel->opponent->RewardHonor(NULL,1,amount);
+	}
 
     //cleanups
     SetUInt64Value(PLAYER_DUEL_ARBITER, 0);
@@ -7806,6 +7871,10 @@ void Player::SendTalentWipeConfirm(uint64 guid)
     WorldPacket data(MSG_TALENT_WIPE_CONFIRM, (8+4));
     data << uint64(guid);
     data << uint32(resetTalentsCost());
+	if(sWorld.getConfig(CONFIG_NO_RESET_TALENT_COST))
+		data << uint32(0);
+	else
+		data << uint32(resetTalentsCost());
     GetSession()->SendPacket( &data );
 }
 
@@ -17895,7 +17964,7 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
                     continue;                               // member (alive or dead) or his corpse at req. distance
 
                 // honor can be in PvP and !PvP (racial leader) cases (for alive)
-                if(pGroupGuy->isAlive() && pGroupGuy->RewardHonor(pVictim,count) && pGroupGuy==this)
+                if(pGroupGuy->isAlive() && pGroupGuy->RewardHonor(pVictim,count, -1, true) && pGroupGuy==this)
                     honored_kill = true;
 
                 // xp and reputation only in !PvP case
@@ -17933,7 +18002,7 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
         xp = PvP ? 0 : MaNGOS::XP::Gain(this, pVictim);
 
         // honor can be in PvP and !PvP (racial leader) cases
-        if(RewardHonor(pVictim,1))
+        if(RewardHonor(pVictim,1, -1, true))
             honored_kill = true;
 
         // xp and reputation only in !PvP case

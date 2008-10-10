@@ -25,6 +25,7 @@
 #include "Chat.h"
 #include "MapManager.h"
 #include "Language.h"
+#include "World.h"
 
 BattleGroundWS::BattleGroundWS()
 {
@@ -97,7 +98,13 @@ void BattleGroundWS::Update(time_t diff)
 
             SendMessageToAll(GetMangosString(LANG_BG_WS_BEGIN));
 
-            PlaySoundToAll(SOUND_BG_START);
+            if(sWorld.getConfig(CONFIG_BG_START_MUSIC))
+            {
+                PlaySoundToAll(SOUND_BG_START);
+                PlaySoundToAll(SOUND_BG_START_L70ETC); //MUSIC - Custom config
+            }
+            else
+                PlaySoundToAll(SOUND_BG_START);
             SetStatus(STATUS_IN_PROGRESS);
 
             for(BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
