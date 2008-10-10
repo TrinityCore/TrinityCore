@@ -1,6 +1,6 @@
-############################################
-# MaNGOS realmd configuration file         #
-############################################
+##########################################
+# Trinity Core realmd configuration file #
+##########################################
 ConfVersion=2007062001
 
 ###################################################################################################################
@@ -46,7 +46,7 @@ ConfVersion=2007062001
 #
 #    LogFile
 #        Logfile name
-#        Default: "Realmd.log"
+#        Default: "realmd.log"
 #                 "" - empty name disable creating log file
 #
 #    LogTimestamp
@@ -96,7 +96,7 @@ ConfVersion=2007062001
 #
 ###################################################################################################################
 
-LoginDatabaseInfo = "127.0.0.1;3306;root;mangos;realmd"
+LoginDatabaseInfo = "127.0.0.1;3306;trinity;trinity;realmd"
 LogsDir = ""
 MaxPingTime = 30
 RealmServerPort = 3724
@@ -104,7 +104,7 @@ BindIP = "0.0.0.0"
 PidFile = ""
 LogLevel = 0
 LogTime = 0
-LogFile = "Realmd.log"
+LogFile = "realmd.log"
 LogTimestamp = 0
 LogFileLevel = 0
 LogColors = ""

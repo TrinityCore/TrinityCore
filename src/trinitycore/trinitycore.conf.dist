@@ -1,6 +1,6 @@
-#####################################
-# MaNGOS Configuration file         #
-#####################################
+##########################################
+# Trinity Core worldd configuration file #
+##########################################
 ConfVersion=2008080101
 
 ###################################################################################################################
@@ -12,7 +12,7 @@ ConfVersion=2008080101
 #    DataDir
 #        Data directory setting.
 #        Important: DataDir needs to be quoted, as it is a string which may contain space characters.
-#        Example: "@prefix@/share/mangos"
+#        Example: "@prefix@/share/trinitycore"
 #
 #    LogsDir
 #        Logs directory setting.
@@ -45,9 +45,9 @@ ConfVersion=2008080101
 RealmID = 1
 DataDir = "."
 LogsDir = ""
-LoginDatabaseInfo     = "127.0.0.1;3306;root;mangos;realmd"
-WorldDatabaseInfo     = "127.0.0.1;3306;root;mangos;mangos"
-CharacterDatabaseInfo = "127.0.0.1;3306;root;mangos;characters"
+LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;realmd"
+WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;world"
+CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters"
 MaxPingTime = 30
 WorldServerPort = 8085
 BindIP = "0.0.0.0"
@@ -206,7 +206,7 @@ AddonChannel = 1
 #
 #    LogFile
 #        Logfile name
-#        Default: "Server.log"
+#        Default: "server.log"
 #                 "" - Empty name disable creating log file
 #
 #    LogTimestamp
@@ -232,11 +232,11 @@ AddonChannel = 1
 #
 #    DBErrorLogFile
 #        Log file of DB errors detected at server run
-#        Default: "DBErrors.log"
+#        Default: "db_errors.log"
 #
 #    CharLogFile
 #        Character operations logfile name
-#        Default: "Char.log"
+#        Default: "characters.log"
 #                 "" - Empty name disable creating log file
 #
 #    CharLogTimestamp
@@ -253,7 +253,8 @@ AddonChannel = 1
 #
 #    GmLogFile
 #        Log file of gm commands
-#        Default: "" (Disable)
+#        Default: "gm_commands.log"
+#                 "" - Empty name for disable
 #
 #    GmLogTimestamp
 #        Logfile with timestamp of server start in name
@@ -262,7 +263,7 @@ AddonChannel = 1
 #
 #    RaLogFile
 #        Log file of RA commands
-#        Default: "Ra.log" 
+#        Default: "ra_commands.log" 
 #                 "" - Empty name for disable
 #
 #    LogColors
@@ -278,20 +279,20 @@ LogSQL = 1
 PidFile = ""
 LogLevel = 3
 LogTime = 0
-LogFile = "Server.log"
+LogFile = "server.log"
 LogTimestamp = 0
 LogFileLevel = 0
 LogFilter_TransportMoves = 1
 LogFilter_CreatureMoves = 1
 LogFilter_VisibilityChanges = 1
 WorldLogFile = "world.log"
-DBErrorLogFile = "DBErrors.log"
-CharLogFile = "Char.log"
+DBErrorLogFile = "db_errors.log"
+CharLogFile = "characters.log"
 CharLogTimestamp = 0
 CharLogDump = 0
-GmLogFile = ""
+GmLogFile = "gm_commands.log"
 GmLogTimestamp = 0
-RaLogFile = ""
+RaLogFile = "ra_commands.log"
 LogColors = ""
 
 ###################################################################################################################
@@ -494,7 +495,7 @@ LogColors = ""
 #                 1 (true)
 #
 #    BeepAtStart
-#        Beep at mangosd start finished (mostly work only at Unix/Linux systems)
+#        Beep at core start finished (mostly work only at Unix/Linux systems)
 #        Default: 1 (true)
 #                 0 (false)
 #
@@ -535,7 +536,7 @@ MailDeliveryDelay = 3600
 SkillChance.Prospecting = 0
 Event.Announce = 0
 BeepAtStart = 1
-Motd = "Welcome to the Massive Network Game Object Server."
+Motd = "Welcome to a Trinity Core server."
 
 ###################################################################################################################
 # PLAYER INTERACTION

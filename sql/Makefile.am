@@ -28,7 +28,7 @@ pkgdatadir = $(datadir)/mangos/sql
 ## Files to be installed
 #  Install basic SQL files to datadir
 pkgdata_DATA = \
-	mangos.sql \
+	world.sql \
 	realmd.sql \
 	characters.sql \
 	create_mysql.sql \
@@ -40,5 +40,5 @@ EXTRA_DIST = \
 	create_mysql.sql \
 	drop_mysql.sql \
 	characters.sql \
-	mangos.sql \
+	world.sql \
 	realmd.sql

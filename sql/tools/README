@@ -1,10 +1,8 @@
-= MaNGOS -- README =
+= Trinity Core -- Database cleanup tools =
 
-Copyright (c) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+Copyright (C) Trinity Core (http://www.trinitycore.org)
 
 See the COPYING file for copying conditions.
 
-== Database tools ==
-This folder contains SQL files which can be used for cleanup DB  from corrupted or outdated data in safe way.
-This tools must be used _only_ when mangos server stopped.
-But you can safely use its any times while server shutdown.
+These tools can be used to clean a corrupted database. They
+should only be used when the sevrer is CLOSED.
