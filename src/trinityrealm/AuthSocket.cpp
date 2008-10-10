@@ -372,12 +372,11 @@ bool AuthSocket::_HandleLogonChallenge()
 	int MinBuild = sConfig.GetIntDefault("MinBuild", 8606);
 	int MaxBuild = sConfig.GetIntDefault("MaxBuild", 8606);
 
-	if(ch->build >= MinBuild && ch->build <= MaxBuild)
+	if(ch->build >= MinBuild && ch->build <= MaxBuild) {
         valid_version=true;
-        break;
-    }
-    else
+    } else {
 	valid_version=false;
+    };
 
     /// <ul><li> if this is a valid version
     if(valid_version)

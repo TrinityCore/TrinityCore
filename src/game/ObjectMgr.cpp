@@ -2078,8 +2078,6 @@ void ObjectMgr::LoadPlayerInfo()
 
     // Load playercreate spells
     {
-        //                                                0     1      2      3
-        QueryResult *result = WorldDatabase.Query("SELECT race, class, Spell, Active FROM playercreateinfo_spell");
 
 	QueryResult *result = NULL;
 	if(sWorld.getConfig(CONFIG_START_ALL_SPELLS))

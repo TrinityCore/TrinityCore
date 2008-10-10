@@ -1,6 +1,6 @@
 -- MySQL dump 10.11
 --
--- Host: localhost    Database: mangos
+-- Host: localhost    Database: world
 -- ------------------------------------------------------
 -- Server version	5.0.56-nt
 
