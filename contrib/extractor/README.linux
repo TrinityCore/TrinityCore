@@ -2,9 +2,6 @@
 
 Copyright (C) Trinity Core (http://www.trinitycore.org)
 
-1. Configure and build MaNGOS.
-2. cd contrib/extractor/libmpq/
-3. make
-4. cd ..
-5. make
-6. run ad
+1: Configure and build MaNGOS.
+2: cd contrib/extractor/libmpq && make && cd .. && make
+3: run ad
