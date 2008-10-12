@@ -606,7 +606,7 @@ void World::LoadConfigSettings(bool reload)
     {
         uint32 val = sConfig.GetIntDefault("MaxPlayerLevel", 60);
         if(val!=m_configs[CONFIG_MAX_PLAYER_LEVEL])
-            sLog.outError("MaxPlayerLevel option can't be changed at mangosd.conf reload, using current value (%u).",m_configs[CONFIG_MAX_PLAYER_LEVEL]);
+            sLog.outError("MaxPlayerLevel option can't be changed at config reload, using current value (%u).",m_configs[CONFIG_MAX_PLAYER_LEVEL]);
     }
     else
         m_configs[CONFIG_MAX_PLAYER_LEVEL] = sConfig.GetIntDefault("MaxPlayerLevel", 60);
@@ -2506,7 +2506,7 @@ void World::ProcessCliCommands()
         delete command;
     }
     // print the console message here so it looks right
-    p_zprintf("Trinity Core> ");
+    p_zprintf("TC> ");
 }
 
 void World::SendRNDBroadcast()

@@ -896,7 +896,7 @@ void ParseCommand( pPrintf zprintf, char* input)
         }
     }
     if (!bSuccess)
-        zprintf("mangos>");
+        zprintf("TC>");
 }
 
 /// Kick a character out of the realm
@@ -1238,7 +1238,7 @@ void CliRunnable::run()
 
     // print this here the first time
     // later it will be printed after command queue updates
-    printf("mangos>");
+    printf("TC>");
 
     ///- As long as the World is running (no World::m_stopEvent), get the command line and handle it
     while (!World::m_stopEvent)

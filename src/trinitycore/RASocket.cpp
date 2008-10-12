@@ -204,7 +204,7 @@ void RASocket::OnRead()
 
                         Sendf("+Logged in.\r\n");
                         sLog.outRALog("User %s has logged in.\n",szLogin.c_str());
-                        Sendf("mangos>");
+                        Sendf("TC>");
                     }
                     else
                     {
@@ -223,7 +223,7 @@ void RASocket::OnRead()
                     ParseCommand(&RASocket::zprintf , buff);
                 }
                 else
-                    Sendf("mangos>");
+                    Sendf("TC>");
                 break;
                 ///</ul>
         };
