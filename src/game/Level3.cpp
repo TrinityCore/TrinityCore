@@ -4853,6 +4853,14 @@ bool ChatHandler::HandleBanListCommand(const char* args)
 
 bool ChatHandler::HandleRespawnCommand(const char* /*args*/)
 {
+    Unit* target = getSelectedUnit();
+
+    if(target && target->GetTypeId() == TYPEID_UNIT && target->isDead())
+    {
+        ((Creature*)target)->Respawn();
+        return true;
+    }
+
     Player* pl = m_session->GetPlayer();
 
     CellPair p(MaNGOS::ComputeCellPair(pl->GetPositionX(), pl->GetPositionY()));
