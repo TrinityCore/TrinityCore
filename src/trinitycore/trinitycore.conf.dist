@@ -388,6 +388,10 @@ LogColors = ""
 #                 2 - disabled only for Horde
 #                 3 - disabled for both teams
 #
+#    MaxWhoListReturns
+#        Set the maximum number of players returned in the /who list and interface.
+#        Default: 49 (stable)
+#
 #    CharactersPerAccount
 #        Limit numbers of characters per account (at all realms).
 #        Note: this setting limit character creating at _current_ realm base at characters amount at all realms
@@ -512,6 +516,7 @@ DeclinedNames = 0
 StrictPlayerNames = 0
 StrictCharterNames = 0
 StrictPetNames = 0
+MaxWhoListReturns = 49
 CharactersCreatingDisabled = 0
 CharactersPerAccount = 50
 CharactersPerRealm = 10
@@ -1184,3 +1189,191 @@ PvPToken.MapAllowType = 4
 PvPToken.ItemID = 29434
 PvPToken.ItemCount = 1
 NoResetTalentsCost = 0
+
+###################################################################################################################
+# IRC SYSTEM CONFIG
+#
+# irc.active
+#     Enable IRC bot/system
+#     Default: 0 - Disable
+#              0 - Enable
+# irc.icc
+#     IRC connect code
+#     Default: 001 - Welcome To Network msg
+#              375 - Beginning Of MOTD
+#              376 - End Of MOTD
+#
+# irc.host
+#     IRC server to connect to
+#
+# irc.port
+#     IRC server port to use
+#     Default: "6667" - Semi-standard IRC port
+#
+# irc.user
+#     The username/ident to use when connecting to the IRC server
+#
+# irc.nick
+#     IRC nickname to be used by the bot
+#
+# irc.pass
+#     The password to be used to identify to NickServ
+#
+# irc.auth
+#     IRC Authentication Method
+#     Default: 0 - Disable
+#              1 - NickServ - Normal Method - PRIVMSG NickServ :IDENTIFY Password
+#              2 - NickServ - Alternate Method To Identify To A Different Nick - PRIVMSG NickServ :IDENTIFY irc.auth.nick Password
+#              3 - QuakeNet - Normal Method - PRIVMSG Q@CServe.quakenet.org :AUTH irc.nick Password
+#              4 - QuakeNet - Alternate Method To Identify To A Different Nick - PRIVMSG Q@CServe.quakenet.org :AUTH irc.auth.nick Password
+#
+# irc.auth.nick
+#     IRC Nickname to use if Auth method 2 or 4 is used
+#
+# irc.ldef
+#     Leave a defined IRC channel on server connect
+#     Default: 0 - Disable
+#              1 - Enable
+# irc.defchan
+#     IRC channel to leave on server connect if irc.ldef is on
+#
+# irc.wct
+#     Time to wait before (re)attemptimg connection to IRC server
+#     Default: 30000 - (30 Seconds)
+#
+# irc.maxattempt
+#     Maximum attempts to try IRC server
+#     Default: 20
+#
+# irc.auto.announce
+#     Time to wait in Minutes to announce random messages from database.
+#     Default: 30 - (30 Minutes)
+#
+# irc.autojoin_kick
+#     Autojoin IRC channel if kicked
+#     Default: 1 - Enable
+#              0 - Disable
+#
+# irc.command_prefix
+#     IRC command prefix
+#     Example: (.)online all
+#
+# irc.joinmsg
+# irc.rstmsg
+# irc.kickmsg
+#     Bot join/restart/kick messages
+#
+# irc.chan_#
+# wow.chan_#
+#     IRC and WOW channels to link. Leave # out of IRC channel. Both channels _ARE_ case sensitive
+#     Example: irc.chan_1 = "Trinity"
+#              irc.chan_2 = "trinity2"
+#              wow.chan_1 = "world"
+#              wow.chan_2 = "LookingForGroup"
+#
+# irc.StatusChannel
+#     Channel Number To Display Status Messages In (AuctionHouse, Levels, Deaths, Etc)
+#     Default: 1 - Channel ID 1
+#
+# irc.AnnounceChannel
+#     Channel Number To Display Announcements In (Announces, Notifies, Event)
+#     Default: 1 - Channel ID 1
+#
+# irc.op_gm_login
+#     Op The GM In All Channels The Bot Is On When They Log In
+#     Default: 0 - Disable
+#              1 - Enable
+#
+# irc.op_gm_level
+#     The Minimum GM Level Required To Have The Bot Op The User
+#     Default: 5 - GM Level 5
+#
+# irc.ajoin (Experimental/Under Development)
+#     Force players to autojoin an in game channel
+#     Atleast one player must be in the channel on server start, and atleast one person online for invite to work
+#     Default: 0 - Disable
+#              1 - Enable
+# irc.ajchan
+#     Channel to join if above is Enabled.
+#
+# irc.online.result
+#     Maximum number of results per line for the online command
+#
+# chat.*** (Defineable Strings)
+#     wow_* - String is displayed in IRC channel
+#     irc_* - String is displayed in WOW channel
+#     Options: $Name, $Level, $Msg, $GM (not all options work in every string)
+#
+# Botmask
+#     This defines what the bot announces, if its 0 everything is disabled
+#     simply add the values of the elements you want to create this mask.
+#     Example: WoW join/leaves are 1 and IRC join/leaves are 2, if you want both of these active then the BotMask is 3.
+#       (1)Display WoW Chan Join/Leaves In IRC
+#       (2)Display IRC Chan Join/Leaves/NickChanges In WoW
+#       (4)Display Unknown Command Message When Trigger Is Used And No Command Exists
+#       (8)Announce Security Level > 0 As GM At Login
+#       (16)Announce GM In GM ON State AS GM At Login
+#       (32)Return Errors To Notice. (If disabled then default is Private Message)
+#       (64)Display WoW Status Messages (Levels/Deaths)
+#       (128)Display Nick Changes From IRC In WOW
+#       (256)Display WoW Announces/Notifies In IRC
+#       (512)Do Not Let Players Use Commands On Higher GM Level Players
+#       (1024)Enable AuctionHouse Announcements
+#
+# irc.gmlog
+#     Minimum GM level to not show login/pass info in IRC logs
+#
+# irc.logfile.prefix
+#     The prefix of the IRC logfile. Directories can be added here.
+#     Example: "IRC/IRC_" outputs IRC_YYYY-MM-DD.log to the IRC subdirectory in your logs dir
+#
+# irc.fun.games (Experimental/Under Development)
+#     Enable IRC games
+#     Default: 0 - Disable
+#              1 - Enable
+# irc.gm#
+#     GM tag to append to (GM onjoin / online command) IRC color codes are acceptable
+#
+###################################################################################################################
+
+irc.active = 0
+irc.icc = 001
+irc.host = ""
+irc.port = "6667"
+irc.user = "TC"
+irc.nick = "TrinityCoreBot"
+irc.pass = ""
+irc.auth = 0
+irc.auth.nick = "TrinityCoreBot"
+irc.ldef = 0
+irc.defchan = "lobby"
+irc.wct = 30000
+irc.maxattempt = 20
+irc.auto.announce = 30
+irc.autojoin_kick = 1
+irc.command_prefix = "."
+irc.joinmsg = "Trinity Core running. Command trigger is $Trigger."
+irc.rstmsg  = "Trinity Core is restarting..."
+irc.kickmsg = "Do not kick me."
+irc.chan_1 = "mangos"
+wow.chan_1 = "world"
+irc.StatusChannel = 1
+irc.AnnounceChannel = 1
+irc.op_gm_login = 0
+irc.op_gm_level = 3
+irc.ajoin = 1
+irc.ajchan = "world"
+irc.online.result = 30
+chat.wow_irc = "<WoW>$Name [$Level]: $Msg"
+chat.irc_wow = "<IRC>$Name: $Msg"
+chat.join_wow = "[$GM] $Name has joined IRC."
+chat.leave_wow = "[$GM] $Name has left IRC."
+Botmask = 1023
+irc.gmlog = 1
+irc.logfile.prefix = "irc_"
+irc.fun.games = 0
+irc.gm1 = "[Moderator]"
+irc.gm2 = "[Game Master]"
+irc.gm3 = "[BugTracker]"
+irc.gm4 = "[DevTeam Admin]"
+irc.gm5 = "[SysOP]"

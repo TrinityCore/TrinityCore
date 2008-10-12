@@ -25,6 +25,8 @@
 #include "Config/ConfigEnv.h"
 #include "Log.h"
 #include "Master.h"
+#include "../game/IRCConf.h"
+#include "../game/IRCClient.h"
 
 #ifndef _TRINITY_CORE_CONFIG
 # define _TRINITY_CORE_CONFIG  "trinitycore.conf"
@@ -75,6 +77,7 @@ extern int main(int argc, char **argv)
 {
     ///- Command line parsing to get the configuration file name
     char const* cfg_file = _TRINITY_CORE_CONFIG;
+    char const* mc_cfg_file = _TRINITY_CORE_CONFIG;
     int c=1;
     while( c < argc )
     {
@@ -135,7 +138,8 @@ extern int main(int argc, char **argv)
         sLog.outError("Could not find configuration file %s.", cfg_file);
         return 1;
     }
-    
+
+    sIRC.SetCfg(mc_cfg_file);
     sLog.outString("Using configuration file %s.", cfg_file);
     
     uint32 confVersion = sConfig.GetIntDefault("ConfVersion", 0);

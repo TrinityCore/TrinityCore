@@ -53,6 +53,7 @@ $(srcdir)/Util.cpp \
 $(srcdir)/Util.h \
 $(srcdir)/WorldPacket.h \
 $(srcdir)/SystemConfig.h \
+$(srcdir)../game/IRCConf.h \
 $(srcdir)/Auth/AuthCrypt.cpp \
 $(srcdir)/Auth/AuthCrypt.h \
 $(srcdir)/Auth/BigNumber.cpp \

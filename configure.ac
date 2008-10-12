@@ -314,6 +314,7 @@ AC_CONFIG_FILES([
    src/game/Makefile
    src/trinityrealm/Makefile
    src/trinitycore/Makefile
+   src/game/IRCConf.h
    src/bindings/Makefile
    src/bindings/interface/Makefile
 ])

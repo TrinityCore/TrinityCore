@@ -56,6 +56,8 @@
 #include "InstanceSaveMgr.h"
 #include "WaypointManager.h"
 #include "Util.h"
+#include "IRCClient.h"
+#include "Language.h"
 
 INSTANTIATE_SINGLETON_1( World );
 
@@ -574,6 +576,8 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_STRICT_PET_NAMES]     = sConfig.GetIntDefault("StrictPetNames",     0);
 
     m_configs[CONFIG_CHARACTERS_CREATING_DISABLED] = sConfig.GetIntDefault("CharactersCreatingDisabled", 0);
+
+    m_configs[CONFIG_MAX_WHO] = sConfig.GetIntDefault("MaxWhoListReturns", 49);
 
     m_configs[CONFIG_CHARACTERS_PER_REALM] = sConfig.GetIntDefault("CharactersPerRealm", 10);
     if(m_configs[CONFIG_CHARACTERS_PER_REALM] < 1 || m_configs[CONFIG_CHARACTERS_PER_REALM] > 10)
@@ -1176,6 +1180,9 @@ void World::SetInitialWorldSettings()
 
     WorldDatabase.PExecute("INSERT INTO uptime (startstring, starttime, uptime) VALUES('%s', %ld, 0)", isoDate, m_startTime );
 
+    static uint32 autoanc = 1;
+    autoanc = sIRC.autoanc;
+
     m_timers[WUPDATE_OBJECTS].SetInterval(0);
     m_timers[WUPDATE_SESSIONS].SetInterval(0);
     m_timers[WUPDATE_WEATHERS].SetInterval(1000);
@@ -1183,6 +1190,8 @@ void World::SetInitialWorldSettings()
     m_timers[WUPDATE_UPTIME].SetInterval(m_configs[CONFIG_UPTIME_UPDATE]*MINUTE*1000);
                                                             //Update "uptime" table based on configuration entry in minutes.
     m_timers[WUPDATE_CORPSES].SetInterval(20*MINUTE*1000);  //erase corpses every 20 minutes
+
+    m_timers[WUPDATE_AUTOANC].SetInterval(autoanc*MINUTE*1000);
 
     //to set mailtimer to return mails every day between 4 and 5 am
     //mailtimer is increased when updating auctions
@@ -1420,9 +1429,12 @@ void World::Update(time_t diff)
         m_timers[WUPDATE_EVENTS].Reset();
     }
 
-    /// </ul>
-    ///- Move all creatures with "delayed move" and remove and delete all objects with "delayed remove"
-    MapManager::Instance().DoDelayedMovesAndRemoves();
+    if (m_timers[WUPDATE_AUTOANC].Passed())
+    {
+        m_timers[WUPDATE_AUTOANC].Reset(); /// </ul>
+        SendRNDBroadcast();
+    }
+    MapManager::Instance().DoDelayedMovesAndRemoves(); ///- Move all creatures with "delayed move" and remove and delete all objects with "delayed remove"
 
     // update the instance reset times
     sInstanceSaveManager.Update();
@@ -2494,7 +2506,23 @@ void World::ProcessCliCommands()
         delete command;
     }
     // print the console message here so it looks right
-    p_zprintf("mangos>");
+    p_zprintf("Trinity Core> ");
+}
+
+void World::SendRNDBroadcast()
+{
+    std::string msg;
+    QueryResult *result = WorldDatabase.PQuery("SELECT `message` FROM `IRC_AutoAnnounce` ORDER BY RAND() LIMIT 1");
+    if(!result)
+        return;
+    msg = result->Fetch()[0].GetString();
+    delete result;
+    std::string str = "|cffff0000[Automatic]:|r";
+    str += msg;
+    sWorld.SendWorldText(LANG_AUTO_ANN);
+    std::string ircchan = "#";
+    ircchan += sIRC._irc_chan[sIRC.anchn].c_str();
+    sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("\00304,08\037/!\\\037\017\00304 Automatic System Message \00304,08\037/!\\\037\017 %s", "%s", msg.c_str()), true);
 }
 
 void World::InitResultQueue()

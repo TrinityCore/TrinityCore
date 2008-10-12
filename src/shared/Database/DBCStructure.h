@@ -147,6 +147,7 @@ struct ChrClassesEntry
     uint32      powerType;                                  // 3
                                                             // 4, unused
     //char*       name[16];                                 // 5-20 unused
+    char*       name[16];                                   // 5-20 unused
                                                             // 21 string flag, unused
     //char*       string1[16];                              // 21-36 unused
                                                             // 37 string flag, unused

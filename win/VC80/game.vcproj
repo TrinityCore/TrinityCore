@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="game"
 	ProjectGUID="{1DC6C4DA-A028-41F3-877D-D5400C594F88}"
 	RootNamespace="game"
@@ -1304,6 +1304,62 @@
 			</File>
 			<File
 				RelativePath="..\..\src\game\ThreatManager.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="IRC"
+			>
+			<File
+				RelativePath="..\..\src\game\IRCClient.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\IRCClient.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\IRCCmd.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\IRCCmd.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\IRCCmde.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\IRCConf.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\IRCFunc.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\IRCIO.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\IRCLog.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\IRCLog.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\IRCSock.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\MCS_OnlinePlayers.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\MCS_OnlinePlayers.h"
 				>
 			</File>
 		</Filter>

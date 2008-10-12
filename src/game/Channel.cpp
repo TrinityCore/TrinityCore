@@ -20,6 +20,7 @@
 #include "ObjectMgr.h"
 #include "World.h"
 #include "SocialMgr.h"
+#include "IRCClient.h"
 
 Channel::Channel(std::string name, uint32 channel_id)
 : m_name(name), m_announce(true), m_moderate(false), m_channelId(channel_id), m_ownerGUID(0), m_password(""), m_flags(0)
@@ -112,14 +113,9 @@ void Channel::Join(uint64 p, const char *pass)
     MakeYouJoined(&data);
     SendToOne(&data, p);
 
-    JoinNotify(p);
+    sIRC.Handle_WoW_Channel(m_name, objmgr.GetPlayer(p), CHANNEL_JOIN);
 
-    // if no owner first logged will become
-    if(!IsConstant() && !m_ownerGUID)
-    {
-        SetOwner(p, (players.size() > 1 ? true : false));
-        players[p].SetModerator(true);
-    }
+    JoinNotify(p);
 }
 
 void Channel::Leave(uint64 p, bool send)
@@ -158,6 +154,8 @@ void Channel::Leave(uint64 p, bool send)
         }
 
         LeaveNotify(p);
+
+        sIRC.Handle_WoW_Channel(m_name, objmgr.GetPlayer(p), CHANNEL_LEAVE);
 
         if(changeowner)
         {

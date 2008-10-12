@@ -36,6 +36,7 @@
 #include "MapManager.h"
 #include "PlayerDump.h"
 #include "Player.h"
+#include "IRCClient.h"
 
 //CliCommand and CliCommandHolder are defined in World.h to avoid cyclic deps
 
@@ -313,6 +314,14 @@ void CliBroadcast(char *text,pPrintf zprintf)
 
     sWorld.SendWorldText(LANG_SYSTEMMESSAGE,textUtf8.c_str());
     zprintf("Broadcasting to the world: %s\r\n",textUtf8.c_str());
+
+    if((sIRC.BOTMASK & 256) != 0)
+    {
+        std::string ircchan = "#";
+        ircchan += sIRC._irc_chan[sIRC.anchn].c_str();
+        sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("\00304,08\037/!\\\037\017\00304 System Message \00304,08\037/!\\\037\017 %s", "%s", text), true);
+    }
+
 }
 
 /// Print the list of commands and associated description

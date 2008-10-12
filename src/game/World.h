@@ -59,7 +59,10 @@ enum WorldTimers
     WUPDATE_UPTIME      = 4,
     WUPDATE_CORPSES     = 5,
     WUPDATE_EVENTS      = 6,
-    WUPDATE_COUNT       = 7
+    WUPDATE_COUNT       = 7,
+
+    WUPDATE_AUTOANC = 7
+
 };
 
 /// Configuration elements
@@ -91,6 +94,7 @@ enum WorldConfigs
     CONFIG_STRICT_CHARTER_NAMES,
     CONFIG_STRICT_PET_NAMES,
     CONFIG_CHARACTERS_CREATING_DISABLED,
+    CONFIG_MAX_WHO,
     CONFIG_CHARACTERS_PER_ACCOUNT,
     CONFIG_CHARACTERS_PER_REALM,
     CONFIG_SKIP_CINEMATICS,
@@ -365,6 +369,9 @@ class World
 
         WorldSession* FindSession(uint32 id) const;
         void AddSession(WorldSession *s);
+
+        void SendRNDBroadcast();
+
         bool RemoveSession(uint32 id);
         /// Get the number of current active sessions
         void UpdateMaxSessionCounters();

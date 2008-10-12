@@ -108,6 +108,8 @@ class ChatHandler
         bool HandleGroupTeleCommand(const char* args);
         bool HandleDrunkCommand(const char* args);
 
+        bool HandleIRCpmCommand(const char* args);
+
         bool HandleEventActiveListCommand(const char* args);
         bool HandleEventStartCommand(const char* args);
         bool HandleEventStopCommand(const char* args);

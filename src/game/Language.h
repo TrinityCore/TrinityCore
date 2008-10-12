@@ -640,6 +640,8 @@ enum MangosStrings
 
     LANG_ARENA_TESTING                  = 745,
 
+    LANG_AUTO_ANN                       = 746,
+
     // in game strings
     LANG_PET_INVALID_NAME               = 800,
     LANG_NOT_ENOUGH_GOLD                = 801,
