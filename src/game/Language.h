@@ -641,6 +641,7 @@ enum MangosStrings
     LANG_ARENA_TESTING                  = 745,
 
     LANG_AUTO_ANN                       = 746,
+    LANG_ANNOUNCE_COLOR                 = 747,
 
     // in game strings
     LANG_PET_INVALID_NAME               = 800,

@@ -117,6 +117,17 @@ bool ChatHandler::HandleNpcWhisperCommand(const char* args)
     return true;
 }
 
+bool ChatHandler::HandleNameAnnounceCommand(const char* args)
+{
+    WorldPacket data;
+    if(!*args)
+        return false;
+    char str[1024];
+    //sprintf(str, GetMangosString(LANG_ANNOUNCE_COLOR), m_session->GetPlayer()->GetName(), args);
+    sWorld.SendWorldText(LANG_ANNOUNCE_COLOR, m_session->GetPlayer()->GetName(), args);
+    return true;
+}
+
 // global announce
 bool ChatHandler::HandleAnnounceCommand(const char* args)
 {
