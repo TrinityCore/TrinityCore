@@ -2175,6 +2175,44 @@ bool ChatHandler::HandleNearObjectCommand(const char* args)
     return true;
 }
 
+bool ChatHandler::HandleObjectStateCommand(const char* args)
+{
+    // number or [name] Shift-click form |color|Hgameobject:go_id|h[name]|h|r
+    char* cId = extractKeyFromLink((char*)args, "Hgameobject");
+    if(!cId)
+        return false;
+
+    uint32 lowguid = atoi(cId);
+    if(!lowguid)
+        return false;
+
+    GameObject* gobj = NULL;
+
+    if(GameObjectData const* goData = objmgr.GetGOData(lowguid))
+        gobj = GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid, goData->id);
+
+    if(!gobj)
+    {
+        PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, lowguid);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    char* cstate = strtok(NULL, " ");
+    if(!cstate)
+        return false;
+
+    int32 state = atoi(cstate);
+    if(state < 0)
+        gobj->SendObjectDeSpawnAnim(gobj->GetGUID());
+    else
+        gobj->SetGoState(state);
+
+    return true;
+
+    return true;
+}
+
 bool ChatHandler::HandleListCreatureCommand(const char* args)
 {
     if(!*args)
@@ -5470,5 +5508,47 @@ bool ChatHandler::HandleInstanceSaveDataCommand(const char * /*args*/)
 bool ChatHandler::HandleFlushArenaPointsCommand(const char * /*args*/)
 {
     sBattleGroundMgr.DistributeArenaPoints();
+    return true;
+}
+
+bool ChatHandler::HandleGroupLeaderCommand(const char* args)
+{
+    Player* plr  = NULL;
+    Group* group = NULL;
+    uint64 guid  = 0;
+    char* cname  = strtok((char*)args, " ");
+
+    if(GetPlayerGroupAndGUIDByName(cname, plr, group, guid))
+        if(group && group->GetLeaderGUID() != guid)
+            group->ChangeLeader(guid);
+
+    return true;
+}
+
+bool ChatHandler::HandleGroupDisbandCommand(const char* args)
+{
+    Player* plr  = NULL;
+    Group* group = NULL;
+    uint64 guid  = 0;
+    char* cname  = strtok((char*)args, " ");
+
+    if(GetPlayerGroupAndGUIDByName(cname, plr, group, guid))
+        if(group)
+            group->Disband();
+
+    return true;
+}
+
+bool ChatHandler::HandleGroupRemoveCommand(const char* args)
+{
+    Player* plr  = NULL;
+    Group* group = NULL;
+    uint64 guid  = 0;
+    char* cname  = strtok((char*)args, " ");
+
+    if(GetPlayerGroupAndGUIDByName(cname, plr, group, guid, true))
+        if(group)
+            group->RemoveMember(guid, 0);
+
     return true;
 }

@@ -239,6 +239,7 @@ class ChatHandler
         bool HandleMoveCreatureCommand(const char* args);
         bool HandleMoveObjectCommand(const char* args);
         bool HandleTurnObjectCommand(const char* args);
+        bool HandleObjectStateCommand(const char* args);
         bool HandlePInfoCommand(const char* args);
         bool HandlePLimitCommand(const char* args);
         bool HandleMuteCommand(const char* args);
@@ -313,6 +314,10 @@ class ChatHandler
         bool HandleHideAreaCommand(const char* args);
         bool HandleAddItemCommand(const char* args);
         bool HandleAddItemSetCommand(const char* args);
+
+        bool HandleGroupLeaderCommand(const char* args);
+        bool HandleGroupDisbandCommand(const char* args);
+        bool HandleGroupRemoveCommand(const char* args);
 
         bool HandleGuildCreateCommand(const char* args);
         bool HandleGuildInviteCommand(const char* args);
@@ -393,6 +398,7 @@ class ChatHandler
         char*     extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = NULL);
         uint32    extractSpellIdFromLink(char* text);
         GameTele const* extractGameTeleFromLink(char* text);
+        bool GetPlayerGroupAndGUIDByName(const char* cname, Player* &plr, Group* &group, uint64 &guid, bool offline = false);
 
         GameObject* GetObjectGlobalyWithGuidOrNearWithDbGuid(uint32 lowguid,uint32 entry);
 

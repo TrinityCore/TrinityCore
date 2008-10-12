@@ -214,6 +214,14 @@ ChatCommand * ChatHandler::getCommandTable()
         { NULL,             0,                  NULL,                                           "", NULL }
     };
 
+    static ChatCommand groupCommandTable[] =
+    {
+        { "leader",         SEC_ADMINISTRATOR,  &ChatHandler::HandleGroupLeaderCommand,         "", NULL },
+        { "disband",        SEC_ADMINISTRATOR,  &ChatHandler::HandleGroupDisbandCommand,        "", NULL },
+        { "remove",         SEC_ADMINISTRATOR,  &ChatHandler::HandleGroupRemoveCommand,         "", NULL },
+        { NULL,             0,                  NULL,                                           "", NULL }
+    };
+
     static ChatCommand lookupPlayerCommandTable[] =
     {
         { "ip",            SEC_GAMEMASTER,     &ChatHandler::HandleLookupPlayerIpCommand,       "", NULL },
@@ -340,6 +348,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "turn",           SEC_GAMEMASTER,     &ChatHandler::HandleTurnObjectCommand,          "", NULL },
         { "move",           SEC_GAMEMASTER,     &ChatHandler::HandleMoveObjectCommand,          "", NULL },
         { "near",           SEC_ADMINISTRATOR,  &ChatHandler::HandleNearObjectCommand,          "", NULL },
+        { "state",          SEC_ADMINISTRATOR,  &ChatHandler::HandleObjectStateCommand,         "", NULL },
         { NULL,             0,                  NULL,                                           "", NULL }
     };
 
@@ -388,6 +397,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "list",           SEC_ADMINISTRATOR,  NULL,                                           "", listCommandTable },
         { "lookup",         SEC_ADMINISTRATOR,  NULL,                                           "", lookupCommandTable },
         { "pdump",          SEC_ADMINISTRATOR,  NULL,                                           "", pdumpCommandTable },
+        { "group",          SEC_ADMINISTRATOR,  NULL,                                           "", groupCommandTable },
         { "guild",          SEC_ADMINISTRATOR,  NULL,                                           "", guildCommandTable },
         { "cast",           SEC_ADMINISTRATOR,  NULL,                                           "", castCommandTable },
         { "reset",          SEC_ADMINISTRATOR,  NULL,                                           "", resetCommandTable },
@@ -1083,4 +1093,48 @@ GameTele const* ChatHandler::extractGameTeleFromLink(char* text)
             return objmgr.GetGameTele(id);
 
     return objmgr.GetGameTele(cId);
+}
+
+bool ChatHandler::GetPlayerGroupAndGUIDByName(const char* cname, Player* &plr, Group* &group, uint64 &guid, bool offline)
+{
+    plr  = NULL;
+    guid = 0;
+
+    if(cname)
+    {
+        std::string name = cname;
+        if(!name.empty())
+        {
+            if(!normalizePlayerName(name))
+            {
+                PSendSysMessage(LANG_PLAYER_NOT_FOUND);
+                SetSentErrorMessage(true);
+                return false;
+            }
+
+            plr = objmgr.GetPlayer(name.c_str());
+            if(offline)
+                guid = objmgr.GetPlayerGUIDByName(name.c_str());
+        }
+    }
+
+    if(plr)
+    {
+        group = plr->GetGroup();
+        if(!guid || !offline)
+            guid = plr->GetGUID();
+    }
+    else
+    {
+        if(getSelectedPlayer())
+            plr = getSelectedPlayer();
+        else
+            plr = m_session->GetPlayer();
+
+        if(!guid || !offline)
+            guid  = plr->GetGUID();
+        group = plr->GetGroup();
+    }
+
+    return true;
 }
