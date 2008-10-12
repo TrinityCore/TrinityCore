@@ -2426,7 +2426,7 @@ void World::ShutdownMsg(bool show, Player* player)
         uint32 msgid = (m_ShutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_TIME : SERVER_MSG_SHUTDOWN_TIME;
 
         SendServerMessage(msgid,str.c_str(),player);
-        DEBUG_LOG("Server is %s in %s",(m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"),str.c_str());
+        outstring_log("Server will %s in %s", (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shutdown"), str.c_str());
     }
 }
 

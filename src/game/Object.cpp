@@ -264,6 +264,8 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags, uint32 flags2 
             case TYPEID_UNIT:
             {
                 flags2 = ((Unit*)this)->GetUnitMovementFlags();
+                flags2 &= ~MOVEMENTFLAG_ONTRANSPORT;
+                flags2 &= ~MOVEMENTFLAG_SPLINE2;
             }
             break;
             case TYPEID_PLAYER:
