@@ -24,6 +24,7 @@
 #include "Log.h"
 #include "MapManager.h"
 #include "Policies/SingletonImp.h"
+#include "IRCClient.h"
 
 INSTANTIATE_SINGLETON_1(GameEvent);
 
@@ -421,6 +422,14 @@ void GameEvent::ApplyNewEvent(uint16 event_id)
     }
 
     sLog.outString("GameEvent %u \"%s\" started.", event_id, mGameEvent[event_id].description.c_str());
+
+    if((sIRC.BOTMASK & 256) != 0)
+    {
+        std::string ircchan = "#";
+        ircchan += sIRC._irc_chan[sIRC.anchn].c_str();
+        sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("\00304,08\037/!\\\037\017\00304 Game Event \00304,08\037/!\\\037\017 %s", "%s", mGameEvent[event_id].description.c_str()), true);
+    }
+
     // spawn positive event tagget objects
     GameEventSpawn(event_id);
     // un-spawn negative event tagged objects

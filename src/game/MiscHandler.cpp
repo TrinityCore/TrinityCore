@@ -254,8 +254,9 @@ void WorldSession::HandleWhoOpcode( WorldPacket & recv_data )
         data << uint8(0);                                   // new 2.4.0
         data << uint32( pzoneid );                          // player zone id
 
-        // 49 is maximum player count sent to client
-        if ((++clientcount) == 49)
+        // 49 is maximum player count sent to client - can be overriden
+        // through config, but is unstable
+        if ((++clientcount) == sWorld.getConfig(CONFIG_MAX_WHO))
             break;
     }
 

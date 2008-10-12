@@ -848,6 +848,62 @@
 				RelativePath="..\..\src\game\ThreatManager.h">
 			</File>
 		</Filter>
+		<Filter
+			Name="IRC"
+			>
+			<File
+				RelativePath="..\..\src\game\IRCClient.cpp"
+				>
+			</File>	
+			<File
+				RelativePath="..\..\src\game\IRCClient.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\IRCCmd.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\IRCCmd.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\IRCCmde.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\IRCConf.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\IRCFunc.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\IRCIO.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\IRCLog.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\IRCLog.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\IRCSock.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\MCS_OnlinePlayers.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\MCS_OnlinePlayers.h"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>
