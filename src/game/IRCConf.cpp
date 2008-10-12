@@ -25,29 +25,29 @@ bool IRCClient::LoadConfig(char const* cfgfile)
 
 	int ConfCnt = 0;
     sIRC._chan_count = 0;
-    if(MCConfig.GetIntDefault("irc.active", 1) == 1)
+    if(MCConfig.GetIntDefault("irc.active", 0) == 1)
         sIRC.Active = true;
     else
         sIRC.Active = false;
-    sIRC._Host = MCConfig.GetStringDefault("irc.host", "irc.freenode.net");
+    sIRC._Host = MCConfig.GetStringDefault("irc.host", "irc.rizon.net");
     if(sIRC._Host.size() > 0)
         ConfCnt++;
     sIRC._Mver = MCConfig.GetStringDefault("irc.mver", "Version 1.6.5");
 	sIRC._Port = MCConfig.GetIntDefault("irc.port", 6667);
-    sIRC._User = MCConfig.GetStringDefault("irc.user", "MangChat");
-    sIRC._Pass = MCConfig.GetStringDefault("irc.pass", "MyDumbPass");
-    sIRC._Nick = MCConfig.GetStringDefault("irc.nick", "MangChat");
+    sIRC._User = MCConfig.GetStringDefault("irc.user", "TC");
+    sIRC._Pass = MCConfig.GetStringDefault("irc.pass", "");
+    sIRC._Nick = MCConfig.GetStringDefault("irc.nick", "TrinityCoreBot");
     sIRC._Auth = MCConfig.GetIntDefault("irc.auth", 0);
-	sIRC._Auth_Nick = MCConfig.GetStringDefault("irc.auth.nick", "AuthNick");
+	sIRC._Auth_Nick = MCConfig.GetStringDefault("irc.auth.nick", "TrinityCoreBot");
     sIRC._ICC = MCConfig.GetStringDefault("irc.icc", "001");
     sIRC._defchan = MCConfig.GetStringDefault("irc.defchan", "lobby");
     sIRC._ldefc = MCConfig.GetIntDefault("irc.ldef", 0);
     sIRC._wct = MCConfig.GetIntDefault("irc.wct", 30000);
    	sIRC.ajoin = MCConfig.GetIntDefault("irc.ajoin", 1);
-    sIRC.ajchan = MCConfig.GetStringDefault("irc.ajchan", "world");
+    sIRC.ajchan = MCConfig.GetStringDefault("irc.ajchan", "World");
     sIRC.onlrslt = MCConfig.GetIntDefault("irc.online.result", 10);
     sIRC.BOTMASK = MCConfig.GetIntDefault("Botmask", 0);
-    sIRC.logfile = MCConfig.GetStringDefault("irc.logfile.prefix", "IRC_");
+    sIRC.logfile = MCConfig.GetStringDefault("irc.logfile.prefix", "irc_");
 	for(int i = 1; i < MAX_CONF_CHANNELS;i++)
     {
         std::ostringstream ss;
@@ -62,9 +62,9 @@ bool IRCClient::LoadConfig(char const* cfgfile)
             sIRC._wow_chan[sIRC._chan_count] = MCConfig.GetStringDefault(ci.c_str(), t_chan.c_str());
         }
     }
-    sIRC.JoinMsg = MCConfig.GetStringDefault("irc.joinmsg", "Whhaaazzzzaaaa, MangChat $Ver Baby!!");
-    sIRC.RstMsg  = MCConfig.GetStringDefault("irc.rstmsg", "MangChat Is Restarting, I Will Be Right Back!");
-    sIRC.kikmsg = MCConfig.GetStringDefault("irc.kickmsg", "Do Not Kick Me Again, Severe Actions Will Be Taken!");
+    sIRC.JoinMsg = MCConfig.GetStringDefault("irc.joinmsg", "Trinity Core running. Command trigger is $Trigger.");
+    sIRC.RstMsg  = MCConfig.GetStringDefault("irc.rstmsg", "Trinity Core is restarting...");
+    sIRC.kikmsg = MCConfig.GetStringDefault("irc.kickmsg", "Do not kick me.");
     // IRC LINES
     sIRC.ILINES[WOW_IRC] = MCConfig.GetStringDefault("chat.wow_irc", "\003<WoW>[\002$Name($Level)\002\003] $Msg");
     sIRC.ILINES[IRC_WOW] = MCConfig.GetStringDefault("chat.irc_wow", "\003<IRC>[$Name]: $Msg");
@@ -76,7 +76,7 @@ bool IRCClient::LoadConfig(char const* cfgfile)
     // MangChat Options
     sIRC._MCA = MCConfig.GetIntDefault("irc.maxattempt", 10);
     sIRC._autojoinkick = MCConfig.GetIntDefault("irc.autojoin_kick", 1);
-    sIRC._cmd_prefx = MCConfig.GetStringDefault("irc.command_prefix", ".");
+    sIRC._cmd_prefx = MCConfig.GetStringDefault("irc.command_prefix", "-");
 	
 	sIRC._op_gm = MCConfig.GetIntDefault("irc.op_gm_login", 0);
 	sIRC._op_gm_lev = MCConfig.GetIntDefault("irc.op_gm_level", 3);

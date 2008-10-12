@@ -32,8 +32,7 @@ $(POSTGRE_INCLUDES) \
 -I$(top_srcdir)/src/framework \
 -I$(top_srcdir)/src/game \
 -I$(srcdir)/include \
-$(TRINI_INCLUDES) \
--D_TRINITY_SCRIPT_CONFIG='"$(sysconfdir)/trinityscript.conf"'
+$(TRINI_INCLUDES)
 
 libtrinityscript_la_SOURCES = \
 ScriptMgr.cpp \
@@ -398,11 +397,9 @@ libtrinityscript_la_LIBFLAGS = -version-info 0:0:1
 libtrinityscript_la_LIBADD =  $(MYSQL_LIBS) $(POSTGRE_LIBS)
 
 ## Additional files to install
-sysconf_DATA = \
-	trinityscript.conf.dist
+## sysconf_DATA = 
 
-EXTRA_DIST =  \
-        trinityscript.conf.dist
+## EXTRA_DIST = 
 
 ## Prevend overwrite of the config file, if its already installed
 install-data-hook:

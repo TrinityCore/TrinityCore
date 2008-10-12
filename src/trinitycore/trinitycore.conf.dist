@@ -53,6 +53,28 @@ WorldServerPort = 8085
 BindIP = "0.0.0.0"
 
 ###################################################################################################################
+# SCRIPTING SETTINGS
+#
+# TScriptDatabaseInfo
+#     Database connection settings for the wor
+#          .;somenumber;username;password;database - use named pipes at Windows
+#                Named pipes: mySQL required adding "enable-named-pipe" to [mysqld] section my.ini
+#          .;/path/to/unix_socket;username;password;database - use Unix sockets at Unix/Linux
+#                Unix sockets: experimental, not tested
+#
+# Locale
+#     Setting for current (DBC) locale to use
+#
+# EventAI Error reporting
+# 0 - Only startup (Default)
+# 1 - Startup errors and Runtime event errors
+# 2 - Startup errors, Runtime event errors, and Creation errors
+###################################################################################################################
+
+Locale = 0
+EAIErrorLevel = 2
+
+###################################################################################################################
 # PERFORMANCE SETINGS
 #
 #    UseProcessors
@@ -1351,7 +1373,7 @@ irc.wct = 30000
 irc.maxattempt = 20
 irc.auto.announce = 30
 irc.autojoin_kick = 1
-irc.command_prefix = "."
+irc.command_prefix = "-"
 irc.joinmsg = "Trinity Core running. Command trigger is $Trigger."
 irc.rstmsg  = "Trinity Core is restarting..."
 irc.kickmsg = "Do not kick me."
@@ -1362,10 +1384,10 @@ irc.AnnounceChannel = 1
 irc.op_gm_login = 0
 irc.op_gm_level = 3
 irc.ajoin = 1
-irc.ajchan = "world"
+irc.ajchan = "World"
 irc.online.result = 30
-chat.wow_irc = "<WoW>$Name [$Level]: $Msg"
-chat.irc_wow = "<IRC>$Name: $Msg"
+chat.wow_irc = "-WoW-$Name [$Level]: $Msg"
+chat.irc_wow = "-IRC-$Name: $Msg"
 chat.join_wow = "[$GM] $Name has joined IRC."
 chat.leave_wow = "[$GM] $Name has left IRC."
 Botmask = 1023

@@ -12,13 +12,9 @@
 
 #define _FULLVERSION "TrinityScript"
 
-#ifndef _TSCRIPTCONFVERSION
-# define _TSCRIPTCONFVERSION 2008100201
-#endif //_TSCRIPTCONFVERSION
-
 #ifndef _TRINITY_SCRIPT_CONFIG
-# define _TRINITY_SCRIPT_CONFIG  "trinityscript.conf"
-#endif //_TRINITY_SCRIPT_CONFIG
+# define _TRINITY_SCRIPT_CONFIG  "trinitycore.conf"
+#endif _TRINITY_SCRIPT_CONFIG
 
 //*** Global data ***
 int nrscripts;
@@ -596,9 +592,9 @@ void LoadDatabase()
     //Get db string from file
     char const* dbstring = NULL;
 
-    if( !TScriptConfig.GetString("TScriptDatabaseInfo", &dbstring) )
+    if( !TScriptConfig.GetString("WorldDatabaseInfo", &dbstring) )
     {
-        error_log("TSCR: Missing Trinity Script database info from configuration file. Load database aborted.");
+        error_log("TSCR: Missing world database info from configuration file. Load database aborted.");
         return;
     }
 
@@ -1213,10 +1209,6 @@ void ScriptsInit()
         error_log("TSCR: Unable to open configuration file. Database will be unaccessible. Configuration values will use default.");
     }
     else outstring_log("TSCR: Using configuration file %s",_TRINITY_SCRIPT_CONFIG);
-
-    //Check config file version
-    if (TScriptConfig.GetIntDefault("ConfVersion", 0) != _TSCRIPTCONFVERSION)
-        error_log("TSCR: Configuration file version doesn't match expected version. Some config variables may be wrong or missing.");
 
     //Locale
     Locale = TScriptConfig.GetIntDefault("Locale", 0);
