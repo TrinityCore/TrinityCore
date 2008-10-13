@@ -98,10 +98,6 @@
 			<Tool
 				Name="VCWebDeploymentTool"
 			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\trinityscript.conf.dist ..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityScript.conf.dist"
-			/>
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
@@ -183,10 +179,6 @@
 			/>
 			<Tool
 				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\trinityscript.conf.dist ..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityScript.conf.dist"
 			/>
 		</Configuration>
 		<Configuration
@@ -270,10 +262,6 @@
 			<Tool
 				Name="VCWebDeploymentTool"
 			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\trinityscript.conf.dist ..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityScript.conf.dist"
-			/>
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
@@ -355,10 +343,6 @@
 			/>
 			<Tool
 				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\trinityscript.conf.dist ..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityScript.conf.dist"
 			/>
 		</Configuration>
 	</Configurations>

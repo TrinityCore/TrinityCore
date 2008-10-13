@@ -46,9 +46,6 @@
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\trinityscript.conf.dist ..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityScript.conf.dist"/>
-			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
@@ -98,9 +95,6 @@
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\trinityscript.conf.dist ..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityScript.conf.dist"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool

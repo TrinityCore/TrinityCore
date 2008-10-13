@@ -98,10 +98,6 @@
 			<Tool
 				Name="VCAppVerifierTool"
 			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\trinityscript.conf.dist ..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityScript.conf.dist"
-			/>
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
@@ -182,10 +178,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\trinityscript.conf.dist ..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityScript.conf.dist"
 			/>
 		</Configuration>
 		<Configuration
@@ -269,10 +261,6 @@
 			<Tool
 				Name="VCAppVerifierTool"
 			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\trinityscript.conf.dist ..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityScript.conf.dist"
-			/>
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
@@ -353,10 +341,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\trinityscript.conf.dist ..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityScript.conf.dist"
 			/>
 		</Configuration>
 	</Configurations>
