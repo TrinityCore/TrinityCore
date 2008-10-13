@@ -32,7 +32,8 @@ $(POSTGRE_INCLUDES) \
 -I$(top_srcdir)/src/framework \
 -I$(top_srcdir)/src/game \
 -I$(srcdir)/include \
-$(TRINI_INCLUDES)
+$(TRINI_INCLUDES) \
+-D_TRINITY_SCRIPT_CONFIG='"$(sysconfdir)/trinitycore.conf"'
 
 libtrinityscript_la_SOURCES = \
 ScriptMgr.cpp \
