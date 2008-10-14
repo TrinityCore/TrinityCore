@@ -4,7 +4,7 @@
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
+# the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -141,21 +141,6 @@ $(srcdir)/InstanceData.cpp \
 $(srcdir)/InstanceData.h \
 $(srcdir)/InstanceSaveMgr.cpp \
 $(srcdir)/InstanceSaveMgr.h \
-$(srcdir)/IRCClient.cpp \
-$(srcdir)/IRCClient.h \
-$(srcdir)/IRCCmd.cpp \
-$(srcdir)/IRCCmd.h \
-$(srcdir)/IRCCmde.cpp \
-$(srcdir)/IRCConf.cpp \
-$(srcdir)/IRCConf.h \
-$(srcdir)/IRCConf.h \
-$(srcdir)/IRCFunc.h \
-$(srcdir)/IRCIO.cpp \
-$(srcdir)/IRCLog.cpp \
-$(srcdir)/IRCLog.h \
-$(srcdir)/IRCSock.cpp \
-$(srcdir)/MCS_OnlinePlayers.cpp \
-$(srcdir)/MCS_OnlinePlayers.h \
 $(srcdir)/Item.cpp \
 $(srcdir)/Item.h \
 $(srcdir)/ItemEnchantmentMgr.cpp \
@@ -201,6 +186,24 @@ $(srcdir)/ObjectMgr.cpp \
 $(srcdir)/ObjectMgr.h \
 $(srcdir)/Opcodes.cpp \
 $(srcdir)/Opcodes.h \
+$(srcdir)/OutdoorPvP.cpp \
+$(srcdir)/OutdoorPvP.h \
+$(srcdir)/OutdoorPvPEP.cpp \
+$(srcdir)/OutdoorPvPEP.h \
+$(srcdir)/OutdoorPvPHP.cpp \
+$(srcdir)/OutdoorPvPHP.h \
+$(srcdir)/OutdoorPvPMgr.cpp \
+$(srcdir)/OutdoorPvPMgr.h \
+$(srcdir)/OutdoorPvPNA.cpp \
+$(srcdir)/OutdoorPvPNA.h \
+$(srcdir)/OutdoorPvPObjectiveAI.cpp \
+$(srcdir)/OutdoorPvPObjectiveAI.h \
+$(srcdir)/OutdoorPvPSI.cpp \
+$(srcdir)/OutdoorPvPSI.h \
+$(srcdir)/OutdoorPvPTF.cpp \
+$(srcdir)/OutdoorPvPTF.h \
+$(srcdir)/OutdoorPvPZM.cpp \
+$(srcdir)/OutdoorPvPZM.h \
 $(srcdir)/Path.h \
 $(srcdir)/PetAI.cpp \
 $(srcdir)/PetAI.h \

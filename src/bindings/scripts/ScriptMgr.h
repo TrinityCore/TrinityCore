@@ -1,4 +1,7 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ *
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -78,11 +81,11 @@ void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target = NULL);
 #endif
 
 #ifdef WIN32
-  #define MANGOS_DLL_EXPORT extern "C" __declspec(dllexport)
+  #define TRINITY_DLL_EXPORT extern "C" __declspec(dllexport)
 #elif defined( __GNUC__ )
-  #define MANGOS_DLL_EXPORT extern "C"
+  #define TRINITY_DLL_EXPORT extern "C"
 #else
-  #define MANGOS_DLL_EXPORT extern "C" export
+  #define TRINITY_DLL_EXPORT extern "C" export
 #endif
 
 #endif

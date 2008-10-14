@@ -1,5 +1,7 @@
 /* 
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "Database/Database.h"
@@ -29,7 +31,7 @@ Database::AsyncQuery(Class *object, void (Class::*method)(QueryResult*), const c
     ZThread::ThreadImpl * queryThread = ZThread::ThreadImpl::current();
     QueryQueues::iterator itr = m_queryQueues.find(queryThread);
     if (itr == m_queryQueues.end()) return false;
-    m_threadBody->Delay(new SqlQuery(sql, new MaNGOS::QueryCallback<Class>(object, method), itr->second));
+    m_threadBody->Delay(new SqlQuery(sql, new Trinity::QueryCallback<Class>(object, method), itr->second));
     return true;
 }
 
@@ -41,7 +43,7 @@ Database::AsyncQuery(Class *object, void (Class::*method)(QueryResult*, ParamTyp
     ZThread::ThreadImpl * queryThread = ZThread::ThreadImpl::current();
     QueryQueues::iterator itr = m_queryQueues.find(queryThread);
     if (itr == m_queryQueues.end()) return false;
-    m_threadBody->Delay(new SqlQuery(sql, new MaNGOS::QueryCallback<Class, ParamType1>(object, method, (QueryResult*)NULL, param1), itr->second));
+    m_threadBody->Delay(new SqlQuery(sql, new Trinity::QueryCallback<Class, ParamType1>(object, method, (QueryResult*)NULL, param1), itr->second));
     return true;
 }
 
@@ -53,7 +55,7 @@ Database::AsyncQuery(void (*method)(QueryResult*, ParamType1), ParamType1 param1
     ZThread::ThreadImpl * queryThread = ZThread::ThreadImpl::current();
     QueryQueues::iterator itr = m_queryQueues.find(queryThread);
     if (itr == m_queryQueues.end()) return false;
-    m_threadBody->Delay(new SqlQuery(sql, new MaNGOS::SQueryCallback<ParamType1>(method, (QueryResult*)NULL, param1), itr->second));
+    m_threadBody->Delay(new SqlQuery(sql, new Trinity::SQueryCallback<ParamType1>(method, (QueryResult*)NULL, param1), itr->second));
     return true;
 }
 
@@ -129,7 +131,7 @@ Database::DelayQueryHolder(Class *object, void (Class::*method)(QueryResult*, Sq
     ZThread::ThreadImpl * queryThread = ZThread::ThreadImpl::current();
     QueryQueues::iterator itr = m_queryQueues.find(queryThread);
     if (itr == m_queryQueues.end()) return false;
-    holder->Execute(new MaNGOS::QueryCallback<Class, SqlQueryHolder*>(object, method, (QueryResult*)NULL, holder), m_threadBody, itr->second);
+    holder->Execute(new Trinity::QueryCallback<Class, SqlQueryHolder*>(object, method, (QueryResult*)NULL, holder), m_threadBody, itr->second);
     return true;
 }
 
@@ -141,6 +143,6 @@ Database::DelayQueryHolder(Class *object, void (Class::*method)(QueryResult*, Sq
     ZThread::ThreadImpl * queryThread = ZThread::ThreadImpl::current();
     QueryQueues::iterator itr = m_queryQueues.find(queryThread);
     if (itr == m_queryQueues.end()) return false;
-    holder->Execute(new MaNGOS::QueryCallback<Class, SqlQueryHolder*, ParamType1>(object, method, (QueryResult*)NULL, holder, param1), m_threadBody, itr->second);
+    holder->Execute(new Trinity::QueryCallback<Class, SqlQueryHolder*, ParamType1>(object, method, (QueryResult*)NULL, holder, param1), m_threadBody, itr->second);
     return true;
 }

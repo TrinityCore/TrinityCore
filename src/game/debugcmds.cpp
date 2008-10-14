@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "Common.h"
@@ -517,5 +519,48 @@ bool ChatHandler::HandleGetItemState(const char* args)
 bool ChatHandler::HandleDebugArenaCommand(const char * /*args*/)
 {
     sBattleGroundMgr.ToggleArenaTesting();
+    return true;
+}
+
+bool ChatHandler::HandleDebugThreatList(const char * /*args*/)
+{
+    Creature* target = getSelectedCreature();
+    if(!target || target->isTotem() || target->isPet())
+        return false;
+
+    std::list<HostilReference*>& tlist = target->getThreatManager().getThreatList();
+    std::list<HostilReference*>::iterator itr;
+    uint32 cnt = 0;
+    PSendSysMessage("Threat list of %s (guid %u)",target->GetName(), target->GetGUIDLow());
+    for(itr = tlist.begin(); itr != tlist.end(); ++itr)
+    {
+        Unit* unit = (*itr)->getTarget();
+        if(!unit)
+            continue;
+        ++cnt;
+        PSendSysMessage("   %u.   %s   (guid %u)  - threat %f",cnt,unit->GetName(), unit->GetGUIDLow(), (*itr)->getThreat());
+    }
+    SendSysMessage("End of threat list.");
+    return true;
+}
+
+bool ChatHandler::HandleDebugHostilRefList(const char * /*args*/)
+{
+    Unit* target = getSelectedUnit();
+    if(!target)
+        target = m_session->GetPlayer();
+    HostilReference* ref = target->getHostilRefManager().getFirst();
+    uint32 cnt = 0;
+    PSendSysMessage("Hostil reference list of %s (guid %u)",target->GetName(), target->GetGUIDLow());
+    while(ref)
+    {
+        if(Unit * unit = ref->getSource()->getOwner())
+        {
+            ++cnt;
+            PSendSysMessage("   %u.   %s   (guid %u)  - threat %f",cnt,unit->GetName(), unit->GetGUIDLow(), ref->getThreat());
+        }
+        ref = ref->next();
+    }
+    SendSysMessage("End of hostil reference list.");
     return true;
 }

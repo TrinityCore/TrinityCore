@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "TotemAI.h"
@@ -80,17 +82,17 @@ TotemAI::UpdateAI(const uint32 /*diff*/)
         !victim->isTargetableForAttack() || !i_totem.IsWithinDistInMap(victim, max_range) ||
         i_totem.IsFriendlyTo(victim) || !victim->isVisibleForOrDetect(&i_totem,false) )
     {
-        CellPair p(MaNGOS::ComputeCellPair(i_totem.GetPositionX(),i_totem.GetPositionY()));
+        CellPair p(Trinity::ComputeCellPair(i_totem.GetPositionX(),i_totem.GetPositionY()));
         Cell cell(p);
         cell.data.Part.reserved = ALL_DISTRICT;
 
         victim = NULL;
 
-        MaNGOS::NearestAttackableUnitInObjectRangeCheck u_check(&i_totem, &i_totem, max_range);
-        MaNGOS::UnitLastSearcher<MaNGOS::NearestAttackableUnitInObjectRangeCheck> checker(victim, u_check);
+        Trinity::NearestAttackableUnitInObjectRangeCheck u_check(&i_totem, &i_totem, max_range);
+        Trinity::UnitLastSearcher<Trinity::NearestAttackableUnitInObjectRangeCheck> checker(victim, u_check);
 
-        TypeContainerVisitor<MaNGOS::UnitLastSearcher<MaNGOS::NearestAttackableUnitInObjectRangeCheck>, GridTypeMapContainer > grid_object_checker(checker);
-        TypeContainerVisitor<MaNGOS::UnitLastSearcher<MaNGOS::NearestAttackableUnitInObjectRangeCheck>, WorldTypeMapContainer > world_object_checker(checker);
+        TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::NearestAttackableUnitInObjectRangeCheck>, GridTypeMapContainer > grid_object_checker(checker);
+        TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::NearestAttackableUnitInObjectRangeCheck>, WorldTypeMapContainer > world_object_checker(checker);
 
         CellLock<GridReadGuard> cell_lock(cell, p);
         cell_lock->Visit(cell_lock, grid_object_checker,  *MapManager::Instance().GetMap(i_totem.GetMapId(), &i_totem));

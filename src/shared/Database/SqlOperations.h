@@ -1,5 +1,7 @@
 /* 
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #ifndef __SQLOPERATIONS_H
@@ -70,7 +72,7 @@ class SqlResultQueue;                                       /// queue for thread
 class SqlQueryHolder;                                       /// groups several async quries
 class SqlQueryHolderEx;                                     /// points to a holder, added to the delay thread
 
-class SqlResultQueue : public ZThread::LockedQueue<MaNGOS::IQueryCallback*, ZThread::FastMutex>
+class SqlResultQueue : public ZThread::LockedQueue<Trinity::IQueryCallback*, ZThread::FastMutex>
 {
     public:
         SqlResultQueue() {}
@@ -81,10 +83,10 @@ class SqlQuery : public SqlOperation
 {
     private:
         const char *m_sql;
-        MaNGOS::IQueryCallback * m_callback;
+        Trinity::IQueryCallback * m_callback;
         SqlResultQueue * m_queue;
     public:
-        SqlQuery(const char *sql, MaNGOS::IQueryCallback * callback, SqlResultQueue * queue)
+        SqlQuery(const char *sql, Trinity::IQueryCallback * callback, SqlResultQueue * queue)
             : m_sql(strdup(sql)), m_callback(callback), m_queue(queue) {}
         ~SqlQuery() { void* tofree = const_cast<char*>(m_sql); free(tofree); }
         void Execute(Database *db);
@@ -104,17 +106,17 @@ class SqlQueryHolder
         void SetSize(size_t size);
         QueryResult* GetResult(size_t index);
         void SetResult(size_t index, QueryResult *result);
-        void Execute(MaNGOS::IQueryCallback * callback, SqlDelayThread *thread, SqlResultQueue *queue);
+        void Execute(Trinity::IQueryCallback * callback, SqlDelayThread *thread, SqlResultQueue *queue);
 };
 
 class SqlQueryHolderEx : public SqlOperation
 {
     private:
         SqlQueryHolder * m_holder;
-        MaNGOS::IQueryCallback * m_callback;
+        Trinity::IQueryCallback * m_callback;
         SqlResultQueue * m_queue;
     public:
-        SqlQueryHolderEx(SqlQueryHolder *holder, MaNGOS::IQueryCallback * callback, SqlResultQueue * queue)
+        SqlQueryHolderEx(SqlQueryHolder *holder, Trinity::IQueryCallback * callback, SqlResultQueue * queue)
             : m_holder(holder), m_callback(callback), m_queue(queue) {}
         void Execute(Database *db);
 };

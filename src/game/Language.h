@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,18 +10,18 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef __MANGOS_LANGUAGE_H
-#define __MANGOS_LANGUAGE_H
+#ifndef __TRINITY_LANGUAGE_H
+#define __TRINITY_LANGUAGE_H
 
-enum MangosStrings
+enum TrinityStrings
 {
     // for chat commands
     LANG_SELECT_CHAR_OR_CREATURE        = 1,
@@ -659,6 +661,69 @@ enum MangosStrings
     // FREE IDS                           1000-9999
 
     // Use for not-in-svn patches         10000-10999
+    // opvp hp
+    LANG_OPVP_HP_CAPTURE_OVERLOOK_H     = 10001,
+    LANG_OPVP_HP_CAPTURE_OVERLOOK_A     = 10002,
+    LANG_OPVP_HP_CAPTURE_STADIUM_H      = 10003,
+    LANG_OPVP_HP_CAPTURE_STADIUM_A      = 10004,
+    LANG_OPVP_HP_CAPTURE_BROKENHILL_H   = 10005,
+    LANG_OPVP_HP_CAPTURE_BROKENHILL_A   = 10006,
+    LANG_OPVP_HP_LOOSE_OVERLOOK_H       = 10007,
+    LANG_OPVP_HP_LOOSE_OVERLOOK_A       = 10008,
+    LANG_OPVP_HP_LOOSE_STADIUM_H        = 10009,
+    LANG_OPVP_HP_LOOSE_STADIUM_A        = 10010,
+    LANG_OPVP_HP_LOOSE_BROKENHILL_H     = 10011,
+    LANG_OPVP_HP_LOOSE_BROKENHILL_A     = 10012,
+    // opvp zm
+    LANG_OPVP_ZM_CAPTURE_WEST_H         = 10013,
+    LANG_OPVP_ZM_CAPTURE_WEST_A         = 10014,
+    LANG_OPVP_ZM_CAPTURE_EAST_H         = 10015,
+    LANG_OPVP_ZM_CAPTURE_EAST_A         = 10016,
+    LANG_OPVP_ZM_CAPTURE_GY_H           = 10017,
+    LANG_OPVP_ZM_CAPTURE_GY_A           = 10018,
+    LANG_OPVP_ZM_LOOSE_WEST_H           = 10019,
+    LANG_OPVP_ZM_LOOSE_WEST_A           = 10020,
+    LANG_OPVP_ZM_LOOSE_EAST_H           = 10021,
+    LANG_OPVP_ZM_LOOSE_EAST_A           = 10022,
+    LANG_OPVP_ZM_LOOSE_GY_H             = 10023,
+    LANG_OPVP_ZM_LOOSE_GY_A             = 10024,
+    // opvp na
+    LANG_OPVP_NA_CAPTURE_H              = 10025,
+    LANG_OPVP_NA_CAPTURE_A              = 10026,
+    LANG_OPVP_NA_LOOSE_H                = 10027,
+    LANG_OPVP_NA_LOOSE_A                = 10028,
+    // opvp tf
+    LANG_OPVP_TF_CAPTURE_H              = 10029,
+    LANG_OPVP_TF_CAPTURE_A              = 10030,
+    LANG_OPVP_TF_LOOSE_H                = 10031,
+    LANG_OPVP_TF_LOOSE_A                = 10032,
+    // opvp ep
+    LANG_OPVP_EP_CAPTURE_NPT_H          = 10033,
+    LANG_OPVP_EP_CAPTURE_NPT_A          = 10034,
+    LANG_OPVP_EP_CAPTURE_EWT_H          = 10035,
+    LANG_OPVP_EP_CAPTURE_EWT_A          = 10036,
+    LANG_OPVP_EP_CAPTURE_CGT_H          = 10037,
+    LANG_OPVP_EP_CAPTURE_CGT_A          = 10038,
+    LANG_OPVP_EP_CAPTURE_PWT_H          = 10039,
+    LANG_OPVP_EP_CAPTURE_PWT_A          = 10040,
+    LANG_OPVP_EP_LOOSE_NPT_H            = 10041,
+    LANG_OPVP_EP_LOOSE_NPT_A            = 10042,
+    LANG_OPVP_EP_LOOSE_EWT_H            = 10043,
+    LANG_OPVP_EP_LOOSE_EWT_A            = 10044,
+    LANG_OPVP_EP_LOOSE_CGT_H            = 10045,
+    LANG_OPVP_EP_LOOSE_CGT_A            = 10046,
+    LANG_OPVP_EP_LOOSE_PWT_H            = 10047,
+    LANG_OPVP_EP_LOOSE_PWT_A            = 10048,
+    // opvp si
+    LANG_OPVP_SI_CAPTURE_H              = 10049,
+    LANG_OPVP_SI_CAPTURE_A              = 10050,
+    // opvp gossips
+    LANG_OPVP_EP_FLIGHT_NPT             = 10051,
+    LANG_OPVP_EP_FLIGHT_EWT             = 10052,
+    LANG_OPVP_EP_FLIGHT_CGT             = 10053,
+    LANG_OPVP_ZM_GOSSIP_ALLIANCE        = 10054,
+    LANG_OPVP_ZM_GOSSIP_HORDE           = 10055,
+
     // Use for custom patches             11000-11999
 
     // NOT RESERVED IDS                   12000-

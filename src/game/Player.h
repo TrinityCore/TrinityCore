@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #ifndef _PLAYER_H
@@ -45,6 +47,7 @@ class PlayerMenu;
 class Transport;
 class UpdateMask;
 class PlayerSocial;
+class OutdoorPvP;
 
 typedef std::deque<Mail*> PlayerMails;
 
@@ -832,7 +835,7 @@ struct InstancePlayerBind
     InstancePlayerBind() : save(NULL), perm(false) {}
 };
 
-class MANGOS_DLL_SPEC PlayerTaxi
+class TRINITY_DLL_SPEC PlayerTaxi
 {
     public:
         PlayerTaxi();
@@ -883,7 +886,7 @@ class MANGOS_DLL_SPEC PlayerTaxi
         std::deque<uint32> m_TaxiDestinations;
 };
 
-class MANGOS_DLL_SPEC Player : public Unit
+class TRINITY_DLL_SPEC Player : public Unit
 {
     friend class WorldSession;
     friend void Item::AddToUpdateQueueOf(Player *player);
@@ -1776,7 +1779,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void UpdateEquipSpellsAtFormChange();
         void CastItemCombatSpell(Item *item,Unit* Target, WeaponAttackType attType);
 
-        void SendInitWorldStates();
+        void SendInitWorldStates(bool force = false, uint32 forceZoneId = 0);
         void SendUpdateWorldState(uint32 Field, uint32 Value);
         void SendDirectMessage(WorldPacket *data);
 
@@ -1803,13 +1806,13 @@ class MANGOS_DLL_SPEC Player : public Unit
         static uint32 GetMaxLevelForBattleGroundQueueId(uint32 queue_id);
         uint32 GetBattleGroundQueueIdFromLevel() const;
 
-        bool InBattleGroundQueue() const 	 
-	    { 	 
-	        for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++) 	 
-                if (m_bgBattleGroundQueueID[i].bgQueueType != 0) 	 
-	                return true; 	 
-	        return false; 	 
-	    }
+        bool InBattleGroundQueue() const
+        {
+            for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
+                if (m_bgBattleGroundQueueID[i].bgQueueType != 0)
+                    return true;
+            return false;
+        }
 
         uint32 GetBattleGroundQueueId(uint32 index) const { return m_bgBattleGroundQueueID[index].bgQueueType; }
         uint32 GetBattleGroundQueueIndex(uint32 bgQueueType) const
@@ -1902,6 +1905,14 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         bool GetBGAccessByLevel(uint32 bgTypeId) const;
         bool isAllowUseBattleGroundObject();
+
+        /*********************************************************/
+        /***               OUTDOOR PVP SYSTEM                  ***/
+        /*********************************************************/
+
+        OutdoorPvP * GetOutdoorPvP() const;
+        // returns true if the player is in active state for outdoor pvp objective capturing, false otherwise
+        bool IsOutdoorPvPActive();
 
         /*********************************************************/
         /***                    REST SYSTEM                    ***/

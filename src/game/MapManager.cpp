@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "MapManager.h"
@@ -31,7 +33,7 @@
 #include "Corpse.h"
 #include "ObjectMgr.h"
 
-#define CLASS_LOCK MaNGOS::ClassLevelLockable<MapManager, ZThread::Mutex>
+#define CLASS_LOCK Trinity::ClassLevelLockable<MapManager, ZThread::Mutex>
 INSTANTIATE_SINGLETON_2(MapManager, CLASS_LOCK);
 INSTANTIATE_CLASS_MUTEX(MapManager, ZThread::Mutex);
 
@@ -82,7 +84,7 @@ void MapManager::checkAndCorrectGridStatesArray()
             ok = false;
             si_GridStates[i] = i_GridStates[i];
         }
-        #ifdef MANGOS_DEBUG
+        #ifdef TRINITY_DEBUG
         // inner class checking only when compiled with debug
         if(!si_GridStates[i]->checkMagic())
         {
@@ -265,7 +267,7 @@ void MapManager::DoDelayedMovesAndRemoves()
 
 bool MapManager::ExistMapAndVMap(uint32 mapid, float x,float y)
 {
-    GridPair p = MaNGOS::ComputeGridPair(x,y);
+    GridPair p = Trinity::ComputeGridPair(x,y);
 
     int gx=63-p.x_coord;
     int gy=63-p.y_coord;
@@ -281,7 +283,7 @@ bool MapManager::IsValidMAP(uint32 mapid)
 
 void MapManager::LoadGrid(int mapid, float x, float y, const WorldObject* obj, bool no_unload)
 {
-    CellPair p = MaNGOS::ComputeCellPair(x,y);
+    CellPair p = Trinity::ComputeCellPair(x,y);
     Cell cell(p);
     GetMap(mapid, obj)->LoadGrid(cell,no_unload);
 }

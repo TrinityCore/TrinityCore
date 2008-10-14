@@ -1,4 +1,6 @@
-# Copyright (C) 2005-2008 MaNGOS project <http://www.mangosproject.org/>
+# Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+#
+# Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -159,7 +161,7 @@ fi
 ## Check for options
 #  Include debug info in library?
 AC_MSG_CHECKING(whether to include debug info in library)
-MANGOSD_DEBUG_INFO=no
+TRINITYD_DEBUG_INFO=no
 AC_ARG_WITH(debug-info,
 [
 Debugging options:
@@ -167,47 +169,47 @@ Debugging options:
   --with-debug-info       Include debug info in library],
 [
     if test "$withval" = "yes" ; then
-	CFLAGS="-g -DMANGOS_DEBUG $CFLAGS"
-	CXXFLAGS="-g -DMANGOS_DEBUG $CXXFLAGS"
-	MANGOSD_DEBUG_INFO=yes
+	CFLAGS="-g -DTRINITY_DEBUG $CFLAGS"
+	CXXFLAGS="-g -DTRINITY_DEBUG $CXXFLAGS"
+	TRINITYD_DEBUG_INFO=yes
     elif test "$withval" != "no" ; then
 	AC_MSG_ERROR(Please choose yes or no)
     fi
 ])
-AC_MSG_RESULT($MANGOSD_DEBUG_INFO)
+AC_MSG_RESULT($TRINITYD_DEBUG_INFO)
 
 
 # Enable CLI console?
 AC_MSG_CHECKING(whether cli console is enabled)
-MANGOSD_ENABLE_CLI=no
+TRINITYD_ENABLE_CLI=no
 AC_ARG_ENABLE(cli,
 [  --enable-cli Turn on command console system],
 [
     if test "$enableval" = "yes" ; then
 	CFLAGS="-DENABLE_CLI $CFLAGS"
 	CXXFLAGS="-DENABLE_CLI $CXXFLAGS"
-	MANGOSD_ENABLE_CLI=yes
+	TRINITYD_ENABLE_CLI=yes
     elif test "$withval" != "no" ; then
 	AC_MSG_ERROR(Please choose yes or no)
     fi
 ])
-AC_MSG_RESULT($MANGOSD_ENABLE_CLI)
+AC_MSG_RESULT($TRINITYD_ENABLE_CLI)
 
 # Enable remote console?
 AC_MSG_CHECKING(whether remote console is enabled)
-MANGOSD_ENABLE_RA=no
+TRINITYD_ENABLE_RA=no
 AC_ARG_ENABLE(ra,
 [  --enable-ra Turn on remote console system],
 [
     if test "$enableval" = "yes" ; then
 	CFLAGS="-DENABLE_RA $CFLAGS"
 	CXXFLAGS="-DENABLE_RA $CXXFLAGS"
-	MANGOSD_ENABLE_RA=yes
+	TRINITYD_ENABLE_RA=yes
     elif test "$withval" != "no" ; then
 	AC_MSG_ERROR(Please choose yes or no)
     fi
 ])
-AC_MSG_RESULT($MANGOSD_ENABLE_RA)
+AC_MSG_RESULT($TRINITYD_ENABLE_RA)
 
 ## Check for required header files.
 AC_HEADER_STDC
@@ -287,9 +289,9 @@ AC_SUBST(MYSQL_LIBS)
 AC_SUBST(POSTGRE_INCLUDES)
 AC_SUBST(POSTGRE_LIBS)
 AC_SUBST(DOXYGEN)
-AC_SUBST(MANGOSD_DEBUG_INFO)
-AC_SUBST(MANGOSD_ENABLE_CLI)
-AC_SUBST(MANGOSD_ENABLE_RA)
+AC_SUBST(TRINITYD_DEBUG_INFO)
+AC_SUBST(TRINITYD_ENABLE_CLI)
+AC_SUBST(TRINITYD_ENABLE_RA)
 AC_SUBST(TRINI_INCLUDES)
 AC_SUBST(TRINI_LIBS)
 
@@ -314,7 +316,6 @@ AC_CONFIG_FILES([
    src/game/Makefile
    src/trinityrealm/Makefile
    src/trinitycore/Makefile
-   src/game/IRCConf.h
    src/bindings/Makefile
    src/bindings/interface/Makefile
 ])

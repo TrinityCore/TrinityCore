@@ -192,7 +192,7 @@
     //  http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vccore98/HTML/_core_Compiler_Reference.asp
     //
 
-#if 0 //ignore that for mangos
+#if 0 //ignore that for Trinity
     // DLL runtime
     #ifndef _DLL
 	    #define _DLL

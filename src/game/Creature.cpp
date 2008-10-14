@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "Common.h"
@@ -42,7 +44,8 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
-
+#include "OutdoorPvPMgr.h"
+#include "GameEvent.h"
 // apply implementation of the singletons
 #include "Policies/SingletonImp.h"
 
@@ -252,7 +255,10 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data )
     else
         SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, GetCreatureInfo()->faction_A);
 
-    SetUInt32Value(UNIT_NPC_FLAGS,GetCreatureInfo()->npcflag);
+    if(GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_WORLDEVENT)
+        SetUInt32Value(UNIT_NPC_FLAGS,GetCreatureInfo()->npcflag | gameeventmgr.GetNPCFlag(this));
+    else
+        SetUInt32Value(UNIT_NPC_FLAGS,GetCreatureInfo()->npcflag);
 
     SetAttackTime(BASE_ATTACK,  GetCreatureInfo()->baseattacktime);
     SetAttackTime(OFF_ATTACK,   GetCreatureInfo()->baseattacktime);
@@ -741,6 +747,10 @@ void Creature::prepareGossipMenu( Player *pPlayer,uint32 gossipid )
                     case GOSSIP_OPTION_TABARDDESIGNER:
                     case GOSSIP_OPTION_AUCTIONEER:
                         break;                              // no checks
+                    case GOSSIP_OPTION_OUTDOORPVP:
+                        if ( !sOutdoorPvPMgr.CanTalkTo(pPlayer,this,(*gso)) )
+                            cantalking = false;
+                        break;
                     default:
                         sLog.outErrorDb("Creature %u (entry: %u) have unknown gossip option %u",GetGUIDLow(),GetEntry(),gso->Action);
                         break;
@@ -775,6 +785,9 @@ void Creature::sendPreparedGossip(Player* player)
         return;
 
     GossipMenu& gossipmenu = player->PlayerTalkClass->GetGossipMenu();
+
+    if(GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_WORLDEVENT) // if world event npc then
+        gameeventmgr.HandleWorldEventGossip(player, this);      // update world state with progress
 
     // in case empty gossip menu open quest menu if any
     if (gossipmenu.Empty() && GetNpcTextId() == 0)
@@ -816,6 +829,9 @@ void Creature::OnGossipSelect(Player* player, uint32 option)
         case GOSSIP_OPTION_GOSSIP:
             player->PlayerTalkClass->CloseGossip();
             player->PlayerTalkClass->SendTalking( textid );
+            break;
+        case GOSSIP_OPTION_OUTDOORPVP:
+            sOutdoorPvPMgr.HandleGossipOption(player, GetGUID(), option);
             break;
         case GOSSIP_OPTION_SPIRITHEALER:
             if( player->isDead() )
@@ -964,6 +980,11 @@ uint32 Creature::GetGossipTextId(uint32 action, uint32 zoneid)
 
 uint32 Creature::GetNpcTextId()
 {
+    // don't cache / use cache in case it's a world event announcer
+    if(GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_WORLDEVENT)
+        if(uint32 textid = gameeventmgr.GetNpcTextId(m_DBTableGuid))
+            return textid;
+
     if (!m_DBTableGuid)
         return DEFAULT_GOSSIP_MESSAGE;
 
@@ -981,6 +1002,12 @@ GossipOption const* Creature::GetGossipOption( uint32 id ) const
             return &*i;
     }
     return NULL;
+}
+
+void Creature::ResetGossipOptions()
+{
+    m_gossipOptionLoaded = false;
+    m_goptions.clear();
 }
 
 void Creature::LoadGossipOptions()
@@ -1671,15 +1698,15 @@ void Creature::DoFleeToGetAssistance(float radius) // Optional parameter
 
     Creature* pCreature = NULL;
 
-    CellPair p(MaNGOS::ComputeCellPair(GetPositionX(), GetPositionY()));
+    CellPair p(Trinity::ComputeCellPair(GetPositionX(), GetPositionY()));
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
-    MaNGOS::NearestAssistCreatureInCreatureRangeCheck u_check(this,getVictim(),radius);
-    MaNGOS::CreatureLastSearcher<MaNGOS::NearestAssistCreatureInCreatureRangeCheck> searcher(pCreature, u_check);
+    Trinity::NearestAssistCreatureInCreatureRangeCheck u_check(this,getVictim(),radius);
+    Trinity::CreatureLastSearcher<Trinity::NearestAssistCreatureInCreatureRangeCheck> searcher(pCreature, u_check);
 
-    TypeContainerVisitor<MaNGOS::CreatureLastSearcher<MaNGOS::NearestAssistCreatureInCreatureRangeCheck>, GridTypeMapContainer >  grid_creature_searcher(searcher);
+    TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestAssistCreatureInCreatureRangeCheck>, GridTypeMapContainer >  grid_creature_searcher(searcher);
 
     CellLock<GridReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, grid_creature_searcher, *(GetMap()));
@@ -1710,15 +1737,15 @@ void Creature::CallAssistence()
             std::list<Creature*> assistList;
 
             {
-                CellPair p(MaNGOS::ComputeCellPair(GetPositionX(), GetPositionY()));
+                CellPair p(Trinity::ComputeCellPair(GetPositionX(), GetPositionY()));
                 Cell cell(p);
                 cell.data.Part.reserved = ALL_DISTRICT;
                 cell.SetNoCreate();
 
-                MaNGOS::AnyAssistCreatureInRangeCheck u_check(this, getVictim(), radius);
-                MaNGOS::CreatureListSearcher<MaNGOS::AnyAssistCreatureInRangeCheck> searcher(assistList, u_check);
+                Trinity::AnyAssistCreatureInRangeCheck u_check(this, getVictim(), radius);
+                Trinity::CreatureListSearcher<Trinity::AnyAssistCreatureInRangeCheck> searcher(assistList, u_check);
 
-                TypeContainerVisitor<MaNGOS::CreatureListSearcher<MaNGOS::AnyAssistCreatureInRangeCheck>, GridTypeMapContainer >  grid_creature_searcher(searcher);
+                TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AnyAssistCreatureInRangeCheck>, GridTypeMapContainer >  grid_creature_searcher(searcher);
 
                 CellLock<GridReadGuard> cell_lock(cell, p);
                 cell_lock->Visit(cell_lock, grid_creature_searcher, *MapManager::Instance().GetMap(GetMapId(), this));

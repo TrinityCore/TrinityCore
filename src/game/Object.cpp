@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "Common.h"
@@ -329,7 +331,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags, uint32 flags2 
                 *data << (float)((Player*)this)->GetTransOffsetO();
                 *data << (uint32)((Player*)this)->GetTransTime();
             }
-            //MaNGOS currently not have support for other than player on transport
+            //TrinIty currently not have support for other than player on transport
         }
 
         // 0x02200000
@@ -540,6 +542,8 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                 IsActivateToQuest = true;
                 updateMask->SetBit(GAMEOBJECT_DYN_FLAGS);
             }
+            if (GetUInt32Value(GAMEOBJECT_ARTKIT))
+                updateMask->SetBit(GAMEOBJECT_ARTKIT);
         }
     }
     else                                                    //case UPDATETYPE_VALUES
@@ -568,8 +572,9 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
             if( updateMask->GetBit( index ) )
             {
                 // remove custom flag before send
+
                 if( index == UNIT_NPC_FLAGS )
-                    *data << uint32(m_uint32Values[ index ] & ~UNIT_NPC_FLAG_GUARD);
+                    *data << uint32(m_uint32Values[ index ] & ~(UNIT_NPC_FLAG_GUARD + UNIT_NPC_FLAG_OUTDOORPVP));
                 // FIXME: Some values at server stored in float format but must be sent to client in uint32 format
                 else if(index >= UNIT_FIELD_BASEATTACKTIME && index <= UNIT_FIELD_RANGEDATTACKTIME)
                 {
@@ -1116,8 +1121,8 @@ void WorldObject::GetRandomPoint( float x, float y, float z, float distance, flo
     rand_y = y + new_dist * sin(angle);
     rand_z = z;
 
-    MaNGOS::NormalizeMapCoord(rand_x);
-    MaNGOS::NormalizeMapCoord(rand_y);
+    Trinity::NormalizeMapCoord(rand_x);
+    Trinity::NormalizeMapCoord(rand_y);
     UpdateGroundPositionZ(rand_x,rand_y,rand_z);            // update to LOS height if available
 }
 
@@ -1130,7 +1135,7 @@ void WorldObject::UpdateGroundPositionZ(float x, float y, float &z) const
 
 bool WorldObject::IsPositionValid() const
 {
-    return MaNGOS::IsValidMapCoord(m_positionX,m_positionY,m_positionZ,m_orientation);
+    return Trinity::IsValidMapCoord(m_positionX,m_positionY,m_positionZ,m_orientation);
 }
 
 void WorldObject::MonsterSay(const char* text, uint32 language, uint64 TargetGuid)
@@ -1176,7 +1181,7 @@ void WorldObject::SendPlaySound(uint32 Sound, bool OnlySelf)
         SendMessageToSet( &data, true ); // ToSelf ignored in this case
 }
 
-namespace MaNGOS
+namespace Trinity
 {
     class MessageChatLocaleCacheDo
     {
@@ -1209,7 +1214,7 @@ namespace MaNGOS
                     if(i_data_cache.size() < cache_idx+1)
                         i_data_cache.resize(cache_idx+1);
 
-                    char const* text = objmgr.GetMangosString(i_textId,loc_idx);
+                    char const* text = objmgr.GetTrinityString(i_textId,loc_idx);
 
                     data = new WorldPacket(SMSG_MESSAGECHAT, 200);
 
@@ -1233,49 +1238,49 @@ namespace MaNGOS
             float i_dist;
             std::vector<WorldPacket*> i_data_cache;             // 0 = default, i => i-1 locale index
     };
-}                                                           // namespace MaNGOS
+}                                                           // namespace Trinity
 
 void WorldObject::MonsterSay(int32 textId, uint32 language, uint64 TargetGuid)
 {
-    CellPair p = MaNGOS::ComputeCellPair(GetPositionX(), GetPositionY());
+    CellPair p = Trinity::ComputeCellPair(GetPositionX(), GetPositionY());
 
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
-    MaNGOS::MessageChatLocaleCacheDo say_do(*this, CHAT_MSG_MONSTER_SAY, textId,language,TargetGuid,sWorld.getConfig(CONFIG_LISTEN_RANGE_SAY));
-    MaNGOS::PlayerWorker<MaNGOS::MessageChatLocaleCacheDo> say_worker(say_do);
-    TypeContainerVisitor<MaNGOS::PlayerWorker<MaNGOS::MessageChatLocaleCacheDo>, WorldTypeMapContainer > message(say_worker);
+    Trinity::MessageChatLocaleCacheDo say_do(*this, CHAT_MSG_MONSTER_SAY, textId,language,TargetGuid,sWorld.getConfig(CONFIG_LISTEN_RANGE_SAY));
+    Trinity::PlayerWorker<Trinity::MessageChatLocaleCacheDo> say_worker(say_do);
+    TypeContainerVisitor<Trinity::PlayerWorker<Trinity::MessageChatLocaleCacheDo>, WorldTypeMapContainer > message(say_worker);
     CellLock<GridReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, message, *GetMap());
 }
 
 void WorldObject::MonsterYell(int32 textId, uint32 language, uint64 TargetGuid)
 {
-    CellPair p = MaNGOS::ComputeCellPair(GetPositionX(), GetPositionY());
+    CellPair p = Trinity::ComputeCellPair(GetPositionX(), GetPositionY());
 
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
-    MaNGOS::MessageChatLocaleCacheDo say_do(*this, CHAT_MSG_MONSTER_YELL, textId,language,TargetGuid,sWorld.getConfig(CONFIG_LISTEN_RANGE_YELL));
-    MaNGOS::PlayerWorker<MaNGOS::MessageChatLocaleCacheDo> say_worker(say_do);
-    TypeContainerVisitor<MaNGOS::PlayerWorker<MaNGOS::MessageChatLocaleCacheDo>, WorldTypeMapContainer > message(say_worker);
+    Trinity::MessageChatLocaleCacheDo say_do(*this, CHAT_MSG_MONSTER_YELL, textId,language,TargetGuid,sWorld.getConfig(CONFIG_LISTEN_RANGE_YELL));
+    Trinity::PlayerWorker<Trinity::MessageChatLocaleCacheDo> say_worker(say_do);
+    TypeContainerVisitor<Trinity::PlayerWorker<Trinity::MessageChatLocaleCacheDo>, WorldTypeMapContainer > message(say_worker);
     CellLock<GridReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, message, *GetMap());
 }
 
 void WorldObject::MonsterTextEmote(int32 textId, uint64 TargetGuid, bool IsBossEmote)
 {
-    CellPair p = MaNGOS::ComputeCellPair(GetPositionX(), GetPositionY());
+    CellPair p = Trinity::ComputeCellPair(GetPositionX(), GetPositionY());
 
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
-    MaNGOS::MessageChatLocaleCacheDo say_do(*this, IsBossEmote ? CHAT_MSG_RAID_BOSS_EMOTE : CHAT_MSG_MONSTER_EMOTE, textId,LANG_UNIVERSAL,TargetGuid,sWorld.getConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE));
-    MaNGOS::PlayerWorker<MaNGOS::MessageChatLocaleCacheDo> say_worker(say_do);
-    TypeContainerVisitor<MaNGOS::PlayerWorker<MaNGOS::MessageChatLocaleCacheDo>, WorldTypeMapContainer > message(say_worker);
+    Trinity::MessageChatLocaleCacheDo say_do(*this, IsBossEmote ? CHAT_MSG_RAID_BOSS_EMOTE : CHAT_MSG_MONSTER_EMOTE, textId,LANG_UNIVERSAL,TargetGuid,sWorld.getConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE));
+    Trinity::PlayerWorker<Trinity::MessageChatLocaleCacheDo> say_worker(say_do);
+    TypeContainerVisitor<Trinity::PlayerWorker<Trinity::MessageChatLocaleCacheDo>, WorldTypeMapContainer > message(say_worker);
     CellLock<GridReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, message, *GetMap());
 }
@@ -1287,7 +1292,7 @@ void WorldObject::MonsterWhisper(int32 textId, uint64 receiver, bool IsBossWhisp
         return;
 
     uint32 loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
-    char const* text = objmgr.GetMangosString(textId,loc_idx);
+    char const* text = objmgr.GetTrinityString(textId,loc_idx);
 
     WorldPacket data(SMSG_MESSAGECHAT, 200);
     BuildMonsterChat(&data,IsBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER,text,LANG_UNIVERSAL,GetName(),receiver);
@@ -1435,8 +1440,8 @@ void WorldObject::GetNearPoint2D(float &x, float &y, float distance2d, float abs
     x = GetPositionX() + (GetObjectSize() + distance2d) * cos(absAngle);
     y = GetPositionY() + (GetObjectSize() + distance2d) * sin(absAngle);
 
-    MaNGOS::NormalizeMapCoord(x);
-    MaNGOS::NormalizeMapCoord(y);
+    Trinity::NormalizeMapCoord(x);
+    Trinity::NormalizeMapCoord(y);
 }
 
 void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, float &z, float searcher_size, float distance2d, float absAngle ) const

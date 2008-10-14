@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,16 +10,16 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef MANGOS_MAP_H
-#define MANGOS_MAP_H
+#ifndef TRINITY_MAP_H
+#define TRINITY_MAP_H
 
 #include "Platform/Define.h"
 #include "Policies/ThreadingModel.h"
@@ -53,19 +55,19 @@ template<class MUTEX, class LOCK_TYPE>
 struct RGuard
 {
     RGuard(MUTEX &l) : i_lock(l.getReadLock()) {}
-    MaNGOS::GeneralLock<LOCK_TYPE> i_lock;
+    Trinity::GeneralLock<LOCK_TYPE> i_lock;
 };
 
 template<class MUTEX, class LOCK_TYPE>
 struct WGuard
 {
     WGuard(MUTEX &l) : i_lock(l.getWriteLock()) {}
-    MaNGOS::GeneralLock<LOCK_TYPE> i_lock;
+    Trinity::GeneralLock<LOCK_TYPE> i_lock;
 };
 
 typedef RGuard<GridRWLock, ZThread::Lockable> GridReadGuard;
 typedef WGuard<GridRWLock, ZThread::Lockable> GridWriteGuard;
-typedef MaNGOS::SingleThreaded<GridRWLock>::Lock NullGuard;
+typedef Trinity::SingleThreaded<GridRWLock>::Lock NullGuard;
 
 typedef struct
 {
@@ -122,7 +124,7 @@ typedef HM_NAMESPACE::hash_map<Creature*, CreatureMover> CreatureMoveList;
 #define INVALID_HEIGHT       -100000.0f                     // for check, must be equal to VMAP_INVALID_HEIGHT, real value for unknown height is VMAP_INVALID_HEIGHT_VALUE
 #define MIN_UNLOAD_DELAY      1                             // immediate unload
 
-class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::ObjectLevelLockable<Map, ZThread::Mutex>
+class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::ObjectLevelLockable<Map, ZThread::Mutex>
 {
     public:
         Map(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode);
@@ -150,7 +152,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
 
         inline bool IsRemovalGrid(float x, float y) const
         {
-            GridPair p = MaNGOS::ComputeGridPair(x, y);
+            GridPair p = Trinity::ComputeGridPair(x, y);
             return( !getNGrid(p.x_coord, p.y_coord) || getNGrid(p.x_coord, p.y_coord)->GetGridState() == GRID_STATE_REMOVAL );
         }
 
@@ -272,7 +274,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
         inline void setNGrid(NGridType* grid, uint32 x, uint32 y);
 
     protected:
-        typedef MaNGOS::ObjectLevelLockable<Map, ZThread::Mutex>::Lock Guard;
+        typedef Trinity::ObjectLevelLockable<Map, ZThread::Mutex>::Lock Guard;
 
         MapEntry const* i_mapEntry;
         uint8 i_spawnMode;
@@ -316,7 +318,7 @@ enum InstanceResetMethod
     INSTANCE_RESET_RESPAWN_DELAY
 };
 
-class MANGOS_DLL_SPEC InstanceMap : public Map
+class TRINITY_DLL_SPEC InstanceMap : public Map
 {
     public:
         typedef std::list<Player *> PlayerList;                 // online players only
@@ -350,7 +352,7 @@ class MANGOS_DLL_SPEC InstanceMap : public Map
         PlayerList i_Players;
 };
 
-class MANGOS_DLL_SPEC BattleGroundMap : public Map
+class TRINITY_DLL_SPEC BattleGroundMap : public Map
 {
     public:
         typedef std::list<Player *> PlayerList;                 // online players only

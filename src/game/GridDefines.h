@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,16 +10,16 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef MANGOS_GRIDDEFINES_H
-#define MANGOS_GRIDDEFINES_H
+#ifndef TRINITY_GRIDDEFINES_H
+#define TRINITY_GRIDDEFINES_H
 
 #include "Common.h"
 #include "GameSystem/NGrid.h"
@@ -71,7 +73,7 @@ typedef TypeMapContainer<AllGridObjectTypes> GridTypeMapContainer;
 typedef TypeMapContainer<AllWorldObjectTypes> WorldTypeMapContainer;
 
 template<const unsigned int LIMIT>
-struct MANGOS_DLL_DECL CoordPair
+struct TRINITY_DLL_DECL CoordPair
 {
     CoordPair(uint32 x=0, uint32 y=0) : x_coord(x), y_coord(y) {}
     CoordPair(const CoordPair<LIMIT> &obj) : x_coord(obj.x_coord), y_coord(obj.y_coord) {}
@@ -115,7 +117,7 @@ struct MANGOS_DLL_DECL CoordPair
 typedef CoordPair<MAX_NUMBER_OF_GRIDS> GridPair;
 typedef CoordPair<TOTAL_NUMBER_OF_CELLS_PER_MAP> CellPair;
 
-namespace MaNGOS
+namespace Trinity
 {
     template<class RET_TYPE, int CENTER_VAL>
         inline RET_TYPE Compute(float x, float y, float center_offset, float size)

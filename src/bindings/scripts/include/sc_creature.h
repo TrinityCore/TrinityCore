@@ -1,4 +1,7 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ *
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -8,7 +11,7 @@
 #include "CreatureAI.h"
 #include "Creature.h"
 
-struct MANGOS_DLL_DECL ScriptedAI : public CreatureAI
+struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 {
     ScriptedAI(Creature* creature) : m_creature(creature), InCombat(false) {}
     ~ScriptedAI() {}
@@ -26,7 +29,7 @@ struct MANGOS_DLL_DECL ScriptedAI : public CreatureAI
     //Called at stoping attack by any attacker
     void EnterEvadeMode();
 
-    //Called at any heal cast/item used (call non implemented in mangos)
+    //Called at any heal cast/item used (call non implemented in Trinity)
     void HealBy(Unit *healer, uint32 amount_healed) {}
 
     // Called at any Damage to any victim (before damage apply)
@@ -153,7 +156,7 @@ struct MANGOS_DLL_DECL ScriptedAI : public CreatureAI
     bool CanCast(Unit* Target, SpellEntry const *Spell, bool Triggered = false);
 };
 
-struct MANGOS_DLL_DECL Scripted_NoMovementAI : public ScriptedAI
+struct TRINITY_DLL_DECL Scripted_NoMovementAI : public ScriptedAI
 {
     Scripted_NoMovementAI(Creature* creature) : ScriptedAI(creature) {}
 

@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "Common.h"
@@ -34,7 +36,6 @@
 #include "Player.h"
 #include "SpellAuras.h"
 #include "Language.h"
-#include "IRCClient.h"
 #include "Util.h"
 
 void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
@@ -129,7 +130,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
         if (!_player->CanSpeak())
         {
             std::string timeStr = secsToTimeString(m_muteTime - time(NULL));
-            SendNotification(GetMangosString(LANG_WAIT_BEFORE_SPEAKING),timeStr.c_str());
+            SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING),timeStr.c_str());
             return;
         }
 
@@ -428,8 +429,6 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
             if(msg.empty())
                 break;
 
-            sIRC.Send_WoW_IRC(_player, channel, msg);
-
             if(ChannelMgr* cMgr = channelMgr(_player->GetTeam()))
             {
                 if(Channel *chn = cMgr->GetChannel(channel,_player))
@@ -447,7 +446,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
                 if(!_player->isAFK())
                 {
                     if(msg.empty())
-                        msg  = GetMangosString(LANG_PLAYER_AFK_DEFAULT);
+                        msg  = GetTrinityString(LANG_PLAYER_AFK_DEFAULT);
                     _player->afkMsg = msg;
                 }
                 _player->ToggleAFK();
@@ -466,7 +465,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
                 if(!_player->isDND())
                 {
                     if(msg.empty())
-                        msg  = GetMangosString(LANG_PLAYER_DND_DEFAULT);
+                        msg  = GetTrinityString(LANG_PLAYER_DND_DEFAULT);
                     _player->dndMsg = msg;
                 }
                 _player->ToggleDND();
@@ -500,7 +499,7 @@ void WorldSession::HandleTextEmoteOpcode( WorldPacket & recv_data )
     if (!GetPlayer()->CanSpeak())
     {
         std::string timeStr = secsToTimeString(m_muteTime - time(NULL));
-        SendNotification(GetMangosString(LANG_WAIT_BEFORE_SPEAKING),timeStr.c_str());
+        SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING),timeStr.c_str());
         return;
     }
 

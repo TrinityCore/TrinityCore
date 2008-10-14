@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,15 +10,15 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-/// \addtogroup mangosd
+/// \addtogroup Trinityd
 /// @{
 /// \file
 
@@ -36,7 +38,6 @@
 #include "MapManager.h"
 #include "PlayerDump.h"
 #include "Player.h"
-#include "IRCClient.h"
 
 //CliCommand and CliCommandHolder are defined in World.h to avoid cyclic deps
 
@@ -314,14 +315,6 @@ void CliBroadcast(char *text,pPrintf zprintf)
 
     sWorld.SendWorldText(LANG_SYSTEMMESSAGE,textUtf8.c_str());
     zprintf("Broadcasting to the world: %s\r\n",textUtf8.c_str());
-
-    if((sIRC.BOTMASK & 256) != 0)
-    {
-        std::string ircchan = "#";
-        ircchan += sIRC._irc_chan[sIRC.anchn].c_str();
-        sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("\00304,08\037/!\\\037\017\00304 System Message \00304,08\037/!\\\037\017 %s", "%s", text), true);
-    }
-
 }
 
 /// Print the list of commands and associated description
@@ -640,7 +633,7 @@ void CliBan(char*command,pPrintf zprintf)
     }
 }
 
-/// Display %MaNGOS version
+/// Display %TrinIty version
 void CliVersion(char*,pPrintf zprintf)
 {
                                                             //<--maybe better append to info cmd
@@ -947,7 +940,7 @@ void CliTele(char*command,pPrintf zprintf)
     QueryResult *result = WorldDatabase.PQuery("SELECT position_x,position_y,position_z,orientation,map FROM game_tele WHERE name = '%s'",location.c_str());
     if (!result)
     {
-        zprintf(objmgr.GetMangosStringForDBCLocale(LANG_COMMAND_TELE_NOTFOUND),"\r\n");
+        zprintf(objmgr.GetTrinityStringForDBCLocale(LANG_COMMAND_TELE_NOTFOUND),"\r\n");
         return;
     }
 
@@ -961,7 +954,7 @@ void CliTele(char*command,pPrintf zprintf)
 
     if(!MapManager::IsValidMapCoord(mapid,x,y,z,ort))
     {
-        zprintf(objmgr.GetMangosStringForDBCLocale(LANG_INVALID_TARGET_COORD),"\r\n",x,y,mapid);
+        zprintf(objmgr.GetTrinityStringForDBCLocale(LANG_INVALID_TARGET_COORD),"\r\n",x,y,mapid);
         return;
     }
 
@@ -971,17 +964,17 @@ void CliTele(char*command,pPrintf zprintf)
 
         if(chr->IsBeingTeleported()==true)
         {
-            zprintf(objmgr.GetMangosStringForDBCLocale(LANG_IS_TELEPORTED),"\r\n",chr->GetName());
+            zprintf(objmgr.GetTrinityStringForDBCLocale(LANG_IS_TELEPORTED),"\r\n",chr->GetName());
             return;
         }
 
         if(chr->isInFlight())
         {
-            zprintf(objmgr.GetMangosStringForDBCLocale(LANG_CHAR_IN_FLIGHT),"\r\n",chr->GetName());
+            zprintf(objmgr.GetTrinityStringForDBCLocale(LANG_CHAR_IN_FLIGHT),"\r\n",chr->GetName());
             return;
         }
 
-        zprintf(objmgr.GetMangosStringForDBCLocale(LANG_TELEPORTING_TO),"\r\n",chr->GetName(),"", location.c_str());
+        zprintf(objmgr.GetTrinityStringForDBCLocale(LANG_TELEPORTING_TO),"\r\n",chr->GetName(),"", location.c_str());
 
         chr->SaveRecallPosition();
 
@@ -989,11 +982,11 @@ void CliTele(char*command,pPrintf zprintf)
     }
     else if (uint64 guid = objmgr.GetPlayerGUIDByName(name.c_str()))
     {
-        zprintf(objmgr.GetMangosStringForDBCLocale(LANG_TELEPORTING_TO),"\r\n",name.c_str(), objmgr.GetMangosStringForDBCLocale(LANG_OFFLINE), location.c_str());
+        zprintf(objmgr.GetTrinityStringForDBCLocale(LANG_TELEPORTING_TO),"\r\n",name.c_str(), objmgr.GetTrinityStringForDBCLocale(LANG_OFFLINE), location.c_str());
         Player::SavePositionInDB(mapid,x,y,z,ort,MapManager::Instance().GetZoneId(mapid,x,y),guid);
     }
     else
-        zprintf(objmgr.GetMangosStringForDBCLocale(LANG_NO_PLAYER),"\r\n",name.c_str());
+        zprintf(objmgr.GetTrinityStringForDBCLocale(LANG_NO_PLAYER),"\r\n",name.c_str());
 }
 
 /// Display/Define the 'Message of the day' for the realm
@@ -1097,7 +1090,7 @@ void CliSave(char*,pPrintf zprintf)
 {
     ///- Save players
     ObjectAccessor::Instance().SaveAllPlayers();
-    zprintf( objmgr.GetMangosStringForDBCLocale(LANG_PLAYERS_SAVED) );
+    zprintf( objmgr.GetTrinityStringForDBCLocale(LANG_PLAYERS_SAVED) );
 
     ///- Send a message
     sWorld.SendWorldText(LANG_PLAYERS_SAVED);

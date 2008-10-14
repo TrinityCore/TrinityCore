@@ -1,5 +1,7 @@
 /* 
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,16 +10,16 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef MANGOS_SINGLETONIMPL_H
-#define MANGOS_SINGLETONIMPL_H
+#ifndef TRINITY_SINGLETONIMPL_H
+#define TRINITY_SINGLETONIMPL_H
 
 #include "Singleton.h"
 
@@ -32,7 +34,7 @@ class CreatePolicy,
 class LifeTimePolicy
 >
 T&
-MaNGOS::Singleton<T, ThreadingModel, CreatePolicy, LifeTimePolicy >::Instance()
+Trinity::Singleton<T, ThreadingModel, CreatePolicy, LifeTimePolicy >::Instance()
 {
     if( !si_instance )
     {
@@ -61,7 +63,7 @@ class CreatePolicy,
 class LifeTimePolicy
 >
 void
-MaNGOS::Singleton<T, ThreadingModel, CreatePolicy, LifeTimePolicy>::DestroySingleton()
+Trinity::Singleton<T, ThreadingModel, CreatePolicy, LifeTimePolicy>::DestroySingleton()
 {
     CreatePolicy::Destroy(si_instance);
     si_instance = NULL;
@@ -69,22 +71,22 @@ MaNGOS::Singleton<T, ThreadingModel, CreatePolicy, LifeTimePolicy>::DestroySingl
 }
 
 #define INSTANTIATE_SINGLETON_1(TYPE) \
-    template class MANGOS_DLL_DECL MaNGOS::Singleton<TYPE, MaNGOS::SingleThreaded<TYPE>, MaNGOS::OperatorNew<TYPE>, MaNGOS::ObjectLifeTime<TYPE> >; \
-    template<> TYPE* MaNGOS::Singleton<TYPE, MaNGOS::SingleThreaded<TYPE>, MaNGOS::OperatorNew<TYPE>, MaNGOS::ObjectLifeTime<TYPE> >::si_instance = 0; \
-    template<> bool MaNGOS::Singleton<TYPE, MaNGOS::SingleThreaded<TYPE>, MaNGOS::OperatorNew<TYPE>, MaNGOS::ObjectLifeTime<TYPE> >::si_destroyed = false
+    template class TRINITY_DLL_DECL Trinity::Singleton<TYPE, Trinity::SingleThreaded<TYPE>, Trinity::OperatorNew<TYPE>, Trinity::ObjectLifeTime<TYPE> >; \
+    template<> TYPE* Trinity::Singleton<TYPE, Trinity::SingleThreaded<TYPE>, Trinity::OperatorNew<TYPE>, Trinity::ObjectLifeTime<TYPE> >::si_instance = 0; \
+    template<> bool Trinity::Singleton<TYPE, Trinity::SingleThreaded<TYPE>, Trinity::OperatorNew<TYPE>, Trinity::ObjectLifeTime<TYPE> >::si_destroyed = false
 
 #define INSTANTIATE_SINGLETON_2(TYPE, THREADINGMODEL) \
-    template class MANGOS_DLL_DECL MaNGOS::Singleton<TYPE, THREADINGMODEL, MaNGOS::OperatorNew<TYPE>, MaNGOS::ObjectLifeTime<TYPE> >; \
-    template<> TYPE* MaNGOS::Singleton<TYPE, THREADINGMODEL, MaNGOS::OperatorNew<TYPE>, MaNGOS::ObjectLifeTime<TYPE> >::si_instance = 0; \
-    template<> bool MaNGOS::Singleton<TYPE, THREADINGMODEL, MaNGOS::OperatorNew<TYPE>, MaNGOS::ObjectLifeTime<TYPE> >::si_destroyed = false
+    template class TRINITY_DLL_DECL Trinity::Singleton<TYPE, THREADINGMODEL, Trinity::OperatorNew<TYPE>, Trinity::ObjectLifeTime<TYPE> >; \
+    template<> TYPE* Trinity::Singleton<TYPE, THREADINGMODEL, Trinity::OperatorNew<TYPE>, Trinity::ObjectLifeTime<TYPE> >::si_instance = 0; \
+    template<> bool Trinity::Singleton<TYPE, THREADINGMODEL, Trinity::OperatorNew<TYPE>, Trinity::ObjectLifeTime<TYPE> >::si_destroyed = false
 
 #define INSTANTIATE_SINGLETON_3(TYPE, THREADINGMODEL, CREATIONPOLICY ) \
-    template class MANGOS_DLL_DECL MaNGOS::Singleton<TYPE, THREADINGMODEL, CREATIONPOLICY, MaNGOS::ObjectLifeTime<TYPE> >; \
-    template<> TYPE* MaNGOS::Singleton<TYPE, THREADINGMODEL, CREATIONPOLICY, MaNGOS::ObjectLifeTime<TYPE> >::si_instance = 0; \
-    template<> bool MaNGOS::Singleton<TYPE, THREADINGMODEL, CREATIONPOLICY, MaNGOS::ObjectLifeType<TYPE> >::si_destroyed = false
+    template class TRINITY_DLL_DECL Trinity::Singleton<TYPE, THREADINGMODEL, CREATIONPOLICY, Trinity::ObjectLifeTime<TYPE> >; \
+    template<> TYPE* Trinity::Singleton<TYPE, THREADINGMODEL, CREATIONPOLICY, Trinity::ObjectLifeTime<TYPE> >::si_instance = 0; \
+    template<> bool Trinity::Singleton<TYPE, THREADINGMODEL, CREATIONPOLICY, Trinity::ObjectLifeType<TYPE> >::si_destroyed = false
 
 #define INSTANTIATE_SINGLETON_4(TYPE, THREADINGMODEL, CREATIONPOLICY, OBJECTLIFETIME) \
-    template class MANGOS_DLL_DECL MaNGOS::Singleton<TYPE, THREADINGMODEL, CREATIONPOLICY, OBJECTLIFETIME >; \
-    template<> TYPE* MaNGOS::Singleton<TYPE, THREADINGMODEL, CREATIONPOLICY, OBJECTLIFETIME >::si_instance = 0; \
-    template<> bool MaNGOS::Singleton<TYPE, THREADINGMODEL, CREATIONPOLICY, OBJECTLIFETIME >::si_destroyed = false
+    template class TRINITY_DLL_DECL Trinity::Singleton<TYPE, THREADINGMODEL, CREATIONPOLICY, OBJECTLIFETIME >; \
+    template<> TYPE* Trinity::Singleton<TYPE, THREADINGMODEL, CREATIONPOLICY, OBJECTLIFETIME >::si_instance = 0; \
+    template<> bool Trinity::Singleton<TYPE, THREADINGMODEL, CREATIONPOLICY, OBJECTLIFETIME >::si_destroyed = false
 #endif

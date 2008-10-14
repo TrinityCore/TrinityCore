@@ -1,5 +1,7 @@
 /* 
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,16 +10,16 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef MANGOSSERVER_LOG_H
-#define MANGOSSERVER_LOG_H
+#ifndef TRINITYCORE_LOG_H
+#define TRINITYCORE_LOG_H
 
 #include "Common.h"
 #include "Policies/Singleton.h"
@@ -53,9 +55,9 @@ enum Color
 
 const int Color_count = int(WHITE)+1;
 
-class Log : public MaNGOS::Singleton<Log, MaNGOS::ClassLevelLockable<Log, ZThread::FastMutex> >
+class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThread::FastMutex> >
 {
-    friend class MaNGOS::OperatorNew<Log>;
+    friend class Trinity::OperatorNew<Log>;
     Log() : raLogfile(NULL), logfile(NULL), gmLogfile(NULL), charLogfile(NULL), dberLogfile(NULL), m_colored(false) { Initialize(); }
     ~Log()
     {
@@ -137,18 +139,18 @@ class Log : public MaNGOS::Singleton<Log, MaNGOS::ClassLevelLockable<Log, ZThrea
 
 };
 
-#define sLog MaNGOS::Singleton<Log>::Instance()
+#define sLog Trinity::Singleton<Log>::Instance()
 
-#ifdef MANGOS_DEBUG
-#define DEBUG_LOG MaNGOS::Singleton<Log>::Instance().outDebug
+#ifdef TRINITY_DEBUG
+#define DEBUG_LOG Trinity::Singleton<Log>::Instance().outDebug
 #else
 #define DEBUG_LOG
 #endif
 
 // primary for script library
-void MANGOS_DLL_SPEC outstring_log(const char * str, ...) ATTR_PRINTF(1,2);
-void MANGOS_DLL_SPEC detail_log(const char * str, ...) ATTR_PRINTF(1,2);
-void MANGOS_DLL_SPEC debug_log(const char * str, ...) ATTR_PRINTF(1,2);
-void MANGOS_DLL_SPEC error_log(const char * str, ...) ATTR_PRINTF(1,2);
-void MANGOS_DLL_SPEC error_db_log(const char * str, ...) ATTR_PRINTF(1,2);
+void TRINITY_DLL_SPEC outstring_log(const char * str, ...) ATTR_PRINTF(1,2);
+void TRINITY_DLL_SPEC detail_log(const char * str, ...) ATTR_PRINTF(1,2);
+void TRINITY_DLL_SPEC debug_log(const char * str, ...) ATTR_PRINTF(1,2);
+void TRINITY_DLL_SPEC error_log(const char * str, ...) ATTR_PRINTF(1,2);
+void TRINITY_DLL_SPEC error_db_log(const char * str, ...) ATTR_PRINTF(1,2);
 #endif

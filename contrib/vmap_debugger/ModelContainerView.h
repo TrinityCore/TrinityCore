@@ -51,7 +51,7 @@ namespace VMAP
         bool iPosSent;
         Array<Command> iPrevLoadCommands;
 	private:
-		Vector3 convertPositionToMangosRep(float x, float y, float z) const;
+		Vector3 convertPositionToTrinityRep(float x, float y, float z) const;
 
 	public:
 		ModelContainerView(const G3D::GApp::Settings& settings);

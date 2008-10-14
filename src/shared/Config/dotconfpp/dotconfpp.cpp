@@ -102,7 +102,7 @@ int DOTCONFDocument::cleanupLine(char * line)
         }
 
         // Allowing \" in there causes problems with directory paths
-        // like "C:\MaNGOS\"
+        // like "C:\TrinIty\"
         //if(*line == '\\' && (*(line+1) == '"' || *(line+1) == '\'')){
         if(*line == '\\' && (*(line+1) == '\'')) {
             *bg++ = *(line+1);

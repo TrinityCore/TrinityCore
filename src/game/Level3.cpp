@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "Common.h"
@@ -73,7 +75,7 @@ bool ChatHandler::HandleReloadAllCommand(const char*)
 
     HandleReloadCommandCommand("");
     HandleReloadReservedNameCommand("");
-    HandleReloadMangosStringCommand("");
+    HandleReloadTrinityStringCommand("");
     HandleReloadGameTeleCommand("");
     return true;
 }
@@ -324,11 +326,11 @@ bool ChatHandler::HandleReloadLootTemplatesSkinningCommand(const char*)
     return true;
 }
 
-bool ChatHandler::HandleReloadMangosStringCommand(const char*)
+bool ChatHandler::HandleReloadTrinityStringCommand(const char*)
 {
-    sLog.outString( "Re-Loading mangos_string Table!" );
-    objmgr.LoadMangosStrings();
-    SendGlobalSysMessage("DB table `mangos_string` reloaded.");
+    sLog.outString( "Re-Loading trinity_string Table!" );
+    objmgr.LoadTrinityStrings();
+    SendGlobalSysMessage("DB table `trinity_string` reloaded.");
     return true;
 }
 
@@ -849,7 +851,7 @@ bool ChatHandler::HandleCooldownCommand(const char* args)
 
         if(!sSpellStore.LookupEntry(spell_id))
         {
-            PSendSysMessage(LANG_UNKNOWN_SPELL, target==m_session->GetPlayer() ? GetMangosString(LANG_YOU) : target->GetName());
+            PSendSysMessage(LANG_UNKNOWN_SPELL, target==m_session->GetPlayer() ? GetTrinityString(LANG_YOU) : target->GetName());
             SetSentErrorMessage(true);
             return false;
         }
@@ -859,7 +861,7 @@ bool ChatHandler::HandleCooldownCommand(const char* args)
         data << uint64(target->GetGUID());
         target->GetSession()->SendPacket(&data);
         target->RemoveSpellCooldown(spell_id);
-        PSendSysMessage(LANG_REMOVE_COOLDOWN, spell_id, target==m_session->GetPlayer() ? GetMangosString(LANG_YOU) : target->GetName());
+        PSendSysMessage(LANG_REMOVE_COOLDOWN, spell_id, target==m_session->GetPlayer() ? GetTrinityString(LANG_YOU) : target->GetName());
     }
     return true;
 }
@@ -1770,7 +1772,7 @@ bool ChatHandler::HandleAddItemCommand(const char* args)
     if(!plTarget)
         plTarget = pl;
 
-    sLog.outDetail(GetMangosString(LANG_ADDITEM), itemId, count);
+    sLog.outDetail(GetTrinityString(LANG_ADDITEM), itemId, count);
 
     ItemPrototype const *pProto = objmgr.GetItemPrototype(itemId);
     if(!pProto)
@@ -1849,7 +1851,7 @@ bool ChatHandler::HandleAddItemSetCommand(const char* args)
     if(!plTarget)
         plTarget = pl;
 
-    sLog.outDetail(GetMangosString(LANG_ADDITEMSET), itemsetId);
+    sLog.outDetail(GetTrinityString(LANG_ADDITEMSET), itemsetId);
 
     QueryResult *result = WorldDatabase.PQuery("SELECT entry FROM item_template WHERE itemset = %u",itemsetId);
 
@@ -2447,7 +2449,7 @@ bool ChatHandler::HandleLookupSkillCommand(const char* args)
             if(loc < MAX_LOCALE)
             {
                 // send skill in "id - [namedlink locale]" format
-                PSendSysMessage(LANG_SKILL_LIST,id,id,name.c_str(),localeNames[loc],(target->HasSkill(id) ? m_session->GetMangosString(LANG_KNOWN) : ""));
+                PSendSysMessage(LANG_SKILL_LIST,id,id,name.c_str(),localeNames[loc],(target->HasSkill(id) ? m_session->GetTrinityString(LANG_KNOWN) : ""));
 
                 ++counter;
             }
@@ -2531,20 +2533,20 @@ bool ChatHandler::HandleLookupSpellCommand(const char* args)
 
                 // include rank in link name
                 if(rank)
-                    ss << GetMangosString(LANG_SPELL_RANK) << rank;
+                    ss << GetTrinityString(LANG_SPELL_RANK) << rank;
 
                 ss << " " << localeNames[loc] << "]|h|r";
 
                 if(talent)
-                    ss << GetMangosString(LANG_TALENT);
+                    ss << GetTrinityString(LANG_TALENT);
                 if(passive)
-                    ss << GetMangosString(LANG_PASSIVE);
+                    ss << GetTrinityString(LANG_PASSIVE);
                 if(learn)
-                    ss << GetMangosString(LANG_LEARN);
+                    ss << GetTrinityString(LANG_LEARN);
                 if(known)
-                    ss << GetMangosString(LANG_KNOWN);
+                    ss << GetTrinityString(LANG_KNOWN);
                 if(active)
-                    ss << GetMangosString(LANG_ACTIVE);
+                    ss << GetTrinityString(LANG_ACTIVE);
 
                 SendSysMessage(ss.str().c_str());
 
@@ -2604,14 +2606,14 @@ bool ChatHandler::HandleLookupQuestCommand(const char* args)
                         if(status == QUEST_STATUS_COMPLETE)
                         {
                             if(target->GetQuestRewardStatus(qinfo->GetQuestId()))
-                                statusStr = GetMangosString(LANG_COMMAND_QUEST_REWARDED);
+                                statusStr = GetTrinityString(LANG_COMMAND_QUEST_REWARDED);
                             else
-                                statusStr = GetMangosString(LANG_COMMAND_QUEST_COMPLETE);
+                                statusStr = GetTrinityString(LANG_COMMAND_QUEST_COMPLETE);
                         }
                         else if(status == QUEST_STATUS_INCOMPLETE)
-                            statusStr = GetMangosString(LANG_COMMAND_QUEST_ACTIVE);
+                            statusStr = GetTrinityString(LANG_COMMAND_QUEST_ACTIVE);
 
-                        PSendSysMessage(LANG_QUEST_LIST,qinfo->GetQuestId(),qinfo->GetQuestId(),title.c_str(),(status == QUEST_STATUS_COMPLETE ? GetMangosString(LANG_COMPLETE) : (status == QUEST_STATUS_INCOMPLETE ? GetMangosString(LANG_ACTIVE) : "") ));
+                        PSendSysMessage(LANG_QUEST_LIST,qinfo->GetQuestId(),qinfo->GetQuestId(),title.c_str(),(status == QUEST_STATUS_COMPLETE ? GetTrinityString(LANG_COMPLETE) : (status == QUEST_STATUS_INCOMPLETE ? GetTrinityString(LANG_ACTIVE) : "") ));
                         ++counter;
                         continue;
                     }
@@ -2631,14 +2633,14 @@ bool ChatHandler::HandleLookupQuestCommand(const char* args)
             if(status == QUEST_STATUS_COMPLETE)
             {
                 if(target->GetQuestRewardStatus(qinfo->GetQuestId()))
-                    statusStr = GetMangosString(LANG_COMMAND_QUEST_REWARDED);
+                    statusStr = GetTrinityString(LANG_COMMAND_QUEST_REWARDED);
                 else
-                    statusStr = GetMangosString(LANG_COMMAND_QUEST_COMPLETE);
+                    statusStr = GetTrinityString(LANG_COMMAND_QUEST_COMPLETE);
             }
             else if(status == QUEST_STATUS_INCOMPLETE)
-                statusStr = GetMangosString(LANG_COMMAND_QUEST_ACTIVE);
+                statusStr = GetTrinityString(LANG_COMMAND_QUEST_ACTIVE);
 
-            PSendSysMessage(LANG_QUEST_LIST,qinfo->GetQuestId(),qinfo->GetQuestId(), title.c_str(),(status == QUEST_STATUS_COMPLETE ? GetMangosString(LANG_COMPLETE) : (status == QUEST_STATUS_INCOMPLETE ? GetMangosString(LANG_ACTIVE) : "") ));
+            PSendSysMessage(LANG_QUEST_LIST,qinfo->GetQuestId(),qinfo->GetQuestId(), title.c_str(),(status == QUEST_STATUS_COMPLETE ? GetTrinityString(LANG_COMPLETE) : (status == QUEST_STATUS_INCOMPLETE ? GetTrinityString(LANG_ACTIVE) : "") ));
             ++counter;
         }
     }
@@ -3365,14 +3367,14 @@ bool ChatHandler::HandleNearGraveCommand(const char* args)
 
         g_team = data->team;
 
-        std::string team_name = GetMangosString(LANG_COMMAND_GRAVEYARD_NOTEAM);
+        std::string team_name = GetTrinityString(LANG_COMMAND_GRAVEYARD_NOTEAM);
 
         if(g_team == 0)
-            team_name = GetMangosString(LANG_COMMAND_GRAVEYARD_ANY);
+            team_name = GetTrinityString(LANG_COMMAND_GRAVEYARD_ANY);
         else if(g_team == HORDE)
-            team_name = GetMangosString(LANG_COMMAND_GRAVEYARD_HORDE);
+            team_name = GetTrinityString(LANG_COMMAND_GRAVEYARD_HORDE);
         else if(g_team == ALLIANCE)
-            team_name = GetMangosString(LANG_COMMAND_GRAVEYARD_ALLIANCE);
+            team_name = GetTrinityString(LANG_COMMAND_GRAVEYARD_ALLIANCE);
 
         PSendSysMessage(LANG_COMMAND_GRAVEYARDNEAREST, g_id,team_name.c_str(),player->GetZoneId());
     }
@@ -3381,11 +3383,11 @@ bool ChatHandler::HandleNearGraveCommand(const char* args)
         std::string team_name;
 
         if(g_team == 0)
-            team_name = GetMangosString(LANG_COMMAND_GRAVEYARD_ANY);
+            team_name = GetTrinityString(LANG_COMMAND_GRAVEYARD_ANY);
         else if(g_team == HORDE)
-            team_name = GetMangosString(LANG_COMMAND_GRAVEYARD_HORDE);
+            team_name = GetTrinityString(LANG_COMMAND_GRAVEYARD_HORDE);
         else if(g_team == ALLIANCE)
-            team_name = GetMangosString(LANG_COMMAND_GRAVEYARD_ALLIANCE);
+            team_name = GetTrinityString(LANG_COMMAND_GRAVEYARD_ALLIANCE);
 
         if(g_team == ~uint32(0))
             PSendSysMessage(LANG_COMMAND_ZONENOGRAVEYARDS, player->GetZoneId());
@@ -3830,14 +3832,14 @@ bool ChatHandler::HandleSetValue(const char* args)
     if(isint32)
     {
         iValue = (uint32)atoi(py);
-        sLog.outDebug(GetMangosString(LANG_SET_UINT), GUID_LOPART(guid), Opcode, iValue);
+        sLog.outDebug(GetTrinityString(LANG_SET_UINT), GUID_LOPART(guid), Opcode, iValue);
         target->SetUInt32Value( Opcode , iValue );
         PSendSysMessage(LANG_SET_UINT_FIELD, GUID_LOPART(guid), Opcode,iValue);
     }
     else
     {
         fValue = (float)atof(py);
-        sLog.outDebug(GetMangosString(LANG_SET_FLOAT), GUID_LOPART(guid), Opcode, fValue);
+        sLog.outDebug(GetTrinityString(LANG_SET_FLOAT), GUID_LOPART(guid), Opcode, fValue);
         target->SetFloatValue( Opcode , fValue );
         PSendSysMessage(LANG_SET_FLOAT_FIELD, GUID_LOPART(guid), Opcode,fValue);
     }
@@ -3881,13 +3883,13 @@ bool ChatHandler::HandleGetValue(const char* args)
     if(isint32)
     {
         iValue = target->GetUInt32Value( Opcode );
-        sLog.outDebug(GetMangosString(LANG_GET_UINT), GUID_LOPART(guid), Opcode, iValue);
+        sLog.outDebug(GetTrinityString(LANG_GET_UINT), GUID_LOPART(guid), Opcode, iValue);
         PSendSysMessage(LANG_GET_UINT_FIELD, GUID_LOPART(guid), Opcode,    iValue);
     }
     else
     {
         fValue = target->GetFloatValue( Opcode );
-        sLog.outDebug(GetMangosString(LANG_GET_FLOAT), GUID_LOPART(guid), Opcode, fValue);
+        sLog.outDebug(GetTrinityString(LANG_GET_FLOAT), GUID_LOPART(guid), Opcode, fValue);
         PSendSysMessage(LANG_GET_FLOAT_FIELD, GUID_LOPART(guid), Opcode, fValue);
     }
 
@@ -3910,7 +3912,7 @@ bool ChatHandler::HandleSet32Bit(const char* args)
     if (Value > 32)                                         //uint32 = 32 bits
         return false;
 
-    sLog.outDebug(GetMangosString(LANG_SET_32BIT), Opcode, Value);
+    sLog.outDebug(GetTrinityString(LANG_SET_32BIT), Opcode, Value);
 
     m_session->GetPlayer( )->SetUInt32Value( Opcode , 2^Value );
 
@@ -3938,7 +3940,7 @@ bool ChatHandler::HandleMod32Value(const char* args)
         return false;
     }
 
-    sLog.outDebug(GetMangosString(LANG_CHANGE_32BIT), Opcode, Value);
+    sLog.outDebug(GetTrinityString(LANG_CHANGE_32BIT), Opcode, Value);
 
     int CurrentValue = (int)m_session->GetPlayer( )->GetUInt32Value( Opcode );
 
@@ -4018,8 +4020,8 @@ bool ChatHandler::HandleListAurasCommand (const char * /*args*/)
         return false;
     }
 
-    char const* talentStr = GetMangosString(LANG_TALENT);
-    char const* passiveStr = GetMangosString(LANG_PASSIVE);
+    char const* talentStr = GetTrinityString(LANG_TALENT);
+    char const* passiveStr = GetTrinityString(LANG_PASSIVE);
 
     Unit::AuraMap const& uAuras = unit->GetAuras();
     PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, uAuras.size());
@@ -4789,9 +4791,9 @@ bool ChatHandler::HandleBanInfoCommand(const char* args)
             if(fields[2].GetBool() && (fields[1].GetUInt64() == (uint64)0 ||unbandate >= time(NULL)) )
                 active = true;
             bool permanent = (fields[1].GetUInt64() == (uint64)0);
-            std::string bantime = permanent?GetMangosString(LANG_BANINFO_INFINITE):secsToTimeString(fields[1].GetUInt64(), true);
+            std::string bantime = permanent?GetTrinityString(LANG_BANINFO_INFINITE):secsToTimeString(fields[1].GetUInt64(), true);
             PSendSysMessage(LANG_BANINFO_HISTORYENTRY,
-                fields[0].GetString(), bantime.c_str(), active ? GetMangosString(LANG_BANINFO_YES):GetMangosString(LANG_BANINFO_NO), fields[4].GetString(), fields[5].GetString());
+                fields[0].GetString(), bantime.c_str(), active ? GetTrinityString(LANG_BANINFO_YES):GetTrinityString(LANG_BANINFO_NO), fields[4].GetString(), fields[5].GetString());
         }while (result->NextRow());
 
         delete result;
@@ -4808,8 +4810,8 @@ bool ChatHandler::HandleBanInfoCommand(const char* args)
         fields = result->Fetch();
         bool permanent = (fields[6].GetUInt64()==(uint64)0);
         PSendSysMessage(LANG_BANINFO_IPENTRY,
-            fields[0].GetString(), fields[1].GetString(), permanent ? GetMangosString(LANG_BANINFO_NEVER):fields[2].GetString(),
-            permanent ? GetMangosString(LANG_BANINFO_INFINITE):secsToTimeString(fields[3].GetUInt64(), true).c_str(), fields[4].GetString(), fields[5].GetString());
+            fields[0].GetString(), fields[1].GetString(), permanent ? GetTrinityString(LANG_BANINFO_NEVER):fields[2].GetString(),
+            permanent ? GetTrinityString(LANG_BANINFO_INFINITE):secsToTimeString(fields[3].GetUInt64(), true).c_str(), fields[4].GetString(), fields[5].GetString());
         delete result;
     }
     return true;
@@ -4901,15 +4903,15 @@ bool ChatHandler::HandleRespawnCommand(const char* /*args*/)
 
     Player* pl = m_session->GetPlayer();
 
-    CellPair p(MaNGOS::ComputeCellPair(pl->GetPositionX(), pl->GetPositionY()));
+    CellPair p(Trinity::ComputeCellPair(pl->GetPositionX(), pl->GetPositionY()));
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
-    MaNGOS::RespawnDo u_do;
-    MaNGOS::WorldObjectWorker<MaNGOS::RespawnDo> worker(u_do);
+    Trinity::RespawnDo u_do;
+    Trinity::WorldObjectWorker<Trinity::RespawnDo> worker(u_do);
 
-    TypeContainerVisitor<MaNGOS::WorldObjectWorker<MaNGOS::RespawnDo>, GridTypeMapContainer > obj_worker(worker);
+    TypeContainerVisitor<Trinity::WorldObjectWorker<Trinity::RespawnDo>, GridTypeMapContainer > obj_worker(worker);
     CellLock<GridReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, obj_worker, *MapManager::Instance().GetMap(pl->GetMapId(), pl));
 

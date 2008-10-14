@@ -1,5 +1,7 @@
 /* 
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #ifndef DO_POSTGRESQL
@@ -151,7 +153,7 @@ bool DatabaseMysql::Initialize(const char *infoString)
         // by default. In crash case you can lose data!!!
         // So better to turn this off
         // ---
-        // This is wrong since mangos use transactions,
+        // This is wrong since Trinity use transactions,
         // autocommit is turned of during it.
         // Setting it to on makes atomic updates work
         if (!mysql_autocommit(mMysql, 1))
@@ -188,7 +190,7 @@ QueryResult* DatabaseMysql::Query(const char *sql)
     {
         // guarded block for thread-safe mySQL request
         ZThread::Guard<ZThread::FastMutex> query_connection_guard(mMutex);
-        #ifdef MANGOS_DEBUG
+        #ifdef TRINITY_DEBUG
         uint32 _s = getMSTime();
         #endif
         if(mysql_query(mMysql, sql))
@@ -199,7 +201,7 @@ QueryResult* DatabaseMysql::Query(const char *sql)
         }
         else
         {
-            #ifdef MANGOS_DEBUG
+            #ifdef TRINITY_DEBUG
             sLog.outDebug("[%u ms] SQL: %s", getMSTimeDiff(_s,getMSTime()), sql );
             #endif
         }
@@ -258,7 +260,7 @@ bool DatabaseMysql::DirectExecute(const char* sql)
     {
         // guarded block for thread-safe mySQL request
         ZThread::Guard<ZThread::FastMutex> query_connection_guard(mMutex);
-        #ifdef MANGOS_DEBUG
+        #ifdef TRINITY_DEBUG
         uint32 _s = getMSTime();
         #endif
         if(mysql_query(mMysql, sql))
@@ -269,7 +271,7 @@ bool DatabaseMysql::DirectExecute(const char* sql)
         }
         else
         {
-            #ifdef MANGOS_DEBUG
+            #ifdef TRINITY_DEBUG
             sLog.outDebug("[%u ms] SQL: %s", getMSTimeDiff(_s,getMSTime()), sql );
             #endif
         }

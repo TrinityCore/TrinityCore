@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "Common.h"
@@ -732,62 +734,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
     if(sWorld.IsShutdowning())
         sWorld.ShutdownMsg(true,pCurrChar);
 
-	if(sWorld.getConfig(CONFIG_ALWAYS_MAXSKILL)) // Max weapon skill when logging in
-		pCurrChar->UpdateSkillsToMaxSkillsForLevel();
-
-	//ImpConfig - Check if player has logged in before
-	QueryResult *result = CharacterDatabase.PQuery("SELECT guid FROM has_logged_in_before WHERE guid = %u",pCurrChar->GetGUIDLow());
-	if(!result)
-	{
-	sLog.outBasic("Character '%s' logging in for first time, applying skills and stuff",pCurrChar->GetName());
-	CharacterDatabase.PExecute("INSERT INTO has_logged_in_before VALUES (%u)",pCurrChar->GetGUIDLow());
-
-	//Reputations if "StartAllReputation" is enabled, -- TODO: Fix this in a better way
-	if(sWorld.getConfig(CONFIG_START_ALL_REP))
-	{
-		pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(942),42999);
-		pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(935),42999);
-		pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(936),42999);
-		pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(1011),42999);
-		pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(970),42999);
-		pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(967),42999);
-		pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(989),42999);
-		pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(932),42999);
-		pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(934),42999);
-		pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(1038),42999);
-		pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(1077),42999);
-
-		// Factions depending on team, like cities and some more stuff
-		switch(pCurrChar->GetTeam())
-		{
-		case ALLIANCE:
-			pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(72),42999);
-			pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(47),42999);
-			pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(69),42999);
-			pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(930),42999);
-			pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(730),42999);
-			pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(978),42999);
-			pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(54),42999);
-			pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(946),42999);
-			break;
-		case HORDE:
-			pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(76),42999);
-			pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(68),42999);
-			pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(81),42999);
-			pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(911),42999);
-			pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(729),42999);
-			pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(941),42999);
-			pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(530),42999);
-			pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(947),42999);
-			break;
-		}
-	}
-	}
-	else
-		sLog.outBasic("Character '%s' has logged in before",pCurrChar->GetName());
-
-	if(sWorld.getConfig(CONFIG_START_ALL_TAXI))
-		pCurrChar->SetTaxiCheater(true);
+    if(sWorld.getConfig(CONFIG_START_ALL_TAXI))
+        pCurrChar->SetTaxiCheater(true);
 
 
     if(pCurrChar->isGameMaster())

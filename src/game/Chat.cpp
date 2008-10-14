@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "Common.h"
@@ -108,6 +110,8 @@ ChatCommand * ChatHandler::getCommandTable()
         { "anim",           SEC_GAMEMASTER,     &ChatHandler::HandleAnimCommand,                "", NULL },
         { "lootrecipient",  SEC_GAMEMASTER,     &ChatHandler::HandleGetLootRecipient,           "", NULL },
         { "arena",          SEC_ADMINISTRATOR,  &ChatHandler::HandleDebugArenaCommand,          "", NULL },
+        { "threatlist",     SEC_ADMINISTRATOR,  &ChatHandler::HandleDebugThreatList,            "", NULL },
+        { "hostilrefs",     SEC_ADMINISTRATOR,  &ChatHandler::HandleDebugHostilRefList,         "", NULL },
         { NULL,             0,                  NULL,                                           "", NULL }
     };
 
@@ -165,7 +169,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "gameobject_scripts",          SEC_ADMINISTRATOR, &ChatHandler::HandleReloadGameObjectScriptsCommand,       "", NULL },
         { "item_enchantment_template",   SEC_ADMINISTRATOR, &ChatHandler::HandleReloadItemEnchantementsCommand,       "", NULL },
         { "item_loot_template",          SEC_ADMINISTRATOR, &ChatHandler::HandleReloadLootTemplatesItemCommand,       "", NULL },
-        { "mangos_string",               SEC_ADMINISTRATOR, &ChatHandler::HandleReloadMangosStringCommand,            "", NULL },
+        { "trinity_string",              SEC_ADMINISTRATOR, &ChatHandler::HandleReloadTrinityStringCommand,           "", NULL },
         { "npc_gossip",                  SEC_ADMINISTRATOR, &ChatHandler::HandleReloadNpcGossipCommand,               "", NULL },
         { "npc_trainer",                 SEC_ADMINISTRATOR, &ChatHandler::HandleReloadNpcTrainerCommand,              "", NULL },
         { "npc_vendor",                  SEC_ADMINISTRATOR, &ChatHandler::HandleReloadNpcVendorCommand,               "", NULL },
@@ -467,7 +471,6 @@ ChatCommand * ChatHandler::getCommandTable()
         { "movegens",       SEC_ADMINISTRATOR,  &ChatHandler::HandleMovegensCommand,            "", NULL },
         { "cometome",       SEC_ADMINISTRATOR,  &ChatHandler::HandleComeToMeCommand,            "", NULL },
         { "damage",         SEC_ADMINISTRATOR,  &ChatHandler::HandleDamageCommand,              "", NULL },
-        { "ircpm",          SEC_PLAYER,         &ChatHandler::HandleIRCpmCommand,               "", NULL },
         { "combatstop",     SEC_GAMEMASTER,     &ChatHandler::HandleCombatStopCommand,          "", NULL },
         { "flusharenapoints",    SEC_ADMINISTRATOR, &ChatHandler::HandleFlushArenaPointsCommand,         "",   NULL },
 
@@ -515,9 +518,9 @@ ChatCommand * ChatHandler::getCommandTable()
     return commandTable;
 }
 
-const char *ChatHandler::GetMangosString(int32 entry)
+const char *ChatHandler::GetTrinityString(int32 entry)
 {
-    return m_session->GetMangosString(entry);
+    return m_session->GetTrinityString(entry);
 }
 
 bool ChatHandler::hasStringAbbr(const char* name, const char* part)
@@ -581,12 +584,12 @@ void ChatHandler::SendGlobalSysMessage(const char *str)
 
 void ChatHandler::SendSysMessage(int32 entry)
 {
-    SendSysMessage(GetMangosString(entry));
+    SendSysMessage(GetTrinityString(entry));
 }
 
 void ChatHandler::PSendSysMessage(int32 entry, ...)
 {
-    const char *format = GetMangosString(entry);
+    const char *format = GetTrinityString(entry);
     va_list ap;
     char str [1024];
     va_start(ap, entry);
@@ -1028,14 +1031,14 @@ GameObject* ChatHandler::GetObjectGlobalyWithGuidOrNearWithDbGuid(uint32 lowguid
     if(!obj && objmgr.GetGOData(lowguid))                   // guid is DB guid of object
     {
         // search near player then
-        CellPair p(MaNGOS::ComputeCellPair(pl->GetPositionX(), pl->GetPositionY()));
+        CellPair p(Trinity::ComputeCellPair(pl->GetPositionX(), pl->GetPositionY()));
         Cell cell(p);
         cell.data.Part.reserved = ALL_DISTRICT;
 
-        MaNGOS::GameObjectWithDbGUIDCheck go_check(*pl,lowguid);
-        MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck> checker(obj,go_check);
+        Trinity::GameObjectWithDbGUIDCheck go_check(*pl,lowguid);
+        Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(obj,go_check);
 
-        TypeContainerVisitor<MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
+        TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
         CellLock<GridReadGuard> cell_lock(cell, p);
         cell_lock->Visit(cell_lock, object_checker, *MapManager::Instance().GetMap(pl->GetMapId(), pl));
     }

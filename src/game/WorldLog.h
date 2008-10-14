@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,20 +10,20 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /// \addtogroup u2w
 /// @{
 /// \file
 
-#ifndef MANGOS_WORLDLOG_H
-#define MANGOS_WORLDLOG_H
+#ifndef TRINITY_WORLDLOG_H
+#define TRINITY_WORLDLOG_H
 
 #include "Common.h"
 #include "Policies/Singleton.h"
@@ -30,13 +32,13 @@
 #include <stdarg.h>
 
 /// %Log packets to a file
-class MANGOS_DLL_DECL WorldLog : public MaNGOS::Singleton<WorldLog, MaNGOS::ClassLevelLockable<WorldLog, ZThread::FastMutex> >
+class TRINITY_DLL_DECL WorldLog : public Trinity::Singleton<WorldLog, Trinity::ClassLevelLockable<WorldLog, ZThread::FastMutex> >
 {
-    friend class MaNGOS::OperatorNew<WorldLog>;
+    friend class Trinity::OperatorNew<WorldLog>;
     WorldLog() : i_file(NULL) { Initialize(); }
     WorldLog(const WorldLog &);
     WorldLog& operator=(const WorldLog &);
-    typedef MaNGOS::ClassLevelLockable<WorldLog, ZThread::FastMutex>::Lock Guard;
+    typedef Trinity::ClassLevelLockable<WorldLog, ZThread::FastMutex>::Lock Guard;
 
     /// Close the file in destructor
     ~WorldLog()

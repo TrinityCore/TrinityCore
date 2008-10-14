@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "Common.h"
@@ -616,25 +618,25 @@ bool ChatHandler::HandleLookupFactionCommand(const char* args)
                 if (repItr != target->m_factions.end())
                 {
                     ReputationRank rank = target->GetReputationRank(factionEntry);
-                    std::string rankName = GetMangosString(ReputationRankStrIndex[rank]);
+                    std::string rankName = GetTrinityString(ReputationRankStrIndex[rank]);
 
                     ss << " " << rankName << "|h|r (" << target->GetReputation(factionEntry) << ")";
 
                     if(repItr->second.Flags & FACTION_FLAG_VISIBLE)
-                        ss << GetMangosString(LANG_FACTION_VISIBLE);
+                        ss << GetTrinityString(LANG_FACTION_VISIBLE);
                     if(repItr->second.Flags & FACTION_FLAG_AT_WAR)
-                        ss << GetMangosString(LANG_FACTION_ATWAR);
+                        ss << GetTrinityString(LANG_FACTION_ATWAR);
                     if(repItr->second.Flags & FACTION_FLAG_PEACE_FORCED)
-                        ss << GetMangosString(LANG_FACTION_PEACE_FORCED);
+                        ss << GetTrinityString(LANG_FACTION_PEACE_FORCED);
                     if(repItr->second.Flags & FACTION_FLAG_HIDDEN)
-                        ss << GetMangosString(LANG_FACTION_HIDDEN);
+                        ss << GetTrinityString(LANG_FACTION_HIDDEN);
                     if(repItr->second.Flags & FACTION_FLAG_INVISIBLE_FORCED)
-                        ss << GetMangosString(LANG_FACTION_INVISIBLE_FORCED);
+                        ss << GetTrinityString(LANG_FACTION_INVISIBLE_FORCED);
                     if(repItr->second.Flags & FACTION_FLAG_INACTIVE)
-                        ss << GetMangosString(LANG_FACTION_INACTIVE);
+                        ss << GetTrinityString(LANG_FACTION_INACTIVE);
                 }
                 else
-                    ss << GetMangosString(LANG_FACTION_NOREPUTATION);
+                    ss << GetTrinityString(LANG_FACTION_NOREPUTATION);
 
                 SendSysMessage(ss.str().c_str());
                 counter++;
@@ -685,7 +687,7 @@ bool ChatHandler::HandleModifyRepCommand(const char * args)
         amount = -42000;
         for (; r < MAX_REPUTATION_RANK; ++r)
         {
-            std::string rank = GetMangosString(ReputationRankStrIndex[r]);
+            std::string rank = GetTrinityString(ReputationRankStrIndex[r]);
             if(rank.empty())
                 continue;
 
@@ -1796,10 +1798,10 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
         level = plr.getLevel();
     }
 
-    std::string username = GetMangosString(LANG_ERROR);
-    std::string last_ip = GetMangosString(LANG_ERROR);
+    std::string username = GetTrinityString(LANG_ERROR);
+    std::string last_ip = GetTrinityString(LANG_ERROR);
     uint32 security = 0;
-    std::string last_login = GetMangosString(LANG_ERROR);
+    std::string last_login = GetTrinityString(LANG_ERROR);
 
     QueryResult* result = loginDatabase.PQuery("SELECT username,gmlevel,last_ip,last_login FROM account WHERE id = '%u'",accId);
     if(result)
@@ -1821,7 +1823,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
         delete result;
     }
 
-    PSendSysMessage(LANG_PINFO_ACCOUNT, (target?"":GetMangosString(LANG_OFFLINE)), name.c_str(), GUID_LOPART(targetGUID), username.c_str(), accId, security, last_ip.c_str(), last_login.c_str(), latency);
+    PSendSysMessage(LANG_PINFO_ACCOUNT, (target?"":GetTrinityString(LANG_OFFLINE)), name.c_str(), GUID_LOPART(targetGUID), username.c_str(), accId, security, last_ip.c_str(), last_login.c_str(), latency);
 
     std::string timeStr = secsToTimeString(total_player_time,true,true);
     uint32 gold = money /GOLD;
@@ -1848,22 +1850,22 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
             else
                 FactionName = "#Not found#";
             ReputationRank rank = target->GetReputationRank(factionEntry);
-            std::string rankName = GetMangosString(ReputationRankStrIndex[rank]);
+            std::string rankName = GetTrinityString(ReputationRankStrIndex[rank]);
             std::ostringstream ss;
             ss << itr->second.ID << ": |cffffffff|Hfaction:" << itr->second.ID << "|h[" << FactionName << "]|h|r " << rankName << "|h|r (" << target->GetReputation(factionEntry) << ")";
 
             if(itr->second.Flags & FACTION_FLAG_VISIBLE)
-                ss << GetMangosString(LANG_FACTION_VISIBLE);
+                ss << GetTrinityString(LANG_FACTION_VISIBLE);
             if(itr->second.Flags & FACTION_FLAG_AT_WAR)
-                ss << GetMangosString(LANG_FACTION_ATWAR);
+                ss << GetTrinityString(LANG_FACTION_ATWAR);
             if(itr->second.Flags & FACTION_FLAG_PEACE_FORCED)
-                ss << GetMangosString(LANG_FACTION_PEACE_FORCED);
+                ss << GetTrinityString(LANG_FACTION_PEACE_FORCED);
             if(itr->second.Flags & FACTION_FLAG_HIDDEN)
-                ss << GetMangosString(LANG_FACTION_HIDDEN);
+                ss << GetTrinityString(LANG_FACTION_HIDDEN);
             if(itr->second.Flags & FACTION_FLAG_INVISIBLE_FORCED)
-                ss << GetMangosString(LANG_FACTION_INVISIBLE_FORCED);
+                ss << GetTrinityString(LANG_FACTION_INVISIBLE_FORCED);
             if(itr->second.Flags & FACTION_FLAG_INACTIVE)
-                ss << GetMangosString(LANG_FACTION_INACTIVE);
+                ss << GetTrinityString(LANG_FACTION_INACTIVE);
 
             SendSysMessage(ss.str().c_str());
         }
@@ -1876,7 +1878,7 @@ void ChatHandler::ShowTicket(uint64 guid, char const* text, char const* time)
 {
     std::string name;
     if(!objmgr.GetPlayerNameByGUID(guid,name))
-        name = GetMangosString(LANG_UNKNOWN);
+        name = GetTrinityString(LANG_UNKNOWN);
 
     PSendSysMessage(LANG_COMMAND_TICKETVIEW, name.c_str(),time,text);
 }
@@ -1899,7 +1901,7 @@ bool ChatHandler::HandleTicketCommand(const char* args)
         else
             count = 0;
 
-        PSendSysMessage(LANG_COMMAND_TICKETCOUNT, count, m_session->GetPlayer()->isAcceptTickets() ?  GetMangosString(LANG_ON) : GetMangosString(LANG_OFF));
+        PSendSysMessage(LANG_COMMAND_TICKETCOUNT, count, m_session->GetPlayer()->isAcceptTickets() ?  GetTrinityString(LANG_ON) : GetTrinityString(LANG_OFF));
         return true;
     }
 
@@ -3478,7 +3480,7 @@ bool ChatHandler::HandleGameObjectCommand(const char* args)
         return false;
     }
 
-    sLog.outDebug(GetMangosString(LANG_GAMEOBJECT_CURRENT), goI->name, db_lowGUID, x, y, z, o);
+    sLog.outDebug(GetTrinityString(LANG_GAMEOBJECT_CURRENT), goI->name, db_lowGUID, x, y, z, o);
 
     map->Add(pGameObj);
 
@@ -3587,7 +3589,7 @@ bool ChatHandler::HandleLookupEventCommand(const char* args)
 
         if (Utf8FitTo(descr, wnamepart))
         {
-            char const* active = activeEvents.find(id) != activeEvents.end() ? GetMangosString(LANG_ACTIVE) : "";
+            char const* active = activeEvents.find(id) != activeEvents.end() ? GetTrinityString(LANG_ACTIVE) : "";
             PSendSysMessage(LANG_EVENT_ENTRY_LIST,id,id,descr.c_str(),active );
             ++counter;
         }
@@ -3606,7 +3608,7 @@ bool ChatHandler::HandleEventActiveListCommand(const char* args)
     GameEvent::GameEventDataMap const& events = gameeventmgr.GetEventMap();
     GameEvent::ActiveEvents const& activeEvents = gameeventmgr.GetActiveEventList();
 
-    char const* active = GetMangosString(LANG_ACTIVE);
+    char const* active = GetTrinityString(LANG_ACTIVE);
 
     for(GameEvent::ActiveEvents::const_iterator itr = activeEvents.begin(); itr != activeEvents.end(); ++itr )
     {
@@ -3654,7 +3656,7 @@ bool ChatHandler::HandleEventInfoCommand(const char* args)
 
     GameEvent::ActiveEvents const& activeEvents = gameeventmgr.GetActiveEventList();
     bool active = activeEvents.find(event_id) != activeEvents.end();
-    char const* activeStr = active ? GetMangosString(LANG_ACTIVE) : "";
+    char const* activeStr = active ? GetTrinityString(LANG_ACTIVE) : "";
 
     std::string startTimeStr = TimeToTimestampStr(eventData.start);
     std::string endTimeStr = TimeToTimestampStr(eventData.end);

@@ -1,5 +1,7 @@
 /* 
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #ifndef _UTIL_H
@@ -41,24 +43,24 @@ inline uint32 secsToTimeBitFields(time_t secs)
 }
 
 /* Return a random number in the range min..max; (max-min) must be smaller than 32768. */
-MANGOS_DLL_SPEC int32 irand(int32 min, int32 max);
+TRINITY_DLL_SPEC int32 irand(int32 min, int32 max);
 
 /* Return a random number in the range min..max (inclusive). For reliable results, the difference
 * between max and min should be less than RAND32_MAX. */
-MANGOS_DLL_SPEC uint32 urand(uint32 min, uint32 max);
+TRINITY_DLL_SPEC uint32 urand(uint32 min, uint32 max);
 
 /* Return a random number in the range 0 .. RAND32_MAX. */
-MANGOS_DLL_SPEC int32 rand32();
+TRINITY_DLL_SPEC int32 rand32();
 
 /* Return a random double from 0.0 to 1.0 (exclusive). Floats support only 7 valid decimal digits.
  * A double supports up to 15 valid decimal digits and is used internally (RAND32_MAX has 10 digits).
  * With an FPU, there is usually no difference in performance between float and double. */
-MANGOS_DLL_SPEC double rand_norm(void);
+TRINITY_DLL_SPEC double rand_norm(void);
 
 /* Return a random double from 0.0 to 99.9999999999999. Floats support only 7 valid decimal digits.
  * A double supports up to 15 valid decimal digits and is used internaly (RAND32_MAX has 10 digits).
  * With an FPU, there is usually no difference in performance between float and double. */
-MANGOS_DLL_SPEC double rand_chance(void);
+TRINITY_DLL_SPEC double rand_chance(void);
 
 /* Return true if a random roll fits in the specified chance (range 0-100). */
 inline bool roll_chance_f(float chance)

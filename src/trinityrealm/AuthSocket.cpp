@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /** \file
@@ -369,14 +371,13 @@ bool AuthSocket::_HandleLogonChallenge()
 
     ///- Check if the client has one of the expected version numbers
     bool valid_version=false;
-	int MinBuild = sConfig.GetIntDefault("MinBuild", 8606);
-	int MaxBuild = sConfig.GetIntDefault("MaxBuild", 8606);
-
-	if(ch->build >= MinBuild && ch->build <= MaxBuild) {
+    int accepted_versions[]=EXPECTED_TRINITY_CLIENT_BUILD;
+    for(int i=0;accepted_versions[i];i++)
+        if(ch->build==accepted_versions[i])
+    {
         valid_version=true;
-    } else {
-	valid_version=false;
-    };
+        break;
+    }
 
     /// <ul><li> if this is a valid version
     if(valid_version)
@@ -683,7 +684,7 @@ bool AuthSocket::_HandleLogonProof()
                     if(WrongPassBanType)
                     {
                         uint32 acc_id = fields[0].GetUInt32();
-                        dbRealmServer.PExecute("INSERT INTO account_banned VALUES ('%u',UNIX_TIMESTAMP(),UNIX_TIMESTAMP()+'%u','MaNGOS realmd','Failed login autoban',1)",
+                        dbRealmServer.PExecute("INSERT INTO account_banned VALUES ('%u',UNIX_TIMESTAMP(),UNIX_TIMESTAMP()+'%u','Trinity realm','Failed login autoban',1)",
                             acc_id, WrongPassBanTime);
                         sLog.outBasic("[AuthChallenge] account %s got banned for '%u' seconds because it failed to authenticate '%u' times",
                             _login.c_str(), WrongPassBanTime, failed_logins);
@@ -692,7 +693,7 @@ bool AuthSocket::_HandleLogonProof()
                     {
                         std::string current_ip = GetRemoteAddress();
                         dbRealmServer.escape_string(current_ip);
-                        dbRealmServer.PExecute("INSERT INTO ip_banned VALUES ('%s',UNIX_TIMESTAMP(),UNIX_TIMESTAMP()+'%u','MaNGOS realmd','Failed login autoban')",
+                        dbRealmServer.PExecute("INSERT INTO ip_banned VALUES ('%s',UNIX_TIMESTAMP(),UNIX_TIMESTAMP()+'%u','Trinity realm','Failed login autoban')",
                             current_ip.c_str(), WrongPassBanTime);
                         sLog.outBasic("[AuthChallenge] IP %s got banned for '%u' seconds because account %s failed to authenticate '%u' times",
                             current_ip.c_str(), WrongPassBanTime, _login.c_str(), failed_logins);

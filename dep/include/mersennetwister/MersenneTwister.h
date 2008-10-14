@@ -118,7 +118,7 @@ public:
 	// Saving and loading generator state
 	void save( uint32* saveArray ) const;  // to array of size SAVE
 	void load( uint32 *const loadArray );  // from such array
-    /* Mangos not use streams for random values output
+    /* Trinity not use streams for random values output
 	friend std::ostream& operator<<( std::ostream& os, const MTRand& mtrand );
 	friend std::istream& operator>>( std::istream& is, MTRand& mtrand );
     */
@@ -350,7 +350,7 @@ inline void MTRand::load( uint32 *const loadArray )
 	pNext = &state[N-left];
 }
 
-/* Mangos not use streams for random values output
+/* Trinity not use streams for random values output
 inline std::ostream& operator<<( std::ostream& os, const MTRand& mtrand )
 {
 	register const MTRand::uint32 *s = mtrand.state;
