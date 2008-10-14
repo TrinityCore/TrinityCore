@@ -1,5 +1,7 @@
 /* 
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,15 +10,15 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-/// \addtogroup mangosd Mangos Daemon
+/// \addtogroup Trinityd Trinity Daemon
 /// @{
 /// \file
 
@@ -25,8 +27,6 @@
 #include "Config/ConfigEnv.h"
 #include "Log.h"
 #include "Master.h"
-#include "../game/IRCConf.h"
-#include "../game/IRCClient.h"
 
 #ifndef _TRINITY_CORE_CONFIG
 # define _TRINITY_CORE_CONFIG  "trinitycore.conf"
@@ -40,8 +40,8 @@
 
 #ifdef WIN32
 #include "ServiceWin32.h"
-char serviceName[] = "mangosd";
-char serviceLongName[] = "MaNGOS world service";
+char serviceName[] = "Trinityd";
+char serviceLongName[] = "Trinity core service";
 char serviceDescription[] = "Massive Network Game Object Server";
 /*
  * -1 - not in service mode
@@ -72,12 +72,11 @@ void usage(const char *prog)
         ,prog);
 }
 
-/// Launch the mangos server
+/// Launch the Trinity server
 extern int main(int argc, char **argv)
 {
     ///- Command line parsing to get the configuration file name
     char const* cfg_file = _TRINITY_CORE_CONFIG;
-    char const* mc_cfg_file = _TRINITY_CORE_CONFIG;
     int c=1;
     while( c < argc )
     {
@@ -139,7 +138,6 @@ extern int main(int argc, char **argv)
         return 1;
     }
 
-    sIRC.SetCfg(mc_cfg_file);
     sLog.outString("Using configuration file %s.", cfg_file);
     
     uint32 confVersion = sConfig.GetIntDefault("ConfVersion", 0);
@@ -162,7 +160,7 @@ extern int main(int argc, char **argv)
     // at sMaster return function exist with codes
     // 0 - normal shutdown
     // 1 - shutdown at error
-    // 2 - restart command used, this code can be used by restarter for restart mangosd
+    // 2 - restart command used, this code can be used by restarter for restart Trinityd
 }
 
 /// @}

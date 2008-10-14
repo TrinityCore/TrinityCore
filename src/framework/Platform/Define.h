@@ -1,5 +1,7 @@
 /* 
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,16 +10,16 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef MANGOS_DEFINE_H
-#define MANGOS_DEFINE_H
+#ifndef TRINITY_DEFINE_H
+#define TRINITY_DEFINE_H
 
 #include "Platform/CompilerDefs.h"
 #include <sys/types.h>
@@ -87,102 +89,102 @@ It may well fail, in which case the definitions will need to be set by
 editing at the points marked **** EDIT HERE IF NECESSARY **** below.
 */
 
-#define MANGOS_LITTLEENDIAN 0
-#define MANGOS_BIGENDIAN    1
+#define TRINITY_LITTLEENDIAN 0
+#define TRINITY_BIGENDIAN    1
 
-#if !defined(MANGOS_ENDIAN)
+#if !defined(TRINITY_ENDIAN)
 #  if defined(LITTLE_ENDIAN) || defined(BIG_ENDIAN)
 #    if defined(LITTLE_ENDIAN) && defined(BIG_ENDIAN)
 #      if defined(BYTE_ORDER)
 #        if   (BYTE_ORDER == LITTLE_ENDIAN)
-#          define MANGOS_ENDIAN MANGOS_LITTLEENDIAN
+#          define TRINITY_ENDIAN TRINITY_LITTLEENDIAN
 #        elif (BYTE_ORDER == BIG_ENDIAN)
-#          define MANGOS_ENDIAN MANGOS_BIGENDIAN
+#          define TRINITY_ENDIAN TRINITY_BIGENDIAN
 #        endif
 #      endif
 #    elif defined(LITTLE_ENDIAN) && !defined(BIG_ENDIAN) 
-#      define MANGOS_ENDIAN MANGOS_LITTLEENDIAN
+#      define TRINITY_ENDIAN TRINITY_LITTLEENDIAN
 #    elif !defined(LITTLE_ENDIAN) && defined(BIG_ENDIAN)
-#      define MANGOS_ENDIAN MANGOS_BIGENDIAN
+#      define TRINITY_ENDIAN TRINITY_BIGENDIAN
 #    endif
 #  elif defined(_LITTLE_ENDIAN) || defined(_BIG_ENDIAN)
 #    if defined(_LITTLE_ENDIAN) && defined(_BIG_ENDIAN)
 #      if defined(_BYTE_ORDER)
 #        if   (_BYTE_ORDER == _LITTLE_ENDIAN)
-#          define MANGOS_ENDIAN MANGOS_LITTLEENDIAN
+#          define TRINITY_ENDIAN TRINITY_LITTLEENDIAN
 #        elif (_BYTE_ORDER == _BIG_ENDIAN)
-#          define MANGOS_ENDIAN MANGOS_BIGENDIAN
+#          define TRINITY_ENDIAN TRINITY_BIGENDIAN
 #        endif
 #      endif
 #    elif defined(_LITTLE_ENDIAN) && !defined(_BIG_ENDIAN) 
-#      define MANGOS_ENDIAN MANGOS_LITTLE_ENDIAN
+#      define TRINITY_ENDIAN TRINITY_LITTLE_ENDIAN
 #    elif !defined(_LITTLE_ENDIAN) && defined(_BIG_ENDIAN)
-#      define MANGOS_ENDIAN MANGOS_BIGENDIAN
+#      define TRINITY_ENDIAN TRINITY_BIGENDIAN
 #    endif
 #  elif 0     /* **** EDIT HERE IF NECESSARY **** */
-#    define MANGOS_ENDIAN MANGOS_LITTLEENDIAN
+#    define TRINITY_ENDIAN TRINITY_LITTLEENDIAN
 #  elif 0     /* **** EDIT HERE IF NECESSARY **** */
-#    define MANGOS_ENDIAN MANGOS_BIGENDIAN
+#    define TRINITY_ENDIAN TRINITY_BIGENDIAN
 #  elif (('1234' >> 24) == '1')
-#    define MANGOS_ENDIAN MANGOS_LITTLEENDIAN
+#    define TRINITY_ENDIAN TRINITY_LITTLEENDIAN
 #  elif (('4321' >> 24) == '1')
-#    define MANGOS_ENDIAN MANGOS_BIGENDIAN
+#    define TRINITY_ENDIAN TRINITY_BIGENDIAN
 #  else
-#    define MANGOS_ENDIAN MANGOS_LITTLEENDIAN
+#    define TRINITY_ENDIAN TRINITY_LITTLEENDIAN
 #  endif
 #endif
 
 /* End of Endian detection code from sha2.c: */
 
 #if PLATFORM == PLATFORM_WINDOWS
-#define MANGOS_EXPORT __declspec(dllexport)
-#define MANGOS_LIBRARY_HANDLE HMODULE
-#define MANGOS_LOAD_LIBRARY(a) LoadLibrary(a)
-#define MANGOS_CLOSE_LIBRARY FreeLibrary
-#define MANGOS_GET_PROC_ADDR GetProcAddress
-#define MANGOS_IMPORT __cdecl
-#define MANGOS_SCRIPT_EXT ".dll"
-#define MANGOS_SCRIPT_NAME "TrinityScript"
+#define TRINITY_EXPORT __declspec(dllexport)
+#define TRINITY_LIBRARY_HANDLE HMODULE
+#define TRINITY_LOAD_LIBRARY(a) LoadLibrary(a)
+#define TRINITY_CLOSE_LIBRARY FreeLibrary
+#define TRINITY_GET_PROC_ADDR GetProcAddress
+#define TRINITY_IMPORT __cdecl
+#define TRINITY_SCRIPT_EXT ".dll"
+#define TRINITY_SCRIPT_NAME "TrinityScript"
 #else
-#define MANGOS_LIBRARY_HANDLE void*
-#define MANGOS_EXPORT export
-#define MANGOS_LOAD_LIBRARY(a) dlopen(a,RTLD_NOW)
-#define MANGOS_CLOSE_LIBRARY dlclose
-#define MANGOS_GET_PROC_ADDR dlsym
+#define TRINITY_LIBRARY_HANDLE void*
+#define TRINITY_EXPORT export
+#define TRINITY_LOAD_LIBRARY(a) dlopen(a,RTLD_NOW)
+#define TRINITY_CLOSE_LIBRARY dlclose
+#define TRINITY_GET_PROC_ADDR dlsym
 
 #if defined(__APPLE_CC__) && defined(BIG_ENDIAN)
-#define MANGOS_IMPORT __attribute__ ((longcall))
+#define TRINITY_IMPORT __attribute__ ((longcall))
 #else
-#define MANGOS_IMPORT __attribute__ ((cdecl))
+#define TRINITY_IMPORT __attribute__ ((cdecl))
 #endif
 
-#define MANGOS_SCRIPT_EXT ".so"
-#define MANGOS_SCRIPT_NAME "libtrinityscript"
+#define TRINITY_SCRIPT_EXT ".so"
+#define TRINITY_SCRIPT_NAME "libtrinityscript"
 #endif
 
 #ifdef WIN32
-#ifdef MANGOS_WIN32_DLL_IMPORT
+#ifdef TRINITY_WIN32_DLL_IMPORT
 
-#define MANGOS_DLL_DECL __declspec(dllimport)
+#define TRINITY_DLL_DECL __declspec(dllimport)
 #else
-#ifdef MANGOS_WIND_DLL_EXPORT
-#define MANGOS_DLL_DECL __declspec(dllexport)
+#ifdef TRINITY_WIND_DLL_EXPORT
+#define TRINITY_DLL_DECL __declspec(dllexport)
 #else
-#define MANGOS_DLL_DECL
+#define TRINITY_DLL_DECL
 #endif
 #endif
 
 #else
-#define MANGOS_DLL_DECL
+#define TRINITY_DLL_DECL
 #endif
 
 #ifndef DEBUG
-#define MANGOS_INLINE inline
+#define TRINITY_INLINE inline
 #else
-#ifndef MANGOS_DEBUG
-#define MANGOS_DEBUG
+#ifndef TRINITY_DEBUG
+#define TRINITY_DEBUG
 #endif
-#define MANGOS_INLINE
+#define TRINITY_INLINE
 #endif
 
 #if COMPILER == COMPILER_MICROSOFT
@@ -209,12 +211,12 @@ typedef uint32      DWORD;
 typedef uint64      OBJECT_HANDLE;
 
 #if PLATFORM == PLATFORM_WINDOWS
-#  define MANGOS_DLL_SPEC __declspec(dllexport)
+#  define TRINITY_DLL_SPEC __declspec(dllexport)
 #  ifndef DECLSPEC_NORETURN
 #    define DECLSPEC_NORETURN __declspec(noreturn)
 #  endif
 #else
-#  define MANGOS_DLL_SPEC
+#  define TRINITY_DLL_SPEC
 #  define DECLSPEC_NORETURN
 #endif
 

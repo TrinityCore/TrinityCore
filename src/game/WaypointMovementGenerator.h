@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,16 +10,16 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef MANGOS_WAYPOINTMOVEMENTGENERATOR_H
-#define MANGOS_WAYPOINTMOVEMENTGENERATOR_H
+#ifndef TRINITY_WAYPOINTMOVEMENTGENERATOR_H
+#define TRINITY_WAYPOINTMOVEMENTGENERATOR_H
 
 /** @page PathMovementGenerator is used to generate movements
  * of waypoints and flight paths.  Each serves the purpose
@@ -40,7 +42,7 @@
 #define STOP_TIME_FOR_PLAYER  3 * 60 * 1000                         // 3 Minutes
 
 template<class T, class P = Path>
-class MANGOS_DLL_SPEC PathMovementBase
+class TRINITY_DLL_SPEC PathMovementBase
 {
     public:
         PathMovementBase() : i_currentNode(0) {}
@@ -66,10 +68,10 @@ class MANGOS_DLL_SPEC PathMovementBase
  */
 
 template<class T>
-class MANGOS_DLL_SPEC WaypointMovementGenerator;
+class TRINITY_DLL_SPEC WaypointMovementGenerator;
 
 template<>
-class MANGOS_DLL_SPEC WaypointMovementGenerator<Creature>
+class TRINITY_DLL_SPEC WaypointMovementGenerator<Creature>
 : public MovementGeneratorMedium< Creature, WaypointMovementGenerator<Creature> >,
 public PathMovementBase<Creature, WaypointPath*>
 {
@@ -110,7 +112,7 @@ public PathMovementBase<Creature, WaypointPath*>
 /** FlightPathMovementGenerator generates movement of the player for the paths
  * and hence generates ground and activities for the player.
  */
-class MANGOS_DLL_SPEC FlightPathMovementGenerator
+class TRINITY_DLL_SPEC FlightPathMovementGenerator
 : public MovementGeneratorMedium< Player, FlightPathMovementGenerator >,
 public PathMovementBase<Player>
 {

@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,16 +10,16 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef MANGOSSERVER_CHAT_H
-#define MANGOSSERVER_CHAT_H
+#ifndef TRINITYCORE_CHAT_H
+#define TRINITYCORE_CHAT_H
 
 #include "SharedDefines.h"
 
@@ -59,7 +61,7 @@ class ChatHandler
 
         static char* LineFromMessage(char*& pos) { char* start = strtok(pos,"\n"); pos = NULL; return start; }
 
-        const char *GetMangosString(int32 entry);
+        const char *GetTrinityString(int32 entry);
 
         void SendSysMessage(          const char *str);
         void SendSysMessage(          int32     entry);
@@ -108,8 +110,6 @@ class ChatHandler
         bool HandleNameTeleCommand(const char* args);
         bool HandleGroupTeleCommand(const char* args);
         bool HandleDrunkCommand(const char* args);
-
-        bool HandleIRCpmCommand(const char* args);
 
         bool HandleEventActiveListCommand(const char* args);
         bool HandleEventStartCommand(const char* args);
@@ -170,7 +170,7 @@ class ChatHandler
         bool HandleReloadLootTemplatesReferenceCommand(const char* args);
         bool HandleReloadLootTemplatesQuestMailCommand(const char* args);
         bool HandleReloadLootTemplatesSkinningCommand(const char* args);
-        bool HandleReloadMangosStringCommand(const char* args);
+        bool HandleReloadTrinityStringCommand(const char* args);
         bool HandleReloadNpcGossipCommand(const char* args);
         bool HandleReloadNpcTrainerCommand(const char* args);
         bool HandleReloadNpcVendorCommand(const char* args);
@@ -390,6 +390,8 @@ class ChatHandler
         bool HandleGetItemState(const char * args);
         bool HandleGetLootRecipient(const char * args);
         bool HandleDebugArenaCommand(const char * args);
+        bool HandleDebugThreatList(const char * args);
+        bool HandleDebugHostilRefList(const char * args);
 
         Player*   getSelectedPlayer();
         Creature* getSelectedCreature();

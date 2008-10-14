@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,15 +10,15 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-#ifndef MANGOS_SPELLAURAS_H
-#define MANGOS_SPELLAURAS_H
+#ifndef TRINITY_SPELLAURAS_H
+#define TRINITY_SPELLAURAS_H
 
 #include "SpellAuraDefines.h"
 
@@ -55,11 +57,11 @@ typedef void(Aura::*pAuraHandler)(bool Apply, bool Real);
 //      (percent auras, stats mods, etc)
 // Second rule: Code must be guarded by if(Real) check if it modifies object state (start/stop attack, send packets to client, etc)
 //
-// Other case choice: each code line moved under if(Real) check is mangos speedup,
-//      each setting object update field code line moved under if(Real) check is significant mangos speedup, and less server->client data sends
-//      each packet sending code moved under if(Real) check is _large_ mangos speedup, and lot less server->client data sends
+// Other case choice: each code line moved under if(Real) check is Trinity speedup,
+//      each setting object update field code line moved under if(Real) check is significant Trinity speedup, and less server->client data sends
+//      each packet sending code moved under if(Real) check is _large_ Trinity speedup, and lot less server->client data sends
 
-class MANGOS_DLL_SPEC Aura
+class TRINITY_DLL_SPEC Aura
 {
     friend Aura* CreateAura(SpellEntry const* spellproto, uint32 eff, int32 *currentBasePoints, Unit *target, Unit *caster, Item* castItem);
 
@@ -340,7 +342,7 @@ class MANGOS_DLL_SPEC Aura
         void SetAuraApplication(uint32 slot, int8 count);
 };
 
-class MANGOS_DLL_SPEC AreaAura : public Aura
+class TRINITY_DLL_SPEC AreaAura : public Aura
 {
     public:
         AreaAura(SpellEntry const* spellproto, uint32 eff, int32 *currentBasePoints, Unit *target, Unit *caster = NULL, Item* castItem = NULL);
@@ -351,7 +353,7 @@ class MANGOS_DLL_SPEC AreaAura : public Aura
         AreaAuraType m_areaAuraType;
 };
 
-class MANGOS_DLL_SPEC PersistentAreaAura : public Aura
+class TRINITY_DLL_SPEC PersistentAreaAura : public Aura
 {
     public:
         PersistentAreaAura(SpellEntry const* spellproto, uint32 eff, int32 *currentBasePoints, Unit *target, Unit *caster = NULL, Item* castItem = NULL);
@@ -359,7 +361,7 @@ class MANGOS_DLL_SPEC PersistentAreaAura : public Aura
         void Update(uint32 diff);
 };
 
-class MANGOS_DLL_SPEC SingleEnemyTargetAura : public Aura
+class TRINITY_DLL_SPEC SingleEnemyTargetAura : public Aura
 {
     friend Aura* CreateAura(SpellEntry const* spellproto, uint32 eff, int32 *currentBasePoints, Unit *target, Unit *caster, Item* castItem);
 

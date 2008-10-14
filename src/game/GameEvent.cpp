@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "GameEvent.h"
@@ -24,14 +26,34 @@
 #include "Log.h"
 #include "MapManager.h"
 #include "Policies/SingletonImp.h"
-#include "IRCClient.h"
+#include "GossipDef.h"
+#include "Player.h"
 
 INSTANTIATE_SINGLETON_1(GameEvent);
 
 bool GameEvent::CheckOneGameEvent(uint16 entry) const
 {
-    // Get the event information
     time_t currenttime = time(NULL);
+    // if the state is conditions or nextphase, then the event should be active
+    if (mGameEvent[entry].state == GAMEEVENT_WORLD_CONDITIONS || mGameEvent[entry].state == GAMEEVENT_WORLD_NEXTPHASE)
+        return true;
+    // finished world events are inactive
+    else if (mGameEvent[entry].state == GAMEEVENT_WORLD_FINISHED)
+        return false;
+    // if inactive world event, check the prerequisite events
+    else if (mGameEvent[entry].state == GAMEEVENT_WORLD_INACTIVE)
+    {
+        for(std::set<uint16>::const_iterator itr = mGameEvent[entry].prerequisite_events.begin(); itr != mGameEvent[entry].prerequisite_events.end(); ++itr)
+        {
+            if( (mGameEvent[*itr].state != GAMEEVENT_WORLD_NEXTPHASE && mGameEvent[*itr].state != GAMEEVENT_WORLD_FINISHED) ||   // if prereq not in nextphase or finished state, then can't start this one
+                mGameEvent[*itr].nextstart > currenttime)               // if not in nextphase state for long enough, can't start this one
+                return false;
+        }
+        // all prerequisite events are met
+        // but if there are no prerequisites, this can be only activated through gm command
+        return !(mGameEvent[entry].prerequisite_events.empty());
+    }
+    // Get the event information
     if( mGameEvent[entry].start < currenttime && currenttime < mGameEvent[entry].end &&
         ((currenttime - mGameEvent[entry].start) % (mGameEvent[entry].occurence * MINUTE)) < (mGameEvent[entry].length * MINUTE) )
         return true;
@@ -42,6 +64,14 @@ bool GameEvent::CheckOneGameEvent(uint16 entry) const
 uint32 GameEvent::NextCheck(uint16 entry) const
 {
     time_t currenttime = time(NULL);
+
+    // for NEXTPHASE state world events, return the delay to start the next event, so the followup event will be checked correctly
+    if ((mGameEvent[entry].state == GAMEEVENT_WORLD_NEXTPHASE || mGameEvent[entry].state == GAMEEVENT_WORLD_FINISHED) && mGameEvent[entry].nextstart >= currenttime)
+        return (mGameEvent[entry].nextstart - currenttime);
+
+    // for CONDITIONS state world events, return the length of the wait period, so if the conditions are met, this check will be called again to set the timer as NEXTPHASE event
+    if (mGameEvent[entry].state == GAMEEVENT_WORLD_CONDITIONS)
+        return mGameEvent[entry].length ? mGameEvent[entry].length * 60 : max_ge_check_delay;
 
     // outdated event: we return max
     if (currenttime > mGameEvent[entry].end)
@@ -65,27 +95,74 @@ uint32 GameEvent::NextCheck(uint16 entry) const
         return delay;
 }
 
-void GameEvent::StartEvent( uint16 event_id, bool overwrite )
+bool GameEvent::StartEvent( uint16 event_id, bool overwrite )
 {
-    AddActiveEvent(event_id);
-    ApplyNewEvent(event_id);
-    if(overwrite)
+    if(mGameEvent[event_id].state == GAMEEVENT_NORMAL)
     {
-        mGameEvent[event_id].start = time(NULL);
-        if(mGameEvent[event_id].end <= mGameEvent[event_id].start)
-            mGameEvent[event_id].end = mGameEvent[event_id].start+mGameEvent[event_id].length;
+        AddActiveEvent(event_id);
+        ApplyNewEvent(event_id);
+        if(overwrite)
+        {
+            mGameEvent[event_id].start = time(NULL);
+            if(mGameEvent[event_id].end <= mGameEvent[event_id].start)
+                mGameEvent[event_id].end = mGameEvent[event_id].start+mGameEvent[event_id].length;
+        }
+        return false;
+    }
+    else
+    {
+        if( mGameEvent[event_id].state == GAMEEVENT_WORLD_INACTIVE )
+            // set to conditions phase
+            mGameEvent[event_id].state = GAMEEVENT_WORLD_CONDITIONS;
+
+        // add to active events
+        AddActiveEvent(event_id);
+        // add spawns
+        ApplyNewEvent(event_id);
+
+        // check if can go to next state
+        bool conditions_met = CheckOneGameEventConditions(event_id);
+        // save to db
+        SaveWorldEventStateToDB(event_id);
+        // force game event update to set the update timer if conditions were met from a command
+        // this update is needed to possibly start events dependent on the started one
+        // or to scedule another update where the next event will be started
+        if(overwrite && conditions_met)
+            sWorld.ForceGameEventUpdate();
+
+        return conditions_met;
     }
 }
 
 void GameEvent::StopEvent( uint16 event_id, bool overwrite )
 {
+    bool serverwide_evt = mGameEvent[event_id].state != GAMEEVENT_NORMAL;
+
     RemoveActiveEvent(event_id);
     UnApplyEvent(event_id);
-    if(overwrite)
+
+    if(overwrite && !serverwide_evt)
     {
         mGameEvent[event_id].start = time(NULL) - mGameEvent[event_id].length * MINUTE;
         if(mGameEvent[event_id].end <= mGameEvent[event_id].start)
             mGameEvent[event_id].end = mGameEvent[event_id].start+mGameEvent[event_id].length;
+    }
+    else if(serverwide_evt)
+    {
+        // if finished world event, then only gm command can stop it
+        if(overwrite || mGameEvent[event_id].state != GAMEEVENT_WORLD_FINISHED)
+        {
+            // reset conditions
+            mGameEvent[event_id].nextstart = 0;
+            mGameEvent[event_id].state = GAMEEVENT_WORLD_INACTIVE;
+            std::map<uint32 /*condition id*/, GameEventFinishCondition>::iterator itr;
+            for(itr = mGameEvent[event_id].conditions.begin(); itr != mGameEvent[event_id].conditions.end(); ++itr)
+                itr->second.done = 0;
+            CharacterDatabase.BeginTransaction();
+            CharacterDatabase.PExecute("DELETE FROM game_event_save WHERE event_id = '%u'",event_id);
+            CharacterDatabase.PExecute("DELETE FROM game_event_condition_save WHERE event_id = '%u'",event_id);
+            CharacterDatabase.CommitTransaction();
+        }
     }
 }
 
@@ -108,7 +185,7 @@ void GameEvent::LoadFromDB()
         mGameEvent.resize(max_event_id+1);
     }
 
-    QueryResult *result = WorldDatabase.Query("SELECT entry,UNIX_TIMESTAMP(start_time),UNIX_TIMESTAMP(end_time),occurence,length,description FROM game_event");
+    QueryResult *result = WorldDatabase.Query("SELECT entry,UNIX_TIMESTAMP(start_time),UNIX_TIMESTAMP(end_time),occurence,length,description,world_event FROM game_event");
     if( !result )
     {
         mGameEvent.clear();
@@ -141,20 +218,124 @@ void GameEvent::LoadFromDB()
         pGameEvent.end          = time_t(endtime);
         pGameEvent.occurence    = fields[3].GetUInt32();
         pGameEvent.length       = fields[4].GetUInt32();
+        pGameEvent.description  = fields[5].GetCppString();
+        pGameEvent.state        = (GameEventState)(fields[6].GetUInt8());
+        pGameEvent.nextstart    = 0;
 
-        if(pGameEvent.length==0)                            // length>0 is validity check
+        if(pGameEvent.length==0 && pGameEvent.state == GAMEEVENT_NORMAL)                            // length>0 is validity check
         {
-            sLog.outErrorDb("`game_event` game event id (%i) have length 0 and can't be used.",event_id);
+            sLog.outErrorDb("`game_event` game event id (%i) isn't a world event and has length = 0, thus it can't be used.",event_id);
             continue;
         }
-
-        pGameEvent.description  = fields[5].GetCppString();
 
     } while( result->NextRow() );
 
     sLog.outString();
     sLog.outString( ">> Loaded %u game events", count );
     delete result;
+
+    // load game event saves
+    //                                       0         1      2 
+    result = CharacterDatabase.Query("SELECT event_id, state, UNIX_TIMESTAMP(next_start) FROM game_event_save");
+
+    count = 0;
+    if( !result )
+    {
+        barGoLink bar2(1);
+        bar2.step();
+
+        sLog.outString();
+        sLog.outString(">> Loaded %u game event saves in game events", count );
+    }
+    else
+    {
+
+        barGoLink bar2( result->GetRowCount() );
+        do
+        {
+            Field *fields = result->Fetch();
+
+            bar2.step();
+
+            uint16 event_id = fields[0].GetUInt16();
+
+            if(event_id >= mGameEvent.size())
+            {
+                sLog.outErrorDb("`game_event_save` game event id (%i) is out of range compared to max event id in `game_event`",event_id);
+                continue;
+            }
+
+            if(mGameEvent[event_id].state != GAMEEVENT_NORMAL)
+            {
+                mGameEvent[event_id].state = (GameEventState)(fields[1].GetUInt8());
+                mGameEvent[event_id].nextstart    = time_t(fields[2].GetUInt64());
+            }
+            else
+            {
+                sLog.outErrorDb("game_event_save includes event save for non-worldevent id %u",event_id);
+                continue;
+            }
+
+            ++count;
+
+        } while( result->NextRow() );
+        sLog.outString();
+        sLog.outString( ">> Loaded %u game event saves in game events", count );
+        delete result;
+    }
+
+    // load game event links (prerequisites)
+    result = WorldDatabase.Query("SELECT event_id, prerequisite_event FROM game_event_prerequisite");
+    if( !result )
+    {
+        barGoLink bar2(1);
+        bar2.step();
+
+        sLog.outString();
+        sLog.outString(">> Loaded %u game event prerequisites in game events", count );
+    }
+    else
+    {
+
+        barGoLink bar2( result->GetRowCount() );
+        do
+        {
+            Field *fields = result->Fetch();
+
+            bar2.step();
+
+            uint16 event_id = fields[0].GetUInt16();
+
+            if(event_id >= mGameEvent.size())
+            {
+                sLog.outErrorDb("`game_event_prerequisite` game event id (%i) is out of range compared to max event id in `game_event`",event_id);
+                continue;
+            }
+
+
+            if(mGameEvent[event_id].state != GAMEEVENT_NORMAL)
+            {
+                uint16 prerequisite_event = fields[1].GetUInt16();
+                if(prerequisite_event >= mGameEvent.size())
+                {
+                    sLog.outErrorDb("`game_event_prerequisite` game event prerequisite id (%i) is out of range compared to max event id in `game_event`",prerequisite_event);
+                    continue;
+                }
+                mGameEvent[event_id].prerequisite_events.insert(prerequisite_event);
+            }
+            else
+            {
+                sLog.outErrorDb("game_event_prerequisiste includes event entry for non-worldevent id %u",event_id);
+                continue;
+            }
+
+            ++count;
+
+        } while( result->NextRow() );
+        sLog.outString();
+        sLog.outString( ">> Loaded %u game event prerequisites in game events", count );
+        delete result;
+    }
 
     mGameEventCreatureGuids.resize(mGameEvent.size()*2-1);
     //                                   1              2
@@ -307,7 +488,7 @@ void GameEvent::LoadFromDB()
         delete result;
     }
 
-    mGameEventQuests.resize(mGameEvent.size());
+    mGameEventCreatureQuests.resize(mGameEvent.size());
     //                                   0   1      2
     result = WorldDatabase.Query("SELECT id, quest, event FROM game_event_creature_quest");
 
@@ -333,14 +514,14 @@ void GameEvent::LoadFromDB()
             uint32 quest    = fields[1].GetUInt32();
             uint16 event_id = fields[2].GetUInt16();
 
-            if(event_id >= mGameEventQuests.size())
+            if(event_id >= mGameEventCreatureQuests.size())
             {
                 sLog.outErrorDb("`game_event_creature_quest` game event id (%u) is out of range compared to max event id in `game_event`",event_id);
                 continue;
             }
 
             ++count;
-            QuestRelList& questlist = mGameEventQuests[event_id];
+            QuestRelList& questlist = mGameEventCreatureQuests[event_id];
             questlist.push_back(QuestRelation(id, quest));
 
         } while( result->NextRow() );
@@ -349,6 +530,370 @@ void GameEvent::LoadFromDB()
 
         delete result;
     }
+
+    mGameEventGameObjectQuests.resize(mGameEvent.size());
+    //                                   0   1      2
+    result = WorldDatabase.Query("SELECT id, quest, event FROM game_event_gameobject_quest");
+
+    count = 0;
+    if( !result )
+    {
+        barGoLink bar3(1);
+        bar3.step();
+
+        sLog.outString();
+        sLog.outString(">> Loaded %u go quests additions in game events", count );
+    }
+    else
+    {
+
+        barGoLink bar3( result->GetRowCount() );
+        do
+        {
+            Field *fields = result->Fetch();
+
+            bar3.step();
+            uint32 id       = fields[0].GetUInt32();
+            uint32 quest    = fields[1].GetUInt32();
+            uint16 event_id = fields[2].GetUInt16();
+
+            if(event_id >= mGameEventGameObjectQuests.size())
+            {
+                sLog.outErrorDb("`game_event_gameobject_quest` game event id (%u) is out of range compared to max event id in `game_event`",event_id);
+                continue;
+            }
+
+            ++count;
+            QuestRelList& questlist = mGameEventGameObjectQuests[event_id];
+            questlist.push_back(QuestRelation(id, quest));
+
+        } while( result->NextRow() );
+        sLog.outString();
+        sLog.outString( ">> Loaded %u quests additions in game events", count );
+
+        delete result;
+    }
+
+    // Load quest to (event,condition) mapping
+    //                                   0      1         2             3
+    result = WorldDatabase.Query("SELECT quest, event_id, condition_id, num FROM game_event_quest_condition");
+
+    count = 0;
+    if( !result )
+    {
+        barGoLink bar3(1);
+        bar3.step();
+
+        sLog.outString();
+        sLog.outString(">> Loaded %u quest event conditions in game events", count );
+    }
+    else
+    {
+
+        barGoLink bar3( result->GetRowCount() );
+        do
+        {
+            Field *fields = result->Fetch();
+
+            bar3.step();
+            uint32 quest     = fields[0].GetUInt32();
+            uint16 event_id  = fields[1].GetUInt16();
+            uint32 condition = fields[2].GetUInt32();
+            float num       = fields[3].GetFloat();
+
+            if(event_id >= mGameEvent.size())
+            {
+                sLog.outErrorDb("`game_event_quest_condition` game event id (%u) is out of range compared to max event id in `game_event`",event_id);
+                continue;
+            }
+
+            ++count;
+            mQuestToEventConditions[quest].event_id = event_id;
+            mQuestToEventConditions[quest].condition = condition;
+            mQuestToEventConditions[quest].num = num;
+
+        } while( result->NextRow() );
+        sLog.outString();
+        sLog.outString( ">> Loaded %u quest event conditions in game events", count );
+
+        delete result;
+    }
+
+    // load conditions of the events
+    //                                   0         1             2        3                      4         
+    result = WorldDatabase.Query("SELECT event_id, condition_id, req_num, max_world_state_field, done_world_state_field FROM game_event_condition");
+
+    count = 0;
+    if( !result )
+    {
+        barGoLink bar3(1);
+        bar3.step();
+
+        sLog.outString();
+        sLog.outString(">> Loaded %u conditions in game events", count );
+    }
+    else
+    {
+
+        barGoLink bar3( result->GetRowCount() );
+        do
+        {
+            Field *fields = result->Fetch();
+
+            bar3.step();
+            uint16 event_id  = fields[0].GetUInt16();
+            uint32 condition = fields[1].GetUInt32();
+
+            if(event_id >= mGameEvent.size())
+            {
+                sLog.outErrorDb("`game_event_condition` game event id (%u) is out of range compared to max event id in `game_event`",event_id);
+                continue;
+            }
+
+            mGameEvent[event_id].conditions[condition].reqNum = fields[2].GetFloat();
+            mGameEvent[event_id].conditions[condition].done = 0;
+            mGameEvent[event_id].conditions[condition].max_world_state = fields[3].GetUInt32();
+            mGameEvent[event_id].conditions[condition].done_world_state = fields[4].GetUInt32();
+
+            ++count;
+
+        } while( result->NextRow() );
+        sLog.outString();
+        sLog.outString( ">> Loaded %u conditions in game events", count );
+
+        delete result;
+    }
+
+    // load condition saves
+    //                                       0         1             2         
+    result = CharacterDatabase.Query("SELECT event_id, condition_id, done FROM game_event_condition_save");
+
+    count = 0;
+    if( !result )
+    {
+        barGoLink bar3(1);
+        bar3.step();
+
+        sLog.outString();
+        sLog.outString(">> Loaded %u condition saves in game events", count );
+    }
+    else
+    {
+
+        barGoLink bar3( result->GetRowCount() );
+        do
+        {
+            Field *fields = result->Fetch();
+
+            bar3.step();
+            uint16 event_id  = fields[0].GetUInt16();
+            uint32 condition = fields[1].GetUInt32();
+
+            if(event_id >= mGameEvent.size())
+            {
+                sLog.outErrorDb("`game_event_condition_save` game event id (%u) is out of range compared to max event id in `game_event`",event_id);
+                continue;
+            }
+
+            std::map<uint32, GameEventFinishCondition>::iterator itr = mGameEvent[event_id].conditions.find(condition);
+            if(itr != mGameEvent[event_id].conditions.end())
+            {
+                itr->second.done = fields[2].GetFloat();
+            }
+            else
+            {
+                sLog.outErrorDb("game_event_condition_save contains not present condition evt id %u cond id %u",event_id, condition);
+                continue;
+            }
+
+            ++count;
+
+        } while( result->NextRow() );
+        sLog.outString();
+        sLog.outString( ">> Loaded %u condition saves in game events", count );
+
+        delete result;
+    }
+
+    mGameEventNPCFlags.resize(mGameEvent.size());
+    // load game event npcflag
+    //                                   0         1        2
+    result = WorldDatabase.Query("SELECT guid, event_id, npcflag FROM game_event_npcflag");
+
+    count = 0;
+    if( !result )
+    {
+        barGoLink bar3(1);
+        bar3.step();
+
+        sLog.outString();
+        sLog.outString(">> Loaded %u npcflags in game events", count );
+    }
+    else
+    {
+
+        barGoLink bar3( result->GetRowCount() );
+        do
+        {
+            Field *fields = result->Fetch();
+
+            bar3.step();
+            uint32 guid     = fields[0].GetUInt32();
+            uint16 event_id = fields[1].GetUInt16();
+            uint32 npcflag  = fields[2].GetUInt32();
+
+            if(event_id >= mGameEvent.size())
+            {
+                sLog.outErrorDb("`game_event_npcflag` game event id (%u) is out of range compared to max event id in `game_event`",event_id);
+                continue;
+            }
+
+            mGameEventNPCFlags[event_id].push_back(GuidNPCFlagPair(guid,npcflag));
+
+            ++count;
+
+        } while( result->NextRow() );
+        sLog.outString();
+        sLog.outString( ">> Loaded %u npcflags in game events", count );
+
+        delete result;
+    }
+
+    mGameEventVendors.resize(mGameEvent.size());
+    //                                   0      1      2     3         4         5
+    result = WorldDatabase.Query("SELECT event, guid, item, maxcount, incrtime, ExtendedCost FROM game_event_npc_vendor");
+
+    count = 0;
+    if( !result )
+    {
+        barGoLink bar3(1);
+        bar3.step();
+
+        sLog.outString();
+        sLog.outString(">> Loaded %u vendor additions in game events", count );
+    }
+    else
+    {
+
+        barGoLink bar3( result->GetRowCount() );
+        do
+        {
+            Field *fields = result->Fetch();
+
+            bar3.step();
+            uint16 event_id  = fields[0].GetUInt16();
+
+            if(event_id >= mGameEventVendors.size())
+            {
+                sLog.outErrorDb("`game_event_npc_vendor` game event id (%u) is out of range compared to max event id in `game_event`",event_id);
+                continue;
+            }
+
+            NPCVendorList& vendors = mGameEventVendors[event_id];
+            NPCVendorEntry newEntry;
+            uint32 guid = fields[1].GetUInt32();
+            newEntry.item = fields[2].GetUInt32();
+            newEntry.maxcount = fields[3].GetUInt32();
+            newEntry.incrtime = fields[4].GetUInt32();
+            newEntry.ExtendedCost = fields[5].GetUInt32();
+            // get the event npc flag for checking if the npc will be vendor during the event or not
+            uint32 event_npc_flag = 0;
+            NPCFlagList& flist = mGameEventNPCFlags[event_id];
+            for(NPCFlagList::const_iterator itr = flist.begin(); itr != flist.end(); ++itr)
+            {
+                if(itr->first == guid)
+                {
+                    event_npc_flag = itr->second;
+                    break;
+                }
+            }
+            // get creature entry
+            newEntry.entry = 0;
+
+            if( CreatureData const* data = objmgr.GetCreatureData(guid) )
+                newEntry.entry = data->id;
+
+            // check validity with event's npcflag
+            if(!objmgr.IsVendorItemValid(newEntry.entry, newEntry.item, newEntry.maxcount, newEntry.incrtime, newEntry.ExtendedCost, NULL, NULL, event_npc_flag))
+                continue;
+            ++count;
+            vendors.push_back(newEntry);
+
+        } while( result->NextRow() );
+        sLog.outString();
+        sLog.outString( ">> Loaded %u vendor additions in game events", count );
+
+        delete result;
+    }
+
+    // load game event npc gossip ids
+    //                                   0         1        2
+    result = WorldDatabase.Query("SELECT guid, event_id, textid FROM game_event_npc_gossip");
+
+    count = 0;
+    if( !result )
+    {
+        barGoLink bar3(1);
+        bar3.step();
+
+        sLog.outString();
+        sLog.outString(">> Loaded %u npc gossip textids in game events", count );
+    }
+    else
+    {
+
+        barGoLink bar3( result->GetRowCount() );
+        do
+        {
+            Field *fields = result->Fetch();
+
+            bar3.step();
+            uint32 guid     = fields[0].GetUInt32();
+            uint16 event_id = fields[1].GetUInt16();
+            uint32 textid  = fields[2].GetUInt32();
+
+            if(event_id >= mGameEvent.size())
+            {
+                sLog.outErrorDb("`game_event_npc_gossip` game event id (%u) is out of range compared to max event id in `game_event`",event_id);
+                continue;
+            }
+
+            mNPCGossipIds[guid]=EventNPCGossipIdPair(event_id, textid);
+
+            ++count;
+
+        } while( result->NextRow() );
+        sLog.outString();
+        sLog.outString( ">> Loaded %u npc gossip textids in game events", count );
+
+        delete result;
+    }
+}
+
+uint32 GameEvent::GetNPCFlag(Creature * cr)
+{
+    uint32 mask = 0;
+    uint32 guid = cr->GetDBTableGUIDLow();
+
+    for(ActiveEvents::iterator e_itr = m_ActiveEvents.begin(); e_itr != m_ActiveEvents.end(); ++e_itr)
+    {
+        for(NPCFlagList::iterator itr = mGameEventNPCFlags[*e_itr].begin();
+            itr != mGameEventNPCFlags[*e_itr].end();
+            ++ itr)
+            if(itr->first == guid)
+                mask |= itr->second;
+    }
+
+    return mask;
+}
+
+uint32 GameEvent::GetNpcTextId(uint32 guid)
+{
+    GuidEventNpcGossipIdMap::iterator itr = mNPCGossipIds.find(guid);
+    if(itr != mNPCGossipIds.end())
+        if(IsActiveEvent(itr->second.first))
+            return itr->second.second;
+    return 0;
 }
 
 uint32 GameEvent::Initialize()                              // return the next event delay in ms
@@ -362,22 +907,45 @@ uint32 GameEvent::Initialize()                              // return the next e
 
 uint32 GameEvent::Update()                                  // return the next event delay in ms
 {
+    time_t currenttime = time(NULL);
     uint32 nextEventDelay = max_ge_check_delay;             // 1 day
     uint32 calcDelay;
+    std::set<uint16> activate, deactivate;
     for (uint16 itr = 1; itr < mGameEvent.size(); itr++)
     {
+        // must do the activating first, and after that the deactivating
+        // so first queue it
         //sLog.outErrorDb("Checking event %u",itr);
         if (CheckOneGameEvent(itr))
         {
+            // if the world event is in NEXTPHASE state, and the time has passed to finish this event, then do so
+            if (mGameEvent[itr].state == GAMEEVENT_WORLD_NEXTPHASE && mGameEvent[itr].nextstart <= currenttime)
+            {
+                // set this event to finished, null the nextstart time
+                mGameEvent[itr].state = GAMEEVENT_WORLD_FINISHED;
+                mGameEvent[itr].nextstart = 0;
+                // save the state of this gameevent
+                SaveWorldEventStateToDB(itr);
+                // queue for deactivation
+                if(IsActiveEvent(itr))
+                    deactivate.insert(itr);
+                // go to next event, this no longer needs an event update timer
+                continue;
+            }
+            else if (mGameEvent[itr].state == GAMEEVENT_WORLD_CONDITIONS && CheckOneGameEventConditions(itr))
+                // changed, save to DB the gameevent state, will be updated in next update cycle
+                SaveWorldEventStateToDB(itr);
+
             //sLog.outDebug("GameEvent %u is active",itr->first);
+            // queue for activation
             if (!IsActiveEvent(itr))
-                StartEvent(itr);
+                activate.insert(itr);
         }
         else
         {
             //sLog.outDebug("GameEvent %u is not active",itr->first);
             if (IsActiveEvent(itr))
-                StopEvent(itr);
+                deactivate.insert(itr);
             else
             {
                 if (!isSystemInit)
@@ -392,6 +960,17 @@ uint32 GameEvent::Update()                                  // return the next e
         if (calcDelay < nextEventDelay)
             nextEventDelay = calcDelay;
     }
+    // now activate the queue
+    // a now activated event can contain a spawn of a to-be-deactivated one
+    // following the activate - deactivate order, deactivating the first event later will leave the spawn in (wont disappear then reappear clientside)
+    for(std::set<uint16>::iterator itr = activate.begin(); itr != activate.end(); ++itr)
+        // start the event
+        // returns true the started event completed
+        // in that case, initiate next update in 1 second
+        if(StartEvent(*itr))
+            nextEventDelay = 0;
+    for(std::set<uint16>::iterator itr = deactivate.begin(); itr != deactivate.end(); ++itr)
+        StopEvent(*itr);
     sLog.outBasic("Next game event check in %u seconds.", nextEventDelay + 1);
     return (nextEventDelay + 1) * 1000;                     // Add 1 second to be sure event has started/stopped at next call
 }
@@ -408,6 +987,10 @@ void GameEvent::UnApplyEvent(uint16 event_id)
     ChangeEquipOrModel(event_id, false);
     // Remove quests that are events only to non event npc
     UpdateEventQuests(event_id, false);
+    // update npcflags in this event
+    UpdateEventNPCFlags(event_id);
+    // remove vendor items
+    UpdateEventNPCVendor(event_id, false);
 }
 
 void GameEvent::ApplyNewEvent(uint16 event_id)
@@ -423,13 +1006,6 @@ void GameEvent::ApplyNewEvent(uint16 event_id)
 
     sLog.outString("GameEvent %u \"%s\" started.", event_id, mGameEvent[event_id].description.c_str());
 
-    if((sIRC.BOTMASK & 256) != 0)
-    {
-        std::string ircchan = "#";
-        ircchan += sIRC._irc_chan[sIRC.anchn].c_str();
-        sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("\00304,08\037/!\\\037\017\00304 Game Event \00304,08\037/!\\\037\017 %s", "%s", mGameEvent[event_id].description.c_str()), true);
-    }
-
     // spawn positive event tagget objects
     GameEventSpawn(event_id);
     // un-spawn negative event tagged objects
@@ -439,6 +1015,47 @@ void GameEvent::ApplyNewEvent(uint16 event_id)
     ChangeEquipOrModel(event_id, true);
     // Add quests that are events only to non event npc
     UpdateEventQuests(event_id, true);
+    // update npcflags in this event
+    UpdateEventNPCFlags(event_id);
+    // add vendor items
+    UpdateEventNPCVendor(event_id, true);
+}
+
+void GameEvent::UpdateEventNPCFlags(uint16 event_id)
+{
+    // go through the creatures whose npcflags are changed in the event
+    for(NPCFlagList::iterator itr = mGameEventNPCFlags[event_id].begin(); itr != mGameEventNPCFlags[event_id].end(); ++itr)
+    {
+        // get the creature data from the low guid to get the entry, to be able to find out the whole guid
+        if( CreatureData const* data = objmgr.GetCreatureData(itr->first) )
+        {
+            Creature * cr = HashMapHolder<Creature>::Find(MAKE_NEW_GUID(itr->first,data->id,HIGHGUID_UNIT));
+            // if we found the creature, modify its npcflag
+            if(cr)
+            {
+                uint32 npcflag = GetNPCFlag(cr);
+                if(const CreatureInfo * ci = cr->GetCreatureInfo())
+                    npcflag |= ci->npcflag;
+                cr->SetUInt32Value(UNIT_NPC_FLAGS,npcflag);
+                // reset gossip options, since the flag change might have added / removed some
+                cr->ResetGossipOptions();
+                // update to world
+                cr->SendUpdateObjectToAllExcept(NULL);
+            }
+            // if we didn't find it, then the npcflag will be updated when the creature is loaded
+        }
+    }
+}
+
+void GameEvent::UpdateEventNPCVendor(uint16 event_id, bool activate)
+{
+    for(NPCVendorList::iterator itr = mGameEventVendors[event_id].begin(); itr != mGameEventVendors[event_id].end(); ++itr)
+    {
+        if(activate)
+            objmgr.AddVendorItem(itr->entry, itr->item, itr->maxcount, itr->incrtime, itr->ExtendedCost, false);
+        else
+            objmgr.RemoveVendorItem(itr->entry, itr->item, false);
+    }
 }
 
 void GameEvent::GameEventSpawn(int16 event_id)
@@ -525,6 +1142,9 @@ void GameEvent::GameEventUnspawn(int16 event_id)
 
     for (GuidList::iterator itr = mGameEventCreatureGuids[internal_event_id].begin();itr != mGameEventCreatureGuids[internal_event_id].end();++itr)
     {
+        // check if it's needed by another event, if so, don't remove
+        if( event_id > 0 && hasCreatureActiveEventExcept(*itr,event_id) )
+            continue;
         // Remove the creature from grid
         if( CreatureData const* data = objmgr.GetCreatureData(*itr) )
         {
@@ -546,6 +1166,9 @@ void GameEvent::GameEventUnspawn(int16 event_id)
 
     for (GuidList::iterator itr = mGameEventGameobjectGuids[internal_event_id].begin();itr != mGameEventGameobjectGuids[internal_event_id].end();++itr)
     {
+        // check if it's needed by another event, if so, don't remove
+        if( event_id >0 && hasGameObjectActiveEventExcept(*itr,event_id) )
+            continue;
         // Remove the gameobject from grid
         if(GameObjectData const* data = objmgr.GetGOData(*itr))
         {
@@ -636,33 +1259,219 @@ void GameEvent::ChangeEquipOrModel(int16 event_id, bool activate)
     }
 }
 
+bool GameEvent::hasCreatureQuestActiveEventExcept(uint32 quest_id, uint16 event_id)
+{
+    for(ActiveEvents::iterator e_itr = m_ActiveEvents.begin(); e_itr != m_ActiveEvents.end(); ++e_itr)
+    {
+        if((*e_itr) != event_id)
+            for(QuestRelList::iterator itr = mGameEventCreatureQuests[*e_itr].begin();
+                itr != mGameEventCreatureQuests[*e_itr].end();
+                ++ itr)
+                if(itr->second == quest_id)
+                    return true;
+    }
+    return false;
+}
+
+bool GameEvent::hasGameObjectQuestActiveEventExcept(uint32 quest_id, uint16 event_id)
+{
+    for(ActiveEvents::iterator e_itr = m_ActiveEvents.begin(); e_itr != m_ActiveEvents.end(); ++e_itr)
+    {
+        if((*e_itr) != event_id)
+            for(QuestRelList::iterator itr = mGameEventGameObjectQuests[*e_itr].begin();
+                itr != mGameEventGameObjectQuests[*e_itr].end();
+                ++ itr)
+                if(itr->second == quest_id)
+                    return true;
+    }
+    return false;
+}
+bool GameEvent::hasCreatureActiveEventExcept(uint32 creature_id, uint16 event_id)
+{
+    for(ActiveEvents::iterator e_itr = m_ActiveEvents.begin(); e_itr != m_ActiveEvents.end(); ++e_itr)
+    {
+        if((*e_itr) != event_id)
+        {
+            int32 internal_event_id = mGameEvent.size() + (*e_itr) - 1;
+            for(GuidList::iterator itr = mGameEventCreatureGuids[internal_event_id].begin();
+                itr != mGameEventCreatureGuids[internal_event_id].end();
+                ++ itr)
+                if(*itr == creature_id)
+                    return true;
+        }
+    }
+    return false;
+}
+bool GameEvent::hasGameObjectActiveEventExcept(uint32 go_id, uint16 event_id)
+{
+    for(ActiveEvents::iterator e_itr = m_ActiveEvents.begin(); e_itr != m_ActiveEvents.end(); ++e_itr)
+    {
+        if((*e_itr) != event_id)
+        {
+            int32 internal_event_id = mGameEvent.size() + (*e_itr) - 1;
+            for(GuidList::iterator itr = mGameEventGameobjectGuids[internal_event_id].begin();
+                itr != mGameEventGameobjectGuids[internal_event_id].end();
+                ++ itr)
+                if(*itr == go_id)
+                    return true;
+        }
+    }
+    return false;
+}
+
 void GameEvent::UpdateEventQuests(uint16 event_id, bool Activate)
 {
     QuestRelList::iterator itr;
-    for (itr = mGameEventQuests[event_id].begin();itr != mGameEventQuests[event_id].end();++itr)
+    for (itr = mGameEventCreatureQuests[event_id].begin();itr != mGameEventCreatureQuests[event_id].end();++itr)
     {
         QuestRelations &CreatureQuestMap = objmgr.mCreatureQuestRelations;
         if (Activate)                                       // Add the pair(id,quest) to the multimap
             CreatureQuestMap.insert(QuestRelations::value_type(itr->first, itr->second));
         else
-        {                                                   // Remove the pair(id,quest) from the multimap
-            QuestRelations::iterator qitr = CreatureQuestMap.find(itr->first);
-            if (qitr == CreatureQuestMap.end())
-                continue;
-            QuestRelations::iterator lastElement = CreatureQuestMap.upper_bound(itr->first);
-            for ( ;qitr != lastElement;++qitr)
+        {   
+            if(!hasCreatureQuestActiveEventExcept(itr->second,event_id))
             {
-                if (qitr->second == itr->second)
+                // Remove the pair(id,quest) from the multimap
+                QuestRelations::iterator qitr = CreatureQuestMap.find(itr->first);
+                if (qitr == CreatureQuestMap.end())
+                    continue;
+                QuestRelations::iterator lastElement = CreatureQuestMap.upper_bound(itr->first);
+                for ( ;qitr != lastElement;++qitr)
                 {
-                    CreatureQuestMap.erase(qitr);           // iterator is now no more valid
-                    break;                                  // but we can exit loop since the element is found
+                    if (qitr->second == itr->second)
+                    {
+                        CreatureQuestMap.erase(qitr);           // iterator is now no more valid
+                        break;                                  // but we can exit loop since the element is found
+                    }
+                }
+            }
+        }
+    }
+    for (itr = mGameEventGameObjectQuests[event_id].begin();itr != mGameEventGameObjectQuests[event_id].end();++itr)
+    {
+        QuestRelations &GameObjectQuestMap = objmgr.mGOQuestRelations;
+        if (Activate)                                       // Add the pair(id,quest) to the multimap
+            GameObjectQuestMap.insert(QuestRelations::value_type(itr->first, itr->second));
+        else
+        {   
+            if(!hasGameObjectQuestActiveEventExcept(itr->second,event_id))
+            {
+                // Remove the pair(id,quest) from the multimap
+                QuestRelations::iterator qitr = GameObjectQuestMap.find(itr->first);
+                if (qitr == GameObjectQuestMap.end())
+                    continue;
+                QuestRelations::iterator lastElement = GameObjectQuestMap.upper_bound(itr->first);
+                for ( ;qitr != lastElement;++qitr)
+                {
+                    if (qitr->second == itr->second)
+                    {
+                        GameObjectQuestMap.erase(qitr);           // iterator is now no more valid
+                        break;                                  // but we can exit loop since the element is found
+                    }
+                }
+            }
+        }
+    }}
+
+GameEvent::GameEvent()
+{
+    isSystemInit = false;
+}
+
+void GameEvent::HandleQuestComplete(uint32 quest_id)
+{
+    // translate the quest to event and condition
+    QuestIdToEventConditionMap::iterator itr = mQuestToEventConditions.find(quest_id);
+    // quest is registered
+    if(itr != mQuestToEventConditions.end())
+    {
+        uint16 event_id = itr->second.event_id;
+        uint32 condition = itr->second.condition;
+        float num = itr->second.num;
+
+        // the event is not active, so return, don't increase condition finishes
+        if(!IsActiveEvent(event_id))
+            return;
+        // not in correct phase, return
+        if(mGameEvent[event_id].state != GAMEEVENT_WORLD_CONDITIONS)
+            return;
+        std::map<uint32,GameEventFinishCondition>::iterator citr = mGameEvent[event_id].conditions.find(condition);
+        // condition is registered
+        if(citr != mGameEvent[event_id].conditions.end())
+        {
+            // increase the done count, only if less then the req
+            if(citr->second.done < citr->second.reqNum)
+            {
+                citr->second.done += num;
+                // check max limit
+                if(citr->second.done > citr->second.reqNum)
+                    citr->second.done = citr->second.reqNum;
+                // save the change to db
+                CharacterDatabase.BeginTransaction();
+                CharacterDatabase.PExecute("DELETE FROM game_event_condition_save WHERE event_id = '%u' AND condition_id = '%u'",event_id,condition);
+                CharacterDatabase.PExecute("INSERT INTO game_event_condition_save (event_id, condition_id, done) VALUES (%u,%u,%f)",event_id,condition,citr->second.done);
+                CharacterDatabase.CommitTransaction();
+                // check if all conditions are met, if so, update the event state
+                if(CheckOneGameEventConditions(event_id))
+                {
+                    // changed, save to DB the gameevent state
+                    SaveWorldEventStateToDB(event_id);
+                    // force update events to set timer
+                    sWorld.ForceGameEventUpdate();
                 }
             }
         }
     }
 }
 
-GameEvent::GameEvent()
+bool GameEvent::CheckOneGameEventConditions(uint16 event_id)
 {
-    isSystemInit = false;
+    for(std::map<uint32,GameEventFinishCondition>::iterator itr = mGameEvent[event_id].conditions.begin(); itr != mGameEvent[event_id].conditions.end(); ++itr)
+        if(itr->second.done < itr->second.reqNum)
+            // return false if a condition doesn't match
+            return false;
+    // set the phase
+    mGameEvent[event_id].state = GAMEEVENT_WORLD_NEXTPHASE;
+    // set the followup events' start time
+    if(!mGameEvent[event_id].nextstart)
+    {
+        time_t currenttime = time(NULL);
+        mGameEvent[event_id].nextstart = currenttime + mGameEvent[event_id].length * 60;
+    }
+    return true;
+}
+
+void GameEvent::SaveWorldEventStateToDB(uint16 event_id)
+{
+    CharacterDatabase.BeginTransaction();
+    CharacterDatabase.PExecute("DELETE FROM game_event_save WHERE event_id = '%u'",event_id);
+    if(mGameEvent[event_id].nextstart)
+        CharacterDatabase.PExecute("INSERT INTO game_event_save (event_id, state, next_start) VALUES ('%u','%u',FROM_UNIXTIME('"I64FMTD"'))",event_id,mGameEvent[event_id].state,mGameEvent[event_id].nextstart);
+    else
+        CharacterDatabase.PExecute("INSERT INTO game_event_save (event_id, state, next_start) VALUES ('%u','%u','0000-00-00 00:00:00')",event_id,mGameEvent[event_id].state);
+    CharacterDatabase.CommitTransaction();
+}
+
+void GameEvent::HandleWorldEventGossip(Player *plr, Creature *c)
+{
+    // this function is used to send world state update before sending gossip menu
+    // find the npc's gossip id (if set) in an active game event
+    // if present, send the event's world states
+    GuidEventNpcGossipIdMap::iterator itr = mNPCGossipIds.find(c->GetDBTableGUIDLow());
+    if(itr != mNPCGossipIds.end())
+        if(IsActiveEvent(itr->second.first))
+            // send world state updates to the player about the progress
+            SendWorldStateUpdate(plr, itr->second.first);
+}
+
+void GameEvent::SendWorldStateUpdate(Player * plr, uint16 event_id)
+{
+    std::map<uint32,GameEventFinishCondition>::iterator itr;
+    for(itr = mGameEvent[event_id].conditions.begin(); itr !=mGameEvent[event_id].conditions.end(); ++itr)
+    {
+        if(itr->second.done_world_state)
+            plr->SendUpdateWorldState(itr->second.done_world_state, itr->second.done);
+        if(itr->second.max_world_state)
+            plr->SendUpdateWorldState(itr->second.max_world_state, itr->second.reqNum);
+    }
 }

@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,16 +10,16 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef MANGOS_GRIDNOTIFIERSIMPL_H
-#define MANGOS_GRIDNOTIFIERSIMPL_H
+#ifndef TRINITY_GRIDNOTIFIERSIMPL_H
+#define TRINITY_GRIDNOTIFIERSIMPL_H
 
 #include "GridNotifiers.h"
 #include "WorldPacket.h"
@@ -29,7 +31,7 @@
 
 template<class T>
 inline void
-MaNGOS::VisibleNotifier::Visit(GridRefManager<T> &m)
+Trinity::VisibleNotifier::Visit(GridRefManager<T> &m)
 {
     for(typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
@@ -39,7 +41,7 @@ MaNGOS::VisibleNotifier::Visit(GridRefManager<T> &m)
 }
 
 inline void
-MaNGOS::ObjectUpdater::Visit(CreatureMapType &m)
+Trinity::ObjectUpdater::Visit(CreatureMapType &m)
 {
     for(CreatureMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
         if(!iter->getSource()->isSpiritService())
@@ -47,7 +49,7 @@ MaNGOS::ObjectUpdater::Visit(CreatureMapType &m)
 }
 
 inline void
-MaNGOS::PlayerRelocationNotifier::Visit(PlayerMapType &m)
+Trinity::PlayerRelocationNotifier::Visit(PlayerMapType &m)
 {
     for(PlayerMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
     {
@@ -93,7 +95,7 @@ inline void CreatureCreatureRelocationWorker(Creature* c1, Creature* c2)
 }
 
 inline void
-MaNGOS::PlayerRelocationNotifier::Visit(CreatureMapType &m)
+Trinity::PlayerRelocationNotifier::Visit(CreatureMapType &m)
 {
     if(!i_player.isAlive() || i_player.isInFlight())
         return;
@@ -105,7 +107,7 @@ MaNGOS::PlayerRelocationNotifier::Visit(CreatureMapType &m)
 
 template<>
 inline void
-MaNGOS::CreatureRelocationNotifier::Visit(PlayerMapType &m)
+Trinity::CreatureRelocationNotifier::Visit(PlayerMapType &m)
 {
     if(!i_creature.isAlive())
         return;
@@ -117,7 +119,7 @@ MaNGOS::CreatureRelocationNotifier::Visit(PlayerMapType &m)
 
 template<>
 inline void
-MaNGOS::CreatureRelocationNotifier::Visit(CreatureMapType &m)
+Trinity::CreatureRelocationNotifier::Visit(CreatureMapType &m)
 {
     if(!i_creature.isAlive())
         return;
@@ -130,7 +132,7 @@ MaNGOS::CreatureRelocationNotifier::Visit(CreatureMapType &m)
     }
 }
 
-inline void MaNGOS::DynamicObjectUpdater::VisitHelper(Unit* target)
+inline void Trinity::DynamicObjectUpdater::VisitHelper(Unit* target)
 {
     if(!target->isAlive() || target->isInFlight() )
         return;
@@ -180,7 +182,7 @@ inline void MaNGOS::DynamicObjectUpdater::VisitHelper(Unit* target)
 
 template<>
 inline void
-MaNGOS::DynamicObjectUpdater::Visit(CreatureMapType  &m)
+Trinity::DynamicObjectUpdater::Visit(CreatureMapType  &m)
 {
     for(CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         VisitHelper(itr->getSource());
@@ -188,7 +190,7 @@ MaNGOS::DynamicObjectUpdater::Visit(CreatureMapType  &m)
 
 template<>
 inline void
-MaNGOS::DynamicObjectUpdater::Visit(PlayerMapType  &m)
+Trinity::DynamicObjectUpdater::Visit(PlayerMapType  &m)
 {
     for(PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         VisitHelper(itr->getSource());
@@ -199,7 +201,7 @@ MaNGOS::DynamicObjectUpdater::Visit(PlayerMapType  &m)
 // WorldObject searchers & workers
 
 template<class Check>
-void MaNGOS::WorldObjectSearcher<Check>::Visit(GameObjectMapType &m)
+void Trinity::WorldObjectSearcher<Check>::Visit(GameObjectMapType &m)
 {
     // already found
     if(i_object)
@@ -216,7 +218,7 @@ void MaNGOS::WorldObjectSearcher<Check>::Visit(GameObjectMapType &m)
 }
 
 template<class Check>
-void MaNGOS::WorldObjectSearcher<Check>::Visit(PlayerMapType &m)
+void Trinity::WorldObjectSearcher<Check>::Visit(PlayerMapType &m)
 {
     // already found
     if(i_object)
@@ -233,7 +235,7 @@ void MaNGOS::WorldObjectSearcher<Check>::Visit(PlayerMapType &m)
 }
 
 template<class Check>
-void MaNGOS::WorldObjectSearcher<Check>::Visit(CreatureMapType &m)
+void Trinity::WorldObjectSearcher<Check>::Visit(CreatureMapType &m)
 {
     // already found
     if(i_object)
@@ -250,7 +252,7 @@ void MaNGOS::WorldObjectSearcher<Check>::Visit(CreatureMapType &m)
 }
 
 template<class Check>
-void MaNGOS::WorldObjectSearcher<Check>::Visit(CorpseMapType &m)
+void Trinity::WorldObjectSearcher<Check>::Visit(CorpseMapType &m)
 {
     // already found
     if(i_object)
@@ -267,7 +269,7 @@ void MaNGOS::WorldObjectSearcher<Check>::Visit(CorpseMapType &m)
 }
 
 template<class Check>
-void MaNGOS::WorldObjectSearcher<Check>::Visit(DynamicObjectMapType &m)
+void Trinity::WorldObjectSearcher<Check>::Visit(DynamicObjectMapType &m)
 {
     // already found
     if(i_object)
@@ -284,7 +286,7 @@ void MaNGOS::WorldObjectSearcher<Check>::Visit(DynamicObjectMapType &m)
 }
 
 template<class Check>
-void MaNGOS::WorldObjectListSearcher<Check>::Visit(PlayerMapType &m)
+void Trinity::WorldObjectListSearcher<Check>::Visit(PlayerMapType &m)
 {
     for(PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         if(i_check(itr->getSource()))
@@ -292,7 +294,7 @@ void MaNGOS::WorldObjectListSearcher<Check>::Visit(PlayerMapType &m)
 }
 
 template<class Check>
-void MaNGOS::WorldObjectListSearcher<Check>::Visit(CreatureMapType &m)
+void Trinity::WorldObjectListSearcher<Check>::Visit(CreatureMapType &m)
 {
     for(CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         if(i_check(itr->getSource()))
@@ -300,7 +302,7 @@ void MaNGOS::WorldObjectListSearcher<Check>::Visit(CreatureMapType &m)
 }
 
 template<class Check>
-void MaNGOS::WorldObjectListSearcher<Check>::Visit(CorpseMapType &m)
+void Trinity::WorldObjectListSearcher<Check>::Visit(CorpseMapType &m)
 {
     for(CorpseMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         if(i_check(itr->getSource()))
@@ -308,7 +310,7 @@ void MaNGOS::WorldObjectListSearcher<Check>::Visit(CorpseMapType &m)
 }
 
 template<class Check>
-void MaNGOS::WorldObjectListSearcher<Check>::Visit(GameObjectMapType &m)
+void Trinity::WorldObjectListSearcher<Check>::Visit(GameObjectMapType &m)
 {
     for(GameObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         if(i_check(itr->getSource()))
@@ -316,7 +318,7 @@ void MaNGOS::WorldObjectListSearcher<Check>::Visit(GameObjectMapType &m)
 }
 
 template<class Check>
-void MaNGOS::WorldObjectListSearcher<Check>::Visit(DynamicObjectMapType &m)
+void Trinity::WorldObjectListSearcher<Check>::Visit(DynamicObjectMapType &m)
 {
     for(DynamicObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         if(i_check(itr->getSource()))
@@ -326,7 +328,7 @@ void MaNGOS::WorldObjectListSearcher<Check>::Visit(DynamicObjectMapType &m)
 // Gameobject searchers
 
 template<class Check>
-void MaNGOS::GameObjectSearcher<Check>::Visit(GameObjectMapType &m)
+void Trinity::GameObjectSearcher<Check>::Visit(GameObjectMapType &m)
 {
     // already found
     if(i_object)
@@ -343,7 +345,7 @@ void MaNGOS::GameObjectSearcher<Check>::Visit(GameObjectMapType &m)
 }
 
 template<class Check>
-void MaNGOS::GameObjectLastSearcher<Check>::Visit(GameObjectMapType &m)
+void Trinity::GameObjectLastSearcher<Check>::Visit(GameObjectMapType &m)
 {
     for(GameObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
@@ -353,7 +355,7 @@ void MaNGOS::GameObjectLastSearcher<Check>::Visit(GameObjectMapType &m)
 }
 
 template<class Check>
-void MaNGOS::GameObjectListSearcher<Check>::Visit(GameObjectMapType &m)
+void Trinity::GameObjectListSearcher<Check>::Visit(GameObjectMapType &m)
 {
     for(GameObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         if(i_check(itr->getSource()))
@@ -363,7 +365,7 @@ void MaNGOS::GameObjectListSearcher<Check>::Visit(GameObjectMapType &m)
 // Unit searchers
 
 template<class Check>
-void MaNGOS::UnitSearcher<Check>::Visit(CreatureMapType &m)
+void Trinity::UnitSearcher<Check>::Visit(CreatureMapType &m)
 {
     // already found
     if(i_object)
@@ -380,7 +382,7 @@ void MaNGOS::UnitSearcher<Check>::Visit(CreatureMapType &m)
 }
 
 template<class Check>
-void MaNGOS::UnitSearcher<Check>::Visit(PlayerMapType &m)
+void Trinity::UnitSearcher<Check>::Visit(PlayerMapType &m)
 {
     // already found
     if(i_object)
@@ -397,7 +399,7 @@ void MaNGOS::UnitSearcher<Check>::Visit(PlayerMapType &m)
 }
 
 template<class Check>
-void MaNGOS::UnitLastSearcher<Check>::Visit(CreatureMapType &m)
+void Trinity::UnitLastSearcher<Check>::Visit(CreatureMapType &m)
 {
     for(CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
@@ -407,7 +409,7 @@ void MaNGOS::UnitLastSearcher<Check>::Visit(CreatureMapType &m)
 }
 
 template<class Check>
-void MaNGOS::UnitLastSearcher<Check>::Visit(PlayerMapType &m)
+void Trinity::UnitLastSearcher<Check>::Visit(PlayerMapType &m)
 {
     for(PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
@@ -417,7 +419,7 @@ void MaNGOS::UnitLastSearcher<Check>::Visit(PlayerMapType &m)
 }
 
 template<class Check>
-void MaNGOS::UnitListSearcher<Check>::Visit(PlayerMapType &m)
+void Trinity::UnitListSearcher<Check>::Visit(PlayerMapType &m)
 {
     for(PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         if(i_check(itr->getSource()))
@@ -425,7 +427,7 @@ void MaNGOS::UnitListSearcher<Check>::Visit(PlayerMapType &m)
 }
 
 template<class Check>
-void MaNGOS::UnitListSearcher<Check>::Visit(CreatureMapType &m)
+void Trinity::UnitListSearcher<Check>::Visit(CreatureMapType &m)
 {
     for(CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         if(i_check(itr->getSource()))
@@ -435,7 +437,7 @@ void MaNGOS::UnitListSearcher<Check>::Visit(CreatureMapType &m)
 // Creature searchers
 
 template<class Check>
-void MaNGOS::CreatureSearcher<Check>::Visit(CreatureMapType &m)
+void Trinity::CreatureSearcher<Check>::Visit(CreatureMapType &m)
 {
     // already found
     if(i_object)
@@ -452,7 +454,7 @@ void MaNGOS::CreatureSearcher<Check>::Visit(CreatureMapType &m)
 }
 
 template<class Check>
-void MaNGOS::CreatureLastSearcher<Check>::Visit(CreatureMapType &m)
+void Trinity::CreatureLastSearcher<Check>::Visit(CreatureMapType &m)
 {
     for(CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
@@ -462,7 +464,7 @@ void MaNGOS::CreatureLastSearcher<Check>::Visit(CreatureMapType &m)
 }
 
 template<class Check>
-void MaNGOS::CreatureListSearcher<Check>::Visit(CreatureMapType &m)
+void Trinity::CreatureListSearcher<Check>::Visit(CreatureMapType &m)
 {
     for(CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         if(i_check(itr->getSource()))
@@ -470,7 +472,7 @@ void MaNGOS::CreatureListSearcher<Check>::Visit(CreatureMapType &m)
 }
 
 template<class Check>
-void MaNGOS::PlayerSearcher<Check>::Visit(PlayerMapType &m)
+void Trinity::PlayerSearcher<Check>::Visit(PlayerMapType &m)
 {
     // already found
     if(i_object)
@@ -486,4 +488,4 @@ void MaNGOS::PlayerSearcher<Check>::Visit(PlayerMapType &m)
     }
 }
 
-#endif                                                      // MANGOS_GRIDNOTIFIERSIMPL_H
+#endif                                                      // TRINITY_GRIDNOTIFIERSIMPL_H

@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "Common.h"
@@ -40,6 +42,8 @@
 #include "Creature.h"
 #include "Formulas.h"
 #include "BattleGround.h"
+#include "OutdoorPvP.h"
+#include "OutdoorPvPMgr.h"
 #include "CreatureAI.h"
 #include "Util.h"
 #include "GridNotifiers.h"
@@ -662,15 +666,15 @@ void AreaAura::Update(uint32 diff)
                 }
                 case AREA_AURA_FRIEND:
                 {
-                    CellPair p(MaNGOS::ComputeCellPair(caster->GetPositionX(), caster->GetPositionY()));
+                    CellPair p(Trinity::ComputeCellPair(caster->GetPositionX(), caster->GetPositionY()));
                     Cell cell(p);
                     cell.data.Part.reserved = ALL_DISTRICT;
                     cell.SetNoCreate();
 
-                    MaNGOS::AnyFriendlyUnitInObjectRangeCheck u_check(caster, owner, m_radius);
-                    MaNGOS::UnitListSearcher<MaNGOS::AnyFriendlyUnitInObjectRangeCheck> searcher(targets, u_check);
-                    TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyFriendlyUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
-                    TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyFriendlyUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
+                    Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(caster, owner, m_radius);
+                    Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(targets, u_check);
+                    TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
+                    TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
                     CellLock<GridReadGuard> cell_lock(cell, p);
                     cell_lock->Visit(cell_lock, world_unit_searcher, *MapManager::Instance().GetMap(caster->GetMapId(), caster));
                     cell_lock->Visit(cell_lock, grid_unit_searcher, *MapManager::Instance().GetMap(caster->GetMapId(), caster));
@@ -678,15 +682,15 @@ void AreaAura::Update(uint32 diff)
                 }
                 case AREA_AURA_ENEMY:
                 {
-                    CellPair p(MaNGOS::ComputeCellPair(caster->GetPositionX(), caster->GetPositionY()));
+                    CellPair p(Trinity::ComputeCellPair(caster->GetPositionX(), caster->GetPositionY()));
                     Cell cell(p);
                     cell.data.Part.reserved = ALL_DISTRICT;
                     cell.SetNoCreate();
 
-                    MaNGOS::AnyAoETargetUnitInObjectRangeCheck u_check(caster, owner, m_radius); // No GetCharmer in searcher
-                    MaNGOS::UnitListSearcher<MaNGOS::AnyAoETargetUnitInObjectRangeCheck> searcher(targets, u_check);
-                    TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyAoETargetUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
-                    TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyAoETargetUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
+                    Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(caster, owner, m_radius); // No GetCharmer in searcher
+                    Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(targets, u_check);
+                    TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
+                    TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
                     CellLock<GridReadGuard> cell_lock(cell, p);
                     cell_lock->Visit(cell_lock, world_unit_searcher, *MapManager::Instance().GetMap(caster->GetMapId(), caster));
                     cell_lock->Visit(cell_lock, grid_unit_searcher, *MapManager::Instance().GetMap(caster->GetMapId(), caster));
@@ -2811,7 +2815,7 @@ void Aura::HandleChannelDeathItem(bool apply, bool Real)
 
         // Soul Shard only from non-grey units
         if( spellInfo->EffectItemType[m_effIndex] == 6265 &&
-            (victim->getLevel() <= MaNGOS::XP::GetGrayLevel(caster->getLevel()) ||
+            (victim->getLevel() <= Trinity::XP::GetGrayLevel(caster->getLevel()) ||
              victim->GetTypeId()==TYPEID_UNIT && !((Player*)caster)->isAllowedToLoot((Creature*)victim)) )
             return;
         ItemPosCountVec dest;
@@ -3262,10 +3266,18 @@ void Aura::HandleModStealth(bool apply, bool Real)
 {
     if(apply)
     {
-        // drop flag at stealth in bg
-        if(Real && m_target->GetTypeId()==TYPEID_PLAYER && ((Player*)m_target)->InBattleGround())
-            if(BattleGround *bg = ((Player*)m_target)->GetBattleGround())
-                bg->EventPlayerDroppedFlag((Player*)m_target);
+        if(Real && m_target->GetTypeId()==TYPEID_PLAYER)
+        {
+            // drop flag at stealth in bg
+            if(((Player*)m_target)->InBattleGround())
+            {
+                if(BattleGround *bg = ((Player*)m_target)->GetBattleGround())
+                    bg->EventPlayerDroppedFlag((Player*)m_target);
+            }
+            // remove player from the objective's active player count at stealth
+            if(OutdoorPvP * pvp = ((Player*)m_target)->GetOutdoorPvP())
+                pvp->HandlePlayerActivityChanged((Player*)m_target);
+        }
 
         // only at real aura add
         if(Real)
@@ -3309,7 +3321,12 @@ void Aura::HandleModStealth(bool apply, bool Real)
                     m_target->SetVisibility(VISIBILITY_GROUP_INVISIBILITY);
                 }
                 else
+                {
                     m_target->SetVisibility(VISIBILITY_ON);
+                    if(m_target->GetTypeId() == TYPEID_PLAYER)
+                        if(OutdoorPvP * pvp = ((Player*)m_target)->GetOutdoorPvP())
+                            pvp->HandlePlayerActivityChanged((Player*)m_target);
+                }
             }
         }
     }
@@ -3342,6 +3359,9 @@ void Aura::HandleInvisibility(bool apply, bool Real)
         {
             // apply glow vision
             m_target->SetFlag(PLAYER_FIELD_BYTES2,PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
+            // remove player from the objective's active player count at invisibility
+            if(OutdoorPvP * pvp = ((Player*)m_target)->GetOutdoorPvP())
+                pvp->HandlePlayerActivityChanged((Player*)m_target);
 
             // drop flag at invisible in bg
             if(((Player*)m_target)->InBattleGround())
@@ -3377,7 +3397,12 @@ void Aura::HandleInvisibility(bool apply, bool Real)
             {
                 // if have stealth aura then already have stealth visibility
                 if(!m_target->HasAuraType(SPELL_AURA_MOD_STEALTH))
+                {
                     m_target->SetVisibility(VISIBILITY_ON);
+                    if(m_target->GetTypeId() == TYPEID_PLAYER)
+                        if(OutdoorPvP * pvp = ((Player*)m_target)->GetOutdoorPvP())
+                            pvp->HandlePlayerActivityChanged((Player*)m_target);
+                }
             }
         }
     }
@@ -3819,6 +3844,8 @@ void Aura::HandleAuraModEffectImmunity(bool apply, bool Real)
                     }
                 }
             }
+            else
+                sOutdoorPvPMgr.HandleDropFlag((Player*)m_target,GetSpellProto()->Id);
         }
     }
 

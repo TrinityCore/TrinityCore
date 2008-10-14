@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,16 +10,16 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef MANGOS_MAPMANAGER_H
-#define MANGOS_MAPMANAGER_H
+#ifndef TRINITY_MAPMANAGER_H
+#define TRINITY_MAPMANAGER_H
 
 #include "Platform/Define.h"
 #include "Policies/Singleton.h"
@@ -27,10 +29,10 @@
 #include "GridStates.h"
 class Transport;
 
-class MANGOS_DLL_DECL MapManager : public MaNGOS::Singleton<MapManager, MaNGOS::ClassLevelLockable<MapManager, ZThread::Mutex> >
+class TRINITY_DLL_DECL MapManager : public Trinity::Singleton<MapManager, Trinity::ClassLevelLockable<MapManager, ZThread::Mutex> >
 {
 
-    friend class MaNGOS::OperatorNew<MapManager>;
+    friend class Trinity::OperatorNew<MapManager>;
     typedef HM_NAMESPACE::hash_map<uint32, Map*> MapMapType;
     typedef std::pair<HM_NAMESPACE::hash_map<uint32, Map*>::iterator, bool>  MapMapPair;
 
@@ -80,17 +82,17 @@ class MANGOS_DLL_DECL MapManager : public MaNGOS::Singleton<MapManager, MaNGOS::
 
         static bool IsValidMapCoord(uint32 mapid, float x,float y)
         {
-            return IsValidMAP(mapid) && MaNGOS::IsValidMapCoord(x,y);
+            return IsValidMAP(mapid) && Trinity::IsValidMapCoord(x,y);
         }
 
         static bool IsValidMapCoord(uint32 mapid, float x,float y,float z)
         {
-            return IsValidMAP(mapid) && MaNGOS::IsValidMapCoord(x,y,z);
+            return IsValidMAP(mapid) && Trinity::IsValidMapCoord(x,y,z);
         }
 
         static bool IsValidMapCoord(uint32 mapid, float x,float y,float z,float o)
         {
-            return IsValidMAP(mapid) && MaNGOS::IsValidMapCoord(x,y,z,o);
+            return IsValidMAP(mapid) && Trinity::IsValidMapCoord(x,y,z,o);
         }
 
         void DoDelayedMovesAndRemoves();
@@ -131,7 +133,7 @@ class MANGOS_DLL_DECL MapManager : public MaNGOS::Singleton<MapManager, MaNGOS::
             return (iter == i_maps.end() ? NULL : iter->second);
         }
 
-        typedef MaNGOS::ClassLevelLockable<MapManager, ZThread::Mutex>::Lock Guard;
+        typedef Trinity::ClassLevelLockable<MapManager, ZThread::Mutex>::Lock Guard;
         uint32 i_gridCleanUpDelay;
         MapMapType i_maps;
         IntervalTimer i_timer;

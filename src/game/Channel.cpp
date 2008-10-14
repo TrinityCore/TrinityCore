@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,19 +10,18 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "Channel.h"
 #include "ObjectMgr.h"
 #include "World.h"
 #include "SocialMgr.h"
-#include "IRCClient.h"
 
 Channel::Channel(std::string name, uint32 channel_id)
 : m_name(name), m_announce(true), m_moderate(false), m_channelId(channel_id), m_ownerGUID(0), m_password(""), m_flags(0)
@@ -113,8 +114,6 @@ void Channel::Join(uint64 p, const char *pass)
     MakeYouJoined(&data);
     SendToOne(&data, p);
 
-    sIRC.Handle_WoW_Channel(m_name, objmgr.GetPlayer(p), CHANNEL_JOIN);
-
     JoinNotify(p);
 }
 
@@ -154,8 +153,6 @@ void Channel::Leave(uint64 p, bool send)
         }
 
         LeaveNotify(p);
-
-        sIRC.Handle_WoW_Channel(m_name, objmgr.GetPlayer(p), CHANNEL_LEAVE);
 
         if(changeowner)
         {

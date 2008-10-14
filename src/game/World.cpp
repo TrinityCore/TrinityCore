@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /** \file
@@ -45,6 +47,7 @@
 #include "CreatureAIRegistry.h"
 #include "Policies/SingletonImp.h"
 #include "BattleGroundMgr.h"
+#include "OutdoorPvPMgr.h"
 #include "TemporarySummon.h"
 #include "WaypointMovementGenerator.h"
 #include "VMapFactory.h"
@@ -56,7 +59,6 @@
 #include "InstanceSaveMgr.h"
 #include "WaypointManager.h"
 #include "Util.h"
-#include "IRCClient.h"
 #include "Language.h"
 
 INSTANTIATE_SINGLETON_1( World );
@@ -64,7 +66,6 @@ INSTANTIATE_SINGLETON_1( World );
 volatile bool World::m_stopEvent = false;
 volatile uint32 World::m_worldLoopCounter = 0;
 
-float World::m_PlayerStartGold = 0; // starting gold
 float World::m_MaxVisibleDistanceForCreature  = DEFAULT_VISIBILITY_DISTANCE;
 float World::m_MaxVisibleDistanceForPlayer    = DEFAULT_VISIBILITY_DISTANCE;
 float World::m_MaxVisibleDistanceForObject    = DEFAULT_VISIBILITY_DISTANCE;
@@ -523,7 +524,7 @@ void World::LoadConfigSettings(bool reload)
     {
         uint32 val = sConfig.GetIntDefault("WorldServerPort", DEFAULT_WORLDSERVER_PORT);
         if(val!=m_configs[CONFIG_PORT_WORLD])
-            sLog.outError("WorldServerPort option can't be changed at mangosd.conf reload, using current value (%u).",m_configs[CONFIG_PORT_WORLD]);
+            sLog.outError("WorldServerPort option can't be changed at Trinityd.conf reload, using current value (%u).",m_configs[CONFIG_PORT_WORLD]);
     }
     else
         m_configs[CONFIG_PORT_WORLD] = sConfig.GetIntDefault("WorldServerPort", DEFAULT_WORLDSERVER_PORT);
@@ -532,7 +533,7 @@ void World::LoadConfigSettings(bool reload)
     {
         uint32 val = sConfig.GetIntDefault("SocketSelectTime", DEFAULT_SOCKET_SELECT_TIME);
         if(val!=m_configs[CONFIG_SOCKET_SELECTTIME])
-            sLog.outError("SocketSelectTime option can't be changed at mangosd.conf reload, using current value (%u).",m_configs[DEFAULT_SOCKET_SELECT_TIME]);
+            sLog.outError("SocketSelectTime option can't be changed at Trinityd.conf reload, using current value (%u).",m_configs[DEFAULT_SOCKET_SELECT_TIME]);
     }
     else
         m_configs[CONFIG_SOCKET_SELECTTIME] = sConfig.GetIntDefault("SocketSelectTime", DEFAULT_SOCKET_SELECT_TIME);
@@ -540,7 +541,7 @@ void World::LoadConfigSettings(bool reload)
 
     m_configs[CONFIG_TCP_NO_DELAY] = sConfig.GetBoolDefault("TcpNoDelay", false);
     m_configs[CONFIG_GROUP_XP_DISTANCE] = sConfig.GetIntDefault("MaxGroupXPDistance", 74);
-    /// \todo Add MonsterSight and GuarderSight (with meaning) in mangosd.conf or put them as define
+    /// \todo Add MonsterSight and GuarderSight (with meaning) in Trinityd.conf or put them as define
     m_configs[CONFIG_SIGHT_MONSTER] = sConfig.GetIntDefault("MonsterSight", 50);
     m_configs[CONFIG_SIGHT_GUARDER] = sConfig.GetIntDefault("GuarderSight", 50);
 
@@ -548,7 +549,7 @@ void World::LoadConfigSettings(bool reload)
     {
         uint32 val = sConfig.GetIntDefault("GameType", 0);
         if(val!=m_configs[CONFIG_GAME_TYPE])
-            sLog.outError("GameType option can't be changed at mangosd.conf reload, using current value (%u).",m_configs[CONFIG_GAME_TYPE]);
+            sLog.outError("GameType option can't be changed at Trinityd.conf reload, using current value (%u).",m_configs[CONFIG_GAME_TYPE]);
     }
     else
         m_configs[CONFIG_GAME_TYPE] = sConfig.GetIntDefault("GameType", 0);
@@ -557,7 +558,7 @@ void World::LoadConfigSettings(bool reload)
     {
         uint32 val = sConfig.GetIntDefault("RealmZone", REALM_ZONE_DEVELOPMENT);
         if(val!=m_configs[CONFIG_REALM_ZONE])
-            sLog.outError("RealmZone option can't be changed at mangosd.conf reload, using current value (%u).",m_configs[CONFIG_REALM_ZONE]);
+            sLog.outError("RealmZone option can't be changed at Trinityd.conf reload, using current value (%u).",m_configs[CONFIG_REALM_ZONE]);
     }
     else
         m_configs[CONFIG_REALM_ZONE] = sConfig.GetIntDefault("RealmZone", REALM_ZONE_DEVELOPMENT);
@@ -724,7 +725,7 @@ void World::LoadConfigSettings(bool reload)
     {
         uint32 val = sConfig.GetIntDefault("Expansion",1);
         if(val!=m_configs[CONFIG_EXPANSION])
-            sLog.outError("Expansion option can't be changed at mangosd.conf reload, using current value (%u).",m_configs[CONFIG_EXPANSION]);
+            sLog.outError("Expansion option can't be changed at Trinityd.conf reload, using current value (%u).",m_configs[CONFIG_EXPANSION]);
     }
     else
         m_configs[CONFIG_EXPANSION] = sConfig.GetIntDefault("Expansion",1);
@@ -773,47 +774,43 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_LISTEN_RANGE_TEXTEMOTE] = sConfig.GetIntDefault("ListenRange.TextEmote", 25);
     m_configs[CONFIG_LISTEN_RANGE_YELL]      = sConfig.GetIntDefault("ListenRange.Yell", 300);
 
-	m_PlayerStartGold = sConfig.GetFloatDefault("PlayerStart.Gold", 0);
-	if(m_PlayerStartGold < 0)
-		m_PlayerStartGold = 0;
+    m_configs[CONFIG_PLAYER_START_GOLD] = sConfig.GetFloatDefault("PlayerStart.Gold", 0);
+    if(m_configs[CONFIG_PLAYER_START_GOLD] < 0)
+        m_configs[CONFIG_PLAYER_START_GOLD] = 0;
 
-	if(m_PlayerStartGold > MAX_MONEY_AMOUNT)
-		m_PlayerStartGold = MAX_MONEY_AMOUNT;
+    if(m_configs[CONFIG_PLAYER_START_GOLD] > MAX_MONEY_AMOUNT)
+        m_configs[CONFIG_PLAYER_START_GOLD] = MAX_MONEY_AMOUNT;
 
-	m_configs[CONFIG_PLAYER_START_HONOR] = sConfig.GetIntDefault("PlayerStart.HonorPoints", 0);
-	if(m_configs[CONFIG_PLAYER_START_HONOR] < 0)
-		m_configs[CONFIG_PLAYER_START_HONOR] = 0;
+    m_configs[CONFIG_PLAYER_START_HONOR] = sConfig.GetIntDefault("PlayerStart.HonorPoints", 0);
+    if(m_configs[CONFIG_PLAYER_START_HONOR] < 0)
+        m_configs[CONFIG_PLAYER_START_HONOR] = 0;
 
-	m_configs[CONFIG_PLAYER_START_ARENAPTS] = sConfig.GetIntDefault("PlayerStart.ArenaPoints", 0);
-	if(m_configs[CONFIG_PLAYER_START_ARENAPTS] < 0)
-		m_configs[CONFIG_PLAYER_START_ARENAPTS] = 0;
+    m_configs[CONFIG_PLAYER_START_ARENAPTS] = sConfig.GetIntDefault("PlayerStart.ArenaPoints", 0);
+    if(m_configs[CONFIG_PLAYER_START_ARENAPTS] < 0)
+        m_configs[CONFIG_PLAYER_START_ARENAPTS] = 0;
 
-	m_configs[CONFIG_GM_START_LEVEL] = sConfig.GetIntDefault("GamemasterStartLevel", 70);
-	if(m_configs[CONFIG_GM_START_LEVEL] < 1)
-		m_configs[CONFIG_GM_START_LEVEL] = 1;
+    m_configs[CONFIG_GM_START_LEVEL] = sConfig.GetIntDefault("GamemasterStartLevel", 70);
+    if(m_configs[CONFIG_GM_START_LEVEL] < 1)
+        m_configs[CONFIG_GM_START_LEVEL] = 1;
 
-	m_configs[CONFIG_INSTANT_LOGOUT] = sConfig.GetBoolDefault("PlayerInstantLogout", false);
-	m_configs[CONFIG_BG_START_MUSIC] = sConfig.GetBoolDefault("MusicInBattleground", false);
-	m_configs[CONFIG_START_ALL_SPELLS] = sConfig.GetBoolDefault("PlayerStart.AllSpells", false);
-	// Leaving GM queue option out for now, it's not 100% functional with the ACE patch
-	//m_configs[CONFIG_QUEUE_FOR_GM] = sConfig.GetBoolDefault("EnableQueueForGMs", false);
-	m_configs[CONFIG_HONOR_AFTER_DUEL] = sConfig.GetIntDefault("HonorPointsAfterDuel", 0);
-	if(m_configs[CONFIG_HONOR_AFTER_DUEL] < 0)
-		m_configs[CONFIG_HONOR_AFTER_DUEL]= 0;
-	m_configs[CONFIG_KICK_FROM_GMISLAND] = sConfig.GetBoolDefault("AntiCheat.GMIsland", false);
-	m_configs[CONFIG_START_ALL_EXPLORED] = sConfig.GetBoolDefault("PlayerStart.MapsExplored", false);
-	m_configs[CONFIG_DISABLE_BREATHING] = sConfig.GetBoolDefault("DisableWaterBreath", false);
-	m_configs[CONFIG_DISABLE_RES_SICKNESS] = sConfig.GetBoolDefault("DisableResurrectSickness", false);
-	m_configs[CONFIG_START_ALL_REP] = sConfig.GetBoolDefault("PlayerStart.AllReputation", false);
-	m_configs[CONFIG_ALWAYS_MAXSKILL] = sConfig.GetBoolDefault("AlwaysMaxWeaponSkill", false);
-	m_configs[CONFIG_START_ALL_TAXI] = sConfig.GetBoolDefault("PlayerStart.AllFlightPaths", false);
-	m_configs[CONFIG_PVP_TOKEN_ENABLE] = sConfig.GetBoolDefault("PvPToken.Enable", false);
-	m_configs[CONFIG_PVP_TOKEN_MAP_TYPE] = sConfig.GetIntDefault("PvPToken.MapAllowType", 4);
-	m_configs[CONFIG_PVP_TOKEN_ID] = sConfig.GetIntDefault("PvPToken.ItemID", 29434);
-	m_configs[CONFIG_PVP_TOKEN_COUNT] = sConfig.GetIntDefault("PvPToken.ItemCount", 1);
-	if(m_configs[CONFIG_PVP_TOKEN_COUNT] < 1)
-		m_configs[CONFIG_PVP_TOKEN_COUNT] = 1;
-	m_configs[CONFIG_NO_RESET_TALENT_COST] = sConfig.GetBoolDefault("NoResetTalentsCost", false);
+    m_configs[CONFIG_INSTANT_LOGOUT] = sConfig.GetBoolDefault("PlayerInstantLogout", false);
+    m_configs[CONFIG_BG_START_MUSIC] = sConfig.GetBoolDefault("MusicInBattleground", false);
+    m_configs[CONFIG_START_ALL_SPELLS] = sConfig.GetBoolDefault("PlayerStart.AllSpells", false);
+    m_configs[CONFIG_HONOR_AFTER_DUEL] = sConfig.GetIntDefault("HonorPointsAfterDuel", 0);
+    if(m_configs[CONFIG_HONOR_AFTER_DUEL] < 0)
+        m_configs[CONFIG_HONOR_AFTER_DUEL]= 0;
+    m_configs[CONFIG_START_ALL_EXPLORED] = sConfig.GetBoolDefault("PlayerStart.MapsExplored", false);
+    m_configs[CONFIG_DISABLE_BREATHING] = sConfig.GetBoolDefault("DisableWaterBreath", false);
+    m_configs[CONFIG_START_ALL_REP] = sConfig.GetBoolDefault("PlayerStart.AllReputation", false);
+    m_configs[CONFIG_ALWAYS_MAXSKILL] = sConfig.GetBoolDefault("AlwaysMaxWeaponSkill", false);
+    m_configs[CONFIG_START_ALL_TAXI] = sConfig.GetBoolDefault("PlayerStart.AllFlightPaths", false);
+    m_configs[CONFIG_PVP_TOKEN_ENABLE] = sConfig.GetBoolDefault("PvPToken.Enable", false);
+    m_configs[CONFIG_PVP_TOKEN_MAP_TYPE] = sConfig.GetIntDefault("PvPToken.MapAllowType", 4);
+    m_configs[CONFIG_PVP_TOKEN_ID] = sConfig.GetIntDefault("PvPToken.ItemID", 29434);
+    m_configs[CONFIG_PVP_TOKEN_COUNT] = sConfig.GetIntDefault("PvPToken.ItemCount", 1);
+    if(m_configs[CONFIG_PVP_TOKEN_COUNT] < 1)
+        m_configs[CONFIG_PVP_TOKEN_COUNT] = 1;
+    m_configs[CONFIG_NO_RESET_TALENT_COST] = sConfig.GetBoolDefault("NoResetTalentsCost", false);
 
     m_configs[CONFIG_ARENA_MAX_RATING_DIFFERENCE] = sConfig.GetIntDefault("Arena.MaxRatingDifference", 0);
     m_configs[CONFIG_ARENA_RATING_DISCARD_TIMER] = sConfig.GetIntDefault("Arena.RatingDiscardTimer",300000);
@@ -883,13 +880,27 @@ void World::LoadConfigSettings(bool reload)
     if(reload)
     {
         if(dataPath!=m_dataPath)
-            sLog.outError("DataDir option can't be changed at mangosd.conf reload, using current value (%s).",m_dataPath.c_str());
+            sLog.outError("DataDir option can't be changed at Trinityd.conf reload, using current value (%s).",m_dataPath.c_str());
     }
     else
     {
         m_dataPath = dataPath;
         sLog.outString("Using DataDir %s",m_dataPath.c_str());
     }
+
+    std::string forbiddenmaps = sConfig.GetStringDefault("ForbiddenMaps", "");
+    char * forbiddenMaps = new char[forbiddenmaps.length() + 1];
+    forbiddenMaps[forbiddenmaps.length()] = 0;
+    strncpy(forbiddenMaps, forbiddenmaps.c_str(), forbiddenmaps.length());
+    const char * delim = ",";
+    char * token = strtok(forbiddenMaps, delim);
+    while(token != NULL)
+    {
+        int32 mapid = strtol(token, NULL, 10);
+        m_forbiddenMapIds.insert(mapid);
+        token = strtok(NULL,delim);
+    }
+    delete[] forbiddenMaps;
 
     bool enableLOS = sConfig.GetBoolDefault("vmap.enableLOS", false);
     bool enableHeight = sConfig.GetBoolDefault("vmap.enableHeight", false);
@@ -927,14 +938,14 @@ void World::SetInitialWorldSettings()
         ||m_configs[CONFIG_EXPANSION] && (
         !MapManager::ExistMapAndVMap(530,10349.6f,-6357.29f) || !MapManager::ExistMapAndVMap(530,-3961.64f,-13931.2f) ) )
     {
-        sLog.outError("Correct *.map files not found in path '%smaps' or *.vmap/*vmdir files in '%svmaps'. Please place *.map/*.vmap/*.vmdir files in appropriate directories or correct the DataDir value in the mangosd.conf file.",m_dataPath.c_str(),m_dataPath.c_str());
+        sLog.outError("Correct *.map files not found in path '%smaps' or *.vmap/*vmdir files in '%svmaps'. Please place *.map/*.vmap/*.vmdir files in appropriate directories or correct the DataDir value in the Trinityd.conf file.",m_dataPath.c_str(),m_dataPath.c_str());
         exit(1);
     }
 
     ///- Loading strings. Getting no records means core load has to be canceled because no error message can be output.
     sLog.outString( "" );
-    sLog.outString( "Loading MaNGOS strings..." );
-    if (!objmgr.LoadMangosStrings())
+    sLog.outString( "Loading Trinity strings..." );
+    if (!objmgr.LoadTrinityStrings())
         exit(1);                                            // Error message displayed in function already
 
     ///- Update the realm entry in the database with the realm type from the config file
@@ -1180,9 +1191,6 @@ void World::SetInitialWorldSettings()
 
     WorldDatabase.PExecute("INSERT INTO uptime (startstring, starttime, uptime) VALUES('%s', %ld, 0)", isoDate, m_startTime );
 
-    static uint32 autoanc = 1;
-    autoanc = sIRC.autoanc;
-
     m_timers[WUPDATE_OBJECTS].SetInterval(0);
     m_timers[WUPDATE_SESSIONS].SetInterval(0);
     m_timers[WUPDATE_WEATHERS].SetInterval(1000);
@@ -1190,8 +1198,6 @@ void World::SetInitialWorldSettings()
     m_timers[WUPDATE_UPTIME].SetInterval(m_configs[CONFIG_UPTIME_UPDATE]*MINUTE*1000);
                                                             //Update "uptime" table based on configuration entry in minutes.
     m_timers[WUPDATE_CORPSES].SetInterval(20*MINUTE*1000);  //erase corpses every 20 minutes
-
-    m_timers[WUPDATE_AUTOANC].SetInterval(autoanc*MINUTE*1000);
 
     //to set mailtimer to return mails every day between 4 and 5 am
     //mailtimer is increased when updating auctions
@@ -1214,6 +1220,10 @@ void World::SetInitialWorldSettings()
     sLog.outString( "Starting BattleGround System" );
     sBattleGroundMgr.CreateInitialBattleGrounds();
     sBattleGroundMgr.InitAutomaticArenaPointDistribution();
+
+    ///- Initialize outdoor pvp
+    sLog.outString( "Starting Outdoor PvP System" );
+    sOutdoorPvPMgr.InitOutdoorPvP();
 
     //Not sure if this can be moved up in the sequence (with static data loading) as it uses MapManager
     sLog.outString( "Loading Transports..." );
@@ -1407,6 +1417,8 @@ void World::Update(time_t diff)
             ScriptsProcess();
 
         sBattleGroundMgr.Update(diff);
+
+        sOutdoorPvPMgr.Update(diff);
     }
 
     // execute callbacks from sql queries that were queued recently
@@ -1429,11 +1441,6 @@ void World::Update(time_t diff)
         m_timers[WUPDATE_EVENTS].Reset();
     }
 
-    if (m_timers[WUPDATE_AUTOANC].Passed())
-    {
-        m_timers[WUPDATE_AUTOANC].Reset(); /// </ul>
-        SendRNDBroadcast();
-    }
     MapManager::Instance().DoDelayedMovesAndRemoves(); ///- Move all creatures with "delayed move" and remove and delete all objects with "delayed remove"
 
     // update the instance reset times
@@ -1441,6 +1448,14 @@ void World::Update(time_t diff)
 
     // And last, but not least handle the issued cli commands
     ProcessCliCommands();
+}
+
+void World::ForceGameEventUpdate()
+{
+    m_timers[WUPDATE_EVENTS].Reset();                   // to give time for Update() to be processed
+    uint32 nextGameEvent = gameeventmgr.Update();
+    m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);
+    m_timers[WUPDATE_EVENTS].Reset();
 }
 
 /// Put scripts in the execution queue
@@ -1782,14 +1797,14 @@ void World::ScriptsProcess()
                 GameObject *go = NULL;
                 int32 time_to_despawn = step.script->datalong2<5 ? 5 : (int32)step.script->datalong2;
 
-                CellPair p(MaNGOS::ComputeCellPair(summoner->GetPositionX(), summoner->GetPositionY()));
+                CellPair p(Trinity::ComputeCellPair(summoner->GetPositionX(), summoner->GetPositionY()));
                 Cell cell(p);
                 cell.data.Part.reserved = ALL_DISTRICT;
 
-                MaNGOS::GameObjectWithDbGUIDCheck go_check(*summoner,step.script->datalong);
-                MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck> checker(go,go_check);
+                Trinity::GameObjectWithDbGUIDCheck go_check(*summoner,step.script->datalong);
+                Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(go,go_check);
 
-                TypeContainerVisitor<MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
+                TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
                 CellLock<GridReadGuard> cell_lock(cell, p);
                 cell_lock->Visit(cell_lock, object_checker, *MapManager::Instance().GetMap(summoner->GetMapId(), summoner));
 
@@ -1843,14 +1858,14 @@ void World::ScriptsProcess()
                 GameObject *door = NULL;
                 int32 time_to_close = step.script->datalong2 < 15 ? 15 : (int32)step.script->datalong2;
 
-                CellPair p(MaNGOS::ComputeCellPair(caster->GetPositionX(), caster->GetPositionY()));
+                CellPair p(Trinity::ComputeCellPair(caster->GetPositionX(), caster->GetPositionY()));
                 Cell cell(p);
                 cell.data.Part.reserved = ALL_DISTRICT;
 
-                MaNGOS::GameObjectWithDbGUIDCheck go_check(*caster,step.script->datalong);
-                MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck> checker(door,go_check);
+                Trinity::GameObjectWithDbGUIDCheck go_check(*caster,step.script->datalong);
+                Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(door,go_check);
 
-                TypeContainerVisitor<MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
+                TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
                 CellLock<GridReadGuard> cell_lock(cell, p);
                 cell_lock->Visit(cell_lock, object_checker, *MapManager::Instance().GetMap(caster->GetMapId(), (Unit*)source));
 
@@ -1899,14 +1914,14 @@ void World::ScriptsProcess()
                 GameObject *door = NULL;
                 int32 time_to_open = step.script->datalong2 < 15 ? 15 : (int32)step.script->datalong2;
 
-                CellPair p(MaNGOS::ComputeCellPair(caster->GetPositionX(), caster->GetPositionY()));
+                CellPair p(Trinity::ComputeCellPair(caster->GetPositionX(), caster->GetPositionY()));
                 Cell cell(p);
                 cell.data.Part.reserved = ALL_DISTRICT;
 
-                MaNGOS::GameObjectWithDbGUIDCheck go_check(*caster,step.script->datalong);
-                MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck> checker(door,go_check);
+                Trinity::GameObjectWithDbGUIDCheck go_check(*caster,step.script->datalong);
+                Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(door,go_check);
 
-                TypeContainerVisitor<MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
+                TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
                 CellLock<GridReadGuard> cell_lock(cell, p);
                 cell_lock->Visit(cell_lock, object_checker, *MapManager::Instance().GetMap(caster->GetMapId(), (Unit*)source));
 
@@ -2130,7 +2145,7 @@ void World::SendWorldText(int32 string_id, ...)
 
             data_list = &data_cache[cache_idx];
 
-            char const* text = objmgr.GetMangosString(string_id,loc_idx);
+            char const* text = objmgr.GetTrinityString(string_id,loc_idx);
 
             char buf[1000];
 
@@ -2507,22 +2522,6 @@ void World::ProcessCliCommands()
     }
     // print the console message here so it looks right
     p_zprintf("TC> ");
-}
-
-void World::SendRNDBroadcast()
-{
-    std::string msg;
-    QueryResult *result = WorldDatabase.PQuery("SELECT `message` FROM `IRC_AutoAnnounce` ORDER BY RAND() LIMIT 1");
-    if(!result)
-        return;
-    msg = result->Fetch()[0].GetString();
-    delete result;
-    std::string str = "|cffff0000[Automatic]:|r";
-    str += msg;
-    sWorld.SendWorldText(LANG_AUTO_ANN);
-    std::string ircchan = "#";
-    ircchan += sIRC._irc_chan[sIRC.anchn].c_str();
-    sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("\00304,08\037/!\\\037\017\00304 Automatic System Message \00304,08\037/!\\\037\017 %s", "%s", msg.c_str()), true);
 }
 
 void World::InitResultQueue()

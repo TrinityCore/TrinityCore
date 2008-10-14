@@ -1,5 +1,7 @@
 /* 
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #ifndef _OBJECTMGR_H
@@ -125,7 +127,7 @@ typedef HM_NAMESPACE::hash_map<uint32/*(mapid,spawnMode) pair*/,CellObjectGuidsM
 
 typedef HM_NAMESPACE::hash_map<uint64/*(instance,guid) pair*/,time_t> RespawnTimes;
 
-struct MangosStringLocale
+struct TrinityStringLocale
 {
     std::vector<std::string> Content;                       // 0 -> default, i -> i-1 locale index
 };
@@ -138,7 +140,7 @@ typedef HM_NAMESPACE::hash_map<uint32,ItemLocale> ItemLocaleMap;
 typedef HM_NAMESPACE::hash_map<uint32,QuestLocale> QuestLocaleMap;
 typedef HM_NAMESPACE::hash_map<uint32,NpcTextLocale> NpcTextLocaleMap;
 typedef HM_NAMESPACE::hash_map<uint32,PageTextLocale> PageTextLocaleMap;
-typedef HM_NAMESPACE::hash_map<uint32,MangosStringLocale> MangosStringLocaleMap;
+typedef HM_NAMESPACE::hash_map<uint32,TrinityStringLocale> TrinityStringLocaleMap;
 
 typedef std::multimap<uint32,uint32> QuestRelations;
 
@@ -248,7 +250,7 @@ SkillRangeType GetSkillRangeType(SkillLineEntry const *pSkill, bool racial);
 
 bool normalizePlayerName(std::string& name);
 
-struct MANGOS_DLL_SPEC LanguageDesc
+struct TRINITY_DLL_SPEC LanguageDesc
 {
     Language lang_id;
     uint32   spell_id;
@@ -256,7 +258,7 @@ struct MANGOS_DLL_SPEC LanguageDesc
 };
 
 extern LanguageDesc lang_description[LANGUAGES_COUNT];
-MANGOS_DLL_SPEC LanguageDesc const* GetLanguageDescByID(uint32 lang);
+TRINITY_DLL_SPEC LanguageDesc const* GetLanguageDescByID(uint32 lang);
 
 class PlayerDumpReader;
 
@@ -441,6 +443,7 @@ class ObjectMgr
 
         WorldSafeLocsEntry const *GetClosestGraveYard(float x, float y, float z, uint32 MapId, uint32 team);
         bool AddGraveYardLink(uint32 id, uint32 zone, uint32 team, bool inDB = true);
+        void RemoveGraveYardLink(uint32 id, uint32 zone, uint32 team, bool inDB = false);
         void LoadGraveyardZones();
         GraveYardData const* FindGraveYardData(uint32 id, uint32 zone);
 
@@ -499,8 +502,8 @@ class ObjectMgr
         void LoadEventScripts();
         void LoadSpellScripts();
 
-        bool LoadMangosStrings(DatabaseType& db, char const* table, int32 min_value, int32 max_value);
-        bool LoadMangosStrings() { return LoadMangosStrings(WorldDatabase,"mangos_string",1,std::numeric_limits<int32>::max()); }
+        bool LoadTrinityStrings(DatabaseType& db, char const* table, int32 min_value, int32 max_value);
+        bool LoadTrinityStrings() { return LoadTrinityStrings(WorldDatabase,"trinity_string",1,std::numeric_limits<int32>::max()); }
         void LoadPetCreateSpells();
         void LoadCreatureLocales();
         void LoadCreatureTemplates();
@@ -650,14 +653,14 @@ class ObjectMgr
         GameObjectData& NewGOData(uint32 guid) { return mGameObjectDataMap[guid]; }
         void DeleteGOData(uint32 guid);
 
-        MangosStringLocale const* GetMangosStringLocale(int32 entry) const
+        TrinityStringLocale const* GetTrinityStringLocale(int32 entry) const
         {
-            MangosStringLocaleMap::const_iterator itr = mMangosStringLocaleMap.find(entry);
-            if(itr==mMangosStringLocaleMap.end()) return NULL;
+            TrinityStringLocaleMap::const_iterator itr = mTrinityStringLocaleMap.find(entry);
+            if(itr==mTrinityStringLocaleMap.end()) return NULL;
             return &itr->second;
         }
-        const char *GetMangosString(int32 entry, int locale_idx) const;
-        const char *GetMangosStringForDBCLocale(int32 entry) const { return GetMangosString(entry,DBCLocaleIndex); }
+        const char *GetTrinityString(int32 entry, int locale_idx) const;
+        const char *GetTrinityStringForDBCLocale(int32 entry) const { return GetTrinityString(entry,DBCLocaleIndex); }
         void SetDBCLocaleIndex(uint32 lang) { DBCLocaleIndex = GetIndexForLocale(LocaleConstant(lang)); }
 
         void AddCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_guid, uint32 instance);
@@ -740,9 +743,9 @@ class ObjectMgr
 
             return &iter->second;
         }
-        void AddVendorItem(uint32 entry,uint32 item, uint32 maxcount, uint32 incrtime, uint32 ExtendedCost);
-        bool RemoveVendorItem(uint32 entry,uint32 item);
-        bool IsVendorItemValid( uint32 vendor_entry, uint32 item, uint32 maxcount, uint32 ptime, uint32 ExtendedCost, Player* pl = NULL, std::set<uint32>* skip_vendors = NULL ) const;
+        void AddVendorItem(uint32 entry,uint32 item, uint32 maxcount, uint32 incrtime, uint32 ExtendedCost, bool savetodb = true);
+        bool RemoveVendorItem(uint32 entry,uint32 item, bool savetodb = true);
+        bool IsVendorItemValid( uint32 vendor_entry, uint32 item, uint32 maxcount, uint32 ptime, uint32 ExtendedCost, Player* pl = NULL, std::set<uint32>* skip_vendors = NULL, uint32 ORnpcflag = 0) const;
     protected:
         uint32 m_auctionid;
         uint32 m_mailid;
@@ -840,7 +843,7 @@ class ObjectMgr
         QuestLocaleMap mQuestLocaleMap;
         NpcTextLocaleMap mNpcTextLocaleMap;
         PageTextLocaleMap mPageTextLocaleMap;
-        MangosStringLocaleMap mMangosStringLocaleMap;
+        TrinityStringLocaleMap mTrinityStringLocaleMap;
         RespawnTimes mCreatureRespawnTimes;
         RespawnTimes mGORespawnTimes;
 
@@ -856,10 +859,10 @@ class ObjectMgr
         CacheTrainerSpellMap m_mCacheTrainerSpellMap;
 };
 
-#define objmgr MaNGOS::Singleton<ObjectMgr>::Instance()
+#define objmgr Trinity::Singleton<ObjectMgr>::Instance()
 
 // scripting access functions
-bool MANGOS_DLL_SPEC LoadMangosStrings(DatabaseType& db, char const* table,int32 start_value = -1, int32 end_value = std::numeric_limits<int32>::min());
-MANGOS_DLL_SPEC const char* GetAreaTriggerScriptNameById(uint32 id);
+bool TRINITY_DLL_SPEC LoadTrinityStrings(DatabaseType& db, char const* table,int32 start_value = -1, int32 end_value = std::numeric_limits<int32>::min());
+TRINITY_DLL_SPEC const char* GetAreaTriggerScriptNameById(uint32 id);
 
 #endif

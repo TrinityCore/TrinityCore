@@ -1,5 +1,7 @@
 /* 
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,16 +10,16 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /** \file
-    \ingroup mangosd
+    \ingroup Trinityd
 */
 
 #include <ace/OS_NS_signal.h>
@@ -38,7 +40,6 @@
 #include "RASocket.h"
 #include "ScriptCalls.h"
 #include "Util.h"
-#include "IRCClient.h"
 
 #include "sockets/TcpSocket.h"
 #include "sockets/Utility.h"
@@ -155,9 +156,9 @@ public:
         std::string stringip = sConfig.GetStringDefault ("Ra.IP", "0.0.0.0");
         ipaddr_t raip;
         if (!Utility::u2ip (stringip, raip))
-          sLog.outError ("MaNGOS RA can not bind to ip %s", stringip.c_str ());
+          sLog.outError ("Trinity RA can not bind to ip %s", stringip.c_str ());
         else if (RAListenSocket.Bind (raip, raport))
-          sLog.outError ("MaNGOS RA can not bind to port %d on %s", raport, stringip.c_str ());
+          sLog.outError ("Trinity RA can not bind to port %d on %s", raport, stringip.c_str ());
         else
           {
             h.Add (&RAListenSocket);
@@ -227,9 +228,6 @@ int Master::Run()
     if (!_StartDB())
         return 1;
 
-    ///- Load IRC Config (need DB for gm levels, AutoBroadcast uses world timers)
-    sIRC.LoadConfig(sIRC.CfgFile);
-
     ///- Initialize the World
     sWorld.SetInitialWorldSettings();
 
@@ -242,11 +240,6 @@ int Master::Run()
 
     // set server online
     loginDatabase.PExecute("UPDATE realmlist SET color = 0, population = 0 WHERE id = '%d'",realmID);
-
-	// Create table: has_logged_in_before - used for certain custom options
-	sLog.outBasic("ImpConfig: Creating/Checking table 'has_logged_in_before'...");
-	CharacterDatabase.PExecute("CREATE TABLE IF NOT EXISTS `has_logged_in_before` (`guid` int(11) unsigned NOT NULL default '0', PRIMARY KEY (`guid`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='ImpConfig check';");
-	sLog.outBasic("ImpConfig: Done...");
 
 #ifdef WIN32
     if (sConfig.GetBoolDefault("Console.Enable", true) && (m_ServiceStatus == -1)/* need disable console in service mode*/)
@@ -277,7 +270,7 @@ int Master::Run()
 
                 if(!curAff )
                 {
-                    sLog.outError("Processors marked in UseProcessors bitmask (hex) %x not accessible for mangosd. Accessible processors bitmask (hex): %x",Aff,appAff);
+                    sLog.outError("Processors marked in UseProcessors bitmask (hex) %x not accessible for Trinityd. Accessible processors bitmask (hex): %x",Aff,appAff);
                 }
                 else
                 {
@@ -298,7 +291,7 @@ int Master::Run()
             if(SetPriorityClass(hProcess,HIGH_PRIORITY_CLASS))
                 sLog.outString("TrinityCore process priority class set to HIGH");
             else
-                sLog.outError("ERROR: Can't set mangosd process priority class.");
+                sLog.outError("ERROR: Can't set Trinityd process priority class.");
             sLog.outString();
         }
     }
@@ -312,12 +305,6 @@ int Master::Run()
     // maximum counter for next ping
     uint32 numLoops = (sConfig.GetIntDefault( "MaxPingTime", 30 ) * (MINUTE * 1000000 / socketSelecttime));
     uint32 loopCounter = 0;
-
-    // Start up IRC bot
-    ZThread::Thread irc(new IRCClient);
-    irc.setPriority ((ZThread::Priority )2);
-
-
 
     ///- Start up freeze catcher thread
     uint32 freeze_delay = sConfig.GetIntDefault("MaxCoreStuckTime", 0);

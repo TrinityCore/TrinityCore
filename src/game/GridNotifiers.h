@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,16 +10,16 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef MANGOS_GRIDNOTIFIERS_H
-#define MANGOS_GRIDNOTIFIERS_H
+#ifndef TRINITY_GRIDNOTIFIERS_H
+#define TRINITY_GRIDNOTIFIERS_H
 
 #include "ObjectGridLoader.h"
 #include "ByteBuffer.h"
@@ -34,10 +36,10 @@
 class Player;
 //class Map;
 
-namespace MaNGOS
+namespace Trinity
 {
 
-    struct MANGOS_DLL_DECL PlayerNotifier
+    struct TRINITY_DLL_DECL PlayerNotifier
     {
         explicit PlayerNotifier(Player &pl) : i_player(pl) {}
         void Visit(PlayerMapType &);
@@ -45,7 +47,7 @@ namespace MaNGOS
         Player &i_player;
     };
 
-    struct MANGOS_DLL_DECL VisibleNotifier
+    struct TRINITY_DLL_DECL VisibleNotifier
     {
         Player &i_player;
         UpdateData i_data;
@@ -59,7 +61,7 @@ namespace MaNGOS
         void Notify(void);
     };
 
-    struct MANGOS_DLL_DECL VisibleChangesNotifier
+    struct TRINITY_DLL_DECL VisibleChangesNotifier
     {
         WorldObject &i_object;
 
@@ -68,7 +70,7 @@ namespace MaNGOS
         void Visit(PlayerMapType &);
     };
 
-    struct MANGOS_DLL_DECL GridUpdater
+    struct TRINITY_DLL_DECL GridUpdater
     {
         GridType &i_grid;
         uint32 i_timeDiff;
@@ -87,7 +89,7 @@ namespace MaNGOS
         void Visit(CorpseMapType &m) { updateObjects<Corpse>(m); }
     };
 
-    struct MANGOS_DLL_DECL MessageDeliverer
+    struct TRINITY_DLL_DECL MessageDeliverer
     {
         Player &i_player;
         WorldPacket *i_message;
@@ -97,7 +99,7 @@ namespace MaNGOS
         template<class SKIP> void Visit(GridRefManager<SKIP> &) {}
     };
 
-    struct MANGOS_DLL_DECL ObjectMessageDeliverer
+    struct TRINITY_DLL_DECL ObjectMessageDeliverer
     {
         WorldPacket *i_message;
         explicit ObjectMessageDeliverer(WorldPacket *msg) : i_message(msg) {}
@@ -105,7 +107,7 @@ namespace MaNGOS
         template<class SKIP> void Visit(GridRefManager<SKIP> &) {}
     };
 
-    struct MANGOS_DLL_DECL MessageDistDeliverer
+    struct TRINITY_DLL_DECL MessageDistDeliverer
     {
         Player &i_player;
         WorldPacket *i_message;
@@ -117,7 +119,7 @@ namespace MaNGOS
         template<class SKIP> void Visit(GridRefManager<SKIP> &) {}
     };
 
-    struct MANGOS_DLL_DECL ObjectMessageDistDeliverer
+    struct TRINITY_DLL_DECL ObjectMessageDistDeliverer
     {
         WorldObject &i_object;
         WorldPacket *i_message;
@@ -127,7 +129,7 @@ namespace MaNGOS
         template<class SKIP> void Visit(GridRefManager<SKIP> &) {}
     };
 
-    struct MANGOS_DLL_DECL ObjectUpdater
+    struct TRINITY_DLL_DECL ObjectUpdater
     {
         uint32 i_timeDiff;
         explicit ObjectUpdater(const uint32 &diff) : i_timeDiff(diff) {}
@@ -138,7 +140,7 @@ namespace MaNGOS
     };
 
     template<class T>
-        struct MANGOS_DLL_DECL ObjectAccessorNotifier
+        struct TRINITY_DLL_DECL ObjectAccessorNotifier
     {
         T *& i_object;
 
@@ -164,7 +166,7 @@ namespace MaNGOS
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
     };
 
-    struct MANGOS_DLL_DECL PlayerRelocationNotifier
+    struct TRINITY_DLL_DECL PlayerRelocationNotifier
     {
         Player &i_player;
         PlayerRelocationNotifier(Player &pl) : i_player(pl) {}
@@ -173,7 +175,7 @@ namespace MaNGOS
         void Visit(CreatureMapType &);
     };
 
-    struct MANGOS_DLL_DECL CreatureRelocationNotifier
+    struct TRINITY_DLL_DECL CreatureRelocationNotifier
     {
         Creature &i_creature;
         CreatureRelocationNotifier(Creature &c) : i_creature(c) {}
@@ -183,7 +185,7 @@ namespace MaNGOS
         #endif
     };
 
-    struct MANGOS_DLL_DECL DynamicObjectUpdater
+    struct TRINITY_DLL_DECL DynamicObjectUpdater
     {
         DynamicObject &i_dynobject;
         Unit* i_check;
@@ -209,7 +211,7 @@ namespace MaNGOS
     // WorldObject searchers & workers
 
     template<class Check>
-        struct MANGOS_DLL_DECL WorldObjectSearcher
+        struct TRINITY_DLL_DECL WorldObjectSearcher
     {
         WorldObject* &i_object;
         Check &i_check;
@@ -226,7 +228,7 @@ namespace MaNGOS
     };
 
     template<class Check>
-        struct MANGOS_DLL_DECL WorldObjectListSearcher
+        struct TRINITY_DLL_DECL WorldObjectListSearcher
     {
         std::list<WorldObject*> &i_objects;
         Check& i_check;
@@ -243,7 +245,7 @@ namespace MaNGOS
     };
 
     template<class Do>
-        struct MANGOS_DLL_DECL WorldObjectWorker
+        struct TRINITY_DLL_DECL WorldObjectWorker
     {
         Do const& i_do;
 
@@ -284,7 +286,7 @@ namespace MaNGOS
     // Gameobject searchers
 
     template<class Check>
-        struct MANGOS_DLL_DECL GameObjectSearcher
+        struct TRINITY_DLL_DECL GameObjectSearcher
     {
         GameObject* &i_object;
         Check &i_check;
@@ -298,7 +300,7 @@ namespace MaNGOS
 
     // Last accepted by Check GO if any (Check can change requirements at each call)
     template<class Check>
-        struct MANGOS_DLL_DECL GameObjectLastSearcher
+        struct TRINITY_DLL_DECL GameObjectLastSearcher
     {
         GameObject* &i_object;
         Check& i_check;
@@ -311,7 +313,7 @@ namespace MaNGOS
     };
 
     template<class Check>
-        struct MANGOS_DLL_DECL GameObjectListSearcher
+        struct TRINITY_DLL_DECL GameObjectListSearcher
     {
         std::list<GameObject*> &i_objects;
         Check& i_check;
@@ -327,7 +329,7 @@ namespace MaNGOS
 
     // First accepted by Check Unit if any
     template<class Check>
-        struct MANGOS_DLL_DECL UnitSearcher
+        struct TRINITY_DLL_DECL UnitSearcher
     {
         Unit* &i_object;
         Check & i_check;
@@ -342,7 +344,7 @@ namespace MaNGOS
 
     // Last accepted by Check Unit if any (Check can change requirements at each call)
     template<class Check>
-        struct MANGOS_DLL_DECL UnitLastSearcher
+        struct TRINITY_DLL_DECL UnitLastSearcher
     {
         Unit* &i_object;
         Check & i_check;
@@ -357,7 +359,7 @@ namespace MaNGOS
 
     // All accepted by Check units if any
     template<class Check>
-        struct MANGOS_DLL_DECL UnitListSearcher
+        struct TRINITY_DLL_DECL UnitListSearcher
     {
         std::list<Unit*> &i_objects;
         Check& i_check;
@@ -373,7 +375,7 @@ namespace MaNGOS
     // Creature searchers
 
     template<class Check>
-        struct MANGOS_DLL_DECL CreatureSearcher
+        struct TRINITY_DLL_DECL CreatureSearcher
     {
         Creature* &i_object;
         Check & i_check;
@@ -387,7 +389,7 @@ namespace MaNGOS
 
     // Last accepted by Check Creature if any (Check can change requirements at each call)
     template<class Check>
-        struct MANGOS_DLL_DECL CreatureLastSearcher
+        struct TRINITY_DLL_DECL CreatureLastSearcher
     {
         Creature* &i_object;
         Check & i_check;
@@ -400,7 +402,7 @@ namespace MaNGOS
     };
 
     template<class Check>
-        struct MANGOS_DLL_DECL CreatureListSearcher
+        struct TRINITY_DLL_DECL CreatureListSearcher
     {
         std::list<Creature*> &i_objects;
         Check& i_check;
@@ -415,7 +417,7 @@ namespace MaNGOS
     // Player searchers
 
     template<class Check>
-    struct MANGOS_DLL_DECL PlayerSearcher
+    struct TRINITY_DLL_DECL PlayerSearcher
     {
         Player* &i_object;
         Check & i_check;
@@ -428,7 +430,7 @@ namespace MaNGOS
     };
 
     template<class Do>
-    struct MANGOS_DLL_DECL PlayerWorker
+    struct TRINITY_DLL_DECL PlayerWorker
     {
         Do& i_do;
 

@@ -30,7 +30,7 @@ DEALINGS IN THE SOFTWARE.
 
 #include <iterator>
 
-// use MaNGOS core types
+// use Trinity core types
 #include "Platform/Define.h"
 
 namespace utf8
@@ -39,7 +39,7 @@ namespace utf8
     // You may need to change them to match your system. 
     // These typedefs have the same names as ones from cstdint, or boost/cstdint
 
-    /* use MaNGOS alternatives
+    /* use Trinity alternatives
     typedef unsigned char   uint8_t;
     typedef unsigned short  uint16_t;
     typedef unsigned int    uint32_t;

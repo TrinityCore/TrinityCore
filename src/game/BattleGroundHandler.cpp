@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "Common.h"
@@ -150,7 +152,7 @@ void WorldSession::HandleBattleGroundJoinOpcode( WorldPacket & recv_data )
         case BG_JOIN_ERR_GROUP_TOO_MANY:
             {
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetMangosString(LANG_BG_GROUP_TOO_LARGE), NULL);
+            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_TOO_LARGE), NULL);
             SendPacket(&data);
             }
             return;
@@ -158,7 +160,7 @@ void WorldSession::HandleBattleGroundJoinOpcode( WorldPacket & recv_data )
         case BG_JOIN_ERR_OFFLINE_MEMBER:
             {
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetMangosString(LANG_BG_GROUP_OFFLINE_MEMBER), NULL);
+            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_OFFLINE_MEMBER), NULL);
             SendPacket(&data);
             }
             return;
@@ -166,7 +168,7 @@ void WorldSession::HandleBattleGroundJoinOpcode( WorldPacket & recv_data )
         case BG_JOIN_ERR_MIXED_FACTION:
             {
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetMangosString(LANG_BG_GROUP_MIXED_FACTION), NULL);
+            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_MIXED_FACTION), NULL);
             SendPacket(&data);
             }
             return;
@@ -174,7 +176,7 @@ void WorldSession::HandleBattleGroundJoinOpcode( WorldPacket & recv_data )
         case BG_JOIN_ERR_MIXED_LEVELS:
             {
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetMangosString(LANG_BG_GROUP_MIXED_LEVELS), NULL);
+            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_MIXED_LEVELS), NULL);
             SendPacket(&data);
             }
             return;
@@ -182,7 +184,7 @@ void WorldSession::HandleBattleGroundJoinOpcode( WorldPacket & recv_data )
         case BG_JOIN_ERR_GROUP_MEMBER_ALREADY_IN_QUEUE:
             {
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetMangosString(LANG_BG_GROUP_MEMBER_ALREADY_IN_QUEUE), NULL);
+            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_MEMBER_ALREADY_IN_QUEUE), NULL);
             SendPacket(&data);
             }
             return;
@@ -190,7 +192,7 @@ void WorldSession::HandleBattleGroundJoinOpcode( WorldPacket & recv_data )
         case BG_JOIN_ERR_GROUP_DESERTER:
             {
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetMangosString(LANG_BG_GROUP_MEMBER_DESERTER), NULL);
+            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_MEMBER_DESERTER), NULL);
             SendPacket(&data);
             }
             return;
@@ -198,7 +200,7 @@ void WorldSession::HandleBattleGroundJoinOpcode( WorldPacket & recv_data )
         case BG_JOIN_ERR_ALL_QUEUES_USED:
             {
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetMangosString(LANG_BG_GROUP_MEMBER_NO_FREE_QUEUE_SLOTS), NULL);
+            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_MEMBER_NO_FREE_QUEUE_SLOTS), NULL);
             SendPacket(&data);
             }
             return;
@@ -774,7 +776,7 @@ void WorldSession::HandleBattleGroundArenaJoin( WorldPacket & recv_data )
         case BG_JOIN_ERR_GROUP_TOO_MANY:
             {
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetMangosString(LANG_ARENA_GROUP_TOO_LARGE), NULL);
+            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_ARENA_GROUP_TOO_LARGE), NULL);
             SendPacket(&data);
             }
             return;
@@ -782,7 +784,7 @@ void WorldSession::HandleBattleGroundArenaJoin( WorldPacket & recv_data )
         case BG_JOIN_ERR_GROUP_NOT_ENOUGH:
             {
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetMangosString(LANG_ARENA_NOT_ENOUGH_PLAYERS), NULL);
+            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_ARENA_NOT_ENOUGH_PLAYERS), NULL);
             SendPacket(&data);
             }
             return;
@@ -790,7 +792,7 @@ void WorldSession::HandleBattleGroundArenaJoin( WorldPacket & recv_data )
         case BG_JOIN_ERR_MIXED_ARENATEAM:
             {
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetMangosString(LANG_ARENA_YOUR_TEAM_ONLY), NULL);
+            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_ARENA_YOUR_TEAM_ONLY), NULL);
             SendPacket(&data);
             }
             return;
@@ -798,7 +800,7 @@ void WorldSession::HandleBattleGroundArenaJoin( WorldPacket & recv_data )
         case BG_JOIN_ERR_OFFLINE_MEMBER:
             {
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetMangosString(LANG_BG_GROUP_OFFLINE_MEMBER), NULL);
+            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_OFFLINE_MEMBER), NULL);
             SendPacket(&data);
             }
             return;
@@ -806,7 +808,7 @@ void WorldSession::HandleBattleGroundArenaJoin( WorldPacket & recv_data )
         case BG_JOIN_ERR_MIXED_FACTION:
             {
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetMangosString(LANG_BG_GROUP_MIXED_FACTION), NULL);
+            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_MIXED_FACTION), NULL);
             SendPacket(&data);
             }
             return;
@@ -814,7 +816,7 @@ void WorldSession::HandleBattleGroundArenaJoin( WorldPacket & recv_data )
         case BG_JOIN_ERR_MIXED_LEVELS:
             {
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetMangosString(LANG_BG_GROUP_MIXED_LEVELS), NULL);
+            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_MIXED_LEVELS), NULL);
             SendPacket(&data);
             }
             return;
@@ -822,7 +824,7 @@ void WorldSession::HandleBattleGroundArenaJoin( WorldPacket & recv_data )
         case BG_JOIN_ERR_GROUP_MEMBER_ALREADY_IN_QUEUE:
             {
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetMangosString(LANG_BG_GROUP_MEMBER_ALREADY_IN_QUEUE), NULL);
+            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_MEMBER_ALREADY_IN_QUEUE), NULL);
             SendPacket(&data);
             }
             return;
@@ -830,7 +832,7 @@ void WorldSession::HandleBattleGroundArenaJoin( WorldPacket & recv_data )
         case BG_JOIN_ERR_GROUP_DESERTER:
             {
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetMangosString(LANG_BG_GROUP_MEMBER_DESERTER), NULL);
+            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_MEMBER_DESERTER), NULL);
             SendPacket(&data);
             }
             return;
@@ -838,7 +840,7 @@ void WorldSession::HandleBattleGroundArenaJoin( WorldPacket & recv_data )
         case BG_JOIN_ERR_ALL_QUEUES_USED:
             {
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetMangosString(LANG_BG_GROUP_MEMBER_NO_FREE_QUEUE_SLOTS), NULL);
+            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_MEMBER_NO_FREE_QUEUE_SLOTS), NULL);
             SendPacket(&data);
             }
             return;

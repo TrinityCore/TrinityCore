@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "Database/DatabaseEnv.h"
@@ -86,14 +88,14 @@ void WaypointManager::Load()
             node.delay          = fields[6].GetUInt16();
 
             // prevent using invalid coordinates
-            if(!MaNGOS::IsValidMapCoord(node.x, node.y, node.z, node.orientation))
+            if(!Trinity::IsValidMapCoord(node.x, node.y, node.z, node.orientation))
             {
                 QueryResult *result1 = WorldDatabase.PQuery("SELECT id, map FROM creature WHERE guid = '%u'", id);
                 if(result1) sLog.outErrorDb("ERROR: Creature (guidlow %d, entry %d) have invalid coordinates in his waypoint %d (X: %d, Y: %d).", id, result1->Fetch()[0].GetUInt32(), point, node.x, node.y);
                 else sLog.outErrorDb("ERROR: Waypoint path %d, have invalid coordinates in his waypoint %d (X: %d, Y: %d).", id, point, node.x, node.y);
 
-                MaNGOS::NormalizeMapCoord(node.x);
-                MaNGOS::NormalizeMapCoord(node.y);
+                Trinity::NormalizeMapCoord(node.x);
+                Trinity::NormalizeMapCoord(node.y);
                 if(result1)
                 {
                     node.z = MapManager::Instance ().GetBaseMap(result1->Fetch()[1].GetUInt32())->GetHeight(node.x, node.y, node.z);

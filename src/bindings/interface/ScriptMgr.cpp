@@ -1,5 +1,7 @@
 /* 
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "config.h"
@@ -34,7 +36,7 @@ int num_inst_scripts;
 extern void AddSC_default();
 // -------------------
 
-MANGOS_DLL_EXPORT
+TRINITY_DLL_EXPORT
 void ScriptsFree()
 {                                                           // Free resources before library unload
     for(int i=0;i<nrscripts;i++)
@@ -47,7 +49,7 @@ void ScriptsFree()
     num_inst_scripts = 0;
 }
 
-MANGOS_DLL_EXPORT
+TRINITY_DLL_EXPORT
 void ScriptsInit()
 {
     nrscripts = 0;
@@ -76,7 +78,7 @@ Script* GetScriptByName(std::string Name)
     return NULL;
 }
 
-MANGOS_DLL_EXPORT
+TRINITY_DLL_EXPORT
 bool GossipHello ( Player * player, Creature *_Creature )
 {
     Script *tmpscript = GetScriptByName(_Creature->GetScriptName());
@@ -86,7 +88,7 @@ bool GossipHello ( Player * player, Creature *_Creature )
     return tmpscript->pGossipHello(player,_Creature);
 }
 
-MANGOS_DLL_EXPORT
+TRINITY_DLL_EXPORT
 bool GossipSelect( Player *player, Creature *_Creature,uint32 sender, uint32 action )
 {
     debug_log("DEBUG: Gossip selection, sender: %d, action: %d",sender, action);
@@ -98,7 +100,7 @@ bool GossipSelect( Player *player, Creature *_Creature,uint32 sender, uint32 act
     return tmpscript->pGossipSelect(player,_Creature,sender,action);
 }
 
-MANGOS_DLL_EXPORT
+TRINITY_DLL_EXPORT
 bool GossipSelectWithCode( Player *player, Creature *_Creature, uint32 sender, uint32 action, const char* sCode )
 {
     debug_log("DEBUG: Gossip selection, sender: %d, action: %d",sender, action);
@@ -110,7 +112,7 @@ bool GossipSelectWithCode( Player *player, Creature *_Creature, uint32 sender, u
     return tmpscript->pGossipSelectWithCode(player,_Creature,sender,action,sCode);
 }
 
-MANGOS_DLL_EXPORT
+TRINITY_DLL_EXPORT
 bool QuestAccept( Player *player, Creature *_Creature, Quest *_Quest )
 {
     Script *tmpscript = GetScriptByName(_Creature->GetScriptName());
@@ -120,7 +122,7 @@ bool QuestAccept( Player *player, Creature *_Creature, Quest *_Quest )
     return tmpscript->pQuestAccept(player,_Creature,_Quest);
 }
 
-MANGOS_DLL_EXPORT
+TRINITY_DLL_EXPORT
 bool QuestSelect( Player *player, Creature *_Creature, Quest *_Quest )
 {
     Script *tmpscript = GetScriptByName(_Creature->GetScriptName());
@@ -130,7 +132,7 @@ bool QuestSelect( Player *player, Creature *_Creature, Quest *_Quest )
     return tmpscript->pQuestSelect(player,_Creature,_Quest);
 }
 
-MANGOS_DLL_EXPORT
+TRINITY_DLL_EXPORT
 bool QuestComplete( Player *player, Creature *_Creature, Quest *_Quest )
 {
     Script *tmpscript = GetScriptByName(_Creature->GetScriptName());
@@ -140,7 +142,7 @@ bool QuestComplete( Player *player, Creature *_Creature, Quest *_Quest )
     return tmpscript->pQuestComplete(player,_Creature,_Quest);
 }
 
-MANGOS_DLL_EXPORT
+TRINITY_DLL_EXPORT
 bool ChooseReward( Player *player, Creature *_Creature, Quest *_Quest, uint32 opt )
 {
     Script *tmpscript = GetScriptByName(_Creature->GetScriptName());
@@ -150,7 +152,7 @@ bool ChooseReward( Player *player, Creature *_Creature, Quest *_Quest, uint32 op
     return tmpscript->pChooseReward(player,_Creature,_Quest,opt);
 }
 
-MANGOS_DLL_EXPORT
+TRINITY_DLL_EXPORT
 uint32 NPCDialogStatus( Player *player, Creature *_Creature )
 {
     Script *tmpscript = GetScriptByName(_Creature->GetScriptName());
@@ -160,7 +162,7 @@ uint32 NPCDialogStatus( Player *player, Creature *_Creature )
     return tmpscript->pNPCDialogStatus(player,_Creature);
 }
 
-MANGOS_DLL_EXPORT
+TRINITY_DLL_EXPORT
 uint32 GODialogStatus( Player *player, GameObject *_GO )
 {
     Script *tmpscript = NULL;
@@ -172,7 +174,7 @@ uint32 GODialogStatus( Player *player, GameObject *_GO )
     return tmpscript->pGODialogStatus(player,_GO);
 }
 
-MANGOS_DLL_EXPORT
+TRINITY_DLL_EXPORT
 bool ItemHello( Player *player, Item *_Item, Quest *_Quest )
 {
     Script *tmpscript = NULL;
@@ -184,7 +186,7 @@ bool ItemHello( Player *player, Item *_Item, Quest *_Quest )
     return tmpscript->pItemHello(player,_Item,_Quest);
 }
 
-MANGOS_DLL_EXPORT
+TRINITY_DLL_EXPORT
 bool ItemQuestAccept( Player *player, Item *_Item, Quest *_Quest )
 {
     Script *tmpscript = NULL;
@@ -196,7 +198,7 @@ bool ItemQuestAccept( Player *player, Item *_Item, Quest *_Quest )
     return tmpscript->pItemQuestAccept(player,_Item,_Quest);
 }
 
-MANGOS_DLL_EXPORT
+TRINITY_DLL_EXPORT
 bool GOHello( Player *player, GameObject *_GO )
 {
     Script *tmpscript = NULL;
@@ -208,7 +210,7 @@ bool GOHello( Player *player, GameObject *_GO )
     return tmpscript->pGOHello(player,_GO);
 }
 
-MANGOS_DLL_EXPORT
+TRINITY_DLL_EXPORT
 bool GOQuestAccept( Player *player, GameObject *_GO, Quest *_Quest )
 {
     Script *tmpscript = NULL;
@@ -220,7 +222,7 @@ bool GOQuestAccept( Player *player, GameObject *_GO, Quest *_Quest )
     return tmpscript->pGOQuestAccept(player,_GO,_Quest);
 }
 
-MANGOS_DLL_EXPORT
+TRINITY_DLL_EXPORT
 bool GOChooseReward( Player *player, GameObject *_GO, Quest *_Quest, uint32 opt )
 {
     Script *tmpscript = NULL;
@@ -232,7 +234,7 @@ bool GOChooseReward( Player *player, GameObject *_GO, Quest *_Quest, uint32 opt 
     return tmpscript->pGOChooseReward(player,_GO,_Quest,opt);
 }
 
-MANGOS_DLL_EXPORT
+TRINITY_DLL_EXPORT
 bool AreaTrigger      ( Player *player, AreaTriggerEntry* atEntry )
 {
     Script *tmpscript = NULL;
@@ -243,7 +245,7 @@ bool AreaTrigger      ( Player *player, AreaTriggerEntry* atEntry )
     return tmpscript->pAreaTrigger(player, atEntry);
 }
 
-MANGOS_DLL_EXPORT
+TRINITY_DLL_EXPORT
 bool ReceiveEmote ( Player *player, Creature *_Creature, uint32 emote )
 {
     Script *tmpscript = GetScriptByName(_Creature->GetScriptName());
@@ -252,7 +254,7 @@ bool ReceiveEmote ( Player *player, Creature *_Creature, uint32 emote )
     return tmpscript->pReceiveEmote(player,_Creature, emote);
 }
 
-MANGOS_DLL_EXPORT
+TRINITY_DLL_EXPORT
 bool ItemUse( Player *player, Item* _Item, SpellCastTargets const& targets)
 {
     Script *tmpscript = NULL;
@@ -263,7 +265,7 @@ bool ItemUse( Player *player, Item* _Item, SpellCastTargets const& targets)
     return tmpscript->pItemUse(player,_Item,targets);
 }
 
-MANGOS_DLL_EXPORT
+TRINITY_DLL_EXPORT
 CreatureAI* GetAI(Creature *_Creature )
 {
     Script *tmpscript = GetScriptByName(_Creature->GetScriptName());
@@ -272,7 +274,7 @@ CreatureAI* GetAI(Creature *_Creature )
     return tmpscript->GetAI(_Creature);
 }
 
-MANGOS_DLL_EXPORT
+TRINITY_DLL_EXPORT
 InstanceData* CreateInstanceData(Map *map)
 {
     if(!map->IsDungeon()) return NULL;

@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "Object.h"
@@ -432,9 +434,9 @@ void BattleGround::EndBattleGround(uint32 winner)
     if(winner == ALLIANCE)
     {
         if(isBattleGround())
-            winmsg = GetMangosString(LANG_BG_A_WINS);
+            winmsg = GetTrinityString(LANG_BG_A_WINS);
         else
-            winmsg = GetMangosString(LANG_ARENA_GOLD_WINS);
+            winmsg = GetTrinityString(LANG_ARENA_GOLD_WINS);
 
         PlaySoundToAll(SOUND_ALLIANCE_WINS);                // alliance wins sound
 
@@ -443,9 +445,9 @@ void BattleGround::EndBattleGround(uint32 winner)
     else if(winner == HORDE)
     {
         if(isBattleGround())
-            winmsg = GetMangosString(LANG_BG_H_WINS);
+            winmsg = GetTrinityString(LANG_BG_H_WINS);
         else
-            winmsg = GetMangosString(LANG_ARENA_GREEN_WINS);
+            winmsg = GetTrinityString(LANG_ARENA_GREEN_WINS);
 
         PlaySoundToAll(SOUND_HORDE_WINS);                   // horde wins sound
 
@@ -678,7 +680,7 @@ void BattleGround::SendRewardMarkByMail(Player *plr,uint32 mark, uint32 count)
                     subject = il->Name[loc_idx];
 
         // text
-        std::string textFormat = plr->GetSession()->GetMangosString(LANG_BG_MARK_BY_MAIL);
+        std::string textFormat = plr->GetSession()->GetTrinityString(LANG_BG_MARK_BY_MAIL);
         char textBuf[300];
         snprintf(textBuf,300,textFormat.c_str(),GetName(),GetName());
         uint32 itemTextId = objmgr.CreateItemText( textBuf );
@@ -1349,7 +1351,7 @@ void BattleGround::SendMessageToAll(char const* text)
 
 void BattleGround::SendMessageToAll(int32 entry)
 {
-    char const* text = GetMangosString(entry);
+    char const* text = GetTrinityString(entry);
     WorldPacket data;
     ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, text, NULL);
     SendPacketToAll(&data);
@@ -1365,10 +1367,10 @@ void BattleGround::EndNow()
 }
 
 // Battleground messages are localized using the dbc lang, they are not client language dependent
-const char *BattleGround::GetMangosString(int32 entry)
+const char *BattleGround::GetTrinityString(int32 entry)
 {
     // FIXME: now we have different DBC locales and need localized message for each target client
-    return objmgr.GetMangosStringForDBCLocale(entry);
+    return objmgr.GetTrinityStringForDBCLocale(entry);
 }
 
 /*

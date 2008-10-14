@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "ObjectAccessor.h"
@@ -39,14 +41,14 @@
 
 #include <cmath>
 
-#define CLASS_LOCK MaNGOS::ClassLevelLockable<ObjectAccessor, ZThread::FastMutex>
+#define CLASS_LOCK Trinity::ClassLevelLockable<ObjectAccessor, ZThread::FastMutex>
 INSTANTIATE_SINGLETON_2(ObjectAccessor, CLASS_LOCK);
 INSTANTIATE_CLASS_MUTEX(ObjectAccessor, ZThread::FastMutex);
 
-namespace MaNGOS
+namespace Trinity
 {
 
-    struct MANGOS_DLL_DECL BuildUpdateForPlayer
+    struct TRINITY_DLL_DECL BuildUpdateForPlayer
     {
         Player &i_player;
         UpdateDataMapType &i_updatePlayers;
@@ -352,7 +354,7 @@ ObjectAccessor::_buildPacket(Player *pl, Object *obj, UpdateDataMapType &update_
 void
 ObjectAccessor::_buildChangeObjectForPlayer(WorldObject *obj, UpdateDataMapType &update_players)
 {
-    CellPair p = MaNGOS::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
+    CellPair p = Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
@@ -392,7 +394,7 @@ ObjectAccessor::RemoveCorpse(Corpse *corpse)
         return;
 
     // build mapid*cellid -> guid_set map
-    CellPair cell_pair = MaNGOS::ComputeCellPair(corpse->GetPositionX(), corpse->GetPositionY());
+    CellPair cell_pair = Trinity::ComputeCellPair(corpse->GetPositionX(), corpse->GetPositionY());
     uint32 cell_id = (cell_pair.y_coord*TOTAL_NUMBER_OF_CELLS_PER_MAP) + cell_pair.x_coord;
 
     objmgr.DeleteCorpseCellData(corpse->GetMapId(),cell_id,corpse->GetOwnerGUID());
@@ -411,7 +413,7 @@ ObjectAccessor::AddCorpse(Corpse *corpse)
     i_player2corpse[corpse->GetOwnerGUID()] = corpse;
 
     // build mapid*cellid -> guid_set map
-    CellPair cell_pair = MaNGOS::ComputeCellPair(corpse->GetPositionX(), corpse->GetPositionY());
+    CellPair cell_pair = Trinity::ComputeCellPair(corpse->GetPositionX(), corpse->GetPositionY());
     uint32 cell_id = (cell_pair.y_coord*TOTAL_NUMBER_OF_CELLS_PER_MAP) + cell_pair.x_coord;
 
     objmgr.AddCorpseCellData(corpse->GetMapId(),cell_id,corpse->GetOwnerGUID(),corpse->GetInstanceId());
@@ -521,11 +523,11 @@ ObjectAccessor::Update(uint32 diff)
 
         Map *map;
 
-        MaNGOS::ObjectUpdater updater(diff);
+        Trinity::ObjectUpdater updater(diff);
         // for creature
-        TypeContainerVisitor<MaNGOS::ObjectUpdater, GridTypeMapContainer  > grid_object_update(updater);
+        TypeContainerVisitor<Trinity::ObjectUpdater, GridTypeMapContainer  > grid_object_update(updater);
         // for pets
-        TypeContainerVisitor<MaNGOS::ObjectUpdater, WorldTypeMapContainer > world_object_update(updater);
+        TypeContainerVisitor<Trinity::ObjectUpdater, WorldTypeMapContainer > world_object_update(updater);
 
         for(CreatureLocationHolderType::iterator iter=creature_locations.begin(); iter != creature_locations.end(); ++iter)
         {
@@ -537,7 +539,7 @@ ObjectAccessor::Update(uint32 diff)
             Player *player = (*iter).second;
             map = MapManager::Instance().GetMap((*iter).first, player);
 
-            CellPair standing_cell(MaNGOS::ComputeCellPair(player->GetPositionX(), player->GetPositionY()));
+            CellPair standing_cell(Trinity::ComputeCellPair(player->GetPositionX(), player->GetPositionY()));
 
             // Check for correctness of standing_cell, it also avoids problems with update_cell
             if (standing_cell.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || standing_cell.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
@@ -590,7 +592,7 @@ ObjectAccessor::PlayersNearGrid(uint32 x, uint32 y, uint32 m_id, uint32 i_id) co
         if( m_id != iter->second->GetMapId() || i_id != iter->second->GetInstanceId() )
             continue;
 
-        CellPair p = MaNGOS::ComputeCellPair(iter->second->GetPositionX(), iter->second->GetPositionY());
+        CellPair p = Trinity::ComputeCellPair(iter->second->GetPositionX(), iter->second->GetPositionY());
         if( (cell_min.x_coord <= p.x_coord && p.x_coord <= cell_max.x_coord) &&
             (cell_min.y_coord <= p.y_coord && p.y_coord <= cell_max.y_coord) )
             return true;
@@ -610,7 +612,7 @@ ObjectAccessor::WorldObjectChangeAccumulator::Visit(PlayerMapType &m)
 void
 ObjectAccessor::UpdateObjectVisibility(WorldObject *obj)
 {
-    CellPair p = MaNGOS::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
+    CellPair p = Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
     Cell cell(p);
 
     MapManager::Instance().GetMap(obj->GetMapId(), obj)->UpdateObjectVisibility(obj,cell,p);
@@ -618,7 +620,7 @@ ObjectAccessor::UpdateObjectVisibility(WorldObject *obj)
 
 void ObjectAccessor::UpdateVisibilityForPlayer( Player* player )
 {
-    CellPair p = MaNGOS::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
+    CellPair p = Trinity::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
     Cell cell(p);
     Map* m = MapManager::Instance().GetMap(player->GetMapId(),player);
 

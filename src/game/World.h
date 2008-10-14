@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /// \addtogroup world The World
@@ -60,8 +62,6 @@ enum WorldTimers
     WUPDATE_CORPSES     = 5,
     WUPDATE_EVENTS      = 6,
     WUPDATE_COUNT       = 7,
-
-    WUPDATE_AUTOANC = 7
 
 };
 
@@ -158,26 +158,24 @@ enum WorldConfigs
     CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVP,
     CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVE,
 
-	CONFIG_PLAYER_START_HONOR,
-	CONFIG_PLAYER_START_ARENAPTS,
-	CONFIG_GM_START_LEVEL,
-	CONFIG_INSTANT_LOGOUT,
-	CONFIG_BG_START_MUSIC,
-	CONFIG_START_ALL_SPELLS,
-	CONFIG_QUEUE_FOR_GM,
-	CONFIG_HONOR_AFTER_DUEL,
-	CONFIG_KICK_FROM_GMISLAND,
-	CONFIG_START_ALL_EXPLORED,
-	CONFIG_DISABLE_BREATHING,
-	CONFIG_DISABLE_RES_SICKNESS,
-	CONFIG_START_ALL_REP,
-	CONFIG_ALWAYS_MAXSKILL,
-	CONFIG_START_ALL_TAXI,
-	CONFIG_PVP_TOKEN_ENABLE,
-	CONFIG_PVP_TOKEN_MAP_TYPE,
-	CONFIG_PVP_TOKEN_ID,
-	CONFIG_PVP_TOKEN_COUNT,
-	CONFIG_NO_RESET_TALENT_COST,
+    CONFIG_PLAYER_START_GOLD,
+    CONFIG_PLAYER_START_HONOR,
+    CONFIG_PLAYER_START_ARENAPTS,
+    CONFIG_GM_START_LEVEL,
+    CONFIG_INSTANT_LOGOUT,
+    CONFIG_BG_START_MUSIC,
+    CONFIG_START_ALL_SPELLS,
+    CONFIG_HONOR_AFTER_DUEL,
+    CONFIG_START_ALL_EXPLORED,
+    CONFIG_DISABLE_BREATHING,
+    CONFIG_START_ALL_REP,
+    CONFIG_ALWAYS_MAXSKILL,
+    CONFIG_START_ALL_TAXI,
+    CONFIG_PVP_TOKEN_ENABLE,
+    CONFIG_PVP_TOKEN_MAP_TYPE,
+    CONFIG_PVP_TOKEN_ID,
+    CONFIG_PVP_TOKEN_COUNT,
+    CONFIG_NO_RESET_TALENT_COST,
 
     CONFIG_THREAT_RADIUS,
     CONFIG_DECLINED_NAMES_USED,
@@ -370,8 +368,6 @@ class World
         WorldSession* FindSession(uint32 id) const;
         void AddSession(WorldSession *s);
 
-        void SendRNDBroadcast();
-
         bool RemoveSession(uint32 id);
         /// Get the number of current active sessions
         void UpdateMaxSessionCounters();
@@ -486,7 +482,7 @@ class World
         void ScriptCommandStart(ScriptInfo const& script, uint32 delay, Object* source, Object* target);
         bool IsScriptScheduled() const { return !m_scriptSchedule.empty(); }
 
-	static float PlayerStartGold() { return m_PlayerStartGold; }
+        bool IsAllowedMap(uint32 mapid) { return m_forbiddenMapIds.count(mapid) == 0 ;}
 
         // for max speed access
         static float GetMaxVisibleDistanceForCreature() { return m_MaxVisibleDistanceForCreature; }
@@ -501,6 +497,8 @@ class World
 
         void UpdateResultQueue();
         void InitResultQueue();
+
+        void ForceGameEventUpdate();
 
         void UpdateRealmCharCount(uint32 accid);
 
@@ -539,11 +537,10 @@ class World
         bool m_allowMovement;
         std::string m_motd;
         std::string m_dataPath;
+        std::set<uint32> m_forbiddenMapIds;
 
         uint32 m_ShutdownTimer;
         uint32 m_ShutdownMask;
-
-	static float m_PlayerStartGold;
 
         // for max speed access
         static float m_MaxVisibleDistanceForCreature;
@@ -570,6 +567,6 @@ class World
 
 extern uint32 realmID;
 
-#define sWorld MaNGOS::Singleton<World>::Instance()
+#define sWorld Trinity::Singleton<World>::Instance()
 #endif
 /// @}

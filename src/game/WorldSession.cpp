@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /** \file
@@ -36,6 +38,7 @@
 #include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "BattleGroundMgr.h"
+#include "OutdoorPvPMgr.h"
 #include "Language.h"                                       // for CMSG_CANCEL_MOUNT_AURA handler
 #include "Chat.h"
 #include "SocialMgr.h"
@@ -96,7 +99,7 @@ void WorldSession::SendPacket(WorldPacket const* packet)
 {
     if (!m_Socket)
         return;
-    #ifdef MANGOS_DEBUG
+    #ifdef TRINITY_DEBUG
     // Code for network use statistic
     static uint64 sendPacketCount = 0;
     static uint64 sendPacketBytes = 0;
@@ -128,7 +131,7 @@ void WorldSession::SendPacket(WorldPacket const* packet)
         sendLastPacketCount = 1;
         sendLastPacketBytes = packet->wpos();               // wpos is real written size
     }
-#endif                                                  // !MANGOS_DEBUG
+#endif                                                  // !TRINITY_DEBUG
 
   if (m_Socket->SendPacket (*packet) == -1)
     {
@@ -301,6 +304,8 @@ void WorldSession::LogoutPlayer(bool Save)
         if(_player->InBattleGround())
             _player->LeaveBattleground();
 
+        sOutdoorPvPMgr.HandlePlayerLeaveZone(_player,_player->GetZoneId());
+
         for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
         {
             if(int32 bgTypeId = _player->GetBattleGroundQueueId(i))
@@ -442,7 +447,7 @@ void WorldSession::SendNotification(const char *format,...)
 
 void WorldSession::SendNotification(int32 string_id,...)
 {
-    char const* format = GetMangosString(string_id);
+    char const* format = GetTrinityString(string_id);
     if(format)
     {
         va_list ap;
@@ -458,9 +463,9 @@ void WorldSession::SendNotification(int32 string_id,...)
     }
 }
 
-const char * WorldSession::GetMangosString( int32 entry )
+const char * WorldSession::GetTrinityString( int32 entry )
 {
-    return objmgr.GetMangosString(entry,GetSessionDbLocaleIndex());
+    return objmgr.GetTrinityString(entry,GetSessionDbLocaleIndex());
 }
 
 void WorldSession::Handle_NULL( WorldPacket& recvPacket )
@@ -508,4 +513,6 @@ void WorldSession::SendAuthWaitQue(uint32 position)
      }
  }
  
+
+
 

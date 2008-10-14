@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,16 +10,16 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef MANGOS_OBJECTACCESSOR_H
-#define MANGOS_OBJECTACCESSOR_H
+#ifndef TRINITY_OBJECTACCESSOR_H
+#define TRINITY_OBJECTACCESSOR_H
 
 #include "Platform/Define.h"
 #include "Policies/Singleton.h"
@@ -49,7 +51,7 @@ class HashMapHolder
 
         typedef HM_NAMESPACE::hash_map< uint64, T* >   MapType;
         typedef ZThread::FastMutex LockType;
-        typedef MaNGOS::GeneralLock<LockType > Guard;
+        typedef Trinity::GeneralLock<LockType > Guard;
 
         static void Insert(T* o) { m_objectMap[o->GetGUID()] = o; }
 
@@ -79,10 +81,10 @@ class HashMapHolder
         static MapType  m_objectMap;
 };
 
-class MANGOS_DLL_DECL ObjectAccessor : public MaNGOS::Singleton<ObjectAccessor, MaNGOS::ClassLevelLockable<ObjectAccessor, ZThread::FastMutex> >
+class TRINITY_DLL_DECL ObjectAccessor : public Trinity::Singleton<ObjectAccessor, Trinity::ClassLevelLockable<ObjectAccessor, ZThread::FastMutex> >
 {
 
-    friend class MaNGOS::OperatorNew<ObjectAccessor>;
+    friend class Trinity::OperatorNew<ObjectAccessor>;
     ObjectAccessor();
     ~ObjectAccessor();
     ObjectAccessor(const ObjectAccessor &);
@@ -116,14 +118,14 @@ class MANGOS_DLL_DECL ObjectAccessor : public MaNGOS::Singleton<ObjectAccessor, 
             T* obj = HashMapHolder<T>::Find(guid);
             if(!obj || obj->GetMapId() != mapid) return NULL;
 
-            CellPair p = MaNGOS::ComputeCellPair(x,y);
+            CellPair p = Trinity::ComputeCellPair(x,y);
             if(p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP )
             {
                 sLog.outError("ObjectAccessor::GetObjectInWorld: invalid coordinates supplied X:%f Y:%f grid cell [%u:%u]", x, y, p.x_coord, p.y_coord);
                 return NULL;
             }
 
-            CellPair q = MaNGOS::ComputeCellPair(obj->GetPositionX(),obj->GetPositionY());
+            CellPair q = Trinity::ComputeCellPair(obj->GetPositionX(),obj->GetPositionY());
             if(q.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || q.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP )
             {
                 sLog.outError("ObjectAccessor::GetObjecInWorld: object "I64FMTD" has invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUID(), obj->GetPositionX(), obj->GetPositionY(), q.x_coord, q.y_coord);
@@ -212,7 +214,7 @@ class MANGOS_DLL_DECL ObjectAccessor : public MaNGOS::Singleton<ObjectAccessor, 
         Player2CorpsesMapType   i_player2corpse;
 
         typedef ZThread::FastMutex LockType;
-        typedef MaNGOS::GeneralLock<LockType > Guard;
+        typedef Trinity::GeneralLock<LockType > Guard;
 
         static void _buildChangeObjectForPlayer(WorldObject *, UpdateDataMapType &);
         static void _buildPacket(Player *, Object *, UpdateDataMapType &);

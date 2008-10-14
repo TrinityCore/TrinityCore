@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "Common.h"
@@ -37,6 +39,7 @@
 #include "ObjectAccessor.h"
 #include "Object.h"
 #include "BattleGround.h"
+#include "OutdoorPvP.h"
 #include "SpellAuras.h"
 #include "Pet.h"
 #include "SocialMgr.h"
@@ -142,7 +145,7 @@ void WorldSession::HandleWhoOpcode( WorldPacket & recv_data )
     wstrToLower(wplayer_name);
     wstrToLower(wguild_name);
 
-    // client send in case not set max level value 100 but mangos support 255 max level,
+    // client send in case not set max level value 100 but Trinity support 255 max level,
     // update it to show GMs with characters after 100 level
     if(level_max >= 100)
         level_max = 255;
@@ -296,7 +299,7 @@ void WorldSession::HandleLogoutRequestOpcode( WorldPacket & /*recv_data*/ )
         return;
     }
 
-    //instant logout in taverns/cities or on taxi or if its enabled in mangosd.conf
+    //instant logout in taverns/cities or on taxi or if its enabled in Trinityd.conf
     if(GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) || GetPlayer()->isInFlight() || sWorld.getConfig(CONFIG_INSTANT_LOGOUT))
     {
         LogoutPlayer(true);
@@ -562,6 +565,11 @@ void WorldSession::HandleTogglePvP( WorldPacket & recv_data )
         if(!GetPlayer()->pvpInfo.inHostileArea && GetPlayer()->IsPvP())
             GetPlayer()->pvpInfo.endTimer = time(NULL);     // start toggle-off
     }
+
+    if(OutdoorPvP * pvp = _player->GetOutdoorPvP())
+    {
+        pvp->HandlePlayerActivityChanged(_player);
+    }
 }
 
 void WorldSession::HandleZoneUpdateOpcode( WorldPacket & recv_data )
@@ -573,17 +581,9 @@ void WorldSession::HandleZoneUpdateOpcode( WorldPacket & recv_data )
 
     sLog.outDetail("WORLD: Recvd ZONE_UPDATE: %u", newZone);
 
-    if(newZone != _player->GetZoneId())
-        GetPlayer()->SendInitWorldStates();                 // only if really enters to new zone, not just area change, works strange...
-
-	// AntiCheat.GMIsland
-	if(sWorld.getConfig(CONFIG_KICK_FROM_GMISLAND))
-	{
-		if(newZone == 876 && GetPlayer()->GetSession()->GetSecurity() == SEC_PLAYER)
-			_player->TeleportTo(13,0,0,0,0);
-	}
-
     GetPlayer()->UpdateZone(newZone);
+
+    GetPlayer()->SendInitWorldStates(true,newZone);
 }
 
 void WorldSession::HandleSetTargetOpcode( WorldPacket & recv_data )
@@ -648,7 +648,7 @@ void WorldSession::HandleAddFriendOpcode( WorldPacket & recv_data )
 
     sLog.outDebug( "WORLD: Received CMSG_ADD_FRIEND" );
 
-    std::string friendName  = GetMangosString(LANG_FRIEND_IGNORE_UNKNOWN);
+    std::string friendName  = GetTrinityString(LANG_FRIEND_IGNORE_UNKNOWN);
     std::string friendNote;
     FriendsResult friendResult = FRIEND_NOT_FOUND;
     Player *pFriend     = NULL;
@@ -740,7 +740,7 @@ void WorldSession::HandleAddIgnoreOpcode( WorldPacket & recv_data )
 
     sLog.outDebug( "WORLD: Received CMSG_ADD_IGNORE" );
 
-    std::string IgnoreName = GetMangosString(LANG_FRIEND_IGNORE_UNKNOWN);
+    std::string IgnoreName = GetTrinityString(LANG_FRIEND_IGNORE_UNKNOWN);
     FriendsResult ignoreResult = FRIEND_IGNORE_NOT_FOUND;
     uint64 IgnoreGuid = 0;
 
@@ -1020,6 +1020,12 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
         return;
     }
 
+    if(OutdoorPvP * pvp = GetPlayer()->GetOutdoorPvP())
+    {
+        if(pvp->HandleAreaTrigger(_player, Trigger_ID))
+            return;
+    }
+
     // NULL if all values default (non teleport trigger)
     AreaTrigger const* at = objmgr.GetAreaTrigger(Trigger_ID);
     if(!at)
@@ -1063,13 +1069,13 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
         {
             // TODO: all this is probably wrong
             if(missingItem)
-                SendAreaTriggerMessage(GetMangosString(LANG_LEVEL_MINREQUIRED_AND_ITEM), at->requiredLevel, objmgr.GetItemPrototype(missingItem)->Name1);
+                SendAreaTriggerMessage(GetTrinityString(LANG_LEVEL_MINREQUIRED_AND_ITEM), at->requiredLevel, objmgr.GetItemPrototype(missingItem)->Name1);
             else if(missingKey)
                 GetPlayer()->SendTransferAborted(at->target_mapId, TRANSFER_ABORT_DIFFICULTY2);
             else if(missingQuest)
                 SendAreaTriggerMessage(at->requiredFailedText.c_str());
             else if(missingLevel)
-                SendAreaTriggerMessage(GetMangosString(LANG_LEVEL_MINREQUIRED), missingLevel);
+                SendAreaTriggerMessage(GetTrinityString(LANG_LEVEL_MINREQUIRED), missingLevel);
             return;
         }
     }
@@ -1150,7 +1156,7 @@ void WorldSession::HandleMoveTimeSkippedOpcode( WorldPacket & /*recv_data*/ )
         sLog.outDebug( "WORLD: CMSG_MOVE_TIME_SKIPPED" );
 
         /// TODO
-        must be need use in mangos
+        must be need use in Trinity
         We substract server Lags to move time ( AntiLags )
         for exmaple
         GetPlayer()->ModifyLastMoveTime( -int32(time_skipped) );

@@ -15,9 +15,9 @@ INSERT INTO `command` (`name`, `security`, `help`) VALUES
 ('debug arena',3,'Syntax: .debug arena\r\n\r\n Toggles arena 1v1 or normal mode.');
 
 
-DELETE FROM mangos_string WHERE entry IN (711,712);
-DELETE FROM mangos_string WHERE entry BETWEEN 730 AND 745;
-INSERT INTO mangos_string (entry, content_default) VALUES
+DELETE FROM trinity_string WHERE entry IN (711,712);
+DELETE FROM trinity_string WHERE entry BETWEEN 730 AND 745;
+INSERT INTO trinity_string (entry, content_default) VALUES
     (711,'Your group is too large for this battleground. Please regroup to join.'),
     (712,'Your group is too large for this arena. Please regroup to join.'),
     (730,'Your group has members not in your arena team. Please regroup to join.'),

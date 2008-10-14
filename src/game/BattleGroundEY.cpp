@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "Object.h"
@@ -74,13 +76,13 @@ void BattleGroundEY::Update(time_t diff)
         else if(GetStartDelayTime() <= START_DELAY1 && !(m_Events & 0x04))
         {
             m_Events |= 0x04;
-            SendMessageToAll(GetMangosString(LANG_BG_EY_ONE_MINUTE));
+            SendMessageToAll(GetTrinityString(LANG_BG_EY_ONE_MINUTE));
         }
         // After 1,5 minute, warning is signalled
         else if(GetStartDelayTime() <= START_DELAY2 && !(m_Events & 0x08))
         {
             m_Events |= 0x08;
-            SendMessageToAll(GetMangosString(LANG_BG_EY_HALF_MINUTE));
+            SendMessageToAll(GetTrinityString(LANG_BG_EY_HALF_MINUTE));
         }
         // After 2 minutes, gates OPEN ! x)
         else if(GetStartDelayTime() < 0 && !(m_Events & 0x10))
@@ -98,15 +100,11 @@ void BattleGroundEY::Update(time_t diff)
                 SpawnBGObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REALVER + buff + i * 3, RESPAWN_IMMEDIATELY);
             }
 
-            SendMessageToAll(GetMangosString(LANG_BG_EY_BEGIN));
+            SendMessageToAll(GetTrinityString(LANG_BG_EY_BEGIN));
 
+            PlaySoundToAll(SOUND_BG_START);
             if(sWorld.getConfig(CONFIG_BG_START_MUSIC))
-            {
-                PlaySoundToAll(SOUND_BG_START);
                 PlaySoundToAll(SOUND_BG_START_L70ETC); //MUSIC
-            }
-            else
-                PlaySoundToAll(SOUND_BG_START);
             SetStatus(STATUS_IN_PROGRESS);
 
             for(BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
@@ -555,7 +553,7 @@ void BattleGroundEY::RespawnFlag(bool send_message)
 
     if(send_message)
     {
-        SendMessageToAll(GetMangosString(LANG_BG_EY_RESETED_FLAG));
+        SendMessageToAll(GetTrinityString(LANG_BG_EY_RESETED_FLAG));
         PlaySoundToAll(BG_EY_SOUND_FLAG_RESET);             // flags respawned sound...
     }
 
@@ -615,12 +613,12 @@ void BattleGroundEY::EventPlayerDroppedFlag(Player *Source)
     Source->CastSpell(Source, BG_EY_PLAYER_DROPPED_FLAG_SPELL, true);
     if(Source->GetTeam() == ALLIANCE)
     {
-        message = GetMangosString(LANG_BG_EY_DROPPED_FLAG);
+        message = GetTrinityString(LANG_BG_EY_DROPPED_FLAG);
         type = CHAT_MSG_BG_SYSTEM_ALLIANCE;
     }
     else
     {
-        message = GetMangosString(LANG_BG_EY_DROPPED_FLAG);
+        message = GetTrinityString(LANG_BG_EY_DROPPED_FLAG);
         type = CHAT_MSG_BG_SYSTEM_HORDE;
     }
     //this does not work correctly :( (it should remove flag carrier name)
@@ -639,7 +637,7 @@ void BattleGroundEY::EventPlayerClickedOnFlag(Player *Source, GameObject* target
 
     const char *message;
     uint8 type = 0;
-    message = GetMangosString(LANG_BG_EY_HAS_TAKEN_FLAG);
+    message = GetTrinityString(LANG_BG_EY_HAS_TAKEN_FLAG);
 
     if(Source->GetTeam() == ALLIANCE)
     {
@@ -686,7 +684,7 @@ void BattleGroundEY::EventTeamLostPoint(Player *Source, uint32 Point)
     {
         m_TeamPointsCount[BG_TEAM_ALLIANCE]--;
         message_type = CHAT_MSG_BG_SYSTEM_ALLIANCE;
-        message = GetMangosString(m_LoosingPointTypes[Point].MessageIdAlliance);
+        message = GetTrinityString(m_LoosingPointTypes[Point].MessageIdAlliance);
         SpawnBGObject(m_LoosingPointTypes[Point].DespawnObjectTypeAlliance, RESPAWN_ONE_DAY);
         SpawnBGObject(m_LoosingPointTypes[Point].DespawnObjectTypeAlliance + 1, RESPAWN_ONE_DAY);
         SpawnBGObject(m_LoosingPointTypes[Point].DespawnObjectTypeAlliance + 2, RESPAWN_ONE_DAY);
@@ -695,7 +693,7 @@ void BattleGroundEY::EventTeamLostPoint(Player *Source, uint32 Point)
     {
         m_TeamPointsCount[BG_TEAM_HORDE]--;
         message_type = CHAT_MSG_BG_SYSTEM_HORDE;
-        message = GetMangosString(m_LoosingPointTypes[Point].MessageIdHorde);
+        message = GetTrinityString(m_LoosingPointTypes[Point].MessageIdHorde);
         SpawnBGObject(m_LoosingPointTypes[Point].DespawnObjectTypeHorde, RESPAWN_ONE_DAY);
         SpawnBGObject(m_LoosingPointTypes[Point].DespawnObjectTypeHorde + 1, RESPAWN_ONE_DAY);
         SpawnBGObject(m_LoosingPointTypes[Point].DespawnObjectTypeHorde + 2, RESPAWN_ONE_DAY);
@@ -735,7 +733,7 @@ void BattleGroundEY::EventTeamCapturedPoint(Player *Source, uint32 Point)
     {
         m_TeamPointsCount[BG_TEAM_ALLIANCE]++;
         type = CHAT_MSG_BG_SYSTEM_ALLIANCE;
-        message = GetMangosString(m_CapturingPointTypes[Point].MessageIdAlliance);
+        message = GetTrinityString(m_CapturingPointTypes[Point].MessageIdAlliance);
         SpawnBGObject(m_CapturingPointTypes[Point].SpawnObjectTypeAlliance, RESPAWN_IMMEDIATELY);
         SpawnBGObject(m_CapturingPointTypes[Point].SpawnObjectTypeAlliance + 1, RESPAWN_IMMEDIATELY);
         SpawnBGObject(m_CapturingPointTypes[Point].SpawnObjectTypeAlliance + 2, RESPAWN_IMMEDIATELY);
@@ -744,7 +742,7 @@ void BattleGroundEY::EventTeamCapturedPoint(Player *Source, uint32 Point)
     {
         m_TeamPointsCount[BG_TEAM_HORDE]++;
         type = CHAT_MSG_BG_SYSTEM_HORDE;
-        message = GetMangosString(m_CapturingPointTypes[Point].MessageIdHorde);
+        message = GetTrinityString(m_CapturingPointTypes[Point].MessageIdHorde);
         SpawnBGObject(m_CapturingPointTypes[Point].SpawnObjectTypeHorde, RESPAWN_IMMEDIATELY);
         SpawnBGObject(m_CapturingPointTypes[Point].SpawnObjectTypeHorde + 1, RESPAWN_IMMEDIATELY);
         SpawnBGObject(m_CapturingPointTypes[Point].SpawnObjectTypeHorde + 2, RESPAWN_IMMEDIATELY);
@@ -789,14 +787,14 @@ void BattleGroundEY::EventPlayerCapturedFlag(Player *Source, uint32 BgObjectType
     {
         PlaySoundToAll(BG_EY_SOUND_FLAG_CAPTURED_ALLIANCE);
         team_id = BG_TEAM_ALLIANCE;
-        message = GetMangosString(LANG_BG_EY_CAPTURED_FLAG_A);
+        message = GetTrinityString(LANG_BG_EY_CAPTURED_FLAG_A);
         type = CHAT_MSG_BG_SYSTEM_ALLIANCE;
     }
     else
     {
         PlaySoundToAll(BG_EY_SOUND_FLAG_CAPTURED_HORDE);
         team_id = BG_TEAM_HORDE;
-        message = GetMangosString(LANG_BG_EY_CAPTURED_FLAG_H);
+        message = GetTrinityString(LANG_BG_EY_CAPTURED_FLAG_H);
         type = CHAT_MSG_BG_SYSTEM_HORDE;
     }
 

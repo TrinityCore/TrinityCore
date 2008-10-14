@@ -20,9 +20,9 @@
 #include "Mthread.h"
 
 #if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__APPLE_CC__)
-#  define MANGOS_PTHREAD_MUTEX_RECURSIVE PTHREAD_MUTEX_RECURSIVE
+#  define TRINITY_PTHREAD_MUTEX_RECURSIVE PTHREAD_MUTEX_RECURSIVE
 #else
-#  define MANGOS_PTHREAD_MUTEX_RECURSIVE PTHREAD_MUTEX_RECURSIVE_NP
+#  define TRINITY_PTHREAD_MUTEX_RECURSIVE PTHREAD_MUTEX_RECURSIVE_NP
 #endif
 
 #if PLATFORM != PLATFORM_WINDOWS
@@ -73,7 +73,7 @@ MMutex::MMutex ()
     if (!attr_refcount++)
     {
         pthread_mutexattr_init (&attr);
-        pthread_mutexattr_settype (&attr, MANGOS_PTHREAD_MUTEX_RECURSIVE);
+        pthread_mutexattr_settype (&attr, TRINITY_PTHREAD_MUTEX_RECURSIVE);
     }
 
     pthread_mutex_init (&mutex, &attr);

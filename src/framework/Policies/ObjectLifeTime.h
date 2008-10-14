@@ -1,5 +1,7 @@
 /* 
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,28 +10,28 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef MANGOS_OBJECTLIFETIME_H
-#define MANGOS_OBJECTLIFETIME_H
+#ifndef TRINITY_OBJECTLIFETIME_H
+#define TRINITY_OBJECTLIFETIME_H
 
 #include <stdexcept>
 #include "Platform/Define.h"
 
 typedef void (* Destroyer)(void);
 
-namespace MaNGOS
+namespace Trinity
 {
-    void MANGOS_DLL_SPEC at_exit( void (*func)() );
+    void TRINITY_DLL_SPEC at_exit( void (*func)() );
 
     template <class T>
-        class MANGOS_DLL_DECL ObjectLifeTime
+        class TRINITY_DLL_DECL ObjectLifeTime
     {
         public:
             inline static void ScheduleCall(void (*destroyer)() )

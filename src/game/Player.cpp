@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "Common.h"
@@ -53,12 +55,14 @@
 #include "Weather.h"
 #include "BattleGround.h"
 #include "BattleGroundMgr.h"
+#include "OutdoorPvP.h"
+#include "OutdoorPvPMgr.h"
 #include "ArenaTeam.h"
 #include "Chat.h"
 #include "Database/DatabaseImpl.h"
 #include "Spell.h"
 #include "SocialMgr.h"
-#include "IRCClient.h"
+#include "GameEvent.h"
 
 #include <cmath>
 
@@ -579,25 +583,68 @@ bool Player::Create( uint32 guidlow, std::string name, uint8 race, uint8 class_,
     SetUInt32Value( PLAYER_FIELD_YESTERDAY_CONTRIBUTION, 0 );
 
     // set starting level
-	if(GetSession()->GetSecurity() >= SEC_MODERATOR)
-		SetUInt32Value( UNIT_FIELD_LEVEL, sWorld.getConfig(CONFIG_GM_START_LEVEL) ); //ImpConfig
-	else
-		SetUInt32Value( UNIT_FIELD_LEVEL, sWorld.getConfig(CONFIG_START_PLAYER_LEVEL) );
-	// set starting gold
-	SetUInt32Value( PLAYER_FIELD_COINAGE, sWorld.PlayerStartGold()*10000 );
+    if(GetSession()->GetSecurity() >= SEC_MODERATOR)
+        SetUInt32Value( UNIT_FIELD_LEVEL, sWorld.getConfig(CONFIG_GM_START_LEVEL) );
+    else
+        SetUInt32Value( UNIT_FIELD_LEVEL, sWorld.getConfig(CONFIG_START_PLAYER_LEVEL) );
+    // set starting gold
+    SetUInt32Value( PLAYER_FIELD_COINAGE, sWorld.getConfig(CONFIG_PLAYER_START_GOLD)*10000 );
 
-	// set starting honor
-	SetUInt32Value( PLAYER_FIELD_HONOR_CURRENCY, sWorld.getConfig(CONFIG_PLAYER_START_HONOR) );
+    // set starting honor
+    SetUInt32Value( PLAYER_FIELD_HONOR_CURRENCY, sWorld.getConfig(CONFIG_PLAYER_START_HONOR) );
 
-	// set starting arena pts
-	SetUInt32Value( PLAYER_FIELD_ARENA_CURRENCY, sWorld.getConfig(CONFIG_PLAYER_START_ARENAPTS) );
+    // set starting arena pts
+    SetUInt32Value( PLAYER_FIELD_ARENA_CURRENCY, sWorld.getConfig(CONFIG_PLAYER_START_ARENAPTS) );
 
-	// start with every map explored
-	if(sWorld.getConfig(CONFIG_START_ALL_EXPLORED))
-	{
-		for (uint8 i=0; i<64; i++)
-			SetFlag(PLAYER_EXPLORED_ZONES_1+i,0xFFFFFFFF);
-	}
+    // start with every map explored
+    if(sWorld.getConfig(CONFIG_START_ALL_EXPLORED))
+    {
+        for (uint8 i=0; i<64; i++)
+            SetFlag(PLAYER_EXPLORED_ZONES_1+i,0xFFFFFFFF);
+    }
+
+    //Reputations if "StartAllReputation" is enabled, -- TODO: Fix this in a better way
+    if(sWorld.getConfig(CONFIG_START_ALL_REP))
+    {
+        SetFactionReputation(sFactionStore.LookupEntry(942),42999);
+        SetFactionReputation(sFactionStore.LookupEntry(935),42999);
+        SetFactionReputation(sFactionStore.LookupEntry(936),42999);
+        SetFactionReputation(sFactionStore.LookupEntry(1011),42999);
+        SetFactionReputation(sFactionStore.LookupEntry(970),42999);
+        SetFactionReputation(sFactionStore.LookupEntry(967),42999);
+        SetFactionReputation(sFactionStore.LookupEntry(989),42999);
+        SetFactionReputation(sFactionStore.LookupEntry(932),42999);
+        SetFactionReputation(sFactionStore.LookupEntry(934),42999);
+        SetFactionReputation(sFactionStore.LookupEntry(1038),42999);
+        SetFactionReputation(sFactionStore.LookupEntry(1077),42999);
+
+        // Factions depending on team, like cities and some more stuff
+        switch(GetTeam())
+        {
+        case ALLIANCE:
+            SetFactionReputation(sFactionStore.LookupEntry(72),42999);
+            SetFactionReputation(sFactionStore.LookupEntry(47),42999);
+            SetFactionReputation(sFactionStore.LookupEntry(69),42999);
+            SetFactionReputation(sFactionStore.LookupEntry(930),42999);
+            SetFactionReputation(sFactionStore.LookupEntry(730),42999);
+            SetFactionReputation(sFactionStore.LookupEntry(978),42999);
+            SetFactionReputation(sFactionStore.LookupEntry(54),42999);
+            SetFactionReputation(sFactionStore.LookupEntry(946),42999);
+            break;
+        case HORDE:
+            SetFactionReputation(sFactionStore.LookupEntry(76),42999);
+            SetFactionReputation(sFactionStore.LookupEntry(68),42999);
+            SetFactionReputation(sFactionStore.LookupEntry(81),42999);
+            SetFactionReputation(sFactionStore.LookupEntry(911),42999);
+            SetFactionReputation(sFactionStore.LookupEntry(729),42999);
+            SetFactionReputation(sFactionStore.LookupEntry(941),42999);
+            SetFactionReputation(sFactionStore.LookupEntry(530),42999);
+            SetFactionReputation(sFactionStore.LookupEntry(947),42999);
+            break;
+        default:
+            break;
+        }
+    }
 
     // Played time
     m_Last_tick = time(NULL);
@@ -1452,6 +1499,12 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         return false;
     }
 
+    if((GetSession()->GetSecurity() < SEC_GAMEMASTER) && !sWorld.IsAllowedMap(mapid))
+    {
+        sLog.outError("Player %s tried to enter a forbidden map", GetName());
+        return false;
+    }
+
     // preparing unsummon pet if lost (we must get pet before teleportation or will not find it later)
     Pet* pet = GetPet();
 
@@ -1717,8 +1770,6 @@ void Player::AddToWorld()
         if(m_items[i])
             m_items[i]->AddToWorld();
     }
-    if(sIRC.ajoin == 1)
-        sIRC.AutoJoinChannel(this);
 }
 
 void Player::RemoveFromWorld()
@@ -1809,7 +1860,7 @@ void Player::Regenerate(Powers power)
             float ManaIncreaseRate = sWorld.getRate(RATE_POWER_MANA);
             if (recentCast)
             {
-                // Mangos Updates Mana in intervals of 2s, which is correct
+                // Trinity Updates Mana in intervals of 2s, which is correct
                 addvalue = GetFloatValue(PLAYER_FIELD_MOD_MANA_REGEN_INTERRUPT) *  ManaIncreaseRate * 2.00f;
             }
             else
@@ -2129,7 +2180,7 @@ void Player::GiveLevel(uint32 level)
 
     GetSession()->SendPacket(&data);
 
-    SetUInt32Value(PLAYER_NEXT_LEVEL_XP, MaNGOS::XP::xp_to_level(level));
+    SetUInt32Value(PLAYER_NEXT_LEVEL_XP, Trinity::XP::xp_to_level(level));
 
     //update level, max level of skills
     if(getLevel()!= level)
@@ -2149,19 +2200,8 @@ void Player::GiveLevel(uint32 level)
 
     UpdateAllStats();
 
-    if((sIRC.BOTMASK & 64) != 0)
-    {
-        char temp [5];
-        sprintf(temp, "%u", level);
-        std::string plevel = temp;
-        std::string pname = GetName();
-        std::string ircchan = "#";
-        ircchan += sIRC._irc_chan[sIRC.Status].c_str();
-        sIRC.Send_IRC_Channel(ircchan, "\00311["+pname+"] : Has Reached Level: "+plevel, true);
-    }
-
     if(sWorld.getConfig(CONFIG_ALWAYS_MAXSKILL)) // Max weapon skill when leveling up
-    UpdateSkillsToMaxSkillsForLevel();
+        UpdateSkillsToMaxSkillsForLevel();
 
     // set current level health and mana/energy to maximum after applying all mods.
     SetHealth(GetMaxHealth());
@@ -2220,7 +2260,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     objmgr.GetPlayerLevelInfo(getRace(),getClass(),getLevel(),&info);
 
     SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL) );
-    SetUInt32Value(PLAYER_NEXT_LEVEL_XP, MaNGOS::XP::xp_to_level(getLevel()));
+    SetUInt32Value(PLAYER_NEXT_LEVEL_XP, Trinity::XP::xp_to_level(getLevel()));
 
     UpdateMaxSkills ();
 
@@ -3121,7 +3161,7 @@ bool Player::resetTalents(bool no_cost)
 
     uint32 cost = 0;
 
-    if(!no_cost)
+    if(!no_cost && !sWorld.getConfig(CONFIG_NO_RESET_TALENT_COST))
     {
         cost = resetTalentsCost();
 
@@ -3636,7 +3676,6 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     CharacterDatabase.PExecute("DELETE FROM mail_items WHERE receiver = '%u'",guid);
     CharacterDatabase.PExecute("DELETE FROM character_pet WHERE owner = '%u'",guid);
     CharacterDatabase.PExecute("DELETE FROM character_pet_declinedname WHERE owner = '%u'",guid);
-    CharacterDatabase.PExecute("DELETE FROM has_logged_in_before WHERE guid = %u",guid);
     CharacterDatabase.CommitTransaction();
 
     //loginDatabase.PExecute("UPDATE realmcharacters SET numchars = numchars - 1 WHERE acctid = %d AND realmid = %d", accountId, realmID);
@@ -3761,7 +3800,7 @@ void Player::ResurrectPlayer(float restore_percent, bool updateToWorld, bool app
     // some items limited to specific map
     DestroyZoneLimitedItem( true, GetZoneId());
 
-    if(sWorld.getConfig(CONFIG_DISABLE_RES_SICKNESS) || !applySickness || getLevel() <= 10)
+    if(!applySickness || getLevel() <= 10)
         return;
 
     //Characters from level 1-10 are not affected by resurrection sickness.
@@ -4834,7 +4873,7 @@ void Player::UpdateCombatSkills(Unit *pVictim, WeaponAttackType attType, MeleeHi
     }
 
     uint32 plevel = getLevel();                             // if defense than pVictim == attacker
-    uint32 greylevel = MaNGOS::XP::GetGrayLevel(plevel);
+    uint32 greylevel = Trinity::XP::GetGrayLevel(plevel);
     uint32 moblevel = pVictim->getLevelForTarget(this);
     if(moblevel < greylevel)
         return;
@@ -5215,7 +5254,7 @@ void Player::SetDontMove(bool dontMove)
 bool Player::SetPosition(float x, float y, float z, float orientation, bool teleport)
 {
     // prevent crash when a bad coord is sent by the client
-    if(!MaNGOS::IsValidMapCoord(x,y,z,orientation))
+    if(!Trinity::IsValidMapCoord(x,y,z,orientation))
     {
         sLog.outDebug("Player::SetPosition(%f, %f, %f, %f, %d) .. bad coordinates for player %d!",x,y,z,orientation,teleport,GetGUIDLow());
         return false;
@@ -5815,7 +5854,7 @@ bool Player::SetOneFactionReputation(FactionEntry const* factionEntry, int32 sta
 int32 Player::CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, bool for_quest)
 {
     // for grey creature kill received 20%, in other case 100.
-    int32 percent = (!for_quest && (creatureOrQuestLevel <= MaNGOS::XP::GetGrayLevel(getLevel()))) ? 20 : 100;
+    int32 percent = (!for_quest && (creatureOrQuestLevel <= Trinity::XP::GetGrayLevel(getLevel()))) ? 20 : 100;
 
     int32 repMod = GetTotalAuraModifier(SPELL_AURA_MOD_REPUTATION_GAIN);
 
@@ -6053,40 +6092,42 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor, bool pvpt
 
     ApplyModUInt32Value(PLAYER_FIELD_TODAY_CONTRIBUTION, uint32(honor), true);
 
-	if( sWorld.getConfig(CONFIG_PVP_TOKEN_ENABLE) && pvptoken )
-	{
-		if(!uVictim || uVictim == this || uVictim->HasAuraType(SPELL_AURA_NO_PVP_CREDIT))
-			return true;
+    if( sWorld.getConfig(CONFIG_PVP_TOKEN_ENABLE) && pvptoken )
+    {
+        if(!uVictim || uVictim == this || uVictim->HasAuraType(SPELL_AURA_NO_PVP_CREDIT))
+            return true;
 
-		if(uVictim->GetTypeId() == TYPEID_PLAYER)
-		{
-			// Check if allowed to receive it in current map
-			uint8 MapType = sWorld.getConfig(CONFIG_PVP_TOKEN_MAP_TYPE);
-			if(MapType == 1 && !InBattleGround() && !HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_FFA_PVP) || MapType == 2 && !HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_FFA_PVP) || MapType == 3 && !InBattleGround())
-				return true;
+        if(uVictim->GetTypeId() == TYPEID_PLAYER)
+        {
+            // Check if allowed to receive it in current map
+            uint8 MapType = sWorld.getConfig(CONFIG_PVP_TOKEN_MAP_TYPE);
+            if( (MapType == 1 && !InBattleGround() && !HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_FFA_PVP)) 
+                || (MapType == 2 && !HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_FFA_PVP))
+                || (MapType == 3 && !InBattleGround()) )
+                return true;
 
-			uint32 noSpaceForCount = 0;
-			uint32 itemId = sWorld.getConfig(CONFIG_PVP_TOKEN_ID);
-			int32 count = sWorld.getConfig(CONFIG_PVP_TOKEN_COUNT);
+            uint32 noSpaceForCount = 0;
+            uint32 itemId = sWorld.getConfig(CONFIG_PVP_TOKEN_ID);
+            int32 count = sWorld.getConfig(CONFIG_PVP_TOKEN_COUNT);
 
-			// check space and find places
-			ItemPosCountVec dest;
-			uint8 msg = CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, itemId, count, &noSpaceForCount );
-			if( msg != EQUIP_ERR_OK )   // convert to possible store amount
-				count = noSpaceForCount;
+            // check space and find places
+            ItemPosCountVec dest;
+            uint8 msg = CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, itemId, count, &noSpaceForCount );
+            if( msg != EQUIP_ERR_OK )   // convert to possible store amount
+                count = noSpaceForCount;
 
-			if( count == 0 || dest.empty()) // can't add any
-			{
-				// -- TODO: Send to mailbox if no space
-				ChatHandler(this).PSendSysMessage("You don't have any space in your bags for a token.");
-				return true;
-			}
+            if( count == 0 || dest.empty()) // can't add any
+            {
+                // -- TODO: Send to mailbox if no space
+                ChatHandler(this).PSendSysMessage("You don't have any space in your bags for a token.");
+                return true;
+            }
 
-			Item* item = StoreNewItem( dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
-			SendNewItem(item,count,true,false);
-			ChatHandler(this).PSendSysMessage("You have been awarded a token for slaying another player.");
-		}
-	}
+            Item* item = StoreNewItem( dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
+            SendNewItem(item,count,true,false);
+            ChatHandler(this).PSendSysMessage("You have been awarded a token for slaying another player.");
+        }
+    }
 
     return true;
 }
@@ -6239,6 +6280,7 @@ void Player::UpdateArea(uint32 newArea)
 
 void Player::UpdateZone(uint32 newZone)
 {
+    uint32 oldZoneId  = m_zoneUpdateId;
     m_zoneUpdateId    = newZone;
     m_zoneUpdateTimer = ZONE_UPDATE_INTERVAL;
 
@@ -6248,6 +6290,13 @@ void Player::UpdateZone(uint32 newZone)
     AreaTableEntry const* zone = GetAreaEntryByAreaID(newZone);
     if(!zone)
         return;
+
+    // inform outdoor pvp
+    if(oldZoneId != m_zoneUpdateId)
+    {
+        sOutdoorPvPMgr.HandlePlayerLeaveZone(this, oldZoneId);
+        sOutdoorPvPMgr.HandlePlayerEnterZone(this, m_zoneUpdateId);
+    }
 
     if (sWorld.getConfig(CONFIG_WEATHER))
     {
@@ -6382,6 +6431,11 @@ void Player::CheckDuelDistance(time_t currTime)
     }
 }
 
+bool Player::IsOutdoorPvPActive()
+{
+    return (isAlive() && !HasInvisibilityAura() && !HasStealthAura() && (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP) || sWorld.IsPvPRealm())  && !HasUnitMovementFlag(MOVEMENTFLAG_FLYING2) && !isInFlight());
+}
+
 void Player::DuelComplete(DuelCompleteType type)
 {
     // duel not requested
@@ -6456,12 +6510,9 @@ void Player::DuelComplete(DuelCompleteType type)
     else if(duel->opponent->GetComboTarget()==GetPetGUID())
         duel->opponent->ClearComboPoints();
 
-	// Honor points after duel (the winner) - ImpConfig
-	if(sWorld.getConfig(CONFIG_HONOR_AFTER_DUEL > 0))
-	{
-		uint32 amount = sWorld.getConfig(CONFIG_HONOR_AFTER_DUEL);
-		duel->opponent->RewardHonor(NULL,1,amount);
-	}
+    // Honor points after duel (the winner) - ImpConfig
+    if(uint32 amount = sWorld.getConfig(CONFIG_HONOR_AFTER_DUEL))
+        duel->opponent->RewardHonor(NULL,1,amount);
 
     //cleanups
     SetUInt64Value(PLAYER_DUEL_ARBITER, 0);
@@ -7483,13 +7534,18 @@ void Player::SendUpdateWorldState(uint32 Field, uint32 Value)
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendInitWorldStates()
+void Player::SendInitWorldStates(bool forceZone, uint32 forceZoneId)
 {
     // data depends on zoneid/mapid...
     BattleGround* bg = GetBattleGround();
     uint16 NumberOfFields = 0;
     uint32 mapid = GetMapId();
-    uint32 zoneid = GetZoneId();
+    uint32 zoneid;
+    if(forceZone)
+        zoneid = forceZoneId;
+    else
+        zoneid = GetZoneId();
+    OutdoorPvP * pvp = sOutdoorPvPMgr.GetOutdoorPvPToZoneId(zoneid);
     uint32 areaid = GetAreaId();
     sLog.outDebug("Sending SMSG_INIT_WORLD_STATES to Map:%u, Zone: %u", mapid, zoneid);
     // may be exist better way to do this...
@@ -7514,6 +7570,12 @@ void Player::SendInitWorldStates()
         case 2918:
             NumberOfFields = 6;
             break;
+        case 139:
+            NumberOfFields = 39;
+            break;
+        case 1377:
+            NumberOfFields = 13;
+            break;
         case 2597:
             NumberOfFields = 81;
             break;
@@ -7525,7 +7587,10 @@ void Player::SendInitWorldStates()
             NumberOfFields = 38;
             break;
         case 3483:
-            NumberOfFields = 22;
+            NumberOfFields = 25;
+            break;
+        case 3518:
+            NumberOfFields = 37;
             break;
         case 3519:
             NumberOfFields = 36;
@@ -7574,6 +7639,66 @@ void Player::SendInitWorldStates()
         case 1519:
         case 1537:
         case 2257:
+            break;
+        case 139: // EPL
+            {
+                if(pvp && pvp->GetTypeId() == OUTDOOR_PVP_EP)
+                    pvp->FillInitialWorldStates(data);
+                else
+                {
+                    data << uint32(0x97a) << uint32(0x0); // 10 2426
+                    data << uint32(0x917) << uint32(0x0); // 11 2327
+                    data << uint32(0x918) << uint32(0x0); // 12 2328
+                    data << uint32(0x97b) << uint32(0x32); // 13 2427
+                    data << uint32(0x97c) << uint32(0x32); // 14 2428
+                    data << uint32(0x933) << uint32(0x1); // 15 2355
+                    data << uint32(0x946) << uint32(0x0); // 16 2374
+                    data << uint32(0x947) << uint32(0x0); // 17 2375
+                    data << uint32(0x948) << uint32(0x0); // 18 2376
+                    data << uint32(0x949) << uint32(0x0); // 19 2377
+                    data << uint32(0x94a) << uint32(0x0); // 20 2378
+                    data << uint32(0x94b) << uint32(0x0); // 21 2379
+                    data << uint32(0x932) << uint32(0x0); // 22 2354
+                    data << uint32(0x934) << uint32(0x0); // 23 2356
+                    data << uint32(0x935) << uint32(0x0); // 24 2357
+                    data << uint32(0x936) << uint32(0x0); // 25 2358
+                    data << uint32(0x937) << uint32(0x0); // 26 2359
+                    data << uint32(0x938) << uint32(0x0); // 27 2360
+                    data << uint32(0x939) << uint32(0x1); // 28 2361
+                    data << uint32(0x930) << uint32(0x1); // 29 2352
+                    data << uint32(0x93a) << uint32(0x0); // 30 2362
+                    data << uint32(0x93b) << uint32(0x0); // 31 2363
+                    data << uint32(0x93c) << uint32(0x0); // 32 2364
+                    data << uint32(0x93d) << uint32(0x0); // 33 2365
+                    data << uint32(0x944) << uint32(0x0); // 34 2372
+                    data << uint32(0x945) << uint32(0x0); // 35 2373
+                    data << uint32(0x931) << uint32(0x1); // 36 2353
+                    data << uint32(0x93e) << uint32(0x0); // 37 2366
+                    data << uint32(0x931) << uint32(0x1); // 38 2367 ??  grey horde not in dbc! send for consistency's sake, and to match field count
+                    data << uint32(0x940) << uint32(0x0); // 39 2368
+                    data << uint32(0x941) << uint32(0x0); // 7 2369
+                    data << uint32(0x942) << uint32(0x0); // 8 2370
+                    data << uint32(0x943) << uint32(0x0); // 9 2371
+                }
+            }
+            break;
+        case 1377: // Silithus
+            {
+                if(pvp && pvp->GetTypeId() == OUTDOOR_PVP_SI)
+                    pvp->FillInitialWorldStates(data);
+                else
+                {
+                    // states are always shown
+                    data << uint32(2313) << uint32(0x0); // 7 ally silityst gathered
+                    data << uint32(2314) << uint32(0x0); // 8 horde silityst gathered
+                    data << uint32(2317) << uint32(0x0); // 9 max silithyst
+                }
+                // dunno about these... aq opening event maybe?
+                data << uint32(2322) << uint32(0x0); // 10 sandworm N
+                data << uint32(2323) << uint32(0x0); // 11 sandworm S
+                data << uint32(2324) << uint32(0x0); // 12 sandworm SW
+                data << uint32(2325) << uint32(0x0); // 13 sandworm E
+            }
             break;
         case 2597:                                          // AV
             data << uint32(0x7ae) << uint32(0x1);           // 7
@@ -7746,77 +7871,146 @@ void Player::SendInitWorldStates()
                 // and some more ... unknown
             }
             break;
+        // any of these needs change! the client remembers the prev setting!
+        // ON EVERY ZONE LEAVE, RESET THE OLD ZONE'S WORLD STATE, BUT AT LEAST THE UI STUFF!
         case 3483:                                          // Hellfire Peninsula
-            data << uint32(0x9ba) << uint32(0x1);           // 10
-            data << uint32(0x9b9) << uint32(0x1);           // 11
-            data << uint32(0x9b5) << uint32(0x0);           // 12
-            data << uint32(0x9b4) << uint32(0x1);           // 13
-            data << uint32(0x9b3) << uint32(0x0);           // 14
-            data << uint32(0x9b2) << uint32(0x0);           // 15
-            data << uint32(0x9b1) << uint32(0x1);           // 16
-            data << uint32(0x9b0) << uint32(0x0);           // 17
-            data << uint32(0x9ae) << uint32(0x0);           // 18 horde pvp objectives captured
-            data << uint32(0x9ac) << uint32(0x0);           // 19
-            data << uint32(0x9a8) << uint32(0x0);           // 20
-            data << uint32(0x9a7) << uint32(0x0);           // 21
-            data << uint32(0x9a6) << uint32(0x1);           // 22
+            {
+                if(pvp && pvp->GetTypeId() == OUTDOOR_PVP_HP)
+                    pvp->FillInitialWorldStates(data);
+                else
+                {
+                    data << uint32(0x9ba) << uint32(0x1);           // 10 // add ally tower main gui icon       // maybe should be sent only on login?
+                    data << uint32(0x9b9) << uint32(0x1);           // 11 // add horde tower main gui icon      // maybe should be sent only on login?
+                    data << uint32(0x9b5) << uint32(0x0);           // 12 // show neutral broken hill icon      // 2485
+                    data << uint32(0x9b4) << uint32(0x1);           // 13 // show icon above broken hill        // 2484
+                    data << uint32(0x9b3) << uint32(0x0);           // 14 // show ally broken hill icon         // 2483
+                    data << uint32(0x9b2) << uint32(0x0);           // 15 // show neutral overlook icon         // 2482
+                    data << uint32(0x9b1) << uint32(0x1);           // 16 // show the overlook arrow            // 2481
+                    data << uint32(0x9b0) << uint32(0x0);           // 17 // show ally overlook icon            // 2480
+                    data << uint32(0x9ae) << uint32(0x0);           // 18 // horde pvp objectives captured      // 2478
+                    data << uint32(0x9ac) << uint32(0x0);           // 19 // ally pvp objectives captured       // 2476
+                    data << uint32(2475)  << uint32(100); //: ally / horde slider grey area                              // show only in direct vicinity!
+                    data << uint32(2474)  << uint32(50);  //: ally / horde slider percentage, 100 for ally, 0 for horde  // show only in direct vicinity!
+                    data << uint32(2473)  << uint32(0);   //: ally / horde slider display                                // show only in direct vicinity!
+                    data << uint32(0x9a8) << uint32(0x0);           // 20 // show the neutral stadium icon      // 2472
+                    data << uint32(0x9a7) << uint32(0x0);           // 21 // show the ally stadium icon         // 2471 
+                    data << uint32(0x9a6) << uint32(0x1);           // 22 // show the horde stadium icon        // 2470
+                }
+            }
+            break;
+        case 3518:
+            {
+                if(pvp && pvp->GetTypeId() == OUTDOOR_PVP_NA)
+                    pvp->FillInitialWorldStates(data);
+                else
+                {
+                    data << uint32(2503) << uint32(0x0);    // 10
+                    data << uint32(2502) << uint32(0x0);    // 11
+                    data << uint32(2493) << uint32(0x0);    // 12
+                    data << uint32(2491) << uint32(0x0);    // 13
+
+                    data << uint32(2495) << uint32(0x0);    // 14
+                    data << uint32(2494) << uint32(0x0);    // 15
+                    data << uint32(2497) << uint32(0x0);    // 16
+
+                    data << uint32(2762) << uint32(0x0);    // 17
+                    data << uint32(2662) << uint32(0x0);    // 18
+                    data << uint32(2663) << uint32(0x0);    // 19
+                    data << uint32(2664) << uint32(0x0);    // 20
+
+                    data << uint32(2760) << uint32(0x0);    // 21
+                    data << uint32(2670) << uint32(0x0);    // 22
+                    data << uint32(2668) << uint32(0x0);    // 23
+                    data << uint32(2669) << uint32(0x0);    // 24
+
+                    data << uint32(2761) << uint32(0x0);    // 25
+                    data << uint32(2667) << uint32(0x0);    // 26
+                    data << uint32(2665) << uint32(0x0);    // 27
+                    data << uint32(2666) << uint32(0x0);    // 28
+
+                    data << uint32(2763) << uint32(0x0);    // 29
+                    data << uint32(2659) << uint32(0x0);    // 30
+                    data << uint32(2660) << uint32(0x0);    // 31
+                    data << uint32(2661) << uint32(0x0);    // 32
+
+                    data << uint32(2671) << uint32(0x0);    // 33
+                    data << uint32(2676) << uint32(0x0);    // 34
+                    data << uint32(2677) << uint32(0x0);    // 35
+                    data << uint32(2672) << uint32(0x0);    // 36
+                    data << uint32(2673) << uint32(0x0);    // 37
+                }
+            }
             break;
         case 3519:                                          // Terokkar Forest
-            data << uint32(0xa41) << uint32(0x0);           // 10
-            data << uint32(0xa40) << uint32(0x14);          // 11
-            data << uint32(0xa3f) << uint32(0x0);           // 12
-            data << uint32(0xa3e) << uint32(0x0);           // 13
-            data << uint32(0xa3d) << uint32(0x5);           // 14
-            data << uint32(0xa3c) << uint32(0x0);           // 15
-            data << uint32(0xa87) << uint32(0x0);           // 16
-            data << uint32(0xa86) << uint32(0x0);           // 17
-            data << uint32(0xa85) << uint32(0x0);           // 18
-            data << uint32(0xa84) << uint32(0x0);           // 19
-            data << uint32(0xa83) << uint32(0x0);           // 20
-            data << uint32(0xa82) << uint32(0x0);           // 21
-            data << uint32(0xa81) << uint32(0x0);           // 22
-            data << uint32(0xa80) << uint32(0x0);           // 23
-            data << uint32(0xa7e) << uint32(0x0);           // 24
-            data << uint32(0xa7d) << uint32(0x0);           // 25
-            data << uint32(0xa7c) << uint32(0x0);           // 26
-            data << uint32(0xa7b) << uint32(0x0);           // 27
-            data << uint32(0xa7a) << uint32(0x0);           // 28
-            data << uint32(0xa79) << uint32(0x0);           // 29
-            data << uint32(0x9d0) << uint32(0x5);           // 30
-            data << uint32(0x9ce) << uint32(0x0);           // 31
-            data << uint32(0x9cd) << uint32(0x0);           // 32
-            data << uint32(0x9cc) << uint32(0x0);           // 33
-            data << uint32(0xa88) << uint32(0x0);           // 34
-            data << uint32(0xad0) << uint32(0x0);           // 35
-            data << uint32(0xacf) << uint32(0x1);           // 36
+            {
+                if(pvp && pvp->GetTypeId() == OUTDOOR_PVP_TF)
+                    pvp->FillInitialWorldStates(data);
+                else
+                {
+                    data << uint32(0xa41) << uint32(0x0);           // 10 // 2625 capture bar pos
+                    data << uint32(0xa40) << uint32(0x14);          // 11 // 2624 capture bar neutral
+                    data << uint32(0xa3f) << uint32(0x0);           // 12 // 2623 show capture bar
+                    data << uint32(0xa3e) << uint32(0x0);           // 13 // 2622 horde towers controlled
+                    data << uint32(0xa3d) << uint32(0x5);           // 14 // 2621 ally towers controlled
+                    data << uint32(0xa3c) << uint32(0x0);           // 15 // 2620 show towers controlled
+                    data << uint32(0xa88) << uint32(0x0);           // 16 // 2696 SE Neu
+                    data << uint32(0xa87) << uint32(0x0);           // 17 // SE Horde
+                    data << uint32(0xa86) << uint32(0x0);           // 18 // SE Ally
+                    data << uint32(0xa85) << uint32(0x0);           // 19 //S Neu
+                    data << uint32(0xa84) << uint32(0x0);           // 20 S Horde
+                    data << uint32(0xa83) << uint32(0x0);           // 21 S Ally
+                    data << uint32(0xa82) << uint32(0x0);           // 22 NE Neu
+                    data << uint32(0xa81) << uint32(0x0);           // 23 NE Horde
+                    data << uint32(0xa80) << uint32(0x0);           // 24 NE Ally
+                    data << uint32(0xa7e) << uint32(0x0);           // 25 // 2686 N Neu
+                    data << uint32(0xa7d) << uint32(0x0);           // 26 N Horde
+                    data << uint32(0xa7c) << uint32(0x0);           // 27 N Ally
+                    data << uint32(0xa7b) << uint32(0x0);           // 28 NW Ally
+                    data << uint32(0xa7a) << uint32(0x0);           // 29 NW Horde
+                    data << uint32(0xa79) << uint32(0x0);           // 30 NW Neutral
+                    data << uint32(0x9d0) << uint32(0x5);           // 31 // 2512 locked time remaining seconds first digit
+                    data << uint32(0x9ce) << uint32(0x0);           // 32 // 2510 locked time remaining seconds second digit
+                    data << uint32(0x9cd) << uint32(0x0);           // 33 // 2509 locked time remaining minutes
+                    data << uint32(0x9cc) << uint32(0x0);           // 34 // 2508 neutral locked time show
+                    data << uint32(0xad0) << uint32(0x0);           // 35 // 2768 horde locked time show
+                    data << uint32(0xacf) << uint32(0x1);           // 36 // 2767 ally locked time show
+                }
+            }
             break;
         case 3521:                                          // Zangarmarsh
-            data << uint32(0x9e1) << uint32(0x0);           // 10
-            data << uint32(0x9e0) << uint32(0x0);           // 11
-            data << uint32(0x9df) << uint32(0x0);           // 12
-            data << uint32(0xa5d) << uint32(0x1);           // 13
-            data << uint32(0xa5c) << uint32(0x0);           // 14
-            data << uint32(0xa5b) << uint32(0x1);           // 15
-            data << uint32(0xa5a) << uint32(0x0);           // 16
-            data << uint32(0xa59) << uint32(0x1);           // 17
-            data << uint32(0xa58) << uint32(0x0);           // 18
-            data << uint32(0xa57) << uint32(0x0);           // 19
-            data << uint32(0xa56) << uint32(0x0);           // 20
-            data << uint32(0xa55) << uint32(0x1);           // 21
-            data << uint32(0xa54) << uint32(0x0);           // 22
-            data << uint32(0x9e7) << uint32(0x0);           // 23
-            data << uint32(0x9e6) << uint32(0x0);           // 24
-            data << uint32(0x9e5) << uint32(0x0);           // 25
-            data << uint32(0xa00) << uint32(0x0);           // 26
-            data << uint32(0x9ff) << uint32(0x1);           // 27
-            data << uint32(0x9fe) << uint32(0x0);           // 28
-            data << uint32(0x9fd) << uint32(0x0);           // 29
-            data << uint32(0x9fc) << uint32(0x1);           // 30
-            data << uint32(0x9fb) << uint32(0x0);           // 31
-            data << uint32(0xa62) << uint32(0x0);           // 32
-            data << uint32(0xa61) << uint32(0x1);           // 33
-            data << uint32(0xa60) << uint32(0x1);           // 34
-            data << uint32(0xa5f) << uint32(0x0);           // 35
+            {
+                if(pvp && pvp->GetTypeId() == OUTDOOR_PVP_ZM)
+                    pvp->FillInitialWorldStates(data);
+                else
+                {
+                    data << uint32(0x9e1) << uint32(0x0);           // 10 //2529
+                    data << uint32(0x9e0) << uint32(0x0);           // 11
+                    data << uint32(0x9df) << uint32(0x0);           // 12
+                    data << uint32(0xa5d) << uint32(0x1);           // 13 //2653 
+                    data << uint32(0xa5c) << uint32(0x0);           // 14 //2652 east beacon neutral
+                    data << uint32(0xa5b) << uint32(0x1);           // 15 horde
+                    data << uint32(0xa5a) << uint32(0x0);           // 16 ally
+                    data << uint32(0xa59) << uint32(0x1);           // 17 // 2649 Twin spire graveyard horde  12???
+                    data << uint32(0xa58) << uint32(0x0);           // 18 ally     14 ???
+                    data << uint32(0xa57) << uint32(0x0);           // 19 neutral  7???
+                    data << uint32(0xa56) << uint32(0x0);           // 20 // 2646 west beacon neutral
+                    data << uint32(0xa55) << uint32(0x1);           // 21 horde
+                    data << uint32(0xa54) << uint32(0x0);           // 22 ally
+                    data << uint32(0x9e7) << uint32(0x0);           // 23 // 2535
+                    data << uint32(0x9e6) << uint32(0x0);           // 24
+                    data << uint32(0x9e5) << uint32(0x0);           // 25
+                    data << uint32(0xa00) << uint32(0x0);           // 26 // 2560
+                    data << uint32(0x9ff) << uint32(0x1);           // 27
+                    data << uint32(0x9fe) << uint32(0x0);           // 28
+                    data << uint32(0x9fd) << uint32(0x0);           // 29 
+                    data << uint32(0x9fc) << uint32(0x1);           // 30
+                    data << uint32(0x9fb) << uint32(0x0);           // 31
+                    data << uint32(0xa62) << uint32(0x0);           // 32 // 2658
+                    data << uint32(0xa61) << uint32(0x1);           // 33
+                    data << uint32(0xa60) << uint32(0x1);           // 34
+                    data << uint32(0xa5f) << uint32(0x0);           // 35
+                }
+            }
             break;
         case 3698:                                          // Nagrand Arena
             if (bg && bg->GetTypeID() == BATTLEGROUND_NA)
@@ -7884,11 +8078,9 @@ void Player::SendTalentWipeConfirm(uint64 guid)
 {
     WorldPacket data(MSG_TALENT_WIPE_CONFIRM, (8+4));
     data << uint64(guid);
-    data << uint32(resetTalentsCost());
-	if(sWorld.getConfig(CONFIG_NO_RESET_TALENT_COST))
-		data << uint32(0);
-	else
-		data << uint32(resetTalentsCost());
+    uint32 cost = sWorld.getConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : resetTalentsCost();
+    data << cost;
+    data << cost;
     GetSession()->SendPacket( &data );
 }
 
@@ -11907,7 +12099,7 @@ bool Player::CanCompleteQuest( uint32 quest_id )
         if ( q_status.m_status == QUEST_STATUS_INCOMPLETE )
         {
 
-            if ( qInfo->HasFlag( QUEST_MANGOS_FLAGS_DELIVER ) )
+            if ( qInfo->HasFlag( QUEST_TRINITY_FLAGS_DELIVER ) )
             {
                 for(int i = 0; i < QUEST_OBJECTIVES_COUNT; i++)
                 {
@@ -11916,7 +12108,7 @@ bool Player::CanCompleteQuest( uint32 quest_id )
                 }
             }
 
-            if ( qInfo->HasFlag(QUEST_MANGOS_FLAGS_KILL_OR_CAST | QUEST_MANGOS_FLAGS_SPEAKTO) )
+            if ( qInfo->HasFlag(QUEST_TRINITY_FLAGS_KILL_OR_CAST | QUEST_TRINITY_FLAGS_SPEAKTO) )
             {
                 for(int i = 0; i < QUEST_OBJECTIVES_COUNT; i++)
                 {
@@ -11928,10 +12120,10 @@ bool Player::CanCompleteQuest( uint32 quest_id )
                 }
             }
 
-            if ( qInfo->HasFlag( QUEST_MANGOS_FLAGS_EXPLORATION_OR_EVENT ) && !q_status.m_explored )
+            if ( qInfo->HasFlag( QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT ) && !q_status.m_explored )
                 return false;
 
-            if ( qInfo->HasFlag( QUEST_MANGOS_FLAGS_TIMED ) && q_status.m_timer == 0 )
+            if ( qInfo->HasFlag( QUEST_TRINITY_FLAGS_TIMED ) && q_status.m_timer == 0 )
                 return false;
 
             if ( qInfo->GetRewOrReqMoney() < 0 )
@@ -11958,7 +12150,7 @@ bool Player::CanCompleteRepeatableQuest( Quest const *pQuest )
     if( !CanTakeQuest(pQuest, false) )
         return false;
 
-    if (pQuest->HasFlag( QUEST_MANGOS_FLAGS_DELIVER) )
+    if (pQuest->HasFlag( QUEST_TRINITY_FLAGS_DELIVER) )
         for(int i = 0; i < QUEST_OBJECTIVES_COUNT; i++)
             if( pQuest->ReqItemId[i] && pQuest->ReqItemCount[i] && !HasItemCount(pQuest->ReqItemId[i],pQuest->ReqItemCount[i]) )
                 return false;
@@ -11984,7 +12176,7 @@ bool Player::CanRewardQuest( Quest const *pQuest, bool msg )
         return false;
 
     // prevent receive reward with quest items in bank
-    if ( pQuest->HasFlag( QUEST_MANGOS_FLAGS_DELIVER ) )
+    if ( pQuest->HasFlag( QUEST_TRINITY_FLAGS_DELIVER ) )
     {
         for(int i = 0; i < QUEST_OBJECTIVES_COUNT; i++)
         {
@@ -12061,13 +12253,13 @@ void Player::AddQuest( Quest const *pQuest, Object *questGiver )
     questStatusData.m_status = QUEST_STATUS_INCOMPLETE;
     questStatusData.m_explored = false;
 
-    if ( pQuest->HasFlag( QUEST_MANGOS_FLAGS_DELIVER ) )
+    if ( pQuest->HasFlag( QUEST_TRINITY_FLAGS_DELIVER ) )
     {
         for(int i = 0; i < QUEST_OBJECTIVES_COUNT; i++)
             questStatusData.m_itemcount[i] = 0;
     }
 
-    if ( pQuest->HasFlag(QUEST_MANGOS_FLAGS_KILL_OR_CAST | QUEST_MANGOS_FLAGS_SPEAKTO) )
+    if ( pQuest->HasFlag(QUEST_TRINITY_FLAGS_KILL_OR_CAST | QUEST_TRINITY_FLAGS_SPEAKTO) )
     {
         for(int i = 0; i < QUEST_OBJECTIVES_COUNT; i++)
             questStatusData.m_creatureOrGOcount[i] = 0;
@@ -12080,7 +12272,7 @@ void Player::AddQuest( Quest const *pQuest, Object *questGiver )
         SetFactionVisibleForFactionId(pQuest->GetRepObjectiveFaction());
 
     uint32 qtime = 0;
-    if( pQuest->HasFlag( QUEST_MANGOS_FLAGS_TIMED ) )
+    if( pQuest->HasFlag( QUEST_TRINITY_FLAGS_TIMED ) )
     {
         uint32 limittime = pQuest->GetLimitTime();
 
@@ -12544,7 +12736,7 @@ bool Player::SatisfyQuestStatus( Quest const* qInfo, bool msg )
 
 bool Player::SatisfyQuestTimed( Quest const* qInfo, bool msg )
 {
-    if ( (find(m_timedquests.begin(), m_timedquests.end(), qInfo->GetQuestId()) != m_timedquests.end()) && qInfo->HasFlag(QUEST_MANGOS_FLAGS_TIMED) )
+    if ( (find(m_timedquests.begin(), m_timedquests.end(), qInfo->GetQuestId()) != m_timedquests.end()) && qInfo->HasFlag(QUEST_TRINITY_FLAGS_TIMED) )
     {
         if( msg )
             SendCanTakeQuestResponse( INVALIDREASON_QUEST_ONLY_ONE_TIMED );
@@ -12769,7 +12961,7 @@ void Player::SetQuestStatus( uint32 quest_id, QuestStatus status )
     {
         if( status == QUEST_STATUS_NONE || status == QUEST_STATUS_INCOMPLETE || status == QUEST_STATUS_COMPLETE )
         {
-            if( qInfo->HasFlag( QUEST_MANGOS_FLAGS_TIMED ) )
+            if( qInfo->HasFlag( QUEST_TRINITY_FLAGS_TIMED ) )
                 m_timedquests.erase(qInfo->GetQuestId());
         }
 
@@ -12782,7 +12974,7 @@ void Player::SetQuestStatus( uint32 quest_id, QuestStatus status )
     UpdateForQuestsGO();
 }
 
-// not used in MaNGOS, but used in scripting code
+// not used in TrinIty, but used in scripting code
 uint32 Player::GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry)
 {
     Quest const* qInfo = objmgr.GetQuestTemplate(quest_id);
@@ -12798,7 +12990,7 @@ uint32 Player::GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry)
 
 void Player::AdjustQuestReqItemCount( Quest const* pQuest )
 {
-    if ( pQuest->HasFlag( QUEST_MANGOS_FLAGS_DELIVER ) )
+    if ( pQuest->HasFlag( QUEST_TRINITY_FLAGS_DELIVER ) )
     {
         for(int i = 0; i < QUEST_OBJECTIVES_COUNT; i++)
         {
@@ -12846,7 +13038,7 @@ void Player::AreaExploredOrEventHappens( uint32 questId )
     }
 }
 
-//not used in mangosd, function for external script library
+//not used in Trinityd, function for external script library
 void Player::GroupEventHappens( uint32 questId, WorldObject const* pEventObject )
 {
     if( Group *pGroup = GetGroup() )
@@ -12878,7 +13070,7 @@ void Player::ItemAddedQuestCheck( uint32 entry, uint32 count )
             continue;
 
         Quest const* qInfo = objmgr.GetQuestTemplate(questid);
-        if( !qInfo || !qInfo->HasFlag( QUEST_MANGOS_FLAGS_DELIVER ) )
+        if( !qInfo || !qInfo->HasFlag( QUEST_TRINITY_FLAGS_DELIVER ) )
             continue;
 
         for (int j = 0; j < QUEST_OBJECTIVES_COUNT; j++)
@@ -12915,7 +13107,7 @@ void Player::ItemRemovedQuestCheck( uint32 entry, uint32 count )
         Quest const* qInfo = objmgr.GetQuestTemplate(questid);
         if ( !qInfo )
             continue;
-        if( !qInfo->HasFlag( QUEST_MANGOS_FLAGS_DELIVER ) )
+        if( !qInfo->HasFlag( QUEST_TRINITY_FLAGS_DELIVER ) )
             continue;
 
         for (int j = 0; j < QUEST_OBJECTIVES_COUNT; j++)
@@ -12962,7 +13154,7 @@ void Player::KilledMonster( uint32 entry, uint64 guid )
         QuestStatusData& q_status = mQuestStatus[questid];
         if( q_status.m_status == QUEST_STATUS_INCOMPLETE && (!GetGroup() || !GetGroup()->isRaidGroup() || qInfo->GetType() == QUEST_TYPE_RAID))
         {
-            if( qInfo->HasFlag( QUEST_MANGOS_FLAGS_KILL_OR_CAST) )
+            if( qInfo->HasFlag( QUEST_TRINITY_FLAGS_KILL_OR_CAST) )
             {
                 for (int j = 0; j < QUEST_OBJECTIVES_COUNT; j++)
                 {
@@ -13018,7 +13210,7 @@ void Player::CastedCreatureOrGO( uint32 entry, uint64 guid, uint32 spell_id )
 
         if ( q_status.m_status == QUEST_STATUS_INCOMPLETE )
         {
-            if( qInfo->HasFlag( QUEST_MANGOS_FLAGS_KILL_OR_CAST ) )
+            if( qInfo->HasFlag( QUEST_TRINITY_FLAGS_KILL_OR_CAST ) )
             {
                 for (int j = 0; j < QUEST_OBJECTIVES_COUNT; j++)
                 {
@@ -13085,7 +13277,7 @@ void Player::TalkedToCreature( uint32 entry, uint64 guid )
 
         if ( q_status.m_status == QUEST_STATUS_INCOMPLETE )
         {
-            if( qInfo->HasFlag( QUEST_MANGOS_FLAGS_KILL_OR_CAST | QUEST_MANGOS_FLAGS_SPEAKTO ) )
+            if( qInfo->HasFlag( QUEST_TRINITY_FLAGS_KILL_OR_CAST | QUEST_TRINITY_FLAGS_SPEAKTO ) )
             {
                 for (int j = 0; j < QUEST_OBJECTIVES_COUNT; j++)
                 {
@@ -13225,6 +13417,7 @@ void Player::SendQuestReward( Quest const *pQuest, uint32 XP, Object * questGive
 {
     uint32 questid = pQuest->GetQuestId();
     sLog.outDebug( "WORLD: Sent SMSG_QUESTGIVER_QUEST_COMPLETE quest = %u", questid );
+    gameeventmgr.HandleQuestComplete(questid);
     WorldPacket data( SMSG_QUESTGIVER_QUEST_COMPLETE, (4+4+4+4+4+4+pQuest->GetRewItemsCount()*8) );
     data << questid;
     data << uint32(0x03);
@@ -13608,7 +13801,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
         m_movementInfo.t_z = fields[22].GetFloat();
         m_movementInfo.t_o = fields[23].GetFloat();
 
-        if( !MaNGOS::IsValidMapCoord(
+        if( !Trinity::IsValidMapCoord(
             GetPositionX()+m_movementInfo.t_x,GetPositionY()+m_movementInfo.t_y,
             GetPositionZ()+m_movementInfo.t_z,GetOrientation()+m_movementInfo.t_o) ||
             // transport size limited
@@ -14222,7 +14415,7 @@ void Player::_LoadInventory(QueryResult *result, uint32 timediff)
                 mi.AddItem(item->GetGUIDLow(), item->GetEntry(), item);
             }
 
-            std::string subject = GetSession()->GetMangosString(LANG_NOT_EQUIPPED_ITEM);
+            std::string subject = GetSession()->GetTrinityString(LANG_NOT_EQUIPPED_ITEM);
 
             WorldSession::SendMailTo(this, MAIL_NORMAL, MAIL_STATIONERY_GM, GetGUIDLow(), GetGUIDLow(), subject, 0, &mi, 0, 0, MAIL_CHECK_MASK_NONE);
         }
@@ -14387,7 +14580,7 @@ void Player::_LoadQuestStatus(QueryResult *result)
 
                 time_t quest_time = time_t(fields[4].GetUInt64());
 
-                if( pQuest->HasFlag( QUEST_MANGOS_FLAGS_TIMED ) && !GetQuestRewardStatus(quest_id) &&  questStatusData.m_status != QUEST_STATUS_NONE )
+                if( pQuest->HasFlag( QUEST_TRINITY_FLAGS_TIMED ) && !GetQuestRewardStatus(quest_id) &&  questStatusData.m_status != QUEST_STATUS_NONE )
                 {
                     AddTimedQuest( quest_id );
 
@@ -16212,16 +16405,16 @@ void Player::HandleStealthedUnitsDetection()
 {
     std::list<Unit*> stealthedUnits;
 
-    CellPair p(MaNGOS::ComputeCellPair(GetPositionX(),GetPositionY()));
+    CellPair p(Trinity::ComputeCellPair(GetPositionX(),GetPositionY()));
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
-    MaNGOS::AnyStealthedCheck u_check;
-    MaNGOS::UnitListSearcher<MaNGOS::AnyStealthedCheck > searcher(stealthedUnits, u_check);
+    Trinity::AnyStealthedCheck u_check;
+    Trinity::UnitListSearcher<Trinity::AnyStealthedCheck > searcher(stealthedUnits, u_check);
 
-    TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyStealthedCheck >, WorldTypeMapContainer > world_unit_searcher(searcher);
-    TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyStealthedCheck >, GridTypeMapContainer >  grid_unit_searcher(searcher);
+    TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyStealthedCheck >, WorldTypeMapContainer > world_unit_searcher(searcher);
+    TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyStealthedCheck >, GridTypeMapContainer >  grid_unit_searcher(searcher);
 
     CellLock<GridReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, world_unit_searcher, *MapManager::Instance().GetMap(GetMapId(), this));
@@ -16241,7 +16434,7 @@ void Player::HandleStealthedUnitsDetection()
             (*i)->SendUpdateToPlayer(this);
             m_clientGUIDs.insert((*i)->GetGUID());
 
-            #ifdef MANGOS_DEBUG
+            #ifdef TRINITY_DEBUG
             if((sLog.getLogFilter() & LOG_FILTER_VISIBILITY_CHANGES)==0)
                 sLog.outDebug("Object %u (Type: %u) is detected in stealth by player %u. Distance = %f",(*i)->GetGUIDLow(),(*i)->GetTypeId(),GetGUIDLow(),GetDistance(*i));
             #endif
@@ -17104,7 +17297,7 @@ void Player::UpdateVisibilityOf(WorldObject* target)
             target->DestroyForPlayer(this);
             m_clientGUIDs.erase(target->GetGUID());
 
-            #ifdef MANGOS_DEBUG
+            #ifdef TRINITY_DEBUG
             if((sLog.getLogFilter() & LOG_FILTER_VISIBILITY_CHANGES)==0)
                 sLog.outDebug("Object %u (Type: %u) out of range for player %u. Distance = %f",target->GetGUIDLow(),target->GetTypeId(),GetGUIDLow(),GetDistance(target));
             #endif
@@ -17118,7 +17311,7 @@ void Player::UpdateVisibilityOf(WorldObject* target)
             if(target->GetTypeId()!=TYPEID_GAMEOBJECT||!((GameObject*)target)->IsTransport())
                 m_clientGUIDs.insert(target->GetGUID());
 
-            #ifdef MANGOS_DEBUG
+            #ifdef TRINITY_DEBUG
             if((sLog.getLogFilter() & LOG_FILTER_VISIBILITY_CHANGES)==0)
                 sLog.outDebug("Object %u (Type: %u) is visible now for player %u. Distance = %f",target->GetGUIDLow(),target->GetTypeId(),GetGUIDLow(),GetDistance(target));
             #endif
@@ -17157,7 +17350,7 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, UpdateDataMapType& 
             target->BuildOutOfRangeUpdateBlock(&data);
             m_clientGUIDs.erase(target->GetGUID());
 
-            #ifdef MANGOS_DEBUG
+            #ifdef TRINITY_DEBUG
             if((sLog.getLogFilter() & LOG_FILTER_VISIBILITY_CHANGES)==0)
                 sLog.outDebug("Object %u (Type: %u, Entry: %u) is out of range for player %u. Distance = %f",target->GetGUIDLow(),target->GetTypeId(),target->GetEntry(),GetGUIDLow(),GetDistance(target));
             #endif
@@ -17172,7 +17365,7 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, UpdateDataMapType& 
             target->BuildCreateUpdateBlockForPlayer(&data, this);
             UpdateVisibilityOf_helper(m_clientGUIDs,target);
 
-            #ifdef MANGOS_DEBUG
+            #ifdef TRINITY_DEBUG
             if((sLog.getLogFilter() & LOG_FILTER_VISIBILITY_CHANGES)==0)
                 sLog.outDebug("Object %u (Type: %u, Entry: %u) is visible now for player %u. Distance = %f",target->GetGUIDLow(),target->GetTypeId(),target->GetEntry(),GetGUIDLow(),GetDistance(target));
             #endif
@@ -17821,6 +18014,11 @@ void Player::AutoUnequipOffhandIfNeed()
     }
 }
 
+OutdoorPvP * Player::GetOutdoorPvP() const
+{
+    return sOutdoorPvPMgr.GetOutdoorPvPToZoneId(GetZoneId());
+}
+
 bool Player::HasItemFitToSpellReqirements(SpellEntry const* spellInfo, Item const* ignoreItem)
 {
     if(spellInfo->EquippedItemClass < 0)
@@ -17961,12 +18159,12 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
 
         if(member_with_max_level)
         {
-            xp = PvP ? 0 : MaNGOS::XP::Gain(member_with_max_level, pVictim);
+            xp = PvP ? 0 : Trinity::XP::Gain(member_with_max_level, pVictim);
 
             // skip in check PvP case (for speed, not used)
             bool is_raid = PvP ? false : sMapStore.LookupEntry(GetMapId())->IsRaid() && pGroup->isRaidGroup();
             bool is_dungeon = PvP ? false : sMapStore.LookupEntry(GetMapId())->IsDungeon();
-            float group_rate = MaNGOS::XP::xp_in_group_rate(count,is_raid);
+            float group_rate = Trinity::XP::xp_in_group_rate(count,is_raid);
 
             for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
             {
@@ -18013,7 +18211,7 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
     }
     else                                                    // if (!pGroup)
     {
-        xp = PvP ? 0 : MaNGOS::XP::Gain(this, pVictim);
+        xp = PvP ? 0 : Trinity::XP::Gain(this, pVictim);
 
         // honor can be in PvP and !PvP (racial leader) cases
         if(RewardHonor(pVictim,1, -1, true))
