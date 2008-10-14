@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -27,7 +27,7 @@ EndScriptData */
 #define SPELL_MASSIVEGEYSER          22421                  //Not working. Cause its a summon...
 #define SPELL_SLAM                   24326
 
-struct MANGOS_DLL_DECL boss_gahzrankaAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_gahzrankaAI : public ScriptedAI
 {
     boss_gahzrankaAI(Creature *c) : ScriptedAI(c) {Reset();}
     uint32 Frostbreath_Timer;

@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -89,7 +89,7 @@ float KaelLocations[3][2]=
 };
 #define LOCATION_Z      -16.727455
 
-struct MANGOS_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
 {
     boss_felblood_kaelthasAI(Creature* c) : ScriptedAI(c)
     {
@@ -389,7 +389,7 @@ struct MANGOS_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL mob_felkael_flamestrikeAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_felkael_flamestrikeAI : public ScriptedAI
 {
     mob_felkael_flamestrikeAI(Creature *c) : ScriptedAI(c)
     {
@@ -424,7 +424,7 @@ struct MANGOS_DLL_DECL mob_felkael_flamestrikeAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL mob_felkael_phoenixAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_felkael_phoenixAI : public ScriptedAI
 {
     mob_felkael_phoenixAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -458,7 +458,7 @@ struct MANGOS_DLL_DECL mob_felkael_phoenixAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL mob_felkael_phoenix_eggAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_felkael_phoenix_eggAI : public ScriptedAI
 {
     mob_felkael_phoenix_eggAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -479,7 +479,7 @@ struct MANGOS_DLL_DECL mob_felkael_phoenix_eggAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL mob_arcane_sphereAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_arcane_sphereAI : public ScriptedAI
 {
     mob_arcane_sphereAI(Creature *c) : ScriptedAI(c) {Reset();}
 

@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -33,7 +33,7 @@ EndContentData */
 ## mobs_mana_tapped
 ######*/
 
-struct MANGOS_DLL_DECL mobs_mana_tappedAI : public ScriptedAI
+struct TRINITY_DLL_DECL mobs_mana_tappedAI : public ScriptedAI
 {
     mobs_mana_tappedAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -60,7 +60,7 @@ CreatureAI* GetAI_mobs_mana_tapped(Creature *_Creature)
 
 #define QUEST_THE_DWARVEN_SPY 8483
 
-struct MANGOS_DLL_DECL npc_prospector_anvilwardAI : public npc_escortAI
+struct TRINITY_DLL_DECL npc_prospector_anvilwardAI : public npc_escortAI
 {
     // CreatureAI functions
     npc_prospector_anvilwardAI(Creature *c) : npc_escortAI(c) {Reset();}

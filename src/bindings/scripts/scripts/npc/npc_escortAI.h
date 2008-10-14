@@ -23,7 +23,7 @@ struct Escort_Waypoint
     uint32 WaitTimeMs;
 };
 
-struct MANGOS_DLL_DECL npc_escortAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
 {
     public:
 

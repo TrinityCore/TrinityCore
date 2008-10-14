@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -110,7 +110,7 @@ float hatcherway_r[5][3] =
     {-34.29,1095.22,19}
 };
 
-struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
 {
     boss_janalaiAI(Creature *c) : ScriptedAI(c)
     {
@@ -460,7 +460,7 @@ CreatureAI* GetAI_boss_janalaiAI(Creature *_Creature)
     return new boss_janalaiAI (_Creature);
 }
 
-struct MANGOS_DLL_DECL mob_jandalai_firebombAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_jandalai_firebombAI : public ScriptedAI
 {
     mob_jandalai_firebombAI(Creature *c) : ScriptedAI(c){Reset();}
 
@@ -492,7 +492,7 @@ CreatureAI* GetAI_mob_jandalai_firebombAI(Creature *_Creature)
     return new mob_jandalai_firebombAI (_Creature);
 }
 
-struct MANGOS_DLL_DECL mob_amanishi_hatcherAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_amanishi_hatcherAI : public ScriptedAI
 {
     mob_amanishi_hatcherAI(Creature *c) : ScriptedAI(c)
     {
@@ -669,7 +669,7 @@ CreatureAI* GetAI_mob_amanishi_hatcherAI(Creature *_Creature)
     return new mob_amanishi_hatcherAI (_Creature);
 }
 
-struct MANGOS_DLL_DECL mob_hatchlingAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_hatchlingAI : public ScriptedAI
 {
     mob_hatchlingAI(Creature *c) : ScriptedAI(c)
     {

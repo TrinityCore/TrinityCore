@@ -216,7 +216,7 @@ static Yells ThrallQuotes[]=
     {DEATH, "Uraaa...", 11034},
 };
 
-struct MANGOS_DLL_DECL hyjalAI : public ScriptedAI
+struct TRINITY_DLL_DECL hyjalAI : public ScriptedAI
 {
     hyjalAI(Creature *c);
 

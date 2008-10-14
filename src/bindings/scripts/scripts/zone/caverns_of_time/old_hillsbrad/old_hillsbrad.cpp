@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -218,7 +218,7 @@ bool GossipSelect_npc_erozion(Player *player, Creature *_Creature, uint32 sender
 #define THRALL_LEAVE_COMBAT3        "I will not waste this chance. I will seek out my destiny."
 #define SOUND_LEAVE_COMBAT3         10457
 
-struct MANGOS_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
+struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
 {
     npc_thrall_old_hillsbradAI(Creature *c) : npc_escortAI(c)
     {
@@ -799,7 +799,7 @@ bool GossipSelect_npc_thrall_old_hillsbrad(Player *player, Creature *_Creature, 
 
 #define TARETHA_FREE            "I'm free! Thank you all!"
 
-struct MANGOS_DLL_DECL npc_tarethaAI : public npc_escortAI
+struct TRINITY_DLL_DECL npc_tarethaAI : public npc_escortAI
 {
     npc_tarethaAI(Creature *c) : npc_escortAI(c)
     {

@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -58,7 +58,7 @@ EndScriptData */
 #define SPELL_BLAST_WAVE        33061
 
 //High King Maulgar AI
-struct MANGOS_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
 {
     boss_high_king_maulgarAI(Creature *c) : ScriptedAI(c)
     {
@@ -220,7 +220,7 @@ struct MANGOS_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
 };
 
 //Olm The Summoner AI
-struct MANGOS_DLL_DECL boss_olm_the_summonerAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_olm_the_summonerAI : public ScriptedAI
 {
     boss_olm_the_summonerAI(Creature *c) : ScriptedAI(c)
     {
@@ -306,7 +306,7 @@ struct MANGOS_DLL_DECL boss_olm_the_summonerAI : public ScriptedAI
 };
 
 //Kiggler The Crazed AI
-struct MANGOS_DLL_DECL boss_kiggler_the_crazedAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_kiggler_the_crazedAI : public ScriptedAI
 {
     boss_kiggler_the_crazedAI(Creature *c) : ScriptedAI(c)
     {
@@ -425,7 +425,7 @@ struct MANGOS_DLL_DECL boss_kiggler_the_crazedAI : public ScriptedAI
 };
 
 //Blindeye The Seer AI
-struct MANGOS_DLL_DECL boss_blindeye_the_seerAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_blindeye_the_seerAI : public ScriptedAI
 {
     boss_blindeye_the_seerAI(Creature *c) : ScriptedAI(c)
     {
@@ -523,7 +523,7 @@ struct MANGOS_DLL_DECL boss_blindeye_the_seerAI : public ScriptedAI
 };
 
 //Krosh Firehand AI
-struct MANGOS_DLL_DECL boss_krosh_firehandAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_krosh_firehandAI : public ScriptedAI
 {
     boss_krosh_firehandAI(Creature *c) : ScriptedAI(c)
     {

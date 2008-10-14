@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -29,7 +29,7 @@ EndScriptData */
 #define SPELL_LAVABOMB              19411                   //This calls a dummy server side effect that isn't implemented yet
 #define SPELL_LAVABOMB_ALT          19428                   //This is the spell that the lava bomb casts
 
-struct MANGOS_DLL_DECL boss_magmadarAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_magmadarAI : public ScriptedAI
 {
     boss_magmadarAI(Creature *c) : ScriptedAI(c) {Reset();}
 

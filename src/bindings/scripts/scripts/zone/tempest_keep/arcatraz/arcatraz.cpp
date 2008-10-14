@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -82,7 +82,7 @@ EndContentData */
 #define SPELL_FROSTBOLT             15497
 #define SPELL_PYROBLAST             33975
 
-struct MANGOS_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
 {
     npc_millhouse_manastormAI(Creature *c) : ScriptedAI(c)
     {
@@ -328,7 +328,7 @@ CreatureAI* GetAI_npc_millhouse_manastorm(Creature *_Creature)
 #define SPELL_TARGET_OMEGA  36852
 #define SPELL_BUBBLE_VISUAL 36849
 
-struct MANGOS_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
 {
     npc_warden_mellicharAI(Creature *c) : ScriptedAI(c)
     {
@@ -565,7 +565,7 @@ CreatureAI* GetAI_npc_warden_mellichar(Creature *_Creature)
 
 #define SPELL_VOID_ZONE_DAMAGE 36120
 
-struct MANGOS_DLL_DECL mob_zerekethvoidzoneAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_zerekethvoidzoneAI : public ScriptedAI
 {
     mob_zerekethvoidzoneAI(Creature *c) : ScriptedAI(c) {Reset();}
 

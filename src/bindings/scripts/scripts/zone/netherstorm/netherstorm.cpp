@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -57,7 +57,7 @@ EndContentData */
 #define SPELL_INTERRUPT_1       35016                       //ACID mobs should cast this
 #define SPELL_INTERRUPT_2       35176                       //ACID mobs should cast this (Manaforge Ara-version)
 
-struct MANGOS_DLL_DECL npc_manaforge_control_consoleAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_manaforge_control_consoleAI : public ScriptedAI
 {
     npc_manaforge_control_consoleAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -285,7 +285,7 @@ CreatureAI* GetAI_npc_manaforge_control_console(Creature *_Creature)
 ## go_manaforge_control_console
 ######*/
 
-//TODO: clean up this workaround when mangos adds support to do it properly (with gossip selections instead of instant summon)
+//TODO: clean up this workaround when Trinity adds support to do it properly (with gossip selections instead of instant summon)
 bool GOHello_go_manaforge_control_console(Player *player, GameObject* _GO)
 {
     if (_GO->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)

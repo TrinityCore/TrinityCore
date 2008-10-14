@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -62,7 +62,7 @@ EndScriptData */
 #define SPELL_SHADOW_BUFFET         33529
 #define H_SPELL_SHADOW_BUFFET       38143
 
-struct MANGOS_DLL_DECL boss_darkweaver_sythAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_darkweaver_sythAI : public ScriptedAI
 {
     boss_darkweaver_sythAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -227,7 +227,7 @@ CreatureAI* GetAI_boss_darkweaver_syth(Creature *_Creature)
 
 /* ELEMENTALS */
 
-struct MANGOS_DLL_DECL mob_syth_fireAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_syth_fireAI : public ScriptedAI
 {
     mob_syth_fireAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -273,7 +273,7 @@ CreatureAI* GetAI_mob_syth_fire(Creature *_Creature)
     return new mob_syth_fireAI (_Creature);
 }
 
-struct MANGOS_DLL_DECL mob_syth_arcaneAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_syth_arcaneAI : public ScriptedAI
 {
     mob_syth_arcaneAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -319,7 +319,7 @@ CreatureAI* GetAI_mob_syth_arcane(Creature *_Creature)
     return new mob_syth_arcaneAI (_Creature);
 }
 
-struct MANGOS_DLL_DECL mob_syth_frostAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_syth_frostAI : public ScriptedAI
 {
     mob_syth_frostAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -365,7 +365,7 @@ CreatureAI* GetAI_mob_syth_frost(Creature *_Creature)
     return new mob_syth_frostAI (_Creature);
 }
 
-struct MANGOS_DLL_DECL mob_syth_shadowAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_syth_shadowAI : public ScriptedAI
 {
     mob_syth_shadowAI(Creature *c) : ScriptedAI(c) {Reset();}
 

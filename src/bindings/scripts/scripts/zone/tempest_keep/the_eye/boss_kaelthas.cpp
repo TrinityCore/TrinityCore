@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -184,7 +184,7 @@ float KaelthasWeapons[7][5] =
 #define KAEL_VISIBLE_RANGE  50.0f
 
 //Base AI for Advisors
-struct MANGOS_DLL_DECL advisorbase_ai : public ScriptedAI
+struct TRINITY_DLL_DECL advisorbase_ai : public ScriptedAI
 {
     ScriptedInstance* pInstance;
     bool FakeDeath;
@@ -328,7 +328,7 @@ struct MANGOS_DLL_DECL advisorbase_ai : public ScriptedAI
 };
 
 //Kael'thas AI
-struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 {
     boss_kaelthasAI(Creature *c) : ScriptedAI(c)
     {
@@ -1074,7 +1074,7 @@ struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
 };
 
 //Thaladred the Darkener AI
-struct MANGOS_DLL_DECL boss_thaladred_the_darkenerAI : public advisorbase_ai
+struct TRINITY_DLL_DECL boss_thaladred_the_darkenerAI : public advisorbase_ai
 {
     boss_thaladred_the_darkenerAI(Creature *c) : advisorbase_ai(c) {}
 
@@ -1155,7 +1155,7 @@ struct MANGOS_DLL_DECL boss_thaladred_the_darkenerAI : public advisorbase_ai
 };
 
 //Lord Sanguinar AI
-struct MANGOS_DLL_DECL boss_lord_sanguinarAI : public advisorbase_ai
+struct TRINITY_DLL_DECL boss_lord_sanguinarAI : public advisorbase_ai
 {
     boss_lord_sanguinarAI(Creature *c) : advisorbase_ai(c){}
 
@@ -1209,7 +1209,7 @@ struct MANGOS_DLL_DECL boss_lord_sanguinarAI : public advisorbase_ai
 };
 
 //Grand Astromancer Capernian AI
-struct MANGOS_DLL_DECL boss_grand_astromancer_capernianAI : public advisorbase_ai
+struct TRINITY_DLL_DECL boss_grand_astromancer_capernianAI : public advisorbase_ai
 {
     boss_grand_astromancer_capernianAI(Creature *c) : advisorbase_ai(c){}
 
@@ -1335,7 +1335,7 @@ struct MANGOS_DLL_DECL boss_grand_astromancer_capernianAI : public advisorbase_a
 };
 
 //Master Engineer Telonicus AI
-struct MANGOS_DLL_DECL boss_master_engineer_telonicusAI : public advisorbase_ai
+struct TRINITY_DLL_DECL boss_master_engineer_telonicusAI : public advisorbase_ai
 {
     boss_master_engineer_telonicusAI(Creature *c) : advisorbase_ai(c){}
 
@@ -1404,7 +1404,7 @@ struct MANGOS_DLL_DECL boss_master_engineer_telonicusAI : public advisorbase_ai
 };
 
 //Flame Strike AI
-struct MANGOS_DLL_DECL mob_kael_flamestrikeAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_kael_flamestrikeAI : public ScriptedAI
 {
     mob_kael_flamestrikeAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -1454,7 +1454,7 @@ struct MANGOS_DLL_DECL mob_kael_flamestrikeAI : public ScriptedAI
 };
 
 //Phoenix AI
-struct MANGOS_DLL_DECL mob_phoenixAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_phoenixAI : public ScriptedAI
 {
     mob_phoenixAI(Creature *c) : ScriptedAI(c) {Reset();}
 

@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -110,7 +110,7 @@ static Location BrokenWP[]=
 
 const uint32 spawnEntries[4]= { 23523, 23318, 23524 };
 
-struct MANGOS_DLL_DECL mob_ashtongue_channelerAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_ashtongue_channelerAI : public ScriptedAI
 {
     mob_ashtongue_channelerAI(Creature* c) : ScriptedAI(c) { Reset(); }
 
@@ -124,7 +124,7 @@ struct MANGOS_DLL_DECL mob_ashtongue_channelerAI : public ScriptedAI
     void UpdateAI(const uint32 diff) {}
 };
 
-struct MANGOS_DLL_DECL mob_ashtongue_sorcererAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_ashtongue_sorcererAI : public ScriptedAI
 {
     mob_ashtongue_sorcererAI(Creature* c) : ScriptedAI(c) { Reset(); }
 
@@ -168,7 +168,7 @@ struct MANGOS_DLL_DECL mob_ashtongue_sorcererAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
 {
     boss_shade_of_akamaAI(Creature* c) : ScriptedAI(c)
     {
@@ -319,16 +319,16 @@ struct MANGOS_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
 
     void FindChannelers()
     {
-        CellPair pair(MaNGOS::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
+        CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
         Cell cell(pair);
         cell.data.Part.reserved = ALL_DISTRICT;
         cell.SetNoCreate();
 
         std::list<Creature*> ChannelerList;
 
-        MaNGOS::AllCreaturesOfEntryInRange check(m_creature, CREATURE_CHANNELER, 50);
-        MaNGOS::CreatureListSearcher<MaNGOS::AllCreaturesOfEntryInRange> searcher(ChannelerList, check);
-        TypeContainerVisitor<MaNGOS::CreatureListSearcher<MaNGOS::AllCreaturesOfEntryInRange>, GridTypeMapContainer> visitor(searcher);
+        Trinity::AllCreaturesOfEntryInRange check(m_creature, CREATURE_CHANNELER, 50);
+        Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(ChannelerList, check);
+        TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> visitor(searcher);
 
         CellLock<GridReadGuard> cell_lock(cell, pair);
         cell_lock->Visit(cell_lock, visitor, *(m_creature->GetMap()));
@@ -480,7 +480,7 @@ void mob_ashtongue_sorcererAI::JustDied(Unit* killer)
     else error_log("SD2 ERROR: Sorcerer dead but unable to increment DeathCount for Shade of Akama.");
 }
 
-struct MANGOS_DLL_DECL npc_akamaAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
 {
     npc_akamaAI(Creature* c) : ScriptedAI(c)
     {

@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -51,7 +51,7 @@ EndContentData */
 #define SPELL_LUNG_BURST            31481
 #define SPELL_ENVELOPING_WINDS      31718
 
-struct MANGOS_DLL_DECL boss_thespiaAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_thespiaAI : public ScriptedAI
 {
     boss_thespiaAI(Creature *c) : ScriptedAI(c)
     {
@@ -165,7 +165,7 @@ struct MANGOS_DLL_DECL boss_thespiaAI : public ScriptedAI
 #define SPELL_WATER_BOLT_VOLLEY     34449
 #define H_SPELL_WATER_BOLT_VOLLEY   37924
 
-struct MANGOS_DLL_DECL mob_coilfang_waterelementalAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_coilfang_waterelementalAI : public ScriptedAI
 {
     mob_coilfang_waterelementalAI(Creature *c) : ScriptedAI(c) {Reset();}
 

@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -128,7 +128,7 @@ bool GossipSelect_npc_innkeeper(Player *player, Creature *_Creature, uint32 send
             }
             player->CastSpell(player, trickspell, true);
         }
-        return true;                                        // prevent mangos core handling
+        return true;                                        // prevent Trinity core handling
     }
     return false;                                           // the player didn't select "trick or treat" or cheated, normal core handling
 }

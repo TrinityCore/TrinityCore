@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -113,7 +113,7 @@ static Position Coords[]=
     {450.4, 168.3}
 };
 
-struct MANGOS_DLL_DECL npc_enslaved_soulAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_enslaved_soulAI : public ScriptedAI
 {
     npc_enslaved_soulAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -149,7 +149,7 @@ struct MANGOS_DLL_DECL npc_enslaved_soulAI : public ScriptedAI
     void JustDied(Unit *killer);
 };
 
-struct MANGOS_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
 {
     boss_reliquary_of_soulsAI(Creature *c) : ScriptedAI(c)
     {
@@ -583,7 +583,7 @@ struct TargetDistanceOrder : public std::binary_function<const Unit, const Unit,
     }
 };
 
-struct MANGOS_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
 {
     boss_essence_of_sufferingAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -733,7 +733,7 @@ struct MANGOS_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-struct MANGOS_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
 {
     boss_essence_of_desireAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -851,7 +851,7 @@ struct MANGOS_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
 {
     boss_essence_of_angerAI(Creature *c) : ScriptedAI(c) {Reset();}
 

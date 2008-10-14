@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -68,8 +68,8 @@ class NearbyAQSentinel
         Unit const* i_obj;
 };
 
-struct MANGOS_DLL_DECL aqsentinelAI;
-class MANGOS_DLL_DECL SentinelAbilityAura : public Aura
+struct TRINITY_DLL_DECL aqsentinelAI;
+class TRINITY_DLL_DECL SentinelAbilityAura : public Aura
 {
     public:
         ~SentinelAbilityAura();
@@ -81,7 +81,7 @@ class MANGOS_DLL_DECL SentinelAbilityAura : public Aura
         uint32 abilityId;
 };
 
-struct MANGOS_DLL_DECL aqsentinelAI : public ScriptedAI
+struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
 {
     uint32 ability;
     int abselected;
@@ -167,7 +167,7 @@ struct MANGOS_DLL_DECL aqsentinelAI : public ScriptedAI
 
     void AddSentinelsNear(Unit *nears)
     {
-        CellPair p(MaNGOS::ComputeCellPair(nears->GetPositionX(), nears->GetPositionY()));
+        CellPair p(Trinity::ComputeCellPair(nears->GetPositionX(), nears->GetPositionY()));
         Cell cell(p);
         cell.data.Part.reserved = ALL_DISTRICT;
         cell.SetNoCreate();
@@ -175,8 +175,8 @@ struct MANGOS_DLL_DECL aqsentinelAI : public ScriptedAI
         std::list<Creature*> assistList;
 
         NearbyAQSentinel u_check(nears);
-        MaNGOS::CreatureListSearcher<NearbyAQSentinel> searcher(assistList, u_check);
-        TypeContainerVisitor<MaNGOS::CreatureListSearcher<NearbyAQSentinel>, GridTypeMapContainer >  grid_creature_searcher(searcher);
+        Trinity::CreatureListSearcher<NearbyAQSentinel> searcher(assistList, u_check);
+        TypeContainerVisitor<Trinity::CreatureListSearcher<NearbyAQSentinel>, GridTypeMapContainer >  grid_creature_searcher(searcher);
         CellLock<GridReadGuard> cell_lock(cell, p);
         cell_lock->Visit(cell_lock, grid_creature_searcher, *(nears->GetMap()));
 

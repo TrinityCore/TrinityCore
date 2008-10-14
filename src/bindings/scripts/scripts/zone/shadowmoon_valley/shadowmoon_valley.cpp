@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -45,7 +45,7 @@ EndContentData */
 
 #define SAY_JUST_EATEN                  "Thank you, mortal."
 
-struct MANGOS_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
 {
     mob_mature_netherwing_drakeAI(Creature* c) : ScriptedAI(c)
     {
@@ -168,7 +168,7 @@ CreatureAI* GetAI_mob_mature_netherwing_drake(Creature *_creature)
 #define CREATURE_DRAGONMAW_SUBJUGATOR   21718
 #define CREATURE_ESCAPE_DUMMY           22317
 
-struct MANGOS_DLL_DECL mob_enslaved_netherwing_drakeAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_enslaved_netherwing_drakeAI : public ScriptedAI
 {
     mob_enslaved_netherwing_drakeAI(Creature* c) : ScriptedAI(c)
     {
@@ -198,15 +198,15 @@ struct MANGOS_DLL_DECL mob_enslaved_netherwing_drakeAI : public ScriptedAI
         Creature* pCreature = NULL;
 
         // Time for some omg mind blowing code to search for creature
-        CellPair pair(MaNGOS::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
+        CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
         Cell cell(pair);
         cell.data.Part.reserved = ALL_DISTRICT;
         cell.SetNoCreate();
 
-        MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck creature_check(*m_creature, entry, true, range);
-        MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(pCreature, creature_check);
+        Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck creature_check(*m_creature, entry, true, range);
+        Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(pCreature, creature_check);
 
-        TypeContainerVisitor<MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer> creature_searcher(searcher);
+        TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer> creature_searcher(searcher);
 
         CellLock<GridReadGuard> cell_lock(cell, pair);
         cell_lock->Visit(cell_lock, creature_searcher,*(m_creature->GetMap()));
@@ -317,7 +317,7 @@ CreatureAI* GetAI_mob_enslaved_netherwing_drake(Creature* _Creature)
 # mob_dragonmaw_peon
 #####*/
 
-struct MANGOS_DLL_DECL mob_dragonmaw_peonAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_dragonmaw_peonAI : public ScriptedAI
 {
     mob_dragonmaw_peonAI(Creature* c) : ScriptedAI(c)
     {
@@ -413,7 +413,7 @@ bool GossipSelect_npc_drake_dealer_hurlunk(Player *player, Creature *_Creature, 
 #define SPELL_TELE_A_TO   37387
 #define SPELL_TELE_H_TO   37389
 
-struct MANGOS_DLL_DECL npc_invis_legion_teleporterAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_invis_legion_teleporterAI : public ScriptedAI
 {
     npc_invis_legion_teleporterAI(Creature *c) : ScriptedAI(c) {Reset();}
 

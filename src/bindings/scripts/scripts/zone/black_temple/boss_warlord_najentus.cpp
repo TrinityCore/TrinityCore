@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -71,7 +71,7 @@ EndScriptData */
 
 #define DISPLAYID_SPINE         7362
 
-struct MANGOS_DLL_DECL mob_najentus_spineAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_najentus_spineAI : public ScriptedAI
 {
     mob_najentus_spineAI(Creature *c) : ScriptedAI(c)
     {
@@ -110,7 +110,7 @@ struct MANGOS_DLL_DECL mob_najentus_spineAI : public ScriptedAI
     void UpdateAI(const uint32 diff) {}
 };
 
-struct MANGOS_DLL_DECL boss_najentusAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 {
     boss_najentusAI(Creature *c) : ScriptedAI(c)
     {

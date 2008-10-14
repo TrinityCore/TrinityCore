@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -133,7 +133,7 @@ static CouncilYells CouncilEnrage[]=
     {"Sha'amoor sine menoor!", 11446, 0},                   // Zerevor
 };
 
-struct MANGOS_DLL_DECL mob_blood_elf_council_voice_triggerAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_blood_elf_council_voice_triggerAI : public ScriptedAI
 {
     mob_blood_elf_council_voice_triggerAI(Creature* c) : ScriptedAI(c)
     {
@@ -216,7 +216,7 @@ struct MANGOS_DLL_DECL mob_blood_elf_council_voice_triggerAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL mob_illidari_councilAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
 {
     mob_illidari_councilAI(Creature *c) : ScriptedAI(c)
     {
@@ -370,7 +370,7 @@ struct MANGOS_DLL_DECL mob_illidari_councilAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL boss_illidari_councilAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_illidari_councilAI : public ScriptedAI
 {
     boss_illidari_councilAI(Creature* c) : ScriptedAI(c)
     {
@@ -439,7 +439,7 @@ struct MANGOS_DLL_DECL boss_illidari_councilAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL boss_gathios_the_shattererAI : public boss_illidari_councilAI
+struct TRINITY_DLL_DECL boss_gathios_the_shattererAI : public boss_illidari_councilAI
 {
     boss_gathios_the_shattererAI(Creature *c) : boss_illidari_councilAI(c) { Reset(); }
 
@@ -556,7 +556,7 @@ struct MANGOS_DLL_DECL boss_gathios_the_shattererAI : public boss_illidari_counc
     }
 };
 
-struct MANGOS_DLL_DECL boss_high_nethermancer_zerevorAI : public boss_illidari_councilAI
+struct TRINITY_DLL_DECL boss_high_nethermancer_zerevorAI : public boss_illidari_councilAI
 {
     boss_high_nethermancer_zerevorAI(Creature *c) : boss_illidari_councilAI(c) { Reset(); }
 
@@ -650,7 +650,7 @@ struct MANGOS_DLL_DECL boss_high_nethermancer_zerevorAI : public boss_illidari_c
     }
 };
 
-struct MANGOS_DLL_DECL boss_lady_malandeAI : public boss_illidari_councilAI
+struct TRINITY_DLL_DECL boss_lady_malandeAI : public boss_illidari_councilAI
 {
     boss_lady_malandeAI(Creature *c) : boss_illidari_councilAI(c) { Reset(); }
 
@@ -719,7 +719,7 @@ struct MANGOS_DLL_DECL boss_lady_malandeAI : public boss_illidari_councilAI
     }
 };
 
-struct MANGOS_DLL_DECL boss_veras_darkshadowAI : public boss_illidari_councilAI
+struct TRINITY_DLL_DECL boss_veras_darkshadowAI : public boss_illidari_councilAI
 {
     boss_veras_darkshadowAI(Creature *c) : boss_illidari_councilAI(c) { Reset(); }
 

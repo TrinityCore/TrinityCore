@@ -60,7 +60,7 @@ EndScriptData */
 #define STOMP 45185
 #define BERSERK 26662
 
-struct MANGOS_DLL_DECL boss_brutallusAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
 {
     boss_brutallusAI(Creature *c) : ScriptedAI(c) { Reset(); }
 

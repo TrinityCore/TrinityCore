@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -71,7 +71,7 @@ EndScriptData */
 //If nefarian dies then he will kill himself then he will kill himself in his hiding place
 //To prevent players from doing the event twice
 
-struct MANGOS_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
 {
     boss_victor_nefariusAI(Creature *c) : ScriptedAI(c)
     {
@@ -194,7 +194,7 @@ struct MANGOS_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
         DoYell(SAY_GAMESBEGIN_2,LANG_UNIVERSAL,NULL);
         DoPlaySoundToSet(m_creature,SOUND_GAMESBEGIN);
 
-        //MaNGOS::Singleton<MapManager>::Instance().GetMap(m_creature->GetMapId(), m_creature)->GetPlayers().begin();
+        //Trinity::Singleton<MapManager>::Instance().GetMap(m_creature->GetMapId(), m_creature)->GetPlayers().begin();
         /*
         list <Player*>::iterator i = MapManager::Instance().GetMap(m_creature->GetMapId(), m_creature)->GetPlayers().begin();
 
@@ -310,7 +310,7 @@ struct MANGOS_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
                     //Make super invis
                     DoCast(m_creature,8149);
 
-                    //Teleport self to a hiding spot (this causes errors in the mangos log but no real issues)
+                    //Teleport self to a hiding spot (this causes errors in the Trinity log but no real issues)
                     m_creature->Relocate(HIDE_X,HIDE_Y,HIDE_Z,0);
                     m_creature->SendMonsterMove(HIDE_X,HIDE_Y,HIDE_Z,0,true,0);
                     m_creature->addUnitState(UNIT_STAT_FLEEING);

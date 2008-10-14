@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -39,7 +39,7 @@ EndContentData */
 #define SPELL_FREEZING_TRAP     37368
 #define SPELL_HAMMER_OF_JUSTICE 37369
 
-struct MANGOS_DLL_DECL mob_stolen_soulAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_stolen_soulAI : public ScriptedAI
 {
     mob_stolen_soulAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -151,7 +151,7 @@ CreatureAI* GetAI_mob_stolen_soul(Creature *_Creature)
 
 #define ENTRY_STOLEN_SOUL           18441
 
-struct MANGOS_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
 {
     boss_exarch_maladaarAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -232,7 +232,7 @@ struct MANGOS_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
     {
         if( summoned->GetEntry() == ENTRY_STOLEN_SOUL )
         {
-            //SPELL_STOLEN_SOUL_VISUAL has shapeshift effect, but not implemented feature in mangos for this spell.
+            //SPELL_STOLEN_SOUL_VISUAL has shapeshift effect, but not implemented feature in Trinity for this spell.
             summoned->SetDisplayId(soulmodel);
             summoned->CastSpell(summoned,SPELL_STOLEN_SOUL_VISUAL,false);
 
@@ -347,7 +347,7 @@ CreatureAI* GetAI_boss_exarch_maladaar(Creature *_Creature)
 #define SPELL_MORTAL_STRIKE         16856
 #define SPELL_SUNDER_ARMOR          16145
 
-struct MANGOS_DLL_DECL mob_avatar_of_martyredAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_avatar_of_martyredAI : public ScriptedAI
 {
     mob_avatar_of_martyredAI(Creature *c) : ScriptedAI(c) {Reset();}
 

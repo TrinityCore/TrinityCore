@@ -140,7 +140,7 @@ bool GOHello_GO_Spectral_Portal(Player* plr, GameObject* go)
     return true;
 }
 
-struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
 {
     boss_kalecgosAI(Creature* c) : ScriptedAI(c)
     {
@@ -406,7 +406,7 @@ struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL boss_sathrovarrAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
 {
     boss_sathrovarrAI(Creature* c) : ScriptedAI(c)
     {
@@ -539,7 +539,7 @@ struct MANGOS_DLL_DECL boss_sathrovarrAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL boss_kalecAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_kalecAI : public ScriptedAI
 {
     boss_kalecAI(Creature* c) : ScriptedAI(c)
     {

@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -59,7 +59,7 @@ EndScriptData */
 
 #define CREATURE_FEL_CRYSTAL            24722
 
-struct MANGOS_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
 {
     boss_selin_fireheartAI(Creature* c) : ScriptedAI(c)
     {
@@ -108,7 +108,7 @@ struct MANGOS_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
                 if(pUnit)
                 {
                     if(!pUnit->isAlive())
-                        ((Creature*)pUnit)->Respawn();      // Let MaNGOS handle setting death state, etc.
+                        ((Creature*)pUnit)->Respawn();      // Let TrinIty handle setting death state, etc.
 
                     // Only need to set unselectable flag. You can't attack unselectable units so non_attackable flag is not necessary here.
                     pUnit->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -347,7 +347,7 @@ CreatureAI* GetAI_boss_selin_fireheart(Creature *_Creature)
     return new boss_selin_fireheartAI (_Creature);
 };
 
-struct MANGOS_DLL_DECL mob_fel_crystalAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_fel_crystalAI : public ScriptedAI
 {
     mob_fel_crystalAI(Creature *c) : ScriptedAI(c) { Reset(); }
 

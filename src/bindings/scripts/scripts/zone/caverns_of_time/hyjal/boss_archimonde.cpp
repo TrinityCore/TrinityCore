@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -146,7 +146,7 @@ struct mob_ancient_wispAI : public ScriptedAI
 /* This script controls the Doomfire mob. Unlike the other Doomfire mob, this one does not stalk players.
    Instead, this doomfire will simply stand in one place after spawning and deal damage to any players that
    are within 3 yards. Another creature called Doomfire Targetting spawns this creature as well as stalks. */
-struct MANGOS_DLL_DECL mob_doomfireAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_doomfireAI : public ScriptedAI
 {
     mob_doomfireAI(Creature* c) : ScriptedAI(c)
     {
@@ -241,7 +241,7 @@ struct MANGOS_DLL_DECL mob_doomfireAI : public ScriptedAI
 };
 
 /* This is the script for the Doomfire Targetting Mob. This mob simply follows players and/or travels in random directions and spawns the actual Doomfire which does damage to anyone that moves close.  */
-struct MANGOS_DLL_DECL mob_doomfire_targettingAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_doomfire_targettingAI : public ScriptedAI
 {
     mob_doomfire_targettingAI(Creature* c) : ScriptedAI(c)
     {
@@ -351,7 +351,7 @@ struct TargetDistanceOrder : public std::binary_function<const Unit, const Unit,
     }
 };
 
-struct MANGOS_DLL_DECL boss_archimondeAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
 {
     boss_archimondeAI(Creature *c) : ScriptedAI(c)
     {

@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -136,7 +136,7 @@ bool GOHello_go_tablet_of_madness(Player *player, GameObject* _GO)
 ## go_tablet_of_the_seven
 ######*/
 
-//TODO: use gossip option ("Transcript the Tablet") instead, if Mangos adds support.
+//TODO: use gossip option ("Transcript the Tablet") instead, if Trinity adds support.
 bool GOHello_go_tablet_of_the_seven(Player *player, GameObject* _GO)
 {
     if (_GO->GetGoType() != GAMEOBJECT_TYPE_QUESTGIVER)

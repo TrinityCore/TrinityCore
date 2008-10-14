@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -59,7 +59,7 @@ EndContentData */
 
 #define ENTRY_BEACON                    18431
 
-struct MANGOS_DLL_DECL boss_nexusprince_shaffarAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_nexusprince_shaffarAI : public ScriptedAI
 {
     boss_nexusprince_shaffarAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -231,7 +231,7 @@ CreatureAI* GetAI_boss_nexusprince_shaffar(Creature *_Creature)
 #define SPELL_ARCANE_BOLT               15254
 #define SPELL_ETHEREAL_APPRENTICE       32372               // Summon 18430
 
-struct MANGOS_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
 {
     mob_ethereal_beaconAI(Creature *c) : ScriptedAI(c)
     {

@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -40,7 +40,7 @@ EndContentData */
 
 #define GOSSIP_BLY                  "[PH] In that case, i will take my reward!"
 
-struct MANGOS_DLL_DECL npc_sergeant_blyAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_sergeant_blyAI : public ScriptedAI
 {
     npc_sergeant_blyAI(Creature *c) : ScriptedAI(c)
     {
@@ -51,7 +51,7 @@ struct MANGOS_DLL_DECL npc_sergeant_blyAI : public ScriptedAI
     //ScriptedInstance* pInstance;
 
     uint32 ShieldBash_Timer;
-    uint32 Revenge_Timer;                                   //this is wrong, spell should never be used unless m_creature->getVictim() dodge, parry or block attack. Mangos support required.
+    uint32 Revenge_Timer;                                   //this is wrong, spell should never be used unless m_creature->getVictim() dodge, parry or block attack. Trinity support required.
 
     void Reset()
     {
@@ -138,7 +138,7 @@ bool GossipSelect_npc_sergeant_bly(Player *player, Creature *_Creature, uint32 s
 
 #define GOSSIP_WEEGLI               "[PH] Please blow up the door."
 
-struct MANGOS_DLL_DECL npc_weegli_blastfuseAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_weegli_blastfuseAI : public ScriptedAI
 {
     npc_weegli_blastfuseAI(Creature *c) : ScriptedAI(c)
     {

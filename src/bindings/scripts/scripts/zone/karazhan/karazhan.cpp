@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -105,7 +105,7 @@ float StageLocations[6][2]=
 #define SPAWN_Y             -1758
 #define SPAWN_O             4.738
 
-struct MANGOS_DLL_DECL npc_barnesAI : public npc_escortAI
+struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
 {
     npc_barnesAI(Creature* c) : npc_escortAI(c)
     {

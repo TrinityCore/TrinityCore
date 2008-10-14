@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -26,7 +26,7 @@ EndScriptData */
 #define SPELL_FOUL_SPORES   31673
 #define SPELL_ACID_GEYSER   38739
 
-struct MANGOS_DLL_DECL boss_hungarfenAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_hungarfenAI : public ScriptedAI
 {
     boss_hungarfenAI(Creature *c) : ScriptedAI(c)
     {
@@ -93,7 +93,7 @@ CreatureAI* GetAI_boss_hungarfen(Creature *_Creature)
 #define SPELL_PUTRID_MUSHROOM   31690
 #define SPELL_GROW              31698
 
-struct MANGOS_DLL_DECL mob_underbog_mushroomAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_underbog_mushroomAI : public ScriptedAI
 {
     mob_underbog_mushroomAI(Creature *c) : ScriptedAI(c) { Reset(); }
 

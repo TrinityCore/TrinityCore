@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -88,7 +88,7 @@ static Say PeonDies[]=
 #define SPELL_CONSUMPTION           30497
 #define SPELL_TEMPORARY_VISUAL      39312                   // this is wrong, a temporary solution. spell consumption already has the purple visual, but doesn't display as it should
 
-struct MANGOS_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
 {
     boss_grand_warlock_nethekurseAI(Creature *c) : ScriptedAI(c)
     {
@@ -362,7 +362,7 @@ struct MANGOS_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL mob_fel_orc_convertAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_fel_orc_convertAI : public ScriptedAI
 {
     mob_fel_orc_convertAI(Creature *c) : ScriptedAI(c)
     {
@@ -430,7 +430,7 @@ struct MANGOS_DLL_DECL mob_fel_orc_convertAI : public ScriptedAI
 };
 
 //NOTE: this creature are also summoned by other spells, for different creatures
-struct MANGOS_DLL_DECL mob_lesser_shadow_fissureAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_lesser_shadow_fissureAI : public ScriptedAI
 {
     mob_lesser_shadow_fissureAI(Creature *c) : ScriptedAI(c) {Reset();}
 
