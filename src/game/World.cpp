@@ -789,7 +789,7 @@ void World::LoadConfigSettings(bool reload)
     if(m_configs[CONFIG_PLAYER_START_ARENAPTS] < 0)
         m_configs[CONFIG_PLAYER_START_ARENAPTS] = 0;
 
-    m_configs[CONFIG_GM_START_LEVEL] = sConfig.GetIntDefault("GamemasterStartLevel", 70);
+    m_configs[CONFIG_GM_START_LEVEL] = sConfig.GetIntDefault("GamemasterStartLevel", 1);
     if(m_configs[CONFIG_GM_START_LEVEL] < 1)
         m_configs[CONFIG_GM_START_LEVEL] = 1;
 
