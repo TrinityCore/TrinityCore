@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -60,7 +60,7 @@ EndContentData */
 #define SPELL_BURNING_NOVA          30940
 #define SPELL_VORTEX                37370
 
-struct MANGOS_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
 {
     boss_kelidan_the_breakerAI(Creature *c) : ScriptedAI(c)
     {
@@ -184,7 +184,7 @@ CreatureAI* GetAI_boss_kelidan_the_breaker(Creature *_Creature)
 #define SPELL_CHANNELING        0                           //initial spell channeling boss/each other not known
                                                             //when engaged all channelers must stop, trigger yell (SAY_ADD_AGGRO_*), and engage.
 
-struct MANGOS_DLL_DECL mob_shadowmoon_channelerAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_shadowmoon_channelerAI : public ScriptedAI
 {
     mob_shadowmoon_channelerAI(Creature *c) : ScriptedAI(c)
     {

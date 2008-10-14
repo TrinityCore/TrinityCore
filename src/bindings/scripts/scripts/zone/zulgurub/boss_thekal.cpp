@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -53,7 +53,7 @@ EndScriptData */
 #define SAY_DEATH         "Hakkar binds me no more. Peace at last."
 #define SOUND_DEATH       8424
 
-struct MANGOS_DLL_DECL boss_thekalAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_thekalAI : public ScriptedAI
 {
     boss_thekalAI(Creature *c) : ScriptedAI(c)
     {
@@ -242,7 +242,7 @@ struct MANGOS_DLL_DECL boss_thekalAI : public ScriptedAI
 };
 
 //Zealot Lor'Khan
-struct MANGOS_DLL_DECL mob_zealot_lorkhanAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_zealot_lorkhanAI : public ScriptedAI
 {
     mob_zealot_lorkhanAI(Creature *c) : ScriptedAI(c)
     {
@@ -378,7 +378,7 @@ struct MANGOS_DLL_DECL mob_zealot_lorkhanAI : public ScriptedAI
 };
 
 //Zealot Zath
-struct MANGOS_DLL_DECL mob_zealot_zathAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_zealot_zathAI : public ScriptedAI
 {
     mob_zealot_zathAI(Creature *c) : ScriptedAI(c)
     {

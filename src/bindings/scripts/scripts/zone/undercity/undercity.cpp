@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -54,7 +54,7 @@ float HighborneLoc[4][3]=
 #define HIGHBORNE_LOC_Y             -61.00
 #define HIGHBORNE_LOC_Y_NEW         -55.50
 
-struct MANGOS_DLL_DECL npc_lady_sylvanas_windrunnerAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_lady_sylvanas_windrunnerAI : public ScriptedAI
 {
     npc_lady_sylvanas_windrunnerAI(Creature *c) : ScriptedAI(c) { Reset(); }
 
@@ -148,7 +148,7 @@ bool ChooseReward_npc_lady_sylvanas_windrunner(Player *player, Creature *_Creatu
 ## npc_highborne_lamenter
 ######*/
 
-struct MANGOS_DLL_DECL npc_highborne_lamenterAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_highborne_lamenterAI : public ScriptedAI
 {
     npc_highborne_lamenterAI(Creature *c) : ScriptedAI(c) { Reset(); }
 

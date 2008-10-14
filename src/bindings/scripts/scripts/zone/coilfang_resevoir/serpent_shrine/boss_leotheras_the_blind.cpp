@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -60,7 +60,7 @@ EndScriptData */
 #define DEMON_FORM              21845
 
 //Original Leotheras the Blind AI
-struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 {
     boss_leotheras_the_blindAI(Creature *c) : ScriptedAI(c)
     {
@@ -242,7 +242,7 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 };
 
 //Leotheras the Blind Demon Form AI
-struct MANGOS_DLL_DECL boss_leotheras_the_blind_demonformAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_leotheras_the_blind_demonformAI : public ScriptedAI
 {
     boss_leotheras_the_blind_demonformAI(Creature *c) : ScriptedAI(c)
     {

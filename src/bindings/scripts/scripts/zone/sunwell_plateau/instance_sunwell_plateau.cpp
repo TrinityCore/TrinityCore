@@ -27,7 +27,7 @@ EndScriptData */
 5 - Kil'Jaeden
 */
 
-struct MANGOS_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
+struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
 {
     instance_sunwell_plateau(Map *Map) : ScriptedInstance(Map) {Initialize();};
 

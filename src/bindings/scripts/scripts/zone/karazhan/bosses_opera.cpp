@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -119,7 +119,7 @@ void SummonCroneIfReady(ScriptedInstance* pInstance, Creature *_Creature)
     }
 };
 
-struct MANGOS_DLL_DECL boss_dorotheeAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_dorotheeAI : public ScriptedAI
 {
     boss_dorotheeAI(Creature* c) : ScriptedAI(c)
     {
@@ -220,7 +220,7 @@ struct MANGOS_DLL_DECL boss_dorotheeAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL mob_titoAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_titoAI : public ScriptedAI
 {
     mob_titoAI(Creature* c) : ScriptedAI(c)
     {
@@ -283,7 +283,7 @@ void boss_dorotheeAI::SummonTito()
     }
 }
 
-struct MANGOS_DLL_DECL boss_strawmanAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_strawmanAI : public ScriptedAI
 {
     boss_strawmanAI(Creature* c) : ScriptedAI(c)
     {
@@ -375,7 +375,7 @@ struct MANGOS_DLL_DECL boss_strawmanAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL boss_tinheadAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_tinheadAI : public ScriptedAI
 {
     boss_tinheadAI(Creature* c) : ScriptedAI(c)
     {
@@ -470,7 +470,7 @@ struct MANGOS_DLL_DECL boss_tinheadAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL boss_roarAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_roarAI : public ScriptedAI
 {
     boss_roarAI(Creature* c) : ScriptedAI(c)
     {
@@ -564,7 +564,7 @@ struct MANGOS_DLL_DECL boss_roarAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL boss_croneAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_croneAI : public ScriptedAI
 {
     boss_croneAI(Creature* c) : ScriptedAI(c)
     {
@@ -639,7 +639,7 @@ struct MANGOS_DLL_DECL boss_croneAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL mob_cycloneAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_cycloneAI : public ScriptedAI
 {
     mob_cycloneAI(Creature* c) : ScriptedAI(c)
     {
@@ -762,7 +762,7 @@ bool GossipSelect_npc_grandmother(Player* player, Creature* _Creature, uint32 se
     return true;
 }
 
-struct MANGOS_DLL_DECL boss_bigbadwolfAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_bigbadwolfAI : public ScriptedAI
 {
     boss_bigbadwolfAI(Creature* c) : ScriptedAI(c)
     {
@@ -970,7 +970,7 @@ void Resurrect(Creature* target)
     }
 };
 
-struct MANGOS_DLL_DECL boss_julianneAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_julianneAI : public ScriptedAI
 {
     boss_julianneAI(Creature* c) : ScriptedAI(c)
     {
@@ -1070,7 +1070,7 @@ struct MANGOS_DLL_DECL boss_julianneAI : public ScriptedAI
     void UpdateAI(const uint32 diff);
 };
 
-struct MANGOS_DLL_DECL boss_romuloAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_romuloAI : public ScriptedAI
 {
     boss_romuloAI(Creature* c) : ScriptedAI(c)
     {

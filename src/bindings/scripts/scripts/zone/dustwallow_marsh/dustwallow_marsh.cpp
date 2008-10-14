@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -39,7 +39,7 @@ EndContentData */
 #define SPELL_CONSUME_FLESH                 37933           //Risen Husk
 #define SPELL_INTANGIBLE_PRESENCE           43127           //Risen Spirit
 
-struct MANGOS_DLL_DECL mobs_risen_husk_spiritAI : public ScriptedAI
+struct TRINITY_DLL_DECL mobs_risen_husk_spiritAI : public ScriptedAI
 {
     mobs_risen_husk_spiritAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -106,7 +106,7 @@ bool GossipHello_npc_restless_apparition(Player *player, Creature *_Creature)
 ## npc_deserter_agitator
 ######*/
 
-struct MANGOS_DLL_DECL npc_deserter_agitatorAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_deserter_agitatorAI : public ScriptedAI
 {
     npc_deserter_agitatorAI(Creature *c) : ScriptedAI(c) {Reset();}
 

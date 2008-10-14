@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -37,7 +37,7 @@ EndContentData */
 ## mob_shattered_rumbler - this should be done with ACID
 ######*/
 
-struct MANGOS_DLL_DECL mob_shattered_rumblerAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_shattered_rumblerAI : public ScriptedAI
 {
     bool Spawn;
 
@@ -84,7 +84,7 @@ CreatureAI* GetAI_mob_shattered_rumbler(Creature *_Creature)
 
 #define LUMP_DEFEAT "OK, OK! Lump give up!"
 
-struct MANGOS_DLL_DECL mob_lumpAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_lumpAI : public ScriptedAI
 {
     mob_lumpAI(Creature *c) : ScriptedAI(c)
     {
@@ -218,7 +218,7 @@ bool GossipSelect_mob_lump(Player *player, Creature *_Creature, uint32 sender, u
 # mob_sunspring_villager - should be done with ACID
 ####*/
 
-struct MANGOS_DLL_DECL mob_sunspring_villagerAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_sunspring_villagerAI : public ScriptedAI
 {
     mob_sunspring_villagerAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -483,7 +483,7 @@ bool GossipSelect_npc_lantresor_of_the_blade(Player *player, Creature *_Creature
 ## npc_creditmarker_visist_with_ancestors (Quest 10085)
 ######*/
 
-struct MANGOS_DLL_DECL npc_creditmarker_visit_with_ancestorsAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_creditmarker_visit_with_ancestorsAI : public ScriptedAI
 {
     npc_creditmarker_visit_with_ancestorsAI(Creature* c) : ScriptedAI(c) { Reset(); }
 

@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -49,7 +49,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_unkor_the_ruthless' WHERE `entr
 #define SPELL_PULVERIZE                 2676
 //#define SPELL_QUID9889                32174
 
-struct MANGOS_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
 {
     mob_unkor_the_ruthlessAI(Creature* c) : ScriptedAI(c) { Reset(); }
 
@@ -148,7 +148,7 @@ CreatureAI* GetAI_mob_unkor_the_ruthless(Creature *_Creature)
 ## mob_infested_root_walker
 ######*/
 
-struct MANGOS_DLL_DECL mob_infested_root_walkerAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_infested_root_walkerAI : public ScriptedAI
 {
     mob_infested_root_walkerAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -173,7 +173,7 @@ CreatureAI* GetAI_mob_infested_root_walker(Creature *_Creature)
 ## mob_rotting_forest_rager
 ######*/
 
-struct MANGOS_DLL_DECL mob_rotting_forest_ragerAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_rotting_forest_ragerAI : public ScriptedAI
 {
     mob_rotting_forest_ragerAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -205,7 +205,7 @@ const uint32 netherwebVictims[6] =
 {
     18470, 16805, 21242, 18452, 22482, 21285
 };
-struct MANGOS_DLL_DECL mob_netherweb_victimAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_netherweb_victimAI : public ScriptedAI
 {
     mob_netherweb_victimAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -253,7 +253,7 @@ CreatureAI* GetAI_mob_netherweb_victim(Creature *_Creature)
 #define SPELL_FROSTBOLT         9672
 #define SPELL_FROST_NOVA        11831
 
-struct MANGOS_DLL_DECL npc_floonAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_floonAI : public ScriptedAI
 {
     npc_floonAI(Creature* c) : ScriptedAI(c) { Reset(); }
 

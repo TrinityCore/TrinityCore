@@ -6,12 +6,12 @@
 *
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 * GNU General Public License for more details.
 *
 * You should have received a copy of the GNU General Public License
 * along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 
 /* ScriptData
@@ -34,7 +34,7 @@ EndScriptData */
 #define SAY_ZAPPED2 "Who you gonna call?"
 #define SAY_ZAPPED3 "Don't cross those beams!"
 
-struct MANGOS_DLL_DECL mob_freed_soulAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_freed_soulAI : public ScriptedAI
 {
     mob_freed_soulAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -70,7 +70,7 @@ CreatureAI* GetAI_mob_freed_soul(Creature *_Creature)
 ## mob_restless_soul
 ######*/
 
-struct MANGOS_DLL_DECL mob_restless_soulAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_restless_soulAI : public ScriptedAI
 {
     mob_restless_soulAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -159,7 +159,7 @@ CreatureAI* GetAI_mob_restless_soul(Creature *_Creature)
 ## mobs_spectral_ghostly_citizen
 ######*/
 
-struct MANGOS_DLL_DECL mobs_spectral_ghostly_citizenAI : public ScriptedAI
+struct TRINITY_DLL_DECL mobs_spectral_ghostly_citizenAI : public ScriptedAI
 {
     mobs_spectral_ghostly_citizenAI(Creature *c) : ScriptedAI(c) {Reset();}
 

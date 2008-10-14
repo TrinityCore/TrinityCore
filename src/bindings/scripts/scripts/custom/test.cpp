@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "../npc/npc_escortAI.h"
 
-struct MANGOS_DLL_DECL npc_testAI : public npc_escortAI
+struct TRINITY_DLL_DECL npc_testAI : public npc_escortAI
 {
     public:
 
@@ -167,7 +167,7 @@ bool GossipSelect_npc_test(Player *player, Creature *_Creature, uint32 sender, u
         player->CLOSE_GOSSIP_MENU();
         ((npc_escortAI*)(_Creature->AI()))->Start(true, true, true, player->GetGUID());
 
-        return true;                                        // prevent mangos core handling
+        return true;                                        // prevent Trinity core handling
     }
 
     if (action == GOSSIP_ACTION_INFO_DEF+2)
@@ -175,7 +175,7 @@ bool GossipSelect_npc_test(Player *player, Creature *_Creature, uint32 sender, u
         player->CLOSE_GOSSIP_MENU();
         ((npc_escortAI*)(_Creature->AI()))->Start(false, false, false, player->GetGUID());
 
-        return true;                                        // prevent mangos core handling
+        return true;                                        // prevent Trinity core handling
     }
 
     if (action == GOSSIP_ACTION_INFO_DEF+3)
@@ -183,7 +183,7 @@ bool GossipSelect_npc_test(Player *player, Creature *_Creature, uint32 sender, u
         player->CLOSE_GOSSIP_MENU();
         ((npc_escortAI*)(_Creature->AI()))->Start(false, true, false, player->GetGUID());
 
-        return true;                                        // prevent mangos core handling
+        return true;                                        // prevent Trinity core handling
     }
     return false;
 }

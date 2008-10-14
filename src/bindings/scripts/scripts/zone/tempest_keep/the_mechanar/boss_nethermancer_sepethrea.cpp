@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -47,7 +47,7 @@ EndScriptData */
 #define SAY_DEATH                       "Anu... bala belore...alon."
 #define SOUND_DEATH                     11192
 
-struct MANGOS_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
 {
     boss_nethermancer_sepethreaAI(Creature *c) : ScriptedAI(c) { Reset(); }
 
@@ -146,7 +146,7 @@ CreatureAI* GetAI_boss_nethermancer_sepethrea(Creature *_Creature)
     return new boss_nethermancer_sepethreaAI (_Creature);
 }
 
-struct MANGOS_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
 {
     mob_ragin_flamesAI(Creature *c) : ScriptedAI(c) {Reset();}
 

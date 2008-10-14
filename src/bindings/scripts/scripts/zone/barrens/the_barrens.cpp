@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -24,7 +24,7 @@ EndScriptData */
 /* ContentData
 npc_beaten_corpse
 npc_sputtervalve
-npc_taskmaster_fizzule      remove hack when mangos implement feature/detect spell kind to not aggro
+npc_taskmaster_fizzule      remove hack when Trinity implement feature/detect spell kind to not aggro
 EndContentData */
 
 #include "precompiled.h"
@@ -89,7 +89,7 @@ bool GossipSelect_npc_sputtervalve(Player *player, Creature *_Creature, uint32 s
 #define SPELL_FLARE             10113
 #define SPELL_FOLLY             10137
 
-struct MANGOS_DLL_DECL npc_taskmaster_fizzuleAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_taskmaster_fizzuleAI : public ScriptedAI
 {
     npc_taskmaster_fizzuleAI(Creature* c) : ScriptedAI(c) { Reset(); }
 
@@ -107,7 +107,7 @@ struct MANGOS_DLL_DECL npc_taskmaster_fizzuleAI : public ScriptedAI
     }
 
     //This is a hack. Spellcast will make creature aggro but that is not
-    //supposed to happen (mangos not implemented/not found way to detect this spell kind)
+    //supposed to happen (Trinity not implemented/not found way to detect this spell kind)
     void DoUglyHack()
     {
         m_creature->RemoveAllAuras();

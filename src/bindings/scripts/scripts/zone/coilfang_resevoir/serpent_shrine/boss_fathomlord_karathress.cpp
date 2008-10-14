@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -65,7 +65,7 @@ EndScriptData */
 #define OLUM_O                     0.401581f
 
 //Fathom-Lord Karathress AI
-struct MANGOS_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
 {
     boss_fathomlord_karathressAI(Creature *c) : ScriptedAI(c)
     {
@@ -242,7 +242,7 @@ struct MANGOS_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
 };
 
 //Fathom-Guard Sharkkis AI
-struct MANGOS_DLL_DECL boss_fathomguard_sharkkisAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_fathomguard_sharkkisAI : public ScriptedAI
 {
     boss_fathomguard_sharkkisAI(Creature *c) : ScriptedAI(c)
     {
@@ -325,7 +325,7 @@ struct MANGOS_DLL_DECL boss_fathomguard_sharkkisAI : public ScriptedAI
 };
 
 //Fathom-Guard Tidalvess AI
-struct MANGOS_DLL_DECL boss_fathomguard_tidalvessAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_fathomguard_tidalvessAI : public ScriptedAI
 {
     boss_fathomguard_tidalvessAI(Creature *c) : ScriptedAI(c)
     {
@@ -399,7 +399,7 @@ struct MANGOS_DLL_DECL boss_fathomguard_tidalvessAI : public ScriptedAI
 };
 
 //Fathom-Guard Caribdis AI
-struct MANGOS_DLL_DECL boss_fathomguard_caribdisAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_fathomguard_caribdisAI : public ScriptedAI
 {
     boss_fathomguard_caribdisAI(Creature *c) : ScriptedAI(c)
     {

@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -281,7 +281,7 @@ static Animation DemonTransformation[]=
 };
 
 /**** Demon Fire will be used for Eye Blast. Illidan needs to have access to it's vars and functions, so we'll set it here ****/
-struct MANGOS_DLL_DECL demonfireAI : public ScriptedAI
+struct TRINITY_DLL_DECL demonfireAI : public ScriptedAI
 {
     demonfireAI(Creature *c) : ScriptedAI(c)
     {
@@ -351,7 +351,7 @@ struct MANGOS_DLL_DECL demonfireAI : public ScriptedAI
 };
 
 /******* Functions and vars for Akama's AI ******/
-struct MANGOS_DLL_SPEC npc_akama_illidanAI : public ScriptedAI
+struct TRINITY_DLL_SPEC npc_akama_illidanAI : public ScriptedAI
 {
     npc_akama_illidanAI(Creature* c) : ScriptedAI(c)
     {
@@ -825,7 +825,7 @@ class AgonizingFlamesTargetCheck
 };
 
 /************************************** Illidan's AI ***************************************/
-struct MANGOS_DLL_SPEC boss_illidan_stormrageAI : public ScriptedAI
+struct TRINITY_DLL_SPEC boss_illidan_stormrageAI : public ScriptedAI
 {
     boss_illidan_stormrageAI(Creature* c) : ScriptedAI(c)
     {
@@ -1117,15 +1117,15 @@ struct MANGOS_DLL_SPEC boss_illidan_stormrageAI : public ScriptedAI
         // We'll use grid searching for this, using a custom searcher that selects a player that is at a distance >15 yards
         Player* target = NULL;
 
-        CellPair pair(MaNGOS::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
+        CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
         Cell cell(pair);
         cell.data.Part.reserved = ALL_DISTRICT;
         cell.SetNoCreate();
 
         AgonizingFlamesTargetCheck check(m_creature);
-        MaNGOS::PlayerSearcher<AgonizingFlamesTargetCheck> searcher(target, check);
+        Trinity::PlayerSearcher<AgonizingFlamesTargetCheck> searcher(target, check);
         TypeContainerVisitor
-            <MaNGOS::PlayerSearcher<AgonizingFlamesTargetCheck>, GridTypeMapContainer> visitor(searcher);
+            <Trinity::PlayerSearcher<AgonizingFlamesTargetCheck>, GridTypeMapContainer> visitor(searcher);
 
         CellLock<GridReadGuard> cell_lock(cell, pair);
         cell_lock->Visit(cell_lock, visitor, *(m_creature->GetMap()));
@@ -1941,7 +1941,7 @@ bool GossipHello_npc_akama_at_illidan(Player *player, Creature *_Creature)
     return true;
 }
 
-struct MANGOS_DLL_SPEC boss_maievAI : public ScriptedAI
+struct TRINITY_DLL_SPEC boss_maievAI : public ScriptedAI
 {
     boss_maievAI(Creature *c) : ScriptedAI(c)
     {
@@ -1999,7 +1999,7 @@ struct MANGOS_DLL_SPEC boss_maievAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL cage_trap_triggerAI : public ScriptedAI
+struct TRINITY_DLL_DECL cage_trap_triggerAI : public ScriptedAI
 {
     cage_trap_triggerAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -2075,16 +2075,16 @@ bool GOHello_cage_trap(Player* plr, GameObject* go)
 
     Creature* trigger = NULL;
 
-    CellPair pair(MaNGOS::ComputeCellPair(x, y));
+    CellPair pair(Trinity::ComputeCellPair(x, y));
     Cell cell(pair);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
     // Grid search for nearest live creature of entry 23304 within 10 yards
-    MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck check(*plr, 23304, true, 10);
-    MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(trigger, check);
+    Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck check(*plr, 23304, true, 10);
+    Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(trigger, check);
 
-    TypeContainerVisitor<MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer> cSearcher(searcher);
+    TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer> cSearcher(searcher);
 
     CellLock<GridReadGuard> cell_lock(cell, pair);
     cell_lock->Visit(cell_lock, cSearcher, *(plr->GetMap()));
@@ -2113,7 +2113,7 @@ struct TargetDistanceOrder : public std::binary_function<const Unit, const Unit,
     }
 };
 
-struct MANGOS_DLL_DECL flame_of_azzinothAI : public ScriptedAI
+struct TRINITY_DLL_DECL flame_of_azzinothAI : public ScriptedAI
 {
     flame_of_azzinothAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -2188,7 +2188,7 @@ struct MANGOS_DLL_DECL flame_of_azzinothAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL shadow_demonAI : public ScriptedAI
+struct TRINITY_DLL_DECL shadow_demonAI : public ScriptedAI
 {
     shadow_demonAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -2229,7 +2229,7 @@ struct MANGOS_DLL_DECL shadow_demonAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL flamecrashAI : public ScriptedAI
+struct TRINITY_DLL_DECL flamecrashAI : public ScriptedAI
 {
     flamecrashAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -2265,7 +2265,7 @@ struct MANGOS_DLL_DECL flamecrashAI : public ScriptedAI
 };
 
 // Shadowfiends interact with Illidan, setting more targets in Illidan's hashmap
-struct MANGOS_DLL_SPEC mob_parasitic_shadowfiendAI : public ScriptedAI
+struct TRINITY_DLL_SPEC mob_parasitic_shadowfiendAI : public ScriptedAI
 {
     mob_parasitic_shadowfiendAI(Creature* c) : ScriptedAI(c)
     {
@@ -2293,7 +2293,7 @@ struct MANGOS_DLL_SPEC mob_parasitic_shadowfiendAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL blazeAI : public ScriptedAI
+struct TRINITY_DLL_DECL blazeAI : public ScriptedAI
 {
     blazeAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -2328,7 +2328,7 @@ struct MANGOS_DLL_DECL blazeAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL blade_of_azzinothAI : public ScriptedAI
+struct TRINITY_DLL_DECL blade_of_azzinothAI : public ScriptedAI
 {
     blade_of_azzinothAI(Creature* c) : ScriptedAI(c) { Reset(); }
 

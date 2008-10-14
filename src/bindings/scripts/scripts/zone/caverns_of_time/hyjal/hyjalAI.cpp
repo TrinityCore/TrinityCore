@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -309,25 +309,25 @@ void hyjalAI::UpdateWorldState(uint32 field, uint32 value)
 
 void hyjalAI::Retreat()
 {
-    CellPair pair(MaNGOS::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
+    CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
     Cell cell(pair);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
     // First get all creatures.
     std::list<Creature*> creatures;
-    MaNGOS::AllFriendlyCreaturesInGrid creature_check(m_creature);
-    MaNGOS::CreatureListSearcher<MaNGOS::AllFriendlyCreaturesInGrid> creature_searcher(creatures, creature_check);
+    Trinity::AllFriendlyCreaturesInGrid creature_check(m_creature);
+    Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> creature_searcher(creatures, creature_check);
     TypeContainerVisitor
-        <MaNGOS::CreatureListSearcher<MaNGOS::AllFriendlyCreaturesInGrid>,
+        <Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid>,
         GridTypeMapContainer> creature_visitor(creature_searcher);
 
     // Then get all Ancient Gem Veins. NOTE: Grid Search will only be able to find those in the grid.
     std::list<GameObject*> goList;
-    MaNGOS::AllGameObjectsWithEntryInGrid go_check(185557);
-    MaNGOS::GameObjectListSearcher<MaNGOS::AllGameObjectsWithEntryInGrid> go_search(goList, go_check);
+    Trinity::AllGameObjectsWithEntryInGrid go_check(185557);
+    Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInGrid> go_search(goList, go_check);
     TypeContainerVisitor
-        <MaNGOS::GameObjectListSearcher<MaNGOS::AllGameObjectsWithEntryInGrid>, GridTypeMapContainer> go_visit(go_search);
+        <Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInGrid>, GridTypeMapContainer> go_visit(go_search);
 
     CellLock<GridReadGuard> cell_lock(cell, pair);
                                                             // Get Creatures

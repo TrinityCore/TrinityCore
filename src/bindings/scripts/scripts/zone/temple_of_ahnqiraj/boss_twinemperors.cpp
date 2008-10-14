@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -57,7 +57,7 @@ EndScriptData */
 #define SPELL_BLIZZARD              26607
 #define SPELL_ARCANEBURST           568
 
-struct MANGOS_DLL_DECL boss_twinemperorsAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
 {
     ScriptedInstance *pInstance;
     uint32 Heal_Timer;
@@ -377,7 +377,7 @@ struct MANGOS_DLL_DECL boss_twinemperorsAI : public ScriptedAI
 
     Creature *RespawnNearbyBugsAndGetOne()
     {
-        CellPair p(MaNGOS::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
+        CellPair p(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
         Cell cell(p);
         cell.data.Part.reserved = ALL_DISTRICT;
         cell.SetNoCreate();
@@ -385,8 +385,8 @@ struct MANGOS_DLL_DECL boss_twinemperorsAI : public ScriptedAI
         std::list<Creature*> unitList;
 
         AnyBugCheck u_check(m_creature, 150);
-        MaNGOS::CreatureListSearcher<AnyBugCheck> searcher(unitList, u_check);
-        TypeContainerVisitor<MaNGOS::CreatureListSearcher<AnyBugCheck>, GridTypeMapContainer >  grid_creature_searcher(searcher);
+        Trinity::CreatureListSearcher<AnyBugCheck> searcher(unitList, u_check);
+        TypeContainerVisitor<Trinity::CreatureListSearcher<AnyBugCheck>, GridTypeMapContainer >  grid_creature_searcher(searcher);
         CellLock<GridReadGuard> cell_lock(cell, p);
         cell_lock->Visit(cell_lock, grid_creature_searcher, *(m_creature->GetMap()));
 
@@ -453,14 +453,14 @@ struct MANGOS_DLL_DECL boss_twinemperorsAI : public ScriptedAI
     }
 };
 
-class MANGOS_DLL_DECL BugAura : public Aura
+class TRINITY_DLL_DECL BugAura : public Aura
 {
     public:
         BugAura(SpellEntry *spell, uint32 eff, int32 *bp, Unit *target, Unit *caster) : Aura(spell, eff, bp, target, caster, NULL)
             {}
 };
 
-struct MANGOS_DLL_DECL boss_veknilashAI : public boss_twinemperorsAI
+struct TRINITY_DLL_DECL boss_veknilashAI : public boss_twinemperorsAI
 {
     bool IAmVeklor() {return false;}
     boss_veknilashAI(Creature *c) : boss_twinemperorsAI(c)
@@ -543,7 +543,7 @@ struct MANGOS_DLL_DECL boss_veknilashAI : public boss_twinemperorsAI
     }
 };
 
-struct MANGOS_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
+struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
 {
     bool IAmVeklor() {return true;}
     boss_veklorAI(Creature *c) : boss_twinemperorsAI(c)

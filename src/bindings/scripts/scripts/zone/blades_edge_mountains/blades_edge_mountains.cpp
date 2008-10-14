@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -37,7 +37,7 @@ EndContentData */
 ######*/
 
 //TODO: add support for quest 10512 + creature abilities
-struct MANGOS_DLL_DECL mobs_bladespire_ogreAI : public ScriptedAI
+struct TRINITY_DLL_DECL mobs_bladespire_ogreAI : public ScriptedAI
 {
     mobs_bladespire_ogreAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -82,7 +82,7 @@ CreatureAI* GetAI_mobs_bladespire_ogre(Creature *_Creature)
 #define SPELL_MANA_BURN             38884
 #define SPELL_INTANGIBLE_PRESENCE   36513
 
-struct MANGOS_DLL_DECL mobs_nether_drakeAI : public ScriptedAI
+struct TRINITY_DLL_DECL mobs_nether_drakeAI : public ScriptedAI
 {
     mobs_nether_drakeAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -261,7 +261,7 @@ CreatureAI* GetAI_mobs_nether_drake(Creature *_Creature)
 ## npc_daranelle
 ######*/
 
-struct MANGOS_DLL_DECL npc_daranelleAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_daranelleAI : public ScriptedAI
 {
     npc_daranelleAI(Creature *c) : ScriptedAI(c) {Reset();}
 

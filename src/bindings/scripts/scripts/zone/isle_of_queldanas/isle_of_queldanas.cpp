@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -69,7 +69,7 @@ bool GossipSelect_npc_ayren_cloudbreaker(Player *player, Creature *_Creature, ui
 
 #define SPELL_CONVERT_CREDIT    45009
 
-struct MANGOS_DLL_DECL npc_converted_sentryAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_converted_sentryAI : public ScriptedAI
 {
     npc_converted_sentryAI(Creature *c) : ScriptedAI(c) { Reset(); }
 

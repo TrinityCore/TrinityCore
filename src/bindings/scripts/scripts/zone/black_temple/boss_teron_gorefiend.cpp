@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -68,7 +68,7 @@ EndScriptData */
 #define CREATURE_DOOM_BLOSSOM       23123
 #define CREATURE_SHADOWY_CONSTRUCT  23111
 
-struct MANGOS_DLL_DECL mob_doom_blossomAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_doom_blossomAI : public ScriptedAI
 {
     mob_doom_blossomAI(Creature *c) : ScriptedAI(c)
     {
@@ -133,7 +133,7 @@ struct TargetDistanceOrder : public std::binary_function<const Unit, const Unit,
     }
 };
 
-struct MANGOS_DLL_DECL mob_shadowy_constructAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_shadowy_constructAI : public ScriptedAI
 {
     mob_shadowy_constructAI(Creature* c) : ScriptedAI(c)
     {
@@ -225,7 +225,7 @@ struct MANGOS_DLL_DECL mob_shadowy_constructAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
 {
     boss_teron_gorefiendAI(Creature *c) : ScriptedAI(c)
     {
@@ -364,7 +364,7 @@ struct MANGOS_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
     {
         /************************************************************************/
         /** NOTE FOR FUTURE DEVELOPER: PROPERLY IMPLEMENT THE GHOST PORTION *****/
-        /**  ONLY AFTER MaNGOS FULLY IMPLEMENTS MIND CONTROL ABILITIES      *****/
+        /**  ONLY AFTER TrinIty FULLY IMPLEMENTS MIND CONTROL ABILITIES      *****/
         /**   THE CURRENT CODE IN THIS FUNCTION IS ONLY THE BEGINNING OF    *****/
         /**    WHAT IS FULLY NECESSARY FOR GOREFIEND TO BE 100% COMPLETE    *****/
         /************************************************************************/

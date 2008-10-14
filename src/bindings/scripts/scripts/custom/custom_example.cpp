@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -56,7 +56,7 @@ EndScriptData */
 #define SAY_DANCE       "I always thought I was a good dancer"
 #define SAY_SALUTE      "Move out Soldier!"
 
-struct MANGOS_DLL_DECL custom_exampleAI : public ScriptedAI
+struct TRINITY_DLL_DECL custom_exampleAI : public ScriptedAI
 {
     //*** HANDLED FUNCTION ***
     //This is the constructor, called only once when the creature is first created

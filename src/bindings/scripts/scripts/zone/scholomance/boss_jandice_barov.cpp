@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -29,7 +29,7 @@ EndScriptData */
 //Spells of Illusion of Jandice Barov
 #define SPELL_CLEAVE                15584
 
-struct MANGOS_DLL_DECL boss_jandicebarovAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
 {
     boss_jandicebarovAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -152,7 +152,7 @@ struct MANGOS_DLL_DECL boss_jandicebarovAI : public ScriptedAI
 
 // Illusion of Jandice Barov Script
 
-struct MANGOS_DLL_DECL mob_illusionofjandicebarovAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_illusionofjandicebarovAI : public ScriptedAI
 {
     mob_illusionofjandicebarovAI(Creature *c) : ScriptedAI(c) {Reset();}
 

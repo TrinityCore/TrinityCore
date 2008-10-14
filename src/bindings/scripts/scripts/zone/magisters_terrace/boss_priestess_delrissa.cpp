@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -96,7 +96,7 @@ struct Add
     uint64 guid;
 };
 
-struct MANGOS_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
 {
     boss_priestess_delrissaAI(Creature* c) : ScriptedAI(c)
     {
@@ -345,7 +345,7 @@ struct MANGOS_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
 
 #define SPELL_HEALING_POTION    15503
 
-struct MANGOS_DLL_DECL boss_priestess_guestAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_priestess_guestAI : public ScriptedAI
 {
     boss_priestess_guestAI(Creature* c) : ScriptedAI(c)
     {
@@ -444,7 +444,7 @@ struct MANGOS_DLL_DECL boss_priestess_guestAI : public ScriptedAI
 #define SPELL_BACKSTAB           15657
 #define SPELL_EVISCERATE         27611
 
-struct MANGOS_DLL_DECL boss_kagani_nightstrikeAI : public boss_priestess_guestAI
+struct TRINITY_DLL_DECL boss_kagani_nightstrikeAI : public boss_priestess_guestAI
 {
     //Rogue
     boss_kagani_nightstrikeAI(Creature *c) : boss_priestess_guestAI(c) {}
@@ -531,7 +531,7 @@ struct MANGOS_DLL_DECL boss_kagani_nightstrikeAI : public boss_priestess_guestAI
 //#define CREATURE_IMP                 44163
 //#define CREATURE_FIZZLE              24656
 
-/*struct MANGOS_DLL_DECL mob_fizzleAI : public ScriptedAI
+/*struct TRINITY_DLL_DECL mob_fizzleAI : public ScriptedAI
 {
     mob_fizzleAI(Creature *c) : ScriptedAI(c)
     {
@@ -560,7 +560,7 @@ struct MANGOS_DLL_DECL boss_kagani_nightstrikeAI : public boss_priestess_guestAI
     }
 };*/
 
-struct MANGOS_DLL_DECL boss_ellris_duskhallowAI : public boss_priestess_guestAI
+struct TRINITY_DLL_DECL boss_ellris_duskhallowAI : public boss_priestess_guestAI
 {
     //Warlock
     boss_ellris_duskhallowAI(Creature *c) : boss_priestess_guestAI(c)
@@ -656,7 +656,7 @@ void mob_fizzleAI::KilledUnit(Unit* victim)
 #define SPELL_KNOCKDOWN            11428
 #define SPELL_SNAP_KICK            46182
 
-struct MANGOS_DLL_DECL boss_eramas_brightblazeAI : public boss_priestess_guestAI
+struct TRINITY_DLL_DECL boss_eramas_brightblazeAI : public boss_priestess_guestAI
 {
     //Monk
     boss_eramas_brightblazeAI(Creature *c) : boss_priestess_guestAI(c) {}
@@ -703,7 +703,7 @@ struct MANGOS_DLL_DECL boss_eramas_brightblazeAI : public boss_priestess_guestAI
 #define SPELL_FROSTBOLT             15043
 #define SPELL_BLINK                 14514
 
-struct MANGOS_DLL_DECL boss_yazzaiAI : public boss_priestess_guestAI
+struct TRINITY_DLL_DECL boss_yazzaiAI : public boss_priestess_guestAI
 {
     //Mage
     boss_yazzaiAI(Creature *c) : boss_priestess_guestAI(c)  {}
@@ -816,7 +816,7 @@ struct MANGOS_DLL_DECL boss_yazzaiAI : public boss_priestess_guestAI
 #define SPELL_BATTLE_SHOUT           27578
 #define SPELL_MORTAL_STRIKE          44268
 
-struct MANGOS_DLL_DECL boss_warlord_salarisAI : public boss_priestess_guestAI
+struct TRINITY_DLL_DECL boss_warlord_salarisAI : public boss_priestess_guestAI
 {
     //Warrior
     boss_warlord_salarisAI(Creature *c) : boss_priestess_guestAI(c) {}
@@ -916,7 +916,7 @@ struct MANGOS_DLL_DECL boss_warlord_salarisAI : public boss_priestess_guestAI
 
 #define CREATURE_SLIVER             24552
 
-/*struct MANGOS_DLL_DECL mob_sliverAI : public ScriptedAI
+/*struct TRINITY_DLL_DECL mob_sliverAI : public ScriptedAI
 {
     mob_sliverAI(Creature *c) : ScriptedAI(c)
     {
@@ -934,7 +934,7 @@ struct MANGOS_DLL_DECL boss_warlord_salarisAI : public boss_priestess_guestAI
 
 };*/
 
-struct MANGOS_DLL_DECL boss_garaxxasAI : public boss_priestess_guestAI
+struct TRINITY_DLL_DECL boss_garaxxasAI : public boss_priestess_guestAI
 {
     //Hunter
     boss_garaxxasAI(Creature *c) : boss_priestess_guestAI(c) {}
@@ -1053,7 +1053,7 @@ void mob_sliverAI::KilledUnit(Unit* victim)
 #define SPELL_FIRE_NOVA_TOTEM        44257
 #define SPELL_EARTHBIND_TOTEM        15786
 
-struct MANGOS_DLL_DECL boss_apokoAI : public boss_priestess_guestAI
+struct TRINITY_DLL_DECL boss_apokoAI : public boss_priestess_guestAI
 {
     //Shaman
     boss_apokoAI(Creature *c) : boss_priestess_guestAI(c) {}
@@ -1148,7 +1148,7 @@ struct MANGOS_DLL_DECL boss_apokoAI : public boss_priestess_guestAI
 
 #define CREATURE_EXPLOSIVE_SHEEP        24715
 
-struct MANGOS_DLL_DECL boss_zelfanAI : public boss_priestess_guestAI
+struct TRINITY_DLL_DECL boss_zelfanAI : public boss_priestess_guestAI
 {
     //Engineer
     boss_zelfanAI(Creature *c) : boss_priestess_guestAI(c) {}
@@ -1216,7 +1216,7 @@ struct MANGOS_DLL_DECL boss_zelfanAI : public boss_priestess_guestAI
     }
 };
 
-//struct MANGOS_DLL_DECL mob_high_explosive_sheepAI : public ScriptedAI
+//struct TRINITY_DLL_DECL mob_high_explosive_sheepAI : public ScriptedAI
 //{
 //    mob_high_explosive_sheepAI(Creature *c) : ScriptedAI(c) {Reset();}
 //

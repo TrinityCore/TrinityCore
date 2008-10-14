@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -46,7 +46,7 @@ EndContentData */
 #define FACTION_FRIENDLY    84
 #define FACTION_CHICKEN     31
 
-struct MANGOS_DLL_DECL npc_chicken_cluckAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_chicken_cluckAI : public ScriptedAI
 {
     npc_chicken_cluckAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -235,7 +235,7 @@ const uint32 HordeSoldierId[3] =
 ## npc_doctor (handles both Gustaf Vanhowzen and Gregory Victor)
 ######*/
 
-struct MANGOS_DLL_DECL npc_doctorAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_doctorAI : public ScriptedAI
 {
     uint64 Playerguid;
 
@@ -265,7 +265,7 @@ struct MANGOS_DLL_DECL npc_doctorAI : public ScriptedAI
 ## npc_injured_patient (handles all the patients, no matter Horde or Alliance)
 #####*/
 
-struct MANGOS_DLL_DECL npc_injured_patientAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_injured_patientAI : public ScriptedAI
 {
     npc_injured_patientAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -527,7 +527,7 @@ CreatureAI* GetAI_npc_doctor(Creature *_Creature)
 #define SPELL_DEATHTOUCH                5
 #define SAY_AGGRO                        "This area is closed!"
 
-struct MANGOS_DLL_DECL npc_guardianAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_guardianAI : public ScriptedAI
 {
     npc_guardianAI(Creature *c) : ScriptedAI(c) {Reset();}
 

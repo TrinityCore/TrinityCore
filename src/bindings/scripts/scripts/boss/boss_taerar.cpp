@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -38,7 +38,7 @@ EndScriptData */
 #define SPELL_POSIONCLOUD           24840
 #define SPELL_POSIONBREATH          20667
 
-struct MANGOS_DLL_DECL boss_taerarAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_taerarAI : public ScriptedAI
 {
     boss_taerarAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -240,7 +240,7 @@ struct MANGOS_DLL_DECL boss_taerarAI : public ScriptedAI
 
 // Shades of Taerar Script
 
-struct MANGOS_DLL_DECL boss_shadeoftaerarAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_shadeoftaerarAI : public ScriptedAI
 {
     boss_shadeoftaerarAI(Creature *c) : ScriptedAI(c) {Reset();}
 

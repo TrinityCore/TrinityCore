@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -491,7 +491,7 @@ CreatureAI* GetAI_guard_bluffwatcher(Creature *_Creature)
  * guard_contested start
  *******************************************************/
 
-struct MANGOS_DLL_DECL guard_contested : public guardAI
+struct TRINITY_DLL_DECL guard_contested : public guardAI
 {
     guard_contested(Creature *c) : guardAI(c) {}
 
@@ -2540,7 +2540,7 @@ CreatureAI* GetAI_guard_shattrath(Creature *_Creature)
 #define SPELL_BANISH_TELEPORT       36643
 #define SPELL_EXILE                 39533
 
-struct MANGOS_DLL_DECL guard_shattrath_aldorAI : public guardAI
+struct TRINITY_DLL_DECL guard_shattrath_aldorAI : public guardAI
 {
     guard_shattrath_aldorAI(Creature *c) : guardAI(c) { Reset(); }
 
@@ -2736,7 +2736,7 @@ CreatureAI* GetAI_guard_shattrath_aldor(Creature *_Creature)
  * guard_shattrath_scryer
  *******************************************************/
 
-struct MANGOS_DLL_DECL guard_shattrath_scryerAI : public guardAI
+struct TRINITY_DLL_DECL guard_shattrath_scryerAI : public guardAI
 {
     guard_shattrath_scryerAI(Creature *c) : guardAI(c) { Reset(); }
 

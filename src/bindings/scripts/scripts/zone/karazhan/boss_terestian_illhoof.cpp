@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -74,7 +74,7 @@ float PortalLocations[2][2]=
     {-11242.1160, -1713.33325},
 };
 
-struct MANGOS_DLL_DECL mob_kilrekAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_kilrekAI : public ScriptedAI
 {
     mob_kilrekAI(Creature *c) : ScriptedAI(c)
     {
@@ -143,7 +143,7 @@ struct MANGOS_DLL_DECL mob_kilrekAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL mob_demon_chainAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_demon_chainAI : public ScriptedAI
 {
     mob_demon_chainAI(Creature *c) : ScriptedAI(c)
     {
@@ -172,7 +172,7 @@ struct MANGOS_DLL_DECL mob_demon_chainAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL boss_terestianAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
 {
     boss_terestianAI(Creature *c) : ScriptedAI(c)
     {
@@ -380,7 +380,7 @@ struct MANGOS_DLL_DECL boss_terestianAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL mob_karazhan_impAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_karazhan_impAI : public ScriptedAI
 {
     mob_karazhan_impAI(Creature *c) : ScriptedAI(c) {Reset();}
 

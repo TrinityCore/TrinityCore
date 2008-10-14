@@ -7,7 +7,7 @@
 
 #define GENERIC_CREATURE_COOLDOWN 5000
 
-struct MANGOS_DLL_DECL guardAI : public ScriptedAI
+struct TRINITY_DLL_DECL guardAI : public ScriptedAI
 {
     guardAI(Creature *c) : ScriptedAI(c) {Reset();}
 

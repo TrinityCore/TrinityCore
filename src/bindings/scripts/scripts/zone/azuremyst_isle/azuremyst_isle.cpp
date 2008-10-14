@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -45,7 +45,7 @@ EndContentData */
 #define HELP3        "Ughhh... I hurt. Can you help me?"
 #define HELP4        "I don't know if I can make it, please help me..."
 
-struct MANGOS_DLL_DECL npc_draenei_survivorAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_draenei_survivorAI : public ScriptedAI
 {
     npc_draenei_survivorAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -201,7 +201,7 @@ CreatureAI* GetAI_npc_draenei_survivor(Creature *_Creature)
 #define ATTACK_YELL     "Now I cut you!"
 #define SPELL_DYNAMITE  7978
 
-struct MANGOS_DLL_DECL npc_engineer_spark_overgrindAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_engineer_spark_overgrindAI : public ScriptedAI
 {
     npc_engineer_spark_overgrindAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -272,7 +272,7 @@ bool GossipSelect_npc_engineer_spark_overgrind(Player *player, Creature *_Creatu
 ## npc_injured_draenei
 ######*/
 
-struct MANGOS_DLL_DECL npc_injured_draeneiAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_injured_draeneiAI : public ScriptedAI
 {
     npc_injured_draeneiAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -334,7 +334,7 @@ bool GossipSelect_npc_susurrus(Player *player, Creature *_Creature, uint32 sende
         nodes.resize(2);
         nodes[0] = 92;                                      //from susurrus
         nodes[1] = 91;                                      //end at exodar
-        player->ActivateTaxiPathTo(nodes,11686);            //TaxiPath 506. Using invisible model, possible mangos must allow 0(from dbc) for cases like this.
+        player->ActivateTaxiPathTo(nodes,11686);            //TaxiPath 506. Using invisible model, possible Trinity must allow 0(from dbc) for cases like this.
     }
     return true;
 }

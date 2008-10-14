@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -41,7 +41,7 @@ EndContentData */
 #define SPELL_AQUA_JET      13586
 #define SPELL_FROST_SHOCK   15089
 
-struct MANGOS_DLL_DECL mob_aquementasAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_aquementasAI : public ScriptedAI
 {
     mob_aquementasAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -145,7 +145,7 @@ CreatureAI* GetAI_mob_aquementas(Creature *_Creature)
 #define WHISPER_CUSTODIAN_13    "All we know of this timeway is that it leads to Mount Hyjal. The Infinite Dragonflight have gone to great lengths to prevent our involvement. We know next to nothing, mortal. Soridormi is currently attempting to break through the timeway's defenses but has thus far been unsuccessful. You might be our only hope of breaking through and resolving the conflict."
 #define WHISPER_CUSTODIAN_14    "Our time is at an end $N. I would wish you luck, if such a thing existed."
 
-struct MANGOS_DLL_DECL npc_custodian_of_timeAI : public npc_escortAI
+struct TRINITY_DLL_DECL npc_custodian_of_timeAI : public npc_escortAI
 {
     npc_custodian_of_timeAI(Creature *c) : npc_escortAI(c) { Reset(); }
 

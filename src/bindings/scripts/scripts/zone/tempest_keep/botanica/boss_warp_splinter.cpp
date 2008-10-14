@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -27,7 +27,7 @@ EndScriptData */
 # mob_treant (Sapling)
 #####*/
 
-struct MANGOS_DLL_DECL mob_treantAI  : public ScriptedAI
+struct TRINITY_DLL_DECL mob_treantAI  : public ScriptedAI
 {
     mob_treantAI (Creature *c) : ScriptedAI(c)
     {
@@ -102,7 +102,7 @@ float treant_pos[6][3] =
     {106.780159, 355.582581, -27.593357}
 };
 
-struct MANGOS_DLL_DECL boss_warp_splinterAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
 {
     boss_warp_splinterAI(Creature *c) : ScriptedAI(c)
     {
