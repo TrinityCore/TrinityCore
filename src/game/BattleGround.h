@@ -95,8 +95,7 @@ enum BattleGroundTimeIntervals
     START_DELAY3                    = 15000,                // ms used only in arena
     RESPAWN_ONE_DAY                 = 86400,                // secs
     RESPAWN_IMMEDIATELY             = 0,                    // secs
-    BUFF_RESPAWN_TIME               = 180,                  // secs
-    BG_HONOR_SCORE_TICKS            = 330                   // points
+    BUFF_RESPAWN_TIME               = 180                  // secs
 };
 
 enum BattleGroundBuffObjects
@@ -237,6 +236,13 @@ class BattleGroundScore
         uint32 BonusHonor;
         uint32 DamageDone;
         uint32 HealingDone;
+};
+
+enum BGHonorMode
+{
+    BG_NORMAL = 0,
+    BG_HOLIDAY,
+    BG_HONOR_MODE_NUM
 };
 
 /*
@@ -432,6 +438,7 @@ class BattleGround
                                                             // can be extended in in BG subclass
 
         void HandleTriggerBuff(uint64 const& go_guid);
+        void SetHoliday(bool is_holiday);
 
         // TODO: make this protected:
         typedef std::vector<uint64> BGObjects;
@@ -479,6 +486,7 @@ class BattleGround
 
         bool   m_BuffChange;
 
+        BGHonorMode m_HonorMode;
     private:
         /* Battleground */
         uint32 m_TypeID;                                    //Battleground type, defined in enum BattleGroundTypeId

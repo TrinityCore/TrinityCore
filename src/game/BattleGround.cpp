@@ -86,6 +86,7 @@ BattleGround::BattleGround()
 
     m_PrematureCountDown = false;
     m_PrematureCountDown = 0;
+    m_HonorMode = BG_NORMAL;
 }
 
 BattleGround::~BattleGround()
@@ -537,7 +538,6 @@ void BattleGround::EndBattleGround(uint32 winner)
             if(!Source)
                 Source = plr;
             RewardMark(plr,ITEM_WINNER_COUNT);
-            UpdatePlayerScore(plr, SCORE_BONUS_HONOR, 20);
             RewardQuest(plr);
         }
         else
@@ -1465,4 +1465,12 @@ uint32 BattleGround::GetAlivePlayersCountByTeam(uint32 Team) const
         }
     }
     return count;
+}
+
+void BattleGround::SetHoliday(bool is_holiday)
+{
+    if(is_holiday)
+        m_HonorMode = BG_HOLIDAY;
+    else
+        m_HonorMode = BG_NORMAL;
 }

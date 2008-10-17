@@ -1784,3 +1784,14 @@ void BattleGroundMgr::ToggleArenaTesting()
     m_ArenaTesting = !m_ArenaTesting;
     sWorld.SendWorldText(LANG_ARENA_TESTING, m_ArenaTesting ? "on" : "off");
 }
+
+void BattleGroundMgr::SetHolidayWeekends(uint32 mask)
+{
+    for(uint32 bgtype = 1; bgtype <= 8; ++bgtype)
+    {
+        if(BattleGround * bg = GetBattleGroundTemplate(bgtype))
+        {
+            bg->SetHoliday(mask & (1 << bgtype));
+        }
+    }
+}
