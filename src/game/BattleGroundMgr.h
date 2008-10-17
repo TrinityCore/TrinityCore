@@ -234,6 +234,8 @@ class BattleGroundMgr
         void ToggleArenaTesting();
         const bool isArenaTesting() const { return m_ArenaTesting; }
 
+        void SetHolidayWeekends(uint32 mask);
+
     private:
 
         /* Battlegrounds */

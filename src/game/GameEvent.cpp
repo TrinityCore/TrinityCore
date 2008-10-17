@@ -28,6 +28,7 @@
 #include "Policies/SingletonImp.h"
 #include "GossipDef.h"
 #include "Player.h"
+#include "BattleGroundMgr.h"
 
 INSTANTIATE_SINGLETON_1(GameEvent);
 
@@ -868,6 +869,50 @@ void GameEvent::LoadFromDB()
 
         delete result;
     }
+
+    // set all flags to 0
+    mGameEventBattleGroundHolidays.resize(mGameEvent.size(),0);
+    // load game event battleground flags
+    //                                   0     1
+    result = WorldDatabase.Query("SELECT event, bgflag FROM game_event_battleground_holiday");
+
+    count = 0;
+    if( !result )
+    {
+        barGoLink bar3(1);
+        bar3.step();
+
+        sLog.outString();
+        sLog.outString(">> Loaded %u battleground holidays in game events", count );
+    }
+    else
+    {
+
+        barGoLink bar3( result->GetRowCount() );
+        do
+        {
+            Field *fields = result->Fetch();
+
+            bar3.step();
+
+            uint16 event_id = fields[0].GetUInt16();
+
+            if(event_id >= mGameEvent.size())
+            {
+                sLog.outErrorDb("`game_event_battleground_holiday` game event id (%u) is out of range compared to max event id in `game_event`",event_id);
+                continue;
+            }
+
+            ++count;
+
+            mGameEventBattleGroundHolidays[event_id] = fields[1].GetUInt32();
+
+        } while( result->NextRow() );
+        sLog.outString();
+        sLog.outString( ">> Loaded %u battleground holidays in game events", count );
+
+        delete result;
+    }
 }
 
 uint32 GameEvent::GetNPCFlag(Creature * cr)
@@ -991,6 +1036,8 @@ void GameEvent::UnApplyEvent(uint16 event_id)
     UpdateEventNPCFlags(event_id);
     // remove vendor items
     UpdateEventNPCVendor(event_id, false);
+    // update bg holiday
+    UpdateBattleGroundSettings();
 }
 
 void GameEvent::ApplyNewEvent(uint16 event_id)
@@ -1019,6 +1066,8 @@ void GameEvent::ApplyNewEvent(uint16 event_id)
     UpdateEventNPCFlags(event_id);
     // add vendor items
     UpdateEventNPCVendor(event_id, true);
+    // update bg holiday
+    UpdateBattleGroundSettings();
 }
 
 void GameEvent::UpdateEventNPCFlags(uint16 event_id)
@@ -1045,6 +1094,14 @@ void GameEvent::UpdateEventNPCFlags(uint16 event_id)
             // if we didn't find it, then the npcflag will be updated when the creature is loaded
         }
     }
+}
+
+void GameEvent::UpdateBattleGroundSettings()
+{
+    uint32 mask = 0;
+    for(ActiveEvents::const_iterator itr = m_ActiveEvents.begin(); itr != m_ActiveEvents.end(); ++itr )
+        mask |= mGameEventBattleGroundHolidays[*itr];
+    sBattleGroundMgr.SetHolidayWeekends(mask);
 }
 
 void GameEvent::UpdateEventNPCVendor(uint16 event_id, bool activate)

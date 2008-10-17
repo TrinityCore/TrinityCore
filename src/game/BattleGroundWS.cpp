@@ -29,6 +29,25 @@
 #include "Language.h"
 #include "World.h"
 
+// these variables aren't used outside of this file, so declare them only here
+enum BG_WSG_Rewards
+{
+    BG_WSG_WIN = 0,
+    BG_WSG_FLAG_CAP,
+    BG_WSG_MAP_COMPLETE,
+    BG_WSG_REWARD_NUM
+};
+
+uint32 BG_WSG_Honor[BG_HONOR_MODE_NUM][BG_WSG_REWARD_NUM] = {
+    {20,40,40}, // normal honor
+    {60,40,80}  // holiday
+};
+
+uint32 BG_WSG_Reputation[BG_HONOR_MODE_NUM][BG_WSG_REWARD_NUM] = {
+    {0,35,0}, // normal honor
+    {0,45,0}  // holiday
+};
+
 BattleGroundWS::BattleGroundWS()
 {
     m_BgObjects.resize(BG_WS_OBJECT_MAX);
@@ -241,8 +260,8 @@ void BattleGroundWS::EventPlayerCapturedFlag(Player *Source)
         if(GetTeamScore(ALLIANCE) < BG_WS_MAX_TEAM_SCORE)
             AddPoint(ALLIANCE, 1);
         PlaySoundToAll(BG_WS_SOUND_FLAG_CAPTURED_ALLIANCE);
-        RewardReputationToTeam(890, 35, ALLIANCE);          // +35 reputation
-        RewardHonorToTeam(40, ALLIANCE);                    // +40 bonushonor
+        RewardReputationToTeam(890, BG_WSG_Reputation[m_HonorMode][BG_WSG_FLAG_CAP], ALLIANCE);          // +35 reputation
+        RewardHonorToTeam(BG_WSG_Honor[m_HonorMode][BG_WSG_FLAG_CAP], ALLIANCE);                    // +40 bonushonor
     }
     else
     {
@@ -258,8 +277,8 @@ void BattleGroundWS::EventPlayerCapturedFlag(Player *Source)
         if(GetTeamScore(HORDE) < BG_WS_MAX_TEAM_SCORE)
             AddPoint(HORDE, 1);
         PlaySoundToAll(BG_WS_SOUND_FLAG_CAPTURED_HORDE);
-        RewardReputationToTeam(889, 35, HORDE);             // +35 reputation
-        RewardHonorToTeam(40, HORDE);                       // +40 bonushonor
+        RewardReputationToTeam(889, BG_WSG_Reputation[m_HonorMode][BG_WSG_FLAG_CAP], HORDE);             // +35 reputation
+        RewardHonorToTeam(BG_WSG_Honor[m_HonorMode][BG_WSG_FLAG_CAP], HORDE);                       // +40 bonushonor
     }
 
     SpawnBGObject(BG_WS_OBJECT_H_FLAG, BG_WS_FLAG_RESPAWN_TIME);
@@ -287,6 +306,7 @@ void BattleGroundWS::EventPlayerCapturedFlag(Player *Source)
         UpdateWorldState(BG_WS_FLAG_STATE_ALLIANCE, 1);
         UpdateWorldState(BG_WS_FLAG_STATE_HORDE, 1);
 
+        RewardHonorToTeam(BG_WSG_Honor[m_HonorMode][BG_WSG_WIN], winner);
         EndBattleGround(winner);
     }
     else
