@@ -92,11 +92,6 @@ EAIErrorLevel = 2
 #        Default: 1 (speed) 
 #                 9 (best compression)
 #
-#    TcpNoDelay
-#        TCP Nagle algorithm setting
-#        Default: 0 (enable Nagle algorithm, less traffic, more latency)
-#                 1 (TCP_NO_DELAY, disable Nagle algorithm, more traffic but less latency)
-#
 #    PlayerLimit
 #        Maximum number of players in the world. Excluding Mods, GM's and Admins
 #        Default: 100
@@ -182,7 +177,6 @@ EAIErrorLevel = 2
 UseProcessors = 0
 ProcessPriority = 1
 Compression = 1
-TcpNoDelay = 0
 PlayerLimit = 100
 SaveRespawnTimeImmediately = 1
 MaxOverspeedPings = 2
