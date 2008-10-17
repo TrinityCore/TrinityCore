@@ -91,6 +91,7 @@ class Player;
 class Map;
 class UpdateMask;
 class InstanceData;
+class GameObject;
 
 typedef HM_NAMESPACE::hash_map<Player*, UpdateData> UpdateDataMapType;
 
@@ -445,7 +446,7 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         Map      * GetMap() const;
         Map const* GetBaseMap() const;
         Creature* SummonCreature(uint32 id, float x, float y, float z, float ang,TempSummonType spwtype,uint32 despwtime);
-
+        GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime);
     protected:
         explicit WorldObject();
         std::string m_name;
