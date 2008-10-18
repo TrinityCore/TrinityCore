@@ -580,9 +580,14 @@ extern void AddSC_boss_hazzarah();
 extern void AddSC_boss_renataki();
 extern void AddSC_boss_wushoolay();
 extern void AddSC_instance_zulgurub();
+
 //Zul'Aman
+extern void AddSC_boss_akilzon();
+extern void AddSC_boss_halazzi();
+extern void AddSC_boss_hex_lord_malacrass();
 extern void AddSC_boss_janalai();
 extern void AddSC_boss_nalorakk();
+extern void AddSC_boss_zuljin();
 extern void AddSC_instance_zulaman();
 extern void AddSC_zulaman();
 
@@ -1759,10 +1764,14 @@ void ScriptsInit()
     AddSC_instance_zulgurub();
 
     //Zul'Aman
-    AddSC_boss_janalai();
-    AddSC_boss_nalorakk();
-    AddSC_instance_zulaman();
-    AddSC_zulaman();
+    AddSC_boss_akilzon();
+	AddSC_boss_halazzi();
+	AddSC_boss_hex_lord_malacrass();
+	AddSC_boss_janalai();
+	AddSC_boss_nalorakk();
+	AddSC_boss_zuljin();
+	AddSC_instance_zulaman();
+	AddSC_zulaman();
 
     // -------------------
 

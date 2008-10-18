@@ -366,8 +366,12 @@ scripts/zone/wailing_caverns/instance_wailing_caverns.cpp \
 scripts/zone/western_plaguelands/western_plaguelands.cpp \
 scripts/zone/winterspring/winterspring.cpp \
 scripts/zone/zangarmarsh/zangarmarsh.cpp \
+scripts/zone/zulaman/boss_akilzon.cpp \
+scripts/zone/zulaman/boss_halazzi.cpp \
+scripts/zone/zulaman/boss_hexlord.cpp \
 scripts/zone/zulaman/boss_janalai.cpp \
 scripts/zone/zulaman/boss_nalorakk.cpp \
+scripts/zone/zulaman/boss_zuljin.cpp \
 scripts/zone/zulaman/def_zulaman.h \
 scripts/zone/zulaman/instance_zulaman.cpp \
 scripts/zone/zulaman/zulaman.cpp \

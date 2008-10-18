@@ -773,51 +773,118 @@ enum SpellImmunity
 enum Targets
 {
     TARGET_SELF                        = 1,
+    //TARGET_UNIT_CASTER
     TARGET_RANDOM_ENEMY_CHAIN_IN_AREA  = 2,                 // only one spell has that, but regardless, it's a target type after all
+    //TARGET_UNIT_NEARBY_ENEMY
+    TARGET_UNIT_SINGLE_UNKNOWN         = 3,
+    TARGET_UNIT_NEARBY_ALLY            = 4,
     TARGET_PET                         = 5,
+    //TARGET_UNIT_PET
     TARGET_CHAIN_DAMAGE                = 6,
+    //TARGET_UNIT_TARGET_ENEMY
+    TARGET_UNIT_AREA_ENTRY             = 7,
     TARGET_AREAEFFECT_CUSTOM           = 8,
+    //TARGET_UNIT_AREA_ENTRY_GROUND
     TARGET_INNKEEPER_COORDINATES       = 9,                 // uses in teleport to innkeeper spells
+    //TARGET_DEST_HOME
+    TARGET_UNIT_TARGET_DEST_CASTER     = 11, // teleport target to caster
     TARGET_ALL_ENEMY_IN_AREA           = 15,
+    //TARGET_UNIT_AREA_ENEMY
     TARGET_ALL_ENEMY_IN_AREA_INSTANT   = 16,
+    //TARGET_UNIT_AREA_ENEMY_GROUND
     TARGET_TABLE_X_Y_Z_COORDINATES     = 17,                // uses in teleport spells and some other
+    //TARGET_DEST_TABLE
     TARGET_EFFECT_SELECT               = 18,                // highly depends on the spell effect
+    //TARGET_DEST_CASTER_GROUND
     TARGET_ALL_PARTY_AROUND_CASTER     = 20,
+    //TARGET_UNIT_PARTY_CASTER
     TARGET_SINGLE_FRIEND               = 21,
+    //TARGET_UNIT_TARGET_ALLY
     TARGET_ALL_AROUND_CASTER           = 22,                // used only in TargetA, target selection dependent from TargetB
+    //TARGET_DEST_CASTER
     TARGET_GAMEOBJECT                  = 23,
+    //TARGET_OBJECT_OPEN
     TARGET_IN_FRONT_OF_CASTER          = 24,
+    //TARGET_UNIT_CONE_ENEMY
     TARGET_DUELVSPLAYER                = 25,
+    //TARGET_UNIT_SINGLE
     TARGET_GAMEOBJECT_ITEM             = 26,
+    //TARGET_OBJECT_ITEM_PICKLOCK
     TARGET_MASTER                      = 27,
+    //TARGET_UNIT_MASTER
     TARGET_ALL_ENEMY_IN_AREA_CHANNELED = 28,
+    //TARGET_UNIT_AREA_ENEMY_CHANNEL
+    TARGET_UNIT_AREA_ALLY_CHANNEL      = 29, // 28,29 only used for effect 27, if interrupt channel, pstAA cancel
     TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER = 30,           // in TargetB used only with TARGET_ALL_AROUND_CASTER and in self casting range in TargetA
+    //TARGET_UNIT_AREA_ALLY
     TARGET_ALL_FRIENDLY_UNITS_IN_AREA  = 31,
+    //TARGET_UNIT_AREA_ALLY_GROUND
     TARGET_MINION                      = 32,
+    //TARGET_DEST_SUMMON
     TARGET_ALL_PARTY                   = 33,
+    //TARGET_UNIT_AREA_PARTY
     TARGET_ALL_PARTY_AROUND_CASTER_2   = 34,                // used in Tranquility
+    //TARGET_UNIT_AREA_PARTY_GROUND
     TARGET_SINGLE_PARTY                = 35,
+    //TARGET_UNIT_TARGET_PARTY
+    TARGET_DEST_CASTER_RANDOM_UNKNOWN  = 36, //unknown
     TARGET_AREAEFFECT_PARTY            = 37,
+    //TARGET_UNIT_PARTY_TARGET
     TARGET_SCRIPT                      = 38,
+    //TARGET_UNIT_NEARBY_ENTRY
     TARGET_SELF_FISHING                = 39,
-    TARGET_TOTEM_EARTH                 = 41,
-    TARGET_TOTEM_WATER                 = 42,
-    TARGET_TOTEM_AIR                   = 43,
-    TARGET_TOTEM_FIRE                  = 44,
+    //TARGET_UNIT_CASTER_FISHING
+    TARGET_OBJECT_USE                  = 40,
+    TARGET_DEST_CASTER_FRONT_LEFT      = 41, //earth totem
+    TARGET_DEST_CASTER_BACK_LEFT       = 42, //water totem
+    TARGET_DEST_CASTER_BACK_RIGHT      = 43, //air totem
+    TARGET_DEST_CASTER_FRONT_RIGHT     = 44, //fire totem
     TARGET_CHAIN_HEAL                  = 45,
+    //TARGET_UNIT_CHAINHEAL
     TARGET_SCRIPT_COORDINATES          = 46,
-    TARGET_DYNAMIC_OBJECT              = 47,
-    TARGET_SUMMON                      = 48,
+    //TARGET_DEST_TABLE_UNKNOWN
+    TARGET_DEST_CASTER_FRONT           = 47,
+    TARGET_DEST_CASTER_BACK            = 48,
+    TARGET_DEST_CASTER_RIGHT           = 49,
+    TARGET_DEST_CASTER_LEFT            = 50,
+    TARGET_OBJECT_AREA                 = 51,
     TARGET_AREAEFFECT_CUSTOM_2         = 52,
+    //TARGET_DUMMY
     TARGET_CURRENT_ENEMY_COORDINATES   = 53,                // set unit coordinates as dest, only 16 target B imlemented
+    //TARGET_DEST_TARGET_ENEMY
+    TARGET_UNIT_CONE_ENEMY_UNKNOWN     = 54,
+    TARGET_DEST_CASTER_FRONT_LEAP      = 55, // for a leap spell
     TARGET_RANDOM_RAID_MEMBER          = 56,
+    //TARGET_UNIT_AREA_RAID
     TARGET_SINGLE_FRIEND_2             = 57,
+    //TARGET_UNIT_TARGET_RAID
+    TARGET_UNIT_CONE_ALLY              = 59,
+    TARGET_UNIT_AREA_SCRIPT            = 60,
     TARGET_AREAEFFECT_PARTY_AND_CLASS  = 61,
+    //TARGET_UNIT_CLASS_TARGET
+    TARGET_TEST                        = 62, // for a test spell 
     TARGET_DUELVSPLAYER_COORDINATES    = 63,
-    TARGET_BEHIND_VICTIM               = 65,                // uses in teleport behind spells
+    //TARGET_DEST_TARGET_ENEMY_UNKNOWN
+    TARGET_DEST_TARGET_FRONT           = 64,
+    TARGET_DEST_TARGET_BACK            = 65,                // uses in teleport behind spells
+    TARGET_DEST_TARGET_RIGHT           = 66,
+    TARGET_DEST_TARGET_LEFT            = 67,
+    TARGET_DEST_TARGET_ENEMY_UNKNOWN2  = 70,
+    TARGET_DEST_CASTER_RANDOM          = 72,
+    TARGET_DEST_CASTER_RADIUS          = 73,
+    TARGET_DEST_TARGET_RANDOM          = 74,
+    TARGET_DEST_TARGET_RADIUS          = 75,
+    TARGET_DEST_CHANNEL                = 76,
     TARGET_SINGLE_ENEMY                = 77,
+    //TARGET_UNIT_CHANNEL
+    TARGET_DEST_CASTER_FRONT_UNKNOWN   = 78,
+    TARGET_DEST_TABLE_UNKNOWN2         = 80,
+    TARGET_DEST_DEST_RANDOM            = 86,
     TARGET_SELF2                       = 87,
+    //TARGET_DEST_DEST
+    TARGET_UNIT_AREA_ALL_CHANNEL       = 88,
     TARGET_NONCOMBAT_PET               = 90,
+    //TARGET_UNIT_MINIPET
 };
 
 enum SpellMissInfo

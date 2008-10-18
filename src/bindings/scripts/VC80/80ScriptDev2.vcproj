@@ -2079,11 +2079,27 @@
 					Name="Zul&apos;Aman"
 					>
 					<File
+						RelativePath="..\scripts\zone\zulaman\boss_akilzon.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\zulaman\boss_halazzi.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\zulaman\boss_hexlord.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\scripts\zone\zulaman\boss_janalai.cpp"
 						>
 					</File>
 					<File
 						RelativePath="..\scripts\zone\zulaman\boss_nalorakk.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\zulaman\boss_zuljin.cpp"
 						>
 					</File>
 					<File
