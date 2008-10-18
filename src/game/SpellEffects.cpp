@@ -4665,15 +4665,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
             break;
         }
 
-        // Dreaming Glory
-        case 28698:
-        {
-            if(!unitTarget)
-                return;
-            unitTarget->CastSpell(unitTarget, 28694, true);
-            break;
-        }
-
         // Netherbloom
         case 28702:
         {
@@ -4748,22 +4739,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
             }
             break;
         }
-        case 41126:                                         // Flame Crash
-        {
-            if(!unitTarget)
-                return;
-
-           unitTarget->CastSpell(unitTarget, 41131, true);
-           break;
-        }
-        case 44876:                                         // Force Cast - Portal Effect: Sunwell Isle
-        {
-            if(!unitTarget)
-                return;
-
-            unitTarget->CastSpell(unitTarget, 44870, true);
-            break;
-        }
 
         // Goblin Weather Machine
         case 46203:
@@ -4790,14 +4765,32 @@ void Spell::EffectScriptEffect(uint32 effIndex)
             unitTarget->CastSpell(unitTarget, spellId, true);
             break;
         }
+
+    }
+
+    if(!unitTarget || !unitTarget->isAlive()) // can we remove this check?
+    {
+        sLog.outError("Spell %u in EffectScriptEffect does not have unitTarget", m_spellInfo->Id);
+        return;
+    }
+
+    switch(m_spellInfo->Id)
+    {
+        // Dreaming Glory
+        case 28698: unitTarget->CastSpell(unitTarget, 28694, true); break;
+        // Needle Spine
+        case 39835: unitTarget->CastSpell(unitTarget, 39968, true); break;
+        // Draw Soul
+        case 40904: unitTarget->CastSpell(m_caster, 40903, true); break;
+        // Flame Crash
+        case 41126: unitTarget->CastSpell(unitTarget, 41131, true); break;
+        // Force Cast - Portal Effect: Sunwell Isle
+        case 44876: unitTarget->CastSpell(unitTarget, 44870, true); break;
         //5,000 Gold
         case 46642:
         {
-            if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            ((Player*)unitTarget)->ModifyMoney(50000000);
-
+            if(unitTarget->GetTypeId() == TYPEID_PLAYER)
+                ((Player*)unitTarget)->ModifyMoney(50000000);
             break;
         }
     }
@@ -4809,8 +4802,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
             // Judgement
             case 0x800000:
             {
-                if(!unitTarget || !unitTarget->isAlive())
-                    return;
                 uint32 spellId2 = 0;
 
                 // all seals have aura dummy
@@ -4861,9 +4852,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
     }
 
     // normal DB scripted effect
-    if(!unitTarget)
-        return;
-
     sLog.outDebug("Spell ScriptStart spellid %u in EffectScriptEffect ", m_spellInfo->Id);
     sWorld.ScriptsStart(sSpellScripts, m_spellInfo->Id, m_caster, unitTarget);
 }

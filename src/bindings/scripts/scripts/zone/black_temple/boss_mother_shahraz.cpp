@@ -32,7 +32,7 @@ EndScriptData */
 #define SPELL_ATTRACTION        40871
 #define SPELL_SILENCING_SHRIEK  40823
 #define SPELL_ENRAGE            23537
-#define SPELL_SABER_LASH        43267
+#define SPELL_SABER_LASH        40810//43267
 #define SPELL_SABER_LASH_IMM    43690
 #define SPELL_TELEPORT_VISUAL   40869
 #define SPELL_BERSERK           45078
@@ -115,6 +115,7 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
     uint32 FatalAttractionTimer;
     uint32 FatalAttractionExplodeTimer;
     uint32 ShriekTimer;
+	uint32 SaberTimer;
     uint32 RandomYellTimer;
     uint32 EnrageTimer;
     uint32 ExplosionCount;
@@ -129,13 +130,14 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
         for(uint8 i = 0; i<3; i++)
             TargetGUID[i] = 0;
 
-        BeamTimer = 60000;                                  // Timers may be incorrect
+        BeamTimer = 20000; // Timers may be incorrect
         BeamCount = 0;
         CurrentBeam = 0;                                    // 0 - Sinister, 1 - Vile, 2 - Wicked, 3 - Sinful
         PrismaticShieldTimer = 0;
         FatalAttractionTimer = 60000;
         FatalAttractionExplodeTimer = 70000;
         ShriekTimer = 30000;
+		SaberTimer = 35000;
         RandomYellTimer = 70000 + rand()%41 * 1000;
         EnrageTimer = 600000;
         ExplosionCount = 0;
@@ -301,8 +303,14 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
         if(ShriekTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_SILENCING_SHRIEK);
-            ShriekTimer = 30000;
+            ShriekTimer = 25000+rand()%10 * 1000;
         }else ShriekTimer -= diff;
+
+		if(SaberTimer < diff)
+        {
+            DoCast(m_creature->getVictim(), SPELL_SABER_LASH);
+            SaberTimer = 25000+rand()%10 * 1000;
+        }else SaberTimer -= diff;
 
         //Enrage
         if(!m_creature->HasAura(SPELL_BERSERK, 0))

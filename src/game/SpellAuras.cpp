@@ -1650,8 +1650,21 @@ void Aura::TriggerSpell()
 //                    case 40867: break;
 //                    // Prismatic Shield
 //                    case 40879: break;
-//                    // Aura of Desire
-//                    case 41350: break;
+                    // Aura of Desire
+                    case 41350:
+                    {
+                        Unit::AuraList const& mMod = m_target->GetAurasByType(SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT);
+                        for(Unit::AuraList::const_iterator i = mMod.begin(); i != mMod.end(); ++i)
+                        {
+                            if ((*i)->GetId() == 41350)
+                            {
+                                (*i)->ApplyModifier(false);
+                                (*i)->GetModifier()->m_amount -= 5;
+                                (*i)->ApplyModifier(true);
+                                break;
+                            }
+                        }                        
+                    }break;
 //                    // Dementia
 //                    case 41404: break;
 //                    // Chaos Form
@@ -5614,6 +5627,21 @@ void Aura::PeriodicTick()
                         }
                         break;
                     }
+                    case 41337:// aura of anger
+                    {                        
+                        Unit::AuraList const& mMod = m_target->GetAurasByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+                        for(Unit::AuraList::const_iterator i = mMod.begin(); i != mMod.end(); ++i)
+                        {
+                            if ((*i)->GetId() == 41337)
+                            {
+                                (*i)->ApplyModifier(false);
+                                (*i)->GetModifier()->m_amount += 5;
+                                (*i)->ApplyModifier(true);
+                                break;
+                            }
+                        }                        
+                        m_modifier.m_amount += 100;
+                    }break;
                     default:
                         break;
                 }

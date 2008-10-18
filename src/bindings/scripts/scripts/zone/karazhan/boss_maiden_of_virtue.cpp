@@ -27,6 +27,7 @@ EndScriptData */
 #define SPELL_HOLYFIRE          29522
 #define SPELL_HOLYWRATH         32445
 #define SPELL_HOLYGROUND        29512
+#define SPELL_BERSERK           26662
 
 #define SAY_AGGRO               "Your behavior will not be tolerated!"
 #define SAY_SLAY1               "Ah ah ah..."
@@ -52,6 +53,9 @@ struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
     uint32 Holyfire_Timer;
     uint32 Holywrath_Timer;
     uint32 Holyground_Timer;
+    uint32 Enrage_Timer;
+
+    bool Enraged;
 
     void Reset()
     {
@@ -59,6 +63,12 @@ struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
         Holyfire_Timer      = 8000+(rand()%17000);
         Holywrath_Timer     = 20000+(rand()%10000);
         Holyground_Timer    = 3000;
+        Enrage_Timer        = 600000;
+
+        Enraged = false;
+
+        m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+        m_creature->ApplySpellImmune(1, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
     }
 
     void KilledUnit(Unit* Victim)
@@ -67,18 +77,18 @@ struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
 
         switch(rand()%3)
         {
-            case 0:
-                DoYell(SAY_SLAY1,LANG_UNIVERSAL,Victim);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY1);
-                break;
-            case 1:
-                DoYell(SAY_SLAY2,LANG_UNIVERSAL,Victim);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY2);
-                break;
-            case 2:
-                DoYell(SAY_SLAY3,LANG_UNIVERSAL,Victim);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY3);
-                break;
+        case 0:
+            DoYell(SAY_SLAY1,LANG_UNIVERSAL,Victim);
+            DoPlaySoundToSet(m_creature, SOUND_SLAY1);
+            break;
+        case 1:
+            DoYell(SAY_SLAY2,LANG_UNIVERSAL,Victim);
+            DoPlaySoundToSet(m_creature, SOUND_SLAY2);
+            break;
+        case 2:
+            DoYell(SAY_SLAY3,LANG_UNIVERSAL,Victim);
+            DoPlaySoundToSet(m_creature, SOUND_SLAY3);
+            break;
         }
     }
 
@@ -99,6 +109,12 @@ struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
             return;
 
+        if (Enrage_Timer < diff && !Enraged)
+        {
+            DoCast(m_creature, SPELL_BERSERK,true);
+            Enraged = true;
+        }else Enrage_Timer -=diff;
+
         if (Holyground_Timer < diff)
         {
             DoCast(m_creature, SPELL_HOLYGROUND, true);     //Triggered so it doesn't interrupt her at all
@@ -111,37 +127,28 @@ struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
 
             switch(rand()%2)
             {
-                case 0:
-                    DoYell(SAY_REPENTANCE1,LANG_UNIVERSAL,NULL);
-                    DoPlaySoundToSet(m_creature, SOUND_REPENTANCE1);
-                    break;
-                case 1:
-                    DoYell(SAY_REPENTANCE2,LANG_UNIVERSAL,NULL);
-                    DoPlaySoundToSet(m_creature, SOUND_REPENTANCE2);
-                    break;
+            case 0:
+                DoYell(SAY_REPENTANCE1,LANG_UNIVERSAL,NULL);
+                DoPlaySoundToSet(m_creature, SOUND_REPENTANCE1);
+                break;
+            case 1:
+                DoYell(SAY_REPENTANCE2,LANG_UNIVERSAL,NULL);
+                DoPlaySoundToSet(m_creature, SOUND_REPENTANCE2);
+                break;
             }
             Repentance_Timer = 30000 + rand()%15000;        //A little randomness on that spell
         }else Repentance_Timer -= diff;
 
         if (Holyfire_Timer < diff)
         {
-            //Time for an omgwtfpwn code to make maiden cast holy fire only on units outside the holy ground's 18 yard range
             Unit* target = NULL;
-            std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();
-            std::vector<Unit *> target_list;
-            for(std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            target = SelectUnit(SELECT_TARGET_RANDOM,0);            
+
+            if(target)
             {
-                target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
-                if(target && target->GetDistance2d(m_creature) > 12 )
-                    target_list.push_back(target);
-                target = NULL;
+                DoCast(target,SPELL_HOLYFIRE);
+                Holyfire_Timer = 8000 + rand()%17000; //Anywhere from 8 to 25 seconds, good luck having several of those in a row!
             }
-            if(target_list.size())
-                target = *(target_list.begin()+rand()%target_list.size());
-
-            DoCast(target,SPELL_HOLYFIRE);
-
-            Holyfire_Timer = 8000 + rand()%17000;           //Anywhere from 8 to 25 seconds, good luck having several of those in a row!
         }else Holyfire_Timer -= diff;
 
         if (Holywrath_Timer < diff)

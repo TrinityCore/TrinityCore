@@ -25,7 +25,7 @@ EndScriptData */
 #include "def_the_eye.h"
 
 #define SPELL_POUNDING              34162
-#define SPELL_ARCANE_ORB_TRIGGER    34172
+#define SPELL_ARCANE_ORB            34172
 #define SPELL_KNOCK_AWAY            11130
 #define SPELL_BERSERK               27680
 
@@ -45,8 +45,6 @@ EndScriptData */
 #define SOUND_POUNDING1         11218
 #define SOUND_POUNDING2         11219
 
-#define CREATURE_ORB_TARGET     19577
-
 struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
 {
     boss_void_reaverAI(Creature *c) : ScriptedAI(c)
@@ -64,8 +62,11 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
 
     void Reset()
     {
+        m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+        m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
+
         Pounding_Timer = 12000;
-        ArcaneOrb_Timer = 3000;
+        ArcaneOrb_Timer = 6000;
         KnockAway_Timer = 30000;
         Berserk_Timer = 600000;
 
@@ -143,8 +144,8 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
             for(std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
                 target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
-                                                            //15 yard radius minimum
-                if(target && target->GetDistance2d(m_creature) > 15)
+                                                            //18 yard radius minimum
+                if(target && target->GetDistance2d(m_creature) > 18)
                     target_list.push_back(target);
                 target = NULL;
             }
@@ -152,14 +153,9 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
                 target = *(target_list.begin()+rand()%target_list.size());
 
             if (target)
-            {
-                Unit* Spawn = NULL;
-                Spawn = m_creature->SummonCreature(CREATURE_ORB_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000);
-                if (Spawn)
-                    m_creature->CastSpell(Spawn, SPELL_ARCANE_ORB_TRIGGER, true);
-            }
+                m_creature->CastSpell(target, SPELL_ARCANE_ORB, true);
 
-            ArcaneOrb_Timer = 3000;
+            ArcaneOrb_Timer = 6000;
         }else ArcaneOrb_Timer -= diff;
 
         // Single Target knock back, reduces aggro
