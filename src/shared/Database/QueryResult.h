@@ -35,7 +35,7 @@ class TRINITY_DLL_SPEC QueryResult
 
         uint32 GetField_idx(const std::string &name) const
         {
-            for(FieldNames::const_iterator iter = GetFiedNames().begin(); iter != GetFiedNames().end(); ++iter)
+            for(FieldNames::const_iterator iter = GetFieldNames().begin(); iter != GetFieldNames().end(); ++iter)
             {
                 if(iter->second == name)
                     return iter->first;
@@ -55,7 +55,7 @@ class TRINITY_DLL_SPEC QueryResult
 
         uint32 GetFieldCount() const { return mFieldCount; }
         uint64 GetRowCount() const { return mRowCount; }
-        FieldNames const& GetFiedNames() const {return mFieldNames; }
+        FieldNames const& GetFieldNames() const {return mFieldNames; }
 
     protected:
         Field *mCurrentRow;
