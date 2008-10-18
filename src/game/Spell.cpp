@@ -1183,16 +1183,114 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
     uint32 unMaxTargets = m_spellInfo->MaxAffectedTargets;
     switch(cur)
     {
-        case TARGET_TOTEM_EARTH:
-        case TARGET_TOTEM_WATER:
-        case TARGET_TOTEM_AIR:
-        case TARGET_TOTEM_FIRE:
-        case TARGET_SELF:
+        // destination around caster
+        case TARGET_DEST_CASTER_FRONT_LEFT:
+        case TARGET_DEST_CASTER_BACK_LEFT:
+        case TARGET_DEST_CASTER_BACK_RIGHT:
+        case TARGET_DEST_CASTER_FRONT_RIGHT:
+        case TARGET_DEST_CASTER_FRONT:
+        case TARGET_DEST_CASTER_BACK:
+        case TARGET_DEST_CASTER_RIGHT:
+        case TARGET_DEST_CASTER_LEFT:
+        case TARGET_DEST_CASTER_RANDOM:
+        case TARGET_DEST_CASTER_RADIUS:
+        {
+            float x, y, z, angle, dist;
+
+            if (m_spellInfo->EffectRadiusIndex[i])
+                dist = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+            else
+                dist = 3.0f;//do we need this?
+            if (cur == TARGET_DEST_CASTER_RANDOM)
+                dist *= rand_norm(); // This case we need to consider caster size
+            else
+                dist -= m_caster->GetObjectSize(); // Size is calculated in GetNearPoint(), but we do not need it 
+            //need a new function to remove this repeated work
+
+            switch(cur)
+            {
+                case TARGET_DEST_CASTER_FRONT_LEFT: angle = -M_PI/4;    break;
+                case TARGET_DEST_CASTER_BACK_LEFT:  angle = -3*M_PI/4;  break;
+                case TARGET_DEST_CASTER_BACK_RIGHT: angle = 3*M_PI/4;   break;
+                case TARGET_DEST_CASTER_FRONT_RIGHT:angle = M_PI/4;     break;
+                case TARGET_DEST_CASTER_FRONT:      angle = 0.0f;       break;
+                case TARGET_DEST_CASTER_BACK:       angle = M_PI;       break;
+                case TARGET_DEST_CASTER_RIGHT:      angle = M_PI/2;     break;
+                case TARGET_DEST_CASTER_LEFT:       angle = -M_PI/2;    break;
+                default:                            angle = rand_norm()*2*M_PI; break;
+            }
+
+            m_caster->GetClosePoint(x, y, z, 0, dist, angle);
+            m_targets.setDestination(x, y, z); // do not know if has ground visual
+            TagUnitMap.push_back(m_caster); // may remove this in the future, if unitmap is empty, push m_caster
+        }break;
+
+        // destination around target
+        case TARGET_DEST_TARGET_FRONT:
+        case TARGET_DEST_TARGET_BACK:
+        case TARGET_DEST_TARGET_RIGHT:
+        case TARGET_DEST_TARGET_LEFT:
+        case TARGET_DEST_TARGET_RANDOM:
+        case TARGET_DEST_TARGET_RADIUS:
+        {
+            Unit *target = m_targets.getUnitTarget();
+            if(!target)
+            {
+                sLog.outError("SPELL: no unit target for spell ID %u\n", m_spellInfo->Id);
+                break;
+            }
+
+            float x, y, z, angle, dist;
+
+            if (m_spellInfo->EffectRadiusIndex[i])
+                dist = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+            else
+                dist = 3.0f;//do we need this?
+            if (cur == TARGET_DEST_TARGET_RANDOM)
+                dist *= rand_norm(); // This case we need to consider caster size
+            else
+                dist -= target->GetObjectSize(); // Size is calculated in GetNearPoint(), but we do not need it 
+            //need a new function to remove this repeated work
+
+            switch(cur)
+            {
+                case TARGET_DEST_TARGET_FRONT:      angle = 0.0f;       break;
+                case TARGET_DEST_TARGET_BACK:       angle = M_PI;       break;
+                case TARGET_DEST_TARGET_RIGHT:      angle = M_PI/2;     break;
+                case TARGET_DEST_TARGET_LEFT:       angle = -M_PI/2;    break;
+                default:                            angle = rand_norm()*2*M_PI; break;
+            }
+
+            target->GetClosePoint(x, y, z, 0, dist, angle);
+            m_targets.setDestination(x, y, z); // do not know if has ground visual
+            TagUnitMap.push_back(m_caster); // may remove this in the future, if unitmap is empty, push m_caster
+        }break;
+
+        // destination around destination
+        case TARGET_DEST_DEST_RANDOM:
+        {
+            if(!(m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION))
+            {
+                sLog.outError("SPELL: no destination for spell ID %u\n", m_spellInfo->Id);
+                break;
+            }
+            float x, y, z, dist, px, py, pz;
+            dist = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+            x = m_targets.m_destX;
+            y = m_targets.m_destY;
+            z = m_targets.m_destZ;
+            m_caster->GetRandomPoint(x, y, z, dist, px, py, pz);
+            m_targets.setDestination(px, py, pz);
+            TagUnitMap.push_back(m_caster);
+        }break;
         case TARGET_SELF2:
-        case TARGET_DYNAMIC_OBJECT:
+        {
+            TagUnitMap.push_back(m_caster);
+        }break;
+
+        case TARGET_SELF:
         case TARGET_AREAEFFECT_CUSTOM:
         case TARGET_AREAEFFECT_CUSTOM_2:
-        case TARGET_SUMMON:
         {
             TagUnitMap.push_back(m_caster);
             break;
@@ -1864,20 +1962,6 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             }
             else
                 sLog.outError( "SPELL: unknown target coordinates for spell ID %u\n", m_spellInfo->Id );
-        }break;
-        case TARGET_BEHIND_VICTIM:
-        {
-            Unit *pTarget = m_caster->getVictim();
-            if(!pTarget && m_caster->GetTypeId() == TYPEID_PLAYER)
-                pTarget = ObjectAccessor::GetUnit(*m_caster, ((Player*)m_caster)->GetSelection());
-
-            if(pTarget)
-            {
-                float _target_x, _target_y, _target_z;
-                pTarget->GetClosePoint(_target_x, _target_y, _target_z, m_caster->GetObjectSize(), CONTACT_DISTANCE, M_PI);
-                if(pTarget->IsWithinLOS(_target_x,_target_y,_target_z))
-                    m_targets.setDestination(_target_x, _target_y, _target_z);
-            }
         }break;
         default:
             break;
