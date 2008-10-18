@@ -1453,6 +1453,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
         return NULL;
     go->SetRespawnTime(respawnTime);
     go->SetSpawnedByDefault(false); // do not save respawn time
+    go->SetOwnerGUID(GetGUID());
     map->Add(go);
 
     return go;
