@@ -116,32 +116,27 @@ struct TRINITY_DLL_DECL npc_volcanoAI : public ScriptedAI
         SupremusGUID = 0;
         FireballTimer = 500;
         GeyserTimer = 0;
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
     void Aggro(Unit *who) {}
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void SetSupremusGUID(uint64 guid) { SupremusGUID = guid; }
 
     void UpdateAI(const uint32 diff)
     {
-        if(CheckTimer < diff)
-        {
-            if(SupremusGUID)
-            {
-                Unit* Supremus = NULL;
-                Supremus = Unit::GetUnit((*m_creature), SupremusGUID);
-                if(Supremus && (!Supremus->isAlive()))
-                    m_creature->DealDamage(m_creature, m_creature->GetHealth(), 0, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            }
-            CheckTimer = 2000;
-        }else CheckTimer -= diff;
-
         if(GeyserTimer < diff)
         {
             DoCast(m_creature, SPELL_VOLCANIC_GEYSER);
             GeyserTimer = 18000;
         }else GeyserTimer -= diff;
+
+        if(FireballTimer < diff)
+        {
+            DoCast(m_creature, SPELL_VOLCANIC_FIREBALL, true);
+            FireballTimer = 1000;
+        }else FireballTimer -= diff;
     }
 };
 
@@ -271,7 +266,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
         if(!m_creature->HasAura(SPELL_BERSERK, 0))
             if(BerserkTimer < diff)
                 DoCast(m_creature, SPELL_BERSERK);
-        else BerserkTimer -= diff;
+            else BerserkTimer -= diff;
 
         if(SummonFlameTimer < diff)
         {
@@ -332,15 +327,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
 
                 if(target)
                 {
-                    Creature* Volcano = NULL;
-                    Volcano = SummonCreature(CREATURE_VOLCANO, target);
-
-                    if(Volcano)
-                    {
-                        DoCast(target, SPELL_VOLCANIC_ERUPTION);
-                        ((npc_volcanoAI*)Volcano->AI())->SetSupremusGUID(m_creature->GetGUID());
-                    }
-
+                    DoCast(target, SPELL_VOLCANIC_ERUPTION);
                     DoTextEmote("roars and the ground begins to crack open!", NULL);
                     SummonVolcanoTimer = 10000;
                 }
@@ -355,6 +342,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
                 DoResetThreat();
                 PhaseSwitchTimer = 60000;
                 m_creature->SetSpeed(MOVE_RUN, 1.0f);
+                DoZoneInCombat();
             }
             else
             {
@@ -364,6 +352,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
                 SummonVolcanoTimer = 2000;
                 PhaseSwitchTimer = 60000;
                 m_creature->SetSpeed(MOVE_RUN, 0.9f);
+                DoZoneInCombat();
             }
         }else PhaseSwitchTimer -= diff;
 

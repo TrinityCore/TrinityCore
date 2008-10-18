@@ -126,12 +126,15 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
                 break;
             case 185905:                                    // Gate leading to Temple Summit
                 IllidanGate = go->GetGUID();
+                go->SetUInt32Value(GAMEOBJECT_FLAGS,GO_FLAG_NODESPAWN+GO_FLAG_INTERACT_COND);
                 break;
             case 186261:                                    // Right door at Temple Summit
                 IllidanDoor[0] = go->GetGUID();
+                go->SetUInt32Value(GAMEOBJECT_FLAGS,GO_FLAG_NODESPAWN+GO_FLAG_INTERACT_COND);
                 break;
             case 186262:                                    // Left door at Temple Summit
                 IllidanDoor[1] = go->GetGUID();
+                go->SetUInt32Value(GAMEOBJECT_FLAGS,GO_FLAG_NODESPAWN+GO_FLAG_INTERACT_COND);
                 break;
         }
     }
