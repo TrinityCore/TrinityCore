@@ -82,12 +82,6 @@ class TRINITY_DLL_SPEC CreatureAI
         // Called at stopping attack by any attacker
         virtual void EnterEvadeMode() = 0;
 
-        // Called at any heal cast/item used (call non implemented)
-        virtual void HealBy(Unit * /*healer*/, uint32 /*amount_healed*/) {}
-
-        // Called at any Damage to any victim (before damage apply)
-        virtual void DamageDeal(Unit * /*done_to*/, uint32 & /*damage*/) {}
-
         // Called at any Damage from any attacker (before damage apply)
         virtual void DamageTaken(Unit *done_by, uint32 & /*damage*/) { AttackedBy(done_by); }
 
@@ -110,6 +104,9 @@ class TRINITY_DLL_SPEC CreatureAI
 
         // Called when hit by a spell
         virtual void SpellHit(Unit*, const SpellEntry*) {}
+
+        // Called when spell hits a target
+        virtual void SpellHitTarget(Unit* target, const SpellEntry*) {} 
 
         // Called when vitim entered water and creature can not enter water
         virtual bool canReachByRangeAttack(Unit*) { return false; }

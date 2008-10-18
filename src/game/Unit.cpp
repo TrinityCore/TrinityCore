@@ -477,9 +477,6 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             pVictim->SetStandState(PLAYER_STATE_NONE);
     }
 
-    //Script Event damage Deal
-    if( GetTypeId()== TYPEID_UNIT && ((Creature *)this)->AI())
-        ((Creature *)this)->AI()->DamageDeal(pVictim, damage);
     //Script Event damage taken
     if( pVictim->GetTypeId()== TYPEID_UNIT && ((Creature *)pVictim)->AI() )
         ((Creature *)pVictim)->AI()->DamageTaken(this, damage);

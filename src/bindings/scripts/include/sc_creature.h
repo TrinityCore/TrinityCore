@@ -29,12 +29,6 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     //Called at stoping attack by any attacker
     void EnterEvadeMode();
 
-    //Called at any heal cast/item used (call non implemented in Trinity)
-    void HealBy(Unit *healer, uint32 amount_healed) {}
-
-    // Called at any Damage to any victim (before damage apply)
-    void DamageDeal(Unit *done_to, uint32 &damage) {}
-
     // Called at any Damage from any attacker (before damage apply)
     void DamageTaken(Unit *done_by, uint32 &damage) {}
 
@@ -57,7 +51,10 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     void SummonedCreatureDespawn(Creature* /*unit*/) {}
 
     // Called when hit by a spell
-    void SpellHit(Unit*, const SpellEntry*) {}
+    void SpellHit(Unit* caster, const SpellEntry*) {}
+
+    // Called when spell hits a target
+    void SpellHitTarget(Unit* target, const SpellEntry*) {}
 
     // Called when creature is spawned or respawned (for reseting variables)
     void JustRespawned();

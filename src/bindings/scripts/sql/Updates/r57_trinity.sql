@@ -36,4 +36,4 @@ INSERT INTO `spell_proc_event` VALUES ('43983', '0', '0', '0', '0', '0', '16384'
 DELETE FROM `spell_script_target` WHERE `entry` = 42577;
 INSERT INTO `spell_script_target` VALUES ('42577', '1', '24136');
 
-UPDATE `creature_template` SET `lootid` = `entry`, `ScriptName` = 'npc_zulaman_hostage' WHERE `entry` IN (23790, 23999, 24024, 24001);
+UPDATE `creature_template` SET `ScriptName` = 'npc_zulaman_hostage' WHERE `entry` IN (23790, 23999, 24024, 24001);

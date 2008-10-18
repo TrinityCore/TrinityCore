@@ -944,6 +944,9 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         if(((Creature*)unit)->AI())
             ((Creature*)unit)->AI()->SpellHit(m_caster ,m_spellInfo);
     }
+
+    if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->AI())
+        ((Creature*)m_caster)->AI()->SpellHitTarget(unit, m_spellInfo);
 }
 
 void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
