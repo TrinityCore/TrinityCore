@@ -156,7 +156,7 @@ struct TRINITY_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
 
     uint64 GetData64(uint32 identifier)
     {
-        if(identifier  == DATA_GRANDMASTERVORPIL)
+        if(identifier  == DATA_GRANDMASTERVORPILEVENT)
             return GrandmasterVorpil;
 
         return 0;
