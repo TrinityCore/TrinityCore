@@ -742,8 +742,6 @@ void SpellMgr::LoadSpellAffects()
     sLog.outString();
     sLog.outString( ">> Loaded %u spell affect definitions", count );
 
-    /*
-    // Commented for now, as it still produces many errors (still quite many spells miss spell_affect)
     for (uint32 id = 0; id < sSpellStore.GetNumRows(); ++id)
     {
         SpellEntry const* spellInfo = sSpellStore.LookupEntry(id);
@@ -764,10 +762,9 @@ void SpellMgr::LoadSpellAffects()
             if(mSpellAffectMap.find((id<<8) + effectId) !=  mSpellAffectMap.end())
                 continue;
 
-            sLog.outErrorDb("Spell %u (%s) misses spell_affect for effect %u",id,spellInfo->SpellName[sWorld.GetDBClang()], effectId);
+            sLog.outErrorDb("Spell %u (%s) misses spell_affect for effect %u",id,spellInfo->SpellName[sWorld.GetDefaultDbcLocale()], effectId);
         }
     }
-    */
 }
 
 bool SpellMgr::IsAffectedBySpell(SpellEntry const *spellInfo, uint32 spellId, uint8 effectId, uint64 familyFlags) const

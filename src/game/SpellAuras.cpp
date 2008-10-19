@@ -1950,6 +1950,12 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 if(roll_chance_i(20))                       // backfire stun
                     m_target->CastSpell(m_target, 51581, true, NULL, this);
                 return;
+            case 43873:                                     // Headless Horseman Laugh
+                if(caster->GetTypeId() == TYPEID_PLAYER)
+                {
+                    ((Player*)caster)->PlaySound(11965, false);
+                }
+                return;
             case 46354:                                     // Blood Elf Illusion
                 if(caster)
                 {
