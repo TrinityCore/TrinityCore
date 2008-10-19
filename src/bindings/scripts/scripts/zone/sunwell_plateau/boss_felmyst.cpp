@@ -22,7 +22,7 @@ EndScriptData */
 
 #include "precompiled.h"
 #include "def_sunwell_plateau.h"
-#include "player.h"
+#include "Player.h"
 
 // AURA
 #define AURA_SUNWELL_RADIANCE           45769
