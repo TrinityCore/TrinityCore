@@ -7,8 +7,17 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_sunwell_plateau.h"
 
-// Lady Sacrolash
+//Intro
+#define YELL_INTRO_SAC_1                "Misery..."
+#define YELL_INTRO_ALY_2                "Depravity..."
+#define YELL_INTRO_SAC_3                "Confusion..."
+#define YELL_INTRO_ALY_4                "Hatred..."
+#define YELL_INTRO_SAC_5                "Mistrust..."
+#define YELL_INTRO_ALY_6                "Chaos..."
+#define YELL_INTRO_SAC_7                "These are the hallmarks..."
+#define YELL_INTRO_ALY_8                "These are the pillars..."
 
+// Lady Sacrolash
 #define LADY_SACROLASH                  25165
 
 #define SPELL_DARK_TOUCHED              45347
@@ -338,13 +347,14 @@ struct TRINITY_DLL_DECL boss_alythessAI : public ScriptedAI
     {
         pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
         Reset();
-        once = false;
+        IntroStepCounter = 10;
     }
 
     ScriptedInstance *pInstance;
     bool InCombat;
     bool sisterdeath;
-    bool once;
+    uint32 IntroStepCounter;
+    uint32 IntroYell_Timer;
 
     uint32 conflagration_timer;
     uint32 blaze_timer;
@@ -384,6 +394,7 @@ struct TRINITY_DLL_DECL boss_alythessAI : public ScriptedAI
             sisterdeath = false;
             enrage_timer = 360000;
             flamesear_timer = 15000;
+            IntroYell_Timer = 10000;
         }
     }
     void Aggro(Unit *who) 
@@ -435,10 +446,9 @@ struct TRINITY_DLL_DECL boss_alythessAI : public ScriptedAI
                 }
             }
         }
-        else if (!once && m_creature->IsWithinLOSInMap(who)&& m_creature->IsWithinDistInMap(who, 30) )
+        else if (IntroStepCounter == 10 && m_creature->IsWithinLOSInMap(who)&& m_creature->IsWithinDistInMap(who, 30) )
         {
-            DoPlaySoundToSet(m_creature,SOUND_INTRO);
-            once = true;
+            IntroStepCounter = 0;
         }
     }
 
@@ -523,8 +533,54 @@ struct TRINITY_DLL_DECL boss_alythessAI : public ScriptedAI
         }
     }
 
+    uint32 IntroStep(uint32 step)
+    {
+        Creature* Sacrolash = (Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SACROLASH));
+        switch (step)
+        {
+        case 0: DoPlaySoundToSet(m_creature,SOUND_INTRO); return 0;
+        case 1:
+            if(Sacrolash)
+                Sacrolash->Yell(YELL_INTRO_SAC_1, LANG_UNIVERSAL,NULL); 
+            return 1000;
+        case 2: 
+            m_creature->Yell(YELL_INTRO_ALY_2, LANG_UNIVERSAL,NULL); 
+            return 1000;
+        case 3: 
+            if(Sacrolash)
+                Sacrolash->Yell(YELL_INTRO_SAC_3, LANG_UNIVERSAL,NULL); 
+            return 2000;
+        case 4: 
+            m_creature->Yell(YELL_INTRO_ALY_4, LANG_UNIVERSAL,NULL); 
+            return 1000;
+        case 5:
+            if(Sacrolash)
+                Sacrolash->Yell(YELL_INTRO_SAC_5, LANG_UNIVERSAL,NULL); 
+            return 2000;
+        case 6: 
+            m_creature->Yell(YELL_INTRO_ALY_6, LANG_UNIVERSAL,NULL); 
+            return 1000;
+        case 7: 
+            if(Sacrolash)
+                Sacrolash->Yell(YELL_INTRO_SAC_7, LANG_UNIVERSAL,NULL); 
+            return 3000;
+        case 8: 
+            m_creature->Yell(YELL_INTRO_ALY_8, LANG_UNIVERSAL,NULL); 
+            return 900000;
+        }
+        return 10000;
+    }
+
     void UpdateAI(const uint32 diff) 
     {
+        if(IntroStepCounter < 9)
+        {
+            if(IntroYell_Timer < diff)
+            {
+                IntroYell_Timer = IntroStep(IntroStepCounter++);
+            }else IntroYell_Timer -= diff;
+        }
+
         if(!sisterdeath)
         {
             if (pInstance)
