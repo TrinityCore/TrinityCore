@@ -408,6 +408,21 @@ bool Unit::canReachWithAttack(Unit *pVictim) const
     return IsWithinDistInMap(pVictim, reach);
 }
 
+bool Unit::IsWithinCombatDist(Unit *obj, float dist2compare) const
+{
+    if (!obj || !IsInMap(obj)) return false;
+
+    float dx = GetPositionX() - obj->GetPositionX();
+    float dy = GetPositionY() - obj->GetPositionY();
+    float dz = GetPositionZ() - obj->GetPositionZ();
+    float distsq = dx*dx + dy*dy + dz*dz;
+    //not sure here, or combatreach + combatreach?
+    float sizefactor = GetObjectSize() + obj->GetFloatValue(UNIT_FIELD_COMBATREACH);
+    float maxdist = dist2compare + sizefactor;
+
+    return distsq < maxdist * maxdist;
+}
+
 void Unit::RemoveSpellsCausingAura(AuraType auraType)
 {
     if (auraType >= TOTAL_AURAS) return;

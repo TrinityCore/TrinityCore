@@ -1056,7 +1056,7 @@ void Player::Update( uint32 p_time )
 
             if (isAttackReady(BASE_ATTACK))
             {
-                if(!IsWithinDistInMap(pVictim, pldistance))
+                if(!IsWithinCombatDist(pVictim, pldistance))
                 {
                     setAttackTimer(BASE_ATTACK,100);
                     if(m_swingErrorMsg != 1)                // send single time (client auto repeat)
@@ -1093,7 +1093,7 @@ void Player::Update( uint32 p_time )
 
             if ( haveOffhandWeapon() && isAttackReady(OFF_ATTACK))
             {
-                if(!IsWithinDistInMap(pVictim, pldistance))
+                if(!IsWithinCombatDist(pVictim, pldistance))
                 {
                     setAttackTimer(OFF_ATTACK,100);
                 }
