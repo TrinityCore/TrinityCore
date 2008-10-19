@@ -161,3 +161,19 @@ void Totem::SetTypeBySummonSpell(SpellEntry const * spellProto)
     if(spellProto->SpellIconID==2056)
         m_type = TOTEM_STATUE;                              //Jewelery statue
 }
+
+bool Totem::IsImmunedToSpell(SpellEntry const* spellInfo, bool useCharges)
+{
+    for (int i=0;i<3;i++)
+    {
+        switch(spellInfo->EffectApplyAuraName[i])
+        {
+            case SPELL_AURA_PERIODIC_DAMAGE:
+            case SPELL_AURA_PERIODIC_LEECH:
+                return true;
+            default:
+                continue;
+        }
+    }
+    return Creature::IsImmunedToSpell(spellInfo, useCharges);
+}

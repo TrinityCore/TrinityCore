@@ -1241,7 +1241,7 @@ bool ChatHandler::HandleModifyScaleCommand(const char* args)
         return false;
 
     float Scale = (float)atof((char*)args);
-    if (Scale > 3.0f || Scale <= 0.0f)
+    if (Scale > 10.0f || Scale <= 0.0f)
     {
         SendSysMessage(LANG_BAD_VALUE);
         SetSentErrorMessage(true);
