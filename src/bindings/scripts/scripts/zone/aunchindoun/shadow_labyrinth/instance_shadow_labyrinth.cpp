@@ -148,8 +148,18 @@ struct TRINITY_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
                 return Encounter[0];
             case TYPE_OVERSEER:
                 return Encounter[1];
+            case DATA_GRANDMASTERVORPILEVENT:
+                return Encounter[3];
         }
         return false;
+    }
+
+    uint64 GetData64(uint32 identifier)
+    {
+        if(identifier  == DATA_GRANDMASTERVORPIL)
+            return GrandmasterVorpil;
+
+        return 0;
     }
 };
 
