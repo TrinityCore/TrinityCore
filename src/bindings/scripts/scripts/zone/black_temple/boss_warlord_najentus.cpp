@@ -216,7 +216,8 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
             m_creature->CastSpell(target, SPELL_IMPALING_SPINE, true);
             m_creature->SetInFront(m_creature->getVictim());
             SpineTargetGUID = target->GetGUID();
-            m_creature->SummonGameObject(GOBJECT_SPINE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), m_creature->GetOrientation(), 0, 0, 0, 0, 30);
+            //must let target summon, otherwise you cannot click the spine
+            target->SummonGameObject(GOBJECT_SPINE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), m_creature->GetOrientation(), 0, 0, 0, 0, 30);
 
             switch(rand()%2)
             {
