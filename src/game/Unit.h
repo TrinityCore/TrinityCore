@@ -1218,10 +1218,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void addFollower(FollowerReference* pRef) { m_FollowingRefManager.insertFirst(pRef); }
         void removeFollower(FollowerReference* /*pRef*/ ) { /* nothing to do yet */ }
         static Unit* GetUnit(WorldObject& object, uint64 guid);
-        template<class T> static T* GetObjectInWorld(uint64 guid, T* /*fake*/)
-        {
-            return ObjectAccessor::GetObjectInWorld(uint64 guid, T* /*fake*/)
-        }
+        template<class T> static T* GetObjectInWorld(uint64 guid, T* /*fake*/);
 
         MotionMaster* GetMotionMaster() { return &i_motionMaster; }
 
