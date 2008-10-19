@@ -83,7 +83,7 @@ EAIErrorLevel = 2
 #                 number (bitmask value of selected processors)
 #
 #    ProcessPriority
-#        Process proirity setting (Used only at Windows)
+#        Process priority setting (Used only at Windows)
 #        Default: 1 (HIGH)
 #                 0 (Normal)
 #
@@ -845,7 +845,7 @@ Visibility.Distance.Grey.Object = 10
 #    Rate.Drop.Item.Artifact
 #    Rate.Drop.Item.Referenced
 #    Rate.Drop.Money
-#         Drop rates (items by qualify and money)
+#         Drop rates (items by quality and money)
 #         Default: 1
 #
 #    Rate.Drop.Money

@@ -659,6 +659,13 @@ enum TrinityStrings
     // Room for in-game strings           810-999 not used
 
     // FREE IDS                           1000-9999
+    LANG_COMMAND_FREEZE                 = 1000,
+    LANG_COMMAND_FREEZE_ERROR           = 1001,
+    LANG_COMMAND_FREEZE_WRONG           = 1002,
+    LANG_COMMAND_UNFREEZE               = 1003,
+    LANG_COMMAND_NO_FROZEN_PLAYERS      = 1004,
+    LANG_COMMAND_LIST_FREEZE            = 1005,
+    LANG_COMMAND_FROZEN_PLAYERS         = 1006,
 
     // Use for not-in-svn patches         10000-10999
     // opvp hp
