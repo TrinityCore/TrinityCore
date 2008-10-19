@@ -1452,8 +1452,10 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
     if(!go->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT),entry,map,x,y,z,ang,rotation0,rotation1,rotation2,rotation3,100,1))
         return NULL;
     go->SetRespawnTime(respawnTime);
-    go->SetSpawnedByDefault(false); // do not save respawn time
-    go->SetOwnerGUID(GetGUID());
+    if(GetTypeId()==TYPEID_PLAYER || GetTypeId()==TYPEID_UNIT) //not sure how to handle this
+        ((Unit*)this)->AddGameObject(go);
+    else
+        go->SetSpawnedByDefault(false);
     map->Add(go);
 
     return go;
