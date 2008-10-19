@@ -62,6 +62,7 @@ EndScriptData */
 #define SPELL_CLOUD_VISUAL      45212
 #define SPELL_CLOUD_SUMMON      45884
 
+//Creatures
 #define MOB_FELMYST             25038
 #define MOB_BRUTALLUS
 #define MOB_KALECGOS
@@ -74,13 +75,21 @@ EndScriptData */
 #define MOB_VAPOR               25265
 #define MOB_VAPOR_TRAIL         25267
 
+//Yells and Sounds
 #define YELL_BIRTH      "Glory to Kil'jaeden! Death to all who oppose!"
+#define SOUND_BIRTH            12477
 #define YELL_KILL1      "I kill for the master!"
+#define SOUND_KILL1            12480
 #define YELL_KILL2      "The end has come!"
+#define SOUND_KILL2            12481
 #define YELL_BREATH     "Choke on your final breath!"
+#define SOUND_BREATH   12478
 #define YELL_TAKEOFF    "I am stronger than ever before!"
+#define SOUND_TAKEOFF  12479
 #define YELL_BERSERK    "No more hesitation! Your fates are written!"
+#define SOUND_BERSERK  12482
 #define YELL_DEATH      "Kil'jaeden... will... prevail..."
+#define SOUND_DEATH            12483
 
 #define YELL_KALECGOS   "Madrigosa deserved a far better fate. You did what had to be done, but this battle is far from over."
 
@@ -181,11 +190,11 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
         {
         case 0:
             DoYell(YELL_KILL1,LANG_UNIVERSAL, NULL);
-            //DoPlaySoundToSet(m_creature, SOUND_KILL1);
+            DoPlaySoundToSet(m_creature, SOUND_KILL1);
             break;
         case 1:
             DoYell(YELL_KILL2,LANG_UNIVERSAL, NULL);
-            //DoPlaySoundToSet(m_creature, SOUND_KILL2);
+            DoPlaySoundToSet(m_creature, SOUND_KILL2);
             break;
         }
     }
@@ -193,7 +202,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
         DoYell(YELL_DEATH, LANG_UNIVERSAL, NULL);
-        //DoPlaySoundToSet(m_creature, SOUND_DEATH);
+        DoPlaySoundToSet(m_creature, SOUND_DEATH);
     }
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
@@ -276,7 +285,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
             m_creature->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
             m_creature->StopMoving();
             DoYell(YELL_TAKEOFF, LANG_UNIVERSAL, NULL);
-            //DoPlaySoundToSet(m_creature, SOUND_TAKEOFF);
+            DoPlaySoundToSet(m_creature, SOUND_TAKEOFF);
             Timer[EVENT_FLIGHT_SEQUENCE] = 2000;
             break;
         case 1:
@@ -413,7 +422,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
             {
             case EVENT_BERSERK:
                 DoYell(YELL_BERSERK, LANG_UNIVERSAL, NULL);
-                //DoPlaySoundToSet(m_creature, SOUND_BERSERK);
+                DoPlaySoundToSet(m_creature, SOUND_BERSERK);
                 m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
                 Timer[EVENT_BERSERK] = 0;
                 break;
@@ -451,7 +460,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
             {
             case EVENT_BERSERK:
                 DoYell(YELL_BERSERK, LANG_UNIVERSAL, NULL);
-                //DoPlaySoundToSet(m_creature, SOUND_BERSERK);
+                DoPlaySoundToSet(m_creature, SOUND_BERSERK);
                 m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
                 Timer[EVENT_BERSERK] = 0;
                 break;
