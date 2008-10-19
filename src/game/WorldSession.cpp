@@ -453,7 +453,7 @@ void WorldSession::SendNotification(int32 string_id,...)
         va_list ap;
         char szStr [1024];
         szStr[0] = '\0';
-        va_start(ap, format);
+        va_start(ap, string_id);
         vsnprintf( szStr, 1024, format, ap );
         va_end(ap);
 
