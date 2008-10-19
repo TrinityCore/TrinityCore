@@ -472,6 +472,9 @@ ChatCommand * ChatHandler::getCommandTable()
         { "cometome",       SEC_ADMINISTRATOR,  &ChatHandler::HandleComeToMeCommand,            "", NULL },
         { "damage",         SEC_ADMINISTRATOR,  &ChatHandler::HandleDamageCommand,              "", NULL },
         { "combatstop",     SEC_GAMEMASTER,     &ChatHandler::HandleCombatStopCommand,          "", NULL },
+        { "freeze",         SEC_ADMINISTRATOR,  &ChatHandler::HandleFreezeCommand,              "", NULL },
+        { "unfreeze",       SEC_ADMINISTRATOR,  &ChatHandler::HandleUnFreezeCommand,            "", NULL },
+        { "listfreeze",     SEC_ADMINISTRATOR,  &ChatHandler::HandleListFreezeCommand,          "", NULL },
         { "flusharenapoints",    SEC_ADMINISTRATOR, &ChatHandler::HandleFlushArenaPointsCommand,         "",   NULL },
 
         { NULL,             0,                  NULL,                                           "", NULL }
