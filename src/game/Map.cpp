@@ -1560,6 +1560,20 @@ void InstanceMap::Remove(Player *player, bool remove)
     Map::Remove(player, remove);
 }
 
+Creature * Map::GetCreatureInMap(uint64 guid)
+{
+    Creature * obj = HashMapHolder<Creature>::Find(guid);
+    if(obj && obj->GetInstanceId() != GetInstanceId()) obj = NULL;
+    return obj;
+}
+
+GameObject * Map::GetGameObjectInMap(uint64 guid)
+{
+    GameObject * obj = HashMapHolder<GameObject>::Find(guid);
+    if(obj && obj->GetInstanceId() != GetInstanceId()) obj = NULL;
+    return obj;
+}
+
 void InstanceMap::CreateInstanceData(bool load)
 {
     if(i_data != NULL)

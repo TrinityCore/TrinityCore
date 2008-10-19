@@ -9396,12 +9396,6 @@ Unit* Unit::GetUnit(WorldObject& object, uint64 guid)
     return ObjectAccessor::GetUnit(object,guid);
 }
 
-template<class T> T*
-Unit::GetObjectInWorld(uint64 guid, T* /*fake*/)
-{
-    return ObjectAccessor::GetObjectInWorld(uint64 guid, T* /*fake*/);
-}
-
 bool Unit::isVisibleForInState( Player const* u, bool inVisibleList ) const
 {
     return isVisibleForOrDetect(u,false,inVisibleList);
