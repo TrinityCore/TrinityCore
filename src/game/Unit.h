@@ -718,6 +718,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool isAttackReady(WeaponAttackType type = BASE_ATTACK) const { return m_attackTimer[type] == 0; }
         bool haveOffhandWeapon() const;
         bool canReachWithAttack(Unit *pVictim) const;
+        bool IsWithinCombatDist(Unit *obj, float dist2compare) const;
         uint32 m_extraAttacks;
 
         void _addAttacker(Unit *pAttacker)                  // must be called only from Unit::Attack(Unit*)

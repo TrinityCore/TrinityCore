@@ -4337,10 +4337,9 @@ uint8 Spell::CheckRange(bool strict)
     if(target && target != m_caster)
     {
         // distance from target center in checks
-        float dist = m_caster->GetDistance(target->GetPositionX(),target->GetPositionY(),target->GetPositionZ());
-        if(dist > max_range)
+        if(!m_caster->IsWithinCombatDist(target, max_range))
             return SPELL_FAILED_OUT_OF_RANGE;               //0x5A;
-        if(dist < min_range)
+        if(min_range && m_caster->IsWithinCombatDist(target, min_range)) // skip this check if min_range = 0
             return SPELL_FAILED_TOO_CLOSE;
         if( m_caster->GetTypeId() == TYPEID_PLAYER &&
             (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc( M_PI, target ) )
