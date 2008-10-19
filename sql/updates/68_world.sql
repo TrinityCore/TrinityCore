@@ -1,6 +1,6 @@
 -- add lang strings
-DELETE FROM mangos_string WHERE entry BETWEEN 1000 AND 1006;
-INSERT INTO mangos_string VALUES
+DELETE FROM trinity_string WHERE entry BETWEEN 1000 AND 1006;
+INSERT INTO trinity_string VALUES
 (1000,'You froze player %s.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (1001,'It might be amusing but no... you cant freeze yourself!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (1002,'Invalid input check the name of target.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
