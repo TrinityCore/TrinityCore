@@ -500,17 +500,25 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         // no xp,health if type 8 /critters/
         if ( pVictim->GetCreatureType() == CREATURE_TYPE_CRITTER)
         {
-            pVictim->setDeathState(JUST_DIED);
-            pVictim->SetHealth(0);
+            // critters run away when hit
+            pVictim->GetMotionMaster()->MoveFleeing(this);
 
             // allow loot only if has loot_id in creature_template
-            CreatureInfo const* cInfo = ((Creature*)pVictim)->GetCreatureInfo();
-            if(cInfo && cInfo->lootid)
-                pVictim->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+            if(damage >= pVictim->GetHealth())
+            {
+                pVictim->setDeathState(JUST_DIED);
+                pVictim->SetHealth(0);
 
-            // some critters required for quests
-            if(GetTypeId() == TYPEID_PLAYER)
-                ((Player*)this)->KilledMonster(pVictim->GetEntry(),pVictim->GetGUID());
+                CreatureInfo const* cInfo = ((Creature*)pVictim)->GetCreatureInfo();
+                if(cInfo && cInfo->lootid)
+                    pVictim->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+
+                // some critters required for quests
+                if(GetTypeId() == TYPEID_PLAYER)
+                    ((Player*)this)->KilledMonster(pVictim->GetEntry(),pVictim->GetGUID());
+            }
+            else
+                pVictim->ModifyHealth(- (int32)damage);
 
             return damage;
         }
@@ -611,6 +619,9 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         // stop combat
         pVictim->CombatStop();
         pVictim->getHostilRefManager().deleteReferences();
+
+        // stop movement
+        pVictim->StopMoving();
 
         bool damageFromSpiritOfRedemtionTalent = spellProto && spellProto->Id == 27795;
 
