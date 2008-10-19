@@ -1,4 +1,4 @@
-/* Copyright © 2006,2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright ?2006,2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,49 +16,49 @@
 
 /* ScriptData
 SDName: Boss_Brutallus
-SD%Complete: 80
-SDComment: Needs intro. Talk to the dragon.
+SD%Complete: 90
+SDComment: Burn gets casted on himself and intro is missing.
 EndScriptData */
 
 #include "precompiled.h"
 #include "def_sunwell_plateau.h"
 
 // Yells and Sounds used by boss.
-#define YELL_AGGRO "Ahh! More lambs to the slaughter!"
-#define SOUND_AGGRO 12463
+#define YELL_AGGRO			"Ahh! More lambs to the slaughter!"
+#define SOUND_AGGRO 		12463
 
-#define YELL_BERSERK "So much for a real challenge... Die!"
-#define SOUND_BERSERK 12470
+#define YELL_BERSERK 		"So much for a real challenge... Die!"
+#define SOUND_BERSERK 		12470
 
-#define YELL_KILL1 "Perish, insect!"
-#define SOUND_KILL1 12464
+#define YELL_KILL1 			"Perish, insect!"
+#define SOUND_KILL1 		12464
 
-#define YELL_KILL2 "You are meat!"
-#define SOUND_KILL2 12465
+#define YELL_KILL2			"You are meat!"
+#define SOUND_KILL2 		12465
+	
+#define YELL_KILL3 			"Too easy!"
+#define SOUND_KILL3 		12466
 
-#define YELL_KILL3 "Too easy!"
-#define SOUND_KILL3 12466
+#define YELL_CHARGE 		"I will crush you!"
+#define SOUND_CHARGE 		12460
 
-#define YELL_CHARGE "I will crush you!"                     //I think it use this for stomp. No?
-#define SOUND_CHARGE 12460
+#define YELL_DEATH 			"Gah! Well done... Now... this gets... interesting..."
+#define SOUND_DEATH 		12471
 
-#define YELL_DEATH "Gah! Well done... Now... this gets... interesting..."
-#define SOUND_DEATH 12471
+#define YELL_LOVE1 			"Bring the fight to me!"
+#define SOUND_LOVE1 		12467
 
-#define YELL_LOVE1 "Bring the fight to me!"
-#define SOUND_LOVE1 12467
+#define YELL_LOVE2 			"Another day, another glorious battle!"
+#define SOUND_LOVE2 		12468
 
-#define YELL_LOVE2 "Another day, another glorious battle!"
-#define SOUND_LOVE2 12468
-
-#define YELL_LOVE3 "I live for this!"
-#define SOUND_LOVE3 12469
+#define YELL_LOVE3 			"I live for this!"
+#define SOUND_LOVE3 		12469
 
 // Boss spells.
-#define METEOR_SLASH 45150
-#define BURN 46394
-#define STOMP 45185
-#define BERSERK 26662
+#define SPELL_METEOR_SLASH 		45150
+#define SPELL_BURN 				46394
+#define SPELL_STOMP 			45185
+#define SPELL_BERSERK 			26662
 
 struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
 {
@@ -68,7 +68,6 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
     uint32 BurnTimer;
     uint32 StompTimer;
     uint32 BerserkTimer;
-    uint32 LoveTimer;
 
     void Reset()
     {
@@ -76,7 +75,6 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
         StompTimer = 30000;
         BurnTimer = 60000;
         BerserkTimer = 360000;
-        LoveTimer = 10000 + rand()%7000;
     }
 
     void Aggro(Unit *who)
@@ -115,38 +113,32 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
             return;
 
-        if(LoveTimer < diff)
-        {
-            switch(rand()%3)
-            {
-                case 0:
-                    DoYell(YELL_LOVE1,LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature, SOUND_LOVE1);
-                    break;
-                case 1:
-                    DoYell(YELL_LOVE2,LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature, SOUND_LOVE2);
-                    break;
-                case 2:
-                    DoYell(YELL_LOVE3,LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature, SOUND_LOVE3);
-                    break;
-            }
-            LoveTimer = 15000 + rand()%8000;
-        }else LoveTimer -= diff;
-
         if(SlashTimer < diff)
         {
-            DoCast(m_creature->getVictim(),METEOR_SLASH);
+            DoCast(m_creature->getVictim(),SPELL_METEOR_SLASH);
             SlashTimer = 11000;
         }else SlashTimer -= diff;
 
         if(StompTimer < diff)
         {
-            DoYell(YELL_CHARGE,LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_CHARGE);
-            Unit *Target = m_creature->getVictim();
-            DoCast(Target,STOMP);
+			switch(rand()%3)
+			{
+				case 0:
+					DoYell(YELL_LOVE1,LANG_UNIVERSAL, NULL);
+					DoPlaySoundToSet(m_creature, SOUND_LOVE1);
+					break;
+				case 1:
+					DoYell(YELL_LOVE2,LANG_UNIVERSAL, NULL);
+					DoPlaySoundToSet(m_creature, SOUND_LOVE2);
+					break;
+				case 2:
+					DoYell(YELL_LOVE3,LANG_UNIVERSAL, NULL);
+					DoPlaySoundToSet(m_creature, SOUND_LOVE3);
+					break;
+			}
+            
+			Unit *Target = m_creature->getVictim();
+            DoCast(Target,SPELL_STOMP);
             if(Target->HasAura(45151,0)) Target->RemoveAura(45151,0);
             StompTimer = 30000;
         }else StompTimer -= diff;
@@ -154,8 +146,8 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
         if(BurnTimer < diff)
         {
             Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            DoCast(target,BURN);
-            BurnTimer = 60000;
+            //DoCast(target,SPELL_BURN);
+			BurnTimer = 60000;
         }
         else BurnTimer -= diff;
 
@@ -165,7 +157,7 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
         {
             DoYell(YELL_BERSERK,LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_BERSERK);
-            DoCast(m_creature,BERSERK);
+            DoCast(m_creature,SPELL_BERSERK);
             BerserkTimer = 20000;
         }
         else BerserkTimer -= diff;

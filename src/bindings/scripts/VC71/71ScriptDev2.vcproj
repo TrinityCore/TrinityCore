@@ -1926,6 +1926,14 @@
 						>
 					</File>
 					<File
+						RelativePath="..\scripts\zone\sunwell_plateau\boss_eredar_twins.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\sunwell_plateau\boss_felmyst.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\scripts\zone\sunwell_plateau\boss_kalecgos.cpp"
 						>
 					</File>

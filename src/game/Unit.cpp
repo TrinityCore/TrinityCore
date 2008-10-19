@@ -10647,6 +10647,7 @@ Unit* Unit::SelectNearbyTarget() const
 
 void Unit::ApplyAttackTimePercentMod( WeaponAttackType att,float val, bool apply )
 {
+    float remainingTimePct = (float)m_attackTimer[att] / (GetAttackTime(att) * m_modAttackSpeedPct[att]);
     if(val > 0)
     {
         ApplyPercentModFloatVar(m_modAttackSpeedPct[att], val, !apply);
@@ -10657,6 +10658,7 @@ void Unit::ApplyAttackTimePercentMod( WeaponAttackType att,float val, bool apply
         ApplyPercentModFloatVar(m_modAttackSpeedPct[att], -val, apply);
         ApplyPercentModFloatValue(UNIT_FIELD_BASEATTACKTIME+att,-val,apply);
     }
+    m_attackTimer[att] = uint32(GetAttackTime(att) * m_modAttackSpeedPct[att] * remainingTimePct);
 }
 
 void Unit::ApplyCastTimePercentMod(float val, bool apply )
