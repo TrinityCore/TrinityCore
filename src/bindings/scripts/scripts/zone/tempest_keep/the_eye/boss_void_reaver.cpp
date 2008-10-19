@@ -26,7 +26,7 @@ EndScriptData */
 
 #define SPELL_POUNDING              34162
 #define SPELL_ARCANE_ORB            34172
-#define SPELL_KNOCK_AWAY            11130
+#define SPELL_KNOCK_AWAY            25778
 #define SPELL_BERSERK               27680
 
 #define SAY_AGGRO               "Alert, you are marked for extermination!"

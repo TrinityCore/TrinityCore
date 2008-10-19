@@ -168,8 +168,7 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 
         if(TidalShieldTimer < diff)
         {
-            m_creature->InterruptNonMeleeSpells(false);
-            DoCast(m_creature, SPELL_TIDAL_SHIELD, true);
+            m_creature->CastSpell(m_creature, SPELL_TIDAL_SHIELD, true);
             ResetTimer(45000);
         }else TidalShieldTimer -= diff;
 
@@ -186,11 +185,9 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
         {
             for(uint8 i = 0; i < 3; ++i)
             {
-                Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
-                if(!target) target = m_creature->getVictim();
-                m_creature->CastSpell(target, SPELL_NEEDLE_SPINE, true);
+                if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0)) 
+                    m_creature->CastSpell(target, SPELL_NEEDLE_SPINE, true);
             }
-            m_creature->SetInFront(m_creature->getVictim());
             NeedleSpineTimer = 30000;
         }else NeedleSpineTimer -= diff;
 
@@ -213,24 +210,26 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
         {
             Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
             if(!target) target = m_creature->getVictim();
-            m_creature->CastSpell(target, SPELL_IMPALING_SPINE, true);
-            m_creature->SetInFront(m_creature->getVictim());
-            SpineTargetGUID = target->GetGUID();
-            //must let target summon, otherwise you cannot click the spine
-            target->SummonGameObject(GOBJECT_SPINE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), m_creature->GetOrientation(), 0, 0, 0, 0, 30);
-
-            switch(rand()%2)
+            if(target)
             {
-            case 0:
-                DoYell(SAY_NEEDLE1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_NEEDLE1);
-                break;
-            case 1:
-                DoYell(SAY_NEEDLE2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_NEEDLE2);
-                break;
+                m_creature->CastSpell(target, SPELL_IMPALING_SPINE, true);
+                SpineTargetGUID = target->GetGUID();
+                //must let target summon, otherwise you cannot click the spine
+                target->SummonGameObject(GOBJECT_SPINE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), m_creature->GetOrientation(), 0, 0, 0, 0, 30);
+
+                switch(rand()%2)
+                {
+                case 0:
+                    DoYell(SAY_NEEDLE1, LANG_UNIVERSAL, NULL);
+                    DoPlaySoundToSet(m_creature, SOUND_NEEDLE1);
+                    break;
+                case 1:
+                    DoYell(SAY_NEEDLE2, LANG_UNIVERSAL, NULL);
+                    DoPlaySoundToSet(m_creature, SOUND_NEEDLE2);
+                    break;
+                }
+                ImpalingSpineTimer = 21000;
             }
-            ImpalingSpineTimer = 21000;
         }else ImpalingSpineTimer -= diff;
 
         DoMeleeAttackIfReady();
