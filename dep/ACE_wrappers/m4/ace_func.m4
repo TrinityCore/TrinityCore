@@ -146,37 +146,3 @@ if test "$ac_cv_func_wcsdup" = no; then
     fi
 fi
 ])
-
-# ACE_CHECK_SYSINFO
-#
-# SVR4 and Linux have completely independent implementations of the
-# sysinfo() system / library call.
-#
-# The SVR4 signature is:
-#   #include <sys/systeminfo.h>
-#   long sysinfo (int command, char *buf, long count)
-#
-# While the Linux signature is:
-#   #include <sys/sysinfo.h>
-#   int sysinfo (struct sysinfo* info);
-#
-# SVR4 (or at least Solaris) also has a sys/sysinfo.h header, so that
-# cannot be used to distinguish between the two varients. As far as I
-# know, Linux does not have a sys/systeminfo.h header, so that can.
-#
-# ACE uses the ACE_HAS_SYSV_SYSINFO feature test macro for the first
-# and ACE_HAS_LINUX_SYSINFO for the second.
-#
-AC_DEFUN([ACE_CHECK_FUNC_SYSINFO],[
-ACE_CHECK_HAS_HEADERS(sys/sysinfo.h sys/systeminfo.h)
-AC_CHECK_FUNC(sysinfo)
-if test "$ac_cv_func_sysinfo" = yes; then
-  if test "$ac_cv_header_sys_systeminfo_h" = yes; then
-     AC_DEFINE([ACE_HAS_SYSV_SYSINFO], 1,
-	       [Define to 1 if system has SysV version of sysinfo().])
-  elif test "$ac_cv_header_sys_sysinfo_h" = yes; then
-     AC_DEFINE([ACE_HAS_LINUX_SYSINFO], 1,
-               [Define to 1 if system has Linux version of sysinfo().])
-  fi
-fi
-])
