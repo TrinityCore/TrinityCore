@@ -325,6 +325,9 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex)
                     {
                         case 13139:                         // net-o-matic special effect
                         case 23445:                         // evil twin
+                        case 38637:                         // Nether Exhaustion (red)
+                        case 38638:                         // Nether Exhaustion (green)
+                        case 38639:                         // Nether Exhaustion (blue)
                             return false;
                         default:
                             break;

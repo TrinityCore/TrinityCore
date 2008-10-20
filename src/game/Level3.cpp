@@ -24,6 +24,7 @@
 #include "WorldSession.h"
 #include "World.h"
 #include "ObjectMgr.h"
+#include "AccountMgr.h"
 #include "PlayerDump.h"
 #include "SpellMgr.h"
 #include "Player.h"
@@ -72,6 +73,7 @@ bool ChatHandler::HandleReloadAllCommand(const char*)
     HandleReloadAllQuestCommand("");
     HandleReloadAllSpellCommand("");
     HandleReloadAllItemCommand("");
+    HandleReloadAllLocalesCommand("");
 
     HandleReloadCommandCommand("");
     HandleReloadReservedNameCommand("");
@@ -155,6 +157,17 @@ bool ChatHandler::HandleReloadAllItemCommand(const char*)
 {
     HandleReloadPageTextsCommand("a");
     HandleReloadItemEnchantementsCommand("a");
+    return true;
+}
+
+bool ChatHandler::HandleReloadAllLocalesCommand(const char* args)
+{
+    HandleReloadLocalesCreatureCommand("a");
+    HandleReloadLocalesGameobjectCommand("a");
+    HandleReloadLocalesItemCommand("a");
+    HandleReloadLocalesNpcTextCommand("a");
+    HandleReloadLocalesPageTextCommand("a");
+    HandleReloadLocalesQuestCommand("a");
     return true;
 }
 
@@ -600,6 +613,54 @@ bool ChatHandler::HandleReloadGameTeleCommand(const char* /*arg*/)
     return true;
 }
 
+bool ChatHandler::HandleReloadLocalesCreatureCommand(const char* /*arg*/)
+{
+    sLog.outString( "Re-Loading Locales Creature ...");
+    objmgr.LoadCreatureLocales();
+    SendGlobalSysMessage("DB table `locales_creature` reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadLocalesGameobjectCommand(const char* /*arg*/)
+{
+    sLog.outString( "Re-Loading Locales Gameobject ... ");
+    objmgr.LoadGameObjectLocales();
+    SendGlobalSysMessage("DB table `locales_gameobject` reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadLocalesItemCommand(const char* /*arg*/)
+{
+    sLog.outString( "Re-Loading Locales Item ... ");
+    objmgr.LoadItemLocales();
+    SendGlobalSysMessage("DB table `locales_item` reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadLocalesNpcTextCommand(const char* /*arg*/)
+{
+    sLog.outString( "Re-Loading Locales NPC Text ... ");
+    objmgr.LoadNpcTextLocales();
+    SendGlobalSysMessage("DB table `locales_npc_text` reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadLocalesPageTextCommand(const char* /*arg*/)
+{
+    sLog.outString( "Re-Loading Locales Page Text ... ");
+    objmgr.LoadPageTextLocales();
+    SendGlobalSysMessage("DB table `locales_page_text` reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadLocalesQuestCommand(const char* /*arg*/)
+{
+    sLog.outString( "Re-Loading Locales Quest ... ");
+    objmgr.LoadQuestLocales();
+    SendGlobalSysMessage("DB table `locales_quest` reloaded.");
+    return true;
+}
+
 bool ChatHandler::HandleLoadScriptsCommand(const char* args)
 {
     if(!LoadScriptingModule(args)) return true;
@@ -654,7 +715,7 @@ bool ChatHandler::HandleSecurityCommand(const char* args)
                 return false;
             }
             targetAccountId = objmgr.GetPlayerAccountIdByGUID(targetGUID);
-            targetSecurity = objmgr.GetSecurityByAccount(targetAccountId);
+            targetSecurity = accmgr.GetSecurity(targetAccountId);
         }
 
         arg2 = strtok(NULL, " ");
@@ -4954,14 +5015,14 @@ bool ChatHandler::HandleLoadPDumpCommand(const char *args)
     if(!file || !acc)
         return false;
 
-    uint32 account_id = objmgr.GetAccountByAccountName(acc);
+    uint32 account_id = accmgr.GetId(acc);
     if(!account_id)
     {
         account_id = atoi(acc);
         if(account_id)
         {
             std::string acc_name;
-            if(!objmgr.GetAccountNameByAccount(account_id,acc_name))
+            if(!accmgr.GetName(account_id,acc_name))
                 return false;
         }
         else

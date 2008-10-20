@@ -168,14 +168,14 @@ void CliLoadPlayerDump(char*command,pPrintf zprintf)
         return;
     }
 
-    uint32 account_id = objmgr.GetAccountByAccountName(acc);
+    uint32 account_id = accmgr.GetId(acc);
     if(!account_id)
     {
         account_id = atoi(acc);
         if(account_id)
         {
             std::string acc_name;
-            if(!objmgr.GetAccountNameByAccount(account_id,acc_name))
+            if(!accmgr.GetName(account_id,acc_name))
             {
                 zprintf("Failed to load the character! Account not exist.\r\n");
                 return;
