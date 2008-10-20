@@ -678,7 +678,7 @@ WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
   uint32 unk2;
   uint32 BuiltNumberClient;
   uint32 id, security;
-  uint8 expansion = 0;
+  //uint8 expansion = 0;
   LocaleConstant locale;
   std::string account;
   Sha1Hash sha1;

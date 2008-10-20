@@ -320,7 +320,6 @@ void ObjectMgr::SendAuctionWonMail( AuctionEntry *auction )
         else
         {
             bidder_accId = GetPlayerAccountIdByGUID(bidder_guid);
-            bidder_security = GetSecurityByAccount(bidder_accId);
             bidder_security = accmgr.GetSecurity(bidder_accId);
 
             if(bidder_security > SEC_PLAYER )               // not do redundant DB requests
