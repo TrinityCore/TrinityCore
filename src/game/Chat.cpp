@@ -633,7 +633,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand *table, const char* text, st
 
     for(uint32 i = 0; table[i].Name != NULL; i++)
     {
-        if( *subcmd && !hasStringAbbr(table[i].Name, subcmd))
+        if( !hasStringAbbr(table[i].Name, cmd.c_str()) )
             continue;
 
         // select subcommand from child commands list
@@ -721,7 +721,7 @@ bool ChatHandler::ShowHelpForSubCommands(ChatCommand *table, char const* cmd, ch
         if(m_session->GetSecurity() < table[i].SecurityLevel)
             continue;
 
-        if( !hasStringAbbr(table[i].Name, subcmd) )
+        if( *subcmd && !hasStringAbbr(table[i].Name, subcmd))
             continue;
 
         (list += "\n    ") += table[i].Name;
