@@ -1754,6 +1754,10 @@
 						Name="The Eye"
 						>
 						<File
+							RelativePath="..\scripts\zone\tempest_keep\the_eye\boss_alar.cpp"
+							>
+						</File>							
+						<File
 							RelativePath="..\scripts\zone\tempest_keep\the_eye\boss_astromancer.cpp"
 							>
 						</File>
