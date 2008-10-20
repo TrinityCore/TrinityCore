@@ -337,6 +337,7 @@ scripts/zone/tempest_keep/arcatraz/instance_arcatraz.cpp \
 scripts/zone/tempest_keep/botanica/boss_high_botanist_freywinn.cpp \
 scripts/zone/tempest_keep/botanica/boss_laj.cpp \
 scripts/zone/tempest_keep/botanica/boss_warp_splinter.cpp \
+scripts/zone/tempest_keep/the_eye/boss_alar.cpp \
 scripts/zone/tempest_keep/the_eye/boss_astromancer.cpp \
 scripts/zone/tempest_keep/the_eye/boss_kaelthas.cpp \
 scripts/zone/tempest_keep/the_eye/boss_void_reaver.cpp \

@@ -17,4 +17,5 @@
 #define DATA_SOLARIANEVENT                  10
 #define DATA_THALADREDTHEDARKENER           11
 #define DATA_VOIDREAVEREVENT                12
+#define DATA_ALAR 13
 #endif

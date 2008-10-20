@@ -495,6 +495,13 @@ extern void AddSC_instance_stratholme();
 extern void AddSC_stratholme();
 
 //Sunken Temple
+//Sunwell Plateau
+extern void AddSC_instance_sunwell_plateau();
+extern void AddSC_boss_kalecgos();
+extern void AddSC_boss_brutallus();
+extern void AddSC_boss_felmyst();
+extern void AddSC_boss_eredar_twins();
+
 //Tanaris
 extern void AddSC_tanaris();
 
@@ -511,6 +518,7 @@ extern void AddSC_boss_laj();
 extern void AddSC_boss_warp_splinter();
 
 //--The Eye
+extern void AddSC_boss_alar();
 extern void AddSC_boss_kaelthas();
 extern void AddSC_boss_void_reaver();
 extern void AddSC_boss_high_astromancer_solarian();
@@ -1677,6 +1685,13 @@ void ScriptsInit()
     AddSC_stratholme();
 
     //Sunken Temple
+	//Sunwell Plateau
+    AddSC_instance_sunwell_plateau();
+    AddSC_boss_kalecgos();
+	AddSC_boss_brutallus();
+    AddSC_boss_felmyst();
+    AddSC_boss_eredar_twins();
+
     //Tanaris
     AddSC_tanaris();
 
@@ -1693,6 +1708,7 @@ void ScriptsInit()
     AddSC_boss_warp_splinter();
 
     //--The Eye
+    AddSC_boss_alar();
     AddSC_boss_kaelthas();
     AddSC_boss_void_reaver();
     AddSC_boss_high_astromancer_solarian();

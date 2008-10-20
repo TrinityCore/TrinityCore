@@ -1,18 +1,18 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
+/* Copyright(C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+*(at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
 /* ScriptData
 SDName: Boss_Magtheridon
@@ -23,116 +23,237 @@ EndScriptData */
 
 #include "precompiled.h"
 #include "def_magtheridons_lair.h"
-#include "WorldPacket.h"
 
-//Phase 2 Spells
-#define SPELL_QUAKE_PROC            30571
-#define SPELL_QUAKE                 30576                   //must be cast with 30561 as the proc spell
-#define SPELL_BLASTNOVA             30616
+#define MOB_MAGTHERIDON     17257
+#define MOB_ROOM            17516
+#define MOB_CHANNELLER      17256
+#define MOB_ABYSSAL         17454
+
+#define SPELL_BLASTNOVA             30616  
 #define SPELL_CLEAVE                30619
-#define SPELL_BERSERK               27680
-#define SPELL_DEBRIS                30631
+#define SPELL_QUAKE_TRIGGER         30576 // must be cast with 30561 as the proc spell
+#define SPELL_QUAKE_KNOCKBACK       30571
+#define SPELL_BLAZE_TARGET          30541 // core bug, does not support target 7
+#define SPELL_BLAZE_TRAP            30542
+#define SPELL_DEBRIS_KNOCKDOWN      36449
+#define SPELL_DEBRIS_VISUAL			30632
+#define SPELL_DEBRIS_DAMAGE			30631 // core bug, does not support target 8
 #define SPELL_CAMERA_SHAKE          36455
+#define SPELL_BERSERK               27680
 
-//Banish
-#define SPELL_SHADOW_CAGE           30205
-
-//Player version of the banish
-#define SPELL_SHADOW_CAGE_2         30168
-
-//Spell that is cast on players from the cube
+#define SPELL_SHADOW_CAGE           30168
 #define SPELL_SHADOW_GRASP          30410
-#define SPELL_SHADOW_GRASP_UKN      30166
-#define SPELL_SHADOW_GRASP_VIS      30207
+#define SPELL_SHADOW_GRASP_VISUAL   30166
+#define SPELL_MIND_EXHAUSTION		44032   //Casted by the cubes when channeling ends
+
+#define SPELL_SHADOW_CAGE_C         30205
+#define SPELL_SHADOW_GRASP_C        30207
+
+#define SPELL_SHADOW_BOLT_VOLLEY    30510
+#define SPELL_DARK_MENDING          30528
+#define SPELL_FEAR                  30530 //39176
+#define SPELL_BURNING_ABYSSAL       30511
+#define SPELL_SOUL_TRANSFER         30531 // core bug, does not support target 7
+
+#define SPELL_FIRE_BLAST			37110
 
 //Dialog
 #define SAY_AGGRO                   "Thank you for releasing me. Now...die!"
 #define SOUND_AGGRO                 10254
-
 #define SAY_BANISH                  "Not again...NOT AGAIN!"
 #define SOUND_BANISH                10256
-
 #define SAY_FREED                   "I...am...UNLEASHED!!!"
 #define SOUND_FREED                 10253
-
 #define SAY_CHAMBER_DESTROY         "I will not be taken so easily. Let the walls of this prison tremble...and FALL!!!"
 #define SOUND_CHAMBER_DESTROY       10257
-
 #define SAY_PLAYER_KILLED           "Did you think me weak? Soft? Who is the weak one now?!"
 #define SOUND_PLAYER_KILLED         10255
-
 #define SAY_DEATH                   "The Legion...will consume you...all...."
-#define SOUND_DEATH                 10258
-
+#define SOUND_DEATH                 10258 
 #define EMOTE_BERSERK               "becomes enraged!"
 #define EMOTE_BLASTNOVA             "begins to cast Blast Nova!"
 #define EMOTE_BEGIN                 "%s's bonds begin to weaken!"
 
-//Spawned objects
-#define SPELL_COLLAPSE              34233                   //This spell casted by the "cave in" type object
-
-#define SPELL_CONFLAGERATION        35840                   //Actually casted by a creature or object spawned on the ground
-
-//Cubes
-#define SPELL_MIND_EXHAUSTIOIN      30509                   //Casted by the cubes when channeling ends
-
-//Channeler spells
-//#define MOB_HELLFIRE_CHANNELLER    17256
-
-#define SPELL_SOUL_TRANSFER         30531
-#define SPELL_SHADOW_BOLT_VOLLEY    30510
-#define SPELL_DARK_MENDING          30528
-#define SPELL_HELLFIRE_CHANNELING   31059
-#define SPELL_HELLFIRE_CAST_VISUAL  24207
-#define SPELL_FEAR                  39176
-
-#define SPELL_BURNING_ABYSSAL       30511
+// count of clickers needed to interrupt blast nova
+#define CLICKERS_COUNT				5
 
 // Unkown sounds
 uint32 RandomSound[] = {10247, 10248, 10249, 10250, 10251, 10252};
 
-struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
+typedef std::map<uint64, uint64> CubeMap;
+
+struct TRINITY_DLL_DECL mob_abyssalAI : public ScriptedAI
 {
-    boss_magtheridonAI(Creature *c) : ScriptedAI(c)
+    mob_abyssalAI(Creature *c) : ScriptedAI(c)
     {
-        pInst = (ScriptedInstance*)m_creature->GetInstanceData();
+        trigger = 0;
+        Despawn_Timer = 60000;
         Reset();
     }
 
-    ScriptedInstance* pInst;
-
-    uint32 Phase1_Timer;
-    uint32 Cleave_Timer;
-    uint32 BlastNova_Timer;
-    uint32 Quake_Timer;
-    uint32 QuakePhase;
-    uint32 Collapse_Timer;
-    uint32 Berserk_Timer;
-    bool Banished;
-    bool Phase3;
-
-    uint32 RandChat_Timer;
+    uint32 FireBlast_Timer;
+    uint32 Despawn_Timer;
+    uint32 trigger;
 
     void Reset()
     {
-        RandChat_Timer = 90000;
+        FireBlast_Timer = 6000;
+    }
 
-        Phase1_Timer = 0;
-        Cleave_Timer = 15000;
-        Berserk_Timer = 1200000;                            //20 minutes
-        BlastNova_Timer = 60000;
+    void SpellHit(Unit*, const SpellEntry *spell)
+    {
+        if(trigger == 2 && spell->Id == SPELL_BLAZE_TARGET)
+        {
+            m_creature->CastSpell(m_creature, SPELL_BLAZE_TRAP, true);
+            m_creature->SetVisibility(VISIBILITY_OFF);
+            Despawn_Timer = 130000;
+        }
+    }
+
+    void SetTrigger(uint32 _trigger)
+    {
+        trigger = _trigger;
+        m_creature->SetDisplayId(11686);
+        if(trigger == 1) //debris
+        {
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            m_creature->CastSpell(m_creature, SPELL_DEBRIS_VISUAL, true);
+            FireBlast_Timer = 5000;
+            Despawn_Timer = 10000;     
+        }
+    }
+
+    void Aggro(Unit*) {DoZoneInCombat();}
+    void AttackStart(Unit *who) {if(!trigger) ScriptedAI::AttackStart(who);}
+    void MoveInLineOfSight(Unit *who) {if(!trigger) ScriptedAI::MoveInLineOfSight(who);}
+
+    void UpdateAI(const uint32 diff)
+    {
+        if(trigger)
+        {
+            if(trigger == 1)
+            {
+                if(FireBlast_Timer < diff)
+                {
+                    m_creature->CastSpell(m_creature, SPELL_DEBRIS_DAMAGE, true);
+                    trigger = 3;
+                }else FireBlast_Timer -= diff;
+            }
+            return;
+        }
+
+        if(Despawn_Timer < diff)
+        {
+            m_creature->SetVisibility(VISIBILITY_OFF);
+            m_creature->setDeathState(JUST_DIED);
+        }else Despawn_Timer -= diff;
+
+        if(!m_creature->SelectHostilTarget() && !m_creature->getVictim())
+            return;
+
+        if(FireBlast_Timer < diff)
+        {
+            DoCast(m_creature->getVictim(), SPELL_FIRE_BLAST);
+            FireBlast_Timer = 5000+rand()%10000;
+        }else FireBlast_Timer -= diff;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
+{
+    boss_magtheridonAI(Creature *c) : ScriptedAI(c) 
+    {
+        pInstance =(ScriptedInstance*)m_creature->GetInstanceData();      
+        m_creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
+        m_creature->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
+        Reset();
+    }
+
+    CubeMap Cube;
+
+    ScriptedInstance* pInstance;
+
+    uint32 Berserk_Timer;
+    uint32 Quake_Timer;
+    uint32 Cleave_Timer;
+    uint32 BlastNova_Timer;
+    uint32 Blaze_Timer;
+    uint32 Debris_Timer;
+
+    bool Phase3;
+    bool NeedCheckCube;
+
+    void Reset()
+    {   
+        if(pInstance)
+        {
+            pInstance->SetData(DATA_MAGTHERIDON_EVENT, NOT_STARTED);
+            pInstance->SetData(DATA_COLLAPSE, false);
+        }
+
+        Berserk_Timer = 1320000;
         Quake_Timer = 40000;
-        QuakePhase = 0;
-        Collapse_Timer = 0;
-        Banished = false;
+        Debris_Timer = 10000;
+        Blaze_Timer = 10000+rand()%20000;
+        BlastNova_Timer = 60000;
+        Cleave_Timer = 15000;
 
-        m_creature->setFaction(35);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        Phase3 = false;
+
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->CastSpell(m_creature, SPELL_SHADOW_CAGE, false);
+        m_creature->addUnitState(UNIT_STAT_STUNNED);
+        m_creature->CastSpell(m_creature, SPELL_SHADOW_CAGE_C, true);
+    }
 
-        if(pInst)
-            pInst->SetData(DATA_MAGTHERIDON_EVENT_ENDED, false);
+    void SetClicker(uint64 cubeGUID, uint64 clickerGUID)
+    {
+        // to avoid multiclicks from 1 cube
+        if(uint64 guid = Cube[cubeGUID])
+            DebuffClicker(Unit::GetUnit(*m_creature, guid));
+        Cube[cubeGUID] = clickerGUID;
+        NeedCheckCube = true;
+    }
+
+    //function to interrupt channeling and debuff clicker with mind exh(used if second person clicks with same cube or after dispeling/ending shadow grasp DoT)
+    void DebuffClicker(Unit *clicker)
+    {
+        if(!clicker || !clicker->isAlive())
+            return;
+
+        clicker->RemoveAurasDueToSpell(SPELL_SHADOW_GRASP); // cannot interrupt triggered spells
+        clicker->InterruptNonMeleeSpells(false);
+        clicker->CastSpell(clicker, SPELL_MIND_EXHAUSTION, true);
+    }
+
+    void NeedCheckCubeStatus()
+    {
+        uint32 ClickerNum = 0;
+        // now checking if every clicker has debuff from manticron(it is dispelable atm rev 6110 : S)
+        // if not - apply mind exhaustion and delete from clicker's list
+        for(CubeMap::iterator i = Cube.begin(); i != Cube.end(); ++i)
+        {
+            Unit *clicker = Unit::GetUnit(*m_creature, (*i).second);
+            if(!clicker || !clicker->HasAura(SPELL_SHADOW_GRASP, 1))
+            {
+                DebuffClicker(clicker);
+                (*i).second = 0;
+            }else ClickerNum++;
+        }
+
+        // if 5 clickers from other cubes apply shadow cage
+        if(ClickerNum >= CLICKERS_COUNT && !m_creature->HasAura(SPELL_SHADOW_CAGE, 0))
+        {
+            DoYell(SAY_BANISH, LANG_UNIVERSAL, NULL);
+            DoPlaySoundToSet(m_creature, SOUND_BANISH);  
+            m_creature->CastSpell(m_creature, SPELL_SHADOW_CAGE, true);
+        }
+        else if(ClickerNum < CLICKERS_COUNT && m_creature->HasAura(SPELL_SHADOW_CAGE, 0))
+            m_creature->RemoveAurasDueToSpell(SPELL_SHADOW_CAGE);
+
+        if(!ClickerNum) NeedCheckCube = false;
     }
 
     void KilledUnit(Unit* victim)
@@ -143,126 +264,122 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
+        if(pInstance)
+            pInstance->SetData(DATA_MAGTHERIDON_EVENT, DONE);
+
         DoYell(SAY_DEATH,LANG_UNIVERSAL, NULL);
         DoPlaySoundToSet(m_creature, SOUND_DEATH);
     }
 
-    void Aggro(Unit *who) {}
+    void MoveInLineOfSight(Unit*) {}
 
-    void MoveInLineOfSight(Unit* who) {}
+    void AttackStart(Unit *who)
+    {
+        if(!m_creature->hasUnitState(UNIT_STAT_STUNNED))
+            ScriptedAI::AttackStart(who);
+    }
+
+    void Aggro(Unit *who)
+    {
+        if(pInstance)
+            pInstance->SetData(DATA_MAGTHERIDON_EVENT, IN_PROGRESS);
+        DoZoneInCombat();
+
+        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        m_creature->RemoveAurasDueToSpell(SPELL_SHADOW_CAGE_C);
+
+        DoYell(SAY_FREED, LANG_UNIVERSAL, NULL);
+        DoPlaySoundToSet(m_creature, SOUND_FREED);          
+   }
 
     void UpdateAI(const uint32 diff)
     {
-        if (!InCombat && !Phase1_Timer)
-            if (RandChat_Timer < diff)
-        {
-            DoPlaySoundToSet(m_creature, RandomSound[rand()%5]);
-
-            RandChat_Timer = 90000;
-        }else RandChat_Timer -= diff;
-
-        if (!InCombat && !Phase1_Timer && pInst && pInst->GetData64(DATA_EVENT_STARTER))
-        {
-            //Unbanish self after 2 minutes
-            Phase1_Timer = 120000;
-            DoTextEmote(EMOTE_BEGIN, NULL);
-            return;
-        }
-
-        //Phase timer
-        if (Phase1_Timer)
-            if (Phase1_Timer <= diff)
-        {
-            m_creature->setFaction(14);
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
-            DoYell(SAY_FREED, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_FREED);
-            m_creature->RemoveAurasDueToSpell(SPELL_SHADOW_CAGE);
-            AttackStart(Unit::GetUnit(*m_creature, pInst->GetData64(DATA_EVENT_STARTER)));
-
-            Phase1_Timer = 0;
-        }else
-        {
-            if (!Unit::GetUnit(*m_creature, pInst->GetData64(DATA_EVENT_STARTER)))
-            {
-                Phase1_Timer = 0;
-                return;
-            }
-
-            Phase1_Timer -= diff;
-            return;
-        }
-
-        //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if(!m_creature->SelectHostilTarget() && !m_creature->getVictim())
             return;
 
-        //Interrupt Blast Nova
-        if (m_creature->HasAura(SPELL_SHADOW_GRASP_VIS, 0) && m_creature->HasAura(SPELL_BLASTNOVA, 0) && !Banished)
-        {
-            DoYell(SAY_BANISH, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_BANISH);
-            m_creature->RemoveAurasDueToSpell(SPELL_BLASTNOVA);
-            m_creature->InterruptNonMeleeSpells(false);
-            DoCast(m_creature, SPELL_SHADOW_CAGE_2);
-            Banished = true;
-        }
+        if(NeedCheckCube) NeedCheckCubeStatus();
 
-        if (Banished && !m_creature->HasAura(SPELL_SHADOW_GRASP_VIS, 0))
+        if(Berserk_Timer < diff)
         {
-            Banished = false;
-            m_creature->RemoveAurasDueToSpell(SPELL_SHADOW_CAGE_2);
-        }
-
-        //Berserk_Timer
-        if (Berserk_Timer < diff)
-        {
-            DoCast(m_creature, SPELL_BERSERK);
+            m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
             DoTextEmote(EMOTE_BERSERK, NULL);
-
-            Berserk_Timer = 300000;
+            Berserk_Timer = 60000;
         }else Berserk_Timer -= diff;
 
-        //Cleave_Timer
-        if (Cleave_Timer < diff)
+        if(Cleave_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_CLEAVE);
             Cleave_Timer = 10000;
         }else Cleave_Timer -= diff;
 
-        //Quake_Timer
-        if (Quake_Timer < diff)
+        if(BlastNova_Timer < diff)
         {
-            int32 i = SPELL_QUAKE_PROC;
-            m_creature->CastCustomSpell(m_creature, SPELL_QUAKE, &i, 0, 0, false);
-
-            Quake_Timer = 40000;
-        }else Quake_Timer -= diff;
-
-        //BlastNova_Timer
-        if (BlastNova_Timer < diff)
-        {
-            //Inturrupt Quake if it is casting
-            m_creature->InterruptNonMeleeSpells(false);
-
-            DoTextEmote(EMOTE_BLASTNOVA, NULL);
-            DoCast(m_creature, SPELL_BLASTNOVA);
-
-            BlastNova_Timer = 40000;
+            // to avoid earthquake interruption
+            if(!m_creature->hasUnitState(UNIT_STAT_STUNNED))
+            {
+                DoTextEmote(EMOTE_BLASTNOVA, NULL);
+                DoCast(m_creature, SPELL_BLASTNOVA);
+                BlastNova_Timer = 60000;
+            }
         }else BlastNova_Timer -= diff;
 
-        //Phase3 if not already enraged and below 30%
-        if (!Phase3 && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 30)
+        if(Quake_Timer < diff)
         {
-            Phase3 = true;
+            // to avoid blastnova interruption
+            if(!m_creature->IsNonMeleeSpellCasted(false))
+            {
+                int32 i = SPELL_QUAKE_KNOCKBACK;
+                m_creature->CastCustomSpell(m_creature, SPELL_QUAKE_TRIGGER, &i, 0, 0, false);
+                Quake_Timer = 50000;
+            }
+        }else Quake_Timer -= diff;
 
+        if(Blaze_Timer < diff)
+        {
+            if(Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            {
+                float x, y, z;
+                target->GetPosition(x, y, z);
+                Creature *summon = m_creature->SummonCreature(MOB_ABYSSAL, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                if(summon)
+                {
+                    ((mob_abyssalAI*)summon->AI())->SetTrigger(2);
+                    m_creature->CastSpell(summon, SPELL_BLAZE_TARGET, true);
+                    summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                }
+            }
+            Blaze_Timer = 20000 + rand()%20000;
+        }else Blaze_Timer -= diff;
+
+        if(!Phase3 && m_creature->GetHealth()*10 < m_creature->GetMaxHealth()*3 
+            && !m_creature->IsNonMeleeSpellCasted(false) // blast nova
+            && !m_creature->hasUnitState(UNIT_STAT_STUNNED)) // shadow cage and earthquake
+        {                        
+            Phase3 = true;
             DoYell(SAY_CHAMBER_DESTROY, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_CHAMBER_DESTROY);
+            m_creature->CastSpell(m_creature, SPELL_CAMERA_SHAKE, true);
+            m_creature->CastSpell(m_creature, SPELL_DEBRIS_KNOCKDOWN, true);
+
+            if(pInstance)
+                pInstance->SetData(DATA_COLLAPSE, true);
         }
 
-        //Melee
+        if(Phase3)
+        {
+            if(Debris_Timer < diff)
+            {
+                if(Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                {
+                    float x, y, z;
+                    target->GetPosition(x, y, z);
+                    Creature *summon = m_creature->SummonCreature(MOB_ABYSSAL, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    if(summon) ((mob_abyssalAI*)summon->AI())->SetTrigger(1);
+                }
+                Debris_Timer = 10000;
+            }else Debris_Timer -= diff;
+        }
+
         DoMeleeAttackIfReady();
     }
 };
@@ -271,150 +388,129 @@ struct TRINITY_DLL_DECL mob_hellfire_channelerAI : public ScriptedAI
 {
     mob_hellfire_channelerAI(Creature *c) : ScriptedAI(c)
     {
-        pInst = (ScriptedInstance*)m_creature->GetInstanceData();
+        pInstance =(ScriptedInstance*)m_creature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* pInst;
+    ScriptedInstance* pInstance;
 
     uint32 ShadowBoltVolley_Timer;
     uint32 DarkMending_Timer;
     uint32 Fear_Timer;
     uint32 Infernal_Timer;
 
-    bool InfernalSpawned;
+    uint32 Check_Timer;
 
     void Reset()
     {
         ShadowBoltVolley_Timer = 8000 + rand()%2000;
-        DarkMending_Timer = 30000;
+        DarkMending_Timer = 10000;
         Fear_Timer = 15000 + rand()%5000;
-        Infernal_Timer = 20000 + rand()%5000;
+        Infernal_Timer = 10000 + rand()%40000;
 
-        InfernalSpawned = false;
+        Check_Timer = 5000;
 
-        //Suprisingly this works very well, but only if the channelers are spawned after magtheridon
-        DoCast(m_creature, SPELL_SHADOW_GRASP_VIS);
-        if(pInst)
-            pInst->SetData(DATA_MAGTHERIDON_EVENT_ENDED, false);
+        if(pInstance)
+            pInstance->SetData(DATA_CHANNELER_EVENT, NOT_STARTED);
+
+        m_creature->CastSpell(m_creature, SPELL_SHADOW_GRASP_C, false);
     }
 
     void Aggro(Unit *who)
     {
+        if(pInstance)
+            pInstance->SetData(DATA_CHANNELER_EVENT, IN_PROGRESS);
+
         m_creature->InterruptNonMeleeSpells(false);
-
-        if(!pInst || pInst->GetData64(DATA_EVENT_STARTER))
-            return;
-
-        pInst->SetData64(DATA_EVENT_STARTER, who->GetGUID());
-        pInst->SetData(DATA_MAGTHERIDON_EVENT_STARTED, true);
+        DoZoneInCombat();
     }
 
-    void MoveInLineOfSight(Unit*)
+    void JustSummoned(Creature *summon) {summon->AI()->AttackStart(m_creature->getVictim());}
+
+    void MoveInLineOfSight(Unit*) {}
+
+    // bugged
+    /*void DamageTaken(Unit*, uint32 &damage)
     {
+        if(damage >= m_creature->GetHealth())
+            m_creature->CastSpell(m_creature, SPELL_SOUL_TRANSFER, true);
+    }*/
+
+    void JustDied(Unit*)
+    {
+        if(pInstance)
+            pInstance->SetData(DATA_CHANNELER_EVENT, DONE);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (!InCombat && pInst && pInst->GetData64(DATA_EVENT_STARTER))
+        if(!m_creature->SelectHostilTarget() && !m_creature->getVictim())
+            return;    
+ 
+        if(ShadowBoltVolley_Timer < diff)
         {
-            m_creature->InterruptNonMeleeSpells(false);
-            AttackStart(Unit::GetUnit(*m_creature, pInst->GetData64(DATA_EVENT_STARTER)));
-            return;
-        }
-
-        //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
-            return;
-
-        //Shadow bolt volley
-        if (ShadowBoltVolley_Timer < diff)
-        {
-            DoCast(m_creature->getVictim(),SPELL_SHADOW_BOLT_VOLLEY);
-
-            ShadowBoltVolley_Timer = 10000 + (rand()%10000);
+            DoCast(m_creature, SPELL_SHADOW_BOLT_VOLLEY);
+            ShadowBoltVolley_Timer = 10000 + rand()%10000;
         }else ShadowBoltVolley_Timer -= diff;
 
-        //Dark Mending
-        if (DarkMending_Timer < diff)
+        if(DarkMending_Timer < diff)
         {
-            if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 50)
-            {
-                //Cast on ourselves if we are lower then lowest hp friendly unit
-                /*if (pLowestHPTarget && LowestHP < m_creature->GetHealth())
-                    DoCast(pLowestHPTarget, SPELL_DARK_MENDING);
-                else*/
+            if((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 50)
                 DoCast(m_creature, SPELL_DARK_MENDING);
-            }
-
-            DarkMending_Timer = 10000 + (rand() % 10000);
+            DarkMending_Timer = 10000 +(rand() % 10000);
         }else DarkMending_Timer -= diff;
 
-        //Fear
-        if (Fear_Timer < diff)
+        if(Fear_Timer < diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM, 1);
-
-            if (target)
-                DoCast(target,SPELL_FEAR);
-
-            Fear_Timer = 25000 + (rand()%15000);
+            if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1))
+                DoCast(target, SPELL_FEAR);
+            Fear_Timer = 25000 + rand()%15000;
         }else Fear_Timer -= diff;
 
-        //Infernal spawning
-        if (!InfernalSpawned && Infernal_Timer < diff)
+        if(Infernal_Timer < diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-
-            if (target)
-                DoCast(target, SPELL_BURNING_ABYSSAL);
-
-            InfernalSpawned = true;
+            if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                m_creature->CastSpell(target, SPELL_BURNING_ABYSSAL, true);
+            Infernal_Timer = 30000 + rand()%10000; 
         }else Infernal_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
-
 };
 
 //Manticron Cube
 bool GOHello_go_Manticron_Cube(Player *player, GameObject* _GO)
 {
-    ScriptedInstance* pInst = (ScriptedInstance*)_GO->GetInstanceData();
+    ScriptedInstance* pInstance =(ScriptedInstance*)_GO->GetInstanceData();
+    if(!pInstance) return true;
+    if(pInstance->GetData(DATA_MAGTHERIDON_EVENT) != IN_PROGRESS) return true;
+    Creature *Magtheridon =(Creature*)Unit::GetUnit(*_GO, pInstance->GetData64(DATA_MAGTHERIDON));
+    if(!Magtheridon || !Magtheridon->isAlive()) return true;
 
-    Unit* pUnit = NULL;
-    if(pInst)
-        pUnit = Unit::GetUnit(*_GO, pInst->GetData64(DATA_MAGTHERIDON));
-    else
-    {
-        _GO->TextEmote("Manticron Cube: NO INSTANCE", 0);
+    // if exhausted or already channeling return
+    if(player->HasAura(SPELL_MIND_EXHAUSTION, 0) || player->HasAura(SPELL_SHADOW_GRASP, 1))
         return true;
-    }
-
-    if (!pUnit || !pUnit->isAlive() || !player)
-    {
-        _GO->TextEmote("Mantricon Cube: NO TARGET", 0);
-        return true;
-    }
 
     player->InterruptNonMeleeSpells(false);
-    player->CastSpell(pUnit, SPELL_SHADOW_GRASP, true);
-    player->CastSpell(pUnit, SPELL_SHADOW_GRASP_VIS, false);
-
-    _GO->Say("Mantricon Cube Clicked", LANG_UNIVERSAL, 0);
+    player->CastSpell(player, SPELL_SHADOW_GRASP, true);
+    player->CastSpell(player, SPELL_SHADOW_GRASP_VISUAL, false);
+    ((boss_magtheridonAI*)Magtheridon->AI())->SetClicker(_GO->GetGUID(), player->GetGUID());
     return true;
 }
 
 CreatureAI* GetAI_boss_magtheridon(Creature *_Creature)
 {
-    return new boss_magtheridonAI (_Creature);
+    return new boss_magtheridonAI(_Creature);
 }
 
 CreatureAI* GetAI_mob_hellfire_channeler(Creature *_Creature)
 {
-    return new mob_hellfire_channelerAI (_Creature);
+    return new mob_hellfire_channelerAI(_Creature);
+}
+
+CreatureAI* GetAI_mob_abyssalAI(Creature *_Creature)
+{
+    return new mob_abyssalAI(_Creature);
 }
 
 void AddSC_boss_magtheridon()
@@ -434,4 +530,10 @@ void AddSC_boss_magtheridon()
     newscript->Name="go_manticron_cube";
     newscript->pGOHello = &GOHello_go_Manticron_Cube;
     m_scripts[nrscripts++] = newscript;
+
+    newscript = new Script;
+    newscript->Name="mob_abyssal";
+    newscript->GetAI = GetAI_mob_abyssalAI;
+    m_scripts[nrscripts++] = newscript;
+
 }

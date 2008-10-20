@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 /* ScriptData
@@ -43,8 +43,10 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
     uint64 MasterEngineerTelonicus;
     uint64 Kaelthas;
     uint64 Astromancer;
+    uint64 Alar;
 
     uint8 KaelthasEventPhase;
+    uint8 AlarEventPhase;
 
     bool Encounters[ENCOUNTERS];
 
@@ -56,8 +58,10 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
         MasterEngineerTelonicus = 0;
         Kaelthas = 0;
         Astromancer = 0;
+        Alar = 0;
 
         KaelthasEventPhase = 0;
+        AlarEventPhase = 0;
 
         for(uint8 i = 0; i < ENCOUNTERS; i++)
             Encounters[i] = false;
@@ -81,6 +85,10 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
             case 20060: LordSanguinar = creature->GetGUID(); break;
             case 19622: Kaelthas = creature->GetGUID(); break;
             case 18805: Astromancer = creature->GetGUID(); break;
+
+            case 19514:
+                Alar = creature->GetGUID();
+                break;
         }
     }
 
@@ -105,6 +113,9 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
 
             case DATA_ASTROMANCER:
                 return Astromancer;
+
+            case DATA_ALAR:
+                return Alar;
         }
 
         return 0;
@@ -115,6 +126,7 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
         switch(type)
         {
             case DATA_ALAREVENT:
+                AlarEventPhase = data;
                 Encounters[0] = (data) ? true : false;
                 break;
 
@@ -143,7 +155,7 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
         switch(type)
         {
             case DATA_ALAREVENT:
-                return Encounters[0];
+                return AlarEventPhase;
 
             case DATA_SOLARIANEVENT:
                 return Encounters[1];
