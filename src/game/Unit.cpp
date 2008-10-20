@@ -8457,6 +8457,9 @@ bool Unit::isTargetableForAttack() const
     if(HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE))
         return false;
 
+    if(GetTypeId()==TYPEID_UNIT && (((Creature *)this)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER))
+        return false;
+
     return isAlive() && !hasUnitState(UNIT_STAT_DIED)&& !isInFlight() /*&& !isStealth()*/;
 }
 
