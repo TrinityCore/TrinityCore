@@ -179,7 +179,7 @@ struct ChrRacesEntry
     //char*       string2[16];                              // 48-63 used for DBC language detection/selection
                                                             // 64 string flags, unused
                                                             // 65-67 unused
-    //uint32    addon                                       // 68 (0 - original race, 1 - tbc addon, ...) unused
+    uint32    addon;                                         // 68 (0 - original race, 1 - tbc addon, ...)
 };
 
 struct CreatureDisplayInfoEntry
@@ -473,7 +473,7 @@ struct MapEntry
     uint32      addon;                                      // 124 (0-original maps,1-tbc addon)
 
     // Helpers
-    bool IsExpansionMap() const { return addon != 0; }
+    uint32 Expansion() const { return addon; }
 
 
     bool IsDungeon() const { return map_type == MAP_INSTANCE || map_type == MAP_RAID; }

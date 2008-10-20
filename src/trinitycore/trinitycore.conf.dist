@@ -354,10 +354,12 @@ LogColors = ""
 #	 29 CN9           - basic-Latin at create, any at login
 #
 #    Expansion
-#        Allow server use expansion content
-#        Default: 1 - check expansion maps existence, and if client support expansion and account have 
-#                     expansion setting then allow visit expansion maps, allow create new races character)
-#                 0 - not check expansion maps existence, not allow wisit its, not allow create new race 
+#        Allow server use content from expansion 
+#                 2 - check expansion 2 maps existence, and if client support expansion 2 and account have 
+#                     expansion 2 setting then allow visit expansion 2 maps, allow create new class character)
+#        Default: 1 - check expansion 1 maps existence, and if client support expansion 1 and account have 
+#                     expansion 1 setting then allow visit expansion 1 maps, allow create new races character)
+#                 0 - not check expansion maps existence, not allow wisit its, not allow create new race or new class
 #                     characters, ignore account expansion setting)
 #
 #    DBC.Locale

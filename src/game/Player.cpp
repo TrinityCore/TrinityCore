@@ -1515,12 +1515,10 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     if(!InBattleGround() && mEntry->IsBattleGroundOrArena())
         return false;
 
-    bool tbc = GetSession()->IsTBC() && sWorld.getConfig(CONFIG_EXPANSION) > 0;
-
-    // normal client and TBC map
-    if(!tbc && mEntry->IsExpansionMap())
+    // client without expansion support
+    if(GetSession()->Expansion() < mEntry->Expansion())
     {
-        sLog.outDebug("Player %s using Normal client and tried teleport to non existing map %u", GetName(), mapid);
+        sLog.outDebug("Player %s using client without required expansion tried teleport to non accessable map %u", GetName(), mapid);
 
         if(GetTransport())
             RepopAtGraveyard();                             // teleport to near graveyard if on transport, looks blizz like :)
@@ -1529,27 +1527,10 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
         return false;                                       // normal client can't teleport to this map...
     }
-    else if(tbc)                                            // can teleport to any existing map
-    {
-        sLog.outDebug("Player %s have TBC client and will teleported to map %u", GetName(), mapid);
-    }
     else
     {
-        sLog.outDebug("Player %s have normal client and will teleported to standard map %u", GetName(), mapid);
+        sLog.outDebug("Player %s will teleported to map %u", GetName(), mapid);
     }
-    /*
-    only TBC (no 0x80000 and 0x10 flags...)
-    3604590=0x37006E=0x200000 + 0x100000 + 0x40000 + 0x20000 + 0x10000 + 0x40 + 0x20 + 0x8 + 0x4 + 0x2
-
-    Kharazan (normal/TBC??), but not have 0x10 flag (accessible by normal client?)
-    4128878=0x3F006E=0x200000 + 0x100000 + 0x80000 + 0x40000 + 0x20000 + 0x10000 + 0x40 + 0x20 + 0x8 + 0x4 + 0x2
-
-    normal+TBC maps
-    4128894=0x3F007E=0x200000 + 0x100000 + 0x80000 + 0x40000 + 0x20000 + 0x10000 + 0x40 + 0x20 + 0x10 + 0x8 + 0x4 + 0x2
-
-    normal+TBC maps
-    8323198=0x7F007E=0x400000 + 0x200000 + 0x100000 + 0x80000 + 0x40000 + 0x20000 + 0x10000 + 0x40 + 0x20 + 0x10 + 0x8 + 0x4 + 0x2
-    */
 
     // if we were on a transport, leave
     if (!(options & TELE_TO_NOT_LEAVE_TRANSPORT) && m_transport)
