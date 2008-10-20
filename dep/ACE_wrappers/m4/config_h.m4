@@ -1,18 +1,11 @@
 dnl -------------------------------------------------------------------------
-dnl       $Id: config_h.m4 82833 2008-09-25 18:28:53Z jtc $
+dnl       $Id: config_h.m4 82277 2008-07-09 17:45:59Z jtc $
 dnl
 dnl       config_h.m4
 dnl
 dnl       ACE M4 include file which contains preprocessor constants
 dnl       and other items to be place in the generated ace/config.h
 dnl       header.
-dnl
-dnl       Please try to avoid adding new autoheader templates to this
-dnl       file, as they get included in both ACE and TAO config.h.in
-dnl       files, even though the cooresponding feature tests are only
-dnl       included in the ACE configure script.  Put the autoheader
-dnl       template in a AC_DEFUN used for the feature test, or use the
-dnl       AC_DEFINE macro's third argument.
 dnl
 dnl -------------------------------------------------------------------------
 
@@ -342,6 +335,17 @@ AH_TEMPLATE([ACE_HAS_GPERF],
 AH_TEMPLATE([ACE_HAS_HANDLE_SET_OPTIMIZED_FOR_SELECT],
 [Optimize ACE_Handle_Set::count_bits for select() operations (common case)])
 
+AH_TEMPLATE([ACE_HAS_LSEEK64],
+[Platform supports lseek64().  This should not be defined if
+   ACE_HAS_LLSEEK is defined.])
+
+AH_TEMPLATE([ACE_HAS_LLSEEK],
+[Platform supports llseek(). This should not be defined if
+   ACE_HAS_LSEEK64 is defined.])
+
+AH_TEMPLATE([ACE_HAS_HI_RES_TIMER],
+[Compiler/platform supports SunOS high resolution timers])
+
 AH_TEMPLATE([ACE_HAS_INLINED_OSCALLS],[
 Inline all the static class OS methods to remove call overhead
 Note: This gets defined by OS.h if __ACE_INLINE__ is defined])
@@ -469,6 +473,8 @@ AH_TEMPLATE([ACE_HAS_PROC_FS],
 [Platform supports the /proc file system and defines tid_t
    in <sys/procfs.h>])
 
+AH_TEMPLATE([ACE_HAS_PRUSAGE_T],[Platform supports the prusage_t struct])
+
 AH_TEMPLATE([ACE_HAS_PTHREADS_UNIX98_EXT],
 [Platform has the UNIX98 extensions to Pthreads (rwlocks)])
 
@@ -562,6 +568,8 @@ AH_TEMPLATE([ACE_HAS_THR_YIELD],[Platform has thr_yield()])
 AH_TEMPLATE([ACE_HAS_STANDARD_CPP_LIBRARY],
 [Platform/compiler supports Standard C++ Library])
 
+AH_TEMPLATE([ACE_HAS_STRBUF_T],[Compiler/platform supports struct strbuf])
+
 AH_TEMPLATE([ACE_HAS_STREAMS],[Platform supports STREAMS])
 
 AH_TEMPLATE([ACE_HAS_STREAM_PIPES],[Platform supports STREAM pipes])
@@ -589,6 +597,9 @@ AH_TEMPLATE([ACE_HAS_SVR4_SIGNAL_T],
 
 AH_TEMPLATE([ACE_HAS_SVR4_TLI],
 [Compiler/platform supports SVR4 TLI (in particular, T_GETNAME stuff).])
+
+AH_TEMPLATE([ACE_HAS_SYSINFO],
+[Platform supports system configuration information.])
 
 AH_TEMPLATE([ACE_HAS_SYSV_IPC],
 [Platform supports System V IPC (most versions of UNIX, but not Win32)])
@@ -706,6 +717,10 @@ AH_TEMPLATE([ACE_LACKS_COND_TIMEDWAIT_RESET],
 [pthread_cond_timedwait does *not* reset the time argument when
    the lock is acquired.])
 
+AH_TEMPLATE([ACE_LACKS_CONDATTR_PSHARED],
+[Platform has no implementation of pthread_condattr_setpshared(), even
+   though it supports pthreads!])
+
 AH_TEMPLATE([ACE_LACKS_CONST_STRBUF_PTR],
 [Platform uses struct strbuf * rather than const struct strbuf *
    (e.g., HP/UX 10.x)])
@@ -716,6 +731,8 @@ AH_TEMPLATE([ACE_LACKS_CONST_TIMESPEC_PTR],
 AH_TEMPLATE([ACE_LACKS_EXEC],
 [Platform lacks the exec() family of system calls (e.g., Win32,
    VxWorks, Chorus)])
+
+AH_TEMPLATE([ACE_LACKS_FILELOCKS],[Platform lacks file locking mechanism])
 
 AH_TEMPLATE([ACE_LACKS_GETSERVBYNAME],
 [Platforms lacks getservbyname() (e.g., VxWorks and Chorus).])
@@ -741,6 +758,9 @@ AH_TEMPLATE([ACE_LACKS_MODE_MASKS],
 AH_TEMPLATE([ACE_LACKS_MSG_ACCRIGHTS],
 [Platform defines ACE_HAS_MSG, but lacks msg_accrights{len}.])
 
+AH_TEMPLATE([ACE_LACKS_MUTEXATTR_PSHARED],
+[Platform lacks pthread_mutexattr_setpshared().])
+
 AH_TEMPLATE([ACE_LACKS_NULL_PTHREAD_STATUS],
 [OS requires non-null status pointer for pthread_join ()])
 
@@ -750,9 +770,18 @@ AH_TEMPLATE([ACE_HAS_MUTEX_TIMEOUTS],
 AH_TEMPLATE([ACE_LACKS_NAMED_POSIX_SEM],
 [Platform lacks named POSIX semaphores (e.g., Chorus)])
 
+AH_TEMPLATE([ACE_LACKS_STRPTIME],
+[Platform lacks native strptime() implementation.])
+
 AH_TEMPLATE([ACE_LACKS_RLIMIT],
 [Platform/compiler lacks {get,set}rlimit() function (e.g., VxWorks,
    Chorus, and SCO UNIX)])
+
+AH_TEMPLATE([ACE_LACKS_RWLOCKATTR_PSHARED],
+[Platform lacks pthread_rwlockattr_setpshared().])
+
+AH_TEMPLATE([ACE_LACKS_PLACEMENT_OPERATOR_NEW],
+[Compiler doesn't support placement operator new(size_t, void *).])
 
 AH_TEMPLATE([ACE_LACKS_PLACEMENT_OPERATOR_DELETE],
 [Compiler doesn't support placement operator delete(void *, void *).])
@@ -768,20 +797,38 @@ AH_TEMPLATE([ACE_LACKS_PWD_FUNCTIONS],
 AH_TEMPLATE([ACE_LACKS_PWD_REENTRANT_FUNCTIONS],
 [Platform lacks getpwnam_r() methods (e.g., SGI 6.2).])
 
+AH_TEMPLATE([ACE_LACKS_RWLOCK_T],[Platform lacks readers/writer locks.])
+
+AH_TEMPLATE([ACE_LACKS_SEMBUF_T],
+[Platform lacks struct sembuf (e.g., Win32 and VxWorks)])
+
 AH_TEMPLATE([ACE_LACKS_SETDETACH],
 [Platform lacks pthread_attr_setdetachstate() (e.g., HP/UX 10.x)])
 
 AH_TEMPLATE([ACE_LACKS_SETSCHED],
 [Platform lacks pthread_attr_setsched() (e.g. MVS)])
 
+AH_TEMPLATE([ACE_LACKS_SIGACTION],
+[Platform lacks struct sigaction (e.g., Win32 and Chorus)])
+
 AH_TEMPLATE([ACE_LACKS_SIGNED_CHAR],
 [Platform lacks "signed char" type (broken!)])
+
+AH_TEMPLATE([ACE_LACKS_SIGSET],
+[Platform lacks signal sets (e.g., Chorus and Win32)])
+
+AH_TEMPLATE([ACE_LACKS_STRUCT_DIR],
+[Platform lacks dirent structure.])
 
 AH_TEMPLATE([ACE_LACKS_SYS_MSG_H],
 [Platform lacks sys/msg.h (e.g., Chorus and VxWorks)])
 
 AH_TEMPLATE([ACE_LACKS_SYSV_MSQ_PROTOS],
 [Platform lacks SYSV message queue prototypes])
+
+AH_TEMPLATE([ACE_LACKS_SI_ADDR],
+[Platform lacks the si_addr field of siginfo_t (e.g., VxWorks and
+   HP/UX 10.x)])
 
 AH_TEMPLATE([ACE_LACKS_SYSV_SHMEM],
 [Platform lacks System V shared memory (e.g., Win32 and VxWorks)])
@@ -791,6 +838,8 @@ AH_TEMPLATE([ACE_LACKS_SOCKET_BUFSIZ],
 
 AH_TEMPLATE([ACE_LACKS_STATIC_DATA_MEMBER_TEMPLATES],
 [Compiler doesn't support static data member templates])
+
+AH_TEMPLATE([ACE_LACKS_STRRECVFD],[Platform doesn't define struct strrecvfd.])
 
 AH_TEMPLATE([ACE_LACKS_T_ERRNO],[Header files lack t_errno for TLI])
 
@@ -804,6 +853,14 @@ AH_TEMPLATE([ACE_LACKS_TIMESPEC_T],
 
 AH_TEMPLATE([ACE_LACKS_STRTOK_R_PROTOTYPE],
 [Platform/compiler lacks the strtok_r() prototype])
+
+AH_TEMPLATE([ACE_LACKS_LSEEK64_PROTOTYPE],
+[Platform/compiler lacks the lseek64() prototype.  This should not
+   be defined if ACE_LACKS_LLSEEK_PROTOTYPE is defined.])
+
+AH_TEMPLATE([ACE_LACKS_LLSEEK_PROTOTYPE],
+[Platform/compiler lacks the llseek() prototype.  This should not
+   be defined if ACE_LACKS_LSEEK64_PROTOTYPE is defined.])
 
 AH_TEMPLATE([ACE_LACKS_PREAD_PROTOTYPE],
 [Platform/compiler lacks the pread() and pwrite() prototypes])
@@ -823,6 +880,9 @@ AH_TEMPLATE([ACE_LACKS_UNIX_DOMAIN_SOCKETS],
 
 AH_TEMPLATE([ACE_LACKS_UNIX_SIGNALS],
 [Platform lacks full signal support (e.g., Win32 and Chorus).])
+
+AH_TEMPLATE([ACE_LACKS_UTSNAME_T],
+[Platform lacks struct utsname (e.g., Win32 and VxWorks)])
 
 AH_TEMPLATE([ACE_MAIN],
 [Renames "main (int, char *[])", for platforms such as g++/VxWorks
