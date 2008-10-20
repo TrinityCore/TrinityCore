@@ -2370,6 +2370,10 @@ void ObjectMgr::LoadPlayerInfo()
             // skip expansion races if not playing with expansion
             if (sWorld.getConfig(CONFIG_EXPANSION) < 1 && (race == RACE_BLOODELF || race == RACE_DRAENEI))
                 continue;
+                
+            // skip expansion classes if not playing with expansion
+            if (sWorld.getConfig(CONFIG_EXPANSION) < 2 && class_ == CLASS_DEATH_KNIGHT)
+                continue;
 
             // fatal error if no level 1 data
             if(!pInfo->levelInfo || pInfo->levelInfo[0].stats[0] == 0 )

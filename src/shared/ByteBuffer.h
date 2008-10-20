@@ -201,7 +201,7 @@ class ByteBuffer
             return *this;
         }
 
-        uint8 operator[](size_t pos)
+        uint8 operator[](size_t pos) const
         {
             return read<uint8>(pos);
         }
@@ -309,7 +309,7 @@ class ByteBuffer
             ASSERT(pos + cnt <= size() || PrintPosError(true,pos,cnt));
             memcpy(&_storage[pos], src, cnt);
         }
-        void print_storage()
+        void print_storage() const
         {
             if(!sLog.IsOutDebug())                          // optimize disabled debug output
                 return;
@@ -320,7 +320,7 @@ class ByteBuffer
             sLog.outDebug(" ");
         }
 
-        void textlike()
+        void textlike() const
         {
             if(!sLog.IsOutDebug())                          // optimize disabled debug output
                 return;
@@ -331,7 +331,7 @@ class ByteBuffer
             sLog.outDebug(" ");
         }
 
-        void hexlike()
+        void hexlike() const
         {
             if(!sLog.IsOutDebug())                          // optimize disabled debug output
                 return;

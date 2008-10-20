@@ -179,7 +179,6 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
 
     std::string name;
     uint8 race_,class_;
-    bool pTbc = this->IsTBC() && sWorld.getConfig(CONFIG_EXPANSION) > 0;
     recv_data >> name;
 
     // recheck with known string size
@@ -212,8 +211,9 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
         }
     }
 
-    if (!sChrClassesStore.LookupEntry(class_)||
-        !sChrRacesStore.LookupEntry(race_))
+    ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(class_);
+    ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(race_);
+    if( !classEntry || !raceEntry )
     {
         data << (uint8)CHAR_CREATE_FAILED;
         SendPacket( &data );
@@ -222,10 +222,20 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
     }
 
     // prevent character creating Expansion race without Expansion account
-    if (!pTbc&&(race_>RACE_TROLL))
+    if (raceEntry->addon > Expansion())
     {
         data << (uint8)CHAR_CREATE_EXPANSION;
-        sLog.outError("No Expansion Account:[%d] but tried to Create TBC character",GetAccountId());
+        sLog.outError("Not Expansion 1 account:[%d] but tried to Create character with expansion 1 race (%u)",GetAccountId(),race_);
+        SendPacket( &data );
+        return;
+    }
+
+    // prevent character creating Expansion class without Expansion account
+    // TODO: use possible addon field in ChrClassesEntry in next dbc version
+    if (Expansion() < 2 && class_ == CLASS_DEATH_KNIGHT)
+    {
+        data << (uint8)CHAR_CREATE_EXPANSION;
+        sLog.outError("Not Expansion 2 account:[%d] but tried to Create character with expansion 2 class (%u)",GetAccountId(),class_);
         SendPacket( &data );
         return;
     }

@@ -626,7 +626,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand *table, const char* text, st
 
     for(uint32 i = 0; table[i].Name != NULL; i++)
     {
-        if( !hasStringAbbr(table[i].Name, cmd.c_str()) )
+        if( *subcmd && !hasStringAbbr(table[i].Name, subcmd))
             continue;
 
         // select subcommand from child commands list

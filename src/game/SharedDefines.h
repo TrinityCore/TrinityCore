@@ -66,7 +66,7 @@ enum Classes
     CLASS_HUNTER        = 3,
     CLASS_ROGUE         = 4,
     CLASS_PRIEST        = 5,
-    // CLASS_UNK1       = 6, DK
+    CLASS_DEATH_KNIGHT  = 6,
     CLASS_SHAMAN        = 7,
     CLASS_MAGE          = 8,
     CLASS_WARLOCK       = 9,
@@ -961,7 +961,7 @@ enum GameobjectTypes
     GAMEOBJECT_TYPE_CAPTURE_POINT          = 29,
     GAMEOBJECT_TYPE_AURA_GENERATOR         = 30,
     GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY     = 31,
-    GAMEOBJECT_TYPE_DO_NOT_USE_YET         = 32,
+    GAMEOBJECT_TYPE_BARBER_CHAIR           = 32,
     GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING  = 33,
     GAMEOBJECT_TYPE_GUILD_BANK             = 34,
 };
@@ -1549,7 +1549,7 @@ enum TrainerType                                            // this is important
 enum CreatureType
 {
     CREATURE_TYPE_BEAST            = 1,
-    CREATURE_TYPE_DRAGON           = 2,
+    CREATURE_TYPE_DRAGONKIN        = 2,
     CREATURE_TYPE_DEMON            = 3,
     CREATURE_TYPE_ELEMENTAL        = 4,
     CREATURE_TYPE_GIANT            = 5,
@@ -1557,7 +1557,7 @@ enum CreatureType
     CREATURE_TYPE_HUMANOID         = 7,
     CREATURE_TYPE_CRITTER          = 8,
     CREATURE_TYPE_MECHANICAL       = 9,
-    CREATURE_TYPE_NOTSPECIFIED     = 10,
+    CREATURE_TYPE_NOT_SPECIFIED    = 10,
     CREATURE_TYPE_TOTEM            = 11,
     CREATURE_TYPE_NON_COMBAT_PET   = 12,
     CREATURE_TYPE_GAS_CLOUD        = 13

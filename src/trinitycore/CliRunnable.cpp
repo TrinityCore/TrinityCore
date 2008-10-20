@@ -67,7 +67,7 @@ void CliMotd(char*,pPrintf);
 void CliCorpses(char*,pPrintf);
 void CliSetLogLevel(char*,pPrintf);
 void CliUpTime(char*,pPrintf);
-void CliSetTBC(char*,pPrintf);
+void CliSetAddon(char*,pPrintf);
 void CliWritePlayerDump(char*,pPrintf);
 void CliLoadPlayerDump(char*,pPrintf);
 void CliSave(char*,pPrintf);
@@ -91,7 +91,7 @@ const CliCommand Commands[]=
     {"unban", & CliRemoveBan,"Remove ban from account|ip"},
     {"setgm", & CliSetGM,"Edit user privileges"},
     {"setpass", & CliSetPassword,"Set password for account"},
-    {"setbc", & CliSetTBC,"Set user expansion allowed"},
+    {"setaddon", & CliSetAddon,"Set user expansion addon level allowed"},
     {"listgm", & CliListGM,"Display user privileges"},
     {"loadscripts", & CliLoadScripts,"Load script library"},
     {"setloglevel", & CliSetLogLevel,"Set Log Level"},
@@ -472,7 +472,7 @@ void CliInfo(char*,pPrintf zprintf)
 
     ///- Display the list of account/characters online
     zprintf("=====================================================================\r\n");
-    zprintf("|    Account    |       Character      |       IP        | GM | TBC |\r\n");
+    zprintf("|    Account    |       Character      |       IP        | GM | Exp |\r\n");
     zprintf("=====================================================================\r\n");
 
     ///- Circle through accounts
@@ -485,7 +485,7 @@ void CliInfo(char*,pPrintf zprintf)
         ///- Get the username, last IP and GM level of each account
         // No SQL injection. account is uint32.
         //                                                      0         1        2        3
-        QueryResult *resultLogin = loginDatabase.PQuery("SELECT username, last_ip, gmlevel, tbc FROM account WHERE id = '%u'",account);
+        QueryResult *resultLogin = loginDatabase.PQuery("SELECT username, last_ip, gmlevel, expansion FROM account WHERE id = '%u'",account);
 
         if(resultLogin)
         {
@@ -1037,23 +1037,23 @@ void CliUpTime(char*,pPrintf zprintf)
 }
 
 /// Set/Unset the TBC flag for an account
-void CliSetTBC(char *command,pPrintf zprintf)
+void CliSetAddon(char *command,pPrintf zprintf)
 {
     ///- Get the command line arguments
     char *szAcc = strtok(command," ");
-    char *szTBC =  strtok(NULL," ");
+    char *szExp =  strtok(NULL," ");
 
-    if(!szAcc||!szTBC)
+    if(!szAcc||!szExp)
     {
-        zprintf("Syntax is: setbc $account $number (0 - normal, 1 - tbc)>\r\n");
+        zprintf("Syntax is: setbc $account $number (0 - normal, 1 - tbc, 2 - wotlk)>\r\n");
         return;
     }
 
-    int lev=atoi(szTBC);                                    //get int anyway (0 if error)
+    int lev=atoi(szExp);                                    //get int anyway (0 if error)
 
-    if((lev > 1)|| (lev < 0))
+    if(lev < 0)
     {
-        zprintf("Syntax is: setbc $account $number (0 - normal, 1 - tbc)>\r\n");
+        zprintf("Syntax is: setbc $account $number (0 - normal, 1 - tbc, 2 - wotlk)>\r\n");
         return;
     }
 
@@ -1074,7 +1074,7 @@ void CliSetTBC(char *command,pPrintf zprintf)
     if (result)
     {
         // No SQL injection (account name is escaped)
-        loginDatabase.PExecute("UPDATE account SET tbc = '%d' WHERE username = '%s'",lev,safe_account_name.c_str());
+        loginDatabase.PExecute("UPDATE account SET expansion = '%d' WHERE username = '%s'",lev,safe_account_name.c_str());
         zprintf("We set %s to expansion allowed %d\r\n",safe_account_name.c_str(),lev);
 
         delete result;

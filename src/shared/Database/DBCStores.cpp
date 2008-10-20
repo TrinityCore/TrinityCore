@@ -554,7 +554,15 @@ ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId)
         return CONTENT_1_60;
 
     MapEntry const* mapEntry = sMapStore.LookupEntry(mapid);
-    return (!mapEntry || !mapEntry->IsExpansionMap()) ? CONTENT_1_60 : CONTENT_61_70;
+    if(!mapEntry)
+        return CONTENT_1_60;
+
+    switch(mapEntry->Expansion())
+    {
+        default: return CONTENT_1_60;
+        case 1:  return CONTENT_61_70;
+        case 2:  return CONTENT_71_80;
+    }
 }
 
 ChatChannelsEntry const* GetChannelEntryFor(uint32 channel_id)

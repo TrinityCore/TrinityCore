@@ -678,7 +678,7 @@ WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
   uint32 unk2;
   uint32 BuiltNumberClient;
   uint32 id, security;
-  bool tbc = false;
+  uint8 expansion = 0;
   LocaleConstant locale;
   std::string account;
   Sha1Hash sha1;
@@ -728,7 +728,7 @@ WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
                                 "sha_pass_hash, " //5
                                 "v, " //6
                                 "s, " //7
-                                "tbc, " //8
+                                "expansion, " //8
                                 "mutetime, " //9
                                 "locale " //10
                                 "FROM account "
@@ -749,7 +749,10 @@ WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
   Field* fields = result->Fetch ();
 
-  tbc = fields[8].GetUInt8 () && sWorld.getConfig (CONFIG_EXPANSION) > 0;
+    uint8 expansion = fields[8].GetUInt8();
+    uint32 world_expansion = sWorld.getConfig(CONFIG_EXPANSION);
+    if(expansion > world_expansion)
+        expansion = world_expansion;
 
   N.SetHexStr ("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
   g.SetDword (7);
@@ -909,7 +912,7 @@ WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
   // TODO protect here probably ?
   // Althought atm the socket is singlethreaded
-  ACE_NEW_RETURN (m_Session, WorldSession (id, this, security, tbc, mutetime, locale), -1);
+  ACE_NEW_RETURN (m_Session, WorldSession (id, this, security, expansion, mutetime, locale), -1);
 
   m_Crypt.SetKey (&K);
   m_Crypt.Init ();

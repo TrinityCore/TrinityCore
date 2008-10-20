@@ -71,7 +71,7 @@ class TRINITY_DLL_SPEC WorldSession
 {
     friend class CharacterHandler;
     public:
-        WorldSession(uint32 id, WorldSocket *sock, uint32 sec, bool tbc, time_t mute_time, LocaleConstant locale);
+        WorldSession(uint32 id, WorldSocket *sock, uint32 sec, uint8 expansion, time_t mute_time, LocaleConstant locale);
         ~WorldSession();
 
         bool PlayerLoading() const { return m_playerLoading; }
@@ -88,12 +88,13 @@ class TRINITY_DLL_SPEC WorldSession
 
         uint32 GetSecurity() const { return _security; }
         uint32 GetAccountId() const { return _accountId; }
+        //std::string const& GetRemoteAddress() const { return m_remoteaddress; }
         Player* GetPlayer() const { return _player; }
         char const* GetPlayerName() const;
         void SetSecurity(uint32 security) { _security = security; }
         std::string& GetRemoteAddress() { return m_Address; }
         void SetPlayer(Player *plr) { _player = plr; }
-        bool IsTBC() const { return m_isTBC; }
+        uint8 Expansion() const { return m_expansion; }
 
         /// Is the user engaged in a log out process?
         bool isLogingOut() const { return _logoutTime || m_playerLogout; }
@@ -629,7 +630,7 @@ class TRINITY_DLL_SPEC WorldSession
 
         uint32 _security;
         uint32 _accountId;
-        bool m_isTBC;
+        uint8 m_expansion;
 
         time_t _logoutTime;
         bool m_playerLoading;                               // code processed in LoginPlayer
