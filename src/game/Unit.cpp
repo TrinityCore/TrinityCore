@@ -7764,7 +7764,9 @@ uint32 Unit::SpellHealingBonus(SpellEntry const *spellProto, uint32 healamount, 
     // Healing Done
 
     // These Spells are doing fixed amount of healing (TODO found less hack-like check)
-    if(spellProto->Id == 15290 || spellProto->Id == 39373 || spellProto->Id == 33778 || spellProto->Id == 379 || spellProto->Id == 38395)
+    if (spellProto->Id == 15290 || spellProto->Id == 39373 ||
+        spellProto->Id == 33778 || spellProto->Id == 379   ||
+        spellProto->Id == 38395 || spellProto->Id == 40972)
         return healamount;
 
 

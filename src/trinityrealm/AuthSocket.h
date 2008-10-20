@@ -33,6 +33,7 @@
 #include "sockets/Utility.h"
 #include "sockets/Parse.h"
 #include "sockets/Socket.h"
+#include "zthread/Mutex.h"
 
 /// Handle login commands
 class AuthSocket: public TcpSocket
@@ -58,6 +59,7 @@ class AuthSocket: public TcpSocket
         void _SetVSFields(std::string rI);
 
         FILE *pPatch;
+        ZThread::Mutex patcherLock;
         bool IsLag();
 
     private:
@@ -70,7 +72,12 @@ class AuthSocket: public TcpSocket
 
         std::string _login;
         std::string _safelogin;
-        uint8 _localization;
+        
+        
+        // Since GetLocaleByName() is _NOT_ bijective, we have to store the locale as a string. Otherwise we can't differ
+        // between enUS and enGB, which is important for the patch system
+        std::string _localizationName;
+        uint16 _build;
         AccountTypes _accountSecurityLevel;
 };
 #endif

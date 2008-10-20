@@ -1953,7 +1953,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             case 43873:                                     // Headless Horseman Laugh
                 if(caster->GetTypeId() == TYPEID_PLAYER)
                 {
-                    ((Player*)caster)->PlaySound(11965, false);
+                    ((Player*)caster)->SendPlaySound(11965, false);
                 }
                 return;
             case 46354:                                     // Blood Elf Illusion

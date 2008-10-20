@@ -608,7 +608,7 @@ CREATE TABLE `characters` (
   `trans_z` float NOT NULL default '0',
   `trans_o` float NOT NULL default '0',
   `transguid` bigint(20) unsigned NOT NULL default '0',
-  `gmstate` tinyint(3) unsigned NOT NULL default '0',
+  `extra_flags` tinyint(3) unsigned NOT NULL default '0',
   `stable_slots` tinyint(1) unsigned NOT NULL default '0',
   `at_login` int(11) unsigned NOT NULL default '0',
   `zone` int(11) unsigned NOT NULL default '0',
