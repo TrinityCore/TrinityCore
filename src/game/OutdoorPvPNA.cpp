@@ -72,12 +72,12 @@ void OutdoorPvPNA::BuffTeam(uint32 team)
         for(std::set<uint64>::iterator itr = m_PlayerGuids[0].begin(); itr != m_PlayerGuids[0].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->CastSpell(plr,NA_CAPTURE_BUFF,true);
+                if(plr->IsInWorld()) plr->CastSpell(plr,NA_CAPTURE_BUFF,true);
         }
         for(std::set<uint64>::iterator itr = m_PlayerGuids[1].begin(); itr != m_PlayerGuids[1].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->RemoveAurasDueToSpell(NA_CAPTURE_BUFF);
+                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(NA_CAPTURE_BUFF);
         }
     }
     else if(team == HORDE)
@@ -85,12 +85,12 @@ void OutdoorPvPNA::BuffTeam(uint32 team)
         for(std::set<uint64>::iterator itr = m_PlayerGuids[1].begin(); itr != m_PlayerGuids[1].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->CastSpell(plr,NA_CAPTURE_BUFF,true);
+                if(plr->IsInWorld()) plr->CastSpell(plr,NA_CAPTURE_BUFF,true);
         }
         for(std::set<uint64>::iterator itr = m_PlayerGuids[0].begin(); itr != m_PlayerGuids[0].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->RemoveAurasDueToSpell(NA_CAPTURE_BUFF);
+                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(NA_CAPTURE_BUFF);
         }
     }
     else
@@ -98,12 +98,12 @@ void OutdoorPvPNA::BuffTeam(uint32 team)
         for(std::set<uint64>::iterator itr = m_PlayerGuids[0].begin(); itr != m_PlayerGuids[0].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->RemoveAurasDueToSpell(NA_CAPTURE_BUFF);
+                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(NA_CAPTURE_BUFF);
         }
         for(std::set<uint64>::iterator itr = m_PlayerGuids[1].begin(); itr != m_PlayerGuids[1].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->RemoveAurasDueToSpell(NA_CAPTURE_BUFF);
+                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(NA_CAPTURE_BUFF);
         }
     }
 }

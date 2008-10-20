@@ -317,12 +317,12 @@ void OutdoorPvPHP::BuffTeam(uint32 team)
         for(std::set<uint64>::iterator itr = m_PlayerGuids[0].begin(); itr != m_PlayerGuids[0].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->CastSpell(plr,AllianceBuff,true);
+                if(plr->IsInWorld()) plr->CastSpell(plr,AllianceBuff,true);
         }
         for(std::set<uint64>::iterator itr = m_PlayerGuids[1].begin(); itr != m_PlayerGuids[1].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->RemoveAurasDueToSpell(HordeBuff);
+                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(HordeBuff);
         }
     }
     else if(team == HORDE)
@@ -330,12 +330,12 @@ void OutdoorPvPHP::BuffTeam(uint32 team)
         for(std::set<uint64>::iterator itr = m_PlayerGuids[1].begin(); itr != m_PlayerGuids[1].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->CastSpell(plr,HordeBuff,true);
+                if(plr->IsInWorld()) plr->CastSpell(plr,HordeBuff,true);
         }
         for(std::set<uint64>::iterator itr = m_PlayerGuids[0].begin(); itr != m_PlayerGuids[0].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->RemoveAurasDueToSpell(AllianceBuff);
+                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(AllianceBuff);
         }
     }
     else
@@ -343,12 +343,12 @@ void OutdoorPvPHP::BuffTeam(uint32 team)
         for(std::set<uint64>::iterator itr = m_PlayerGuids[0].begin(); itr != m_PlayerGuids[0].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->RemoveAurasDueToSpell(AllianceBuff);
+                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(AllianceBuff);
         }
         for(std::set<uint64>::iterator itr = m_PlayerGuids[1].begin(); itr != m_PlayerGuids[1].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->RemoveAurasDueToSpell(HordeBuff);
+                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(HordeBuff);
         }
     }
 }

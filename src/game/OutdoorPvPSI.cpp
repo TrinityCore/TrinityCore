@@ -70,12 +70,12 @@ void OutdoorPvPSI::BuffTeam(uint32 team)
         for(std::set<uint64>::iterator itr = m_PlayerGuids[0].begin(); itr != m_PlayerGuids[0].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->CastSpell(plr,SI_CENARION_FAVOR,true);
+                if(plr->IsInWorld()) plr->CastSpell(plr,SI_CENARION_FAVOR,true);
         }
         for(std::set<uint64>::iterator itr = m_PlayerGuids[1].begin(); itr != m_PlayerGuids[1].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->RemoveAurasDueToSpell(SI_CENARION_FAVOR);
+                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(SI_CENARION_FAVOR);
         }
     }
     else if(team == HORDE)
@@ -83,12 +83,12 @@ void OutdoorPvPSI::BuffTeam(uint32 team)
         for(std::set<uint64>::iterator itr = m_PlayerGuids[1].begin(); itr != m_PlayerGuids[1].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->CastSpell(plr,SI_CENARION_FAVOR,true);
+                if(plr->IsInWorld()) plr->CastSpell(plr,SI_CENARION_FAVOR,true);
         }
         for(std::set<uint64>::iterator itr = m_PlayerGuids[0].begin(); itr != m_PlayerGuids[0].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->RemoveAurasDueToSpell(SI_CENARION_FAVOR);
+                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(SI_CENARION_FAVOR);
         }
     }
     else
@@ -96,12 +96,12 @@ void OutdoorPvPSI::BuffTeam(uint32 team)
         for(std::set<uint64>::iterator itr = m_PlayerGuids[0].begin(); itr != m_PlayerGuids[0].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->RemoveAurasDueToSpell(SI_CENARION_FAVOR);
+                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(SI_CENARION_FAVOR);
         }
         for(std::set<uint64>::iterator itr = m_PlayerGuids[1].begin(); itr != m_PlayerGuids[1].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->RemoveAurasDueToSpell(SI_CENARION_FAVOR);
+                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(SI_CENARION_FAVOR);
         }
     }
 }

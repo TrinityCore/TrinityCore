@@ -122,12 +122,12 @@ void OutdoorPvPTF::BuffTeam(uint32 team)
         for(std::set<uint64>::iterator itr = m_PlayerGuids[0].begin(); itr != m_PlayerGuids[0].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->CastSpell(plr,TF_CAPTURE_BUFF,true);
+                if(plr->IsInWorld()) plr->CastSpell(plr,TF_CAPTURE_BUFF,true);
         }
         for(std::set<uint64>::iterator itr = m_PlayerGuids[1].begin(); itr != m_PlayerGuids[1].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->RemoveAurasDueToSpell(TF_CAPTURE_BUFF);
+                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(TF_CAPTURE_BUFF);
         }
     }
     else if(team == HORDE)
@@ -135,12 +135,12 @@ void OutdoorPvPTF::BuffTeam(uint32 team)
         for(std::set<uint64>::iterator itr = m_PlayerGuids[1].begin(); itr != m_PlayerGuids[1].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->CastSpell(plr,TF_CAPTURE_BUFF,true);
+                if(plr->IsInWorld()) plr->CastSpell(plr,TF_CAPTURE_BUFF,true);
         }
         for(std::set<uint64>::iterator itr = m_PlayerGuids[0].begin(); itr != m_PlayerGuids[0].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->RemoveAurasDueToSpell(TF_CAPTURE_BUFF);
+                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(TF_CAPTURE_BUFF);
         }
     }
     else
@@ -148,12 +148,12 @@ void OutdoorPvPTF::BuffTeam(uint32 team)
         for(std::set<uint64>::iterator itr = m_PlayerGuids[0].begin(); itr != m_PlayerGuids[0].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->RemoveAurasDueToSpell(TF_CAPTURE_BUFF);
+                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(TF_CAPTURE_BUFF);
         }
         for(std::set<uint64>::iterator itr = m_PlayerGuids[1].begin(); itr != m_PlayerGuids[1].end(); ++itr)
         {
             if(Player * plr = objmgr.GetPlayer(*itr))
-                plr->RemoveAurasDueToSpell(TF_CAPTURE_BUFF);
+                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(TF_CAPTURE_BUFF);
         }
     }
 }
