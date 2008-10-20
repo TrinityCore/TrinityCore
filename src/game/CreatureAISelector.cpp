@@ -60,6 +60,8 @@ namespace FactorySelector
                 ai_factory = ai_registry.GetRegistryItem("PetAI");
             else if(creature->isTotem())
                 ai_factory = ai_registry.GetRegistryItem("TotemAI");
+            else if(creature->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
+                ai_factory = ai_registry.GetRegistryItem("NullCreatureAI");
         }
 
         // select by permit check

@@ -594,6 +594,20 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                 {
                     *data << (m_uint32Values[ index ] & ~UNIT_FLAG_NOT_SELECTABLE);
                 }
+                // use modelid_a if not gm, _h if gm for CREATURE_FLAG_EXTRA_TRIGGER creatures
+                else if(index == UNIT_FIELD_DISPLAYID && GetTypeId() == TYPEID_UNIT)
+                {
+                    const CreatureInfo* cinfo = ((Creature*)this)->GetCreatureInfo();
+                    if(cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
+                    {
+                        if(target->isGameMaster())
+                            *data << cinfo->DisplayID_A;
+                        else
+                            *data << cinfo->DisplayID_H;
+                    }
+                    else
+                        *data << m_uint32Values[ index ];
+                }
                 // hide lootable animation for unallowed players
                 else if(index == UNIT_DYNAMIC_FLAGS && GetTypeId() == TYPEID_UNIT)
                 {
