@@ -13664,7 +13664,7 @@ float Player::GetFloatValueFromDB(uint16 index, uint64 guid)
 bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
 {
     ////                                                     0     1        2     3     4     5      6           7           8           9    10           11        12         13         14         15          16           17                 18                 19                 20       21       22       23       24         25       26            27        [28]  [29]    30                 31         32
-    //QueryResult *result = CharacterDatabase.PQuery("SELECT guid, account, data, name, race, class, position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, resettalents_time, trans_x, trans_y, trans_z, trans_o, transguid, gmstate, stable_slots, at_login, zone, online, death_expire_time, taxi_path, dungeon_difficulty FROM characters WHERE guid = '%u'", guid);
+    //QueryResult *result = CharacterDatabase.PQuery("SELECT guid, account, data, name, race, class, position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, resettalents_time, trans_x, trans_y, trans_z, trans_o, transguid, extraflags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, dungeon_difficulty FROM characters WHERE guid = '%u'", guid);
     QueryResult *result = holder->GetResult(PLAYER_LOGIN_QUERY_LOADFROM);
 
     if(!result)
@@ -13899,7 +13899,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
 
     m_taxi.LoadTaxiMask( fields[11].GetString() );          // must be before InitTaxiNodesForLevel
 
-    uint32 gmstate = fields[25].GetUInt32();
+    uint32 extraflags = fields[25].GetUInt32();
 
     m_stableSlots = fields[26].GetUInt32();
     if(m_stableSlots > 2)
@@ -14089,7 +14089,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
             case 0:                      break;             // disable
             case 1: SetGameMaster(true); break;             // enable
             case 2:                                         // save state
-                if(gmstate & PLAYER_EXTRA_GM_ON)
+                if(extraflags & PLAYER_EXTRA_GM_ON)
                     SetGameMaster(true);
                 break;
         }
@@ -14100,7 +14100,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
             case 0:                        break;           // disable
             case 1: SetAcceptTicket(true); break;           // enable
             case 2:                                         // save state
-            if(gmstate & PLAYER_EXTRA_GM_ACCEPT_TICKETS)
+            if(extraflags & PLAYER_EXTRA_GM_ACCEPT_TICKETS)
                 SetAcceptTicket(true);
             break;
         }
@@ -14111,7 +14111,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
             case 0:                  break;                 // disable
             case 1: SetGMChat(true); break;                 // enable
             case 2:                                         // save state
-                if(gmstate & PLAYER_EXTRA_GM_CHAT)
+                if(extraflags & PLAYER_EXTRA_GM_CHAT)
                     SetGMChat(true);
                 break;
         }
@@ -14122,7 +14122,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
             case 0:                          break;         // disable
             case 1: SetAcceptWhispers(true); break;         // enable
             case 2:                                         // save state
-                if(gmstate & PLAYER_EXTRA_ACCEPT_WHISPERS)
+                if(extraflags & PLAYER_EXTRA_ACCEPT_WHISPERS)
                     SetAcceptWhispers(true);
                 break;
         }
@@ -15109,7 +15109,7 @@ void Player::SaveToDB()
         "map, dungeon_difficulty, position_x, position_y, position_z, orientation, data, "
         "taximask, online, cinematic, "
         "totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, resettalents_time, "
-        "trans_x, trans_y, trans_z, trans_o, transguid, gmstate, stable_slots, at_login, zone, "
+        "trans_x, trans_y, trans_z, trans_o, transguid, extraflags, stable_slots, at_login, zone, "
         "death_expire_time, taxi_path) VALUES ("
         << GetGUIDLow() << ", "
         << GetSession()->GetAccountId() << ", '"

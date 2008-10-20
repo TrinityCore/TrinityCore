@@ -1,5 +1,5 @@
 dnl -------------------------------------------------------------------------
-dnl       $Id: acinclude.m4 80826 2008-03-04 14:51:23Z wotte $
+dnl       $Id: acinclude.m4 82832 2008-09-25 17:38:39Z jtc $
 dnl
 dnl       ACE M4 include file which contains general M4 macros
 dnl       to be used by the ACE configure script.
@@ -201,100 +201,7 @@ dnl   checks for header files
 
 dnl   checks for typedefs
 
-dnl Check for specific typedef in given header file
-dnl Usage: ACE_CHECK_TYPE(TYPEDEF, INCLUDE,
-dnl                       [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
-dnl This macro can only check for one typedef in one header file at a time!!
-AC_DEFUN([ACE_CHECK_TYPE],
-[
-dnl  AC_REQUIRE([AC_PROG_CXX])
-dnl  AC_REQUIRE([AC_PROG_CXXCPP])
-dnl  AC_LANG([C++])
-dnl  AC_REQUIRE([AC_LANG])
-
-  ACE_CACHE_CHECK([for $1 in $2], [ace_cv_type_$1],
-    [
-     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-#include <$2>
-       ]], [[
-        $1 ace_$1;
-       ]])],[
-        ace_cv_type_$1=yes
-       ],[
-        ace_cv_type_$1=no
-       ])
-    ],[$3],[$4])
-])
-
-
 dnl   checks for structures
-
-dnl Check for specific struct in given header file
-dnl Usage: ACE_CHECK_STRUCT(STRUCTURE, INCLUDE,
-dnl                        [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
-dnl This macro can only check for one struct in one header file at a time!!
-AC_DEFUN([ACE_CHECK_STRUCT],
-[
-dnl  AC_REQUIRE([AC_PROG_CXX])
-dnl  AC_REQUIRE([AC_PROG_CXXCPP])
-dnl  AC_LANG([C++])
-dnl  AC_REQUIRE([AC_LANG])
-
-dnl Do the transliteration at runtime so arg 1 can be a shell variable.
-dnl  ac_safe=`echo "$1" | sed 'y%./+-%__p_%'`
-
-  ACE_CACHE_CHECK([for struct $1 in $2], [ace_cv_struct_$1],
-    [
-     ACE_TRY_COMPILE_STRUCT([$1], [$2],
-       [
-        ace_cv_struct_$1=yes
-       ],
-       [
-        ace_cv_struct_$1=no
-       ])
-    ], $3, $4)
-])
-
-dnl Check for specific struct in given header file by compiling a test
-dnl program.  This macro is used by ACE_CHECK_STRUCT.
-dnl Usage: ACE_TRY_COMPILE_STRUCT(STRUCTURE, INCLUDE,
-dnl                         [ACTION-IF-SUCCESSFUL[, ACTION-IF-NOT-SUCCESSFUL]])
-dnl This macro can only check for one struct in one header file at a time!!
-AC_DEFUN([ACE_TRY_COMPILE_STRUCT],
-[
-dnl  AC_REQUIRE([AC_PROG_CXX])
-dnl  AC_REQUIRE([AC_PROG_CXXCPP])
-dnl  AC_LANG([C++])
-dnl  AC_REQUIRE([AC_LANG])
-
-     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-#include <$2>
-       ]], [[
-        struct $1 ace_$1;
-       ]])],[
-        $3
-       ],[
-dnl Some compilers don't like the "struct" but we need the struct for
-dnl some platforms to resolve ambiguities between functions and
-dnl structures with with the same name.  So, we try the same test but
-dnl without "struct" if the above test with "struct" fails.  If both
-dnl tests fail, then we can be reasonably sure that we don't have the
-dnl structure we are testing for.
-        AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-          [[
-#include <$2>
-          ]],
-          [[
-           $1 ace_$1;
-          ]])],
-          [
-           $3
-          ],
-          [
-           $4
-          ])
-       ])
-])
 
 dnl   checks for variables
 
@@ -492,6 +399,22 @@ dnl Check for 64 bit llseek() or lseek64()
 dnl Usage: ACE_CHECK_LSEEK64
 AC_DEFUN([ACE_CHECK_LSEEK64],
 [
+  AH_TEMPLATE([ACE_HAS_LSEEK64],
+    [Platform supports lseek64(). This should not be defined if
+    ACE_HAS_LLSEEK is defined.])
+
+  AH_TEMPLATE([ACE_LACKS_LSEEK64_PROTOTYPE],
+    [Platform/compiler lacks the lseek64() prototype.  This should not
+    be defined if ACE_LACKS_LLSEEK_PROTOTYPE is defined.])
+
+  AH_TEMPLATE([ACE_HAS_LLSEEK],
+    [Platform supports llseek(). This should not be defined if
+     ACE_HAS_LSEEK64 is defined.])
+
+  AH_TEMPLATE([ACE_LACKS_LLSEEK_PROTOTYPE],
+    [Platform/compiler lacks the llseek() prototype.  This should not
+    be defined if ACE_LACKS_LSEEK64_PROTOTYPE is defined.])
+
  AC_CHECK_FUNC([lseek64],
    [
     AC_DEFINE([ACE_HAS_LSEEK64])
