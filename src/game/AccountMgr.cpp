@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "AccountMgr.h"
+#include "AccountAccessor.h"
 #include "Database/DatabaseEnv.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -81,7 +81,7 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accid)
             uint64 guid = MAKE_NEW_GUID(guidlo, 0, HIGHGUID_PLAYER);
 
             // kick if player currently
-            if(Player* p = objmgr.GetPlayer(guid))
+            if(Player* p = ObjectAccessor::FindPlayer(guid))
             {
                 WorldSession* s = p->GetSession();
                 s->KickPlayer();                            // mark session to remove at next session list update
@@ -166,6 +166,32 @@ uint32 AccountMgr::GetId(std::string username)
         delete result;
         return id;
     }
+}
+
+uint32 AccountMgr::GetSecurity(uint32 acc_id)
+{
+    QueryResult *result = loginDatabase.PQuery("SELECT gmlevel FROM account WHERE id = '%u'", acc_id);
+    if(result)
+    {
+        uint32 sec = (*result)[0].GetUInt32();
+        delete result;
+        return sec;
+    }
+
+    return 0;
+}
+
+bool AccountMgr::GetName(uint32 acc_id, std::string &name)
+{
+    QueryResult *result = loginDatabase.PQuery("SELECT username FROM account WHERE id = '%u'", acc_id);
+    if(result)
+    {
+        name = (*result)[0].GetCppString();
+        delete result;
+        return true;
+    }
+
+    return false;
 }
 
 bool AccountMgr::CheckPassword(uint32 accid, std::string passwd)

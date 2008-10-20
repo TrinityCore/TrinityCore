@@ -146,6 +146,7 @@ class ChatHandler
         bool HandleReloadAllQuestCommand(const char* args);
         bool HandleReloadAllScriptsCommand(const char* args);
         bool HandleReloadAllSpellCommand(const char* args);
+        bool HandleReloadAllLocalesCommand(const char* args);
 
         bool HandleReloadConfigCommand(const char* args);
 
@@ -194,6 +195,12 @@ class ChatHandler
         bool HandleReloadSpellPetAurasCommand(const char* args);
         bool HandleReloadPageTextsCommand(const char* args);
         bool HandleReloadItemEnchantementsCommand(const char* args);
+        bool HandleReloadLocalesCreatureCommand(const char* args);
+        bool HandleReloadLocalesGameobjectCommand(const char* args);
+        bool HandleReloadLocalesItemCommand(const char* args);
+        bool HandleReloadLocalesNpcTextCommand(const char* args);
+        bool HandleReloadLocalesPageTextCommand(const char* args);
+        bool HandleReloadLocalesQuestCommand(const char* args);
 
         bool HandleInstanceListBindsCommand(const char* args);
         bool HandleInstanceUnbindCommand(const char* args);

@@ -96,7 +96,7 @@ bool ChatHandler::HandleMuteCommand(const char* args)
     else
     {
         account_id = objmgr.GetPlayerAccountIdByGUID(guid);
-        security = objmgr.GetSecurityByAccount(account_id);
+        security = accmgr.GetSecurity(account_id);
     }
 
     if(security >= m_session->GetSecurity())
@@ -162,7 +162,7 @@ bool ChatHandler::HandleUnmuteCommand(const char* args)
     else
     {
         account_id = objmgr.GetPlayerAccountIdByGUID(guid);
-        security = objmgr.GetSecurityByAccount(account_id);
+        security = accmgr.GetSecurity(account_id);
     }
 
     if(security >= m_session->GetSecurity())
@@ -1449,7 +1449,7 @@ bool ChatHandler::HandleSetMoveTypeCommand(const char* args)
     {
         type_str = guid_str;
         pCreature = getSelectedCreature();
-        if(!pCreature)
+        if(!pCreature || pCreature->isPet())
             return false;
         lowguid = pCreature->GetDBTableGUIDLow();
     }
@@ -1595,7 +1595,7 @@ bool ChatHandler::HandleSetModelCommand(const char* args)
 
     Creature *pCreature = getSelectedCreature();
 
-    if(!pCreature)
+    if(!pCreature || pCreature->isPet())
     {
         SendSysMessage(LANG_SELECT_CREATURE);
         SetSentErrorMessage(true);
@@ -2212,7 +2212,7 @@ bool ChatHandler::HandleWpAddCommand(const char* args)
         // No GUID provided
         // -> Player must have selected a creature
 
-        if(!target)
+        if(!target || target->isPet())
         {
             SendSysMessage(LANG_SELECT_CREATURE);
             SetSentErrorMessage(true);
@@ -2296,7 +2296,7 @@ bool ChatHandler::HandleWpAddCommand(const char* args)
         }
 
         target = ObjectAccessor::GetCreature(*m_session->GetPlayer(),MAKE_NEW_GUID(lowguid,data->id,HIGHGUID_UNIT));
-        if(!target)
+        if(!target || target->isPet())
         {
             PSendSysMessage(LANG_WAYPOINT_CREATNOTFOUND, lowguid);
             SetSentErrorMessage(true);

@@ -396,9 +396,6 @@ class ObjectMgr
         bool GetPlayerNameByGUID(const uint64 &guid, std::string &name) const;
         uint32 GetPlayerTeamByGUID(const uint64 &guid) const;
         uint32 GetPlayerAccountIdByGUID(const uint64 &guid) const;
-        uint32 GetSecurityByAccount(uint32 acc_id) const;
-        bool GetAccountNameByAccount(uint32 acc_id, std::string &name) const;
-        uint32 GetAccountByAccountName(std::string name) const;
 
         uint32 GetNearestTaxiNode( float x, float y, float z, uint32 mapid );
         void GetTaxiPath( uint32 source, uint32 destination, uint32 &path, uint32 &cost);

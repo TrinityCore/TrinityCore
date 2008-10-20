@@ -39,6 +39,7 @@
 #include "GameEvent.h"
 #include "Spell.h"
 #include "Chat.h"
+#include "AccountMgr.h"
 #include "InstanceSaveMgr.h"
 #include "SpellAuras.h"
 #include "Util.h"
@@ -320,6 +321,7 @@ void ObjectMgr::SendAuctionWonMail( AuctionEntry *auction )
         {
             bidder_accId = GetPlayerAccountIdByGUID(bidder_guid);
             bidder_security = GetSecurityByAccount(bidder_accId);
+            bidder_security = accmgr.GetSecurity(bidder_accId);
 
             if(bidder_security > SEC_PLAYER )               // not do redundant DB requests
             {
@@ -504,6 +506,8 @@ CreatureInfo const* ObjectMgr::GetCreatureTemplate(uint32 id)
 
 void ObjectMgr::LoadCreatureLocales()
 {
+    mCreatureLocaleMap.clear();
+    
     QueryResult *result = WorldDatabase.Query("SELECT entry,name_loc1,subname_loc1,name_loc2,subname_loc2,name_loc3,subname_loc3,name_loc4,subname_loc4,name_loc5,subname_loc5,name_loc6,subname_loc6,name_loc7,subname_loc7,name_loc8,subname_loc8 FROM locales_creature");
 
     if(!result)
@@ -1297,46 +1301,6 @@ uint32 ObjectMgr::GetPlayerAccountIdByGUID(const uint64 &guid) const
     return 0;
 }
 
-uint32 ObjectMgr::GetSecurityByAccount(uint32 acc_id) const
-{
-    QueryResult *result = loginDatabase.PQuery("SELECT gmlevel FROM account WHERE id = '%u'", acc_id);
-    if(result)
-    {
-        uint32 sec = (*result)[0].GetUInt32();
-        delete result;
-        return sec;
-    }
-
-    return 0;
-}
-
-bool ObjectMgr::GetAccountNameByAccount(uint32 acc_id, std::string &name) const
-{
-    QueryResult *result = loginDatabase.PQuery("SELECT username FROM account WHERE id = '%u'", acc_id);
-    if(result)
-    {
-        name = (*result)[0].GetCppString();
-        delete result;
-        return true;
-    }
-
-    return false;
-}
-
-uint32 ObjectMgr::GetAccountByAccountName(std::string name) const
-{
-    loginDatabase.escape_string(name);
-    QueryResult *result = loginDatabase.PQuery("SELECT id FROM account WHERE username = '%s'", name.c_str());
-    if(result)
-    {
-        uint32 id = (*result)[0].GetUInt32();
-        delete result;
-        return id;
-    }
-
-    return 0;
-}
-
 void ObjectMgr::LoadAuctions()
 {
     QueryResult *result = CharacterDatabase.Query("SELECT COUNT(*) FROM auctionhouse");
@@ -1398,6 +1362,8 @@ void ObjectMgr::LoadAuctions()
 
 void ObjectMgr::LoadItemLocales()
 {
+    mItemLocaleMap.clear();
+    
     QueryResult *result = WorldDatabase.Query("SELECT entry,name_loc1,description_loc1,name_loc2,description_loc2,name_loc3,description_loc3,name_loc4,description_loc4,name_loc5,description_loc5,name_loc6,description_loc6,name_loc7,description_loc7,name_loc8,description_loc8 FROM locales_item");
 
     if(!result)
@@ -3419,6 +3385,8 @@ void ObjectMgr::LoadQuests()
 
 void ObjectMgr::LoadQuestLocales()
 {
+    mQuestLocaleMap.clear();
+
     QueryResult *result = WorldDatabase.Query("SELECT entry,"
         "Title_loc1,Details_loc1,Objectives_loc1,OfferRewardText_loc1,RequestItemsText_loc1,EndText_loc1,ObjectiveText1_loc1,ObjectiveText2_loc1,ObjectiveText3_loc1,ObjectiveText4_loc1,"
         "Title_loc2,Details_loc2,Objectives_loc2,OfferRewardText_loc2,RequestItemsText_loc2,EndText_loc2,ObjectiveText1_loc2,ObjectiveText2_loc2,ObjectiveText3_loc2,ObjectiveText4_loc2,"
@@ -4014,6 +3982,8 @@ void ObjectMgr::LoadPageTexts()
 
 void ObjectMgr::LoadPageTextLocales()
 {
+    mPageTextLocaleMap.clear();
+    
     QueryResult *result = WorldDatabase.PQuery("SELECT entry,text_loc1,text_loc2,text_loc3,text_loc4,text_loc5,text_loc6,text_loc7,text_loc8 FROM locales_page_text");
 
     if(!result)
@@ -4180,6 +4150,8 @@ void ObjectMgr::LoadGossipText()
 
 void ObjectMgr::LoadNpcTextLocales()
 {
+    mNpcTextLocaleMap.clear();
+    
     QueryResult *result = WorldDatabase.Query("SELECT entry,"
         "Text0_0_loc1,Text0_1_loc1,Text1_0_loc1,Text1_1_loc1,Text2_0_loc1,Text2_1_loc1,Text3_0_loc1,Text3_1_loc1,Text4_0_loc1,Text4_1_loc1,Text5_0_loc1,Text5_1_loc1,Text6_0_loc1,Text6_1_loc1,Text7_0_loc1,Text7_1_loc1,"
         "Text0_0_loc2,Text0_1_loc2,Text1_0_loc2,Text1_1_loc2,Text2_0_loc2,Text2_1_loc2,Text3_0_loc2,Text3_1_loc1,Text4_0_loc2,Text4_1_loc2,Text5_0_loc2,Text5_1_loc2,Text6_0_loc2,Text6_1_loc2,Text7_0_loc2,Text7_1_loc2,"
@@ -5203,6 +5175,8 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
 
 void ObjectMgr::LoadGameObjectLocales()
 {
+    mGameObjectLocaleMap.clear();
+    
     QueryResult *result = WorldDatabase.Query("SELECT entry,"
         "name_loc1,name_loc2,name_loc3,name_loc4,name_loc5,name_loc6,name_loc7,name_loc8,"
         "castbarcaption_loc1,castbarcaption_loc2,castbarcaption_loc3,castbarcaption_loc4,"
