@@ -55,10 +55,21 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
     uint64 BloodElfCouncilVoice;
     uint64 IllidanStormrage;
 
+       uint16 BossKilled;
+
     uint64 NajentusGate;
     uint64 MainTempleDoors;
+       uint64 ShadeOfAkamaDoor;
+       uint64 CommonDoor;//Teron
+       uint64 TeronDoor;
+       uint64 GuurtogDoor;
+       uint64 MotherDoor;
+       uint64 TempleDoor;//Befor mother
+       uint64 CouncilDoor;
+       uint64 SimpleDoor;//council
     uint64 IllidanGate;
     uint64 IllidanDoor[2];
+
 
     uint32 Encounters[ENCOUNTERS];
 
@@ -77,8 +88,18 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
         BloodElfCouncilVoice = 0;
         IllidanStormrage = 0;
 
+               BossKilled = 0;
+
         NajentusGate    = 0;
         MainTempleDoors = 0;
+               ShadeOfAkamaDoor= 0;
+               CommonDoor              = 0;//teron
+               TeronDoor               = 0;
+               GuurtogDoor             = 0;
+               MotherDoor              = 0;
+               TempleDoor              = 0;
+               SimpleDoor              = 0;//Bycouncil
+               CouncilDoor             = 0;
         IllidanGate     = 0;
         IllidanDoor[0]  = 0;
         IllidanDoor[1]  = 0;
@@ -94,6 +115,24 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
 
         return false;
     }
+
+    void OpenDoor(uint64 DoorGUID, bool open)
+    {
+        if(((InstanceMap*)instance)->GetPlayers().size())
+            if(Player* first = ((InstanceMap*)instance)->GetPlayers().front())
+                if(GameObject *Door = GameObject::GetGameObject(*first, DoorGUID))
+                    Door->SetUInt32Value(GAMEOBJECT_STATE, open ? 0 : 1);
+    }
+
+       void CloseDoor(uint64 DoorGUID, bool close)
+       {
+               if(((InstanceMap*)instance)->GetPlayers().size())
+            if(Player* first = ((InstanceMap*)instance)->GetPlayers().front())
+                if(GameObject *Door = GameObject::GetGameObject(*first, DoorGUID))
+                    Door->SetUInt32Value(GAMEOBJECT_STATE, close ? 1 : 0);
+       }
+
+
 
     void OnCreatureCreate(Creature *creature, uint32 creature_entry)
     {
@@ -119,20 +158,34 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
         switch(go->GetEntry())
         {
             case 185483:                                    // Gate past Naj'entus (at the entrance to Supermoose's courtyards)
-                NajentusGate = go->GetGUID();
-                break;
-            case 185882:                                    // Main Temple Doors - right past Supermoose (Supremus)
-                MainTempleDoors = go->GetGUID();
-                break;
-            case 185905:                                    // Gate leading to Temple Summit
+                NajentusGate = go->GetGUID();break;
+                       case 185882:                                    // Main Temple Doors - right past Supermoose (Supremus)
+                MainTempleDoors = go->GetGUID();break;
+                       case 185478:
+                               ShadeOfAkamaDoor = go->GetGUID();break;
+                       case 185480: 
+                                       CommonDoor = go->GetGUID();break;
+                       case 186153:
+                               TeronDoor = go->GetGUID();break;
+                       case 185892:
+                               GuurtogDoor = go->GetGUID();break;
+                       case 185479:
+                               TempleDoor = go->GetGUID();break;
+                       case 185482:
+                               MotherDoor = go->GetGUID();break;
+                       case 185481:
+                               CouncilDoor = go->GetGUID();break;
+                       case 186152://used by council
+                               SimpleDoor = go->GetGUID();break;
+                       case 185905:                                    // Gate leading to Temple Summit
                 IllidanGate = go->GetGUID();
                 go->SetUInt32Value(GAMEOBJECT_FLAGS,GO_FLAG_NODESPAWN+GO_FLAG_INTERACT_COND);
                 break;
-            case 186261:                                    // Right door at Temple Summit
+                       case 186261:                                    // Right door at Temple Summit
                 IllidanDoor[0] = go->GetGUID();
                 go->SetUInt32Value(GAMEOBJECT_FLAGS,GO_FLAG_NODESPAWN+GO_FLAG_INTERACT_COND);
                 break;
-            case 186262:                                    // Left door at Temple Summit
+                       case 186262:                                    // Left door at Temple Summit
                 IllidanDoor[1] = go->GetGUID();
                 go->SetUInt32Value(GAMEOBJECT_FLAGS,GO_FLAG_NODESPAWN+GO_FLAG_INTERACT_COND);
                 break;
@@ -169,7 +222,7 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
     {
         switch(type)
         {
-            case DATA_HIGHWARLORDNAJENTUSEVENT:   Encounters[0] = data;         break;
+            case DATA_HIGHWARLORDNAJENTUSEVENT:   Encounters[0] = data;                        break;
             case DATA_SUPREMUSEVENT:              Encounters[1] = data;         break;
             case DATA_SHADEOFAKAMAEVENT:          Encounters[2] = data;         break;
             case DATA_TERONGOREFIENDEVENT:        Encounters[3] = data;         break;
@@ -181,8 +234,43 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
         }
 
         if(data == DONE)
+               {
             SaveToDB();
+                       BossKilled++;
+               }
+               CheckInstanceStatus();
     }
+
+       void CheckInstanceStatus()
+       {
+               if(BossKilled >= 6)
+                       OpenDoor(TempleDoor, true);
+               if(Encounters[0] == DONE)
+                       OpenDoor(NajentusGate, true);
+               if(Encounters[2] == IN_PROGRESS)
+                       CloseDoor(ShadeOfAkamaDoor, true);
+               else OpenDoor(ShadeOfAkamaDoor, true);
+               if(Encounters[3] == IN_PROGRESS)
+               {
+                       CloseDoor(TeronDoor, true);
+                       CloseDoor(CommonDoor, true);
+               }else{ 
+                       OpenDoor(TeronDoor, true);
+                       OpenDoor(CommonDoor, true);
+               }
+               if(Encounters[4] == DONE)
+                       OpenDoor(GuurtogDoor, true);
+               if(Encounters[6] == DONE)
+                       OpenDoor(MotherDoor, true);
+               if(Encounters[7] == IN_PROGRESS)
+               {
+                       CloseDoor(CouncilDoor, true);
+                       CloseDoor(SimpleDoor, true);
+               }else{
+                       OpenDoor(CouncilDoor, true);
+                       OpenDoor(SimpleDoor, true);                     
+               }
+       }
 
     uint32 GetData(uint32 type)
     {
