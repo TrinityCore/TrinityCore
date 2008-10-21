@@ -13626,6 +13626,40 @@ float Player::GetFloatValueFromArray(Tokens const& data, uint16 index)
 
 uint32 Player::GetUInt32ValueFromDB(uint16 index, uint64 guid)
 {
+    //rognar optimization
+    //must be improved!! "if" and "switch" - it's very not aesthetically :)))
+    //but we should know whith data is cached
+    //PLAYER_FIELD_ARENA_TEAM_INFO* very is often using with pvp&arena patch :)
+    if(       index == PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 0 * 6 + 5
+        || index == PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 1 * 6 + 5
+        || index == PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 2 * 6 + 5
+        || index == PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (0 * 6)
+        || index == PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (1 * 6)
+        || index == PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (2 * 6)
+        || index == UNIT_FIELD_LEVEL)
+    {
+        CachePlayerInfoMap::iterator _iter = objmgr.m_mPlayerInfoMap.find(GUID_LOPART(guid));
+        if(_iter != objmgr.m_mPlayerInfoMap.end())
+        {
+            switch(index)
+            {
+            case (PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 0 * 6 + 5):
+                return _iter->second->unArenaInfoSlot0;
+            case (PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 1 * 6 + 5):
+                return _iter->second->unArenaInfoSlot1;
+            case (PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 2 * 6 + 5):
+                return _iter->second->unArenaInfoSlot2;
+            case (PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (0 * 6)):
+                return _iter->second->unArenaInfoId0;
+            case (PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (1 * 6)):
+                return _iter->second->unArenaInfoId1;
+            case (PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (2 * 6)):
+                return _iter->second->unArenaInfoId2;
+            case (UNIT_FIELD_LEVEL):
+                return _iter->second->unLevel;
+            }
+        }
+    }
     Tokens data;
     if(!LoadValuesArrayFromDB(data,guid))
         return 0;
@@ -15219,6 +15253,23 @@ void Player::SaveToDB()
     // save pet (hunter pet level and experience and all type pets health/mana).
     if(Pet* pet = GetPet())
         pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+        
+    //to prevent access to DB we should cache some data, which is used very often
+    CachePlayerInfoMap::iterator _iter = objmgr.m_mPlayerInfoMap.find(GetGUIDLow());
+    if(_iter != objmgr.m_mPlayerInfoMap.end())//skip new players
+    {
+        _iter->second->unLevel = getLevel();
+
+        _iter->second->unArenaInfoSlot0 = GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 0 * 6 + 5);
+        _iter->second->unArenaInfoSlot1 = GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 1 * 6 + 5);
+        _iter->second->unArenaInfoSlot2 = GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 2 * 6 + 5);
+
+        _iter->second->unfield = GetUInt32Value(UNIT_FIELD_BYTES_0);
+
+        _iter->second->unArenaInfoId0 = GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (0 * 6));
+        _iter->second->unArenaInfoId1 = GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (1 * 6));
+        _iter->second->unArenaInfoId2 = GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (2 * 6));
+    }
 }
 
 // fast save function for item/money cheating preventing - save only inventory and money state

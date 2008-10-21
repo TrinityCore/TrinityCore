@@ -363,6 +363,21 @@ bool Guild::FillPlayerData(uint64 guid, MemberSlot* memslot)
     }
     else
     {
+		PCachePlayerInfo pInfo = objmgr.GetPlayerInfoFromCache(GUID_LOPART(guid));
+        if(pInfo)
+        {
+            plName = pInfo->sPlayerName;
+            plClass = pInfo->unClass;
+            if(plClass<CLASS_WARRIOR||plClass>=MAX_CLASSES)     // can be at broken `class` field
+            {
+                sLog.outError("Player (GUID: %u) has a broken data in field `characters`.`class`.",GUID_LOPART(guid));
+                return false;
+            }
+            plLevel = pInfo->unLevel;
+            plZone = Player::GetZoneIdFromDB(guid);
+        }
+        else
+        {
         if(!objmgr.GetPlayerNameByGUID(guid, plName))       // player doesn't exist
             return false;
 
@@ -386,6 +401,7 @@ bool Guild::FillPlayerData(uint64 guid, MemberSlot* memslot)
 
         delete result;
     }
+	}
 
     memslot->name = plName;
     memslot->level = plLevel;
