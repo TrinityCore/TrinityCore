@@ -5,6 +5,7 @@
 #define ACE_CONFIG_H
 
 // ACE configuration header file
+# define ACE_LACKS_NETDB_REENTRANT_FUNCTIONS 
 
 
 
