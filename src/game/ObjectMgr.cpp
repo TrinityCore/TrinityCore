@@ -6291,6 +6291,51 @@ const char *ObjectMgr::GetTrinityString(int32 entry, int locale_idx) const
     return "<error>";
 }
 
+void ObjectMgr::LoadSpellDisabledEntrys()
+{
+    m_DisabledPlayerSpells.clear();                                // need for reload case
+    m_DisabledCreatureSpells.clear();
+    QueryResult *result = WorldDatabase.Query("SELECT entry, disable_mask FROM spell_disabled");
+
+    uint32 total_count = 0;
+
+    if( !result )
+    {
+        barGoLink bar( 1 );
+        bar.step();
+
+        sLog.outString();
+        sLog.outString( ">> Loaded %u disabled spells", total_count );
+        return;
+    }
+
+    barGoLink bar( result->GetRowCount() );
+
+    Field* fields;
+    do
+    {
+        bar.step();
+        fields = result->Fetch();
+        uint32 spellid = fields[0].GetUInt32();
+        if(!sSpellStore.LookupEntry(spellid))
+        {
+            sLog.outErrorDb("Spell entry %u from `spell_disabled` doesn't exist in dbc, ignoring.",spellid);
+            continue;
+        }
+        uint32 disable_mask = fields[1].GetUInt32();
+        if(disable_mask & SPELL_DISABLE_PLAYER)
+            m_DisabledPlayerSpells.insert(spellid);
+        if(disable_mask & SPELL_DISABLE_CREATURE)
+            m_DisabledCreatureSpells.insert(spellid);
+        ++total_count;
+   } while ( result->NextRow() );
+
+    delete result;
+
+    sLog.outString();
+    sLog.outString( ">> Loaded %u disabled spells from `spell_disabled`", total_count);
+}
+
 void ObjectMgr::LoadFishingBaseSkillLevel()
 {
     mFishingBaseForArea.clear();                            // for relaod case

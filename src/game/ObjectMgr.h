@@ -689,6 +689,10 @@ class ObjectMgr
 
         static bool CheckDeclinedNames(std::wstring mainpart, DeclinedName const& names);
 
+        void LoadSpellDisabledEntrys();
+        bool IsPlayerSpellDisabled(uint32 spellid) { return (m_DisabledPlayerSpells.count(spellid) != 0); }
+        bool IsCreatureSpellDisabled(uint32 spellid) { return (m_DisabledCreatureSpells.count(spellid) != 0); }
+
         int GetIndexForLocale(LocaleConstant loc);
         LocaleConstant GetLocaleForIndex(int i);
         // guild bank tabs
@@ -797,6 +801,9 @@ class ObjectMgr
         //character reserved names
         typedef std::set<std::string> ReservedNamesMap;
         ReservedNamesMap    m_ReservedNames;
+
+        std::set<uint32>    m_DisabledPlayerSpells;
+        std::set<uint32>    m_DisabledCreatureSpells;
 
         GraveYardMap        mGraveYardMap;
 

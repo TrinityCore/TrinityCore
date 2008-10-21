@@ -193,6 +193,7 @@ class ChatHandler
         bool HandleReloadSpellTargetPositionCommand(const char* args);
         bool HandleReloadSpellThreatsCommand(const char* args);
         bool HandleReloadSpellPetAurasCommand(const char* args);
+        bool HandleReloadSpellDisabledCommand(const char* args);
         bool HandleReloadPageTextsCommand(const char* args);
         bool HandleReloadItemEnchantementsCommand(const char* args);
         bool HandleReloadLocalesCreatureCommand(const char* args);

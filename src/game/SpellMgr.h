@@ -227,6 +227,12 @@ enum SpellFamilyNames
     SPELLFAMILY_POTION      = 13
 };
 
+enum SpellDisableTypes
+{
+    SPELL_DISABLE_PLAYER = 1,
+    SPELL_DISABLE_CREATURE = 2
+};
+
 //Some SpellFamilyFlags
 #define SPELLFAMILYFLAG_ROGUE_VANISH            0x000000800LL
 #define SPELLFAMILYFLAG_ROGUE_STEALTH           0x000400000LL

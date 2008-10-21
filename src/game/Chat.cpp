@@ -197,6 +197,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "spell_scripts",               SEC_ADMINISTRATOR, &ChatHandler::HandleReloadSpellScriptsCommand,            "", NULL },
         { "spell_target_position",       SEC_ADMINISTRATOR, &ChatHandler::HandleReloadSpellTargetPositionCommand,     "", NULL },
         { "spell_threats",               SEC_ADMINISTRATOR, &ChatHandler::HandleReloadSpellThreatsCommand,            "", NULL },
+        { "spell_disabled",              SEC_ADMINISTRATOR, &ChatHandler::HandleReloadSpellDisabledCommand,           "", NULL },
         { "locales_creature",            SEC_ADMINISTRATOR, &ChatHandler::HandleReloadLocalesCreatureCommand,         "", NULL },
         { "locales_gameobject",          SEC_ADMINISTRATOR, &ChatHandler::HandleReloadLocalesGameobjectCommand,       "", NULL },
         { "locales_item",                SEC_ADMINISTRATOR, &ChatHandler::HandleReloadLocalesItemCommand,             "", NULL },

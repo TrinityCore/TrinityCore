@@ -2032,6 +2032,24 @@ void Spell::prepare(SpellCastTargets * targets, Aura* triggeredByAura)
         return;
     }
 
+    if(m_caster->GetTypeId() == TYPEID_PLAYER || (m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->isPet()))
+    {
+        if(objmgr.IsPlayerSpellDisabled(m_spellInfo->Id))
+        {
+            SendCastResult(SPELL_FAILED_SPELL_UNAVAILABLE);
+            finish(false);
+            return;
+        }
+    }
+    else
+    {
+        if(objmgr.IsCreatureSpellDisabled(m_spellInfo->Id))
+        {
+            finish(false);
+            return;
+        }
+    }
+
     // Fill cost data
     m_powerCost = CalculatePowerCost();
 
