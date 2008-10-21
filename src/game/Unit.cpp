@@ -2905,6 +2905,7 @@ SpellMissInfo Unit::SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool 
 //             return MeleeSpellHitResult(pVictim, spell);
             return SPELL_MISS_NONE;
         case SPELL_DAMAGE_CLASS_NONE:
+            return SPELL_MISS_NONE;
         case SPELL_DAMAGE_CLASS_MAGIC:
             return MagicSpellHitResult(pVictim, spell);
     }

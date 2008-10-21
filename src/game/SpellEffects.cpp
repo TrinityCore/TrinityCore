@@ -1773,8 +1773,8 @@ void Spell::EffectTriggerSpell(uint32 i)
                 // remove all harmful spells on you...
                 if( // ignore positive and passive auras
                     !iter->second->IsPositive() && !iter->second->IsPassive()    &&
-                    // ignore physical auras
-                    (GetSpellSchoolMask(iter->second->GetSpellProto()) & SPELL_SCHOOL_MASK_NORMAL)==0 &&
+                    // only affect magic spells
+                    iter->second->GetSpellProto()->DmgClass == SPELL_DAMAGE_CLASS_MAGIC &&
                     // ignore immunity persistent spells
                     !( iter->second->GetSpellProto()->AttributesEx & 0x10000 ) )
                 {
