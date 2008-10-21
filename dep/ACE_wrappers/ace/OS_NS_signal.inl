@@ -4,8 +4,10 @@
 
 #include "ace/OS_NS_macros.h"
 #include "ace/OS_NS_errno.h"
+#ifndef WIN32
 #include <pthread.h>
 #include <signal.h>
+#endif
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

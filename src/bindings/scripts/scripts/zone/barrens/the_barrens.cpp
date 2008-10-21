@@ -287,6 +287,8 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
 
                     for(uint8 i = 0; i < 6; i++) {
                         Creature* pCreature = m_creature->SummonCreature(AFFRAY_CHALLENGER, AffrayChallengerLoc[i][0], AffrayChallengerLoc[i][1], AffrayChallengerLoc[i][2], AffrayChallengerLoc[i][3], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                        if(!pCreature)
+                            continue;
                         pCreature->setFaction(35);
                         pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -316,7 +318,7 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                     if (AffrayChallenger[Wave] && Wave < 6 && !EventBigWill) {
                         DoYell(SAY_TWIGGY_FLATHEAD_FRAY,LANG_UNIVERSAL,NULL);
                         Creature* pCreature = (Creature*)Unit::GetUnit((*m_creature), AffrayChallenger[Wave]);
-                        if(pCreature || (pCreature->isAlive())) {
+                        if(pCreature && (pCreature->isAlive())) {
                             pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             pCreature->HandleEmoteCommand(15);
@@ -327,19 +329,21 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                         }
                     }
                     else if (Wave >= 6 && !EventBigWill) {
-                        Creature* pCreature = m_creature->SummonCreature(BIG_WILL, -1722, -4341, 6.12, 6.26, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 480000);
-                        BigWill = pCreature->GetGUID();
-                        //pCreature->GetMotionMaster()->MovePoint(0, -1693, -4343, 4.32);
-                        //pCreature->GetMotionMaster()->MovePoint(1, -1684, -4333, 2.78);
-                        pCreature->GetMotionMaster()->MovePoint(2, -1682, -4329, 2.79);
-                        //pCreature->HandleEmoteCommand(15);
-                        pCreature->HandleEmoteCommand(27);
-                        EventBigWill = true;
-                        Wave_Timer = 1000;
+                        if(Creature* pCreature = m_creature->SummonCreature(BIG_WILL, -1722, -4341, 6.12, 6.26, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 480000))
+                        {
+                            BigWill = pCreature->GetGUID();
+                            //pCreature->GetMotionMaster()->MovePoint(0, -1693, -4343, 4.32);
+                            //pCreature->GetMotionMaster()->MovePoint(1, -1684, -4333, 2.78);
+                            pCreature->GetMotionMaster()->MovePoint(2, -1682, -4329, 2.79);
+                            //pCreature->HandleEmoteCommand(15);
+                            pCreature->HandleEmoteCommand(27);
+                            EventBigWill = true;
+                            Wave_Timer = 1000;
+                        }
                     }
                     else if (Wave >= 6 && EventBigWill && BigWill) {
                         Creature* pCreature = (Creature*)Unit::GetUnit((*m_creature), BigWill);
-                        if (!pCreature->isAlive()) {
+                        if (!pCreature || !pCreature->isAlive()) {
                             DoYell(SAY_TWIGGY_FLATHEAD_OVER,LANG_UNIVERSAL,NULL);
                             EventInProgress = false;
                             EventBigWill = false;
