@@ -1033,20 +1033,32 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
     if(!spellInfo_1 || !spellInfo_2)
         return false;
 
-    if(spellInfo_1->Id == spellId_2)
+    if(spellInfo_1->Id == spellId_2) //checked before 
         return false;
+
+    if(spellInfo_1->SpellFamilyName && spellInfo_1->SpellFamilyName == spellInfo_2->SpellFamilyName) //resurrection sickness
+    {
+        if(spellInfo_1->SpellFamilyFlags == spellInfo_2->SpellFamilyFlags)
+            return true;
+        //Corruption & Seed of corruption
+        if(spellInfo_1->SpellFamilyName == SPELLFAMILY_WARLOCK)
+            if( spellInfo_1->SpellIconID == 313 && spellInfo_2->SpellIconID == 1932 ||
+                spellInfo_2->SpellIconID == 313 && spellInfo_1->SpellIconID == 1932 )
+                if(spellInfo_1->SpellVisual != 0 && spellInfo_2->SpellVisual != 0)
+                    return true;                        // can't be stacked
+    }
 
     //I think we don't check this correctly because i need a exception for spell:
     //72,11327,18461...(called from 1856,1857...) Call Aura 16,31, after trigger another spell who call aura 77 and 77 remove 16 and 31, this should not happen.
-    if(spellInfo_2->SpellFamilyFlags == 2048)
-        return false;
+    //if(spellInfo_2->SpellFamilyFlags == 2048)
+    //    return false;
 
     // Resurrection sickness
-    if((spellInfo_1->Id == SPELL_ID_PASSIVE_RESURRECTION_SICKNESS) != (spellInfo_2->Id==SPELL_ID_PASSIVE_RESURRECTION_SICKNESS))
-        return false;
+    //if((spellInfo_1->Id == SPELL_ID_PASSIVE_RESURRECTION_SICKNESS) != (spellInfo_2->Id==SPELL_ID_PASSIVE_RESURRECTION_SICKNESS))
+    //    return false;
 
     // Specific spell family spells
-    switch(spellInfo_1->SpellFamilyName)
+    /*switch(spellInfo_1->SpellFamilyName)
     {
         case SPELLFAMILY_GENERIC:
             switch(spellInfo_2->SpellFamilyName)
@@ -1346,10 +1358,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
     }
 
     if (IsRankSpellDueToSpell(spellInfo_1, spellId_2))
-        return true;
+        return true;*/
 
-    if (spellInfo_1->SpellIconID != spellInfo_2->SpellIconID ||
-        !spellInfo_1->SpellIconID)
+    if (spellInfo_1->SpellIconID != spellInfo_2->SpellIconID 
+        || !spellInfo_1->SpellIconID)
         return false;
 
     if (spellInfo_1->SpellFamilyName != spellInfo_2->SpellFamilyName)
