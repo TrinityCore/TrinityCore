@@ -246,6 +246,9 @@ void WorldSession::LogoutPlayer(bool Save)
 
     if (_player)
     {
+        if (uint64 lguid = GetPlayer()->GetLootGUID())
+            DoLootRelease(lguid);
+            
         ///- If the player just died before logging out, make him appear as a ghost
         //FIXME: logout must be delayed in case lost connection with client in time of combat
         if (_player->GetDeathTimer())
