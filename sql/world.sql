@@ -2947,6 +2947,27 @@ LOCK TABLES `spell_chain` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `spell_disabled`
+--
+
+DROP TABLE IF EXISTS `spell_disabled`;
+CREATE TABLE `spell_disabled` (
+  `entry` int(11) unsigned NOT NULL default '0' COMMENT 'Spell entry',
+  `disable_mask` int(8) unsigned NOT NULL default '0',
+  `comment` varchar(64) NOT NULL default '',
+  PRIMARY KEY  (`entry`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Disabled Spell System';
+
+--
+-- Dumping data for table `spell_disabled`
+--
+
+LOCK TABLES `spell_disabled` WRITE;
+/*!40000 ALTER TABLE `spell_disabled` DISABLE KEYS */;
+/*!40000 ALTER TABLE `spell_disabled` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `spell_elixir`
 --
 
