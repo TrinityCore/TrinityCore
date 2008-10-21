@@ -988,6 +988,9 @@ void World::SetInitialWorldSettings()
     sLog.outString( "Loading Page Texts..." );
     objmgr.LoadPageTexts();
 
+    sLog.outString( "Loading Player info in cache..." );
+    objmgr.LoadPlayerInfoInCache();
+
     sLog.outString( "Loading Game Object Templates..." );   // must be after LoadPageTexts
     objmgr.LoadGameobjectInfo();
 
