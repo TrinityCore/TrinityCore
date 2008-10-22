@@ -42,6 +42,10 @@ struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
     uint64 BlindeyeTheSeer;
     uint64 OlmTheSummoner;
     uint64 KroshFirehand;
+       uint64 Maulgar;
+
+       uint64 MaulgarDoor;
+       uint64 GruulDoor;
 
     void Initialize()
     {
@@ -50,6 +54,11 @@ struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
         BlindeyeTheSeer = 0;
         OlmTheSummoner = 0;
         KroshFirehand = 0;
+               Maulgar = 0;
+
+               MaulgarDoor = 0;
+               GruulDoor = 0;
+
 
         for(uint8 i = 0; i < ENCOUNTERS; i++)
             Encounters[i] = false;
@@ -71,8 +80,18 @@ struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
             case 18836: BlindeyeTheSeer = creature->GetGUID(); break;
             case 18834: OlmTheSummoner = creature->GetGUID(); break;
             case 18832: KroshFirehand = creature->GetGUID(); break;
+                       case 18831: Maulgar = creature->GetGUID();break;
         }
     }
+
+       void OnObjectCreate(GameObject* go)
+    {
+               switch(go->GetEntry())
+               {
+               case 184468: MaulgarDoor = go->GetGUID();break;
+               case 184662: GruulDoor = go->GetGUID();break;
+               }
+       }
 
     void SetData64(uint32 type, uint64 data)
     {
@@ -84,16 +103,14 @@ struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
     {
         switch(identifier)
         {
-            case DATA_MAULGAREVENT_TANK:
-                return MaulgarEvent_Tank;
-            case DATA_KIGGLERTHECRAZED:
-                return KigglerTheCrazed;
-            case DATA_BLINDEYETHESEER:
-                return BlindeyeTheSeer;
-            case DATA_OLMTHESUMMONER:
-                return OlmTheSummoner;
-            case DATA_KROSHFIREHAND:
-                return KroshFirehand;
+            case DATA_MAULGAREVENT_TANK: return MaulgarEvent_Tank;
+            case DATA_KIGGLERTHECRAZED: return KigglerTheCrazed;
+                       case DATA_BLINDEYETHESEER: return BlindeyeTheSeer;
+            case DATA_OLMTHESUMMONER: return OlmTheSummoner;
+            case DATA_KROSHFIREHAND: return KroshFirehand;
+                       case DATA_MAULGARDOOR: return MaulgarDoor;
+                       case DATA_GRUULDOOR: return GruulDoor;
+                       case DATA_MAULGAR: return Maulgar;
         }
         return 0;
     }
@@ -103,27 +120,59 @@ struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
         switch(type)
         {
             case DATA_MAULGAREVENT:
-                Encounters[0] = (data) ? true : false;
-                break;
+                Encounters[0] = data; break;
             case DATA_GRUULEVENT:
-                Encounters[1] = (data) ? true : false;
-                break;
+                Encounters[1] = data; break;
         }
+
+               if(data == DONE)
+                       SaveToDB();
     }
 
     uint32 GetData(uint32 type)
     {
         switch(type)
         {
-            case DATA_MAULGAREVENT:
-                return Encounters[0];
-            case DATA_GRUULEVENT:
-                return Encounters[1];
+            case DATA_MAULGAREVENT: return Encounters[0];
+            case DATA_GRUULEVENT: return Encounters[1];
         }
         return 0;
     }
-};
 
+
+               const char* Save()
+    {
+        OUT_SAVE_INST_DATA;
+        std::ostringstream stream;
+        stream << Encounters[0] << " " << Encounters[1];
+        char* out = new char[stream.str().length() + 1];
+        strcpy(out, stream.str().c_str());
+        if(out)
+        {
+            OUT_SAVE_INST_DATA_COMPLETE;
+            return out;
+        }
+
+        return NULL;
+    }
+
+    void Load(const char* in)
+    {
+        if(!in)
+        {
+            OUT_LOAD_INST_DATA_FAIL;
+            return;
+        }
+
+        OUT_LOAD_INST_DATA(in);
+        std::istringstream stream(in);
+        stream >> Encounters[0] >> Encounters[1];
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
+            if(Encounters[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
+                Encounters[i] = NOT_STARTED;
+        OUT_LOAD_INST_DATA_COMPLETE;
+    }
+};
 InstanceData* GetInstanceData_instance_gruuls_lair(Map* map)
 {
     return new instance_gruuls_lair(map);

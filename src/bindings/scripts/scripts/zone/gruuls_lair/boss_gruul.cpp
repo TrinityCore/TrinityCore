@@ -66,22 +66,45 @@ struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
         Reverberation_Timer= 60000+45000;
 
         if(pInstance)
-            pInstance->SetData(DATA_GRUULEVENT, 0);
+               {
+         pInstance->SetData(DATA_GRUULEVENT, NOT_STARTED);
+
+                GameObject* Door = NULL;
+                Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GRUULDOOR));
+                if(Door)
+                        Door->SetGoState(0);
+               }
     }
 
     void JustDied(Unit* Killer)
     {
         if(pInstance)
-            pInstance->SetData(DATA_GRUULEVENT, 1);
+               {
+                       pInstance->SetData(DATA_GRUULEVENT, DONE);
+                       
+                       GameObject* Door = NULL;
+                       Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GRUULDOOR));
+                       if(Door)
+                               Door->SetGoState(0);
+
+               }
     }
 
     void Aggro(Unit *who)
     {
 
         DoYell(SAY_AGGRO,LANG_UNIVERSAL,NULL);
+               DoZoneInCombat();
 
         if(pInstance)
-            pInstance->SetData(DATA_GRUULEVENT, 1);
+               {
+            pInstance->SetData(DATA_GRUULEVENT, IN_PROGRESS);
+
+                       GameObject* Door = NULL;
+            Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GRUULDOOR));
+            if(Door)
+                Door->SetGoState(1);
+               }
     }
 
     void UpdateAI(const uint32 diff)
