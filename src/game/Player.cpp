@@ -13626,11 +13626,8 @@ float Player::GetFloatValueFromArray(Tokens const& data, uint16 index)
 
 uint32 Player::GetUInt32ValueFromDB(uint16 index, uint64 guid)
 {
-    //rognar optimization
-    //must be improved!! "if" and "switch" - it's very not aesthetically :)))
-    //but we should know whith data is cached
-    //PLAYER_FIELD_ARENA_TEAM_INFO* very is often using with pvp&arena patch :)
-    if(       index == PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 0 * 6 + 5
+    // todo: cleanup in this, move to a separate function.
+    if(    index == PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 0 * 6 + 5
         || index == PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 1 * 6 + 5
         || index == PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 2 * 6 + 5
         || index == PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (0 * 6)
