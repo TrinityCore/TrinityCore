@@ -36,6 +36,7 @@
 #include "SkillExtraItems.h"
 #include "SkillDiscovery.h"
 #include "World.h"
+#include "AccountMgr.h"
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
 #include "Chat.h"
@@ -2337,33 +2338,21 @@ bool World::RemoveBanAccount(std::string type, std::string nameOrIP)
         uint32 account=0;
         if(type == "account")
         {
-            //NO SQL injection as name is escaped
-            loginDatabase.escape_string(nameOrIP);
-            QueryResult *resultAccounts = loginDatabase.PQuery("SELECT id FROM account WHERE username = '%s'",nameOrIP.c_str());
-            if(!resultAccounts)
+            if (!AccountMgr::normilizeString (nameOrIP))
                 return false;
-            Field* fieldsAccount = resultAccounts->Fetch();
-            account = fieldsAccount->GetUInt32();
-
-            delete resultAccounts;
+            
+            account = accmgr.GetId (nameOrIP);
         }
         else if(type == "character")
         {
             if(!normalizePlayerName(nameOrIP))
                 return false;
 
-            //NO SQL injection as name is escaped
-            loginDatabase.escape_string(nameOrIP);
-            QueryResult *resultAccounts = CharacterDatabase.PQuery("SELECT account FROM characters WHERE name = '%s'",nameOrIP.c_str());
-            if(!resultAccounts)
-                return false;
-            Field* fieldsAccount = resultAccounts->Fetch();
-            account = fieldsAccount->GetUInt32();
-
-            delete resultAccounts;
+            account = objmgr.GetPlayerAccountIdByPlayerName (nameOrIP);
         }
         if(!account)
             return false;
+            
         //NO SQL injection as account is uint32
         loginDatabase.PExecute("UPDATE account_banned SET active = '0' WHERE id = '%u'",account);
     }
