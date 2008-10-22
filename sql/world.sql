@@ -2682,6 +2682,7 @@ CREATE TABLE `quest_template` (
   `RewRepValue3` mediumint(9) NOT NULL default '0',
   `RewRepValue4` mediumint(9) NOT NULL default '0',
   `RewRepValue5` mediumint(9) NOT NULL default '0',
+  `RewHonorableKills` mediumint(9) unsigned NOT NULL default '0',
   `RewOrReqMoney` int(11) NOT NULL default '0',
   `RewMoneyMaxLevel` int(10) unsigned NOT NULL default '0',
   `RewSpell` mediumint(8) unsigned NOT NULL default '0',
