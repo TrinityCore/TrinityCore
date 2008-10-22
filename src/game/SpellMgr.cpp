@@ -1040,6 +1040,9 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
     {
         if(spellInfo_1->SpellFamilyFlags == spellInfo_2->SpellFamilyFlags)
             return true;
+        if(spellInfo_1->SpellFamilyName == SPELLFAMILY_SHAMAN)
+            if(IsElementalShield(spellInfo_1) && IsElementalShield(spellInfo_2))
+                return true;
         //Corruption & Seed of corruption
         if(spellInfo_1->SpellFamilyName == SPELLFAMILY_WARLOCK)
             if( spellInfo_1->SpellIconID == 313 && spellInfo_2->SpellIconID == 1932 ||

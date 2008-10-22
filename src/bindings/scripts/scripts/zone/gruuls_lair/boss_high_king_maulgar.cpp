@@ -16,43 +16,51 @@
 
 /* ScriptData
 SDName: Boss_High_King_Maulgar
-SD%Complete: 80
-SDComment: Verify that the script is working properly
+SD%Complete: 90
+SDComment: Correct timers, after whirlwind melee attack bug, prayer of healing
 SDCategory: Gruul's Lair
 EndScriptData */
 
 #include "precompiled.h"
 #include "def_gruuls_lair.h"
 
-#define SOUND_AGGRO              11367                      //"Gronn are the real power in outland."
-
-#define SOUND_ENRAGE             11368                      //"You will not defeat the hand of Gruul!"
-
-#define SOUND_OGRE_DEATH1        11369                      //"You won't kill next one so easy!"
-#define SOUND_OGRE_DEATH2        11370                      //"Pah! Does not prove anything!"
-#define SOUND_OGRE_DEATH3        11371                      //"I'm not afraid of you."
-#define SOUND_OGRE_DEATH4        11372                      //"Good, now you fight me!"
-
-#define SOUND_SLAY1              11373                      //"You not so tough afterall!"
-#define SOUND_SLAY2              11374                      //"Aha ha ha ha!"
-#define SOUND_SLAY3              11375                      //"Mulgar is king!"
-
-#define SOUND_DEATH              11376                      //"Gruul ...will crush you..."
+//Sounds
+#define SOUND_AGGRO             11367                      //"Gronn are the real power in outland."
+#define SOUND_ENRAGE            11368                      //"You will not defeat the hand of Gruul!"
+#define SOUND_OGRE_DEATH1       11369                      //"You won't kill next one so easy!"
+#define SOUND_OGRE_DEATH2       11370                      //"Pah! Does not prove anything!"
+#define SOUND_OGRE_DEATH3       11371                      //"I'm not afraid of you."
+#define SOUND_OGRE_DEATH4       11372                      //"Good, now you fight me!"
+#define SOUND_SLAY1             11373                      //"You not so tough afterall!"
+#define SOUND_SLAY2             11374                      //"Aha ha ha ha!"
+#define SOUND_SLAY3             11375                      //"Mulgar is king!"
+#define SOUND_DEATH             11376                      //"Gruul ...will crush you..."
 
 // High King Maulgar
-#define SPELL_ARCING_SMASH       39144
-#define SPELL_MIGHTY_BLOW        33230
-#define SPELL_WHIRLWIND          33238
-#define SPELL_ENRAGE             34970
+#define SPELL_ARCING_SMASH      39144
+#define SPELL_MIGHTY_BLOW       33230
+#define SPELL_WHIRLWIND         33238
+#define SPELL_BERSERKER_C              26561
+#define SPELL_ROAR                             16508
+#define SPELL_FLURRY                   33232
 
-// Council spells
+// Olm the Summoner
 #define SPELL_DARK_DECAY        33129
+#define SPELL_DEATH_COIL               33130
+#define SPELL_SUMMON_WFH               33131
+
+//Kiggler the Craed
 #define SPELL_GREATER_POLYMORPH 33173
 #define SPELL_LIGHTNING_BOLT    36152
 #define SPELL_ARCANE_SHOCK      33175
 #define SPELL_ARCANE_EXPLOSION  33237
+
+//Blindeye the Seer
 #define SPELL_GREATER_PW_SHIELD 33147
 #define SPELL_HEAL              33144
+#define SPELL_PRAYER_OH                        33152
+
+//Krosh Firehand
 #define SPELL_GREATER_FIREBALL  33051
 #define SPELL_SPELLSHIELD       33054
 #define SPELL_BLAST_WAVE        33061
@@ -74,6 +82,7 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
     uint32 MightyBlow_Timer;
     uint32 Whirlwind_Timer;
     uint32 Charging_Timer;
+       uint32 Roar_Timer;
 
     bool Phase2;
 
@@ -85,6 +94,8 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
         MightyBlow_Timer = 40000;
         Whirlwind_Timer = 30000;
         Charging_Timer = 0;
+               Roar_Timer = 0;
+
         Phase2 = false;
 
         Creature *pCreature = NULL;
@@ -103,7 +114,7 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
 
         //reset encounter
         if (pInstance)
-            pInstance->SetData(DATA_MAULGAREVENT, 0);
+            pInstance->SetData(DATA_MAULGAREVENT, NOT_STARTED);
     }
 
     void KilledUnit()
@@ -121,8 +132,27 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
         DoPlaySoundToSet(m_creature, SOUND_DEATH);
 
         if (pInstance)
-            pInstance->SetData(DATA_MAULGAREVENT, 0);
+               {
+            pInstance->SetData(DATA_MAULGAREVENT, DONE);
+
+                       GameObject* Door = NULL;
+                       Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_MAULGARDOOR));
+                       if(Door)
+                               Door->SetGoState(0);
+               }
     }
+
+       void AddDeath()
+       {
+               switch(rand()%3)
+               {
+               case 0: DoPlaySoundToSet(m_creature, SOUND_OGRE_DEATH1);break;
+               case 1: DoPlaySoundToSet(m_creature, SOUND_OGRE_DEATH2);break;
+               case 2: DoPlaySoundToSet(m_creature, SOUND_OGRE_DEATH3);break;
+               case 3: DoPlaySoundToSet(m_creature, SOUND_OGRE_DEATH4);break;
+               }
+       }
+
 
     void Aggro(Unit *who) { StartEvent(who); }
 
@@ -145,7 +175,9 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
         DoPlaySoundToSet(m_creature, SOUND_AGGRO);
 
         pInstance->SetData64(DATA_MAULGAREVENT_TANK, who->GetGUID());
-        pInstance->SetData(DATA_MAULGAREVENT, 1);
+        pInstance->SetData(DATA_MAULGAREVENT, IN_PROGRESS);
+
+               DoZoneInCombat();
     }
 
     void UpdateAI(const uint32 diff)
@@ -181,11 +213,11 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
         }else ArcingSmash_Timer -= diff;
 
         //Whirlwind_Timer
-        if (Whirlwind_Timer < diff)
-        {
-            DoCast(m_creature->getVictim(), SPELL_WHIRLWIND);
-            Whirlwind_Timer = 55000;
-        }else Whirlwind_Timer -= diff;
+               if (Whirlwind_Timer < diff)
+               {
+                       DoCast(m_creature->getVictim(), SPELL_WHIRLWIND);
+                       Whirlwind_Timer = 55000;
+               }else Whirlwind_Timer -= diff;
 
         //MightyBlow_Timer
         if (MightyBlow_Timer < diff)
@@ -199,6 +231,10 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
         {
             Phase2 = true;
             DoPlaySoundToSet(m_creature, SOUND_ENRAGE);
+                       DoCast(m_creature, SPELL_FLURRY);
+
+                       m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, 0);
+               m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY+1, 0);                
         }
 
         if(Phase2)
@@ -210,9 +246,17 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
                 target = SelectUnit(SELECT_TARGET_RANDOM, 0);
                 if(target)
                     DoStartAttackAndMovement(target);
+                                       DoCast(target, SPELL_BERSERKER_C);      
 
                 Charging_Timer = 20000;
             }else Charging_Timer -= diff;
+
+                       //Intimidating Roar
+                       if(Roar_Timer < diff)
+                       {
+                               DoCast(m_creature, SPELL_ROAR);
+                               Roar_Timer = 40000+(rand()%10000);
+                       }else Roar_Timer -= diff;
         }
 
         DoMeleeAttackIfReady();
@@ -230,6 +274,7 @@ struct TRINITY_DLL_DECL boss_olm_the_summonerAI : public ScriptedAI
 
     uint32 DarkDecay_Timer;
     uint32 Summon_Timer;
+       uint32 DeathCoil_Timer;
 
     ScriptedInstance* pInstance;
 
@@ -237,10 +282,11 @@ struct TRINITY_DLL_DECL boss_olm_the_summonerAI : public ScriptedAI
     {
         DarkDecay_Timer = 10000;
         Summon_Timer = 15000;
+               DeathCoil_Timer = 20000;
 
         //reset encounter
         if (pInstance)
-            pInstance->SetData(DATA_MAULGAREVENT, 0);
+            pInstance->SetData(DATA_MAULGAREVENT, NOT_STARTED);
     }
 
     void Aggro(Unit *who)
@@ -248,22 +294,21 @@ struct TRINITY_DLL_DECL boss_olm_the_summonerAI : public ScriptedAI
         if(pInstance)
         {
             pInstance->SetData64(DATA_MAULGAREVENT_TANK, who->GetGUID());
-            pInstance->SetData(DATA_MAULGAREVENT, 1);
+            pInstance->SetData(DATA_MAULGAREVENT, IN_PROGRESS);
         }
     }
 
-    float DoCalculateRandomLocation()
-    {
-        float Loc;
-        float Rand = rand()%8;
-
-        switch(rand()%2)
+       void JustDied(Unit* Killer)
+       {
+               if(pInstance)
         {
-            case 0: Loc = 0 + Rand; break;
-            case 1: Loc = 0 - Rand; break;
+            Creature *Maulgar = NULL;
+            Maulgar = (Creature*)(Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_MAULGAR)));
+
+            if(Maulgar)
+                ((boss_high_king_maulgarAI*)Maulgar->AI())->AddDeath();
         }
-        return Loc;
-    }
+       }
 
     void UpdateAI(const uint32 diff)
     {
@@ -296,10 +341,20 @@ struct TRINITY_DLL_DECL boss_olm_the_summonerAI : public ScriptedAI
         //Summon_Timer
         if(Summon_Timer < diff)
         {
-            Creature *Add = NULL;
-            Add = DoSpawnCreature(18847, DoCalculateRandomLocation(), DoCalculateRandomLocation(), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-            Summon_Timer = 30000;
+                       DoCast(m_creature, SPELL_SUMMON_WFH);
+                       Summon_Timer = 30000;
         }else Summon_Timer -= diff;
+
+               //DeathCoil Timer /need correct timer
+               if(DeathCoil_Timer < diff)
+               {
+                       Unit* target = NULL;
+                       target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                       if(target)
+                       DoCast(target, SPELL_DEATH_COIL);
+                       DeathCoil_Timer = 20000;
+               }else DeathCoil_Timer -= diff;
+
 
         DoMeleeAttackIfReady();
     }
@@ -314,7 +369,7 @@ struct TRINITY_DLL_DECL boss_kiggler_the_crazedAI : public ScriptedAI
         Reset();
     }
 
-    uint32 GreatherPolymorph_Timer;
+    uint32 GreaterPolymorph_Timer;
     uint32 LightningBolt_Timer;
     uint32 ArcaneShock_Timer;
     uint32 ArcaneExplosion_Timer;
@@ -323,14 +378,14 @@ struct TRINITY_DLL_DECL boss_kiggler_the_crazedAI : public ScriptedAI
 
     void Reset()
     {
-        GreatherPolymorph_Timer = 5000;
+        GreaterPolymorph_Timer = 5000;
         LightningBolt_Timer = 10000;
         ArcaneShock_Timer = 20000;
         ArcaneExplosion_Timer = 30000;
 
         //reset encounter
         if (pInstance)
-            pInstance->SetData(DATA_MAULGAREVENT, 0);
+            pInstance->SetData(DATA_MAULGAREVENT, NOT_STARTED);
     }
 
     void Aggro(Unit *who)
@@ -338,10 +393,21 @@ struct TRINITY_DLL_DECL boss_kiggler_the_crazedAI : public ScriptedAI
         if(pInstance)
         {
             pInstance->SetData64(DATA_MAULGAREVENT_TANK, who->GetGUID());
-            pInstance->SetData(DATA_MAULGAREVENT, 1);
+            pInstance->SetData(DATA_MAULGAREVENT, IN_PROGRESS);
         }
     }
 
+       void JustDied(Unit* Killer)
+       {
+               if(pInstance)
+        {
+            Creature *Maulgar = NULL;
+            Maulgar = (Creature*)(Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_MAULGAR)));
+
+            if(Maulgar)
+                ((boss_high_king_maulgarAI*)Maulgar->AI())->AddDeath();
+        }
+       }
     void MoveInLineOfSight(Unit *who)
     {
         if (!m_creature->getVictim() && who->isTargetableForAttack() && who->isInAccessablePlaceFor(m_creature) && m_creature->IsHostileTo(who))
@@ -361,7 +427,7 @@ struct TRINITY_DLL_DECL boss_kiggler_the_crazedAI : public ScriptedAI
                     if(pInstance)
                     {
                         pInstance->SetData64(DATA_MAULGAREVENT_TANK, who->GetGUID());
-                        pInstance->SetData(DATA_MAULGAREVENT, 1);
+                        pInstance->SetData(DATA_MAULGAREVENT, IN_PROGRESS);
                     }
                 }
             }
@@ -389,15 +455,15 @@ struct TRINITY_DLL_DECL boss_kiggler_the_crazedAI : public ScriptedAI
         if(pInstance && !pInstance->GetData(DATA_MAULGAREVENT))
             EnterEvadeMode();
 
-        //GreaterPolymorph_Timer / disabled: it makes you fall under the texture / if you've got vmaps feel free to uncomment this
-        /*if(GreaterPolymorph_Timer < diff)
+        //GreaterPolymorph_Timer
+        if(GreaterPolymorph_Timer < diff)
         {
             Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
             if(target)
                 DoCast(target, SPELL_GREATER_POLYMORPH);
 
             GreaterPolymorph_Timer = 20000;
-        }else GreaterPolymorph_Timer -= diff;*/
+        }else GreaterPolymorph_Timer -= diff;
 
         //LightningBolt_Timer
         if(LightningBolt_Timer < diff)
@@ -445,7 +511,7 @@ struct TRINITY_DLL_DECL boss_blindeye_the_seerAI : public ScriptedAI
 
         //reset encounter
         if (pInstance)
-            pInstance->SetData(DATA_MAULGAREVENT, 0);
+            pInstance->SetData(DATA_MAULGAREVENT, NOT_STARTED);
     }
 
     void Aggro(Unit *who)
@@ -453,9 +519,21 @@ struct TRINITY_DLL_DECL boss_blindeye_the_seerAI : public ScriptedAI
         if(pInstance)
         {
             pInstance->SetData64(DATA_MAULGAREVENT_TANK, who->GetGUID());
-            pInstance->SetData(DATA_MAULGAREVENT, 1);
+            pInstance->SetData(DATA_MAULGAREVENT, IN_PROGRESS);
         }
     }
+
+       void JustDied(Unit* Killer)
+       {
+               if(pInstance)
+        {
+            Creature *Maulgar = NULL;
+            Maulgar = (Creature*)(Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_MAULGAR)));
+
+            if(Maulgar)
+                ((boss_high_king_maulgarAI*)Maulgar->AI())->AddDeath();
+        }
+       }
 
     void MoveInLineOfSight(Unit *who)
     {
@@ -476,7 +554,7 @@ struct TRINITY_DLL_DECL boss_blindeye_the_seerAI : public ScriptedAI
                     if(pInstance)
                     {
                         pInstance->SetData64(DATA_MAULGAREVENT_TANK, who->GetGUID());
-                        pInstance->SetData(DATA_MAULGAREVENT, 1);
+                        pInstance->SetData(DATA_MAULGAREVENT, IN_PROGRESS);
                     }
                 }
             }
@@ -545,7 +623,7 @@ struct TRINITY_DLL_DECL boss_krosh_firehandAI : public ScriptedAI
 
         //reset encounter
         if (pInstance)
-            pInstance->SetData(DATA_MAULGAREVENT, 0);
+            pInstance->SetData(DATA_MAULGAREVENT, NOT_STARTED);
     }
 
     void Aggro(Unit *who)
@@ -553,10 +631,21 @@ struct TRINITY_DLL_DECL boss_krosh_firehandAI : public ScriptedAI
         if(pInstance)
         {
             pInstance->SetData64(DATA_MAULGAREVENT_TANK, who->GetGUID());
-            pInstance->SetData(DATA_MAULGAREVENT, 1);
+            pInstance->SetData(DATA_MAULGAREVENT, IN_PROGRESS);
         }
     }
 
+       void JustDied(Unit* Killer)
+       {
+               if(pInstance)
+        {
+            Creature *Maulgar = NULL;
+            Maulgar = (Creature*)(Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_MAULGAR)));
+
+            if(Maulgar)
+                ((boss_high_king_maulgarAI*)Maulgar->AI())->AddDeath();
+        }
+       }
     void MoveInLineOfSight(Unit *who)
     {
         if (!m_creature->getVictim() && who->isTargetableForAttack() && who->isInAccessablePlaceFor(m_creature) && m_creature->IsHostileTo(who))
@@ -576,7 +665,7 @@ struct TRINITY_DLL_DECL boss_krosh_firehandAI : public ScriptedAI
                     if(pInstance)
                     {
                         pInstance->SetData64(DATA_MAULGAREVENT_TANK, who->GetGUID());
-                        pInstance->SetData(DATA_MAULGAREVENT, 1);
+                        pInstance->SetData(DATA_MAULGAREVENT, IN_PROGRESS);
                     }
                 }
             }
@@ -605,7 +694,7 @@ struct TRINITY_DLL_DECL boss_krosh_firehandAI : public ScriptedAI
             EnterEvadeMode();
 
         //GreaterFireball_Timer
-        if(GreaterFireball_Timer < diff)
+        if(GreaterFireball_Timer < diff || m_creature->GetDistance(m_creature->getVictim()) < 30)
         {
             DoCast(m_creature->getVictim(), SPELL_GREATER_FIREBALL);
             GreaterFireball_Timer = 2000;
@@ -622,8 +711,22 @@ struct TRINITY_DLL_DECL boss_krosh_firehandAI : public ScriptedAI
         //BlastWave_Timer
         if(BlastWave_Timer < diff)
         {
+                       Unit *target;
+            std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();
+            std::vector<Unit *> target_list;
+            for(std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            {
+                target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+                                                            //15 yard radius minimum
+                if(target && target->GetDistance2d(m_creature) < 15)
+                    target_list.push_back(target);
+                target = NULL;
+            }
+            if(target_list.size())
+                target = *(target_list.begin()+rand()%target_list.size());
+
             m_creature->InterruptNonMeleeSpells(false);
-            DoCast(m_creature->getVictim(), SPELL_BLAST_WAVE);
+                       DoCast(target, SPELL_BLAST_WAVE);
             BlastWave_Timer = 60000;
         }else BlastWave_Timer -= diff;
 

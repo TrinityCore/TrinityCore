@@ -165,10 +165,9 @@ WaypointMovementGenerator<Creature>::Update(Creature &creature, const uint32 &di
                     else
                         creature.Say(behavior->text[0].c_str(), 0, 0);
                 }
-
-                i_hasDone[idx] = true;
-                MovementInform(creature);
             }                                               // wpBehaviour found
+            i_hasDone[idx] = true;
+            MovementInform(creature);
         }                                                   // HasDone == false
     }                                                       // i_creature.IsStopped()
 
