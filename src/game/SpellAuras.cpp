@@ -1952,9 +1952,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 return;
             case 43873:                                     // Headless Horseman Laugh
                 if(caster->GetTypeId() == TYPEID_PLAYER)
-                {
                     ((Player*)caster)->SendPlaySound(11965, false);
-                }
                 return;
             case 46354:                                     // Blood Elf Illusion
                 if(caster)
@@ -2506,16 +2504,12 @@ void Aura::HandleAuraModShapeshift(bool apply, bool Real)
     {
         // remove other shapeshift before applying a new one
         if(m_target->m_ShapeShiftFormSpellId)
-        {
             m_target->RemoveAurasDueToSpell(m_target->m_ShapeShiftFormSpellId,this);
-        }
 
         m_target->SetByteValue(UNIT_FIELD_BYTES_2, 3, form);
 
         if(modelid > 0)
-        {
             m_target->SetDisplayId(modelid);
-        }
 
         if(PowerType != POWER_MANA)
         {
@@ -2545,17 +2539,13 @@ void Aura::HandleAuraModShapeshift(bool apply, bool Real)
                     {
                         m_target->SetPower(POWER_ENERGY,0);
                         if(urand(1,100) <= FurorChance)
-                        {
                             m_target->CastSpell(m_target,17099,true,NULL,this);
-                        }
                     }
                     else
                     {
                         m_target->SetPower(POWER_RAGE,0);
                         if(urand(1,100) <= FurorChance)
-                        {
                             m_target->CastSpell(m_target,17057,true,NULL,this);
-                        }
                     }
                     break;
                 }
@@ -2947,9 +2937,8 @@ void Aura::HandleModPossess(bool apply, bool Real)
         m_target->SetCharmerGUID(0);
 
         if(m_target->GetTypeId() == TYPEID_PLAYER)
-        {
             ((Player*)m_target)->setFactionForRace(m_target->getRace());
-        }
+
         else if(m_target->GetTypeId() == TYPEID_UNIT)
         {
             CreatureInfo const *cinfo = ((Creature*)m_target)->GetCreatureInfo();
@@ -3056,9 +3045,7 @@ void Aura::HandleModCharm(bool apply, bool Real)
             m_target->SetCharmerGUID(0);
 
             if(m_target->GetTypeId() == TYPEID_PLAYER)
-            {
                 ((Player*)m_target)->setFactionForRace(m_target->getRace());
-            }
             else
             {
                 CreatureInfo const *cinfo = ((Creature*)m_target)->GetCreatureInfo();
@@ -3642,9 +3629,7 @@ void Aura::HandleModTaunt(bool apply, bool Real)
         return;
 
     if(apply)
-    {
         m_target->TauntApply(caster);
-    }
     else
     {
         // When taunt aura fades out, mob will switch to previous target if current has less than 1.1 * secondthreat
@@ -4316,18 +4301,14 @@ void Aura::HandleAuraModBaseResistancePCT(bool apply, bool Real)
     {
         //pets only have base armor
         if(((Creature*)m_target)->isPet() && (m_modifier.m_miscvalue & SPELL_SCHOOL_MASK_NORMAL))
-        {
             m_target->HandleStatModifier(UNIT_MOD_ARMOR, BASE_PCT, float(m_modifier.m_amount), apply);
-        }
     }
     else
     {
         for(int8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL;x++)
         {
             if(m_modifier.m_miscvalue & int32(1<<x))
-            {
                 m_target->HandleStatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + x), BASE_PCT, float(m_modifier.m_amount), apply);
-            }
         }
     }
 }
@@ -4405,9 +4386,7 @@ void Aura::HandleModPercentStat(bool apply, bool Real)
     for (int32 i = STAT_STRENGTH; i < MAX_STATS; ++i)
     {
         if(m_modifier.m_miscvalue == i || m_modifier.m_miscvalue == -1)
-        {
             m_target->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), BASE_PCT, float(m_modifier.m_amount), apply);
-        }
     }
 }
 
@@ -5322,9 +5301,7 @@ void Aura::HandleAuraEmpathy(bool apply, bool Real)
 
     CreatureInfo const * ci = objmgr.GetCreatureTemplate(m_target->GetEntry());
     if(ci && ci->type == CREATURE_TYPE_BEAST)
-    {
         m_target->ApplyModUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO, apply);
-    }
 }
 
 void Aura::HandleAuraUntrackable(bool apply, bool Real)
