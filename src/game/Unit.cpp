@@ -448,19 +448,6 @@ bool Unit::HasAuraType(AuraType auraType) const
     return (!m_modAuras[auraType].empty());
 }
 
-/* Called by DealDamage for auras that have a chance to be dispelled on damage taken. */
-void Unit::RemoveSpellbyDamageTaken(AuraType auraType, uint32 damage)
-{
-    if(!HasAuraType(auraType))
-        return;
-
-    // The chance to dispell an aura depends on the damage taken with respect to the casters level.
-    uint32 max_dmg = getLevel() > 8 ? 25 * getLevel() - 150 : 50;
-    float chance = float(damage) / max_dmg * 100.0f;
-    if (roll_chance_f(chance))
-        RemoveSpellsCausingAura(auraType);
-}
-
 uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellEntry const *spellProto, bool durabilityLoss)
 {
     if (!pVictim->isAlive() || pVictim->isInFlight() || pVictim->GetTypeId() == TYPEID_UNIT && ((Creature*)pVictim)->IsInEvadeMode())
@@ -485,9 +472,6 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
         RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
 
-        if(pVictim != this)
-            RemoveSpellsCausingAura(SPELL_AURA_MOD_INVISIBILITY);
-
         if(pVictim->GetTypeId() == TYPEID_PLAYER && !pVictim->IsStandState() && !pVictim->hasUnitState(UNIT_STAT_STUNNED))
             pVictim->SetStandState(PLAYER_STATE_NONE);
     }
@@ -504,11 +488,6 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
 
         return 0;
     }
-
-    pVictim->RemoveSpellbyDamageTaken(SPELL_AURA_MOD_FEAR, damage);
-    // root type spells do not dispell the root effect
-    if(!spellProto || spellProto->Mechanic != MECHANIC_ROOT)
-        pVictim->RemoveSpellbyDamageTaken(SPELL_AURA_MOD_ROOT, damage);
 
     if(pVictim->GetTypeId() != TYPEID_PLAYER)
     {
@@ -888,6 +867,16 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
                 {
                     pVictim->RemoveAurasDueToSpell(i->second->GetId());
                     // FIXME: this may cause the auras with proc chance to be rerolled several times
+                    next = vAuras.begin();
+                }
+            }
+            else if ( (se->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE) && (!spellProto || se->Id != spellProto->Id) )
+            {
+                uint32 max_dmg = pVictim->getLevel() > 8 ? 25 * pVictim->getLevel() - 150 : 50;
+                float chance = float(damage) / max_dmg * 100.0f;
+                if (roll_chance_f(chance))
+                {
+                    pVictim->RemoveAurasDueToSpell(i->second->GetId());
                     next = vAuras.begin();
                 }
             }
