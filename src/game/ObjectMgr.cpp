@@ -185,7 +185,7 @@ void ObjectMgr::LoadPlayerInfoInCache()
     QueryResult *result = CharacterDatabase.PQuery("SELECT guid, name, data, class  FROM characters");
     if(!result)
     {
-        sLog.outError( "ROGNAR LoadPlayerCache");
+        sLog.outError( "Loading Player Cache failed.");
         return;
     }
 
@@ -203,17 +203,17 @@ void ObjectMgr::LoadPlayerInfoInCache()
 
         tdata.clear();
         tdata = StrSplit(fields[2].GetCppString(), " ");
-        
-        pPPlayerInfo->unLevel = (uint32)atoi(tdata[UNIT_FIELD_LEVEL].c_str());
-        pPPlayerInfo->unfield = (uint32)atoi(tdata[UNIT_FIELD_BYTES_0].c_str());
 
-        pPPlayerInfo->unArenaInfoId0 = (uint32)atoi(tdata[PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (0 * 6)].c_str());
-        pPPlayerInfo->unArenaInfoId1 = (uint32)atoi(tdata[PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (1 * 6)].c_str());
-        pPPlayerInfo->unArenaInfoId2 = (uint32)atoi(tdata[PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (2 * 6)].c_str());
+        pPPlayerInfo->unLevel = Player::GetUInt32ValueFromArray(tdata,UNIT_FIELD_LEVEL);
+        pPPlayerInfo->unfield = Player::GetUInt32ValueFromArray(tdata,UNIT_FIELD_BYTES_0);
 
-        pPPlayerInfo->unArenaInfoSlot0 = (uint32)atoi(tdata[PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 0 * 6 + 5].c_str());
-        pPPlayerInfo->unArenaInfoSlot1 = (uint32)atoi(tdata[PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 1 * 6 + 5].c_str());
-        pPPlayerInfo->unArenaInfoSlot2 = (uint32)atoi(tdata[PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 2 * 6 + 5].c_str());
+        pPPlayerInfo->unArenaInfoId0 = Player::GetUInt32ValueFromArray(tdata,PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 0 * 6);
+        pPPlayerInfo->unArenaInfoId1 = Player::GetUInt32ValueFromArray(tdata,PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 1 * 6);
+        pPPlayerInfo->unArenaInfoId2 = Player::GetUInt32ValueFromArray(tdata,PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 2 * 6);
+
+        pPPlayerInfo->unArenaInfoSlot0 = Player::GetUInt32ValueFromArray(tdata,PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 0 * 6 + 5);
+        pPPlayerInfo->unArenaInfoSlot1 = Player::GetUInt32ValueFromArray(tdata,PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 1 * 6 + 5);
+        pPPlayerInfo->unArenaInfoSlot2 = Player::GetUInt32ValueFromArray(tdata,PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 2 * 6 + 5);
     
         pPPlayerInfo->unClass = (uint32)fields[3].GetUInt32();
         m_mPlayerInfoMap[fields[0].GetUInt32()] = pPPlayerInfo;
