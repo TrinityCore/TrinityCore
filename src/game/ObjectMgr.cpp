@@ -1365,6 +1365,19 @@ uint32 ObjectMgr::GetPlayerAccountIdByGUID(const uint64 &guid) const
     return 0;
 }
 
+uint32 ObjectMgr::GetPlayerAccountIdByPlayerName(std::string name) const
+{
+    QueryResult *result = CharacterDatabase.PQuery("SELECT account FROM characters WHERE name = '%s'", name.c_str());
+    if(result)
+    {
+        uint32 acc = (*result)[0].GetUInt32();
+        delete result;
+        return acc;
+    }
+
+    return 0;
+}
+
 void ObjectMgr::LoadAuctions()
 {
     QueryResult *result = CharacterDatabase.Query("SELECT COUNT(*) FROM auctionhouse");
