@@ -1,8 +1,6 @@
 /* 
  * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
  *
- * Thanks to the original authors: MaNGOS <http://www.mangosproject.org/>
- *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
