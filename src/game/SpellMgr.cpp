@@ -1038,7 +1038,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
 
     if(spellInfo_1->SpellFamilyName && spellInfo_1->SpellFamilyName == spellInfo_2->SpellFamilyName) //resurrection sickness
     {
-        if(spellInfo_1->SpellFamilyFlags == spellInfo_2->SpellFamilyFlags)
+        if(spellInfo_1->SpellFamilyFlags && spellInfo_1->SpellFamilyFlags == spellInfo_2->SpellFamilyFlags)
             return true;
         if(spellInfo_1->SpellFamilyName == SPELLFAMILY_SHAMAN)
             if(IsElementalShield(spellInfo_1) && IsElementalShield(spellInfo_2))
