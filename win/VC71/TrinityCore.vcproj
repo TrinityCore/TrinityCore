@@ -212,6 +212,14 @@ copy ..\..\src\trinitycore\trinitycore.conf.dist ..\..\bin\$(PlatformName)_$(Con
 			RelativePath="..\..\src\trinitycore\TrinityCore.rc">
 		</File>
 		<File
+			RelativePath="..\..\src\shared\WheatyExceptionReport.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\src\shared\WheatyExceptionReport.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\src\trinitycore\WorldRunnable.cpp">
 		</File>
 		<File
