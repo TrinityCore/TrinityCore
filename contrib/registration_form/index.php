@@ -133,7 +133,7 @@ if (!empty($_POST)) {
                 };
 				unset($qry);
                 $sha_pass_hash = sha1(strtoupper($username) . ":" . strtoupper($password));
-                $register_sql = "insert into " . mysql_real_escape_string($r_db) . ".account (username, sha_pass_hash, email, tbc) values (upper('" . $username . "'),'" . $sha_pass_hash . "','" . $email . "','" . $tbc . "')";
+                $register_sql = "insert into " . mysql_real_escape_string($r_db) . ".account (username, sha_pass_hash, email, expansion) values (upper('" . $username . "'),'" . $sha_pass_hash . "','" . $email . "','" . $tbc . "')";
                 $qry = @mysql_query($register_sql, $con);
 				if (!$qry) {
 					error_s("Error creating account: " . mysql_error());
