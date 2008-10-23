@@ -82,7 +82,7 @@ struct TRINITY_DLL_DECL npc_blood_knight_stillbladeAI : public ScriptedAI
             m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
             m_creature->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
             //m_creature->RemoveAllAuras();
-            DoSay(SAY_HEAL,LANG_COMMON,NULL);
+            DoSay(SAY_HEAL,LANG_THALASSIAN,NULL);
             spellHit = true;
         }
     }
