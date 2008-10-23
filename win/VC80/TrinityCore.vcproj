@@ -494,6 +494,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\src\shared\WheatyExceptionReport.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\src\shared\WheatyExceptionReport.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\src\trinitycore\WorldRunnable.cpp"
 			>
 		</File>
