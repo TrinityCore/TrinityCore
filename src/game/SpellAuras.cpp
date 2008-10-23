@@ -3770,7 +3770,7 @@ void Aura::HandleModMechanicImmunity(bool apply, bool Real)
     }
 
     // Bestial Wrath
-    if ( GetSpellProto()->SpellFamilyName == SPELLFAMILY_HUNTER && GetSpellProto()->SpellIconID == 1680)
+    if ( GetSpellProto()->SpellFamilyName == SPELLFAMILY_HUNTER && GetSpellProto()->Id == 19574)
     {
         // The Beast Within cast on owner if talent present
         if ( Unit* owner = m_target->GetOwner() )
