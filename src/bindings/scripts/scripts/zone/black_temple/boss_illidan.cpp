@@ -585,7 +585,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         case 1://lift off
             m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
             //m_creature->GetMotionMaster()->Clear(false);
-            m_creature->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
+            m_creature->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING + MOVEMENTFLAG_ONTRANSPORT);
             //m_creature->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ());
             m_creature->StopMoving();
             DoYell(SAY_TAKEOFF, LANG_UNIVERSAL, NULL);
@@ -594,9 +594,9 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             break;
         case 2://move to center
             //m_creature->GetMotionMaster()->Clear(false);
-            m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+            //m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
             m_creature->GetMotionMaster()->MovePoint(0, CENTER_X + 5, CENTER_Y, CENTER_Z); //+5, for SPELL_THROW_GLAIVE bug
-            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+            //m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
             Timer[EVENT_FLIGHT_SEQUENCE] = 0;
             break;
         case 3://throw one glaive
@@ -636,15 +636,15 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             Timer[EVENT_FLIGHT_SEQUENCE] = 3000;
             break;
         case 6://fly to hover point
-            m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+            //m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
             m_creature->GetMotionMaster()->MovePoint(0, HoverPosition[HoverPoint].x, HoverPosition[HoverPoint].y, HoverPosition[HoverPoint].z);
-            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+            //m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
             Timer[EVENT_FLIGHT_SEQUENCE] = 0;
             break;
         case 7://return to center
-            m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+            //m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
             m_creature->GetMotionMaster()->MovePoint(0, CENTER_X, CENTER_Y, CENTER_Z);
-            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+            //m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
             Timer[EVENT_FLIGHT_SEQUENCE] = 0;
             break;
         case 8://glaive return
@@ -664,7 +664,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             break;
         case 9://land
             //m_creature->GetMotionMaster()->Clear(false);
-            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING + MOVEMENTFLAG_ONTRANSPORT);
             //m_creature->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ());
             m_creature->StopMoving();
             m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
@@ -1616,7 +1616,8 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if((!m_creature->SelectHostilTarget() || !m_creature->getVictim()) && !Timer[1])
+        if((!m_creature->SelectHostilTarget() || !m_creature->getVictim()) 
+            && !Timer[EVENT_MAIEV_STEALTH])
             return;
 
         Event = EVENT_MAIEV_NULL;
@@ -2107,7 +2108,7 @@ void boss_illidan_stormrageAI::Reset()
     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, 0);
     m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY+1, 0);
-    m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+    m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING + MOVEMENTFLAG_ONTRANSPORT);
 
     DoCast(m_creature, SPELL_DUAL_WIELD, true);
 }
