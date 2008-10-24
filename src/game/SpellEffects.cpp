@@ -1771,12 +1771,10 @@ void Spell::EffectTriggerSpell(uint32 i)
             for(Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end(); ++iter)
             {
                 // remove all harmful spells on you...
-                if( // ignore positive and passive auras
-                    !iter->second->IsPositive() && !iter->second->IsPassive()    &&
-                    // only affect magic spells
-                    iter->second->GetSpellProto()->DmgClass == SPELL_DAMAGE_CLASS_MAGIC &&
-                    // ignore immunity persistent spells
-                    !( iter->second->GetSpellProto()->AttributesEx & 0x10000 ) )
+                if(// only affect magic spells
+                    iter->second->GetSpellProto()->DmgClass == SPELL_DAMAGE_CLASS_MAGIC
+                    // ignore positive and passive auras
+                    && !iter->second->IsPositive() && !iter->second->IsPassive())
                 {
                     m_caster->RemoveAurasDueToSpell(iter->second->GetSpellProto()->Id);
                     iter = Auras.begin();

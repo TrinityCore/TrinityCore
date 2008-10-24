@@ -25,40 +25,52 @@ EndScriptData */
 #include "def_gruuls_lair.h"
 
 //Sounds
-#define SOUND_AGGRO             11367                      //"Gronn are the real power in outland."
-#define SOUND_ENRAGE            11368                      //"You will not defeat the hand of Gruul!"
-#define SOUND_OGRE_DEATH1       11369                      //"You won't kill next one so easy!"
-#define SOUND_OGRE_DEATH2       11370                      //"Pah! Does not prove anything!"
-#define SOUND_OGRE_DEATH3       11371                      //"I'm not afraid of you."
-#define SOUND_OGRE_DEATH4       11372                      //"Good, now you fight me!"
-#define SOUND_SLAY1             11373                      //"You not so tough afterall!"
-#define SOUND_SLAY2             11374                      //"Aha ha ha ha!"
-#define SOUND_SLAY3             11375                      //"Mulgar is king!"
-#define SOUND_DEATH             11376                      //"Gruul ...will crush you..."
+#define SOUND_AGGRO             11367
+#define SOUND_ENRAGE            11368
+#define SOUND_OGRE_DEATH1       11369
+#define SOUND_OGRE_DEATH2       11370
+#define SOUND_OGRE_DEATH3       11371
+#define SOUND_OGRE_DEATH4       11372
+#define SOUND_SLAY1             11373
+#define SOUND_SLAY2             11374
+#define SOUND_SLAY3             11375
+#define SOUND_DEATH             11376
+
+//Yells
+#define SAY_AGGRO				"Gronn are the real power in Outland!"
+#define SAY_ENRAGE				"You will not defeat the Hand of Gruul!"
+#define SAY_OGRE_DEATH1			"You not kill next one so easy!"
+#define SAY_OGRE_DEATH2			"Does not mean anything!"
+#define SAY_OGRE_DEATH3			"I'm not afraid of you!"
+#define SAY_OGRE_DEATH4			"Good, now you fight me!"
+#define SAY_SLAY1				"You not so tough after all!"
+#define SAY_SLAY2				"Ahahahaha!"
+#define SAY_SLAY3				"Maulgar is king!"
+#define SAY_DEATH				"Gruul will... crush you!"
 
 // High King Maulgar
 #define SPELL_ARCING_SMASH      39144
 #define SPELL_MIGHTY_BLOW       33230
 #define SPELL_WHIRLWIND         33238
-#define SPELL_BERSERKER_C              26561
-#define SPELL_ROAR                             16508
-#define SPELL_FLURRY                   33232
+#define SPELL_BERSERKER_C       26561
+#define SPELL_ROAR              16508
+#define SPELL_FLURRY            33232
 
 // Olm the Summoner
 #define SPELL_DARK_DECAY        33129
-#define SPELL_DEATH_COIL               33130
-#define SPELL_SUMMON_WFH               33131
+#define SPELL_DEATH_COIL        33130
+#define SPELL_SUMMON_WFH        33131
 
 //Kiggler the Craed
-#define SPELL_GREATER_POLYMORPH 33173
-#define SPELL_LIGHTNING_BOLT    36152
-#define SPELL_ARCANE_SHOCK      33175
-#define SPELL_ARCANE_EXPLOSION  33237
+#define SPELL_GREATER_POLYMORPH 	33173
+#define SPELL_LIGHTNING_BOLT    	36152
+#define SPELL_ARCANE_SHOCK      	33175
+#define SPELL_ARCANE_EXPLOSION  	33237
 
 //Blindeye the Seer
-#define SPELL_GREATER_PW_SHIELD 33147
-#define SPELL_HEAL              33144
-#define SPELL_PRAYER_OH                        33152
+#define SPELL_GREATER_PW_SHIELD 		33147
+#define SPELL_HEAL              		33144
+#define SPELL_PRAYER_OH                 33152
 
 //Krosh Firehand
 #define SPELL_GREATER_FIREBALL  33051
@@ -82,7 +94,7 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
     uint32 MightyBlow_Timer;
     uint32 Whirlwind_Timer;
     uint32 Charging_Timer;
-       uint32 Roar_Timer;
+    uint32 Roar_Timer;
 
     bool Phase2;
 
@@ -119,18 +131,28 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
 
     void KilledUnit()
     {
-        switch(rand()%2)
+        switch(rand()%3)
         {
-            case 0:  DoPlaySoundToSet(m_creature, SOUND_SLAY1);  break;
-            case 1:  DoPlaySoundToSet(m_creature, SOUND_SLAY2);  break;
-            case 2:  DoPlaySoundToSet(m_creature, SOUND_SLAY3);  break;
+            case 0:
+                DoYell(SAY_SLAY1, LANG_UNIVERSAL, NULL);
+                DoPlaySoundToSet(m_creature, SOUND_SLAY1);
+                break;
+            case 1:
+                DoYell(SAY_SLAY2, LANG_UNIVERSAL, NULL);
+                DoPlaySoundToSet(m_creature, SOUND_SLAY2);
+                break;
+            case 2:
+                DoYell(SAY_SLAY3, LANG_UNIVERSAL, NULL);
+                DoPlaySoundToSet(m_creature, SOUND_SLAY3);
+                break;
         }
     }
 
     void JustDied(Unit* Killer)
     {
         DoPlaySoundToSet(m_creature, SOUND_DEATH);
-
+		DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
+		
         if (pInstance)
                {
             pInstance->SetData(DATA_MAULGAREVENT, DONE);
@@ -144,13 +166,25 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
 
        void AddDeath()
        {
-               switch(rand()%3)
-               {
-               case 0: DoPlaySoundToSet(m_creature, SOUND_OGRE_DEATH1);break;
-               case 1: DoPlaySoundToSet(m_creature, SOUND_OGRE_DEATH2);break;
-               case 2: DoPlaySoundToSet(m_creature, SOUND_OGRE_DEATH3);break;
-               case 3: DoPlaySoundToSet(m_creature, SOUND_OGRE_DEATH4);break;
-               }
+            switch(rand()%4)
+			{
+				case 0:
+					DoYell(SAY_OGRE_DEATH1, LANG_UNIVERSAL, NULL);
+					DoPlaySoundToSet(m_creature, SOUND_OGRE_DEATH1);
+					break;
+				case 1:
+					DoYell(SAY_OGRE_DEATH2, LANG_UNIVERSAL, NULL);
+					DoPlaySoundToSet(m_creature, SOUND_OGRE_DEATH2);
+					break;
+				case 2:
+					DoYell(SAY_OGRE_DEATH3, LANG_UNIVERSAL, NULL);
+					DoPlaySoundToSet(m_creature, SOUND_OGRE_DEATH3);
+					break;
+				case 3:
+					DoYell(SAY_OGRE_DEATH4, LANG_UNIVERSAL, NULL);
+					DoPlaySoundToSet(m_creature, SOUND_OGRE_DEATH4);
+					break;
+			}
        }
 
 
@@ -173,7 +207,8 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
         GetCouncil();
 
         DoPlaySoundToSet(m_creature, SOUND_AGGRO);
-
+		DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
+		
         pInstance->SetData64(DATA_MAULGAREVENT_TANK, who->GetGUID());
         pInstance->SetData(DATA_MAULGAREVENT, IN_PROGRESS);
 
@@ -231,10 +266,11 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
         {
             Phase2 = true;
             DoPlaySoundToSet(m_creature, SOUND_ENRAGE);
-                       DoCast(m_creature, SPELL_FLURRY);
-
-                       m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, 0);
-               m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY+1, 0);                
+            DoYell(SAY_ENRAGE, LANG_UNIVERSAL, NULL);
+			DoCast(m_creature, SPELL_FLURRY);
+			
+            m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, 0);
+            m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY+1, 0);                
         }
 
         if(Phase2)

@@ -65,6 +65,21 @@ bool ItemUse_item_area_52_special(Player *player, Item* _Item, SpellCastTargets 
 }
 
 /*#####
+# item_arcane_charges
+#####*/
+
+bool ItemUse_item_arcane_charges(Player *player, Item* _Item, SpellCastTargets const& targets)
+{
+    // allow use in flight only
+    if( player->isInFlight() )
+        return false;
+
+    // error
+    player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,_Item,NULL);
+    return true;
+}
+
+/*#####
 # item_attuned_crystal_cores
 #####*/
 
@@ -440,6 +455,11 @@ void AddSC_item_scripts()
     newscript = new Script;
     newscript->Name="item_area_52_special";
     newscript->pItemUse = ItemUse_item_area_52_special;
+    m_scripts[nrscripts++] = newscript;
+
+    newscript = new Script;
+    newscript->Name="item_arcane_charges";
+    newscript->pItemUse = ItemUse_item_arcane_charges;
     m_scripts[nrscripts++] = newscript;
 
     newscript = new Script;

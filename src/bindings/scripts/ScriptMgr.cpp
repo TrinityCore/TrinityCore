@@ -341,7 +341,6 @@ extern void AddSC_boss_maiden_of_virtue();
 extern void AddSC_boss_shade_of_aran();
 extern void AddSC_boss_malchezaar();
 extern void AddSC_boss_terestian_illhoof();
-extern void AddSC_netherspite_infernal();
 extern void AddSC_boss_moroes();
 extern void AddSC_bosses_opera();
 extern void AddSC_instance_karazhan();
@@ -1531,7 +1530,6 @@ void ScriptsInit()
     AddSC_boss_shade_of_aran();
     AddSC_boss_malchezaar();
     AddSC_boss_terestian_illhoof();
-    AddSC_netherspite_infernal();
     AddSC_boss_moroes();
     AddSC_bosses_opera();
     AddSC_instance_karazhan();
