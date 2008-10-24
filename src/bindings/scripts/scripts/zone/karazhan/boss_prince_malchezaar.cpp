@@ -22,6 +22,7 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_karazhan.h"
 
 #define SAY_AGGRO           "Madness has brought you here to me. I shall be your undoing!"
 #define SOUND_AGGRO         9218
@@ -161,8 +162,13 @@ struct TRINITY_DLL_DECL netherspite_infernalAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 {
-    boss_malchezaarAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_malchezaarAI(Creature *c) : ScriptedAI(c) 
+    {
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        Reset();
+    }
 
+    ScriptedInstance *pInstance;
     uint32 EnfeebleTimer;
     uint32 EnfeebleResetTimer;
     uint32 ShadowNovaTimer;
@@ -204,6 +210,15 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         InfernalCleanupTimer = 47000;
         AxesTargetSwitchTimer = 7500 + rand()%12500;
         phase = 1;
+
+        if(pInstance)
+        {
+            GameObject* Door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(DATA_GAMEOBJECT_NETHER_DOOR));
+            if(Door)
+            {
+                Door->SetGoState(0);
+            }
+        }
     }
 
     void KilledUnit(Unit *victim)
@@ -237,12 +252,30 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
         for(int i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
             positions.push_back(&InfernalPoints[i]);
+
+        if(pInstance)
+        {
+            GameObject* Door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(DATA_GAMEOBJECT_NETHER_DOOR));
+            if(Door)
+            {
+                Door->SetGoState(0);
+            }
+        }
     }
 
     void Aggro(Unit *who)
     {
         DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
         DoPlaySoundToSet(m_creature, SOUND_AGGRO);
+
+        if(pInstance)
+        {
+            GameObject* Door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(DATA_GAMEOBJECT_NETHER_DOOR));
+            if(Door)
+            {
+                Door->SetGoState(1);
+            }
+        }
     }
 
     void InfernalCleanup()
@@ -627,20 +660,16 @@ CreatureAI* GetAI_boss_malchezaar(Creature *_Creature)
     return new boss_malchezaarAI (_Creature);
 }
 
-void AddSC_netherspite_infernal()
-{
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name="netherspite_infernal";
-    newscript->GetAI = GetAI_netherspite_infernal;
-    m_scripts[nrscripts++] = newscript;
-}
-
 void AddSC_boss_malchezaar()
 {
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_malchezaar";
     newscript->GetAI = GetAI_boss_malchezaar;
+    m_scripts[nrscripts++] = newscript;
+
+    newscript = new Script;
+    newscript->Name="netherspite_infernal";
+    newscript->GetAI = GetAI_netherspite_infernal;
     m_scripts[nrscripts++] = newscript;
 }

@@ -286,8 +286,12 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
                 {
                     if( DrainManaTimer < diff )
                     {
-                        DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_DRAIN_MANA);
-                        DrainManaTimer = 10000;
+                        Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                        if( target->getPowerType() == POWER_MANA)
+                        {    
+                            DoCast(target, SPELL_DRAIN_MANA);
+                            DrainManaTimer = 10000;
+                        }
                     }else DrainManaTimer -= diff;
                 }
             }
@@ -366,7 +370,7 @@ struct TRINITY_DLL_DECL mob_fel_crystalAI : public ScriptedAI
             {
                 if(((boss_selin_fireheartAI*)Selin->AI())->CrystalGUID == m_creature->GetGUID())
                 {
-                    // Set this to false if we are the creature that Selin is draining so his AI flows properly
+                    Selin->RemoveAurasDueToSpell(SPELL_MANA_RAGE);
                     ((boss_selin_fireheartAI*)Selin->AI())->DrainingCrystal = false;
                     ((boss_selin_fireheartAI*)Selin->AI())->IsDraining = false;
                     ((boss_selin_fireheartAI*)Selin->AI())->EmpowerTimer = 10000;
