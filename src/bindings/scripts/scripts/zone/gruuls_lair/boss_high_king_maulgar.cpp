@@ -238,7 +238,10 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
 
         //someone evaded!
         if(pInstance && !pInstance->GetData(DATA_MAULGAREVENT))
+        {
             EnterEvadeMode();
+            return;
+        }
 
         //ArcingSmash_Timer
         if (ArcingSmash_Timer < diff)
@@ -365,7 +368,10 @@ struct TRINITY_DLL_DECL boss_olm_the_summonerAI : public ScriptedAI
 
         //someone evaded!
         if(pInstance && !pInstance->GetData(DATA_MAULGAREVENT))
+        {
             EnterEvadeMode();
+            return;
+        }
 
         //DarkDecay_Timer
         if(DarkDecay_Timer < diff)
@@ -489,7 +495,10 @@ struct TRINITY_DLL_DECL boss_kiggler_the_crazedAI : public ScriptedAI
 
         //someone evaded!
         if(pInstance && !pInstance->GetData(DATA_MAULGAREVENT))
+        {
             EnterEvadeMode();
+            return;
+        }
 
         //GreaterPolymorph_Timer
         if(GreaterPolymorph_Timer < diff)
@@ -616,7 +625,10 @@ struct TRINITY_DLL_DECL boss_blindeye_the_seerAI : public ScriptedAI
 
         //someone evaded!
         if(pInstance && !pInstance->GetData(DATA_MAULGAREVENT))
+        {
             EnterEvadeMode();
+            return;
+        }
 
         //GreaterPowerWordShield_Timer
         if(GreaterPowerWordShield_Timer < diff)
@@ -727,7 +739,10 @@ struct TRINITY_DLL_DECL boss_krosh_firehandAI : public ScriptedAI
 
         //someone evaded!
         if(pInstance && !pInstance->GetData(DATA_MAULGAREVENT))
+        {
             EnterEvadeMode();
+            return;
+        }
 
         //GreaterFireball_Timer
         if(GreaterFireball_Timer < diff || m_creature->GetDistance(m_creature->getVictim()) < 30)
