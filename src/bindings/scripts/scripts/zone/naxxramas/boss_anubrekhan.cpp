@@ -107,12 +107,6 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public ScriptedAI
             float attackRadius = m_creature->GetAttackDistance(who);
             if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
             {
-                if(who->HasStealthAura())
-                    who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-
-                //Begin melee attack if we are within range
-                DoStartAttackAndMovement(who);
-
                 if (!InCombat)
                 {
                     switch(rand()%3)
@@ -131,6 +125,9 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public ScriptedAI
                             break;
                     }
                 }
+
+                who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+                AttackStart(who);
             }
             else if (!HasTaunted && m_creature->IsWithinDistInMap(who, 60.0f))
             {

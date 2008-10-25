@@ -22,7 +22,6 @@ Script *m_scripts[MAX_SCRIPTS];
 
 DatabaseType TScriptDB;
 Config TScriptConfig;
-uint32 Locale;
 
 // String text additional data, used in TextMap
 struct StringTextData
@@ -43,29 +42,15 @@ enum ChatType
     CHAT_TYPE_BOSS_WHISPER      = 5,
 };
 
-#define TEXT_SOURCE_RANGE   -100000                         //the amount of entries each text source has available
+#define TEXT_SOURCE_RANGE   -1000000                        //the amount of entries each text source has available
 
 // Text Maps
-HM_NAMESPACE::hash_map<uint32, std::string> EventAI_Text_Map;
 HM_NAMESPACE::hash_map<int32, StringTextData> TextMap;
 
-// Localized Text structure for storing locales (for EAI and SD2 scripts).
-struct Localized_Text
-{
-    std::string locale_1;
-    std::string locale_2;
-    std::string locale_3;
-    std::string locale_4;
-    std::string locale_5;
-    std::string locale_6;
-    std::string locale_7;
-    std::string locale_8;
-};
+
 //*** End Global data ***
 
 //*** EventAI data ***
-HM_NAMESPACE::hash_map<uint32, Localized_Text> EventAI_LocalizedTextMap;
-
 //Event AI structure. Used exclusivly by mob_event_ai.cpp (60 bytes each)
 std::list<EventAI_Event> EventAI_Event_List;
 
@@ -604,14 +589,14 @@ void LoadDatabase()
     //Get db string from file
     char const* dbstring = NULL;
 
-    if( !TScriptConfig.GetString("WorldDatabaseInfo", &dbstring) )
+    if (!TScriptConfig.GetString("WorldDatabaseInfo", &dbstring) )
     {
         error_log("TSCR: Missing world database info from configuration file. Load database aborted.");
         return;
     }
 
     //Initialize connection to DB
-    if( dbstring && TScriptDB.Initialize(dbstring) )
+    if (dbstring && TScriptDB.Initialize(dbstring) )
         outstring_log("TSCR: TrinityScript database: %s",dbstring);
     else
     {
@@ -641,11 +626,73 @@ void LoadDatabase()
     // Drop Existing Text Map, only done once and we are ready to add data from multiple sources.
     TextMap.clear();
 
-    //TODO: Add load from eventai_texts here
+    // Load EventAI Text 
+    outstring_log("TSCR: Loading EventAI Texts...");
+    LoadTrinityStrings(TScriptDB,"eventai_texts",-1,1+(TEXT_SOURCE_RANGE));
+
+    // Gather Additional data from EventAI Texts
+    result = TScriptDB.PQuery("SELECT entry, sound, type, language FROM eventai_texts");
+
+    outstring_log("TSCR: Loading EventAI Texts additional data...");
+    if (result)
+    {
+        barGoLink bar(result->GetRowCount());
+        uint32 count = 0;
+
+        do
+        {
+            bar.step();
+            Field* fields = result->Fetch();
+            StringTextData temp;
+
+            int32 i             = fields[0].GetInt32();
+            temp.SoundId        = fields[1].GetInt32();
+            temp.Type           = fields[2].GetInt32();
+            temp.Language       = fields[3].GetInt32();
+
+            if (i >= 0)
+            {
+                error_db_log("TSCR: Entry %i in table `eventai_texts` is not a negative value.",i);
+                continue;
+            }
+
+            if (i <= TEXT_SOURCE_RANGE)
+            {
+                error_db_log("TSCR: Entry %i in table `eventai_texts` is out of accepted entry range for table.",i);
+                continue;
+            }
+
+            if (temp.SoundId)
+            {
+                if (!GetSoundEntriesStore()->LookupEntry(temp.SoundId))
+                    error_db_log("TSCR: Entry %i in table `eventai_texts` has soundId %u but sound does not exist.",i,temp.SoundId);
+            }
+
+            if (!GetLanguageDescByID(temp.Language))
+                error_db_log("TSCR: Entry %i in table `eventai_texts` using Language %u but Language does not exist.",i,temp.Language);
+
+            if (temp.Type > CHAT_TYPE_BOSS_WHISPER)
+                error_db_log("TSCR: Entry %i in table `eventai_texts` has Type %u but this Chat Type does not exist.",i,temp.Type);
+
+            TextMap[i] = temp;
+            ++count;
+        } while (result->NextRow());
+
+        delete result;
+
+        outstring_log("");
+        outstring_log(">> TSCR: Loaded %u additional EventAI Texts data.", count);
+    }else
+    {
+        barGoLink bar(1);
+        bar.step();
+        outstring_log("");
+        outstring_log(">> Loaded 0 additional EventAI Texts data. DB table `eventai_texts` is empty.");
+    }
 
     // Load Script Text 
     outstring_log("TSCR: Loading Script Texts...");
-    LoadTrinityStrings(TScriptDB,"script_texts",TEXT_SOURCE_RANGE,(TEXT_SOURCE_RANGE*2)+1);
+    LoadTrinityStrings(TScriptDB,"script_texts",TEXT_SOURCE_RANGE,1+(TEXT_SOURCE_RANGE*2));
 
     // Gather Additional data from Script Texts
     result = TScriptDB.PQuery("SELECT entry, sound, type, language FROM script_texts");
@@ -709,7 +756,7 @@ void LoadDatabase()
 
     // Load Custom Text 
     outstring_log("TSCR: Loading Custom Texts...");
-    LoadTrinityStrings(TScriptDB,"custom_texts",TEXT_SOURCE_RANGE*2,(TEXT_SOURCE_RANGE*3)+1);
+    LoadTrinityStrings(TScriptDB,"custom_texts",TEXT_SOURCE_RANGE*2,1+(TEXT_SOURCE_RANGE*3));
 
     // Gather Additional data from Custom Texts
     result = TScriptDB.PQuery("SELECT entry, sound, type, language FROM custom_texts");
@@ -771,102 +818,13 @@ void LoadDatabase()
         outstring_log(">> Loaded 0 additional Custom Texts data. DB table `custom_texts` is empty.");
     }
 
-    // Drop existing Event AI Localized Text hash map
-    EventAI_LocalizedTextMap.clear();
-
-    // Gather EventAI Localized Texts
-    result = TScriptDB.PQuery("SELECT id, locale_1, locale_2, locale_3, locale_4, locale_5, locale_6, locale_7, locale_8 "
-        "FROM eventai_localized_texts");
-
-    outstring_log("TSCR: Loading EventAI Localized Texts...");
-    if(result)
-    {
-        barGoLink bar(result->GetRowCount());
-        uint32 count = 0;
-
-        do
-        {
-            Localized_Text temp;
-            bar.step();
-
-            Field *fields = result->Fetch();
-
-            uint32 i = fields[0].GetInt32();
-
-            temp.locale_1 = fields[1].GetString();
-            temp.locale_2 = fields[2].GetString();
-            temp.locale_3 = fields[3].GetString();
-            temp.locale_4 = fields[4].GetString();
-            temp.locale_5 = fields[5].GetString();
-            temp.locale_6 = fields[6].GetString();
-            temp.locale_7 = fields[7].GetString();
-            temp.locale_8 = fields[8].GetString();
-
-            EventAI_LocalizedTextMap[i] = temp;
-            ++count;
-
-        }while(result->NextRow());
-
-        delete result;
-
-        outstring_log("");
-        outstring_log(">> Loaded %u EventAI Localized Texts", count);
-    }else
-    {
-        barGoLink bar(1);
-        bar.step();
-        outstring_log("");
-        outstring_log(">> Loaded 0 EventAI Localized Texts. DB table `eventai_localized_texts` is empty");
-    }
-
-    //Drop existing EventAI Text hash map
-    EventAI_Text_Map.clear();
-
-    //Gather EventAI Text Entries
-    result = TScriptDB.PQuery("SELECT id, text FROM eventai_texts");
-
-    outstring_log("TSCR: Loading EventAI_Texts...");
-    if (result)
-    {
-        barGoLink bar(result->GetRowCount());
-        uint32 Count = 0;
-
-        do
-        {
-            bar.step();
-            Field *fields = result->Fetch();
-
-            uint32 i = fields[0].GetInt32();
-
-            std::string text = fields[1].GetString();
-
-            if (!strlen(text.c_str()))
-                error_db_log("TSCR: EventAI text %u is empty", i);
-
-            EventAI_Text_Map[i] = text;
-            ++Count;
-
-        }while (result->NextRow());
-
-        delete result;
-
-        outstring_log("");
-        outstring_log(">> Loaded %u EventAI texts", Count);
-    }else
-    {
-        barGoLink bar(1);
-        bar.step();
-        outstring_log("");
-        outstring_log(">> Loaded 0 EventAI texts. DB table `eventai_texts` is empty.");
-    }
-
-    //Gather event data
+    //Gather additional data for EventAI
     result = TScriptDB.PQuery("SELECT id, position_x, position_y, position_z, orientation, spawntimesecs FROM eventai_summons");
 
     //Drop Existing EventSummon Map
     EventAI_Summon_Map.clear();
 
-    outstring_log("TSCR: Loading EventAI_Summons...");
+    outstring_log("TSCR: Loading EventAI Summons...");
     if (result)
     {
         barGoLink bar(result->GetRowCount());
@@ -914,7 +872,7 @@ void LoadDatabase()
     //Drop Existing EventAI List
     EventAI_Event_List.clear();
 
-    outstring_log("TSCR: Loading EventAI_Scripts...");
+    outstring_log("TSCR: Loading EventAI scripts...");
     if (result)
     {
         barGoLink bar(result->GetRowCount());
@@ -1054,11 +1012,30 @@ void LoadDatabase()
                 //Report any errors in actions
                 switch (temp.action[j].type)
                 {
-                    case ACTION_T_SAY:
-                    case ACTION_T_YELL:
-                    case ACTION_T_TEXTEMOTE:
-                        if (GetEventAIText(temp.action[j].param1) == DEFAULT_TEXT)
-                            error_db_log("TSCR: Event %u Action %u refrences missing Localized_Text entry", i, j+1);
+                    case ACTION_T_TEXT:
+                        {
+                            if (temp.action[j].param1_s < 0)
+                            {
+                                if (TextMap.find(temp.action[j].param1_s) == TextMap.end())
+                                    error_db_log("TSCR: Event %u Action %u param1 refrences non-existing entry in texts table.", i, j+1);
+                            }
+                            if (temp.action[j].param2_s < 0)
+                            {
+                                if (TextMap.find(temp.action[j].param2_s) == TextMap.end())
+                                    error_db_log("TSCR: Event %u Action %u param2 refrences non-existing entry in texts table.", i, j+1);
+
+                                if (!temp.action[j].param1_s)
+                                    error_db_log("TSCR: Event %u Action %u has param2, but param1 is not set. Required for randomized text.", i, j+1);
+                            }
+                            if (temp.action[j].param3_s < 0)
+                            {
+                                if (TextMap.find(temp.action[j].param3_s) == TextMap.end())
+                                    error_db_log("TSCR: Event %u Action %u param3 refrences non-existing entry in texts table.", i, j+1);
+
+                                if (!temp.action[j].param1_s || !temp.action[j].param2_s)
+                                    error_db_log("TSCR: Event %u Action %u has param3, but param1 and/or param2 is not set. Required for randomized text.", i, j+1);
+                            }
+                        }
                         break;
 
                     case ACTION_T_SOUND:
@@ -1066,14 +1043,16 @@ void LoadDatabase()
                             error_db_log("TSCR: Event %u Action %u uses non-existant SoundID %u.", i, j+1, temp.action[j].param1);
                         break;
 
-                    case ACTION_T_RANDOM_SAY:
-                    case ACTION_T_RANDOM_YELL:
-                    case ACTION_T_RANDOM_TEXTEMOTE:
-                        if ((temp.action[j].param1 != 0xffffffff && GetEventAIText(temp.action[j].param1) == DEFAULT_TEXT) ||
-                            (temp.action[j].param2 != 0xffffffff && GetEventAIText(temp.action[j].param2) == DEFAULT_TEXT) ||
-                            (temp.action[j].param3 != 0xffffffff && GetEventAIText(temp.action[j].param3) == DEFAULT_TEXT))
-                            error_db_log("TSCR: Event %u Action %u refrences missing Localized_Text entry", i, j+1);
-                        break;
+                    /*case ACTION_T_RANDOM_SOUND:
+                        {
+                            if(!GetSoundEntriesStore()->LookupEntry(temp.action[j].param1))
+                                error_db_log("TSCR: Event %u Action %u param1 uses non-existant SoundID %u.", i, j+1, temp.action[j].param1);
+                            if(!GetSoundEntriesStore()->LookupEntry(temp.action[j].param2))
+                                error_db_log("TSCR: Event %u Action %u param2 uses non-existant SoundID %u.", i, j+1, temp.action[j].param2);
+                            if(!GetSoundEntriesStore()->LookupEntry(temp.action[j].param3))
+                                error_db_log("TSCR: Event %u Action %u param3 uses non-existant SoundID %u.", i, j+1, temp.action[j].param3);
+                        }
+                        break;*/
 
                     case ACTION_T_CAST:
                         {
@@ -1152,6 +1131,14 @@ void LoadDatabase()
                             error_db_log("TSCR: Event %u Action %u attempts to set instance data above encounter state 3. Custom case?", i, j+1);
                         break;
 
+                    case ACTION_T_YELL:
+                    case ACTION_T_TEXTEMOTE:
+                    case ACTION_T_RANDOM_SAY:
+                    case ACTION_T_RANDOM_YELL:
+                    case ACTION_T_RANDOM_TEXTEMOTE:
+                        error_db_log("TSCR: Event %u Action %u currently unused ACTION type. Did you forget to update database?", i, j+1);
+                        break;
+
                     default:
                         if (temp.action[j].type >= ACTION_T_END)
                             error_db_log("TSCR: Event %u Action %u has incorrect action type. Maybe DB requires updated version of SD2.", i, j+1);
@@ -1222,34 +1209,23 @@ void ScriptsInit()
     }
     else outstring_log("TSCR: Using configuration file %s",_TRINITY_SCRIPT_CONFIG);
 
-    //Locale
-    Locale = TScriptConfig.GetIntDefault("Locale", 0);
-
-    if (Locale > 8)
-    {
-        Locale = 0;
-        error_log("TSCR: Locale set to invalid language id. Defaulting to 0.");
-    }
-
-    outstring_log("TSCR: Using locale %u", Locale);
-
     EAI_ErrorLevel = TScriptConfig.GetIntDefault("EAIErrorLevel", 1);
 
     switch (EAI_ErrorLevel)
     {
-    case 0:
-        outstring_log("TSCR: EventAI Error Reporting level set to 0 (Startup Errors only)");
-        break;
-    case 1:
-        outstring_log("TSCR: EventAI Error Reporting level set to 1 (Startup errors and Runtime event errors)");
-        break;
-    case 2:
-        outstring_log("TSCR: EventAI Error Reporting level set to 2 (Startup errors, Runtime event errors, and Creation errors)");
-        break;
-    default:
-        outstring_log("TSCR: Unknown EventAI Error Reporting level. Defaulting to 1 (Startup errors and Runtime event errors)");
-        EAI_ErrorLevel = 1;
-        break;
+        case 0:
+            outstring_log("TSCR: EventAI Error Reporting level set to 0 (Startup Errors only)");
+            break;
+        case 1:
+            outstring_log("TSCR: EventAI Error Reporting level set to 1 (Startup errors and Runtime event errors)");
+            break;
+        case 2:
+            outstring_log("TSCR: EventAI Error Reporting level set to 2 (Startup errors, Runtime event errors, and Creation errors)");
+            break;
+        default:
+            outstring_log("TSCR: Unknown EventAI Error Reporting level. Defaulting to 1 (Startup errors and Runtime event errors)");
+            EAI_ErrorLevel = 1;
+            break;
     }
 
     outstring_log("");
@@ -1794,88 +1770,7 @@ void ScriptsInit()
 }
 
 //*********************************
-//*** Functions used internally ***
-
-const char* GetEventAILocalizedText(uint32 entry)
-{
-    if (entry == 0xffffffff)
-        error_log("TSCR: Entry = -1, GetEventAILocalizedText should not be called in this case.");
-
-    const char* temp = NULL;
-
-    HM_NAMESPACE::hash_map<uint32, Localized_Text>::iterator i = EventAI_LocalizedTextMap.find(entry);
-
-    if (i == EventAI_LocalizedTextMap.end())
-    {
-        error_log("TSCR: EventAI Localized Text %u not found", entry);
-        return DEFAULT_TEXT;
-    }
-
-    switch (Locale)
-    {
-        case 1:
-            temp =  (*i).second.locale_1.c_str();
-            break;
-
-        case 2:
-            temp =  (*i).second.locale_2.c_str();
-            break;
-
-        case 3:
-            temp =  (*i).second.locale_3.c_str();
-            break;
-
-        case 4:
-            temp =  (*i).second.locale_4.c_str();
-            break;
-
-        case 5:
-            temp =  (*i).second.locale_5.c_str();
-            break;
-
-        case 6:
-            temp =  (*i).second.locale_6.c_str();
-            break;
-
-        case 7:
-            temp =  (*i).second.locale_7.c_str();
-            break;
-
-        case 8:
-            temp =  (*i).second.locale_8.c_str();
-            break;
-    };
-
-    if (strlen(temp))
-        return temp;
-
-    return DEFAULT_TEXT;
-}
-
-const char* GetEventAIText(uint32 entry)
-{
-    if(entry == 0xffffffff)
-        error_log("TSCR: Entry = -1, GetEventAIText should not be called in this case.");
-
-    const char* str = NULL;
-
-    HM_NAMESPACE::hash_map<uint32, std::string>::iterator itr = EventAI_Text_Map.find(entry);
-    if(itr == EventAI_Text_Map.end())
-    {
-        error_log("TSCR: Unable to find EventAI Text %u", entry);
-        return DEFAULT_TEXT;
-    }
-
-    str = (*itr).second.c_str();
-
-    if(strlen(str))
-        return str;
-
-    if(strlen((*itr).second.c_str()))
-        return (*itr).second.c_str();
-
-    return DEFAULT_TEXT;
-}
+//*** Functions used globally ***
 
 void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target)
 {
@@ -1887,7 +1782,7 @@ void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target)
 
     if (textEntry >= 0)
     {
-        error_log("TSCR: DoScriptText attempts to process entry %i, but entry must be negative.",textEntry);
+        error_log("TSCR: DoScriptText with source entry %u (TypeId=%u, guid=%u) attempts to process text entry %i, but text entry must be negative.",pSource->GetEntry(),pSource->GetTypeId(),pSource->GetGUIDLow(),textEntry);
         return;
     }
 
@@ -1895,9 +1790,11 @@ void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target)
 
     if (i == TextMap.end())
     {
-        error_log("TSCR: DoScriptText could not find text entry %i.",textEntry);
+        error_log("TSCR: DoScriptText with source entry %u (TypeId=%u, guid=%u) could not find text entry %i.",pSource->GetEntry(),pSource->GetTypeId(),pSource->GetGUIDLow(),textEntry);
         return;
     }
+
+    debug_log("TSCR: DoScriptText: text entry=%i, Sound=%u, Type=%u, Language=%u",textEntry,(*i).second.SoundId,(*i).second.Type,(*i).second.Language);
 
     if((*i).second.SoundId)
     {
@@ -1938,14 +1835,17 @@ void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target)
     }
 }
 
+//*********************************
+//*** Functions used internally ***
+
 Script* GetScriptByName(std::string Name)
 {
-    if(Name.empty())
+    if (Name.empty())
         return NULL;
 
     for(int i=0;i<MAX_SCRIPTS;i++)
     {
-        if( m_scripts[i] && m_scripts[i]->Name == Name )
+        if (m_scripts[i] && m_scripts[i]->Name == Name)
             return m_scripts[i];
     }
     return NULL;
@@ -1958,7 +1858,7 @@ TRINITY_DLL_EXPORT
 bool GossipHello ( Player * player, Creature *_Creature )
 {
     Script *tmpscript = GetScriptByName(_Creature->GetScriptName());
-    if(!tmpscript || !tmpscript->pGossipHello) return false;
+    if (!tmpscript || !tmpscript->pGossipHello) return false;
 
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->pGossipHello(player,_Creature);
@@ -1970,7 +1870,7 @@ bool GossipSelect( Player *player, Creature *_Creature, uint32 sender, uint32 ac
     debug_log("TSCR: Gossip selection, sender: %d, action: %d",sender, action);
 
     Script *tmpscript = GetScriptByName(_Creature->GetScriptName());
-    if(!tmpscript || !tmpscript->pGossipSelect) return false;
+    if (!tmpscript || !tmpscript->pGossipSelect) return false;
 
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->pGossipSelect(player,_Creature,sender,action);
@@ -1982,7 +1882,7 @@ bool GossipSelectWithCode( Player *player, Creature *_Creature, uint32 sender, u
     debug_log("TSCR: Gossip selection with code, sender: %d, action: %d",sender, action);
 
     Script *tmpscript = GetScriptByName(_Creature->GetScriptName());
-    if(!tmpscript || !tmpscript->pGossipSelectWithCode) return false;
+    if (!tmpscript || !tmpscript->pGossipSelectWithCode) return false;
 
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->pGossipSelectWithCode(player,_Creature,sender,action,sCode);
@@ -1992,7 +1892,7 @@ TRINITY_DLL_EXPORT
 bool QuestAccept( Player *player, Creature *_Creature, Quest const *_Quest )
 {
     Script *tmpscript = GetScriptByName(_Creature->GetScriptName());
-    if(!tmpscript || !tmpscript->pQuestAccept) return false;
+    if (!tmpscript || !tmpscript->pQuestAccept) return false;
 
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->pQuestAccept(player,_Creature,_Quest);
@@ -2002,7 +1902,7 @@ TRINITY_DLL_EXPORT
 bool QuestSelect( Player *player, Creature *_Creature, Quest const *_Quest )
 {
     Script *tmpscript = GetScriptByName(_Creature->GetScriptName());
-    if(!tmpscript || !tmpscript->pQuestSelect) return false;
+    if (!tmpscript || !tmpscript->pQuestSelect) return false;
 
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->pQuestSelect(player,_Creature,_Quest);
@@ -2012,7 +1912,7 @@ TRINITY_DLL_EXPORT
 bool QuestComplete( Player *player, Creature *_Creature, Quest const *_Quest )
 {
     Script *tmpscript = GetScriptByName(_Creature->GetScriptName());
-    if(!tmpscript || !tmpscript->pQuestComplete) return false;
+    if (!tmpscript || !tmpscript->pQuestComplete) return false;
 
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->pQuestComplete(player,_Creature,_Quest);
@@ -2022,7 +1922,7 @@ TRINITY_DLL_EXPORT
 bool ChooseReward( Player *player, Creature *_Creature, Quest const *_Quest, uint32 opt )
 {
     Script *tmpscript = GetScriptByName(_Creature->GetScriptName());
-    if(!tmpscript || !tmpscript->pChooseReward) return false;
+    if (!tmpscript || !tmpscript->pChooseReward) return false;
 
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->pChooseReward(player,_Creature,_Quest,opt);
@@ -2032,7 +1932,7 @@ TRINITY_DLL_EXPORT
 uint32 NPCDialogStatus( Player *player, Creature *_Creature )
 {
     Script *tmpscript = GetScriptByName(_Creature->GetScriptName());
-    if(!tmpscript || !tmpscript->pNPCDialogStatus) return 100;
+    if (!tmpscript || !tmpscript->pNPCDialogStatus) return 100;
 
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->pNPCDialogStatus(player,_Creature);
@@ -2052,7 +1952,7 @@ TRINITY_DLL_EXPORT
 bool ItemHello( Player *player, Item *_Item, Quest const *_Quest )
 {
     Script *tmpscript = GetScriptByName(_Item->GetProto()->ScriptName);
-    if(!tmpscript || !tmpscript->pItemHello) return false;
+    if (!tmpscript || !tmpscript->pItemHello) return false;
 
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->pItemHello(player,_Item,_Quest);
@@ -2062,7 +1962,7 @@ TRINITY_DLL_EXPORT
 bool ItemQuestAccept( Player *player, Item *_Item, Quest const *_Quest )
 {
     Script *tmpscript = GetScriptByName(_Item->GetProto()->ScriptName);
-    if(!tmpscript || !tmpscript->pItemQuestAccept) return false;
+    if (!tmpscript || !tmpscript->pItemQuestAccept) return false;
 
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->pItemQuestAccept(player,_Item,_Quest);
@@ -2072,7 +1972,7 @@ TRINITY_DLL_EXPORT
 bool GOHello( Player *player, GameObject *_GO )
 {
     Script *tmpscript = GetScriptByName(_GO->GetGOInfo()->ScriptName);
-    if(!tmpscript || !tmpscript->pGOHello) return false;
+    if (!tmpscript || !tmpscript->pGOHello) return false;
 
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->pGOHello(player,_GO);
@@ -2082,7 +1982,7 @@ TRINITY_DLL_EXPORT
 bool GOQuestAccept( Player *player, GameObject *_GO, Quest const *_Quest )
 {
     Script *tmpscript = GetScriptByName(_GO->GetGOInfo()->ScriptName);
-    if(!tmpscript || !tmpscript->pGOQuestAccept) return false;
+    if (!tmpscript || !tmpscript->pGOQuestAccept) return false;
 
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->pGOQuestAccept(player,_GO,_Quest);
@@ -2092,7 +1992,7 @@ TRINITY_DLL_EXPORT
 bool GOChooseReward( Player *player, GameObject *_GO, Quest const *_Quest, uint32 opt )
 {
     Script *tmpscript = GetScriptByName(_GO->GetGOInfo()->ScriptName);
-    if(!tmpscript || !tmpscript->pGOChooseReward) return false;
+    if (!tmpscript || !tmpscript->pGOChooseReward) return false;
 
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->pGOChooseReward(player,_GO,_Quest,opt);
@@ -2104,7 +2004,7 @@ bool AreaTrigger( Player *player, AreaTriggerEntry * atEntry)
     Script *tmpscript = NULL;
 
     tmpscript = GetScriptByName(GetAreaTriggerScriptNameById(atEntry->id));
-    if(!tmpscript || !tmpscript->pAreaTrigger) return false;
+    if (!tmpscript || !tmpscript->pAreaTrigger) return false;
 
     return tmpscript->pAreaTrigger(player, atEntry);
 }
@@ -2114,7 +2014,7 @@ CreatureAI* GetAI(Creature *_Creature)
 {
     Script *tmpscript = GetScriptByName(_Creature->GetScriptName());
 
-    if(!tmpscript || !tmpscript->GetAI) return NULL;
+    if (!tmpscript || !tmpscript->GetAI) return NULL;
     return tmpscript->GetAI(_Creature);
 }
 
@@ -2122,7 +2022,7 @@ TRINITY_DLL_EXPORT
 bool ItemUse( Player *player, Item* _Item, SpellCastTargets const& targets)
 {
     Script *tmpscript = GetScriptByName(_Item->GetProto()->ScriptName);
-    if(!tmpscript || !tmpscript->pItemUse) return false;
+    if (!tmpscript || !tmpscript->pItemUse) return false;
 
     return tmpscript->pItemUse(player,_Item,targets);
 }
@@ -2131,7 +2031,7 @@ TRINITY_DLL_EXPORT
 bool ReceiveEmote( Player *player, Creature *_Creature, uint32 emote )
 {
     Script *tmpscript = GetScriptByName(_Creature->GetScriptName());
-    if(!tmpscript || !tmpscript->pReceiveEmote) return false;
+    if (!tmpscript || !tmpscript->pReceiveEmote) return false;
 
     return tmpscript->pReceiveEmote(player, _Creature, emote);
 }
@@ -2141,10 +2041,10 @@ InstanceData* CreateInstanceData(Map *map)
 {
     Script *tmpscript = NULL;
 
-    if(!map->IsDungeon()) return false;
+    if (!map->IsDungeon()) return false;
 
     tmpscript = GetScriptByName(((InstanceMap*)map)->GetScript());
-    if(!tmpscript || !tmpscript->GetInstanceData) return false;
+    if (!tmpscript || !tmpscript->GetInstanceData) return false;
 
     return tmpscript->GetInstanceData(map);
 }

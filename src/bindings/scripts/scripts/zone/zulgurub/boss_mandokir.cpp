@@ -142,7 +142,7 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
                         {
                             DoCast(pUnit,SPELL_CHARGE);
                             m_creature->SendMonsterMove(pUnit->GetPositionX(), pUnit->GetPositionY(), pUnit->GetPositionZ(), 0, true,1);
-                            DoStartAttackAndMovement(pUnit);
+                            AttackStart(pUnit);
                         }
                     }
                 }

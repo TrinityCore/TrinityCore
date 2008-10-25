@@ -80,7 +80,7 @@ struct TRINITY_DLL_DECL boss_sarturaAI : public ScriptedAI
                 Unit* target = NULL;
                 target = SelectUnit(SELECT_TARGET_RANDOM,1);
                 if (target)
-                    DoStartAttackAndMovement(target);
+                    AttackStart(target);
 
                 WhirlWindRandom_Timer = 3000 + rand()%4000;
             }else WhirlWindRandom_Timer -= diff;
@@ -219,7 +219,7 @@ struct TRINITY_DLL_DECL mob_sartura_royal_guardAI : public ScriptedAI
                 Unit* target = NULL;
                 target = SelectUnit(SELECT_TARGET_RANDOM,1);
                 if (target)
-                    DoStartAttackAndMovement(target);
+                    AttackStart(target);
 
                 AggroReset = true;
                 AggroReset_Timer = 2000 + rand()%3000;

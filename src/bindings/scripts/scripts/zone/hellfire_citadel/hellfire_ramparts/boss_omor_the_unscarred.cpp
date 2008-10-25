@@ -54,9 +54,9 @@ EndScriptData */
 #define SAY_WIPE                    "I am victorious!"
 #define SOUND_WIPE                  10283
 
-struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public Scripted_NoMovementAI
 {
-    boss_omor_the_unscarredAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_omor_the_unscarredAI(Creature *c) : Scripted_NoMovementAI(c) {Reset();}
 
     uint32 OrbitalStrike_Timer;
     uint32 ShadowWhip_Timer;
@@ -103,45 +103,6 @@ struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public ScriptedAI
                 DoYell(SAY_AGGRO_3, LANG_UNIVERSAL, NULL);
                 DoPlaySoundToSet(m_creature,SOUND_AGGRO_3);
                 break;
-        }
-    }
-
-    void AttackStart(Unit* who)
-    {
-        if (!who)
-            return;
-
-        if (who->isTargetableForAttack())
-        {
-            DoStartAttackNoMovement(who);
-
-            if (!InCombat)
-            {
-                InCombat = true;
-                Aggro(who);
-            }
-        }
-    }
-
-    void MoveInLineOfSight(Unit* who)
-    {
-        if( !m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessablePlaceFor(m_creature) )
-        {
-            if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
-                return;
-
-            float attackRadius = m_creature->GetAttackDistance(who);
-            if(m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
-            {
-                DoStartAttackNoMovement(who);
-                who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-
-                if (!InCombat)
-                {
-                    InCombat = true;
-                    Aggro(who);
-                }
-            }
         }
     }
 

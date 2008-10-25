@@ -97,10 +97,6 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public ScriptedAI
             float attackRadius = m_creature->GetAttackDistance(who);
             if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
             {
-                if(who->HasStealthAura())
-                    who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-
-                DoStartAttackAndMovement(who);
                 //Say our dialog on initial aggro
                 if (!InCombat)
                 {
@@ -124,6 +120,9 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public ScriptedAI
                             break;
                     }
                 }
+
+                who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+                AttackStart(who);
             }
             else if (!HasTaunted && m_creature->IsWithinDistInMap(who, 60.0f))
             {

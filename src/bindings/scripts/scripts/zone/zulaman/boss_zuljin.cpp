@@ -276,7 +276,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
             if(Phase == 2)
                 m_creature->Attack(who, false);
             else
-                DoStartAttackAndMovement(who);
+                DoStartMovement(who);
 
             if (!InCombat)
             {

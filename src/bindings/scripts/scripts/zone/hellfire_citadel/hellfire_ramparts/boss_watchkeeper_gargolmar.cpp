@@ -103,14 +103,8 @@ struct TRINITY_DLL_DECL boss_watchkeeper_gargolmarAI : public ScriptedAI
             float attackRadius = m_creature->GetAttackDistance(who);
             if(m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
             {
-                DoStartAttackAndMovement(who);
                 who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-
-                if (!InCombat)
-                {
-                    InCombat = true;
-                    Aggro(who);
-                }
+                AttackStart(who);
             }
             else if (!HasTaunted && m_creature->IsWithinDistInMap(who, 60.0f))
             {

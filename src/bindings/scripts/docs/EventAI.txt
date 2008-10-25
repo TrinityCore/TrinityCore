@@ -82,14 +82,14 @@ Params are always read from Param1, then Param2, then Param3.
 
 (#   Internal Name                     Param usage                     Discription)
 0    ACTION_T_NONE                     No Action                       Does Nothing
-1    ACTION_T_SAY                      TextId                          Says Text
-2    ACTION_T_YELL                     TextId                          Yells Text
-3    ACTION_T_TEXTEMOTE                TextId                          Text Emotes Text
+1    ACTION_T_TEXT                     -TextId1, -TextId2, -TextId3    Displays the -TextId as defined. In case -TextId2 and optionally -TextId3, the output will be randomized. Type text are defined in the text table itself(say, yell, whisper, etc) along with other options for the text. All values are required to be negative.
+2    ACTION_T_YELL                                                     UNUSED
+3    ACTION_T_TEXTEMOTE                                                UNUSED
 4    ACTION_T_SOUND                    SoundId                         Plays Sound
 5    ACTION_T_EMOTE                    EmoteId                         Does emote
-6    ACTION_T_RANDOM_SAY               TextId1, TextId2, TextId3       Says random text between 3 params*
-7    ACTION_T_RANDOM_YELL              TextId1, TextId2, TextId3       Yells random text between 3 params*
-8    ACTION_T_RANDOM_TEXTEMOTE         TextId1, TextId2, TextId3       Text Emotes random text between 3 params*
+6    ACTION_T_RANDOM_SAY                                               UNUSED
+7    ACTION_T_RANDOM_YELL                                              UNUSED
+8    ACTION_T_RANDOM_TEXTEMOTE                                         UNUSED
 9    ACTION_T_RANDOM_SOUND             SoundId1, SoundId2, SoundId3    Plays random sound between 3 params*
 10   ACTION_T_RANDOM_EMOTE             EmoteId1, EmoteId2, EmoteId3    Emotes random emote between 3 params
 11   ACTION_T_CAST                     SpellId, Target, CastFlags      Casts spell (param1) on target type (param2). Uses Cast Flags (specified below target types)
@@ -311,26 +311,25 @@ Action Types
 =========================================
 
 -----------------
-1 = ACTION_T_SAY:
+1 = ACTION_T_TEXT:
 -----------------
-Parameter 1: The ID of the text that the NPC should SAY from the Localized_Texts Table. 
+Parameter 1: The entry of the text that the NPC should use from eventai_texts table. Optionally a entry from other tables can be used (such as custom_texts).
+             Entry are required to be negative and exist in a *_texts-table. The type text to be displayed are defined in the texts-table itself (Say, Yell, Whisper, Emote Text, Boss Whisper, Boss Emote)
+             Other options are also to be defined in the texts-table, such as a sound to be heard with the text and the language used in output (common, dwarvish, etc).
+             In case this entry has a localized version of the text, the localized text will be displayed in client that support this locale.
 
-This action is pretty straightforward. When activated, the creature will SAY the specified text (Speech Bubble). 
+Parameter 2: Optional. TextId can be defined in addition. The same apply to this as explained above, however eventAI will randomize between the two.
+Parameter 3: Optional, if Parameter 2 exist. In this case, eventAI will randomize between three.
 
 ------------------
 2 = ACTION_T_YELL:
 ------------------
-Parameter 1: The ID of the text that the NPC should YELL from the Localized_Texts Table. 
-
-The creature will YELL the specified text (Red Speech Bubble). 
+UNUSED       Can be reused to create new action type
 
 -----------------------
 3 = ACTION_T_TEXTEMOTE:
 -----------------------
-Parameter 1: The ID of the text that the NPC should TEXTEMOTE from the Localized_Texts Table.  
-
-When activated, the creature will do a text emote using the specified text. A text emote is what you would regularly see by using the /em slash command. 
-NOTE: The text should be written with the assumption that the creature's name is the first word or words in the sentence (for example, "is doing a text emote" would appear as "XYZ is doing a text emote" for a creature named XYZ). 
+UNUSED       Can be reused to create new action type
 
 -------------------
 4 = ACTION_T_SOUND:
@@ -351,32 +350,17 @@ This is commonly used for NPC's who may perform a special action (Salute, Roar, 
 ------------------------
 6 = ACTION_T_RANDOM_SAY:
 ------------------------
-Parameter 1: The ID of the text that the NPC should SAY from the Localized_Texts Table (Random Choice #1). 
-Parameter 2: The ID of the text that the NPC should SAY from the Localized_Texts Table (Random Choice #2). 
-Parameter 3: The ID of the text that the NPC should SAY from the Localized_Texts Table (Random Choice #3). 
-
-Similar to the ACTION_T_SAY action, it will choose at random a text entry to SAY. This action will pick a random entry from the three.
-NOTE: If you want any of the options if selected to do nothing you set that Param to -1 value. Then if selected it will do nothing.
-NOTE: When using Random Select Actions, ALL The Actions using Random in a Single Event (Action 1,2,3) will select the SAME Random Choice when it expires. This can come in handy if you are doing a ACTION_T_RANDOM_YELL for Action1 and then the corresponding sounds for ACTION_T_RANDOM_SOUND in Action2. If it selects Random Choice #2 for the Yell it will Select Random Choice #2 for the sound so you can match them up as required.
-This is commonly used for NPC's who have several different Aggro Say's and you would like one of them selected at random.
+UNUSED       Can be reused to create new action type
 
 -------------------------
 7 = ACTION_T_RANDOM_YELL:
 -------------------------
-Parameter 1: The ID of the text that the NPC should YELL from the Localized_Texts Table (Random Choice #1). 
-Parameter 2: The ID of the text that the NPC should YELL from the Localized_Texts Table (Random Choice #2). 
-Parameter 3: The ID of the text that the NPC should YELL from the Localized_Texts Table (Random Choice #3). 
-
-Similar to the ACTION_T_YELL action, it will choose at random a text entry to YELL. 
+UNUSED       Can be reused to create new action type
 
 ------------------------------
 8 = ACTION_T_RANDOM_TEXTEMOTE:
 ------------------------------
-Parameter 1: The ID of the text that the NPC should TEXTEMOTE from the Localized_Texts Table (Random Choice #1). 
-Parameter 2: The ID of the text that the NPC should TEXTEMOTE from the Localized_Texts Table (Random Choice #2). 
-Parameter 3: The ID of the text that the NPC should TEXTEMOTE from the Localized_Texts Table (Random Choice #3). 
-
-Similar to the ACTION_T_TEXTEMOTE action, it will choose at random a text entry to TEXTEMOTE. 
+UNUSED       Can be reused to create new action type
 
 --------------------------
 9 = ACTION_T_RANDOM_SOUND:

@@ -167,7 +167,7 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
                     m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
                     m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
                     m_creature->UpdateDamagePhysical(BASE_ATTACK);
-                    DoStartAttackAndMovement(target);
+                    AttackStart(target);
                     //The Panther Model
                     m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,15215);
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

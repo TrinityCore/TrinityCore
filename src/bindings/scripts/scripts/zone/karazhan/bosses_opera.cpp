@@ -1124,7 +1124,7 @@ struct TRINITY_DLL_DECL boss_romuloAI : public ScriptedAI
             if(Julianne && Julianne->getVictim())
             {
                 m_creature->AddThreat(Julianne->getVictim(), 1.0f);
-                DoStartAttackAndMovement(Julianne->getVictim());
+                AttackStart(Julianne->getVictim());
             }
         }
     }

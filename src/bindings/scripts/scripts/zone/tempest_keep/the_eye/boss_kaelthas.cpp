@@ -210,14 +210,8 @@ struct TRINITY_DLL_DECL advisorbase_ai : public ScriptedAI
             float attackRadius = m_creature->GetAttackDistance(who);
             if(m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who) )
             {
-                DoStartAttackAndMovement(who);
                 who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-
-                if (!InCombat)
-                {
-                    InCombat = true;
-                    Aggro(who);
-                }
+                AttackStart(who);
             }
         }
     }
@@ -227,16 +221,19 @@ struct TRINITY_DLL_DECL advisorbase_ai : public ScriptedAI
         if (!who || FakeDeath || m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
-        if (who->isTargetableForAttack())
+        if (m_creature->Attack(who, true))
         {
-            //Begin attack
-            DoStartAttackAndMovement(who);
+            m_creature->AddThreat(who, 0.0f);
+            m_creature->SetInCombatWith(who);
+            who->SetInCombatWith(m_creature);
 
             if (!InCombat)
             {
                 InCombat = true;
                 Aggro(who);
             }
+
+            DoStartMovement(who);
         }
     }
 
@@ -435,7 +432,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
             target = SelectUnit(SELECT_TARGET_RANDOM, 0);
             if(target)
             {
-                DoStartAttackAndMovement(target);
+                AttackStart(target);
             }
         }else
         {
@@ -506,10 +503,8 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
             float attackRadius = m_creature->GetAttackDistance(who);
             if (Phase >= 4 && m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
             {
-                if(who->HasStealthAura())
-                    who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-
-                DoStartAttackAndMovement(who);
+                who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+                AttackStart(who);
             }
             else if(who->isAlive())
             {
@@ -774,7 +769,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                     target = SelectUnit(SELECT_TARGET_RANDOM, 0);
                     if(target)
                     {
-                        DoStartAttackAndMovement(target);
+                        AttackStart(target);
                     }
                     Phase_Timer = 30000;
                 }else Phase_Timer -= diff;
@@ -931,7 +926,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         DoCast(m_creature, SPELL_EXPLODE);
                         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         Phase = 6;
-                        DoStartAttackAndMovement(m_creature->getVictim());
+                        AttackStart(m_creature->getVictim());
                         m_creature->GetMotionMaster()->Clear();
                         m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
 
@@ -1037,7 +1032,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                 InGravityLapse = false;
                                 GravityLapse_Timer = 60000;
                                 GravityLapse_Phase = 0;
-                                DoStartAttackAndMovement(m_creature->getVictim());
+                                AttackStart(m_creature->getVictim());
                                 m_creature->GetMotionMaster()->Clear();
                                 m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
                                 DoResetThreat();
@@ -1241,16 +1236,19 @@ struct TRINITY_DLL_DECL boss_grand_astromancer_capernianAI : public advisorbase_
         if (!who || FakeDeath || m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
-        if (who->isTargetableForAttack())
+        if (m_creature->Attack(who, true))
         {
-            //Begin attack
-            DoStartAttackAndMovement(who, CAPERNIAN_DISTANCE, M_PI/2);
+            m_creature->AddThreat(who, 0.0f);
+            m_creature->SetInCombatWith(who);
+            who->SetInCombatWith(m_creature);
 
             if (!InCombat)
             {
                 InCombat = true;
                 Aggro(who);
             }
+
+            DoStartMovement(who, CAPERNIAN_DISTANCE, M_PI/2);
         }
     }
 

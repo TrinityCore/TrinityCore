@@ -156,9 +156,9 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
         {
             //Begin attack
             if(Phase1)
-                DoStartAttackNoMovement(who);
+                DoStartNoMovement(who);
             else
-                DoStartAttackAndMovement(who);
+                DoStartMovement(who);
 
             if(!InCombat)
             {
