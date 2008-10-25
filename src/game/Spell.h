@@ -73,6 +73,7 @@ enum SpellNotifyPushType
 {
     PUSH_IN_FRONT,
     PUSH_IN_BACK,
+    PUSH_IN_LINE,
     PUSH_SELF_CENTER,
     PUSH_DEST_CENTER,
 };
@@ -602,11 +603,15 @@ namespace Trinity
                 switch(i_push_type)
                 {
                     case PUSH_IN_FRONT:
-                        if(i_spell.GetCaster()->isInFront((Unit*)(itr->getSource()), i_radius, 2*M_PI/3 ))
+                        if(i_spell.GetCaster()->isInFront((Unit*)(itr->getSource()), i_radius, M_PI/3 ))
                             i_data->push_back(itr->getSource());
                         break;
                     case PUSH_IN_BACK:
-                        if(i_spell.GetCaster()->isInBack((Unit*)(itr->getSource()), i_radius, 2*M_PI/3 ))
+                        if(i_spell.GetCaster()->isInBack((Unit*)(itr->getSource()), i_radius, M_PI/3 ))
+                            i_data->push_back(itr->getSource());
+                        break;
+                    case PUSH_IN_LINE:
+                        if(i_spell.GetCaster()->isInLine((Unit*)(itr->getSource()), i_radius ))
                             i_data->push_back(itr->getSource());
                         break;
                     case PUSH_SELF_CENTER:

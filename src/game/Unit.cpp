@@ -3448,6 +3448,15 @@ bool Unit::isInBack(Unit const* target, float distance, float arc) const
     return IsWithinDistInMap(target, distance) && !HasInArc( 2 * M_PI - arc, target );
 }
 
+bool Unit::isInLine(Unit const* target, float distance) const
+{
+    if(!HasInArc(M_PI, target) || !IsWithinDistInMap(target, distance)) return false;
+    float width = (GetObjectSize() / 2 + target->GetObjectSize()) / 2;
+    float angle = GetAngle(target);
+    angle -= GetOrientation();
+    return abs(sin(angle)) * distance < width;
+}
+
 bool Unit::isInAccessablePlaceFor(Creature const* c) const
 {
     if(IsInWater())

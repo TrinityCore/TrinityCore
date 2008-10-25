@@ -1095,6 +1095,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool isInFront(Unit const* target,float distance, float arc = M_PI) const;
         void SetInFront(Unit const* target);
         bool isInBack(Unit const* target, float distance, float arc = M_PI) const;
+        bool isInLine(Unit const* target, float distance) const;
 
         // Visibility system
         UnitVisibility GetVisibility() const { return m_Visibility; }
