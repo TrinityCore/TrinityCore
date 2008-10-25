@@ -75,14 +75,12 @@ enum SpellNotifyPushType
     PUSH_IN_BACK,
     PUSH_SELF_CENTER,
     PUSH_DEST_CENTER,
-    PUSH_TARGET_CENTER
 };
 
 bool IsQuestTameSpell(uint32 spellId);
 
 namespace Trinity
 {
-    struct SpellNotifierPlayer;
     struct SpellNotifierCreatureAndPlayer;
 }
 
@@ -180,13 +178,27 @@ enum SpellState
     SPELL_STATE_DELAYED   = 5
 };
 
+enum ReplenishType
+{
+    REPLENISH_UNDEFINED = 0,
+    REPLENISH_HEALTH    = 20,
+    REPLENISH_MANA      = 21,
+    REPLENISH_RAGE      = 22
+};
+
+enum SpellTargets
+{
+    SPELL_TARGETS_FRIENDLY,
+    SPELL_TARGETS_AOE_DAMAGE,
+    SPELL_TARGETS_ENTRY
+};
+
 #define SPELL_SPELL_CHANNEL_UPDATE_INTERVAL 1000
 
 typedef std::multimap<uint64, uint64> SpellTargetTimeMap;
 
 class Spell
 {
-    friend struct Trinity::SpellNotifierPlayer;
     friend struct Trinity::SpellNotifierCreatureAndPlayer;
     public:
 
@@ -497,6 +509,10 @@ class Spell
         void DoAllEffectOnTarget(GOTargetInfo *target);
         void DoAllEffectOnTarget(ItemTargetInfo *target);
         bool IsAliveUnitPresentInTargetList();
+        void SearchAreaTarget(std::list<Unit*> &data, float radius, const uint32 &type,
+            SpellTargets TargetType, uint32 entry = 0);
+        Unit* SearchNearbyTarget(float radius, SpellTargets TargetType, uint32 entry = 0);
+        void SearchChainTarget(std::list<Unit*> &data, Unit* pUnitTarget, float max_range, uint32 unMaxTargets);
         // -------------------------------------------
 
         //List For Triggered Spells
@@ -518,60 +534,8 @@ class Spell
         SpellEntry const* m_triggeredByAuraSpell;
 };
 
-enum ReplenishType
-{
-    REPLENISH_UNDEFINED = 0,
-    REPLENISH_HEALTH    = 20,
-    REPLENISH_MANA      = 21,
-    REPLENISH_RAGE      = 22
-};
-
-enum SpellTargets
-{
-    SPELL_TARGETS_HOSTILE,
-    SPELL_TARGETS_NOT_FRIENDLY,
-    SPELL_TARGETS_NOT_HOSTILE,
-    SPELL_TARGETS_FRIENDLY,
-    SPELL_TARGETS_AOE_DAMAGE
-};
-
 namespace Trinity
 {
-    struct TRINITY_DLL_DECL SpellNotifierPlayer
-    {
-        std::list<Unit*> &i_data;
-        Spell &i_spell;
-        const uint32& i_index;
-        float i_radius;
-        Unit* i_originalCaster;
-
-        SpellNotifierPlayer(Spell &spell, std::list<Unit*> &data, const uint32 &i, float radius)
-            : i_data(data), i_spell(spell), i_index(i), i_radius(radius)
-        {
-            i_originalCaster = i_spell.GetOriginalCaster();
-        }
-
-        void Visit(PlayerMapType &m)
-        {
-            if(!i_originalCaster)
-                return;
-
-            for(PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-            {
-                Player * pPlayer = itr->getSource();
-                if( !pPlayer->isAlive() || pPlayer->isInFlight())
-                    continue;
-
-                if( i_originalCaster->IsFriendlyTo(pPlayer) )
-                    continue;
-
-                if( pPlayer->GetDistance(i_spell.m_targets.m_destX, i_spell.m_targets.m_destY, i_spell.m_targets.m_destZ) < i_radius )
-                    i_data.push_back(pPlayer);
-            }
-        }
-        template<class SKIP> void Visit(GridRefManager<SKIP> &) {}
-    };
-
     struct TRINITY_DLL_DECL SpellNotifierCreatureAndPlayer
     {
         std::list<Unit*> *i_data;
@@ -580,10 +544,11 @@ namespace Trinity
         float i_radius;
         SpellTargets i_TargetType;
         Unit* i_originalCaster;
+        uint32 i_entry;
 
         SpellNotifierCreatureAndPlayer(Spell &spell, std::list<Unit*> &data, float radius, const uint32 &type,
-            SpellTargets TargetType = SPELL_TARGETS_NOT_FRIENDLY)
-            : i_data(&data), i_spell(spell), i_push_type(type), i_radius(radius), i_TargetType(TargetType)
+            SpellTargets TargetType = SPELL_TARGETS_AOE_DAMAGE, uint32 entry = 0)
+            : i_data(&data), i_spell(spell), i_push_type(type), i_radius(radius), i_TargetType(TargetType), i_entry(entry)
         {
             i_originalCaster = spell.GetOriginalCaster();
         }
@@ -602,18 +567,6 @@ namespace Trinity
 
                 switch (i_TargetType)
                 {
-                    case SPELL_TARGETS_HOSTILE:
-                        if (!itr->getSource()->isTargetableForAttack() || !i_originalCaster->IsHostileTo( itr->getSource() ))
-                            continue;
-                        break;
-                    case SPELL_TARGETS_NOT_FRIENDLY:
-                        if (!itr->getSource()->isTargetableForAttack() || i_originalCaster->IsFriendlyTo( itr->getSource() ))
-                            continue;
-                        break;
-                    case SPELL_TARGETS_NOT_HOSTILE:
-                        if (!itr->getSource()->isTargetableForAttack() || i_originalCaster->IsHostileTo( itr->getSource() ))
-                            continue;
-                        break;
                     case SPELL_TARGETS_FRIENDLY:
                         if (!itr->getSource()->isTargetableForAttack() || !i_originalCaster->IsFriendlyTo( itr->getSource() ))
                             continue;
@@ -637,8 +590,12 @@ namespace Trinity
                             if (!check->IsHostileTo( itr->getSource() ))
                                 continue;
                         }
-                    }
-                    break;
+                    }break;
+                    case SPELL_TARGETS_ENTRY:
+                    {
+                        if(itr->getSource()->GetTypeId()!=TYPEID_UNIT || itr->getSource()->GetEntry()!= i_entry)
+                            continue;
+                    }break;
                     default: continue;
                 }
 
@@ -658,10 +615,6 @@ namespace Trinity
                         break;
                     case PUSH_DEST_CENTER:
                         if((itr->getSource()->GetDistance(i_spell.m_targets.m_destX, i_spell.m_targets.m_destY, i_spell.m_targets.m_destZ) < i_radius ))
-                            i_data->push_back(itr->getSource());
-                        break;
-                    case PUSH_TARGET_CENTER:
-                        if(i_spell.m_targets.getUnitTarget()->IsWithinDistInMap((Unit*)(itr->getSource()), i_radius))
                             i_data->push_back(itr->getSource());
                         break;
                 }

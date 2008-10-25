@@ -695,8 +695,7 @@ struct TRINITY_DLL_DECL boss_lady_malandeAI : public boss_illidari_councilAI
 
         if(CircleOfHealingTimer < diff)
         {
-            //Currently bugged and puts Malande on the threatlist of the other council members. It also heals players.
-            //DoCast(m_creature, SPELL_CIRCLE_OF_HEALING);
+            DoCast(m_creature, SPELL_CIRCLE_OF_HEALING);
             CircleOfHealingTimer = 60000;
         }else CircleOfHealingTimer -= diff;
 
