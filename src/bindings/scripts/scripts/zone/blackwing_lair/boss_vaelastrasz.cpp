@@ -119,41 +119,39 @@ struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
     {
         //Speach
         if (DoingSpeach)
-            if (SpeachTimer < diff)
         {
-            switch (SpeachNum)
+            if (SpeachTimer < diff)
             {
-                case 0:
-                    //16 seconds till next line
-                    DoYell(SAY_LINE2,LANG_UNIVERSAL,NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_LINE2);
-                    SpeachTimer = 16000;
-                    SpeachNum++;
-                    break;
-
-                case 1:
-                    //This one is actually 16 seconds but we only go to 10 seconds because he starts attacking after he says "I must fight this!"
-                    DoYell(SAY_LINE3,LANG_UNIVERSAL,NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_LINE3);
-                    SpeachTimer = 10000;
-                    SpeachNum++;
-                    break;
-
-                case 2:
-                default:
-                    m_creature->setFaction(103);
-                    m_creature->SetHealth(int(m_creature->GetMaxHealth()*.3));
-                    if (PlayerGUID && Unit::GetUnit((*m_creature),PlayerGUID))
-                    {
-                        DoStartAttackAndMovement(Unit::GetUnit((*m_creature),PlayerGUID));
-                        DoCast(m_creature,SPELL_ESSENCEOFTHERED);
-                    }
-
-                    SpeachTimer = 0;
-                    DoingSpeach = false;
-                    break;
-            }
-        }else SpeachTimer -= diff;
+                switch (SpeachNum)
+                {
+                    case 0:
+                        //16 seconds till next line
+                        DoYell(SAY_LINE2,LANG_UNIVERSAL,NULL);
+                        DoPlaySoundToSet(m_creature,SOUND_LINE2);
+                        SpeachTimer = 16000;
+                        SpeachNum++;
+                        break;
+                    case 1:
+                        //This one is actually 16 seconds but we only go to 10 seconds because he starts attacking after he says "I must fight this!"
+                        DoYell(SAY_LINE3,LANG_UNIVERSAL,NULL);
+                        DoPlaySoundToSet(m_creature,SOUND_LINE3);
+                        SpeachTimer = 10000;
+                        SpeachNum++;
+                        break;
+                    case 2:
+                        m_creature->setFaction(103);
+                        m_creature->SetHealth(int(m_creature->GetMaxHealth()*.3));
+                        if (PlayerGUID && Unit::GetUnit((*m_creature),PlayerGUID))
+                        {
+                            AttackStart(Unit::GetUnit((*m_creature),PlayerGUID));
+                            DoCast(m_creature,SPELL_ESSENCEOFTHERED);
+                        }
+                        SpeachTimer = 0;
+                        DoingSpeach = false;
+                        break;
+                }
+            }else SpeachTimer -= diff;
+        }
 
         //Return since we have no target
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )

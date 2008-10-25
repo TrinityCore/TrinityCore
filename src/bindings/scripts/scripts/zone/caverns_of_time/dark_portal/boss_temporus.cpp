@@ -108,15 +108,8 @@ struct TRINITY_DLL_DECL boss_temporusAI : public ScriptedAI
             float attackRadius = m_creature->GetAttackDistance(who);
             if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
             {
-                if(who->HasStealthAura())
-                    who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-
-                DoStartAttackAndMovement(who);
-                if (!InCombat)
-                {
-                    DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature, SOUND_AGGRO);
-                }
+                who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+                AttackStart(who);
             }
         }
     }

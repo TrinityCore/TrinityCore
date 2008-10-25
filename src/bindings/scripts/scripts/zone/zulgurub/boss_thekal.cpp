@@ -205,8 +205,8 @@ struct TRINITY_DLL_DECL boss_thekalAI : public ScriptedAI
 
                     DoCast(target,SPELL_CHARGE);
                     m_creature->SendMonsterMove(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, true,1);
-                    DoStartAttackAndMovement(target);
                     DoResetThreat();
+                    AttackStart(target);
 
                     Charge_Timer = 15000 + rand()%7000;
                 }else Charge_Timer -= diff;

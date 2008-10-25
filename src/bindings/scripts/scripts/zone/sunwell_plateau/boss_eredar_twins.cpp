@@ -417,7 +417,7 @@ struct TRINITY_DLL_DECL boss_alythessAI : public ScriptedAI
         {
             if (!InCombat)
             {
-                DoStartAttackNoMovement(who);
+                DoStartNoMovement(who);
                 Aggro(who);
                 InCombat = true;
             }
@@ -440,7 +440,7 @@ struct TRINITY_DLL_DECL boss_alythessAI : public ScriptedAI
 
                 if (!InCombat)
                 {
-                    DoStartAttackNoMovement(who);
+                    DoStartNoMovement(who);
                     Aggro(who);
                     InCombat = true;
                 }

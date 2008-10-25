@@ -214,8 +214,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
                 if(who->HasStealthAura())
                     who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
 
-                DoStartAttackAndMovement(who);
-                Aggro(who);
+                AttackStart(who);
             }
         }
         else if (!Intro && m_creature->IsWithinLOSInMap(who)&& m_creature->IsWithinDistInMap(who, 100) ) //not sure about right radius

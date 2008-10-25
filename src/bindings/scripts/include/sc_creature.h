@@ -25,6 +25,7 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 
     //Called at each attack of m_creature by any victim
     void AttackStart(Unit *);
+    void AttackStart(Unit *, bool melee);
 
     //Called at stoping attack by any attacker
     void EnterEvadeMode();
@@ -89,11 +90,11 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     //AI Helper Functions
     //*************
 
-    //Start attack of victim and go to him
-    void DoStartAttackAndMovement(Unit* victim, float distance = 0, float angle = 0);
+    //Start movement toward victim
+    void DoStartMovement(Unit* victim, float distance = 0, float angle = 0);
 
-    //Start attack on victim but do not move
-    void DoStartAttackNoMovement(Unit* victim);
+    //Start no movement on victim
+    void DoStartNoMovement(Unit* victim);
 
     //Do melee swing of current victim if in rnage and ready and not casting
     void DoMeleeAttackIfReady();

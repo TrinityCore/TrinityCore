@@ -65,12 +65,6 @@ InstanceData* (*GetInstanceData)(Map*);
 extern int nrscripts;
 extern Script *m_scripts[MAX_SCRIPTS];
 
-// Localized Text function
-const char* GetEventAILocalizedText(uint32 entry);
-
-//EventAI text function
-const char* GetEventAIText(uint32 entry);                   // TODO: Locales
-
 //Generic scripting text function
 void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target = NULL);
 

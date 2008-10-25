@@ -121,7 +121,7 @@ struct TRINITY_DLL_DECL boss_renatakiAI : public ScriptedAI
                 m_creature->getThreatManager().modifyThreatPercent(m_creature->getVictim(),-50);
 
             if (target)
-                DoStartAttackAndMovement(target);
+                AttackStart(target);
 
             Aggro_Timer = 7000 + rand()%13000;
         }else Aggro_Timer -= diff;

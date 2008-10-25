@@ -54,17 +54,14 @@ struct TRINITY_DLL_DECL boss_timmy_the_cruelAI : public ScriptedAI
             float attackRadius = m_creature->GetAttackDistance(who);
             if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->GetDistanceZ(who) <= CREATURE_Z_ATTACK_RANGE && m_creature->IsWithinLOSInMap(who))
             {
-                if(who->HasStealthAura())
-                    who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-
                 if (!HasYelled)
                 {
                     DoYell(SAY_SPAWN,LANG_UNIVERSAL,NULL);
                     HasYelled = true;
                 }
 
-                //Begin melee attack if we are within range
-                DoStartAttackAndMovement(who);
+                who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+                AttackStart(who);
             }
         }
     }

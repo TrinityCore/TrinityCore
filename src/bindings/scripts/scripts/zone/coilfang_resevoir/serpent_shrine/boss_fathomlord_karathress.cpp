@@ -197,12 +197,8 @@ struct TRINITY_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
 
             if(target)
             {
-                DoStartAttackAndMovement(target);
-
+                AttackStart(target);
                 GetAdvisors();
-
-                DoPlaySoundToSet(m_creature, SOUND_AGGRO);
-                DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
             }
         }
 
@@ -294,7 +290,7 @@ struct TRINITY_DLL_DECL boss_fathomguard_sharkkisAI : public ScriptedAI
 
             if(target)
             {
-                DoStartAttackAndMovement(target);
+                AttackStart(target);
             }
         }
 
@@ -375,7 +371,7 @@ struct TRINITY_DLL_DECL boss_fathomguard_tidalvessAI : public ScriptedAI
 
             if(target)
             {
-                DoStartAttackAndMovement(target);
+                AttackStart(target);
             }
         }
 
@@ -453,7 +449,7 @@ struct TRINITY_DLL_DECL boss_fathomguard_caribdisAI : public ScriptedAI
 
             if(target)
             {
-                DoStartAttackAndMovement(target);
+                AttackStart(target);
             }
         }
 

@@ -523,44 +523,65 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
     {
         switch (type)
         {
-        case ACTION_T_SAY:
-            DoSay(GetEventAIText(param1), LANG_UNIVERSAL, pActionInvoker ? pActionInvoker : m_creature->getVictim());
-            break;
-        case ACTION_T_YELL:
-            DoYell(GetEventAIText(param1), LANG_UNIVERSAL, pActionInvoker ? pActionInvoker : m_creature->getVictim());
-            break;
-        case ACTION_T_TEXTEMOTE:
-            DoTextEmote(GetEventAIText(param1), pActionInvoker ? pActionInvoker : m_creature->getVictim());
+        case ACTION_T_TEXT:
+            {
+                if (!param1)
+                    return;
+
+                uint32 temp = 0;
+
+                if (param2 && param3)
+                {
+                    switch( rand()%3 )
+                    {
+                        case 0: temp = param1; break;
+                        case 2: temp = param2; break;
+                        case 3: temp = param3; break;
+                    }
+                }else if ( param2 && urand(0,1) )
+                {
+                    temp = param2;
+                }else
+                {
+                    temp = param1;
+                }
+
+                if (temp)
+                {
+                    Unit* target = NULL;
+                    Unit* owner = NULL;
+
+                    if (pActionInvoker)
+                    {
+                        if (pActionInvoker->GetTypeId() == TYPEID_PLAYER)
+                            target = pActionInvoker;
+                        else if (owner = pActionInvoker->GetOwner())
+                        {
+                            if (owner->GetTypeId() == TYPEID_PLAYER)
+                                target = owner;
+                        }
+                    }
+                    else if (target = m_creature->getVictim())
+                    {
+                        if (target->GetTypeId() != TYPEID_PLAYER)
+                        {
+                            if (owner = target->GetOwner())
+                            {
+                                if (owner->GetTypeId() == TYPEID_PLAYER)
+                                    target = owner;
+                            }
+                        }
+                    }
+
+                    DoScriptText(temp, m_creature, target);
+                }
+            }
             break;
         case ACTION_T_SOUND:
             DoPlaySoundToSet(m_creature, param1);
             break;
         case ACTION_T_EMOTE:
             m_creature->HandleEmoteCommand(param1);
-            break;
-        case ACTION_T_RANDOM_SAY:
-            {
-                uint32 temp = GetRandActionParam(rnd, param1, param2, param3);
-
-                if (temp != 0xffffffff)
-                    DoSay(GetEventAIText(temp), LANG_UNIVERSAL, pActionInvoker ? pActionInvoker : m_creature->getVictim());
-            }
-            break;
-        case ACTION_T_RANDOM_YELL:
-            {
-                uint32 temp = GetRandActionParam(rnd, param1, param2, param3);
-
-                if (temp != 0xffffffff)
-                    DoYell(GetEventAIText(temp), LANG_UNIVERSAL, pActionInvoker ? pActionInvoker : m_creature->getVictim());
-            }
-            break;
-        case ACTION_T_RANDOM_TEXTEMOTE:
-            {
-                uint32 temp = GetRandActionParam(rnd, param1, param2, param3);
-
-                if (temp != 0xffffffff)
-                    DoTextEmote(GetEventAIText(temp), pActionInvoker ? pActionInvoker : m_creature->getVictim());
-            }
             break;
         case ACTION_T_RANDOM_SOUND:
             {

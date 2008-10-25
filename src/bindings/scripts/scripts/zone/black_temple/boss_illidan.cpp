@@ -441,19 +441,10 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         if(!who || Phase >= PHASE_TALK_SEQUENCE)
             return;
 
-        if (who->isTargetableForAttack())
-        {
-            if(Phase == PHASE_FLIGHT || Phase == PHASE_DEMON)
-                m_creature->Attack(who, false);
-            else
-                DoStartAttackAndMovement(who);
-
-            if (!InCombat)
-            {
-                Aggro(who);
-                InCombat = true;
-            }
-        }
+        if(Phase == PHASE_FLIGHT || Phase == PHASE_DEMON)
+            ScriptedAI::AttackStart(who, false);
+        else
+            ScriptedAI::AttackStart(who, true);
     }
 
     void MoveInLineOfSight(Unit *who) {}
@@ -1510,26 +1501,17 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
         if(!who || Timer[EVENT_MAIEV_STEALTH])
             return;
 
-        if (who->isTargetableForAttack())
+        if(Phase == PHASE_TALK_SEQUENCE)
+            ScriptedAI::AttackStart(who, false);
+        else if(Phase == PHASE_DEMON || Phase == PHASE_TRANSFORM_SEQUENCE )
         {
-            if(Phase == PHASE_TALK_SEQUENCE)
-                m_creature->Attack(who, false);
-            else if(Phase == PHASE_DEMON || Phase == PHASE_TRANSFORM_SEQUENCE )
-            {
-                GETUNIT(Illidan, IllidanGUID);
-                if(Illidan && m_creature->IsWithinDistInMap(Illidan, 25))
-                    BlinkToPlayer();//Do not let dread aura hurt her.
-                m_creature->Attack(who, false);
-            }
-            else
-                DoStartAttackAndMovement(who);
-
-            if (!InCombat)
-            {
-                Aggro(who);
-                InCombat = true;
-            }
+            GETUNIT(Illidan, IllidanGUID);
+            if(Illidan && m_creature->IsWithinDistInMap(Illidan, 25))
+                BlinkToPlayer();//Do not let dread aura hurt her.
+            ScriptedAI::AttackStart(who, false);
         }
+        else
+            ScriptedAI::AttackStart(who, true);
     }
 
     void EnterPhase(PhaseIllidan NextPhase)//This is in fact Illidan's phase.

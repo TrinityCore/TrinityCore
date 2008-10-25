@@ -32,9 +32,9 @@ EndScriptData */
 #define SPELL_RESONANCE             33657
 #define SPELL_SHOCKWAVE             33686
 
-struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_murmurAI : public Scripted_NoMovementAI
 {
-    boss_murmurAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_murmurAI(Creature *c) : Scripted_NoMovementAI(c) {Reset();}
 
     uint32 SonicBoom_Timer;
     uint32 MurmursTouch_Timer;
@@ -61,46 +61,6 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
     }
 
     void Aggro(Unit *who) { }
-
-    void AttackStart(Unit* who)
-    {
-        if (!who)
-            return;
-
-        if (who->isTargetableForAttack())
-        {
-            //Begin attack
-            DoStartAttackNoMovement(who);
-
-            if (!InCombat)
-            {
-                InCombat = true;
-                Aggro(who);
-            }
-        }
-    }
-
-    void MoveInLineOfSight(Unit* who)
-    {
-        if( !m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessablePlaceFor(m_creature) )
-        {
-            if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
-                return;
-
-            float attackRadius = m_creature->GetAttackDistance(who);
-            if(m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
-            {
-                DoStartAttackNoMovement(who);
-                who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-
-                if (!InCombat)
-                {
-                    InCombat = true;
-                    Aggro(who);
-                }
-            }
-        }
-    }
 
     void UpdateAI(const uint32 diff)
     {

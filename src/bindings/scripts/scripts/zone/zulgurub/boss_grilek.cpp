@@ -62,7 +62,7 @@ struct TRINITY_DLL_DECL boss_grilekAI : public ScriptedAI
             if(m_creature->getThreatManager().getThreat(m_creature->getVictim()))
                 m_creature->getThreatManager().modifyThreatPercent(m_creature->getVictim(),-50);
             if (target)
-                DoStartAttackAndMovement(target);
+                AttackStart(target);
 
             Avartar_Timer = 25000 + rand()%10000;
         }else Avartar_Timer -= diff;

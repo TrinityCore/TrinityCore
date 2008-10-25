@@ -260,7 +260,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
         if(!who || IsBanished) return;
 
         if(who->isTargetableForAttack() && who != m_creature)
-            DoStartAttackAndMovement(who);
+            DoStartMovement(who);
     }
 
     void MoveInLineOfSight(Unit* who)

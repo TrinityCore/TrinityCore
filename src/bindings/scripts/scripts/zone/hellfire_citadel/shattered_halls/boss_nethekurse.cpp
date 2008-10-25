@@ -193,16 +193,20 @@ struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
         if ( IsIntroEvent || !IsMainEvent )
             return;
 
-        if( who->isTargetableForAttack() )
+        if (m_creature->Attack(who, true))
         {
-            if( Phase ) DoStartAttackNoMovement(who);
-            else DoStartAttackAndMovement(who);
+            m_creature->AddThreat(who, 0.0f);
+            m_creature->SetInCombatWith(who);
+            who->SetInCombatWith(m_creature);
 
-            if( !InCombat )
+            if (!InCombat)
             {
                 InCombat = true;
                 Aggro(who);
             }
+
+            if (Phase) DoStartNoMovement(who);
+            else DoStartMovement(who);
         }
     }
 
@@ -230,16 +234,8 @@ struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
             float attackRadius = m_creature->GetAttackDistance(who);
             if( m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who) )
             {
-                if( Phase ) DoStartAttackNoMovement(who);
-                else DoStartAttackAndMovement(who);
-
                 who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-
-                if( !InCombat )
-                {
-                    InCombat = true;
-                    Aggro(who);
-                }
+                AttackStart(who);
             }
         }
     }

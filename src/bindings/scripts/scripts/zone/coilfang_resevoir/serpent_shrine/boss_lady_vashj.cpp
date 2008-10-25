@@ -237,7 +237,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
     {
         //Begin melee attack if we are within range
         if(Phase != 2)
-            DoStartAttackAndMovement(who);
+            DoStartMovement(who);
 
         StartEvent();
     }

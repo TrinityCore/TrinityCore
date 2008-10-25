@@ -16,8 +16,8 @@
 
 /* ScriptData
 SDName: Boss_Terestian_Illhoof
-SD%Complete: 100
-SDComment: Complete!
+SD%Complete: 95
+SDComment: Complete! Needs adjustments to use spell though.
 SDCategory: Karazhan
 EndScriptData */
 
@@ -30,6 +30,11 @@ EndScriptData */
 #define SPELL_SHADOW_BOLT           30055                   // Hurls a bolt of dark magic at an enemy, inflicting Shadow damage.
 #define SPELL_SACRIFICE             30115                   // Teleports and adds the debuff
 #define SPELL_BERSERK               32965                   // Increases attack speed by 75%. Periodically casts Shadow Bolt Volley.
+
+#define SPELL_SUMMON_IMP            30066                   // Summons Kil'rek
+
+#define SPELL_FIENDISH_PORTAL       30171                   // Opens portal and summons Fiendish Portal, 2 sec cast
+#define SPELL_FIENDISH_PORTAL_1     30179                   // Opens portal and summons Fiendish Portal, instant cast
 
 #define SPELL_FIREBOLT              18086                   // Blasts a target for 150 Fire damage.
 
@@ -61,10 +66,6 @@ EndScriptData */
 #define CREATURE_DEMONCHAINS    17248
 #define CREATURE_FIENDISHIMP    17267
 #define CREATURE_PORTAL         17265
-
-#define SACRIFICE_X     -11240.599
-#define SACRIFICE_Y     -1694.2700
-#define SACRIFICE_Z     179.720007
 
 #define PORTAL_Z        179.434
 
@@ -309,7 +310,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
             if(target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
             {
                 DoCast(target, SPELL_SACRIFICE, true);
-                Creature* Chains = m_creature->SummonCreature(CREATURE_DEMONCHAINS, SACRIFICE_X, SACRIFICE_Y, SACRIFICE_Z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 21000);
+                Creature* Chains = m_creature->SummonCreature(CREATURE_DEMONCHAINS, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 21000);
                 if(Chains)
                 {
                     ((mob_demon_chainAI*)Chains->AI())->SacrificeGUID = target->GetGUID();

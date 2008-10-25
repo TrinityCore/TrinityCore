@@ -177,7 +177,7 @@ struct TRINITY_DLL_DECL boss_vemAI : public ScriptedAI
             {
                 DoCast(target, SPELL_CHARGE);
                 m_creature->SendMonsterMove(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, true,1);
-                DoStartAttackAndMovement(target);
+                AttackStart(target);
             }
 
             Charge_Timer = 8000 + rand()%8000;

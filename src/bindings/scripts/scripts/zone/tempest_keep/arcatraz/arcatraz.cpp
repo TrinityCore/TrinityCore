@@ -123,39 +123,22 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
         }
     }
 
-    void MoveInLineOfSight(Unit *who)
-    {
-        if( !m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessablePlaceFor(m_creature) )
-        {
-            if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
-                return;
-
-            float attackRadius = m_creature->GetAttackDistance(who);
-            if( m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who) )
-            {
-                DoStartAttackNoMovement(who);
-                who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-
-                if (!InCombat)
-                {
-                    InCombat = true;
-                    Aggro(who);
-                }
-            }
-        }
-    }
-
     void AttackStart(Unit* who)
     {
-        if (who->isTargetableForAttack())
+        if (m_creature->Attack(who, true))
         {
-            DoStartAttackNoMovement(who);
+            m_creature->AddThreat(who, 0.0f);
+            m_creature->SetInCombatWith(who);
+            who->SetInCombatWith(m_creature);
 
             if (!InCombat)
             {
                 InCombat = true;
                 Aggro(who);
             }
+
+            //TODO: Make it so he moves when target out of range
+            DoStartNoMovement(who);
         }
     }
 

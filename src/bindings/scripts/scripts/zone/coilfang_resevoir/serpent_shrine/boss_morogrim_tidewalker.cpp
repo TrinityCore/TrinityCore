@@ -351,10 +351,8 @@ struct TRINITY_DLL_DECL mob_water_globuleAI : public ScriptedAI
         if (who->isTargetableForAttack() && who->isInAccessablePlaceFor(m_creature) && m_creature->IsHostileTo(who))
         {
             //no attack radius check - it attacks the first target that moves in his los
-            if(who->HasStealthAura())
-                who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-
-            DoStartAttackAndMovement(who);
+            who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+            AttackStart(who);
         }
     }
 

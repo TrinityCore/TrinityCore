@@ -30,21 +30,21 @@ enum Event_Types
     EVENT_T_TARGET_MANA             = 18,   //ManaMax%, ManaMin%, RepeatMin, RepeatMax
     EVENT_T_QUEST_ACCEPT            = 19,   //QuestID
     EVENT_T_QUEST_COMPLETE          = 20,   //
-    
+
     EVENT_T_END,
 };
 
 enum Action_Types
 {
     ACTION_T_NONE                   = 0,    //No action
-    ACTION_T_SAY                    = 1,    //TextId
-    ACTION_T_YELL                   = 2,    //TextId
-    ACTION_T_TEXTEMOTE              = 3,    //TextId
+    ACTION_T_TEXT                   = 1,    //-TextId1, optionally -TextId2, optionally -TextId3(if -TextId2 exist). If more than just -TextId1 is defined, randomize. Negative values.
+    ACTION_T_YELL                   = 2,    //UNUSED
+    ACTION_T_TEXTEMOTE              = 3,    //UNUSED
     ACTION_T_SOUND                  = 4,    //SoundId
     ACTION_T_EMOTE                  = 5,    //EmoteId
-    ACTION_T_RANDOM_SAY             = 6,    //TextId1, TextId2, TextId3 (-1 in any field means no output if randomed that field)
-    ACTION_T_RANDOM_YELL            = 7,    //TextId1, TextId2, TextId3 (-1 in any field means no output if randomed that field)
-    ACTION_T_RANDOM_TEXTEMOTE       = 8,    //TextId1, TextId2, TextId3 (-1 in any field means no output if randomed that field)
+    ACTION_T_RANDOM_SAY             = 6,    //UNUSED
+    ACTION_T_RANDOM_YELL            = 7,    //UNUSED
+    ACTION_T_RANDOM_TEXTEMOTE       = 8,    //UNUSED
     ACTION_T_RANDOM_SOUND           = 9,    //SoundId1, SoundId2, SoundId3 (-1 in any field means no output if randomed that field)
     ACTION_T_RANDOM_EMOTE           = 10,   //EmoteId1, EmoteId2, EmoteId3 (-1 in any field means no output if randomed that field)
     ACTION_T_CAST                   = 11,   //SpellId, Target, CastFlags
@@ -208,7 +208,7 @@ struct EventAI_CreatureError
 };
 
 //Error prevention list
-extern HM_NAMESPACE::hash_map<uint32, EventAI_CreatureError> EventAI_CreatureErrorPreventionList; 
+extern HM_NAMESPACE::hash_map<uint32, EventAI_CreatureError> EventAI_CreatureErrorPreventionList;
 
 //Defines
 #define EVENTAI_EMPTY_EVENTLIST         "SD2: Eventlist for Creature %i is empty but creature is using Mob_EventAI. Preventing EventAI on this creature."
