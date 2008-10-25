@@ -32,6 +32,11 @@ Creature(), m_type(TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN), m_timer(0), m_lifetime(0
 
 void TemporarySummon::Update( uint32 diff )
 {
+    if (m_deathState == DEAD)
+    {
+        UnSummon();
+        return;
+    }
     switch(m_type)
     {
         case TEMPSUMMON_MANUAL_DESPAWN:
