@@ -311,26 +311,19 @@ void Spell::EffectSchoolDMG(uint32 effect_idx)
                     damage+= rand()%2 ? damage : 0;
                 }
 
+                // Meteor like spells (divided damage to targets)
+                if(spellmgr.GetSpellExtraInfo(m_spellInfo->Id, SPELL_EXTRA_INFO_SHARE_DAMAGE))
+                {
+                    uint32 count = 0;
+                    for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
+                        if(ihit->effectMask & (1<<effect_idx))
+                            ++count;
+
+                    damage /= count;                    // divide to all targets
+                }
+
                 switch(m_spellInfo->Id)                     // better way to check unknown
                 {
-                    // Meteor like spells (divided damage to targets)
-                    case 24340: case 26558: case 28884:     // Meteor
-                    case 36837: case 38903: case 41276:     // Meteor
-                    case 26789:                             // Shard of the Fallen Star
-                    case 31436:                             // Malevolent Cleave
-                    case 35181:                             // Dive Bomb
-                    case 40810: case 43267: case 43268:     // Saber Lash
-                    case 42384:                             // Brutal Swipe
-                    case 45150:                             // Meteor Slash
-                    {
-                        uint32 count = 0;
-                        for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
-                            if(ihit->effectMask & (1<<effect_idx))
-                                ++count;
-
-                        damage /= count;                    // divide to all targets
-                        break;
-                    }
                     // percent from health with min
                     case 25599:                             // Thundercrash
                     {

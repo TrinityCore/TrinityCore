@@ -634,6 +634,20 @@ inline bool IsProfessionSkill(uint32 skill)
     return  IsPrimaryProfessionSkill(skill) || skill == SKILL_FISHING || skill == SKILL_COOKING || skill == SKILL_FIRST_AID;
 }
 
+enum SpellExtraInfoType
+{
+    SPELL_EXTRA_INFO_MAX_TARGETS,
+    SPELL_EXTRA_INFO_CONE_TYPE,
+    SPELL_EXTRA_INFO_SHARE_DAMAGE
+};
+
+struct SpellExtraInfo
+{
+    uint32 info[3];
+};
+
+typedef std::map<uint32, SpellExtraInfo> SpellExtraInfoMap;
+
 class SpellMgr
 {
     // Constructors
@@ -832,6 +846,15 @@ class SpellMgr
                 return NULL;
         }
 
+        uint32 GetSpellExtraInfo(uint32 spell_id, uint32 type) const
+        {
+            SpellExtraInfoMap::const_iterator itr = mSpellExtraInfoMap.find(spell_id);
+            if(itr != mSpellExtraInfoMap.end())
+                return itr->second.info[type];
+            else
+                return 0;
+        }
+
         // Modifiers
     public:
         static SpellMgr& Instance();
@@ -848,6 +871,7 @@ class SpellMgr
         void LoadSpellThreats();
         void LoadSkillLineAbilityMap();
         void LoadSpellPetAuras();
+        void LoadSpellExtraInfo();
 
     private:
         SpellScriptTarget  mSpellScriptTarget;
@@ -861,6 +885,7 @@ class SpellMgr
         SpellProcEventMap  mSpellProcEventMap;
         SkillLineAbilityMap mSkillLineAbilityMap;
         SpellPetAuraMap     mSpellPetAuraMap;
+        SpellExtraInfoMap   mSpellExtraInfoMap;
 };
 
 #define spellmgr SpellMgr::Instance()

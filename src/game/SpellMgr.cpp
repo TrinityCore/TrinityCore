@@ -1968,6 +1968,70 @@ void SpellMgr::LoadSpellPetAuras()
     sLog.outString( ">> Loaded %u spell pet auras", count );
 }
 
+// set data in core for now
+void SpellMgr::LoadSpellExtraInfo()
+{
+    SpellExtraInfo info;
+    info.info[SPELL_EXTRA_INFO_CONE_TYPE] = 0;
+    info.info[SPELL_EXTRA_INFO_MAX_TARGETS] = 0;
+    info.info[SPELL_EXTRA_INFO_SHARE_DAMAGE] = 0;
+
+    info.info[SPELL_EXTRA_INFO_CONE_TYPE] = 1;
+    SpellEntry const* tempSpell;
+    for(uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i)
+    {
+        tempSpell = GetSpellStore()->LookupEntry(i);
+        if(tempSpell && tempSpell->SpellVisual == 3879)
+            mSpellExtraInfoMap[tempSpell->Id] = info;
+    }
+    info.info[SPELL_EXTRA_INFO_CONE_TYPE] = 2;
+    mSpellExtraInfoMap[26029] = info; // dark glare
+    mSpellExtraInfoMap[37433] = info; // spout
+    mSpellExtraInfoMap[43140] = info; // flame breath
+    mSpellExtraInfoMap[43215] = info; // flame breath
+    info.info[SPELL_EXTRA_INFO_CONE_TYPE] = 0;
+
+    info.info[SPELL_EXTRA_INFO_SHARE_DAMAGE] = 1;
+    for(uint32 i = 0; i < 46000; ++i)
+    {
+        switch(i)
+        {
+            case 24340: case 26558: case 28884:     // Meteor
+            case 36837: case 38903: case 41276:     // Meteor
+            case 26789:                             // Shard of the Fallen Star
+            case 31436:                             // Malevolent Cleave
+            case 35181:                             // Dive Bomb
+            case 40810: case 43267: case 43268:     // Saber Lash
+            case 42384:                             // Brutal Swipe
+            case 45150:                             // Meteor Slash
+                mSpellExtraInfoMap[i] = info;
+                break;
+            default:
+                break;
+        }
+    }
+    info.info[SPELL_EXTRA_INFO_SHARE_DAMAGE] = 0;
+
+    info.info[SPELL_EXTRA_INFO_MAX_TARGETS] = 1;
+    for(uint32 i = 0; i < 46000; ++i)
+    {
+        switch(i)
+        {
+            case 44978: case 45001: case 45002:     // Wild Magic
+            case 45004: case 45006: case 45010:     // Wild Magic
+            case 31347: // Doom
+            case 41635: // Prayer of Mending
+                mSpellExtraInfoMap[i] = info;
+                break;
+            default:
+                break;
+        }
+    }
+    info.info[SPELL_EXTRA_INFO_MAX_TARGETS] = 3;
+    mSpellExtraInfoMap[41376] = info;   //Spite
+    info.info[SPELL_EXTRA_INFO_MAX_TARGETS] = 0;
+}
+
 /// Some checks for spells, to prevent adding depricated/broken spells for trainers, spell book, etc
 bool SpellMgr::IsSpellValid(SpellEntry const* spellInfo, Player* pl, bool msg)
 {
