@@ -96,6 +96,7 @@ EndScriptData */
 #define SPELL_DUAL_WIELD                42459
 //Phase Normal spells
 #define SPELL_FLAME_CRASH_EFFECT        40836 // Firey blue ring of circle that the other flame crash summons
+#define SPELL_SUMMON_SHADOWDEMON        41117 // Summon four shadowfiends
 #define SPELL_SHADOWFIEND_PASSIVE       41913 // Passive aura for shadowfiends
 #define SPELL_SHADOW_DEMON_PASSIVE      41079 // Adds the "shadowform" aura to Shadow Demons.
 #define SPELL_CONSUME_SOUL              41080 // Once the Shadow Demons reach their target, they use this to kill them
@@ -385,13 +386,18 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 
     void Reset();
 
-    void JustSummoned(Creature* summon)//, TempSummonType type)
+    void JustSummoned(Creature* summon)
     {
-        if(summon->GetCreatureInfo()->Entry == FLAME_CRASH)
+        if(summon->GetCreatureInfo()->Entry == SHADOW_DEMON)
         {
-        //    type = TEMPSUMMON_TIMED_DESPAWN;
+            Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+            if(target && target->GetTypeId() == TYPEID_PLAYER) // only on players.
+            {
+                summon->AddThreat(target, 5000000.0f);
+                summon->AI()->AttackStart(target);
+            }
+            DoZoneInCombat(summon);
         }
-        //error_log("justsummoned %d %d", summon->GetCreatureInfo()->Entry, summon->GetGUID());
     }
 
     void SummonedCreatureDespawn(Creature* summon)
@@ -558,25 +564,6 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
     void CastEyeBlast();
     void SummonFlamesOfAzzinoth();
     void SummonMaiev();
-    void SummonShadowDemon()
-    {
-        Creature* ShadowDemon = NULL;
-        Unit* target = NULL;
-        for(uint8 i = 0; i < 4; i++)
-        {
-            ShadowDemon = DoSpawnCreature(SHADOW_DEMON, 0,0,0,0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,25000);
-            if(ShadowDemon)
-            {
-                target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                if(target && target->GetTypeId() == TYPEID_PLAYER) // only on players.
-                {
-                    ShadowDemon->AddThreat(target, 5000000.0f);
-                    ShadowDemon->AI()->AttackStart(target);
-                }
-                DoZoneInCombat(ShadowDemon);
-            }
-        }
-    }
     void HandleTalkSequence();
     void HandleFlightSequence()
     {
@@ -943,7 +930,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
                         Timer[EVENT_SHADOW_BLAST] = 4000;
                         break;
                     case EVENT_SHADOWDEMON:
-                        SummonShadowDemon();
+                        DoCast(m_creature, SPELL_SUMMON_SHADOWDEMON);
                         Timer[EVENT_SHADOWDEMON] = 0;
                         Timer[EVENT_FLAME_BURST] += 10000;
                         break;

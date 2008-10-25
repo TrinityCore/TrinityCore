@@ -807,7 +807,7 @@ enum Targets
     TARGET_IN_FRONT_OF_CASTER          = 24,
     //TARGET_UNIT_CONE_ENEMY
     TARGET_DUELVSPLAYER                = 25,
-    //TARGET_UNIT_SINGLE
+    //TARGET_UNIT_TARGET
     TARGET_GAMEOBJECT_ITEM             = 26,
     //TARGET_OBJECT_ITEM_PICKLOCK
     TARGET_MASTER                      = 27,
@@ -842,7 +842,7 @@ enum Targets
     TARGET_CHAIN_HEAL                  = 45,
     //TARGET_UNIT_CHAINHEAL
     TARGET_SCRIPT_COORDINATES          = 46,
-    //TARGET_DEST_TABLE_UNKNOWN
+    //TARGET_DEST_NEARBY_ENTRY
     TARGET_DEST_CASTER_FRONT           = 47,
     TARGET_DEST_CASTER_BACK            = 48,
     TARGET_DEST_CASTER_RIGHT           = 49,
