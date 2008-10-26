@@ -194,9 +194,9 @@ class TRINITY_DLL_SPEC WorldSession
         time_t m_muteTime;
 
         // Locales
-        LocaleConstant GetSessionDbcLocale() { return m_sessionDbcLocale; }
-        int GetSessionDbLocaleIndex() { return m_sessionDbLocaleIndex; }
-        const char *GetTrinityString(int32 entry);
+        LocaleConstant GetSessionDbcLocale() const { return m_sessionDbcLocale; }
+		int GetSessionDbLocaleIndex() const { return m_sessionDbLocaleIndex; }
+		const char *GetTrinityString(int32 entry) const;
 
         uint32 GetLatency() const { return m_latency; }
         void SetLatency(uint32 latency) { m_latency = latency; }

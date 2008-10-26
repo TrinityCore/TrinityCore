@@ -2167,4 +2167,20 @@ enum ResponseCodes
     CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 0x59,
     CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 0x5A,
 };
+
+/// Ban function modes
+enum BanMode
+{
+	BAN_ACCOUNT,
+	BAN_CHARACTER,
+	BAN_IP
+};
+
+/// Ban function return codes
+enum BanReturn
+{
+	BAN_SUCCESS,
+	BAN_SYNTAX_ERROR,
+	BAN_NOTFOUND
+};
 #endif

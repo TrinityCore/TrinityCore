@@ -1692,62 +1692,65 @@ bool ChatHandler::HandleTeleCommand(const char * args)
 
 bool ChatHandler::HandleLookupAreaCommand(const char* args)
 {
-    if(!*args)
+    if (!*args)
         return false;
 
     std::string namepart = args;
     std::wstring wnamepart;
 
-    if(!Utf8toWStr(namepart,wnamepart))
+    if (!Utf8toWStr (namepart,wnamepart))
         return false;
 
     uint32 counter = 0;                                     // Counter for figure out that we found smth.
 
     // converting string that we try to find to lower case
-    wstrToLower( wnamepart );
+    wstrToLower (wnamepart);
 
     // Search in AreaTable.dbc
-    for (uint32 areaflag = 0; areaflag < sAreaStore.GetNumRows(); ++areaflag)
+    for (uint32 areaflag = 0; areaflag < sAreaStore.GetNumRows (); ++areaflag)
     {
-        AreaTableEntry const *areaEntry = sAreaStore.LookupEntry(areaflag);
-        if(areaEntry)
+        AreaTableEntry const *areaEntry = sAreaStore.LookupEntry (areaflag);
+        if (areaEntry)
         {
-            int loc = m_session->GetSessionDbcLocale();
+            int loc = m_session ? m_session->GetSessionDbcLocale () : sWorld.GetDefaultDbcLocale();
             std::string name = areaEntry->area_name[loc];
-            if(name.empty())
+            if (name.empty())
                 continue;
 
-            if(!Utf8FitTo(name, wnamepart))
+            if (!Utf8FitTo (name, wnamepart))
             {
                 loc = 0;
                 for(; loc < MAX_LOCALE; ++loc)
                 {
-                    if(loc==m_session->GetSessionDbcLocale())
+                    if (m_session && loc==m_session->GetSessionDbcLocale ())
                         continue;
 
                     name = areaEntry->area_name[loc];
-                    if(name.empty())
+                    if (name.empty ())
                         continue;
 
-                    if (Utf8FitTo(name, wnamepart))
+                    if (Utf8FitTo (name, wnamepart))
                         break;
                 }
             }
 
-            if(loc < MAX_LOCALE)
+            if (loc < MAX_LOCALE)
             {
                 // send area in "id - [name]" format
                 std::ostringstream ss;
-                ss << areaEntry->ID << " - |cffffffff|Harea:" << areaEntry->ID << "|h[" << name << " " << localeNames[loc]<< "]|h|r";
+                if (m_session)
+					ss << areaEntry->ID << " - |cffffffff|Harea:" << areaEntry->ID << "|h[" << name << " " << localeNames[loc]<< "]|h|r";
+				else
+					ss << areaEntry->ID << " - " << name << " " << localeNames[loc];
 
-                SendSysMessage(ss.str().c_str());
+                SendSysMessage (ss.str ().c_str());
 
                 ++counter;
             }
         }
     }
-    if (counter == 0)                                       // if counter == 0 then we found nth
-        SendSysMessage(LANG_COMMAND_NOAREAFOUND);
+    if (counter == 0)                                      // if counter == 0 then we found nth
+        SendSysMessage (LANG_COMMAND_NOAREAFOUND);
     return true;
 }
 
@@ -1760,6 +1763,7 @@ bool ChatHandler::HandleLookupTeleCommand(const char * args)
         SetSentErrorMessage(true);
         return false;
     }
+
     char const* str = strtok((char*)args, " ");
     if(!str)
         return false;
@@ -1773,9 +1777,9 @@ bool ChatHandler::HandleLookupTeleCommand(const char * args)
     // converting string that we try to find to lower case
     wstrToLower( wnamepart );
 
-    GameTeleMap const & teleMap = objmgr.GetGameTeleMap();
-
     std::ostringstream reply;
+
+	GameTeleMap const & teleMap = objmgr.GetGameTeleMap();
     for(GameTeleMap::const_iterator itr = teleMap.begin(); itr != teleMap.end(); ++itr)
     {
         GameTele const* tele = &itr->second;
@@ -1783,11 +1787,10 @@ bool ChatHandler::HandleLookupTeleCommand(const char * args)
         if(tele->wnameLow.find(wnamepart) == std::wstring::npos)
             continue;
 
-        reply << "  |cffffffff|Htele:";
-        reply << itr->first;
-        reply << "|h[";
-        reply << tele->name;
-        reply << "]|h|r\n";
+        if (m_session)
+			reply << "  |cffffffff|Htele:" << itr->first << "|h[" << tele->name << "]|h|r\n";
+		else
+			reply << "  " << itr->first << " " << tele->name << "\n";
     }
 
     if(reply.str().empty())
@@ -2072,8 +2075,13 @@ bool ChatHandler::HandleNameTeleCommand(const char * args)
 
         PSendSysMessage(LANG_TELEPORTING_TO, chr->GetName(),"", tele->name.c_str());
 
-        if (m_session->GetPlayer()->IsVisibleGloballyFor(chr))
-            ChatHandler(chr).PSendSysMessage(LANG_TELEPORTED_TO_BY, m_session->GetPlayer()->GetName());
+        if (m_session)
+		{
+			if(m_session->GetPlayer()->IsVisibleGloballyFor(chr))
+				ChatHandler(chr).PSendSysMessage(LANG_TELEPORTED_TO_BY, m_session->GetPlayer()->GetName());
+		}
+		else
+			ChatHandler(chr).SendSysMessage(LANG_TELEPORTED_TO_BY_CONSOLE);
 
         // stop flight if need
         if(chr->isInFlight())

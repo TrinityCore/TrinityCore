@@ -44,7 +44,7 @@ unsigned int iUsers=0;                                      ///< Number of activ
 
 typedef int(* pPrintf)(const char*,...);
 
-void ParseCommand(pPrintf zprintf, char*command);
+void ParseCommand(CliCommandHolder::Print*, char*command);
 
 /// RASocket constructor
 RASocket::RASocket(ISocketHandler &h): TcpSocket(h)
@@ -222,7 +222,7 @@ void RASocket::OnRead()
                 if(strlen(buff))
                 {
                     sLog.outRALog("Got '%s' cmd.\n",buff);
-                    ParseCommand(&RASocket::zprintf , buff);
+                    sWorld.QueueCliCommand(&RASocket::zprint , buff);
                 }
                 else
                     Sendf("TC>");
@@ -234,20 +234,23 @@ void RASocket::OnRead()
 }
 
 /// Output function
-int RASocket::zprintf( const char * szText, ... )
+void RASocket::zprint( const char * szText )
 {
-    if( !szText ) return 0;
-    va_list ap;
-    va_start(ap, szText);
-    /// \todo Remove buffer length here. Can be >1024 (e.g. list of users)
-    char *megabuffer=new char[1024];
-    unsigned int sz=vsnprintf(megabuffer,1024,szText,ap);
-    #ifdef RA_CRYPT
-    Encrypt(megabuffer,sz);
-    #endif
+    if( !szText )
+        return;
 
-    send(r,megabuffer,sz,0);
+    #ifdef RA_CRYPT
+
+	char *megabuffer=strdup(szText);
+    unsigned int sz=strlen(megabuffer);
+    Encrypt(megabuffer,sz);
+	send(r,megabuffer,sz,0);
     delete [] megabuffer;
-    va_end(ap);
-    return 0;
+    
+	#else
+
+    unsigned int sz=strlen(szText);
+    send(r,szText,sz,0);
+
+    #endif
 }

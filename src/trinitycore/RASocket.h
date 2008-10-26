@@ -61,7 +61,7 @@ class RASocket: public TcpSocket
             OK,                                             //both login and pass were given, and they are correct and user have enough priv.
         }stage;
 
-        static int zprintf( const char * szText, ... );
+        static void zprint( const char * szText );
 };
 #endif
 /// @}
