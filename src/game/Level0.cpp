@@ -35,15 +35,17 @@
 
 bool ChatHandler::HandleHelpCommand(const char* args)
 {
-    if(!*args)
-        return false;
-
-    char* cmd = strtok((char*)args, " ");
+	char* cmd = strtok((char*)args, " ");
     if(!cmd)
-        return false;
-
-    if(!ShowHelpForCommand(getCommandTable(), cmd))
-        SendSysMessage(LANG_NO_HELP_CMD);
+	{
+		ShowHelpForCommand(getCommandTable(), "help");
+		ShowHelpForCommand(getCommandTable(), "");
+	}
+	else
+	{
+		if(!ShowHelpForCommand(getCommandTable(), cmd))
+			SendSysMessage(LANG_NO_HELP_CMD);
+	}
 
     return true;
 }
@@ -54,7 +56,7 @@ bool ChatHandler::HandleCommandsCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleAcctCommand(const char* /*args*/)
+bool ChatHandler::HandleAccountCommand(const char* /*args*/)
 {
     uint32 gmlevel = m_session->GetSecurity();
     PSendSysMessage(LANG_ACCOUNT_LEVEL, gmlevel);
@@ -141,7 +143,7 @@ bool ChatHandler::HandleSaveCommand(const char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleGMListCommand(const char* /*args*/)
+bool ChatHandler::HandleGMListIngameCommand(const char* /*args*/)
 {
     bool first = true;
 
@@ -149,8 +151,9 @@ bool ChatHandler::HandleGMListCommand(const char* /*args*/)
     HashMapHolder<Player>::MapType::iterator itr = m.begin();
     for(; itr != m.end(); ++itr)
     {
-        if( itr->second->GetSession()->GetSecurity() && (itr->second->isGameMaster() || sWorld.getConfig(CONFIG_GM_IN_GM_LIST) ) &&
-            itr->second->IsVisibleGloballyFor(m_session->GetPlayer()) )
+        if (itr->second->GetSession()->GetSecurity() &&
+			(itr->second->isGameMaster() || sWorld.getConfig(CONFIG_GM_IN_GM_LIST)) &&
+			(!m_session || itr->second->IsVisibleGloballyFor(m_session->GetPlayer())) )
         {
             if(first)
             {
@@ -177,17 +180,24 @@ bool ChatHandler::HandlePasswordCommand(const char* args)
     char *new_pass = strtok (NULL, " ");
     char *new_pass_c  = strtok (NULL, " ");
 
-    if( !old_pass || !new_pass || !new_pass_c )
+    if (!old_pass || !new_pass || !new_pass_c)
         return false;
 
     std::string password_old = old_pass;
     std::string password_new = new_pass;
     std::string password_new_c = new_pass_c;
 
-    if(!accmgr.CheckPassword(m_session->GetAccountId(), password_old) || password_new != password_new_c)
+    if (password_new != password_new_c)
     {
-        SendSysMessage(LANG_COMMAND_WRONGOLDPASSWORD);
-        SetSentErrorMessage(true);
+        SendSysMessage (LANG_NEW_PASSWORDS_NOT_MATCH);
+		SetSentErrorMessage (true);
+		return false;
+	}
+
+	if (!accmgr.CheckPassword (m_session->GetAccountId(), password_old))
+	{
+		SendSysMessage (LANG_COMMAND_WRONGOLDPASSWORD);
+		SetSentErrorMessage (true);
         return false;
     }
 
@@ -198,6 +208,11 @@ bool ChatHandler::HandlePasswordCommand(const char* args)
         case AOR_OK:
             SendSysMessage(LANG_COMMAND_PASSWORD);
             break;
+		case AOR_PASS_TOO_LONG:
+			SendSysMessage(LANG_PASSWORD_TOO_LONG);
+			SetSentErrorMessage(true);
+			return false;
+		case AOR_NAME_NOT_EXIST:                            // not possible case, don't want get account name for output
         default:
             SendSysMessage(LANG_COMMAND_NOTCHANGEPASSWORD);
             SetSentErrorMessage(true);
@@ -232,4 +247,11 @@ bool ChatHandler::HandleLockAccountCommand(const char* args)
 
     SendSysMessage(LANG_USE_BOL);
     return true;
+}
+
+/// Display the 'Message of the day' for the realm
+bool ChatHandler::HandleServerMotdCommand(const char* /*args*/)
+{
+	PSendSysMessage(LANG_MOTD_CURRENT, sWorld.GetMotd());
+	return true;
 }

@@ -73,6 +73,15 @@ enum DumpTableType
     DTT_ITEM_TEXT,      // <- item_text                     // item_text
 };
 
+enum DumpReturn
+{
+	DUMP_SUCCESS,
+	DUMP_FILE_OPEN_ERROR,
+	DUMP_TOO_MANY_CHARS,
+	DUMP_UNEXPECTED_END,
+	DUMP_FILE_BROKEN,
+};
+
 class PlayerDump
 {
     protected:
@@ -85,11 +94,11 @@ class PlayerDumpWriter : public PlayerDump
         PlayerDumpWriter() {}
 
         std::string GetDump(uint32 guid);
-        bool WriteDump(std::string file, uint32 guid);
+        DumpReturn WriteDump(std::string file, uint32 guid);
     private:
         typedef std::set<uint32> GUIDs;
 
-        bool DumpTable(std::string& dump, uint32 guid, char const*tableFrom, char const*tableTo, DumpTableType type);
+        void DumpTable(std::string& dump, uint32 guid, char const*tableFrom, char const*tableTo, DumpTableType type);
         std::string GenerateWhereStr(char const* field, GUIDs const& guids, GUIDs::const_iterator& itr);
         std::string GenerateWhereStr(char const* field, uint32 guid);
 
@@ -104,7 +113,7 @@ class PlayerDumpReader : public PlayerDump
     public:
         PlayerDumpReader() {}
 
-        bool LoadDump(std::string file, uint32 account, std::string name, uint32 guid);
+        DumpReturn LoadDump(std::string file, uint32 account, std::string name, uint32 guid);
 };
 
 #endif

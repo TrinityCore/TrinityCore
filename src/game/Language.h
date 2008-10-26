@@ -79,7 +79,10 @@ enum TrinityStrings
     LANG_NPC_TAINER_HELLO               = 51,
     LANG_COMMAND_INVALID_ITEM_COUNT     = 52,
     LANG_COMMAND_MAIL_ITEMS_LIMIT       = 53,
-    // Room for more level 0              54-99 not used
+    LANG_NEW_PASSWORDS_NOT_MATCH        = 54,
+	LANG_PASSWORD_TOO_LONG              = 55,
+	LANG_MOTD_CURRENT                   = 56,
+	// Room for more level 0              57-99 not used
 
     // level 1 chat
     LANG_GLOBAL_NOTIFY                  = 100,
@@ -163,7 +166,8 @@ enum TrinityStrings
 
     LANG_MAIL_SENT                      = 169,
     LANG_SOUND_NOT_EXIST                = 170,
-    // Room for more level 1              171-199 not used
+    LANG_TELEPORTED_TO_BY_CONSOLE       = 171,
+	// Room for more level 1              172-199 not used
 
     // level 2 chat
     LANG_NO_SELECTION                   = 200,
@@ -331,7 +335,8 @@ enum TrinityStrings
     LANG_UNBAN_UNBANNED                 = 411,
     LANG_UNBAN_ERROR                    = 412,
 
-    LANG_BANINFO_NOACCOUNT              = 413,
+    LANG_ACCOUNT_NOT_EXIST              = 413,
+
     LANG_BANINFO_NOCHARACTER            = 414,
     LANG_BANINFO_NOIP                   = 415,
     LANG_BANINFO_NOACCOUNTBAN           = 416,
@@ -444,16 +449,16 @@ enum TrinityStrings
     LANG_ITEMLIST_AUCTION               = 510,
 
     LANG_WRONG_LINK_TYPE                = 511,
-    LANG_ITEM_LIST                      = 512,
-    LANG_QUEST_LIST                     = 513,
-    LANG_CREATURE_ENTRY_LIST            = 514,
-    LANG_CREATURE_LIST                  = 515,
-    LANG_GO_ENTRY_LIST                  = 516,
-    LANG_GO_LIST                        = 517,
-    LANG_ITEMSET_LIST                   = 518,
+    LANG_ITEM_LIST_CHAT                 = 512,
+    LANG_QUEST_LIST_CHAT                = 513,
+    LANG_CREATURE_ENTRY_LIST_CHAT       = 514,
+    LANG_CREATURE_LIST_CHAT             = 515,
+    LANG_GO_ENTRY_LIST_CHAT             = 516,
+    LANG_GO_LIST_CHAT                   = 517,
+    LANG_ITEMSET_LIST_CHAT              = 518,
     LANG_TELE_LIST                      = 519,
     LANG_SPELL_LIST                     = 520,
-    LANG_SKILL_LIST                     = 521,
+    LANG_SKILL_LIST_CHAT                = 521,
 
     LANG_GAMEOBJECT_NOT_EXIST           = 522,
 
@@ -526,7 +531,7 @@ enum TrinityStrings
     LANG_COMMAND_NEAROBJMESSAGE         = 581,
     LANG_COMMAND_RAWPAWNTIMES           = 582,
 
-    LANG_EVENT_ENTRY_LIST               = 583,
+    LANG_EVENT_ENTRY_LIST_CHAT          = 583,
     LANG_NOEVENTFOUND                   = 584,
     LANG_EVENT_NOT_EXIST                = 585,
     LANG_EVENT_INFO                     = 586,
@@ -538,6 +543,14 @@ enum TrinityStrings
     LANG_MOVEGENS_DISTRACT              = 591,
 
     LANG_COMMAND_LEARN_ALL_RECIPES      = 592,
+	LANG_BANLIST_ACCOUNTS               = 593,
+	LANG_BANLIST_ACCOUNTS_HEADER        = 594,
+	LANG_BANLIST_IPS                    = 595,
+	LANG_BANLIST_IPS_HEADER             = 596,
+	LANG_GMLIST                         = 597,
+	LANG_GMLIST_HEADER                  = 598,
+	LANG_GMLIST_EMPTY                   = 599,
+	// End Level 3 list, continued at 1100
 
     // Battleground
     LANG_BG_A_WINS                      = 600,
@@ -658,14 +671,52 @@ enum TrinityStrings
     LANG_ACCOUNT_FOR_PLAYER_NOT_FOUND   = 809,
     // Room for in-game strings           810-999 not used
 
-    // FREE IDS                           1000-9999
-    LANG_COMMAND_FREEZE                 = 1000,
-    LANG_COMMAND_FREEZE_ERROR           = 1001,
-    LANG_COMMAND_FREEZE_WRONG           = 1002,
-    LANG_COMMAND_UNFREEZE               = 1003,
-    LANG_COMMAND_NO_FROZEN_PLAYERS      = 1004,
-    LANG_COMMAND_LIST_FREEZE            = 1005,
-    LANG_COMMAND_FROZEN_PLAYERS         = 1006,
+    // Level 4 (CLI only commands)
+	LANG_COMMAND_EXIT = 1000,
+	LANG_ACCOUNT_DELETED = 1001,
+	LANG_ACCOUNT_NOT_DELETED_SQL_ERROR = 1002,
+	LANG_ACCOUNT_NOT_DELETED = 1003,
+	LANG_ACCOUNT_CREATED = 1004,
+	LANG_ACCOUNT_TOO_LONG = 1005,
+	LANG_ACCOUNT_ALREADY_EXIST = 1006,
+	LANG_ACCOUNT_NOT_CREATED_SQL_ERROR = 1007,
+	LANG_ACCOUNT_NOT_CREATED = 1008,
+	LANG_CHARACTER_DELETED = 1009,
+	LANG_ACCOUNT_LIST_HEADER = 1010,
+	LANG_ACCOUNT_LIST_ERROR = 1011,
+	// Room for more level 4 1012-1099 not used
+
+	// Level 3 (continue)
+    LANG_MOTD_NEW                       = 1100,
+    LANG_ACCOUNT_SETADDON               = 1101,
+    LANG_SENDMESSAGE                    = 1102,
+    LANG_EVENT_ENTRY_LIST_CONSOLE       = 1103,
+	LANG_CREATURE_ENTRY_LIST_CONSOLE    = 1104,
+	LANG_ITEM_LIST_CONSOLE              = 1105,
+	LANG_ITEMSET_LIST_CONSOLE           = 1106,
+	LANG_GO_ENTRY_LIST_CONSOLE          = 1107,
+	LANG_QUEST_LIST_CONSOLE             = 1108,
+	LANG_SKILL_LIST_CONSOLE             = 1109,
+	LANG_CREATURE_LIST_CONSOLE          = 1110,
+	LANG_GO_LIST_CONSOLE                = 1111,
+	LANG_FILE_OPEN_FAIL                 = 1112,
+	LANG_ACCOUNT_CHARACTER_LIST_FULL    = 1113,
+	LANG_DUMP_BROKEN                    = 1114,
+	LANG_INVALID_CHARACTER_NAME         = 1115,
+	LANG_INVALID_CHARACTER_GUID         = 1116,
+	LANG_CHARACTER_GUID_IN_USE          = 1117,
+	LANG_ITEMLIST_GUILD                 = 1118,
+	// Room for more level 3              1119-1199 not used
+	
+	// Trinity custom patches             5000-9999
+    LANG_COMMAND_FREEZE                 = 5000,
+    LANG_COMMAND_FREEZE_ERROR           = 5001,
+    LANG_COMMAND_FREEZE_WRONG           = 5002,
+    LANG_COMMAND_UNFREEZE               = 5003,
+    LANG_COMMAND_NO_FROZEN_PLAYERS      = 5004,
+    LANG_COMMAND_LIST_FREEZE            = 5005,
+    LANG_COMMAND_FROZEN_PLAYERS         = 5006,
+	// Room for more Trinity custom patches 5007-9999
 
     // Use for not-in-svn patches         10000-10999
     // opvp hp
