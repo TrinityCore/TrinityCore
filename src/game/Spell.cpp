@@ -554,6 +554,10 @@ void Spell::FillTargetMap()
                 case SPELL_EFFECT_DESTROY_ALL_TOTEMS:
                 case SPELL_EFFECT_SUMMON_DEMON:
                 case SPELL_EFFECT_SKILL:
+                case SPELL_EFFECT_SUMMON_OBJECT_SLOT1:
+                case SPELL_EFFECT_SUMMON_OBJECT_SLOT2:
+                case SPELL_EFFECT_SUMMON_OBJECT_SLOT3:
+                case SPELL_EFFECT_SUMMON_OBJECT_SLOT4:
                     tmpUnitMap.push_back(m_caster);
                     break;
                 case SPELL_EFFECT_LEARN_PET_SPELL:
@@ -576,8 +580,6 @@ void Spell::FillTargetMap()
                             tmpUnitMap.push_back(m_caster);
                             break;
                         default:                            // apply to target in other case
-                            if(m_targets.getUnitTarget())
-                                tmpUnitMap.push_back(m_targets.getUnitTarget());
                             break;
                     }
                     break;
@@ -1379,6 +1381,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
         }break;
 
         // area targets
+		case TARGET_AREAEFFECT_CUSTOM:
         case TARGET_ALL_ENEMY_IN_AREA_INSTANT:
         {
             if(m_spellInfo->Effect[i] == SPELL_EFFECT_PERSISTENT_AREA_AURA)
@@ -1395,8 +1398,8 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
         {
             SearchAreaTarget(TagUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_FRIENDLY);
         }break;
-        case TARGET_AREAEFFECT_CUSTOM:
-            m_targets.m_targetMask |= TARGET_FLAG_DEST_LOCATION;
+        //case TARGET_AREAEFFECT_CUSTOM:
+        //    m_targets.m_targetMask |= TARGET_FLAG_DEST_LOCATION;
         case TARGET_UNIT_AREA_ENTRY:
         {
             SpellScriptTarget::const_iterator lower = spellmgr.GetBeginSpellScriptTarget(m_spellInfo->Id);
