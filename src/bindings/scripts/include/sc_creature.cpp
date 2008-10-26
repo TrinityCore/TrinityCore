@@ -476,12 +476,12 @@ void ScriptedAI::DoZoneInCombat(Unit* pUnit)
         return;
     }
 
-    /*if (!pUnit->CanHaveThreatList() || pUnit->getThreatManager().isThreatListEmpty())
+    if (!pUnit->CanHaveThreatList() || pUnit->getThreatManager().isThreatListEmpty())
     {
         error_log("SD2: DoZoneInCombat called for creature that either cannot have threat list or has empty threat list (pUnit entry = %d)", pUnit->GetTypeId() == TYPEID_UNIT ? ((Creature*)pUnit)->GetEntry() : 0);
 
         return;
-    }*/
+    }
 
     InstanceMap::PlayerList const &PlayerList = ((InstanceMap*)map)->GetPlayers();
     InstanceMap::PlayerList::const_iterator i;
