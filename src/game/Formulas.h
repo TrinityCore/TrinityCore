@@ -29,7 +29,7 @@ namespace Trinity
     {
         inline uint32 hk_honor_at_level(uint32 level, uint32 count=1)
         {
-            return ceil(count*(-0.53177f + 0.59357f * exp((level +23.54042f) / 26.07859f )));
+            return (uint32) ceil(count*(-0.53177f + 0.59357f * exp((level +23.54042f) / 26.07859f )));
         }
     }
     namespace XP

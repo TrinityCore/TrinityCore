@@ -588,7 +588,7 @@ bool Player::Create( uint32 guidlow, std::string name, uint8 race, uint8 class_,
     else
         SetUInt32Value( UNIT_FIELD_LEVEL, sWorld.getConfig(CONFIG_START_PLAYER_LEVEL) );
     // set starting gold
-    SetUInt32Value( PLAYER_FIELD_COINAGE, sWorld.getConfig(CONFIG_PLAYER_START_GOLD)*10000 );
+    SetUInt32Value( PLAYER_FIELD_COINAGE, sWorld.getConfig(CONFIG_PLAYER_START_GOLD) );
 
     // set starting honor
     SetUInt32Value( PLAYER_FIELD_HONOR_CURRENCY, sWorld.getConfig(CONFIG_PLAYER_START_HONOR) );
@@ -18187,12 +18187,16 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
         uint32 count = 0;
         uint32 sum_level = 0;
         Player* member_with_max_level = NULL;
+        Player* not_gray_member_with_max_level = NULL;
 
-        pGroup->GetDataForXPAtKill(pVictim,count,sum_level,member_with_max_level);
+        // gets the max member level of the group, and the max member level that still gets XP
+        pGroup->GetDataForXPAtKill(pVictim,count,sum_level,member_with_max_level,not_gray_member_with_max_level);
 
         if(member_with_max_level)
         {
-            xp = PvP ? 0 : Trinity::XP::Gain(member_with_max_level, pVictim);
+            // PvP kills doesn't yield experience
+            // also no XP gained if there is no member below gray level
+            xp = (PvP || !not_gray_member_with_max_level) ? 0 : Trinity::XP::Gain(not_gray_member_with_max_level, pVictim);
 
             // skip in check PvP case (for speed, not used)
             bool is_raid = PvP ? false : sMapStore.LookupEntry(GetMapId())->IsRaid() && pGroup->isRaidGroup();
@@ -18222,9 +18226,10 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
                     pGroupGuy->RewardReputation(pVictim,is_dungeon ? 1.0f : rate);
 
                     // XP updated only for alive group member
-                    if(pGroupGuy->isAlive())
+                    if(pGroupGuy->isAlive() && not_gray_member_with_max_level &&
+                       pGroupGuy->getLevel() <= not_gray_member_with_max_level->getLevel())
                     {
-                        uint32 itr_xp = uint32(xp*rate);
+                        uint32 itr_xp = (member_with_max_level == not_gray_member_with_max_level) ? uint32(xp*rate) : uint32((xp*rate/2)+1);
 
                         pGroupGuy->GiveXP(itr_xp, pVictim);
                         if(Pet* pet = pGroupGuy->GetPet())

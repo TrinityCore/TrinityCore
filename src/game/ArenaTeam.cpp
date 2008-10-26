@@ -720,7 +720,7 @@ void ArenaTeam::UpdateArenaPointsHelper()
     if(stats.games < 10)
         return;
     // to get points, a player has to participate in at least 30% of the matches
-    uint32 min_plays = ceil(stats.games * 0.3);
+    uint32 min_plays = (uint32)ceil(stats.games * 0.3);
     for(MemberList::iterator itr = members.begin(); itr !=  members.end(); ++itr)
     {
         // the player participated in enough games, update his points

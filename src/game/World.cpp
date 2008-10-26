@@ -766,7 +766,7 @@ void World::LoadConfigSettings(bool reload)
 
     m_configs[CONFIG_THREAT_RADIUS] = sConfig.GetIntDefault("ThreatRadius", 100);
 
-    // always use declined names in the russian client
+    // always use declined names in the Russian client
     m_configs[CONFIG_DECLINED_NAMES_USED] = 
         (m_configs[CONFIG_REALM_ZONE] == REALM_ZONE_RUSSIAN) ? true : sConfig.GetBoolDefault("DeclinedNames", false);
 
@@ -774,9 +774,7 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_LISTEN_RANGE_TEXTEMOTE] = sConfig.GetIntDefault("ListenRange.TextEmote", 25);
     m_configs[CONFIG_LISTEN_RANGE_YELL]      = sConfig.GetIntDefault("ListenRange.Yell", 300);
 
-    m_configs[CONFIG_PLAYER_START_GOLD] = sConfig.GetFloatDefault("PlayerStart.Gold", 0);
-    if(m_configs[CONFIG_PLAYER_START_GOLD] < 0)
-        m_configs[CONFIG_PLAYER_START_GOLD] = 0;
+    m_configs[CONFIG_PLAYER_START_GOLD] = (uint32)(sConfig.GetFloatDefault("PlayerStart.Gold", 0.0f) * 10000.0f);
 
     if(m_configs[CONFIG_PLAYER_START_GOLD] > MAX_MONEY_AMOUNT)
         m_configs[CONFIG_PLAYER_START_GOLD] = MAX_MONEY_AMOUNT;
