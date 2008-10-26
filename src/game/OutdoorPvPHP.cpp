@@ -121,7 +121,7 @@ bool OutdoorPvPHP::Update(uint32 diff)
         else if(m_HordeTowersControlled == 3)
             BuffTeam(HORDE);
         else
-            BuffTeam(NULL);
+            BuffTeam(0);
         SendUpdateWorldState(HP_UI_TOWER_COUNT_A, m_AllianceTowersControlled);
         SendUpdateWorldState(HP_UI_TOWER_COUNT_H, m_HordeTowersControlled);
     }

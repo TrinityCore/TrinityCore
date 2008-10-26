@@ -26,6 +26,7 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "Group.h"
+#include "Formulas.h"
 #include "ObjectAccessor.h"
 #include "BattleGround.h"
 #include "MapManager.h"
@@ -785,7 +786,7 @@ void Group::SetTargetIcon(uint8 id, uint64 guid)
     BroadcastPacket(&data);
 }
 
-void Group::GetDataForXPAtKill(Unit const* victim, uint32& count,uint32& sum_level, Player* & member_with_max_level)
+void Group::GetDataForXPAtKill(Unit const* victim, uint32& count,uint32& sum_level, Player* & member_with_max_level, Player* & not_gray_member_with_max_level)
 {
     for(GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
@@ -798,8 +799,16 @@ void Group::GetDataForXPAtKill(Unit const* victim, uint32& count,uint32& sum_lev
 
         ++count;
         sum_level += member->getLevel();
+        // store maximum member level
         if(!member_with_max_level || member_with_max_level->getLevel() < member->getLevel())
             member_with_max_level = member;
+
+        uint32 gray_level = Trinity::XP::GetGrayLevel(member->getLevel());
+        // if the victim is higher level than the gray level of the currently examined group member,
+        // then set not_gray_member_with_max_level if needed.
+        if( victim->getLevel() > gray_level && (!not_gray_member_with_max_level
+           || not_gray_member_with_max_level->getLevel() < member->getLevel()))
+            not_gray_member_with_max_level = member;
     }
 }
 
