@@ -1969,29 +1969,31 @@ void SpellMgr::LoadSpellPetAuras()
 }
 
 // set data in core for now
-void SpellMgr::LoadSpellExtraInfo()
+void SpellMgr::LoadSpellExtraAttr()
 {
-    SpellExtraInfo info;
-    info.info[SPELL_EXTRA_INFO_CONE_TYPE] = 0;
-    info.info[SPELL_EXTRA_INFO_MAX_TARGETS] = 0;
-    info.info[SPELL_EXTRA_INFO_SHARE_DAMAGE] = 0;
+    SpellExtraAttribute tempAttr;
+    tempAttr.attr[SPELL_EXTRA_ATTR_CONE_TYPE] = 0;
+    tempAttr.attr[SPELL_EXTRA_ATTR_MAX_TARGETS] = 0;
+    tempAttr.attr[SPELL_EXTRA_ATTR_SHARE_DAMAGE] = 0;
 
-    info.info[SPELL_EXTRA_INFO_CONE_TYPE] = 1;
-    SpellEntry const* tempSpell;
-    for(uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i)
+    tempAttr.attr[SPELL_EXTRA_ATTR_CONE_TYPE] = 1;
     {
-        tempSpell = GetSpellStore()->LookupEntry(i);
-        if(tempSpell && tempSpell->SpellVisual == 3879)
-            mSpellExtraInfoMap[tempSpell->Id] = info;
+        SpellEntry const* tempSpell;
+        for(uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i)
+        {
+            tempSpell = GetSpellStore()->LookupEntry(i);
+            if(tempSpell && tempSpell->SpellVisual == 3879)
+                mSpellExtraAttrMap[tempSpell->Id] = tempAttr;
+        }
     }
-    info.info[SPELL_EXTRA_INFO_CONE_TYPE] = 2;
-    mSpellExtraInfoMap[26029] = info; // dark glare
-    mSpellExtraInfoMap[37433] = info; // spout
-    mSpellExtraInfoMap[43140] = info; // flame breath
-    mSpellExtraInfoMap[43215] = info; // flame breath
-    info.info[SPELL_EXTRA_INFO_CONE_TYPE] = 0;
+    tempAttr.attr[SPELL_EXTRA_ATTR_CONE_TYPE] = 2;
+    mSpellExtraAttrMap[26029] = tempAttr; // dark glare
+    mSpellExtraAttrMap[37433] = tempAttr; // spout
+    mSpellExtraAttrMap[43140] = tempAttr; // flame breath
+    mSpellExtraAttrMap[43215] = tempAttr; // flame breath
+    tempAttr.attr[SPELL_EXTRA_ATTR_CONE_TYPE] = 0;
 
-    info.info[SPELL_EXTRA_INFO_SHARE_DAMAGE] = 1;
+    tempAttr.attr[SPELL_EXTRA_ATTR_SHARE_DAMAGE] = 1;
     for(uint32 i = 0; i < 46000; ++i)
     {
         switch(i)
@@ -2004,15 +2006,15 @@ void SpellMgr::LoadSpellExtraInfo()
             case 40810: case 43267: case 43268:     // Saber Lash
             case 42384:                             // Brutal Swipe
             case 45150:                             // Meteor Slash
-                mSpellExtraInfoMap[i] = info;
+                mSpellExtraAttrMap[i] = tempAttr;
                 break;
             default:
                 break;
         }
     }
-    info.info[SPELL_EXTRA_INFO_SHARE_DAMAGE] = 0;
+    tempAttr.attr[SPELL_EXTRA_ATTR_SHARE_DAMAGE] = 0;
 
-    info.info[SPELL_EXTRA_INFO_MAX_TARGETS] = 1;
+    tempAttr.attr[SPELL_EXTRA_ATTR_MAX_TARGETS] = 1;
     for(uint32 i = 0; i < 46000; ++i)
     {
         switch(i)
@@ -2021,15 +2023,101 @@ void SpellMgr::LoadSpellExtraInfo()
             case 45004: case 45006: case 45010:     // Wild Magic
             case 31347: // Doom
             case 41635: // Prayer of Mending
-                mSpellExtraInfoMap[i] = info;
+                mSpellExtraAttrMap[i] = tempAttr;
                 break;
             default:
                 break;
         }
     }
-    info.info[SPELL_EXTRA_INFO_MAX_TARGETS] = 3;
-    mSpellExtraInfoMap[41376] = info;   //Spite
-    info.info[SPELL_EXTRA_INFO_MAX_TARGETS] = 0;
+    tempAttr.attr[SPELL_EXTRA_ATTR_MAX_TARGETS] = 3;
+    mSpellExtraAttrMap[41376] = tempAttr;   //Spite
+    tempAttr.attr[SPELL_EXTRA_ATTR_MAX_TARGETS] = 0;
+
+    //hack here, only for those strange exceptions!
+    // Psychic Scream
+    SpellEntry *tempSpell;
+    if(tempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(8122))
+        tempSpell->AttributesEx |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
+    if(tempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(8124))
+        tempSpell->AttributesEx |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
+    if(tempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(10888))
+        tempSpell->AttributesEx |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
+    if(tempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(10890))
+        tempSpell->AttributesEx |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
+}
+
+void SpellMgr::LoadSpellLinked()
+{
+    mSpellLinkedMap.clear();    // need for reload case
+    uint32 count = 0;
+
+    //                                                0       1
+    QueryResult *result = WorldDatabase.Query("SELECT spell0, spell1 FROM spell_linked_spell");
+    if( !result )
+    {
+        barGoLink bar( 1 );
+        bar.step();
+        sLog.outString();
+        sLog.outString( ">> Loaded %u spell pet auras", count );
+        return;
+    }
+
+    barGoLink bar( result->GetRowCount() );
+
+    do
+    {
+        Field *fields = result->Fetch();
+
+        bar.step();
+
+        uint16 spell = fields[0].GetUInt16();
+        uint16 pet = fields[1].GetUInt16();
+        uint16 aura = fields[2].GetUInt16();
+
+        SpellPetAuraMap::iterator itr = mSpellPetAuraMap.find(spell);
+        if(itr != mSpellPetAuraMap.end())
+        {
+            itr->second.AddAura(pet, aura);
+        }
+        else
+        {
+            SpellEntry const* spellInfo = sSpellStore.LookupEntry(spell);
+            if (!spellInfo)
+            {
+                sLog.outErrorDb("Spell %u listed in `spell_pet_auras` does not exist", spell);
+                continue;
+            }
+            int i = 0;
+            for(; i < 3; ++i)
+                if((spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA &&
+                    spellInfo->EffectApplyAuraName[i] == SPELL_AURA_DUMMY) ||
+                    spellInfo->Effect[i] == SPELL_EFFECT_DUMMY)
+                    break;
+
+            if(i == 3)
+            {
+                sLog.outError("Spell %u listed in `spell_pet_auras` does not have dummy aura or dummy effect", spell);
+                continue;
+            }
+
+            SpellEntry const* spellInfo2 = sSpellStore.LookupEntry(aura);
+            if (!spellInfo2)
+            {
+                sLog.outErrorDb("Aura %u listed in `spell_pet_auras` does not exist", aura);
+                continue;
+            }
+
+            PetAura pa(pet, aura, spellInfo->EffectImplicitTargetA[i] == TARGET_PET, spellInfo->EffectBasePoints[i] + spellInfo->EffectBaseDice[i]);
+            mSpellPetAuraMap[spell] = pa;
+        }
+
+        ++count;
+    } while( result->NextRow() );
+
+    delete result;
+
+    sLog.outString();
+    sLog.outString( ">> Loaded %u spell pet auras", count );
 }
 
 /// Some checks for spells, to prevent adding depricated/broken spells for trainers, spell book, etc
