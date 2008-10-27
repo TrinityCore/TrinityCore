@@ -59,8 +59,8 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
     float x, y, z;
     if(!i_offset)
     {
-        // to nearest contact position
-        i_target->GetContactPoint( &owner, x, y, z );
+        // to nearest random contact position 
+        i_target->GetRandomContactPoint( &owner, x, y, z,0.5f,4.5f );
     }
     else
     {
