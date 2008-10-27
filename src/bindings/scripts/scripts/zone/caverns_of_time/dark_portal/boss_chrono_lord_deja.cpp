@@ -16,30 +16,26 @@
 
 /* ScriptData
 SDName: Boss_Chrono_Lord_Deja
-SD%Complete: 100
-SDComment:
+SD%Complete: 65
+SDComment: All abilities not implemented
 SDCategory: Caverns of Time, The Dark Portal
 EndScriptData */
 
 #include "precompiled.h"
 
-#define ARCANE_BLAST        24857
-#define TIME_LAPSE          31467
-#define MAGNETIC_PULL       28337                           //Not Implemented (Heroic mod)
+#define SAY_ENTER                   -1269006
+#define SAY_AGGRO                   -1269007
+#define SAY_BANISH                  -1269008
+#define SAY_SLAY1                   -1269009
+#define SAY_SLAY2                   -1269010
+#define SAY_DEATH                   -1269011
 
-#define SAY_ENTER           "Why do you aid the Magus? Just think of how many lives could be saved if the portal is never opened, if the resulting wars could be erased ..."
-#define SAY_AGGRO           "If you will not cease this foolish quest, then you will die!"
-#define SAY_BANISH          "You have outstayed your welcome, Timekeeper. Begone!"
-#define SAY_SLAY1           "I told you it was a fool's quest!"
-#define SAY_SLAY2           "Leaving so soon?"
-#define SAY_DEATH           "Time ... is on our side."
-
-#define SOUND_ENTER         10412
-#define SOUND_AGGRO         10414
-#define SOUND_BANISH        10413
-#define SOUND_SLAY1         10415
-#define SOUND_SLAY2         10416
-#define SOUND_DEATH         10417
+#define SPELL_ARCANE_BLAST          31457
+#define H_SPELL_ARCANE_BLAST        38538
+#define SPELL_ARCANE_DISCHARGE      31472
+#define H_SPELL_ARCANE_DISCHARGE    38539
+#define SPELL_TIME_LAPSE            31467
+#define SPELL_ATTRACTION            38540                       //Not Implemented (Heroic mode)
 
 struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
 {
@@ -56,30 +52,21 @@ struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_AGGRO);
-
+        DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void KilledUnit(Unit *victim)
     {
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_SLAY1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY1);
-                break;
-            case 1:
-                DoYell(SAY_SLAY2,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY2);
-                break;
+            case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+            case 1: DoScriptText(SAY_SLAY2, m_creature); break;
         }
     }
 
     void JustDied(Unit *victim)
     {
-        DoYell(SAY_DEATH,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -91,21 +78,19 @@ struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
         //Arcane Blast
         if (ArcaneBlast_Timer < diff)
         {
-            DoCast(m_creature->getVictim(), ARCANE_BLAST);
+            DoCast(m_creature->getVictim(), SPELL_ARCANE_BLAST);
             ArcaneBlast_Timer = 20000+rand()%5000;
         }else ArcaneBlast_Timer -= diff;
 
         //Time Lapse
         if (TimeLapse_Timer < diff)
         {
-            DoYell(SAY_BANISH, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_BANISH);
-            DoCast(m_creature, TIME_LAPSE);
+            DoScriptText(SAY_BANISH, m_creature);
+            DoCast(m_creature, SPELL_TIME_LAPSE);
             TimeLapse_Timer = 15000+rand()%10000;
         }else TimeLapse_Timer -= diff;
 
         DoMeleeAttackIfReady();
-
     }
 };
 

@@ -23,6 +23,9 @@ EndScriptData */
 
 #include "precompiled.h"
 
+#define EMOTE_FRENZY                -1469002
+#define EMOTE_SHIMMER               -1469003
+
 //These spells are actually called elemental shield
 //What they do is decrease all damage by 75% then they increase
 //One school of damage by 1100%
@@ -32,30 +35,24 @@ EndScriptData */
 #define SPELL_NATURE_VURNALBILTY    22280
 #define SPELL_ARCANE_VURNALBILTY    22281
 
-#define EMOTE_FRENZY    "goes into a killing frenzy!"
-#define EMOTE_SHIMMER   "flinches as its skin shimmers"
-
-#define SPELL_INCINERATE    23308                           //Incinerate 23308,23309
-#define SPELL_TIMELAPSE     23310                           //Time lapse 23310, 23311(old threat mod that was removed in 2.01)
-#define SPELL_CORROSIVEACID 23313                           //Corrosive Acid 23313, 23314
-#define SPELL_IGNITEFLESH   23315                           //Ignite Flesh 23315,23316
-#define SPELL_FROSTBURN     23187                           //Frost burn 23187, 23189
+#define SPELL_INCINERATE            23308                   //Incinerate 23308,23309
+#define SPELL_TIMELAPSE             23310                   //Time lapse 23310, 23311(old threat mod that was removed in 2.01)
+#define SPELL_CORROSIVEACID         23313                   //Corrosive Acid 23313, 23314
+#define SPELL_IGNITEFLESH           23315                   //Ignite Flesh 23315,23316
+#define SPELL_FROSTBURN             23187                   //Frost burn 23187, 23189
 
 //Brood Affliction 23173 - Scripted Spell that cycles through all targets within 100 yards and has a chance to cast one of the afflictions on them
 //Since Scripted spells arn't coded I'll just write a function that does the same thing
+#define SPELL_BROODAF_BLUE          23153                   //Blue affliction 23153
+#define SPELL_BROODAF_BLACK         23154                   //Black affliction 23154
+#define SPELL_BROODAF_RED           23155                   //Red affliction 23155 (23168 on death)
+#define SPELL_BROODAF_BRONZE        23170                   //Bronze Affliction  23170
+#define SPELL_BROODAF_GREEN         23169                   //Brood Affliction Green 23169
 
-#define SPELL_BROODAF_BLUE      23153                       //Blue affliction 23153
-#define SPELL_BROODAF_BLACK     23154                       //Black affliction 23154
-#define SPELL_BROODAF_RED       23155                       //Red affliction 23155 (23168 on death)
-#define SPELL_BROODAF_BRONZE    23170                       //Bronze Affliction  23170
-#define SPELL_BROODAF_GREEN     23169                       //Brood Affliction Green 23169
+#define SPELL_CHROMATIC_MUT_1       23174                   //Spell cast on player if they get all 5 debuffs
 
-#define SPELL_CHROMATIC_MUT_1   23174                       //Spell cast on player if they get all 5 debuffs
-
-#define SPELL_FRENZY            28371                       //The frenzy spell may be wrong
-#define SPELL_ENRAGE            28747
-
-#define TEMP_MUTATE_WHISPER     "[SD2 Debug] You would be mind controlled here!"
+#define SPELL_FRENZY                28371                   //The frenzy spell may be wrong
+#define SPELL_ENRAGE                28747
 
 struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
 {
@@ -216,7 +213,7 @@ struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
             DoCast(m_creature,spell);
             CurrentVurln_Spell = spell;
 
-            DoTextEmote(EMOTE_SHIMMER, NULL);
+            DoScriptText(EMOTE_SHIMMER, m_creature);
             Shimmer_Timer = 45000;
         }else Shimmer_Timer -= diff;
 
@@ -255,7 +252,7 @@ struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
                 Unit* pUnit = NULL;
                 pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
 
-                if(pUnit)
+                if (pUnit)
                 {
                     //Cast affliction
                     DoCast(pUnit, SpellAfflict, true);
@@ -276,10 +273,7 @@ struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
 
                         //WORKAROUND
                         if (pUnit->GetTypeId() == TYPEID_PLAYER)
-                        {
-                            DoWhisper(TEMP_MUTATE_WHISPER, pUnit);
                             pUnit->CastSpell(pUnit, 5, false);
-                        }
                     }
                 }
             }
@@ -291,7 +285,7 @@ struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
         if (Frenzy_Timer < diff)
         {
             DoCast(m_creature,SPELL_FRENZY);
-            DoTextEmote(EMOTE_FRENZY,NULL);
+            DoScriptText(EMOTE_FRENZY, m_creature);
             Frenzy_Timer = 10000 + (rand() % 5000);
         }else Frenzy_Timer -= diff;
 

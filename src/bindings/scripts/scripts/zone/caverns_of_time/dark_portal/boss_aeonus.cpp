@@ -16,30 +16,25 @@
 
 /* ScriptData
 SDName: Boss_Aeonus
-SD%Complete: 100
-SDComment:
+SD%Complete: 80
+SDComment: Some spells not implemented
 SDCategory: Caverns of Time, The Dark Portal
 EndScriptData */
 
 #include "precompiled.h"
 
-#define SAND_BREATH       31478
-#define TIME_STOP         31422
-#define FRENZY            19812
+#define SAY_ENTER         -1269012
+#define SAY_AGGRO         -1269013
+#define SAY_BANISH        -1269014
+#define SAY_SLAY1         -1269015
+#define SAY_SLAY2         -1269016
+#define SAY_DEATH         -1269017
 
-#define SAY_ENTER         "The time has come to shatter this clockwork universe forever! Let us no longer be slaves of the hourglass! I warn you: those who do not embrace the greater path shall become victims of its passing!"
-#define SAY_AGGRO         "Let us see what fate lays in store..."
-#define SAY_BANISH        "Your time is up, slave of the past!"
-#define SAY_SLAY1         "One less obstacle in our way!"
-#define SAY_SLAY2         "No one can stop us! No one!"
-#define SAY_DEATH         "It is only a matter...of time."
-
-#define SOUND_ENTER       10400
-#define SOUND_AGGRO       10402
-#define SOUND_BANISH      10401
-#define SOUND_SLAY1       10403
-#define SOUND_SLAY2       10404
-#define SOUND_DEATH       10405
+#define SPELL_CLEAVE        40504
+#define SPELL_TIME_STOP     31422
+#define SPELL_ENRAGE        37605
+#define SPELL_SAND_BREATH   31473
+#define H_SPELL_SAND_BREATH 39049
 
 struct TRINITY_DLL_DECL boss_aeonusAI : public ScriptedAI
 {
@@ -58,30 +53,20 @@ struct TRINITY_DLL_DECL boss_aeonusAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_AGGRO,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature, SOUND_AGGRO);
+        DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void JustDied(Unit *victim)
     {
-        //Just Died
-        DoYell(SAY_DEATH,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
     }
 
     void KilledUnit(Unit *victim)
     {
-        //Killed Unit
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_SLAY1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY1);
-                break;
-            case 1:
-                DoYell(SAY_SLAY2,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY2);
-                break;
+            case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+            case 1: DoScriptText(SAY_SLAY2, m_creature); break;
         }
     }
 
@@ -97,24 +82,23 @@ struct TRINITY_DLL_DECL boss_aeonusAI : public ScriptedAI
             Unit* target = NULL;
             target = m_creature->getVictim();
             if (target)
-                DoCast(target, SAND_BREATH);
+                DoCast(target, SPELL_SAND_BREATH);
             SandBreath_Timer = 30000;
         }else SandBreath_Timer -= diff;
 
         //Time Stop
         if (TimeStop_Timer < diff)
         {
-            DoYell(SAY_BANISH, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_BANISH);
+            DoScriptText(SAY_BANISH, m_creature);
 
-            DoCast(m_creature->getVictim(), TIME_STOP);
+            DoCast(m_creature->getVictim(), SPELL_TIME_STOP);
             TimeStop_Timer = 40000;
         }else TimeStop_Timer -= diff;
 
         //Frenzy
         if (Frenzy_Timer < diff)
         {
-            DoCast(m_creature, FRENZY);
+            DoCast(m_creature, SPELL_ENRAGE);
             Frenzy_Timer = 120000;
         }else Frenzy_Timer -= diff;
 

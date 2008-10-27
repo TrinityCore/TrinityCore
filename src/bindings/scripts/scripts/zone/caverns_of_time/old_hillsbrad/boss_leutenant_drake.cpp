@@ -56,28 +56,18 @@ bool GOHello_go_barrel_old_hillsbrad(Player *player, GameObject* _GO)
 ## boss_lieutenant_drake
 ######*/
 
-#define WHIRLWIND         40236
-#define FEAR              33789
-#define MORTAL_STRIKE     40220
-#define EXPLODIG_SHOUT    33792
+#define SAY_ENTER               -1560006
+#define SAY_AGGRO               -1560007
+#define SAY_SLAY1               -1560008
+#define SAY_SLAY2               -1560009
+#define SAY_MORTAL              -1560010
+#define SAY_SHOUT               -1560011
+#define SAY_DEATH               -1560012
 
-#define SAY_ENTER1        "You there, fetch water quickly!"
-#define SAY_ENTER2        "Get these flames out before they spread to the rest of the keep!"
-#define SAY_ENTER3        "Hurry, damn you!"
-#define  SAY_AGGRO        "I know what you're up to, and I mean to put an end to it, permanently!"
-#define  SAY_SLAY1        "No more middling for you."
-#define  SAY_SLAY2        "You will not interfere!"
-#define  SAY_MORTAL       "Time to bleed!"
-#define  SAY_SHOUT        "Run, you blasted cowards!"
-#define  SAY_DEATH        "Thrall... must not... go free."
-
-#define  SOUND_ENTER      10428
-#define  SOUND_AGGRO      10429
-#define  SOUND_SLAY1      10432
-#define  SOUND_SLAY2      10433
-#define  SOUND_MORTAL     10430
-#define  SOUND_SHOUT      10431
-#define  SOUND_DEATH      10434
+#define SPELL_WHIRLWIND         31909
+#define SPELL_HAMSTRING         9080
+#define SPELL_MORTAL_STRIKE     31911
+#define SPELL_FRIGHTENING_SHOUT 33789
 
 struct Location
 {
@@ -135,91 +125,58 @@ struct TRINITY_DLL_DECL boss_lieutenant_drakeAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_AGGRO,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature, SOUND_AGGRO);
+        DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void KilledUnit(Unit *victim)
     {
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_SLAY1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY1);
-                break;
-            case 1:
-                DoYell(SAY_SLAY2,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY2);
-                break;
+            case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+            case 1: DoScriptText(SAY_SLAY2, m_creature); break;
         }
     }
 
     void JustDied(Unit *victim)
     {
-        DoYell(SAY_DEATH,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
     {
         //TODO: make this work
-        if( CanPatrol && wpId == 0 )
+        if (CanPatrol && wpId == 0)
         {
             m_creature->GetMotionMaster()->MovePoint(DrakeWP[0].wpId, DrakeWP[0].x, DrakeWP[0].y, DrakeWP[0].z);
             wpId++;
         }
 
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
         //Whirlwind
         if (Whirlwind_Timer < diff)
         {
-            DoCast(m_creature->getVictim(), WHIRLWIND);
-
+            DoCast(m_creature->getVictim(), SPELL_WHIRLWIND);
             Whirlwind_Timer = 20000+rand()%5000;
         }else Whirlwind_Timer -= diff;
 
         //Fear
         if (Fear_Timer < diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if (target)
-                DoCast(target, FEAR);
-
+            DoScriptText(SAY_SHOUT, m_creature);
+            DoCast(m_creature->getVictim(), SPELL_FRIGHTENING_SHOUT);
             Fear_Timer = 30000+rand()%10000;
         }else Fear_Timer -= diff;
 
         //Mortal Strike
         if (MortalStrike_Timer < diff)
         {
-            DoYell(SAY_MORTAL, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_MORTAL);
-
-            DoCast(m_creature->getVictim(), MORTAL_STRIKE);
-
+            DoScriptText(SAY_MORTAL, m_creature);
+            DoCast(m_creature->getVictim(), SPELL_MORTAL_STRIKE);
             MortalStrike_Timer = 45000+rand()%5000;
         }else MortalStrike_Timer -= diff;
-
-        /*
-        //This only enabled on heroic?
-        //Exploding Shout
-        if (m_creature->IsHeroicCreature())
-        {
-        if (ExplodingShout_Timer < diff)
-        {
-        Unit* target = NULL;
-        target = SelectUnit(SELECT_TARGET_RANDOM,0);
-        if (target)
-        DoYell(SAY_SHOUT, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_SHOUT);
-        DoCast(target,EXPLODING_SHOUT);
-        ExplodingShout_Timer = 25000+rand()%5000;
-        }else ExplodingShout_Timer -= diff;
-        }
-        */
 
         DoMeleeAttackIfReady();
     }

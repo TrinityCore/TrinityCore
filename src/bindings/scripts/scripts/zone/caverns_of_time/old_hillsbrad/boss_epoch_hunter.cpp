@@ -24,30 +24,16 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_old_hillsbrad.h"
 
-#define SAY_ENTER1              "Thrall! Come outside and face your fate!"
-#define SOUND_ENTER1            10418
-#define SAY_ENTER2              "Taretha's life hangs in the balance. Surely you care for her. Surely you wish to save her..."
-#define SOUND_ENTER2            10419
-#define SAY_ENTER3              "Ah, there you are. I had hoped to accomplish this with a bit of subtlety, but I suppose direct confrontation was inevitable. Your future, Thrall, must not come to pass and so...you and your troublesome friends must die!"
-#define SOUND_ENTER3            10420
-
-#define SAY_AGGRO1              "Enough! I will erase your very existence!"
-#define SOUND_AGGRO1            10421
-#define SAY_AGGRO2              "You cannot fight fate!"
-#define SOUND_AGGRO2            10422
-
-#define SAY_SLAY1               "You are...irrelevant."
-#define SOUND_SLAY1             10425
-#define SAY_SLAY2               "Thrall will remain a slave. Taretha will die. You have failed."
-#define SOUND_SLAY2             10426
-
-#define SAY_BREATH1             "Not so fast!"
-#define SOUND_BREATH1           10423
-#define SAY_BREATH2             "Struggle as much as you like!"
-#define SOUND_BREATH2           10424
-
-#define SAY_DEATH               "No!...The master... will not... be pleased."
-#define SOUND_DEATH             10427
+#define SAY_ENTER1                  -1560013
+#define SAY_ENTER2                  -1560014
+#define SAY_ENTER3                  -1560015
+#define SAY_AGGRO1                  -1560016
+#define SAY_AGGRO2                  -1560017
+#define SAY_SLAY1                   -1560018
+#define SAY_SLAY2                   -1560019
+#define SAY_BREATH1                 -1560020
+#define SAY_BREATH2                 -1560021
+#define SAY_DEATH                   -1560022
 
 #define SPELL_SAND_BREATH           31914
 #define SPELL_IMPENDING_DEATH       31916
@@ -81,14 +67,8 @@ struct TRINITY_DLL_DECL boss_epoch_hunterAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_AGGRO1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_AGGRO1);
-                break;
-            case 1:
-                DoYell(SAY_AGGRO2,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_AGGRO2);
-                break;
+            case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
+            case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
         }
     }
 
@@ -96,23 +76,16 @@ struct TRINITY_DLL_DECL boss_epoch_hunterAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_SLAY1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY1);
-                break;
-            case 1:
-                DoYell(SAY_SLAY2,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY2);
-                break;
+            case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+            case 1: DoScriptText(SAY_SLAY2, m_creature); break;
         }
     }
 
     void JustDied(Unit *victim)
     {
-        DoYell(SAY_DEATH,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
 
-        if( pInstance && pInstance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS )
+        if (pInstance && pInstance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS)
             pInstance->SetData(TYPE_THRALL_PART4, DONE);
     }
 
@@ -123,42 +96,36 @@ struct TRINITY_DLL_DECL boss_epoch_hunterAI : public ScriptedAI
             return;
 
         //Sand Breath
-        if( SandBreath_Timer < diff )
+        if (SandBreath_Timer < diff)
         {
-            if( m_creature->IsNonMeleeSpellCasted(false) )
+            if (m_creature->IsNonMeleeSpellCasted(false))
                 m_creature->InterruptNonMeleeSpells(false);
 
             DoCast(m_creature->getVictim(),SPELL_SAND_BREATH);
 
             switch(rand()%2)
             {
-                case 0:
-                    DoYell(SAY_BREATH1,LANG_UNIVERSAL,NULL);
-                    DoPlaySoundToSet(m_creature, SOUND_BREATH1);
-                    break;
-                case 1:
-                    DoYell(SAY_BREATH2,LANG_UNIVERSAL,NULL);
-                    DoPlaySoundToSet(m_creature, SOUND_BREATH2);
-                    break;
+                case 0: DoScriptText(SAY_BREATH1, m_creature); break;
+                case 1: DoScriptText(SAY_BREATH2, m_creature); break;
             }
 
             SandBreath_Timer = 25000+rand()%5000;
         }else SandBreath_Timer -= diff;
 
-        if( ImpendingDeath_Timer < diff )
+        if (ImpendingDeath_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_IMPENDING_DEATH);
             ImpendingDeath_Timer = 30000+rand()%5000;
         }else ImpendingDeath_Timer -= diff;
 
-        if( WingBuffet_Timer < diff )
+        if (WingBuffet_Timer < diff)
         {
-            if( Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target,SPELL_WING_BUFFET);
             WingBuffet_Timer = 25000+rand()%10000;
         }else WingBuffet_Timer -= diff;
 
-        if( Mda_Timer < diff )
+        if (Mda_Timer < diff)
         {
             DoCast(m_creature,SPELL_MAGIC_DISRUPTION_AURA);
             Mda_Timer = 15000;

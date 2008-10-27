@@ -23,15 +23,13 @@ EndScriptData */
 
 #include "precompiled.h"
 
+#define SAY_AGGRO               -1469000
+#define SAY_LEASH               -1469001
+
 #define SPELL_CLEAVE            26350
 #define SPELL_BLASTWAVE         23331
 #define SPELL_MORTALSTRIKE      24573
 #define SPELL_KNOCKBACK         25778
-
-#define SAY_AGGRO               "None of your kind should be here! You've doomed only yourselves!"
-#define SAY_LEASH               "Clever Mortals but I am not so easily lured away from my sanctum!"
-#define SOUND_AGGRO             8286
-#define SOUND_LEASH             8287
 
 struct TRINITY_DLL_DECL boss_broodlordAI : public ScriptedAI
 {
@@ -57,8 +55,7 @@ struct TRINITY_DLL_DECL boss_broodlordAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_AGGRO);
+        DoScriptText(SAY_AGGRO, m_creature);
         DoZoneInCombat();
     }
 
@@ -75,6 +72,7 @@ struct TRINITY_DLL_DECL boss_broodlordAI : public ScriptedAI
             float spawndist = m_creature->GetDistance(rx,ry,rz);
             if ( spawndist > 250 )
             {
+                DoScriptText(SAY_LEASH, m_creature);
                 EnterEvadeMode();
                 return;
             }
@@ -106,7 +104,7 @@ struct TRINITY_DLL_DECL boss_broodlordAI : public ScriptedAI
         {
             DoCast(m_creature->getVictim(),SPELL_KNOCKBACK);
             //Drop 50% aggro
-            if(m_creature->getThreatManager().getThreat(m_creature->getVictim()))
+            if (m_creature->getThreatManager().getThreat(m_creature->getVictim()))
                 m_creature->getThreatManager().modifyThreatPercent(m_creature->getVictim(),-50);
 
             KnockBack_Timer = 15000 + rand()%15000;
