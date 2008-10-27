@@ -21,8 +21,8 @@
 ## Sub-directories to parse
 
 ## Change installation location
-#  datadir = mangos/sql/tools
-pkgdatadir = $(datadir)/mangos/sql/tools
+#  datadir = trinity/sql/tools
+pkgdatadir = $(datadir)/trinity/sql/tools
 
 ## Files to be installed
 #  Install basic SQL files to datadir
