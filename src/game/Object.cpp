@@ -601,9 +601,9 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                     if(cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
                     {
                         if(target->isGameMaster())
-                            *data << cinfo->DisplayID_A;
+                            *data << cinfo->Modelid1;
                         else
-                            *data << cinfo->DisplayID_H;
+                            *data << cinfo->Modelid3;
                     }
                     else
                         *data << m_uint32Values[ index ];

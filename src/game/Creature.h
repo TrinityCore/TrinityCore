@@ -140,10 +140,10 @@ struct CreatureInfo
 {
     uint32  Entry;
     uint32  HeroicEntry;
-    uint32  DisplayID_A;
-    uint32  DisplayID_A2;
-    uint32  DisplayID_H;
-    uint32  DisplayID_H2;
+    uint32  Modelid1;
+    uint32  Modelid2;
+    uint32  Modelid3;
+    uint32  Modelid4;
     char*   Name;
     char*   SubName;
     char*   IconName;
@@ -203,6 +203,8 @@ struct CreatureInfo
     uint32  MechanicImmuneMask;
     uint32  flags_extra;
     char const* ScriptName;
+    uint32 GetRandomValidModelId() const;
+    uint32 GetFirstValidModelId() const;
 };
 
 struct CreatureLocale

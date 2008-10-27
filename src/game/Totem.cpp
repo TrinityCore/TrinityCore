@@ -56,20 +56,22 @@ void Totem::Update( uint32 time )
 
 void Totem::Summon(Unit* owner)
 {
-    sLog.outDebug("AddObject at Totem.cpp line 49");
+    CreatureInfo const *cinfo = GetCreatureInfo();
+    if (owner->GetTypeId()==TYPEID_PLAYER && cinfo)
+    {
+        if (uint32 modelid = cinfo->GetRandomValidModelId()) 
+            SetDisplayId(modelid);
+        else
+        {
+            sLog.outErrorDb("No displayid found for the totem with the entry %u! Can't summon it!", GetEntry());
+            return;
+        }
+    }
 
+    // Only add if a display exists.
+    sLog.outDebug("AddObject at Totem.cpp line 49");
     SetInstanceId(owner->GetInstanceId());
     owner->GetMap()->Add((Creature*)this);
-
-    // select totem model in dependent from owner team
-    CreatureInfo const *cinfo = GetCreatureInfo();
-    if(owner->GetTypeId()==TYPEID_PLAYER && cinfo)
-    {
-        if(((Player*)owner)->GetTeam()==HORDE)
-            SetDisplayId(cinfo->DisplayID_H);
-        else
-            SetDisplayId(cinfo->DisplayID_A);
-    }
 
     WorldPacket data(SMSG_GAMEOBJECT_SPAWN_ANIM_OBSOLETE, 8);
     data << GetGUID();

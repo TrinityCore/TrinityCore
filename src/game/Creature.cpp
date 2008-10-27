@@ -94,6 +94,28 @@ VendorItem const* VendorItemData::FindItem(uint32 item_id) const
     return NULL;
 }
 
+uint32 CreatureInfo::GetRandomValidModelId() const
+{
+    uint32 c = 0;
+    uint32 modelIDs[4];
+
+    if (Modelid1) modelIDs[c++] = Modelid1;
+    if (Modelid2) modelIDs[c++] = Modelid2;
+    if (Modelid3) modelIDs[c++] = Modelid3;
+    if (Modelid4) modelIDs[c++] = Modelid4;
+
+    return ((c>0) ? modelIDs[urand(0,c-1)] : 0);
+}
+
+uint32 CreatureInfo::GetFirstValidModelId() const
+{
+    if(Modelid1) return Modelid1;
+    if(Modelid2) return Modelid2;
+    if(Modelid3) return Modelid3;
+    if(Modelid4) return Modelid4;
+    return 0;
+}
+
 Creature::Creature() :
 Unit(), i_AI(NULL),
 lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), lootingGroupLeaderGUID(0),
@@ -187,9 +209,10 @@ bool Creature::InitEntry(uint32 Entry, uint32 team, const CreatureData *data )
     SetUInt32Value(OBJECT_FIELD_ENTRY, Entry);              // normal entry always
     m_creatureInfo = cinfo;                                 // map mode related always
 
-    if (cinfo->DisplayID_A == 0 || cinfo->DisplayID_H == 0) // Cancel load if no model defined
+    // Cancel load if no model defined
+    if (!(cinfo->GetFirstValidModelId()))
     {
-        sLog.outErrorDb("Creature (Entry: %u) has no model defined for Horde or Alliance in table `creature_template`, can't load. ",Entry);
+        sLog.outErrorDb("Creature (Entry: %u) has no model defined in table `creature_template`, can't load. ",Entry);
         return false;
     }
 
@@ -1116,20 +1139,8 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask)
     CreatureInfo const *cinfo = GetCreatureInfo();
     if(cinfo)
     {
-        if(displayId != cinfo->DisplayID_A && displayId != cinfo->DisplayID_H)
-        {
-            CreatureModelInfo const *minfo = objmgr.GetCreatureModelInfo(cinfo->DisplayID_A);
-            if(!minfo || displayId != minfo->modelid_other_gender)
-            {
-                minfo = objmgr.GetCreatureModelInfo(cinfo->DisplayID_H);
-                if(minfo && displayId == minfo->modelid_other_gender)
-                    displayId = 0;
-            }
-            else
-                displayId = 0;
-        }
-        else
-            displayId = 0;
+        if(displayId == cinfo->Modelid1 || displayId == cinfo->Modelid2 ||
+            displayId == cinfo->Modelid3 || displayId == cinfo->Modelid4) displayId = 0;
     }
 
     // data->guid = guid don't must be update at save

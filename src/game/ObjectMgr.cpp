@@ -710,12 +710,27 @@ void ObjectMgr::LoadCreatureTemplates()
         if(!factionTemplate)
             sLog.outErrorDb("Creature (Entry: %u) has non-existing faction_H template (%u)", cInfo->Entry, cInfo->faction_H);
 
-        CreatureModelInfo const* minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->DisplayID_A);
-        if (!minfo)
-            sLog.outErrorDb("Creature (Entry: %u) has non-existing modelId_A (%u)", cInfo->Entry, cInfo->DisplayID_A);
-        minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->DisplayID_H);
-        if (!minfo)
-            sLog.outErrorDb("Creature (Entry: %u) has non-existing modelId_H (%u)", cInfo->Entry, cInfo->DisplayID_H);
+        // check model ids, supplying and sending non-existent ids to the client might crash them
+        if(!sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid1))
+        {
+            sLog.outErrorDb("Creature (Entry: %u) has non-existing modelId_A (%u), setting it to 0", cInfo->Entry, cInfo->Modelid1);
+            const_cast<CreatureInfo*>(cInfo)->Modelid1 = 0;
+        }
+        if(!sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid2))
+        {
+            sLog.outErrorDb("Creature (Entry: %u) has non-existing modelId_A2 (%u), setting it to 0", cInfo->Entry, cInfo->Modelid2);
+            const_cast<CreatureInfo*>(cInfo)->Modelid2 = 0;
+        }
+        if(!sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid3))
+        {
+            sLog.outErrorDb("Creature (Entry: %u) has non-existing modelId_H (%u), setting it to 0", cInfo->Entry, cInfo->Modelid3);
+            const_cast<CreatureInfo*>(cInfo)->Modelid3 = 0;
+        }
+        if(!sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid4))
+        {
+            sLog.outErrorDb("Creature (Entry: %u) has non-existing modelId_H2 (%u), setting it to 0", cInfo->Entry, cInfo->Modelid4);
+            const_cast<CreatureInfo*>(cInfo)->Modelid4 = 0;
+        }
 
         if(cInfo->dmgschool >= MAX_SPELL_SCHOOL)
         {
@@ -763,7 +778,8 @@ void ObjectMgr::LoadCreatureTemplates()
         /// if not set custom creature scale then load scale from CreatureDisplayInfo.dbc
         if(cInfo->scale <= 0.0f)
         {
-            CreatureDisplayInfoEntry const* ScaleEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->DisplayID_A);
+            uint32 modelid = cInfo->GetFirstValidModelId();
+            CreatureDisplayInfoEntry const* ScaleEntry = sCreatureDisplayInfoStore.LookupEntry(modelid);
             const_cast<CreatureInfo*>(cInfo)->scale = ScaleEntry ? ScaleEntry->scale : 1.0f;
         }
     }
@@ -904,17 +920,12 @@ CreatureModelInfo const* ObjectMgr::GetCreatureModelInfo(uint32 modelid)
 uint32 ObjectMgr::ChooseDisplayId(uint32 team, const CreatureInfo *cinfo, const CreatureData *data)
 {
     // Load creature model (display id)
-    uint32 display_id;
-    if (!data || data->displayid == 0)                      // use defaults from the template
+    uint32 display_id = 0;
+
+    if (!data || data->displayid == 0) // use defaults from the template
     {
-        // DisplayID_A is used if no team is given
-        if (team == HORDE)
-            display_id = (cinfo->DisplayID_H2 != 0 && urand(0,1) == 0) ? cinfo->DisplayID_H2 : cinfo->DisplayID_H;
-        else
-            display_id = (cinfo->DisplayID_A2 != 0 && urand(0,1) == 0) ? cinfo->DisplayID_A2 : cinfo->DisplayID_A;
-    }
-    else                                                    // overriden in creature data
-        display_id = data->displayid;
+        display_id = cinfo->GetRandomValidModelId();
+    } else display_id = data->displayid; // overwritten from creature data        
 
     return display_id;
 }
@@ -4599,25 +4610,23 @@ void ObjectMgr::GetTaxiPath( uint32 source, uint32 destination, uint32 &path, ui
 
 uint16 ObjectMgr::GetTaxiMount( uint32 id, uint32 team )
 {
-    uint16 mount_entry = 0;
-    uint16 mount_id = 0;
+    uint32 mount_entry = 0;
+    uint32 mount_id = 0;
 
     TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(id);
-    if(node)
+    if (node)
     {
-        if (team == ALLIANCE)
+        if (team == ALLIANCE) mount_entry = node->alliance_mount_type;
+        else mount_entry = node->horde_mount_type;
+
+        CreatureInfo const *cinfo = GetCreatureTemplate(mount_entry);
+        if (cinfo)
         {
-            mount_entry = node->alliance_mount_type;
-            CreatureInfo const *ci = GetCreatureTemplate(mount_entry);
-            if(ci)
-                mount_id = ci->DisplayID_A;
-        }
-        if (team == HORDE)
-        {
-            mount_entry = node->horde_mount_type;
-            CreatureInfo const *ci = GetCreatureTemplate(mount_entry);
-            if(ci)
-                mount_id = ci->DisplayID_H;
+            if(! (mount_id = cinfo->GetRandomValidModelId()))
+            {
+                sLog.outErrorDb("No displayid found for the taxi mount with the entry %u! Can't load it!", mount_entry);
+                return false;
+            }
         }
     }
 

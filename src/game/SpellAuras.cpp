@@ -2696,8 +2696,7 @@ void Aura::HandleAuraTransform(bool apply, bool Real)
             }
             else
             {
-                                                            // Will use the default model here
-                m_target->SetDisplayId(ci->DisplayID_A);
+                if (uint32 modelid = ci->GetRandomValidModelId()) m_target->SetDisplayId(modelid);
 
                 // Dragonmaw Illusion (set mount model also)
                 if(GetId()==42016 && m_target->GetMountID() && !m_target->GetAurasByType(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED).empty())
