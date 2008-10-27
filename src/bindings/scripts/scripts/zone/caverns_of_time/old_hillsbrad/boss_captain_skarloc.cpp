@@ -24,26 +24,19 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_old_hillsbrad.h"
 
-#define HOLY_LIGHT          29562
-#define CLEANSE             39078
-#define HAMMER_OF_JUSTICE   13005
-#define HOLY_SHIELD         31904
-#define DEVOTION_AURA       41452
-#define CONSECRATION        41541
+#define SAY_ENTER                   -1560000
+#define SAY_TAUNT1                  -1560001
+#define SAY_TAUNT2                  -1560002
+#define SAY_SLAY1                   -1560003
+#define SAY_SLAY2                   -1560004
+#define SAY_DEATH                   -1560005
 
-#define SAY_ENTER           "Thrall! You didn't really think you would escape did you? You and your allies shall answer to Blackmoore - after I've had my fun!"
-#define SAY_AGGRO1          "You're a slave. That's all you'll ever be.'"
-#define SAY_AGGRO2          "I don't know what Blackmoore sees in you. For my money, you're just another ignorant savage!"
-#define SAY_SLAY1           "Thrall will never be free!"
-#define SAY_SLAY2           "Did you really think you would leave here alive?"
-#define SAY_DEATH           "Guards! Urgh..Guards..!'"
-
-#define SOUND_ENTER         10406
-#define SOUND_AGGRO1        10407
-#define SOUND_AGGRO2        10408
-#define SOUND_SLAY1         10409
-#define SOUND_SLAY2         10410
-#define SOUND_DEATH         10411
+#define SPELL_HOLY_LIGHT            29427
+#define SPELL_CLEANSE               29380
+#define SPELL_HAMMER_OF_JUSTICE     13005
+#define SPELL_HOLY_SHIELD           31904
+#define SPELL_DEVOTION_AURA         8258
+#define SPELL_CONSECRATION          38385
 
 struct TRINITY_DLL_DECL boss_captain_skarlocAI : public ScriptedAI
 {
@@ -68,45 +61,31 @@ struct TRINITY_DLL_DECL boss_captain_skarlocAI : public ScriptedAI
         Cleanse_Timer = 10000;
         HammerOfJustice_Timer = 60000;
         HolyShield_Timer = 240000;
-        DevotionAura_Timer = 60000;
+        DevotionAura_Timer = 3000;
         Consecration_Timer = 8000;
     }
 
     void Aggro(Unit *who)
     {
-        switch(rand()%2)
-        {
-            case 0:
-                DoYell(SAY_AGGRO1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_AGGRO1);
-                break;
-            case 1:
-                DoYell(SAY_AGGRO2,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_AGGRO2);
-                break;
-        }
+        //This is not correct. Should taunt Thrall before engage in combat
+        DoScriptText(SAY_TAUNT1, m_creature);
+        DoScriptText(SAY_TAUNT2, m_creature);
     }
 
     void KilledUnit(Unit *victim)
     {
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_SLAY1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY1);
-                break;
-            case 1:
-                DoYell(SAY_SLAY2,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY2);
-                break;
+            case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+            case 1: DoScriptText(SAY_SLAY2, m_creature); break;
         }
     }
 
     void JustDied(Unit *victim)
     {
-        DoYell(SAY_DEATH,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
-        if( pInstance && pInstance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS )
+        DoScriptText(SAY_DEATH, m_creature);
+
+        if (pInstance && pInstance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS)
             pInstance->SetData(TYPE_THRALL_PART1, DONE);
     }
 
@@ -119,42 +98,42 @@ struct TRINITY_DLL_DECL boss_captain_skarlocAI : public ScriptedAI
         //Holy_Light
         if (Holy_Light_Timer < diff)
         {
-            DoCast(m_creature, HOLY_LIGHT);
+            DoCast(m_creature, SPELL_HOLY_LIGHT);
             Holy_Light_Timer = 30000;
         }else Holy_Light_Timer -= diff;
 
         //Cleanse
         if(Cleanse_Timer  < diff)
         {
-            DoCast(m_creature, CLEANSE);
-            Cleanse_Timer = 10000 ;
+            DoCast(m_creature, SPELL_CLEANSE);
+            Cleanse_Timer = 10000;
         } else Cleanse_Timer -= diff;
 
         //Hammer of Justice
         if (HammerOfJustice_Timer < diff)
         {
-            DoCast(m_creature->getVictim(), HAMMER_OF_JUSTICE);
+            DoCast(m_creature->getVictim(), SPELL_HAMMER_OF_JUSTICE);
             HammerOfJustice_Timer = 60000;
         }else HammerOfJustice_Timer -= diff;
 
         //Holy Shield
         if (HolyShield_Timer < diff)
         {
-            DoCast(m_creature,HOLY_SHIELD);
+            DoCast(m_creature, SPELL_HOLY_SHIELD);
             HolyShield_Timer = 240000;
         }else HolyShield_Timer -= diff;
 
         //Devotion_Aura
         if (DevotionAura_Timer < diff)
         {
-            DoCast(m_creature,DEVOTION_AURA);
+            DoCast(m_creature, SPELL_DEVOTION_AURA);
             DevotionAura_Timer = 60000;
         }else DevotionAura_Timer -= diff;
 
         //Consecration
         if (Consecration_Timer < diff)
         {
-            //DoCast(m_creature->getVictim(),CONSECRATION);
+            //DoCast(m_creature->getVictim(), SPELL_CONSECRATION);
             Consecration_Timer = 8000;
         }else Consecration_Timer -= diff;
 

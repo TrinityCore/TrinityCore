@@ -16,30 +16,29 @@
 
 /* ScriptData
 SDName: Boss_Nefarian
-SD%Complete: 100
+SD%Complete: 80
 SDComment: Some issues with class calls effecting more than one class
 SDCategory: Blackwing Lair
 EndScriptData */
 
 #include "precompiled.h"
 
-#define SAY_AGGRO               "Well done, my minions. The mortals' courage begins to wane! Now, let's see how they contend with the true Lord of Blackrock Spire!"
-#define SAY_DEATH               "This cannot be! I am the Master here! You mortals are nothing to my kind! DO YOU HEAR? NOTHING!"
-#define SAY_RAISE_SKELETONS     "Impossible! Rise my minions! Serve your master once more!"
-#define SAY_SHADOWFLAME         "Burn, you wretches! Burn!"
-#define SAY_SLAY                "Worthless $N! Your friends will join you soon enough!"
-#define SAY_XHEALTH             "Enough! Now you vermin shall feel the force of my birthright, the fury of the earth itself."
-#define SAY_GAMESBEGIN          "Let the games begin!"
-#define SAY_START               "<unknown>"
+#define SAY_AGGRO               -1469007
+#define SAY_XHEALTH             -1469008
+#define SAY_SHADOWFLAME         -1469009
+#define SAY_RAISE_SKELETONS     -1469010
+#define SAY_SLAY                -1469011
+#define SAY_DEATH               -1469012
 
-#define SOUND_AGGRO             8288
-#define SOUND_DEATH             8292
-#define SOUND_RAISE_SKELETONS   8291
-#define SOUND_SHADOWFLAME       8290
-#define SOUND_SLAY              8293
-#define SOUND_XHEALTH           8289
-#define SOUND_GAMESBEGIN        8279
-#define SOUND_START             8280
+#define SAY_MAGE                -1469013
+#define SAY_WARRIOR             -1469014
+#define SAY_DRUID               -1469015
+#define SAY_PRIEST              -1469016
+#define SAY_PALADIN             -1469017
+#define SAY_SHAMAN              -1469018
+#define SAY_WARLOCK             -1469019
+#define SAY_HUNTER              -1469020
+#define SAY_ROGUE               -1469021
 
 #define SPELL_SHADOWFLAME_INITIAL   22972
 #define SPELL_SHADOWFLAME           22539
@@ -58,16 +57,6 @@ EndScriptData */
 #define SPELL_WARLOCK               23427                   //infernals
 #define SPELL_HUNTER                23436                   //bow broke
 #define SPELL_ROGUE                 23414                   //Paralise
-
-#define SAY_MAGE        "Mages too? You should be more careful when you play with magic..."
-#define SAY_WARRIOR     "Warriors, I know you can hit harder than that! Let's see it!"
-#define SAY_DRUID       "Druids and your silly shapeshifting. Let's see it in action!"
-#define SAY_PRIEST      "Priests! If you're going to keep healing like that, we might as well make it a little more interesting!"
-#define SAY_PALADIN     "Paladins, I've heard you have many lives. Show me."
-#define SAY_SHAMAN      "Shamans, show me what your totems can do!"
-#define SAY_WARLOCK     "Warlocks, you shouldn't be playing with magic you don't understand. See what happens?"
-#define SAY_HUNTER      "Hunters and your annoying pea-shooters!"
-#define SAY_ROGUE       "Rogues? Stop hiding and face me!"
 
 struct TRINITY_DLL_DECL boss_nefarianAI : public ScriptedAI
 {
@@ -100,32 +89,21 @@ struct TRINITY_DLL_DECL boss_nefarianAI : public ScriptedAI
         if (rand()%5)
             return;
 
-        DoYell(SAY_SLAY,LANG_UNIVERSAL,Victim);
-        DoPlaySoundToSet(m_creature, SOUND_SLAY);
+        DoScriptText(SAY_SLAY, m_creature, Victim);
     }
 
     void JustDied(Unit* Killer)
     {
-        DoYell(SAY_DEATH,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
     }
 
     void Aggro(Unit *who)
     {
         switch (rand()%3)
         {
-            case 0:
-                DoYell(SAY_XHEALTH,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_XHEALTH);
-                break;
-            case 1:
-                DoYell(SAY_AGGRO,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO);
-                break;
-            case 2:
-                DoYell(SAY_SHADOWFLAME,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SHADOWFLAME);
-                break;
+            case 0: DoScriptText(SAY_XHEALTH, m_creature); break;
+            case 1: DoScriptText(SAY_AGGRO, m_creature); break;
+            case 2: DoScriptText(SAY_SHADOWFLAME, m_creature); break;
         }
 
         DoCast(who,SPELL_SHADOWFLAME_INITIAL);
@@ -184,39 +162,39 @@ struct TRINITY_DLL_DECL boss_nefarianAI : public ScriptedAI
             switch (rand()%9)
             {
                 case 0:
-                    DoYell(SAY_MAGE,LANG_UNIVERSAL,NULL);
+                    DoScriptText(SAY_MAGE, m_creature);
                     DoCast(m_creature,SPELL_MAGE);
                     break;
                 case 1:
-                    DoYell(SAY_WARRIOR,LANG_UNIVERSAL,NULL);
+                    DoScriptText(SAY_WARRIOR, m_creature);
                     DoCast(m_creature,SPELL_WARRIOR);
                     break;
                 case 2:
-                    DoYell(SAY_DRUID,LANG_UNIVERSAL,NULL);
+                    DoScriptText(SAY_DRUID, m_creature);
                     DoCast(m_creature,SPELL_DRUID);
                     break;
                 case 3:
-                    DoYell(SAY_PRIEST,LANG_UNIVERSAL,NULL);
+                    DoScriptText(SAY_PRIEST, m_creature);
                     DoCast(m_creature,SPELL_PRIEST);
                     break;
                 case 4:
-                    DoYell(SAY_PALADIN,LANG_UNIVERSAL,NULL);
+                    DoScriptText(SAY_PALADIN, m_creature);
                     DoCast(m_creature,SPELL_PALADIN);
                     break;
                 case 5:
-                    DoYell(SAY_SHAMAN,LANG_UNIVERSAL,NULL);
+                    DoScriptText(SAY_SHAMAN, m_creature);
                     DoCast(m_creature,SPELL_SHAMAN);
                     break;
                 case 6:
-                    DoYell(SAY_WARLOCK,LANG_UNIVERSAL,NULL);
+                    DoScriptText(SAY_WARLOCK, m_creature);
                     DoCast(m_creature,SPELL_WARLOCK);
                     break;
                 case 7:
-                    DoYell(SAY_HUNTER,LANG_UNIVERSAL,NULL);
+                    DoScriptText(SAY_HUNTER, m_creature);
                     DoCast(m_creature,SPELL_HUNTER);
                     break;
                 case 8:
-                    DoYell(SAY_ROGUE,LANG_UNIVERSAL,NULL);
+                    DoScriptText(SAY_ROGUE, m_creature);
                     DoCast(m_creature,SPELL_ROGUE);
                     break;
             }
@@ -228,8 +206,7 @@ struct TRINITY_DLL_DECL boss_nefarianAI : public ScriptedAI
         if (!Phase3 && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 20)
         {
             Phase3 = true;
-            DoYell(SAY_RAISE_SKELETONS,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature,SOUND_RAISE_SKELETONS);
+            DoScriptText(SAY_RAISE_SKELETONS, m_creature);
         }
 
         DoMeleeAttackIfReady();

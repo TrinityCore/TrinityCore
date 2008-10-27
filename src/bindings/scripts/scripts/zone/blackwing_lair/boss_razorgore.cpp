@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Razorgore
 SD%Complete: 50
-SDComment: Needs additional review. Phase 1 NYI
+SDComment: Needs additional review. Phase 1 NYI (Grethok the Controller)
 SDCategory: Blackwing Lair
 EndScriptData */
 
@@ -25,10 +25,10 @@ EndScriptData */
 
 //Razorgore Phase 2 Script
 
-#define SAY_NPC_DEATH           "If I fall into the abyss I'll take all of you mortals with me..."
-#define SOUND_NPC_DEATH         8278
-#define SAY_EGGS_BREAK3         "No! Not another one! I'll have your heads for this atrocity."
-#define SOUND_EGGS_BREAK3       8277
+#define SAY_EGGS_BROKEN1        -1469022
+#define SAY_EGGS_BROKEN2        -1469023
+#define SAY_EGGS_BROKEN3        -1469024
+#define SAY_DEATH               -1469025
 
 #define SPELL_CLEAVE            22540
 #define SPELL_WARSTOMP          24375
@@ -58,6 +58,11 @@ struct TRINITY_DLL_DECL boss_razorgoreAI : public ScriptedAI
     void Aggro(Unit *who)
     {
         DoZoneInCombat();
+    }
+
+    void JustDied(Unit* Killer)
+    {
+        DoScriptText(SAY_DEATH, m_creature);
     }
 
     void UpdateAI(const uint32 diff)

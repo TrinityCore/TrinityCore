@@ -16,31 +16,25 @@
 
 /* ScriptData
 SDName: Boss_Temporus
-SD%Complete: 100
-SDComment:
+SD%Complete: 75
+SDComment: More abilities need to be implemented
 SDCategory: Caverns of Time, The Dark Portal
 EndScriptData */
 
 #include "precompiled.h"
 
-#define SPELL_TAUNT           355
-#define SPELL_HASTE           31458
-#define SPELL_MORTAL_WOUND    28467
-#define SPELL_REFLECT         23920                         //Not Implemented (Heroic mod)
+#define SAY_ENTER               -1269000
+#define SAY_AGGRO               -1269001
+#define SAY_BANISH              -1269002
+#define SAY_SLAY1               -1269003
+#define SAY_SLAY2               -1269004
+#define SAY_DEATH               -1269005
 
-#define SAY_ENTER             "Why do you persist? Surely you can see the futility of it all. It is not too late! You may still leave with your lives ..."
-#define SAY_AGGRO             "So be it ... you have been warned."
-#define SAY_BANISH            "Time... sands of time is run out for you."
-#define SAY_SLAY1             "You should have left when you had the chance."
-#define SAY_SLAY2             "Your days are done."
-#define SAY_DEATH             "My death means ... little."
-
-#define SOUND_ENTER           10442
-#define SOUND_AGGRO           10444
-#define SOUND_BANISH          10443
-#define SOUND_SLAY1           10445
-#define SOUND_SLAY2           10446
-#define SOUND_DEATH           10447
+#define SPELL_HASTE             31458
+#define SPELL_MORTAL_WOUND      31464
+#define SPELL_WING_BUFFET       31475
+#define H_SPELL_WING_BUFFET     38593
+#define SPELL_REFLECT           38592                       //Not Implemented (Heroic mod)
 
 struct TRINITY_DLL_DECL boss_temporusAI : public ScriptedAI
 {
@@ -51,35 +45,30 @@ struct TRINITY_DLL_DECL boss_temporusAI : public ScriptedAI
 
     void Reset()
     {
+        m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+        m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
+
         Haste_Timer = 20000;
         SpellReflection_Timer = 40000;
     }
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_AGGRO,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature, SOUND_AGGRO);
+        DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void KilledUnit(Unit *victim)
     {
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_SLAY1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY1);
-                break;
-            case 1:
-                DoYell(SAY_SLAY2,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY2);
-                break;
+            case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+            case 1: DoScriptText(SAY_SLAY2, m_creature); break;
         }
     }
 
     void JustDied(Unit *victim)
     {
-        DoYell(SAY_DEATH,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
     }
 
     void MoveInLineOfSight(Unit *who)
@@ -93,8 +82,7 @@ struct TRINITY_DLL_DECL boss_temporusAI : public ScriptedAI
             if(((Creature*)who)->GetEntry() == 17918 && m_creature->IsWithinDistInMap(who,20))
             {
                 //This is the wrong yell & sound for despawning time keepers!
-                DoYell(SAY_ENTER, LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_ENTER);
+                DoScriptText(SAY_ENTER, m_creature);
 
                 m_creature->DealDamage(who, who->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             }
@@ -117,33 +105,26 @@ struct TRINITY_DLL_DECL boss_temporusAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
-        //Check if we have a current target
-        if( m_creature->getVictim() && m_creature->isAlive())
+        //Attack Haste
+        if (Haste_Timer < diff)
         {
+            DoCast(m_creature, SPELL_HASTE);
+            Haste_Timer = 20000+rand()%5000;
+        }else Haste_Timer -= diff;
 
-            //Attack Haste
-            if (Haste_Timer < diff)
-            {
-                DoCast(m_creature, SPELL_HASTE);
-                Haste_Timer = 20000+rand()%5000;
-            }else Haste_Timer -= diff;
+        //Spell Reflection
+        if (SpellReflection_Timer < diff)
+        {
+            DoScriptText(SAY_BANISH, m_creature);
 
-            //Spell Reflection
-            if (SpellReflection_Timer < diff)
-            {
-                DoYell(SAY_BANISH, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_BANISH);
+            DoCast(m_creature, SPELL_REFLECT);
+            SpellReflection_Timer = 40000+rand()%10000;
+        }else SpellReflection_Timer -= diff;
 
-                DoCast(m_creature, SPELL_REFLECT);
-                SpellReflection_Timer = 40000+rand()%10000;
-            }else SpellReflection_Timer -= diff;
-
-            DoMeleeAttackIfReady();
-
-        }
+        DoMeleeAttackIfReady();
     }
 };
 

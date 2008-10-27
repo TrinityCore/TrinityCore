@@ -23,12 +23,9 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SAY_GAMESBEGIN_1        "In this world where time is your enemy, it is my greatest ally. This grand game of life that you think you play in fact plays you. To that I say..."
-#define SAY_GAMESBEGIN_2        "Let the games begin!"
-#define SAY_VAEL_INTRO          "<unknown>"
-
-#define SOUND_GAMESBEGIN        8280
-#define SOUND_VAEL_INTRO        8279
+#define SAY_GAMESBEGIN_1        -1469004
+#define SAY_GAMESBEGIN_2        -1469005
+#define SAY_VAEL_INTRO          -1469006                    //when he corrupts Vaelastrasz
 
 #define GOSSIP_ITEM_1           "I've made no mistakes."
 #define GOSSIP_ITEM_2           "You have lost your mind, Nefarius. You speak in riddles."
@@ -41,7 +38,6 @@ EndScriptData */
 #define CREATURE_BLACK_DRAKANOID        14265
 
 #define CREATURE_CHROMATIC_DRAKANOID    14302
-
 #define CREATURE_NEFARIAN               11583
 
 #define ADD_X1 -7591.151855
@@ -191,8 +187,7 @@ struct TRINITY_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
 
     void BeginEvent(Player* target)
     {
-        DoYell(SAY_GAMESBEGIN_2,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_GAMESBEGIN);
+        DoScriptText(SAY_GAMESBEGIN_2, m_creature);
 
         //Trinity::Singleton<MapManager>::Instance().GetMap(m_creature->GetMapId(), m_creature)->GetPlayers().begin();
         /*
@@ -326,7 +321,7 @@ struct TRINITY_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
                         Nefarian->setFaction(103);
                         NefarianGUID = Nefarian->GetGUID();
                     }
-                    else DoYell("UNABLE TO SPAWN NEF PROPERLY",LANG_UNIVERSAL,NULL);
+                    else error_log("SD2: Blackwing Lair: Unable to spawn nefarian properly.");
                 }
 
                 AddSpawnTimer = 4000;
@@ -379,7 +374,7 @@ bool GossipSelect_boss_victor_nefarius(Player *player, Creature *_Creature, uint
             break;
         case GOSSIP_ACTION_INFO_DEF+3:
             player->CLOSE_GOSSIP_MENU();
-            _Creature->MonsterSay(SAY_GAMESBEGIN_1,LANG_UNIVERSAL,0);
+            DoScriptText(SAY_GAMESBEGIN_1, _Creature);
             ((boss_victor_nefariusAI*)_Creature->AI())->BeginEvent(player);
             break;
     }

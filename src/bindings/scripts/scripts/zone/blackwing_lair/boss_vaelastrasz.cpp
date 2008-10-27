@@ -23,29 +23,20 @@ EndScriptData */
 
 #include "precompiled.h"
 
+#define SAY_LINE1           -1469026
+#define SAY_LINE2           -1469027
+#define SAY_LINE3           -1469028
+#define SAY_HALFLIFE        -1469029
+#define SAY_KILLTARGET      -1469030
+
+#define GOSSIP_ITEM         "Start Event <Needs Gossip Text>"
+
 #define SPELL_ESSENCEOFTHERED       23513
 #define SPELL_FLAMEBREATH           23461
 #define SPELL_FIRENOVA              23462
 #define SPELL_TAILSWIPE             15847
 #define SPELL_BURNINGADRENALINE     23620
 #define SPELL_CLEAVE                20684                   //Chain cleave is most likely named something different and contains a dummy effect
-
-#define SAY_LINE1           "Too late...friends. Nefarius' corruption has taken hold. I cannot...control myself. "
-#define SOUND_LINE1         8281
-
-#define SAY_LINE2           "I beg you Mortals, flee! Flee before I lose all control. The Black Fire rages within my heart. I must release it!"
-#define SOUND_LINE2         8282
-
-#define SAY_LINE3           "FLAME! DEATH! DESTRUCTION! COWER MORTALS BEFORE THE WRATH OF LORD....NO! I MUST FIGHT THIS!"
-#define SOUND_LINE3         8283
-
-#define SAY_HALFLIFE        "Nefarius' hate has made me stronger than ever before. You should have fled, while you could, mortals! The fury of Blackrock courses through my veins! "
-#define SOUND_HALFLIFE      8285
-
-#define SAY_KILLTARGET      "Forgive me $N, your death only adds to my failure."
-#define SOUND_KILLTARGET    8284
-
-#define GOSSIP_ITEM         "Start Event <Needs Gossip Text>"
 
 struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
 {
@@ -93,8 +84,8 @@ struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
         PlayerGUID = target->GetGUID();
 
         //10 seconds
-        DoYell(SAY_LINE1,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_LINE1);
+        DoScriptText(SAY_LINE1, m_creature);
+
         SpeachTimer = 10000;
         SpeachNum = 0;
         DoingSpeach = true;
@@ -105,8 +96,7 @@ struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
         if (rand()%5)
             return;
 
-        DoYell(SAY_KILLTARGET,LANG_UNIVERSAL,victim);
-        DoPlaySoundToSet(m_creature,SOUND_KILLTARGET);
+        DoScriptText(SAY_KILLTARGET, m_creature, victim);
     }
 
     void Aggro(Unit *who)
@@ -126,15 +116,13 @@ struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
                 {
                     case 0:
                         //16 seconds till next line
-                        DoYell(SAY_LINE2,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,SOUND_LINE2);
+                        DoScriptText(SAY_LINE2, m_creature);
                         SpeachTimer = 16000;
                         SpeachNum++;
                         break;
                     case 1:
                         //This one is actually 16 seconds but we only go to 10 seconds because he starts attacking after he says "I must fight this!"
-                        DoYell(SAY_LINE3,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,SOUND_LINE3);
+                        DoScriptText(SAY_LINE3, m_creature);
                         SpeachTimer = 10000;
                         SpeachNum++;
                         break;
@@ -160,9 +148,7 @@ struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
         // Yell if hp lower than 15%
         if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 15 && !HasYelled)
         {
-            //Say our dialog
-            DoYell(SAY_HALFLIFE,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature,SOUND_HALFLIFE);
+            DoScriptText(SAY_HALFLIFE, m_creature);
             HasYelled = true;
         }
 
@@ -205,7 +191,6 @@ struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
         {
             // have the victim cast the spell on himself otherwise the third effect aura will be applied
             // to Vael instead of the player
-
             m_creature->getVictim()->CastSpell(m_creature->getVictim(),SPELL_BURNINGADRENALINE,1);
 
             BurningAdrenalineTank_Timer = 45000;
