@@ -1228,7 +1228,7 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, const u
         TypeContainerVisitor<Trinity::SpellNotifierCreatureAndPlayer, WorldTypeMapContainer > world_object_notifier(notifier);
         cell_lock->Visit(cell_lock, world_object_notifier, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
     }
-    if(!spellmgr.GetSpellExtraInfo(m_spellInfo->Id, SPELL_EXTRA_INFO_MAX_TARGETS))
+    if(!spellmgr.GetSpellExtraAttr(m_spellInfo->Id, SPELL_EXTRA_ATTR_MAX_TARGETS))
     {
         TypeContainerVisitor<Trinity::SpellNotifierCreatureAndPlayer, GridTypeMapContainer >  grid_object_notifier(notifier);
         cell_lock->Visit(cell_lock, grid_object_notifier, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
@@ -1357,7 +1357,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
         case TARGET_ALL_AROUND_CASTER:
         {
             if(!unMaxTargets)
-                unMaxTargets = spellmgr.GetSpellExtraInfo(m_spellInfo->Id, SPELL_EXTRA_INFO_MAX_TARGETS);
+                unMaxTargets = spellmgr.GetSpellExtraAttr(m_spellInfo->Id, SPELL_EXTRA_ATTR_MAX_TARGETS);
             m_caster->GetPosition(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ);
         }break;
         case TARGET_CURRENT_ENEMY_COORDINATES:
@@ -1423,7 +1423,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
         case TARGET_IN_FRONT_OF_CASTER:
         case TARGET_UNIT_CONE_ENEMY_UNKNOWN:
         {
-            switch(spellmgr.GetSpellExtraInfo(m_spellInfo->Id, SPELL_EXTRA_INFO_CONE_TYPE))
+            switch(spellmgr.GetSpellExtraAttr(m_spellInfo->Id, SPELL_EXTRA_ATTR_CONE_TYPE))
             {
                 default:
                 case 0:

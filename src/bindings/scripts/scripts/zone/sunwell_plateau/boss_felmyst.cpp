@@ -157,15 +157,17 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
         Timer[EVENT_BERSERK] = 600000;
         FlightCount = 0;
 
-        m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+        m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING + MOVEMENTFLAG_ONTRANSPORT);
         m_creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
         m_creature->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
 
         DespawnSummons(MOB_VAPOR_TRAIL);
+  m_creature->setActive(false);
     }
 
     void Aggro(Unit *who)
     {
+  m_creature->setActive(true);
         DoZoneInCombat();
         m_creature->CastSpell(m_creature, AURA_SUNWELL_RADIANCE, true);
         m_creature->CastSpell(m_creature, AURA_NOXIOUS_FUMES, true);
@@ -282,20 +284,18 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
             m_creature->AttackStop();
             m_creature->GetMotionMaster()->Clear(false);
             m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-            m_creature->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
+            m_creature->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING + MOVEMENTFLAG_ONTRANSPORT);
             m_creature->StopMoving();
             DoYell(YELL_TAKEOFF, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_TAKEOFF);
             Timer[EVENT_FLIGHT_SEQUENCE] = 2000;
             break;
         case 1:
-            m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
             m_creature->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX()+1, m_creature->GetPositionY(), m_creature->GetPositionZ()+10);
-            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
             Timer[EVENT_FLIGHT_SEQUENCE] = 0;
             break;
         case 2:
-            if(Player* target = SelectRandomPlayer(50))
+            if(Player* target = SelectRandomPlayer(150))
             {
                 Creature* Vapor = m_creature->SummonCreature(MOB_VAPOR, target->GetPositionX()-5+rand()%10, target->GetPositionY()-5+rand()%10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
                 if(Vapor)
@@ -311,7 +311,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
         case 3:
             DespawnSummons(MOB_VAPOR_TRAIL);
             //m_creature->CastSpell(m_creature, SPELL_VAPOR_SELECT); need core support
-            if(Player* target = SelectRandomPlayer(50))
+            if(Player* target = SelectRandomPlayer(150))
             {
                 //target->CastSpell(target, SPELL_VAPOR_SUMMON, true); need core support
                 Creature* Vapor = m_creature->SummonCreature(MOB_VAPOR, target->GetPositionX()-5+rand()%10, target->GetPositionY()-5+rand()%10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
@@ -330,15 +330,13 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
             Timer[EVENT_FLIGHT_SEQUENCE] = 1;
             break;
         case 5:
-            if(Player* target = SelectRandomPlayer(80))
+            if(Player* target = SelectRandomPlayer(150))
             {
                 BreathX = target->GetPositionX();
                 BreathY = target->GetPositionY();
                 float x, y, z;
-                target->GetContactPoint(m_creature, x, y, z, 40);
-                m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+                target->GetContactPoint(m_creature, x, y, z, 70);
                 m_creature->GetMotionMaster()->MovePoint(0, x, y, z+10);
-                m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
             }else EnterEvadeMode();
             Timer[EVENT_FLIGHT_SEQUENCE] = 0;
             break;
@@ -355,9 +353,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
                 m_creature->GetPosition(x, y, z);
                 x = 2 * BreathX - x;
                 y = 2 * BreathY - y;
-                m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
                 m_creature->GetMotionMaster()->MovePoint(0, x, y, z);
-                m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
             }
             Timer[EVENT_SUMMON_FOG] = 1;
             Timer[EVENT_FLIGHT_SEQUENCE] = 0;
@@ -374,14 +370,12 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
             {
                 float x, y, z;
                 target->GetContactPoint(m_creature, x, y, z);
-                m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
                 m_creature->GetMotionMaster()->MovePoint(0, x, y, z);
-                m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
             }else EnterEvadeMode();
             Timer[EVENT_FLIGHT_SEQUENCE] = 0;
             break;
         case 10:
-            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING + MOVEMENTFLAG_ONTRANSPORT);
             m_creature->StopMoving();
             m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
             EnterPhase(PHASE_GROUND);
@@ -439,7 +433,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
                 Timer[EVENT_GAS_NOVA] = 20000 + rand()%5 * 1000;
                 break;
             case EVENT_ENCAPSULATE:
-                if(Unit* target = SelectRandomPlayer(50))
+                if(Unit* target = SelectRandomPlayer(150))
                 {
                     m_creature->CastSpell(target, SPELL_ENCAPSULATE_CHANNEL, false);
                     target->CastSpell(target, SPELL_ENCAPSULATE_EFFECT, true);// linked aura, need core patch to remove this hack

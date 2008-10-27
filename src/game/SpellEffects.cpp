@@ -312,7 +312,7 @@ void Spell::EffectSchoolDMG(uint32 effect_idx)
                 }
 
                 // Meteor like spells (divided damage to targets)
-                if(spellmgr.GetSpellExtraInfo(m_spellInfo->Id, SPELL_EXTRA_INFO_SHARE_DAMAGE))
+                if(spellmgr.GetSpellExtraAttr(m_spellInfo->Id, SPELL_EXTRA_ATTR_SHARE_DAMAGE))
                 {
                     uint32 count = 0;
                     for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)

@@ -634,19 +634,21 @@ inline bool IsProfessionSkill(uint32 skill)
     return  IsPrimaryProfessionSkill(skill) || skill == SKILL_FISHING || skill == SKILL_COOKING || skill == SKILL_FIRST_AID;
 }
 
-enum SpellExtraInfoType
+enum SpellExtraAttributeType
 {
-    SPELL_EXTRA_INFO_MAX_TARGETS,
-    SPELL_EXTRA_INFO_CONE_TYPE,
-    SPELL_EXTRA_INFO_SHARE_DAMAGE
+    SPELL_EXTRA_ATTR_MAX_TARGETS,
+    SPELL_EXTRA_ATTR_CONE_TYPE,
+    SPELL_EXTRA_ATTR_SHARE_DAMAGE
 };
 
-struct SpellExtraInfo
+struct SpellExtraAttribute
 {
-    uint32 info[3];
+    uint32 attr[3];
 };
 
-typedef std::map<uint32, SpellExtraInfo> SpellExtraInfoMap;
+typedef std::map<uint32, SpellExtraAttribute> SpellExtraAttrMap;
+
+typedef std::map<int32, int32> SpellLinkedMap;
 
 class SpellMgr
 {
@@ -846,11 +848,20 @@ class SpellMgr
                 return NULL;
         }
 
-        uint32 GetSpellExtraInfo(uint32 spell_id, uint32 type) const
+        uint32 GetSpellExtraAttr(uint32 spell_id, uint32 type) const
         {
-            SpellExtraInfoMap::const_iterator itr = mSpellExtraInfoMap.find(spell_id);
-            if(itr != mSpellExtraInfoMap.end())
-                return itr->second.info[type];
+            SpellExtraAttrMap::const_iterator itr = mSpellExtraAttrMap.find(spell_id);
+            if(itr != mSpellExtraAttrMap.end())
+                return itr->second.attr[type];
+            else
+                return 0;
+        }
+
+        int32 GetSpellLinked(int32 spell_id) const
+        {
+            SpellLinkedMap::const_iterator itr = mSpellLinkedMap.find(spell_id);
+            if(itr != mSpellLinkedMap.end())
+                return itr->second;
             else
                 return 0;
         }
@@ -871,7 +882,8 @@ class SpellMgr
         void LoadSpellThreats();
         void LoadSkillLineAbilityMap();
         void LoadSpellPetAuras();
-        void LoadSpellExtraInfo();
+        void LoadSpellExtraAttr();
+        void LoadSpellLinked();
 
     private:
         SpellScriptTarget  mSpellScriptTarget;
@@ -885,7 +897,8 @@ class SpellMgr
         SpellProcEventMap  mSpellProcEventMap;
         SkillLineAbilityMap mSkillLineAbilityMap;
         SpellPetAuraMap     mSpellPetAuraMap;
-        SpellExtraInfoMap   mSpellExtraInfoMap;
+        SpellExtraAttrMap   mSpellExtraAttrMap;
+        SpellLinkedMap      mSpellLinkedMap;
 };
 
 #define spellmgr SpellMgr::Instance()

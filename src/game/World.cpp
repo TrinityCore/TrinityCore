@@ -1093,8 +1093,8 @@ void World::SetInitialWorldSettings()
     sLog.outString( "Loading spell pet auras..." );
     spellmgr.LoadSpellPetAuras();
 
-    sLog.outString( "Loading spell extra infos...(TODO)" );
-    spellmgr.LoadSpellExtraInfo();
+    sLog.outString( "Loading spell extra attributes...(TODO)" );
+    spellmgr.LoadSpellExtraAttr();
 
     sLog.outString( "Loading player Create Info & Level Stats..." );
     objmgr.LoadPlayerInfo();
