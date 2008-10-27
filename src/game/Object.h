@@ -372,15 +372,7 @@ class TRINITY_DLL_SPEC WorldObject : public Object
             // angle to face `obj` to `this` using distance includes size of `obj`
             GetNearPoint(obj,x,y,z,obj->GetObjectSize(),distance2d,GetAngle( obj ));
         }
-        void GetRandomContactPoint( const WorldObject* obj, float &x, float &y, float &z, float distance2dMin, float distance2dMax ) const
-        {
-            float object_size = obj->GetObjectSize();//here we use object_size to determine the angle offset, the bigger object the smaller angle offset, then this makes mob move naturally in visual.
-            //let assume 12.0f is the max size for object to have 0 angle offset.
-            float angle_offset_ratio = 1 - object_size/12.0f;
-            if (angle_offset_ratio < 0.05) angle_offset_ratio = 0.05;
-            // angle to face `obj` to `this`plus a random angle offset(from -90 degree to 90 degree)*angle_offset_ratio using distance from distance2dMin to distance2dMax includes size of `obj`
-            GetNearPoint(obj,x,y,z,object_size,distance2dMin+(distance2dMax-distance2dMin)*rand_norm(), GetAngle( obj ) + (M_PI_2 - M_PI * rand_norm()) * angle_offset_ratio);
-        }
+        void GetRandomContactPoint( const WorldObject* obj, float &x, float &y, float &z, float distance2dMin, float distance2dMax ) const;
 
         float GetObjectSize() const
         {
