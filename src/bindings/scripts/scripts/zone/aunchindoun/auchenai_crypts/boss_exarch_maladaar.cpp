@@ -52,7 +52,7 @@ struct TRINITY_DLL_DECL mob_stolen_soulAI : public ScriptedAI
     }
 
     void Aggro(Unit *who)
-        { }
+    { }
 
     void SetMyClass(uint8 myclass)
     {
@@ -64,9 +64,9 @@ struct TRINITY_DLL_DECL mob_stolen_soulAI : public ScriptedAI
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
-        if( Class_Timer < diff )
+        if (Class_Timer < diff)
         {
-            switch( myClass )
+            switch (myClass)
             {
                 case CLASS_WARRIOR:
                     DoCast(m_creature->getVictim(), SPELL_MORTAL_STRIKE);
@@ -105,7 +105,7 @@ struct TRINITY_DLL_DECL mob_stolen_soulAI : public ScriptedAI
                     Class_Timer = 10000;
                     break;
             }
-        }else Class_Timer -= diff;
+        } else Class_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -116,30 +116,20 @@ CreatureAI* GetAI_mob_stolen_soul(Creature *_Creature)
     return new mob_stolen_soulAI (_Creature);
 }
 
-#define SAY_INTRO                   "You have defiled the resting place of our ancestors. For this offense, there can be but one punishment. It is fitting that you have come to a place of the dead... for you will soon be joining them."
-#define SOUND_INTRO                 10509
-#define SAY_SUMMON                  "Rise my fallen brothers. Take form and fight!"
-#define SOUND_SUMMON                10512
+#define SAY_INTRO                   -1558000
+#define SAY_SUMMON                  -1558001
 
-#define SAY_AGGRO_1                 "You will pay with your life!"
-#define SOUND_AGGRO_1               10513
-#define SAY_AGGRO_2                 "There's no turning back now!"
-#define SOUND_AGGRO_2               10514
-#define SAY_AGGRO_3                 "Serve your penitence!"
-#define SOUND_AGGRO_3               10515
+#define SAY_AGGRO_1                 -1558002
+#define SAY_AGGRO_2                 -1558003
+#define SAY_AGGRO_3                 -1558004
 
-#define SAY_ROAR                    "Let your mind be clouded."
-#define SOUND_ROAR                  10510
-#define SAY_SOUL_CLEAVE             "Stare into the darkness of your soul."
-#define SOUND_SOUL_CLEAVE           10511
+#define SAY_ROAR                    -1558005
+#define SAY_SOUL_CLEAVE             -1558006
 
-#define SAY_SLAY_1                  "These walls will be your doom."
-#define SOUND_SLAY_1                10516
-#define SAY_SLAY_2                  "<laugh> Now, you'll stay for eternity!"
-#define SOUND_SLAY_2                10517
+#define SAY_SLAY_1                  -1558007
+#define SAY_SLAY_2                  -1558008
 
-#define SAY_DEATH                   "This is... where.. I belong..."
-#define SOUND_DEATH                 10518
+#define SAY_DEATH                   -1558009
 
 #define SPELL_RIBBON_OF_SOULS       32422
 #define SPELL_SOUL_SCREAM           32421
@@ -182,12 +172,11 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if( !m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessablePlaceFor(m_creature) )
+        if (!m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessablePlaceFor(m_creature))
         {
-            if( !HasTaunted && m_creature->IsWithinDistInMap(who, 150.0) )
+            if (!HasTaunted && m_creature->IsWithinDistInMap(who, 150.0))
             {
-                DoYell(SAY_INTRO, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_INTRO);
+                DoScriptText(SAY_INTRO, m_creature);
                 HasTaunted = true;
             }
 
@@ -195,7 +184,7 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
                 return;
 
             float attackRadius = m_creature->GetAttackDistance(who);
-            if( m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who) )
+            if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
             {
                 who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
                 AttackStart(who);
@@ -205,32 +194,23 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        switch(rand()%3)
+        switch (rand()%3)
         {
-            case 0:
-                DoYell(SAY_AGGRO_1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO_1);
-                break;
-            case 1:
-                DoYell(SAY_AGGRO_2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO_2);
-                break;
-            case 2:
-                DoYell(SAY_AGGRO_3, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO_3);
-                break;
+            case 0: DoScriptText(SAY_AGGRO_1, m_creature); break;
+            case 1: DoScriptText(SAY_AGGRO_2, m_creature); break;
+            case 2: DoScriptText(SAY_AGGRO_3, m_creature); break;
         }
     }
 
     void JustSummoned(Creature *summoned)
     {
-        if( summoned->GetEntry() == ENTRY_STOLEN_SOUL )
+        if (summoned->GetEntry() == ENTRY_STOLEN_SOUL)
         {
             //SPELL_STOLEN_SOUL_VISUAL has shapeshift effect, but not implemented feature in Trinity for this spell.
             summoned->SetDisplayId(soulmodel);
             summoned->CastSpell(summoned,SPELL_STOLEN_SOUL_VISUAL,false);
 
-            if( Unit *target = Unit::GetUnit(*m_creature,soulholder) )
+            if (Unit *target = Unit::GetUnit(*m_creature,soulholder))
                 summoned->AI()->AttackStart(target);
 
             ((mob_stolen_soulAI*)summoned->AI())->SetMyClass(soulclass);
@@ -242,24 +222,16 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
         if (rand()%2)
             return;
 
-        switch(rand()%2)
+        switch (rand()%2)
         {
-            case 0:
-                DoYell(SAY_SLAY_1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY_1);
-                break;
-            case 1:
-                DoYell(SAY_SLAY_2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY_2);
-                break;
+            case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
+            case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
         }
     }
 
     void JustDied(Unit* Killer)
     {
-        DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature,SOUND_DEATH);
-
+        DoScriptText(SAY_DEATH, m_creature);
         //When Exarch Maladar is defeated D'ore appear.
         DoSpawnCreature(19412,0,0,0,0, TEMPSUMMON_TIMED_DESPAWN, 600000);
     }
@@ -269,39 +241,32 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
-        if( !Avatar_summoned && ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() < 25) )
+        if (!Avatar_summoned && ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() < 25))
         {
-            if( m_creature->IsNonMeleeSpellCasted(false) )
+            if (m_creature->IsNonMeleeSpellCasted(false))
                 m_creature->InterruptNonMeleeSpells(true);
 
-            DoYell(SAY_SUMMON, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature,SOUND_SUMMON);
+            DoScriptText(SAY_SUMMON, m_creature);
 
             DoCast(m_creature, SPELL_SUMMON_AVATAR);
             Avatar_summoned = true;
             StolenSoul_Timer = 45000;
         }
 
-        if( StolenSoul_Timer < diff )
+        if (StolenSoul_Timer < diff)
         {
-            if( Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
             {
-                if( target->GetTypeId() == TYPEID_PLAYER )
+                if (target->GetTypeId() == TYPEID_PLAYER)
                 {
-                    if( m_creature->IsNonMeleeSpellCasted(false) )
+                    if (m_creature->IsNonMeleeSpellCasted(false))
                         m_creature->InterruptNonMeleeSpells(true);
 
                     uint32 i = urand(1,2);
-                    if( i == 1 )
-                    {
-                        DoYell(SAY_ROAR, LANG_UNIVERSAL, NULL);
-                        DoPlaySoundToSet(m_creature,SOUND_ROAR);
-                    }
+                    if (i == 1)
+                        DoScriptText(SAY_ROAR, m_creature);
                     else
-                    {
-                        DoYell(SAY_SOUL_CLEAVE, LANG_UNIVERSAL, NULL);
-                        DoPlaySoundToSet(m_creature,SOUND_SOUL_CLEAVE);
-                    }
+                        DoScriptText(SAY_SOUL_CLEAVE, m_creature);
 
                     soulmodel = target->GetDisplayId();
                     soulholder = target->GetGUID();
@@ -315,15 +280,15 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
             }
         }else StolenSoul_Timer -= diff;
 
-        if( Ribbon_of_Souls_timer < diff )
+        if (Ribbon_of_Souls_timer < diff)
         {
-            if( Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target,SPELL_RIBBON_OF_SOULS);
 
             Ribbon_of_Souls_timer = 5000 + (rand()%20 * 1000);
         }else Ribbon_of_Souls_timer -= diff;
 
-        if( Fear_timer < diff )
+        if (Fear_timer < diff)
         {
             DoCast(m_creature,SPELL_SOUL_SCREAM);
             Fear_timer = 25000 + rand()% 10000;
@@ -361,11 +326,11 @@ struct TRINITY_DLL_DECL mob_avatar_of_martyredAI : public ScriptedAI
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
-        if(Mortal_Strike_timer < diff)
+        if (Mortal_Strike_timer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_MORTAL_STRIKE);
             Mortal_Strike_timer = 10000 + rand()%20 * 1000;
-        }else Mortal_Strike_timer -= diff;
+        } else Mortal_Strike_timer -= diff;
 
         DoMeleeAttackIfReady();
     }

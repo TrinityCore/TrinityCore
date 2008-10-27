@@ -28,26 +28,18 @@ EndContentData */
 
 #include "precompiled.h"
 
-#define SAY_INTRO           "What is this? You must forgive me, but I was not expecting company. As you can see, we are somewhat preoccupied right now. But no matter. As I am a gracious host, I will tend to you... personally."
-#define SOUND_INTRO         10539
+#define SAY_INTRO                       -1557000
 
-#define SAY_AGGRO_1         "We have not yet been properly introduced."
-#define SOUND_AGGRO_1       10541
-#define SAY_AGGRO_2         "An epic battle. How exciting!"
-#define SOUND_AGGRO_2       10542
-#define SAY_AGGRO_3         "I have longed for a good adventure."
-#define SOUND_AGGRO_3       10543
+#define SAY_AGGRO_1                     -1557001
+#define SAY_AGGRO_2                     -1557002
+#define SAY_AGGRO_3                     -1557003
 
-#define SAY_SLAY_1          "It has been... entertaining."
-#define SOUND_SLAY_1        10544
-#define SAY_SLAY_2          "And now we part company."
-#define SOUND_SLAY_2        10545
+#define SAY_SLAY_1                      -1557004
+#define SAY_SLAY_2                      -1557005
 
-#define SAY_SUMMON          "I have such fascinating things to show you."
-#define SOUND_SUMMON        10540
+#define SAY_SUMMON                      -1557006
 
-#define SAY_DEAD            "I must bid you... farewell."
-#define SOUND_DEAD          10546
+#define SAY_DEAD                        -1557007
 
 #define SPELL_BLINK                     34605
 #define SPELL_FROSTBOLT                 32364
@@ -90,8 +82,7 @@ struct TRINITY_DLL_DECL boss_nexusprince_shaffarAI : public ScriptedAI
         {
             if( !HasTaunted && m_creature->IsWithinDistInMap(who, 100.0) )
             {
-                DoYell(SAY_INTRO, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_INTRO);
+                DoScriptText(SAY_INTRO, m_creature);
                 HasTaunted = true;
             }
 
@@ -111,18 +102,9 @@ struct TRINITY_DLL_DECL boss_nexusprince_shaffarAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-            case 0:
-                DoYell(SAY_AGGRO_1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO_1);
-                break;
-            case 1:
-                DoYell(SAY_AGGRO_2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO_2);
-                break;
-            case 2:
-                DoYell(SAY_AGGRO_3, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO_3);
-                break;
+            case 0: DoScriptText(SAY_AGGRO_1, m_creature); break;
+            case 1: DoScriptText(SAY_AGGRO_2, m_creature); break;
+            case 2: DoScriptText(SAY_AGGRO_3, m_creature); break;
         }
     }
 
@@ -141,21 +123,14 @@ struct TRINITY_DLL_DECL boss_nexusprince_shaffarAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_SLAY_1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY_1);
-                break;
-            case 1:
-                DoYell(SAY_SLAY_2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY_2);
-                break;
+            case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
+            case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
         }
     }
 
     void JustDied(Unit* Killer)
     {
-        DoYell(SAY_DEAD, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature,SOUND_DEAD);
+        DoScriptText(SAY_DEAD, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -204,10 +179,8 @@ struct TRINITY_DLL_DECL boss_nexusprince_shaffarAI : public ScriptedAI
                 m_creature->InterruptNonMeleeSpells(true);
 
             if( !urand(0,3) )
-            {
-                DoYell(SAY_SUMMON, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SUMMON);
-            }
+                DoScriptText(SAY_SUMMON, m_creature);
+
             DoCast(m_creature,SPELL_ETHEREAL_BEACON);
 
             Beacon_Timer = 10000;

@@ -23,22 +23,16 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SAY_AGGRO_1                     "I will feed on your soul."
-#define SOUND_AGGRO_1                   10561
-#define SAY_AGGRO_2                     "So... full of life!"
-#define SOUND_AGGRO_2                   10562
-#define SAY_AGGRO_3                     "Do not... resist."
-#define SOUND_AGGRO_3                   10563
+#define SAY_AGGRO_1                     -1557008
+#define SAY_AGGRO_2                     -1557009
+#define SAY_AGGRO_3                     -1557010
 
-#define SAY_KILL_1                      "Yes! I am... empowered!"
-#define SOUND_KILL_1                    10564
-#define SAY_KILL_2                      "More... I must have more!"
-#define SOUND_KILL_2                    10565
+#define SAY_KILL_1                      -1557011
+#define SAY_KILL_2                      -1557012
 
-#define SAY_DEATH                       "To the void... once... more.."
-#define SOUND_DEATH                     10566
+#define SAY_DEATH                       -1557013
 
-#define EMOTE_DARK_SHELL                "shifts into the void..."
+#define EMOTE_DARK_SHELL                -1557014
 
 #define SPELL_VOID_BLAST                32325
 #define H_SPELL_VOID_BLAST              38760
@@ -67,22 +61,15 @@ struct TRINITY_DLL_DECL boss_pandemoniusAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature,SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
     }
 
     void KilledUnit(Unit* victim)
     {
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_KILL_1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_KILL_1);
-                break;
-            case 1:
-                DoYell(SAY_KILL_2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_KILL_2);
-                break;
+            case 0: DoScriptText(SAY_KILL_1, m_creature); break;
+            case 1: DoScriptText(SAY_KILL_2, m_creature); break;
         }
     }
 
@@ -90,18 +77,9 @@ struct TRINITY_DLL_DECL boss_pandemoniusAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-            case 0:
-                DoYell(SAY_AGGRO_1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO_1);
-                break;
-            case 1:
-                DoYell(SAY_AGGRO_2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO_2);
-                break;
-            case 2:
-                DoYell(SAY_AGGRO_3, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO_3);
-                break;
+            case 0: DoScriptText(SAY_AGGRO_1, m_creature); break;
+            case 1: DoScriptText(SAY_AGGRO_2, m_creature); break;
+            case 2: DoScriptText(SAY_AGGRO_3, m_creature); break;
         }
 
     }
@@ -134,7 +112,8 @@ struct TRINITY_DLL_DECL boss_pandemoniusAI : public ScriptedAI
                 if( m_creature->IsNonMeleeSpellCasted(false) )
                     m_creature->InterruptNonMeleeSpells(true);
 
-                DoTextEmote(EMOTE_DARK_SHELL,NULL,true);
+                DoScriptText(EMOTE_DARK_SHELL, m_creature);
+
                 DoCast(m_creature,HeroicMode ? H_SPELL_DARK_SHELL : SPELL_DARK_SHELL);
                 DarkShell_Timer = 20000;
             }else DarkShell_Timer -= diff;

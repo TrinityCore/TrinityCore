@@ -23,23 +23,16 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SAY_SUMMON                  "I have pets..<squawk>..of my own!"
-#define SOUND_SUMMON                10502
+#define SAY_SUMMON                  -1556000
 
-#define SAY_AGGRO_1                 "Hrrmm.. Time to.. hrrm.. make my move."
-#define SOUND_AGGRO_1               10503
-#define SAY_AGGRO_2                 "Nice pets..hrm.. Yes! <squawking>"
-#define SOUND_AGGRO_2               10504
-#define SAY_AGGRO_3                 "Nice pets have.. weapons. No so..<squawk>..nice."
-#define SOUND_AGGRO_3               10505
+#define SAY_AGGRO_1                 -1556001
+#define SAY_AGGRO_2                 -1556002
+#define SAY_AGGRO_3                 -1556003
 
-#define SAY_SLAY_1                  "Death.. meeting life is.. <squawking>"
-#define SOUND_SLAY_1                10506
-#define SAY_SLAY_2                  "Uhn.. Be free..<squawk>"
-#define SOUND_SLAY_2                10507
+#define SAY_SLAY_1                  -1556004
+#define SAY_SLAY_2                  -1556005
 
-#define SAY_DEATH                   "No more life..hrm. No more pain. <squawks weakly>"
-#define SOUND_DEATH                 10508
+#define SAY_DEATH                   -1556006
 
 #define SPELL_FROST_SHOCK           37865
 #define SPELL_FLAME_SHOCK           34354
@@ -93,25 +86,15 @@ struct TRINITY_DLL_DECL boss_darkweaver_sythAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-            case 0:
-                DoYell(SAY_AGGRO_1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO_1);
-                break;
-            case 1:
-                DoYell(SAY_AGGRO_2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO_2);
-                break;
-            case 2:
-                DoYell(SAY_AGGRO_3, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO_3);
-                break;
+            case 0: DoScriptText(SAY_AGGRO_1, m_creature); break;
+            case 1: DoScriptText(SAY_AGGRO_2, m_creature); break;
+            case 2: DoScriptText(SAY_AGGRO_3, m_creature); break;
         }
     }
 
     void JustDied(Unit* Killer)
     {
-        DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature,SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
     }
 
     void KilledUnit(Unit* victim)
@@ -121,30 +104,22 @@ struct TRINITY_DLL_DECL boss_darkweaver_sythAI : public ScriptedAI
 
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_SLAY_1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY_1);
-                break;
-            case 1:
-                DoYell(SAY_SLAY_2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY_2);
-                break;
+            case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
+            case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
         }
     }
 
     void JustSummoned(Creature *summoned)
     {
-        if( Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+        if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
             summoned->AI()->AttackStart(target);
-
     }
 
     void SythSummoning()
     {
-        DoYell(SAY_SUMMON, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature,SOUND_SUMMON);
+        DoScriptText(SAY_SUMMON, m_creature);
 
-        if( m_creature->IsNonMeleeSpellCasted(false) )
+        if (m_creature->IsNonMeleeSpellCasted(false))
             m_creature->InterruptNonMeleeSpells(false);
 
         DoCast(m_creature,SPELL_SUMMON_SYTH_ARCANE,true);   //front
@@ -158,63 +133,63 @@ struct TRINITY_DLL_DECL boss_darkweaver_sythAI : public ScriptedAI
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
-        if( ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() < 90) && !summon90)
+        if (((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() < 90) && !summon90)
         {
             SythSummoning();
             summon90 = true;
         }
 
-        if( ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() < 50) && !summon50)
+        if (((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() < 50) && !summon50)
         {
             SythSummoning();
             summon50 = true;
         }
 
-        if( ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() < 10) && !summon10)
+        if (((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() < 10) && !summon10)
         {
             SythSummoning();
             summon10 = true;
         }
 
-        if( flameshock_timer < diff )
+        if (flameshock_timer < diff)
         {
-            if( Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target,SPELL_FLAME_SHOCK);
 
             flameshock_timer = 10000 + rand()%5000;
-        }else flameshock_timer -= diff;
+        } else flameshock_timer -= diff;
 
-        if( arcaneshock_timer < diff )
+        if (arcaneshock_timer < diff)
         {
-            if( Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target,SPELL_ARCANE_SHOCK);
 
             arcaneshock_timer = 10000 + rand()%5000;
-        }else arcaneshock_timer -= diff;
+        } else arcaneshock_timer -= diff;
 
-        if( frostshock_timer < diff )
+        if (frostshock_timer < diff)
         {
-            if( Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target,SPELL_FROST_SHOCK);
 
             frostshock_timer = 10000 + rand()%5000;
-        }else frostshock_timer -= diff;
+        } else frostshock_timer -= diff;
 
-        if( shadowshock_timer < diff )
+        if (shadowshock_timer < diff)
         {
-            if( Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target,SPELL_SHADOW_SHOCK);
 
             shadowshock_timer = 10000 + rand()%5000;
-        }else shadowshock_timer -= diff;
+        } else shadowshock_timer -= diff;
 
-        if( chainlightning_timer < diff )
+        if (chainlightning_timer < diff)
         {
-            if( Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target,SPELL_CHAIN_LIGHTNING);
 
             chainlightning_timer = 25000;
-        }else chainlightning_timer -= diff;
+        } else chainlightning_timer -= diff;
 
         DoMeleeAttackIfReady();
     }
