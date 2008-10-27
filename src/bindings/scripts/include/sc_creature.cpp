@@ -92,7 +92,7 @@ void ScriptedAI::UpdateAI(const uint32 diff)
         if (m_creature->isAttackReady() )
         {
             //If we are within range melee the target
-            if (m_creature->IsWithinDistInMap(m_creature->getVictim(), ATTACK_DISTANCE))
+            if (m_creature->IsWithinCombatDist(m_creature->getVictim(), ATTACK_DISTANCE))
             {
                 m_creature->AttackerStateUpdate(m_creature->getVictim());
                 m_creature->resetAttackTimer();
@@ -148,7 +148,7 @@ void ScriptedAI::DoMeleeAttackIfReady()
     if (m_creature->isAttackReady() && !m_creature->IsNonMeleeSpellCasted(false))
     {
         //If we are within range melee the target
-        if (m_creature->IsWithinDistInMap(m_creature->getVictim(), ATTACK_DISTANCE))
+        if (m_creature->IsWithinCombatDist(m_creature->getVictim(), ATTACK_DISTANCE))
         {
             m_creature->AttackerStateUpdate(m_creature->getVictim());
             m_creature->resetAttackTimer();
