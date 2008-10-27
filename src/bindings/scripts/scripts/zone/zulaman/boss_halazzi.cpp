@@ -77,12 +77,8 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
     { 
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Reset();
-        // wait for core patch be accepted
-        SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_SUMMON_TOTEM);
-        if(TempSpell && TempSpell->EffectImplicitTargetA[0] != 1)
-            TempSpell->EffectImplicitTargetA[0] = 1;
         // need to find out what controls totem's spell cooldown
-        TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_LIGHTNING);
+        SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_LIGHTNING);
         if(TempSpell && TempSpell->CastingTimeIndex != 5)
             TempSpell->CastingTimeIndex = 5; // 2000 ms casting time
     }

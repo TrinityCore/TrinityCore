@@ -47,31 +47,6 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
             TempSpell->EffectImplicitTargetA[0] = 6;
             TempSpell->EffectImplicitTargetB[0] = 0;
         }
-        TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_SOUL_TRANSFER);
-        if(TempSpell && TempSpell->EffectImplicitTargetB[0] != 30)
-        {
-            TempSpell->EffectImplicitTargetA[0] = 1;
-            TempSpell->EffectImplicitTargetA[1] = 1;
-            TempSpell->EffectImplicitTargetA[2] = 1;
-            TempSpell->EffectImplicitTargetB[0] = 0;
-            TempSpell->EffectImplicitTargetB[1] = 0;
-            TempSpell->EffectImplicitTargetB[2] = 0;
-        }
-        // target 8, but core only push back the caster
-        TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_DEBRIS_DAMAGE);
-        if(TempSpell && TempSpell->EffectImplicitTargetA[0] != 53)
-        {
-            TempSpell->EffectImplicitTargetA[0] = 53;
-            TempSpell->EffectImplicitTargetB[0] = 16;
-        }  
-        TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_DEBRIS_KNOCKDOWN);
-        if(TempSpell && TempSpell->EffectImplicitTargetA[0] != 53)
-        {
-            TempSpell->EffectImplicitTargetA[0] = 53;
-            TempSpell->EffectImplicitTargetB[0] = 16;
-            TempSpell->EffectImplicitTargetA[1] = 53;
-            TempSpell->EffectImplicitTargetB[1] = 16;
-        }  
     }
 
     uint32 Encounters[ENCOUNTERS];
@@ -219,8 +194,9 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                     Unit *Channeler = Unit::GetUnit(*player, *i);
                     if(Channeler && Channeler->isAlive())
                     {
-                        Channeler->CastSpell(Channeler, SPELL_SOUL_TRANSFER, true);
+                        //Channeler->CastSpell(Channeler, SPELL_SOUL_TRANSFER, true);
                         data = IN_PROGRESS;
+						break;
                     }
                 }break;
             }

@@ -210,9 +210,12 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
                     Channeler->RemoveCorpse();
                     Channeler->Respawn();
                 }
+				if(m_creature->isAlive())
+				{
                 Channeler->CastSpell(m_creature, SPELL_SHADE_SOUL_CHANNEL, true);
                 Channeler->CastSpell(m_creature, SPELL_SHADE_SOUL_CHANNEL_2, true);
                 Channeler->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+				}
             }
         }
         else error_log("SD2 ERROR: No Channelers are stored in the list. This encounter will not work properly");
@@ -388,6 +391,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
                             Akama->GetPosition(x,y,z);
                                                             // They move towards AKama
                             Defender->GetMotionMaster()->MovePoint(0, x, y, z);
+							Defender->AI()->AttackStart(Akama);
                         }else move = false;
                     }else move = false;
                     if(!move)

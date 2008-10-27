@@ -429,12 +429,11 @@ struct TRINITY_DLL_DECL mob_hellfire_channelerAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit*) {}
 
-    // bugged
-    /*void DamageTaken(Unit*, uint32 &damage)
+    void DamageTaken(Unit*, uint32 &damage)
     {
         if(damage >= m_creature->GetHealth())
             m_creature->CastSpell(m_creature, SPELL_SOUL_TRANSFER, true);
-    }*/
+    }
 
     void JustDied(Unit*)
     {

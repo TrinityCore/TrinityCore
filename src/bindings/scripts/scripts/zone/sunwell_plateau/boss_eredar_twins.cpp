@@ -404,25 +404,17 @@ struct TRINITY_DLL_DECL boss_alythessAI : public ScriptedAI
         {
             Unit* Temp =  Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SACROLASH));
             if (Temp && Temp->isAlive() && !(Temp->getVictim()))
-                Temp->getThreatManager().addThreat(who,0.0f);
-        }
-    }
+				Temp->getThreatManager().addThreat(who,0.0f);
+		}
+	}
 
-    void AttackStart(Unit *who)
-    {
-        if (!who)
-            return;
-
-        if (who->isTargetableForAttack() && who!= m_creature)
-        {
-            if (!InCombat)
-            {
-                DoStartNoMovement(who);
-                Aggro(who);
-                InCombat = true;
-            }
-        }
-    }
+	void AttackStart(Unit *who)
+	{
+		if (!InCombat)
+		{
+			ScriptedAI::AttackStart(who);
+		}
+	}
 
     void MoveInLineOfSight(Unit *who)
     {

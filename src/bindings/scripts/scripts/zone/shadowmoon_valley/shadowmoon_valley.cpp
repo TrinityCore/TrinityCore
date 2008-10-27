@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Shadowmoon_Valley
 SD%Complete: 100
-SDComment: Quest support: 10519, 10583, 10601, 10814, 10804, 10854, 11082. Vendor Drake Dealer Hurlunk. Teleporter TO Invasion Point: Cataclysm
+SDComment: Quest support: 10519, 10583, 10601, 10814, 10804, 10854, 11082, 11108. Vendor Drake Dealer Hurlunk. Teleporter TO Invasion Point: Cataclysm
 SDCategory: Shadowmoon Valley
 EndScriptData */
 
@@ -384,6 +384,11 @@ struct TRINITY_DLL_DECL mob_dragonmaw_peonAI : public ScriptedAI
     }
 };
 
+CreatureAI* GetAI_mob_dragonmaw_peon(Creature* _Creature)
+{
+    return new mob_dragonmaw_peonAI(_Creature);
+}
+
 /*######
 ## npc_drake_dealer_hurlunk
 ######*/
@@ -692,6 +697,403 @@ bool QuestAccept_npc_karynaku(Player* player, Creature* creature, Quest const* q
     return true;
 }
 
+/*####
+# quest_lord_illidan_stormrage
+####*/
+#define QUEST_LORD_ILLIDAN_STORMRAGE 11108
+#define LORD_ILLIDAN_STORMRAGE 22083
+
+#define SPELL_ONE 39990 // Red Lightning Bolt
+#define SPELL_TWO 41528 // Mark of Stormrage
+#define SPELL_THREE 40216 // Dragonaw Faction
+#define SPELL_FOUR 42016 // Dragonaw Trasform
+
+#define OVERLORD_SAY_1 "Come, $N. Lord Stormrage awaits."
+#define OVERLORD_SAY_2 "Lord Illidan will be here shortly."
+#define OVERLORD_SAY_3 "Lord Illidan, this is the Dragonmaw that I, and others, have told you about. He will lead us to victory!"
+#define OVERLORD_SAY_4 "But... My lord, I do not understand. $N... He is the orc that has..."
+#define OVERLORD_SAY_5 "It will be done, my lord."
+#define OVERLORD_SAY_6 "So you thought to make a fool of Mor'ghor, eh? Before you are delivered to Lord Illidan, you will feel pain that you could not know to exist. I will take pleasure in exacting my own vengeance."
+
+#define OVERLORD_YELL_1 "Warriors of Dragonmaw, gather 'round! One among you has attained the rank of highlord! Bow your heads in reverence! Show your respect and allegiance to Highlord $N!"
+#define OVERLORD_YELL_2 "All hail Lord Illidan!"
+
+#define LORD_ILLIDAN_SAY_1 "What is the meaning of this, Mor'ghor?"
+#define LORD_ILLIDAN_SAY_2 "SILENCE!"
+#define LORD_ILLIDAN_SAY_3 "Blathering idiot. You incomprehensibly incompetent buffoon..."
+#define LORD_ILLIDAN_SAY_4 "THIS is your hero?"
+#define LORD_ILLIDAN_SAY_5 "You have been deceived, imbecile."
+#define LORD_ILLIDAN_SAY_6 "This... whole... operation... HAS BEEN COMPROMISED!"
+#define LORD_ILLIDAN_SAY_7 "I expect to see this insect's carcass in pieces in my lair within the hour. Fail and you will suffer a fate so much worse than death."
+
+#define YARZILL_THE_MERC_SAY "You will not harm the boy, Mor'ghor! Quickly, $N, climb on my back!"
+
+#define GOSSIP_FLY "Lets Do! <MISSING TEXT>"
+
+bool GossipHello_npc_yarzill_fly(Player *player, Creature *_Creature)
+{
+	if (player->GetQuestStatus(QUEST_LORD_ILLIDAN_STORMRAGE) == QUEST_STATUS_COMPLETE)
+	{
+		player->ADD_GOSSIP_ITEM(0, GOSSIP_FLY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+		player->SEND_GOSSIP_MENU(3961,_Creature->GetGUID());
+		return true;
+	}else{
+		return false;
+	}
+}
+
+bool GossipSelect_npc_yarzill_fly(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+{
+	if (action == GOSSIP_ACTION_INFO_DEF + 1)
+	{
+		std::vector<uint32> nodes;
+		nodes.resize(2);
+		nodes[0] = 173;
+		nodes[1] = 174;
+		error_log("SD2: Player %s started quest 11108 which has disabled taxi node, need to be fixed in core", player->GetName());
+		//player->ActivateTaxiPathTo(nodes, 23468);
+		return true;
+	}
+	return false;
+}
+
+struct TRINITY_DLL_DECL Yarzill_The_MercAI : public ScriptedAI
+{
+	Yarzill_The_MercAI(Creature *c) : ScriptedAI(c) {Reset();}
+
+void Reset(){}
+
+void Aggro(Unit *who){}
+
+void DoSpeach(Unit *target)
+{
+DoSay(YARZILL_THE_MERC_SAY,LANG_UNIVERSAL,target);
+}
+};
+
+struct TRINITY_DLL_DECL Lord_IllidanAI : public ScriptedAI
+{
+Lord_IllidanAI(Creature *c) : ScriptedAI(c) {Reset();}
+
+void Reset(){}
+
+void Aggro(Unit *who){}
+
+void DoSpeach(int phase)
+{
+	switch(phase)
+	{
+	case 1:
+		DoSay(LORD_ILLIDAN_SAY_1,LANG_UNIVERSAL,NULL);
+		break;
+	case 2:
+		DoSay(LORD_ILLIDAN_SAY_2,LANG_UNIVERSAL,NULL);
+		break;
+	case 3:
+		DoSay(LORD_ILLIDAN_SAY_3,LANG_UNIVERSAL,NULL);
+		break;
+	case 4:
+		DoSay(LORD_ILLIDAN_SAY_4,LANG_UNIVERSAL,NULL);
+		break;
+	case 5:
+		DoSay(LORD_ILLIDAN_SAY_5,LANG_UNIVERSAL,NULL);
+		break;
+	case 6:
+		DoSay(LORD_ILLIDAN_SAY_6,LANG_UNIVERSAL,NULL);
+		break;
+	case 7:
+		DoSay(LORD_ILLIDAN_SAY_7,LANG_UNIVERSAL,NULL);
+		break;
+	case 0:
+	default:
+		break;
+	}
+}
+};
+
+struct TRINITY_DLL_DECL Overlord_MorghorAI : public ScriptedAI
+{
+Overlord_MorghorAI(Creature *c) : ScriptedAI(c) {Reset();}
+
+	Unit* m_player;
+	Unit* PlayerCheck;
+	
+	uint32 SpeachTimer;
+	uint32 SpeachNum;
+	
+	uint64 PlayerGUID;
+	uint64 YazillGUID;
+	
+	bool DoingSpeach;
+	bool Failed;
+
+	Creature* Lord;
+	Creature* Yarzill;
+
+void Reset()
+{
+	if (Lord)
+	{
+		Lord->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+		Lord->SetVisibility(VISIBILITY_OFF);
+		Lord->setDeathState(JUST_DIED);
+	}
+
+	if (Yarzill)
+	{
+	Yarzill->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+	}
+	
+	m_creature->Relocate(-5085.77, 577.231, 86.6719, 2.32608);
+	m_creature->SetUInt32Value(UNIT_NPC_FLAGS, 2);
+	m_creature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+	m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
+	m_player = NULL;
+	PlayerCheck = NULL;
+	PlayerGUID = 0;
+	YazillGUID = 0;
+	Lord = NULL;
+	Yarzill = NULL;
+	DoingSpeach = false;
+	Failed = false;
+	SpeachNum = 0;
+	SpeachTimer = 0;
+}
+
+void BeginSpeach(Unit* target)
+{
+	m_creature->SetUInt32Value(UNIT_NPC_FLAGS, 0);
+	m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
+	DoSay(OVERLORD_SAY_1,LANG_UNIVERSAL,target);
+	m_player = target;
+	PlayerCheck = NULL;
+	PlayerGUID = target->GetGUID();
+	SpeachTimer = 4200;
+	SpeachNum = 0;
+	DoingSpeach = true;
+}
+	
+void Aggro(Unit *who){}
+
+void MoveInLineOfSight(Unit *who)
+{
+	if (!who)
+	return;
+
+	if (DoingSpeach)
+	{
+		if (who->GetEntry() == 23141 && m_creature->IsWithinDistInMap(who, 15))
+		{
+			if (!YazillGUID)
+			{
+				YazillGUID = who->GetGUID();
+			}
+		}
+	}
+}
+
+void UpdateAI(const uint32 diff)
+{
+	//Speach
+	if (DoingSpeach)
+	{
+		if (SpeachTimer < diff)
+		{
+			if (YazillGUID && !Yarzill)
+			Yarzill = ((Creature*)Unit::GetUnit((*m_creature), YazillGUID));
+
+				if (!m_creature->IsWithinDistInMap(m_player, 50) && ((Player*)m_player)->GetQuestStatus(QUEST_LORD_ILLIDAN_STORMRAGE) == QUEST_STATUS_INCOMPLETE)
+				{
+				((Player*)m_player)->FailQuest(QUEST_LORD_ILLIDAN_STORMRAGE);
+				SpeachNum = 30;
+				}
+
+	switch (SpeachNum)
+	{
+	// Overlord Movement
+	case 0:
+		m_creature->GetMotionMaster()->MovePoint(0, -5104.41, 595.297, 85.6838);
+		SpeachTimer = 9000; SpeachNum++; break;
+	// Overlord Yell 1
+	case 1:
+		m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SHOUT);
+		DoYell(OVERLORD_YELL_1,LANG_UNIVERSAL,m_player);
+		SpeachTimer = 4500; SpeachNum++; break;
+	// Overlord Angle
+	case 2:
+		m_creature->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID);
+		SpeachTimer = 3200; SpeachNum++; break;
+		// Overlord Say 2
+	case 3:
+		DoSay(OVERLORD_SAY_2,LANG_UNIVERSAL,NULL);
+		SpeachTimer = 2000; SpeachNum++; break;
+	// Summon Illidan
+	case 4:
+		Lord = m_creature->SummonCreature(LORD_ILLIDAN_STORMRAGE, -5107.83, 602.584, 85.2393, 4.92598, TEMPSUMMON_CORPSE_DESPAWN, 0);
+		Lord->LoadCreaturesAddon();
+		SpeachTimer = 350; SpeachNum++; break;
+	// Illidan Cast Red Bolt
+	case 5:
+		Lord->CastSpell(Lord, SPELL_ONE, true);
+		Lord->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->GetGUID());
+		m_creature->SetUInt64Value(UNIT_FIELD_TARGET, Lord->GetGUID());
+		SpeachTimer = 2000; SpeachNum++; break;
+	// Overlord Yell 2
+	case 6:
+		DoYell(OVERLORD_YELL_2,LANG_UNIVERSAL,NULL);
+		SpeachTimer = 4500; SpeachNum++; break;
+	// Overlord Kneel
+	case 7:
+		m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,8);
+		SpeachTimer = 2500; SpeachNum++; break;
+	// Overlord Say 3
+	case 8:
+		DoSay(OVERLORD_SAY_3,LANG_UNIVERSAL,NULL);
+		SpeachTimer = 6500; SpeachNum++; break;
+	// Illidan Say 1
+	case 9:
+		((Lord_IllidanAI*)Lord->AI())->DoSpeach(1);
+		SpeachTimer = 5000; SpeachNum++; break;
+	// Overlord Say 4
+	case 10:
+		DoSay(OVERLORD_SAY_4,LANG_UNIVERSAL,m_player);
+		SpeachTimer = 6000; SpeachNum++; break;
+	// Illidan Say 2
+	case 11:
+		((Lord_IllidanAI*)Lord->AI())->DoSpeach(2);
+		SpeachTimer = 5500; SpeachNum++; break;
+	// Illidan Say 3
+	case 12:
+		((Lord_IllidanAI*)Lord->AI())->DoSpeach(3);
+		SpeachTimer = 4000; SpeachNum++; break;
+	// Illidan Angle
+	case 13:
+		Lord->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID);
+		SpeachTimer = 1500; SpeachNum++; break;
+	// Illidan Say 4
+	case 14:
+		((Lord_IllidanAI*)Lord->AI())->DoSpeach(4);
+		SpeachTimer = 1500; SpeachNum++; break;
+	// Illidan Cast
+	case 15:
+		PlayerCheck = Unit::GetUnit(*Lord, PlayerGUID);
+		if (PlayerCheck)
+		{
+			Lord->CastSpell(m_player, SPELL_TWO, true);
+			m_player->RemoveAurasDueToSpell(SPELL_THREE);
+			m_player->RemoveAurasDueToSpell(SPELL_FOUR);
+			SpeachTimer = 5000; SpeachNum++;
+		}
+			else
+			{
+			((Player*)m_player)->FailQuest(QUEST_LORD_ILLIDAN_STORMRAGE);
+			SpeachTimer = 100; SpeachNum = 30;
+		}
+		break;
+		// Illidan Say 5
+	case 16:
+		((Lord_IllidanAI*)Lord->AI())->DoSpeach(5);
+		SpeachTimer = 5000; SpeachNum++; break;
+	// Illidan Say 6
+	case 17:
+		((Lord_IllidanAI*)Lord->AI())->DoSpeach(6);
+		SpeachTimer = 5000; SpeachNum++; break;
+	// Illidan Say 7
+	case 18:
+		((Lord_IllidanAI*)Lord->AI())->DoSpeach(7);
+		SpeachTimer = 5000; SpeachNum++; break;
+	// Illidan Fly
+	case 19:
+		Lord->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
+		Lord->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
+		SpeachTimer = 500; SpeachNum++; break;
+	// Overlord Say 5
+	case 20:
+		DoSay(OVERLORD_SAY_5,LANG_UNIVERSAL,NULL);
+		SpeachTimer = 500; SpeachNum++; break;
+	// Illidan Despawn
+	case 21:
+		Lord->SetVisibility(VISIBILITY_OFF);
+		Lord->setDeathState(JUST_DIED);
+		Lord = NULL;
+		SpeachTimer = 1000; SpeachNum++; break;
+	// Overlord Stand Up
+	case 22:
+		m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
+		SpeachTimer = 2000; SpeachNum++; break;
+	// Overlord Angle
+	case 23:
+		m_creature->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID);
+		SpeachTimer = 5000; SpeachNum++; break;
+	// Overlord Say 6
+	case 24:
+		DoSay(OVERLORD_SAY_6,LANG_UNIVERSAL,NULL);
+		SpeachTimer = 2000; SpeachNum++; break;
+	// Complete Quest
+	case 25:
+		((Player*)m_player)->CompleteQuest(QUEST_LORD_ILLIDAN_STORMRAGE);
+		SpeachTimer = 6000; SpeachNum++; break;
+	// Goblin Angle
+	case 26:
+		if (Yarzill)
+		Yarzill->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID);
+		SpeachTimer = 500; SpeachNum++; break;
+	// Cast Again Dragonaw Illusion
+	case 27:
+		m_player->RemoveAurasDueToSpell(SPELL_TWO);
+		m_player->RemoveAurasDueToSpell(41519);
+		m_player->CastSpell(m_player, SPELL_THREE, true);
+		m_player->CastSpell(m_player, SPELL_FOUR, true);
+		SpeachTimer = 1000; SpeachNum++; break;
+	// Goblin
+	case 28:
+	if (Yarzill)
+		((Yarzill_The_MercAI*)Yarzill->AI())->DoSpeach(m_player);
+		SpeachTimer = 5000; SpeachNum++; break;
+	// Goblin Off
+	case 29:
+		if (Yarzill)
+		Yarzill->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+		SpeachTimer = 5000; SpeachNum++; break;
+	// Overlord Go Back
+	case 30:
+		m_creature->GetMotionMaster()->MovePoint(0, -5085.77, 577.231, 86.6719);
+		SpeachTimer = 5000; SpeachNum++; break;
+	// Reset
+	case 31:
+		Reset();
+		break;
+		default: break;
+	}
+	}else SpeachTimer -= diff;
+}
+}
+};
+
+CreatureAI* GetAI_Overlord_Morghor(Creature *_Creature)
+{
+return new Overlord_MorghorAI(_Creature);
+}
+
+CreatureAI* GetAI_Lord_Illidan(Creature *_Creature)
+{
+return new Lord_IllidanAI(_Creature);
+}
+
+CreatureAI* GetAI_Yarzill_The_Merc(Creature *_Creature)
+{
+return new Yarzill_The_MercAI(_Creature);
+}
+bool QuestAccept_Overlord_Morghor(Player *player, Creature *_Creature, const Quest *_Quest )
+{
+	if(_Quest->GetQuestId() == QUEST_LORD_ILLIDAN_STORMRAGE)
+	{
+		((Overlord_MorghorAI*)_Creature->AI())->BeginSpeach((Unit*)player);
+		return true;
+	}
+	return false;
+}
+
 void AddSC_shadowmoon_valley()
 {
     Script *newscript;
@@ -705,6 +1107,11 @@ void AddSC_shadowmoon_valley()
     newscript->Name = "mob_enslaved_netherwing_drake";
     newscript->GetAI = GetAI_mob_enslaved_netherwing_drake;
     m_scripts[nrscripts++] = newscript;
+
+	newscript = new Script;
+	newscript->Name = "mob_dragonmaw_peon";
+	newscript->GetAI = GetAI_mob_dragonmaw_peon;
+	m_scripts[nrscripts++] = newscript;
 
     newscript = new Script;
     newscript->Name="npc_drake_dealer_hurlunk";
@@ -745,4 +1152,22 @@ void AddSC_shadowmoon_valley()
     newscript->pGossipHello =  &GossipHello_npc_oronok_tornheart;
     newscript->pGossipSelect = &GossipSelect_npc_oronok_tornheart;
     m_scripts[nrscripts++] = newscript;
+
+	newscript = new Script;
+	newscript->Name = "npc_overlord_morghor";
+	newscript->GetAI = GetAI_Overlord_Morghor;
+	newscript->pQuestAccept = &QuestAccept_Overlord_Morghor;
+	m_scripts[nrscripts++] = newscript;
+
+	newscript = new Script;
+	newscript->Name = "npc_lord_illidan_stormrage";
+	newscript->GetAI = GetAI_Lord_Illidan;
+	m_scripts[nrscripts++] = newscript;
+
+	newscript = new Script;
+	newscript->Name = "npc_yarzill_the_merc";
+	newscript->GetAI = GetAI_Yarzill_The_Merc;
+	newscript->pGossipHello = &GossipHello_npc_yarzill_fly;
+	newscript->pGossipSelect = &GossipSelect_npc_yarzill_fly;
+	m_scripts[nrscripts++] = newscript;
 }

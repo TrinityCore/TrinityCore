@@ -66,7 +66,7 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
         m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
 
         Pounding_Timer = 12000;
-        ArcaneOrb_Timer = 6000;
+        ArcaneOrb_Timer = 3000;
         KnockAway_Timer = 30000;
         Berserk_Timer = 600000;
 
@@ -155,7 +155,7 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
             if (target)
                 m_creature->CastSpell(target, SPELL_ARCANE_ORB, true);
 
-            ArcaneOrb_Timer = 6000;
+            ArcaneOrb_Timer = 3000;
         }else ArcaneOrb_Timer -= diff;
 
         // Single Target knock back, reduces aggro

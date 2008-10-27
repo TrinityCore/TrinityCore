@@ -79,7 +79,7 @@ EndScriptData */
 #define TAINTED_ELEMENTAL             22009
 #define COILFANG_STRIDER              22056
 #define COILFANG_ELITE                22055
-#define FATHOM_SPOREBAT               22140
+#define TOXIC_SPOREBAT               22140
 
 float ElementPos[8][4] =
 {
@@ -127,6 +127,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
     ScriptedInstance *pInstance;
 
     uint64 ShieldGeneratorChannel[4];
+	uint64 AggroTargetGUID;
 
     uint32 ShockBlast_Timer;
     uint32 Entangle_Timer;
@@ -139,10 +140,13 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
     uint32 CoilfangStrider_Timer;
     uint32 SummonSporebat_Timer;
     uint32 SummonSporebat_StaticTimer;
+	uint32 AggroTimer;
+
     uint8 EnchantedElemental_Pos;
     uint8 Phase;
 
     bool Entangle;
+	bool Intro;
 
     void Reset()
     {
@@ -159,17 +163,23 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
         SummonSporebat_StaticTimer = 30000;
         EnchantedElemental_Pos = 0;
         Phase = 0;
+		AggroTimer = 19000;
+        AggroTargetGUID = 0;
+
+		m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        // Start off unattackable so that the intro is done properly
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
         Entangle = false;
+		Intro = false;
 
         if(pInstance)
-            pInstance->SetData(DATA_LADYVASHJEVENT, 0);
+            pInstance->SetData(DATA_LADYVASHJEVENT, NOT_STARTED);
 
         ShieldGeneratorChannel[0] = 0;
         ShieldGeneratorChannel[1] = 0;
         ShieldGeneratorChannel[2] = 0;
         ShieldGeneratorChannel[3] = 0;
-
     }
 
     //Called when a tainted elemental dies
@@ -178,6 +188,38 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
         //the next will spawn 50 seconds after the previous one's death
         if(TaintedElemental_Timer > 50000)
             TaintedElemental_Timer = 50000;
+    }
+
+	void MoveInLineOfSight(Unit *who)
+    {
+        if(!who || (!who->isAlive())) return;
+
+        if(who->isTargetableForAttack() && who->isInAccessablePlaceFor(m_creature) && m_creature->IsHostileTo(who))
+        {
+            float attackRadius = m_creature->GetAttackDistance(who);
+
+            if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->GetDistanceZ(who) <= CREATURE_Z_ATTACK_RANGE && m_creature->IsWithinLOSInMap(who))
+            {
+                if(who->HasStealthAura())
+                    who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+
+                m_creature->AddThreat(who, 1.0f);
+            }
+
+            if(!InCombat && !Intro && m_creature->IsWithinDistInMap(who, 40.0f) && (who->GetTypeId() == TYPEID_PLAYER))
+            {
+                if(pInstance)
+                    pInstance->SetData(DATA_LADYVASHJEVENT, IN_PROGRESS);
+
+                m_creature->GetMotionMaster()->Clear(false);
+                m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                DoYell(SAY_INTRO,LANG_UNIVERSAL,NULL);
+                DoPlaySoundToSet(m_creature, SOUND_INTRO);
+                m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
+                AggroTargetGUID = who->GetGUID();
+                Intro = true;
+            }
+        }
     }
 
     void KilledUnit(Unit *victim)
@@ -202,10 +244,10 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
         DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
 
         if(pInstance)
-            pInstance->SetData(DATA_LADYVASHJEVENT, 0);
+            pInstance->SetData(DATA_LADYVASHJEVENT, DONE);
     }
 
-    void StartEvent()
+/*    void StartEvent()
     {
         switch(rand()%4)
         {
@@ -230,17 +272,10 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
         Phase = 1;
 
         if(pInstance)
-            pInstance->SetData(DATA_LADYVASHJEVENT, 1);
-    }
+            pInstance->SetData(DATA_LADYVASHJEVENT, IN_PROGRESS);
+    }*/
 
-    void Aggro(Unit *who)
-    {
-        //Begin melee attack if we are within range
-        if(Phase != 2)
-            DoStartMovement(who);
-
-        StartEvent();
-    }
+    void Aggro(Unit *who){}
 
     void CastShootOrMultishot()
     {
@@ -278,11 +313,57 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
     {
         //to prevent abuses during phase 2
         if(Phase == 2 && !m_creature->getVictim() && InCombat)
-            EnterEvadeMode();
+		{
+         EnterEvadeMode();
+		 return;
+		}
 
         //Return since we have no target
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
             return;
+
+		//Intro
+		if(Intro)
+        {
+            if(AggroTimer < diff)
+            {
+                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				switch(rand()%4)
+				{
+				case 0:
+					DoPlaySoundToSet(m_creature, SOUND_AGGRO1);
+					DoYell(SAY_AGGRO1, LANG_UNIVERSAL, NULL);
+					break;
+				case 1:
+					DoPlaySoundToSet(m_creature, SOUND_AGGRO2);
+					DoYell(SAY_AGGRO2, LANG_UNIVERSAL, NULL);
+					break;
+				case 2:
+					DoPlaySoundToSet(m_creature, SOUND_AGGRO3);
+					DoYell(SAY_AGGRO3, LANG_UNIVERSAL, NULL);
+					break;
+				case 3:
+					DoPlaySoundToSet(m_creature, SOUND_AGGRO4);
+					DoYell(SAY_AGGRO4, LANG_UNIVERSAL, NULL);
+					break;
+				}
+				Phase = 1;
+                m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
+                Intro = false;
+				//Begin melee attack if we are within range
+                if(AggroTargetGUID && Phase != 2)
+                {
+                    Unit* pUnit = Unit::GetUnit((*m_creature), AggroTargetGUID);
+                    if(pUnit)
+                    {
+                        m_creature->GetMotionMaster()->MoveChase(pUnit);
+                        AttackStart(pUnit);
+                    }
+                    DoZoneInCombat();
+                }else EnterEvadeMode();
+            }else AggroTimer -= diff;
+        }
 
         if(Phase == 1 || Phase == 3)
         {
@@ -368,7 +449,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
                 if(SummonSporebat_Timer < diff)
                 {
                     Creature *Sporebat = NULL;
-                    Sporebat = m_creature->SummonCreature(FATHOM_SPOREBAT, SPOREBAT_X, SPOREBAT_Y, SPOREBAT_Z, SPOREBAT_O, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    Sporebat = m_creature->SummonCreature(TOXIC_SPOREBAT, SPOREBAT_X, SPOREBAT_Y, SPOREBAT_Z, SPOREBAT_O, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
 
                     if(Sporebat)
                     {
@@ -485,7 +566,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
             {
                 Creature *CoilfangStrider;
                 uint32 pos = rand()%3;
-                CoilfangStrider = m_creature->SummonCreature(COILFANG_STRIDER, CoilfangStriderPos[pos][0], CoilfangStriderPos[pos][1], CoilfangStriderPos[pos][2], CoilfangStriderPos[pos][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                CoilfangStrider = m_creature->SummonCreature(COILFANG_STRIDER, CoilfangStriderPos[pos][0], CoilfangStriderPos[pos][1], CoilfangStriderPos[pos][2], CoilfangStriderPos[pos][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
                 if(CoilfangStrider)
                 {
                     Unit *target = NULL;
@@ -634,11 +715,11 @@ struct TRINITY_DLL_DECL mob_tainted_elementalAI : public ScriptedAI
     }
 };
 
-//Fathom Sporebat
+//Toxic Sporebat
 //Toxic Spores: Used in Phase 3 by the Spore Bats, it creates a contaminated green patch of ground, dealing about 2775-3225 nature damage every second to anyone who stands in it.
-struct TRINITY_DLL_DECL mob_fathom_sporebatAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_toxic_sporebatAI : public ScriptedAI
 {
-    mob_fathom_sporebatAI(Creature *c) : ScriptedAI(c)
+    mob_toxic_sporebatAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Reset();
@@ -651,7 +732,8 @@ struct TRINITY_DLL_DECL mob_fathom_sporebatAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->setFaction(14);
+		m_creature->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING + MOVEMENTFLAG_ONTRANSPORT);        
+		m_creature->setFaction(14);
         ToxicSpore_Timer = 5000;
         Check_Timer = 1000;
     }
@@ -867,9 +949,9 @@ CreatureAI* GetAI_mob_tainted_elemental(Creature *_Creature)
     return new mob_tainted_elementalAI (_Creature);
 }
 
-CreatureAI* GetAI_mob_fathom_sporebat(Creature *_Creature)
+CreatureAI* GetAI_mob_toxic_sporebat(Creature *_Creature)
 {
-    return new mob_fathom_sporebatAI (_Creature);
+    return new mob_toxic_sporebatAI (_Creature);
 }
 
 CreatureAI* GetAI_mob_shield_generator_channel(Creature *_Creature)
@@ -896,8 +978,8 @@ void AddSC_boss_lady_vashj()
     m_scripts[nrscripts++] = newscript;
 
     newscript = new Script;
-    newscript->Name="mob_fathom_sporebat";
-    newscript->GetAI = GetAI_mob_fathom_sporebat;
+    newscript->Name="mob_toxic_sporebat";
+    newscript->GetAI = GetAI_mob_toxic_sporebat;
     m_scripts[nrscripts++] = newscript;
 
     newscript = new Script;
