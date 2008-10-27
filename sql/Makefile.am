@@ -22,8 +22,8 @@
 SUBDIRS = updates tools
 
 ## Change installation location
-#  datadir = mangos/sql
-pkgdatadir = $(datadir)/mangos/sql
+#  datadir = trinity/sql
+pkgdatadir = $(datadir)/trinity/sql
 
 ## Files to be installed
 #  Install basic SQL files to datadir
@@ -32,6 +32,8 @@ pkgdata_DATA = \
 	realmd.sql \
 	characters.sql \
 	create_mysql.sql \
+    world_scripts_full.sql \
+    world_scripts_structure.sql \
 	drop_mysql.sql
 
 ## Additional files to include when running 'make dist'
@@ -41,4 +43,6 @@ EXTRA_DIST = \
 	drop_mysql.sql \
 	characters.sql \
 	world.sql \
+    world_scripts_full.sql \
+    world_scripts_structure.sql \
 	realmd.sql
