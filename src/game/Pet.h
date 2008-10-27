@@ -122,6 +122,8 @@ class Pet : public Creature
 
         void AddToWorld();
         void RemoveFromWorld();
+        // always active
+        void setActive() {}
 
         PetType getPetType() const { return m_petType; }
         void setPetType(PetType type) { m_petType = type; }

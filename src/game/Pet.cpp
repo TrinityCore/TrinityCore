@@ -96,6 +96,7 @@ Pet::Pet(PetType type) : Creature()
     m_CreatureCategoryCooldowns.clear();
     m_autospells.clear();
     m_declinedname = NULL;
+    m_isActive = true;
 }
 
 Pet::~Pet()
