@@ -268,22 +268,10 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
 
     void AttackStart(Unit *who)
     {
-        if(!who)
-            return;
-
-        if (who->isTargetableForAttack())
-        {
-            if(Phase == 2)
-                m_creature->Attack(who, false);
-            else
-                DoStartMovement(who);
-
-            if (!InCombat)
-            {
-                Aggro(who);
-                InCombat = true;
-            }
-        }
+        if(Phase == 2)
+            ScriptedAI::AttackStart(who, false);
+        else
+            ScriptedAI::AttackStart(who, true);
     }
 
     void DoMeleeAttackIfReady()
