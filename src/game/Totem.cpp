@@ -59,13 +59,25 @@ void Totem::Summon(Unit* owner)
     CreatureInfo const *cinfo = GetCreatureInfo();
     if (owner->GetTypeId()==TYPEID_PLAYER && cinfo)
     {
-        if (uint32 modelid = cinfo->GetRandomValidModelId()) 
-            SetDisplayId(modelid);
+        uint32 modelid = 0;
+        if(((Player*)owner)->GetTeam() == HORDE)
+        {
+            if(cinfo->Modelid3)
+                modelid = cinfo->Modelid3;
+            else if(cinfo->Modelid4)
+                modelid = cinfo->Modelid4;
+        }
         else
         {
-            sLog.outErrorDb("No displayid found for the totem with the entry %u! Can't summon it!", GetEntry());
-            return;
+            if(cinfo->Modelid1)
+                modelid = cinfo->Modelid1;
+            else if(cinfo->Modelid2)
+                modelid = cinfo->Modelid2;
         }
+        if (modelid)
+            SetDisplayId(modelid);
+        else
+            sLog.outErrorDb("Totem::Summon: Missing modelid information for entry %u, team %u, totem will use default values.",GetEntry(),((Player*)owner)->GetTeam());
     }
 
     // Only add if a display exists.
