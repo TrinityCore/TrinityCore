@@ -711,22 +711,22 @@ void ObjectMgr::LoadCreatureTemplates()
             sLog.outErrorDb("Creature (Entry: %u) has non-existing faction_H template (%u)", cInfo->Entry, cInfo->faction_H);
 
         // check model ids, supplying and sending non-existent ids to the client might crash them
-        if(!sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid1))
+        if(cInfo->Modelid1 && !sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid1))
         {
             sLog.outErrorDb("Creature (Entry: %u) has non-existing modelId_A (%u), setting it to 0", cInfo->Entry, cInfo->Modelid1);
             const_cast<CreatureInfo*>(cInfo)->Modelid1 = 0;
         }
-        if(!sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid2))
+        if(cInfo->Modelid2 && !sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid2))
         {
             sLog.outErrorDb("Creature (Entry: %u) has non-existing modelId_A2 (%u), setting it to 0", cInfo->Entry, cInfo->Modelid2);
             const_cast<CreatureInfo*>(cInfo)->Modelid2 = 0;
         }
-        if(!sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid3))
+        if(cInfo->Modelid3 && !sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid3))
         {
             sLog.outErrorDb("Creature (Entry: %u) has non-existing modelId_H (%u), setting it to 0", cInfo->Entry, cInfo->Modelid3);
             const_cast<CreatureInfo*>(cInfo)->Modelid3 = 0;
         }
-        if(!sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid4))
+        if(cInfo->Modelid4 && !sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid4))
         {
             sLog.outErrorDb("Creature (Entry: %u) has non-existing modelId_H2 (%u), setting it to 0", cInfo->Entry, cInfo->Modelid4);
             const_cast<CreatureInfo*>(cInfo)->Modelid4 = 0;

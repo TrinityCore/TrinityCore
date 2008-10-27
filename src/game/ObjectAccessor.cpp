@@ -533,10 +533,15 @@ ObjectAccessor::Update(uint32 diff)
         // clone the active object list, because update might remove from it
         std::set<WorldObject *> activeobjects(i_activeobjects);
 
-        std::set<WorldObject *>::const_iterator itr;
-        for(itr = activeobjects.begin(); itr != activeobjects.end(); ++itr)
+        std::set<WorldObject *>::iterator itr, next;
+        for(itr = activeobjects.begin(); itr != activeobjects.end(); itr = next)
         {
-            (*itr)->GetMap()->resetMarkedCells();
+            next = itr;
+            ++next;
+            if((*itr)->IsInWorld())
+                (*itr)->GetMap()->resetMarkedCells();
+            else
+                activeobjects.erase(itr);
         }
 
         Map *map;

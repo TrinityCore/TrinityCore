@@ -3108,6 +3108,7 @@ void Spell::EffectSummon(uint32 i)
         return;
     uint32 level = m_caster->getLevel();
     Pet* spawnCreature = new Pet(SUMMON_PET);
+    spawnCreature->setActive(m_caster->isActive());
 
     if(spawnCreature->LoadPetFromDB(m_caster,pet_entry))
     {
@@ -3543,6 +3544,7 @@ void Spell::EffectSummonGuardian(uint32 i)
     for(int32 count = 0; count < amount; ++count)
     {
         Pet* spawnCreature = new Pet(GUARDIAN_PET);
+        spawnCreature->setActive(m_caster->isActive());
 
         Map *map = m_caster->GetMap();
         uint32 pet_number = objmgr.GeneratePetNumber();
@@ -3937,6 +3939,7 @@ void Spell::EffectSummonPet(uint32 i)
     }
 
     Pet* NewSummon = new Pet;
+    NewSummon->setActive(m_caster->isActive());
 
     // petentry==0 for hunter "call pet" (current pet summoned if any)
     if(NewSummon->LoadPetFromDB(m_caster,petentry))

@@ -903,7 +903,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         void AddToWorld();
         void RemoveFromWorld();
         // always active
-        void setActive() {}
+        void setActive(bool) {}
 
         bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0);
 
