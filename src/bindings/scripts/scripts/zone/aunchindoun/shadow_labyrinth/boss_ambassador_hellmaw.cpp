@@ -24,26 +24,18 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_shadow_labyrinth.h"
 
-#define SAY_INTRO       "Infidels have invaded the sanctuary! Sniveling pests...You have yet to learn the true meaning of agony!"
-#define SOUND_INTRO     10473
+#define SAY_INTRO       -1555000
 
-#define SAY_AGGRO1      "Pathetic mortals! You will pay dearly!"
-#define SOUND_AGGRO1    10475
-#define SAY_AGGRO2      "I will break you!"
-#define SOUND_AGGRO2    10476
-#define SAY_AGGRO3      "Finally! Something to relieve the tedium!"
-#define SOUND_AGGRO3    10477
+#define SAY_AGGRO1      -1555001
+#define SAY_AGGRO2      -1555002
+#define SAY_AGGRO3      -1555003
 
-#define SAY_HELP        "Aid me, you fools, before it's too late!"
-#define SOUND_HELP      10474
+#define SAY_HELP        -1555004
 
-#define SAY_SLAY1       "Do you fear death?"
-#define SOUND_SLAY1     10478
-#define SAY_SLAY2       "This is the part I enjoy most."
-#define SOUND_SLAY2     10479
+#define SAY_SLAY1       -1555005
+#define SAY_SLAY2       -1555006
 
-#define SAY_DEATH       "Do not...grow...overconfident, mortal."
-#define SOUND_DEATH     10480
+#define SAY_DEATH       -1555007
 
 #define SPELL_BANISH            30231
 #define SPELL_CORROSIVE_ACID    23313
@@ -79,18 +71,18 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public ScriptedAI
         Intro = false;
         IsBanished = false;
 
-        if( pInstance )
+        if (pInstance)
         {
-            if( pInstance->GetData(TYPE_HELLMAW) == NOT_STARTED )
+            if (pInstance->GetData(TYPE_HELLMAW) == NOT_STARTED)
             {
                 DoCast(m_creature,SPELL_BANISH);
                 IsBanished = true;
             }
             else pInstance->SetData(TYPE_HELLMAW,FAIL);
 
-            if( pInstance->GetData(TYPE_OVERSEER) == DONE )
+            if (pInstance->GetData(TYPE_OVERSEER) == DONE)
             {
-                if( m_creature->HasAura(SPELL_BANISH,0) )
+                if (m_creature->HasAura(SPELL_BANISH,0))
                     m_creature->RemoveAurasDueToSpell(SPELL_BANISH);
                 Intro = true;
             }
@@ -99,22 +91,21 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public ScriptedAI
 
     void MovementInform(uint32 type, uint32 id)
     {
-        if( type != POINT_MOTION_TYPE )
+        if (type != POINT_MOTION_TYPE)
             return;
     }
 
     void DoIntro()
     {
-        DoYell(SAY_INTRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_INTRO);
+        DoScriptText(SAY_INTRO, m_creature);
 
-        if( m_creature->HasAura(SPELL_BANISH,0) )
+        if (m_creature->HasAura(SPELL_BANISH,0))
             m_creature->RemoveAurasDueToSpell(SPELL_BANISH);
 
         IsBanished = false;
         Intro = true;
 
-        if( pInstance )
+        if (pInstance)
             pInstance->SetData(TYPE_HELLMAW, IN_PROGRESS);
     }
 
@@ -122,18 +113,9 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-            case 0:
-                DoYell(SAY_AGGRO1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_AGGRO1);
-                break;
-            case 1:
-                DoYell(SAY_AGGRO2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_AGGRO2);
-                break;
-            case 2:
-                DoYell(SAY_AGGRO3, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_AGGRO3);
-                break;
+            case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
+            case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
+            case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
         }
     }
 
@@ -141,42 +123,35 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_SLAY1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY1);
-                break;
-            case 1:
-                DoYell(SAY_SLAY2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY2);
-                break;
+            case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+            case 1: DoScriptText(SAY_SLAY2, m_creature); break;
         }
     }
 
     void JustDied(Unit *victim)
     {
-        DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
 
-        if( pInstance )
+        if (pInstance)
             pInstance->SetData(TYPE_HELLMAW, DONE);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if( !Intro )
+        if (!Intro)
         {
-            if( EventCheck_Timer < diff )
+            if (EventCheck_Timer < diff)
             {
-                if( pInstance )
+                if (pInstance)
                 {
-                    if( pInstance->GetData(TYPE_OVERSEER) == DONE )
+                    if (pInstance->GetData(TYPE_OVERSEER) == DONE)
                         DoIntro();
                 }
                 EventCheck_Timer = 5000;
             }else EventCheck_Timer -= diff;
         }
 
-        if( !InCombat && !IsBanished )
+        if (!InCombat && !IsBanished)
         {
             //this is where we add MovePoint()
             //DoWhine("I haz no mount!", LANG_UNIVERSAL, NULL);
@@ -185,21 +160,21 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public ScriptedAI
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
             return;
 
-        if( CorrosiveAcid_Timer < diff )
+        if (CorrosiveAcid_Timer < diff)
         {
             DoCast(m_creature,SPELL_CORROSIVE_ACID);
             CorrosiveAcid_Timer = 25000;
         }else CorrosiveAcid_Timer -= diff;
 
-        if( Fear_Timer < diff )
+        if (Fear_Timer < diff)
         {
             DoCast(m_creature,SPELL_FEAR);
             Fear_Timer = 35000;
         }else Fear_Timer -= diff;
 
-        /*if( HeroicMode )
+        /*if (HeroicMode)
         {
-            if( Enrage_Timer < diff )
+            if (Enrage_Timer < diff)
             {
                 DoCast(m_creature,SPELL_ENRAGE);
             }else Enrage_Timer -= diff;

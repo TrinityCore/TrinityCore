@@ -24,23 +24,14 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_shadow_labyrinth.h"
 
-#define SAY_INTRO                "Keep your minds focused for the days of reckoning are close at hand. Soon, the destroyer of worlds will return to make good on his promise. Soon the destruction of all that is will begin!"
-#define SAY_AGGRO1               "I'll make an offering of your blood!"
-#define SAY_AGGRO2               "You'll be a fine example, for the others."
-#define SAY_AGGRO3               "Good, a worthy sacrifice."
-#define SAY_HELP                 "Come to my aid, heed your master now!"
-#define SAY_SLAY1                "I serve with pride."
-#define SAY_SLAY2                "Your death is for the greater cause!"
-#define SAY_DEATH                "I give my life... Gladly."
-
-#define SOUND_INTRO              10522
-#define SOUND_AGGRO1             10524
-#define SOUND_AGGRO2             10525
-#define SOUND_AGGRO3             10526
-#define SOUND_HELP               10523
-#define SOUND_SLAY1              10527
-#define SOUND_SLAY2              10528
-#define SOUND_DEATH              10529
+#define SAY_INTRO                       -1555028
+#define SAY_AGGRO1                      -1555029
+#define SAY_AGGRO2                      -1555030
+#define SAY_AGGRO3                      -1555031
+#define SAY_HELP                        -1555032
+#define SAY_SLAY1                       -1555033
+#define SAY_SLAY2                       -1555034
+#define SAY_DEATH                       -1555035
 
 #define SPELL_RAIN_OF_FIRE          33617
 #define H_SPELL_RAIN_OF_FIRE        39363
@@ -147,22 +138,14 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-            case 0:
-            DoYell(SAY_SLAY1, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_SLAY1);
-            break;
-
-            case 1:
-            DoYell(SAY_SLAY2, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_SLAY2);
-            break;
+            case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+            case 1: DoScriptText(SAY_SLAY2, m_creature); break;
         }
     }
 
     void JustDied(Unit *victim)
     {
-        DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
         destroyPortals();
         if(pInstance)
             pInstance->SetData(DATA_GRANDMASTERVORPILEVENT, DONE);
@@ -172,20 +155,9 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-            case 0:
-            DoYell(SAY_AGGRO1, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_AGGRO1);
-            break;
-
-            case 1:
-            DoYell(SAY_AGGRO2, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_AGGRO2);
-            break;
-
-            case 2:
-            DoYell(SAY_AGGRO3, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_AGGRO3);
-            break;
+            case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
+            case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
+            case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
         }
 
         if(pInstance)
@@ -219,8 +191,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
         }
         else if (!Intro && m_creature->IsWithinLOSInMap(who)&& m_creature->IsWithinDistInMap(who, 100) ) //not sure about right radius
         {
-            DoYell(SAY_INTRO, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_INTRO);
+            DoScriptText(SAY_INTRO, m_creature);
             Intro = true;
         }
 
@@ -235,8 +206,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
         if (!sumportals)
         if (sumportals_Timer < diff)
         {
-            DoYell(SAY_HELP, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_HELP);
+            DoScriptText(SAY_HELP, m_creature);
             summonPortals();
             sumportals_Timer = 1000000;
                     

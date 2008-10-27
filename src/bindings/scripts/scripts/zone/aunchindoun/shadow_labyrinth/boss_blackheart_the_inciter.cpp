@@ -29,21 +29,27 @@ EndScriptData */
 #define SPELL_CHARGE          33709
 #define SPELL_WAR_STOMP       33707
 
-#define SAY_AGGRO1            "You be dead people!"
-#define SAY_AGGRO2            "Time to kill!"
-#define SAY_AGGRO3            "I see dead people!"
-#define SAY_SLAY1             "No coming back for you!"
-#define SAY_SLAY2             "Nice try!"
-#define SAY_SLAY3             "Now you gone for good!"
-#define SAY_DEATH             "This...no...good.."
+#define SAY_INTRO1          -1555008
+#define SAY_INTRO2          -1555009
+#define SAY_INTRO3          -1555010
+#define SAY_AGGRO1          -1555011
+#define SAY_AGGRO2          -1555012
+#define SAY_AGGRO3          -1555013
+#define SAY_SLAY1           -1555014
+#define SAY_SLAY2           -1555015
+#define SAY_HELP            -1555016
+#define SAY_DEATH           -1555017
 
-#define SOUND_AGGRO1          10498
-#define SOUND_AGGRO2          10497
-#define SOUND_AGGRO3          10488
-#define SOUND_SLAY1           10489
-#define SOUND_SLAY2           10490
-#define SOUND_SLAY3           10499
-#define SOUND_DEATH           10491
+#define SAY2_INTRO1         -1555018
+#define SAY2_INTRO2         -1555019
+#define SAY2_INTRO3         -1555020
+#define SAY2_AGGRO1         -1555021
+#define SAY2_AGGRO2         -1555022
+#define SAY2_AGGRO3         -1555023
+#define SAY2_SLAY1          -1555024
+#define SAY2_SLAY2          -1555025
+#define SAY2_HELP           -1555026
+#define SAY2_DEATH          -1555027
 
 struct TRINITY_DLL_DECL boss_blackheart_the_inciterAI : public ScriptedAI
 {
@@ -69,33 +75,22 @@ struct TRINITY_DLL_DECL boss_blackheart_the_inciterAI : public ScriptedAI
         Charge_Timer = 5000;
         Knockback_Timer = 15000;
 
-        if( pInstance )
+        if (pInstance)
             pInstance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, NOT_STARTED);
     }
 
     void KilledUnit(Unit *victim)
     {
-        switch(rand()%3)
+        switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_SLAY1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY1);
-                break;
-            case 1:
-                DoYell(SAY_SLAY2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY2);
-                break;
-            case 2:
-                DoYell(SAY_SLAY3, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY3);
-                break;
+            case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+            case 1: DoScriptText(SAY_SLAY2, m_creature); break;
         }
     }
 
     void JustDied(Unit *victim)
     {
-        DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
 
         if( pInstance )
             pInstance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, DONE);
@@ -105,21 +100,12 @@ struct TRINITY_DLL_DECL boss_blackheart_the_inciterAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-            case 0:
-                DoYell(SAY_AGGRO1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_AGGRO1);
-                break;
-            case 1:
-                DoYell(SAY_AGGRO2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_AGGRO2);
-                break;
-            case 2:
-                DoYell(SAY_AGGRO3, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_AGGRO3);
-                break;
+            case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
+            case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
+            case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
         }
 
-        if( pInstance )
+        if (pInstance)
             pInstance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, IN_PROGRESS);
     }
 
@@ -129,9 +115,9 @@ struct TRINITY_DLL_DECL boss_blackheart_the_inciterAI : public ScriptedAI
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
             return;
 
-        if( InciteChaos )
+        if (InciteChaos)
         {
-            if( InciteChaosWait_Timer < diff )
+            if (InciteChaosWait_Timer < diff)
             {
                 InciteChaos = false;
                 InciteChaosWait_Timer = 15000;
@@ -140,7 +126,7 @@ struct TRINITY_DLL_DECL boss_blackheart_the_inciterAI : public ScriptedAI
             return;
         }
 
-        if( InciteChaos_Timer < diff )
+        if (InciteChaos_Timer < diff)
         {
             DoCast(m_creature, SPELL_INCITE_CHAOS);
 
@@ -148,7 +134,7 @@ struct TRINITY_DLL_DECL boss_blackheart_the_inciterAI : public ScriptedAI
             for( std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr )
             {
                 Unit* target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
-                if( target && target->GetTypeId() == TYPEID_PLAYER )
+                if (target && target->GetTypeId() == TYPEID_PLAYER)
                     target->CastSpell(target,SPELL_INCITE_CHAOS_B,true);
             }
 
@@ -159,15 +145,15 @@ struct TRINITY_DLL_DECL boss_blackheart_the_inciterAI : public ScriptedAI
         }else InciteChaos_Timer -= diff;
 
         //Charge_Timer
-        if( Charge_Timer < diff )
+        if (Charge_Timer < diff)
         {
-            if( Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0) )
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(target, SPELL_CHARGE);
             Charge_Timer = 25000;
         }else Charge_Timer -= diff;
 
         //Knockback_Timer
-        if( Knockback_Timer < diff )
+        if (Knockback_Timer < diff)
         {
             DoCast(m_creature, SPELL_WAR_STOMP);
             Knockback_Timer = 20000;

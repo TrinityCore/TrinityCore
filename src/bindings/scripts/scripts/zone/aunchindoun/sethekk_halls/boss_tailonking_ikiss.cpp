@@ -24,25 +24,18 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_sethekk_halls.h"
 
-#define SAY_INTRO                   "<squawk>..Trinkets yes pretty Trinkets..<squawk>..power, great power.<squawk>..power in Trinkets..<squawk>"
-#define SOUND_INTRO                 10557
+#define SAY_INTRO                   -1556007
 
-#define SAY_AGGRO_1                 "You make war on Ikiss?..<squawk>"
-#define SOUND_AGGRO_1               10554
-#define SAY_AGGRO_2                 "Ikiss cut you pretty..<squawk>..slice you. Yes!"
-#define SOUND_AGGRO_2               10555
-#define SAY_AGGRO_3                 "No escape for..<squawk>..for you"
-#define SOUND_AGGRO_3               10556
+#define SAY_AGGRO_1                 -1556008
+#define SAY_AGGRO_2                 -1556009
+#define SAY_AGGRO_3                 -1556010
 
-#define SAY_SLAY_1                  "You die..<squawk>..stay away from Trinkets"
-#define SOUND_SLAY_1                10558
-#define SAY_SLAY_2                  "<squawk>"
-#define SOUND_SLAY_2                10559
+#define SAY_SLAY_1                  -1556011
+#define SAY_SLAY_2                  -1556012
 
-#define SAY_DEATH                   "Ikiss will not..<squawk>..die"
-#define SOUND_DEATH                 10560
+#define SAY_DEATH                   -15560013
 
-#define EMOTE_ARCANE_EXP            "begins to channel arcane energy..."
+#define EMOTE_ARCANE_EXP            -15560014
 
 #define SPELL_BLINK                 38194
 #define SPELL_BLINK_TELEPORT        38203
@@ -100,8 +93,7 @@ struct TRINITY_DLL_DECL boss_talon_king_ikissAI : public ScriptedAI
             if(!Intro && m_creature->IsWithinDistInMap(who, 100))
             {
                 Intro = true;
-                DoYell(SAY_INTRO, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_INTRO);
+                DoScriptText(SAY_INTRO, m_creature);
             }
 
             if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
@@ -120,29 +112,17 @@ struct TRINITY_DLL_DECL boss_talon_king_ikissAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-            case 0:
-                DoYell(SAY_AGGRO_1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO_1);
-                break;
-
-            case 1:
-                DoYell(SAY_AGGRO_2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO_2);
-                break;
-
-            case 2:
-                DoYell(SAY_AGGRO_3, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO_3);
-                break;
+            case 0: DoScriptText(SAY_AGGRO_1, m_creature); break;
+            case 1: DoScriptText(SAY_AGGRO_2, m_creature); break;
+            case 2: DoScriptText(SAY_AGGRO_3, m_creature); break;
         }
     }
 
     void JustDied(Unit* Killer)
     {
-        DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature,SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
 
-        if( pInstance )
+        if (pInstance)
             pInstance->SetData(DATA_IKISSDOOREVENT, DONE);
     }
 
@@ -150,15 +130,8 @@ struct TRINITY_DLL_DECL boss_talon_king_ikissAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_SLAY_1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY_1);
-                break;
-
-            case 1:
-                DoYell(SAY_SLAY_2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY_2);
-                break;
+            case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
+            case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
         }
     }
 
@@ -167,51 +140,51 @@ struct TRINITY_DLL_DECL boss_talon_king_ikissAI : public ScriptedAI
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
-        if( Blink )
+        if (Blink)
         {
             DoCast(m_creature,HeroicMode ? H_SPELL_ARCANE_EXPLOSION : SPELL_ARCANE_EXPLOSION);
             m_creature->CastSpell(m_creature,SPELL_ARCANE_BUBBLE,true);
             Blink = false;
         }
 
-        if( ArcaneVolley_Timer < diff )
+        if (ArcaneVolley_Timer < diff)
         {
             DoCast(m_creature,HeroicMode ? H_SPELL_ARCANE_VOLLEY : SPELL_ARCANE_VOLLEY);
             ArcaneVolley_Timer = 10000+rand()%5000;
         }else ArcaneVolley_Timer -= diff;
 
-        if( Sheep_Timer < diff )
+        if (Sheep_Timer < diff)
         {
             //second top aggro target in normal, random target in heroic correct?
             Unit *target = NULL;
-            if( HeroicMode ? target = SelectUnit(SELECT_TARGET_RANDOM,0) : target = SelectUnit(SELECT_TARGET_TOPAGGRO,1) )
+            if (HeroicMode ? target = SelectUnit(SELECT_TARGET_RANDOM,0) : target = SelectUnit(SELECT_TARGET_TOPAGGRO,1))
                 DoCast(target,HeroicMode ? H_SPELL_POLYMORPH : SPELL_POLYMORPH);
             Sheep_Timer = 15000+rand()%2500;
         }else Sheep_Timer -= diff;
 
         //may not be correct time to cast
-        if( !ManaShield && ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() < 20) )
+        if (!ManaShield && ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() < 20))
         {
             DoCast(m_creature,SPELL_MANA_SHIELD);
             ManaShield = true;
         }
 
-        if( HeroicMode )
+        if (HeroicMode)
         {
-            if( Slow_Timer < diff )
+            if (Slow_Timer < diff)
             {
                 DoCast(m_creature,H_SPELL_SLOW);
                 Slow_Timer = 15000+rand()%25000;
             }else Slow_Timer -= diff;
         }
 
-        if( Blink_Timer < diff )
+        if (Blink_Timer < diff)
         {
-            DoTextEmote(EMOTE_ARCANE_EXP,NULL,true);
+            DoScriptText(EMOTE_ARCANE_EXP, m_creature);
 
-            if( Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
             {
-                if( m_creature->IsNonMeleeSpellCasted(false) )
+                if (m_creature->IsNonMeleeSpellCasted(false))
                     m_creature->InterruptNonMeleeSpells(false);
 
                 //Spell doesn't work, but we use for visual effect at least
@@ -230,7 +203,7 @@ struct TRINITY_DLL_DECL boss_talon_king_ikissAI : public ScriptedAI
             Blink_Timer = 35000+rand()%5000;
         }else Blink_Timer -= diff;
 
-        if( !Blink )
+        if (!Blink)
             DoMeleeAttackIfReady();
     }
 };

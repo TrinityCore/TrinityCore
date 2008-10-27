@@ -23,7 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define EMOTE_SONIC_BOOM            "draws energy from the air."
+#define EMOTE_SONIC_BOOM            -1555036
 
 #define SPELL_MAGNETIC_PULL         33689
 #define SPELL_SONIC_BOOM_PRE        33923
@@ -56,7 +56,7 @@ struct TRINITY_DLL_DECL boss_murmurAI : public Scripted_NoMovementAI
 
         //database should have `RegenHealth`=0 to prevent regen
         uint32 hp = m_creature->GetMaxHealth()*0.4;
-        if( hp )
+        if (hp)
             m_creature->SetHealth(hp);
     }
 
@@ -69,9 +69,9 @@ struct TRINITY_DLL_DECL boss_murmurAI : public Scripted_NoMovementAI
             return;
 
         //SonicBoom_Timer
-        if(SonicBoom_Timer < diff)
+        if (SonicBoom_Timer < diff)
         {
-            if(CanSonicBoom)
+            if (CanSonicBoom)
             {
                 DoCast(m_creature, SPELL_SONIC_BOOM_CAST,true);
                 CanSonicBoom = false;
@@ -79,7 +79,7 @@ struct TRINITY_DLL_DECL boss_murmurAI : public Scripted_NoMovementAI
             }
             else
             {
-                DoTextEmote(EMOTE_SONIC_BOOM,NULL);
+                DoScriptText(EMOTE_SONIC_BOOM, m_creature);
                 DoCast(m_creature,SPELL_SONIC_BOOM_PRE);
                 CanSonicBoom = true;
                 SonicBoom_Timer = 5000;
@@ -87,7 +87,7 @@ struct TRINITY_DLL_DECL boss_murmurAI : public Scripted_NoMovementAI
         }else SonicBoom_Timer -= diff;
 
         //MurmursTouch_Timer
-        if(MurmursTouch_Timer < diff)
+        if (MurmursTouch_Timer < diff)
         {
             /*Unit* target = NULL;
             target = SelectUnit(SELECT_TARGET_RANDOM,0);
@@ -98,21 +98,21 @@ struct TRINITY_DLL_DECL boss_murmurAI : public Scripted_NoMovementAI
         }else MurmursTouch_Timer -= diff;
 
         //Resonance_Timer
-        if(Resonance_Timer < diff)
+        if (Resonance_Timer < diff)
         {
-            if( !m_creature->IsWithinDistInMap(m_creature->getVictim(), ATTACK_DISTANCE) )
+            if (!m_creature->IsWithinDistInMap(m_creature->getVictim(), ATTACK_DISTANCE))
                 DoCast(m_creature->getVictim(), SPELL_RESONANCE);
             Resonance_Timer = 5000;
         }else Resonance_Timer -= diff;
 
         //MagneticPull_Timer
-        if(MagneticPull_Timer < diff)
+        if (MagneticPull_Timer < diff)
         {
-            if( !CanShockWave )
+            if (!CanShockWave)
             {
-                if( Unit* temp = SelectUnit(SELECT_TARGET_RANDOM,0) )
+                if (Unit* temp = SelectUnit(SELECT_TARGET_RANDOM,0))
                 {
-                    if( temp->GetTypeId() == TYPEID_PLAYER )
+                    if (temp->GetTypeId() == TYPEID_PLAYER)
                     {
                         DoCast(temp, SPELL_MAGNETIC_PULL);
                         pTarget = temp->GetGUID();
@@ -123,7 +123,7 @@ struct TRINITY_DLL_DECL boss_murmurAI : public Scripted_NoMovementAI
             }
             else
             {
-                if( Unit* target = Unit::GetUnit(*m_creature,pTarget) )
+                if (Unit* target = Unit::GetUnit(*m_creature,pTarget))
                     target->CastSpell(target,SPELL_SHOCKWAVE,true);
 
                 MagneticPull_Timer = 35000;
@@ -133,7 +133,7 @@ struct TRINITY_DLL_DECL boss_murmurAI : public Scripted_NoMovementAI
         }else MagneticPull_Timer -= diff;
 
         //no meele if preparing for sonic boom
-        if(!CanSonicBoom)
+        if (!CanSonicBoom)
             DoMeleeAttackIfReady();
     }
 };
