@@ -974,6 +974,43 @@ WorldObject::WorldObject()
     m_name = "";
 
     mSemaphoreTeleport  = false;
+
+    m_isActive          = false;
+}
+
+WorldObject::~WorldObject()
+{
+    if(m_isActive && IsInWorld())
+        ObjectAccessor::Instance().RemoveActiveObject(this);
+}
+
+void WorldObject::setActive(bool isActive)
+{
+    // if already in the same activity state as we try to set, do nothing
+    if(isActive == m_isActive)
+        return;
+    m_isActive = isActive;
+    if(IsInWorld())
+    {
+        if(isActive)
+            ObjectAccessor::Instance().AddActiveObject(this);
+        else
+            ObjectAccessor::Instance().RemoveActiveObject(this);
+    }
+}
+
+void WorldObject::AddToWorld()
+{
+    Object::AddToWorld();
+    if(m_isActive)
+        ObjectAccessor::Instance().AddActiveObject(this);
+}
+
+void WorldObject::RemoveFromWorld()
+{
+    if(m_isActive)
+        ObjectAccessor::Instance().RemoveActiveObject(this);
+    Object::RemoveFromWorld();
 }
 
 void WorldObject::_Create( uint32 guidlow, HighGuid guidhigh, uint32 mapid )

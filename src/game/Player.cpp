@@ -425,6 +425,8 @@ Player::Player (WorldSession *session): Unit()
     m_contestedPvPTimer = 0;
 
     m_declinedname = NULL;
+
+    m_isActive = true;
 }
 
 Player::~Player ()

@@ -47,14 +47,14 @@ void DynamicObject::AddToWorld()
 {
     ///- Register the dynamicObject for guid lookup
     if(!IsInWorld()) ObjectAccessor::Instance().AddObject(this);
-    Object::AddToWorld();
+    WorldObject::AddToWorld();
 }
 
 void DynamicObject::RemoveFromWorld()
 {
     ///- Remove the dynamicObject from the accessor
     if(IsInWorld()) ObjectAccessor::Instance().RemoveObject(this);
-    Object::RemoveFromWorld();
+    WorldObject::RemoveFromWorld();
 }
 
 bool DynamicObject::Create( uint32 guidlow, Unit *caster, uint32 spellId, uint32 effIndex, float x, float y, float z, int32 duration, float radius )

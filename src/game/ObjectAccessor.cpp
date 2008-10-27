@@ -505,20 +505,38 @@ ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid)
 }
 
 void
+ObjectAccessor::AddActiveObject( WorldObject * obj )
+{
+    i_activeobjects.insert(obj);
+}
+
+void
+ObjectAccessor::RemoveActiveObject( WorldObject * obj )
+{
+    i_activeobjects.erase(obj);
+}
+
+void
 ObjectAccessor::Update(uint32 diff)
 {
     {
-        typedef std::multimap<uint32, Player *> CreatureLocationHolderType;
-        CreatureLocationHolderType creature_locations;
-        //TODO: Player guard
+        // player update might remove the player from grid, and that causes crashes. We HAVE to update players first, and then the active objects.
         HashMapHolder<Player>::MapType& playerMap = HashMapHolder<Player>::GetContainer();
         for(HashMapHolder<Player>::MapType::iterator iter = playerMap.begin(); iter != playerMap.end(); ++iter)
         {
             if(iter->second->IsInWorld())
             {
                 iter->second->Update(diff);
-                creature_locations.insert( CreatureLocationHolderType::value_type(iter->second->GetMapId(), iter->second) );
             }
+        }
+
+        // clone the active object list, because update might remove from it
+        std::set<WorldObject *> activeobjects(i_activeobjects);
+
+        std::set<WorldObject *>::const_iterator itr;
+        for(itr = activeobjects.begin(); itr != activeobjects.end(); ++itr)
+        {
+            (*itr)->GetMap()->resetMarkedCells();
         }
 
         Map *map;
@@ -529,17 +547,12 @@ ObjectAccessor::Update(uint32 diff)
         // for pets
         TypeContainerVisitor<Trinity::ObjectUpdater, WorldTypeMapContainer > world_object_update(updater);
 
-        for(CreatureLocationHolderType::iterator iter=creature_locations.begin(); iter != creature_locations.end(); ++iter)
+        for(itr = activeobjects.begin(); itr != activeobjects.end(); ++itr)
         {
-            MapManager::Instance().GetMap((*iter).first, (*iter).second)->resetMarkedCells();
-        }
+            WorldObject *obj = (*itr);
+            map = obj->GetMap();
 
-        for(CreatureLocationHolderType::iterator iter=creature_locations.begin(); iter != creature_locations.end(); ++iter)
-        {
-            Player *player = (*iter).second;
-            map = MapManager::Instance().GetMap((*iter).first, player);
-
-            CellPair standing_cell(Trinity::ComputeCellPair(player->GetPositionX(), player->GetPositionY()));
+            CellPair standing_cell(Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY()));
 
             // Check for correctness of standing_cell, it also avoids problems with update_cell
             if (standing_cell.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || standing_cell.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
@@ -576,7 +589,7 @@ ObjectAccessor::Update(uint32 diff)
 }
 
 bool
-ObjectAccessor::PlayersNearGrid(uint32 x, uint32 y, uint32 m_id, uint32 i_id) const
+ObjectAccessor::ActiveObjectsNearGrid(uint32 x, uint32 y, uint32 m_id, uint32 i_id) const
 {
     CellPair cell_min(x*MAX_NUMBER_OF_CELLS, y*MAX_NUMBER_OF_CELLS);
     CellPair cell_max(cell_min.x_coord + MAX_NUMBER_OF_CELLS, cell_min.y_coord+MAX_NUMBER_OF_CELLS);
@@ -585,17 +598,16 @@ ObjectAccessor::PlayersNearGrid(uint32 x, uint32 y, uint32 m_id, uint32 i_id) co
     cell_max >> 2;
     cell_max += 2;
 
-    //TODO: Guard player
-    HashMapHolder<Player>::MapType& playerMap = HashMapHolder<Player>::GetContainer();
-    for(HashMapHolder<Player>::MapType::const_iterator iter=playerMap.begin(); iter != playerMap.end(); ++iter)
+    for(std::set<WorldObject*>::const_iterator itr = i_activeobjects.begin(); itr != i_activeobjects.end(); ++itr)
     {
-        if( m_id != iter->second->GetMapId() || i_id != iter->second->GetInstanceId() )
+        if( m_id != (*itr)->GetMapId() || i_id != (*itr)->GetInstanceId() )
             continue;
 
-        CellPair p = Trinity::ComputeCellPair(iter->second->GetPositionX(), iter->second->GetPositionY());
+        CellPair p = Trinity::ComputeCellPair((*itr)->GetPositionX(), (*itr)->GetPositionY());
         if( (cell_min.x_coord <= p.x_coord && p.x_coord <= cell_max.x_coord) &&
             (cell_min.y_coord <= p.y_coord && p.y_coord <= cell_max.y_coord) )
             return true;
+
     }
 
     return false;

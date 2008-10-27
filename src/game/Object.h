@@ -27,6 +27,7 @@
 #include "UpdateData.h"
 #include "GameSystem/GridReference.h"
 #include "ObjectDefines.h"
+#include "GridDefines.h"
 
 #include <set>
 #include <string>
@@ -323,7 +324,11 @@ class TRINITY_DLL_SPEC Object
 class TRINITY_DLL_SPEC WorldObject : public Object
 {
     public:
-        virtual ~WorldObject ( ) {}
+        virtual ~WorldObject ( );
+
+        virtual void AddToWorld();
+
+        virtual void RemoveFromWorld();
 
         virtual void Update ( uint32 /*time_diff*/ ) { }
 
@@ -448,9 +453,12 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         Map const* GetBaseMap() const;
         Creature* SummonCreature(uint32 id, float x, float y, float z, float ang,TempSummonType spwtype,uint32 despwtime);
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime);
+        bool isActive() const { return m_isActive; }
+        virtual void setActive(bool isActive);
     protected:
         explicit WorldObject();
         std::string m_name;
+        bool m_isActive;
 
     private:
         uint32 m_mapId;
