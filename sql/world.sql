@@ -809,7 +809,7 @@ CREATE TABLE `script_texts` (
 -- Dumping data for table `script_texts`
 --
 
-LOCK TABLES `eventai_texts` WRITE;
+LOCK TABLES `script_texts` WRITE;
 /*!40000 ALTER TABLE `script_texts` DISABLE KEYS */;
 /*!40000 ALTER TABLE `script_texts` ENABLE KEYS */;
 UNLOCK TABLES;
