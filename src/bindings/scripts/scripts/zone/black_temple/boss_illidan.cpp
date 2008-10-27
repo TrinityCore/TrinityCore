@@ -218,7 +218,7 @@ enum EventMaiev
     EVENT_MAIEV_TAUNT           =   2,
     EVENT_MAIEV_SHADOW_STRIKE   =   3,
     EVENT_MAIEV_THROW_DAGGER    =   4,
-    EVENT_MAIEV_TRAP            =   5,
+    EVENT_MAIEV_TRAP            =   4,
 };
 
 static EventIllidan MaxTimer[]=
