@@ -615,6 +615,103 @@ void Spell::EffectDummy(uint32 i)
             // Gnomish Poultryizer trinket
             switch(m_spellInfo->Id )
             {
+                // Mingo's Fortune Giblets
+                case 40802:
+                {
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER) return;
+
+                    Player *player = (Player*)m_caster;
+                    uint32 newitemid;
+
+                    switch(urand(1,20))
+                    {
+                        case 1: newitemid = 32688; break;
+                        case 2: newitemid = 32689; break;
+                        case 3: newitemid = 32690; break;
+                        case 4: newitemid = 32691; break;
+                        case 5: newitemid = 32692; break;
+                        case 6: newitemid = 32693; break;
+                        case 7: newitemid = 32700; break;
+                        case 8: newitemid = 32701; break;
+                        case 9: newitemid = 32702; break;
+                        case 10: newitemid = 32703; break;
+                        case 11: newitemid = 32704; break;
+                        case 12: newitemid = 32705; break;
+                        case 13: newitemid = 32706; break;
+                        case 14: newitemid = 32707; break;
+                        case 15: newitemid = 32708; break;
+                        case 16: newitemid = 32709; break;
+                        case 17: newitemid = 32710; break;
+                        case 18: newitemid = 32711; break;
+                        case 19: newitemid = 32712; break;
+                        case 20: newitemid = 32713; break;
+                    }
+                    ItemPosCountVec dest;
+                    uint8 msg = player->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, newitemid, 1, false);
+                    if (msg != EQUIP_ERR_OK)
+                    {
+                        player->SendEquipError(msg, NULL, NULL);
+                        return;
+                    }
+                    Item *pItem = player->StoreNewItem(dest, newitemid, true, Item::GenerateItemRandomPropertyId(newitemid));
+
+                    if (!pItem)
+                    {
+                        player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
+                        return;
+                    }
+                    player->SendNewItem(pItem, 1, true, true);
+                    
+                    return;
+                }
+                // Encapsulate Voidwalker
+                case 29364:
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT || ((Creature*)unitTarget)->isPet()) return;
+
+                    Creature* creatureTarget = (Creature*)unitTarget;
+                    GameObject* pGameObj = new GameObject;
+
+                    if (!creatureTarget || !pGameObj) return;
+
+                    if (!pGameObj->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), 181574, creatureTarget->GetMap(),
+                        creatureTarget->GetPositionX(), creatureTarget->GetPositionY(), creatureTarget->GetPositionZ(), 
+                        creatureTarget->GetOrientation(), 0, 0, 0, 0, 100, 1))
+                    {
+                        delete pGameObj;
+                        return;
+                    }
+
+                    pGameObj->SetRespawnTime(0);
+                    pGameObj->SetOwnerGUID(m_caster->GetGUID());
+                    pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
+                    pGameObj->SetSpellId(m_spellInfo->Id);
+
+                    MapManager::Instance().GetMap(creatureTarget->GetMapId(), pGameObj)->Add(pGameObj);
+
+                    WorldPacket data(SMSG_GAMEOBJECT_SPAWN_ANIM_OBSOLETE, 8);
+                    data << uint64(pGameObj->GetGUID());
+                    m_caster->SendMessageToSet(&data,true);
+
+                    return;
+                }
+                // Demon Broiled Surprise
+                case 43723:
+                {
+                    if (!unitTarget || unitTarget->isAlive() || unitTarget->GetTypeId() != TYPEID_UNIT ||
+                        ((Creature*)unitTarget)->isPet()) return;
+
+                    Player *player = (Player*)m_caster;
+
+                    if (!player) return;
+
+                    player->CastSpell(unitTarget, 43753, true);
+
+                    if (player->GetQuestStatus(11379) == QUEST_STATUS_INCOMPLETE && unitTarget->GetEntry() == 19973)
+                        player->CastedCreatureOrGO(19973, unitTarget->GetGUID(), 43723);
+
+                    return;
+                }
                 case 8063:                                  // Deviate Fish
                 {
                     if(m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -4788,6 +4885,32 @@ void Spell::EffectScriptEffect(uint32 effIndex)
         case 40904: unitTarget->CastSpell(m_caster, 40903, true); break;
         // Flame Crash
         case 41126: unitTarget->CastSpell(unitTarget, 41131, true); break;
+        case 41931:
+        {
+            int bag=19;
+            int slot=0;
+            Item* item = NULL;
+            
+            while (bag < 256)
+            {
+                item = ((Player*)m_caster)->GetItemByPos(bag,slot);
+                if (item && item->GetEntry() == 38587) break;
+                slot++;
+                if (slot == 39)
+                {
+                    slot = 0;
+                    bag++;
+                }
+            }
+            if (bag < 256)
+            {
+                if (((Player*)m_caster)->GetItemByPos(bag,slot)->GetCount() == 1) ((Player*)m_caster)->RemoveItem(bag,slot,true);
+                else ((Player*)m_caster)->GetItemByPos(bag,slot)->SetCount(((Player*)m_caster)->GetItemByPos(bag,slot)->GetCount()-1);
+                // Spell 42518 (Braufest - Gratisprobe des Braufest herstellen)
+                m_caster->CastSpell(m_caster,42518,true);
+                return;
+            }
+        }
         // Force Cast - Portal Effect: Sunwell Isle
         case 44876: unitTarget->CastSpell(unitTarget, 44870, true); break;
         //5,000 Gold
