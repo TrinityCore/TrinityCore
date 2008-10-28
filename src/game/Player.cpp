@@ -433,10 +433,7 @@ Player::~Player ()
 {
     CleanupsBeforeDelete();
 
-    if(m_uint32Values)                                      // only for fully created Object
-    {
-        sSocialMgr.RemovePlayerSocial(GetGUIDLow());
-    }
+    //m_social = NULL;
 
     // Note: buy back item already deleted from DB when player was saved
     for(int i = 0; i < PLAYER_SLOTS_COUNT; ++i)
