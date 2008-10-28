@@ -4898,7 +4898,7 @@ void Spell::EffectDuel(uint32 i)
     Player *target = (Player*)unitTarget;
 
     // caster or target already have requested duel
-    if( caster->duel || target->duel || target->GetSocial()->HasIgnore(caster->GetGUIDLow()) )
+    if( caster->duel || target->duel || !target->GetSocial() || target->GetSocial()->HasIgnore(caster->GetGUIDLow()) )
         return;
 
     // Players can only fight a duel with each other outside (=not inside dungeons and not in capital cities)
