@@ -166,6 +166,9 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
             else
                 unit_target = NULL;
 
+            if (((Creature*)pet)->GetGlobalCooldown() > 0)
+                return;
+
             // do not cast unknown spells
             SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellid );
             if(!spellInfo)
@@ -600,6 +603,9 @@ void WorldSession::HandleAddDynamicTargetObsoleteOpcode( WorldPacket& recvPacket
         sLog.outError( "HandleAddDynamicTargetObsoleteOpcode.Pet %u isn't pet of player %s .\n", uint32(GUID_LOPART(guid)),GetPlayer()->GetName() );
         return;
     }
+
+    if (pet->GetGlobalCooldown() > 0)
+        return;
 
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellid);
     if(!spellInfo)

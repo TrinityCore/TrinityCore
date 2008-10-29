@@ -25,6 +25,7 @@
 #include "Timer.h"
 
 class Creature;
+class Spell;
 
 class TRINITY_DLL_DECL PetAI : public CreatureAI
 {
@@ -38,9 +39,9 @@ class TRINITY_DLL_DECL PetAI : public CreatureAI
         void DamageTaken(Unit *done_by, uint32& /*damage*/) { AttackedBy(done_by); }
         void AttackedBy(Unit*);
         bool IsVisible(Unit *) const;
+        void JustDied(Unit* who) { _stopAttack(); }
 
         void UpdateAI(const uint32);
-        void UpdateAllies();
         static int Permissible(const Creature *);
 
     private:
@@ -48,11 +49,15 @@ class TRINITY_DLL_DECL PetAI : public CreatureAI
         bool _needToStop(void) const;
         void _stopAttack(void);
 
+        void UpdateAllies();
+
         Creature &i_pet;
-        uint64 i_victimGuid;
+        bool inCombat;
         TimeTracker i_tracker;
-        //uint32 i_RepeatAction;
         std::set<uint64> m_AllySet;
         uint32 m_updateAlliesTimer;
+
+        typedef std::pair<Unit*, Spell*> TargetSpellPair;
+        std::vector<TargetSpellPair> m_targetSpellStore;
 };
 #endif
