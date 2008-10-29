@@ -71,12 +71,14 @@ class ChatHandler
 
         int ParseCommands(const char* text);
 
+    virtual char const* GetName() const;
     protected:
 		explicit ChatHandler() : m_session(NULL) {}      // for CLI subclass
 
         bool hasStringAbbr(const char* name, const char* part);
 
 		virtual bool isAvailable(ChatCommand const& cmd) const;
+        virtual bool needReportToTarget(Player* chr) const;
 
         void SendGlobalSysMessage(const char *str);
 
@@ -150,6 +152,9 @@ class ChatHandler
         bool HandleModifyHonorCommand (const char* args);
         bool HandleModifyRepCommand(const char* args);
         bool HandleModifyArenaCommand(const char* args);
+        
+        bool HandleNpcFollowCommand(const char* args);
+        bool HandleNpcUnFollowCommand(const char* args);
 
         bool HandleReloadCommand(const char* args);
         bool HandleReloadAllCommand(const char* args);
@@ -349,6 +354,7 @@ class ChatHandler
         bool HandleTextEmoteCommand(const char* args);
         bool HandleNpcInfoCommand(const char* args);
         bool HandleHoverCommand(const char* args);
+        bool HandleWaterwalkCommand(const char* args);
         bool HandleLevelUpCommand(const char* args);
         bool HandleShowAreaCommand(const char* args);
         bool HandleHideAreaCommand(const char* args);
@@ -416,7 +422,9 @@ class ChatHandler
         bool HandleCastTargetCommand(const char *args);
         bool HandleComeToMeCommand(const char *args);
         bool HandleCombatStopCommand(const char *args);
+        bool HandleCharDeleteCommand(const char *args);
 		bool HandleSendMessageCommand(const char * args);
+        bool HandleRepairitemsCommand(const char* args);
         bool HandleFlushArenaPointsCommand(const char *args);
 
         //! Development Commands
@@ -473,6 +481,8 @@ class CliHandler : public ChatHandler
 		const char *GetTrinityString(int32 entry) const;
 		bool isAvailable(ChatCommand const& cmd) const;
 		void SendSysMessage(const char *str);
+        char const* GetName() const;
+        bool needReportToTarget(Player* chr) const;
 
 	private:
 		Print* m_print;

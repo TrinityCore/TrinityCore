@@ -747,7 +747,7 @@ bool ChatHandler::HandleAccountSetGmLevelCommand(const char* args)
 
     if(targetPlayer)
     {
-        ChatHandler(targetPlayer).PSendSysMessage(LANG_YOURS_SECURITY_CHANGED,m_session->GetPlayer()->GetName(), gm);
+        ChatHandler(targetPlayer).PSendSysMessage(LANG_YOURS_SECURITY_CHANGED,GetName(), gm);
         targetPlayer->GetSession()->SetSecurity(gm);
     }
 
@@ -3728,14 +3728,14 @@ bool ChatHandler::HandleExploreCheatCommand(const char* args)
     if (flag != 0)
     {
         PSendSysMessage(LANG_YOU_SET_EXPLORE_ALL, chr->GetName());
-        if(chr!=m_session->GetPlayer())
-            ChatHandler(chr).PSendSysMessage(LANG_YOURS_EXPLORE_SET_ALL,m_session->GetPlayer()->GetName());
+        if (needReportToTarget(chr))
+            ChatHandler(chr).PSendSysMessage(LANG_YOURS_EXPLORE_SET_ALL,GetName());
     }
     else
     {
         PSendSysMessage(LANG_YOU_SET_EXPLORE_NOTHING, chr->GetName());
-        if(chr!=m_session->GetPlayer())
-            ChatHandler(chr).PSendSysMessage(LANG_YOURS_EXPLORE_SET_NOTHING,m_session->GetPlayer()->GetName());
+        if (needReportToTarget(chr))
+            ChatHandler(chr).PSendSysMessage(LANG_YOURS_EXPLORE_SET_NOTHING,GetName());
     }
 
     for (uint8 i=0; i<128; i++)
@@ -3770,6 +3770,36 @@ bool ChatHandler::HandleHoverCommand(const char* args)
         SendSysMessage(LANG_HOVER_DISABLED);
 
     return true;
+}
+
+bool ChatHandler::HandleWaterwalkCommand(const char* args)
+{
+    if(!args)
+        return false;
+
+    Player *player = getSelectedPlayer();
+    if(!player)
+    {
+        PSendSysMessage(LANG_NO_CHAR_SELECTED);
+        SetSentErrorMessage(true);
+        return false;
+    }
+        
+    if (strncmp(args, "on", 3) == 0)
+        player->SetMovement(MOVE_WATER_WALK);               // ON
+    else if (strncmp(args, "off", 4) == 0)
+        player->SetMovement(MOVE_LAND_WALK);                // OFF
+    else
+    {
+        SendSysMessage(LANG_USE_BOL);
+        return false;
+    }
+
+    PSendSysMessage(LANG_YOU_SET_WATERWALK, args, player->GetName());
+    if(needReportToTarget(player))
+        ChatHandler(player).PSendSysMessage(LANG_YOUR_WATERWALK_SET, args, GetName());
+    return true;
+
 }
 
 bool ChatHandler::HandleLevelUpCommand(const char* args)

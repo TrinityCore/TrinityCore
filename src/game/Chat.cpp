@@ -386,6 +386,8 @@ ChatCommand * ChatHandler::getCommandTable()
 		{ "changeentry",    SEC_ADMINISTRATOR,  false, &ChatHandler::HandleChangeEntryCommand,         "", NULL },
 		{ "info",           SEC_ADMINISTRATOR,  false, &ChatHandler::HandleNpcInfoCommand,             "", NULL },
 		{ "playemote",      SEC_ADMINISTRATOR,  false, &ChatHandler::HandlePlayEmoteCommand,           "", NULL },
+        { "follow",         SEC_GAMEMASTER,     false, &ChatHandler::HandleNpcFollowCommand,           "", NULL },
+        { "unfollow",       SEC_GAMEMASTER,     false, &ChatHandler::HandleNpcUnFollowCommand,         "", NULL },
 
         //{ TODO: fix or remove this commands
         { "name",           SEC_GAMEMASTER,     false, &ChatHandler::HandleNameCommand,                "", NULL },
@@ -510,6 +512,7 @@ ChatCommand * ChatHandler::getCommandTable()
 		{ "neargrave",      SEC_ADMINISTRATOR,  false, &ChatHandler::HandleNearGraveCommand,           "", NULL },
 		{ "explorecheat",   SEC_ADMINISTRATOR,  false, &ChatHandler::HandleExploreCheatCommand,        "", NULL },
 		{ "hover",          SEC_ADMINISTRATOR,  false, &ChatHandler::HandleHoverCommand,               "", NULL },
+        { "waterwalk",          SEC_ADMINISTRATOR,  false, &ChatHandler::HandleWaterwalkCommand,               "", NULL },
 		{ "levelup",        SEC_ADMINISTRATOR,  false, &ChatHandler::HandleLevelUpCommand,             "", NULL },
 		{ "showarea",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleShowAreaCommand,            "", NULL },
 		{ "hidearea",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleHideAreaCommand,            "", NULL },
@@ -535,8 +538,9 @@ ChatCommand * ChatHandler::getCommandTable()
 		{ "cometome",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleComeToMeCommand,            "", NULL },
 		{ "damage",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDamageCommand,              "", NULL },
 		{ "combatstop",     SEC_GAMEMASTER,     false, &ChatHandler::HandleCombatStopCommand,          "", NULL },
-		{ "chardelete",     SEC_CONSOLE,        true,  &ChatHandler::HandleCombatStopCommand,          "", NULL },
+		{ "chardelete",     SEC_CONSOLE,        true,  &ChatHandler::HandleCharDeleteCommand,          "", NULL },
 		{ "sendmessage",    SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleSendMessageCommand,         "", NULL },
+        { "repairitems",    SEC_GAMEMASTER,     false, &ChatHandler::HandleRepairitemsCommand,         "", NULL },
 		{ "freeze",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleFreezeCommand,              "", NULL }, 
 		{ "unfreeze",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleUnFreezeCommand,            "", NULL }, 
 		{ "listfreeze",     SEC_ADMINISTRATOR,  false, &ChatHandler::HandleListFreezeCommand,          "", NULL }, 
@@ -1207,6 +1211,17 @@ GameTele const* ChatHandler::extractGameTeleFromLink(char* text)
     return objmgr.GetGameTele(cId);
 }
 
+const char *ChatHandler::GetName() const
+{
+    return m_session->GetPlayer()->GetName();
+}
+
+bool ChatHandler::needReportToTarget(Player* chr) const
+{
+    Player* pl = m_session->GetPlayer();
+    return pl != chr && pl->IsVisibleGloballyFor(chr);
+}
+    
 const char *CliHandler::GetTrinityString(int32 entry) const
 {
 	return objmgr.GetTrinityStringForDBCLocale(entry);
@@ -1222,6 +1237,16 @@ void CliHandler::SendSysMessage(const char *str)
 {
 	m_print(str);
 	m_print("\r\n");
+}
+
+const char *CliHandler::GetName() const
+{
+    return GetTrinityString(LANG_CONSOLE_COMMAND);
+}
+
+bool CliHandler::needReportToTarget(Player* /*chr*/) const
+{
+    return true;
 }
 
 bool ChatHandler::GetPlayerGroupAndGUIDByName(const char* cname, Player* &plr, Group* &group, uint64 &guid, bool offline)
