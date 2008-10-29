@@ -38,7 +38,7 @@ int PetAI::Permissible(const Creature *creature)
     return PERMIT_BASE_NO;
 }
 
-PetAI::PetAI(Creature &c) : i_pet(c), i_victimGuid(0), i_tracker(TIME_INTERVAL_LOOK)
+PetAI::PetAI(Creature &c) : i_pet(c), i_tracker(TIME_INTERVAL_LOOK), inCombat(false)
 {
     m_AllySet.clear();
     UpdateAllies();
@@ -65,7 +65,7 @@ void PetAI::MoveInLineOfSight(Unit *u)
 
 void PetAI::AttackStart(Unit *u)
 {
-    if( i_pet.getVictim() || !u || i_pet.isPet() && ((Pet&)i_pet).getPetType()==MINI_PET )
+    if( inCombat || !u || (i_pet.isPet() && ((Pet&)i_pet).getPetType() == MINI_PET) )
         return;
 
     if(i_pet.Attack(u,true))
@@ -75,8 +75,8 @@ void PetAI::AttackStart(Unit *u)
         // thus with the following clear the original TMG gets invalidated and crash, doh
         // hope it doesn't start to leak memory without this :-/
         //i_pet->Clear();
-        i_victimGuid = u->GetGUID();
         i_pet.GetMotionMaster()->MoveChase(u);
+        inCombat = true;
     }
 }
 
@@ -91,9 +91,6 @@ bool PetAI::IsVisible(Unit *pl) const
 
 bool PetAI::_needToStop() const
 {
-    if(!i_pet.getVictim() || !i_pet.isAlive())
-        return true;
-
     // This is needed for charmed creatures, as once their target was reset other effects can trigger threat
     if(i_pet.isCharmed() && i_pet.getVictim() == i_pet.GetCharmer())
         return true;
@@ -103,47 +100,17 @@ bool PetAI::_needToStop() const
 
 void PetAI::_stopAttack()
 {
-    if( !i_victimGuid )
-        return;
-
-    Unit* victim = ObjectAccessor::GetUnit(i_pet, i_victimGuid );
-
-    if ( !victim )
-        return;
-
-    assert(!i_pet.getVictim() || i_pet.getVictim() == victim);
-
+    inCombat = false;
     if( !i_pet.isAlive() )
     {
         DEBUG_LOG("Creature stoped attacking cuz his dead [guid=%u]", i_pet.GetGUIDLow());
         i_pet.StopMoving();
         i_pet.GetMotionMaster()->Clear();
         i_pet.GetMotionMaster()->MoveIdle();
-        i_victimGuid = 0;
         i_pet.CombatStop();
         i_pet.getHostilRefManager().deleteReferences();
 
         return;
-    }
-    else if( !victim  )
-    {
-        DEBUG_LOG("Creature stopped attacking because victim is non exist [guid=%u]", i_pet.GetGUIDLow());
-    }
-    else if( !victim->isAlive() )
-    {
-        DEBUG_LOG("Creature stopped attacking cuz his victim is dead [guid=%u]", i_pet.GetGUIDLow());
-    }
-    else if( victim->HasStealthAura() )
-    {
-        DEBUG_LOG("Creature stopped attacking cuz his victim is stealth [guid=%u]", i_pet.GetGUIDLow());
-    }
-    else if( victim->isInFlight() )
-    {
-        DEBUG_LOG("Creature stopped attacking cuz his victim is fly away [guid=%u]", i_pet.GetGUIDLow());
-    }
-    else
-    {
-        DEBUG_LOG("Creature stopped attacking due to target out run him [guid=%u]", i_pet.GetGUIDLow());
     }
 
     Unit* owner = i_pet.GetCharmerOrOwner();
@@ -158,15 +125,13 @@ void PetAI::_stopAttack()
         i_pet.GetMotionMaster()->Clear();
         i_pet.GetMotionMaster()->MoveIdle();
     }
-    i_victimGuid = 0;
     i_pet.AttackStop();
 }
 
 void PetAI::UpdateAI(const uint32 diff)
 {
-    // update i_victimGuid if i_pet.getVictim() !=0 and changed
-    if(i_pet.getVictim())
-        i_victimGuid = i_pet.getVictim()->GetGUID();
+    if (!i_pet.isAlive())
+        return;
 
     Unit* owner = i_pet.GetCharmerOrOwner();
 
@@ -176,13 +141,16 @@ void PetAI::UpdateAI(const uint32 diff)
     else
         m_updateAlliesTimer -= diff;
 
+    if (inCombat && i_pet.getVictim() == NULL)
+        _stopAttack();
+
     // i_pet.getVictim() can't be used for check in case stop fighting, i_pet.getVictim() clear at Unit death etc.
-    if( i_victimGuid )
+    if( i_pet.getVictim() != NULL )
     {
         if( _needToStop() )
         {
             DEBUG_LOG("Pet AI stoped attacking [guid=%u]", i_pet.GetGUIDLow());
-            _stopAttack();                                  // i_victimGuid == 0 && i_pet.getVictim() == NULL now
+            _stopAttack();
             return;
         }
         else if( i_pet.IsStopped() || i_pet.IsWithinDistInMap(i_pet.getVictim(), ATTACK_DISTANCE))
@@ -228,75 +196,96 @@ void PetAI::UpdateAI(const uint32 diff)
         }
     }
 
-    //Autocast
-    HM_NAMESPACE::hash_map<uint32, Unit*> targetMap;
-    targetMap.clear();
-    SpellCastTargets NULLtargets;
-
-    for (uint8 i = 0; i < i_pet.GetPetAutoSpellSize(); i++)
+    if (i_pet.GetGlobalCooldown() == 0 && !i_pet.IsNonMeleeSpellCasted(false))
     {
-        uint32 spellID = i_pet.GetPetAutoSpellOnPos(i);
-        if (!spellID)
-            continue;
-
-        SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellID);
-        if (!spellInfo)
-            continue;
-
-        Spell *spell = new Spell(&i_pet, spellInfo, false, 0);
-
-        if(!IsPositiveSpell(spellInfo->Id) && i_pet.getVictim() && !_needToStop() && !i_pet.hasUnitState(UNIT_STAT_FOLLOW) && spell->CanAutoCast(i_pet.getVictim()))
-            targetMap[spellID] = i_pet.getVictim();
-        else
+        //Autocast
+        for (uint8 i = 0; i < i_pet.GetPetAutoSpellSize(); i++)
         {
-            spell->m_targets = NULLtargets;
-            for(std::set<uint64>::iterator tar = m_AllySet.begin(); tar != m_AllySet.end(); ++tar)
-            {
-                Unit* Target = ObjectAccessor::GetUnit(i_pet,*tar);
+            uint32 spellID = i_pet.GetPetAutoSpellOnPos(i);
+            if (!spellID)
+                continue;
 
-                //only buff targets that are in combat, unless the spell can only be cast while out of combat
-                if(!Target || (!Target->isInCombat() && !IsNonCombatSpell(spellInfo)))
+            SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellID);
+            if (!spellInfo)
+                continue;
+
+            // ignore some combinations of combat state and combat/noncombat spells
+            if (!inCombat)
+            {
+                if (!IsPositiveSpell(spellInfo->Id))
                     continue;
-                if(spell->CanAutoCast(Target))
-                    targetMap[spellID] = Target;
+            }
+            else
+            {
+                if (IsNonCombatSpell(spellInfo))
+                    continue;
+            }
+
+            Spell *spell = new Spell(&i_pet, spellInfo, false, 0);
+
+            if(inCombat && !i_pet.hasUnitState(UNIT_STAT_FOLLOW) && spell->CanAutoCast(i_pet.getVictim()))
+            {
+                m_targetSpellStore.push_back(std::make_pair<Unit*, Spell*>(i_pet.getVictim(), spell));
+                continue;
+            }
+            else
+            {
+                bool spellUsed = false;
+                for(std::set<uint64>::iterator tar = m_AllySet.begin(); tar != m_AllySet.end(); ++tar)
+                {
+                    Unit* Target = ObjectAccessor::GetUnit(i_pet,*tar);
+
+                    //only buff targets that are in combat, unless the spell can only be cast while out of combat
+                    if(!Target)
+                        continue;
+
+                    if(spell->CanAutoCast(Target))
+                    {
+                        m_targetSpellStore.push_back(std::make_pair<Unit*, Spell*>(Target, spell));
+                        spellUsed = true;
+                        break;
+                    }
+                }
+                if (!spellUsed)
+                    delete spell;
             }
         }
 
-        delete spell;
-    }
-
-    //found units to cast on to
-    if(!targetMap.empty())
-    {
-        uint32 index = urand(1, targetMap.size());
-        HM_NAMESPACE::hash_map<uint32, Unit*>::iterator itr;
-        uint32 i;
-        for(itr = targetMap.begin(), i = 1; i < index; ++itr, ++i);
-
-        SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
-
-        Spell *spell = new Spell(&i_pet, spellInfo, false);
-
-        SpellCastTargets targets;
-        targets.setUnitTarget( itr->second );
-
-        if(!i_pet.HasInArc(M_PI, itr->second))
+        //found units to cast on to
+        if(!m_targetSpellStore.empty())
         {
-            i_pet.SetInFront(itr->second);
-            if( itr->second->GetTypeId() == TYPEID_PLAYER )
-                i_pet.SendUpdateToPlayer( (Player*)itr->second );
+            uint32 index = urand(0, m_targetSpellStore.size() - 1);
 
-            if(owner && owner->GetTypeId() == TYPEID_PLAYER)
-                i_pet.SendUpdateToPlayer( (Player*)owner );
+            Spell* spell  = m_targetSpellStore[index].second;
+            Unit*  target = m_targetSpellStore[index].first;
+
+            m_targetSpellStore.erase(m_targetSpellStore.begin() + index);
+
+            SpellCastTargets targets;
+            targets.setUnitTarget( target );
+
+            if( !i_pet.HasInArc(M_PI, target) )
+            {
+                i_pet.SetInFront(target);
+                if( target->GetTypeId() == TYPEID_PLAYER )
+                    i_pet.SendUpdateToPlayer( (Player*)target );
+
+                if(owner && owner->GetTypeId() == TYPEID_PLAYER)
+                    i_pet.SendUpdateToPlayer( (Player*)owner );
+            }
+
+            i_pet.AddCreatureSpellCooldown(spell->m_spellInfo->Id);
+            if(i_pet.isPet())
+                ((Pet*)&i_pet)->CheckLearning(spell->m_spellInfo->Id);
+
+            spell->prepare(&targets);
         }
-
-        i_pet.AddCreatureSpellCooldown(itr->first);
-        if(i_pet.isPet())
-            ((Pet*)&i_pet)->CheckLearning(itr->first);
-
-        spell->prepare(&targets);
+        while (!m_targetSpellStore.empty())
+        {
+            delete m_targetSpellStore.begin()->second;
+            m_targetSpellStore.erase(m_targetSpellStore.begin());
+        }
     }
-    targetMap.clear();
 }
 
 bool PetAI::_isVisible(Unit *u) const
