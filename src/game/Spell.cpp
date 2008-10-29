@@ -922,6 +922,14 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
 
     if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->AI())
         ((Creature*)m_caster)->AI()->SpellHitTarget(unit, m_spellInfo);
+
+    if(int32 spell_triggered = spellmgr.GetSpellLinked(m_spellInfo->Id, 1))
+    {
+        if(spell_triggered > 0)
+            m_caster->CastSpell(unit, spell_triggered, true);
+        else
+            unit->RemoveAurasDueToSpell(-spell_triggered);
+    }
 }
 
 void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
@@ -1286,16 +1294,17 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
     else
         radius = GetSpellMaxRange(sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex));
 
-    if(m_originalCaster)
-        if(Player* modOwner = m_originalCaster->GetSpellModOwner())
-            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius,this);
-
     uint32 EffectChainTarget = m_spellInfo->EffectChainTarget[i];
-    if(m_originalCaster)
-        if(Player* modOwner = m_originalCaster->GetSpellModOwner())
-            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_JUMP_TARGETS, EffectChainTarget, this);
-
     uint32 unMaxTargets = m_spellInfo->MaxAffectedTargets;
+    if(m_originalCaster)
+    {
+        if(Player* modOwner = m_originalCaster->GetSpellModOwner())
+        {
+            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius,this);
+            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_JUMP_TARGETS, EffectChainTarget, this);
+        }
+    }
+
     switch(cur)
     {
         // specific unit
@@ -1551,8 +1560,14 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 else if(goScriptTarget)
                     m_targets.setDestination(goScriptTarget->GetPositionX(),goScriptTarget->GetPositionY(),goScriptTarget->GetPositionZ());
             }
+            else
+            {
+                if(creatureScriptTarget)
+                    TagUnitMap.push_back(creatureScriptTarget);
+                else if(goScriptTarget)
+                    AddGOTarget(goScriptTarget, i);
+            }
         }break;
-
 
         // dummy
         case TARGET_AREAEFFECT_CUSTOM_2:
@@ -2175,6 +2190,14 @@ void Spell::cast(bool skipCheck)
                 break;
             }
         }
+    }
+
+    if(int32 spell_triggered = spellmgr.GetSpellLinked(m_spellInfo->Id, 0))
+    {
+        if(spell_triggered > 0)
+            m_caster->CastSpell(m_targets.getUnitTarget() ? m_targets.getUnitTarget() : m_caster, spell_triggered, true);
+        else
+            m_caster->RemoveAurasDueToSpell(-spell_triggered);
     }
 
     // traded items have trade slot instead of guid in m_itemTargetGUID

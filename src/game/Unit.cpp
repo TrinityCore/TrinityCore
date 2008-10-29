@@ -4163,6 +4163,18 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
             if(caster->GetTypeId()==TYPEID_UNIT && ((Creature*)caster)->isTotem() && ((Totem*)caster)->GetTotemType()==TOTEM_STATUE)
                 statue = ((Totem*)caster);
 
+
+    if(int32 spell_triggered = spellmgr.GetSpellLinked(-(int32)Aur->GetSpellProto()->Id, 0))
+    {
+        if(spell_triggered > 0)
+        {
+            if(Unit* caster = Aur->GetCaster())
+                CastSpell(this, spell_triggered, true, 0, 0, caster->GetGUID());
+        }
+        else
+            RemoveAurasDueToSpell(-spell_triggered);
+    }
+
     sLog.outDebug("Aura %u now is remove mode %d",Aur->GetModifier()->m_auraname, mode);
     Aur->ApplyModifier(false,true);
     Aur->_RemoveAura();

@@ -2051,14 +2051,14 @@ void SpellMgr::LoadSpellLinked()
     mSpellLinkedMap.clear();    // need for reload case
     uint32 count = 0;
 
-    //                                                0       1
-    QueryResult *result = WorldDatabase.Query("SELECT spell0, spell1 FROM spell_linked_spell");
+    //                                                0              1             2
+    QueryResult *result = WorldDatabase.Query("SELECT spell_trigger, spell_effect, type FROM spell_linked_spell");
     if( !result )
     {
         barGoLink bar( 1 );
         bar.step();
         sLog.outString();
-        sLog.outString( ">> Loaded %u spell pet auras", count );
+        sLog.outString( ">> Loaded %u linked spells", count );
         return;
     }
 
@@ -2070,46 +2070,27 @@ void SpellMgr::LoadSpellLinked()
 
         bar.step();
 
-        uint16 spell = fields[0].GetUInt16();
-        uint16 pet = fields[1].GetUInt16();
-        uint16 aura = fields[2].GetUInt16();
+        int32 trigger = fields[0].GetInt32();
+        int32 effect = fields[1].GetInt32();
+        int32 type = fields[2].GetInt32();
 
-        SpellPetAuraMap::iterator itr = mSpellPetAuraMap.find(spell);
-        if(itr != mSpellPetAuraMap.end())
+        SpellEntry const* spellInfo = sSpellStore.LookupEntry(abs(trigger));
+        if (!spellInfo)
         {
-            itr->second.AddAura(pet, aura);
+            sLog.outErrorDb("Spell %u listed in `spell_linked_spell` does not exist", abs(trigger));
+            continue;
         }
-        else
+        spellInfo = sSpellStore.LookupEntry(abs(effect));
+        if (!spellInfo)
         {
-            SpellEntry const* spellInfo = sSpellStore.LookupEntry(spell);
-            if (!spellInfo)
-            {
-                sLog.outErrorDb("Spell %u listed in `spell_pet_auras` does not exist", spell);
-                continue;
-            }
-            int i = 0;
-            for(; i < 3; ++i)
-                if((spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA &&
-                    spellInfo->EffectApplyAuraName[i] == SPELL_AURA_DUMMY) ||
-                    spellInfo->Effect[i] == SPELL_EFFECT_DUMMY)
-                    break;
-
-            if(i == 3)
-            {
-                sLog.outError("Spell %u listed in `spell_pet_auras` does not have dummy aura or dummy effect", spell);
-                continue;
-            }
-
-            SpellEntry const* spellInfo2 = sSpellStore.LookupEntry(aura);
-            if (!spellInfo2)
-            {
-                sLog.outErrorDb("Aura %u listed in `spell_pet_auras` does not exist", aura);
-                continue;
-            }
-
-            PetAura pa(pet, aura, spellInfo->EffectImplicitTargetA[i] == TARGET_PET, spellInfo->EffectBasePoints[i] + spellInfo->EffectBaseDice[i]);
-            mSpellPetAuraMap[spell] = pa;
+            sLog.outErrorDb("Spell %u listed in `spell_linked_spell` does not exist", abs(effect));
+            continue;
         }
+
+        SpellLinkedSpell linkedSpell;
+        linkedSpell.spell = effect;
+        linkedSpell.type = type;
+        mSpellLinkedMap[trigger] = linkedSpell;
 
         ++count;
     } while( result->NextRow() );
@@ -2117,7 +2098,7 @@ void SpellMgr::LoadSpellLinked()
     delete result;
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u spell pet auras", count );
+    sLog.outString( ">> Loaded %u linked spells", count );
 }
 
 /// Some checks for spells, to prevent adding depricated/broken spells for trainers, spell book, etc

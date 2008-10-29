@@ -648,7 +648,12 @@ struct SpellExtraAttribute
 
 typedef std::map<uint32, SpellExtraAttribute> SpellExtraAttrMap;
 
-typedef std::map<int32, int32> SpellLinkedMap;
+struct SpellLinkedSpell
+{
+    int32 spell;
+    uint32 type;
+};
+typedef std::map<int32, SpellLinkedSpell> SpellLinkedMap;
 
 class SpellMgr
 {
@@ -857,11 +862,11 @@ class SpellMgr
                 return 0;
         }
 
-        int32 GetSpellLinked(int32 spell_id) const
+        int32 GetSpellLinked(int32 spell_id, uint32 type) const
         {
             SpellLinkedMap::const_iterator itr = mSpellLinkedMap.find(spell_id);
             if(itr != mSpellLinkedMap.end())
-                return itr->second;
+                return itr->second.type == type ? itr->second.spell : 0;
             else
                 return 0;
         }
