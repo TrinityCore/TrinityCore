@@ -167,7 +167,8 @@ enum TrinityStrings
     LANG_MAIL_SENT                      = 169,
     LANG_SOUND_NOT_EXIST                = 170,
     LANG_TELEPORTED_TO_BY_CONSOLE       = 171,
-	// Room for more level 1              172-199 not used
+    LANG_CONSOLE_COMMAND                = 172,
+	// Room for more level 1              173-199 not used
 
     // level 2 chat
     LANG_NO_SELECTION                   = 200,
@@ -316,7 +317,14 @@ enum TrinityStrings
     LANG_GM_OFF                         = 333,
     LANG_GM_CHAT_ON                     = 334,
     LANG_GM_CHAT_OFF                    = 335,
-    // Room for more level 2              336-399 not used
+    LANG_YOU_REPAIR_ITEMS               = 336,
+    LANG_YOUR_ITEMS_REPAIRED            = 337,
+    LANG_YOU_SET_WATERWALK              = 338,
+    LANG_YOUR_WATERWALK_SET             = 339,
+    LANG_CREATURE_FOLLOW_YOU_NOW        = 340,
+    LANG_CREATURE_NOT_FOLLOW_YOU        = 341,
+    LANG_CREATURE_NOT_FOLLOW_YOU_NOW    = 342,
+    // Room for more level 2              343-399 not used
 
     // level 3 chat
     LANG_SCRIPTS_RELOADED               = 400,
@@ -708,7 +716,7 @@ enum TrinityStrings
 	LANG_ITEMLIST_GUILD                 = 1118,
 	// Room for more level 3              1119-1199 not used
 	
-	// Trinity custom patches             5000-9999
+	// Trinity strings             5000-9999
     LANG_COMMAND_FREEZE                 = 5000,
     LANG_COMMAND_FREEZE_ERROR           = 5001,
     LANG_COMMAND_FREEZE_WRONG           = 5002,
@@ -716,7 +724,9 @@ enum TrinityStrings
     LANG_COMMAND_NO_FROZEN_PLAYERS      = 5004,
     LANG_COMMAND_LIST_FREEZE            = 5005,
     LANG_COMMAND_FROZEN_PLAYERS         = 5006,
-	// Room for more Trinity custom patches 5007-9999
+    LANG_INSTANCE_MUST_RAID_GRP         = 5007,
+    LANG_INSTANCE_NOT_AS_GHOST          = 5008,
+	// Room for more Trinity strings 5009-9999
 
     // Use for not-in-svn patches         10000-10999
     // opvp hp

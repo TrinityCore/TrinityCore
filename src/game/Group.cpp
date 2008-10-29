@@ -44,6 +44,7 @@ Group::Group()
     m_lootMethod        = (LootMethod)0;
     m_looterGuid        = 0;
     m_lootThreshold     = ITEM_QUALITY_UNCOMMON;
+	m_subGroupsCounts   = NULL;
 
     for(int i=0; i<TARGETICONCOUNT; i++)
         m_targetIcons[i] = 0;
@@ -73,6 +74,8 @@ Group::~Group()
     for(uint8 i = 0; i < TOTAL_DIFFICULTIES; i++)
         for(BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
             itr->second.save->RemoveGroup(this);
+	if (m_subGroupsCounts)
+		delete[] m_subGroupsCounts;
 }
 
 bool Group::Create(const uint64 &guid, const char * name)
@@ -81,6 +84,10 @@ bool Group::Create(const uint64 &guid, const char * name)
     m_leaderName = name;
 
     m_groupType  = isBGGroup() ? GROUPTYPE_RAID : GROUPTYPE_NORMAL;
+	
+	if (m_groupType == GROUPTYPE_RAID)
+		_initRaidSubGroupsCounter();
+		
     m_lootMethod = GROUP_LOOT;
     m_lootThreshold = ITEM_QUALITY_UNCOMMON;
     m_looterGuid = guid;
@@ -136,6 +143,10 @@ bool Group::LoadGroupFromDB(const uint64 &leaderGuid, QueryResult *result, bool 
     }
 
     m_groupType  = (*result)[13].GetBool() ? GROUPTYPE_RAID : GROUPTYPE_NORMAL;
+	
+	if (m_groupType == GROUPTYPE_RAID)
+		_initRaidSubGroupsCounter();
+		
     m_difficulty = (*result)[14].GetUInt8();
     m_mainTank = (*result)[0].GetUInt64();
     m_mainAssistant = (*result)[1].GetUInt64();
@@ -178,7 +189,20 @@ bool Group::LoadMemberFromDB(uint32 guidLow, uint8 subgroup, bool assistant)
     member.group     = subgroup;
     member.assistant = assistant;
     m_memberSlots.push_back(member);
+	
+	SubGroupCounterIncrease(subgroup);
+	
     return true;
+}
+
+void Group::ConvertToRaid()
+{
+	m_groupType = GROUPTYPE_RAID;
+	
+	_initRaidSubGroupsCounter();
+	
+	if(!isBGGroup()) CharacterDatabase.PExecute("UPDATE groups SET isRaid = 1 WHERE leaderGuid='%u'", GUID_LOPART(m_leaderGuid));
+	SendUpdate();
 }
 
 bool Group::AddInvite(Player *player)
@@ -386,7 +410,7 @@ void Group::SendLootStartRoll(uint32 CountDown, const Roll &r)
     }
 }
 
-void Group::SendLootRoll(uint64 SourceGuid, uint64 TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r)
+void Group::SendLootRoll(const uint64& SourceGuid, const uint64& TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r)
 {
     WorldPacket data(SMSG_LOOT_ROLL, (8+4+8+4+4+4+1+1));
     data << uint64(SourceGuid);                             // guid of the item rolled
@@ -410,7 +434,7 @@ void Group::SendLootRoll(uint64 SourceGuid, uint64 TargetGuid, uint8 RollNumber,
     }
 }
 
-void Group::SendLootRollWon(uint64 SourceGuid, uint64 TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r)
+void Group::SendLootRollWon(const uint64& SourceGuid, const uint64& TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r)
 {
     WorldPacket data(SMSG_LOOT_ROLL_WON, (8+4+4+4+4+8+1+1));
     data << uint64(SourceGuid);                             // guid of the item rolled
@@ -453,7 +477,7 @@ void Group::SendLootAllPassed(uint32 NumberOfPlayers, const Roll &r)
     }
 }
 
-void Group::GroupLoot(uint64 playerGUID, Loot *loot, Creature *creature)
+void Group::GroupLoot(const uint64& playerGUID, Loot *loot, Creature *creature)
 {
     std::vector<LootItem>::iterator i;
     ItemPrototype const *item;
@@ -509,7 +533,7 @@ void Group::GroupLoot(uint64 playerGUID, Loot *loot, Creature *creature)
     }
 }
 
-void Group::NeedBeforeGreed(uint64 playerGUID, Loot *loot, Creature *creature)
+void Group::NeedBeforeGreed(const uint64& playerGUID, Loot *loot, Creature *creature)
 {
     ItemPrototype const *item;
     Player *player = objmgr.GetPlayer(playerGUID);
@@ -563,7 +587,7 @@ void Group::NeedBeforeGreed(uint64 playerGUID, Loot *loot, Creature *creature)
     }
 }
 
-void Group::MasterLoot(uint64 playerGUID, Loot* /*loot*/, Creature *creature)
+void Group::MasterLoot(const uint64& playerGUID, Loot* /*loot*/, Creature *creature)
 {
     Player *player = objmgr.GetPlayer(playerGUID);
     if(!player)
@@ -599,7 +623,7 @@ void Group::MasterLoot(uint64 playerGUID, Loot* /*loot*/, Creature *creature)
     }
 }
 
-void Group::CountRollVote(uint64 playerGUID, uint64 Guid, uint32 NumberOfPlayers, uint8 Choise)
+void Group::CountRollVote(const uint64& playerGUID, const uint64& Guid, uint32 NumberOfPlayers, uint8 Choise)
 {
     Rolls::iterator rollI = GetRoll(Guid);
     if (rollI == RollId.end())
@@ -935,13 +959,20 @@ bool Group::_addMember(const uint64 &guid, const char* name, bool isAssistant)
 {
     // get first not-full group
     uint8 groupid = 0;
-    std::vector<uint8> temp(MAXRAIDSIZE/MAXGROUPSIZE);
-    for(member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+    if (m_subGroupsCounts)
     {
-        if (itr->group >= temp.size()) continue;
-        ++temp[itr->group];
-        if(temp[groupid] >= MAXGROUPSIZE)
-            ++groupid;
+        bool groupFound = false;
+		for (; groupid < MAXRAIDSIZE/MAXGROUPSIZE; ++groupid)
+		{
+			if (m_subGroupsCounts[groupid] < MAXGROUPSIZE)
+			{
+				groupFound = true;
+				break;
+			}
+		}
+		// We are raid group and no one slot is free
+		if (!groupFound)
+				return false;
     }
 
     return _addMember(guid, name, isAssistant, groupid);
@@ -963,6 +994,8 @@ bool Group::_addMember(const uint64 &guid, const char* name, bool isAssistant, u
     member.group     = group;
     member.assistant = isAssistant;
     m_memberSlots.push_back(member);
+	
+	SubGroupCounterIncrease(group);
 
     if(player)
     {
@@ -1001,7 +1034,10 @@ bool Group::_removeMember(const uint64 &guid)
 
     member_witerator slot = _getMemberWSlot(guid);
     if (slot != m_memberSlots.end())
+	{
+		SubGroupCounterDecrease(slot->group);
         m_memberSlots.erase(slot);
+	}
 
     if(!isBGGroup())
         CharacterDatabase.PExecute("DELETE FROM group_member WHERE memberGuid='%u'", GUID_LOPART(guid));
@@ -1094,13 +1130,6 @@ void Group::_removeRolls(const uint64 &guid)
     }
 }
 
-void Group::_convertToRaid()
-{
-    m_groupType = GROUPTYPE_RAID;
-
-    if(!isBGGroup()) CharacterDatabase.PExecute("UPDATE groups SET isRaid = 1 WHERE leaderGuid='%u'", GUID_LOPART(m_leaderGuid));
-}
-
 bool Group::_setMembersGroup(const uint64 &guid, const uint8 &group)
 {
     member_witerator slot = _getMemberWSlot(guid);
@@ -1108,7 +1137,11 @@ bool Group::_setMembersGroup(const uint64 &guid, const uint8 &group)
         return false;
 
     slot->group = group;
+	
+	SubGroupCounterIncrease(group);
+	
     if(!isBGGroup()) CharacterDatabase.PExecute("UPDATE group_member SET subgroup='%u' WHERE memberGuid='%u'", group, GUID_LOPART(guid));
+	
     return true;
 }
 
@@ -1164,10 +1197,16 @@ void Group::ChangeMembersGroup(const uint64 &guid, const uint8 &group)
     Player *player = objmgr.GetPlayer(guid);
     if (!player)
     {
+		uint8 prevSubGroup;
+		prevSubGroup = GetMemberGroup(guid);
+		
+		SubGroupCounterDecrease(prevSubGroup);
+		
         if(_setMembersGroup(guid, group))
             SendUpdate();
     }
-    else ChangeMembersGroup(player, group);
+    else
+		ChangeMembersGroup(player, group);
 }
 
 // only for online members
@@ -1177,6 +1216,11 @@ void Group::ChangeMembersGroup(Player *player, const uint8 &group)
         return;
     if(_setMembersGroup(player->GetGUID(), group))
     {
+		uint8 prevSubGroup;
+		prevSubGroup = player->GetSubGroup();
+		
+		SubGroupCounterDecrease(prevSubGroup);
+		
         player->GetGroupRef().setSubGroup(group);
         SendUpdate();
     }
