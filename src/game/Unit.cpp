@@ -8571,7 +8571,10 @@ bool Unit::isVisibleForOrDetect(Unit const* u, bool detect, bool inVisibleList) 
         else
         {
             // Units far than max visible distance for creature or not in our map are not visible too
-            if (!IsWithinDistInMap(u,World::GetMaxVisibleDistanceForCreature()+(inVisibleList ? World::GetVisibleUnitGreyDistance() : 0.0f)))
+            // Active unit should always be visibile
+            if (!IsWithinDistInMap(u, u->isActive() 
+                ? (MAX_VISIBILITY_DISTANCE - (inVisibleList ? 0.0f : World::GetVisibleUnitGreyDistance()))
+                : (World::GetMaxVisibleDistanceForCreature() + (inVisibleList ? World::GetVisibleUnitGreyDistance() : 0.0f))))
                 return false;
         }
     }

@@ -1482,6 +1482,9 @@ Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, floa
     if(GetTypeId()==TYPEID_UNIT && ((Creature*)this)->AI())
         ((Creature*)this)->AI()->JustSummoned(pCreature);
 
+    if(pCreature->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER && pCreature->m_spells[0])
+        pCreature->CastSpell(pCreature, pCreature->m_spells[0], true, 0, 0, GetGUID());
+
     //return the creature therewith the summoner has access to it
     return pCreature;
 }

@@ -926,7 +926,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     if(int32 spell_triggered = spellmgr.GetSpellLinked(m_spellInfo->Id, 1))
     {
         if(spell_triggered > 0)
-            m_caster->CastSpell(unit, spell_triggered, true);
+            unit->CastSpell(unit, spell_triggered, true/*, 0, 0, m_caster->GetGUID()*/);
         else
             unit->RemoveAurasDueToSpell(-spell_triggered);
     }
