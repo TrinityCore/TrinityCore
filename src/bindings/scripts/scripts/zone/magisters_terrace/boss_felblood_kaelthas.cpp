@@ -24,6 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_magisters_terrace.h"
 #include "WorldPacket.h"
+#include "ObjectMgr.h"
 
 /*** Spells ***/
 
@@ -34,6 +35,7 @@ EndScriptData */
 
 #define SPELL_PHOENIX                 44194                 // Summons a phoenix (Doesn't work?)
 #define SPELL_PHOENIX_BURN            44198                 // A spell Phoenix uses to damage everything around
+#define SPELL_PHOENIX_FIREBALL		  44202					// Phoenix casts this in phase 2 and stops moving
 
 #define SPELL_FLAMESTRIKE1_NORMAL     44190                 // Damage part
 #define SPELL_FLAMESTRIKE1_HEROIC     46163                 // Heroic damage part
@@ -81,11 +83,14 @@ EndScriptData */
 #define SOUND_DEATH                   12421
 
 /** Locations **/
-float KaelLocations[3][2]=
+float KaelLocations[6][2]=
 {
-    {148.744659, 181.377426},
-    {140.823883, 195.403046},
-    {156.574188, 195.650482},
+    {148.744659, 181.377426},//center
+    {140.823883, 195.403046},//phoenixpos1
+    {156.574188, 195.650482},//phoenixpos2
+	{149.813, 160.917},//spherepos1
+	{167.223, 173.594},//spherepos2
+	{130.68, 173.007},//spherepos3
 };
 #define LOCATION_Z      -16.727455
 
@@ -142,13 +147,34 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
         Phase = 0;
 
         if(pInstance)
-            pInstance->SetData(DATA_KAELTHAS_EVENT, 0);
+		{
+			if(m_creature->isDead())
+				pInstance->SetData(DATA_KAELTHAS_EVENT, DONE);
+			else
+				pInstance->SetData(DATA_KAELTHAS_EVENT, NOT_STARTED);
+		}
     }
-
+	
+	void KilledUnit(Unit* victim)
+    {
+        if(victim && (victim->GetTypeId() == TYPEID_PLAYER))
+        {
+            victim->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_FLY);
+            victim->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_DOT);
+            WorldPacket data(12);
+            data.SetOpcode(SMSG_MOVE_UNSET_CAN_FLY);
+            data.append(victim->GetPackGUID());
+            data << uint32(0);
+            victim->SendMessageToSet(&data, true);
+        }
+	}
     void JustDied(Unit *killer)
     {
+		RemoveGravityLapse();
         DoYell(SAY_DEATH,LANG_UNIVERSAL,NULL);
         DoPlaySoundToSet(m_creature,SOUND_DEATH);
+		if(pInstance)
+			pInstance->SetData(DATA_KAELTHAS_EVENT, DONE);
     }
 
     void DamageTaken(Unit* done_by, uint32 &damage)
@@ -161,6 +187,8 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
     {
         DoYell(SAY_AGGRO,LANG_UNIVERSAL,NULL);
         DoPlaySoundToSet(m_creature,SOUND_AGGRO);
+		if(pInstance)
+			pInstance->SetData(DATA_KAELTHAS_EVENT, IN_PROGRESS);
     }
 
     void SetThreatList(Creature* SummonedUnit)
@@ -175,74 +203,100 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
             if(pUnit && pUnit->isAlive())
             {
                 float threat = m_creature->getThreatManager().getThreat(pUnit);
-                SummonedUnit->AddThreat(pUnit, threat);
+                SummonedUnit->AddThreat(pUnit, 0.1f);
             }
         }
     }
 
+	void EnterEvadeMode()
+	{
+		RemoveGravityLapse();
+		m_creature->InterruptNonMeleeSpells(true);
+		m_creature->RemoveAllAuras();
+		m_creature->DeleteThreatList();
+		m_creature->CombatStop();
+		m_creature->LoadCreaturesAddon();
+
+		if( m_creature->isAlive() )
+			m_creature->GetMotionMaster()->MoveTargetedHome();
+
+		m_creature->SetLootRecipient(NULL);
+
+		InCombat = false;
+		Reset();
+	}
+
     void TeleportPlayersToSelf()
     {
-        float x = KaelLocations[0][0];
-        float y = KaelLocations[0][1];
-        m_creature->Relocate(x, y, LOCATION_Z, 0);
-        //m_creature->SendMonsterMove(x, y, LOCATION_Z, 0, 0, 0); // causes some issues...
-        std::list<HostilReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin();
-        for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();++i)
-        {
-            Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
-            if(pUnit && (pUnit->GetTypeId() == TYPEID_PLAYER))
-                pUnit->CastSpell(pUnit, SPELL_TELEPORT_CENTER, true);
+		float x,y,z;
+        m_creature->Relocate(KaelLocations[0][0], KaelLocations[0][1], LOCATION_Z, 0);
+		Map *map = m_creature->GetMap();
+        InstanceMap::PlayerList const &PlayerList = ((InstanceMap*)map)->GetPlayers();
+		InstanceMap::PlayerList::const_iterator i;
+		for (i = PlayerList.begin(); i != PlayerList.end(); ++i)
+		{
+			//if(!(*i)->isGameMaster())
+			if((*i) && (*i)->isAlive())
+			{
+				(*i)->CastSpell((*i), SPELL_TELEPORT_CENTER, true);
+				m_creature->GetNearPoint(m_creature,x,y,z,5,5,0);
+				(*i)->TeleportTo(m_creature->GetMapId(),x,y,LOCATION_Z,(*i)->GetOrientation());
+			}
         }
         DoCast(m_creature, SPELL_TELEPORT_CENTER, true);
     }
 
     void CastGravityLapseKnockUp()
     {
-        std::list<HostilReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin();
-        for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();++i)
-        {
-            Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
-            if(pUnit && (pUnit->GetTypeId() == TYPEID_PLAYER))
+		Map *map = m_creature->GetMap();
+        InstanceMap::PlayerList const &PlayerList = ((InstanceMap*)map)->GetPlayers();
+		InstanceMap::PlayerList::const_iterator i;
+		for (i = PlayerList.begin(); i != PlayerList.end(); ++i)
+		{            
+			if((*i) && (*i)->isAlive())
                 // Knockback into the air
-                pUnit->CastSpell(pUnit, SPELL_GRAVITY_LAPSE_DOT, true, 0, 0, m_creature->GetGUID());
+                (*i)->CastSpell((*i), SPELL_GRAVITY_LAPSE_DOT, true, 0, 0, m_creature->GetGUID());
         }
     }
 
     void CastGravityLapseFly()                              // Use Fly Packet hack for now as players can't cast "fly" spells unless in map 530. Has to be done a while after they get knocked into the air...
     {
-        std::list<HostilReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin();
-        for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();++i)
-        {
-            Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
-            if(pUnit && (pUnit->GetTypeId() == TYPEID_PLAYER))
+		Map *map = m_creature->GetMap();
+		InstanceMap::PlayerList const &PlayerList = ((InstanceMap*)map)->GetPlayers();
+		InstanceMap::PlayerList::const_iterator i;
+		for (i = PlayerList.begin(); i != PlayerList.end(); ++i)
+		{ 
+			if((*i) && (*i)->isAlive())
             {
                 // Also needs an exception in spell system.
-                pUnit->CastSpell(pUnit, SPELL_GRAVITY_LAPSE_FLY, true, 0, 0, m_creature->GetGUID());
+                (*i)->CastSpell((*i), SPELL_GRAVITY_LAPSE_FLY, true, 0, 0, m_creature->GetGUID());
                 // Use packet hack
                 WorldPacket data(12);
                 data.SetOpcode(SMSG_MOVE_SET_CAN_FLY);
-                data.append(pUnit->GetPackGUID());
+                data.append((*i)->GetPackGUID());
                 data << uint32(0);
-                pUnit->SendMessageToSet(&data, true);
+                (*i)->SendMessageToSet(&data, true);
+				(*i)->SetSpeed(MOVE_FLY, 2.0f);
             }
         }
     }
 
     void RemoveGravityLapse()
     {
-        std::list<HostilReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin();
-        for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();++i)
-        {
-            Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
-            if(pUnit && (pUnit->GetTypeId() == TYPEID_PLAYER))
+		Map *map = m_creature->GetMap();
+        InstanceMap::PlayerList const &PlayerList = ((InstanceMap*)map)->GetPlayers();
+		InstanceMap::PlayerList::const_iterator i;
+		for (i = PlayerList.begin(); i != PlayerList.end(); ++i)
+		{ 
+            if((*i))
             {
-                pUnit->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_FLY);
-                pUnit->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_DOT);
+                (*i)->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_FLY);
+                (*i)->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_DOT);
                 WorldPacket data(12);
                 data.SetOpcode(SMSG_MOVE_UNSET_CAN_FLY);
-                data.append(pUnit->GetPackGUID());
+                data.append((*i)->GetPackGUID());
                 data << uint32(0);
-                pUnit->SendMessageToSet(&data, true);
+                (*i)->SendMessageToSet(&data, true);
             }
         }
     }
@@ -278,11 +332,24 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
                     uint32 random = rand()%2 + 1;
                     float x = KaelLocations[random][0];
                     float y = KaelLocations[random][1];
-                    Creature* Phoenix = m_creature->SummonCreature(CREATURE_PHOENIX, x, y, LOCATION_Z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
+                    Creature* Phoenix = m_creature->SummonCreature(CREATURE_PHOENIX, x, y, LOCATION_Z, 0, TEMPSUMMON_CORPSE_DESPAWN, 60000);
                     if(Phoenix)
                     {
                         Phoenix->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE + UNIT_FLAG_NON_ATTACKABLE);
                         SetThreatList(Phoenix);
+						Unit *target = SelectUnit(SELECT_TARGET_RANDOM,1);
+						if(target)
+						{
+							Phoenix->AddThreat(target,1000);
+							Phoenix->Attack(target,true);
+							Phoenix->GetMotionMaster()->MoveChase(target);
+						}
+						else
+						{
+							Phoenix->AddThreat(m_creature->getVictim(),1000);
+							Phoenix->Attack(m_creature->getVictim(),true);
+							Phoenix->GetMotionMaster()->MoveChase(m_creature->getVictim());
+						}
                     }
 
                     DoYell(SAY_PHOENIX, LANG_UNIVERSAL, NULL);
@@ -296,6 +363,7 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
                     Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
                     if(target)
                     {
+						m_creature->InterruptNonMeleeSpells(false);
                         DoCast(target, SPELL_FLAMESTRIKE3, true);
                         FlameStrikeTimer = 20000 + rand()%5000;
 
@@ -321,6 +389,7 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
 
             case 1:
             {
+				m_creature->StopMoving();
                 if(GravityLapseTimer < diff)
                 {
                     switch(GravityLapsePhase)
@@ -343,6 +412,7 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
                                 DoYell(SAY_RECAST_GRAVITY,LANG_UNIVERSAL,NULL);
                                 DoPlaySoundToSet(m_creature,SOUND_RECAST_GRAVITY);
                             }
+							m_creature->StopMoving();
                             DoCast(m_creature, SPELL_GRAVITY_LAPSE_INITIAL);
                             GravityLapseTimer = 2000 + diff;// Don't interrupt the visual spell
                             GravityLapsePhase = 1;
@@ -365,9 +435,29 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
                             GravityLapseTimer = 30000;
                             GravityLapsePhase = 4;
                             for(uint8 i = 0; i < 3; ++i)
-                            {
-                                Creature* Orb = DoSpawnCreature(CREATURE_ARCANE_SPHERE, 5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
-                                if(Orb) SetThreatList(Orb);
+                            {								
+								Creature* Orb = m_creature->SummonCreature(CREATURE_ARCANE_SPHERE,KaelLocations[3+i][0],KaelLocations[3+i][1],LOCATION_Z,0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,30000);
+								if(Orb) 
+								{			
+									SetThreatList(Orb);
+									Unit *target = SelectUnit(SELECT_TARGET_BOTTOMAGGRO,i);
+									if(target)
+									{
+										Orb->AddThreat(target,1000);
+										Orb->Attack(target,true);
+										Orb->GetMotionMaster()->MoveChase(target);
+									}
+									else
+									{
+										Unit *ntarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+										if(ntarget)
+										{
+											Orb->AddThreat(ntarget,1000);
+											Orb->Attack(ntarget,true);
+											Orb->GetMotionMaster()->MoveChase(ntarget);
+										}
+									}
+								}
                             }
                             DoCast(m_creature, SPELL_GRAVITY_LAPSE_CHANNEL);
                             break;
@@ -426,85 +516,138 @@ struct TRINITY_DLL_DECL mob_felkael_flamestrikeAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL mob_felkael_phoenixAI : public ScriptedAI
 {
-    mob_felkael_phoenixAI(Creature *c) : ScriptedAI(c) {Reset();}
-
+    mob_felkael_phoenixAI(Creature *c) : ScriptedAI(c)
+	{
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        Reset();
+    }
     uint32 BurnTimer;
+	uint32 CheckTimer;
+	uint8 phase;
+	ScriptedInstance* pInstance;
+	bool end;
 
     void Reset()
     {
+		m_creature->SetSpeed(MOVE_RUN, 0.5f);
+		m_creature->SetSpeed(MOVE_WALK, 0.5f);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE + UNIT_FLAG_NON_ATTACKABLE);
         BurnTimer = 2000;
+		CheckTimer = 1000;
+		phase = 0;
+		end = false;
     }
 
     void Aggro(Unit* who) {}
 
     void JustDied(Unit* slayer)
     {
-        DoSpawnCreature(CREATURE_PHOENIX_EGG, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
+		if (end)
+			return;
+        DoSpawnCreature(CREATURE_PHOENIX_EGG, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 45000);
     }
 
     void UpdateAI(const uint32 diff)
     {
+		if(CheckTimer < diff)
+        {
+            if (pInstance)
+			{
+				Creature *boss = ((Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_KAEL)));
+				if (boss)
+				{
+					phase = ((boss_felblood_kaelthasAI*)boss->AI())->Phase;
+					if(boss->isDead() || !boss->isInCombat())
+					{
+						end = true;
+						m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_FIRE, NULL, false);//temphack, hellfire is not damaging self
+					}
+				}
+			}
+            CheckTimer = 1000;
+        }else CheckTimer -= diff;
+
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
-        if (BurnTimer < diff)
-        {
-            DoCast(m_creature->getVictim(), SPELL_PHOENIX_BURN);
-            BurnTimer = 2000;
-        }else BurnTimer -= diff;
+		if (BurnTimer < diff)
+		{
+			if(!phase)
+			{
+				DoCast(m_creature, SPELL_PHOENIX_BURN);
+				m_creature->DealDamage(m_creature, 1500, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_FIRE, NULL, false);//temphack, hellfire is not damaging self
+			}
+			else
+			{
+				m_creature->StopMoving();
+				DoCast(m_creature->getVictim(), SPELL_PHOENIX_FIREBALL);
+			}
+			BurnTimer = 2000;
+		}else BurnTimer -= diff;		
 
-        DoMeleeAttackIfReady();
+        //DoMeleeAttackIfReady();
     }
 };
 
-struct TRINITY_DLL_DECL mob_felkael_phoenix_eggAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_felkael_phoenix_eggAI : public Scripted_NoMovementAI
 {
-    mob_felkael_phoenix_eggAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_felkael_phoenix_eggAI(Creature *c) : Scripted_NoMovementAI(c)
+	{
+		pInstance = ((ScriptedInstance*)c->GetInstanceData());
+		Reset();
+	}
 
     uint32 HatchTimer;
-
+	ScriptedInstance* pInstance;
     void Reset() {   HatchTimer = 15000;   }
 
     void Aggro(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-
     void UpdateAI(const uint32 diff)
     {
+		
         if(HatchTimer < diff)
         {
-            DoSpawnCreature(CREATURE_PHOENIX, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
-            m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-        }else HatchTimer -= diff;
+			Creature *bird = DoSpawnCreature(CREATURE_PHOENIX, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 60000);
+			if (bird)
+			{
+				Unit *boss = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_KAEL));
+				if (boss && boss->getVictim())
+				{
+					bird->AddThreat(boss->getVictim(),100);
+					bird->Attack(boss->getVictim(),true);
+					bird->GetMotionMaster()->MoveChase(boss->getVictim());
+				}
+			}
+			m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+		}else HatchTimer -= diff;
     }
 };
 
 struct TRINITY_DLL_DECL mob_arcane_sphereAI : public ScriptedAI
 {
-    mob_arcane_sphereAI(Creature *c) : ScriptedAI(c) {Reset();}
-
+    mob_arcane_sphereAI(Creature *c) : ScriptedAI(c)
+	{
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        Reset();
+    }
     uint32 DespawnTimer;
     uint32 ChangeTargetTimer;
+	uint32 CheckTimer;
 
-    bool TargetLocked;
+	ScriptedInstance* pInstance;
 
     void Reset()
     {
+		m_creature->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
         DespawnTimer = 30000;
         ChangeTargetTimer = 5000;
-        TargetLocked = false;
-
+		CheckTimer = 1000;
+		m_creature->SetSpeed(MOVE_RUN, 0.5f);
+		m_creature->SetSpeed(MOVE_WALK, 0.5f);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->setFaction(14);
         DoCast(m_creature, SPELL_ARCANE_SPHERE_PASSIVE, true);
-    }
-
-    void MoveInLineOfSight(Unit* who)
-    {
-        if(TargetLocked)
-            return;
-        if(who && who->IsHostileTo(m_creature) && (m_creature->IsWithinDistInMap(who, 25)))
-            StalkTarget(who);
     }
 
     void Aggro(Unit* who) {}
@@ -513,9 +656,9 @@ struct TRINITY_DLL_DECL mob_arcane_sphereAI : public ScriptedAI
     {
         if(!target)
             return;
-
-        m_creature->GetMotionMaster()->MoveChase(target);
-        TargetLocked = true;
+		m_creature->AddThreat(target,100000);
+		m_creature->GetMotionMaster()->MoveChase(target);
+		m_creature->Attack(target,true);
     }
 
     void UpdateAI(const uint32 diff)
@@ -525,15 +668,62 @@ struct TRINITY_DLL_DECL mob_arcane_sphereAI : public ScriptedAI
         else DespawnTimer -= diff;
 
         if(!m_creature->getVictim() || !m_creature->SelectHostilTarget())
-            return;
+			ChangeTargetTimer = 0;
 
         if(ChangeTargetTimer < diff)
         {
-            TargetLocked = false;
+			DoResetThreat();
+            Unit *ntarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+			if (ntarget)
+				StalkTarget(ntarget);
             ChangeTargetTimer = 10000;
         }else ChangeTargetTimer -= diff;
+
+		if(CheckTimer < diff)
+        {
+            if (pInstance)
+			{
+				Creature *boss = (Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_KAEL));
+				if(boss)
+				{
+					if(!((boss_felblood_kaelthasAI*)boss->AI())->Phase || boss->isDead())
+						DespawnTimer = 0;
+				}else DespawnTimer = 0;
+			}
+            CheckTimer = 1000;
+        }else CheckTimer -= diff;
     }
 };
+
+bool GOHello_go_kael_orb(Player *player, GameObject* _GO)
+{
+    ScriptedInstance* pInst = (ScriptedInstance*)_GO->GetInstanceData();
+	if (pInst && player)
+	{
+		Unit *kael = Unit::GetUnit((*_GO),pInst->GetData64(DATA_KAEL));
+		if (kael && kael->isDead())
+			player->TeleportTo(530, 12888, -6876, 9, 0.3);
+	}
+    return true;
+}
+
+bool GOHello_go_movie_orb(Player *player, GameObject* _GO)
+{
+	if (player)
+	{
+		WorldPacket data(SMSG_TRIGGER_CINEMATIC, 4);
+        data << (uint32)164;
+        player->GetSession()->SendPacket(&data);
+		
+		if (player->GetQuestStatus(11490) == QUEST_STATUS_INCOMPLETE)
+		{
+			Unit *qUnit = player->SummonCreature(25042,player->GetPositionX(),player->GetPositionY(),player->GetPositionZ()-10,0,TEMPSUMMON_CORPSE_DESPAWN,0);
+			if(qUnit)
+				player->DealDamage(qUnit, qUnit->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+		}
+	}
+    return true;
+}
 
 CreatureAI* GetAI_boss_felblood_kaelthas(Creature* c)
 {
@@ -587,5 +777,15 @@ void AddSC_boss_felblood_kaelthas()
     newscript = new Script;
     newscript->Name="mob_felkael_flamestrike";
     newscript->GetAI = GetAI_mob_felkael_flamestrike;
+    m_scripts[nrscripts++] = newscript;
+
+	newscript = new Script;
+    newscript->Name="go_kael_orb";
+    newscript->pGOHello = &GOHello_go_kael_orb;
+    m_scripts[nrscripts++] = newscript;
+
+	newscript = new Script;
+    newscript->Name="go_movie_orb";
+    newscript->pGOHello = &GOHello_go_movie_orb;
     m_scripts[nrscripts++] = newscript;
 }
