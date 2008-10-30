@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 /* ScriptData
@@ -102,8 +102,8 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Adds.clear();
-        Reset();
-        SummonAdds();
+		//SummonAdds();
+        Reset();        
         Heroic = c->GetMap()->IsHeroic();
     }
 
@@ -126,6 +126,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
 
     void Reset()
     {
+		m_creature->SetCorpseDelay(60*60*1000);
         LackeysKilled = 0;
         PlayersKilled = 0;
 
@@ -139,11 +140,13 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
 
         CheckAdds();
 
-        if(pInstance)
-        {
-            pInstance->SetData(DATA_DELRISSA_EVENT, NOT_STARTED);
-            pInstance->SetData(DATA_DELRISSA_DEATH_COUNT, 0);
-        }
+		if(pInstance)
+		{
+			pInstance->SetData(DATA_DELRISSA_DEATH_COUNT, 0);
+			if (m_creature->isDead())
+				pInstance->SetData(DATA_DELRISSA_EVENT, DONE);
+			else pInstance->SetData(DATA_DELRISSA_EVENT, NOT_STARTED);
+		}
         else error_log(ERROR_INST_DATA);
     }
 
@@ -159,6 +162,8 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
 
     void SummonAdds()
     {
+		/*if (m_creature->isDead())
+			return;*/
         std::vector<uint32> AddList;
         for(uint8 i = 0; i < 8; ++i)
             AddList.push_back(AddEntry[i]);
@@ -179,31 +184,35 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
 
     void CheckAdds()
     {
+		//if (m_creature->isDead())
+		//	return;
         if(Adds.empty())
+		{
+			SummonAdds();
             return;
-
+		}
         for(uint8 i = 0; i < Adds.size(); ++i)
         {
-            bool resummon = true;
             Creature* pAdd = ((Creature*)Unit::GetUnit(*m_creature, Adds[i]->guid));
             if(pAdd && pAdd->isAlive())
             {
-                pAdd->AI()->EnterEvadeMode();               // Force them out of combat and reset if they are in combat.
-                resummon = false;
-            }
-            if(resummon)
+				pAdd->AI()->EnterEvadeMode();
+				pAdd->GetMotionMaster()->MovePoint(0,LackeyLocations[i][0], LackeyLocations[i][1], POS_Z);
+            }	
+			if(!pAdd || (pAdd && pAdd->isDead()))
             {
-                pAdd = m_creature->SummonCreature(Adds[i]->entry, LackeyLocations[i][0], LackeyLocations[i][1], POS_Z, ORIENT, TEMPSUMMON_DEAD_DESPAWN, 0);
-                Add* nAdd = new Add(Adds[i]->entry, pAdd->GetGUID());
-                Adds.erase(Adds.begin() + i);
-                Adds.push_back(nAdd);
-            }
+				if(pAdd)
+					pAdd->RemoveCorpse();//looks stupid if mob is alive but has a dead corpse in front of him :)
+				Creature* pAdd = m_creature->SummonCreature(Adds[i]->entry, LackeyLocations[i][0], LackeyLocations[i][1], POS_Z, ORIENT, TEMPSUMMON_DEAD_DESPAWN, 0);
+				if(pAdd)
+					Adds[i]->guid = pAdd->GetGUID();
+			}
         }
     }
 
     void KilledUnit(Unit* victim)
     {
-        if(victim->GetTypeId() != TYPEID_PLAYER)
+		if(victim->GetTypeId() != TYPEID_PLAYER || m_creature->isDead())
             return;
 
         DoYell(PlayerDeath[PlayersKilled].text, LANG_UNIVERSAL, NULL);
@@ -214,10 +223,14 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
 
     void KilledLackey()
     {
+		if(m_creature->isDead())//no sense to talk if dead..
+			return;
         DoYell(LackeyDeath[LackeysKilled].text, LANG_UNIVERSAL, NULL);
         DoPlaySoundToSet(m_creature, LackeyDeath[LackeysKilled].sound);
         if( LackeysKilled < 3 )
             ++LackeysKilled;
+
+		CheckLootable();
     }
 
     void JustDied(Unit* killer)
@@ -241,7 +254,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
 
     void CheckLootable()
     {
-        if(LackeysKilled > 4)
+        if(pInstance && pInstance->GetData(DATA_DELRISSA_DEATH_COUNT) >= 4)
             m_creature->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         else
             m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
@@ -366,7 +379,12 @@ struct TRINITY_DLL_DECL boss_priestess_guestAI : public ScriptedAI
     void Reset()
     {
         UsedPotion = false;
-
+		if(pInstance)
+		{
+			Creature *boss = ((Creature*)Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_DELRISSA)));
+			if (boss && boss->isDead())
+				boss->Respawn();
+		}
         ResetThreatTimer = 5000 + rand()%15000;             // These guys like to switch targets often, and are not meant to be tanked.
     }
 
@@ -637,7 +655,9 @@ struct TRINITY_DLL_DECL boss_ellris_duskhallowAI : public boss_priestess_guestAI
             Fear_Timer = 10000;
         }else Fear_Timer -= diff;
 
-        DoMeleeAttackIfReady();
+		if (m_creature->GetDistance(m_creature->getVictim()) <= 10)
+			m_creature->StopMoving();
+        //DoMeleeAttackIfReady();//should not melee, she's a warlock
     }
 };
 
@@ -740,7 +760,7 @@ struct TRINITY_DLL_DECL boss_yazzaiAI : public boss_priestess_guestAI
         if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
             return;
 
-        boss_priestess_guestAI::UpdateAI(diff);
+        boss_priestess_guestAI::UpdateAI(diff);		
 
         if(Polymorph_Timer < diff)
         {
@@ -792,19 +812,29 @@ struct TRINITY_DLL_DECL boss_yazzaiAI : public boss_priestess_guestAI
                 if(Unit* target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
                     //if in melee range
                     if (target->IsWithinDistInMap(m_creature, 5))
-                {
-                    InMeleeRange = true;
-                    break;
-                }
+					{
+						InMeleeRange = true;
+						break;
+					}
             }
             //if anybody is in melee range than escape by blink
             if(InMeleeRange)
-                DoCast(m_creature, SPELL_BLINK);
-
+			{
+				//DoCast(m_creature, SPELL_BLINK);  //blink does not work on npcs
+				float x,y,z;
+				m_creature->GetPosition(x,y,z);
+				x = rand()%2 ? x+10+rand()%10 : x-10-rand()%10;
+				y = rand()%2 ? y+10+rand()%10 : y-10-rand()%10;
+				m_creature->Relocate(x,y,z);
+				m_creature->SendMonsterMove(x, y, m_creature->GetPositionZ(), 0,0,0); 
+			}
             Blink_Timer = 8000;
         }else Blink_Timer -= diff;
 
-        DoMeleeAttackIfReady();
+		if (m_creature->GetDistance(m_creature->getVictim()) <= 10)
+			m_creature->StopMoving();
+
+        //DoMeleeAttackIfReady(); //mage type, no melee needed
     }
 };
 
@@ -948,6 +978,8 @@ struct TRINITY_DLL_DECL boss_garaxxasAI : public boss_priestess_guestAI
     uint32 Multi_Shot_Timer;
     uint32 Wing_Clip_Timer;
     uint32 Freezing_Trap_Timer;
+	uint32 StopMoving;
+	bool Stopped;
 
     void Reset()
     {
@@ -960,6 +992,8 @@ struct TRINITY_DLL_DECL boss_garaxxasAI : public boss_priestess_guestAI
         Multi_Shot_Timer = 10000;
         Wing_Clip_Timer = 4000;
         Freezing_Trap_Timer = 15000;
+		StopMoving = 2000;
+		Stopped = false;
 
         boss_priestess_guestAI::Reset();
     }
@@ -1030,6 +1064,16 @@ struct TRINITY_DLL_DECL boss_garaxxasAI : public boss_priestess_guestAI
                 Shoot_Timer = 2500;
             }else Shoot_Timer -= diff;
         }
+		if(StopMoving < diff)
+        {
+			if(Stopped)
+				Stopped = false;
+			else
+				Stopped = true;
+            StopMoving = 2000+rand()%5000;
+        }else StopMoving -= diff;
+		if (Stopped)
+			m_creature->StopMoving();
     }
 };
 
@@ -1178,9 +1222,12 @@ struct TRINITY_DLL_DECL boss_zelfanAI : public boss_priestess_guestAI
         boss_priestess_guestAI::UpdateAI(diff);
 
         if(Goblin_Dragon_Gun_Timer < diff)
-        {
-            DoCast(m_creature->getVictim(), SPELL_GOBLIN_DRAGON_GUN);
-            Goblin_Dragon_Gun_Timer = 10000;
+        {           
+			if (m_creature->GetDistance(m_creature->getVictim()) <= 5)
+			{
+				Goblin_Dragon_Gun_Timer = 10000;
+				DoCast(m_creature->getVictim(), SPELL_GOBLIN_DRAGON_GUN);
+			}else Goblin_Dragon_Gun_Timer = 2000;
         }else Goblin_Dragon_Gun_Timer -= diff;
 
         if(Rocket_Launch_Timer < diff)
