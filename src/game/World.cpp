@@ -1096,6 +1096,9 @@ void World::SetInitialWorldSettings()
     sLog.outString( "Loading spell extra attributes...(TODO)" );
     spellmgr.LoadSpellExtraAttr();
 
+    sLog.outString( "Loading linked spells..." );
+    spellmgr.LoadSpellLinked();
+
     sLog.outString( "Loading player Create Info & Level Stats..." );
     objmgr.LoadPlayerInfo();
 
