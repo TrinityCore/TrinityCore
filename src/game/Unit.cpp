@@ -158,6 +158,7 @@ Unit::Unit()
     m_modAttackSpeedPct[RANGED_ATTACK] = 1.0f;
 
     m_extraAttacks = 0;
+    m_canDualWield = false;
 
     m_state = 0;
     m_form = FORM_NONE;
@@ -279,9 +280,11 @@ void Unit::Update( uint32 p_time )
     }
 
     if(uint32 base_att = getAttackTimer(BASE_ATTACK))
-    {
         setAttackTimer(BASE_ATTACK, (p_time >= base_att ? 0 : base_att - p_time) );
-    }
+    if(uint32 ranged_att = getAttackTimer(RANGED_ATTACK))
+        setAttackTimer(RANGED_ATTACK, (p_time >= ranged_att ? 0 : ranged_att - p_time) );
+    if(uint32 off_att = getAttackTimer(OFF_ATTACK))
+        setAttackTimer(OFF_ATTACK, (p_time >= off_att ? 0 : off_att - p_time) );
 
     // update abilities available only for fraction of time
     UpdateReactives( p_time );
@@ -297,7 +300,7 @@ bool Unit::haveOffhandWeapon() const
     if(GetTypeId() == TYPEID_PLAYER)
         return ((Player*)this)->GetWeaponForAttack(OFF_ATTACK,true);
     else
-        return false;
+        return m_canDualWield;
 }
 
 void Unit::SendMonsterMoveWithSpeedToCurrentDestination(Player* player)
@@ -1769,7 +1772,8 @@ void Unit::DoAttackDamage (Unit *pVictim, uint32 *damage, CleanDamage *cleanDama
 
     /// If this is a creature and it attacks from behind it has a probability to daze it's victim
     if( (outcome==MELEE_HIT_CRIT || outcome==MELEE_HIT_CRUSHING || outcome==MELEE_HIT_NORMAL || outcome==MELEE_HIT_GLANCING) &&
-        GetTypeId() != TYPEID_PLAYER && !((Creature*)this)->GetCharmerOrOwnerGUID() && !pVictim->HasInArc(M_PI, this) )
+        GetTypeId() != TYPEID_PLAYER && !((Creature*)this)->GetCharmerOrOwnerGUID() && !pVictim->HasInArc(M_PI, this)
+        && pVictim->GetTypeId() == TYPEID_PLAYER)
     {
         // -probability is between 0% and 40%
         // 20% base chance
@@ -2056,54 +2060,10 @@ void Unit::DoAttackDamage (Unit *pVictim, uint32 *damage, CleanDamage *cleanDama
         }
         case MELEE_HIT_GLANCING:
         {
-            float reducePercent = 1.0f;                     //damage factor
-
-            // calculate base values and mods
-            float baseLowEnd = 1.3;
-            float baseHighEnd = 1.2;
-            switch(getClass())                              // lowering base values for casters
-            {
-                case CLASS_SHAMAN:
-                case CLASS_PRIEST:
-                case CLASS_MAGE:
-                case CLASS_WARLOCK:
-                case CLASS_DRUID:
-                    baseLowEnd  -= 0.7;
-                    baseHighEnd -= 0.3;
-                    break;
-            }
-
-            float maxLowEnd = 0.6;
-            switch(getClass())                              // upper for melee classes
-            {
-                case CLASS_WARRIOR:
-                case CLASS_ROGUE:
-                    maxLowEnd = 0.91;                       //If the attacker is a melee class then instead the lower value of 0.91
-            }
-
-            // calculate values
-            int32 diff = int32(pVictim->GetDefenseSkillValue(this)) - int32(GetWeaponSkillValue(attType,pVictim));
-            float lowEnd  = baseLowEnd - ( 0.05f * diff );
-            float highEnd = baseHighEnd - ( 0.03f * diff );
-
-            // apply max/min bounds
-            if ( lowEnd < 0.01f )                           //the low end must not go bellow 0.01f
-                lowEnd = 0.01f;
-            else if ( lowEnd > maxLowEnd )                  //the smaller value of this and 0.6 is kept as the low end
-                lowEnd = maxLowEnd;
-
-            if ( highEnd < 0.2f )                           //high end limits
-                highEnd = 0.2f;
-            if ( highEnd > 0.99f )
-                highEnd = 0.99f;
-
-            if(lowEnd > highEnd)                            // prevent negative range size
-                lowEnd = highEnd;
-
-            reducePercent = lowEnd + rand_norm() * ( highEnd - lowEnd );
-
-            *damage = uint32(reducePercent * *damage);
-            cleanDamage->damage += *damage;
+            int32 leveldif = int32(pVictim->getLevel()) - int32(getLevel());
+            if (leveldif > 3) leveldif = 3;
+            *damage *= (1 - leveldif * 0.1f);
+            cleanDamage->damage = *damage;
             *hitInfo |= HITINFO_GLANCING;
             break;
         }
@@ -7575,7 +7535,9 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     SpellModSpellDamage /= 100.0f;
 
     float DoneActualBenefit = DoneAdvertisedBenefit * (CastingTime / 3500.0f) * DotFactor * SpellModSpellDamage * LvlPenalty;
-    float TakenActualBenefit = TakenAdvertisedBenefit * (CastingTime / 3500.0f) * DotFactor * LvlPenalty;
+    float TakenActualBenefit = TakenAdvertisedBenefit;
+    if(spellProto->SpellFamilyName)
+        TakenActualBenefit *= (CastingTime / 3500.0f) * DotFactor * LvlPenalty;
 
     float tmpDamage = (float(pdamage)+DoneActualBenefit)*DoneTotalMod;
 

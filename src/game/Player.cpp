@@ -993,17 +993,6 @@ void Player::Update( uint32 p_time )
 
     Unit::Update( p_time );
 
-    // update player only attacks
-    if(uint32 ranged_att = getAttackTimer(RANGED_ATTACK))
-    {
-        setAttackTimer(RANGED_ATTACK, (p_time >= ranged_att ? 0 : ranged_att - p_time) );
-    }
-
-    if(uint32 off_att = getAttackTimer(OFF_ATTACK))
-    {
-        setAttackTimer(OFF_ATTACK, (p_time >= off_att ? 0 : off_att - p_time) );
-    }
-
     time_t now = time (NULL);
 
     UpdatePvPFlag(now);

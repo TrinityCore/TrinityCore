@@ -3440,8 +3440,9 @@ void Spell::EffectDispel(uint32 i)
 
 void Spell::EffectDualWield(uint32 /*i*/)
 {
-    if (unitTarget->GetTypeId() == TYPEID_PLAYER)
-        ((Player*)unitTarget)->SetCanDualWield(true);
+    unitTarget->SetCanDualWield(true);
+    if(unitTarget->GetTypeId() == TYPEID_UNIT)
+        ((Creature*)unitTarget)->UpdateDamagePhysical(OFF_ATTACK);
 }
 
 void Spell::EffectPull(uint32 /*i*/)

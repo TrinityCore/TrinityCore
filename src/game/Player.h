@@ -1750,8 +1750,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         void SetCanParry(bool value);
         bool CanBlock() const { return m_canBlock; }
         void SetCanBlock(bool value);
-        bool CanDualWield() const { return m_canDualWield; }
-        void SetCanDualWield(bool value) { m_canDualWield = value; }
 
         void SetRegularAttackTime();
         void SetBaseModValue(BaseModGroup modGroup, BaseModType modType, float value) { m_auraBaseMod[modGroup][modType] = value; }
@@ -2240,7 +2238,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         uint32 m_ArmorProficiency;
         bool m_canParry;
         bool m_canBlock;
-        bool m_canDualWield;
         uint8 m_swingErrorMsg;
         float m_ammoDPS;
         ////////////////////Rest System/////////////////////
