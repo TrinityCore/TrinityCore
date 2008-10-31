@@ -111,6 +111,9 @@ enum FriendsResult
     FRIEND_UNKNOWN          = 0x1A                          // Unknown friend response from server
 };
 
+#define SOCIALMGR_FRIEND_LIMIT  50
+#define SOCIALMGR_IGNORE_LIMIT  25
+
 class PlayerSocial
 {
     friend class SocialMgr;
@@ -128,6 +131,7 @@ class PlayerSocial
         bool HasIgnore(uint32 ignore_guid);
         uint32 GetPlayerGUID() { return m_playerGUID; }
         void SetPlayerGUID(uint32 guid) { m_playerGUID = guid; }
+        uint32 GetNumberOfSocialsWithFlag(SocialFlag flag);
     private:
         PlayerSocialMap m_playerSocialMap;
         uint32 m_playerGUID;

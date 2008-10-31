@@ -107,13 +107,14 @@ class SpellCastTargets
 
             m_itemTargetEntry  = target.m_itemTargetEntry;
 
-            m_srcX = target.m_srcX;
-            m_srcY = target.m_srcY;
-            m_srcZ = target.m_srcZ;
+            //m_srcX = target.m_srcX;
+            //m_srcY = target.m_srcY;
+            //m_srcZ = target.m_srcZ;
 
             m_destX = target.m_destX;
             m_destY = target.m_destY;
             m_destZ = target.m_destZ;
+            m_hasDest = target.m_hasDest;
 
             m_strTarget = target.m_strTarget;
 
@@ -125,7 +126,8 @@ class SpellCastTargets
         uint64 getUnitTargetGUID() const { return m_unitTargetGUID; }
         Unit *getUnitTarget() const { return m_unitTarget; }
         void setUnitTarget(Unit *target);
-        void setDestination(float x, float y, float z);
+        void setDestination(float x, float y, float z, bool send = true);
+        void setDestination(Unit *target, bool send = true);
 
         uint64 getGOTargetGUID() const { return m_GOTargetGUID; }
         GameObject *getGOTarget() const { return m_GOTarget; }
@@ -147,11 +149,13 @@ class SpellCastTargets
         }
 
         bool IsEmpty() const { return m_GOTargetGUID==0 && m_unitTargetGUID==0 && m_itemTarget==0 && m_CorpseTargetGUID==0; }
+        bool HasDest() const { return m_hasDest; }
 
         void Update(Unit* caster);
 
         float m_srcX, m_srcY, m_srcZ;
         float m_destX, m_destY, m_destZ;
+        bool m_hasDest;
         std::string m_strTarget;
 
         uint32 m_targetMask;
@@ -551,7 +555,7 @@ namespace Trinity
             SpellTargets TargetType = SPELL_TARGETS_AOE_DAMAGE, uint32 entry = 0)
             : i_data(&data), i_spell(spell), i_push_type(type), i_radius(radius), i_TargetType(TargetType), i_entry(entry)
         {
-            i_originalCaster = spell.GetOriginalCaster();
+            i_originalCaster = spell.GetCaster();
         }
 
         template<class T> inline void Visit(GridRefManager<T>  &m)

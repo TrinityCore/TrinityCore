@@ -772,7 +772,8 @@ void WorldSession::HandleAddIgnoreOpcode( WorldPacket & recv_data )
     {
         ignoreResult = FRIEND_IGNORE_ADDED;
 
-        _player->GetSocial()->AddToSocialList(GUID_LOPART(IgnoreGuid), true);
+        if(!_player->GetSocial()->AddToSocialList(GUID_LOPART(IgnoreGuid), true))
+            ignoreResult = FRIEND_IGNORE_FULL;
     }
     else if(ignoreResult==FRIEND_IGNORE_ALREADY)
     {

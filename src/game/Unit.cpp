@@ -5085,7 +5085,8 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, SpellEntry const *dummySpell, uint
                     RemoveAurasDueToSpell(triggeredByAura->GetId());
 
                     // Cast finish spell (triggeredByAura already not exist!)
-                    CastSpell(this, 27285, true, castItem, NULL, casterGuid);
+                    if(Unit* caster = GetUnit(*this, casterGuid))
+                        caster->CastSpell(this, 27285, true, castItem);
                     return true;                            // no hidden cooldown
                 }
 
@@ -5107,7 +5108,8 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, SpellEntry const *dummySpell, uint
                     RemoveAurasDueToSpell(triggeredByAura->GetId());
 
                     // Cast finish spell (triggeredByAura already not exist!)
-                    CastSpell(this, 32865, true, castItem, NULL, casterGuid);
+                    if(Unit* caster = GetUnit(*this, casterGuid))
+                        caster->CastSpell(this, 32865, true, castItem);
                     return true;                            // no hidden cooldown
                 }
                 // Damage counting
