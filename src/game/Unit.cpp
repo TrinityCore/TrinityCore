@@ -519,9 +519,6 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
 
             return damage;
         }
-
-        if(!pVictim->isInCombat() && ((Creature*)pVictim)->AI())
-            ((Creature*)pVictim)->AI()->AttackStart(this);
     }
 
     DEBUG_LOG("DealDamageStart");
@@ -538,15 +535,6 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             damage = health-1;
 
         duel_hasEnded = true;
-    }
-    //Get in CombatState
-    if(pVictim != this && damagetype != DOT)
-    {
-        SetInCombatWith(pVictim);
-        pVictim->SetInCombatWith(this);
-
-        if(Player* attackedPlayer = pVictim->GetCharmerOrOwnerPlayerOrPlayerItself())
-            SetContestedPvP(attackedPlayer);
     }
 
     // Rage from Damage made (only from direct weapon damage)
@@ -2150,6 +2138,15 @@ void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool ex
 
     if(IsNonMeleeSpellCasted(false))
         return;
+
+    if(!pVictim->isInCombat() && pVictim->GetTypeId() != TYPEID_PLAYER && ((Creature*)pVictim)->AI())
+        ((Creature*)pVictim)->AI()->AttackStart(this);
+
+    SetInCombatWith(pVictim);
+    pVictim->SetInCombatWith(this);
+
+    if(Player* attackedPlayer = pVictim->GetCharmerOrOwnerPlayerOrPlayerItself())
+        SetContestedPvP(attackedPlayer);
 
     uint32 hitInfo;
     if (attType == BASE_ATTACK)
