@@ -950,20 +950,24 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         // ignore autorepeat/melee casts for speed (not exist quest for spells (hm... )
         if( m_caster->GetTypeId() == TYPEID_PLAYER && !IsAutoRepeat() && !IsNextMeleeSwingSpell() && !IsChannelActive() )
             ((Player*)m_caster)->CastedCreatureOrGO(unit->GetEntry(),unit->GetGUID(),m_spellInfo->Id);
-
-        if(((Creature*)unit)->AI())
-            ((Creature*)unit)->AI()->SpellHit(m_caster ,m_spellInfo);
     }
 
-    if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->AI())
-        ((Creature*)m_caster)->AI()->SpellHitTarget(unit, m_spellInfo);
-
-    if(int32 spell_triggered = spellmgr.GetSpellLinked(m_spellInfo->Id, 1))
+    if( !m_caster->IsFriendlyTo(unit) && !IsPositiveSpell(m_spellInfo->Id))
     {
-        if(spell_triggered > 0)
-            unit->CastSpell(unit, spell_triggered, true/*, 0, 0, m_caster->GetGUID()*/);
-        else
-            unit->RemoveAurasDueToSpell(-spell_triggered);
+        if( !(m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_NO_INITIAL_AGGRO) )
+        {
+            if(!unit->IsStandState() && !unit->hasUnitState(UNIT_STAT_STUNNED))
+                unit->SetStandState(PLAYER_STATE_NONE);
+
+            if(!unit->isInCombat() && unit->GetTypeId() != TYPEID_PLAYER && ((Creature*)unit)->AI())
+                ((Creature*)unit)->AI()->AttackStart(m_caster);
+
+            unit->SetInCombatWith(m_caster);
+            m_caster->SetInCombatWith(unit);
+
+            if(Player *attackedPlayer = unit->GetCharmerOrOwnerPlayerOrPlayerItself())
+                m_caster->SetContestedPvP(attackedPlayer);
+        }
     }
 }
 
@@ -1000,30 +1004,9 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
                 return;
             }
 
-            // exclude Arcane Missiles Dummy Aura aura for now (attack on hit)
-            // TODO: find way to not need this?
-            if(!(m_spellInfo->SpellFamilyName == SPELLFAMILY_MAGE &&
-                m_spellInfo->SpellFamilyFlags & 0x800LL))
+            //if(!IsPositiveSpell(m_spellInfo->Id))
             {
                 unit->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-
-                if( !(m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_NO_INITIAL_AGGRO) )
-                {
-                    if(!unit->IsStandState() && !unit->hasUnitState(UNIT_STAT_STUNNED))
-                        unit->SetStandState(PLAYER_STATE_NONE);
-
-                    if(!unit->isInCombat() && unit->GetTypeId() != TYPEID_PLAYER && ((Creature*)unit)->AI())
-                        ((Creature*)unit)->AI()->AttackStart(m_caster);
-
-                    unit->SetInCombatWith(m_caster);
-                    m_caster->SetInCombatWith(unit);
-
-                    if(Player *attackedPlayer = unit->GetCharmerOrOwnerPlayerOrPlayerItself())
-                    {
-                        m_caster->SetContestedPvP(attackedPlayer);
-                    }
-                    unit->AddThreat(m_caster, 0.0f);
-                }
             }
         }
         else
@@ -1068,6 +1051,20 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
                 m_damageMultipliers[effectNumber] *= multiplier;
             }
         }
+    }
+
+    if(unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->AI())
+        ((Creature*)unit)->AI()->SpellHit(m_caster, m_spellInfo);
+
+    if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->AI())
+        ((Creature*)m_caster)->AI()->SpellHitTarget(unit, m_spellInfo);
+
+    if(int32 spell_triggered = spellmgr.GetSpellLinked(m_spellInfo->Id, 1))
+    {
+        if(spell_triggered > 0)
+            unit->CastSpell(unit, spell_triggered, true, 0, 0, m_caster->GetGUID());
+        else
+            unit->RemoveAurasDueToSpell(-spell_triggered);
     }
 }
 
