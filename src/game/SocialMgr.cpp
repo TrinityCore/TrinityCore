@@ -41,11 +41,30 @@ PlayerSocial::~PlayerSocial()
     m_playerSocialMap.clear();
 }
 
+uint32 PlayerSocial::GetNumberOfSocialsWithFlag(SocialFlag flag)
+{
+    uint32 counter = 0;
+    for(PlayerSocialMap::iterator itr = m_playerSocialMap.begin(); itr != m_playerSocialMap.end(); ++itr)
+    {
+        if(itr->second.Flags & flag)
+            counter++;
+    }
+    return counter;
+}
+
 bool PlayerSocial::AddToSocialList(uint32 friend_guid, bool ignore)
 {
-    // client limit
-    if(m_playerSocialMap.size() >= 50)
-        return false;
+    // check client limits
+    if(ignore)
+    {
+        if(GetNumberOfSocialsWithFlag(SOCIAL_FLAG_IGNORED) >= SOCIALMGR_IGNORE_LIMIT)
+            return false;
+    }
+    else
+    {
+        if(GetNumberOfSocialsWithFlag(SOCIAL_FLAG_FRIEND) >= SOCIALMGR_FRIEND_LIMIT)
+            return false;
+    }
 
     uint32 flag = SOCIAL_FLAG_FRIEND;
     if(ignore)
