@@ -60,7 +60,7 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
     if(!i_offset)
     {
         // to nearest random contact position 
-        i_target->GetRandomContactPoint( &owner, x, y, z,0.5f,4.5f );
+        i_target->GetRandomContactPoint( &owner, x, y, z, 0.5f, ATTACK_DISTANCE - 0.5f );
     }
     else
     {
@@ -164,7 +164,7 @@ TargetedMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
         if (owner.GetObjectSize())
             i_destinationHolder.ResetUpdate(50);
 
-        float dist = i_target->GetObjectSize() + owner.GetObjectSize() + sWorld.getRate(RATE_TARGET_POS_RECALCULATION_RANGE);
+        float dist = owner.GetFloatValue(UNIT_FIELD_COMBATREACH) + i_target.getTarget()->GetFloatValue(UNIT_FIELD_COMBATREACH) + sWorld.getRate(RATE_TARGET_POS_RECALCULATION_RANGE);
 
         //More distance let have better performance, less distance let have more sensitive reaction at target move.
 
@@ -185,7 +185,7 @@ TargetedMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
             owner.SetInFront(i_target.getTarget());
 
             owner.StopMoving();
-            if(owner.canReachWithAttack(i_target.getTarget()) && !owner.hasUnitState(UNIT_STAT_FOLLOW))
+            if(owner.IsWithinCombatDist(i_target.getTarget(), ATTACK_DISTANCE) && !owner.hasUnitState(UNIT_STAT_FOLLOW))
                 owner.Attack(i_target.getTarget(),true);
         }
     }

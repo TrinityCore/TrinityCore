@@ -2079,7 +2079,7 @@ void boss_illidan_stormrageAI::Reset()
     m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY+1, 0);
     m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING + MOVEMENTFLAG_ONTRANSPORT);
 
-    DoCast(m_creature, SPELL_DUAL_WIELD, true);
+    m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);
 }
 
 void boss_illidan_stormrageAI::HandleTalkSequence()

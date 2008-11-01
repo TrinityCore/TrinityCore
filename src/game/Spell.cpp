@@ -1443,7 +1443,6 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             break;
 
         // area targets
-		case TARGET_AREAEFFECT_CUSTOM:
         case TARGET_ALL_ENEMY_IN_AREA_INSTANT:
             if(m_spellInfo->Effect[i] == SPELL_EFFECT_PERSISTENT_AREA_AURA)
                 break;
@@ -1456,15 +1455,16 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
         case TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER:
             SearchAreaTarget(TagUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_FRIENDLY);
             break;
-        //case TARGET_AREAEFFECT_CUSTOM:
-        //    m_targets.m_targetMask |= TARGET_FLAG_DEST_LOCATION;
+        case TARGET_AREAEFFECT_CUSTOM:
+            m_targets.m_targetMask |= TARGET_FLAG_DEST_LOCATION;
         case TARGET_UNIT_AREA_ENTRY:
         {
             SpellScriptTarget::const_iterator lower = spellmgr.GetBeginSpellScriptTarget(m_spellInfo->Id);
             SpellScriptTarget::const_iterator upper = spellmgr.GetEndSpellScriptTarget(m_spellInfo->Id);
             if(lower==upper)
             {
-                sLog.outErrorDb("Spell (ID: %u) has effect EffectImplicitTargetA/EffectImplicitTargetB = TARGET_SCRIPT, but does not have record in `spell_script_target`",m_spellInfo->Id);
+                SearchAreaTarget(TagUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+                //sLog.outErrorDb("Spell (ID: %u) has effect EffectImplicitTargetA/EffectImplicitTargetB = TARGET_SCRIPT, but does not have record in `spell_script_target`",m_spellInfo->Id);
                 break;
             }
             // let it be done in one check?

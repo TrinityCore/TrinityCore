@@ -1982,24 +1982,10 @@ void Spell::EffectTeleportUnits(uint32 i)
             ((Player*)unitTarget)->TeleportTo(((Player*)unitTarget)->m_homebindMapId,((Player*)unitTarget)->m_homebindX,((Player*)unitTarget)->m_homebindY,((Player*)unitTarget)->m_homebindZ,unitTarget->GetOrientation(),unitTarget==m_caster ? TELE_TO_SPELL : 0);
             return;
         }
-        case TARGET_TABLE_X_Y_Z_COORDINATES:
-        {
-            // TODO: Only players can teleport?
-            if (unitTarget->GetTypeId() != TYPEID_PLAYER)
-                return;
-            SpellTargetPosition const* st = spellmgr.GetSpellTargetPosition(m_spellInfo->Id);
-            if(!st)
-            {
-                sLog.outError( "Spell::EffectTeleportUnits - unknown Teleport coordinates for spell ID %u\n", m_spellInfo->Id );
-                return;
-            }
-            ((Player*)unitTarget)->TeleportTo(st->target_mapId,st->target_X,st->target_Y,st->target_Z,st->target_Orientation,unitTarget==m_caster ? TELE_TO_SPELL : 0);
-            break;
-        }
         default:
         {
             // If not exist data for dest location - return
-            if(!(m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION))
+            if(!m_targets.HasDest())
             {
                 sLog.outError( "Spell::EffectTeleportUnits - unknown EffectImplicitTargetB[%u] = %u for spell ID %u\n", i, m_spellInfo->EffectImplicitTargetB[i], m_spellInfo->Id );
                 return;

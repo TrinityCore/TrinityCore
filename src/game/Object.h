@@ -377,7 +377,6 @@ class TRINITY_DLL_SPEC WorldObject : public Object
             // angle to face `obj` to `this` using distance includes size of `obj`
             GetNearPoint(obj,x,y,z,obj->GetObjectSize(),distance2d,GetAngle( obj ));
         }
-        void GetRandomContactPoint( const WorldObject* obj, float &x, float &y, float &z, float distance2dMin, float distance2dMax ) const;
 
         float GetObjectSize() const
         {

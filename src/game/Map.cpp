@@ -1419,13 +1419,6 @@ InstanceMap::~InstanceMap()
 */
 bool InstanceMap::CanEnter(Player *player)
 {
-    if(!player->isGameMaster() && i_data && i_data->IsEncounterInProgress())
-    {
-        sLog.outDebug("InstanceMap::CanEnter - Player '%s' can't enter instance '%s' while an encounter is in progress.", player->GetName(), GetMapName());
-        player->SendTransferAborted(GetId(), TRANSFER_ABORT_ZONE_IN_COMBAT);
-        return false;
-    }
-
     if(std::find(i_Players.begin(),i_Players.end(),player)!=i_Players.end())
     {
         sLog.outError("InstanceMap::CanEnter - player %s(%u) already in map %d,%d,%d!", player->GetName(), player->GetGUIDLow(), GetId(), GetInstanceId(), GetSpawnMode());
@@ -1444,11 +1437,18 @@ bool InstanceMap::CanEnter(Player *player)
 
     // cannot enter while players in the instance are in combat
     Group *pGroup = player->GetGroup();
-    if(pGroup && pGroup->InCombatToInstance(GetInstanceId()) && player->isAlive() && player->GetMapId() != GetId())
+    if(!player->isGameMaster() && pGroup && pGroup->InCombatToInstance(GetInstanceId()) && player->isAlive() && player->GetMapId() != GetId())
     {
         player->SendTransferAborted(GetId(), TRANSFER_ABORT_ZONE_IN_COMBAT);
         return false;
     }
+
+    /*if(!player->isGameMaster() && i_data && i_data->IsEncounterInProgress())
+    {
+        sLog.outDebug("InstanceMap::CanEnter - Player '%s' can't enter instance '%s' while an encounter is in progress.", player->GetName(), GetMapName());
+        player->SendTransferAborted(GetId(), TRANSFER_ABORT_ZONE_IN_COMBAT);
+        return false;
+    }*/
 
     return Map::CanEnter(player);
 }

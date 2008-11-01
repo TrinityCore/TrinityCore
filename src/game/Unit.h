@@ -721,6 +721,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void SetCanDualWield(bool value) { m_canDualWield = value; }
         bool canReachWithAttack(Unit *pVictim) const;
         bool IsWithinCombatDist(Unit *obj, float dist2compare) const;
+        void GetRandomContactPoint( const Unit* target, float &x, float &y, float &z, float distance2dMin, float distance2dMax ) const;
         uint32 m_extraAttacks;
         bool m_canDualWield;
 

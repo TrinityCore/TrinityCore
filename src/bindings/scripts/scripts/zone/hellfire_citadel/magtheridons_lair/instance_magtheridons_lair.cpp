@@ -26,8 +26,6 @@ EndScriptData */
 
 #define SPELL_SOUL_TRANSFER         30531 // core bug, does not support target 7
 #define SPELL_BLAZE_TARGET          30541 // core bug, does not support target 7
-#define SPELL_DEBRIS_DAMAGE			30631 // core bug, does not support target 8
-#define SPELL_DEBRIS_KNOCKDOWN      36449 // core bug, does not support target 8
 
 #define CHAMBER_CENTER_X			-15.14
 #define CHAMBER_CENTER_Y			  1.8
@@ -40,13 +38,6 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
     instance_magtheridons_lair(Map *Map) : ScriptedInstance(Map)
     {
         Initialize();
-        // target 7, random target with certain entry spell, need core fix
-        SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_BLAZE_TARGET);
-        if(TempSpell && TempSpell->EffectImplicitTargetA[0] != 6)
-        {
-            TempSpell->EffectImplicitTargetA[0] = 6;
-            TempSpell->EffectImplicitTargetB[0] = 0;
-        }
     }
 
     uint32 Encounters[ENCOUNTERS];

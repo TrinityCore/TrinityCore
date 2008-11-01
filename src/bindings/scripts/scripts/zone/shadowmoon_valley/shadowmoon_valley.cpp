@@ -813,261 +813,266 @@ void DoSpeach(int phase)
 
 struct TRINITY_DLL_DECL Overlord_MorghorAI : public ScriptedAI
 {
-Overlord_MorghorAI(Creature *c) : ScriptedAI(c) {Reset();}
+    Overlord_MorghorAI(Creature *c) : ScriptedAI(c)
+    {
+        Lord = NULL;
+        Yarzill = NULL;
+        Reset();
+    }
 
-	Unit* m_player;
-	Unit* PlayerCheck;
-	
-	uint32 SpeachTimer;
-	uint32 SpeachNum;
-	
-	uint64 PlayerGUID;
-	uint64 YazillGUID;
-	
-	bool DoingSpeach;
-	bool Failed;
+    Unit* m_player;
+    Unit* PlayerCheck;
 
-	Creature* Lord;
-	Creature* Yarzill;
+    uint32 SpeachTimer;
+    uint32 SpeachNum;
 
-void Reset()
-{
-	if (Lord)
-	{
-		Lord->SetUInt64Value(UNIT_FIELD_TARGET, 0);
-		Lord->SetVisibility(VISIBILITY_OFF);
-		Lord->setDeathState(JUST_DIED);
-	}
+    uint64 PlayerGUID;
+    uint64 YazillGUID;
 
-	if (Yarzill)
-	{
-	Yarzill->SetUInt64Value(UNIT_FIELD_TARGET, 0);
-	}
-	
-	m_creature->Relocate(-5085.77, 577.231, 86.6719, 2.32608);
-	m_creature->SetUInt32Value(UNIT_NPC_FLAGS, 2);
-	m_creature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
-	m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
-	m_player = NULL;
-	PlayerCheck = NULL;
-	PlayerGUID = 0;
-	YazillGUID = 0;
-	Lord = NULL;
-	Yarzill = NULL;
-	DoingSpeach = false;
-	Failed = false;
-	SpeachNum = 0;
-	SpeachTimer = 0;
-}
+    bool DoingSpeach;
+    bool Failed;
 
-void BeginSpeach(Unit* target)
-{
-	m_creature->SetUInt32Value(UNIT_NPC_FLAGS, 0);
-	m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
-	DoSay(OVERLORD_SAY_1,LANG_UNIVERSAL,target);
-	m_player = target;
-	PlayerCheck = NULL;
-	PlayerGUID = target->GetGUID();
-	SpeachTimer = 4200;
-	SpeachNum = 0;
-	DoingSpeach = true;
-}
-	
-void Aggro(Unit *who){}
+    Creature* Lord;
+    Creature* Yarzill;
 
-void MoveInLineOfSight(Unit *who)
-{
-	if (!who)
-	return;
+    void Reset()
+    {
+        if (Lord)
+        {
+            Lord->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+            Lord->SetVisibility(VISIBILITY_OFF);
+            Lord->setDeathState(JUST_DIED);
+        }
 
-	if (DoingSpeach)
-	{
-		if (who->GetEntry() == 23141 && m_creature->IsWithinDistInMap(who, 15))
-		{
-			if (!YazillGUID)
-			{
-				YazillGUID = who->GetGUID();
-			}
-		}
-	}
-}
+        if (Yarzill)
+        {
+            Yarzill->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+        }
 
-void UpdateAI(const uint32 diff)
-{
-	//Speach
-	if (DoingSpeach)
-	{
-		if (SpeachTimer < diff)
-		{
-			if (YazillGUID && !Yarzill)
-			Yarzill = ((Creature*)Unit::GetUnit((*m_creature), YazillGUID));
+        m_creature->Relocate(-5085.77, 577.231, 86.6719, 2.32608);
+        m_creature->SetUInt32Value(UNIT_NPC_FLAGS, 2);
+        m_creature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+        m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
+        m_player = NULL;
+        PlayerCheck = NULL;
+        PlayerGUID = 0;
+        YazillGUID = 0;
+        Lord = NULL;
+        Yarzill = NULL;
+        DoingSpeach = false;
+        Failed = false;
+        SpeachNum = 0;
+        SpeachTimer = 0;
+    }
 
-				if (!m_creature->IsWithinDistInMap(m_player, 50) && ((Player*)m_player)->GetQuestStatus(QUEST_LORD_ILLIDAN_STORMRAGE) == QUEST_STATUS_INCOMPLETE)
-				{
-				((Player*)m_player)->FailQuest(QUEST_LORD_ILLIDAN_STORMRAGE);
-				SpeachNum = 30;
-				}
+    void BeginSpeach(Unit* target)
+    {
+        m_creature->SetUInt32Value(UNIT_NPC_FLAGS, 0);
+        m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
+        DoSay(OVERLORD_SAY_1,LANG_UNIVERSAL,target);
+        m_player = target;
+        PlayerCheck = NULL;
+        PlayerGUID = target->GetGUID();
+        SpeachTimer = 4200;
+        SpeachNum = 0;
+        DoingSpeach = true;
+    }
 
-	switch (SpeachNum)
-	{
-	// Overlord Movement
-	case 0:
-		m_creature->GetMotionMaster()->MovePoint(0, -5104.41, 595.297, 85.6838);
-		SpeachTimer = 9000; SpeachNum++; break;
-	// Overlord Yell 1
-	case 1:
-		m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SHOUT);
-		DoYell(OVERLORD_YELL_1,LANG_UNIVERSAL,m_player);
-		SpeachTimer = 4500; SpeachNum++; break;
-	// Overlord Angle
-	case 2:
-		m_creature->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID);
-		SpeachTimer = 3200; SpeachNum++; break;
-		// Overlord Say 2
-	case 3:
-		DoSay(OVERLORD_SAY_2,LANG_UNIVERSAL,NULL);
-		SpeachTimer = 2000; SpeachNum++; break;
-	// Summon Illidan
-	case 4:
-		Lord = m_creature->SummonCreature(LORD_ILLIDAN_STORMRAGE, -5107.83, 602.584, 85.2393, 4.92598, TEMPSUMMON_CORPSE_DESPAWN, 0);
-		Lord->LoadCreaturesAddon();
-		SpeachTimer = 350; SpeachNum++; break;
-	// Illidan Cast Red Bolt
-	case 5:
-		Lord->CastSpell(Lord, SPELL_ONE, true);
-		Lord->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->GetGUID());
-		m_creature->SetUInt64Value(UNIT_FIELD_TARGET, Lord->GetGUID());
-		SpeachTimer = 2000; SpeachNum++; break;
-	// Overlord Yell 2
-	case 6:
-		DoYell(OVERLORD_YELL_2,LANG_UNIVERSAL,NULL);
-		SpeachTimer = 4500; SpeachNum++; break;
-	// Overlord Kneel
-	case 7:
-		m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,8);
-		SpeachTimer = 2500; SpeachNum++; break;
-	// Overlord Say 3
-	case 8:
-		DoSay(OVERLORD_SAY_3,LANG_UNIVERSAL,NULL);
-		SpeachTimer = 6500; SpeachNum++; break;
-	// Illidan Say 1
-	case 9:
-		((Lord_IllidanAI*)Lord->AI())->DoSpeach(1);
-		SpeachTimer = 5000; SpeachNum++; break;
-	// Overlord Say 4
-	case 10:
-		DoSay(OVERLORD_SAY_4,LANG_UNIVERSAL,m_player);
-		SpeachTimer = 6000; SpeachNum++; break;
-	// Illidan Say 2
-	case 11:
-		((Lord_IllidanAI*)Lord->AI())->DoSpeach(2);
-		SpeachTimer = 5500; SpeachNum++; break;
-	// Illidan Say 3
-	case 12:
-		((Lord_IllidanAI*)Lord->AI())->DoSpeach(3);
-		SpeachTimer = 4000; SpeachNum++; break;
-	// Illidan Angle
-	case 13:
-		Lord->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID);
-		SpeachTimer = 1500; SpeachNum++; break;
-	// Illidan Say 4
-	case 14:
-		((Lord_IllidanAI*)Lord->AI())->DoSpeach(4);
-		SpeachTimer = 1500; SpeachNum++; break;
-	// Illidan Cast
-	case 15:
-		PlayerCheck = Unit::GetUnit(*Lord, PlayerGUID);
-		if (PlayerCheck)
-		{
-			Lord->CastSpell(m_player, SPELL_TWO, true);
-			m_player->RemoveAurasDueToSpell(SPELL_THREE);
-			m_player->RemoveAurasDueToSpell(SPELL_FOUR);
-			SpeachTimer = 5000; SpeachNum++;
-		}
-			else
-			{
-			((Player*)m_player)->FailQuest(QUEST_LORD_ILLIDAN_STORMRAGE);
-			SpeachTimer = 100; SpeachNum = 30;
-		}
-		break;
-		// Illidan Say 5
-	case 16:
-		((Lord_IllidanAI*)Lord->AI())->DoSpeach(5);
-		SpeachTimer = 5000; SpeachNum++; break;
-	// Illidan Say 6
-	case 17:
-		((Lord_IllidanAI*)Lord->AI())->DoSpeach(6);
-		SpeachTimer = 5000; SpeachNum++; break;
-	// Illidan Say 7
-	case 18:
-		((Lord_IllidanAI*)Lord->AI())->DoSpeach(7);
-		SpeachTimer = 5000; SpeachNum++; break;
-	// Illidan Fly
-	case 19:
-		Lord->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-		Lord->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
-		SpeachTimer = 500; SpeachNum++; break;
-	// Overlord Say 5
-	case 20:
-		DoSay(OVERLORD_SAY_5,LANG_UNIVERSAL,NULL);
-		SpeachTimer = 500; SpeachNum++; break;
-	// Illidan Despawn
-	case 21:
-		Lord->SetVisibility(VISIBILITY_OFF);
-		Lord->setDeathState(JUST_DIED);
-		Lord = NULL;
-		SpeachTimer = 1000; SpeachNum++; break;
-	// Overlord Stand Up
-	case 22:
-		m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
-		SpeachTimer = 2000; SpeachNum++; break;
-	// Overlord Angle
-	case 23:
-		m_creature->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID);
-		SpeachTimer = 5000; SpeachNum++; break;
-	// Overlord Say 6
-	case 24:
-		DoSay(OVERLORD_SAY_6,LANG_UNIVERSAL,NULL);
-		SpeachTimer = 2000; SpeachNum++; break;
-	// Complete Quest
-	case 25:
-		((Player*)m_player)->CompleteQuest(QUEST_LORD_ILLIDAN_STORMRAGE);
-		SpeachTimer = 6000; SpeachNum++; break;
-	// Goblin Angle
-	case 26:
-		if (Yarzill)
-		Yarzill->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID);
-		SpeachTimer = 500; SpeachNum++; break;
-	// Cast Again Dragonaw Illusion
-	case 27:
-		m_player->RemoveAurasDueToSpell(SPELL_TWO);
-		m_player->RemoveAurasDueToSpell(41519);
-		m_player->CastSpell(m_player, SPELL_THREE, true);
-		m_player->CastSpell(m_player, SPELL_FOUR, true);
-		SpeachTimer = 1000; SpeachNum++; break;
-	// Goblin
-	case 28:
-	if (Yarzill)
-		((Yarzill_The_MercAI*)Yarzill->AI())->DoSpeach(m_player);
-		SpeachTimer = 5000; SpeachNum++; break;
-	// Goblin Off
-	case 29:
-		if (Yarzill)
-		Yarzill->SetUInt64Value(UNIT_FIELD_TARGET, 0);
-		SpeachTimer = 5000; SpeachNum++; break;
-	// Overlord Go Back
-	case 30:
-		m_creature->GetMotionMaster()->MovePoint(0, -5085.77, 577.231, 86.6719);
-		SpeachTimer = 5000; SpeachNum++; break;
-	// Reset
-	case 31:
-		Reset();
-		break;
-		default: break;
-	}
-	}else SpeachTimer -= diff;
-}
-}
+    void Aggro(Unit *who){}
+
+    void MoveInLineOfSight(Unit *who)
+    {
+        if (!who)
+            return;
+
+        if (DoingSpeach)
+        {
+            if (who->GetEntry() == 23141 && m_creature->IsWithinDistInMap(who, 15))
+            {
+                if (!YazillGUID)
+                {
+                    YazillGUID = who->GetGUID();
+                }
+            }
+        }
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        //Speach
+        if (DoingSpeach)
+        {
+            if (SpeachTimer < diff)
+            {
+                if (YazillGUID && !Yarzill)
+                    Yarzill = ((Creature*)Unit::GetUnit((*m_creature), YazillGUID));
+
+                if (!m_creature->IsWithinDistInMap(m_player, 50) && ((Player*)m_player)->GetQuestStatus(QUEST_LORD_ILLIDAN_STORMRAGE) == QUEST_STATUS_INCOMPLETE)
+                {
+                    ((Player*)m_player)->FailQuest(QUEST_LORD_ILLIDAN_STORMRAGE);
+                    SpeachNum = 30;
+                }
+
+                switch (SpeachNum)
+                {
+                    // Overlord Movement
+                case 0:
+                    m_creature->GetMotionMaster()->MovePoint(0, -5104.41, 595.297, 85.6838);
+                    SpeachTimer = 9000; SpeachNum++; break;
+                    // Overlord Yell 1
+                case 1:
+                    m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SHOUT);
+                    DoYell(OVERLORD_YELL_1,LANG_UNIVERSAL,m_player);
+                    SpeachTimer = 4500; SpeachNum++; break;
+                    // Overlord Angle
+                case 2:
+                    m_creature->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID);
+                    SpeachTimer = 3200; SpeachNum++; break;
+                    // Overlord Say 2
+                case 3:
+                    DoSay(OVERLORD_SAY_2,LANG_UNIVERSAL,NULL);
+                    SpeachTimer = 2000; SpeachNum++; break;
+                    // Summon Illidan
+                case 4:
+                    Lord = m_creature->SummonCreature(LORD_ILLIDAN_STORMRAGE, -5107.83, 602.584, 85.2393, 4.92598, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    Lord->LoadCreaturesAddon();
+                    SpeachTimer = 350; SpeachNum++; break;
+                    // Illidan Cast Red Bolt
+                case 5:
+                    Lord->CastSpell(Lord, SPELL_ONE, true);
+                    Lord->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->GetGUID());
+                    m_creature->SetUInt64Value(UNIT_FIELD_TARGET, Lord->GetGUID());
+                    SpeachTimer = 2000; SpeachNum++; break;
+                    // Overlord Yell 2
+                case 6:
+                    DoYell(OVERLORD_YELL_2,LANG_UNIVERSAL,NULL);
+                    SpeachTimer = 4500; SpeachNum++; break;
+                    // Overlord Kneel
+                case 7:
+                    m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,8);
+                    SpeachTimer = 2500; SpeachNum++; break;
+                    // Overlord Say 3
+                case 8:
+                    DoSay(OVERLORD_SAY_3,LANG_UNIVERSAL,NULL);
+                    SpeachTimer = 6500; SpeachNum++; break;
+                    // Illidan Say 1
+                case 9:
+                    ((Lord_IllidanAI*)Lord->AI())->DoSpeach(1);
+                    SpeachTimer = 5000; SpeachNum++; break;
+                    // Overlord Say 4
+                case 10:
+                    DoSay(OVERLORD_SAY_4,LANG_UNIVERSAL,m_player);
+                    SpeachTimer = 6000; SpeachNum++; break;
+                    // Illidan Say 2
+                case 11:
+                    ((Lord_IllidanAI*)Lord->AI())->DoSpeach(2);
+                    SpeachTimer = 5500; SpeachNum++; break;
+                    // Illidan Say 3
+                case 12:
+                    ((Lord_IllidanAI*)Lord->AI())->DoSpeach(3);
+                    SpeachTimer = 4000; SpeachNum++; break;
+                    // Illidan Angle
+                case 13:
+                    Lord->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID);
+                    SpeachTimer = 1500; SpeachNum++; break;
+                    // Illidan Say 4
+                case 14:
+                    ((Lord_IllidanAI*)Lord->AI())->DoSpeach(4);
+                    SpeachTimer = 1500; SpeachNum++; break;
+                    // Illidan Cast
+                case 15:
+                    PlayerCheck = Unit::GetUnit(*Lord, PlayerGUID);
+                    if (PlayerCheck)
+                    {
+                        Lord->CastSpell(m_player, SPELL_TWO, true);
+                        m_player->RemoveAurasDueToSpell(SPELL_THREE);
+                        m_player->RemoveAurasDueToSpell(SPELL_FOUR);
+                        SpeachTimer = 5000; SpeachNum++;
+                    }
+                    else
+                    {
+                        ((Player*)m_player)->FailQuest(QUEST_LORD_ILLIDAN_STORMRAGE);
+                        SpeachTimer = 100; SpeachNum = 30;
+                    }
+                    break;
+                    // Illidan Say 5
+                case 16:
+                    ((Lord_IllidanAI*)Lord->AI())->DoSpeach(5);
+                    SpeachTimer = 5000; SpeachNum++; break;
+                    // Illidan Say 6
+                case 17:
+                    ((Lord_IllidanAI*)Lord->AI())->DoSpeach(6);
+                    SpeachTimer = 5000; SpeachNum++; break;
+                    // Illidan Say 7
+                case 18:
+                    ((Lord_IllidanAI*)Lord->AI())->DoSpeach(7);
+                    SpeachTimer = 5000; SpeachNum++; break;
+                    // Illidan Fly
+                case 19:
+                    Lord->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
+                    Lord->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
+                    SpeachTimer = 500; SpeachNum++; break;
+                    // Overlord Say 5
+                case 20:
+                    DoSay(OVERLORD_SAY_5,LANG_UNIVERSAL,NULL);
+                    SpeachTimer = 500; SpeachNum++; break;
+                    // Illidan Despawn
+                case 21:
+                    Lord->SetVisibility(VISIBILITY_OFF);
+                    Lord->setDeathState(JUST_DIED);
+                    Lord = NULL;
+                    SpeachTimer = 1000; SpeachNum++; break;
+                    // Overlord Stand Up
+                case 22:
+                    m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
+                    SpeachTimer = 2000; SpeachNum++; break;
+                    // Overlord Angle
+                case 23:
+                    m_creature->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID);
+                    SpeachTimer = 5000; SpeachNum++; break;
+                    // Overlord Say 6
+                case 24:
+                    DoSay(OVERLORD_SAY_6,LANG_UNIVERSAL,NULL);
+                    SpeachTimer = 2000; SpeachNum++; break;
+                    // Complete Quest
+                case 25:
+                    ((Player*)m_player)->CompleteQuest(QUEST_LORD_ILLIDAN_STORMRAGE);
+                    SpeachTimer = 6000; SpeachNum++; break;
+                    // Goblin Angle
+                case 26:
+                    if (Yarzill)
+                        Yarzill->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID);
+                    SpeachTimer = 500; SpeachNum++; break;
+                    // Cast Again Dragonaw Illusion
+                case 27:
+                    m_player->RemoveAurasDueToSpell(SPELL_TWO);
+                    m_player->RemoveAurasDueToSpell(41519);
+                    m_player->CastSpell(m_player, SPELL_THREE, true);
+                    m_player->CastSpell(m_player, SPELL_FOUR, true);
+                    SpeachTimer = 1000; SpeachNum++; break;
+                    // Goblin
+                case 28:
+                    if (Yarzill)
+                        ((Yarzill_The_MercAI*)Yarzill->AI())->DoSpeach(m_player);
+                    SpeachTimer = 5000; SpeachNum++; break;
+                    // Goblin Off
+                case 29:
+                    if (Yarzill)
+                        Yarzill->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                    SpeachTimer = 5000; SpeachNum++; break;
+                    // Overlord Go Back
+                case 30:
+                    m_creature->GetMotionMaster()->MovePoint(0, -5085.77, 577.231, 86.6719);
+                    SpeachTimer = 5000; SpeachNum++; break;
+                    // Reset
+                case 31:
+                    Reset();
+                    break;
+                default: break;
+                }
+            }else SpeachTimer -= diff;
+        }
+    }
 };
 
 CreatureAI* GetAI_Overlord_Morghor(Creature *_Creature)
