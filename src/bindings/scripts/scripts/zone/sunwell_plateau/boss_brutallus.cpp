@@ -59,6 +59,7 @@ EndScriptData */
 #define SPELL_BURN 				46394
 #define SPELL_STOMP 			45185
 #define SPELL_BERSERK 			26662
+#define SPELL_DUAL_WIELD                42459
 
 struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
 {
@@ -75,6 +76,7 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
         StompTimer = 30000;
         BurnTimer = 60000;
         BerserkTimer = 360000;
+        m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);
     }
 
     void Aggro(Unit *who)
@@ -145,8 +147,8 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
 
         if(BurnTimer < diff)
         {
-            Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            //DoCast(target,SPELL_BURN);
+            if(Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                target->CastSpell(target,SPELL_BURN,true);
 			BurnTimer = 60000;
         }
         else BurnTimer -= diff;

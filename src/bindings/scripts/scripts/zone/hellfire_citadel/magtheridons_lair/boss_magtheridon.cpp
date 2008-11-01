@@ -31,7 +31,7 @@ EndScriptData */
 
 #define SPELL_BLASTNOVA             30616  
 #define SPELL_CLEAVE                30619
-#define SPELL_QUAKE_TRIGGER         30576 // must be cast with 30561 as the proc spell
+#define SPELL_QUAKE_TRIGGER         30657 // must be cast with 30561 as the proc spell
 #define SPELL_QUAKE_KNOCKBACK       30571
 #define SPELL_BLAZE_TARGET          30541 // core bug, does not support target 7
 #define SPELL_BLAZE_TRAP            30542
@@ -168,6 +168,21 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
         pInstance =(ScriptedInstance*)m_creature->GetInstanceData();      
         m_creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
         m_creature->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
+
+        // target 7, random target with certain entry spell, need core fix
+        SpellEntry *TempSpell;
+        TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_BLAZE_TARGET);
+        if(TempSpell && TempSpell->EffectImplicitTargetA[0] != 6)
+        {
+            TempSpell->EffectImplicitTargetA[0] = 6;
+            TempSpell->EffectImplicitTargetB[0] = 0;
+        }
+        TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_QUAKE_TRIGGER);
+        if(TempSpell && TempSpell->EffectTriggerSpell[0] != SPELL_QUAKE_KNOCKBACK)
+        {
+            TempSpell->EffectTriggerSpell[0] = SPELL_QUAKE_KNOCKBACK;
+        }
+
         Reset();
     }
 
@@ -328,8 +343,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
             // to avoid blastnova interruption
             if(!m_creature->IsNonMeleeSpellCasted(false))
             {
-                int32 i = SPELL_QUAKE_KNOCKBACK;
-                m_creature->CastCustomSpell(m_creature, SPELL_QUAKE_TRIGGER, &i, 0, 0, false);
+                m_creature->CastSpell(m_creature, SPELL_QUAKE_TRIGGER, true);
                 Quake_Timer = 50000;
             }
         }else Quake_Timer -= diff;
