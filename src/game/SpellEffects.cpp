@@ -5479,31 +5479,21 @@ void Spell::EffectMomentMove(uint32 i)
     if(unitTarget->isInFlight())
         return;
 
-    if( m_spellInfo->rangeIndex== 1)                        //self range
-    {
-        uint32 mapid = m_caster->GetMapId();
-        float dis = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+    if(!m_targets.HasDest())
+        return;
 
-        // before caster
-        float fx,fy,fz;
-        unitTarget->GetClosePoint(fx,fy,fz,unitTarget->GetObjectSize(),dis);
-        float ox,oy,oz;
-        unitTarget->GetPosition(ox,oy,oz);
+    uint32 mapid = unitTarget->GetMapId();
+    float ox,oy,oz;
+    unitTarget->GetPosition(ox,oy,oz);
 
-        float fx2,fy2,fz2;                                  // getObjectHitPos overwrite last args in any result case
-        if(VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(mapid, ox,oy,oz+0.5, fx,fy,oz+0.5,fx2,fy2,fz2, -0.5))
-        {
-            fx = fx2;
-            fy = fy2;
-            fz = fz2;
-            unitTarget->UpdateGroundPositionZ(fx,fy,fz);
-        }
+    float fx,fy,fz;                                  // getObjectHitPos overwrite last args in any result case
+    if(VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(mapid, ox,oy,oz+0.5, m_targets.m_destX,m_targets.m_destY,oz+0.5,fx,fy,fz, -0.5))
+        unitTarget->UpdateGroundPositionZ(fx,fy,fz);
 
-        if(unitTarget->GetTypeId() == TYPEID_PLAYER)
-            ((Player*)unitTarget)->TeleportTo(mapid, fx, fy, fz, unitTarget->GetOrientation(), TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (unitTarget==m_caster ? TELE_TO_SPELL : 0));
-        else
-            MapManager::Instance().GetMap(mapid, unitTarget)->CreatureRelocation((Creature*)unitTarget, fx, fy, fz, unitTarget->GetOrientation());
-    }
+    if(unitTarget->GetTypeId() == TYPEID_PLAYER)
+        ((Player*)unitTarget)->TeleportTo(mapid, fx, fy, fz, unitTarget->GetOrientation(), TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (unitTarget==m_caster ? TELE_TO_SPELL : 0));
+    else
+        MapManager::Instance().GetMap(mapid, unitTarget)->CreatureRelocation((Creature*)unitTarget, fx, fy, fz, unitTarget->GetOrientation());
 }
 
 void Spell::EffectReputation(uint32 i)
