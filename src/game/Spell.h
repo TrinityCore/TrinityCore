@@ -111,6 +111,7 @@ class SpellCastTargets
             //m_srcY = target.m_srcY;
             //m_srcZ = target.m_srcZ;
 
+            m_mapId = 0;
             m_destX = target.m_destX;
             m_destY = target.m_destY;
             m_destZ = target.m_destZ;
@@ -126,7 +127,7 @@ class SpellCastTargets
         uint64 getUnitTargetGUID() const { return m_unitTargetGUID; }
         Unit *getUnitTarget() const { return m_unitTarget; }
         void setUnitTarget(Unit *target);
-        void setDestination(float x, float y, float z, bool send = true);
+        void setDestination(float x, float y, float z, bool send = true, uint32 mapId = 0);
         void setDestination(Unit *target, bool send = true);
 
         uint64 getGOTargetGUID() const { return m_GOTargetGUID; }
@@ -154,6 +155,7 @@ class SpellCastTargets
         void Update(Unit* caster);
 
         float m_srcX, m_srcY, m_srcZ;
+        uint32 m_mapId;
         float m_destX, m_destY, m_destZ;
         bool m_hasDest;
         std::string m_strTarget;
@@ -548,21 +550,21 @@ namespace Trinity
         const uint32& i_push_type;
         float i_radius;
         SpellTargets i_TargetType;
-        Unit* i_originalCaster;
+        Unit* i_caster;
         uint32 i_entry;
 
         SpellNotifierCreatureAndPlayer(Spell &spell, std::list<Unit*> &data, float radius, const uint32 &type,
             SpellTargets TargetType = SPELL_TARGETS_AOE_DAMAGE, uint32 entry = 0)
             : i_data(&data), i_spell(spell), i_push_type(type), i_radius(radius), i_TargetType(TargetType), i_entry(entry)
         {
-            i_originalCaster = spell.GetCaster();
+            i_caster = spell.GetCaster();
         }
 
         template<class T> inline void Visit(GridRefManager<T>  &m)
         {
             assert(i_data);
 
-            if(!i_originalCaster)
+            if(!i_caster)
                 return;
 
             for(typename GridRefManager<T>::iterator itr = m.begin(); itr != m.end(); ++itr)
@@ -573,7 +575,7 @@ namespace Trinity
                 switch (i_TargetType)
                 {
                     case SPELL_TARGETS_FRIENDLY:
-                        if (!itr->getSource()->isTargetableForAttack() || !i_originalCaster->IsFriendlyTo( itr->getSource() ))
+                        if (!itr->getSource()->isTargetableForAttack() || !i_caster->IsFriendlyTo( itr->getSource() ))
                             continue;
                         break;
                     case SPELL_TARGETS_AOE_DAMAGE:
@@ -583,7 +585,7 @@ namespace Trinity
                         if(!itr->getSource()->isTargetableForAttack())
                             continue;
 
-                        Unit* check = i_originalCaster->GetCharmerOrOwnerOrSelf();
+                        Unit* check = i_caster->GetCharmerOrOwnerOrSelf();
 
                         if( check->GetTypeId()==TYPEID_PLAYER )
                         {
@@ -607,19 +609,19 @@ namespace Trinity
                 switch(i_push_type)
                 {
                     case PUSH_IN_FRONT:
-                        if(i_spell.GetCaster()->isInFront((Unit*)(itr->getSource()), i_radius, M_PI/3 ))
+                        if(i_caster->isInFront((Unit*)(itr->getSource()), i_radius, M_PI/3 ))
                             i_data->push_back(itr->getSource());
                         break;
                     case PUSH_IN_BACK:
-                        if(i_spell.GetCaster()->isInBack((Unit*)(itr->getSource()), i_radius, M_PI/3 ))
+                        if(i_caster->isInBack((Unit*)(itr->getSource()), i_radius, M_PI/3 ))
                             i_data->push_back(itr->getSource());
                         break;
                     case PUSH_IN_LINE:
-                        if(i_spell.GetCaster()->isInLine((Unit*)(itr->getSource()), i_radius ))
+                        if(i_caster->isInLine((Unit*)(itr->getSource()), i_radius ))
                             i_data->push_back(itr->getSource());
                         break;
                     case PUSH_SELF_CENTER:
-                        if(i_spell.GetCaster()->IsWithinDistInMap((Unit*)(itr->getSource()), i_radius))
+                        if(i_caster->IsWithinDistInMap((Unit*)(itr->getSource()), i_radius))
                             i_data->push_back(itr->getSource());
                         break;
                     case PUSH_DEST_CENTER:

@@ -454,6 +454,26 @@ void Unit::RemoveSpellsCausingAura(AuraType auraType)
     }
 }
 
+void Unit::RemoveInterruptableAura(uint32 flag)
+{
+    AuraList::iterator iter, next;
+    for (iter = m_interruptableAuras.begin(); iter != m_interruptableAuras.end(); iter = next)
+    {
+        next = iter;
+        ++next;
+
+        //sLog.outDetail("auraflag:%u flag:%u = %u",(*iter)->GetSpellProto()->AuraInterruptFlags,flag,(*iter)->GetSpellProto()->AuraInterruptFlags & flag);
+        if(*iter && ((*iter)->GetSpellProto()->AuraInterruptFlags & flag) == flag)
+        {
+            RemoveAurasDueToSpell((*iter)->GetId());
+            if (!m_interruptableAuras.empty())
+                next = m_interruptableAuras.begin();
+            else
+                return;
+        }
+    }
+}
+
 bool Unit::HasAuraType(AuraType auraType) const
 {
     return (!m_modAuras[auraType].empty());
@@ -474,14 +494,13 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
     }
 
     // remove affects from victim (including from 0 damage and DoTs)
-    if(pVictim != this)
-        pVictim->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+    //if(pVictim != this)
+    //    pVictim->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
 
     // remove affects from attacker at any non-DoT damage (including 0 damage)
     if( damagetype != DOT)
     {
-        RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-        RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
+        RemoveInterruptableAura(AURA_INTERRUPT_FLAG_STEALTH);
 
         if(pVictim->GetTypeId() == TYPEID_PLAYER && !pVictim->IsStandState() && !pVictim->hasUnitState(UNIT_STAT_STUNNED))
             pVictim->SetStandState(PLAYER_STATE_NONE);
@@ -3738,6 +3757,8 @@ bool Unit::AddAura(Aura *Aur)
     if (Aur->GetModifier()->m_auraname < TOTAL_AURAS)
     {
         m_modAuras[Aur->GetModifier()->m_auraname].push_back(Aur);
+        if(Aur->GetSpellProto()->AuraInterruptFlags)
+            m_interruptableAuras.push_back(Aur);
     }
 
     Aur->ApplyModifier(true,true);
@@ -4110,6 +4131,8 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     if ((*i).second->GetModifier()->m_auraname < TOTAL_AURAS)
     {
         m_modAuras[(*i).second->GetModifier()->m_auraname].remove((*i).second);
+        if((*i).second->GetSpellProto()->AuraInterruptFlags)
+            m_interruptableAuras.remove((*i).second);
     }
 
     // remove from list before mods removing (prevent cyclic calls, mods added before including to aura list - use reverse order)

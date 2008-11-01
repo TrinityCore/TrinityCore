@@ -94,7 +94,7 @@ void SpellCastTargets::setUnitTarget(Unit *target)
     m_targetMask |= TARGET_FLAG_UNIT;
 }
 
-void SpellCastTargets::setDestination(float x, float y, float z, bool send)
+void SpellCastTargets::setDestination(float x, float y, float z, bool send, uint32 mapId)
 {
     m_destX = x;
     m_destY = y;
@@ -102,6 +102,8 @@ void SpellCastTargets::setDestination(float x, float y, float z, bool send)
     m_hasDest = true;
     if(send)
         m_targetMask |= TARGET_FLAG_DEST_LOCATION;
+    if(mapId)
+        m_mapId = mapId;
 }
 
 void SpellCastTargets::setDestination(Unit *target, bool send)
@@ -1006,12 +1008,14 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
 
             //if(!IsPositiveSpell(m_spellInfo->Id))
             {
-                unit->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+                //do not remove feign death
+                unit->RemoveInterruptableAura(AURA_INTERRUPT_FLAG_STEALTH + AURA_INTERRUPT_FLAG_DAMAGE);
             }
         }
         else
         {
             // for delayed spells ignore negative spells (after duel end) for friendly targets
+            // TODO: this cause soul transfer bugged
             if(m_spellInfo->speed > 0.0f && !IsPositiveSpell(m_spellInfo->Id))
             {
                 m_caster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_EVADE);
@@ -1249,13 +1253,24 @@ void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, Unit* pUnitTarget, f
 
 void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, const uint32 &type, SpellTargets TargetType, uint32 entry)
 {
-    if(type == PUSH_DEST_CENTER && !m_targets.HasDest())
+    float x, y;
+    if(type == PUSH_DEST_CENTER)
     {
-        sLog.outError( "SPELL: cannot find destination for spell ID %u\n", m_spellInfo->Id );
-        return;
+        if(!m_targets.HasDest())
+        {
+            sLog.outError( "SPELL: cannot find destination for spell ID %u\n", m_spellInfo->Id );
+            return;
+        }
+        x = m_targets.m_destX;
+        y = m_targets.m_destY;
+    }
+    else
+    {
+        x = m_caster->GetPositionX();
+        y = m_caster->GetPositionY();
     }
 
-    CellPair p(Trinity::ComputeCellPair(m_targets.m_destX, m_targets.m_destY));
+    CellPair p(Trinity::ComputeCellPair(x, y));
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
@@ -1435,11 +1450,20 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
         case TARGET_TABLE_X_Y_Z_COORDINATES:
             if(SpellTargetPosition const* st = spellmgr.GetSpellTargetPosition(m_spellInfo->Id))
             {
-                if (st->target_mapId == m_caster->GetMapId())
+                //TODO: fix this check
+                if(m_spellInfo->Effect[0] == SPELL_EFFECT_TELEPORT_UNITS
+                    || m_spellInfo->Effect[1] == SPELL_EFFECT_TELEPORT_UNITS
+                    || m_spellInfo->Effect[2] == SPELL_EFFECT_TELEPORT_UNITS)
+                    m_targets.setDestination(st->target_X, st->target_Y, st->target_Z, true, st->target_mapId);
+                else if(st->target_mapId == m_caster->GetMapId())
                     m_targets.setDestination(st->target_X, st->target_Y, st->target_Z);
             }
             else
                 sLog.outError( "SPELL: unknown target coordinates for spell ID %u\n", m_spellInfo->Id );
+            break;
+        case TARGET_INNKEEPER_COORDINATES:
+            if(m_caster->GetTypeId() == TYPEID_PLAYER)
+                m_targets.setDestination(((Player*)m_caster)->m_homebindX,((Player*)m_caster)->m_homebindY,((Player*)m_caster)->m_homebindZ, true, ((Player*)m_caster)->m_homebindMapId);
             break;
 
         // area targets
@@ -1480,7 +1504,6 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
         }break;
         case TARGET_IN_FRONT_OF_CASTER:
         case TARGET_UNIT_CONE_ENEMY_UNKNOWN:
-        {
             switch(spellmgr.GetSpellExtraAttr(m_spellInfo->Id, SPELL_EXTRA_ATTR_CONE_TYPE))
             {
                 default:
@@ -1493,12 +1516,10 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 case 2:
                     SearchAreaTarget(TagUnitMap, radius, PUSH_IN_LINE, SPELL_TARGETS_AOE_DAMAGE);
                     break;
-            }
-        }break;
+            }break;
         case TARGET_UNIT_CONE_ALLY:
-        {
             SearchAreaTarget(TagUnitMap, radius, PUSH_IN_FRONT, SPELL_TARGETS_FRIENDLY);
-        }break;
+            break;
 
         // nearby target
         case TARGET_UNIT_NEARBY_ALLY:
@@ -1999,7 +2020,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
         // destination around destination
         case TARGET_DEST_DEST_RANDOM:
         {
-            if(!(m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION))
+            if(!m_targets.HasDest())
             {
                 sLog.outError("SPELL: no destination for spell ID %u\n", m_spellInfo->Id);
                 break;
@@ -2013,7 +2034,11 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             m_targets.setDestination(px, py, pz);
         }break;
         case TARGET_SELF2:
-            m_targets.m_hasDest = true;
+            if(!m_targets.HasDest())
+            {
+                sLog.outError("SPELL: no destination for spell ID %u\n", m_spellInfo->Id);
+                break;
+            }
             break;
         default:
             break;
@@ -2123,8 +2148,7 @@ void Spell::prepare(SpellCastTargets * targets, Aura* triggeredByAura)
     // skip triggered spell (item equip spell casting and other not explicit character casts/item uses)
     if ( !m_IsTriggeredSpell && isSpellBreakStealth(m_spellInfo) )
     {
-        m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-        m_caster->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
+        m_caster->RemoveInterruptableAura(AURA_INTERRUPT_FLAG_STEALTH);
     }
 
     if(m_IsTriggeredSpell)
