@@ -968,7 +968,7 @@ void ObjectMgr::LoadCreatureModelInfo()
 
         if(mInfo->combat_reach < 0.5f)
         {
-            sLog.outErrorDb("Creature model (Entry: %u) has invalid combat reach (%f), setting it to 0.5", mInfo->modelid, mInfo->combat_reach);
+            //sLog.outErrorDb("Creature model (Entry: %u) has invalid combat reach (%f), setting it to 0.5", mInfo->modelid, mInfo->combat_reach);
             const_cast<CreatureModelInfo*>(mInfo)->combat_reach = 0.5f;
         }
     }
