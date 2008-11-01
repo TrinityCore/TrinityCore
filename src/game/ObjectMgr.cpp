@@ -958,6 +958,20 @@ void ObjectMgr::LoadCreatureModelInfo()
 
     sLog.outString( ">> Loaded %u creature model based info", sCreatureModelStorage.RecordCount );
     sLog.outString();
+
+    // check if combat_reach is valid
+    for(uint32 i = 1; i < sCreatureModelStorage.MaxEntry; ++i)
+    {
+        CreatureModelInfo const* mInfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(i);
+        if(!mInfo)
+            continue;
+
+        if(mInfo->combat_reach < 0.5f)
+        {
+            sLog.outErrorDb("Creature model (Entry: %u) has invalid combat reach (%f), setting it to 0.5", mInfo->modelid, mInfo->combat_reach);
+            const_cast<CreatureModelInfo*>(mInfo)->combat_reach = 0.5f;
+        }
+    }
 }
 
 void ObjectMgr::LoadCreatures()

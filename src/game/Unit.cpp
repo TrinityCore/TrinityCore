@@ -405,10 +405,7 @@ void Unit::resetAttackTimer(WeaponAttackType type)
 bool Unit::canReachWithAttack(Unit *pVictim) const
 {
     assert(pVictim);
-    float reach = GetFloatValue(UNIT_FIELD_COMBATREACH);
-    if( reach <= 0.0f )
-        reach = 1.0f;
-    return IsWithinDistInMap(pVictim, reach);
+    return IsWithinDistInMap(pVictim, GetCombatReach());
 }
 
 bool Unit::IsWithinCombatDist(Unit *obj, float dist2compare) const
@@ -420,7 +417,7 @@ bool Unit::IsWithinCombatDist(Unit *obj, float dist2compare) const
     float dz = GetPositionZ() - obj->GetPositionZ();
     float distsq = dx*dx + dy*dy + dz*dz;
     //not sure here, or combatreach + combatreach?
-    float sizefactor = GetFloatValue(UNIT_FIELD_COMBATREACH) + obj->GetFloatValue(UNIT_FIELD_COMBATREACH);
+    float sizefactor = GetCombatReach() + obj->GetCombatReach();
     float maxdist = dist2compare + sizefactor;
 
     return distsq < maxdist * maxdist;
@@ -430,8 +427,8 @@ void Unit::GetRandomContactPoint( const Unit* obj, float &x, float &y, float &z,
 {
 	uint32 attacker_number = getAttackers().size();
     if(attacker_number > 0) --attacker_number;
-	GetNearPoint(obj,x,y,z,obj->GetFloatValue(UNIT_FIELD_COMBATREACH),distance2dMin+(distance2dMax-distance2dMin)*rand_norm()
-        , GetAngle(obj) + (attacker_number ? (M_PI/2 - M_PI * rand_norm()) * (float)attacker_number / GetFloatValue(UNIT_FIELD_COMBATREACH) / 3 : 0));
+	GetNearPoint(obj,x,y,z,obj->GetCombatReach(), distance2dMin+(distance2dMax-distance2dMin)*rand_norm()
+        , GetAngle(obj) + (attacker_number ? (M_PI/2 - M_PI * rand_norm()) * (float)attacker_number / GetCombatReach() / 3 : 0));
 }
 
 void Unit::RemoveSpellsCausingAura(AuraType auraType)
