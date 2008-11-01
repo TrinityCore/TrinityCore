@@ -71,6 +71,7 @@ enum SpellAuraInterruptFlags
     AURA_INTERRUPT_FLAG_UNK11               = 0x00000800,   // 11
     AURA_INTERRUPT_FLAG_UNK12               = 0x00001000,   // 12   removed by attack?
     AURA_INTERRUPT_FLAG_UNK13               = 0x00002000,   // 13
+    AURA_INTERRUPT_FLAG_STEALTH             = 0x00003C00,
     AURA_INTERRUPT_FLAG_UNK14               = 0x00004000,   // 14
     AURA_INTERRUPT_FLAG_UNK15               = 0x00008000,   // 15   removed by casting a spell?
     AURA_INTERRUPT_FLAG_UNK16               = 0x00010000,   // 16
@@ -1003,6 +1004,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void RemoveNotOwnSingleTargetAuras();
 
         void RemoveSpellsCausingAura(AuraType auraType);
+        void RemoveInterruptableAura(uint32 flag);
         void RemoveRankAurasDueToSpell(uint32 spellId);
         bool RemoveNoStackAurasDueToAura(Aura *Aur);
         void RemoveAurasWithInterruptFlags(uint32 flags);
@@ -1300,6 +1302,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         uint32 m_removedAuras;
 
         AuraList m_modAuras[TOTAL_AURAS];
+        AuraList m_interruptableAuras;
         float m_auraModifiersGroup[UNIT_MOD_END][MODIFIER_TYPE_END];
         float m_weaponDamage[MAX_ATTACK][2];
         bool m_canModifyStats;
