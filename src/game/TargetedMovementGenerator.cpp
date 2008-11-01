@@ -164,7 +164,7 @@ TargetedMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
         if (owner.GetObjectSize())
             i_destinationHolder.ResetUpdate(50);
 
-        float dist = owner.GetFloatValue(UNIT_FIELD_COMBATREACH) + i_target.getTarget()->GetFloatValue(UNIT_FIELD_COMBATREACH) + sWorld.getRate(RATE_TARGET_POS_RECALCULATION_RANGE);
+        float dist = owner.GetCombatReach() + i_target.getTarget()->GetCombatReach() + sWorld.getRate(RATE_TARGET_POS_RECALCULATION_RANGE);
 
         //More distance let have better performance, less distance let have more sensitive reaction at target move.
 
