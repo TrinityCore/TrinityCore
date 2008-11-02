@@ -1366,6 +1366,10 @@ void Pet::_LoadAuras(uint32 timediff)
             else
                 remaincharges = -1;
 
+			/// do not load single target auras (unless they were cast by the player)
+			if (caster_guid != GetGUID() && IsSingleTargetSpell(spellproto))
+				continue;
+
             Aura* aura = CreateAura(spellproto, effindex, NULL, this, NULL);
 
             if(!damage)
@@ -1395,10 +1399,19 @@ void Pet::_SaveAuras()
                 spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AREA_AURA_PET )
                 break;
 
-        if (i == 3 && !itr->second->IsPassive())
-            CharacterDatabase.PExecute("INSERT INTO pet_aura (guid,caster_guid,spell,effect_index,amount,maxduration,remaintime,remaincharges) "
-                "VALUES ('%u', '" I64FMTD "', '%u', '%u', '%d', '%d', '%d', '%d')",
-                m_charmInfo->GetPetNumber(), itr->second->GetCasterGUID(),(uint32)(*itr).second->GetId(), (uint32)(*itr).second->GetEffIndex(),(*itr).second->GetModifier()->m_amount,int((*itr).second->GetAuraMaxDuration()),int((*itr).second->GetAuraDuration()),int((*itr).second->m_procCharges));
+        if (i != 3)
+			continue;
+
+		if(itr->second->IsPassive())
+			continue;
+
+		/// do not save single target auras (unless they were cast by the player)
+		if (itr->second->GetCasterGUID() != GetGUID() && IsSingleTargetSpell(spellInfo))
+			continue;
+
+		CharacterDatabase.PExecute("INSERT INTO pet_aura (guid,caster_guid,spell,effect_index,amount,maxduration,remaintime,remaincharges) "
+			"VALUES ('%u', '" I64FMTD "', '%u', '%u', '%d', '%d', '%d', '%d')",
+			m_charmInfo->GetPetNumber(), itr->second->GetCasterGUID(),(uint32)(*itr).second->GetId(), (uint32)(*itr).second->GetEffIndex(),(*itr).second->GetModifier()->m_amount,int((*itr).second->GetAuraMaxDuration()),int((*itr).second->GetAuraDuration()),int((*itr).second->m_procCharges));
     }
 }
 

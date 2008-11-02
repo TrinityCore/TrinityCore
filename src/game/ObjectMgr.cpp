@@ -6569,6 +6569,10 @@ bool PlayerCondition::Meets(Player const * player) const
                     return true;
             return false;
         }
+		case CONDITION_NO_AURA:
+			return !player->HasAura(value1, value2);
+		case CONDITION_ACTIVE_EVENT:
+			return gameeventmgr.IsActiveEvent(value1);
         default:
             return false;
     }
@@ -6689,6 +6693,30 @@ bool PlayerCondition::IsValid(ConditionType condition, uint32 value1, uint32 val
                 sLog.outErrorDb("Quest condition has useless data in value2 (%u)!", value2);
             break;
         }
+		case CONDITION_NO_AURA:
+		{
+			if(!sSpellStore.LookupEntry(value1))
+			{
+				sLog.outErrorDb("Aura condition requires to have non existing spell (Id: %d), skipped", value1);
+				return false;
+			}
+			if(value2 > 2)
+			{
+				sLog.outErrorDb("Aura condition requires to have non existing effect index (%u) (must be 0..2), skipped", value2);
+				return false;
+			}
+			break;
+		}
+		case CONDITION_ACTIVE_EVENT:
+		{
+			GameEvent::GameEventDataMap const& events = gameeventmgr.GetEventMap();
+			if(value1 >=events.size() || !events[value1].isValid())
+			{
+				sLog.outErrorDb("Active event condition requires existed event id (%u), skipped", value1);
+				return false;
+			}
+			break;
+		}
     }
     return true;
 }

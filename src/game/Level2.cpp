@@ -1954,7 +1954,7 @@ bool ChatHandler::HandleTicketCommand(const char* args)
     int num = atoi(px);
     if(num > 0)
     {
-        QueryResult *result = CharacterDatabase.PQuery("SELECT guid,ticket_text,ticket_lastchange FROM character_ticket ORDER BY ticket_id ASC LIMIT %d,1",num-1);
+        QueryResult *result = CharacterDatabase.PQuery("SELECT guid,ticket_text,ticket_lastchange FROM character_ticket ORDER BY ticket_id ASC "_OFFSET_, num-1);
 
         if(!result)
         {
@@ -2066,18 +2066,15 @@ bool ChatHandler::HandleDelTicketCommand(const char *args)
     // delticket #num
     if(num > 0)
     {
-        QueryResult *result = CharacterDatabase.PQuery("SELECT ticket_id,guid FROM character_ticket LIMIT %i",num);
+        QueryResult *result = CharacterDatabase.PQuery("SELECT ticket_id,guid FROM character_ticket ORDER BY ticket_id ASC "_OFFSET_,num-1);
 
-        if(!result || uint64(num) > result->GetRowCount())
+        if(!result)
         {
             PSendSysMessage(LANG_COMMAND_TICKENOTEXIST, num);
             delete result;
             SetSentErrorMessage(true);
             return false;
         }
-
-        for(int i = 1; i < num; ++i)
-            result->NextRow();
 
         Field* fields = result->Fetch();
 

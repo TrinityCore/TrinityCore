@@ -82,7 +82,9 @@ enum TrinityStrings
     LANG_NEW_PASSWORDS_NOT_MATCH        = 54,
 	LANG_PASSWORD_TOO_LONG              = 55,
 	LANG_MOTD_CURRENT                   = 56,
-	// Room for more level 0              57-99 not used
+	LANG_USING_WORLD_DB                 = 57,
+	LANG_USING_SCRIPT_LIB               = 58,
+	// Room for more level 0              59-99 not used
 
     // level 1 chat
     LANG_GLOBAL_NOTIFY                  = 100,

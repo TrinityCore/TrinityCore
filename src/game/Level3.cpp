@@ -5542,7 +5542,7 @@ bool ChatHandler::HandleLoadPDumpCommand(const char *args)
 			SetSentErrorMessage(true);
 			return false;
 		case DUMP_TOO_MANY_CHARS:
-			PSendSysMessage(LANG_ACCOUNT_CHARACTER_LIST_FULL,account_name,account_id);
+			PSendSysMessage(LANG_ACCOUNT_CHARACTER_LIST_FULL,account_name.c_str(),account_id);
 			SetSentErrorMessage(true);
 			return false;
 		default:

@@ -646,9 +646,9 @@ struct CharmInfo
         void SetCommandState(CommandStates st) { m_CommandState = st; }
         CommandStates GetCommandState() { return m_CommandState; }
         bool HasCommandState(CommandStates state) { return (m_CommandState == state); }
-        void SetReactState(ReactStates st) { m_ReactSate = st; }
-        ReactStates GetReactState() { return m_ReactSate; }
-        bool HasReactState(ReactStates state) { return (m_ReactSate == state); }
+        void SetReactState(ReactStates st) { m_reactState = st; }
+		ReactStates GetReactState() { return m_reactState; }
+		bool HasReactState(ReactStates state) { return (m_reactState == state); }
 
         void InitPossessCreateSpells();
         void InitCharmCreateSpells();
@@ -665,7 +665,7 @@ struct CharmInfo
         UnitActionBarEntry PetActionBar[10];
         CharmSpellEntry m_charmspells[4];
         CommandStates   m_CommandState;
-        ReactStates     m_ReactSate;
+        ReactStates     m_reactState;
         uint32          m_petnumber;
 };
 

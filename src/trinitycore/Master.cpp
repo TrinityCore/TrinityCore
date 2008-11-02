@@ -457,17 +457,9 @@ bool Master::_StartDB()
     ///- Clean the database before starting
     clearOnlineAccounts();
 
-    QueryResult* result = WorldDatabase.Query("SELECT version FROM db_version LIMIT 1");
-    if(result)
-    {
-        Field* fields = result->Fetch();
+    sWorld.LoadDBVersion();
 
-        sLog.outString("Using %s", fields[0].GetString());
-        delete result;
-    }
-    else
-        sLog.outString("Using unknown world database.");
-
+	sLog.outString("Using %s", sWorld.GetDBVersion());
     return true;
 }
 
