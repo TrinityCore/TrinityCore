@@ -3562,30 +3562,6 @@ uint8 Spell::CanCast(bool strict)
                 }
                 break;
             }
-            case SPELL_EFFECT_TAMECREATURE:
-            {
-                if (!m_targets.getUnitTarget() || m_targets.getUnitTarget()->GetTypeId() == TYPEID_PLAYER)
-                    return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
-
-                if (m_targets.getUnitTarget()->getLevel() > m_caster->getLevel())
-                    return SPELL_FAILED_HIGHLEVEL;
-
-                CreatureInfo const *cinfo = ((Creature*)m_targets.getUnitTarget())->GetCreatureInfo();
-                if( cinfo->type != CREATURE_TYPE_BEAST )
-                    return SPELL_FAILED_BAD_TARGETS;
-
-                // use SMSG_PET_TAME_FAILURE?
-                if( !(cinfo->flag1 & 1) || !(cinfo->family) )
-                    return SPELL_FAILED_BAD_TARGETS;
-
-                if(m_caster->GetPetGUID())
-                    return SPELL_FAILED_ALREADY_HAVE_SUMMON;
-
-                if(m_caster->GetCharmGUID())
-                    return SPELL_FAILED_ALREADY_HAVE_CHARM;
-
-                break;
-            }
             case SPELL_EFFECT_LEARN_SPELL:
             {
                 if(m_spellInfo->EffectImplicitTargetA[i] != TARGET_PET)
@@ -3975,6 +3951,31 @@ uint8 Spell::CanCast(bool strict)
     {
         switch(m_spellInfo->EffectApplyAuraName[i])
         {
+            case SPELL_AURA_DUMMY:
+            {
+                if(m_spellInfo->Id == 1515)
+                {
+                    if (!m_targets.getUnitTarget() || m_targets.getUnitTarget()->GetTypeId() == TYPEID_PLAYER)
+                        return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
+
+                    if (m_targets.getUnitTarget()->getLevel() > m_caster->getLevel())
+                        return SPELL_FAILED_HIGHLEVEL;
+
+                    CreatureInfo const *cinfo = ((Creature*)m_targets.getUnitTarget())->GetCreatureInfo();
+                    if( cinfo->type != CREATURE_TYPE_BEAST )
+                        return SPELL_FAILED_BAD_TARGETS;
+
+                    // use SMSG_PET_TAME_FAILURE?
+                    if( !(cinfo->flag1 & 1) || !(cinfo->family) )
+                        return SPELL_FAILED_BAD_TARGETS;
+
+                    if(m_caster->GetPetGUID())
+                        return SPELL_FAILED_ALREADY_HAVE_SUMMON;
+
+                    if(m_caster->GetCharmGUID())
+                        return SPELL_FAILED_ALREADY_HAVE_CHARM;
+                }
+            }break;
             case SPELL_AURA_MOD_POSSESS:
             case SPELL_AURA_MOD_CHARM:
             {
