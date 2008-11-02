@@ -111,7 +111,7 @@ class SpellCastTargets
             //m_srcY = target.m_srcY;
             //m_srcZ = target.m_srcZ;
 
-            m_mapId = 0;
+            m_mapId = -1;
             m_destX = target.m_destX;
             m_destY = target.m_destY;
             m_destZ = target.m_destZ;
@@ -127,7 +127,7 @@ class SpellCastTargets
         uint64 getUnitTargetGUID() const { return m_unitTargetGUID; }
         Unit *getUnitTarget() const { return m_unitTarget; }
         void setUnitTarget(Unit *target);
-        void setDestination(float x, float y, float z, bool send = true, uint32 mapId = 0);
+        void setDestination(float x, float y, float z, bool send = true, int32 mapId = -1);
         void setDestination(Unit *target, bool send = true);
 
         uint64 getGOTargetGUID() const { return m_GOTargetGUID; }
@@ -155,7 +155,7 @@ class SpellCastTargets
         void Update(Unit* caster);
 
         float m_srcX, m_srcY, m_srcZ;
-        uint32 m_mapId;
+        int32 m_mapId;
         float m_destX, m_destY, m_destZ;
         bool m_hasDest;
         std::string m_strTarget;

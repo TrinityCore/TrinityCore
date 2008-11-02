@@ -94,7 +94,7 @@ void SpellCastTargets::setUnitTarget(Unit *target)
     m_targetMask |= TARGET_FLAG_UNIT;
 }
 
-void SpellCastTargets::setDestination(float x, float y, float z, bool send, uint32 mapId)
+void SpellCastTargets::setDestination(float x, float y, float z, bool send, int32 mapId)
 {
     m_destX = x;
     m_destY = y;
@@ -102,7 +102,7 @@ void SpellCastTargets::setDestination(float x, float y, float z, bool send, uint
     m_hasDest = true;
     if(send)
         m_targetMask |= TARGET_FLAG_DEST_LOCATION;
-    if(mapId)
+    if(mapId >= 0)
         m_mapId = mapId;
 }
 
@@ -415,20 +415,8 @@ void Spell::FillTargetMap()
 
         std::list<Unit*> tmpUnitMap;
 
-        // Note: this hack with search required until GO casting not implemented
-        // environment damage spells already have around enemies targeting but this not help in case not existed GO casting support
-        // currently each enemy selected explicitly and self cast damage
-        if(m_spellInfo->EffectImplicitTargetA[i] == TARGET_ALL_AROUND_CASTER
-            && m_spellInfo->EffectImplicitTargetB[i]==TARGET_ALL_ENEMY_IN_AREA 
-            && m_spellInfo->Effect[i]==SPELL_EFFECT_ENVIRONMENTAL_DAMAGE)
-        {
-            tmpUnitMap.push_back(m_targets.getUnitTarget());
-        }
-        else
-        {
-            SetTargetMap(i,m_spellInfo->EffectImplicitTargetA[i],tmpUnitMap);
-            SetTargetMap(i,m_spellInfo->EffectImplicitTargetB[i],tmpUnitMap);
-        }
+        SetTargetMap(i,m_spellInfo->EffectImplicitTargetA[i],tmpUnitMap);
+        SetTargetMap(i,m_spellInfo->EffectImplicitTargetB[i],tmpUnitMap);
 
         if(m_targets.HasDest())
         {
@@ -716,7 +704,10 @@ void Spell::AddUnitTarget(Unit* pVictim, uint32 effIndex)
     target.processed  = false;                              // Effects not apply on target
 
     // Calculate hit result
-    target.missCondition = m_caster->SpellHitResult(pVictim, m_spellInfo, m_canReflect);
+    if(m_originalCaster)
+        target.missCondition = m_originalCaster->SpellHitResult(pVictim, m_spellInfo, m_canReflect);
+    else
+        target.missCondition = SPELL_MISS_NONE;
     if (target.missCondition == SPELL_MISS_NONE)
         ++m_countOfHit;
     else
@@ -1454,7 +1445,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 if(m_spellInfo->Effect[0] == SPELL_EFFECT_TELEPORT_UNITS
                     || m_spellInfo->Effect[1] == SPELL_EFFECT_TELEPORT_UNITS
                     || m_spellInfo->Effect[2] == SPELL_EFFECT_TELEPORT_UNITS)
-                    m_targets.setDestination(st->target_X, st->target_Y, st->target_Z, true, st->target_mapId);
+                    m_targets.setDestination(st->target_X, st->target_Y, st->target_Z, true, (int32)st->target_mapId);
                 else if(st->target_mapId == m_caster->GetMapId())
                     m_targets.setDestination(st->target_X, st->target_Y, st->target_Z);
             }
