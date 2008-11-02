@@ -1271,9 +1271,15 @@ void GameObject::CastSpell(Unit* target, uint32 spell)
     Creature *trigger = SummonCreature(12999, GetPositionX(), GetPositionY(), GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 1);
     if(!trigger) return;
 
-    Unit *owner = GetOwner();
-    if(owner) trigger->setFaction(owner->getFaction());
-    else trigger->setFaction(14);
     trigger->SetVisibility(VISIBILITY_OFF); //should this be true?
-    trigger->CastSpell(target, spell, true, 0, 0, owner->GetGUID());
+    if(Unit *owner = GetOwner())
+    {
+        trigger->setFaction(owner->getFaction());
+        trigger->CastSpell(target, spell, true, 0, 0, owner->GetGUID());
+    }
+    else
+    {
+        trigger->setFaction(14);
+        trigger->CastSpell(target, spell, true);
+    }
 }
