@@ -341,9 +341,10 @@ void GameObject::Update(uint32 /*p_time*/)
 
                 if (ok)
                 {
-                    Unit *caster =  owner ? owner : ok;
+                    //Unit *caster =  owner ? owner : ok;
 
-                    caster->CastSpell(ok, goInfo->trap.spellId, true);
+                    //caster->CastSpell(ok, goInfo->trap.spellId, true);
+                    CastSpell(ok, goInfo->trap.spellId);
                     m_cooldownTime = time(NULL) + 4;        // 4 seconds
 
                     if(NeedDespawn)
@@ -1262,4 +1263,17 @@ void GameObject::Use(Unit* user)
     targets.setUnitTarget( user );
 
     spell->prepare(&targets);
+}
+
+void GameObject::CastSpell(Unit* target, uint32 spell)
+{
+    //summon world trigger
+    Creature *trigger = SummonCreature(12999, GetPositionX(), GetPositionY(), GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 1);
+    if(!trigger) return;
+
+    Unit *owner = GetOwner();
+    if(owner) trigger->setFaction(owner->getFaction());
+    else trigger->setFaction(14);
+    trigger->SetVisibility(VISIBILITY_OFF); //should this be true?
+    trigger->CastSpell(target, spell, true, 0, 0, owner->GetGUID());
 }
