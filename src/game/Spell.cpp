@@ -440,6 +440,7 @@ void Spell::FillTargetMap()
                 case SPELL_EFFECT_SUMMON_OBJECT_SLOT4:
                 case SPELL_EFFECT_SUMMON_DEAD_PET:
                 case SPELL_EFFECT_SUMMON_DEMON:
+                case SPELL_EFFECT_ADD_FARSIGHT:
                 {
                     tmpUnitMap.push_back(m_caster);
                     break;
