@@ -1838,6 +1838,12 @@ void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target)
 //*********************************
 //*** Functions used internally ***
 
+//Trinity_DLL_EXPORT
+//char const* ScriptsVersion()
+//{
+//	return "Default Trinity scripting library";
+//}
+
 Script* GetScriptByName(std::string Name)
 {
     if (Name.empty())

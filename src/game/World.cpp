@@ -2612,3 +2612,17 @@ void World::UpdateMaxSessionCounters()
     m_maxActiveSessionCount = std::max(m_maxActiveSessionCount,uint32(m_sessions.size()-m_QueuedPlayer.size()));
     m_maxQueuedSessionCount = std::max(m_maxQueuedSessionCount,uint32(m_QueuedPlayer.size()));
 }
+
+void World::LoadDBVersion()
+{
+	QueryResult* result = WorldDatabase.Query("SELECT version FROM db_version LIMIT 1");
+	if(result)
+	{
+		Field* fields = result->Fetch();
+
+		m_DBVersion = fields[0].GetString();
+		delete result;
+	}
+	else
+		m_DBVersion = "unknown world database";
+}

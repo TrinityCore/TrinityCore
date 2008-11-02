@@ -4073,12 +4073,12 @@ void Spell::EffectSummonPet(uint32 i)
     NewSummon->setPetType(SUMMON_PET);
 
     uint32 faction = m_caster->getFaction();
-    if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->isTotem())
+    if(m_caster->GetTypeId() == TYPEID_UNIT)
     {
-        Unit* owner = ((Totem*)m_caster)->GetOwner();
-        if(owner)
-            faction = owner->getFaction();
-        NewSummon->GetCharmInfo()->SetReactState(REACT_AGGRESSIVE);
+		if ( ((Creature*)m_caster)->isTotem() )
+			NewSummon->GetCharmInfo()->SetReactState(REACT_AGGRESSIVE);
+		else
+			NewSummon->GetCharmInfo()->SetReactState(REACT_DEFENSIVE);
     }
 
     NewSummon->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, m_caster->GetGUID());

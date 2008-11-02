@@ -77,9 +77,9 @@ void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target = NULL);
 #ifdef WIN32
   #define TRINITY_DLL_EXPORT extern "C" __declspec(dllexport)
 #elif defined( __GNUC__ )
-  #define TRINITY_DLL_EXPORT extern "C"
+#define TRINITY_DLL_EXPORT extern "C"
 #else
-  #define TRINITY_DLL_EXPORT extern "C" export
+#define TRINITY_DLL_EXPORT extern "C" export
 #endif
 
 #endif

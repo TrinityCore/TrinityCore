@@ -480,6 +480,15 @@ class World
         void UpdateRealmCharCount(uint32 accid);
 
         LocaleConstant GetAvailableDbcLocale(LocaleConstant locale) const { if(m_availableDbcLocaleMask & (1 << locale)) return locale; else return m_defaultDbcLocale; }
+
+		//used World DB version
+		void LoadDBVersion();
+		char const* GetDBVersion() { return m_DBVersion.c_str(); }
+
+		//used Script version
+		void SetScriptsVersion(char const* version) { m_ScriptsVersion = version ? version : "unknown scripting library"; }
+		char const* GetScriptsVersion() { return m_ScriptsVersion.c_str(); }
+
     protected:
         void _UpdateGameTime();
         void ScriptsProcess();
@@ -540,6 +549,10 @@ class World
         //sessions that are added async
         void AddSession_(WorldSession* s);
         ZThread::LockedQueue<WorldSession*, ZThread::FastMutex> addSessQueue;
+
+		//used versions
+		std::string m_DBVersion;
+		std::string m_ScriptsVersion;
 };
 
 extern uint32 realmID;

@@ -59,7 +59,7 @@ int libmpq_archive_open(mpq_archive *mpq_a, unsigned char *mpq_filename) {
 	memset(mpq_a->header, 0, sizeof(mpq_header));
 
 	/* Check if file exists and is readable */
-	fd = _open((char *)mpq_filename, O_RDONLY | O_BINARY);
+	fd = _open((char *)mpq_filename, O_RDONLY | O_BINARY | O_LARGEFILE);
 	if (fd == LIBMPQ_EFILE) {
 		return LIBMPQ_EFILE;
 	}

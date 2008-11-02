@@ -2192,7 +2192,7 @@ bool IsSpellAllowedInLocation(SpellEntry const *spellInfo,uint32 map_id,uint32 z
                 // in the Blade's Edge Mountains Plateaus and Gruul's Lair.
                 return zone_id ==3522 || map_id==565;
             }
-            if(mask & ELIXIR_UNSTABLE_MASK)
+            if(mask & ELIXIR_SHATTRATH_MASK)
             {
                 // in Tempest Keep, Serpentshrine Cavern, Caverns of Time: Mount Hyjal, Black Temple
                 // TODO: and the Sunwell Plateau

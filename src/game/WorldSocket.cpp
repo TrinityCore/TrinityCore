@@ -18,9 +18,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "Common.h"
-#include "WorldSocket.h" 
-
 #include <ace/Message_Block.h>
 #include <ace/OS_NS_string.h>
 #include <ace/OS_NS_unistd.h>
@@ -31,6 +28,9 @@
 #include <ace/OS_NS_string.h>
 #include <ace/Reactor.h>
 #include <ace/Auto_Ptr.h>
+
+#include "WorldSocket.h"
+#include "Common.h"
 
 #include "Util.h"
 #include "World.h"

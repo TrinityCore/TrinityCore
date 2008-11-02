@@ -205,9 +205,11 @@ enum ConditionType
     CONDITION_QUESTREWARDED         = 8,                    // quest_id     0
     CONDITION_QUESTTAKEN            = 9,                    // quest_id     0,      for condition true while quest active.
     CONDITION_AD_COMMISSION_AURA    = 10,                   // 0            0,      for condition true while one from AD ñommission aura active
+	CONDITION_NO_AURA               = 11,                   // spell_id     effindex
+	CONDITION_ACTIVE_EVENT          = 12,                   // event_id
 };
 
-#define MAX_CONDITION                 11                    // maximum value in ConditionType enum
+#define MAX_CONDITION                 13                    // maximum value in ConditionType enum
 
 //Player's info
 typedef struct _tagCachePlayerInfo
@@ -770,6 +772,7 @@ class ObjectMgr
         void AddVendorItem(uint32 entry,uint32 item, uint32 maxcount, uint32 incrtime, uint32 ExtendedCost, bool savetodb = true);
         bool RemoveVendorItem(uint32 entry,uint32 item, bool savetodb = true);
         bool IsVendorItemValid( uint32 vendor_entry, uint32 item, uint32 maxcount, uint32 ptime, uint32 ExtendedCost, Player* pl = NULL, std::set<uint32>* skip_vendors = NULL, uint32 ORnpcflag = 0) const;
+
     protected:
         uint32 m_auctionid;
         uint32 m_mailid;

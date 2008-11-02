@@ -69,7 +69,7 @@ ChatCommand * ChatHandler::getCommandTable()
 		{ "exit",           SEC_CONSOLE,        true,  &ChatHandler::HandleServerExitCommand,          "", NULL },
 		{ "idlerestart",    SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleIdleRestartCommand,         "", NULL },
 		{ "idleshutdown",   SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleIdleShutDownCommand,        "", NULL },
-		{ "info",           SEC_PLAYER,         true,  &ChatHandler::HandleInfoCommand,                "", NULL },
+		{ "info",           SEC_PLAYER,         true,  &ChatHandler::HandleServerInfoCommand,          "", NULL },
 		{ "motd",           SEC_PLAYER,         true,  &ChatHandler::HandleServerMotdCommand,          "", NULL },
 		{ "restart",        SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleRestartCommand,             "", NULL },
 		{ "shutdown",       SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleShutDownCommand,            "", NULL },
