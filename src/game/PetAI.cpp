@@ -164,7 +164,7 @@ void PetAI::UpdateAI(const uint32 diff)
                     return;
             }
             // not required to be stopped case
-            else if( i_pet.isAttackReady() && i_pet.canReachWithAttack(i_pet.getVictim()) )
+            else if( i_pet.isAttackReady() && i_pet.IsWithinCombatDist(i_pet.getVictim(), ATTACK_DISTANCE) )
             {
                 i_pet.AttackerStateUpdate(i_pet.getVictim());
 
