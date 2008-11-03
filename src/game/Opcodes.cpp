@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 /** \file
@@ -313,7 +313,6 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x11A*/ { "CMSG_ACCEPT_TRADE",                STATUS_LOGGEDIN, &WorldSession::HandleAcceptTradeOpcode         },
     /*0x11B*/ { "CMSG_UNACCEPT_TRADE",              STATUS_LOGGEDIN, &WorldSession::HandleUnacceptTradeOpcode       },
     /*0x11C*/ { "CMSG_CANCEL_TRADE",                STATUS_AUTHED,   &WorldSession::HandleCancelTradeOpcode         },
-                                                            // also send after logout complete
     /*0x11D*/ { "CMSG_SET_TRADE_ITEM",              STATUS_LOGGEDIN, &WorldSession::HandleSetTradeItemOpcode        },
     /*0x11E*/ { "CMSG_CLEAR_TRADE_ITEM",            STATUS_LOGGEDIN, &WorldSession::HandleClearTradeItemOpcode      },
     /*0x11F*/ { "CMSG_SET_TRADE_GOLD",              STATUS_LOGGEDIN, &WorldSession::HandleSetTradeGoldOpcode        },
@@ -525,7 +524,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x1ED*/ { "CMSG_AUTH_SESSION",                STATUS_NEVER,    &WorldSession::Handle_EarlyProccess            },
     /*0x1EE*/ { "SMSG_AUTH_RESPONSE",               STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x1EF*/ { "MSG_GM_SHOWLABEL",                 STATUS_NEVER,    &WorldSession::Handle_NULL                     },
-    /*0x1F0*/ { "CMSG_PET_CAST_SPELL",              STATUS_LOGGEDIN, &WorldSession::HandleAddDynamicTargetObsoleteOpcode},
+    /*0x1F0*/ { "CMSG_PET_CAST_SPELL",              STATUS_LOGGEDIN, &WorldSession::HandlePetCastSpellOpcode        },
     /*0x1F1*/ { "MSG_SAVE_GUILD_EMBLEM",            STATUS_LOGGEDIN, &WorldSession::HandleGuildSaveEmblemOpcode     },
     /*0x1F2*/ { "MSG_TABARDVENDOR_ACTIVATE",        STATUS_LOGGEDIN, &WorldSession::HandleTabardVendorActivateOpcode},
     /*0x1F3*/ { "SMSG_PLAY_SPELL_VISUAL",           STATUS_NEVER,    &WorldSession::Handle_ServerSide               },

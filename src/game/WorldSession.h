@@ -30,6 +30,7 @@
 class MailItemsInfo;
 struct ItemPrototype;
 struct AuctionEntry;
+struct DeclinedName;
 
 class Creature;
 class Item;
@@ -82,13 +83,13 @@ class TRINITY_DLL_SPEC WorldSession
         void SendPacket(WorldPacket const* packet);
         void SendNotification(const char *format,...) ATTR_PRINTF(2,3);
         void SendNotification(int32 string_id,...);
+        void SendPetNameInvalid(uint32 error, std::string name, DeclinedName *declinedName);
         void SendLfgResult(uint32 type, uint32 entry, uint8 lfg_type);
         void SendPartyResult(PartyOperation operation, std::string member, PartyResult res);
         void SendAreaTriggerMessage(const char* Text, ...) ATTR_PRINTF(2,3);
 
         uint32 GetSecurity() const { return _security; }
         uint32 GetAccountId() const { return _accountId; }
-        //std::string const& GetRemoteAddress() const { return m_remoteaddress; }
         Player* GetPlayer() const { return _player; }
         char const* GetPlayerName() const;
         void SetSecurity(uint32 security) { _security = security; }
@@ -116,7 +117,7 @@ class TRINITY_DLL_SPEC WorldSession
 
         void QueuePacket(WorldPacket* new_packet);
         bool Update(uint32 diff);
-        
+
         /// Handle the authentication waiting queue (to be completed)
         void SendAuthWaitQue(uint32 position);
 
@@ -533,7 +534,7 @@ class TRINITY_DLL_SPEC WorldSession
         void HandlePetCancelAuraOpcode( WorldPacket& recvPacket );
         void HandlePetUnlearnOpcode( WorldPacket& recvPacket );
         void HandlePetSpellAutocastOpcode( WorldPacket& recvPacket );
-        void HandleAddDynamicTargetObsoleteOpcode( WorldPacket& recvPacket );
+        void HandlePetCastSpellOpcode( WorldPacket& recvPacket );
 
         void HandleSetActionBar(WorldPacket& recv_data);
 
