@@ -120,7 +120,7 @@ struct TRINITY_DLL_DECL boss_doomwalkerAI : public ScriptedAI
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
-        if (m_creature->IsWithinDistInMap(m_creature->getVictim(), ATTACK_DISTANCE))
+        if (m_creature->IsWithinCombatDist(m_creature->getVictim(), ATTACK_DISTANCE))
         {
             //when hp <= 20% gain enrage
             if (((m_creature->GetHealth()*100)/ m_creature->GetMaxHealth()) <= 20)

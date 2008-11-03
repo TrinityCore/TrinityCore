@@ -274,7 +274,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
         }else Submerge_Timer -= diff;
 
         //If we are within range melee the target
-        if( m_creature->IsWithinDistInMap(m_creature->getVictim(), ATTACK_DISTANCE))
+        if( m_creature->IsWithinCombatDist(m_creature->getVictim(), ATTACK_DISTANCE))
         {
             //Make sure our attack is ready and we arn't currently casting
             if( m_creature->isAttackReady() && !m_creature->IsNonMeleeSpellCasted(false))

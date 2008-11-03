@@ -612,7 +612,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
     void DoMeleeAttacksIfReady()
     {
-        if( m_creature->IsWithinDistInMap(m_creature->getVictim(), ATTACK_DISTANCE) && !m_creature->IsNonMeleeSpellCasted(false))
+        if( m_creature->IsWithinCombatDist(m_creature->getVictim(), ATTACK_DISTANCE) && !m_creature->IsNonMeleeSpellCasted(false))
         {
             //Check for base attack
             if( m_creature->isAttackReady() && m_creature->getVictim() )
