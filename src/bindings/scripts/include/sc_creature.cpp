@@ -15,6 +15,54 @@ struct TSpellSummary {
     uint8 Effects;                                          // set of enum SelectEffect
 } *SpellSummary;
 
+void SummonList::Despawn(Creature *summon)
+{
+    uint64 guid = summon->GetGUID();
+    for(iterator i = begin(); i != end(); ++i)
+    {
+        if(*i == guid)
+        {
+            erase(i);
+            return;
+        }
+    }
+}
+
+void SummonList::DespawnEntry(uint32 entry)
+{
+    for(iterator i = begin(); i != end(); ++i)
+    {
+        if(Creature *summon = (Creature*)Unit::GetUnit(*m_creature, *i))
+        {
+            if(summon->GetEntry() == entry)
+            {
+                summon->setDeathState(JUST_DIED);
+                summon->RemoveCorpse();
+                i = erase(i);
+                --i;
+            }
+        }
+        else
+        {
+            i = erase(i);
+            --i;
+        }
+    }
+}
+
+void SummonList::DespawnAll()
+{
+    for(iterator i = begin(); i != end(); ++i)
+    {
+        if(Creature *summon = (Creature*)Unit::GetUnit(*m_creature, *i))
+        {
+            summon->setDeathState(JUST_DIED);
+            summon->RemoveCorpse();
+        }
+    }
+    clear();
+}
+
 bool ScriptedAI::IsVisible(Unit* who) const
 {
     if (!who)
