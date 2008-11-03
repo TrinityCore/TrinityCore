@@ -999,6 +999,7 @@ void Unit::CastSpell(Unit* Victim,SpellEntry const *spellInfo, bool triggered, I
 
     SpellCastTargets targets;
     targets.setUnitTarget( Victim );
+    targets.setDestination( Victim->GetPositionX(), Victim->GetPositionY(), Victim->GetPositionZ(), false);
     spell->m_CastItem = castItem;
     spell->prepare(&targets, triggredByAura);
 }
