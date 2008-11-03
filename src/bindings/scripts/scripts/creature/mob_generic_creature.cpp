@@ -42,7 +42,7 @@ struct TRINITY_DLL_DECL generic_creatureAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-            if (!m_creature->IsWithinDistInMap(who, ATTACK_DISTANCE))
+            if (!m_creature->IsWithinCombatDist(who, ATTACK_DISTANCE))
             {
                 IsSelfRooted = true;
             }
@@ -81,7 +81,7 @@ struct TRINITY_DLL_DECL generic_creatureAI : public ScriptedAI
             return;
 
         //If we are within range melee the target
-        if( m_creature->IsWithinDistInMap(m_creature->getVictim(), ATTACK_DISTANCE))
+        if( m_creature->IsWithinCombatDist(m_creature->getVictim(), ATTACK_DISTANCE))
         {
             //Make sure our attack is ready and we arn't currently casting
             if( m_creature->isAttackReady() && !m_creature->IsNonMeleeSpellCasted(false))

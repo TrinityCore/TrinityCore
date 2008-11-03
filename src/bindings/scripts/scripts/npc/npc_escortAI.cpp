@@ -212,7 +212,7 @@ void npc_escortAI::UpdateAI(const uint32 diff)
     if( m_creature->isAlive() && m_creature->SelectHostilTarget() && m_creature->getVictim())
     {
         //If we are within range melee the target
-        if( m_creature->IsWithinDistInMap(m_creature->getVictim(), ATTACK_DISTANCE))
+        if( m_creature->IsWithinCombatDist(m_creature->getVictim(), ATTACK_DISTANCE))
         {
             if( m_creature->isAttackReady() )
             {

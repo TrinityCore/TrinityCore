@@ -169,7 +169,7 @@ struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public Scripted_NoMovementAI
         else if( OrbitalStrike_Timer < diff )
         {
             Unit* temp = NULL;
-            if( m_creature->IsWithinDistInMap(m_creature->getVictim(), ATTACK_DISTANCE) )
+            if( m_creature->IsWithinCombatDist(m_creature->getVictim(), ATTACK_DISTANCE) )
                 temp = m_creature->getVictim();
             else temp = SelectUnit(SELECT_TARGET_RANDOM,0);
 

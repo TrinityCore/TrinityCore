@@ -171,7 +171,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
                     }else Beserk_Timer -= diff;
                 }
 
-                if( phase!=2 && m_creature->getVictim() && m_creature->IsWithinDistInMap(m_creature->getVictim(), ATTACK_DISTANCE))
+                if( phase!=2 && m_creature->getVictim() && m_creature->IsWithinCombatDist(m_creature->getVictim(), ATTACK_DISTANCE))
                 {
                     if( m_creature->isAttackReady() )
                     {

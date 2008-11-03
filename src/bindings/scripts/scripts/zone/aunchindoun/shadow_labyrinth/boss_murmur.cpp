@@ -100,7 +100,7 @@ struct TRINITY_DLL_DECL boss_murmurAI : public Scripted_NoMovementAI
         //Resonance_Timer
         if (Resonance_Timer < diff)
         {
-            if (!m_creature->IsWithinDistInMap(m_creature->getVictim(), ATTACK_DISTANCE))
+            if (!m_creature->IsWithinCombatDist(m_creature->getVictim(), ATTACK_DISTANCE))
                 DoCast(m_creature->getVictim(), SPELL_RESONANCE);
             Resonance_Timer = 5000;
         }else Resonance_Timer -= diff;

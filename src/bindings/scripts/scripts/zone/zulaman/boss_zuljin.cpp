@@ -268,7 +268,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
     {
         if( !m_creature->IsNonMeleeSpellCasted(false))
         {
-            if(m_creature->isAttackReady() && m_creature->IsWithinDistInMap(m_creature->getVictim(), ATTACK_DISTANCE))
+            if(m_creature->isAttackReady() && m_creature->IsWithinCombatDist(m_creature->getVictim(), ATTACK_DISTANCE))
             {
                 if(Phase == 1 && !Overpower_Timer)
                 {
@@ -613,7 +613,7 @@ struct TRINITY_DLL_DECL feather_vortexAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //if the vortex reach the target, it change his target to another player
-        if( m_creature->IsWithinDistInMap(m_creature->getVictim(), ATTACK_DISTANCE))
+        if( m_creature->IsWithinCombatDist(m_creature->getVictim(), ATTACK_DISTANCE))
             AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
     }
 };
