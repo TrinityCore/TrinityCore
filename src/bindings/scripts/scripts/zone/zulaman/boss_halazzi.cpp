@@ -18,7 +18,7 @@
 SDName: boss_Halazzi
 SD%Complete: 80
 SDComment: 
-SDCategory: Zul¡äAman
+SDCategory: Zul'Aman
 EndScriptData */
 
 #include "precompiled.h"
@@ -179,7 +179,7 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
             break;
         case PHASE_HUMAN:
             //DoCast(m_creature, SPELL_SUMMON_LYNX, true);
-            DoSpawnCreature(MOB_SPIRIT_LYNX, 0,0,0,0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+            DoSpawnCreature(MOB_SPIRIT_LYNX, 5,5,0,0, TEMPSUMMON_CORPSE_DESPAWN, 0);
             m_creature->SetMaxHealth(400000);
             m_creature->SetHealth(400000);
             ShockTimer = 10000;
@@ -265,12 +265,12 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
             if(Phase == PHASE_HUMAN)
                 if(CheckTimer < diff)
                 {
-                    if(m_creature->GetHealth() * 10 < m_creature->GetMaxHealth())
+                    if( ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() <= 20)/*m_creature->GetHealth() * 10 < m_creature->GetMaxHealth()*/)
                         EnterPhase(PHASE_MERGE);
                     else
                     {
                         Unit *Lynx = Unit::GetUnit(*m_creature, LynxGUID);
-                        if(Lynx && Lynx->GetHealth() * 10 < Lynx->GetMaxHealth())
+                        if(Lynx && ((Lynx->GetHealth()*100) / Lynx->GetMaxHealth() <= 20)/*Lynx->GetHealth() * 10 < Lynx->GetMaxHealth()*/)
                             EnterPhase(PHASE_MERGE);
                     }
                     CheckTimer = 1000;
@@ -282,13 +282,18 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
             if(CheckTimer < diff)
             {
                 Unit *Lynx = Unit::GetUnit(*m_creature, LynxGUID);
-                if(Lynx && m_creature->IsWithinDistInMap(Lynx, 6.0f))
-                {
-                    if(TransformCount < 3)
-                        EnterPhase(PHASE_LYNX);
-                    else
-                        EnterPhase(PHASE_ENRAGE);
-                }
+				if(Lynx)
+				{
+					Lynx->GetMotionMaster()->MoveFollow(m_creature, 0, 0);
+					m_creature->GetMotionMaster()->MoveFollow(Lynx, 0, 0);
+					if(m_creature->IsWithinDistInMap(Lynx, 6.0f))
+					{
+						if(TransformCount < 3)
+							EnterPhase(PHASE_LYNX);
+						else
+							EnterPhase(PHASE_ENRAGE);
+					}
+				}                
                 CheckTimer = 1000;
             }else CheckTimer -= diff;
         }
@@ -349,7 +354,7 @@ struct TRINITY_DLL_DECL boss_spiritlynxAI : public ScriptedAI
             ScriptedAI::AttackStart(who);
     }
 
-    void Aggro(Unit *who) {DoZoneInCombat();}
+    void Aggro(Unit *who) {/*DoZoneInCombat();*/}
 
     void UpdateAI(const uint32 diff)
     {
