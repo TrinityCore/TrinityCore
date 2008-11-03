@@ -2037,13 +2037,13 @@ void SpellMgr::LoadSpellExtraAttr()
     // Psychic Scream
     SpellEntry *tempSpell;
     if(tempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(8122))
-        tempSpell->AttributesEx |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
+        tempSpell->Attributes |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
     if(tempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(8124))
-        tempSpell->AttributesEx |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
+        tempSpell->Attributes |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
     if(tempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(10888))
-        tempSpell->AttributesEx |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
+        tempSpell->Attributes |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
     if(tempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(10890))
-        tempSpell->AttributesEx |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
+        tempSpell->Attributes |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
 }
 
 void SpellMgr::LoadSpellLinked()
