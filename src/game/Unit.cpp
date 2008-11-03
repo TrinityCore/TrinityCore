@@ -4154,15 +4154,15 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
                 statue = ((Totem*)caster);
 
 
-    if(int32 spell_triggered = spellmgr.GetSpellLinked(-(int32)Aur->GetSpellProto()->Id, 0))
+    if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(-(int32)Aur->GetSpellProto()->Id))
     {
-        if(spell_triggered > 0)
+        for(std::vector<int32>::const_iterator i = spell_triggered->begin(); i != spell_triggered->end(); ++i)
         {
-            if(Unit* caster = Aur->GetCaster())
-                CastSpell(this, spell_triggered, true, 0, 0, caster->GetGUID());
+            if(spell_triggered < 0)
+                RemoveAurasDueToSpell(-(*i));
+            else if(Unit* caster = Aur->GetCaster())
+                CastSpell(this, *i, true, 0, 0, caster->GetGUID());
         }
-        else
-            RemoveAurasDueToSpell(-spell_triggered);
     }
 
     sLog.outDebug("Aura %u now is remove mode %d",Aur->GetModifier()->m_auraname, mode);

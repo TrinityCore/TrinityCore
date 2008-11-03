@@ -1055,12 +1055,15 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
     if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->AI())
         ((Creature*)m_caster)->AI()->SpellHitTarget(unit, m_spellInfo);
 
-    if(int32 spell_triggered = spellmgr.GetSpellLinked(m_spellInfo->Id, 1))
+    if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(m_spellInfo->Id + 1000000))
     {
-        if(spell_triggered > 0)
-            unit->CastSpell(unit, spell_triggered, true, 0, 0, m_caster->GetGUID());
-        else
-            unit->RemoveAurasDueToSpell(-spell_triggered);
+        for(std::vector<int32>::const_iterator i = spell_triggered->begin(); i != spell_triggered->end(); ++i)
+        {
+            if(spell_triggered < 0)
+                unit->RemoveAurasDueToSpell(-(*i));
+            else
+                unit->CastSpell(unit, *i, true, 0, 0, m_caster->GetGUID());
+        }
     }
 }
 
@@ -2252,12 +2255,15 @@ void Spell::cast(bool skipCheck)
         }
     }
 
-    if(int32 spell_triggered = spellmgr.GetSpellLinked(m_spellInfo->Id, 0))
+    if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(m_spellInfo->Id))
     {
-        if(spell_triggered > 0)
-            m_caster->CastSpell(m_targets.getUnitTarget() ? m_targets.getUnitTarget() : m_caster, spell_triggered, true);
-        else
-            m_caster->RemoveAurasDueToSpell(-spell_triggered);
+        for(std::vector<int32>::const_iterator i = spell_triggered->begin(); i != spell_triggered->end(); ++i)
+        {
+            if(spell_triggered < 0)
+                m_caster->RemoveAurasDueToSpell(-(*i));
+            else
+                m_caster->CastSpell(m_targets.getUnitTarget() ? m_targets.getUnitTarget() : m_caster, *i, true);
+        }
     }
 
     // traded items have trade slot instead of guid in m_itemTargetGUID
