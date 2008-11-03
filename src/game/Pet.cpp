@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "Common.h"
@@ -188,7 +188,8 @@ bool Pet::LoadPetFromDB( Unit* owner, uint32 petentry, uint32 petnumber, bool cu
 
     if(!IsPositionValid())
     {
-        sLog.outError("ERROR: Pet (guidlow %d, entry %d) not loaded. Suggested coordinates isn't valid (X: %d Y: ^%d)", GetGUIDLow(), GetEntry(), GetPositionX(), GetPositionY());
+        sLog.outError("ERROR: Pet (guidlow %d, entry %d) not loaded. Suggested coordinates isn't valid (X: %f Y: %f)",
+            GetGUIDLow(), GetEntry(), GetPositionX(), GetPositionY());
         delete result;
         return false;
     }
@@ -205,7 +206,7 @@ bool Pet::LoadPetFromDB( Unit* owner, uint32 petentry, uint32 petnumber, bool cu
         delete result;
         return true;
     }
-    if(getPetType()==HUNTER_PET || getPetType()==SUMMON_PET && cinfo->type == CREATURE_TYPE_DEMON && owner->getClass() == CLASS_WARLOCK)
+    if(getPetType()==HUNTER_PET || (getPetType()==SUMMON_PET && cinfo->type == CREATURE_TYPE_DEMON && owner->getClass() == CLASS_WARLOCK))
         m_charmInfo->SetPetNumber(pet_number, true);
     else
         m_charmInfo->SetPetNumber(pet_number, false);
@@ -1218,7 +1219,7 @@ void Pet::_LoadSpellCooldowns()
 
         WorldPacket data(SMSG_SPELL_COOLDOWN, (8+1+result->GetRowCount()*8));
         data << GetGUID();
-        data << uint8(0x0);
+        data << uint8(0x0);                                 // flags (0x1, 0x2)
 
         do
         {
@@ -1366,9 +1367,9 @@ void Pet::_LoadAuras(uint32 timediff)
             else
                 remaincharges = -1;
 
-			/// do not load single target auras (unless they were cast by the player)
-			if (caster_guid != GetGUID() && IsSingleTargetSpell(spellproto))
-				continue;
+            /// do not load single target auras (unless they were cast by the player)
+            if (caster_guid != GetGUID() && IsSingleTargetSpell(spellproto))
+                continue;
 
             Aura* aura = CreateAura(spellproto, effindex, NULL, this, NULL);
 
@@ -1400,18 +1401,18 @@ void Pet::_SaveAuras()
                 break;
 
         if (i != 3)
-			continue;
+            continue;
+        
+        if(itr->second->IsPassive())
+            continue;
 
-		if(itr->second->IsPassive())
-			continue;
+        /// do not save single target auras (unless they were cast by the player)
+        if (itr->second->GetCasterGUID() != GetGUID() && IsSingleTargetSpell(spellInfo))
+            continue;
 
-		/// do not save single target auras (unless they were cast by the player)
-		if (itr->second->GetCasterGUID() != GetGUID() && IsSingleTargetSpell(spellInfo))
-			continue;
-
-		CharacterDatabase.PExecute("INSERT INTO pet_aura (guid,caster_guid,spell,effect_index,amount,maxduration,remaintime,remaincharges) "
-			"VALUES ('%u', '" I64FMTD "', '%u', '%u', '%d', '%d', '%d', '%d')",
-			m_charmInfo->GetPetNumber(), itr->second->GetCasterGUID(),(uint32)(*itr).second->GetId(), (uint32)(*itr).second->GetEffIndex(),(*itr).second->GetModifier()->m_amount,int((*itr).second->GetAuraMaxDuration()),int((*itr).second->GetAuraDuration()),int((*itr).second->m_procCharges));
+        CharacterDatabase.PExecute("INSERT INTO pet_aura (guid,caster_guid,spell,effect_index,amount,maxduration,remaintime,remaincharges) "
+            "VALUES ('%u', '" I64FMTD "', '%u', '%u', '%d', '%d', '%d', '%d')",
+            m_charmInfo->GetPetNumber(), itr->second->GetCasterGUID(),(uint32)(*itr).second->GetId(), (uint32)(*itr).second->GetEffIndex(),(*itr).second->GetModifier()->m_amount,int((*itr).second->GetAuraMaxDuration()),int((*itr).second->GetAuraDuration()),int((*itr).second->m_procCharges));
     }
 }
 

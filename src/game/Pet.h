@@ -98,6 +98,23 @@ enum PetTalk
     PET_TALK_ATTACK         = 1
 };
 
+enum PetNameInvalidReason
+{
+    PET_NAME_INVALID                                        = 1,
+    PET_NAME_NO_NAME                                        = 2,
+    PET_NAME_TOO_SHORT                                      = 3,
+    PET_NAME_TOO_LONG                                       = 4,
+    PET_NAME_MIXED_LANGUAGES                                = 6,
+    PET_NAME_PROFANE                                        = 7,
+    PET_NAME_RESERVED                                       = 8,
+    PET_NAME_THREE_CONSECUTIVE                              = 11,
+    PET_NAME_INVALID_SPACE                                  = 12,
+    PET_NAME_CONSECUTIVE_SPACES                             = 13,
+    PET_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS          = 14,
+    PET_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END   = 15,
+    PET_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME              = 16
+};
+
 typedef HM_NAMESPACE::hash_map<uint16, PetSpell*> PetSpellMap;
 typedef std::map<uint32,uint32> TeachSpellMap;
 typedef std::vector<uint32> AutoSpellList;
