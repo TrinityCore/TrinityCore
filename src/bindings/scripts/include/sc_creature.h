@@ -11,6 +11,18 @@
 #include "CreatureAI.h"
 #include "Creature.h"
 
+class SummonList : std::list<uint64>
+{
+public:
+    SummonList(Creature* creature) : m_creature(creature) {}
+    void Summon(Creature *summon) {push_back(summon->GetGUID());}
+    void Despawn(Creature *summon);
+    void DespawnEntry(uint32 entry);
+    void DespawnAll();
+private:
+    Creature *m_creature;
+};
+
 struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 {
     ScriptedAI(Creature* creature) : m_creature(creature), InCombat(false) {}

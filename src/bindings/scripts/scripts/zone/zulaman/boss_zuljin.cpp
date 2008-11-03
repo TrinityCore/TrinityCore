@@ -22,7 +22,6 @@ EndScriptData */
 
 #include "precompiled.h"
 #include "def_zulaman.h"
-//#include "spell.h"
 
 //Speech
 #define YELL_TRANSFORM_TO_LYNX "Let me introduce to you my new bruddahs: fang and claw!"
@@ -142,18 +141,9 @@ static TransformStruct Transform[] =
 
 struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
 {
-    boss_zuljinAI(Creature *c) : ScriptedAI(c)
+    boss_zuljinAI(Creature *c) : ScriptedAI(c), Summons(m_creature)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        // wait for core patch be accepted
-        SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_CLAW_RAGE_DAMAGE);
-        if(TempSpell)
-        {
-            //if(TempSpell->DmgClass != SPELL_DAMAGE_CLASS_MELEE)
-            //    TempSpell->DmgClass = SPELL_DAMAGE_CLASS_MELEE;
-            if(TempSpell->EffectApplyAuraName[2] != SPELL_AURA_MOD_STUN)
-                TempSpell->EffectApplyAuraName[2] = SPELL_AURA_MOD_STUN;
-        }
         Reset();
     }
     ScriptedInstance *pInstance;
@@ -182,6 +172,8 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
     uint32 Flame_Whirl_Timer;
     uint32 Flame_Breath_Timer;
     uint32 Pillar_Of_Fire_Timer;
+
+    SummonList Summons;
 
     void Reset()
     {
@@ -213,9 +205,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
         ClawTargetGUID = 0;
         TankGUID = 0;        
 
-        DespawnAdds();
-        DespawnSummons(CREATURE_FEATHER_VORTEX);
-        DespawnSummons(CREATURE_COLUMN_OF_FIRE);
+        Summons.DespawnAll();
 
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, 47174);
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO, 218172674);
@@ -260,7 +250,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
 
         DoYell(YELL_DEATH, LANG_UNIVERSAL, NULL);
         DoPlaySoundToSet(m_creature, SOUND_DEATH);
-        DespawnSummons(CREATURE_COLUMN_OF_FIRE);
+        Summons.DespawnEntry(CREATURE_COLUMN_OF_FIRE);
 
         if(Unit *Temp = Unit::GetUnit(*m_creature, SpiritGUID[3]))
             Temp->SetUInt32Value(UNIT_FIELD_BYTES_1,PLAYER_STATE_DEAD);
@@ -328,32 +318,14 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
         }
     }
 
-    void DespawnSummons(uint32 entry)
+    void JustSummoned(Creature *summon)
     {
-        std::list<Creature*> templist;
-        float x, y, z;
-        m_creature->GetPosition(x, y, z);
+        Summons.Summon(summon);
+    }
 
-        {
-            CellPair pair(Trinity::ComputeCellPair(x, y));
-            Cell cell(pair);
-            cell.data.Part.reserved = ALL_DISTRICT;
-            cell.SetNoCreate();
-
-            Trinity::AllCreaturesOfEntryInRange check(m_creature, entry, 100);
-            Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(templist, check);
-
-            TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
-
-            CellLock<GridReadGuard> cell_lock(cell, pair);
-            cell_lock->Visit(cell_lock, cSearcher, *(m_creature->GetMap()));
-        }
-
-        for(std::list<Creature*>::iterator i = templist.begin(); i != templist.end(); ++i)
-        {
-            (*i)->SetVisibility(VISIBILITY_OFF);
-            (*i)->setDeathState(JUST_DIED);
-        }
+    void SummonedCreatureDespawn(Creature *summon)
+    {
+        Summons.Despawn(summon);
     }
 
     void EnterPhase(uint32 NextPhase)
@@ -404,7 +376,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
             if(NextPhase == 3)
             {
                 m_creature->RemoveAurasDueToSpell(SPELL_ENERGY_STORM);
-                DespawnSummons(CREATURE_FEATHER_VORTEX);
+                Summons.DespawnEntry(CREATURE_FEATHER_VORTEX);
                 m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
             }
             break;
