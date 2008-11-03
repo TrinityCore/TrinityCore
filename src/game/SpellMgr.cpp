@@ -2087,10 +2087,9 @@ void SpellMgr::LoadSpellLinked()
             continue;
         }
 
-        SpellLinkedSpell linkedSpell;
-        linkedSpell.spell = effect;
-        linkedSpell.type = type;
-        mSpellLinkedMap[trigger] = linkedSpell;
+        if(type) //we will find a better way when more types are needed
+            trigger += 1000000;
+        mSpellLinkedMap[trigger].push_back(effect);
 
         ++count;
     } while( result->NextRow() );
