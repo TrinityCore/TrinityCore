@@ -817,7 +817,7 @@ UPDATE `creature_template` SET `ScriptName`='npcs_dithers_and_arbington' WHERE `
 UPDATE `creature_template` SET `ScriptName`='npc_the_scourge_cauldron' WHERE `entry`=11152;
 
 /* WESTFALL */
-
+UPDATE `creature_template` SET `ScriptName`='npc_defias_traitor' WHERE `entry`='467';
 
 /* WETLANDS */
 
