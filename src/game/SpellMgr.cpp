@@ -2031,6 +2031,7 @@ void SpellMgr::LoadSpellExtraAttr()
     }
     tempAttr.attr[SPELL_EXTRA_ATTR_MAX_TARGETS] = 3;
     mSpellExtraAttrMap[41376] = tempAttr;   //Spite
+    mSpellExtraAttrMap[39992] = tempAttr;   //Needle Spine
     tempAttr.attr[SPELL_EXTRA_ATTR_MAX_TARGETS] = 0;
 
     //hack here, only for those strange exceptions!

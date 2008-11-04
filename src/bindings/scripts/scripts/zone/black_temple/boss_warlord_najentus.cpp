@@ -58,8 +58,7 @@ EndScriptData */
 #define SOUND_DEATH     11459
 
 //Spells
-#define SPELL_NEEDLE_SPINE             39835
-#define SPELL_NEEDLE_AOE               39968
+#define SPELL_NEEDLE_SPINE             39992
 #define SPELL_TIDAL_BURST              39878
 #define SPELL_TIDAL_SHIELD             39872
 #define SPELL_IMPALING_SPINE           39837
@@ -180,15 +179,14 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
             EnrageTimer = 600000;
         }else EnrageTimer -= diff;
 
-        // Needle
         if(NeedleSpineTimer < diff)
         {
-            for(uint8 i = 0; i < 3; ++i)
-            {
-                if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0)) 
-                    m_creature->CastSpell(target, SPELL_NEEDLE_SPINE, true);
-            }
-            NeedleSpineTimer = 30000;
+            //m_creature->CastSpell(m_creature, SPELL_NEEDLE_SPINE, true);
+            std::list<Unit*> target;
+            SelectUnitList(target, 3, SELECT_TARGET_RANDOM, 80, true);
+            for(std::list<Unit*>::iterator i = target.begin(); i != target.end(); ++i)
+                m_creature->CastSpell(*i, 39835, true);
+            NeedleSpineTimer = 20000+rand()%5000;
         }else NeedleSpineTimer -= diff;
 
         if(SpecialYellTimer < diff)

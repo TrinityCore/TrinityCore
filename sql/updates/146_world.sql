@@ -17,26 +17,6 @@ VALUES
 INSERT INTO spell_linked_spell
    (`spell_trigger`, `spell_effect`, `type`, `comment`)
 VALUES
-   (42052, 40118, 0, 'Volcanic Geyser Visual');
-
-INSERT INTO spell_linked_spell
-   (`spell_trigger`, `spell_effect`, `type`, `comment`)
-VALUES
-   (-41914, 41915, 0, 'Summon Parasitic Shadowfiend\r\n');
-
-INSERT INTO spell_linked_spell
-   (`spell_trigger`, `spell_effect`, `type`, `comment`)
-VALUES
-   (46021, 44852, 1, 'Spectral Realm Aura');
-
-INSERT INTO spell_linked_spell
-   (`spell_trigger`, `spell_effect`, `type`, `comment`)
-VALUES
-   (-46021, 44867, 0, 'Spectral Exhaustion');
-
-INSERT INTO spell_linked_spell
-   (`spell_trigger`, `spell_effect`, `type`, `comment`)
-VALUES
    (-30410, 44032, 0, 'Manticron Cube Mind Exhaustion');
 
 INSERT INTO spell_linked_spell

@@ -4853,11 +4853,11 @@ void Spell::EffectScriptEffect(uint32 effIndex)
         // Dreaming Glory
         case 28698: unitTarget->CastSpell(unitTarget, 28694, true); break;
         // Needle Spine
-        case 39835: unitTarget->CastSpell(unitTarget, 39968, true); break;
+        //case 39835: unitTarget->CastSpell(unitTarget, 39968, true); break;
         // Draw Soul
         case 40904: unitTarget->CastSpell(m_caster, 40903, true); break;
         // Flame Crash
-        case 41126: unitTarget->CastSpell(unitTarget, 41131, true); break;
+        //case 41126: unitTarget->CastSpell(unitTarget, 41131, true); break;
         case 41931:
         {
             int bag=19;
