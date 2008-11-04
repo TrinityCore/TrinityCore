@@ -23,13 +23,13 @@ EndScriptData */
 
 #include "precompiled.h"
 
+#define SAY_AGGRO               -1542008
+
 #define SPELL_SLIME_SPRAY       30913
 #define SPELL_POISON_CLOUD      30916
 #define SPELL_POISON_BOLT       30917
 
 #define SPELL_POISON            30914
-
-#define SAY_AGGRO "Come intruders...."
 
 struct TRINITY_DLL_DECL boss_broggokAI : public ScriptedAI
 {
@@ -48,7 +48,7 @@ struct TRINITY_DLL_DECL boss_broggokAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
+        DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void UpdateAI(const uint32 diff)

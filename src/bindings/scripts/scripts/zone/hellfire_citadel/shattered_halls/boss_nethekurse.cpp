@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Grand_Warlock_Nethekurse
 SD%Complete: 75
-SDComment: encounter not fully complete. missing part where boss kill minions.
+SDComment: encounter not fully completed. missing part where boss kill minions.
 SDCategory: Hellfire Citadel, Shattered Halls
 EndScriptData */
 
@@ -32,49 +32,34 @@ EndContentData */
 
 struct Say
 {
-    const char* text;
-    uint32 sound;
+    int32 id;
 };
-
-#define SAY_INTRO       "You wish to fight us all at once? This should be amusing!"
-#define SOUND_INTRO     10262
 
 static Say PeonAttacked[]=
 {
-    {"You can have that one. I no longer need him.", 10263},
-    {"Yes, beat him mercilessly. His skull is a thick as an ogres.", 10264},
-    {"Don't waste your time on that one. He's weak!", 10265},
-    {"You want him? Very well, take him!", 10266},
+    {-1540001},
+    {-1540002},
+    {-1540003},
+    {-1540004},
 };
 static Say PeonDies[]=
 {
-    {"One pitiful wretch down. Go on, take another one.", 10267},
-    {"Ahh, what a waste... Next!", 10268},
-    {"I was going to kill him anyway!", 10269},
-    {"Thank you for saving me the trouble! Now it's my turn to have some fun...", 10270},
+    {-1540005},
+    {-1540006},
+    {-1540007},
+    {-1540008},
 };
 
-#define SAY_TAUNT_1         "Beg for your pittyfull life!"
-#define SOUND_TAUNT_1       10259
-#define SAY_TAUNT_2         "Run covad, ruun!"
-#define SOUND_TAUNT_2       10260
-#define SAY_TAUNT_3         "Your pain amuses me."
-#define SOUND_TAUNT_3       10261
-
-#define SAY_AGGRO_1         "I'm already bored."
-#define SOUND_AGGRO_1       10271
-#define SAY_AGGRO_2         "Come on! ... Show me a real fight."
-#define SOUND_AGGRO_2       10272
-#define SAY_AGGRO_3         "I had more fun torturing the peons."
-#define SOUND_AGGRO_3       10273
-
-#define SAY_SLAY_1          "You Loose."
-#define SOUND_SLAY_1        10274
-#define SAY_SLAY_2          "Ohh! Just die."
-#define SOUND_SLAY_2        10275
-
-#define SAY_DIE             "What a ... a shame."
-#define SOUND_DIE           10276
+#define SAY_INTRO           -1540000
+#define SAY_TAUNT_1         -1540009
+#define SAY_TAUNT_2         -1540010
+#define SAY_TAUNT_3         -1540011
+#define SAY_AGGRO_1         -1540012
+#define SAY_AGGRO_2         -1540013
+#define SAY_AGGRO_3         -1540014
+#define SAY_SLAY_1          -1540015
+#define SAY_SLAY_2          -1540016
+#define SAY_DIE             -1540017
 
 #define SPELL_DEATH_COIL            30500
 #define SPELL_DARK_SPIN             30502                   // core bug spell attack caster :D
@@ -93,12 +78,13 @@ struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
     boss_grand_warlock_nethekurseAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        HeroicMode = m_creature->GetMap()->IsHeroic();
         Reset();
     }
 
     ScriptedInstance* pInstance;
-
     bool HeroicMode;
+
     bool IntroOnce;
     bool IsIntroEvent;
     bool IsMainEvent;
@@ -118,7 +104,6 @@ struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
     {
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-        HeroicMode = m_creature->GetMap()->IsHeroic();
         IsIntroEvent = false;
         IntroOnce = false;
         IsMainEvent = false;
@@ -137,24 +122,22 @@ struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
 
     void DoYellForPeonAggro()
     {
-        if( PeonEngagedCount >= 4 )
+        if (PeonEngagedCount >= 4)
             return;
 
-        DoYell(PeonAttacked[PeonEngagedCount].text, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, PeonAttacked[PeonEngagedCount].sound);
+        DoScriptText(PeonAttacked[PeonEngagedCount].id, m_creature);
         ++PeonEngagedCount;
     }
 
     void DoYellForPeonDeath()
     {
-        if( PeonKilledCount >= 4 )
+        if (PeonKilledCount >= 4)
             return;
 
-        DoYell(PeonDies[PeonKilledCount].text, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, PeonDies[PeonKilledCount].sound);
+        DoScriptText(PeonDies[PeonKilledCount].id, m_creature);
         ++PeonKilledCount;
 
-        if( PeonKilledCount == 4 )
+        if (PeonKilledCount == 4)
         {
             IsIntroEvent = false;
             IsMainEvent = true;
@@ -166,18 +149,9 @@ struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-            case 0:
-                DoPlaySoundToSet(m_creature,SOUND_TAUNT_1);
-                DoYell(SAY_TAUNT_1,LANG_UNIVERSAL,NULL);
-                break;
-            case 1:
-                DoPlaySoundToSet(m_creature,SOUND_TAUNT_2);
-                DoYell(SAY_TAUNT_2,LANG_UNIVERSAL,NULL);
-                break;
-            case 2:
-                DoPlaySoundToSet(m_creature,SOUND_TAUNT_3);
-                DoYell(SAY_TAUNT_3,LANG_UNIVERSAL,NULL);
-                break;
+            case 0: DoScriptText(SAY_TAUNT_1, m_creature); break;
+            case 1: DoScriptText(SAY_TAUNT_2, m_creature); break;
+            case 2: DoScriptText(SAY_TAUNT_3, m_creature); break;
         }
 
         //TODO: kill the peons first
@@ -190,7 +164,7 @@ struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
 
     void AttackStart(Unit* who)
     {
-        if ( IsIntroEvent || !IsMainEvent )
+        if (IsIntroEvent || !IsMainEvent)
             return;
 
         if (m_creature->Attack(who, true))
@@ -212,27 +186,26 @@ struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if( !m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessablePlaceFor(m_creature) )
+        if (!m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessablePlaceFor(m_creature) )
         {
-            if( !IntroOnce && m_creature->IsWithinDistInMap(who, 75) )
+            if (!IntroOnce && m_creature->IsWithinDistInMap(who, 75))
             {
-                DoYell(SAY_INTRO, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_INTRO);
+                DoScriptText(SAY_INTRO, m_creature);
                 IntroOnce = true;
                 IsIntroEvent = true;
 
-                if( pInstance )
+                if (pInstance)
                     pInstance->SetData(TYPE_NETHEKURSE,IN_PROGRESS);
             }
 
-            if(!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE )
+            if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE )
                 return;
 
-            if( IsIntroEvent || !IsMainEvent )
+            if (IsIntroEvent || !IsMainEvent)
                 return;
 
             float attackRadius = m_creature->GetAttackDistance(who);
-            if( m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who) )
+            if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who) )
             {
                 who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
                 AttackStart(who);
@@ -244,18 +217,9 @@ struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-            case 0:
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO_1);
-                DoYell(SAY_AGGRO_1,LANG_UNIVERSAL,NULL);
-                break;
-            case 1:
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO_2);
-                DoYell(SAY_AGGRO_2,LANG_UNIVERSAL,NULL);
-                break;
-            case 2:
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO_3);
-                DoYell(SAY_AGGRO_3,LANG_UNIVERSAL,NULL);
-                break;
+            case 0: DoScriptText(SAY_AGGRO_1, m_creature); break;
+            case 1: DoScriptText(SAY_AGGRO_2, m_creature); break;
+            case 2: DoScriptText(SAY_AGGRO_3, m_creature); break;
         }
     }
 
@@ -270,65 +234,58 @@ struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-            case 0:
-                DoPlaySoundToSet(m_creature,SOUND_SLAY_1);
-                DoYell(SAY_SLAY_1,LANG_UNIVERSAL,NULL);
-                break;
-            case 1:
-                DoPlaySoundToSet(m_creature,SOUND_SLAY_2);
-                DoYell(SAY_SLAY_2,LANG_UNIVERSAL,NULL);
-                break;
+            case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
+            case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
         }
     }
 
     void JustDied(Unit* Killer)
     {
-        DoPlaySoundToSet(m_creature,SOUND_DIE);
-        DoYell(SAY_DIE,LANG_UNIVERSAL,NULL);
+        DoScriptText(SAY_DIE, m_creature);
 
-        if( !pInstance )
+        if (!pInstance)
             return;
 
         pInstance->SetData(TYPE_NETHEKURSE,DONE);
 
-        if( pInstance->GetData64(DATA_NETHEKURSE_DOOR) )
+        if (pInstance->GetData64(DATA_NETHEKURSE_DOOR))
         {
-            if( GameObject *Door = GameObject::GetGameObject(*m_creature,pInstance->GetData64(DATA_NETHEKURSE_DOOR)) )
+            if (GameObject *Door = GameObject::GetGameObject(*m_creature,pInstance->GetData64(DATA_NETHEKURSE_DOOR)))
                 Door->SetGoState(0);
         }
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if( IsIntroEvent )
+        if (IsIntroEvent)
         {
-            if( !pInstance )
+            if (!pInstance)
                 return;
 
-            if( pInstance->GetData(TYPE_NETHEKURSE) == IN_PROGRESS )
+            if (pInstance->GetData(TYPE_NETHEKURSE) == IN_PROGRESS)
             {
-                if( IntroEvent_Timer < diff )
+                if (IntroEvent_Timer < diff)
                 {
                     DoTauntPeons();
                 }else IntroEvent_Timer -= diff;
             }
         }
 
-        if( !m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
             return;
 
-        if( !IsMainEvent )
+        if (!IsMainEvent)
             return;
 
-        if( Phase )
+        if (Phase)
         {
-            if( !SpinOnce )
+            if (!SpinOnce)
             {
                 DoCast(m_creature->getVictim(),SPELL_DARK_SPIN);
                 SpinOnce = true;
             }
 
-            if( Cleave_Timer < diff )
+            if (Cleave_Timer < diff)
             {
                 DoCast(m_creature->getVictim(),(HeroicMode ? H_SPELL_SHADOW_SLAM : SPELL_SHADOW_CLEAVE));
                 Cleave_Timer = 6000+rand()%2500;
@@ -336,21 +293,21 @@ struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
         }
         else
         {
-            if( ShadowFissure_Timer < diff )
+            if (ShadowFissure_Timer < diff)
             {
-                if( Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+                if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
                     DoCast(target,SPELL_SHADOW_FISSURE);
                 ShadowFissure_Timer = 7500+rand()%7500;
             }else ShadowFissure_Timer -= diff;
 
-            if( DeathCoil_Timer < diff )
+            if (DeathCoil_Timer < diff)
             {
-                if( Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+                if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
                     DoCast(target,SPELL_DEATH_COIL);
                 DeathCoil_Timer = 15000+rand()%5000;
             }else DeathCoil_Timer -= diff;
 
-            if( (m_creature->GetHealth()*100) / m_creature->GetMaxHealth() <= 20 )
+            if ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() <= 20)
                 Phase = true;
 
             DoMeleeAttackIfReady();
@@ -382,16 +339,16 @@ struct TRINITY_DLL_DECL mob_fel_orc_convertAI : public ScriptedAI
 
     void Aggro(Unit* who)
     {
-        if( pInstance )
+        if (pInstance)
         {
-            if( pInstance->GetData64(DATA_NETHEKURSE) )
+            if (pInstance->GetData64(DATA_NETHEKURSE))
             {
                 Creature *pKurse = (Creature*)Unit::GetUnit(*m_creature,pInstance->GetData64(DATA_NETHEKURSE));
-                if( pKurse )
+                if (pKurse)
                     ((boss_grand_warlock_nethekurseAI*)pKurse->AI())->DoYellForPeonAggro();
             }
 
-            if( pInstance->GetData(TYPE_NETHEKURSE) == IN_PROGRESS )
+            if (pInstance->GetData(TYPE_NETHEKURSE) == IN_PROGRESS )
                 return;
             else pInstance->SetData(TYPE_NETHEKURSE,IN_PROGRESS);
         }
@@ -399,12 +356,12 @@ struct TRINITY_DLL_DECL mob_fel_orc_convertAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        if( pInstance )
+        if (pInstance)
         {
-            if( pInstance->GetData64(DATA_NETHEKURSE) )
+            if (pInstance->GetData64(DATA_NETHEKURSE))
             {
                 Creature *pKurse = (Creature*)Unit::GetUnit(*m_creature,pInstance->GetData64(DATA_NETHEKURSE));
-                if( pKurse )
+                if (pKurse)
                     ((boss_grand_warlock_nethekurseAI*)pKurse->AI())->DoYellForPeonDeath();
             }
         }
@@ -412,10 +369,10 @@ struct TRINITY_DLL_DECL mob_fel_orc_convertAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if( !m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
-        if( Hemorrhage_Timer < diff )
+        if (Hemorrhage_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_HEMORRHAGE);
             Hemorrhage_Timer = 15000;
@@ -447,7 +404,7 @@ struct TRINITY_DLL_DECL mob_lesser_shadow_fissureAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if( !Start )
+        if (!Start)
         {
             //triggered spell of consumption does not properly show it's SpellVisual, hack it a bit
             m_creature->CastSpell(m_creature,SPELL_TEMPORARY_VISUAL,true);
@@ -455,7 +412,7 @@ struct TRINITY_DLL_DECL mob_lesser_shadow_fissureAI : public ScriptedAI
             Start = true;
         }
 
-        if( Stop_Timer < diff)
+        if (Stop_Timer < diff)
         {
             m_creature->setDeathState(JUST_DIED);
             m_creature->SetHealth(0);

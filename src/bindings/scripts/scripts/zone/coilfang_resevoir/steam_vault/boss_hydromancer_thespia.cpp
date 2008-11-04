@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Hydromancer_Thespia
 SD%Complete: 80
-SDComment: Normal/heroic mode: to be tested. Needs additional adjustments (when instance script is adjusted)
+SDComment: Needs additional adjustments (when instance script is adjusted)
 SDCategory: Coilfang Resevoir, The Steamvault
 EndScriptData */
 
@@ -29,23 +29,13 @@ EndContentData */
 #include "precompiled.h"
 #include "def_steam_vault.h"
 
-#define SAY_SUMMON                  "Surge forth my pets!"
-#define SOUND_SUMMON                10360
-
-#define SAY_AGGRO_1                 "The depths will consume you!"
-#define SOUND_AGGRO_1               10361
-#define SAY_AGGRO_2                 "Meet your doom, surface dwellers!"
-#define SOUND_AGGRO_2               10362
-#define SAY_AGGRO_3                 "You will drown in blood!"
-#define SOUND_AGGRO_3               10363
-
-#define SAY_SLAY_1                  "To the depths of oblivion with you!"
-#define SOUND_SLAY_1                10364
-#define SAY_SLAY_2                  "For my lady and master!"
-#define SOUND_SLAY_2                10365
-
-#define SAY_DEAD                    "Our matron will be.. the end of.. you.."
-#define SOUND_DEAD                  10366
+#define SAY_SUMMON                  -1545000
+#define SAY_AGGRO_1                 -1545001
+#define SAY_AGGRO_2                 -1545002
+#define SAY_AGGRO_3                 -1545003
+#define SAY_SLAY_1                  -1545004
+#define SAY_SLAY_2                  -1545005
+#define SAY_DEAD                    -1545006
 
 #define SPELL_LIGHTNING_CLOUD       25033
 #define SPELL_LUNG_BURST            31481
@@ -56,6 +46,7 @@ struct TRINITY_DLL_DECL boss_thespiaAI : public ScriptedAI
     boss_thespiaAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        HeroicMode = m_creature->GetMap()->IsHeroic();
         Reset();
     }
 
@@ -68,35 +59,28 @@ struct TRINITY_DLL_DECL boss_thespiaAI : public ScriptedAI
 
     void Reset()
     {
-        HeroicMode = m_creature->GetMap()->IsHeroic();
-
         LightningCloud_Timer = 28000;
         LungBurst_Timer = 7000;
         EnvelopingWinds_Timer = 9000;
 
-        if( pInstance ) pInstance->SetData(TYPE_HYDROMANCER_THESPIA, NOT_STARTED);
+        if (pInstance)
+            pInstance->SetData(TYPE_HYDROMANCER_THESPIA, NOT_STARTED);
     }
 
     void JustDied(Unit* Killer)
     {
-        DoYell(SAY_DEAD, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature,SOUND_DEAD);
+        DoScriptText(SAY_DEAD, m_creature);
 
-        if( pInstance ) pInstance->SetData(TYPE_HYDROMANCER_THESPIA, DONE);
+        if (pInstance)
+            pInstance->SetData(TYPE_HYDROMANCER_THESPIA, DONE);
     }
 
     void KilledUnit(Unit* victim)
     {
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_SLAY_1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY_1);
-                break;
-            case 1:
-                DoYell(SAY_SLAY_2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY_2);
-                break;
+            case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
+            case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
         }
     }
 
@@ -104,21 +88,13 @@ struct TRINITY_DLL_DECL boss_thespiaAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-            case 0:
-                DoYell(SAY_AGGRO_1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO_1);
-                break;
-            case 1:
-                DoYell(SAY_AGGRO_2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO_2);
-                break;
-            case 2:
-                DoYell(SAY_AGGRO_3, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO_3);
-                break;
+            case 0: DoScriptText(SAY_AGGRO_1, m_creature); break;
+            case 1: DoScriptText(SAY_AGGRO_2, m_creature); break;
+            case 2: DoScriptText(SAY_AGGRO_3, m_creature); break;
         }
 
-        if( pInstance ) pInstance->SetData(TYPE_HYDROMANCER_THESPIA, IN_PROGRESS);
+        if (pInstance)
+            pInstance->SetData(TYPE_HYDROMANCER_THESPIA, IN_PROGRESS);
     }
 
     void UpdateAI(const uint32 diff)
@@ -127,33 +103,33 @@ struct TRINITY_DLL_DECL boss_thespiaAI : public ScriptedAI
             return;
 
         //LightningCloud_Timer
-        if( LightningCloud_Timer < diff )
+        if (LightningCloud_Timer < diff)
         {
             //cast twice in Heroic mode
-            if( Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target, SPELL_LIGHTNING_CLOUD);
-            if( HeroicMode )
-                if( Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (HeroicMode)
+                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                     DoCast(target, SPELL_LIGHTNING_CLOUD);
             LightningCloud_Timer = 28000;
         }else LightningCloud_Timer -=diff;
 
         //LungBurst_Timer
-        if( LungBurst_Timer < diff )
+        if (LungBurst_Timer < diff)
         {
-            if( Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target, SPELL_LUNG_BURST);
             LungBurst_Timer = 10000+rand()%5000;
         }else LungBurst_Timer -=diff;
 
         //EnvelopingWinds_Timer
-        if( EnvelopingWinds_Timer < diff )
+        if (EnvelopingWinds_Timer < diff)
         {
             //cast twice in Heroic mode
-            if( Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target, SPELL_ENVELOPING_WINDS);
-            if( HeroicMode )
-                if( Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (HeroicMode)
+                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                     DoCast(target, SPELL_ENVELOPING_WINDS);
             EnvelopingWinds_Timer = 10000+rand()%5000;
         }else EnvelopingWinds_Timer -=diff;
@@ -185,11 +161,9 @@ struct TRINITY_DLL_DECL mob_coilfang_waterelementalAI : public ScriptedAI
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
-        if( WaterBoltVolley_Timer < diff )
+        if (WaterBoltVolley_Timer < diff)
         {
-            if( HeroicMode ) DoCast(m_creature,H_SPELL_WATER_BOLT_VOLLEY);
-            else DoCast(m_creature,SPELL_WATER_BOLT_VOLLEY);
-
+            DoCast(m_creature, HeroicMode ? H_SPELL_WATER_BOLT_VOLLEY : SPELL_WATER_BOLT_VOLLEY);
             WaterBoltVolley_Timer = 10000+rand()%5000;
         }else WaterBoltVolley_Timer -= diff;
 
