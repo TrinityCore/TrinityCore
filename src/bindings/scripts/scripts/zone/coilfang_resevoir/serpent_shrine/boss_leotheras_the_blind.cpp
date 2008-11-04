@@ -24,35 +24,22 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_serpent_shrine.h"
 
+#define SAY_AGGRO               -1548009
+#define SAY_SWITCH_TO_DEMON     -1548010
+#define SAY_INNER_DEMONS        -1548011
+#define SAY_DEMON_SLAY1         -1548012
+#define SAY_DEMON_SLAY2         -1548013
+#define SAY_DEMON_SLAY3         -1548014
+#define SAY_NIGHTELF_SLAY1      -1548015
+#define SAY_NIGHTELF_SLAY2      -1548016
+#define SAY_NIGHTELF_SLAY3      -1548017
+#define SAY_FINAL_FORM          -1548018
+#define SAY_FREE                -1548019
+#define SAY_DEATH               -1548020
+
 #define SPELL_WHIRLWIND         40653
 #define SPELL_CHAOS_BLAST       37675
 //#define SPELL_INSIDIOUS_WHISPER 37676                       // useless - dummy effect that can't be implemented
-
-#define SAY_AGGRO               "Finally my banishment ends!"
-#define SAY_SWITCH_TO_DEMON     "Be gone trifling elf. I'm in control now."
-#define SAY_INNER_DEMONS        "We all have our demons..."
-#define SAY_DEMON_SLAY1         "I have no equal."
-#define SAY_DEMON_SLAY2         "Perish, mortal."
-#define SAY_DEMON_SLAY3         "Yes, YES! Ahahah!"
-#define SAY_NIGHTELF_SLAY1      "Kill! KILL!"
-#define SAY_NIGHTELF_SLAY2      "That's right! Yes!"
-#define SAY_NIGHTELF_SLAY3      "Who's the master now?"
-#define SAY_FINAL_FORM          "No! NO! What have you done?! I am the master, do you hear me? I... aaghh... Can't... contain him..."
-#define SAY_FREE                "At last I am liberated. It has been too long since I have tasted true freedom!"
-#define SAY_DEATH               "You cannot kill me! Fools, I'll be back! I'll... aarghh..."
-
-#define SOUND_AGGRO             11312
-#define SOUND_SWITCH_TO_DEMON   11304
-#define SOUND_INNER_DEMONS      11305
-#define SOUND_DEMON_SLAY1       11306
-#define SOUND_DEMON_SLAY2       11307
-#define SOUND_DEMON_SLAY3       11308
-#define SOUND_NIGHTELF_SLAY1    11314
-#define SOUND_NIGHTELF_SLAY2    11315
-#define SOUND_NIGHTELF_SLAY3    11316
-#define SOUND_FINAL_FORM        11313
-#define SOUND_FREE              11309
-#define SOUND_DEATH             11317
 
 #define MODEL_DEMON             14555
 #define MODEL_NIGHTELF          20514
@@ -64,7 +51,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 {
     boss_leotheras_the_blindAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Demon = 0;
         Reset();
     }
@@ -91,75 +78,59 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 
         m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_NIGHTELF);
 
-        if(pInstance)
-            pInstance->SetData(DATA_LEOTHERASTHEBLINDEVENT, 0);
+        if (pInstance)
+            pInstance->SetData(DATA_LEOTHERASTHEBLINDEVENT, NOT_STARTED);
     }
 
     void StartEvent()
     {
-        DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_AGGRO);
+        DoScriptText(SAY_AGGRO, m_creature);
 
-        if(pInstance)
-            pInstance->SetData(DATA_LEOTHERASTHEBLINDEVENT, 1);
+        if (pInstance)
+            pInstance->SetData(DATA_LEOTHERASTHEBLINDEVENT, IN_PROGRESS);
     }
 
     void KilledUnit(Unit *victim)
     {
-        if(victim->GetTypeId() != TYPEID_PLAYER)
+        if (victim->GetTypeId() != TYPEID_PLAYER)
             return;
 
-        if(DemonForm)
+        if (DemonForm)
+        {
             switch(rand()%3)
             {
-                case 0:
-                    DoYell(SAY_DEMON_SLAY1, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature, SOUND_DEMON_SLAY1);
-                    break;
-                case 1:
-                    DoYell(SAY_DEMON_SLAY2, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature, SOUND_DEMON_SLAY2);
-                    break;
-                case 2:
-                    DoYell(SAY_DEMON_SLAY3, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature, SOUND_DEMON_SLAY3);
-                    break;
+                case 0: DoScriptText(SAY_DEMON_SLAY1, m_creature); break;
+                case 1: DoScriptText(SAY_DEMON_SLAY2, m_creature); break;
+                case 2: DoScriptText(SAY_DEMON_SLAY3, m_creature); break;
             }
-            else
-                switch(rand()%3)
-                {
-                    case 0:
-                        DoYell(SAY_NIGHTELF_SLAY1, LANG_UNIVERSAL, NULL);
-                        DoPlaySoundToSet(m_creature, SOUND_NIGHTELF_SLAY1);
-                        break;
-                    case 1:
-                        DoYell(SAY_NIGHTELF_SLAY2, LANG_UNIVERSAL, NULL);
-                        DoPlaySoundToSet(m_creature, SOUND_NIGHTELF_SLAY2);
-                        break;
-                    case 2:
-                        DoYell(SAY_NIGHTELF_SLAY3, LANG_UNIVERSAL, NULL);
-                        DoPlaySoundToSet(m_creature, SOUND_NIGHTELF_SLAY3);
-                        break;
-                }
+        }
+        else
+        {
+            switch(rand()%3)
+            {
+                case 0: DoScriptText(SAY_NIGHTELF_SLAY1, m_creature); break;
+                case 1: DoScriptText(SAY_NIGHTELF_SLAY2, m_creature); break;
+                case 2: DoScriptText(SAY_NIGHTELF_SLAY3, m_creature); break;
+            }
+        }
     }
 
     void JustDied(Unit *victim)
     {
-        DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
 
         //despawn copy
-        if(Demon)
+        if (Demon)
         {
             Unit *pUnit = NULL;
             pUnit = Unit::GetUnit((*m_creature), Demon);
 
-            if(pUnit)
+            if (pUnit)
                 pUnit->DealDamage(pUnit, pUnit->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
         }
 
-        if(pInstance)
-            pInstance->SetData(DATA_LEOTHERASTHEBLINDEVENT, 0);
+        if (pInstance)
+            pInstance->SetData(DATA_LEOTHERASTHEBLINDEVENT, DONE);
     }
 
     void Aggro(Unit *who)
@@ -173,41 +144,41 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
             return;
 
-        if(!DemonForm)
+        if (!DemonForm)
         {
             //Whirlwind_Timer
-            if(Whirlwind_Timer < diff)
+            if (Whirlwind_Timer < diff)
             {
                 DoCast(m_creature, SPELL_WHIRLWIND);
                 Whirlwind_Timer = 25000;
             }else Whirlwind_Timer -= diff;
 
             //Switch_Timer
-            if(!IsFinalForm)
-                if(Switch_Timer < diff)
+            if (!IsFinalForm)
             {
-                //switch to demon form
-                m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_DEMON);
-                DoYell(SAY_SWITCH_TO_DEMON, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SWITCH_TO_DEMON);
-                DemonForm = true;
-
-                Switch_Timer = 60000;
-            }else Switch_Timer -= diff;
+                if (Switch_Timer < diff)
+                {
+                    //switch to demon form
+                    m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_DEMON);
+                    DoScriptText(SAY_SWITCH_TO_DEMON, m_creature);
+                    DemonForm = true;
+                    Switch_Timer = 60000;
+                }else Switch_Timer -= diff;
+            }
 
             DoMeleeAttackIfReady();
         }
         else
         {
             //ChaosBlast_Timer
-            if(ChaosBlast_Timer < diff)
+            if (ChaosBlast_Timer < diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_CHAOS_BLAST);
                 ChaosBlast_Timer = 1500;
             }else ChaosBlast_Timer -= diff;
 
             //Switch_Timer
-            if(Switch_Timer < diff)
+            if (Switch_Timer < diff)
             {
                 //switch to nightelf form
                 m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_NIGHTELF);
@@ -217,13 +188,13 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
             }else Switch_Timer -= diff;
         }
 
-        if(!IsFinalForm && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 15)
+        if (!IsFinalForm && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 15)
         {
             //at this point he divides himself in two parts
             Creature *Copy = NULL;
             Copy = DoSpawnCreature(DEMON_FORM, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
 
-            if(Copy)
+            if (Copy)
             {
                 Demon = Copy->GetGUID();
                 Copy->AI()->AttackStart(m_creature->getVictim());
@@ -233,9 +204,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
             IsFinalForm = true;
             DemonForm = false;
 
-            DoYell(SAY_FINAL_FORM, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_FINAL_FORM);
-
+            DoScriptText(SAY_FINAL_FORM, m_creature);
             m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_NIGHTELF);
         }
     }
@@ -258,29 +227,19 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blind_demonformAI : public ScriptedAI
 
     void StartEvent()
     {
-        DoYell(SAY_FREE, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_FREE);
+        DoScriptText(SAY_FREE, m_creature);
     }
 
     void KilledUnit(Unit *victim)
     {
-        if(victim->GetTypeId() != TYPEID_PLAYER)
+        if (victim->GetTypeId() != TYPEID_PLAYER)
             return;
 
         switch(rand()%3)
         {
-            case 0:
-                DoYell(SAY_DEMON_SLAY1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_DEMON_SLAY1);
-                break;
-            case 1:
-                DoYell(SAY_DEMON_SLAY2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_DEMON_SLAY2);
-                break;
-            case 2:
-                DoYell(SAY_DEMON_SLAY3, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_DEMON_SLAY3);
-                break;
+            case 0: DoScriptText(SAY_DEMON_SLAY1, m_creature); break;
+            case 1: DoScriptText(SAY_DEMON_SLAY2, m_creature); break;
+            case 2: DoScriptText(SAY_DEMON_SLAY3, m_creature); break;
         }
     }
 
@@ -302,7 +261,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blind_demonformAI : public ScriptedAI
             return;
 
         //ChaosBlast_Timer
-        if(ChaosBlast_Timer < diff)
+        if (ChaosBlast_Timer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_CHAOS_BLAST);
             ChaosBlast_Timer = 1500;

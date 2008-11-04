@@ -525,7 +525,7 @@ ChatCommand * ChatHandler::getCommandTable()
 		{ "neargrave",      SEC_ADMINISTRATOR,  false, &ChatHandler::HandleNearGraveCommand,           "", NULL },
 		{ "explorecheat",   SEC_ADMINISTRATOR,  false, &ChatHandler::HandleExploreCheatCommand,        "", NULL },
 		{ "hover",          SEC_ADMINISTRATOR,  false, &ChatHandler::HandleHoverCommand,               "", NULL },
-        { "waterwalk",          SEC_ADMINISTRATOR,  false, &ChatHandler::HandleWaterwalkCommand,               "", NULL },
+		{ "waterwalk",      SEC_ADMINISTRATOR,  false, &ChatHandler::HandleWaterwalkCommand,           "", NULL },
 		{ "levelup",        SEC_ADMINISTRATOR,  false, &ChatHandler::HandleLevelUpCommand,             "", NULL },
 		{ "showarea",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleShowAreaCommand,            "", NULL },
 		{ "hidearea",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleHideAreaCommand,            "", NULL },
