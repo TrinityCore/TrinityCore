@@ -1880,7 +1880,8 @@ void Aura::TriggerSpell()
             }
         }
     }
-    // All ok cast by default case
+    m_target->CastSpell(target, triggredSpellInfo, true, 0, this, originalCasterGUID);
+    /*// All ok cast by default case
     Spell *spell = new Spell(m_target, triggredSpellInfo, true, originalCasterGUID );
 
     SpellCastTargets targets;
@@ -1890,7 +1891,7 @@ void Aura::TriggerSpell()
     if(DynamicObject* dynObj = caster->GetDynObject(GetId()))
         targets.setDestination(dynObj->GetPositionX(),dynObj->GetPositionY(),dynObj->GetPositionZ());
 
-    spell->prepare(&targets, this);
+    spell->prepare(&targets, this);*/
 }
 
 /*********************************************************/

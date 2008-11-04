@@ -57,7 +57,6 @@
 #include "Util.h"
 #include "TemporarySummon.h"
 
-
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
     &Spell::EffectNULL,                                     //  0
@@ -223,7 +222,7 @@ void Spell::EffectNULL(uint32 /*i*/)
 
 void Spell::EffectUnused(uint32 /*i*/)
 {
-    // NOT USED BY ANY SPELL OR USELESS OR IMPLEMENTED IN DIFFERENT WAY IN TRINITY
+    // NOT USED BY ANY SPELL OR USELESS OR IMPLEMENTED IN DIFFERENT WAY IN MANGOS
 }
 
 void Spell::EffectResurrectNew(uint32 i)
