@@ -1290,6 +1290,10 @@
 				<Filter
 					Name="Westfall"
 					>
+					<File
+						RelativePath="..\scripts\zone\westfall\westfall.cpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="Wetlands"

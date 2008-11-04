@@ -2,7 +2,7 @@ DELETE FROM trinity_string WHERE entry IN (57,58,5009);
 
 INSERT INTO trinity_string VALUES
 (57,'Using World DB: %s',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
-(58,'Using script library: %s',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+(58,'Using script library: %s',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (5009,'Sound %u Played to server',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 
 
