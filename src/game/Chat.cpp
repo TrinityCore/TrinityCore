@@ -102,6 +102,7 @@ ChatCommand * ChatHandler::getCommandTable()
 		{ "drunk",          SEC_MODERATOR,      false, &ChatHandler::HandleDrunkCommand,               "", NULL },
 		{ "standstate",     SEC_GAMEMASTER,     false, &ChatHandler::HandleStandStateCommand,          "", NULL },
 		{ "morph",          SEC_GAMEMASTER,     false, &ChatHandler::HandleMorphCommand,               "", NULL },
+        { "gender",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleModifyGenderCommand,        "", NULL },
 		{ NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
@@ -283,6 +284,16 @@ ChatCommand * ChatHandler::getCommandTable()
 		{ "rank",           SEC_GAMEMASTER,     true,  &ChatHandler::HandleGuildRankCommand,           "", NULL },
 		{ NULL,             0,                  false, NULL,                                           "", NULL }
     };
+    
+    static ChatCommand petCommandTable[] =
+	{
+		{ "create",         SEC_GAMEMASTER,     false, &ChatHandler::HandleCreatePetCommand,           "", NULL },
+		{ "learn",          SEC_GAMEMASTER,     false, &ChatHandler::HandlePetLearnCommand,            "", NULL },
+		{ "unlearn",        SEC_GAMEMASTER,     false, &ChatHandler::HandlePetUnlearnCommand,          "", NULL },
+		{ "tp",             SEC_GAMEMASTER,     false, &ChatHandler::HandlePetTpCommand,               "", NULL },
+		{ NULL,             0,                  false, NULL,                                           "", NULL }
+	};
+
 
     static ChatCommand groupCommandTable[] =
     {
@@ -420,6 +431,7 @@ ChatCommand * ChatHandler::getCommandTable()
 		{ "turn",           SEC_GAMEMASTER,     false, &ChatHandler::HandleTurnObjectCommand,          "", NULL },
 		{ "move",           SEC_GAMEMASTER,     false, &ChatHandler::HandleMoveObjectCommand,          "", NULL },
 		{ "near",           SEC_ADMINISTRATOR,  false, &ChatHandler::HandleNearObjectCommand,          "", NULL },
+        { "activate",       SEC_GAMEMASTER,     false, &ChatHandler::HandleActivateObjectCommand,      "", NULL },
 		{ NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
@@ -475,6 +487,7 @@ ChatCommand * ChatHandler::getCommandTable()
 		{ "reset",          SEC_ADMINISTRATOR,  false, NULL,                                           "", resetCommandTable },
 		{ "instance",       SEC_ADMINISTRATOR,  true,  NULL,                                           "", instanceCommandTable },
 		{ "server",         SEC_ADMINISTRATOR,  true,  NULL,                                           "", serverCommandTable },
+        { "pet",            SEC_GAMEMASTER,     false, NULL,                                           "", petCommandTable },
 
 		{ "aura",           SEC_ADMINISTRATOR,  false, &ChatHandler::HandleAuraCommand,                "", NULL },
 		{ "unaura",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleUnAuraCommand,              "", NULL },
@@ -540,6 +553,7 @@ ChatCommand * ChatHandler::getCommandTable()
 		{ "combatstop",     SEC_GAMEMASTER,     false, &ChatHandler::HandleCombatStopCommand,          "", NULL },
 		{ "chardelete",     SEC_CONSOLE,        true,  &ChatHandler::HandleCharacterDeleteCommand,     "", NULL },
 		{ "sendmessage",    SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleSendMessageCommand,         "", NULL },
+        { "playall",        SEC_ADMINISTRATOR,  false, &ChatHandler::HandlePlayAllCommand,             "", NULL },
         { "repairitems",    SEC_GAMEMASTER,     false, &ChatHandler::HandleRepairitemsCommand,         "", NULL },
 		{ "freeze",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleFreezeCommand,              "", NULL }, 
 		{ "unfreeze",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleUnFreezeCommand,            "", NULL }, 

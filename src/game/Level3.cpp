@@ -6226,6 +6226,91 @@ bool ChatHandler::HandleSendMessageCommand(const char* args)
 	return true;
 }
 
+bool ChatHandler::HandlePlayAllCommand(const char* args)
+{
+	if(!*args)
+		return false;
+
+	uint32 soundId = atoi((char*)args);
+
+	if(!sSoundEntriesStore.LookupEntry(soundId))
+	{
+		PSendSysMessage(LANG_SOUND_NOT_EXIST, soundId);
+		SetSentErrorMessage(true);
+		return false;
+	}
+
+	WorldPacket data(SMSG_PLAY_SOUND, 4);
+	data << uint32(soundId) << m_session->GetPlayer()->GetGUID();
+	sWorld.SendGlobalMessage(&data);
+
+	PSendSysMessage(LANG_COMMAND_PLAYED_TO_ALL, soundId);
+	return true;
+}
+
+bool ChatHandler::HandleModifyGenderCommand(const char *args)
+{
+	if(!*args)	return false;
+	Player *player = getSelectedPlayer();
+
+	if(!player)
+	{
+		PSendSysMessage(LANG_NO_PLAYER);
+		SetSentErrorMessage(true);
+		return false;
+	}
+
+	std::string gender = (char*)args;
+	uint32 displayId = player->GetNativeDisplayId();
+
+	if(gender == "male") // MALE
+	{
+		if(player->getGender() == GENDER_MALE)
+		{
+			PSendSysMessage("%s is already male", player->GetName());
+			SetSentErrorMessage(true);
+			return false;
+		}
+
+		// Set gender
+		player->SetByteValue(UNIT_FIELD_BYTES_0, 2, GENDER_MALE);
+		// Change display ID
+		player->SetDisplayId(player->getRace() == RACE_BLOODELF ? displayId+1 : displayId-1);
+		player->SetNativeDisplayId(player->getRace() == RACE_BLOODELF ? displayId+1 : displayId-1);
+
+		ChatHandler(player).PSendSysMessage("Gender changed. You are now a man!");
+		PSendSysMessage("Gender changed for %s", player->GetName());
+		return true;
+	}
+	else if(gender == "female") // FEMALE
+	{
+		if(player->getGender() == GENDER_FEMALE)
+		{
+			PSendSysMessage("%s is already female", player->GetName());
+			SetSentErrorMessage(true);
+			return false;
+		}
+
+		// Set gender
+		player->SetByteValue(UNIT_FIELD_BYTES_0, 2, GENDER_FEMALE);
+		// Change display ID
+		player->SetDisplayId(player->getRace() == RACE_BLOODELF ? displayId-1 : displayId+1);
+		player->SetNativeDisplayId(player->getRace() == RACE_BLOODELF ? displayId-1 : displayId+1);
+
+		ChatHandler(player).PSendSysMessage("Gender changed. You are now a woman!");
+		PSendSysMessage("Gender changed for %s", player->GetName());
+		return true;
+	}
+	else
+	{
+		PSendSysMessage("You must use male or female as gender.");
+		SetSentErrorMessage(true);
+		return false;
+	}
+
+	return true;
+}
+
 bool ChatHandler::HandleFreezeCommand(const char *args)
 {
     std::string name;
