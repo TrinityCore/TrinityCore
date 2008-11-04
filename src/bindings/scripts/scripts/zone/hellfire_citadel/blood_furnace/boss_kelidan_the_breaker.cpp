@@ -28,26 +28,16 @@ EndContentData */
 
 #include "precompiled.h"
 
-#define SAY_WAKE                    "Who dares interrupt... What is this? What have you done? You ruin everything!"
-#define SOUND_WAKE                  10164
+#define SAY_WAKE                    -1542000
 
-#define SAY_ADD_AGGRO_1             "You mustn't let him loose!"
-#define SOUND_ADD_AGGRO_1           10166
-#define SAY_ADD_AGGRO_2             "Ignorant whelps!"
-#define SOUND_ADD_AGGRO_2           10167
-#define SAY_ADD_AGGRO_3             "You fools! He'll kill us all!"
-#define SOUND_ADD_AGGRO_3           10168
+#define SAY_ADD_AGGRO_1             -1542001
+#define SAY_ADD_AGGRO_2             -1542002
+#define SAY_ADD_AGGRO_3             -1542003
 
-#define SAY_KILL_1                  "Just as you deserve!"
-#define SOUND_KILL_1                10169
-#define SAY_KILL_2                  "Your friends will soon be joining you."
-#define SOUND_KILL_2                10170
-
-#define SAY_NOVA                    "Closer... Come closer.. and burn!"
-#define SOUND_NOVA                  10165
-
-#define SAY_DIE                     "Good luck... you'll need it.."
-#define SOUND_DIE                   10171
+#define SAY_KILL_1                  -1542004
+#define SAY_KILL_2                  -1542005
+#define SAY_NOVA                    -1542006
+#define SAY_DIE                     -1542007
 
 #define SPELL_CORRUPTION            30938
 
@@ -88,8 +78,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_WAKE, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature,SOUND_WAKE);
+        DoScriptText(SAY_WAKE, m_creature);
     }
 
     void KilledUnit(Unit* victim)
@@ -99,31 +88,24 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
 
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_KILL_1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_KILL_1);
-                break;
-            case 1:
-                DoYell(SAY_KILL_2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_KILL_2);
-                break;
+            case 0: DoScriptText(SAY_KILL_1, m_creature); break;
+            case 1: DoScriptText(SAY_KILL_2, m_creature); break;
         }
     }
 
     void JustDied(Unit* Killer)
     {
-        DoYell(SAY_DIE,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_DIE);
+        DoScriptText(SAY_DIE, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if( !m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
-        if( Firenova )
+        if (Firenova)
         {
-            if( Firenova_Timer < diff )
+            if (Firenova_Timer < diff)
             {
                 DoCast(m_creature,HeroicMode ? H_SPELL_FIRE_NOVA : SPELL_FIRE_NOVA);
                 Firenova = false;
@@ -133,27 +115,26 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
             return;
         }
 
-        if( ShadowVolley_Timer < diff )
+        if (ShadowVolley_Timer < diff)
         {
             DoCast(m_creature,HeroicMode ? H_SPELL_SHADOW_BOLT_VOLLEY : SPELL_SHADOW_BOLT_VOLLEY);
             ShadowVolley_Timer = 5000+rand()%8000;
         }else ShadowVolley_Timer -=diff;
 
-        if( Corruption_Timer < diff )
+        if (Corruption_Timer < diff)
         {
             DoCast(m_creature,SPELL_CORRUPTION);
             Corruption_Timer = 30000+rand()%20000;
         }else Corruption_Timer -=diff;
 
-        if( BurningNova_Timer < diff )
+        if (BurningNova_Timer < diff)
         {
-            if( m_creature->IsNonMeleeSpellCasted(false) )
+            if (m_creature->IsNonMeleeSpellCasted(false))
                 m_creature->InterruptNonMeleeSpells(true);
 
-            DoYell(SAY_NOVA, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature,SOUND_NOVA);
+            DoScriptText(SAY_NOVA, m_creature);
 
-            if( HeroicMode )
+            if (HeroicMode)
                 DoCast(m_creature,SPELL_VORTEX);
 
             DoCast(m_creature,SPELL_BURNING_NOVA);
@@ -212,17 +193,17 @@ struct TRINITY_DLL_DECL mob_shadowmoon_channelerAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if( !m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
-        if( MarkOfShadow_Timer < diff )
+        if (MarkOfShadow_Timer < diff)
         {
-            if( Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0) )
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(target,SPELL_MARK_OF_SHADOW);
             MarkOfShadow_Timer = 15000+rand()%5000;
         }else MarkOfShadow_Timer -=diff;
 
-        if( ShadowBolt_Timer < diff )
+        if (ShadowBolt_Timer < diff)
         {
             DoCast(m_creature->getVictim(),HeroicMode ? H_SPELL_SHADOW_BOLT : SPELL_SHADOW_BOLT);
             ShadowBolt_Timer = 5000+rand()%1000;

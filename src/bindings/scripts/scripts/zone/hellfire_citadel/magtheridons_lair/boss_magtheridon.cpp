@@ -24,6 +24,32 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_magtheridons_lair.h"
 
+struct Yell
+{
+    int32 id;
+};
+
+static Yell RandomTaunt[]=
+{
+    {-1544000},
+    {-1544001},
+    {-1544002},
+    {-1544003},
+    {-1544004},
+    {-1544005},
+};
+
+#define SAY_FREED                   -1544006
+#define SAY_AGGRO                   -1544007
+#define SAY_BANISH                  -1544008
+#define SAY_CHAMBER_DESTROY         -1544009
+#define SAY_PLAYER_KILLED           -1544010
+#define SAY_DEATH                   -1544011
+
+#define EMOTE_BERSERK               -1544012
+#define EMOTE_BLASTNOVA             -1544013
+#define EMOTE_BEGIN                 -1544014
+
 #define MOB_MAGTHERIDON     17257
 #define MOB_ROOM            17516
 #define MOB_CHANNELLER      17256
@@ -57,28 +83,8 @@ EndScriptData */
 
 #define SPELL_FIRE_BLAST			37110
 
-//Dialog
-#define SAY_AGGRO                   "Thank you for releasing me. Now...die!"
-#define SOUND_AGGRO                 10254
-#define SAY_BANISH                  "Not again...NOT AGAIN!"
-#define SOUND_BANISH                10256
-#define SAY_FREED                   "I...am...UNLEASHED!!!"
-#define SOUND_FREED                 10253
-#define SAY_CHAMBER_DESTROY         "I will not be taken so easily. Let the walls of this prison tremble...and FALL!!!"
-#define SOUND_CHAMBER_DESTROY       10257
-#define SAY_PLAYER_KILLED           "Did you think me weak? Soft? Who is the weak one now?!"
-#define SOUND_PLAYER_KILLED         10255
-#define SAY_DEATH                   "The Legion...will consume you...all...."
-#define SOUND_DEATH                 10258 
-#define EMOTE_BERSERK               "becomes enraged!"
-#define EMOTE_BLASTNOVA             "begins to cast Blast Nova!"
-#define EMOTE_BEGIN                 "%s's bonds begin to weaken!"
-
 // count of clickers needed to interrupt blast nova
 #define CLICKERS_COUNT				5
-
-// Unkown sounds
-uint32 RandomSound[] = {10247, 10248, 10249, 10250, 10251, 10252};
 
 typedef std::map<uint64, uint64> CubeMap;
 
@@ -196,6 +202,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
     uint32 BlastNova_Timer;
     uint32 Blaze_Timer;
     uint32 Debris_Timer;
+	uint32 RandChat_Timer;
 
     bool Phase3;
     bool NeedCheckCube;
@@ -214,6 +221,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
         Blaze_Timer = 10000+rand()%20000;
         BlastNova_Timer = 60000;
         Cleave_Timer = 15000;
+        RandChat_Timer = 90000;
 
         Phase3 = false;
 
@@ -261,8 +269,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
         // if 5 clickers from other cubes apply shadow cage
         if(ClickerNum >= CLICKERS_COUNT && !m_creature->HasAura(SPELL_SHADOW_CAGE, 0))
         {
-            DoYell(SAY_BANISH, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_BANISH);  
+            DoScriptText(SAY_BANISH, m_creature);
             m_creature->CastSpell(m_creature, SPELL_SHADOW_CAGE, true);
         }
         else if(ClickerNum < CLICKERS_COUNT && m_creature->HasAura(SPELL_SHADOW_CAGE, 0))
@@ -273,8 +280,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-        DoYell(SAY_PLAYER_KILLED, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_PLAYER_KILLED);
+        DoScriptText(SAY_PLAYER_KILLED, m_creature);
     }
 
     void JustDied(Unit* Killer)
@@ -282,8 +288,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
         if(pInstance)
             pInstance->SetData(DATA_MAGTHERIDON_EVENT, DONE);
 
-        DoYell(SAY_DEATH,LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
     }
 
     void MoveInLineOfSight(Unit*) {}
@@ -303,12 +308,20 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->RemoveAurasDueToSpell(SPELL_SHADOW_CAGE_C);
 
-        DoYell(SAY_FREED, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_FREED);          
+        DoScriptText(SAY_FREED, m_creature);
    }
 
     void UpdateAI(const uint32 diff)
     {
+        if (!InCombat)
+        {
+            if (RandChat_Timer < diff)
+            {
+                DoScriptText(RandomTaunt[rand()%6].id, m_creature);
+                RandChat_Timer = 90000;
+            }else RandChat_Timer -= diff;
+        }
+
         if(!m_creature->SelectHostilTarget() && !m_creature->getVictim())
             return;
 
@@ -317,7 +330,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
         if(Berserk_Timer < diff)
         {
             m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
-            DoTextEmote(EMOTE_BERSERK, NULL);
+            DoScriptText(EMOTE_BERSERK, m_creature);
             Berserk_Timer = 60000;
         }else Berserk_Timer -= diff;
 
@@ -332,7 +345,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
             // to avoid earthquake interruption
             if(!m_creature->hasUnitState(UNIT_STAT_STUNNED))
             {
-                DoTextEmote(EMOTE_BLASTNOVA, NULL);
+                DoScriptText(EMOTE_BLASTNOVA, m_creature);
                 DoCast(m_creature, SPELL_BLASTNOVA);
                 BlastNova_Timer = 60000;
             }
@@ -370,8 +383,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
             && !m_creature->hasUnitState(UNIT_STAT_STUNNED)) // shadow cage and earthquake
         {                        
             Phase3 = true;
-            DoYell(SAY_CHAMBER_DESTROY, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_CHAMBER_DESTROY);
+            DoScriptText(SAY_CHAMBER_DESTROY, m_creature);
             m_creature->CastSpell(m_creature, SPELL_CAMERA_SHAKE, true);
             m_creature->CastSpell(m_creature, SPELL_DEBRIS_KNOCKDOWN, true);
 
