@@ -5,7 +5,7 @@ CREATE TABLE `spell_linked_spell` (
   `spell_trigger` int(10) NOT NULL,
   `spell_effect` int(10) NOT NULL default '0',
   `type` smallint(3) unsigned NOT NULL default '0',
-  `comment` text NOT NULL default '',
+  `comment` text NOT NULL,
   PRIMARY KEY (`spell_trigger`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 

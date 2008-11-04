@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "Common.h"
@@ -2911,7 +2911,6 @@ void Aura::HandleModPossess(bool apply, bool Real)
 
         if(m_target->GetTypeId() == TYPEID_PLAYER)
             ((Player*)m_target)->setFactionForRace(m_target->getRace());
-
         else if(m_target->GetTypeId() == TYPEID_UNIT)
         {
             CreatureInfo const *cinfo = ((Creature*)m_target)->GetCreatureInfo();
@@ -4624,36 +4623,22 @@ void Aura::HandleComprehendLanguage(bool apply, bool Real)
 
 void Aura::HandleAuraModIncreaseHealth(bool apply, bool Real)
 {
-    // Special case with temporary increase max/current health
-    switch(GetId())
+    if(Real)
     {
-        case 12976:                                         // Warrior Last Stand triggered spell
-        case 28726:                                         // Nightmare Seed ( Nightmare Seed )
-        case 34511:                                         // Valor (Bulwark of Kings, Bulwark of the Ancient Kings)
-        case 44055:                                         // Tremendous Fortitude (Battlemaster's Alacrity)
+        if(apply)
         {
-            if(Real)
-            {
-                if(apply)
-                {
-                    m_target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, float(m_modifier.m_amount), apply);
-                    m_target->ModifyHealth(m_modifier.m_amount);
-                }
-                else
-                {
-                    if (int32(m_target->GetHealth()) > m_modifier.m_amount)
-                        m_target->ModifyHealth(-m_modifier.m_amount);
-                    else
-                        m_target->SetHealth(1);
-                    m_target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, float(m_modifier.m_amount), apply);
-                }
-            }
-            return;
+            m_target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, float(m_modifier.m_amount), apply);
+            m_target->ModifyHealth(m_modifier.m_amount);
+        }
+        else
+        {
+            if (int32(m_target->GetHealth()) > m_modifier.m_amount)
+                m_target->ModifyHealth(-m_modifier.m_amount);
+            else
+                m_target->SetHealth(1);
+            m_target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, float(m_modifier.m_amount), apply);
         }
     }
-
-    // generic case
-    m_target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, float(m_modifier.m_amount), apply);
 }
 
 void  Aura::HandleAuraModIncreaseMaxHealth(bool apply, bool Real)

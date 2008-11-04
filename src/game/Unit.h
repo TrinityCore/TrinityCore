@@ -10,7 +10,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -216,6 +216,8 @@ enum HitInfo
     HITINFO_ABSORB              = 0x00000020,               // plays absorb sound
     HITINFO_RESIST              = 0x00000040,               // resisted atleast some damage
     HITINFO_CRITICALHIT         = 0x00000080,
+    HITINFO_UNK2                = 0x00000100,               // wotlk?
+    HITINFO_UNK3                = 0x00002000,               // wotlk?
     HITINFO_GLANCING            = 0x00004000,
     HITINFO_CRUSHING            = 0x00008000,
     HITINFO_NOACTION            = 0x00010000,
@@ -512,7 +514,7 @@ enum NPCFlags
     UNIT_NPC_FLAG_AUCTIONEER            = 0x00200000,       // 100%
     UNIT_NPC_FLAG_STABLEMASTER          = 0x00400000,       // 100%
     UNIT_NPC_FLAG_GUILD_BANKER          = 0x00800000,       // cause client to send 997 opcode
-    UNIT_NPC_FLAG_UNK3                  = 0x01000000,       // cause client to send 1015 opcode
+    UNIT_NPC_FLAG_SPELLCLICK            = 0x01000000,       // cause client to send 1015 opcode (spell click)
     UNIT_NPC_FLAG_GUARD                 = 0x10000000,       // custom flag for guards
     UNIT_NPC_FLAG_OUTDOORPVP            = 0x20000000,       // custom flag for outdoor pvp creatures
 };
@@ -647,8 +649,8 @@ struct CharmInfo
         CommandStates GetCommandState() { return m_CommandState; }
         bool HasCommandState(CommandStates state) { return (m_CommandState == state); }
         void SetReactState(ReactStates st) { m_reactState = st; }
-		ReactStates GetReactState() { return m_reactState; }
-		bool HasReactState(ReactStates state) { return (m_reactState == state); }
+        ReactStates GetReactState() { return m_reactState; }
+        bool HasReactState(ReactStates state) { return (m_reactState == state); }
 
         void InitPossessCreateSpells();
         void InitCharmCreateSpells();
@@ -992,6 +994,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         CharmInfo* GetCharmInfo() { return m_charmInfo; }
         CharmInfo* InitCharmInfo(Unit* charm);
 
+        Pet* CreateTamedPetFrom(Creature* creatureTarget,uint32 spell_id = 0);
+
         bool AddAura(Aura *aur);
 
         void RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
@@ -1329,6 +1333,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool HandleProcTriggerSpell(Unit *pVictim,uint32 damage, Aura* triggredByAura, SpellEntry const *procSpell, uint32 procFlags,WeaponAttackType attType,uint32 cooldown);
         bool HandleHasteAuraProc(Unit *pVictim, SpellEntry const *spellProto, uint32 effIndex, uint32 damage, Aura* triggredByAura, SpellEntry const * procSpell, uint32 procFlag,uint32 cooldown);
         bool HandleOverrideClassScriptAuraProc(Unit *pVictim, int32 scriptId, uint32 damage, Aura* triggredByAura, SpellEntry const *procSpell,uint32 cooldown);
+
         uint32 m_state;                                     // Even derived shouldn't modify
         uint32 m_CombatTimer;
         uint32 m_lastManaUse;                               // msecs

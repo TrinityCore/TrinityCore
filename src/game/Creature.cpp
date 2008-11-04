@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "Common.h"
@@ -121,7 +121,7 @@ Unit(), i_AI(NULL),
 lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), lootingGroupLeaderGUID(0),
 m_lootMoney(0), m_lootRecipient(0),
 m_deathTimer(0), m_respawnTime(0), m_respawnDelay(25), m_corpseDelay(60), m_respawnradius(0.0f),
-m_gossipOptionLoaded(false),m_emoteState(0), m_isPet(false), m_isTotem(false),
+m_gossipOptionLoaded(false), m_emoteState(0), m_isPet(false), m_isTotem(false),
 m_regenTimer(2000), m_defaultMovementType(IDLE_MOTION_TYPE), m_equipmentId(0),
 m_AlreadyCallAssistence(false), m_regenHealth(true), m_AI_locked(false), m_isDeadByDefault(false),
 m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),m_creatureInfo(NULL), m_DBTableGuid(0)
@@ -574,7 +574,6 @@ bool Creature::isCanTrainingOf(Player* pPlayer, bool msg) const
 
     TrainerSpellData const* trainer_spells = GetTrainerSpells();
 
-
     if(!trainer_spells || trainer_spells->spellList.empty())
     {
         sLog.outErrorDb("Creature %u (Entry: %u) have UNIT_NPC_FLAG_TRAINER but have empty trainer spell list.",
@@ -834,6 +833,7 @@ void Creature::OnGossipSelect(Player* player, uint32 option)
     uint32 action=gossipmenu.GetItem(option).m_gAction;
     uint32 zoneid=GetZoneId();
     uint64 guid=GetGUID();
+
     GossipOption const *gossip=GetGossipOption( action );
     uint32 textid;
     if(!gossip)
@@ -851,13 +851,13 @@ void Creature::OnGossipSelect(Player* player, uint32 option)
     {
         case GOSSIP_OPTION_GOSSIP:
             player->PlayerTalkClass->CloseGossip();
-            player->PlayerTalkClass->SendTalking( textid );
+            player->PlayerTalkClass->SendTalking(textid);
             break;
         case GOSSIP_OPTION_OUTDOORPVP:
             sOutdoorPvPMgr.HandleGossipOption(player, GetGUID(), option);
             break;
         case GOSSIP_OPTION_SPIRITHEALER:
-            if( player->isDead() )
+            if (player->isDead())
                 CastSpell(this,17251,true,NULL,NULL,player->GetGUID());
             break;
         case GOSSIP_OPTION_QUESTGIVER:
@@ -1393,7 +1393,7 @@ void Creature::LoadEquipment(uint32 equip_entry, bool force)
     {
         if (force)
         {
-            for (uint8 i=0;i<3;i++)
+            for (uint8 i = 0; i < 3; i++)
             {
                 SetUInt32Value( UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + i, 0);
                 SetUInt32Value( UNIT_VIRTUAL_ITEM_INFO + (i * 2), 0);
@@ -1409,7 +1409,7 @@ void Creature::LoadEquipment(uint32 equip_entry, bool force)
         return;
 
     m_equipmentId = equip_entry;
-    for (uint8 i=0;i<3;i++)
+    for (uint8 i = 0; i < 3; i++)
     {
         SetUInt32Value( UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + i, einfo->equipmodel[i]);
         SetUInt32Value( UNIT_VIRTUAL_ITEM_INFO + (i * 2), einfo->equipinfo[i]);
@@ -2022,7 +2022,6 @@ char const* Creature::GetScriptName() const
     return ObjectMgr::GetCreatureTemplate(GetEntry())->ScriptName;
 }
 
-
 VendorItemData const* Creature::GetVendorItems() const
 {
     return objmgr.GetNpcVendorItemList(GetEntry());
@@ -2052,7 +2051,7 @@ uint32 Creature::GetVendorItemCurrentCount(VendorItem const* vItem)
         uint32 diff = uint32((ptime - vCount->lastIncrementTime)/vItem->incrtime);
         if((vCount->count + diff * pProto->BuyCount) >= vItem->maxcount )
         {
-            m_vendorItemCounts.erase(itr);        
+            m_vendorItemCounts.erase(itr);
             return vItem->maxcount;
         }
 
