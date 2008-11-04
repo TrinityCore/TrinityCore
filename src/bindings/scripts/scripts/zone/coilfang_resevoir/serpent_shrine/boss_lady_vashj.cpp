@@ -27,59 +27,46 @@ EndScriptData */
 #include "Item.h"
 #include "Spell.h"
 
-#define SPELL_MULTI_SHOT              38310
-#define SPELL_SHOCK_BLAST             38509
-#define SPELL_ENTANGLE                38316
-#define SPELL_STATIC_CHARGE_TRIGGER   38280
-#define SPELL_FORKED_LIGHTNING        40088
-#define SPELL_SHOOT                   40873
-#define SPELL_POISON_BOLT             40095
-#define SPELL_TOXIC_SPORES            38575
-#define SPELL_MAGIC_BARRIER           38112
+#define SAY_INTRO                   -1548042
+#define SAY_AGGRO1                  -1548043
+#define SAY_AGGRO2                  -1548044
+#define SAY_AGGRO3                  -1548045
+#define SAY_AGGRO4                  -1548046
+#define SAY_PHASE1                  -1548047
+#define SAY_PHASE2                  -1548048
+#define SAY_PHASE3                  -1548049
+#define SAY_BOWSHOT1                -1548050
+#define SAY_BOWSHOT2                -1548051
+#define SAY_SLAY1                   -1548052
+#define SAY_SLAY2                   -1548053
+#define SAY_SLAY3                   -1548054
+#define SAY_DEATH                   -1548055
 
-#define SAY_INTRO                     "Water is life. It has become a rare commodity here in Outland. A commodity that we alone shall control. We are the Highborne, and the time has come at last for us to retake our rightful place in the world!"
-#define SAY_AGGRO1                    "I'll split you from stem to stern! "
-#define SAY_AGGRO2                    "Victory to Lord Illidan!"
-#define SAY_AGGRO3                    "I spit on you, surface filth!"
-#define SAY_AGGRO4                    "Death to the outsiders!"
-#define SAY_PHASE1                    "I did not wish to lower myself by engaging your kind, but you leave me little choice!"
-#define SAY_PHASE2                    "The time is now! Leave none standing!"
-#define SAY_PHASE3                    "You may want to take cover."
-#define SAY_BOWSHOT1                  "Straight to the heart!"
-#define SAY_BOWSHOT2                  "Seek your mark!"
-#define SAY_SLAY1                     "Your time ends now!"
-#define SAY_SLAY2                     "You have failed!"
-#define SAY_DEATH                     "Lord Illidan, I... I am... sorry."
+#define SPELL_MULTI_SHOT            38310
+#define SPELL_SHOCK_BLAST           38509
+#define SPELL_ENTANGLE              38316
+#define SPELL_STATIC_CHARGE_TRIGGER 38280
+#define SPELL_FORKED_LIGHTNING      40088
+#define SPELL_SHOOT                 40873
+#define SPELL_POISON_BOLT           40095
+#define SPELL_TOXIC_SPORES          38575
+#define SPELL_MAGIC_BARRIER         38112
 
-#define SOUND_INTRO                   11531
-#define SOUND_AGGRO1                  11532
-#define SOUND_AGGRO2                  11533
-#define SOUND_AGGRO3                  11534
-#define SOUND_AGGRO4                  11535
-#define SOUND_PHASE1                  11538
-#define SOUND_PHASE2                  11539
-#define SOUND_PHASE3                  11540
-#define SOUND_BOWSHOT1                11536
-#define SOUND_BOWSHOT2                11537
-#define SOUND_SLAY1                   11541
-#define SOUND_SLAY2                   11542
-#define SOUND_DEATH                   11544
+#define MIDDLE_X                    30.134
+#define MIDDLE_Y                    -923.65
+#define MIDDLE_Z                    42.9
 
-#define MIDDLE_X                      30.134
-#define MIDDLE_Y                      -923.65
-#define MIDDLE_Z                      42.9
+#define SPOREBAT_X                  30.977156
+#define SPOREBAT_Y                  -925.297761
+#define SPOREBAT_Z                  77.176567
+#define SPOREBAT_O                  5.223932
 
-#define SPOREBAT_X                    30.977156
-#define SPOREBAT_Y                    -925.297761
-#define SPOREBAT_Z                    77.176567
-#define SPOREBAT_O                    5.223932
-
-#define SHIED_GENERATOR_CHANNEL       19870
-#define ENCHANTED_ELEMENTAL           21958
-#define TAINTED_ELEMENTAL             22009
-#define COILFANG_STRIDER              22056
-#define COILFANG_ELITE                22055
-#define TOXIC_SPOREBAT               22140
+#define SHIED_GENERATOR_CHANNEL     19870
+#define ENCHANTED_ELEMENTAL         21958
+#define TAINTED_ELEMENTAL           22009
+#define COILFANG_STRIDER            22056
+#define COILFANG_ELITE              22055
+#define TOXIC_SPOREBAT             22140
 
 float ElementPos[8][4] =
 {
@@ -213,8 +200,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
 
                 m_creature->GetMotionMaster()->Clear(false);
                 m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                DoYell(SAY_INTRO,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_INTRO);
+                DoScriptText(SAY_INTRO, m_creature);
                 m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
                 AggroTargetGUID = who->GetGUID();
                 Intro = true;
@@ -224,24 +210,17 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        switch(rand()%2)
+        switch(rand()%3)
         {
-            case 0:
-                DoYell(SAY_SLAY1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY1);
-                break;
-
-            case 1:
-                DoPlaySoundToSet(m_creature, SOUND_SLAY1);
-                DoYell(SAY_SLAY2, LANG_UNIVERSAL, NULL);
-                break;
+            case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+            case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+            case 2: DoScriptText(SAY_SLAY3, m_creature); break;
         }
     }
 
     void JustDied(Unit *victim)
     {
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
-        DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
+        DoScriptText(SAY_DEATH, m_creature);
 
         if(pInstance)
             pInstance->SetData(DATA_LADYVASHJEVENT, DONE);
@@ -251,22 +230,10 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
     {
         switch(rand()%4)
         {
-            case 0:
-                DoPlaySoundToSet(m_creature, SOUND_AGGRO1);
-                DoYell(SAY_AGGRO1, LANG_UNIVERSAL, NULL);
-                break;
-            case 1:
-                DoPlaySoundToSet(m_creature, SOUND_AGGRO2);
-                DoYell(SAY_AGGRO2, LANG_UNIVERSAL, NULL);
-                break;
-            case 2:
-                DoPlaySoundToSet(m_creature, SOUND_AGGRO3);
-                DoYell(SAY_AGGRO3, LANG_UNIVERSAL, NULL);
-                break;
-            case 3:
-                DoPlaySoundToSet(m_creature, SOUND_AGGRO4);
-                DoYell(SAY_AGGRO4, LANG_UNIVERSAL, NULL);
-                break;
+            case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
+            case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
+            case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
+            case 3: DoScriptText(SAY_AGGRO4, m_creature); break;
         }
 
         Phase = 1;
@@ -297,14 +264,8 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
         {
             switch(rand()%2)
             {
-                case 0:
-                    DoPlaySoundToSet(m_creature, SOUND_BOWSHOT1);
-                    DoYell(SAY_BOWSHOT1, LANG_UNIVERSAL, NULL);
-                    break;
-                case 1:
-                    DoPlaySoundToSet(m_creature, SOUND_BOWSHOT2);
-                    DoYell(SAY_BOWSHOT2, LANG_UNIVERSAL, NULL);
-                    break;
+                case 0: DoScriptText(SAY_BOWSHOT1, m_creature); break;
+                case 1: DoScriptText(SAY_BOWSHOT2, m_creature); break;
             }
         }
     }
@@ -331,22 +292,10 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 				switch(rand()%4)
 				{
-				case 0:
-					DoPlaySoundToSet(m_creature, SOUND_AGGRO1);
-					DoYell(SAY_AGGRO1, LANG_UNIVERSAL, NULL);
-					break;
-				case 1:
-					DoPlaySoundToSet(m_creature, SOUND_AGGRO2);
-					DoYell(SAY_AGGRO2, LANG_UNIVERSAL, NULL);
-					break;
-				case 2:
-					DoPlaySoundToSet(m_creature, SOUND_AGGRO3);
-					DoYell(SAY_AGGRO3, LANG_UNIVERSAL, NULL);
-					break;
-				case 3:
-					DoPlaySoundToSet(m_creature, SOUND_AGGRO4);
-					DoYell(SAY_AGGRO4, LANG_UNIVERSAL, NULL);
-					break;
+                    case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
+                    case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
+                    case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
+                    case 3: DoScriptText(SAY_AGGRO4, m_creature); break;
 				}
 				Phase = 1;
                 m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
@@ -438,8 +387,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
                             ShieldGeneratorChannel[i] = pCreature->GetGUID();
                     }
 
-                    DoPlaySoundToSet(m_creature, SOUND_PHASE2);
-                    DoYell(SAY_PHASE2, LANG_UNIVERSAL, NULL);
+                    DoScriptText(SAY_PHASE2, m_creature);
                 }
             }
             //Phase 3
@@ -590,8 +538,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     m_creature->RemoveAurasDueToSpell(SPELL_MAGIC_BARRIER);
 
-                    DoPlaySoundToSet(m_creature, SOUND_PHASE3);
-                    DoYell(SAY_PHASE3, LANG_UNIVERSAL, NULL);
+                    DoScriptText(SAY_PHASE3, m_creature);
 
                     Phase = 3;
 
