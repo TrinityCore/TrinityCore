@@ -529,7 +529,7 @@ struct TRINITY_DLL_DECL guard_contested : public guardAI
                         DoCastSpell(who, spell);
                     }
                 }
-                DoStartMovement(who);
+                AttackStart(who);
             }
         }
     }
