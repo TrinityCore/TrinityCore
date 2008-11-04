@@ -367,6 +367,7 @@ scripts/zone/uldaman/uldaman.cpp \
 scripts/zone/undercity/undercity.cpp \
 scripts/zone/wailing_caverns/instance_wailing_caverns.cpp \
 scripts/zone/western_plaguelands/western_plaguelands.cpp \
+scripts/zone/westfall/westfall.cpp \
 scripts/zone/winterspring/winterspring.cpp \
 scripts/zone/zangarmarsh/zangarmarsh.cpp \
 scripts/zone/zulaman/boss_akilzon.cpp \
