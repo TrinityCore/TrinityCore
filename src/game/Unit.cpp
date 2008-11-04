@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "Common.h"
@@ -1696,56 +1696,60 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
         RemainingDamage -= currentAbsorb;
     }
 
-    AuraList const& vSplitDamageFlat = pVictim->GetAurasByType(SPELL_AURA_SPLIT_DAMAGE_FLAT);
-    for(AuraList::const_iterator i = vSplitDamageFlat.begin(), next; i != vSplitDamageFlat.end() && RemainingDamage >= 0; i = next)
+    // only split damage if not damaing yourself
+    if(pVictim != this)
     {
-        next = i; ++next;
+        AuraList const& vSplitDamageFlat = pVictim->GetAurasByType(SPELL_AURA_SPLIT_DAMAGE_FLAT);
+        for(AuraList::const_iterator i = vSplitDamageFlat.begin(), next; i != vSplitDamageFlat.end() && RemainingDamage >= 0; i = next)
+        {
+            next = i; ++next;
 
-        // check damage school mask
-        if(((*i)->GetModifier()->m_miscvalue & schoolMask)==0)
-            continue;
+            // check damage school mask
+            if(((*i)->GetModifier()->m_miscvalue & schoolMask)==0)
+                continue;
 
-        // Damage can be splitted only if aura has an alive caster
-        Unit *caster = (*i)->GetCaster();
-        if(!caster || caster == pVictim || !caster->IsInWorld() || !caster->isAlive())
-            continue;
+            // Damage can be splitted only if aura has an alive caster
+            Unit *caster = (*i)->GetCaster();
+            if(!caster || caster == pVictim || !caster->IsInWorld() || !caster->isAlive())
+                continue;
 
-        int32 currentAbsorb;
-        if (RemainingDamage >= (*i)->GetModifier()->m_amount)
-            currentAbsorb = (*i)->GetModifier()->m_amount;
-        else
-            currentAbsorb = RemainingDamage;
+            int32 currentAbsorb;
+            if (RemainingDamage >= (*i)->GetModifier()->m_amount)
+                currentAbsorb = (*i)->GetModifier()->m_amount;
+            else
+                currentAbsorb = RemainingDamage;
 
-        RemainingDamage -= currentAbsorb;
+            RemainingDamage -= currentAbsorb;
 
-        SendSpellNonMeleeDamageLog(caster, (*i)->GetSpellProto()->Id, currentAbsorb, schoolMask, 0, 0, false, 0, false);
+            SendSpellNonMeleeDamageLog(caster, (*i)->GetSpellProto()->Id, currentAbsorb, schoolMask, 0, 0, false, 0, false);
 
-        CleanDamage cleanDamage = CleanDamage(currentAbsorb, BASE_ATTACK, MELEE_HIT_NORMAL);
-        DealDamage(caster, currentAbsorb, &cleanDamage, DIRECT_DAMAGE, schoolMask, (*i)->GetSpellProto(), false);
-    }
+            CleanDamage cleanDamage = CleanDamage(currentAbsorb, BASE_ATTACK, MELEE_HIT_NORMAL);
+            DealDamage(caster, currentAbsorb, &cleanDamage, DIRECT_DAMAGE, schoolMask, (*i)->GetSpellProto(), false);
+        }
 
-    AuraList const& vSplitDamagePct = pVictim->GetAurasByType(SPELL_AURA_SPLIT_DAMAGE_PCT);
-    for(AuraList::const_iterator i = vSplitDamagePct.begin(), next; i != vSplitDamagePct.end() && RemainingDamage >= 0; i = next)
-    {
-        next = i; ++next;
+        AuraList const& vSplitDamagePct = pVictim->GetAurasByType(SPELL_AURA_SPLIT_DAMAGE_PCT);
+        for(AuraList::const_iterator i = vSplitDamagePct.begin(), next; i != vSplitDamagePct.end() && RemainingDamage >= 0; i = next)
+        {
+            next = i; ++next;
 
-        // check damage school mask
-        if(((*i)->GetModifier()->m_miscvalue & schoolMask)==0)
-            continue;
+            // check damage school mask
+            if(((*i)->GetModifier()->m_miscvalue & schoolMask)==0)
+                continue;
 
-        // Damage can be splitted only if aura has an alive caster
-        Unit *caster = (*i)->GetCaster();
-        if(!caster || caster == pVictim || !caster->IsInWorld() || !caster->isAlive())
-            continue;
+            // Damage can be splitted only if aura has an alive caster
+            Unit *caster = (*i)->GetCaster();
+            if(!caster || caster == pVictim || !caster->IsInWorld() || !caster->isAlive())
+                continue;
 
-        int32 splitted = int32(RemainingDamage * (*i)->GetModifier()->m_amount / 100.0f);
+            int32 splitted = int32(RemainingDamage * (*i)->GetModifier()->m_amount / 100.0f);
 
-        RemainingDamage -= splitted;
+            RemainingDamage -= splitted;
 
-        SendSpellNonMeleeDamageLog(caster, (*i)->GetSpellProto()->Id, splitted, schoolMask, 0, 0, false, 0, false);
+            SendSpellNonMeleeDamageLog(caster, (*i)->GetSpellProto()->Id, splitted, schoolMask, 0, 0, false, 0, false);
 
-        CleanDamage cleanDamage = CleanDamage(splitted, BASE_ATTACK, MELEE_HIT_NORMAL);
-        DealDamage(caster, splitted, &cleanDamage, DIRECT_DAMAGE, schoolMask, (*i)->GetSpellProto(), false);
+            CleanDamage cleanDamage = CleanDamage(splitted, BASE_ATTACK, MELEE_HIT_NORMAL);
+            DealDamage(caster, splitted, &cleanDamage, DIRECT_DAMAGE, schoolMask, (*i)->GetSpellProto(), false);
+        }
     }
 
     *absorb = damage - RemainingDamage - *resist;
@@ -1944,7 +1948,7 @@ void Unit::DoAttackDamage (Unit *pVictim, uint32 *damage, CleanDamage *cleanDama
                 float basetime = float(pVictim->getAttackTimer(BASE_ATTACK));
 
                 // after parry nearest next attack time will reduced at %40 from full attack time.
-                // The delay cannot be reduced to less than 20% of your weapon's base swing delay.
+                // The delay cannot be reduced to less than 20% of your weapon base swing delay.
                 if (pVictim->haveOffhandWeapon() && offtime < basetime)
                 {
                     float percent20 = pVictim->GetAttackTime(OFF_ATTACK)*0.20;
@@ -6489,21 +6493,21 @@ bool Unit::HandleOverrideClassScriptAuraProc(Unit *pVictim, int32 scriptId, uint
     {
         case 836:                                           // Improved Blizzard (Rank 1)
         {
-            if( !procSpell || procSpell->SpellVisual!=9487)
+            if (!procSpell || procSpell->SpellVisual!=9487)
                 return false;
             triggered_spell_id = 12484;
             break;
         }
         case 988:                                           // Improved Blizzard (Rank 2)
         {
-            if( !procSpell || procSpell->SpellVisual!=9487)
+            if (!procSpell || procSpell->SpellVisual!=9487)
                 return false;
             triggered_spell_id = 12485;
             break;
         }
         case 989:                                           // Improved Blizzard (Rank 3)
         {
-            if( !procSpell || procSpell->SpellVisual!=9487)
+            if (!procSpell || procSpell->SpellVisual!=9487)
                 return false;
             triggered_spell_id = 12486;
             break;
@@ -7302,6 +7306,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                     TakenTotalMod *= (100.0f+(*i)->GetModifier()->m_amount)/100.0f; break;
         }
     }
+
     // .. taken pct: dummy auras
     AuraList const& mDummyAuras = pVictim->GetAurasByType(SPELL_AURA_DUMMY);
     for(AuraList::const_iterator i = mDummyAuras.begin(); i != mDummyAuras.end(); ++i)
@@ -7535,7 +7540,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 CastingTime = 0;
             }
             // Holy Nova - 14%
-            else if ((spellProto->SpellFamilyFlags & 0x400000LL) && spellProto->SpellIconID == 1874) 
+            else if ((spellProto->SpellFamilyFlags & 0x400000LL) && spellProto->SpellIconID == 1874)
             {
                 CastingTime = 500;
             }
@@ -7775,7 +7780,6 @@ uint32 Unit::SpellHealingBonus(SpellEntry const *spellProto, uint32 healamount, 
         spellProto->Id == 38395 || spellProto->Id == 40972)
         return healamount;
 
-
     int32 AdvertisedBenefit = SpellBaseHealingBonus(GetSpellSchoolMask(spellProto));
     uint32 CastingTime = GetSpellCastTime(spellProto);
 
@@ -7880,7 +7884,7 @@ uint32 Unit::SpellHealingBonus(SpellEntry const *spellProto, uint32 healamount, 
                 break;
             case SPELLFAMILY_PRIEST:
                 // Holy Nova - 14%
-                if ((spellProto->SpellFamilyFlags & 0x8000000LL) && spellProto->SpellIconID == 1874) 
+                if ((spellProto->SpellFamilyFlags & 0x8000000LL) && spellProto->SpellIconID == 1874)
                     CastingTime = 500;
                 break;
             case SPELLFAMILY_PALADIN:
@@ -8642,7 +8646,7 @@ bool Unit::isVisibleForOrDetect(Unit const* u, bool detect, bool inVisibleList) 
 
     // raw invisibility
     bool invisible = (m_invisibilityMask != 0 || u->m_invisibilityMask !=0);
-    
+
     // detectable invisibility case
     if( invisible && (
         // Invisible units, always are visible for units under same invisibility type
@@ -10375,7 +10379,7 @@ void Unit::SendPetSpellCooldown (uint32 spellid, time_t cooltime)
 
     WorldPacket data(SMSG_SPELL_COOLDOWN, 8+1+4+4);
     data << uint64(GetGUID());
-    data << uint8(0x0);
+    data << uint8(0x0);                                     // flags (0x1, 0x2)
     data << uint32(spellid);
     data << uint32(cooltime);
 
@@ -10885,4 +10889,35 @@ void Unit::RemovePetAura(PetAura const* petSpell)
     m_petAuras.erase(petSpell);
     if(Pet* pet = GetPet())
         pet->RemoveAurasDueToSpell(petSpell->GetAura(pet->GetEntry()));
+}
+
+Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget,uint32 spell_id)
+{
+    Pet* pet = new Pet(HUNTER_PET);
+
+    if(!pet->CreateBaseAtCreature(creatureTarget))
+    {
+        delete pet;
+        return NULL;
+    }
+
+    pet->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, this->GetGUID());
+    pet->SetUInt64Value(UNIT_FIELD_CREATEDBY, this->GetGUID());
+    pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE,this->getFaction());
+    pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, spell_id);
+
+    if(!pet->InitStatsForLevel(creatureTarget->getLevel()))
+    {
+        sLog.outError("ERROR: Pet::InitStatsForLevel() failed for creature (Entry: %u)!",creatureTarget->GetEntry());
+        delete pet;
+        return NULL;
+    }
+
+    pet->GetCharmInfo()->SetPetNumber(objmgr.GeneratePetNumber(), true);
+    // this enables pet details window (Shift+P)
+    pet->AIM_Initialize();
+    pet->InitPetCreateSpells();
+    pet->SetHealth(pet->GetMaxHealth());
+
+    return pet;
 }
