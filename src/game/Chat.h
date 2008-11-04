@@ -349,6 +349,7 @@ class ChatHandler
         bool HandleUnAuraCommand(const char* args);
         bool HandleLinkGraveCommand(const char* args);
         bool HandleNearGraveCommand(const char* args);
+        bool HandleActivateObjectCommand(const char* args);
         bool HandleSpawnTransportCommand(const char* args);
         bool HandleExploreCheatCommand(const char* args);
         bool HandleTextEmoteCommand(const char* args);
@@ -360,6 +361,11 @@ class ChatHandler
         bool HandleHideAreaCommand(const char* args);
         bool HandleAddItemCommand(const char* args);
         bool HandleAddItemSetCommand(const char* args);
+        bool HandleModifyGenderCommand(const char* args);
+        bool HandlePetTpCommand(const char* args);
+        bool HandlePetUnlearnCommand(const char* args);
+        bool HandlePetLearnCommand(const char* args);
+        bool HandleCreatePetCommand(const char* args);
 
         bool HandleGroupLeaderCommand(const char* args);
         bool HandleGroupDisbandCommand(const char* args);
@@ -424,6 +430,7 @@ class ChatHandler
         bool HandleCombatStopCommand(const char *args);
         bool HandleCharDeleteCommand(const char *args);
 		bool HandleSendMessageCommand(const char * args);
+        bool HandlePlayAllCommand(const char* args);
         bool HandleRepairitemsCommand(const char* args);
         bool HandleFlushArenaPointsCommand(const char *args);
 

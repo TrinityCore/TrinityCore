@@ -4127,3 +4127,203 @@ bool ChatHandler::HandleNpcUnFollowCommand(const char* /*args*/)
     PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU_NOW, creature->GetName());
     return true;
 }
+
+bool ChatHandler::HandleCreatePetCommand(const char* args)
+{
+	Player *player = m_session->GetPlayer();
+	Creature *creatureTarget = getSelectedCreature();
+
+	CreatureInfo const* cInfo = objmgr.GetCreatureTemplate(creatureTarget->GetEntry());
+	// Creatures with family 0 crashes the server
+	if(cInfo->family == 0)
+	{
+		PSendSysMessage("This creature cannot be tamed. (family id: 0).");
+		SetSentErrorMessage(true);
+		return false;
+	}
+
+	if(player->GetPetGUID())
+	{
+		PSendSysMessage("You already have a pet");
+		SetSentErrorMessage(true);
+		return false;
+	}
+	
+	if(!creatureTarget || creatureTarget->isPet() || creatureTarget->GetTypeId() == TYPEID_PLAYER)
+	{
+		PSendSysMessage(LANG_SELECT_CREATURE);
+		SetSentErrorMessage(true);
+		return false;
+	}
+
+	// Everything looks OK, create new pet
+	Pet* pet = new Pet(HUNTER_PET);
+
+	if(!pet->CreateBaseAtCreature(creatureTarget))
+	{
+		delete pet;
+		PSendSysMessage("Error 1");
+		return false;
+	}
+
+	creatureTarget->setDeathState(JUST_DIED);
+	creatureTarget->RemoveCorpse();
+	creatureTarget->SetHealth(0); // just for nice GM-mode view
+
+	pet->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, player->GetGUID());
+	pet->SetUInt64Value(UNIT_FIELD_CREATEDBY, player->GetGUID());
+	pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, player->getFaction());
+
+	if(!pet->InitStatsForLevel(creatureTarget->getLevel()))
+	{
+		sLog.outError("ERROR: InitStatsForLevel() in EffectTameCreature failed! Pet deleted.");
+		PSendSysMessage("Error 2");
+		return false;
+	}
+
+	// prepare visual effect for levelup
+	pet->SetUInt32Value(UNIT_FIELD_LEVEL,creatureTarget->getLevel()-1);
+
+	 pet->GetCharmInfo()->SetPetNumber(objmgr.GeneratePetNumber(), true);
+	 // this enables pet details window (Shift+P)
+	 pet->AIM_Initialize();
+	 pet->InitPetCreateSpells();
+	 pet->SetHealth(pet->GetMaxHealth());
+
+	 MapManager::Instance().GetMap(pet->GetMapId(), pet)->Add((Creature*)pet);
+
+	 // visual effect for levelup
+	 pet->SetUInt32Value(UNIT_FIELD_LEVEL,creatureTarget->getLevel());
+
+	 player->SetPet(pet);
+	 pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+	 player->PetSpellInitialize();
+
+	return true;
+}
+
+bool ChatHandler::HandlePetLearnCommand(const char* args)
+{
+	if(!*args)
+		return false;
+
+	Player *plr = m_session->GetPlayer();
+	Pet *pet = plr->GetPet();
+
+	if(!pet)
+	{
+		PSendSysMessage("You have no pet");
+		SetSentErrorMessage(true);
+		return false;
+	}
+
+	uint32 spellId = extractSpellIdFromLink((char*)args);
+
+	if(!spellId || !sSpellStore.LookupEntry(spellId))
+        return false;
+
+	// Check if pet already has it
+	if(pet->HasSpell(spellId))
+	{
+		PSendSysMessage("Pet already has spell: %u", spellId);
+		SetSentErrorMessage(true);
+        return false;
+	}
+
+	// Check if spell is valid
+	SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellId);
+	if(!spellInfo || !SpellMgr::IsSpellValid(spellInfo))
+    {
+        PSendSysMessage(LANG_COMMAND_SPELL_BROKEN,spellId);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+	pet->learnSpell(spellId);
+
+	PSendSysMessage("Pet has learned spell %u", spellId);
+	return true;
+}
+
+bool ChatHandler::HandlePetUnlearnCommand(const char *args)
+{
+	if(!*args)
+		return false;
+
+	Player *plr = m_session->GetPlayer();
+	Pet *pet = plr->GetPet();
+
+	if(!pet)
+	{
+		PSendSysMessage("You have no pet");
+		SetSentErrorMessage(true);
+		return false;
+	}
+
+	uint32 spellId = extractSpellIdFromLink((char*)args);
+
+	if(pet->HasSpell(spellId))
+		pet->removeSpell(spellId);
+	else
+		PSendSysMessage("Pet doesn't have that spell");
+
+	return true;
+}
+
+bool ChatHandler::HandlePetTpCommand(const char *args)
+{
+	if(!*args)
+		return false;
+
+	Player *plr = m_session->GetPlayer();
+	Pet *pet = plr->GetPet();
+
+	if(!pet)
+	{
+		PSendSysMessage("You have no pet");
+		SetSentErrorMessage(true);
+		return false;
+	}
+
+	uint32 tp = atol(args);
+
+	pet->SetTP(tp);
+
+	PSendSysMessage("Pet's tp changed to %u", tp);
+	return true;
+}
+
+bool ChatHandler::HandleActivateObjectCommand(const char *args)
+{
+	if(!*args)
+		return false;
+
+	char* cId = extractKeyFromLink((char*)args,"Hgameobject");
+    if(!cId)
+        return false;
+
+    uint32 lowguid = atoi(cId);
+    if(!lowguid)
+        return false;
+
+    GameObject* obj = NULL;
+
+    // by DB guid
+    if (GameObjectData const* go_data = objmgr.GetGOData(lowguid))
+        obj = GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid,go_data->id);
+
+    if(!obj)
+    {
+        PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, lowguid);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+	// Activate
+	obj->SetLootState(GO_READY);
+	obj->UseDoorOrButton(10000);
+
+	PSendSysMessage("Object activated!");
+
+	return true;
+}
