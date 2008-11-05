@@ -45,8 +45,8 @@ enum eAuthCmd
     //AUTH_NO_CMD                 = 0xFF,
     AUTH_LOGON_CHALLENGE        = 0x00,
     AUTH_LOGON_PROOF            = 0x01,
-    //AUTH_RECONNECT_CHALLENGE    = 0x02,
-    //AUTH_RECONNECT_PROOF        = 0x03,
+    AUTH_RECONNECT_CHALLENGE    = 0x02,
+    AUTH_RECONNECT_PROOF        = 0x03,
     //update srv =4
     REALM_LIST                  = 0x10,
     XFER_INITIATE               = 0x30,
@@ -198,12 +198,14 @@ class Patcher
 
 const AuthHandler table[] =
 {
-    { AUTH_LOGON_CHALLENGE,     STATUS_CONNECTED, &AuthSocket::_HandleLogonChallenge},
-    { AUTH_LOGON_PROOF,         STATUS_CONNECTED, &AuthSocket::_HandleLogonProof    },
-    { REALM_LIST,               STATUS_AUTHED,    &AuthSocket::_HandleRealmList     },
-    { XFER_ACCEPT,              STATUS_CONNECTED, &AuthSocket::_HandleXferAccept    },
-    { XFER_RESUME,              STATUS_CONNECTED, &AuthSocket::_HandleXferResume    },
-    { XFER_CANCEL,              STATUS_CONNECTED, &AuthSocket::_HandleXferCancel    }
+    { AUTH_LOGON_CHALLENGE,     STATUS_CONNECTED, &AuthSocket::_HandleLogonChallenge    },
+    { AUTH_LOGON_PROOF,         STATUS_CONNECTED, &AuthSocket::_HandleLogonProof        },
+    { AUTH_RECONNECT_CHALLENGE, STATUS_CONNECTED, &AuthSocket::_HandleReconnectChallenge},
+    { AUTH_RECONNECT_PROOF,     STATUS_CONNECTED, &AuthSocket::_HandleReconnectProof    },
+    { REALM_LIST,               STATUS_AUTHED,    &AuthSocket::_HandleRealmList         },
+    { XFER_ACCEPT,              STATUS_CONNECTED, &AuthSocket::_HandleXferAccept        },
+    { XFER_RESUME,              STATUS_CONNECTED, &AuthSocket::_HandleXferResume        },
+    { XFER_CANCEL,              STATUS_CONNECTED, &AuthSocket::_HandleXferCancel        }
 };
 
 #define AUTH_TOTAL_COMMANDS sizeof(table)/sizeof(AuthHandler)
@@ -707,6 +709,107 @@ bool AuthSocket::_HandleLogonProof()
         }
     }
     return true;
+}
+
+/// Reconnect Challenge command handler
+bool AuthSocket::_HandleReconnectChallenge()
+{
+    DEBUG_LOG("Entering _HandleReconnectChallenge");
+    if (ibuf.GetLength() < sizeof(sAuthLogonChallenge_C))
+        return false;
+
+    ///- Read the first 4 bytes (header) to get the length of the remaining of the packet
+    std::vector<uint8> buf;
+    buf.resize(4);
+
+    ibuf.Read((char *)&buf[0], 4);
+
+    EndianConvert(*((uint16*)(buf[0])));
+    uint16 remaining = ((sAuthLogonChallenge_C *)&buf[0])->size;
+    DEBUG_LOG("[ReconnectChallenge] got header, body is %#04x bytes", remaining);
+
+    if ((remaining < sizeof(sAuthLogonChallenge_C) - buf.size()) || (ibuf.GetLength() < remaining))
+        return false;
+
+    //No big fear of memory outage (size is int16, i.e. < 65536)
+    buf.resize(remaining + buf.size() + 1);
+    buf[buf.size() - 1] = 0;
+    sAuthLogonChallenge_C *ch = (sAuthLogonChallenge_C*)&buf[0];
+
+    ///- Read the remaining of the packet
+    ibuf.Read((char *)&buf[4], remaining);
+    DEBUG_LOG("[ReconnectChallenge] got full packet, %#04x bytes", ch->size);
+    DEBUG_LOG("[ReconnectChallenge] name(%d): '%s'", ch->I_len, ch->I);
+
+    _login = (const char*)ch->I;
+    _safelogin = _login;
+
+    QueryResult *result = dbRealmServer.PQuery ("SELECT sessionkey FROM account WHERE username = '%s'", _safelogin.c_str ());
+
+    // Stop if the account is not found
+    if (!result)
+    {
+        sLog.outError("[ERROR] user %s tried to login and we cannot find his session key in the database.", _login.c_str());
+        SetCloseAndDelete();
+        return false;
+    }
+
+    Field* fields = result->Fetch ();
+    K.SetHexStr (fields[0].GetString ());
+    delete result;
+
+    ///- Sending response
+    ByteBuffer pkt;
+    pkt << (uint8)  AUTH_RECONNECT_CHALLENGE;
+    pkt << (uint8)  0x00;
+    _reconnectProof.SetRand(16*8);
+    pkt.append(_reconnectProof.AsByteBuffer());             // 16 bytes random
+    pkt << (uint64) 0x00 << (uint64) 0x00;                  // 16 bytes zeros
+    SendBuf((char const*)pkt.contents(), pkt.size());
+    return true;
+}
+
+/// Reconnect Proof command handler
+bool AuthSocket::_HandleReconnectProof()
+{
+    DEBUG_LOG("Entering _HandleReconnectProof");
+    ///- Read the packet
+    if (ibuf.GetLength() < sizeof(sAuthReconnectProof_C))
+        return false;
+    if (_login.empty() || !_reconnectProof.GetNumBytes() || !K.GetNumBytes())
+        return false;
+    sAuthReconnectProof_C lp;
+    ibuf.Read((char *)&lp, sizeof(sAuthReconnectProof_C));
+
+    BigNumber t1;
+    t1.SetBinary(lp.R1, 16);
+
+    Sha1Hash sha;
+    sha.Initialize();
+    sha.UpdateData(_login);
+    sha.UpdateBigNumbers(&t1, &_reconnectProof, &K, NULL);
+    sha.Finalize();
+
+    if (!memcmp(sha.GetDigest(), lp.R2, SHA_DIGEST_LENGTH))
+    {
+        ///- Sending response
+        ByteBuffer pkt;
+        pkt << (uint8)  AUTH_RECONNECT_PROOF;
+        pkt << (uint8)  0x00;
+        pkt << (uint16) 0x00;                               // 2 bytes zeros
+        SendBuf((char const*)pkt.contents(), pkt.size());
+
+        ///- Set _authed to true!
+        _authed = true;
+
+        return true;
+    }
+    else
+    {
+        sLog.outError("[ERROR] user %s tried to login, but session invalid.", _login.c_str());
+        SetCloseAndDelete();
+        return false;
+    }
 }
 
 /// %Realm List command handler
