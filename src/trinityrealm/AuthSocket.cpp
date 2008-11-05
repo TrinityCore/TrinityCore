@@ -133,6 +133,15 @@ typedef struct AUTH_LOGON_PROOF_S
     uint16  unk3;
 } sAuthLogonProof_S;
 
+typedef struct AUTH_RECONNECT_PROOF_C
+{
+    uint8   cmd;
+    uint8   R1[16];
+    uint8   R2[20];
+    uint8   R3[20];
+    uint8   number_of_keys;
+} sAuthReconnectProof_C;
+
 typedef struct XFER_INIT
 {
     uint8 cmd;                                              // XFER_INITIATE
