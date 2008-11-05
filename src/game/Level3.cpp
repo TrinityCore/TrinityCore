@@ -103,6 +103,7 @@ bool ChatHandler::HandleReloadAllLootCommand(const char*)
 bool ChatHandler::HandleReloadAllNpcCommand(const char* /*args*/)
 {
     HandleReloadNpcGossipCommand("a");
+    HandleReloadNpcOptionCommand("a");
     HandleReloadNpcTrainerCommand("a");
     HandleReloadNpcVendorCommand("a");
     return true;
@@ -346,6 +347,14 @@ bool ChatHandler::HandleReloadTrinityStringCommand(const char*)
     sLog.outString( "Re-Loading trinity_string Table!" );
     objmgr.LoadTrinityStrings();
     SendGlobalSysMessage("DB table `trinity_string` reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadNpcOptionCommand(const char*)
+{
+    sLog.outString( "Re-Loading `npc_option` Table!" );
+    objmgr.LoadNpcOptions();
+    SendGlobalSysMessage("DB table `npc_option` reloaded.");
     return true;
 }
 
