@@ -400,12 +400,12 @@ bool OutdoorPvPObjectiveZM_GraveYard::CanTalkTo(Player * plr, Creature * c, Goss
     {
         if(itr->second == ZM_ALLIANCE_FIELD_SCOUT && plr->GetTeam() == ALLIANCE && m_BothControllingFaction == ALLIANCE && !m_FlagCarrierGUID && m_GraveYardState != ZM_GRAVEYARD_A)
         {
-            gso.Option.assign(objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_ZM_GOSSIP_ALLIANCE));
+            gso.OptionText.assign(objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_ZM_GOSSIP_ALLIANCE));
             return true;
         }
         else if(itr->second == ZM_HORDE_FIELD_SCOUT && plr->GetTeam() == HORDE && m_BothControllingFaction == HORDE && !m_FlagCarrierGUID && m_GraveYardState != ZM_GRAVEYARD_H)
         {
-            gso.Option.assign(objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_ZM_GOSSIP_HORDE));
+            gso.OptionText.assign(objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_ZM_GOSSIP_HORDE));
             return true;
         }
     }

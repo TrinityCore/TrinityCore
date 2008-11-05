@@ -49,6 +49,12 @@
 	#include <io.h>
 #endif
 
+#ifdef O_LARGEFILE
+    #define MPQ_FILE_OPEN_FLAGS (O_RDONLY | O_BINARY | O_LARGEFILE)
+#else
+    #define MPQ_FILE_OPEN_FLAGS (O_RDONLY | O_BINARY)
+#endif
+
 #ifndef min
 	#define min(a, b) ((a < b) ? a : b)
 #endif

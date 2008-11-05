@@ -3669,13 +3669,7 @@ uint8 Spell::CanCast(bool strict)
                     return SPELL_FAILED_TARGET_NOT_LOOTED;
                 }
 
-                uint32 skill;
-                if(creature->GetCreatureInfo()->flag1 & 256)
-                    skill = SKILL_HERBALISM;                // special case
-                else if(creature->GetCreatureInfo()->flag1 & 512)
-                    skill = SKILL_MINING;                   // special case
-                else
-                    skill = SKILL_SKINNING;                 // normal case
+                uint32 skill = creature->GetCreatureInfo()->GetRequiredLootSkill();
 
                 int32 skillValue = ((Player*)m_caster)->GetSkillValue(skill);
                 int32 TargetLevel = m_targets.getUnitTarget()->getLevel();
@@ -3967,12 +3961,8 @@ uint8 Spell::CanCast(bool strict)
                     if (m_targets.getUnitTarget()->getLevel() > m_caster->getLevel())
                         return SPELL_FAILED_HIGHLEVEL;
 
-                    CreatureInfo const *cinfo = ((Creature*)m_targets.getUnitTarget())->GetCreatureInfo();
-                    if( cinfo->type != CREATURE_TYPE_BEAST )
-                        return SPELL_FAILED_BAD_TARGETS;
-
                     // use SMSG_PET_TAME_FAILURE?
-                    if( !(cinfo->flag1 & 1) || !(cinfo->family) )
+                    if (!((Creature*)m_targets.getUnitTarget())->GetCreatureInfo()->isTameable ())
                         return SPELL_FAILED_BAD_TARGETS;
 
                     if(m_caster->GetPetGUID())

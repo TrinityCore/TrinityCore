@@ -1352,7 +1352,7 @@ void Player::BuildEnumData( QueryResult * result, WorldPacket * p_data )
         char_flags |= CHARACTER_FLAG_RENAME;
     // always send the flag if declined names aren't used
     // to let the client select a default method of declining the name
-    if(!sWorld.getConfig(CONFIG_DECLINED_NAMES_USED) || (result && result->Fetch()[12].GetCppString() != ""))
+    if(!sWorld.getConfig(CONFIG_DECLINED_NAMES_USED) || (result && result->Fetch()[13].GetCppString() != ""))
         char_flags |= CHARACTER_FLAG_DECLINED;
 
     *p_data << (uint32)char_flags;                          // character flags
@@ -1370,12 +1370,12 @@ void Player::BuildEnumData( QueryResult * result, WorldPacket * p_data )
         {
             Field* fields = result->Fetch();
 
-            uint32 entry = fields[9].GetUInt32();
+            uint32 entry = fields[10].GetUInt32();
             CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(entry);
             if(cInfo)
             {
-                petDisplayId = fields[10].GetUInt32();
-                petLevel     = fields[11].GetUInt32();
+                petDisplayId = fields[11].GetUInt32();
+                petLevel     = fields[12].GetUInt32();
                 petFamily    = cInfo->family;
             }
         }
@@ -13495,15 +13495,15 @@ bool Player::MinimalLoadFromDB( QueryResult *result, uint32 guid )
     bool delete_result = true;
     if(!result)
     {
-        //                                        0     1     2           3           4           5    6          7          8
-        result = CharacterDatabase.PQuery("SELECT data, name, position_x, position_y, position_z, map, totaltime, leveltime, at_login FROM characters WHERE guid = '%u'",guid);
+        //                                        0     1     2     3           4           5           6    7          8          9
+        result = CharacterDatabase.PQuery("SELECT guid, data, name, position_x, position_y, position_z, map, totaltime, leveltime, at_login FROM characters WHERE guid = '%u'",guid);
         if(!result) return false;
     }
     else delete_result = false;
 
     Field *fields = result->Fetch();
 
-    if(!LoadValues( fields[0].GetString()))
+    if(!LoadValues( fields[1].GetString()))
     {
         sLog.outError("ERROR: Player #%d have broken data in `data` field. Can't be loaded.",GUID_LOPART(guid));
         if(delete_result) delete result;
@@ -13513,16 +13513,16 @@ bool Player::MinimalLoadFromDB( QueryResult *result, uint32 guid )
     // overwrite possible wrong/corrupted guid
     SetUInt64Value(OBJECT_FIELD_GUID, MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
 
-    m_name = fields[1].GetCppString();
+    m_name = fields[2].GetCppString();
 
-    Relocate(fields[2].GetFloat(),fields[3].GetFloat(),fields[4].GetFloat());
-    SetMapId(fields[5].GetUInt32());
+    Relocate(fields[3].GetFloat(),fields[4].GetFloat(),fields[5].GetFloat());
+    SetMapId(fields[6].GetUInt32());
     // the instance id is not needed at character enum
 
-    m_Played_time[0] = fields[6].GetUInt32();
-    m_Played_time[1] = fields[7].GetUInt32();
+    m_Played_time[0] = fields[7].GetUInt32();
+    m_Played_time[1] = fields[8].GetUInt32();
 
-    m_atLoginFlags = fields[8].GetUInt32();
+    m_atLoginFlags = fields[9].GetUInt32();
 
     // I don't see these used anywhere ..
     /*_LoadGroup();

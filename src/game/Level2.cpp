@@ -1796,7 +1796,8 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     else
     {
         accId = objmgr.GetPlayerAccountIdByGUID(targetGUID);
-        Player plr(m_session);                              // use current session for temporary load
+        WorldSession session(0,NULL,SEC_PLAYER,0,0,LOCALE_enUS);
+        Player plr(&session);                               // use fake session for temporary load
         plr.MinimalLoadFromDB(NULL, targetGUID);
         money = plr.GetMoney();
         total_player_time = plr.GetTotalPlayedTime();
@@ -4132,6 +4133,13 @@ bool ChatHandler::HandleCreatePetCommand(const char* args)
 {
 	Player *player = m_session->GetPlayer();
 	Creature *creatureTarget = getSelectedCreature();
+    
+	if(!creatureTarget || creatureTarget->isPet() || creatureTarget->GetTypeId() == TYPEID_PLAYER)
+	{
+		PSendSysMessage(LANG_SELECT_CREATURE);
+		SetSentErrorMessage(true);
+		return false;
+	}
 
 	CreatureInfo const* cInfo = objmgr.GetCreatureTemplate(creatureTarget->GetEntry());
 	// Creatures with family 0 crashes the server
@@ -4145,13 +4153,6 @@ bool ChatHandler::HandleCreatePetCommand(const char* args)
 	if(player->GetPetGUID())
 	{
 		PSendSysMessage("You already have a pet");
-		SetSentErrorMessage(true);
-		return false;
-	}
-	
-	if(!creatureTarget || creatureTarget->isPet() || creatureTarget->GetTypeId() == TYPEID_PLAYER)
-	{
-		PSendSysMessage(LANG_SELECT_CREATURE);
 		SetSentErrorMessage(true);
 		return false;
 	}

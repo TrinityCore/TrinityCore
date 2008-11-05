@@ -703,7 +703,7 @@ void OutdoorPvPObjectiveEP_PWT::SummonFlightMaster(uint32 team)
             GossipOption gso;
             gso.Action = GOSSIP_OPTION_OUTDOORPVP;
             gso.GossipId = 0;
-            gso.Option.assign(objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_FLIGHT_NPT));
+            gso.OptionText.assign(objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_FLIGHT_NPT));
             gso.Id = 50;
             gso.Icon = 0;
             gso.NpcFlag = 0;
@@ -711,7 +711,7 @@ void OutdoorPvPObjectiveEP_PWT::SummonFlightMaster(uint32 team)
 
             gso.Action = GOSSIP_OPTION_OUTDOORPVP;
             gso.GossipId = 0;
-            gso.Option.assign(objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_FLIGHT_EWT));
+            gso.OptionText.assign(objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_FLIGHT_EWT));
             gso.Id = 50;
             gso.Icon = 0;
             gso.NpcFlag = 0;
@@ -719,7 +719,7 @@ void OutdoorPvPObjectiveEP_PWT::SummonFlightMaster(uint32 team)
 
             gso.Action = GOSSIP_OPTION_OUTDOORPVP;
             gso.GossipId = 0;
-            gso.Option.assign(objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_FLIGHT_CGT));
+            gso.OptionText.assign(objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_FLIGHT_CGT));
             gso.Id = 50;
             gso.Icon = 0;
             gso.NpcFlag = 0;

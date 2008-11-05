@@ -287,7 +287,7 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data )
     SetAttackTime(OFF_ATTACK,   GetCreatureInfo()->baseattacktime);
     SetAttackTime(RANGED_ATTACK,GetCreatureInfo()->rangeattacktime);
 
-    SetUInt32Value(UNIT_FIELD_FLAGS,GetCreatureInfo()->Flags);
+    SetUInt32Value(UNIT_FIELD_FLAGS,GetCreatureInfo()->unit_flags);
     SetUInt32Value(UNIT_DYNAMIC_FLAGS,GetCreatureInfo()->dynamicflags);
 
     SetModifierValue(UNIT_MOD_ARMOR,             BASE_VALUE, float(GetCreatureInfo()->armor));
@@ -697,12 +697,9 @@ void Creature::prepareGossipMenu( Player *pPlayer,uint32 gossipid )
     // lazy loading single time at use
     LoadGossipOptions();
 
-    GossipOption* gso;
-    GossipOption* ingso;
-
     for( GossipOptionList::iterator i = m_goptions.begin( ); i != m_goptions.end( ); i++ )
     {
-        gso=&*i;
+        GossipOption* gso=&*i;
         if(gso->GossipId == gossipid)
         {
             bool cantalking=true;
@@ -774,15 +771,29 @@ void Creature::prepareGossipMenu( Player *pPlayer,uint32 gossipid )
                             cantalking = false;
                         break;
                     default:
-                        sLog.outErrorDb("Creature %u (entry: %u) have unknown gossip option %u",GetGUIDLow(),GetEntry(),gso->Action);
+                        sLog.outErrorDb("Creature %u (entry: %u) have unknown gossip option %u",GetDBTableGUIDLow(),GetEntry(),gso->Action);
                         break;
                 }
             }
 
-            if(!gso->Option.empty() && cantalking )
-            {                                               //note for future dev: should have database fields for BoxMessage & BoxMoney
-                pm->GetGossipMenu().AddMenuItem((uint8)gso->Icon,gso->Option, gossipid,gso->Action,"",0,false);
-                ingso=gso;
+            //note for future dev: should have database fields for BoxMessage & BoxMoney
+            if(!gso->OptionText.empty() && cantalking)
+            {
+                std::string OptionText = gso->OptionText;
+                std::string BoxText = gso->BoxText;
+                int loc_idx = pPlayer->GetSession()->GetSessionDbLocaleIndex();
+                if (loc_idx >= 0)
+                {
+                    NpcOptionLocale const *no = objmgr.GetNpcOptionLocale(gso->Id);
+                    if (no)
+                    {
+                        if (no->OptionText.size() > loc_idx && !no->OptionText[loc_idx].empty())
+                            OptionText=no->OptionText[loc_idx];
+                        if (no->BoxText.size() > loc_idx && !no->BoxText[loc_idx].empty())
+                            BoxText=no->BoxText[loc_idx];
+                    }
+                }
+                pm->GetGossipMenu().AddMenuItem((uint8)gso->Icon,OptionText, gossipid,gso->Action,BoxText,gso->BoxMoney,gso->Coded);
             }
         }
     }
@@ -835,7 +846,6 @@ void Creature::OnGossipSelect(Player* player, uint32 option)
     uint64 guid=GetGUID();
 
     GossipOption const *gossip=GetGossipOption( action );
-    uint32 textid;
     if(!gossip)
     {
         zoneid=0;
@@ -843,7 +853,7 @@ void Creature::OnGossipSelect(Player* player, uint32 option)
         if(!gossip)
             return;
     }
-    textid=GetGossipTextId( action, zoneid);
+    uint32 textid=GetGossipTextId( action, zoneid);
     if(textid==0)
         textid=GetNpcTextId();
 
@@ -935,7 +945,7 @@ void Creature::OnPoiSelect(Player* player, GossipOption const *gossip)
         Map const* map=MapManager::Instance().GetBaseMap( mapid );
         uint16 areaflag=map->GetAreaFlag(GetPositionX(),GetPositionY());
         uint32 zoneid=Map::GetZoneId(areaflag,mapid);
-        std::string areaname= gossip->Option;
+        std::string areaname= gossip->OptionText;
         /*
         uint16 pflag;
 
@@ -1040,24 +1050,10 @@ void Creature::LoadGossipOptions()
 
     uint32 npcflags=GetUInt32Value(UNIT_NPC_FLAGS);
 
-    QueryResult *result = WorldDatabase.PQuery( "SELECT id,gossip_id,npcflag,icon,action,option_text FROM npc_option WHERE (npcflag & %u)<>0", npcflags );
-
-    if(!result)
-        return;
-
-    GossipOption go;
-    do
-    {
-        Field *fields = result->Fetch();
-        go.Id= fields[0].GetUInt32();
-        go.GossipId = fields[1].GetUInt32();
-        go.NpcFlag=fields[2].GetUInt32();
-        go.Icon=fields[3].GetUInt32();
-        go.Action=fields[4].GetUInt32();
-        go.Option=fields[5].GetCppString();
-        addGossipOption(go);
-    }while( result->NextRow() );
-    delete result;
+    CacheNpcOptionList const& noList = objmgr.GetNpcOptions ();
+    for (CacheNpcOptionList::const_iterator i = noList.begin (); i != noList.end (); ++i)
+        if(i->NpcFlag & npcflags)
+            addGossipOption(*i);
 
     m_gossipOptionLoaded = true;
 }

@@ -297,8 +297,8 @@ void WorldSession::HandleGossipHelloOpcode( WorldPacket & recv_data )
     if(!Script->GossipHello( _player, unit ))
     {
         _player->TalkedToCreature(unit->GetEntry(),unit->GetGUID());
-        unit->prepareGossipMenu(_player,0);
-        unit->sendPreparedGossip( _player );
+        unit->prepareGossipMenu(_player);
+        unit->sendPreparedGossip(_player);
     }
 }
 
@@ -338,13 +338,15 @@ void WorldSession::HandleGossipSelectOptionOpcode( WorldPacket & recv_data )
     if(!code.empty())
     {
 
-        if(!Script->GossipSelectWithCode( _player, unit, _player->PlayerTalkClass->GossipOptionSender( option ), _player->PlayerTalkClass->GossipOptionAction( option ), code.c_str()) )
-            unit->OnGossipSelect( _player, option );
+        if (!Script->GossipSelectWithCode(_player, unit, _player->PlayerTalkClass->GossipOptionSender (option), _player->PlayerTalkClass->GossipOptionAction( option ), code.c_str()))
+            unit->OnGossipSelect (_player, option);
     }
     else
 
-    if(!Script->GossipSelect( _player, unit, _player->PlayerTalkClass->GossipOptionSender( option ), _player->PlayerTalkClass->GossipOptionAction( option )) )
-        unit->OnGossipSelect( _player, option );
+    {
+        if (!Script->GossipSelect (_player, unit, _player->PlayerTalkClass->GossipOptionSender (option), _player->PlayerTalkClass->GossipOptionAction (option)))
+            unit->OnGossipSelect (_player, option);
+    }
 }
 
 void WorldSession::HandleSpiritHealerActivateOpcode( WorldPacket & recv_data )
