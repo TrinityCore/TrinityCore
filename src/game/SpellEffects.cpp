@@ -5555,13 +5555,7 @@ void Spell::EffectSkinning(uint32 /*i*/)
     Creature* creature = (Creature*) unitTarget;
     int32 targetLevel = creature->getLevel();
 
-    uint32 skill;
-    if(creature->GetCreatureInfo()->flag1 & 256)
-        skill = SKILL_HERBALISM;                            // special case
-    else if(creature->GetCreatureInfo()->flag1 & 512)
-        skill = SKILL_MINING;                               // special case
-    else
-        skill = SKILL_SKINNING;                             // normal case
+    uint32 skill = creature->GetCreatureInfo()->GetRequiredLootSkill(); 
 
     ((Player*)m_caster)->SendLoot(creature->GetGUID(),LOOT_SKINNING);
     creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);

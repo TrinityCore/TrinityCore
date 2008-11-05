@@ -244,7 +244,7 @@ AddonChannel = 1
 #
 #    WorldLogFile
 #        Packet logging file for the worldserver
-#        Default: "world.log"
+#        Default: ""
 #
 #    DBErrorLogFile
 #        Log file of DB errors detected at server run
@@ -301,7 +301,7 @@ LogFileLevel = 0
 LogFilter_TransportMoves = 1
 LogFilter_CreatureMoves = 1
 LogFilter_VisibilityChanges = 1
-WorldLogFile = "world.log"
+WorldLogFile = ""
 DBErrorLogFile = "db_errors.log"
 CharLogFile = "characters.log"
 CharLogTimestamp = 0

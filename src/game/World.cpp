@@ -982,6 +982,7 @@ void World::SetInitialWorldSettings()
     objmgr.LoadQuestLocales();
     objmgr.LoadNpcTextLocales();
     objmgr.LoadPageTextLocales();
+    objmgr.LoadNpcOptionLocales();
     objmgr.SetDBCLocaleIndex(GetDefaultDbcLocale());        // Get once for all the locale index of DBC language (console/broadcasts)
 
     sLog.outString( "Loading Page Texts..." );
@@ -1160,6 +1161,9 @@ void World::SetInitialWorldSettings()
 
     sLog.outString( "Loading Npc Text Id..." );
     objmgr.LoadNpcTextId();                                 // must be after load Creature and NpcText
+    
+    sLog.outString( "Loading Npc Options..." );
+    objmgr.LoadNpcOptions();
 
     sLog.outString( "Loading vendors..." );
     objmgr.LoadVendors();                                   // must be after load CreatureTemplate and ItemTemplate
@@ -2472,7 +2476,10 @@ void World::UpdateSessions( time_t diff )
         
     ///- Delete kicked sessions at add new session
     for (std::set<WorldSession*>::iterator itr = m_kicked_sessions.begin(); itr != m_kicked_sessions.end(); ++itr)
+    {   
+        RemoveQueuedPlayer (*itr);
         delete *itr;
+    }
     m_kicked_sessions.clear();
 
     ///- Then send an update signal to remaining ones

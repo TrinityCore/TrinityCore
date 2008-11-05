@@ -79,7 +79,6 @@ WorldSession::~WorldSession()
         delete packet;
     }
     
-    sWorld.RemoveQueuedPlayer(this);
 }
 
 void WorldSession::SizeError(WorldPacket const& packet, uint32 size) const
