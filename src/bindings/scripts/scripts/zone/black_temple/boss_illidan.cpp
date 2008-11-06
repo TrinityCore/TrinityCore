@@ -384,19 +384,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 
     void Reset();
 
-    void JustSummoned(Creature* summon)
-    {
-        if(summon->GetCreatureInfo()->Entry == SHADOW_DEMON)
-        {
-            Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if(target && target->GetTypeId() == TYPEID_PLAYER) // only on players.
-            {
-                summon->AddThreat(target, 5000000.0f);
-                summon->AI()->AttackStart(target);
-            }
-            DoZoneInCombat(summon);
-        }
-    }
+    void JustSummoned(Creature* summon);
 
     void SummonedCreatureDespawn(Creature* summon)
     {
@@ -780,7 +768,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 
             case EVENT_FLAME_CRASH:
                 DoCast(m_creature->getVictim(), SPELL_FLAME_CRASH);
-                Timer[EVENT_FLAME_CRASH] = 35000;
+                Timer[EVENT_FLAME_CRASH] = 30000 + rand()%10000;
                 break;
 
             case EVENT_PARASITIC_SHADOWFIEND:
@@ -789,6 +777,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
                     if(!target) target = m_creature->getVictim();
                     if(target)
                         m_creature->CastSpell(target, SPELL_PARASITIC_SHADOWFIEND, true);
+                    Timer[EVENT_PARASITIC_SHADOWFIEND] = 35000 + rand()%10000;
                 }break;
 
             case EVENT_PARASITE_CHECK:
@@ -797,7 +786,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 
             case EVENT_DRAW_SOUL:
                 DoCast(m_creature->getVictim(), SPELL_DRAW_SOUL);
-                Timer[EVENT_DRAW_SOUL] = 55000;          
+                Timer[EVENT_DRAW_SOUL] = 50000 + rand()%10000;          
                 break;
 
                 //PHASE_NORMAL_2
@@ -1059,6 +1048,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
     }
 
     void Aggro(Unit *who) {}
+    void MoveInLineOfSight(Unit *) {}
 
     void MovementInform(uint32 MovementType, uint32 Data) {Timer = 1;}
 
@@ -1690,24 +1680,23 @@ struct TRINITY_DLL_DECL shadow_demonAI : public ScriptedAI
 
     uint64 TargetGUID;
 
-    void Aggro(Unit *who) {}
+    void Aggro(Unit *who) {DoZoneInCombat();}
 
     void Reset()
     {
         TargetGUID = 0;
-        DoCast(m_creature, SPELL_SHADOW_DEMON_PASSIVE, true);
+        m_creature->CastSpell(m_creature, SPELL_SHADOW_DEMON_PASSIVE, true);
     }
 
     void JustDied(Unit *killer)
     {
-        Unit* target = Unit::GetUnit((*m_creature), TargetGUID);
-        if(target)
+        if(Unit* target = Unit::GetUnit((*m_creature), TargetGUID))
             target->RemoveAurasDueToSpell(SPELL_PARALYZE);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim()) return;
+        if(!m_creature->SelectHostilTarget() && !m_creature->getVictim()) return;
 
         if(m_creature->getVictim()->GetTypeId() != TYPEID_PLAYER) return; // Only cast the below on players.
 
@@ -1936,6 +1925,31 @@ void boss_illidan_stormrageAI::Reset()
     m_creature->setActive(false);
 }
 
+void boss_illidan_stormrageAI::JustSummoned(Creature* summon)
+{
+    switch(summon->GetEntry())
+    {
+    case SHADOW_DEMON:
+        {
+            if(Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0, 999, true)) // only on players.
+            {
+                summon->AddThreat(target, 5000000.0f);
+                summon->AI()->AttackStart(target);
+            }
+        }break;
+    case MAIEV_SHADOWSONG:
+        {
+            summon->SetVisibility(VISIBILITY_OFF); // Leave her invisible until she has to talk
+            summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            MaievGUID = summon->GetGUID();
+            ((boss_maievAI*)summon->AI())->GetIllidanGUID(m_creature->GetGUID());
+            ((boss_maievAI*)summon->AI())->EnterPhase(PHASE_TALK_SEQUENCE);
+        }break;
+    default:
+        break;
+    }
+}
+
 void boss_illidan_stormrageAI::HandleTalkSequence()
 {
     switch(TalkCount)
@@ -2094,17 +2108,9 @@ void boss_illidan_stormrageAI::SummonFlamesOfAzzinoth()
 
 void boss_illidan_stormrageAI::SummonMaiev()
 {
-    DoCast(m_creature, SPELL_SHADOW_PRISON, true);
-    Creature* Maiev = m_creature->SummonCreature(MAIEV_SHADOWSONG, m_creature->GetPositionX() + 10, m_creature->GetPositionY() + 5, m_creature->GetPositionZ(), 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-    if(Maiev)
-    {
-        Maiev->SetVisibility(VISIBILITY_OFF); // Leave her invisible until she has to talk
-        Maiev->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        MaievGUID = Maiev->GetGUID();
-        ((boss_maievAI*)Maiev->AI())->GetIllidanGUID(m_creature->GetGUID());
-        ((boss_maievAI*)Maiev->AI())->EnterPhase(PHASE_TALK_SEQUENCE);
-    }
-    else // If Maiev cannot be summoned, reset the encounter and post some errors to the console.
+    m_creature->CastSpell(m_creature, SPELL_SHADOW_PRISON, true);
+    m_creature->CastSpell(m_creature, 40403, true);
+    if(!MaievGUID) // If Maiev cannot be summoned, reset the encounter and post some errors to the console.
     {
         EnterEvadeMode();
         DoTextEmote("is unable to summon Maiev Shadowsong and enter Phase 4. Resetting Encounter.", NULL);
