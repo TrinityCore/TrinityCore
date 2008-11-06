@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 /** \file
@@ -50,35 +50,34 @@ _player(NULL), m_Socket(sock),_security(sec), _accountId(id), m_expansion(expans
 m_sessionDbcLocale(sWorld.GetAvailableDbcLocale(locale)), m_sessionDbLocaleIndex(objmgr.GetIndexForLocale(locale)),
 _logoutTime(0), m_playerLoading(false), m_playerLogout(false), m_playerRecentlyLogout(false), m_latency(0)
 {
-   if (sock)
-   {
-	   m_Address = sock->GetRemoteAddress ();
-	   sock->AddReference ();
-   }
+    if (sock)
+    {
+        m_Address = sock->GetRemoteAddress ();
+        sock->AddReference ();
+    }
 }
 
 /// WorldSession destructor
 WorldSession::~WorldSession()
 {
     ///- unload player if not unloaded
-    if(_player)
-        LogoutPlayer(true);
+    if (_player)
+        LogoutPlayer (true);
 
     /// - If have unclosed socket, close it
-  if (m_Socket)
+    if (m_Socket)
     {
-      m_Socket->CloseSocket ();   
-      m_Socket->RemoveReference ();
-      m_Socket = NULL;
+        m_Socket->CloseSocket ();
+        m_Socket->RemoveReference ();
+        m_Socket = NULL;
     }
 
     ///- empty incoming packet queue
     while(!_recvQueue.empty())
     {
-        WorldPacket *packet = _recvQueue.next();
+        WorldPacket *packet = _recvQueue.next ();
         delete packet;
     }
-    
 }
 
 void WorldSession::SizeError(WorldPacket const& packet, uint32 size) const
@@ -133,10 +132,10 @@ void WorldSession::SendPacket(WorldPacket const* packet)
         sendLastPacketBytes = packet->wpos();               // wpos is real written size
     }
 
-	#endif                                                  // !TRINITY_DEBUG
+    #endif                                                  // !MANGOS_DEBUG
 
-	if (m_Socket->SendPacket (*packet) == -1)
-		m_Socket->CloseSocket ();
+    if (m_Socket->SendPacket (*packet) == -1)
+        m_Socket->CloseSocket ();
 }
 
 /// Add an incoming packet to the queue
@@ -157,12 +156,12 @@ void WorldSession::logUnexpectedOpcode(WorldPacket* packet, const char *reason)
 /// Update the WorldSession (triggered by World update)
 bool WorldSession::Update(uint32 /*diff*/)
 {
-  if (m_Socket && m_Socket->IsClosed ())
-  {
+    if (m_Socket && m_Socket->IsClosed ())
+    {
         m_Socket->RemoveReference ();
         m_Socket = NULL;
-  }
-  
+    }
+
     WorldPacket *packet;
 
     ///- Retrieve packets from the receive queue and call the appropriate handlers
@@ -247,7 +246,7 @@ void WorldSession::LogoutPlayer(bool Save)
     {
         if (uint64 lguid = GetPlayer()->GetLootGUID())
             DoLootRelease(lguid);
-            
+
         ///- If the player just died before logging out, make him appear as a ghost
         //FIXME: logout must be delayed in case lost connection with client in time of combat
         if (_player->GetDeathTimer())
@@ -284,7 +283,7 @@ void WorldSession::LogoutPlayer(bool Save)
 
             // give honor to all attackers from set like group case
             for(std::set<Player*>::const_iterator itr = aset.begin(); itr != aset.end(); ++itr)
-                (*itr)->RewardHonor(_player, aset.size(), -1, true);
+                (*itr)->RewardHonor(_player,aset.size());
 
             // give bg rewards and update counters like kill by first from attackers
             // this can't be called for all attackers.
@@ -402,7 +401,7 @@ void WorldSession::LogoutPlayer(bool Save)
         ///- Since each account can only have one online character at any given time, ensure all characters for active account are marked as offline
         //No SQL injection as AccountId is uint32
         CharacterDatabase.PExecute("UPDATE characters SET online = 0 WHERE account = '%u'",
-			GetAccountId());
+            GetAccountId());
         sLog.outDebug( "SESSION: Sent SMSG_LOGOUT_COMPLETE Message" );
     }
 
@@ -414,8 +413,8 @@ void WorldSession::LogoutPlayer(bool Save)
 /// Kick a player out of the World
 void WorldSession::KickPlayer()
 {
-	if (m_Socket)
-		m_Socket->CloseSocket ();
+    if (m_Socket)
+        m_Socket->CloseSocket ();
 }
 
 /// Cancel channeling handler
@@ -521,7 +520,3 @@ void WorldSession::SendAuthWaitQue(uint32 position)
          SendPacket(&packet);
      }
  }
- 
-
-
-

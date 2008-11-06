@@ -128,7 +128,7 @@ World::~World()
     VMAP::VMapFactory::clear();
 
     if(m_resultQueue) delete m_resultQueue;
-    
+
     //TODO free addSessQueue
 }
 
@@ -182,67 +182,67 @@ bool World::RemoveSession(uint32 id)
 
 void World::AddSession(WorldSession* s)
 {
-  addSessQueue.add(s);
+    addSessQueue.add(s);
 }
 
 void
 World::AddSession_ (WorldSession* s)
 {
-  ASSERT (s);
+    ASSERT (s);
 
-  //NOTE - Still there is race condition in WorldSession* being used in the Sockets
+    //NOTE - Still there is race condition in WorldSession* being used in the Sockets
 
-  ///- kick already loaded player with same account (if any) and remove session
-  ///- if player is in loading and want to load again, return
-  if (!RemoveSession (s->GetAccountId ()))
+    ///- kick already loaded player with same account (if any) and remove session
+    ///- if player is in loading and want to load again, return
+    if (!RemoveSession (s->GetAccountId ()))
     {
-      s->KickPlayer ();
-      m_kicked_sessions.insert (s);
-      return;
+        s->KickPlayer ();
+        m_kicked_sessions.insert (s);
+        return;
     }
 
-  WorldSession* old = m_sessions[s->GetAccountId ()];
-  m_sessions[s->GetAccountId ()] = s;
+    WorldSession* old = m_sessions[s->GetAccountId ()];
+    m_sessions[s->GetAccountId ()] = s;
 
-  // if session already exist, prepare to it deleting at next world update
-  // NOTE - KickPlayer() should be called on "old" in RemoveSession()
-  if (old)
-    m_kicked_sessions.insert (old);
+    // if session already exist, prepare to it deleting at next world update
+    // NOTE - KickPlayer() should be called on "old" in RemoveSession()
+    if (old)
+        m_kicked_sessions.insert (old);
 
-  uint32 Sessions = GetActiveAndQueuedSessionCount ();
-  uint32 pLimit = GetPlayerAmountLimit ();
-  uint32 QueueSize = GetQueueSize (); //number of players in the queue
-  bool inQueue = false;
-  //so we don't count the user trying to 
-  //login as a session and queue the socket that we are using
-  --Sessions;
+    uint32 Sessions = GetActiveAndQueuedSessionCount ();
+    uint32 pLimit = GetPlayerAmountLimit ();
+    uint32 QueueSize = GetQueueSize (); //number of players in the queue
+    bool inQueue = false;
+    //so we don't count the user trying to
+    //login as a session and queue the socket that we are using
+    --Sessions;
 
-  if (pLimit > 0 && Sessions >= pLimit && s->GetSecurity () == SEC_PLAYER )
+    if (pLimit > 0 && Sessions >= pLimit && s->GetSecurity () == SEC_PLAYER )
     {
-      AddQueuedPlayer (s);
-      UpdateMaxSessionCounters ();
-      sLog.outDetail ("PlayerQueue: Account id %u is in Queue Position (%u).", s->GetAccountId (), ++QueueSize);
-      return;
+        AddQueuedPlayer (s);
+        UpdateMaxSessionCounters ();
+        sLog.outDetail ("PlayerQueue: Account id %u is in Queue Position (%u).", s->GetAccountId (), ++QueueSize);
+        return;
     }
-  
-  WorldPacket packet(SMSG_AUTH_RESPONSE, 1 + 4 + 1 + 4 + 1);
-  packet << uint8 (AUTH_OK);
-  packet << uint32 (0); // unknown random value...
-  packet << uint8 (0);
-  packet << uint32 (0);
-  packet << uint8 (s->Expansion () ? 1 : 0); // 0 - normal, 1 - TBC, must be set in database manually for each account
-  s->SendPacket (&packet);
 
-  UpdateMaxSessionCounters ();
+    WorldPacket packet(SMSG_AUTH_RESPONSE, 1 + 4 + 1 + 4 + 1);
+    packet << uint8 (AUTH_OK);
+    packet << uint32 (0); // unknown random value...
+    packet << uint8 (0);
+    packet << uint32 (0);
+    packet << uint8 (s->Expansion()); // 0 - normal, 1 - TBC, must be set in database manually for each account
+    s->SendPacket (&packet);
 
-  // Updates the population
-  if (pLimit > 0)
+    UpdateMaxSessionCounters ();
+
+    // Updates the population
+    if (pLimit > 0)
     {
-      float popu = GetActiveSessionCount (); //updated number of users on the server
-      popu /= pLimit;
-      popu *= 2;
-      loginDatabase.PExecute ("UPDATE realmlist SET population = '%f' WHERE id = '%d'", popu, realmID);
-      sLog.outDetail ("Server Population (%f).", popu);
+        float popu = GetActiveSessionCount (); //updated number of users on the server
+        popu /= pLimit;
+        popu *= 2;
+        loginDatabase.PExecute ("UPDATE realmlist SET population = '%f' WHERE id = '%d'", popu, realmID);
+        sLog.outDetail ("Server Population (%f).", popu);
     }
 }
 
@@ -260,7 +260,7 @@ int32 World::GetQueuePos(WorldSession* sess)
 void World::AddQueuedPlayer(WorldSession* sess)
 {
     m_QueuedPlayer.push_back (sess);
-    
+
     // The 1st SMSG_AUTH_RESPONSE needs to contain other info too.
     WorldPacket packet (SMSG_AUTH_RESPONSE, 1 + 4 + 1 + 4 + 1);
     packet << uint8 (AUTH_WAIT_QUEUE);
@@ -270,7 +270,7 @@ void World::AddQueuedPlayer(WorldSession* sess)
     packet << uint8 (sess->Expansion () ? 1 : 0); // 0 - normal, 1 - TBC, must be set in database manually for each account
     packet << uint32(GetQueuePos (sess));
     sess->SendPacket (&packet);
-    
+
     //sess->SendAuthWaitQue (GetQueuePos (sess));
 }
 
@@ -2282,32 +2282,32 @@ BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, std::string dura
     QueryResult *resultAccounts = NULL;                     //used for kicking
 
     ///- Update the database with ban information
-	switch(mode)
+    switch(mode)
     {
         case BAN_IP:
-			//No SQL injection as strings are escaped
-			resultAccounts = loginDatabase.PQuery("SELECT id FROM account WHERE last_ip = '%s'",nameOrIP.c_str());
-			loginDatabase.PExecute("INSERT INTO ip_banned VALUES ('%s',UNIX_TIMESTAMP(),UNIX_TIMESTAMP()+%u,'%s','%s')",nameOrIP.c_str(),duration_secs,safe_author.c_str(),reason.c_str());
-			break;
-		case BAN_ACCOUNT:
-			//No SQL injection as string is escaped
-			resultAccounts = loginDatabase.PQuery("SELECT id FROM account WHERE username = '%s'",nameOrIP.c_str());
-			break;
-		case BAN_CHARACTER:
-			//No SQL injection as string is escaped
-			resultAccounts = CharacterDatabase.PQuery("SELECT account FROM characters WHERE name = '%s'",nameOrIP.c_str());
-			break;
-		default:
-			return BAN_SYNTAX_ERROR;
+            //No SQL injection as strings are escaped
+            resultAccounts = loginDatabase.PQuery("SELECT id FROM account WHERE last_ip = '%s'",nameOrIP.c_str());
+            loginDatabase.PExecute("INSERT INTO ip_banned VALUES ('%s',UNIX_TIMESTAMP(),UNIX_TIMESTAMP()+%u,'%s','%s')",nameOrIP.c_str(),duration_secs,safe_author.c_str(),reason.c_str());
+            break;
+        case BAN_ACCOUNT:
+            //No SQL injection as string is escaped
+            resultAccounts = loginDatabase.PQuery("SELECT id FROM account WHERE username = '%s'",nameOrIP.c_str());
+            break;
+        case BAN_CHARACTER:
+            //No SQL injection as string is escaped
+            resultAccounts = CharacterDatabase.PQuery("SELECT account FROM characters WHERE name = '%s'",nameOrIP.c_str());
+            break;
+        default:
+            return BAN_SYNTAX_ERROR;
     }
-    
-	if(!resultAccounts)
-	{
-		if(mode==BAN_IP)
-            return BAN_SUCCESS;
-		else
-			return BAN_NOTFOUND;                                // Nobody to ban
-	}
+
+    if(!resultAccounts)
+    {
+        if(mode==BAN_IP)
+            return BAN_SUCCESS;                             // ip correctly banned but nobody affected (yet)
+        else
+            return BAN_NOTFOUND;                                // Nobody to ban
+    }
 
     ///- Disconnect all affected players (for IP it can be several)
     do
@@ -2316,11 +2316,11 @@ BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, std::string dura
         uint32 account = fieldsAccount->GetUInt32();
 
         if(mode!=BAN_IP)
-		{
+        {
             //No SQL injection as strings are escaped
             loginDatabase.PExecute("INSERT INTO account_banned VALUES ('%u', UNIX_TIMESTAMP(), UNIX_TIMESTAMP()+%u, '%s', '%s', '1')",
                 account,duration_secs,safe_author.c_str(),reason.c_str());
-		}
+        }
 
         if (WorldSession* sess = FindSession(account))
             if(std::string(sess->GetPlayerName()) != author)
@@ -2342,15 +2342,15 @@ bool World::RemoveBanAccount(BanMode mode, std::string nameOrIP)
     }
     else
     {
-        uint32 account=0;
+        uint32 account = 0;
         if (mode == BAN_ACCOUNT)
             account = accmgr.GetId (nameOrIP);
         else if (mode == BAN_CHARACTER)
             account = objmgr.GetPlayerAccountIdByPlayerName (nameOrIP);
 
-        if(!account)
+        if (!account)
             return false;
-            
+
         //NO SQL injection as account is uint32
         loginDatabase.PExecute("UPDATE account_banned SET active = '0' WHERE id = '%u'",account);
     }
@@ -2433,7 +2433,7 @@ void World::ShutdownMsg(bool show, Player* player)
         uint32 msgid = (m_ShutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_TIME : SERVER_MSG_SHUTDOWN_TIME;
 
         SendServerMessage(msgid,str.c_str(),player);
-        outstring_log("Server will %s in %s", (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shutdown"), str.c_str());
+        DEBUG_LOG("Server is %s in %s",(m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"),str.c_str());
     }
 }
 
@@ -2473,10 +2473,10 @@ void World::UpdateSessions( time_t diff )
       WorldSession* sess = addSessQueue.next ();
       AddSession_ (sess);
     }
-        
+
     ///- Delete kicked sessions at add new session
     for (std::set<WorldSession*>::iterator itr = m_kicked_sessions.begin(); itr != m_kicked_sessions.end(); ++itr)
-    {   
+    {
         RemoveQueuedPlayer (*itr);
         delete *itr;
     }
@@ -2504,17 +2504,18 @@ void World::UpdateSessions( time_t diff )
 void World::ProcessCliCommands()
 {
     if (cliCmdQueue.empty())
-		return;
+        return;
 
     CliCommandHolder::Print* zprint;
+
     while (!cliCmdQueue.empty())
     {
         sLog.outDebug("CLI command under processing...");
         CliCommandHolder *command = cliCmdQueue.next();
 
-		zprint = command->m_print;
+        zprint = command->m_print;
 
-		CliHandler(zprint).ParseCommands(command->m_command);
+        CliHandler(zprint).ParseCommands(command->m_command);
 
         delete command;
     }
@@ -2622,14 +2623,14 @@ void World::UpdateMaxSessionCounters()
 
 void World::LoadDBVersion()
 {
-	QueryResult* result = WorldDatabase.Query("SELECT version FROM db_version LIMIT 1");
-	if(result)
-	{
-		Field* fields = result->Fetch();
+    QueryResult* result = WorldDatabase.Query("SELECT version FROM db_version LIMIT 1");
+    if(result)
+    {
+        Field* fields = result->Fetch();
 
-		m_DBVersion = fields[0].GetString();
-		delete result;
-	}
-	else
-		m_DBVersion = "unknown world database";
+        m_DBVersion = fields[0].GetString();
+        delete result;
+    }
+    else
+        m_DBVersion = "unknown world database";
 }
