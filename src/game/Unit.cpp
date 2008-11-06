@@ -428,11 +428,19 @@ bool Unit::IsWithinCombatDist(Unit *obj, float dist2compare) const
 
 void Unit::GetRandomContactPoint( const Unit* obj, float &x, float &y, float &z, float distance2dMin, float distance2dMax ) const
 {
-    assert(GetCombatReach() > 0.1);
+    //assert(GetCombatReach() > 0.1);
+    float combat_reach = GetCombatReach();
+    if(combat_reach < 0.1)
+    {
+        sLog.outError("Unit %u (Type: %u) has invalid combat_reach %f",GetGUIDLow(),GetTypeId(),combat_reach);
+        if(GetTypeId() ==  TYPEID_UNIT)
+            sLog.outError("Creature entry %u has invalid combat_reach", ((Creature*)this)->GetEntry());
+        combat_reach = 0.5;
+    }
 	uint32 attacker_number = getAttackers().size();
     if(attacker_number > 0) --attacker_number;
 	GetNearPoint(obj,x,y,z,obj->GetCombatReach(), distance2dMin+(distance2dMax-distance2dMin)*rand_norm()
-        , GetAngle(obj) + (attacker_number ? (M_PI/2 - M_PI * rand_norm()) * (float)attacker_number / GetCombatReach() / 3 : 0));
+        , GetAngle(obj) + (attacker_number ? (M_PI/2 - M_PI * rand_norm()) * (float)attacker_number / combat_reach / 3 : 0));
 }
 
 void Unit::RemoveSpellsCausingAura(AuraType auraType)
