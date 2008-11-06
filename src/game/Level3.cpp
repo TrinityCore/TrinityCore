@@ -2004,45 +2004,44 @@ bool ChatHandler::HandleAddItemSetCommand(const char* args)
 
     sLog.outDetail(GetTrinityString(LANG_ADDITEMSET), itemsetId);
 
-    QueryResult *result = WorldDatabase.PQuery("SELECT entry FROM item_template WHERE itemset = %u",itemsetId);
+    bool found = false;
+    for (uint32 id = 0; id < sItemStorage.MaxEntry; id++)
+    {
+        ItemPrototype const *pProto = sItemStorage.LookupEntry<ItemPrototype>(id);
+        if (!pProto)
+            continue;
 
-    if(!result)
+        if (pProto->ItemSet == itemsetId)
+        {
+            found = true;
+            ItemPosCountVec dest;
+            uint8 msg = plTarget->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, pProto->ItemId, 1 );
+            if (msg == EQUIP_ERR_OK)
+            {
+                Item* item = plTarget->StoreNewItem( dest, pProto->ItemId, true);
+                // remove binding (let GM give it to another player later)
+                if (pl==plTarget)
+                    item->SetBinding( false );
+
+            pl->SendNewItem(item,1,false,true);
+            if (pl!=plTarget)
+                plTarget->SendNewItem(item,1,true,false);
+            }
+            else
+            {
+                pl->SendEquipError( msg, NULL, NULL );
+                PSendSysMessage(LANG_ITEM_CANNOT_CREATE, pProto->ItemId, 1);
+            }
+        }
+    }
+
+    if (!found)
     {
         PSendSysMessage(LANG_NO_ITEMS_FROM_ITEMSET_FOUND,itemsetId);
 
         SetSentErrorMessage(true);
         return false;
     }
-
-    do
-    {
-        Field *fields = result->Fetch();
-        uint32 itemId = fields[0].GetUInt32();
-
-        ItemPosCountVec dest;
-        uint8 msg = plTarget->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, itemId, 1 );
-        if( msg == EQUIP_ERR_OK )
-        {
-            Item* item = plTarget->StoreNewItem( dest, itemId, true);
-
-            // remove binding (let GM give it to another player later)
-            if(pl==plTarget)
-                item->SetBinding( false );
-
-            pl->SendNewItem(item,1,false,true);
-            if(pl!=plTarget)
-                plTarget->SendNewItem(item,1,true,false);
-        }
-        else
-        {
-            pl->SendEquipError( msg, NULL, NULL );
-            PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itemId, 1);
-        }
-
-    }while( result->NextRow() );
-
-    delete result;
-
     return true;
 }
 
@@ -4765,16 +4764,18 @@ bool ChatHandler::HandleAddQuest(const char* args)
     }
 
     // check item starting quest (it can work incorrectly if added without item in inventory)
-    QueryResult *result = WorldDatabase.PQuery("SELECT entry FROM item_template WHERE startquest = '%u' LIMIT 1",entry);
-    if(result)
+    for (uint32 id = 0; id < sItemStorage.MaxEntry; id++)
     {
-        Field* fields = result->Fetch();
-        uint32 item_id = fields[0].GetUInt32();
-        delete result;
+        ItemPrototype const *pProto = sItemStorage.LookupEntry<ItemPrototype>(id);
+        if (!pProto)
+            continue;
 
-        PSendSysMessage(LANG_COMMAND_QUEST_STARTFROMITEM, entry,item_id);
-        SetSentErrorMessage(true);
-        return false;
+        if (pProto->StartQuest == entry)
+        {
+            PSendSysMessage(LANG_COMMAND_QUEST_STARTFROMITEM, entry, pProto->ItemId);
+            SetSentErrorMessage(true);
+            return false;
+        }
     }
 
     // ok, normal (creature/GO starting) quest

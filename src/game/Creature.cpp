@@ -853,16 +853,19 @@ void Creature::OnGossipSelect(Player* player, uint32 option)
         if(!gossip)
             return;
     }
-    uint32 textid=GetGossipTextId( action, zoneid);
-    if(textid==0)
-        textid=GetNpcTextId();
 
     switch (gossip->Action)
     {
         case GOSSIP_OPTION_GOSSIP:
+        {
+            uint32 textid = GetGossipTextId(action, zoneid);
+            if (textid == 0)
+                textid=GetNpcTextId();
+
             player->PlayerTalkClass->CloseGossip();
             player->PlayerTalkClass->SendTalking(textid);
             break;
+		}
         case GOSSIP_OPTION_OUTDOORPVP:
             sOutdoorPvPMgr.HandleGossipOption(player, GetGUID(), option);
             break;

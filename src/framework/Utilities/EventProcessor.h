@@ -39,6 +39,8 @@ class BasicEvent
         // return false if event does not want to be deleted
         // e_time is execution time, p_time is update interval
         virtual bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) { return true; }
+        
+        virtual bool IsDeletable() const { return true; }   // this event can be safely deleted
 
         virtual void Abort(uint64 /*e_time*/) {}            // this method executes when the event is aborted
 
@@ -59,7 +61,7 @@ class EventProcessor
         ~EventProcessor();
 
         void Update(uint32 p_time);
-        void KillAllEvents();
+        void KillAllEvents(bool force);
         void AddEvent(BasicEvent* Event, uint64 e_time, bool set_addtime = true);
         uint64 CalculateTime(uint64 t_offset);
     protected:

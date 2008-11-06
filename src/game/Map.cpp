@@ -1357,6 +1357,9 @@ void Map::RemoveAllObjectsInRemoveList()
             Remove((GameObject*)obj,true);
             break;
         case TYPEID_UNIT:
+            // in case triggred sequence some spell can continue casting after prev CleanupsBeforeDelete call
+            // make sure that like sources auras/etc removed before destructor start
+            ((Creature*)obj)->CleanupsBeforeDelete ();
             Remove((Creature*)obj,true);
             break;
         default:

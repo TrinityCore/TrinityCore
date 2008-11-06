@@ -237,7 +237,7 @@ void SocialMgr::MakeFriendStatusPacket(FriendsResult result, uint32 guid, WorldP
     *data << uint64(guid);
 }
 
-void SocialMgr::SendFriendStatus(Player *player, FriendsResult result, uint32 friend_guid, std::string name, bool broadcast)
+void SocialMgr::SendFriendStatus(Player *player, FriendsResult result, uint32 friend_guid, bool broadcast)
 {
     FriendInfo fi;
 
