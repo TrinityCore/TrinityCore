@@ -443,6 +443,7 @@ void Spell::FillTargetMap()
                 case SPELL_EFFECT_SUMMON_DEMON:
                 case SPELL_EFFECT_ADD_FARSIGHT:
                 {
+                    tmpUnitMap.clear();
                     tmpUnitMap.push_back(m_caster);
                     break;
                 }
