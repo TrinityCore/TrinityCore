@@ -56,10 +56,11 @@ EndScriptData */
 #define SPELL_ENRAGE                27680                   //this spell need verification
 #define SPELL_SUMMON_WATER_ELEMENT  36459                   //not in use yet(in use ever?)
 #define SPELL_ELEMENTAL_SPAWNIN     25035
-//#define SPELL_BLUE_BEAM             38015                   //channeled Hydross Beam Helper (not in use yet)
+#define SPELL_BLUE_BEAM             /*40227*/38015                   //channeled Hydross Beam Helper (not in use yet)
 
 #define ENTRY_PURE_SPAWN            22035
 #define ENTRY_TAINTED_SPAWN         22036
+#define ENTRY_BEAM_DUMMY            21934
 
 #define HYDROSS_X                   -239.439
 #define HYDROSS_Y                   -363.481
@@ -75,14 +76,14 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
 {
-    boss_hydross_the_unstableAI(Creature *c) : ScriptedAI(c)
+    boss_hydross_the_unstableAI(Creature *c) : ScriptedAI(c), Summons(m_creature)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
+        Reset();		
     }
 
     ScriptedInstance* pInstance;
-
+	uint64 beams[2];
     uint32 PosCheck_Timer;
     uint32 MarkOfHydross_Timer;
     uint32 MarkOfCorruption_Timer;
@@ -92,9 +93,14 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
     uint32 MarkOfCorruption_Count;
     uint32 EnrageTimer;
     bool CorruptedForm;
+	bool beam;
+	SummonList Summons;
 
     void Reset()
     {
+		DeSummonBeams();
+		beams[0] = 0;
+		beams[1] = 0;
         PosCheck_Timer = 2500;
         MarkOfHydross_Timer = 15000;
         MarkOfCorruption_Timer = 15000;
@@ -113,8 +119,41 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
 
         if (pInstance)
             pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, NOT_STARTED);
+		beam = false;
+		Summons.DespawnAll();
     }
 
+	void SummonBeams()
+	{		
+		Creature* beamer = m_creature->SummonCreature(ENTRY_BEAM_DUMMY,-258.333,-356.34,22.0499,5.90835,TEMPSUMMON_CORPSE_DESPAWN,0);
+		if(beamer)
+		{
+			beamer->CastSpell(m_creature,SPELL_BLUE_BEAM,true);
+			beamer->SetUInt32Value(UNIT_FIELD_DISPLAYID , 11686);  //invisible
+			beamer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+			beams[0]=beamer->GetGUID();
+		}
+		beamer = beamer = m_creature->SummonCreature(ENTRY_BEAM_DUMMY,-219.918,-371.308,22.0042,2.73072,TEMPSUMMON_CORPSE_DESPAWN,0);		
+		if(beamer)
+		{
+			beamer->CastSpell(m_creature,SPELL_BLUE_BEAM,true);
+			beamer->SetUInt32Value(UNIT_FIELD_DISPLAYID , 11686);  //invisible
+			beamer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+			beams[1]=beamer->GetGUID();
+		}
+	}
+	void DeSummonBeams()
+	{		
+		for(uint8 i=0;i<2;i++)
+		{
+			Creature* mob = (Creature*)Unit::GetUnit(*m_creature,beams[i]);
+			if(mob)
+			{
+				mob->setDeathState(DEAD);
+                mob->RemoveCorpse();
+			}
+		}
+	}
     void Aggro(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
@@ -146,11 +185,22 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
     void JustSummoned(Creature* summoned)
     {
         if (summoned->GetEntry() == ENTRY_PURE_SPAWN)
-            summoned->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
+		{
+			summoned->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
+			summoned->CastSpell(summoned,SPELL_ELEMENTAL_SPAWNIN,true);
+			Summons.Summon(summoned);
+		}
         if (summoned->GetEntry() == ENTRY_TAINTED_SPAWN)
-            summoned->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
+		{
+			summoned->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
+			summoned->CastSpell(summoned,SPELL_ELEMENTAL_SPAWNIN,true);
+			Summons.Summon(summoned);
+		}
+    }
 
-        summoned->CastSpell(summoned,SPELL_ELEMENTAL_SPAWNIN,true);
+	void SummonedCreatureDespawn(Creature *summon)
+    {
+        Summons.Despawn(summon);
     }
 
     void JustDied(Unit *victim)
@@ -162,10 +212,16 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
 
         if (pInstance)
             pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, NOT_STARTED);
+		Summons.DespawnAll();
     }
 
     void UpdateAI(const uint32 diff)
     {
+		if(!beam)
+		{
+			SummonBeams();
+			beam=true;
+		}
         //Return since we have no target
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
             return;
@@ -221,12 +277,13 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
 
                     DoScriptText(SAY_SWITCH_TO_CLEAN, m_creature);
                     DoResetThreat();
+					SummonBeams();
 
                     // spawn 4 adds
-                    DoSpawnCreature(ENTRY_PURE_SPAWN, SPAWN_X_DIFF1, SPAWN_Y_DIFF1, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    DoSpawnCreature(ENTRY_PURE_SPAWN, SPAWN_X_DIFF2, SPAWN_Y_DIFF2, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    DoSpawnCreature(ENTRY_PURE_SPAWN, SPAWN_X_DIFF3, SPAWN_Y_DIFF3, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    DoSpawnCreature(ENTRY_PURE_SPAWN, SPAWN_X_DIFF4, SPAWN_Y_DIFF4, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    DoSpawnCreature(ENTRY_PURE_SPAWN, SPAWN_X_DIFF1, SPAWN_Y_DIFF1, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    DoSpawnCreature(ENTRY_PURE_SPAWN, SPAWN_X_DIFF2, SPAWN_Y_DIFF2, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    DoSpawnCreature(ENTRY_PURE_SPAWN, SPAWN_X_DIFF3, SPAWN_Y_DIFF3, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    DoSpawnCreature(ENTRY_PURE_SPAWN, SPAWN_X_DIFF4, SPAWN_Y_DIFF4, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
 
                     m_creature->SetMeleeDamageSchool(SPELL_SCHOOL_FROST);
                     m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
@@ -287,12 +344,13 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
 
                     DoScriptText(SAY_SWITCH_TO_CORRUPT, m_creature);
                     DoResetThreat();
+					DeSummonBeams();
 
                     // spawn 4 adds
-                    DoSpawnCreature(ENTRY_TAINTED_SPAWN, SPAWN_X_DIFF1, SPAWN_Y_DIFF1, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    DoSpawnCreature(ENTRY_TAINTED_SPAWN, SPAWN_X_DIFF2, SPAWN_Y_DIFF2, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    DoSpawnCreature(ENTRY_TAINTED_SPAWN, SPAWN_X_DIFF3, SPAWN_Y_DIFF3, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    DoSpawnCreature(ENTRY_TAINTED_SPAWN, SPAWN_X_DIFF4, SPAWN_Y_DIFF4, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    DoSpawnCreature(ENTRY_TAINTED_SPAWN, SPAWN_X_DIFF1, SPAWN_Y_DIFF1, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    DoSpawnCreature(ENTRY_TAINTED_SPAWN, SPAWN_X_DIFF2, SPAWN_Y_DIFF2, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    DoSpawnCreature(ENTRY_TAINTED_SPAWN, SPAWN_X_DIFF3, SPAWN_Y_DIFF3, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    DoSpawnCreature(ENTRY_TAINTED_SPAWN, SPAWN_X_DIFF4, SPAWN_Y_DIFF4, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
 
                     m_creature->SetMeleeDamageSchool(SPELL_SCHOOL_NATURE);
                     m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
