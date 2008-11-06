@@ -426,6 +426,7 @@ void Spell::FillTargetMap()
                 case SPELL_EFFECT_SUMMON:
                 case SPELL_EFFECT_SUMMON_WILD:
                 case SPELL_EFFECT_SUMMON_GUARDIAN:
+                case SPELL_EFFECT_TRANS_DOOR: //summon object
                 case SPELL_EFFECT_SUMMON_PET:
                 case SPELL_EFFECT_SUMMON_POSSESSED:
                 case SPELL_EFFECT_SUMMON_TOTEM:
@@ -442,6 +443,7 @@ void Spell::FillTargetMap()
                 case SPELL_EFFECT_SUMMON_DEAD_PET:
                 case SPELL_EFFECT_SUMMON_DEMON:
                 case SPELL_EFFECT_ADD_FARSIGHT:
+                case SPELL_EFFECT_TRIGGER_SPELL_2: //ritual of summon
                 {
                     tmpUnitMap.clear();
                     tmpUnitMap.push_back(m_caster);
@@ -582,7 +584,6 @@ void Spell::FillTargetMap()
                     }
                     break;
                 case SPELL_EFFECT_SUMMON_CHANGE_ITEM:
-                case SPELL_EFFECT_TRANS_DOOR:
                 case SPELL_EFFECT_ADD_FARSIGHT:
                 case SPELL_EFFECT_STUCK:
                 case SPELL_EFFECT_DESTROY_ALL_TOTEMS:
