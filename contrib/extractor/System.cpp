@@ -39,7 +39,7 @@ enum Extract
 };
 int extract = EXTRACT_MAP | EXTRACT_DBC;
 
-static char* const langs[]={"deDE", "enGB", "enUS", "esES", "frFR", "koKR", "zhCN", "zhTW", "enCN", "enTW", "esMX", "ruRU" };
+static char* const langs[]={"enGB", "enUS", "deDE", "esES", "frFR", "koKR", "zhCN", "zhTW", "enCN", "enTW", "esMX", "ruRU" };
 #define LANG_COUNT 12
 
 #define ADT_RES 64
@@ -167,11 +167,11 @@ void ExtractMapsFromMpq()
     path += "/maps/";
     CreateDir(path);
 
-    for(int x = 0; x < ADT_RES; ++x)
+    for(unsigned int x = 0; x < ADT_RES; ++x)
     {
-        for(int y = 0; y < ADT_RES; ++y)
+        for(unsigned int y = 0; y < ADT_RES; ++y)
         {
-            for(int z = 0; z < map_count; ++z)
+            for(unsigned int z = 0; z < map_count; ++z)
             {
                 sprintf(mpq_filename,"World\\Maps\\%s\\%s_%u_%u.adt",map_ids[z].name,map_ids[z].name,x,y);
                 sprintf(output_filename,"%s/maps/%03u%02u%02u.map",output_path,map_ids[z].id,y,x);
@@ -189,7 +189,7 @@ void ExtractMapsFromMpq()
 
 //bool WMO(char* filename);
 
-void ExtractDBCFiles()
+void ExtractDBCFiles(int locale, bool basicLocale)
 {
     printf("Extracting dbc files...\n");
 
@@ -198,25 +198,29 @@ void ExtractDBCFiles()
     // get DBC file list
     for(ArchiveSet::iterator i = gOpenArchives.begin(); i != gOpenArchives.end();++i)
     {
-        vector<string> files = (*i)->GetFileList();
+        vector<string> files;
+        (*i)->GetFileListTo(files);
         for (vector<string>::iterator iter = files.begin(); iter != files.end(); ++iter)
             if (iter->rfind(".dbc") == iter->length() - strlen(".dbc"))
                     dbcfiles.insert(*iter);
     }
 
-    std::string path = output_path;
+    string path = output_path;
     path += "/dbc/";
     CreateDir(path);
+    if(!basicLocale)
+    {
+        path += langs[locale];
+        path += "/";
+        CreateDir(path);
+    }
 
     // extract DBCs
     int count = 0;
     for (set<string>::iterator iter = dbcfiles.begin(); iter != dbcfiles.end(); ++iter)
     {
-        string filename = output_path;
-        filename += "/dbc/";
+        string filename = path;
         filename += (iter->c_str() + strlen("DBFilesClient\\"));
-
-        //cout << filename << endl;
 
         FILE *output=fopen(filename.c_str(),"wb");
         if(!output)
@@ -231,27 +235,10 @@ void ExtractDBCFiles()
         fclose(output);
         ++count;
     }
-    printf("Extracted %u DBC files\n", count);
+    printf("Extracted %u DBC files\n\n", count);
 }
 
-int GetLocale()
-{
-    for (int i = 0; i < LANG_COUNT; i++)
-    {
-        char tmp1[512];
-        sprintf(tmp1, "%s/Data/%s/locale-%s.MPQ", input_path, langs[i], langs[i]);
-        if (FileExists(tmp1))
-        {
-            printf("Detected locale: %s\n", langs[i]);
-            return i;
-        }
-    }
-
-    printf("Could not detect locale.\n");
-    return -1;
-}
-
-void LoadMPQFiles(int const locale)
+void LoadLocaleMPQFiles(int const locale)
 {
     char filename[512];
 
@@ -265,56 +252,95 @@ void LoadMPQFiles(int const locale)
             sprintf(ext, "-%i", i);
 
         sprintf(filename,"%s/Data/%s/patch-%s%s.MPQ",input_path,langs[locale],langs[locale],ext);
-        if(!FileExists(filename))
-            break;
-        new MPQArchive(filename);
-    }
-
-    //need those files only if extract maps
-    if(extract & EXTRACT_MAP)
-    {
-        sprintf(filename,"%s/Data/common.MPQ",input_path);
-        new MPQArchive(filename);
-        sprintf(filename,"%s/Data/expansion.MPQ",input_path);
-        new MPQArchive(filename);
-
-        for(int i = 1; i < 5; ++i)
-        {
-            char ext[3] = "";
-            if(i > 1)
-                sprintf(ext, "-%i", i);
-
-            sprintf(filename,"%s/Data/patch%s.MPQ",input_path,ext);
-            if(!FileExists(filename))
-                break;
+        if(FileExists(filename))
             new MPQArchive(filename);
-        }
     }
+}
+    
+void LoadCommonMPQFiles()
+{
+    char filename[512];
+
+    sprintf(filename,"%s/Data/common.MPQ",input_path);
+    new MPQArchive(filename);
+    sprintf(filename,"%s/Data/expansion.MPQ",input_path);
+    new MPQArchive(filename);
+    for(int i = 1; i < 5; ++i)
+    {
+        char ext[3] = "";
+        if(i > 1)
+            sprintf(ext, "-%i", i);
+            if(FileExists(filename))
+                new MPQArchive(filename);
+    }
+}
+
+inline void CloseMPQFiles()
+{
+    for(ArchiveSet::iterator j = gOpenArchives.begin(); j != gOpenArchives.end();++j) (*j)->close();
+        gOpenArchives.clear();
 }
 
 int main(int argc, char * arg[])
 {
     printf("Map & DBC Extractor\n");
-    printf("===================\n");
+    printf("===================\n\n");
 
     HandleArgs(argc, arg);
 
-    int const locale = GetLocale();
-    if(locale < 0)
-        return 1;
+    int FirstLocale = -1;
+    
+    for (int i = 0; i < LANG_COUNT; i++)
+    {
+        char tmp1[512];
+        sprintf(tmp1, "%s/Data/%s/locale-%s.MPQ", input_path, langs[i], langs[i]);
+        if (FileExists(tmp1))
+        {
+            printf("Detected locale: %s\n", langs[i]);
+            
+            //Open MPQs
+            LoadLocaleMPQFiles(i);
+            
+            if((extract & EXTRACT_DBC) == 0)
+            {
+                FirstLocale=i;
+                break;
+            }
 
-    LoadMPQFiles(locale);
+        //Extract DBC files
+        if(FirstLocale<0)
+        {
+            ExtractDBCFiles(i, true);
+            FirstLocale = i;
+        }
+        else 
+            ExtractDBCFiles(i, false);
+        
+            //Close MPQs
+            CloseMPQFiles();
+        }
+    }
 
-    if(extract & EXTRACT_DBC)
-        ExtractDBCFiles();
-
-    if(extract & EXTRACT_MAP)
+    if(FirstLocale<0)
+    {
+        printf("No locales detected\n");
+        return 0;
+    }
+    
+    if (extract & EXTRACT_MAP)
+    {
+        printf("Using locale: %s\n", langs[FirstLocale]);
+        
+        // Open MPQs
+        LoadLocaleMPQFiles(FirstLocale);
+        LoadCommonMPQFiles();
+        
+        // Extract maps
         ExtractMapsFromMpq();
 
-    //Close MPQs
-    for(ArchiveSet::iterator i = gOpenArchives.begin(); i != gOpenArchives.end();++i)
-        (*i)->close();
-    gOpenArchives.clear();
+        // Close MPQs
+        CloseMPQFiles();
+    }
 
     return 0;
 }

@@ -1605,6 +1605,8 @@ class TRINITY_DLL_SPEC Player : public Unit
         void SendDelayResponse(const uint32);
         void SendLogXPGain(uint32 GivenXP,Unit* victim,uint32 RestXP);
 
+		//Low Level Packets
+        void PlaySound(uint32 Sound, bool OnlySelf);
         //notifiers
         void SendAttackSwingCantAttack();
         void SendAttackSwingCancelAttack();

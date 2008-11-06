@@ -3656,7 +3656,7 @@ bool ChatHandler::HandleNearGraveCommand(const char* args)
 }
 
 //play npc emote
-bool ChatHandler::HandlePlayEmoteCommand(const char* args)
+bool ChatHandler::HandleNpcPlayEmoteCommand(const char* args)
 {
     uint32 emote = atoi((char*)args);
 
@@ -5564,7 +5564,7 @@ bool ChatHandler::HandleLoadPDumpCommand(const char *args)
     return true;
 }
 
-bool ChatHandler::HandleChangeEntryCommand(const char *args)
+bool ChatHandler::HandleNpcChangeEntryCommand(const char *args)
 {
     if(!args)
         return false;

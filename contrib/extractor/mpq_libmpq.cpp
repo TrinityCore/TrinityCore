@@ -71,7 +71,7 @@ MPQFile::MPQFile(const char* filename):
             continue; //file not found
         }
 
-        int fileno = blockindex;
+        uint32 fileno = blockindex;
 
         //int fileno = libmpq_file_number(&mpq_a, filename);
         //if(fileno == LIBMPQ_EFILE_NOT_FOUND)

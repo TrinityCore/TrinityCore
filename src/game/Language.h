@@ -697,8 +697,8 @@ enum TrinityStrings
 	// Room for more level 4 1012-1099 not used
 
 	// Level 3 (continue)
-    LANG_MOTD_NEW                       = 1100,
-    LANG_ACCOUNT_SETADDON               = 1101,
+    LANG_ACCOUNT_SETADDON               = 1100,
+    LANG_MOTD_NEW                       = 1101,
     LANG_SENDMESSAGE                    = 1102,
     LANG_EVENT_ENTRY_LIST_CONSOLE       = 1103,
 	LANG_CREATURE_ENTRY_LIST_CONSOLE    = 1104,
