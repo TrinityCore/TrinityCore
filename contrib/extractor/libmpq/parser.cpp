@@ -79,7 +79,7 @@ int libmpq_conf_parse_line(char *line, char *search_value, char *return_value, i
 	}
 
 	/* now search for comment in this line */
-	for (i = 0; i < strlen(line); i++) {
+	for (i = 0; i < int(strlen(line)); i++) {
 		if (line[i] == '#') {
 			pos = i - 1;
 			break;

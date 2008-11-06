@@ -199,7 +199,7 @@ int libmpq_archive_info(mpq_archive *mpq_a, unsigned int infotype) {
 /*
  * This function returns some useful file information.
  */
-int libmpq_file_info(mpq_archive *mpq_a, unsigned int infotype, const int number) {
+int libmpq_file_info(mpq_archive *mpq_a, unsigned int infotype, const int unsigned number) {
 	int blockindex = number; //-1;
 	int i = 0;
 	mpq_block *mpq_b = NULL;

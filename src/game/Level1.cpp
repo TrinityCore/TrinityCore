@@ -38,7 +38,7 @@
 #include "VMapFactory.h"
 #endif
 
-bool ChatHandler::HandleSayCommand(const char* args)
+bool ChatHandler::HandleNpcSayCommand(const char* args)
 {
     if(!*args)
         return false;
@@ -56,7 +56,7 @@ bool ChatHandler::HandleSayCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleYellCommand(const char* args)
+bool ChatHandler::HandleNpcYellCommand(const char* args)
 {
     if(!*args)
         return false;
@@ -75,7 +75,7 @@ bool ChatHandler::HandleYellCommand(const char* args)
 }
 
 //show text emote by creature in chat
-bool ChatHandler::HandleTextEmoteCommand(const char* args)
+bool ChatHandler::HandleNpcTextEmoteCommand(const char* args)
 {
     if(!*args)
         return false;

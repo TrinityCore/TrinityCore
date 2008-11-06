@@ -51,14 +51,12 @@ public:
         return nullhash;
     }
 
-    vector<string> GetFileList() {
-        vector<string> filelist;
-
+    void GetFileListTo(vector<string>& filelist) {
         mpq_hash hash = GetHashEntry("(listfile)");
         uint32 blockindex = hash.blockindex;
 
         if ((blockindex == 0xFFFFFFFF) || (blockindex == 0))
-            return filelist;
+            return;
 
         uint32 size = libmpq_file_info(&mpq_a, LIBMPQ_FILE_UNCOMPRESSED_SIZE, blockindex);
         char *buffer = new char[size];
@@ -79,8 +77,7 @@ public:
             token = strtok(NULL, seps);
         }
 
-        delete buffer;
-        return filelist;
+        delete[] buffer;
     }
 };
 typedef std::deque<MPQArchive*> ArchiveSet;

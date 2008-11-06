@@ -198,7 +198,7 @@ extern int libmpq_archive_open(mpq_archive *mpq_a, unsigned char *mpq_filename);
 extern int libmpq_archive_close(mpq_archive *mpq_a);
 extern int libmpq_archive_info(mpq_archive *mpq_a, unsigned int infotype);
 //extern int libmpq_file_extract(mpq_archive *mpq_a, const int number);
-extern int libmpq_file_info(mpq_archive *mpq_a, unsigned int infotype, const int number);
+extern int libmpq_file_info(mpq_archive *mpq_a, unsigned int infotype, const unsigned int number);
 extern char *libmpq_file_name(mpq_archive *mpq_a, const int number);
 extern int libmpq_file_number(mpq_archive *mpq_a, const char *name);
 extern int libmpq_file_check(mpq_archive *mpq_a, void *file, int type);
