@@ -50,13 +50,13 @@ bool OutdoorPvPObjectiveAI::IsVisible(Unit *pl) const
 
 void OutdoorPvPObjectiveAI::AttackStart(Unit *)
 {
-    EnterEvadeMode();
+    //EnterEvadeMode();
 }
 
 void OutdoorPvPObjectiveAI::EnterEvadeMode()
 {
-    i_creature.DeleteThreatList();
-    i_creature.CombatStop();
+//    i_creature.DeleteThreatList();
+//    i_creature.CombatStop();
 }
 
 void OutdoorPvPObjectiveAI::UpdateAI(const uint32 diff)

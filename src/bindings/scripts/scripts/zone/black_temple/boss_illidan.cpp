@@ -1,18 +1,18 @@
 /* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+*/
 
 /* ScriptData
 SDName: boss_illidan_stormrage
@@ -382,8 +382,6 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
     uint64 FlameGUID[2];
     uint64 GlaiveGUID[2];
 
-    std::list<uint64> ParasiteTargets; // for safety, do not use Unit*
-
     void Reset();
 
     void JustSummoned(Creature* summon)
@@ -433,6 +431,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
+        m_creature->setActive(true);
         DoZoneInCombat();
     }
 
@@ -503,19 +502,6 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         }
     }
 
-    void AddParasiteTarget(uint64 targetGUID)
-    {
-        for(std::list<uint64>::iterator tIter = ParasiteTargets.begin(); tIter != ParasiteTargets.end(); tIter++)
-        {
-            if(*tIter == targetGUID)
-                return;
-        }
-        ParasiteTargets.push_back(targetGUID);
-
-        if(Phase == PHASE_NORMAL || Phase == PHASE_NORMAL_2 || Phase == PHASE_NORMAL_MAIEV)
-            Timer[EVENT_PARASITE_CHECK] += 1000;
-    }
-
     void DeleteFromThreatList(uint64 TargetGUID)
     {
         for(std::list<HostilReference*>::iterator itr = m_creature->getThreatManager().getThreatList().begin(); itr != m_creature->getThreatManager().getThreatList().end(); ++itr)
@@ -562,19 +548,14 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         {
         case 1://lift off
             m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-            //m_creature->GetMotionMaster()->Clear(false);
             m_creature->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING + MOVEMENTFLAG_ONTRANSPORT);
-            //m_creature->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ());
             m_creature->StopMoving();
             DoYell(SAY_TAKEOFF, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_TAKEOFF);
             Timer[EVENT_FLIGHT_SEQUENCE] = 3000;
             break;
         case 2://move to center
-            //m_creature->GetMotionMaster()->Clear(false);
-            //m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
             m_creature->GetMotionMaster()->MovePoint(0, CENTER_X + 5, CENTER_Y, CENTER_Z); //+5, for SPELL_THROW_GLAIVE bug
-            //m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
             Timer[EVENT_FLIGHT_SEQUENCE] = 0;
             break;
         case 3://throw one glaive
@@ -614,15 +595,11 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             Timer[EVENT_FLIGHT_SEQUENCE] = 3000;
             break;
         case 6://fly to hover point
-            //m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
             m_creature->GetMotionMaster()->MovePoint(0, HoverPosition[HoverPoint].x, HoverPosition[HoverPoint].y, HoverPosition[HoverPoint].z);
-            //m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
             Timer[EVENT_FLIGHT_SEQUENCE] = 0;
             break;
         case 7://return to center
-            //m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
             m_creature->GetMotionMaster()->MovePoint(0, CENTER_X, CENTER_Y, CENTER_Z);
-            //m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
             Timer[EVENT_FLIGHT_SEQUENCE] = 0;
             break;
         case 8://glaive return
@@ -641,9 +618,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             Timer[EVENT_FLIGHT_SEQUENCE] = 2000;
             break;
         case 9://land
-            //m_creature->GetMotionMaster()->Clear(false);
             m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING + MOVEMENTFLAG_ONTRANSPORT);
-            //m_creature->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ());
             m_creature->StopMoving();
             m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
             for(uint8 i = 0; i < 2; i++)
@@ -663,7 +638,6 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         case 10://attack
             DoResetThreat();
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
-            //m_creature->GetMotionMaster()->Clear();
             m_creature->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE );
             EnterPhase(PHASE_NORMAL_2);
             break;
@@ -723,11 +697,12 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if((!m_creature->SelectHostilTarget() || !m_creature->getVictim()) && Phase < PHASE_TALK_SEQUENCE)
+        if((!m_creature->SelectHostilTarget() && !m_creature->getVictim()) && Phase < PHASE_TALK_SEQUENCE)
             return;
 
         Event = EVENT_NULL;
         for(uint32 i = 1; i <= MaxTimer[Phase]; i++)
+        {
             if(Timer[i])
                 if(Timer[i] <= diff)
                 {
@@ -735,223 +710,187 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
                         Event = (EventIllidan)i;
                 }
                 else Timer[i] -= diff;
+        }
 
-                switch(Phase)
+        switch(Phase)
+        {
+        case PHASE_NORMAL:
+            if(HPPCT(m_creature) < 65)
+                EnterPhase(PHASE_FLIGHT_SEQUENCE);
+            break;
+
+        case PHASE_NORMAL_2:
+            if(m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 30)
+                EnterPhase(PHASE_TALK_SEQUENCE);
+            break;
+
+        case PHASE_NORMAL_MAIEV:
+            if(m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 1)
+                EnterPhase(PHASE_TALK_SEQUENCE);
+            break;
+
+        case PHASE_TALK_SEQUENCE:
+            if(Event == EVENT_TALK_SEQUENCE)
+                HandleTalkSequence();
+            break;
+
+        case PHASE_FLIGHT_SEQUENCE:
+            if(Event == EVENT_FLIGHT_SEQUENCE)
+                HandleFlightSequence();
+            break;
+
+        case PHASE_TRANSFORM_SEQUENCE:
+            if(Event == EVENT_TRANSFORM_SEQUENCE)
+                HandleTransformSequence();
+            break;
+        }
+
+        if(m_creature->IsNonMeleeSpellCasted(false))
+            return;
+
+        if(Phase == PHASE_NORMAL || Phase == PHASE_NORMAL_2 || Phase == PHASE_NORMAL_MAIEV && !m_creature->HasAura(SPELL_CAGED, 0))
+        {
+            switch(Event)
+            {
+                //PHASE_NORMAL
+            case EVENT_BERSERK:
+                DoYell(SAY_ENRAGE, LANG_UNIVERSAL, NULL);
+                DoPlaySoundToSet(m_creature, SOUND_ENRAGE);
+                DoCast(m_creature, SPELL_BERSERK, true);
+                Timer[EVENT_BERSERK] = 5000;//The buff actually lasts forever.
+                break;
+
+            case EVENT_TAUNT:
                 {
-                case PHASE_NORMAL:
-                    if(HPPCT(m_creature) < 65)
-                        EnterPhase(PHASE_FLIGHT_SEQUENCE);
-                    break;
-
-                case PHASE_NORMAL_2:
-                    if(m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 30)
-                        EnterPhase(PHASE_TALK_SEQUENCE);
-                    break;
-
-                case PHASE_NORMAL_MAIEV:
-                    if(m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 1)
-                        EnterPhase(PHASE_TALK_SEQUENCE);
-                    break;
-
-                case PHASE_TALK_SEQUENCE:
-                    if(Event == EVENT_TALK_SEQUENCE)
-                        HandleTalkSequence();
-                    break;
-
-                case PHASE_FLIGHT_SEQUENCE:
-                    if(Event == EVENT_FLIGHT_SEQUENCE)
-                        HandleFlightSequence();
-                    break;
-
-                case PHASE_TRANSFORM_SEQUENCE:
-                    if(Event == EVENT_TRANSFORM_SEQUENCE)
-                        HandleTransformSequence();
-                    break;
+                    uint32 random = rand()%4;
+                    char* yell = RandomTaunts[random].text;
+                    uint32 soundid = RandomTaunts[random].sound;
+                    if(yell)
+                        DoYell(yell, LANG_UNIVERSAL, NULL);
+                    if(soundid)
+                        DoPlaySoundToSet(m_creature, soundid);
                 }
+                Timer[EVENT_TAUNT] = 32000;
+                break;
 
-                if(m_creature->IsNonMeleeSpellCasted(false))
-                    return;
+            case EVENT_SHEAR:
+                DoCast(m_creature->getVictim(), SPELL_SHEAR);
+                Timer[EVENT_SHEAR] = 25000 + (rand()%16 * 1000);
+                break;
 
-                if(Phase == PHASE_NORMAL || Phase == PHASE_NORMAL_2 || Phase == PHASE_NORMAL_MAIEV && !m_creature->HasAura(SPELL_CAGED, 0))
+            case EVENT_FLAME_CRASH:
+                DoCast(m_creature->getVictim(), SPELL_FLAME_CRASH);
+                Timer[EVENT_FLAME_CRASH] = 35000;
+                break;
+
+            case EVENT_PARASITIC_SHADOWFIEND:
                 {
-                    switch(Event)
-                    {
-                        //PHASE_NORMAL
-                    case EVENT_BERSERK:
-                        DoYell(SAY_ENRAGE, LANG_UNIVERSAL, NULL);
-                        DoPlaySoundToSet(m_creature, SOUND_ENRAGE);
-                        DoCast(m_creature, SPELL_BERSERK, true);
-                        Timer[EVENT_BERSERK] = 5000;//The buff actually lasts forever.
-                        break;
+                    Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1, 200, true);
+                    if(!target) target = m_creature->getVictim();
+                    if(target)
+                        m_creature->CastSpell(target, SPELL_PARASITIC_SHADOWFIEND, true);
+                }break;
 
-                    case EVENT_TAUNT:
-                        {
-                            uint32 random = rand()%4;
-                            char* yell = RandomTaunts[random].text;
-                            uint32 soundid = RandomTaunts[random].sound;
-                            if(yell)
-                                DoYell(yell, LANG_UNIVERSAL, NULL);
-                            if(soundid)
-                                DoPlaySoundToSet(m_creature, soundid);
-                        }
-                        Timer[EVENT_TAUNT] = 32000;
-                        break;
+            case EVENT_PARASITE_CHECK:
+                Timer[EVENT_PARASITE_CHECK] = 0;
+                break;
 
-                    case EVENT_SHEAR:
-                        DoCast(m_creature->getVictim(), SPELL_SHEAR);
-                        Timer[EVENT_SHEAR] = 25000 + (rand()%16 * 1000);
-                        break;
+            case EVENT_DRAW_SOUL:
+                DoCast(m_creature->getVictim(), SPELL_DRAW_SOUL);
+                Timer[EVENT_DRAW_SOUL] = 55000;          
+                break;
 
-                    case EVENT_FLAME_CRASH:
-                        DoCast(m_creature->getVictim(), SPELL_FLAME_CRASH);
-                        Timer[EVENT_FLAME_CRASH] = 35000;
-                        break;
+                //PHASE_NORMAL_2
+            case EVENT_AGONIZING_FLAMES:
+                DoCast(SelectUnit(SELECT_TARGET_RANDOM,0), SPELL_AGONIZING_FLAMES);
+                Timer[EVENT_AGONIZING_FLAMES] = 0;
+                break;
 
-                    case EVENT_PARASITIC_SHADOWFIEND:
-                        {
-                            Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
-                            if(!target) target = m_creature->getVictim();
-                            if(target->GetTypeId() == TYPEID_PLAYER && !target->HasAura(SPELL_PARASITIC_SHADOWFIEND, 0))
-                            {
-                                target->CastSpell(target, SPELL_PARASITIC_SHADOWFIEND, true); // do not miss
-                                ParasiteTargets.push_back(target->GetGUID());
-                                Timer[EVENT_PARASITE_CHECK] += 1000; // do not check immediately
-                            }
-                            Timer[EVENT_PARASITIC_SHADOWFIEND] = 40000;
-                        }
-                        break;
+            case EVENT_TRANSFORM_NORMAL:
+                EnterPhase(PHASE_TRANSFORM_SEQUENCE);
+                break;
 
-                    case EVENT_PARASITE_CHECK:
-                        for(std::list<uint64>::iterator tIter = ParasiteTargets.begin(); tIter != ParasiteTargets.end();)
-                        {
-                            Unit* target = Unit::GetUnit((*m_creature), *tIter);
-                            if(!target || !target->HasAura(SPELL_PARASITIC_SHADOWFIEND, 0))
-                            {
-                                if(target && target->isAlive())
-                                    target->CastSpell(target, SPELL_SUMMON_PARASITICS, true);
-                                std::list<uint64>::iterator tIter2 = tIter;
-                                ++tIter;
-                                ParasiteTargets.erase(tIter2);
-                            }
-                            else
-                                ++tIter;
-                        }
-                        if(ParasiteTargets.empty())
-                            Timer[EVENT_PARASITE_CHECK] = 0;
-                        else
-                            Timer[EVENT_PARASITE_CHECK] = 1000;
-                        break;
+                //PHASE_NORMAL_MAIEV
+            case EVENT_ENRAGE:
+                DoCast(m_creature, SPELL_ENRAGE);
+                Timer[EVENT_ENRAGE] = 0;
+                break;
 
-                    case EVENT_DRAW_SOUL:
-                        DoCast(m_creature->getVictim(), SPELL_DRAW_SOUL);
-                        Timer[EVENT_DRAW_SOUL] = 55000;          
-                        break;
+            default:
+                break;
+            }
+            DoMeleeAttackIfReady();
+        }
 
-                        //PHASE_NORMAL_2
-                    case EVENT_AGONIZING_FLAMES:
-                        DoCast(SelectUnit(SELECT_TARGET_RANDOM,0), SPELL_AGONIZING_FLAMES);
-                        Timer[EVENT_AGONIZING_FLAMES] = 0;
-                        break;
+        if(Phase == PHASE_FLIGHT)
+        {
+            switch(Event)
+            {
+            case EVENT_FIREBALL:
+                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_FIREBALL);
+                Timer[EVENT_FIREBALL] = 3000;
+                break;
 
-                    case EVENT_TRANSFORM_NORMAL:
-                        EnterPhase(PHASE_TRANSFORM_SEQUENCE);
-                        break;
+            case EVENT_DARK_BARRAGE:
+                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_DARK_BARRAGE);
+                Timer[EVENT_DARK_BARRAGE] = 0;
+                break;
 
-                        //PHASE_NORMAL_MAIEV
-                    case EVENT_ENRAGE:
-                        DoCast(m_creature, SPELL_ENRAGE);
-                        Timer[EVENT_ENRAGE] = 0;
-                        break;
+            case EVENT_EYE_BLAST:
+                CastEyeBlast(); 
+                Timer[EVENT_EYE_BLAST] = 0;
+                break;
 
-                    default:
-                        break;
-                    }
-                    DoMeleeAttackIfReady();
-                }
-
-                if(Phase == PHASE_FLIGHT)
+            case EVENT_MOVE_POINT:
+                Phase = PHASE_FLIGHT_SEQUENCE;
+                Timer[EVENT_FLIGHT_SEQUENCE] = 0;//do not start Event when changing hover point
+                for (uint8 i = 0; i <= rand()%3; i++)
                 {
-                    switch(Event)
-                    {
-                    case EVENT_FIREBALL:
-                        DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_FIREBALL);
-                        Timer[EVENT_FIREBALL] = 3000;
-                        break;
-
-                    case EVENT_DARK_BARRAGE:
-                        DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_DARK_BARRAGE);
-                        Timer[EVENT_DARK_BARRAGE] = 0;
-                        break;
-
-                    case EVENT_EYE_BLAST:
-                        CastEyeBlast(); 
-                        Timer[EVENT_EYE_BLAST] = 0;
-                        break;
-
-                    case EVENT_MOVE_POINT:
-                        Phase = PHASE_FLIGHT_SEQUENCE;
-                        Timer[EVENT_FLIGHT_SEQUENCE] = 0;//do not start Event when changing hover point
-                        for (uint8 i = 0; i <= rand()%3; i++)
-                        {
-                            HoverPoint++;
-                            if(HoverPoint > 3)
-                                HoverPoint = 0;
-                        }
-                        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
-                        m_creature->GetMotionMaster()->MovePoint(0, HoverPosition[HoverPoint].x, HoverPosition[HoverPoint].y, HoverPosition[HoverPoint].z);
-                        m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
-                        break;
-
-                    default:
-                        break;
-                    }
+                    HoverPoint++;
+                    if(HoverPoint > 3)
+                        HoverPoint = 0;
                 }
+                m_creature->GetMotionMaster()->MovePoint(0, HoverPosition[HoverPoint].x, HoverPosition[HoverPoint].y, HoverPosition[HoverPoint].z);
+                break;
 
-                if(Phase == PHASE_DEMON)
-                {
-                    switch(Event)
-                    {
-                    case EVENT_SHADOW_BLAST:
-                        m_creature->GetMotionMaster()->Clear(false);
-                        if(!m_creature->IsWithinDistInMap(m_creature->getVictim(), 50)||!m_creature->IsWithinLOSInMap(m_creature->getVictim()))
-                            m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim(), 30);
-                        else
-                            m_creature->GetMotionMaster()->MoveIdle();
-                        DoCast(m_creature->getVictim(), SPELL_SHADOW_BLAST);
-                        Timer[EVENT_SHADOW_BLAST] = 4000;
-                        break;
-                    case EVENT_SHADOWDEMON:
-                        DoCast(m_creature, SPELL_SUMMON_SHADOWDEMON);
-                        Timer[EVENT_SHADOWDEMON] = 0;
-                        Timer[EVENT_FLAME_BURST] += 10000;
-                        break;
-                    case EVENT_FLAME_BURST:
-                        DoCast(m_creature, SPELL_FLAME_BURST);
-                        Timer[EVENT_FLAME_BURST] = 15000;
-                        break;
-                    case EVENT_TRANSFORM_DEMON:
-                        EnterPhase(PHASE_TRANSFORM_SEQUENCE);
-                        break;
-                    default:
-                        break;
-                    }
-                }
+            default:
+                break;
+            }
+        }
+
+        if(Phase == PHASE_DEMON)
+        {
+            switch(Event)
+            {
+            case EVENT_SHADOW_BLAST:
+                m_creature->GetMotionMaster()->Clear(false);
+                if(!m_creature->IsWithinDistInMap(m_creature->getVictim(), 50)||!m_creature->IsWithinLOSInMap(m_creature->getVictim()))
+                    m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim(), 30);
+                else
+                    m_creature->GetMotionMaster()->MoveIdle();
+                DoCast(m_creature->getVictim(), SPELL_SHADOW_BLAST);
+                Timer[EVENT_SHADOW_BLAST] = 4000;
+                break;
+            case EVENT_SHADOWDEMON:
+                DoCast(m_creature, SPELL_SUMMON_SHADOWDEMON);
+                Timer[EVENT_SHADOWDEMON] = 0;
+                Timer[EVENT_FLAME_BURST] += 10000;
+                break;
+            case EVENT_FLAME_BURST:
+                DoCast(m_creature, SPELL_FLAME_BURST);
+                Timer[EVENT_FLAME_BURST] = 15000;
+                break;
+            case EVENT_TRANSFORM_DEMON:
+                EnterPhase(PHASE_TRANSFORM_SEQUENCE);
+                break;
+            default:
+                break;
+            }
+        }
     }
 };
 
 /********************************** End of Illidan AI ******************************************/
-
-//This is used to sort the players by distance in preparation for being charged by the flames.
-struct TargetDistanceOrder : public std::binary_function<const Unit, const Unit, bool>
-{
-    const Unit* MainTarget;
-    TargetDistanceOrder(const Unit* Target) : MainTarget(Target) {};
-    // functor for operator ">"
-    bool operator()(const Unit* _Left, const Unit* _Right) const
-    {
-        return (MainTarget->GetDistance(_Left) > MainTarget->GetDistance(_Right));
-    }
-};
 
 struct TRINITY_DLL_DECL flame_of_azzinothAI : public ScriptedAI
 {
@@ -972,29 +911,7 @@ struct TRINITY_DLL_DECL flame_of_azzinothAI : public ScriptedAI
 
     void ChargeCheck()
     {        
-        // Get the Threat List
-        std::list<HostilReference *> m_threatlist = m_creature->getThreatManager().getThreatList();
-
-        if(!m_threatlist.size()) return; // He doesn't have anyone in his threatlist, useless to continue
-
-        std::list<Unit *> targets;
-        std::list<HostilReference *>::iterator itr = m_threatlist.begin();
-        for( ; itr!= m_threatlist.end(); ++itr) //store the threat list in a different container
-        {
-            Unit *target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
-            if(target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER && target->GetPositionZ()>350) //only on alive players
-                targets.push_back(target);
-        }
-
-        if (!targets.size())
-            return;
-
-        //Sort the list of players
-        targets.sort(TargetDistanceOrder(m_creature));
-        //Resize so we only get the furthest target
-        targets.resize(1);
-
-        Unit* target = (*targets.begin());
+        Unit* target = SelectUnit(SELECT_TARGET_FARTHEST, 0, 200, false);
         if(target && (!m_creature->IsWithinDistInMap(target, FLAME_CHARGE_DISTANCE)))
         {
             m_creature->AttackStop();
@@ -1128,6 +1045,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
 
         m_creature->SetUInt32Value(UNIT_NPC_FLAGS, 0); // Database sometimes has strange values..
         m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        m_creature->setActive(false);
     }
 
     // Do not call reset in Akama's evade mode, as this will stop him from summoning minions after he kills the first bit
@@ -1184,6 +1102,8 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
 
     void BeginChannel()
     {
+        m_creature->setActive(true);
+
         float x, y, z;
         if(GETGO(Gate, GateGUID))
             Gate->GetPosition(x, y, z);
@@ -1527,7 +1447,6 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
             }
             m_creature->InterruptNonMeleeSpells(false);
             m_creature->GetMotionMaster()->Clear(false);
-            //m_creature->GetMotionMaster()->MoveIdle();
             m_creature->AttackStop();
             m_creature->SetUInt64Value(UNIT_FIELD_TARGET, IllidanGUID);
             MaxTimer = 0;
@@ -1557,7 +1476,6 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
         m_creature->AttackStop();
         m_creature->InterruptNonMeleeSpells(false);
         m_creature->GetMotionMaster()->Clear(false);
-        //m_creature->GetMotionMaster()->MoveIdle();
         m_creature->Relocate(x, y, z);
         m_creature->SendMonsterMove(x, y, z, 0, 0, 0);
         DoCast(m_creature, SPELL_TELEPORT_VISUAL, true);
@@ -1839,9 +1757,7 @@ struct TRINITY_DLL_DECL mob_parasitic_shadowfiendAI : public ScriptedAI
         {
             if(!m_creature->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND, 0))
             {
-                m_creature->getVictim()->CastSpell(m_creature->getVictim(), SPELL_PARASITIC_SHADOWFIEND, true); //do not stack
-                if(GETCRE(Illidan, IllidanGUID))
-                    ((boss_illidan_stormrageAI*)Illidan->AI())->AddParasiteTarget(m_creature->getVictim()->GetGUID());
+                m_creature->getVictim()->CastSpell(m_creature->getVictim(), SPELL_PARASITIC_SHADOWFIEND, true, 0, 0, IllidanGUID); //do not stack
             }
             m_creature->AttackerStateUpdate(m_creature->getVictim());
             m_creature->resetAttackTimer();
@@ -1936,67 +1852,6 @@ struct TRINITY_DLL_DECL demonfireAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL blazeAI : public ScriptedAI
-{
-    blazeAI(Creature *c) : ScriptedAI(c) {Reset();}
-
-    uint32 BlazeTimer;
-    uint32 DespawnTimer;
-
-    void Reset()
-    {
-        BlazeTimer = 3000;  
-        DespawnTimer = 60000; // Spell duration = 1 min
-        //((TemporarySummon*)m_creature)->Summon(TEMPSUMMON_TIMED_DESPAWN, 0, false);
-    }
-
-    void Aggro(Unit *who) {}
-    void AttackStart(Unit* who) { }
-    void MoveInLineOfSight(Unit *who){ }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if(BlazeTimer)
-            if(BlazeTimer <= diff)
-            {
-                DoCast(m_creature, SPELL_BLAZE_EFFECT);//duration 60s
-                BlazeTimer = 0;
-            }else BlazeTimer -= diff;
-
-        if(DespawnTimer < diff)
-        {
-            m_creature->SetVisibility(VISIBILITY_OFF);
-            m_creature->setDeathState(JUST_DIED);
-        }else DespawnTimer -= diff;
-    }
-};
-
-struct TRINITY_DLL_DECL flamecrashAI : public ScriptedAI
-{
-    flamecrashAI(Creature *c) : ScriptedAI(c) {Reset();}
-
-    uint32 DespawnTimer;
-
-    void Reset()
-    {
-        DoCast(m_creature, SPELL_FLAME_CRASH_EFFECT);//duration inf
-        DespawnTimer = 120000; // summon spell duration
-    }
-
-    void Aggro(Unit *who) {}
-    void AttackStart(Unit *who) { }
-    void MoveInLineOfSight(Unit *who){ }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if(DespawnTimer < diff)
-        {
-            m_creature->SetVisibility(VISIBILITY_OFF);
-            m_creature->setDeathState(JUST_DIED);
-        }else DespawnTimer -= diff;
-    }
-};
-
 struct TRINITY_DLL_DECL blade_of_azzinothAI : public ScriptedAI
 {
     blade_of_azzinothAI(Creature* c) : ScriptedAI(c) {}
@@ -2070,8 +1925,6 @@ void boss_illidan_stormrageAI::Reset()
     FlightCount = 0;
     TransformCount = 0;
 
-    ParasiteTargets.clear();
-
     m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, 21135);
     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -2080,6 +1933,7 @@ void boss_illidan_stormrageAI::Reset()
     m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING + MOVEMENTFLAG_ONTRANSPORT);
 
     m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);
+    m_creature->setActive(false);
 }
 
 void boss_illidan_stormrageAI::HandleTalkSequence()
@@ -2377,19 +2231,9 @@ CreatureAI* GetAI_shadow_demon(Creature *_Creature)
     return new shadow_demonAI (_Creature);
 }
 
-CreatureAI* GetAI_flamecrash(Creature *_Creature)
-{
-    return new flamecrashAI (_Creature);
-}
-
 CreatureAI* GetAI_demonfire(Creature *_Creature)
 {
     return new demonfireAI (_Creature);
-}
-
-CreatureAI* GetAI_blaze(Creature *_Creature)
-{
-    return new blazeAI (_Creature);
 }
 
 CreatureAI* GetAI_blade_of_azzinoth(Creature *_Creature)
@@ -2449,18 +2293,8 @@ void AddSC_boss_illidan()
     m_scripts[nrscripts++] = newscript;
 
     newscript = new Script;
-    newscript->Name="mob_flame_crash";
-    newscript->GetAI = GetAI_flamecrash;
-    m_scripts[nrscripts++] = newscript;
-
-    newscript = new Script;
     newscript->Name="mob_demon_fire";
     newscript->GetAI = GetAI_demonfire;
-    m_scripts[nrscripts++] = newscript;
-
-    newscript = new Script;
-    newscript->Name="mob_blaze";
-    newscript->GetAI = GetAI_blaze;
     m_scripts[nrscripts++] = newscript;
 
     newscript = new Script;

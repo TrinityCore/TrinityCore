@@ -3576,6 +3576,13 @@ void Spell::EffectSummonGuardian(uint32 i)
         return;
     }
 
+    // trigger
+    if(m_spellInfo->Id == 40276)
+    {
+        EffectSummonWild(i);
+        return;
+    }
+
     // set timer for unsummon
     int32 duration = GetSpellDuration(m_spellInfo);
 

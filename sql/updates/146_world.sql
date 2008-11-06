@@ -1,5 +1,3 @@
-update creature_template set spell1 = 40836, flags_extra = 128, scriptname = '' where entry = 23336;
-
 DROP TABLE IF EXISTS `spell_linked_spell`;
 CREATE TABLE `spell_linked_spell` (
   `spell_trigger` int(10) NOT NULL,

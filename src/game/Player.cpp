@@ -2000,8 +2000,8 @@ void Player::SetGMVisible(bool on)
         // Reapply stealth/invisibility if active or show if not any
         if(HasAuraType(SPELL_AURA_MOD_STEALTH))
             SetVisibility(VISIBILITY_GROUP_STEALTH);
-        else if(HasAuraType(SPELL_AURA_MOD_INVISIBILITY))
-            SetVisibility(VISIBILITY_GROUP_INVISIBILITY);
+        //else if(HasAuraType(SPELL_AURA_MOD_INVISIBILITY))
+        //    SetVisibility(VISIBILITY_GROUP_INVISIBILITY);
         else
             SetVisibility(VISIBILITY_ON);
     }
@@ -16395,7 +16395,6 @@ void Player::HandleStealthedUnitsDetection()
 
         if ((*i)->isVisibleForOrDetect(this,true))
         {
-
             (*i)->SendUpdateToPlayer(this);
             m_clientGUIDs.insert((*i)->GetGUID());
 
@@ -17188,7 +17187,108 @@ void Player::ReportedAfkBy(Player* reporter)
     }
 }
 
-bool Player::IsVisibleInGridForPlayer( Player* pl ) const
+bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList) const
+{
+    // Always can see self
+    if (u == this)
+        return true;
+
+    // player visible for other player if not logout and at same transport
+    // including case when player is out of world
+    bool at_same_transport =
+        GetTransport() && u->GetTypeId() == TYPEID_PLAYER
+        && !GetSession()->PlayerLogout() && !((Player*)u)->GetSession()->PlayerLogout()
+        && !GetSession()->PlayerLoading() && !((Player*)u)->GetSession()->PlayerLoading()
+        && GetTransport() == ((Player*)u)->GetTransport();
+
+    // not in world
+    if(!at_same_transport && (!IsInWorld() || !u->IsInWorld()))
+        return false;
+
+    // forbidden to seen (at GM respawn command)
+    if(u->GetVisibility() == VISIBILITY_RESPAWN)
+        return false;
+
+    // always seen by owner
+    if(GetGUID() == u->GetCharmerOrOwnerGUID())
+        return true;
+
+    // Grid dead/alive checks
+    // non visible at grid for any stealth state
+    if(!u->IsVisibleInGridForPlayer(this))
+        return false;
+
+    // If the player is currently possessing, update visibility from the possessed unit's location
+    const Unit* target = isPossessing() ? GetCharm() : this;
+
+    // different visible distance checks
+    if(isInFlight())                                     // what see player in flight
+    {
+        if (!target->IsWithinDistInMap(u,World::GetMaxVisibleDistanceInFlight()+(inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f)))
+            return false;
+    }
+    else if(!u->isAlive())                                     // distance for show body
+    {
+        if (!target->IsWithinDistInMap(u,World::GetMaxVisibleDistanceForObject()+(inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f)))
+            return false;
+    }
+    else if(u->GetTypeId()==TYPEID_PLAYER)                     // distance for show player
+    {
+        // Players far than max visible distance for player or not in our map are not visible too
+        if (!at_same_transport && !target->IsWithinDistInMap(u,World::GetMaxVisibleDistanceForPlayer()+(inVisibleList ? World::GetVisibleUnitGreyDistance() : 0.0f)))
+            return false;
+    }
+    else if(u->GetCharmerOrOwnerGUID())                        // distance for show pet/charmed
+    {
+        // Pet/charmed far than max visible distance for player or not in our map are not visible too
+        if (!target->IsWithinDistInMap(u,World::GetMaxVisibleDistanceForPlayer()+(inVisibleList ? World::GetVisibleUnitGreyDistance() : 0.0f)))
+            return false;
+    }
+    else                                                    // distance for show creature
+    {
+        // Units far than max visible distance for creature or not in our map are not visible too
+        if (!target->IsWithinDistInMap(u, target->isActive() 
+                ? (MAX_VISIBILITY_DISTANCE - (inVisibleList ? 0.0f : World::GetVisibleUnitGreyDistance()))
+                : (World::GetMaxVisibleDistanceForCreature() + (inVisibleList ? World::GetVisibleUnitGreyDistance() : 0.0f))))
+            return false;
+    }
+
+    // GMs see any players, not higher GMs and all units
+    if(isGameMaster())
+    {
+        if(u->GetTypeId() == TYPEID_PLAYER)
+            return ((Player *)u)->GetSession()->GetSecurity() <= GetSession()->GetSecurity();
+        else
+            return true;
+    }
+
+    if(u->GetVisibility() == VISIBILITY_OFF)
+        return false;
+
+    // player see other player with stealth/invisibility only if he in same group or raid or same team (raid/team case dependent from conf setting)
+    if((m_invisibilityMask || u->m_invisibilityMask) && !canDetectInvisibilityOf(u))
+        if(!(u->GetTypeId()==TYPEID_PLAYER && !IsHostileTo(u) && IsGroupVisibleFor(((Player*)u))))
+            return false;
+
+    // GM invisibility checks early, invisibility if any detectable, so if not stealth then visible
+    if(u->GetVisibility() == VISIBILITY_GROUP_STEALTH)
+    {
+        // if player is dead then he can't detect anyone in anycases
+        //do not know what is the use of this detect
+        // stealth and detected and visible for some seconds
+        if(!isAlive())
+            detect = false;
+        if(m_DetectInvTimer < 300 || !HaveAtClient(u))
+            if(!(u->GetTypeId()==TYPEID_PLAYER && !IsHostileTo(u) && IsGroupVisibleFor(((Player*)u))))
+                if(!detect || !canDetectStealthOf(u, GetDistance(u)))
+                    return false;
+    }
+
+    // Now check is target visible with LoS
+    return u->IsWithinLOS(GetPositionX(),GetPositionY(),GetPositionZ());
+}
+
+bool Player::IsVisibleInGridForPlayer( Player const * pl ) const
 {
     // gamemaster in GM mode see all, including ghosts
     if(pl->isGameMaster() && GetSession()->GetSecurity() <= pl->GetSession()->GetSecurity())
