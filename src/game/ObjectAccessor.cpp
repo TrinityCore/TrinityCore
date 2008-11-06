@@ -622,8 +622,30 @@ void
 ObjectAccessor::WorldObjectChangeAccumulator::Visit(PlayerMapType &m)
 {
     for(PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
-        if(iter->getSource()->HaveAtClient(&i_object))
-            ObjectAccessor::_buildPacket(iter->getSource(), &i_object, i_updateDatas);
+    {
+        BuildPacket(iter->getSource());
+        if (iter->getSource()->isPossessedByPlayer())
+            BuildPacket((Player*)iter->getSource()->GetCharmer());
+    }
+}
+
+void
+ObjectAccessor::WorldObjectChangeAccumulator::Visit(CreatureMapType &m)
+{
+    for(CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+        if (iter->getSource()->isPossessedByPlayer())
+            BuildPacket((Player*)iter->getSource()->GetCharmer());
+}
+
+void
+ObjectAccessor::WorldObjectChangeAccumulator::BuildPacket(Player* plr)
+{
+    // Only send update once to a player
+    if (plr_list.find(plr->GetGUID()) == plr_list.end() && plr->HaveAtClient(&i_object))
+    {
+        ObjectAccessor::_buildPacket(plr, &i_object, i_updateDatas);
+        plr_list.insert(plr->GetGUID());
+    }
 }
 
 void

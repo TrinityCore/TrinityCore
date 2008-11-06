@@ -226,6 +226,7 @@ Unit::Unit()
     m_removedAuras = 0;
     m_charmInfo = NULL;
     m_unit_movement_flags = 0;
+    m_isPossessed = false;
 
     // remove aurastates allowing special moves
     for(int i=0; i < MAX_REACTIVE; ++i)
@@ -701,10 +702,6 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         if( pVictim->GetTypeId()==TYPEID_PLAYER && !damageFromSpiritOfRedemtionTalent )
             ((Player*)pVictim)->SetPvPDeath(player!=NULL);
 
-        // Call KilledUnit for creatures
-        if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->AI())
-            ((Creature*)this)->AI()->KilledUnit(pVictim);
-
         // 10% durability loss on death
         // clean InHateListOf
         if (pVictim->GetTypeId() == TYPEID_PLAYER)
@@ -718,6 +715,9 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
                 WorldPacket data(SMSG_DURABILITY_DAMAGE_DEATH, 0);
                 ((Player*)pVictim)->GetSession()->SendPacket(&data);
             }
+            // Call KilledUnit for creatures
+            if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->AI())
+                ((Creature*)this)->AI()->KilledUnit(pVictim);
         }
         else                                                // creature died
         {
@@ -729,6 +729,11 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
                 cVictim->DeleteThreatList();
                 cVictim->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
             }
+
+            // Call KilledUnit for creatures, this needs to be called after the lootable flag is set
+            if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->AI())
+                ((Creature*)this)->AI()->KilledUnit(pVictim);
+
             // Call creature just died function
             if (cVictim->AI())
                 cVictim->AI()->JustDied(this);
@@ -772,6 +777,13 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
 
             he->DuelComplete(DUEL_INTERUPTED);
         }
+
+        // Possessed unit died, restore control to possessor
+        pVictim->UnpossessSelf(false);
+
+        // Possessor died, remove possession
+        if(pVictim->GetTypeId() == TYPEID_PLAYER && pVictim->isPossessing())
+            ((Player*)pVictim)->RemovePossess(false);
 
         // battleground things (do this at the end, so the death state flag will be properly set to handle in the bg->handlekill)
         if(pVictim->GetTypeId() == TYPEID_PLAYER && (((Player*)pVictim)->InBattleGround()))
@@ -7169,6 +7181,29 @@ void Unit::SetCharm(Unit* charmed)
     SetUInt64Value(UNIT_FIELD_CHARM,charmed ? charmed->GetGUID() : 0);
 }
 
+void Unit::UncharmSelf()
+{
+    if (!GetCharmer())
+        return;
+
+    RemoveSpellsCausingAura(SPELL_AURA_MOD_CHARM);
+}
+
+void Unit::UnpossessSelf(bool attack)
+{
+    if (!isPossessed() || !GetCharmer())
+        return;
+
+    if (GetCharmer()->GetTypeId() == TYPEID_PLAYER)
+        ((Player*)GetCharmer())->RemovePossess(attack);
+    else
+    {
+        GetCharmer()->SetCharm(0);
+        SetCharmerGUID(0);
+        m_isPossessed = false;
+    }
+}
+
 void Unit::UnsummonAllTotems()
 {
     for (int8 i = 0; i < MAX_TOTEM; ++i)
@@ -8588,16 +8623,19 @@ bool Unit::isVisibleForOrDetect(Unit const* u, bool detect, bool inVisibleList) 
             return false;
     }
 
+    // If the player is currently possessing, update visibility from the possessed unit's location
+    const Unit* target = u->GetTypeId() == TYPEID_PLAYER && u->isPossessing() ? u->GetCharm() : u;
+
     // different visible distance checks
     if(u->isInFlight())                                     // what see player in flight
     {
         // use object grey distance for all (only see objects any way)
-        if (!IsWithinDistInMap(u,World::GetMaxVisibleDistanceInFlight()+(inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f)))
+        if (!IsWithinDistInMap(target,World::GetMaxVisibleDistanceInFlight()+(inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f)))
             return false;
     }
     else if(!isAlive())                                     // distance for show body
     {
-        if (!IsWithinDistInMap(u,World::GetMaxVisibleDistanceForObject()+(inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f)))
+        if (!IsWithinDistInMap(target,World::GetMaxVisibleDistanceForObject()+(inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f)))
             return false;
     }
     else if(GetTypeId()==TYPEID_PLAYER)                     // distance for show player
@@ -8605,14 +8643,14 @@ bool Unit::isVisibleForOrDetect(Unit const* u, bool detect, bool inVisibleList) 
         if(u->GetTypeId()==TYPEID_PLAYER)
         {
             // Players far than max visible distance for player or not in our map are not visible too
-            if (!at_same_transport && !IsWithinDistInMap(u,World::GetMaxVisibleDistanceForPlayer()+(inVisibleList ? World::GetVisibleUnitGreyDistance() : 0.0f)))
+            if (!at_same_transport && !IsWithinDistInMap(target,World::GetMaxVisibleDistanceForPlayer()+(inVisibleList ? World::GetVisibleUnitGreyDistance() : 0.0f)))
                 return false;
         }
         else
         {
             // Units far than max visible distance for creature or not in our map are not visible too
             // Active unit should always be visibile
-            if (!IsWithinDistInMap(u, u->isActive() 
+            if (!IsWithinDistInMap(target, target->isActive() 
                 ? (MAX_VISIBILITY_DISTANCE - (inVisibleList ? 0.0f : World::GetVisibleUnitGreyDistance()))
                 : (World::GetMaxVisibleDistanceForCreature() + (inVisibleList ? World::GetVisibleUnitGreyDistance() : 0.0f))))
                 return false;
@@ -8621,13 +8659,13 @@ bool Unit::isVisibleForOrDetect(Unit const* u, bool detect, bool inVisibleList) 
     else if(GetCharmerOrOwnerGUID())                        // distance for show pet/charmed
     {
         // Pet/charmed far than max visible distance for player or not in our map are not visible too
-        if (!IsWithinDistInMap(u,World::GetMaxVisibleDistanceForPlayer()+(inVisibleList ? World::GetVisibleUnitGreyDistance() : 0.0f)))
+        if (!IsWithinDistInMap(target,World::GetMaxVisibleDistanceForPlayer()+(inVisibleList ? World::GetVisibleUnitGreyDistance() : 0.0f)))
             return false;
     }
     else                                                    // distance for show creature
     {
         // Units far than max visible distance for creature or not in our map are not visible too
-        if (!IsWithinDistInMap(u,World::GetMaxVisibleDistanceForCreature()+(inVisibleList ? World::GetVisibleUnitGreyDistance() : 0.0f)))
+        if (!IsWithinDistInMap(target,World::GetMaxVisibleDistanceForCreature()+(inVisibleList ? World::GetVisibleUnitGreyDistance() : 0.0f)))
             return false;
     }
 
@@ -9871,6 +9909,8 @@ void Unit::CleanupsBeforeDelete()
         RemoveAllGameObjects();
         RemoveAllDynObjects();
         GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
+
+        UnpossessSelf(false);
     }
     RemoveFromWorld();
 }
@@ -9923,17 +9963,17 @@ void CharmInfo::InitEmptyActionBar()
 
 void CharmInfo::InitPossessCreateSpells()
 {
-    if(m_unit->GetTypeId() == TYPEID_PLAYER)
-        return;
-
-    InitEmptyActionBar();                                   //charm action bar
-
-    for(uint32 x = 0; x < CREATURE_MAX_SPELLS; ++x)
+    InitEmptyActionBar();
+    if(m_unit->GetTypeId() == TYPEID_UNIT)
     {
-        if (IsPassiveSpell(((Creature*)m_unit)->m_spells[x]))
-            m_unit->CastSpell(m_unit, ((Creature*)m_unit)->m_spells[x], true);
-        else
-            AddSpellToAB(0, ((Creature*)m_unit)->m_spells[x], ACT_CAST);
+        for(uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+        {
+            uint32 spellid = ((Creature*)m_unit)->m_spells[i];
+            if(IsPassiveSpell(spellid))
+                m_unit->CastSpell(m_unit, spellid, true);
+            else
+                AddSpellToAB(0, spellid, ACT_CAST);
+        }
     }
 }
 

@@ -40,6 +40,8 @@ Trinity::PlayerNotifier::Visit(PlayerMapType &m)
 
         iter->getSource()->UpdateVisibilityOf(&i_player);
         i_player.UpdateVisibilityOf(iter->getSource());
+        if (i_player.isPossessedByPlayer())
+            ((Player*)i_player.GetCharmer())->UpdateVisibilityOf(iter->getSource());
     }
 }
 
@@ -139,54 +141,66 @@ VisibleNotifier::Notify()
             i_player.SendAuraDurationsForTarget((Unit*)(*vItr));
 }
 
-void
-MessageDeliverer::Visit(PlayerMapType &m)
+void 
+Deliverer::Visit(PlayerMapType &m)
 {
-    for(PlayerMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
+    for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
-        if( i_toSelf || iter->getSource() != &i_player)
+        if (!i_dist || iter->getSource()->GetDistance(&i_source) <= i_dist)
         {
-            if(WorldSession* session = iter->getSource()->GetSession())
-                session->SendPacket(i_message);
+            // Send packet to possessor
+            if (iter->getSource()->isPossessedByPlayer())
+                SendPacket((Player*)iter->getSource()->GetCharmer());
+            VisitObject(iter->getSource());
+        }
+    }
+}
+
+void 
+Deliverer::Visit(CreatureMapType &m)
+{
+    for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        if (!i_dist || iter->getSource()->GetDistance(&i_source) <= i_dist)
+        {
+            // Send packet to possessor
+            if (iter->getSource()->isPossessedByPlayer())
+                SendPacket((Player*)iter->getSource()->GetCharmer());
         }
     }
 }
 
 void
-ObjectMessageDeliverer::Visit(PlayerMapType &m)
+Deliverer::SendPacket(Player* plr)
 {
-    for(PlayerMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
+    if (!plr)
+        return;
+    // Don't send the packet to possesor if not supposed to
+    if (!i_toPossessor && plr->isPossessing() && plr->GetCharmGUID() == i_source.GetGUID())
+        return;
+
+    if (plr_list.find(plr->GetGUID()) == plr_list.end())
     {
-        if(WorldSession* session = iter->getSource()->GetSession())
+        if (WorldSession* session = plr->GetSession())
             session->SendPacket(i_message);
+        plr_list.insert(plr->GetGUID());
     }
 }
 
 void
-MessageDistDeliverer::Visit(PlayerMapType &m)
+MessageDeliverer::VisitObject(Player* plr)
 {
-    for(PlayerMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
-    {
-        if( (i_toSelf || iter->getSource() != &i_player ) &&
-            (!i_ownTeamOnly || iter->getSource()->GetTeam() == i_player.GetTeam() ) &&
-            (!i_dist || iter->getSource()->GetDistance(&i_player) <= i_dist) )
-        {
-            if(WorldSession* session = iter->getSource()->GetSession())
-                session->SendPacket(i_message);
-        }
-    }
+    if (i_toSelf || plr != &i_source)
+        SendPacket(plr);
 }
 
 void
-ObjectMessageDistDeliverer::Visit(PlayerMapType &m)
+MessageDistDeliverer::VisitObject(Player* plr)
 {
-    for(PlayerMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
+    if( (i_toSelf || plr != &i_source ) &&
+        (!i_ownTeamOnly || (i_source.GetTypeId() == TYPEID_PLAYER && plr->GetTeam() == ((Player&)i_source).GetTeam())) )
     {
-        if( !i_dist || iter->getSource()->GetDistance(&i_object) <= i_dist )
-        {
-            if(WorldSession* session = iter->getSource()->GetSession())
-                session->SendPacket(i_message);
-        }
+        SendPacket(plr);
     }
 }
 

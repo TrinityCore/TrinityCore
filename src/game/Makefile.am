@@ -217,6 +217,8 @@ $(srcdir)/PlayerDump.cpp \
 $(srcdir)/PlayerDump.h \
 $(srcdir)/PointMovementGenerator.cpp \
 $(srcdir)/PointMovementGenerator.h \
+$(srcdir)/PossessedAI.cpp \
+$(srcdir)/PossessedAI.h \
 $(srcdir)/QueryHandler.cpp \
 $(srcdir)/QuestDef.cpp \
 $(srcdir)/QuestDef.h \

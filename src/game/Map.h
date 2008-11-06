@@ -140,10 +140,10 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
 
         virtual void Update(const uint32&);
 
-        void MessageBroadcast(Player *, WorldPacket *, bool to_self);
-        void MessageBroadcast(WorldObject *, WorldPacket *);
-        void MessageDistBroadcast(Player *, WorldPacket *, float dist, bool to_self, bool own_team_only = false);
-        void MessageDistBroadcast(WorldObject *, WorldPacket *, float dist);
+        void MessageBroadcast(Player *, WorldPacket *, bool to_self, bool to_possessor);
+        void MessageBroadcast(WorldObject *, WorldPacket *, bool to_possessor);
+        void MessageDistBroadcast(Player *, WorldPacket *, float dist, bool to_self, bool to_possessor, bool own_team_only = false);
+        void MessageDistBroadcast(WorldObject *, WorldPacket *, float dist, bool to_possessor);
 
         void PlayerRelocation(Player *, float x, float y, float z, float angl);
         void CreatureRelocation(Creature *creature, float x, float y, float, float);
@@ -236,6 +236,8 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         void markCell(uint32 pCellId) { marked_cells.set(pCellId); }
         Creature* GetCreatureInMap(uint64 guid);
         GameObject* GetGameObjectInMap(uint64 guid);
+
+        template<class T> void SwitchGridContainers(T* obj, bool active);
     private:
         void LoadVMap(int pX, int pY);
         void LoadMap(uint32 mapid, uint32 instanceid, int x,int y);

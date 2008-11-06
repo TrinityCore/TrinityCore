@@ -75,6 +75,9 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     //Called at waypoint reached or PointMovement end
     void MovementInform(uint32, uint32){}
 
+    // Called when AI is temporarily replaced or put back when possess is applied or removed
+    void OnPossess(bool apply) {}
+
     //*************
     // Variables
     //*************

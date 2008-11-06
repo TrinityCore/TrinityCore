@@ -189,9 +189,6 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
 {
     CHECK_PACKET_SIZE(recv_data, 4+1+4+4+4+4+4);
 
-    if(GetPlayer()->GetDontMove())
-        return;
-
     /* extract packet */
     MovementInfo movementInfo;
     uint32 MovementFlags;
@@ -203,9 +200,6 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     recv_data >> movementInfo.y;
     recv_data >> movementInfo.z;
     recv_data >> movementInfo.o;
-
-    //Save movement flags
-    _player->SetUnitMovementFlags(MovementFlags);
 
     if(MovementFlags & MOVEMENTFLAG_ONTRANSPORT)
     {
@@ -263,6 +257,20 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     if (!Trinity::IsValidMapCoord(movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o))
         return;
 
+    // Handle possessed unit movement separately
+    Unit* pos_unit = GetPlayer()->GetCharm();
+    if (pos_unit && pos_unit->isPossessed()) // can be charmed but not possessed
+    {
+        HandlePossessedMovement(recv_data, movementInfo, MovementFlags);
+        return;
+    }
+
+    if (GetPlayer()->GetDontMove())
+        return;
+
+    //Save movement flags
+    GetPlayer()->SetUnitMovementFlags(MovementFlags);
+
     /* handle special cases */
     if (MovementFlags & MOVEMENTFLAG_ONTRANSPORT)
     {
@@ -284,7 +292,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
                 if ((*iter)->GetGUID() == movementInfo.t_guid)
                 {
                     // unmount before boarding
-                    _player->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+                    GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
 
                     GetPlayer()->m_transport = (*iter);
                     (*iter)->AddPassenger(GetPlayer());
@@ -304,60 +312,9 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
         movementInfo.t_time = 0;
     }
 
-    // fall damage generation (ignore in flight case that can be triggred also at lags in moment teleportation to another map).
-    if (recv_data.GetOpcode() == MSG_MOVE_FALL_LAND && !GetPlayer()->isInFlight())
-    {
-        Player *target = GetPlayer();
-
-        //Players with Feather Fall or low fall time, or physical immunity (charges used) are ignored
-        if (movementInfo.fallTime > 1100 && !target->isDead() && !target->isGameMaster() &&
-            !target->HasAuraType(SPELL_AURA_HOVER) && !target->HasAuraType(SPELL_AURA_FEATHER_FALL) &&
-            !target->HasAuraType(SPELL_AURA_FLY) && !target->IsImmunedToDamage(SPELL_SCHOOL_MASK_NORMAL,true) )
-        {
-            //Safe fall, fall time reduction
-            int32 safe_fall = target->GetTotalAuraModifier(SPELL_AURA_SAFE_FALL);
-            uint32 fall_time = (movementInfo.fallTime > (safe_fall*10)) ? movementInfo.fallTime - (safe_fall*10) : 0;
-
-            if(fall_time > 1100)                            //Prevent damage if fall time < 1100
-            {
-                //Fall Damage calculation
-                float fallperc = float(fall_time)/1100;
-                uint32 damage = (uint32)(((fallperc*fallperc -1) / 9 * target->GetMaxHealth())*sWorld.getRate(RATE_DAMAGE_FALL));
-
-                float height = movementInfo.z;
-                target->UpdateGroundPositionZ(movementInfo.x,movementInfo.y,height);
-
-                if (damage > 0)
-                {
-                    //Prevent fall damage from being more than the player maximum health
-                    if (damage > target->GetMaxHealth())
-                        damage = target->GetMaxHealth();
-
-                    // Gust of Wind
-                    if (target->GetDummyAura(43621))
-                        damage = target->GetMaxHealth()/2;
-
-                    target->EnvironmentalDamage(target->GetGUID(), DAMAGE_FALL, damage);
-                }
-
-                //Z given by moveinfo, LastZ, FallTime, WaterZ, MapZ, Damage, Safefall reduction
-                DEBUG_LOG("FALLDAMAGE z=%f sz=%f pZ=%f FallTime=%d mZ=%f damage=%d SF=%d" , movementInfo.z, height, target->GetPositionZ(), movementInfo.fallTime, height, damage, safe_fall);
-            }
-        }
-
-        //handle fall and logout at the same time (logout started before fall finished)
-        /* outdated and create problems with sit at stun sometime
-        if (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_ROTATE))
-        {
-            target->SetStandState(PLAYER_STATE_SIT);
-            // Can't move
-            WorldPacket data( SMSG_FORCE_MOVE_ROOT, 12 );
-            data.append(target->GetPackGUID());
-            data << (uint32)2;
-            SendPacket( &data );
-        }
-        */
-    }
+    // handle fall damage
+    if (recv_data.GetOpcode() == MSG_MOVE_FALL_LAND)
+        GetPlayer()->HandleFallDamage(movementInfo);
 
     if(((MovementFlags & MOVEMENTFLAG_SWIMMING) != 0) != GetPlayer()->IsInWater())
     {
@@ -381,30 +338,66 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
         GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
 
     if(movementInfo.z < -500.0f)
-    {
-        if(GetPlayer()->InBattleGround() 
-            && GetPlayer()->GetBattleGround() 
-            && GetPlayer()->GetBattleGround()->HandlePlayerUnderMap(_player))
-        {
-            // do nothing, the handle already did if returned true
-        }
-        else
-        {
-            // NOTE: this is actually called many times while falling
-            // even after the player has been teleported away
-            // TODO: discard movement packets after the player is rooted
-            if(GetPlayer()->isAlive())
-            {
-                GetPlayer()->EnvironmentalDamage(GetPlayer()->GetGUID(),DAMAGE_FALL_TO_VOID, GetPlayer()->GetMaxHealth());
-                // change the death state to CORPSE to prevent the death timer from
-                // starting in the next player update
-                GetPlayer()->KillPlayer();
-                GetPlayer()->BuildPlayerRepop();
-            }
+        GetPlayer()->HandleFallUnderMap();
+}
 
-            // cancel the death timer here if started
-            GetPlayer()->RepopAtGraveyard();
+void WorldSession::HandlePossessedMovement(WorldPacket& recv_data, MovementInfo& movementInfo, uint32& MovementFlags)
+{
+    // Whatever the client is controlling, it will send the GUID of the original player.
+    // If current player is controlling, it must be handled like the controlled player sent these opcodes
+
+    Unit* pos_unit = GetPlayer()->GetCharm();
+
+    if (pos_unit->GetTypeId() == TYPEID_PLAYER && ((Player*)pos_unit)->GetDontMove())
+        return;
+
+    //Save movement flags
+    pos_unit->SetUnitMovementFlags(MovementFlags);
+
+    // Remove possession if possessed unit enters a transport
+    if (MovementFlags & MOVEMENTFLAG_ONTRANSPORT)
+    {
+        GetPlayer()->RemovePossess(true);
+        return;
+    }
+
+    recv_data.put<uint32>(5, getMSTime());
+    WorldPacket data(recv_data.GetOpcode(), pos_unit->GetPackGUID().size()+recv_data.size());
+    data.append(pos_unit->GetPackGUID());
+    data.append(recv_data.contents(), recv_data.size());
+    // Send the packet to self but not to the possessed player; for creatures the first bool is irrelevant
+    pos_unit->SendMessageToSet(&data, true, false);
+
+    // Possessed is a player
+    if (pos_unit->GetTypeId() == TYPEID_PLAYER)
+    {
+        Player* plr = (Player*)pos_unit;
+        
+        if (recv_data.GetOpcode() == MSG_MOVE_FALL_LAND)
+            plr->HandleFallDamage(movementInfo);
+
+        if(((MovementFlags & MOVEMENTFLAG_SWIMMING) != 0) != plr->IsInWater())
+        {
+            // Now client not include swimming flag in case jumping under water
+            plr->SetInWater( !plr->IsInWater() || plr->GetBaseMap()->IsUnderWater(movementInfo.x, movementInfo.y, movementInfo.z) );
         }
+        
+        plr->SetPosition(movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o, false);
+        plr->m_movementInfo = movementInfo;
+
+        if(plr->isMovingOrTurning())
+            plr->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
+
+        if(movementInfo.z < -500.0f)
+        {
+            GetPlayer()->RemovePossess(false);
+            plr->HandleFallUnderMap();
+        }
+    } 
+    else // Possessed unit is a creature
+    {
+        Map* map = MapManager::Instance().GetMap(pos_unit->GetMapId(), pos_unit);
+        map->CreatureRelocation((Creature*)pos_unit, movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
     }
 }
 

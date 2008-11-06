@@ -109,7 +109,6 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
 
                     if(pet->GetTypeId() != TYPEID_PLAYER)
                     {
-                        pet->GetMotionMaster()->Clear();
                         if (((Creature*)pet)->AI())
                             ((Creature*)pet)->AI()->AttackStart(TargetUnit);
 
@@ -139,8 +138,13 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
                             //dismissing a summoned pet is like killing them (this prevents returning a soulshard...)
                             p->setDeathState(CORPSE);
                     }
-                    else                                    // charmed
-                        _player->Uncharm();
+                    else                                    // charmed or possessed
+                    {
+                        if (_player->isPossessing())
+                            _player->RemovePossess(true);
+                        else
+                            _player->Uncharm();
+                    }
                     break;
                 default:
                     sLog.outError("WORLD: unknown PET flag Action %i and spellid %i.\n", flag, spellid);
@@ -194,7 +198,7 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
             int16 result = spell->PetCanCast(unit_target);
 
                                                             //auto turn to target unless possessed
-            if(result == SPELL_FAILED_UNIT_NOT_INFRONT && !pet->HasAuraType(SPELL_AURA_MOD_POSSESS))
+            if(result == SPELL_FAILED_UNIT_NOT_INFRONT && !pet->isPossessed())
             {
                 pet->SetInFront(unit_target);
                 if( unit_target->GetTypeId() == TYPEID_PLAYER )
@@ -222,7 +226,7 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
                     pet->SendPetAIReaction(guid1);
                 }
 
-                if( unit_target && !GetPlayer()->IsFriendlyTo(unit_target) && !pet->HasAuraType(SPELL_AURA_MOD_POSSESS))
+                if( unit_target && !GetPlayer()->IsFriendlyTo(unit_target) && !pet->isPossessed())
                 {
                     pet->clearUnitState(UNIT_STAT_FOLLOW);
                     if(pet->getVictim())
@@ -236,7 +240,7 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
             }
             else
             {
-                if(pet->HasAuraType(SPELL_AURA_MOD_POSSESS))
+                if(pet->isPossessed())
                 {
                     WorldPacket data(SMSG_CAST_FAILED, (4+1+1));
                     data << uint32(spellid) << uint8(2) << uint8(result);
@@ -478,7 +482,10 @@ void WorldSession::HandlePetAbandon( WorldPacket & recv_data )
         }
         else if(pet->GetGUID() == _player->GetCharmGUID())
         {
-            _player->Uncharm();
+            if (_player->isPossessing())
+                _player->RemovePossess(true);
+            else
+                _player->Uncharm();
         }
     }
 }
@@ -601,21 +608,19 @@ void WorldSession::HandlePetCastSpellOpcode( WorldPacket& recvPacket )
 
     recvPacket >> guid >> spellid;
 
+    // This opcode is also sent from charmed and possessed units (players and creatures)
     if(!_player->GetPet() && !_player->GetCharm())
         return;
 
-    if(ObjectAccessor::FindPlayer(guid))
-        return;
+    Unit* caster = ObjectAccessor::GetUnit(*_player, guid);
 
-    Creature* pet=ObjectAccessor::GetCreatureOrPet(*_player,guid);
-
-    if(!pet || (pet != _player->GetPet() && pet!= _player->GetCharm()))
+    if(!caster || (caster != _player->GetPet() && caster != _player->GetCharm()))
     {
         sLog.outError( "HandlePetCastSpellOpcode: Pet %u isn't pet of player %s .\n", uint32(GUID_LOPART(guid)),GetPlayer()->GetName() );
         return;
     }
 
-    if (pet->GetGlobalCooldown() > 0)
+    if (caster->GetTypeId() == TYPEID_UNIT && ((Creature*)caster)->GetGlobalCooldown() > 0)
         return;
 
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellid);
@@ -626,41 +631,53 @@ void WorldSession::HandlePetCastSpellOpcode( WorldPacket& recvPacket )
     }
 
     // do not cast not learned spells
-    if(!pet->HasSpell(spellid) || IsPassiveSpell(spellid))
+    if(!caster->HasSpell(spellid) || IsPassiveSpell(spellid))
         return;
 
     SpellCastTargets targets;
-    if(!targets.read(&recvPacket,pet))
+    if(!targets.read(&recvPacket,caster))
         return;
 
-    pet->clearUnitState(UNIT_STAT_FOLLOW);
+    caster->clearUnitState(UNIT_STAT_FOLLOW);
 
-    Spell *spell = new Spell(pet, spellInfo, false);
+    Spell *spell = new Spell(caster, spellInfo, false);
     spell->m_targets = targets;
 
     int16 result = spell->PetCanCast(NULL);
     if(result == -1)
     {
-        pet->AddCreatureSpellCooldown(spellid);
-        if(pet->isPet())
+        if(caster->GetTypeId() == TYPEID_UNIT)
         {
-            Pet* p = (Pet*)pet;
-            p->CheckLearning(spellid);
-            //10% chance to play special pet attack talk, else growl
-            //actually this only seems to happen on special spells, fire shield for imp, torment for voidwalker, but it's stupid to check every spell
-            if(p->getPetType() == SUMMON_PET && (urand(0, 100) < 10))
-                pet->SendPetTalk((uint32)PET_TALK_SPECIAL_SPELL);
-            else
-                pet->SendPetAIReaction(guid);
+            Creature* pet = (Creature*)caster;
+            pet->AddCreatureSpellCooldown(spellid);
+            if(pet->isPet())
+            {
+                Pet* p = (Pet*)pet;
+                p->CheckLearning(spellid);
+                // 10% chance to play special pet attack talk, else growl
+                // actually this only seems to happen on special spells, fire shield for imp, torment for voidwalker, but it's stupid to check every spell
+                if(p->getPetType() == SUMMON_PET && (urand(0, 100) < 10))
+                    pet->SendPetTalk((uint32)PET_TALK_SPECIAL_SPELL);
+                else
+                    pet->SendPetAIReaction(guid);
+            }
         }
 
         spell->prepare(&(spell->m_targets));
     }
     else
     {
-        pet->SendPetCastFail(spellid, result);
-        if(!pet->HasSpellCooldown(spellid))
-            pet->SendPetClearCooldown(spellid);
+        caster->SendPetCastFail(spellid, result);
+        if(caster->GetTypeId() == TYPEID_PLAYER)
+        {
+            if(!((Player*)caster)->HasSpellCooldown(spellid))
+                caster->SendPetClearCooldown(spellid);
+        }
+        else
+        {
+            if(!((Creature*)caster)->HasSpellCooldown(spellid))
+                caster->SendPetClearCooldown(spellid);
+        }
 
         spell->finish(false);
         delete spell;

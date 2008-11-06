@@ -56,12 +56,14 @@ namespace FactorySelector
         {
             if( creature->isGuard() )
                 ai_factory = ai_registry.GetRegistryItem("GuardAI"); 
-            else if(creature->isPet() || creature->isCharmed())
+            else if(creature->isPet() || (creature->isCharmed() && !creature->isPossessed()))
                 ai_factory = ai_registry.GetRegistryItem("PetAI");
             else if(creature->isTotem())
                 ai_factory = ai_registry.GetRegistryItem("TotemAI");
             else if(creature->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
                 ai_factory = ai_registry.GetRegistryItem("NullCreatureAI");
+            else if(creature->isPossessed())
+                creature->InitPossessedAI();
         }
 
         // select by permit check
