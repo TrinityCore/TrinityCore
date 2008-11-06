@@ -319,6 +319,10 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data )
     m_spells[2] = GetCreatureInfo()->spell3;
     m_spells[3] = GetCreatureInfo()->spell4;
 
+    // HACK: trigger creature is always not selectable
+    if(GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
+        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
     return true;
 }
 
@@ -1487,6 +1491,47 @@ void Creature::DeleteFromDB()
     WorldDatabase.CommitTransaction();
 }
 
+bool Creature::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList) const
+{
+    // not in world
+    if(!IsInWorld() || !u->IsInWorld())
+        return false;
+
+    // all dead creatures/players not visible for any creatures
+    if(!u->isAlive() || !isAlive())
+        return false;
+
+    // Always can see self
+    if (u == this)
+        return true;
+
+    // always seen by owner
+    if(GetGUID() == u->GetCharmerOrOwnerGUID())
+        return true;
+
+    if(u->GetVisibility() == VISIBILITY_OFF) //GM
+        return false;
+
+    // invisible aura
+    if((m_invisibilityMask || u->m_invisibilityMask) && !canDetectInvisibilityOf(u))
+        return false;
+
+    // unit got in stealth in this moment and must ignore old detected state
+    //if (m_Visibility == VISIBILITY_GROUP_NO_DETECT)
+    //    return false;
+
+    // GM invisibility checks early, invisibility if any detectable, so if not stealth then visible
+    if(u->GetVisibility() == VISIBILITY_GROUP_STEALTH)
+    {
+        //do not know what is the use of this detect
+        if(!detect || !canDetectStealthOf(u, GetDistance(u)))
+            return false;
+    }
+
+    // Now check is target visible with LoS
+    return u->IsWithinLOS(GetPositionX(),GetPositionY(),GetPositionZ());
+}
+
 float Creature::GetAttackDistance(Unit const* pl) const
 {
     float aggroRate = sWorld.getRate(RATE_CREATURE_AGGRO);
@@ -1698,7 +1743,7 @@ SpellEntry const *Creature::reachWithSpellCure(Unit *pVictim)
     return NULL;
 }
 
-bool Creature::IsVisibleInGridForPlayer(Player* pl) const
+bool Creature::IsVisibleInGridForPlayer(Player const* pl) const
 {
     // gamemaster in GM mode see all, including ghosts
     if(pl->isGameMaster())

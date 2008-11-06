@@ -634,45 +634,6 @@ struct TRINITY_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
         }
     }
 
-    void SelectSpiteTarget(uint32 num, float max_range = 999)
-    {
-        if(!num) return;
-
-        CellPair p(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
-        Cell cell(p);
-        cell.data.Part.reserved = ALL_DISTRICT;
-        cell.SetNoCreate();
-
-        std::list<Unit *> tempUnitMap;
-
-        {
-            Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(m_creature, m_creature, max_range);
-            Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(tempUnitMap, u_check);
-
-            TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
-            TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
-
-            CellLock<GridReadGuard> cell_lock(cell, p);
-            cell_lock->Visit(cell_lock, world_unit_searcher, *(m_creature->GetMap()));
-            cell_lock->Visit(cell_lock, grid_unit_searcher, *(m_creature->GetMap()));
-        }
-
-        std::list<Unit*>::iterator itr;
-        while(tempUnitMap.size() && SpiteTargetGUID.size() < num)
-        {
-            itr = tempUnitMap.begin();
-            advance(itr, rand()%tempUnitMap.size());
-            SpiteTargetGUID.push_back((*itr)->GetGUID());
-            tempUnitMap.erase(itr);
-        }
-
-        for(itr = tempUnitMap.begin(); itr != tempUnitMap.end(); ++itr)
-            (*itr)->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->CastSpell(m_creature, SPELL_SPITE_TARGET, true); // must true
-        for(itr = tempUnitMap.begin(); itr != tempUnitMap.end(); ++itr)
-            (*itr)->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-    }
-
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
@@ -700,7 +661,7 @@ struct TRINITY_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
         if(SoulScreamTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_SOUL_SCREAM);
-            SoulScreamTimer = 10000;
+            SoulScreamTimer = 9000 + rand()%2000;
             if(!(rand()%3))
             {
                 DoYell(ANGER_SAY_SCREAM,LANG_UNIVERSAL,NULL);
@@ -710,26 +671,10 @@ struct TRINITY_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
 
         if(SpiteTimer < diff)
         {
-            if(!SpiteTargetGUID.empty())
-            {
-                for (std::list<uint64>::iterator itr = SpiteTargetGUID.begin(); itr != SpiteTargetGUID.end(); ++itr)
-                {
-                    if(Unit* target = Unit::GetUnit(*m_creature, *itr))
-                    {
-                        target->RemoveAurasDueToSpell(SPELL_SPITE_TARGET);
-                        m_creature->CastSpell(target, SPELL_SPITE_DAMAGE, true);
-                    }
-                }
-                SpiteTargetGUID.clear();
-                SpiteTimer = 24000;
-            }
-            else
-            {
-                SelectSpiteTarget(3);
-                SpiteTimer = 6000;
-                DoYell(ANGER_SAY_SPEC,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, ANGER_SOUND_SPEC);
-            }
+            DoCast(m_creature, SPELL_SPITE_TARGET);
+            SpiteTimer = 30000;
+            DoYell(ANGER_SAY_SPEC,LANG_UNIVERSAL,NULL);
+            DoPlaySoundToSet(m_creature, ANGER_SOUND_SPEC);
         }else SpiteTimer -= diff;
 
         DoMeleeAttackIfReady();

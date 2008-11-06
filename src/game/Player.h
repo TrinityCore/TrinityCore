@@ -1992,9 +1992,10 @@ class TRINITY_DLL_SPEC Player : public Unit
         typedef std::set<uint64> ClientGUIDs;
         ClientGUIDs m_clientGUIDs;
 
-        bool HaveAtClient(WorldObject const* u) { return u==this || m_clientGUIDs.find(u->GetGUID())!=m_clientGUIDs.end(); }
+        bool HaveAtClient(WorldObject const* u) const { return u==this || m_clientGUIDs.find(u->GetGUID())!=m_clientGUIDs.end(); }
 
-        bool IsVisibleInGridForPlayer(Player* pl) const;
+        bool canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList) const;
+        bool IsVisibleInGridForPlayer(Player const* pl) const;
         bool IsVisibleGloballyFor(Player* pl) const;
 
         void UpdateVisibilityOf(WorldObject* target);

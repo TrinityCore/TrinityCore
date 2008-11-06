@@ -547,6 +547,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
         CreatureSpellCooldowns m_CreatureCategoryCooldowns;
         uint32 m_GlobalCooldown;
 
+        bool canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList) const;
         float GetAttackDistance(Unit const* pl) const;
 
         void CallAssistence();
@@ -560,7 +561,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
         Cell const& GetCurrentCell() const { return m_currentCell; }
         void SetCurrentCell(Cell const& cell) { m_currentCell = cell; }
 
-        bool IsVisibleInGridForPlayer(Player* pl) const;
+        bool IsVisibleInGridForPlayer(Player const* pl) const;
 
         void RemoveCorpse();
 

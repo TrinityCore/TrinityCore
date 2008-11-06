@@ -3230,7 +3230,8 @@ void Aura::HandleModStealth(bool apply, bool Real)
             // apply only if not in GM invisibility (and overwrite invisibility state)
             if(m_target->GetVisibility()!=VISIBILITY_OFF)
             {
-                m_target->SetVisibility(VISIBILITY_GROUP_NO_DETECT);
+                //m_target->SetVisibility(VISIBILITY_GROUP_NO_DETECT);
+                m_target->SetVisibility(VISIBILITY_OFF);
                 m_target->SetVisibility(VISIBILITY_GROUP_STEALTH);
             }
 
@@ -3258,8 +3259,9 @@ void Aura::HandleModStealth(bool apply, bool Real)
                 // restore invisibility if any
                 if(m_target->HasAuraType(SPELL_AURA_MOD_INVISIBILITY))
                 {
-                    m_target->SetVisibility(VISIBILITY_GROUP_NO_DETECT);
-                    m_target->SetVisibility(VISIBILITY_GROUP_INVISIBILITY);
+                    //m_target->SetVisibility(VISIBILITY_GROUP_NO_DETECT);
+                    //m_target->SetVisibility(VISIBILITY_GROUP_INVISIBILITY);
+                    m_target->SetVisibility(VISIBILITY_ON);
                 }
                 else
                 {
@@ -3314,8 +3316,9 @@ void Aura::HandleInvisibility(bool apply, bool Real)
         if(m_target->GetVisibility()==VISIBILITY_ON)
         {
             // Aura not added yet but visibility code expect temporary add aura
-            m_target->SetVisibility(VISIBILITY_GROUP_NO_DETECT);
-            m_target->SetVisibility(VISIBILITY_GROUP_INVISIBILITY);
+            //m_target->SetVisibility(VISIBILITY_GROUP_NO_DETECT);
+            //m_target->SetVisibility(VISIBILITY_GROUP_INVISIBILITY);
+            m_target->SetVisibility(VISIBILITY_ON);
         }
     }
     else
