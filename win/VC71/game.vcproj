@@ -733,6 +733,14 @@
 				RelativePath="..\..\src\game\PointMovementGenerator.h">
 			</File>
 			<File
+				RelativePath="..\..\src\game\PossessedAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\PossessedAI.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\game\RandomMovementGenerator.cpp">
 			</File>
 			<File

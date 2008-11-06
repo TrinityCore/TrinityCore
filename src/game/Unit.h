@@ -989,10 +989,32 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         void SetPet(Pet* pet);
         void SetCharm(Unit* pet);
+        void SetPossessedTarget(Unit* target)
+        {
+            if (!target) return;
+            SetCharm(target);
+            target->SetCharmerGUID(GetGUID());
+            target->m_isPossessed = true;
+        }
+        void RemovePossessedTarget()
+        {
+            if (!GetCharm()) return;
+            GetCharm()->SetCharmerGUID(0);
+            GetCharm()->m_isPossessed = false;
+            SetCharm(0);
+        }
+
         bool isCharmed() const { return GetCharmerGUID() != 0; }
+        bool isPossessed() const { return m_isPossessed; }
+        bool isPossessedByPlayer() const { return m_isPossessed && IS_PLAYER_GUID(GetCharmerGUID()); }
+        bool isPossessing() const { return GetCharm() && GetCharm()->isPossessed(); }
+        bool isPossessing(Unit* u) const { return u->isPossessed() && GetCharmGUID() == u->GetGUID(); }
+        bool isPossessingCreature() const { return isPossessing() && IS_CREATURE_GUID(GetCharmGUID()); }
 
         CharmInfo* GetCharmInfo() { return m_charmInfo; }
         CharmInfo* InitCharmInfo(Unit* charm);
+        void UncharmSelf();
+        void UnpossessSelf(bool attack);
 
         Pet* CreateTamedPetFrom(Creature* creatureTarget,uint32 spell_id = 0);
 
@@ -1316,6 +1338,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         float m_speed_rate[MAX_MOVE_TYPE];
 
         CharmInfo *m_charmInfo;
+        bool m_isPossessed;
 
         virtual SpellSchoolMask GetMeleeDamageSchoolMask() const;
 

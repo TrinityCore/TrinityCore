@@ -366,6 +366,13 @@ void WorldSession::LogoutPlayer(bool Save)
         if(_player->GetGroup() && !_player->GetGroup()->isRaidGroup() && m_Socket)
             _player->RemoveFromGroup();
 
+        // Unpossess the current possessed unit of player
+        if (_player->isPossessing())
+            _player->RemovePossess(false);
+
+        // Remove any possession of this player on logout
+        _player->UnpossessSelf(false);
+
         ///- Remove the player from the world
         // the player may not be in the world when logging out
         // e.g if he got disconnected during a transfer to another map

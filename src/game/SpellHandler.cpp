@@ -302,6 +302,10 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         return;
     }
 
+    // can't use our own spells when we're in possession of another unit,
+    if(_player->isPossessing())
+        return;
+
     // client provided targets
     SpellCastTargets targets;
     if(!targets.read(&recvPacket,_player))
@@ -347,6 +351,21 @@ void WorldSession::HandleCancelAuraOpcode( WorldPacket& recvPacket)
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
     if (!spellInfo)
         return;
+
+    // Remove possess aura from the possessed as well
+    if(_player->isPossessing())
+    {
+        for (int i = 0; i < 3; ++i)
+        {
+            if (spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_POSSESS ||
+                spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_POSSESS_PET)
+            {
+                _player->RemoveAurasDueToSpellByCancel(spellId);
+                _player->GetCharm()->RemoveAurasDueToSpellByCancel(spellId);
+                return;
+            }
+        }
+    }
 
     // not allow remove non positive spells and spells with attr SPELL_ATTR_CANT_CANCEL
     if(!IsPositiveSpell(spellId) || (spellInfo->Attributes & SPELL_ATTR_CANT_CANCEL))

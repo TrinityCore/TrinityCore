@@ -256,6 +256,25 @@ void npc_escortAI::MovementInform(uint32 type, uint32 id)
     }
 }
 
+void npc_escortAI::OnPossess(bool apply)
+{
+    // We got possessed in the middle of being escorted, store the point 
+    // where we left off to come back to when possess is removed
+    if (IsBeingEscorted)
+    {
+        if (apply)
+            m_creature->GetPosition(LastPos.x, LastPos.y, LastPos.z);
+        else
+        {
+            Returning = true;
+            m_creature->GetMotionMaster()->MovementExpired();
+            m_creature->GetMotionMaster()->MovePoint(WP_LAST_POINT, LastPos.x, LastPos.y, LastPos.z);
+        }
+    }
+}
+
+
+
 void npc_escortAI::AddWaypoint(uint32 id, float x, float y, float z, uint32 WaitTimeMs)
 {
     Escort_Waypoint t(id, x, y, z, WaitTimeMs);

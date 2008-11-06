@@ -6544,3 +6544,29 @@ bool ChatHandler::HandleGroupRemoveCommand(const char* args)
 
     return true;
 }
+
+bool ChatHandler::HandlePossessCommand(const char* args)
+{
+    Unit* pUnit = getSelectedUnit();
+    if(!pUnit)
+        return false;
+
+    // Don't allow unlimited possession of players
+    if (pUnit->GetTypeId() == TYPEID_PLAYER)
+        return false;
+
+    m_session->GetPlayer()->Possess(pUnit);
+
+    return true;
+}
+
+bool ChatHandler::HandleUnPossessCommand(const char* args)
+{
+    // Use this command to also unpossess ourselves
+    if (m_session->GetPlayer()->isPossessed())
+        m_session->GetPlayer()->UnpossessSelf(false);
+    else
+        m_session->GetPlayer()->RemovePossess(false);
+
+    return true;
+}

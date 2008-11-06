@@ -905,6 +905,10 @@ class TRINITY_DLL_SPEC Player : public Unit
         // always active
         void setActive(bool) {}
 
+        void SetViewport(uint64 guid, bool movable);
+        void Possess(Unit *target);
+        void RemovePossess(bool attack = true); 
+
         bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0);
 
         bool TeleportTo(WorldLocation const &loc, uint32 options = 0)
@@ -1421,6 +1425,7 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         PlayerSpellMap const& GetSpellMap() const { return m_spells; }
         PlayerSpellMap      & GetSpellMap()       { return m_spells; }
+        ActionButtonList const& GetActionButtonList() const { return m_actionButtons; }
 
         void AddSpellMod(SpellModifier* mod, bool apply);
         int32 GetTotalFlatMods(uint32 spellId, SpellModOp op);
@@ -1619,10 +1624,10 @@ class TRINITY_DLL_SPEC Player : public Unit
         bool SetPosition(float x, float y, float z, float orientation, bool teleport = false);
         void UpdateUnderwaterState( Map * m, float x, float y, float z );
 
-        void SendMessageToSet(WorldPacket *data, bool self);// overwrite Object::SendMessageToSet
-        void SendMessageToSetInRange(WorldPacket *data, float fist, bool self);
+        void SendMessageToSet(WorldPacket *data, bool self, bool to_possessor = true);// overwrite Object::SendMessageToSet
+        void SendMessageToSetInRange(WorldPacket *data, float fist, bool self, bool to_possessor = true);
                                                             // overwrite Object::SendMessageToSetInRange
-        void SendMessageToSetInRange(WorldPacket *data, float dist, bool self, bool own_team_only);
+        void SendMessageToSetInRange(WorldPacket *data, float dist, bool self, bool own_team_only, bool to_possessor);
 
         static void DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmChars = true);
 
@@ -1948,6 +1953,8 @@ class TRINITY_DLL_SPEC Player : public Unit
         bool IsFlying() const { return HasUnitMovementFlag(MOVEMENTFLAG_FLYING); }
 
         void HandleDrowning();
+        void HandleFallDamage(MovementInfo& movementInfo);
+        void HandleFallUnderMap();
 
         void SetClientControl(Unit* target, uint8 allowMove);
 

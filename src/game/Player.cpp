@@ -469,6 +469,9 @@ Player::~Player ()
         for(BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
             itr->second.save->RemovePlayer(this);
 
+    if (isPossessing())
+        RemovePossess(false);
+
     delete m_declinedname;
 }
 
@@ -1253,7 +1256,7 @@ void Player::Update( uint32 p_time )
     SendUpdateToOutOfRangeGroupMembers();
 
     Pet* pet = GetPet();
-    if(pet && !IsWithinDistInMap(pet, OWNER_MAX_DISTANCE))
+    if(pet && !IsWithinDistInMap(pet, OWNER_MAX_DISTANCE) && !pet->isPossessed())
     {
         RemovePet(pet, PET_SAVE_NOT_IN_SLOT, true);
         return;
@@ -1534,6 +1537,10 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
     SetSemaphoreTeleport(true);
 
+    // Remove any possession on the player before teleporting
+    if (isPossessedByPlayer())
+        ((Player*)GetCharmer())->RemovePossess();
+
     // The player was ported to another map and looses the duel immediatly.
     // We have to perform this check before the teleport, otherwise the
     // ObjectAccessor won't find the flag.
@@ -1747,6 +1754,7 @@ void Player::RemoveFromWorld()
     if(IsInWorld())
     {
         ///- Release charmed creatures, unsummon totems and remove pets/guardians
+        RemovePossess(false);
         Uncharm();
         UnsummonAllTotems();
         RemoveMiniPet();
@@ -5266,19 +5274,19 @@ void Player::SaveRecallPosition()
     m_recallO = GetOrientation();
 }
 
-void Player::SendMessageToSet(WorldPacket *data, bool self)
+void Player::SendMessageToSet(WorldPacket *data, bool self, bool to_possessor)
 {
-    MapManager::Instance().GetMap(GetMapId(), this)->MessageBroadcast(this, data, self);
+    MapManager::Instance().GetMap(GetMapId(), this)->MessageBroadcast(this, data, self, to_possessor);
 }
 
-void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self)
+void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self, bool to_possessor)
 {
-    MapManager::Instance().GetMap(GetMapId(), this)->MessageDistBroadcast(this, data, dist, self);
+    MapManager::Instance().GetMap(GetMapId(), this)->MessageDistBroadcast(this, data, dist, self, to_possessor);
 }
 
-void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self, bool own_team_only)
+void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self, bool own_team_only, bool to_possessor)
 {
-    MapManager::Instance().GetMap(GetMapId(), this)->MessageDistBroadcast(this, data, dist, self,own_team_only);
+    MapManager::Instance().GetMap(GetMapId(), this)->MessageDistBroadcast(this, data, dist, self, to_possessor, own_team_only);
 }
 
 void Player::SendDirectMessage(WorldPacket *data)
@@ -15973,7 +15981,6 @@ void Player::Uncharm()
         return;
 
     charm->RemoveSpellsCausingAura(SPELL_AURA_MOD_CHARM);
-    charm->RemoveSpellsCausingAura(SPELL_AURA_MOD_POSSESS);
 }
 
 void Player::BuildPlayerChat(WorldPacket *data, uint8 msgtype, std::string text, uint32 language) const
@@ -16006,7 +16013,7 @@ void Player::TextEmote(const std::string text)
 {
     WorldPacket data(SMSG_MESSAGECHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_EMOTE, text, LANG_UNIVERSAL);
-    SendMessageToSetInRange(&data,sWorld.getConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE),true, !sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT) );
+    SendMessageToSetInRange(&data,sWorld.getConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE),true, !sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT), true );
 }
 
 void Player::Whisper(std::string text, uint32 language,uint64 receiver)
@@ -18505,13 +18512,253 @@ void Player::SetCanBlock( bool value )
     UpdateBlockPercentage();
 }
 
-bool ItemPosCount::isContainedIn(ItemPosCountVec const& vec) const
+void Player::HandleFallDamage(MovementInfo& movementInfo)
 {
-    for(ItemPosCountVec::const_iterator itr = vec.begin(); itr != vec.end();++itr)
-        if(itr->pos == this->pos)
-            return true;
+    //Players with Feather Fall or low fall time, or physical immunity (charges used) are ignored
+    if (!isInFlight() && movementInfo.fallTime > 1100 && !isDead() && !isGameMaster() &&
+        !HasAuraType(SPELL_AURA_HOVER) && !HasAuraType(SPELL_AURA_FEATHER_FALL) &&
+        !HasAuraType(SPELL_AURA_FLY) && !IsImmunedToDamage(SPELL_SCHOOL_MASK_NORMAL,true) )
+    {
+        //Safe fall, fall time reduction
+        int32 safe_fall = GetTotalAuraModifier(SPELL_AURA_SAFE_FALL);
+        uint32 fall_time = (movementInfo.fallTime > (safe_fall*10)) ? movementInfo.fallTime - (safe_fall*10) : 0;
 
-    return false;
+        if(fall_time > 1100)                            //Prevent damage if fall time < 1100
+        {
+            //Fall Damage calculation
+            float fallperc = float(fall_time)/1100;
+            uint32 damage = (uint32)(((fallperc*fallperc -1) / 9 * GetMaxHealth())*sWorld.getRate(RATE_DAMAGE_FALL));
+
+            float height = movementInfo.z;
+            UpdateGroundPositionZ(movementInfo.x,movementInfo.y,height);
+
+            if (damage > 0)
+            {
+                //Prevent fall damage from being more than the player maximum health
+                if (damage > GetMaxHealth())
+                    damage = GetMaxHealth();
+
+                // Gust of Wind
+                if (GetDummyAura(43621))
+                    damage = GetMaxHealth()/2;
+
+                EnvironmentalDamage(GetGUID(), DAMAGE_FALL, damage);
+            }
+
+            //Z given by moveinfo, LastZ, FallTime, WaterZ, MapZ, Damage, Safefall reduction
+            DEBUG_LOG("FALLDAMAGE z=%f sz=%f pZ=%f FallTime=%d mZ=%f damage=%d SF=%d" , movementInfo.z, height, GetPositionZ(), movementInfo.fallTime, height, damage, safe_fall);
+        }
+    }
+}
+
+void Player::HandleFallUnderMap()
+{
+    if(InBattleGround() && GetBattleGround() 
+        && GetBattleGround()->HandlePlayerUnderMap(this))
+    {
+        // do nothing, the handle already did if returned true
+    }
+    else
+    {
+        // NOTE: this is actually called many times while falling
+        // even after the player has been teleported away
+        // TODO: discard movement packets after the player is rooted
+        if(isAlive())
+        {
+            EnvironmentalDamage(GetGUID(),DAMAGE_FALL_TO_VOID, GetMaxHealth());
+            // change the death state to CORPSE to prevent the death timer from
+            // starting in the next player update
+            KillPlayer();
+            BuildPlayerRepop();
+        }
+
+        // cancel the death timer here if started
+        RepopAtGraveyard();
+    }
+}
+
+void Player::Possess(Unit *target)
+{
+    if(!target || target == this)
+        return;
+
+    // Don't allow possession of someone else's pet
+    if(target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->isPet() && target != GetPet())
+        return;
+
+    // Don't allow possession on transports or when in flight; also remove possession from the now-to-be-possessed
+    if (target->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (((Player*)target)->m_transport || ((Player*)target)->isInFlight())
+            return;
+        if (target->isPossessing())
+            ((Player*)target)->RemovePossess(true);
+    }
+
+    // Remove any previous possession from the target
+    if (target->isPossessedByPlayer())
+        ((Player*)target->GetCharmer())->RemovePossess(false);
+    else if (target->isCharmed()) 
+        target->UncharmSelf();  // Target isn't possessed, but charmed; uncharm before possessing
+
+    // Remove our previous possession
+    if (isPossessing())
+        RemovePossess(true);
+    else if (GetCharm()) // We are charming a creature, not possessing it; uncharm ourself first
+        Uncharm();
+
+    // Interrupt any current casting of the target
+    if(target->IsNonMeleeSpellCasted(true))
+        target->InterruptNonMeleeSpells(true);
+
+    // Update the proper unit fields
+    SetPossessedTarget(target);
+
+    target->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, getFaction());
+    target->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+    target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNKNOWN5);
+    target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+    SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+    SetUInt64Value(PLAYER_FARSIGHT, target->GetGUID());
+
+    if(target->GetTypeId() == TYPEID_UNIT)
+    {
+        // Set target to active in the grid and place it in the world container to be picked up by all regular player cell visits
+        Map* map = target->GetMap();
+        map->SwitchGridContainers((Creature*)target, true);
+        target->setActive(true);
+
+        ((Creature*)target)->InitPossessedAI(); // Initialize the possessed AI
+        target->StopMoving();
+        target->GetMotionMaster()->Clear(false);
+        target->GetMotionMaster()->MoveIdle();
+    }
+
+    target->CombatStop();
+    target->DeleteThreatList();
+
+    // Pets already have a properly initialized CharmInfo, don't overwrite it.
+    if(target->GetTypeId() == TYPEID_PLAYER || (target->GetTypeId() == TYPEID_UNIT && !((Creature*)target)->isPet()))
+    {
+        CharmInfo* charmInfo = target->InitCharmInfo(target);
+        charmInfo->InitPossessCreateSpells();
+    }
+
+    // Disable control for target player and remove AFK
+    if(target->GetTypeId() == TYPEID_PLAYER)
+    {
+        if(((Player*)target)->isAFK())
+            ((Player*)target)->ToggleAFK();
+        ((Player*)target)->SetViewport(target->GetGUID(), false);
+    }
+
+    // Set current viewport to target unit, controllable
+    SetViewport(target->GetGUID(), true);
+
+    PossessSpellInitialize();
+}
+
+void Player::RemovePossess(bool attack)
+{
+    Unit* target = GetCharm();
+    if(!target || !target->isPossessed())
+        return;
+
+    // Remove area auras from possessed
+    Unit::AuraMap& tAuras = target->GetAuras();
+    for(Unit::AuraMap::iterator itr = tAuras.begin(); itr != tAuras.end();)
+    {
+        if(itr->second && itr->second->IsAreaAura())
+            target->RemoveAura(itr);
+        else
+            ++itr;
+    }
+
+    RemovePossessedTarget();
+
+    if(target->GetTypeId() == TYPEID_PLAYER)
+        ((Player*)target)->setFactionForRace(target->getRace());
+    else if(target->GetTypeId() == TYPEID_UNIT)
+    {
+        // Set creature to inactive in grid and place it back into the grid container
+        Map* map = target->GetMap();
+        target->setActive(false);
+        map->SwitchGridContainers((Creature*)target, false);
+
+        if(((Creature*)target)->isPet())
+        {
+            if(Unit* owner = target->GetOwner())
+                target->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, owner->getFaction());
+        } else
+        {
+            if(CreatureInfo const* cInfo = ((Creature*)target)->GetCreatureInfo())
+                target->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, cInfo->faction_A);
+        }
+    }
+
+    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNKNOWN5);
+    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+    RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+    SetUInt64Value(PLAYER_FARSIGHT, 0);
+
+    // Remove pet spell action bar
+    WorldPacket data(SMSG_PET_SPELLS, 8);
+    data << uint64(0);
+    m_session->SendPacket(&data);
+
+    // Restore original view
+    SetViewport(GetGUID(), true);
+    if(target->GetTypeId() == TYPEID_PLAYER)
+        ((Player*)target)->SetViewport(target->GetGUID(), true);
+    else
+    {
+        if(((Creature*)target)->isPet())
+        {
+            ((Pet*)target)->InitPetCreateSpells();
+            PetSpellInitialize();
+        }
+
+        if (target->isAlive())
+        {
+            // If we're still hostile to our target, continue attacking otherwise reset threat and go home
+            if (target->getVictim())
+            {
+                Unit* victim = target->getVictim();
+                FactionTemplateEntry const* t_faction = target->getFactionTemplateEntry();
+                FactionTemplateEntry const* v_faction = victim->getFactionTemplateEntry();
+                // Unit::IsHostileTo will always return true since the unit is always hostile to its victim
+                if (t_faction && v_faction && !t_faction->IsHostileTo(*v_faction))
+                {
+                    // Stop combat and remove the target from the threat lists of all its victims
+                    target->CombatStop();
+                    target->getHostilRefManager().deleteReferences();
+                    target->DeleteThreatList();
+                    target->GetMotionMaster()->Clear();
+                    target->GetMotionMaster()->MoveTargetedHome();
+                }
+            } 
+            else if (target->GetTypeId() == TYPEID_UNIT)
+            {
+                target->GetMotionMaster()->Clear();
+                target->GetMotionMaster()->MoveTargetedHome();
+            }
+            
+            // Add high amount of threat on the player
+            if(target != GetPet() && attack)
+                target->AddThreat(this, 1000000.0f);
+        }
+        // Delete the assigned possessed AI
+        ((Creature*)target)->DeletePossessedAI();
+    }
+}
+
+void Player::SetViewport(uint64 guid, bool moveable)
+{
+    WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE, 8+1);
+    data.appendPackGUID(guid); // Packed guid of object to set client's view to
+    data << (moveable ? uint8(0x01) : uint8(0x00)); // 0 - can't move; 1 - can move
+    m_session->SendPacket(&data);
+    sLog.outDetail("Viewport for "I64FMT" (%s) changed to "I64FMT, GetGUID(), GetName(), guid);
 }
 
 bool Player::isAllowUseBattleGroundObject()
@@ -18523,4 +18770,13 @@ bool Player::isAllowUseBattleGroundObject()
              !HasAura(SPELL_RECENTLY_DROPPED_FLAG, 0) &&      // can't pickup
              isAlive()                                        // live player
            );
+}
+
+bool ItemPosCount::isContainedIn(ItemPosCountVec const& vec) const
+{
+    for(ItemPosCountVec::const_iterator itr = vec.begin(); itr != vec.end();++itr)
+        if(itr->pos == this->pos)
+            return true;
+
+    return false;
 }

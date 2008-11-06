@@ -132,7 +132,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectPull,                                     // 70 SPELL_EFFECT_PULL                     one spell: Distract Move
     &Spell::EffectPickPocket,                               // 71 SPELL_EFFECT_PICKPOCKET
     &Spell::EffectAddFarsight,                              // 72 SPELL_EFFECT_ADD_FARSIGHT
-    &Spell::EffectSummonGuardian,                           // 73 SPELL_EFFECT_SUMMON_POSSESSED
+    &Spell::EffectSummonPossessed,                          // 73 SPELL_EFFECT_SUMMON_POSSESSED
     &Spell::EffectSummonTotem,                              // 74 SPELL_EFFECT_SUMMON_TOTEM
     &Spell::EffectHealMechanical,                           // 75 SPELL_EFFECT_HEAL_MECHANICAL          one spell: Mechanical Patch Kit
     &Spell::EffectSummonObjectWild,                         // 76 SPELL_EFFECT_SUMMON_OBJECT_WILD
@@ -3127,9 +3127,11 @@ void Spell::EffectSummonType(uint32 i)
     switch(m_spellInfo->EffectMiscValueB[i])
     {
         case SUMMON_TYPE_GUARDIAN:
+            EffectSummonGuardian(i);
+            break;
         case SUMMON_TYPE_POSESSED:
         case SUMMON_TYPE_POSESSED2:
-            EffectSummonGuardian(i);
+            EffectSummonPossessed(i);
             break;
         case SUMMON_TYPE_WILD:
             EffectSummonWild(i);
@@ -3675,6 +3677,28 @@ void Spell::EffectSummonGuardian(uint32 i)
 
         map->Add((Creature*)spawnCreature);
     }
+}
+
+void Spell::EffectSummonPossessed(uint32 i)
+{
+    uint32 creatureEntry = m_spellInfo->EffectMiscValue[i];
+    if(!creatureEntry)
+        return;
+
+    if(m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    uint32 level = m_caster->getLevel();
+
+    float px, py, pz;
+    m_caster->GetClosePoint(px, py, pz, DEFAULT_WORLD_OBJECT_SIZE);
+
+    int32 duration = GetSpellDuration(m_spellInfo);
+
+    TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_OR_DEAD_DESPAWN;
+
+    Creature* c = m_caster->SummonCreature(creatureEntry, px, py, pz, m_caster->GetOrientation(), summonType, duration);
+    ((Player*)m_caster)->Possess(c);
 }
 
 void Spell::EffectTeleUnitsFaceCaster(uint32 i)

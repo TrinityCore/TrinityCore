@@ -51,6 +51,8 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
 
         void MovementInform(uint32, uint32);
 
+        void OnPossess(bool apply);
+
         // EscortAI functions
         void AddWaypoint(uint32 id, float x, float y, float z, uint32 WaitTimeMs = 0);
 

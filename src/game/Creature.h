@@ -395,6 +395,7 @@ typedef std::map<uint32,time_t> CreatureSpellCooldowns;
 class TRINITY_DLL_SPEC Creature : public Unit
 {
     CreatureAI *i_AI;
+    CreatureAI *i_AI_possessed;
 
     public:
 
@@ -455,9 +456,11 @@ class TRINITY_DLL_SPEC Creature : public Unit
         bool IsInEvadeMode() const;
 
         bool AIM_Initialize();
+        void InitPossessedAI();
+        void DeletePossessedAI();
 
         void AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint32 MovementFlags, uint8 type);
-        CreatureAI* AI() { return i_AI; }
+        CreatureAI* AI() { return isPossessed() && i_AI_possessed ? i_AI_possessed : i_AI; }
 
         uint32 GetShieldBlockValue() const                  //dunno mob block value
         {

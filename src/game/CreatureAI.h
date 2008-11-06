@@ -121,6 +121,9 @@ class TRINITY_DLL_SPEC CreatureAI
 
         // Called at waypoint reached or point movement finished
         virtual void MovementInform(uint32 /*MovementType*/, uint32 /*Data*/) {}
+
+        // Called when AI is temporarily replaced or put back when possess is applied or removed
+        virtual void OnPossess(bool apply) {}
 };
 
 struct SelectableAI : public FactoryHolder<CreatureAI>, public Permissible<Creature>

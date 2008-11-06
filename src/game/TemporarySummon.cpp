@@ -174,6 +174,8 @@ void TemporarySummon::UnSummon()
 {
     CombatStop();
 
+    UnpossessSelf(false);
+
     CleanupsBeforeDelete();
     AddObjectToRemoveList();
 

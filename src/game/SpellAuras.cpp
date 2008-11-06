@@ -49,6 +49,7 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
+#include "TemporarySummon.h"
 
 #define NULL_AURA_SLOT 0xFF
 
@@ -527,8 +528,8 @@ void Aura::Update(uint32 diff)
         }
     }
 
-    // Channeled aura required check distance from caster
-    if(IsChanneledSpell(m_spellProto) && m_caster_guid != m_target->GetGUID())
+    // Channeled aura required check distance from caster except in possessed cases
+    if(IsChanneledSpell(m_spellProto) && m_caster_guid != m_target->GetGUID() && !m_target->isPossessed())
     {
         Unit* caster = GetCaster();
         if(!caster)
@@ -2003,6 +2004,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 caster->CastSpell(m_target,finalSpelId,true,NULL,this);
             return;
         }
+
         // Dark Fiend
         if(GetId()==45934)
         {
@@ -2016,6 +2018,13 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
         if(GetId()==46308)                                  // casted only at creatures at spawn
         {
             m_target->CastSpell(m_target,47287,true,NULL,this);
+            return;
+        }
+
+        // Eye of Kilrogg, unsummon eye when aura is gone
+        if(GetId() == 126 && caster->GetTypeId() == TYPEID_PLAYER && caster->GetCharm())
+        {
+            ((TemporarySummon*)caster->GetCharm())->UnSummon();
             return;
         }
     }
@@ -2886,56 +2895,11 @@ void Aura::HandleModPossess(bool apply, bool Real)
 
     if( apply )
     {
-        m_target->SetCharmerGUID(GetCasterGUID());
-        m_target->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE,caster->getFaction());
-        caster->SetCharm(m_target);
-
-        m_target->CombatStop();
-        m_target->DeleteThreatList();
-        if(m_target->GetTypeId() == TYPEID_UNIT)
-        {
-            m_target->StopMoving();
-            m_target->GetMotionMaster()->Clear();
-            m_target->GetMotionMaster()->MoveIdle();
-            CharmInfo *charmInfo = ((Creature*)m_target)->InitCharmInfo(m_target);
-            charmInfo->InitPossessCreateSpells();
-        }
-
-        if(caster->GetTypeId() == TYPEID_PLAYER)
-        {
-            ((Player*)caster)->PossessSpellInitialize();
-        }
+        if (caster->GetTypeId() == TYPEID_PLAYER)
+            ((Player*)caster)->Possess(m_target);
     }
     else
-    {
-        m_target->SetCharmerGUID(0);
-
-        if(m_target->GetTypeId() == TYPEID_PLAYER)
-            ((Player*)m_target)->setFactionForRace(m_target->getRace());
-        else if(m_target->GetTypeId() == TYPEID_UNIT)
-        {
-            CreatureInfo const *cinfo = ((Creature*)m_target)->GetCreatureInfo();
-            m_target->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE,cinfo->faction_A);
-        }
-
-        caster->SetCharm(0);
-
-        if(caster->GetTypeId() == TYPEID_PLAYER)
-        {
-            WorldPacket data(SMSG_PET_SPELLS, 8);
-            data << uint64(0);
-            ((Player*)caster)->GetSession()->SendPacket(&data);
-        }
-        if(m_target->GetTypeId() == TYPEID_UNIT)
-        {
-            ((Creature*)m_target)->AIM_Initialize();
-
-            if (((Creature*)m_target)->AI())
-                ((Creature*)m_target)->AI()->AttackStart(caster);
-        }
-    }
-    if(caster->GetTypeId() == TYPEID_PLAYER)
-        caster->SetUInt64Value(PLAYER_FARSIGHT,apply ? m_target->GetGUID() : 0);
+        m_target->UnpossessSelf(true);
 }
 
 void Aura::HandleModPossessPet(bool apply, bool Real)
@@ -2951,13 +2915,11 @@ void Aura::HandleModPossessPet(bool apply, bool Real)
 
     if(apply)
     {
-        caster->SetUInt64Value(PLAYER_FARSIGHT, m_target->GetGUID());
-        m_target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNKNOWN5);
+        ((Player*)caster)->Possess(m_target);
     }
     else
     {
-        caster->SetUInt64Value(PLAYER_FARSIGHT, 0);
-        m_target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNKNOWN5);
+        ((Player*)caster)->RemovePossess(false);
     }
 }
 

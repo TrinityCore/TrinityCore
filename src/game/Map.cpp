@@ -255,7 +255,7 @@ template<>
 void Map::AddToGrid(Creature* obj, NGridType *grid, Cell const& cell)
 {
     // add to world object registry in grid
-    if(obj->isPet())
+    if(obj->isPet() || obj->isPossessedByPlayer())
     {
         (*grid)(cell.CellX(), cell.CellY()).AddWorldObject<Creature>(obj, obj->GetGUID());
         obj->SetCurrentCell(cell);
@@ -299,7 +299,7 @@ template<>
 void Map::RemoveFromGrid(Creature* obj, NGridType *grid, Cell const& cell)
 {
     // remove from world object registry in grid
-    if(obj->isPet())
+    if(obj->isPet() || obj->isPossessedByPlayer())
     {
         (*grid)(cell.CellX(), cell.CellY()).RemoveWorldObject<Creature>(obj, obj->GetGUID());
     }
@@ -309,6 +309,27 @@ void Map::RemoveFromGrid(Creature* obj, NGridType *grid, Cell const& cell)
         (*grid)(cell.CellX(), cell.CellY()).RemoveGridObject<Creature>(obj, obj->GetGUID());
     }
 }
+
+template<class T>
+void Map::SwitchGridContainers(T* obj, bool active)
+{
+    CellPair pair = Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
+    Cell cell(pair);
+    NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
+
+    if (active)
+    {
+        (*grid)(cell.CellX(), cell.CellY()).RemoveGridObject<T>(obj, obj->GetGUID());
+        (*grid)(cell.CellX(), cell.CellY()).AddWorldObject<T>(obj, obj->GetGUID());
+    } else
+    {
+        (*grid)(cell.CellX(), cell.CellY()).RemoveWorldObject<T>(obj, obj->GetGUID());
+        (*grid)(cell.CellX(), cell.CellY()).AddGridObject<T>(obj, obj->GetGUID());
+    }
+}
+
+template void Map::SwitchGridContainers(Creature *, bool);
+template void Map::SwitchGridContainers(Corpse *, bool);
 
 template<class T>
 void Map::DeleteFromWorld(T* obj)
@@ -467,7 +488,7 @@ Map::Add(T *obj)
     AddNotifier(obj,cell,p);
 }
 
-void Map::MessageBroadcast(Player *player, WorldPacket *msg, bool to_self)
+void Map::MessageBroadcast(Player *player, WorldPacket *msg, bool to_self, bool to_possessor)
 {
     CellPair p = Trinity::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
 
@@ -483,13 +504,13 @@ void Map::MessageBroadcast(Player *player, WorldPacket *msg, bool to_self)
     if( !loaded(GridPair(cell.data.Part.grid_x, cell.data.Part.grid_y)) )
         return;
 
-    Trinity::MessageDeliverer post_man(*player, msg, to_self);
+    Trinity::MessageDeliverer post_man(*player, msg, to_possessor, to_self);
     TypeContainerVisitor<Trinity::MessageDeliverer, WorldTypeMapContainer > message(post_man);
     CellLock<ReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, message, *this);
 }
 
-void Map::MessageBroadcast(WorldObject *obj, WorldPacket *msg)
+void Map::MessageBroadcast(WorldObject *obj, WorldPacket *msg, bool to_possessor)
 {
     CellPair p = Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
 
@@ -506,13 +527,13 @@ void Map::MessageBroadcast(WorldObject *obj, WorldPacket *msg)
     if( !loaded(GridPair(cell.data.Part.grid_x, cell.data.Part.grid_y)) )
         return;
 
-    Trinity::ObjectMessageDeliverer post_man(msg);
+    Trinity::ObjectMessageDeliverer post_man(*obj, msg, to_possessor);
     TypeContainerVisitor<Trinity::ObjectMessageDeliverer, WorldTypeMapContainer > message(post_man);
     CellLock<ReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, message, *this);
 }
 
-void Map::MessageDistBroadcast(Player *player, WorldPacket *msg, float dist, bool to_self, bool own_team_only)
+void Map::MessageDistBroadcast(Player *player, WorldPacket *msg, float dist, bool to_self, bool own_team_only, bool to_possessor)
 {
     CellPair p = Trinity::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
 
@@ -528,13 +549,13 @@ void Map::MessageDistBroadcast(Player *player, WorldPacket *msg, float dist, boo
     if( !loaded(GridPair(cell.data.Part.grid_x, cell.data.Part.grid_y)) )
         return;
 
-    Trinity::MessageDistDeliverer post_man(*player, msg, dist, to_self, own_team_only);
+    Trinity::MessageDistDeliverer post_man(*player, msg, to_possessor, dist, to_self, own_team_only);
     TypeContainerVisitor<Trinity::MessageDistDeliverer , WorldTypeMapContainer > message(post_man);
     CellLock<ReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, message, *this);
 }
 
-void Map::MessageDistBroadcast(WorldObject *obj, WorldPacket *msg, float dist)
+void Map::MessageDistBroadcast(WorldObject *obj, WorldPacket *msg, float dist, bool to_possessor)
 {
     CellPair p = Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
 
@@ -551,7 +572,7 @@ void Map::MessageDistBroadcast(WorldObject *obj, WorldPacket *msg, float dist)
     if( !loaded(GridPair(cell.data.Part.grid_x, cell.data.Part.grid_y)) )
         return;
 
-    Trinity::ObjectMessageDistDeliverer post_man(*obj, msg,dist);
+    Trinity::ObjectMessageDistDeliverer post_man(*obj, msg, to_possessor, dist);
     TypeContainerVisitor<Trinity::ObjectMessageDistDeliverer, WorldTypeMapContainer > message(post_man);
     CellLock<ReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, message, *this);
@@ -649,6 +670,7 @@ Map::Remove(T *obj, bool remove)
     assert( grid != NULL );
 
     obj->RemoveFromWorld();
+
     RemoveFromGrid(obj,grid,cell);
 
     UpdateObjectVisibility(obj,cell,p);
@@ -697,6 +719,11 @@ Map::PlayerRelocation(Player *player, float x, float y, float z, float orientati
     // if move then update what player see and who seen
     UpdatePlayerVisibility(player,new_cell,new_val);
     UpdateObjectsVisibilityFor(player,new_cell,new_val);
+
+    // also update what possessing player sees
+    if(player->isPossessedByPlayer())
+        UpdateObjectsVisibilityFor((Player*)player->GetCharmer(), new_cell, new_val);
+
     PlayerRelocationNotify(player,new_cell,new_val);
     NGridType* newGrid = getNGrid(new_cell.GridX(), new_cell.GridY());
     if( !same_cell && newGrid->GetGridState()!= GRID_STATE_ACTIVE )
@@ -725,10 +752,16 @@ Map::CreatureRelocation(Creature *creature, float x, float y, float z, float ang
         #endif
         AddCreatureToMoveList(creature,x,y,z,ang);
         // in diffcell/diffgrid case notifiers called at finishing move creature in Map::MoveAllCreaturesInMoveList
+        if(creature->isPossessedByPlayer())
+            EnsureGridLoadedForPlayer(new_cell, (Player*)creature->GetCharmer(), false);
     }
     else
     {
         creature->Relocate(x, y, z, ang);
+        // Update visibility back to player who is controlling the creature
+        if(creature->isPossessedByPlayer())
+            UpdateObjectsVisibilityFor((Player*)creature->GetCharmer(), new_cell, new_val);
+
         CreatureRelocationNotify(creature,new_cell,new_val);
     }
     assert(CheckGridIntegrity(creature,true));

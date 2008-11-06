@@ -46,6 +46,7 @@
 #include "CellImpl.h"
 #include "OutdoorPvPMgr.h"
 #include "GameEvent.h"
+#include "PossessedAI.h"
 // apply implementation of the singletons
 #include "Policies/SingletonImp.h"
 
@@ -117,7 +118,7 @@ uint32 CreatureInfo::GetFirstValidModelId() const
 }
 
 Creature::Creature() :
-Unit(), i_AI(NULL),
+Unit(), i_AI(NULL), i_AI_possessed(NULL),
 lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), lootingGroupLeaderGUID(0),
 m_lootMoney(0), m_lootRecipient(0),
 m_deathTimer(0), m_respawnTime(0), m_respawnDelay(25), m_corpseDelay(60), m_respawnradius(0.0f),
@@ -145,6 +146,8 @@ Creature::~Creature()
 
     delete i_AI;
     i_AI = NULL;
+
+    DeletePossessedAI();
 }
 
 void Creature::AddToWorld()
@@ -364,7 +367,7 @@ void Creature::Update(uint32 diff)
                     setDeathState( JUST_ALIVED );
 
                 //Call AI respawn virtual function
-                i_AI->JustRespawned();
+                AI()->JustRespawned();
 
                 MapManager::Instance().GetMap(GetMapId(), this)->Add(this);
             }
@@ -428,7 +431,7 @@ void Creature::Update(uint32 diff)
             {
                 // do not allow the AI to be changed during update
                 m_AI_locked = true;
-                i_AI->UpdateAI(diff);
+                AI()->UpdateAI(diff);
                 m_AI_locked = false;
             }
 
@@ -525,12 +528,38 @@ bool Creature::AIM_Initialize()
         return false;
     }
 
+    // don't allow AI switch when possessed
+    if (isPossessed())
+        return false;
+
     CreatureAI * oldAI = i_AI;
     i_motionMaster.Initialize();
     i_AI = FactorySelector::selectAI(this);
     if (oldAI)
         delete oldAI;
     return true;
+}
+
+void Creature::InitPossessedAI()
+{
+    if (!isPossessed()) return;
+
+    if (!i_AI_possessed)
+        i_AI_possessed = new PossessedAI(*this);
+
+    // Signal the old AI that it's been disabled
+    i_AI->OnPossess(true);
+}
+
+void Creature::DeletePossessedAI()
+{
+    if (!i_AI_possessed) return;
+
+    delete i_AI_possessed;
+    i_AI_possessed = NULL;
+
+    // Signal the old AI that it's been re-enabled
+    i_AI->OnPossess(false);
 }
 
 bool Creature::Create (uint32 guidlow, Map *map, uint32 Entry, uint32 team, const CreatureData *data)
