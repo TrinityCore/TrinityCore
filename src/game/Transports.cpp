@@ -116,7 +116,7 @@ void MapManager::LoadTransports()
     sLog.outString( ">> Loaded %u transports", count );
 
     // check transport data DB integrity
-    result = WorldDatabase.PQuery("SELECT gameobject.guid,gameobject.id,transports.name FROM gameobject,transports WHERE gameobject.id = transports.entry");
+    result = WorldDatabase.Query("SELECT gameobject.guid,gameobject.id,transports.name FROM gameobject,transports WHERE gameobject.id = transports.entry");
     if(result)                                              // wrong data found
     {
         do

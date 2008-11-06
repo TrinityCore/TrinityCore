@@ -112,8 +112,17 @@ bool Guild::create(uint64 lGuid, std::string gname)
 
 bool Guild::AddMember(uint64 plGuid, uint32 plRank)
 {
-    if(Player::GetGuildIdFromDB(plGuid) != 0)               // player already in guild
+    Player* pl = objmgr.GetPlayer(plGuid);
+    if(pl)
+    {
+        if(pl->GetGuildId() != 0)
         return false;
+    }
+    else
+    {
+        if(Player::GetGuildIdFromDB(plGuid) != 0)           // player already in guild
+        return false;
+    }
 
     // remove all player signs from another petitions
     // this will be prevent attempt joining player to many guilds and corrupt guild data integrity
@@ -142,7 +151,6 @@ bool Guild::AddMember(uint64 plGuid, uint32 plRank)
     CharacterDatabase.PExecute("INSERT INTO guild_member (guildid,guid,rank,pnote,offnote) VALUES ('%u', '%u', '%u','%s','%s')",
         Id, GUID_LOPART(plGuid), newmember.RankId, dbPnote.c_str(), dbOFFnote.c_str());
 
-    Player* pl = objmgr.GetPlayer(plGuid);
     if(pl)
     {
         pl->SetInGuild(Id);
@@ -674,6 +682,15 @@ void Guild::SetRankRights(uint32 rankId, uint32 rights)
     m_ranks[rankId].rights = rights;
 
     CharacterDatabase.PExecute("UPDATE guild_rank SET rights='%u' WHERE rid='%u' AND guildid='%u'", rights, (rankId+1), Id);
+}
+
+int32 Guild::GetRank(uint32 LowGuid)
+{
+    MemberList::iterator itr = members.find(LowGuid);
+    if (itr==members.end())
+        return -1;
+        
+    return itr->second.RankId;
 }
 
 void Guild::Disband()

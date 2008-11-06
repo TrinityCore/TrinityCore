@@ -1795,13 +1795,28 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     // get additional information from DB
     else
     {
+        QueryResult *result = CharacterDatabase.PQuery("SELECT totaltime FROM characters WHERE guid = '%u'", targetGUID);
+        if (!result)
+        {
+            SendSysMessage(LANG_PLAYER_NOT_FOUND);
+            SetSentErrorMessage(true);
+            return false;
+        }
+        Field *fields = result->Fetch();
+        total_player_time = fields[0].GetUInt32();
+        delete result;
+        
+        Tokens data;
+        if (!Player::LoadValuesArrayFromDB(data,targetGUID))
+        {
+            SendSysMessage(LANG_PLAYER_NOT_FOUND);
+            SetSentErrorMessage(true);
+            return false;
+        }
+        
+        money = Player::GetUInt32ValueFromArray(data, PLAYER_FIELD_COINAGE);
+        level = Player::GetUInt32ValueFromArray(data, UNIT_FIELD_LEVEL);
         accId = objmgr.GetPlayerAccountIdByGUID(targetGUID);
-        WorldSession session(0,NULL,SEC_PLAYER,0,0,LOCALE_enUS);
-        Player plr(&session);                               // use fake session for temporary load
-        plr.MinimalLoadFromDB(NULL, targetGUID);
-        money = plr.GetMoney();
-        total_player_time = plr.GetTotalPlayedTime();
-        level = plr.getLevel();
     }
 
     std::string username = GetTrinityString(LANG_ERROR);
@@ -3383,7 +3398,7 @@ bool ChatHandler::HandleWpImportCommand(const char *args)
         {
             getline (infile,line);
             //cout << line << endl;
-            QueryResult *result = WorldDatabase.PQuery(line.c_str());
+            QueryResult *result = WorldDatabase.Query(line.c_str());
             delete result;
         }
         infile.close();

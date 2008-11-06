@@ -271,7 +271,7 @@ void InstanceSaveManager::CleanupInstances()
     // creature_respawn and gameobject_respawn are in another database
     // first, obtain total instance set
     std::set< uint32 > InstanceSet;
-    QueryResult *result = CharacterDatabase.PQuery("SELECT id FROM instance");
+    QueryResult *result = CharacterDatabase.Query("SELECT id FROM instance");
     if( result )
     {
         do
@@ -284,7 +284,7 @@ void InstanceSaveManager::CleanupInstances()
     }
 
     // creature_respawn
-    result = WorldDatabase.PQuery("SELECT DISTINCT(instance) FROM creature_respawn WHERE instance <> 0");
+    result = WorldDatabase.Query("SELECT DISTINCT(instance) FROM creature_respawn WHERE instance <> 0");
     if( result )
     {
         do
@@ -298,7 +298,7 @@ void InstanceSaveManager::CleanupInstances()
     }
 
     // gameobject_respawn
-    result = WorldDatabase.PQuery("SELECT DISTINCT(instance) FROM gameobject_respawn WHERE instance <> 0");
+    result = WorldDatabase.Query("SELECT DISTINCT(instance) FROM gameobject_respawn WHERE instance <> 0");
     if( result )
     {
         do
@@ -327,7 +327,7 @@ void InstanceSaveManager::PackInstances()
     // all valid ids are in the instance table
     // any associations to ids not in this table are assumed to be
     // cleaned already in CleanupInstances
-    QueryResult *result = CharacterDatabase.PQuery("SELECT id FROM instance");
+    QueryResult *result = CharacterDatabase.Query("SELECT id FROM instance");
     if( result )
     {
         do
@@ -377,7 +377,7 @@ void InstanceSaveManager::LoadResetTimes()
     // resettime = 0 in the DB for raid/heroic instances so those are skipped
     typedef std::map<uint32, std::pair<uint32, uint64> > ResetTimeMapType;
     ResetTimeMapType InstResetTime;
-    QueryResult *result = CharacterDatabase.PQuery("SELECT id, map, resettime FROM instance WHERE resettime > 0");
+    QueryResult *result = CharacterDatabase.Query("SELECT id, map, resettime FROM instance WHERE resettime > 0");
     if( result )
     {
         do
@@ -393,7 +393,7 @@ void InstanceSaveManager::LoadResetTimes()
         delete result;
 
         // update reset time for normal instances with the max creature respawn time + X hours
-        result = WorldDatabase.PQuery("SELECT MAX(respawntime), instance FROM creature_respawn WHERE instance > 0 GROUP BY instance");
+        result = WorldDatabase.Query("SELECT MAX(respawntime), instance FROM creature_respawn WHERE instance > 0 GROUP BY instance");
         if( result )
         {
             do

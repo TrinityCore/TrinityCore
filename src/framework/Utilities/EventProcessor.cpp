@@ -28,7 +28,7 @@ EventProcessor::EventProcessor()
 
 EventProcessor::~EventProcessor()
 {
-    KillAllEvents();
+    KillAllEvents(true);
 }
 
 void EventProcessor::Update(uint32 p_time)
@@ -60,21 +60,31 @@ void EventProcessor::Update(uint32 p_time)
     }
 }
 
-void EventProcessor::KillAllEvents()
+void EventProcessor::KillAllEvents(bool force)
 {
     // prevent event insertions
     m_aborting = true;
 
     // first, abort all existing events
-    for (EventList::iterator i = m_events.begin(); i != m_events.end(); ++i)
+    for (EventList::iterator i = m_events.begin(); i != m_events.end();)
     {
-        i->second->to_Abort = true;
-        i->second->Abort(m_time);
-        delete i->second;
+        EventList::iterator i_old = i;
+        ++i;
+        
+        i_old->second->to_Abort = true;
+        i_old->second->Abort(m_time);
+        if(force || i_old->second->IsDeletable())
+        {
+            delete i_old->second;
+            
+            if(!force)                                      // need per-element cleanup
+                m_events.erase (i_old);
+        }
     }
 
-    // clear event list
-    m_events.clear();
+    // fast clear event list (in force case)
+    if(force)
+        m_events.clear();
 }
 
 void EventProcessor::AddEvent(BasicEvent* Event, uint64 e_time, bool set_addtime)

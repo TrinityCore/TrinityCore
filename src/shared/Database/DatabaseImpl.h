@@ -47,6 +47,18 @@ Database::AsyncQuery(Class *object, void (Class::*method)(QueryResult*, ParamTyp
     return true;
 }
 
+template<class Class, typename ParamType1, typename ParamType2>
+bool
+Database::AsyncQuery(Class *object, void (Class::*method)(QueryResult*, ParamType1, ParamType2), ParamType1 param1, ParamType2 param2, const char *sql)
+{
+    if (!sql) return false;
+    ZThread::ThreadImpl * queryThread = ZThread::ThreadImpl::current();
+    QueryQueues::iterator itr = m_queryQueues.find(queryThread);
+    if (itr == m_queryQueues.end()) return false;
+    m_threadBody->Delay(new SqlQuery(sql, new Trinity::QueryCallback<Class, ParamType1, ParamType2>(object, method, (QueryResult*)NULL, param1, param2), itr->second));
+    return true;
+}
+
 template<typename ParamType1>
 bool
 Database::AsyncQuery(void (*method)(QueryResult*, ParamType1), ParamType1 param1, const char *sql)
@@ -56,6 +68,18 @@ Database::AsyncQuery(void (*method)(QueryResult*, ParamType1), ParamType1 param1
     QueryQueues::iterator itr = m_queryQueues.find(queryThread);
     if (itr == m_queryQueues.end()) return false;
     m_threadBody->Delay(new SqlQuery(sql, new Trinity::SQueryCallback<ParamType1>(method, (QueryResult*)NULL, param1), itr->second));
+    return true;
+}
+
+template<typename ParamType1, typename ParamType2>
+bool
+Database::AsyncQuery(void (*method)(QueryResult*, ParamType1, ParamType2), ParamType1 param1, ParamType2 param2, const char *sql)
+{
+    if (!sql) return false;
+    ZThread::ThreadImpl * queryThread = ZThread::ThreadImpl::current();
+    QueryQueues::iterator itr = m_queryQueues.find(queryThread);
+    if (itr == m_queryQueues.end()) return false;
+    m_threadBody->Delay(new SqlQuery(sql, new Trinity::SQueryCallback<ParamType1, ParamType2>(method, (QueryResult*)NULL, param1, param2), itr->second));
     return true;
 }
 
@@ -101,6 +125,27 @@ Database::AsyncPQuery(Class *object, void (Class::*method)(QueryResult*, ParamTy
     return AsyncQuery(object, method, param1, szQuery);
 }
 
+template<class Class, typename ParamType1, typename ParamType2>
+bool
+Database::AsyncPQuery(Class *object, void (Class::*method)(QueryResult*, ParamType1, ParamType2), ParamType1 param1, ParamType2 param2, const char *format,...)
+{
+    if(!format) return false;
+
+    va_list ap;
+    char szQuery [MAX_QUERY_LEN];
+    va_start(ap, format);
+    int res = vsnprintf( szQuery, MAX_QUERY_LEN, format, ap );
+    va_end(ap);
+
+    if(res==-1)
+    {
+        sLog.outError("SQL Query truncated (and not execute) for format: %s",format);
+        return false;
+    }
+
+    return AsyncQuery(object, method, param1, param2, szQuery);
+}
+
 template<typename ParamType1>
 bool
 Database::AsyncPQuery(void (*method)(QueryResult*, ParamType1), ParamType1 param1, const char *format,...)
@@ -122,6 +167,26 @@ Database::AsyncPQuery(void (*method)(QueryResult*, ParamType1), ParamType1 param
     return AsyncQuery(method, param1, szQuery);
 }
 
+template<typename ParamType1, typename ParamType2>
+bool
+Database::AsyncPQuery(void (*method)(QueryResult*, ParamType1, ParamType2), ParamType1 param1, ParamType2 param2, const char *format,...)
+{
+    if(!format) return false;
+
+    va_list ap;
+    char szQuery [MAX_QUERY_LEN];
+    va_start(ap, format);
+    int res = vsnprintf( szQuery, MAX_QUERY_LEN, format, ap );
+    va_end(ap);
+
+    if(res==-1)
+    {
+        sLog.outError("SQL Query truncated (and not execute) for format: %s",format);
+        return false;
+    }
+
+    return AsyncQuery(method, param1, param2, szQuery);
+}
 
 template<class Class>
 bool
