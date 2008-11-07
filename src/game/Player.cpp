@@ -18660,16 +18660,12 @@ void Player::Possess(Unit *target)
     // Update the proper unit fields
     SetPossessedTarget(target);
 
-    uint32 flags1 = target->GetUInt32Value(UNIT_FIELD_FLAGS);
-
     target->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, getFaction());
     target->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
     target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNKNOWN5);
     target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
     SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
     SetUInt64Value(PLAYER_FARSIGHT, target->GetGUID());
-
-    uint32 flags2 = target->GetUInt32Value(UNIT_FIELD_FLAGS);
 
     if(target->GetTypeId() == TYPEID_UNIT)
     {
