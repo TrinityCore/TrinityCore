@@ -159,6 +159,7 @@ scripts/zone/caverns_of_time/old_hillsbrad/instance_old_hillsbrad.cpp \
 scripts/zone/caverns_of_time/old_hillsbrad/old_hillsbrad.cpp \
 scripts/zone/coilfang_resevoir/serpent_shrine/boss_fathomlord_karathress.cpp \
 scripts/zone/coilfang_resevoir/serpent_shrine/boss_hydross_the_unstable.cpp \
+scripts/zone/coilfang_resevoir/serpent_shrine/boss_lurker_below.cpp \
 scripts/zone/coilfang_resevoir/serpent_shrine/boss_lady_vashj.cpp \
 scripts/zone/coilfang_resevoir/serpent_shrine/boss_leotheras_the_blind.cpp \
 scripts/zone/coilfang_resevoir/serpent_shrine/boss_morogrim_tidewalker.cpp \

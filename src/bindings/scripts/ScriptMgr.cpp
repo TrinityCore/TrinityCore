@@ -237,6 +237,7 @@ extern void AddSC_boss_lady_vashj();
 extern void AddSC_boss_leotheras_the_blind();
 extern void AddSC_boss_morogrim_tidewalker();
 extern void AddSC_instance_serpentshrine_cavern();
+extern void AddSC_boss_the_lurker_below();
 
 //--Slave Pens
 
@@ -1420,6 +1421,7 @@ void ScriptsInit()
     AddSC_boss_leotheras_the_blind();
     AddSC_boss_morogrim_tidewalker();
     AddSC_instance_serpentshrine_cavern();
+	AddSC_boss_the_lurker_below();
 
     //--Slave Pens
     //--Steam Vault
