@@ -320,6 +320,7 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleMovementOpcodes(WorldPacket& recvPacket);
         void HandlePossessedMovement(WorldPacket& recv_data, MovementInfo& movementInfo, uint32& MovementFlags);
         void HandleSetActiveMoverOpcode(WorldPacket &recv_data);
+        void HandleNotActiveMoverOpcode(WorldPacket &recv_data);
         void HandleMoveTimeSkippedOpcode(WorldPacket &recv_data);
 
         void HandleRequestRaidInfoOpcode( WorldPacket & recv_data );
