@@ -73,18 +73,18 @@ bool ScriptedAI::IsVisible(Unit* who) const
 
 void ScriptedAI::MoveInLineOfSight(Unit *who)
 {
-    if (!m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessablePlaceFor(m_creature))
-    {
-        if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
-            return;
+    if(m_creature->getVictim() || !m_creature->IsHostileTo(who) || !who->isInAccessablePlaceFor(m_creature))
+        return;
 
-        float attackRadius = m_creature->GetAttackDistance(who);
-        if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
-        {
-            who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-            AttackStart(who);
-        }
-    }
+    if(!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
+        return;
+
+    if(!m_creature->IsWithinDistInMap(who, m_creature->GetAttackDistance(who)) || !m_creature->IsWithinLOSInMap(who))
+        return;
+    
+    if(m_creature->canAttack(who))
+        //who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+        AttackStart(who);
 }
 
 void ScriptedAI::AttackStart(Unit* who, bool melee)
@@ -777,7 +777,7 @@ std::list<Creature*> ScriptedAI::DoFindFriendlyMissingBuff(float range, uint32 s
 
 void Scripted_NoMovementAI::MoveInLineOfSight(Unit *who)
 {
-    if( !m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessablePlaceFor(m_creature) )
+    if( !m_creature->getVictim() && m_creature->canAttack(who) && ( m_creature->IsHostileTo( who )) && who->isInAccessablePlaceFor(m_creature) )
     {
         if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
             return;

@@ -548,6 +548,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
         uint32 m_GlobalCooldown;
 
         bool canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList) const;
+        bool IsWithinSightDist(Unit const* u) const;
         float GetAttackDistance(Unit const* pl) const;
 
         void CallAssistence();

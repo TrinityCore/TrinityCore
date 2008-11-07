@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "MapManager.h"
@@ -90,7 +90,7 @@ bool Map::ExistVMap(uint32 mapid,int x,int y)
     {
         if(vmgr->isMapLoadingEnabled())
         {
-                                                            // x and y are swaped !! => fixed now
+                                                            // x and y are swapped !! => fixed now
             bool exists = vmgr->existsMap((sWorld.GetDataPath()+ "vmaps").c_str(),  mapid, x,y);
             if(!exists)
             {
@@ -106,7 +106,7 @@ bool Map::ExistVMap(uint32 mapid,int x,int y)
 
 void Map::LoadVMap(int x,int y)
 {
-                                                            // x and y are swaped !!
+                                                            // x and y are swapped !!
     int vmapLoadResult = VMAP::VMapFactory::createOrGetVMapManager()->loadMap((sWorld.GetDataPath()+ "vmaps").c_str(),  GetId(), x,y);
     switch(vmapLoadResult)
     {
@@ -144,7 +144,7 @@ void Map::LoadMap(uint32 mapid, uint32 instanceid, int x,int y)
         return;
     }
 
-    //map already load, delete it before reloading (Is it neccessary? Do we really need the abilty the reload maps during runtime?)
+    //map already load, delete it before reloading (Is it necessary? Do we really need the ability the reload maps during runtime?)
     if(GridMaps[x][y])
     {
         sLog.outDetail("Unloading already loaded map %u before reloading.",mapid);
@@ -334,7 +334,7 @@ template void Map::SwitchGridContainers(Corpse *, bool);
 template<class T>
 void Map::DeleteFromWorld(T* obj)
 {
-    // Note: In case resurrectable corpse and pet its removed from gloabal lists in own destructors
+    // Note: In case resurrectable corpse and pet its removed from global lists in own destructor
     delete obj;
 }
 
@@ -441,7 +441,7 @@ Map::LoadGrid(const Cell& cell, bool no_unload)
 
 bool Map::Add(Player *player)
 {
-    player->SetInstanceId(this->GetInstanceId());
+    player->SetInstanceId(GetInstanceId());
 
     // update player state for other player and visa-versa
     CellPair p = Trinity::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
@@ -670,7 +670,6 @@ Map::Remove(T *obj, bool remove)
     assert( grid != NULL );
 
     obj->RemoveFromWorld();
-
     RemoveFromGrid(obj,grid,cell);
 
     UpdateObjectVisibility(obj,cell,p);
@@ -1390,7 +1389,7 @@ void Map::RemoveAllObjectsInRemoveList()
             Remove((GameObject*)obj,true);
             break;
         case TYPEID_UNIT:
-            // in case triggred sequence some spell can continue casting after prev CleanupsBeforeDelete call
+            // in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
             // make sure that like sources auras/etc removed before destructor start
             ((Creature*)obj)->CleanupsBeforeDelete ();
             Remove((Creature*)obj,true);
@@ -1469,13 +1468,6 @@ bool InstanceMap::CanEnter(Player *player)
         player->SendTransferAborted(GetId(), TRANSFER_ABORT_ZONE_IN_COMBAT);
         return false;
     }
-
-    /*if(!player->isGameMaster() && i_data && i_data->IsEncounterInProgress())
-    {
-        sLog.outDebug("InstanceMap::CanEnter - Player '%s' can't enter instance '%s' while an encounter is in progress.", player->GetName(), GetMapName());
-        player->SendTransferAborted(GetId(), TRANSFER_ABORT_ZONE_IN_COMBAT);
-        return false;
-    }*/
 
     return Map::CanEnter(player);
 }
@@ -1586,10 +1578,10 @@ bool InstanceMap::Add(Player *player)
 
 void InstanceMap::Update(const uint32& t_diff)
 {
-	Map::Update(t_diff);
+    Map::Update(t_diff);
 
-	if(i_data)
-		i_data->Update(t_diff);
+    if(i_data)
+        i_data->Update(t_diff);
 }
 
 void InstanceMap::Remove(Player *player, bool remove)

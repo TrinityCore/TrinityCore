@@ -1532,6 +1532,11 @@ bool Creature::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList) co
     return u->IsWithinLOS(GetPositionX(),GetPositionY(),GetPositionZ());
 }
 
+bool Creature::IsWithinSightDist(Unit const* u) const
+{
+    return IsWithinDistInMap(u, sWorld.getConfig(CONFIG_SIGHT_MONSTER));
+}
+
 float Creature::GetAttackDistance(Unit const* pl) const
 {
     float aggroRate = sWorld.getRate(RATE_CREATURE_AGGRO);
@@ -1866,7 +1871,7 @@ bool Creature::IsOutOfThreatArea(Unit* pVictim) const
     if(!pVictim->IsInMap(this))
         return true;
 
-    if(!pVictim->isTargetableForAttack())
+    if(!canAttack(pVictim))
         return true;
 
     if(!pVictim->isInAccessablePlaceFor(this))

@@ -922,6 +922,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool isFrozen() const;
 
         bool isTargetableForAttack() const;
+        bool isAttackableByAOE() const;
+        bool canAttack(Unit const* target) const;
         virtual bool IsInWater() const;
         virtual bool IsUnderWater() const;
         bool isInAccessablePlaceFor(Creature const* c) const;
@@ -1031,7 +1033,6 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void RemoveNotOwnSingleTargetAuras();
 
         void RemoveSpellsCausingAura(AuraType auraType);
-        void RemoveInterruptableAura(uint32 flag);
         void RemoveRankAurasDueToSpell(uint32 spellId);
         bool RemoveNoStackAurasDueToAura(Aura *Aur);
         void RemoveAurasWithInterruptFlags(uint32 flags);

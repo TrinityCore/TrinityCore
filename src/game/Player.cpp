@@ -16546,7 +16546,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, uint32 mount_i
     ModifyMoney(-(int32)totalcost);
 
     // prevent stealth flight
-    RemoveInterruptableAura(AURA_INTERRUPT_FLAG_STEALTH);
+    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_STEALTH);
 
     WorldPacket data(SMSG_ACTIVATETAXIREPLY, 4);
     data << uint32(ERR_TAXIOK);

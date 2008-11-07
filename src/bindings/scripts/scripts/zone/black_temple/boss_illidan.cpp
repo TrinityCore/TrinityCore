@@ -413,7 +413,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             }
             EnterPhase(PHASE_FLIGHT);
         }
-        else 
+        else // handle flight sequence
             Timer[EVENT_FLIGHT_SEQUENCE] = 1000;    
     }
 
@@ -691,10 +691,10 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         Event = EVENT_NULL;
         for(uint32 i = 1; i <= MaxTimer[Phase]; i++)
         {
-            if(Timer[i])
+            if(Timer[i]) // Event is enabled
                 if(Timer[i] <= diff)
                 {
-                    if(!Event)
+                    if(!Event) // No event with higher priority
                         Event = (EventIllidan)i;
                 }
                 else Timer[i] -= diff;
@@ -708,12 +708,12 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             break;
 
         case PHASE_NORMAL_2:
-            if(m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 30)
+            if(HPPCT(m_creature) < 30)
                 EnterPhase(PHASE_TALK_SEQUENCE);
             break;
 
         case PHASE_NORMAL_MAIEV:
-            if(m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 1)
+            if(HPPCT(m_creature) < 1)
                 EnterPhase(PHASE_TALK_SEQUENCE);
             break;
 
@@ -758,7 +758,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
                     if(soundid)
                         DoPlaySoundToSet(m_creature, soundid);
                 }
-                Timer[EVENT_TAUNT] = 32000;
+                Timer[EVENT_TAUNT] = 25000 + rand()%10000;
                 break;
 
             case EVENT_SHEAR:
@@ -833,12 +833,9 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             case EVENT_MOVE_POINT:
                 Phase = PHASE_FLIGHT_SEQUENCE;
                 Timer[EVENT_FLIGHT_SEQUENCE] = 0;//do not start Event when changing hover point
-                for (uint8 i = 0; i <= rand()%3; i++)
-                {
-                    HoverPoint++;
-                    if(HoverPoint > 3)
-                        HoverPoint = 0;
-                }
+                HoverPoint += (rand()%3 + 1);
+                if(HoverPoint > 3)
+                    HoverPoint -= 4;
                 m_creature->GetMotionMaster()->MovePoint(0, HoverPosition[HoverPoint].x, HoverPosition[HoverPoint].y, HoverPosition[HoverPoint].z);
                 break;
 
@@ -2059,27 +2056,17 @@ void boss_illidan_stormrageAI::CastEyeBlast()
     final.x = 2 * final.x - initial.x;
     final.y = 2 * final.y - initial.y;
 
-    for(uint8 i = 0; i < 2; ++i)//core bug, two buff do not coexist
-    {
-        Creature* Trigger = NULL;
-        Trigger = m_creature->SummonCreature(DEMON_FIRE, initial.x, initial.y, initial.z, 0, TEMPSUMMON_TIMED_DESPAWN, 13000);
-        if(Trigger)
-        {
-            ((demonfireAI*)Trigger->AI())->IsTrigger = true;
-            Trigger->SetSpeed(MOVE_WALK, 3);
-            Trigger->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
-            Trigger->GetMotionMaster()->MovePoint(0, final.x, final.y, final.z);
+    Creature* Trigger = m_creature->SummonCreature(DEMON_FIRE, initial.x, initial.y, initial.z, 0, TEMPSUMMON_TIMED_DESPAWN, 13000);
+    if(!Trigger) return;
 
-            if(!i)
-                Trigger->CastSpell(Trigger, SPELL_EYE_BLAST_TRIGGER, true);
-            else
-            {
-                Trigger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                m_creature->SetUInt64Value(UNIT_FIELD_TARGET, Trigger->GetGUID());
-                DoCast(Trigger, SPELL_EYE_BLAST);
-            }
-        }
-    }
+    ((demonfireAI*)Trigger->AI())->IsTrigger = true;
+    Trigger->SetSpeed(MOVE_WALK, 3);
+    Trigger->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
+    Trigger->GetMotionMaster()->MovePoint(0, final.x, final.y, final.z);
+
+    Trigger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+    m_creature->SetUInt64Value(UNIT_FIELD_TARGET, Trigger->GetGUID());
+    DoCast(Trigger, SPELL_EYE_BLAST);
 }
 
 void boss_illidan_stormrageAI::SummonFlamesOfAzzinoth()
@@ -2162,13 +2149,10 @@ void boss_illidan_stormrageAI::EnterPhase(PhaseIllidan NextPhase)
         m_creature->InterruptNonMeleeSpells(false);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
         m_creature->GetMotionMaster()->Clear(false);
-        //m_creature->GetMotionMaster()->MoveIdle();
         m_creature->AttackStop();
         break;
     case PHASE_FLIGHT_SEQUENCE:
-        if(Phase == PHASE_FLIGHT) //land
-            Timer[EVENT_FLIGHT_SEQUENCE] = 2000;
-        else //lift off
+        if(Phase == PHASE_NORMAL) //lift off
         {
             FlightCount = 1;
             Timer[EVENT_FLIGHT_SEQUENCE] = 1;
@@ -2176,9 +2160,10 @@ void boss_illidan_stormrageAI::EnterPhase(PhaseIllidan NextPhase)
             m_creature->InterruptNonMeleeSpells(false);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
             m_creature->GetMotionMaster()->Clear(false);
-            //m_creature->GetMotionMaster()->MoveIdle();
             m_creature->AttackStop();
         }
+        else //land
+            Timer[EVENT_FLIGHT_SEQUENCE] = 2000;
         break;
     case PHASE_TRANSFORM_SEQUENCE:
         if(Phase == PHASE_DEMON)
@@ -2191,7 +2176,6 @@ void boss_illidan_stormrageAI::EnterPhase(PhaseIllidan NextPhase)
             DoPlaySoundToSet(m_creature, SOUND_MORPH);
         }
         m_creature->GetMotionMaster()->Clear();
-        //m_creature->GetMotionMaster()->MoveIdle();
         m_creature->AttackStop();
         break;
     default:

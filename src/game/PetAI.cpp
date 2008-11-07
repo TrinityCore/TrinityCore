@@ -48,7 +48,7 @@ void PetAI::MoveInLineOfSight(Unit *u)
 {
     if( !i_pet.getVictim() && i_pet.GetCharmInfo() &&
         i_pet.GetCharmInfo()->HasReactState(REACT_AGGRESSIVE) &&
-        u->isTargetableForAttack() && i_pet.IsHostileTo( u ) &&
+        i_pet.IsHostileTo( u ) && i_pet.canAttack(u) &&
         u->isInAccessablePlaceFor(&i_pet))
     {
         float attackRadius = i_pet.GetAttackDistance(u);
@@ -95,7 +95,7 @@ bool PetAI::_needToStop() const
     if(i_pet.isCharmed() && i_pet.getVictim() == i_pet.GetCharmer())
         return true;
 
-    return !i_pet.getVictim()->isTargetableForAttack();
+    return !i_pet.canAttack(i_pet.getVictim());
 }
 
 void PetAI::_stopAttack()

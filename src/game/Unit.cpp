@@ -463,7 +463,7 @@ void Unit::RemoveSpellsCausingAura(AuraType auraType)
     }
 }
 
-void Unit::RemoveInterruptableAura(uint32 flag)
+void Unit::RemoveAurasWithInterruptFlags(uint32 flag)
 {
     AuraList::iterator iter, next;
     for (iter = m_interruptableAuras.begin(); iter != m_interruptableAuras.end(); iter = next)
@@ -509,7 +509,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
     // remove affects from attacker at any non-DoT damage (including 0 damage)
     if( damagetype != DOT)
     {
-        RemoveInterruptableAura(AURA_INTERRUPT_FLAG_STEALTH);
+        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_STEALTH);
 
         if(pVictim->GetTypeId() == TYPEID_PLAYER && !pVictim->IsStandState() && !pVictim->hasUnitState(UNIT_STAT_STUNNED))
             pVictim->SetStandState(PLAYER_STATE_NONE);
@@ -4100,17 +4100,6 @@ void Unit::RemoveAurasDueToItemSpell(Item* castItem,uint32 spellId)
             else
                 ++iter;
         }
-    }
-}
-
-void Unit::RemoveAurasWithInterruptFlags(uint32 flags)
-{
-    for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end(); )
-    {
-        if (iter->second->GetSpellProto()->AuraInterruptFlags & flags)
-            RemoveAura(iter);
-        else
-            ++iter;
     }
 }
 
@@ -8506,15 +8495,40 @@ void Unit::ClearInCombat()
         clearUnitState(UNIT_STAT_ATTACK_PLAYER);
 }
 
+//TODO: remove this function
 bool Unit::isTargetableForAttack() const
 {
-    if (GetTypeId()==TYPEID_PLAYER && ((Player *)this)->isGameMaster())
+    return isAttackableByAOE() && !hasUnitState(UNIT_STAT_DIED);
+}
+
+bool Unit::canAttack(Unit const* target) const
+{
+    assert(target);
+
+    if(!target->isAttackableByAOE() || target->hasUnitState(UNIT_STAT_DIED))
+        return false;
+
+    if((m_invisibilityMask || target->m_invisibilityMask) && !canDetectInvisibilityOf(target))
+        return false;
+
+    if(target->GetVisibility() == VISIBILITY_GROUP_STEALTH && !canDetectStealthOf(target, GetDistance(target)))
+        return false;
+
+    return true;
+}
+
+bool Unit::isAttackableByAOE() const
+{
+    if(!isAlive())
         return false;
 
     if(HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE))
         return false;
 
-    return isAlive() && !hasUnitState(UNIT_STAT_DIED)&& !isInFlight() /*&& !isStealth()*/;
+    if(GetTypeId()==TYPEID_PLAYER && ((Player *)this)->isGameMaster())
+        return false;
+
+    return !isInFlight();
 }
 
 int32 Unit::ModifyHealth(int32 dVal)
@@ -9066,7 +9080,7 @@ bool Unit::SelectHostilTarget()
     {
         for(AttackerSet::const_iterator itr = m_attackers.begin(); itr != m_attackers.end(); ++itr)
         {
-            if( (*itr)->IsInMap(this) && (*itr)->isTargetableForAttack() && (*itr)->isInAccessablePlaceFor((Creature*)this) )
+            if( (*itr)->IsInMap(this) && canAttack(*itr) && (*itr)->isInAccessablePlaceFor((Creature*)this) )
                 return false;
         }
     }
