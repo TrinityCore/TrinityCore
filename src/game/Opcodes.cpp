@@ -749,7 +749,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x2CE*/ { "CMSG_MOVE_TIME_SKIPPED",           STATUS_LOGGEDIN, &WorldSession::HandleMoveTimeSkippedOpcode     },
     /*0x2CF*/ { "CMSG_MOVE_FEATHER_FALL_ACK",       STATUS_LOGGEDIN, &WorldSession::HandleFeatherFallAck            },
     /*0x2D0*/ { "CMSG_MOVE_WATER_WALK_ACK",         STATUS_LOGGEDIN, &WorldSession::HandleMoveWaterWalkAck          },
-    /*0x2D1*/ { "CMSG_MOVE_NOT_ACTIVE_MOVER",       STATUS_NEVER,    &WorldSession::Handle_NULL                     },
+    /*0x2D1*/ { "CMSG_MOVE_NOT_ACTIVE_MOVER",       STATUS_LOGGEDIN, &WorldSession::HandleNotActiveMoverOpcode      },
     /*0x2D2*/ { "SMSG_PLAY_SOUND",                  STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x2D3*/ { "CMSG_BATTLEFIELD_STATUS",          STATUS_LOGGEDIN, &WorldSession::HandleBattlefieldStatusOpcode   },
     /*0x2D4*/ { "SMSG_BATTLEFIELD_STATUS",          STATUS_NEVER,    &WorldSession::Handle_ServerSide               },

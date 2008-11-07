@@ -18660,12 +18660,16 @@ void Player::Possess(Unit *target)
     // Update the proper unit fields
     SetPossessedTarget(target);
 
+    uint32 flags1 = target->GetUInt32Value(UNIT_FIELD_FLAGS);
+
     target->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, getFaction());
     target->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
     target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNKNOWN5);
     target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
     SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
     SetUInt64Value(PLAYER_FARSIGHT, target->GetGUID());
+
+    uint32 flags2 = target->GetUInt32Value(UNIT_FIELD_FLAGS);
 
     if(target->GetTypeId() == TYPEID_UNIT)
     {
@@ -18720,6 +18724,10 @@ void Player::RemovePossess(bool attack)
             ++itr;
     }
 
+    // Interrupt any current casting of the target
+    if(target->IsNonMeleeSpellCasted(true))
+        target->InterruptNonMeleeSpells(true);
+
     RemovePossessedTarget();
 
     if(target->GetTypeId() == TYPEID_PLAYER)
@@ -18743,7 +18751,6 @@ void Player::RemovePossess(bool attack)
     }
 
     target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNKNOWN5);
-    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
     SetUInt64Value(PLAYER_FARSIGHT, 0);
 
@@ -18758,18 +18765,14 @@ void Player::RemovePossess(bool attack)
         ((Player*)target)->SetViewport(target->GetGUID(), true);
     else
     {
+        target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
         if(((Creature*)target)->isPet())
-        {
-            ((Pet*)target)->InitPetCreateSpells();
             PetSpellInitialize();
-        }
-
-        if (target->isAlive())
+        else if (target->isAlive())
         {
             // If we're still hostile to our target, continue attacking otherwise reset threat and go home
-            if (target->getVictim())
+            if (Unit* victim = target->getVictim())
             {
-                Unit* victim = target->getVictim();
                 FactionTemplateEntry const* t_faction = target->getFactionTemplateEntry();
                 FactionTemplateEntry const* v_faction = victim->getFactionTemplateEntry();
                 // Unit::IsHostileTo will always return true since the unit is always hostile to its victim
@@ -18783,14 +18786,14 @@ void Player::RemovePossess(bool attack)
                     target->GetMotionMaster()->MoveTargetedHome();
                 }
             } 
-            else if (target->GetTypeId() == TYPEID_UNIT)
+            else
             {
                 target->GetMotionMaster()->Clear();
                 target->GetMotionMaster()->MoveTargetedHome();
             }
             
             // Add high amount of threat on the player
-            if(target != GetPet() && attack)
+            if(attack)
                 target->AddThreat(this, 1000000.0f);
         }
         // Delete the assigned possessed AI

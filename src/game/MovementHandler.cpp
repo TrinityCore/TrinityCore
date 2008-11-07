@@ -538,6 +538,11 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recv_data)
     SendPacket(&data);
 }
 
+void WorldSession::HandleNotActiveMoverOpcode(WorldPacket& /*recv_data*/)
+{
+    sLog.outDebug("WORLD: Recvd CMSG_MOVE_NOT_ACTIVE_MOVER");
+}
+
 void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvdata*/)
 {
     //sLog.outDebug("WORLD: Recvd CMSG_MOUNTSPECIAL_ANIM");
