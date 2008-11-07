@@ -198,7 +198,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
         ShieldGeneratorChannel[1] = 0;
         ShieldGeneratorChannel[2] = 0;
         ShieldGeneratorChannel[3] = 0;
-
+		
 		m_creature->SetCorpseDelay(1000*60*60);
     }
 
@@ -597,23 +597,11 @@ struct TRINITY_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
 
     void Reset()
     {        
-		m_creature->SetSpeed(MOVE_WALK,0.6,true);//walk
-		m_creature->SetSpeed(MOVE_RUN,0.6,true);//run
+		m_creature->SetSpeed(MOVE_WALK,0.6);//walk
+		m_creature->SetSpeed(MOVE_RUN,0.6);//run
 		move = 0;
 		phase = 1;
 		Vashj = NULL;
-    }
-
-    void Aggro(Unit *who) { return; }
-
-    void MoveInLineOfSight(Unit *who){return;}
-	
-    void UpdateAI(const uint32 diff)
-    {
-		if(!pInstance)
-			return;
-
-		if (!Vashj){ Vashj = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_LADYVASHJ)); }
 
 		for (int i = 0;i<8;i++)//search for nearest waypoint (up on stairs)
 		{
@@ -633,15 +621,27 @@ struct TRINITY_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
 				}
 			}
 		}
+		if (pInstance)
+			Vashj = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_LADYVASHJ));
+    }
+
+    void Aggro(Unit *who) { return; }
+
+    void MoveInLineOfSight(Unit *who){return;}
+	
+    void UpdateAI(const uint32 diff)
+    {
+		if(!pInstance)
+			return;		
 
 		if (!Vashj) 
 		{
-			m_creature->Say("Error Vashj not found!", LANG_UNIVERSAL, NULL);
 			return;
 		}
-
+		
 		if(move < diff)
         {
+			m_creature->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
 			if (phase == 1)
 			{
 				m_creature->GetMotionMaster()->MovePoint(0, x, y, z);

@@ -1661,6 +1661,10 @@
 							>
 						</File>
 						<File
+							RelativePath="..\scripts\zone\coilfang_resevoir\serpent_shrine\boss_lurker_below.cpp"
+							>
+						</File>						
+						<File
 							RelativePath="..\scripts\zone\coilfang_resevoir\serpent_shrine\boss_lady_vashj.cpp"
 							>
 						</File>

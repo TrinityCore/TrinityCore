@@ -39,6 +39,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
 {
     instance_serpentshrine_cavern(Map *Map) : ScriptedInstance(Map) {Initialize();};
 
+	uint64 LurkerBelow;
     uint64 Sharkkis;
     uint64 Tidalvess;
     uint64 Caribdis;
@@ -55,6 +56,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
 
     void Initialize()
     {
+		LurkerBelow = 0;
         Sharkkis = 0;
         Tidalvess = 0;
         Caribdis = 0;
@@ -89,6 +91,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
             case 21212: LadyVashj = creature->GetGUID();			break;
             case 21214: Karathress = creature->GetGUID();			break;
             case 21966: Sharkkis = creature->GetGUID();				break;
+			case 21217: LurkerBelow = creature->GetGUID();			break;
             case 21965: Tidalvess = creature->GetGUID();			break;
             case 21964: Caribdis = creature->GetGUID();				break;
 			case 21215:	LeotherasTheBlind = creature->GetGUID();	break;}
@@ -106,6 +109,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
     {
         switch(identifier)
         {
+			case DATA_THELURKERBELOW:			return LurkerBelow;
             case DATA_SHARKKIS:					return Sharkkis;
 			case DATA_TIDALVESS:				return Tidalvess;
             case DATA_CARIBDIS:					return Caribdis;
