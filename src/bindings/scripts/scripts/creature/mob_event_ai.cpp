@@ -1195,8 +1195,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
         if (m_creature->isCivilian() && m_creature->IsNeutralToAll())
             return;
 
-
-        if (who->isTargetableForAttack() && who->isInAccessablePlaceFor(m_creature) && m_creature->IsHostileTo(who))
+        if (m_creature->canAttack(who) && who->isInAccessablePlaceFor(m_creature) && m_creature->IsHostileTo(who))
         {
             if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                 return;
@@ -1204,8 +1203,8 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
             float attackRadius = m_creature->GetAttackDistance(who);
             if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
             {
-                if(who->HasStealthAura())
-                    who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+                //if(who->HasStealthAura())
+                //    who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
 
                 //Begin melee attack if we are within range
                 AttackStart(who);

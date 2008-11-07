@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "Common.h"
@@ -1005,7 +1005,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             //if(!IsPositiveSpell(m_spellInfo->Id))
             {
                 //do not remove feign death
-                unit->RemoveInterruptableAura(AURA_INTERRUPT_FLAG_STEALTH + AURA_INTERRUPT_FLAG_DAMAGE);
+                unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_STEALTH + AURA_INTERRUPT_FLAG_DAMAGE);
             }
         }
         else
@@ -2147,7 +2147,7 @@ void Spell::prepare(SpellCastTargets * targets, Aura* triggeredByAura)
     // skip triggered spell (item equip spell casting and other not explicit character casts/item uses)
     if ( !m_IsTriggeredSpell && isSpellBreakStealth(m_spellInfo) )
     {
-        m_caster->RemoveInterruptableAura(AURA_INTERRUPT_FLAG_STEALTH);
+        m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_STEALTH);
     }
 
     if(m_IsTriggeredSpell)
@@ -2206,7 +2206,7 @@ void Spell::cancel()
 void Spell::cast(bool skipCheck)
 {
     SetExecutedCurrently(true);
-    
+
     uint8 castResult = 0;
 
     // update pointers base at GUIDs to prevent access to non-existed already object
@@ -2321,7 +2321,7 @@ void Spell::cast(bool skipCheck)
         // Immediate spell, no big deal
         handle_immediate();
     }
-    
+
     SetExecutedCurrently(false);
 }
 
@@ -3082,7 +3082,7 @@ void Spell::SendChannelStart(uint32 duration)
 {
     WorldObject* target = NULL;
 
-    // select first not rsusted target from target list for _0_ effect
+    // select first not resisted target from target list for _0_ effect
     if(!m_UniqueTargetInfo.empty())
     {
         for(std::list<TargetInfo>::iterator itr= m_UniqueTargetInfo.begin();itr != m_UniqueTargetInfo.end();++itr)
@@ -3340,7 +3340,7 @@ void Spell::TriggerSpell()
 {
     for(TriggerSpells::iterator si=m_TriggerSpells.begin(); si!=m_TriggerSpells.end(); ++si)
     {
-        Spell* spell = new Spell(m_caster, (*si), true, m_originalCasterGUID, this->m_selfContainer);
+        Spell* spell = new Spell(m_caster, (*si), true, m_originalCasterGUID, m_selfContainer);
         spell->prepare(&m_targets);                         // use original spell original targets
     }
 }
@@ -3397,7 +3397,6 @@ uint8 Spell::CanCast(bool strict)
         // target state requirements (not allowed state), apply to self also
         if(m_spellInfo->TargetAuraStateNot && target->HasAuraState(AuraState(m_spellInfo->TargetAuraStateNot)))
             return SPELL_FAILED_TARGET_AURASTATE;
-
 
         if(target != m_caster)
         {
@@ -4076,7 +4075,7 @@ int16 Spell::PetCanCast(Unit* target)
     if(!m_caster->isAlive())
         return SPELL_FAILED_CASTER_DEAD;
 
-    if(m_caster->IsNonMeleeSpellCasted(false))              //prevent spellcast interuption by another spellcast
+    if(m_caster->IsNonMeleeSpellCasted(false))              //prevent spellcast interruption by another spellcast
         return SPELL_FAILED_SPELL_IN_PROGRESS;
     if(m_caster->isInCombat() && IsNonCombatSpell(m_spellInfo))
         return SPELL_FAILED_AFFECTING_COMBAT;
@@ -4168,7 +4167,7 @@ uint8 Spell::CheckCasterAuras() const
             else if(m_spellInfo->EffectApplyAuraName[i] == SPELL_AURA_DISPEL_IMMUNITY)
                 dispel_immune |= GetDispellMask(DispelType(m_spellInfo->EffectMiscValue[i]));
         }
-        //immune movement impairement and loss of control
+        //immune movement impairment and loss of control
         if(m_spellInfo->Id==(uint32)42292)
             mechanic_immune = IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
     }
@@ -4650,7 +4649,7 @@ uint8 Spell::CheckItems()
                     return SPELL_FAILED_CANT_BE_DISENCHANTED;
 
                 uint32 item_quality = itemProto->Quality;
-                // 2.0.x addon: Check player enchanting level agains the item desenchanting requirements
+                // 2.0.x addon: Check player enchanting level against the item disenchanting requirements
                 uint32 item_disenchantskilllevel = itemProto->RequiredDisenchantSkill;
                 if (item_disenchantskilllevel == uint32(-1))
                     return SPELL_FAILED_CANT_BE_DISENCHANTED;

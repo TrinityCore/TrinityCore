@@ -45,7 +45,7 @@ bool PossessedAI::_needToStop() const
     if(i_pet.getVictim() == i_pet.GetCharmer())
         return true;
 
-    return !i_pet.getVictim()->isTargetableForAttack();
+    return !i_pet.canAttack(i_pet.getVictim());
 }
 
 void PossessedAI::_stopAttack()
