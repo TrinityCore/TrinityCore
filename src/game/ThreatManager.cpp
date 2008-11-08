@@ -103,7 +103,7 @@ void HostilReference::addThreat(float pMod)
         fireStatusChanged(ThreatRefStatusChangeEvent(UEV_THREAT_REF_THREAT_CHANGE, this, pMod));
     if(isValid() && pMod >= 0)
     {
-        Unit* victim_owner = getTarget()->GetOwner();
+        Unit* victim_owner = getTarget()->GetCharmerOrOwner();
         if(victim_owner && victim_owner->isAlive())
             getSource()->addThreat(victim_owner, 0.0f);     // create a threat to the owner of a pet, if the pet attacks
     }
