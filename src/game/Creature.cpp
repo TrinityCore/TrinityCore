@@ -1529,7 +1529,8 @@ bool Creature::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList) co
     }
 
     // Now check is target visible with LoS
-    return u->IsWithinLOS(GetPositionX(),GetPositionY(),GetPositionZ());
+    //return u->IsWithinLOS(GetPositionX(),GetPositionY(),GetPositionZ());
+    return true;
 }
 
 bool Creature::IsWithinSightDist(Unit const* u) const
