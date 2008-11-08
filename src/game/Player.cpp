@@ -17284,8 +17284,10 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList) cons
                     return false;
     }
 
+    // If use this server will be too laggy
     // Now check is target visible with LoS
-    return u->IsWithinLOS(GetPositionX(),GetPositionY(),GetPositionZ());
+    //return u->IsWithinLOS(GetPositionX(),GetPositionY(),GetPositionZ());
+    return true;
 }
 
 bool Player::IsVisibleInGridForPlayer( Player const * pl ) const
