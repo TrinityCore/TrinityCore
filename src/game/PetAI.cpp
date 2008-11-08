@@ -65,8 +65,11 @@ void PetAI::MoveInLineOfSight(Unit *u)
 
 void PetAI::AttackStart(Unit *u)
 {
-    if( inCombat || !u || (i_pet.isPet() && ((Pet&)i_pet).getPetType() == MINI_PET) )
+    if( !u || (i_pet.isPet() && ((Pet&)i_pet).getPetType() == MINI_PET) )
         return;
+
+    if (inCombat && i_pet.getVictim() && u != i_pet.getVictim())
+        i_pet.AttackStop();
 
     if(i_pet.Attack(u,true))
     {

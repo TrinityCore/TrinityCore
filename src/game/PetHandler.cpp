@@ -104,9 +104,6 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
                     if( GetPlayer()->IsFriendlyTo(TargetUnit))
                         return;
 
-                    if(pet->getVictim())
-                        pet->AttackStop();
-
                     if(pet->GetTypeId() != TYPEID_PLAYER)
                     {
                         if (((Creature*)pet)->AI())
@@ -123,6 +120,9 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
                     }
                     else                                    // charmed player
                     {
+                        if(pet->getVictim() && pet->getVictim() != TargetUnit)
+                            pet->AttackStop();
+
                         pet->Attack(TargetUnit,true);
                         pet->SendPetAIReaction(guid1);
                     }
