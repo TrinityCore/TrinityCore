@@ -9,12 +9,12 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 ## Process this file with automake to produce Makefile.in
 
@@ -31,6 +31,7 @@ noinst_LIBRARIES = libshared.a
 libshared_a_CPPFLAGS = \
 $(MYSQL_INCLUDES) \
 $(POSTGRE_INCLUDES) \
+$(TRINI_INCLUDES) \
 -I$(top_srcdir)/dep/include \
 -I$(top_srcdir)/src/framework
 
@@ -108,14 +109,12 @@ $(srcdir)/Database/dbcfile.h
 ## Additional files to include when running 'make dist'
 #  Disabled packet logger
 EXTRA_DIST = \
-	PacketLog.cpp \
-	PacketLog.h
+    PacketLog.cpp \
+    PacketLog.h
 
 # System Win32 files
 EXTRA_DIST += \
-	ServiceWin32.cpp \
-	ServiceWin32.h \
-	WheatyExceptionReport.cpp \
-	WheatyExceptionReport.h
-
-
+    ServiceWin32.cpp \
+    ServiceWin32.h \
+    WheatyExceptionReport.cpp \
+    WheatyExceptionReport.h
