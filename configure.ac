@@ -12,9 +12,13 @@
 
 ## Process this file with autoconf to produce a configure script.
 
-## Prelude, basic settings for Autoconf
-AC_INIT( [trinitycore], [0.0.1], [devs@trinitycore.org])
+# TODO: create m4 directory and put the checks there, because this file got realy poluted ( by Derex )
 
+## Prelude, basic settings for Autoconf
+#  PACKAGE:            trinity
+#  VERSION:            0.0.1 (trunk)
+#  BUG-REPORT-ADDRESS: devs@trinitycore.org
+AC_INIT( [trinitycore], [0.0.1], [devs@trinitycore.org])
 AC_CONFIG_SRCDIR([src/shared/Base.cpp])
 
 ## Prelude, basic settings for Automake
@@ -25,15 +29,15 @@ AM_MAINTAINER_MODE
 
 ## Prevent the configure script from continuing any further if
 # configuration is being performed in the top-level directory.
-# The idea is to prevent this ,because some maintainers tend 
+# The idea is to prevent this ,because some maintainers tend
 # to break parallel build trees (a.k.a. VPATH builds).
 if test "$srcdir" = "." && test "$enable_maintainer_mode" != "yes"; then
   AC_MSG_ERROR(
      [
       Please configure and build in a directory other than the
       top-level source directory. This is needed because a lot
-      of maintainers tend to break parallel build trees 
-      (a.k.a. VPATH builds). This is kinda real ensurance they 
+      of maintainers tend to break parallel build trees
+      (a.k.a. VPATH builds). This is kinda real ensurance they
       will not do it (by enforcing everybody to do VPATH builds).
 
       For example, try the following from the top-level source
@@ -64,9 +68,10 @@ AC_DISABLE_STATIC
 #  - a working linker for creating static and shared libraries.
 AC_PROG_CC
 AC_PROG_CXX
+AM_PROG_CC_C_O
 AC_PROG_LIBTOOL
 AC_PROG_INSTALL
-AM_PROG_CC_C_O
+
 
 # Check if enable scripts
 AC_ARG_ENABLE([scripts], AC_HELP_STRING([--enable-scripts], [Enable TrinityScripts (default: check) ]), [], [enable_scripts=yes])
@@ -101,7 +106,7 @@ fi
 AM_CONDITIONAL(DOXYGEN_ENABLED, test x$enable_doxygen_support = xyes)
 
 ## Check for required libraries.
-AC_CHECK_LIB( pthread, pthread_create, [], 
+AC_CHECK_LIB( pthread, pthread_create, [],
     [LDFLAGS="-pthread $LDFLAGS"
      AC_TRY_LINK([char pthread_create();],
          pthread_create();,
@@ -120,7 +125,7 @@ AC_ARG_WITH(postgresql,
 	*)   AC_MSG_ERROR(Bad value ${withval} for --with-postgresql) ;;
     esac],
 [DO_POSTGRESQL=no])
-				 
+
 AC_ARG_WITH(mysql,
 [  --with-mysql            Use MySQL as a backend (default: yes)],
 [case "${withval}" in
@@ -140,7 +145,7 @@ POSTGRE_LIBS="-L/usr/lib/postresql -lpq -lz -lpthread -lcrypt -lnsl -lm -lpthrea
 CXXFLAGS="-DDO_POSTGRESQL $CXXFLAGS"
 fi
 AC_MSG_RESULT($DO_POSTGRESQL)
-	
+
 # here mysql
 AC_MSG_CHECKING(whether to build/link MYSQL)
 if test "x$DO_MYSQL" = "xyes"; then
@@ -254,8 +259,6 @@ AC_MSG_CHECKING([whether to build ACE])
 if test X$tri_have_ace_headers = Xyes -a X$tri_have_ace_lib = Xyes;
 then
   tri_need_to_build_ace=no
-  ACE_LIBS="-lACE"
-  ACE_INCLUDES=""
   AC_MSG_RESULT([no])
 else
   if test X$tri_have_ace_headers = Xno -a X$tri_have_ace_lib = Xno; then
@@ -280,6 +283,12 @@ fi
 
 AM_CONDITIONAL([TRI_BUILD_ACE], [test X$tri_need_to_build_ace = Xyes])
 
+
+## Unify all additional includes/libs in one variable.
+# TODO this looks kinda ugly, but when we add m4 folder I will make it look very pritey ( by Derex ).
+TRINI_INCLUDES="$POSTGRE_INCLUDES $MYSQL_INCLUDES $TRINI_INCLUDES"
+TRINI_LIBS="$POSTGRE_LIBS $MYSQL_LIBS $ZLIB $COMPATLIB $SSLLIB $TRINI_LIBS"
+
 ## Export defined variables
 AC_SUBST(ZLIB)
 AC_SUBST(COMPATLIB)
@@ -292,6 +301,8 @@ AC_SUBST(DOXYGEN)
 AC_SUBST(TRINITYD_DEBUG_INFO)
 AC_SUBST(TRINITYD_ENABLE_CLI)
 AC_SUBST(TRINITYD_ENABLE_RA)
+
+## Additional CPPFLAGS and LDFLAGS.
 AC_SUBST(TRINI_INCLUDES)
 AC_SUBST(TRINI_LIBS)
 
@@ -312,7 +323,11 @@ AC_CONFIG_FILES([
    src/Makefile
    src/framework/Makefile
    src/shared/Makefile
+   src/shared/Auth/Makefile
+   src/shared/Config/Makefile
+   src/shared/Database/Makefile
    src/shared/vmap/Makefile
+   src/shared/SystemConfig.h
    src/game/Makefile
    src/trinityrealm/Makefile
    src/trinitycore/Makefile
@@ -320,23 +335,24 @@ AC_CONFIG_FILES([
    src/bindings/interface/Makefile
 ])
 
-if test X$tri_build_scripts = Xyes; then
-AC_CONFIG_FILES([src/bindings/scripts/Makefile])
-fi
-
-## Configure ACE
+## Configure ACE, if needed
 if test X$tri_need_to_build_ace = Xyes; then
   AC_CONFIG_SUBDIRS([dep/ACE_wrappers])
 fi
 
-## Disabled Makefiles, until they are ready for a successful make and
-#  make dist run.
+## Configure ACE
+if test X$tri_build_scripts = Xyes; then
+AC_CONFIG_FILES([src/bindings/scripts/Makefile])
+fi
 
 AC_CONFIG_COMMANDS([default],[
   echo ""
   echo "Configuration of TrinityCore $PACKAGE_VERSION is now complete."
   echo ""
  ],[PACKAGE_VERSION=$PACKAGE_VERSION])
+
+## Disabled Makefiles, until they are ready for a successful make and
+#  make dist run.
 
 ## Output files.
 AC_OUTPUT
