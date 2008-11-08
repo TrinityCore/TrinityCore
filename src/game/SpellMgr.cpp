@@ -1969,82 +1969,74 @@ void SpellMgr::LoadSpellPetAuras()
 }
 
 // set data in core for now
-void SpellMgr::LoadSpellExtraAttr()
+void SpellMgr::LoadSpellCustomAttr()
 {
-    SpellExtraAttribute tempAttr;
-    tempAttr.attr[SPELL_EXTRA_ATTR_CONE_TYPE] = 0;
-    tempAttr.attr[SPELL_EXTRA_ATTR_MAX_TARGETS] = 0;
-    tempAttr.attr[SPELL_EXTRA_ATTR_SHARE_DAMAGE] = 0;
-
-    tempAttr.attr[SPELL_EXTRA_ATTR_CONE_TYPE] = 1;
-    {
-        SpellEntry const* tempSpell;
-        for(uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i)
-        {
-            tempSpell = GetSpellStore()->LookupEntry(i);
-            if(tempSpell && tempSpell->SpellVisual == 3879)
-                mSpellExtraAttrMap[tempSpell->Id] = tempAttr;
-        }
-    }
-    tempAttr.attr[SPELL_EXTRA_ATTR_CONE_TYPE] = 2;
-    mSpellExtraAttrMap[26029] = tempAttr; // dark glare
-    mSpellExtraAttrMap[37433] = tempAttr; // spout
-    mSpellExtraAttrMap[43140] = tempAttr; // flame breath
-    mSpellExtraAttrMap[43215] = tempAttr; // flame breath
-    tempAttr.attr[SPELL_EXTRA_ATTR_CONE_TYPE] = 0;
-
-    tempAttr.attr[SPELL_EXTRA_ATTR_SHARE_DAMAGE] = 1;
-    for(uint32 i = 0; i < 46000; ++i)
-    {
-        switch(i)
-        {
-            case 24340: case 26558: case 28884:     // Meteor
-            case 36837: case 38903: case 41276:     // Meteor
-            case 26789:                             // Shard of the Fallen Star
-            case 31436:                             // Malevolent Cleave
-            case 35181:                             // Dive Bomb
-            case 40810: case 43267: case 43268:     // Saber Lash
-            case 42384:                             // Brutal Swipe
-            case 45150:                             // Meteor Slash
-                mSpellExtraAttrMap[i] = tempAttr;
-                break;
-            default:
-                break;
-        }
-    }
-    tempAttr.attr[SPELL_EXTRA_ATTR_SHARE_DAMAGE] = 0;
-
-    tempAttr.attr[SPELL_EXTRA_ATTR_MAX_TARGETS] = 1;
-    for(uint32 i = 0; i < 46000; ++i)
-    {
-        switch(i)
-        {
-            case 44978: case 45001: case 45002:     // Wild Magic
-            case 45004: case 45006: case 45010:     // Wild Magic
-            case 31347: // Doom
-            case 41635: // Prayer of Mending
-                mSpellExtraAttrMap[i] = tempAttr;
-                break;
-            default:
-                break;
-        }
-    }
-    tempAttr.attr[SPELL_EXTRA_ATTR_MAX_TARGETS] = 3;
-    mSpellExtraAttrMap[41376] = tempAttr;   //Spite
-    mSpellExtraAttrMap[39992] = tempAttr;   //Needle Spine
-    tempAttr.attr[SPELL_EXTRA_ATTR_MAX_TARGETS] = 0;
-
-    //hack here, only for those strange exceptions!
-    // Psychic Scream
     SpellEntry *tempSpell;
-    if(tempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(8122))
-        tempSpell->Attributes |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
-    if(tempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(8124))
-        tempSpell->Attributes |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
-    if(tempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(10888))
-        tempSpell->Attributes |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
-    if(tempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(10890))
-        tempSpell->Attributes |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
+    for(uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i)
+    {
+        tempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(i);
+        if(!tempSpell)
+            continue;
+
+        mSpellCustomAttrMap[tempSpell->Id] = 0;
+
+        for(uint32 i = 0; i < 3; ++i)
+        {
+            switch(tempSpell->EffectApplyAuraName[i])
+            {
+                case SPELL_AURA_PERIODIC_DAMAGE:
+                case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
+                case SPELL_AURA_PERIODIC_LEECH:
+                    mSpellCustomAttrMap[tempSpell->Id] |= SPELL_ATTR_CU_EFFECT_DAMAGE;
+                    break;
+                case SPELL_AURA_PERIODIC_HEAL:
+                case SPELL_AURA_OBS_MOD_HEALTH:
+                    mSpellCustomAttrMap[tempSpell->Id] |= SPELL_ATTR_CU_EFFECT_HEAL;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if(tempSpell->SpellVisual == 3879)
+            mSpellCustomAttrMap[tempSpell->Id] |= SPELL_ATTR_CU_CONE_BACK;
+
+        switch(tempSpell->Id)
+        {
+        case 26029: // dark glare
+        case 37433: // spout
+        case 43140: case 43215: // flame breath
+            mSpellCustomAttrMap[tempSpell->Id] |= SPELL_ATTR_CU_CONE_LINE;
+            break;
+        case 24340: case 26558: case 28884:     // Meteor
+        case 36837: case 38903: case 41276:     // Meteor
+        case 26789:                             // Shard of the Fallen Star
+        case 31436:                             // Malevolent Cleave
+        case 35181:                             // Dive Bomb
+        case 40810: case 43267: case 43268:     // Saber Lash
+        case 42384:                             // Brutal Swipe
+        case 45150:                             // Meteor Slash
+            mSpellCustomAttrMap[tempSpell->Id] |= SPELL_ATTR_CU_SHARE_DAMAGE;
+            break;
+        case 44978: case 45001: case 45002:     // Wild Magic
+        case 45004: case 45006: case 45010:     // Wild Magic
+        case 31347: // Doom
+        case 41635: // Prayer of Mending
+            mSpellCustomAttrMap[tempSpell->Id] |= SPELL_ATTR_CU_PLAYERS_ONLY;
+            tempSpell->MaxAffectedTargets = 1;
+            break;
+        case 41376: // Spite
+        case 39992: // Needle Spine
+            mSpellCustomAttrMap[tempSpell->Id] |= SPELL_ATTR_CU_PLAYERS_ONLY;
+            tempSpell->MaxAffectedTargets = 3;
+            break;
+        case 8122: case 8124: case 10888: case 10890: // Psychic Scream
+            tempSpell->Attributes |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
+            break;
+        default:
+            break;
+        }
+    }
 }
 
 void SpellMgr::LoadSpellLinked()
