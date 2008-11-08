@@ -1095,7 +1095,7 @@ void World::SetInitialWorldSettings()
     spellmgr.LoadSpellPetAuras();
 
     sLog.outString( "Loading spell extra attributes...(TODO)" );
-    spellmgr.LoadSpellExtraAttr();
+    spellmgr.LoadSpellCustomAttr();
 
     sLog.outString( "Loading linked spells..." );
     spellmgr.LoadSpellLinked();

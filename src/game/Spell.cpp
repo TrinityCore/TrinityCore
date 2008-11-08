@@ -1046,8 +1046,9 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
                 // Get multiplier
                 float multiplier = m_spellInfo->DmgMultiplier[effectNumber];
                 // Apply multiplier mods
-                if(Player* modOwner = m_originalCaster->GetSpellModOwner())
-                    modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_EFFECT_PAST_FIRST, multiplier,this);
+                if(m_originalCaster)
+                    if(Player* modOwner = m_originalCaster->GetSpellModOwner())
+                        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_EFFECT_PAST_FIRST, multiplier,this);
                 m_damageMultipliers[effectNumber] *= multiplier;
             }
         }
@@ -1068,6 +1069,15 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             else
                 unit->CastSpell(unit, *i, true, 0, 0, m_caster->GetGUID());
         }
+    }
+
+    if(spellmgr.GetSpellCustomAttr(m_spellInfo->Id) && m_originalCaster)
+    {
+        uint32 flag = spellmgr.GetSpellCustomAttr(m_spellInfo->Id);
+        if(flag & SPELL_ATTR_CU_EFFECT_HEAL)
+            m_originalCaster->ProcDamageAndSpell(unit, PROC_FLAG_HEAL, PROC_FLAG_NONE, 0, GetSpellSchoolMask(m_spellInfo), m_spellInfo);
+        if(m_originalCaster != unit && (flag & SPELL_ATTR_CU_EFFECT_DAMAGE)) 
+            m_originalCaster->ProcDamageAndSpell(unit, PROC_FLAG_HIT_SPELL, PROC_FLAG_STRUCK_SPELL, 0, GetSpellSchoolMask(m_spellInfo), m_spellInfo);
     }
 }
 
@@ -1282,7 +1292,7 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, const u
         TypeContainerVisitor<Trinity::SpellNotifierCreatureAndPlayer, WorldTypeMapContainer > world_object_notifier(notifier);
         cell_lock->Visit(cell_lock, world_object_notifier, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
     }
-    if(!spellmgr.GetSpellExtraAttr(m_spellInfo->Id, SPELL_EXTRA_ATTR_MAX_TARGETS))
+    if(!(spellmgr.GetSpellCustomAttr(m_spellInfo->Id) & SPELL_ATTR_CU_PLAYERS_ONLY))
     {
         TypeContainerVisitor<Trinity::SpellNotifierCreatureAndPlayer, GridTypeMapContainer >  grid_object_notifier(notifier);
         cell_lock->Visit(cell_lock, grid_object_notifier, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
@@ -1342,8 +1352,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
 
     uint32 EffectChainTarget = m_spellInfo->EffectChainTarget[i];
     uint32 unMaxTargets = m_spellInfo->MaxAffectedTargets;
-    if(!unMaxTargets)
-        unMaxTargets = spellmgr.GetSpellExtraAttr(m_spellInfo->Id, SPELL_EXTRA_ATTR_MAX_TARGETS);
+
     if(m_originalCaster)
     {
         if(Player* modOwner = m_originalCaster->GetSpellModOwner())
@@ -1503,19 +1512,13 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
         }break;
         case TARGET_IN_FRONT_OF_CASTER:
         case TARGET_UNIT_CONE_ENEMY_UNKNOWN:
-            switch(spellmgr.GetSpellExtraAttr(m_spellInfo->Id, SPELL_EXTRA_ATTR_CONE_TYPE))
-            {
-                default:
-                case 0:
-                    SearchAreaTarget(TagUnitMap, radius, PUSH_IN_FRONT, SPELL_TARGETS_AOE_DAMAGE);
-                    break;
-                case 1:
-                    SearchAreaTarget(TagUnitMap, radius, PUSH_IN_BACK, SPELL_TARGETS_AOE_DAMAGE);
-                    break;
-                case 2:
-                    SearchAreaTarget(TagUnitMap, radius, PUSH_IN_LINE, SPELL_TARGETS_AOE_DAMAGE);
-                    break;
-            }break;
+            if(spellmgr.GetSpellCustomAttr(m_spellInfo->Id) & SPELL_ATTR_CU_CONE_BACK)
+                SearchAreaTarget(TagUnitMap, radius, PUSH_IN_BACK, SPELL_TARGETS_AOE_DAMAGE);
+            else if(spellmgr.GetSpellCustomAttr(m_spellInfo->Id) & SPELL_ATTR_CU_CONE_LINE)
+                SearchAreaTarget(TagUnitMap, radius, PUSH_IN_LINE, SPELL_TARGETS_AOE_DAMAGE);
+            else
+                SearchAreaTarget(TagUnitMap, radius, PUSH_IN_FRONT, SPELL_TARGETS_AOE_DAMAGE);
+            break;
         case TARGET_UNIT_CONE_ALLY:
             SearchAreaTarget(TagUnitMap, radius, PUSH_IN_FRONT, SPELL_TARGETS_FRIENDLY);
             break;

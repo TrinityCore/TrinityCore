@@ -634,19 +634,14 @@ inline bool IsProfessionSkill(uint32 skill)
     return  IsPrimaryProfessionSkill(skill) || skill == SKILL_FISHING || skill == SKILL_COOKING || skill == SKILL_FIRST_AID;
 }
 
-enum SpellExtraAttributeType
-{
-    SPELL_EXTRA_ATTR_MAX_TARGETS,
-    SPELL_EXTRA_ATTR_CONE_TYPE,
-    SPELL_EXTRA_ATTR_SHARE_DAMAGE
-};
+#define SPELL_ATTR_CU_PLAYERS_ONLY      0x00000001
+#define SPELL_ATTR_CU_CONE_BACK         0x00000002
+#define SPELL_ATTR_CU_CONE_LINE         0x00000004
+#define SPELL_ATTR_CU_SHARE_DAMAGE      0x00000008
+#define SPELL_ATTR_CU_EFFECT_HEAL       0x00000010
+#define SPELL_ATTR_CU_EFFECT_DAMAGE     0x00000020
 
-struct SpellExtraAttribute
-{
-    uint32 attr[3];
-};
-
-typedef std::map<uint32, SpellExtraAttribute> SpellExtraAttrMap;
+typedef std::map<uint32, uint32> SpellCustomAttrMap;
 
 typedef std::map<int32, std::vector<int32> > SpellLinkedMap;
 
@@ -848,11 +843,11 @@ class SpellMgr
                 return NULL;
         }
 
-        uint32 GetSpellExtraAttr(uint32 spell_id, uint32 type) const
+        uint32 GetSpellCustomAttr(uint32 spell_id) const
         {
-            SpellExtraAttrMap::const_iterator itr = mSpellExtraAttrMap.find(spell_id);
-            if(itr != mSpellExtraAttrMap.end())
-                return itr->second.attr[type];
+            SpellCustomAttrMap::const_iterator itr = mSpellCustomAttrMap.find(spell_id);
+            if(itr != mSpellCustomAttrMap.end())
+                return itr->second;
             else
                 return 0;
         }
@@ -879,7 +874,7 @@ class SpellMgr
         void LoadSpellThreats();
         void LoadSkillLineAbilityMap();
         void LoadSpellPetAuras();
-        void LoadSpellExtraAttr();
+        void LoadSpellCustomAttr();
         void LoadSpellLinked();
 
     private:
@@ -894,7 +889,7 @@ class SpellMgr
         SpellProcEventMap  mSpellProcEventMap;
         SkillLineAbilityMap mSkillLineAbilityMap;
         SpellPetAuraMap     mSpellPetAuraMap;
-        SpellExtraAttrMap   mSpellExtraAttrMap;
+        SpellCustomAttrMap  mSpellCustomAttrMap;
         SpellLinkedMap      mSpellLinkedMap;
 };
 
