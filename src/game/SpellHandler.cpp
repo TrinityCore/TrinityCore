@@ -352,13 +352,15 @@ void WorldSession::HandleCancelAuraOpcode( WorldPacket& recvPacket)
     if (!spellInfo)
         return;
 
-    // Remove possess aura from the possessed as well
-    if(_player->isPossessing())
+    // Remove possess/charm aura from the possessed/charmed as well
+    // TODO: Remove this once the ability to cancel aura sets at once is implemented
+    if(_player->GetCharm())
     {
         for (int i = 0; i < 3; ++i)
         {
             if (spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_POSSESS ||
-                spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_POSSESS_PET)
+                spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_POSSESS_PET ||
+                spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_CHARM)
             {
                 _player->RemoveAurasDueToSpellByCancel(spellId);
                 _player->GetCharm()->RemoveAurasDueToSpellByCancel(spellId);
