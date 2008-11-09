@@ -385,7 +385,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
         if(pInstance)
-            pInstance->SetData(DATA_KAELTHASEVENT, 0);
+            pInstance->SetData(DATA_KAELTHASEVENT, NOT_STARTED);
     }
 
     void PrepareAdvisors()
@@ -441,7 +441,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
             DoYell(SAY_INTRO, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_INTRO);
 
-            pInstance->SetData(DATA_KAELTHASEVENT, 1);
+            pInstance->SetData(DATA_KAELTHASEVENT, IN_PROGRESS);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
             PhaseSubphase = 0;
@@ -474,7 +474,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
         DoPlaySoundToSet(m_creature,SOUND_DEATH);
 
         if(pInstance)
-            pInstance->SetData(DATA_KAELTHASEVENT, 0);
+            pInstance->SetData(DATA_KAELTHASEVENT, DONE);
 
         Creature *pCreature;
         for(uint8 i = 0; i < 4; i++)

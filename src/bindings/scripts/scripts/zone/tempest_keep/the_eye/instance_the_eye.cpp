@@ -85,10 +85,7 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
             case 20060: LordSanguinar = creature->GetGUID(); break;
             case 19622: Kaelthas = creature->GetGUID(); break;
             case 18805: Astromancer = creature->GetGUID(); break;
-
-            case 19514:
-                Alar = creature->GetGUID();
-                break;
+            case 19514:	Alar = creature->GetGUID(); break;
         }
     }
 
@@ -96,28 +93,14 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
     {
         switch(identifier)
         {
-            case DATA_THALADREDTHEDARKENER:
-                return ThaladredTheDarkener;
-
-            case DATA_LORDSANGUINAR:
-                return LordSanguinar;
-
-            case DATA_GRANDASTROMANCERCAPERNIAN:
-                return GrandAstromancerCapernian;
-
-            case DATA_MASTERENGINEERTELONICUS:
-                return MasterEngineerTelonicus;
-
-            case DATA_KAELTHAS:
-                return Kaelthas;
-
-            case DATA_ASTROMANCER:
-                return Astromancer;
-
-            case DATA_ALAR:
-                return Alar;
+            case DATA_THALADREDTHEDARKENER:			return ThaladredTheDarkener;
+            case DATA_LORDSANGUINAR:				return LordSanguinar;
+            case DATA_GRANDASTROMANCERCAPERNIAN:	return GrandAstromancerCapernian;
+            case DATA_MASTERENGINEERTELONICUS:		return MasterEngineerTelonicus;
+            case DATA_KAELTHAS:						return Kaelthas;
+            case DATA_ASTROMANCER:					return Astromancer;
+            case DATA_ALAR:							return Alar;
         }
-
         return 0;
     }
 
@@ -125,53 +108,56 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
     {
         switch(type)
         {
-            case DATA_ALAREVENT:
-                AlarEventPhase = data;
-                Encounters[0] = (data) ? true : false;
-                break;
-
-            case DATA_SOLARIANEVENT:
-                Encounters[1] = (data) ? true : false;
-                break;
-
-            case DATA_VOIDREAVEREVENT:
-                Encounters[2] = (data) ? true : false;
-                break;
-
-                //Kael'thas
-            case DATA_KAELTHASEVENT:
-                KaelthasEventPhase = data;
-                Encounters[3] = (data) ? true : false;
-                break;
-
-            case DATA_HIGHASTROMANCERSOLARIANEVENT:
-                Encounters[4] = (data) ? true : false;
-                break;
+            case DATA_ALAREVENT:	AlarEventPhase = data;	Encounters[0] = data;			break;
+            case DATA_HIGHASTROMANCERSOLARIANEVENT:	Encounters[1] = data;					break;
+            case DATA_VOIDREAVEREVENT:	Encounters[2] = data;								break; 
+            case DATA_KAELTHASEVENT:	KaelthasEventPhase = data;	Encounters[3] = data;	break;
         }
+		if(data == DONE)
+			SaveToDB();
     }
 
     uint32 GetData(uint32 type)
     {
         switch(type)
         {
-            case DATA_ALAREVENT:
-                return AlarEventPhase;
-
-            case DATA_SOLARIANEVENT:
-                return Encounters[1];
-
-            case DATA_VOIDREAVEREVENT:
-                return Encounters[2];
-
-            case DATA_HIGHASTROMANCERSOLARIANEVENT:
-                return Encounters[4];
-
-                //Kael'thas
-            case DATA_KAELTHASEVENT:
-                return KaelthasEventPhase;
+            case DATA_ALAREVENT:	return AlarEventPhase;
+            case DATA_HIGHASTROMANCERSOLARIANEVENT:	return Encounters[1];
+            case DATA_VOIDREAVEREVENT:	return Encounters[2];
+            case DATA_KAELTHASEVENT:	return KaelthasEventPhase;
         }
-
         return 0;
+    }
+
+	const char* Save()
+	{
+		OUT_SAVE_INST_DATA;
+        std::ostringstream stream;
+        stream << Encounters[0] << " " << Encounters[1] << " " << Encounters[2] << " " << Encounters[3];
+        char* out = new char[stream.str().length() + 1];
+        strcpy(out, stream.str().c_str());
+        if(out)
+        {
+            OUT_SAVE_INST_DATA_COMPLETE;
+            return out;
+        }
+        return NULL;
+    }
+
+    void Load(const char* in)
+    {
+        if(!in)
+        {
+            OUT_LOAD_INST_DATA_FAIL;
+            return;
+        }
+        OUT_LOAD_INST_DATA(in);
+        std::istringstream stream(in);
+        stream >> Encounters[0] >> Encounters[1] >> Encounters[2] >> Encounters[3];
+		for(uint8 i = 0; i < ENCOUNTERS; ++i)
+			if(Encounters[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
+				Encounters[i] = NOT_STARTED;
+		OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
 

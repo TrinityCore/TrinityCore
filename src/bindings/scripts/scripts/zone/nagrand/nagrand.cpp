@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Nagrand
 SD%Complete: 90
-SDComment: Quest support: 9849, 9918, 9874, 9991, 10107, 10108, 10044, 10172, 10646, 10085. TextId's unknown for altruis_the_sufferer and greatmother_geyah (npc_text)
+SDComment: Quest support: 9849, 9918, 9874, 9991, 10107, 10108, 10044, 10172, 10646, 10085, 10987. TextId's unknown for altruis_the_sufferer and greatmother_geyah (npc_text)
 SDCategory: Nagrand
 EndScriptData */
 
@@ -29,6 +29,7 @@ npc_altruis_the_sufferer
 npc_greatmother_geyah
 npc_lantresor_of_the_blade
 npc_creditmarker_visit_with_ancestors
+mob_sparrowhawk
 EndContentData */
 
 #include "precompiled.h"
@@ -518,8 +519,110 @@ CreatureAI* GetAI_npc_creditmarker_visit_with_ancestors(Creature *_Creature)
 }
 
 /*######
-## AddSC
+## mob_sparrowhawk
 ######*/
+
+#define SPELL_SPARROWHAWK_NET 39810
+#define SPELL_ITEM_CAPTIVE_SPARROWHAWK 39812
+
+struct TRINITY_DLL_DECL mob_sparrowhawkAI : public ScriptedAI
+{
+
+    mob_sparrowhawkAI(Creature *c) : ScriptedAI(c) {Reset();}
+
+    uint32 Check_Timer;
+    uint64 PlayerGUID;
+    bool fleeing;
+
+    void Reset()
+    {
+        m_creature->RemoveAurasDueToSpell(SPELL_SPARROWHAWK_NET);
+        Check_Timer = 1000;
+        PlayerGUID = 0;
+        fleeing = false;
+    }
+    void AttackStart(Unit *who)
+    {
+        if(PlayerGUID)
+            return;
+
+        ScriptedAI::AttackStart(who);
+    }
+
+    void Aggro(Unit* who) {}
+
+    void MoveInLineOfSight(Unit *who)
+    {
+        if(!who || PlayerGUID)
+            return;
+
+        if(!PlayerGUID && who->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(((Player *)who), 30) && ((Player *)who)->GetQuestStatus(10987) == QUEST_STATUS_INCOMPLETE)
+        {
+            PlayerGUID = who->GetGUID();
+            return;
+        }
+
+        ScriptedAI::MoveInLineOfSight(who);
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if(Check_Timer < diff)
+        {
+            if(PlayerGUID)
+            {
+                if(fleeing && m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FLEEING_MOTION_TYPE)
+                    fleeing = false;
+
+                Player *player = (Player *)Unit::GetUnit((*m_creature), PlayerGUID);
+                if(player && m_creature->IsWithinDistInMap(player, 30)/* && m_creature->CanFreeMove()*/)
+                {
+                    if(!fleeing)
+                    {
+                        m_creature->DeleteThreatList();
+                        m_creature->GetMotionMaster()->MoveFleeing(player);
+                        fleeing = true;
+                    }
+                }
+                else if(fleeing)
+                {
+                    m_creature->GetMotionMaster()->MovementExpired(false);
+                    PlayerGUID = 0;
+                    fleeing = false;
+                }
+            }
+            Check_Timer = 1000;
+        } else Check_Timer -= diff;
+
+        if (PlayerGUID)
+            return;
+
+        ScriptedAI::UpdateAI(diff);
+    }
+
+    void SpellHit(Unit *caster, const SpellEntry *spell)
+    {
+        if (caster->GetTypeId() == TYPEID_PLAYER)
+        {
+            if(spell->Id == SPELL_SPARROWHAWK_NET && ((Player*)caster)->GetQuestStatus(10987) == QUEST_STATUS_INCOMPLETE)
+            {
+                m_creature->CastSpell(caster, SPELL_ITEM_CAPTIVE_SPARROWHAWK, true);
+                m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+            }
+        }
+        return;
+    }
+};
+
+CreatureAI* GetAI_mob_sparrowhawk(Creature *_Creature)
+{
+    return new mob_sparrowhawkAI (_Creature);
+}
+
+/*####
+#
+####*/
 
 void AddSC_nagrand()
 {
@@ -564,5 +667,10 @@ void AddSC_nagrand()
     newscript = new Script;
     newscript->Name="npc_creditmarker_visit_with_ancestors";
     newscript->GetAI = GetAI_npc_creditmarker_visit_with_ancestors;
+    m_scripts[nrscripts++] = newscript;
+
+    newscript = new Script;
+    newscript->Name="mob_sparrowhawk";
+    newscript->GetAI = GetAI_mob_sparrowhawk;
     m_scripts[nrscripts++] = newscript;
 }
