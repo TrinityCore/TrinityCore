@@ -27,7 +27,7 @@ EndScriptData */
 //Spells
 #define SPELL_MOLTEN_PUNCH          40126
 #define SPELL_HURTFUL_STRIKE        41926
-#define SPELL_MOLTEN_FLAME          40253
+#define SPELL_MOLTEN_FLAME          40980
 #define SPELL_VOLCANIC_ERUPTION     40117
 #define SPELL_VOLCANIC_SUMMON       40276
 #define SPELL_BERSERK               45078
@@ -35,47 +35,14 @@ EndScriptData */
 #define CREATURE_VOLCANO            23085
 #define CREATURE_STALKER            23095
 
-struct TRINITY_DLL_DECL molten_flameAI : public ScriptedAI
+struct TRINITY_DLL_DECL molten_flameAI : public NullCreatureAI
 {
-    molten_flameAI(Creature *c) : ScriptedAI(c)
+    molten_flameAI(Creature *c) : NullCreatureAI(c)
     {
-        FlameTimer = 0;
         float x, y, z;
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->GetNearPoint(m_creature, x, y, z, 1, 50, M_PI*2*rand_norm());
         m_creature->GetMotionMaster()->MovePoint(0, x, y, z);
     }
-
-    uint32 FlameTimer;
-
-    void Reset() {}
-    void Aggro(Unit *who) {}
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit *who) {}
-    void UpdateAI(const uint32 diff)
-    {
-        if(FlameTimer < diff)
-        {
-            m_creature->CastSpell(m_creature, SPELL_MOLTEN_FLAME, true);
-            FlameTimer = 1000;
-        }else FlameTimer -= diff;
-    }
-};
-
-struct TRINITY_DLL_DECL npc_volcanoAI : public ScriptedAI
-{
-    npc_volcanoAI(Creature *c) : ScriptedAI(c)
-    {
-        m_creature->CastSpell(m_creature, SPELL_VOLCANIC_ERUPTION, false);
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-    }
-
-    void Reset() {}
-    void Aggro(Unit *who) {}
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) {}
 };
 
 struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
@@ -263,11 +230,6 @@ CreatureAI* GetAI_molten_flame(Creature *_Creature)
     return new molten_flameAI (_Creature);
 }
 
-CreatureAI* GetAI_npc_volcano(Creature *_Creature)
-{
-    return new npc_volcanoAI (_Creature);
-}
-
 void AddSC_boss_supremus()
 {
     Script *newscript;
@@ -279,10 +241,5 @@ void AddSC_boss_supremus()
     newscript = new Script;
     newscript->Name="molten_flame";
     newscript->GetAI = GetAI_molten_flame;
-    m_scripts[nrscripts++] = newscript;
-
-    newscript = new Script;
-    newscript->Name="npc_volcano";
-    newscript->GetAI = GetAI_npc_volcano;
     m_scripts[nrscripts++] = newscript;
 }

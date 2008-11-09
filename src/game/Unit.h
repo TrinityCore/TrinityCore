@@ -942,6 +942,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         void DeMorph();
 
+        void SendAttackStart(Unit* pVictim); 
         void SendAttackStateUpdate(uint32 HitInfo, Unit *target, uint8 SwingType, SpellSchoolMask damageSchoolMask, uint32 Damage, uint32 AbsorbDamage, uint32 Resist, VictimState TargetState, uint32 BlockedAmount);
         void SendSpellNonMeleeDamageLog(Unit *target,uint32 SpellID,uint32 Damage, SpellSchoolMask damageSchoolMask,uint32 AbsorbedDamage, uint32 Resist,bool PhysicalDamage, uint32 Blocked, bool CriticalHit = false);
         void SendSpellMiss(Unit *target, uint32 spellID, SpellMissInfo missInfo);
@@ -1352,7 +1353,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
     private:
         void SendAttackStop(Unit* victim);                  // only from AttackStop(Unit*)
-        void SendAttackStart(Unit* pVictim);                // only from Unit::AttackStart(Unit*)
+        //void SendAttackStart(Unit* pVictim);                // only from Unit::AttackStart(Unit*)
 
         void ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag, AuraTypeSet const& procAuraTypes, WeaponAttackType attType, SpellEntry const * procSpell, uint32 damage, SpellSchoolMask damageSchoolMask );
         bool HandleDummyAuraProc(Unit *pVictim, SpellEntry const *spellProto, uint32 effIndex, uint32 damage, Aura* triggredByAura, SpellEntry const * procSpell, uint32 procFlag,uint32 cooldown);

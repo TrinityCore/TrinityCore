@@ -1282,4 +1282,6 @@ void GameObject::CastSpell(Unit* target, uint32 spell)
         trigger->setFaction(14);
         trigger->CastSpell(target, spell, true);
     }
+    //trigger->setDeathState(JUST_DIED);
+    //trigger->RemoveCorpse();
 }

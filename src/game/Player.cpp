@@ -16406,7 +16406,16 @@ void Player::HandleStealthedUnitsDetection()
             // target aura duration for caster show only if target exist at caster client
             // send data at target visibility change (adding to client)
             if((*i)!=this && (*i)->isType(TYPEMASK_UNIT))
+            {
                 SendAuraDurationsForTarget(*i);
+                //if(((Unit*)(*i))->isAlive()) //should be always alive
+                {
+                    if((*i)->GetTypeId()==TYPEID_UNIT)
+                        ((Creature*)(*i))->SendMonsterMoveWithSpeedToCurrentDestination(this);
+                    if(((Unit*)(*i))->getVictim())
+                        ((Unit*)(*i))->SendAttackStart(((Unit*)(*i))->getVictim());
+                }
+            }
 
             i = stealthedUnits.erase(i);
             continue;
@@ -17386,10 +17395,16 @@ void Player::UpdateVisibilityOf(WorldObject* target)
             // target aura duration for caster show only if target exist at caster client
             // send data at target visibility change (adding to client)
             if(target!=this && target->isType(TYPEMASK_UNIT))
+            {
                 SendAuraDurationsForTarget((Unit*)target);
-
-            if(target->GetTypeId()==TYPEID_UNIT && ((Creature*)target)->isAlive())
-                ((Creature*)target)->SendMonsterMoveWithSpeedToCurrentDestination(this);
+                if(((Unit*)target)->isAlive())
+                {
+                    if(target->GetTypeId()==TYPEID_UNIT)
+                        ((Creature*)target)->SendMonsterMoveWithSpeedToCurrentDestination(this);
+                    if(((Unit*)target)->getVictim())
+                        ((Unit*)target)->SendAttackStart(((Unit*)target)->getVictim());
+                }
+            }
         }
     }
 }

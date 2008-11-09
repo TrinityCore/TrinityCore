@@ -202,6 +202,15 @@ void ScriptedAI::DoMeleeAttackIfReady()
             m_creature->resetAttackTimer();
         }
     }
+    if (m_creature->haveOffhandWeapon() && m_creature->isAttackReady(OFF_ATTACK) && !m_creature->IsNonMeleeSpellCasted(false))
+    {
+        //If we are within range melee the target
+        if (m_creature->IsWithinCombatDist(m_creature->getVictim(), ATTACK_DISTANCE))
+        {
+            m_creature->AttackerStateUpdate(m_creature->getVictim(), OFF_ATTACK);
+            m_creature->resetAttackTimer(OFF_ATTACK);
+        }
+    }
 }
 
 void ScriptedAI::DoStopAttack()
