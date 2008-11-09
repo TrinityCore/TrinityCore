@@ -24,8 +24,11 @@
 
 void PossessedAI::AttackStart(Unit *u)
 {
-    if( i_pet.getVictim() || !u )
+    if( !u )
         return;
+
+    if (i_pet.getVictim() && u != i_pet.getVictim())
+        i_pet.AttackStop();
 
     if(i_pet.Attack(u, true))
         i_victimGuid = u->GetGUID();

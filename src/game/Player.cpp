@@ -18764,8 +18764,16 @@ void Player::RemovePossess(bool attack)
     else
     {
         target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+        // Reinitialize the pet bar and make the pet come back to the owner
         if(((Creature*)target)->isPet())
+        {
             PetSpellInitialize();
+            if (!target->getVictim())
+            {
+                target->GetMotionMaster()->MoveFollow(this, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                target->GetCharmInfo()->SetCommandState(COMMAND_FOLLOW);
+            }
+        }
         else if (target->isAlive())
         {
             // If we're still hostile to our target, continue attacking otherwise reset threat and go home

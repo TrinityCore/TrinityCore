@@ -78,6 +78,10 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
     switch(flag)
     {
         case ACT_COMMAND:                                   //0x0700
+            // Possessed pets are only able to attack
+            if (pet->isPossessed() && spellid != COMMAND_ATTACK)
+                return;
+
             switch(spellid)
             {
                 case COMMAND_STAY:                          //flat=1792  //STAY
