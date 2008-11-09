@@ -112,6 +112,10 @@ EXTRA_DIST = \
     PacketLog.cpp \
     PacketLog.h
 
+# System configuration
+EXTRA_DIST += \
+    SystemConfig.h
+
 # System Win32 files
 EXTRA_DIST += \
     ServiceWin32.cpp \
