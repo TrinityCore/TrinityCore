@@ -181,4 +181,20 @@ struct TRINITY_DLL_DECL Scripted_NoMovementAI : public ScriptedAI
     //Called at each attack of m_creature by any victim
     void AttackStart(Unit *);
 };
+
+struct TRINITY_DLL_DECL NullCreatureAI : public CreatureAI
+{
+    NullCreatureAI(Creature* c) : m_creature(c) {}
+    ~NullCreatureAI() {}
+
+    Creature *m_creature;
+
+    void MoveInLineOfSight(Unit *) {}
+    void AttackStart(Unit *) {}
+    void EnterEvadeMode() {}
+    bool IsVisible(Unit *) const { return false; }
+
+    void UpdateAI(const uint32) {}
+};
+
 #endif

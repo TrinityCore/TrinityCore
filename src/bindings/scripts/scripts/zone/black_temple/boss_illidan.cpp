@@ -71,6 +71,7 @@ EndScriptData */
 #define SPELL_FLAME_CRASH               40832 // Summons an invis/unselect passive mob that has an aura of flame in a circle around him.
 #define SPELL_DRAW_SOUL                 40904 // 5k Shadow Damage in front of him. Heals Illidan for 100k health (script effect)
 #define SPELL_PARASITIC_SHADOWFIEND     41917 // DoT of 3k Shadow every 2 seconds. Lasts 10 seconds. (Script effect: Summon 2 parasites once the debuff has ticked off)
+#define SPELL_PARASITIC_SHADOWFIEND2    41914 // Used by Parasitic
 #define SPELL_SUMMON_PARASITICS         41915 // Summons 2 Parasitic Shadowfiends on the target. It's supposed to be cast as soon as the Parasitic Shadowfiend debuff is gone, but the spells aren't linked :(
 #define SPELL_AGONIZING_FLAMES          40932 // 4k fire damage initial to target and anyone w/i 5 yards. PHASE 3 ONLY
 #define SPELL_ENRAGE                    40683 // Increases damage by 50% and attack speed by 30%. 20 seconds, PHASE 5 ONLY
@@ -553,7 +554,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
                 if(Glaive)
                 {
                     GlaiveGUID[i] = Glaive->GetGUID();
-                    Glaive->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    Glaive->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     Glaive->SetUInt32Value(UNIT_FIELD_DISPLAYID, 11686);
                     Glaive->setFaction(m_creature->getFaction());
                     DoCast(Glaive, SPELL_THROW_GLAIVE2);
@@ -570,7 +571,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
                 if(Glaive)
                 {
                     GlaiveGUID[i] = Glaive->GetGUID();
-                    Glaive->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    Glaive->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     Glaive->SetUInt32Value(UNIT_FIELD_DISPLAYID, 11686);
                     Glaive->setFaction(m_creature->getFaction());
                     DoCast(Glaive, SPELL_THROW_GLAIVE, true);
@@ -1337,6 +1338,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
                         Elite->AI()->AttackStart(m_creature);
                         Elite->AddThreat(m_creature, 1000000.0f);
                         AttackStart(Elite);
+                        m_creature->AddThreat(Elite, 1000000.0f);
                     }
                     Timer = 10000 + rand()%6000;
                     GETUNIT(Illidan, IllidanGUID);
@@ -1349,7 +1351,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             }
         }
 
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if(!m_creature->SelectHostilTarget() && !m_creature->getVictim())
             return;
 
         if(m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 20)
@@ -1741,9 +1743,9 @@ struct TRINITY_DLL_DECL mob_parasitic_shadowfiendAI : public ScriptedAI
     {
         if( m_creature->isAttackReady() && m_creature->IsWithinCombatDist(m_creature->getVictim(), ATTACK_DISTANCE))
         {
-            if(!m_creature->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND, 0))
+            if(!m_creature->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND, 0) && !m_creature->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND2, 0))
             {
-                m_creature->getVictim()->CastSpell(m_creature->getVictim(), SPELL_PARASITIC_SHADOWFIEND, true, 0, 0, IllidanGUID); //do not stack
+                m_creature->CastSpell(m_creature->getVictim(), SPELL_PARASITIC_SHADOWFIEND2, true, 0, 0, IllidanGUID); //do not stack
             }
             m_creature->AttackerStateUpdate(m_creature->getVictim());
             m_creature->resetAttackTimer();
@@ -1912,6 +1914,7 @@ void boss_illidan_stormrageAI::Reset()
     TransformCount = 0;
 
     m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, 21135);
+    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNKNOWN2);
     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, 0);
@@ -1926,6 +1929,7 @@ void boss_illidan_stormrageAI::JustSummoned(Creature* summon)
 {
     switch(summon->GetEntry())
     {
+    case PARASITIC_SHADOWFIEND:
     case SHADOW_DEMON:
         {
             if(Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0, 999, true)) // only on players.
@@ -2158,7 +2162,7 @@ void boss_illidan_stormrageAI::EnterPhase(PhaseIllidan NextPhase)
             Timer[EVENT_FLIGHT_SEQUENCE] = 1;
             m_creature->RemoveAllAuras();
             m_creature->InterruptNonMeleeSpells(false);
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             m_creature->GetMotionMaster()->Clear(false);
             m_creature->AttackStop();
         }

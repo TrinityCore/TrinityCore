@@ -601,9 +601,19 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                     if(cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
                     {
                         if(target->isGameMaster())
-                            *data << cinfo->Modelid1;
+                        {
+                            if(cinfo->Modelid2)
+                                *data << cinfo->Modelid1;
+                            else
+                                *data << 17519; // world invisible trigger's model
+                        }
                         else
-                            *data << cinfo->Modelid3;
+                        {
+                            if(cinfo->Modelid2)
+                                *data << cinfo->Modelid2;
+                            else
+                                *data << 11686; // world invisible trigger's model
+                        }
                     }
                     else
                         *data << m_uint32Values[ index ];
