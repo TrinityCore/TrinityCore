@@ -1240,19 +1240,24 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
         if (!m_creature->isAlive())
             return;
 
-        if ((TimetoFleeLeft < diff || (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE && m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FLEEING_MOTION_TYPE)) && IsFleeing)
+        if (IsFleeing)
         {
-            m_creature->GetMotionMaster()->Clear(false);
-            m_creature->SetNoCallAssistence(false);
-            m_creature->CallAssistence();
-            m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
-            IsFleeing = false;
-        }
-        else
-            TimetoFleeLeft -= diff;
+            if(TimetoFleeLeft < diff 
+                || m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE 
+                && m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FLEEING_MOTION_TYPE)
+            {
+                m_creature->GetMotionMaster()->Clear(false);
+                m_creature->SetNoCallAssistence(false);
+                m_creature->CallAssistence();
+                if(m_creature->getVictim())
+                    m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+                IsFleeing = false;
+            }
+            else
+                TimetoFleeLeft -= diff;
 
-        if(IsFleeing)
             return;
+        }
 
         //Events are only updated once every EVENT_UPDATE_TIME ms to prevent lag with large amount of events
         if (EventUpdateTime < diff)
@@ -1274,18 +1279,17 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                             break;
                     }
                 }
-	        }
+            }
 
             //Check for time based events
             for (std::list<EventHolder>::iterator i = EventList.begin(); i != EventList.end(); ++i)
             {
                 //Decrement Timers
                 if ((*i).Time)
-
                 {
                     if ((*i).Time > EventDiff)
                     {
-                         //Do not decrement timers if event cannot trigger in this phase
+                        //Do not decrement timers if event cannot trigger in this phase
                         if (!((*i).Event.event_inverse_phase_mask & (1 << Phase)))
                             (*i).Time -= EventDiff;
                         //Skip processing of events that have time remaining
@@ -1307,14 +1311,15 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                     case EVENT_T_TARGET_CASTING:
                     case EVENT_T_FRIENDLY_HP:
                         if( Combat )
-                                ProcessEvent(*i);
+                            ProcessEvent(*i);
                         break;
-                    }
+                }
             }
 
             EventDiff = 0;
             EventUpdateTime = EVENT_UPDATE_TIME;
-        }else
+        }
+        else
         {
             EventDiff += diff;
             EventUpdateTime -= diff;
@@ -1323,7 +1328,6 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
         //Melee Auto-Attack
         if (Combat && MeleeEnabled)
             DoMeleeAttackIfReady();
-
     }
 };
 

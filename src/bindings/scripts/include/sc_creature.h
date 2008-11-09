@@ -25,7 +25,7 @@ private:
 
 struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 {
-    ScriptedAI(Creature* creature) : m_creature(creature), InCombat(false) {}
+    ScriptedAI(Creature* creature) : m_creature(creature), InCombat(false), IsFleeing(false) {}
     ~ScriptedAI() {}
 
     //*************

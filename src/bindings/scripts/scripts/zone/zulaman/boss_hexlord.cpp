@@ -481,8 +481,6 @@ struct TRINITY_DLL_DECL boss_thurgAI : public boss_hexlord_addAI
         if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
             return;
 
-        boss_hexlord_addAI::UpdateAI(diff);
-
         if(bloodlust_timer < diff)
         {
             std::list<Creature*> templist = DoFindFriendlyMissingBuff(50, SPELL_BLOODLUST);
@@ -499,6 +497,8 @@ struct TRINITY_DLL_DECL boss_thurgAI : public boss_hexlord_addAI
             m_creature->CastSpell(m_creature->getVictim(),SPELL_CLEAVE, false);
             cleave_timer = 12000; //3 sec cast
         }else cleave_timer -= diff;
+
+        boss_hexlord_addAI::UpdateAI(diff);
     }
 };
 
@@ -549,9 +549,6 @@ struct TRINITY_DLL_DECL boss_alyson_antilleAI : public boss_hexlord_addAI
         if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
             return;
 
-        boss_hexlord_addAI::UpdateAI(diff);
-
-
         if(flashheal_timer < diff)
         {
             Unit* target = DoSelectLowestHpFriendly(99, 30000);
@@ -592,6 +589,8 @@ struct TRINITY_DLL_DECL boss_alyson_antilleAI : public boss_hexlord_addAI
 
         dispelmagic_timer = 12000;
         }else dispelmagic_timer -= diff;*/
+
+        boss_hexlord_addAI::UpdateAI(diff);
     }
 };
 
@@ -635,13 +634,13 @@ struct TRINITY_DLL_DECL boss_gazakrothAI : public boss_hexlord_addAI
         if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
             return;
 
-        boss_hexlord_addAI::UpdateAI(diff);
-
         if(firebolt_timer < diff)
         {
             m_creature->CastSpell(m_creature->getVictim(),SPELL_FIREBOLT, false);
             firebolt_timer = 700;
         }else firebolt_timer -= diff;
+
+        boss_hexlord_addAI::UpdateAI(diff);
     }
 };
 
@@ -668,8 +667,6 @@ struct TRINITY_DLL_DECL boss_lord_raadanAI : public boss_hexlord_addAI
         if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
             return;
 
-        boss_hexlord_addAI::UpdateAI(diff);
-
         if (thunderclap_timer < diff)
         { 
             m_creature->CastSpell(m_creature->getVictim(),SPELL_THUNDERCLAP, false);
@@ -681,6 +678,8 @@ struct TRINITY_DLL_DECL boss_lord_raadanAI : public boss_hexlord_addAI
             m_creature->CastSpell(m_creature->getVictim(),SPELL_FLAME_BREATH, false);
             flamebreath_timer = 12000;
         }else flamebreath_timer -= diff;
+
+        boss_hexlord_addAI::UpdateAI(diff);
     }
 };
 
@@ -704,13 +703,13 @@ struct TRINITY_DLL_DECL boss_darkheartAI : public boss_hexlord_addAI
         if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
             return;
 
-        boss_hexlord_addAI::UpdateAI(diff);
-
         if (psychicwail_timer < diff)
         { 
             m_creature->CastSpell(m_creature->getVictim(),SPELL_PSYCHIC_WAIL, false);
             psychicwail_timer = 12000;
         }else psychicwail_timer -= diff;
+
+        boss_hexlord_addAI::UpdateAI(diff);
     }
 };
 
@@ -754,7 +753,6 @@ struct TRINITY_DLL_DECL boss_slitherAI : public boss_hexlord_addAI
     {
         if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
             return;
-        boss_hexlord_addAI::UpdateAI(diff);
 
         if (venomspit_timer < diff)
         { 
@@ -762,6 +760,8 @@ struct TRINITY_DLL_DECL boss_slitherAI : public boss_hexlord_addAI
             m_creature->CastSpell(victim,SPELL_VENOM_SPIT, false);
             venomspit_timer = 2500;
         }else venomspit_timer -= diff;
+
+        boss_hexlord_addAI::UpdateAI(diff);
     }
 };
 
@@ -786,14 +786,14 @@ struct TRINITY_DLL_DECL boss_fenstalkerAI : public boss_hexlord_addAI
         if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
             return;
 
-        boss_hexlord_addAI::UpdateAI(diff);
-
         if (volatileinf_timer < diff)
         { 
             // core bug
             m_creature->getVictim()->CastSpell(m_creature->getVictim(),SPELL_VOLATILE_INFECTION, false);
             volatileinf_timer = 12000;
         }else volatileinf_timer -= diff;
+
+        boss_hexlord_addAI::UpdateAI(diff);
     }
 };
 
@@ -822,8 +822,6 @@ struct TRINITY_DLL_DECL boss_koraggAI : public boss_hexlord_addAI
         if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
             return;
 
-        boss_hexlord_addAI::UpdateAI(diff);
-
         if (mightyblow_timer < diff)
         { 
             m_creature->CastSpell(m_creature->getVictim(),SPELL_MIGHTY_BLOW, false);
@@ -835,6 +833,8 @@ struct TRINITY_DLL_DECL boss_koraggAI : public boss_hexlord_addAI
             m_creature->CastSpell(victim,SPELL_COLD_STARE, false);
             coldstare_timer = 12000;
         }
+
+        boss_hexlord_addAI::UpdateAI(diff);
     }
 };
 
