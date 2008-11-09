@@ -173,7 +173,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
         DoPlaySoundToSet(m_creature, SOUND_DEATH);
 
         if(pInstance)
-            pInstance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, NOT_STARTED);
+            pInstance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, DONE);
     }
 
     void Aggro(Unit *who)

@@ -99,7 +99,7 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
         DoPlaySoundToSet(m_creature, SOUND_DEATH);
 
         if(pInstance)
-            pInstance->SetData(DATA_VOIDREAVEREVENT, NOT_STARTED);
+            pInstance->SetData(DATA_VOIDREAVEREVENT, DONE);
     }
 
     void Aggro(Unit *who)
