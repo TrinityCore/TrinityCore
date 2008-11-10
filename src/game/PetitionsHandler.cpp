@@ -835,8 +835,9 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
         for(uint8 i = 0; i < signs; ++i)
         {
             Field* fields = result->Fetch();
-            sLog.outDebug("PetitionsHandler: adding arena member %u", fields[0].GetUInt64());
-            at->AddMember(fields[0].GetUInt64());
+            uint64 memberGUID = fields[0].GetUInt64();
+            sLog.outDebug("PetitionsHandler: adding arena member %u", GUID_LOPART(memberGUID));
+            at->AddMember(memberGUID);
             result->NextRow();
         }
     }

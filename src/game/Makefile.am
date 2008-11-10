@@ -114,6 +114,9 @@ $(srcdir)/GameObject.cpp \
 $(srcdir)/GameObject.h \
 $(srcdir)/GlobalEvents.cpp \
 $(srcdir)/GlobalEvents.h \
+$(srcdir)/GMTicketHandler.cpp \
+$(srcdir)/GMTicketMgr.cpp \
+$(srcdir)/GMTicketMgr.h \
 $(srcdir)/GossipDef.cpp \
 $(srcdir)/GossipDef.h \
 $(srcdir)/GridDefines.h \
@@ -130,7 +133,6 @@ $(srcdir)/GuardAI.h \
 $(srcdir)/Guild.cpp \
 $(srcdir)/Guild.h \
 $(srcdir)/GuildHandler.cpp \
-$(srcdir)/HateMatrix.h \
 $(srcdir)/HomeMovementGenerator.cpp \
 $(srcdir)/HomeMovementGenerator.h \
 $(srcdir)/HostilRefManager.cpp \
