@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "Channel.h"
@@ -115,6 +115,13 @@ void Channel::Join(uint64 p, const char *pass)
     SendToOne(&data, p);
 
     JoinNotify(p);
+
+    // if no owner first logged will become
+    if(!IsConstant() && !m_ownerGUID)
+    {
+        SetOwner(p, (players.size() > 1 ? true : false));
+        players[p].SetModerator(true);
+    }
 }
 
 void Channel::Leave(uint64 p, bool send)

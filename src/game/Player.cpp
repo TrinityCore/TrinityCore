@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "Common.h"
@@ -270,7 +270,7 @@ Player::Player (WorldSession *session): Unit()
     if(GetSession()->GetSecurity() >= SEC_GAMEMASTER)
         SetAcceptTicket(true);
 
-    // players always accept 
+    // players always accept
     if(GetSession()->GetSecurity() == SEC_PLAYER)
         SetAcceptWhispers(true);
 
@@ -367,7 +367,7 @@ Player::Player (WorldSession *session): Unit()
 
     m_temporaryUnsummonedPetNumber = 0;
     //cache for UNIT_CREATED_BY_SPELL to allow
-    //returning reagests for temporarily removed pets
+    //returning reagents for temporarily removed pets
     //when dying/logging out
     m_oldpetspell = 0;
 
@@ -433,6 +433,7 @@ Player::~Player ()
 {
     CleanupsBeforeDelete();
 
+    // it must be unloaded already in PlayerLogout and accessed only for loggined player
     //m_social = NULL;
 
     // Note: buy back item already deleted from DB when player was saved
@@ -487,6 +488,8 @@ void Player::CleanupsBeforeDelete()
 
 bool Player::Create( uint32 guidlow, std::string name, uint8 race, uint8 class_, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId )
 {
+    //FIXME: outfitId not used in player creating
+
     Object::_Create(guidlow, 0, HIGHGUID_PLAYER);
 
     m_name = name;
@@ -664,7 +667,7 @@ bool Player::Create( uint32 guidlow, std::string name, uint8 race, uint8 class_,
     SetHealth(GetMaxHealth());
     if (getPowerType()==POWER_MANA)
     {
-        UpdateMaxPower(POWER_MANA);                         // Update max Mana (for add bonus from intelect)
+        UpdateMaxPower(POWER_MANA);                         // Update max Mana (for add bonus from intellect)
         SetPower(POWER_MANA,GetMaxPower(POWER_MANA));
     }
 
@@ -830,7 +833,7 @@ void Player::HandleDrowning()
         return;
     }
 
-    uint32 UnderWaterTime = 1*MINUTE*1000;                  // default leangthL 1 min
+    uint32 UnderWaterTime = 1*MINUTE*1000;                  // default length 1 min
 
     AuraList const& mModWaterBreathing = GetAurasByType(SPELL_AURA_MOD_WATER_BREATHING);
     for(AuraList::const_iterator i = mModWaterBreathing.begin(); i != mModWaterBreathing.end(); ++i)
@@ -1509,7 +1512,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     // client without expansion support
     if(GetSession()->Expansion() < mEntry->Expansion())
     {
-        sLog.outDebug("Player %s using client without required expansion tried teleport to non accessable map %u", GetName(), mapid);
+        sLog.outDebug("Player %s using client without required expansion tried teleport to non accessible map %u", GetName(), mapid);
 
         if(GetTransport())
             RepopAtGraveyard();                             // teleport to near graveyard if on transport, looks blizz like :)
@@ -1544,7 +1547,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     // The player was ported to another map and looses the duel immediatly.
     // We have to perform this check before the teleport, otherwise the
     // ObjectAccessor won't find the flag.
-    if (duel && this->GetMapId()!=mapid)
+    if (duel && GetMapId()!=mapid)
     {
         GameObject* obj = ObjectAccessor::GetGameObject(*this, GetUInt64Value(PLAYER_DUEL_ARBITER));
         if (obj)
@@ -1554,7 +1557,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     // reset movement flags at teleport, because player will continue move with these flags after teleport
     SetUnitMovementFlags(0);
 
-    if ((this->GetMapId() == mapid) && (!m_transport))
+    if ((GetMapId() == mapid) && (!m_transport))
     {
         // prepare zone change detect
         uint32 old_zone = GetZoneId();
@@ -3265,7 +3268,7 @@ void Player::InitVisibleBits()
 {
     updateVisualBits.SetCount(PLAYER_END);
 
-	// TODO: really implement OWNER_ONLY and GROUP_ONLY. Flags can be found in UpdateFields.h
+    // TODO: really implement OWNER_ONLY and GROUP_ONLY. Flags can be found in UpdateFields.h
 
     updateVisualBits.SetBit(OBJECT_FIELD_GUID);
     updateVisualBits.SetBit(OBJECT_FIELD_TYPE);
@@ -3278,7 +3281,7 @@ void Player::InitVisibleBits()
     updateVisualBits.SetBit(UNIT_FIELD_SUMMON+1);
 
     updateVisualBits.SetBit(UNIT_FIELD_CHARMEDBY);
-	updateVisualBits.SetBit(UNIT_FIELD_CHARMEDBY+1);
+    updateVisualBits.SetBit(UNIT_FIELD_CHARMEDBY+1);
 
     updateVisualBits.SetBit(UNIT_FIELD_TARGET);
     updateVisualBits.SetBit(UNIT_FIELD_TARGET+1);
@@ -3314,8 +3317,8 @@ void Player::InitVisibleBits()
     updateVisualBits.SetBit(UNIT_FIELD_COMBATREACH);
     updateVisualBits.SetBit(UNIT_FIELD_DISPLAYID);
     updateVisualBits.SetBit(UNIT_FIELD_NATIVEDISPLAYID);
-    updateVisualBits.SetBit(UNIT_FIELD_BYTES_1);
     updateVisualBits.SetBit(UNIT_FIELD_MOUNTDISPLAYID);
+    updateVisualBits.SetBit(UNIT_FIELD_BYTES_1);
     updateVisualBits.SetBit(UNIT_FIELD_PETNUMBER);
     updateVisualBits.SetBit(UNIT_FIELD_PET_NAME_TIMESTAMP);
     updateVisualBits.SetBit(UNIT_DYNAMIC_FLAGS);
@@ -3323,11 +3326,11 @@ void Player::InitVisibleBits()
     updateVisualBits.SetBit(UNIT_MOD_CAST_SPEED);
     updateVisualBits.SetBit(UNIT_FIELD_BYTES_2);
 
-	updateVisualBits.SetBit(PLAYER_DUEL_ARBITER);
-	updateVisualBits.SetBit(PLAYER_DUEL_ARBITER+1);
+    updateVisualBits.SetBit(PLAYER_DUEL_ARBITER);
+    updateVisualBits.SetBit(PLAYER_DUEL_ARBITER+1);
     updateVisualBits.SetBit(PLAYER_FLAGS);
-	updateVisualBits.SetBit(PLAYER_GUILDID);
-	updateVisualBits.SetBit(PLAYER_GUILDRANK);
+    updateVisualBits.SetBit(PLAYER_GUILDID);
+    updateVisualBits.SetBit(PLAYER_GUILDRANK);
     updateVisualBits.SetBit(PLAYER_BYTES);
     updateVisualBits.SetBit(PLAYER_BYTES_2);
     updateVisualBits.SetBit(PLAYER_BYTES_3);
@@ -3723,6 +3726,7 @@ void Player::BuildPlayerRepop()
 
 void Player::SendDelayResponse(const uint32 ml_seconds)
 {
+    //FIXME: is this delay time arg really need? 50msec by default in code
     WorldPacket data( SMSG_QUERY_TIME_RESPONSE, 4+4 );
     data << (uint32)time(NULL);
     data << (uint32)0;
@@ -3762,7 +3766,7 @@ void Player::ResurrectPlayer(float restore_percent, bool updateToWorld, bool app
         SetPower(POWER_ENERGY, uint32(GetMaxPower(POWER_ENERGY)*restore_percent));
     }
 
-    // update visbility
+    // update visibility
     ObjectAccessor::UpdateVisibilityForPlayer(this);
 
     // some items limited to specific map
@@ -4229,7 +4233,7 @@ void Player::UpdateLocalChannels(uint32 newZone )
 
             // leave old channel
             (*i)->Leave(GetGUID(),false);                   // not send leave channel, it already replaced at client
-            std::string name = (*i)->GetName();             // stroe name, (*i)erase in LeftChannel
+            std::string name = (*i)->GetName();             // store name, (*i)erase in LeftChannel
             LeftChannel(*i);                                // remove from player's channel list
             cMgr->LeftChannel(name);                        // delete if empty
         }
@@ -4264,7 +4268,7 @@ void Player::HandleBaseModValue(BaseModGroup modGroup, BaseModType modType, floa
 {
     if(modGroup >= BASEMOD_END || modType >= MOD_END)
     {
-        sLog.outError("ERROR in HandleBaseModValue(): nonexisted BaseModGroup of wrong BaseModType!");
+        sLog.outError("ERROR in HandleBaseModValue(): non existed BaseModGroup of wrong BaseModType!");
         return;
     }
 
@@ -4301,7 +4305,7 @@ float Player::GetBaseModValue(BaseModGroup modGroup, BaseModType modType) const
 {
     if(modGroup >= BASEMOD_END || modType > MOD_END)
     {
-        sLog.outError("ERROR: trial to access nonexisted BaseModGroup or wrong BaseModType!");
+        sLog.outError("ERROR: trial to access non existed BaseModGroup or wrong BaseModType!");
         return 0.0f;
     }
 
@@ -4973,7 +4977,7 @@ void Player::SetSkill(uint32 id, uint16 currVal, uint16 maxVal)
                 {
                     if (_spell_idx->second->skillId == id)
                     {
-                        // this may remove more than one spell (dependants)
+                        // this may remove more than one spell (dependents)
                         removeSpell(itr->first);
                         next = m_spells.begin();
                         break;
@@ -5248,7 +5252,6 @@ bool Player::SetPosition(float x, float y, float z, float orientation, bool tele
 
     // code block for underwater state update
     UpdateUnderwaterState(m, x, y, z);
-
 
     CheckExploreSystem();
 
@@ -6313,7 +6316,7 @@ void Player::UpdateZone(uint32 newZone)
                 RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
                 SetRestType(REST_TYPE_NO);
 
-                // Set player to FFA PVP when not in rested enviroment.
+                // Set player to FFA PVP when not in rested environment.
                 if(sWorld.IsFFAPvPRealm())
                     SetFlag(PLAYER_FLAGS,PLAYER_FLAGS_FFA_PVP);
             }
@@ -6932,7 +6935,7 @@ void Player::CastItemCombatSpell(Item *item,Unit* Target, WeaponAttackType attTy
         }
 
         if (roll_chance_f(chance))
-            this->CastSpell(Target, spellInfo->Id, true, item);
+            CastSpell(Target, spellInfo->Id, true, item);
     }
 
     // item combat enchantments
@@ -7795,7 +7798,7 @@ void Player::SendInitWorldStates(bool forceZone, uint32 forceZoneId)
                 data << uint32(0xaa8) << uint32(0x1);       // 22 2728 Mage Tower uncontrolled (1 - yes, 0 - no)
                 data << uint32(0xaa7) << uint32(0x0);       // 23 2727 Fel Reaver - Horde control
                 data << uint32(0xaa6) << uint32(0x0);       // 24 2726 Fel Reaver - Alliance control
-                data << uint32(0xaa5) << uint32(0x1);       // 25 2725 Fel Reaver uncontroled (1 - yes, 0 - no)
+                data << uint32(0xaa5) << uint32(0x1);       // 25 2725 Fel Reaver uncontrolled (1 - yes, 0 - no)
                 data << uint32(0xaa4) << uint32(0x0);       // 26 2724 Boold Elf - Horde control
                 data << uint32(0xaa3) << uint32(0x0);       // 27 2723 Boold Elf - Alliance control
                 data << uint32(0xaa2) << uint32(0x1);       // 28 2722 Boold Elf uncontrolled (1 - yes, 0 - no)
@@ -8020,7 +8023,6 @@ void Player::SendTalentWipeConfirm(uint64 guid)
     WorldPacket data(MSG_TALENT_WIPE_CONFIRM, (8+4));
     data << uint64(guid);
     uint32 cost = sWorld.getConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : resetTalentsCost();
-    data << cost;
     data << cost;
     GetSession()->SendPacket( &data );
 }
@@ -8621,6 +8623,7 @@ bool Player::IsValidPos( uint8 bag, uint8 slot )
     return false;
 }
 
+
 bool Player::HasItemCount( uint32 item, uint32 count, bool inBankAlso ) const
 {
     uint32 tempcount = 0;
@@ -9030,7 +9033,7 @@ uint8 Player::_CanStoreItem( uint8 bag, uint8 slot, ItemPosCountVec &dest, uint3
         }
     }
 
-    // not specific slot or have spece for partly store only in specific slot
+    // not specific slot or have space for partly store only in specific slot
 
     // in specific bag
     if( bag != NULL_BAG )
@@ -9685,7 +9688,7 @@ uint8 Player::CanEquipItem( uint8 slot, uint16 &dest, Item *pItem, bool swap, bo
                 if(eslot != EQUIPMENT_SLOT_MAINHAND)
                     return EQUIP_ERR_ITEM_CANT_BE_EQUIPPED;
 
-                // offhand item must can be stored in inventitory for offhand item and it also must be unequipped
+                // offhand item must can be stored in inventory for offhand item and it also must be unequipped
                 Item *offItem = GetItemByPos( INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND );
                 ItemPosCountVec off_dest;
                 if( offItem && (!not_loading ||
@@ -9796,7 +9799,7 @@ uint8 Player::CanBankItem( uint8 bag, uint8 slot, ItemPosCountVec &dest, Item *p
             return EQUIP_ERR_OK;
     }
 
-    // not specific slot or have spece for partly store only in specific slot
+    // not specific slot or have space for partly store only in specific slot
 
     // in specific bag
     if( bag != NULL_BAG )
@@ -9858,7 +9861,7 @@ uint8 Player::CanBankItem( uint8 bag, uint8 slot, ItemPosCountVec &dest, Item *p
         }
     }
 
-    // not specific bag or have spece for partly store only in specific bag
+    // not specific bag or have space for partly store only in specific bag
 
     // search stack for merge to
     if( pProto->Stackable > 1 )
@@ -10490,7 +10493,7 @@ void Player::MoveItemToInventory(ItemPosCountVec const& dest, Item* pItem, bool 
             pLastItem->SetOwnerGUID(GetGUID());
 
         // if this original item then it need create record in inventory
-        // in case trade we laready have item in other player inventory
+        // in case trade we already have item in other player inventory
         pLastItem->SetState(in_characterInventoryDB ? ITEM_CHANGED : ITEM_NEW, this);
     }
 }
@@ -10734,7 +10737,7 @@ void Player::DestroyZoneLimitedItem( bool update, uint32 new_zone )
 void Player::DestroyConjuredItems( bool update )
 {
     // used when entering arena
-    // distroys all conjured items
+    // destroys all conjured items
     sLog.outDebug( "STORAGE: DestroyConjuredItems" );
 
     // in inventory
@@ -11282,7 +11285,7 @@ void Player::TradeCancel(bool sendback)
 {
     if(pTrader)
     {
-        // send yellow "Trade cancelled" message to both traders
+        // send yellow "Trade canceled" message to both traders
         WorldSession* ws;
         ws = GetSession();
         if(sendback)
@@ -11368,7 +11371,6 @@ void Player::RemoveEnchantmentDurations(Item *item)
             ++itr;
     }
 }
-
 
 void Player::RemoveAllEnchantments(EnchantmentSlot slot)
 {
@@ -11498,7 +11500,7 @@ void Player::ApplyEnchantment(Item *item,EnchantmentSlot slot,bool apply, bool a
                     if(apply)
                     {
                         int32 basepoints = int32(enchant_amount);
-                        // Random Property Exist - try found basepoints for spell (basepoints depencs from item suffix factor)
+                        // Random Property Exist - try found basepoints for spell (basepoints depends from item suffix factor)
                         if (item->GetItemRandomPropertyId() !=0 && !enchant_amount)
                         {
                             ItemRandomSuffixEntry const *item_rand = sItemRandomSuffixStore.LookupEntry(abs(item->GetItemRandomPropertyId()));
@@ -12195,7 +12197,7 @@ void Player::AddQuest( Quest const *pQuest, Object *questGiver )
     uint32 quest_id = pQuest->GetQuestId();
 
     // if not exist then created with set uState==NEW and rewarded=false
-    QuestStatusData& questStatusData =  mQuestStatus[quest_id];
+    QuestStatusData& questStatusData = mQuestStatus[quest_id];
     if (questStatusData.uState != QUEST_NEW)
         questStatusData.uState = QUEST_CHANGED;
 
@@ -12567,7 +12569,7 @@ bool Player::SatisfyQuestPreviousQuest( Quest const* qInfo, bool msg )
                     return true;
 
                 // each-from-all exclusive group ( < 0)
-                // can be start if only all quests in prev quest exclusive group complited and rewarded
+                // can be start if only all quests in prev quest exclusive group completed and rewarded
                 ObjectMgr::ExclusiveQuestGroups::iterator iter = objmgr.mExclusiveQuestGroups.lower_bound(qPrevInfo->GetExclusiveGroup());
                 ObjectMgr::ExclusiveQuestGroups::iterator end  = objmgr.mExclusiveQuestGroups.upper_bound(qPrevInfo->GetExclusiveGroup());
 
@@ -14263,7 +14265,7 @@ void Player::_LoadInventory(QueryResult *result, uint32 timediff)
     std::map<uint64, Bag*> bagMap;                          // fast guid lookup for bags
     //NOTE: the "order by `bag`" is important because it makes sure
     //the bagMap is filled before items in the bags are loaded
-    //NOTE2: the "order by `slot`" is needed becaue mainhand weapons are (wrongly?)
+    //NOTE2: the "order by `slot`" is needed because mainhand weapons are (wrongly?)
     //expected to be equipped before offhand items (TODO: fixme)
 
     uint32 zone = GetZoneId();
@@ -14390,7 +14392,7 @@ void Player::_LoadInventory(QueryResult *result, uint32 timediff)
         while(!problematicItems.empty())
         {
             // fill mail
-            MailItemsInfo mi;                               // item list prepering
+            MailItemsInfo mi;                               // item list preparing
 
             for(int i = 0; !problematicItems.empty() && i < MAX_MAIL_ITEMS; ++i)
             {
@@ -14938,7 +14940,7 @@ void Player::SendSavedInstances()
         }
     }
 
-    //Send opcode 811. true or flase means, whether you have current raid/heroic instances
+    //Send opcode 811. true or false means, whether you have current raid/heroic instances
     data.Initialize(SMSG_UPDATE_INSTANCE_OWNERSHIP);
     data << uint32(hasBeenSaved);
     GetSession()->SendPacket(&data);
@@ -15926,7 +15928,6 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
     }
 }
 
-
 void Player::RemoveMiniPet()
 {
     if(Pet* pet = GetMiniPet())
@@ -16441,6 +16442,7 @@ void Player::HandleStealthedUnitsDetection()
 
         if ((*i)->isVisibleForOrDetect(this,true))
         {
+
             (*i)->SendUpdateToPlayer(this);
             m_clientGUIDs.insert((*i)->GetGUID());
 
@@ -16619,7 +16621,7 @@ void Player::ProhibitSpellScholl(SpellSchoolMask idSchoolMask, uint32 unTimeMs )
                                                             // last check 2.0.10
     WorldPacket data(SMSG_SPELL_COOLDOWN, 8+1+m_spells.size()*8);
     data << GetGUID();
-    data << uint8(0x0);
+    data << uint8(0x0);                                     // flags (0x1, 0x2)
     time_t curTime = time(NULL);
     for(PlayerSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
     {
@@ -17015,7 +17017,7 @@ void Player::SendCooldownEvent(SpellEntry const *spellInfo)
     if ( !(spellInfo->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE) )
         return;
 
-    // Get spell cooldwn
+    // Get spell cooldown
     int32 cooldown = GetSpellRecoveryTime(spellInfo);
     // Apply spellmods
     ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, cooldown);
@@ -17587,7 +17589,7 @@ void Player::SetGroup(Group *group, int8 subgroup)
 void Player::SendInitialPacketsBeforeAddToMap()
 {
     WorldPacket data(SMSG_SET_REST_START, 4);
-    data << uint32(0);                                      // unknown, may be rest state time or expirience
+    data << uint32(0);                                      // unknown, may be rest state time or experience
     GetSession()->SendPacket(&data);
 
     // Homebind
@@ -18185,7 +18187,7 @@ bool Player::HasItemFitToSpellReqirements(SpellEntry const* spellInfo, Item cons
             break;
         }
         default:
-            sLog.outError("HasItemFitToSpellReqirements: Not handeled spell reqirement for item class %u",spellInfo->EquippedItemClass);
+            sLog.outError("HasItemFitToSpellReqirements: Not handled spell requirement for item class %u",spellInfo->EquippedItemClass);
             break;
     }
 
@@ -18230,7 +18232,7 @@ void Player::RemoveItemDependentAurasAndCasts( Item * pItem )
 
 uint32 Player::GetResurrectionSpellId()
 {
-    // search priceless resurrection possabilities
+    // search priceless resurrection possibilities
     uint32 prio = 0;
     uint32 spell_id = 0;
     AuraList const& dummyAuras = GetAurasByType(SPELL_AURA_DUMMY);
@@ -18386,7 +18388,7 @@ uint32 Player::GetBaseWeaponSkillValue (WeaponAttackType attType) const
 {
     Item* item = GetWeaponForAttack(attType,true);
 
-    // unarmmed only with base attack
+    // unarmed only with base attack
     if(attType != BASE_ATTACK && !item)
         return 0;
 
@@ -18606,7 +18608,7 @@ void Player::UpdateUnderwaterState( Map* m, float x, float y, float z )
 void Player::SetCanParry( bool value )
 {
     if(m_canParry==value)
-        return; 
+        return;
 
     m_canParry = value;
     UpdateParryPercentage();
@@ -18615,7 +18617,7 @@ void Player::SetCanParry( bool value )
 void Player::SetCanBlock( bool value )
 {
     if(m_canBlock==value)
-        return; 
+        return;
 
     m_canBlock = value;
     UpdateBlockPercentage();
