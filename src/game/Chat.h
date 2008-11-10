@@ -465,7 +465,6 @@ class ChatHandler
 
         // Utility methods for commands
         void ShowTicket(uint64 guid, char const* text, char const* time);
-        uint32 GetTicketIDByNum(uint32 num);
         bool LookupPlayerSearchCommand(QueryResult* result, int32 limit);
 		bool HandleBanListHelper(QueryResult* result);
 		bool HandleBanHelper(BanMode mode,char const* args);

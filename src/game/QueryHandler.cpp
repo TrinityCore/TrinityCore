@@ -202,7 +202,8 @@ void WorldSession::HandleCreatureQueryOpcode( WorldPacket & recv_data )
         uint64 guid;
         recv_data >> guid;
 
-        sLog.outDebug(  "WORLD: CMSG_CREATURE_QUERY - (%u) NO CREATURE INFO! (GUID: %u, ENTRY: %u)", uint32(GUID_LOPART(guid)), guid, entry );
+        sLog.outDebug("WORLD: CMSG_CREATURE_QUERY - NO CREATURE INFO! (GUID: %u, ENTRY: %u)",
+            GUID_LOPART(guid), entry);
         WorldPacket data( SMSG_CREATURE_QUERY_RESPONSE, 4 );
         data << uint32(entry | 0x80000000);
         SendPacket( &data );
@@ -260,7 +261,8 @@ void WorldSession::HandleGameObjectQueryOpcode( WorldPacket & recv_data )
         uint64 guid;
         recv_data >> guid;
 
-        sLog.outDebug(  "WORLD: CMSG_GAMEOBJECT_QUERY - (%u) Missing gameobject info for (GUID: %u, ENTRY: %u)", uint32(GUID_LOPART(guid)), guid, entryID );
+        sLog.outDebug(  "WORLD: CMSG_GAMEOBJECT_QUERY - Missing gameobject info for (GUID: %u, ENTRY: %u)",
+            GUID_LOPART(guid), entryID );
         WorldPacket data ( SMSG_GAMEOBJECT_QUERY_RESPONSE, 4 );
         data << uint32(entryID | 0x80000000);
         SendPacket( &data );

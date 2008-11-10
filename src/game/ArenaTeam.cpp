@@ -90,39 +90,44 @@ bool ArenaTeam::AddMember(uint64 PlayerGuid)
     std::string plName;
     uint8 plClass;
 
+    // arena team is full (can't have more than type * 2 players!)
     if(GetMembersSize() >= GetType() * 2)
-    {
-        // arena team is full (can't have more than type * 2 players!)
-        // return false
         return false;
-    }
 
-    if(!objmgr.GetPlayerNameByGUID(PlayerGuid, plName))     // player doesnt exist
-        return false;
-                                                            // player already in arenateam of that size
-    if(Player::GetArenaTeamIdFromDB(PlayerGuid, GetType()) != 0)
+    Player *pl = objmgr.GetPlayer(PlayerGuid);
+    if(pl)
     {
-        sLog.outError("Arena::AddMember() : player already in this sized team");
-        return false;
+        if(pl->GetArenaTeamId(GetType()))
+        {
+            sLog.outError("Arena::AddMember() : player already in this sized team");
+            return false;
+        }
+
+        plClass = (uint8)pl->getClass();
+        plName = pl->GetName();
+    }
+    else
+    {
+        //                                                     0     1
+        QueryResult *result = CharacterDatabase.PQuery("SELECT name, class FROM characters WHERE guid='%u'", GUID_LOPART(PlayerGuid));
+        if(!result)
+            return false;
+
+        plName = (*result)[0].GetCppString();
+        plClass = (*result)[1].GetUInt8();
+        delete result;
+
+        // check if player already in arenateam of that size
+        if(Player::GetArenaTeamIdFromDB(PlayerGuid, GetType()) != 0)
+        {
+            sLog.outError("Arena::AddMember() : player already in this sized team");
+            return false;
+        }
     }
 
     // remove all player signs from another petitions
     // this will be prevent attempt joining player to many arenateams and corrupt arena team data integrity
     Player::RemovePetitionsAndSigns(PlayerGuid, GetType());
-
-    Player *pl = objmgr.GetPlayer(PlayerGuid);
-    if(pl)
-    {
-        plClass = (uint8)pl->getClass();
-    }
-    else
-    {
-        QueryResult *result = CharacterDatabase.PQuery("SELECT class FROM characters WHERE guid='%u'", GUID_LOPART(PlayerGuid));
-        if(!result)
-            return false;
-        plClass = (*result)[0].GetUInt8();
-        delete result;
-    }
 
     ArenaTeamMember newmember;
     newmember.name          = plName;

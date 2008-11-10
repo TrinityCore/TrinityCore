@@ -26,6 +26,7 @@
 #include "Policies/Singleton.h"
 
 #include <string>
+#include <vector>
 #include <map>
 
 /** ObjectRegistry holds all registry item of the same type

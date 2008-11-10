@@ -36,6 +36,7 @@
 #include "GameEvent.h"
 #include "SpellMgr.h"
 #include "AccountMgr.h"
+#include "GMTicketMgr.h"
 #include "WaypointManager.h"
 #include "Util.h"
 #include <cctype>
@@ -862,7 +863,13 @@ bool ChatHandler::HandleItemMoveCommand(const char* args)
 
     if(srcslot==dstslot)
         return true;
-        
+
+    if(!m_session->GetPlayer()->IsValidPos(INVENTORY_SLOT_BAG_0,srcslot))
+        return false;
+
+    if(!m_session->GetPlayer()->IsValidPos(INVENTORY_SLOT_BAG_0,dstslot))
+        return false;
+
     uint16 src = ((INVENTORY_SLOT_BAG_0 << 8) | srcslot);
     uint16 dst = ((INVENTORY_SLOT_BAG_0 << 8) | dstslot);
 
@@ -1795,7 +1802,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     // get additional information from DB
     else
     {
-        QueryResult *result = CharacterDatabase.PQuery("SELECT totaltime FROM characters WHERE guid = '%u'", targetGUID);
+        QueryResult *result = CharacterDatabase.PQuery("SELECT totaltime FROM characters WHERE guid = '%u'", GUID_LOPART(targetGUID));
         if (!result)
         {
             SendSysMessage(LANG_PLAYER_NOT_FOUND);
@@ -1920,15 +1927,7 @@ bool ChatHandler::HandleTicketCommand(const char* args)
 			return false;
 		}
 
-        size_t count;
-        QueryResult *result = CharacterDatabase.Query("SELECT COUNT(ticket_id) FROM character_ticket");
-        if(result)
-        {
-            count = (*result)[0].GetUInt32();
-            delete result;
-        }
-        else
-            count = 0;
+        size_t count = ticketmgr.GetTicketCount();
 
         bool accept = m_session->GetPlayer()->isAcceptTickets();
 		
@@ -1975,18 +1974,17 @@ bool ChatHandler::HandleTicketCommand(const char* args)
         if(!result)
         {
             PSendSysMessage(LANG_COMMAND_TICKENOTEXIST, num);
-            delete result;
             SetSentErrorMessage(true);
             return false;
         }
 
         Field* fields = result->Fetch();
 
-        uint64 guid = fields[0].GetUInt64();
+        uint32 guid = fields[0].GetUInt32();
         char const* text = fields[1].GetString();
         char const* time = fields[2].GetString();
 
-        ShowTicket(guid,text,time);
+        ShowTicket(MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER),text,time);
         delete result;
         return true;
     }
@@ -2006,41 +2004,15 @@ bool ChatHandler::HandleTicketCommand(const char* args)
         return false;
 
     // ticket $char_name
-    QueryResult *result = CharacterDatabase.PQuery("SELECT ticket_text,ticket_lastchange FROM character_ticket WHERE guid = '%u' ORDER BY ticket_id ASC",GUID_LOPART(guid));
-
-    if(!result)
+    GMTicket* ticket = ticketmgr.GetGMTicket(GUID_LOPART(guid));
+    if(!ticket)
         return false;
 
-    Field* fields = result->Fetch();
+    std::string time = TimeToTimestampStr(ticket->GetLastUpdate());
 
-    char const* text = fields[0].GetString();
-    char const* time = fields[1].GetString();
-
-    ShowTicket(guid,text,time);
-    delete result;
+    ShowTicket(guid, ticket->GetText(), time.c_str());
 
     return true;
-}
-
-uint32 ChatHandler::GetTicketIDByNum(uint32 num)
-{
-    QueryResult *result = CharacterDatabase.Query("SELECT ticket_id FROM character_ticket");
-
-    if(!result || num > result->GetRowCount())
-    {
-        PSendSysMessage(LANG_COMMAND_TICKENOTEXIST, num);
-        delete result;
-        return 0;
-    }
-
-    for(uint32 i = 1; i < num; ++i)
-        result->NextRow();
-
-    Field* fields = result->Fetch();
-
-    uint32 id = fields[0].GetUInt32();
-    delete result;
-    return id;
 }
 
 //dell all tickets
@@ -2053,26 +2025,7 @@ bool ChatHandler::HandleDelTicketCommand(const char *args)
     // delticket all
     if(strncmp(px,"all",4) == 0)
     {
-        QueryResult *result = CharacterDatabase.Query("SELECT guid FROM character_ticket");
-
-        if(!result)
-            return true;
-
-        // notify players about ticket deleting
-        do
-        {
-            Field* fields = result->Fetch();
-
-            uint64 guid = fields[0].GetUInt64();
-
-            if(Player* sender = objmgr.GetPlayer(guid))
-                sender->GetSession()->SendGMTicketGetTicket(0x0A,0);
-
-        }while(result->NextRow());
-
-        delete result;
-
-        CharacterDatabase.PExecute("DELETE FROM character_ticket");
+        ticketmgr.DeleteAll();
         SendSysMessage(LANG_COMMAND_ALLTICKETDELETED);
         return true;
     }
@@ -2082,32 +2035,29 @@ bool ChatHandler::HandleDelTicketCommand(const char *args)
     // delticket #num
     if(num > 0)
     {
-        QueryResult *result = CharacterDatabase.PQuery("SELECT ticket_id,guid FROM character_ticket ORDER BY ticket_id ASC "_OFFSET_,num-1);
-
+        QueryResult* result = CharacterDatabase.PQuery("SELECT guid FROM character_ticket ORDER BY ticket_id ASC "_OFFSET_,num-1);
         if(!result)
         {
             PSendSysMessage(LANG_COMMAND_TICKENOTEXIST, num);
-            delete result;
             SetSentErrorMessage(true);
             return false;
         }
 
         Field* fields = result->Fetch();
 
-        uint32 id   = fields[0].GetUInt32();
-        uint64 guid = fields[1].GetUInt64();
+        uint32 guid = fields[0].GetUInt32();
         delete result;
 
-        CharacterDatabase.PExecute("DELETE FROM character_ticket WHERE ticket_id = '%u'", id);
+        ticketmgr.Delete(guid);
 
-        // notify players about ticket deleting
-        if(Player* sender = objmgr.GetPlayer(guid))
+        //notify player
+        if(Player* pl = objmgr.GetPlayer(MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER)))
         {
-            sender->GetSession()->SendGMTicketGetTicket(0x0A,0);
-            PSendSysMessage(LANG_COMMAND_TICKETPLAYERDEL,sender->GetName());
+            pl->GetSession()->SendGMTicketGetTicket(0x0A, 0);
+            PSendSysMessage(LANG_COMMAND_TICKETPLAYERDEL, pl->GetName());
         }
         else
-            SendSysMessage(LANG_COMMAND_TICKETDEL);
+            PSendSysMessage(LANG_COMMAND_TICKETDEL);
 
         return true;
     }
@@ -2127,7 +2077,7 @@ bool ChatHandler::HandleDelTicketCommand(const char *args)
         return false;
 
     // delticket $char_name
-    CharacterDatabase.PExecute("DELETE FROM character_ticket WHERE guid = '%u'",GUID_LOPART(guid));
+    ticketmgr.Delete(GUID_LOPART(guid));
 
     // notify players about ticket deleting
     if(Player* sender = objmgr.GetPlayer(guid))

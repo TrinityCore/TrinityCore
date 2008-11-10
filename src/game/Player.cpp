@@ -4043,24 +4043,20 @@ uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod, bool g
         uint32 LostDurability = maxDurability - curDurability;
         if(LostDurability>0)
         {
-            ItemPrototype const *ditemProto = sItemStorage.LookupEntry<ItemPrototype>(item->GetEntry());
-            if(!ditemProto)
-            {
-                sLog.outError("ERROR: RepairDurability: Unknown item id %u", ditemProto);
-                return TotalCost;
-            }
+            ItemPrototype const *ditemProto = item->GetProto();
 
             DurabilityCostsEntry const *dcost = sDurabilityCostsStore.LookupEntry(ditemProto->ItemLevel);
             if(!dcost)
             {
-                sLog.outError("ERROR: RepairDurability: Wrong item lvl %u", dcost);
+                sLog.outError("ERROR: RepairDurability: Wrong item lvl %u", ditemProto->ItemLevel);
                 return TotalCost;
             }
 
-            DurabilityQualityEntry const *dQualitymodEntry = sDurabilityQualityStore.LookupEntry((ditemProto->Quality+1)*2);
+            uint32 dQualitymodEntryId = (ditemProto->Quality+1)*2;
+            DurabilityQualityEntry const *dQualitymodEntry = sDurabilityQualityStore.LookupEntry(dQualitymodEntryId);
             if(!dQualitymodEntry)
             {
-                sLog.outError("ERROR: RepairDurability: Wrong dQualityModEntry %u", dQualitymodEntry);
+                sLog.outError("ERROR: RepairDurability: Wrong dQualityModEntry %u", dQualitymodEntryId);
                 return TotalCost;
             }
 
@@ -6156,32 +6152,11 @@ uint32 Player::GetRankFromDB(uint64 guid)
 
 uint32 Player::GetArenaTeamIdFromDB(uint64 guid, uint8 type)
 {
-    QueryResult *result = CharacterDatabase.PQuery("SELECT arenateamid FROM arena_team_member WHERE guid='%u'", GUID_LOPART(guid));
-    if(result)
-    {
-        bool found = false;
-        // init id to find the type of the arenateam
-        uint32 id = (*result)[0].GetUInt32();
-        do
-        {
-            QueryResult *result2 = CharacterDatabase.PQuery("SELECT type FROM arena_team WHERE arenateamid='%u'", id);
-            if(result2)
-            {
-                uint8 dbtype = (*result2)[0].GetUInt32();
-                delete result2;
-                if(dbtype == type)
-                {
-                    // if the type matches, we've found the id
-                    found = true;
-                    break;
-                }
-            }
-        } while(result->NextRow());
-        delete result;
-        if(found) return id;
-    }
-    // no arenateam for the specified guid, return 0
-    return 0;
+    QueryResult *result = CharacterDatabase.PQuery("SELECT arena_team_member.arenateamid FROM arena_team_member JOIN arena_team ON arena_team_member.arenateamid = arena_team.arenateamid WHERE guid='%u' AND type='%u' LIMIT 1", GUID_LOPART(guid), type);
+    if(!result)
+        return 0;
+
+    return (*result)[0].GetUInt32();
 }
 
 uint32 Player::GetZoneIdFromDB(uint64 guid)
@@ -8572,6 +8547,77 @@ bool Player::IsBagPos( uint16 pos )
         return true;
     if( bag == INVENTORY_SLOT_BAG_0 && ( slot >= BANK_SLOT_BAG_START && slot < BANK_SLOT_BAG_END ) )
         return true;
+    return false;
+}
+
+bool Player::IsValidPos( uint8 bag, uint8 slot )
+{
+    // post selected
+    if(bag == NULL_BAG)
+        return true;
+
+    if (bag == INVENTORY_SLOT_BAG_0)
+    {
+        // any post selected
+        if (slot == NULL_SLOT)
+            return true;
+
+        // equipment
+        if (slot < EQUIPMENT_SLOT_END)
+            return true;
+
+        // bag equip slots
+        if (slot >= INVENTORY_SLOT_BAG_START && slot < INVENTORY_SLOT_BAG_END)
+            return true;
+
+        // backpack slots
+        if (slot >= INVENTORY_SLOT_ITEM_START && slot < INVENTORY_SLOT_ITEM_END)
+            return true;
+
+        // keyring slots
+        if (slot >= KEYRING_SLOT_START && slot < KEYRING_SLOT_END)
+            return true;
+
+        // bank main slots
+        if (slot >= BANK_SLOT_ITEM_START && slot < BANK_SLOT_ITEM_END)
+            return true;
+
+        // bank bag slots
+        if (slot >= BANK_SLOT_BAG_START && slot < BANK_SLOT_BAG_END)
+            return true;
+
+        return false;
+    }
+
+    // bag content slots
+    if (bag >= INVENTORY_SLOT_BAG_START && bag < INVENTORY_SLOT_BAG_END)
+    {
+        Bag* pBag = (Bag*)GetItemByPos (INVENTORY_SLOT_BAG_0, bag);
+        if(!pBag)
+            return false;
+
+        // any post selected
+        if (slot == NULL_SLOT)
+            return true;
+
+        return slot < pBag->GetBagSize();
+    }
+
+    // bank bag content slots
+    if( bag >= BANK_SLOT_BAG_START && bag < BANK_SLOT_BAG_END )
+    {
+        Bag* pBag = (Bag*)GetItemByPos (INVENTORY_SLOT_BAG_0, bag);
+        if(!pBag)
+            return false;
+
+        // any post selected
+        if (slot == NULL_SLOT)
+            return true;
+
+        return slot < pBag->GetBagSize();
+    }
+
+    // where this?
     return false;
 }
 

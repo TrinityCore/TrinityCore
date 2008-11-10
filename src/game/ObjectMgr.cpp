@@ -3900,19 +3900,22 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
 
                 if(float(tmp.datalong2) > DEFAULT_VISIBILITY_DISTANCE)
                 {
-                    sLog.outErrorDb("Table `%s` has too large distance (%u) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id %u",tablename,tmp.datalong2,tmp.id);
+                    sLog.outErrorDb("Table `%s` has too large distance (%u) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id %u",
+                        tablename,tmp.datalong2,tmp.id);
                     continue;
                 }
 
                 if(tmp.datalong2 && float(tmp.datalong2) > DEFAULT_VISIBILITY_DISTANCE)
                 {
-                    sLog.outErrorDb("Table `%s` has too large distance (%u) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id %u, max distance is %u or 0 for disable distance check",tablename,tmp.datalong2,tmp.id,uint32(DEFAULT_VISIBILITY_DISTANCE));
+                    sLog.outErrorDb("Table `%s` has too large distance (%u) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id %u, max distance is %f or 0 for disable distance check",
+                        tablename,tmp.datalong2,tmp.id,DEFAULT_VISIBILITY_DISTANCE);
                     continue;
                 }
 
                 if(tmp.datalong2 && float(tmp.datalong2) < INTERACTION_DISTANCE)
                 {
-                    sLog.outErrorDb("Table `%s` has too small distance (%u) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id %u, min distance is %u or 0 for disable distance check",tablename,tmp.datalong2,tmp.id,uint32(INTERACTION_DISTANCE));
+                    sLog.outErrorDb("Table `%s` has too small distance (%u) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id %u, min distance is %f or 0 for disable distance check",
+                        tablename,tmp.datalong2,tmp.id,INTERACTION_DISTANCE);
                     continue;
                 }
 
@@ -3924,7 +3927,8 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
             {
                 if(!sSpellStore.LookupEntry(tmp.datalong))
                 {
-                    sLog.outErrorDb("Table `%s` using non-existent spell (id: %u) in SCRIPT_COMMAND_REMOVE_AURA or SCRIPT_COMMAND_CAST_SPELL for script id %u",tablename,tmp.datalong,tmp.id);
+                    sLog.outErrorDb("Table `%s` using non-existent spell (id: %u) in SCRIPT_COMMAND_REMOVE_AURA or SCRIPT_COMMAND_CAST_SPELL for script id %u",
+                        tablename,tmp.datalong,tmp.id);
                     continue;
                 }
                 break;
