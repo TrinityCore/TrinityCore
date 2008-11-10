@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "Common.h"
@@ -146,7 +146,7 @@ void WorldSession::HandleWhoOpcode( WorldPacket & recv_data )
     wstrToLower(wplayer_name);
     wstrToLower(wguild_name);
 
-    // client send in case not set max level value 100 but Trinity support 255 max level,
+    // client send in case not set max level value 100 but mangos support 255 max level,
     // update it to show GMs with characters after 100 level
     if(level_max >= 100)
         level_max = 255;
@@ -469,7 +469,7 @@ void WorldSession::HandleAddFriendOpcode( WorldPacket & recv_data )
 
     std::string friendName = GetTrinityString(LANG_FRIEND_IGNORE_UNKNOWN);
     std::string friendNote;
-    
+
     recv_data >> friendName;
 
     // recheck
@@ -492,16 +492,16 @@ void WorldSession::HandleAddFriendOpcodeCallBack(QueryResult *result, uint32 acc
 {
     if(!result)
         return;
-        
+
     uint64 friendGuid = MAKE_NEW_GUID((*result)[0].GetUInt32(), 0, HIGHGUID_PLAYER);
     uint32 team = Player::TeamForRace((*result)[1].GetUInt8());
-    
+
     delete result;
-    
+
     WorldSession * session = sWorld.FindSession(accountId);
     if(!session)
         return;
-        
+
     FriendsResult friendResult = FRIEND_NOT_FOUND;
     if(friendGuid)
     {
@@ -518,12 +518,12 @@ void WorldSession::HandleAddFriendOpcodeCallBack(QueryResult *result, uint32 acc
                 friendResult = FRIEND_ADDED_ONLINE;
             else
                 friendResult = FRIEND_ADDED_OFFLINE;
-                
-        if(!session->GetPlayer()->GetSocial()->AddToSocialList(GUID_LOPART(friendGuid), false))
-        {
-            friendResult = FRIEND_LIST_FULL;
-            sLog.outDebug( "WORLD: %s's friend list is full.", session->GetPlayer()->GetName());
-        }
+
+            if(!session->GetPlayer()->GetSocial()->AddToSocialList(GUID_LOPART(friendGuid), false))
+            {
+                friendResult = FRIEND_LIST_FULL;
+                sLog.outDebug( "WORLD: %s's friend list is full.", session->GetPlayer()->GetName());
+            }
 
             session->GetPlayer()->GetSocial()->SetFriendNote(GUID_LOPART(friendGuid), friendNote);
         }
@@ -576,29 +576,29 @@ void WorldSession::HandleAddIgnoreOpcodeCallBack(QueryResult *result, uint32 acc
 {
     if(!result)
         return;
-    
+
     uint64 IgnoreGuid = MAKE_NEW_GUID((*result)[0].GetUInt32(), 0, HIGHGUID_PLAYER);
-    
+
     delete result;
-    
+
     WorldSession * session = sWorld.FindSession(accountId);
     if(!session)
         return;
-        
+
     FriendsResult ignoreResult = FRIEND_IGNORE_NOT_FOUND;
     if(IgnoreGuid)
     {
         if(IgnoreGuid==session->GetPlayer()->GetGUID())              //not add yourself
             ignoreResult = FRIEND_IGNORE_SELF;
-            else if( session->GetPlayer()->GetSocial()->HasIgnore(GUID_LOPART(IgnoreGuid)) )
-                ignoreResult = FRIEND_IGNORE_ALREADY;
+        else if( session->GetPlayer()->GetSocial()->HasIgnore(GUID_LOPART(IgnoreGuid)) )
+            ignoreResult = FRIEND_IGNORE_ALREADY;
         else
         {
             ignoreResult = FRIEND_IGNORE_ADDED;
 
-        // ignore list full
-        if(!session->GetPlayer()->GetSocial()->AddToSocialList(GUID_LOPART(IgnoreGuid), true))
-            ignoreResult = FRIEND_IGNORE_FULL;
+            // ignore list full
+            if(!session->GetPlayer()->GetSocial()->AddToSocialList(GUID_LOPART(IgnoreGuid), true))
+                ignoreResult = FRIEND_IGNORE_FULL;
         }
     }
 
@@ -793,7 +793,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
             (fabs(rotateDy) > atEntry->box_y/2 + delta) ||
             (fabs(dz) > atEntry->box_z/2 + delta) )
         {
-            sLog.outDebug("Player '%s' (GUID: %u) too far (1/2 box X: %f 1/2 box Y: %u 1/2 box Z: %u rotate dX: %f rotate dY: %f dZ:%f), ignore Area Trigger ID: %u",
+            sLog.outDebug("Player '%s' (GUID: %u) too far (1/2 box X: %f 1/2 box Y: %f 1/2 box Z: %f rotate dX: %f rotate dY: %f dZ:%f), ignore Area Trigger ID: %u",
                 pl->GetName(), pl->GetGUIDLow(), atEntry->box_x/2, atEntry->box_y/2, atEntry->box_z/2, rotateDx, rotateDy, dz, Trigger_ID);
             return;
         }

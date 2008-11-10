@@ -2097,7 +2097,7 @@ bool ChatHandler::HandleListItemCommand(const char* args)
     }
 
     result=CharacterDatabase.PQuery(
-        //          0        1             2             3        4                  5
+    //          0        1             2             3        4                  5
         "SELECT ci.item, cibag.slot AS bag, ci.slot, ci.guid, characters.account,characters.name "
         "FROM character_inventory AS ci LEFT JOIN character_inventory AS cibag ON (cibag.item=ci.bag),characters "
         "WHERE ci.item_template='%u' AND ci.guid = characters.guid LIMIT %u ",
@@ -2151,7 +2151,7 @@ bool ChatHandler::HandleListItemCommand(const char* args)
     if(count > 0)
     {
         result=CharacterDatabase.PQuery(
-            //          0                     1            2              3               4            5               6
+        //          0                     1            2              3               4            5               6
             "SELECT mail_items.item_guid, mail.sender, mail.receiver, char_s.account, char_s.name, char_r.account, char_r.name "
             "FROM mail,mail_items,characters as char_s,characters as char_r "
             "WHERE mail_items.item_template='%u' AND char_s.guid = mail.sender AND char_r.guid = mail.receiver AND mail.id=mail_items.mail_id LIMIT %u",
@@ -2201,7 +2201,7 @@ bool ChatHandler::HandleListItemCommand(const char* args)
     if(count > 0)
     {
         result=CharacterDatabase.PQuery(
-            //           0                      1                       2                   3
+        //           0                      1                       2                   3
             "SELECT  auctionhouse.itemguid, auctionhouse.itemowner, characters.account, characters.name "
             "FROM auctionhouse,characters WHERE auctionhouse.item_template='%u' AND characters.guid = auctionhouse.itemowner LIMIT %u",
             item_id,uint32(count));
@@ -2328,7 +2328,7 @@ bool ChatHandler::HandleListObjectCommand(const char* args)
     }
     else
         result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map FROM gameobject WHERE id = '%u' LIMIT %u",
-        go_id,uint32(count));
+            go_id,uint32(count));
 
     if (result)
     {
@@ -2483,7 +2483,7 @@ bool ChatHandler::HandleListCreatureCommand(const char* args)
     }
     else
         result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map FROM creature WHERE id = '%u' LIMIT %u",
-        cr_id,uint32(count));
+            cr_id,uint32(count));
 
     if (result)
     {
