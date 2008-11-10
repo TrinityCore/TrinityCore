@@ -83,7 +83,7 @@
 #endif                                                      // __SHOW_STUPID_WARNINGS__
 #endif                                                      // __GNUC__
 
-#include "Utilities/HashMap.h"
+#include "Utilities/UnorderedMap.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

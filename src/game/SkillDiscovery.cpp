@@ -42,7 +42,7 @@ struct SkillDiscoveryEntry
 };
 
 typedef std::list<SkillDiscoveryEntry> SkillDiscoveryList;
-typedef HM_NAMESPACE::hash_map<int32, SkillDiscoveryList> SkillDiscoveryMap;
+typedef UNORDERED_MAP<int32, SkillDiscoveryList> SkillDiscoveryMap;
 
 static SkillDiscoveryMap SkillDiscoveryStore;
 

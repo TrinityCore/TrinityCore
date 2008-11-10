@@ -33,8 +33,8 @@ class TRINITY_DLL_DECL MapManager : public Trinity::Singleton<MapManager, Trinit
 {
 
     friend class Trinity::OperatorNew<MapManager>;
-    typedef HM_NAMESPACE::hash_map<uint32, Map*> MapMapType;
-    typedef std::pair<HM_NAMESPACE::hash_map<uint32, Map*>::iterator, bool>  MapMapPair;
+    typedef UNORDERED_MAP<uint32, Map*> MapMapType;
+    typedef std::pair<UNORDERED_MAP<uint32, Map*>::iterator, bool>  MapMapPair;
 
     public:
 

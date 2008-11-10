@@ -21,7 +21,7 @@
 #ifndef TRINITY_HATEMATRIX_H
 #define TRINITY_HATEMATRIX_H
 
-#include "Utilities/HashMap.h"
+#include "Utilities/UnorderedMap.h"
 #include <cassert>
 
 class Unit;

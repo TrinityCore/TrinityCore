@@ -18,32 +18,39 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef TRINITY_HASHMAP_H
-#define TRINITY_HASHMAP_H
+#ifndef TRINITY_UNORDERED_MAP_H
+#define TRINITY_UNORDERED_MAP_H
 
 #include "Platform/CompilerDefs.h"
 #include "Platform/Define.h"
 
 #if COMPILER == COMPILER_INTEL
 #include <ext/hash_map>
+#elif COMPILER == COMPILER_GNU && __GNUC__ >= 4
+#include <tr1/unordered_map>
 #elif COMPILER == COMPILER_GNU && __GNUC__ >= 3
 #include <ext/hash_map>
+#elif COMPILER == COMPILER_MICROSOFT && _MSC_VER >= 1500 && _HAS_TR1    // VC9.0 and later
+#include <unordered_map>
 #else
 #include <hash_map>
 #endif
 
 #ifdef _STLPORT_VERSION
-#define HM_NAMESPACE std
+#define UNORDERED_MAP std::hash_map
 using std::hash_map;
+#elif COMPILER == COMPILER_MICROSOFT && _MSC_VER >= 1500 && _HAS_TR1
+#define UNORDERED_MAP std::tr1::unordered_map
 #elif COMPILER == COMPILER_MICROSOFT && _MSC_VER >= 1300
-#define HM_NAMESPACE stdext
+#define UNORDERED_MAP stdext::hash_map
 using stdext::hash_map;
 #elif COMPILER == COMPILER_INTEL
-#define HM_NAMESPACE std
+#define UNORDERED_MAP std::hash_map
 using std::hash_map;
+#elif COMPILER == COMPILER_GNU && __GNUC__ >= 4
+#define UNORDERED_MAP std::tr1::unordered_map
 #elif COMPILER == COMPILER_GNU && __GNUC__ >= 3
-#define HM_NAMESPACE __gnu_cxx
-using __gnu_cxx::hash_map;
+#define UNORDERED_MAP std::__gnu_cxx::hash_map
 
 namespace __gnu_cxx
 {
@@ -59,7 +66,7 @@ namespace __gnu_cxx
 };
 
 #else
-#define HM_NAMESPACE std
+#define UNORDERED_MAP std::hash_map
 using std::hash_map;
 #endif
 #endif

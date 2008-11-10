@@ -23,15 +23,15 @@
 
 #include "zthread/Thread.h"
 #include "../src/zthread/ThreadImpl.h"
-#include "Utilities/HashMap.h"
+#include "Utilities/UnorderedMap.h"
 #include "Database/SqlDelayThread.h"
 
 class SqlTransaction;
 class SqlResultQueue;
 class SqlQueryHolder;
 
-typedef HM_NAMESPACE::hash_map<ZThread::ThreadImpl*, SqlTransaction*> TransactionQueues;
-typedef HM_NAMESPACE::hash_map<ZThread::ThreadImpl*, SqlResultQueue*> QueryQueues;
+typedef UNORDERED_MAP<ZThread::ThreadImpl*, SqlTransaction*> TransactionQueues;
+typedef UNORDERED_MAP<ZThread::ThreadImpl*, SqlResultQueue*> QueryQueues;
 
 #define MAX_QUERY_LEN   1024
 

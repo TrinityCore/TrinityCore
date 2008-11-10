@@ -864,7 +864,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 //Duration
                 Creature* pCreature = NULL;
 
-                HM_NAMESPACE::hash_map<uint32, EventAI_Summon>::iterator i = EventAI_Summon_Map.find(param3);
+                UNORDERED_MAP<uint32, EventAI_Summon>::iterator i = EventAI_Summon_Map.find(param3);
 
                 if (i == EventAI_Summon_Map.end())
                 {

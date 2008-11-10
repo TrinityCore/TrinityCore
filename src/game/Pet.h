@@ -115,7 +115,7 @@ enum PetNameInvalidReason
     PET_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME              = 16
 };
 
-typedef HM_NAMESPACE::hash_map<uint16, PetSpell*> PetSpellMap;
+typedef UNORDERED_MAP<uint16, PetSpell*> PetSpellMap;
 typedef std::map<uint32,uint32> TeachSpellMap;
 typedef std::vector<uint32> AutoSpellList;
 

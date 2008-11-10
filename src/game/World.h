@@ -504,9 +504,9 @@ class World
         uint32 mail_timer;
         uint32 mail_timer_expires;
 
-        typedef HM_NAMESPACE::hash_map<uint32, Weather*> WeatherMap;
+        typedef UNORDERED_MAP<uint32, Weather*> WeatherMap;
         WeatherMap m_weathers;
-        typedef HM_NAMESPACE::hash_map<uint32, WorldSession*> SessionMap;
+        typedef UNORDERED_MAP<uint32, WorldSession*> SessionMap;
         SessionMap m_sessions;
         std::set<WorldSession*> m_kicked_sessions;
         uint32 m_maxActiveSessionCount;
