@@ -515,6 +515,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\game\GMTicketHandler.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\game\GossipDef.cpp"
 				>
 			</File>
@@ -972,6 +976,14 @@
 			</File>
 			<File
 				RelativePath="..\..\src\game\GameObject.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\GMTicketMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\GMTicketMgr.h"
 				>
 			</File>
 			<File
