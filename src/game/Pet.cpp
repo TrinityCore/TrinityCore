@@ -1657,6 +1657,11 @@ void Pet::ToggleAutocast(uint32 spellid, bool apply)
     if(IsPassiveSpell(spellid))
         return;
 
+    if(const SpellEntry *tempSpell = GetSpellStore()->LookupEntry(spellid))
+        if(tempSpell->EffectImplicitTargetA[0] != TARGET_ALL_AROUND_CASTER
+            || tempSpell->EffectImplicitTargetA[0] != TARGET_CHAIN_DAMAGE)
+            return;    
+
     PetSpellMap::const_iterator itr = m_spells.find((uint16)spellid);
 
     int i;
