@@ -23,7 +23,7 @@
 
 #include <vector>
 #include <string>
-#include "Utilities/HashMap.h"
+#include "Utilities/UnorderedMap.h"
 
 struct WaypointBehavior
 {
@@ -82,7 +82,7 @@ class WaypointManager
         void _addNode(uint32 id, uint32 point, float x, float y, float z, float o, uint32 delay, uint32 wpGuid);
         void _clearPath(WaypointPath &path);
 
-        typedef HM_NAMESPACE::hash_map<uint32, WaypointPath> WaypointPathMap;
+        typedef UNORDERED_MAP<uint32, WaypointPath> WaypointPathMap;
         WaypointPathMap m_pathMap;
 };
 

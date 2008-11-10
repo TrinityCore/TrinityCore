@@ -425,7 +425,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\framework\Utilities\HashMap.h"
+				RelativePath="..\..\src\framework\Utilities\UnorderedMap.h"
 				>
 			</File>
 			<File

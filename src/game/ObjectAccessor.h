@@ -24,7 +24,7 @@
 #include "Platform/Define.h"
 #include "Policies/Singleton.h"
 #include "zthread/FastMutex.h"
-#include "Utilities/HashMap.h"
+#include "Utilities/UnorderedMap.h"
 #include "Policies/ThreadingModel.h"
 
 #include "ByteBuffer.h"
@@ -49,7 +49,7 @@ class HashMapHolder
 {
     public:
 
-        typedef HM_NAMESPACE::hash_map< uint64, T* >   MapType;
+        typedef UNORDERED_MAP< uint64, T* >   MapType;
         typedef ZThread::FastMutex LockType;
         typedef Trinity::GeneralLock<LockType > Guard;
 
@@ -91,8 +91,8 @@ class TRINITY_DLL_DECL ObjectAccessor : public Trinity::Singleton<ObjectAccessor
     ObjectAccessor& operator=(const ObjectAccessor &);
 
     public:
-        typedef HM_NAMESPACE::hash_map<uint64, Corpse* >      Player2CorpsesMapType;
-        typedef HM_NAMESPACE::hash_map<Player*, UpdateData>::value_type UpdateDataValueType;
+        typedef UNORDERED_MAP<uint64, Corpse* >      Player2CorpsesMapType;
+        typedef UNORDERED_MAP<Player*, UpdateData>::value_type UpdateDataValueType;
 
         template<class T> static T* GetObjectInWorld(uint64 guid, T* /*fake*/)
         {

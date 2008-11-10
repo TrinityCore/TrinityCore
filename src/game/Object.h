@@ -94,7 +94,7 @@ class UpdateMask;
 class InstanceData;
 class GameObject;
 
-typedef HM_NAMESPACE::hash_map<Player*, UpdateData> UpdateDataMapType;
+typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
 
 struct WorldLocation
 {

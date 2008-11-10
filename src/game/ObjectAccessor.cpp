@@ -669,7 +669,7 @@ void ObjectAccessor::UpdateVisibilityForPlayer( Player* player )
 
 /// Define the static member of HashMapHolder
 
-template <class T> HM_NAMESPACE::hash_map< uint64, T* > HashMapHolder<T>::m_objectMap;
+template <class T> UNORDERED_MAP< uint64, T* > HashMapHolder<T>::m_objectMap;
 template <class T> ZThread::FastMutex HashMapHolder<T>::i_lock;
 
 /// Global defintions for the hashmap storage

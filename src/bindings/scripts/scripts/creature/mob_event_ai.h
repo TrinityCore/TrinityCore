@@ -195,7 +195,7 @@ struct EventAI_Summon
 };
 
 //EventSummon_Map
-extern HM_NAMESPACE::hash_map<uint32, EventAI_Summon> EventAI_Summon_Map;
+extern UNORDERED_MAP<uint32, EventAI_Summon> EventAI_Summon_Map;
 
 //EventAI Error handling
 extern uint32 EAI_ErrorLevel;
@@ -208,7 +208,7 @@ struct EventAI_CreatureError
 };
 
 //Error prevention list
-extern HM_NAMESPACE::hash_map<uint32, EventAI_CreatureError> EventAI_CreatureErrorPreventionList;
+extern UNORDERED_MAP<uint32, EventAI_CreatureError> EventAI_CreatureErrorPreventionList;
 
 //Defines
 #define EVENTAI_EMPTY_EVENTLIST         "SD2: Eventlist for Creature %i is empty but creature is using Mob_EventAI. Preventing EventAI on this creature."

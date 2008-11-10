@@ -45,7 +45,7 @@ enum ChatType
 #define TEXT_SOURCE_RANGE   -1000000                        //the amount of entries each text source has available
 
 // Text Maps
-HM_NAMESPACE::hash_map<int32, StringTextData> TextMap;
+UNORDERED_MAP<int32, StringTextData> TextMap;
 
 
 //*** End Global data ***
@@ -55,10 +55,10 @@ HM_NAMESPACE::hash_map<int32, StringTextData> TextMap;
 std::list<EventAI_Event> EventAI_Event_List;
 
 //Event AI summon structure. Used exclusivly by mob_event_ai.cpp.
-HM_NAMESPACE::hash_map<uint32, EventAI_Summon> EventAI_Summon_Map;
+UNORDERED_MAP<uint32, EventAI_Summon> EventAI_Summon_Map;
 
 //Event AI error prevention structure. Used at runtime to prevent error log spam of same creature id.
-//HM_NAMESPACE::hash_map<uint32, EventAI_CreatureError> EventAI_CreatureErrorPreventionList;
+//UNORDERED_MAP<uint32, EventAI_CreatureError> EventAI_CreatureErrorPreventionList;
 
 uint32 EAI_ErrorLevel;
 //*** End EventAI data ***
@@ -1792,7 +1792,7 @@ void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target)
         return;
     }
 
-    HM_NAMESPACE::hash_map<int32, StringTextData>::iterator i = TextMap.find(textEntry);
+    UNORDERED_MAP<int32, StringTextData>::iterator i = TextMap.find(textEntry);
 
     if (i == TextMap.end())
     {
