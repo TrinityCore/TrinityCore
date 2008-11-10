@@ -117,6 +117,9 @@ $(srcdir)/GlobalEvents.h \
 $(srcdir)/GMTicketHandler.cpp \
 $(srcdir)/GMTicketMgr.cpp \
 $(srcdir)/GMTicketMgr.h \
+$(srcdir)/GMTicketHandler.cpp \
+$(srcdir)/GMTicketMgr.cpp \
+$(srcdir)/GMTicketMgr.h \
 $(srcdir)/GossipDef.cpp \
 $(srcdir)/GossipDef.h \
 $(srcdir)/GridDefines.h \
