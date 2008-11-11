@@ -3960,6 +3960,7 @@ void Spell::EffectTameCreature(uint32 /*i*/)
     finish();
 
     Pet* pet = m_caster->CreateTamedPetFrom(creatureTarget,m_spellInfo->Id);
+    if(!pet) return;
 
     // kill original creature
     creatureTarget->setDeathState(JUST_DIED);
