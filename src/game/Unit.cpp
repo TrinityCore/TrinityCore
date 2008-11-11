@@ -472,7 +472,7 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag)
         ++next;
 
         //sLog.outDetail("auraflag:%u flag:%u = %u",(*iter)->GetSpellProto()->AuraInterruptFlags,flag,(*iter)->GetSpellProto()->AuraInterruptFlags & flag);
-        if(*iter && ((*iter)->GetSpellProto()->AuraInterruptFlags & flag) == flag)
+        if(*iter && ((*iter)->GetSpellProto()->AuraInterruptFlags & flag))
         {
             RemoveAurasDueToSpell((*iter)->GetId());
             if (!m_interruptableAuras.empty())
@@ -486,6 +486,30 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag)
 bool Unit::HasAuraType(AuraType auraType) const
 {
     return (!m_modAuras[auraType].empty());
+}
+
+/* Called by DealDamage for auras that have a chance to be dispelled on damage taken. */
+void Unit::RemoveSpellbyDamageTaken(uint32 damage, uint32 spell)
+{
+    // The chance to dispel an aura depends on the damage taken with respect to the casters level.
+    uint32 max_dmg = getLevel() > 8 ? 25 * getLevel() - 150 : 50;
+    float chance = float(damage) / max_dmg * 100.0f;
+
+    AuraList::iterator i, next;
+    for(i = m_ccAuras.begin(); i != m_ccAuras.end(); i = next)
+    {
+        next = i;
+        ++next;
+
+        if(*i && (!spell || (*i)->GetId() != spell) && roll_chance_f(chance))
+        {
+            RemoveAurasDueToSpell((*i)->GetId());
+            if (!m_ccAuras.empty())
+                next = m_ccAuras.begin();
+            else
+                return;
+        }
+    }
 }
 
 uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellEntry const *spellProto, bool durabilityLoss)
@@ -509,8 +533,6 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
     // remove affects from attacker at any non-DoT damage (including 0 damage)
     if( damagetype != DOT)
     {
-        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_STEALTH);
-
         if(pVictim->GetTypeId() == TYPEID_PLAYER && !pVictim->IsStandState() && !pVictim->hasUnitState(UNIT_STAT_STUNNED))
             pVictim->SetStandState(PLAYER_STATE_NONE);
     }
@@ -888,7 +910,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         }
 
         // TODO: Store auras by interrupt flag to speed this up.
-        AuraMap& vAuras = pVictim->GetAuras();
+        /*AuraMap& vAuras = pVictim->GetAuras();
         for (AuraMap::iterator i = vAuras.begin(), next; i != vAuras.end(); i = next)
         {
             const SpellEntry *se = i->second->GetSpellProto();
@@ -908,17 +930,9 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
                     next = vAuras.begin();
                 }
             }
-            else if ( (se->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE) && (!spellProto || se->Id != spellProto->Id) )
-            {
-                uint32 max_dmg = pVictim->getLevel() > 8 ? 25 * pVictim->getLevel() - 150 : 50;
-                float chance = float(damage) / max_dmg * 100.0f;
-                if (roll_chance_f(chance))
-                {
-                    pVictim->RemoveAurasDueToSpell(i->second->GetId());
-                    next = vAuras.begin();
-                }
-            }
-        }
+            else */
+        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_DAMAGE);
+        pVictim->RemoveSpellbyDamageTaken(damage, spellProto ? spellProto->Id : 0);
 
         if (damagetype != NODAMAGE && damage && pVictim->GetTypeId() == TYPEID_PLAYER)
         {
@@ -2192,14 +2206,7 @@ void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool ex
     if(IsNonMeleeSpellCasted(false))
         return;
 
-    if(!pVictim->isInCombat() && pVictim->GetTypeId() != TYPEID_PLAYER && ((Creature*)pVictim)->AI())
-        ((Creature*)pVictim)->AI()->AttackStart(this);
-
-    SetInCombatWith(pVictim);
-    pVictim->SetInCombatWith(this);
-
-    if(Player* attackedPlayer = pVictim->GetCharmerOrOwnerPlayerOrPlayerItself())
-        SetContestedPvP(attackedPlayer);
+    CombatStart(pVictim);
 
     uint32 hitInfo;
     if (attType == BASE_ATTACK)
@@ -3789,6 +3796,11 @@ bool Unit::AddAura(Aura *Aur)
         m_modAuras[Aur->GetModifier()->m_auraname].push_back(Aur);
         if(Aur->GetSpellProto()->AuraInterruptFlags)
             m_interruptableAuras.push_back(Aur);
+        if(Aur->GetSpellProto()->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE)
+        {
+            m_ccAuras.push_back(Aur);
+            RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CC);
+        }
     }
 
     Aur->ApplyModifier(true,true);
@@ -4152,6 +4164,8 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
         m_modAuras[(*i).second->GetModifier()->m_auraname].remove((*i).second);
         if((*i).second->GetSpellProto()->AuraInterruptFlags)
             m_interruptableAuras.remove((*i).second);
+        if((*i).second->GetSpellProto()->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE)
+            m_ccAuras.remove((*i).second);
     }
 
     // remove from list before mods removing (prevent cyclic calls, mods added before including to aura list - use reverse order)
@@ -8398,7 +8412,7 @@ void Unit::Mount(uint32 mount)
     if(!mount)
         return;
 
-    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOUNTING);
+    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOUNT);
 
     SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, mount);
 
@@ -8466,6 +8480,21 @@ void Unit::SetInCombatWith(Unit* enemy)
         }
     }
     SetInCombatState(false);
+}
+
+void Unit::CombatStart(Unit* target)
+{
+    if(!target->isInCombat() && target->GetTypeId() != TYPEID_PLAYER && ((Creature*)target)->AI())
+        ((Creature*)target)->AI()->AttackStart(this);
+
+    SetInCombatWith(target);
+    target->SetInCombatWith(this);
+
+    if(Player* attackedPlayer = target->GetCharmerOrOwnerPlayerOrPlayerItself())
+        SetContestedPvP(attackedPlayer);
+
+    if(!isInCombat()) // remove this?
+        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ATTACK);
 }
 
 void Unit::SetInCombatState(bool PvP)
