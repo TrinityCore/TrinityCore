@@ -3071,6 +3071,7 @@ void Aura::HandleFeignDeath(bool apply, bool Real)
 
         m_target->addUnitState(UNIT_STAT_DIED);
         m_target->CombatStop();
+        m_target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_UNATTACKABLE);
 
         // prevent interrupt message
         if(m_caster_guid==m_target->GetGUID() && m_target->m_currentSpells[CURRENT_GENERIC_SPELL])
@@ -3210,11 +3211,8 @@ void Aura::HandleModStealth(bool apply, bool Real)
         if(Real && m_target->GetTypeId()==TYPEID_PLAYER)
         {
             // drop flag at stealth in bg
-            if(((Player*)m_target)->InBattleGround())
-            {
-                if(BattleGround *bg = ((Player*)m_target)->GetBattleGround())
-                    bg->EventPlayerDroppedFlag((Player*)m_target);
-            }
+            m_target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_UNATTACKABLE);
+
             // remove player from the objective's active player count at stealth
             if(OutdoorPvP * pvp = ((Player*)m_target)->GetOutdoorPvP())
                 pvp->HandlePlayerActivityChanged((Player*)m_target);
@@ -3298,6 +3296,8 @@ void Aura::HandleInvisibility(bool apply, bool Real)
     {
         m_target->m_invisibilityMask |= (1 << m_modifier.m_miscvalue);
 
+        m_target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_UNATTACKABLE);
+
         if(Real && m_target->GetTypeId()==TYPEID_PLAYER)
         {
             // apply glow vision
@@ -3305,11 +3305,6 @@ void Aura::HandleInvisibility(bool apply, bool Real)
             // remove player from the objective's active player count at invisibility
             if(OutdoorPvP * pvp = ((Player*)m_target)->GetOutdoorPvP())
                 pvp->HandlePlayerActivityChanged((Player*)m_target);
-
-            // drop flag at invisible in bg
-            if(((Player*)m_target)->InBattleGround())
-                if(BattleGround *bg = ((Player*)m_target)->GetBattleGround())
-                    bg->EventPlayerDroppedFlag((Player*)m_target);
         }
 
         // apply only if not in GM invisibility and not stealth
@@ -3816,6 +3811,9 @@ void Aura::HandleAuraModStateImmunity(bool apply, bool Real)
 
 void Aura::HandleAuraModSchoolImmunity(bool apply, bool Real)
 {
+    if(apply && m_modifier.m_miscvalue == SPELL_SCHOOL_MASK_NORMAL)
+        m_target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_UNATTACKABLE);
+ 
     m_target->ApplySpellImmune(GetId(),IMMUNITY_SCHOOL,m_modifier.m_miscvalue,apply);
 
     if(Real && apply && GetSpellProto()->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY)
@@ -5376,7 +5374,10 @@ void Aura::HandleAuraRetainComboPoints(bool apply, bool Real)
 void Aura::HandleModUnattackable( bool Apply, bool Real )
 {
     if(Real && Apply)
+    {
         m_target->CombatStop();
+        m_target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_UNATTACKABLE);
+    }
 
     m_target->ApplyModFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE,Apply);
 }

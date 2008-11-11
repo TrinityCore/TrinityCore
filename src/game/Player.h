@@ -1914,6 +1914,7 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         bool GetBGAccessByLevel(uint32 bgTypeId) const;
         bool isAllowUseBattleGroundObject();
+        bool isTotalImmunity();
 
         /*********************************************************/
         /***               OUTDOOR PVP SYSTEM                  ***/

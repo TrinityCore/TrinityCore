@@ -956,14 +956,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
             if(!unit->IsStandState() && !unit->hasUnitState(UNIT_STAT_STUNNED))
                 unit->SetStandState(PLAYER_STATE_NONE);
 
-            if(!unit->isInCombat() && unit->GetTypeId() != TYPEID_PLAYER && ((Creature*)unit)->AI())
-                ((Creature*)unit)->AI()->AttackStart(m_caster);
-
-            unit->SetInCombatWith(m_caster);
-            m_caster->SetInCombatWith(unit);
-
-            if(Player *attackedPlayer = unit->GetCharmerOrOwnerPlayerOrPlayerItself())
-                m_caster->SetContestedPvP(attackedPlayer);
+            m_caster->CombatStart(unit);
         }
     }
 }
@@ -1002,11 +995,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
                 return;
             }
 
-            //if(!IsPositiveSpell(m_spellInfo->Id))
-            {
-                //do not remove feign death
-                unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_STEALTH + AURA_INTERRUPT_FLAG_DAMAGE);
-            }
+            unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
         }
         else
         {
@@ -2247,7 +2236,7 @@ void Spell::cast(bool skipCheck)
     // skip triggered spell (item equip spell casting and other not explicit character casts/item uses)
     if ( !m_IsTriggeredSpell && isSpellBreakStealth(m_spellInfo) )
     {
-        m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_STEALTH);
+        m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CAST);
     }
 
     // who did this hack?
