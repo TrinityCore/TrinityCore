@@ -50,7 +50,7 @@ using std::hash_map;
 #elif COMPILER == COMPILER_GNU && __GNUC__ >= 4
 #define UNORDERED_MAP std::tr1::unordered_map
 #elif COMPILER == COMPILER_GNU && __GNUC__ >= 3
-#define UNORDERED_MAP std::__gnu_cxx::hash_map
+#define UNORDERED_MAP __gnu_cxx::hash_map
 
 namespace __gnu_cxx
 {
