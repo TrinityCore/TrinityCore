@@ -67,14 +67,14 @@ enum SpellAuraInterruptFlags
     AURA_INTERRUPT_FLAG_NOT_ABOVEWATER      = 0x00000080,   // 7    removed by entering water
     AURA_INTERRUPT_FLAG_NOT_UNDERWATER      = 0x00000100,   // 8    removed by leaving water
     AURA_INTERRUPT_FLAG_NOT_SHEATHED        = 0x00000200,   // 9    removed by unsheathing
-    AURA_INTERRUPT_FLAG_LOOT                = 0x00000400,   // 10
-    AURA_INTERRUPT_FLAG_MOUNT               = 0x00000800,   // 11   removed by mounting
+    AURA_INTERRUPT_FLAG_TALK                = 0x00000400,   // 10   talk to npc / loot? action on creature
+    AURA_INTERRUPT_FLAG_USE                 = 0x00000800,   // 11   mine/use/open action on gameobject
     AURA_INTERRUPT_FLAG_ATTACK              = 0x00001000,   // 12   removed by attacking
     AURA_INTERRUPT_FLAG_CAST                = 0x00002000,   // 13   ???
     AURA_INTERRUPT_FLAG_UNK14               = 0x00004000,   // 14
     AURA_INTERRUPT_FLAG_TRANSFORM           = 0x00008000,   // 15   removed by transform?
     AURA_INTERRUPT_FLAG_UNK16               = 0x00010000,   // 16
-    AURA_INTERRUPT_FLAG_UNK17               = 0x00020000,   // 17   misdirect, aspect, swim speed
+    AURA_INTERRUPT_FLAG_MOUNT               = 0x00020000,   // 17   misdirect, aspect, swim speed
     AURA_INTERRUPT_FLAG_NOT_SEATED          = 0x00040000,   // 18   removed by standing up
     AURA_INTERRUPT_FLAG_CHANGE_MAP          = 0x00080000,   // 19   leaving map/getting teleported
     AURA_INTERRUPT_FLAG_UNATTACKABLE        = 0x00100000,   // 20   invulnerable or stealth
