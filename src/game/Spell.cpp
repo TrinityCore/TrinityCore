@@ -456,10 +456,11 @@ void Spell::FillTargetMap()
         {
             switch(m_spellInfo->Effect[i])
             {
-                case SPELL_EFFECT_PARRY:
-                case SPELL_EFFECT_BLOCK:
+                case SPELL_EFFECT_PARRY: // 0
+                case SPELL_EFFECT_BLOCK: // 0
                 case SPELL_EFFECT_SKILL: // always with dummy 3 as A
-                case SPELL_EFFECT_LEARN_SPELL:
+                case SPELL_EFFECT_LEARN_SPELL: // 0
+                case SPELL_EFFECT_TRADE_SKILL: // 0 or 1
                     tmpUnitMap.push_back(m_caster);
                     break;
             }
