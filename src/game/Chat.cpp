@@ -1,22 +1,22 @@
 /*
-* Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
-*
-* Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-*/
+ * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ *
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #include "Common.h"
 #include "Language.h"
@@ -211,58 +211,59 @@ ChatCommand * ChatHandler::getCommandTable()
 
         { "config",         SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleReloadConfigCommand,        "", NULL },
 
-        { "areatrigger_tavern", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadAreaTriggerTavernCommand, "", NULL },
-        { "areatrigger_teleport", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadAreaTriggerTeleportCommand, "", NULL },
-        { "areatrigger_involvedrelation",SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadQuestAreaTriggersCommand, "", NULL },
-        { "event_scripts", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadEventScriptsCommand, "", NULL },
-        { "command", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadCommandCommand, "", NULL },
-        { "creature_involvedrelation", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadCreatureQuestInvRelationsCommand,"",NULL },
-        { "creature_loot_template", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadLootTemplatesCreatureCommand, "", NULL },
-        { "creature_questrelation", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadCreatureQuestRelationsCommand, "", NULL },
-        { "disenchant_loot_template", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadLootTemplatesDisenchantCommand, "", NULL },
-        { "fishing_loot_template", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadLootTemplatesFishingCommand, "", NULL },
-        { "game_graveyard_zone", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadGameGraveyardZoneCommand, "", NULL },
-        { "game_tele", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadGameTeleCommand, "", NULL },
-        { "gameobject_involvedrelation", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadGOQuestInvRelationsCommand, "", NULL },
-        { "gameobject_loot_template", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadLootTemplatesGameobjectCommand, "", NULL },
-        { "gameobject_questrelation", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadGOQuestRelationsCommand, "", NULL },
-        { "gameobject_scripts", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadGameObjectScriptsCommand, "", NULL },
-        { "item_enchantment_template", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadItemEnchantementsCommand, "", NULL },
-        { "item_loot_template", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadLootTemplatesItemCommand, "", NULL },
-        { "trinity_string", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadTrinityStringCommand, "", NULL },
-        { "npc_gossip", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadNpcGossipCommand, "", NULL },
-        { "npc_option", SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadNpcOptionCommand,   "", NULL },
-        { "npc_trainer", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadNpcTrainerCommand, "", NULL },
-        { "npc_vendor", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadNpcVendorCommand, "", NULL },
-        { "page_text", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadPageTextsCommand, "", NULL },
-        { "pickpocketing_loot_template", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadLootTemplatesPickpocketingCommand,"",NULL},
-        { "prospecting_loot_template", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadLootTemplatesProspectingCommand,"", NULL },
-        { "quest_mail_loot_template", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadLootTemplatesQuestMailCommand, "", NULL },
-        { "quest_end_scripts", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadQuestEndScriptsCommand, "", NULL },
-        { "quest_start_scripts", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadQuestStartScriptsCommand, "", NULL },
-        { "quest_template", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadQuestTemplateCommand, "", NULL },
-        { "reference_loot_template", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadLootTemplatesReferenceCommand, "", NULL },
-        { "reserved_name", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadReservedNameCommand, "", NULL },
-        { "skill_discovery_template", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadSkillDiscoveryTemplateCommand, "", NULL },
-        { "skill_extra_item_template", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadSkillExtraItemTemplateCommand, "", NULL },
-        { "skill_fishing_base_level", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadSkillFishingBaseLevelCommand, "", NULL },
-        { "skinning_loot_template", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadLootTemplatesSkinningCommand, "", NULL },
-        { "spell_affect", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadSpellAffectCommand, "", NULL },
-        { "spell_chain", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadSpellChainCommand, "", NULL },
-        { "spell_elixir", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadSpellElixirCommand, "", NULL },
-        { "spell_learn_spell", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadSpellLearnSpellCommand, "", NULL },
-        { "spell_pet_auras", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadSpellPetAurasCommand, "", NULL },
-        { "spell_proc_event", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadSpellProcEventCommand, "", NULL },
-        { "spell_script_target", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadSpellScriptTargetCommand, "", NULL },
-        { "spell_scripts", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadSpellScriptsCommand, "", NULL },
-        { "spell_target_position", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadSpellTargetPositionCommand, "", NULL },
-        { "spell_threats", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadSpellThreatsCommand, "", NULL },
-        { "locales_creature", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadLocalesCreatureCommand, "", NULL },
-        { "locales_gameobject", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadLocalesGameobjectCommand, "", NULL },
-        { "locales_item", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadLocalesItemCommand, "", NULL },
-        { "locales_npc_text", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadLocalesNpcTextCommand, "", NULL },
-        { "locales_page_text", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadLocalesPageTextCommand, "", NULL },
-        { "locales_quest", SEC_ADMINISTRATOR, true, &ChatHandler::HandleReloadLocalesQuestCommand, "", NULL },
+        { "areatrigger_tavern",          SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadAreaTriggerTavernCommand,       "", NULL },
+        { "areatrigger_teleport",        SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadAreaTriggerTeleportCommand,     "", NULL },
+        { "areatrigger_involvedrelation",SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadQuestAreaTriggersCommand,       "", NULL },
+        { "event_scripts",               SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadEventScriptsCommand,            "", NULL },
+        { "command",                     SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadCommandCommand,                 "", NULL },
+        { "creature_involvedrelation",   SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadCreatureQuestInvRelationsCommand,"",NULL },
+        { "creature_loot_template",      SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLootTemplatesCreatureCommand,   "", NULL },
+        { "creature_questrelation",      SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadCreatureQuestRelationsCommand,  "", NULL },
+        //{ "db_script_string",            SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadDbScriptStringCommand,          "", NULL },
+        { "disenchant_loot_template",    SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLootTemplatesDisenchantCommand, "", NULL },
+        { "fishing_loot_template",       SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLootTemplatesFishingCommand,    "", NULL },
+        { "game_graveyard_zone",         SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadGameGraveyardZoneCommand,       "", NULL },
+        { "game_tele",                   SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadGameTeleCommand,                "", NULL },
+        { "gameobject_involvedrelation", SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadGOQuestInvRelationsCommand,     "", NULL },
+        { "gameobject_loot_template",    SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLootTemplatesGameobjectCommand, "", NULL },
+        { "gameobject_questrelation",    SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadGOQuestRelationsCommand,        "", NULL },
+        { "gameobject_scripts",          SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadGameObjectScriptsCommand,       "", NULL },
+        { "item_enchantment_template",   SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadItemEnchantementsCommand,       "", NULL },
+        { "item_loot_template",          SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLootTemplatesItemCommand,       "", NULL },
+        { "trinity_string",              SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadTrinityStringCommand,           "", NULL },
+        { "npc_gossip",                  SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadNpcGossipCommand,               "", NULL },
+        { "npc_option",                  SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadNpcOptionCommand,               "", NULL },
+        { "npc_trainer",                 SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadNpcTrainerCommand,              "", NULL },
+        { "npc_vendor",                  SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadNpcVendorCommand,               "", NULL },
+        { "page_text",                   SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadPageTextsCommand,               "", NULL },
+        { "pickpocketing_loot_template", SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLootTemplatesPickpocketingCommand,"",NULL},
+        { "prospecting_loot_template",   SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLootTemplatesProspectingCommand,"", NULL },
+        { "quest_mail_loot_template",    SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLootTemplatesQuestMailCommand,  "", NULL },
+        { "quest_end_scripts",           SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadQuestEndScriptsCommand,         "", NULL },
+        { "quest_start_scripts",         SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadQuestStartScriptsCommand,       "", NULL },
+        { "quest_template",              SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadQuestTemplateCommand,           "", NULL },
+        { "reference_loot_template",     SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLootTemplatesReferenceCommand,  "", NULL },
+        { "reserved_name",               SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadReservedNameCommand,            "", NULL },
+        { "skill_discovery_template",    SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadSkillDiscoveryTemplateCommand,  "", NULL },
+        { "skill_extra_item_template",   SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadSkillExtraItemTemplateCommand,  "", NULL },
+        { "skill_fishing_base_level",    SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadSkillFishingBaseLevelCommand,   "", NULL },
+        { "skinning_loot_template",      SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLootTemplatesSkinningCommand,   "", NULL },
+        { "spell_affect",                SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadSpellAffectCommand,             "", NULL },
+        { "spell_chain",                 SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadSpellChainCommand,              "", NULL },
+        { "spell_elixir",                SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadSpellElixirCommand,             "", NULL },
+        { "spell_learn_spell",           SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadSpellLearnSpellCommand,         "", NULL },
+        { "spell_pet_auras",             SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadSpellPetAurasCommand,           "", NULL },
+        { "spell_proc_event",            SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadSpellProcEventCommand,          "", NULL },
+        { "spell_script_target",         SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadSpellScriptTargetCommand,       "", NULL },
+        { "spell_scripts",               SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadSpellScriptsCommand,            "", NULL },
+        { "spell_target_position",       SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadSpellTargetPositionCommand,     "", NULL },
+        { "spell_threats",               SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadSpellThreatsCommand,            "", NULL },
+        { "locales_creature",            SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesCreatureCommand,         "", NULL },
+        { "locales_gameobject",          SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesGameobjectCommand,       "", NULL },
+        { "locales_item",                SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesItemCommand,             "", NULL },
+        { "locales_npc_text",            SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesNpcTextCommand,          "", NULL },
+        { "locales_page_text",           SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesPageTextCommand,         "", NULL },
+        { "locales_quest",               SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesQuestCommand,            "", NULL },
 
         { "",                            SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadCommand,                        "", NULL },
         { NULL,                          0,                 false, NULL,                                                     "", NULL }
@@ -1186,7 +1187,7 @@ static char const* const spellTalentKeys[] = {
 uint32 ChatHandler::extractSpellIdFromLink(char* text)
 {
     // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r
-    // number or [name] Shift-click form |color|Htalent:telen_id,rank|h[name]|h|r
+    // number or [name] Shift-click form |color|Htalent:talent_id,rank|h[name]|h|r
     int type = 0;
     char* rankS = NULL;
     char* idS = extractKeyFromLink(text,spellTalentKeys,&type,&rankS);

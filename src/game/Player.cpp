@@ -5281,7 +5281,7 @@ void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self, b
     MapManager::Instance().GetMap(GetMapId(), this)->MessageDistBroadcast(this, data, dist, self, to_possessor);
 }
 
-void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self, bool own_team_only, bool to_possessor)
+void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self, bool to_possessor, bool own_team_only)
 {
     MapManager::Instance().GetMap(GetMapId(), this)->MessageDistBroadcast(this, data, dist, self, to_possessor, own_team_only);
 }
@@ -8622,7 +8622,6 @@ bool Player::IsValidPos( uint8 bag, uint8 slot )
     // where this?
     return false;
 }
-
 
 bool Player::HasItemCount( uint32 item, uint32 count, bool inBankAlso ) const
 {
@@ -16605,7 +16604,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, uint32 mount_i
     ModifyMoney(-(int32)totalcost);
 
     // prevent stealth flight
-    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
+    //RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
 
     WorldPacket data(SMSG_ACTIVATETAXIREPLY, 4);
     data << uint32(ERR_TAXIOK);
