@@ -56,6 +56,7 @@
 #include "SocialMgr.h"
 #include "Util.h"
 #include "TemporarySummon.h"
+#include "ScriptCalls.h" // for goober gameobject script
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -2807,6 +2808,7 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
                     if(player->GetQuestStatus(gameObjTarget->GetGOInfo()->goober.questId) != QUEST_STATUS_INCOMPLETE)
                         return;
 
+                Script->GOHello(player, gameObjTarget);
                 gameObjTarget->AddUniqueUse(player);
                 gameObjTarget->SetLootState(GO_JUST_DEACTIVATED);
 

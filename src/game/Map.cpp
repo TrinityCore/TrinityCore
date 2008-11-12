@@ -533,7 +533,7 @@ void Map::MessageBroadcast(WorldObject *obj, WorldPacket *msg, bool to_possessor
     cell_lock->Visit(cell_lock, message, *this);
 }
 
-void Map::MessageDistBroadcast(Player *player, WorldPacket *msg, float dist, bool to_self, bool own_team_only, bool to_possessor)
+void Map::MessageDistBroadcast(Player *player, WorldPacket *msg, float dist, bool to_self, bool to_possessor, bool own_team_only)
 {
     CellPair p = Trinity::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
 
