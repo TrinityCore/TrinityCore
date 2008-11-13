@@ -9,6 +9,6 @@ DELETE FROM spell_target_position WHERE `id` IN (46019, 46020);
 INSERT INTO spell_target_position () VALUES (46019, 580, 1704.34, 928.17, -74.558, 0);
 INSERT INTO spell_target_position () VALUES (46020, 580, 1704.34, 928.17, 53.079, 0);
 
---Magtheridon Earthquake
+-- Magtheridon Earthquake
 DELETE FROM spell_script_target WHERE `entry` IN (30657);
 INSERT INTO spell_script_target VALUES ('30657', '1', '24136');

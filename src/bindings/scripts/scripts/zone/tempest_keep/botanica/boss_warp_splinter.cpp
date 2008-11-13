@@ -1,18 +1,18 @@
 /* Copyright (C) 2006,2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
 /* ScriptData
 SDName: Boss_Warp_Splinter
@@ -69,7 +69,7 @@ struct TRINITY_DLL_DECL mob_treantAI  : public ScriptedAI
 
 #define WAR_STOMP           34716
 #define SUMMON_TREANTS      34727                           // DBC: 34727, 34731, 34733, 34734, 34736, 34739, 34741 (with Ancestral Life spell 34742)   // won't work (guardian summon)
-#define ARCANE_VOLLEY       35059                           //37078, 34785 //must additional script them (because Splinter eats them after 20 sec ^)
+#define ARCANE_VOLLEY       36705                           //37078, 34785 //must additional script them (because Splinter eats them after 20 sec ^)
 #define SPELL_HEAL_FATHER   6262
 
 #define CREATURE_TREANT     19949
@@ -92,7 +92,7 @@ struct TRINITY_DLL_DECL mob_treantAI  : public ScriptedAI
 
 #define TREANT_SPAWN_DIST   50                              //50 yards from Warp Splinter's spawn point
 
-float treant_pos[6][3] =
+float treant_pos[6][3] = 
 {
     {24.301233, 427.221100, -27.060635},
     {16.795492, 359.678802, -27.355425},
@@ -121,12 +121,15 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
     float Treant_Spawn_Pos_X;
     float Treant_Spawn_Pos_Y;
 
+    bool InCombat;
 
     void Reset()
     {
-        War_Stomp_Timer = 60000;
+        InCombat = false;
+
+        War_Stomp_Timer = 25000 + rand()%15000;
         Summon_Treants_Timer = 45000;
-        Arcane_Volley_Timer = 140000;
+        Arcane_Volley_Timer = 8000 + rand()%12000;
         CheckTreantLOS_Timer = 1000;
         TreantLife_Timer = 999999;
 
@@ -140,6 +143,7 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
     {
         DoYell(SAY_COMBAT_START,LANG_UNIVERSAL,NULL);
         DoPlaySoundToSet(m_creature,SOUND_COMBAT_START);
+        InCombat = true;
     }
 
     // On Killed Unit
@@ -147,17 +151,18 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_SLAY_1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY_1);
-                break;
-            case 1:
-                DoYell(SAY_SLAY_2,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY_2);
-                break;
+        case 0:
+            DoYell(SAY_SLAY_1,LANG_UNIVERSAL,NULL);
+            DoPlaySoundToSet(m_creature, SOUND_SLAY_1);
+            break;
+        case 1:
+            DoYell(SAY_SLAY_2,LANG_UNIVERSAL,NULL);
+            DoPlaySoundToSet(m_creature, SOUND_SLAY_2);
+            break;
         }
     }
 
+    // On Death
     void JustDied(Unit* Killer)
     {
         DoYell(SAY_DEATH,LANG_UNIVERSAL,NULL);
@@ -167,7 +172,7 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
     void SummonTreants()
     {
         for(int i = 0; i < 6; ++i)
-        {
+        {            
             float angle = (M_PI / 3) * i;
 
             float X = Treant_Spawn_Pos_X + TREANT_SPAWN_DIST * cos(angle);
@@ -185,17 +190,16 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
                 ((mob_treantAI*)pTreant->AI())->WarpGuid = m_creature->GetGUID();
             }
         }
-
         switch(rand()%2)
-        {
-            case 0:
-                DoYell(SAY_SUMMON_1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SUMMON_1);
-                break;
-            case 1:
-                DoYell(SAY_SUMMON_2,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SUMMON_2);
-                break;
+        { 
+        case 0:
+            DoYell(SAY_SUMMON_1,LANG_UNIVERSAL,NULL);
+            DoPlaySoundToSet(m_creature,SOUND_SUMMON_1);
+            break;
+        case 1:
+            DoYell(SAY_SUMMON_2,LANG_UNIVERSAL,NULL);
+            DoPlaySoundToSet(m_creature,SOUND_SUMMON_2);
+            break; 
         }
     }
 
@@ -223,22 +227,29 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
+        //Return since we have no target
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
             return;
 
         //Check for War Stomp
         if(War_Stomp_Timer < diff)
         {
+            //time to cast
             DoCast(m_creature->getVictim(),WAR_STOMP);
-            War_Stomp_Timer = 60000;
+
+            //Cast again on time
+            War_Stomp_Timer = 25000 + rand()%15000;        
         }
         else War_Stomp_Timer -= diff;
 
         //Check for Arcane Volley
         if(Arcane_Volley_Timer < diff)
         {
+            //time to cast
             DoCast(m_creature->getVictim(),ARCANE_VOLLEY);
-            Arcane_Volley_Timer = 40000+((rand()%20)*1000);
+
+            //Cast again on time
+            Arcane_Volley_Timer = 20000 + rand()%15000; 
         }
         else Arcane_Volley_Timer -= diff;
 
@@ -246,7 +257,9 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
         if(Summon_Treants_Timer < diff)
         {
             SummonTreants();
-            Summon_Treants_Timer = 45000;
+
+            //Cast again on time
+            Summon_Treants_Timer = 45000;        
         }
         else Summon_Treants_Timer -= diff;
 
@@ -254,6 +267,7 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
         if( CheckTreantLOS_Timer < diff)
         {
             EatTreant();
+
             CheckTreantLOS_Timer = 1000;
         }
         else CheckTreantLOS_Timer -= diff;

@@ -59,7 +59,7 @@ struct TRINITY_DLL_DECL boss_thespiaAI : public ScriptedAI
 
     void Reset()
     {
-        LightningCloud_Timer = 28000;
+        LightningCloud_Timer = 15000;
         LungBurst_Timer = 7000;
         EnvelopingWinds_Timer = 9000;
 
@@ -111,7 +111,7 @@ struct TRINITY_DLL_DECL boss_thespiaAI : public ScriptedAI
             if (HeroicMode)
                 if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                     DoCast(target, SPELL_LIGHTNING_CLOUD);
-            LightningCloud_Timer = 28000;
+            LightningCloud_Timer = 15000+rand()%10000;
         }else LightningCloud_Timer -=diff;
 
         //LungBurst_Timer
@@ -119,7 +119,7 @@ struct TRINITY_DLL_DECL boss_thespiaAI : public ScriptedAI
         {
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target, SPELL_LUNG_BURST);
-            LungBurst_Timer = 10000+rand()%5000;
+            LungBurst_Timer = 7000+rand()%5000;
         }else LungBurst_Timer -=diff;
 
         //EnvelopingWinds_Timer
@@ -164,7 +164,7 @@ struct TRINITY_DLL_DECL mob_coilfang_waterelementalAI : public ScriptedAI
         if (WaterBoltVolley_Timer < diff)
         {
             DoCast(m_creature, HeroicMode ? H_SPELL_WATER_BOLT_VOLLEY : SPELL_WATER_BOLT_VOLLEY);
-            WaterBoltVolley_Timer = 10000+rand()%5000;
+            WaterBoltVolley_Timer = 7000+rand()%5000;
         }else WaterBoltVolley_Timer -= diff;
 
         DoMeleeAttackIfReady();

@@ -41,10 +41,10 @@ EndContentData */
 
 #define SPELL_CORRUPTION            30938
 
-#define SPELL_FIRE_NOVA             33775
+#define SPELL_FIRE_NOVA             33132
 #define H_SPELL_FIRE_NOVA           37371
 
-#define SPELL_SHADOW_BOLT_VOLLEY    17228
+#define SPELL_SHADOW_BOLT_VOLLEY    28599
 #define H_SPELL_SHADOW_BOLT_VOLLEY  40070
 
 #define SPELL_BURNING_NOVA          30940

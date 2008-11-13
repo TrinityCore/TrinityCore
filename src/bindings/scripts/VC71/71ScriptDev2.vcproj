@@ -1568,6 +1568,18 @@
 							RelativePath="..\scripts\zone\tempest_keep\the_mechanar\boss_nethermancer_sepethrea.cpp"
 							>
 						</File>
+						<File
+							RelativePath="..\scripts\zone\tempest_keep\the_mechanar\boss_pathaleon_the_calculator.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\tempest_keep\the_mechanar\instance_mechanar.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\tempest_keep\the_mechanar\def_mechanar.h"
+							>
+						</File>
 					</Filter>
 				</Filter>
 				<Filter
