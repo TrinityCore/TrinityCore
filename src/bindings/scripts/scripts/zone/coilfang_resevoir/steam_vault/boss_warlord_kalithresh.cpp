@@ -105,7 +105,7 @@ struct TRINITY_DLL_DECL boss_warlord_kalithreshAI : public ScriptedAI
     void Reset()
     {
         Reflection_Timer = 10000;
-        Impale_Timer = 30000;
+        Impale_Timer = 7000+rand()%7000;
         Rage_Timer = 45000;
         CanRage = false;
 
@@ -186,14 +186,14 @@ struct TRINITY_DLL_DECL boss_warlord_kalithreshAI : public ScriptedAI
                 DoCast(m_creature,SPELL_WARLORDS_RAGE);
                 ((mob_naga_distillerAI*)distiller->AI())->StartRageGen(m_creature);
             }
-            Rage_Timer = 45000;
+            Rage_Timer = 3000+rand()%15000;
         }else Rage_Timer -= diff;
 
         //Reflection_Timer
         if (Reflection_Timer < diff)
         {
             DoCast(m_creature, SPELL_SPELL_REFLECTION);
-            Reflection_Timer = 20000+rand()%5000;
+            Reflection_Timer = 15000+rand()%10000;
         }else Reflection_Timer -= diff;
 
         //Impale_Timer

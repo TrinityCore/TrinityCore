@@ -513,6 +513,8 @@ extern void AddSC_the_eye();
 //--The Mechanar
 extern void AddSC_boss_gatewatcher_iron_hand();
 extern void AddSC_boss_nethermancer_sepethrea();
+extern void AddSC_boss_pathaleon_the_calculator();
+extern void AddSC_instance_mechanar();
 
 //Temple of ahn'qiraj
 extern void AddSC_boss_cthun();
@@ -1696,6 +1698,8 @@ void ScriptsInit()
     //--The Mechanar
     AddSC_boss_gatewatcher_iron_hand();
     AddSC_boss_nethermancer_sepethrea();
+    AddSC_boss_pathaleon_the_calculator();
+    AddSC_instance_mechanar();
 
     //Temple of ahn'qiraj
     AddSC_boss_cthun();

@@ -6,30 +6,31 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 /* ScriptData
-SDName: Boss_Sartura
+SDName: boss_sartura
 SD%Complete: 99
-SDComment:
+SDComment: 
 SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
 #include "precompiled.h"
 
 #define SPELL_WHIRLWIND                              26083
-#define SPELL_ENRAGE                                 28747  //Not sure if right ID.
+#define SPELL_ENRAGE                                 28747            //Not sure if right ID.
 #define SPELL_ENRAGEHARD                             28798
 
 //Guard Spell
 #define SPELL_WHIRLWINDADD                           26038
 #define SPELL_KNOCKBACK                              26027
+
 
 struct TRINITY_DLL_DECL boss_sarturaAI : public ScriptedAI
 {
@@ -58,8 +59,9 @@ struct TRINITY_DLL_DECL boss_sarturaAI : public ScriptedAI
 
         WhirlWind = false;
         AggroReset = false;
-        Enraged = false;
+        Enraged = false; 
         EnragedHard = false;
+
     }
 
     void Aggro(Unit *who)
@@ -77,9 +79,7 @@ struct TRINITY_DLL_DECL boss_sarturaAI : public ScriptedAI
             if (WhirlWindRandom_Timer < diff)
             {
                 //Attack random Gamers
-                Unit* target = NULL;
-                target = SelectUnit(SELECT_TARGET_RANDOM,1);
-                if (target)
+                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
                     AttackStart(target);
 
                 WhirlWindRandom_Timer = 3000 + rand()%4000;
@@ -104,13 +104,11 @@ struct TRINITY_DLL_DECL boss_sarturaAI : public ScriptedAI
             if (AggroReset_Timer < diff)
             {
                 //Attack random Gamers
-                Unit* target = NULL;
-                target = SelectUnit(SELECT_TARGET_RANDOM,1);
-                if (target)
+                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
                     m_creature->TauntApply(target);
 
-                AggroReset = true;
-                AggroReset_Timer = 2000 + rand()%3000;
+                    AggroReset = true;
+                    AggroReset_Timer = 2000 + rand()%3000;
             }else AggroReset_Timer -= diff;
 
             if (AggroReset)
@@ -119,7 +117,8 @@ struct TRINITY_DLL_DECL boss_sarturaAI : public ScriptedAI
                 {
                     AggroReset = false;
                     AggroResetEnd_Timer = 5000;
-                }AggroResetEnd_Timer -= diff;
+                    AggroReset_Timer = 35000 + rand()%10000;
+                } else AggroResetEnd_Timer -= diff;
             }
 
             //If she is 20% enrage
@@ -130,7 +129,7 @@ struct TRINITY_DLL_DECL boss_sarturaAI : public ScriptedAI
                     DoCast(m_creature, SPELL_ENRAGE);
                     Enraged = true;
                 }
-            }
+            } 
 
             //After 10 minutes hard enrage
             if (!EnragedHard)
@@ -139,13 +138,14 @@ struct TRINITY_DLL_DECL boss_sarturaAI : public ScriptedAI
                 {
                     DoCast(m_creature, SPELL_ENRAGEHARD);
                     EnragedHard = true;
-                }EnrageHard_Timer -= diff;
+                } else EnrageHard_Timer -= diff;
             }
 
             DoMeleeAttackIfReady();
         }
     }
-};
+}; 
+
 
 struct TRINITY_DLL_DECL mob_sartura_royal_guardAI : public ScriptedAI
 {
@@ -157,7 +157,7 @@ struct TRINITY_DLL_DECL mob_sartura_royal_guardAI : public ScriptedAI
     uint32 AggroReset_Timer;
     uint32 AggroResetEnd_Timer;
     uint32 KnockBack_Timer;
-
+    
     bool WhirlWind;
     bool AggroReset;
 
@@ -169,9 +169,10 @@ struct TRINITY_DLL_DECL mob_sartura_royal_guardAI : public ScriptedAI
         AggroReset_Timer = 45000 + rand()%10000;
         AggroResetEnd_Timer = 5000;
         KnockBack_Timer = 10000;
-
+        
         WhirlWind = false;
         AggroReset = false;
+
     }
 
     void Aggro(Unit *who)
@@ -197,9 +198,7 @@ struct TRINITY_DLL_DECL mob_sartura_royal_guardAI : public ScriptedAI
             if (WhirlWindRandom_Timer < diff)
             {
                 //Attack random Gamers
-                Unit* target = NULL;
-                target = SelectUnit(SELECT_TARGET_RANDOM,1);
-                if (target)
+                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
                     m_creature->TauntApply(target);
 
                 WhirlWindRandom_Timer = 3000 + rand()%4000;
@@ -213,12 +212,10 @@ struct TRINITY_DLL_DECL mob_sartura_royal_guardAI : public ScriptedAI
 
         if (!WhirlWind)
         {
-            if(AggroReset_Timer < diff)
+            if (AggroReset_Timer < diff)
             {
                 //Attack random Gamers
-                Unit* target = NULL;
-                target = SelectUnit(SELECT_TARGET_RANDOM,1);
-                if (target)
+                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
                     AttackStart(target);
 
                 AggroReset = true;
@@ -238,7 +235,8 @@ struct TRINITY_DLL_DECL mob_sartura_royal_guardAI : public ScriptedAI
             {
                 AggroReset = false;
                 AggroResetEnd_Timer = 5000;
-            }AggroResetEnd_Timer -= diff;
+                AggroReset_Timer = 30000 + rand()%10000;
+            } else AggroResetEnd_Timer -= diff;
         }
 
         DoMeleeAttackIfReady();
@@ -258,7 +256,6 @@ CreatureAI* GetAI_mob_sartura_royal_guard(Creature *_Creature)
 void AddSC_boss_sartura()
 {
     Script *newscript;
-
     newscript = new Script;
     newscript->Name="boss_sartura";
     newscript->GetAI = GetAI_boss_sartura;

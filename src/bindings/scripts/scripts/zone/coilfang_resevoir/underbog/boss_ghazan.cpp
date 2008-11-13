@@ -22,6 +22,7 @@ SDCategory: Coilfang Resevoir, Underbog
 EndScriptData */
 
 #include "../../../creature/simple_ai.h"
+#include "precompiled.h"
 
 /*
 --== Ghaz'an ==--

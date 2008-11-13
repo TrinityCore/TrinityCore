@@ -46,10 +46,10 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
 
     void Reset()
     {
-        AcidSpray_Timer = 10000;
-        ExplodingBreaker_Timer = 4000;
+        AcidSpray_Timer = 15000;
+        ExplodingBreaker_Timer = 6000;
         Domination_Timer = 120000;
-        Knockdown_Timer    = 6000;
+        Knockdown_Timer    = 10000;
     }
 
     void Aggro(Unit *who)
@@ -84,7 +84,7 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
         if (AcidSpray_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_ACID_SPRAY);
-            AcidSpray_Timer = 16000+rand()%8000;
+            AcidSpray_Timer = 15000+rand()%8000;
         }else AcidSpray_Timer -=diff;
 
         if (ExplodingBreaker_Timer < diff)

@@ -92,11 +92,15 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
         SummonWhelpsTimer = 45000;
         BellowingRoarTimer = 30000;
         WingBuffetTimer = 17000;
+
+        m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+        m_creature->ApplySpellImmune(1, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
     }
 
     void Aggro(Unit* who)
     {
         DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
+        DoZoneInCombat();
     }
 
     void KilledUnit(Unit *victim)
@@ -147,7 +151,7 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
             if(CleaveTimer < diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_CLEAVE);
-                CleaveTimer = 10000;
+                CleaveTimer = 7000;
             }else CleaveTimer -= diff;
 
             if(WingBuffetTimer < diff)
@@ -186,7 +190,7 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
             if(EngulfingFlamesTimer < diff)
             {
                 DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_ENGULFINGFLAMES);
-                EngulfingFlamesTimer = 10000;
+                EngulfingFlamesTimer = 8000;
             }else EngulfingFlamesTimer -= diff;
 
             if(SummonWhelpsTimer < diff)
@@ -199,7 +203,7 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
                     if(Whelp)
                         Whelp->AI()->AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
                 }
-                SummonWhelpsTimer = 45000;
+                SummonWhelpsTimer = 30000;
             }else SummonWhelpsTimer -= diff;
         }
 

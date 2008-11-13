@@ -348,6 +348,9 @@ scripts/zone/tempest_keep/the_eye/the_eye.cpp \
 scripts/zone/tempest_keep/the_mechanar/boss_gatewatcher_gyrokill.cpp \
 scripts/zone/tempest_keep/the_mechanar/boss_gatewatcher_ironhand.cpp \
 scripts/zone/tempest_keep/the_mechanar/boss_nethermancer_sepethrea.cpp \
+scripts/zone/tempest_keep/the_mechanar/boss_pathaleon_the_calculator.cpp \
+scripts/zone/tempest_keep/the_mechanar/def_mechanar.h \
+scripts/zone/tempest_keep/the_mechanar/instance_mechanar.cpp \
 scripts/zone/temple_of_ahnqiraj/boss_bug_trio.cpp \
 scripts/zone/temple_of_ahnqiraj/boss_cthun.cpp \
 scripts/zone/temple_of_ahnqiraj/boss_fankriss.cpp \

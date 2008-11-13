@@ -162,9 +162,9 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
         soulholder = 0;
         soulclass = 0;
 
-        Fear_timer = 20000;
+        Fear_timer = 15000 + rand()% 5000;
         Ribbon_of_Souls_timer = 5000;
-        StolenSoul_Timer = 30000;
+        StolenSoul_Timer = 25000 + rand()% 10000;
 
         HasTaunted = false;
         Avatar_summoned = false;
@@ -250,7 +250,7 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
 
             DoCast(m_creature, SPELL_SUMMON_AVATAR);
             Avatar_summoned = true;
-            StolenSoul_Timer = 45000;
+            StolenSoul_Timer = 15000 + rand()% 15000;
         }
 
         if (StolenSoul_Timer < diff)
@@ -275,7 +275,7 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
                     DoCast(target,SPELL_STOLEN_SOUL);
                     DoSpawnCreature(ENTRY_STOLEN_SOUL,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,10000);
 
-                    StolenSoul_Timer = 45000;
+                    StolenSoul_Timer = 20000 + rand()% 10000;
                 } else StolenSoul_Timer = 1000;
             }
         }else StolenSoul_Timer -= diff;
@@ -291,7 +291,7 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
         if (Fear_timer < diff)
         {
             DoCast(m_creature,SPELL_SOUL_SCREAM);
-            Fear_timer = 25000 + rand()% 10000;
+            Fear_timer = 15000 + rand()% 15000;
         }else Fear_timer -= diff;
 
         DoMeleeAttackIfReady();

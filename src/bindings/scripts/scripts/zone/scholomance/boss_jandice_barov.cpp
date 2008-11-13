@@ -1,23 +1,23 @@
 /* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
 /* ScriptData
 SDName: Boss_jandicebarov
 SD%Complete: 100
-SDComment:
+SDComment: 
 SDCategory: Scholomance
 EndScriptData */
 
@@ -60,15 +60,15 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
         Rand = rand()%10;
         switch (rand()%2)
         {
-            case 0: RandX = 0 - Rand; break;
-            case 1: RandX = 0 + Rand; break;
+        case 0: RandX = 0 - Rand; break;
+        case 1: RandX = 0 + Rand; break;
         }
         Rand = 0;
         Rand = rand()%10;
         switch (rand()%2)
         {
-            case 0: RandY = 0 - Rand; break;
-            case 1: RandY = 0 + Rand; break;
+        case 0: RandY = 0 - Rand; break;
+        case 1: RandY = 0 + Rand; break;
         }
         Rand = 0;
         Summoned = DoSpawnCreature(11439, RandX, RandY, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
@@ -80,11 +80,10 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
     {
         if (Invisible && Invisible_Timer < diff)
         {
-            //Become visible again
+            //Become visible again 
             m_creature->setFaction(14);
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            //Jandice Model
-            m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,11073);
+            m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,11073);     //Jandice Model
             Invisible = false;
         } else if (Invisible)
         {
@@ -100,19 +99,23 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
         //CurseOfBlood_Timer
         if (CurseOfBlood_Timer < diff)
         {
+            //Cast
             DoCast(m_creature->getVictim(),SPELL_CURSEOFBLOOD);
+
+            //45 seconds
             CurseOfBlood_Timer = 30000;
         }else CurseOfBlood_Timer -= diff;
 
         //Illusion_Timer
         if (!Invisible && Illusion_Timer < diff)
         {
+
             //Inturrupt any spell casting
             m_creature->InterruptNonMeleeSpells(false);
             m_creature->setFaction(35);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            // Invisible Model
-            m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,11686);
+            m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,11686);  // Invisible Model
+            m_creature->getThreatManager().modifyThreatPercent(m_creature->getVictim(),-99);
 
             //Summon 10 Illusions attacking random gamers
             Unit* target = NULL;
@@ -124,15 +127,17 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
             Invisible = true;
             Invisible_Timer = 3000;
 
+            //25 seconds until we should cast this agian
             Illusion_Timer = 25000;
         }else Illusion_Timer -= diff;
+
 
         //            //Illusion_Timer
         //            if (Illusion_Timer < diff)
         //            {
         //                  //Cast
         //                DoCast(m_creature->getVictim(),SPELL_ILLUSION);
-        //
+        //                                
         //                  //3 Illusion will be summoned
         //                  if (Illusioncounter < 3)
         //                  {
@@ -140,10 +145,11 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
         //                    Illusioncounter++;
         //                  }
         //                  else {
+        //                      //15 seconds until we should cast this again
         //                      Illusion_Timer = 15000;
         //                      Illusioncounter=0;
         //                  }
-        //
+        //                  
         //            }else Illusion_Timer -= diff;
 
         DoMeleeAttackIfReady();
@@ -160,7 +166,8 @@ struct TRINITY_DLL_DECL mob_illusionofjandicebarovAI : public ScriptedAI
 
     void Reset()
     {
-        Cleave_Timer = 4000;
+        Cleave_Timer = 2000 + rand()%6000;       
+        m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
     }
 
     void Aggro(Unit *who)
@@ -169,19 +176,24 @@ struct TRINITY_DLL_DECL mob_illusionofjandicebarovAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
+        //Return since we have no target
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
         //Cleave_Timer
         if (Cleave_Timer < diff)
         {
+            //Cast
             DoCast(m_creature->getVictim(),SPELL_CLEAVE);
+
+            //5-8 seconds
             Cleave_Timer = 5000 + rand()%3000;
         }else Cleave_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
-};
+}; 
+
 
 CreatureAI* GetAI_boss_jandicebarov(Creature *_Creature)
 {
@@ -192,6 +204,7 @@ CreatureAI* GetAI_mob_illusionofjandicebarov(Creature *_Creature)
 {
     return new mob_illusionofjandicebarovAI (_Creature);
 }
+
 
 void AddSC_boss_jandicebarov()
 {
