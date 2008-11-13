@@ -196,6 +196,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
 
     void Reset()
     {
+        m_creature->setActive(true); // TODO: setActive(true, time);
         FindChannelers();
 
         if(!Channelers.empty())
@@ -212,9 +213,9 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
                 }
 				if(m_creature->isAlive())
 				{
-                Channeler->CastSpell(m_creature, SPELL_SHADE_SOUL_CHANNEL, true);
-                Channeler->CastSpell(m_creature, SPELL_SHADE_SOUL_CHANNEL_2, true);
-                Channeler->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    Channeler->CastSpell(m_creature, SPELL_SHADE_SOUL_CHANNEL, true);
+                    Channeler->CastSpell(m_creature, SPELL_SHADE_SOUL_CHANNEL_2, true);
+                    Channeler->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 				}
             }
         }
