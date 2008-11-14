@@ -574,7 +574,7 @@ void BattleGroundEY::RespawnFlagAfterDrop()
     if(obj)
         obj->Delete();
     else
-        sLog.outError("BattleGroundEY: Unknown dropped flag guid: %u",GetDroppedFlagGUID());
+        sLog.outError("BattleGroundEY: Unknown dropped flag guid: %u",GUID_LOPART(GetDroppedFlagGUID()));
 
     SetDroppedFlagGUID(0);
 }
@@ -769,7 +769,8 @@ void BattleGroundEY::EventTeamCapturedPoint(Player *Source, uint32 Point)
     WorldSafeLocsEntry const *sg = NULL;
     sg = sWorldSafeLocsStore.LookupEntry(m_CapturingPointTypes[Point].GraveYardId);
     if(!sg || !AddSpiritGuide(Point, sg->x, sg->y, sg->z, 3.124139f, Team))
-        sLog.outError("BatteGroundEY: Failed to spawn spirit guide! point: %u, team: u, graveyard_id: %u", Point, Team, m_CapturingPointTypes[Point].GraveYardId);
+        sLog.outError("BatteGroundEY: Failed to spawn spirit guide! point: %u, team: %u, graveyard_id: %u",
+            Point, Team, m_CapturingPointTypes[Point].GraveYardId);
 
     UpdatePointsIcons(Team, Point);
     UpdatePointsCount(Team);

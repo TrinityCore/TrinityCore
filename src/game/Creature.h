@@ -522,6 +522,9 @@ class TRINITY_DLL_SPEC Creature : public Unit
         void TextEmote(int32 textId, uint64 TargetGuid, bool IsBossEmote = false) { MonsterTextEmote(textId,TargetGuid,IsBossEmote); }
         void Whisper(int32 textId, uint64 receiver, bool IsBossWhisper = false) { MonsterWhisper(textId,receiver,IsBossWhisper); }
 
+        // overwrite WorldObject function for proper name localization
+        const char* GetNameForLocaleIdx(int32 locale_idx) const;
+    
         void setDeathState(DeathState s);                   // overwrite virtual Unit::setDeathState
 
         bool LoadFromDB(uint32 guid, Map *map);

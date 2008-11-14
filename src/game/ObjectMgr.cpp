@@ -4827,12 +4827,6 @@ void ObjectMgr::LoadGraveyardZones()
             continue;
         }
 
-        if(entry->map_id != areaEntry->mapid && team != 0)
-        {
-            sLog.outErrorDb("Table `game_graveyard_zone` has record for ghost zone (%u) at map %u and graveyard (%u) at map %u for team %u, but in case maps are different, player faction setting is ignored. Use faction 0 instead.",zoneId,areaEntry->mapid, safeLocId, entry->map_id, team);
-            team = 0;
-        }
-
         if(!AddGraveYardLink(safeLocId,zoneId,team,false))
             sLog.outErrorDb("Table `game_graveyard_zone` has a duplicate record for Graveyard (ID: %u) and Zone (ID: %u), skipped.",safeLocId,zoneId);
     } while( result->NextRow() );
@@ -4854,7 +4848,7 @@ WorldSafeLocsEntry const *ObjectMgr::GetClosestGraveYard(float x, float y, float
     //   if mapId == graveyard.mapId (ghost in plain zone or city or battleground) and search graveyard at same map
     //     then check faction
     //   if mapId != graveyard.mapId (ghost in instance) and search any graveyard associated
-    //     then skip check faction
+    //     then check faction
     GraveYardMap::const_iterator graveLow  = mGraveYardMap.lower_bound(zoneId);
     GraveYardMap::const_iterator graveUp   = mGraveYardMap.upper_bound(zoneId);
     if(graveLow==graveUp)
@@ -4863,10 +4857,20 @@ WorldSafeLocsEntry const *ObjectMgr::GetClosestGraveYard(float x, float y, float
         return NULL;
     }
 
+    // at corpse map
     bool foundNear = false;
     float distNear;
     WorldSafeLocsEntry const* entryNear = NULL;
+
+    // at entrance map for corpse map
+    bool foundEntr = false;
+    float distEntr;
+    WorldSafeLocsEntry const* entryEntr = NULL;
+
+    // some where other
     WorldSafeLocsEntry const* entryFar = NULL;
+
+    MapEntry const* mapEntry = sMapStore.LookupEntry(MapId);
 
     for(GraveYardMap::const_iterator itr = graveLow; itr != graveUp; ++itr)
     {
@@ -4879,39 +4883,68 @@ WorldSafeLocsEntry const *ObjectMgr::GetClosestGraveYard(float x, float y, float
             continue;
         }
 
-        // remember first graveyard at another map and ignore other
-        if(MapId != entry->map_id)
-        {
-            if(!entryFar)
-                entryFar = entry;
-            continue;
-        }
-
-        // skip enemy faction graveyard at same map (normal area, city, or battleground)
+        // skip enemy faction graveyard
         // team == 0 case can be at call from .neargrave
         if(data.team != 0 && team != 0 && data.team != team)
             continue;
 
-        // find now nearest graveyard at same map
-        float dist2 = (entry->x - x)*(entry->x - x)+(entry->y - y)*(entry->y - y)+(entry->z - z)*(entry->z - z);
-        if(foundNear)
+        // find now nearest graveyard at other map
+        if(MapId != entry->map_id)
         {
-            if(dist2 < distNear)
+            // if find graveyard at different map from where entrance placed (or no entrance data), use any first
+            if (!mapEntry || mapEntry->entrance_map < 0 || mapEntry->entrance_map != entry->map_id ||
+                mapEntry->entrance_x == 0 && mapEntry->entrance_y == 0)
             {
+                // not have any corrdinates for check distance anyway
+                entryFar = entry;
+                continue;
+            }
+
+            // at entrance map calculate distance (2D);
+            float dist2 = (entry->x - mapEntry->entrance_x)*(entry->x - mapEntry->entrance_x)
+                +(entry->y - mapEntry->entrance_y)*(entry->y - mapEntry->entrance_y);
+            if(foundEntr)
+            {
+                if(dist2 < distEntr)
+                {
+                    distEntr = dist2;
+                    entryEntr = entry;
+                }
+            }
+            else
+            {
+                foundEntr = true;
+                distEntr = dist2;
+                entryEntr = entry;
+            }
+        }
+        // find now nearest graveyard at same map
+        else
+        {
+            float dist2 = (entry->x - x)*(entry->x - x)+(entry->y - y)*(entry->y - y)+(entry->z - z)*(entry->z - z);
+            if(foundNear)
+            {
+                if(dist2 < distNear)
+                {
+                    distNear = dist2;
+                    entryNear = entry;
+                }
+            }
+            else
+            {
+                foundNear = true;
                 distNear = dist2;
                 entryNear = entry;
             }
         }
-        else
-        {
-            foundNear = true;
-            distNear = dist2;
-            entryNear = entry;
-        }
     }
 
+            // find now nearest graveyard at same map
     if(entryNear)
         return entryNear;
+
+    if(entryEntr)
+        return entryEntr;
 
     return entryFar;
 }
@@ -5131,7 +5164,7 @@ AreaTrigger const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
     if(!mapEntry) return NULL;
     for (AreaTriggerMap::const_iterator itr = mAreaTriggers.begin(); itr != mAreaTriggers.end(); itr++)
     {
-        if(itr->second.target_mapId == mapEntry->parent_map)
+        if(itr->second.target_mapId == mapEntry->entrance_map)
         {
             AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(itr->first);
             if(atEntry && atEntry->mapid == Map)

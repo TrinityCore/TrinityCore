@@ -2182,3 +2182,19 @@ TrainerSpellData const* Creature::GetTrainerSpells() const
 {
     return objmgr.GetNpcTrainerSpells(GetEntry());
 }
+
+// overwrite WorldObject function for proper name localization
+const char* Creature::GetNameForLocaleIdx(int32 loc_idx) const
+{
+    if (loc_idx >= 0)
+    {
+        CreatureLocale const *cl = objmgr.GetCreatureLocale(GetEntry());
+        if (cl)
+        {
+            if (cl->Name.size() > loc_idx && !cl->Name[loc_idx].empty())
+                return cl->Name[loc_idx].c_str();
+        }
+    }
+
+    return GetName();
+}

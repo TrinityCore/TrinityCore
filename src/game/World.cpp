@@ -202,13 +202,16 @@ World::AddSession_ (WorldSession* s)
         return;
     }
 
-    WorldSession* old = m_sessions[s->GetAccountId ()];
-    m_sessions[s->GetAccountId ()] = s;
-
     // if session already exist, prepare to it deleting at next world update
     // NOTE - KickPlayer() should be called on "old" in RemoveSession()
-    if (old)
-        m_kicked_sessions.insert (old);
+    {
+      SessionMap::const_iterator old = m_sessions.find(s->GetAccountId ());
+
+      if(old != m_sessions.end())
+        m_kicked_sessions.insert (old->second);
+    }
+
+    m_sessions[s->GetAccountId ()] = s;
 
     uint32 Sessions = GetActiveAndQueuedSessionCount ();
     uint32 pLimit = GetPlayerAmountLimit ();
@@ -291,9 +294,7 @@ void World::RemoveQueuedPlayer(WorldSession* sess)
     {
         if(*iter==sess)
         {
-            Queue::iterator iter2 = iter;
-            ++iter;
-            m_QueuedPlayer.erase(iter2);
+            iter = m_QueuedPlayer.erase(iter);
             decrease_session = false;                       // removing queued session
             break;
         }

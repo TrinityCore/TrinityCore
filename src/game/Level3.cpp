@@ -3580,13 +3580,6 @@ bool ChatHandler::HandleLinkGraveCommand(const char* args)
         return false;
     }
 
-    if(graveyard->map_id != areaEntry->mapid && g_team != 0)
-    {
-        SendSysMessage(LANG_COMMAND_GRAVEYARDWRONGTEAM);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
     if(objmgr.AddGraveYardLink(g_id,player->GetZoneId(),g_team))
         PSendSysMessage(LANG_COMMAND_GRAVEYARDLINKED, g_id,zoneId);
     else

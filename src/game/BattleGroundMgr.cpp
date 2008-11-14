@@ -866,7 +866,7 @@ void BattleGroundQueue::Update(uint32 bgTypeId, uint32 queue_id, uint8 arenatype
 /***            BATTLEGROUND QUEUE EVENTS              ***/
 /*********************************************************/
 
-bool BGQueueInviteEvent::Execute(uint64 /*e_time*/, uint32 p_time)
+bool BGQueueInviteEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 {
     Player* plr = objmgr.GetPlayer( m_PlayerGuid );
 

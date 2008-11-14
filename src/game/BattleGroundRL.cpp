@@ -118,7 +118,7 @@ void BattleGroundRL::AddPlayer(Player *plr)
     UpdateWorldState(0xbb9, GetAlivePlayersCountByTeam(HORDE));
 }
 
-void BattleGroundRL::RemovePlayer(Player *plr, uint64 guid)
+void BattleGroundRL::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
 {
     if(GetStatus() == STATUS_WAIT_LEAVE)
         return;
