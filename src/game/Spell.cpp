@@ -2142,6 +2142,7 @@ void Spell::prepare(SpellCastTargets * targets, Aura* triggeredByAura)
         m_caster->SetCurrentCastedSpell( this );
         m_selfContainer = &(m_caster->m_currentSpells[GetCurrentContainer()]);
         SendSpellStart();
+        m_caster->addUnitState(UNIT_STAT_CASTING);
     }
 }
 
@@ -2666,13 +2667,16 @@ void Spell::finish(bool ok)
     if(!m_caster)
         return;
 
-    if(IsChanneledSpell(m_spellInfo))
-        m_caster->UpdateInterruptMask();
-
     if(m_spellState == SPELL_STATE_FINISHED)
         return;
 
     m_spellState = SPELL_STATE_FINISHED;
+
+    if(IsChanneledSpell(m_spellInfo))
+        m_caster->UpdateInterruptMask();
+
+    if(!m_caster->IsNonMeleeSpellCasted(false, false, true))
+        m_caster->clearUnitState(UNIT_STAT_CASTING);
 
     //remove spell mods
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -2707,12 +2711,12 @@ void Spell::finish(bool ok)
         }
     }
 
-    if (IsMeleeAttackResetSpell())
+    /*if (IsMeleeAttackResetSpell())
     {
         m_caster->resetAttackTimer(BASE_ATTACK);
         if(m_caster->haveOffhandWeapon())
             m_caster->resetAttackTimer(OFF_ATTACK);
-    }
+    }*/
 
     /*if (IsRangedAttackResetSpell())
         m_caster->resetAttackTimer(RANGED_ATTACK);*/
