@@ -321,7 +321,7 @@ bool OutdoorPvPObjective::DelCreature(uint32 type)
     }
     sLog.outDebug("deleting opvp creature type %u",type);
     uint32 guid = cr->GetDBTableGUIDLow();
-    // dont save respawn time
+    // Don't save respawn time
     cr->SetRespawnTime(0);
     cr->RemoveCorpse();
     cr->CleanupsBeforeDelete();
@@ -379,7 +379,7 @@ bool OutdoorPvPObjective::DelCapturePoint()
         if(cr)
         {
             uint32 guid = cr->GetDBTableGUIDLow();
-            // dont save respawn time
+            // Don't save respawn time
             cr->SetRespawnTime(0);
             cr->RemoveCorpse();
             cr->CleanupsBeforeDelete();

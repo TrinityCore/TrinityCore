@@ -1024,7 +1024,7 @@ char* ChatHandler::extractKeyFromLink(char* text, char const* linkType, char** s
     if(!text)
         return NULL;
 
-    // skip speces
+    // skip spaces
     while(*text==' '||*text=='\t'||*text=='\b')
         ++text;
 
@@ -1072,7 +1072,7 @@ char* ChatHandler::extractKeyFromLink(char* text, char const* const* linkTypes, 
     if(!text)
         return NULL;
 
-    // skip speces
+    // skip spaces
     while(*text==' '||*text=='\t'||*text=='\b')
         ++text;
 

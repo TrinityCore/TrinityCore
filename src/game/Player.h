@@ -785,7 +785,7 @@ enum TeleportToOptions
 };
 
 /// Type of environmental damages
-enum EnviromentalDamage
+enum EnvironmentalDamageType
 {
     DAMAGE_EXHAUSTED = 0,
     DAMAGE_DROWNING  = 1,
@@ -1123,7 +1123,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         uint32 GetWeaponProficiency() const { return m_WeaponProficiency; }
         uint32 GetArmorProficiency() const { return m_ArmorProficiency; }
         bool IsInFeralForm() const { return m_form == FORM_CAT || m_form == FORM_BEAR || m_form == FORM_DIREBEAR; }
-        bool IsUseEquipedWeapon( bool mainhand ) const
+        bool IsUseEquippedWeapon( bool mainhand ) const
         {
             // disarm applied only to mainhand weapon
             return !IsInFeralForm() && (!mainhand || !HasFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISARMED) );
@@ -1933,10 +1933,10 @@ class TRINITY_DLL_SPEC Player : public Unit
         void SetRestTime(uint32 v) { m_restTime = v;};
 
         /*********************************************************/
-        /***              ENVIROMENTAL SYSTEM                  ***/
+        /***              ENVIRONMENTAL SYSTEM                  ***/
         /*********************************************************/
 
-        void EnvironmentalDamage(uint64 guid, EnviromentalDamage type, uint32 damage);
+        void EnvironmentalDamage(uint64 guid, EnvironmentalDamageType type, uint32 damage);
 
         /*********************************************************/
         /***               FLOOD FILTER SYSTEM                 ***/

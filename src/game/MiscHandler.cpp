@@ -258,7 +258,7 @@ void WorldSession::HandleWhoOpcode( WorldPacket & recv_data )
         data << uint8(0);                                   // new 2.4.0
         data << uint32( pzoneid );                          // player zone id
 
-        // 49 is maximum player count sent to client - can be overriden
+        // 49 is maximum player count sent to client - can be overridden
         // through config, but is unstable
         if ((++clientcount) == sWorld.getConfig(CONFIG_MAX_WHO))
             break;
@@ -1279,6 +1279,8 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
         SendNotification(LANG_NEED_CHARACTER_NAME);
         return;
     }
+
+    normalizePlayerName (charname);
 
     Player *plr = objmgr.GetPlayer(charname.c_str());
 

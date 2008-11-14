@@ -1462,7 +1462,7 @@ InstanceGroupBind* Group::BindToInstance(InstanceSave *save, bool permanent, boo
         InstanceGroupBind& bind = m_boundInstances[save->GetDifficulty()][save->GetMapId()];
         if(bind.save)
         {
-            // when a boss is killed or when copying the players's binds to the group
+            // when a boss is killed or when copying the player's binds to the group
             if(permanent != bind.perm || save != bind.save)
                 if(!load) CharacterDatabase.PExecute("UPDATE group_instance SET instance = '%u', permanent = '%u' WHERE leaderGuid = '%u' AND instance = '%u'", save->GetInstanceId(), permanent, GUID_LOPART(GetLeaderGUID()), bind.save->GetInstanceId());
         }

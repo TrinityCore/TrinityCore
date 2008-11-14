@@ -68,7 +68,7 @@ bool Player::UpdateStats(Stats stat)
         case STAT_INTELLECT:
             UpdateMaxPower(POWER_MANA);
             UpdateAllSpellCritChances();
-            UpdateAttackPowerAndDamage(true);               //SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT, only intelect currently
+            UpdateAttackPowerAndDamage(true);               //SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT, only intellect currently
             UpdateArmor();                                  //SPELL_AURA_MOD_RESISTANCE_OF_INTELLECT_PERCENT, only armor currently
             break;
 
@@ -384,7 +384,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, fl
         weapon_mindamage = lvl*0.85*att_speed;
         weapon_maxdamage = lvl*1.25*att_speed;
     }
-    else if(!IsUseEquipedWeapon(attType==BASE_ATTACK))      //check if player not in form but still can't use weapon (broken/etc)
+    else if(!IsUseEquippedWeapon(attType==BASE_ATTACK))      //check if player not in form but still can't use weapon (broken/etc)
     {
         weapon_mindamage = BASE_MINDAMAGE;
         weapon_maxdamage = BASE_MAXDAMAGE;

@@ -336,11 +336,11 @@ void Creature::Update(uint32 diff)
     switch( m_deathState )
     {
         case JUST_ALIVED:
-            // Dont must be called, see Creature::setDeathState JUST_ALIVED -> ALIVE promoting.
+            // Don't must be called, see Creature::setDeathState JUST_ALIVED -> ALIVE promoting.
             sLog.outError("Creature (GUIDLow: %u Entry: %u ) in wrong state: JUST_ALIVED (4)",GetGUIDLow(),GetEntry());
             break;
         case JUST_DIED:
-            // Dont must be called, see Creature::setDeathState JUST_DIED -> CORPSE promoting.
+            // Don't must be called, see Creature::setDeathState JUST_DIED -> CORPSE promoting.
             sLog.outError("Creature (GUIDLow: %u Entry: %u ) in wrong state: JUST_DEAD (1)",GetGUIDLow(),GetEntry());
             break;
         case DEAD:
@@ -506,7 +506,7 @@ void Creature::RegenerateHealth()
 
     uint32 addvalue = 0;
 
-    // Not only pet, but any controelled creature
+    // Not only pet, but any controlled creature
     if(GetCharmerOrOwnerGUID())
     {
         float HealthIncreaseRate = sWorld.getRate(RATE_HEALTH);
@@ -863,7 +863,7 @@ void Creature::sendPreparedGossip(Player* player)
     }
 
     // in case non empty gossip menu (that not included quests list size) show it
-    // (quest entries from quest menu wiill be included in list)
+    // (quest entries from quest menu will be included in list)
     player->PlayerTalkClass->SendGossipMenu(GetNpcTextId(), GetGUID());
 }
 
@@ -1147,7 +1147,7 @@ void Creature::SetLootRecipient(Unit *unit)
 void Creature::SaveToDB()
 {
     // this should only be used when the creature has already been loaded
-    // perferably after adding to map, because mapid may not be valid otherwise
+    // preferably after adding to map, because mapid may not be valid otherwise
     CreatureData const *data = objmgr.GetCreatureData(m_DBTableGuid);
     if(!data)
     {
@@ -1556,7 +1556,7 @@ float Creature::GetAttackDistance(Unit const* pl) const
     // "The aggro radius of a mob having the same level as the player is roughly 20 yards"
     float RetDistance = 20;
 
-    // "Aggro Radius varries with level difference at a rate of roughly 1 yard/level"
+    // "Aggro Radius varies with level difference at a rate of roughly 1 yard/level"
     // radius grow if playlevel < creaturelevel
     RetDistance -= (float)leveldif;
 
@@ -1583,7 +1583,7 @@ void Creature::setDeathState(DeathState s)
         m_deathTimer = m_corpseDelay*1000;
 
         // always save boss respawn time at death to prevent crash cheating
-        if(sWorld.getConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATLY) || isWorldBoss())
+        if(sWorld.getConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY) || isWorldBoss())
             SaveRespawnTime();
 
         if(!IsStopped())
@@ -1875,7 +1875,7 @@ bool Creature::IsOutOfThreatArea(Unit* pVictim) const
     if(!canAttack(pVictim))
         return true;
 
-    if(!pVictim->isInAccessablePlaceFor(this))
+    if(!pVictim->isInAccessiblePlaceFor(this))
         return true;
 
     if(sMapStore.LookupEntry(GetMapId())->Instanceable())
@@ -1885,7 +1885,7 @@ bool Creature::IsOutOfThreatArea(Unit* pVictim) const
     float AttackDist = GetAttackDistance(pVictim);
     uint32 ThreatRadius = sWorld.getConfig(CONFIG_THREAT_RADIUS);
 
-    //Use AttackDistance in distance check if threat radius is lower. This prevents creature bounce in and ouf of combat every update tick.
+    //Use AttackDistance in distance check if threat radius is lower. This prevents creature bounce in and out of combat every update tick.
     return ( length > (ThreatRadius > AttackDist ? ThreatRadius : AttackDist));
 }
 
@@ -1954,7 +1954,7 @@ bool Creature::LoadCreaturesAddon(bool reload)
     return true;
 }
 
-/// Send a message to LocalDefense channel for players oposition team in the zone
+/// Send a message to LocalDefense channel for players opposition team in the zone
 void Creature::SendZoneUnderAttackMessage(Player* attacker)
 {
     uint32 enemy_team = attacker->GetTeam();

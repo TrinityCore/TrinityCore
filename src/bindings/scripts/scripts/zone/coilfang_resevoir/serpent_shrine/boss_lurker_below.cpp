@@ -121,7 +121,7 @@ struct TRINITY_DLL_DECL mob_coilfang_ambusherAI : public Scripted_NoMovementAI
 	{
 		if (!who || m_creature->getVictim()) return;
 
-		if (who->isTargetableForAttack() && who->isInAccessablePlaceFor(m_creature) && m_creature->IsHostileTo(who))
+		if (who->isTargetableForAttack() && who->isInAccessiblePlaceFor(m_creature) && m_creature->IsHostileTo(who))
         {
 			AttackStart(who);
         }

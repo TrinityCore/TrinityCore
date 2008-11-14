@@ -52,7 +52,6 @@
 #include "BattleGroundMgr.h"
 #include "InstanceSaveMgr.h"
 #include "InstanceData.h"
-#include "AccountMgr.h"
 
 //reload commands
 bool ChatHandler::HandleReloadCommand(const char* arg)

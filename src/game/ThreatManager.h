@@ -74,8 +74,8 @@ class TRINITY_DLL_SPEC HostilReference : public Reference<Unit, ThreatManager>
         bool isOnline() const { return iOnline; }
 
         // The Unit might be in water and the creature can not enter the water, but has range attack
-        // in this case online = true, but accessable = false
-        bool isAccessable() const { return iAccessible; }
+        // in this case online = true, but accessible = false
+        bool isAccessible() const { return iAccessible; }
 
         // used for temporary setting a threat and reducting it later again.
         // the threat modification is stored

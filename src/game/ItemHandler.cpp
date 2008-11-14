@@ -555,7 +555,7 @@ void WorldSession::HandleSellItemOpcode( WorldPacket & recv_data )
         }
         else
         {
-            // prevent sell more items that exist in stack (possable only not from client)
+            // prevent sell more items that exist in stack (possible only not from client)
             if(count > pItem->GetCount())
             {
                 _player->SendSellError( SELL_ERR_CANT_SELL_ITEM, pCreature, itemguid, 0);
@@ -1027,7 +1027,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recv_data)
         return;
     }
 
-    if(item==gift)                                          // not possable with pacjket from real client
+    if(item==gift)                                          // not possible with pacjket from real client
     {
         _player->SendEquipError( EQUIP_ERR_WRAPPED_CANT_BE_WRAPPED, item, NULL );
         return;

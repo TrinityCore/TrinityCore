@@ -720,7 +720,7 @@ void World::LoadConfigSettings(bool reload)
         m_configs[CONFIG_MAX_OVERSPEED_PINGS] = 2;
     }
 
-    m_configs[CONFIG_SAVE_RESPAWN_TIME_IMMEDIATLY] = sConfig.GetBoolDefault("SaveRespawnTimeImmediately",true);
+    m_configs[CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY] = sConfig.GetBoolDefault("SaveRespawnTimeImmediately",true);
     m_configs[CONFIG_WEATHER] = sConfig.GetBoolDefault("ActivateWeather",true);
 
     if(reload)
@@ -2455,7 +2455,7 @@ void World::ShutdownCancel()
     m_ShutdownTimer = 0;
     SendServerMessage(msgid);
 
-    DEBUG_LOG("Server %s cancelled.",(m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"));
+    DEBUG_LOG("Server %s canceled.",(m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"));
 }
 
 /// Send a server message to the user(s)

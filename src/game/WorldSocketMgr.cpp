@@ -165,7 +165,7 @@ protected:
 
 		while (!m_Reactor->reactor_event_loop_done ())
 		{
-			// dont be too smart to move this outside the loop 
+			// Don't be too smart to move this outside the loop 
 			// the run_reactor_event_loop will modify interval
 			ACE_Time_Value interval (0, 10000);
 

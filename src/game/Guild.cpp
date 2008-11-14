@@ -1928,7 +1928,7 @@ uint8 Guild::CanStoreItem( uint8 tab, uint8 slot, GuildItemPosCountVec &dest, ui
             return EQUIP_ERR_OK;
     }
 
-    // not specific slot or have spece for partly store only in specific slot
+    // not specific slot or have space for partly store only in specific slot
 
     // search stack in tab for merge to
     if( pItem->GetMaxStackCount() > 1 )

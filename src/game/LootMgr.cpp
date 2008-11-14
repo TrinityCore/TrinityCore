@@ -534,7 +534,7 @@ void Loot::NotifyQuestItemRemoved(uint8 questIndex)
     // when a free for all questitem is looted
     // all players will get notified of it being removed
     // (other questitems can be looted by each group member)
-    // bit inefficient but isnt called often
+    // bit inefficient but isn't called often
 
     std::set<uint64>::iterator i_next;
     for(std::set<uint64>::iterator i = PlayersLooting.begin(); i != PlayersLooting.end(); i = i_next)

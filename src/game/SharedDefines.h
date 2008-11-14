@@ -199,7 +199,7 @@ enum ItemQualities
 // ***********************************
 
 #define SPELL_ATTR_UNK0                           0x00000001            // 0
-#define SPELL_ATTR_RANGED                         0x00000002            // 1 All ranged abilites have this flag
+#define SPELL_ATTR_RANGED                         0x00000002            // 1 All ranged abilities have this flag
 #define SPELL_ATTR_ON_NEXT_SWING_1                0x00000004            // 2 on next swing
 #define SPELL_ATTR_UNK3                           0x00000008            // 3 not set in 2.4.2
 #define SPELL_ATTR_UNK4                           0x00000010            // 4
@@ -736,7 +736,7 @@ enum Mechanics
     (1<<MECHANIC_SHACKLE )|(1<<MECHANIC_TURN     )|(1<<MECHANIC_HORROR)| \
     (1<<MECHANIC_DAZE    )|(1<<MECHANIC_SAPPED   ) )
 
-// Spell dispell type
+// Spell dispel type
 enum DispelType
 {
     DISPEL_NONE         = 0,

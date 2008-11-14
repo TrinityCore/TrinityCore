@@ -365,7 +365,7 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
 
     m_powerCost = 0;                                        // setup to correct value in Spell::prepare, don't must be used before.
     m_casttime = 0;                                         // setup to correct value in Spell::prepare, don't must be used before.
-    m_timer = 0;                                            // will set to castime in preper
+    m_timer = 0;                                            // will set to castime in prepare
 
     m_needAliveTargetMask = 0;
 
@@ -1679,7 +1679,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 if(Player* target = ((Player*)m_caster)->GetNextRandomRaidMember(radius))
                     TagUnitMap.push_back(target);
         }break;
-        // TARGET_SINGLE_PARTY means that the spells can only be casted on a party member and not on the caster (some sceals, fire shield from imp, etc..)
+        // TARGET_SINGLE_PARTY means that the spells can only be casted on a party member and not on the caster (some seals, fire shield from imp, etc..)
         case TARGET_SINGLE_PARTY:
         {
             Unit *target = m_targets.getUnitTarget();

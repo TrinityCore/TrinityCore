@@ -255,7 +255,7 @@ ObjectGridUnloader::Visit(GridRefManager<T> &m)
     {
         T *obj = m.getFirst()->getSource();
         // if option set then object already saved at this moment
-        if(!sWorld.getConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATLY))
+        if(!sWorld.getConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
             obj->SaveRespawnTime();
         ///- object must be out of world before delete
         obj->RemoveFromWorld();
@@ -276,7 +276,7 @@ ObjectGridUnloader::Visit(CreatureMapType &m)
     {
         Creature *obj = m.getFirst()->getSource();
         // if option set then object already saved at this moment
-        if(!sWorld.getConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATLY))
+        if(!sWorld.getConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
             obj->SaveRespawnTime();
         ///- object will get delinked from the manager when deleted
         delete obj;

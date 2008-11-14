@@ -49,7 +49,7 @@ void PetAI::MoveInLineOfSight(Unit *u)
     if( !i_pet.getVictim() && i_pet.GetCharmInfo() &&
         i_pet.GetCharmInfo()->HasReactState(REACT_AGGRESSIVE) &&
         i_pet.IsHostileTo( u ) && i_pet.canAttack(u) &&
-        u->isInAccessablePlaceFor(&i_pet))
+        u->isInAccessiblePlaceFor(&i_pet))
     {
         float attackRadius = i_pet.GetAttackDistance(u);
         if(i_pet.IsWithinDistInMap(u, attackRadius) && i_pet.GetDistanceZ(u) <= CREATURE_Z_ATTACK_RANGE)

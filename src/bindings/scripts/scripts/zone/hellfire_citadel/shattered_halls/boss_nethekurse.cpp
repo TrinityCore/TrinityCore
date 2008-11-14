@@ -186,7 +186,7 @@ struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (!m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessablePlaceFor(m_creature) )
+        if (!m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessiblePlaceFor(m_creature) )
         {
             if (!IntroOnce && m_creature->IsWithinDistInMap(who, 75))
             {
