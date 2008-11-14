@@ -428,7 +428,7 @@ inline Mechanics GetEffectMechanic(SpellEntry const* spellInfo, int32 effect)
 
 inline uint32 GetDispellMask(DispelType dispel)
 {
-    // If dispell all
+    // If dispel all
     if (dispel == DISPEL_ALL)
         return DISPEL_ALL_MASK;
     else

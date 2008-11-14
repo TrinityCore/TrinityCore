@@ -331,6 +331,18 @@ class Guild
         {
             return (members.find(LowGuid) != members.end());
         }
+        MemberSlot* GetMemberSlot(std::string const& name, uint64& guid)
+        {
+            for(MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
+            {
+                if(itr->second.name == name)
+                {
+                    guid = itr->first;
+                    return &itr->second;
+                }
+            }
+            return NULL;
+        }
 
         void Roster(WorldSession *session);
         void Query(WorldSession *session);

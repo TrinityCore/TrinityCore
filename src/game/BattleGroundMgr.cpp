@@ -627,12 +627,12 @@ void BattleGroundQueue::Update(uint32 bgTypeId, uint32 queue_id, uint8 arenatype
     // try to build the selection pools
     bool bAllyOK = BuildSelectionPool(bgTypeId, queue_id, MinPlayersPerTeam, MaxPlayersPerTeam, NORMAL_ALLIANCE, arenatype, isRated, arenaMinRating, arenaMaxRating, discardTime);
     if(bAllyOK)
-        sLog.outDebug("Battleground: ally pool succesfully build");
+        sLog.outDebug("Battleground: ally pool successfully build");
     else
         sLog.outDebug("Battleground: ally pool wasn't created");
     bool bHordeOK = BuildSelectionPool(bgTypeId, queue_id, MinPlayersPerTeam, MaxPlayersPerTeam, NORMAL_HORDE, arenatype, isRated, arenaMinRating, arenaMaxRating, discardTime);
     if(bHordeOK)
-        sLog.outDebug("Battleground: horde pool succesfully built");
+        sLog.outDebug("Battleground: horde pool successfully built");
     else
         sLog.outDebug("Battleground: horde pool wasn't created");
 

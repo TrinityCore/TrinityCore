@@ -153,7 +153,7 @@ WaypointMovementGenerator<Creature>::Update(Creature &creature, const uint32 &di
                     // Only one text is set
                     if( !behavior->text[1].empty() )
                     {
-                        // Select one from max 5 texts (0 and 1 laready checked)
+                        // Select one from max 5 texts (0 and 1 already checked)
                         int i = 2;
                         for( ; i < 5; ++i )
                             if( behavior->text[i].empty() )

@@ -375,7 +375,7 @@ void WorldSession::SendReturnToSender(uint8 messageType, uint32 sender_acc, uint
         return;
     }
 
-    // preper mail and send in other case
+    // prepare mail and send in other case
     bool needItemDelay = false;
 
     if(mi && !mi->empty())
@@ -467,7 +467,7 @@ void WorldSession::HandleTakeItem(WorldPacket & recv_data )
             else if(!receive)
                 sender_accId = objmgr.GetPlayerAccountIdByGUID(sender_guid);
 
-            // check player existanse
+            // check player existence
             if(receive || sender_accId)
             {
                 WorldSession::SendMailTo(receive, MAIL_NORMAL, MAIL_STATIONERY_NORMAL, m->receiver, m->sender, m->subject, 0, NULL, m->COD, 0, MAIL_CHECK_MASK_COD_PAYMENT);

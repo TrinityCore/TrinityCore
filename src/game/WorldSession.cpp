@@ -485,7 +485,7 @@ void WorldSession::Handle_NULL( WorldPacket& recvPacket )
 
 void WorldSession::Handle_EarlyProccess( WorldPacket& recvPacket )
 {
-    sLog.outError( "SESSION: received opcode %s (0x%.4X) that must be proccessed in WorldSocket::OnRead",
+    sLog.outError( "SESSION: received opcode %s (0x%.4X) that must be processed in WorldSocket::OnRead",
         LookupOpcodeName(recvPacket.GetOpcode()),
         recvPacket.GetOpcode());
 }

@@ -797,7 +797,7 @@ void Player::StopMirrorTimer(MirrorTimerType Type)
     GetSession()->SendPacket( &data );
 }
 
-void Player::EnvironmentalDamage(uint64 guid, EnviromentalDamage type, uint32 damage)
+void Player::EnvironmentalDamage(uint64 guid, EnvironmentalDamageType type, uint32 damage)
 {
     WorldPacket data(SMSG_ENVIRONMENTALDAMAGELOG, (21));
     data << (uint64)guid;
@@ -1544,7 +1544,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     if (isPossessedByPlayer())
         ((Player*)GetCharmer())->RemovePossess();
 
-    // The player was ported to another map and looses the duel immediatly.
+    // The player was ported to another map and looses the duel immediately.
     // We have to perform this check before the teleport, otherwise the
     // ObjectAccessor won't find the flag.
     if (duel && GetMapId()!=mapid)
@@ -6690,7 +6690,7 @@ void Player::_ApplyItemBonuses(ItemPrototype const *proto,uint8 slot,bool apply)
         SetBaseWeaponDamage(attType, MAXDAMAGE, damage);
     }
 
-    if(!IsUseEquipedWeapon(slot==EQUIPMENT_SLOT_MAINHAND))
+    if(!IsUseEquippedWeapon(slot==EQUIPMENT_SLOT_MAINHAND))
         return;
 
     if (proto->Delay)
@@ -8468,7 +8468,7 @@ Item* Player::GetWeaponForAttack(WeaponAttackType attackType, bool useable) cons
     if(!useable)
         return item;
 
-    if( item->IsBroken() || !IsUseEquipedWeapon(attackType==BASE_ATTACK) )
+    if( item->IsBroken() || !IsUseEquippedWeapon(attackType==BASE_ATTACK) )
         return NULL;
 
     return item;
@@ -10138,7 +10138,7 @@ Item* Player::_StoreItem( uint16 pos, Item *pItem, uint32 count, bool clone, boo
 
         if( pItem->GetProto()->Bonding == BIND_WHEN_PICKED_UP ||
             pItem->GetProto()->Bonding == BIND_QUEST_ITEM ||
-            pItem->GetProto()->Bonding == BIND_WHEN_EQUIPED && IsBagPos(pos) )
+            pItem->GetProto()->Bonding == BIND_WHEN_EQUIPPED && IsBagPos(pos) )
             pItem->SetBinding( true );
 
         if( bag == INVENTORY_SLOT_BAG_0 )
@@ -10184,7 +10184,7 @@ Item* Player::_StoreItem( uint16 pos, Item *pItem, uint32 count, bool clone, boo
     {
         if( pItem2->GetProto()->Bonding == BIND_WHEN_PICKED_UP ||
             pItem2->GetProto()->Bonding == BIND_QUEST_ITEM ||
-            pItem2->GetProto()->Bonding == BIND_WHEN_EQUIPED && IsBagPos(pos) )
+            pItem2->GetProto()->Bonding == BIND_WHEN_EQUIPPED && IsBagPos(pos) )
             pItem2->SetBinding( true );
 
         pItem2->SetCount( pItem2->GetCount() + count );
@@ -10369,7 +10369,7 @@ void Player::VisualizeItem( uint8 slot, Item *pItem)
         return;
 
     // check also  BIND_WHEN_PICKED_UP and BIND_QUEST_ITEM for .additem or .additemset case by GM (not binded at adding to inventory)
-    if( pItem->GetProto()->Bonding == BIND_WHEN_EQUIPED || pItem->GetProto()->Bonding == BIND_WHEN_PICKED_UP || pItem->GetProto()->Bonding == BIND_QUEST_ITEM )
+    if( pItem->GetProto()->Bonding == BIND_WHEN_EQUIPPED || pItem->GetProto()->Bonding == BIND_WHEN_PICKED_UP || pItem->GetProto()->Bonding == BIND_QUEST_ITEM )
         pItem->SetBinding( true );
 
     sLog.outDebug( "STORAGE: EquipItem slot = %u, item = %u", slot, pItem->GetEntry());
@@ -17331,7 +17331,7 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList) cons
     // GM invisibility checks early, invisibility if any detectable, so if not stealth then visible
     if(u->GetVisibility() == VISIBILITY_GROUP_STEALTH)
     {
-        // if player is dead then he can't detect anyone in anycases
+        // if player is dead then he can't detect anyone in any cases
         //do not know what is the use of this detect
         // stealth and detected and visible for some seconds
         if(!isAlive())

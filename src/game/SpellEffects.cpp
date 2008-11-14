@@ -809,7 +809,7 @@ void Spell::EffectDummy(uint32 i)
                 }
                 case 13567:                                 // Dummy Trigger
                 {
-                    // can be used for different aura triggreing, so select by aura
+                    // can be used for different aura triggering, so select by aura
                     if(!m_triggeredByAuraSpell || !unitTarget)
                         return;
 
@@ -1352,7 +1352,7 @@ void Spell::EffectDummy(uint32 i)
                         case 19266: spellid = 19254; break; // Rank 6
                         case 25461: spellid = 25460; break; // Rank 7
                         default:
-                            sLog.outError("Spell::EffectDummy: Spell 28598 triggered by unhandeled spell %u",m_triggeredByAuraSpell->Id);
+                            sLog.outError("Spell::EffectDummy: Spell 28598 triggered by unhandled spell %u",m_triggeredByAuraSpell->Id);
                             return;
                     }
                     m_caster->CastSpell(unitTarget, spellid, true, NULL);
@@ -2665,31 +2665,31 @@ void Spell::EffectEnergize(uint32 i)
         return;
 
     // Some level depends spells
-    int multipler  = 0;
+    int multiplier  = 0;
     int level_diff = 0;
     switch (m_spellInfo->Id)
     {
         // Restore Energy
         case 9512:
             level_diff = m_caster->getLevel() - 40;
-            multipler  = 2;
+            multiplier  = 2;
             break;
         // Blood Fury
         case 24571:
             level_diff = m_caster->getLevel() - 60;
-            multipler  = 10;
+            multiplier  = 10;
             break;
         // Burst of Energy
         case 24532:
             level_diff = m_caster->getLevel() - 60;
-            multipler  = 4;
+            multiplier  = 4;
             break;
         default:
             break;
     }
 
     if (level_diff > 0)
-        damage -= multipler * level_diff;
+        damage -= multiplier * level_diff;
 
     if(damage < 0)
         return;
@@ -3292,7 +3292,7 @@ void Spell::EffectDispel(uint32 i)
     if(!unitTarget)
         return;
 
-    // Fill possible dispell list
+    // Fill possible dispel list
     std::vector <Aura *> dispel_list;
 
     // Create dispel mask by dispel type
@@ -3327,7 +3327,7 @@ void Spell::EffectDispel(uint32 i)
         std::list < std::pair<uint32,uint64> > success_list;// (spell_id,casterGuid)
         std::list < uint32 > fail_list;                     // spell_id
         int32 list_size = dispel_list.size();
-        // Dispell N = damage buffs (or while exist buffs for dispel)
+        // dispel N = damage buffs (or while exist buffs for dispel)
         for (int32 count=0; count < damage && list_size > 0; ++count)
         {
             // Random select buff for dispel
@@ -3351,8 +3351,8 @@ void Spell::EffectDispel(uint32 i)
             // Remove buff from list for prevent doubles
             for (std::vector<Aura *>::iterator j = dispel_list.begin(); j != dispel_list.end(); )
             {
-                Aura *dispeled = *j;
-                if (dispeled->GetId() == aur->GetId() && dispeled->GetCasterGUID() == aur->GetCasterGUID())
+                Aura *dispelled = *j;
+                if (dispelled->GetId() == aur->GetId() && dispelled->GetCasterGUID() == aur->GetCasterGUID())
                 {
                     j = dispel_list.erase(j);
                     --list_size;
@@ -3368,14 +3368,14 @@ void Spell::EffectDispel(uint32 i)
             WorldPacket data(SMSG_SPELLDISPELLOG, 8+8+4+1+4+count*5);
             data.append(unitTarget->GetPackGUID());         // Victim GUID
             data.append(m_caster->GetPackGUID());           // Caster GUID
-            data << uint32(m_spellInfo->Id);                // Dispell spell id
+            data << uint32(m_spellInfo->Id);                // dispel spell id
             data << uint8(0);                               // not used
             data << uint32(count);                          // count
             for (std::list<std::pair<uint32,uint64> >::iterator j = success_list.begin(); j != success_list.end(); ++j)
             {
                 SpellEntry const* spellInfo = sSpellStore.LookupEntry(j->first);
                 data << uint32(spellInfo->Id);              // Spell Id
-                data << uint8(0);                           // 0 - dispeled !=0 cleansed
+                data << uint8(0);                           // 0 - dispelled !=0 cleansed
                 unitTarget->RemoveAurasDueToSpellByDispel(spellInfo->Id, j->second, m_caster);
             }
             m_caster->SendMessageToSet(&data, true);
@@ -3408,7 +3408,7 @@ void Spell::EffectDispel(uint32 i)
             WorldPacket data(SMSG_DISPEL_FAILED, 8+8+4+4*fail_list.size());
             data << uint64(m_caster->GetGUID());            // Caster GUID
             data << uint64(unitTarget->GetGUID());          // Victim GUID
-            data << uint32(m_spellInfo->Id);                // Dispell spell id
+            data << uint32(m_spellInfo->Id);                // dispel spell id
             for (std::list< uint32 >::iterator j = fail_list.begin(); j != fail_list.end(); ++j)
                 data << uint32(*j);                         // Spell Id
             m_caster->SendMessageToSet(&data, true);
@@ -6224,7 +6224,7 @@ void Spell::EffectStealBeneficialBuff(uint32 i)
     {
         std::list < std::pair<uint32,uint64> > success_list;
         int32 list_size = steal_list.size();
-        // Dispell N = damage buffs (or while exist buffs for dispel)
+        // dispel N = damage buffs (or while exist buffs for dispel)
         for (int32 count=0; count < damage && list_size > 0; ++count)
         {
             // Random select buff for dispel
@@ -6253,7 +6253,7 @@ void Spell::EffectStealBeneficialBuff(uint32 i)
             WorldPacket data(SMSG_SPELLSTEALLOG, 8+8+4+1+4+count*5);
             data.append(unitTarget->GetPackGUID());  // Victim GUID
             data.append(m_caster->GetPackGUID());    // Caster GUID
-            data << uint32(m_spellInfo->Id);         // Dispell spell id
+            data << uint32(m_spellInfo->Id);         // dispel spell id
             data << uint8(0);                        // not used
             data << uint32(count);                   // count
             for (std::list<std::pair<uint32,uint64> >::iterator j = success_list.begin(); j != success_list.end(); ++j)

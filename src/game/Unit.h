@@ -213,7 +213,7 @@ enum HitInfo
     HITINFO_LEFTSWING           = 0x00000004,
     HITINFO_MISS                = 0x00000010,
     HITINFO_ABSORB              = 0x00000020,               // plays absorb sound
-    HITINFO_RESIST              = 0x00000040,               // resisted atleast some damage
+    HITINFO_RESIST              = 0x00000040,               // resisted at least some damage
     HITINFO_CRITICALHIT         = 0x00000080,
     HITINFO_UNK2                = 0x00000100,               // wotlk?
     HITINFO_UNK3                = 0x00002000,               // wotlk?
@@ -927,17 +927,17 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool canAttack(Unit const* target) const;
         virtual bool IsInWater() const;
         virtual bool IsUnderWater() const;
-        bool isInAccessablePlaceFor(Creature const* c) const;
+        bool isInAccessiblePlaceFor(Creature const* c) const;
 
         void SendHealSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage, bool critical = false);
         void SendEnergizeSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage,Powers powertype, bool critical = false);
         uint32 SpellNonMeleeDamageLog(Unit *pVictim, uint32 spellID, uint32 damage, bool isTriggeredSpell = false, bool useSpellDamage = true);
-        void CastSpell(Unit* Victim, uint32 spellId, bool triggered, Item *castItem = NULL, Aura* triggredByAura = NULL, uint64 originalCaster = 0);
-        void CastSpell(Unit* Victim,SpellEntry const *spellInfo, bool triggered, Item *castItem= NULL, Aura* triggredByAura = NULL, uint64 originalCaster = 0);
-        void CastCustomSpell(Unit* Victim, uint32 spellId, int32 const* bp0, int32 const* bp1, int32 const* bp2, bool triggered, Item *castItem= NULL, Aura* triggredByAura = NULL, uint64 originalCaster = 0);
-        void CastCustomSpell(Unit* Victim,SpellEntry const *spellInfo, int32 const* bp0, int32 const* bp1, int32 const* bp2, bool triggered, Item *castItem= NULL, Aura* triggredByAura = NULL, uint64 originalCaster = 0);
-        void CastSpell(float x, float y, float z, uint32 spellId, bool triggered, Item *castItem = NULL, Aura* triggredByAura = NULL, uint64 originalCaster = 0);
-        void CastSpell(float x, float y, float z, SpellEntry const *spellInfo, bool triggered, Item *castItem = NULL, Aura* triggredByAura = NULL, uint64 originalCaster = 0);
+        void CastSpell(Unit* Victim, uint32 spellId, bool triggered, Item *castItem = NULL, Aura* triggeredByAura = NULL, uint64 originalCaster = 0);
+        void CastSpell(Unit* Victim,SpellEntry const *spellInfo, bool triggered, Item *castItem= NULL, Aura* triggeredByAura = NULL, uint64 originalCaster = 0);
+        void CastCustomSpell(Unit* Victim, uint32 spellId, int32 const* bp0, int32 const* bp1, int32 const* bp2, bool triggered, Item *castItem= NULL, Aura* triggeredByAura = NULL, uint64 originalCaster = 0);
+        void CastCustomSpell(Unit* Victim,SpellEntry const *spellInfo, int32 const* bp0, int32 const* bp1, int32 const* bp2, bool triggered, Item *castItem= NULL, Aura* triggeredByAura = NULL, uint64 originalCaster = 0);
+        void CastSpell(float x, float y, float z, uint32 spellId, bool triggered, Item *castItem = NULL, Aura* triggeredByAura = NULL, uint64 originalCaster = 0);
+        void CastSpell(float x, float y, float z, SpellEntry const *spellInfo, bool triggered, Item *castItem = NULL, Aura* triggeredByAura = NULL, uint64 originalCaster = 0);
 
         bool IsDamageToThreatSpell(SpellEntry const * spellInfo) const;
 
@@ -1362,10 +1362,10 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         //void SendAttackStart(Unit* pVictim);                // only from Unit::AttackStart(Unit*)
 
         void ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag, AuraTypeSet const& procAuraTypes, WeaponAttackType attType, SpellEntry const * procSpell, uint32 damage, SpellSchoolMask damageSchoolMask );
-        bool HandleDummyAuraProc(Unit *pVictim, SpellEntry const *spellProto, uint32 effIndex, uint32 damage, Aura* triggredByAura, SpellEntry const * procSpell, uint32 procFlag,uint32 cooldown);
-        bool HandleProcTriggerSpell(Unit *pVictim,uint32 damage, Aura* triggredByAura, SpellEntry const *procSpell, uint32 procFlags,WeaponAttackType attType,uint32 cooldown);
-        bool HandleHasteAuraProc(Unit *pVictim, SpellEntry const *spellProto, uint32 effIndex, uint32 damage, Aura* triggredByAura, SpellEntry const * procSpell, uint32 procFlag,uint32 cooldown);
-        bool HandleOverrideClassScriptAuraProc(Unit *pVictim, int32 scriptId, uint32 damage, Aura* triggredByAura, SpellEntry const *procSpell,uint32 cooldown);
+        bool HandleDummyAuraProc(Unit *pVictim, SpellEntry const *spellProto, uint32 effIndex, uint32 damage, Aura* triggeredByAura, SpellEntry const * procSpell, uint32 procFlag,uint32 cooldown);
+        bool HandleProcTriggerSpell(Unit *pVictim,uint32 damage, Aura* triggeredByAura, SpellEntry const *procSpell, uint32 procFlags,WeaponAttackType attType,uint32 cooldown);
+        bool HandleHasteAuraProc(Unit *pVictim, SpellEntry const *spellProto, uint32 effIndex, uint32 damage, Aura* triggeredByAura, SpellEntry const * procSpell, uint32 procFlag,uint32 cooldown);
+        bool HandleOverrideClassScriptAuraProc(Unit *pVictim, int32 scriptId, uint32 damage, Aura* triggeredByAura, SpellEntry const *procSpell,uint32 cooldown);
 
         uint32 m_state;                                     // Even derived shouldn't modify
         uint32 m_CombatTimer;

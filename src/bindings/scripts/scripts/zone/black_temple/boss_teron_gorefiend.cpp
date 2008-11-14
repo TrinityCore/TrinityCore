@@ -162,7 +162,7 @@ struct TRINITY_DLL_DECL mob_shadowy_constructAI : public ScriptedAI
         if(!who || (!who->isAlive()) || (who->GetGUID() == GhostGUID))
             return;
 
-        if(who->isTargetableForAttack() && who->isInAccessablePlaceFor(m_creature) && m_creature->IsHostileTo(who))
+        if(who->isTargetableForAttack() && who->isInAccessiblePlaceFor(m_creature) && m_creature->IsHostileTo(who))
         {
             float attackRadius = m_creature->GetAttackDistance(who);
 
@@ -276,7 +276,7 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
     {
         if(!who || (!who->isAlive())) return;
 
-        if(who->isTargetableForAttack() && who->isInAccessablePlaceFor(m_creature) && m_creature->IsHostileTo(who))
+        if(who->isTargetableForAttack() && who->isInAccessiblePlaceFor(m_creature) && m_creature->IsHostileTo(who))
         {
             float attackRadius = m_creature->GetAttackDistance(who);
 

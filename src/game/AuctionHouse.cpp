@@ -178,7 +178,7 @@ void WorldSession::SendAuctionOutbiddedMail(AuctionEntry *auction, uint32 newPri
     }
 }
 
-//this function sends mail, when auction is cancelled to old bidder
+//this function sends mail, when auction is canceled to old bidder
 void WorldSession::SendAuctionCancelledToBidderMail( AuctionEntry* auction )
 {
     uint64 bidder_guid = MAKE_NEW_GUID(auction->bidder, 0, HIGHGUID_PLAYER);
@@ -245,7 +245,7 @@ void WorldSession::HandleAuctionSellItem( WorldPacket & recv_data )
         SendAuctionCommandResult(0, AUCTION_SELL_ITEM, AUCTION_INTERNAL_ERROR);
         return;
     }
-    // prevent sending bag with items (cheat: can be placed in bag after adding equiped empty bag to auction)
+    // prevent sending bag with items (cheat: can be placed in bag after adding equipped empty bag to auction)
     if(!it)
     {
         SendAuctionCommandResult(0, AUCTION_SELL_ITEM, AUCTION_ITEM_NOT_FOUND);

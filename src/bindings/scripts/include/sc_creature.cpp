@@ -73,7 +73,7 @@ bool ScriptedAI::IsVisible(Unit* who) const
 
 void ScriptedAI::MoveInLineOfSight(Unit *who)
 {
-    if(m_creature->getVictim() || !m_creature->IsHostileTo(who) || !who->isInAccessablePlaceFor(m_creature))
+    if(m_creature->getVictim() || !m_creature->IsHostileTo(who) || !who->isInAccessiblePlaceFor(m_creature))
         return;
 
     if(!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
@@ -786,7 +786,7 @@ std::list<Creature*> ScriptedAI::DoFindFriendlyMissingBuff(float range, uint32 s
 
 void Scripted_NoMovementAI::MoveInLineOfSight(Unit *who)
 {
-    if( !m_creature->getVictim() && m_creature->canAttack(who) && ( m_creature->IsHostileTo( who )) && who->isInAccessablePlaceFor(m_creature) )
+    if( !m_creature->getVictim() && m_creature->canAttack(who) && ( m_creature->IsHostileTo( who )) && who->isInAccessiblePlaceFor(m_creature) )
     {
         if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
             return;

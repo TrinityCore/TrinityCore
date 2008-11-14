@@ -263,7 +263,7 @@ int WorldSocket::handle_input (ACE_HANDLE)
             if ((errno == EWOULDBLOCK) ||
                 (errno == EAGAIN))
             {
-                return Update (); // interesting line ,isnt it ?
+                return Update (); // interesting line ,isn't it ?
             }
 
             DEBUG_LOG ("WorldSocket::handle_input: Peer error closing connection errno = %s", ACE_OS::strerror (errno));
@@ -469,7 +469,7 @@ int WorldSocket::handle_input_missing_data (void)
 
             if (m_Header.space () > 0)
             {
-                //couldnt recieve the whole header this time
+                //couldn't recieve the whole header this time
                 ACE_ASSERT (message_block.length () == 0);
                 errno = EWOULDBLOCK;
                 return -1;
@@ -503,7 +503,7 @@ int WorldSocket::handle_input_missing_data (void)
 
             if (m_RecvPct.space () > 0)
             {
-                //couldnt recieve the whole data this time
+                //couldn't recieve the whole data this time
                 ACE_ASSERT (message_block.length () == 0);
                 errno = EWOULDBLOCK;
                 return -1;

@@ -41,14 +41,14 @@ struct TRINITY_DLL_DECL npc_ragged_johnAI : public ScriptedAI
     {
         if( who->HasAura(16468,0) )
         {
-            if( who->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(who, 15) && who->isInAccessablePlaceFor(m_creature) )
+            if( who->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(who, 15) && who->isInAccessiblePlaceFor(m_creature) )
             {
                 DoCast(who,16472);
                 ((Player*)who)->AreaExploredOrEventHappens(4866);
             }
         }
 
-        if( !m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessablePlaceFor(m_creature) )
+        if( !m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessiblePlaceFor(m_creature) )
         {
             if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                 return;

@@ -329,7 +329,7 @@ void LoadDBCStores(std::string dataPath)
 
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sTalentTabStore,           dbcPath,"TalentTab.dbc");
 
-    // preper fast data access to bit pos of talent ranks for use at inspecting
+    // prepare fast data access to bit pos of talent ranks for use at inspecting
     {
         // fill table by amount of talent ranks and fill sTalentTabBitSizeInInspect
         // store in with (row,col,talent)->size key for correct sorting by (row,col)

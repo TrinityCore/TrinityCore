@@ -421,7 +421,7 @@ struct TRINITY_DLL_DECL boss_alythessAI : public ScriptedAI
         if (!who || m_creature->getVictim())
             return;
 
-        if (who->isTargetableForAttack() && who->isInAccessablePlaceFor(m_creature) && m_creature->IsHostileTo(who))
+        if (who->isTargetableForAttack() && who->isInAccessiblePlaceFor(m_creature) && m_creature->IsHostileTo(who))
         {
 
             float attackRadius = m_creature->GetAttackDistance(who);

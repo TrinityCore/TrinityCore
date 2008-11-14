@@ -1195,7 +1195,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
         if (m_creature->isCivilian() && m_creature->IsNeutralToAll())
             return;
 
-        if (m_creature->canAttack(who) && who->isInAccessablePlaceFor(m_creature) && m_creature->IsHostileTo(who))
+        if (m_creature->canAttack(who) && who->isInAccessiblePlaceFor(m_creature) && m_creature->IsHostileTo(who))
         {
             if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                 return;

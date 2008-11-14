@@ -132,11 +132,11 @@ void HostilReference::updateOnlineStatus()
         !getTarget()->hasUnitState(UNIT_STAT_IN_FLIGHT)))
     {
         Creature* creature = (Creature* ) getSourceUnit();
-        online = getTarget()->isInAccessablePlaceFor(creature);
+        online = getTarget()->isInAccessiblePlaceFor(creature);
         if(!online)
         {
             if(creature->AI()->canReachByRangeAttack(getTarget()))
-                online = true;                              // not accessable but stays online
+                online = true;                              // not accessible but stays online
         }
         else
             accessible = true;
@@ -155,7 +155,7 @@ void HostilReference::setOnlineOfflineState(bool pIsOnline)
     {
         iOnline = pIsOnline;
         if(!iOnline)
-            setAccessibleState(false);                      // if not online that not accessable as well
+            setAccessibleState(false);                      // if not online that not accessible as well
         fireStatusChanged(ThreatRefStatusChangeEvent(UEV_THREAT_REF_ONLINE_STATUS, this));
     }
 }
@@ -278,7 +278,7 @@ HostilReference* ThreatContainer::selectNextVictim(Creature* pAttacker, HostilRe
         Unit* target = currentRef->getTarget();
         assert(target);                                     // if the ref has status online the target must be there !
         
-        // some units are prefered in comparison to others
+        // some units are preferred in comparison to others
         if(iter != lastRef && (target->IsImmunedToDamage(pAttacker->GetMeleeDamageSchoolMask(), false) ||
                 target->hasUnitState(UNIT_STAT_CONFUSED | UNIT_STAT_FLEEING)
                 ) )
