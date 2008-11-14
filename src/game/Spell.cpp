@@ -177,8 +177,8 @@ bool SpellCastTargets::read ( WorldPacket * data, Unit *caster )
         //m_destX = caster->GetPositionX();
         //m_destY = caster->GetPositionY();
         //m_destZ = caster->GetPositionZ();
-        m_unitTarget = caster;
-        m_unitTargetGUID = caster->GetGUID();
+        //m_unitTarget = caster;
+        //m_unitTargetGUID = caster->GetGUID();
         return true;
     }
     // TARGET_FLAG_UNK2 is used for non-combat pets, maybe other?
@@ -461,6 +461,7 @@ void Spell::FillTargetMap()
                 case SPELL_EFFECT_SKILL: // always with dummy 3 as A
                 case SPELL_EFFECT_LEARN_SPELL: // 0
                 case SPELL_EFFECT_TRADE_SKILL: // 0 or 1
+                case SPELL_EFFECT_PROFICIENCY: // 0
                     tmpUnitMap.push_back(m_caster);
                     break;
             }
@@ -554,13 +555,14 @@ void Spell::FillTargetMap()
                 case SPELL_EFFECT_RESURRECT:
                 case SPELL_EFFECT_CREATE_ITEM:
                 case SPELL_EFFECT_TRIGGER_SPELL:
-                case SPELL_EFFECT_TRIGGER_MISSILE:
+                //case SPELL_EFFECT_TRIGGER_MISSILE: ??
                 case SPELL_EFFECT_SKILL_STEP:
-                case SPELL_EFFECT_PROFICIENCY:
                 case SPELL_EFFECT_SELF_RESURRECT:
                 case SPELL_EFFECT_REPUTATION:
                     if(m_targets.getUnitTarget())
                         tmpUnitMap.push_back(m_targets.getUnitTarget());
+                    else
+                        tmpUnitMap.push_back(m_caster);
                     break;
                 case SPELL_EFFECT_SUMMON_PLAYER:
                     if(m_caster->GetTypeId()==TYPEID_PLAYER && ((Player*)m_caster)->GetSelection())
