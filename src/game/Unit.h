@@ -39,11 +39,11 @@
 
 enum SpellInterruptFlags
 {
-    SPELL_INTERRUPT_FLAG_MOVEMENT     = 0x01,
-    SPELL_INTERRUPT_FLAG_DAMAGE       = 0x02,
-    SPELL_INTERRUPT_FLAG_INTERRUPT    = 0x04,
-    SPELL_INTERRUPT_FLAG_AUTOATTACK   = 0x08,
-    //SPELL_INTERRUPT_FLAG_TURNING      = 0x10              // not turning - maybe _complete_ interrupt on direct damage?
+    SPELL_INTERRUPT_FLAG_MOVEMENT     = 0x01, // why need this for instant?
+    SPELL_INTERRUPT_FLAG_PUSH_BACK    = 0x02, // push back
+    SPELL_INTERRUPT_FLAG_INTERRUPT    = 0x04, // interrupt
+    SPELL_INTERRUPT_FLAG_AUTOATTACK   = 0x08, // no
+    SPELL_INTERRUPT_FLAG_DAMAGE       = 0x10  // _complete_ interrupt on direct damage?
 };
 
 enum SpellChannelInterruptFlags
@@ -1188,6 +1188,9 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         int32 GetMaxNegativeAuraModifierByMiscValue(AuraType auratype, int32 misc_value) const;
 
         Aura* GetDummyAura(uint32 spell_id) const;
+        uint32 GetInterruptMask() const { return m_interruptMask; }
+        void AddInterruptMask(uint32 mask) { m_interruptMask |= mask; }
+        void UpdateInterruptMask();
 
         uint32 GetDisplayId() { return GetUInt32Value(UNIT_FIELD_DISPLAYID); }
         void SetDisplayId(uint32 modelId);
@@ -1334,6 +1337,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         uint32 m_removedAuras;
 
         AuraList m_modAuras[TOTAL_AURAS];
+        uint32 m_interruptMask;
         AuraList m_interruptableAuras;
         AuraList m_ccAuras;
         float m_auraModifiersGroup[UNIT_MOD_END][MODIFIER_TYPE_END];

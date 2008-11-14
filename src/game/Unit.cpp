@@ -181,6 +181,7 @@ Unit::Unit()
 
     m_Visibility = VISIBILITY_ON;
 
+    m_interruptMask = 0;
     m_detectInvisibilityMask = 0;
     m_invisibilityMask = 0;
     m_transform = 0;
@@ -465,6 +466,10 @@ void Unit::RemoveSpellsCausingAura(AuraType auraType)
 
 void Unit::RemoveAurasWithInterruptFlags(uint32 flag)
 {
+    if(!(m_interruptMask & flag))
+        return;
+
+    // interrupt auras
     AuraList::iterator iter, next;
     for (iter = m_interruptableAuras.begin(); iter != m_interruptableAuras.end(); iter = next)
     {
@@ -478,9 +483,27 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag)
             if (!m_interruptableAuras.empty())
                 next = m_interruptableAuras.begin();
             else
-                return;
+                break;
         }
     }
+
+    // interrupt channeled spell
+    if(Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
+        if(spell->getState() == SPELL_STATE_CASTING && (spell->m_spellInfo->AuraInterruptFlags & flag))
+            InterruptNonMeleeSpells(false);
+}
+
+void Unit::UpdateInterruptMask()
+{
+    m_interruptMask = 0;
+    for(AuraList::iterator i = m_interruptableAuras.begin(); i != m_interruptableAuras.end(); ++i)
+    {
+        if(*i)
+            m_interruptMask |= (*i)->GetSpellProto()->AuraInterruptFlags;
+    }
+    if(Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
+        if(spell->getState() == SPELL_STATE_CASTING)
+            m_interruptMask |= spell->m_spellInfo->AuraInterruptFlags;
 }
 
 bool Unit::HasAuraType(AuraType auraType) const
@@ -526,22 +549,11 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             return 0;
     }
 
-    // remove affects from victim (including from 0 damage and DoTs)
-    //if(pVictim != this)
-    //    pVictim->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-
-    // remove affects from attacker at any non-DoT damage (including 0 damage)
-    if( damagetype != DOT)
-    {
-        if(pVictim->GetTypeId() == TYPEID_PLAYER && !pVictim->IsStandState() && !pVictim->hasUnitState(UNIT_STAT_STUNNED))
-            pVictim->SetStandState(PLAYER_STATE_NONE);
-    }
-
     //Script Event damage taken
     if( pVictim->GetTypeId()== TYPEID_UNIT && ((Creature *)pVictim)->AI() )
         ((Creature *)pVictim)->AI()->DamageTaken(this, damage);
 
-    if(!damage)
+    if(!damage) //when will zero damage? need interrupt aura?
     {
         // Rage from physical damage received .
         if(cleanDamage && cleanDamage->damage && (damageSchoolMask & SPELL_SCHOOL_MASK_NORMAL) && pVictim->GetTypeId() == TYPEID_PLAYER && (pVictim->getPowerType() == POWER_RAGE))
@@ -868,10 +880,6 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             }
         }
 
-        // polymorphed and other negative transformed cases
-        if(pVictim->getTransForm() && pVictim->hasUnitState(UNIT_STAT_CONFUSED))
-            pVictim->RemoveAurasDueToSpell(pVictim->getTransForm());
-
         if(damagetype == DIRECT_DAMAGE|| damagetype == SPELL_DIRECT_DAMAGE)
             pVictim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_DIRECT_DAMAGE);
 
@@ -909,68 +917,37 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             }
         }
 
-        // TODO: Store auras by interrupt flag to speed this up.
-        /*AuraMap& vAuras = pVictim->GetAuras();
-        for (AuraMap::iterator i = vAuras.begin(), next; i != vAuras.end(); i = next)
+        if (damagetype != NODAMAGE && damage)// && pVictim->GetTypeId() == TYPEID_PLAYER)
         {
-            const SpellEntry *se = i->second->GetSpellProto();
-            next = i; ++next;
-            if( se->AuraInterruptFlags & AURA_INTERRUPT_FLAG_DAMAGE )
-            {
-                bool remove = true;
-                if (se->procFlags & (1<<3))
-                {
-                    if (!roll_chance_i(se->procChance))
-                        remove = false;
-                }
-                if (remove)
-                {
-                    pVictim->RemoveAurasDueToSpell(i->second->GetId());
-                    // FIXME: this may cause the auras with proc chance to be rerolled several times
-                    next = vAuras.begin();
-                }
-            }
-            else */
-        pVictim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_DAMAGE);
-        pVictim->RemoveSpellbyDamageTaken(damage, spellProto ? spellProto->Id : 0);
+            //if (se->procFlags & (1<<3))
+            pVictim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_DAMAGE);
+            pVictim->RemoveSpellbyDamageTaken(damage, spellProto ? spellProto->Id : 0);
 
-        if (damagetype != NODAMAGE && damage && pVictim->GetTypeId() == TYPEID_PLAYER)
-        {
-            if( damagetype != DOT )
+            if(pVictim != this && pVictim->GetTypeId() == TYPEID_PLAYER) // does not support creature push_back
             {
-                for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; i++)
+                if(damagetype != DOT)
                 {
-                    // skip channeled spell (processed differently below)
-                    if (i == CURRENT_CHANNELED_SPELL)
-                        continue;
-
-                    if(Spell* spell = pVictim->m_currentSpells[i])
-                        if(spell->getState() == SPELL_STATE_PREPARING)
-                            spell->Delayed();
-                }
-            }
-
-            if(Spell* spell = pVictim->m_currentSpells[CURRENT_CHANNELED_SPELL])
-            {
-                if (spell->getState() == SPELL_STATE_CASTING)
-                {
-                    uint32 channelInterruptFlags = spell->m_spellInfo->ChannelInterruptFlags;
-                    if( channelInterruptFlags & CHANNEL_FLAG_DELAY )
+                    if(Spell* spell = pVictim->m_currentSpells[CURRENT_GENERIC_SPELL])
                     {
-                        if(pVictim!=this)                   //don't shorten the duration of channeling if you damage yourself
+                        if(spell->getState() == SPELL_STATE_PREPARING)
+                        {
+                            uint32 interruptFlags = spell->m_spellInfo->InterruptFlags;
+                            if(interruptFlags & SPELL_INTERRUPT_FLAG_DAMAGE)
+                                pVictim->InterruptNonMeleeSpells(false);
+                            else if(interruptFlags & SPELL_INTERRUPT_FLAG_PUSH_BACK)
+                                spell->Delayed();
+                        }
+                    }
+                }
+
+                if(Spell* spell = pVictim->m_currentSpells[CURRENT_CHANNELED_SPELL])
+                {
+                    if(spell->getState() == SPELL_STATE_CASTING)
+                    {
+                        uint32 channelInterruptFlags = spell->m_spellInfo->ChannelInterruptFlags;
+                        if( channelInterruptFlags & CHANNEL_FLAG_DELAY )
                             spell->DelayedChannel();
                     }
-                    else if( (channelInterruptFlags & (CHANNEL_FLAG_DAMAGE | CHANNEL_FLAG_DAMAGE2)) )
-                    {
-                        sLog.outDetail("Spell %u canceled at damage!",spell->m_spellInfo->Id);
-                        pVictim->InterruptSpell(CURRENT_CHANNELED_SPELL);
-                    }
-                }
-                else if (spell->getState() == SPELL_STATE_DELAYED)
-                    // break channeled spell in delayed state on damage
-                {
-                    sLog.outDetail("Spell %u canceled at damage!",spell->m_spellInfo->Id);
-                    pVictim->InterruptSpell(CURRENT_CHANNELED_SPELL);
                 }
             }
         }
@@ -3795,7 +3772,10 @@ bool Unit::AddAura(Aura *Aur)
     {
         m_modAuras[Aur->GetModifier()->m_auraname].push_back(Aur);
         if(Aur->GetSpellProto()->AuraInterruptFlags)
+        {
             m_interruptableAuras.push_back(Aur);
+            AddInterruptMask(Aur->GetSpellProto()->AuraInterruptFlags);
+        }
         if(Aur->GetSpellProto()->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE)
         {
             m_ccAuras.push_back(Aur);
@@ -4163,7 +4143,10 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     {
         m_modAuras[(*i).second->GetModifier()->m_auraname].remove((*i).second);
         if((*i).second->GetSpellProto()->AuraInterruptFlags)
+        {
             m_interruptableAuras.remove((*i).second);
+            UpdateInterruptMask();
+        }
         if((*i).second->GetSpellProto()->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE)
             m_ccAuras.remove((*i).second);
     }
@@ -8484,6 +8467,9 @@ void Unit::SetInCombatWith(Unit* enemy)
 
 void Unit::CombatStart(Unit* target)
 {
+    if(!target->IsStandState() && !target->hasUnitState(UNIT_STAT_STUNNED))
+        target->SetStandState(PLAYER_STATE_NONE);
+
     if(!target->isInCombat() && target->GetTypeId() != TYPEID_PLAYER && ((Creature*)target)->AI())
         ((Creature*)target)->AI()->AttackStart(this);
 

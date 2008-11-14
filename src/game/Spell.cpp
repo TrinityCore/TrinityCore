@@ -954,9 +954,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     {
         if( !(m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_NO_INITIAL_AGGRO) )
         {
-            if(!unit->IsStandState() && !unit->hasUnitState(UNIT_STAT_STUNNED))
-                unit->SetStandState(PLAYER_STATE_NONE);
-
             m_caster->CombatStart(unit);
         }
     }
@@ -1282,7 +1279,7 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, const u
         TypeContainerVisitor<Trinity::SpellNotifierCreatureAndPlayer, WorldTypeMapContainer > world_object_notifier(notifier);
         cell_lock->Visit(cell_lock, world_object_notifier, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
     }
-    if(!(spellmgr.GetSpellCustomAttr(m_spellInfo->Id) & SPELL_ATTR_CU_PLAYERS_ONLY))
+    if(!(m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_PLAYERS_ONLY))
     {
         TypeContainerVisitor<Trinity::SpellNotifierCreatureAndPlayer, GridTypeMapContainer >  grid_object_notifier(notifier);
         cell_lock->Visit(cell_lock, grid_object_notifier, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
@@ -2297,7 +2294,7 @@ void Spell::cast(bool skipCheck)
     }
 
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
-    if (m_spellInfo->speed > 0.0f)
+    if (m_spellInfo->speed > 0.0f && !IsChanneledSpell(m_spellInfo))
     {
 
         // Remove used for cast item if need (it can be already NULL after TakeReagents call
@@ -2324,6 +2321,7 @@ void Spell::handle_immediate()
     if(IsChanneledSpell(m_spellInfo))
     {
         m_spellState = SPELL_STATE_CASTING;
+        m_caster->AddInterruptMask(m_spellInfo->ChannelInterruptFlags);
         SendChannelStart(GetSpellDuration(m_spellInfo));
     }
 
@@ -2567,10 +2565,11 @@ void Spell::update(uint32 difftime)
         (m_spellInfo->Effect[0] != SPELL_EFFECT_STUCK || !m_caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING)))
     {
         // always cancel for channeled spells
-        if( m_spellState == SPELL_STATE_CASTING )
-            cancel();
+        //if( m_spellState == SPELL_STATE_CASTING )
+        //    cancel();
         // don't cancel for melee, autorepeat, triggered and instant spells
-        else if(!IsNextMeleeSwingSpell() && !IsAutoRepeat() && !m_IsTriggeredSpell && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT))
+        //else
+        if(!IsNextMeleeSwingSpell() && !IsAutoRepeat() && !m_IsTriggeredSpell && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT))
             cancel();
     }
 
@@ -2601,10 +2600,6 @@ void Spell::update(uint32 difftime)
 
                     // check for incapacitating player states
                     if( m_caster->hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_CONFUSED))
-                        cancel();
-
-                    // check if player has turned if flag is set
-                    if( m_spellInfo->ChannelInterruptFlags & CHANNEL_FLAG_TURNING && m_castOrientation != m_caster->GetOrientation() )
                         cancel();
                 }
 
@@ -2668,6 +2663,9 @@ void Spell::finish(bool ok)
 {
     if(!m_caster)
         return;
+
+    if(IsChanneledSpell(m_spellInfo))
+        m_caster->UpdateInterruptMask();
 
     if(m_spellState == SPELL_STATE_FINISHED)
         return;
@@ -4761,17 +4759,17 @@ uint8 Spell::CheckItems()
     return uint8(0);
 }
 
-void Spell::Delayed()
+void Spell::Delayed() // only called in DealDamage()
 {
-    if(!m_caster || m_caster->GetTypeId() != TYPEID_PLAYER)
+    if(!m_caster)// || m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    if (m_spellState == SPELL_STATE_DELAYED)
-        return;                                             // spell is active and can't be time-backed
+    //if (m_spellState == SPELL_STATE_DELAYED)
+    //    return;                                             // spell is active and can't be time-backed
 
     // spells not loosing casting time ( slam, dynamites, bombs.. )
-    if(!(m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_DAMAGE))
-        return;
+    //if(!(m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_DAMAGE))
+    //    return;
 
     //check resist chance
     int32 resistChance = 100;                               //must be initialized to 100 for percent modifiers
