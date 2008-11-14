@@ -188,6 +188,7 @@ MotionMaster::MoveChase(Unit* target, float dist, float angle)
     if(i_owner->GetTypeId()==TYPEID_PLAYER)
     {
         DEBUG_LOG("Player (GUID: %u) chase to %s (GUID: %u)",
+            i_owner->GetGUIDLow(),
             target->GetTypeId()==TYPEID_PLAYER ? "player" : "creature",
             target->GetTypeId()==TYPEID_PLAYER ? i_owner->GetGUIDLow() : ((Creature*)i_owner)->GetDBTableGUIDLow() );
         Mutate(new TargetedMovementGenerator<Player>(*target,dist,angle));

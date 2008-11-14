@@ -10256,9 +10256,26 @@ Item* Player::EquipItem( uint16 pos, Item *pItem, bool update )
 
                 if(pProto && isInCombat()&& pProto->Class == ITEM_CLASS_WEAPON && m_weaponChangeTimer == 0)
                 {
-                    m_weaponChangeTimer = DEFAULT_SWITCH_WEAPON;
+                    uint32 cooldownSpell = SPELL_ID_WEAPON_SWITCH_COOLDOWN_1_5s;
+
                     if (getClass() == CLASS_ROGUE)
-                        m_weaponChangeTimer = ROGUE_SWITCH_WEAPON;
+                        cooldownSpell = SPELL_ID_WEAPON_SWITCH_COOLDOWN_1_0s;
+
+                    SpellEntry const* spellProto = sSpellStore.LookupEntry(cooldownSpell);
+
+                    if (!spellProto)
+                        sLog.outError("Weapon switch cooldown spell %u couldn't be found in Spell.dbc", cooldownSpell);
+                    else
+                    {
+                        m_weaponChangeTimer = spellProto->StartRecoveryTime;
+
+                        WorldPacket data(SMSG_SPELL_COOLDOWN, 8+1+4);
+                        data << uint64(GetGUID());
+                        data << uint8(1);
+                        data << uint32(cooldownSpell);
+                        data << uint32(0);
+                        GetSession()->SendPacket(&data);
+                    }
                 }
             }
 

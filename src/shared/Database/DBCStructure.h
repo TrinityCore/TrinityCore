@@ -464,9 +464,9 @@ struct MapEntry
                                                             // 99 text flags
     //chat*     unknownText2                                // 100-115 unknown empty text fields
                                                             // 116 text flags
-    int32       parent_map;                                 // 117 map_id of parent map
-    //float start_x                                         // 118 enter x coordinate (if exist single entry)
-    //float start_y                                         // 119 enter y coordinate (if exist single entry)
+    int32       entrance_map;                               // 117 map_id of entrance map
+    float       entrance_x;                                 // 118 entrance x coordinate (if exist single entry)
+    float       entrance_y;                                 // 119 entrance y coordinate (if exist single entry)
     uint32 resetTimeRaid;                                   // 120
     uint32 resetTimeHeroic;                                 // 121
                                                             // 122-123

@@ -2822,12 +2822,7 @@ bool ChatHandler::HandleWpShowCommand(const char* args)
     std::string show = show_str;
     uint32 Maxpoint;
 
-    sLog.outDebug("DEBUG: HandleWpShowCommand: lowguid: %u", lowguid);
-
-    sLog.outDebug("DEBUG: HandleWpShowCommand: Habe creature: %ld", target );
-
-    sLog.outDebug("DEBUG: HandleWpShowCommand: wpshow - show: %s", show_str);
-    //PSendSysMessage("wpshow - show: %s", show);
+    sLog.outDebug("DEBUG: HandleWpShowCommand: lowguid: %u show: %s", lowguid, show_str);
 
     // Show info for the selected waypoint
     if(show == "info")
@@ -2848,7 +2843,7 @@ bool ChatHandler::HandleWpShowCommand(const char* args)
 
         QueryResult *result =
             WorldDatabase.PQuery( "SELECT id, point, waittime, emote, spell, text1, text2, text3, text4, text5, model1, model2 FROM creature_movement WHERE wpguid = %u",
-            target->GetGUID() );
+            target->GetGUIDLow() );
         if(!result)
         {
             // Since we compare float values, we have to deal with

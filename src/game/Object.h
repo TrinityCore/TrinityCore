@@ -399,6 +399,8 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         const char* GetName() const { return m_name.c_str(); }
         void SetName(std::string newname) { m_name=newname; }
 
+        virtual const char* GetNameForLocaleIdx(int32 /*locale_idx*/) const { return GetName(); }
+
         float GetDistance( const WorldObject* obj ) const;
         float GetDistance(const float x, const float y, const float z) const;
         float GetDistance2d(const WorldObject* obj) const;

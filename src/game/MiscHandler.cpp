@@ -136,7 +136,7 @@ void WorldSession::HandleWhoOpcode( WorldPacket & recv_data )
 
         wstrToLower(str[i]);
 
-        sLog.outDebug("String %u: %s", i, str[i].c_str());
+        sLog.outDebug("String %u: %s", i, temp.c_str());
     }
 
     std::wstring wplayer_name;

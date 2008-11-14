@@ -680,12 +680,6 @@ struct ItemPosCount
 };
 typedef std::vector<ItemPosCount> ItemPosCountVec;
 
-enum SwitchWeapon
-{
-    DEFAULT_SWITCH_WEAPON       = 1500,                     //cooldown in ms
-    ROGUE_SWITCH_WEAPON         = 1000
-};
-
 enum TradeSlots
 {
     TRADE_SLOT_COUNT            = 7,

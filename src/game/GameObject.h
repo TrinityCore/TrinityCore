@@ -445,6 +445,9 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         void TextEmote(int32 textId, uint64 TargetGuid) { MonsterTextEmote(textId,TargetGuid); }
         void Whisper(int32 textId, uint64 receiver) { MonsterWhisper(textId,receiver); }
 
+        // overwrite WorldObject function for proper name localization
+        const char* GetNameForLocaleIdx(int32 locale_idx) const;
+
         void SaveToDB();
         void SaveToDB(uint32 mapid, uint8 spawnMask);
         bool LoadFromDB(uint32 guid, Map *map);
