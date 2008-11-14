@@ -1863,7 +1863,7 @@ bool ChatHandler::HandleSendMailCommand(const char* args)
     if(!*args)
         return false;
 
-    // format: name "subject text" "mail text" item1[:count1] item2[:count2] ... item12[:count12]
+    // format: name "subject text" "mail text"
 
     char* pName = strtok((char*)args, " ");
     if(!pName)
@@ -1910,60 +1910,6 @@ bool ChatHandler::HandleSendMailCommand(const char* args)
     std::string subject = msgSubject;
     std::string text    = msgText;
 
-    // extract items
-    typedef std::pair<uint32,uint32> ItemPair;
-    typedef std::list< ItemPair > ItemPairs;
-    ItemPairs items;
-
-    // get all tail string
-    char* tail = strtok(NULL, "");
-
-    // get from tail next item str
-    while(char* itemStr = strtok(tail, " "))
-    {
-        // and get new tail 
-        tail = strtok(NULL, "");
-
-        // parse item str
-        char* itemIdStr = strtok(itemStr, ":");
-        char* itemCountStr = strtok(NULL, " ");
-        
-        uint32 item_id = atoi(itemIdStr);
-        if(!item_id)
-            return false;
-
-        ItemPrototype const* item_proto = objmgr.GetItemPrototype(item_id);
-        if(!item_proto)
-        {
-            PSendSysMessage(LANG_COMMAND_ITEMIDINVALID, item_id);
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        uint32 item_count = itemCountStr ? atoi(itemCountStr) : 1;
-        if(item_count < 1 || item_proto->MaxCount && item_count > item_proto->MaxCount)
-        {
-            PSendSysMessage(LANG_COMMAND_INVALID_ITEM_COUNT, item_count,item_id);
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        while(item_count > item_proto->Stackable)
-        {
-            items.push_back(ItemPair(item_id,item_proto->Stackable));
-            item_count -= item_proto->Stackable;
-        }
-
-        items.push_back(ItemPair(item_id,item_count));
-
-        if(items.size() > MAX_MAIL_ITEMS)
-        {
-            PSendSysMessage(LANG_COMMAND_MAIL_ITEMS_LIMIT, MAX_MAIL_ITEMS);
-            SetSentErrorMessage(true);
-            return false;
-        }
-    }
-
     if(!normalizePlayerName(name))
     {
         SendSysMessage(LANG_PLAYER_NOT_FOUND);
@@ -1980,30 +1926,16 @@ bool ChatHandler::HandleSendMailCommand(const char* args)
     }
 
     uint32 mailId = objmgr.GenerateMailID();
-    uint32 sender_guidlo = m_session->GetPlayer()->GetGUIDLow();
+    // from console show not existed sender
+    uint32 sender_guidlo = m_session ? m_session->GetPlayer()->GetGUIDLow() : 0;
+
     uint32 messagetype = MAIL_NORMAL;
     uint32 stationery = MAIL_STATIONERY_GM;
-    uint32 itemTextId = 0;
-    if (!text.empty())
-    {
-        itemTextId = objmgr.CreateItemText( text );
-    }
+    uint32 itemTextId = !text.empty() ? objmgr.CreateItemText( text ) : 0;
 
     Player *receiver = objmgr.GetPlayer(receiver_guid);
 
-    // fill mail
-    MailItemsInfo mi;                                       // item list preparing
-
-    for(ItemPairs::const_iterator itr = items.begin(); itr != items.end(); ++itr)
-    {
-        if(Item* item = Item::CreateItem(itr->first,itr->second,m_session->GetPlayer()))
-        {
-            item->SaveToDB();                               // save for prevent lost at next mail load, if send fail then item will deleted
-            mi.AddItem(item->GetGUIDLow(), item->GetEntry(), item);
-        }
-    }
-
-    WorldSession::SendMailTo(receiver,messagetype, stationery, sender_guidlo, GUID_LOPART(receiver_guid), subject, itemTextId, &mi, 0, 0, MAIL_CHECK_MASK_NONE);
+    WorldSession::SendMailTo(receiver,messagetype, stationery, sender_guidlo, GUID_LOPART(receiver_guid), subject, itemTextId, NULL, 0, 0, MAIL_CHECK_MASK_NONE);
 
     PSendSysMessage(LANG_MAIL_SENT, name.c_str());
     return true;
