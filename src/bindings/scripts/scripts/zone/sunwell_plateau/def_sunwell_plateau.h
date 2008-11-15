@@ -36,8 +36,4 @@
 #define DATA_GATE_5                 23
 
 /*** Misc ***/
-#define DATA_PLAYER_SPECTRAL_REALM  24
-#define DATA_SET_SPECTRAL_CHECK     25
-#define DATA_RANDOM_SPECTRAL_PLAYER 26
-#define DATA_INST_EJECT_PLAYERS     27
 #endif

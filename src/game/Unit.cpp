@@ -497,7 +497,7 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag)
 
     // interrupt channeled spell
     if(Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
-        if(spell->getState() == SPELL_STATE_CASTING && (spell->m_spellInfo->AuraInterruptFlags & flag))
+        if(spell->getState() == SPELL_STATE_CASTING && (spell->m_spellInfo->ChannelInterruptFlags & flag))
             InterruptNonMeleeSpells(false);
 }
 
@@ -511,7 +511,7 @@ void Unit::UpdateInterruptMask()
     }
     if(Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
         if(spell->getState() == SPELL_STATE_CASTING)
-            m_interruptMask |= spell->m_spellInfo->AuraInterruptFlags;
+            m_interruptMask |= spell->m_spellInfo->ChannelInterruptFlags;
 }
 
 bool Unit::HasAuraType(AuraType auraType) const

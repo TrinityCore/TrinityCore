@@ -20,11 +20,6 @@ VALUES
 INSERT INTO spell_linked_spell
    (`spell_trigger`, `spell_effect`, `type`, `comment`)
 VALUES
-   (-45934, 7, 0, 'Dark Fiend Suicide');
-
-INSERT INTO spell_linked_spell
-   (`spell_trigger`, `spell_effect`, `type`, `comment`)
-VALUES
    (45661, 45665, 1, 'Encapsulate\r\n');
 
 INSERT INTO spell_linked_spell

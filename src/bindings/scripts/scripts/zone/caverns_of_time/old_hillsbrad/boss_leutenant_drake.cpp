@@ -193,7 +193,7 @@ void AddSC_boss_lieutenant_drake()
 
     newscript = new Script;
     newscript->Name="go_barrel_old_hillsbrad";
-    newscript->pGOHello = GOHello_go_barrel_old_hillsbrad;
+    newscript->pGOHello = &GOHello_go_barrel_old_hillsbrad;
     m_scripts[nrscripts++] = newscript;
 
     newscript = new Script;
