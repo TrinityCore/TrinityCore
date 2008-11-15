@@ -1964,14 +1964,10 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
     // AT REMOVE
     else
     {
-        if( m_target->GetTypeId() == TYPEID_PLAYER &&
-            ( GetSpellProto()->Effect[0]==72 || GetSpellProto()->Effect[0]==6 &&
-            ( GetSpellProto()->EffectApplyAuraName[0]==1 || GetSpellProto()->EffectApplyAuraName[0]==128 ) ) )
+        if( m_target->GetTypeId() == TYPEID_PLAYER && GetSpellProto()->Effect[0]==72 )
         {
             // spells with SpellEffect=72 and aura=4: 6196, 6197, 21171, 21425
-            m_target->SetUInt64Value(PLAYER_FARSIGHT, 0);
-            WorldPacket data(SMSG_CLEAR_FAR_SIGHT_IMMEDIATE, 0);
-            ((Player*)m_target)->GetSession()->SendPacket(&data);
+            ((Player*)m_target)->ClearFarsight();
             return;
         }
 
@@ -2227,6 +2223,24 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 }
 
                 ((Player*)m_target)->AddSpellMod(m_spellmod, apply);
+                return;
+            }
+
+            // Sentry Totem
+            if (GetId() == 6495 && caster->GetTypeId() == TYPEID_PLAYER)
+            {
+                if (apply)
+                {
+                    uint64 guid = caster->m_TotemSlot[3];
+                    if (guid)
+                    {
+                        Creature *totem = ObjectAccessor::GetCreature(*caster, guid);
+                        if (totem && totem->isTotem())
+                            totem->AddPlayerToVision((Player*)caster);
+                    }
+                } 
+                else
+                    ((Player*)caster)->RemoveFarsightTarget();
                 return;
             }
             break;
@@ -2830,7 +2844,10 @@ void Aura::HandleBindSight(bool apply, bool Real)
     if(!caster || caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    caster->SetUInt64Value(PLAYER_FARSIGHT,apply ? m_target->GetGUID() : 0);
+    if (apply)
+        m_target->AddPlayerToVision((Player*)caster);
+    else
+        m_target->RemovePlayerFromVision((Player*)caster);
 }
 
 void Aura::HandleFarSight(bool apply, bool Real)

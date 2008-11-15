@@ -427,6 +427,8 @@ Player::Player (WorldSession *session): Unit()
     m_declinedname = NULL;
 
     m_isActive = true;
+
+    m_farsightVision = false;
 }
 
 Player::~Player ()
@@ -1291,6 +1293,12 @@ void Player::setDeathState(DeathState s)
         RemoveMiniPet();
         RemoveGuardians();
 
+        // remove possession
+        if(isPossessing())
+            RemovePossess(false);
+        else
+            RemoveFarsightTarget();
+
         // save value before aura remove in Unit::setDeathState
         ressSpellId = GetUInt32Value(PLAYER_SELF_RES_SPELL);
 
@@ -1544,7 +1552,15 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     if (isPossessedByPlayer())
         ((Player*)GetCharmer())->RemovePossess();
 
-    // The player was ported to another map and looses the duel immediately.
+    // Remove player's possession before teleporting
+    if (isPossessing())
+        RemovePossess(false);
+
+    // Empty vision list and clear farsight (if it hasn't already been cleared by RemovePossess) before teleporting
+    RemoveAllFromVision();
+    RemoveFarsightTarget();
+
+    // The player was ported to another map and looses the duel immediatly.
     // We have to perform this check before the teleport, otherwise the
     // ObjectAccessor won't find the flag.
     if (duel && GetMapId()!=mapid)
@@ -1762,6 +1778,7 @@ void Player::RemoveFromWorld()
         UnsummonAllTotems();
         RemoveMiniPet();
         RemoveGuardians();
+        RemoveFarsightTarget();
     }
 
     for(int i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; i++)
@@ -17293,8 +17310,10 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList) cons
     if(!u->IsVisibleInGridForPlayer(this))
         return false;
 
-    // If the player is currently possessing, update visibility from the possessed unit's location
-    const Unit* target = isPossessing() ? GetCharm() : this;
+    // If the player is currently channeling vision, update visibility from the target unit's location
+    const WorldObject* target = GetFarsightTarget();
+    if (!target || !HasFarsightVision()) // Vision needs to be on the farsight target
+        target = this;
 
     // different visible distance checks
     if(isInFlight())                                     // what see player in flight
@@ -18743,20 +18762,17 @@ void Player::Possess(Unit *target)
     // Update the proper unit fields
     SetPossessedTarget(target);
 
+    // Start channeling packets to possessor
+    target->AddPlayerToVision(this);
+
     target->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, getFaction());
     target->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
     target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNKNOWN5);
     target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
     SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-    SetUInt64Value(PLAYER_FARSIGHT, target->GetGUID());
 
     if(target->GetTypeId() == TYPEID_UNIT)
     {
-        // Set target to active in the grid and place it in the world container to be picked up by all regular player cell visits
-        Map* map = target->GetMap();
-        map->SwitchGridContainers((Creature*)target, true);
-        target->setActive(true);
-
         ((Creature*)target)->InitPossessedAI(); // Initialize the possessed AI
         target->StopMoving();
         target->GetMotionMaster()->Clear(false);
@@ -18809,15 +18825,13 @@ void Player::RemovePossess(bool attack)
 
     RemovePossessedTarget();
 
+    // Stop channeling packets back to possessor
+    target->RemovePlayerFromVision(this);
+
     if(target->GetTypeId() == TYPEID_PLAYER)
         ((Player*)target)->setFactionForRace(target->getRace());
     else if(target->GetTypeId() == TYPEID_UNIT)
     {
-        // Set creature to inactive in grid and place it back into the grid container
-        Map* map = target->GetMap();
-        target->setActive(false);
-        map->SwitchGridContainers((Creature*)target, false);
-
         if(((Creature*)target)->isPet())
         {
             if(Unit* owner = target->GetOwner())
@@ -18831,7 +18845,6 @@ void Player::RemovePossess(bool attack)
 
     target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNKNOWN5);
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-    SetUInt64Value(PLAYER_FARSIGHT, 0);
 
     // Remove pet spell action bar
     WorldPacket data(SMSG_PET_SPELLS, 8);
@@ -18895,6 +18908,45 @@ void Player::SetViewport(uint64 guid, bool moveable)
     data << (moveable ? uint8(0x01) : uint8(0x00)); // 0 - can't move; 1 - can move
     m_session->SendPacket(&data);
     sLog.outDetail("Viewport for "I64FMT" (%s) changed to "I64FMT, GetGUID(), GetName(), guid);
+}
+
+WorldObject* Player::GetFarsightTarget() const
+{
+    // Players can have in farsight field another player's guid, a creature's guid, or a dynamic object's guid
+    if (uint64 guid = GetUInt64Value(PLAYER_FARSIGHT))
+        return (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*this, guid, TYPEMASK_PLAYER | TYPEMASK_UNIT | TYPEMASK_DYNAMICOBJECT);
+    return NULL;
+}
+
+void Player::RemoveFarsightTarget()
+{
+    if (WorldObject* fTarget = GetFarsightTarget())
+    {
+        if (fTarget->isType(TYPEMASK_PLAYER | TYPEMASK_UNIT))
+            ((Unit*)fTarget)->RemovePlayerFromVision(this);
+    }
+    ClearFarsight();
+}
+
+void Player::ClearFarsight()
+{
+    if (GetUInt64Value(PLAYER_FARSIGHT))
+    {
+        SetUInt64Value(PLAYER_FARSIGHT, 0);
+        WorldPacket data(SMSG_CLEAR_FAR_SIGHT_IMMEDIATE, 0);
+        GetSession()->SendPacket(&data);
+    }
+}
+
+void Player::SetFarsightTarget(WorldObject* obj)
+{
+    if (!obj || !obj->isType(TYPEMASK_PLAYER | TYPEMASK_UNIT | TYPEMASK_DYNAMICOBJECT))
+        return;
+
+    // Remove the current target if there is one
+    RemoveFarsightTarget();
+
+    SetUInt64Value(PLAYER_FARSIGHT, obj->GetGUID());
 }
 
 bool Player::isAllowUseBattleGroundObject()

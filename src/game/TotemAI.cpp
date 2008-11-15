@@ -122,4 +122,13 @@ TotemAI::IsVisible(Unit *) const
 void
 TotemAI::AttackStart(Unit *)
 {
+    // Sentry totem sends ping on attack
+    if (i_totem.GetEntry() == SENTRY_TOTEM_ENTRY && i_totem.GetOwner()->GetTypeId() == TYPEID_PLAYER)
+    {
+        WorldPacket data(MSG_MINIMAP_PING, (8+4+4));
+        data << i_totem.GetGUID();
+        data << i_totem.GetPositionX();
+        data << i_totem.GetPositionY();
+        ((Player*)i_totem.GetOwner())->GetSession()->SendPacket(&data);
+    }
 }

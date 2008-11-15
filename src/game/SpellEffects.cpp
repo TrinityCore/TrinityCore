@@ -3490,6 +3490,9 @@ void Spell::EffectPickPocket(uint32 /*i*/)
 
 void Spell::EffectAddFarsight(uint32 i)
 {
+    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+
     float radius = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
     int32 duration = GetSpellDuration(m_spellInfo);
     DynamicObject* dynObj = new DynamicObject;
@@ -3501,8 +3504,18 @@ void Spell::EffectAddFarsight(uint32 i)
     dynObj->SetUInt32Value(OBJECT_FIELD_TYPE, 65);
     dynObj->SetUInt32Value(DYNAMICOBJECT_BYTES, 0x80000002);
     m_caster->AddDynObject(dynObj);
-    MapManager::Instance().GetMap(dynObj->GetMapId(), dynObj)->Add(dynObj);
-    m_caster->SetUInt64Value(PLAYER_FARSIGHT, dynObj->GetGUID());
+
+    CellPair pair = Trinity::ComputeCellPair(dynObj->GetPositionX(), dynObj->GetPositionY());
+    Cell cell(pair);
+    Map* map = MapManager::Instance().GetMap(dynObj->GetMapId(), dynObj);
+    map->LoadGrid(cell);                        // In case the spell is casted into a different grid by player
+    map->Add(dynObj);
+    map->SwitchGridContainers(dynObj, true);    // Needed for forwarding player packets
+    dynObj->setActive(true);                    // Keep the grid updated even if there are no players in it
+      
+    // Need to update visibility of object for client to accept farsight guid
+    ((Player*)m_caster)->UpdateVisibilityOf(dynObj);
+    ((Player*)m_caster)->SetFarsightTarget(dynObj);
 }
 
 void Spell::EffectSummonWild(uint32 i)

@@ -315,21 +315,29 @@ void Map::SwitchGridContainers(T* obj, bool active)
 {
     CellPair pair = Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
     Cell cell(pair);
-    NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
+    NGridType *ngrid = getNGrid(cell.GridX(), cell.GridY());
+    GridType &grid = (*ngrid)(cell.CellX(), cell.CellY());
 
     if (active)
     {
-        (*grid)(cell.CellX(), cell.CellY()).RemoveGridObject<T>(obj, obj->GetGUID());
-        (*grid)(cell.CellX(), cell.CellY()).AddWorldObject<T>(obj, obj->GetGUID());
+        if (!grid.GetWorldObject(obj->GetGUID(), obj))
+        {
+            grid.RemoveGridObject<T>(obj, obj->GetGUID());
+            grid.AddWorldObject<T>(obj, obj->GetGUID());
+        }
     } else
     {
-        (*grid)(cell.CellX(), cell.CellY()).RemoveWorldObject<T>(obj, obj->GetGUID());
-        (*grid)(cell.CellX(), cell.CellY()).AddGridObject<T>(obj, obj->GetGUID());
+        if (!grid.GetGridObject(obj->GetGUID(), obj))
+        {
+            grid.RemoveWorldObject<T>(obj, obj->GetGUID());
+            grid.AddGridObject<T>(obj, obj->GetGUID());
+        }
     }
 }
 
 template void Map::SwitchGridContainers(Creature *, bool);
 template void Map::SwitchGridContainers(Corpse *, bool);
+template void Map::SwitchGridContainers(DynamicObject *, bool);
 
 template<class T>
 void Map::DeleteFromWorld(T* obj)

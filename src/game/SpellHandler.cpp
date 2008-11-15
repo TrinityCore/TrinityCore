@@ -352,18 +352,22 @@ void WorldSession::HandleCancelAuraOpcode( WorldPacket& recvPacket)
     if (!spellInfo)
         return;
 
-    // Remove possess/charm aura from the possessed/charmed as well
+    // Remove possess/charm/sight aura from the possessed/charmed as well
     // TODO: Remove this once the ability to cancel aura sets at once is implemented
-    if(_player->GetCharm())
+    if(_player->GetCharm() || _player->GetFarsightTarget())
     {
         for (int i = 0; i < 3; ++i)
         {
             if (spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_POSSESS ||
                 spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_POSSESS_PET ||
-                spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_CHARM)
+                spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_CHARM ||
+                spellInfo->EffectApplyAuraName[i] == SPELL_AURA_BIND_SIGHT)
             {
                 _player->RemoveAurasDueToSpellByCancel(spellId);
-                _player->GetCharm()->RemoveAurasDueToSpellByCancel(spellId);
+                if (_player->GetCharm())
+                    _player->GetCharm()->RemoveAurasDueToSpellByCancel(spellId);
+                else if (_player->GetFarsightTarget()->GetTypeId() != TYPEID_DYNAMICOBJECT)
+                    ((Unit*)_player->GetFarsightTarget())->RemoveAurasDueToSpellByCancel(spellId);
                 return;
             }
         }
@@ -464,7 +468,8 @@ void WorldSession::HandleTotemDestroy( WorldPacket& recvPacket)
         return;
 
     Creature* totem = ObjectAccessor::GetCreature(*_player,_player->m_TotemSlot[slotId]);
-    if(totem && totem->isTotem())
+    // Don't unsummon sentry totem
+    if(totem && totem->isTotem() && totem->GetEntry() != SENTRY_TOTEM_ENTRY)
         ((Totem*)totem)->UnSummon();
 }
 

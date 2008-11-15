@@ -624,8 +624,12 @@ ObjectAccessor::WorldObjectChangeAccumulator::Visit(PlayerMapType &m)
     for(PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
         BuildPacket(iter->getSource());
-        if (iter->getSource()->isPossessedByPlayer())
-            BuildPacket((Player*)iter->getSource()->GetCharmer());
+        if (!iter->getSource()->GetSharedVisionList().empty())
+        {
+            SharedVisionList::const_iterator it = iter->getSource()->GetSharedVisionList().begin();
+            for ( ; it != iter->getSource()->GetSharedVisionList().end(); ++it)
+                BuildPacket(*it);
+        }
     }
 }
 
@@ -633,8 +637,28 @@ void
 ObjectAccessor::WorldObjectChangeAccumulator::Visit(CreatureMapType &m)
 {
     for(CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
-        if (iter->getSource()->isPossessedByPlayer())
-            BuildPacket((Player*)iter->getSource()->GetCharmer());
+    {
+        if (!iter->getSource()->GetSharedVisionList().empty())
+        {
+            SharedVisionList::const_iterator it = iter->getSource()->GetSharedVisionList().begin();
+            for ( ; it != iter->getSource()->GetSharedVisionList().end(); ++it)
+                BuildPacket(*it);
+        }
+    }
+}
+
+void
+ObjectAccessor::WorldObjectChangeAccumulator::Visit(DynamicObjectMapType &m)
+{
+    for(DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        if (IS_PLAYER_GUID(iter->getSource()->GetCasterGUID()))
+        {
+            Player* caster = (Player*)iter->getSource()->GetCaster();
+            if (caster->GetUInt64Value(PLAYER_FARSIGHT) == iter->getSource()->GetGUID())
+                BuildPacket(caster);
+        }
+    }
 }
 
 void

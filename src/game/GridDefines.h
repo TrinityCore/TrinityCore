@@ -57,7 +57,7 @@ class Player;
 #define MAP_HALFSIZE            (MAP_SIZE/2)
 
 // Creature used instead pet to simplify *::Visit templates (not required duplicate code for Creature->Pet case)
-typedef TYPELIST_3(Player, Creature/*pets*/, Corpse/*resurrectable*/)                   AllWorldObjectTypes;
+typedef TYPELIST_4(Player, Creature/*pets*/, Corpse/*resurrectable*/, DynamicObject/*farsight target*/) AllWorldObjectTypes;
 typedef TYPELIST_4(GameObject, Creature/*except pets*/, DynamicObject, Corpse/*Bones*/) AllGridObjectTypes;
 
 typedef GridRefManager<Corpse>          CorpseMapType;
