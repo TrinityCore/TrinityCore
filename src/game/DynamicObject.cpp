@@ -137,8 +137,12 @@ void DynamicObject::Update(uint32 p_time)
 void DynamicObject::Delete()
 {
     // Make sure the object is back to grid container for removal as farsight targets
-    // are switched to world container on creation
-    GetMap()->SwitchGridContainers(this, false);
+    // are switched to world container on creation and they are also set to active
+    if (isActive())
+    {
+        GetMap()->SwitchGridContainers(this, false);
+        setActive(false);
+    }
     SendObjectDeSpawnAnim(GetGUID());
     AddObjectToRemoveList();
 }
