@@ -2278,7 +2278,7 @@ void AddSC_boss_illidan()
 
     newscript = new Script;
     newscript->Name="mob_cage_trap_trigger";
-    newscript->GetAI = GetAI_cage_trap_trigger;
+    newscript->GetAI = &GetAI_cage_trap_trigger;
     m_scripts[nrscripts++] = newscript;
 
     newscript = new Script;

@@ -14,10 +14,6 @@ EndScriptData */
 
 #define ENCOUNTERS 6
 
-#define SPELL_SPECTRAL_REALM        46021
-#define SPELL_TELEPORT_NORMAL_REALM 46020
-#define SPELL_SPECTRAL_EXHAUSTION   44867
-
 /* Sunwell Plateau:
 0 - Kalecgos and Sathrovarr
 1 - Brutallus
@@ -158,11 +154,8 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
             case DATA_KILJAEDEN:            return KilJaeden;           break;
             case DATA_KILJAEDEN_CONTROLLER: return KilJaedenController; break;
             case DATA_ANVEENA:              return Anveena;             break;
-
-            case DATA_RANDOM_SPECTRAL_PLAYER:
-                return *(SpectralRealmList.begin() + rand()%SpectralRealmList.size());
-                break;
         }
+
         return 0;
     }
 
@@ -176,87 +169,15 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
             case DATA_EREDAR_TWINS_EVENT:  Encounters[3] = data; break;
             case DATA_MURU_EVENT:          Encounters[4] = data; break;
             case DATA_KILJAEDEN_EVENT:     Encounters[5] = data; break;
-
-            case DATA_SET_SPECTRAL_CHECK:  SpectralRealmTimer = data; break;
-            case DATA_INST_EJECT_PLAYERS:  EjectPlayers(); break;
         }
     }
 
     void SetData64(uint32 id, uint64 guid)
     {
-        switch(id)
-        {
-            case DATA_PLAYER_SPECTRAL_REALM:
-                SpectralRealmList.push_back(guid);
-                break;
-        }
-    }
-
-    // Dirty Hack as we can't use Unit::GetUnit in instance scripts due to lack of a WorldObject.
-    Player* DirtyHackToGetPlayerFromSpectralList(uint64 guid)
-    {
-        Player* first = ((InstanceMap*)instance)->GetPlayers().front();
-        if(!first)
-            return NULL;
-
-        Player* plr = ((Player*)Unit::GetUnit(*first, guid));
-        if(plr)
-            return plr;
-
-        return NULL;
-    }
-
-    void EjectPlayer(Player* plr)
-    {
-        debug_log("SD2: INST: Ejecting Player %s from Spectral Realm", plr->GetName());
-        // Remove player from Sathrovarr's threat list
-        Creature* Sath = ((Creature*)Unit::GetUnit(*plr, Sathrovarr));
-        if(Sath && Sath->isAlive())
-        {
-            HostilReference* ref = Sath->getThreatManager().getOnlineContainer().getReferenceByTarget(plr);
-            if(ref)
-            {
-                ref->removeReference();
-                debug_log("SD2: INST: Deleting %s from Sathrovarr's threatlist", plr->GetName());
-            }
-        }
-
-        // Put player back in Kalecgos(Dragon)'s threat list
-        Creature* Kalecgos = ((Creature*)Unit::GetUnit(*plr, Kalecgos_Dragon));
-        if(Kalecgos && Kalecgos->isAlive())
-        {
-            debug_log("SD2: INST: Putting %s in Kalecgos' threatlist", plr->GetName());
-            Kalecgos->AddThreat(plr, 1.0f);
-        }
-
-        plr->CastSpell(plr, SPELL_TELEPORT_NORMAL_REALM, true);
-        plr->CastSpell(plr, SPELL_SPECTRAL_EXHAUSTION, true);
-    }
-
-    void EjectPlayers()
-    {
-        for(uint8 i = 0; i < SpectralRealmList.size(); ++i)
-        {
-            Player* plr = DirtyHackToGetPlayerFromSpectralList(SpectralRealmList[i]);
-            if(plr && !plr->HasAura(SPELL_SPECTRAL_REALM, 0))
-            {
-                EjectPlayer(plr);
-                SpectralRealmList.erase(SpectralRealmList.begin() + i);
-            }
-        }
-
-        SpectralRealmList.clear();
     }
 
     void Update(uint32 diff)
     {
-        // Only check for Spectral Realm if Kalecgos Encounter is running
-        if(Encounters[0] == IN_PROGRESS)
-            if(SpectralRealmTimer < diff)
-        {
-            EjectPlayers();
-            SpectralRealmTimer = 5000;
-        }else SpectralRealmTimer -= diff;
     }
 };
 

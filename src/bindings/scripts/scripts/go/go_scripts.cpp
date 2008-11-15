@@ -194,16 +194,16 @@ void AddSC_go_scripts()
 
     newscript = new Script;
     newscript->Name="go_tablet_of_madness";
-    newscript->pGOHello =           GOHello_go_tablet_of_madness;
+    newscript->pGOHello =           &GOHello_go_tablet_of_madness;
     m_scripts[nrscripts++] = newscript;
 
     newscript = new Script;
     newscript->Name="go_tablet_of_the_seven";
-    newscript->pGOHello =           GOHello_go_tablet_of_the_seven;
+    newscript->pGOHello =           &GOHello_go_tablet_of_the_seven;
     m_scripts[nrscripts++] = newscript;
 
     newscript = new Script;
     newscript->Name="go_teleporter";
-    newscript->pGOHello =           GOHello_go_teleporter;
+    newscript->pGOHello =           &GOHello_go_teleporter;
     m_scripts[nrscripts++] = newscript;
 }

@@ -1370,7 +1370,10 @@ CreatureAI* GetAI_Mob_EventAI(Creature *_Creature)
                 }
 
                 if (EAI_ErrorLevel > 1)
-                    error_db_log("SD2: Creature %u Event %u. Creature are in instance but neither EFLAG_NORMAL or EFLAG_HEROIC are set. Event Disabled.", _Creature->GetEntry(), (*i).event_id);
+                {
+                    error_db_log("SD2: Creature %u Event %u. Creature are in instance but neither EFLAG_NORMAL or EFLAG_HEROIC are set.", _Creature->GetEntry(), (*i).event_id);
+                    EventList.push_back(EventHolder(*i));
+                }
 
                 continue;
             }
