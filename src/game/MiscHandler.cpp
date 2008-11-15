@@ -44,6 +44,7 @@
 #include "SpellAuras.h"
 #include "Pet.h"
 #include "SocialMgr.h"
+#include "CellImpl.h"
 
 void WorldSession::HandleRepopRequestOpcode( WorldPacket & /*recv_data*/ )
 {

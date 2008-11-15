@@ -56,6 +56,7 @@
 #include "SocialMgr.h"
 #include "Util.h"
 #include "TemporarySummon.h"
+#include "CellImpl.h"
 #include "ScriptCalls.h" // for goober gameobject script
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
