@@ -453,6 +453,8 @@ class ChatHandler
         bool HandleDebugHostilRefList(const char * args);
         bool HandlePossessCommand(const char* args);
         bool HandleUnPossessCommand(const char* args);
+        bool HandleBindSightCommand(const char* args);
+        bool HandleUnbindSightCommand(const char* args);
 
         Player*   getSelectedPlayer();
         Creature* getSelectedCreature();

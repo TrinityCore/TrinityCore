@@ -828,13 +828,6 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             he->DuelComplete(DUEL_INTERUPTED);
         }
 
-        // Possessed unit died, restore control to possessor
-        pVictim->UnpossessSelf(false);
-
-        // Possessor died, remove possession
-        if(pVictim->GetTypeId() == TYPEID_PLAYER && pVictim->isPossessing())
-            ((Player*)pVictim)->RemovePossess(false);
-
         // battleground things (do this at the end, so the death state flag will be properly set to handle in the bg->handlekill)
         if(pVictim->GetTypeId() == TYPEID_PLAYER && (((Player*)pVictim)->InBattleGround()))
         {
@@ -7183,6 +7176,38 @@ void Unit::SetCharm(Unit* charmed)
     SetUInt64Value(UNIT_FIELD_CHARM,charmed ? charmed->GetGUID() : 0);
 }
 
+void Unit::AddPlayerToVision(Player* plr) 
+{ 
+    if (m_sharedVision.empty() && GetTypeId() == TYPEID_UNIT)
+    {
+        setActive(true);
+        GetMap()->SwitchGridContainers((Creature*)this, true);
+    }
+    m_sharedVision.push_back(plr);
+    plr->SetFarsightTarget(this);
+}
+
+void Unit::RemovePlayerFromVision(Player* plr) 
+{ 
+    m_sharedVision.remove(plr); 
+    if (m_sharedVision.empty() && GetTypeId() == TYPEID_UNIT)
+    {
+        setActive(false);
+        GetMap()->SwitchGridContainers((Creature*)this, false);
+    }
+    plr->ClearFarsight();
+}
+
+void Unit::RemoveAllFromVision()
+{
+    while (!m_sharedVision.empty())
+    {
+        Player* plr = *m_sharedVision.begin();
+        m_sharedVision.erase(m_sharedVision.begin());
+        plr->ClearFarsight();
+    }
+}
+
 void Unit::UncharmSelf()
 {
     if (!GetCharmer())
@@ -8935,6 +8960,10 @@ void Unit::setDeathState(DeathState s)
         RemoveAllAurasOnDeath();
         UnsummonAllTotems();
 
+        // Possessed unit died, restore control to possessor
+        UnpossessSelf(false);
+        RemoveAllFromVision();
+
         ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
         ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
         // remove aurastates allowing special moves
@@ -9756,9 +9785,12 @@ void Unit::CleanupsBeforeDelete()
         GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
 
         UnpossessSelf(false);
+        RemoveAllFromVision();
     }
     RemoveFromWorld();
 }
+
+
 
 CharmInfo* Unit::InitCharmInfo(Unit *charm)
 {

@@ -212,6 +212,7 @@ class TRINITY_DLL_DECL ObjectAccessor : public Trinity::Singleton<ObjectAccessor
             WorldObjectChangeAccumulator(WorldObject &obj, UpdateDataMapType &d) : i_updateDatas(d), i_object(obj) {}
             void Visit(PlayerMapType &);
             void Visit(CreatureMapType &);
+            void Visit(DynamicObjectMapType &);
             void BuildPacket(Player* plr);
             template<class SKIP> void Visit(GridRefManager<SKIP> &) {}
         };

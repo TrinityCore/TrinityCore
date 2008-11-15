@@ -565,6 +565,8 @@ ChatCommand * ChatHandler::getCommandTable()
         { "flusharenapoints", SEC_ADMINISTRATOR, false, &ChatHandler::HandleFlushArenaPointsCommand,   "", NULL }, 
         { "possess",        SEC_ADMINISTRATOR,  false, &ChatHandler::HandlePossessCommand,             "", NULL },
         { "unpossess",      SEC_ADMINISTRATOR,  false, &ChatHandler::HandleUnPossessCommand,           "", NULL },
+        { "bindsight",      SEC_ADMINISTRATOR,  false, &ChatHandler::HandleBindSightCommand,           "", NULL },
+        { "unbindsight",    SEC_ADMINISTRATOR,  false, &ChatHandler::HandleUnbindSightCommand,         "", NULL },
 
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };

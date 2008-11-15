@@ -6815,3 +6815,26 @@ bool ChatHandler::HandleUnPossessCommand(const char* args)
 
     return true;
 }
+
+bool ChatHandler::HandleBindSightCommand(const char* args)
+{
+    Unit* pUnit = getSelectedUnit();
+    if (!pUnit)
+        return false;
+        
+    if (m_session->GetPlayer()->isPossessing())
+        return false;
+
+    pUnit->AddPlayerToVision(m_session->GetPlayer());
+
+    return true;
+}
+
+bool ChatHandler::HandleUnbindSightCommand(const char* args)
+{
+    if (m_session->GetPlayer()->isPossessing())
+        return false;
+        
+    m_session->GetPlayer()->RemoveFarsightTarget();
+    return true;
+}

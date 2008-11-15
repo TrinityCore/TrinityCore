@@ -1391,21 +1391,33 @@ void WorldSession::HandleFarSightOpcode( WorldPacket & recv_data )
     sLog.outDebug("WORLD: CMSG_FAR_SIGHT");
     //recv_data.hexlike();
 
-    uint8 unk;
-    recv_data >> unk;
+    uint8 apply;
+    recv_data >> apply;
 
-    switch(unk)
+    CellPair pair;
+
+    switch(apply)
     {
         case 0:
-            //WorldPacket data(SMSG_CLEAR_FAR_SIGHT_IMMEDIATE, 0)
-            //SendPacket(&data);
-            //_player->SetUInt64Value(PLAYER_FARSIGHT, 0);
-            sLog.outDebug("Removed FarSight from player %u", _player->GetGUIDLow());
+            _player->SetFarsightVision(false);
+            pair = Trinity::ComputeCellPair(_player->GetPositionX(), _player->GetPositionY());
+            sLog.outDebug("Player %u set vision to himself", _player->GetGUIDLow());
             break;
         case 1:
-            sLog.outDebug("Added FarSight " I64FMTD " to player %u", _player->GetUInt64Value(PLAYER_FARSIGHT), _player->GetGUIDLow());
+            _player->SetFarsightVision(true);
+            if (WorldObject* obj = _player->GetFarsightTarget())
+                pair = Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
+            else
+                return;
+            sLog.outDebug("Player %u set vision to farsight target " I64FMTD ".", _player->GetGUIDLow(), _player->GetUInt64Value(PLAYER_FARSIGHT));
             break;
+        default:
+            sLog.outDebug("Unhandled mode in CMSG_FAR_SIGHT: %u", apply);
+            return;
     }
+    // Update visibility after vision change
+    Cell cell(pair);
+    GetPlayer()->GetMap()->UpdateObjectsVisibilityFor(_player, cell, pair);
 }
 
 void WorldSession::HandleChooseTitleOpcode( WorldPacket & recv_data )

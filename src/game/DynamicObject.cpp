@@ -136,6 +136,9 @@ void DynamicObject::Update(uint32 p_time)
 
 void DynamicObject::Delete()
 {
+    // Make sure the object is back to grid container for removal as farsight targets
+    // are switched to world container on creation
+    GetMap()->SwitchGridContainers(this, false);
     SendObjectDeSpawnAnim(GetGUID());
     AddObjectToRemoveList();
 }
@@ -150,5 +153,5 @@ void DynamicObject::Delay(int32 delaytime)
 
 bool DynamicObject::isVisibleForInState(Player const* u, bool inVisibleList) const
 {
-    return IsInWorld() && u->IsInWorld() && IsWithinDistInMap(u,World::GetMaxVisibleDistanceForObject()+(inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f));
+    return IsInWorld() && u->IsInWorld() /*&& IsWithinDistInMap(u,World::GetMaxVisibleDistanceForObject()+(inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f))*/;
 }

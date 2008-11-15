@@ -902,6 +902,13 @@ class TRINITY_DLL_SPEC Player : public Unit
         void SetViewport(uint64 guid, bool movable);
         void Possess(Unit *target);
         void RemovePossess(bool attack = true); 
+        WorldObject* GetFarsightTarget() const;
+        void ClearFarsight();
+        void RemoveFarsightTarget();
+        void SetFarsightTarget(WorldObject* target);
+        // Controls if vision is currently on farsight object, updated in FAR_SIGHT opcode
+        void SetFarsightVision(bool apply) { m_farsightVision = apply; }
+        bool HasFarsightVision() const { return m_farsightVision; }
 
         bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0);
 
@@ -2288,6 +2295,8 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         // Far Teleport
         WorldLocation m_teleport_dest;
+
+        bool m_farsightVision;
 
         DeclinedName *m_declinedname;
     private:

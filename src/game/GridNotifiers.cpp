@@ -40,8 +40,10 @@ Trinity::PlayerNotifier::Visit(PlayerMapType &m)
 
         iter->getSource()->UpdateVisibilityOf(&i_player);
         i_player.UpdateVisibilityOf(iter->getSource());
-        if (i_player.isPossessedByPlayer())
-            ((Player*)i_player.GetCharmer())->UpdateVisibilityOf(iter->getSource());
+
+        if (!i_player.GetSharedVisionList().empty())
+            for (SharedVisionList::const_iterator it = i_player.GetSharedVisionList().begin(); it != i_player.GetSharedVisionList().end(); ++it)
+                (*it)->UpdateVisibilityOf(iter->getSource());
     }
 }
 
@@ -148,9 +150,14 @@ Deliverer::Visit(PlayerMapType &m)
     {
         if (!i_dist || iter->getSource()->GetDistance(&i_source) <= i_dist)
         {
-            // Send packet to possessor
-            if (iter->getSource()->isPossessedByPlayer())
-                SendPacket((Player*)iter->getSource()->GetCharmer());
+            // Send packet to all who are sharing the player's vision
+            if (!iter->getSource()->GetSharedVisionList().empty())
+            {
+                SharedVisionList::const_iterator it = iter->getSource()->GetSharedVisionList().begin();
+                for ( ; it != iter->getSource()->GetSharedVisionList().end(); ++it)
+                    SendPacket(*it);
+            }
+
             VisitObject(iter->getSource());
         }
     }
@@ -163,9 +170,29 @@ Deliverer::Visit(CreatureMapType &m)
     {
         if (!i_dist || iter->getSource()->GetDistance(&i_source) <= i_dist)
         {
-            // Send packet to possessor
-            if (iter->getSource()->isPossessedByPlayer())
-                SendPacket((Player*)iter->getSource()->GetCharmer());
+            // Send packet to all who are sharing the creature's vision
+            if (!iter->getSource()->GetSharedVisionList().empty())
+            {
+                SharedVisionList::const_iterator it = iter->getSource()->GetSharedVisionList().begin();
+                for ( ; it != iter->getSource()->GetSharedVisionList().end(); ++it)
+                    SendPacket(*it);
+            }
+        }
+    }
+}
+
+void
+Deliverer::Visit(DynamicObjectMapType &m)
+{
+    for (DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        if (IS_PLAYER_GUID(iter->getSource()->GetCasterGUID()))
+        {
+            // Send packet back to the caster if the caster has vision of dynamic object
+            Player* caster = (Player*)iter->getSource()->GetCaster();
+            if (caster->GetUInt64Value(PLAYER_FARSIGHT) == iter->getSource()->GetGUID() &&
+                (!i_dist || iter->getSource()->GetDistance(&i_source) <= i_dist))
+                SendPacket(caster);
         }
     }
 }
@@ -175,6 +202,11 @@ Deliverer::SendPacket(Player* plr)
 {
     if (!plr)
         return;
+
+    // Don't send the packet to self if not supposed to
+    if (!i_toSelf && plr == &i_source)
+        return;
+
     // Don't send the packet to possesor if not supposed to
     if (!i_toPossessor && plr->isPossessing() && plr->GetCharmGUID() == i_source.GetGUID())
         return;
@@ -190,15 +222,13 @@ Deliverer::SendPacket(Player* plr)
 void
 MessageDeliverer::VisitObject(Player* plr)
 {
-    if (i_toSelf || plr != &i_source)
-        SendPacket(plr);
+    SendPacket(plr);
 }
 
 void
 MessageDistDeliverer::VisitObject(Player* plr)
 {
-    if( (i_toSelf || plr != &i_source ) &&
-        (!i_ownTeamOnly || (i_source.GetTypeId() == TYPEID_PLAYER && plr->GetTeam() == ((Player&)i_source).GetTeam())) )
+    if( !i_ownTeamOnly || (i_source.GetTypeId() == TYPEID_PLAYER && plr->GetTeam() == ((Player&)i_source).GetTeam()) )
     {
         SendPacket(plr);
     }

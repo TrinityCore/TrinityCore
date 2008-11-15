@@ -638,6 +638,8 @@ struct CharmSpellEntry
     uint16 active;
 };
 
+typedef std::list<Player*> SharedVisionList;
+
 struct CharmInfo
 {
     public:
@@ -1018,6 +1020,10 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         CharmInfo* GetCharmInfo() { return m_charmInfo; }
         CharmInfo* InitCharmInfo(Unit* charm);
+        SharedVisionList const& GetSharedVisionList() { return m_sharedVision; }
+        void AddPlayerToVision(Player* plr);
+        void RemovePlayerFromVision(Player* plr);
+        void RemoveAllFromVision();
         void UncharmSelf();
         void UnpossessSelf(bool attack);
 
@@ -1350,6 +1356,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         CharmInfo *m_charmInfo;
         bool m_isPossessed;
+        SharedVisionList m_sharedVision;
 
         virtual SpellSchoolMask GetMeleeDamageSchoolMask() const;
 

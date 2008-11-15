@@ -95,10 +95,12 @@ namespace Trinity
         WorldPacket *i_message;
         std::set<uint64> plr_list;
         bool i_toPossessor;
+        bool i_toSelf;
         float i_dist;
-        Deliverer(WorldObject &src, WorldPacket *msg, bool to_possessor, float dist = 0.0f) : i_source(src), i_message(msg), i_toPossessor(to_possessor), i_dist(dist) {}
+        Deliverer(WorldObject &src, WorldPacket *msg, bool to_possessor, bool to_self, float dist = 0.0f) : i_source(src), i_message(msg), i_toPossessor(to_possessor), i_toSelf(to_self), i_dist(dist) {}
         void Visit(PlayerMapType &m);
         void Visit(CreatureMapType &m);
+        void Visit(DynamicObjectMapType &m);
         virtual void VisitObject(Player* plr) = 0;
         void SendPacket(Player* plr);
         template<class SKIP> void Visit(GridRefManager<SKIP> &) {}
@@ -106,28 +108,26 @@ namespace Trinity
         
     struct TRINITY_DLL_DECL MessageDeliverer : public Deliverer
     {
-        bool i_toSelf;
-        MessageDeliverer(Player &pl, WorldPacket *msg, bool to_possessor, bool to_self) : Deliverer(pl, msg, to_possessor), i_toSelf(to_self) {}
+        MessageDeliverer(Player &pl, WorldPacket *msg, bool to_possessor, bool to_self) : Deliverer(pl, msg, to_possessor, to_self) {}
         void VisitObject(Player* plr);
     };
 
     struct TRINITY_DLL_DECL ObjectMessageDeliverer : public Deliverer
     {
-        explicit ObjectMessageDeliverer(WorldObject &src, WorldPacket *msg, bool to_possessor) : Deliverer(src, msg, to_possessor) {}
+        explicit ObjectMessageDeliverer(WorldObject &src, WorldPacket *msg, bool to_possessor) : Deliverer(src, msg, to_possessor, false) {}
         void VisitObject(Player* plr) { SendPacket(plr); }
     };
 
     struct TRINITY_DLL_DECL MessageDistDeliverer : public Deliverer
     {
-        bool i_toSelf;
         bool i_ownTeamOnly;
-        MessageDistDeliverer(Player &pl, WorldPacket *msg, bool to_possessor, float dist, bool to_self, bool ownTeamOnly) : Deliverer(pl, msg, to_possessor, dist), i_toSelf(to_self), i_ownTeamOnly(ownTeamOnly) {}
+        MessageDistDeliverer(Player &pl, WorldPacket *msg, bool to_possessor, float dist, bool to_self, bool ownTeamOnly) : Deliverer(pl, msg, to_possessor, to_self, dist), i_ownTeamOnly(ownTeamOnly) {}
         void VisitObject(Player* plr);
     };
 
     struct TRINITY_DLL_DECL ObjectMessageDistDeliverer : public Deliverer
     {
-        ObjectMessageDistDeliverer(WorldObject &obj, WorldPacket *msg, bool to_possessor, float dist) : Deliverer(obj, msg, to_possessor, dist) {}
+        ObjectMessageDistDeliverer(WorldObject &obj, WorldPacket *msg, bool to_possessor, float dist) : Deliverer(obj, msg, to_possessor, false, dist) {}
         void VisitObject(Player* plr) { SendPacket(plr); }
     };
 
