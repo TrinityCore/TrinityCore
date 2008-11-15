@@ -988,7 +988,11 @@ bool ChatHandler::HandleCooldownCommand(const char* args)
 {
     Player* target = getSelectedPlayer();
     if(!target)
-		*target = m_session->GetPlayer();
+    {
+        SendSysMessage(LANG_PLAYER_NOT_FOUND);
+        SetSentErrorMessage(true);
+        return false;
+    }
 
     if (!*args)
     {
