@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 /// \addtogroup Trinityd
@@ -51,7 +51,7 @@ void utf8print(const char* str)
     CharToOemBuffW(&wtemp_buf[0],&temp_buf[0],wtemp_len+1);
     printf(temp_buf);
 #else
-	printf(str);
+    printf(str);
 #endif
 }
 
@@ -118,7 +118,7 @@ bool ChatHandler::HandleAccountDeleteCommand(const char* args)
             return false;
     }
 
-	return true;
+    return true;
 }
 
 bool ChatHandler::HandleCharacterDeleteCommand(const char* args)
@@ -126,18 +126,18 @@ bool ChatHandler::HandleCharacterDeleteCommand(const char* args)
     if(!*args)
         return false;
 
-	char *character_name_str = strtok((char*)args," ");
+    char *character_name_str = strtok((char*)args," ");
     if(!character_name_str)
-		return false;
+        return false;
 
     std::string character_name = character_name_str;
     if(!normalizePlayerName(character_name))
-		return false;
+        return false;
 
     uint64 character_guid;
     uint32 account_id;
 
-	Player *player = objmgr.GetPlayer(character_name.c_str());
+    Player *player = objmgr.GetPlayer(character_name.c_str());
     if(player)
     {
         character_guid = player->GetGUID();
@@ -157,10 +157,10 @@ bool ChatHandler::HandleCharacterDeleteCommand(const char* args)
         account_id = objmgr.GetPlayerAccountIdByGUID(character_guid);
     }
 
-	std::string account_name;
+    std::string account_name;
     accmgr.GetName (account_id,account_name);
 
-    Player::DeleteFromDB(character_guid, account_id, true); 
+    Player::DeleteFromDB(character_guid, account_id, true);
     PSendSysMessage(LANG_CHARACTER_DELETED,character_name.c_str(),GUID_LOPART(character_guid),account_name.c_str(), account_id);
     return true;
 }
@@ -170,7 +170,7 @@ bool ChatHandler::HandleServerExitCommand(const char* args)
 {
     SendSysMessage(LANG_COMMAND_EXIT);
     World::m_stopEvent = true;
-	return true;
+    return true;
 }
 
 /// Display info on users currently in the realm
@@ -227,7 +227,7 @@ bool ChatHandler::HandleAccountCreateCommand(const char* args)
     char *szAcc = strtok((char*)args, " ");
     char *szPassword = strtok(NULL, " ");
     if(!szAcc || !szPassword)
-		return false;
+        return false;
 
     // normilized in accmgr.CreateAccount
     std::string account_name = szAcc;
@@ -256,8 +256,8 @@ bool ChatHandler::HandleAccountCreateCommand(const char* args)
             SetSentErrorMessage(true);
             return false;
     }
-	
-	return true;
+
+    return true;
 }
 
 /// Set the level of logging
@@ -268,10 +268,10 @@ bool ChatHandler::HandleServerSetLogLevelCommand(const char *args)
 
     char *NewLevel = strtok((char*)args, " ");
     if (!NewLevel)
-		return false;
+        return false;
 
     sLog.SetLogLevel(NewLevel);
-	return true;
+    return true;
 }
 
 /// @}
@@ -325,12 +325,13 @@ void CliRunnable::run()
         {
             for(int x=0;command_str[x];x++)
                 if(command_str[x]=='\r'||command_str[x]=='\n')
-				{
-					command_str[x]=0;
-					break;
-				}
+            {
+                command_str[x]=0;
+                break;
+            }
 
-			if(!*command_str)
+
+            if(!*command_str)
             {
                 printf("TC>");
                 continue;
@@ -346,7 +347,9 @@ void CliRunnable::run()
             sWorld.QueueCliCommand(&utf8print,command.c_str());
         }
         else if (feof(stdin))
+        {
             World::m_stopEvent = true;
+        }
     }
 
     ///- End the database thread

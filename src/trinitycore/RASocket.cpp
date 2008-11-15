@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 /** \file
@@ -197,8 +197,8 @@ void RASocket::OnRead()
                     loginDatabase.escape_string(pw);
 
                     QueryResult *check = loginDatabase.PQuery(
-						"SELECT 1 FROM account WHERE username = '%s' AND sha_pass_hash=SHA1(CONCAT(username,':','%s'))",
-						login.c_str(), pw.c_str());
+                        "SELECT 1 FROM account WHERE username = '%s' AND sha_pass_hash=SHA1(CONCAT(username,':','%s'))",
+                        login.c_str(), pw.c_str());
 
                     if(check)
                     {
@@ -244,13 +244,13 @@ void RASocket::zprint( const char * szText )
 
     #ifdef RA_CRYPT
 
-	char *megabuffer=strdup(szText);
+    char *megabuffer=strdup(szText);
     unsigned int sz=strlen(megabuffer);
     Encrypt(megabuffer,sz);
-	send(r,megabuffer,sz,0);
+    send(r,megabuffer,sz,0);
     delete [] megabuffer;
-    
-	#else
+
+    #else
 
     unsigned int sz=strlen(szText);
     send(r,szText,sz,0);
