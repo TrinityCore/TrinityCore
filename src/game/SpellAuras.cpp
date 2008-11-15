@@ -1882,17 +1882,15 @@ void Aura::TriggerSpell()
         }
     }
     m_target->CastSpell(target, triggeredSpellInfo, true, 0, this, originalCasterGUID);
-    /*// All ok cast by default case
-    Spell *spell = new Spell(m_target, triggeredSpellInfo, true, originalCasterGUID );
+}
 
-    SpellCastTargets targets;
-    targets.setUnitTarget( target );
-
-    // if spell create dynamic object extract area from it
-    if(DynamicObject* dynObj = caster->GetDynObject(GetId()))
-        targets.setDestination(dynObj->GetPositionX(),dynObj->GetPositionY(),dynObj->GetPositionZ());
-
-    spell->prepare(&targets, this);*/
+Unit* Aura::GetTriggerTarget() const
+{
+    Unit* target = ObjectAccessor::GetUnit(*m_target,
+        /*m_target->GetTypeId()==TYPEID_PLAYER ?
+        ((Player*)m_target)->GetSelection() :*/
+        m_target->GetUInt64Value(UNIT_FIELD_TARGET));
+    return target ? target : m_target;
 }
 
 /*********************************************************/

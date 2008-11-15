@@ -3304,6 +3304,7 @@ void Unit::SetCurrentCastedSpell( Spell * pSpell )
                     InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
                 m_AutoRepeatFirstCast = true;
             }
+            addUnitState(UNIT_STAT_CASTING);
         } break;
 
         case CURRENT_CHANNELED_SPELL:
@@ -3316,6 +3317,7 @@ void Unit::SetCurrentCastedSpell( Spell * pSpell )
             if ( m_currentSpells[CURRENT_AUTOREPEAT_SPELL] &&
                 m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Category == 351 )
                 InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
+            addUnitState(UNIT_STAT_CASTING);
         } break;
 
         case CURRENT_AUTOREPEAT_SPELL:
