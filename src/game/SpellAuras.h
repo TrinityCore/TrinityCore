@@ -287,7 +287,7 @@ class TRINITY_DLL_SPEC Aura
         int32 m_procCharges;
         void SetAuraProcCharges(int32 charges) { m_procCharges = charges; }
 
-        virtual Unit* GetTriggerTarget() const { return m_target; }
+        Unit* GetTriggerTarget() const;
 
         // add/remove SPELL_AURA_MOD_SHAPESHIFT (36) linked auras
         void HandleShapeshiftBoosts(bool apply);

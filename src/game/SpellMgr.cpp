@@ -1703,6 +1703,9 @@ void SpellMgr::LoadSpellCustomAttr()
         case 45004: case 45006: case 45010:     // Wild Magic
         case 31347: // Doom
         case 41635: // Prayer of Mending
+        case 44869: // Spectral Blast
+        case 45027: // Revitalize
+        case 45976: // Muru Portal Channel
             mSpellCustomAttrMap[tempSpell->Id] |= SPELL_ATTR_CU_PLAYERS_ONLY;
             tempSpell->MaxAffectedTargets = 1;
             break;
