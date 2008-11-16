@@ -97,7 +97,7 @@ bool ArenaTeam::AddMember(uint64 PlayerGuid)
     Player *pl = objmgr.GetPlayer(PlayerGuid);
     if(pl)
     {
-        if(pl->GetArenaTeamId(GetType()))
+        if(pl->GetArenaTeamId(GetSlot()))
         {
             sLog.outError("Arena::AddMember() : player already in this sized team");
             return false;
