@@ -457,7 +457,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
 
         bool AIM_Initialize();
         void InitPossessedAI();
-        void DeletePossessedAI();
+        void DisablePossessedAI();
 
         void AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint32 MovementFlags, uint8 type);
         CreatureAI* AI() { return isPossessed() && i_AI_possessed ? i_AI_possessed : i_AI; }
