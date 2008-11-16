@@ -3782,7 +3782,6 @@ bool Unit::AddAura(Aura *Aur)
         if(Aur->GetSpellProto()->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE)
         {
             m_ccAuras.push_back(Aur);
-            RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CC);
         }
     }
 
