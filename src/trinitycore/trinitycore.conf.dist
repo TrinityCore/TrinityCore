@@ -55,13 +55,6 @@ BindIP = "0.0.0.0"
 ###################################################################################################################
 # SCRIPTING SETTINGS
 #
-# TScriptDatabaseInfo
-#     Database connection settings for the wor
-#          .;somenumber;username;password;database - use named pipes at Windows
-#                Named pipes: mySQL required adding "enable-named-pipe" to [mysqld] section my.ini
-#          .;/path/to/unix_socket;username;password;database - use Unix sockets at Unix/Linux
-#                Unix sockets: experimental, not tested
-#
 # Locale
 #     Setting for current (DBC) locale to use
 #
