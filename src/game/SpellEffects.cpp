@@ -333,13 +333,26 @@ void Spell::EffectSchoolDMG(uint32 effect_idx)
                             damage = 200;
                         break;
                     }
-                    // must only affect demons
+                    // must only affect demons (also undead?)
                     case 45072:
                     {
-                        if(unitTarget->GetCreatureType() != CREATURE_TYPE_DEMON)
+                        if(unitTarget->GetCreatureType() != CREATURE_TYPE_DEMON
+                            || unitTarget->GetCreatureType() != CREATURE_TYPE_UNDEAD)
                             return;
                         break;
                     }
+                    // gruul's shatter
+                    case 33671:
+                    {
+                        // don't damage self and only players
+                        if(unitTarget->GetGUID() == m_caster->GetGUID() || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                            return;
+
+                        float radius = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[0]));
+                        if(!radius) return;
+                        float distance = m_caster->GetDistance2d(unitTarget);
+                        damage = (distance > radius ) ? 0 : (int32)(m_spellInfo->EffectBasePoints[0]*((radius - distance)/radius));
+                    }break;
                 }
                 break;
             }
@@ -2637,6 +2650,7 @@ void Spell::EffectPersistentAA(uint32 i)
 {
     float radius = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
     Unit *caster = m_originalCasterGUID ? m_originalCaster : m_caster;
+    if(!caster) return;
 
     if(Player* modOwner = caster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius);
