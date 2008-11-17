@@ -286,6 +286,11 @@ bool Pet::LoadPetFromDB( Unit* owner, uint32 petentry, uint32 petnumber, bool cu
             m_charmInfo->GetActionBarEntry(index)->Type = atol((*iter).c_str());
             ++iter;
             m_charmInfo->GetActionBarEntry(index)->SpellOrAction = atol((*iter).c_str());
+            // patch for old data where some spells have ACT_DECIDE but should have ACT_CAST
+            // so overwrite old state 
+            SpellEntry const *spellInfo = sSpellStore.LookupEntry(m_charmInfo->GetActionBarEntry(index)->SpellOrAction);
+            if (spellInfo && spellInfo->AttributesEx & SPELL_ATTR_EX_PET_NOT_AUTOCAST)
+                m_charmInfo->GetActionBarEntry(index)->Type = ACT_CAST;
         }
 
         //init teach spells
@@ -1286,7 +1291,7 @@ void Pet::_LoadSpells()
         {
             Field *fields = result->Fetch();
 
-            addSpell(fields[0].GetUInt16(), fields[2].GetUInt16(), PETSPELL_UNCHANGED, fields[1].GetUInt16());
+            addSpell(fields[0].GetUInt16(), (ActiveStates)fields[2].GetUInt16(), PETSPELL_UNCHANGED, fields[1].GetUInt16());
         }
         while( result->NextRow() );
 
@@ -1417,7 +1422,7 @@ void Pet::_SaveAuras()
     }
 }
 
-bool Pet::addSpell(uint16 spell_id, uint16 active, PetSpellState state, uint16 slot_id, PetSpellType type)
+bool Pet::addSpell(uint16 spell_id, ActiveStates active, PetSpellState state, uint16 slot_id, PetSpellType type)
 {
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spell_id);
     if (!spellInfo)
@@ -1433,6 +1438,9 @@ bool Pet::addSpell(uint16 spell_id, uint16 active, PetSpellState state, uint16 s
 
         return false;
     }
+    // same spells don't have autocast option
+    if (spellInfo->AttributesEx & SPELL_ATTR_EX_PET_NOT_AUTOCAST)
+        active = ACT_CAST;
 
     PetSpellMap::iterator itr = m_spells.find(spell_id);
     if (itr != m_spells.end())
@@ -1508,7 +1516,7 @@ bool Pet::addSpell(uint16 spell_id, uint16 active, PetSpellState state, uint16 s
     if (IsPassiveSpell(spell_id))
         CastSpell(this, spell_id, true);
     else if(state == PETSPELL_NEW)
-        m_charmInfo->AddSpellToAB(oldspell_id, spell_id);
+        m_charmInfo->AddSpellToAB(oldspell_id, spell_id, active);
 
     if(newspell->active == ACT_ENABLED)
         ToggleAutocast(spell_id, true);
@@ -1658,10 +1666,10 @@ void Pet::ToggleAutocast(uint32 spellid, bool apply)
     if(IsPassiveSpell(spellid))
         return;
 
-    if(const SpellEntry *tempSpell = GetSpellStore()->LookupEntry(spellid))
+    /*if(const SpellEntry *tempSpell = GetSpellStore()->LookupEntry(spellid))
         if(tempSpell->EffectImplicitTargetA[0] != TARGET_ALL_AROUND_CASTER
             && tempSpell->EffectImplicitTargetA[0] != TARGET_CHAIN_DAMAGE)
-            return;    
+            return;    */
 
     PetSpellMap::const_iterator itr = m_spells.find((uint16)spellid);
 
