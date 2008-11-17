@@ -3863,6 +3863,7 @@ uint8 Spell::CanCast(bool strict)
                 {
                     case SUMMON_TYPE_POSESSED:
                     case SUMMON_TYPE_POSESSED2:
+                    case SUMMON_TYPE_POSESSED3:
                     case SUMMON_TYPE_DEMON:
                     case SUMMON_TYPE_SUMMON:
                     {
