@@ -33,6 +33,7 @@
 #include "MapManager.h"
 #include "ScriptCalls.h"
 #include "Totem.h"
+#include "TemporarySummon.h"
 
 void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 {
@@ -369,6 +370,14 @@ void WorldSession::HandleCancelAuraOpcode( WorldPacket& recvPacket)
                 else if (_player->GetFarsightTarget()->GetTypeId() != TYPEID_DYNAMICOBJECT)
                     ((Unit*)_player->GetFarsightTarget())->RemoveAurasDueToSpellByCancel(spellId);
                 return;
+            }
+            else if (spellInfo->Effect[i] == SPELL_EFFECT_SUMMON && 
+                (spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED || 
+                 spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED2 || 
+                 spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED3))
+            {
+                // Possession is removed in the UnSummon function
+                ((TemporarySummon*)caster->GetCharm())->UnSummon();
             }
         }
     }
