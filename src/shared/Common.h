@@ -146,7 +146,7 @@
 #define stricmp strcasecmp
 #define strnicmp strncasecmp
 #define I64FMT "%016llX"
-#define I64FMTD "%llu"
+#define I64FMTD "%I64u"
 #define SI64FMTD "%lld"
 #endif
 
