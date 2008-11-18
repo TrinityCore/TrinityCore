@@ -1999,24 +1999,14 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             return;
         }
 
-        // Waiting to Resurrect
-        if(GetId()==2584)
-        {
-            // Waiting to resurrect spell cancel, we must remove player from resurrect queue
-            if(m_target->GetTypeId() == TYPEID_PLAYER)
-                if(BattleGround *bg = ((Player*)m_target)->GetBattleGround())
-                    bg->RemovePlayerFromResurrectQueue(m_target->GetGUID());
-            return;
-        }
-
         // Dark Fiend
-        /*if(GetId()==45934)
+        if(GetId()==45934)
         {
             // Kill target if dispelled
             if (m_removeMode==AURA_REMOVE_BY_DISPEL)
                 m_target->DealDamage(m_target, m_target->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             return;
-        }*/
+        }
 
         // Burning Winds
         if(GetId()==46308)                                  // casted only at creatures at spawn
