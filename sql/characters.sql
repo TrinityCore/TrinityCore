@@ -1,6 +1,6 @@
 -- MySQL dump 10.11
 --
--- Host: localhost    Database: characters
+-- Host: localhost    Database: char_temp
 -- ------------------------------------------------------
 -- Server version	5.0.34-log
 
@@ -614,6 +614,7 @@ CREATE TABLE `characters` (
   `zone` int(11) unsigned NOT NULL default '0',
   `death_expire_time` bigint(20) unsigned NOT NULL default '0',
   `taxi_path` text,
+  `latency` int(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`guid`),
   KEY `idx_account` (`account`),
   KEY `idx_online` (`online`),
@@ -1301,4 +1302,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2008-10-14 13:27:52
+-- Dump completed on 2008-11-18 11:24:11
