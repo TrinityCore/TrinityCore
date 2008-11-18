@@ -3897,18 +3897,18 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
 
         if(!is_triggered_by_spell)
         {
-            bool isFromSameCaster = Aur->GetCasterGUID() == (*i).second->GetCasterGUID();
-            if( spellmgr.IsNoStackSpellDueToSpell(spellId, i_spellId, isFromSameCaster) )
+            SpellSpecific i_spellId_spec = GetSpellSpecific(i_spellId);
+
+            bool is_sspc = IsSingleFromSpellSpecificPerCaster(spellId_spec,i_spellId_spec);
+
+            if( is_sspc && Aur->GetCasterGUID() == (*i).second->GetCasterGUID() )
             {
-                //some spells should be not removed by lower rank of them
-                if (!isFromSameCaster
-                    &&(spellProto->Effect[effIndex]==SPELL_AURA_MOD_INCREASE_ENERGY)
-                    &&(spellProto->DurationIndex==21)
-                    &&(spellmgr.IsRankSpellDueToSpell(spellProto, i_spellId))
-                    &&(CompareAuraRanks(spellId, effIndex, i_spellId, i_effIndex) < 0))
+                // cannot remove higher rank
+                if (spellmgr.IsRankSpellDueToSpell(spellProto, i_spellId))
+                    if(CompareAuraRanks(spellId, effIndex, i_spellId, i_effIndex) < 0)
                         return false;
 
-                //Its a parent aura (create this aura in ApplyModifier)
+                // Its a parent aura (create this aura in ApplyModifier)
                 if ((*i).second->IsInUse())
                 {
                     sLog.outError("Aura (Spell %u Effect %u) is in process but attempt removed at aura (Spell %u Effect %u) adding, need add stack rule for Unit::RemoveNoStackAurasDueToAura", i->second->GetId(), i->second->GetEffIndex(),Aur->GetId(), Aur->GetEffIndex());
@@ -3920,6 +3920,39 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
                     break;
                 else
                     next =  m_Auras.begin();
+            }
+            else if( !is_sspc && spellmgr.IsNoStackSpellDueToSpell(spellId, i_spellId) )
+            {
+                // Its a parent aura (create this aura in ApplyModifier)
+                if ((*i).second->IsInUse())
+                {
+                    sLog.outError("Aura (Spell %u Effect %u) is in process but attempt removed at aura (Spell %u Effect %u) adding, need add stack rule for Unit::RemoveNoStackAurasDueToAura", i->second->GetId(), i->second->GetEffIndex(),Aur->GetId(), Aur->GetEffIndex());
+                    continue;
+                }
+                RemoveAurasDueToSpell(i_spellId);
+
+                if( m_Auras.empty() )
+                    break;
+                else
+                    next =  m_Auras.begin();
+            }
+            // Potions stack aura by aura (elixirs/flask already checked)
+            else if( spellProto->SpellFamilyName == SPELLFAMILY_POTION && i_spellProto->SpellFamilyName == SPELLFAMILY_POTION )
+            {
+                if (IsNoStackAuraDueToAura(spellId, effIndex, i_spellId, i_effIndex))
+                {
+                    if(CompareAuraRanks(spellId, effIndex, i_spellId, i_effIndex) < 0)
+                        return false;                       // cannot remove higher rank
+
+                    // Its a parent aura (create this aura in ApplyModifier)
+                    if ((*i).second->IsInUse())
+                    {
+                        sLog.outError("Aura (Spell %u Effect %u) is in process but attempt removed at aura (Spell %u Effect %u) adding, need add stack rule for Unit::RemoveNoStackAurasDueToAura", i->second->GetId(), i->second->GetEffIndex(),Aur->GetId(), Aur->GetEffIndex());
+                        continue;
+                    }
+                    RemoveAura(i);
+                    next = i;
+                }
             }
         }
     }
