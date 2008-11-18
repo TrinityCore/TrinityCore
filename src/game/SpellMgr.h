@@ -284,7 +284,7 @@ inline bool IsSpellHaveEffect(SpellEntry const *spellInfo, SpellEffects effect)
     return false;
 }
 
-//bool IsNoStackAuraDueToAura(uint32 spellId_1, uint32 effIndex_1, uint32 spellId_2, uint32 effIndex_2);
+bool IsNoStackAuraDueToAura(uint32 spellId_1, uint32 effIndex_1, uint32 spellId_2, uint32 effIndex_2);
 
 inline bool IsSealSpell(SpellEntry const *spellInfo)
 {
@@ -301,7 +301,6 @@ inline bool IsElementalShield(SpellEntry const *spellInfo)
 
 int32 CompareAuraRanks(uint32 spellId_1, uint32 effIndex_1, uint32 spellId_2, uint32 effIndex_2);
 bool IsSingleFromSpellSpecificPerCaster(uint32 spellSpec1,uint32 spellSpec2);
-bool IsSingleFromSpellSpecificPerTarget(uint32 spellSpec1,uint32 spellSpec2);
 bool IsPassiveSpell(uint32 spellId);
 
 inline bool IsDeathPersistentSpell(SpellEntry const *spellInfo)
@@ -769,7 +768,7 @@ class SpellMgr
 
         bool IsRankSpellDueToSpell(SpellEntry const *spellInfo_1,uint32 spellId_2) const;
         static bool canStackSpellRanks(SpellEntry const *spellInfo);
-        bool IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool isFromTheSameCaster ) const;
+        bool IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) const;
 
         SpellEntry const* SelectAuraRankForPlayerLevel(SpellEntry const* spellInfo, uint32 playerLevel) const;
 
