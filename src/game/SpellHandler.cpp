@@ -377,23 +377,15 @@ void WorldSession::HandleCancelAuraOpcode( WorldPacket& recvPacket)
     if(!IsPositiveSpell(spellId) || (spellInfo->Attributes & SPELL_ATTR_CANT_CANCEL))
         return;
 
-    // channeled spell case (it currently casted then)
-    if(IsChanneledSpell(spellInfo))
-    {
-        if(Spell* spell = _player->m_currentSpells[CURRENT_CHANNELED_SPELL])
-        {
-            if(spell->m_spellInfo->Id==spellId)
-            {
-                spell->cancel();
-                spell->SetReferencedFromCurrent(false);
-                _player->m_currentSpells[CURRENT_CHANNELED_SPELL] = NULL;
-            }
-        }
-        return;
-    }
-
-    // non channeled case
     _player->RemoveAurasDueToSpellByCancel(spellId);
+
+    if (spellId == 2584)                                    // Waiting to resurrect spell cancel, we must remove player from resurrect queue
+    {
+        BattleGround *bg = _player->GetBattleGround();
+        if(!bg)
+            return;
+        bg->RemovePlayerFromResurrectQueue(_player->GetGUID());
+    }
 }
 
 void WorldSession::HandlePetCancelAuraOpcode( WorldPacket& recvPacket)
