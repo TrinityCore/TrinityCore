@@ -46,6 +46,7 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 #include "Path.h"
+#include "TemporarySummon.h"
 
 #include <math.h>
 
@@ -3424,6 +3425,23 @@ void Unit::InterruptNonMeleeSpells(bool withDelayed, uint32 spell_id)
             m_currentSpells[CURRENT_CHANNELED_SPELL]->cancel();
         m_currentSpells[CURRENT_CHANNELED_SPELL]->SetReferencedFromCurrent(false);
         m_currentSpells[CURRENT_CHANNELED_SPELL] = NULL;
+
+        // Unsummon any summoned as possessed creatures on channel interrupt
+        SpellEntry const *spellInfo = sSpellStore.LookupEntry(spell_id);
+        if (!spellInfo || !interrupted)
+            return;
+        for (int i = 0; i < 3; i++)
+        {
+            if (spellInfo->Effect[i] == SPELL_EFFECT_SUMMON && 
+                (spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED || 
+                 spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED2 || 
+                 spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED3))
+            {
+                // Possession is removed in the UnSummon function
+                if (GetCharm())
+                    ((TemporarySummon*)GetCharm())->UnSummon(); 
+            }
+        }
     }
 }
 
