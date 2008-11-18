@@ -377,7 +377,7 @@ void WorldSession::HandleCancelAuraOpcode( WorldPacket& recvPacket)
                  spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED3))
             {
                 // Possession is removed in the UnSummon function
-                ((TemporarySummon*)caster->GetCharm())->UnSummon();
+                ((TemporarySummon*)_player->GetCharm())->UnSummon();
             }
         }
     }
