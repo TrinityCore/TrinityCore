@@ -142,7 +142,15 @@ Creature*
 ObjectAccessor::GetCreature(WorldObject const &u, uint64 guid)
 {
     Creature * ret = GetObjectInWorld(guid, (Creature*)NULL);
-    if(ret && ret->GetMapId() != u.GetMapId()) ret = NULL;
+    if(!ret)
+        return NULL;
+
+    if(ret->GetMapId() != u.GetMapId())
+        return NULL;
+
+    if(ret->GetInstanceId() != u.GetInstanceId())
+        return NULL;
+
     return ret;
 }
 
@@ -248,32 +256,6 @@ ObjectAccessor::SaveAllPlayers()
 }
 
 void
-ObjectAccessor::_update()
-{
-    UpdateDataMapType update_players;
-    {
-        Guard guard(i_updateGuard);
-        while(!i_objects.empty())
-        {
-            Object* obj = *i_objects.begin();
-            i_objects.erase(i_objects.begin());
-            if (!obj)
-                continue;
-            _buildUpdateObject(obj, update_players);
-            obj->ClearUpdateMask(false);
-        }
-    }
-
-    WorldPacket packet;                                     // here we allocate a std::vector with a size of 0x10000
-    for(UpdateDataMapType::iterator iter = update_players.begin(); iter != update_players.end(); ++iter)
-    {
-        iter->second.BuildPacket(&packet);
-        iter->first->GetSession()->SendPacket(&packet);
-        packet.clear();                                     // clean the string
-    }
-}
-
-void
 ObjectAccessor::UpdateObject(Object* obj, Player* exceptPlayer)
 {
     UpdateDataMapType update_players;
@@ -361,7 +343,7 @@ ObjectAccessor::_buildChangeObjectForPlayer(WorldObject *obj, UpdateDataMapType 
     WorldObjectChangeAccumulator notifier(*obj, update_players);
     TypeContainerVisitor<WorldObjectChangeAccumulator, WorldTypeMapContainer > player_notifier(notifier);
     CellLock<GridReadGuard> cell_lock(cell, p);
-    cell_lock->Visit(cell_lock, player_notifier, *MapManager::Instance().GetMap(obj->GetMapId(), obj));
+    cell_lock->Visit(cell_lock, player_notifier, *obj->GetMap());
 }
 
 Pet*
@@ -519,6 +501,7 @@ ObjectAccessor::RemoveActiveObject( WorldObject * obj )
 void
 ObjectAccessor::Update(uint32 diff)
 {
+
     {
         // player update might remove the player from grid, and that causes crashes. We HAVE to update players first, and then the active objects.
         HashMapHolder<Player>::MapType& playerMap = HashMapHolder<Player>::GetContainer();
@@ -589,8 +572,15 @@ ObjectAccessor::Update(uint32 diff)
             }
         }
     }
+}
 
-    _update();
+void
+ObjectAccessor::UpdatePlayers(uint32 diff)
+{
+    HashMapHolder<Player>::MapType& playerMap = HashMapHolder<Player>::GetContainer();
+    for(HashMapHolder<Player>::MapType::iterator iter = playerMap.begin(); iter != playerMap.end(); ++iter)
+        if(iter->second->IsInWorld())
+            iter->second->Update(diff);
 }
 
 bool
@@ -677,14 +667,14 @@ ObjectAccessor::UpdateObjectVisibility(WorldObject *obj)
     CellPair p = Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
     Cell cell(p);
 
-    MapManager::Instance().GetMap(obj->GetMapId(), obj)->UpdateObjectVisibility(obj,cell,p);
+    obj->GetMap()->UpdateObjectVisibility(obj,cell,p);
 }
 
 void ObjectAccessor::UpdateVisibilityForPlayer( Player* player )
 {
     CellPair p = Trinity::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
     Cell cell(p);
-    Map* m = MapManager::Instance().GetMap(player->GetMapId(),player);
+    Map* m = player->GetMap();
 
     m->UpdatePlayerVisibility(player,cell,p);
     m->UpdateObjectsVisibilityFor(player,cell,p);

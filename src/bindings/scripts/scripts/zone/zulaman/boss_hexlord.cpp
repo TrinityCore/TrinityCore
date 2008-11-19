@@ -371,7 +371,7 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
 
         if(SiphonSoul_Timer < diff)
         {
-            Player* target = SelectRandomPlayer(50);
+            Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0, 70, true);
             Unit *trigger = DoSpawnCreature(MOB_TEMP_TRIGGER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 30000);
             if(!target || !trigger) EnterEvadeMode();
             else
@@ -434,26 +434,6 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
             break;
         }
         m_creature->CastSpell(target, PlayerAbility[PlayerClass][random].spell, false);
-    }
-
-    Player* SelectRandomPlayer(float range = 0.0f, bool alive = true)
-    {
-        Map *map = m_creature->GetMap();
-        if (!map->IsDungeon()) return NULL;
-
-        InstanceMap::PlayerList PlayerList = ((InstanceMap*)map)->GetPlayers();
-        InstanceMap::PlayerList::iterator i;
-        while(PlayerList.size())
-        {
-            i = PlayerList.begin();
-            advance(i, rand()%PlayerList.size());
-            if((range == 0.0f || m_creature->IsWithinDistInMap(*i, range))
-                && (!alive || (*i)->isAlive()))
-                return *i;
-            else
-                PlayerList.erase(i);
-        }
-        return NULL;
     }
 };
 

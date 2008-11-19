@@ -220,18 +220,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
 
         if ( DrawnShadows_Timer < diff)
         {
-            Map *map = m_creature->GetMap();
-            if(map->IsDungeon())
-            {
-                InstanceMap::PlayerList const &PlayerList = ((InstanceMap*)map)->GetPlayers();
-                for (InstanceMap::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                {
-                    if((*i)->isAlive())
-                    {
-                        (*i)->TeleportTo(555,VorpilPosition[0][0],VorpilPosition[0][1],VorpilPosition[0][2],0);
-                    }
-                }
-            }
+            DoTeleportAll(VorpilPosition[0][0],VorpilPosition[0][1],VorpilPosition[0][2],0);
             m_creature->Relocate(VorpilPosition[0][0],VorpilPosition[0][1],VorpilPosition[0][2],0);
             DoCast(m_creature,SPELL_DRAWN_SHADOWS,true);
 

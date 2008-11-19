@@ -577,20 +577,23 @@ struct TRINITY_DLL_DECL cthunAI : public Scripted_NoMovementAI
                 Map *map = m_creature->GetMap();
                 if(!map->IsDungeon()) return;
 
-                InstanceMap::PlayerList const &PlayerList = ((InstanceMap*)map)->GetPlayers();
-                for (InstanceMap::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                Map::PlayerList const &PlayerList = map->GetPlayers();
+                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
-                    //Play random sound to the zone
-                    switch (rand()%8)
+                    if (Player* i_pl = i->getSource())
                     {
-                        case 0: (*i)->SendPlaySound(RND_WISPER_1, true); break;
-                        case 1: (*i)->SendPlaySound(RND_WISPER_2, true); break;
-                        case 2: (*i)->SendPlaySound(RND_WISPER_3, true); break;
-                        case 3: (*i)->SendPlaySound(RND_WISPER_4, true); break;
-                        case 4: (*i)->SendPlaySound(RND_WISPER_5, true); break;
-                        case 5: (*i)->SendPlaySound(RND_WISPER_6, true); break;
-                        case 6: (*i)->SendPlaySound(RND_WISPER_7, true); break;
-                        case 7: (*i)->SendPlaySound(RND_WISPER_8, true); break;
+                        //Play random sound to the zone
+                        switch (rand()%8)
+                        {
+                            case 0: i_pl->SendPlaySound(RND_WISPER_1, true); break;
+                            case 1: i_pl->SendPlaySound(RND_WISPER_2, true); break;
+                            case 2: i_pl->SendPlaySound(RND_WISPER_3, true); break;
+                            case 3: i_pl->SendPlaySound(RND_WISPER_4, true); break;
+                            case 4: i_pl->SendPlaySound(RND_WISPER_5, true); break;
+                            case 5: i_pl->SendPlaySound(RND_WISPER_6, true); break;
+                            case 6: i_pl->SendPlaySound(RND_WISPER_7, true); break;
+                            case 7: i_pl->SendPlaySound(RND_WISPER_8, true); break;
+                        }
                     }
                 }
 
