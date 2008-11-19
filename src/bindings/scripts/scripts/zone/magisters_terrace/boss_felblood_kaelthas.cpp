@@ -231,17 +231,17 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
 		float x,y,z;
         m_creature->Relocate(KaelLocations[0][0], KaelLocations[0][1], LOCATION_Z, 0);
 		Map *map = m_creature->GetMap();
-        InstanceMap::PlayerList const &PlayerList = ((InstanceMap*)map)->GetPlayers();
-		InstanceMap::PlayerList::const_iterator i;
+        Map::PlayerList const &PlayerList = map->GetPlayers();
+		Map::PlayerList::const_iterator i;
 		for (i = PlayerList.begin(); i != PlayerList.end(); ++i)
 		{
-			//if(!(*i)->isGameMaster())
-			if((*i) && (*i)->isAlive())
-			{
-				(*i)->CastSpell((*i), SPELL_TELEPORT_CENTER, true);
-				m_creature->GetNearPoint(m_creature,x,y,z,5,5,0);
-				(*i)->TeleportTo(m_creature->GetMapId(),x,y,LOCATION_Z,(*i)->GetOrientation());
-			}
+			if (Player* i_pl = i->getSource())
+			    if(i_pl->isAlive())
+			    {
+				    i_pl->CastSpell(i_pl, SPELL_TELEPORT_CENTER, true);
+				    m_creature->GetNearPoint(m_creature,x,y,z,5,5,0);
+				    i_pl->TeleportTo(m_creature->GetMapId(),x,y,LOCATION_Z,i_pl->GetOrientation());
+			    }
         }
         DoCast(m_creature, SPELL_TELEPORT_CENTER, true);
     }
@@ -249,34 +249,38 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
     void CastGravityLapseKnockUp()
     {
 		Map *map = m_creature->GetMap();
-        InstanceMap::PlayerList const &PlayerList = ((InstanceMap*)map)->GetPlayers();
-		InstanceMap::PlayerList::const_iterator i;
+        Map::PlayerList const &PlayerList = map->GetPlayers();
+		Map::PlayerList::const_iterator i;
 		for (i = PlayerList.begin(); i != PlayerList.end(); ++i)
-		{            
-			if((*i) && (*i)->isAlive())
+		{
+            if (Player* i_pl = i->getSource())
+			    if(i_pl->isAlive())
                 // Knockback into the air
-                (*i)->CastSpell((*i), SPELL_GRAVITY_LAPSE_DOT, true, 0, 0, m_creature->GetGUID());
+                    i_pl->CastSpell(i_pl, SPELL_GRAVITY_LAPSE_DOT, true, 0, 0, m_creature->GetGUID());
         }
     }
 
     void CastGravityLapseFly()                              // Use Fly Packet hack for now as players can't cast "fly" spells unless in map 530. Has to be done a while after they get knocked into the air...
     {
 		Map *map = m_creature->GetMap();
-		InstanceMap::PlayerList const &PlayerList = ((InstanceMap*)map)->GetPlayers();
-		InstanceMap::PlayerList::const_iterator i;
+		Map::PlayerList const &PlayerList = map->GetPlayers();
+		Map::PlayerList::const_iterator i;
 		for (i = PlayerList.begin(); i != PlayerList.end(); ++i)
-		{ 
-			if((*i) && (*i)->isAlive())
+		{
+            if (Player* i_pl = i->getSource())
             {
-                // Also needs an exception in spell system.
-                (*i)->CastSpell((*i), SPELL_GRAVITY_LAPSE_FLY, true, 0, 0, m_creature->GetGUID());
-                // Use packet hack
-                WorldPacket data(12);
-                data.SetOpcode(SMSG_MOVE_SET_CAN_FLY);
-                data.append((*i)->GetPackGUID());
-                data << uint32(0);
-                (*i)->SendMessageToSet(&data, true);
-				(*i)->SetSpeed(MOVE_FLY, 2.0f);
+			    if(i_pl->isAlive())
+                {
+                    // Also needs an exception in spell system.
+                    i_pl->CastSpell(i_pl, SPELL_GRAVITY_LAPSE_FLY, true, 0, 0, m_creature->GetGUID());
+                    // Use packet hack
+                    WorldPacket data(12);
+                    data.SetOpcode(SMSG_MOVE_SET_CAN_FLY);
+                    data.append(i_pl->GetPackGUID());
+                    data << uint32(0);
+                    i_pl->SendMessageToSet(&data, true);
+				    i_pl->SetSpeed(MOVE_FLY, 2.0f);
+                }
             }
         }
     }
@@ -284,19 +288,19 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
     void RemoveGravityLapse()
     {
 		Map *map = m_creature->GetMap();
-        InstanceMap::PlayerList const &PlayerList = ((InstanceMap*)map)->GetPlayers();
-		InstanceMap::PlayerList::const_iterator i;
+        Map::PlayerList const &PlayerList = map->GetPlayers();
+		Map::PlayerList::const_iterator i;
 		for (i = PlayerList.begin(); i != PlayerList.end(); ++i)
 		{ 
-            if((*i))
+            if(Player* i_pl = i->getSource())
             {
-                (*i)->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_FLY);
-                (*i)->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_DOT);
+                i_pl->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_FLY);
+                i_pl->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_DOT);
                 WorldPacket data(12);
                 data.SetOpcode(SMSG_MOVE_UNSET_CAN_FLY);
-                data.append((*i)->GetPackGUID());
+                data.append(i_pl->GetPackGUID());
                 data << uint32(0);
-                (*i)->SendMessageToSet(&data, true);
+                i_pl->SendMessageToSet(&data, true);
             }
         }
     }

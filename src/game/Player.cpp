@@ -799,7 +799,7 @@ void Player::StopMirrorTimer(MirrorTimerType Type)
     GetSession()->SendPacket( &data );
 }
 
-void Player::EnvironmentalDamage(uint64 guid, EnvironmentalDamageType type, uint32 damage)
+void Player::EnvironmentalDamage(uint64 guid, EnviromentalDamage type, uint32 damage)
 {
     WorldPacket data(SMSG_ENVIRONMENTALDAMAGELOG, (21));
     data << (uint64)guid;
@@ -1641,7 +1641,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     else
     {
         // far teleport to another map
-        Map* oldmap = IsInWorld() ? MapManager::Instance().GetMap(GetMapId(), this) : NULL;
+        Map* oldmap = IsInWorld() ? GetMap() : NULL;
         // check if we can enter before stopping combat / removing pet / totems / interrupting spells
 
         // Check enter rights before map getting to avoid creating instance copy for player
@@ -3750,7 +3750,7 @@ void Player::SendDelayResponse(const uint32 ml_seconds)
     GetSession()->SendPacket( &data );
 }
 
-void Player::ResurrectPlayer(float restore_percent, bool updateToWorld, bool applySickness)
+void Player::ResurrectPlayer(float restore_percent, bool applySickness)
 {
     WorldPacket data(SMSG_DEATH_RELEASE_LOC, 4*4);          // remove spirit healer position
     data << uint32(-1);
@@ -4281,7 +4281,7 @@ void Player::UpdateDefense()
     }
 }
 
-void Player::HandleBaseModValue(BaseModGroup modGroup, BaseModType modType, float amount, bool apply, bool affectStats)
+void Player::HandleBaseModValue(BaseModGroup modGroup, BaseModType modType, float amount, bool apply)
 {
     if(modGroup >= BASEMOD_END || modType >= MOD_END)
     {
@@ -5243,7 +5243,7 @@ bool Player::SetPosition(float x, float y, float z, float orientation, bool tele
         return false;
     }
 
-    Map *m = MapManager::Instance().GetMap(GetMapId(), this);
+    Map *m = GetMap();
 
     const float old_x = GetPositionX();
     const float old_y = GetPositionY();
@@ -5261,7 +5261,7 @@ bool Player::SetPosition(float x, float y, float z, float orientation, bool tele
         m->PlayerRelocation(this, x, y, z, orientation);
 
         // reread after Map::Relocation
-        m = MapManager::Instance().GetMap(GetMapId(), this);
+        m = GetMap();
         x = GetPositionX();
         y = GetPositionY();
         z = GetPositionZ();
@@ -6176,7 +6176,9 @@ uint32 Player::GetArenaTeamIdFromDB(uint64 guid, uint8 type)
     if(!result)
         return 0;
 
-    return (*result)[0].GetUInt32();
+    uint32 id = (*result)[0].GetUInt32();
+    delete result;
+    return id;
 }
 
 uint32 Player::GetZoneIdFromDB(uint64 guid)
@@ -6707,7 +6709,7 @@ void Player::_ApplyItemBonuses(ItemPrototype const *proto,uint8 slot,bool apply)
         SetBaseWeaponDamage(attType, MAXDAMAGE, damage);
     }
 
-    if(!IsUseEquippedWeapon(slot==EQUIPMENT_SLOT_MAINHAND))
+    if(!IsUseEquipedWeapon(slot==EQUIPMENT_SLOT_MAINHAND))
         return;
 
     if (proto->Delay)
@@ -8485,7 +8487,7 @@ Item* Player::GetWeaponForAttack(WeaponAttackType attackType, bool useable) cons
     if(!useable)
         return item;
 
-    if( item->IsBroken() || !IsUseEquippedWeapon(attackType==BASE_ATTACK) )
+    if( item->IsBroken() || !IsUseEquipedWeapon(attackType==BASE_ATTACK) )
         return NULL;
 
     return item;
@@ -8639,6 +8641,7 @@ bool Player::IsValidPos( uint8 bag, uint8 slot )
     // where this?
     return false;
 }
+
 
 bool Player::HasItemCount( uint32 item, uint32 count, bool inBankAlso ) const
 {
@@ -10155,7 +10158,7 @@ Item* Player::_StoreItem( uint16 pos, Item *pItem, uint32 count, bool clone, boo
 
         if( pItem->GetProto()->Bonding == BIND_WHEN_PICKED_UP ||
             pItem->GetProto()->Bonding == BIND_QUEST_ITEM ||
-            pItem->GetProto()->Bonding == BIND_WHEN_EQUIPPED && IsBagPos(pos) )
+            pItem->GetProto()->Bonding == BIND_WHEN_EQUIPED && IsBagPos(pos) )
             pItem->SetBinding( true );
 
         if( bag == INVENTORY_SLOT_BAG_0 )
@@ -10201,7 +10204,7 @@ Item* Player::_StoreItem( uint16 pos, Item *pItem, uint32 count, bool clone, boo
     {
         if( pItem2->GetProto()->Bonding == BIND_WHEN_PICKED_UP ||
             pItem2->GetProto()->Bonding == BIND_QUEST_ITEM ||
-            pItem2->GetProto()->Bonding == BIND_WHEN_EQUIPPED && IsBagPos(pos) )
+            pItem2->GetProto()->Bonding == BIND_WHEN_EQUIPED && IsBagPos(pos) )
             pItem2->SetBinding( true );
 
         pItem2->SetCount( pItem2->GetCount() + count );
@@ -10403,7 +10406,7 @@ void Player::VisualizeItem( uint8 slot, Item *pItem)
         return;
 
     // check also  BIND_WHEN_PICKED_UP and BIND_QUEST_ITEM for .additem or .additemset case by GM (not binded at adding to inventory)
-    if( pItem->GetProto()->Bonding == BIND_WHEN_EQUIPPED || pItem->GetProto()->Bonding == BIND_WHEN_PICKED_UP || pItem->GetProto()->Bonding == BIND_QUEST_ITEM )
+    if( pItem->GetProto()->Bonding == BIND_WHEN_EQUIPED || pItem->GetProto()->Bonding == BIND_WHEN_PICKED_UP || pItem->GetProto()->Bonding == BIND_QUEST_ITEM )
         pItem->SetBinding( true );
 
     sLog.outDebug( "STORAGE: EquipItem slot = %u, item = %u", slot, pItem->GetEntry());
@@ -10547,8 +10550,6 @@ void Player::DestroyItem( uint8 bag, uint8 slot, bool update )
 
         if(pItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_WRAPPED))
             CharacterDatabase.PExecute("DELETE FROM character_gifts WHERE item_guid = '%u'", pItem->GetGUIDLow());
-
-        ItemPrototype const *pProto = pItem->GetProto();
 
         RemoveEnchantmentDurations(pItem);
         RemoveItemDurations(pItem);
@@ -14207,7 +14208,7 @@ void Player::_LoadAuras(QueryResult *result, uint32 timediff)
     for(int i = UNIT_FIELD_AURA; i <= UNIT_FIELD_AURASTATE; ++i)
         SetUInt32Value(i, 0);
 
-    //QueryResult *result = CharacterDatabase.PQuery("SELECT caster_guid,spell,effect_index,amount,maxduration,remaintime,remaincharges FROM character_aura WHERE guid = '%u'",GetGUIDLow());
+    //QueryResult *result = CharacterDatabase.PQuery("SELECT caster_guid,spell,effect_index,stackcount,amount,maxduration,remaintime,remaincharges FROM character_aura WHERE guid = '%u'",GetGUIDLow());
 
     if(result)
     {
@@ -14217,10 +14218,11 @@ void Player::_LoadAuras(QueryResult *result, uint32 timediff)
             uint64 caster_guid = fields[0].GetUInt64();
             uint32 spellid = fields[1].GetUInt32();
             uint32 effindex = fields[2].GetUInt32();
-            int32 damage     = (int32)fields[3].GetUInt32();
-            int32 maxduration = (int32)fields[4].GetUInt32();
-            int32 remaintime = (int32)fields[5].GetUInt32();
-            int32 remaincharges = (int32)fields[6].GetUInt32();
+            uint32 stackcount = fields[3].GetUInt32();
+            int32 damage     = (int32)fields[4].GetUInt32();
+            int32 maxduration = (int32)fields[5].GetUInt32();
+            int32 remaintime = (int32)fields[6].GetUInt32();
+            int32 remaincharges = (int32)fields[7].GetUInt32();
 
             SpellEntry const* spellproto = sSpellStore.LookupEntry(spellid);
             if(!spellproto)
@@ -14257,11 +14259,15 @@ void Player::_LoadAuras(QueryResult *result, uint32 timediff)
             if (caster_guid != GetGUID() && IsSingleTargetSpell(spellproto))
                 continue;
 
-            Aura* aura = CreateAura(spellproto, effindex, NULL, this, NULL);
-            if(!damage)
-                damage = aura->GetModifier()->m_amount;
-            aura->SetLoadedState(caster_guid,damage,maxduration,remaintime,remaincharges);
-            AddAura(aura);
+            for(uint32 i=0; i<stackcount; i++)
+            {
+                Aura* aura = CreateAura(spellproto, effindex, NULL, this, NULL);
+                if(!damage)
+                    damage = aura->GetModifier()->m_amount;
+                aura->SetLoadedState(caster_guid,damage,maxduration,remaintime,remaincharges);
+                AddAura(aura);
+                sLog.outString("Added aura spellid %u, effect %u", spellproto->Id, effindex);
+            }
         }
         while( result->NextRow() );
 
@@ -15320,31 +15326,54 @@ void Player::_SaveAuras()
     CharacterDatabase.PExecute("DELETE FROM character_aura WHERE guid = '%u'",GetGUIDLow());
 
     AuraMap const& auras = GetAuras();
-    for(AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+
+    if (auras.empty())
+        return;
+
+    spellEffectPair lastEffectPair = auras.begin()->first;
+    uint32 stackCounter = 1;
+
+    for(AuraMap::const_iterator itr = auras.begin(); ; ++itr)
     {
-        SpellEntry const *spellInfo = itr->second->GetSpellProto();
-
-        //skip all auras from spells that are passive or need a shapeshift
-        if (itr->second->IsPassive() || itr->second->IsRemovedOnShapeLost())
-            continue;
-
-        //do not save single target auras (unless they were cast by the player)
-        if (itr->second->GetCasterGUID() != GetGUID() && IsSingleTargetSpell(spellInfo))
-            continue;
-
-        uint8 i;
-        // or apply at cast SPELL_AURA_MOD_SHAPESHIFT or SPELL_AURA_MOD_STEALTH auras
-        for (i = 0; i < 3; i++)
-            if (spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_SHAPESHIFT ||
-            spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_STEALTH)
-                break;
-
-        if (i == 3)
+        if(itr == auras.end() || lastEffectPair != itr->first)
         {
-            CharacterDatabase.PExecute("DELETE FROM character_aura WHERE guid = '%u' and spell = '%u' and  effect_index= '%u'",GetGUIDLow(),(uint32)(*itr).second->GetId(), (uint32)(*itr).second->GetEffIndex());
-            CharacterDatabase.PExecute("INSERT INTO character_aura (guid,caster_guid,spell,effect_index,amount,maxduration,remaintime,remaincharges) "
-                "VALUES ('%u', '" I64FMTD "' ,'%u', '%u', '%d', '%d', '%d', '%d')",
-                GetGUIDLow(), itr->second->GetCasterGUID(), (uint32)(*itr).second->GetId(), (uint32)(*itr).second->GetEffIndex(), (*itr).second->GetModifier()->m_amount,int((*itr).second->GetAuraMaxDuration()),int((*itr).second->GetAuraDuration()),int((*itr).second->m_procCharges));
+            AuraMap::const_iterator itr2 = itr;
+            // save previous spellEffectPair to db
+            itr2--;
+            SpellEntry const *spellInfo = itr2->second->GetSpellProto();
+
+            //skip all auras from spells that are passive or need a shapeshift
+            if (!(itr2->second->IsPassive() || itr2->second->IsRemovedOnShapeLost()))
+            {
+                //do not save single target auras (unless they were cast by the player)
+                if (!(itr2->second->GetCasterGUID() != GetGUID() && IsSingleTargetSpell(spellInfo)))
+                {
+                    uint8 i;
+                    // or apply at cast SPELL_AURA_MOD_SHAPESHIFT or SPELL_AURA_MOD_STEALTH auras
+                    for (i = 0; i < 3; i++)
+                        if (spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_SHAPESHIFT ||
+                        spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_STEALTH)
+                            break;
+
+                    if (i == 3)
+                    {
+                        CharacterDatabase.PExecute("INSERT INTO character_aura (guid,caster_guid,spell,effect_index,stackcount,amount,maxduration,remaintime,remaincharges) "
+                            "VALUES ('%u', '" I64FMTD "' ,'%u', '%u', '%u', '%d', '%d', '%d', '%d')",
+                            GetGUIDLow(), itr2->second->GetCasterGUID(), (uint32)itr2->second->GetId(), (uint32)itr2->second->GetEffIndex(), stackCounter, itr2->second->GetModifier()->m_amount,int(itr2->second->GetAuraMaxDuration()),int(itr2->second->GetAuraDuration()),int(itr2->second->m_procCharges));
+                    }
+                }
+            }
+
+            if(itr == auras.end())
+                break;
+        }
+
+        if (lastEffectPair == itr->first)
+            stackCounter++;
+        else
+        {
+            lastEffectPair = itr->first;
+            stackCounter = 1;
         }
     }
 }
@@ -17910,7 +17939,7 @@ void Player::learnSkillRewardedSpells(uint32 skill_id )
         if (pAbility->classmask && !(pAbility->classmask & classMask))
             continue;
 
-        if (SpellEntry const* spellentry = sSpellStore.LookupEntry(pAbility->spellId))
+        if (sSpellStore.LookupEntry(pAbility->spellId))
         {
             // Ok need learn spell
             learnSpell(pAbility->spellId);
@@ -18323,7 +18352,6 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
         Player* member_with_max_level = NULL;
         Player* not_gray_member_with_max_level = NULL;
 
-        // gets the max member level of the group, and the max member level that still gets XP
         pGroup->GetDataForXPAtKill(pVictim,count,sum_level,member_with_max_level,not_gray_member_with_max_level);
 
         if(member_with_max_level)
@@ -18332,7 +18360,7 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
             // also no XP gained if there is no member below gray level
             xp = (PvP || !not_gray_member_with_max_level) ? 0 : Trinity::XP::Gain(not_gray_member_with_max_level, pVictim);
 
-            // skip in check PvP case (for speed, not used)
+            /// skip in check PvP case (for speed, not used)
             bool is_raid = PvP ? false : sMapStore.LookupEntry(GetMapId())->IsRaid() && pGroup->isRaidGroup();
             bool is_dungeon = PvP ? false : sMapStore.LookupEntry(GetMapId())->IsDungeon();
             float group_rate = Trinity::XP::xp_in_group_rate(count,is_raid);
@@ -18660,6 +18688,18 @@ void Player::SetCanBlock( bool value )
     UpdateBlockPercentage();
 }
 
+bool ItemPosCount::isContainedIn(ItemPosCountVec const& vec) const
+{
+    for(ItemPosCountVec::const_iterator itr = vec.begin(); itr != vec.end();++itr)
+        if(itr->pos == pos)
+            return true;
+    return false;
+}
+
+//***********************************
+//-------------TRINITY---------------
+//***********************************
+
 void Player::HandleFallDamage(MovementInfo& movementInfo)
 {
     //Players with Feather Fall or low fall time, or physical immunity (charges used) are ignored
@@ -18959,15 +18999,6 @@ bool Player::isAllowUseBattleGroundObject()
              !HasAura(SPELL_RECENTLY_DROPPED_FLAG, 0) &&      // can't pickup
              isAlive()                                        // live player
            );
-}
-
-bool ItemPosCount::isContainedIn(ItemPosCountVec const& vec) const
-{
-    for(ItemPosCountVec::const_iterator itr = vec.begin(); itr != vec.end();++itr)
-        if(itr->pos == this->pos)
-            return true;
-
-    return false;
 }
 
 bool Player::isTotalImmunity()

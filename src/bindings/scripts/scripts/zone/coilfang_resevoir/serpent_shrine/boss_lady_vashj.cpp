@@ -250,12 +250,12 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
 		{
 			//remove old tainted cores to prevent cheating in phase 2
 			Map *map = m_creature->GetMap();
-			InstanceMap::PlayerList const &PlayerList = ((InstanceMap*)map)->GetPlayers();
-			for(InstanceMap::PlayerList::const_iterator i = PlayerList.begin();i != PlayerList.end(); ++i)
+			Map::PlayerList const &PlayerList = map->GetPlayers();
+			for(Map::PlayerList::const_iterator i = PlayerList.begin();i != PlayerList.end(); ++i)
             {
-                if((*i))
+                if(Player* i_pl = i->getSource())
                 {
-                    (*i)->DestroyItemCount(31088, 1, true);
+                    i_pl->DestroyItemCount(31088, 1, true);
                 }
             }
 		}
