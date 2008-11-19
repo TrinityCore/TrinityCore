@@ -1171,7 +1171,7 @@ void Spell::EffectDummy(uint32 i)
                     //Converted Sentry Credit
                     m_caster->CastSpell(m_caster, 45009, true);
                     return;
-                }                
+                }
                 case 45030:                                 // Impale Emissary
                 {
                     // Emissary of Hate Credit
@@ -1274,7 +1274,7 @@ void Spell::EffectDummy(uint32 i)
                     {
                         //Polymorph Cast Visual Rank 1
                         const uint32 spell_list[6] = {32813, 32816, 32817, 32818, 32819, 32820};
-                        unitTarget->CastSpell( unitTarget, spell_list[urand(0, 5)], true); 
+                        unitTarget->CastSpell( unitTarget, spell_list[urand(0, 5)], true);
                     }
                     return;
                 }
@@ -2250,7 +2250,7 @@ void Spell::EffectPowerDrain(uint32 i)
 
         m_caster->ModifyPower(POWER_MANA,gain);
         //send log
-        m_caster->SendEnergizeSpellLog(m_caster, m_spellInfo->Id,gain,POWER_MANA,false);
+        m_caster->SendEnergizeSpellLog(m_caster, m_spellInfo->Id,gain,POWER_MANA);
     }
 }
 
@@ -2266,7 +2266,7 @@ void Spell::EffectSendEvent(uint32 EffectIndex)
                 case 23333:                                 // Pickup Horde Flag
                     /*do not uncomment .
                     if(bg->GetTypeID()==BATTLEGROUND_WS)
-                        bg->EventPlayerClickedOnFlag((Player*)m_caster, this->gameObjTarget);
+                        bg->EventPlayerClickedOnFlag((Player*)m_caster, gameObjTarget);
                     sLog.outDebug("Send Event Horde Flag Picked Up");
                     break;
                     /* not used :
@@ -2279,7 +2279,7 @@ void Spell::EffectSendEvent(uint32 EffectIndex)
                 case 23335:                                 // Pickup Alliance Flag
                     /*do not uncomment ... (it will cause crash, because of null targetobject!) anyway this is a bad way to call that event, because it would cause recursion
                     if(bg->GetTypeID()==BATTLEGROUND_WS)
-                        bg->EventPlayerClickedOnFlag((Player*)m_caster, this->gameObjTarget);
+                        bg->EventPlayerClickedOnFlag((Player*)m_caster, gameObjTarget);
                     sLog.outDebug("Send Event Alliance Flag Picked Up");
                     break;
                     /* not used :
@@ -2290,18 +2290,18 @@ void Spell::EffectSendEvent(uint32 EffectIndex)
                         break;
                     case 23385:                                 // Alliance Flag Returns
                         if(bg->GetTypeID()==BATTLEGROUND_WS)
-                            bg->EventPlayerClickedOnFlag((Player*)m_caster, this->gameObjTarget);
+                            bg->EventPlayerClickedOnFlag((Player*)m_caster, gameObjTarget);
                         sLog.outDebug("Alliance Flag Returned");
                         break;
                     case 23386:                                   // Horde Flag Returns
                         if(bg->GetTypeID()==BATTLEGROUND_WS)
-                            bg->EventPlayerClickedOnFlag((Player*)m_caster, this->gameObjTarget);
+                            bg->EventPlayerClickedOnFlag((Player*)m_caster, gameObjTarget);
                         sLog.outDebug("Horde Flag Returned");
                         break;*/
                 case 34976:
                     /*
                     if(bg->GetTypeID()==BATTLEGROUND_EY)
-                        bg->EventPlayerClickedOnFlag((Player*)m_caster, this->gameObjTarget);
+                        bg->EventPlayerClickedOnFlag((Player*)m_caster, gameObjTarget);
                     */
                     break;
                 default:
@@ -2680,24 +2680,24 @@ void Spell::EffectEnergize(uint32 i)
         return;
 
     // Some level depends spells
-    int multiplier  = 0;
+    int multiplier = 0;
     int level_diff = 0;
     switch (m_spellInfo->Id)
     {
         // Restore Energy
         case 9512:
             level_diff = m_caster->getLevel() - 40;
-            multiplier  = 2;
+            multiplier = 2;
             break;
         // Blood Fury
         case 24571:
             level_diff = m_caster->getLevel() - 60;
-            multiplier  = 10;
+            multiplier = 10;
             break;
         // Burst of Energy
         case 24532:
             level_diff = m_caster->getLevel() - 60;
-            multiplier  = 4;
+            multiplier = 4;
             break;
         default:
             break;
@@ -3759,7 +3759,7 @@ void Spell::EffectTeleUnitsFaceCaster(uint32 i)
     if(unitTarget->GetTypeId() == TYPEID_PLAYER)
         ((Player*)unitTarget)->TeleportTo(mapid, fx, fy, fz, -m_caster->GetOrientation(), TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (unitTarget==m_caster ? TELE_TO_SPELL : 0));
     else
-        MapManager::Instance().GetMap(mapid, m_caster)->CreatureRelocation((Creature*)m_caster, fx, fy, fz, -m_caster->GetOrientation());
+        m_caster->GetMap()->CreatureRelocation((Creature*)m_caster, fx, fy, fz, -m_caster->GetOrientation());
 }
 
 void Spell::EffectLearnSkill(uint32 i)
@@ -3780,13 +3780,13 @@ void Spell::EffectAddHonor(uint32 /*i*/)
     if(unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    sLog.outDebug("SpellEffect::AddHonor called for spell_id %u , that rewards %d honor points to player: %u", m_spellInfo->Id, this->damage, ((Player*)unitTarget)->GetGUIDLow());
+    sLog.outDebug("SpellEffect::AddHonor called for spell_id %u , that rewards %d honor points to player: %u", m_spellInfo->Id, damage, ((Player*)unitTarget)->GetGUIDLow());
 
     // TODO: find formula for honor reward based on player's level!
 
     // now fixed only for level 70 players:
     if (((Player*)unitTarget)->getLevel() == 70)
-        ((Player*)unitTarget)->RewardHonor(NULL, 1, this->damage);
+        ((Player*)unitTarget)->RewardHonor(NULL, 1, damage);
 }
 
 void Spell::EffectTradeSkill(uint32 /*i*/)
@@ -4001,7 +4001,7 @@ void Spell::EffectTameCreature(uint32 /*i*/)
     pet->SetUInt32Value(UNIT_FIELD_LEVEL,creatureTarget->getLevel()-1);
 
     // add to world
-    MapManager::Instance().GetMap(pet->GetMapId(), pet)->Add((Creature*)pet);
+    pet->GetMap()->Add((Creature*)pet);
 
     // visual effect for levelup
     pet->SetUInt32Value(UNIT_FIELD_LEVEL,creatureTarget->getLevel());
@@ -4031,14 +4031,14 @@ void Spell::EffectSummonPet(uint32 i)
             if( OldSummon->isDead() )
                 return;
 
-            MapManager::Instance().GetMap(OldSummon->GetMapId(), OldSummon)->Remove((Creature*)OldSummon,false);
+            OldSummon->GetMap()->Remove((Creature*)OldSummon,false);
             OldSummon->SetMapId(m_caster->GetMapId());
 
             float px, py, pz;
             m_caster->GetClosePoint(px, py, pz, OldSummon->GetObjectSize());
 
             OldSummon->Relocate(px, py, pz, OldSummon->GetOrientation());
-            MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster)->Add((Creature*)OldSummon);
+            m_caster->GetMap()->Add((Creature*)OldSummon);
 
             if(m_caster->GetTypeId() == TYPEID_PLAYER && OldSummon->isControlled() )
             {
@@ -4121,10 +4121,10 @@ void Spell::EffectSummonPet(uint32 i)
     uint32 faction = m_caster->getFaction();
     if(m_caster->GetTypeId() == TYPEID_UNIT)
     {
-		if ( ((Creature*)m_caster)->isTotem() )
-			NewSummon->GetCharmInfo()->SetReactState(REACT_AGGRESSIVE);
-		else
-			NewSummon->GetCharmInfo()->SetReactState(REACT_DEFENSIVE);
+        if ( ((Creature*)m_caster)->isTotem() )
+            NewSummon->GetCharmInfo()->SetReactState(REACT_AGGRESSIVE);
+        else
+            NewSummon->GetCharmInfo()->SetReactState(REACT_DEFENSIVE);
     }
 
     NewSummon->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, m_caster->GetGUID());
@@ -4446,13 +4446,13 @@ void Spell::EffectWeaponDmg(uint32 i)
         if(m_caster->GetTypeId()==TYPEID_PLAYER)
             ((Player*)m_caster)->AddComboPoints(unitTarget, 1);
     }
+
     // Mangle (Cat): CP
     if(m_spellInfo->SpellFamilyName==SPELLFAMILY_DRUID && (m_spellInfo->SpellFamilyFlags==0x0000040000000000LL))
     {
         if(m_caster->GetTypeId()==TYPEID_PLAYER)
             ((Player*)m_caster)->AddComboPoints(unitTarget,1);
     }
-
 
     // take ammo
     if(m_attackType == RANGED_ATTACK && m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -5448,7 +5448,7 @@ void Spell::EffectSummonObject(uint32 i)
     m_caster->m_ObjectSlot[slot] = pGameObj->GetGUID();
 }
 
-void Spell::EffectResurrect(uint32 i)
+void Spell::EffectResurrect(uint32 /*effIndex*/)
 {
     if(!unitTarget)
         return;
@@ -5669,7 +5669,7 @@ void Spell::EffectSkinning(uint32 /*i*/)
     Creature* creature = (Creature*) unitTarget;
     int32 targetLevel = creature->getLevel();
 
-    uint32 skill = creature->GetCreatureInfo()->GetRequiredLootSkill(); 
+    uint32 skill = creature->GetCreatureInfo()->GetRequiredLootSkill();
 
     ((Player*)m_caster)->SendLoot(creature->GetGUID(),LOOT_SKINNING);
     creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
@@ -5696,7 +5696,7 @@ void Spell::EffectCharge(uint32 /*i*/)
     m_caster->SendMonsterMove(x, y, z, 0, MOVEMENTFLAG_WALK_MODE, 1);
 
     if(m_caster->GetTypeId() != TYPEID_PLAYER)
-        MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster)->CreatureRelocation((Creature*)m_caster,x,y,z,m_caster->GetOrientation());
+        m_caster->GetMap()->CreatureRelocation((Creature*)m_caster,x,y,z,m_caster->GetOrientation());
 
     // not all charge effects used in negative spells
     if ( !IsPositiveSpell(m_spellInfo->Id))
@@ -6132,7 +6132,7 @@ void Spell::EffectTransmitted(uint32 effIndex)
             linkedGO->SetSpellId(m_spellInfo->Id);
             linkedGO->SetOwnerGUID(m_caster->GetGUID() );
 
-            MapManager::Instance().GetMap(linkedGO->GetMapId(), linkedGO)->Add(linkedGO);
+            linkedGO->GetMap()->Add(linkedGO);
         }
         else
         {

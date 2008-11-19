@@ -368,13 +368,12 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
     {
         Map *map = m_creature->GetMap();
         if(!map->IsDungeon()) return;
-        InstanceMap::PlayerList const &PlayerList = ((InstanceMap*)map)->GetPlayers();
-        InstanceMap::PlayerList::const_iterator i;
-        for (i = PlayerList.begin(); i != PlayerList.end(); ++i)
-        {
-            if((*i)->HasAura(AURA_SPECTRAL_REALM,0))
-                (*i)->RemoveAurasDueToSpell(AURA_SPECTRAL_REALM);
-        }
+        Map::PlayerList const &PlayerList = map->GetPlayers();
+        Map::PlayerList::const_iterator i;
+        for(i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            if(Player* i_pl = i->getSource())
+                if(i_pl->HasAura(AURA_SPECTRAL_REALM,0))
+                    i_pl->RemoveAurasDueToSpell(AURA_SPECTRAL_REALM);
     }
 
     void Enrage(); // demon and dragon should enrage at the same time

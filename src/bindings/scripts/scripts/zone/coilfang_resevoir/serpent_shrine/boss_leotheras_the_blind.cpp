@@ -754,19 +754,22 @@ struct TRINITY_DLL_DECL mob_greyheart_spellbinderAI : public ScriptedAI
 		if(Earthshock_Timer < diff)
 		{
 			Map *map = m_creature->GetMap();
-			InstanceMap::PlayerList const &PlayerList = ((InstanceMap*)map)->GetPlayers();
-			for(InstanceMap::PlayerList::const_iterator itr = PlayerList.begin();itr != PlayerList.end(); ++itr)
+			Map::PlayerList const &PlayerList = map->GetPlayers();
+			for(Map::PlayerList::const_iterator itr = PlayerList.begin();itr != PlayerList.end(); ++itr)
             {
-				bool isCasting = false;
-				for(uint8 i = 0; i < CURRENT_MAX_SPELL; ++i)
-					if((*itr)->m_currentSpells[i])
-						isCasting = true;
-				
-				if(isCasting)
-				{
-					DoCast((*itr), SPELL_EARTHSHOCK);
-					break;
-				}
+                if (Player* i_pl = itr->getSource())
+                {
+				    bool isCasting = false;
+				    for(uint8 i = 0; i < CURRENT_MAX_SPELL; ++i)
+					    if(i_pl->m_currentSpells[i])
+						    isCasting = true;
+    				
+				    if(isCasting)
+				    {
+					    DoCast(i_pl, SPELL_EARTHSHOCK);
+					    break;
+				    }
+                }
 			}
 			Earthshock_Timer = 8000 + rand()%7000;
 		}else Earthshock_Timer -= diff;

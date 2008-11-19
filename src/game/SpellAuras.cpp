@@ -170,10 +170,10 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNoImmediateEffect,                         //112 SPELL_AURA_OVERRIDE_CLASS_SCRIPTS
     &Aura::HandleNoImmediateEffect,                         //113 SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN implemented in Unit::MeleeDamageBonus
     &Aura::HandleNoImmediateEffect,                         //114 SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN_PCT implemented in Unit::MeleeDamageBonus
-    &Aura::HandleAuraHealing,                               //115 SPELL_AURA_MOD_HEALING
+    &Aura::HandleNoImmediateEffect,                         //115 SPELL_AURA_MOD_HEALING                 implemented in Unit::SpellBaseHealingBonusForVictim
     &Aura::HandleNoImmediateEffect,                         //116 SPELL_AURA_MOD_REGEN_DURING_COMBAT
     &Aura::HandleNoImmediateEffect,                         //117 SPELL_AURA_MOD_MECHANIC_RESISTANCE     implemented in Unit::MagicSpellHitResult
-    &Aura::HandleAuraHealingPct,                            //118 SPELL_AURA_MOD_HEALING_PCT
+    &Aura::HandleNoImmediateEffect,                         //118 SPELL_AURA_MOD_HEALING_PCT             implemented in Unit::SpellHealingBonus
     &Aura::HandleUnused,                                    //119 SPELL_AURA_SHARE_PET_TRACKING useless
     &Aura::HandleAuraUntrackable,                           //120 SPELL_AURA_UNTRACKABLE
     &Aura::HandleAuraEmpathy,                               //121 SPELL_AURA_EMPATHY
@@ -191,7 +191,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleAuraModIncreaseHealthPercent,              //133 SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT
     &Aura::HandleAuraModRegenInterrupt,                     //134 SPELL_AURA_MOD_MANA_REGEN_INTERRUPT
     &Aura::HandleModHealingDone,                            //135 SPELL_AURA_MOD_HEALING_DONE
-    &Aura::HandleAuraHealingPct,                            //136 SPELL_AURA_MOD_HEALING_DONE_PERCENT   implemented in Unit::SpellHealingBonus
+    &Aura::HandleNoImmediateEffect,                         //136 SPELL_AURA_MOD_HEALING_DONE_PERCENT   implemented in Unit::SpellHealingBonus
     &Aura::HandleModTotalPercentStat,                       //137 SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE
     &Aura::HandleHaste,                                     //138 SPELL_AURA_MOD_HASTE
     &Aura::HandleForceReaction,                             //139 SPELL_AURA_FORCE_REACTION
@@ -220,7 +220,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleAuraPowerBurn,                             //162 SPELL_AURA_POWER_BURN_MANA
     &Aura::HandleNoImmediateEffect,                         //163 SPELL_AURA_MOD_CRIT_DAMAGE_BONUS_MELEE
     &Aura::HandleUnused,                                    //164 useless, only one test spell
-    &Aura::HandleAuraAttackPowerAttacker,                   //165 SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS implemented in Unit::MeleeDamageBonus
+    &Aura::HandleNoImmediateEffect,                         //165 SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS implemented in Unit::MeleeDamageBonus
     &Aura::HandleAuraModAttackPowerPercent,                 //166 SPELL_AURA_MOD_ATTACK_POWER_PCT
     &Aura::HandleAuraModRangedAttackPowerPercent,           //167 SPELL_AURA_MOD_RANGED_ATTACK_POWER_PCT
     &Aura::HandleNoImmediateEffect,                         //168 SPELL_AURA_MOD_DAMAGE_DONE_VERSUS            implemented in Unit::SpellDamageBonus, Unit::MeleeDamageBonus
@@ -1999,6 +1999,16 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             return;
         }
 
+        // Waiting to Resurrect
+        if(GetId()==2584)
+        {
+            // Waiting to resurrect spell cancel, we must remove player from resurrect queue
+            if(m_target->GetTypeId() == TYPEID_PLAYER)
+                if(BattleGround *bg = ((Player*)m_target)->GetBattleGround())
+                    bg->RemovePlayerFromResurrectQueue(m_target->GetGUID());
+            return;
+        }
+
         // Dark Fiend
         if(GetId()==45934)
         {
@@ -2294,6 +2304,10 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
 
 void Aura::HandleAuraMounted(bool apply, bool Real)
 {
+    // only at real add/remove aura
+    if(!Real)
+        return;
+
     if(apply)
     {
         CreatureInfo const* ci = objmgr.GetCreatureTemplate(m_modifier.m_miscvalue);
@@ -2693,7 +2707,9 @@ void Aura::HandleAuraTransform(bool apply, bool Real)
             }
             else
             {
-                if (uint32 modelid = ci->GetRandomValidModelId()) m_target->SetDisplayId(modelid);
+                                                            // Will use the default model here
+                if (uint32 modelid = ci->GetRandomValidModelId())
+                    m_target->SetDisplayId(modelid);
 
                 // Dragonmaw Illusion (set mount model also)
                 if(GetId()==42016 && m_target->GetMountID() && !m_target->GetAurasByType(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED).empty())
@@ -3589,7 +3605,7 @@ void Aura::HandleModTaunt(bool apply, bool Real)
 /*********************************************************/
 /***                  MODIFY SPEED                     ***/
 /*********************************************************/
-void Aura::HandleAuraModIncreaseSpeed(bool apply, bool Real)
+void Aura::HandleAuraModIncreaseSpeed(bool /*apply*/, bool Real)
 {
     // all applied/removed only at real aura add/remove
     if(!Real)
@@ -3598,7 +3614,7 @@ void Aura::HandleAuraModIncreaseSpeed(bool apply, bool Real)
     m_target->UpdateSpeed(MOVE_RUN, true);
 }
 
-void Aura::HandleAuraModIncreaseMountedSpeed(bool apply, bool Real)
+void Aura::HandleAuraModIncreaseMountedSpeed(bool /*apply*/, bool Real)
 {
     // all applied/removed only at real aura add/remove
     if(!Real)
@@ -3637,7 +3653,7 @@ void Aura::HandleAuraModIncreaseFlightSpeed(bool apply, bool Real)
     m_target->UpdateSpeed(MOVE_FLY, true);
 }
 
-void Aura::HandleAuraModIncreaseSwimSpeed(bool apply, bool Real)
+void Aura::HandleAuraModIncreaseSwimSpeed(bool /*apply*/, bool Real)
 {
     // all applied/removed only at real aura add/remove
     if(!Real)
@@ -3646,7 +3662,7 @@ void Aura::HandleAuraModIncreaseSwimSpeed(bool apply, bool Real)
     m_target->UpdateSpeed(MOVE_SWIM, true);
 }
 
-void Aura::HandleAuraModDecreaseSpeed(bool apply, bool Real)
+void Aura::HandleAuraModDecreaseSpeed(bool /*apply*/, bool Real)
 {
     // all applied/removed only at real aura add/remove
     if(!Real)
@@ -3657,7 +3673,7 @@ void Aura::HandleAuraModDecreaseSpeed(bool apply, bool Real)
     m_target->UpdateSpeed(MOVE_FLY, true);
 }
 
-void Aura::HandleAuraModUseNormalSpeed(bool apply, bool Real)
+void Aura::HandleAuraModUseNormalSpeed(bool /*apply*/, bool Real)
 {
     // all applied/removed only at real aura add/remove
     if(!Real)
@@ -4342,7 +4358,7 @@ void Aura::HandleModPercentStat(bool apply, bool Real)
     }
 }
 
-void Aura::HandleModSpellDamagePercentFromStat(bool apply, bool Real)
+void Aura::HandleModSpellDamagePercentFromStat(bool /*apply*/, bool Real)
 {
     if(m_target->GetTypeId() != TYPEID_PLAYER)
         return;
@@ -4353,7 +4369,7 @@ void Aura::HandleModSpellDamagePercentFromStat(bool apply, bool Real)
     ((Player*)m_target)->UpdateSpellDamageAndHealingBonus();
 }
 
-void Aura::HandleModSpellHealingPercentFromStat(bool apply, bool Real)
+void Aura::HandleModSpellHealingPercentFromStat(bool /*apply*/, bool Real)
 {
     if(m_target->GetTypeId() != TYPEID_PLAYER)
         return;
@@ -4371,7 +4387,7 @@ void Aura::HandleAuraModDispelResist(bool apply, bool Real)
         m_target->CastSpell(m_target,44416,true,NULL,this,GetCasterGUID());
 }
 
-void Aura::HandleModSpellDamagePercentFromAttackPower(bool apply, bool Real)
+void Aura::HandleModSpellDamagePercentFromAttackPower(bool /*apply*/, bool Real)
 {
     if(m_target->GetTypeId() != TYPEID_PLAYER)
         return;
@@ -4382,7 +4398,7 @@ void Aura::HandleModSpellDamagePercentFromAttackPower(bool apply, bool Real)
     ((Player*)m_target)->UpdateSpellDamageAndHealingBonus();
 }
 
-void Aura::HandleModSpellHealingPercentFromAttackPower(bool apply, bool Real)
+void Aura::HandleModSpellHealingPercentFromAttackPower(bool /*apply*/, bool Real)
 {
     if(m_target->GetTypeId() != TYPEID_PLAYER)
         return;
@@ -4391,7 +4407,7 @@ void Aura::HandleModSpellHealingPercentFromAttackPower(bool apply, bool Real)
     ((Player*)m_target)->UpdateSpellDamageAndHealingBonus();
 }
 
-void Aura::HandleModHealingDone(bool apply, bool Real)
+void Aura::HandleModHealingDone(bool /*apply*/, bool Real)
 {
     if(m_target->GetTypeId() != TYPEID_PLAYER)
         return;
@@ -4431,7 +4447,7 @@ void Aura::HandleModTotalPercentStat(bool apply, bool Real)
     }
 }
 
-void Aura::HandleAuraModResistenceOfStatPercent(bool apply, bool Real)
+void Aura::HandleAuraModResistenceOfStatPercent(bool /*apply*/, bool Real)
 {
     if(m_target->GetTypeId() != TYPEID_PLAYER)
         return;
@@ -4566,7 +4582,7 @@ void Aura::HandleModPowerRegen(bool apply, bool Real)       // drinking
         ((Player*)m_target)->UpdateManaRegen();
 }
 
-void Aura::HandleModPowerRegenPCT(bool apply, bool Real)
+void Aura::HandleModPowerRegenPCT(bool /*apply*/, bool Real)
 {
     // spells required only Real aura add/remove
     if(!Real)
@@ -4580,7 +4596,7 @@ void Aura::HandleModPowerRegenPCT(bool apply, bool Real)
         ((Player*)m_target)->UpdateManaRegen();
 }
 
-void Aura::HandleModManaRegen(bool apply, bool Real)
+void Aura::HandleModManaRegen(bool /*apply*/, bool Real)
 {
     // spells required only Real aura add/remove
     if(!Real)
@@ -4667,7 +4683,7 @@ void Aura::HandleAuraModIncreaseHealthPercent(bool apply, bool Real)
 /***          FIGHT           ***/
 /********************************/
 
-void Aura::HandleAuraModParryPercent(bool apply, bool Real)
+void Aura::HandleAuraModParryPercent(bool /*apply*/, bool Real)
 {
     if(m_target->GetTypeId()!=TYPEID_PLAYER)
         return;
@@ -4675,7 +4691,7 @@ void Aura::HandleAuraModParryPercent(bool apply, bool Real)
     ((Player*)m_target)->UpdateParryPercentage();
 }
 
-void Aura::HandleAuraModDodgePercent(bool apply, bool Real)
+void Aura::HandleAuraModDodgePercent(bool /*apply*/, bool Real)
 {
     if(m_target->GetTypeId()!=TYPEID_PLAYER)
         return;
@@ -4684,7 +4700,7 @@ void Aura::HandleAuraModDodgePercent(bool apply, bool Real)
     //sLog.outError("BONUS DODGE CHANCE: + %f", float(m_modifier.m_amount));
 }
 
-void Aura::HandleAuraModBlockPercent(bool apply, bool Real)
+void Aura::HandleAuraModBlockPercent(bool /*apply*/, bool Real)
 {
     if(m_target->GetTypeId()!=TYPEID_PLAYER)
         return;
@@ -4693,7 +4709,7 @@ void Aura::HandleAuraModBlockPercent(bool apply, bool Real)
     //sLog.outError("BONUS BLOCK CHANCE: + %f", float(m_modifier.m_amount));
 }
 
-void Aura::HandleAuraModRegenInterrupt(bool apply, bool Real)
+void Aura::HandleAuraModRegenInterrupt(bool /*apply*/, bool Real)
 {
     // spells required only Real aura add/remove
     if(!Real)
@@ -4761,7 +4777,7 @@ void Aura::HandleModSpellCritChance(bool apply, bool Real)
     }
 }
 
-void Aura::HandleModSpellCritChanceShool(bool apply, bool Real)
+void Aura::HandleModSpellCritChanceShool(bool /*apply*/, bool Real)
 {
     // spells required only Real aura add/remove
     if(!Real)
@@ -4841,39 +4857,6 @@ void Aura::HandleAuraModRangedAttackPower(bool apply, bool Real)
         return;
 
     m_target->HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(m_modifier.m_amount), apply);
-}
-
-void Aura::HandleAuraAttackPowerAttacker(bool apply, bool Real)
-{
-    // spells required only Real aura add/remove
-    if(!Real)
-        return;
-    Unit *caster = GetCaster();
-
-    if (!caster)
-        return;
-
-    // Hunter's Mark
-    if (m_spellProto->SpellFamilyName == SPELLFAMILY_HUNTER && m_spellProto->SpellFamilyFlags & 0x0000000000000400LL)
-    {
-        // Check Improved Hunter's Mark bonus on caster
-        Unit::AuraList const& mOverrideClassScript = caster->GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-        for(Unit::AuraList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
-        {
-            Modifier* mod = (*i)->GetModifier();
-            // mproved Hunter's Mark script from 5236 to 5240
-            if (mod->m_miscvalue >= 5236 && mod->m_miscvalue <= 5240)
-            {
-                // Get amount of ranged bonus for this spell..
-                int32 ranged_bonus = caster->CalculateSpellDamage(m_spellProto, 1, m_spellProto->EffectBasePoints[1], m_target);
-                // Set melee attack power bonus % from ranged depends from Improved mask aura
-                m_modifier.m_amount = mod->m_amount * ranged_bonus / 100;
-                m_currentBasePoints = m_modifier.m_amount;
-                break;
-            }
-        }
-        return;
-    }
 }
 
 void Aura::HandleAuraModAttackPowerPercent(bool apply, bool Real)
@@ -5323,7 +5306,7 @@ void Aura::HandleForceMoveForward(bool apply, bool Real)
         m_target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVE);
 }
 
-void Aura::HandleAuraModExpertise(bool apply, bool Real)
+void Aura::HandleAuraModExpertise(bool /*apply*/, bool Real)
 {
     if(m_target->GetTypeId() != TYPEID_PLAYER)
         return;
@@ -5346,17 +5329,6 @@ void Aura::HandleModTargetResistance(bool apply, bool Real)
     // show as spell penetration only full spell penetration bonuses (all resistances except armor and holy
     if (m_target->GetTypeId() == TYPEID_PLAYER && (m_modifier.m_miscvalue & SPELL_SCHOOL_MASK_SPELL)==SPELL_SCHOOL_MASK_SPELL)
         m_target->ApplyModInt32Value(PLAYER_FIELD_MOD_TARGET_RESISTANCE,m_modifier.m_amount, apply);
-}
-
-//HandleNoImmediateEffect auras implementation to support new stat system
-void Aura::HandleAuraHealing(bool apply, bool Real)
-{
-    //m_target->HandleStatModifier(UNIT_MOD_HEALING, TOTAL_VALUE, float(m_modifier.m_amount), apply);
-}
-
-void Aura::HandleAuraHealingPct(bool apply, bool Real)
-{
-    //m_target->HandleStatModifier(UNIT_MOD_HEALING, TOTAL_PCT, float(m_modifier.m_amount), apply);
 }
 
 void Aura::HandleShieldBlockValue(bool apply, bool Real)

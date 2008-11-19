@@ -397,11 +397,12 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
             //Teleport every Player into the middle
             Map *map = m_creature->GetMap();
             if(!map->IsDungeon()) return;
-            InstanceMap::PlayerList const &PlayerList =((InstanceMap*)map)->GetPlayers();
-            for(InstanceMap::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            Map::PlayerList const &PlayerList = map->GetPlayers();
+            for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             {
-                if((*i)->isAlive())
-                    DoTeleportPlayer(*i, JanalainPos[0][0]-5+rand()%10, JanalainPos[0][1]-5+rand()%10, JanalainPos[0][2], 0);
+                if (Player* i_pl = i->getSource())
+                    if(i_pl->isAlive())
+                        DoTeleportPlayer(i_pl, JanalainPos[0][0]-5+rand()%10, JanalainPos[0][1]-5+rand()%10, JanalainPos[0][2], 0);
             }
             //m_creature->CastSpell(Temp, SPELL_SUMMON_PLAYERS, true); // core bug, spell does not work if too far
             return;
