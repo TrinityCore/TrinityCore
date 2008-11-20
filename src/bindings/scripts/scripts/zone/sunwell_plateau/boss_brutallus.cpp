@@ -178,5 +178,5 @@ void AddSC_boss_brutallus()
     newscript = new Script;
     newscript->Name="boss_brutallus";
     newscript->GetAI = GetAI_boss_brutallus;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

@@ -137,5 +137,5 @@ void AddSC_boss_doomlordkazzak()
     newscript = new Script;
     newscript->Name="boss_doomlord_kazzak";
     newscript->GetAI = GetAI_boss_doomlordkazzak;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

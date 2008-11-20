@@ -138,5 +138,5 @@ void AddSC_boss_gloomrel()
     newscript->GetAI = GetAI_boss_gloomrel;
     newscript->pGossipHello = &GossipHello_boss_gloomrel;
     newscript->pGossipSelect = &GossipSelect_boss_gloomrel;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

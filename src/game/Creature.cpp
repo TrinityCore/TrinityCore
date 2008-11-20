@@ -177,7 +177,7 @@ void Creature::RemoveCorpse()
 
     float x,y,z,o;
     GetRespawnCoord(x, y, z, &o);
-    MapManager::Instance().GetMap(GetMapId(), this)->CreatureRelocation(this,x,y,z,o);
+    GetMap()->CreatureRelocation(this,x,y,z,o);
 }
 
 /**
@@ -209,7 +209,7 @@ bool Creature::InitEntry(uint32 Entry, uint32 team, const CreatureData *data )
         }
     }
 
-    SetUInt32Value(OBJECT_FIELD_ENTRY, Entry);              // normal entry always
+    SetEntry(Entry);                                        // normal entry always
     m_creatureInfo = cinfo;                                 // map mode related always
 
     // Cancel load if no model defined
@@ -352,7 +352,7 @@ void Creature::Update(uint32 diff)
                 lootForPickPocketed = false;
                 lootForBody         = false;
 
-                if(m_originalEntry != GetUInt32Value(OBJECT_FIELD_ENTRY))
+                if(m_originalEntry != GetEntry())
                     UpdateEntry(m_originalEntry);
 
                 CreatureInfo const *cinfo = GetCreatureInfo();
@@ -371,9 +371,9 @@ void Creature::Update(uint32 diff)
                     setDeathState( JUST_ALIVED );
 
                 //Call AI respawn virtual function
-                AI()->JustRespawned();
+                i_AI->JustRespawned();
 
-                MapManager::Instance().GetMap(GetMapId(), this)->Add(this);
+                GetMap()->Add(this);
             }
             break;
         }
@@ -435,7 +435,7 @@ void Creature::Update(uint32 diff)
             {
                 // do not allow the AI to be changed during update
                 m_AI_locked = true;
-                AI()->UpdateAI(diff);
+                i_AI->UpdateAI(diff);
                 m_AI_locked = false;
             }
 
@@ -2096,9 +2096,14 @@ uint32 Creature::getLevelForTarget( Unit const* target ) const
     return level;
 }
 
-char const* Creature::GetScriptName() const
+std::string Creature::GetScriptName()
 {
-    return ObjectMgr::GetCreatureTemplate(GetEntry())->ScriptName;
+    return objmgr.GetScriptName(GetScriptId());
+}
+
+uint32 Creature::GetScriptId()
+{
+    return ObjectMgr::GetCreatureTemplate(GetEntry())->ScriptID;
 }
 
 VendorItemData const* Creature::GetVendorItems() const

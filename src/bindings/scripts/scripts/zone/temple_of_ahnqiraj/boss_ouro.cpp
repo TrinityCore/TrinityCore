@@ -136,5 +136,5 @@ void AddSC_boss_ouro()
     newscript = new Script;
     newscript->Name="boss_ouro";
     newscript->GetAI = GetAI_boss_ouro;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

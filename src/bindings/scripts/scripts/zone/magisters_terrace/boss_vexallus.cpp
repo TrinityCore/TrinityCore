@@ -238,10 +238,10 @@ void AddSC_boss_vexallus()
     newscript = new Script;
     newscript->Name="boss_vexallus";
     newscript->GetAI = GetAI_boss_vexallus;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_pure_energy";
     newscript->GetAI = GetAI_mob_pure_energy;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

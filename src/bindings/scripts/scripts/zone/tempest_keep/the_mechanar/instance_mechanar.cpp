@@ -86,5 +86,5 @@ void AddSC_instance_mechanar()
     newscript = new Script;
     newscript->Name = "instance_mechanar";
     newscript->GetInstanceData = GetInstanceData_instance_mechanar;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

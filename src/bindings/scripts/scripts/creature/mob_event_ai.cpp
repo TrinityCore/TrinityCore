@@ -1400,5 +1400,5 @@ void AddSC_mob_event()
     newscript = new Script;
     newscript->Name="mob_eventai";
     newscript->GetAI = GetAI_Mob_EventAI;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

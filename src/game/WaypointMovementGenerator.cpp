@@ -21,11 +21,11 @@
 /*
 creature_movement Table
 
-alter table creature_movement add `text1` varchar(255) default NULL;
-alter table creature_movement add `text2` varchar(255) default NULL;
-alter table creature_movement add `text3` varchar(255) default NULL;
-alter table creature_movement add `text4` varchar(255) default NULL;
-alter table creature_movement add `text5` varchar(255) default NULL;
+alter table creature_movement add `textid1` int(11) NOT NULL default '0';
+alter table creature_movement add `textid2` int(11) NOT NULL default '0';
+alter table creature_movement add `textid3` int(11) NOT NULL default '0';
+alter table creature_movement add `textid4` int(11) NOT NULL default '0';
+alter table creature_movement add `textid5` int(11) NOT NULL default '0';
 alter table creature_movement add `emote` int(10) unsigned default '0';
 alter table creature_movement add `spell` int(5) unsigned default '0';
 alter table creature_movement add `wpguid` int(11) default '0';
@@ -148,22 +148,21 @@ WaypointMovementGenerator<Creature>::Update(Creature &creature, const uint32 &di
                     creature.CastSpell(&creature,behavior->spell, false);
                 if(behavior->model1 != 0)
                     creature.SetDisplayId(behavior->model1);
-                if(!behavior->text[0].empty())
+                if(behavior->textid[0])
                 {
-                    // Only one text is set
-                    if( !behavior->text[1].empty() )
+                    // Not only one text is set
+                    if( behavior->textid[1] )
                     {
                         // Select one from max 5 texts (0 and 1 already checked)
                         int i = 2;
-                        for( ; i < 5; ++i )
-                            if( behavior->text[i].empty() )
+                        for( ; i < MAX_WAYPOINT_TEXT; ++i )
+                            if( !behavior->textid[i] )
                                 break;
 
-                        creature.Say(behavior->text[rand() % i].c_str(), 0, 0);
-
+                        creature.Say(behavior->textid[rand() % i], 0, 0);
                     }
                     else
-                        creature.Say(behavior->text[0].c_str(), 0, 0);
+                        creature.Say(behavior->textid[0], 0, 0);
                 }
             }                                               // wpBehaviour found
             i_hasDone[idx] = true;

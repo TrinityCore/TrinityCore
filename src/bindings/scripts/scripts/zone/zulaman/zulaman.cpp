@@ -171,12 +171,12 @@ void AddSC_zulaman()
     newscript = new Script;
     newscript->Name="npc_forest_frog";
     newscript->GetAI = GetAI_npc_forest_frog;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_zulaman_hostage";
     newscript->GetAI = GetAI_npc_zulaman_hostage;
     newscript->pGossipHello = GossipHello_npc_zulaman_hostage;
     newscript->pGossipSelect = GossipSelect_npc_zulaman_hostage;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

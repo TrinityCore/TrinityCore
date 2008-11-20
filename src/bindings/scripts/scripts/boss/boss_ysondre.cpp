@@ -237,10 +237,10 @@ void AddSC_boss_ysondre()
     newscript = new Script;
     newscript->Name="boss_ysondre";
     newscript->GetAI = GetAI_boss_ysondre;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_dementeddruids";
     newscript->GetAI = GetAI_mob_dementeddruids;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

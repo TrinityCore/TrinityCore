@@ -91,5 +91,5 @@ void AddSC_boss_vectus()
     newscript = new Script;
     newscript->Name="boss_vectus";
     newscript->GetAI = GetAI_boss_vectus;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

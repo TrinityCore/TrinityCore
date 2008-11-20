@@ -273,5 +273,5 @@ void AddSC_custom_example()
     newscript->pGossipHello = &GossipHello_custom_example;
     newscript->pGossipSelect = &GossipSelect_custom_example;
     newscript->pReceiveEmote = &ReceiveEmote_custom_example;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

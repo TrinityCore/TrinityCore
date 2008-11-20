@@ -629,15 +629,15 @@ void AddSC_boss_zuljin()
     newscript = new Script;
     newscript->Name="boss_zuljin";
     newscript->GetAI = GetAI_boss_zuljin;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="do_nothing";
     newscript->GetAI = GetAI_do_nothing;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_zuljin_vortex";
     newscript->GetAI = GetAI_feather_vortexAI;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

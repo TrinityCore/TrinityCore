@@ -76,5 +76,5 @@ void AddSC_stonetalon_mountains()
     newscript->Name="npc_braug_dimspirit";
     newscript->pGossipHello = &GossipHello_npc_braug_dimspirit;
     newscript->pGossipSelect = &GossipSelect_npc_braug_dimspirit;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

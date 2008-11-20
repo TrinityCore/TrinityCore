@@ -309,7 +309,7 @@ void AddSC_mob_anubisath_sentinel()
     newscript = new Script;
     newscript->Name="mob_anubisath_sentinel";
     newscript->GetAI = GetAI_mob_anubisath_sentinelAI;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }
 
 SentinelAbilityAura::~SentinelAbilityAura() {}

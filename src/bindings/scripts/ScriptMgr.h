@@ -24,46 +24,45 @@ class Map;
 class Unit;
 class WorldObject;
 
-#define MAX_SCRIPTS         1000                            //72 bytes each (approx 71kb)
+#define MAX_SCRIPTS         5000                            //72 bytes each (approx 351kb)
 #define VISIBLE_RANGE       (166.0f)                        //MAX visible range (size of grid)
 #define DEFAULT_TEXT        "<Trinity Script Text Entry Missing!>"
 
 struct Script
 {
     Script() :
-pGossipHello(NULL), pQuestAccept(NULL), pGossipSelect(NULL), pGossipSelectWithCode(NULL),
-pQuestSelect(NULL), pQuestComplete(NULL), pNPCDialogStatus(NULL), pGODialogStatus(NULL), pChooseReward(NULL),
-pItemHello(NULL), pGOHello(NULL), pAreaTrigger(NULL), pItemQuestAccept(NULL), pGOQuestAccept(NULL),
-pGOChooseReward(NULL),pReceiveEmote(NULL),pItemUse(NULL), GetAI(NULL), GetInstanceData(NULL)
-{}
+        pGossipHello(NULL), pQuestAccept(NULL), pGossipSelect(NULL), pGossipSelectWithCode(NULL),
+        pQuestSelect(NULL), pQuestComplete(NULL), pNPCDialogStatus(NULL), pGODialogStatus(NULL), pChooseReward(NULL),
+        pItemHello(NULL), pGOHello(NULL), pAreaTrigger(NULL), pItemQuestAccept(NULL), pGOQuestAccept(NULL),
+        pGOChooseReward(NULL),pReceiveEmote(NULL),pItemUse(NULL), GetAI(NULL), GetInstanceData(NULL)
+    {}
 
-std::string Name;
+    std::string Name;
 
-// Quest/gossip Methods to be scripted
-bool (*pGossipHello         )(Player*, Creature*);
-bool (*pQuestAccept         )(Player*, Creature*, Quest const* );
-bool (*pGossipSelect        )(Player*, Creature*, uint32 , uint32  );
-bool (*pGossipSelectWithCode)(Player*, Creature*, uint32 , uint32 , const char* );
-bool (*pQuestSelect         )(Player*, Creature*, Quest const* );
-bool (*pQuestComplete       )(Player*, Creature*, Quest const* );
-uint32 (*pNPCDialogStatus   )(Player*, Creature* );
-uint32 (*pGODialogStatus    )(Player *player, GameObject * _GO );
-bool (*pChooseReward        )(Player*, Creature*, Quest const*, uint32 );
-bool (*pItemHello           )(Player*, Item*, Quest const* );
-bool (*pGOHello             )(Player*, GameObject* );
-bool (*pAreaTrigger         )(Player*, AreaTriggerEntry* );
-bool (*pItemQuestAccept     )(Player*, Item *, Quest const* );
-bool (*pGOQuestAccept       )(Player*, GameObject*, Quest const* );
-bool (*pGOChooseReward      )(Player*, GameObject*_GO, Quest const*, uint32 );
-bool (*pReceiveEmote        )(Player*, Creature*, uint32 );
-bool (*pItemUse             )(Player*, Item*, SpellCastTargets const& );
+    //Methods to be scripted
+    bool (*pGossipHello         )(Player*, Creature*);
+    bool (*pQuestAccept         )(Player*, Creature*, Quest const* );
+    bool (*pGossipSelect        )(Player*, Creature*, uint32 , uint32 );
+    bool (*pGossipSelectWithCode)(Player*, Creature*, uint32 , uint32 , const char* );
+    bool (*pQuestSelect         )(Player*, Creature*, Quest const* );
+    bool (*pQuestComplete       )(Player*, Creature*, Quest const* );
+    uint32 (*pNPCDialogStatus   )(Player*, Creature* );
+    uint32 (*pGODialogStatus    )(Player*, GameObject * _GO );
+    bool (*pChooseReward        )(Player*, Creature*, Quest const*, uint32 );
+    bool (*pItemHello           )(Player*, Item*, Quest const* );
+    bool (*pGOHello             )(Player*, GameObject* );
+    bool (*pAreaTrigger         )(Player*, AreaTriggerEntry* );
+    bool (*pItemQuestAccept     )(Player*, Item *, Quest const* );
+    bool (*pGOQuestAccept       )(Player*, GameObject*, Quest const* );
+    bool (*pGOChooseReward      )(Player*, GameObject*, Quest const*, uint32 );
+    bool (*pReceiveEmote        )(Player*, Creature*, uint32 );
+    bool (*pItemUse             )(Player*, Item*, SpellCastTargets const& );
 
-CreatureAI* (*GetAI)(Creature*);
-InstanceData* (*GetInstanceData)(Map*);
+    CreatureAI* (*GetAI)(Creature*);
+    InstanceData* (*GetInstanceData)(Map*);
+
+    void RegisterSelf();
 };
-
-extern int nrscripts;
-extern Script *m_scripts[MAX_SCRIPTS];
 
 //Generic scripting text function
 void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target = NULL);

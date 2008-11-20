@@ -179,5 +179,5 @@ void AddSC_boss_maiden_of_virtue()
     newscript = new Script;
     newscript->Name="boss_maiden_of_virtue";
     newscript->GetAI = GetAI_boss_maiden_of_virtue;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

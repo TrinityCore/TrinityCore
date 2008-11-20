@@ -89,5 +89,5 @@ void AddSC_ironforge()
     newscript->Name="npc_royal_historian_archesonus";
     newscript->pGossipHello =  &GossipHello_npc_royal_historian_archesonus;
     newscript->pGossipSelect = &GossipSelect_npc_royal_historian_archesonus;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

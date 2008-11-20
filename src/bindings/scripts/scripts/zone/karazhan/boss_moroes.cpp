@@ -835,35 +835,35 @@ void AddSC_boss_moroes()
     newscript = new Script;
     newscript->Name="boss_moroes";
     newscript->GetAI = GetAI_boss_moroes;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_baroness_dorothea_millstipe";
     newscript->GetAI = GetAI_baroness_dorothea_millstipe;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_baron_rafe_dreuger";
     newscript->GetAI = GetAI_baron_rafe_dreuger;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_lady_catriona_von_indi";
     newscript->GetAI = GetAI_lady_catriona_von_indi;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_lady_keira_berrybuck";
     newscript->GetAI = GetAI_lady_keira_berrybuck;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_lord_robin_daris";
     newscript->GetAI = GetAI_lord_robin_daris;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_lord_crispin_ference";
     newscript->GetAI = GetAI_lord_crispin_ference;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

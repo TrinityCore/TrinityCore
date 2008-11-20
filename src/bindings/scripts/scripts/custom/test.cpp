@@ -196,5 +196,5 @@ void AddSC_test()
     newscript->GetAI = GetAI_test;
     newscript->pGossipHello          = &GossipHello_npc_test;
     newscript->pGossipSelect         = &GossipSelect_npc_test;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

@@ -96,5 +96,5 @@ void AddSC_boss_timmy_the_cruel()
     newscript = new Script;
     newscript->Name="boss_timmy_the_cruel";
     newscript->GetAI = GetAI_boss_timmy_the_cruel;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }
