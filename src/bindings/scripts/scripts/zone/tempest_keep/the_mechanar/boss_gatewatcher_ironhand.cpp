@@ -157,5 +157,5 @@ void AddSC_boss_gatewatcher_iron_hand()
     newscript = new Script;    
     newscript->Name="boss_gatewatcher_iron_hand";    
     newscript->GetAI = GetAI_boss_gatewatcher_iron_hand;    
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

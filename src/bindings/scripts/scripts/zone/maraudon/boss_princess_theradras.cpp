@@ -104,5 +104,5 @@ void AddSC_boss_ptheradras()
     newscript = new Script;
     newscript->Name="boss_princess_theradras";
     newscript->GetAI = GetAI_boss_ptheradras;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

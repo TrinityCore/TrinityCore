@@ -114,5 +114,5 @@ void AddSC_boss_theravenian()
     newscript = new Script;
     newscript->Name="boss_the_ravenian";
     newscript->GetAI = GetAI_boss_theravenian;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

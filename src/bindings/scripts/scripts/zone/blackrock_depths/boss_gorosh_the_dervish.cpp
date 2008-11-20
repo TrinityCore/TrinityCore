@@ -77,5 +77,5 @@ void AddSC_boss_gorosh_the_dervish()
     newscript = new Script;
     newscript->Name="boss_gorosh_the_dervish";
     newscript->GetAI = GetAI_boss_gorosh_the_dervish;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

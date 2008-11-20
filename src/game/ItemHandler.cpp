@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "Common.h"
@@ -313,9 +313,9 @@ void WorldSession::HandleItemQuerySingleOpcode( WorldPacket & recv_data )
             ItemLocale const *il = objmgr.GetItemLocale(pProto->ItemId);
             if (il)
             {
-                if (il->Name.size() > loc_idx && !il->Name[loc_idx].empty())
+                if (il->Name.size() > size_t(loc_idx) && !il->Name[loc_idx].empty())
                     Name = il->Name[loc_idx];
-                if (il->Description.size() > loc_idx && !il->Description[loc_idx].empty())
+                if (il->Description.size() > size_t(loc_idx) && !il->Description[loc_idx].empty())
                     Description = il->Description[loc_idx];
             }
         }
@@ -360,6 +360,8 @@ void WorldSession::HandleItemQuerySingleOpcode( WorldPacket & recv_data )
             data << pProto->Damage[i].DamageMax;
             data << pProto->Damage[i].DamageType;
         }
+
+        // resistances (7)
         data << pProto->Armor;
         data << pProto->HolyRes;
         data << pProto->FireRes;
@@ -367,10 +369,11 @@ void WorldSession::HandleItemQuerySingleOpcode( WorldPacket & recv_data )
         data << pProto->FrostRes;
         data << pProto->ShadowRes;
         data << pProto->ArcaneRes;
+
         data << pProto->Delay;
         data << pProto->Ammo_type;
+        data << pProto->RangedModRange;
 
-        data << (float)pProto->RangedModRange;
         for(int s = 0; s < 5; s++)
         {
             // send DBC data for cooldowns in same way as it used in Spell::SendSpellCooldown
@@ -976,7 +979,7 @@ void WorldSession::HandleItemNameQueryOpcode(WorldPacket & recv_data)
             ItemLocale const *il = objmgr.GetItemLocale(pProto->ItemId);
             if (il)
             {
-                if (il->Name.size() > loc_idx && !il->Name[loc_idx].empty())
+                if (il->Name.size() > size_t(loc_idx) && !il->Name[loc_idx].empty())
                     Name = il->Name[loc_idx];
             }
         }
@@ -1027,7 +1030,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recv_data)
         return;
     }
 
-    if(item==gift)                                          // not possible with pacjket from real client
+    if(item==gift)                                          // not possable with pacjket from real client
     {
         _player->SendEquipError( EQUIP_ERR_WRAPPED_CANT_BE_WRAPPED, item, NULL );
         return;
@@ -1072,16 +1075,16 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recv_data)
 
     CharacterDatabase.BeginTransaction();
     CharacterDatabase.PExecute("INSERT INTO character_gifts VALUES ('%u', '%u', '%u', '%u')", GUID_LOPART(item->GetOwnerGUID()), item->GetGUIDLow(), item->GetEntry(), item->GetUInt32Value(ITEM_FIELD_FLAGS));
-    item->SetUInt32Value(OBJECT_FIELD_ENTRY, gift->GetUInt32Value(OBJECT_FIELD_ENTRY));
+    item->SetEntry(gift->GetEntry());
 
     switch (item->GetEntry())
     {
-        case 5042:  item->SetUInt32Value(OBJECT_FIELD_ENTRY,  5043); break;
-        case 5048:  item->SetUInt32Value(OBJECT_FIELD_ENTRY,  5044); break;
-        case 17303: item->SetUInt32Value(OBJECT_FIELD_ENTRY, 17302); break;
-        case 17304: item->SetUInt32Value(OBJECT_FIELD_ENTRY, 17305); break;
-        case 17307: item->SetUInt32Value(OBJECT_FIELD_ENTRY, 17308); break;
-        case 21830: item->SetUInt32Value(OBJECT_FIELD_ENTRY, 21831); break;
+        case 5042:  item->SetEntry( 5043); break;
+        case 5048:  item->SetEntry( 5044); break;
+        case 17303: item->SetEntry(17302); break;
+        case 17304: item->SetEntry(17305); break;
+        case 17307: item->SetEntry(17308); break;
+        case 21830: item->SetEntry(21831); break;
     }
     item->SetUInt64Value(ITEM_FIELD_GIFTCREATOR, _player->GetGUID());
     item->SetUInt32Value(ITEM_FIELD_FLAGS, ITEM_FLAGS_WRAPPED);

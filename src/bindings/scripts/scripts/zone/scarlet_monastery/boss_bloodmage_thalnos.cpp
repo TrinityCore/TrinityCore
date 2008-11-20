@@ -132,5 +132,5 @@ void AddSC_boss_bloodmage_thalnos()
     newscript = new Script;
     newscript->Name="boss_bloodmage_thalnos";
     newscript->GetAI = GetAI_boss_bloodmage_thalnos;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

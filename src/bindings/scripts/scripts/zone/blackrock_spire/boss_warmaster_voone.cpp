@@ -117,5 +117,5 @@ void AddSC_boss_warmastervoone()
     newscript = new Script;
     newscript->Name="boss_warmaster_voone";
     newscript->GetAI = GetAI_boss_warmastervoone;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

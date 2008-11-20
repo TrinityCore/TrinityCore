@@ -88,5 +88,5 @@ void AddSC_boss_ramstein_the_gorger()
     newscript = new Script;
     newscript->Name="boss_ramstein_the_gorger";
     newscript->GetAI = GetAI_boss_ramstein_the_gorger;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

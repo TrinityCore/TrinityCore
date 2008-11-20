@@ -121,5 +121,5 @@ void AddSC_boss_rasfrost()
     newscript = new Script;
     newscript->Name="boss_boss_ras_frostwhisper";
     newscript->GetAI = GetAI_boss_rasfrost;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

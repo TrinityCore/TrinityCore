@@ -109,5 +109,5 @@ void AddSC_boss_lorekeeperpolkelt()
     newscript = new Script;
     newscript->Name="boss_lorekeeper_polkelt";
     newscript->GetAI = GetAI_boss_lorekeeperpolkelt;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

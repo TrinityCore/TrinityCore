@@ -148,5 +148,5 @@ void AddSC_boss_murmur()
     newscript = new Script;
     newscript->Name="boss_murmur";
     newscript->GetAI = GetAI_boss_murmur;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

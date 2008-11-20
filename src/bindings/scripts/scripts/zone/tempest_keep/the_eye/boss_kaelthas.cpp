@@ -1581,35 +1581,35 @@ void AddSC_boss_kaelthas()
     newscript = new Script;
     newscript->Name="boss_kaelthas";
     newscript->GetAI = GetAI_boss_kaelthas;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_thaladred_the_darkener";
     newscript->GetAI = GetAI_boss_thaladred_the_darkener;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_lord_sanguinar";
     newscript->GetAI = GetAI_boss_lord_sanguinar;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_grand_astromancer_capernian";
     newscript->GetAI = GetAI_boss_grand_astromancer_capernian;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_master_engineer_telonicus";
     newscript->GetAI = GetAI_boss_master_engineer_telonicus;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name= "mob_kael_flamestrike";
     newscript->GetAI = GetAI_mob_kael_flamestrike;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_phoenix";
     newscript->GetAI = GetAI_mob_phoenix;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

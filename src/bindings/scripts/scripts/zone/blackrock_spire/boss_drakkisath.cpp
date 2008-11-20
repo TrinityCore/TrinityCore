@@ -97,5 +97,5 @@ void AddSC_boss_drakkisath()
     newscript = new Script;
     newscript->Name="boss_drakkisath";
     newscript->GetAI = GetAI_boss_drakkisath;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

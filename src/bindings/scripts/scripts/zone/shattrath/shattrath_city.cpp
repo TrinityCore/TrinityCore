@@ -414,28 +414,28 @@ void AddSC_shattrath_city()
     newscript->Name="npc_raliq_the_drunk";
     newscript->pGossipHello =  &GossipHello_npc_raliq_the_drunk;
     newscript->pGossipSelect = &GossipSelect_npc_raliq_the_drunk;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_salsalabim";
     newscript->GetAI = GetAI_npc_salsalabim;
     newscript->pGossipHello =  &GossipHello_npc_salsalabim;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_shattrathflaskvendors";
     newscript->pGossipHello =  &GossipHello_npc_shattrathflaskvendors;
     newscript->pGossipSelect = &GossipSelect_npc_shattrathflaskvendors;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_zephyr";
     newscript->pGossipHello =  &GossipHello_npc_zephyr;
     newscript->pGossipSelect = &GossipSelect_npc_zephyr;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
        newscript = new Script;
     newscript->Name="npc_kservant";
     newscript->GetAI = GetAI_npc_kservantAI;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

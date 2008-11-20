@@ -80,5 +80,5 @@ void AddSC_boss_wushoolay()
     newscript = new Script;
     newscript->Name="boss_wushoolay";
     newscript->GetAI = GetAI_boss_wushoolay;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

@@ -168,5 +168,5 @@ void AddSC_generic_creature()
     newscript = new Script;
     newscript->Name="generic_creature";
     newscript->GetAI = GetAI_generic_creature;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

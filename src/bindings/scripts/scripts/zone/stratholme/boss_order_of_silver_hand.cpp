@@ -157,5 +157,5 @@ void AddSC_boss_order_of_silver_hand()
     newscript = new Script;
     newscript->Name="boss_silver_hand_bosses";
     newscript->GetAI = GetAI_boss_silver_hand_bossesAI;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

@@ -170,5 +170,5 @@ void AddSC_boss_gluth()
     newscript = new Script;
     newscript->Name="boss_gluth";
     newscript->GetAI = GetAI_boss_gluth;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

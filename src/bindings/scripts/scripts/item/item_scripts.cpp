@@ -455,95 +455,95 @@ void AddSC_item_scripts()
     newscript = new Script;
     newscript->Name="item_area_52_special";
     newscript->pItemUse = ItemUse_item_area_52_special;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_arcane_charges";
     newscript->pItemUse = ItemUse_item_arcane_charges;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_attuned_crystal_cores";
     newscript->pItemUse = ItemUse_item_attuned_crystal_cores;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_blackwhelp_net";
     newscript->pItemUse = ItemUse_item_blackwhelp_net;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_disciplinary_rod";
     newscript->pItemUse = ItemUse_item_disciplinary_rod;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_draenei_fishing_net";
     newscript->pItemUse = ItemUse_item_draenei_fishing_net;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_nether_wraith_beacon";
     newscript->pItemUse = ItemUse_item_nether_wraith_beacon;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_flying_machine";
     newscript->pItemUse = ItemUse_item_flying_machine;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_gor_dreks_ointment";
     newscript->pItemUse = ItemUse_item_gor_dreks_ointment;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_muiseks_vessel";
     newscript->pItemUse = ItemUse_item_muiseks_vessel;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_razorthorn_flayer_gland";
     newscript->pItemUse = ItemUse_item_razorthorn_flayer_gland;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_tame_beast_rods";
     newscript->pItemUse = ItemUse_item_tame_beast_rods;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_protovoltaic_magneto_collector";
     newscript->pItemUse = ItemUse_item_protovoltaic_magneto_collector;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_soul_cannon";
     newscript->pItemUse = ItemUse_item_soul_cannon;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_sparrowhawk_net";
     newscript->pItemUse = ItemUse_item_sparrowhawk_net;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_voodoo_charm";
     newscript->pItemUse = ItemUse_item_voodoo_charm;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_vorenthals_presence";
     newscript->pItemUse = ItemUse_item_vorenthals_presence;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_yehkinyas_bramble";
     newscript->pItemUse = ItemUse_item_yehkinyas_bramble;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_zezzaks_shard";
     newscript->pItemUse = ItemUse_item_zezzak_shard;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

@@ -310,26 +310,26 @@ void AddSC_stratholme()
     newscript = new Script;
     newscript->Name="mob_freed_soul";
     newscript->GetAI = GetAI_mob_freed_soul;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_restless_soul";
     newscript->GetAI = GetAI_mob_restless_soul;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mobs_spectral_ghostly_citizen";
     newscript->GetAI = GetAI_mobs_spectral_ghostly_citizen;
     newscript->pReceiveEmote = &ReciveEmote_mobs_spectral_ghostly_citizen;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_mindless_skeleton";
     newscript->GetAI = GetAI_mob_mindless_skeleton;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_thuzadin_acolyte";
     newscript->GetAI = GetAI_mob_thuzadin_acolyte;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

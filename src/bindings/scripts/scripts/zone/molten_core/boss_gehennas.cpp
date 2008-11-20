@@ -87,5 +87,5 @@ void AddSC_boss_gehennas()
     newscript = new Script;
     newscript->Name="boss_gehennas";
     newscript->GetAI = GetAI_boss_gehennas;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

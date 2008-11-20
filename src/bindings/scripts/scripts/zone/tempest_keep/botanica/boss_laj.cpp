@@ -194,5 +194,5 @@ void AddSC_boss_laj()
     newscript = new Script;
     newscript->Name="boss_laj";
     newscript->GetAI = GetAI_boss_laj;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

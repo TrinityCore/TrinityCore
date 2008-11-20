@@ -654,20 +654,20 @@ void AddSC_boss_shade_of_aran()
     newscript = new Script;
     newscript->Name="boss_shade_of_aran";
     newscript->GetAI = GetAI_boss_aran;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_shadow_of_aran";
     newscript->GetAI = GetAI_shadow_of_aran;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_aran_elemental";
     newscript->GetAI = GetAI_water_elemental;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     //newscript = new Script;
     //newscript->Name="mob_aran_blizzard";
     //newscript->GetAI = GetAI_boss_aran;
-    //m_scripts[nrscripts++] = newscript;
+    //newscript->RegisterSelf();
 }
