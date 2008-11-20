@@ -288,10 +288,10 @@ void AddSC_boss_jeklik()
     newscript = new Script;
     newscript->Name="boss_jeklik";
     newscript->GetAI = GetAI_boss_jeklik;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_batrider";
     newscript->GetAI = GetAI_mob_batrider;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

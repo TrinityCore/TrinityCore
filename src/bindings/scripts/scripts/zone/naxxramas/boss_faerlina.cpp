@@ -197,5 +197,5 @@ void AddSC_boss_faerlina()
     newscript = new Script;
     newscript->Name="boss_faerlina";
     newscript->GetAI = GetAI_boss_faerlina;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

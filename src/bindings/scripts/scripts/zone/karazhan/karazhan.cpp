@@ -460,11 +460,11 @@ void AddSC_karazhan()
     newscript->Name = "npc_barnes";
     newscript->pGossipHello = GossipHello_npc_barnes;
     newscript->pGossipSelect = GossipSelect_npc_barnes;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_berthold";
     newscript->pGossipHello = GossipHello_npc_berthold;
     newscript->pGossipSelect = GossipSelect_npc_berthold;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

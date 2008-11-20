@@ -104,5 +104,5 @@ void AddSC_boss_theolenkrastinov()
     newscript = new Script;
     newscript->Name="boss_doctor_theolen_krastinov";
     newscript->GetAI = GetAI_boss_theolenkrastinov;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

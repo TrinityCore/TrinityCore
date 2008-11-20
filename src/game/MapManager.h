@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef TRINITY_MAPMANAGER_H
@@ -27,6 +27,7 @@
 #include "Common.h"
 #include "Map.h"
 #include "GridStates.h"
+
 class Transport;
 
 class TRINITY_DLL_DECL MapManager : public Trinity::Singleton<MapManager, Trinity::ClassLevelLockable<MapManager, ZThread::Mutex> >
@@ -44,7 +45,7 @@ class TRINITY_DLL_DECL MapManager : public Trinity::Singleton<MapManager, Trinit
 
         // only const version for outer users
         Map const* GetBaseMap(uint32 id) const { return const_cast<MapManager*>(this)->_GetBaseMap(id); }
-        void DeleteInstance(uint32 mapid, uint32 instanceId, uint8 mode);
+        void DeleteInstance(uint32 mapid, uint32 instanceId);
 
         inline uint16 GetAreaFlag(uint32 mapid, float x, float y) const
         {

@@ -169,7 +169,7 @@ bool ChatHandler::HandleCharacterDeleteCommand(const char* args)
 bool ChatHandler::HandleServerExitCommand(const char* args)
 {
     SendSysMessage(LANG_COMMAND_EXIT);
-    World::m_stopEvent = true;
+    World::StopNow(SHUTDOWN_EXIT_CODE);
     return true;
 }
 
@@ -310,14 +310,14 @@ void CliRunnable::run()
     printf("TC>");
 
     ///- As long as the World is running (no World::m_stopEvent), get the command line and handle it
-    while (!World::m_stopEvent)
+    while (!World::IsStopped())
     {
         fflush(stdout);
         #ifdef linux
-        while (!kb_hit_return() && !World::m_stopEvent)
+        while (!kb_hit_return() && !World::IsStopped())
             // With this, we limit CLI to 10commands/second
             usleep(100);
-        if (World::m_stopEvent)
+        if (World::IsStopped())
             break;
         #endif
         char *command_str = fgets(commandbuf,sizeof(commandbuf),stdin);
@@ -348,7 +348,7 @@ void CliRunnable::run()
         }
         else if (feof(stdin))
         {
-            World::m_stopEvent = true;
+            World::StopNow(SHUTDOWN_EXIT_CODE);
         }
     }
 

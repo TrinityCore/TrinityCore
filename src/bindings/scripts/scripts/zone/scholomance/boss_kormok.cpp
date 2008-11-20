@@ -151,5 +151,5 @@ void AddSC_boss_kormok()
     newscript = new Script;
     newscript->Name="boss_kormok";
     newscript->GetAI = GetAI_boss_kormok;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

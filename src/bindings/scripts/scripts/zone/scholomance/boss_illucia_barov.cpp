@@ -112,5 +112,5 @@ void AddSC_boss_illuciabarov()
     newscript = new Script;
     newscript->Name="boss_illucia_barov";
     newscript->GetAI = GetAI_boss_illuciabarov;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

@@ -282,5 +282,5 @@ void AddSC_instance_magtheridons_lair()
     newscript = new Script;
     newscript->Name = "instance_magtheridons_lair";
     newscript->GetInstanceData = GetInstanceData_instance_magtheridons_lair;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

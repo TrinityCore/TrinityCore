@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef _OBJECTMGR_H
@@ -84,7 +84,7 @@ struct ScriptInfo
     uint32 command;
     uint32 datalong;
     uint32 datalong2;
-    std::string datatext;
+    int32  dataint;
     float x;
     float y;
     float z;
@@ -127,6 +127,13 @@ typedef UNORDERED_MAP<uint32/*cell_id*/,CellObjectGuids> CellObjectGuidsMap;
 typedef UNORDERED_MAP<uint32/*(mapid,spawnMode) pair*/,CellObjectGuidsMap> MapObjectGuids;
 
 typedef UNORDERED_MAP<uint64/*(instance,guid) pair*/,time_t> RespawnTimes;
+
+
+// mangos string ranges
+#define MIN_TRINITY_STRING_ID    1
+#define MAX_TRINITY_STRING_ID    2000000000
+#define MIN_DB_SCRIPT_STRING_ID MAX_TRINITY_STRING_ID
+#define MAX_DB_SCRIPT_STRING_ID 2000010000
 
 struct TrinityStringLocale
 {
@@ -207,8 +214,8 @@ enum ConditionType
     CONDITION_QUESTREWARDED         = 8,                    // quest_id     0
     CONDITION_QUESTTAKEN            = 9,                    // quest_id     0,      for condition true while quest active.
     CONDITION_AD_COMMISSION_AURA    = 10,                   // 0            0,      for condition true while one from AD ñommission aura active
-	CONDITION_NO_AURA               = 11,                   // spell_id     effindex
-	CONDITION_ACTIVE_EVENT          = 12,                   // event_id
+    CONDITION_NO_AURA               = 11,                   // spell_id     effindex
+    CONDITION_ACTIVE_EVENT          = 12,                   // event_id
 };
 
 #define MAX_CONDITION                 13                    // maximum value in ConditionType enum
@@ -250,7 +257,7 @@ struct PlayerCondition
 
 // NPC gossip text id
 typedef UNORDERED_MAP<uint32, uint32> CacheNpcTextIdMap;
-
+typedef std::list<GossipOption> CacheNpcOptionList;
 
 typedef UNORDERED_MAP<uint32, VendorItemData> CacheVendorItemMap;
 typedef UNORDERED_MAP<uint32, TrainerSpellData> CacheTrainerSpellMap;
@@ -299,15 +306,18 @@ class ObjectMgr
 
         typedef UNORDERED_MAP<uint32, Quest*> QuestMap;
 
+
         typedef UNORDERED_MAP<uint32, AreaTrigger> AreaTriggerMap;
 
-        typedef UNORDERED_MAP<uint32, std::string> AreaTriggerScriptMap;
+        typedef UNORDERED_MAP<uint32, uint32> AreaTriggerScriptMap;
 
         typedef UNORDERED_MAP<uint32, ReputationOnKillEntry> RepOnKillMap;
 
         typedef UNORDERED_MAP<uint32, WeatherZoneChances> WeatherZoneMap;
 
         typedef UNORDERED_MAP<uint32, PetCreateSpellEntry> PetCreateSpellMap;
+
+        typedef std::vector<std::string> ScriptNameMap;
 
         Player* GetPlayer(const char* name) const { return ObjectAccessor::Instance().FindPlayerByName(name);}
         Player* GetPlayer(uint64 guid) const { return ObjectAccessor::FindPlayer(guid); }
@@ -476,7 +486,7 @@ class ObjectMgr
 
         AreaTrigger const* GetGoBackTrigger(uint32 Map) const;
 
-        const char* GetAreaTriggerScriptName(uint32 id);
+        uint32 GetAreaTriggerScriptId(uint32 trigger_id);
 
         ReputationOnKillEntry const* GetReputationOnKilEntry(uint32 id) const
         {
@@ -522,7 +532,8 @@ class ObjectMgr
         void LoadSpellScripts();
 
         bool LoadTrinityStrings(DatabaseType& db, char const* table, int32 min_value, int32 max_value);
-        bool LoadTrinityStrings() { return LoadTrinityStrings(WorldDatabase,"trinity_string",1,std::numeric_limits<int32>::max()); }
+        bool LoadTrinityStrings() { return LoadTrinityStrings(WorldDatabase,"trinity_string",MIN_TRINITY_STRING_ID,MAX_TRINITY_STRING_ID); }
+	void LoadDbScriptStrings();
         void LoadPetCreateSpells();
         void LoadCreatureLocales();
         void LoadCreatureTemplates();
@@ -592,6 +603,8 @@ class ObjectMgr
         uint32 GenerateMailID();
         uint32 GenerateItemTextID();
         uint32 GeneratePetNumber();
+        uint32 GenerateArenaTeamId();
+        uint32 GenerateGuildId();
         
         void LoadPlayerInfoInCache();
         PCachePlayerInfo GetPlayerInfoFromCache(uint32 unPlayerGuid) const;
@@ -668,7 +681,6 @@ class ObjectMgr
             if(itr==mPageTextLocaleMap.end()) return NULL;
             return &itr->second;
         }
-        
         NpcOptionLocale const* GetNpcOptionLocale(uint32 entry) const
         {
             NpcOptionLocaleMap::const_iterator itr = mNpcOptionLocaleMap.find(entry);
@@ -693,7 +705,7 @@ class ObjectMgr
         }
         const char *GetTrinityString(int32 entry, int locale_idx) const;
         const char *GetTrinityStringForDBCLocale(int32 entry) const { return GetTrinityString(entry,DBCLocaleIndex); }
-		int32 GetDBCLocaleIndex() const { return DBCLocaleIndex; }
+	int32 GetDBCLocaleIndex() const { return DBCLocaleIndex; }
         void SetDBCLocaleIndex(uint32 lang) { DBCLocaleIndex = GetIndexForLocale(LocaleConstant(lang)); }
 
         void AddCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_guid, uint32 instance);
@@ -732,7 +744,7 @@ class ObjectMgr
         int GetIndexForLocale(LocaleConstant loc);
         LocaleConstant GetLocaleForIndex(int i);
         // guild bank tabs
-        const uint32 GetGuildBankTabPrice(uint8 Index) { return Index < GUILD_BANK_MAX_TABS ? mGuildBankTabPrice[Index] : 0; }
+        uint32 GetGuildBankTabPrice(uint8 Index) const { return Index < GUILD_BANK_MAX_TABS ? mGuildBankTabPrice[Index] : 0; }
 
         uint16 GetConditionId(ConditionType condition, uint32 value1, uint32 value2);
         bool IsPlayerMeetToCondition(Player const* player, uint16 condition_id) const
@@ -753,7 +765,7 @@ class ObjectMgr
         GameTeleMap const& GetGameTeleMap() const { return m_GameTeleMap; }
         bool AddGameTele(GameTele& data);
         bool DeleteGameTele(std::string name);
-        
+
         CacheNpcOptionList const& GetNpcOptions() const { return m_mCacheNpcOptionList; }
 
         uint32 GetNpcGossip(uint32 entry) const
@@ -761,7 +773,7 @@ class ObjectMgr
             CacheNpcTextIdMap::const_iterator iter = m_mCacheNpcTextIdMap.find(entry);
             if(iter == m_mCacheNpcTextIdMap.end())
                 return 0;
-            
+
             return iter->second;
         }
 
@@ -782,15 +794,25 @@ class ObjectMgr
 
             return &iter->second;
         }
-        void AddVendorItem(uint32 entry,uint32 item, uint32 maxcount, uint32 incrtime, uint32 ExtendedCost, bool savetodb = true);
-        bool RemoveVendorItem(uint32 entry,uint32 item, bool savetodb = true);
-        bool IsVendorItemValid( uint32 vendor_entry, uint32 item, uint32 maxcount, uint32 ptime, uint32 ExtendedCost, Player* pl = NULL, std::set<uint32>* skip_vendors = NULL, uint32 ORnpcflag = 0) const;
+        void AddVendorItem(uint32 entry,uint32 item, uint32 maxcount, uint32 incrtime, uint32 ExtendedCost, bool savetodb = true); // for event
+        bool RemoveVendorItem(uint32 entry,uint32 item, bool savetodb = true); // for event
+        bool IsVendorItemValid( uint32 vendor_entry, uint32 item, uint32 maxcount, uint32 ptime, uint32 ExtendedCost, Player* pl = NULL, std::set<uint32>* skip_vendors = NULL, uint32 ORnpcflag = 0 ) const;
 
+        void LoadScriptNames();
+        ScriptNameMap &GetScriptNames() { return m_scriptNames; }
+        const char * GetScriptName(uint32 id) { return id < m_scriptNames.size() ? m_scriptNames[id].c_str() : ""; }
+        uint32 GetScriptId(const char *name);
     protected:
+
+        // first free id for selected id type
         uint32 m_auctionid;
         uint32 m_mailid;
         uint32 m_ItemTextId;
+        uint32 m_arenaTeamId;
+        uint32 m_guildId;
+        uint32 m_hiPetNumber;
 
+        // first free low guid for seelcted guid type
         uint32 m_hiCharGuid;
         uint32 m_hiCreatureGuid;
         uint32 m_hiPetGuid;
@@ -799,9 +821,7 @@ class ObjectMgr
         uint32 m_hiDoGuid;
         uint32 m_hiCorpseGuid;
 
-        uint32 m_hiPetNumber;
-
-        QuestMap mQuestTemplates;
+        QuestMap            mQuestTemplates;
 
         typedef UNORDERED_MAP<uint32, GossipText*> GossipTextMap;
         typedef UNORDERED_MAP<uint32, uint32> QuestAreaTriggerMap;
@@ -848,6 +868,8 @@ class ObjectMgr
 
         GameTeleMap         m_GameTeleMap;
 
+        ScriptNameMap       m_scriptNames;
+
         typedef             std::vector<LocaleConstant> LocalForIndex;
         LocalForIndex        m_LocalForIndex;
         int GetOrNewIndexForLocale(LocaleConstant loc);
@@ -855,6 +877,7 @@ class ObjectMgr
         int DBCLocaleIndex;
     private:
         void LoadScripts(ScriptMapMap& scripts, char const* tablename);
+        void CheckScripts(ScriptMapMap const& scripts,std::set<int32>& ids);
         void ConvertCreatureAddonAuras(CreatureDataAddon* addon, char const* table, char const* guidEntryStr);
         void LoadQuestRelationsHelper(QuestRelations& map,char const* table);
 
@@ -907,7 +930,9 @@ class ObjectMgr
 #define objmgr Trinity::Singleton<ObjectMgr>::Instance()
 
 // scripting access functions
-bool TRINITY_DLL_SPEC LoadTrinityStrings(DatabaseType& db, char const* table,int32 start_value = -1, int32 end_value = std::numeric_limits<int32>::min());
-TRINITY_DLL_SPEC const char* GetAreaTriggerScriptNameById(uint32 id);
+TRINITY_DLL_SPEC bool LoadTrinityStrings(DatabaseType& db, char const* table,int32 start_value = -1, int32 end_value = std::numeric_limits<int32>::min());
+TRINITY_DLL_SPEC uint32 GetAreaTriggerScriptId(uint32 trigger_id);
+TRINITY_DLL_SPEC uint32 GetScriptId(const char *name);
+TRINITY_DLL_SPEC ObjectMgr::ScriptNameMap& GetScriptNames();
 
 #endif

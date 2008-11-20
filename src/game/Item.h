@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef TRINITYCORE_ITEM_H
@@ -228,7 +228,6 @@ class TRINITY_DLL_SPEC Item : public Object
         bool IsLimitedToAnotherMapOrZone( uint32 cur_mapId, uint32 cur_zoneId) const;
         bool GemsFitSockets() const;
 
-        uint32 GetEntry() const { return GetUInt32Value(OBJECT_FIELD_ENTRY); }
         uint32 GetCount() const { return GetUInt32Value (ITEM_FIELD_STACK_COUNT); }
         void SetCount(uint32 value) { SetUInt32Value (ITEM_FIELD_STACK_COUNT, value); }
         uint32 GetMaxStackCount() const { return GetProto()->Stackable; }

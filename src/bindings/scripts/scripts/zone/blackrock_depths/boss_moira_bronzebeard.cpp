@@ -95,5 +95,5 @@ void AddSC_boss_moira_bronzebeard()
     newscript = new Script;
     newscript->Name="boss_moira_bronzebeard";
     newscript->GetAI = GetAI_boss_moira_bronzebeard;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

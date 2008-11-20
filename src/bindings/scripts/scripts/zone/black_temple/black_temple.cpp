@@ -64,5 +64,5 @@ void AddSC_black_temple()
     newscript->Name = "npc_spirit_of_olum";
     newscript->pGossipHello = GossipHello_npc_spirit_of_olum;
     newscript->pGossipSelect = GossipSelect_npc_spirit_of_olum;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

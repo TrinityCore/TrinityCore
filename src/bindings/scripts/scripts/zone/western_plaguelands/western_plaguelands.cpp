@@ -167,10 +167,10 @@ void AddSC_western_plaguelands()
     newscript->Name="npcs_dithers_and_arbington";
     newscript->pGossipHello = &GossipHello_npcs_dithers_and_arbington;
     newscript->pGossipSelect = &GossipSelect_npcs_dithers_and_arbington;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_the_scourge_cauldron";
     newscript->GetAI = GetAI_npc_the_scourge_cauldron;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

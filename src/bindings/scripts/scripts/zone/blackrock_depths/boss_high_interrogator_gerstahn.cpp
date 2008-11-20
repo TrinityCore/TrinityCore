@@ -101,5 +101,5 @@ void AddSC_boss_high_interrogator_gerstahn()
     newscript = new Script;
     newscript->Name="boss_high_interrogator_gerstahn";
     newscript->GetAI = GetAI_boss_high_interrogator_gerstahn;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

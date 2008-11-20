@@ -761,15 +761,15 @@ void AddSC_boss_eredar_twins()
     newscript = new Script;
     newscript->Name="boss_sacrolash";
     newscript->GetAI = GetAI_boss_sacrolash;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_alythess";
     newscript->GetAI = GetAI_boss_alythess;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_shadow_image";
     newscript->GetAI = GetAI_mob_shadow_image;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

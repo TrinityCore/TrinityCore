@@ -90,5 +90,5 @@ void AddSC_boss_firemaw()
     newscript = new Script;
     newscript->Name="boss_firemaw";
     newscript->GetAI = GetAI_boss_firemaw;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }
