@@ -310,5 +310,5 @@ void AddSC_boss_skeram()
     newscript = new Script;
     newscript->Name="boss_skeram";
     newscript->GetAI = GetAI_boss_skeram;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

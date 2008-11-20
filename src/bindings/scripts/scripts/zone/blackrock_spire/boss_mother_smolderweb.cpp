@@ -82,5 +82,5 @@ void AddSC_boss_mothersmolderweb()
     newscript = new Script;
     newscript->Name="boss_mother_smolderweb";
     newscript->GetAI = GetAI_boss_mothersmolderweb;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

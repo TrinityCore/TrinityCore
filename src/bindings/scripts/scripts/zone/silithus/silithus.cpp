@@ -145,5 +145,5 @@ void AddSC_silithus()
     newscript->Name="npcs_rutgar_and_frankal";
     newscript->pGossipHello =   &GossipHello_npcs_rutgar_and_frankal;
     newscript->pGossipSelect =  &GossipSelect_npcs_rutgar_and_frankal;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

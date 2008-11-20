@@ -91,5 +91,5 @@ void AddSC_boss_halycon()
     newscript = new Script;
     newscript->Name="boss_halycon";
     newscript->GetAI = GetAI_boss_halycon;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

@@ -152,12 +152,12 @@ void AddSC_eversong_woods()
     newscript = new Script;
     newscript->Name="mobs_mana_tapped";
     newscript->GetAI = GetAI_mobs_mana_tapped;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name= "npc_prospector_anvilward";
     newscript->GetAI = GetAI_npc_prospector_anvilward;
     newscript->pGossipHello =  &GossipHello_npc_prospector_anvilward;
     newscript->pGossipSelect = &GossipSelect_npc_prospector_anvilward;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

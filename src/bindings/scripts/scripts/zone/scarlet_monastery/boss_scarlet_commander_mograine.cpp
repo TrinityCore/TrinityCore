@@ -156,5 +156,5 @@ void AddSC_boss_scarlet_commander_mograine()
     newscript = new Script;
     newscript->Name="boss_scarlet_commander_mograine";
     newscript->GetAI = GetAI_boss_scarlet_commander_mograine;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

@@ -152,5 +152,5 @@ void AddSC_boss_emeriss()
     newscript = new Script;
     newscript->Name="boss_emeriss";
     newscript->GetAI = GetAI_boss_emeriss;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

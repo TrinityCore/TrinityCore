@@ -40,5 +40,5 @@ void AddSC_areatrigger_scripts()
     newscript = new Script;
     newscript->Name="at_test";
     newscript->pAreaTrigger = ATtest;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

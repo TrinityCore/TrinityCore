@@ -390,5 +390,5 @@ void AddSC_boss_victor_nefarius()
     newscript->GetAI = GetAI_boss_victor_nefarius;
     newscript->pGossipHello = &GossipHello_boss_victor_nefarius;
     newscript->pGossipSelect = &GossipSelect_boss_victor_nefarius;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

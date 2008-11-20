@@ -368,32 +368,32 @@ void AddSC_terokkar_forest()
     newscript = new Script;
     newscript->Name="mob_unkor_the_ruthless";
     newscript->GetAI = GetAI_mob_unkor_the_ruthless;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_infested_root_walker";
     newscript->GetAI = GetAI_mob_infested_root_walker;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_rotting_forest_rager";
     newscript->GetAI = GetAI_mob_rotting_forest_rager;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_netherweb_victim";
     newscript->GetAI = GetAI_mob_netherweb_victim;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_floon";
     newscript->pGossipHello =  &GossipHello_npc_floon;
     newscript->pGossipSelect = &GossipSelect_npc_floon;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_skyguard_handler_deesak";
     newscript->pGossipHello =  &GossipHello_npc_skyguard_handler_deesak;
     newscript->pGossipSelect = &GossipSelect_npc_skyguard_handler_deesak;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

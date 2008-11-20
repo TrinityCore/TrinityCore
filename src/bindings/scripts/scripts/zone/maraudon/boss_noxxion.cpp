@@ -145,5 +145,5 @@ void AddSC_boss_noxxion()
     newscript = new Script;
     newscript->Name="boss_noxxion";
     newscript->GetAI = GetAI_boss_noxxion;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

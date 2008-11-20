@@ -236,10 +236,10 @@ void AddSC_boss_supremus()
     newscript = new Script;
     newscript->Name="boss_supremus";
     newscript->GetAI = GetAI_boss_supremus;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="molten_flame";
     newscript->GetAI = GetAI_molten_flame;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

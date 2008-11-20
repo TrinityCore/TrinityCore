@@ -158,23 +158,23 @@ void AddSC_eastern_plaguelands()
     newscript = new Script;
     newscript->Name="mobs_ghoul_flayer";
     newscript->GetAI = GetAI_mobs_ghoul_flayer;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_augustus_the_touched";
     newscript->pGossipHello = &GossipHello_npc_augustus_the_touched;
     newscript->pGossipSelect = &GossipSelect_npc_augustus_the_touched;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_darrowshire_spirit";
     newscript->GetAI = GetAI_npc_darrowshire_spirit;
     newscript->pGossipHello = &GossipHello_npc_darrowshire_spirit;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_tirion_fordring";
     newscript->pGossipHello =  &GossipHello_npc_tirion_fordring;
     newscript->pGossipSelect = &GossipSelect_npc_tirion_fordring;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

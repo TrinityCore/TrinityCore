@@ -367,10 +367,10 @@ void AddSC_boss_harbinger_skyriss()
     newscript = new Script;
     newscript->Name="boss_harbinger_skyriss";
     newscript->GetAI = GetAI_boss_harbinger_skyriss;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_harbinger_skyriss_illusion";
     newscript->GetAI = GetAI_boss_harbinger_skyriss_illusion;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

@@ -3980,75 +3980,75 @@ void AddSC_guards()
     newscript->pGossipHello          = &GossipHello_guard_azuremyst;
     newscript->pGossipSelect         = &GossipSelect_guard_azuremyst;
     newscript->GetAI = GetAI_guard_azuremyst;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="guard_bluffwatcher";
     newscript->pGossipHello          = &GossipHello_guard_bluffwatcher;
     newscript->pGossipSelect         = &GossipSelect_guard_bluffwatcher;
     newscript->GetAI = GetAI_guard_bluffwatcher;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="guard_contested";
     newscript->GetAI = GetAI_guard_contested;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="guard_darnassus";
     newscript->pGossipHello          = &GossipHello_guard_darnassus;
     newscript->pGossipSelect         = &GossipSelect_guard_darnassus;
     newscript->GetAI = GetAI_guard_darnassus;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="guard_dunmorogh";
     newscript->pGossipHello          = &GossipHello_guard_dunmorogh;
     newscript->pGossipSelect         = &GossipSelect_guard_dunmorogh;
     newscript->GetAI = GetAI_guard_dunmorogh;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="guard_durotar";
     newscript->pGossipHello          = &GossipHello_guard_durotar;
     newscript->pGossipSelect         = &GossipSelect_guard_durotar;
     newscript->GetAI = GetAI_guard_durotar;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="guard_elwynnforest";
     newscript->pGossipHello          = &GossipHello_guard_elwynnforest;
     newscript->pGossipSelect         = &GossipSelect_guard_elwynnforest;
     newscript->GetAI = GetAI_guard_elwynnforest;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="guard_eversong";
     newscript->pGossipHello          = &GossipHello_guard_eversong;
     newscript->pGossipSelect         = &GossipSelect_guard_eversong;
     newscript->GetAI = GetAI_guard_eversong;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="guard_exodar";
     newscript->pGossipHello          = &GossipHello_guard_exodar;
     newscript->pGossipSelect         = &GossipSelect_guard_exodar;
     newscript->GetAI = GetAI_guard_exodar;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="guard_ironforge";
     newscript->pGossipHello          = &GossipHello_guard_ironforge;
     newscript->pGossipSelect         = &GossipSelect_guard_ironforge;
     newscript->GetAI = GetAI_guard_ironforge;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="guard_mulgore";
     newscript->pGossipHello          = &GossipHello_guard_mulgore;
     newscript->pGossipSelect         = &GossipSelect_guard_mulgore;
     newscript->GetAI = GetAI_guard_mulgore;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="guard_orgrimmar";
@@ -4056,35 +4056,35 @@ void AddSC_guards()
     newscript->pGossipSelect         = &GossipSelect_guard_orgrimmar;
     newscript->pReceiveEmote         = &ReceiveEmote_guard_orgrimmar;
     newscript->GetAI = GetAI_guard_orgrimmar;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="guard_shattrath";
     newscript->pGossipHello          = &GossipHello_guard_shattrath;
     newscript->pGossipSelect         = &GossipSelect_guard_shattrath;
     newscript->GetAI = GetAI_guard_shattrath;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="guard_shattrath_aldor";
     newscript->GetAI = GetAI_guard_shattrath_aldor;
     newscript->pGossipHello          = &GossipHello_guard_shattrath_aldor;
     newscript->pGossipSelect         = &GossipSelect_guard_shattrath_aldor;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="guard_shattrath_scryer";
     newscript->GetAI = GetAI_guard_shattrath_scryer;
     newscript->pGossipHello          = &GossipHello_guard_shattrath_scryer;
     newscript->pGossipSelect         = &GossipSelect_guard_shattrath_scryer;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="guard_silvermoon";
     newscript->pGossipHello          = &GossipHello_guard_silvermoon;
     newscript->pGossipSelect         = &GossipSelect_guard_silvermoon;
     newscript->GetAI = GetAI_guard_silvermoon;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="guard_stormwind";
@@ -4092,26 +4092,26 @@ void AddSC_guards()
     newscript->pGossipSelect         = &GossipSelect_guard_stormwind;
     newscript->pReceiveEmote         = &ReceiveEmote_guard_stormwind;
     newscript->GetAI = GetAI_guard_stormwind;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="guard_teldrassil";
     newscript->pGossipHello          = &GossipHello_guard_teldrassil;
     newscript->pGossipSelect         = &GossipSelect_guard_teldrassil;
     newscript->GetAI = GetAI_guard_teldrassil;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="guard_tirisfal";
     newscript->pGossipHello          = &GossipHello_guard_tirisfal;
     newscript->pGossipSelect         = &GossipSelect_guard_tirisfal;
     newscript->GetAI = GetAI_guard_tirisfal;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="guard_undercity";
     newscript->pGossipHello          = &GossipHello_guard_undercity;
     newscript->pGossipSelect         = &GossipSelect_guard_undercity;
     newscript->GetAI = GetAI_guard_undercity;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

@@ -363,10 +363,10 @@ void AddSC_boss_grandmaster_vorpil()
     newscript = new Script;
     newscript->Name="boss_grandmaster_vorpil";
     newscript->GetAI = GetAI_boss_grandmaster_vorpil;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_voidtraveler";
     newscript->GetAI = GetAI_mob_voidtraveler;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

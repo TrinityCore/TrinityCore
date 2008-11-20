@@ -143,5 +143,5 @@ void AddSC_boss_thane_korthazz()
     newscript = new Script;
     newscript->Name="boss_thane_korthazz";
     newscript->GetAI = GetAI_boss_thane_korthazz;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }
