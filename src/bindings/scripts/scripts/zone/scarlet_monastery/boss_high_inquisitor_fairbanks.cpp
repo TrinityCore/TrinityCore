@@ -128,5 +128,5 @@ void AddSC_boss_high_inquisitor_fairbanks()
     newscript = new Script;
     newscript->Name="boss_high_inquisitor_fairbanks";
     newscript->GetAI = GetAI_boss_high_inquisitor_fairbanks;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

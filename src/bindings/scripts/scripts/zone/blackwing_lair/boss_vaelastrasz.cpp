@@ -257,5 +257,5 @@ void AddSC_boss_vael()
     newscript->GetAI = GetAI_boss_vael;
     newscript->pGossipHello = &GossipHello_boss_vael;
     newscript->pGossipSelect = &GossipSelect_boss_vael;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

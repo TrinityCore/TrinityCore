@@ -229,5 +229,5 @@ void AddSC_boss_onyxia()
     newscript = new Script;
     newscript->Name="boss_onyxia";
     newscript->GetAI = GetAI_boss_onyxiaAI;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

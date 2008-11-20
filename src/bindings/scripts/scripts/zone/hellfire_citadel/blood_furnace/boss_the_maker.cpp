@@ -127,5 +127,5 @@ void AddSC_boss_the_maker()
     newscript = new Script;
     newscript->Name="boss_the_maker";
     newscript->GetAI = GetAI_boss_the_makerAI;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

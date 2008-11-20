@@ -382,5 +382,5 @@ void AddSC_boss_hydross_the_unstable()
     newscript = new Script;
     newscript->Name="boss_hydross_the_unstable";
     newscript->GetAI = GetAI_boss_hydross_the_unstable;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

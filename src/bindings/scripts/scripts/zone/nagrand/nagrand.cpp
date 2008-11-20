@@ -631,46 +631,46 @@ void AddSC_nagrand()
     newscript = new Script;
     newscript->Name="mob_shattered_rumbler";
     newscript->GetAI = GetAI_mob_shattered_rumbler;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_lump";
     newscript->GetAI = GetAI_mob_lump;
     newscript->pGossipHello =  &GossipHello_mob_lump;
     newscript->pGossipSelect = &GossipSelect_mob_lump;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_sunspring_villager";
     newscript->GetAI = GetAI_mob_sunspring_villager;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_altruis_the_sufferer";
     newscript->pGossipHello =  &GossipHello_npc_altruis_the_sufferer;
     newscript->pGossipSelect = &GossipSelect_npc_altruis_the_sufferer;
     newscript->pQuestAccept =  &QuestAccept_npc_altruis_the_sufferer;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_greatmother_geyah";
     newscript->pGossipHello =  &GossipHello_npc_greatmother_geyah;
     newscript->pGossipSelect = &GossipSelect_npc_greatmother_geyah;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_lantresor_of_the_blade";
     newscript->pGossipHello =  &GossipHello_npc_lantresor_of_the_blade;
     newscript->pGossipSelect = &GossipSelect_npc_lantresor_of_the_blade;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_creditmarker_visit_with_ancestors";
     newscript->GetAI = GetAI_npc_creditmarker_visit_with_ancestors;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_sparrowhawk";
     newscript->GetAI = GetAI_mob_sparrowhawk;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

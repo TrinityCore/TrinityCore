@@ -88,5 +88,5 @@ void AddSC_boss_gahzranka()
     newscript = new Script;
     newscript->Name="boss_gahzranka";
     newscript->GetAI = GetAI_boss_gahzranka;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

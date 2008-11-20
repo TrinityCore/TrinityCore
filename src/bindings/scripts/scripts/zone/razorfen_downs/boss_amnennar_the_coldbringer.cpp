@@ -136,5 +136,5 @@ void AddSC_boss_amnennar_the_coldbringer()
     newscript = new Script;
     newscript->Name="boss_amnennar_the_coldbringer";
     newscript->GetAI = GetAI_boss_amnennar_the_coldbringer;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

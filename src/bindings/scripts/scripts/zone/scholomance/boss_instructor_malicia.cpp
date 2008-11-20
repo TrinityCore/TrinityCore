@@ -148,5 +148,5 @@ void AddSC_boss_instructormalicia()
     newscript = new Script;
     newscript->Name="boss_instructor_malicia";
     newscript->GetAI = GetAI_boss_instructormalicia;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

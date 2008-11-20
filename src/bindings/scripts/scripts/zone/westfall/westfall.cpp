@@ -175,5 +175,5 @@ void AddSC_westfall()
     newscript->Name="npc_defias_traitor";
     newscript->GetAI = &GetAI_npc_defias_traitor;
     newscript->pQuestAccept = &QuestAccept_npc_defias_traitor;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

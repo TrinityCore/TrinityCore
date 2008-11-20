@@ -302,10 +302,10 @@ void AddSC_boss_mandokir()
     newscript = new Script;
     newscript->Name="boss_mandokir";
     newscript->GetAI = GetAI_boss_mandokir;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_ohgan";
     newscript->GetAI = GetAI_mob_ohgan;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

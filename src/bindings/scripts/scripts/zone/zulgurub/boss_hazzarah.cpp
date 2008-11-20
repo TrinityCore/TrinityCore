@@ -96,5 +96,5 @@ void AddSC_boss_hazzarah()
     newscript = new Script;
     newscript->Name="boss_hazzarah";
     newscript->GetAI = GetAI_boss_hazzarah;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

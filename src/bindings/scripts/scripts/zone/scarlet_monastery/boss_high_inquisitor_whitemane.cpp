@@ -173,5 +173,5 @@ void AddSC_boss_high_inquisitor_whitemane()
     newscript = new Script;
     newscript->Name="boss_high_inquisitor_whitemane";
     newscript->GetAI = GetAI_boss_high_inquisitor_whitemane;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

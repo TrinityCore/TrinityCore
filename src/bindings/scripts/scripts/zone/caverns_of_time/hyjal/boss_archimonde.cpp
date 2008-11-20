@@ -769,20 +769,20 @@ void AddSC_boss_archimonde()
     newscript = new Script;
     newscript->Name="boss_archimonde";
     newscript->GetAI = GetAI_boss_archimonde;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "mob_doomfire";
     newscript->GetAI = GetAI_mob_doomfire;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "mob_doomfire_targetting";
     newscript->GetAI = GetAI_mob_doomfire_targetting;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "mob_ancient_wisp";
     newscript->GetAI = GetAI_mob_ancient_wisp;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

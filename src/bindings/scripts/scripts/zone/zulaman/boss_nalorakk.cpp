@@ -300,5 +300,5 @@ void AddSC_boss_nalorakk()
     newscript = new Script;
     newscript->Name="boss_nalorakk";
     newscript->GetAI = GetAI_boss_nalorakk;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

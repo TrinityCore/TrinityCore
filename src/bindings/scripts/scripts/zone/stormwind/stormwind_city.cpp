@@ -245,28 +245,28 @@ void AddSC_stormwind_city()
     newscript->Name="npc_archmage_malin";
     newscript->pGossipHello = &GossipHello_npc_archmage_malin;
     newscript->pGossipSelect = &GossipSelect_npc_archmage_malin;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_bartleby";
     newscript->GetAI = GetAI_npc_bartleby;
     newscript->pQuestAccept = &QuestAccept_npc_bartleby;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_dashel_stonefist";
     newscript->GetAI = GetAI_npc_dashel_stonefist;
     newscript->pQuestAccept = &QuestAccept_npc_dashel_stonefist;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_general_marcus_jonathan";
     newscript->pReceiveEmote = &ReceiveEmote_npc_general_marcus_jonathan;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_lady_katrana_prestor";
     newscript->pGossipHello = &GossipHello_npc_lady_katrana_prestor;
     newscript->pGossipSelect = &GossipSelect_npc_lady_katrana_prestor;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

@@ -93,5 +93,5 @@ void AddSC_boss_celebras_the_cursed()
     newscript = new Script;
     newscript->Name="celebras_the_cursed";
     newscript->GetAI = GetAI_celebras_the_cursed;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

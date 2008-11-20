@@ -1355,60 +1355,60 @@ void AddSC_boss_priestess_delrissa()
     newscript = new Script;
     newscript->Name="boss_priestess_delrissa";
     newscript->GetAI = GetAI_boss_priestess_delrissa;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_kagani_nightstrike";
     newscript->GetAI = GetAI_boss_kagani_nightstrike;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_ellris_duskhallow";
     newscript->GetAI = GetAI_ellris_duskhallow;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_eramas_brightblaze";
     newscript->GetAI = GetAI_eramas_brightblaze;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_yazzai";
     newscript->GetAI = GetAI_yazzai;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_warlord_salaris";
     newscript->GetAI = GetAI_warlord_salaris;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_garaxxas";
     newscript->GetAI = GetAI_garaxxas;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_apoko";
     newscript->GetAI = GetAI_apoko;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_zelfan";
     newscript->GetAI = GetAI_zelfan;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     /*newscript = new Script;
     newscript->Name="mob_high_explosive_sheep";
     newscript->GetAI = GetAI_mob_high_explosive_sheep;
-    m_scripts[nrscripts++] = newscript;*/
+    newscript->RegisterSelf();*/
 
     /*newscript = new Script;
     newscript->Name="mob_fizzle";
     newscript->GetAI = GetAI_mob_fizzle;
-    m_scripts[nrscripts++] = newscript;*/
+    newscript->RegisterSelf();*/
 
     /*newscript = new Script;
     newscript->Name="mob_sliver";
     newscript->GetAI = GetAI_mob_sliver;
-    m_scripts[nrscripts++] = newscript;*/
+    newscript->RegisterSelf();*/
 }

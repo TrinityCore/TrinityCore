@@ -127,5 +127,5 @@ void AddSC_boss_razorgore()
     newscript = new Script;
     newscript->Name="boss_razorgore";
     newscript->GetAI = GetAI_boss_razorgore;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

@@ -139,5 +139,5 @@ void AddSC_boss_huhuran()
     newscript = new Script;
     newscript->Name="boss_huhuran";
     newscript->GetAI = GetAI_boss_huhuran;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

@@ -132,5 +132,5 @@ void AddSC_thunder_bluff()
     newscript->GetAI = GetAI_npc_cairne_bloodhoof;
     newscript->pGossipHello = &GossipHello_npc_cairne_bloodhoof;
     newscript->pGossipSelect = &GossipSelect_npc_cairne_bloodhoof;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

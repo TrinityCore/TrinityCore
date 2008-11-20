@@ -536,10 +536,10 @@ void AddSC_boss_high_astromancer_solarian()
     newscript = new Script;
     newscript->Name="boss_high_astromancer_solarian";
     newscript->GetAI = GetAI_boss_high_astromancer_solarian;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_solarium_priest";
     newscript->GetAI = GetAI_mob_solarium_priest;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

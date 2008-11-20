@@ -127,5 +127,5 @@ void AddSC_boss_highlordomokk()
     newscript = new Script;
     newscript->Name="boss_highlord_omokk";
     newscript->GetAI = GetAI_boss_highlordomokk;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }
