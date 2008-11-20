@@ -102,5 +102,5 @@ void AddSC_boss_ambassador_flamelash()
     newscript = new Script;
     newscript->Name="boss_ambassador_flamelash";
     newscript->GetAI = GetAI_boss_ambassador_flamelash;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

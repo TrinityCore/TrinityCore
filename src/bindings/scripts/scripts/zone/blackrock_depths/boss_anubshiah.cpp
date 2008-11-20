@@ -111,5 +111,5 @@ void AddSC_boss_anubshiah()
     newscript = new Script;
     newscript->Name="boss_anubshiah";
     newscript->GetAI = GetAI_boss_anubshiah;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

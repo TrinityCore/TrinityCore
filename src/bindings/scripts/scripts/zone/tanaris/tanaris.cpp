@@ -374,29 +374,29 @@ void AddSC_tanaris()
     newscript = new Script;
     newscript->Name="mob_aquementas";
     newscript->GetAI = GetAI_mob_aquementas;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_custodian_of_time";
     newscript->GetAI = GetAI_npc_custodian_of_time;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_marin_noggenfogger";
     newscript->pGossipHello =  &GossipHello_npc_marin_noggenfogger;
     newscript->pGossipSelect = &GossipSelect_npc_marin_noggenfogger;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_steward_of_time";
     newscript->pGossipHello =  &GossipHello_npc_steward_of_time;
     newscript->pGossipSelect = &GossipSelect_npc_steward_of_time;
     newscript->pQuestAccept =  &QuestAccept_npc_steward_of_time;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_stone_watcher_of_norgannon";
     newscript->pGossipHello =  &GossipHello_npc_stone_watcher_of_norgannon;
     newscript->pGossipSelect = &GossipSelect_npc_stone_watcher_of_norgannon;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

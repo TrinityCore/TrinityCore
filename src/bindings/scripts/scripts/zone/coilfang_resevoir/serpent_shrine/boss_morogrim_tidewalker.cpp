@@ -350,10 +350,10 @@ void AddSC_boss_morogrim_tidewalker()
     newscript = new Script;
     newscript->Name="boss_morogrim_tidewalker";
     newscript->GetAI = GetAI_boss_morogrim_tidewalker;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_water_globule";
     newscript->GetAI = GetAI_mob_water_globule;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

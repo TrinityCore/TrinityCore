@@ -680,20 +680,20 @@ void AddSC_boss_kalecgos()
     newscript = new Script;
     newscript->Name="boss_kalecgos";
     newscript->GetAI = GetAI_boss_kalecgos;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_sathrovarr";
     newscript->GetAI = GetAI_boss_Sathrovarr;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_kalec";
     newscript->GetAI = GetAI_boss_kalec;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="kalocegos_teleporter";
     newscript->pGOHello = &GOkalocegos_teleporter;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

@@ -184,5 +184,5 @@ void AddSC_instance_gruuls_lair()
     newscript = new Script;
     newscript->Name = "instance_gruuls_lair";
     newscript->GetInstanceData = GetInstanceData_instance_gruuls_lair;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

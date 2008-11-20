@@ -211,5 +211,5 @@ void AddSC_boss_baron_rivendare()
     newscript = new Script;
     newscript->Name="boss_baron_rivendare";
     newscript->GetAI = GetAI_boss_baron_rivendare;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

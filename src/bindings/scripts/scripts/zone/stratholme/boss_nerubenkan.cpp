@@ -134,5 +134,5 @@ void AddSC_boss_nerubenkan()
     newscript = new Script;
     newscript->Name="boss_nerubenkan";
     newscript->GetAI = GetAI_boss_nerubenkan;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

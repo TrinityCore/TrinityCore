@@ -574,15 +574,15 @@ void AddSC_boss_felmyst()
     newscript = new Script;
     newscript->Name="boss_felmyst";
     newscript->GetAI = GetAI_boss_felmyst;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_felmyst_vapor";
     newscript->GetAI = GetAI_mob_felmyst_vapor;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_felmyst_trail";
     newscript->GetAI = GetAI_mob_felmyst_trail;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

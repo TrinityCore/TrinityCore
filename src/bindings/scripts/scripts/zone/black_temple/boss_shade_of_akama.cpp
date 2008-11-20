@@ -796,22 +796,22 @@ void AddSC_boss_shade_of_akama()
     newscript = new Script;
     newscript->Name="boss_shade_of_akama";
     newscript->GetAI = GetAI_boss_shade_of_akama;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_ashtongue_channeler";
     newscript->GetAI = GetAI_mob_ashtongue_channeler;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_ashtongue_sorcerer";
     newscript->GetAI = GetAI_mob_ashtongue_sorcerer;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_akama_shade";
     newscript->GetAI = GetAI_npc_akama_shade;
     newscript->pGossipHello = &GossipHello_npc_akama;
     newscript->pGossipSelect = &GossipSelect_npc_akama;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

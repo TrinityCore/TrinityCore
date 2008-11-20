@@ -86,5 +86,5 @@ void AddSC_boss_lucifron()
     newscript = new Script;
     newscript->Name="boss_lucifron";
     newscript->GetAI = GetAI_boss_lucifron;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

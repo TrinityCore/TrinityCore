@@ -201,5 +201,5 @@ void AddSC_boss_gyth()
     newscript = new Script;
     newscript->Name="boss_gyth";
     newscript->GetAI = GetAI_boss_gyth;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

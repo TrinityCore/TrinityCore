@@ -110,5 +110,5 @@ void AddSC_instance_shattered_halls()
     newscript = new Script;
     newscript->Name = "instance_shattered_halls";
     newscript->GetInstanceData = GetInstanceData_instance_shattered_halls;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

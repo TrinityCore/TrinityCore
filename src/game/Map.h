@@ -105,7 +105,7 @@ struct InstanceTemplate
     float startLocY;
     float startLocZ;
     float startLocO;
-    char const* script;
+    uint32 script_id;
 };
 
 enum LevelRequirementVsMode
@@ -343,7 +343,7 @@ class TRINITY_DLL_SPEC InstanceMap : public Map
         void Update(const uint32&);
         void CreateInstanceData(bool load);
         bool Reset(uint8 method);
-        std::string GetScript() { return i_script; }
+        uint32 GetScriptId() { return i_script_id; }
         InstanceData* GetInstanceData() { return i_data; }
         void PermBindAllPlayers(Player *player);
         time_t GetResetTime();
@@ -355,10 +355,7 @@ class TRINITY_DLL_SPEC InstanceMap : public Map
         bool m_resetAfterUnload;
         bool m_unloadWhenEmpty;
         InstanceData* i_data;
-        std::string i_script;
-        // only online players that are inside the instance currently
-        // TODO ? - use the grid instead to access the players
-        PlayerList i_Players;
+        uint32 i_script_id;
 };
 
 class TRINITY_DLL_SPEC BattleGroundMap : public Map
