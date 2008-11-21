@@ -1,6 +1,6 @@
 /* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-* This program is free software licensed under GPL version 2
-* Please see the included DOCS/LICENSE.TXT for more information */
+ * This program is free software licensed under GPL version 2
+ * Please see the included DOCS/LICENSE.TXT for more information */
 
 #ifndef SC_EVENTAI_H
 #define SC_EVENTAI_H
@@ -75,6 +75,10 @@ enum Action_Types
     ACTION_T_UPDATE_TEMPLATE        = 36,   //Entry, Team
     ACTION_T_DIE                    = 37,   //No Params
     ACTION_T_ZONE_COMBAT_PULSE      = 38,   //No Params
+
+    ACTION_T_SET_ACTIVE             = 101,  //Apply
+    ACTION_T_SET_AGGRESSIVE         = 102,  //Apply
+    ACTION_T_ATTACK_START_PULSE     = 103,  //Distance
 
     ACTION_T_END,
 };

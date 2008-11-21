@@ -6,12 +6,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 /* ScriptData
@@ -965,6 +965,17 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 DoZoneInCombat();
             }
             break;
+
+        // TRINITY ONLY
+        case ACTION_T_SET_ACTIVE:
+            m_creature->setActive(param1 ? true : false);
+            break;
+        case ACTION_T_SET_AGGRESSIVE:
+            m_creature->SetAggressive(param1 ? true : false);
+            break;
+        case ACTION_T_ATTACK_START_PULSE:
+            AttackStart(m_creature->SelectNearestTarget((float)param1));
+            break;
         }
     }
 
@@ -1192,24 +1203,12 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
             }
         }
 
-        if (m_creature->isCivilian() && m_creature->IsNeutralToAll())
-            return;
+        // do we need this?
+        //if (m_creature->isCivilian() && m_creature->IsNeutralToAll())
+        //    return;
 
-        if (m_creature->canAttack(who) && who->isInAccessiblePlaceFor(m_creature) && m_creature->IsHostileTo(who))
-        {
-            if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
-                return;
-
-            float attackRadius = m_creature->GetAttackDistance(who);
-            if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
-            {
-                //if(who->HasStealthAura())
-                //    who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-
-                //Begin melee attack if we are within range
-                AttackStart(who);
-            }
-        }
+        if(m_creature->canStartAttack(who))
+            AttackStart(who);
     }
 
     void SpellHit(Unit* pUnit, const SpellEntry* pSpell)
@@ -1292,6 +1291,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                         //Do not decrement timers if event cannot trigger in this phase
                         if (!((*i).Event.event_inverse_phase_mask & (1 << Phase)))
                             (*i).Time -= EventDiff;
+
                         //Skip processing of events that have time remaining
                         continue;
                     }
@@ -1328,6 +1328,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
         //Melee Auto-Attack
         if (Combat && MeleeEnabled)
             DoMeleeAttackIfReady();
+
     }
 };
 
