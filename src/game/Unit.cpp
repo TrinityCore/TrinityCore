@@ -8542,6 +8542,9 @@ bool Unit::canAttack(Unit const* target) const
 {
     assert(target);
 
+    if(!IsHostileTo(target))
+        return false;
+
     if(!target->isAttackableByAOE() || target->hasUnitState(UNIT_STAT_DIED))
         return false;
 
@@ -9124,6 +9127,13 @@ bool Unit::SelectHostilTarget()
             if( (*itr)->IsInMap(this) && canAttack(*itr) && (*itr)->isInAccessiblePlaceFor((Creature*)this) )
                 return false;
         }
+    }
+
+    // search nearby enemy before enter evade mode
+    if(Unit *target = ((Creature*)this)->SelectNearestTarget())
+    {
+        ((Creature*)this)->AI()->AttackStart(target);
+        return true;
     }
 
     // enter in evade mode in other case
