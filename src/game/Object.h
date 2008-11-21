@@ -455,7 +455,7 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         Creature* SummonCreature(uint32 id, float x, float y, float z, float ang,TempSummonType spwtype,uint32 despwtime);
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime);
         bool isActive() const { return m_isActive; }
-        virtual void setActive(bool isActive);
+        void setActive(bool isActive);
     protected:
         explicit WorldObject();
         std::string m_name;
