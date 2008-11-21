@@ -825,6 +825,63 @@ bool GossipSelect_npc_sayge(Player *player, Creature *_Creature, uint32 sender, 
     return true;
 }
 
+struct TRINITY_DLL_DECL npc_steam_tonkAI : public ScriptedAI
+{
+    npc_steam_tonkAI(Creature *c) : ScriptedAI(c) {Reset();}
+
+    void Reset() {}
+    void Aggro(Unit *who) {}
+    
+    void OnPossess(bool apply)
+    {
+        if (apply)
+        {
+            // Initialize the action bar without the melee attack command
+            m_creature->InitCharmInfo(m_creature);
+            m_creature->GetCharmInfo()->InitEmptyActionBar(false);
+        }
+    }
+
+};
+
+CreatureAI* GetAI_npc_steam_tonk(Creature *_Creature)
+{
+    return new npc_steam_tonkAI(_Creature);
+}
+
+#define SPELL_TONK_MINE_DETONATE 25099   
+
+struct TRINITY_DLL_DECL npc_tonk_mineAI : public ScriptedAI
+{
+    npc_tonk_mineAI(Creature *c) : ScriptedAI(c) {Reset();}
+
+    uint32 ExplosionTimer;
+
+    void Reset()
+    {
+        ExplosionTimer = 3000;
+    }
+
+    void Aggro(Unit *who) {}
+    void AttackStart(Unit *who) {}
+    void MoveInLineOfSight(Unit *who) {}
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (ExplosionTimer < diff)
+        {
+            m_creature->CastSpell(m_creature, SPELL_TONK_MINE_DETONATE, true);
+            m_creature->setDeathState(DEAD); // unsummon it
+        } else
+            ExplosionTimer -= diff;
+    }
+};
+
+CreatureAI* GetAI_npc_tonk_mine(Creature *_Creature)
+{
+    return new npc_tonk_mineAI(_Creature);
+}
+
 void AddSC_npcs_special()
 {
     Script *newscript;
@@ -874,5 +931,15 @@ void AddSC_npcs_special()
     newscript->Name="npc_sayge";
     newscript->pGossipHello = &GossipHello_npc_sayge;
     newscript->pGossipSelect = &GossipSelect_npc_sayge;
+    m_scripts[nrscripts++] = newscript;
+
+    newscript = new Script;
+    newscript->Name="npc_steam_tonk";
+    newscript->GetAI = &GetAI_npc_steam_tonk;
+    m_scripts[nrscripts++] = newscript;
+
+    newscript = new Script;
+    newscript->Name="npc_tonk_mine";
+    newscript->GetAI = &GetAI_npc_tonk_mine;
     m_scripts[nrscripts++] = newscript;
 }
