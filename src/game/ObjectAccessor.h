@@ -194,16 +194,11 @@ class TRINITY_DLL_DECL ObjectAccessor : public Trinity::Singleton<ObjectAccessor
         void AddCorpsesToGrid(GridPair const& gridpair,GridType& grid,Map* map);
         Corpse* ConvertCorpseForPlayer(uint64 player_guid);
 
-        bool ActiveObjectsNearGrid(uint32 x,uint32 y,uint32 m_id,uint32 i_id) const;
-
         static void UpdateObject(Object* obj, Player* exceptPlayer);
         static void _buildUpdateObject(Object* obj, UpdateDataMapType &);
 
         static void UpdateObjectVisibility(WorldObject* obj);
         static void UpdateVisibilityForPlayer(Player* player);
-
-        void AddActiveObject(WorldObject*);
-        void RemoveActiveObject(WorldObject*);
     private:
         struct WorldObjectChangeAccumulator
         {
@@ -228,7 +223,6 @@ class TRINITY_DLL_DECL ObjectAccessor : public Trinity::Singleton<ObjectAccessor
         static void _buildPacket(Player *, Object *, UpdateDataMapType &);
         void _update(void);
         std::set<Object *> i_objects;
-        std::set<WorldObject *> i_activeobjects;
         LockType i_playerGuard;
         LockType i_updateGuard;
         LockType i_corpseGuard;
