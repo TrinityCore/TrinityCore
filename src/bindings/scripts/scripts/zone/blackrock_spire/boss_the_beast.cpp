@@ -89,5 +89,5 @@ void AddSC_boss_thebeast()
     newscript = new Script;
     newscript->Name="boss_the_beast";
     newscript->GetAI = GetAI_boss_thebeast;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

@@ -689,10 +689,10 @@ void AddSC_boss_twinemperors()
     newscript = new Script;
     newscript->Name="boss_veknilash";
     newscript->GetAI = GetAI_boss_veknilash;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_veklor";
     newscript->GetAI = GetAI_boss_veklor;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

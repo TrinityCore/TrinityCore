@@ -208,5 +208,5 @@ void AddSC_boss_anubrekhan()
     newscript = new Script;
     newscript->Name="boss_anubrekhan";
     newscript->GetAI = GetAI_boss_anubrekhan;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

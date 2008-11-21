@@ -196,5 +196,5 @@ void AddSC_boss_curator()
     newscript = new Script;
     newscript->Name="boss_curator";
     newscript->GetAI = GetAI_boss_curator;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

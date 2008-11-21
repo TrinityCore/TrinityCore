@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef TRINITY_MAP_INSTANCED_H
@@ -30,7 +30,7 @@ class TRINITY_DLL_DECL MapInstanced : public Map
     public:
         typedef UNORDERED_MAP< uint32, Map* > InstancedMaps;
 
-        MapInstanced(uint32 id, time_t, uint32 aInstanceId);
+        MapInstanced(uint32 id, time_t expiry);
         ~MapInstanced() {}
 
         // functions overwrite Map versions

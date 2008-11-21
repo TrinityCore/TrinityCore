@@ -120,5 +120,5 @@ void AddSC_boss_baroness_anastari()
     newscript = new Script;
     newscript->Name="boss_baroness_anastari";
     newscript->GetAI = GetAI_boss_baroness_anastari;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

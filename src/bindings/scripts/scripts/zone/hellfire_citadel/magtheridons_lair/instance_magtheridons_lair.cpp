@@ -118,9 +118,6 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
 
     void SetData(uint32 type, uint32 data)
     {
-        Player *player = GetPlayer();
-        if(!player) return;
-
         switch(type)
         {
         case DATA_MAGTHERIDON_EVENT:
@@ -129,7 +126,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                 RespawnTimer = 10000;
             if(data != IN_PROGRESS)
             {
-                if(GameObject *Door = GameObject::GetGameObject(*player, DoorGUID))
+                if(GameObject *Door = instance->GetGameObjectInMap(DoorGUID))
                     Door->SetGoState(0);
             }
             break;
@@ -142,7 +139,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                     Encounters[1] = NOT_STARTED;
                     for(std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
                     {
-                        if(Creature *Channeler = (Creature*)Unit::GetUnit(*player, *i))
+                        if(Creature *Channeler = instance->GetCreatureInMap(*i))
                         {
                             if(Channeler->isAlive())
                                 Channeler->AI()->EnterEvadeMode();
@@ -151,7 +148,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                         }
                     }
                     CageTimer = 0;
-                    if(GameObject *Door = GameObject::GetGameObject(*player, DoorGUID))
+                    if(GameObject *Door = instance->GetGameObjectInMap(DoorGUID))
                         Door->SetGoState(0);
                 }break;
             case IN_PROGRESS: // Event start.
@@ -161,7 +158,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                     // Let all five channelers aggro.
                     for(std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
                     {
-                        Creature *Channeler = (Creature*)Unit::GetUnit(*player, *i);
+                        Creature *Channeler = instance->GetCreatureInMap(*i);
                         if(Channeler && Channeler->isAlive())
                         {
                             //if(Unit *target = Channeler->SelectNearbyTarget())
@@ -170,19 +167,19 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                         }
                     }
                     // Release Magtheridon after two minutes.
-                    Creature *Magtheridon = (Creature*)Unit::GetUnit(*player, MagtheridonGUID);
+                    Creature *Magtheridon = instance->GetCreatureInMap(MagtheridonGUID);
                     if(Magtheridon && Magtheridon->isAlive())
                     {
                         Magtheridon->TextEmote("'s bonds begin to weaken!", 0);
                         CageTimer = 120000;
                     }
-                    if(GameObject *Door = GameObject::GetGameObject(*player, DoorGUID))
+                    if(GameObject *Door = instance->GetGameObjectInMap(DoorGUID))
                         Door->SetGoState(1);
                 }break;
             case DONE: // Add buff and check if all channelers are dead.
                 for(std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
                 {
-                    Unit *Channeler = Unit::GetUnit(*player, *i);
+                    Creature *Channeler = instance->GetCreatureInMap(*i);
                     if(Channeler && Channeler->isAlive())
                     {
                         //Channeler->CastSpell(Channeler, SPELL_SOUL_TRANSFER, true);
@@ -197,7 +194,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
             // true - collapse / false - reset
             for(std::set<uint64>::iterator i = ColumnGUID.begin(); i != ColumnGUID.end(); ++i)
             {
-                if(GameObject *Column = GameObject::GetGameObject(*player, *i))
+                if(GameObject *Column = instance->GetGameObjectInMap(*i))
                     Column->SetGoState(!data);
             }
             break;
@@ -213,30 +210,26 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
         return 0;
     }
 
-    Player* GetPlayer()
-    {
-        if(((InstanceMap*)instance)->GetPlayers().size())
-            return ((InstanceMap*)instance)->GetPlayers().front();
-        return NULL;
-    }
-
     void AttackNearestTarget(Creature *creature)
     {
         float minRange = 999.0f;
         float range;
         Player* target = NULL;
-        InstanceMap::PlayerList const &PlayerList = ((InstanceMap*)instance)->GetPlayers();
-        InstanceMap::PlayerList::const_iterator i;
+        Map::PlayerList const &PlayerList = instance->GetPlayers();
+        Map::PlayerList::const_iterator i;
         for(i = PlayerList.begin(); i != PlayerList.end(); ++i)
         {
-            if((*i)->isTargetableForAttack())
+            if(Player* i_pl = i->getSource())
             {
-                range = (*i)->GetDistance(creature);
-                if(range < minRange)
+                if(i_pl->isTargetableForAttack())
                 {
-                    minRange = range;
-                    target = *i;
-                }                
+                    range = i_pl->GetDistance(creature);
+                    if(range < minRange)
+                    {
+                        minRange = range;
+                        target = i_pl;
+                    }                
+                }
             }
         }
         creature->AI()->AttackStart(target);
@@ -248,14 +241,11 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
         {
             if(CageTimer <= diff)
             {
-                if(Player *player = GetPlayer())
+                Creature *Magtheridon = instance->GetCreatureInMap(MagtheridonGUID);
+                if(Magtheridon && Magtheridon->isAlive())
                 {
-                    Creature *Magtheridon = (Creature*)Unit::GetUnit(*player, MagtheridonGUID);
-                    if(Magtheridon && Magtheridon->isAlive())
-                    {
-                        Magtheridon->clearUnitState(UNIT_STAT_STUNNED);
-                        AttackNearestTarget(Magtheridon);
-                    }
+                    Magtheridon->clearUnitState(UNIT_STAT_STUNNED);
+                    AttackNearestTarget(Magtheridon);
                 }
                 CageTimer = 0;
             }else CageTimer -= diff;
@@ -265,17 +255,14 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
         {
             if(RespawnTimer <= diff)
             {
-                if(Player *player = GetPlayer())
+                for(std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
                 {
-                    for(std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
+                    if(Creature *Channeler = instance->GetCreatureInMap(*i))
                     {
-                        if(Creature *Channeler = (Creature*)Unit::GetUnit(*player, *i))
-                        {
-                            if(Channeler->isAlive())
-                                Channeler->AI()->EnterEvadeMode();
-                            else
-                                Channeler->Respawn();
-                        }
+                        if(Channeler->isAlive())
+                            Channeler->AI()->EnterEvadeMode();
+                        else
+                            Channeler->Respawn();
                     }
                 }
                 RespawnTimer = 0;
@@ -295,5 +282,5 @@ void AddSC_instance_magtheridons_lair()
     newscript = new Script;
     newscript->Name = "instance_magtheridons_lair";
     newscript->GetInstanceData = GetInstanceData_instance_magtheridons_lair;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

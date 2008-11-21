@@ -110,5 +110,5 @@ void AddSC_boss_magistrate_barthilas()
     newscript = new Script;
     newscript->Name="boss_magistrate_barthilas";
     newscript->GetAI = GetAI_boss_magistrate_barthilas;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

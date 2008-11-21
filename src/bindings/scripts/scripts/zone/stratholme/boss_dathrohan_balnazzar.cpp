@@ -312,5 +312,5 @@ void AddSC_boss_dathrohan_balnazzar()
     newscript = new Script;
     newscript->Name="boss_dathrohan_balnazzar";
     newscript->GetAI = GetAI_boss_dathrohan_balnazzar;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

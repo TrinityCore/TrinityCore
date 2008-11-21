@@ -94,5 +94,5 @@ void AddSC_boss_lordalexeibarov()
     newscript = new Script;
     newscript->Name="boss_lord_alexei_barov";
     newscript->GetAI = GetAI_boss_lordalexeibarov;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

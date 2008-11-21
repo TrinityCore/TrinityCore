@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 /** \file
@@ -66,6 +66,7 @@
 INSTANTIATE_SINGLETON_1( World );
 
 volatile bool World::m_stopEvent = false;
+uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
 volatile uint32 World::m_worldLoopCounter = 0;
 
 float World::m_MaxVisibleDistanceForCreature  = DEFAULT_VISIBILITY_DISTANCE;
@@ -542,7 +543,6 @@ void World::LoadConfigSettings(bool reload)
     else
         m_configs[CONFIG_SOCKET_SELECTTIME] = sConfig.GetIntDefault("SocketSelectTime", DEFAULT_SOCKET_SELECT_TIME);
 
-
     m_configs[CONFIG_GROUP_XP_DISTANCE] = sConfig.GetIntDefault("MaxGroupXPDistance", 74);
     /// \todo Add MonsterSight and GuarderSight (with meaning) in Trinityd.conf or put them as define
     m_configs[CONFIG_SIGHT_MONSTER] = sConfig.GetIntDefault("MonsterSight", 50);
@@ -604,7 +604,6 @@ void World::LoadConfigSettings(bool reload)
         sLog.outError("SkipCinematics (%i) must be in range 0..2. Set to 0.",m_configs[CONFIG_SKIP_CINEMATICS]);
         m_configs[CONFIG_SKIP_CINEMATICS] = 0;
     }
-
 
     if(reload)
     {
@@ -769,8 +768,8 @@ void World::LoadConfigSettings(bool reload)
 
     m_configs[CONFIG_THREAT_RADIUS] = sConfig.GetIntDefault("ThreatRadius", 100);
 
-    // always use declined names in the Russian client
-    m_configs[CONFIG_DECLINED_NAMES_USED] = 
+    // always use declined names in the russian client
+    m_configs[CONFIG_DECLINED_NAMES_USED] =
         (m_configs[CONFIG_REALM_ZONE] == REALM_ZONE_RUSSIAN) ? true : sConfig.GetBoolDefault("DeclinedNames", false);
 
     m_configs[CONFIG_LISTEN_RANGE_SAY]       = sConfig.GetIntDefault("ListenRange.Say", 25);
@@ -965,6 +964,9 @@ void World::SetInitialWorldSettings()
     LoadDBCStores(m_dataPath);
     DetectDBCLang();
 
+    sLog.outString( "Loading Script Names...");
+    objmgr.LoadScriptNames();
+
     sLog.outString( "Loading InstanceTemplate" );
     objmgr.LoadInstanceTemplate();
 
@@ -1080,10 +1082,9 @@ void World::SetInitialWorldSettings()
 
     sLog.outString( "Loading Tavern Area Triggers..." );
     objmgr.LoadTavernAreaTriggers();
-    
+
     sLog.outString( "Loading AreaTrigger script names..." );
     objmgr.LoadAreaTriggerScripts();
-
 
     sLog.outString( "Loading Graveyard-zone links...");
     objmgr.LoadGraveyardZones();
@@ -1164,7 +1165,7 @@ void World::SetInitialWorldSettings()
 
     sLog.outString( "Loading Npc Text Id..." );
     objmgr.LoadNpcTextId();                                 // must be after load Creature and NpcText
-    
+
     sLog.outString( "Loading Npc Options..." );
     objmgr.LoadNpcOptions();
 
@@ -1191,6 +1192,9 @@ void World::SetInitialWorldSettings()
     objmgr.LoadSpellScripts();                              // must be after load Creature/Gameobject(Template/Data)
     objmgr.LoadGameObjectScripts();                         // must be after load Creature/Gameobject(Template/Data)
     objmgr.LoadEventScripts();                              // must be after load Creature/Gameobject(Template/Data)
+
+    sLog.outString( "Loading Scripts text locales..." );    // must be after Load*Scripts calls
+    objmgr.LoadDbScriptStrings();
 
     sLog.outString( "Initializing Scripts..." );
     if(!LoadScriptingModule())
@@ -1262,6 +1266,7 @@ void World::SetInitialWorldSettings()
 
     sLog.outString( "WORLD: World initialized" );
 }
+
 void World::DetectDBCLang()
 {
     uint32 m_lang_confid = sConfig.GetIntDefault("DBC.Locale", 255);
@@ -1462,7 +1467,9 @@ void World::Update(time_t diff)
         m_timers[WUPDATE_EVENTS].Reset();
     }
 
-    MapManager::Instance().DoDelayedMovesAndRemoves(); ///- Move all creatures with "delayed move" and remove and delete all objects with "delayed remove"
+    /// </ul>
+    ///- Move all creatures with "delayed move" and remove and delete all objects with "delayed remove"
+    MapManager::Instance().DoDelayedMovesAndRemoves();
 
     // update the instance reset times
     sInstanceSaveManager.Update();
@@ -1582,6 +1589,8 @@ void World::ScriptsProcess()
             }
         }
 
+        //if(source && !source->IsInWorld()) source = NULL;
+
         Object* target = NULL;
 
         if(step.targetGUID)
@@ -1608,6 +1617,8 @@ void World::ScriptsProcess()
                     break;
             }
         }
+
+        //if(target && !target->IsInWorld()) target = NULL;
 
         switch (step.script->command)
         {
@@ -1636,7 +1647,7 @@ void World::ScriptsProcess()
                 switch(step.script->datalong)
                 {
                     case 0:                                 // Say
-                        ((Creature *)source)->Say(step.script->datatext.c_str(), LANG_UNIVERSAL, unit_target);
+                        ((Creature *)source)->Say(step.script->dataint, LANG_UNIVERSAL, unit_target);
                         break;
                     case 1:                                 // Whisper
                         if(!unit_target)
@@ -1644,13 +1655,13 @@ void World::ScriptsProcess()
                             sLog.outError("SCRIPT_COMMAND_TALK attempt to whisper (%u) NULL, skipping.",step.script->datalong);
                             break;
                         }
-                        ((Creature *)source)->Whisper(step.script->datatext.c_str(),unit_target);
+                        ((Creature *)source)->Whisper(step.script->dataint,unit_target);
                         break;
                     case 2:                                 // Yell
-                        ((Creature *)source)->Yell(step.script->datatext.c_str(), LANG_UNIVERSAL, unit_target);
+                        ((Creature *)source)->Yell(step.script->dataint, LANG_UNIVERSAL, unit_target);
                         break;
                     case 3:                                 // Emote text
-                        ((Creature *)source)->TextEmote(step.script->datatext.c_str(), unit_target);
+                        ((Creature *)source)->TextEmote(step.script->dataint, unit_target);
                         break;
                     default:
                         break;                              // must be already checked at load
@@ -1701,7 +1712,7 @@ void World::ScriptsProcess()
                     break;
                 }
                 ((Unit *)source)->SendMonsterMoveWithSpeed(step.script->x, step.script->y, step.script->z, ((Unit *)source)->GetUnitMovementFlags(), step.script->datalong2 );
-                MapManager::Instance().GetMap(((Unit *)source)->GetMapId(), ((Unit *)source))->CreatureRelocation(((Creature *)source), step.script->x, step.script->y, step.script->z, 0);
+                ((Unit *)source)->GetMap()->CreatureRelocation(((Creature *)source), step.script->x, step.script->y, step.script->z, 0);
                 break;
             case SCRIPT_COMMAND_FLAG_SET:
                 if(!source)
@@ -1851,7 +1862,7 @@ void World::ScriptsProcess()
                 go->SetLootState(GO_READY);
                 go->SetRespawnTime(time_to_despawn);        //despawn object in ? seconds
 
-                MapManager::Instance().GetMap(go->GetMapId(), go)->Add(go);
+                go->GetMap()->Add(go);
                 break;
             }
             case SCRIPT_COMMAND_OPEN_DOOR:
@@ -2373,13 +2384,13 @@ void World::_UpdateGameTime()
     m_gameTime = thisTime;
 
     ///- if there is a shutdown timer
-    if(m_ShutdownTimer > 0 && elapsed > 0)
+    if(!m_stopEvent && m_ShutdownTimer > 0 && elapsed > 0)
     {
         ///- ... and it is overdue, stop the world (set m_stopEvent)
         if( m_ShutdownTimer <= elapsed )
         {
             if(!(m_ShutdownMask & SHUTDOWN_MASK_IDLE) || GetActiveAndQueuedSessionCount()==0)
-                m_stopEvent = true;
+                m_stopEvent = true;                         // exist code already set
             else
                 m_ShutdownTimer = 1;                        // minimum timer value to wait idle state
         }
@@ -2394,15 +2405,20 @@ void World::_UpdateGameTime()
 }
 
 /// Shutdown the server
-void World::ShutdownServ(uint32 time, uint32 options)
+void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode)
 {
+    // ignore if server shutdown at next tick
+    if(m_stopEvent)
+        return;
+
     m_ShutdownMask = options;
+    m_ExitCode = exitcode;
 
     ///- If the shutdown time is 0, set m_stopEvent (except if shutdown is 'idle' with remaining sessions)
     if(time==0)
     {
         if(!(options & SHUTDOWN_MASK_IDLE) || GetActiveAndQueuedSessionCount()==0)
-            m_stopEvent = true;
+            m_stopEvent = true;                             // exist code already set
         else
             m_ShutdownTimer = 1;                            //So that the session count is re-evaluated at next world tick
     }
@@ -2447,16 +2463,18 @@ void World::ShutdownMsg(bool show, Player* player)
 /// Cancel a planned server shutdown
 void World::ShutdownCancel()
 {
-    if(!m_ShutdownTimer)
+    // nothing cancel or too later
+    if(!m_ShutdownTimer || m_stopEvent)
         return;
 
     uint32 msgid = (m_ShutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_CANCELLED : SERVER_MSG_SHUTDOWN_CANCELLED;
 
     m_ShutdownMask = 0;
     m_ShutdownTimer = 0;
+    m_ExitCode = SHUTDOWN_EXIT_CODE;                       // to default value
     SendServerMessage(msgid);
 
-    DEBUG_LOG("Server %s canceled.",(m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"));
+    DEBUG_LOG("Server %s cancelled.",(m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"));
 }
 
 /// Send a server message to the user(s)
@@ -2501,6 +2519,7 @@ void World::UpdateSessions( time_t diff )
         ///- and remove not active sessions from the list
         if(!itr->second->Update(diff))                      // As interval = 0
         {
+            RemoveQueuedPlayer (itr->second);
             delete itr->second;
             m_sessions.erase(itr);
         }

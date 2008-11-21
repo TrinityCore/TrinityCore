@@ -261,23 +261,23 @@ void AddSC_zangarmarsh()
     newscript->Name="npcs_ashyen_and_keleth";
     newscript->pGossipHello =  &GossipHello_npcs_ashyen_and_keleth;
     newscript->pGossipSelect = &GossipSelect_npcs_ashyen_and_keleth;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_cooshcoosh";
     newscript->pGossipHello =  &GossipHello_npc_cooshcoosh;
     newscript->pGossipSelect = &GossipSelect_npc_cooshcoosh;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_elder_kuruti";
     newscript->pGossipHello =  &GossipHello_npc_elder_kuruti;
     newscript->pGossipSelect = &GossipSelect_npc_elder_kuruti;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_mortog_steamhead";
     newscript->pGossipHello =  &GossipHello_npc_mortog_steamhead;
     newscript->pGossipSelect = &GossipSelect_npc_mortog_steamhead;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

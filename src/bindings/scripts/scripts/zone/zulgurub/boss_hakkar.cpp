@@ -252,5 +252,5 @@ void AddSC_boss_hakkar()
     newscript = new Script;
     newscript->Name="boss_hakkar";
     newscript->GetAI = GetAI_boss_hakkar;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

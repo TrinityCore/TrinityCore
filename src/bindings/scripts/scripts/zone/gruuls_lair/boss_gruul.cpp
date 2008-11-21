@@ -300,5 +300,5 @@ void AddSC_boss_gruul()
     newscript = new Script;
     newscript->Name="boss_gruul";
     newscript->GetAI = GetAI_boss_gruul;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

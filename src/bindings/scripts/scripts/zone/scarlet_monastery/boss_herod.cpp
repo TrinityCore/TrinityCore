@@ -193,5 +193,5 @@ void AddSC_boss_herod()
     newscript = new Script;
     newscript->Name="boss_herod";
     newscript->GetAI = GetAI_boss_herod;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

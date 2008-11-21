@@ -139,21 +139,28 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
 
     void OpenDoor(uint64 DoorGUID, bool open)
     {
-        if(((InstanceMap*)instance)->GetPlayers().size())
-            if(Player* first = ((InstanceMap*)instance)->GetPlayers().front())
-                if(GameObject *Door = GameObject::GetGameObject(*first, DoorGUID))
-                    Door->SetUInt32Value(GAMEOBJECT_STATE, open ? 0 : 1);
+        if(GameObject *Door = instance->GetGameObjectInMap(DoorGUID))
+            Door->SetUInt32Value(GAMEOBJECT_STATE, open ? 0 : 1);
     }
 
     void SummonHostage(uint8 num)
     {
-        if(QuestMinute && ((InstanceMap*)instance)->GetPlayers().size())
-            if(Player* first = ((InstanceMap*)instance)->GetPlayers().front())
-                if(Unit* Hostage = first->SummonCreature(HostageInfo[num].npc, HostageInfo[num].x, HostageInfo[num].y, HostageInfo[num].z, HostageInfo[num].o, TEMPSUMMON_DEAD_DESPAWN, 0))
-                {
-                    Hostage->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    Hostage->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                }
+        if(!QuestMinute)
+            return;
+
+        Map::PlayerList const &PlayerList = instance->GetPlayers();
+        if (PlayerList.isEmpty())
+            return;
+
+        Map::PlayerList::const_iterator i = PlayerList.begin();
+        if(Player* i_pl = i->getSource())
+        {
+            if(Unit* Hostage = i_pl->SummonCreature(HostageInfo[num].npc, HostageInfo[num].x, HostageInfo[num].y, HostageInfo[num].z, HostageInfo[num].o, TEMPSUMMON_DEAD_DESPAWN, 0))
+            {
+                Hostage->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                Hostage->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            }
+        }
     }
 
     void CheckInstanceStatus()
@@ -321,5 +328,5 @@ void AddSC_instance_zulaman()
     newscript = new Script;
     newscript->Name = "instance_zulaman";
     newscript->GetInstanceData = GetInstanceData_instance_zulaman;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

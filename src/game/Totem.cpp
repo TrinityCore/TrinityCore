@@ -97,6 +97,9 @@ void Totem::Summon(Unit* owner)
         case TOTEM_STATUE:  CastSpell(GetOwner(), GetSpell(), true); break;
         default: break;
     }
+
+    if(GetEntry() == SENTRY_TOTEM_ENTRY)
+        SetAggressive(true);
 }
 
 void Totem::UnSummon()

@@ -38,5 +38,5 @@ void AddSC_item_test()
     newscript = new Script;
     newscript->Name="item_test";
     newscript->pItemUse = ItemUse_item_test;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

@@ -212,10 +212,10 @@ void AddSC_boss_jandicebarov()
     newscript = new Script;
     newscript->Name="boss_jandice_barov";
     newscript->GetAI = GetAI_boss_jandicebarov;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_illusionofjandicebarov";
     newscript->GetAI = GetAI_mob_illusionofjandicebarov;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

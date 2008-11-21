@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "Common.h"
@@ -179,7 +179,7 @@ bool ItemCanGoIntoBag(ItemPrototype const *pProto, ItemPrototype const *pBagProt
                 case ITEM_SUBCLASS_CONTAINER:
                     return true;
                 case ITEM_SUBCLASS_SOUL_CONTAINER:
-                    if(!(pProto->BagFamily & BAG_FAMILY_MASK_SHARDS))
+                    if(!(pProto->BagFamily & BAG_FAMILY_MASK_SOUL_SHARDS))
                         return false;
                     return true;
                 case ITEM_SUBCLASS_HERB_CONTAINER:
@@ -247,7 +247,7 @@ bool Item::Create( uint32 guidlow, uint32 itemid, Player const* owner)
 {
     Object::_Create( guidlow, 0, HIGHGUID_ITEM );
 
-    SetUInt32Value(OBJECT_FIELD_ENTRY, itemid);
+    SetEntry(itemid);
     SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
 
     SetUInt64Value(ITEM_FIELD_OWNER, owner ? owner->GetGUID() : 0);
@@ -429,7 +429,7 @@ void Item::DeleteFromInventoryDB()
 
 ItemPrototype const *Item::GetProto() const
 {
-    return objmgr.GetItemPrototype(GetUInt32Value(OBJECT_FIELD_ENTRY));
+    return objmgr.GetItemPrototype(GetEntry());
 }
 
 Player* Item::GetOwner()const
@@ -762,9 +762,7 @@ bool Item::IsFitToSpellRequirements(SpellEntry const* spellInfo) const
 void Item::SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges)
 {
     // Better lost small time at check in comparison lost time at item save to DB.
-    if( GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET)==id &&
-        GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET)==duration &&
-        GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET)==charges )
+    if((GetEnchantmentId(slot) == id) && (GetEnchantmentDuration(slot) == duration) && (GetEnchantmentCharges(slot) == charges))
         return;
 
     SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET,id);
@@ -775,7 +773,7 @@ void Item::SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint
 
 void Item::SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration)
 {
-    if(GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET)==duration)
+    if(GetEnchantmentDuration(slot) == duration)
         return;
 
     SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET,duration);
@@ -784,17 +782,20 @@ void Item::SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration)
 
 void Item::SetEnchantmentCharges(EnchantmentSlot slot, uint32 charges)
 {
+    if(GetEnchantmentCharges(slot) == charges)
+        return;
+
     SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET,charges);
     SetState(ITEM_CHANGED);
 }
 
 void Item::ClearEnchantment(EnchantmentSlot slot)
 {
-    if(!GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET))
+    if(!GetEnchantmentId(slot))
         return;
 
-    for(int x=0;x<3;x++)
-        SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + x,0);
+    for(uint8 x = 0; x < 3; ++x)
+        SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + x, 0);
     SetState(ITEM_CHANGED);
 }
 

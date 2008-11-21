@@ -117,5 +117,5 @@ void AddSC_boss_aeonus()
     newscript = new Script;
     newscript->Name="boss_aeonus";
     newscript->GetAI = GetAI_boss_aeonus;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

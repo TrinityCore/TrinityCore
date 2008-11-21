@@ -368,13 +368,12 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
     {
         Map *map = m_creature->GetMap();
         if(!map->IsDungeon()) return;
-        InstanceMap::PlayerList const &PlayerList = ((InstanceMap*)map)->GetPlayers();
-        InstanceMap::PlayerList::const_iterator i;
-        for (i = PlayerList.begin(); i != PlayerList.end(); ++i)
-        {
-            if((*i)->HasAura(AURA_SPECTRAL_REALM,0))
-                (*i)->RemoveAurasDueToSpell(AURA_SPECTRAL_REALM);
-        }
+        Map::PlayerList const &PlayerList = map->GetPlayers();
+        Map::PlayerList::const_iterator i;
+        for(i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            if(Player* i_pl = i->getSource())
+                if(i_pl->HasAura(AURA_SPECTRAL_REALM,0))
+                    i_pl->RemoveAurasDueToSpell(AURA_SPECTRAL_REALM);
     }
 
     void Enrage(); // demon and dragon should enrage at the same time
@@ -681,20 +680,20 @@ void AddSC_boss_kalecgos()
     newscript = new Script;
     newscript->Name="boss_kalecgos";
     newscript->GetAI = GetAI_boss_kalecgos;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_sathrovarr";
     newscript->GetAI = GetAI_boss_Sathrovarr;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_kalec";
     newscript->GetAI = GetAI_boss_kalec;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="kalocegos_teleporter";
     newscript->pGOHello = &GOkalocegos_teleporter;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

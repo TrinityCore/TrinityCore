@@ -285,14 +285,14 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
                     Map *map = m_creature->GetMap();
                     if(!map->IsDungeon()) return;
 
-                    InstanceMap::PlayerList const &PlayerList = ((InstanceMap*)map)->GetPlayers();
-                    if(PlayerList.empty())
+                    Map::PlayerList const &PlayerList = map->GetPlayers();
+                    if(PlayerList.isEmpty())
                         return;
 
                     RaidWiped = true;
-                    for(InstanceMap::PlayerList::const_iterator i = PlayerList.begin();i != PlayerList.end(); ++i)
+                    for(Map::PlayerList::const_iterator i = PlayerList.begin();i != PlayerList.end(); ++i)
                     {
-                        if((*i)->isAlive() && !(*i)->isGameMaster())
+                        if (i->getSource()->isAlive() && !i->getSource()->isGameMaster())
                         {
                             RaidWiped = false;
                             break;
@@ -460,11 +460,11 @@ void AddSC_karazhan()
     newscript->Name = "npc_barnes";
     newscript->pGossipHello = GossipHello_npc_barnes;
     newscript->pGossipSelect = GossipSelect_npc_barnes;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_berthold";
     newscript->pGossipHello = GossipHello_npc_berthold;
     newscript->pGossipSelect = GossipSelect_npc_berthold;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

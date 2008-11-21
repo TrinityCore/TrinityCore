@@ -152,5 +152,5 @@ void AddSC_boss_captain_skarloc()
     newscript = new Script;
     newscript->Name="boss_captain_skarloc";
     newscript->GetAI = GetAI_boss_captain_skarloc;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

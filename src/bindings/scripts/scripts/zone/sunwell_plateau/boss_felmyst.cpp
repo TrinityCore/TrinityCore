@@ -295,7 +295,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
             Timer[EVENT_FLIGHT_SEQUENCE] = 0;
             break;
         case 2:
-            if(Player* target = SelectRandomPlayer(150))
+            if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0, 150, true))
             {
                 Creature* Vapor = m_creature->SummonCreature(MOB_VAPOR, target->GetPositionX()-5+rand()%10, target->GetPositionY()-5+rand()%10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
                 if(Vapor)
@@ -311,7 +311,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
         case 3:
             DespawnSummons(MOB_VAPOR_TRAIL);
             //m_creature->CastSpell(m_creature, SPELL_VAPOR_SELECT); need core support
-            if(Player* target = SelectRandomPlayer(150))
+            if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0, 150, true))
             {
                 //target->CastSpell(target, SPELL_VAPOR_SUMMON, true); need core support
                 Creature* Vapor = m_creature->SummonCreature(MOB_VAPOR, target->GetPositionX()-5+rand()%10, target->GetPositionY()-5+rand()%10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
@@ -330,7 +330,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
             Timer[EVENT_FLIGHT_SEQUENCE] = 1;
             break;
         case 5:
-            if(Player* target = SelectRandomPlayer(150))
+            if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0, 150, true))
             {
                 BreathX = target->GetPositionX();
                 BreathY = target->GetPositionY();
@@ -433,7 +433,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
                 Timer[EVENT_GAS_NOVA] = 20000 + rand()%5 * 1000;
                 break;
             case EVENT_ENCAPSULATE:
-                if(Unit* target = SelectRandomPlayer(150))
+                if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0, 150, true))
                 {
                     m_creature->CastSpell(target, SPELL_ENCAPSULATE_CHANNEL, false);
                     target->CastSpell(target, SPELL_ENCAPSULATE_EFFECT, true);// linked aura, need core patch to remove this hack
@@ -515,26 +515,6 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
                 (*i)->RemoveCorpse();
         }
     }
-
-    Player* SelectRandomPlayer(float range = 0.0f)
-    {
-        Map *map = m_creature->GetMap();
-        if (!map->IsDungeon()) return NULL;
-
-        InstanceMap::PlayerList PlayerList = ((InstanceMap*)map)->GetPlayers();
-        InstanceMap::PlayerList::iterator i;
-        while(PlayerList.size())
-        {
-            i = PlayerList.begin();
-            advance(i, rand()%PlayerList.size());
-            if((range == 0.0f || m_creature->IsWithinDistInMap(*i, range))
-                && (*i)->isTargetableForAttack())
-                return *i;
-            else
-                PlayerList.erase(i);
-        }
-        return NULL;
-    }
 };
 
 struct TRINITY_DLL_DECL mob_felmyst_vaporAI : public ScriptedAI
@@ -594,15 +574,15 @@ void AddSC_boss_felmyst()
     newscript = new Script;
     newscript->Name="boss_felmyst";
     newscript->GetAI = GetAI_boss_felmyst;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_felmyst_vapor";
     newscript->GetAI = GetAI_mob_felmyst_vapor;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_felmyst_trail";
     newscript->GetAI = GetAI_mob_felmyst_trail;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }
