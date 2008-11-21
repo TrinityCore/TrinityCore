@@ -169,7 +169,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
         WorldPacket data(SMSG_WEATHER, (4+4+4));
         data << uint32(weather) << (float)grade << uint8(0);
 
-        ((InstanceMap*)map)->SendToPlayers(&data);
+        map->SendToPlayers(&data);
     }
 
     void HandleStormSequence(Unit *Cloud) // 1: begin, 2-9: tick, 10: end
