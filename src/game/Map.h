@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef TRINITY_MAP_H
@@ -33,6 +33,7 @@
 #include "Timer.h"
 #include "SharedDefines.h"
 #include "GameSystem/GridRefManager.h"
+#include "MapRefManager.h"
 
 #include <bitset>
 #include <list>
@@ -104,7 +105,7 @@ struct InstanceTemplate
     float startLocY;
     float startLocZ;
     float startLocO;
-    char const* script;
+    uint32 script_id;
 };
 
 enum LevelRequirementVsMode
@@ -126,6 +127,7 @@ typedef UNORDERED_MAP<Creature*, CreatureMover> CreatureMoveList;
 
 class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::ObjectLevelLockable<Map, ZThread::Mutex>
 {
+    friend class MapReference;
     public:
         Map(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode);
         virtual ~Map();
@@ -237,6 +239,14 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         Creature* GetCreatureInMap(uint64 guid);
         GameObject* GetGameObjectInMap(uint64 guid);
 
+        bool HavePlayers() const { return !m_mapRefManager.isEmpty(); }
+        uint32 GetPlayersCountExceptGMs() const;
+        bool PlayersNearGrid(uint32 x,uint32 y) const;
+
+        void SendToPlayers(WorldPacket const* data) const;
+
+        typedef MapRefManager PlayerList;
+        PlayerList const& GetPlayers() const { return m_mapRefManager; }
         template<class T> void SwitchGridContainers(T* obj, bool active);
     private:
         void LoadVMap(int pX, int pY);
@@ -286,6 +296,7 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         uint32 i_InstanceId;
         uint32 m_unloadTimer;
 
+        MapRefManager m_mapRefManager;
     private:
         typedef GridReadGuard ReadGuard;
         typedef GridWriteGuard WriteGuard;
@@ -325,8 +336,6 @@ enum InstanceResetMethod
 class TRINITY_DLL_SPEC InstanceMap : public Map
 {
     public:
-        typedef std::list<Player *> PlayerList;                 // online players only
-
         InstanceMap(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode);
         ~InstanceMap();
         bool Add(Player *);
@@ -334,33 +343,24 @@ class TRINITY_DLL_SPEC InstanceMap : public Map
         void Update(const uint32&);
         void CreateInstanceData(bool load);
         bool Reset(uint8 method);
-        std::string GetScript() { return i_script; }
+        uint32 GetScriptId() { return i_script_id; }
         InstanceData* GetInstanceData() { return i_data; }
         void PermBindAllPlayers(Player *player);
-        PlayerList const& GetPlayers() const { return i_Players;}
-        void SendToPlayers(WorldPacket const* data) const;
         time_t GetResetTime();
         void UnloadAll(bool pForce);
         bool CanEnter(Player* player);
-        uint32 GetPlayersCountExceptGMs() const;
-        uint32 HavePlayers() const { return !i_Players.empty(); }
-        void SendResetWarnings(uint32 timeLeft);
+        void SendResetWarnings(uint32 timeLeft) const;
         void SetResetSchedule(bool on);
     private:
         bool m_resetAfterUnload;
         bool m_unloadWhenEmpty;
         InstanceData* i_data;
-        std::string i_script;
-        // only online players that are inside the instance currently
-        // TODO ? - use the grid instead to access the players
-        PlayerList i_Players;
+        uint32 i_script_id;
 };
 
 class TRINITY_DLL_SPEC BattleGroundMap : public Map
 {
     public:
-        typedef std::list<Player *> PlayerList;                 // online players only
-
         BattleGroundMap(uint32 id, time_t, uint32 InstanceId);
         ~BattleGroundMap();
 
@@ -369,8 +369,6 @@ class TRINITY_DLL_SPEC BattleGroundMap : public Map
         bool CanEnter(Player* player);
         void SetUnload();
         void UnloadAll(bool pForce);
-    private:
-        PlayerList i_Players;
 };
 
 /*inline

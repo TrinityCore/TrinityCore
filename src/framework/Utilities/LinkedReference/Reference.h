@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef _REFERENCE_H
@@ -74,6 +74,7 @@ template <class TO, class FROM> class Reference : public LinkedListElement
         }
 
         Reference<TO,FROM>* next() { return((Reference<TO,FROM>*)LinkedListElement::next()); }
+        Reference<TO,FROM>const* next() const { return((Reference<TO,FROM> const*)LinkedListElement::next()); }
         Reference<TO,FROM>* prev() { return((Reference<TO,FROM>*)LinkedListElement::prev()); }
 
         inline TO* operator ->() const { return iRefTo; }

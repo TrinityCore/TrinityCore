@@ -754,19 +754,22 @@ struct TRINITY_DLL_DECL mob_greyheart_spellbinderAI : public ScriptedAI
 		if(Earthshock_Timer < diff)
 		{
 			Map *map = m_creature->GetMap();
-			InstanceMap::PlayerList const &PlayerList = ((InstanceMap*)map)->GetPlayers();
-			for(InstanceMap::PlayerList::const_iterator itr = PlayerList.begin();itr != PlayerList.end(); ++itr)
+			Map::PlayerList const &PlayerList = map->GetPlayers();
+			for(Map::PlayerList::const_iterator itr = PlayerList.begin();itr != PlayerList.end(); ++itr)
             {
-				bool isCasting = false;
-				for(uint8 i = 0; i < CURRENT_MAX_SPELL; ++i)
-					if((*itr)->m_currentSpells[i])
-						isCasting = true;
-				
-				if(isCasting)
-				{
-					DoCast((*itr), SPELL_EARTHSHOCK);
-					break;
-				}
+                if (Player* i_pl = itr->getSource())
+                {
+				    bool isCasting = false;
+				    for(uint8 i = 0; i < CURRENT_MAX_SPELL; ++i)
+					    if(i_pl->m_currentSpells[i])
+						    isCasting = true;
+    				
+				    if(isCasting)
+				    {
+					    DoCast(i_pl, SPELL_EARTHSHOCK);
+					    break;
+				    }
+                }
 			}
 			Earthshock_Timer = 8000 + rand()%7000;
 		}else Earthshock_Timer -= diff;
@@ -801,20 +804,20 @@ void AddSC_boss_leotheras_the_blind()
     newscript = new Script;
     newscript->Name="boss_leotheras_the_blind";
     newscript->GetAI = GetAI_boss_leotheras_the_blind;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_leotheras_the_blind_demonform";
     newscript->GetAI = GetAI_boss_leotheras_the_blind_demonform;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
 	newscript = new Script;
     newscript->Name="mob_greyheart_spellbinder";
     newscript->GetAI = GetAI_mob_greyheart_spellbinder;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
 	newscript = new Script;
     newscript->Name="mob_inner_demon";
     newscript->GetAI = GetAI_mob_inner_demon;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

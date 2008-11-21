@@ -10,17 +10,18 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
 #include "Database/SQLStorage.h"
+#include "Database/SQLStorageImpl.h"
 
 #include "Log.h"
 #include "MapManager.h"
@@ -116,8 +117,12 @@ ObjectMgr::ObjectMgr()
     m_hiGoGuid          = 1;
     m_hiDoGuid          = 1;
     m_hiCorpseGuid      = 1;
-
     m_hiPetNumber       = 1;
+    m_ItemTextId        = 1;
+    m_mailid            = 1;
+    m_auctionid         = 1;
+    m_guildId           = 1;
+    m_arenaTeamId       = 1;
 
     mGuildBankTabPrice.resize(GUILD_BANK_MAX_TABS);
     mGuildBankTabPrice[0] = 100;
@@ -415,7 +420,7 @@ void ObjectMgr::SendAuctionWonMail( AuctionEntry *auction )
         sLog.outDebug( "AuctionWon body string : %s", msgAuctionWonBody.str().c_str() );
 
         //prepare mail data... :
-        uint32 itemTextId = this->CreateItemText( msgAuctionWonBody.str() );
+        uint32 itemTextId = CreateItemText( msgAuctionWonBody.str() );
 
         // set owner to bidder (to prevent delete item with sender char deleting)
         // owner in `data` will set at mail receive and item extracting
@@ -466,7 +471,7 @@ void ObjectMgr::SendAuctionSalePendingMail( AuctionEntry * auction )
 
         sLog.outDebug("AuctionSalePending body string : %s", msgAuctionSalePendingBody.str().c_str());
 
-        uint32 itemTextId = this->CreateItemText( msgAuctionSalePendingBody.str() );
+        uint32 itemTextId = CreateItemText( msgAuctionSalePendingBody.str() );
 
         WorldSession::SendMailTo(owner, MAIL_AUCTION, MAIL_STATIONERY_AUCTION, auction->location, auction->owner, msgAuctionSalePendingSubject.str(), itemTextId, NULL, 0, 0, MAIL_CHECK_MASK_AUCTION);
     }
@@ -498,7 +503,7 @@ void ObjectMgr::SendAuctionSuccessfulMail( AuctionEntry * auction )
 
         sLog.outDebug("AuctionSuccessful body string : %s", auctionSuccessfulBody.str().c_str());
 
-        uint32 itemTextId = this->CreateItemText( auctionSuccessfulBody.str() );
+        uint32 itemTextId = CreateItemText( auctionSuccessfulBody.str() );
 
         uint32 profit = auction->bid + auction->deposit - auctionCut;
 
@@ -545,7 +550,6 @@ void ObjectMgr::SendAuctionExpiredMail( AuctionEntry * auction )
 
         // will delete item or place to receiver mail list
         WorldSession::SendMailTo(owner, MAIL_AUCTION, MAIL_STATIONERY_AUCTION, auction->location, GUID_LOPART(owner_guid), subject.str(), 0, &mi, 0, 0, MAIL_CHECK_MASK_NONE);
-
     }
     // owner not found
     else
@@ -563,8 +567,8 @@ CreatureInfo const* ObjectMgr::GetCreatureTemplate(uint32 id)
 
 void ObjectMgr::LoadCreatureLocales()
 {
-    mCreatureLocaleMap.clear();
-    
+    mCreatureLocaleMap.clear();                              // need for reload case
+
     QueryResult *result = WorldDatabase.Query("SELECT entry,name_loc1,subname_loc1,name_loc2,subname_loc2,name_loc3,subname_loc3,name_loc4,subname_loc4,name_loc5,subname_loc5,name_loc6,subname_loc6,name_loc7,subname_loc7,name_loc8,subname_loc8 FROM locales_creature");
 
     if(!result)
@@ -623,7 +627,7 @@ void ObjectMgr::LoadCreatureLocales()
     sLog.outString();
     sLog.outString( ">> Loaded %u creature locale strings", mCreatureLocaleMap.size() );
 }
-
+   
 void ObjectMgr::LoadNpcOptionLocales()
 {
     mNpcOptionLocaleMap.clear();                              // need for reload case
@@ -692,9 +696,19 @@ void ObjectMgr::LoadNpcOptionLocales()
     sLog.outString( ">> Loaded %u npc_option locale strings", mNpcOptionLocaleMap.size() );
 }
 
+struct SQLCreatureLoader : public SQLStorageLoaderBase<SQLCreatureLoader>
+{
+    template<class D>
+    void convert_from_str(uint32 field_pos, char *src, D &dst)
+    {
+        dst = D(objmgr.GetScriptId(src));
+    }
+};
+
 void ObjectMgr::LoadCreatureTemplates()
 {
-    sCreatureStorage.Load();
+    SQLCreatureLoader loader;
+    loader.Load(sCreatureStorage);
 
     sLog.outString( ">> Loaded %u creature definitions", sCreatureStorage.RecordCount );
     sLog.outString();
@@ -1512,7 +1526,7 @@ void ObjectMgr::LoadAuctions()
         aItem->deposit = fields[10].GetUInt32();
         aItem->location = fields[11].GetUInt8();
         //check if sold item exists
-        if ( this->GetAItem( aItem->item_guidlow ) )
+        if ( GetAItem( aItem->item_guidlow ) )
         {
             GetAuctionsMap( aItem->location )->AddAuction(aItem);
         }
@@ -1532,8 +1546,8 @@ void ObjectMgr::LoadAuctions()
 
 void ObjectMgr::LoadItemLocales()
 {
-    mItemLocaleMap.clear();
-    
+    mItemLocaleMap.clear();                                 // need for reload case
+
     QueryResult *result = WorldDatabase.Query("SELECT entry,name_loc1,description_loc1,name_loc2,description_loc2,name_loc3,description_loc3,name_loc4,description_loc4,name_loc5,description_loc5,name_loc6,description_loc6,name_loc7,description_loc7,name_loc8,description_loc8 FROM locales_item");
 
     if(!result)
@@ -1594,9 +1608,19 @@ void ObjectMgr::LoadItemLocales()
     sLog.outString( ">> Loaded %u Item locale strings", mItemLocaleMap.size() );
 }
 
+struct SQLItemLoader : public SQLStorageLoaderBase<SQLItemLoader>
+{
+    template<class D>
+    void convert_from_str(uint32 field_pos, char *src, D &dst)
+    {
+        dst = D(objmgr.GetScriptId(src));
+    }
+};
+
 void ObjectMgr::LoadItemPrototypes()
 {
-    sItemStorage.Load ();
+    SQLItemLoader loader;
+    loader.Load(sItemStorage);
     sLog.outString( ">> Loaded %u item prototypes", sItemStorage.RecordCount );
     sLog.outString();
 
@@ -2506,7 +2530,7 @@ void ObjectMgr::LoadPlayerInfo()
             // skip expansion races if not playing with expansion
             if (sWorld.getConfig(CONFIG_EXPANSION) < 1 && (race == RACE_BLOODELF || race == RACE_DRAENEI))
                 continue;
-                
+
             // skip expansion classes if not playing with expansion
             if (sWorld.getConfig(CONFIG_EXPANSION) < 2 && class_ == CLASS_DEATH_KNIGHT)
                 continue;
@@ -3555,7 +3579,7 @@ void ObjectMgr::LoadQuests()
 
 void ObjectMgr::LoadQuestLocales()
 {
-    mQuestLocaleMap.clear();
+    mQuestLocaleMap.clear();                                // need for reload case
 
     QueryResult *result = WorldDatabase.Query("SELECT entry,"
         "Title_loc1,Details_loc1,Objectives_loc1,OfferRewardText_loc1,RequestItemsText_loc1,EndText_loc1,ObjectiveText1_loc1,ObjectiveText2_loc1,ObjectiveText3_loc1,ObjectiveText4_loc1,"
@@ -3749,7 +3773,7 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
 
     scripts.clear();                                        // need for reload support
 
-    QueryResult *result = WorldDatabase.PQuery( "SELECT id,delay,command,datalong,datalong2,datatext, x, y, z, o FROM %s", tablename );
+    QueryResult *result = WorldDatabase.PQuery( "SELECT id,delay,command,datalong,datalong2,dataint, x, y, z, o FROM %s", tablename );
 
     uint32 count = 0;
 
@@ -3771,16 +3795,16 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
 
         Field *fields = result->Fetch();
         ScriptInfo tmp;
-        tmp.id = fields[0].GetUInt32();
-        tmp.delay = fields[1].GetUInt32();
-        tmp.command = fields[2].GetUInt32();
-        tmp.datalong = fields[3].GetUInt32();
+        tmp.id        = fields[0].GetUInt32();
+        tmp.delay     = fields[1].GetUInt32();
+        tmp.command   = fields[2].GetUInt32();
+        tmp.datalong  = fields[3].GetUInt32();
         tmp.datalong2 = fields[4].GetUInt32();
-        tmp.datatext = fields[5].GetCppString();
-        tmp.x = fields[6].GetFloat();
-        tmp.y = fields[7].GetFloat();
-        tmp.z = fields[8].GetFloat();
-        tmp.o = fields[9].GetFloat();
+        tmp.dataint   = fields[5].GetInt32();
+        tmp.x         = fields[6].GetFloat();
+        tmp.y         = fields[7].GetFloat();
+        tmp.z         = fields[8].GetFloat();
+        tmp.o         = fields[9].GetFloat();
 
         // generic command args check
         switch(tmp.command)
@@ -3792,6 +3816,18 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
                     sLog.outErrorDb("Table `%s` has invalid talk type (datalong = %u) in SCRIPT_COMMAND_TALK for script id %u",tablename,tmp.datalong,tmp.id);
                     continue;
                 }
+                if(tmp.dataint==0)
+                {
+                    sLog.outErrorDb("Table `%s` has invalid talk text id (dataint = %i) in SCRIPT_COMMAND_TALK for script id %u",tablename,tmp.dataint,tmp.id);
+                    continue;
+                }
+                if(tmp.dataint < MIN_DB_SCRIPT_STRING_ID || tmp.dataint >= MAX_DB_SCRIPT_STRING_ID)
+                {
+                    sLog.outErrorDb("Table `%s` has out of range text id (dataint = %i expected %u-%u) in SCRIPT_COMMAND_TALK for script id %u",tablename,tmp.dataint,MIN_DB_SCRIPT_STRING_ID,MAX_DB_SCRIPT_STRING_ID,tmp.id);
+                    continue;
+                }
+
+                // if(!objmgr.GetMangosStringLocale(tmp.dataint)) will checked after db_script_string loading
                 break;
             }
 
@@ -4156,8 +4192,8 @@ void ObjectMgr::LoadPageTexts()
 
 void ObjectMgr::LoadPageTextLocales()
 {
-    mPageTextLocaleMap.clear();
-    
+    mPageTextLocaleMap.clear();                             // need for reload case
+
     QueryResult *result = WorldDatabase.Query("SELECT entry,text_loc1,text_loc2,text_loc3,text_loc4,text_loc5,text_loc6,text_loc7,text_loc8 FROM locales_page_text");
 
     if(!result)
@@ -4206,9 +4242,19 @@ void ObjectMgr::LoadPageTextLocales()
     sLog.outString( ">> Loaded %u PageText locale strings", mPageTextLocaleMap.size() );
 }
 
+struct SQLInstanceLoader : public SQLStorageLoaderBase<SQLInstanceLoader>
+{
+    template<class D>
+    void convert_from_str(uint32 field_pos, char *src, D &dst)
+    {
+        dst = D(objmgr.GetScriptId(src));
+    }
+};
+
 void ObjectMgr::LoadInstanceTemplate()
 {
-    sInstanceTemplate.Load();
+    SQLInstanceLoader loader;
+    loader.Load(sInstanceTemplate);
 
     for(uint32 i = 0; i < sInstanceTemplate.MaxEntry; i++)
     {
@@ -4324,8 +4370,8 @@ void ObjectMgr::LoadGossipText()
 
 void ObjectMgr::LoadNpcTextLocales()
 {
-    mNpcTextLocaleMap.clear();
-    
+    mNpcTextLocaleMap.clear();                              // need for reload case
+
     QueryResult *result = WorldDatabase.Query("SELECT entry,"
         "Text0_0_loc1,Text0_1_loc1,Text1_0_loc1,Text1_1_loc1,Text2_0_loc1,Text2_1_loc1,Text3_0_loc1,Text3_1_loc1,Text4_0_loc1,Text4_1_loc1,Text5_0_loc1,Text5_1_loc1,Text6_0_loc1,Text6_1_loc1,Text7_0_loc1,Text7_1_loc1,"
         "Text0_0_loc2,Text0_1_loc2,Text1_0_loc2,Text1_1_loc2,Text2_0_loc2,Text2_1_loc2,Text3_0_loc2,Text3_1_loc1,Text4_0_loc2,Text4_1_loc2,Text5_0_loc2,Text5_1_loc2,Text6_0_loc2,Text6_1_loc2,Text7_0_loc2,Text7_1_loc2,"
@@ -4622,7 +4668,7 @@ void ObjectMgr::LoadAreaTriggerScripts()
         Field *fields = result->Fetch();
 
         uint32 Trigger_ID      = fields[0].GetUInt32();
-        std::string scriptName = fields[1].GetCppString();
+        const char *scriptName = fields[1].GetString();
 
         AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(Trigger_ID);
         if(!atEntry)
@@ -4630,7 +4676,7 @@ void ObjectMgr::LoadAreaTriggerScripts()
             sLog.outErrorDb("Area trigger (ID:%u) does not exist in `AreaTrigger.dbc`.",Trigger_ID);
             continue;
         }
-        mAreaTriggerScripts[Trigger_ID] = scriptName;
+        mAreaTriggerScripts[Trigger_ID] = GetScriptId(scriptName);
     } while( result->NextRow() );
 
     delete result;
@@ -4638,6 +4684,7 @@ void ObjectMgr::LoadAreaTriggerScripts()
     sLog.outString();
     sLog.outString( ">> Loaded %u areatrigger scripts", count );
 }
+
 uint32 ObjectMgr::GetNearestTaxiNode( float x, float y, float z, uint32 mapid )
 {
     bool found = false;
@@ -4696,11 +4743,11 @@ void ObjectMgr::GetTaxiPath( uint32 source, uint32 destination, uint32 &path, ui
 
 uint16 ObjectMgr::GetTaxiMount( uint32 id, uint32 team )
 {
-    uint32 mount_entry = 0;
-    uint32 mount_id = 0;
+    uint16 mount_entry = 0;
+    uint16 mount_id = 0;
 
     TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(id);
-    if (node)
+    if(node)
     {
         if (team == ALLIANCE) mount_entry = node->alliance_mount_type;
         else mount_entry = node->horde_mount_type;
@@ -4939,7 +4986,6 @@ WorldSafeLocsEntry const *ObjectMgr::GetClosestGraveYard(float x, float y, float
         }
     }
 
-            // find now nearest graveyard at same map
     if(entryNear)
         return entryNear;
 
@@ -5180,7 +5226,6 @@ void ObjectMgr::SetHighestGuids()
     if( result )
     {
         m_hiCharGuid = (*result)[0].GetUInt32()+1;
-
         delete result;
     }
 
@@ -5188,23 +5233,16 @@ void ObjectMgr::SetHighestGuids()
     if( result )
     {
         m_hiCreatureGuid = (*result)[0].GetUInt32()+1;
-
         delete result;
     }
 
-    result = CharacterDatabase.Query( "SELECT MAX(id) FROM character_pet" );
-    if( result )
-    {
-        m_hiPetGuid = (*result)[0].GetUInt32()+1;
-
-        delete result;
-    }
+    // pet guids are not saved to DB, set to 0 (pet guid != pet id)
+    m_hiPetGuid = 0;
 
     result = CharacterDatabase.Query( "SELECT MAX(guid) FROM item_instance" );
     if( result )
     {
         m_hiItemGuid = (*result)[0].GetUInt32()+1;
-
         delete result;
     }
 
@@ -5218,7 +5256,6 @@ void ObjectMgr::SetHighestGuids()
     if( result )
     {
         m_hiGoGuid = (*result)[0].GetUInt32()+1;
-
         delete result;
     }
 
@@ -5226,74 +5263,93 @@ void ObjectMgr::SetHighestGuids()
     if( result )
     {
         m_auctionid = (*result)[0].GetUInt32()+1;
-
         delete result;
     }
-    else
-    {
-        m_auctionid = 0;
-    }
+
     result = CharacterDatabase.Query( "SELECT MAX(id) FROM mail" );
     if( result )
     {
         m_mailid = (*result)[0].GetUInt32()+1;
-
         delete result;
     }
-    else
-    {
-        m_mailid = 0;
-    }
+
     result = CharacterDatabase.Query( "SELECT MAX(id) FROM item_text" );
     if( result )
     {
-        m_ItemTextId = (*result)[0].GetUInt32();
-
+        m_ItemTextId = (*result)[0].GetUInt32()+1;
         delete result;
     }
-    else
-        m_ItemTextId = 0;
 
     result = CharacterDatabase.Query( "SELECT MAX(guid) FROM corpse" );
     if( result )
     {
         m_hiCorpseGuid = (*result)[0].GetUInt32()+1;
+        delete result;
+    }
 
+    result = CharacterDatabase.Query("SELECT MAX(arenateamid) FROM arena_team");
+    if (result)
+    {
+        m_arenaTeamId = (*result)[0].GetUInt32()+1;
+        delete result;
+    }
+
+    result = CharacterDatabase.Query( "SELECT MAX(guildid) FROM guild" );
+    if (result)
+    {
+        m_guildId = (*result)[0].GetUInt32()+1;
         delete result;
     }
 }
 
+uint32 ObjectMgr::GenerateArenaTeamId()
+{
+    if(m_arenaTeamId>=0xFFFFFFFE)
+    {
+        sLog.outError("Arena team ids overflow!! Can't continue, shutting down server. ");
+        World::StopNow(ERROR_EXIT_CODE);
+    }
+    return m_arenaTeamId++;
+}
+
+uint32 ObjectMgr::GenerateGuildId()
+{
+    if(m_guildId>=0xFFFFFFFE)
+    {
+        sLog.outError("Guild ids overflow!! Can't continue, shutting down server. ");
+        World::StopNow(ERROR_EXIT_CODE);
+    }
+    return m_guildId++;
+}
+
 uint32 ObjectMgr::GenerateAuctionID()
 {
-    ++m_auctionid;
-    if(m_auctionid>=0xFFFFFFFF)
+    if(m_auctionid>=0xFFFFFFFE)
     {
         sLog.outError("Auctions ids overflow!! Can't continue, shutting down server. ");
-        sWorld.m_stopEvent = true;
+        World::StopNow(ERROR_EXIT_CODE);
     }
-    return m_auctionid;
+    return m_auctionid++;
 }
 
 uint32 ObjectMgr::GenerateMailID()
 {
-    ++m_mailid;
-    if(m_mailid>=0xFFFFFFFF)
+    if(m_mailid>=0xFFFFFFFE)
     {
         sLog.outError("Mail ids overflow!! Can't continue, shutting down server. ");
-        sWorld.m_stopEvent = true;
+        World::StopNow(ERROR_EXIT_CODE);
     }
-    return m_mailid;
+    return m_mailid++;
 }
 
 uint32 ObjectMgr::GenerateItemTextID()
 {
-    ++m_ItemTextId;
-    if(m_ItemTextId>=0xFFFFFFFF)
+    if(m_ItemTextId>=0xFFFFFFFE)
     {
         sLog.outError("Item text ids overflow!! Can't continue, shutting down server. ");
-        sWorld.m_stopEvent = true;
+        World::StopNow(ERROR_EXIT_CODE);
     }
-    return m_ItemTextId;
+    return m_ItemTextId++;
 }
 
 uint32 ObjectMgr::CreateItemText(std::string text)
@@ -5315,61 +5371,54 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
     switch(guidhigh)
     {
         case HIGHGUID_ITEM:
-            ++m_hiItemGuid;
-            if(m_hiItemGuid>=0xFFFFFFFF)
+            if(m_hiItemGuid>=0xFFFFFFFE)
             {
                 sLog.outError("Item guid overflow!! Can't continue, shutting down server. ");
-                sWorld.m_stopEvent = true;
+                World::StopNow(ERROR_EXIT_CODE);
             }
-            return m_hiItemGuid;
+            return m_hiItemGuid++;
         case HIGHGUID_UNIT:
-            ++m_hiCreatureGuid;
-            if(m_hiCreatureGuid>=0x00FFFFFF)
+            if(m_hiCreatureGuid>=0x00FFFFFE)
             {
                 sLog.outError("Creature guid overflow!! Can't continue, shutting down server. ");
-                sWorld.m_stopEvent = true;
+                World::StopNow(ERROR_EXIT_CODE);
             }
-            return m_hiCreatureGuid;
+            return m_hiCreatureGuid++;
         case HIGHGUID_PET:
-            ++m_hiPetGuid;
-            if(m_hiPetGuid>=0x00FFFFFF)
+            if(m_hiPetGuid>=0x00FFFFFE)
             {
                 sLog.outError("Pet guid overflow!! Can't continue, shutting down server. ");
-                sWorld.m_stopEvent = true;
+                World::StopNow(ERROR_EXIT_CODE);
             }
-            return m_hiPetGuid;
+            return m_hiPetGuid++;
         case HIGHGUID_PLAYER:
-            ++m_hiCharGuid;
-            if(m_hiCharGuid>=0xFFFFFFFF)
+            if(m_hiCharGuid>=0xFFFFFFFE)
             {
                 sLog.outError("Players guid overflow!! Can't continue, shutting down server. ");
-                sWorld.m_stopEvent = true;
+                World::StopNow(ERROR_EXIT_CODE);
             }
-            return m_hiCharGuid;
+            return m_hiCharGuid++;
         case HIGHGUID_GAMEOBJECT:
-            ++m_hiGoGuid;
-            if(m_hiGoGuid>=0x00FFFFFF)
+            if(m_hiGoGuid>=0x00FFFFFE)
             {
                 sLog.outError("Gameobject guid overflow!! Can't continue, shutting down server. ");
-                sWorld.m_stopEvent = true;
+                World::StopNow(ERROR_EXIT_CODE);
             }
-            return m_hiGoGuid;
+            return m_hiGoGuid++;
         case HIGHGUID_CORPSE:
-            ++m_hiCorpseGuid;
-            if(m_hiCorpseGuid>=0xFFFFFFFF)
+            if(m_hiCorpseGuid>=0xFFFFFFFE)
             {
                 sLog.outError("Corpse guid overflow!! Can't continue, shutting down server. ");
-                sWorld.m_stopEvent = true;
+                World::StopNow(ERROR_EXIT_CODE);
             }
-            return m_hiCorpseGuid;
+            return m_hiCorpseGuid++;
         case HIGHGUID_DYNAMICOBJECT:
-            ++m_hiDoGuid;
-            if(m_hiDoGuid>=0xFFFFFFFF)
+            if(m_hiDoGuid>=0xFFFFFFFE)
             {
                 sLog.outError("DynamicObject guid overflow!! Can't continue, shutting down server. ");
-                sWorld.m_stopEvent = true;
+                World::StopNow(ERROR_EXIT_CODE);
             }
-            return m_hiDoGuid;
+            return m_hiDoGuid++;
         default:
             ASSERT(0);
     }
@@ -5380,8 +5429,8 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
 
 void ObjectMgr::LoadGameObjectLocales()
 {
-    mGameObjectLocaleMap.clear();
-    
+    mGameObjectLocaleMap.clear();                           // need for reload case
+
     QueryResult *result = WorldDatabase.Query("SELECT entry,"
         "name_loc1,name_loc2,name_loc3,name_loc4,name_loc5,name_loc6,name_loc7,name_loc8,"
         "castbarcaption_loc1,castbarcaption_loc2,castbarcaption_loc3,castbarcaption_loc4,"
@@ -5449,9 +5498,19 @@ void ObjectMgr::LoadGameObjectLocales()
     sLog.outString( ">> Loaded %u gameobject locale strings", mGameObjectLocaleMap.size() );
 }
 
+struct SQLGameObjectLoader : public SQLStorageLoaderBase<SQLGameObjectLoader>
+{
+    template<class D>
+    void convert_from_str(uint32 field_pos, char *src, D &dst)
+    {
+        dst = D(objmgr.GetScriptId(src));
+    }
+};
+
 void ObjectMgr::LoadGameobjectInfo()
 {
-    sGOStorage.Load();
+    SQLGameObjectLoader loader;
+    loader.Load(sGOStorage);
 
     // some checks
     for(uint32 id = 1; id < sGOStorage.MaxEntry; id++)
@@ -6624,12 +6683,12 @@ bool ObjectMgr::CheckDeclinedNames( std::wstring mainpart, DeclinedName const& n
     return true;
 }
 
-const char* ObjectMgr::GetAreaTriggerScriptName(uint32 id)
+uint32 ObjectMgr::GetAreaTriggerScriptId(uint32 trigger_id)
 {
-    AreaTriggerScriptMap::const_iterator i = mAreaTriggerScripts.find(id);
+    AreaTriggerScriptMap::const_iterator i = mAreaTriggerScripts.find(trigger_id);
     if(i!= mAreaTriggerScripts.end())
-        return i->second.c_str();
-    return "";
+        return i->second;
+    return 0;
 }
 
 // Checks if player meets the condition
@@ -6674,10 +6733,10 @@ bool PlayerCondition::Meets(Player const * player) const
                     return true;
             return false;
         }
-		case CONDITION_NO_AURA:
-			return !player->HasAura(value1, value2);
-		case CONDITION_ACTIVE_EVENT:
-			return gameeventmgr.IsActiveEvent(value1);
+        case CONDITION_NO_AURA:
+            return !player->HasAura(value1, value2);
+        case CONDITION_ACTIVE_EVENT:
+            return gameeventmgr.IsActiveEvent(value1);
         default:
             return false;
     }
@@ -6798,30 +6857,30 @@ bool PlayerCondition::IsValid(ConditionType condition, uint32 value1, uint32 val
                 sLog.outErrorDb("Quest condition has useless data in value2 (%u)!", value2);
             break;
         }
-		case CONDITION_NO_AURA:
-		{
-			if(!sSpellStore.LookupEntry(value1))
-			{
-				sLog.outErrorDb("Aura condition requires to have non existing spell (Id: %d), skipped", value1);
-				return false;
-			}
-			if(value2 > 2)
-			{
-				sLog.outErrorDb("Aura condition requires to have non existing effect index (%u) (must be 0..2), skipped", value2);
-				return false;
-			}
-			break;
-		}
-		case CONDITION_ACTIVE_EVENT:
-		{
-			GameEvent::GameEventDataMap const& events = gameeventmgr.GetEventMap();
-			if(value1 >=events.size() || !events[value1].isValid())
-			{
-				sLog.outErrorDb("Active event condition requires existed event id (%u), skipped", value1);
-				return false;
-			}
-			break;
-		}
+        case CONDITION_NO_AURA:
+        {
+            if(!sSpellStore.LookupEntry(value1))
+            {
+                sLog.outErrorDb("Aura condition requires to have non existing spell (Id: %d), skipped", value1);
+                return false;
+            }
+            if(value2 > 2)
+            {
+                sLog.outErrorDb("Aura condition requires to have non existing effect index (%u) (must be 0..2), skipped", value2);
+                return false;
+            }
+            break;
+        }
+        case CONDITION_ACTIVE_EVENT:
+        {
+            GameEvent::GameEventDataMap const& events = gameeventmgr.GetEventMap();
+            if(value1 >=events.size() || !events[value1].isValid())
+            {
+                sLog.outErrorDb("Active event condition requires existed event id (%u), skipped", value1);
+                return false;
+            }
+            break;
+        }
     }
     return true;
 }
@@ -6951,7 +7010,7 @@ bool ObjectMgr::AddGameTele(GameTele& tele)
     for(GameTeleMap::const_iterator itr = m_GameTeleMap.begin(); itr != m_GameTeleMap.end(); ++itr)
         if(itr->first > new_id)
             new_id = itr->first;
-    
+
     // use next
     ++new_id;
 
@@ -6991,7 +7050,7 @@ bool ObjectMgr::DeleteGameTele(std::string name)
 
 void ObjectMgr::LoadTrainerSpell()
 {
-    // For reload case 
+    // For reload case
     for (CacheTrainerSpellMap::iterator itr = m_mCacheTrainerSpellMap.begin(); itr != m_mCacheTrainerSpellMap.end(); ++itr)
         itr->second.Clear();
     m_mCacheTrainerSpellMap.clear();
@@ -7082,7 +7141,7 @@ void ObjectMgr::LoadTrainerSpell()
 
 void ObjectMgr::LoadVendors()
 {
-    // For reload case 
+    // For reload case
     for (CacheVendorItemMap::iterator itr = m_mCacheVendorItemMap.begin(); itr != m_mCacheVendorItemMap.end(); ++itr)
         itr->second.Clear();
     m_mCacheVendorItemMap.clear();
@@ -7189,6 +7248,7 @@ void ObjectMgr::LoadNpcOptions()
         //      0  1         2       3    4      5         6     7           8
         "SELECT id,gossip_id,npcflag,icon,action,box_money,coded,option_text,box_text "
         "FROM npc_option");
+
     if( !result )
     {
         barGoLink bar( 1 );
@@ -7341,10 +7401,84 @@ bool ObjectMgr::IsVendorItemValid( uint32 vendor_entry, uint32 item_id, uint32 m
     return true;
 }
 
-// Functions for scripting access
-const char* GetAreaTriggerScriptNameById(uint32 id)
+void ObjectMgr::LoadScriptNames()
 {
-    return objmgr.GetAreaTriggerScriptName(id);
+    m_scriptNames.push_back("");
+    QueryResult *result = WorldDatabase.Query(
+      "SELECT DISTINCT(ScriptName) FROM creature_template WHERE ScriptName <> '' "
+      "UNION "
+      "SELECT DISTINCT(ScriptName) FROM gameobject_template WHERE ScriptName <> '' "
+      "UNION "
+      "SELECT DISTINCT(ScriptName) FROM item_template WHERE ScriptName <> '' "
+      "UNION "
+      "SELECT DISTINCT(ScriptName) FROM areatrigger_scripts WHERE ScriptName <> '' "
+      "UNION "
+      "SELECT DISTINCT(script) FROM instance_template WHERE script <> ''");
+    if(result)
+    {
+        do
+        {
+            m_scriptNames.push_back((*result)[0].GetString());
+        } while (result->NextRow());
+        delete result;
+    }
+
+    std::sort(m_scriptNames.begin(), m_scriptNames.end());
+}
+
+uint32 ObjectMgr::GetScriptId(const char *name)
+{
+    // use binary search to find the script name in the sorted vector
+    // assume "" is the first element
+    if(!name) return 0;
+    ScriptNameMap::const_iterator itr =
+        std::lower_bound(m_scriptNames.begin(), m_scriptNames.end(), name);
+    if(itr == m_scriptNames.end()) return 0;
+    return itr - m_scriptNames.begin();
+}
+
+void ObjectMgr::CheckScripts(ScriptMapMap const& scripts,std::set<int32>& ids)
+{
+    for(ScriptMapMap::const_iterator itrMM = scripts.begin(); itrMM != scripts.end(); ++itrMM)
+    {
+        for(ScriptMap::const_iterator itrM = itrMM->second.begin(); itrM != itrMM->second.end(); ++itrM)
+        {
+            if(itrM->second.dataint)
+            {
+                if(!GetTrinityStringLocale (itrM->second.dataint))
+                    sLog.outErrorDb( "Table `db_script_string` has not existed string id  %u", *itrM);
+
+                if(ids.count(itrM->second.dataint))
+                    ids.erase(itrM->second.dataint);
+            }
+        }
+    }
+}
+
+void ObjectMgr::LoadDbScriptStrings()
+{
+    LoadTrinityStrings(WorldDatabase,"db_script_string",MIN_DB_SCRIPT_STRING_ID,MAX_DB_SCRIPT_STRING_ID);
+
+    std::set<int32> ids;
+
+    for(int32 i = MIN_DB_SCRIPT_STRING_ID; i < MAX_DB_SCRIPT_STRING_ID; ++i)
+        if(GetTrinityStringLocale(i))
+            ids.insert(i);
+
+    CheckScripts(sQuestEndScripts,ids);
+    CheckScripts(sQuestStartScripts,ids);
+    CheckScripts(sSpellScripts,ids);
+    CheckScripts(sGameObjectScripts,ids);
+    CheckScripts(sEventScripts,ids);
+
+    for(std::set<int32>::const_iterator itr = ids.begin(); itr != ids.end(); ++itr)
+        sLog.outErrorDb( "Table `db_script_string` has unused string id  %u", *itr);
+}
+
+// Functions for scripting access
+uint32 GetAreaTriggerScriptId(uint32 trigger_id)
+{
+    return objmgr.GetAreaTriggerScriptId(trigger_id);
 }
 
 bool LoadTrinityStrings(DatabaseType& db, char const* table,int32 start_value, int32 end_value)
@@ -7358,4 +7492,14 @@ bool LoadTrinityStrings(DatabaseType& db, char const* table,int32 start_value, i
 
     // for scripting localized strings allowed use _only_ negative entries
     return objmgr.LoadTrinityStrings(db,table,end_value,start_value);
+}
+
+uint32 TRINITY_DLL_SPEC GetScriptId(const char *name)
+{
+    return objmgr.GetScriptId(name);
+}
+
+ObjectMgr::ScriptNameMap & GetScriptNames()
+{
+    return objmgr.GetScriptNames();
 }

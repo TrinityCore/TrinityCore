@@ -394,10 +394,10 @@ void AddSC_boss_halazzi()
     newscript = new Script;
     newscript->Name="boss_halazzi";
     newscript->GetAI = GetAI_boss_halazziAI;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_halazzi_lynx";
     newscript->GetAI = GetAI_boss_spiritlynxAI;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

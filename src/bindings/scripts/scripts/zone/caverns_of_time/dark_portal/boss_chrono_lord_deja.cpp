@@ -105,5 +105,5 @@ void AddSC_boss_chrono_lord_deja()
     newscript = new Script;
     newscript->Name="boss_chrono_lord_deja";
     newscript->GetAI = GetAI_boss_chrono_lord_deja;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

@@ -82,5 +82,5 @@ void AddSC_boss_grizzle()
     newscript = new Script;
     newscript->Name="boss_grizzle";
     newscript->GetAI = GetAI_boss_grizzle;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

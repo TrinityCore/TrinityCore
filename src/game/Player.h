@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef _PLAYER_H
@@ -33,6 +33,7 @@
 #include "Bag.h"
 #include "WorldSession.h"
 #include "Pet.h"
+#include "MapReference.h"
 #include "Util.h"                                           // for Tokens typedef
 
 #include<string>
@@ -779,7 +780,7 @@ enum TeleportToOptions
 };
 
 /// Type of environmental damages
-enum EnvironmentalDamageType
+enum EnviromentalDamage
 {
     DAMAGE_EXHAUSTED = 0,
     DAMAGE_DROWNING  = 1,
@@ -1124,7 +1125,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         uint32 GetWeaponProficiency() const { return m_WeaponProficiency; }
         uint32 GetArmorProficiency() const { return m_ArmorProficiency; }
         bool IsInFeralForm() const { return m_form == FORM_CAT || m_form == FORM_BEAR || m_form == FORM_DIREBEAR; }
-        bool IsUseEquippedWeapon( bool mainhand ) const
+        bool IsUseEquipedWeapon( bool mainhand ) const
         {
             // disarm applied only to mainhand weapon
             return !IsInFeralForm() && (!mainhand || !HasFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISARMED) );
@@ -1306,7 +1307,7 @@ class TRINITY_DLL_SPEC Player : public Unit
             if(d < 0)
                 SetMoney (GetMoney() > uint32(-d) ? GetMoney() + d : 0);
             else
-                SetMoney (GetMoney() < MAX_MONEY_AMOUNT - d ? GetMoney() + d : MAX_MONEY_AMOUNT);
+                SetMoney (GetMoney() < uint32(MAX_MONEY_AMOUNT - d) ? GetMoney() + d : MAX_MONEY_AMOUNT);
 
             // "At Gold Limit"
             if(GetMoney() >= MAX_MONEY_AMOUNT)
@@ -1428,7 +1429,6 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         PlayerSpellMap const& GetSpellMap() const { return m_spells; }
         PlayerSpellMap      & GetSpellMap()       { return m_spells; }
-        ActionButtonList const& GetActionButtonList() const { return m_actionButtons; }
 
         void AddSpellMod(SpellModifier* mod, bool apply);
         int32 GetTotalFlatMods(uint32 spellId, SpellModOp op);
@@ -1518,8 +1518,8 @@ class TRINITY_DLL_SPEC Player : public Unit
         void RemoveFromGroup() { RemoveFromGroup(GetGroup(),GetGUID()); }
         void SendUpdateToOutOfRangeGroupMembers();
 
-        void SetInGuild(uint32 GuildId) { SetUInt32Value(PLAYER_GUILDID, GuildId); Player::SetUInt32ValueInDB(PLAYER_GUILDID, GuildId, this->GetGUID()); }
-        void SetRank(uint32 rankId){ SetUInt32Value(PLAYER_GUILDRANK, rankId); Player::SetUInt32ValueInDB(PLAYER_GUILDRANK, rankId, this->GetGUID()); }
+        void SetInGuild(uint32 GuildId) { SetUInt32Value(PLAYER_GUILDID, GuildId); Player::SetUInt32ValueInDB(PLAYER_GUILDID, GuildId, GetGUID()); }
+        void SetRank(uint32 rankId){ SetUInt32Value(PLAYER_GUILDRANK, rankId); Player::SetUInt32ValueInDB(PLAYER_GUILDRANK, rankId, GetGUID()); }
         void SetGuildIdInvited(uint32 GuildId) { m_GuildIdInvited = GuildId; }
         uint32 GetGuildId() { return GetUInt32Value(PLAYER_GUILDID);  }
         static uint32 GetGuildIdFromDB(uint64 guid);
@@ -1532,7 +1532,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         void SetInArenaTeam(uint32 ArenaTeamId, uint8 slot)
         {
             SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * 6), ArenaTeamId);
-            SetUInt32ValueInDB(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * 6), ArenaTeamId, this->GetGUID());
+            SetUInt32ValueInDB(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * 6), ArenaTeamId, GetGUID());
         }
         uint32 GetArenaTeamId(uint8 slot) { return GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * 6)); }
         static uint32 GetArenaTeamIdFromDB(uint64 guid, uint8 slot);
@@ -1608,7 +1608,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         void SendDelayResponse(const uint32);
         void SendLogXPGain(uint32 GivenXP,Unit* victim,uint32 RestXP);
 
-		//Low Level Packets
+        //Low Level Packets
         void PlaySound(uint32 Sound, bool OnlySelf);
         //notifiers
         void SendAttackSwingCantAttack();
@@ -1640,7 +1640,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         void CreateCorpse();
         void KillPlayer();
         uint32 GetResurrectionSpellId();
-        void ResurrectPlayer(float restore_percent, bool updateToWorld = true, bool applySickness = false);
+        void ResurrectPlayer(float restore_percent, bool applySickness = false);
         void BuildPlayerRepop();
         void RepopAtGraveyard();
 
@@ -1762,14 +1762,14 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         void SetRegularAttackTime();
         void SetBaseModValue(BaseModGroup modGroup, BaseModType modType, float value) { m_auraBaseMod[modGroup][modType] = value; }
-        void HandleBaseModValue(BaseModGroup modGroup, BaseModType modType, float amount, bool apply, bool affectStats = true);
+        void HandleBaseModValue(BaseModGroup modGroup, BaseModType modType, float amount, bool apply);
         float GetBaseModValue(BaseModGroup modGroup, BaseModType modType) const;
         float GetTotalBaseModValue(BaseModGroup modGroup) const;
         float GetTotalPercentageModValue(BaseModGroup modGroup) const { return m_auraBaseMod[modGroup][FLAT_MOD] + m_auraBaseMod[modGroup][PCT_MOD]; }
         void _ApplyAllStatBonuses();
         void _RemoveAllStatBonuses();
 
-        void _ApplyWeaponDependentAuraMods(Item *item,WeaponAttackType attackType,bool apply);
+        void _ApplyWeaponDependentAuraMods(Item *item, WeaponAttackType attackType, bool apply);
         void _ApplyWeaponDependentAuraCritMod(Item *item, WeaponAttackType attackType, Aura* aura, bool apply);
         void _ApplyWeaponDependentAuraDamageMod(Item *item, WeaponAttackType attackType, Aura* aura, bool apply);
 
@@ -1934,10 +1934,10 @@ class TRINITY_DLL_SPEC Player : public Unit
         void SetRestTime(uint32 v) { m_restTime = v;};
 
         /*********************************************************/
-        /***              ENVIRONMENTAL SYSTEM                  ***/
+        /***              ENVIROMENTAL SYSTEM                  ***/
         /*********************************************************/
 
-        void EnvironmentalDamage(uint64 guid, EnvironmentalDamageType type, uint32 damage);
+        void EnvironmentalDamage(uint64 guid, EnviromentalDamage type, uint32 damage);
 
         /*********************************************************/
         /***               FLOOD FILTER SYSTEM                 ***/
@@ -2062,6 +2062,8 @@ class TRINITY_DLL_SPEC Player : public Unit
         Player* GetNextRandomRaidMember(float radius);
 
         GridReference<Player> &GetGridRef() { return m_gridRef; }
+        MapReference &GetMapRef() { return m_mapRef; }
+
         bool isAllowedToLoot(Creature* creature);
 
         WorldLocation& GetTeleportDest() { return m_teleport_dest; }
@@ -2307,6 +2309,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         Item* _StoreItem( uint16 pos, Item *pItem, uint32 count, bool clone, bool update );
 
         GridReference<Player> m_gridRef;
+        MapReference m_mapRef;
 };
 
 void AddItemsSetItem(Player*player,Item *item);

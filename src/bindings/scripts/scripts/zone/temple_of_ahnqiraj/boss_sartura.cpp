@@ -259,10 +259,10 @@ void AddSC_boss_sartura()
     newscript = new Script;
     newscript->Name="boss_sartura";
     newscript->GetAI = GetAI_boss_sartura;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_sartura_royal_guard";
     newscript->GetAI = GetAI_mob_sartura_royal_guard;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

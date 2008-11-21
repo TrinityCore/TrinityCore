@@ -220,5 +220,5 @@ void AddSC_instance_arcatraz()
     newscript = new Script;
     newscript->Name = "instance_arcatraz";
     newscript->GetInstanceData = GetInstanceData_instance_arcatraz;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

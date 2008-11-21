@@ -195,5 +195,5 @@ void AddSC_boss_sapphiron()
     newscript = new Script;
     newscript->Name="boss_sapphiron";
     newscript->GetAI = GetAI_boss_sapphiron;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

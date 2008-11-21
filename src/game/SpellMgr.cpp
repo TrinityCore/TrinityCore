@@ -99,7 +99,7 @@ bool IsPassiveSpell(uint32 spellId)
     return (spellInfo->Attributes & SPELL_ATTR_PASSIVE) != 0;
 }
 
-bool IsNoStackAuraDueToAura(uint32 spellId_1, uint32 effIndex_1, uint32 spellId_2, uint32 effIndex_2)
+/*bool IsNoStackAuraDueToAura(uint32 spellId_1, uint32 effIndex_1, uint32 spellId_2, uint32 effIndex_2)
 {
     SpellEntry const *spellInfo_1 = sSpellStore.LookupEntry(spellId_1);
     SpellEntry const *spellInfo_2 = sSpellStore.LookupEntry(spellId_2);
@@ -113,7 +113,7 @@ bool IsNoStackAuraDueToAura(uint32 spellId_1, uint32 effIndex_1, uint32 spellId_
         return false;
 
     return true;
-}
+}*/
 
 int32 CompareAuraRanks(uint32 spellId_1, uint32 effIndex_1, uint32 spellId_2, uint32 effIndex_2)
 {
@@ -244,14 +244,24 @@ bool IsSingleFromSpellSpecificPerCaster(uint32 spellSpec1,uint32 spellSpec2)
         case SPELL_STING:
         case SPELL_CURSE:
         case SPELL_ASPECT:
+        case SPELL_POSITIVE_SHOUT:
+        case SPELL_JUDGEMENT:
+        case SPELL_WARLOCK_CORRUPTION:
+            return spellSpec1==spellSpec2;
+        default:
+            return false;
+    }
+}
+
+bool IsSingleFromSpellSpecificPerTarget(uint32 spellSpec1,uint32 spellSpec2)
+{
+    switch(spellSpec1)
+    {
         case SPELL_TRACKER:
         case SPELL_WARLOCK_ARMOR:
         case SPELL_MAGE_ARMOR:
         case SPELL_ELEMENTAL_SHIELD:
         case SPELL_MAGE_POLYMORPH:
-        case SPELL_POSITIVE_SHOUT:
-        case SPELL_JUDGEMENT:
-        case SPELL_WARLOCK_CORRUPTION:
             return spellSpec1==spellSpec2;
         case SPELL_BATTLE_ELIXIR:
             return spellSpec2==SPELL_BATTLE_ELIXIR
@@ -1030,10 +1040,10 @@ bool SpellMgr::canStackSpellRanks(SpellEntry const *spellInfo)
     return true;
 }
 
-bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) const
+bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool sameCaster) const
 {
-    if(spellId_1 == spellId_2) // auras due to the same spell
-        return false;
+    //if(spellId_1 == spellId_2) // auras due to the same spell
+    //    return false;
 
     SpellEntry const *spellInfo_1 = sSpellStore.LookupEntry(spellId_1);
     SpellEntry const *spellInfo_2 = sSpellStore.LookupEntry(spellId_2);
@@ -1041,22 +1051,65 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
     if(!spellInfo_1 || !spellInfo_2)
         return false;
 
+    SpellSpecific spellId_spec_1 = GetSpellSpecific(spellId_1);
+    SpellSpecific spellId_spec_2 = GetSpellSpecific(spellId_2);
+    if (spellId_spec_1 && spellId_spec_2)
+        if (IsSingleFromSpellSpecificPerTarget(spellId_spec_1, spellId_spec_2)
+            ||(IsSingleFromSpellSpecificPerCaster(spellId_spec_1, spellId_spec_2) && sameCaster))
+            return true;
+
     if(spellInfo_1->SpellFamilyName != spellInfo_2->SpellFamilyName)
         return false;
 
-    if(!spellInfo_1->SpellFamilyName) // generic spells
+    // generic spells
+    if(!spellInfo_1->SpellFamilyName)
     {
         if(!spellInfo_1->SpellIconID 
             || spellInfo_1->SpellIconID != spellInfo_2->SpellIconID)
             return false;
     }
-    else if (spellInfo_1->SpellFamilyFlags != spellInfo_2->SpellFamilyFlags)
-        return false;
+
+    // if both elixirs are not battle/guardian/potions/flasks then always stack
+    else if(spellInfo_1->SpellFamilyName == SPELLFAMILY_POTION)
+    {
+        if(spellId_spec_1 || spellId_spec_2)
+            return false;
+    }
+
+    // check for class spells
+    else
+    {
+        if (spellInfo_1->SpellFamilyFlags != spellInfo_2->SpellFamilyFlags)
+            return false;
+    }
 
     for(uint32 i = 0; i < 3; ++i)
+    {
         if(spellInfo_1->Effect[i] != spellInfo_2->Effect[i]
-            || spellInfo_1->EffectApplyAuraName[i] != spellInfo_2->EffectApplyAuraName[i])
-            return false;
+            || spellInfo_1->EffectApplyAuraName[i] != spellInfo_2->EffectApplyAuraName[i]
+            || spellInfo_1->EffectMiscValue[i] != spellInfo_2->EffectMiscValue[i]) // paladin resist aura
+            return false; // need itemtype check? need an example to add that check
+
+        if(spellInfo_1->EffectApplyAuraName[i] // both spell has the same auras
+            && !sameCaster
+            && spellInfo_1->Effect[i] != SPELL_EFFECT_APPLY_AREA_AURA_PARTY) // not area auras (shaman totem)
+            // a better check may be effect == SPELL_EFFECT_APPLY_AURA
+        {
+            switch(spellInfo_1->EffectApplyAuraName[i])
+            {
+                // DOT or HOT from different casters will stack
+                case SPELL_AURA_PERIODIC_DAMAGE:
+                case SPELL_AURA_PERIODIC_HEAL:
+                case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
+                case SPELL_AURA_PERIODIC_ENERGIZE:
+                case SPELL_AURA_PERIODIC_MANA_LEECH:
+                case SPELL_AURA_PERIODIC_LEECH:
+                    return false;
+                default:
+                    break;
+            }
+        }
+    }
 
     return true;
 }

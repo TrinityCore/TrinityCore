@@ -141,17 +141,17 @@ void AddSC_winterspring()
     newscript->Name="npc_lorax";
     newscript->pGossipHello =  &GossipHello_npc_lorax;
     newscript->pGossipSelect = &GossipSelect_npc_lorax;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_rivern_frostwind";
     newscript->pGossipHello =  &GossipHello_npc_rivern_frostwind;
     newscript->pGossipSelect = &GossipSelect_npc_rivern_frostwind;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_witch_doctor_mauari";
     newscript->pGossipHello =  &GossipHello_npc_witch_doctor_mauari;
     newscript->pGossipSelect = &GossipSelect_npc_witch_doctor_mauari;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }
