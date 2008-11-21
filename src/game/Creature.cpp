@@ -122,7 +122,7 @@ Unit(), i_AI(NULL), i_AI_possessed(NULL),
 lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), lootingGroupLeaderGUID(0),
 m_lootMoney(0), m_lootRecipient(0),
 m_deathTimer(0), m_respawnTime(0), m_respawnDelay(25), m_corpseDelay(60), m_respawnradius(0.0f),
-m_gossipOptionLoaded(false), m_emoteState(0), m_isPet(false), m_isTotem(false),
+m_gossipOptionLoaded(false), m_emoteState(0), m_isPet(false), m_isTotem(false), m_isAggressive(true),
 m_regenTimer(2000), m_defaultMovementType(IDLE_MOTION_TYPE), m_equipmentId(0),
 m_AlreadyCallAssistence(false), m_regenHealth(true), m_AI_locked(false), m_isDeadByDefault(false),
 m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),m_creatureInfo(NULL), m_DBTableGuid(0)
@@ -293,6 +293,7 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data )
     SetUInt32Value(UNIT_FIELD_FLAGS,GetCreatureInfo()->unit_flags);
     SetUInt32Value(UNIT_DYNAMIC_FLAGS,GetCreatureInfo()->dynamicflags);
 
+    SetMeleeDamageSchool(SpellSchools(GetCreatureInfo()->dmgschool));
     SetModifierValue(UNIT_MOD_ARMOR,             BASE_VALUE, float(GetCreatureInfo()->armor));
     SetModifierValue(UNIT_MOD_RESISTANCE_HOLY,   BASE_VALUE, float(GetCreatureInfo()->resistance1));
     SetModifierValue(UNIT_MOD_RESISTANCE_FIRE,   BASE_VALUE, float(GetCreatureInfo()->resistance2));
@@ -322,6 +323,12 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data )
     // HACK: trigger creature is always not selectable
     if(GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
+    if(isTotem() || isCivilian() || GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER
+        || GetCreatureType() == CREATURE_TYPE_CRITTER)
+        m_isAggressive = false;
+    else
+        m_isAggressive = true;
 
     return true;
 }
@@ -1409,8 +1416,6 @@ bool Creature::LoadFromDB(uint32 guid, Map *map)
 
     SetHealth(m_deathState == ALIVE ? curhealth : 0);
     SetPower(POWER_MANA,data->curmana);
-
-    SetMeleeDamageSchool(SpellSchools(GetCreatureInfo()->dmgschool));
 
     // checked at creature_template loading
     m_defaultMovementType = MovementGeneratorType(data->movementType);

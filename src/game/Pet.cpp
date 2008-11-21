@@ -1466,7 +1466,8 @@ bool Pet::addSpell(uint16 spell_id, uint16 active, PetSpellState state, uint16 s
     }
 
     // same spells don't have autocast option
-    if (spellInfo->AttributesEx & SPELL_ATTR_EX_UNAUTOCASTABLE_BY_PET) active = ACT_CAST;
+    if (spellInfo->AttributesEx & SPELL_ATTR_EX_UNAUTOCASTABLE_BY_PET)
+        active = ACT_CAST;
 
     PetSpellMap::iterator itr = m_spells.find(spell_id);
     if (itr != m_spells.end())
@@ -1542,7 +1543,7 @@ bool Pet::addSpell(uint16 spell_id, uint16 active, PetSpellState state, uint16 s
     if (IsPassiveSpell(spell_id))
         CastSpell(this, spell_id, true);
     else if(state == PETSPELL_NEW)
-        m_charmInfo->AddSpellToAB(oldspell_id, spell_id, active);
+        m_charmInfo->AddSpellToAB(oldspell_id, spell_id, (ActiveStates)active);
 
     if(newspell->active == ACT_ENABLED)
         ToggleAutocast(spell_id, true);

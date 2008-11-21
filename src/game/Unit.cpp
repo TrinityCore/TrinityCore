@@ -8491,7 +8491,8 @@ void Unit::CombatStart(Unit* target)
     if(!target->IsStandState() && !target->hasUnitState(UNIT_STAT_STUNNED))
         target->SetStandState(PLAYER_STATE_NONE);
 
-    if(!target->isInCombat() && target->GetTypeId() != TYPEID_PLAYER && ((Creature*)target)->AI())
+    if(!target->isInCombat() && target->GetTypeId() != TYPEID_PLAYER
+        && ((Creature*)target)->isAggressive() && ((Creature*)target)->AI())
         ((Creature*)target)->AI()->AttackStart(this);
 
     SetInCombatWith(target);
