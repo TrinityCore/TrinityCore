@@ -1072,7 +1072,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
     // if both elixirs are not battle/guardian/potions/flasks then always stack
     else if(spellInfo_1->SpellFamilyName == SPELLFAMILY_POTION)
     {
-        if(spellId_spec_1 || spellId_spec_2))
+        if(spellId_spec_1 || spellId_spec_2)
             return false;
     }
 
