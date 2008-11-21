@@ -1822,6 +1822,29 @@ void Creature::DoFleeToGetAssistance(float radius) // Optional parameter
     }
 }
 
+Unit* Creature::SelectNearestTarget(float dist) const
+{
+    /*CellPair p(Trinity::ComputeCellPair(GetPositionX(), GetPositionY()));
+    Cell cell(p);
+    cell.data.Part.reserved = ALL_DISTRICT;
+    cell.SetNoCreate();
+
+    Unit *target;
+
+    {
+        Trinity::NearestHostileUnitInAttackDistanceCheck u_check(this, dist);
+        Trinity::UnitLastSearcher<Trinity::NearestHostileUnitInAttackDistanceCheck> searcher(target, u_check);
+
+        TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::NearestHostileUnitInAttackDistanceCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
+        TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::NearestHostileUnitInAttackDistanceCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
+
+        CellLock<GridReadGuard> cell_lock(cell, p);
+        cell_lock->Visit(cell_lock, world_unit_searcher, GetMap());
+        cell_lock->Visit(cell_lock, grid_unit_searcher, GetMap());
+    }*/
+    return NULL;
+}
+
 void Creature::CallAssistence()
 {
     if( !m_AlreadyCallAssistence && getVictim() && !isPet() && !isCharmed())

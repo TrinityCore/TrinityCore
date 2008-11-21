@@ -596,7 +596,9 @@ bool Map::loaded(const GridPair &p) const
 
 void Map::Update(const uint32 &t_diff)
 {
-    resetMarkedCells();
+    // TODO: need have an active object list for every map
+
+    /*resetMarkedCells();
 
     Trinity::ObjectUpdater updater(t_diff);
     // for creature
@@ -642,8 +644,7 @@ void Map::Update(const uint32 &t_diff)
                 }
             }
         }
-    }
-
+    }*/
 
     // Don't unload grids if it's battleground, since we may have manually added GOs,creatures, those doesn't load from DB at grid re-load !
     // This isn't really bother us, since as soon as we have instanced BG-s, the whole map unloads as the BG gets ended

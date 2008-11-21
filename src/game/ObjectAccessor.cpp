@@ -503,6 +503,8 @@ ObjectAccessor::Update(uint32 diff)
 {
 
     {
+        //Player update now in MapManager -> UpdatePlayers
+        /*
         // player update might remove the player from grid, and that causes crashes. We HAVE to update players first, and then the active objects.
         HashMapHolder<Player>::MapType& playerMap = HashMapHolder<Player>::GetContainer();
         for(HashMapHolder<Player>::MapType::iterator iter = playerMap.begin(); iter != playerMap.end(); ++iter)
@@ -511,8 +513,9 @@ ObjectAccessor::Update(uint32 diff)
             {
                 iter->second->Update(diff);
             }
-        }
+        }*/
 
+        // TODO: move this to Map::Update
         // clone the active object list, because update might remove from it
         std::set<WorldObject *> activeobjects(i_activeobjects);
 
@@ -571,6 +574,28 @@ ObjectAccessor::Update(uint32 diff)
                 }
             }
         }
+    }
+
+    UpdateDataMapType update_players;
+    {
+        Guard guard(i_updateGuard);
+        while(!i_objects.empty())
+        {
+            Object* obj = *i_objects.begin();
+            i_objects.erase(i_objects.begin());
+            if (!obj)
+                continue;
+            _buildUpdateObject(obj, update_players);
+            obj->ClearUpdateMask(false);
+        }
+    }
+
+    WorldPacket packet;                                     // here we allocate a std::vector with a size of 0x10000
+    for(UpdateDataMapType::iterator iter = update_players.begin(); iter != update_players.end(); ++iter)
+    {
+        iter->second.BuildPacket(&packet);
+        iter->first->GetSession()->SendPacket(&packet);
+        packet.clear();                                     // clean the string
     }
 }
 

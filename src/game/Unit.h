@@ -762,7 +762,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         Unit* getVictim() const { return m_attacking; }
         void CombatStop(bool cast = false);
         void CombatStopWithPets(bool cast = false);
-        Unit* SelectNearbyTarget() const;
+        Unit* SelectNearbyTarget(float dist = ATTACK_DISTANCE) const;
 
         void addUnitState(uint32 f) { m_state |= f; }
         bool hasUnitState(const uint32 f) const { return (m_state & f); }
