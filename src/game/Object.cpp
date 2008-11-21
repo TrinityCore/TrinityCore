@@ -990,36 +990,37 @@ WorldObject::WorldObject()
 
 WorldObject::~WorldObject()
 {
-    if(m_isActive && IsInWorld())
-        ObjectAccessor::Instance().RemoveActiveObject(this);
+    if(m_isActive && !isType(TYPEMASK_PLAYER) && IsInWorld())
+        GetMap()->RemoveActiveObject(this);
 }
 
 void WorldObject::setActive(bool isActive)
 {
     // if already in the same activity state as we try to set, do nothing
-    if(isActive == m_isActive)
+    if(isActive == m_isActive || isType(TYPEMASK_PLAYER))
         return;
+
     m_isActive = isActive;
     if(IsInWorld())
     {
         if(isActive)
-            ObjectAccessor::Instance().AddActiveObject(this);
+            GetMap()->AddActiveObject(this);
         else
-            ObjectAccessor::Instance().RemoveActiveObject(this);
+            GetMap()->RemoveActiveObject(this);
     }
 }
 
 void WorldObject::AddToWorld()
 {
     Object::AddToWorld();
-    if(m_isActive)
-        ObjectAccessor::Instance().AddActiveObject(this);
+    if(m_isActive && !isType(TYPEMASK_PLAYER))
+        GetMap()->AddActiveObject(this);
 }
 
 void WorldObject::RemoveFromWorld()
 {
-    if(m_isActive)
-        ObjectAccessor::Instance().RemoveActiveObject(this);
+    if(m_isActive && !isType(TYPEMASK_PLAYER))
+        GetMap()->RemoveActiveObject(this);
     Object::RemoveFromWorld();
 }
 
