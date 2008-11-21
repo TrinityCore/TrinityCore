@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "Common.h"
@@ -64,7 +64,7 @@ bool LoginQueryHolder::Initialize()
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADFROM,            "SELECT guid, account, data, name, race, class, position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, resettalents_time, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, dungeon_difficulty FROM characters WHERE guid = '%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADGROUP,           "SELECT leaderGuid FROM group_member WHERE memberGuid ='%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADBOUNDINSTANCES,  "SELECT id, permanent, map, difficulty, resettime FROM character_instance LEFT JOIN instance ON instance = id WHERE guid = '%u'", GUID_LOPART(m_guid));
-    res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADAURAS,           "SELECT caster_guid,spell,effect_index,amount,maxduration,remaintime,remaincharges FROM character_aura WHERE guid = '%u'", GUID_LOPART(m_guid));
+    res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADAURAS,           "SELECT caster_guid,spell,effect_index,stackcount,amount,maxduration,remaintime,remaincharges FROM character_aura WHERE guid = '%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADSPELLS,          "SELECT spell,slot,active,disabled FROM character_spell WHERE guid = '%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADQUESTSTATUS,     "SELECT quest,status,rewarded,explored,timer,mobcount1,mobcount2,mobcount3,mobcount4,itemcount1,itemcount2,itemcount3,itemcount4 FROM character_queststatus WHERE guid = '%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADDAILYQUESTSTATUS,"SELECT quest,time FROM character_queststatus_daily WHERE guid = '%u'", GUID_LOPART(m_guid));
@@ -180,6 +180,7 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
 
     std::string name;
     uint8 race_,class_;
+
     recv_data >> name;
 
     // recheck with known string size
@@ -214,6 +215,7 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
 
     ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(class_);
     ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(race_);
+
     if( !classEntry || !raceEntry )
     {
         data << (uint8)CHAR_CREATE_FAILED;
@@ -607,7 +609,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
         pCurrChar->SetRank(0);
     }
 
-    if (!MapManager::Instance().GetMap(pCurrChar->GetMapId(), pCurrChar)->Add(pCurrChar))
+    if (!pCurrChar->GetMap()->Add(pCurrChar))
     {
         AreaTrigger const* at = objmgr.GetGoBackTrigger(pCurrChar->GetMapId());
         if(at)
@@ -999,35 +1001,35 @@ void WorldSession::HandleDeclinedPlayerNameOpcode(WorldPacket& recv_data)
 {
     uint64 guid;
 
-    CHECK_PACKET_SIZE(recv_data, 8+6);
+    CHECK_PACKET_SIZE(recv_data, 8);
     recv_data >> guid;
 
     // not accept declined names for unsupported languages
     std::string name;
-    if(!objmgr.GetPlayerNameByGUID(guid,name))
+    if(!objmgr.GetPlayerNameByGUID(guid, name))
     {
-        WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT,4+8);
-        data << (uint32)1;
-        data << guid;
+        WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4+8);
+        data << uint32(1);
+        data << uint64(guid);
         SendPacket(&data);
         return;
     }
 
     std::wstring wname;
-    if(!Utf8toWStr(name,wname))
+    if(!Utf8toWStr(name, wname))
     {
-        WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT,4+8);
-        data << (uint32)1;
-        data << guid;
+        WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4+8);
+        data << uint32(1);
+        data << uint64(guid);
         SendPacket(&data);
         return;
     }
 
     if(!isCyrillicCharacter(wname[0]))                      // name already stored as only single alphabet using
     {
-        WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT,4+8);
-        data << (uint32)1;
-        data << guid;
+        WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4+8);
+        data << uint32(1);
+        data << uint64(guid);
         SendPacket(&data);
         return;
     }
@@ -1035,35 +1037,37 @@ void WorldSession::HandleDeclinedPlayerNameOpcode(WorldPacket& recv_data)
     std::string name2;
     DeclinedName declinedname;
 
+    CHECK_PACKET_SIZE(recv_data, recv_data.rpos() + 1);
     recv_data >> name2;
 
-    if(name2!=name)                                         // character have different name
+    if(name2 != name)                                       // character have different name
     {
-        WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT,4+8);
-        data << (uint32)1;
-        data << guid;
+        WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4+8);
+        data << uint32(1);
+        data << uint64(guid);
         SendPacket(&data);
         return;
     }
 
     for(int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
     {
+        CHECK_PACKET_SIZE(recv_data, recv_data.rpos() + 1);
         recv_data >> declinedname.name[i];
         if(!normalizePlayerName(declinedname.name[i]))
         {
-            WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT,4+8);
-            data << (uint32)1;
-            data << guid;
+            WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4+8);
+            data << uint32(1);
+            data << uint64(guid);
             SendPacket(&data);
             return;
         }
     }
 
-    if(!ObjectMgr::CheckDeclinedNames(GetMainPartOfName(wname,0),declinedname))
+    if(!ObjectMgr::CheckDeclinedNames(GetMainPartOfName(wname, 0), declinedname))
     {
-        WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT,4+8);
-        data << (uint32)1;
-        data << guid;
+        WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4+8);
+        data << uint32(1);
+        data << uint64(guid);
         SendPacket(&data);
         return;
     }
@@ -1074,11 +1078,11 @@ void WorldSession::HandleDeclinedPlayerNameOpcode(WorldPacket& recv_data)
     CharacterDatabase.BeginTransaction();
     CharacterDatabase.PExecute("DELETE FROM character_declinedname WHERE guid = '%u'", GUID_LOPART(guid));
     CharacterDatabase.PExecute("INSERT INTO character_declinedname (guid, genitive, dative, accusative, instrumental, prepositional) VALUES ('%u','%s','%s','%s','%s','%s')",
-        GUID_LOPART(guid), declinedname.name[0].c_str(),declinedname.name[1].c_str(),declinedname.name[2].c_str(),declinedname.name[3].c_str(),declinedname.name[4].c_str());
+        GUID_LOPART(guid), declinedname.name[0].c_str(), declinedname.name[1].c_str(), declinedname.name[2].c_str(), declinedname.name[3].c_str(), declinedname.name[4].c_str());
     CharacterDatabase.CommitTransaction();
 
-    WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT,4+8);
-    data << (uint32)0;                                      // OK
-    data << guid;
+    WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4+8);
+    data << uint32(0);                                      // OK
+    data << uint64(guid);
     SendPacket(&data);
 }

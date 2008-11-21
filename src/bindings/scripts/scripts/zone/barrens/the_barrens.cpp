@@ -369,22 +369,22 @@ void AddSC_the_barrens()
     newscript->Name="npc_beaten_corpse";
     newscript->pGossipHello = &GossipHello_npc_beaten_corpse;
     newscript->pGossipSelect = &GossipSelect_npc_beaten_corpse;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_sputtervalve";
     newscript->pGossipHello = &GossipHello_npc_sputtervalve;
     newscript->pGossipSelect = &GossipSelect_npc_sputtervalve;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_taskmaster_fizzule";
     newscript->GetAI = GetAI_npc_taskmaster_fizzule;
     newscript->pReceiveEmote = &ReciveEmote_npc_taskmaster_fizzule;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_twiggy_flathead";
     newscript->GetAI = GetAI_npc_twiggy_flathead;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

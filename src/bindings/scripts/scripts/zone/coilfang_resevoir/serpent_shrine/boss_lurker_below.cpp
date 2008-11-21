@@ -167,16 +167,16 @@ void AddSC_boss_the_lurker_below()
     newscript = new Script;
     newscript->Name="boss_the_lurker_below";
     newscript->GetAI = GetAI_boss_the_lurker_below;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
 	newscript = new Script;
     newscript->Name="mob_coilfang_guardian";
     newscript->GetAI = GetAI_mob_coilfang_guardian;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
 	newscript = new Script;
     newscript->Name="mob_coilfang_ambusher";
     newscript->GetAI = GetAI_mob_coilfang_ambusher;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }
 

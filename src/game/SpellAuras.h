@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #ifndef TRINITY_SPELLAURAS_H
 #define TRINITY_SPELLAURAS_H
@@ -185,15 +185,12 @@ class TRINITY_DLL_SPEC Aura
         void HandleAuraAllowFlight(bool Apply, bool Real);
         void HandleModRating(bool apply, bool Real);
         void HandleModTargetResistance(bool apply, bool Real);
-        void HandleAuraAttackPowerAttacker(bool apply, bool Real);
         void HandleAuraModAttackPowerPercent(bool apply, bool Real);
         void HandleAuraModRangedAttackPowerPercent(bool apply, bool Real);
         void HandleAuraModRangedAttackPowerOfStatPercent(bool apply, bool Real);
         void HandleSpiritOfRedemption(bool apply, bool Real);
-        void HandleAuraHealingPct(bool apply, bool Real);
         void HandleModManaRegen(bool apply, bool Real);
         void HandleComprehendLanguage(bool apply, bool Real);
-        void HandleAuraHealing(bool apply, bool Real);
         void HandleShieldBlockValue(bool apply, bool Real);
         void HandleModSpellCritChanceShool(bool apply, bool Real);
         void HandleAuraRetainComboPoints(bool apply, bool Real);
@@ -253,7 +250,7 @@ class TRINITY_DLL_SPEC Aura
         {
             uint8 slot = GetAuraSlot();
 
-            // only aura inslot with charges and without stack limitation
+            // only aura in slot with charges and without stack limitation
             if (slot < MAX_AURAS && m_procCharges >= 1 && GetSpellProto()->StackAmount==0)
                 SetAuraApplication(slot, m_procCharges - 1);
         }

@@ -60,5 +60,5 @@ void AddSC_mulgore()
     newscript->Name="npc_skorn_whitecloud";
     newscript->pGossipHello          = &GossipHello_npc_skorn_whitecloud;
     newscript->pGossipSelect         = &GossipSelect_npc_skorn_whitecloud;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

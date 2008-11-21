@@ -337,6 +337,12 @@
 				RelativePath="..\..\src\game\MapManager.h">
 			</File>
 			<File
+				RelativePath="..\..\src\game\MapReference.h">
+			</File>
+			<File
+				RelativePath="..\..\src\game\MapRefManager.h">
+			</File>				
+			<File
 				RelativePath="..\..\src\game\MiscHandler.cpp">
 			</File>
 			<File

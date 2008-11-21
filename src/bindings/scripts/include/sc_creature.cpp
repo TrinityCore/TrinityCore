@@ -73,17 +73,7 @@ bool ScriptedAI::IsVisible(Unit* who) const
 
 void ScriptedAI::MoveInLineOfSight(Unit *who)
 {
-    if(m_creature->getVictim() || !m_creature->IsHostileTo(who) || !who->isInAccessiblePlaceFor(m_creature))
-        return;
-
-    if(!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
-        return;
-
-    if(!m_creature->IsWithinDistInMap(who, m_creature->GetAttackDistance(who)) || !m_creature->IsWithinLOSInMap(who))
-        return;
-    
-    if(m_creature->canAttack(who))
-        //who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+    if(!m_creature->getVictim() && m_creature->canStartAttack(who))
         AttackStart(who);
 }
 
@@ -679,13 +669,11 @@ void ScriptedAI::DoZoneInCombat(Unit* pUnit)
         return;
     }
 
-    InstanceMap::PlayerList const &PlayerList = ((InstanceMap*)map)->GetPlayers();
-    InstanceMap::PlayerList::const_iterator i;
-    for (i = PlayerList.begin(); i != PlayerList.end(); ++i)
-    {
-        if((*i)->isAlive())
-            pUnit->AddThreat(*i, 0.0f);
-    }
+    Map::PlayerList const &PlayerList = map->GetPlayers();
+    for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+        if (Player* i_pl = i->getSource())
+            if (!i_pl->isAlive())
+                pUnit->AddThreat(i_pl, 0.0f);
 }
 
 void ScriptedAI::DoResetThreat()
@@ -720,6 +708,20 @@ void ScriptedAI::DoTeleportPlayer(Unit* pUnit, float x, float y, float z, float 
 
     ((Player*)pUnit)->TeleportTo(pUnit->GetMapId(), x, y, z, o, TELE_TO_NOT_LEAVE_COMBAT);
 }
+
+void ScriptedAI::DoTeleportAll(float x, float y, float z, float o)
+{
+    Map *map = m_creature->GetMap();
+    if (!map->IsDungeon())
+        return;
+
+    Map::PlayerList const &PlayerList = map->GetPlayers();
+    for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+        if (Player* i_pl = i->getSource())
+            if (!i_pl->isAlive())
+                i_pl->TeleportTo(m_creature->GetMapId(), x, y, z, o, TELE_TO_NOT_LEAVE_COMBAT);
+}
+
 
 Unit* ScriptedAI::DoSelectLowestHpFriendly(float range, uint32 MinHPDiff)
 {

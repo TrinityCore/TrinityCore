@@ -156,5 +156,5 @@ void AddSC_boss_patchwerk()
     newscript = new Script;
     newscript->Name="boss_patchwerk";
     newscript->GetAI = GetAI_boss_patchwerk;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

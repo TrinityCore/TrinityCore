@@ -173,5 +173,5 @@ void AddSC_boss_blackheart_the_inciter()
     newscript = new Script;
     newscript->Name="boss_blackheart_the_inciter";
     newscript->GetAI = GetAI_boss_blackheart_the_inciter;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

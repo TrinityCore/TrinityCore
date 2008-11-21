@@ -723,25 +723,25 @@ void AddSC_boss_reliquary_of_souls()
     newscript = new Script;
     newscript->Name="boss_reliquary_of_souls";
     newscript->GetAI = GetAI_boss_reliquary_of_souls;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_essence_of_suffering";
     newscript->GetAI = GetAI_boss_essence_of_suffering;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_essence_of_desire";
     newscript->GetAI = GetAI_boss_essence_of_desire;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_essence_of_anger";
     newscript->GetAI = GetAI_boss_essence_of_anger;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_enslaved_soul";
     newscript->GetAI = GetAI_npc_enslaved_soul;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

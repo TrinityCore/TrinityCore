@@ -94,5 +94,5 @@ void AddSC_dun_morogh()
     newscript = new Script;
     newscript->Name="npc_narm_faulk";
     newscript->GetAI = GetAI_npc_narm_faulk;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

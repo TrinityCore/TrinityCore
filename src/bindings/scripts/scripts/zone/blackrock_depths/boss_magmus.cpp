@@ -80,5 +80,5 @@ void AddSC_boss_magmus()
     newscript = new Script;
     newscript->Name="boss_magmus";
     newscript->GetAI = GetAI_boss_magmus;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

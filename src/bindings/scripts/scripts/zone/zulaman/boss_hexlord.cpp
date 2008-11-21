@@ -371,7 +371,7 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
 
         if(SiphonSoul_Timer < diff)
         {
-            Player* target = SelectRandomPlayer(50);
+            Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0, 70, true);
             Unit *trigger = DoSpawnCreature(MOB_TEMP_TRIGGER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 30000);
             if(!target || !trigger) EnterEvadeMode();
             else
@@ -434,26 +434,6 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
             break;
         }
         m_creature->CastSpell(target, PlayerAbility[PlayerClass][random].spell, false);
-    }
-
-    Player* SelectRandomPlayer(float range = 0.0f, bool alive = true)
-    {
-        Map *map = m_creature->GetMap();
-        if (!map->IsDungeon()) return NULL;
-
-        InstanceMap::PlayerList PlayerList = ((InstanceMap*)map)->GetPlayers();
-        InstanceMap::PlayerList::iterator i;
-        while(PlayerList.size())
-        {
-            i = PlayerList.begin();
-            advance(i, rand()%PlayerList.size());
-            if((range == 0.0f || m_creature->IsWithinDistInMap(*i, range))
-                && (!alive || (*i)->isAlive()))
-                return *i;
-            else
-                PlayerList.erase(i);
-        }
-        return NULL;
     }
 };
 
@@ -888,45 +868,45 @@ void AddSC_boss_hex_lord_malacrass()
     newscript = new Script;
     newscript->Name="boss_hexlord_malacrass";
     newscript->GetAI = GetAI_boss_hex_lord_malacrass;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_thurg";
     newscript->GetAI = GetAI_boss_thurg;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_gazakroth";
     newscript->GetAI = GetAI_boss_gazakroth;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_lord_raadan";
     newscript->GetAI = GetAI_boss_lord_raadan;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_darkheart";
     newscript->GetAI = GetAI_boss_darkheart;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_slither";
     newscript->GetAI = GetAI_boss_slither;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_fenstalker";
     newscript->GetAI = GetAI_boss_fenstalker;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_koragg";
     newscript->GetAI = GetAI_boss_koragg;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_alyson_antille";
     newscript->GetAI = GetAI_boss_alyson_antille;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

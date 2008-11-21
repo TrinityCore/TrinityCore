@@ -165,45 +165,45 @@ void AddSC_go_scripts()
     newscript = new Script;
     newscript->Name="go_northern_crystal_pylon";
     newscript->pGOHello =           &GOHello_go_northern_crystal_pylon;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="go_eastern_crystal_pylon";
     newscript->pGOHello =           &GOHello_go_eastern_crystal_pylon;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="go_western_crystal_pylon";
     newscript->pGOHello =           &GOHello_go_western_crystal_pylon;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="go_barov_journal";
     newscript->pGOHello =           &GOHello_go_barov_journal;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="go_field_repair_bot_74A";
     newscript->pGOHello =           &GOHello_go_field_repair_bot_74A;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="go_orb_of_command";
     newscript->pGOHello =           &GOHello_go_orb_of_command;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="go_tablet_of_madness";
     newscript->pGOHello =           &GOHello_go_tablet_of_madness;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="go_tablet_of_the_seven";
     newscript->pGOHello =           &GOHello_go_tablet_of_the_seven;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="go_teleporter";
     newscript->pGOHello =           &GOHello_go_teleporter;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

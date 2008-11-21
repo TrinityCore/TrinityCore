@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef TRINITY_FORMULAS_H
@@ -29,7 +29,7 @@ namespace Trinity
     {
         inline uint32 hk_honor_at_level(uint32 level, uint32 count=1)
         {
-            return (uint32) ceil(count*(-0.53177f + 0.59357f * exp((level +23.54042f) / 26.07859f )));
+            return (uint32)ceil(count*(-0.53177f + 0.59357f * exp((level +23.54042f) / 26.07859f )));
         }
     }
     namespace XP
@@ -80,6 +80,7 @@ namespace Trinity
 
         inline uint32 BaseGain(uint32 pl_level, uint32 mob_level, ContentLevels content)
         {
+            //TODO: need modifier for CONTENT_71_80 different from CONTENT_61_70?
             const uint32 nBaseExp = content == CONTENT_1_60 ? 45 : 235;
             if( mob_level >= pl_level )
             {

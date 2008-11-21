@@ -84,5 +84,5 @@ void AddSC_molten_core()
     newscript = new Script;
     newscript->Name="mob_ancient_core_hound";
     newscript->GetAI = GetAI_mob_ancient_core_hound;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

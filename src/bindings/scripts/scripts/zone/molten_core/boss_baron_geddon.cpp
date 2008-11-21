@@ -101,5 +101,5 @@ void AddSC_boss_baron_geddon()
     newscript = new Script;
     newscript->Name="boss_baron_geddon";
     newscript->GetAI = GetAI_boss_baron_geddon;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

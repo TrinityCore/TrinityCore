@@ -362,10 +362,10 @@ void AddSC_boss_attumen()
     newscript = new Script;
     newscript->Name="boss_attumen";
     newscript->GetAI = GetAI_boss_attumen;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_midnight";
     newscript->GetAI = GetAI_boss_midnight;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

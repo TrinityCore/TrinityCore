@@ -171,17 +171,17 @@ void AddSC_hellfire_peninsula()
     newscript->Name="npc_wing_commander_dabiree";
     newscript->pGossipHello =   &GossipHello_npc_wing_commander_dabiree;
     newscript->pGossipSelect =  &GossipSelect_npc_wing_commander_dabiree;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_gryphoneer_windbellow";
     newscript->pGossipHello =   &GossipHello_npc_gryphoneer_windbellow;
     newscript->pGossipSelect =  &GossipSelect_npc_gryphoneer_windbellow;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_wing_commander_brack";
     newscript->pGossipHello =   &GossipHello_npc_wing_commander_brack;
     newscript->pGossipSelect =  &GossipSelect_npc_wing_commander_brack;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

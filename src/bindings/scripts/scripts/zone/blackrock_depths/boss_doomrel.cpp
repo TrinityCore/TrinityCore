@@ -135,5 +135,5 @@ void AddSC_boss_doomrel()
     newscript = new Script;
     newscript->Name="boss_doomrel";
     newscript->GetAI = GetAI_boss_doomrel;
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }

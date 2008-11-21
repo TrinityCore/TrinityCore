@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef TRINITYCORE_CREATURE_H
@@ -205,10 +205,11 @@ struct CreatureInfo
     uint32  equipmentId;
     uint32  MechanicImmuneMask;
     uint32  flags_extra;
-    char const* ScriptName;
+    uint32  ScriptID;
     uint32 GetRandomValidModelId() const;
     uint32 GetFirstValidModelId() const;
-    
+
+    // helpers
     SkillType GetRequiredLootSkill() const
     {
         if(type_flags & CREATURE_TYPEFLAGS_HERBLOOT)
@@ -218,7 +219,7 @@ struct CreatureInfo
         else
             return SKILL_SKINNING;                          // normal case
     }
-    
+
     bool isTameable() const
     {
         return type == CREATURE_TYPE_BEAST && family != 0 && (type_flags & CREATURE_TYPEFLAGS_TAMEBLE);
@@ -425,6 +426,8 @@ class TRINITY_DLL_SPEC Creature : public Unit
         bool canWalk() const { return GetCreatureInfo()->InhabitType & INHABIT_GROUND; }
         bool canSwim() const { return GetCreatureInfo()->InhabitType & INHABIT_WATER; }
         bool canFly()  const { return GetCreatureInfo()->InhabitType & INHABIT_AIR; }
+        bool isAggressive() const { return m_isAggressive; }
+        void SetAggressive(bool agg) { m_isAggressive = agg; }
         ///// TODO RENAME THIS!!!!!
         bool isCanTrainingOf(Player* player, bool msg) const;
         bool isCanIneractWithBattleMaster(Player* player, bool msg) const;
@@ -498,7 +501,9 @@ class TRINITY_DLL_SPEC Creature : public Unit
 
         CreatureInfo const *GetCreatureInfo() const { return m_creatureInfo; }
         CreatureDataAddon const* GetCreatureAddon() const;
-        char const* GetScriptName() const;
+
+        std::string GetScriptName();
+        uint32 GetScriptId();
 
         void prepareGossipMenu( Player *pPlayer, uint32 gossipid = 0 );
         void sendPreparedGossip( Player* player );
@@ -524,7 +529,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
 
         // overwrite WorldObject function for proper name localization
         const char* GetNameForLocaleIdx(int32 locale_idx) const;
-    
+
         void setDeathState(DeathState s);                   // overwrite virtual Unit::setDeathState
 
         bool LoadFromDB(uint32 guid, Map *map);
@@ -552,8 +557,10 @@ class TRINITY_DLL_SPEC Creature : public Unit
 
         bool canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList) const;
         bool IsWithinSightDist(Unit const* u) const;
+        bool canStartAttack(Unit const* u) const;
         float GetAttackDistance(Unit const* pl) const;
 
+        Unit* SelectNearestTarget(float dist = 0) const;
         void CallAssistence();
         void SetNoCallAssistence(bool val) { m_AlreadyCallAssistence = val; }
         void DoFleeToGetAssistance(float radius = 50);
@@ -633,6 +640,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
         uint8 m_emoteState;
         bool m_isPet;                                       // set only in Pet::Pet
         bool m_isTotem;                                     // set only in Totem::Totem
+        bool m_isAggressive;
         void RegenerateMana();
         void RegenerateHealth();
         uint32 m_regenTimer;
