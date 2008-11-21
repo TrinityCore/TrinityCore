@@ -368,10 +368,11 @@ void WorldSession::HandleCancelAuraOpcode( WorldPacket& recvPacket)
                 spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_CHARM ||
                 spellInfo->EffectApplyAuraName[i] == SPELL_AURA_BIND_SIGHT)
             {
+                // Fix me: creature may be killed during player aura cancel
                 _player->RemoveAurasDueToSpellByCancel(spellId);
                 if (_player->GetCharm())
                     _player->GetCharm()->RemoveAurasDueToSpellByCancel(spellId);
-                else if (_player->GetFarsightTarget()->GetTypeId() != TYPEID_DYNAMICOBJECT)
+                else if (_player->GetFarsightTarget() && _player->GetFarsightTarget()->GetTypeId() != TYPEID_DYNAMICOBJECT)
                     ((Unit*)_player->GetFarsightTarget())->RemoveAurasDueToSpellByCancel(spellId);
                 return;
             }

@@ -73,17 +73,7 @@ bool ScriptedAI::IsVisible(Unit* who) const
 
 void ScriptedAI::MoveInLineOfSight(Unit *who)
 {
-    if(m_creature->getVictim() || !m_creature->IsHostileTo(who) || !who->isInAccessiblePlaceFor(m_creature))
-        return;
-
-    if(!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
-        return;
-
-    if(!m_creature->IsWithinDistInMap(who, m_creature->GetAttackDistance(who)) || !m_creature->IsWithinLOSInMap(who))
-        return;
-    
-    if(m_creature->canAttack(who))
-        //who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+    if(!m_creature->getVictim() && m_creature->canStartAttack(who))
         AttackStart(who);
 }
 

@@ -1543,6 +1543,19 @@ bool Creature::IsWithinSightDist(Unit const* u) const
     return IsWithinDistInMap(u, sWorld.getConfig(CONFIG_SIGHT_MONSTER));
 }
 
+bool Creature::canStartAttack(Unit const* who) const
+{
+    if(!who->isInAccessiblePlaceFor(this)
+        || !canFly() && GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE
+        || !IsWithinDistInMap(who, GetAttackDistance(who)))
+        return false;
+
+    if(!canAttack(who))
+        return false;
+
+    return IsWithinLOSInMap(who);
+}
+
 float Creature::GetAttackDistance(Unit const* pl) const
 {
     float aggroRate = sWorld.getRate(RATE_CREATURE_AGGRO);
@@ -1824,12 +1837,12 @@ void Creature::DoFleeToGetAssistance(float radius) // Optional parameter
 
 Unit* Creature::SelectNearestTarget(float dist) const
 {
-    /*CellPair p(Trinity::ComputeCellPair(GetPositionX(), GetPositionY()));
+    CellPair p(Trinity::ComputeCellPair(GetPositionX(), GetPositionY()));
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
-    Unit *target;
+    Unit *target = NULL;
 
     {
         Trinity::NearestHostileUnitInAttackDistanceCheck u_check(this, dist);
@@ -1839,10 +1852,11 @@ Unit* Creature::SelectNearestTarget(float dist) const
         TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::NearestHostileUnitInAttackDistanceCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
 
         CellLock<GridReadGuard> cell_lock(cell, p);
-        cell_lock->Visit(cell_lock, world_unit_searcher, GetMap());
-        cell_lock->Visit(cell_lock, grid_unit_searcher, GetMap());
-    }*/
-    return NULL;
+        cell_lock->Visit(cell_lock, world_unit_searcher, *GetMap());
+        cell_lock->Visit(cell_lock, grid_unit_searcher, *GetMap());
+    }
+
+    return target;
 }
 
 void Creature::CallAssistence()

@@ -701,35 +701,34 @@ namespace Trinity
     class NearestHostileUnitInAttackDistanceCheck
     {
         public:
-            explicit NearestHostileUnitInAttackDistanceCheck(Creature* creature, float dist = 0) : m_creature(creature) 
+            explicit NearestHostileUnitInAttackDistanceCheck(Creature const* creature, float dist = 0) : m_creature(creature) 
             {
                 m_range = (dist == 0 ? 9999 : dist);
                 m_force = (dist == 0 ? false : true);
             }
             bool operator()(Unit* u)
             {
-                if(!u->isAlive() || !m_creature->IsHostileTo(u))
+                // TODO: addthreat for every enemy in range?
+                if(!m_creature->IsWithinDistInMap(u, m_range))
                     return false;
 
-                float dist;
-                if(m_force) dist = m_range;
+                if(m_force)
+                {
+                    if(!m_creature->canAttack(u))
+                        return false;
+                }
                 else
                 {
-                    dist = m_creature->GetAttackDistance(u);
-                    if(dist > m_range) dist = m_range;
+                    if(!m_creature->canStartAttack(u))
+                        return false;
                 }
-                if(!m_creature->IsWithinDistInMap(u, dist))
-                    return false;
-
-                if(!m_creature->canSeeOrDetect(u, true, false))
-                    return false;
 
                 m_range = m_creature->GetDistance(u);
                 return true;
             }
             float GetLastRange() const { return m_range; }
         private:
-            Creature* const m_creature;
+            Creature const *m_creature;
             float m_range;
             bool m_force;
             NearestHostileUnitInAttackDistanceCheck(NearestHostileUnitInAttackDistanceCheck const&);
