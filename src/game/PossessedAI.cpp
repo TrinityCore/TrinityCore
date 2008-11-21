@@ -24,7 +24,7 @@
 
 void PossessedAI::AttackStart(Unit *u)
 {
-    if( !u )
+    if( !u || i_pet.GetCharmer()->HasAuraType(SPELL_AURA_MOD_PACIFY))
         return;
 
     if (i_pet.getVictim() && u != i_pet.getVictim())
@@ -95,7 +95,7 @@ void PossessedAI::UpdateAI(const uint32 diff)
             _stopAttack();                                  // i_victimGuid == 0 && i_pet.getVictim() == NULL now
             return;
         }
-        else if(i_pet.IsWithinCombatDist(i_pet.getVictim(), ATTACK_DISTANCE) && i_pet.isAttackReady())
+        else if(i_pet.IsWithinCombatDist(i_pet.getVictim(), ATTACK_DISTANCE) && i_pet.isAttackReady() && !i_pet.GetCharmer()->HasAuraType(SPELL_AURA_MOD_PACIFY))
         {
             i_pet.AttackerStateUpdate(i_pet.getVictim());
 
