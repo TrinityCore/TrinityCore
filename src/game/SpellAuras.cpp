@@ -3147,18 +3147,23 @@ void Aura::HandleAuraModDisarm(bool apply, bool Real)
     else
         m_target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED);
 
-    // only at real add/remove aura
-    if (m_target->GetTypeId() != TYPEID_PLAYER)
-        return;
+    if (m_target->GetTypeId() == TYPEID_PLAYER)
+    {
+        // main-hand attack speed already set to special value for feral form already and don't must change and reset at remove.
+        if (((Player *)m_target)->IsInFeralForm())
+            return;
 
-    // main-hand attack speed already set to special value for feral form already and don't must change and reset at remove.
-    if (((Player *)m_target)->IsInFeralForm())
-        return;
-
-    if (apply)
-        m_target->SetAttackTime(BASE_ATTACK,BASE_ATTACK_TIME);
+        if (apply)
+            m_target->SetAttackTime(BASE_ATTACK,BASE_ATTACK_TIME);
+        else
+            ((Player *)m_target)->SetRegularAttackTime();
+    }
     else
-        ((Player *)m_target)->SetRegularAttackTime();
+    {
+        // creature does not have equipment
+        if(apply && !((Creature*)m_target)->GetCurrentEquipmentId())
+            return;
+    }
 
     m_target->UpdateDamagePhysical(BASE_ATTACK);
 }
