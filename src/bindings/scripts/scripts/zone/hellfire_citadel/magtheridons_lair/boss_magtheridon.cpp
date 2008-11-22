@@ -227,7 +227,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
 
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNKNOWN2);
+        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
         m_creature->addUnitState(UNIT_STAT_STUNNED);
         m_creature->CastSpell(m_creature, SPELL_SHADOW_CAGE_C, true);
     }
