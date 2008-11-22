@@ -1871,6 +1871,7 @@ void Spell::EffectTriggerSpell(uint32 i)
         // Cloak of Shadows
         case 35729 :
         {
+            m_caster->RemoveAurasWithDispelType(DISPEL_ALL);
             Unit::AuraMap& Auras = m_caster->GetAuras();
             for(Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end(); ++iter)
             {
