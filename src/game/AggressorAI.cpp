@@ -98,7 +98,7 @@ void AggressorAI::EnterEvadeMode()
         //i_tracker.Reset(TIME_INTERVAL_LOOK);
     }
 
-    if(!i_creature.isCharmed())
+    if(!i_creature.GetCharmerOrOwner())
     {
         i_creature.RemoveAllAuras();
 
@@ -106,6 +106,8 @@ void AggressorAI::EnterEvadeMode()
         if( i_creature.GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE )
             i_creature.GetMotionMaster()->MoveTargetedHome();
     }
+    else if (i_creature.GetOwner() && i_creature.GetOwner()->isAlive())
+        i_creature.GetMotionMaster()->MoveFollow(owner,PET_FOLLOW_DIST,PET_FOLLOW_ANGLE);
 
     i_creature.DeleteThreatList();
     i_victimGuid = 0;
