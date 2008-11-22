@@ -1475,7 +1475,7 @@ uint32 Unit::SpellNonMeleeDamageLog(Unit *pVictim, uint32 spellID, uint32 damage
             GetGUIDLow(), GetTypeId(), pVictim->GetGUIDLow(), pVictim->GetTypeId(), damage, spellID, absorb,resist);
 
         // Actual log sent to client
-        SendSpellNonMeleeDamageLog(pVictim, spellID, damage, GetSpellSchoolMask(spellInfo), absorb, resist, false, 0, crit);
+        SendSpellNonMeleeDamageLog(pVictim, spellID, damage + resist, GetSpellSchoolMask(spellInfo), absorb, resist, false, 0, crit);
 
         // Procflags
         uint32 procAttacker = PROC_FLAG_HIT_SPELL;
