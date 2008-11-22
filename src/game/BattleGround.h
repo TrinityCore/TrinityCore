@@ -354,6 +354,8 @@ class BattleGround
 
         void StartBattleGround();
 
+        GameObject* GetBGObject(uint32 type);
+        Creature* GetBGCreature(uint32 type);
         /* Location */
         void SetMapId(uint32 MapID) { m_MapId = MapID; }
         uint32 GetMapId() const { return m_MapId; }
@@ -373,6 +375,7 @@ class BattleGround
         virtual void FillInitialWorldStates(WorldPacket& /*data*/) {}
         void SendPacketToTeam(uint32 TeamID, WorldPacket *packet, Player *sender = NULL, bool self = true);
         void SendPacketToAll(WorldPacket *packet);
+        void YellToAll(Creature* creature, const char* text, uint32 language);
         void PlaySoundToTeam(uint32 SoundID, uint32 TeamID);
         void PlaySoundToAll(uint32 SoundID);
         void CastSpellOnTeam(uint32 SpellID, uint32 TeamID);
@@ -423,6 +426,7 @@ class BattleGround
         virtual void HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/) {}
         // must be implemented in BG subclass if need AND call base class generic code
         virtual void HandleKillPlayer(Player *player, Player *killer);
+        virtual void HandleKillUnit(Creature* /*unit*/, Player* /*killer*/);
 
         /* Battleground events */
         /* these functions will return true event is possible, but false if player is bugger */
@@ -452,6 +456,7 @@ class BattleGround
         bool DelCreature(uint32 type);
         bool DelObject(uint32 type);
         bool AddSpiritGuide(uint32 type, float x, float y, float z, float o, uint32 team);
+        int32 GetObjectType(uint64 guid);
 
         void DoorOpen(uint32 type);
         void DoorClose(uint32 type);

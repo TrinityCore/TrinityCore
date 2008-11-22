@@ -644,7 +644,45 @@ enum TrinityStrings
     LANG_HIS_ARENA_LEVEL_REQ_ERROR      = 714,
     LANG_YOUR_BG_LEVEL_REQ_ERROR        = 715,
     LANG_YOUR_ARENA_TEAM_FULL           = 716,
-    // Room for BG/ARENA                  717-799 not used
+
+    LANG_BG_AV_ALLY                     = 717,
+    LANG_BG_AV_HORDE                    = 718,
+    LANG_BG_AV_TOWER_TAKEN              = 719,
+    LANG_BG_AV_TOWER_ASSAULTED          = 720,
+    LANG_BG_AV_TOWER_DEFENDED           = 721,
+    LANG_BG_AV_GRAVE_TAKEN              = 722,
+    LANG_BG_AV_GRAVE_DEFENDED           = 723,
+    LANG_BG_AV_GRAVE_ASSAULTED          = 724,
+
+    LANG_BG_AV_MINE_TAKEN               = 725,
+    LANG_BG_AV_MINE_NORTH               = 726,
+    LANG_BG_AV_MINE_SOUTH               = 727,
+
+    LANG_BG_AV_NODE_GRAVE_STORM_AID     = 728,
+    LANG_BG_AV_NODE_TOWER_DUN_S         = 729,
+    LANG_BG_AV_NODE_TOWER_DUN_N         = 730,
+    LANG_BG_AV_NODE_GRAVE_STORMPIKE     = 731,
+    LANG_BG_AV_NODE_TOWER_ICEWING       = 732,
+    LANG_BG_AV_NODE_GRAVE_STONE         = 733,
+    LANG_BG_AV_NODE_TOWER_STONE         = 734,
+    LANG_BG_AV_NODE_GRAVE_SNOW          = 735,
+    LANG_BG_AV_NODE_TOWER_ICE           = 736,
+    LANG_BG_AV_NODE_GRAVE_ICE           = 737,
+    LANG_BG_AV_NODE_TOWER_POINT         = 738,
+    LANG_BG_AV_NODE_GRAVE_FROST         = 739,
+    LANG_BG_AV_NODE_TOWER_FROST_E       = 740,
+    LANG_BG_AV_NODE_TOWER_FROST_W       = 741,
+    LANG_BG_AV_NODE_GRAVE_FROST_HUT     = 742,
+
+    LANG_BG_AV_ONEMINTOSTART            = 743,
+    LANG_BG_AV_HALFMINTOSTART           = 744,
+    LANG_BG_AV_STARTED                  = 745,
+    LANG_BG_AV_A_NEAR_LOSE              = 746,
+    LANG_BG_AV_H_NEAR_LOSE              = 747,
+    LANG_BG_AV_H_CAPTAIN_DEAD           = 748,
+    LANG_BG_AV_A_CAPTAIN_DEAD           = 749,
+
+    // Room for BG/ARENA                  750-799 not used
 
     LANG_ARENA_YOUR_TEAM_ONLY           = 730,
     LANG_ARENA_NOT_ENOUGH_PLAYERS       = 731,

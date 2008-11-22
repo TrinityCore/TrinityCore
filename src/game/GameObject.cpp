@@ -37,8 +37,9 @@
 #include "CellImpl.h"
 #include "InstanceData.h"
 #include "BattleGround.h"
-#include "OutdoorPvPMgr.h"
 #include "Util.h"
+#include "OutdoorPvPMgr.h"
+#include "BattleGroundAV.h"
 
 GameObject::GameObject() : WorldObject()
 {
@@ -754,7 +755,15 @@ bool GameObject::ActivateToQuest( Player *pTarget)const
         case GAMEOBJECT_TYPE_CHEST:
         {
             if(LootTemplates_Gameobject.HaveQuestLootForPlayer(GetLootId(), pTarget))
+            {
+                //TODO: fix this hack
+                //look for battlegroundAV for some objects which are only activated after mine gots captured by own team
+                if(GetEntry() == BG_AV_OBJECTID_MINE_N || GetEntry() == BG_AV_OBJECTID_MINE_S)
+                    if(BattleGround *bg = pTarget->GetBattleGround())
+                        if(bg->GetTypeID() == BATTLEGROUND_AV && !(((BattleGroundAV*)bg)->PlayerCanDoMineQuest(GetEntry(),pTarget->GetTeam())))
+                            return false;
                 return true;
+            }
             break;
         }
         case GAMEOBJECT_TYPE_GOOBER:
