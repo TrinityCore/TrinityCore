@@ -44,6 +44,7 @@
 #include "InstanceSaveMgr.h"
 #include "SpellAuras.h"
 #include "Util.h"
+#include "WaypointManager.h"
 
 INSTANTIATE_SINGLETON_1(ObjectMgr);
 
@@ -7470,6 +7471,8 @@ void ObjectMgr::LoadDbScriptStrings()
     CheckScripts(sSpellScripts,ids);
     CheckScripts(sGameObjectScripts,ids);
     CheckScripts(sEventScripts,ids);
+
+    WaypointMgr.CheckTextsExistance(ids);
 
     for(std::set<int32>::const_iterator itr = ids.begin(); itr != ids.end(); ++itr)
         sLog.outErrorDb( "Table `db_script_string` has unused string id  %u", *itr);
