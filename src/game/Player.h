@@ -897,8 +897,6 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         void AddToWorld();
         void RemoveFromWorld();
-        // always active
-        void setActive(bool) {}
 
         void SetViewport(uint64 guid, bool movable);
         void Possess(Unit *target);

@@ -594,57 +594,69 @@ bool Map::loaded(const GridPair &p) const
     return ( getNGrid(p.x_coord, p.y_coord) && isGridObjectDataLoaded(p.x_coord, p.y_coord) );
 }
 
-void Map::Update(const uint32 &t_diff)
+void Map::UpdateActiveCells(const float &x, const float &y, const uint32 &t_diff)
 {
-    // TODO: need have an active object list for every map
+    CellPair standing_cell(Trinity::ComputeCellPair(x, y));
 
-    /*resetMarkedCells();
+    // Check for correctness of standing_cell, it also avoids problems with update_cell
+    if (standing_cell.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || standing_cell.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
+        return;
 
+    // will this reduce the speed?
     Trinity::ObjectUpdater updater(t_diff);
     // for creature
     TypeContainerVisitor<Trinity::ObjectUpdater, GridTypeMapContainer  > grid_object_update(updater);
     // for pets
     TypeContainerVisitor<Trinity::ObjectUpdater, WorldTypeMapContainer > world_object_update(updater);
 
+    // the overloaded operators handle range checking
+    // so ther's no need for range checking inside the loop
+    CellPair begin_cell(standing_cell), end_cell(standing_cell);
+    begin_cell << 1; begin_cell -= 1;               // upper left
+    end_cell >> 1; end_cell += 1;                   // lower right
+
+    for(uint32 x = begin_cell.x_coord; x <= end_cell.x_coord; ++x)
+    {
+        for(uint32 y = begin_cell.y_coord; y <= end_cell.y_coord; ++y)
+        {
+            // marked cells are those that have been visited
+            // don't visit the same cell twice
+            uint32 cell_id = (y * TOTAL_NUMBER_OF_CELLS_PER_MAP) + x;
+            if(!isCellMarked(cell_id))
+            {
+                markCell(cell_id);
+                CellPair pair(x,y);
+                Cell cell(pair);
+                cell.data.Part.reserved = CENTER_DISTRICT;
+                cell.SetNoCreate();
+                CellLock<NullGuard> cell_lock(cell, pair);
+                cell_lock->Visit(cell_lock, grid_object_update,  *this);
+                cell_lock->Visit(cell_lock, world_object_update, *this);
+            }
+        }
+    }
+}
+
+void Map::Update(const uint32 &t_diff)
+{
+    resetMarkedCells();
+
+    // update cells around players
     for(MapRefManager::iterator iter = m_mapRefManager.begin(); iter != m_mapRefManager.end(); ++iter)
     {
         Player* plr = iter->getSource();
-        if(!plr->IsInWorld())
-            continue;
+        if(plr->IsInWorld())
+            UpdateActiveCells(plr->GetPositionX(), plr->GetPositionY(), t_diff);
+    }
 
-        CellPair standing_cell(Trinity::ComputeCellPair(plr->GetPositionX(), plr->GetPositionY()));
-
-        // Check for correctness of standing_cell, it also avoids problems with update_cell
-        if (standing_cell.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || standing_cell.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
-            continue;
-
-        // the overloaded operators handle range checking
-        // so ther's no need for range checking inside the loop
-        CellPair begin_cell(standing_cell), end_cell(standing_cell);
-        begin_cell << 1; begin_cell -= 1;               // upper left
-        end_cell >> 1; end_cell += 1;                   // lower right
-
-        for(uint32 x = begin_cell.x_coord; x <= end_cell.x_coord; ++x)
-        {
-            for(uint32 y = begin_cell.y_coord; y <= end_cell.y_coord; ++y)
-            {
-                // marked cells are those that have been visited
-                // don't visit the same cell twice
-                uint32 cell_id = (y * TOTAL_NUMBER_OF_CELLS_PER_MAP) + x;
-                if(!isCellMarked(cell_id))
-                {
-                    markCell(cell_id);
-                    CellPair pair(x,y);
-                    Cell cell(pair);
-                    cell.data.Part.reserved = CENTER_DISTRICT;
-                    cell.SetNoCreate();
-                    CellLock<NullGuard> cell_lock(cell, pair);
-                    cell_lock->Visit(cell_lock, grid_object_update,  *this);
-                    cell_lock->Visit(cell_lock, world_object_update, *this);
-                }
-            }
-        }
-    }*/
+    // update cells around active objects
+    // clone the active object list, because update might remove from it
+    std::set<WorldObject *> activeObjects(i_activeObjects);
+    for(std::set<WorldObject *>::iterator iter = activeObjects.begin(); iter != activeObjects.end(); ++iter)
+    {
+        if((*iter)->IsInWorld())
+            UpdateActiveCells((*iter)->GetPositionX(), (*iter)->GetPositionY(), t_diff);
+    }
 
     // Don't unload grids if it's battleground, since we may have manually added GOs,creatures, those doesn't load from DB at grid re-load !
     // This isn't really bother us, since as soon as we have instanced BG-s, the whole map unloads as the BG gets ended
@@ -813,8 +825,13 @@ Map::CreatureRelocation(Creature *creature, float x, float y, float z, float ang
         #endif
         AddCreatureToMoveList(creature,x,y,z,ang);
         // in diffcell/diffgrid case notifiers called at finishing move creature in Map::MoveAllCreaturesInMoveList
-        if(creature->isPossessedByPlayer())
-            EnsureGridLoadedForPlayer(new_cell, (Player*)creature->GetCharmer(), false);
+        if(creature->isActive())
+        {
+            if(creature->isPossessedByPlayer())
+                EnsureGridLoadedForPlayer(new_cell, (Player*)creature->GetCharmer(), false);
+            else
+                EnsureGridLoadedForPlayer(new_cell, NULL, false);
+        }
     }
     else
     {
@@ -1501,6 +1518,36 @@ bool Map::PlayersNearGrid(uint32 x, uint32 y) const
         Player* plr = iter->getSource();
 
         CellPair p = Trinity::ComputeCellPair(plr->GetPositionX(), plr->GetPositionY());
+        if( (cell_min.x_coord <= p.x_coord && p.x_coord <= cell_max.x_coord) &&
+            (cell_min.y_coord <= p.y_coord && p.y_coord <= cell_max.y_coord) )
+            return true;
+    }
+
+    return false;
+}
+
+bool Map::ActiveObjectsNearGrid(uint32 x, uint32 y) const
+{
+    CellPair cell_min(x*MAX_NUMBER_OF_CELLS, y*MAX_NUMBER_OF_CELLS);
+    CellPair cell_max(cell_min.x_coord + MAX_NUMBER_OF_CELLS, cell_min.y_coord+MAX_NUMBER_OF_CELLS);
+    cell_min << 2;
+    cell_min -= 2;
+    cell_max >> 2;
+    cell_max += 2;
+
+    for(MapRefManager::const_iterator iter = m_mapRefManager.begin(); iter != m_mapRefManager.end(); ++iter)
+    {
+        Player* plr = iter->getSource();
+
+        CellPair p = Trinity::ComputeCellPair(plr->GetPositionX(), plr->GetPositionY());
+        if( (cell_min.x_coord <= p.x_coord && p.x_coord <= cell_max.x_coord) &&
+            (cell_min.y_coord <= p.y_coord && p.y_coord <= cell_max.y_coord) )
+            return true;
+    }
+
+    for(std::set<WorldObject*>::const_iterator itr = i_activeObjects.begin(); itr != i_activeObjects.end(); ++itr)
+    {
+        CellPair p = Trinity::ComputeCellPair((*itr)->GetPositionX(), (*itr)->GetPositionY());
         if( (cell_min.x_coord <= p.x_coord && p.x_coord <= cell_max.x_coord) &&
             (cell_min.y_coord <= p.y_coord && p.y_coord <= cell_max.y_coord) )
             return true;
