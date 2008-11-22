@@ -318,7 +318,7 @@ void WaypointManager::CheckTextsExistance(std::set<int32>& ids)
                 }
                 else
                 {
-                    if (!objmgr.GetMangosStringLocale(pmItr->second[i].behavior->textid[j]))
+                    if (!objmgr.GetTrinityStringLocale(pmItr->second[i].behavior->textid[j]))
                     {
                         sLog.outErrorDb("ERROR: Some waypoint has textid%u with not existing %u text.", j, pmItr->second[i].behavior->textid[j]);
                         pmItr->second[i].behavior->textid[j] = 0;
