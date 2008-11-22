@@ -147,7 +147,11 @@ Creature::~Creature()
     delete i_AI;
     i_AI = NULL;
 
-    DeletePossessedAI();
+    if (i_AI_possessed)
+    {
+        delete i_AI_possessed;
+        i_AI_possessed = NULL;
+    }
 }
 
 void Creature::AddToWorld()
@@ -562,12 +566,9 @@ void Creature::InitPossessedAI()
     i_AI->OnPossess(true);
 }
 
-void Creature::DeletePossessedAI()
+void Creature::DisablePossessedAI()
 {
     if (!i_AI_possessed) return;
-
-    delete i_AI_possessed;
-    i_AI_possessed = NULL;
 
     // Signal the old AI that it's been re-enabled
     i_AI->OnPossess(false);

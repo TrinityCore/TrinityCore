@@ -18956,8 +18956,8 @@ void Player::RemovePossess(bool attack)
             if(attack)
                 target->AddThreat(this, 1000000.0f);
         }
-        // Delete the assigned possessed AI
-        ((Creature*)target)->DeletePossessedAI();
+        // Disable the assigned possessed AI
+        ((Creature*)target)->DisablePossessedAI();
     }
 }
 

@@ -49,7 +49,6 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
-#include "TemporarySummon.h"
 
 #define NULL_AURA_SLOT 0xFF
 
@@ -2022,13 +2021,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
         if(GetId()==46308)                                  // casted only at creatures at spawn
         {
             m_target->CastSpell(m_target,47287,true,NULL,this);
-            return;
-        }
-
-        // Eye of Kilrogg, unsummon eye when aura is gone
-        if(GetId() == 126 && caster->GetTypeId() == TYPEID_PLAYER && caster->GetCharm())
-        {
-            ((TemporarySummon*)caster->GetCharm())->UnSummon();
             return;
         }
     }

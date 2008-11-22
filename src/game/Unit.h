@@ -640,7 +640,7 @@ struct CharmSpellEntry
 
 typedef std::list<Player*> SharedVisionList;
 
-struct CharmInfo
+struct TRINITY_DLL_SPEC CharmInfo
 {
     public:
         explicit CharmInfo(Unit* unit);
@@ -657,7 +657,7 @@ struct CharmInfo
         void InitPossessCreateSpells();
         void InitCharmCreateSpells();
         void InitPetActionBar();
-        void InitEmptyActionBar();
+        void InitEmptyActionBar(bool withAttack = true);
                                                             //return true if successful
         bool AddSpellToAB(uint32 oldid, uint32 newid, ActiveStates newstate = ACT_DECIDE);
         void ToggleCreatureAutocast(uint32 spellid, bool apply);
@@ -671,6 +671,7 @@ struct CharmInfo
         CommandStates   m_CommandState;
         ReactStates     m_reactState;
         uint32          m_petnumber;
+        bool            m_barInit;
 };
 
 // for clearing special attacks
