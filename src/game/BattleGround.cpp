@@ -362,6 +362,23 @@ void BattleGround::CastSpellOnTeam(uint32 SpellID, uint32 TeamID)
     }
 }
 
+void BattleGround::YellToAll(Creature* creature, const char* text, uint32 language)
+{
+    for(std::map<uint64, BattleGroundPlayer>::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    {
+        WorldPacket data(SMSG_MESSAGECHAT, 200);
+        Player *plr = objmgr.GetPlayer(itr->first);
+        if(!plr)
+        {
+            sLog.outError("BattleGround: Player " I64FMTD " not found!", itr->first);
+            continue;
+        }
+        creature->BuildMonsterChat(&data,CHAT_MSG_MONSTER_YELL,text,language,creature->GetName(),itr->first);
+        plr->GetSession()->SendPacket(&data);
+    }
+}
+
+
 void BattleGround::RewardHonorToTeam(uint32 Honor, uint32 TeamID)
 {
     for(std::map<uint64, BattleGroundPlayer>::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
@@ -1218,6 +1235,22 @@ void BattleGround::DoorOpen(uint32 type)
     }
 }
 
+GameObject* BattleGround::GetBGObject(uint32 type)
+{
+    GameObject *obj = HashMapHolder<GameObject>::Find(m_BgObjects[type]);
+    if(!obj)
+        sLog.outError("couldn't get gameobject %i",type);
+    return obj;
+}
+
+Creature* BattleGround::GetBGCreature(uint32 type)
+{
+    Creature *creature = HashMapHolder<Creature>::Find(m_BgCreatures[type]);
+    if(!creature)
+        sLog.outError("couldn't get creature %i",type);
+    return creature;
+}
+
 void BattleGround::SpawnBGObject(uint32 type, uint32 respawntime)
 {
     Map * map = MapManager::Instance().FindMap(GetMapId(),GetInstanceID());
@@ -1269,6 +1302,16 @@ Creature* BattleGround::AddCreature(uint32 entry, uint32 type, uint32 teamval, f
         return NULL;
     }
 
+    CreatureData &data = objmgr.NewOrExistCreatureData(pCreature->GetDBTableGUIDLow());
+    
+    data.id             = entry;
+//    data.mapid          = GetMapId();
+    data.posX           = x;
+    data.posY           = y;
+    data.posZ           = z;
+    data.orientation    = o;
+    data.spawndist      = 15;
+
     pCreature->AIM_Initialize();
 
     //pCreature->SetDungeonDifficulty(0);
@@ -1287,6 +1330,7 @@ bool BattleGround::DelCreature(uint32 type)
         sLog.outError("Can't find creature guid: %u",GUID_LOPART(m_BgCreatures[type]));
         return false;
     }
+    //TODO: only delete creature after not in combat
     cr->CleanupsBeforeDelete();
     cr->AddObjectToRemoveList();
     m_BgCreatures[type] = 0;
@@ -1473,4 +1517,17 @@ void BattleGround::SetHoliday(bool is_holiday)
         m_HonorMode = BG_HOLIDAY;
     else
         m_HonorMode = BG_NORMAL;
+}
+
+int32 BattleGround::GetObjectType(uint64 guid)
+{
+    for(uint32 i = 0;i <= m_BgObjects.size(); i++)
+        if(m_BgObjects[i] == guid)
+            return i;
+    sLog.outError("BattleGround: cheating? a player used a gameobject which isnt supposed to be a usable object!");
+    return -1;
+}
+
+void BattleGround::HandleKillUnit(Creature *creature, Player *killer)
+{
 }
