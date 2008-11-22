@@ -1016,6 +1016,13 @@ void Player::Update( uint32 p_time )
 
     CheckExploreSystem();
 
+    /*if(isCharmed())
+    {
+        if(Unit *charmer = GetCharmer())
+            if(charmer->GetTypeId() == TYPEID_UNIT && ((Creature*)charmer)->AI())
+                ((Creature*)charmer)->AI()->UpdateCharmedAI(this, p_time);
+    }*/
+
     // Update items that have just a limited lifetime
     if (now>m_Last_tick)
         UpdateItemDuration(uint32(now- m_Last_tick));
@@ -5266,16 +5273,16 @@ bool Player::SetPosition(float x, float y, float z, float orientation, bool tele
         x = GetPositionX();
         y = GetPositionY();
         z = GetPositionZ();
+
+        // group update
+        if(GetGroup() && (old_x != x || old_y != y))
+            SetGroupUpdateFlag(GROUP_UPDATE_FLAG_POSITION);
     }
 
     // code block for underwater state update
     UpdateUnderwaterState(m, x, y, z);
 
     CheckExploreSystem();
-
-    // group update
-    if(GetGroup())
-        SetGroupUpdateFlag(GROUP_UPDATE_FLAG_POSITION);
 
     return true;
 }
