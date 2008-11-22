@@ -242,6 +242,10 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         bool HavePlayers() const { return !m_mapRefManager.isEmpty(); }
         uint32 GetPlayersCountExceptGMs() const;
         bool PlayersNearGrid(uint32 x,uint32 y) const;
+        bool ActiveObjectsNearGrid(uint32 x, uint32 y) const;
+
+        void AddActiveObject(WorldObject* obj) { i_activeObjects.insert(obj); }
+        void RemoveActiveObject(WorldObject* obj) { i_activeObjects.erase(obj); }
 
         void SendToPlayers(WorldPacket const* data) const;
 
@@ -287,6 +291,7 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
 
         inline void setNGrid(NGridType* grid, uint32 x, uint32 y);
 
+        void UpdateActiveCells(const float &x, const float &y, const uint32 &t_diff);
     protected:
         typedef Trinity::ObjectLevelLockable<Map, ZThread::Mutex>::Lock Guard;
 
@@ -307,6 +312,7 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
 
         time_t i_gridExpiry;
 
+        std::set<WorldObject *> i_activeObjects;
         std::set<WorldObject *> i_objectsToRemove;
 
         // Type specific code for add/remove to/from grid
