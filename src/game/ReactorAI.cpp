@@ -123,7 +123,12 @@ ReactorAI::EnterEvadeMode()
     i_creature.CombatStop();
     i_creature.SetLootRecipient(NULL);
 
-    // Remove TargetedMovementGenerator from MotionMaster stack list, and add HomeMovementGenerator instead
-    if( i_creature.GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE )
-        i_creature.GetMotionMaster()->MoveTargetedHome();
+    if(!i_creature.GetCharmerOrOwner())
+    {
+        // Remove TargetedMovementGenerator from MotionMaster stack list, and add HomeMovementGenerator instead
+        if( i_creature.GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE )
+            i_creature.GetMotionMaster()->MoveTargetedHome();
+    }
+    else if (i_creature.GetOwner() && i_creature.GetOwner()->isAlive())
+        i_creature.GetMotionMaster()->MoveFollow(owner,PET_FOLLOW_DIST,PET_FOLLOW_ANGLE);
 }
