@@ -46,6 +46,7 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 #include "Path.h"
+#include "TemporarySummon.h"
 
 #include <math.h>
 
@@ -3411,6 +3412,21 @@ void Unit::InterruptNonMeleeSpells(bool withDelayed, uint32 spell_id)
     // channeled spells are interrupted if they are not finished, even if they are delayed
     if (m_currentSpells[CURRENT_CHANNELED_SPELL] && (!spell_id || m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo->Id==spell_id))
     {
+        // Unsummon any summoned as possessed creatures on channel interrupt
+        SpellEntry const *spellInfo = m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo;
+        for (int i = 0; i < 3; i++)
+        {
+            if (spellInfo->Effect[i] == SPELL_EFFECT_SUMMON && 
+                (spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED || 
+                 spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED2 || 
+                 spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED3))
+            {
+                // Possession is removed in the UnSummon function
+                if (GetCharm())
+                    ((TemporarySummon*)GetCharm())->UnSummon(); 
+            }
+        }
+
         if (m_currentSpells[CURRENT_CHANNELED_SPELL]->getState() != SPELL_STATE_FINISHED)
             m_currentSpells[CURRENT_CHANNELED_SPELL]->cancel();
         m_currentSpells[CURRENT_CHANNELED_SPELL]->SetReferencedFromCurrent(false);
@@ -9790,7 +9806,7 @@ CharmInfo* Unit::InitCharmInfo(Unit *charm)
 }
 
 CharmInfo::CharmInfo(Unit* unit)
-: m_unit(unit), m_CommandState(COMMAND_FOLLOW), m_reactState(REACT_PASSIVE), m_petnumber(0)
+: m_unit(unit), m_CommandState(COMMAND_FOLLOW), m_reactState(REACT_PASSIVE), m_petnumber(0), m_barInit(false)
 {
     for(int i =0; i<4; ++i)
     {
@@ -9801,6 +9817,9 @@ CharmInfo::CharmInfo(Unit* unit)
 
 void CharmInfo::InitPetActionBar()
 {
+    if (m_barInit)
+        return;
+
     // the first 3 SpellOrActions are attack, follow and stay
     for(uint32 i = 0; i < 3; i++)
     {
@@ -9815,17 +9834,25 @@ void CharmInfo::InitPetActionBar()
         PetActionBar[i + 3].Type = ACT_DISABLED;
         PetActionBar[i + 3].SpellOrAction = 0;
     }
+    m_barInit = true;
 }
 
-void CharmInfo::InitEmptyActionBar()
+void CharmInfo::InitEmptyActionBar(bool withAttack)
 {
-    for(uint32 x = 1; x < 10; ++x)
+    if (m_barInit)
+        return;
+
+    for(uint32 x = 0; x < 10; ++x)
     {
         PetActionBar[x].Type = ACT_CAST;
         PetActionBar[x].SpellOrAction = 0;
     }
-    PetActionBar[0].Type = ACT_COMMAND;
-    PetActionBar[0].SpellOrAction = COMMAND_ATTACK;
+    if (withAttack)
+    {
+        PetActionBar[0].Type = ACT_COMMAND;
+        PetActionBar[0].SpellOrAction = COMMAND_ATTACK;
+    }
+    m_barInit = true;
 }
 
 void CharmInfo::InitPossessCreateSpells()
