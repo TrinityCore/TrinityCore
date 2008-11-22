@@ -358,49 +358,27 @@ void WorldSession::HandleCancelAuraOpcode( WorldPacket& recvPacket)
     if (!spellInfo)
         return;
 
-    // Remove possess/charm/sight aura from the possessed/charmed as well
-    // TODO: Remove this once the ability to cancel aura sets at once is implemented
-    if(_player->GetCharm() || _player->GetFarsightTarget())
-    {
-        for (int i = 0; i < 3; ++i)
-        {
-            if (spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_POSSESS ||
-                spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_POSSESS_PET ||
-                spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_CHARM ||
-                spellInfo->EffectApplyAuraName[i] == SPELL_AURA_BIND_SIGHT)
-            {
-                // Fix me: creature may be killed during player aura cancel
-                _player->RemoveAurasDueToSpellByCancel(spellId);
-                if (_player->GetCharm())
-                    _player->GetCharm()->RemoveAurasDueToSpellByCancel(spellId);
-                else if (_player->GetFarsightTarget() && _player->GetFarsightTarget()->GetTypeId() != TYPEID_DYNAMICOBJECT)
-                    ((Unit*)_player->GetFarsightTarget())->RemoveAurasDueToSpellByCancel(spellId);
-                return;
-            }
-            else if (spellInfo->Effect[i] == SPELL_EFFECT_SUMMON && 
-                (spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED || 
-                 spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED2 || 
-                 spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED3))
-            {
-                // Possession is removed in the UnSummon function
-                ((TemporarySummon*)_player->GetCharm())->UnSummon();
-            }
-        }
-    }
-
     // not allow remove non positive spells and spells with attr SPELL_ATTR_CANT_CANCEL
     if(!IsPositiveSpell(spellId) || (spellInfo->Attributes & SPELL_ATTR_CANT_CANCEL))
         return;
 
-    _player->RemoveAurasDueToSpellByCancel(spellId);
-
-    if (spellId == 2584)                                    // Waiting to resurrect spell cancel, we must remove player from resurrect queue
+    // channeled spell case (it currently casted then)
+    if(IsChanneledSpell(spellInfo))
     {
-        BattleGround *bg = _player->GetBattleGround();
-        if(!bg)
-            return;
-        bg->RemovePlayerFromResurrectQueue(_player->GetGUID());
+        if(Spell* spell = _player->m_currentSpells[CURRENT_CHANNELED_SPELL])
+        {
+            if(spell->m_spellInfo->Id==spellId)
+            {
+                spell->cancel();
+                spell->SetReferencedFromCurrent(false);
+                _player->m_currentSpells[CURRENT_CHANNELED_SPELL] = NULL;
+            }
+        }
+        return;
     }
+
+    // non channeled case
+    _player->RemoveAurasDueToSpellByCancel(spellId);
 }
 
 void WorldSession::HandlePetCancelAuraOpcode( WorldPacket& recvPacket)

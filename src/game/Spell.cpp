@@ -48,6 +48,7 @@
 #include "VMapFactory.h"
 #include "BattleGround.h"
 #include "Util.h"
+#include "TemporarySummon.h"
 
 #define SPELL_CHANNEL_UPDATE_INTERVAL 1000
 
@@ -2185,6 +2186,20 @@ void Spell::cancel()
         default:
         {
         } break;
+    }
+
+    // Unsummon summon as possessed creatures on spell cancel
+    for (int i = 0; i < 3; i++)
+    {
+        if (m_spellInfo->Effect[i] == SPELL_EFFECT_SUMMON && 
+            (m_spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED || 
+             m_spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED2 || 
+             m_spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED3))
+        {
+            // Possession is removed in the UnSummon function
+            if (m_caster->GetCharm())
+                ((TemporarySummon*)m_caster->GetCharm())->UnSummon(); 
+        }
     }
 
     finish(false);
