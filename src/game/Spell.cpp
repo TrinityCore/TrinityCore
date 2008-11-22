@@ -928,6 +928,23 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         return;
 
     SpellMissInfo missInfo = target->missCondition;
+
+    //if target is immune to spell
+    if (missInfo == SPELL_MISS_IMMUNE)
+    {
+        uint32 t_mask =0;
+        for (uint32 i=0;i<3;i++)
+            //and this spell triggers another spell (not aura)
+            if (m_spellInfo->Effect[i]==SPELL_EFFECT_TRIGGER_SPELL)
+                t_mask |=1<<i;
+        if (t_mask)
+        {
+            //let the spell trigger it
+            missInfo = SPELL_MISS_NONE;
+            mask=t_mask;
+        }
+    }
+
     // Need init unitTarget by default unit (can changed in code on reflect)
     // Or on missInfo!=SPELL_MISS_NONE unitTarget undefined (but need in trigger subsystem)
     unitTarget = unit;
