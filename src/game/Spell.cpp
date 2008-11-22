@@ -1533,6 +1533,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
         }break;
         case TARGET_SCRIPT:
         case TARGET_SCRIPT_COORDINATES:
+        case TARGET_UNIT_AREA_SCRIPT:
         {
             SpellScriptTarget::const_iterator lower = spellmgr.GetBeginSpellScriptTarget(m_spellInfo->Id);
             SpellScriptTarget::const_iterator upper = spellmgr.GetEndSpellScriptTarget(m_spellInfo->Id);
@@ -3865,6 +3866,7 @@ uint8 Spell::CanCast(bool strict)
                 {
                     case SUMMON_TYPE_POSESSED:
                     case SUMMON_TYPE_POSESSED2:
+                    case SUMMON_TYPE_POSESSED3:
                     case SUMMON_TYPE_DEMON:
                     case SUMMON_TYPE_SUMMON:
                     {
