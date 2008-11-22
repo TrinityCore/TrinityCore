@@ -737,16 +737,22 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
             break;
     }
 
-    float att_speed = float(GetAttackTime(attType))/1000.0f;
-
-    float base_value  = GetModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType)/ 14.0f * att_speed;
-    float base_pct    = GetModifierValue(unitMod, BASE_PCT);
-    float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
-    float total_pct   = GetModifierValue(unitMod, TOTAL_PCT);
+    //float att_speed = float(GetAttackTime(attType))/1000.0f;
 
     float weapon_mindamage = GetWeaponDamageRange(attType, MINDAMAGE);
     float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
 
+    //This formula is not correct
+    //The correct one is (Damage_from_AttackPower + Base_Weapon_Damage) * Multiplier
+    //We do not know the multiplier, so we assume attack power is about 25% damage
+    //float base_value  = GetModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType)/ 14.0f * att_speed;
+    float base_value  = GetModifierValue(unitMod, BASE_VALUE)
+        + (weapon_mindamage + weapon_maxdamage) / 6
+        / GetTotalAttackPowerValue(attType) * getLevel() * 5;
+    float base_pct    = GetModifierValue(unitMod, BASE_PCT);
+    float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
+    float total_pct   = GetModifierValue(unitMod, TOTAL_PCT);
+    
     float mindamage = ((base_value + weapon_mindamage) * base_pct + total_value) * total_pct ;
     float maxdamage = ((base_value + weapon_maxdamage) * base_pct + total_value) * total_pct ;
 
