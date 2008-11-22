@@ -390,6 +390,99 @@ bool GossipSelect_npc_veronia(Player *player, Creature *_Creature, uint32 sender
 }
 
 /*######
+## mob_phase_hunter
+######*/
+
+#define SUMMONED_MOB        19595
+#define EMOTE_WEAK          "is very weak"
+
+// Spells
+#define SPELL_PHASE_SLIP    36574
+#define SPELL_MANA_BURN     13321
+
+struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
+{
+
+    mob_phase_hunterAI(Creature *c) : ScriptedAI(c) {Reset();}
+    
+    bool Weak;
+    int WeakPercent;
+    uint32 PlayerGUID;
+    uint32 Health;
+    uint32 Level;
+    uint32 PhaseSlipVulnerabilityTimer;
+    uint32 ManaBurnTimer;
+
+    void Reset()
+    {
+        Weak = false;
+        WeakPercent = 25 + (rand()%16); // 25-40
+        PlayerGUID = 0;
+        ManaBurnTimer = 5000 + (rand()%3 * 1000); // 5-8 sec cd
+    }
+
+    void Aggro(Unit *who)
+    {
+        PlayerGUID = who->GetGUID();
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+
+        Player* target = NULL;
+        target = ((Player*)Unit::GetUnit((*m_creature), PlayerGUID));
+        
+        if(!target)
+            return;
+
+        if(m_creature->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED) || m_creature->hasUnitState(UNIT_STAT_ROOT)) // if the mob is rooted/slowed by spells eg.: Entangling Roots, Frost Nova, Hamstring, Crippling Poison, etc. => remove it
+            DoCast(m_creature, SPELL_PHASE_SLIP);
+        if(ManaBurnTimer < diff) // cast Mana Burn
+        {
+            if(target->GetCreateMana() > 0)
+            {
+                DoCast(target, SPELL_MANA_BURN);
+                ManaBurnTimer = 8000 + (rand()%10 * 1000); // 8-18 sec cd
+            }
+        }
+        else ManaBurnTimer -= diff;
+
+        if(!Weak && m_creature->GetHealth() < (m_creature->GetMaxHealth() / 100 * WeakPercent) && target->GetQuestStatus(10190) == QUEST_STATUS_INCOMPLETE) // start: support for quest 10190
+        {
+            DoTextEmote(EMOTE_WEAK, 0);
+            Weak = true;
+        }
+        if(Weak && m_creature->HasAura(34219, 0))
+        {
+            Health = m_creature->GetHealth(); // get the normal mob's data
+            Level = m_creature->getLevel();
+
+            m_creature->AttackStop(); // delete the normal mob
+            m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            m_creature->RemoveCorpse();
+            
+            Creature* DrainedPhaseHunter = NULL;
+            
+            if(!DrainedPhaseHunter)
+                DrainedPhaseHunter = m_creature->SummonCreature(SUMMONED_MOB, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000); // summon the mob
+            
+            if(DrainedPhaseHunter)
+            {
+                DrainedPhaseHunter->SetLevel(Level); // set the summoned mob's data
+                DrainedPhaseHunter->SetHealth(Health);
+                DrainedPhaseHunter->AI()->AttackStart(target);
+            }
+        } // end: support for quest 10190
+    }
+
+};
+
+CreatureAI* GetAI_mob_phase_hunter(Creature *_Creature)
+{
+    return new mob_phase_hunterAI (_Creature);
+}
+
+/*######
 ##
 ######*/
 
@@ -417,5 +510,10 @@ void AddSC_netherstorm()
     newscript->Name="npc_veronia";
     newscript->pGossipHello =   &GossipHello_npc_veronia;
     newscript->pGossipSelect =  &GossipSelect_npc_veronia;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_phase_hunter";
+    newscript->GetAI = GetAI_mob_phase_hunter;
     newscript->RegisterSelf();
 }

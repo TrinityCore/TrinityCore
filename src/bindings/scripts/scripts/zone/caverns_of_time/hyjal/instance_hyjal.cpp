@@ -149,7 +149,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
         data << field;
         data << value;
 
-        ((InstanceMap*)instance)->SendToPlayers(&data);
+        instance->SendToPlayers(&data);
     }
 
     const char* Save()

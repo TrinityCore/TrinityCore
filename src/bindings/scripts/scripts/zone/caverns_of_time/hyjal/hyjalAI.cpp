@@ -301,7 +301,7 @@ void hyjalAI::UpdateWorldState(uint32 field, uint32 value)
     data << field;
     data << value;
 
-    ((InstanceMap*)map)->SendToPlayers(&data);
+    map->SendToPlayers(&data);
 
     // TODO: Uncomment and remove everything above this line only when the core patch for this is accepted
     //m_creature->GetMap()->UpdateWorldState(field, value);
