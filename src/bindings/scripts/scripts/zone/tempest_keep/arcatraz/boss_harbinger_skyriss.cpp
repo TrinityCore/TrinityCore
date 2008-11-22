@@ -94,7 +94,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_UNKNOWN2);
+        m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_ATTACKABLE_2);
 
         if( Intro )
             Intro = true;
@@ -154,7 +154,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_UNKNOWN2);
+        m_creature->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_ATTACKABLE_2);
     }
 
     void JustDied(Unit* Killer)

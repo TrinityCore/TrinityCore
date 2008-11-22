@@ -1914,7 +1914,7 @@ void boss_illidan_stormrageAI::Reset()
     TransformCount = 0;
 
     m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, 21135);
-    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNKNOWN2);
+    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, 0);
