@@ -839,7 +839,11 @@ struct TRINITY_DLL_DECL npc_steam_tonkAI : public ScriptedAI
             // Initialize the action bar without the melee attack command
             m_creature->InitCharmInfo(m_creature);
             m_creature->GetCharmInfo()->InitEmptyActionBar(false);
+
+            m_creature->SetAggressive(false);
         }
+        else
+            m_creature->SetAggressive(true);
     }
 
 };
@@ -853,7 +857,11 @@ CreatureAI* GetAI_npc_steam_tonk(Creature *_Creature)
 
 struct TRINITY_DLL_DECL npc_tonk_mineAI : public ScriptedAI
 {
-    npc_tonk_mineAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_tonk_mineAI(Creature *c) : ScriptedAI(c) 
+    {
+        m_creature->SetAggressive(false);
+        Reset();
+    }
 
     uint32 ExplosionTimer;
 
