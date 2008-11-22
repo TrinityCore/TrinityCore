@@ -1308,7 +1308,9 @@ Unit* Spell::SearchNearbyTarget(float radius, SpellTargets TargetType, uint32 en
             Creature* target = NULL;
             Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck u_check(*m_caster, entry, true, radius);
             Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(target, u_check);
+            TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, WorldTypeMapContainer >  world_unit_searcher(searcher);
             TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
+            cell_lock->Visit(cell_lock, world_unit_searcher, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
             cell_lock->Visit(cell_lock, grid_unit_searcher, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
             return target;
         }break;
@@ -1602,9 +1604,11 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                         Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck u_check(*m_caster,i_spellST->second.targetEntry,i_spellST->second.type!=SPELL_TARGET_TYPE_DEAD,range);
                         Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(p_Creature, u_check);
 
+                        TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, WorldTypeMapContainer >  world_creature_searcher(searcher);
                         TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer >  grid_creature_searcher(searcher);
 
                         CellLock<GridReadGuard> cell_lock(cell, p);
+                        cell_lock->Visit(cell_lock, world_creature_searcher, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
                         cell_lock->Visit(cell_lock, grid_creature_searcher, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
 
                         if(p_Creature )
