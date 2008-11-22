@@ -78,6 +78,7 @@ class WaypointManager
         void DeletePath(uint32 id);
         void SetNodePosition(uint32 id, uint32 point, float x, float y, float z);
         void SetNodeText(uint32 id, uint32 point, const char *text_field, const char *text);
+        void CheckTextsExistance(std::set<int32>& ids);
 
     private:
         void _addNode(uint32 id, uint32 point, float x, float y, float z, float o, uint32 delay, uint32 wpGuid);
