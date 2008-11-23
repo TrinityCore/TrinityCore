@@ -712,16 +712,10 @@ void Spell::AddUnitTarget(Unit* pVictim, uint32 effIndex)
     target.processed  = false;                              // Effects not apply on target
 
     // Calculate hit result
-    if(m_spellInfo->Effect[effIndex] == SPELL_EFFECT_DUMMY)
-        target.missCondition = SPELL_MISS_NONE;
-    else if(m_originalCaster)
+    if(m_originalCaster)
         target.missCondition = m_originalCaster->SpellHitResult(pVictim, m_spellInfo, m_canReflect);
     else
         target.missCondition = SPELL_MISS_EVADE; //SPELL_MISS_NONE;
-
-    if(target.missCondition == SPELL_MISS_IMMUNE // Mass Dispel
-        && m_spellInfo->Effect[effIndex] == SPELL_EFFECT_TRIGGER_SPELL)
-        target.missCondition = SPELL_MISS_NONE;
 
     if (target.missCondition == SPELL_MISS_NONE)
         ++m_countOfHit;
@@ -946,6 +940,16 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     {
         if (target->reflectResult == SPELL_MISS_NONE)       // If reflected spell hit caster -> do all effect on him
             DoSpellHitOnUnit(m_caster, mask);
+    }
+    else //TODO: This is a hack. need fix
+    {
+        uint32 tempMask = 0;
+        for(uint32 i = 0; i < 3; ++i)
+            if(m_spellInfo->Effect[i] == SPELL_EFFECT_DUMMY
+                || m_spellInfo->Effect[i] == SPELL_EFFECT_TRIGGER_SPELL)
+                tempMask |= 1<<i;
+        if(tempMask &= mask)
+            DoSpellHitOnUnit(unit, tempMask);
     }
 
     // Do triggers only on miss/resist/parry/dodge
