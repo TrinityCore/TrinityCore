@@ -229,6 +229,8 @@ struct FactionTemplateEntry
     // helpers
     bool IsFriendlyTo(FactionTemplateEntry const& entry) const
     {
+        if(ID == entry.ID)
+            return true;
         if(enemyFaction1  == entry.faction || enemyFaction2  == entry.faction || enemyFaction3 == entry.faction || enemyFaction4 == entry.faction )
             return false;
         if(friendFaction1 == entry.faction || friendFaction2 == entry.faction || friendFaction3 == entry.faction || friendFaction4 == entry.faction )
@@ -237,6 +239,8 @@ struct FactionTemplateEntry
     }
     bool IsHostileTo(FactionTemplateEntry const& entry) const
     {
+        if(ID == entry.ID)
+            return false;
         if(enemyFaction1  == entry.faction || enemyFaction2  == entry.faction || enemyFaction3 == entry.faction || enemyFaction4 == entry.faction )
             return true;
         if(friendFaction1 == entry.faction || friendFaction2 == entry.faction || friendFaction3 == entry.faction || friendFaction4 == entry.faction )
