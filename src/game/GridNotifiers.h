@@ -783,6 +783,9 @@ namespace Trinity
                 if(u->getFaction() != i_funit->getFaction() )
                     return false;
 
+                if(!u->isAggressive())
+                    return false;
+
                 // only free creature
                 if( u->GetCharmerOrOwnerGUID() )
                     return false;

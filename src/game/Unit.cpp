@@ -8486,10 +8486,16 @@ void Unit::CombatStart(Unit* target)
 
     if(!target->isInCombat() && target->GetTypeId() != TYPEID_PLAYER
         && ((Creature*)target)->isAggressive() && ((Creature*)target)->AI())
+    {
+        SetInCombatWith(target);
+        target->SetInCombatWith(this);
         ((Creature*)target)->AI()->AttackStart(this);
-
-    SetInCombatWith(target);
-    target->SetInCombatWith(this);
+    }
+    else
+    {
+        SetInCombatWith(target);
+        target->SetInCombatWith(this);
+    }
 
     if(Player* attackedPlayer = target->GetCharmerOrOwnerPlayerOrPlayerItself())
         SetContestedPvP(attackedPlayer);
