@@ -712,10 +712,17 @@ void Spell::AddUnitTarget(Unit* pVictim, uint32 effIndex)
     target.processed  = false;                              // Effects not apply on target
 
     // Calculate hit result
-    if(m_originalCaster)
+    if(m_spellInfo->Effect[effIndex] == SPELL_EFFECT_DUMMY)
+        target.missCondition = SPELL_MISS_NONE;
+    else if(m_originalCaster)
         target.missCondition = m_originalCaster->SpellHitResult(pVictim, m_spellInfo, m_canReflect);
     else
+        target.missCondition = SPELL_MISS_EVADE; //SPELL_MISS_NONE;
+
+    if(target.missCondition == SPELL_MISS_IMMUNE // Mass Dispel
+        && m_spellInfo->Effect[effIndex] == SPELL_EFFECT_TRIGGER_SPELL)
         target.missCondition = SPELL_MISS_NONE;
+
     if (target.missCondition == SPELL_MISS_NONE)
         ++m_countOfHit;
     else
@@ -928,22 +935,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         return;
 
     SpellMissInfo missInfo = target->missCondition;
-
-    //if target is immune to spell
-    if (missInfo == SPELL_MISS_IMMUNE)
-    {
-        uint32 t_mask =0;
-        for (uint32 i=0;i<3;i++)
-            //and this spell triggers another spell (not aura)
-            if (m_spellInfo->Effect[i]==SPELL_EFFECT_TRIGGER_SPELL)
-                t_mask |=1<<i;
-        if (t_mask)
-        {
-            //let the spell trigger it
-            missInfo = SPELL_MISS_NONE;
-            mask=t_mask;
-        }
-    }
 
     // Need init unitTarget by default unit (can changed in code on reflect)
     // Or on missInfo!=SPELL_MISS_NONE unitTarget undefined (but need in trigger subsystem)
