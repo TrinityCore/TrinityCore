@@ -1891,7 +1891,8 @@ void Creature::CallAssistence()
 
             for(std::list<Creature*>::iterator iter = assistList.begin(); iter != assistList.end(); ++iter)
             {
-                (*iter)->SetNoCallAssistence(true);
+                //(*iter)->SetNoCallAssistence(true);
+                (*iter)->CombatStart(getVictim());
                 if((*iter)->AI())
                     (*iter)->AI()->AttackStart(getVictim());
             }
