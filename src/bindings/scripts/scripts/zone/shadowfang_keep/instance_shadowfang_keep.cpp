@@ -26,75 +26,49 @@ EndScriptData */
 
 #define ENCOUNTERS              4
 
-//#define ENTRY_BOSS_RETHILGORE   3914
-//#define ENTRY_BOSS_FENRUS       4274
-//#define ENTRY_BOSS_NANDOS       3927
-
-#define ENTRY_COURTYARD_DOOR    18895                       //door to open when talking to NPC's
-#define ENTRY_SORCERER_DOOR     18972                       //door to open when Fenrus the Devourer
-#define ENTRY_ARUGAL_DOOR       18971                       //door to open when Wolf Master Nandos
-
 struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
 {
     instance_shadowfang_keep(Map *Map) : ScriptedInstance(Map) {Initialize();};
 
     uint32 Encounter[ENCOUNTERS];
 
-    /*uint64 RethilgoreGUID;
-    uint64 FenrusGUID;
-    uint64 NandosGUID;*/
-
-    GameObject *DoorCourtyard;
-    GameObject *DoorSorcerer;
-    GameObject *DoorArugal;
+    uint64 DoorCourtyard;
+    uint64 DoorSorcerer;
+    uint64 DoorArugal;
 
     void Initialize()
     {
-        /*RethilgoreGUID = 0;
-        FenrusGUID     = 0;
-        NandosGUID     = 0;*/
+        DoorCourtyard  = 0;
+        DoorSorcerer   = 0;
+        DoorArugal     = 0;
 
-        DoorCourtyard  = NULL;
-        DoorSorcerer   = NULL;
-        DoorArugal     = NULL;
+		 for(uint8 i=0; i < ENCOUNTERS; ++i)
+			 Encounter[i] = NOT_STARTED;
     }
 
     void OnObjectCreate(GameObject *go)
     {
         switch(go->GetEntry())
         {
-            case ENTRY_COURTYARD_DOOR: DoorCourtyard = go; break;
-            case ENTRY_SORCERER_DOOR: DoorSorcerer = go; break;
-            case ENTRY_ARUGAL_DOOR: DoorArugal = go; break;
+		case 18895: DoorCourtyard = go->GetGUID(); break;
+		case 18972: DoorSorcerer = go->GetGUID(); break;
+		case 18971: DoorArugal = go->GetGUID(); break;
         }
     }
 
-    /*void OnCreatureCreate(Creature *creature, uint32 creature_entry)
+	void OpenDoor(uint64 DoorGUID, bool open)
     {
-        switch(creature_entry)
-        {
-            case ENTRY_BOSS_RETHILGORE:
-                RethilgoreGUID = creature->GetGUID();
-                break;
-            case ENTRY_BOSS_FENRUS:
-                FenrusGUID = creature->GetGUID();
-                break;
-            case ENTRY_BOSS_NANDOS:
-                NandosGUID = creature->GetGUID();
-                break;
-        }
-    }*/
+        if(GameObject *Door = instance->GetGameObjectInMap(DoorGUID))
+            Door->SetUInt32Value(GAMEOBJECT_STATE, open ? 0 : 1);
+    }
 
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
         {
             case TYPE_FREE_NPC:
-                if(data == DONE)
-                {
-                    if(DoorCourtyard)
-                        DoorCourtyard->UseDoorOrButton();
-                }
+                if(data == DONE)                
+                    OpenDoor(DoorCourtyard, true);                                
                 Encounter[0] = data;
                 break;
             case TYPE_RETHILGORE:
@@ -102,18 +76,12 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
                 break;
             case TYPE_FENRUS:
                 if(data == DONE)
-                {
-                    if(DoorSorcerer)
-                        DoorSorcerer->UseDoorOrButton();
-                }
+					OpenDoor(DoorSorcerer, true);                                      
                 Encounter[2] = data;
                 break;
             case TYPE_NANDOS:
-                if(data == DONE)
-                {
-                    if(DoorArugal)
-                        DoorArugal->UseDoorOrButton();
-                }
+                if(data == DONE)                
+                    OpenDoor(DoorArugal, true);             
                 Encounter[3] = data;
                 break;
         }
