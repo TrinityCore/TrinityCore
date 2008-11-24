@@ -2308,6 +2308,8 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         GridReference<Player> m_gridRef;
         MapReference m_mapRef;
+
+        void UpdateCharmedAI();
 };
 
 void AddItemsSetItem(Player*player,Item *item);
