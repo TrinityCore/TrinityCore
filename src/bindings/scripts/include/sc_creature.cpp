@@ -671,9 +671,15 @@ void ScriptedAI::DoZoneInCombat(Unit* pUnit)
 
     Map::PlayerList const &PlayerList = map->GetPlayers();
     for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+    {
         if (Player* i_pl = i->getSource())
             if (!i_pl->isAlive())
+            {
+                pUnit->SetInCombatWith(i_pl);
+                i_pl->SetInCombatWith(pUnit);
                 pUnit->AddThreat(i_pl, 0.0f);
+            }
+    }
 }
 
 void ScriptedAI::DoResetThreat()

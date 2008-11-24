@@ -333,11 +333,11 @@ void Spell::EffectSchoolDMG(uint32 effect_idx)
                             damage = 200;
                         break;
                     }
-                    // must only affect demons (also undead?)
+                    // arcane charge. must only affect demons (also undead?)
                     case 45072:
                     {
                         if(unitTarget->GetCreatureType() != CREATURE_TYPE_DEMON
-                            || unitTarget->GetCreatureType() != CREATURE_TYPE_UNDEAD)
+                            && unitTarget->GetCreatureType() != CREATURE_TYPE_UNDEAD)
                             return;
                         break;
                     }
