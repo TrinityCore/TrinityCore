@@ -1016,12 +1016,12 @@ void Player::Update( uint32 p_time )
 
     CheckExploreSystem();
 
-    /*if(isCharmed())
+    if(isCharmed())
     {
         if(Unit *charmer = GetCharmer())
-            if(charmer->GetTypeId() == TYPEID_UNIT && ((Creature*)charmer)->AI())
-                ((Creature*)charmer)->AI()->UpdateCharmedAI(this, p_time);
-    }*/
+            if(charmer->GetTypeId() == TYPEID_UNIT && charmer->isAlive())
+                UpdateCharmedAI();
+    }
 
     // Update items that have just a limited lifetime
     if (now>m_Last_tick)
@@ -19050,4 +19050,36 @@ bool Player::isTotalImmunity()
         }
     }
     return false;
+}
+
+void Player::UpdateCharmedAI()
+{
+    //This should only called in Player::Update
+    Creature *charmer = (Creature*)GetCharmer();
+
+    //kill self if charm aura has infinite duration
+    if(charmer->IsInEvadeMode())
+    {
+        AuraList const& auras = GetAurasByType(SPELL_AURA_MOD_CHARM);
+        for(AuraList::const_iterator iter = auras.begin(); iter != auras.end(); ++iter)
+            if((*iter)->GetCasterGUID() == charmer->GetGUID() && (*iter)->IsPermanent())
+            {
+                charmer->DealDamage(this, GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                return;
+            }
+    }
+
+    if(!charmer->isInCombat())
+        GetMotionMaster()->MoveFollow(charmer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+
+    Unit *target = getVictim();
+    if(!target || !charmer->canAttack(target))
+    {
+        target = charmer->SelectNearestTarget();
+        if(!target)
+            return;
+
+        GetMotionMaster()->MoveChase(target);
+        Attack(target, true);
+    }
 }
