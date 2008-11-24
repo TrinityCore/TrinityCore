@@ -8512,10 +8512,21 @@ void Unit::SetInCombatState(bool PvP)
 
     if(PvP)
         m_CombatTimer = 5000;
+
+    if(isInCombat())
+        return;
+
     SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
-    if(isCharmed() || (GetTypeId()!=TYPEID_PLAYER && ((Creature*)this)->isPet()))
+    if(isCharmed() || GetTypeId()!=TYPEID_PLAYER && ((Creature*)this)->isPet())
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
+
+    if(GetTypeId() == TYPEID_PLAYER && GetPetGUID())
+    {
+        if(Pet *pet = GetPet())
+            for(int i = 0; i < MAX_MOVE_TYPE; ++i)
+                pet->UpdateSpeed(UnitMoveType(i), true);
+    }
 }
 
 void Unit::ClearInCombat()
@@ -8523,12 +8534,19 @@ void Unit::ClearInCombat()
     m_CombatTimer = 0;
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
-    if(isCharmed() || (GetTypeId()!=TYPEID_PLAYER && ((Creature*)this)->isPet()))
+    if(isCharmed() || GetTypeId()!=TYPEID_PLAYER && ((Creature*)this)->isPet())
         RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
 
     // Player's state will be cleared in Player::UpdateContestedPvP
     if(GetTypeId()!=TYPEID_PLAYER)
         clearUnitState(UNIT_STAT_ATTACK_PLAYER);
+
+    if(GetTypeId() == TYPEID_PLAYER && GetPetGUID())
+    {
+        if(Pet *pet = GetPet())
+            for(int i = 0; i < MAX_MOVE_TYPE; ++i)
+                pet->SetSpeed(UnitMoveType(i), m_speed_rate[i], true);
+    }
 }
 
 //TODO: remove this function
@@ -8923,8 +8941,9 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
         data << float(GetSpeed(mtype));
         SendMessageToSet( &data, true );
     }
-    if(Pet* pet = GetPet())
-        pet->SetSpeed(MOVE_RUN, m_speed_rate[mtype],forced);
+    if(GetPetGUID() && !isInCombat())
+        if(Pet* pet = GetPet())
+            pet->SetSpeed(mtype, m_speed_rate[mtype], forced);
 }
 
 void Unit::SetHover(bool on)
