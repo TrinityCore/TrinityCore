@@ -117,6 +117,28 @@ uint32 CreatureInfo::GetFirstValidModelId() const
     return 0;
 }
 
+bool AssistDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
+{
+    Unit* victim = Unit::GetUnit(m_owner, m_victim);
+    if (victim)
+    {
+        while (!m_assistants.empty())
+        {
+            Creature* assistant = (Creature*)Unit::GetUnit(m_owner, *m_assistants.begin());
+            m_assistants.pop_front();
+
+            if (assistant && assistant->CanAssistTo(&m_owner, victim))
+            {
+                //assistant->SetNoCallAssistence(true);
+                assistant->CombatStart(victim);
+                if(assistant->AI())
+                    assistant->AI()->AttackStart(victim);
+            }
+        }
+    }
+    return true;
+}
+
 Creature::Creature() :
 Unit(), i_AI(NULL), i_AI_possessed(NULL),
 lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), lootingGroupLeaderGUID(0),
@@ -124,7 +146,7 @@ m_lootMoney(0), m_lootRecipient(0),
 m_deathTimer(0), m_respawnTime(0), m_respawnDelay(25), m_corpseDelay(60), m_respawnradius(0.0f),
 m_gossipOptionLoaded(false), m_emoteState(0), m_isPet(false), m_isTotem(false), m_isAggressive(true),
 m_regenTimer(2000), m_defaultMovementType(IDLE_MOTION_TYPE), m_equipmentId(0),
-m_AlreadyCallAssistence(false), m_regenHealth(true), m_AI_locked(false), m_isDeadByDefault(false),
+m_AlreadyCallAssistance(false), m_regenHealth(true), m_AI_locked(false), m_isDeadByDefault(false),
 m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),m_creatureInfo(NULL), m_DBTableGuid(0)
 {
     m_valuesCount = UNIT_END;
@@ -1865,11 +1887,11 @@ Unit* Creature::SelectNearestTarget(float dist) const
 
 void Creature::CallAssistence()
 {
-    if( !m_AlreadyCallAssistence && getVictim() && !isPet() && !isCharmed())
+    if( !m_AlreadyCallAssistance && getVictim() && !isPet() && !isCharmed())
     {
-        SetNoCallAssistence(true);
+        SetNoCallAssistance(true);
 
-        float radius = sWorld.getConfig(CONFIG_CREATURE_FAMILY_ASSISTEMCE_RADIUS);
+        float radius = sWorld.getConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS);
         if(radius > 0)
         {
             std::list<Creature*> assistList;
@@ -1889,15 +1911,47 @@ void Creature::CallAssistence()
                 cell_lock->Visit(cell_lock, grid_creature_searcher, *MapManager::Instance().GetMap(GetMapId(), this));
             }
 
-            for(std::list<Creature*>::iterator iter = assistList.begin(); iter != assistList.end(); ++iter)
+            if (!assistList.empty())
             {
-                //(*iter)->SetNoCallAssistence(true);
-                (*iter)->CombatStart(getVictim());
-                if((*iter)->AI())
-                    (*iter)->AI()->AttackStart(getVictim());
+                AssistDelayEvent *e = new AssistDelayEvent(getVictim()->GetGUID(), *this);
+                while (!assistList.empty())
+                {
+                    // Pushing guids because in delay can happen some creature gets despawned => invalid pointer
+                    e->AddAssistant((*assistList.begin())->GetGUID());
+                    assistList.pop_front();
+                }
+                m_Events.AddEvent(e, m_Events.CalculateTime(sWorld.getConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_DELAY)));
             }
         }
     }
+}
+
+bool Creature::CanAssistTo(const Unit* u, const Unit* enemy) const
+{
+    if(!isAggressive())
+        return false;
+
+    // we don't need help from zombies :)
+    if( !isAlive() )
+        return false;
+
+    // skip fighting creature
+    if( isInCombat() )
+        return false;
+
+    // only from same creature faction
+    if(getFaction() != u->getFaction() )
+        return false;
+
+    // only free creature
+    if( GetCharmerOrOwnerGUID() )
+        return false;
+
+    // skip non hostile to caster enemy creatures
+    if( !IsHostileTo(enemy) )
+        return false;
+
+    return true;
 }
 
 void Creature::SaveRespawnTime()

@@ -38,6 +38,13 @@ enum LogType
 
 const int LogType_count = int(LogError) +1;
 
+Log::Log() :
+    raLogfile(NULL), logfile(NULL), gmLogfile(NULL), charLogfile(NULL),
+    dberLogfile(NULL), m_colored(false), m_includeTime(false), m_gmlog_per_account(false)
+{
+    Initialize();
+}
+
 void Log::InitColors(std::string str)
 {
     if(str.empty())
@@ -175,73 +182,56 @@ void Log::SetLogFileLevel(char *Level)
 
 void Log::Initialize()
 {
-    std::string logsDir = sConfig.GetStringDefault("LogsDir","");
-
-    if(!logsDir.empty())
+    /// Common log files data
+    m_logsDir = sConfig.GetStringDefault("LogsDir","");
+    if(!m_logsDir.empty())
     {
-        if((logsDir.at(logsDir.length()-1)!='/') && (logsDir.at(logsDir.length()-1)!='\\'))
-            logsDir.append("/");
+        if((m_logsDir.at(m_logsDir.length()-1)!='/') && (m_logsDir.at(m_logsDir.length()-1)!='\\'))
+            m_logsDir.append("/");
     }
 
-    std::string logfn=sConfig.GetStringDefault("LogFile", "");
-    if(!logfn.empty())
+    m_logsTimestamp = "_" + GetTimestampStr();
+
+    /// Open specific log files
+    logfile = openLogFile("LogFile","LogTimestamp","w");
+
+    m_gmlog_per_account = sConfig.GetBoolDefault("GmLogPerAccount",false);
+    if(!m_gmlog_per_account)
+        gmLogfile = openLogFile("GMLogFile","GmLogTimestamp","a");
+    else
     {
-        if(sConfig.GetBoolDefault("LogTimestamp",false))
+        // GM log settings for per account case
+        m_gmlog_filename_format = sConfig.GetStringDefault("GMLogFile", "");
+        if(!m_gmlog_filename_format.empty())
         {
-            std::string logTimestamp = GetTimestampStr();
-            logTimestamp.insert(0,"_");
-            size_t dot_pos = logfn.find_last_of(".");
-            if(dot_pos!=logfn.npos)
-                logfn.insert(dot_pos,logTimestamp);
+            bool m_gmlog_timestamp = sConfig.GetBoolDefault("GmLogTimestamp",false);
+
+            size_t dot_pos = m_gmlog_filename_format.find_last_of(".");
+            if(dot_pos!=m_gmlog_filename_format.npos)
+            {
+                if(m_gmlog_timestamp)
+                    m_gmlog_filename_format.insert(dot_pos,m_logsTimestamp);
+
+                m_gmlog_filename_format.insert(dot_pos,"_#%u");
+            }
             else
-                logfn += logTimestamp;
+            {
+                m_gmlog_filename_format += "_#%u";
+
+                if(m_gmlog_timestamp)
+                    m_gmlog_filename_format += m_logsTimestamp;
+            }
+
+            m_gmlog_filename_format = m_logsDir + m_gmlog_filename_format;
         }
-
-        logfile = fopen((logsDir+logfn).c_str(), "w");
     }
 
-    std::string gmlogname = sConfig.GetStringDefault("GMLogFile", "");
-    if(!gmlogname.empty())
-    {
-        if(sConfig.GetBoolDefault("GmLogTimestamp",false))
-        {
-            std::string gmLogTimestamp = GetTimestampStr();
-            gmLogTimestamp.insert(0,"_");
-            size_t dot_pos = gmlogname.find_last_of(".");
-            if(dot_pos!=gmlogname.npos)
-                gmlogname.insert(dot_pos,gmLogTimestamp);
-            else
-                gmlogname += gmLogTimestamp;
-        }
-        gmLogfile = fopen((logsDir+gmlogname).c_str(), "a");
-    }
+    charLogfile = openLogFile("CharLogFile","CharLogTimestamp","a");
 
-    std::string charlogname = sConfig.GetStringDefault("CharLogFile", "");
-    if(!charlogname.empty())
-    {
-        if(sConfig.GetBoolDefault("CharLogTimestamp",false))
-        {
-            std::string charLogTimestamp = GetTimestampStr();
-            charLogTimestamp.insert(0,"_");
-            size_t dot_pos = charlogname.find_last_of(".");
-            if(dot_pos!=charlogname.npos)
-                charlogname.insert(dot_pos,charLogTimestamp);
-            else
-                charlogname += charLogTimestamp;
-        }
-        charLogfile = fopen((logsDir+charlogname).c_str(), "a");
-    }
+    dberLogfile = openLogFile("DBErrorLogFile",NULL,"a");
+    raLogfile = openLogFile("RaLogFile",NULL,"a");
 
-    std::string dberlogname = sConfig.GetStringDefault("DBErrorLogFile", "");
-    if(!dberlogname.empty())
-    {
-        dberLogfile = fopen((logsDir+dberlogname).c_str(), "a");
-    }
-    std::string ralogname = sConfig.GetStringDefault("RaLogFile", "");
-    if(!ralogname.empty())
-    {
-        raLogfile = fopen((logsDir+ralogname).c_str(), "a");
-    }
+    // Main log file settings
     m_includeTime  = sConfig.GetBoolDefault("LogTime", false);
     m_logLevel     = sConfig.GetIntDefault("LogLevel", 0);
     m_logFileLevel = sConfig.GetIntDefault("LogFileLevel", 0);
@@ -256,7 +246,36 @@ void Log::Initialize()
     if(sConfig.GetBoolDefault("LogFilter_VisibilityChanges", true))
         m_logFilter |= LOG_FILTER_VISIBILITY_CHANGES;
 
+    // Char log settings
     m_charLog_Dump = sConfig.GetBoolDefault("CharLogDump", false);
+}
+
+FILE* Log::openLogFile(char const* configFileName,char const* configTimeStampFlag, char const* mode)
+{
+    std::string logfn=sConfig.GetStringDefault(configFileName, "");
+    if(logfn.empty())
+        return NULL;
+
+    if(configTimeStampFlag && sConfig.GetBoolDefault(configTimeStampFlag,false))
+    {
+        size_t dot_pos = logfn.find_last_of(".");
+        if(dot_pos!=logfn.npos)
+            logfn.insert(dot_pos,m_logsTimestamp);
+        else
+            logfn += m_logsTimestamp;
+    }
+
+    return fopen((m_logsDir+logfn).c_str(), mode);
+}
+
+FILE* Log::openGmlogPerAccount(uint32 account)
+{
+    if(m_gmlog_filename_format.empty())
+        return NULL;
+
+    char namebuf[MAX_PATH];
+    snprintf(namebuf,MAX_PATH,m_gmlog_filename_format.c_str(),account);
+    return fopen(namebuf, "a");
 }
 
 void Log::outTimestamp(FILE* file)
@@ -577,7 +596,7 @@ void Log::outDebug( const char * str, ... )
     fflush(stdout);
 }
 
-void Log::outCommand( const char * str, ... )
+void Log::outCommand( uint32 account, const char * str, ... )
 {
     if( !str )
         return;
@@ -607,7 +626,21 @@ void Log::outCommand( const char * str, ... )
         va_end(ap);
         fflush(logfile);
     }
-    if(gmLogfile)
+
+    if (m_gmlog_per_account)
+    {
+        if (FILE* per_file = openGmlogPerAccount (account))
+        {
+            va_list ap;
+            outTimestamp(per_file);
+            va_start(ap, str);
+            vfprintf(per_file, str, ap);
+            fprintf(per_file, "\n" );
+            va_end(ap);
+            fclose(per_file);
+        }
+    }
+    else if (gmLogfile)
     {
         va_list ap;
         outTimestamp(gmLogfile);
@@ -617,6 +650,7 @@ void Log::outCommand( const char * str, ... )
         va_end(ap);
         fflush(gmLogfile);
     }
+
     fflush(stdout);
 }
 
