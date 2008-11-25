@@ -7434,7 +7434,7 @@ uint32 ObjectMgr::GetScriptId(const char *name)
     if(!name) return 0;
     ScriptNameMap::const_iterator itr =
         std::lower_bound(m_scriptNames.begin(), m_scriptNames.end(), name);
-    if(itr == m_scriptNames.end()) return 0;
+    if(itr == m_scriptNames.end() || *itr != name) return 0;
     return itr - m_scriptNames.begin();
 }
 
