@@ -58,7 +58,8 @@ const int Color_count = int(WHITE)+1;
 class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThread::FastMutex> >
 {
     friend class Trinity::OperatorNew<Log>;
-    Log() : raLogfile(NULL), logfile(NULL), gmLogfile(NULL), charLogfile(NULL), dberLogfile(NULL), m_colored(false) { Initialize(); }
+    Log();
+
     ~Log()
     {
         if( logfile != NULL )
@@ -85,7 +86,7 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThr
         void Initialize();
         void InitColors(std::string init_str);
         void outTitle( const char * str);
-        void outCommand( const char * str, ...)      ATTR_PRINTF(2,3);
+        void outCommand( uint32 account, const char * str, ...) ATTR_PRINTF(3,4);
         void outString();                                   // any log level
                                                             // any log level
         void outString( const char * str, ... )      ATTR_PRINTF(2,3);
@@ -120,6 +121,9 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThr
         bool IsOutCharDump() const { return m_charLog_Dump; }
         bool IsIncludeTime() const { return m_includeTime; }
     private:
+        FILE* openLogFile(char const* configFileName,char const* configTimeStampFlag, char const* mode);
+        FILE* openGmlogPerAccount(uint32 account);
+
         FILE* raLogfile;
         FILE* logfile;
         FILE* gmLogfile;
@@ -134,9 +138,16 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThr
         Color m_colors[4];
         uint32 m_logFilter;
 
+        // cache values for after initilization use (like gm log per account case)
+        std::string m_logsDir;
+        std::string m_logsTimestamp;
+
         // char log control
         bool m_charLog_Dump;
 
+        // gm log control
+        bool m_gmlog_per_account;
+        std::string m_gmlog_filename_format;
 };
 
 #define sLog Trinity::Singleton<Log>::Instance()
