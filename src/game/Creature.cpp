@@ -1885,7 +1885,7 @@ Unit* Creature::SelectNearestTarget(float dist) const
     return target;
 }
 
-void Creature::CallAssistence()
+void Creature::CallAssistance()
 {
     if( !m_AlreadyCallAssistance && getVictim() && !isPet() && !isCharmed())
     {
