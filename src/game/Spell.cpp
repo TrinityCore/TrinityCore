@@ -2745,15 +2745,17 @@ void Spell::finish(bool ok)
         }
     }
 
-    /*if (IsMeleeAttackResetSpell())
+    if (IsMeleeAttackResetSpell())
     {
         m_caster->resetAttackTimer(BASE_ATTACK);
         if(m_caster->haveOffhandWeapon())
             m_caster->resetAttackTimer(OFF_ATTACK);
-    }*/
+        if(!(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_NOT_RESET_AUTOSHOT))
+            m_caster->resetAttackTimer(RANGED_ATTACK);
+    }
 
-    /*if (IsRangedAttackResetSpell())
-        m_caster->resetAttackTimer(RANGED_ATTACK);*/
+    //if (IsRangedAttackResetSpell())
+    //    m_caster->resetAttackTimer(RANGED_ATTACK);
 
     // Clear combo at finish state
     if(m_caster->GetTypeId() == TYPEID_PLAYER && NeedsComboPoints(m_spellInfo))

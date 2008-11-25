@@ -1048,10 +1048,9 @@ void Player::Update( uint32 p_time )
         }
     }
 
-    if (hasUnitState(UNIT_STAT_MELEE_ATTACKING))
+    if (hasUnitState(UNIT_STAT_MELEE_ATTACKING) && !hasUnitState(UNIT_STAT_CASTING))
     {
-        Unit *pVictim = getVictim();
-        if( !IsNonMeleeSpellCasted(false) && pVictim)
+        if(Unit *pVictim = getVictim())
         {
             // default combat reach 10
             // TODO add weapon,skill check
