@@ -29,6 +29,8 @@
 #include "Database/DatabaseEnv.h"
 #include "Cell.h"
 
+#include <list>
+
 struct SpellEntry;
 
 class CreatureAI;
@@ -561,8 +563,9 @@ class TRINITY_DLL_SPEC Creature : public Unit
         float GetAttackDistance(Unit const* pl) const;
 
         Unit* SelectNearestTarget(float dist = 0) const;
-        void CallAssistence();
-        void SetNoCallAssistence(bool val) { m_AlreadyCallAssistence = val; }
+        void CallAssistance();
+        void SetNoCallAssistance(bool val) { m_AlreadyCallAssistance = val; }
+        bool CanAssistTo(const Unit* u, const Unit* enemy) const;
         void DoFleeToGetAssistance(float radius = 50);
 
         MovementGeneratorType GetDefaultMovementType() const { return m_defaultMovementType; }
@@ -648,7 +651,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
         uint32 m_DBTableGuid;                               ///< For new or temporary creatures is 0 for saved it is lowguid
         uint32 m_equipmentId;
 
-        bool m_AlreadyCallAssistence;
+        bool m_AlreadyCallAssistance;
         bool m_regenHealth;
         bool m_AI_locked;
         bool m_isDeadByDefault;
@@ -664,4 +667,20 @@ class TRINITY_DLL_SPEC Creature : public Unit
         GridReference<Creature> m_gridRef;
         CreatureInfo const* m_creatureInfo;                 // in heroic mode can different from ObjMgr::GetCreatureTemplate(GetEntry())
 };
+
+class AssistDelayEvent : public BasicEvent
+{
+    public:
+        AssistDelayEvent(const uint64& victim, Unit& owner) : BasicEvent(), m_victim(victim), m_owner(owner) { }
+
+        bool Execute(uint64 e_time, uint32 p_time);
+        void AddAssistant(const uint64& guid) { m_assistants.push_back(guid); }
+    private:
+        AssistDelayEvent();
+
+        uint64            m_victim;
+        std::list<uint64> m_assistants;
+        Unit&             m_owner;
+};
+
 #endif

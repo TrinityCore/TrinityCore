@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef __TRINITY_LANGUAGE_H
@@ -80,11 +80,11 @@ enum TrinityStrings
     LANG_COMMAND_INVALID_ITEM_COUNT     = 52,
     LANG_COMMAND_MAIL_ITEMS_LIMIT       = 53,
     LANG_NEW_PASSWORDS_NOT_MATCH        = 54,
-	LANG_PASSWORD_TOO_LONG              = 55,
-	LANG_MOTD_CURRENT                   = 56,
-	LANG_USING_WORLD_DB                 = 57,
-	LANG_USING_SCRIPT_LIB               = 58,
-	// Room for more level 0              59-99 not used
+    LANG_PASSWORD_TOO_LONG              = 55,
+    LANG_MOTD_CURRENT                   = 56,
+    LANG_USING_WORLD_DB                 = 57,
+    LANG_USING_SCRIPT_LIB               = 58,
+    // Room for more level 0              59-99 not used
 
     // level 1 chat
     LANG_GLOBAL_NOTIFY                  = 100,
@@ -170,7 +170,7 @@ enum TrinityStrings
     LANG_SOUND_NOT_EXIST                = 170,
     LANG_TELEPORTED_TO_BY_CONSOLE       = 171,
     LANG_CONSOLE_COMMAND                = 172,
-	// Room for more level 1              173-199 not used
+    // Room for more level 1              173-199 not used
 
     // level 2 chat
     LANG_NO_SELECTION                   = 200,
@@ -326,7 +326,9 @@ enum TrinityStrings
     LANG_CREATURE_FOLLOW_YOU_NOW        = 340,
     LANG_CREATURE_NOT_FOLLOW_YOU        = 341,
     LANG_CREATURE_NOT_FOLLOW_YOU_NOW    = 342,
-    // Room for more level 2              343-399 not used
+    LANG_CREATURE_NON_TAMEABLE          = 343,
+    LANG_YOU_ALREADY_HAVE_PET           = 344,
+    // Room for more level 2              345-399 not used
 
     // level 3 chat
     LANG_SCRIPTS_RELOADED               = 400,
@@ -553,14 +555,14 @@ enum TrinityStrings
     LANG_MOVEGENS_DISTRACT              = 591,
 
     LANG_COMMAND_LEARN_ALL_RECIPES      = 592,
-	LANG_BANLIST_ACCOUNTS               = 593,
-	LANG_BANLIST_ACCOUNTS_HEADER        = 594,
-	LANG_BANLIST_IPS                    = 595,
-	LANG_BANLIST_IPS_HEADER             = 596,
-	LANG_GMLIST                         = 597,
-	LANG_GMLIST_HEADER                  = 598,
-	LANG_GMLIST_EMPTY                   = 599,
-	// End Level 3 list, continued at 1100
+    LANG_BANLIST_ACCOUNTS               = 593,
+    LANG_BANLIST_ACCOUNTS_HEADER        = 594,
+    LANG_BANLIST_IPS                    = 595,
+    LANG_BANLIST_IPS_HEADER             = 596,
+    LANG_GMLIST                         = 597,
+    LANG_GMLIST_HEADER                  = 598,
+    LANG_GMLIST_EMPTY                   = 599,
+    // End Level 3 list, continued at 1100
 
     // Battleground
     LANG_BG_A_WINS                      = 600,
@@ -720,43 +722,46 @@ enum TrinityStrings
     // Room for in-game strings           810-999 not used
 
     // Level 4 (CLI only commands)
-	LANG_COMMAND_EXIT = 1000,
-	LANG_ACCOUNT_DELETED = 1001,
-	LANG_ACCOUNT_NOT_DELETED_SQL_ERROR = 1002,
-	LANG_ACCOUNT_NOT_DELETED = 1003,
-	LANG_ACCOUNT_CREATED = 1004,
-	LANG_ACCOUNT_TOO_LONG = 1005,
-	LANG_ACCOUNT_ALREADY_EXIST = 1006,
-	LANG_ACCOUNT_NOT_CREATED_SQL_ERROR = 1007,
-	LANG_ACCOUNT_NOT_CREATED = 1008,
-	LANG_CHARACTER_DELETED = 1009,
-	LANG_ACCOUNT_LIST_HEADER = 1010,
-	LANG_ACCOUNT_LIST_ERROR = 1011,
-	// Room for more level 4 1012-1099 not used
+    LANG_COMMAND_EXIT                   = 1000,
+    LANG_ACCOUNT_DELETED                = 1001,
+    LANG_ACCOUNT_NOT_DELETED_SQL_ERROR  = 1002,
+    LANG_ACCOUNT_NOT_DELETED            = 1003,
+    LANG_ACCOUNT_CREATED                = 1004,
+    LANG_ACCOUNT_TOO_LONG               = 1005,
+    LANG_ACCOUNT_ALREADY_EXIST          = 1006,
+    LANG_ACCOUNT_NOT_CREATED_SQL_ERROR  = 1007,
+    LANG_ACCOUNT_NOT_CREATED            = 1008,
+    LANG_CHARACTER_DELETED              = 1009,
+    LANG_ACCOUNT_LIST_HEADER            = 1010,
+    LANG_ACCOUNT_LIST_ERROR             = 1011,
+    // Room for more level 4              1012-1099 not used
 
-	// Level 3 (continue)
+    // Level 3 (continue)
     LANG_ACCOUNT_SETADDON               = 1100,
     LANG_MOTD_NEW                       = 1101,
     LANG_SENDMESSAGE                    = 1102,
     LANG_EVENT_ENTRY_LIST_CONSOLE       = 1103,
-	LANG_CREATURE_ENTRY_LIST_CONSOLE    = 1104,
-	LANG_ITEM_LIST_CONSOLE              = 1105,
-	LANG_ITEMSET_LIST_CONSOLE           = 1106,
-	LANG_GO_ENTRY_LIST_CONSOLE          = 1107,
-	LANG_QUEST_LIST_CONSOLE             = 1108,
-	LANG_SKILL_LIST_CONSOLE             = 1109,
-	LANG_CREATURE_LIST_CONSOLE          = 1110,
-	LANG_GO_LIST_CONSOLE                = 1111,
-	LANG_FILE_OPEN_FAIL                 = 1112,
-	LANG_ACCOUNT_CHARACTER_LIST_FULL    = 1113,
-	LANG_DUMP_BROKEN                    = 1114,
-	LANG_INVALID_CHARACTER_NAME         = 1115,
-	LANG_INVALID_CHARACTER_GUID         = 1116,
-	LANG_CHARACTER_GUID_IN_USE          = 1117,
-	LANG_ITEMLIST_GUILD                 = 1118,
-	// Room for more level 3              1119-1199 not used
-	
-	// Trinity strings             5000-9999
+    LANG_CREATURE_ENTRY_LIST_CONSOLE    = 1104,
+    LANG_ITEM_LIST_CONSOLE              = 1105,
+    LANG_ITEMSET_LIST_CONSOLE           = 1106,
+    LANG_GO_ENTRY_LIST_CONSOLE          = 1107,
+    LANG_QUEST_LIST_CONSOLE             = 1108,
+    LANG_SKILL_LIST_CONSOLE             = 1109,
+    LANG_CREATURE_LIST_CONSOLE          = 1110,
+    LANG_GO_LIST_CONSOLE                = 1111,
+    LANG_FILE_OPEN_FAIL                 = 1112,
+    LANG_ACCOUNT_CHARACTER_LIST_FULL    = 1113,
+    LANG_DUMP_BROKEN                    = 1114,
+    LANG_INVALID_CHARACTER_NAME         = 1115,
+    LANG_INVALID_CHARACTER_GUID         = 1116,
+    LANG_CHARACTER_GUID_IN_USE          = 1117,
+    LANG_ITEMLIST_GUILD                 = 1118,
+    LANG_MUST_MALE_OR_FEMALE            = 1119,
+    LANG_YOU_CHANGE_GENDER              = 1120,
+    LANG_YOUR_GENDER_CHANGED            = 1121,
+    // Room for more level 3              1122-1199 not used
+
+    // Trinity strings             5000-9999
     LANG_COMMAND_FREEZE                 = 5000,
     LANG_COMMAND_FREEZE_ERROR           = 5001,
     LANG_COMMAND_FREEZE_WRONG           = 5002,
@@ -767,9 +772,10 @@ enum TrinityStrings
     LANG_INSTANCE_MUST_RAID_GRP         = 5007,
     LANG_INSTANCE_NOT_AS_GHOST          = 5008,
     LANG_COMMAND_PLAYED_TO_ALL          = 5009,
-	// Room for more Trinity strings 5009-9999
+    // Room for more Trinity strings      5009-9999
 
-    // Use for not-in-svn patches         10000-10999
+    // Use for not-in-offcial-sources patches
+    //                                    10000-10999
     // opvp hp
     LANG_OPVP_HP_CAPTURE_OVERLOOK_H     = 10001,
     LANG_OPVP_HP_CAPTURE_OVERLOOK_A     = 10002,
@@ -835,6 +841,8 @@ enum TrinityStrings
 
     // Use for custom patches             11000-11999
 
-    // NOT RESERVED IDS                   12000-
+    // NOT RESERVED IDS                   12000-1999999999
+    // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
+    // For other tables maybe             2000010000-2147483647 (max index)
 };
 #endif
