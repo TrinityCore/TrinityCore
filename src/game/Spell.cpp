@@ -4169,7 +4169,8 @@ int16 Spell::PetCanCast(Unit* target)
                     duelvsplayertar |= (m_spellInfo->EffectImplicitTargetA[j] == TARGET_DUELVSPLAYER);
                 }
                 // AoE spells have the caster as their target
-                if(m_caster->IsFriendlyTo(target) && m_caster != target && !duelvsplayertar)
+                // AOE spells should not have target
+                if(m_caster->IsFriendlyTo(target) /*&& m_caster != target*/ && !duelvsplayertar)
                 {
                     return SPELL_FAILED_BAD_TARGETS;
                 }
