@@ -4258,13 +4258,13 @@ void Spell::EffectWeaponDmg(uint32 i)
     }
 
     // some spell specific modifiers
-    bool customBonusDamagePercentMod = false;
-    float bonusDamagePercentMod  = 1.0f;                    // applied to fixed effect damage bonus if set customBonusDamagePercentMod
+    //bool customBonusDamagePercentMod = false;
+    //float bonusDamagePercentMod  = 1.0f;                    // applied to fixed effect damage bonus if set customBonusDamagePercentMod
     float weaponDamagePercentMod = 1.0f;                    // applied to weapon damage (and to fixed effect damage bonus if customBonusDamagePercentMod not set
     float totalDamagePercentMod  = 1.0f;                    // applied to final bonus+weapon damage
     bool normalized = false;
-
     int32 spell_bonus = 0;                                  // bonus specific for spell
+
     switch(m_spellInfo->SpellFamilyName)
     {
         case SPELLFAMILY_WARRIOR:
@@ -4278,19 +4278,52 @@ void Spell::EffectWeaponDmg(uint32 i)
             // Devastate bonus and sunder armor refresh
             else if(m_spellInfo->SpellVisual == 671 && m_spellInfo->SpellIconID == 1508)
             {
-                customBonusDamagePercentMod = true;
-                bonusDamagePercentMod = 0.0f;               // only applied if auras found
+                uint32 stack = 0;
 
                 Unit::AuraList const& list = unitTarget->GetAurasByType(SPELL_AURA_MOD_RESISTANCE);
                 for(Unit::AuraList::const_iterator itr=list.begin();itr!=list.end();++itr)
                 {
                     SpellEntry const *proto = (*itr)->GetSpellProto();
-                    if(proto->SpellVisual == 406 && proto->SpellIconID == 565)
+                    if(proto->SpellFamilyName == SPELLFAMILY_WARRIOR
+                        && proto->SpellFamilyFlags == SPELLFAMILYFLAG_WARRIOR_SUNDERARMOR)
                     {
                         int32 duration = GetSpellDuration(proto);
                         (*itr)->SetAuraDuration(duration);
                         (*itr)->UpdateAuraDuration();
-                        bonusDamagePercentMod += 1.0f;      // +100%
+                        ++stack;
+                    }
+                }
+
+                for(int j = 0; j < 3; j++)
+                {
+                    if(m_spellInfo->Effect[j] == SPELL_EFFECT_NORMALIZED_WEAPON_DMG)
+                    {
+                        spell_bonus += (stack - 1) * CalculateDamage(j, unitTarget);
+                        break;
+                    }
+                }
+
+                if(stack < 5)
+                {
+                    // get highest rank of the Sunder Armor spell
+                    const PlayerSpellMap& sp_list = ((Player*)m_caster)->GetSpellMap();
+                    for (PlayerSpellMap::const_iterator itr = sp_list.begin(); itr != sp_list.end(); ++itr)
+                    {
+                        // only highest rank is shown in spell book, so simply check if shown in spell book
+                        if(!itr->second->active || itr->second->disabled || itr->second->state == PLAYERSPELL_REMOVED)
+                            continue;
+
+                        SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
+                        if (!spellInfo)
+                            continue;
+
+                        if (spellInfo->SpellFamilyFlags == SPELLFAMILYFLAG_WARRIOR_SUNDERARMOR
+                            && spellInfo->Id != m_spellInfo->Id
+                            && spellInfo->SpellFamilyName == SPELLFAMILY_WARRIOR)
+                        {
+                            m_caster->CastSpell(unitTarget, spellInfo, true);
+                            break;
+                        }
                     }
                 }
             }
@@ -4299,13 +4332,13 @@ void Spell::EffectWeaponDmg(uint32 i)
         case SPELLFAMILY_ROGUE:
         {
             // Ambush
-            if(m_spellInfo->SpellFamilyFlags & 0x00000200LL)
+            /*if(m_spellInfo->SpellFamilyFlags & 0x00000200LL)
             {
                 customBonusDamagePercentMod = true;
                 bonusDamagePercentMod = 2.5f;               // 250%
-            }
+            }*/
             // Mutilate (for each hand)
-            else if(m_spellInfo->SpellFamilyFlags & 0x600000000LL)
+            if(m_spellInfo->SpellFamilyFlags & 0x600000000LL)
             {
                 bool found = false;
                 // fast check
@@ -4360,35 +4393,29 @@ void Spell::EffectWeaponDmg(uint32 i)
         }
     }
 
-    int32 fixed_bonus = 0;
     for (int j = 0; j < 3; j++)
     {
         switch(m_spellInfo->Effect[j])
         {
             case SPELL_EFFECT_WEAPON_DAMAGE:
             case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
-                fixed_bonus += CalculateDamage(j,unitTarget);
+                spell_bonus += CalculateDamage(j,unitTarget);
                 break;
             case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
-                fixed_bonus += CalculateDamage(j,unitTarget);
+                spell_bonus += CalculateDamage(j,unitTarget);
                 normalized = true;
                 break;
             case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
                 weaponDamagePercentMod *= float(CalculateDamage(j,unitTarget)) / 100.0f;
-
-                // applied only to prev.effects fixed damage
-                if(customBonusDamagePercentMod)
-                    fixed_bonus = int32(fixed_bonus*bonusDamagePercentMod);
-                else
-                    fixed_bonus = int32(fixed_bonus*weaponDamagePercentMod);
-                break;
             default:
                 break;                                      // not weapon damage effect, just skip
         }
     }
 
+    //fixed_bonus = int32(fixed_bonus*weaponDamagePercentMod);
+
     // non-weapon damage
-    int32 bonus = spell_bonus + fixed_bonus;
+    int32 bonus = spell_bonus;// + fixed_bonus;
 
     // apply to non-weapon bonus weapon total pct effect, weapon total flat effect included in weapon damage
     if(bonus)
