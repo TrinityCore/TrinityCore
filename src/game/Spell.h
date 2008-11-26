@@ -470,10 +470,18 @@ class Spell
         // -------------------------------------------
         GameObject* focusObject;
 
+        // Damage and healing in effects need just calculate
+        int32 m_damage;           // Damge   in effects count here
+        int32 m_healing;          // Healing in effects count here
+        int32 m_healthLeech;      // Health leech in effects for all targets count here
+
         //******************************************
         // Spell trigger system
         //******************************************
-        void doTriggers(SpellMissInfo missInfo, uint32 damage=0, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NONE, uint32 block=0, uint32 absorb=0, bool crit=false);
+        bool   m_canTrigger;                  // Can start trigger (m_IsTriggeredSpell can`t use for this)
+        uint32 m_procAttacker;                // Attacker trigger flags
+        uint32 m_procVictim;                  // Victim   trigger flags
+        void   prepareDataForTriggerSystem();
 
         //*****************************************
         // Spell target subsystem
