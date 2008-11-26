@@ -328,7 +328,7 @@ struct TRINITY_DLL_DECL mob_fel_orc_convertAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->SetNoCallAssistence(true);              //we don't want any assistance (WE R HEROZ!)
+        m_creature->SetNoCallAssistance(true);              //we don't want any assistance (WE R HEROZ!)
         Hemorrhage_Timer = 3000;
     }
 
