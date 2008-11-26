@@ -4155,6 +4155,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     }
 
     sLog.outDebug("Aura %u now is remove mode %d",Aur->GetModifier()->m_auraname, mode);
+    assert(!Aur->IsInUse());
     Aur->ApplyModifier(false,true);
     Aur->_RemoveAura();
     delete Aur;
