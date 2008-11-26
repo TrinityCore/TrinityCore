@@ -1237,8 +1237,8 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 && m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FLEEING_MOTION_TYPE)
             {
                 m_creature->GetMotionMaster()->Clear(false);
-                m_creature->SetNoCallAssistence(false);
-                m_creature->CallAssistence();
+                m_creature->SetNoCallAssistance(false);
+                m_creature->CallAssistance();
                 if(m_creature->getVictim())
                     m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
                 IsFleeing = false;
