@@ -117,6 +117,13 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
     { 
         pInstance =((ScriptedInstance*)c->GetInstanceData());
         Reset();
+
+        SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_HATCH_EGG);
+        if(TempSpell && TempSpell->EffectImplicitTargetA[0] != 1)
+        {
+            TempSpell->EffectImplicitTargetA[0] = 1;
+            TempSpell->EffectImplicitTargetB[0] = 0;
+        }
     }
 
     ScriptedInstance *pInstance;

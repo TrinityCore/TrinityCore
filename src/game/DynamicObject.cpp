@@ -140,7 +140,13 @@ void DynamicObject::Delete()
     // are switched to world container on creation and they are also set to active
     if (isActive())
     {
-        GetMap()->SwitchGridContainers(this, false);
+        Map* map = GetMap();
+        if(!map)
+        {
+            sLog.outError("DynamicObject (TypeId: %u Entry: %u GUID: %u) at attempt add to move list not have valid map (Id: %u).",GetTypeId(),GetEntry(),GetGUIDLow(),GetMapId());
+            return;
+        }
+        map->SwitchGridContainers(this, false);
         setActive(false);
     }
     SendObjectDeSpawnAnim(GetGUID());
