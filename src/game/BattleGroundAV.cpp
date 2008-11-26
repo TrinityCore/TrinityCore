@@ -305,13 +305,11 @@ void BattleGroundAV::Update(time_t diff)
         {
             m_Events |= 0x01;
 
-#ifdef ARENA_PATCH
             if(!SetupBattleGround())
             {
                 EndNow();
                 return;
             }
-#endif
 
             uint16 i;
             sLog.outDebug("Alterac Valley: entering state STATUS_WAIT_JOIN ...");
