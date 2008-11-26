@@ -48,6 +48,7 @@
 #  define TRINITY_IMPORT __cdecl
 #  define TRINITY_SCRIPT_EXT ".dll"
 #  define TRINITY_SCRIPT_NAME "TrinityScript"
+#  define TRINITY_PATH_MAX MAX_PATH
 #else //PLATFORM != PLATFORM_WINDOWS
 #  define TRINITY_LIBRARY_HANDLE void*
 #  define TRINITY_EXPORT export
@@ -61,6 +62,7 @@
 #  endif //__APPLE_CC__ && BIG_ENDIAN
 #  define TRINITY_SCRIPT_EXT ".so"
 #  define TRINITY_SCRIPT_NAME "libtrinityscript"
+#  define TRINITY_PATH_MAX PATH_MAX
 #endif //PLATFORM
 
 #if PLATFORM == PLATFORM_WINDOWS
