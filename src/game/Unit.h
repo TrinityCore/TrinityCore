@@ -928,7 +928,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         bool isTargetableForAttack() const;
         bool isAttackableByAOE() const;
-        bool canAttack(Unit const* target) const;
+        bool canAttack(Unit const* target, bool force = true) const;
         virtual bool IsInWater() const;
         virtual bool IsUnderWater() const;
         bool isInAccessiblePlaceFor(Creature const* c) const;

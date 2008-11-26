@@ -1576,7 +1576,7 @@ bool Creature::canStartAttack(Unit const* who) const
         || !IsWithinDistInMap(who, GetAttackDistance(who)))
         return false;
 
-    if(!canAttack(who))
+    if(!canAttack(who, false))
         return false;
 
     return IsWithinLOSInMap(who);

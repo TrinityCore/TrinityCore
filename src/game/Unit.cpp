@@ -8557,11 +8557,16 @@ bool Unit::isTargetableForAttack() const
     return isAttackableByAOE() && !hasUnitState(UNIT_STAT_DIED);
 }
 
-bool Unit::canAttack(Unit const* target) const
+bool Unit::canAttack(Unit const* target, bool force) const
 {
     assert(target);
 
-    if(!IsHostileTo(target))
+    if(force)
+    {
+        if(IsFriendlyTo(target))
+            return false;
+    }
+    else if(!IsHostileTo(target))
         return false;
 
     if(!target->isAttackableByAOE() || target->hasUnitState(UNIT_STAT_DIED))
