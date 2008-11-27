@@ -684,29 +684,29 @@ enum TrinityStrings
     LANG_BG_AV_H_CAPTAIN_DEAD           = 748,
     LANG_BG_AV_A_CAPTAIN_DEAD           = 749,
 
-    // Room for BG/ARENA                  750-799 not used
+    // Room for BG/ARENA                  750-769 not used
 
-    LANG_ARENA_YOUR_TEAM_ONLY           = 730,
-    LANG_ARENA_NOT_ENOUGH_PLAYERS       = 731,
-    LANG_ARENA_GOLD_WINS                = 732,
-    LANG_ARENA_GREEN_WINS               = 733,
-    LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING = 734,
-    LANG_BG_GROUP_OFFLINE_MEMBER        = 735,
-    LANG_BG_GROUP_MIXED_FACTION         = 736,
-    LANG_BG_GROUP_MIXED_LEVELS          = 737,
-    LANG_BG_GROUP_MEMBER_ALREADY_IN_QUEUE = 738,
-    LANG_BG_GROUP_MEMBER_DESERTER       = 739,
-    LANG_BG_GROUP_MEMBER_NO_FREE_QUEUE_SLOTS = 740,
+    LANG_ARENA_YOUR_TEAM_ONLY           = 770,
+    LANG_ARENA_NOT_ENOUGH_PLAYERS       = 771,
+    LANG_ARENA_GOLD_WINS                = 772,
+    LANG_ARENA_GREEN_WINS               = 773,
+    LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING = 774,
+    LANG_BG_GROUP_OFFLINE_MEMBER        = 775,
+    LANG_BG_GROUP_MIXED_FACTION         = 776,
+    LANG_BG_GROUP_MIXED_LEVELS          = 777,
+    LANG_BG_GROUP_MEMBER_ALREADY_IN_QUEUE = 778,
+    LANG_BG_GROUP_MEMBER_DESERTER       = 779,
+    LANG_BG_GROUP_MEMBER_NO_FREE_QUEUE_SLOTS = 780,
 
-    LANG_CANNOT_TELE_TO_BG              = 741,
-    LANG_CANNOT_SUMMON_TO_BG            = 742,
-    LANG_CANNOT_GO_TO_BG_GM             = 743,
-    LANG_CANNOT_GO_TO_BG_FROM_BG        = 744,
+    LANG_CANNOT_TELE_TO_BG              = 781,
+    LANG_CANNOT_SUMMON_TO_BG            = 782,
+    LANG_CANNOT_GO_TO_BG_GM             = 783,
+    LANG_CANNOT_GO_TO_BG_FROM_BG        = 784,
 
-    LANG_ARENA_TESTING                  = 745,
+    LANG_ARENA_TESTING                  = 785,
 
-    LANG_AUTO_ANN                       = 746,
-    LANG_ANNOUNCE_COLOR                 = 747,
+    LANG_AUTO_ANN                       = 786,
+    LANG_ANNOUNCE_COLOR                 = 787,
 
     // in game strings
     LANG_PET_INVALID_NAME               = 800,
