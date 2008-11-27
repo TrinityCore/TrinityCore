@@ -546,7 +546,7 @@ bool Player::Create( uint32 guidlow, std::string name, uint8 race, uint8 class_,
     }
 
     SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, DEFAULT_WORLD_OBJECT_SIZE );
-    SetFloatValue(UNIT_FIELD_COMBATREACH, 1.5f   );
+    SetFloatValue(UNIT_FIELD_COMBATREACH, DEFAULT_WORLD_OBJECT_SIZE );
 
     switch(gender)
     {
