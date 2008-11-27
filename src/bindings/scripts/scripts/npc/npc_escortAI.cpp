@@ -60,35 +60,26 @@ void npc_escortAI::MoveInLineOfSight(Unit *who)
     if (IsBeingEscorted && !Attack)
         return;
 
-    if( !m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessiblePlaceFor(m_creature) )
+    if(m_creature->getVictim() || !m_creature->canStartAttack(who))
+        return;
+
+    //Begin attack
+    if ( m_creature->Attack(who, true) )
     {
-        if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
-            return;
+        m_creature->GetMotionMaster()->MovementExpired();
+        m_creature->GetMotionMaster()->MoveChase(who);
+        m_creature->AddThreat(who, 0.0f);
+    }
 
-        float attackRadius = m_creature->GetAttackDistance(who);
-        if( m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who) )
-        {
-            who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+    if (!InCombat)
+    {
+        InCombat = true;
 
-            //Begin attack
-            if ( m_creature->Attack(who, true) )
-            {
-                m_creature->GetMotionMaster()->MovementExpired();
-                m_creature->GetMotionMaster()->MoveChase(who);
-                m_creature->AddThreat(who, 0.0f);
-            }
+        //Store last position
+        m_creature->GetPosition(LastPos.x, LastPos.y, LastPos.z);
+        debug_log("SD2: EscortAI has entered combat via LOS and stored last location");
 
-            if (!InCombat)
-            {
-                InCombat = true;
-
-                //Store last position
-                m_creature->GetPosition(LastPos.x, LastPos.y, LastPos.z);
-                debug_log("SD2: EscortAI has entered combat via LOS and stored last location");
-
-                Aggro(who);
-            }
-        }
+        Aggro(who);
     }
 }
 

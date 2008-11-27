@@ -177,7 +177,7 @@ struct TRINITY_DLL_DECL Scripted_NoMovementAI : public ScriptedAI
     Scripted_NoMovementAI(Creature* creature) : ScriptedAI(creature) {}
 
     //Called if IsVisible(Unit *who) is true at each *who move
-    void MoveInLineOfSight(Unit *);
+    //void MoveInLineOfSight(Unit *);
 
     //Called at each attack of m_creature by any victim
     void AttackStart(Unit *);

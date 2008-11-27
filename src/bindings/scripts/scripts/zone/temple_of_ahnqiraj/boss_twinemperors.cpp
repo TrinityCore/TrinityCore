@@ -352,8 +352,8 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
                 attackRadius = PULL_RANGE;
             if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->GetDistanceZ(who) <= /*CREATURE_Z_ATTACK_RANGE*/7 /*there are stairs*/)
             {
-                if(who->HasStealthAura())
-                    who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+                //if(who->HasStealthAura())
+                //    who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
                 AttackStart(who);
             }
         }
