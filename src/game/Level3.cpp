@@ -4406,7 +4406,7 @@ static bool HandleResetStatsOrLevelHelper(Player* player)
         player->m_form = FORM_NONE;
 
     player->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, DEFAULT_WORLD_OBJECT_SIZE );
-    player->SetFloatValue(UNIT_FIELD_COMBATREACH, 1.5f   );
+    player->SetFloatValue(UNIT_FIELD_COMBATREACH, DEFAULT_WORLD_OBJECT_SIZE );
 
     player->setFactionForRace(player->getRace());
 
