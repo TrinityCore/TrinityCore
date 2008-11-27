@@ -187,28 +187,14 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
         Timer = 0;
     }
 
-    void MoveInLineOfSight(Unit *who)
+    void AttackStart(Unit* who)
     {
-        if( !m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessiblePlaceFor(m_creature) )
+        if (!InCombat)
         {
-            if (m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
-                return;
-
-            float attackRadius = m_creature->GetAttackDistance(who);
-            if( m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who) )
-            {
-                who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-
-                if (!InCombat)
-                {
-                    Aggro(who);
-                    InCombat = true;
-                }
-            }
+            Aggro(who);
+            InCombat = true;
         }
     }
-
-    void AttackStart(Unit*) {}
 
     bool SummonSoul()
     {

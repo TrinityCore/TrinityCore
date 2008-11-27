@@ -248,12 +248,6 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 				if( m_creature->HasInArc(M_PI/2.0f, who) && m_creature->IsWithinLOSInMap(who) )
 				{
 					AttackStart(who);
-					who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-					if (!InCombat)
-					{
-						Aggro(who);
-						InCombat = true;
-					}
 				}
 			}
 		}

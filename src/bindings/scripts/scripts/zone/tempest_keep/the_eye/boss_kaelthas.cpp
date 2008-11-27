@@ -202,39 +202,15 @@ struct TRINITY_DLL_DECL advisorbase_ai : public ScriptedAI
         if (!who || FakeDeath || m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
-        if( !m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessiblePlaceFor(m_creature) )
-        {
-            if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
-                return;
-
-            float attackRadius = m_creature->GetAttackDistance(who);
-            if(m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who) )
-            {
-                who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-                AttackStart(who);
-            }
-        }
+        ScriptedAI::MoveInLineOfSight(who);
     }
 
     void AttackStart(Unit* who)
     {
         if (!who || FakeDeath || m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
-
-        if (m_creature->Attack(who, true))
-        {
-            m_creature->AddThreat(who, 0.0f);
-            m_creature->SetInCombatWith(who);
-            who->SetInCombatWith(m_creature);
-
-            if (!InCombat)
-            {
-                InCombat = true;
-                Aggro(who);
-            }
-
-            DoStartMovement(who);
-        }
+        
+        ScriptedAI::AttackStart(who);
     }
 
     void Reset()
@@ -503,7 +479,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
             float attackRadius = m_creature->GetAttackDistance(who);
             if (Phase >= 4 && m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
             {
-                who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+                //who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
                 AttackStart(who);
             }
             else if(who->isAlive())

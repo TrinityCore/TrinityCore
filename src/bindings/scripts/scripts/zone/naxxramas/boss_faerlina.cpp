@@ -121,7 +121,7 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public ScriptedAI
                     }
                 }
 
-                who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+                //who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
                 AttackStart(who);
             }
             else if (!HasTaunted && m_creature->IsWithinDistInMap(who, 60.0f))
