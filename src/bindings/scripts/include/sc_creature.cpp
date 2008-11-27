@@ -799,7 +799,7 @@ std::list<Creature*> ScriptedAI::DoFindFriendlyMissingBuff(float range, uint32 s
     return pList;
 }
 
-void Scripted_NoMovementAI::MoveInLineOfSight(Unit *who)
+/*void Scripted_NoMovementAI::MoveInLineOfSight(Unit *who)
 {
     if( !m_creature->getVictim() && m_creature->canAttack(who) && ( m_creature->IsHostileTo( who )) && who->isInAccessiblePlaceFor(m_creature) )
     {
@@ -813,7 +813,7 @@ void Scripted_NoMovementAI::MoveInLineOfSight(Unit *who)
             AttackStart(who);
         }
     }
-}
+}*/
 
 void Scripted_NoMovementAI::AttackStart(Unit* who)
 {

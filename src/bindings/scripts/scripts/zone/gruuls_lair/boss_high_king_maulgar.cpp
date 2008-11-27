@@ -450,32 +450,7 @@ struct TRINITY_DLL_DECL boss_kiggler_the_crazedAI : public ScriptedAI
                 ((boss_high_king_maulgarAI*)Maulgar->AI())->AddDeath();
         }
        }
-    void MoveInLineOfSight(Unit *who)
-    {
-        if (!m_creature->getVictim() && who->isTargetableForAttack() && who->isInAccessiblePlaceFor(m_creature) && m_creature->IsHostileTo(who))
-        {
-            if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
-                return;
-
-            float attackRadius = m_creature->GetAttackDistance(who);
-            if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
-            {
-                if(who->HasStealthAura())
-                    who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-
-                if(!InCombat)
-                {
-                    AttackStart(who);
-                    if(pInstance)
-                    {
-                        pInstance->SetData64(DATA_MAULGAREVENT_TANK, who->GetGUID());
-                        pInstance->SetData(DATA_MAULGAREVENT, IN_PROGRESS);
-                    }
-                }
-            }
-        }
-    }
-
+ 
     void UpdateAI(const uint32 diff)
     {
         //Only if not incombat check if the event is started
@@ -580,33 +555,7 @@ struct TRINITY_DLL_DECL boss_blindeye_the_seerAI : public ScriptedAI
         }
        }
 
-    void MoveInLineOfSight(Unit *who)
-    {
-        if (!m_creature->getVictim() && who->isTargetableForAttack() && who->isInAccessiblePlaceFor(m_creature) && m_creature->IsHostileTo(who))
-        {
-            if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
-                return;
-
-            float attackRadius = m_creature->GetAttackDistance(who);
-            if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
-            {
-                if(who->HasStealthAura())
-                    who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-
-                if(!InCombat)
-                {
-                    AttackStart(who);
-                    if(pInstance)
-                    {
-                        pInstance->SetData64(DATA_MAULGAREVENT_TANK, who->GetGUID());
-                        pInstance->SetData(DATA_MAULGAREVENT, IN_PROGRESS);
-                    }
-                }
-            }
-        }
-    }
-
-    void UpdateAI(const uint32 diff)
+     void UpdateAI(const uint32 diff)
     {
         //Only if not incombat check if the event is started
         if(!InCombat && pInstance && pInstance->GetData(DATA_MAULGAREVENT))
@@ -694,31 +643,6 @@ struct TRINITY_DLL_DECL boss_krosh_firehandAI : public ScriptedAI
                 ((boss_high_king_maulgarAI*)Maulgar->AI())->AddDeath();
         }
        }
-    void MoveInLineOfSight(Unit *who)
-    {
-        if (!m_creature->getVictim() && who->isTargetableForAttack() && who->isInAccessiblePlaceFor(m_creature) && m_creature->IsHostileTo(who))
-        {
-            if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
-                return;
-
-            float attackRadius = m_creature->GetAttackDistance(who);
-            if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
-            {
-                if(who->HasStealthAura())
-                    who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-
-                if(!InCombat)
-                {
-                    AttackStart(who);
-                    if(pInstance)
-                    {
-                        pInstance->SetData64(DATA_MAULGAREVENT_TANK, who->GetGUID());
-                        pInstance->SetData(DATA_MAULGAREVENT, IN_PROGRESS);
-                    }
-                }
-            }
-        }
-    }
 
     void UpdateAI(const uint32 diff)
     {

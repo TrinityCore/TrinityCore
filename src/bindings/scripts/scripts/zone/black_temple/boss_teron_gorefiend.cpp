@@ -168,8 +168,8 @@ struct TRINITY_DLL_DECL mob_shadowy_constructAI : public ScriptedAI
 
             if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->GetDistanceZ(who) <= CREATURE_Z_ATTACK_RANGE && m_creature->IsWithinLOSInMap(who))
             {
-                if(who->HasStealthAura())
-                    who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+                //if(who->HasStealthAura())
+                //    who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
 
                 m_creature->AddThreat(who, 1.0f);
             }
@@ -282,8 +282,8 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
 
             if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->GetDistanceZ(who) <= CREATURE_Z_ATTACK_RANGE && m_creature->IsWithinLOSInMap(who))
             {
-                if(who->HasStealthAura())
-                    who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+                //if(who->HasStealthAura())
+                //    who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
 
                 m_creature->AddThreat(who, 1.0f);
             }

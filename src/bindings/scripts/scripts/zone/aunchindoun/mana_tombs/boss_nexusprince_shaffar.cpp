@@ -92,7 +92,7 @@ struct TRINITY_DLL_DECL boss_nexusprince_shaffarAI : public ScriptedAI
             float attackRadius = m_creature->GetAttackDistance(who);
             if( m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who) )
             {
-                who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+                //who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
                 AttackStart(who);
             }
         }

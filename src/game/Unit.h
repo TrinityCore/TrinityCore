@@ -1102,7 +1102,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void RemoveSpellsCausingAura(AuraType auraType);
         void RemoveRankAurasDueToSpell(uint32 spellId);
         bool RemoveNoStackAurasDueToAura(Aura *Aur);
-        void RemoveAurasWithInterruptFlags(uint32 flags);
+        void RemoveAurasWithInterruptFlags(uint32 flags, uint32 except = 0);
         void RemoveAurasWithDispelType( DispelType type );
 
         void RemoveAllAuras();
