@@ -10333,6 +10333,8 @@ bool Unit::SelectHostilTarget()
         {
             target = m_ThreatManager.getHostilTarget();
         }
+        else
+            target = getVictim();
     }
 
     if(target)
@@ -10344,7 +10346,7 @@ bool Unit::SelectHostilTarget()
     }
 
     // no target but something prevent go to evade mode
-    if( !isInCombat() || HasAuraType(SPELL_AURA_MOD_TAUNT) )
+    if( !isInCombat() /*|| HasAuraType(SPELL_AURA_MOD_TAUNT)*/ )
         return false;
 
     // last case when creature don't must go to evade mode:
@@ -10365,6 +10367,18 @@ bool Unit::SelectHostilTarget()
     {
         ((Creature*)this)->AI()->AttackStart(target);
         return true;
+    }
+
+    if(m_invisibilityMask)
+    {
+        Unit::AuraList const& iAuras = GetAurasByType(SPELL_AURA_MOD_INVISIBILITY);
+        for(Unit::AuraList::const_iterator itr = iAuras.begin(); itr != iAuras.end(); ++itr)
+            if((*itr)->IsPermanent())
+            {
+                ((Creature*)this)->AI()->EnterEvadeMode();
+                break;
+            }
+        return false;                
     }
 
     // enter in evade mode in other case
