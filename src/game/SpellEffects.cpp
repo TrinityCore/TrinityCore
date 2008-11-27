@@ -1817,17 +1817,18 @@ void Spell::EffectTriggerSpell(uint32 i)
         // Cloak of Shadows
         case 35729 :
         {
-            m_caster->RemoveAurasWithDispelType(DISPEL_ALL);
+            uint32 dispelMask = GetDispellMask(DISPEL_ALL);
             Unit::AuraMap& Auras = m_caster->GetAuras();
             for(Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end(); ++iter)
             {
                 // remove all harmful spells on you...
-                if(// only affect magic spells
-                    iter->second->GetSpellProto()->DmgClass == SPELL_DAMAGE_CLASS_MAGIC
+                SpellEntry const* spell = iter->second->GetSpellProto();
+                if((spell->DmgClass == SPELL_DAMAGE_CLASS_MAGIC // only affect magic spells
+                    || ((1<<spell->Dispel) & dispelMask))
                     // ignore positive and passive auras
                     && !iter->second->IsPositive() && !iter->second->IsPassive())
                 {
-                    m_caster->RemoveAurasDueToSpell(iter->second->GetSpellProto()->Id);
+                    m_caster->RemoveAurasDueToSpell(spell->Id);
                     iter = Auras.begin();
                 }
             }
