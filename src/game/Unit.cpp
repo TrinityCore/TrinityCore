@@ -492,11 +492,16 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag)
         //sLog.outDetail("auraflag:%u flag:%u = %u",(*iter)->GetSpellProto()->AuraInterruptFlags,flag,(*iter)->GetSpellProto()->AuraInterruptFlags & flag);
         if(*iter && ((*iter)->GetSpellProto()->AuraInterruptFlags & flag))
         {
-            RemoveAurasDueToSpell((*iter)->GetId());
-            if (!m_interruptableAuras.empty())
-                next = m_interruptableAuras.begin();
+            if((*iter)->IsInUse())
+                sLog.outError("Aura %u is trying to remove itself! Flag %u. May cause crash!", (*iter)->GetId(), flag);
             else
-                break;
+            {
+                RemoveAurasDueToSpell((*iter)->GetId());
+                if (!m_interruptableAuras.empty())
+                    next = m_interruptableAuras.begin();
+                else
+                    break;
+            }
         }
     }
 
