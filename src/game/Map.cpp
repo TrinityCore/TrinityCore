@@ -641,22 +641,18 @@ void Map::Update(const uint32 &t_diff)
 {
     resetMarkedCells();
 
-    // update cells around players
-    /*for(MapRefManager::iterator iter = m_mapRefManager.begin(); iter != m_mapRefManager.end(); ++iter)
-    {
-        Player* plr = iter->getSource();
-        if(plr->IsInWorld())
-            UpdateActiveCells(plr->GetPositionX(), plr->GetPositionY(), t_diff);
-    }*/
-
-    // update cells around active objects
-    // clone the active object list, because update might remove from it
-    std::set<WorldObject *> activeObjects(i_activeObjects);
+    //TODO: is there a better way to update activeobjects?
+    std::vector<WorldObject*> activeObjects;
     for(MapRefManager::iterator iter = m_mapRefManager.begin(); iter != m_mapRefManager.end(); ++iter)
     {
         Player* plr = iter->getSource();
         if(plr->IsInWorld())
-            activeObjects.insert(plr);
+            activeObjects.push_back(plr);
+    }
+    for(std::set<WorldObject *>::iterator iter = i_activeObjects.begin(); iter != i_activeObjects.end(); ++iter)
+    {
+        if((*iter)->IsInWorld())
+            activeObjects.push_back(*iter);
     }
 
     Trinity::ObjectUpdater updater(t_diff);
@@ -665,11 +661,8 @@ void Map::Update(const uint32 &t_diff)
     // for pets
     TypeContainerVisitor<Trinity::ObjectUpdater, WorldTypeMapContainer > world_object_update(updater);
 
-    for(std::set<WorldObject *>::iterator iter = activeObjects.begin(); iter != activeObjects.end(); ++iter)
+    for(std::vector<WorldObject*>::iterator iter = activeObjects.begin(); iter != activeObjects.end(); ++iter)
     {
-        if(!(*iter)->IsInWorld())
-            continue;
-
         CellPair standing_cell(Trinity::ComputeCellPair((*iter)->GetPositionX(), (*iter)->GetPositionY()));
 
         // Check for correctness of standing_cell, it also avoids problems with update_cell
@@ -723,6 +716,13 @@ void Map::Update(const uint32 &t_diff)
 
 void Map::Remove(Player *player, bool remove)
 {
+    // this may be called during Map::Update
+    // after decrement+unlink, ++m_mapRefIter will continue correctly
+    // when the first element of the list is being removed
+    // nocheck_prev will return the padding element of the RefManager
+    // instead of NULL in the case of prev
+    if(m_mapRefIter == player->GetMapRef())
+        m_mapRefIter = m_mapRefIter->nocheck_prev();
     player->GetMapRef().unlink();
     CellPair p = Trinity::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
     if(p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
@@ -1754,6 +1754,8 @@ bool InstanceMap::Add(Player *player)
         }
 
         if(i_data) i_data->OnPlayerEnter(player);
+        // for normal instances cancel the reset schedule when the
+        // first player enters (no players yet)
         SetResetSchedule(false);
 
         player->SendInitWorldStates();
@@ -1780,11 +1782,12 @@ void InstanceMap::Update(const uint32& t_diff)
 void InstanceMap::Remove(Player *player, bool remove)
 {
     sLog.outDetail("MAP: Removing player '%s' from instance '%u' of map '%s' before relocating to other map", player->GetName(), GetInstanceId(), GetMapName());
-    SetResetSchedule(true);
     //if last player set unload timer
     if(!m_unloadTimer && m_mapRefManager.getSize() == 1)
         m_unloadTimer = m_unloadWhenEmpty ? MIN_UNLOAD_DELAY : std::max(sWorld.getConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);
     Map::Remove(player, remove);
+    // for normal instances schedule the reset after all players have left
+    SetResetSchedule(true);
 }
 
 Creature * Map::GetCreatureInMap(uint64 guid)
