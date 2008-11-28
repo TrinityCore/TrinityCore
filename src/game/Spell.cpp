@@ -2920,7 +2920,8 @@ void Spell::finish(bool ok)
                     int32 chance = m_caster->CalculateSpellDamage(auraSpellInfo, auraSpellIdx, (*i)->GetBasePoints(),unit);
 
                     if(roll_chance_i(chance))
-                        m_caster->CastSpell(unit, auraSpellInfo->EffectTriggerSpell[auraSpellIdx], true, NULL, (*i));
+                        for (int j=0; j != (*i)->GetStackAmount(); ++j)
+                            m_caster->CastSpell(unit, auraSpellInfo->EffectTriggerSpell[auraSpellIdx], true, NULL, (*i));
                 }
             }
         }

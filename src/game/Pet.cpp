@@ -628,7 +628,7 @@ void Pet::RegenerateFocus()
     AuraList const& ModPowerRegenPCTAuras = GetAurasByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for(AuraList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
         if ((*i)->GetModifier()->m_miscvalue == POWER_FOCUS)
-            addvalue *= ((*i)->GetModifier()->m_amount + 100) / 100.0f;
+            addvalue *= ((*i)->GetModifierValue() + 100) / 100.0f;
 
     ModifyPower(POWER_FOCUS, (int32)addvalue);
 }
