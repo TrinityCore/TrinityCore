@@ -302,6 +302,7 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         uint32 m_unloadTimer;
 
         MapRefManager m_mapRefManager;
+        MapRefManager::iterator m_mapRefIter;
     private:
         typedef GridReadGuard ReadGuard;
         typedef GridWriteGuard WriteGuard;

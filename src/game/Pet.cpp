@@ -1015,7 +1015,7 @@ bool Pet::InitStatsForLevel(uint32 petlevel)
     SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0);
 
     CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cinfo->family);
-    if(cFamily && cFamily->minScale > 0.0f)
+    if(cFamily && cFamily->minScale > 0.0f && getPetType()==HUNTER_PET)
     {
         float scale;
         if (getLevel() >= cFamily->maxScaleLevel)
