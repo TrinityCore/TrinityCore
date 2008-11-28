@@ -214,6 +214,7 @@ class TRINITY_DLL_SPEC Aura
 
         void SetModifier(AuraType t, int32 a, uint32 pt, int32 miscValue);
         Modifier* GetModifier() {return &m_modifier;}
+        int32 GetModifierValue() {return m_modifier.m_amount * m_stackAmount;}
         int32 GetMiscValue() {return m_spellProto->EffectMiscValue[m_effIndex];}
         int32 GetMiscBValue() {return m_spellProto->EffectMiscValueB[m_effIndex];}
 
@@ -230,6 +231,7 @@ class TRINITY_DLL_SPEC Aura
         time_t GetAuraApplyTime() { return m_applyTime; }
         void UpdateAuraDuration();
         void SendAuraDurationForCaster(Player* caster);
+        void UpdateSlotCounterAndDuration();
 
         uint64 const& GetCasterGUID() const { return m_caster_guid; }
         Unit* GetCaster() const;
@@ -295,6 +297,9 @@ class TRINITY_DLL_SPEC Aura
 
         void PeriodicTick();
         void PeriodicDummyTick();
+
+        int32 GetStackAmount() {return m_stackAmount;}
+        void SetStackAmount(int32 amount) {m_stackAmount=amount;}
     protected:
         Aura(SpellEntry const* spellproto, uint32 eff, int32 *currentBasePoints, Unit *target, Unit *caster = NULL, Item* castItem = NULL);
 
@@ -330,8 +335,9 @@ class TRINITY_DLL_SPEC Aura
         int32 m_periodicTimer;
         uint32 m_PeriodicEventId;
         DiminishingGroup m_AuraDRGroup;
+
+        int32 m_stackAmount;
     private:
-        void UpdateSlotCounterAndDuration(bool add);
         void CleanupTriggeredSpells();
         void SetAura(uint32 slot, bool remove) { m_target->SetUInt32Value(UNIT_FIELD_AURA + slot, remove ? 0 : GetId()); }
         void SetAuraFlag(uint32 slot, bool add);

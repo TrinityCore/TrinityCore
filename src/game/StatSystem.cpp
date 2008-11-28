@@ -155,7 +155,7 @@ void Player::UpdateArmor()
     {
         Modifier* mod = (*i)->GetModifier();
         if(mod->m_miscvalue & SPELL_SCHOOL_MASK_NORMAL)
-            value += int32(GetStat(Stats((*i)->GetMiscBValue())) * mod->m_amount / 100.0f);
+            value += int32(GetStat(Stats((*i)->GetMiscBValue())) * (*i)->GetModifierValue() / 100.0f);
     }
 
     value *= GetModifierValue(unitMod, TOTAL_PCT);
@@ -313,7 +313,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged )
     {
         AuraList const& mRAPbyIntellect = GetAurasByType(SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT);
         for(AuraList::const_iterator i = mRAPbyIntellect.begin();i != mRAPbyIntellect.end(); ++i)
-            attPowerMod += int32(GetStat(Stats((*i)->GetModifier()->m_miscvalue)) * (*i)->GetModifier()->m_amount / 100.0f);
+            attPowerMod += int32(GetStat(Stats((*i)->GetModifier()->m_miscvalue)) * (*i)->GetModifierValue() / 100.0f);
     }
 
     float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
@@ -572,10 +572,10 @@ void Player::UpdateExpertise(WeaponAttackType attack)
     {
         // item neutral spell
         if((*itr)->GetSpellProto()->EquippedItemClass == -1)
-            expertise += (*itr)->GetModifier()->m_amount;
+            expertise += (*itr)->GetModifierValue();
         // item dependent spell
         else if(weapon && weapon->IsFitToSpellRequirements((*itr)->GetSpellProto()))
-            expertise += (*itr)->GetModifier()->m_amount;
+            expertise += (*itr)->GetModifierValue();
     }
 
     if(expertise < 0)
@@ -605,7 +605,7 @@ void Player::UpdateManaRegen()
     for(AuraList::const_iterator i = regenAura.begin();i != regenAura.end(); ++i)
     {
         Modifier* mod = (*i)->GetModifier();
-        power_regen_mp5 += GetStat(Stats(mod->m_miscvalue)) * mod->m_amount / 500.0f;
+        power_regen_mp5 += GetStat(Stats(mod->m_miscvalue)) * (*i)->GetModifierValue() / 500.0f;
     }
 
     // Bonus from some dummy auras
