@@ -1081,6 +1081,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         Item* EquipNewItem( uint16 pos, uint32 item, uint32 count, bool update );
         Item* EquipItem( uint16 pos, Item *pItem, bool update );
         void AutoUnequipOffhandIfNeed();
+        bool StoreNewItemInBestSlot(uint32 item_id, uint32 item_count);
 
         uint8 _CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count = NULL) const;
         uint8 _CanStoreItem( uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 entry, uint32 count, Item *pItem = NULL, bool swap = false, uint32* no_space_count = NULL ) const;
