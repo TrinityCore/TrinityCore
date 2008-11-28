@@ -39,6 +39,6 @@ class MapRefManager : public RefManager<Map, Player>
         iterator rbegin() { return iterator(getLast()); }
         iterator rend() { return iterator(NULL); }
         const_iterator begin() const { return const_iterator(getFirst()); }
-        const_iterator end() const  { return const_iterator(getLast()); }
+        const_iterator end() const  { return const_iterator(NULL); }
 };
 #endif
