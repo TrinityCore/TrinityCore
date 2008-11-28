@@ -572,58 +572,9 @@ void Spell::EffectDummy(uint32 i)
     switch(m_spellInfo->SpellFamilyName)
     {
         case SPELLFAMILY_GENERIC:
-            // Gnomish Poultryizer trinket
+        {
             switch(m_spellInfo->Id )
             {
-                // Mingo's Fortune Giblets
-                case 40802:
-                {
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER) return;
-
-                    Player *player = (Player*)m_caster;
-                    uint32 newitemid;
-
-                    switch(urand(1,20))
-                    {
-                        case 1: newitemid = 32688; break;
-                        case 2: newitemid = 32689; break;
-                        case 3: newitemid = 32690; break;
-                        case 4: newitemid = 32691; break;
-                        case 5: newitemid = 32692; break;
-                        case 6: newitemid = 32693; break;
-                        case 7: newitemid = 32700; break;
-                        case 8: newitemid = 32701; break;
-                        case 9: newitemid = 32702; break;
-                        case 10: newitemid = 32703; break;
-                        case 11: newitemid = 32704; break;
-                        case 12: newitemid = 32705; break;
-                        case 13: newitemid = 32706; break;
-                        case 14: newitemid = 32707; break;
-                        case 15: newitemid = 32708; break;
-                        case 16: newitemid = 32709; break;
-                        case 17: newitemid = 32710; break;
-                        case 18: newitemid = 32711; break;
-                        case 19: newitemid = 32712; break;
-                        case 20: newitemid = 32713; break;
-                    }
-                    ItemPosCountVec dest;
-                    uint8 msg = player->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, newitemid, 1, false);
-                    if (msg != EQUIP_ERR_OK)
-                    {
-                        player->SendEquipError(msg, NULL, NULL);
-                        return;
-                    }
-                    Item *pItem = player->StoreNewItem(dest, newitemid, true, Item::GenerateItemRandomPropertyId(newitemid));
-
-                    if (!pItem)
-                    {
-                        player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
-                        return;
-                    }
-                    player->SendNewItem(pItem, 1, true, true);
-                    
-                    return;
-                }
                 // Encapsulate Voidwalker
                 case 29364:
                 {
@@ -1035,6 +986,50 @@ void Spell::EffectDummy(uint32 i)
                     if(unitTarget)
                         m_caster->CastSpell(unitTarget,37675,true);
                     return;
+                case 40802:                                 // Mingo's Fortune Generator (Mingo's Fortune Giblets)
+                {
+                    // selecting one from Bloodstained Fortune item
+                    uint32 newitemid;
+                    switch(urand(1,20))
+                    {
+                        case 1:  newitemid = 32688; break;
+                        case 2:  newitemid = 32689; break;
+                        case 3:  newitemid = 32690; break;
+                        case 4:  newitemid = 32691; break;
+                        case 5:  newitemid = 32692; break;
+                        case 6:  newitemid = 32693; break;
+                        case 7:  newitemid = 32700; break;
+                        case 8:  newitemid = 32701; break;
+                        case 9:  newitemid = 32702; break;
+                        case 10: newitemid = 32703; break;
+                        case 11: newitemid = 32704; break;
+                        case 12: newitemid = 32705; break;
+                        case 13: newitemid = 32706; break;
+                        case 14: newitemid = 32707; break;
+                        case 15: newitemid = 32708; break;
+                        case 16: newitemid = 32709; break;
+                        case 17: newitemid = 32710; break;
+                        case 18: newitemid = 32711; break;
+                        case 19: newitemid = 32712; break;
+                        case 20: newitemid = 32713; break;
+                        default:
+                            return;
+                    }
+
+                    DoCreateItem(i,newitemid);
+                    return;
+                }
+                // Demon Broiled Surprise
+                /* FIX ME: Required for correct work implementing implicit target 7 (in pair (22,7))
+                case 43723:
+                {
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    ((Player*)m_caster)->CastSpell(unitTarget, 43753, true);
+                    return;
+                }
+                */
                 case 44875:                                 // Complete Raptor Capture
                 {
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
@@ -1182,6 +1177,7 @@ void Spell::EffectDummy(uint32 i)
                 }
             }
             break;
+        }
         case SPELLFAMILY_MAGE:
             switch(m_spellInfo->Id )
             {
