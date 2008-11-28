@@ -1212,6 +1212,9 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
     //    && spellInfo_1->SpellIconID == spellInfo_2->SpellIconID)
     //    return true; // maybe change this to IsRankSpellDueToSpell?
 
+    if(spellInfo_1->SpellFamilyName && IsRankSpellDueToSpell(spellInfo_1, spellId_2))
+        return true;
+
     //if spells have exactly the same effect they cannot stack
     for(uint32 i = 0; i < 3; ++i)
         if(spellInfo_1->Effect[i] != spellInfo_2->Effect[i]
