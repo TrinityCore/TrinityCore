@@ -135,6 +135,16 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
 
     switch(spellInfo->SpellFamilyName)
     {
+        case SPELLFAMILY_GENERIC:
+        {
+            // needed to make some strange drinks unstackable (brewfest and normal drink)
+            if (spellInfo->Attributes & SPELL_ATTR_CASTABLE_WHILE_SITTING
+                && spellInfo->Attributes & SPELL_ATTR_CANT_USED_IN_COMBAT)
+                    for(int i = 0; i < 3; i++)
+                        if( spellInfo->EffectApplyAuraName[i]==)
+                            return SPELL_DRINK;
+            break;
+        }
         case SPELLFAMILY_MAGE:
         {
             // family flags 18(Molten), 25(Frost/Ice), 28(Mage)
@@ -247,6 +257,7 @@ bool IsSingleFromSpellSpecificPerCaster(uint32 spellSpec1,uint32 spellSpec2)
         case SPELL_POSITIVE_SHOUT:
         case SPELL_JUDGEMENT:
         case SPELL_WARLOCK_CORRUPTION:
+        case SPELL_DRINK:
             return spellSpec1==spellSpec2;
         default:
             return false;
@@ -1156,8 +1167,9 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
     // generic spells
     if(!spellInfo_1->SpellFamilyName)
     {
-        if(!spellInfo_1->SpellIconID 
-            || spellInfo_1->SpellIconID != spellInfo_2->SpellIconID)
+        if(!spellInfo_1->SpellIconID
+            || (spellInfo_1->SpellIconID != spellInfo_2->SpellIconID
+               && spellInfo_1->SpellVisual != spellInfo_2->SpellVisual)) //needed for 44098 and 19709 to make it unstackable
             return false;
     }
 
@@ -1175,33 +1187,37 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
             return false;
     }
 
+    if( !sameCaster)
+        for(uint32 i = 0; i < 3; ++i)
+        {
+            if (spellInfo_1->Effect[i] != SPELL_EFFECT_APPLY_AREA_AURA_PARTY) // not area auras (shaman totem)
+            // a better check may be effect == SPELL_EFFECT_APPLY_AURA
+                switch(spellInfo_1->EffectApplyAuraName[i])
+                {
+                    // DOT or HOT from different casters will stack
+                    case SPELL_AURA_PERIODIC_DAMAGE:
+                    case SPELL_AURA_PERIODIC_HEAL:
+                    case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
+                    case SPELL_AURA_PERIODIC_ENERGIZE:
+                    case SPELL_AURA_PERIODIC_MANA_LEECH:
+                    case SPELL_AURA_PERIODIC_LEECH:
+                        return false;
+                    default:
+                        break;
+                }
+        }
+
+    //spells with the same icon (check needed when spell has different effects in other ranks example:Mark of the wild)
+    if(spellInfo_1->SpellIconID 
+        && spellInfo_1->SpellIconID == spellInfo_2->SpellIconID)
+        return true; // maybe change this to IsRankSpellDueToSpell?
+
+    //if spells have exactly the same effect they cannot stack
     for(uint32 i = 0; i < 3; ++i)
-    {
         if(spellInfo_1->Effect[i] != spellInfo_2->Effect[i]
             || spellInfo_1->EffectApplyAuraName[i] != spellInfo_2->EffectApplyAuraName[i]
             || spellInfo_1->EffectMiscValue[i] != spellInfo_2->EffectMiscValue[i]) // paladin resist aura
             return false; // need itemtype check? need an example to add that check
-
-        if(spellInfo_1->EffectApplyAuraName[i] // both spell has the same auras
-            && !sameCaster
-            && spellInfo_1->Effect[i] != SPELL_EFFECT_APPLY_AREA_AURA_PARTY) // not area auras (shaman totem)
-            // a better check may be effect == SPELL_EFFECT_APPLY_AURA
-        {
-            switch(spellInfo_1->EffectApplyAuraName[i])
-            {
-                // DOT or HOT from different casters will stack
-                case SPELL_AURA_PERIODIC_DAMAGE:
-                case SPELL_AURA_PERIODIC_HEAL:
-                case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
-                case SPELL_AURA_PERIODIC_ENERGIZE:
-                case SPELL_AURA_PERIODIC_MANA_LEECH:
-                case SPELL_AURA_PERIODIC_LEECH:
-                    return false;
-                default:
-                    break;
-            }
-        }
-    }
 
     return true;
 }

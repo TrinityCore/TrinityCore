@@ -263,7 +263,8 @@ enum SpellSpecific
     SPELL_BATTLE_ELIXIR     = 14,
     SPELL_GUARDIAN_ELIXIR   = 15,
     SPELL_FLASK_ELIXIR      = 16,
-    SPELL_WARLOCK_CORRUPTION= 17
+    SPELL_WARLOCK_CORRUPTION= 17,
+    SPELL_DRINK= 18
 };
 
 SpellSpecific GetSpellSpecific(uint32 spellId);
