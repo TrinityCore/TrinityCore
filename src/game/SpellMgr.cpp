@@ -137,12 +137,10 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
     {
         case SPELLFAMILY_GENERIC:
         {
-            // needed to make some strange drinks unstackable (brewfest and normal drink)
-            if (spellInfo->Attributes & SPELL_ATTR_CASTABLE_WHILE_SITTING
-                && spellInfo->Attributes & SPELL_ATTR_CANT_USED_IN_COMBAT)
-                    for(int i = 0; i < 3; i++)
-                        if( spellInfo->EffectApplyAuraName[i]==)
-                            return SPELL_DRINK;
+            // this may be a hack
+            if((spellInfo->AttributesEx2 & SPELL_ATTR_EX2_FOOD)
+                && !spellInfo->Category)
+                return SPELL_WELL_FED;
             break;
         }
         case SPELLFAMILY_MAGE:
@@ -257,7 +255,6 @@ bool IsSingleFromSpellSpecificPerCaster(uint32 spellSpec1,uint32 spellSpec2)
         case SPELL_POSITIVE_SHOUT:
         case SPELL_JUDGEMENT:
         case SPELL_WARLOCK_CORRUPTION:
-        case SPELL_DRINK:
             return spellSpec1==spellSpec2;
         default:
             return false;
@@ -273,6 +270,7 @@ bool IsSingleFromSpellSpecificPerTarget(uint32 spellSpec1,uint32 spellSpec2)
         case SPELL_MAGE_ARMOR:
         case SPELL_ELEMENTAL_SHIELD:
         case SPELL_MAGE_POLYMORPH:
+        case SPELL_WELL_FED:
             return spellSpec1==spellSpec2;
         case SPELL_BATTLE_ELIXIR:
             return spellSpec2==SPELL_BATTLE_ELIXIR
@@ -1168,8 +1166,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
     if(!spellInfo_1->SpellFamilyName)
     {
         if(!spellInfo_1->SpellIconID
-            || (spellInfo_1->SpellIconID != spellInfo_2->SpellIconID
-               && spellInfo_1->SpellVisual != spellInfo_2->SpellVisual)) //needed for 44098 and 19709 to make it unstackable
+            || spellInfo_1->SpellIconID != spellInfo_2->SpellIconID)
             return false;
     }
 
@@ -1187,11 +1184,12 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
             return false;
     }
 
-    if( !sameCaster)
+    if(!sameCaster)
+    {
         for(uint32 i = 0; i < 3; ++i)
-        {
-            if (spellInfo_1->Effect[i] != SPELL_EFFECT_APPLY_AREA_AURA_PARTY) // not area auras (shaman totem)
-            // a better check may be effect == SPELL_EFFECT_APPLY_AURA
+            if (spellInfo_1->Effect[i] == SPELL_EFFECT_APPLY_AURA
+                || spellInfo_1->Effect[i] == SPELL_EFFECT_PERSISTENT_AREA_AURA)
+                // not area auras (shaman totem)
                 switch(spellInfo_1->EffectApplyAuraName[i])
                 {
                     // DOT or HOT from different casters will stack
@@ -1205,12 +1203,14 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
                     default:
                         break;
                 }
-        }
+    }
 
+    //not sure if this is correct. maybe some talent buff have same icons?
+    //maybe some creature spells have same visual and same icon but should stack?
     //spells with the same icon (check needed when spell has different effects in other ranks example:Mark of the wild)
-    if(spellInfo_1->SpellIconID 
-        && spellInfo_1->SpellIconID == spellInfo_2->SpellIconID)
-        return true; // maybe change this to IsRankSpellDueToSpell?
+    //if(spellInfo_1->SpellIconID 
+    //    && spellInfo_1->SpellIconID == spellInfo_2->SpellIconID)
+    //    return true; // maybe change this to IsRankSpellDueToSpell?
 
     //if spells have exactly the same effect they cannot stack
     for(uint32 i = 0; i < 3; ++i)
