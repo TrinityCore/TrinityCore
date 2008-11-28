@@ -335,7 +335,7 @@ struct TRINITY_DLL_DECL eye_of_cthunAI : public Scripted_NoMovementAI
                     m_creature->StopMoving();
 
                     //Actual dark glare cast, maybe something missing here?
-                    m_creature->CastSpell(NULL, SPELL_DARK_GLARE, false);
+                    m_creature->CastSpell(m_creature, SPELL_DARK_GLARE, false);
 
                     //Increase tick
                     DarkGlareTick++;
