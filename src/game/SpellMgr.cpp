@@ -1165,6 +1165,13 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
     // generic spells
     if(!spellInfo_1->SpellFamilyName)
     {
+        if(spellInfo_1->Category && spellInfo_1->Category == spellInfo_2->Category)
+        {
+            if(spellInfo_1->Category == SPELL_CATEGORY_FOOD ||
+                spellInfo_1->Category == SPELL_CATEGORY_DRINK)
+                return true;
+        }
+
         if(!spellInfo_1->SpellIconID
             || spellInfo_1->SpellIconID != spellInfo_2->SpellIconID)
             return false;
