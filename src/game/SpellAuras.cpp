@@ -2798,7 +2798,12 @@ void Aura::HandleChannelDeathItem(bool apply, bool Real)
     {
         Unit* caster = GetCaster();
         Unit* victim = GetTarget();
-        if(!caster || caster->GetTypeId() != TYPEID_PLAYER || !victim || m_removeMode!=AURA_REMOVE_BY_DEATH)
+        if(!caster || caster->GetTypeId() != TYPEID_PLAYER || !victim)// || m_removeMode!=AURA_REMOVE_BY_DEATH)
+            return;
+
+        //we cannot check removemode = death
+        //talent will remove the caster's aura->interrupt channel->remove victim aura
+        if(victim->GetHealth() > 0)
             return;
 
         SpellEntry const *spellInfo = GetSpellProto();
