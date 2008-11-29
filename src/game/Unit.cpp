@@ -148,6 +148,7 @@ bool IsPassiveStackableSpell( uint32 spellId )
 
 Unit::Unit()
 : WorldObject(), i_motionMaster(this), m_ThreatManager(this), m_HostilRefManager(this)
+, m_IsInNotifyList(false), m_Notified(false)
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
@@ -12561,4 +12562,12 @@ void Unit::RemoveAurasAtChanneledTarget(SpellEntry const* spellInfo)
         else
             ++iter;
     }
+}
+
+/*-----------------------TRINITY-----------------------------*/
+
+void Unit::SetToNotify()
+{
+    if(Map *map = GetMap())
+        map->AddUnitToNotify(this);
 }

@@ -1374,6 +1374,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void AddPetAura(PetAura const* petSpell);
         void RemovePetAura(PetAura const* petSpell);
 
+        void SetToNotify();
+        bool m_Notified, m_IsInNotifyList;
     protected:
         explicit Unit ();
 
