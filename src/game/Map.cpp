@@ -466,7 +466,8 @@ bool Map::Add(Player *player)
     UpdatePlayerVisibility(player,cell,p);
     UpdateObjectsVisibilityFor(player,cell,p);
 
-    AddNotifier(player,cell,p);
+    //AddNotifier(player,cell,p);
+    AddUnitToNotify(player);
     return true;
 }
 
@@ -496,7 +497,9 @@ Map::Add(T *obj)
 
     UpdateObjectVisibility(obj,cell,p);
 
-    AddNotifier(obj,cell,p);
+    //AddNotifier(obj,cell,p);
+    if(obj->GetTypeId() == TYPEID_UNIT || obj->GetTypeId() == TYPEID_PLAYER)
+        AddUnitToNotify((Unit*)obj);
 }
 
 void Map::MessageBroadcast(Player *player, WorldPacket *msg, bool to_self, bool to_possessor)
@@ -639,6 +642,25 @@ bool Map::loaded(const GridPair &p) const
 
 void Map::Update(const uint32 &t_diff)
 {
+    for(std::vector<Unit*>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
+    {
+        (*iter)->m_Notified = true;
+        if(!(*iter)->IsInWorld())
+            continue;
+        CellPair val = Trinity::ComputeCellPair((*iter)->GetPositionX(), (*iter)->GetPositionY());
+        Cell cell(val);
+        if((*iter)->GetTypeId() == TYPEID_PLAYER)
+            PlayerRelocationNotify((Player*)(*iter), cell, val);
+        else
+            CreatureRelocationNotify((Creature*)(*iter), cell, val);
+    }
+    for(std::vector<Unit*>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
+    {
+        (*iter)->m_IsInNotifyList = false;
+        (*iter)->m_Notified = false;
+    }
+    i_unitsToNotify.clear();
+
     resetMarkedCells();
 
     //TODO: is there a better way to update activeobjects?
@@ -845,7 +867,8 @@ Map::PlayerRelocation(Player *player, float x, float y, float z, float orientati
     if(player->isPossessedByPlayer())
         UpdateObjectsVisibilityFor((Player*)player->GetCharmer(), new_cell, new_val);
 
-    PlayerRelocationNotify(player,new_cell,new_val);
+    //PlayerRelocationNotify(player,new_cell,new_val);
+    AddUnitToNotify(player);
     NGridType* newGrid = getNGrid(new_cell.GridX(), new_cell.GridY());
     if( !same_cell && newGrid->GetGridState()!= GRID_STATE_ACTIVE )
     {
@@ -888,7 +911,8 @@ Map::CreatureRelocation(Creature *creature, float x, float y, float z, float ang
         if(creature->isPossessedByPlayer())
             UpdateObjectsVisibilityFor((Player*)creature->GetCharmer(), new_cell, new_val);
 
-        CreatureRelocationNotify(creature,new_cell,new_val);
+        //CreatureRelocationNotify(creature,new_cell,new_val);
+        AddUnitToNotify(creature);
     }
     assert(CheckGridIntegrity(creature,true));
 }
@@ -920,7 +944,8 @@ void Map::MoveAllCreaturesInMoveList()
         {
             // update pos
             c->Relocate(cm.x, cm.y, cm.z, cm.ang);
-            CreatureRelocationNotify(c,new_cell,new_cell.cellPair());
+            //CreatureRelocationNotify(c,new_cell,new_cell.cellPair());
+            AddUnitToNotify(c);
         }
         else
         {
@@ -1015,7 +1040,8 @@ bool Map::CreatureRespawnRelocation(Creature *c)
     {
         c->Relocate(resp_x, resp_y, resp_z, resp_o);
         c->GetMotionMaster()->Initialize();                 // prevent possible problems with default move generators
-        CreatureRelocationNotify(c,resp_cell,resp_cell.cellPair());
+        //CreatureRelocationNotify(c,resp_cell,resp_cell.cellPair());
+        AddUnitToNotify(c);
         return true;
     }
     else
@@ -2021,4 +2047,15 @@ void BattleGroundMap::UnloadAll(bool pForce)
     }
 
     Map::UnloadAll(pForce);
+}
+
+/*--------------------------TRINITY-------------------------*/
+
+void Map::AddUnitToNotify(Unit* u)
+{
+    if(!u->m_IsInNotifyList)
+    {
+        i_unitsToNotify.push_back(u);
+        u->m_IsInNotifyList = true;
+    }
 }

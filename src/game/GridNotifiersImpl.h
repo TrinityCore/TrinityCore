@@ -101,7 +101,7 @@ Trinity::PlayerRelocationNotifier::Visit(CreatureMapType &m)
         return;
 
     for(CreatureMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
-        if( iter->getSource()->isAlive())
+        if( !iter->getSource()->m_Notified && iter->getSource()->isAlive())
             PlayerCreatureRelocationWorker(&i_player,iter->getSource());
 }
 
@@ -113,7 +113,7 @@ Trinity::CreatureRelocationNotifier::Visit(PlayerMapType &m)
         return;
 
     for(PlayerMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
-        if( iter->getSource()->isAlive() && !iter->getSource()->isInFlight())
+        if( !iter->getSource()->m_Notified && iter->getSource()->isAlive() && !iter->getSource()->isInFlight())
             PlayerCreatureRelocationWorker(iter->getSource(), &i_creature);
 }
 
@@ -127,7 +127,7 @@ Trinity::CreatureRelocationNotifier::Visit(CreatureMapType &m)
     for(CreatureMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
     {
         Creature* c = iter->getSource();
-        if( c != &i_creature && c->isAlive())
+        if( !iter->getSource()->m_Notified && c != &i_creature && c->isAlive())
             CreatureCreatureRelocationWorker(c, &i_creature);
     }
 }
