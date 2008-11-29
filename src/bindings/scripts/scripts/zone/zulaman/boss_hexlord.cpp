@@ -433,7 +433,8 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
             }
             break;
         }
-        m_creature->CastSpell(target, PlayerAbility[PlayerClass][random].spell, false);
+        if(target)
+            m_creature->CastSpell(target, PlayerAbility[PlayerClass][random].spell, false);
     }
 };
 
