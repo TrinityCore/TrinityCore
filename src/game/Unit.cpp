@@ -9764,8 +9764,7 @@ void Unit::CombatStart(Unit* target)
     if(Player* attackedPlayer = target->GetCharmerOrOwnerPlayerOrPlayerItself())
         SetContestedPvP(attackedPlayer);
 
-    if(!isInCombat()) // remove this?
-        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ATTACK);
+    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ATTACK);
 }
 
 void Unit::SetInCombatState(bool PvP)
