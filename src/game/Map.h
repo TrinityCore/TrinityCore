@@ -315,7 +315,7 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         time_t i_gridExpiry;
 
         std::set<WorldObject *> i_activeObjects;
-        std::vector<Unit*> i_unitsToNotify;
+        std::vector<uint64> i_unitsToNotify;
         std::set<WorldObject *> i_objectsToRemove;
 
         // Type specific code for add/remove to/from grid
