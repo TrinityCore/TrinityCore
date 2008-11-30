@@ -100,14 +100,16 @@ enum WorldConfigs
     CONFIG_STRICT_CHARTER_NAMES,
     CONFIG_STRICT_PET_NAMES,
     CONFIG_CHARACTERS_CREATING_DISABLED,
-    CONFIG_MAX_WHO,
     CONFIG_CHARACTERS_PER_ACCOUNT,
     CONFIG_CHARACTERS_PER_REALM,
     CONFIG_SKIP_CINEMATICS,
     CONFIG_MAX_PLAYER_LEVEL,
     CONFIG_START_PLAYER_LEVEL,
+    CONFIG_START_PLAYER_MONEY,
     CONFIG_MAX_HONOR_POINTS,
+    CONFIG_START_HONOR_POINTS,
     CONFIG_MAX_ARENA_POINTS,
+    CONFIG_START_ARENA_POINTS,
     CONFIG_INSTANCE_IGNORE_LEVEL,
     CONFIG_INSTANCE_IGNORE_RAID,
     CONFIG_BATTLEGROUND_CAST_DESERTER,
@@ -125,6 +127,7 @@ enum WorldConfigs
     CONFIG_GM_IN_GM_LIST,
     CONFIG_GM_IN_WHO_LIST,
     CONFIG_GM_LOG_TRADE,
+    CONFIG_START_GM_LEVEL,
     CONFIG_GROUP_VISIBILITY,
     CONFIG_MAIL_DELIVERY_DELAY,
     CONFIG_UPTIME_UPDATE,
@@ -141,6 +144,7 @@ enum WorldConfigs
     CONFIG_SKILL_GAIN_WEAPON,
     CONFIG_MAX_OVERSPEED_PINGS,
     CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY,
+    CONFIG_ALWAYS_MAX_SKILL_FOR_LEVEL,
     CONFIG_WEATHER,
     CONFIG_EXPANSION,
     CONFIG_CHATFLOOD_MESSAGE_COUNT,
@@ -166,17 +170,27 @@ enum WorldConfigs
     CONFIG_DEATH_SICKNESS_LEVEL,
     CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVP,
     CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVE,
+    CONFIG_THREAT_RADIUS,
+    CONFIG_INSTANT_LOGOUT,
+    CONFIG_DISABLE_BREATHING,
+    CONFIG_ALL_TAXI_PATHS,
+    CONFIG_DECLINED_NAMES_USED,
+    CONFIG_LISTEN_RANGE_SAY,
+    CONFIG_LISTEN_RANGE_TEXTEMOTE,
+    CONFIG_LISTEN_RANGE_YELL,
+    CONFIG_VALUE_COUNT,
 
+    CONFIG_MAX_WHO,
     CONFIG_PLAYER_START_GOLD,
     CONFIG_PLAYER_START_HONOR,
     CONFIG_PLAYER_START_ARENAPTS,
     CONFIG_GM_START_LEVEL,
-    CONFIG_INSTANT_LOGOUT,
+
     CONFIG_BG_START_MUSIC,
     CONFIG_START_ALL_SPELLS,
     CONFIG_HONOR_AFTER_DUEL,
     CONFIG_START_ALL_EXPLORED,
-    CONFIG_DISABLE_BREATHING,
+
     CONFIG_START_ALL_REP,
     CONFIG_ALWAYS_MAXSKILL,
     CONFIG_START_ALL_TAXI,
@@ -186,17 +200,11 @@ enum WorldConfigs
     CONFIG_PVP_TOKEN_COUNT,
     CONFIG_NO_RESET_TALENT_COST,
 
-    CONFIG_THREAT_RADIUS,
-    CONFIG_DECLINED_NAMES_USED,
-    CONFIG_LISTEN_RANGE_SAY,
-    CONFIG_LISTEN_RANGE_TEXTEMOTE,
-    CONFIG_LISTEN_RANGE_YELL,
     CONFIG_ARENA_MAX_RATING_DIFFERENCE,
     CONFIG_ARENA_RATING_DISCARD_TIMER,
     CONFIG_ARENA_AUTO_DISTRIBUTE_POINTS,
     CONFIG_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS,
     CONFIG_BATTLEGROUND_PREMATURE_FINISH_TIMER,
-    CONFIG_VALUE_COUNT
 };
 
 /// Server rates
@@ -378,7 +386,7 @@ class World
         //player Queue
         typedef std::list<WorldSession*> Queue;
         void AddQueuedPlayer(WorldSession*);
-        void RemoveQueuedPlayer(WorldSession*);
+        bool RemoveQueuedPlayer(WorldSession* session);
         int32 GetQueuePos(WorldSession*);
         uint32 GetQueueSize() const { return m_QueuedPlayer.size(); }
 
@@ -461,7 +469,6 @@ class World
         bool KickPlayer(std::string playerName);
         void KickAll();
         void KickAllLess(AccountTypes sec);
-        void KickAllQueued();
         BanReturn BanAccount(BanMode mode, std::string nameOrIP, std::string duration, std::string reason, std::string author);
         bool RemoveBanAccount(BanMode mode, std::string nameOrIP);
 
@@ -523,7 +530,6 @@ class World
         WeatherMap m_weathers;
         typedef UNORDERED_MAP<uint32, WorldSession*> SessionMap;
         SessionMap m_sessions;
-        std::set<WorldSession*> m_kicked_sessions;
         uint32 m_maxActiveSessionCount;
         uint32 m_maxQueuedSessionCount;
 

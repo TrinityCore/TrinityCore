@@ -279,13 +279,6 @@ void WorldSession::HandleLogoutRequestOpcode( WorldPacket & /*recv_data*/ )
     if (uint64 lguid = GetPlayer()->GetLootGUID())
         DoLootRelease(lguid);
 
-    //instant logout for admins, gm's, mod's
-    if( GetSecurity() > SEC_PLAYER )
-    {
-        LogoutPlayer(true);
-        return;
-    }
-
     //Can not logout if...
     if( GetPlayer()->isInCombat() ||                        //...is in combat
         GetPlayer()->duel         ||                        //...is in Duel
@@ -302,8 +295,9 @@ void WorldSession::HandleLogoutRequestOpcode( WorldPacket & /*recv_data*/ )
         return;
     }
 
-    //instant logout in taverns/cities or on taxi or if its enabled in Trinityd.conf
-    if(GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) || GetPlayer()->isInFlight() || sWorld.getConfig(CONFIG_INSTANT_LOGOUT))
+    //instant logout in taverns/cities or on taxi or for admins, gm's, mod's if its enabled in mangosd.conf
+    if (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) || GetPlayer()->isInFlight() ||
+        GetSecurity() >= sWorld.getConfig(CONFIG_INSTANT_LOGOUT))
     {
         LogoutPlayer(true);
         return;
@@ -671,9 +665,9 @@ void WorldSession::HandleCorpseReclaimOpcode(WorldPacket &recv_data)
     if (GetPlayer()->isAlive())
         return;
 
-    if (BattleGround * bg = _player->GetBattleGround())
-        if(bg->isArena())
-            return;
+    // do not allow corpse reclaim in arena
+    if (GetPlayer()->InArena())
+        return;
 
     // body not released yet
     if(!GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
