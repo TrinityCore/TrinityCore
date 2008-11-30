@@ -29,7 +29,6 @@
 #include "ScriptCalls.h"
 #include "ObjectMgr.h"
 #include "WorldSession.h"
-#include "SystemConfig.h"
 #include "Config/ConfigEnv.h"
 #include "Util.h"
 #include "AccountMgr.h"
@@ -41,8 +40,7 @@
 void utf8print(const char* str)
 {
 #if PLATFORM == PLATFORM_WINDOWS
-#define UTF8ZPRINTF utf8printf
-	wchar_t wtemp_buf[6000];
+    wchar_t wtemp_buf[6000];
     size_t wtemp_len = 6000-1;
     if(!Utf8toWStr(str,strlen(str),wtemp_buf,wtemp_len))
         return;

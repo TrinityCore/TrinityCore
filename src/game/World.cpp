@@ -116,10 +116,12 @@ World::World()
 World::~World()
 {
     ///- Empty the kicked session set
-    for (std::set<WorldSession*>::iterator itr = m_kicked_sessions.begin(); itr != m_kicked_sessions.end(); ++itr)
-        delete *itr;
-
-    m_kicked_sessions.clear();
+    while (!m_sessions.empty())
+    {
+        // not remove from queue, prevent loading new sessions
+        delete m_sessions.begin()->second;
+        m_sessions.erase(m_sessions.begin());
+    }
 
     ///- Empty the WeatherMap
     for (WeatherMap::iterator itr = m_weathers.begin(); itr != m_weathers.end(); ++itr)
@@ -199,17 +201,26 @@ World::AddSession_ (WorldSession* s)
     if (!RemoveSession (s->GetAccountId ()))
     {
         s->KickPlayer ();
-        m_kicked_sessions.insert (s);
+        delete s;                                           // session not added yet in session list, so not listed in queue
         return;
     }
+
+    // decrease session counts only at not reconnection case
+    bool decrease_session = true;
 
     // if session already exist, prepare to it deleting at next world update
     // NOTE - KickPlayer() should be called on "old" in RemoveSession()
     {
-      SessionMap::const_iterator old = m_sessions.find(s->GetAccountId ());
+        SessionMap::const_iterator old = m_sessions.find(s->GetAccountId ());
 
-      if(old != m_sessions.end())
-        m_kicked_sessions.insert (old->second);
+        if(old != m_sessions.end())
+        {
+            // prevent decrease sessions count if session queued
+            if(RemoveQueuedPlayer(old->second))
+                decrease_session = false;
+            // not remove replaced session form queue if listed
+            delete old->second;
+        }
     }
 
     m_sessions[s->GetAccountId ()] = s;
@@ -217,10 +228,11 @@ World::AddSession_ (WorldSession* s)
     uint32 Sessions = GetActiveAndQueuedSessionCount ();
     uint32 pLimit = GetPlayerAmountLimit ();
     uint32 QueueSize = GetQueueSize (); //number of players in the queue
-    bool inQueue = false;
+
     //so we don't count the user trying to
     //login as a session and queue the socket that we are using
-    --Sessions;
+    if(decrease_session)
+        --Sessions;
 
     if (pLimit > 0 && Sessions >= pLimit && s->GetSecurity () == SEC_PLAYER )
     {
@@ -264,6 +276,7 @@ int32 World::GetQueuePos(WorldSession* sess)
 
 void World::AddQueuedPlayer(WorldSession* sess)
 {
+    sess->SetInQueue(true);
     m_QueuedPlayer.push_back (sess);
 
     // The 1st SMSG_AUTH_RESPONSE needs to contain other info too.
@@ -279,7 +292,7 @@ void World::AddQueuedPlayer(WorldSession* sess)
     //sess->SendAuthWaitQue (GetQueuePos (sess));
 }
 
-void World::RemoveQueuedPlayer(WorldSession* sess)
+bool World::RemoveQueuedPlayer(WorldSession* sess)
 {
     // sessions count including queued to remove (if removed_session set)
     uint32 sessions = GetActiveSessionCount();
@@ -287,16 +300,16 @@ void World::RemoveQueuedPlayer(WorldSession* sess)
     uint32 position = 1;
     Queue::iterator iter = m_QueuedPlayer.begin();
 
-    // if session not queued then we need decrease sessions count (Remove socked callet before session removing from session list)
-    bool decrease_session = true;
-
     // search to remove and count skipped positions
+    bool found = false;
+
     for(;iter != m_QueuedPlayer.end(); ++iter, ++position)
     {
         if(*iter==sess)
         {
+            sess->SetInQueue(false);
             iter = m_QueuedPlayer.erase(iter);
-            decrease_session = false;                       // removing queued session
+            found = true;                                   // removing queued session
             break;
         }
     }
@@ -304,15 +317,16 @@ void World::RemoveQueuedPlayer(WorldSession* sess)
     // iter point to next socked after removed or end()
     // position store position of removed socket and then new position next socket after removed
 
-    // decrease for case session queued for removing
-    if(decrease_session && sessions)
+    // if session not queued then we need decrease sessions count
+    if(!found && sessions)
         --sessions;
 
     // accept first in queue
     if( (!m_playerLimit || sessions < m_playerLimit) && !m_QueuedPlayer.empty() )
     {
-        WorldSession * socket = m_QueuedPlayer.front();
-        socket->SendAuthWaitQue(0);
+        WorldSession* pop_sess = m_QueuedPlayer.front();
+        pop_sess->SetInQueue(false);
+        pop_sess->SendAuthWaitQue(0);
         m_QueuedPlayer.pop_front();
 
         // update iter to point first queued socket or end() if queue is empty now
@@ -324,6 +338,8 @@ void World::RemoveQueuedPlayer(WorldSession* sess)
     // iter point to first not updated socket, position store new position
     for(; iter != m_QueuedPlayer.end(); ++iter, ++position)
         (*iter)->SendAuthWaitQue(position);
+
+    return found;
 }
 
 /// Find a Weather object by the given zoneid
@@ -581,8 +597,6 @@ void World::LoadConfigSettings(bool reload)
 
     m_configs[CONFIG_CHARACTERS_CREATING_DISABLED] = sConfig.GetIntDefault("CharactersCreatingDisabled", 0);
 
-    m_configs[CONFIG_MAX_WHO] = sConfig.GetIntDefault("MaxWhoListReturns", 49);
-
     m_configs[CONFIG_CHARACTERS_PER_REALM] = sConfig.GetIntDefault("CharactersPerRealm", 10);
     if(m_configs[CONFIG_CHARACTERS_PER_REALM] < 1 || m_configs[CONFIG_CHARACTERS_PER_REALM] > 10)
     {
@@ -630,13 +644,70 @@ void World::LoadConfigSettings(bool reload)
         sLog.outError("StartPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to %u.",m_configs[CONFIG_START_PLAYER_LEVEL],m_configs[CONFIG_MAX_PLAYER_LEVEL],m_configs[CONFIG_MAX_PLAYER_LEVEL]);
         m_configs[CONFIG_START_PLAYER_LEVEL] = m_configs[CONFIG_MAX_PLAYER_LEVEL];
     }
+
+    m_configs[CONFIG_START_PLAYER_MONEY] = sConfig.GetIntDefault("StartPlayerMoney", 0);
+    if(m_configs[CONFIG_START_PLAYER_MONEY] < 0)
+    {
+        sLog.outError("StartPlayerMoney (%i) must be in range 0..%u. Set to %u.",m_configs[CONFIG_START_PLAYER_MONEY],MAX_MONEY_AMOUNT,0);
+        m_configs[CONFIG_START_PLAYER_MONEY] = 0;
+    }
+    else if(m_configs[CONFIG_START_PLAYER_MONEY] > MAX_MONEY_AMOUNT)
+    {
+        sLog.outError("StartPlayerMoney (%i) must be in range 0..%u. Set to %u.",
+            m_configs[CONFIG_START_PLAYER_MONEY],MAX_MONEY_AMOUNT,MAX_MONEY_AMOUNT);
+        m_configs[CONFIG_START_PLAYER_MONEY] = MAX_MONEY_AMOUNT;
+    }
+
     m_configs[CONFIG_MAX_HONOR_POINTS] = sConfig.GetIntDefault("MaxHonorPoints", 75000);
+    if(m_configs[CONFIG_MAX_HONOR_POINTS] < 0)
+    {
+        sLog.outError("MaxHonorPoints (%i) can't be negative. Set to 0.",m_configs[CONFIG_MAX_HONOR_POINTS]);
+        m_configs[CONFIG_MAX_HONOR_POINTS] = 0;
+    }
+
+    m_configs[CONFIG_START_HONOR_POINTS] = sConfig.GetIntDefault("StartHonorPoints", 0);
+    if(m_configs[CONFIG_START_HONOR_POINTS] < 0)
+    {
+        sLog.outError("StartHonorPoints (%i) must be in range 0..MaxHonorPoints(%u). Set to %u.",
+            m_configs[CONFIG_START_HONOR_POINTS],m_configs[CONFIG_MAX_HONOR_POINTS],0);
+        m_configs[CONFIG_MAX_HONOR_POINTS] = 0;
+    }
+    else if(m_configs[CONFIG_START_HONOR_POINTS] > m_configs[CONFIG_MAX_HONOR_POINTS])
+    {
+        sLog.outError("StartHonorPoints (%i) must be in range 0..MaxHonorPoints(%u). Set to %u.",
+            m_configs[CONFIG_START_HONOR_POINTS],m_configs[CONFIG_MAX_HONOR_POINTS],m_configs[CONFIG_MAX_HONOR_POINTS]);
+        m_configs[CONFIG_START_HONOR_POINTS] = m_configs[CONFIG_MAX_HONOR_POINTS];
+    }
+
     m_configs[CONFIG_MAX_ARENA_POINTS] = sConfig.GetIntDefault("MaxArenaPoints", 5000);
+    if(m_configs[CONFIG_MAX_ARENA_POINTS] < 0)
+    {
+        sLog.outError("MaxArenaPoints (%i) can't be negative. Set to 0.",m_configs[CONFIG_MAX_ARENA_POINTS]);
+        m_configs[CONFIG_MAX_ARENA_POINTS] = 0;
+    }
+
+    m_configs[CONFIG_START_ARENA_POINTS] = sConfig.GetIntDefault("StartArenaPoints", 0);
+    if(m_configs[CONFIG_START_ARENA_POINTS] < 0)
+    {
+        sLog.outError("StartArenaPoints (%i) must be in range 0..MaxArenaPoints(%u). Set to %u.",
+            m_configs[CONFIG_START_ARENA_POINTS],m_configs[CONFIG_MAX_ARENA_POINTS],0);
+        m_configs[CONFIG_MAX_ARENA_POINTS] = 0;
+    }
+    else if(m_configs[CONFIG_START_ARENA_POINTS] > m_configs[CONFIG_MAX_ARENA_POINTS])
+    {
+        sLog.outError("StartArenaPoints (%i) must be in range 0..MaxArenaPoints(%u). Set to %u.",
+            m_configs[CONFIG_START_ARENA_POINTS],m_configs[CONFIG_MAX_ARENA_POINTS],m_configs[CONFIG_MAX_ARENA_POINTS]);
+        m_configs[CONFIG_START_ARENA_POINTS] = m_configs[CONFIG_MAX_ARENA_POINTS];
+    }
+
+    m_configs[CONFIG_ALL_TAXI_PATHS] = sConfig.GetBoolDefault("AllFlightPaths", false);
 
     m_configs[CONFIG_INSTANCE_IGNORE_LEVEL] = sConfig.GetBoolDefault("Instance.IgnoreLevel", false);
     m_configs[CONFIG_INSTANCE_IGNORE_RAID]  = sConfig.GetBoolDefault("Instance.IgnoreRaid", false);
 
     m_configs[CONFIG_BATTLEGROUND_CAST_DESERTER]              = sConfig.GetBoolDefault("Battleground.CastDeserter", true);
+    m_configs[CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE]     = sConfig.GetBoolDefault("Battleground.QueueAnnouncer.Enable", true);
+    m_configs[CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_PLAYERONLY] = sConfig.GetBoolDefault("Battleground.QueueAnnouncer.PlayerOnly", false);
 
     m_configs[CONFIG_CAST_UNSTUCK] = sConfig.GetBoolDefault("CastUnstuck", true);
     m_configs[CONFIG_INSTANCE_RESET_TIME_HOUR]  = sConfig.GetIntDefault("Instance.ResetTimeHour", 4);
@@ -658,6 +729,19 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_GM_IN_GM_LIST]        = sConfig.GetBoolDefault("GM.InGMList",false);
     m_configs[CONFIG_GM_IN_WHO_LIST]       = sConfig.GetBoolDefault("GM.InWhoList",false);
     m_configs[CONFIG_GM_LOG_TRADE]         = sConfig.GetBoolDefault("GM.LogTrade", false);
+
+    m_configs[CONFIG_START_GM_LEVEL] = sConfig.GetIntDefault("GM.StartLevel", 1);
+    if(m_configs[CONFIG_START_GM_LEVEL] < m_configs[CONFIG_START_PLAYER_LEVEL])
+    {
+        sLog.outError("GM.StartLevel (%i) must be in range StartPlayerLevel(%u)..255. Set to %u.",
+            m_configs[CONFIG_START_GM_LEVEL],m_configs[CONFIG_START_PLAYER_LEVEL],m_configs[CONFIG_START_PLAYER_LEVEL]);
+        m_configs[CONFIG_START_GM_LEVEL] = m_configs[CONFIG_START_PLAYER_LEVEL];
+    }
+    else if(m_configs[CONFIG_START_GM_LEVEL] > 255)
+    {
+        sLog.outError("GM.StartLevel (%i) must be in range 1..255. Set to %u.",m_configs[CONFIG_START_GM_LEVEL],255);
+        m_configs[CONFIG_START_GM_LEVEL] = 255;
+    }
 
     m_configs[CONFIG_GROUP_VISIBILITY] = sConfig.GetIntDefault("Visibility.GroupMode",0);
 
@@ -723,6 +807,10 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY] = sConfig.GetBoolDefault("SaveRespawnTimeImmediately",true);
     m_configs[CONFIG_WEATHER] = sConfig.GetBoolDefault("ActivateWeather",true);
 
+    m_configs[CONFIG_DISABLE_BREATHING] = sConfig.GetIntDefault("DisableWaterBreath", SEC_CONSOLE);
+
+    m_configs[CONFIG_ALWAYS_MAX_SKILL_FOR_LEVEL] = sConfig.GetBoolDefault("AlwaysMaxSkillForLevel", false);
+
     if(reload)
     {
         uint32 val = sConfig.GetIntDefault("Expansion",1);
@@ -751,6 +839,8 @@ void World::LoadConfigSettings(bool reload)
     if(m_configs[CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF] > 255)
         m_configs[CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF] = 255;
 
+    m_configs[CONFIG_DETECT_POS_COLLISION] = sConfig.GetBoolDefault("DetectPosCollision", true);
+
     m_configs[CONFIG_RESTRICTED_LFG_CHANNEL] = sConfig.GetBoolDefault("Channel.RestrictedLfg", true);
     m_configs[CONFIG_SILENTLY_GM_JOIN_TO_CHANNEL] = sConfig.GetBoolDefault("Channel.SilentlyGMJoin", false);
 
@@ -777,48 +867,7 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_LISTEN_RANGE_TEXTEMOTE] = sConfig.GetIntDefault("ListenRange.TextEmote", 25);
     m_configs[CONFIG_LISTEN_RANGE_YELL]      = sConfig.GetIntDefault("ListenRange.Yell", 300);
 
-    m_configs[CONFIG_PLAYER_START_GOLD] = (uint32)(sConfig.GetFloatDefault("PlayerStart.Gold", 0.0f) * 10000.0f);
-
-    if(m_configs[CONFIG_PLAYER_START_GOLD] > MAX_MONEY_AMOUNT)
-        m_configs[CONFIG_PLAYER_START_GOLD] = MAX_MONEY_AMOUNT;
-
-    m_configs[CONFIG_PLAYER_START_HONOR] = sConfig.GetIntDefault("PlayerStart.HonorPoints", 0);
-    if(m_configs[CONFIG_PLAYER_START_HONOR] < 0)
-        m_configs[CONFIG_PLAYER_START_HONOR] = 0;
-
-    m_configs[CONFIG_PLAYER_START_ARENAPTS] = sConfig.GetIntDefault("PlayerStart.ArenaPoints", 0);
-    if(m_configs[CONFIG_PLAYER_START_ARENAPTS] < 0)
-        m_configs[CONFIG_PLAYER_START_ARENAPTS] = 0;
-
-    m_configs[CONFIG_GM_START_LEVEL] = sConfig.GetIntDefault("GamemasterStartLevel", 1);
-    if(m_configs[CONFIG_GM_START_LEVEL] < 1)
-        m_configs[CONFIG_GM_START_LEVEL] = 1;
-
-    m_configs[CONFIG_INSTANT_LOGOUT] = sConfig.GetBoolDefault("PlayerInstantLogout", false);
-    m_configs[CONFIG_BG_START_MUSIC] = sConfig.GetBoolDefault("MusicInBattleground", false);
-    m_configs[CONFIG_START_ALL_SPELLS] = sConfig.GetBoolDefault("PlayerStart.AllSpells", false);
-    m_configs[CONFIG_HONOR_AFTER_DUEL] = sConfig.GetIntDefault("HonorPointsAfterDuel", 0);
-    if(m_configs[CONFIG_HONOR_AFTER_DUEL] < 0)
-        m_configs[CONFIG_HONOR_AFTER_DUEL]= 0;
-    m_configs[CONFIG_START_ALL_EXPLORED] = sConfig.GetBoolDefault("PlayerStart.MapsExplored", false);
-    m_configs[CONFIG_DISABLE_BREATHING] = sConfig.GetBoolDefault("DisableWaterBreath", false);
-    m_configs[CONFIG_START_ALL_REP] = sConfig.GetBoolDefault("PlayerStart.AllReputation", false);
-    m_configs[CONFIG_ALWAYS_MAXSKILL] = sConfig.GetBoolDefault("AlwaysMaxWeaponSkill", false);
-    m_configs[CONFIG_START_ALL_TAXI] = sConfig.GetBoolDefault("PlayerStart.AllFlightPaths", false);
-    m_configs[CONFIG_PVP_TOKEN_ENABLE] = sConfig.GetBoolDefault("PvPToken.Enable", false);
-    m_configs[CONFIG_PVP_TOKEN_MAP_TYPE] = sConfig.GetIntDefault("PvPToken.MapAllowType", 4);
-    m_configs[CONFIG_PVP_TOKEN_ID] = sConfig.GetIntDefault("PvPToken.ItemID", 29434);
-    m_configs[CONFIG_PVP_TOKEN_COUNT] = sConfig.GetIntDefault("PvPToken.ItemCount", 1);
-    if(m_configs[CONFIG_PVP_TOKEN_COUNT] < 1)
-        m_configs[CONFIG_PVP_TOKEN_COUNT] = 1;
-    m_configs[CONFIG_NO_RESET_TALENT_COST] = sConfig.GetBoolDefault("NoResetTalentsCost", false);
-
-    m_configs[CONFIG_ARENA_MAX_RATING_DIFFERENCE] = sConfig.GetIntDefault("Arena.MaxRatingDifference", 0);
-    m_configs[CONFIG_ARENA_RATING_DISCARD_TIMER] = sConfig.GetIntDefault("Arena.RatingDiscardTimer",300000);
-    m_configs[CONFIG_ARENA_AUTO_DISTRIBUTE_POINTS] = sConfig.GetBoolDefault("Arena.AutoDistributePoints", false);
-    m_configs[CONFIG_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS] = sConfig.GetIntDefault("Arena.AutoDistributeInterval", 7);
-
-    m_configs[CONFIG_BATTLEGROUND_PREMATURE_FINISH_TIMER] = sConfig.GetIntDefault("BattleGround.PrematureFinishTimer", 0);
+    m_configs[CONFIG_INSTANT_LOGOUT] = sConfig.GetIntDefault("InstantLogout", SEC_MODERATOR);
 
     m_VisibleUnitGreyDistance = sConfig.GetFloatDefault("Visibility.Distance.Grey.Unit", 1);
     if(m_VisibleUnitGreyDistance >  MAX_VISIBILITY_DISTANCE)
@@ -889,6 +938,63 @@ void World::LoadConfigSettings(bool reload)
         sLog.outString("Using DataDir %s",m_dataPath.c_str());
     }
 
+    bool enableLOS = sConfig.GetBoolDefault("vmap.enableLOS", false);
+    bool enableHeight = sConfig.GetBoolDefault("vmap.enableHeight", false);
+    std::string ignoreMapIds = sConfig.GetStringDefault("vmap.ignoreMapIds", "");
+    std::string ignoreSpellIds = sConfig.GetStringDefault("vmap.ignoreSpellIds", "");
+    VMAP::VMapFactory::createOrGetVMapManager()->setEnableLineOfSightCalc(enableLOS);
+    VMAP::VMapFactory::createOrGetVMapManager()->setEnableHeightCalc(enableHeight);
+    VMAP::VMapFactory::createOrGetVMapManager()->preventMapsFromBeingUsed(ignoreMapIds.c_str());
+    VMAP::VMapFactory::preventSpellsFromBeingTestedForLoS(ignoreSpellIds.c_str());
+    sLog.outString( "WORLD: VMap support included. LineOfSight:%i, getHeight:%i",enableLOS, enableHeight);
+    sLog.outString( "WORLD: VMap data directory is: %svmaps",m_dataPath.c_str());
+    sLog.outString( "WORLD: VMap config keys are: vmap.enableLOS, vmap.enableHeight, vmap.ignoreMapIds, vmap.ignoreSpellIds");
+
+
+    m_configs[CONFIG_MAX_WHO] = sConfig.GetIntDefault("MaxWhoListReturns", 49);
+
+    m_configs[CONFIG_PLAYER_START_GOLD] = (uint32)(sConfig.GetFloatDefault("PlayerStart.Gold", 0.0f) * 10000.0f);
+
+    if(m_configs[CONFIG_PLAYER_START_GOLD] > MAX_MONEY_AMOUNT)
+        m_configs[CONFIG_PLAYER_START_GOLD] = MAX_MONEY_AMOUNT;
+
+    m_configs[CONFIG_PLAYER_START_HONOR] = sConfig.GetIntDefault("PlayerStart.HonorPoints", 0);
+    if(m_configs[CONFIG_PLAYER_START_HONOR] < 0)
+        m_configs[CONFIG_PLAYER_START_HONOR] = 0;
+
+    m_configs[CONFIG_PLAYER_START_ARENAPTS] = sConfig.GetIntDefault("PlayerStart.ArenaPoints", 0);
+    if(m_configs[CONFIG_PLAYER_START_ARENAPTS] < 0)
+        m_configs[CONFIG_PLAYER_START_ARENAPTS] = 0;
+
+    m_configs[CONFIG_GM_START_LEVEL] = sConfig.GetIntDefault("GamemasterStartLevel", 1);
+    if(m_configs[CONFIG_GM_START_LEVEL] < 1)
+        m_configs[CONFIG_GM_START_LEVEL] = 1;
+
+    m_configs[CONFIG_BG_START_MUSIC] = sConfig.GetBoolDefault("MusicInBattleground", false);
+    m_configs[CONFIG_START_ALL_SPELLS] = sConfig.GetBoolDefault("PlayerStart.AllSpells", false);
+    m_configs[CONFIG_HONOR_AFTER_DUEL] = sConfig.GetIntDefault("HonorPointsAfterDuel", 0);
+    if(m_configs[CONFIG_HONOR_AFTER_DUEL] < 0)
+        m_configs[CONFIG_HONOR_AFTER_DUEL]= 0;
+    m_configs[CONFIG_START_ALL_EXPLORED] = sConfig.GetBoolDefault("PlayerStart.MapsExplored", false);
+    m_configs[CONFIG_DISABLE_BREATHING] = sConfig.GetBoolDefault("DisableWaterBreath", false);
+    m_configs[CONFIG_START_ALL_REP] = sConfig.GetBoolDefault("PlayerStart.AllReputation", false);
+    m_configs[CONFIG_ALWAYS_MAXSKILL] = sConfig.GetBoolDefault("AlwaysMaxWeaponSkill", false);
+    m_configs[CONFIG_START_ALL_TAXI] = sConfig.GetBoolDefault("PlayerStart.AllFlightPaths", false);
+    m_configs[CONFIG_PVP_TOKEN_ENABLE] = sConfig.GetBoolDefault("PvPToken.Enable", false);
+    m_configs[CONFIG_PVP_TOKEN_MAP_TYPE] = sConfig.GetIntDefault("PvPToken.MapAllowType", 4);
+    m_configs[CONFIG_PVP_TOKEN_ID] = sConfig.GetIntDefault("PvPToken.ItemID", 29434);
+    m_configs[CONFIG_PVP_TOKEN_COUNT] = sConfig.GetIntDefault("PvPToken.ItemCount", 1);
+    if(m_configs[CONFIG_PVP_TOKEN_COUNT] < 1)
+        m_configs[CONFIG_PVP_TOKEN_COUNT] = 1;
+    m_configs[CONFIG_NO_RESET_TALENT_COST] = sConfig.GetBoolDefault("NoResetTalentsCost", false);
+
+    m_configs[CONFIG_ARENA_MAX_RATING_DIFFERENCE] = sConfig.GetIntDefault("Arena.MaxRatingDifference", 0);
+    m_configs[CONFIG_ARENA_RATING_DISCARD_TIMER] = sConfig.GetIntDefault("Arena.RatingDiscardTimer",300000);
+    m_configs[CONFIG_ARENA_AUTO_DISTRIBUTE_POINTS] = sConfig.GetBoolDefault("Arena.AutoDistributePoints", false);
+    m_configs[CONFIG_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS] = sConfig.GetIntDefault("Arena.AutoDistributeInterval", 7);
+
+    m_configs[CONFIG_BATTLEGROUND_PREMATURE_FINISH_TIMER] = sConfig.GetIntDefault("BattleGround.PrematureFinishTimer", 0);
+
     std::string forbiddenmaps = sConfig.GetStringDefault("ForbiddenMaps", "");
     char * forbiddenMaps = new char[forbiddenmaps.length() + 1];
     forbiddenMaps[forbiddenmaps.length()] = 0;
@@ -902,18 +1008,6 @@ void World::LoadConfigSettings(bool reload)
         token = strtok(NULL,delim);
     }
     delete[] forbiddenMaps;
-
-    bool enableLOS = sConfig.GetBoolDefault("vmap.enableLOS", false);
-    bool enableHeight = sConfig.GetBoolDefault("vmap.enableHeight", false);
-    std::string ignoreMapIds = sConfig.GetStringDefault("vmap.ignoreMapIds", "");
-    std::string ignoreSpellIds = sConfig.GetStringDefault("vmap.ignoreSpellIds", "");
-    VMAP::VMapFactory::createOrGetVMapManager()->setEnableLineOfSightCalc(enableLOS);
-    VMAP::VMapFactory::createOrGetVMapManager()->setEnableHeightCalc(enableHeight);
-    VMAP::VMapFactory::createOrGetVMapManager()->preventMapsFromBeingUsed(ignoreMapIds.c_str());
-    VMAP::VMapFactory::preventSpellsFromBeingTestedForLoS(ignoreSpellIds.c_str());
-    sLog.outString( "WORLD: VMap support included. LineOfSight:%i, getHeight:%i",enableLOS, enableHeight);
-    sLog.outString( "WORLD: VMap data directory is: %svmaps",m_dataPath.c_str());
-    sLog.outString( "WORLD: VMap config keys are: vmap.enableLOS, vmap.enableHeight, vmap.ignoreMapIds, vmap.ignoreSpellIds");
 }
 
 /// Initialize the World
@@ -2238,6 +2332,8 @@ void World::SendZoneText(uint32 zone, const char* text, WorldSession *self, uint
 /// Kick (and save) all players
 void World::KickAll()
 {
+    m_QueuedPlayer.clear();                                 // prevent send queue update packet and login queued sessions
+
     // session not removed at kick and will removed in next update tick
     for (SessionMap::iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         itr->second->KickPlayer();
@@ -2250,18 +2346,6 @@ void World::KickAllLess(AccountTypes sec)
     for (SessionMap::iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if(itr->second->GetSecurity() < sec)
             itr->second->KickPlayer();
-}
-
-/// Kick all queued players
-void World::KickAllQueued()
-{
-    // session not removed at kick and will removed in next update tick
-  //TODO here
-//    for (Queue::iterator itr = m_QueuedPlayer.begin(); itr != m_QueuedPlayer.end(); ++itr)
-//        if(WorldSession* session = (*itr)->GetSession())
-//            session->KickPlayer();
-
-    m_QueuedPlayer.empty();
 }
 
 /// Kick (and save) the designated player
@@ -2494,19 +2578,12 @@ void World::SendServerMessage(uint32 type, const char *text, Player* player)
 
 void World::UpdateSessions( time_t diff )
 {
+    ///- Add new sessions
     while(!addSessQueue.empty())
     {
-      WorldSession* sess = addSessQueue.next ();
-      AddSession_ (sess);
+        WorldSession* sess = addSessQueue.next ();
+        AddSession_ (sess);
     }
-
-    ///- Delete kicked sessions at add new session
-    for (std::set<WorldSession*>::iterator itr = m_kicked_sessions.begin(); itr != m_kicked_sessions.end(); ++itr)
-    {
-        RemoveQueuedPlayer (*itr);
-        delete *itr;
-    }
-    m_kicked_sessions.clear();
 
     ///- Then send an update signal to remaining ones
     for (SessionMap::iterator itr = m_sessions.begin(), next; itr != m_sessions.end(); itr = next)

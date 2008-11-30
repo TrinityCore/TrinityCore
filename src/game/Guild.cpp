@@ -151,16 +151,12 @@ bool Guild::AddMember(uint64 plGuid, uint32 plRank)
     CharacterDatabase.PExecute("INSERT INTO guild_member (guildid,guid,rank,pnote,offnote) VALUES ('%u', '%u', '%u','%s','%s')",
         Id, GUID_LOPART(plGuid), newmember.RankId, dbPnote.c_str(), dbOFFnote.c_str());
 
+    // If player not in game data in data field will be loaded from guild tables, no need to update it!!
     if(pl)
     {
         pl->SetInGuild(Id);
         pl->SetRank(newmember.RankId);
         pl->SetGuildIdInvited(0);
-    }
-    else
-    {
-        Player::SetUInt32ValueInDB(PLAYER_GUILDID, Id, plGuid);
-        Player::SetUInt32ValueInDB(PLAYER_GUILDRANK, newmember.RankId, plGuid);
     }
     return true;
 }
@@ -460,16 +456,15 @@ void Guild::DelMember(uint64 guid, bool isDisbanding)
             this->SetLeader(newLeaderGUID);
 
             newLeader = objmgr.GetPlayer(newLeaderGUID);
+
+            // If player not online data in data field will be loaded from guild tabs no need to update it !!
             if(newLeader)
             {
                 newLeader->SetRank(GR_GUILDMASTER);
                 newLeaderName = newLeader->GetName();
             }
             else
-            {
-                Player::SetUInt32ValueInDB(PLAYER_GUILDRANK, GR_GUILDMASTER, newLeaderGUID);
                 objmgr.GetPlayerNameByGUID(newLeaderGUID, newLeaderName);
-            }
 
             // when leader non-exist (at guild load with deleted leader only) not send broadcasts
             if(objmgr.GetPlayerNameByGUID(guid, oldLeaderName))
@@ -500,15 +495,11 @@ void Guild::DelMember(uint64 guid, bool isDisbanding)
     members.erase(GUID_LOPART(guid));
 
     Player *player = objmgr.GetPlayer(guid);
+    // If player not online data in data field will be loaded from guild tabs no need to update it !!
     if(player)
     {
         player->SetInGuild(0);
         player->SetRank(0);
-    }
-    else
-    {
-        Player::SetUInt32ValueInDB(PLAYER_GUILDID, 0, guid);
-        Player::SetUInt32ValueInDB(PLAYER_GUILDRANK, GR_GUILDMASTER, guid);
     }
 
     CharacterDatabase.PExecute("DELETE FROM guild_member WHERE guid = '%u'", GUID_LOPART(guid));
@@ -521,10 +512,9 @@ void Guild::ChangeRank(uint64 guid, uint32 newRank)
         itr->second.RankId = newRank;
 
     Player *player = objmgr.GetPlayer(guid);
+    // If player not online data in data field will be loaded from guild tabs no need to update it !!
     if(player)
         player->SetRank(newRank);
-    else
-        Player::SetUInt32ValueInDB(PLAYER_GUILDRANK, newRank, guid);
 
     CharacterDatabase.PExecute( "UPDATE guild_member SET rank='%u' WHERE guid='%u'", newRank, GUID_LOPART(guid) );
 }
