@@ -6463,7 +6463,7 @@ bool ObjectMgr::LoadTrinityStrings(DatabaseType& db, char const* table, int32 mi
         bar.step();
 
         sLog.outString("");
-        if(min_value > 0)                                   // error only in case internal strings
+        if(min_value == MIN_TRINITY_STRING_ID)               // error only in case internal strings
             sLog.outErrorDb(">> Loaded 0 trinity strings. DB table `%s` is empty. Cannot continue.",table);
         else
             sLog.outString(">> Loaded 0 string templates. DB table `%s` is empty.",table);
@@ -6529,7 +6529,7 @@ bool ObjectMgr::LoadTrinityStrings(DatabaseType& db, char const* table, int32 mi
     delete result;
 
     sLog.outString();
-    if(min_value > 0)                                       // internal Trinity strings
+    if(min_value == MIN_TRINITY_STRING_ID)               // internal Trinity strings
         sLog.outString( ">> Loaded %u Trinity strings from table %s", count,table);
     else
         sLog.outString( ">> Loaded %u string templates from %s", count,table);
