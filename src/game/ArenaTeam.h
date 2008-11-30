@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef TRINITYCORE_ARENATEAM_H
@@ -68,12 +68,12 @@ ERR_ARENA_TEAM_LEVEL_TOO_LOW_I
 
 enum ArenaTeamStatTypes
 {
-    STAT_TYPE_RATING    = 0,
-    STAT_TYPE_GAMES     = 1,
-    STAT_TYPE_WINS      = 2,
-    STAT_TYPE_PLAYED    = 3,
-    STAT_TYPE_WINS2     = 4,
-    STAT_TYPE_RANK      = 5
+    STAT_TYPE_RATING        = 0,
+    STAT_TYPE_GAMES_WEEK    = 1,
+    STAT_TYPE_WINS_WEEK     = 2,
+    STAT_TYPE_GAMES_SEASON  = 3,
+    STAT_TYPE_WINS_SEASON   = 4,
+    STAT_TYPE_RANK          = 5
 };
 
 enum ArenaTeamTypes
@@ -90,19 +90,20 @@ struct ArenaTeamMember
     //uint32 unk2;
     //uint8 unk1;
     uint8 Class;
-    uint32 played_week;
-    uint32 wons_week;
-    uint32 played_season;
-    uint32 wons_season;
+    uint32 games_week;
+    uint32 wins_week;
+    uint32 games_season;
+    uint32 wins_season;
+    uint32 personal_rating;
 };
 
 struct ArenaTeamStats
 {
     uint32 rating;
-    uint32 games;
-    uint32 wins;
-    uint32 played;
-    uint32 wins2;
+    uint32 games_week;
+    uint32 wins_week;
+    uint32 games_season;
+    uint32 wins_season;
     uint32 rank;
 };
 
@@ -125,7 +126,7 @@ class ArenaTeam
         static uint8 GetSlotByType(uint32 type);
         const uint64& GetCaptain() const { return CaptainGuid; }
         std::string GetName() const { return Name; }
-        ArenaTeamStats GetStats() const { return stats; }
+        const ArenaTeamStats& GetStats() const { return stats; }
         void SetStats(uint32 stat_type, uint32 value);
         uint32 GetRating() const { return stats.rating; }
 
@@ -145,6 +146,14 @@ class ArenaTeam
         MemberList::iterator membersbegin(){ return members.begin(); }
         MemberList::iterator membersEnd(){ return members.end(); }
         bool HaveMember(uint64 guid) const;
+        ArenaTeamMember* GetMember(uint64 guid)
+        {
+            for (MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
+                if(itr->guid==guid)
+                    return &(*itr);
+
+            return NULL;
+        }
 
         bool LoadArenaTeamFromDB(uint32 ArenaTeamId);
         void LoadMembersFromDB(uint32 ArenaTeamId);

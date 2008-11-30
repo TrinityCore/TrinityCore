@@ -98,6 +98,9 @@ class TRINITY_DLL_SPEC WorldSession
         void SetPlayer(Player *plr) { _player = plr; }
         uint8 Expansion() const { return m_expansion; }
 
+        /// Session in auth.queue currently
+        void SetInQueue(bool state) { m_inQueue = state; }
+
         /// Is the user engaged in a log out process?
         bool isLogingOut() const { return _logoutTime || m_playerLogout; }
 
@@ -639,6 +642,7 @@ class TRINITY_DLL_SPEC WorldSession
         uint8 m_expansion;
 
         time_t _logoutTime;
+        bool m_inQueue;                                     // session wait in auth.queue
         bool m_playerLoading;                               // code processed in LoginPlayer
         bool m_playerLogout;                                // code processed in LogoutPlayer
         bool m_playerRecentlyLogout;

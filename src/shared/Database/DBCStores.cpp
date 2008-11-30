@@ -497,13 +497,22 @@ uint32 GetTalentSpellCost(uint32 spellId)
     return 0;
 }
 
-AreaTableEntry const* GetAreaEntryByAreaID(uint32 area_id)
+int32 GetAreaFlagByAreaID(uint32 area_id)
 {
     AreaFlagByAreaID::iterator i = sAreaFlagByAreaID.find(area_id);
     if(i == sAreaFlagByAreaID.end())
+        return -1;
+
+    return i->second;
+}
+
+AreaTableEntry const* GetAreaEntryByAreaID(uint32 area_id)
+{
+    int32 areaflag = GetAreaFlagByAreaID(area_id);
+    if(areaflag < 0)
         return NULL;
 
-    return sAreaStore.LookupEntry(i->second);
+    return sAreaStore.LookupEntry(areaflag );
 }
 
 AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag,uint32 map_id)

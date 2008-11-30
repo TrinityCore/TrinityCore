@@ -16,6 +16,10 @@ Line 20 : INSERT INTO spell_proc_event (entry, SchoolMask, Category, SkillID, Sp
 [\updates\79_world.sql]
 Line 1 : DELETE FROM spell_proc_event where entry = 42083;
 Line 2 : INSERT INTO spell_proc_event (entry, SchoolMask, Category, SkillID, SpellFamilyName, SpellFamilyMask, procFlags, ppmRate, cooldown) VALUES
+
+DELETE FROM spell_proc_event where entry = 35080;
+INSERT INTO spell_proc_event (entry, SchoolMask, Category, SkillID, SpellFamilyName, SpellFamilyMask, procFlags, ppmRate, cooldown) VALUES
+(35080,0,0,0,0,0x0000000000000000,0x00080001,0,60);
 */
 
 DROP TABLE IF EXISTS `spell_proc_event`;

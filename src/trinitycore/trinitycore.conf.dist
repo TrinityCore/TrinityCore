@@ -17,7 +17,7 @@ ConfVersion=2008080101
 #    LogsDir
 #        Logs directory setting.
 #        Important: Logs dir must exists, or all logs need to be disabled
-#        Default: "" - no log directory prefix, if used log names isn't absolute path 
+#        Default: "" - no log directory prefix, if used log names isn't absolute path
 #        then logs will be stored in current directory for run program.
 #
 #
@@ -82,7 +82,7 @@ EAIErrorLevel = 2
 #
 #    Compression
 #        Compression level for update packages sent to client (1..9)
-#        Default: 1 (speed) 
+#        Default: 1 (speed)
 #                 9 (best compression)
 #
 #    PlayerLimit
@@ -143,15 +143,20 @@ EAIErrorLevel = 2
 #        These spells are ignored for LoS calculation
 #        List of ids with delimiter ','
 #
+#    DetectPosCollision
+#        Check final move position, summon position, etc for visible collision with other objects or
+#        wall (wall only if vmaps are enabled)
+#        Default: 1 (enable, required more CPU power usage)
+#                 0 (disable, less nice position selection but will less CPU power usage)
 #
 #    TargetPosRecalculateRange
-#        Max distance from movement target point (+moving unit size) and targeted object (+size) 
+#        Max distance from movement target point (+moving unit size) and targeted object (+size)
 #        after that new target movmeent point calculated. Max: melee attack range (5), min: contact range (0.5)
 #        More distance let have better performence, less distance let have more sensitive reaction at target move.
 #        Default: 1.5
 #
 #    UpdateUptimeInterval
-#        Update realm uptime period in minutes (for save data in 'uptime' table). Must be > 0 
+#        Update realm uptime period in minutes (for save data in 'uptime' table). Must be > 0
 #        Default: 10 (minutes)
 #
 #    MaxCoreStuckTime
@@ -183,6 +188,7 @@ vmap.enableLOS = 0
 vmap.enableHeight = 0
 vmap.ignoreMapIds = "369"
 vmap.ignoreSpellIds = "7720"
+DetectPosCollision = 1
 TargetPosRecalculateRange = 1.5
 UpdateUptimeInterval = 10
 MaxCoreStuckTime = 0
@@ -215,7 +221,7 @@ AddonChannel = 1
 #
 #    LogFile
 #        Logfile name
-#        Default: "server.log"
+#        Default: "Server.log"
 #                 "" - Empty name disable creating log file
 #
 #    LogTimestamp
@@ -237,15 +243,15 @@ AddonChannel = 1
 #
 #    WorldLogFile
 #        Packet logging file for the worldserver
-#        Default: ""
+#        Default: "world.log"
 #
 #    DBErrorLogFile
 #        Log file of DB errors detected at server run
-#        Default: "db_errors.log"
+#        Default: "DBErrors.log"
 #
 #    CharLogFile
 #        Character operations logfile name
-#        Default: "characters.log"
+#        Default: "Char.log"
 #                 "" - Empty name disable creating log file
 #
 #    CharLogTimestamp
@@ -255,10 +261,10 @@ AddonChannel = 1
 #
 #    CharLogDump
 #        Write character dump before deleting in Char.log
-#        For restoration, cut character data from log starting from 
+#        For restoration, cut character data from log starting from
 #        line == START DUMP == to line == END DUMP == (without its) in file and load it using loadpdump command
 #        Default: 0 - don't include dumping chars to log
-#                 1 - include dumping chars to log 
+#                 1 - include dumping chars to log
 #
 #    GmLogFile
 #        Log file of gm commands
@@ -266,18 +272,25 @@ AddonChannel = 1
 #                 "" - Empty name for disable
 #
 #    GmLogTimestamp
-#        Logfile with timestamp of server start in name
+#        GM Logfile with timestamp of server start in name
 #        Default: 0 - no timestamp in name
 #                 1 - add timestamp in name in form Logname_YYYY-MM-DD_HH-MM-SS.Ext for Logname.Ext
 #
+#    GmLogPerAccount
+#        GM Logfiles with GM account id (Note: logs not created if GmLogFile not set)
+#        Default: 0 - add gm log data to single log file
+#                 1 - add gm log data to account specific log files with name
+#                     in form Logname_#ID_YYYY-MM-DD_HH-MM-SS.Ext
+#                     or form Logname_#ID.Ext
+#
 #    RaLogFile
 #        Log file of RA commands
-#        Default: "ra_commands.log" 
+#        Default: "Ra.log"
 #                 "" - Empty name for disable
 #
 #    LogColors
-#        Color for messages (format "normal_color details_color debug_color error_color)
-#        Colors: 0 - BLACK, 1 - RED, 2 - GREEN,  3 - BROWN, 4 - BLUE, 5 - MAGENTA, 6 -  CYAN, 7 - GREY, 
+#        Color for messages (format "normal_color details_color debug_color error_color")
+#        Colors: 0 - BLACK, 1 - RED, 2 - GREEN,  3 - BROWN, 4 - BLUE, 5 - MAGENTA, 6 -  CYAN, 7 - GREY,
 #                8 - YELLOW, 9 - LRED, 10 - LGREEN, 11 - LBLUE, 12 - LMAGENTA, 13 - LCYAN, 14 - WHITE
 #        Default: "" - none colors
 #        Example: "13 7 11 9"
@@ -288,7 +301,7 @@ LogSQL = 1
 PidFile = ""
 LogLevel = 1
 LogTime = 0
-LogFile = "server.log"
+LogFile = "Server.log"
 LogTimestamp = 0
 LogFileLevel = 0
 LogFilter_TransportMoves = 1
@@ -301,6 +314,7 @@ CharLogTimestamp = 0
 CharLogDump = 0
 GmLogFile = "gm_commands.log"
 GmLogTimestamp = 0
+GmLogPerAccount = 0
 RaLogFile = "ra_commands.log"
 LogColors = ""
 
@@ -310,47 +324,47 @@ LogColors = ""
 #    GameType
 #        Server realm style
 #        0 = NORMAL;1 = PVP; 4 = NORMAL; 6 = RP; 8 = RPPVP
-#        also custom type: 16 FFA_PVP (free for all pvp mode like arena PvP in all zones except rest 
+#        also custom type: 16 FFA_PVP (free for all pvp mode like arena PvP in all zones except rest
 #        activated places and sanctuaries)
 #
 #    RealmZone
 #        Server realm zone (set allowed alphabet in character names/etc). See also Strict*Names options.
 #
-#	 1 Development    - any language (Default)
-#	 2 United States  - extended-Latin
-#	 3 Oceanic        - extended-Latin
-#	 4 Latin America  - extended-Latin 
-#	 5 Tournament     - basic-Latin at create, any at login
-#	 6 Korea          - East-Asian
-#	 7 Tournament     - basic-Latin at create, any at login
-#	 8 English        - extended-Latin
-#	 9 German         - extended-Latin
-#	 10 French        - extended-Latin
-#	 11 Spanish       - extended-Latin
-#	 12 Russian       - Cyrillic
-#	 13 Tournament    - basic-Latin at create, any at login
-#	 14 Taiwan        - East-Asian
-#	 15 Tournament    - basic-Latin at create, any at login
-#	 16 China         - East-Asian
-#	 17 CN1           - basic-Latin at create, any at login
-#	 18 CN2           - basic-Latin at create, any at login
-#	 19 CN3           - basic-Latin at create, any at login
-#	 20 CN4           - basic-Latin at create, any at login
-#	 21 CN5           - basic-Latin at create, any at login
-#	 22 CN6           - basic-Latin at create, any at login
-#	 23 CN7           - basic-Latin at create, any at login
-#	 24 CN8           - basic-Latin at create, any at login
-#	 25 Tournament    - basic-Latin at create, any at login
-#	 26 Test Server   - any language
-#	 27 Tournament    - basic-Latin at create, any at login
-#	 28 QA Server     - any language
-#	 29 CN9           - basic-Latin at create, any at login
+#    1 Development    - any language (Default)
+#    2 United States  - extended-Latin
+#    3 Oceanic        - extended-Latin
+#    4 Latin America  - extended-Latin
+#    5 Tournament     - basic-Latin at create, any at login
+#    6 Korea          - East-Asian
+#    7 Tournament     - basic-Latin at create, any at login
+#    8 English        - extended-Latin
+#    9 German         - extended-Latin
+#    10 French        - extended-Latin
+#    11 Spanish       - extended-Latin
+#    12 Russian       - Cyrillic
+#    13 Tournament    - basic-Latin at create, any at login
+#    14 Taiwan        - East-Asian
+#    15 Tournament    - basic-Latin at create, any at login
+#    16 China         - East-Asian
+#    17 CN1           - basic-Latin at create, any at login
+#    18 CN2           - basic-Latin at create, any at login
+#    19 CN3           - basic-Latin at create, any at login
+#    20 CN4           - basic-Latin at create, any at login
+#    21 CN5           - basic-Latin at create, any at login
+#    22 CN6           - basic-Latin at create, any at login
+#    23 CN7           - basic-Latin at create, any at login
+#    24 CN8           - basic-Latin at create, any at login
+#    25 Tournament    - basic-Latin at create, any at login
+#    26 Test Server   - any language
+#    27 Tournament    - basic-Latin at create, any at login
+#    28 QA Server     - any language
+#    29 CN9           - basic-Latin at create, any at login
 #
 #    Expansion
-#        Allow server use content from expansion 
-#                 2 - check expansion 2 maps existence, and if client support expansion 2 and account have 
+#        Allow server use content from expansion
+#                 2 - check expansion 2 maps existence, and if client support expansion 2 and account have
 #                     expansion 2 setting then allow visit expansion 2 maps, allow create new class character)
-#        Default: 1 - check expansion 1 maps existence, and if client support expansion 1 and account have 
+#        Default: 1 - check expansion 1 maps existence, and if client support expansion 1 and account have
 #                     expansion 1 setting then allow visit expansion 1 maps, allow create new races character)
 #                 0 - not check expansion maps existence, not allow wisit its, not allow create new race or new class
 #                     characters, ignore account expansion setting)
@@ -361,16 +375,16 @@ LogColors = ""
 #        8 = Russian; 255 = Auto Detect (Default)
 #
 #    DeclinedNames
-#	 Allow russian clients to set and use declined names
-#	 Default: 0 - do not use declined names, except when the Russian RealmZone is set
-#		  1 - use declined names
+#    Allow russian clients to set and use declined names
+#    Default: 0 - do not use declined names, except when the Russian RealmZone is set
+#         1 - use declined names
 #
 #    StrictPlayerNames
 #        Limit player name to language specific symbols set, not allow create characters, and set rename request and disconnect at not allowed symbols name
 #        Default: 0 disable (but limited server timezone dependent client check)
 #                 1 basic latin characters  (strict)
-#                 2 realm zone specific (strict). See RealmZone setting. 
-#                   Note: In any case if you want correctly see character name at client this client must have apporopriate fonts 
+#                 2 realm zone specific (strict). See RealmZone setting.
+#                   Note: In any case if you want correctly see character name at client this client must have apporopriate fonts
 #                   (included in client by default, with active official localization or custom localization fonts in clientdir/Fonts).
 #                 3 basic latin characters + server timezone specific
 #
@@ -378,8 +392,8 @@ LogColors = ""
 #        Limit guild/arena team charter names to language specific symbols set, not allow create charters with allowed symbols in name
 #        Default: 0 disable
 #                 1 basic latin characters  (strict)
-#                 2 realm zone specific (strict). See RealmZone setting. 
-#                   Note: In any case if you want correctly see character name at client this client must have apporopriate fonts 
+#                 2 realm zone specific (strict). See RealmZone setting.
+#                   Note: In any case if you want correctly see character name at client this client must have apporopriate fonts
 #                   (included in client by default, with active official localization or custom localization fonts in clientdir/Fonts).
 #                 3 basic latin characters + server timezone specific
 #
@@ -387,8 +401,8 @@ LogColors = ""
 #        Limit pet names to language specific symbols set
 #        Default: 0 disable
 #                 1 basic latin characters  (strict)
-#                 2 realm zone specific (strict). See RealmZone setting. 
-#                   Note: In any case if you want correctly see character name at client this client must have apporopriate fonts 
+#                 2 realm zone specific (strict). See RealmZone setting.
+#                   Note: In any case if you want correctly see character name at client this client must have apporopriate fonts
 #                   (included in client by default, with active official localization or custom localization fonts in clientdir/Fonts).
 #                 3 basic latin characters + server timezone specific
 #
@@ -406,7 +420,7 @@ LogColors = ""
 #    CharactersPerAccount
 #        Limit numbers of characters per account (at all realms).
 #        Note: this setting limit character creating at _current_ realm base at characters amount at all realms
-#        Default: 50 
+#        Default: 50
 #                The number must be >= CharactersPerRealm
 #
 #    CharactersPerRealm
@@ -425,17 +439,48 @@ LogColors = ""
 #        Change not recommended
 #        Default: 70
 #
+#    StartPlayerLevel
+#        Staring level that have character at creating (in range 1 to MaxPlayerLevel)
+#        Default: 1
+#
+#    StartPlayerMoney
+#        Amount of money that new players will start with.
+#        If you want to start with silver, use for example 100 (100 copper = 1 silver)
+#        Default: 0
+#
 #    MaxHonorPoints
 #        Max honor points that player can have.
 #        Default: 75000
+#
+#    StartHonorPoints
+#        Amount of honor that new players will start with
+#        Default: 0
 #
 #    MaxArenaPoints
 #        Max arena points that player can have.
 #        Default: 5000
 #
-#    StartPlayerLevel
-#        Staring level that have character at creating (in range 1 to MaxPlayerLevel)
-#        Default: 1
+#    StartArenaPoints
+#        Amount of arena points that new players will start with
+#        Default: 0
+#
+#    InstantLogout
+#        Enable or disable instant logout for security level (0..4) or high (NOT in combat/while dueling/while falling)
+#        Default: 1 (Mods/GMs/Admins)
+#
+#    DisableWaterBreath
+#        Disable/enable waterbreathing for security level (0..4) or high
+#        Default: 4 (None)
+#
+#    AllFlightPaths
+#        Players will start with all flight paths (Note: ALL flight paths, not only player's team)
+#        Default: 0 (true)
+#                 1 (false)
+#
+#    AlwaysMaxSkillForLevel
+#        Players will automatically gain max level dependent (weapon/defense) skill when logging in, leveling up etc.
+#        Default: 0 (true)
+#                 1 (false)
 #
 #    ActivateWeather
 #        Activate weather system
@@ -446,6 +491,16 @@ LogColors = ""
 #        Cast or not Deserter spell at player who leave battleground in progress
 #        Default: 1 (true)
 #                 0 (false)
+#
+#    Battleground.QueueAnnouncer.Enable
+#        Enable queue announcer posting to chat
+#        Default: 1 (true)
+#                 0 (false)
+#
+#    Battleground.QueueAnnouncer.PlayerOnly
+#        Enable queue announcer posting to chat
+#        Default: 0 (false)
+#                 1 (true)
 #
 #    CastUnstuck
 #        Allow cast or not Unstuck spell at .start or client Help option use
@@ -472,16 +527,16 @@ LogColors = ""
 #                 0 (instance maps are kept in memory until they are reset)
 #
 #    Quests.LowLevelHideDiff
-#        Quest level difference to hide for player low level quests: 
+#        Quest level difference to hide for player low level quests:
 #        if player_level > quest_level + LowLevelQuestsHideDiff then quest "!" mark not show for quest giver
 #        Default: 4
-#                -1 (show all available quests marks) 
+#                -1 (show all available quests marks)
 #
 #    Quests.HighLevelHideDiff
-#        Quest level difference to hide for player high level quests: 
+#        Quest level difference to hide for player high level quests:
 #        if player_level < quest_min_level - HighLevelQuestsHideDiff then quest "!" mark not show for quest giver
 #        Default: 7
-#                -1 (show all available quests marks) 
+#                -1 (show all available quests marks)
 #
 #    MaxPrimaryTradeSkill
 #        Max count that player can learn the primary trade skill.
@@ -533,11 +588,20 @@ CharactersPerAccount = 50
 CharactersPerRealm = 10
 SkipCinematics = 0
 MaxPlayerLevel = 70
-MaxHonorPoints = 75000
-MaxArenaPoints = 5000
 StartPlayerLevel = 1
+StartPlayerMoney = 0
+MaxHonorPoints = 75000
+StartHonorPoints = 0
+MaxArenaPoints = 5000
+StartArenaPoints = 0
+InstantLogout = 1
+DisableWaterBreath = 4
+AllFlightPaths = 0
+AlwaysMaxSkillForLevel = 0
 ActivateWeather = 1
 Battleground.CastDeserter = 1
+Battleground.QueueAnnouncer.Enable = 1
+Battleground.QueueAnnouncer.PlayerOnly = 0
 CastUnstuck = 1
 Instance.IgnoreLevel = 0
 Instance.IgnoreRaid = 0
@@ -568,7 +632,7 @@ Motd = "Welcome to a Trinity Core server."
 #    AllowTwoSide.Interaction.Guild
 #    AllowTwoSide.Interaction.Auction
 #    AllowTwoSide.Interaction.Mail
-#        Allow or not common :chat(say,yell);channel(chat)group(join)guild(join);merge all auction houses for players from 
+#        Allow or not common :chat(say,yell);channel(chat)group(join)guild(join);merge all auction houses for players from
 #        different teams, send mail to different team.
 #        Default: 0 (Not allowed)
 #                 1 (Allowed)
@@ -584,7 +648,7 @@ Motd = "Welcome to a Trinity Core server."
 #                 1 (Allowed)
 #
 #    TalentsInspecting
-#        Allow other players see character talents in inspect dialog (Characters in Gamemaster mode can 
+#        Allow other players see character talents in inspect dialog (Characters in Gamemaster mode can
 #        inspect talents always)
 #        Default: 1 (allow)
 #                 0 (not allow)
@@ -616,8 +680,8 @@ TalentsInspecting = 1
 #                 1.5 - 150%
 #                 0   - off (0%)
 #
-#    CreatureFamilyAssistenceRadius
-#        Creature family assistence radius
+#    CreatureFamilyAssistanceRadius
+#        Creature family assistance radius
 #        Default: 10
 #                 0   - off
 #
@@ -665,11 +729,23 @@ TalentsInspecting = 1
 #        Creature Health Ammount Modifier.
 #        Examples: 2 - creatures have 2x health, 1.7 - 1.7x.
 #
+#    ListenRange.Say
+#        Distance from player to listen text that creature (or other world object) say
+#        Default: 25
+#
+#    ListenRange.TextEmote
+#        Distance from player to listen textemote that creature (or other world object) say
+#        Default: 25
+#
+#    ListenRange.Yell
+#        Distance from player to listen text that creature (or other world object) yell
+#        Default: 300
+#
 ###################################################################################################################
 
 ThreatRadius = 100
 Rate.Creature.Aggro = 1
-CreatureFamilyAssistenceRadius = 10
+CreatureFamilyAssistanceRadius = 10
 CreatureFamilyAssistanceDelay = 1500
 WorldBossLevelDiff = 3
 Corpse.Decay.NORMAL = 60
@@ -693,13 +769,16 @@ Rate.Creature.Elite.Elite.HP = 1
 Rate.Creature.Elite.RAREELITE.HP = 1
 Rate.Creature.Elite.WORLDBOSS.HP = 1
 Rate.Creature.Elite.RARE.HP = 1
+ListenRange.Say = 40
+ListenRange.TextEmote = 40
+ListenRange.Yell = 300
 
 ###################################################################################################################
 # CHAT SETTINGS
 #
 #    ChatFakeMessagePreventing
 #        Chat protection from creating fake messages using a lot spaces (other invisible symbols),
-#        not applied to addon language messages, but can prevent working old addons 
+#        not applied to addon language messages, but can prevent working old addons
 #        that use normal languages for sending data to another clients.
 #        Default: 0 (disible fake messages preventing)
 #                 1 (enabled fake messages preventing)
@@ -739,10 +818,29 @@ Channel.SilentlyGMJoin = 0
 ###################################################################################################################
 # GAME MASTER SETTINGS
 #
+#    GM.LoginState
+#        GM mode at login
+#        Default: 2 (last save state)
+#                 0 (disable)
+#                 1 (enable)
+#
+#    GM.AcceptTickets
+#        Is GM accepting tickets from player by default or not.
+#        Default: 2 (last save state)
+#                 0 (disable)
+#                 1 (enable)
+#
+#    GM.Chat
+#        GM chat mode at login
+#        Default: 2 (last save state)
+#                 0 (disable)
+#                 1 (enable)
+#
 #    GM.WhisperingTo
 #        Is GM accepting whispers from player by default or not.
-#        Default: 0 (false)
-#                 1 (true)
+#        Default: 2 (last save state)
+#                 0 (disable)
+#                 1 (enable)
 #
 #    GM.InGMList
 #        Is GM showed in GM list (if visible) in non-GM state (.gmoff)
@@ -754,24 +852,25 @@ Channel.SilentlyGMJoin = 0
 #        Default: 0 (false)
 #                 1 (true)
 #
-#    GM.LoginState
-#        GM mode at login
-#        Default: 2 (last save state)
-#                 0 (disable)
-#                 1 (enable)
-#
 #    GM.LogTrade
 #        Include GM trade and trade slot enchanting operations in GM log if it enable
 #        Default: 1 (include)
 #                 0 (not include)
 #
+#    GM.StartLevel
+#        GM starting level (1-255)
+#        Default: 1
+#
 ###################################################################################################################
 
-GM.WhisperingTo = 0
-GM.InGMList = 0
-GM.InWhoList = 0
-GM.LoginState = 2
-GM.LogTrade = 1
+GM.LoginState     = 2
+GM.AcceptTickets  = 2
+GM.Chat           = 2
+GM.WhisperingTo   = 2
+GM.InGMList       = 0
+GM.InWhoList      = 0
+GM.LogTrade       = 1
+GM.StartLevel     = 1
 
 ###################################################################################################################
 # VISIBILITY AND RADIUSES
@@ -784,7 +883,7 @@ GM.LogTrade = 1
 #
 #    Visibility.Distance.Creature
 #    Visibility.Distance.Player
-#        Visibility distance for different in game object 
+#        Visibility distance for different in game object
 #        Max limited by active player zone: ~ 166
 #        Min limit dependent from objects
 #        Default: 66 (cell size)
@@ -801,7 +900,7 @@ GM.LogTrade = 1
 #    Visibility.Distance.Grey.Unit
 #        Visibility grey distance for creatures/players (fast changing objects)
 #        addition to appropriate object type Visibility.Distance.* use in case visibility removing to
-#        object (except corpse around distences) If ? is distance and G is grey distance then object
+#        object (except corpse around distences) If � is distance and G is grey distance then object
 #        make visible if distance to it <= D but make non visible if distance > D+G
 #        Default: 1 (yard)
 #
@@ -824,7 +923,7 @@ Visibility.Distance.Grey.Object = 10
 # SERVER RATES
 #
 #    Rate.Health
-#    Rate.Mana 
+#    Rate.Mana
 #    Rate.Rage.Income
 #    Rate.Rage.Loss
 #    Rate.Focus
@@ -880,7 +979,7 @@ Visibility.Distance.Grey.Object = 10
 #
 #    Rate.Mining.Amount
 #    Rate.Mining.Next
-#        Mining Rates (Mining.Amount changes minimum/maximum usetimes of a deposit, 
+#        Mining Rates (Mining.Amount changes minimum/maximum usetimes of a deposit,
 #        Mining.Next changes chance to have next use of a deposit)
 #
 #    Rate.Talent
@@ -906,12 +1005,12 @@ Visibility.Distance.Grey.Object = 10
 #    SkillChance.Yellow
 #    SkillChance.Green
 #    SkillChance.Grey
-#        Skill chance values (0..100) 
+#        Skill chance values (0..100)
 #        Default: 100-75-25-0
 #
 #    SkillChance.MiningSteps
 #    SkillChance.SkinningSteps
-#         For skinning and Mining chance decrease with skill level. 
+#         For skinning and Mining chance decrease with skill level.
 #         Default: 0  - no decrease
 #                  75 - in 2 times each 75 skill points
 #
@@ -939,7 +1038,7 @@ Visibility.Distance.Grey.Object = 10
 #
 #    Death.CorpseReclaimDelay.PvP
 #    Death.CorpseReclaimDelay.PvE
-#         Enabled/disabled increase corpse reclaim delay at often PvP/PvE deaths 
+#         Enabled/disabled increase corpse reclaim delay at often PvP/PvE deaths
 #         Default: 1 (enabled)
 #                  0 (disabled)
 #
@@ -995,6 +1094,34 @@ DurabilityLossChance.Block  = 0.05
 Death.SicknessLevel = 11
 Death.CorpseReclaimDelay.PvP = 1
 Death.CorpseReclaimDelay.PvE = 1
+
+###################################################################################################################
+#
+# NETWORK CONFIG
+#
+#    Network.Threads
+#         Number of threads for network, recommend 1 thread per 1000 connections.
+#         Default: 1
+#
+#    Network.OutKBuff
+#         The size of the output kernel buffer used ( SO_SNDBUF socket option, tcp manual ).
+#         Default: -1 (Use system default setting)
+#
+#    Network.OutUBuff
+#         Userspace buffer for output. This is amount of memory reserved per each connection.
+#         Default: 65536
+#
+#    Network.TcpNoDelay:
+#         TCP Nagle algorithm setting
+#         Default: 0 (enable Nagle algorithm, less traffic, more latency)
+#                  1 (TCP_NO_DELAY, disable Nagle algorithm, more traffic but less latency)
+#
+###################################################################################################################
+
+Network.Threads = 1
+Network.OutKBuff = -1
+Network.OutUBuff = 65536
+Network.TcpNodelay = 1
 
 ###################################################################################################################
 # CONSOLE AND REMOTE ACCESS
@@ -1071,31 +1198,6 @@ Arena.AutoDistributeInterval = 7
 BattleGround.PrematureFinishTimer = 0
 
 ###################################################################################################################
-# 
-# Network config 
-#
-# Threads: number of threads for network ,recommend 1 thread per 1000 players.
-#         Default: 1
-#
-# OutKBuff: the output kernel buffer used ( SO_SNDBUF socket option ) , -1 means use system default. Refer to tcp manual for explanation.
-#         Default: -1
-#
-# OutUBuff: userspace buffer for output
-#         Default: 65536
-#
-# TcpNodelay: enable ( 1 ) , disable ( 0 ) ,TCP_NODELAY socket option. Refer to tcp manual for explanation.
-#         Default: 1
-#
-#     
-#
-###################################################################################################################
-
-Network.Threads = 1
-Network.OutKBuff = -1
-Network.OutUBuff = 65536
-Network.TcpNodelay = 1
-
-###################################################################################################################
 # CUSTOM SERVER OPTIONS
 #
 #	PlayerStart.Gold
@@ -1143,9 +1245,6 @@ Network.TcpNodelay = 1
 #		The amount of honor points the duel winner will get after a duel.
 #		Default: 0 - disable
 #
-#	DisableWaterBreath
-#		Disable/enable waterbreathing for players
-#
 #	AlwaysMaxWeaponSkill
 #		Players will automatically gain max weapon/defense skill when logging in, leveling up etc.
 #
@@ -1188,7 +1287,6 @@ GamemasterStartLevel = 70
 PlayerInstantLogout = 0
 MusicInBattleground = 0
 HonorPointsAfterDuel = 0
-DisableWaterBreath = 0
 AlwaysMaxWeaponSkill = 0
 PvPToken.Enable = 0
 PvPToken.MapAllowType = 4

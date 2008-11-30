@@ -48,7 +48,7 @@ WorldSession::WorldSession(uint32 id, WorldSocket *sock, uint32 sec, uint8 expan
 LookingForGroup_auto_join(false), LookingForGroup_auto_add(false), m_muteTime(mute_time),
 _player(NULL), m_Socket(sock),_security(sec), _accountId(id), m_expansion(expansion),
 m_sessionDbcLocale(sWorld.GetAvailableDbcLocale(locale)), m_sessionDbLocaleIndex(objmgr.GetIndexForLocale(locale)),
-_logoutTime(0), m_playerLoading(false), m_playerLogout(false), m_playerRecentlyLogout(false), m_latency(0)
+_logoutTime(0), m_inQueue(false), m_playerLoading(false), m_playerLogout(false), m_playerRecentlyLogout(false), m_latency(0)
 {
     if (sock)
     {
@@ -208,6 +208,13 @@ bool WorldSession::Update(uint32 /*diff*/)
                         (this->*opHandle.handler)(*packet);
                     break;
                 case STATUS_AUTHED:
+                    // prevent cheating with skip queue wait
+                    if(m_inQueue)
+                    {
+                        logUnexpectedOpcode(packet, "the player not pass queue yet");
+                        break;
+                    }
+
                     m_playerRecentlyLogout = false;
                     (this->*opHandle.handler)(*packet);
                     break;

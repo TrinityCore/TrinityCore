@@ -2034,6 +2034,11 @@ bool IsSpellAllowedInLocation(SpellEntry const *spellInfo,uint32 map_id,uint32 z
     {
         if(uint32 mask = spellmgr.GetSpellElixirMask(spellInfo->Id))
         {
+            if(mask & ELIXIR_BATTLE_MASK)
+            {
+                if(spellInfo->Id==45373)                    // Bloodberry Elixir
+                    return zone_id==4075;
+            }
             if(mask & ELIXIR_UNSTABLE_MASK)
             {
                 // in the Blade's Edge Mountains Plateaus and Gruul's Lair.
@@ -2041,9 +2046,8 @@ bool IsSpellAllowedInLocation(SpellEntry const *spellInfo,uint32 map_id,uint32 z
             }
             if(mask & ELIXIR_SHATTRATH_MASK)
             {
-                // in Tempest Keep, Serpentshrine Cavern, Caverns of Time: Mount Hyjal, Black Temple
-                // TODO: and the Sunwell Plateau
-                if(zone_id ==3607 || map_id==534 || map_id==564)
+                // in Tempest Keep, Serpentshrine Cavern, Caverns of Time: Mount Hyjal, Black Temple, Sunwell Plateau
+                if(zone_id ==3607 || map_id==534 || map_id==564 || zone_id==4075)
                     return true;
 
                 MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
@@ -2061,8 +2065,8 @@ bool IsSpellAllowedInLocation(SpellEntry const *spellInfo,uint32 map_id,uint32 z
     // special cases zone check (maps checked by multimap common id)
     switch(spellInfo->Id)
     {
-        case 41618:
-        case 41620:
+        case 41618:                                         // Bottled Nethergon Energy
+        case 41620:                                         // Bottled Nethergon Vapor
         {
             MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
             if(!mapEntry)
@@ -2070,9 +2074,8 @@ bool IsSpellAllowedInLocation(SpellEntry const *spellInfo,uint32 map_id,uint32 z
 
             return mapEntry->multimap_id==206;
         }
-
-        case 41617:
-        case 41619:
+        case 41617:                                         // Cenarion Mana Salve
+        case 41619:                                         // Cenarion Healing Salve
         {
             MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
             if(!mapEntry)
@@ -2080,14 +2083,9 @@ bool IsSpellAllowedInLocation(SpellEntry const *spellInfo,uint32 map_id,uint32 z
 
             return mapEntry->multimap_id==207;
         }
-        // Dragonmaw Illusion
-        case 40216:
-        case 42016:
-        {
-            if ( area_id != 3759 && area_id != 3966 && area_id != 3939 )
-                return false;
-            break;
-        }
+        case 40216:                                         // Dragonmaw Illusion
+        case 42016:                                         // Dragonmaw Illusion
+            return area_id == 3759 || area_id == 3966 || area_id == 3939;
     }
 
     return true;
