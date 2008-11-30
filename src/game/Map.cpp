@@ -642,22 +642,27 @@ bool Map::loaded(const GridPair &p) const
 
 void Map::Update(const uint32 &t_diff)
 {
-    for(std::vector<Unit*>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
+    for(std::vector<uint64>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
     {
-        (*iter)->m_Notified = true;
-        if(!(*iter)->IsInWorld())
+        Unit *unit = ObjectAccessor::GetObjectInWorld(*iter, (Unit*)NULL);
+        if(!unit) continue;
+        unit->m_Notified = true;
+        if(!unit->IsInWorld())
             continue;
-        CellPair val = Trinity::ComputeCellPair((*iter)->GetPositionX(), (*iter)->GetPositionY());
+        CellPair val = Trinity::ComputeCellPair(unit->GetPositionX(), unit->GetPositionY());
         Cell cell(val);
-        if((*iter)->GetTypeId() == TYPEID_PLAYER)
-            PlayerRelocationNotify((Player*)(*iter), cell, val);
+        if(unit->GetTypeId() == TYPEID_PLAYER)
+            PlayerRelocationNotify((Player*)unit, cell, val);
         else
-            CreatureRelocationNotify((Creature*)(*iter), cell, val);
+            CreatureRelocationNotify((Creature*)unit, cell, val);
     }
-    for(std::vector<Unit*>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
+    for(std::vector<uint64>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
     {
-        (*iter)->m_IsInNotifyList = false;
-        (*iter)->m_Notified = false;
+        if(Unit *unit = ObjectAccessor::GetObjectInWorld(*iter, (Unit*)NULL))
+        {
+            unit->m_IsInNotifyList = false;
+            unit->m_Notified = false;
+        }
     }
     i_unitsToNotify.clear();
 
@@ -2055,7 +2060,7 @@ void Map::AddUnitToNotify(Unit* u)
 {
     if(!u->m_IsInNotifyList)
     {
-        i_unitsToNotify.push_back(u);
+        i_unitsToNotify.push_back(u->GetGUID());
         u->m_IsInNotifyList = true;
     }
 }
