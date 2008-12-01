@@ -291,25 +291,8 @@ void WorldSession::HandleArenaTeamRemoveFromTeamOpcode(WorldPacket & recv_data)
     recv_data >> name;
 
     ArenaTeam *at = objmgr.GetArenaTeamById(ArenaTeamId);
-    if(!at)
-    {
-        // arena team not found
+    if(!at)                                                 // arena team not found
         return;
-    }
-
-    uint64 guid = objmgr.GetPlayerGUIDByName(name);
-    if(!guid)
-    {
-        // player guid not found
-        return;
-    }
-
-    if(at->GetCaptain() == guid)
-    {
-        // unsure
-        SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", "", ERR_ARENA_TEAM_PERMISSIONS);
-        return;
-    }
 
     if(at->GetCaptain() != _player->GetGUID())
     {
@@ -317,13 +300,20 @@ void WorldSession::HandleArenaTeamRemoveFromTeamOpcode(WorldPacket & recv_data)
         return;
     }
 
-    if(at->GetCaptain() == guid)
+    if(!normalizePlayerName(name))
+        return;
+
+    ArenaTeamMember* member = at->GetMember(name);
+    if(!member)                                             // member not found
+        return;
+
+    if(at->GetCaptain() == member->guid)
     {
         SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", "", ERR_ARENA_TEAM_LEADER_LEAVE_S);
         return;
     }
 
-    at->DelMember(guid);
+    at->DelMember(member->guid);
 
     // event
     WorldPacket data;
@@ -345,24 +335,8 @@ void WorldSession::HandleArenaTeamPromoteToCaptainOpcode(WorldPacket & recv_data
     recv_data >> name;
 
     ArenaTeam *at = objmgr.GetArenaTeamById(ArenaTeamId);
-    if(!at)
-    {
-        // arena team not found
+    if(!at)                                                 // arena team not found
         return;
-    }
-
-    uint64 guid = objmgr.GetPlayerGUIDByName(name);
-    if(!guid)
-    {
-        // player guid not found
-        return;
-    }
-
-    if(at->GetCaptain() == guid)
-    {
-        // target player already captain
-        return;
-    }
 
     if(at->GetCaptain() != _player->GetGUID())
     {
@@ -370,7 +344,17 @@ void WorldSession::HandleArenaTeamPromoteToCaptainOpcode(WorldPacket & recv_data
         return;
     }
 
-    at->SetCaptain(guid);
+    if(!normalizePlayerName(name))
+        return;
+
+    ArenaTeamMember* member = at->GetMember(name);
+    if(!member)                                             // member not found
+        return;
+
+    if(at->GetCaptain() == member->guid)                    // target player already captain
+        return;
+
+    at->SetCaptain(member->guid);
 
     // event
     WorldPacket data;
