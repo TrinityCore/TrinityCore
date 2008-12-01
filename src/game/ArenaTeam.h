@@ -94,7 +94,7 @@ struct ArenaTeamMember
     uint32 wins_week;
     uint32 games_season;
     uint32 wins_season;
-    uint32 personal_rating;
+    //uint32 personal_rating;
 };
 
 struct ArenaTeamStats
@@ -150,6 +150,14 @@ class ArenaTeam
         {
             for (MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
                 if(itr->guid==guid)
+                    return &(*itr);
+
+            return NULL;
+        }
+        ArenaTeamMember* GetMember(std::string& name)
+        {
+            for (MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
+                if(itr->name==name)
                     return &(*itr);
 
             return NULL;

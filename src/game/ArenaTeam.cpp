@@ -137,7 +137,7 @@ bool ArenaTeam::AddMember(uint64 PlayerGuid)
     newmember.games_week        = 0;
     newmember.wins_season       = 0;
     newmember.wins_week         = 0;
-    newmember.personal_rating   = 1500;
+    //newmember.personal_rating   = 1500;
     members.push_back(newmember);
 
     CharacterDatabase.PExecute("INSERT INTO arena_team_member (arenateamid,guid) VALUES ('%u', '%u')", Id, GUID_LOPART(newmember.guid));
@@ -150,6 +150,8 @@ bool ArenaTeam::AddMember(uint64 PlayerGuid)
         // hide promote/remove buttons
         if(CaptainGuid != PlayerGuid)
             pl->SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 1 + (GetSlot() * 6), 1);
+        // TODO: personal_rating
+        pl->SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (GetSlot() * 6) + 5, 1500);
     }
     else
     {
@@ -160,6 +162,8 @@ bool ArenaTeam::AddMember(uint64 PlayerGuid)
             // hide promote/remove buttons
             if(CaptainGuid != PlayerGuid)
                 Player::SetUInt32ValueInArray(tokens,PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 1 + (GetSlot() * 6), 1);
+            // TODO: personal_rating
+            Player::SetUInt32ValueInArray(tokens,PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (GetSlot() * 6) + 5, 1500);
 
             Player::SaveValuesArrayInDB(tokens,PlayerGuid);
         }
@@ -394,7 +398,9 @@ void ArenaTeam::Roster(WorldSession *session)
             data << uint32(itr->wins_week);                 // wins this week
             data << uint32(itr->games_season);              // played this season
             data << uint32(itr->wins_season);               // wins this season
-            data << uint32(itr->personal_rating);           // personal rating
+            //data << uint32(itr->personal_rating);           // personal rating
+            //TODO
+            data << uint32(pl->GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + GetSlot() * 6 + 5));
         }
         else
         {
@@ -408,7 +414,9 @@ void ArenaTeam::Roster(WorldSession *session)
             data << uint32(itr->wins_week);                 // wins this week
             data << uint32(itr->games_season);              // played this season
             data << uint32(itr->wins_season);               // wins this season
-            data << uint32(itr->personal_rating);           // personal rating
+            //data << uint32(itr->personal_rating);           // personal rating
+            //TODO
+            data << uint32(Player::GetUInt32ValueFromDB(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + GetSlot() * 6 + 5, itr->guid));
         }
     }
     session->SendPacket(&data);
@@ -469,7 +477,9 @@ void ArenaTeam::InspectStats(WorldSession *session, uint64 guid)
     data << uint32(stats.games_season);                     // season played
     data << uint32(stats.wins_season);                      // season wins
     data << member->games_season;                           // played (count of all games, that the inspected member participated...)
-    data << member->personal_rating;                        // personal rating
+    //data << member->personal_rating;                        // personal rating
+    //TODO
+    data << uint32(Player::GetUInt32ValueFromDB(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + GetSlot() * 6 + 5, guid));
     session->SendPacket(&data);
 }
 

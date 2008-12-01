@@ -519,7 +519,7 @@ void WorldSession::HandleTakeMoney(WorldPacket & recv_data )
 
     // save money and mail to prevent cheating
     CharacterDatabase.BeginTransaction();
-    pl->SetUInt32ValueInDB(PLAYER_FIELD_COINAGE,pl->GetMoney(),pl->GetGUID());
+    pl->SaveDataFieldToDB();                                // contains money
     pl->_SaveMail();
     CharacterDatabase.CommitTransaction();
 }
