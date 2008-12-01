@@ -129,7 +129,7 @@ bool AssistDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 
             if (assistant && assistant->CanAssistTo(&m_owner, victim))
             {
-                assistant->SetNoCallAssistence(true);
+                assistant->SetNoCallAssistance(true);
                 assistant->CombatStart(victim);
                 if(assistant->AI())
                     assistant->AI()->AttackStart(victim);
