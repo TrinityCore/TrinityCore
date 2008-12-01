@@ -33,8 +33,9 @@ EndScriptData */
 #define POD_DELTA   183964                                  //pod third boss wave
 #define POD_GAMMA   183962                                  //pod fourth boss wave
 #define POD_OMEGA   183965                                  //pod fifth boss wave
+#define WARDENS_SHIELD	184802								// warden shield
 
-#define MELLICHAR   21436                                   //skyriss will kill this unit
+#define MELLICHAR   20904                                   //skyriss will kill this unit
 
 /* Arcatraz encounters:
 1 - Zereketh the Unbound event
@@ -56,6 +57,7 @@ struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
     GameObject *Pod_Beta;
     GameObject *Pod_Delta;
     GameObject *Pod_Omega;
+	GameObject *Wardens_Shield;
 
     uint64 Mellichar;
 
@@ -68,6 +70,7 @@ struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
         Pod_Delta = NULL;
         Pod_Gamma = NULL;
         Pod_Omega = NULL;
+		Wardens_Shield = NULL;
 
         Mellichar = 0;
 
@@ -94,6 +97,7 @@ struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
             case POD_DELTA: Pod_Delta = go; break;
             case POD_GAMMA: Pod_Gamma = go; break;
             case POD_OMEGA: Pod_Omega = go; break;
+			case WARDENS_SHIELD: Wardens_Shield = go; break;
         }
     }
 
@@ -175,6 +179,12 @@ struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
                         Pod_Omega->UseDoorOrButton();
                 Encounter[8] = data;
                 break;
+			
+            case TYPE_SHIELD_OPEN:
+                if( data == IN_PROGRESS )
+                    if( Wardens_Shield )
+                        Wardens_Shield->UseDoorOrButton();
+                break;						
         }
     }
 
