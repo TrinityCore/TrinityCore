@@ -569,7 +569,7 @@ ObjectAccessor::Update(uint32 diff)
         {
             Object* obj = *i_objects.begin();
             i_objects.erase(i_objects.begin());
-            if (!obj)
+            if (!obj || !obj->IsInWorld())
                 continue;
             _buildUpdateObject(obj, update_players);
             obj->ClearUpdateMask(false);
