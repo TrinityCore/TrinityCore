@@ -199,6 +199,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
                             //should have a better way to do this. possibly spell exist.
                             mellic->setDeathState(JUST_DIED);
                             mellic->SetHealth(0);
+							pInstance->SetData(TYPE_SHIELD_OPEN,IN_PROGRESS);
                         }
                         ++Intro_Phase;
                         Intro_Timer = 3000;

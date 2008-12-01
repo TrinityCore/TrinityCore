@@ -311,6 +311,8 @@ CreatureAI* GetAI_npc_millhouse_manastorm(Creature *_Creature)
 #define SPELL_TARGET_OMEGA  36852
 #define SPELL_BUBBLE_VISUAL 36849
 
+#define GOBJECT_SHIELD				184802
+
 struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
 {
     npc_warden_mellicharAI(Creature *c) : ScriptedAI(c)
@@ -368,7 +370,7 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
         DoPlaySoundToSet(m_creature,SOUND_INTRO1);
         //possibly wrong spell OR should also cast second spell to make bubble appear (visual for this spell appear to be the correct)
         DoCast(m_creature,SPELL_BUBBLE_VISUAL);
-
+		
         if( pInstance )
         {
             pInstance->SetData(TYPE_HARBINGERSKYRISS,IN_PROGRESS);
@@ -411,6 +413,7 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
                 case 2:
                     DoCast(m_creature,SPELL_TARGET_ALPHA);
                     pInstance->SetData(TYPE_WARDEN_1,IN_PROGRESS);
+					m_creature->SummonGameObject(GOBJECT_SHIELD, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()-0.5, m_creature->GetOrientation(), 0, 0, 0, 0, 0);
                     break;
                 case 3:
                     DoCast(m_creature,SPELL_TARGET_BETA);
