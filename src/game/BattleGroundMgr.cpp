@@ -1587,7 +1587,7 @@ void BattleGroundMgr::DistributeArenaPoints()
         uint32 position = PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 6 * i + 2;
         CharacterDatabase.DirectPExecute("UPDATE characters SET data = CONCAT( SUBSTRING_INDEX(data,' ','%u'),' ','0',' ',SUBSTRING(data FROM (CHAR_LENGTH(SUBSTRING_INDEX(data,' ','%u')) + 2)))",position, position + 1);
     }
-    CharacterDatabase.DirectExecute("UPDATE arena_team_member SET points_to_add = '0', played_week = '0', wons_week = '0'");
+    CharacterDatabase.DirectExecute("UPDATE arena_team_member SET points_to_add = '0', games_week = '0', wins_week = '0'");
     CharacterDatabase.DirectExecute("UPDATE arena_team_stats SET games = '0', wins = '0'");
     CharacterDatabase.CommitTransaction();
 
