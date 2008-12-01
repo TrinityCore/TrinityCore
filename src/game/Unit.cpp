@@ -512,6 +512,8 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
             && (spell->m_spellInfo->ChannelInterruptFlags & flag)
             && spell->m_spellInfo->Id != except)
             InterruptNonMeleeSpells(false);
+
+    UpdateInterruptMask();
 }
 
 void Unit::UpdateInterruptMask()
@@ -2779,6 +2781,7 @@ void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool ex
         return;
 
     CombatStart(pVictim);
+    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ATTACK);
 
     uint32 hitInfo;
     if (attType == BASE_ATTACK)
@@ -9766,8 +9769,6 @@ void Unit::CombatStart(Unit* target)
 
     if(Player* attackedPlayer = target->GetCharmerOrOwnerPlayerOrPlayerItself())
         SetContestedPvP(attackedPlayer);
-
-    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ATTACK);
 }
 
 void Unit::SetInCombatState(bool PvP)
