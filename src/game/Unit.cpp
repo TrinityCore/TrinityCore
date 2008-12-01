@@ -9767,7 +9767,7 @@ void Unit::CombatStart(Unit* target)
         target->SetInCombatWith(this);
     }
 
-    if(Player* attackedPlayer = target->GetCharmerOrOwnerPlayerOrPlayerItself())
+    if(Player* attackedPlayer = GetCharmerOrOwnerPlayerOrPlayerItself())
         SetContestedPvP(attackedPlayer);
 }
 
