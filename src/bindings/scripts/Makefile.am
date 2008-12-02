@@ -173,6 +173,7 @@ scripts/zone/coilfang_resevoir/steam_vault/instance_steam_vault.cpp \
 scripts/zone/coilfang_resevoir/underbog/boss_hungarfen.cpp \
 scripts/zone/darkshore/darkshore.cpp \
 scripts/zone/deadmines/deadmines.cpp \
+scripts/zone/deadmines/def_deadmines.h \
 scripts/zone/dun_morogh/dun_morogh.cpp \
 scripts/zone/dustwallow_marsh/dustwallow_marsh.cpp \
 scripts/zone/eastern_plaguelands/eastern_plaguelands.cpp \
