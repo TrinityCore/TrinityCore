@@ -9768,7 +9768,7 @@ void Unit::CombatStart(Unit* target)
         target->SetInCombatWith(this);
     }
 
-    if(Player* attackedPlayer = GetCharmerOrOwnerPlayerOrPlayerItself())
+    if(Player* attackedPlayer = target->GetCharmerOrOwnerPlayerOrPlayerItself())
         SetContestedPvP(attackedPlayer);
 }
 
@@ -12363,7 +12363,7 @@ void Unit::SetContestedPvP(Player *attackedPlayer)
         player->addUnitState(UNIT_STAT_ATTACK_PLAYER);
         player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_CONTESTED_PVP);
         // call MoveInLineOfSight for nearby contested guards
-        SetVisibility(GetVisibility());
+        player->SetVisibility(GetVisibility());
     }
     if(!hasUnitState(UNIT_STAT_ATTACK_PLAYER))
     {
