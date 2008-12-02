@@ -870,7 +870,7 @@ GM.WhisperingTo   = 2
 GM.InGMList       = 0
 GM.InWhoList      = 0
 GM.LogTrade       = 1
-GM.StartLevel     = 1
+GM.StartLevel     = 70
 
 ###################################################################################################################
 # VISIBILITY AND RADIUSES
@@ -1200,19 +1200,6 @@ BattleGround.PrematureFinishTimer = 0
 ###################################################################################################################
 # CUSTOM SERVER OPTIONS
 #
-#	PlayerStart.Gold
-#		Amount of gold that new players will start with.
-#		If you want to start with silver, use for example 0.1 (for 10s)
-#		Default: 0
-#
-#	PlayerStart.HonorPoints
-#		Amount of honor that new players will start with
-#		Default: 0
-#
-#	PlayerStart.ArenaPoints
-#		Amount of arena points that new players will start with
-#		Default: 0
-#
 #	PlayerStart.AllReputation
 #		Players will start with most of the high level reputations that are needed for items, mounts etc.
 #		If there are any reputation faction you want to be added, just tell me.
@@ -1228,10 +1215,6 @@ BattleGround.PrematureFinishTimer = 0
 #
 #	PlayerStart.AllFlightPaths
 #		Players will start with all flight paths (Note: ALL flight paths, not only player's team)
-#
-#	GamemasterStartLevel
-#		GM starting level
-#		Default: 70 Min,max: 1 - 255
 #
 #	PlayerInstantLogout
 #		Enable or disable instant logout for all players (NOT in combat/while dueling/while falling)
@@ -1276,14 +1259,10 @@ BattleGround.PrematureFinishTimer = 0
 #
 ###################################################################################################################
 
-PlayerStart.Gold = 0
-PlayerStart.HonorPoints = 0
-PlayerStart.ArenaPoints = 0
 PlayerStart.AllReputation = 0
 PlayerStart.AllSpells = 0
 PlayerStart.MapsExplored = 0
 PlayerStart.AllFlightPaths = 0
-GamemasterStartLevel = 70
 PlayerInstantLogout = 0
 MusicInBattleground = 0
 HonorPointsAfterDuel = 0
