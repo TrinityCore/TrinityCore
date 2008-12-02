@@ -953,23 +953,6 @@ void World::LoadConfigSettings(bool reload)
 
     m_configs[CONFIG_MAX_WHO] = sConfig.GetIntDefault("MaxWhoListReturns", 49);
 
-    m_configs[CONFIG_PLAYER_START_GOLD] = (uint32)(sConfig.GetFloatDefault("PlayerStart.Gold", 0.0f) * 10000.0f);
-
-    if(m_configs[CONFIG_PLAYER_START_GOLD] > MAX_MONEY_AMOUNT)
-        m_configs[CONFIG_PLAYER_START_GOLD] = MAX_MONEY_AMOUNT;
-
-    m_configs[CONFIG_PLAYER_START_HONOR] = sConfig.GetIntDefault("PlayerStart.HonorPoints", 0);
-    if(m_configs[CONFIG_PLAYER_START_HONOR] < 0)
-        m_configs[CONFIG_PLAYER_START_HONOR] = 0;
-
-    m_configs[CONFIG_PLAYER_START_ARENAPTS] = sConfig.GetIntDefault("PlayerStart.ArenaPoints", 0);
-    if(m_configs[CONFIG_PLAYER_START_ARENAPTS] < 0)
-        m_configs[CONFIG_PLAYER_START_ARENAPTS] = 0;
-
-    m_configs[CONFIG_GM_START_LEVEL] = sConfig.GetIntDefault("GamemasterStartLevel", 1);
-    if(m_configs[CONFIG_GM_START_LEVEL] < 1)
-        m_configs[CONFIG_GM_START_LEVEL] = 1;
-
     m_configs[CONFIG_BG_START_MUSIC] = sConfig.GetBoolDefault("MusicInBattleground", false);
     m_configs[CONFIG_START_ALL_SPELLS] = sConfig.GetBoolDefault("PlayerStart.AllSpells", false);
     m_configs[CONFIG_HONOR_AFTER_DUEL] = sConfig.GetIntDefault("HonorPointsAfterDuel", 0);
