@@ -3070,6 +3070,9 @@ void Aura::HandleFeignDeath(bool apply, bool Real)
         data<<uint8(0);
         m_target->SendMessageToSet(&data,true);
         */
+
+        m_target->SetVisibility(VISIBILITY_OFF);
+        m_target->SetVisibility(VISIBILITY_ON);
                                                             // blizz like 2.0.x
         m_target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNKNOWN6);
                                                             // blizz like 2.0.x
