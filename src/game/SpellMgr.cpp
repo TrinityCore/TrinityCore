@@ -96,7 +96,8 @@ float GetSpellMinRange(SpellRangeEntry const *range)
         return 0;
     if (!range->minRange)
         if (range->flags==SPELL_RANGE_RANGED)
-            return 5.0;
+            //return 5.0;
+            return 2.0;//this is a hack, needs fix
     return range->minRange;
 }
 
