@@ -765,8 +765,9 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             // FORM_SPIRITOFREDEMPTION and related auras
             pVictim->CastSpell(pVictim,27827,true,NULL,spiritOfRedemtionTalentReady);
         }
-        //else
-        //    pVictim->SetHealth(0);
+        else //without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
+            //do not why since in IncreaseMaxHealth currenthealth is checked
+            pVictim->SetHealth(0);
 
         // remember victim PvP death for corpse type and corpse reclaim delay
         // at original death (not at SpiritOfRedemtionTalent timeout)
