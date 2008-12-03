@@ -9768,8 +9768,18 @@ void Unit::CombatStart(Unit* target)
         target->SetInCombatWith(this);
     }
 
-    if(Player* attackedPlayer = target->GetCharmerOrOwnerPlayerOrPlayerItself())
-        SetContestedPvP(attackedPlayer);
+    Unit *who = target->GetCharmerOrOwnerOrSelf();
+    if(who->GetTypeId() == TYPEID_PLAYER)
+        SetContestedPvP((Player*)who);
+
+    Player *me = GetCharmerOrOwnerPlayerOrPlayerItself();
+    if(me && who->IsPvP()
+        && (who->GetTypeId() != TYPEID_PLAYER
+        || !me->duel || me->duel->opponent != who))
+    {
+        me->UpdatePvP(true);
+        me->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
+    }
 }
 
 void Unit::SetInCombatState(bool PvP)
