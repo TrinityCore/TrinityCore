@@ -3188,35 +3188,6 @@ void Aura::HandleAuraModStun(bool apply, bool Real)
             data << uint32(0);
             m_target->SendMessageToSet(&data,true);
         }
-
-        // Wyvern Sting
-        if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_HUNTER && GetSpellProto()->SpellIconID == 1721)
-        {
-            Unit* caster = GetCaster();
-            if( !caster || caster->GetTypeId()!=TYPEID_PLAYER )
-                return;
-
-            uint32 spell_id = 0;
-
-            switch(GetId())
-            {
-                case 19386: spell_id = 24131; break;
-                case 24132: spell_id = 24134; break;
-                case 24133: spell_id = 24135; break;
-                case 27068: spell_id = 27069; break;
-                default:
-                    sLog.outError("Spell selection called for unexpected original spell %u, new spell for this spell family?",GetId());
-                    return;
-            }
-
-            SpellEntry const* spellInfo = sSpellStore.LookupEntry(spell_id);
-
-            if(!spellInfo)
-                return;
-
-            caster->CastSpell(m_target,spellInfo,true,NULL,this);
-            return;
-        }
     }
 }
 
