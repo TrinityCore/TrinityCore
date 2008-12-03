@@ -179,12 +179,17 @@ Map* MapInstanced::GetInstance(const WorldObject* obj)
                     map = CreateInstance(NewInstanceId, pSave, pSave->GetDifficulty());
                 return map;
             }
-            else
+            else if(!player->GetSession()->PlayerLoading())
             {
                 // if no instanceId via group members or instance saves is found
                 // the instance will be created for the first time
                 NewInstanceId = MapManager::Instance().GenerateInstanceId();
                 return CreateInstance(NewInstanceId, NULL, player->GetDifficulty());
+            }
+            else
+            {
+                sLog.outError("MAPINSTANCED: Player %s is trying to create instance (MapId %u) when login.", player->GetName(), player->GetMapId());
+                return NULL;
             }
         }
     }
