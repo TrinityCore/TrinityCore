@@ -647,7 +647,7 @@ void Spell::FillTargetMap()
         if(IsChanneledSpell(m_spellInfo) && !tmpUnitMap.empty())
             m_needAliveTargetMask  |= (1<<i);
 
-        if(m_caster->GetTypeId() == TYPEID_PLAYER)
+        /*if(m_caster->GetTypeId() == TYPEID_PLAYER)
         {
             Player *me = (Player*)m_caster;
             for (std::list<Unit*>::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end(); itr++)
@@ -661,7 +661,7 @@ void Spell::FillTargetMap()
                     break;
                 }
             }
-        }
+        }*/
 
         for (std::list<Unit*>::iterator itr = tmpUnitMap.begin() ; itr != tmpUnitMap.end();)
         {

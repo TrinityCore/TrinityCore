@@ -1167,13 +1167,13 @@ void Player::Update( uint32 p_time )
                 }
             }
 
-            Unit *owner = pVictim->GetOwner();
+            /*Unit *owner = pVictim->GetOwner();
             Unit *u = owner ? owner : pVictim;
             if(u->IsPvP() && (!duel || duel->opponent != u))
             {
                 UpdatePvP(true);
                 RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
-            }
+            }*/
         }
     }
 
