@@ -64,5 +64,9 @@ class TRINITY_DLL_SPEC InstanceData
 
         //called on creature creation
         virtual void OnCreatureCreate(Creature * /*creature*/, uint32 /*creature_entry*/) {}
+
+        //All-purpose data storage 32 bit
+        virtual uint32 GetData(uint32) { return 0; }
+        virtual void SetData(uint32, uint32 data) {}
 };
 #endif

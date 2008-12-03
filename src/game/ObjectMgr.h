@@ -216,9 +216,10 @@ enum ConditionType
     CONDITION_AD_COMMISSION_AURA    = 10,                   // 0            0,      for condition true while one from AD ñommission aura active
     CONDITION_NO_AURA               = 11,                   // spell_id     effindex
     CONDITION_ACTIVE_EVENT          = 12,                   // event_id
+    CONDITION_INSTANCE_DATA         = 13,                   // entry        data
 };
 
-#define MAX_CONDITION                 13                    // maximum value in ConditionType enum
+#define MAX_CONDITION                 14                    // maximum value in ConditionType enum
 
 //Player's info
 typedef struct _tagCachePlayerInfo
