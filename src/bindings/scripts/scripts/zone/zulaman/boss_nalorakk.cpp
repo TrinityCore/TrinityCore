@@ -16,27 +16,42 @@
 
 /* ScriptData
 SDName: Boss_Nalorakk
-SD%Complete: 80
-SDComment: Todo: Trash Waves
+SD%Complete: 100
+SDComment:
 SDCategory: Zul'Aman
 EndScriptData */
 
 #include "precompiled.h"
 #include "def_zulaman.h"
+#include "GridNotifiers.h"
 
-//TODO: Trash Waves
+//Trash Waves
+float NalorakkWay[8][3] = 
+{
+    { 18.569, 1414.512, 11.42},// waypoint 1
+    {-17.264, 1419.551, 12.62},
+    {-52.642, 1419.357, 27.31},// waypoint 2
+    {-69.908, 1419.721, 27.31},
+    {-79.929, 1395.958, 27.31}, 
+    {-80.072, 1374.555, 40.87},// waypoint 3
+    {-80.072, 1314.398, 40.87},    
+    {-80.072, 1295.775, 48.60} // waypoint 4
+};
+
+#define YELL_NALORAKK_WAVE1     "Get da move on, guards! It be killin' time!"
+#define SOUND_NALORAKK_WAVE1    12066
+#define YELL_NALORAKK_WAVE2     "Guards, go already! Who you more afraid of, dem... or me?"
+#define SOUND_NALORAKK_WAVE2    12067
+#define YELL_NALORAKK_WAVE3     "Ride now! Ride out dere and bring me back some heads!"
+#define SOUND_NALORAKK_WAVE3    12068
+#define YELL_NALORAKK_WAVE4     "I be losin' me patience! Go on: make dem wish dey was never born!"
+#define SOUND_NALORAKK_WAVE4    12069
 
 //Unimplemented SoundIDs
 /*
-#define SOUND_NALORAKK_WAVE1    12066
-#define SOUND_NALORAKK_WAVE2    12067
-#define SOUND_NALORAKK_WAVE3    12068
-#define SOUND_NALORAKK_WAVE4    12069
-
 #define SOUND_NALORAKK_EVENT1   12078
 #define SOUND_NALORAKK_EVENT2   12079
 */
-
 
 //General defines
 #define YELL_AGGRO              "You be dead soon enough!"
@@ -76,7 +91,10 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
 {
-    boss_nalorakkAI(Creature *c) : ScriptedAI(c) {
+    boss_nalorakkAI(Creature *c) : ScriptedAI(c)
+    {
+        MoveEvent = true;
+        MovePhase = 0;
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Reset();
     }
@@ -98,9 +116,26 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
     uint64 TankGUID;
 
     bool inBearForm;
+    bool MoveEvent;
+    bool inMove;
+    uint32 MovePhase;
+    uint32 waitTimer;
 
     void Reset()
     {
+        if(MoveEvent)
+        {
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            inMove = false;
+            waitTimer = 0;
+            m_creature->SetSpeed(MOVE_RUN,2);
+            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+        }else
+        {
+            (*m_creature).GetMotionMaster()->MovePoint(0,NalorakkWay[7][0],NalorakkWay[7][1],NalorakkWay[7][2]);
+        }
+
         if(pInstance)
             pInstance->SetData(DATA_NALORAKKEVENT, NOT_STARTED);
 
@@ -117,6 +152,119 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + 1, 5122);
     }
 
+    void SendAttacker(Unit* target)
+    {
+        std::list<Creature*> templist;
+        float x, y, z;
+        m_creature->GetPosition(x, y, z);
+
+        {
+            CellPair pair(Trinity::ComputeCellPair(x, y));
+            Cell cell(pair);
+            cell.data.Part.reserved = ALL_DISTRICT;
+            cell.SetNoCreate();
+
+            Trinity::AllFriendlyCreaturesInGrid check(m_creature);
+            Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> searcher(templist, check);
+
+            TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid>, GridTypeMapContainer> cSearcher(searcher);
+
+            CellLock<GridReadGuard> cell_lock(cell, pair);
+            cell_lock->Visit(cell_lock, cSearcher, *(m_creature->GetMap()));
+        }
+
+        if(!templist.size())
+            return;
+
+        for(std::list<Creature*>::iterator i = templist.begin(); i != templist.end(); ++i)
+        {
+            if((*i) && m_creature->IsWithinDistInMap((*i),25))
+            {
+                (*i)->SetNoCallAssistance(true);
+                (*i)->AI()->AttackStart(target);
+            }
+        }
+    }
+
+    void AttackStart(Unit* who)
+    {
+        if(!MoveEvent)
+            ScriptedAI::AttackStart(who);
+    }
+
+    void MoveInLineOfSight(Unit *who)
+    {
+        if(!MoveEvent)
+        {
+            ScriptedAI::MoveInLineOfSight(who);
+        }
+        else
+        {
+            if(m_creature->IsHostileTo( who ))
+            {
+                if(!inMove)
+                {
+                    switch(MovePhase)
+                    {
+                        case 0:
+                            if(m_creature->IsWithinDistInMap(who, 50))
+                            {
+                                DoYell(YELL_NALORAKK_WAVE1, LANG_UNIVERSAL, NULL);
+                                DoPlaySoundToSet(m_creature, SOUND_NALORAKK_WAVE1);
+
+                                (*m_creature).GetMotionMaster()->MovePoint(1,NalorakkWay[1][0],NalorakkWay[1][1],NalorakkWay[1][2]);
+                                MovePhase ++;
+                                inMove = true;
+
+                                SendAttacker(who);
+                            }
+                            break;
+                        case 2:
+                            if(m_creature->IsWithinDistInMap(who, 40))
+                            {
+                                DoYell(YELL_NALORAKK_WAVE2, LANG_UNIVERSAL, NULL);
+                                DoPlaySoundToSet(m_creature, SOUND_NALORAKK_WAVE2);
+
+                                (*m_creature).GetMotionMaster()->MovePoint(3,NalorakkWay[3][0],NalorakkWay[3][1],NalorakkWay[3][2]);
+                                MovePhase ++;
+                                inMove = true;
+
+                                SendAttacker(who);
+                            }
+                            break;
+                        case 5:
+                            if(m_creature->IsWithinDistInMap(who, 40))
+                            {
+                                DoYell(YELL_NALORAKK_WAVE3, LANG_UNIVERSAL, NULL);
+                                DoPlaySoundToSet(m_creature, SOUND_NALORAKK_WAVE3);
+
+                                (*m_creature).GetMotionMaster()->MovePoint(6,NalorakkWay[6][0],NalorakkWay[6][1],NalorakkWay[6][2]);
+                                MovePhase ++;
+                                inMove = true;
+
+                                SendAttacker(who);
+                            }
+                            break;
+                        case 7:
+                            if(m_creature->IsWithinDistInMap(who, 50))
+                            {
+                                SendAttacker(who);
+
+                                DoYell(YELL_NALORAKK_WAVE4, LANG_UNIVERSAL, NULL);
+                                DoPlaySoundToSet(m_creature, SOUND_NALORAKK_WAVE4);
+
+                                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    
+                                MoveEvent = false;
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
     void Aggro(Unit *who)
     {
         if(pInstance)
@@ -124,15 +272,15 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
 
         DoYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
         DoPlaySoundToSet(m_creature, SOUND_YELL_AGGRO);
-//        DoZoneInCombat();
+        DoZoneInCombat();
     }
 
     void JustDied(Unit* Killer)    
-    {	
+    {
         if(pInstance)
             pInstance->SetData(DATA_NALORAKKEVENT, DONE);
 
-        DoYell(YELL_DEATH,LANG_UNIVERSAL,NULL);		
+        DoYell(YELL_DEATH,LANG_UNIVERSAL,NULL);
         DoPlaySoundToSet(m_creature, SOUND_YELL_DEATH);  
     }
 
@@ -151,18 +299,67 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
         }
     }
 
-    void MovementInform(uint32, uint32)
+    void MovementInform(uint32 type, uint32 id)
     {
-        if(ChargeTargetGUID)
+        if(!MoveEvent)
         {
-            if(Unit* target = Unit::GetUnit(*m_creature, ChargeTargetGUID))
-                m_creature->CastSpell(target, SPELL_SURGE, true);
-            ChargeTargetGUID = 0;
+            if(ChargeTargetGUID)
+            {
+                if(Unit* target = Unit::GetUnit(*m_creature, ChargeTargetGUID))
+                    m_creature->CastSpell(target, SPELL_SURGE, true);
+                ChargeTargetGUID = 0;
+            }
+        }else 
+        {
+            if(type != POINT_MOTION_TYPE)
+                return;
+
+            if(!inMove)
+                return;
+
+            if(MovePhase != id)
+                return;
+
+            switch(MovePhase)
+            {
+                case 2:
+                    m_creature->SetOrientation(3.1415*2);
+                    inMove = false;
+                    return;
+                case 1:
+                case 3:
+                case 4:
+                case 6:
+                    MovePhase ++;
+                    waitTimer = 1;
+                    inMove = true;
+                    return;
+                case 5:
+                    m_creature->SetOrientation(3.1415*0.5);
+                    inMove = false;
+                    return;
+                case 7:
+                    m_creature->SetOrientation(3.1415*0.5);
+                    inMove = false;
+                    return;
+            }
+            
         }
     }
 
     void UpdateAI(const uint32 diff)
     {
+        if(waitTimer)
+        {
+            if(inMove)
+                if(waitTimer < diff)
+                {
+                    (*m_creature).GetMotionMaster()->MovementExpired();
+                    (*m_creature).GetMotionMaster()->MovePoint(MovePhase,NalorakkWay[MovePhase][0],NalorakkWay[MovePhase][1],NalorakkWay[MovePhase][2]);
+                    waitTimer = 0;
+                }else waitTimer -= diff;
+        }
+
         if(TankGUID)
         {
             if(!ChargeTargetGUID)
@@ -285,7 +482,7 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
             }else DeafeningRoar_Timer -= diff;
         }
 
-        DoMeleeAttackIfReady();
+        DoMeleeAttackIfReady();            
     }
 };
 
