@@ -45,6 +45,7 @@
 #include "SpellAuras.h"
 #include "Util.h"
 #include "WaypointManager.h"
+#include "InstanceData.h" //for condition_instance_data
 
 INSTANTIATE_SINGLETON_1(ObjectMgr);
 
@@ -6737,6 +6738,12 @@ bool PlayerCondition::Meets(Player const * player) const
             return !player->HasAura(value1, value2);
         case CONDITION_ACTIVE_EVENT:
             return gameeventmgr.IsActiveEvent(value1);
+        case CONDITION_INSTANCE_DATA:
+        {
+            Map *map = player->GetMap();
+            if(map && map->IsDungeon() && ((InstanceMap*)map)->GetInstanceData())
+                return ((InstanceMap*)map)->GetInstanceData()->GetData(value1) == value2;
+        }
         default:
             return false;
     }
@@ -6881,6 +6888,9 @@ bool PlayerCondition::IsValid(ConditionType condition, uint32 value1, uint32 val
             }
             break;
         }
+        case CONDITION_INSTANCE_DATA:
+            //TODO: need some check
+            break;
     }
     return true;
 }
