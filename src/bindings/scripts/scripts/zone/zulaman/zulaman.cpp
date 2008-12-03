@@ -103,7 +103,8 @@ CreatureAI* GetAI_npc_forest_frog(Creature *_Creature)
 
 #define GOSSIP_HOSTAGE1        "I am glad to help you."
 
-static uint32 HostageInfo[] = {23790, 23999, 24024, 24001};
+static uint32 HostageEntry[] = {23790, 23999, 24024, 24001};
+static uint32 ChestEntry[] = {186648, 187021, 186672, 186667};
 
 struct TRINITY_DLL_DECL npc_zulaman_hostageAI : public ScriptedAI
 {
@@ -142,11 +143,20 @@ bool GossipSelect_npc_zulaman_hostage(Player* player, Creature* _Creature, uint3
     ScriptedInstance* pInstance = ((ScriptedInstance*)_Creature->GetInstanceData());
     if(pInstance)
     {
-        uint8 progress = pInstance->GetData(DATA_CHESTLOOTED);
+        //uint8 progress = pInstance->GetData(DATA_CHESTLOOTED);
         pInstance->SetData(DATA_CHESTLOOTED, 0);
         float x, y, z;
         _Creature->GetPosition(x, y, z);
-        Creature* summon = _Creature->SummonCreature(HostageInfo[progress], x-2, y, z, 0, TEMPSUMMON_DEAD_DESPAWN, 0);
+        uint32 entry = _Creature->GetEntry();
+        for(uint8 i = 0; i < 4; ++i)
+        {
+            if(HostageEntry[i] == entry)
+            {
+                _Creature->SummonGameObject(ChestEntry[i], x-2, y, z, 0, 0, 0, 0, 0, 0);
+                break;
+            }
+        }
+        /*Creature* summon = _Creature->SummonCreature(HostageInfo[progress], x-2, y, z, 0, TEMPSUMMON_DEAD_DESPAWN, 0);
         if(summon)
         {
             ((npc_zulaman_hostageAI*)summon->AI())->PlayerGUID = player->GetGUID();
@@ -154,7 +164,7 @@ bool GossipSelect_npc_zulaman_hostage(Player* player, Creature* _Creature, uint3
             summon->SetDisplayId(10056);
             summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             summon->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-        }
+        }*/
     }
     return true;
 }
