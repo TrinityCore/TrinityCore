@@ -447,6 +447,7 @@ void Spell::FillTargetMap()
                 case SPELL_EFFECT_SUMMON_DEMON:
                 case SPELL_EFFECT_ADD_FARSIGHT:
                 case SPELL_EFFECT_TRIGGER_SPELL_2: //ritual of summon
+                case SPELL_EFFECT_TRIGGER_MISSILE:
                 {
                     tmpUnitMap.clear();
                     tmpUnitMap.push_back(m_caster);
