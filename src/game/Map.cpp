@@ -212,6 +212,7 @@ void Map::DeleteStateMachine()
 Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode)
   : i_id(id), i_gridExpiry(expiry), i_mapEntry (sMapStore.LookupEntry(id)),
  i_InstanceId(InstanceId), i_spawnMode(SpawnMode), m_unloadTimer(0)
+ , i_lock(false)
 {
     for(unsigned int idx=0; idx < MAX_NUMBER_OF_GRIDS; ++idx)
     {
@@ -642,6 +643,8 @@ bool Map::loaded(const GridPair &p) const
 
 void Map::Update(const uint32 &t_diff)
 {
+    //creatures may be added to the list during update
+    i_lock = true;
     for(std::vector<uint64>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
     {
         Unit *unit = ObjectAccessor::GetObjectInWorld(*iter, (Unit*)NULL);
@@ -665,6 +668,7 @@ void Map::Update(const uint32 &t_diff)
         }
     }
     i_unitsToNotify.clear();
+    i_lock = false;
 
     resetMarkedCells();
 
@@ -2058,7 +2062,7 @@ void BattleGroundMap::UnloadAll(bool pForce)
 
 void Map::AddUnitToNotify(Unit* u)
 {
-    if(!u->m_IsInNotifyList)
+    if(!i_lock && !u->m_IsInNotifyList)
     {
         i_unitsToNotify.push_back(u->GetGUID());
         u->m_IsInNotifyList = true;
