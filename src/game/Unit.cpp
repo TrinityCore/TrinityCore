@@ -9407,6 +9407,15 @@ bool Unit::IsImmunedToSpell(SpellEntry const* spellInfo, bool useCharges)
         }
     }
 
+    SpellImmuneList const& idList = m_spellImmune[IMMUNITY_ID];
+    for(SpellImmuneList::const_iterator itr = idList.begin(); itr != idList.end(); ++itr)
+    {
+        if(itr->type == spellInfo->Id)
+        {
+            return true;
+        }
+    }
+
     return false;
 }
 

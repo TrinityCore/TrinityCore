@@ -778,10 +778,11 @@ enum SpellImmunity
     IMMUNITY_SCHOOL                = 2,                     // enum SpellSchoolMask
     IMMUNITY_DAMAGE                = 3,                     // enum SpellSchoolMask
     IMMUNITY_DISPEL                = 4,                     // enum DispelType
-    IMMUNITY_MECHANIC              = 5                      // enum Mechanics
+    IMMUNITY_MECHANIC              = 5,                     // enum Mechanics
+    IMMUNITY_ID                    = 6
 };
 
-#define MAX_SPELL_IMMUNITY         6
+#define MAX_SPELL_IMMUNITY         7
 
 enum Targets
 {
