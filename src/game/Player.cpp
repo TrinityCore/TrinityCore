@@ -13914,6 +13914,37 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
 
     // load the player's map here if it's not already loaded
     Map *map = GetMap();
+    if (!map)
+    {
+        AreaTrigger const* at = objmgr.GetGoBackTrigger(GetMapId());
+        if(at)
+        {
+            SetMapId(at->target_mapId);
+            Relocate(at->target_X, at->target_Y, at->target_Z, GetOrientation());
+        }
+        else
+        {
+            SetMapId(m_homebindMapId);
+            Relocate(m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
+        }
+
+        map = GetMap();
+        if(!map)
+        {
+            sLog.outError("ERROR: Player (guidlow %d) have invalid coordinates (X: %f Y: %f Z: %f O: %f). Teleport to default race/class locations.",guid,GetPositionX(),GetPositionY(),GetPositionZ(),GetOrientation());
+
+            SetMapId(info->mapId);
+            Relocate(info->positionX,info->positionY,info->positionZ,0.0f);
+
+            map = GetMap();
+            if(!map)
+            {
+                sLog.outError("ERROR: Player (guidlow %d) have invalid coordinates (X: %f Y: %f Z: %f O: %f). Teleport to default race/class locations.",guid,GetPositionX(),GetPositionY(),GetPositionZ(),GetOrientation());
+                sLog.outError("CRASH.");
+                assert(false);
+            }
+        }
+    }
     // since the player may not be bound to the map yet, make sure subsequent
     // getmap calls won't create new maps
     SetInstanceId(map->GetInstanceId());
