@@ -65,6 +65,7 @@ class DynamicObject : public WorldObject
         uint32 m_spellId;
         uint32 m_effIndex;
         int32 m_aliveDuration;
+        uint32 m_updateTimer;
         time_t m_nextThinkTime;
         float m_radius;
         AffectedSet m_affected;
