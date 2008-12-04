@@ -138,7 +138,7 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
         {
             Unit* Temp =  Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_ALYTHESS));
             if (Temp && Temp->isAlive() && !(Temp->getVictim()))
-                Temp->getThreatManager().addThreat(who,0.0f);
+                ((Creature*)Temp)->AI()->AttackStart(who);
         }
     }
 
@@ -341,9 +341,9 @@ CreatureAI* GetAI_boss_sacrolash(Creature *_Creature)
     return new boss_sacrolashAI (_Creature);
 };
 
-struct TRINITY_DLL_DECL boss_alythessAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
 {
-    boss_alythessAI(Creature *c) : ScriptedAI(c)
+    boss_alythessAI(Creature *c) : Scripted_NoMovementAI(c)
     {
         pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
         Reset();
@@ -404,7 +404,7 @@ struct TRINITY_DLL_DECL boss_alythessAI : public ScriptedAI
         {
             Unit* Temp =  Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SACROLASH));
             if (Temp && Temp->isAlive() && !(Temp->getVictim()))
-				Temp->getThreatManager().addThreat(who,0.0f);
+				((Creature*)Temp)->AI()->AttackStart(who);
 		}
 	}
 
@@ -412,7 +412,7 @@ struct TRINITY_DLL_DECL boss_alythessAI : public ScriptedAI
 	{
 		if (!InCombat)
 		{
-			ScriptedAI::AttackStart(who);
+			Scripted_NoMovementAI::AttackStart(who);
 		}
 	}
 
