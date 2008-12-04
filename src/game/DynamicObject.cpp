@@ -86,6 +86,7 @@ bool DynamicObject::Create( uint32 guidlow, Unit *caster, uint32 spellId, uint32
     m_effIndex = effIndex;
     m_spellId = spellId;
     m_casterGuid = caster->GetGUID();
+    m_updateTimer = 0;
     return true;
 }
 
@@ -112,20 +113,24 @@ void DynamicObject::Update(uint32 p_time)
     else
         deleteThis = true;
 
-    // TODO: make a timer and update this in larger intervals
-    CellPair p(Trinity::ComputeCellPair(GetPositionX(), GetPositionY()));
-    Cell cell(p);
-    cell.data.Part.reserved = ALL_DISTRICT;
-    cell.SetNoCreate();
+    if(m_updateTimer < p_time)
+    {
+        CellPair p(Trinity::ComputeCellPair(GetPositionX(), GetPositionY()));
+        Cell cell(p);
+        cell.data.Part.reserved = ALL_DISTRICT;
+        cell.SetNoCreate();
 
-    Trinity::DynamicObjectUpdater notifier(*this,caster);
+        Trinity::DynamicObjectUpdater notifier(*this,caster);
 
-    TypeContainerVisitor<Trinity::DynamicObjectUpdater, WorldTypeMapContainer > world_object_notifier(notifier);
-    TypeContainerVisitor<Trinity::DynamicObjectUpdater, GridTypeMapContainer > grid_object_notifier(notifier);
+        TypeContainerVisitor<Trinity::DynamicObjectUpdater, WorldTypeMapContainer > world_object_notifier(notifier);
+        TypeContainerVisitor<Trinity::DynamicObjectUpdater, GridTypeMapContainer > grid_object_notifier(notifier);
 
-    CellLock<GridReadGuard> cell_lock(cell, p);
-    cell_lock->Visit(cell_lock, world_object_notifier, *MapManager::Instance().GetMap(GetMapId(), this));
-    cell_lock->Visit(cell_lock, grid_object_notifier,  *MapManager::Instance().GetMap(GetMapId(), this));
+        CellLock<GridReadGuard> cell_lock(cell, p);
+        cell_lock->Visit(cell_lock, world_object_notifier, *GetMap());
+        cell_lock->Visit(cell_lock, grid_object_notifier,  *GetMap());
+
+        m_updateTimer = 500; // is this official-like?
+    }else m_updateTimer -= p_time;
 
     if(deleteThis)
     {
