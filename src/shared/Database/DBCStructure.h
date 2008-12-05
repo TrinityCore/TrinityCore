@@ -686,7 +686,7 @@ struct SpellRangeEntry
     uint32    ID;
     float     minRange;
     float     maxRange;
-    uint32    flags;
+    uint32    type;
 };
 
 struct SpellShapeshiftEntry

@@ -4670,19 +4670,35 @@ bool Spell::CanAutoCast(Unit* target)
 
 uint8 Spell::CheckRange(bool strict)
 {
-    float range_mod;
+    //float range_mod;
 
     // self cast doesn't need range checking -- also for Starshards fix
     if (m_spellInfo->rangeIndex == 1) return 0;
 
-    if (strict)                                             //add radius of caster
+    // i do not know why we need this
+    /*if (strict)                                             //add radius of caster
         range_mod = 1.25;
     else                                                    //add radius of caster and ~5 yds "give"
-        range_mod = 6.25;
+        range_mod = 6.25;*/
 
     SpellRangeEntry const* srange = sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex);
-    float max_range = GetSpellMaxRange(srange) + range_mod;
-    float min_range = GetSpellMinRange(srange);
+    float max_range, min_range;
+    float range_type = GetSpellRangeType(srange);
+    if(range_type == SPELL_RANGE_DEFAULT)
+    {
+        max_range = GetSpellMaxRange(srange);// + range_mod;
+        min_range = GetSpellMinRange(srange);
+    }
+    else if(range_type == SPELL_RANGE_MELEE)
+    {
+        max_range = ATTACK_DISTANCE;
+        min_range = GetSpellMinRange(srange);
+    }
+    else
+    {
+        max_range = GetSpellMaxRange(srange);// + range_mod;
+        min_range = ATTACK_DISTANCE;
+    }
 
     if(Player* modOwner = m_caster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, max_range, this);
@@ -4694,8 +4710,10 @@ uint8 Spell::CheckRange(bool strict)
         // distance from target center in checks
         if(!m_caster->IsWithinCombatDist(target, max_range))
             return SPELL_FAILED_OUT_OF_RANGE;               //0x5A;
+
         if(min_range && m_caster->IsWithinCombatDist(target, min_range)) // skip this check if min_range = 0
             return SPELL_FAILED_TOO_CLOSE;
+
         if( m_caster->GetTypeId() == TYPEID_PLAYER &&
             (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc( M_PI, target ) )
             return SPELL_FAILED_UNIT_NOT_INFRONT;

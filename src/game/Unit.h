@@ -774,6 +774,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool canReachWithAttack(Unit *pVictim) const;
         float GetCombatReach() const { return m_floatValues[UNIT_FIELD_COMBATREACH]; }
         bool IsWithinCombatDist(Unit *obj, float dist2compare) const;
+        bool IsWithinMeleeRange(Unit *obj) const { return IsWithinCombatDist(obj, ATTACK_DISTANCE); }
         void GetRandomContactPoint( const Unit* target, float &x, float &y, float &z, float distance2dMin, float distance2dMax ) const;
         uint32 m_extraAttacks;
         bool m_canDualWield;
