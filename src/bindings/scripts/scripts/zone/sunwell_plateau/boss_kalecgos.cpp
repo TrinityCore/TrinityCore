@@ -351,7 +351,7 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit *killer)
     {
         DoYell(SATH_SAY_DIE, LANG_UNIVERSAL, NULL);
         DoPlaySoundToSet(m_creature, SATH_SOUND_DIE);
@@ -394,7 +394,7 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
                 {
                     if(((boss_kalecgosAI*)((Creature*)Kalecgos)->AI())->isBanished)
                     {
-                        m_creature->setDeathState(JUST_DIED);
+                        m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                         return;
                     }
                     else
@@ -578,7 +578,10 @@ void boss_kalecgosAI::UpdateAI(const uint32 diff)
                 if(Unit *Sath = Unit::GetUnit(*m_creature, SathGUID))
                 {
                     if(((boss_sathrovarrAI*)((Creature*)Sath)->AI())->isBanished)
-                        Sath->setDeathState(JUST_DIED);
+                    {
+                        Sath->DealDamage(Sath, Sath->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        return;
+                    }
                     else
                     {
                         m_creature->CastSpell(m_creature, SPELL_BANISH, true);
