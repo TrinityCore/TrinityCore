@@ -90,16 +90,6 @@ uint32 GetSpellCastTime(SpellEntry const* spellInfo, Spell const* spell)
 
     return (castTime > 0) ? uint32(castTime) : 0;
 }
-float GetSpellMinRange(SpellRangeEntry const *range)
-{
-    if (!range)
-        return 0;
-    if (!range->minRange)
-        if (range->flags==SPELL_RANGE_RANGED)
-            //return 5.0;
-            return 2.0;//this is a hack, needs fix
-    return range->minRange;
-}
 
 bool IsPassiveSpell(uint32 spellId)
 {
