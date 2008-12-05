@@ -200,13 +200,6 @@ enum SpellCategory
     SPELL_CATEGORY_DRINK            = 59,
 };
 
-enum SpellRangeFlag
-{
-    SPELL_RANGE_DEFAULT             = 0,
-    SPELL_RANGE_MEELE               = 1,     //unused
-    SPELL_RANGE_RANGED              = 2,     //hunters' shoots, auto shoot, shoot, deadly throw, throw
-};
-
 // ***********************************
 // Spell Attributes definitions
 // ***********************************
