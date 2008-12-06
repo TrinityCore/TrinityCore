@@ -326,7 +326,7 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
         if( m_creature->isAttackReady() && !m_creature->IsNonMeleeSpellCasted(false))
         {   
             //If we are within range melee the target
-            if( m_creature->IsWithinCombatDist(m_creature->getVictim(), ATTACK_DISTANCE))
+            if( m_creature->IsWithinMeleeRange(m_creature->getVictim()))
             {
                 HandleTouchedSpells(m_creature->getVictim(), SPELL_DARK_TOUCHED);
                 m_creature->AttackerStateUpdate(m_creature->getVictim());
@@ -736,7 +736,7 @@ struct TRINITY_DLL_DECL mob_shadow_imageAI : public ScriptedAI
             if(!m_creature->IsNonMeleeSpellCasted(false))
             {   
                 //If we are within range melee the target
-                if( m_creature->IsWithinCombatDist(m_creature->getVictim(), ATTACK_DISTANCE))
+                if( m_creature->IsWithinMeleeRange(m_creature->getVictim()))
                 {
                     DoCast(m_creature->getVictim(),SPELL_DARK_STRIKE);
                 }

@@ -1036,7 +1036,7 @@ struct TRINITY_DLL_DECL claw_tentacleAI : public Scripted_NoMovementAI
             return;
 
         //EvadeTimer
-        if (m_creature->GetDistance(m_creature->getVictim()) > ATTACK_DISTANCE)
+        if (!m_creature->IsWithinMeleeRange(m_creature->getVictim()))
             if (EvadeTimer < diff)
         {
             Unit* p = Unit::GetUnit(*m_creature, Portal);
@@ -1133,7 +1133,7 @@ struct TRINITY_DLL_DECL giant_claw_tentacleAI : public Scripted_NoMovementAI
             return;
 
         //EvadeTimer
-        if (m_creature->GetDistance(m_creature->getVictim()) > ATTACK_DISTANCE)
+        if (!m_creature->IsWithinMeleeRange(m_creature->getVictim()))
             if (EvadeTimer < diff)
         {
             Unit* p = Unit::GetUnit(*m_creature, Portal);

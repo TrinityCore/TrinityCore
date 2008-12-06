@@ -156,7 +156,7 @@ void PetAI::UpdateAI(const uint32 diff)
             _stopAttack();
             return;
         }
-        else if( i_pet.IsStopped() || i_pet.IsWithinDistInMap(i_pet.getVictim(), ATTACK_DISTANCE))
+        else if( i_pet.IsStopped() || i_pet.IsWithinMeleeRange(i_pet.getVictim()))
         {
             // required to be stopped cases
             if ( i_pet.IsStopped() && i_pet.IsNonMeleeSpellCasted(false) )
@@ -167,7 +167,7 @@ void PetAI::UpdateAI(const uint32 diff)
                     return;
             }
             // not required to be stopped case
-            else if( i_pet.isAttackReady() && i_pet.IsWithinCombatDist(i_pet.getVictim(), ATTACK_DISTANCE) )
+            else if( i_pet.isAttackReady() && i_pet.IsWithinMeleeRange(i_pet.getVictim()) )
             {
                 i_pet.AttackerStateUpdate(i_pet.getVictim());
 
@@ -341,6 +341,6 @@ void PetAI::AttackedBy(Unit *attacker)
 {
     //when attacked, fight back in case 1)no victim already AND 2)not set to passive AND 3)not set to stay, unless can it can reach attacker with melee attack anyway
     if(!i_pet.getVictim() && i_pet.GetCharmInfo() && !i_pet.GetCharmInfo()->HasReactState(REACT_PASSIVE) &&
-        (!i_pet.GetCharmInfo()->HasCommandState(COMMAND_STAY) || i_pet.canReachWithAttack(attacker)))
+        (!i_pet.GetCharmInfo()->HasCommandState(COMMAND_STAY) || i_pet.IsWithinMeleeRange(attacker)))
         AttackStart(attacker);
 }

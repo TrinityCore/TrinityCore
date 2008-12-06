@@ -420,13 +420,7 @@ void Unit::resetAttackTimer(WeaponAttackType type)
     m_attackTimer[type] = uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]);
 }
 
-bool Unit::canReachWithAttack(Unit *pVictim) const
-{
-    assert(pVictim);
-    return IsWithinDistInMap(pVictim, GetCombatReach());
-}
-
-bool Unit::IsWithinCombatDist(Unit *obj, float dist2compare) const
+bool Unit::IsWithinCombatRange(Unit *obj, float dist2compare) const
 {
     if (!obj || !IsInMap(obj)) return false;
 
@@ -434,9 +428,24 @@ bool Unit::IsWithinCombatDist(Unit *obj, float dist2compare) const
     float dy = GetPositionY() - obj->GetPositionY();
     float dz = GetPositionZ() - obj->GetPositionZ();
     float distsq = dx*dx + dy*dy + dz*dz;
-    //not sure here, or combatreach + combatreach?
+
     float sizefactor = GetCombatReach() + obj->GetCombatReach();
     float maxdist = dist2compare + sizefactor;
+
+    return distsq < maxdist * maxdist;
+}
+
+bool Unit::IsWithinMeleeRange(Unit *obj) const
+{
+    if (!obj || !IsInMap(obj)) return false;
+
+    float dx = GetPositionX() - obj->GetPositionX();
+    float dy = GetPositionY() - obj->GetPositionY();
+    float dz = GetPositionZ() - obj->GetPositionZ();
+    float distsq = dx*dx + dy*dy + dz*dz;
+
+    float sizefactor = GetMeleeReach() + obj->GetMeleeReach();
+    float maxdist = MELEE_RANGE + sizefactor;
 
     return distsq < maxdist * maxdist;
 }

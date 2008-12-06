@@ -134,7 +134,7 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
                         targetZ != pUnit->GetPositionZ() ||
                         pUnit->isInCombat()))
                     {
-                        if(m_creature->IsWithinDistInMap(pUnit, ATTACK_DISTANCE))
+                        if(m_creature->IsWithinMeleeRange(pUnit))
                         {
                             DoCast(pUnit,24316);
                         }
@@ -200,7 +200,7 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
                     for(; i != m_creature->getThreatManager().getThreatList().end(); ++i)
                     {
                         Unit* pUnit = Unit::GetUnit(*m_creature, (*i)->getUnitGuid());
-                        if(pUnit && m_creature->IsWithinDistInMap(pUnit, ATTACK_DISTANCE))
+                        if(pUnit && m_creature->IsWithinMeleeRange(pUnit))
                             TargetInRange++;
                     }
 
