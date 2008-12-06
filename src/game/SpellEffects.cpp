@@ -56,8 +56,8 @@
 #include "SocialMgr.h"
 #include "Util.h"
 #include "TemporarySummon.h"
+#include "ScriptCalls.h"
 #include "CellImpl.h"
-#include "ScriptCalls.h" // for goober gameobject script
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -980,9 +980,14 @@ void Spell::EffectDummy(uint32 i)
                     return;
                 }
                 case 37674:                                 // Chaos Blast
-                    if(unitTarget)
-                        m_caster->CastSpell(unitTarget,37675,true);
+                {
+                    if(!unitTarget)
+                        return;
+
+                    int32 basepoints0 = 100;
+                    m_caster->CastCustomSpell(unitTarget,37675,&basepoints0,NULL,NULL,true);
                     return;
+                }
                 case 40802:                                 // Mingo's Fortune Generator (Mingo's Fortune Giblets)
                 {
                     // selecting one from Bloodstained Fortune item
@@ -2128,7 +2133,7 @@ void Spell::EffectApplyAura(uint32 i)
 
     // Prayer of Mending (jump animation), we need formal caster instead original for correct animation
     if( m_spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST && (m_spellInfo->SpellFamilyFlags & 0x00002000000000LL))
-        m_caster->CastSpell(unitTarget,41637,true,NULL,Aur,m_originalCasterGUID);
+        m_caster->CastSpell(unitTarget, 41637, true, NULL, Aur, m_originalCasterGUID);
 }
 
 void Spell::EffectUnlearnSpecialization( uint32 i )
@@ -2712,6 +2717,9 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
 
     if (gameObjTarget)
     {
+        if (Script->GOHello(player, gameObjTarget))
+            return;
+
         switch (gameObjTarget->GetGoType())
         {
             case GAMEOBJECT_TYPE_DOOR:
@@ -4558,6 +4566,38 @@ void Spell::EffectScriptEffect(uint32 effIndex)
     // by spell id
     switch(m_spellInfo->Id)
     {
+        // PX-238 Winter Wondervolt TRAP
+        case 26275:
+        {
+            if( unitTarget->HasAura(26272,0)
+             || unitTarget->HasAura(26157,0)
+             || unitTarget->HasAura(26273,0)
+             || unitTarget->HasAura(26274,0))
+                return;
+
+            uint32 iTmpSpellId;
+
+            switch(urand(0,3))
+            {
+                case 0:
+                    iTmpSpellId = 26272;
+                    break;
+                case 1:
+                    iTmpSpellId = 26157;
+                    break;
+                case 2:
+                    iTmpSpellId = 26273;
+                    break;
+                case 3:
+                    iTmpSpellId = 26274;
+                    break;
+            }
+
+            unitTarget->CastSpell(unitTarget, iTmpSpellId, true);
+
+            return;
+        }
+
         // Bending Shinbone
         case 8856:
         {
