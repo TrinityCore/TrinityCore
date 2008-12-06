@@ -116,7 +116,7 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
                     {
                         target = SelectUnit(SELECT_TARGET_TOPAGGRO,i);
                         if(target)
-                            if(m_creature->IsWithinDistInMap(target, ATTACK_DISTANCE))
+                            if(m_creature->IsWithinMeleeRange(target))
                                 TargetInRange++;
                     }
 

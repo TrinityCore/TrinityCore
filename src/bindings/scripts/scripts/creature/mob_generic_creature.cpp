@@ -42,10 +42,10 @@ struct TRINITY_DLL_DECL generic_creatureAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-            if (!m_creature->IsWithinCombatDist(who, ATTACK_DISTANCE))
-            {
-                IsSelfRooted = true;
-            }
+        if (!m_creature->IsWithinMeleeRange(who))
+        {
+            IsSelfRooted = true;
+        }
     }
 
     void UpdateAI(const uint32 diff)
@@ -81,7 +81,7 @@ struct TRINITY_DLL_DECL generic_creatureAI : public ScriptedAI
             return;
 
         //If we are within range melee the target
-        if( m_creature->IsWithinCombatDist(m_creature->getVictim(), ATTACK_DISTANCE))
+        if( m_creature->IsWithinMeleeRange(m_creature->getVictim()))
         {
             //Make sure our attack is ready and we arn't currently casting
             if( m_creature->isAttackReady() && !m_creature->IsNonMeleeSpellCasted(false))
@@ -126,7 +126,7 @@ struct TRINITY_DLL_DECL generic_creatureAI : public ScriptedAI
 
                 //No healing spell available, See if we can cast a ranged spell (Range must be greater than ATTACK_DISTANCE)
                 if (info) Healing = true;
-                else info = SelectSpell(m_creature->getVictim(), -1, -1, SELECT_TARGET_ANY_ENEMY, 0, 0, ATTACK_DISTANCE, 0, SELECT_EFFECT_DONTCARE);
+                else info = SelectSpell(m_creature->getVictim(), -1, -1, SELECT_TARGET_ANY_ENEMY, 0, 0, NOMINAL_MELEE_RANGE, 0, SELECT_EFFECT_DONTCARE);
 
                 //Found a spell, check if we arn't on cooldown
                 if (info && !GlobalCooldown)

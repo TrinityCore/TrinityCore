@@ -397,7 +397,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
     {
         if(m_creature->isAttackReady() && !m_creature->IsNonMeleeSpellCasted(false))
         {
-            if(m_creature->IsWithinCombatDist(m_creature->getVictim(), ATTACK_DISTANCE))
+            if(m_creature->IsWithinMeleeRange(m_creature->getVictim()))
             {
                 m_creature->AttackerStateUpdate(m_creature->getVictim());
                 m_creature->resetAttackTimer();

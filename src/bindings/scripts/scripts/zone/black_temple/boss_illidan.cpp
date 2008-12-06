@@ -1741,7 +1741,7 @@ struct TRINITY_DLL_DECL mob_parasitic_shadowfiendAI : public ScriptedAI
 
     void DoMeleeAttackIfReady()
     {
-        if( m_creature->isAttackReady() && m_creature->IsWithinCombatDist(m_creature->getVictim(), ATTACK_DISTANCE))
+        if( m_creature->isAttackReady() && m_creature->IsWithinMeleeRange(m_creature->getVictim()))
         {
             if(!m_creature->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND, 0) && !m_creature->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND2, 0))
             {

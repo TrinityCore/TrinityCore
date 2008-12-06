@@ -477,11 +477,11 @@ void World::LoadConfigSettings(bool reload)
         sLog.outError("TargetPosRecalculateRange (%f) must be >= %f. Using %f instead.",rate_values[RATE_TARGET_POS_RECALCULATION_RANGE],CONTACT_DISTANCE,CONTACT_DISTANCE);
         rate_values[RATE_TARGET_POS_RECALCULATION_RANGE] = CONTACT_DISTANCE;
     }
-    else if(rate_values[RATE_TARGET_POS_RECALCULATION_RANGE] > ATTACK_DISTANCE)
+    else if(rate_values[RATE_TARGET_POS_RECALCULATION_RANGE] > NOMINAL_MELEE_RANGE)
     {
         sLog.outError("TargetPosRecalculateRange (%f) must be <= %f. Using %f instead.",
-            rate_values[RATE_TARGET_POS_RECALCULATION_RANGE],ATTACK_DISTANCE,ATTACK_DISTANCE);
-        rate_values[RATE_TARGET_POS_RECALCULATION_RANGE] = ATTACK_DISTANCE;
+            rate_values[RATE_TARGET_POS_RECALCULATION_RANGE],NOMINAL_MELEE_RANGE,NOMINAL_MELEE_RANGE);
+        rate_values[RATE_TARGET_POS_RECALCULATION_RANGE] = NOMINAL_MELEE_RANGE;
     }
 
     rate_values[RATE_DURABILITY_LOSS_DAMAGE] = sConfig.GetFloatDefault("DurabilityLossChance.Damage",0.5f);

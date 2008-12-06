@@ -60,7 +60,7 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
     if(!i_offset)
     {
         // to nearest random contact position 
-        i_target->GetRandomContactPoint( &owner, x, y, z, 0.5f, ATTACK_DISTANCE - 0.5f );
+        i_target->GetRandomContactPoint( &owner, x, y, z, 0, MELEE_RANGE - 0.5f );
     }
     else
     {
@@ -185,7 +185,7 @@ TargetedMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
             owner.SetInFront(i_target.getTarget());
 
             owner.StopMoving();
-            if(owner.IsWithinCombatDist(i_target.getTarget(), ATTACK_DISTANCE) && !owner.hasUnitState(UNIT_STAT_FOLLOW))
+            if(owner.IsWithinMeleeRange(i_target.getTarget()) && !owner.hasUnitState(UNIT_STAT_FOLLOW))
                 owner.Attack(i_target.getTarget(),true);
         }
     }

@@ -86,7 +86,7 @@ void guardAI::UpdateAI(const uint32 diff)
     if( m_creature->isAttackReady() && !m_creature->IsNonMeleeSpellCasted(false))
     {
         //If we are within range melee the target
-        if( m_creature->IsWithinCombatDist(m_creature->getVictim(), ATTACK_DISTANCE))
+        if( m_creature->IsWithinMeleeRange(m_creature->getVictim()))
         {
             bool Healing = false;
             SpellEntry const *info = NULL;
@@ -128,7 +128,7 @@ void guardAI::UpdateAI(const uint32 diff)
 
             //No healing spell available, See if we can cast a ranged spell (Range must be greater than ATTACK_DISTANCE)
             if (info) Healing = true;
-            else info = SelectSpell(m_creature->getVictim(), -1, -1, SELECT_TARGET_ANY_ENEMY, 0, 0, ATTACK_DISTANCE, 0, SELECT_EFFECT_DONTCARE);
+            else info = SelectSpell(m_creature->getVictim(), -1, -1, SELECT_TARGET_ANY_ENEMY, 0, 0, NOMINAL_MELEE_RANGE, 0, SELECT_EFFECT_DONTCARE);
 
             //Found a spell, check if we arn't on cooldown
             if (info && !GlobalCooldown)

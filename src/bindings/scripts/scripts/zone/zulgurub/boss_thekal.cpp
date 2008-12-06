@@ -311,11 +311,11 @@ struct TRINITY_DLL_DECL mob_zealot_lorkhanAI : public ScriptedAI
                 switch(rand()%2)
                 {
                     case 0:
-                        if(m_creature->IsWithinDistInMap(pThekal, ATTACK_DISTANCE))
+                        if(m_creature->IsWithinMeleeRange(pThekal))
                             DoCast(pThekal, SPELL_GREATERHEAL);
                         break;
                     case 1:
-                        if(m_creature->IsWithinDistInMap(pZath, ATTACK_DISTANCE))
+                        if(m_creature->IsWithinMeleeRange(pZath))
                             DoCast(pZath, SPELL_GREATERHEAL);
                         break;
                 }

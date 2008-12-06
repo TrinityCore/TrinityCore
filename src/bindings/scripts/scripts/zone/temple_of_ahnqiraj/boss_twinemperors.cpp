@@ -206,55 +206,6 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
         } else Heal_Timer -= diff;
     }
 
-    Unit *GetAnyoneCloseEnough(float dist, bool totallyRandom)
-    {
-        int cnt = 0;
-        std::list<HostilReference*>::iterator i;
-        std::list<HostilReference*> candidates;
-
-        for (i = m_creature->getThreatManager().getThreatList().begin();i != m_creature->getThreatManager().getThreatList().end(); ++i)
-        {
-            Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
-            if (m_creature->IsWithinDistInMap(pUnit, dist))
-            {
-                if (!totallyRandom)
-                    return pUnit;
-                candidates.push_back((*i));
-                cnt ++;
-            }
-        }
-        if (!cnt)
-            return NULL;
-        for (int randomi = rand() % cnt; randomi > 0; randomi --)
-            candidates.pop_front();
-
-        i = candidates.begin();
-        Unit *ret = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
-        candidates.clear();
-        return ret;
-    }
-
-    Unit *PickNearestPlayer()
-    {
-        Unit *nearp = NULL;
-        float neardist = 0.0f;
-        std::list<HostilReference*>::iterator i;
-        for (i = m_creature->getThreatManager().getThreatList().begin();i != m_creature->getThreatManager().getThreatList().end(); ++i)
-        {
-            Unit* pUnit = NULL;
-            pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
-            if (!pUnit)
-                continue;
-            float pudist = pUnit->GetDistance((const Creature *)m_creature);
-            if (!nearp || (neardist > pudist))
-            {
-                nearp = pUnit;
-                neardist = pudist;
-            }
-        }
-        return nearp;
-    }
-
     void TeleportToMyBrother()
     {
         if (!pInstance)
@@ -313,7 +264,7 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
             {
                 AfterTeleport = false;
                 m_creature->clearUnitState(UNIT_STAT_STUNNED);
-                Unit *nearu = PickNearestPlayer();
+                Unit *nearu = m_creature->SelectNearestTarget(100);
                 //DoYell(nearu->GetName(), LANG_UNIVERSAL, 0);
                 AttackStart(nearu);
                 m_creature->getThreatManager().addThreat(nearu, 10000);
@@ -520,7 +471,7 @@ struct TRINITY_DLL_DECL boss_veknilashAI : public boss_twinemperorsAI
 
         if (UpperCut_Timer < diff)
         {
-            Unit* randomMelee = GetAnyoneCloseEnough(ATTACK_DISTANCE, true);
+            Unit* randomMelee = SelectUnit(SELECT_TARGET_RANDOM, 0, NOMINAL_MELEE_RANGE, true);
             if (randomMelee)
                 DoCast(randomMelee,SPELL_UPPERCUT);
             UpperCut_Timer = 15000+rand()%15000;
@@ -616,7 +567,7 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
         if (Blizzard_Timer < diff)
         {
             Unit* target = NULL;
-            target = GetAnyoneCloseEnough(45, true);
+            target = SelectUnit(SELECT_TARGET_RANDOM, 0, 45, true);
             if (target)
                 DoCast(target,SPELL_BLIZZARD);
             Blizzard_Timer = 15000+rand()%15000;
@@ -625,7 +576,7 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
         if (ArcaneBurst_Timer < diff)
         {
             Unit *mvic;
-            if ((mvic=GetAnyoneCloseEnough(ATTACK_DISTANCE, false))!=NULL)
+            if ((mvic=SelectUnit(SELECT_TARGET_NEAREST, 0, NOMINAL_MELEE_RANGE, true))!=NULL)
             {
                 DoCast(mvic,SPELL_ARCANEBURST);
                 ArcaneBurst_Timer = 5000;
