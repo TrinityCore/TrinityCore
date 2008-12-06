@@ -243,7 +243,7 @@ struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
                 Unit* target = NULL;
                 target = SelectUnit(SELECT_TARGET_TOPAGGRO,1);
 
-                if (target && m_creature->IsWithinCombatDist(m_creature->getVictim(), ATTACK_DISTANCE))
+                if (target && m_creature->IsWithinMeleeRange(m_creature->getVictim()))
                     DoCast(target,SPELL_HURTFUL_STRIKE);
                 else
                     DoCast(m_creature->getVictim(),SPELL_HURTFUL_STRIKE);

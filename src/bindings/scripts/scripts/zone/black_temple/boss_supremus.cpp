@@ -129,7 +129,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
         for (i = m_threatlist.begin(); i!= m_threatlist.end();++i)
         {
             Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
-            if(pUnit && m_creature->IsWithinCombatDist(pUnit, ATTACK_DISTANCE))
+            if(pUnit && m_creature->IsWithinMeleeRange(pUnit))
             {
                 if(pUnit->GetHealth() > health)
                 {

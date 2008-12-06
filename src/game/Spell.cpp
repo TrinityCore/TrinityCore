@@ -4682,23 +4682,9 @@ uint8 Spell::CheckRange(bool strict)
         range_mod = 6.25;*/
 
     SpellRangeEntry const* srange = sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex);
-    float max_range, min_range;
-    float range_type = GetSpellRangeType(srange);
-    if(range_type == SPELL_RANGE_DEFAULT)
-    {
-        max_range = GetSpellMaxRange(srange);// + range_mod;
-        min_range = GetSpellMinRange(srange);
-    }
-    else if(range_type == SPELL_RANGE_MELEE)
-    {
-        max_range = ATTACK_DISTANCE;
-        min_range = GetSpellMinRange(srange);
-    }
-    else
-    {
-        max_range = GetSpellMaxRange(srange);// + range_mod;
-        min_range = ATTACK_DISTANCE;
-    }
+    float max_range = GetSpellMaxRange(srange); // + range_mod;
+    float min_range = GetSpellMinRange(srange);
+    uint32 range_type = GetSpellRangeType(srange);
 
     if(Player* modOwner = m_caster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, max_range, this);
@@ -4707,11 +4693,20 @@ uint8 Spell::CheckRange(bool strict)
 
     if(target && target != m_caster)
     {
-        // distance from target center in checks
-        if(!m_caster->IsWithinCombatDist(target, max_range))
+        if(range_type == SPELL_RANGE_MELEE)
+        {
+            if(!m_caster->IsWithinMeleeRange(target))
+                return SPELL_FAILED_OUT_OF_RANGE;
+        }
+        else if(!m_caster->IsWithinCombatRange(target, max_range))
             return SPELL_FAILED_OUT_OF_RANGE;               //0x5A;
 
-        if(min_range && m_caster->IsWithinCombatDist(target, min_range)) // skip this check if min_range = 0
+        if(range_type == SPELL_RANGE_RANGED)
+        {
+            if(m_caster->IsWithinMeleeRange(target))
+                return SPELL_FAILED_TOO_CLOSE;
+        }
+        else if(min_range && m_caster->IsWithinCombatRange(target, min_range)) // skip this check if min_range = 0
             return SPELL_FAILED_TOO_CLOSE;
 
         if( m_caster->GetTypeId() == TYPEID_PLAYER &&

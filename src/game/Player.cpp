@@ -1106,11 +1106,9 @@ void Player::Update( uint32 p_time )
             // default combat reach 10
             // TODO add weapon,skill check
 
-            float pldistance = ATTACK_DISTANCE;
-
             if (isAttackReady(BASE_ATTACK))
             {
-                if(!IsWithinCombatDist(pVictim, pldistance))
+                if(!IsWithinMeleeRange(pVictim))
                 {
                     setAttackTimer(BASE_ATTACK,100);
                     if(m_swingErrorMsg != 1)                // send single time (client auto repeat)
@@ -1147,7 +1145,7 @@ void Player::Update( uint32 p_time )
 
             if ( haveOffhandWeapon() && isAttackReady(OFF_ATTACK))
             {
-                if(!IsWithinCombatDist(pVictim, pldistance))
+                if(!IsWithinMeleeRange(pVictim))
                 {
                     setAttackTimer(OFF_ATTACK,100);
                 }

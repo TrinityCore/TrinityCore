@@ -39,7 +39,9 @@
 
 #define DEFAULT_WORLD_OBJECT_SIZE   0.388999998569489f      // player size, also currently used (correctly?) for any non Unit world objects
 #define DEFAULT_COMBAT_REACH        1.5f
-#define ATTACK_DISTANCE             (5.0f - DEFAULT_COMBAT_REACH * 2) // melee range: center to center for players
+#define MIN_MELEE_REACH             2.0f
+#define NOMINAL_MELEE_RANGE         5.0f
+#define MELEE_RANGE                 (NOMINAL_MELEE_RANGE - MIN_MELEE_REACH * 2) //center to center for players
 
 enum TypeMask
 {

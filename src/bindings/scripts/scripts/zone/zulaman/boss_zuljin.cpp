@@ -268,7 +268,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
     {
         if( !m_creature->IsNonMeleeSpellCasted(false))
         {
-            if(m_creature->isAttackReady() && m_creature->IsWithinCombatDist(m_creature->getVictim(), ATTACK_DISTANCE))
+            if(m_creature->isAttackReady() && m_creature->IsWithinMeleeRange(m_creature->getVictim()))
             {
                 if(Phase == 1 && !Overpower_Timer)
                 {
@@ -474,7 +474,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
                         if(target)
                         {
                             AttackStart(target);
-                            if(m_creature->IsWithinDistInMap(target, ATTACK_DISTANCE))
+                            if(m_creature->IsWithinMeleeRange(target))
                             {
                                 m_creature->CastSpell(target, SPELL_CLAW_RAGE_DAMAGE, true);
                                 Claw_Counter++;
@@ -517,7 +517,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
                     }
                     if(target)
                     {
-                        if(m_creature->IsWithinDistInMap(target, ATTACK_DISTANCE))
+                        if(m_creature->IsWithinMeleeRange(target))
                         {
                             m_creature->CastSpell(target, SPELL_LYNX_RUSH_DAMAGE, true);
                             Claw_Counter++;
@@ -613,7 +613,7 @@ struct TRINITY_DLL_DECL feather_vortexAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //if the vortex reach the target, it change his target to another player
-        if( m_creature->IsWithinCombatDist(m_creature->getVictim(), ATTACK_DISTANCE))
+        if( m_creature->IsWithinMeleeRange(m_creature->getVictim()))
             AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
     }
 };
