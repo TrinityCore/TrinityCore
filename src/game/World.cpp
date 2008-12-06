@@ -959,10 +959,8 @@ void World::LoadConfigSettings(bool reload)
     if(m_configs[CONFIG_HONOR_AFTER_DUEL] < 0)
         m_configs[CONFIG_HONOR_AFTER_DUEL]= 0;
     m_configs[CONFIG_START_ALL_EXPLORED] = sConfig.GetBoolDefault("PlayerStart.MapsExplored", false);
-    m_configs[CONFIG_DISABLE_BREATHING] = sConfig.GetBoolDefault("DisableWaterBreath", false);
     m_configs[CONFIG_START_ALL_REP] = sConfig.GetBoolDefault("PlayerStart.AllReputation", false);
     m_configs[CONFIG_ALWAYS_MAXSKILL] = sConfig.GetBoolDefault("AlwaysMaxWeaponSkill", false);
-    m_configs[CONFIG_START_ALL_TAXI] = sConfig.GetBoolDefault("PlayerStart.AllFlightPaths", false);
     m_configs[CONFIG_PVP_TOKEN_ENABLE] = sConfig.GetBoolDefault("PvPToken.Enable", false);
     m_configs[CONFIG_PVP_TOKEN_MAP_TYPE] = sConfig.GetIntDefault("PvPToken.MapAllowType", 4);
     m_configs[CONFIG_PVP_TOKEN_ID] = sConfig.GetIntDefault("PvPToken.ItemID", 29434);
