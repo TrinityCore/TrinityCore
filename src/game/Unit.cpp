@@ -6499,17 +6499,14 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
                     {
                         int32 value2 = CalculateSpellDamage((*i)->GetSpellProto(),2,(*i)->GetSpellProto()->EffectBasePoints[2],this);
                         basepoints0 = value2 * GetMaxPower(POWER_MANA) / 100;
-
                         // Drain Soul
-                        triggered_spell_id = 18371;
-                        target = this;
-                        found = true;
+                        CastCustomSpell(this, 18371, &basepoints0, NULL, NULL, true, castItem, triggeredByAura);
                         break;
                     }
                 }
-                if(!found)
-                    return false;
-                break;                                      // fall through to normal cast
+                // Not remove charge (aura removed on death in any cases)
+                // Need for correct work Drain Soul SPELL_AURA_CHANNEL_DEATH_ITEM aura
+                return false;
             }
             break;
         }
@@ -9217,7 +9214,9 @@ bool Unit::IsImmunedToSpell(SpellEntry const* spellInfo, bool useCharges)
         if(itr->type == spellInfo->Dispel)
             return true;
 
-    if( !(spellInfo->AttributesEx & SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE) && (spellInfo->Id != 42292))               // unaffected by school immunity
+    if( !(spellInfo->AttributesEx & SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE) &&         // unaffected by school immunity
+        !(spellInfo->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY)               // can remove immune (by dispell or immune it)
+        && (spellInfo->Id != 42292))
     {
         SpellImmuneList const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
         for(SpellImmuneList::const_iterator itr = schoolList.begin(); itr != schoolList.end(); ++itr)
@@ -9776,14 +9775,15 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
     return gain;
 }
 
-bool Unit::isVisibleForOrDetect(Unit const* u, bool detect, bool inVisibleList) const
+bool Unit::isVisibleForOrDetect(Unit const* u, bool detect, bool inVisibleList, bool is3dDistance) const
 {
     if(!u)
         return false;
-    return u->canSeeOrDetect(this, detect, inVisibleList);
+
+    return u->canSeeOrDetect(this, detect, inVisibleList, is3dDistance);
 }
 
-bool Unit::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList) const
+bool Unit::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool is3dDistance) const
 {
     return true;
 }
@@ -10510,7 +10510,7 @@ Unit* Unit::GetUnit(WorldObject& object, uint64 guid)
 
 bool Unit::isVisibleForInState( Player const* u, bool inVisibleList ) const
 {
-    return isVisibleForOrDetect(u,false,inVisibleList);
+    return isVisibleForOrDetect(u, false, inVisibleList, false);
 }
 
 uint32 Unit::GetCreatureType() const
@@ -12055,6 +12055,10 @@ void Unit::ApplyCastTimePercentMod(float val, bool apply )
 
 uint32 Unit::GetCastingTimeForBonus( SpellEntry const *spellProto, DamageEffectType damagetype, uint32 CastingTime )
 {
+    // Not apply this to creature casted spells with casttime==0
+    if(CastingTime==0 && GetTypeId()==TYPEID_UNIT && !((Creature*)this)->isPet())
+        return 3500;
+
     if (CastingTime > 7000) CastingTime = 7000;
     if (CastingTime < 1500) CastingTime = 1500;
 
