@@ -557,7 +557,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
         CreatureSpellCooldowns m_CreatureCategoryCooldowns;
         uint32 m_GlobalCooldown;
 
-        bool canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList) const;
+        bool canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool is3dDistance = true) const;
         bool IsWithinSightDist(Unit const* u) const;
         bool canStartAttack(Unit const* u) const;
         float GetAttackDistance(Unit const* pl) const;

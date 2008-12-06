@@ -884,9 +884,9 @@ GM.StartLevel     = 70
 #    Visibility.Distance.Creature
 #    Visibility.Distance.Player
 #        Visibility distance for different in game object
-#        Max limited by active player zone: ~ 166
+#        Max limited by active player zone: ~ 333
 #        Min limit dependent from objects
-#        Default: 66 (cell size)
+#        Default: 132 (cell size)
 #        Min limit is max aggro radius (45) * Rate.Creature.Aggro
 #
 #    Visibility.Distance.Object
@@ -912,10 +912,10 @@ GM.StartLevel     = 70
 ###################################################################################################################
 
 Visibility.GroupMode = 0
-Visibility.Distance.Creature      = 66
-Visibility.Distance.Player        = 66
-Visibility.Distance.Object        = 66
-Visibility.Distance.InFlight      = 66
+Visibility.Distance.Creature      = 132
+Visibility.Distance.Player        = 132
+Visibility.Distance.Object        = 132
+Visibility.Distance.InFlight      = 132
 Visibility.Distance.Grey.Unit   = 1
 Visibility.Distance.Grey.Object = 10
 
