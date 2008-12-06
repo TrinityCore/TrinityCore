@@ -467,8 +467,8 @@ struct TRINITY_DLL_DECL boss_thurgAI : public boss_hexlord_addAI
             std::list<Creature*> templist = DoFindFriendlyMissingBuff(50, SPELL_BLOODLUST);
             if(!templist.empty()) 
             {
-                Unit* target = *(templist.begin());
-                m_creature->CastSpell(target, SPELL_BLOODLUST, false);
+                if(Unit* target = *(templist.begin()))
+                    m_creature->CastSpell(target, SPELL_BLOODLUST, false);
             }
             bloodlust_timer = 12000;
         }else bloodlust_timer -= diff;
@@ -548,11 +548,11 @@ struct TRINITY_DLL_DECL boss_alyson_antilleAI : public boss_hexlord_addAI
             {
                 if(rand()%2)
                 {
-                    Unit* target = DoSelectLowestHpFriendly(50, 0);
-                    m_creature->CastSpell(target, SPELL_DISPEL_MAGIC, false);
+                    if(Unit* target = DoSelectLowestHpFriendly(50, 0))
+                        m_creature->CastSpell(target, SPELL_DISPEL_MAGIC, false);
                 }
-                else
-                    m_creature->CastSpell(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_DISPEL_MAGIC, false);
+                else if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    m_creature->CastSpell(target, SPELL_DISPEL_MAGIC, false);
             }
             flashheal_timer = 2500;
         }else flashheal_timer -= diff;
@@ -737,8 +737,8 @@ struct TRINITY_DLL_DECL boss_slitherAI : public boss_hexlord_addAI
 
         if (venomspit_timer < diff)
         { 
-            Unit* victim = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            m_creature->CastSpell(victim,SPELL_VENOM_SPIT, false);
+            if(Unit* victim = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                m_creature->CastSpell(victim,SPELL_VENOM_SPIT, false);
             venomspit_timer = 2500;
         }else venomspit_timer -= diff;
 
@@ -810,8 +810,8 @@ struct TRINITY_DLL_DECL boss_koraggAI : public boss_hexlord_addAI
         }
         if (coldstare_timer < diff)
         {
-            Unit* victim = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            m_creature->CastSpell(victim,SPELL_COLD_STARE, false);
+            if(Unit* victim = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                m_creature->CastSpell(victim,SPELL_COLD_STARE, false);
             coldstare_timer = 12000;
         }
 
