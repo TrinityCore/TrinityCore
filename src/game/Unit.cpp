@@ -688,187 +688,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
     if (health <= damage)
     {
         DEBUG_LOG("DealDamage: victim just died");
-
-        pVictim->SetHealth(0);
-
-        // find player: owner of controlled `this` or `this` itself maybe
-        Player *player = GetCharmerOrOwnerPlayerOrPlayerItself();
-
-        if(pVictim->GetTypeId() == TYPEID_UNIT && ((Creature*)pVictim)->GetLootRecipient())
-            player = ((Creature*)pVictim)->GetLootRecipient();
-        // Reward player, his pets, and group/raid members
-        // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
-        if(player && player!=pVictim)
-        {
-            if(player->RewardPlayerAndGroupAtKill(pVictim))
-                player->ProcDamageAndSpell(pVictim, PROC_FLAG_KILL_AND_GET_XP, PROC_FLAG_KILLED, PROC_EX_NONE, 0);
-            else
-                player->ProcDamageAndSpell(pVictim, PROC_FLAG_NONE, PROC_FLAG_KILLED,PROC_EX_NONE, 0);
-        }
-
-        DEBUG_LOG("DealDamageAttackStop");
-
-        // stop combat
-        pVictim->CombatStop();
-        pVictim->getHostilRefManager().deleteReferences();
-
-        // stop movement
-        pVictim->StopMoving();
-
-        bool damageFromSpiritOfRedemtionTalent = spellProto && spellProto->Id == 27795;
-
-        // if talent known but not triggered (check priest class for speedup check)
-        Aura* spiritOfRedemtionTalentReady = NULL;
-        if( !damageFromSpiritOfRedemtionTalent &&           // not called from SPELL_AURA_SPIRIT_OF_REDEMPTION
-            pVictim->GetTypeId()==TYPEID_PLAYER && pVictim->getClass()==CLASS_PRIEST )
-        {
-            AuraList const& vDummyAuras = pVictim->GetAurasByType(SPELL_AURA_DUMMY);
-            for(AuraList::const_iterator itr = vDummyAuras.begin(); itr != vDummyAuras.end(); ++itr)
-            {
-                if((*itr)->GetSpellProto()->SpellIconID==1654)
-                {
-                    spiritOfRedemtionTalentReady = *itr;
-                    break;
-                }
-            }
-        }
-
-        DEBUG_LOG("SET JUST_DIED");
-        if(!spiritOfRedemtionTalentReady)
-            pVictim->setDeathState(JUST_DIED);
-
-        // outdoor pvp things, do these after setting the death state, else the player activity notify won't work... doh...
-        // handle player kill only if not suicide (spirit of redemption for example)
-        if(GetTypeId() == TYPEID_PLAYER && this != pVictim)
-        {
-            if(OutdoorPvP * pvp = ((Player*)this)->GetOutdoorPvP())
-            {
-                pvp->HandleKill((Player*)this,pVictim);
-            }
-        }
-
-        if(pVictim->GetTypeId() == TYPEID_PLAYER)
-        {
-            if(OutdoorPvP * pvp = ((Player*)pVictim)->GetOutdoorPvP())
-            {
-                pvp->HandlePlayerActivityChanged((Player*)pVictim);
-            }
-        }
-
-        DEBUG_LOG("DealDamageHealth1");
-
-        if(spiritOfRedemtionTalentReady)
-        {
-            // save value before aura remove
-            uint32 ressSpellId = pVictim->GetUInt32Value(PLAYER_SELF_RES_SPELL);
-            if(!ressSpellId)
-                ressSpellId = ((Player*)pVictim)->GetResurrectionSpellId();
-
-            //Remove all expected to remove at death auras (most important negative case like DoT or periodic triggers)
-            pVictim->RemoveAllAurasOnDeath();
-
-            // restore for use at real death
-            pVictim->SetUInt32Value(PLAYER_SELF_RES_SPELL,ressSpellId);
-
-            // FORM_SPIRITOFREDEMPTION and related auras
-            pVictim->CastSpell(pVictim,27827,true,NULL,spiritOfRedemtionTalentReady);
-        }
-        else //without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
-            //do not why since in IncreaseMaxHealth currenthealth is checked
-            pVictim->SetHealth(0);
-
-        // remember victim PvP death for corpse type and corpse reclaim delay
-        // at original death (not at SpiritOfRedemtionTalent timeout)
-        if( pVictim->GetTypeId()==TYPEID_PLAYER && !damageFromSpiritOfRedemtionTalent )
-            ((Player*)pVictim)->SetPvPDeath(player!=NULL);
-
-        // 10% durability loss on death
-        // clean InHateListOf
-        if (pVictim->GetTypeId() == TYPEID_PLAYER)
-        {
-            // only if not player and not controlled by player pet. And not at BG
-            if (durabilityLoss && !player && !((Player*)pVictim)->InBattleGround())
-            {
-                DEBUG_LOG("We are dead, loosing 10 percents durability");
-                ((Player*)pVictim)->DurabilityLossAll(0.10f,false);
-                // durability lost message
-                WorldPacket data(SMSG_DURABILITY_DAMAGE_DEATH, 0);
-                ((Player*)pVictim)->GetSession()->SendPacket(&data);
-            }
-            // Call KilledUnit for creatures
-            if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->AI())
-                ((Creature*)this)->AI()->KilledUnit(pVictim);
-        }
-        else                                                // creature died
-        {
-            DEBUG_LOG("DealDamageNotPlayer");
-            Creature *cVictim = (Creature*)pVictim;
-
-            if(!cVictim->isPet())
-            {
-                cVictim->DeleteThreatList();
-                cVictim->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-            }
-
-            // Call KilledUnit for creatures, this needs to be called after the lootable flag is set
-            if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->AI())
-                ((Creature*)this)->AI()->KilledUnit(pVictim);
-
-            // Call creature just died function
-            if (cVictim->AI())
-                cVictim->AI()->JustDied(this);
-
-            // Dungeon specific stuff, only applies to players killing creatures
-            if(cVictim->GetInstanceId())
-            {
-                Map *m = cVictim->GetMap();
-                Player *creditedPlayer = GetCharmerOrOwnerPlayerOrPlayerItself();
-                // TODO: do instance binding anyway if the charmer/owner is offline
-
-                if(m->IsDungeon() && creditedPlayer)
-                {
-                    if(m->IsRaid() || m->IsHeroic())
-                    {
-                        if(cVictim->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
-                            ((InstanceMap *)m)->PermBindAllPlayers(creditedPlayer);
-                    }
-                    else
-                    {
-                        // the reset time is set but not added to the scheduler
-                        // until the players leave the instance
-                        time_t resettime = cVictim->GetRespawnTimeEx() + 2 * HOUR;
-                        if(InstanceSave *save = sInstanceSaveManager.GetInstanceSave(cVictim->GetInstanceId()))
-                            if(save->GetResetTime() < resettime) save->SetResetTime(resettime);
-                    }
-                }
-            }
-        }
-
-        // last damage from non duel opponent or opponent controlled creature
-        if(duel_hasEnded)
-        {
-            assert(pVictim->GetTypeId()==TYPEID_PLAYER);
-            Player *he = (Player*)pVictim;
-
-            assert(he->duel);
-
-            he->duel->opponent->CombatStopWithPets(true);
-            he->CombatStopWithPets(true);
-
-            he->DuelComplete(DUEL_INTERUPTED);
-        }
-
-        // battleground things (do this at the end, so the death state flag will be properly set to handle in the bg->handlekill)
-        if(player && player->InBattleGround())
-        {
-            if(BattleGround *bg = player->GetBattleGround())
-            {
-                if(pVictim->GetTypeId() == TYPEID_PLAYER)
-                    bg->HandleKillPlayer((Player*)pVictim, player);
-                else
-                    bg->HandleKillUnit((Creature*)pVictim, player);
-            }
-        }
+        Kill(pVictim, durabilityLoss);
     }
     else                                                    // if (health <= damage)
     {
@@ -10263,6 +10083,7 @@ void Unit::setDeathState(DeathState s)
     {
         CombatStop();
         DeleteThreatList();
+        getHostilRefManager().deleteReferences();
         ClearComboPointHolders();                           // any combo points pointed to unit lost at it death
 
         if(IsNonMeleeSpellCasted(false))
@@ -10283,6 +10104,10 @@ void Unit::setDeathState(DeathState s)
         // remove aurastates allowing special moves
         ClearAllReactives();
         ClearDiminishings();
+        StopMoving();
+        //without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
+        //do not why since in IncreaseMaxHealth currenthealth is checked
+        SetHealth(0);
     }
     else if(s == JUST_ALIVED)
     {
@@ -12606,4 +12431,152 @@ void Unit::SetToNotify()
 {
     if(Map *map = GetMap())
         map->AddUnitToNotify(this);
+}
+
+void Unit::Kill(Unit *pVictim, bool durabilityLoss)
+{
+    pVictim->SetHealth(0);
+
+    // find player: owner of controlled `this` or `this` itself maybe
+    Player *player = GetCharmerOrOwnerPlayerOrPlayerItself();
+
+    if(pVictim->GetTypeId() == TYPEID_UNIT && ((Creature*)pVictim)->GetLootRecipient())
+        player = ((Creature*)pVictim)->GetLootRecipient();
+    // Reward player, his pets, and group/raid members
+    // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
+    if(player && player!=pVictim)
+    {
+        if(player->RewardPlayerAndGroupAtKill(pVictim))
+            player->ProcDamageAndSpell(pVictim, PROC_FLAG_KILL_AND_GET_XP, PROC_FLAG_KILLED, PROC_EX_NONE, 0);
+        else
+            player->ProcDamageAndSpell(pVictim, PROC_FLAG_NONE, PROC_FLAG_KILLED,PROC_EX_NONE, 0);
+    }
+
+    // if talent known but not triggered (check priest class for speedup check)
+    bool SpiritOfRedemption = false;
+    if(pVictim->GetTypeId()==TYPEID_PLAYER && pVictim->getClass()==CLASS_PRIEST )
+    {
+        AuraList const& vDummyAuras = pVictim->GetAurasByType(SPELL_AURA_DUMMY);
+        for(AuraList::const_iterator itr = vDummyAuras.begin(); itr != vDummyAuras.end(); ++itr)
+        {
+            if((*itr)->GetSpellProto()->SpellIconID==1654)
+            {
+                // save value before aura remove
+                uint32 ressSpellId = pVictim->GetUInt32Value(PLAYER_SELF_RES_SPELL);
+                if(!ressSpellId)
+                    ressSpellId = ((Player*)pVictim)->GetResurrectionSpellId();
+                //Remove all expected to remove at death auras (most important negative case like DoT or periodic triggers)
+                pVictim->RemoveAllAurasOnDeath();
+                // restore for use at real death
+                pVictim->SetUInt32Value(PLAYER_SELF_RES_SPELL,ressSpellId);
+
+                // FORM_SPIRITOFREDEMPTION and related auras
+                pVictim->CastSpell(pVictim,27827,true,NULL,*itr);
+                SpiritOfRedemption = true;
+                break;
+            }
+        }
+    }
+
+    if(!SpiritOfRedemption)
+    {
+        DEBUG_LOG("SET JUST_DIED");
+        pVictim->setDeathState(JUST_DIED);
+    }
+
+    // 10% durability loss on death
+    // clean InHateListOf
+    if (pVictim->GetTypeId() == TYPEID_PLAYER)
+    {
+        // remember victim PvP death for corpse type and corpse reclaim delay
+        // at original death (not at SpiritOfRedemtionTalent timeout)
+        ((Player*)pVictim)->SetPvPDeath(player!=NULL);
+
+        // only if not player and not controlled by player pet. And not at BG
+        if (durabilityLoss && !player && !((Player*)pVictim)->InBattleGround())
+        {
+            DEBUG_LOG("We are dead, loosing 10 percents durability");
+            ((Player*)pVictim)->DurabilityLossAll(0.10f,false);
+            // durability lost message
+            WorldPacket data(SMSG_DURABILITY_DAMAGE_DEATH, 0);
+            ((Player*)pVictim)->GetSession()->SendPacket(&data);
+        }
+        // Call KilledUnit for creatures
+        if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->AI())
+            ((Creature*)this)->AI()->KilledUnit(pVictim);
+
+        // last damage from non duel opponent or opponent controlled creature
+        if(((Player*)pVictim)->duel)
+        {
+            ((Player*)pVictim)->duel->opponent->CombatStopWithPets(true);
+            ((Player*)pVictim)->CombatStopWithPets(true);
+            ((Player*)pVictim)->DuelComplete(DUEL_INTERUPTED);
+        }
+    }
+    else                                                // creature died
+    {
+        DEBUG_LOG("DealDamageNotPlayer");
+        Creature *cVictim = (Creature*)pVictim;
+
+        if(!cVictim->isPet())
+        {
+            cVictim->DeleteThreatList();
+            cVictim->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+        }
+
+        // Call KilledUnit for creatures, this needs to be called after the lootable flag is set
+        if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->AI())
+            ((Creature*)this)->AI()->KilledUnit(pVictim);
+
+        // Call creature just died function
+        if (cVictim->AI())
+            cVictim->AI()->JustDied(this);
+
+        // Dungeon specific stuff, only applies to players killing creatures
+        if(cVictim->GetInstanceId())
+        {
+            Map *m = cVictim->GetMap();
+            Player *creditedPlayer = GetCharmerOrOwnerPlayerOrPlayerItself();
+            // TODO: do instance binding anyway if the charmer/owner is offline
+
+            if(m->IsDungeon() && creditedPlayer)
+            {
+                if(m->IsRaid() || m->IsHeroic())
+                {
+                    if(cVictim->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
+                        ((InstanceMap *)m)->PermBindAllPlayers(creditedPlayer);
+                }
+                else
+                {
+                    // the reset time is set but not added to the scheduler
+                    // until the players leave the instance
+                    time_t resettime = cVictim->GetRespawnTimeEx() + 2 * HOUR;
+                    if(InstanceSave *save = sInstanceSaveManager.GetInstanceSave(cVictim->GetInstanceId()))
+                        if(save->GetResetTime() < resettime) save->SetResetTime(resettime);
+                }
+            }
+        }
+    }
+
+    // outdoor pvp things, do these after setting the death state, else the player activity notify won't work... doh...
+    // handle player kill only if not suicide (spirit of redemption for example)
+    if(player && this != pVictim)
+        if(OutdoorPvP * pvp = player->GetOutdoorPvP())
+            pvp->HandleKill(player, pVictim);
+
+    if(pVictim->GetTypeId() == TYPEID_PLAYER)
+        if(OutdoorPvP * pvp = ((Player*)pVictim)->GetOutdoorPvP())
+            pvp->HandlePlayerActivityChanged((Player*)pVictim);
+
+    // battleground things (do this at the end, so the death state flag will be properly set to handle in the bg->handlekill)
+    if(player && player->InBattleGround())
+    {
+        if(BattleGround *bg = player->GetBattleGround())
+        {
+            if(pVictim->GetTypeId() == TYPEID_PLAYER)
+                bg->HandleKillPlayer((Player*)pVictim, player);
+            else
+                bg->HandleKillUnit((Creature*)pVictim, player);
+        }
+    }
 }

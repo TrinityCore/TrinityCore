@@ -5344,7 +5344,7 @@ void Aura::HandleSpiritOfRedemption( bool apply, bool Real )
     }
     // die at aura end
     else
-        m_target->DealDamage(m_target, m_target->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, GetSpellProto(), false);
+        m_target->setDeathState(JUST_DIED);
 }
 
 void Aura::CleanupTriggeredSpells()
