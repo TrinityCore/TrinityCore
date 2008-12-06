@@ -160,11 +160,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                     {
                         Creature *Channeler = instance->GetCreatureInMap(*i);
                         if(Channeler && Channeler->isAlive())
-                        {
-                            //if(Unit *target = Channeler->SelectNearbyTarget())
-                            //always return true, do not know why
-                            AttackNearestTarget(Channeler);
-                        }
+                            Channeler->AI()->AttackStart(Channeler->SelectNearestTarget(999));
                     }
                     // Release Magtheridon after two minutes.
                     Creature *Magtheridon = instance->GetCreatureInMap(MagtheridonGUID);
@@ -210,31 +206,6 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
         return 0;
     }
 
-    void AttackNearestTarget(Creature *creature)
-    {
-        float minRange = 999.0f;
-        float range;
-        Player* target = NULL;
-        Map::PlayerList const &PlayerList = instance->GetPlayers();
-        Map::PlayerList::const_iterator i;
-        for(i = PlayerList.begin(); i != PlayerList.end(); ++i)
-        {
-            if(Player* i_pl = i->getSource())
-            {
-                if(i_pl->isTargetableForAttack())
-                {
-                    range = i_pl->GetDistance(creature);
-                    if(range < minRange)
-                    {
-                        minRange = range;
-                        target = i_pl;
-                    }                
-                }
-            }
-        }
-        creature->AI()->AttackStart(target);
-    }
-
     void Update(uint32 diff)
     {
         if(CageTimer)
@@ -245,7 +216,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                 if(Magtheridon && Magtheridon->isAlive())
                 {
                     Magtheridon->clearUnitState(UNIT_STAT_STUNNED);
-                    AttackNearestTarget(Magtheridon);
+                    Magtheridon->AI()->AttackStart(Magtheridon->SelectNearestTarget(999));
                 }
                 CageTimer = 0;
             }else CageTimer -= diff;
