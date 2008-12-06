@@ -435,7 +435,7 @@ bool Unit::IsWithinCombatRange(Unit *obj, float dist2compare) const
     return distsq < maxdist * maxdist;
 }
 
-bool Unit::IsWithinMeleeRange(Unit *obj) const
+bool Unit::IsWithinMeleeRange(Unit *obj, float dist) const
 {
     if (!obj || !IsInMap(obj)) return false;
 
@@ -445,7 +445,7 @@ bool Unit::IsWithinMeleeRange(Unit *obj) const
     float distsq = dx*dx + dy*dy + dz*dz;
 
     float sizefactor = GetMeleeReach() + obj->GetMeleeReach();
-    float maxdist = MELEE_RANGE + sizefactor;
+    float maxdist = dist + sizefactor;
 
     return distsq < maxdist * maxdist;
 }
