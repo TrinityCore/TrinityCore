@@ -17521,9 +17521,10 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool
     else                                                    // distance for show creature
     {
         // Units far than max visible distance for creature or not in our map are not visible too
-        if (!target->IsWithinDistInMap(u, u->isActive() 
-                ? (MAX_VISIBILITY_DISTANCE - (inVisibleList ? 0.0f : World::GetVisibleUnitGreyDistance()))
-                : (World::GetMaxVisibleDistanceForCreature() + (inVisibleList ? World::GetVisibleUnitGreyDistance() : 0.0f), is3dDistance)))
+        if (!target->IsWithinDistInMap(u
+            , u->isActive() ? (MAX_VISIBILITY_DISTANCE - (inVisibleList ? 0.0f : World::GetVisibleUnitGreyDistance()))
+            : (World::GetMaxVisibleDistanceForCreature() + (inVisibleList ? World::GetVisibleUnitGreyDistance() : 0.0f))
+            , is3dDistance))
             return false;
     }
 
