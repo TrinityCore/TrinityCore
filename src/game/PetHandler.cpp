@@ -115,8 +115,8 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
                     if(GetPlayer()->IsFriendlyTo(TargetUnit))
                         return;
                     // Not let attack through obstructions
-                    if(!pet->IsWithinLOSInMap(TargetUnit))
-                        return;
+                    //if(!pet->IsWithinLOSInMap(TargetUnit))
+                    //    return;
 
                     if(pet->GetTypeId() != TYPEID_PLAYER)
                     {
