@@ -971,7 +971,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
             m_creature->setActive(param1 ? true : false);
             break;
         case ACTION_T_SET_AGGRESSIVE:
-            m_creature->SetAggressive(param1 ? true : false);
+            m_creature->SetReactState(param1);
             break;
         case ACTION_T_ATTACK_START_PULSE:
             AttackStart(m_creature->SelectNearestTarget((float)param1));

@@ -840,10 +840,10 @@ struct TRINITY_DLL_DECL npc_steam_tonkAI : public ScriptedAI
             m_creature->InitCharmInfo(m_creature);
             m_creature->GetCharmInfo()->InitEmptyActionBar(false);
 
-            m_creature->SetAggressive(false);
+            m_creature->SetReactState(REACT_PASSIVE);
         }
         else
-            m_creature->SetAggressive(true);
+            m_creature->SetReactState(REACT_AGGRESSIVE);
     }
 
 };
@@ -859,7 +859,7 @@ struct TRINITY_DLL_DECL npc_tonk_mineAI : public ScriptedAI
 {
     npc_tonk_mineAI(Creature *c) : ScriptedAI(c) 
     {
-        m_creature->SetAggressive(false);
+        m_creature->SetReactState(REACT_PASSIVE);
         Reset();
     }
 

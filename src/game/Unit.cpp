@@ -9592,7 +9592,7 @@ void Unit::CombatStart(Unit* target)
         target->SetStandState(PLAYER_STATE_NONE);
 
     if(!target->isInCombat() && target->GetTypeId() != TYPEID_PLAYER
-        && ((Creature*)target)->isAggressive() && ((Creature*)target)->AI())
+        && !((Creature*)target)->HasReactState(REACT_PASSIVE) && ((Creature*)target)->AI())
     {
         SetInCombatWith(target);
         target->SetInCombatWith(this);
