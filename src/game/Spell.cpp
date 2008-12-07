@@ -2813,7 +2813,7 @@ void Spell::update(uint32 difftime)
             }
 
             if(m_timer == 0 && !IsNextMeleeSwingSpell() && !IsAutoRepeat())
-                cast();
+                cast(m_spellInfo->CastingTimeIndex == 1);
         } break;
         case SPELL_STATE_CASTING:
         {
