@@ -428,8 +428,9 @@ class TRINITY_DLL_SPEC Creature : public Unit
         bool canWalk() const { return GetCreatureInfo()->InhabitType & INHABIT_GROUND; }
         bool canSwim() const { return GetCreatureInfo()->InhabitType & INHABIT_WATER; }
         bool canFly()  const { return GetCreatureInfo()->InhabitType & INHABIT_AIR; }
-        bool isAggressive() const { return m_isAggressive; }
-        void SetAggressive(bool agg) { m_isAggressive = agg; }
+        void SetReactState(ReactStates st) { m_reactState = st; }
+        ReactStates GetReactState() { return m_reactState; }
+        bool HasReactState(ReactStates state) const { return (m_reactState == state); }
         ///// TODO RENAME THIS!!!!!
         bool isCanTrainingOf(Player* player, bool msg) const;
         bool isCanIneractWithBattleMaster(Player* player, bool msg) const;
@@ -642,7 +643,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
         uint8 m_emoteState;
         bool m_isPet;                                       // set only in Pet::Pet
         bool m_isTotem;                                     // set only in Totem::Totem
-        bool m_isAggressive;
+        ReactStates m_reactState;                           // for AI, not charmInfo
         void RegenerateMana();
         void RegenerateHealth();
         uint32 m_regenTimer;

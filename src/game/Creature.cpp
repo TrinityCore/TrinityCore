@@ -144,7 +144,7 @@ Unit(), i_AI(NULL), i_AI_possessed(NULL),
 lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), lootingGroupLeaderGUID(0),
 m_lootMoney(0), m_lootRecipient(0),
 m_deathTimer(0), m_respawnTime(0), m_respawnDelay(25), m_corpseDelay(60), m_respawnradius(0.0f),
-m_gossipOptionLoaded(false), m_emoteState(0), m_isPet(false), m_isTotem(false), m_isAggressive(true),
+m_gossipOptionLoaded(false), m_emoteState(0), m_isPet(false), m_isTotem(false), m_reactState(REACT_AGGRESSIVE),
 m_regenTimer(2000), m_defaultMovementType(IDLE_MOTION_TYPE), m_equipmentId(0),
 m_AlreadyCallAssistance(false), m_regenHealth(true), m_AI_locked(false), m_isDeadByDefault(false),
 m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),m_creatureInfo(NULL), m_DBTableGuid(0)
@@ -350,11 +350,13 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data )
     if(GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-    if(isTotem() || isCivilian() || GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER
+    if(isTotem() || GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER
         || GetCreatureType() == CREATURE_TYPE_CRITTER)
-        m_isAggressive = false;
+        SetReactState(REACT_PASSIVE);
+    else if(isCivilian())
+        SetReactState(REACT_DEFENSIVE);
     else
-        m_isAggressive = true;
+        SetReactState(REACT_AGGRESSIVE);
 
     return true;
 }
@@ -1928,7 +1930,8 @@ void Creature::CallAssistance()
 
 bool Creature::CanAssistTo(const Unit* u, const Unit* enemy) const
 {
-    if(!isAggressive())
+    // is it true?
+    if(!HasReactState(REACT_AGGRESSIVE))
         return false;
 
     // we don't need help from zombies :)
