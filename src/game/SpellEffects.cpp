@@ -3263,8 +3263,9 @@ void Spell::EffectDispel(uint32 i)
                 if(positive == unitTarget->IsFriendlyTo(m_caster))
                     continue;
             }
-            // Add aura to dispel list
-            dispel_list.push_back(aur);
+            // Add every aura stack to dispel list
+            for(uint32 stack_amount = 0; stack_amount < aur->GetStackAmount(); ++stack_amount)
+                dispel_list.push_back(aur);
         }
     }
     // Ok if exist some buffs for dispel try dispel it
@@ -3302,6 +3303,7 @@ void Spell::EffectDispel(uint32 i)
                 {
                     j = dispel_list.erase(j);
                     --list_size;
+                    break;
                 }
                 else
                     ++j;
