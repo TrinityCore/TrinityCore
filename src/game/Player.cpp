@@ -17722,8 +17722,43 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, UpdateDataMapType& 
     }
 }
 
+template<>
+void Player::UpdateVisibilityOf<Creature>(Creature* target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow)
+{
+    if(HaveAtClient(target))
+    {
+        if(!target->isVisibleForInState(this,true))
+        {
+            target->DestroyForPlayer(this);
+            target->BuildOutOfRangeUpdateBlock(&data);
+            m_clientGUIDs.erase(target->GetGUID());
+
+            #ifdef TRINITY_DEBUG
+            if((sLog.getLogFilter() & LOG_FILTER_VISIBILITY_CHANGES)==0)
+                sLog.outDebug("Object %u (Type: %u, Entry: %u) is out of range for player %u. Distance = %f",target->GetGUIDLow(),target->GetTypeId(),target->GetEntry(),GetGUIDLow(),GetDistance(target));
+            #endif
+        }
+    }
+    else
+    {
+        if(target->isVisibleForInState(this,false))
+        {
+            visibleNow.insert(target);
+            target->BuildUpdate(data_updates);
+            target->SendUpdateToPlayer(this);
+            target->SendMonsterMoveWithSpeedToCurrentDestination(this);
+            UpdateVisibilityOf_helper(m_clientGUIDs,target);
+
+            #ifdef TRINITY_DEBUG
+            if((sLog.getLogFilter() & LOG_FILTER_VISIBILITY_CHANGES)==0)
+                sLog.outDebug("Object %u (Type: %u, Entry: %u) is visible now for player %u. Distance = %f",target->GetGUIDLow(),target->GetTypeId(),target->GetEntry(),GetGUIDLow(),GetDistance(target));
+            #endif
+        }
+    }
+}
+
 template void Player::UpdateVisibilityOf(Player*        target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow);
-template void Player::UpdateVisibilityOf(Creature*      target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow);
+//template void Player::UpdateVisibilityOf(Creature*      target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow);
 template void Player::UpdateVisibilityOf(Corpse*        target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow);
 template void Player::UpdateVisibilityOf(GameObject*    target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow);
 template void Player::UpdateVisibilityOf(DynamicObject* target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow);
