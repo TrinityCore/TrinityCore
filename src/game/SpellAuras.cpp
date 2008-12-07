@@ -2103,26 +2103,14 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         if(m_target->GetTypeId()!=TYPEID_PLAYER || !((Player*)m_target)->GetSession()->PlayerLoading())
                             m_modifier.m_amount = caster->SpellHealingBonus(GetSpellProto(), m_modifier.m_amount, SPELL_DIRECT_DAMAGE, m_target);
                 }
-                // Do final heal for real apply
+                // Do final heal for real !apply
                 else if (Real)
                 {
-
-					// Final heal only on dispelled or duration end or 1 stack
-                    if (!(GetAuraDuration() <= 0 || (m_removeMode==AURA_REMOVE_BY_DISPEL)))
-					{
-						// have a look if there is still some other Lifebloom dummy aura
-						Unit::AuraList auras = m_target->GetAurasByType(SPELL_AURA_DUMMY);
-						for(Unit::AuraList::iterator itr = auras.begin(); itr!=auras.end(); itr++)
-							if((*itr)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID &&
-								(*itr)->GetSpellProto()->SpellFamilyFlags & 0x1000000000LL)
-								if((*itr)->GetCasterGUID() == GetCasterGUID()) 
-									return;
-					}
-					else
-					{
-						// final heal
-						m_target->CastCustomSpell(m_target,33778,&m_modifier.m_amount,NULL,NULL,true,NULL,this,GetCasterGUID());
-					}
+                    if (GetAuraDuration() <= 0 || m_removeMode==AURA_REMOVE_BY_DISPEL)
+                    {
+                        int32 bp0 = GetModifierValue();
+						m_target->CastCustomSpell(m_target,33778,&bp0,NULL,NULL,true,NULL,this,GetCasterGUID());
+                    }
                 }
                 return;
             }
