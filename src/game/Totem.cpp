@@ -99,7 +99,7 @@ void Totem::Summon(Unit* owner)
     }
 
     if(GetEntry() == SENTRY_TOTEM_ENTRY)
-        SetAggressive(true);
+        SetReactState(REACT_AGGRESSIVE);
 }
 
 void Totem::UnSummon()
