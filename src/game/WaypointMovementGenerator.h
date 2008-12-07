@@ -55,7 +55,6 @@ class TRINITY_DLL_SPEC PathMovementBase
         void ReloadPath(T &);
         uint32 GetCurrentNode() const { return i_currentNode; }
 
-        virtual bool GetDestination(float& x, float& y, float& z) const { i_destinationHolder.GetDestination(x,y,z); return true; }
     protected:
         uint32 i_currentNode;
         DestinationHolder< Traveller<T> > i_destinationHolder;
@@ -104,6 +103,8 @@ public PathMovementBase<Creature, WaypointPath*>
 
         // statics
         static void Initialize(void);
+
+        bool GetDestination(float& x, float& y, float& z) const { i_destinationHolder.GetDestination(x,y,z); return true; }
     private:
         void ClearWaypoints();
         bool b_StopedByPlayer;
@@ -134,5 +135,6 @@ public PathMovementBase<Player>
         inline bool HasArrived() const { return (i_currentNode >= i_path.Size()); }
         void SetCurrentNodeAfterTeleport();
         void SkipCurrentNode() { ++i_currentNode; }
+        bool GetDestination(float& x, float& y, float& z) const { i_destinationHolder.GetDestination(x,y,z); return true; }
 };
 #endif
