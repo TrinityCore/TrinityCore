@@ -10740,9 +10740,14 @@ void Unit::SetLevel(uint32 lvl)
 
 void Unit::SetHealth(uint32 val)
 {
-    uint32 maxHealth = GetMaxHealth();
-    if(maxHealth < val)
-        val = maxHealth;
+    if(!isAlive())
+        val = 0;
+    else
+    {
+        uint32 maxHealth = GetMaxHealth();
+        if(maxHealth < val)
+            val = maxHealth;
+    }
 
     SetUInt32Value(UNIT_FIELD_HEALTH, val);
 
