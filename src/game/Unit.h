@@ -342,7 +342,8 @@ enum DeathState
     JUST_DIED   = 1,
     CORPSE      = 2,
     DEAD        = 3,
-    JUST_ALIVED = 4
+    JUST_ALIVED = 4,
+    DEAD_FALLING= 5
 };
 
 enum UnitState
@@ -364,6 +365,9 @@ enum UnitState
     UNIT_STAT_ISOLATED        = 0x2000,                     // area auras do not affect other players
     UNIT_STAT_ATTACK_PLAYER   = 0x4000,
     UNIT_STAT_CASTING         = 0x8000,
+    UNIT_STAT_SIGHTLESS       = 
+    (UNIT_STAT_CHASE | UNIT_STAT_SEARCHING | UNIT_STAT_FLEEING 
+    | UNIT_STAT_STUNNED | UNIT_STAT_CONFUSED),
     UNIT_STAT_ALL_STATE       = 0xffff                      //(UNIT_STAT_STOPPED | UNIT_STAT_MOVING | UNIT_STAT_IN_COMBAT | UNIT_STAT_IN_FLIGHT)
 };
 

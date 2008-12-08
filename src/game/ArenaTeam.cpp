@@ -542,7 +542,7 @@ uint8 ArenaTeam::GetSlot() const
 
 void ArenaTeam::BroadcastPacket(WorldPacket *packet)
 {
-    for (MemberList::iterator itr = members.begin(); itr != members.end(); itr++)
+    for (MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
     {
         Player *player = objmgr.GetPlayer(itr->guid);
         if(player)

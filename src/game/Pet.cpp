@@ -1506,7 +1506,7 @@ bool Pet::addSpell(uint16 spell_id, uint16 active, PetSpellState state, uint16 s
 
     uint32 chainstart = spellmgr.GetFirstSpellInChain(spell_id);
 
-    for (PetSpellMap::iterator itr = m_spells.begin(); itr != m_spells.end(); itr++)
+    for (PetSpellMap::iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
     {
         if(itr->second->state == PETSPELL_REMOVED) continue;
 

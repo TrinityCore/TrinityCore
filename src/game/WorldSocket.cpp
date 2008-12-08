@@ -469,7 +469,7 @@ int WorldSocket::handle_input_missing_data (void)
 
             if (m_Header.space () > 0)
             {
-                // Couldn't receive the whole header this time
+                // Couldn't receive the whole header this time.
                 ACE_ASSERT (message_block.length () == 0);
                 errno = EWOULDBLOCK;
                 return -1;
@@ -503,7 +503,7 @@ int WorldSocket::handle_input_missing_data (void)
 
             if (m_RecvPct.space () > 0)
             {
-                //couldn't receive the whole data this time
+                // Couldn't receive the whole data this time.
                 ACE_ASSERT (message_block.length () == 0);
                 errno = EWOULDBLOCK;
                 return -1;
@@ -572,7 +572,7 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
     if (closing_)
         return -1;
 
-    // Dump received packet
+    // Dump received packet.
     if (sWorldLog.LogWorld ())
     {
         sWorldLog.Log ("CLIENT:\nSOCKET: %u\nLENGTH: %u\nOPCODE: %s (0x%.4X)\nDATA:\n",

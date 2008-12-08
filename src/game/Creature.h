@@ -534,6 +534,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
         const char* GetNameForLocaleIdx(int32 locale_idx) const;
 
         void setDeathState(DeathState s);                   // overwrite virtual Unit::setDeathState
+        bool FallGround();
 
         bool LoadFromDB(uint32 guid, Map *map);
         void SaveToDB();

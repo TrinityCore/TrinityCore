@@ -194,7 +194,7 @@ Unit* HostilReference::getSourceUnit()
 
 void ThreatContainer::clearReferences()
 {
-    for(std::list<HostilReference*>::iterator i = iThreatList.begin(); i != iThreatList.end(); i++)
+    for(std::list<HostilReference*>::iterator i = iThreatList.begin(); i != iThreatList.end(); ++i)
     {
         (*i)->unlink();
         delete (*i);
@@ -208,7 +208,7 @@ HostilReference* ThreatContainer::getReferenceByTarget(Unit* pVictim)
 {
     HostilReference* result = NULL;
     uint64 guid = pVictim->GetGUID();
-    for(std::list<HostilReference*>::iterator i = iThreatList.begin(); i != iThreatList.end(); i++)
+    for(std::list<HostilReference*>::iterator i = iThreatList.begin(); i != iThreatList.end(); ++i)
     {
         if((*i)->getUnitGuid() == guid)
         {
