@@ -1386,6 +1386,14 @@
 				<Filter
 					Name="Uldaman"
 					>
+ 					<File
+						RelativePath="..\scripts\zone\uldaman\boss_archaedas.cpp"
+						>
+					</File>					
+					<File
+						RelativePath="..\scripts\zone\uldaman\instance_uldaman.cpp"
+						>
+					</File>						
 					<File
 						RelativePath="..\scripts\zone\uldaman\boss_ironaya.cpp"
 						>
