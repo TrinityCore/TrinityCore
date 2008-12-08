@@ -411,6 +411,7 @@ extern void AddSC_boss_amnennar_the_coldbringer();
 extern void AddSC_boss_arcanist_doan();
 extern void AddSC_boss_azshir_the_sleepless();
 extern void AddSC_boss_bloodmage_thalnos();
+extern void AddSC_boss_headless_horseman();
 extern void AddSC_boss_herod();
 extern void AddSC_boss_high_inquisitor_fairbanks();
 extern void AddSC_boss_high_inquisitor_whitemane();
@@ -418,6 +419,7 @@ extern void AddSC_boss_houndmaster_loksey();
 extern void AddSC_boss_interrogator_vishas();
 extern void AddSC_boss_scarlet_commander_mograine();
 extern void AddSC_boss_scorn();
+extern void AddSC_instance_scarlet_monastery();
 
 //Scholomance
 extern void AddSC_boss_darkmaster_gandling();
@@ -1603,6 +1605,7 @@ void ScriptsInit()
     AddSC_boss_arcanist_doan();
     AddSC_boss_azshir_the_sleepless();
     AddSC_boss_bloodmage_thalnos();
+	AddSC_boss_headless_horseman();
     AddSC_boss_herod();
     AddSC_boss_high_inquisitor_fairbanks();
     AddSC_boss_high_inquisitor_whitemane();
@@ -1610,6 +1613,7 @@ void ScriptsInit()
     AddSC_boss_interrogator_vishas();
     AddSC_boss_scarlet_commander_mograine();
     AddSC_boss_scorn();
+	AddSC_instance_scarlet_monastery();
 
     //Scholomance
     AddSC_boss_darkmaster_gandling();
