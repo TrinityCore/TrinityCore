@@ -253,7 +253,7 @@ Group * ObjectMgr::GetGroupByLeader(const uint64 &guid) const
 
 Guild * ObjectMgr::GetGuildById(const uint32 GuildId) const
 {
-    for(GuildSet::const_iterator itr = mGuildSet.begin(); itr != mGuildSet.end(); itr++)
+    for(GuildSet::const_iterator itr = mGuildSet.begin(); itr != mGuildSet.end(); ++itr)
         if ((*itr)->GetId() == GuildId)
             return *itr;
 
@@ -262,7 +262,7 @@ Guild * ObjectMgr::GetGuildById(const uint32 GuildId) const
 
 Guild * ObjectMgr::GetGuildByName(std::string guildname) const
 {
-    for(GuildSet::const_iterator itr = mGuildSet.begin(); itr != mGuildSet.end(); itr++)
+    for(GuildSet::const_iterator itr = mGuildSet.begin(); itr != mGuildSet.end(); ++itr)
         if ((*itr)->GetName() == guildname)
             return *itr;
 
@@ -271,7 +271,7 @@ Guild * ObjectMgr::GetGuildByName(std::string guildname) const
 
 std::string ObjectMgr::GetGuildNameById(const uint32 GuildId) const
 {
-    for(GuildSet::const_iterator itr = mGuildSet.begin(); itr != mGuildSet.end(); itr++)
+    for(GuildSet::const_iterator itr = mGuildSet.begin(); itr != mGuildSet.end(); ++itr)
         if ((*itr)->GetId() == GuildId)
             return (*itr)->GetName();
 
@@ -289,7 +289,7 @@ Guild* ObjectMgr::GetGuildByLeader(const uint64 &guid) const
 
 ArenaTeam* ObjectMgr::GetArenaTeamById(const uint32 ArenaTeamId) const
 {
-    for(ArenaTeamSet::const_iterator itr = mArenaTeamSet.begin(); itr != mArenaTeamSet.end(); itr++)
+    for(ArenaTeamSet::const_iterator itr = mArenaTeamSet.begin(); itr != mArenaTeamSet.end(); ++itr)
         if ((*itr)->GetId() == ArenaTeamId)
             return *itr;
 
@@ -298,7 +298,7 @@ ArenaTeam* ObjectMgr::GetArenaTeamById(const uint32 ArenaTeamId) const
 
 ArenaTeam* ObjectMgr::GetArenaTeamByName(std::string arenateamname) const
 {
-    for(ArenaTeamSet::const_iterator itr = mArenaTeamSet.begin(); itr != mArenaTeamSet.end(); itr++)
+    for(ArenaTeamSet::const_iterator itr = mArenaTeamSet.begin(); itr != mArenaTeamSet.end(); ++itr)
         if ((*itr)->GetName() == arenateamname)
             return *itr;
 
@@ -307,7 +307,7 @@ ArenaTeam* ObjectMgr::GetArenaTeamByName(std::string arenateamname) const
 
 ArenaTeam* ObjectMgr::GetArenaTeamByCapitan(uint64 const& guid) const
 {
-    for(ArenaTeamSet::const_iterator itr = mArenaTeamSet.begin(); itr != mArenaTeamSet.end(); itr++)
+    for(ArenaTeamSet::const_iterator itr = mArenaTeamSet.begin(); itr != mArenaTeamSet.end(); ++itr)
         if ((*itr)->GetCaptain() == guid)
             return *itr;
 
@@ -2960,7 +2960,7 @@ void ObjectMgr::LoadQuests()
     delete result;
 
     // Post processing
-    for (QuestMap::iterator iter = mQuestTemplates.begin(); iter != mQuestTemplates.end(); iter++)
+    for (QuestMap::iterator iter = mQuestTemplates.begin(); iter != mQuestTemplates.end(); ++iter)
     {
         Quest * qinfo = iter->second;
 
@@ -4179,7 +4179,7 @@ void ObjectMgr::LoadPageTexts()
             {
                 std::ostringstream ss;
                 ss<< "The text page(s) ";
-                for (std::set<uint32>::iterator itr= checkedPages.begin();itr!=checkedPages.end(); itr++)
+                for (std::set<uint32>::iterator itr= checkedPages.begin();itr!=checkedPages.end(); ++itr)
                     ss << *itr << " ";
                 ss << "create(s) a circular reference, which can cause the server to freeze. Changing Next_Page of page "
                     << pageItr->Page_ID <<" to 0";
@@ -5209,7 +5209,7 @@ AreaTrigger const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
 {
     const MapEntry *mapEntry = sMapStore.LookupEntry(Map);
     if(!mapEntry) return NULL;
-    for (AreaTriggerMap::const_iterator itr = mAreaTriggers.begin(); itr != mAreaTriggers.end(); itr++)
+    for (AreaTriggerMap::const_iterator itr = mAreaTriggers.begin(); itr != mAreaTriggers.end(); ++itr)
     {
         if(itr->second.target_mapId == mapEntry->entrance_map)
         {
