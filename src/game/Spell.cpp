@@ -650,7 +650,7 @@ void Spell::FillTargetMap()
         /*if(m_caster->GetTypeId() == TYPEID_PLAYER)
         {
             Player *me = (Player*)m_caster;
-            for (std::list<Unit*>::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end(); itr++)
+            for (std::list<Unit*>::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end(); ++itr)
             {
                 Unit *owner = (*itr)->GetOwner();
                 Unit *u = owner ? owner : (*itr);
@@ -4584,7 +4584,7 @@ uint8 Spell::CheckCasterAuras() const
         {
             //Checking auras is needed now, because you are prevented by some state but the spell grants immunity.
             Unit::AuraMap const& auras = m_caster->GetAuras();
-            for(Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); itr++)
+            for(Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
             {
                 if(itr->second)
                 {

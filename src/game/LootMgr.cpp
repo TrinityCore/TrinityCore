@@ -913,7 +913,7 @@ void LootTemplate::Process(Loot& loot, LootStore const& store, uint8 groupId) co
     }
 
     // Rolling non-grouped items
-    for (LootStoreItemList::const_iterator i = Entries.begin() ; i != Entries.end() ; i++ )
+    for (LootStoreItemList::const_iterator i = Entries.begin() ; i != Entries.end() ; ++i )
     {
         if ( !i->Roll() )
             continue;                                       // Bad luck for the entry
@@ -933,7 +933,7 @@ void LootTemplate::Process(Loot& loot, LootStore const& store, uint8 groupId) co
     }
 
     // Now processing groups
-    for (LootGroups::const_iterator i = Groups.begin( ) ; i != Groups.end( ) ; i++ )
+    for (LootGroups::const_iterator i = Groups.begin( ) ; i != Groups.end( ) ; ++i )
         i->Process(loot);
 }
 
@@ -962,7 +962,7 @@ bool LootTemplate::HasQuestDrop(LootTemplateMap const& store, uint8 groupId) con
     }
 
     // Now processing groups
-    for (LootGroups::const_iterator i = Groups.begin() ; i != Groups.end() ; i++ )
+    for (LootGroups::const_iterator i = Groups.begin() ; i != Groups.end() ; ++i )
         if (i->HasQuestDrop())
             return true;
 
@@ -980,7 +980,7 @@ bool LootTemplate::HasQuestDropForPlayer(LootTemplateMap const& store, Player co
     }
 
     // Checking non-grouped entries
-    for (LootStoreItemList::const_iterator i = Entries.begin() ; i != Entries.end() ; i++ )
+    for (LootStoreItemList::const_iterator i = Entries.begin() ; i != Entries.end() ; ++i )
     {
         if (i->mincountOrRef < 0)                           // References processing
         {

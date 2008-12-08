@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "Database/DatabaseEnv.h"
@@ -71,13 +71,7 @@ bool Guild::create(uint64 lGuid, std::string gname)
     guildbank_money = 0;
     purchased_tabs = 0;
 
-    QueryResult *result = CharacterDatabase.Query( "SELECT MAX(guildid) FROM guild" );
-    if( result )
-    {
-        Id = (*result)[0].GetUInt32()+1;
-        delete result;
-    }
-    else Id = 1;
+    Id = objmgr.GenerateGuildId();
 
     // gname already assigned to Guild::name, use it to encode string for DB
     CharacterDatabase.escape_string(gname);
@@ -116,12 +110,12 @@ bool Guild::AddMember(uint64 plGuid, uint32 plRank)
     if(pl)
     {
         if(pl->GetGuildId() != 0)
-        return false;
+            return false;
     }
     else
     {
         if(Player::GetGuildIdFromDB(plGuid) != 0)           // player already in guild
-        return false;
+            return false;
     }
 
     // remove all player signs from another petitions
@@ -432,64 +426,62 @@ void Guild::LoadPlayerStatsByGuid(uint64 guid)
 void Guild::SetLeader(uint64 guid)
 {
     leaderGuid = guid;
-    this->ChangeRank(guid, GR_GUILDMASTER);
+    ChangeRank(guid, GR_GUILDMASTER);
 
     CharacterDatabase.PExecute("UPDATE guild SET leaderguid='%u' WHERE guildid='%u'", GUID_LOPART(guid), Id);
 }
 
 void Guild::DelMember(uint64 guid, bool isDisbanding)
 {
-    if(this->leaderGuid == guid && !isDisbanding)
+    if(leaderGuid == guid && !isDisbanding)
     {
-        std::ostringstream ss;
-        ss<<"SELECT guid FROM guild_member WHERE guildid='"<<Id<<"' AND guid!='"<<this->leaderGuid<<"' ORDER BY rank ASC LIMIT 1";
-        QueryResult *result = CharacterDatabase.Query( ss.str().c_str() );
-        if( result )
+        MemberSlot* oldLeader = NULL;
+        MemberSlot* best = NULL;
+        uint64 newLeaderGUID = 0;
+        for(Guild::MemberList::iterator i = members.begin(); i != members.end(); ++i)
         {
-            uint64 newLeaderGUID;
-            Player *newLeader;
-            std::string newLeaderName, oldLeaderName;
-
-            newLeaderGUID = (*result)[0].GetUInt64();
-            delete result;
-
-            this->SetLeader(newLeaderGUID);
-
-            newLeader = objmgr.GetPlayer(newLeaderGUID);
-
-            // If player not online data in data field will be loaded from guild tabs no need to update it !!
-            if(newLeader)
+            if(i->first == GUID_LOPART(guid))
             {
-                newLeader->SetRank(GR_GUILDMASTER);
-                newLeaderName = newLeader->GetName();
-            }
-            else
-                objmgr.GetPlayerNameByGUID(newLeaderGUID, newLeaderName);
-
-            // when leader non-exist (at guild load with deleted leader only) not send broadcasts
-            if(objmgr.GetPlayerNameByGUID(guid, oldLeaderName))
-            {
-                WorldPacket data(SMSG_GUILD_EVENT, (1+1+oldLeaderName.size()+1+newLeaderName.size()+1));
-                data << (uint8)GE_LEADER_CHANGED;
-                data << (uint8)2;
-                data << oldLeaderName;
-                data << newLeaderName;
-                this->BroadcastPacket(&data);
-
-                data.Initialize(SMSG_GUILD_EVENT, (1+1+oldLeaderName.size()+1));
-                data << (uint8)GE_LEFT;
-                data << (uint8)1;
-                data << oldLeaderName;
-                this->BroadcastPacket(&data);
+                oldLeader = &(i->second);
+                continue;
             }
 
-            sLog.outDebug( "WORLD: Sent (SMSG_GUILD_EVENT)" );
+            if(!best || best->RankId > i->second.RankId)
+            {
+                best = &(i->second);
+                newLeaderGUID = i->first;
+            }
         }
-        else
+        if(!best)
         {
-            this->Disband();
+            Disband();
             return;
         }
+
+        SetLeader(newLeaderGUID);
+
+        // If player not online data in data field will be loaded from guild tabs no need to update it !!
+        if(Player *newLeader = objmgr.GetPlayer(newLeaderGUID))
+            newLeader->SetRank(GR_GUILDMASTER);
+
+        // when leader non-exist (at guild load with deleted leader only) not send broadcasts
+        if(oldLeader)
+        {
+            WorldPacket data(SMSG_GUILD_EVENT, (1+1+(oldLeader->name).size()+1+(best->name).size()+1));
+            data << (uint8)GE_LEADER_CHANGED;
+            data << (uint8)2;
+            data << oldLeader->name;
+            data << best->name;
+            BroadcastPacket(&data);
+
+            data.Initialize(SMSG_GUILD_EVENT, (1+1+(oldLeader->name).size()+1));
+            data << (uint8)GE_LEFT;
+            data << (uint8)1;
+            data << oldLeader->name;
+            BroadcastPacket(&data);
+        }
+
+        sLog.outDebug( "WORLD: Sent (SMSG_GUILD_EVENT)" );
     }
 
     members.erase(GUID_LOPART(guid));
@@ -679,7 +671,7 @@ int32 Guild::GetRank(uint32 LowGuid)
     MemberList::iterator itr = members.find(LowGuid);
     if (itr==members.end())
         return -1;
-        
+
     return itr->second.RankId;
 }
 
@@ -687,7 +679,7 @@ void Guild::Disband()
 {
     WorldPacket data(SMSG_GUILD_EVENT, 1);
     data << (uint8)GE_DISBANDED;
-    this->BroadcastPacket(&data);
+    BroadcastPacket(&data);
 
     while (!members.empty())
     {
@@ -787,11 +779,11 @@ void Guild::Query(WorldSession *session)
 
 void Guild::SetEmblem(uint32 emblemStyle, uint32 emblemColor, uint32 borderStyle, uint32 borderColor, uint32 backgroundColor)
 {
-    this->EmblemStyle = emblemStyle;
-    this->EmblemColor = emblemColor;
-    this->BorderStyle = borderStyle;
-    this->BorderColor = borderColor;
-    this->BackgroundColor = backgroundColor;
+    EmblemStyle = emblemStyle;
+    EmblemColor = emblemColor;
+    BorderStyle = borderStyle;
+    BorderColor = borderColor;
+    BackgroundColor = backgroundColor;
 
     CharacterDatabase.PExecute("UPDATE guild SET EmblemStyle=%u, EmblemColor=%u, BorderStyle=%u, BorderColor=%u, BackgroundColor=%u WHERE guildid = %u", EmblemStyle, EmblemColor, BorderStyle, BorderColor, BackgroundColor, Id);
 }
@@ -975,15 +967,10 @@ void Guild::DisplayGuildBankMoneyUpdate()
     WorldPacket data(SMSG_GUILD_BANK_LIST, 8+1+4+1+1);
 
     data << uint64(GetGuildBankMoney());
-    data << uint8(0);
-    // remaining slots for today
-
-    size_t rempos = data.wpos();
-    data << uint32(0);                                      // will be filled later
+    data << uint8(0);                                       // TabId, default 0
+    data << uint32(0);                                      // slot withdrow, default 0
     data << uint8(0);                                       // Tell client this is a tab content packet
-
     data << uint8(0);                                       // not send items
-
     BroadcastPacket(&data);
 
     sLog.outDebug("WORLD: Sent (SMSG_GUILD_BANK_LIST)");
@@ -1918,7 +1905,7 @@ uint8 Guild::CanStoreItem( uint8 tab, uint8 slot, GuildItemPosCountVec &dest, ui
             return EQUIP_ERR_OK;
     }
 
-    // not specific slot or have space for partly store only in specific slot
+    // not specific slot or have spece for partly store only in specific slot
 
     // search stack in tab for merge to
     if( pItem->GetMaxStackCount() > 1 )
@@ -1980,9 +1967,8 @@ void Guild::SendGuildBankTabText(WorldSession *session, uint8 TabId)
 bool GuildItemPosCount::isContainedIn(GuildItemPosCountVec const &vec) const
 {
     for(GuildItemPosCountVec::const_iterator itr = vec.begin(); itr != vec.end();++itr)
-        if(itr->slot == this->slot)
+        if(itr->slot == slot)
             return true;
 
     return false;
 }
-

@@ -334,7 +334,7 @@ void QuestMenu::AddMenuItem( uint32 QuestId, uint8 Icon)
 
 bool QuestMenu::HasItem( uint32 questid )
 {
-    for (QuestMenuItemList::iterator i = m_qItems.begin(); i != m_qItems.end(); i++)
+    for (QuestMenuItemList::iterator i = m_qItems.begin(); i != m_qItems.end(); ++i)
     {
         if(i->m_qId==questid)
         {
