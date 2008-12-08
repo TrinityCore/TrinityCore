@@ -285,6 +285,9 @@ scripts/zone/scarlet_monastery/boss_houndmaster_loksey.cpp \
 scripts/zone/scarlet_monastery/boss_interrogator_vishas.cpp \
 scripts/zone/scarlet_monastery/boss_scarlet_commander_mograine.cpp \
 scripts/zone/scarlet_monastery/boss_scorn.cpp \
+scripts/zone/scarlet_monastery/boss_headless_horseman.cpp \
+scripts/zone/scarlet_monastery/instance_scarlet_monastery.cpp \
+scripts/zone/scarlet_monastery/def_scarlet_monastery.h \
 scripts/zone/scholomance/boss_darkmaster_gandling.cpp \
 scripts/zone/scholomance/boss_death_knight_darkreaver.cpp \
 scripts/zone/scholomance/boss_doctor_theolen_krastinov.cpp \
