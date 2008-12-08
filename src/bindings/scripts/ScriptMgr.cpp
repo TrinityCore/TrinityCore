@@ -541,8 +541,10 @@ extern void AddSC_thunder_bluff();
 extern void AddSC_tirisfal_glades();
 
 //Uldaman
+extern void AddSC_boss_archaedas();
 extern void AddSC_boss_ironaya();
 extern void AddSC_uldaman();
+extern void AddSC_instance_uldaman();
 
 //Undercity
 extern void AddSC_undercity();
@@ -1731,8 +1733,10 @@ void ScriptsInit()
     AddSC_tirisfal_glades();
 
     //Uldaman
+    AddSC_boss_archaedas();
     AddSC_boss_ironaya();
     AddSC_uldaman();
+    AddSC_instance_uldaman();
 
     //Undercity
     AddSC_undercity();
