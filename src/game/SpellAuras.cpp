@@ -2108,7 +2108,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 {
                     if (GetAuraDuration() <= 0 || m_removeMode==AURA_REMOVE_BY_DISPEL)
                     {
-                        int32 bp0 = GetModifierValue();
+                        int32 bp0 = m_modifier.m_amount; //GetModifierValue();
 						m_target->CastCustomSpell(m_target,33778,&bp0,NULL,NULL,true,NULL,this,GetCasterGUID());
                     }
                 }

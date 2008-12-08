@@ -4696,7 +4696,8 @@ uint8 Spell::CheckRange(bool strict)
     {
         if(range_type == SPELL_RANGE_MELEE)
         {
-            if(!m_caster->IsWithinMeleeRange(target, max_range - 2*MIN_MELEE_REACH))
+            // Because of lag, we can not check too strictly here.
+            if(!m_caster->IsWithinMeleeRange(target, max_range/* - 2*MIN_MELEE_REACH*/))
                 return SPELL_FAILED_OUT_OF_RANGE;
         }
         else if(!m_caster->IsWithinCombatRange(target, max_range))
