@@ -759,6 +759,14 @@
 						>
 					</File>
 					<File
+						RelativePath="..\scripts\zone\scarlet_monastery\boss_headless_horseman.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\scarlet_monastery\boss_headless_horseman.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\scripts\zone\scarlet_monastery\boss_herod.cpp"
 						>
 					</File>
@@ -784,6 +792,22 @@
 					</File>
 					<File
 						RelativePath="..\scripts\zone\scarlet_monastery\boss_scorn.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\scarlet_monastery\def_scarlet_monastery.h"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\scarlet_monastery\instance_scarlet_monastery.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\scarlet_monastery\def_scarlet_monastery.h"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\scarlet_monastery\instance_scarlet_monastery.cpp"
 						>
 					</File>
 				</Filter>
