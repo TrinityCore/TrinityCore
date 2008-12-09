@@ -854,11 +854,31 @@ void Unit::CastSpell(Unit* Victim, uint32 spellId, bool triggered, Item *castIte
 
 void Unit::CastSpell(Unit* Victim,SpellEntry const *spellInfo, bool triggered, Item *castItem, Aura* triggeredByAura, uint64 originalCaster)
 {
-    assert(Victim);
     if(!spellInfo)
     {
         sLog.outError("CastSpell: unknown spell by caster: %s %u)", (GetTypeId()==TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId()==TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
         return;
+    }
+
+    SpellCastTargets targets;
+    uint32 targetMask = spellInfo->Targets;
+    if(targetMask & (TARGET_FLAG_UNIT|TARGET_FLAG_UNK2))
+    {
+        if(!Victim)
+        {
+            sLog.outError("CastSpell: spell id %i by caster: %s %u) does not have unit target", spellInfo->Id,(GetTypeId()==TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId()==TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
+            return;
+        }
+        targets.setUnitTarget(Victim);
+    }
+    if(targetMask & (TARGET_FLAG_SOURCE_LOCATION|TARGET_FLAG_DEST_LOCATION))
+    {
+        if(!Victim)
+        {
+            sLog.outError("CastSpell: spell id %i by caster: %s %u) does not have destination", spellInfo->Id,(GetTypeId()==TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId()==TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
+            return;
+        }
+        targets.setDestination(Victim);
     }
 
     if (castItem)
@@ -869,9 +889,6 @@ void Unit::CastSpell(Unit* Victim,SpellEntry const *spellInfo, bool triggered, I
 
     Spell *spell = new Spell(this, spellInfo, triggered, originalCaster );
 
-    SpellCastTargets targets;
-    targets.setUnitTarget( Victim );
-    targets.setDestination( Victim->GetPositionX(), Victim->GetPositionY(), Victim->GetPositionZ(), false);
     spell->m_CastItem = castItem;
     spell->prepare(&targets, triggeredByAura);
 }
@@ -897,6 +914,27 @@ void Unit::CastCustomSpell(Unit* Victim,SpellEntry const *spellInfo, int32 const
         return;
     }
 
+    SpellCastTargets targets;
+    uint32 targetMask = spellInfo->Targets;
+    if(targetMask & (TARGET_FLAG_UNIT|TARGET_FLAG_UNK2))
+    {
+        if(!Victim)
+        {
+            sLog.outError("CastCustomSpell: spell id %i by caster: %s %u) does not have unit target", spellInfo->Id,(GetTypeId()==TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId()==TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
+            return;
+        }
+        targets.setUnitTarget(Victim);
+    }
+    if(targetMask & (TARGET_FLAG_SOURCE_LOCATION|TARGET_FLAG_DEST_LOCATION))
+    {
+        if(!Victim)
+        {
+            sLog.outError("CastCustomSpell: spell id %i by caster: %s %u) does not have destination", spellInfo->Id,(GetTypeId()==TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId()==TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
+            return;
+        }
+        targets.setDestination(Victim);
+    }
+
     if (castItem)
         DEBUG_LOG("WORLD: cast Item spellId - %i", spellInfo->Id);
 
@@ -914,8 +952,6 @@ void Unit::CastCustomSpell(Unit* Victim,SpellEntry const *spellInfo, int32 const
     if(bp2)
         spell->m_currentBasePoints[2] = *bp2-int32(spellInfo->EffectBaseDice[2]);
 
-    SpellCastTargets targets;
-    targets.setUnitTarget( Victim );
     spell->m_CastItem = castItem;
     spell->prepare(&targets, triggeredByAura);
 }
@@ -931,15 +967,37 @@ void Unit::CastSpell(float x, float y, float z, uint32 spellId, bool triggered, 
         return;
     }
 
-    CastSpell(x, y, z,spellInfo,triggered,castItem,triggeredByAura, originalCaster);
+    if (castItem)
+        DEBUG_LOG("WORLD: cast Item spellId - %i", spellInfo->Id);
+
+    if(!originalCaster && triggeredByAura)
+        originalCaster = triggeredByAura->GetCasterGUID();
+
+    Spell *spell = new Spell(this, spellInfo, triggered, originalCaster );
+
+    SpellCastTargets targets;
+    targets.setDestination(x, y, z);
+    spell->m_CastItem = castItem;
+    spell->prepare(&targets, triggeredByAura);
 }
 
 // used for scripting
-void Unit::CastSpell(float x, float y, float z, SpellEntry const *spellInfo, bool triggered, Item *castItem, Aura* triggeredByAura, uint64 originalCaster)
+void Unit::CastSpell(GameObject *go, uint32 spellId, bool triggered, Item *castItem, Aura* triggeredByAura, uint64 originalCaster)
 {
+    if(!go)
+        return;
+
+    SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId );
+
     if(!spellInfo)
     {
-        sLog.outError("CastSpell(x,y,z): unknown spell by caster: %s %u)", (GetTypeId()==TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId()==TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
+        sLog.outError("CastSpell(x,y,z): unknown spell id %i by caster: %s %u)", spellId,(GetTypeId()==TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId()==TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
+        return;
+    }
+
+    if(!(spellInfo->Targets & ( TARGET_FLAG_OBJECT | TARGET_FLAG_OBJECT_UNK)))
+    {
+        sLog.outError("CastSpell: spell id %i by caster: %s %u) is not gameobject spell", spellId,(GetTypeId()==TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId()==TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
         return;
     }
 
@@ -952,7 +1010,7 @@ void Unit::CastSpell(float x, float y, float z, SpellEntry const *spellInfo, boo
     Spell *spell = new Spell(this, spellInfo, triggered, originalCaster );
 
     SpellCastTargets targets;
-    targets.setDestination(x, y, z);
+    targets.setGOTarget(go);
     spell->m_CastItem = castItem;
     spell->prepare(&targets, triggeredByAura);
 }
