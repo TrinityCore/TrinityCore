@@ -19,7 +19,7 @@ update `creature_template` set `scriptname`='mob_pulsing_pumpkin',
 `minmana`=3155, `maxmana`=3155
 where `entry` = 23694;
 
---helper
+-- helper
 Update `creature_template` set `scriptname`='mob_wisp_invis',
 `faction_A`=35, `faction_H`=35,
 `unit_flags`='33554434' where `entry`='23686';
