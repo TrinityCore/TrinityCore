@@ -13919,11 +13919,13 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
         {
             SetMapId(at->target_mapId);
             Relocate(at->target_X, at->target_Y, at->target_Z, GetOrientation());
+            sLog.outError("Player (guidlow %d) is teleported to gobacktrigger (Map: %u X: %f Y: %f Z: %f O: %f).",guid,GetMapId(),GetPositionX(),GetPositionY(),GetPositionZ(),GetOrientation());
         }
         else
         {
             SetMapId(m_homebindMapId);
             Relocate(m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
+            sLog.outError("Player (guidlow %d) is teleported to home (Map: %u X: %f Y: %f Z: %f O: %f).",guid,GetMapId(),GetPositionX(),GetPositionY(),GetPositionZ(),GetOrientation());
         }
 
         map = GetMap();
