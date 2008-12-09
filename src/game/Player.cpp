@@ -1330,8 +1330,14 @@ void Player::setDeathState(DeathState s)
 
     bool cur = isAlive();
 
-    if(s == JUST_DIED && cur)
+    if(s == JUST_DIED)
     {
+        if(!cur)
+        {
+            sLog.outError("setDeathState: attempt to kill a dead player %s(%d)", GetName(), GetGUIDLow());
+            return;
+        }
+
         // drunken state is cleared on death
         SetDrunkValue(0);
         // lost combo points at any target (targeted combo points clear in Unit::setDeathState)
