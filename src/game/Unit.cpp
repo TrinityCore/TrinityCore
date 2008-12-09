@@ -8600,6 +8600,17 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
 
     switch(spellProto->SpellFamilyName)
     {
+		case SPELLFAMILY_GENERIC:
+			// Siphon Essence - 0%
+			if(spellProto->AttributesEx == 268435456 && spellProto->SpellIconID == 2027)
+			{
+				CastingTime = 0;
+			}
+			// Goblin Rocket Launcher - 0%
+			else if (spellProto->SpellIconID == 184 && spellProto->Attributes == 4259840)
+			{
+				CastingTime = 0;
+			}
         case SPELLFAMILY_MAGE:
             // Ignite - do not modify, it is (8*Rank)% damage of procing Spell
             if(spellProto->Id==12654)
