@@ -1685,12 +1685,13 @@ void SpellMgr::LoadSpellScriptTarget()
             }
             default:
             {
-                if( targetEntry==0 )
+                //players
+                /*if( targetEntry==0 )
                 {
                     sLog.outErrorDb("Table `spell_script_target`: target entry == 0 for not GO target type (%u).",type);
                     continue;
-                }
-                if(!sCreatureStorage.LookupEntry<CreatureInfo>(targetEntry))
+                }*/
+                if(targetEntry && !sCreatureStorage.LookupEntry<CreatureInfo>(targetEntry))
                 {
                     sLog.outErrorDb("Table `spell_script_target`: creature template entry %u does not exist.",targetEntry);
                     continue;
