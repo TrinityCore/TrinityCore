@@ -400,6 +400,9 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids)
 
         //        sLog.outString("T: %d, x: %f, y: %f, z: %f, t:%d", t, pos.x, pos.y, pos.z, teleport);
 
+		if(keyFrames[i+1].delay > 5)
+			pos.delayed = true;
+
         //if (teleport)
         m_WayPoints[t] = pos;
 
@@ -503,6 +506,26 @@ void Transport::Update(uint32 /*p_time*/)
             //MapManager::Instance().GetMap(m_curr->second.mapid)->GameobjectRelocation((GameObject *)this, m_curr->second.x, m_curr->second.y, m_curr->second.z, this->m_orientation);
             Relocate(m_curr->second.x, m_curr->second.y, m_curr->second.z);
         }
+
+		if(m_curr->second.delayed)
+		{
+			switch (GetEntry())
+			{
+				case 176495:
+				case 164871:
+				case 175080:
+					SendPlaySound(11804, false); break;		// ZeppelinDocked
+				case 20808:
+				case 181646:
+				case 176231:
+				case 176244:
+				case 176310:
+				case 177233:
+					SendPlaySound(5154, false); break;		// ShipDocked
+				default:
+					SendPlaySound(5495, false);break;		// BoatDockingWarning
+			}
+		}
 
         /*
         for(PlayerSet::iterator itr = m_passengers.begin(); itr != m_passengers.end();)
