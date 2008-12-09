@@ -681,10 +681,11 @@ inline bool IsProfessionSkill(uint32 skill)
 #define SPELL_ATTR_CU_CONE_BACK         0x00000002
 #define SPELL_ATTR_CU_CONE_LINE         0x00000004
 #define SPELL_ATTR_CU_SHARE_DAMAGE      0x00000008
-#define SPELL_ATTR_CU_EFFECT_HEAL       0x00000010
-#define SPELL_ATTR_CU_EFFECT_DAMAGE     0x00000020
+#define SPELL_ATTR_CU_AURA_HOT          0x00000010
+#define SPELL_ATTR_CU_AURA_DOT          0x00000020
+#define SPELL_ATTR_CU_AURA_CC           0x00000040
 
-typedef std::map<uint32, uint32> SpellCustomAttrMap;
+typedef std::vector<uint32> SpellCustomAttribute;
 
 typedef std::map<int32, std::vector<int32> > SpellLinkedMap;
 
@@ -888,11 +889,15 @@ class SpellMgr
 
         uint32 GetSpellCustomAttr(uint32 spell_id) const
         {
-            SpellCustomAttrMap::const_iterator itr = mSpellCustomAttrMap.find(spell_id);
+            if(spell_id >= mSpellCustomAttr.size())
+                return 0;
+            else
+                return mSpellCustomAttr[spell_id];
+            /*SpellCustomAttrMap::const_iterator itr = mSpellCustomAttrMap.find(spell_id);
             if(itr != mSpellCustomAttrMap.end())
                 return itr->second;
             else
-                return 0;
+                return 0;*/
         }
 
         const std::vector<int32> *GetSpellLinked(int32 spell_id) const
@@ -932,7 +937,7 @@ class SpellMgr
         SpellProcEventMap  mSpellProcEventMap;
         SkillLineAbilityMap mSkillLineAbilityMap;
         SpellPetAuraMap     mSpellPetAuraMap;
-        SpellCustomAttrMap  mSpellCustomAttrMap;
+        SpellCustomAttribute  mSpellCustomAttr;
         SpellLinkedMap      mSpellLinkedMap;
 };
 
