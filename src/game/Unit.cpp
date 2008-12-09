@@ -862,15 +862,15 @@ void Unit::CastSpell(Unit* Victim,SpellEntry const *spellInfo, bool triggered, I
 
     SpellCastTargets targets;
     uint32 targetMask = spellInfo->Targets;
-    if(targetMask & (TARGET_FLAG_UNIT|TARGET_FLAG_UNK2))
+    targets.setUnitTarget(Victim);
+    /*if(targetMask & (TARGET_FLAG_UNIT|TARGET_FLAG_UNK2))
     {
         if(!Victim)
         {
             sLog.outError("CastSpell: spell id %i by caster: %s %u) does not have unit target", spellInfo->Id,(GetTypeId()==TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId()==TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
             return;
         }
-        targets.setUnitTarget(Victim);
-    }
+    }*/
     if(targetMask & (TARGET_FLAG_SOURCE_LOCATION|TARGET_FLAG_DEST_LOCATION))
     {
         if(!Victim)
@@ -916,15 +916,15 @@ void Unit::CastCustomSpell(Unit* Victim,SpellEntry const *spellInfo, int32 const
 
     SpellCastTargets targets;
     uint32 targetMask = spellInfo->Targets;
-    if(targetMask & (TARGET_FLAG_UNIT|TARGET_FLAG_UNK2))
+    targets.setUnitTarget(Victim);
+    /*if(targetMask & (TARGET_FLAG_UNIT|TARGET_FLAG_UNK2))
     {
         if(!Victim)
         {
             sLog.outError("CastCustomSpell: spell id %i by caster: %s %u) does not have unit target", spellInfo->Id,(GetTypeId()==TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId()==TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
             return;
         }
-        targets.setUnitTarget(Victim);
-    }
+    }*/
     if(targetMask & (TARGET_FLAG_SOURCE_LOCATION|TARGET_FLAG_DEST_LOCATION))
     {
         if(!Victim)
