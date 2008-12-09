@@ -33,6 +33,17 @@ class GameObject;
 class Pet;
 class Player;
 
+//comment the next line if CPU usage is too high
+#define LARGE_CELL
+
+#ifdef LARGE_CELL
+#define MAX_NUMBER_OF_CELLS     4
+#define CENTER_GRID_CELL_ID     128
+#else
+#define MAX_NUMBER_OF_CELLS     8
+#define CENTER_GRID_CELL_ID     256
+#endif
+
 #define MAX_NUMBER_OF_GRIDS      64
 
 #define SIZE_OF_GRIDS            533.33333f
@@ -43,10 +54,8 @@ class Player;
 #define MIN_GRID_DELAY          MINUTE*1000
 #define MIN_MAP_UPDATE_DELAY    50
 
-#define MAX_NUMBER_OF_CELLS     4
 #define SIZE_OF_GRID_CELL       (SIZE_OF_GRIDS/MAX_NUMBER_OF_CELLS)
 
-#define CENTER_GRID_CELL_ID     128
 #define CENTER_GRID_CELL_OFFSET (SIZE_OF_GRID_CELL/2)
 
 #define TOTAL_NUMBER_OF_CELLS_PER_MAP    (MAX_NUMBER_OF_GRIDS*MAX_NUMBER_OF_CELLS)
