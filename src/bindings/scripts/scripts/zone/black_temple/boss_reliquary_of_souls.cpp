@@ -370,6 +370,7 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
         {
             damage = 0;
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            m_creature->SetReactState(REACT_PASSIVE);
             m_creature->Yell(SUFF_SAY_RECAP,LANG_UNIVERSAL,0);
             DoPlaySoundToSet(m_creature, SUFF_SOUND_RECAP);
         }
@@ -482,6 +483,7 @@ struct TRINITY_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
         {
             damage = 0;
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            m_creature->SetReactState(REACT_PASSIVE);
             m_creature->Yell(DESI_SAY_RECAP,LANG_UNIVERSAL,0);
             DoPlaySoundToSet(m_creature, DESI_SOUND_RECAP);
         }
