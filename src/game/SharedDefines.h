@@ -788,7 +788,7 @@ enum Targets
     TARGET_PET                         = 5,
     //TARGET_UNIT_PET
     TARGET_CHAIN_DAMAGE                = 6,
-    //TARGET_UNIT_TARGET_ENEMY
+    TARGET_UNIT_TARGET_ENEMY           = 6,
     TARGET_UNIT_AREA_ENTRY             = 7,
     TARGET_AREAEFFECT_CUSTOM           = 8,
     //TARGET_UNIT_AREA_ENTRY_GROUND
@@ -806,7 +806,7 @@ enum Targets
     TARGET_ALL_PARTY_AROUND_CASTER     = 20,
     //TARGET_UNIT_PARTY_CASTER
     TARGET_SINGLE_FRIEND               = 21,
-    //TARGET_UNIT_TARGET_ALLY
+    TARGET_UNIT_TARGET_ALLY            = 21,
     TARGET_ALL_AROUND_CASTER           = 22,                // used only in TargetA, target selection dependent from TargetB
     //TARGET_DEST_CASTER
     TARGET_GAMEOBJECT                  = 23,
@@ -833,7 +833,7 @@ enum Targets
     TARGET_ALL_PARTY_AROUND_CASTER_2   = 34,                // used in Tranquility
     //TARGET_UNIT_AREA_PARTY_GROUND
     TARGET_SINGLE_PARTY                = 35,
-    //TARGET_UNIT_TARGET_PARTY
+    TARGET_UNIT_TARGET_PARTY           = 35,
     TARGET_DEST_CASTER_RANDOM_UNKNOWN  = 36, //unknown
     TARGET_AREAEFFECT_PARTY            = 37,
     //TARGET_UNIT_PARTY_TARGET
@@ -864,7 +864,7 @@ enum Targets
     TARGET_RANDOM_RAID_MEMBER          = 56,
     //TARGET_UNIT_AREA_RAID
     TARGET_SINGLE_FRIEND_2             = 57,
-    //TARGET_UNIT_TARGET_RAID
+    TARGET_UNIT_TARGET_RAID            = 57,
     TARGET_UNIT_CONE_ALLY              = 59,
     TARGET_UNIT_AREA_SCRIPT            = 60,
     TARGET_AREAEFFECT_PARTY_AND_CLASS  = 61,
