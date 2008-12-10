@@ -871,6 +871,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool IsHostileToPlayers() const;
         bool IsFriendlyTo(Unit const* unit) const;
         bool IsNeutralToAll() const;
+        bool IsInPartyWith(Unit const* unit) const;
+        bool IsInRaidWith(Unit const* unit) const;
         bool IsContestedGuard() const
         {
             if(FactionTemplateEntry const* entry = getFactionTemplateEntry())
@@ -1055,7 +1057,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
             return this;
         }
-        Player* GetCharmerOrOwnerPlayerOrPlayerItself();
+        Player* GetCharmerOrOwnerPlayerOrPlayerItself() const;
 
         void SetPet(Pet* pet);
         void SetCharm(Unit* pet);
