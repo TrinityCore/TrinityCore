@@ -136,7 +136,8 @@ bool ChatHandler::HandleReloadAllScriptsCommand(const char*)
     HandleReloadSpellScriptsCommand("a");
     SendGlobalSysMessage("DB tables `*_scripts` reloaded.");
     HandleReloadDbScriptStringCommand("a");
-    return true;
+    HandleReloadWpScriptsCommand("a");
+	return true;
 }
 
 bool ChatHandler::HandleReloadAllSpellCommand(const char*)
@@ -537,6 +538,26 @@ bool ChatHandler::HandleReloadEventScriptsCommand(const char* arg)
     objmgr.LoadEventScripts();
 
     if(*arg!='a')
+        SendGlobalSysMessage("DB table `event_scripts` reloaded.");
+
+    return true;
+}
+
+bool ChatHandler::HandleReloadWpScriptsCommand(const char* arg)
+{
+    if(sWorld.IsScriptScheduled())
+    {
+        SendSysMessage("DB scripts used currently, please attempt reload later.");
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    if(*arg!='a')
+        sLog.outString( "Re-Loading Scripts from `event_scripts`...");
+
+	objmgr.LoadWaypointScripts();
+ 
+	if(*arg!='a')
         SendGlobalSysMessage("DB table `event_scripts` reloaded.");
 
     return true;

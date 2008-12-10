@@ -211,7 +211,8 @@ class ChatHandler
 
         bool HandleReloadConfigCommand(const char* args);
 
-        bool HandleReloadAreaTriggerTavernCommand(const char* args);
+        bool HandleReloadWpScriptsCommand(const char* args);
+		bool HandleReloadAreaTriggerTavernCommand(const char* args);
         bool HandleReloadAreaTriggerTeleportCommand(const char* args);
         bool HandleReloadEventScriptsCommand(const char* args);
         bool HandleReloadCommandCommand(const char* args);
@@ -410,11 +411,16 @@ class ChatHandler
         bool HandlePasswordCommand(const char* args);
         bool HandleLockAccountCommand(const char* args);
         bool HandleRespawnCommand(const char* args);
-        bool HandleWpAddCommand(const char* args);
-        bool HandleWpModifyCommand(const char* args);
-        bool HandleWpShowCommand(const char* args);
-        bool HandleWpExportCommand(const char* args);
-        bool HandleWpImportCommand(const char* args);
+                
+		//New Wp Commands
+		bool HandleWpAddCommand(const char* args);
+        bool HandleWpLoadPathCommand(const char* args);
+		bool HandleWpUnLoadPathCommand(const char* args);
+		bool HandleWpModifyCommand(const char* args);
+        bool HandleWpEventCommand(const char* args);
+		bool HandleWpShowCommand(const char* args);
+        bool HandleReloadAllPaths(const char *args);
+
         bool HandleFlyModeCommand(const char* args);
         bool HandleSendOpcodeCommand(const char* args);
         bool HandleSellErrorCommand(const char* args);
