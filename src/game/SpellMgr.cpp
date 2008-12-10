@@ -1834,9 +1834,9 @@ void SpellMgr::LoadSpellCustomAttr()
         if(!tempSpell)
             continue;
 
-        for(uint32 i = 0; i < 3; ++i)
+        for(uint32 j = 0; j < 3; ++j)
         {
-            switch(tempSpell->EffectApplyAuraName[i])
+            switch(tempSpell->EffectApplyAuraName[j])
             {
                 case SPELL_AURA_PERIODIC_DAMAGE:
                 case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
