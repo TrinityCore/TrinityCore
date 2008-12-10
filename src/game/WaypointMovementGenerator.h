@@ -76,7 +76,7 @@ class TRINITY_DLL_SPEC WaypointMovementGenerator
 		void GeneratePathId(T &);
 		void Reset(T &unit);
         bool Update(T &, const uint32 &);
-		bool GetDestination(float &x, float &y, float &z) const{if(i_destinationHolder.HasArrived())return false; i_destinationHolder.GetDestination(x, y, z); return true;}
+		bool GetDestination(float &x, float &y, float &z) const;
 		MovementGeneratorType GetMovementGeneratorType() { return WAYPOINT_MOTION_TYPE; }
 
 	private:
