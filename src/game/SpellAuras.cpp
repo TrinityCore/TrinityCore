@@ -3040,7 +3040,8 @@ void Aura::HandleModConfuse(bool apply, bool Real)
     if(!Real)
         return;
 
-    m_target->SetConfused(apply, GetCasterGUID(), GetId());
+    //m_target->SetConfused(apply, GetCasterGUID(), GetId());
+    m_target->SetControlled(apply, UNIT_STAT_CONFUSED);
 }
 
 void Aura::HandleModFear(bool apply, bool Real)
@@ -3048,7 +3049,8 @@ void Aura::HandleModFear(bool apply, bool Real)
     if (!Real)
         return;
 
-    m_target->SetFeared(apply, GetCasterGUID(), GetId());
+    //m_target->SetFeared(apply, GetCasterGUID(), GetId());
+    m_target->SetControlled(apply, UNIT_STAT_FLEEING);
 }
 
 void Aura::HandleFeignDeath(bool apply, bool Real)
@@ -3146,46 +3148,7 @@ void Aura::HandleAuraModStun(bool apply, bool Real)
     if(!Real)
         return;
 
-    if (apply)
-    {
-        m_target->addUnitState(UNIT_STAT_STUNNED);
-        m_target->SetUInt64Value(UNIT_FIELD_TARGET, 0);
-
-        m_target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_ROTATE);
-        m_target->CastStop(m_target->GetGUID() == GetCasterGUID() ? GetId() : 0);
-
-        // Creature specific
-        if(m_target->GetTypeId() != TYPEID_PLAYER)
-            ((Creature*)m_target)->StopMoving();
-        else
-            m_target->SetUnitMovementFlags(0);    //Clear movement flags
-
-        WorldPacket data(SMSG_FORCE_MOVE_ROOT, 8);
-
-        data.append(m_target->GetPackGUID());
-        data << uint32(0);
-        m_target->SendMessageToSet(&data,true);
-    }
-    else
-    {
-        // Real remove called after current aura remove from lists, check if other similar auras active
-        if(m_target->HasAuraType(SPELL_AURA_MOD_STUN))
-            return;
-
-        m_target->clearUnitState(UNIT_STAT_STUNNED);
-        m_target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_ROTATE);
-
-        if(!m_target->hasUnitState(UNIT_STAT_ROOT))         // prevent allow move if have also root effect
-        {
-            if(m_target->getVictim() && m_target->isAlive())
-                m_target->SetUInt64Value(UNIT_FIELD_TARGET,m_target->getVictim()->GetGUID() );
-
-            WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 8+4);
-            data.append(m_target->GetPackGUID());
-            data << uint32(0);
-            m_target->SendMessageToSet(&data,true);
-        }
-    }
+    m_target->SetControlled(apply, UNIT_STAT_STUNNED);
 }
 
 void Aura::HandleModStealth(bool apply, bool Real)
@@ -3355,55 +3318,7 @@ void Aura::HandleAuraModRoot(bool apply, bool Real)
     if(!Real)
         return;
 
-    uint32 apply_stat = UNIT_STAT_ROOT;
-    if (apply)
-    {
-        m_target->addUnitState(UNIT_STAT_ROOT);
-        m_target->SetUInt64Value (UNIT_FIELD_TARGET, 0);
-                                                            // probably wrong
-        m_target->SetFlag(UNIT_FIELD_FLAGS,(apply_stat<<16));
-
-        //Save last orientation
-        if( m_target->getVictim() )
-            m_target->SetOrientation(m_target->GetAngle(m_target->getVictim()));
-
-        if(m_target->GetTypeId() == TYPEID_PLAYER)
-        {
-            WorldPacket data(SMSG_FORCE_MOVE_ROOT, 10);
-            data.append(m_target->GetPackGUID());
-            data << (uint32)2;
-            m_target->SendMessageToSet(&data,true);
-
-            //Clear unit movement flags
-            m_target->SetUnitMovementFlags(0);
-        }
-        else
-            ((Creature *)m_target)->StopMoving();
-    }
-    else
-    {
-        // Real remove called after current aura remove from lists, check if other similar auras active
-        if(m_target->HasAuraType(SPELL_AURA_MOD_ROOT))
-            return;
-
-        m_target->clearUnitState(UNIT_STAT_ROOT);
-                                                            // probably wrong
-        m_target->RemoveFlag(UNIT_FIELD_FLAGS,(apply_stat<<16));
-
-        if(!m_target->hasUnitState(UNIT_STAT_STUNNED))      // prevent allow move if have also stun effect
-        {
-            if(m_target->getVictim() && m_target->isAlive())
-                m_target->SetUInt64Value (UNIT_FIELD_TARGET,m_target->getVictim()->GetGUID() );
-
-            if(m_target->GetTypeId() == TYPEID_PLAYER)
-            {
-                WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 10);
-                data.append(m_target->GetPackGUID());
-                data << (uint32)2;
-                m_target->SendMessageToSet(&data,true);
-            }
-        }
-    }
+    m_target->SetControlled(apply, UNIT_STAT_ROOT);
 }
 
 void Aura::HandleAuraModSilence(bool apply, bool Real)
@@ -6231,10 +6146,11 @@ void Aura::HandlePreventFleeing(bool apply, bool Real)
     Unit::AuraList const& fearAuras = m_target->GetAurasByType(SPELL_AURA_MOD_FEAR);
     if( !fearAuras.empty() )
     {
-        if (apply)
+        m_target->SetControlled(!apply, UNIT_STAT_FLEEING);
+        /*if (apply)
             m_target->SetFeared(false, fearAuras.front()->GetCasterGUID());
         else
-            m_target->SetFeared(true);
+            m_target->SetFeared(true);*/
     }
 }
 

@@ -9260,13 +9260,6 @@ bool Unit::IsImmunedToSpell(SpellEntry const* spellInfo, bool useCharges)
     if (!spellInfo)
         return false;
 
-    //FIX ME this hack: don't get feared if stunned
-    if (spellInfo->Mechanic == MECHANIC_FEAR )
-    {
-        if ( hasUnitState(UNIT_STAT_STUNNED) )
-            return true;
-    }
-
     SpellImmuneList const& dispelList = m_spellImmune[IMMUNITY_DISPEL];
     for(SpellImmuneList::const_iterator itr = dispelList.begin(); itr != dispelList.end(); ++itr)
         if(itr->type == spellInfo->Dispel)
@@ -11844,6 +11837,7 @@ void Unit::StopMoving()
     SendMessageToSet(&data,false);
 }
 
+/*
 void Unit::SetFeared(bool apply, uint64 casterGUID, uint32 spellID)
 {
     if( apply )
@@ -11912,6 +11906,7 @@ void Unit::SetConfused(bool apply, uint64 casterGUID, uint32 spellID)
     if(GetTypeId() == TYPEID_PLAYER)
         ((Player*)this)->SetClientControl(this, !apply);
 }
+*/
 
 bool Unit::IsSitState() const
 {
@@ -12646,4 +12641,197 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
                 bg->HandleKillUnit((Creature*)pVictim, player);
         }
     }
+}
+
+void Unit::SetControlled(bool apply, UnitState state)
+{
+    if(apply)
+    {
+        if(hasUnitState(state))
+            return;
+
+        addUnitState(state);
+
+        switch(state)
+        {
+        case UNIT_STAT_STUNNED:
+            SetStunned(true);
+            break;
+        case UNIT_STAT_ROOT:
+            if(!hasUnitState(UNIT_STAT_STUNNED))
+                SetRooted(true);
+            break;
+        case UNIT_STAT_CONFUSED:
+            if(!hasUnitState(UNIT_STAT_STUNNED))
+                SetConfused(true);
+            break;
+        case UNIT_STAT_FLEEING:
+            if(!hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_CONFUSED))
+                SetFeared(true);
+            break;
+        default:
+            break;
+        }
+    }
+    else
+    {
+        switch(state)
+        {
+            case UNIT_STAT_STUNNED: if(HasAuraType(SPELL_AURA_MOD_STUN))    return;
+                                    else(SetStunned(false));
+            case UNIT_STAT_ROOT:    if(HasAuraType(SPELL_AURA_MOD_ROOT))    return;
+                                    else(SetRooted(false));
+            case UNIT_STAT_CONFUSED:if(HasAuraType(SPELL_AURA_MOD_CONFUSE)) return;
+                                    else(SetConfused(false));
+            case UNIT_STAT_FLEEING: if(HasAuraType(SPELL_AURA_MOD_FEAR))    return;
+                                    else(SetFeared(false));
+            default: return;
+        }
+
+        clearUnitState(state);
+
+        if(hasUnitState(UNIT_STAT_STUNNED))
+            SetStunned(true);
+        else
+        {
+            if(hasUnitState(UNIT_STAT_ROOT))
+                SetRooted(true);
+
+            if(hasUnitState(UNIT_STAT_CONFUSED))
+                SetConfused(true);
+            else if(hasUnitState(UNIT_STAT_FLEEING))
+                SetFeared(true);
+        }
+    }
+}
+
+void Unit::SetStunned(bool apply)
+{
+    if(apply)
+    {
+        SetUInt64Value(UNIT_FIELD_TARGET, 0);
+        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_ROTATE);
+        CastStop();
+
+        // Creature specific
+        if(GetTypeId() != TYPEID_PLAYER)
+            ((Creature*)this)->StopMoving();
+        else
+            SetUnitMovementFlags(0);    //Clear movement flags
+
+        WorldPacket data(SMSG_FORCE_MOVE_ROOT, 8);
+        data.append(GetPackGUID());
+        data << uint32(0);
+        SendMessageToSet(&data,true);
+    }
+    else
+    {
+        if(isAlive() && getVictim())
+            SetUInt64Value(UNIT_FIELD_TARGET, getVictim()->GetGUID());
+        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_ROTATE);
+
+        if(!hasUnitState(UNIT_STAT_ROOT))         // prevent allow move if have also root effect
+        {
+            WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 8+4);
+            data.append(GetPackGUID());
+            data << uint32(0);
+            SendMessageToSet(&data,true);
+        }
+    }
+}
+
+void Unit::SetRooted(bool apply)
+{
+    uint32 apply_stat = UNIT_STAT_ROOT;
+    if(apply)
+    {
+        SetFlag(UNIT_FIELD_FLAGS,(apply_stat<<16)); // probably wrong
+
+        if(GetTypeId() == TYPEID_PLAYER)
+        {
+            SetUnitMovementFlags(0);
+
+            WorldPacket data(SMSG_FORCE_MOVE_ROOT, 10);
+            data.append(GetPackGUID());
+            data << (uint32)2;
+            SendMessageToSet(&data,true);
+        }
+        else
+            ((Creature *)this)->StopMoving();
+    }
+    else
+    {
+        RemoveFlag(UNIT_FIELD_FLAGS,(apply_stat<<16)); // probably wrong
+
+        if(!hasUnitState(UNIT_STAT_STUNNED))      // prevent allow move if have also stun effect
+        {
+            if(GetTypeId() == TYPEID_PLAYER)
+            {
+                WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 10);
+                data.append(GetPackGUID());
+                data << (uint32)2;
+                SendMessageToSet(&data,true);
+            }
+        }
+    }
+}
+
+void Unit::SetFeared(bool apply)
+{
+    if(apply)
+    {
+        if(HasAuraType(SPELL_AURA_PREVENTS_FLEEING))
+            return;
+
+        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
+        CastStop();
+        //GetMotionMaster()->MovementExpired(false);
+        Unit *caster = NULL;
+        Unit::AuraList const& fearAuras = GetAurasByType(SPELL_AURA_MOD_FEAR);
+        if(!fearAuras.empty())
+            caster = ObjectAccessor::GetUnit(*this, fearAuras.front()->GetCasterGUID());
+        GetMotionMaster()->MoveFleeing(caster);             // caster==NULL processed in MoveFleeing
+    }
+    else
+    {
+        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
+        GetMotionMaster()->MovementExpired(false);
+        if( GetTypeId() != TYPEID_PLAYER && isAlive() )
+        {
+            // restore appropriate movement generator
+            if(getVictim())
+                GetMotionMaster()->MoveChase(getVictim());
+            else
+                GetMotionMaster()->Initialize();
+        }
+    }
+
+    if (GetTypeId() == TYPEID_PLAYER)
+        ((Player*)this)->SetClientControl(this, !apply);
+}
+
+void Unit::SetConfused(bool apply)
+{
+    if(apply)
+    {
+        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
+        CastStop();
+        GetMotionMaster()->MoveConfused();
+    }
+    else
+    {
+        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
+        GetMotionMaster()->MovementExpired(false);
+        if( GetTypeId() != TYPEID_PLAYER && isAlive() )
+        {
+            // restore appropriate movement generator
+            if(getVictim())
+                GetMotionMaster()->MoveChase(getVictim());
+            else
+                GetMotionMaster()->Initialize();
+        }
+    }
+
+    if(GetTypeId() == TYPEID_PLAYER)
+        ((Player*)this)->SetClientControl(this, !apply);
 }
