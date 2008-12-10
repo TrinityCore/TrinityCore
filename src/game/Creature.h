@@ -279,7 +279,8 @@ struct CreatureDataAddonAura
 struct CreatureDataAddon
 {
     uint32 guidOrEntry;
-    uint32 mount;
+    uint32 path_id;
+	uint32 mount;
     uint32 bytes0;
     uint32 bytes1;
     uint32 bytes2;
@@ -616,7 +617,14 @@ class TRINITY_DLL_SPEC Creature : public Unit
         void GetCombatStartPosition(float &x, float &y, float &z) { x = CombatStartX; y = CombatStartY; z = CombatStartZ; }
 
         uint32 GetGlobalCooldown() const { return m_GlobalCooldown; }
-    protected:
+    
+		uint32 GetWaypointPath(){return m_path_id;}
+		void LoadPath(uint32 pathid) { m_path_id = pathid; }
+	
+		uint32 GetCurrentWaypointID(){return m_waypointID;}
+		void UpdateWaypointID(uint32 wpID){m_waypointID = wpID;}
+
+	protected:
         bool CreateFromProto(uint32 guidlow,uint32 Entry,uint32 team, const CreatureData *data = NULL);
         bool InitEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);
 
@@ -666,7 +674,11 @@ class TRINITY_DLL_SPEC Creature : public Unit
         float CombatStartZ;
 
     private:
-        GridReference<Creature> m_gridRef;
+		//WaypointMovementGenerator vars
+		uint32 m_waypointID;
+		uint32 m_path_id;
+ 
+		GridReference<Creature> m_gridRef;
         CreatureInfo const* m_creatureInfo;                 // in heroic mode can different from ObjMgr::GetCreatureTemplate(GetEntry())
 };
 

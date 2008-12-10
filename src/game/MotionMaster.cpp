@@ -319,6 +319,31 @@ void MotionMaster::Mutate(MovementGenerator *m)
     push(m);
 }
 
+void MotionMaster::MovePath(uint32 path_id, bool repeatable)
+{
+	if(!path_id)
+		return;
+	//We set waypoint movement as new default movement generator
+	// clear ALL movement generators (including default)
+    while(!empty())
+    {
+        MovementGenerator *curr = top();
+        curr->Finalize(*i_owner);
+        pop();
+        if( !isStatic( curr ) )
+            delete curr;
+    }
+	
+	sLog.outError("attempting to move");
+	//i_owner->GetTypeId()==TYPEID_PLAYER ?
+		//Mutate(new WaypointMovementGenerator<Player>(path_id, repeatable)):
+		Mutate(new WaypointMovementGenerator<Creature>(path_id, repeatable));
+	
+	DEBUG_LOG("%s (GUID: %u) start moving over path(Id:%u, repeatable: %s)", 
+		i_owner->GetTypeId()==TYPEID_PLAYER ? "Player" : "Creature", 
+		i_owner->GetGUIDLow(), path_id, repeatable ? "YES" : "NO" );
+}
+
 void MotionMaster::propagateSpeedChange()
 {
     Impl::container_type::iterator it = Impl::c.begin();
