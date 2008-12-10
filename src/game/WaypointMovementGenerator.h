@@ -50,64 +50,41 @@ class TRINITY_DLL_SPEC PathMovementBase
 
         inline bool MovementInProgress(void) const { return i_currentNode < i_path.Size(); }
 
-        // template pattern, not defined .. override required
         void LoadPath(T &);
         void ReloadPath(T &);
         uint32 GetCurrentNode() const { return i_currentNode; }
-
+		
     protected:
         uint32 i_currentNode;
         DestinationHolder< Traveller<T> > i_destinationHolder;
         P i_path;
 };
 
-/** WaypointMovementGenerator loads a series of way points
- * from the DB and apply it to the creature's movement generator.
- * Hence, the creature will move according to its predefined way points.
- */
-
 template<class T>
-class TRINITY_DLL_SPEC WaypointMovementGenerator;
 
-template<>
-class TRINITY_DLL_SPEC WaypointMovementGenerator<Creature>
-: public MovementGeneratorMedium< Creature, WaypointMovementGenerator<Creature> >,
-public PathMovementBase<Creature, WaypointPath*>
+class TRINITY_DLL_SPEC WaypointMovementGenerator
+    : public MovementGeneratorMedium< T, WaypointMovementGenerator<T> >, public PathMovementBase<T>
 {
-    TimeTrackerSmall i_nextMoveTime;
-    std::vector<bool> i_hasDone;
-    public:
-        WaypointMovementGenerator(Creature &) : i_nextMoveTime(0) {}
-        ~WaypointMovementGenerator() { ClearWaypoints(); }
-        void Initialize(Creature &u)
-        {
-            i_nextMoveTime.Reset(0);                        // TODO: check the lower bound (0 is probably too small)
-            u.StopMoving();
-            LoadPath(u);
-        }
-        void Finalize(Creature &) {}
-        void Reset(Creature &u) { ReloadPath(u); }
-        bool Update(Creature &u, const uint32 &diff);
+	public:
+		WaypointMovementGenerator(uint32 _path_id = 0, bool _repeating = true) : 
+		  i_nextMoveTime(0), path_id(_path_id), repeating(_repeating), StopedByPlayer(false){}
+        
+		void Initialize(T &);
+        void Finalize(T &);
+		void MovementInform(T &);
+		void InitTraveller(T &, const WaypointData &);
+		void GeneratePathId(T &);
+		void Reset(T &unit);
+        bool Update(T &, const uint32 &);
+		bool GetDestination(float &x, float &y, float &z) const{if(i_destinationHolder.HasArrived())return false; i_destinationHolder.GetDestination(x, y, z); return true;}
+		MovementGeneratorType GetMovementGeneratorType() { return WAYPOINT_MOTION_TYPE; }
 
-        void MovementInform(Creature &);
-
-        MovementGeneratorType GetMovementGeneratorType() { return WAYPOINT_MOTION_TYPE; }
-
-        // now path movement implmementation
-        void LoadPath(Creature &c);
-        void ReloadPath(Creature &c) { ClearWaypoints(); LoadPath(c); }
-
-        // Player stoping creature
-        bool IsStopedByPlayer() { return b_StopedByPlayer; }
-        void SetStopedByPlayer(bool val) { b_StopedByPlayer = val; }
-
-        // statics
-        static void Initialize(void);
-
-        bool GetDestination(float& x, float& y, float& z) const { i_destinationHolder.GetDestination(x,y,z); return true; }
-    private:
-        void ClearWaypoints();
-        bool b_StopedByPlayer;
+	private:
+		WaypointData node;
+		uint32 i_currentNode, path_id;
+        TimeTrackerSmall i_nextMoveTime;
+        WaypointPath *waypoints;
+        bool repeating, custom_path, ExecuteScript, StopedByPlayer;
 };
 
 /** FlightPathMovementGenerator generates movement of the player for the paths
@@ -135,6 +112,7 @@ public PathMovementBase<Player>
         inline bool HasArrived() const { return (i_currentNode >= i_path.Size()); }
         void SetCurrentNodeAfterTeleport();
         void SkipCurrentNode() { ++i_currentNode; }
-        bool GetDestination(float& x, float& y, float& z) const { i_destinationHolder.GetDestination(x,y,z); return true; }
+		bool GetDestination(float& x, float& y, float& z) const { i_destinationHolder.GetDestination(x,y,z); return true; }
+
 };
 #endif

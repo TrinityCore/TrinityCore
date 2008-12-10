@@ -54,6 +54,7 @@ ScriptMapMap sQuestStartScripts;
 ScriptMapMap sSpellScripts;
 ScriptMapMap sGameObjectScripts;
 ScriptMapMap sEventScripts;
+ScriptMapMap sWaypointScripts;
 
 bool normalizePlayerName(std::string& name)
 {
@@ -4110,6 +4111,19 @@ void ObjectMgr::LoadEventScripts()
     }
 }
 
+//Load WP Scripts
+void ObjectMgr::LoadWaypointScripts()
+{
+    LoadScripts(sWaypointScripts, "waypoint_scripts");
+
+    for(ScriptMapMap::const_iterator itr = sWaypointScripts.begin(); itr != sWaypointScripts.end(); ++itr)
+    {
+        QueryResult *query = WorldDatabase.PQuery("SELECT * FROM `waypoint_scripts` WHERE `id` = %u", itr->first);
+        if(!query || !query->GetRowCount())
+            sLog.outErrorDb("There is no waypoint which links to the waypoint script %u", itr->first);
+    }
+}
+
 void ObjectMgr::LoadItemTexts()
 {
     QueryResult *result = CharacterDatabase.Query("SELECT id, text FROM item_text");
@@ -7481,7 +7495,7 @@ void ObjectMgr::LoadDbScriptStrings()
     CheckScripts(sGameObjectScripts,ids);
     CheckScripts(sEventScripts,ids);
 
-    WaypointMgr.CheckTextsExistance(ids);
+    CheckScripts(sWaypointScripts,ids);
 
     for(std::set<int32>::const_iterator itr = ids.begin(); itr != ids.end(); ++itr)
         sLog.outErrorDb( "Table `db_script_string` has unused string id  %u", *itr);

@@ -29,9 +29,9 @@ extern DatabaseMysql  WorldDatabase;
 
 const char CreatureInfosrcfmt[]="iiiiiisssiiiiiiiiiiffiffiiiiiiiiiiiffiiiiiiiiiiiiiiiiiiisiilliiis";
 const char CreatureInfodstfmt[]="iiiiiisssiiiiiiiiiiffiffiiiiiiiiiiiffiiiiiiiiiiiiiiiiiiisiilliiii";
-const char CreatureDataAddonInfofmt[]="iiiiiiis";
+const char CreatureDataAddonInfofmt[]="iiiiiiiis";
 const char CreatureModelfmt[]="iffbi";
-const char CreatureInfoAddonInfofmt[]="iiiiiiis";
+const char CreatureInfoAddonInfofmt[]="iiiiiiiis";
 const char EquipmentInfofmt[]="iiiiiiiiii";
 const char GameObjectInfosrcfmt[]="iiissiifiiiiiiiiiiiiiiiiiiiiiiiis";
 const char GameObjectInfodstfmt[]="iiissiifiiiiiiiiiiiiiiiiiiiiiiiii";

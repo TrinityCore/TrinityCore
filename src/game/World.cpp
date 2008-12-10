@@ -1271,6 +1271,7 @@ void World::SetInitialWorldSettings()
     objmgr.LoadSpellScripts();                              // must be after load Creature/Gameobject(Template/Data)
     objmgr.LoadGameObjectScripts();                         // must be after load Creature/Gameobject(Template/Data)
     objmgr.LoadEventScripts();                              // must be after load Creature/Gameobject(Template/Data)
+	objmgr.LoadWaypointScripts();
 
     sLog.outString( "Loading Scripts text locales..." );    // must be after Load*Scripts calls
     objmgr.LoadDbScriptStrings();
@@ -1313,7 +1314,6 @@ void World::SetInitialWorldSettings()
 
     ///- Initilize static helper structures
     AIRegistry::Initialize();
-    WaypointMovementGenerator<Creature>::Initialize();
     Player::InitVisibleBits();
 
     ///- Initialize MapManager
@@ -2203,8 +2203,32 @@ void World::ScriptsProcess()
 
                 break;
             }
+	
+			case SCRIPT_COMMAND_LOAD_PATH:
+			{
+				if(!source)
+                {
+                    sLog.outError("SCRIPT_COMMAND_START_MOVE is tried to apply to NON-existing unit.");
+                    break;
+                }
 
-            default:
+                if(!source->isType(TYPEMASK_UNIT))
+                {
+                    sLog.outError("SCRIPT_COMMAND_START_MOVE source mover isn't unit (TypeId: %u), skipping.",source->GetTypeId());
+                    break;
+                }	
+				
+				if(!WaypointMgr.GetPath(step.script->datalong))
+				{
+                    sLog.outError("SCRIPT_COMMAND_START_MOVE source mover has an invallid path, skipping.", step.script->datalong2);
+                    break;
+                }
+				
+				dynamic_cast<Unit*>(source)->GetMotionMaster()->MovePath(step.script->datalong, step.script->datalong2);
+				break;
+			}
+            
+			default:
                 sLog.outError("Unknown script command %u called.",step.script->command);
                 break;
         }
