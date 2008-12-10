@@ -31,7 +31,7 @@ class TRINITY_DLL_SPEC RandomMovementGenerator
 : public MovementGeneratorMedium< T, RandomMovementGenerator<T> >
 {
     public:
-        RandomMovementGenerator(const Unit &) : i_nextMoveTime(0) {}
+        RandomMovementGenerator() : i_nextMoveTime(0) {}
 
         void _setRandomLocation(T &);
         void Initialize(T &);
