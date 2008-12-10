@@ -8303,7 +8303,7 @@ Unit *Unit::GetCharmer() const
     return NULL;
 }
 
-Player* Unit::GetCharmerOrOwnerPlayerOrPlayerItself()
+Player* Unit::GetCharmerOrOwnerPlayerOrPlayerItself() const
 {
     uint64 guid = GetCharmerOrOwnerGUID();
     if(IS_PLAYER_GUID(guid))
@@ -12834,4 +12834,24 @@ void Unit::SetConfused(bool apply)
 
     if(GetTypeId() == TYPEID_PLAYER)
         ((Player*)this)->SetClientControl(this, !apply);
+}
+
+bool Unit::IsInPartyWith(Unit const *unit) const
+{
+    const Player *p1 = GetCharmerOrOwnerPlayerOrPlayerItself();
+    const Player *p2 = unit->GetCharmerOrOwnerPlayerOrPlayerItself();
+    if(p1 && p2)
+        return p1->IsInSameGroupWith(p2);
+    else
+        return false;
+}
+
+bool Unit::IsInRaidWith(Unit const *unit) const
+{
+    const Player *p1 = GetCharmerOrOwnerPlayerOrPlayerItself();
+    const Player *p2 = unit->GetCharmerOrOwnerPlayerOrPlayerItself();
+    if(p1 && p2)
+        return p1->IsInSameRaidWith(p2);
+    else
+        return false;
 }

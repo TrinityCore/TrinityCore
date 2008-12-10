@@ -4496,26 +4496,8 @@ int16 Spell::PetCanCast(Unit* target)
             if(!_target->isAlive())
                 return SPELL_FAILED_BAD_TARGETS;
 
-            if(IsPositiveSpell(m_spellInfo->Id))
-            {
-                if(m_caster->IsHostileTo(_target))
-                    return SPELL_FAILED_BAD_TARGETS;
-            }
-            else
-            {
-                bool duelvsplayertar = false;
-                for(int j=0;j<3;j++)
-                {
-                                                            //TARGET_DUELVSPLAYER is positive AND negative
-                    duelvsplayertar |= (m_spellInfo->EffectImplicitTargetA[j] == TARGET_DUELVSPLAYER);
-                }
-                // AoE spells have the caster as their target
-                // AOE spells should not have target
-                if(m_caster->IsFriendlyTo(target) /*&& m_caster != target*/ && !duelvsplayertar)
-                {
-                    return SPELL_FAILED_BAD_TARGETS;
-                }
-            }
+            if(!IsValidSingleTargetSpell(_target))
+                return SPELL_FAILED_BAD_TARGETS;
         }
                                                             //cooldown
         if(((Creature*)m_caster)->HasSpellCooldown(m_spellInfo->Id))
@@ -5552,4 +5534,33 @@ void SpellEvent::Abort(uint64 /*e_time*/)
 bool SpellEvent::IsDeletable() const
 {
     return m_Spell->IsDeletable();
+}
+
+bool Spell::IsValidSingleTargetEffect(Unit const* target, Targets type) const
+{
+    switch(type)
+    {
+        case TARGET_UNIT_TARGET_ENEMY:
+            return !m_caster->IsFriendlyTo(target);
+        case TARGET_UNIT_TARGET_ALLY:
+            return m_caster->IsFriendlyTo(target);
+        case TARGET_UNIT_TARGET_PARTY:
+            return m_caster->IsInPartyWith(target);
+        case TARGET_UNIT_TARGET_RAID:
+            return m_caster->IsInRaidWith(target);
+    }
+    return true;
+}
+
+bool Spell::IsValidSingleTargetSpell(Unit const* target) const
+{
+    for(int i = 0; i < 3; ++i)
+    {
+        if(!IsValidSingleTargetEffect(target, Targets(m_spellInfo->EffectImplicitTargetA[i])))
+            return false;
+        // Need to check B?
+        //if(!IsValidSingleTargetEffect(m_spellInfo->EffectImplicitTargetB[i], target)
+        //    return false;
+    }
+    return true;
 }
