@@ -12678,13 +12678,13 @@ void Unit::SetControlled(bool apply, UnitState state)
         switch(state)
         {
             case UNIT_STAT_STUNNED: if(HasAuraType(SPELL_AURA_MOD_STUN))    return;
-                                    else(SetStunned(false));
+                                    else    SetStunned(false);    break;
             case UNIT_STAT_ROOT:    if(HasAuraType(SPELL_AURA_MOD_ROOT))    return;
-                                    else(SetRooted(false));
+                                    else    SetRooted(false);     break;
             case UNIT_STAT_CONFUSED:if(HasAuraType(SPELL_AURA_MOD_CONFUSE)) return;
-                                    else(SetConfused(false));
+                                    else    SetConfused(false);   break;
             case UNIT_STAT_FLEEING: if(HasAuraType(SPELL_AURA_MOD_FEAR))    return;
-                                    else(SetFeared(false));
+                                    else    SetFeared(false);     break;
             default: return;
         }
 
