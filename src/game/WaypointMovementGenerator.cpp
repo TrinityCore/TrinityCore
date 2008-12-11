@@ -66,8 +66,8 @@ void WaypointMovementGenerator<Creature>::MovementInform(Creature &unit)
     unit.AI()->MovementInform(WAYPOINT_MOTION_TYPE, i_currentNode);
 }
 
-template<class T>
-bool WaypointMovementGenerator<T>::GetDestination(float &x, float &y, float &z) const
+template<>
+bool WaypointMovementGenerator<Creature>::GetDestination(float &x, float &y, float &z) const
 {
     if(i_destinationHolder.HasArrived())
         return false; 
@@ -75,8 +75,9 @@ bool WaypointMovementGenerator<T>::GetDestination(float &x, float &y, float &z) 
     i_destinationHolder.GetDestination(x, y, z); 
     return true;
 }
-template bool WaypointMovementGenerator<Creature>::GetDestination(float &x, float &y, float &z) const;
-template bool WaypointMovementGenerator<Player>::GetDestination(float &x, float &y, float &z) const;
+
+template<>
+bool WaypointMovementGenerator<Player>::GetDestination(float &x, float &y, float &z) const {}
 
 template<>
 void WaypointMovementGenerator<Creature>::Reset(Creature &unit){}
