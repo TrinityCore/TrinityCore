@@ -1534,6 +1534,25 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
     return go;
 }
 
+Creature* WorldObject::SummonTrigger(float x, float y, float z, float ang, uint32 duration, CreatureAI* (*GetAI)(Creature*))
+{
+    TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
+    Creature* summon = SummonCreature(WORLD_TRIGGER, x, y, z, ang, summonType, 0);
+    if(!summon)
+        return NULL;
+
+    //summon->SetName(GetName());
+    if(GetTypeId()==TYPEID_PLAYER || GetTypeId()==TYPEID_UNIT)
+    {
+        summon->setFaction(((Unit*)this)->getFaction());
+        summon->SetLevel(((Unit*)this)->getLevel());
+    }
+
+    if(GetAI)
+        summon->AIM_Initialize(GetAI(summon));
+    return summon;
+}
+
 void WorldObject::GetNearPoint2D(float &x, float &y, float distance2d, float absAngle ) const
 {
     x = GetPositionX() + (GetObjectSize() + distance2d) * cos(absAngle);

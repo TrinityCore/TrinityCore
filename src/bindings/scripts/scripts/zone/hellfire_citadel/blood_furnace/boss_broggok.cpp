@@ -79,42 +79,9 @@ struct TRINITY_DLL_DECL boss_broggokAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL mob_broggok_poisoncloudAI : public ScriptedAI
-{
-    mob_broggok_poisoncloudAI(Creature *c) : ScriptedAI(c) {Reset();}
-
-    bool Start;
-
-    void Reset()
-    {
-        Start = false;
-    }
-
-    void Aggro(Unit* who)
-    {
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if(!Start)
-        {
-            m_creature->SetUInt32Value(UNIT_NPC_FLAGS,0);
-            m_creature->setFaction(45);
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            Start = true;
-            DoCast(m_creature,SPELL_POISON);
-        }
-    }
-};
-
 CreatureAI* GetAI_boss_broggokAI(Creature *_Creature)
 {
     return new boss_broggokAI (_Creature);
-}
-
-CreatureAI* GetAI_mob_broggok_poisoncloudAI(Creature *_Creature)
-{
-    return new mob_broggok_poisoncloudAI (_Creature);
 }
 
 void AddSC_boss_broggok()
@@ -123,10 +90,5 @@ void AddSC_boss_broggok()
     newscript = new Script;
     newscript->Name="boss_broggok";
     newscript->GetAI = GetAI_boss_broggokAI;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name="mob_broggok_poisoncloud";
-    newscript->GetAI = GetAI_mob_broggok_poisoncloudAI;
     newscript->RegisterSelf();
 }

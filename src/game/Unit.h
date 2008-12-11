@@ -37,6 +37,8 @@
 #include "Database/DBCStructure.h"
 #include <list>
 
+#define WORLD_TRIGGER   12999
+
 enum SpellInterruptFlags
 {
     SPELL_INTERRUPT_FLAG_MOVEMENT     = 0x01, // why need this for instant?
@@ -871,6 +873,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool IsHostileToPlayers() const;
         bool IsFriendlyTo(Unit const* unit) const;
         bool IsNeutralToAll() const;
+        bool IsInPartyWith(Unit const* unit) const;
+        bool IsInRaidWith(Unit const* unit) const;
         bool IsContestedGuard() const
         {
             if(FactionTemplateEntry const* entry = getFactionTemplateEntry())
@@ -1055,7 +1059,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
             return this;
         }
-        Player* GetCharmerOrOwnerPlayerOrPlayerItself();
+        Player* GetCharmerOrOwnerPlayerOrPlayerItself() const;
 
         void SetPet(Pet* pet);
         void SetCharm(Unit* pet);
@@ -1348,8 +1352,11 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         uint32 GetUnitMovementFlags() const { return m_unit_movement_flags; }
         void SetUnitMovementFlags(uint32 f) { m_unit_movement_flags = f; }
 
-        void SetFeared(bool apply, uint64 casterGUID = 0, uint32 spellID = 0);
-        void SetConfused(bool apply, uint64 casterGUID = 0, uint32 spellID = 0);
+        void SetControlled(bool apply, UnitState state);
+        void SetFeared(bool apply/*, uint64 casterGUID = 0, uint32 spellID = 0*/);
+        void SetConfused(bool apply/*, uint64 casterGUID = 0, uint32 spellID = 0*/);
+        void SetStunned(bool apply);
+        void SetRooted(bool apply);
 
         void AddComboPointHolder(uint32 lowguid) { m_ComboPointHolders.insert(lowguid); }
         void RemoveComboPointHolder(uint32 lowguid) { m_ComboPointHolders.erase(lowguid); }

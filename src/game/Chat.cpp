@@ -137,12 +137,15 @@ ChatCommand * ChatHandler::getCommandTable()
     static ChatCommand wpCommandTable[] =
     {
         { "show",           SEC_GAMEMASTER,     false, &ChatHandler::HandleWpShowCommand,              "", NULL },
-        { "add",            SEC_GAMEMASTER,     false, &ChatHandler::HandleWpAddCommand,               "", NULL },
-        { "modify",         SEC_GAMEMASTER,     false, &ChatHandler::HandleWpModifyCommand,            "", NULL },
-        { "export",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleWpExportCommand,            "", NULL },
-        { "import",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleWpImportCommand,            "", NULL },
-        { NULL,             0,                  false, NULL,                                           "", NULL }
+        { "addwp",          SEC_GAMEMASTER,     false, &ChatHandler::HandleWpAddCommand,               "", NULL },
+		{ "load",			SEC_GAMEMASTER,     false, &ChatHandler::HandleWpLoadPathCommand,          "", NULL },
+		{ "modify",         SEC_GAMEMASTER,     false, &ChatHandler::HandleWpModifyCommand,            "", NULL },
+		{ "event",			SEC_GAMEMASTER,     false, &ChatHandler::HandleWpEventCommand,				"", NULL },
+		{ "unload",			SEC_GAMEMASTER,     false, &ChatHandler::HandleWpUnLoadPathCommand,		"", NULL },
+		
+		{ NULL,             0,                  false, NULL,                                           "", NULL }
     };
+
 
     static ChatCommand banCommandTable[] =
     {
@@ -293,6 +296,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "locales_npc_text",            SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesNpcTextCommand,          "", NULL },
         { "locales_page_text",           SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesPageTextCommand,         "", NULL },
         { "locales_quest",               SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesQuestCommand,            "", NULL },
+		{ "waypoint_scripts",            SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadWpScriptsCommand,				 "", NULL },
 
         { "",                            SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadCommand,                        "", NULL },
         { NULL,                          0,                 false, NULL,                                                     "", NULL }
@@ -507,8 +511,12 @@ ChatCommand * ChatHandler::getCommandTable()
         { "event",          SEC_GAMEMASTER,     false, NULL,                                           "", eventCommandTable },
         { "gobject",        SEC_GAMEMASTER,     false, NULL,                                           "", gobjectCommandTable },
         { "honor",          SEC_GAMEMASTER,     false, NULL,                                           "", honorCommandTable },
-        { "wp",             SEC_GAMEMASTER,     false, NULL,                                           "", wpCommandTable },
-        { "quest",          SEC_ADMINISTRATOR,  false, NULL,                                           "", questCommandTable },
+        
+		//wp commands
+		{ "path",           SEC_GAMEMASTER,     false, NULL,                                           "", wpCommandTable },
+        { "loadpath",		SEC_ADMINISTRATOR,  false, &ChatHandler::HandleReloadAllPaths,			   "", NULL },
+	
+		{ "quest",          SEC_ADMINISTRATOR,  false, NULL,                                           "", questCommandTable },
         { "reload",         SEC_ADMINISTRATOR,  true,  NULL,                                           "", reloadCommandTable },
         { "list",           SEC_ADMINISTRATOR,  true,  NULL,                                           "", listCommandTable },
         { "lookup",         SEC_ADMINISTRATOR,  true,  NULL,                                           "", lookupCommandTable },
