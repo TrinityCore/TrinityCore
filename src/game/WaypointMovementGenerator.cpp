@@ -20,6 +20,7 @@
 #include <ctime>
 
 #include "WaypointMovementGenerator.h"
+#include "DestinationHolderImp.h"
 //Accessors
 #include "Database/DatabaseEnv.h"
 #include "ObjectMgr.h"
