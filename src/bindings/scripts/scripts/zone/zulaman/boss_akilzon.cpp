@@ -25,7 +25,6 @@ EndScriptData */
 
 #include "precompiled.h"
 #include "def_zulaman.h"
-#include "Spell.h"
 #include "Weather.h"
 
 #define SPELL_STATIC_DISRUPTION		43622
@@ -34,6 +33,7 @@ EndScriptData */
 #define SPELL_GUST_OF_WIND			43621
 #define SPELL_ELECTRICAL_STORM		43648
 #define SPELL_BERSERK				45078
+#define SPELL_ELECTRICAL_DAMAGE 	43657
 #define SPELL_ELECTRICAL_OVERLOAD	43658
 #define SPELL_EAGLE_SWOOP			44732
 
@@ -57,15 +57,13 @@ EndScriptData */
 #define SE_LOC_Y_MAX 1435
 #define SE_LOC_Y_MIN 1370
 
-#define MOB_TEMP_TRIGGER    23920
-
 struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
 {
     boss_akilzonAI(Creature *c) : ScriptedAI(c)
     {
-		SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_ELECTRICAL_STORM);
+		SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_ELECTRICAL_DAMAGE);
         if(TempSpell)
-			TempSpell->Effect[1] = 0;//disable bugged lightning until fixed in core
+            TempSpell->EffectBasePoints[1] = 49;//disable bugged lightning until fixed in core
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Reset();
     }
@@ -214,7 +212,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
             {               
                 x = 343+rand()%60;
                 y = 1380+rand()%60;
-                if(Unit *trigger = m_creature->SummonCreature(MOB_TEMP_TRIGGER, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 2000))
+                if(Unit *trigger = m_creature->SummonTrigger(x, y, z, 0, 2000))
                 {
 					trigger->setFaction(35);
                     trigger->SetMaxHealth(100000);
@@ -315,7 +313,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
 				target->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
 				target->SendMonsterMove(x,y,m_creature->GetPositionZ()+15,0,0,0);
 			}
-			Unit *Cloud = m_creature->SummonCreature(MOB_TEMP_TRIGGER, x, y, m_creature->GetPositionZ()+16, 0, TEMPSUMMON_TIMED_DESPAWN, 15000);
+			Unit *Cloud = m_creature->SummonTrigger(x, y, m_creature->GetPositionZ()+16, 0, 15000);
             if(Cloud)
             {
 				CloudGUID = Cloud->GetGUID();

@@ -426,6 +426,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
         bool isTotem() const { return m_isTotem; }
         bool isRacialLeader() const { return GetCreatureInfo()->RacialLeader; }
         bool isCivilian() const { return GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_CIVILIAN; }
+        bool isTrigger() const { return GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER; }
         bool canWalk() const { return GetCreatureInfo()->InhabitType & INHABIT_GROUND; }
         bool canSwim() const { return GetCreatureInfo()->InhabitType & INHABIT_WATER; }
         bool canFly()  const { return GetCreatureInfo()->InhabitType & INHABIT_AIR; }
@@ -462,7 +463,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
 
         bool IsInEvadeMode() const;
 
-        bool AIM_Initialize();
+        bool AIM_Initialize(CreatureAI* ai = NULL);
         void InitPossessedAI();
         void DisablePossessedAI();
 

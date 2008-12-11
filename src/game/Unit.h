@@ -37,6 +37,8 @@
 #include "Database/DBCStructure.h"
 #include <list>
 
+#define WORLD_TRIGGER   12999
+
 enum SpellInterruptFlags
 {
     SPELL_INTERRUPT_FLAG_MOVEMENT     = 0x01, // why need this for instant?

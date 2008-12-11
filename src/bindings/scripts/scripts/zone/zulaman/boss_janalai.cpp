@@ -226,9 +226,9 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
             for(uint8 j = 0; j < WallNum; j++)
             {
                 if(WallNum == 3)
-                    wall = m_creature->SummonCreature(MOB_FIRE_BOMB, FireWallCoords[i][0],FireWallCoords[i][1]+5*(j-1),FireWallCoords[i][2],FireWallCoords[i][3],TEMPSUMMON_TIMED_DESPAWN,15000);
+                    wall = m_creature->SummonTrigger(FireWallCoords[i][0],FireWallCoords[i][1]+5*(j-1),FireWallCoords[i][2],FireWallCoords[i][3],15000);
                 else
-                    wall = m_creature->SummonCreature(MOB_FIRE_BOMB, FireWallCoords[i][0]-2+4*j,FireWallCoords[i][1],FireWallCoords[i][2],FireWallCoords[i][3],TEMPSUMMON_TIMED_DESPAWN,15000);
+                    wall = m_creature->SummonTrigger(FireWallCoords[i][0]-2+4*j,FireWallCoords[i][1],FireWallCoords[i][2],FireWallCoords[i][3],15000);
                 if(wall) wall->CastSpell(wall, SPELL_FIRE_WALL, true);
             }
         }
@@ -683,14 +683,9 @@ CreatureAI* GetAI_mob_hatchlingAI(Creature *_Creature)
     return new mob_hatchlingAI(_Creature);
 }
 
-struct TRINITY_DLL_DECL mob_eggAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_eggAI : public NullCreatureAI
 {
-    mob_eggAI(Creature *c) : ScriptedAI(c){}
-    void Reset() {}
-    void Aggro(Unit* who) {}
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) {}
+    mob_eggAI(Creature *c) : NullCreatureAI(c){}
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
