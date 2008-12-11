@@ -2079,6 +2079,13 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 }
                 return;
             }
+
+            // electrical storm safe zone
+            if (GetId() == 44007)
+            {
+                m_target->ApplySpellImmune(44007, IMMUNITY_ID, 43657, apply);
+                return;
+            }
             break;
         }
         case SPELLFAMILY_MAGE:

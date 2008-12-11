@@ -546,23 +546,15 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
             if(Pillar_Of_Fire_Timer < diff)
             {
                 if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                {
-                    float x, y, z;
-                    target->GetPosition(x, y, z);
-                    Creature* Pillar = m_creature->SummonCreature(CREATURE_COLUMN_OF_FIRE, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 30000);
-                    if(Pillar)
-                    {
-                        Pillar->CastSpell(Pillar, SPELL_PILLAR_TRIGGER, true);
-                        Pillar->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    }
-                }
+                    DoCast(target, SPELL_SUMMON_PILLAR);
                 Pillar_Of_Fire_Timer = 10000;
             }else Pillar_Of_Fire_Timer -= diff;
 
             if(Flame_Breath_Timer < diff)
             {
                 if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                    m_creature->CastSpell(m_creature, SPELL_FLAME_BREATH, false);
+                    m_creature->SetInFront(target);
+                DoCast(m_creature, SPELL_FLAME_BREATH);
                 Flame_Breath_Timer = 10000;
             }else Flame_Breath_Timer -= diff;
             break;
@@ -579,21 +571,6 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
 CreatureAI* GetAI_boss_zuljin(Creature *_Creature)
 {
     return new boss_zuljinAI (_Creature);
-}
-
-struct TRINITY_DLL_DECL do_nothingAI : public ScriptedAI
-{
-    do_nothingAI(Creature *c) : ScriptedAI(c) {}
-    void Reset() {}
-    void Aggro(Unit* who) {}
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) {}
-};
-
-CreatureAI* GetAI_do_nothing(Creature *_Creature)
-{
-    return new do_nothingAI (_Creature);
 }
 
 struct TRINITY_DLL_DECL feather_vortexAI : public ScriptedAI
@@ -629,11 +606,6 @@ void AddSC_boss_zuljin()
     newscript = new Script;
     newscript->Name="boss_zuljin";
     newscript->GetAI = GetAI_boss_zuljin;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name="do_nothing";
-    newscript->GetAI = GetAI_do_nothing;
     newscript->RegisterSelf();
 
     newscript = new Script;

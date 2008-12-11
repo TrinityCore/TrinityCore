@@ -1277,7 +1277,7 @@ void GameObject::Use(Unit* user)
 void GameObject::CastSpell(Unit* target, uint32 spell)
 {
     //summon world trigger
-    Creature *trigger = SummonCreature(12999, GetPositionX(), GetPositionY(), GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 1);
+    Creature *trigger = SummonTrigger(GetPositionX(), GetPositionY(), GetPositionZ(), 0, 1);
     if(!trigger) return;
 
     trigger->SetVisibility(VISIBILITY_OFF); //should this be true?

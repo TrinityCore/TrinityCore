@@ -220,10 +220,10 @@ void ScriptedAI::DoStopAttack()
 
 void ScriptedAI::DoCast(Unit* victim, uint32 spellId, bool triggered)
 {
-    if (!victim || m_creature->IsNonMeleeSpellCasted(false))
+    if (!victim || m_creature->hasUnitState(UNIT_STAT_CASTING))
         return;
 
-    m_creature->StopMoving();
+    //m_creature->StopMoving();
     m_creature->CastSpell(victim, spellId, triggered);
 }
 
