@@ -1824,27 +1824,36 @@ void SpellMgr::LoadSpellPetAuras()
 // set data in core for now
 void SpellMgr::LoadSpellCustomAttr()
 {
+    mSpellCustomAttr.resize(GetSpellStore()->GetNumRows());
+
     SpellEntry *tempSpell;
     for(uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i)
     {
+        mSpellCustomAttr[i] = 0;
         tempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(i);
         if(!tempSpell)
             continue;
 
-        mSpellCustomAttrMap[tempSpell->Id] = 0;
-
-        for(uint32 i = 0; i < 3; ++i)
+        for(uint32 j = 0; j < 3; ++j)
         {
-            switch(tempSpell->EffectApplyAuraName[i])
+            switch(tempSpell->EffectApplyAuraName[j])
             {
                 case SPELL_AURA_PERIODIC_DAMAGE:
                 case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
                 case SPELL_AURA_PERIODIC_LEECH:
-                    mSpellCustomAttrMap[tempSpell->Id] |= SPELL_ATTR_CU_EFFECT_DAMAGE;
+                    mSpellCustomAttr[i] |= SPELL_ATTR_CU_AURA_DOT;
                     break;
                 case SPELL_AURA_PERIODIC_HEAL:
                 case SPELL_AURA_OBS_MOD_HEALTH:
-                    mSpellCustomAttrMap[tempSpell->Id] |= SPELL_ATTR_CU_EFFECT_HEAL;
+                    mSpellCustomAttr[i] |= SPELL_ATTR_CU_AURA_HOT;
+                    break;
+                case SPELL_AURA_MOD_POSSESS:
+                case SPELL_AURA_MOD_CONFUSE:
+                case SPELL_AURA_MOD_CHARM:
+                case SPELL_AURA_MOD_FEAR:
+                case SPELL_AURA_MOD_STUN:
+                case SPELL_AURA_MOD_ROOT:
+                    mSpellCustomAttr[i] |= SPELL_ATTR_CU_AURA_CC;
                     break;
                 default:
                     break;
@@ -1852,14 +1861,14 @@ void SpellMgr::LoadSpellCustomAttr()
         }
 
         if(tempSpell->SpellVisual == 3879)
-            mSpellCustomAttrMap[tempSpell->Id] |= SPELL_ATTR_CU_CONE_BACK;
+            mSpellCustomAttr[i] |= SPELL_ATTR_CU_CONE_BACK;
 
-        switch(tempSpell->Id)
+        switch(i)
         {
         case 26029: // dark glare
         case 37433: // spout
         case 43140: case 43215: // flame breath
-            mSpellCustomAttrMap[tempSpell->Id] |= SPELL_ATTR_CU_CONE_LINE;
+            mSpellCustomAttr[i] |= SPELL_ATTR_CU_CONE_LINE;
             break;
         case 24340: case 26558: case 28884:     // Meteor
         case 36837: case 38903: case 41276:     // Meteor
@@ -1869,7 +1878,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 40810: case 43267: case 43268:     // Saber Lash
         case 42384:                             // Brutal Swipe
         case 45150:                             // Meteor Slash
-            mSpellCustomAttrMap[tempSpell->Id] |= SPELL_ATTR_CU_SHARE_DAMAGE;
+            mSpellCustomAttr[i] |= SPELL_ATTR_CU_SHARE_DAMAGE;
             break;
         case 44978: case 45001: case 45002:     // Wild Magic
         case 45004: case 45006: case 45010:     // Wild Magic
@@ -1878,12 +1887,12 @@ void SpellMgr::LoadSpellCustomAttr()
         case 44869: // Spectral Blast
         case 45027: // Revitalize
         case 45976: // Muru Portal Channel
-            mSpellCustomAttrMap[tempSpell->Id] |= SPELL_ATTR_CU_PLAYERS_ONLY;
+            mSpellCustomAttr[i] |= SPELL_ATTR_CU_PLAYERS_ONLY;
             tempSpell->MaxAffectedTargets = 1;
             break;
         case 41376: // Spite
         case 39992: // Needle Spine
-            mSpellCustomAttrMap[tempSpell->Id] |= SPELL_ATTR_CU_PLAYERS_ONLY;
+            mSpellCustomAttr[i] |= SPELL_ATTR_CU_PLAYERS_ONLY;
             tempSpell->MaxAffectedTargets = 3;
             break;
         case 8122: case 8124: case 10888: case 10890: // Psychic Scream

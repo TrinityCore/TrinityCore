@@ -347,10 +347,10 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data )
     m_spells[3] = GetCreatureInfo()->spell4;
 
     // HACK: trigger creature is always not selectable
-    if(GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
+    if(isTrigger())
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-    if(isTotem() || GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER
+    if(isTotem() || isTrigger()
         || GetCreatureType() == CREATURE_TYPE_CRITTER)
         SetReactState(REACT_PASSIVE);
     else if(isCivilian())
@@ -563,7 +563,7 @@ void Creature::RegenerateHealth()
     ModifyHealth(addvalue);
 }
 
-bool Creature::AIM_Initialize()
+bool Creature::AIM_Initialize(CreatureAI* ai)
 {
     // make sure nothing can change the AI during AI update
     if(m_AI_locked)
@@ -578,7 +578,7 @@ bool Creature::AIM_Initialize()
 
     CreatureAI * oldAI = i_AI;
     i_motionMaster.Initialize();
-    i_AI = FactorySelector::selectAI(this);
+    i_AI = ai ? ai : FactorySelector::selectAI(this);
     if (oldAI)
         delete oldAI;
     return true;
@@ -2067,6 +2067,10 @@ bool Creature::LoadCreaturesAddon(bool reload)
 
     if (cainfo->move_flags != 0)
         SetUnitMovementFlags(cainfo->move_flags);
+
+    //Load Path
+	if (cainfo->path_id != 0)
+		m_path_id = cainfo->path_id;
 
     if(cainfo->auras)
     {
