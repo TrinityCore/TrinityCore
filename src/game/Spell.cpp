@@ -1470,7 +1470,8 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, const u
         y = m_caster->GetPositionY();
     }
 
-    CellPair p(Trinity::ComputeCellPair(x, y));
+    float x_off, y_off;
+    CellPair p(Trinity::ComputeCellPair(x, y, x_off, y_off));
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
@@ -1481,12 +1482,12 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, const u
     //if(TargetType != SPELL_TARGETS_ENTRY)
     {
         TypeContainerVisitor<Trinity::SpellNotifierCreatureAndPlayer, WorldTypeMapContainer > world_object_notifier(notifier);
-        cell_lock->Visit(cell_lock, world_object_notifier, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
+        cell_lock->Visit(cell_lock, world_object_notifier, *m_caster->GetMap(), radius, x_off, y_off);
     }
     if(!(m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_PLAYERS_ONLY))
     {
         TypeContainerVisitor<Trinity::SpellNotifierCreatureAndPlayer, GridTypeMapContainer >  grid_object_notifier(notifier);
-        cell_lock->Visit(cell_lock, grid_object_notifier, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
+        cell_lock->Visit(cell_lock, grid_object_notifier, *m_caster->GetMap(), radius, x_off, y_off);
     }
 }
 
