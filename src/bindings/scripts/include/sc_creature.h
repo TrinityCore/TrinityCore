@@ -183,13 +183,13 @@ struct TRINITY_DLL_DECL Scripted_NoMovementAI : public ScriptedAI
     void AttackStart(Unit *);
 };
 
-struct TRINITY_DLL_DECL NullCreatureAI : public CreatureAI
+struct TRINITY_DLL_DECL NullCreatureAI : public ScriptedAI
 {
-    NullCreatureAI(Creature* c) : m_creature(c) {}
+    NullCreatureAI(Creature* c) : ScriptedAI(c) {}
     ~NullCreatureAI() {}
 
-    Creature *m_creature;
-
+    void Reset() {}
+    void Aggro(Unit*) {}
     void MoveInLineOfSight(Unit *) {}
     void AttackStart(Unit *) {}
     void EnterEvadeMode() {}
