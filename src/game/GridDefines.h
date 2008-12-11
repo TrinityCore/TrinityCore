@@ -33,6 +33,17 @@ class GameObject;
 class Pet;
 class Player;
 
+//comment the next line if CPU usage is too high
+#define LARGE_CELL
+
+#ifdef LARGE_CELL
+#define MAX_NUMBER_OF_CELLS     4
+#define CENTER_GRID_CELL_ID     128
+#else
+#define MAX_NUMBER_OF_CELLS     8
+#define CENTER_GRID_CELL_ID     256
+#endif
+
 #define MAX_NUMBER_OF_GRIDS      64
 
 #define SIZE_OF_GRIDS            533.33333f
@@ -43,10 +54,8 @@ class Player;
 #define MIN_GRID_DELAY          MINUTE*1000
 #define MIN_MAP_UPDATE_DELAY    50
 
-#define MAX_NUMBER_OF_CELLS     4
 #define SIZE_OF_GRID_CELL       (SIZE_OF_GRIDS/MAX_NUMBER_OF_CELLS)
 
-#define CENTER_GRID_CELL_ID     128
 #define CENTER_GRID_CELL_OFFSET (SIZE_OF_GRID_CELL/2)
 
 #define TOTAL_NUMBER_OF_CELLS_PER_MAP    (MAX_NUMBER_OF_GRIDS*MAX_NUMBER_OF_CELLS)
@@ -139,6 +148,18 @@ namespace Trinity
     inline CellPair ComputeCellPair(float x, float y)
     {
         return Compute<CellPair, CENTER_GRID_CELL_ID>(x, y, CENTER_GRID_CELL_OFFSET, SIZE_OF_GRID_CELL);
+    }
+
+    inline CellPair ComputeCellPair(float x, float y, float &x_off, float &y_off)
+    {
+        double x_offset = (double(x) - CENTER_GRID_CELL_OFFSET)/SIZE_OF_GRID_CELL;
+        double y_offset = (double(y) - CENTER_GRID_CELL_OFFSET)/SIZE_OF_GRID_CELL;
+
+        int x_val = int(x_offset + 0.5);
+        int y_val = int(y_offset + 0.5);
+        x_off = (float(x_offset) - x_val) * SIZE_OF_GRID_CELL;
+        y_off = (float(y_offset) - y_val) * SIZE_OF_GRID_CELL;
+        return CellPair(x_val + CENTER_GRID_CELL_ID, y_val + CENTER_GRID_CELL_ID);
     }
 
     inline void NormalizeMapCoord(float &c)

@@ -1780,73 +1780,9 @@ struct TRINITY_DLL_DECL mob_parasitic_shadowfiendAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL demonfireAI : public ScriptedAI
+struct TRINITY_DLL_DECL blade_of_azzinothAI : public NullCreatureAI
 {
-    demonfireAI(Creature *c) : ScriptedAI(c) 
-    {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
-    }
-
-    ScriptedInstance* pInstance;
-    uint64 IllidanGUID;
-    bool IsTrigger;
-    bool DemonFire;
-    uint32 CheckTimer;
-    uint32 DespawnTimer;
-
-    void Reset()
-    {
-        if(pInstance)
-            IllidanGUID = pInstance->GetData64(DATA_ILLIDANSTORMRAGE);
-        else
-            IllidanGUID = 0;
-
-        IsTrigger = false;
-        DemonFire = false;
-
-        CheckTimer = 5000;
-        DespawnTimer = 78000; //spell duration, core bug, cannot despawn self
-    }
-
-    void Aggro(Unit *who) {}
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit *who){}
-
-    void UpdateAI(const uint32 diff)
-    {
-        if(IsTrigger)
-            return;
-
-        if(!DemonFire)
-            DoCast(m_creature, SPELL_DEMON_FIRE); //duration 60s
-
-        if(CheckTimer < diff)
-        {
-            GETUNIT(Illidan, IllidanGUID);
-            if(!Illidan || !Illidan->HasUnitMovementFlag(MOVEMENTFLAG_LEVITATING))
-            {
-                m_creature->SetVisibility(VISIBILITY_OFF);
-                m_creature->setDeathState(JUST_DIED);
-                return;
-            }else CheckTimer = 5000;
-        }else CheckTimer -= diff;
-
-        if(DespawnTimer < diff)
-        {
-            m_creature->SetVisibility(VISIBILITY_OFF);
-            m_creature->setDeathState(JUST_DIED);
-        }else DespawnTimer -= diff;
-    }
-};
-
-struct TRINITY_DLL_DECL blade_of_azzinothAI : public ScriptedAI
-{
-    blade_of_azzinothAI(Creature* c) : ScriptedAI(c) {}
-    void Reset() {}
-    void Aggro(Unit *who) {}
-    void AttackStart(Unit* who) { }
-    void MoveInLineOfSight(Unit* who) { }
+    blade_of_azzinothAI(Creature* c) : NullCreatureAI(c) {}
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
@@ -2060,15 +1996,14 @@ void boss_illidan_stormrageAI::CastEyeBlast()
     final.x = 2 * final.x - initial.x;
     final.y = 2 * final.y - initial.y;
 
-    Creature* Trigger = m_creature->SummonCreature(DEMON_FIRE, initial.x, initial.y, initial.z, 0, TEMPSUMMON_TIMED_DESPAWN, 13000);
+    Creature* Trigger = m_creature->SummonTrigger(initial.x, initial.y, initial.z, 0, 13000);
     if(!Trigger) return;
 
-    ((demonfireAI*)Trigger->AI())->IsTrigger = true;
     Trigger->SetSpeed(MOVE_WALK, 3);
     Trigger->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
     Trigger->GetMotionMaster()->MovePoint(0, final.x, final.y, final.z);
 
-    Trigger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+    //Trigger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     m_creature->SetUInt64Value(UNIT_FIELD_TARGET, Trigger->GetGUID());
     DoCast(Trigger, SPELL_EYE_BLAST);
 }
@@ -2225,11 +2160,6 @@ CreatureAI* GetAI_shadow_demon(Creature *_Creature)
     return new shadow_demonAI (_Creature);
 }
 
-CreatureAI* GetAI_demonfire(Creature *_Creature)
-{
-    return new demonfireAI (_Creature);
-}
-
 CreatureAI* GetAI_blade_of_azzinoth(Creature *_Creature)
 {
     return new blade_of_azzinothAI (_Creature);
@@ -2284,11 +2214,6 @@ void AddSC_boss_illidan()
     newscript = new Script;
     newscript->Name = "mob_shadow_demon";
     newscript->GetAI = GetAI_shadow_demon;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name="mob_demon_fire";
-    newscript->GetAI = GetAI_demonfire;
     newscript->RegisterSelf();
 
     newscript = new Script;

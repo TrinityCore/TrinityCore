@@ -22,72 +22,40 @@
 #define TRINITY_WAYPOINTMANAGER_H
 
 #include <vector>
-#include <string>
-#include "Utilities/UnorderedMap.h"
 
-#define MAX_WAYPOINT_TEXT 5
-struct WaypointBehavior
+struct WaypointData
 {
-    uint32 emote;
-    uint32 spell;
-    int32  textid[MAX_WAYPOINT_TEXT];
-    uint32 model1;
-    uint32 model2;
-
-    bool isEmpty();
-    WaypointBehavior() {}
-    WaypointBehavior(const WaypointBehavior &b);
-};
-
-struct WaypointNode
-{
-    float x;
-    float y;
-    float z;
-    float orientation;
+	uint32 id;
+    float x,y,z;
+    bool run;
     uint32 delay;
-    WaypointBehavior * behavior;
-    WaypointNode() {}
-    WaypointNode(float _x, float _y, float _z, float _o, uint32 _delay, WaypointBehavior * _behavior)
-      : x(_x), y(_y), z(_z), orientation(_o), delay(_delay), behavior(_behavior) {}
+    uint32 event_id;
+    uint8 event_chance;
 };
 
-typedef std::vector<WaypointNode> WaypointPath;
+typedef std::vector<WaypointData*> WaypointPath;
+extern UNORDERED_MAP<uint32, WaypointPath*> waypoint_map;
 
-class WaypointManager
+class WaypointStore
 {
-    public:
-        WaypointManager() {}
-        ~WaypointManager() { Unload(); }
-
-        void Load();
-        void Unload();
-
-        void Cleanup();
-
-        WaypointPath *GetPath(uint32 id)
+    private :
+		uint32	records;
+			
+	public:
+        void UpdatePath(uint32 id);
+		void Load();
+        void Free();
+        
+        WaypointPath* GetPath(uint32 id)
         {
-            WaypointPathMap::iterator itr = m_pathMap.find(id);
-            return itr != m_pathMap.end() ? &itr->second : NULL;
-        }
-
-        void AddLastNode(uint32 id, float x, float y, float z, float o, uint32 delay, uint32 wpGuid);
-        void AddAfterNode(uint32 id, uint32 point, float x, float y, float z, float o, uint32 delay, uint32 wpGuid);
-        uint32 GetLastPoint(uint32 id, uint32 default_notfound);
-        void DeleteNode(uint32 id, uint32 point);
-        void DeletePath(uint32 id);
-        void SetNodePosition(uint32 id, uint32 point, float x, float y, float z);
-        void SetNodeText(uint32 id, uint32 point, const char *text_field, const char *text);
-        void CheckTextsExistance(std::set<int32>& ids);
-
-    private:
-        void _addNode(uint32 id, uint32 point, float x, float y, float z, float o, uint32 delay, uint32 wpGuid);
-        void _clearPath(WaypointPath &path);
-
-        typedef UNORDERED_MAP<uint32, WaypointPath> WaypointPathMap;
-        WaypointPathMap m_pathMap;
+			if(waypoint_map.find(id) != waypoint_map.end())
+                return waypoint_map[id];
+			else return 0;
+		}
+		
+		inline uint32 GetRecordsCount() { return records; }
 };
 
-#define WaypointMgr Trinity::Singleton<WaypointManager>::Instance()
+extern WaypointStore WaypointMgr;
 
 #endif

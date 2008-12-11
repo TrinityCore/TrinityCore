@@ -364,7 +364,6 @@ class Spell
         void SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap);
 
         Unit* SelectMagnetTarget();
-        std::pair <bool,Unit *> m_magnetPair;
         bool CheckTarget( Unit* target, uint32 eff, bool hitPhase );
 
         void SendCastResult(uint8 result);
@@ -538,6 +537,8 @@ class Spell
             SpellTargets TargetType, uint32 entry = 0);
         Unit* SearchNearbyTarget(float radius, SpellTargets TargetType, uint32 entry = 0);
         void SearchChainTarget(std::list<Unit*> &data, Unit* pUnitTarget, float max_range, uint32 unMaxTargets);
+        bool IsValidSingleTargetEffect(Unit const* target, Targets type) const;
+        bool IsValidSingleTargetSpell(Unit const* target) const;
         // -------------------------------------------
 
         //List For Triggered Spells

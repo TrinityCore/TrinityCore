@@ -286,8 +286,6 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
     m_caster = Caster;
     m_selfContainer = NULL;
     m_triggeringContainer = triggeringContainer;
-    m_magnetPair.first = false;
-    m_magnetPair.second = NULL;
     m_referencedFromCurrentSpell = false;
     m_executedCurrently = false;
     m_delayAtDamageCount = 0;
@@ -1037,6 +1035,12 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         if (target->reflectResult == SPELL_MISS_NONE)       // If reflected spell hit caster -> do all effect on him
             DoSpellHitOnUnit(m_caster, mask);
     }
+    else if (missInfo == SPELL_MISS_KILL)
+    {
+        // remove spell_magnet aura after first spell redirect and destroy target if its totem
+        if(unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->isTotem())
+            unit->Kill(unit);
+    }
     else //TODO: This is a hack. need fix
     {
         uint32 tempMask = 0;
@@ -1169,14 +1173,6 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
     if(!unit || !effectMask)
         return;
 
-    // remove spell_magnet aura after first spell redirect and destroy target if its totem
-    if(m_magnetPair.first && m_magnetPair.second && m_magnetPair.second == unit)
-    {
-        if(unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->isTotem())
-            unit->DealDamage(unit,unit->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-        return;
-    }
-
     // Recheck immune (only for delayed spells)
     if( m_spellInfo->speed && 
         !(m_spellInfo->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)
@@ -1199,8 +1195,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             }
 
             unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
-            //TODO: find a better way to judge CC auras
-            if(m_spellInfo->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE)
+            if(spellmgr.GetSpellCustomAttr(m_spellInfo->Id) & SPELL_ATTR_CU_AURA_CC)
                 unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CC);
         }
         else
@@ -1475,7 +1470,8 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, const u
         y = m_caster->GetPositionY();
     }
 
-    CellPair p(Trinity::ComputeCellPair(x, y));
+    float x_off, y_off;
+    CellPair p(Trinity::ComputeCellPair(x, y, x_off, y_off));
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
@@ -1486,12 +1482,12 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, const u
     //if(TargetType != SPELL_TARGETS_ENTRY)
     {
         TypeContainerVisitor<Trinity::SpellNotifierCreatureAndPlayer, WorldTypeMapContainer > world_object_notifier(notifier);
-        cell_lock->Visit(cell_lock, world_object_notifier, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
+        cell_lock->Visit(cell_lock, world_object_notifier, *m_caster->GetMap(), radius, x_off, y_off);
     }
     if(!(m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_PLAYERS_ONLY))
     {
         TypeContainerVisitor<Trinity::SpellNotifierCreatureAndPlayer, GridTypeMapContainer >  grid_object_notifier(notifier);
-        cell_lock->Visit(cell_lock, grid_object_notifier, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
+        cell_lock->Visit(cell_lock, grid_object_notifier, *m_caster->GetMap(), radius, x_off, y_off);
     }
 }
 
@@ -4501,26 +4497,8 @@ int16 Spell::PetCanCast(Unit* target)
             if(!_target->isAlive())
                 return SPELL_FAILED_BAD_TARGETS;
 
-            if(IsPositiveSpell(m_spellInfo->Id))
-            {
-                if(m_caster->IsHostileTo(_target))
-                    return SPELL_FAILED_BAD_TARGETS;
-            }
-            else
-            {
-                bool duelvsplayertar = false;
-                for(int j=0;j<3;j++)
-                {
-                                                            //TARGET_DUELVSPLAYER is positive AND negative
-                    duelvsplayertar |= (m_spellInfo->EffectImplicitTargetA[j] == TARGET_DUELVSPLAYER);
-                }
-                // AoE spells have the caster as their target
-                // AOE spells should not have target
-                if(m_caster->IsFriendlyTo(target) /*&& m_caster != target*/ && !duelvsplayertar)
-                {
-                    return SPELL_FAILED_BAD_TARGETS;
-                }
-            }
+            if(!IsValidSingleTargetSpell(_target))
+                return SPELL_FAILED_BAD_TARGETS;
         }
                                                             //cooldown
         if(((Creature*)m_caster)->HasSpellCooldown(m_spellInfo->Id))
@@ -5311,7 +5289,7 @@ CurrentSpellTypes Spell::GetCurrentContainer()
 bool Spell::CheckTarget( Unit* target, uint32 eff, bool hitPhase )
 {
     // Check targets for creature type mask and remove not appropriate (skip explicit self target case, maybe need other explicit targets)
-    if(m_spellInfo->EffectImplicitTargetA[eff]!=TARGET_SELF && !m_magnetPair.first)
+    if(m_spellInfo->EffectImplicitTargetA[eff]!=TARGET_SELF)
     {
         if (!CheckTargetCreatureType(target))
             return false;
@@ -5392,14 +5370,21 @@ Unit* Spell::SelectMagnetTarget()
         {
             if(Unit* magnet = (*itr)->GetCaster())
             {
-                if((*itr)->m_procCharges>0 && magnet->IsWithinLOSInMap(m_caster))
+                if((*itr)->m_procCharges>0)
                 {
                     (*itr)->SetAuraProcCharges((*itr)->m_procCharges-1);
-                    m_magnetPair.first = true;
-                    m_magnetPair.second = magnet;
-
                     target = magnet;
                     m_targets.setUnitTarget(target);
+                    AddUnitTarget(target, 0);
+                    uint64 targetGUID = target->GetGUID();
+                    for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
+                    {
+                        if (targetGUID == ihit->targetGUID)                 // Found in list
+                        {
+                            (*ihit).missCondition = SPELL_MISS_KILL;
+                            break;
+                        }
+                    }
                     break;
                 }
             }
@@ -5550,4 +5535,33 @@ void SpellEvent::Abort(uint64 /*e_time*/)
 bool SpellEvent::IsDeletable() const
 {
     return m_Spell->IsDeletable();
+}
+
+bool Spell::IsValidSingleTargetEffect(Unit const* target, Targets type) const
+{
+    switch(type)
+    {
+        case TARGET_UNIT_TARGET_ENEMY:
+            return !m_caster->IsFriendlyTo(target);
+        case TARGET_UNIT_TARGET_ALLY:
+            return m_caster->IsFriendlyTo(target);
+        case TARGET_UNIT_TARGET_PARTY:
+            return m_caster->IsInPartyWith(target);
+        case TARGET_UNIT_TARGET_RAID:
+            return m_caster->IsInRaidWith(target);
+    }
+    return true;
+}
+
+bool Spell::IsValidSingleTargetSpell(Unit const* target) const
+{
+    for(int i = 0; i < 3; ++i)
+    {
+        if(!IsValidSingleTargetEffect(target, Targets(m_spellInfo->EffectImplicitTargetA[i])))
+            return false;
+        // Need to check B?
+        //if(!IsValidSingleTargetEffect(m_spellInfo->EffectImplicitTargetB[i], target)
+        //    return false;
+    }
+    return true;
 }

@@ -326,6 +326,7 @@ enum RealmZone
 #define SCRIPT_COMMAND_ACTIVATE_OBJECT      13              // source = unit, target=GO
 #define SCRIPT_COMMAND_REMOVE_AURA          14              // source (datalong2!=0) or target (datalong==0) unit, datalong = spell_id
 #define SCRIPT_COMMAND_CAST_SPELL           15              // source (datalong2!=0) or target (datalong==0) unit, datalong = spell_id
+#define SCRIPT_COMMAND_LOAD_PATH			16				// source = unit, path = datalong, repeatable datalong2
 
 /// Storage class for commands issued for delayed execution
 struct CliCommandHolder
