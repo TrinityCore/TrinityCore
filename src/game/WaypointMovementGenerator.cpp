@@ -77,7 +77,10 @@ bool WaypointMovementGenerator<Creature>::GetDestination(float &x, float &y, flo
 }
 
 template<>
-bool WaypointMovementGenerator<Player>::GetDestination(float &x, float &y, float &z) const {}
+bool WaypointMovementGenerator<Player>::GetDestination(float &x, float &y, float &z) const 
+{
+	return false;
+}
 
 template<>
 void WaypointMovementGenerator<Creature>::Reset(Creature &unit){}
