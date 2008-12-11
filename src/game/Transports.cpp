@@ -521,9 +521,9 @@ void Transport::Update(uint32 /*p_time*/)
 				case 176244:
 				case 176310:
 				case 177233:
-					SendPlaySound(5154, false); break;		// ShipDocked
-				default:
 					SendPlaySound(5495, false);break;		// BoatDockingWarning
+				default:
+					SendPlaySound(5154, false); break;		// ShipDocked
 			}
 		}
 
