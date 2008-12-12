@@ -1736,14 +1736,14 @@ struct TRINITY_DLL_DECL mob_parasitic_shadowfiendAI : public ScriptedAI
         DoCast(m_creature, SPELL_SHADOWFIEND_PASSIVE, true);
     }
 
-    void Aggro(Unit* who) {}
-    void MoveInLineOfSight(Unit *who){}
+    void Aggro(Unit* who) { DoZoneInCombat(); }
 
     void DoMeleeAttackIfReady()
     {
         if( m_creature->isAttackReady() && m_creature->IsWithinMeleeRange(m_creature->getVictim()))
         {
-            if(!m_creature->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND, 0) && !m_creature->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND2, 0))
+            if(!m_creature->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND, 0) 
+                && !m_creature->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND2, 0))
             {
                 m_creature->CastSpell(m_creature->getVictim(), SPELL_PARASITIC_SHADOWFIEND2, true, 0, 0, IllidanGUID); //do not stack
             }
@@ -1756,16 +1756,15 @@ struct TRINITY_DLL_DECL mob_parasitic_shadowfiendAI : public ScriptedAI
     {
         if(!m_creature->getVictim())
         {
-            if(GETCRE(Illidan, IllidanGUID))
+            if(Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0, 999, true))
+                AttackStart(target);
+            else
             {
-                if(Illidan->getVictim() && !Illidan->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND, 0))
-                    AttackStart(Illidan->getVictim());
-                else
-                    AttackStart(((boss_illidan_stormrageAI*)Illidan->AI())->SelectUnit(SELECT_TARGET_RANDOM, 1));
+                m_creature->SetVisibility(VISIBILITY_OFF);
+                m_creature->setDeathState(JUST_DIED);
+                return;
             }
         }
-        else
-            DoMeleeAttackIfReady();
 
         if(CheckTimer < diff)
         {
@@ -1777,6 +1776,8 @@ struct TRINITY_DLL_DECL mob_parasitic_shadowfiendAI : public ScriptedAI
                 return;
             }else CheckTimer = 5000;
         }else CheckTimer -= diff;
+
+        DoMeleeAttackIfReady();
     }
 };
 
@@ -1866,13 +1867,19 @@ void boss_illidan_stormrageAI::JustSummoned(Creature* summon)
     switch(summon->GetEntry())
     {
     case PARASITIC_SHADOWFIEND:
-    case SHADOW_DEMON:
         {
-            if(Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0, 999, true)) // only on players.
-            {
-                summon->AddThreat(target, 5000000.0f);
+            Unit *target = SelectUnit(SELECT_TARGET_TOPAGGRO, 0, 999, true);
+            if(!target || target->HasAura(SPELL_PARASITIC_SHADOWFIEND, 0)
+                || target->HasAura(SPELL_PARASITIC_SHADOWFIEND2, 0))
+                target = SelectUnit(SELECT_TARGET_RANDOM, 0, 999, true);
+            if(target)
                 summon->AI()->AttackStart(target);
-            }
+        }break;
+    case SHADOW_DEMON:
+        if(Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0, 999, true)) // only on players.
+        {
+            summon->AddThreat(target, 5000000.0f);
+            summon->AI()->AttackStart(target);
         }break;
     case MAIEV_SHADOWSONG:
         {
