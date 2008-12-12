@@ -4743,7 +4743,7 @@ void Unit::RemoveDynObject(uint32 spellid)
         return;
     for (DynObjectGUIDs::iterator i = m_dynObjGUIDs.begin(); i != m_dynObjGUIDs.end();)
     {
-        DynamicObject* dynObj = ObjectAccessor::GetDynamicObject(*this,*m_dynObjGUIDs.begin());
+        DynamicObject* dynObj = ObjectAccessor::GetDynamicObject(*this, *i);
         if(!dynObj)
         {
             i = m_dynObjGUIDs.erase(i);
