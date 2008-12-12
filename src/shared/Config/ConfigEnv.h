@@ -25,6 +25,5 @@
 #include "Common.h"
 #include "dotconfpp/dotconfpp.h"
 #include "Config.h"
-#include "Log.h"
 
 #endif

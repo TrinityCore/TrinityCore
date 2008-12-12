@@ -535,7 +535,7 @@ void Guild::SetOFFNOTE(uint64 guid,std::string offnote)
     CharacterDatabase.PExecute("UPDATE guild_member SET offnote = '%s' WHERE guid = '%u'", offnote.c_str(), itr->first);
 }
 
-void Guild::BroadcastToGuild(WorldSession *session, std::string msg, uint32 language)
+void Guild::BroadcastToGuild(WorldSession *session, const std::string& msg, uint32 language)
 {
     if (session && session->GetPlayer() && HasRankRight(session->GetPlayer()->GetRank(),GR_RIGHT_GCHATSPEAK))
     {
@@ -552,7 +552,7 @@ void Guild::BroadcastToGuild(WorldSession *session, std::string msg, uint32 lang
     }
 }
 
-void Guild::BroadcastToOfficers(WorldSession *session, std::string msg, uint32 language)
+void Guild::BroadcastToOfficers(WorldSession *session, const std::string& msg, uint32 language)
 {
     if (session && session->GetPlayer() && HasRankRight(session->GetPlayer()->GetRank(),GR_RIGHT_OFFCHATSPEAK))
     {
@@ -611,7 +611,7 @@ void Guild::CreateRank(std::string name_,uint32 rights)
     CharacterDatabase.PExecute( "INSERT INTO guild_rank (guildid,rid,rname,rights) VALUES ('%u', '%u', '%s', '%u')", Id, m_ranks.size(), name_.c_str(), rights );
 }
 
-void Guild::AddRank(std::string name_,uint32 rights, uint32 money)
+void Guild::AddRank(const std::string& name_,uint32 rights, uint32 money)
 {
     m_ranks.push_back(RankInfo(name_,rights,money));
 }

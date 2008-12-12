@@ -1009,44 +1009,7 @@ void Creature::OnPoiSelect(Player* player, GossipOption const *gossip)
 {
     if(gossip->GossipId==GOSSIP_GUARD_SPELLTRAINER || gossip->GossipId==GOSSIP_GUARD_SKILLTRAINER)
     {
-        //float x,y;
-        //bool findnpc=false;
         Poi_Icon icon = ICON_POI_0;
-        //QueryResult *result;
-        //Field *fields;
-        uint32 mapid=GetMapId();
-        Map const* map=MapManager::Instance().GetBaseMap( mapid );
-        uint16 areaflag=map->GetAreaFlag(GetPositionX(),GetPositionY());
-        uint32 zoneid=Map::GetZoneId(areaflag,mapid);
-        std::string areaname= gossip->OptionText;
-        /*
-        uint16 pflag;
-
-        // use the action relate to creaturetemplate.trainer_type ?
-        result= WorldDatabase.PQuery("SELECT creature.position_x,creature.position_y FROM creature,creature_template WHERE creature.map = '%u' AND creature.id = creature_template.entry AND creature_template.trainer_type = '%u'", mapid, gossip->Action );
-        if(!result)
-            return;
-        do
-        {
-            fields = result->Fetch();
-            x=fields[0].GetFloat();
-            y=fields[1].GetFloat();
-            pflag=map->GetAreaFlag(GetPositionX(),GetPositionY());
-            if(pflag==areaflag)
-            {
-                findnpc=true;
-                break;
-            }
-        }while(result->NextRow());
-
-        delete result;
-
-        if(!findnpc)
-        {
-            player->PlayerTalkClass->SendTalking( "$NSorry", "Here no this person.");
-            return;
-        }*/
-
         //need add more case.
         switch(gossip->Action)
         {
@@ -1063,8 +1026,9 @@ void Creature::OnPoiSelect(Player* player, GossipOption const *gossip)
                 icon=ICON_POI_TOWER;
                 break;
         }
-        uint32 textid=GetGossipTextId( gossip->Action, zoneid );
-        player->PlayerTalkClass->SendTalking( textid );
+        uint32 textid = GetGossipTextId( gossip->Action, GetZoneId() );
+        player->PlayerTalkClass->SendTalking(textid);
+        // std::string areaname= gossip->OptionText;
         // how this could worked player->PlayerTalkClass->SendPointOfInterest( x, y, icon, 2, 15, areaname.c_str() );
     }
 }

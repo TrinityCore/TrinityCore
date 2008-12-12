@@ -145,7 +145,7 @@ class TRINITY_DLL_SPEC Group
         typedef UNORDERED_MAP< uint32 /*mapId*/, InstanceGroupBind> BoundInstancesMap;
     protected:
         typedef MemberSlotList::iterator member_witerator;
-        typedef std::set<uint64> InvitesList;
+        typedef std::set<Player*> InvitesList;
 
         typedef std::vector<Roll*> Rolls;
 
@@ -184,7 +184,18 @@ class TRINITY_DLL_SPEC Group
 
         // member manipulation methods
         bool IsMember(const uint64& guid) const { return _getMemberCSlot(guid) != m_memberSlots.end(); }
-		bool IsLeader(const uint64& guid) const { return (GetLeaderGUID() == guid); }
+        bool IsLeader(const uint64& guid) const { return (GetLeaderGUID() == guid); }
+        uint64 GetMemberGUID(const std::string& name)
+        {
+            for(member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+            {
+                if(itr->name == name)
+                {
+                    return itr->guid;
+                }
+            }
+            return 0;
+        }
         bool IsAssistant(uint64 guid) const
         {
             member_citerator mslot = _getMemberCSlot(guid);
@@ -193,6 +204,8 @@ class TRINITY_DLL_SPEC Group
 
             return mslot->assistant;
         }
+        Player* GetInvited(const uint64& guid) const;
+        Player* GetInvited(const std::string& name) const;
 
         bool SameSubGroup(uint64 guid1,const uint64& guid2) const
         {

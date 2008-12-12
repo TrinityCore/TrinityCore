@@ -149,7 +149,7 @@ class Channel
 
     typedef     std::map<uint64, PlayerInfo> PlayerList;
     PlayerList  players;
-    typedef     std::list<uint64> BannedList;
+    typedef     std::set<uint64> BannedList;
     BannedList  banned;
     bool        m_announce;
     bool        m_moderate;
@@ -172,7 +172,7 @@ class Channel
         void MakeNotModerator(WorldPacket *data);                               //? 0x06
         void MakePasswordChanged(WorldPacket *data, uint64 guid);               //+ 0x07
         void MakeOwnerChanged(WorldPacket *data, uint64 guid);                  //? 0x08
-        void MakePlayerNotFound(WorldPacket *data, std::string name);           //+ 0x09
+        void MakePlayerNotFound(WorldPacket *data, const std::string& name);    //+ 0x09
         void MakeNotOwner(WorldPacket *data);                                   //? 0x0A
         void MakeChannelOwner(WorldPacket *data);                               //? 0x0B
         void MakeModeChange(WorldPacket *data, uint64 guid, uint8 oldflags);    //+ 0x0C
@@ -204,15 +204,9 @@ class Channel
         void SendToAllButOne(WorldPacket *data, uint64 who);
         void SendToOne(WorldPacket *data, uint64 who);
 
-        bool IsOn(uint64 who) const { return players.count(who) > 0; }
+        bool IsOn(uint64 who) const { return players.count(who) != 0; }
 
-        bool IsBanned(const uint64 guid) const
-        {
-            for(BannedList::const_iterator i = banned.begin(); i != banned.end(); ++i)
-                if(*i == guid)
-                    return true;
-            return false;
-        }
+        bool IsBanned(const uint64 guid) const {return banned.count(guid) != 0; }
 
         bool IsFirst() const { return !(players.size() > 1); }
 
@@ -252,14 +246,14 @@ class Channel
         }
 
     public:
-        Channel(std::string name, uint32 channel_id);
+        Channel(const std::string& name, uint32 channel_id);
         std::string GetName() const { return m_name; }
         uint32 GetChannelId() const { return m_channelId; }
         bool IsConstant() const { return m_channelId != 0; }
         bool IsAnnounce() const { return m_announce; }
         bool IsLFG() const { return GetFlags() & CHANNEL_FLAG_LFG; }
         std::string GetPassword() const { return m_password; }
-        void SetPassword(std::string npassword) { m_password = npassword; }
+        void SetPassword(const std::string& npassword) { m_password = npassword; }
         void SetAnnounce(bool nannounce) { m_announce = nannounce; }
         uint32 GetNumPlayers() const { return players.size(); }
         uint8 GetFlags() const { return m_flags; }

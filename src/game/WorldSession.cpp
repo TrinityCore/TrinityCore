@@ -156,20 +156,11 @@ void WorldSession::logUnexpectedOpcode(WorldPacket* packet, const char *reason)
 /// Update the WorldSession (triggered by World update)
 bool WorldSession::Update(uint32 /*diff*/)
 {
-    if (m_Socket && m_Socket->IsClosed ())
-    {
-        m_Socket->RemoveReference ();
-        m_Socket = NULL;
-    }
-
-    WorldPacket *packet;
-
     ///- Retrieve packets from the receive queue and call the appropriate handlers
-    /// \todo Is there a way to consolidate the OpcondeHandlerTable and the g_worldOpcodeNames to only maintain 1 list?
-    /// answer : there is a way, but this is better, because it would use redundant RAM
-    while (!_recvQueue.empty())
+    /// not proccess packets if socket already closed
+    while (!_recvQueue.empty() && m_Socket && !m_Socket->IsClosed ())
     {
-        packet = _recvQueue.next();
+        WorldPacket *packet = _recvQueue.next();
 
         /*#if 1
         sLog.outError( "MOEP: %s (0x%.4X)",
@@ -227,6 +218,13 @@ bool WorldSession::Update(uint32 /*diff*/)
         }
 
         delete packet;
+    }
+
+    ///- Cleanup socket pointer if need
+    if (m_Socket && m_Socket->IsClosed ())
+    {
+        m_Socket->RemoveReference ();
+        m_Socket = NULL;
     }
 
     ///- If necessary, log the player out
@@ -499,31 +497,31 @@ void WorldSession::Handle_EarlyProccess( WorldPacket& recvPacket )
 
 void WorldSession::Handle_ServerSide( WorldPacket& recvPacket )
 {
-    sLog.outError( "SESSION: received sever-side opcode %s (0x%.4X)",
+    sLog.outError( "SESSION: received server-side opcode %s (0x%.4X)",
         LookupOpcodeName(recvPacket.GetOpcode()),
         recvPacket.GetOpcode());
 }
 
-void WorldSession::Handle_Depricated( WorldPacket& recvPacket )
+void WorldSession::Handle_Deprecated( WorldPacket& recvPacket )
 {
-    sLog.outError( "SESSION: received depricated opcode %s (0x%.4X)",
+    sLog.outError( "SESSION: received deprecated opcode %s (0x%.4X)",
         LookupOpcodeName(recvPacket.GetOpcode()),
         recvPacket.GetOpcode());
 }
 
 void WorldSession::SendAuthWaitQue(uint32 position)
- {
-     if(position == 0)
-     {
-         WorldPacket packet( SMSG_AUTH_RESPONSE, 1 );
-         packet << uint8( AUTH_OK );
-         SendPacket(&packet);
-     }
-     else
-     {
-         WorldPacket packet( SMSG_AUTH_RESPONSE, 5 );
-         packet << uint8( AUTH_WAIT_QUEUE );
-         packet << uint32 (position);
-         SendPacket(&packet);
-     }
- }
+{
+    if(position == 0)
+    {
+        WorldPacket packet( SMSG_AUTH_RESPONSE, 1 );
+        packet << uint8( AUTH_OK );
+        SendPacket(&packet);
+    }
+    else
+    {
+        WorldPacket packet( SMSG_AUTH_RESPONSE, 5 );
+        packet << uint8( AUTH_WAIT_QUEUE );
+        packet << uint32 (position);
+        SendPacket(&packet);
+    }
+}
