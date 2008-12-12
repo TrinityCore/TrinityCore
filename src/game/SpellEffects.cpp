@@ -1238,7 +1238,7 @@ void Spell::EffectDummy(uint32 i)
                 if(!unitTarget)
                     return;
 
-                int32 basePoints0 = damage+int32(m_caster->GetPower(POWER_RAGE) * m_spellInfo->DmgMultiplier[i] m);
+				int32 basePoints0 = damage+int32(m_caster->GetPower(POWER_RAGE) * m_spellInfo->DmgMultiplier[i]);
                 m_caster->CastCustomSpell(unitTarget, 20647, &basePoints0, NULL, NULL, true, 0);
                 m_caster->SetPower(POWER_RAGE,0);
                 return;
