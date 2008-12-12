@@ -519,10 +519,10 @@ typedef std::map<uint32, QuestStatusData> QuestStatusMap;
 
 enum QuestSlotOffsets
 {
-    QUEST_ID_OFFSET = 0,
-    QUEST_STATE_OFFSET = 1,
+    QUEST_ID_OFFSET     = 0,
+    QUEST_STATE_OFFSET  = 1,
     QUEST_COUNTS_OFFSET = 2,
-    QUEST_TIME_OFFSET = 3
+    QUEST_TIME_OFFSET   = 3
 };
 
 #define MAX_QUEST_OFFSET 4
@@ -862,7 +862,7 @@ class TRINITY_DLL_SPEC PlayerTaxi
         void AppendTaximaskTo(ByteBuffer& data,bool all);
 
         // Destinations
-        bool LoadTaxiDestinationsFromString(std::string values);
+        bool LoadTaxiDestinationsFromString(const std::string& values);
         std::string SaveTaxiDestinationsToString();
 
         void ClearTaxiDestinations() { m_TaxiDestinations.clear(); }
@@ -926,7 +926,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         }
         void SummonIfPossible(bool agree);
 
-        bool Create( uint32 guidlow, std::string name, uint8 race, uint8 class_, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId );
+        bool Create( uint32 guidlow, const std::string& name, uint8 race, uint8 class_, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId );
 
         void Update( uint32 time );
 
@@ -1018,11 +1018,11 @@ class TRINITY_DLL_SPEC Player : public Unit
         GuardianPetList const& GetGuardians() const { return m_guardianPets; }
         void Uncharm();
 
-        void Say(std::string text, const uint32 language);
-        void Yell(std::string text, const uint32 language);
-        void TextEmote(std::string text);
-        void Whisper(std::string text, const uint32 language,uint64 receiver);
-        void BuildPlayerChat(WorldPacket *data, uint8 msgtype, std::string text, uint32 language) const;
+        void Say(const std::string& text, const uint32 language);
+        void Yell(const std::string& text, const uint32 language);
+        void TextEmote(const std::string& text);
+        void Whisper(const std::string& text, const uint32 language,uint64 receiver);
+        void BuildPlayerChat(WorldPacket *data, uint8 msgtype, const std::string& text, uint32 language) const;
 
         /*********************************************************/
         /***                    STORAGE SYSTEM                 ***/
@@ -1696,6 +1696,7 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         FactionStateList m_factions;
         ForcedReactions m_forcedReactions;
+        FactionStateList const& GetFactionStateList() { return m_factions; }
         uint32 GetDefaultReputationFlags(const FactionEntry *factionEntry) const;
         int32 GetBaseReputation(const FactionEntry *factionEntry) const;
         int32 GetReputation(uint32 faction_id) const;
@@ -1950,6 +1951,13 @@ class TRINITY_DLL_SPEC Player : public Unit
         /***                 VARIOUS SYSTEMS                   ***/
         /*********************************************************/
         MovementInfo m_movementInfo;
+        uint32 m_lastFallTime;
+        float  m_lastFallZ;
+        void SetFallInformation(uint32 time, float z)
+        {
+            m_lastFallTime = time;
+            m_lastFallZ = z;
+        }
         bool isMoving() const { return HasUnitMovementFlag(movementFlagsMask); }
         bool isMovingOrTurning() const { return HasUnitMovementFlag(movementOrTurningFlagsMask); }
 
@@ -1961,6 +1969,9 @@ class TRINITY_DLL_SPEC Player : public Unit
         void HandleFallUnderMap();
 
         void SetClientControl(Unit* target, uint8 allowMove);
+
+        uint64 GetFarSight() const { return GetUInt64Value(PLAYER_FARSIGHT); }
+        void SetFarSight(uint64 guid) { SetUInt64Value(PLAYER_FARSIGHT, guid); }
 
         // Transports
         Transport * GetTransport() const { return m_transport; }
@@ -2059,6 +2070,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         uint64 GetAuraUpdateMask() { return m_auraUpdateMask; }
         void SetAuraUpdateMask(uint8 slot) { m_auraUpdateMask |= (uint64(1) << slot); }
         Player* GetNextRandomRaidMember(float radius);
+        PartyResult CanUninviteFromGroup() const;
 
         GridReference<Player> &GetGridRef() { return m_gridRef; }
         MapReference &GetMapRef() { return m_mapRef; }
@@ -2068,6 +2080,9 @@ class TRINITY_DLL_SPEC Player : public Unit
         WorldLocation& GetTeleportDest() { return m_teleport_dest; }
 
         DeclinedName const* GetDeclinedNames() const { return m_declinedname; }
+        bool HasTitle(uint32 bitIndex);
+        bool HasTitle(CharTitlesEntry const* title) { return HasTitle(title->bit_index); }
+        void SetTitle(CharTitlesEntry const* title);
 
     protected:
 

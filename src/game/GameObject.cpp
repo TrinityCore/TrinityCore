@@ -196,7 +196,7 @@ void GameObject::Update(uint32 /*p_time*/)
                         if(caster && caster->GetTypeId()==TYPEID_PLAYER)
                         {
                             SetGoState(0);
-                            SetUInt32Value(GAMEOBJECT_FLAGS, 32);
+                            SetUInt32Value(GAMEOBJECT_FLAGS, GO_FLAG_NODESPAWN);
 
                             UpdateData udata;
                             WorldPacket packet;

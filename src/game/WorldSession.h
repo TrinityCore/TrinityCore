@@ -84,9 +84,9 @@ class TRINITY_DLL_SPEC WorldSession
         void SendPacket(WorldPacket const* packet);
         void SendNotification(const char *format,...) ATTR_PRINTF(2,3);
         void SendNotification(int32 string_id,...);
-        void SendPetNameInvalid(uint32 error, std::string name, DeclinedName *declinedName);
+        void SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName);
         void SendLfgResult(uint32 type, uint32 entry, uint8 lfg_type);
-        void SendPartyResult(PartyOperation operation, std::string member, PartyResult res);
+        void SendPartyResult(PartyOperation operation, const std::string& member, PartyResult res);
         void SendAreaTriggerMessage(const char* Text, ...) ATTR_PRINTF(2,3);
 
         uint32 GetSecurity() const { return _security; }
@@ -131,7 +131,7 @@ class TRINITY_DLL_SPEC WorldSession
         static void SendNameQueryOpcodeFromDBCallBack(QueryResult *result, uint32 accountId);
 
         void SendTrainerList( uint64 guid );
-        void SendTrainerList( uint64 guid,std::string strTitle );
+        void SendTrainerList( uint64 guid, const std::string& strTitle );
         void SendListInventory( uint64 guid );
         void SendShowBank( uint64 guid );
         void SendTabardVendorActivate( uint64 guid );
@@ -156,7 +156,7 @@ class TRINITY_DLL_SPEC WorldSession
         //mail
                                                             //used with item_page table
         bool SendItemInfo( uint32 itemid, WorldPacket data );
-        static void SendReturnToSender(uint8 messageType, uint32 sender_acc, uint32 sender_guid, uint32 receiver_guid, std::string subject, uint32 itemTextId, MailItemsInfo *mi, uint32 money, uint32 COD, uint16 mailTemplateId = 0);
+        static void SendReturnToSender(uint8 messageType, uint32 sender_acc, uint32 sender_guid, uint32 receiver_guid, const std::string& subject, uint32 itemTextId, MailItemsInfo *mi, uint32 money, uint16 mailTemplateId = 0);
         static void SendMailTo(Player* receiver, uint8 messageType, uint8 stationery, uint32 sender_guidlow_or_entry, uint32 received_guidlow, std::string subject, uint32 itemTextId, MailItemsInfo* mi, uint32 money, uint32 COD, uint32 checked, uint32 deliver_delay = 0, uint16 mailTemplateId = 0);
 
         //auction
@@ -179,9 +179,9 @@ class TRINITY_DLL_SPEC WorldSession
         bool SendLearnNewTaxiNode( Creature* unit );
 
         // Guild/Arena Team
-        void SendGuildCommandResult(uint32 typecmd,std::string str,uint32 cmdresult);
-        void SendArenaTeamCommandResult(uint32 unk1, std::string str1, std::string str2, uint32 unk3);
-        void BuildArenaTeamEventPacket(WorldPacket *data, uint8 eventid, uint8 str_count, std::string str1, std::string str2, std::string str3);
+        void SendGuildCommandResult(uint32 typecmd, const std::string& str, uint32 cmdresult);
+        void SendArenaTeamCommandResult(uint32 unk1, const std::string& str1, const std::string& str2, uint32 unk3);
+        void BuildArenaTeamEventPacket(WorldPacket *data, uint8 eventid, uint8 str_count, const std::string& str1, const std::string& str2, const std::string& str3);
         void SendNotInArenaTeamPacket(uint8 type);
         void SendPetitionShowList( uint64 guid );
         void SendSaveGuildEmblem( uint32 msg );
@@ -212,7 +212,7 @@ class TRINITY_DLL_SPEC WorldSession
         void Handle_NULL(WorldPacket& recvPacket);          // not used
         void Handle_EarlyProccess( WorldPacket& recvPacket);// just mark packets processed in WorldSocket::OnRead
         void Handle_ServerSide(WorldPacket& recvPacket);    // sever side only, can't be accepted from client
-        void Handle_Depricated(WorldPacket& recvPacket);    // never used anymore by client
+        void Handle_Deprecated(WorldPacket& recvPacket);    // never used anymore by client
 
         void HandleCharEnumOpcode(WorldPacket& recvPacket);
         void HandleCharDeleteOpcode(WorldPacket& recvPacket);
@@ -337,7 +337,6 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleGroupDeclineOpcode(WorldPacket& recvPacket);
         void HandleGroupUninviteNameOpcode(WorldPacket& recvPacket);
         void HandleGroupUninviteGuidOpcode(WorldPacket& recvPacket);
-        void HandleGroupUninvite(uint64 guid, std::string name);
         void HandleGroupSetLeaderOpcode(WorldPacket& recvPacket);
         void HandleGroupLeaveOpcode(WorldPacket& recvPacket);
         void HandleGroupPassOnLootOpcode( WorldPacket &recv_data );

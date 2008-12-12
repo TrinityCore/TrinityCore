@@ -58,7 +58,7 @@ class AuthSocket: public TcpSocket
         bool _HandleXferCancel();
         bool _HandleXferAccept();
 
-        void _SetVSFields(std::string rI);
+        void _SetVSFields(const std::string& rI);
 
         FILE *pPatch;
         ZThread::Mutex patcherLock;

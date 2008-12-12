@@ -114,20 +114,20 @@ enum __QuestGiverStatus
 
 enum __QuestFlags
 {
-    // Flags used at server and sended to client
-    QUEST_FLAGS_STAY_ALIVE     = 1,                         // Not used currently
-    QUEST_FLAGS_PARTY_ACCEPT   = 2,                         // Not used currently. If player in party, all players that can accept this quest will receive confirmation box to accept quest CMSG_QUEST_CONFIRM_ACCEPT/SMSG_QUEST_CONFIRM_ACCEPT
-    QUEST_FLAGS_EXPLORATION    = 4,                         // Not used currently
-    QUEST_FLAGS_SHARABLE       = 8,                         // Can be shared: Player::CanShareQuest()
-    //QUEST_FLAGS_NONE2        = 16,                        // Not used currently
-    QUEST_FLAGS_EPIC           = 32,                        // Not used currently: Unsure of content
-    QUEST_FLAGS_RAID           = 64,                        // Not used currently
-    QUEST_FLAGS_TBC            = 128,                       // Not used currently: Available if TBC expension enabled only
-    QUEST_FLAGS_UNK2           = 256,                       // Not used currently: _DELIVER_MORE Quest needs more than normal _q-item_ drops from mobs
-    QUEST_FLAGS_HIDDEN_REWARDS = 512,                       // Items and money rewarded only sent in SMSG_QUESTGIVER_OFFER_REWARD (not in SMSG_QUESTGIVER_QUEST_DETAILS or in client quest log(SMSG_QUEST_QUERY_RESPONSE))
-    QUEST_FLAGS_AUTO_REWARDED  = 1024,                      // These quests are automatically rewarded on quest complete and they will never appear in quest log client side.
-    QUEST_FLAGS_TBC_RACES      = 2048,                      // Not used currently: Bloodelf/draenei starting zone quests
-    QUEST_FLAGS_DAILY          = 4096,                      // Used to know quest is Daily one
+    // Flags used at server and sent to client
+    QUEST_FLAGS_STAY_ALIVE     = 0x00000001,                // Not used currently
+    QUEST_FLAGS_PARTY_ACCEPT   = 0x00000002,                // Not used currently. If player in party, all players that can accept this quest will receive confirmation box to accept quest CMSG_QUEST_CONFIRM_ACCEPT/SMSG_QUEST_CONFIRM_ACCEPT
+    QUEST_FLAGS_EXPLORATION    = 0x00000004,                // Not used currently
+    QUEST_FLAGS_SHARABLE       = 0x00000008,                // Can be shared: Player::CanShareQuest()
+    //QUEST_FLAGS_NONE2        = 0x00000010,                // Not used currently
+    QUEST_FLAGS_EPIC           = 0x00000020,                // Not used currently: Unsure of content
+    QUEST_FLAGS_RAID           = 0x00000040,                // Not used currently
+    QUEST_FLAGS_TBC            = 0x00000080,                // Not used currently: Available if TBC expension enabled only
+    QUEST_FLAGS_UNK2           = 0x00000100,                // Not used currently: _DELIVER_MORE Quest needs more than normal _q-item_ drops from mobs
+    QUEST_FLAGS_HIDDEN_REWARDS = 0x00000200,                // Items and money rewarded only sent in SMSG_QUESTGIVER_OFFER_REWARD (not in SMSG_QUESTGIVER_QUEST_DETAILS or in client quest log(SMSG_QUEST_QUERY_RESPONSE))
+    QUEST_FLAGS_AUTO_REWARDED  = 0x00000400,                // These quests are automatically rewarded on quest complete and they will never appear in quest log client side.
+    QUEST_FLAGS_TBC_RACES      = 0x00000800,                // Not used currently: Blood elf/Draenei starting zone quests
+    QUEST_FLAGS_DAILY          = 0x00001000,                // Used to know quest is Daily one
 
     // Trinity flags for set SpecialFlags in DB if required but used only at server
     QUEST_TRINITY_FLAGS_REPEATABLE           = 0x010000,     // Set by 1 in SpecialFlags from DB
@@ -320,7 +320,7 @@ struct QuestStatusData
         : m_status(QUEST_STATUS_NONE),m_rewarded(false),
         m_explored(false), m_timer(0), uState(QUEST_NEW)
     {
-        memset(m_itemcount,    0, QUEST_OBJECTIVES_COUNT * sizeof(uint32));
+        memset(m_itemcount, 0, QUEST_OBJECTIVES_COUNT * sizeof(uint32));
         memset(m_creatureOrGOcount, 0, QUEST_OBJECTIVES_COUNT * sizeof(uint32));
     }
 

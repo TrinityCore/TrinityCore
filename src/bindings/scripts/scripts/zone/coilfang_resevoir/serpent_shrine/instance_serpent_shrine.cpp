@@ -35,9 +35,22 @@ EndScriptData */
 5 - Lady Vashj Event
 */
 
+bool GOHello_go_bridge_console(Player *player, GameObject* _GO)
+{
+    ScriptedInstance* pInstance = (ScriptedInstance*)_GO->GetInstanceData();
+
+	if(!pInstance)
+		return false;
+
+	if (pInstance)
+		pInstance->SetData(DATA_CONTROL_CONSOLE, DONE);
+	
+    return true;
+}
+
 struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
 {
-    instance_serpentshrine_cavern(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_serpentshrine_cavern(Map *map) : ScriptedInstance(map) {Initialize();};
 
 	uint64 LurkerBelow;
     uint64 Sharkkis;
@@ -46,12 +59,13 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
     uint64 LadyVashj;
     uint64 Karathress;
     uint64 KarathressEvent_Starter;
-
 	uint64 LeotherasTheBlind;
 	uint64 LeotherasEventStarter;
 
-    bool ShieldGeneratorDeactivated[4];
+	uint64 ControlConsole;
+	uint64 BridgePart[3];
 
+    bool ShieldGeneratorDeactivated[4];
     bool Encounters[ENCOUNTERS];
 
     void Initialize()
@@ -63,9 +77,13 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
         LadyVashj = 0;
         Karathress = 0;
         KarathressEvent_Starter = 0;
-
 		LeotherasTheBlind = 0;
 		LeotherasEventStarter = 0;
+
+		ControlConsole = 0;
+		BridgePart[0] = 0;
+		BridgePart[1] = 0;
+		BridgePart[2] = 0;
 
         ShieldGeneratorDeactivated[0] = false;
         ShieldGeneratorDeactivated[1] = false;
@@ -82,6 +100,38 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
             if(Encounters[i]) return true;
 
         return false;
+    }
+
+	void OnObjectCreate(GameObject *go)
+    {
+        switch(go->GetEntry())
+        {
+			case 184568:
+				ControlConsole = go->GetGUID();
+				go->setActive(true);
+            break;
+
+            case 184203:
+				BridgePart[0] = go->GetGUID();
+				go->setActive(true);
+            break;
+
+            case 184204:
+				BridgePart[1] = go->GetGUID();
+				go->setActive(true);
+            break;
+
+			case 184205:
+				BridgePart[2] = go->GetGUID();
+				go->setActive(true);
+            break;
+        }
+    }
+
+	void OpenDoor(uint64 DoorGUID, bool open)
+    {
+        if(GameObject *Door = instance->GetGameObjectInMap(DoorGUID))
+            Door->SetUInt32Value(GAMEOBJECT_STATE, open ? 0 : 1);
     }
 
     void OnCreatureCreate(Creature *creature, uint32 creature_entry)
@@ -126,26 +176,35 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
     {
         switch(type)
         {
-            case DATA_HYDROSSTHEUNSTABLEEVENT:	Encounters[0] = data;	break;
-            case DATA_LEOTHERASTHEBLINDEVENT:	Encounters[1] = data;	break;
-            case DATA_THELURKERBELOWEVENT:		Encounters[2] = data;	break;
-            case DATA_KARATHRESSEVENT:			Encounters[3] = data;	break;
-            case DATA_MOROGRIMTIDEWALKEREVENT:	Encounters[4] = data;	break;
-                //Lady Vashj
-            case DATA_LADYVASHJEVENT:
-                if(data == NOT_STARTED)
-                {
-                    ShieldGeneratorDeactivated[0] = false;
-                    ShieldGeneratorDeactivated[1] = false;
-                    ShieldGeneratorDeactivated[2] = false;
-                    ShieldGeneratorDeactivated[3] = false;
-                }
-                Encounters[5] = data;	break;
-            case DATA_SHIELDGENERATOR1:ShieldGeneratorDeactivated[0] = (data) ? true : false;	break;
-            case DATA_SHIELDGENERATOR2:ShieldGeneratorDeactivated[1] = (data) ? true : false;	break;
-            case DATA_SHIELDGENERATOR3:ShieldGeneratorDeactivated[2] = (data) ? true : false;	break;
-            case DATA_SHIELDGENERATOR4:ShieldGeneratorDeactivated[3] = (data) ? true : false;	break;
-        }
+		case DATA_CONTROL_CONSOLE:
+			if(data = DONE)
+			{
+				OpenDoor(BridgePart[0], true);
+				OpenDoor(BridgePart[1], true);
+				OpenDoor(BridgePart[2], true);
+			}
+			ControlConsole = data;
+		case DATA_HYDROSSTHEUNSTABLEEVENT:	Encounters[0] = data;	break;
+		case DATA_LEOTHERASTHEBLINDEVENT:	Encounters[1] = data;	break;
+		case DATA_THELURKERBELOWEVENT:		Encounters[2] = data;	break;
+		case DATA_KARATHRESSEVENT:			Encounters[3] = data;	break;
+		case DATA_MOROGRIMTIDEWALKEREVENT:	Encounters[4] = data;	break;
+			//Lady Vashj
+		case DATA_LADYVASHJEVENT:
+			if(data == NOT_STARTED)
+			{
+				ShieldGeneratorDeactivated[0] = false;
+				ShieldGeneratorDeactivated[1] = false;
+				ShieldGeneratorDeactivated[2] = false;
+				ShieldGeneratorDeactivated[3] = false;
+			}
+			Encounters[5] = data;	break;
+		case DATA_SHIELDGENERATOR1:ShieldGeneratorDeactivated[0] = (data) ? true : false;	break;
+		case DATA_SHIELDGENERATOR2:ShieldGeneratorDeactivated[1] = (data) ? true : false;	break;
+		case DATA_SHIELDGENERATOR3:ShieldGeneratorDeactivated[2] = (data) ? true : false;	break;
+		case DATA_SHIELDGENERATOR4:ShieldGeneratorDeactivated[3] = (data) ? true : false;	break;
+		}
+
 		if(data = DONE)
 			SaveToDB();
     }
@@ -212,8 +271,14 @@ InstanceData* GetInstanceData_instance_serpentshrine_cavern(Map* map)
 void AddSC_instance_serpentshrine_cavern()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "instance_serpent_shrine";
     newscript->GetInstanceData = GetInstanceData_instance_serpentshrine_cavern;
     newscript->RegisterSelf();
+
+	newscript = new Script;
+    newscript->Name="go_bridge_console";
+    newscript->pGOHello = &GOHello_go_bridge_console;
+	newscript->RegisterSelf();
 }

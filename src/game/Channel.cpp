@@ -23,7 +23,7 @@
 #include "World.h"
 #include "SocialMgr.h"
 
-Channel::Channel(std::string name, uint32 channel_id)
+Channel::Channel(const std::string& name, uint32 channel_id)
 : m_name(name), m_announce(true), m_moderate(false), m_channelId(channel_id), m_ownerGUID(0), m_password(""), m_flags(0)
 {
     // set special flags if built-in channel
@@ -211,7 +211,7 @@ void Channel::KickOrBan(uint64 good, const char *badname, bool ban)
 
             if(ban && !IsBanned(bad->GetGUID()))
             {
-                banned.push_back(bad->GetGUID());
+                banned.insert(bad->GetGUID());
                 MakePlayerBanned(&data, bad->GetGUID(), good);
             }
             else
@@ -260,7 +260,7 @@ void Channel::UnBan(uint64 good, const char *badname)
         }
         else
         {
-            banned.remove(bad->GetGUID());
+            banned.erase(bad->GetGUID());
 
             WorldPacket data;
             MakePlayerUnbanned(&data, bad->GetGUID(), good);
@@ -775,7 +775,7 @@ void Channel::MakeOwnerChanged(WorldPacket *data, uint64 guid)
 }
 
 // done 0x09
-void Channel::MakePlayerNotFound(WorldPacket *data, std::string name)
+void Channel::MakePlayerNotFound(WorldPacket *data, const std::string& name)
 {
     MakeNotifyPacket(data, CHAT_PLAYER_NOT_FOUND_NOTICE);
     *data << name;

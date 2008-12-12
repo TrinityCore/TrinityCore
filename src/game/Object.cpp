@@ -378,12 +378,12 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags, uint32 flags2 
 
         *data << ((Unit*)this)->GetSpeed( MOVE_WALK );
         *data << ((Unit*)this)->GetSpeed( MOVE_RUN );
-        *data << ((Unit*)this)->GetSpeed( MOVE_SWIMBACK );
+        *data << ((Unit*)this)->GetSpeed( MOVE_SWIM_BACK );
         *data << ((Unit*)this)->GetSpeed( MOVE_SWIM );
-        *data << ((Unit*)this)->GetSpeed( MOVE_WALKBACK );
-        *data << ((Unit*)this)->GetSpeed( MOVE_FLY );
-        *data << ((Unit*)this)->GetSpeed( MOVE_FLYBACK );
-        *data << ((Unit*)this)->GetSpeed( MOVE_TURN );
+        *data << ((Unit*)this)->GetSpeed( MOVE_RUN_BACK );
+        *data << ((Unit*)this)->GetSpeed( MOVE_FLIGHT );
+        *data << ((Unit*)this)->GetSpeed( MOVE_FLIGHT_BACK );
+        *data << ((Unit*)this)->GetSpeed( MOVE_TURN_RATE );
 
         // 0x08000000
         if(flags2 & MOVEMENTFLAG_SPLINE2)
@@ -654,7 +654,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                                 *data << uint32(1);
                                 break;
                             default:
-                                *data << uint32(0);         //unknown. not happen.
+                                *data << uint32(0);         // unknown. not happen.
                                 break;
                         }
                     }
@@ -951,6 +951,56 @@ void Object::RemoveFlag( uint16 index, uint32 oldFlag )
     if(oldval != newval)
     {
         m_uint32Values[ index ] = newval;
+
+        if(m_inWorld)
+        {
+            if(!m_objectUpdated)
+            {
+                ObjectAccessor::Instance().AddUpdateObject(this);
+                m_objectUpdated = true;
+            }
+        }
+    }
+}
+
+void Object::SetByteFlag( uint16 index, uint8 offset, uint8 newFlag )
+{
+    ASSERT( index < m_valuesCount || PrintIndexError( index , true ) );
+
+    if(offset > 4)
+    {
+        sLog.outError("Object::SetByteFlag: wrong offset %u", offset);
+        return;
+    }
+
+    if(!(uint8(m_uint32Values[ index ] >> (offset * 8)) & newFlag))
+    {
+        m_uint32Values[ index ] |= uint32(uint32(newFlag) << (offset * 8));
+
+        if(m_inWorld)
+        {
+            if(!m_objectUpdated)
+            {
+                ObjectAccessor::Instance().AddUpdateObject(this);
+                m_objectUpdated = true;
+            }
+        }
+    }
+}
+
+void Object::RemoveByteFlag( uint16 index, uint8 offset, uint8 oldFlag )
+{
+    ASSERT( index < m_valuesCount || PrintIndexError( index , true ) );
+
+    if(offset > 4)
+    {
+        sLog.outError("Object::RemoveByteFlag: wrong offset %u", offset);
+        return;
+    }
+
+    if(uint8(m_uint32Values[ index ] >> (offset * 8)) & oldFlag)
+    {
+        m_uint32Values[ index ] &= ~uint32(uint32(oldFlag) << (offset * 8));
 
         if(m_inWorld)
         {

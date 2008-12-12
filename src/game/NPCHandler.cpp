@@ -116,7 +116,7 @@ void WorldSession::SendTrainerList( uint64 guid )
     SendTrainerList( guid, str );
 }
 
-void WorldSession::SendTrainerList( uint64 guid,std::string strTitle )
+void WorldSession::SendTrainerList( uint64 guid, const std::string& strTitle )
 {
     sLog.outDebug( "WORLD: SendTrainerList" );
 
@@ -554,9 +554,9 @@ void WorldSession::SendStablePet(uint64 guid )
 
 void WorldSession::HandleStablePet( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data,8);
+    CHECK_PACKET_SIZE(recv_data, 8);
 
-    sLog.outDebug("WORLD: Recv CMSG_STABLE_PET not dispose.");
+    sLog.outDebug("WORLD: Recv CMSG_STABLE_PET");
     uint64 npcGUID;
 
     recv_data >> npcGUID;
@@ -617,7 +617,7 @@ void WorldSession::HandleStablePet( WorldPacket & recv_data )
 
 void WorldSession::HandleUnstablePet( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data,8+4);
+    CHECK_PACKET_SIZE(recv_data, 8+4);
 
     sLog.outDebug("WORLD: Recv CMSG_UNSTABLE_PET.");
     uint64 npcGUID;
@@ -677,7 +677,7 @@ void WorldSession::HandleUnstablePet( WorldPacket & recv_data )
 
 void WorldSession::HandleBuyStableSlot( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data,8);
+    CHECK_PACKET_SIZE(recv_data, 8);
 
     sLog.outDebug("WORLD: Recv CMSG_BUY_STABLE_SLOT.");
     uint64 npcGUID;
@@ -722,7 +722,7 @@ void WorldSession::HandleStableRevivePet( WorldPacket &/* recv_data */)
 
 void WorldSession::HandleStableSwapPet( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data,8+4);
+    CHECK_PACKET_SIZE(recv_data, 8+4);
 
     sLog.outDebug("WORLD: Recv CMSG_STABLE_SWAP_PET.");
     uint64 npcGUID;
@@ -777,7 +777,7 @@ void WorldSession::HandleStableSwapPet( WorldPacket & recv_data )
 
 void WorldSession::HandleRepairItemOpcode( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data,8+8+1);
+    CHECK_PACKET_SIZE(recv_data, 8+8+1);
 
     sLog.outDebug("WORLD: CMSG_REPAIR_ITEM");
 
