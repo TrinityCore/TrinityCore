@@ -405,6 +405,7 @@ class Spell
 
         bool IsDeletable() const { return !m_referencedFromCurrentSpell && !m_executedCurrently; }
         void SetReferencedFromCurrent(bool yes) { m_referencedFromCurrentSpell = yes; }
+        bool IsInterruptable() const { return !m_executedCurrently; }
         void SetExecutedCurrently(bool yes) { m_executedCurrently = yes; }
         uint64 GetDelayStart() const { return m_delayStart; }
         void SetDelayStart(uint64 m_time) { m_delayStart = m_time; }
