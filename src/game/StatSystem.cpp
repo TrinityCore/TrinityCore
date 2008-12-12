@@ -890,6 +890,7 @@ void Pet::UpdateMaxHealth()
 void Pet::UpdateMaxPower(Powers power)
 {
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
+
     float addValue = (power == POWER_MANA) ? GetStat(STAT_INTELLECT) - GetCreateStat(STAT_INTELLECT) : 0.0f;
 
     float value  = GetModifierValue(unitMod, BASE_VALUE) + GetCreatePowers(power);

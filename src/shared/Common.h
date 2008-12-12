@@ -190,7 +190,7 @@ enum LocaleConstant
 
 extern char const* localeNames[MAX_LOCALE];
 
-LocaleConstant GetLocaleByName(std::string name);
+LocaleConstant GetLocaleByName(const std::string& name);
 
 // we always use stdlibc++ std::max/std::min, undefine some not C++ standard defines (Win API and some pother platforms)
 #ifdef max

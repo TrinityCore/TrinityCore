@@ -279,7 +279,7 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
                     data.append(i_pl->GetPackGUID());
                     data << uint32(0);
                     i_pl->SendMessageToSet(&data, true);
-				    i_pl->SetSpeed(MOVE_FLY, 2.0f);
+				    i_pl->SetSpeed(MOVE_FLIGHT, 2.0f);
                 }
             }
         }

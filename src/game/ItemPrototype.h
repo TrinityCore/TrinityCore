@@ -445,17 +445,15 @@ inline uint8 ItemSubClassToDurabilityMultiplierId(uint32 ItemClass, uint32 ItemS
 
 struct _Damage
 {
-    float DamageMin;
-    float DamageMax;
-    uint32 DamageType;                                      // id from Resistances.dbc
-
+    float   DamageMin;
+    float   DamageMax;
+    uint32  DamageType;                                     // id from Resistances.dbc
 };
 
 struct _ItemStat
 {
-    uint32 ItemStatType;
-    int32  ItemStatValue;
-
+    uint32  ItemStatType;
+    int32   ItemStatValue;
 };
 struct _Spell
 {
@@ -466,7 +464,6 @@ struct _Spell
     int32  SpellCooldown;
     uint32 SpellCategory;                                   // id from SpellCategory.dbc
     int32  SpellCategoryCooldown;
-
 };
 
 struct _Socket
@@ -481,7 +478,7 @@ struct ItemPrototype
     uint32 Class;                                           // id from ItemClass.dbc
     uint32 SubClass;                                        // id from ItemSubClass.dbc
     uint32 Unk0;
-    char* Name1;
+    char*  Name1;
     uint32 DisplayInfoID;                                   // id from ItemDisplayInfo.dbc
     uint32 Quality;
     uint32 Flags;
@@ -513,12 +510,11 @@ struct ItemPrototype
     uint32 ShadowRes;
     uint32 ArcaneRes;
     uint32 Delay;
-    uint32 Ammo_type;
+    uint32 AmmoType;
     float  RangedModRange;
-
     _Spell Spells[5];
     uint32 Bonding;
-    char* Description;
+    char*  Description;
     uint32 PageText;
     uint32 LanguageID;
     uint32 PageMaterial;

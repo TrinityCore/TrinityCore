@@ -234,6 +234,24 @@ class TRINITY_DLL_SPEC Object
             return (m_uint32Values[ index ] & flag) != 0;
         }
 
+        void SetByteFlag( uint16 index, uint8 offset, uint8 newFlag );
+        void RemoveByteFlag( uint16 index, uint8 offset, uint8 newFlag );
+
+        void ToggleFlag( uint16 index, uint8 offset, uint8 flag )
+        {
+            if(HasByteFlag(index, offset, flag))
+                RemoveByteFlag(index, offset, flag);
+            else
+                SetByteFlag(index, offset, flag);
+        }
+
+        bool HasByteFlag( uint16 index, uint8 offset, uint8 flag ) const
+        {
+            ASSERT( index < m_valuesCount || PrintIndexError( index , false ) );
+            ASSERT( offset < 4 );
+            return (((uint8*)&m_uint32Values[index])[offset] & flag) != 0;
+        }
+
         void ApplyModFlag( uint16 index, uint32 flag, bool apply)
         {
             if(apply) SetFlag(index,flag); else RemoveFlag(index,flag);
@@ -305,7 +323,7 @@ class TRINITY_DLL_SPEC Object
         {
             int32  *m_int32Values;
             uint32 *m_uint32Values;
-            float *m_floatValues;
+            float  *m_floatValues;
         };
 
         uint32 *m_uint32Values_mirror;
@@ -401,7 +419,7 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         InstanceData* GetInstanceData();
 
         const char* GetName() const { return m_name.c_str(); }
-        void SetName(std::string newname) { m_name=newname; }
+        void SetName(const std::string& newname) { m_name=newname; }
 
         virtual const char* GetNameForLocaleIdx(int32 /*locale_idx*/) const { return GetName(); }
 

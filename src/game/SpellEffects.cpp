@@ -880,7 +880,7 @@ void Spell::EffectDummy(uint32 i)
                     if (!m_caster->HasAuraType(SPELL_AURA_MOUNTED))
                         return;
 
-                    float flyspeed = m_caster->GetSpeedRate(MOVE_FLY);
+                    float flyspeed = m_caster->GetSpeedRate(MOVE_FLIGHT);
                     float speed = m_caster->GetSpeedRate(MOVE_RUN);
 
                     m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
@@ -1238,7 +1238,7 @@ void Spell::EffectDummy(uint32 i)
                 if(!unitTarget)
                     return;
 
-                int32 basePoints0 = damage+int32(m_caster->GetPower(POWER_RAGE) * m_spellInfo->DmgMultiplier[i]);
+                int32 basePoints0 = damage+int32(m_caster->GetPower(POWER_RAGE) * m_spellInfo->DmgMultiplier[i] m);
                 m_caster->CastCustomSpell(unitTarget, 20647, &basePoints0, NULL, NULL, true, 0);
                 m_caster->SetPower(POWER_RAGE,0);
                 return;
@@ -3178,17 +3178,17 @@ void Spell::EffectSummon(uint32 i)
     if(duration > 0)
         spawnCreature->SetDuration(duration);
 
-    spawnCreature->SetUInt64Value(UNIT_FIELD_SUMMONEDBY,m_caster->GetGUID());
-    spawnCreature->SetUInt32Value(UNIT_NPC_FLAGS , 0);
+    spawnCreature->SetOwnerGUID(m_caster->GetGUID());
+    spawnCreature->SetUInt32Value(UNIT_NPC_FLAGS, 0);
     spawnCreature->setPowerType(POWER_MANA);
-    spawnCreature->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE,m_caster->getFaction());
-    spawnCreature->SetUInt32Value(UNIT_FIELD_FLAGS,0);
-    spawnCreature->SetUInt32Value(UNIT_FIELD_BYTES_0,2048);
-    spawnCreature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
-    spawnCreature->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP,0);
-    spawnCreature->SetUInt32Value(UNIT_FIELD_PETEXPERIENCE,0);
-    spawnCreature->SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP,1000);
-    spawnCreature->SetUInt64Value(UNIT_FIELD_CREATEDBY, m_caster->GetGUID());
+    spawnCreature->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, m_caster->getFaction());
+    spawnCreature->SetUInt32Value(UNIT_FIELD_FLAGS, 0);
+    spawnCreature->SetUInt32Value(UNIT_FIELD_BYTES_0, 2048);
+    spawnCreature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+    spawnCreature->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, 0);
+    spawnCreature->SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
+    spawnCreature->SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
+    spawnCreature->SetCreatorGUID(m_caster->GetGUID());
     spawnCreature->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
 
     spawnCreature->InitStatsForLevel(level);
@@ -3464,7 +3464,7 @@ void Spell::EffectAddFarsight(uint32 i)
 
     CellPair pair = Trinity::ComputeCellPair(dynObj->GetPositionX(), dynObj->GetPositionY());
     Cell cell(pair);
-    Map* map = MapManager::Instance().GetMap(dynObj->GetMapId(), dynObj);
+    Map* map = dynObj->GetMap();
     map->LoadGrid(cell);                        // In case the spell is casted into a different grid by player
     map->Add(dynObj);
     map->SwitchGridContainers(dynObj, true);    // Needed for forwarding player packets
@@ -3640,14 +3640,14 @@ void Spell::EffectSummonGuardian(uint32 i)
         if(duration > 0)
             spawnCreature->SetDuration(duration);
 
-        spawnCreature->SetUInt64Value(UNIT_FIELD_SUMMONEDBY,m_caster->GetGUID());
+        spawnCreature->SetOwnerGUID(m_caster->GetGUID());
         spawnCreature->setPowerType(POWER_MANA);
         spawnCreature->SetUInt32Value(UNIT_NPC_FLAGS , 0);
         spawnCreature->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE,m_caster->getFaction());
         spawnCreature->SetUInt32Value(UNIT_FIELD_FLAGS,0);
         spawnCreature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
         spawnCreature->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP,0);
-        spawnCreature->SetUInt64Value(UNIT_FIELD_CREATEDBY, m_caster->GetGUID());
+        spawnCreature->SetCreatorGUID(m_caster->GetGUID());
         spawnCreature->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
 
         spawnCreature->InitStatsForLevel(level);
@@ -4073,15 +4073,15 @@ void Spell::EffectSummonPet(uint32 i)
             NewSummon->GetCharmInfo()->SetReactState(REACT_DEFENSIVE);
     }
 
-    NewSummon->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, m_caster->GetGUID());
-    NewSummon->SetUInt64Value(UNIT_FIELD_CREATEDBY, m_caster->GetGUID());
-    NewSummon->SetUInt32Value(UNIT_NPC_FLAGS , 0);
+    NewSummon->SetOwnerGUID(m_caster->GetGUID());
+    NewSummon->SetCreatorGUID(m_caster->GetGUID());
+    NewSummon->SetUInt32Value(UNIT_NPC_FLAGS, 0);
     NewSummon->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, faction);
-    NewSummon->SetUInt32Value(UNIT_FIELD_BYTES_0,2048);
-    NewSummon->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
-    NewSummon->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP,time(NULL));
-    NewSummon->SetUInt32Value(UNIT_FIELD_PETEXPERIENCE,0);
-    NewSummon->SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP,1000);
+    NewSummon->SetUInt32Value(UNIT_FIELD_BYTES_0, 2048);
+    NewSummon->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+    NewSummon->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, time(NULL));
+    NewSummon->SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
+    NewSummon->SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
     NewSummon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
 
     NewSummon->GetCharmInfo()->SetPetNumber(pet_number, true);
@@ -4090,7 +4090,7 @@ void Spell::EffectSummonPet(uint32 i)
     // this enables popup window (pet dismiss, cancel), hunter pet additional flags set later
     NewSummon->SetUInt32Value(UNIT_FIELD_FLAGS,UNIT_FLAG_PVP_ATTACKABLE);
 
-    NewSummon->InitStatsForLevel( petlevel);
+    NewSummon->InitStatsForLevel(petlevel);
     NewSummon->InitPetCreateSpells();
 
     if(NewSummon->getPetType()==SUMMON_PET)
@@ -5738,8 +5738,8 @@ void Spell::EffectSummonCritter(uint32 i)
         return;
     }
 
-    critter->SetUInt64Value(UNIT_FIELD_SUMMONEDBY,m_caster->GetGUID());
-    critter->SetUInt64Value(UNIT_FIELD_CREATEDBY,m_caster->GetGUID());
+    critter->SetOwnerGUID(m_caster->GetGUID());
+    critter->SetCreatorGUID(m_caster->GetGUID());
     critter->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE,m_caster->getFaction());
     critter->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
 

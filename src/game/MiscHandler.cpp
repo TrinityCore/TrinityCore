@@ -1402,7 +1402,7 @@ void WorldSession::HandleFarSightOpcode( WorldPacket & recv_data )
                 pair = Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
             else
                 return;
-            sLog.outDebug("Player %u set vision to farsight target " I64FMTD ".", _player->GetGUIDLow(), _player->GetUInt64Value(PLAYER_FARSIGHT));
+            sLog.outDebug("Added FarSight " I64FMT " to player %u", _player->GetFarSight(), _player->GetGUIDLow());
             break;
         default:
             sLog.outDebug("Unhandled mode in CMSG_FAR_SIGHT: %u", apply);
@@ -1423,9 +1423,9 @@ void WorldSession::HandleChooseTitleOpcode( WorldPacket & recv_data )
     recv_data >> title;
 
     // -1 at none
-    if(title > 0 && title < 64)
+    if(title > 0 && title < 128)
     {
-       if(!GetPlayer()->HasFlag64(PLAYER__FIELD_KNOWN_TITLES,uint64(1) << title))
+       if(!GetPlayer()->HasTitle(title))
             return;
     }
     else

@@ -140,7 +140,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x06D*/ { "CMSG_DEL_IGNORE",                  STATUS_LOGGEDIN, &WorldSession::HandleDelIgnoreOpcode           },
     /*0x06E*/ { "CMSG_GROUP_INVITE",                STATUS_LOGGEDIN, &WorldSession::HandleGroupInviteOpcode         },
     /*0x06F*/ { "SMSG_GROUP_INVITE",                STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
-    /*0x070*/ { "CMSG_GROUP_CANCEL",                STATUS_LOGGEDIN, &WorldSession::Handle_Depricated               },
+    /*0x070*/ { "CMSG_GROUP_CANCEL",                STATUS_LOGGEDIN, &WorldSession::Handle_Deprecated               },
     /*0x071*/ { "SMSG_GROUP_CANCEL",                STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x072*/ { "CMSG_GROUP_ACCEPT",                STATUS_LOGGEDIN, &WorldSession::HandleGroupAcceptOpcode         },
     /*0x073*/ { "CMSG_GROUP_DECLINE",               STATUS_LOGGEDIN, &WorldSession::HandleGroupDeclineOpcode        },
