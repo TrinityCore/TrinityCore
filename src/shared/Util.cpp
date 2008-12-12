@@ -133,13 +133,13 @@ std::string secsToTimeString(uint32 timeInSecs, bool shortText, bool hoursOnly)
     return ss.str();
 }
 
-uint32 TimeStringToSecs(std::string timestring)
+uint32 TimeStringToSecs(const std::string& timestring)
 {
     uint32 secs       = 0;
     uint32 buffer     = 0;
     uint32 multiplier = 0;
 
-    for(std::string::iterator itr = timestring.begin(); itr != timestring.end(); itr++ )
+    for(std::string::const_iterator itr = timestring.begin(); itr != timestring.end(); itr++ )
     {
         if(isdigit(*itr))
         {
@@ -195,7 +195,7 @@ bool IsIPAddress(char const* ipaddress)
 }
 
 /// create PID file
-uint32 CreatePIDFile(std::string filename)
+uint32 CreatePIDFile(const std::string& filename)
 {
     FILE * pid_file = fopen (filename.c_str(), "w" );
     if (pid_file == NULL)
@@ -273,7 +273,7 @@ bool Utf8toWStr(char const* utf8str, size_t csize, wchar_t* wstr, size_t& wsize)
     return true;
 }
 
-bool Utf8toWStr(std::string utf8str, std::wstring& wstr)
+bool Utf8toWStr(const std::string& utf8str, std::wstring& wstr)
 {
     try
     {
@@ -378,7 +378,7 @@ std::wstring GetMainPartOfName(std::wstring wname, uint32 declension)
     return wname;
 }
 
-bool utf8ToConsole(std::string utf8str, std::string& conStr)
+bool utf8ToConsole(const std::string& utf8str, std::string& conStr)
 {
 #if PLATFORM == PLATFORM_WINDOWS
     std::wstring wstr;
@@ -395,7 +395,7 @@ bool utf8ToConsole(std::string utf8str, std::string& conStr)
     return true;
 }
 
-bool consoleToUtf8(std::string conStr,std::string& utf8str)
+bool consoleToUtf8(const std::string& conStr,std::string& utf8str)
 {
 #if PLATFORM == PLATFORM_WINDOWS
     std::wstring wstr;
@@ -410,7 +410,7 @@ bool consoleToUtf8(std::string conStr,std::string& utf8str)
 #endif
 }
 
-bool Utf8FitTo(std::string str, std::wstring search)
+bool Utf8FitTo(const std::string& str, std::wstring search)
 {
     std::wstring temp;
 

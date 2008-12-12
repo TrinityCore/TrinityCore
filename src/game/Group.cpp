@@ -212,7 +212,7 @@ bool Group::AddInvite(Player *player)
 
     RemoveInvite(player);
 
-    m_invitees.insert(player->GetGUID());
+    m_invitees.insert(player);
 
     player->SetGroupInvite(this);
 
@@ -231,14 +231,7 @@ bool Group::AddLeaderInvite(Player *player)
 
 uint32 Group::RemoveInvite(Player *player)
 {
-    for(InvitesList::iterator itr=m_invitees.begin(); itr!=m_invitees.end(); ++itr)
-    {
-        if((*itr) == player->GetGUID())
-        {
-            m_invitees.erase(itr);
-            break;
-        }
-    }
+    m_invitees.erase(player);
 
     player->SetGroupInvite(NULL);
     return GetMembersCount();
@@ -247,12 +240,29 @@ uint32 Group::RemoveInvite(Player *player)
 void Group::RemoveAllInvites()
 {
     for(InvitesList::iterator itr=m_invitees.begin(); itr!=m_invitees.end(); ++itr)
-    {
-        Player *invitee = objmgr.GetPlayer(*itr);
-        if(invitee)
-            invitee->SetGroupInvite(NULL);
-    }
+        (*itr)->SetGroupInvite(NULL);
+
     m_invitees.clear();
+}
+
+Player* Group::GetInvited(const uint64& guid) const
+{
+    for(InvitesList::const_iterator itr = m_invitees.begin(); itr != m_invitees.end(); ++itr)
+    {
+        if((*itr)->GetGUID() == guid)
+            return (*itr);
+    }
+    return NULL;
+}
+
+Player* Group::GetInvited(const std::string& name) const
+{
+    for(InvitesList::const_iterator itr = m_invitees.begin(); itr != m_invitees.end(); ++itr)
+    {
+        if((*itr)->GetName() == name)
+            return (*itr);
+    }
+    return NULL;
 }
 
 bool Group::AddMember(const uint64 &guid, const char* name)

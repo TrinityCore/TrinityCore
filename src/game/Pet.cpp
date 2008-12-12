@@ -173,7 +173,7 @@ bool Pet::LoadPetFromDB( Unit* owner, uint32 petentry, uint32 petnumber, bool cu
     }
 
     Map *map = owner->GetMap();
-    uint32 guid=objmgr.GenerateLowGuid(HIGHGUID_PET);
+    uint32 guid = objmgr.GenerateLowGuid(HIGHGUID_PET);
     uint32 pet_number = fields[0].GetUInt32();
     if(!Create(guid, map, petentry, pet_number))
     {
@@ -182,7 +182,7 @@ bool Pet::LoadPetFromDB( Unit* owner, uint32 petentry, uint32 petnumber, bool cu
     }
 
     float px, py, pz;
-    owner->GetClosePoint(px, py, pz,GetObjectSize(),PET_FOLLOW_DIST,PET_FOLLOW_ANGLE);
+    owner->GetClosePoint(px, py, pz, GetObjectSize(), PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
 
     Relocate(px, py, pz, owner->GetOrientation());
 
@@ -359,7 +359,7 @@ bool Pet::LoadPetFromDB( Unit* owner, uint32 petentry, uint32 petnumber, bool cu
 
     if(owner->GetTypeId() == TYPEID_PLAYER && getPetType() == HUNTER_PET)
     {
-        result = CharacterDatabase.PQuery("SELECT genitive, dative, accusative, instrumental, prepositional FROM character_pet_declinedname WHERE owner = '%u' AND id = '%u'",owner->GetGUIDLow(),GetCharmInfo()->GetPetNumber());
+        result = CharacterDatabase.PQuery("SELECT genitive, dative, accusative, instrumental, prepositional FROM character_pet_declinedname WHERE owner = '%u' AND id = '%u'", owner->GetGUIDLow(), GetCharmInfo()->GetPetNumber());
 
         if(result)
         {
@@ -959,14 +959,14 @@ bool Pet::CreateBaseAtCreature(Creature* creature)
     }
     SetDisplayId(creature->GetDisplayId());
     SetNativeDisplayId(creature->GetNativeDisplayId());
-    SetMaxPower(POWER_HAPPINESS,GetCreatePowers(POWER_HAPPINESS));
-    SetPower(   POWER_HAPPINESS,166500);
+    SetMaxPower(POWER_HAPPINESS, GetCreatePowers(POWER_HAPPINESS));
+    SetPower(POWER_HAPPINESS, 166500);
     setPowerType(POWER_FOCUS);
-    SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP,0);
-    SetUInt32Value(UNIT_FIELD_PETEXPERIENCE,0);
+    SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, 0);
+    SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
     SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, uint32((Trinity::XP::xp_to_level(creature->getLevel()))/4));
     SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
-    SetUInt32Value(UNIT_NPC_FLAGS , 0);
+    SetUInt32Value(UNIT_NPC_FLAGS, 0);
 
     CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(creature->GetCreatureInfo()->family);
     if( char* familyname = cFamily->Name[sWorld.GetDefaultDbcLocale()] )
@@ -1002,7 +1002,7 @@ bool Pet::InitStatsForLevel(uint32 petlevel)
 
     uint32 creature_ID = (getPetType() == HUNTER_PET) ? 1 : cinfo->Entry;
 
-    SetLevel( petlevel);
+    SetLevel(petlevel);
 
     SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
 
@@ -1091,7 +1091,7 @@ bool Pet::InitStatsForLevel(uint32 petlevel)
 
                 for(int stat = 0; stat < MAX_STATS; ++stat)
                 {
-                    SetCreateStat(Stats(stat),float(pInfo->stats[stat]));
+                    SetCreateStat(Stats(stat), float(pInfo->stats[stat]));
                 }
             }
             else                                            // not exist in DB, use some default fake data
@@ -1102,11 +1102,11 @@ bool Pet::InitStatsForLevel(uint32 petlevel)
                 SetCreateHealth(uint32(((float(cinfo->maxhealth) / cinfo->maxlevel) / (1 + 2 * cinfo->rank)) * petlevel) );
                 SetCreateMana(  uint32(((float(cinfo->maxmana)   / cinfo->maxlevel) / (1 + 2 * cinfo->rank)) * petlevel) );
 
-                SetCreateStat(STAT_STRENGTH,22);
-                SetCreateStat(STAT_AGILITY,22);
-                SetCreateStat(STAT_STAMINA,25);
-                SetCreateStat(STAT_INTELLECT,28);
-                SetCreateStat(STAT_SPIRIT,27);
+                SetCreateStat(STAT_STRENGTH, 22);
+                SetCreateStat(STAT_AGILITY, 22);
+                SetCreateStat(STAT_STAMINA, 25);
+                SetCreateStat(STAT_INTELLECT, 28);
+                SetCreateStat(STAT_SPIRIT, 27);
             }
             break;
         }
@@ -1141,34 +1141,35 @@ bool Pet::InitStatsForLevel(uint32 petlevel)
                 // remove elite bonuses included in DB values
                 SetCreateHealth( uint32(((float(cinfo->maxhealth) / cinfo->maxlevel) / (1 + 2 * cinfo->rank)) * petlevel) );
 
-                SetCreateStat(STAT_STRENGTH,22);
-                SetCreateStat(STAT_AGILITY,22);
-                SetCreateStat(STAT_STAMINA,25);
-                SetCreateStat(STAT_INTELLECT,28);
-                SetCreateStat(STAT_SPIRIT,27);
+                SetCreateStat(STAT_STRENGTH, 22);
+                SetCreateStat(STAT_AGILITY, 22);
+                SetCreateStat(STAT_STAMINA, 25);
+                SetCreateStat(STAT_INTELLECT, 28);
+                SetCreateStat(STAT_SPIRIT, 27);
             }
             break;
         }
         case GUARDIAN_PET:
-            SetUInt32Value(UNIT_FIELD_PETEXPERIENCE,0);
-            SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP,1000);
+            SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
+            SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
 
-            SetCreateMana(   28 + 10*petlevel );
-            SetCreateHealth( 28 + 30*petlevel );
+            SetCreateMana(28 + 10*petlevel);
+            SetCreateHealth(28 + 30*petlevel);
 
             // FIXME: this is wrong formula, possible each guardian pet have own damage formula
             //these formula may not be correct; however, it is designed to be close to what it should be
             //this makes dps 0.5 of pets level
-            SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)) );
+            SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
             //damage range is then petlevel / 2
-            SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)) );
+            SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
             break;
         default:
-            sLog.outError("Pet have incorrect type (%u) for levelup.",getPetType());            break;
+            sLog.outError("Pet have incorrect type (%u) for levelup.", getPetType());
+            break;
     }
 
     for (int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-        SetModifierValue(UnitMods(UNIT_MOD_RESISTANCE_START + i), BASE_VALUE, float(createResistance[i]) );
+        SetModifierValue(UnitMods(UNIT_MOD_RESISTANCE_START + i), BASE_VALUE, float(createResistance[i]));
 
     UpdateAllStats();
 
@@ -1199,7 +1200,7 @@ bool Pet::HaveInDiet(ItemPrototype const* item) const
 uint32 Pet::GetCurrentFoodBenefitLevel(uint32 itemlevel)
 {
     // -5 or greater food level
-    if(getLevel() <= itemlevel +5)                          //possible to feed level 60 pet with level 55 level food for full effect
+    if(getLevel() <= itemlevel + 5)                         //possible to feed level 60 pet with level 55 level food for full effect
         return 35000;
     // -10..-6
     else if(getLevel() <= itemlevel + 10)                   //pure guess, but sounds good
@@ -1249,7 +1250,7 @@ void Pet::_LoadSpellCooldowns()
 
             _AddCreatureSpellCooldown(spell_id,db_time);
 
-            sLog.outDebug("Pet (Number: %u) spell %u cooldown loaded (%u secs).",m_charmInfo->GetPetNumber(),spell_id,uint32(db_time-curTime));
+            sLog.outDebug("Pet (Number: %u) spell %u cooldown loaded (%u secs).", m_charmInfo->GetPetNumber(), spell_id, uint32(db_time-curTime));
         }
         while( result->NextRow() );
 
@@ -1396,7 +1397,7 @@ void Pet::_LoadAuras(uint32 timediff)
 
 void Pet::_SaveAuras()
 {
-    CharacterDatabase.PExecute("DELETE FROM pet_aura WHERE guid = '%u'",m_charmInfo->GetPetNumber());
+    CharacterDatabase.PExecute("DELETE FROM pet_aura WHERE guid = '%u'", m_charmInfo->GetPetNumber());
 
     AuraMap const& auras = GetAuras();
     if (auras.empty())
@@ -1780,7 +1781,7 @@ void Pet::CastPetAuras(bool current)
     if(getPetType() != HUNTER_PET && (getPetType() != SUMMON_PET || owner->getClass() != CLASS_WARLOCK))
         return;
 
-    for(PetAuraSet::iterator itr = owner->m_petAuras.begin(); itr != owner->m_petAuras.end(); )
+    for(PetAuraSet::iterator itr = owner->m_petAuras.begin(); itr != owner->m_petAuras.end();)
     {
         PetAura const* pa = *itr;
         ++itr;
@@ -1801,7 +1802,7 @@ void Pet::CastPetAura(PetAura const* aura)
     if(auraId == 35696)                                       // Demonic Knowledge
     {
         int32 basePoints = int32(aura->GetDamage() * (GetStat(STAT_STAMINA) + GetStat(STAT_INTELLECT)) / 100);
-        CastCustomSpell(this,auraId,&basePoints, NULL, NULL, true );
+        CastCustomSpell(this, auraId, &basePoints, NULL, NULL, true);
     }
     else
         CastSpell(this, auraId, true);

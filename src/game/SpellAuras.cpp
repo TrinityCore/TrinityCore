@@ -2850,7 +2850,7 @@ void Aura::HandleFarSight(bool apply, bool Real)
     if(!caster || caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    caster->SetUInt64Value(PLAYER_FARSIGHT,apply ? m_modifier.m_miscvalue : 0);
+    ((Player*)caster)->SetFarSight(apply ? m_target->GetGUID() : NULL);
 }
 
 void Aura::HandleAuraTrackCreatures(bool apply, bool Real)
@@ -3522,7 +3522,7 @@ void Aura::HandleAuraModIncreaseFlightSpeed(bool apply, bool Real)
             m_target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID,16314);
     }
 
-    m_target->UpdateSpeed(MOVE_FLY, true);
+    m_target->UpdateSpeed(MOVE_FLIGHT, true);
 }
 
 void Aura::HandleAuraModIncreaseSwimSpeed(bool /*apply*/, bool Real)
@@ -3542,7 +3542,7 @@ void Aura::HandleAuraModDecreaseSpeed(bool /*apply*/, bool Real)
 
     m_target->UpdateSpeed(MOVE_RUN, true);
     m_target->UpdateSpeed(MOVE_SWIM, true);
-    m_target->UpdateSpeed(MOVE_FLY, true);
+    m_target->UpdateSpeed(MOVE_FLIGHT, true);
 }
 
 void Aura::HandleAuraModUseNormalSpeed(bool /*apply*/, bool Real)
@@ -3553,7 +3553,7 @@ void Aura::HandleAuraModUseNormalSpeed(bool /*apply*/, bool Real)
 
     m_target->UpdateSpeed(MOVE_RUN,  true);
     m_target->UpdateSpeed(MOVE_SWIM, true);
-    m_target->UpdateSpeed(MOVE_FLY,  true);
+    m_target->UpdateSpeed(MOVE_FLIGHT,  true);
 }
 
 /*********************************************************/
@@ -4533,21 +4533,24 @@ void Aura::HandleAuraModIncreaseEnergy(bool apply, bool Real)
     if(int32(powerType) != m_modifier.m_miscvalue)
         return;
 
-    m_target->HandleStatModifier(UnitMods(UNIT_MOD_POWER_START + powerType), TOTAL_VALUE, float(GetModifierValue()), apply);
+    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
+
+    m_target->HandleStatModifier(unitMod, TOTAL_VALUE, float(GetModifierValue()), apply);
 }
 
-void Aura::HandleAuraModIncreaseEnergyPercent(bool apply, bool Real)
+void Aura::HandleAuraModIncreaseEnergyPercent(bool apply, bool /*Real*/)
 {
     Powers powerType = m_target->getPowerType();
     if(int32(powerType) != m_modifier.m_miscvalue)
         return;
 
-    m_target->HandleStatModifier(UnitMods(UNIT_MOD_POWER_START + powerType), TOTAL_PCT, float(GetModifierValue()), apply);
+    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
+
+    m_target->HandleStatModifier(unitMod, TOTAL_PCT, float(GetModifierValue()), apply);
 }
 
-void Aura::HandleAuraModIncreaseHealthPercent(bool apply, bool Real)
+void Aura::HandleAuraModIncreaseHealthPercent(bool apply, bool /*Real*/)
 {
-    //m_target->ApplyMaxHealthPercentMod(m_modifier.m_amount,apply);
     m_target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, float(GetModifierValue()), apply);
 }
 

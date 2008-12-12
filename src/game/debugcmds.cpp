@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "Common.h"
@@ -32,6 +32,8 @@
 #include "GossipDef.h"
 #include "Language.h"
 #include "MapManager.h"
+#include <fstream>
+#include "ObjectMgr.h"
 #include "BattleGroundMgr.h"
 
 bool ChatHandler::HandleDebugInArcCommand(const char* /*args*/)
@@ -61,8 +63,8 @@ bool ChatHandler::HandleDebugSpellFailCommand(const char* args)
     uint8 failnum = (uint8)atoi(px);
 
     WorldPacket data(SMSG_CAST_FAILED, 5);
-    data << (uint32)133;
-    data << failnum;
+    data << uint32(133);
+    data << uint8(failnum);
     m_session->SendPacket(&data);
 
     return true;
@@ -127,70 +129,76 @@ bool ChatHandler::HandleBuyErrorCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleSendOpcodeCommand(const char* args)
+bool ChatHandler::HandleSendOpcodeCommand(const char* /*args*/)
 {
     Unit *unit = getSelectedUnit();
     if (!unit || (unit->GetTypeId() != TYPEID_PLAYER))
         unit = m_session->GetPlayer();
 
-    FILE *file = fopen("opcode.txt", "r");
-    if(!file)
+    std::ifstream ifs("opcode.txt");
+    if(ifs.bad())
         return false;
 
-    uint32 type;
-
-    uint32 val1;
-    uint64 val2;
-    float val3;
-    char val4[101];
-
-    uint32 opcode = 0;
-    fscanf(file, "%u", &opcode);
-    if(!opcode)
-    {
-        fclose(file);
-        return false;
-    }
+    uint32 opcode;
+    ifs >> opcode;
 
     WorldPacket data(opcode, 0);
 
-    while(fscanf(file, "%u", &type) != EOF)
+    while(!ifs.eof())
     {
-        switch(type)
+        std::string type;
+        ifs >> type;
+
+        if(type == "")
+            break;
+
+        if(type == "uint8")
         {
-            case 0:                                         // uint8
-                fscanf(file, "%u", &val1);
-                data << uint8(val1);
-                break;
-            case 1:                                         // uint16
-                fscanf(file, "%u", &val1);
-                data << uint16(val1);
-                break;
-            case 2:                                         // uint32
-                fscanf(file, "%u", &val1);
-                data << uint32(val1);
-                break;
-            case 3:                                         // uint64
-                fscanf(file, I64FMTD, &val2);
-                data << uint64(val2);
-                break;
-            case 4:                                         // float
-                fscanf(file, "%f", &val3);
-                data << float(val3);
-                break;
-            case 5:                                         // string
-                fscanf(file, "%s", val4, 101);
-                data << val4;
-                break;
-            case 6:                                         // packed guid
-                data.append(unit->GetPackGUID());
-                break;
-            default:
-                fclose(file);
-                return false;
+            uint16 val1;
+            ifs >> val1;
+            data << uint8(val1);
+        }
+        else if(type == "uint16")
+        {
+            uint16 val2;
+            ifs >> val2;
+            data << val2;
+        }
+        else if(type == "uint32")
+        {
+            uint32 val3;
+            ifs >> val3;
+            data << val3;
+        }
+        else if(type == "uint64")
+        {
+            uint64 val4;
+            ifs >> val4;
+            data << val4;
+        }
+        else if(type == "float")
+        {
+            float val5;
+            ifs >> val5;
+            data << val5;
+        }
+        else if(type == "string")
+        {
+            std::string val6;
+            ifs >> val6;
+            data << val6;
+        }
+        else if(type == "pguid")
+        {
+            data.append(unit->GetPackGUID());
+        }
+        else
+        {
+            sLog.outDebug("Sending opcode: unknown type '%s'", type.c_str());
+            break;
         }
     }
-    fclose(file);
+    ifs.close();
     sLog.outDebug("Sending opcode %u", data.GetOpcode());
     data.hexlike();
     ((Player*)unit)->GetSession()->SendPacket(&data);
@@ -218,7 +226,7 @@ bool ChatHandler::HandlePlaySound2Command(const char* args)
         return false;
 
     uint32 soundid = atoi(args);
-    m_session->GetPlayer()->SendPlaySound(soundid, false);
+    m_session->GetPlayer()->PlaySound(soundid, false);
     return true;
 }
 
@@ -262,7 +270,7 @@ bool ChatHandler::HandleSendQuestPartyMsgCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleGetLootRecipient(const char* args)
+bool ChatHandler::HandleGetLootRecipient(const char* /*args*/)
 {
     Creature* target = getSelectedCreature();
     if(!target)
