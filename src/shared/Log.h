@@ -84,7 +84,7 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThr
     }
     public:
         void Initialize();
-        void InitColors(std::string init_str);
+        void InitColors(const std::string& init_str);
         void outTitle( const char * str);
         void outCommand( uint32 account, const char * str, ...) ATTR_PRINTF(3,4);
         void outString();                                   // any log level

@@ -44,7 +44,7 @@
     -FIX sending PartyMemberStats
 */
 
-void WorldSession::SendPartyResult(PartyOperation operation, std::string member, PartyResult res)
+void WorldSession::SendPartyResult(PartyOperation operation, const std::string& member, PartyResult res)
 {
     WorldPacket data(SMSG_PARTY_COMMAND_RESULT, (8+member.size()+1));
     data << (uint32)operation;
@@ -254,17 +254,37 @@ void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket & recv_data)
     uint64 guid;
     recv_data >> guid;
 
-    if(_player->InBattleGround())
+    //can't uninvite yourself
+    if(guid == GetPlayer()->GetGUID())
     {
-        SendPartyResult(PARTY_OP_INVITE, "", PARTY_RESULT_INVITE_RESTRICTED);
+        sLog.outError("WorldSession::HandleGroupUninviteGuidOpcode: leader %s(%d) tried to uninvite himself from the group.", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
         return;
     }
 
-    std::string membername;
-    if(!objmgr.GetPlayerNameByGUID(guid, membername))
-        return;                                             // not found
+    PartyResult res = GetPlayer()->CanUninviteFromGroup();
+    if(res != PARTY_RESULT_OK)
+    {
+        SendPartyResult(PARTY_OP_LEAVE, "", res);
+        return;
+    }
 
-    HandleGroupUninvite(guid, membername);
+    Group* grp = GetPlayer()->GetGroup();
+    if(!grp)
+        return;
+
+    if(grp->IsMember(guid))
+    {
+        Player::RemoveFromGroup(grp,guid);
+        return;
+    }
+
+    if(Player* plr = grp->GetInvited(guid))
+    {
+        plr->UninviteFromGroup();
+        return;
+    }
+
+    SendPartyResult(PARTY_OP_LEAVE, "", PARTY_RESULT_NOT_IN_YOUR_PARTY);
 }
 
 void WorldSession::HandleGroupUninviteNameOpcode(WorldPacket & recv_data)
@@ -274,65 +294,41 @@ void WorldSession::HandleGroupUninviteNameOpcode(WorldPacket & recv_data)
     std::string membername;
     recv_data >> membername;
 
-    if(_player->InBattleGround())
-    {
-        SendPartyResult(PARTY_OP_INVITE, membername, PARTY_RESULT_INVITE_RESTRICTED);
-        return;
-    }
-
     // player not found
     if(!normalizePlayerName(membername))
         return;
 
-    uint64 guid = objmgr.GetPlayerGUIDByName(membername);
-
-    // player not found
-    if(!guid)
-        return;
-
-    HandleGroupUninvite(guid, membername);
-}
-
-void WorldSession::HandleGroupUninvite(uint64 guid, std::string name)
-{
-    Group *group = GetPlayer()->GetGroup();
-    if(!group)
-        return;
-
-    if(_player->InBattleGround())
+    // can't uninvite yourself
+    if(GetPlayer()->GetName() == membername)
     {
-        SendPartyResult(PARTY_OP_INVITE, "", PARTY_RESULT_INVITE_RESTRICTED);
+        sLog.outError("WorldSession::HandleGroupUninviteNameOpcode: leader %s(%d) tried to uninvite himself from the group.", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
         return;
     }
 
-    Player *player = objmgr.GetPlayer(guid);
-
-    /** error handling **/
-    if(!group->IsLeader(GetPlayer()->GetGUID()) && !group->IsAssistant(GetPlayer()->GetGUID()))
+    PartyResult res = GetPlayer()->CanUninviteFromGroup();
+    if(res != PARTY_RESULT_OK)
     {
-        SendPartyResult(PARTY_OP_LEAVE, "", PARTY_RESULT_YOU_NOT_LEADER);
+        SendPartyResult(PARTY_OP_LEAVE, "", res);
         return;
     }
 
-    if(!group->IsMember(guid) && (player && player->GetGroupInvite() != group))
+    Group* grp = GetPlayer()->GetGroup();
+    if(!grp)
+        return;
+
+    if(uint64 guid = grp->GetMemberGUID(membername))
     {
-        SendPartyResult(PARTY_OP_LEAVE, name, PARTY_RESULT_NOT_IN_YOUR_PARTY);
+        Player::RemoveFromGroup(grp,guid);
         return;
     }
 
-    if(guid == GetPlayer()->GetGUID())
+    if(Player* plr = grp->GetInvited(membername))
     {
-        sLog.outError("WorldSession::HandleGroupUninvite: leader %s(%d) tried to uninvite himself from the group.", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
+        plr->UninviteFromGroup();
         return;
     }
-    /********************/
 
-    // everything's fine, do it
-
-    if(player && player->GetGroupInvite())                  // uninvite invitee
-        player->UninviteFromGroup();
-    else                                                    // uninvite member
-        Player::RemoveFromGroup(group,guid);
+    SendPartyResult(PARTY_OP_LEAVE, membername, PARTY_RESULT_NOT_IN_YOUR_PARTY);
 }
 
 void WorldSession::HandleGroupSetLeaderOpcode( WorldPacket & recv_data )

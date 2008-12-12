@@ -103,8 +103,8 @@ class TRINITY_DLL_SPEC GossipMenu
         GossipMenu();
         ~GossipMenu();
 
-        void AddMenuItem(uint8 Icon, std::string Message, bool Coded = false);
-        void AddMenuItem(uint8 Icon, std::string Message, uint32 dtSender, uint32 dtAction, std::string BoxMessage, uint32 BoxMoney, bool Coded = false);
+        void AddMenuItem(uint8 Icon, const std::string& Message, bool Coded = false);
+        void AddMenuItem(uint8 Icon, const std::string& Message, uint32 dtSender, uint32 dtAction, const std::string& BoxMessage, uint32 BoxMoney, bool Coded = false);
 
         // for using from scripts, don't must be inlined
         void AddMenuItem(uint8 Icon, char const* Message, bool Coded = false);
@@ -197,7 +197,7 @@ class TRINITY_DLL_SPEC PlayerMenu
         /*********************************************************/
         void SendQuestGiverStatus( uint8 questStatus, uint64 npcGUID );
 
-        void SendQuestGiverQuestList( QEmote eEmote, std::string Title, uint64 npcGUID );
+        void SendQuestGiverQuestList( QEmote eEmote, const std::string& Title, uint64 npcGUID );
 
         void SendQuestQueryResponse ( Quest const *pQuest );
         void SendQuestGiverQuestDetails( Quest const *pQuest, uint64 npcGUID, bool ActivateAccept);

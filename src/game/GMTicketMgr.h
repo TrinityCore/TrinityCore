@@ -31,7 +31,7 @@ class GMTicket
         {
         }
 
-        GMTicket(uint32 guid, std::string text, time_t update) : m_guid(guid), m_text(text), m_lastUpdate(update)
+        GMTicket(uint32 guid, const std::string& text, time_t update) : m_guid(guid), m_text(text), m_lastUpdate(update)
         {
 
         }

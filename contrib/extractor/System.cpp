@@ -39,7 +39,7 @@ enum Extract
 };
 int extract = EXTRACT_MAP | EXTRACT_DBC;
 
-static char* const langs[]={"enGB", "enUS", "deDE", "esES", "frFR", "koKR", "zhCN", "zhTW", "enCN", "enTW", "esMX", "ruRU" };
+static char* const langs[] = {"enGB", "enUS", "deDE", "esES", "frFR", "koKR", "zhCN", "zhTW", "enCN", "enTW", "esMX", "ruRU" };
 #define LANG_COUNT 12
 
 #define ADT_RES 64
@@ -55,9 +55,9 @@ void CreateDir( const std::string& Path )
 
 bool FileExists( const char* FileName )
 {
-    if( FILE* fp = fopen( FileName, "rb" ) )
+    if(FILE* fp = fopen( FileName, "rb" ))
     {
-        fclose( fp );
+        fclose(fp);
         return true;
     }
 
@@ -222,15 +222,15 @@ void ExtractDBCFiles(int locale, bool basicLocale)
         string filename = path;
         filename += (iter->c_str() + strlen("DBFilesClient\\"));
 
-        FILE *output=fopen(filename.c_str(),"wb");
+        FILE *output=fopen(filename.c_str(), "wb");
         if(!output)
         {
-            printf("Can't create the output file '%s'\n",filename.c_str());
+            printf("Can't create the output file '%s'\n", filename.c_str());
             continue;
         }
         MPQFile m(iter->c_str());
         if(!m.isEof())
-            fwrite(m.getPointer(),1,m.getSize(),output);
+            fwrite(m.getPointer(), 1, m.getSize(), output);
 
         fclose(output);
         ++count;
@@ -242,7 +242,7 @@ void LoadLocaleMPQFiles(int const locale)
 {
     char filename[512];
 
-    sprintf(filename,"%s/Data/%s/locale-%s.MPQ",input_path,langs[locale],langs[locale]);
+    sprintf(filename,"%s/Data/%s/locale-%s.MPQ", input_path, langs[locale], langs[locale]);
     new MPQArchive(filename);
 
     for(int i = 1; i < 5; ++i)
@@ -251,7 +251,7 @@ void LoadLocaleMPQFiles(int const locale)
         if(i > 1)
             sprintf(ext, "-%i", i);
 
-        sprintf(filename,"%s/Data/%s/patch-%s%s.MPQ",input_path,langs[locale],langs[locale],ext);
+        sprintf(filename,"%s/Data/%s/patch-%s%s.MPQ", input_path, langs[locale], langs[locale], ext);
         if(FileExists(filename))
             new MPQArchive(filename);
     }
@@ -261,17 +261,19 @@ void LoadCommonMPQFiles()
 {
     char filename[512];
 
-    sprintf(filename,"%s/Data/common.MPQ",input_path);
+    sprintf(filename,"%s/Data/common.MPQ", input_path);
     new MPQArchive(filename);
-    sprintf(filename,"%s/Data/expansion.MPQ",input_path);
+    sprintf(filename,"%s/Data/expansion.MPQ", input_path);
     new MPQArchive(filename);
     for(int i = 1; i < 5; ++i)
     {
         char ext[3] = "";
         if(i > 1)
             sprintf(ext, "-%i", i);
-            if(FileExists(filename))
-                new MPQArchive(filename);
+
+        sprintf(filename,"%s/Data/patch%s.MPQ", input_path, ext);
+        if(FileExists(filename))
+            new MPQArchive(filename);
     }
 }
 
@@ -303,25 +305,25 @@ int main(int argc, char * arg[])
             
             if((extract & EXTRACT_DBC) == 0)
             {
-                FirstLocale=i;
+                FirstLocale = i;
                 break;
             }
 
-        //Extract DBC files
-        if(FirstLocale<0)
-        {
-            ExtractDBCFiles(i, true);
-            FirstLocale = i;
-        }
-        else 
-            ExtractDBCFiles(i, false);
-        
+            //Extract DBC files
+            if(FirstLocale < 0)
+            {
+                ExtractDBCFiles(i, true);
+                FirstLocale = i;
+            }
+            else
+                ExtractDBCFiles(i, false);
+
             //Close MPQs
             CloseMPQFiles();
         }
     }
 
-    if(FirstLocale<0)
+    if(FirstLocale < 0)
     {
         printf("No locales detected\n");
         return 0;

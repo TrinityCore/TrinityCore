@@ -362,7 +362,7 @@ void WorldSession::HandleArenaTeamPromoteToCaptainOpcode(WorldPacket & recv_data
     at->BroadcastPacket(&data);
 }
 
-void WorldSession::SendArenaTeamCommandResult(uint32 unk1, std::string str1, std::string str2, uint32 unk3)
+void WorldSession::SendArenaTeamCommandResult(uint32 unk1, const std::string& str1, const std::string& str2, uint32 unk3)
 {
     WorldPacket data(SMSG_ARENA_TEAM_COMMAND_RESULT, 4+str1.length()+1+str2.length()+1+4);
     data << unk1;
@@ -372,7 +372,7 @@ void WorldSession::SendArenaTeamCommandResult(uint32 unk1, std::string str1, std
     SendPacket(&data);
 }
 
-void WorldSession::BuildArenaTeamEventPacket(WorldPacket *data, uint8 eventid, uint8 str_count, std::string str1, std::string str2, std::string str3)
+void WorldSession::BuildArenaTeamEventPacket(WorldPacket *data, uint8 eventid, uint8 str_count, const std::string& str1, const std::string& str2, const std::string& str3)
 {
     data->Initialize(SMSG_ARENA_TEAM_EVENT, 1+1+1);
     *data << eventid;
