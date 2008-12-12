@@ -3777,6 +3777,10 @@ void Unit::InterruptSpell(uint32 spellType, bool withDelayed)
 
     if(m_currentSpells[spellType] && (withDelayed || m_currentSpells[spellType]->getState() != SPELL_STATE_DELAYED) )
     {
+        // for example, do not let self-stun aura interrupt itself
+        if(!m_currentSpells[spellType]->IsInterruptable())
+            return;
+
         // send autorepeat cancel message for autorepeat spells
         if (spellType == CURRENT_AUTOREPEAT_SPELL)
         {
