@@ -244,7 +244,7 @@ struct MemberSlot
 
 struct RankInfo
 {
-    RankInfo(std::string _name, uint32 _rights, uint32 _money) : name(_name), rights(_rights), BankMoneyPerDay(_money)
+    RankInfo(const std::string& _name, uint32 _rights, uint32 _money) : name(_name), rights(_rights), BankMoneyPerDay(_money)
     {
         for(uint8 i = 0; i < GUILD_BANK_MAX_TABS; ++i)
         {
@@ -309,8 +309,8 @@ class Guild
         bool FillPlayerData(uint64 guid, MemberSlot* memslot);
         void LoadPlayerStatsByGuid(uint64 guid);
 
-        void BroadcastToGuild(WorldSession *session, std::string msg, uint32 language = LANG_UNIVERSAL);
-        void BroadcastToOfficers(WorldSession *session, std::string msg, uint32 language = LANG_UNIVERSAL);
+        void BroadcastToGuild(WorldSession *session, const std::string& msg, uint32 language = LANG_UNIVERSAL);
+        void BroadcastToOfficers(WorldSession *session, const std::string& msg, uint32 language = LANG_UNIVERSAL);
         void BroadcastPacketToRank(WorldPacket *packet, uint32 rankId);
         void BroadcastPacket(WorldPacket *packet);
 
@@ -331,7 +331,7 @@ class Guild
         {
             return (members.find(LowGuid) != members.end());
         }
-        MemberSlot* GetMemberSlot(std::string const& name, uint64& guid)
+        MemberSlot* GetMemberSlot(const std::string& name, uint64& guid)
         {
             for(MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
             {
@@ -407,7 +407,7 @@ class Guild
         bool   AddGBankItemToDB(uint32 GuildId, uint32 BankTab , uint32 BankTabSlot , uint32 GUIDLow, uint32 Entry );
 
     protected:
-        void AddRank(std::string name,uint32 rights,uint32 money);
+        void AddRank(const std::string& name,uint32 rights,uint32 money);
 
         uint32 Id;
         std::string name;

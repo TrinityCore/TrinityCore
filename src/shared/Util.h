@@ -33,7 +33,7 @@ Tokens StrSplit(const std::string &src, const std::string &sep);
 void stripLineInvisibleChars(std::string &src);
 
 std::string secsToTimeString(uint32 timeInSecs, bool shortText = false, bool hoursOnly = false);
-uint32 TimeStringToSecs(std::string timestring);
+uint32 TimeStringToSecs(const std::string& timestring);
 std::string TimeToTimestampStr(time_t t);
 
 inline uint32 secsToTimeBitFields(time_t secs)
@@ -97,11 +97,11 @@ inline void ApplyPercentModFloatVar(float& var, float val, bool apply)
     var *= (apply?(100.0f+val)/100.0f : 100.0f / (100.0f+val));
 }
 
-bool Utf8toWStr(std::string utf8str, std::wstring& wstr);
+bool Utf8toWStr(const std::string& utf8str, std::wstring& wstr);
 // in wsize==max size of buffer, out wsize==real string size
 bool Utf8toWStr(char const* utf8str, size_t csize, wchar_t* wstr, size_t& wsize);
-inline bool Utf8toWStr(std::string utf8str, wchar_t* wstr, size_t& wsize)
-{ 
+inline bool Utf8toWStr(const std::string& utf8str, wchar_t* wstr, size_t& wsize)
+{
     return Utf8toWStr(utf8str.c_str(), utf8str.size(), wstr, wsize);
 }
 
@@ -282,9 +282,9 @@ inline void wstrToLower(std::wstring& str)
 
 std::wstring GetMainPartOfName(std::wstring wname, uint32 declension);
 
-bool utf8ToConsole(std::string utf8str, std::string& conStr);
-bool consoleToUtf8(std::string conStr,std::string& utf8str);
-bool Utf8FitTo(std::string str, std::wstring search);
+bool utf8ToConsole(const std::string& utf8str, std::string& conStr);
+bool consoleToUtf8(const std::string& conStr,std::string& utf8str);
+bool Utf8FitTo(const std::string& str, std::wstring search);
 
 #if PLATFORM == PLATFORM_WINDOWS
 #define UTF8PRINTF(OUT,FRM,RESERR)                      \
@@ -313,6 +313,6 @@ bool Utf8FitTo(std::string str, std::wstring search);
 #endif
 
 bool IsIPAddress(char const* ipaddress);
-uint32 CreatePIDFile(std::string filename);
+uint32 CreatePIDFile(const std::string& filename);
 
 #endif

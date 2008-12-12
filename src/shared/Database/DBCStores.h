@@ -197,7 +197,7 @@ extern DBCStorage <TotemCategoryEntry>           sTotemCategoryStore;
 //extern DBCStorage <WorldMapAreaEntry>           sWorldMapAreaStore; -- use Zone2MapCoordinates and Map2ZoneCoordinates
 extern DBCStorage <WorldSafeLocsEntry>           sWorldSafeLocsStore;
 
-void LoadDBCStores(std::string dataPath);
+void LoadDBCStores(const std::string& dataPath);
 
 // script support functions
 TRINITY_DLL_SPEC DBCStorage <SoundEntriesEntry>  const* GetSoundEntriesStore();

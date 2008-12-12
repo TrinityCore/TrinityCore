@@ -65,7 +65,7 @@ struct FriendInfo
         Note = "";
     }
 
-    FriendInfo(uint32 flags, std::string note)
+    FriendInfo(uint32 flags, const std::string& note)
     {
         Status = FRIEND_STATUS_OFFLINE;
         Flags = flags;
