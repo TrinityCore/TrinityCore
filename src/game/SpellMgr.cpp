@@ -139,14 +139,15 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
         {
             //food/drink
             if (spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED)
-                    for(int i = 0; i < 3; i++)
-                        if( spellInfo->EffectApplyAuraName[i]==SPELL_AURA_MOD_POWER_REGEN)
-                            return SPELL_DRINK;
-                        else if ( spellInfo->EffectApplyAuraName[i]==SPELL_AURA_MOD_REGEN)
-                            return SPELL_FOOD;
-
+            {
+                for(int i = 0; i < 3; i++)
+                    if( spellInfo->EffectApplyAuraName[i]==SPELL_AURA_MOD_POWER_REGEN)
+                        return SPELL_DRINK;
+                    else if ( spellInfo->EffectApplyAuraName[i]==SPELL_AURA_MOD_REGEN)
+                        return SPELL_FOOD;
+            }
             // this may be a hack
-            if((spellInfo->AttributesEx2 & SPELL_ATTR_EX2_FOOD)
+            else if((spellInfo->AttributesEx2 & SPELL_ATTR_EX2_FOOD)
                 && !spellInfo->Category)
                 return SPELL_WELL_FED;
             break;
@@ -1157,8 +1158,8 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
     //    return false;
 
     //use data of highest rank spell(needed for spells which ranks have different effects)
-    spellId_1=GetLastSpellInChain(spellId_1);
-    spellId_2=GetLastSpellInChain(spellId_2);
+    //spellId_1=GetLastSpellInChain(spellId_1);
+    //spellId_2=GetLastSpellInChain(spellId_2);
 
     SpellEntry const *spellInfo_1 = sSpellStore.LookupEntry(spellId_1);
     SpellEntry const *spellInfo_2 = sSpellStore.LookupEntry(spellId_2);
@@ -1215,6 +1216,9 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
                         break;
                 }
     }
+
+    if(spellInfo_1->SpellFamilyName && IsRankSpellDueToSpell(spellInfo_1, spellId_2))
+        return true;    
 
     //if spells have exactly the same effect they cannot stack
     for(uint32 i = 0; i < 3; ++i)
