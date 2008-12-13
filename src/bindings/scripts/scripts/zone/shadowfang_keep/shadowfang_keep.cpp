@@ -1,4 +1,4 @@
-/* Copyright (C) 2006,2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ /* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -33,6 +33,9 @@ EndContentData */
 ## npc_shadowfang_prisoner
 ######*/
 
+#define SAY_FREE                -1033000
+#define GOSSIP_ITEM_DOOR        "Thanks, I'll follow you to the door."
+
 struct TRINITY_DLL_DECL npc_shadowfang_prisonerAI : public npc_escortAI
 {
     npc_shadowfang_prisonerAI(Creature *c) : npc_escortAI(c)
@@ -48,7 +51,7 @@ struct TRINITY_DLL_DECL npc_shadowfang_prisonerAI : public npc_escortAI
         if( pInstance && i == 6)
         {
             m_creature->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
-            m_creature->Say("Thanks for freeing me, I'll open this door for you, then I will get out of here.", LANG_UNIVERSAL, 0);
+            DoScriptText(SAY_FREE, m_creature);
             pInstance->SetData(TYPE_FREE_NPC, DONE);
         }
     }
@@ -82,8 +85,7 @@ bool GossipHello_npc_shadowfang_prisoner(Player *player, Creature *_Creature)
 {
     ScriptedInstance* pInstance = ((ScriptedInstance*)_Creature->GetInstanceData());
 
-    if( pInstance && !pInstance->GetData(TYPE_FREE_NPC) && pInstance->GetData(TYPE_RETHILGORE) == DONE )
-        player->ADD_GOSSIP_ITEM( 0, "Thanks, I'll follow you to the door.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+    player->ADD_GOSSIP_ITEM( 0, GOSSIP_ITEM_DOOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
     player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
 

@@ -26,7 +26,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_scholomance : public ScriptedInstance
 {
-    instance_scholomance(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_scholomance(Map *map) : ScriptedInstance(map) {Initialize();};
 
     //Lord Alexei Barov, Doctor Theolen Krastinov, The Ravenian, Lorekeeper Polkelt, Instructor Malicia and the Lady Illucia Barov.
     bool IsBossDied[6];

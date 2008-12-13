@@ -34,42 +34,19 @@ EndContentData */
 # npc_millhouse_manastorm
 #####*/
 
-#define SAY_INTRO_1     "Where in Bonzo's brass buttons am I? And who are-- yaaghh, that's one mother of a headache!"
-#define SOUND_INTRO_1   11171
-#define SAY_INTRO_2     "\"Lowly\"? I don't care who you are friend, no one refers to the mighty Millhouse Manastorm as \"Lowly\"! I have no idea what goes on here, but I will gladly join your fight against this impudent imbecile! Prepare to defend yourself, cretin!"
-#define SOUND_INTRO_2   11172
-
-#define SAY_WATER       "I just need to get some things ready first. You guys go ahead and get started. I need to summon up some water..."
-#define SOUND_WATER     11173
-
-#define SAY_BUFFS       "Fantastic! Next, some protective spells. Yes! Now we're cookin'"
-#define SOUND_BUFFS     11174
-
-#define SAY_DRINK       "And of course i'll need some mana. You guys are gonna love this, just wait."
-#define SOUND_DRINK     11175
-
-#define SAY_READY       "Aaalllriiiight!! Who ordered up an extra large can of whoop-ass?"
-#define SOUND_READY     11176
-
-#define SAY_KILL_1      "I didn't even break a sweat on that one."
-#define SOUND_KILL_1    11177
-#define SAY_KILL_2      "You guys, feel free to jump in anytime."
-#define SOUND_KILL_2    11178
-
-#define SAY_PYRO        "I'm gonna light you up, sweet cheeks!"
-#define SOUND_PYRO      11179
-
-#define SAY_ICEBLOCK    "Ice, ice, baby!"
-#define SOUND_ICEBLOCK  11180
-
-#define SAY_LOWHP       "Heal me! Oh, for the love of all that is holy, HEAL me! I'm dying!"
-#define SOUND_LOWHP     11181
-
-#define SAY_DEATH       "You'll be hearing from my lawyer..."
-#define SOUND_DEATH     11182
-
-#define SAY_COMPLETE    "Who's bad? Who's bad? That's right: we bad!"
-#define SOUND_COMPLETE  11183
+#define SAY_INTRO_1                 -1552010
+#define SAY_INTRO_2                 -1552011
+#define SAY_WATER                   -1552012
+#define SAY_BUFFS                   -1552013
+#define SAY_DRINK                   -1552014
+#define SAY_READY                   -1552015
+#define SAY_KILL_1                  -1552016
+#define SAY_KILL_2                  -1552017
+#define SAY_PYRO                    -1552018
+#define SAY_ICEBLOCK                -1552019
+#define SAY_LOWHP                   -1552020
+#define SAY_DEATH                   -1552021
+#define SAY_COMPLETE                -1552022
 
 #define SPELL_CONJURE_WATER         36879
 #define SPELL_ARCANE_INTELLECT      36880
@@ -117,8 +94,7 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
 
             if( pInstance->GetData(TYPE_HARBINGERSKYRISS) == DONE )
             {
-                DoYell(SAY_COMPLETE,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_COMPLETE);
+				DoScriptText(SAY_COMPLETE, m_creature);
             }
         }
     }
@@ -150,21 +126,14 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_KILL_1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_KILL_1);
-                break;
-            case 1:
-                DoYell(SAY_KILL_2,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_KILL_2);
-                break;
+		case 0: DoScriptText(SAY_KILL_1, m_creature); break;
+		case 1: DoScriptText(SAY_KILL_2, m_creature); break;
         }
     }
 
     void JustDied(Unit *victim)
     {
-        DoYell(SAY_DEATH,LANG_UNIVERSAL,0);
-        DoPlaySoundToSet(m_creature,SOUND_DEATH);
+		DoScriptText(SAY_DEATH, m_creature);
 
         /*for questId 10886 (heroic mode only)
         if( pInstance && pInstance->GetData(TYPE_HARBINGERSKYRISS) != DONE )
@@ -182,36 +151,30 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
                     switch( Phase )
                     {
                         case 1:
-                            DoYell(SAY_INTRO_1,LANG_UNIVERSAL,NULL);
-                            DoPlaySoundToSet(m_creature,SOUND_INTRO_1);
+                            DoScriptText(SAY_INTRO_1, m_creature);
                             EventProgress_Timer = 18000;
                             break;
                         case 2:
-                            DoYell(SAY_INTRO_2,LANG_UNIVERSAL,NULL);
-                            DoPlaySoundToSet(m_creature,SOUND_INTRO_2);
+                            DoScriptText(SAY_INTRO_2, m_creature);
                             EventProgress_Timer = 18000;
                             break;
                         case 3:
-                            DoYell(SAY_WATER,LANG_UNIVERSAL,NULL);
-                            DoPlaySoundToSet(m_creature,SOUND_WATER);
+                            DoScriptText(SAY_WATER, m_creature);
                             DoCast(m_creature,SPELL_CONJURE_WATER);
                             EventProgress_Timer = 7000;
                             break;
                         case 4:
-                            DoYell(SAY_BUFFS,LANG_UNIVERSAL,NULL);
-                            DoPlaySoundToSet(m_creature,SOUND_BUFFS);
+                            DoScriptText(SAY_BUFFS, m_creature);
                             DoCast(m_creature,SPELL_ICE_ARMOR);
                             EventProgress_Timer = 7000;
                             break;
                         case 5:
-                            DoYell(SAY_DRINK,LANG_UNIVERSAL,NULL);
-                            DoPlaySoundToSet(m_creature,SOUND_DRINK);
+                             DoScriptText(SAY_DRINK, m_creature);
                             DoCast(m_creature,SPELL_ARCANE_INTELLECT);
                             EventProgress_Timer = 7000;
                             break;
                         case 6:
-                            DoYell(SAY_READY,LANG_UNIVERSAL,NULL);
-                            DoPlaySoundToSet(m_creature,SOUND_READY);
+                              DoScriptText(SAY_READY, m_creature);
                             EventProgress_Timer = 6000;
                             break;
                         case 7:
@@ -230,8 +193,7 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
 
         if( !LowHp && ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 20) )
         {
-            DoYell(SAY_LOWHP,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature,SOUND_LOWHP);
+            DoScriptText(SAY_LOWHP, m_creature);
             LowHp = true;
         }
 
@@ -240,8 +202,7 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
             if( m_creature->IsNonMeleeSpellCasted(false) )
                 return;
 
-            DoYell(SAY_PYRO,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature,SOUND_PYRO);
+             DoScriptText(SAY_PYRO, m_creature);
 
             DoCast(m_creature->getVictim(),SPELL_PYROBLAST);
             Pyroblast_Timer = 40000;
@@ -266,28 +227,14 @@ CreatureAI* GetAI_npc_millhouse_manastorm(Creature *_Creature)
 # npc_warden_mellichar
 #####*/
 
-#define YELL_INTRO1         "I knew the prince would be angry but, I... I have not been myself. I had to let them out! The great one speaks to me, you see. Wait--outsiders. Kael'thas did not send you! Good... I'll just tell the prince you released the prisoners!"
-#define SOUND_INTRO1        11222
-
-#define YELL_INTRO2         "The naaru kept some of the most dangerous beings in existence here in these cells. Let me introduce you to another...."
-#define SOUND_INTRO2        11223
-
-#define YELL_RELEASE1       "Yes, yes... another! Your will is mine!"
-#define SOUND_RELEASE1      11224
-
-#define YELL_RELEASE2A      "Behold another terrifying creature of incomprehensible power!"
-#define SOUND_RELEASE2A     11225
-#define YELL_RELEASE2B      "What is this? A lowly gnome? I will do better, O'great one."
-#define SOUND_RELEASE2B     11226
-
-#define YELL_RELEASE3       "Anarchy! Bedlam! Oh, you are so wise! Yes, I see it now, of course!"
-#define SOUND_RELEASE3      11227
-
-#define YELL_RELEASE4       "One final cell remains. Yes, O'great one, right away!"
-#define SOUND_RELEASE4      11228
-
-#define YELL_WELCOME        "Welcome, O'great one. I am your humble servant."
-#define SOUND_WELCOME       11229
+#define YELL_INTRO1         -1552023
+#define YELL_INTRO2         -1552024
+#define YELL_RELEASE1       -1552025
+#define YELL_RELEASE2A      -1552026
+#define YELL_RELEASE2B      -1552027
+#define YELL_RELEASE3       -1552028
+#define YELL_RELEASE4       -1552029
+#define YELL_WELCOME        -1552030
 
 //phase 2(acid mobs)
 #define ENTRY_TRICKSTER     20905
@@ -366,19 +313,19 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoYell(YELL_INTRO1,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_INTRO1);
-        //possibly wrong spell OR should also cast second spell to make bubble appear (visual for this spell appear to be the correct)
+        DoScriptText(YELL_INTRO1, m_creature);
         DoCast(m_creature,SPELL_BUBBLE_VISUAL);
 		
         if( pInstance )
         {
             pInstance->SetData(TYPE_HARBINGERSKYRISS,IN_PROGRESS);
+			if (GameObject* Sphere = GameObject::GetGameObject(*m_creature,pInstance->GetData64(DATA_SPHERE_SHIELD)))
+				Sphere->SetGoState(1);
             IsRunning = true;
         }
     }
 
-    uint32 CanProgress()
+	bool CanProgress()
     {
         if( pInstance )
         {
@@ -467,8 +414,7 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
                         m_creature->SummonCreature(ENTRY_MILLHOUSE,413.292,-148.378,42.56,6.27,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
                         break;
                     case 4:
-                        DoYell(YELL_RELEASE2B,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,SOUND_RELEASE2B);
+                       DoScriptText(YELL_RELEASE2B, m_creature);
                         break;
                     case 5:
                         switch( rand()%2 )
@@ -486,8 +432,7 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
                         break;
                     case 7:
                         m_creature->SummonCreature(ENTRY_SKYRISS,445.763,-191.639,44.64,1.60,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
-                        DoYell(YELL_WELCOME,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,SOUND_WELCOME);
+                        DoScriptText(YELL_WELCOME, m_creature);
                         break;
                 }
                 CanSpawn = false;
@@ -498,20 +443,17 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
                 switch( Phase )
                 {
                     case 1:
-                        DoYell(YELL_INTRO2,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,SOUND_INTRO2);
+                        DoScriptText(YELL_INTRO2, m_creature);
                         EventProgress_Timer = 10000;
                         ++Phase;
                         break;
                     case 2:
-                        DoYell(YELL_RELEASE1,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,SOUND_RELEASE1);
+                        DoScriptText(YELL_RELEASE1, m_creature);
                         DoPrepareForPhase();
                         EventProgress_Timer = 7000;
                         break;
                     case 3:
-                        DoYell(YELL_RELEASE2A,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,SOUND_RELEASE2A);
+                        DoScriptText(YELL_RELEASE2A, m_creature);
                         DoPrepareForPhase();
                         EventProgress_Timer = 10000;
                         break;
@@ -520,14 +462,12 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
                         EventProgress_Timer = 15000;
                         break;
                     case 5:
-                        DoYell(YELL_RELEASE3,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,SOUND_RELEASE3);
+                        DoScriptText(YELL_RELEASE3, m_creature);
                         DoPrepareForPhase();
                         EventProgress_Timer = 15000;
                         break;
                     case 6:
-                        DoYell(YELL_RELEASE4,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,SOUND_RELEASE4);
+                        DoScriptText(YELL_RELEASE4, m_creature);
                         DoPrepareForPhase();
                         EventProgress_Timer = 15000;
                         break;

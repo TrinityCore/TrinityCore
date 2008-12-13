@@ -24,6 +24,10 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_zulgurub.h"
 
+#define SAY_AGGRO                   -1309002
+#define SAY_RAIN_FIRE               -1309003
+#define SAY_DEATH                   -1309004
+
 #define SPELL_CHARGE              22911
 #define SPELL_SONICBURST          23918
 #define SPELL_SCREECH             6605
@@ -37,15 +41,15 @@ EndScriptData */
 
 #define SPELL_BOMB                40332                     //Wrong ID but Magmadars bomb is not working...
 
-#define SAY_AGGRO         "Lord Hireek grant me wings of vengance!"
-#define SAY_DEATH         "Hireek - Finnaly death. Curse you Hakkar! Curse you!"
-
-#define SOUND_AGGRO       8417
-#define SOUND_DEATH       8422
-
 struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
 {
-    boss_jeklikAI(Creature *c) : ScriptedAI(c) {Reset();}
+	boss_jeklikAI(Creature *c) : ScriptedAI(c)
+	{
+		pInstance = ((ScriptedInstance*)c->GetInstanceData());
+		Reset();
+	}
+	 	 
+	ScriptedInstance *pInstance;
 
     uint32 Charge_Timer;
     uint32 SonicBurst_Timer;
@@ -76,25 +80,22 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_AGGRO,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_AGGRO);
+        DoScriptText(SAY_AGGRO, m_creature);
         DoCast(m_creature,SPELL_BAT_FORM);
     }
 
     void JustDied(Unit* Killer)
     {
-        DoYell(SAY_DEATH,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
 
-        ScriptedInstance *pInstance = ((ScriptedInstance*)m_creature->GetInstanceData());
         if(pInstance)
             pInstance->SetData(DATA_JEKLIK_DEATH, 0);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget())
-            return;
+		if (!m_creature->getVictim() && !m_creature->SelectHostilTarget())            
+			return;
 
         if( m_creature->getVictim() && m_creature->isAlive())
         {
@@ -102,8 +103,7 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
             {
                 if (Charge_Timer < diff)
                 {
-                    Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                    if(target)
+                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                     {
                         DoCast(target,SPELL_CHARGE);
 
@@ -133,21 +133,21 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
 
                     Creature* Bat = NULL;
                     Bat = m_creature->SummonCreature(11368,-12291.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                    if(target && Bat ) { Bat ->AI()->AttackStart(target); }
+                    if (target && Bat ) Bat ->AI()->AttackStart(target);
 
                     Bat = m_creature->SummonCreature(11368,-12289.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                    if(target && Bat ) { Bat ->AI()->AttackStart(target); }
+                    if(target && Bat ) Bat ->AI()->AttackStart(target);
 
                     Bat = m_creature->SummonCreature(11368,-12293.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                    if(target && Bat ) { Bat ->AI()->AttackStart(target); }
+                    if(target && Bat ) Bat ->AI()->AttackStart(target);
 
                     Bat = m_creature->SummonCreature(11368,-12291.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                    if(target && Bat ) { Bat ->AI()->AttackStart(target); }
+                    if(target && Bat ) Bat ->AI()->AttackStart(target);
 
                     Bat = m_creature->SummonCreature(11368,-12289.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                    if(target && Bat ) { Bat ->AI()->AttackStart(target); }
+                    if(target && Bat ) Bat ->AI()->AttackStart(target);
                     Bat = m_creature->SummonCreature(11368,-12293.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                    if(target && Bat ) { Bat ->AI()->AttackStart(target); }
+                    if(target && Bat ) Bat ->AI()->AttackStart(target);
 
                     SpawnBats_Timer = 60000;
                 }else SpawnBats_Timer -= diff;
@@ -158,8 +158,7 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
                 {
                     if(PhaseTwo && ShadowWordPain_Timer < diff)
                     {
-                        Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                        if(target)
+						if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                         {
                             DoCast(target, SPELL_SHADOW_WORD_PAIN);
                             ShadowWordPain_Timer = 12000 + rand()%6000;
@@ -198,7 +197,7 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
                         }
 
                         SpawnFlyingBats_Timer = 10000 + rand()%5000;
-                    }SpawnFlyingBats_Timer -=diff;
+                    }else SpawnFlyingBats_Timer -=diff;
                 }
                 else
                 {
@@ -245,8 +244,7 @@ struct TRINITY_DLL_DECL mob_batriderAI : public ScriptedAI
         //Bomb_Timer
         if(Bomb_Timer < diff)
         {
-            Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if(target)
+			if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
                 DoCast(target, SPELL_BOMB);
                 Bomb_Timer = 5000;

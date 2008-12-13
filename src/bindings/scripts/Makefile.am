@@ -69,6 +69,7 @@ scripts/npc/npc_innkeeper.cpp \
 scripts/npc/npc_professions.cpp \
 scripts/npc/npcs_special.cpp \
 scripts/zone/alterac_mountains/alterac_mountains.cpp \
+scripts/zone/ashenvale_forest/ashenvale.cpp\
 scripts/zone/aunchindoun/auchenai_crypts/boss_exarch_maladaar.cpp \
 scripts/zone/aunchindoun/mana_tombs/boss_nexusprince_shaffar.cpp \
 scripts/zone/aunchindoun/mana_tombs/boss_pandemonius.cpp \
@@ -280,12 +281,11 @@ scripts/zone/scarlet_monastery/boss_azshir_the_sleepless.cpp \
 scripts/zone/scarlet_monastery/boss_bloodmage_thalnos.cpp \
 scripts/zone/scarlet_monastery/boss_herod.cpp \
 scripts/zone/scarlet_monastery/boss_high_inquisitor_fairbanks.cpp \
-scripts/zone/scarlet_monastery/boss_high_inquisitor_whitemane.cpp \
 scripts/zone/scarlet_monastery/boss_houndmaster_loksey.cpp \
 scripts/zone/scarlet_monastery/boss_interrogator_vishas.cpp \
-scripts/zone/scarlet_monastery/boss_scarlet_commander_mograine.cpp \
 scripts/zone/scarlet_monastery/boss_scorn.cpp \
 scripts/zone/scarlet_monastery/boss_headless_horseman.cpp \
+scripts/zone/scarlet_monastery/boss_mograine_and_whitemane.cpp \
 scripts/zone/scarlet_monastery/instance_scarlet_monastery.cpp \
 scripts/zone/scarlet_monastery/def_scarlet_monastery.h \
 scripts/zone/scholomance/boss_darkmaster_gandling.cpp \

@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Luetenant_Drake
 SD%Complete: 70
-SDComment: Missing proper code for patrolling area after being spawned. Also script for GO (barrels)(missing Trinity support)
+SDComment: Missing proper code for patrolling area after being spawned. Script for GO (barrels) quest 10283
 SDCategory: Caverns of Time, Old Hillsbrad Foothills
 EndScriptData */
 
@@ -29,26 +29,18 @@ EndScriptData */
 ## go_barrel_old_hillsbrad
 ######*/
 
-#define QUEST_ENTRY_DIVERSION   10283
-#define LODGE_QUEST_TRIGGER     20155
-
 bool GOHello_go_barrel_old_hillsbrad(Player *player, GameObject* _GO)
 {
-    ScriptedInstance* pInstance = ((ScriptedInstance*)_GO->GetInstanceData());
+	ScriptedInstance* pInstance = (ScriptedInstance*)_GO->GetInstanceData();
 
-    if( pInstance )
-    {
-        if( pInstance->GetData(TYPE_BARREL_DIVERSION) != DONE )
-        {
-            pInstance->SetData(TYPE_BARREL_DIVERSION, IN_PROGRESS);
-        }
-        else if( pInstance->GetData(TYPE_BARREL_DIVERSION) == DONE )
-        {
-            player->SummonCreature(17848,2128.43,71.01,64.42,1.74,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,1200000);
-            if( player->GetQuestStatus(QUEST_ENTRY_DIVERSION) == QUEST_STATUS_INCOMPLETE )
-                player->KilledMonster(LODGE_QUEST_TRIGGER,0);
-        }
-    }
+	if (!pInstance)
+		return false;
+	 	 
+	if (pInstance->GetData(TYPE_BARREL_DIVERSION) == DONE)
+		return false;
+
+	pInstance->SetData(TYPE_BARREL_DIVERSION, IN_PROGRESS);
+       
     return false;
 }
 

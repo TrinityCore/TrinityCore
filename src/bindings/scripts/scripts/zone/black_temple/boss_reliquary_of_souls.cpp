@@ -27,51 +27,32 @@ EndScriptData */
 
 //Sound'n'speech
 //Suffering
-#define SUFF_SAY_FREED      "Pain and suffering are all that await you!"
-#define SUFF_SOUND_FREED    11415
-#define SUFF_SAY_AGGRO      "Don't leave me alone!"
-#define SUFF_SOUND_AGGRO    11416
-#define SUFF_SAY_SLAY1      "Look at what you make me do!"
-#define SUFF_SOUND_SLAY1    11417
-#define SUFF_SAY_SLAY2      "I didn't ask for this!"
-#define SUFF_SOUND_SLAY2    11418
-#define SUFF_SAY_ENRAGE     "The pain is only beginning!"
-#define SUFF_SOUND_ENRAGE   11419
-#define SUFF_SAY_RECAP      "I don't want to go back!"
-#define SUFF_SOUND_RECAP    11420
-#define SUFF_SAY_AFTER      "Now what do I do?"
-#define SUFF_SOUND_AFTER    11421
+#define SUFF_SAY_FREED              -1564047
+#define SUFF_SAY_AGGRO              -1564048
+#define SUFF_SAY_SLAY1              -1564049
+#define SUFF_SAY_SLAY2              -1564050
+#define SUFF_SAY_SLAY3              -1564051
+#define SUFF_SAY_RECAP              -1564052
+#define SUFF_SAY_AFTER              -1564053
+#define SUFF_EMOTE_ENRAGE           -1564054
 
 //Desire
-#define DESI_SAY_FREED      "You can have anything you desire... for a price."
-#define DESI_SOUND_FREED    11408
-#define DESI_SAY_SLAY1      "Fulfilment is at hand!"
-#define DESI_SOUND_SLAY1    11409
-#define DESI_SAY_SLAY2      "Yes... you'll stay with us now..."
-#define DESI_SOUND_SLAY2    11410
-#define DESI_SAY_SLAY3      "Your reach exceeds your grasp."
-#define DESI_SOUND_SLAY3    11412
-#define DESI_SAY_SPEC       "Be careful what you wish for..."
-#define DESI_SOUND_SPEC     11411
-#define DESI_SAY_RECAP      "I'll be waiting..."
-#define DESI_SOUND_RECAP    11413
-#define DESI_SAY_AFTER      "I won't be far..."
-#define DESI_SOUND_AFTER    11414
+#define DESI_SAY_FREED              -1564055
+#define DESI_SAY_SLAY1              -1564056
+#define DESI_SAY_SLAY2              -1564057
+#define DESI_SAY_SLAY3              -1564058
+#define DESI_SAY_SPEC               -1564059
+#define DESI_SAY_RECAP              -1564060
+#define DESI_SAY_AFTER              -1564061
 
 //Anger
-#define ANGER_SAY_FREED     "Beware... I live."
-#define ANGER_SOUND_FREED   11399
-#define ANGER_SAY_SCREAM    "So... foolish."
-#define ANGER_SOUND_SCREAM  11400
-#define ANGER_SOUND_SLAY1   11401
-#define ANGER_SAY_SLAY2     "Enough. No more."
-#define ANGER_SOUND_SLAY2   11402
-#define ANGER_SAY_SPEC      "On your knees!"
-#define ANGER_SOUND_SPEC    11403
-#define ANGER_SAY_BEFORE    "Beware, coward."
-#define ANGER_SOUND_BEFORE  11405
-#define ANGER_SAY_DEATH     "I won't... be... ignored."
-#define ANGER_SOUND_DEATH   11404
+#define ANGER_SAY_FREED             -1564062
+#define ANGER_SAY_FREED2            -1564063
+#define ANGER_SAY_SLAY1             -1564064
+#define ANGER_SAY_SLAY2             -1564065
+#define ANGER_SAY_SPEC              -1564066
+#define ANGER_SAY_BEFORE            -1564067
+#define ANGER_SAY_DEATH             -1564068
 
 //Spells
 #define AURA_OF_SUFFERING               41292
@@ -289,13 +270,11 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
             case 5:
                 if(Phase == 1)
                 {
-                    Essence->Yell(SUFF_SAY_AFTER,LANG_UNIVERSAL,0);
-                    DoPlaySoundToSet(Essence, SUFF_SOUND_AFTER);
+					DoScriptText(SUFF_SAY_AFTER, Essence);
                 }
                 else
                 {
-                    Essence->Yell(DESI_SAY_AFTER,LANG_UNIVERSAL,0);
-                    DoPlaySoundToSet(Essence, DESI_SOUND_AFTER);
+					DoScriptText(DESI_SAY_AFTER, Essence);
                 }
                 Essence->SetVisibility(VISIBILITY_OFF);
                 Essence->setDeathState(DEAD);
@@ -370,16 +349,14 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
         {
             damage = 0;
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            m_creature->SetReactState(REACT_PASSIVE);
             m_creature->Yell(SUFF_SAY_RECAP,LANG_UNIVERSAL,0);
-            DoPlaySoundToSet(m_creature, SUFF_SOUND_RECAP);
+            DoScriptText(SUFF_SAY_RECAP, m_creature);
         }
     }
 
     void Aggro(Unit *who)
     {
-        m_creature->Yell(SUFF_SAY_FREED, LANG_UNIVERSAL, 0);
-        DoPlaySoundToSet(m_creature, SUFF_SOUND_FREED);
+		DoScriptText(SUFF_SAY_FREED, m_creature);
         DoZoneInCombat();
         m_creature->CastSpell(m_creature, AURA_OF_SUFFERING, true); // linked aura need core support
         m_creature->CastSpell(m_creature, ESSENCE_OF_SUFFERING_PASSIVE, true);
@@ -390,14 +367,9 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-        case 0:
-            DoYell(SUFF_SAY_SLAY1,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature, SUFF_SOUND_SLAY1);
-            break;
-        case 1:
-            DoYell(SUFF_SAY_SLAY2,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature, SUFF_SOUND_SLAY2);
-            break;
+		case 0: DoScriptText(SUFF_SAY_SLAY1, m_creature); break;
+		case 1: DoScriptText(SUFF_SAY_SLAY2, m_creature); break;
+		case 2: DoScriptText(SUFF_SAY_SLAY3, m_creature); break;
         }
     }
 
@@ -435,8 +407,7 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
             FixateTimer = 5000;
             if(!(rand()%16))
             {
-                DoYell(SUFF_SAY_AGGRO,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SUFF_SOUND_AGGRO);
+				DoScriptText(SUFF_SAY_AGGRO, m_creature);
             }
         }else FixateTimer -= diff;
 
@@ -444,8 +415,7 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
         {
             DoCast(m_creature, SPELL_ENRAGE);
             EnrageTimer = 60000;
-            DoYell(SUFF_SAY_ENRAGE,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature, SUFF_SOUND_ENRAGE);
+			DoScriptText(SUFF_EMOTE_ENRAGE, m_creature);
         }else EnrageTimer -= diff;
 
         if(SoulDrainTimer < diff)
@@ -483,9 +453,7 @@ struct TRINITY_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
         {
             damage = 0;
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            m_creature->SetReactState(REACT_PASSIVE);
-            m_creature->Yell(DESI_SAY_RECAP,LANG_UNIVERSAL,0);
-            DoPlaySoundToSet(m_creature, DESI_SOUND_RECAP);
+			DoScriptText(SUFF_SAY_RECAP, m_creature);
         }
         else
         {
@@ -506,8 +474,7 @@ struct TRINITY_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        m_creature->Yell(DESI_SAY_FREED, LANG_UNIVERSAL, 0);
-        DoPlaySoundToSet(m_creature, DESI_SOUND_FREED);
+		DoScriptText(DESI_SAY_FREED, m_creature);
         DoZoneInCombat();
         DoCast(m_creature, AURA_OF_DESIRE, true);
     }
@@ -516,18 +483,9 @@ struct TRINITY_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-        case 0:
-            DoYell(DESI_SAY_SLAY1,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature, DESI_SOUND_SLAY1);
-            break;
-        case 1:
-            DoYell(DESI_SAY_SLAY2,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature, DESI_SOUND_SLAY2);
-            break;
-        case 2:
-            DoYell(DESI_SAY_SLAY3,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature, DESI_SOUND_SLAY3);
-            break;
+        case 0: DoScriptText(DESI_SAY_SLAY1, m_creature); break;            
+        case 1: DoScriptText(DESI_SAY_SLAY2, m_creature); break;            
+        case 2: DoScriptText(DESI_SAY_SLAY3, m_creature); break;           
         }
     }
 
@@ -558,8 +516,7 @@ struct TRINITY_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
             DeadenTimer = 25000 + rand()%10000;
             if(!(rand()%2))
             {
-                DoYell(DESI_SAY_SPEC,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, DESI_SOUND_SPEC);
+				DoScriptText(DESI_SAY_SPEC, m_creature);
             }
         }else DeadenTimer -= diff;
 
@@ -596,29 +553,27 @@ struct TRINITY_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        m_creature->Yell(ANGER_SAY_FREED, LANG_UNIVERSAL, 0);
-        DoPlaySoundToSet(m_creature, ANGER_SOUND_FREED);
+		switch(rand()%2)
+		{
+		case 0: DoScriptText(ANGER_SAY_FREED, m_creature); break;
+		case 1: DoScriptText(ANGER_SAY_FREED2, m_creature); break;
+		}
+
         DoZoneInCombat();
         DoCast(m_creature, AURA_OF_ANGER, true);
     }
 
     void JustDied(Unit *victim)
     {
-        DoYell(ANGER_SAY_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature,ANGER_SOUND_DEATH);
+		DoScriptText(ANGER_SAY_DEATH, m_creature);
     }
 
     void KilledUnit(Unit *victim)
     {
         switch(rand()%2)
         {
-        case 0:
-            DoPlaySoundToSet(m_creature, ANGER_SOUND_SLAY1);
-            break;
-        case 1:
-            DoYell(ANGER_SAY_SLAY2,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature, ANGER_SOUND_SLAY2);
-            break;
+        case 0: DoScriptText(ANGER_SAY_SLAY1, m_creature); break;           
+        case 1: DoScriptText(ANGER_SAY_SLAY2, m_creature); break;            
         }
     }
 
@@ -638,8 +593,7 @@ struct TRINITY_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
         {
             if(m_creature->getVictim()->GetGUID() != AggroTargetGUID)
             {     
-                DoYell(ANGER_SAY_BEFORE,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, ANGER_SOUND_BEFORE);
+				DoScriptText(ANGER_SAY_BEFORE, m_creature);
                 DoCast(m_creature, SPELL_SELF_SEETHE, true);
                 AggroTargetGUID = m_creature->getVictim()->GetGUID();
             }
@@ -652,8 +606,7 @@ struct TRINITY_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
             SoulScreamTimer = 9000 + rand()%2000;
             if(!(rand()%3))
             {
-                DoYell(ANGER_SAY_SCREAM,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, ANGER_SOUND_SCREAM);
+				DoScriptText(ANGER_SAY_SPEC, m_creature);
             }
         }else SoulScreamTimer -= diff;
 
@@ -661,8 +614,7 @@ struct TRINITY_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
         {
             DoCast(m_creature, SPELL_SPITE_TARGET);
             SpiteTimer = 30000;
-            DoYell(ANGER_SAY_SPEC,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature, ANGER_SOUND_SPEC);
+			DoScriptText(ANGER_SAY_SPEC, m_creature);
         }else SpiteTimer -= diff;
 
         DoMeleeAttackIfReady();

@@ -24,6 +24,9 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_zulgurub.h"
 
+#define SAY_AGGRO               -1309009
+#define SAY_DEATH               -1309010
+
 #define SPELL_MORTALCLEAVE        22859
 #define SPELL_SILENCE             23207
 #define SPELL_FRENZY              23342
@@ -47,17 +50,11 @@ EndScriptData */
 #define SPELL_KICK                15614
 #define SPELL_BLIND               21060
 
-#define SAY_AGGRO         "Shirvallah fill me with your rage!"
-#define SOUND_AGGRO       8419
-
-#define SAY_DEATH         "Hakkar binds me no more. Peace at last."
-#define SOUND_DEATH       8424
-
 struct TRINITY_DLL_DECL boss_thekalAI : public ScriptedAI
 {
     boss_thekalAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
+		pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Reset();
     }
 
@@ -98,26 +95,20 @@ struct TRINITY_DLL_DECL boss_thekalAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_AGGRO,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_AGGRO);
+        DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void JustDied(Unit* Killer)
     {
-        DoYell(SAY_DEATH,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_DEATH);
-        ScriptedInstance *pInstance = (m_creature->GetInstanceData()) ? ((ScriptedInstance*)m_creature->GetInstanceData()) : NULL;
+        DoScriptText(SAY_DEATH, m_creature);
         if(pInstance)
             pInstance->SetData(DATA_THEKAL_DEATH, 0);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget())
+        if (!m_creature->getVictim() && !m_creature->SelectHostilTarget())
             return;
-
-        if( m_creature->getVictim() && m_creature->isAlive())
-        {
 
             //Check_Timer for the death of LorKhan and Zath.
             if(!WasDead && Check_Timer < diff)
@@ -200,13 +191,13 @@ struct TRINITY_DLL_DECL boss_thekalAI : public ScriptedAI
             {
                 if (Charge_Timer < diff)
                 {
-                    Unit* target = NULL;
-                    target = SelectUnit(SELECT_TARGET_RANDOM,0);
-
+                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+					{
                     DoCast(target,SPELL_CHARGE);
                     m_creature->SendMonsterMove(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, true,1);
                     DoResetThreat();
                     AttackStart(target);
+					}
 
                     Charge_Timer = 15000 + rand()%7000;
                 }else Charge_Timer -= diff;
@@ -237,7 +228,7 @@ struct TRINITY_DLL_DECL boss_thekalAI : public ScriptedAI
             }
 
             DoMeleeAttackIfReady();
-        }
+		
     }
 };
 

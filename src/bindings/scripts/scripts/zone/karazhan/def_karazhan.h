@@ -16,7 +16,7 @@
 #define DATA_NETHERSPITE_EVENT           9
 #define DATA_CHESS_EVENT                10
 #define DATA_MALCHEZZAR_EVENT           11
-#define DATA_NETHERBANE_EVENT           12
+#define DATA_NIGHTBANE_EVENT            12
 #define DATA_OPERA_PERFORMANCE          13
 #define DATA_OPERA_OZ_DEATHCOUNT        14
 #define DATA_KILREK                     15

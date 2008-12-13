@@ -1,4 +1,4 @@
-/* Copyright ?2006,2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation; either version 2 of the License, or
@@ -23,42 +23,26 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_sunwell_plateau.h"
 
-#define KALECGOS_SAY_AGGRO             "No longer will I be a slave to Malygos! Challenge me and you will be destroyed!"
-#define KALECGOS_SOUND_AGGRO           12422
-#define KALECGOS_SAY_SPELL_1           "I will purge you!"
-#define KALECGOS_SOUND_SPELL_1         12423
-#define KALECGOS_SAY_SPELL_2           "Your pain has only begun!"
-#define KALECGOS_SOUND_SPELL_2         12424
-#define KALECGOS_SAY_KILL_1            "In the name of Kil'jaeden!"
-#define KALECGOS_SOUND_KILL_1          12425
-#define KALECGOS_SAY_KILL_2            "You were warned!"
-#define KALECGOS_SOUND_KILL_2          12426
-#define KALECGOS_SAY_FLY_AWAY          "My awakening is complete! You shall all perish!"
-#define KALECGOS_SOUND_FLY_AWAY        12427
-#define KALECGOS_SAY_WIN               "I am forever in your debt. Once we have triumphed over Kil'jaeden, this entire world will be in your debt as well."
-#define KALECGOS_SOUND_WIN             12431
+//kalecgos dragon form
+#define SAY_EVIL_AGGRO                  -1580000
+#define SAY_EVIL_SPELL1                 -1580001
+#define SAY_EVIL_SPELL2                 -1580002
+#define SAY_EVIL_SLAY1                  -1580003
+#define SAY_EVIL_SLAY2                  -1580004
+#define SAY_EVIL_ENRAGE                 -1580005
+//kalecgos humanoid form
+#define SAY_GOOD_AGGRO                  -1580006
+#define SAY_GOOD_NEAR_DEATH             -1580007
+#define SAY_GOOD_NEAR_DEATH2            -1580008
+#define SAY_GOOD_PLRWIN                 -1580009
 
-#define SATH_SAY_AGGRO           "Gyahaha... There will be no reprieve. My work here is nearly finished."
-#define SATH_SOUND_AGGRO         12451
-#define SATH_SAY_DIE             "I'm... never on... the losing... side..."
-#define SATH_SOUND_DIE           12452
-#define SATH_SAY_SPELL_1         "Your misery is my delight!"
-#define SATH_SOUND_SPELL_1       12453
-#define SATH_SAY_SPELL_2         "I will watch you bleed!"
-#define SATH_SOUND_SPELL_2       12454
-#define SATH_SAY_KILL_1          "Pitious mortal!"
-#define SATH_SOUND_KILL_1        12455
-#define SATH_SAY_KILL_2          "Haven't you heard? I always win!"
-#define SATH_SOUND_KILL_2        12456
-#define SATH_SAY_ENRAGE          "I have toyed with you long enough!"
-#define SATH_SOUND_ENRAGE        12457
-
-#define KALEC_SAY_AGGRO         "I need... your help... Cannot... resist him... much longer..."
-#define KALEC_SOUND_AGGRO       12428
-#define KALEC_SAY_LOSING1       "Aaahhh! Help me, before I lose my mind!"
-#define KALEC_SOUND_LOSING1     12429
-#define KALEC_SAY_LOSING2       "Hurry! There is not much of me left!" //???
-#define KALEC_SOUND_LOSING2     12430
+#define SAY_SATH_AGGRO                  -1580010
+#define SAY_SATH_DEATH                  -1580011
+#define SAY_SATH_SPELL1                 -1580012
+#define SAY_SATH_SPELL2                 -1580013
+#define SAY_SATH_SLAY1                  -1580014
+#define SAY_SATH_SLAY2                  -1580015
+#define SAY_SATH_ENRAGE                 -1580016
 
 #define GO_FAILED               "You are unable to use this currently."
 
@@ -175,8 +159,7 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
     void Aggro(Unit* who)
     {
         m_creature->SetStandState(PLAYER_STATE_NONE);
-        DoYell(KALECGOS_SAY_AGGRO, LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature, KALECGOS_SOUND_AGGRO);
+        DoScriptText(SAY_EVIL_AGGRO, m_creature);
         GameObject *Door = GameObject::GetGameObject(*m_creature, DoorGUID);
         if(Door) Door->SetLootState(GO_ACTIVATED);
         DoZoneInCombat();
@@ -186,14 +169,8 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-        case 0:
-            DoYell(KALECGOS_SAY_KILL_1,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature,KALECGOS_SOUND_KILL_1);
-            break;
-        case 1:
-            DoYell(KALECGOS_SAY_KILL_2,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature,KALECGOS_SOUND_KILL_2);
-            break;
+		case 0: DoScriptText(SAY_EVIL_SLAY1, m_creature); break;
+		case 1: DoScriptText(SAY_EVIL_SLAY2, m_creature); break;
         }
     }
 
@@ -219,8 +196,7 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
             TalkTimer = 1000;
             break;
         case 2:
-            DoSay(KALECGOS_SAY_WIN, LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature, KALECGOS_SOUND_WIN);
+            DoScriptText(SAY_GOOD_PLRWIN, m_creature);
             TalkTimer = 10000;
             break;
         case 3:
@@ -239,8 +215,7 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
         switch(TalkSequence)
         {
         case 1:
-            DoYell(KALECGOS_SAY_FLY_AWAY,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature,KALECGOS_SOUND_FLY_AWAY);
+			DoScriptText(SAY_EVIL_ENRAGE, m_creature);
             TalkTimer = 3000;
             break;
         case 2:
@@ -315,8 +290,7 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
             m_creature->CombatStart(Kalec);
             m_creature->AddThreat(Kalec, 100.0f);
         }
-        DoYell(SATH_SAY_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SATH_SOUND_AGGRO);
+        DoScriptText(SAY_SATH_AGGRO, m_creature);
     }
 
     void DamageTaken(Unit *done_by, uint32 &damage)
@@ -340,21 +314,14 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
         }
         switch(rand()%2)
         {
-        case 0:
-            DoYell(SATH_SAY_KILL_1,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature,SATH_SOUND_KILL_1);
-            break;
-        case 1:
-            DoYell(SATH_SAY_KILL_2,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature,SATH_SOUND_KILL_2);
-            break;
+        case 0: DoScriptText(SAY_SATH_SLAY1, m_creature); break;
+        case 1: DoScriptText(SAY_SATH_SLAY2, m_creature); break;
         }
     }
 
     void JustDied(Unit *killer)
     {
-        DoYell(SATH_SAY_DIE, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SATH_SOUND_DIE);
+		DoScriptText(SAY_SATH_DEATH, m_creature);
         m_creature->Relocate(m_creature->GetPositionX(), m_creature->GetPositionY(), DRAGON_REALM_Z, m_creature->GetOrientation());
         TeleportAllPlayersBack();
         if(Unit *Kalecgos = Unit::GetUnit(*m_creature, KalecgosGUID))
@@ -414,6 +381,7 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
 
         if(ShadowBoltTimer < diff)
         {
+			DoScriptText(SAY_SATH_SPELL1, m_creature);
             DoCast(m_creature, SPELL_SHADOW_BOLT);
             ShadowBoltTimer = 7000+(rand()%3000);
         }else ShadowBoltTimer -= diff;
@@ -428,6 +396,7 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
 
         if(CorruptionStrikeTimer < diff)
         {
+			DoScriptText(SAY_SATH_SPELL2, m_creature);
             DoCast(m_creature->getVictim(), SPELL_CORRUPTION_STRIKE);
             CorruptionStrikeTimer = 13000;
         }else CorruptionStrikeTimer -= diff;
@@ -494,23 +463,20 @@ struct TRINITY_DLL_DECL boss_kalecAI : public ScriptedAI
             switch(YellSequence)
             {
             case 0:
-                DoYell(KALEC_SAY_AGGRO, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, KALEC_SOUND_AGGRO);
+                DoScriptText(SAY_GOOD_AGGRO, m_creature);
                 YellSequence++;
                 break;
             case 1:
                 if((m_creature->GetHealth()*100)/m_creature->GetMaxHealth() < 50)
                 {
-                    DoYell(KALEC_SAY_LOSING1, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature, KALEC_SOUND_LOSING1);
+                    DoScriptText(SAY_GOOD_NEAR_DEATH, m_creature);
                     YellSequence++;
                 }
                 break;
             case 2:
                 if((m_creature->GetHealth()*100)/m_creature->GetMaxHealth() < 10)
                 {
-                    DoYell(KALEC_SAY_LOSING2, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature, KALEC_SOUND_LOSING2);
+                    DoScriptText(SAY_GOOD_NEAR_DEATH2, m_creature);
                     YellSequence++;
                 }
                 break;
@@ -645,7 +611,7 @@ void boss_sathrovarrAI::Enrage()
         error_log("SD2 ERROR: unable to find Kalec");
         return;
     }
-    DoYell(SATH_SAY_ENRAGE,LANG_UNIVERSAL,NULL);
+	DoScriptText(SAY_SATH_ENRAGE, m_creature);
     m_creature->CastSpell(m_creature, SPELL_ENRAGE, true);
     Kalecgos->CastSpell(Kalecgos, SPELL_ENRAGE, true);
     isEnraged = true;
