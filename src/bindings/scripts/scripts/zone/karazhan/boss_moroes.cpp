@@ -24,26 +24,13 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_karazhan.h"
 
-#define SAY_AGGRO           "Hmm, unannounced visitors? Preparations must be made."
-#define SOUND_AGGRO         9211
-
-#define SAY_SPECIAL_1       "Now, where was I? Oh yes..."
-#define SOUND_SPECIAL_1     9215
-
-#define SAY_SPECIAL_2       "You rang?"
-#define SOUND_SPECIAL_2     9316
-
-#define SAY_KILL_1          "One more for dinner this evening"
-#define SOUND_KILL_1        9214
-
-#define SAY_KILL_2          "Time... Never enough time."
-#define SOUND_KILL_2        9314
-
-#define SAY_KILL_3          "I've gone and made a mess."
-#define SOUND_KILL_3        9315
-
-#define SAY_DEATH           "How terribly clumsy of me..."
-#define SOUND_DEATH         9213
+#define SAY_AGGRO           -1532011
+#define SAY_SPECIAL_1       -1532012
+#define SAY_SPECIAL_2       -1532013
+#define SAY_KILL_1          -1532014
+#define SAY_KILL_2          -1532015
+#define SAY_KILL_3          -1532016
+#define SAY_DEATH           -1532017
 
 #define SPELL_VANISH        29448
 #define SPELL_GARROTE       37066
@@ -129,8 +116,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
     {
         StartEvent();
 
-        DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_AGGRO);
+        DoScriptText(SAY_AGGRO, m_creature);
         AddsAttack();
     }
 
@@ -138,31 +124,37 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
     {
         switch (rand()%3)
         {
-            case 0:
-                DoYell(SAY_KILL_1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_KILL_1);
-                break;
-            case 1:
-                DoYell(SAY_KILL_2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_KILL_2);
-                break;
-            case 2:
-                DoYell(SAY_KILL_3, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_KILL_3);
-                break;
+		case 0: DoScriptText(SAY_KILL_1, m_creature); break;
+		case 1: DoScriptText(SAY_KILL_2, m_creature); break;
+		case 2: DoScriptText(SAY_KILL_3, m_creature); break;
         }
     }
 
     void JustDied(Unit* victim)
     {
-        DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+         DoScriptText(SAY_DEATH, m_creature);
 
         if (pInstance)
             pInstance->SetData(DATA_MOROES_EVENT, DONE);
 
         DeSpawnAdds();
-    }
+
+		//remove aura from spell Garrote when Moroes dies
+		Map *map = m_creature->GetMap();
+		if (map->IsDungeon())
+		{
+			Map::PlayerList const &PlayerList = map->GetPlayers();
+
+			if (PlayerList.isEmpty())
+				return;
+	 	 
+			for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+			{
+				if (i->getSource()->isAlive() && i->getSource()->HasAura(SPELL_GARROTE,0))
+					i->getSource()->RemoveAurasDueToSpell(SPELL_GARROTE);
+			}
+		}
+	}
 
     uint8 CheckAdd(uint64 guid)
     {
@@ -209,7 +201,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
         }
         else
         {
-            for(uint8 i = 0; i < 5; ++i)
+            for(uint8 i = 0; i < 4; ++i)
             {
                 switch(CheckAdd(AddGUID[i]))
                 {
@@ -316,18 +308,11 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
                 {
                     switch(rand()%2)
                     {
-                        case 0:
-                            DoYell(SAY_SPECIAL_1, LANG_UNIVERSAL, NULL);
-                            DoPlaySoundToSet(m_creature, SOUND_SPECIAL_1);
-                            break;
-                        case 1:
-                            DoYell(SAY_SPECIAL_2, LANG_UNIVERSAL, NULL);
-                            DoPlaySoundToSet(m_creature, SOUND_SPECIAL_2);
-                            break;
+					case 0: DoScriptText(SAY_SPECIAL_1, m_creature); break;
+					case 1: DoScriptText(SAY_SPECIAL_2, m_creature); break;
                     }
 
-                    Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    if (target)
+                     if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                         target->CastSpell(target, SPELL_GARROTE,true);
 
                     m_creature->setFaction(16);

@@ -1,4 +1,4 @@
-/* Copyright (C) 2006,2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation; either version 2 of the License, or
@@ -54,7 +54,6 @@ struct TRINITY_DLL_DECL mob_treantAI  : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        //Return since we have no target
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
             return;
 
@@ -67,28 +66,19 @@ struct TRINITY_DLL_DECL mob_treantAI  : public ScriptedAI
 # boss_warp_splinter
 #####*/
 
+#define SAY_AGGRO           -1553007
+#define SAY_SLAY_1          -1553008
+#define SAY_SLAY_2          -1553009
+#define SAY_SUMMON_1        -1553010
+#define SAY_SUMMON_2        -1553011
+#define SAY_DEATH           -1553012
+
 #define WAR_STOMP           34716
 #define SUMMON_TREANTS      34727                           // DBC: 34727, 34731, 34733, 34734, 34736, 34739, 34741 (with Ancestral Life spell 34742)   // won't work (guardian summon)
 #define ARCANE_VOLLEY       36705                           //37078, 34785 //must additional script them (because Splinter eats them after 20 sec ^)
 #define SPELL_HEAL_FATHER   6262
 
 #define CREATURE_TREANT     19949
-
-#define SAY_COMBAT_START    "Who disturbs this sanctuary?"
-#define SOUND_COMBAT_START  11230
-
-#define SAY_SLAY_1          "You must die! But wait: this does not-- No, no... you must die!"
-#define SOUND_SLAY_1        11231
-#define SAY_SLAY_2          "What am I doing? Why do I..."
-#define SOUND_SLAY_2        11232
-
-#define SAY_SUMMON_1        "Children, come to me!"
-#define SOUND_SUMMON_1      11233
-#define SAY_SUMMON_2        "Maybe this is not-- No, we fight! Come to my aid."
-#define SOUND_SUMMON_2      11234
-
-#define SAY_DEATH           "So... confused. Do not... belong here!"
-#define SOUND_DEATH         11235
 
 #define TREANT_SPAWN_DIST   50                              //50 yards from Warp Splinter's spawn point
 
@@ -121,12 +111,8 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
     float Treant_Spawn_Pos_X;
     float Treant_Spawn_Pos_Y;
 
-    bool InCombat;
-
     void Reset()
     {
-        InCombat = false;
-
         War_Stomp_Timer = 25000 + rand()%15000;
         Summon_Treants_Timer = 45000;
         Arcane_Volley_Timer = 8000 + rand()%12000;
@@ -141,32 +127,21 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_COMBAT_START,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_COMBAT_START);
-        InCombat = true;
+		DoScriptText(SAY_AGGRO, m_creature);
     }
 
-    // On Killed Unit
     void KilledUnit(Unit* victim)
     {
         switch(rand()%2)
         {
-        case 0:
-            DoYell(SAY_SLAY_1,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature, SOUND_SLAY_1);
-            break;
-        case 1:
-            DoYell(SAY_SLAY_2,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature, SOUND_SLAY_2);
-            break;
+		case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
+		case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
         }
     }
 
-    // On Death
     void JustDied(Unit* Killer)
     {
-        DoYell(SAY_DEATH,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+		DoScriptText(SAY_DEATH, m_creature);
     }
 
     void SummonTreants()
@@ -192,14 +167,8 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
         }
         switch(rand()%2)
         { 
-        case 0:
-            DoYell(SAY_SUMMON_1,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature,SOUND_SUMMON_1);
-            break;
-        case 1:
-            DoYell(SAY_SUMMON_2,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature,SOUND_SUMMON_2);
-            break; 
+		case 0: DoScriptText(SAY_SUMMON_1, m_creature); break;
+		case 1: DoScriptText(SAY_SUMMON_2, m_creature); break;
         }
     }
 
@@ -227,50 +196,36 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        //Return since we have no target
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
             return;
 
         //Check for War Stomp
         if(War_Stomp_Timer < diff)
         {
-            //time to cast
             DoCast(m_creature->getVictim(),WAR_STOMP);
-
-            //Cast again on time
             War_Stomp_Timer = 25000 + rand()%15000;        
-        }
-        else War_Stomp_Timer -= diff;
+        }else War_Stomp_Timer -= diff;
 
         //Check for Arcane Volley
         if(Arcane_Volley_Timer < diff)
         {
-            //time to cast
             DoCast(m_creature->getVictim(),ARCANE_VOLLEY);
-
-            //Cast again on time
             Arcane_Volley_Timer = 20000 + rand()%15000; 
-        }
-        else Arcane_Volley_Timer -= diff;
+        }else Arcane_Volley_Timer -= diff;
 
         //Check for Summon Treants
         if(Summon_Treants_Timer < diff)
         {
             SummonTreants();
-
-            //Cast again on time
             Summon_Treants_Timer = 45000;        
-        }
-        else Summon_Treants_Timer -= diff;
+        }else Summon_Treants_Timer -= diff;
 
         // I check if there is a Treant in Warp Splinter's LOS, so he can eat them
         if( CheckTreantLOS_Timer < diff)
         {
             EatTreant();
-
             CheckTreantLOS_Timer = 1000;
-        }
-        else CheckTreantLOS_Timer -= diff;
+        }else CheckTreantLOS_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

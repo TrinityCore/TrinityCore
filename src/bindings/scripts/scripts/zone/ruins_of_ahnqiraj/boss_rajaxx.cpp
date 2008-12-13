@@ -23,20 +23,22 @@ EndScriptData */
 
 #include "precompiled.h"
 
-//Rajaxx
-//8603 Attack and make them pay dearly!
-//8604 Breath your last!
-//8605 Crush them! Drive them out!
-//8606 Do not hesitate! Destroy them!
-//8613 Warriors! Captians! Continue the fight...
-//8614 You are not worth my time $N!
-//8612 The time of our retribution is at hand! Let darkness reign in the hearts of our enemies!
-//8610 No longer will we wait behind barred doors and walls of stone! No longer will our vengeance be denied! The dragons themselves will tremble before our wrath!
-//8608 Fear is for the enemy! Fear and death!
-//8611 Staghelm will whimper and beg for his life, just as his whelp of a son did! One thousand years of injustice will end this day!
-//8607 Fandral! Your time has come! Go and hide in the Emerald Dream and pray we never find you!
-//8609 Impudent fool! I will kill you myself!
-
-//Andorov - no sound
-//"Remember, Rajaxx, when I said I'd kill you last? I lied..."
-//"They come now. Try not to get yourself killed, young blood."
+#define SAY_ANDOROV_INTRO   -1509003
+#define SAY_ANDOROV_ATTACK  -1509004
+	 
+#define SAY_WAVE3           -1509005
+#define SAY_WAVE4           -1509006
+#define SAY_WAVE5           -1509007
+#define SAY_WAVE6           -1509008
+#define SAY_WAVE7           -1509009
+#define SAY_INTRO           -1509010
+	 
+#define SAY_UNK1            -1509011
+#define SAY_UNK2            -1509012
+#define SAY_UNK3            -1509013
+#define SAY_UNK4            -1509014
+ 
+#define SAY_DEAGGRO         -1509015
+#define SAY_KILLS_ANDOROV   -1509016
+	 	 
+#define SAY_COMPLETE_QUEST  -1509017                        //Yell when realm complete quest 8743 for world event

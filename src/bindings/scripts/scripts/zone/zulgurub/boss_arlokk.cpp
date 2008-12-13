@@ -24,23 +24,27 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_zulgurub.h"
 
+#define SAY_AGGRO                   -1309011
+#define SAY_FEAST_PANTHER           -1309012
+#define SAY_DEATH                   -1309013
+
 #define SPELL_SHADOWWORDPAIN       23952
 #define SPELL_GOUGE                24698
 #define SPELL_MARK                 24210
 #define SPELL_CLEAVE               26350                    //Perhaps not right. Not a red aura...
 #define SPELL_PANTHER_TRANSFORM    24190
 
-#define SAY_TRANSFORM     "Bethekk, your priestess calls upon your might!"
-#define SAY_DEATH         "At last I am free of the soul flayer..."
-
-#define SOUND_TRANSFORM   8416
-#define SOUND_DEATH       8412
-
 struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
 {
-    boss_arlokkAI(Creature *c) : ScriptedAI(c) {Reset();}
+	boss_arlokkAI(Creature *c) : ScriptedAI(c)
+	{
+		pInstance = ((ScriptedInstance*)c->GetInstanceData());
+		Reset();
+	}
 
-    uint32 ShadowWordPain_Timer;
+	ScriptedInstance *pInstance;
+
+	uint32 ShadowWordPain_Timer;
     uint32 Gouge_Timer;
     uint32 Mark_Timer;
     uint32 Cleave_Timer;
@@ -77,15 +81,14 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
+		DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void JustDied(Unit* Killer)
     {
-        DoYell(SAY_DEATH,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_DEATH);
+		DoScriptText(SAY_DEATH, m_creature);
         m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,15218);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        ScriptedInstance *pInstance = (m_creature->GetInstanceData()) ? ((ScriptedInstance*)m_creature->GetInstanceData()) : NULL;
 
         if(pInstance)
             pInstance->SetData(DATA_ARLOKK_DEATH, 0);
@@ -93,7 +96,7 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget())
+        if (!m_creature->getVictim() && !m_creature->SelectHostilTarget())
             return;
 
         if( m_creature->getVictim() && m_creature->isAlive())
@@ -120,16 +123,17 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
                 Panther = m_creature->SummonCreature(15101,-11532.79980,-1649.6734,41.4800,0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
 
                 if(markedTarget && Panther )
-                    { Panther ->AI()->AttackStart(markedTarget); }
-                else
-                    { Panther ->AI()->AttackStart(target); }
+				{					
+					DoScriptText(SAY_FEAST_PANTHER, m_creature, markedTarget);
+                    Panther ->AI()->AttackStart(markedTarget);
+				}else Panther ->AI()->AttackStart(target);
 
                 Panther = m_creature->SummonCreature(15101,-11532.9970,-1606.4840,41.2979,0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
 
                 if(markedTarget && Panther )
-                    { Panther ->AI()->AttackStart(markedTarget); }
+                    Panther ->AI()->AttackStart(markedTarget);
                 else
-                    { Panther ->AI()->AttackStart(target); }
+                     Panther ->AI()->AttackStart(target);
 
                 Counter++;
                 Summon_Timer = 5000;
@@ -156,12 +160,6 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
                     //The Panther Model
                     m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,15215);
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
-                    if (!PhaseTwo)
-                    {
-                        DoYell(SAY_TRANSFORM,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,SOUND_TRANSFORM);
-                    }
 
                     const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
                     m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));

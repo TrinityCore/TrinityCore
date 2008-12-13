@@ -15,7 +15,7 @@
  */
 
 /* ScriptData
-SDName: boss_felblood_kaelthas
+SDName: Boss_Felblood_Kaelthas
 SD%Complete: 80
 SDComment: Normal and Heroic Support. Issues: Arcane Spheres do not initially follow targets. TODO: Convert Phoenix to ACID.
 SDCategory: Magisters' Terrace
@@ -25,6 +25,14 @@ EndScriptData */
 #include "def_magisters_terrace.h"
 #include "WorldPacket.h"
 #include "ObjectMgr.h"
+
+#define SAY_AGGRO                   -1585023                //This yell should be done when the room is cleared. For now, set it as aggro yell.
+#define SAY_PHOENIX                 -1585024
+#define SAY_FLAMESTRIKE             -1585025
+#define SAY_GRAVITY_LAPSE           -1585026
+#define SAY_TIRED                   -1585027
+#define SAY_RECAST_GRAVITY          -1585028
+#define SAY_DEATH                   -1585029
 
 /*** Spells ***/
 
@@ -60,28 +68,6 @@ EndScriptData */
 #define CREATURE_PHOENIX_EGG          24675
 #define CREATURE_ARCANE_SPHERE        24708
 
-/*** Dialogues ***/
-#define SAY_AGGRO                     "Don't look so smug! I know what you're thinking, but Tempest Keep was merely a set back. Did you honestly believe I would trust the future to some blind, half-night elf mongrel? Oh no, he was merely an instrument, a stepping stone to a much larger plan! It has all led to this, and this time, you will not interfere!"
-#define SOUND_AGGRO                   12413                 // This yell should be done when the room is cleared. For now, set it as aggro yell.
-
-#define SAY_PHOENIX                   "Vengeance burns!"
-#define SOUND_PHOENIX                 12415
-
-#define SAY_FLAMESTRIKE               "Felomin ashal!"
-#define SOUND_FLAMESTRIKE             12417
-
-#define SAY_GRAVITY_LAPSE             "I'll turn your world... upside... down..."
-#define SOUND_GRAVITY_LAPSE           12418
-
-#define SAY_TIRED                     "Master... grant me strength."
-#define SOUND_TIRED                   12419
-
-#define SAY_RECAST_GRAVITY            "Do not... get too comfortable."
-#define SOUND_RECAST_GRAVITY          12420
-
-#define SAY_DEATH                     "My demise accomplishes nothing! The Master will have you! You will drown in your own blood! This world shall burn! Aaaghh!"
-#define SOUND_DEATH                   12421
-
 /** Locations **/
 float KaelLocations[6][2]=
 {
@@ -100,7 +86,7 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Reset();
-        Heroic = c->GetMap()->IsHeroic() ? true : false;
+		Heroic = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
@@ -171,8 +157,7 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
     void JustDied(Unit *killer)
     {
 		RemoveGravityLapse();
-        DoYell(SAY_DEATH,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
 		if(pInstance)
 			pInstance->SetData(DATA_KAELTHAS_EVENT, DONE);
     }
@@ -185,15 +170,15 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_AGGRO,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_AGGRO);
+        DoScriptText(SAY_AGGRO, m_creature);
 		if(pInstance)
 			pInstance->SetData(DATA_KAELTHAS_EVENT, IN_PROGRESS);
     }
 
     void SetThreatList(Creature* SummonedUnit)
     {
-        if(!SummonedUnit) return;
+        if(!SummonedUnit) 
+			return;
 
         std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
         std::list<HostilReference*>::iterator i = m_threatlist.begin();
@@ -316,18 +301,18 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
             {
                 // *Heroic mode only:
                 if(Heroic)
+				{
                     if(PyroblastTimer < diff)
-                {
-                    DoCast(m_creature, SPELL_SHOCK_BARRIER, true);
-                    DoCast(m_creature->getVictim(), SPELL_PYROBLAST);
-                    PyroblastTimer = 60000;
-                }else PyroblastTimer -= diff;
+					{
+						DoCast(m_creature, SPELL_SHOCK_BARRIER, true);
+						DoCast(m_creature->getVictim(), SPELL_PYROBLAST);
+						PyroblastTimer = 60000;
+					}else PyroblastTimer -= diff;
+				}
 
                 if(FireballTimer < diff)
                 {
-                    // *Normal/Heroic mode support
-                    if(Heroic) DoCast(m_creature->getVictim(), SPELL_FIREBALL_HEROIC);
-                    else       DoCast(m_creature->getVictim(), SPELL_FIREBALL_NORMAL);
+                    DoCast(m_creature->getVictim(), Heroic ? SPELL_FIREBALL_HEROIC : SPELL_FIREBALL_NORMAL);
                     FireballTimer = 2000 + rand()%4000;
                 }else FireballTimer -= diff;
 
@@ -356,23 +341,20 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
 						}
                     }
 
-                    DoYell(SAY_PHOENIX, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_PHOENIX);
+                    DoScriptText(SAY_PHOENIX, m_creature);
 
                     PhoenixTimer = 40000;
                 }else PhoenixTimer -= diff;
 
                 if(FlameStrikeTimer < diff)
                 {
-                    Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    if(target)
+					if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     {
 						m_creature->InterruptNonMeleeSpells(false);
                         DoCast(target, SPELL_FLAMESTRIKE3, true);
-                        FlameStrikeTimer = 20000 + rand()%5000;
+						DoScriptText(SAY_FLAMESTRIKE, m_creature);
 
-                        DoYell(SAY_FLAMESTRIKE, LANG_UNIVERSAL, NULL);
-                        DoPlaySoundToSet(m_creature, SOUND_FLAMESTRIKE);
+						FlameStrikeTimer = 20000 + rand()%5000;
                     }
                 }else FlameStrikeTimer -= diff;
 
@@ -401,8 +383,7 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
                         case 0:
                             if(FirstGravityLapse)           // Different yells at 50%, and at every following Gravity Lapse
                             {
-                                DoYell(SAY_GRAVITY_LAPSE,LANG_UNIVERSAL,NULL);
-                                DoPlaySoundToSet(m_creature,SOUND_GRAVITY_LAPSE);
+								DoScriptText(SAY_GRAVITY_LAPSE, m_creature);
                                 FirstGravityLapse = false;
                                 if(pInstance)
                                 {
@@ -413,8 +394,7 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
                                 }
                             }else
                             {
-                                DoYell(SAY_RECAST_GRAVITY,LANG_UNIVERSAL,NULL);
-                                DoPlaySoundToSet(m_creature,SOUND_RECAST_GRAVITY);
+								DoScriptText(SAY_RECAST_GRAVITY, m_creature);
                             }
 							m_creature->StopMoving();
                             DoCast(m_creature, SPELL_GRAVITY_LAPSE_INITIAL);
@@ -468,8 +448,7 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
 
                         case 4:
                             m_creature->InterruptNonMeleeSpells(false);
-                            DoYell(SAY_TIRED,LANG_UNIVERSAL,NULL);
-                            DoPlaySoundToSet(m_creature,SOUND_TIRED);
+                            DoScriptText(SAY_TIRED, m_creature);
                             DoCast(m_creature, SPELL_POWER_FEEDBACK);
                             RemoveGravityLapse();
                             GravityLapseTimer = 10000;
@@ -488,7 +467,7 @@ struct TRINITY_DLL_DECL mob_felkael_flamestrikeAI : public ScriptedAI
     mob_felkael_flamestrikeAI(Creature *c) : ScriptedAI(c)
     {
         Reset();
-        Heroic = c->GetMap()->IsHeroic() ? true : false;
+        Heroic = c->GetMap()->IsHeroic();
     }
 
     uint32 FlameStrikeTimer;
@@ -510,9 +489,7 @@ struct TRINITY_DLL_DECL mob_felkael_flamestrikeAI : public ScriptedAI
     {
         if(FlameStrikeTimer < diff)
         {
-            // *Normal/Heroic mode support
-            if(Heroic) DoCast(m_creature, SPELL_FLAMESTRIKE1_HEROIC, true);
-            else       DoCast(m_creature, SPELL_FLAMESTRIKE1_NORMAL, true);
+            DoCast(m_creature, Heroic ? SPELL_FLAMESTRIKE1_HEROIC : SPELL_FLAMESTRIKE1_NORMAL, true);
             m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
         }else FlameStrikeTimer -= diff;
     }

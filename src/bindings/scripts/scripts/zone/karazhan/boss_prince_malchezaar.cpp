@@ -24,24 +24,18 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_karazhan.h"
 
-#define SAY_AGGRO           "Madness has brought you here to me. I shall be your undoing!"
-#define SOUND_AGGRO         9218
-#define SAY_SUMMON1         "You face not Malchezaar alone, but the legions I command!"
-#define SOUND_SUMMON1       9322
-#define SAY_SUMMON2         "All realities, all dimensions are open to me!"
-#define SOUND_SUMMON2       9224
-#define SAY_PHASE2          "Simple fools! Time is the fire in which you'll burn!"
-#define SOUND_PHASE2        9220
-#define SAY_PHASE3          "How can you hope to withstand against such overwhelming power?"
-#define SOUND_PHASE3        9321
-#define SAY_PDEATH1         "You are, but a plaything, unfit even to amuse."
-#define SOUND_PDEATH1       9319
-#define SAY_PDEATH2         "Your greed, your foolishness has brought you to this end."
-#define SOUND_PDEATH2       9318
-#define SAY_PDEATH3         "Surely you did not think you could win."
-#define SOUND_PDEATH3       9222
-#define SAY_DEATH           "I refuse to concede defeat. I am a prince of the Eredar! I am..."
-#define SOUND_DEATH         9221
+#define SAY_AGGRO           -1532091
+#define SAY_AXE_TOSS1       -1532092
+#define SAY_AXE_TOSS2       -1532093
+#define SAY_SPECIAL1        -1532094
+#define SAY_SPECIAL2        -1532095
+#define SAY_SPECIAL3        -1532096
+#define SAY_SLAY1           -1532097
+#define SAY_SLAY2           -1532098
+#define SAY_SLAY3           -1532099
+#define SAY_SUMMON1         -1532100
+#define SAY_SUMMON2         -1532101
+#define SAY_DEATH           -1532102
 
 // 19 Coordinates for Infernal spawns
 struct InfernalPoint
@@ -225,25 +219,15 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-            case 0:
-                DoYell(SAY_PDEATH1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(victim, SOUND_PDEATH1);
-                break;
-            case 1:
-                DoYell(SAY_PDEATH2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(victim, SOUND_PDEATH2);
-                break;
-            case 2:
-                DoYell(SAY_PDEATH3, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(victim, SOUND_PDEATH3);
-                break;
+		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+		case 2: DoScriptText(SAY_SLAY3, m_creature); break;
         }
     }
 
     void JustDied(Unit *victim)
     {
-        DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+		DoScriptText(SAY_DEATH, m_creature);
 
         AxesCleanup();
         ClearWeapons();
@@ -265,8 +249,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_AGGRO);
+		DoScriptText(SAY_AGGRO, m_creature);
 
         if(pInstance)
         {
@@ -409,14 +392,8 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_SUMMON1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SUMMON1);
-                break;
-            case 1:
-                DoYell(SAY_SUMMON2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SUMMON2);
-                break;
+		case 0: DoScriptText(SAY_SUMMON1, m_creature); break;
+		case 1: DoScriptText(SAY_SUMMON2, m_creature); break;
         }
     }
 
@@ -450,8 +427,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                 DoCast(m_creature, SPELL_EQUIP_AXES);
 
                 //text
-                DoYell(SAY_PHASE2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_PHASE2);
+                DoScriptText(SAY_AXE_TOSS1, m_creature);
 
                 //passive thrash aura
                 m_creature->CastSpell(m_creature, SPELL_THRASH_AURA, true);
@@ -491,8 +467,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                 //remove thrash
                 m_creature->RemoveAurasDueToSpell(SPELL_THRASH_AURA);
 
-                DoYell(SAY_PHASE3, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_PHASE3);
+                DoScriptText(SAY_AXE_TOSS2, m_creature);
 
                 Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
                 for(uint32 i=0; i<2; ++i)
@@ -582,14 +557,16 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         {
             if(SWPainTimer < diff)
             {
-                Unit *target;
+				Unit* target = NULL;
                 if(phase == 1)
                     target = m_creature->getVictim();       // the tank
                 else                                        //anyone but the tank
                     target = SelectUnit(SELECT_TARGET_RANDOM, 1);
 
-                DoCast(target, SPELL_SW_PAIN);
-                SWPainTimer = 20000;
+				if (target)
+					DoCast(target, SPELL_SW_PAIN);
+
+				SWPainTimer = 20000;
             }else SWPainTimer -= diff;
         }
 

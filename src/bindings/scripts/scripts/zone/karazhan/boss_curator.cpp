@@ -23,29 +23,14 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SAY_AGGRO           "The Menagerie is for guests only."
-#define SOUND_AGGRO         9183
-
-#define SAY_SUMMON1         "Gallery rules will be strictly enforced."
-#define SOUND_SUMMON1       9188
-
-#define SAY_SUMMON2         "This curator is equipped for gallery protection."
-#define SOUND_SUMMON2       9309
-
-#define SAY_EVOCATE         "Your request cannot be processed."
-#define SOUND_EVOCATE       9186
-
-#define SAY_ENRAGE          "Failure to comply will result in offensive action."
-#define SOUND_ENRAGE        9185
-
-#define SAY_KILL1           "Do not touch the displays."
-#define SOUND_KILL1         9187
-
-#define SAY_KILL2           "You are not a guest."
-#define SOUND_KILL2         9308
-
-#define SAY_DEATH           "This Curator is no longer op... er... ation... al."
-#define SOUND_DEATH         9184
+#define SAY_AGGRO                       -1532057
+#define SAY_SUMMON1                     -1532058
+#define SAY_SUMMON2                     -1532059
+#define SAY_EVOCATE                     -1532060
+#define SAY_ENRAGE                      -1532061
+#define SAY_KILL1                       -1532062
+#define SAY_KILL2                       -1532063
+#define SAY_DEATH                       -1532064
 
 //Flare spell info
 #define SPELL_ASTRAL_FLARE_PASSIVE      30234               //Visual effect + Flare damage
@@ -84,27 +69,19 @@ struct TRINITY_DLL_DECL boss_curatorAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_KILL1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(victim, SOUND_KILL1);
-                break;
-            case 1:
-                DoYell(SAY_KILL2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(victim, SOUND_KILL2);
-                break;
-        }
+		case 0: DoScriptText(SAY_KILL1, m_creature); break;
+		case 1: DoScriptText(SAY_KILL2, m_creature); break;        
+		}
     }
 
     void JustDied(Unit *victim)
     {
-        DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
     }
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_AGGRO);
+        DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -117,8 +94,7 @@ struct TRINITY_DLL_DECL boss_curatorAI : public ScriptedAI
 
         if (m_creature->GetPower(POWER_MANA) <= 1000 && !Evocating)
         {
-            DoYell(SAY_EVOCATE, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_EVOCATE);
+            DoScriptText(SAY_EVOCATE, m_creature);
             m_creature->InterruptNonMeleeSpells(false);
             DoCast(m_creature, SPELL_EVOCATION);
             Evocating = true;
@@ -144,14 +120,8 @@ struct TRINITY_DLL_DECL boss_curatorAI : public ScriptedAI
                 m_creature->ModifyPower(POWER_MANA, -mana);
                 switch(rand()%4)
                 {
-                    case 0:
-                        DoYell(SAY_SUMMON1, LANG_UNIVERSAL, NULL);
-                        DoPlaySoundToSet(m_creature, SOUND_SUMMON1);
-                        break;
-                    case 1:
-                        DoYell(SAY_SUMMON2, LANG_UNIVERSAL, NULL);
-                        DoPlaySoundToSet(m_creature, SOUND_SUMMON2);
-                        break;
+                    case 0: DoScriptText(SAY_SUMMON1, m_creature);break;
+                    case 1: DoScriptText(SAY_SUMMON2, m_creature);break;
                 }
                 AddTimer = 10000;
             }else AddTimer -= diff;
@@ -169,16 +139,14 @@ struct TRINITY_DLL_DECL boss_curatorAI : public ScriptedAI
             {
                 Enraged = true;
                 DoCast(m_creature, SPELL_ENRAGE);
-                DoYell(SAY_ENRAGE, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_ENRAGE);
+                DoScriptText(SAY_ENRAGE, m_creature);
             }
         }
 
         if (BerserkTimer < diff)
         {
             DoCast(m_creature, SPELL_BERSERK);
-            DoYell(SAY_ENRAGE, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_ENRAGE);
+            DoScriptText(SAY_ENRAGE, m_creature);
         }else BerserkTimer -= diff;
 
         DoMeleeAttackIfReady();

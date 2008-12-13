@@ -28,7 +28,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_sethekk_halls : public ScriptedInstance
 {
-    instance_sethekk_halls(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_sethekk_halls(Map *map) : ScriptedInstance(map) {Initialize();};
 
     GameObject *IkissDoor;
 

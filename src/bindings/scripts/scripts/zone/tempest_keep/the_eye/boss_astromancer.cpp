@@ -15,7 +15,7 @@
  */
 
 /* ScriptData
-SDName: boss_astromancer
+SDName: Boss_Astromancer
 SD%Complete: 75
 SDComment:
 SDCategory: Tempest Keep, The Eye
@@ -24,33 +24,22 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_the_eye.h"
 
+#define SAY_AGGRO                           -1550007
+#define SAY_SUMMON1                         -1550008
+#define SAY_SUMMON2                         -1550009
+#define SAY_KILL1                           -1550010
+#define SAY_KILL2                           -1550011
+#define SAY_KILL3                           -1550012
+#define SAY_DEATH                           -1550013
+#define SAY_VOIDA                           -1550014
+#define SAY_VOIDB                           -1550015
+
 #define SPELL_ARCANE_MISSILES                 33031
 #define SPELL_MARK_OF_THE_ASTROMANCER         33045
 #define MARK_OF_SOLARIAN                      33023
 #define SPELL_BLINDING_LIGHT                  33009
 #define SPELL_FEAR                            29321
 #define SPELL_VOID_BOLT                       39329
-
-#define SAY_PHASE1                           "Tal anu'men no Sin'dorei!"
-#define SOUND_PHASE1                         11134
-#define SAY_PHASE2                           "I will crush your delusions of grandeur!"
-#define SOUND_PHASE2                         11140
-#define SAY_PHASE21                          "Ha ha ha! You are hopelessly outmatched!"
-#define SOUND_PHASE21                        11139
-
-#define SAY_VOID                             "Enough of this! Now I call upon the fury of the cosmos itself."
-//#define SOUND_VOID                         Not found :(
-#define SAY_VOID1                            "I become ONE... with the VOID!"
-//#define SOUND_VOID1                        Not found :(
-
-#define SAY_KILL1                            "Your soul belongs to the Abyss!"
-#define SOUND_KILL1                          11136
-#define SAY_KILL2                            "By the blood of the Highborne!"
-#define SOUND_KILL2                          11137
-#define SAY_KILL3                            "For the Sunwell!"
-#define SOUND_KILL3                          11138
-#define SAY_DEATH                            "The warmth of the sun... awaits."
-#define SOUND_DEATH                          11135
 
 #define CENTER_X                             432.909f
 #define CENTER_Y                             -373.424f
@@ -139,8 +128,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
 
     void StartEvent()
     {
-        DoYell(SAY_PHASE1, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_PHASE1);
+		DoScriptText(SAY_AGGRO, m_creature);
 
         if(pInstance)
             pInstance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, IN_PROGRESS);
@@ -150,18 +138,9 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-            case 0:
-                DoYell(SAY_KILL1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_KILL1);
-                break;
-            case 1:
-                DoYell(SAY_KILL2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_KILL2);
-                break;
-            case 2:
-                DoYell(SAY_KILL3, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_KILL3);
-                break;
+		case 0: DoScriptText(SAY_KILL1, m_creature); break;
+		case 1: DoScriptText(SAY_KILL2, m_creature); break;
+		case 2: DoScriptText(SAY_KILL3, m_creature); break;
         }
     }
 
@@ -169,8 +148,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
     {
         m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize);
         m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_HUMAN);
-        DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+		DoScriptText(SAY_DEATH, m_creature);
 
         if(pInstance)
             pInstance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, DONE);
@@ -186,9 +164,8 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
         Creature* Summoned = m_creature->SummonCreature(entry, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
         if(Summoned)
         {
-            Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if(target)
-                Summoned->AI()->AttackStart(target);
+			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+				Summoned->AI()->AttackStart(target);
         }
     }
 
@@ -223,18 +200,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
             {
                 AppearDelay = false;
                 if (Phase == 2)
-                {
-                    switch (rand()%2)
-                    {
-                        case 0:
-                            DoYell(SAY_PHASE2, LANG_UNIVERSAL, NULL);
-                            DoPlaySoundToSet(m_creature, SOUND_PHASE2);
-                            break;
-                        case 1:
-                            DoYell(SAY_PHASE21, LANG_UNIVERSAL, NULL);
-                            DoPlaySoundToSet(m_creature, SOUND_PHASE21);
-                            break;
-                    }
+                {                
                     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     m_creature->SetVisibility(VISIBILITY_OFF);
                 }
@@ -305,9 +271,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
             if (MarkOfTheAstromancer_Timer < diff)
             {
                 //A debuff that lasts for 5 seconds, cast several times each phase on a random raid member, but not the main tank
-                Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
-
-                if(target)
+				if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1))
                 {
                     DoCast(target, SPELL_MARK_OF_THE_ASTROMANCER);
 
@@ -381,6 +345,8 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
                 for (int i=0; i<=2; i++)
                     for (int j=1; j<=4; j++)
                         SummonMinion(SOLARIUM_AGENT, Portals[i][0], Portals[i][1], Portals[i][2]);
+
+				DoScriptText(SAY_SUMMON1, m_creature);
                 Phase2_Timer = 10000;
             } else Phase2_Timer -= diff;
         }
@@ -403,8 +369,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 m_creature->SetVisibility(VISIBILITY_ON);
 
-                DoYell(SAY_PHASE1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_PHASE1);
+                DoScriptText(SAY_SUMMON2, m_creature);
                 AppearDelay = true;
                 Phase3_Timer = 15000;
             }else Phase3_Timer -= diff;
@@ -434,16 +399,8 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
             //To make sure she wont be invisible or not selecatble
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             m_creature->SetVisibility(VISIBILITY_ON);
-            switch(rand()%2)
-            {
-                case 0:
-                    DoYell(SAY_VOID, LANG_UNIVERSAL, NULL);
-                    break;
-                case 1:
-                    DoYell(SAY_VOID1, LANG_UNIVERSAL, NULL);
-                    break;
-            }
-
+			DoScriptText(SAY_VOIDA, m_creature);
+			DoScriptText(SAY_VOIDB, m_creature);
             m_creature->SetArmor(WV_ARMOR);
             m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_VOIDWALKER);
             m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize*2.5f);

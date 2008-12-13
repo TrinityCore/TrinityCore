@@ -1,4 +1,4 @@
-/* Copyright (C) 2006,2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ /* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,13 +16,22 @@
 
 /* ScriptData
 SDName: Boss_Shade_of_Akama
-SD%Complete: 99
+SD%Complete: 90
 SDComment: Seems to be complete.
 SDCategory: Black Temple
 EndScriptData */
 
 #include "precompiled.h"
 #include "def_black_temple.h"
+
+#define SAY_DEATH                   -1564013
+#define SAY_LOW_HEALTH              -1564014
+// Ending cinematic text
+#define SAY_FREE                    -1564015
+#define SAY_BROKEN_FREE_01          -1564016
+#define SAY_BROKEN_FREE_02          -1564017
+	 	 
+#define GOSSIP_ITEM                 "We are ready to fight alongside you, Akama"
 
 struct Location
 {
@@ -77,20 +86,6 @@ static Location BrokenWP[]=
 #define AKAMA_X         514.583984
 #define AKAMA_Y         400.601013
 #define AKAMA_Z         112.783997
-
-// Texts
-#define SOUND_DEATH                 11386
-#define SAY_DEATH                   "No! Not yet..."
-#define SOUND_LOW_HEALTH            11385
-#define SAY_LOW_HEALTH              "I will not last much longer..."
-
-// Ending cinematic text
-#define SAY_FREE                    "Come out from the shadows! I've returned to lead you against our true enemy! Shed your chains and raise your weapons against your Illidari masters!"
-#define SAY_BROKEN_FREE_01          "Hail our leader! Hail Akama!"
-#define SAY_BROKEN_FREE_02          "Hail Akama!"
-
-// Gossips
-#define GOSSIP_ITEM                 "We are ready to fight alongside you, Akama"
 
 // Spells
 #define SPELL_VERTEX_SHADE_BLACK    39833
@@ -200,6 +195,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
         FindChannelers();
 
         if(!Channelers.empty())
+		{
             for(std::list<uint64>::iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
         {
             Creature* Channeler = NULL;
@@ -217,11 +213,13 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
                     Channeler->CastSpell(m_creature, SPELL_SHADE_SOUL_CHANNEL_2, true);
                     Channeler->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 				}
-            }
-        }
-        else error_log("SD2 ERROR: No Channelers are stored in the list. This encounter will not work properly");
+            }else error_log("SD2 ERROR: No Channelers are stored in the list. This encounter will not work properly");
+			}
+			
+		}
 
         if(!Sorcerers.empty())
+		{
             for(std::list<uint64>::iterator itr = Sorcerers.begin(); itr != Sorcerers.end(); ++itr)
                 if(Creature* Sorcerer = ((Creature*)Unit::GetUnit(*m_creature, *itr)))
                     if(Sorcerer->isAlive())
@@ -231,7 +229,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
                     }
 
         Sorcerers.clear();
-
+		}
         if(Unit* Akama = Unit::GetUnit(*m_creature, AkamaGUID))
             Akama->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
@@ -590,8 +588,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -601,8 +598,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
 
         if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 15 && !HasYelledOnce)
         {
-            DoYell(SAY_LOW_HEALTH, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_LOW_HEALTH);
+			DoScriptText(SAY_LOW_HEALTH, m_creature);
             HasYelledOnce = true;
         }
 
@@ -654,6 +650,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
         }
 
         if(SummonBrokenTimer && BrokenSummonIndex < 4)
+		{
             if(SummonBrokenTimer <= diff)
         {
             for(uint8 i = 0; i < 4; ++i)
@@ -676,6 +673,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
             ++BrokenSummonIndex;
             SummonBrokenTimer = 1000;
         }else SummonBrokenTimer -= diff;
+		}
 
         if(SoulRetrieveTimer)
             if(SoulRetrieveTimer <= diff)
@@ -687,8 +685,9 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
                     ++EndingTalkCount;
                     SoulRetrieveTimer = 2000;
                     SummonBrokenTimer = 1;
+					break;
                 case 1:
-                    DoYell(SAY_FREE, LANG_UNIVERSAL, NULL);
+					DoScriptText(SAY_FREE, m_creature);
                     ++EndingTalkCount;
                     SoulRetrieveTimer = 25000;
                     break;
@@ -701,7 +700,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
                         {
                             if(!Yelled)
                             {
-                                pUnit->MonsterYell(SAY_BROKEN_FREE_01, LANG_UNIVERSAL, 0);
+                                DoScriptText(SAY_BROKEN_FREE_01, pUnit);
                                 Yelled = true;
                             }
                             pUnit->HandleEmoteCommand(EMOTE_ONESHOT_KNEEL);
@@ -712,17 +711,22 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
                     break;
                 case 3:
                     if(!BrokenList.empty())
+					{
                         for(std::list<uint64>::iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
                             if(Unit* pUnit = Unit::GetUnit(*m_creature, *itr))
                                 // This is the incorrect spell, but can't seem to find the right one.
                                 pUnit->CastSpell(pUnit, 39656, true);
+					}
                     ++EndingTalkCount;
                     SoulRetrieveTimer = 5000;
+					break;
                 case 4:
                     if(!BrokenList.empty())
+					{
                         for(std::list<uint64>::iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
                             if(Unit* pUnit = Unit::GetUnit((*m_creature), *itr))
                                 pUnit->MonsterYell(SAY_BROKEN_FREE_02, LANG_UNIVERSAL, 0);
+					}
                     SoulRetrieveTimer = 0;
                     break;
             }
@@ -733,8 +737,9 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
 
         if(DestructivePoisonTimer < diff)
         {
-            // SPELL_DESTRUCTIVE_POISON is self-cast only for some reason so we make our target cast it on itself
-            m_creature->getVictim()->CastSpell(m_creature->getVictim(), SPELL_DESTRUCTIVE_POISON, true);
+            Unit* Shade = Unit::GetUnit((*m_creature), ShadeGUID);
+             if (Shade && Shade->isAlive())
+				  DoCast(Shade, SPELL_DESTRUCTIVE_POISON);
             DestructivePoisonTimer = 15000;
         }else DestructivePoisonTimer -= diff;
 

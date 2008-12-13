@@ -17,12 +17,16 @@
 /* ScriptData
 SDName: Boss_Supremus
 SD%Complete: 95
-SDComment: Need to implement doors.
+SDComment: Need to implement molten punch
 SDCategory: Black Temple
 EndScriptData */
 
 #include "precompiled.h"
 #include "def_black_temple.h"
+
+#define EMOTE_NEW_TARGET            -1564010
+#define EMOTE_PUNCH_GROUND          -1564011                //DoScriptText(EMOTE_PUNCH_GROUND, m_creature);
+#define EMOTE_GROUND_CRACK          -1564012
 
 //Spells
 #define SPELL_MOLTEN_PUNCH          40126
@@ -148,9 +152,11 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
             return;
 
         if(!m_creature->HasAura(SPELL_BERSERK, 0))
+		{
             if(BerserkTimer < diff)
                 DoCast(m_creature, SPELL_BERSERK);
             else BerserkTimer -= diff;
+		}
 
         if(SummonFlameTimer < diff)
         {
@@ -178,7 +184,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
                 {
                     DoResetThreat();
                     m_creature->AddThreat(target, 5000000.0f);
-                    DoTextEmote("acquires a new target!", NULL);
+					DoScriptText(EMOTE_NEW_TARGET, m_creature);
                     SwitchTargetTimer = 10000;
                 }
             }else SwitchTargetTimer -= diff;
@@ -188,7 +194,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
                 if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0, 999, true))
                 {
                     DoCast(target, SPELL_VOLCANIC_SUMMON);
-                    DoTextEmote("roars and the ground begins to crack open!", NULL);
+					DoScriptText(EMOTE_GROUND_CRACK, m_creature);
                     SummonVolcanoTimer = 10000;
                 }
             }else SummonVolcanoTimer -= diff;

@@ -24,23 +24,13 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_magisters_terrace.h"
 
-#define SAY_AGGRO           "You only waste my time!"
-#define SOUND_AGGRO         12378
-
-#define SAY_ENERGY          "My hunger knows no bounds! "
-#define SOUND_ENERGY        12381
-
-#define SAY_EMPOWERED       "Yes! I am a god!"
-#define SOUND_EMPOWERED     12382
-
-#define SAY_KILL_1          "Enough distractions!"
-#define SOUND_KILL_1        12388
-
-#define SAY_KILL_2          "I am invincible!"
-#define SOUND_KILL_2        12385
-
-#define SAY_DEATH           "No! More... I must have more!"
-#define SOUND_DEATH         12383
+#define SAY_AGGRO                       -1585000
+#define SAY_ENERGY                      -1585001
+#define SAY_EMPOWERED                   -1585002
+#define SAY_KILL_1                      -1585003
+#define SAY_KILL_2                      -1585004
+#define SAY_DEATH                       -1585005
+#define EMOTE_CRYSTAL                   -1585006
 
 //Crystal efect spells
 #define SPELL_FEL_CRYSTAL_COSMETIC      44374
@@ -78,7 +68,7 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
             }
         }
         Reset();
-        Heroic = c->GetMap()->IsHeroic() ? true : false;
+		Heroic = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
@@ -163,8 +153,8 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
         }
         if( CrystalChosen )
         {
-            DoYell(SAY_ENERGY, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_ENERGY);
+            DoScriptText(SAY_ENERGY, m_creature);
+			DoScriptText(EMOTE_CRYSTAL, m_creature);
 
             CrystalChosen->CastSpell(CrystalChosen, SPELL_FEL_CRYSTAL_COSMETIC, true);
 
@@ -195,8 +185,7 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
     void Aggro(Unit* who)
     {
 		m_creature->SetPower(POWER_MANA, 0);
-        DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_AGGRO);
+        DoScriptText(SAY_AGGRO, m_creature);
 
         if( pInstance )
         {
@@ -210,14 +199,8 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_KILL_1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_KILL_1);
-                break;
-            case 1:
-                DoYell(SAY_KILL_2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_KILL_2);
-                break;
+		case 0: DoScriptText(SAY_KILL_1, m_creature); break;
+		case 1: DoScriptText(SAY_KILL_2, m_creature); break;
         }
     }
 
@@ -245,8 +228,7 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+		DoScriptText(SAY_DEATH, m_creature);
 
         if(!pInstance)
         {
@@ -330,8 +312,7 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
 							IsDraining = false;
 							DrainingCrystal = false;
 
-							DoYell(SAY_EMPOWERED, LANG_UNIVERSAL, NULL);
-							DoPlaySoundToSet(m_creature, SOUND_EMPOWERED);
+							DoScriptText(SAY_EMPOWERED, m_creature);
 
 							Unit* CrystalChosen = Unit::GetUnit(*m_creature, CrystalGUID);
 							if( CrystalChosen && CrystalChosen->isAlive() )

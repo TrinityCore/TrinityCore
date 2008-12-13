@@ -1,4 +1,4 @@
-/* Copyright(C) 2006,2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ /* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation; either version 2 of the License, or
@@ -25,6 +25,17 @@ EndScriptData */
 #include "def_zulaman.h"
 #include "GridNotifiers.h"
 
+#define SAY_AGGRO                   -1568000
+#define SAY_FIRE_BOMBS              -1568001
+#define SAY_SUMMON_HATCHER          -1568002
+#define SAY_ALL_EGGS                -1568003
+#define SAY_BERSERK                 -1568004
+#define SAY_SLAY_1                  -1568005
+#define SAY_SLAY_2                  -1568006
+#define SAY_DEATH                   -1568007
+#define SAY_EVENT_STRANGERS         -1568008
+#define SAY_EVENT_FRIENDS           -1568009
+
 // Jan'alai
 // --Spell
 #define SPELL_FLAME_BREATH          43140
@@ -39,31 +50,6 @@ EndScriptData */
 #define SPELL_FIRE_BOMB_THROW       42628 // throw visual
 #define SPELL_FIRE_BOMB_DUMMY       42629 // bomb visual
 #define SPELL_FIRE_BOMB_DAMAGE      42630 
-
-// -- SAYs
-#define SOUND_AGGRO                 12031 
-#define SAY_AGGRO                   "Spirits of da wind be your doom!"
-#define SOUND_FIRE_BOMBS            12032
-#define SAY_FIRE_BOMBS              "I burn ya now!"
-#define SOUND_SUMMON_HATCHER        12033
-#define SAY_SUMMON_HATCHER          "Where ma hatcha? Get to work on dem templist!"
-#define SOUND_ALL_EGGS              12034
-#define SAY_ALL_EGGS                "I show you strength... in numbers."
-#define SOUND_BERSERK               12035
-#define SAY_BERSERK                 "You done run outta time!"
-
-#define SOUND_SLAY_1                12036
-#define SAY_SLAY_1                  "It all be over now, mon!"
-#define SOUND_SLAY_2                12037
-#define SAY_SLAY_2                  "Tazaga-choo!"
-
-#define SOUND_DEATH                 12038
-#define SAY_DEATH                   "Zul'jin... got a surprise for you..."
-
-#define SOUND_AGGRO_1               12039 //NOT USED need more information
-#define SAY_AGGRO_1                 "Come, strangers. The spirit of the dragonhawk hot be hungry for worthy souls." //NOT USED need more information(random say before aggro?)
-#define SOUND_AGGRO_2               12040 //NOT USED need more information
-#define SAY_AGGRO_2                 "Come, friends. Your bodies gonna feed ma HatchNum, and your souls are going to feed me with power!" //NOT USED need more information(random say before aggro?)
 
 // --Summons
 #define MOB_AMANI_HATCHER           23818
@@ -171,8 +157,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature,SOUND_DEATH);
+		DoScriptText(SAY_DEATH, m_creature);
 
         if(pInstance)
             pInstance->SetData(DATA_JANALAIEVENT, DONE);
@@ -182,14 +167,8 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
     {
         switch(rand()%2)
         {        
-        case 0:
-            DoYell(SAY_SLAY_1, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature,SOUND_SLAY_1);
-            break;
-        case 1:
-            DoYell(SAY_SLAY_2, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature,SOUND_SLAY_1);
-            break;        
+		case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
+		case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
         }
     }
 
@@ -198,8 +177,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
         if(pInstance)
             pInstance->SetData(DATA_JANALAIEVENT, IN_PROGRESS);
 
-        DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature,SOUND_AGGRO);
+		DoScriptText(SAY_AGGRO, m_creature);
 //        DoZoneInCombat();
     }
 
@@ -226,9 +204,9 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
             for(uint8 j = 0; j < WallNum; j++)
             {
                 if(WallNum == 3)
-                    wall = m_creature->SummonTrigger(FireWallCoords[i][0],FireWallCoords[i][1]+5*(j-1),FireWallCoords[i][2],FireWallCoords[i][3],15000);
+                    wall = m_creature->SummonCreature(MOB_FIRE_BOMB, FireWallCoords[i][0],FireWallCoords[i][1]+5*(j-1),FireWallCoords[i][2],FireWallCoords[i][3],TEMPSUMMON_TIMED_DESPAWN,15000);
                 else
-                    wall = m_creature->SummonTrigger(FireWallCoords[i][0]-2+4*j,FireWallCoords[i][1],FireWallCoords[i][2],FireWallCoords[i][3],15000);
+                    wall = m_creature->SummonCreature(MOB_FIRE_BOMB, FireWallCoords[i][0]-2+4*j,FireWallCoords[i][1],FireWallCoords[i][2],FireWallCoords[i][3],TEMPSUMMON_TIMED_DESPAWN,15000);
                 if(wall) wall->CastSpell(wall, SPELL_FIRE_WALL, true);
             }
         }
@@ -375,8 +353,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
             }
             else
             {
-                DoYell(SAY_BERSERK, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_BERSERK);  
+				DoScriptText(SAY_BERSERK, m_creature);
                 m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
                 EnrageTimer = 300000;            
             }
@@ -384,8 +361,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
 
         if(BombTimer < diff)
         {
-            DoYell(SAY_FIRE_BOMBS, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_FIRE_BOMBS);
+			DoScriptText(SAY_FIRE_BOMBS, m_creature);
 
             m_creature->AttackStop();
             m_creature->GetMotionMaster()->Clear();
@@ -419,6 +395,8 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
         {
             if(100 * m_creature->GetHealth() < 35 * m_creature->GetMaxHealth()) 
             {
+				DoScriptText(SAY_ALL_EGGS, m_creature);
+
                 m_creature->AttackStop();
                 m_creature->GetMotionMaster()->Clear();
                 m_creature->Relocate(JanalainPos[0][0],JanalainPos[0][1],JanalainPos[0][2],0);
@@ -432,8 +410,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
             {
                 if(HatchAllEggs(0))
                 { 
-                    DoYell(SAY_SUMMON_HATCHER, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_SUMMON_HATCHER);
+					DoScriptText(SAY_SUMMON_HATCHER, m_creature);                   
                     m_creature->SummonCreature(MOB_AMANI_HATCHER,hatcherway[0][0][0],hatcherway[0][0][1],hatcherway[0][0][2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,10000);
                     m_creature->SummonCreature(MOB_AMANI_HATCHER,hatcherway[1][0][0],hatcherway[1][0][1],hatcherway[1][0][2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,10000);
                     HatcherTimer = 90000;
@@ -683,9 +660,14 @@ CreatureAI* GetAI_mob_hatchlingAI(Creature *_Creature)
     return new mob_hatchlingAI(_Creature);
 }
 
-struct TRINITY_DLL_DECL mob_eggAI : public NullCreatureAI
+struct TRINITY_DLL_DECL mob_eggAI : public ScriptedAI
 {
-    mob_eggAI(Creature *c) : NullCreatureAI(c){}
+    mob_eggAI(Creature *c) : ScriptedAI(c){}
+    void Reset() {}
+    void Aggro(Unit* who) {}
+    void AttackStart(Unit* who) {}
+    void MoveInLineOfSight(Unit* who) {}
+    void UpdateAI(const uint32 diff) {}
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {

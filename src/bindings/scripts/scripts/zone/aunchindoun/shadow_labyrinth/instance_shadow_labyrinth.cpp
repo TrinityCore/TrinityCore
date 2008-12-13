@@ -38,7 +38,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
 {
-    instance_shadow_labyrinth(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_shadow_labyrinth(Map *map) : ScriptedInstance(map) {Initialize();};
 
     uint32 Encounter[ENCOUNTERS];
 

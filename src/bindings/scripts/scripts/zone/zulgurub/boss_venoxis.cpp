@@ -24,6 +24,9 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_zulgurub.h"
 
+#define SAY_TRANSFORM       -1309000
+#define SAY_DEATH           -1309001
+
 #define SPELL_HOLY_FIRE     23860
 #define SPELL_HOLY_WRATH    28883                           //Not sure if this or 23979
 #define SPELL_VENOMSPIT     23862
@@ -34,12 +37,15 @@ EndScriptData */
 #define SPELL_BERSERK       23537
 #define SPELL_DISPELL       23859
 
-#define SAY_AGGRO         "Let the coils of hate unfurl!"
-#define SOUND_AGGRO       8421
-
 struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
 {
-    boss_venoxisAI(Creature *c) : ScriptedAI(c) {Reset();}
+	boss_venoxisAI(Creature *c) : ScriptedAI(c)
+	{
+		pInstance = ((ScriptedInstance*)c->GetInstanceData());
+		Reset();
+	}
+	 	 
+	ScriptedInstance *pInstance;
 
     uint32 HolyFire_Timer;
     uint32 HolyWrath_Timer;
@@ -70,24 +76,20 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_AGGRO,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_AGGRO);
     }
 
     void JustDied(Unit* Killer)
     {
-        ScriptedInstance *pInstance = (m_creature->GetInstanceData()) ? ((ScriptedInstance*)m_creature->GetInstanceData()) : NULL;
-        if(pInstance)
-            pInstance->SetData(DATA_VENOXIS_DEATH, 0);
+		DoScriptText(SAY_DEATH, m_creature);
+		if(pInstance)
+			pInstance->SetData(DATA_VENOXIS_DEATH, 0);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget())
+          if (!m_creature->getVictim() && !m_creature->SelectHostilTarget())
             return;
 
-        if( m_creature->getVictim() && m_creature->isAlive())
-        {
             if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth() > 50))
             {
                 if (Dispell_Timer < diff)
@@ -110,12 +112,10 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
 
                 if (HolyNova_Timer < diff)
                 {
-                    Unit* target = NULL;
                     TargetInRange = 0;
                     for(int i=0; i<10; i++)
                     {
-                        target = SelectUnit(SELECT_TARGET_TOPAGGRO,i);
-                        if(target)
+						if (Unit* target = SelectUnit(SELECT_TARGET_TOPAGGRO,i))
                             if(m_creature->IsWithinMeleeRange(target))
                                 TargetInRange++;
                     }
@@ -134,10 +134,9 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
 
                 if (HolyFire_Timer < diff && TargetInRange < 3)
                 {
-                    Unit* targetrandom = NULL;
-                    targetrandom = SelectUnit(SELECT_TARGET_RANDOM,0);
+					if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    DoCast(target, SPELL_HOLY_FIRE);
 
-                    DoCast(targetrandom, SPELL_HOLY_FIRE);
                     HolyFire_Timer = 8000;
                 }else HolyFire_Timer -= diff;
             }
@@ -145,6 +144,7 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
             {
                 if(!PhaseTwo)
                 {
+					DoScriptText(SAY_TRANSFORM, m_creature);
                     m_creature->InterruptNonMeleeSpells(false);
                     DoCast(m_creature,SPELL_SNAKE_FORM);
                     m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.00f);
@@ -164,10 +164,9 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
 
                 if (PhaseTwo && VenomSpit_Timer < diff)
                 {
-                    Unit* targetrandom = NULL;
-                    targetrandom = SelectUnit(SELECT_TARGET_RANDOM,0);
+                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    DoCast(target, SPELL_VENOMSPIT);
 
-                    DoCast(targetrandom, SPELL_VENOMSPIT);
                     VenomSpit_Timer = 15000 + rand()%5000;
                 }else VenomSpit_Timer -= diff;
 
@@ -182,7 +181,7 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
                 }
             }
             DoMeleeAttackIfReady();
-        }
+        
     }
 };
 CreatureAI* GetAI_boss_venoxis(Creature *_Creature)

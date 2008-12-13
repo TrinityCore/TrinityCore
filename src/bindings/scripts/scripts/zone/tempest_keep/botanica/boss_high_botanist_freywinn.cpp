@@ -23,21 +23,12 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SAY_AGGRO                   "What are you doing? These specimens are very delicate!"
-#define SOUND_AGGRO                 11144
-
-#define SAY_KILL_1                  "Your life cycle is now concluded!"
-#define SOUND_KILL_1                11145
-#define SAY_KILL_2                  "You will feed the worms."
-#define SOUND_KILL_2                11146
-
-#define SAY_TREE_1                  "Endorel aluminor!"
-#define SOUND_TREE_1                11147
-#define SAY_TREE_2                  "Nature bends to my will!"
-#define SOUND_TREE_2                11148
-
-#define SAY_DEATH                   "The specimens...must be preserved."
-#define SOUND_DEATH                 11149
+#define SAY_AGGRO                   -1553000
+#define SAY_KILL_1                  -1553001
+#define SAY_KILL_2                  -1553002
+#define SAY_TREE_1                  -1553003
+#define SAY_TREE_2                  -1553004
+#define SAY_DEATH                   -1553005
 
 #define SPELL_TRANQUILITY           34550
 #define SPELL_TREE_FORM             34551
@@ -75,8 +66,7 @@ struct TRINITY_DLL_DECL boss_high_botanist_freywinnAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature,SOUND_AGGRO);
+		DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void JustSummoned(Creature *summoned)
@@ -100,16 +90,15 @@ struct TRINITY_DLL_DECL boss_high_botanist_freywinnAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_KILL_1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_KILL_1);
-                break;
-            case 1:
-                DoYell(SAY_KILL_2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_KILL_2);
-                break;
+		case 0: DoScriptText(SAY_KILL_1, m_creature); break;
+		case 1: DoScriptText(SAY_KILL_2, m_creature); break;
         }
     }
+
+	void JustDied(Unit* Killer)
+	{
+		DoScriptText(SAY_DEATH, m_creature);
+	}
 
     void UpdateAI(const uint32 diff)
     {
@@ -120,14 +109,8 @@ struct TRINITY_DLL_DECL boss_high_botanist_freywinnAI : public ScriptedAI
         {
             switch(rand()%2)
             {
-                case 0:
-                    DoYell(SAY_TREE_1, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_TREE_1);
-                    break;
-                case 1:
-                    DoYell(SAY_TREE_2, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_TREE_2);
-                    break;
+			case 0: DoScriptText(SAY_TREE_1, m_creature); break;
+			case 1: DoScriptText(SAY_TREE_2, m_creature); break;
             }
 
             if( m_creature->IsNonMeleeSpellCasted(false) )

@@ -13,7 +13,8 @@ enum EncounterState
     NOT_STARTED   = 0,
     IN_PROGRESS   = 1,
     FAIL          = 2,
-    DONE          = 3
+    DONE          = 3,
+	SPECIAL		  = 4
 };
 
 #define OUT_SAVE_INST_DATA             debug_log("SD2: Saving Instance Data for Instance %s (Map %d, Instance Id %d)", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
@@ -30,8 +31,8 @@ class TRINITY_DLL_DECL ScriptedInstance : public InstanceData
         ~ScriptedInstance() {}
 
         //All-purpose data storage 64 bit
-        virtual uint64 GetData64(uint32) {return 0; }
-        virtual void SetData64(uint32, uint64) { }
+        virtual uint64 GetData64(uint32 Data) { return 0; }
+        virtual void SetData64(uint32 Data, uint64 Value) { }
 
         // Called every instance update
         virtual void Update(uint32) {}

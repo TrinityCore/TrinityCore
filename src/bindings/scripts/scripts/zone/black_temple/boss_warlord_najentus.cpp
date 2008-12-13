@@ -24,38 +24,16 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_black_temple.h"
 
-//Aggro
-#define SAY_AGGRO       "You will die, in the name of Lady Vashj!"
-#define SOUND_AGGRO     11450
-
-//Needle (Random)
-#define SAY_NEEDLE1     "Stick around!"
-#define SOUND_NEEDLE1   11451
-
-#define SAY_NEEDLE2     "I'll deal with you later!"
-#define SOUND_NEEDLE2   11452
-
-//Slay
-#define SAY_SLAY1       "Your success was short lived!"
-#define SOUND_SLAY1     11455
-
-#define SAY_SLAY2       "Time for you to go!"
-#define SOUND_SLAY2     11456
-
-//Special
-#define SAY_SPECIAL1    "Bel'anen dal'lorei!"
-#define SOUND_SPECIAL1  11453
-
-#define SAY_SPECIAL2    "Blood will flow!"
-#define SOUND_SPECIAL2  11454
-
-//Enrage
-#define SAY_ENRAGE      "My patience has ran out! Die, DIE!"
-#define SOUND_ENRAGE    11458
-
-//Death
-#define SAY_DEATH       "Lord Illidan will... crush you."
-#define SOUND_DEATH     11459
+#define SAY_AGGRO                       -1564000
+#define SAY_NEEDLE1                     -1564001
+#define SAY_NEEDLE2                     -1564002
+#define SAY_SLAY1                       -1564003
+#define SAY_SLAY2                       -1564004
+#define SAY_SPECIAL1                    -1564005
+#define SAY_SPECIAL2                    -1564006
+#define SAY_ENRAGE1                     -1564007            //is this text actually in use?
+#define SAY_ENRAGE2                     -1564008
+#define SAY_DEATH                       -1564009
 
 //Spells
 #define SPELL_NEEDLE_SPINE             39992
@@ -103,14 +81,8 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-        case 0:
-            DoYell(SAY_SLAY1,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature, SOUND_SLAY1);
-            break;
-        case 1:
-            DoYell(SAY_SLAY2,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature, SOUND_SLAY2);
-            break;
+		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
         }
     }
 
@@ -119,8 +91,7 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
         if(pInstance)
             pInstance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, DONE);
 
-        DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature,SOUND_DEATH);
+		DoScriptText(SAY_DEATH, m_creature);
     }
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
@@ -138,8 +109,7 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
         if(pInstance)
             pInstance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, IN_PROGRESS);
 
-        DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_AGGRO);
+        DoScriptText(SAY_AGGRO, m_creature);
         DoZoneInCombat();
     }
 
@@ -173,8 +143,7 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 
         if(EnrageTimer < diff)
         {
-            DoYell(SAY_ENRAGE, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_ENRAGE);
+			DoScriptText(SAY_ENRAGE2, m_creature);
             m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
             EnrageTimer = 600000;
         }else EnrageTimer -= diff;
@@ -193,13 +162,8 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
         {
             switch(rand()%2)
             {
-            case 0:
-                DoPlaySoundToSet(m_creature, SOUND_SPECIAL1);
-                break;
-            case 1:
-                DoYell(SAY_SPECIAL2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SPECIAL2);
-                break;
+			case 0: DoScriptText(SAY_SPECIAL1, m_creature); break;
+			case 1: DoScriptText(SAY_SPECIAL2, m_creature); break;
             }
             SpecialYellTimer = 25000 + (rand()%76)*1000;
         }else SpecialYellTimer -= diff;
@@ -217,14 +181,8 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 
                 switch(rand()%2)
                 {
-                case 0:
-                    DoYell(SAY_NEEDLE1, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature, SOUND_NEEDLE1);
-                    break;
-                case 1:
-                    DoYell(SAY_NEEDLE2, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature, SOUND_NEEDLE2);
-                    break;
+				case 0: DoScriptText(SAY_NEEDLE1, m_creature); break;
+				case 1: DoScriptText(SAY_NEEDLE2, m_creature); break;
                 }
                 ImpalingSpineTimer = 21000;
             }

@@ -15,19 +15,24 @@
 */
 
 /* ScriptData
-SDName: Boss Nethermancer Sepethrea
-SD%Complete: 100
-SDComment: 
+SDName: Boss_Nethermancer_Sepethrea
+SD%Complete: 90
+SDComment: Need adjustments to initial summons
 SDCategory: Tempest Keep, The Mechanar
 EndScriptData */
 
 #include "precompiled.h"
 #include "def_mechanar.h"
 
-// Spells to be casted
+#define SAY_AGGRO                       -1554013
+#define SAY_SUMMON                      -1554014
+#define SAY_DRAGONS_BREATH_1            -1554015
+#define SAY_DRAGONS_BREATH_2            -1554016
+#define SAY_SLAY1                       -1554017
+#define SAY_SLAY2                       -1554018
+#define SAY_DEATH                       -1554019
+
 #define SPELL_SUMMON_RAGIN_FLAMES       35275
-#define SPELL_INFERNO                   35268
-#define SPELL_FIRE_TAIL                 35278
 
 #define SPELL_FROST_ATTACK              35263
 #define SPELL_ARCANE_BLAST              35314
@@ -35,25 +40,18 @@ EndScriptData */
 #define SPELL_KNOCKBACK                 37317
 #define SPELL_SOLARBURN                 35267
 
-#define SAY_SPELL_DRAGONS_BREATH_1      "Think you can take the heat?"
-#define SOUND_SPELL_DRAGONS_BREATH_1    11189
-#define SAY_SPELL_DRAGONS_BREATH_2      "Anar'endal dracon!"
-#define SOUND_SPELL_DRAGONS_BREATH_2    11190
-// On Aggro
-#define SAY_AGGRO                       "Don't value your life very much, do you?"
-#define SOUND_SAY_AGGRO                 11186
-
-//On Kill Unit
-#define SAY_SLAY                        "And don't come back!"
-#define SOUND_SLAY                      11187
-
-// On Death
-#define SAY_DEATH                       "Anu... bala belore...alon."
-#define SOUND_DEATH                     11192
-
 struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
 {
-    boss_nethermancer_sepethreaAI(Creature *c) : ScriptedAI(c) {Reset();}
+boss_nethermancer_sepethreaAI(Creature *c) : ScriptedAI(c)
+{
+	pInstance = ((ScriptedInstance*)c->GetInstanceData());
+	HeroicMode = m_creature->GetMap()->IsHeroic();
+	Reset();
+}
+
+	ScriptedInstance *pInstance;
+
+	bool HeroicMode;
 
     uint32 frost_attack_Timer;
     uint32 arcane_blast_Timer;
@@ -72,25 +70,29 @@ struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
 
     void Aggro(Unit *who)    
     {   
-        for(int i = 0; i < 1;i++)  //Summon two Guards
-	{
-            DoCast(m_creature->getVictim(),SPELL_SUMMON_RAGIN_FLAMES);  
-        }   
+		DoScriptText(SAY_AGGRO, m_creature);
+	 	 
+		//Summon two guards, three in heroic
+		uint8 am = (HeroicMode ? 1 : 2);
+		for(int i = 0; i < am; i++)	
+		{
+			DoCast(who,SPELL_SUMMON_RAGIN_FLAMES);	
+		}   
+		DoScriptText(SAY_SUMMON, m_creature);
     }     
 
-    // On Killed Unit    
     void KilledUnit(Unit* victim)    
     {
-        DoYell(SAY_SLAY, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature,SOUND_SLAY);
-    }
+		switch(rand()%2)
+		{
+		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+		}    
+	}
 
-    // On Death    
     void JustDied(Unit* Killer)    
     {        
-        DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);  
-        ScriptedInstance *pInstance = ((ScriptedInstance*)m_creature->GetInstanceData());
+        DoScriptText(SAY_DEATH, m_creature);
         if(pInstance)
             pInstance->SetData(DATA_SEPETHREA_DEATH, 0);
     }
@@ -102,78 +104,49 @@ struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )            
             return;  
 
-        //Check for Frost Attack        
+        //Frost Attack        
         if(frost_attack_Timer < diff)        
-        {            
-            //time to cast            
+        {                      
             DoCast(m_creature->getVictim(),SPELL_FROST_ATTACK);
-
-            //Cast again on time            
             frost_attack_Timer = 7000 + rand()%30000;               
         }else frost_attack_Timer -= diff;
 
-        //Check for Arcane Blast        
+        //Arcane Blast        
         if(arcane_blast_Timer < diff)        
         {            
-            //time to cast            
-            DoCast(m_creature->getVictim(),SPELL_ARCANE_BLAST);
-
-            //Cast again on time            
+            DoCast(m_creature->getVictim(), SPELL_ARCANE_BLAST);
             arcane_blast_Timer = 15000;                
         }else arcane_blast_Timer -= diff;
 
-        //Check for Dragons Breath        
+        //Dragons Breath        
         if(dragons_breath_Timer < diff)        
         {            
-            //time to cast            
             DoCast(m_creature->getVictim(),SPELL_DRAGONS_BREATH);
-
             {
-
                 if (rand()%2)
                     return;
 
                 switch(rand()%2)
                 {
-                case 0:
-                    DoYell(SAY_SPELL_DRAGONS_BREATH_1, LANG_UNIVERSAL, NULL);                    
-                    DoPlaySoundToSet(m_creature,SOUND_SPELL_DRAGONS_BREATH_1);
-                    break;
-
-                case 1:
-                    DoYell(SAY_SPELL_DRAGONS_BREATH_2, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_SPELL_DRAGONS_BREATH_2);
-                    break;
+				case 0: DoScriptText(SAY_DRAGONS_BREATH_1, m_creature); break;
+				case 1: DoScriptText(SAY_DRAGONS_BREATH_2, m_creature); break;
                 }
             }
-            //Cast again on time            
             dragons_breath_Timer = 12000 + rand()%10000;                
-
         }else dragons_breath_Timer -= diff;          
 
-        //Check for Knockback        
+        //Knockback        
         if(knockback_Timer < diff)        
         {            
-
-            //time to cast            
             DoCast(m_creature->getVictim(),SPELL_KNOCKBACK);             
-
-            //Cast again on time            
             knockback_Timer = 15000 + rand()%10000;                
-
         }else knockback_Timer -= diff;
 
-        //Check for Solarburn        
+        //Solarburn        
         if(solarburn_Timer < diff)        
-
         {            
-
-            //time to cast            
             DoCast(m_creature->getVictim(),SPELL_SOLARBURN);             
-
-            //Cast again on time            
             solarburn_Timer = 30000;                
-
         }else solarburn_Timer -= diff;
 
         DoMeleeAttackIfReady();
@@ -185,15 +158,23 @@ CreatureAI* GetAI_boss_nethermancer_sepethrea(Creature *_Creature)
 {    
     return new boss_nethermancer_sepethreaAI (_Creature);
 }
+
+#define SPELL_INFERNO                   35268
+#define H_SPELL_INFERNO                 39346
+#define SPELL_FIRE_TAIL                 35278
+
 struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
 {
     mob_ragin_flamesAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Reset();
+		HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 
     ScriptedInstance *pInstance;
+
+	bool HeroicMode;
 
     uint32 inferno_Timer;
     uint32 flame_timer;
@@ -217,26 +198,20 @@ struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        Unit* target = NULL;
-
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
         if (!onlyonce)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-
-            m_creature->GetMotionMaster()->MoveChase(target);
+			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+				m_creature->GetMotionMaster()->MoveChase(target);
             onlyonce = true;
         }
 
         if(inferno_Timer < diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_INFERNO); 
-
+            DoCast(m_creature->getVictim(),HeroicMode ? H_SPELL_INFERNO : SPELL_INFERNO);
             m_creature->TauntApply(m_creature->getVictim());
-
             inferno_Timer = 10000;
         }else inferno_Timer -= diff;
 
@@ -244,7 +219,6 @@ struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
         {
             DoCast(m_creature,SPELL_FIRE_TAIL);
             flame_timer = 500;
-
         }else flame_timer -=diff;
 
         //Check_Timer

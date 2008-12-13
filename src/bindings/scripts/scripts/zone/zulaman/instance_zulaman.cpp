@@ -1,4 +1,4 @@
-/* Copyright (C) 2006,2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ /* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation; either version 2 of the License, or
@@ -51,7 +51,7 @@ static SHostageInfo HostageInfo[] =
 
 struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
 {
-    instance_zulaman(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_zulaman(Map *map) : ScriptedInstance(map) {Initialize();};
 
 	uint64 HarkorsSatchelGUID;
     uint64 TanzarsTrunkGUID;

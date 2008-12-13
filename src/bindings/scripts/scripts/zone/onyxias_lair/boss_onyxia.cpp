@@ -23,6 +23,12 @@ EndScriptData */
 
 #include "precompiled.h"
 
+#define SAY_AGGRO                   -1249000
+#define SAY_KILL                    -1249001
+#define SAY_PHASE_2_TRANS           -1249002	 	 
+#define SAY_PHASE_3_TRANS           -1249003
+#define EMOTE_BREATH                -1249004
+
 #define SPELL_WINGBUFFET            18500
 #define SPELL_FLAMEBREATH           18435
 #define SPELL_CLEAVE                19983
@@ -37,12 +43,6 @@ EndScriptData */
 #define SPELL_HEATED_GROUND         22191
 
 #define SPELL_SUMMONWHELP           17646
-
-#define SAY_AGGRO           "How fortuitous. Usually, I must leave my lair to feed."
-#define SAY_KILL            "Learn your place mortal!"
-#define SAY_PHASE_2_TRANS   "This meaningless exertion bores me. I'll incinerate you from above!"
-#define SAY_PHASE_3_TRANS   "It seems you'll need another lesson!"
-#define EMOTE_BREATH        "takes a deep breath..."
 
 static float MovementLocations[7][3]=
 {
@@ -99,13 +99,13 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
 
     void Aggro(Unit* who)
     {
-        DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
+        DoScriptText(SAY_AGGRO, m_creature);
         DoZoneInCombat();
     }
 
     void KilledUnit(Unit *victim)
     {
-        DoYell(SAY_KILL, LANG_UNIVERSAL, NULL);
+        DoScriptText(SAY_KILL, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -120,7 +120,7 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
             m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
             m_creature->GetMotionMaster()->Clear(false);
             m_creature->GetMotionMaster()->MoveIdle();
-            DoYell(SAY_PHASE_2_TRANS, LANG_UNIVERSAL, NULL);
+            DoScriptText(SAY_PHASE_2_TRANS, m_creature);
         }
 
         if(((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 40) && (Phase == 2))
@@ -128,7 +128,7 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
             Phase = 3;
             m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
             m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
-            DoYell(SAY_PHASE_3_TRANS, LANG_UNIVERSAL, NULL);
+            DoScriptText(SAY_PHASE_3_TRANS, m_creature);
         }
 
         if(Phase == 1 || Phase == 3)
@@ -181,7 +181,7 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
                     m_creature->GetMotionMaster()->MovePoint(0, MovementLocations[random][0], MovementLocations[random][1], MovementLocations[random][2]);
                 else
                 {
-                    DoTextEmote(EMOTE_BREATH, NULL);
+					DoScriptText(EMOTE_BREATH, m_creature);
                     DoCast(m_creature->getVictim(), SPELL_DEEPBREATH);
                 }
                 MovementTimer = 25000;

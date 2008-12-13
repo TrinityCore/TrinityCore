@@ -24,6 +24,56 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_black_temple.h"
 
+//Speech'n'Sounds
+#define SAY_GATH_SLAY           -1564085
+#define SAY_GATH_SLAY_COMNT     -1564089
+#define SAY_GATH_DEATH          -1564093
+#define SAY_GATH_SPECIAL1       -1564077
+#define SAY_GATH_SPECIAL2       -1564081
+	 	 
+#define SAY_VERA_SLAY           -1564086
+#define SAY_VERA_COMNT          -1564089
+#define SAY_VERA_DEATH          -1564094
+#define SAY_VERA_SPECIAL1       -1564078
+#define SAY_VERA_SPECIAL2       -1564082
+	 	 
+#define SAY_MALA_SLAY           -1564087
+#define SAY_MALA_COMNT          -1564090
+#define SAY_MALA_DEATH          -1564095
+#define SAY_MALA_SPECIAL1       -1564079
+#define SAY_MALA_SPECIAL2       -1564083
+	 	 
+#define SAY_ZERE_SLAY           -1564088
+#define SAY_ZERE_COMNT          -1564091
+#define SAY_ZERE_DEATH          -1564096
+#define SAY_ZERE_SPECIAL1       -1564080
+#define SAY_ZERE_SPECIAL2       -1564084
+	 	 
+#define ERROR_INST_DATA           "SD2 ERROR: Instance Data for Black Temple not set properly; Illidari Council event will not function properly."
+	 	 
+struct CouncilYells
+{
+	int32 entry;
+	uint32 timer;
+};
+	 	 
+static CouncilYells CouncilAggro[]=
+{
+	{-1564069, 5000},                                       // Gathios
+	{-1564070, 5500},                                       // Veras
+	{-1564071, 5000},                                       // Malande
+	{-1564072, 0},                                          // Zerevor
+};
+	 	 
+// Need to get proper timers for this later
+static CouncilYells CouncilEnrage[]=
+{
+	{-1564073, 2000},                                       // Gathios
+	{-1564074, 6000},                                       // Veras
+	{-1564075, 5000},                                       // Malande
+	{-1564076, 0},                                          // Zerevor
+};
+
 // High Nethermancer Zerevor's spells
 #define SPELL_FLAMESTRIKE          41481
 #define SPELL_BLIZZARD             41482
@@ -54,84 +104,6 @@ EndScriptData */
 #define SPELL_VANISH               41479
 
 #define SPELL_BERSERK              45078
-
-//Speech'n'Sounds
-#define SAY_GATH_AGGRO            "I have better things to do!"
-#define SOUND_GATH_AGGRO          11422
-#define SAY_GATH_SLAY             "Selama am'oronor!"
-#define SOUND_GATH_SLAY           11423
-#define SAY_GATH_COMNT            "Well done!"
-#define SOUND_GATH_COMNT          11424
-#define SAY_GATH_DEATH            "Lord Illidan... I..."
-#define SOUND_GATH_DEATH          11425
-#define SAY_GATH_SPECIAL1         "Enjoy your final moments!"
-#define SOUND_GATH_SPECIAL1       11426
-#define SAY_GATH_SPECIAL2         "You are mine!"
-#define SOUND_GATH_SPECIAL2       11427
-
-#define SAY_MALA_AGGRO            "Flee, or die!"
-#define SOUND_MALA_AGGRO          11482
-#define SAY_MALA_SLAY             "My work is done."
-#define SOUND_MALA_SLAY           11483
-#define SAY_MALA_COMNT            "As it should be!"
-#define SOUND_MALA_COMNT          11484
-#define SAY_MALA_DEATH            "Destiny... awaits."
-#define SOUND_MALA_DEATH          11485
-#define SAY_MALA_SPECIAL1         "No second chances!"
-#define SOUND_MALA_SPECIAL1       11486
-#define SAY_MALA_SPECIAL2         "I'm full of surprises!"
-#define SOUND_MALA_SPECIAL2       11487
-
-#define SAY_ZERE_AGGRO            "Common... such a crude language. Bandal!"
-#define SOUND_ZERE_AGGRO          11440
-#define SAY_ZERE_SLAY             "Shorel'aran."
-#define SOUND_ZERE_SLAY           11441
-#define SAY_ZERE_COMNT            "Belesa menoor!"
-#define SOUND_ZERE_COMNT          11442
-#define SAY_ZERE_DEATH            "Diel ma'ahn... oreindel'o"
-#define SOUND_ZERE_DEATH          11443
-#define SAY_ZERE_SPECIAL1         "Diel fin'al"
-#define SOUND_ZERE_SPECIAL1       11444
-#define SAY_ZERE_SPECIAL2         "Sha'amoor ara mashal?"
-#define SOUND_ZERE_SPECIAL2       11445
-
-#define SAY_VERA_AGGRO            "You wish to test me?"
-#define SOUND_VERA_AGGRO          11524
-#define SAY_VERA_SLAY             "Valiant effort!"
-#define SOUND_VERA_SLAY           11525
-#define SAY_VERA_COMNT            "A glorious kill!"
-#define SOUND_VERA_COMNT          11526
-#define SAY_VERA_DEATH            "You got lucky!"
-#define SOUND_VERA_DEATH          11527
-#define SAY_VERA_SPECIAL1         "You're not caught up for this!"
-#define SOUND_VERA_SPECIAL1       11528
-#define SAY_VERA_SPECIAL2         "Anar'alah belore!"
-#define SOUND_VERA_SPECIAL2       11529
-
-#define ERROR_INST_DATA           "SD2 ERROR: Instance Data for Black Temple not set properly; Illidari Council event will not function properly."
-
-struct CouncilYells
-{
-    char* text;
-    uint32 soundId, timer;
-};
-
-static CouncilYells CouncilAggro[]=
-{
-    {"I have better things to do!", 11422, 5000},           // Gathios
-    {"You wish to test me?", 11524, 5500},                  // Veras
-    {"Flee, or die!", 11482, 5000},                         // Malande
-    {"Common... such a crude language. Bandal!", 11440, 0}, // Zerevor
-};
-
-// Need to get proper timers for this later
-static CouncilYells CouncilEnrage[]=
-{
-    {"Enough games!", 11428, 2000},                         // Gathios
-    {"You wish to kill me? Hahaha, you first!", 11530, 6000},//Veras
-    {"For Quel'Thalas! For the Sunwell!", 11488, 5000},     // Malande
-    {"Sha'amoor sine menoor!", 11446, 0},                   // Zerevor
-};
 
 struct TRINITY_DLL_DECL mob_blood_elf_council_voice_triggerAI : public ScriptedAI
 {
@@ -170,8 +142,7 @@ struct TRINITY_DLL_DECL mob_blood_elf_council_voice_triggerAI : public ScriptedA
             Council[1] = pInstance->GetData64(DATA_VERASDARKSHADOW);
             Council[2] = pInstance->GetData64(DATA_LADYMALANDE);
             Council[3] = pInstance->GetData64(DATA_HIGHNETHERMANCERZEREVOR);
-        }
-        else error_log(ERROR_INST_DATA);
+        }else error_log(ERROR_INST_DATA);
     }
 
     void Aggro(Unit* who) {}
@@ -188,31 +159,33 @@ struct TRINITY_DLL_DECL mob_blood_elf_council_voice_triggerAI : public ScriptedA
             return;
 
         if(AggroYellTimer)
+		{
             if(AggroYellTimer <= diff)
         {
             if(Unit* pMember = Unit::GetUnit(*m_creature, Council[YellCounter]))
             {
-                pMember->MonsterYell(CouncilAggro[YellCounter].text, LANG_UNIVERSAL, 0);
-                DoPlaySoundToSet(pMember, CouncilAggro[YellCounter].soundId);
+				DoScriptText(CouncilAggro[YellCounter].entry, pMember);
                 AggroYellTimer = CouncilAggro[YellCounter].timer;
             }
             ++YellCounter;
             if(YellCounter > 3)
                 YellCounter = 0;                            // Reuse for Enrage Yells
         }else AggroYellTimer -= diff;
+		}
 
         if(EnrageTimer)
+		{
             if(EnrageTimer <= diff)
         {
             if(Unit* pMember = Unit::GetUnit(*m_creature, Council[YellCounter]))
             {
                 pMember->CastSpell(pMember, SPELL_BERSERK, true);
-                pMember->MonsterYell(CouncilEnrage[YellCounter].text, LANG_UNIVERSAL, 0);
-                DoPlaySoundToSet(pMember, CouncilEnrage[YellCounter].soundId);
+				DoScriptText(CouncilEnrage[YellCounter].entry, pMember);
                 EnrageTimer = CouncilEnrage[YellCounter].timer;
             }
             ++YellCounter;
         }else EnrageTimer -= diff;
+		}
     }
 };
 
@@ -302,7 +275,7 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
                 {
                     Member = Unit::GetUnit((*m_creature), Council[i]);
                     if(Member && Member->isAlive())
-                        Member->AddThreat(target, 1.0f);
+                        ((Creature*)Member)->AI()->AttackStart(target);
                 }
             }
 
@@ -317,6 +290,7 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
         if(!EventBegun) return;
 
         if(EndEventTimer)
+		{
             if(EndEventTimer <= diff)
         {
             if(DeathCount > 3)
@@ -337,8 +311,10 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
             ++DeathCount;
             EndEventTimer = 1500;
         }else EndEventTimer -= diff;
+		}
 
         if(CheckTimer)
+		{
             if(CheckTimer <= diff)
         {
             uint8 EvadeCheck = 0;
@@ -366,6 +342,7 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
 
             CheckTimer = 2000;
         }else CheckTimer -= diff;
+		}
 
     }
 };
@@ -460,14 +437,12 @@ struct TRINITY_DLL_DECL boss_gathios_the_shattererAI : public boss_illidari_coun
 
     void KilledUnit(Unit *victim)
     {
-        DoYell(SAY_GATH_SLAY,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature, SOUND_GATH_SLAY);
+		DoScriptText(SAY_GATH_SLAY, m_creature);
     }
 
     void JustDied(Unit *victim)
     {
-        DoYell(SAY_GATH_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature,SOUND_GATH_DEATH);
+		DoScriptText(SAY_GATH_DEATH, m_creature);       
     }
 
     Unit* SelectCouncilMember()
@@ -579,14 +554,12 @@ struct TRINITY_DLL_DECL boss_high_nethermancer_zerevorAI : public boss_illidari_
 
     void KilledUnit(Unit *victim)
     {
-        DoYell(SAY_ZERE_SLAY,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature, SOUND_ZERE_SLAY);
+		DoScriptText(SAY_ZERE_SLAY, m_creature);      
     }
 
     void JustDied(Unit *victim)
     {
-        DoYell(SAY_ZERE_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature,SOUND_ZERE_DEATH);
+		DoScriptText(SAY_ZERE_DEATH, m_creature);        
     }
 
     void UpdateAI(const uint32 diff)
@@ -669,14 +642,12 @@ struct TRINITY_DLL_DECL boss_lady_malandeAI : public boss_illidari_councilAI
 
     void KilledUnit(Unit *victim)
     {
-        DoYell(SAY_MALA_SLAY,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature, SOUND_MALA_SLAY);
+		DoScriptText(SAY_MALA_SLAY, m_creature);        
     }
 
     void JustDied(Unit *victim)
     {
-        DoYell(SAY_MALA_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature,SOUND_MALA_DEATH);
+		DoScriptText(SAY_MALA_DEATH, m_creature);       
     }
 
     void UpdateAI(const uint32 diff)
@@ -745,14 +716,12 @@ struct TRINITY_DLL_DECL boss_veras_darkshadowAI : public boss_illidari_councilAI
 
     void KilledUnit(Unit *victim)
     {
-        DoYell(SAY_VERA_SLAY,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature, SOUND_VERA_SLAY);
+		DoScriptText(SAY_VERA_SLAY, m_creature);        
     }
 
     void JustDied(Unit *victim)
     {
-        DoYell(SAY_VERA_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature,SOUND_VERA_DEATH);
+		DoScriptText(SAY_VERA_DEATH, m_creature);
     }
 
     void UpdateAI(const uint32 diff)

@@ -24,18 +24,14 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_temple_of_ahnqiraj.h"
 
+//Text emote
+#define EMOTE_WEAKENED              -1531011
+
 #define PI                          3.14
 
 //****** Out of Combat ******
 //Random Wispers - No txt only sound
-#define RND_WISPER_1                8580                    //Death is close
-#define RND_WISPER_2                8581                    //You are already dead
-#define RND_WISPER_3                8582                    //Your courage will fail
-#define RND_WISPER_4                8583                    //Your friends will abandon you
-#define RND_WISPER_5                8584                    //You will betray your friends
-#define RND_WISPER_6                8585                    //You will die
-#define RND_WISPER_7                8586                    //You are weak
-#define RND_WISPER_8                8587                    //Your heart will explode
+#define RANDOM_SOUND_WHISPER        8663
 
 //***** Phase 1 ********
 
@@ -87,9 +83,6 @@ EndScriptData */
 #define MOB_GIANT_EYE_TENTACLE              15334
 #define MOB_FLESH_TENTACLE                  15802
 #define MOB_GIANT_PORTAL                    15910
-
-//Text emote
-#define EMOTE_WEAKENED                      "is weakened!"
 
 //Stomach Teleport positions
 #define STOMACH_X                           -8562.0f
@@ -582,18 +575,8 @@ struct TRINITY_DLL_DECL cthunAI : public Scripted_NoMovementAI
                 {
                     if (Player* i_pl = i->getSource())
                     {
-                        //Play random sound to the zone
-                        switch (rand()%8)
-                        {
-                            case 0: i_pl->SendPlaySound(RND_WISPER_1, true); break;
-                            case 1: i_pl->SendPlaySound(RND_WISPER_2, true); break;
-                            case 2: i_pl->SendPlaySound(RND_WISPER_3, true); break;
-                            case 3: i_pl->SendPlaySound(RND_WISPER_4, true); break;
-                            case 4: i_pl->SendPlaySound(RND_WISPER_5, true); break;
-                            case 5: i_pl->SendPlaySound(RND_WISPER_6, true); break;
-                            case 6: i_pl->SendPlaySound(RND_WISPER_7, true); break;
-                            case 7: i_pl->SendPlaySound(RND_WISPER_8, true); break;
-                        }
+                        //Play random sound to the zone                        
+						i_pl->SendPlaySound(RANDOM_SOUND_WHISPER, true);
                     }
                 }
 
@@ -679,7 +662,7 @@ struct TRINITY_DLL_DECL cthunAI : public Scripted_NoMovementAI
                 {
                     pInst->SetData(DATA_CTHUN_PHASE, 4);
 
-                    DoTextEmote(EMOTE_WEAKENED, NULL);
+                    DoScriptText(EMOTE_WEAKENED, m_creature);
                     PhaseTimer = 45000;
 
                     DoCast(m_creature, SPELL_RED_COLORATION, true);

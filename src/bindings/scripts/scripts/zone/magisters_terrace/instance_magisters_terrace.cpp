@@ -35,10 +35,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_magisters_terrace : public ScriptedInstance
 {
-    instance_magisters_terrace(Map* map) : ScriptedInstance(map)
-    {
-        Initialize();
-    }
+    instance_magisters_terrace(Map* map) : ScriptedInstance(map) {Initialize();}
 
 	uint32 DoorState[3];//0seline, 1vexallus, 2derlissa
     uint32 Encounters[NUMBER_OF_ENCOUNTERS];
