@@ -4522,6 +4522,25 @@ void Unit::RemoveAurasDueToSpell(uint32 spellId, Aura* except)
         RemoveAura(spellId,i,except);
 }
 
+void Unit::RemoveAurasDueToCasterSpell(uint64 guid, uint32 spellId)
+{
+    for (int k=0; k < 3; ++k)
+    {
+        spellEffectPair spair = spellEffectPair(spellId, k);
+        for (AuraMap::iterator iter = m_Auras.lower_bound(spair); iter != m_Auras.upper_bound(spair);)
+        {
+            if (iter->second->GetCasterGUID() == guid)
+            {
+                RemoveAura(iter);
+                break;
+                //iter = m_Auras.upper_bound(spair);          // overwrite by more appropriate
+            }
+            else
+                ++iter;
+        }
+    }
+}
+
 void Unit::RemoveAurasDueToItemSpell(Item* castItem,uint32 spellId)
 {
     for (int k=0; k < 3; ++k)
@@ -12841,11 +12860,9 @@ void Unit::SetConfused(bool apply)
     else
     {
         RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
-        GetMotionMaster()->MovementExpired(false);
-        if( GetTypeId() != TYPEID_PLAYER && isAlive() )
+        if(isAlive())
         {
-            // restore appropriate movement generator
-            if(getVictim())
+            if( GetTypeId() != TYPEID_PLAYER && getVictim())
                 GetMotionMaster()->MoveChase(getVictim());
             else
                 GetMotionMaster()->Initialize();
