@@ -4522,7 +4522,7 @@ void Unit::RemoveAurasDueToSpell(uint32 spellId, Aura* except)
         RemoveAura(spellId,i,except);
 }
 
-void Unit::RemoveAurasDueToCasterSpell(uint64 guid, uint32 spellId)
+void Unit::RemoveAurasDueToCasterSpell(uint32 spellId, uint64 guid)
 {
     for (int k=0; k < 3; ++k)
     {
