@@ -15,7 +15,7 @@
  */
 
 /* ScriptData
-SDName: Boss_MajorDomo_Executus
+SDName: Boss_Majordomo_Executus
 SD%Complete: 30
 SDComment: Correct spawning and Event NYI
 SDCategory: Molten Core
@@ -23,35 +23,43 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SPELL_MAGICREFLECTION       20619
-#define SPELL_DAMAGEREFLECTION      21075
+#define SAY_AGGRO           -1409003
+#define SAY_SPAWN           -1409004
+#define SAY_SLAY            -1409005
+#define SAY_SPECIAL         -1409006
+#define SAY_DEFEAT          -1409007
+	 	 
+#define SAY_SUMMON_MAJ      -1409008
+#define SAY_ARRIVAL1_RAG    -1409009
+#define SAY_ARRIVAL2_MAJ    -1409010
+#define SAY_ARRIVAL3_RAG    -1409011
+#define SAY_ARRIVAL5_RAG    -1409012
+	 	 
+#define SPAWN_RAG_X         838.51
+#define SPAWN_RAG_Y         -829.84
+#define SPAWN_RAG_Z         -232.00
+#define SPAWN_RAG_O         1.70
+	 	 
+#define SPELL_MAGIC_REFLECTION      20619
+#define SPELL_DAMAGE_REFLECTION     21075
+
 #define SPELL_BLASTWAVE             20229
 #define SPELL_AEGIS                 20620                   //This is self casted whenever we are below 50%
+#define SPELL_TELEPORT              20618
+#define SPELL_SUMMON_RAGNAROS       19774
 
-#define SAY_AGGRO       "Reckless mortals, none may challenge the sons of the living flame!"
-#define SOUND_AGGRO     8035
-
-#define SAY_SPAWN       "The runes of warding have been destroyed! Hunt down the infedels my bretheren."
-#define SOUND_SPAWN     8039
-
-#define SAY_DEFEAT      "Impossible! Stay your attack mortals! I submitt! I submitt! Brashly you have come to rest the secrets of the living flame. You will soon regret the recklessness of your quest. I go now to summon the lord whos house this is. Should you seek an audiance with him your paltry lives will surly be forfit. Nevertheless seek out his lair if you dare!"
-#define SOUND_DEFEAT    8038
-
-#define SAY_KILL        "Ashes to Ashes!"
-#define SOUND_KILL      8037
-
-#define SAY_SPECIAL     "Burn mortals! Burn for this transgression!"
-#define SOUND_SPECIAL   8036
-
-#define SAY_SUMMON      "Behold Ragnaros, the Firelord! He who was ancient when this world was young! Bow before him, mortals! Bow before your ending!"
-#define SOUND_SUMMON    8040
-
-#define SAY_ARRIVAL1    "These mortal infidels, my lord! They have invaded your sanctum, and seek to steal your secrets!"
-#define SOUND_ARRIVAL1  8041
+#define ENTRY_FLAMEWALKER_HEALER    11663
+#define ENTRY_FLAMEWALKER_ELITE     11664
 
 struct TRINITY_DLL_DECL boss_majordomoAI : public ScriptedAI
 {
-    boss_majordomoAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_majordomoAI(Creature *c) : ScriptedAI(c)
+	{
+		pInstance = ((ScriptedInstance*)c->GetInstanceData());
+		Reset();
+	}
+
+	ScriptedInstance* pInstance;
 
     uint32 MagicReflection_Timer;
     uint32 DamageReflection_Timer;
@@ -69,14 +77,12 @@ struct TRINITY_DLL_DECL boss_majordomoAI : public ScriptedAI
         if (rand()%5)
             return;
 
-        DoYell(SAY_KILL,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_KILL);
+		DoScriptText(SAY_SLAY, m_creature);
     }
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_AGGRO,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_AGGRO);
+		DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void UpdateAI(const uint32 diff)

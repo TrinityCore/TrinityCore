@@ -110,6 +110,8 @@ extern void AddSC_alterac_mountains();
 
 //Arathi Highlands
 //Ashenvale Forest
+extern void AddSC_ashenvale();
+
 //Aunchindoun
 //--Auchenai Crypts
 extern void AddSC_boss_exarch_maladaar();
@@ -414,12 +416,11 @@ extern void AddSC_boss_bloodmage_thalnos();
 extern void AddSC_boss_headless_horseman();
 extern void AddSC_boss_herod();
 extern void AddSC_boss_high_inquisitor_fairbanks();
-extern void AddSC_boss_high_inquisitor_whitemane();
 extern void AddSC_boss_houndmaster_loksey();
 extern void AddSC_boss_interrogator_vishas();
-extern void AddSC_boss_scarlet_commander_mograine();
 extern void AddSC_boss_scorn();
 extern void AddSC_instance_scarlet_monastery();
+extern void AddSC_boss_mograine_and_whitemane();
 
 //Scholomance
 extern void AddSC_boss_darkmaster_gandling();
@@ -1139,8 +1140,8 @@ void LoadDatabase()
                         break;
 
                     case ACTION_T_SET_INST_DATA:
-                        if (temp.action[j].param2 > 3)
-                            error_db_log("TSCR: Event %u Action %u attempts to set instance data above encounter state 3. Custom case?", i, j+1);
+                        if (temp.action[j].param2 > SPECIAL)
+                             error_db_log("TSCR2: Event %u Action %u attempts to set instance data above encounter state 4. Custom case?", i, j+1);
                         break;
 
                     case ACTION_T_YELL:
@@ -1304,6 +1305,8 @@ void ScriptsInit()
 
     //Arathi Highlands
     //Ashenvale Forest
+	AddSC_ashenvale();
+
     //Aunchindoun
     //--Auchenai Crypts
     AddSC_boss_exarch_maladaar();
@@ -1608,12 +1611,11 @@ void ScriptsInit()
 	AddSC_boss_headless_horseman();
     AddSC_boss_herod();
     AddSC_boss_high_inquisitor_fairbanks();
-    AddSC_boss_high_inquisitor_whitemane();
     AddSC_boss_houndmaster_loksey();
     AddSC_boss_interrogator_vishas();
-    AddSC_boss_scarlet_commander_mograine();
     AddSC_boss_scorn();
 	AddSC_instance_scarlet_monastery();
+	AddSC_boss_mograine_and_whitemane();
 
     //Scholomance
     AddSC_boss_darkmaster_gandling();

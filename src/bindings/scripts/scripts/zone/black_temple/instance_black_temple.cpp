@@ -40,7 +40,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
 {
-    instance_black_temple(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_black_temple(Map *map) : ScriptedInstance(map) {Initialize();};
 
     uint64 Najentus;
     uint64 Akama;                                           // This is the Akama that starts the Illidan encounter.

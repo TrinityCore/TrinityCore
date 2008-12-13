@@ -24,6 +24,15 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_karazhan.h"
 
+#define SAY_SLAY1                   -1532065
+#define SAY_SLAY2                   -1532066
+#define SAY_DEATH                   -1532067
+#define SAY_AGGRO                   -1532068
+#define SAY_SACRIFICE1              -1532069
+#define SAY_SACRIFICE2              -1532070
+#define SAY_SUMMON1                 -1532071
+#define SAY_SUMMON2                 -1532072
+
 #define SPELL_SUMMON_DEMONCHAINS    30120                   // Summons demonic chains that maintain the ritual of sacrifice.
 #define SPELL_DEMON_CHAINS          30206                   // Instant - Visual Effect
 #define SPELL_ENRAGE                23537                   // Increases the caster's attack speed by 50% and the Physical damage it deals by 219 to 281 for 10 min.
@@ -41,27 +50,6 @@ EndScriptData */
 #define SPELL_BROKEN_PACT           30065                   // All damage taken increased by 25%.
 #define SPELL_AMPLIFY_FLAMES        30053                   // Increases the Fire damage taken by an enemy by 500 for 25 sec.
 #define SPELL_FIREBOLT              18086                   // Blasts a target for 150 Fire damage.
-
-#define SAY_SLAY1           "Your blood will anoint my circle."
-#define SOUND_SLAY1         9264
-#define SAY_SLAY2           "The great one will be pleased."
-#define SOUND_SLAY2         9329
-
-#define SAY_DEATH           "My life, is yours. Oh great one."
-#define SOUND_DEATH         9262
-
-#define SAY_AGGRO           "Ah, you're just in time. The rituals are about to begin."
-#define SOUND_AGGRO         9260
-
-#define SAY_SACRIFICE1      "Please, accept this humble offering, oh great one."
-#define SOUND_SACRIFICE1    9263
-#define SAY_SACRIFICE2      "Let the sacrifice serve his testament to my fealty."
-#define SOUND_SACRIFICE2    9330
-
-#define SAY_SUMMON1         "Come, you dwellers in the dark. Rally to my call!"
-#define SOUND_SUMMON1       9265
-#define SAY_SUMMON2         "Gather, my pets. There is plenty for all."
-#define SOUND_SUMMON2       9331
 
 #define CREATURE_DEMONCHAINS    17248
 #define CREATURE_FIENDISHIMP    17267
@@ -225,8 +213,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
 
     void Aggro(Unit* who)
     {
-        DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_AGGRO);
+        DoScriptText(SAY_AGGRO, m_creature);
 
         if(pInstance)
         {
@@ -243,14 +230,8 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_SLAY1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY1);
-                break;
-            case 1:
-                DoYell(SAY_SLAY2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY2);
-                break;
+		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
         }
     }
 
@@ -268,8 +249,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
             }
         }
 
-        DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
 
         if(pInstance)
             pInstance->SetData(DATA_TERESTIAN_EVENT, DONE);
@@ -317,14 +297,8 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
                     Chains->CastSpell(Chains, SPELL_DEMON_CHAINS, true);
                     switch(rand()%2)
                     {
-                        case 0:
-                            DoYell(SAY_SACRIFICE1, LANG_UNIVERSAL, NULL);
-                            DoPlaySoundToSet(m_creature, SOUND_SACRIFICE1);
-                            break;
-                        case 1:
-                            DoYell(SAY_SACRIFICE2, LANG_UNIVERSAL, NULL);
-                            DoPlaySoundToSet(m_creature, SOUND_SACRIFICE2);
-                            break;
+					case 0: DoScriptText(SAY_SACRIFICE1, m_creature); break;
+					case 1: DoScriptText(SAY_SACRIFICE2, m_creature); break;
                     }
                     SacrificeTimer = 30000;
                 }
@@ -350,14 +324,8 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
                 SummonedPortals = true;
                 switch(rand()%2)
                 {
-                    case 0:
-                        DoYell(SAY_SUMMON1, LANG_UNIVERSAL, NULL);
-                        DoPlaySoundToSet(m_creature, SOUND_SUMMON1);
-                        break;
-                    case 1:
-                        DoYell(SAY_SUMMON2, LANG_UNIVERSAL, NULL);
-                        DoPlaySoundToSet(m_creature, SOUND_SUMMON2);
-                        break;
+				case 0: DoScriptText(SAY_SUMMON1, m_creature); break;
+				case 1: DoScriptText(SAY_SUMMON2, m_creature); break;
                 }
             }
             uint32 random = rand()%2;
@@ -371,11 +339,13 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
         }else SummonTimer -= diff;
 
         if(!Berserk)
-            if(BerserkTimer < diff)
-        {
-            DoCast(m_creature, SPELL_BERSERK);
-            Berserk = true;
-        }else BerserkTimer -= diff;
+		{
+			if(BerserkTimer < diff)
+			{
+				DoCast(m_creature, SPELL_BERSERK);
+				Berserk = true;
+			}else BerserkTimer -= diff;
+		}
 
         DoMeleeAttackIfReady();
     }

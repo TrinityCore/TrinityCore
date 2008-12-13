@@ -24,6 +24,12 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_zulgurub.h"
 
+#define SAY_AGGRO               -1309015
+#define SAY_DING_KILL           -1309016
+#define SAY_GRATS_JINDO         -1309017
+#define SAY_WATCH               -1309018
+#define SAY_WATCH_WHISPER       -1309019                    //is this text for real? easter egg?
+
 #define SPELL_CHARGE            24315
 #define SPELL_CLEAVE            20691
 #define SPELL_FEAR              29321
@@ -36,12 +42,6 @@ EndScriptData */
 //Ohgans Spells
 #define SPELL_SUNDERARMOR       24317
 
-#define SAY_AGGRO               "I'll feed your souls to Hakkar himself!"
-#define SOUND_AGGRO             8413
-
-#define SAY_WATCH               "I'm keeping my eye on you, $N!"
-#define SAY_KILL                "DING!"
-
 struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
 {
     boss_mandokirAI(Creature *c) : ScriptedAI(c)
@@ -50,6 +50,7 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
         Reset();
     }
 
+	uint32 KillCount;
     uint32 Watch_Timer;
     uint32 TargetInRange;
     uint32 Cleave_Timer;
@@ -72,6 +73,7 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
 
     void Reset()
     {
+		KillCount = 0;
         Watch_Timer = 33000;
         Cleave_Timer = 7000;
         Whirlwind_Timer = 20000;
@@ -98,16 +100,38 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
     {
         if(victim->GetTypeId() == TYPEID_PLAYER)
         {
-            DoYell(SAY_KILL, LANG_UNIVERSAL, NULL);
-            DoCast(m_creature, SPELL_LEVEL_UP, true);
-        }
-    }
+			++KillCount;
 
-    void Aggro(Unit *who) {}
+			if (KillCount == 3)
+			{
+				DoScriptText(SAY_DING_KILL, m_creature);
+
+				if (pInstance)
+				{
+					uint64 JindoGUID = pInstance->GetData64(DATA_JINDO);
+					if (JindoGUID)
+					{
+						if (Unit* jTemp = Unit::GetUnit(*m_creature,JindoGUID))
+						{
+							if (jTemp->isAlive())
+								DoScriptText(SAY_GRATS_JINDO, jTemp);
+						}
+					}
+				}
+            DoCast(m_creature, SPELL_LEVEL_UP, true);
+			 KillCount = 0;
+			}
+		}
+	}
+
+    void Aggro(Unit *who) 
+	{
+	 DoScriptText(SAY_AGGRO, m_creature);
+	}
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget())
+        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
         if( m_creature->getVictim() && m_creature->isAlive())
@@ -152,10 +176,9 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
 
             if ((Watch_Timer < 8000) && !someWatched)       //8 sec(cast time + expire time) before the check for the watch effect mandokir will cast watch debuff on a random target
             {
-                Unit* p = SelectUnit(SELECT_TARGET_RANDOM,0);
-                if(p)
+                if (Unit* p = SelectUnit(SELECT_TARGET_RANDOM,0))
                 {
-                    DoYell(SAY_WATCH, LANG_UNIVERSAL, p);
+                    DoScriptText(SAY_WATCH, m_creature, p);
                     DoCast(p, SPELL_WATCH);
                     WatchTarget = p->GetGUID();
                     someWatched = true;

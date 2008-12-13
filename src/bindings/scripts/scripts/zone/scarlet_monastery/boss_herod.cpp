@@ -16,167 +16,90 @@
 
 /* ScriptData
 SDName: Boss_Herod
-SD%Complete: 90
-SDComment: Missing adds spawn at death
+SD%Complete: 95
+SDComment: Should in addition spawn Myrmidons in the hallway outside
 SDCategory: Scarlet Monastery
 EndScriptData */
 
 #include "precompiled.h"
+#include "../../npc/npc_escortAI.h"
 
-#define SPELL_RUSHINGCHARGE         32021
-#define SPELL_RUSHINGCHARGE1        6268
+#define SAY_AGGRO                   -1189000
+#define SAY_WHIRLWIND               -1189001
+#define SAY_ENRAGE                  -1189002
+#define SAY_KILL                    -1189003
+#define EMOTE_ENRAGE                -1189004
 
-#define SPELL_CLEAVE                11608
+#define SPELL_RUSHINGCHARGE         8260
+#define SPELL_CLEAVE                15496
 #define SPELL_WHIRLWIND             8989
-#define SPELL_SUNDERARMOR           16145
-#define SPELL_REND                  21949
-#define SPELL_THUNDERCLAP           15588
-#define SPELL_SLAM                  11430
-#define SPELL_BERSERKERSTANCE       2458
-#define SPELL_ENRAGE                28747
-#define SPELL_FIREBALL11            10151
-#define SPELL_CONEOFCOLD5           10161
+#define SPELL_FRENZY                8269
 
-#define SAY_AGGRO                   "Ah, I have been waiting for a real challenge!"
-#define SAY_WHIRLWIND               "Blades of Light!"
-#define SAY_ENRAGE                  "Light, give me strength!"
-#define SAY_DEATH                   "Hah, is that all?"
-
-#define SOUND_AGGRO                 5830
-#define SOUND_WHIRLWIND             5832
-#define SOUND_ENRAGE                5833
-#define SOUND_DEATH                 5831
+#define ENTRY_SCARLET_TRAINEE       6575
+#define ENTRY_SCARLET_MYRMIDON      4295
 
 struct TRINITY_DLL_DECL boss_herodAI : public ScriptedAI
 {
     boss_herodAI(Creature *c) : ScriptedAI(c) {Reset();}
 
-    uint32 Yell_Timer;
-    uint32 Enrage_Timer;
+	bool Enrage;
+
     uint32 Cleave_Timer;
     uint32 Whirlwind_Timer;
-    uint32 SunderArmor_Timer;
-    uint32 Rend_Timer;
-    uint32 ThunderClap_Timer;
-    uint32 Slam_Timer;
-    uint32 Fireball11_Timer;
-    uint32 ConeOfCold5_Timer;
+
 
     void Reset()
     {
-        Yell_Timer = 58000;
+		Enrage = false;
+        Cleave_Timer = 12000;
         Whirlwind_Timer = 60000;
-        Enrage_Timer = 0;
-        Cleave_Timer = 15000;
-        SunderArmor_Timer = 40000;
-        Rend_Timer = 25000;
-        ThunderClap_Timer = 25000;
-        Slam_Timer = 20000;
-        Fireball11_Timer = 30000;
-        ConeOfCold5_Timer = 40000;
     }
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_AGGRO,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_AGGRO);
-
-        //Activate Berserker Stance
-        DoCast(m_creature,SPELL_BERSERKERSTANCE);
-
-        //Switch between 2 different charge methods
-        switch (rand()%2)
-        {
-            case 0:
-                DoCast(m_creature,SPELL_RUSHINGCHARGE);
-                break;
-            case 1:
-                DoCast(m_creature,SPELL_RUSHINGCHARGE1);
-                break;
-        }
+		DoScriptText(SAY_AGGRO, m_creature);
+		DoCast(m_creature,SPELL_RUSHINGCHARGE);      
     }
+
+	 void KilledUnit(Unit *victim)
+	 {
+		 DoScriptText(SAY_KILL, m_creature);
+	 }
+
+	 void JustDied(Unit* killer)
+	 {
+		 for(uint8 i = 0; i < 20; ++i)
+			 m_creature->SummonCreature(ENTRY_SCARLET_TRAINEE, 1939.18, -431.58, 17.09, 6.22, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+	 }
 
     void UpdateAI(const uint32 diff)
     {
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
-        //If we are <10% hp goes Enraged
-        if ( m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 10 && !m_creature->IsNonMeleeSpellCasted(false) && Enrage_Timer < diff)
-        {
-            DoYell(SAY_ENRAGE,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature,SOUND_ENRAGE);
-
-            DoCast(m_creature,SPELL_ENRAGE);
-
-            //Shouldn't cast this agian
-            Enrage_Timer = diff;
+		//If we are <30% hp goes Enraged
+		if (!Enrage && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 30 && !m_creature->IsNonMeleeSpellCasted(false))
+		{
+			DoScriptText(EMOTE_ENRAGE, m_creature);
+			DoScriptText(SAY_ENRAGE, m_creature);
+            DoCast(m_creature,SPELL_FRENZY);
+			Enrage = true;
         }
 
         //Cleave_Timer
         if (Cleave_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_CLEAVE);
-            Cleave_Timer = 15000;
+            Cleave_Timer = 12000;
         }else Cleave_Timer -= diff;
 
-        //Yelling and Whirlwind casting
-        if (Yell_Timer < diff)
-        {
-            //Say Whirlwind monologe
-            DoYell(SAY_WHIRLWIND,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature,SOUND_WHIRLWIND);
-
-            Yell_Timer = 30000;
-        }else Yell_Timer -= diff;
-
+		// Whirlwind_Timer
         if (Whirlwind_Timer < diff)
         {
+			DoScriptText(SAY_WHIRLWIND, m_creature);
             DoCast(m_creature->getVictim(),SPELL_WHIRLWIND);
             Whirlwind_Timer = 30000;
         }else Whirlwind_Timer -= diff;
-
-        //SunderArmor_Timer
-        if (SunderArmor_Timer < diff)
-        {
-            DoCast(m_creature->getVictim(),SPELL_SUNDERARMOR);
-            SunderArmor_Timer = 40000;
-        }else SunderArmor_Timer -= diff;
-
-        //Rend_Timer
-        if (Rend_Timer < diff)
-        {
-            DoCast(m_creature->getVictim(),SPELL_REND);
-            Rend_Timer = 25000;
-        }else Rend_Timer -= diff;
-
-        //ThunderClap_Timer
-        if (ThunderClap_Timer < diff)
-        {
-            DoCast(m_creature->getVictim(),SPELL_THUNDERCLAP);
-            ThunderClap_Timer = 20000;
-        }else ThunderClap_Timer -= diff;
-
-        //Slam_Timer
-        if (Slam_Timer < diff)
-        {
-            DoCast(m_creature->getVictim(),SPELL_SLAM);
-            Slam_Timer = 20000;
-        }else Slam_Timer -= diff;
-
-        //Fireball11_Timer
-        if (Fireball11_Timer < diff)
-        {
-            DoCast(m_creature->getVictim(),SPELL_FIREBALL11);
-            Fireball11_Timer = 30000;
-        }else Fireball11_Timer -= diff;
-
-        //ConeOfCold5_Timer
-        if (ConeOfCold5_Timer < diff)
-        {
-            DoCast(m_creature->getVictim(),SPELL_CONEOFCOLD5);
-            ConeOfCold5_Timer = 40000;
-        }else ConeOfCold5_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -187,11 +110,77 @@ CreatureAI* GetAI_boss_herod(Creature *_Creature)
     return new boss_herodAI (_Creature);
 }
 
+float Location[12][3]=
+{
+	{1945.81, -431.54, 16.36},
+	{1946.21, -436.41, 16.36},
+	{1950.01, -444.11, 14.63},
+	{1956.08, -449.34, 13.12},
+	{1966.59, -450.55, 11.27},
+	{1976.09, -447.51, 11.27},
+	{1983.42, -435.85, 11.27},
+	{1978.17, -428.81, 11.27},
+	{1973.97, -422.08, 9.04},
+	{1963.84, -418.90, 6.17},
+	{1961.22, -422.74, 6.17},
+	{1964.80, -431.26, 6.17}
+};
+
+uint32 Wait[12][1]=
+{
+	{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{600000}
+};
+
+struct TRINITY_DLL_DECL mob_scarlet_traineeAI : public npc_escortAI
+{
+	mob_scarlet_traineeAI(Creature *c) : npc_escortAI(c) {Reset();}
+
+	uint32 Start_Timer;
+
+	void WaypointReached(uint32 i) { }
+
+	void Reset()
+	{
+		Start_Timer = urand(1500,4500);
+	}
+
+	void Aggro(Unit* who) { }
+
+	void UpdateAI(const uint32 diff)
+	{
+		if (Start_Timer)
+		{
+			if (Start_Timer < diff)
+			{
+				Start(true,true,true);
+				Start_Timer = 0;
+			}else Start_Timer -= diff;
+		}
+
+		npc_escortAI::UpdateAI(diff);
+	}
+};
+
+CreatureAI* GetAI_mob_scarlet_trainee(Creature* _Creature)
+{
+	mob_scarlet_traineeAI* thisAI = new mob_scarlet_traineeAI(_Creature);
+
+	for(uint32 i = 0; i < 12; ++i)
+		thisAI->AddWaypoint(i, Location[i][0], Location[i][1], Location[i][2], Wait[i][0]);
+	 	 
+	return ((CreatureAI*)thisAI);
+}
+
 void AddSC_boss_herod()
 {
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_herod";
-    newscript->GetAI = GetAI_boss_herod;
+    newscript->GetAI = &GetAI_boss_herod;
     newscript->RegisterSelf();
+
+	newscript = new Script;
+	newscript->Name = "mob_scarlet_trainee";
+	newscript->GetAI = &GetAI_mob_scarlet_trainee;
+	newscript->RegisterSelf();
 }

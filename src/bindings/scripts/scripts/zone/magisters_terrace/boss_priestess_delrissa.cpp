@@ -24,34 +24,30 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_magisters_terrace.h"
 
-#define SAY_AGGRO               "Annihilate them!"
-#define SOUND_AGGRO             12395
-
 struct Speech
 {
-    const char* text;
-    uint32 sound;
+	int32 id;
 };
 
 static Speech LackeyDeath[]=
 {
-    {"Oh, the horror.", 12398},
-    {"Well, aren't you lucky?", 12400},
-    {"Now I'm getting annoyed.", 12401},
-    {"Lackies be damned! I'll finish you myself!", 12403},
+    {-1585013},
+    {-1585014},
+    {-1585015},
+    {-1585016},
 };
 
 static Speech PlayerDeath[]=
 {
-    {"I call that a good start.", 12405},
-    {"I could have sworn there were more of you.", 12407},
-    {"Not really much of a group, anymore, is it?", 12409},
-    {"One is such a lonely number", 12410},
-    {"It's been a kick, really", 12411},
+	{-1585017},
+	{-1585018},
+	{-1585019},
+	{-1585020},
+    {-1585021},
 };
 
-#define SAY_DEATH               "Not what I had... planned..."
-#define SOUND_DEATH             12397
+#define SAY_AGGRO               -1585012
+#define SAY_DEATH               -1585022
 
 #define SPELL_DISPEL_MAGIC      27609
 #define SPELL_FLASH_HEAL        17843
@@ -146,14 +142,12 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
 			if (m_creature->isDead())
 				pInstance->SetData(DATA_DELRISSA_EVENT, DONE);
 			else pInstance->SetData(DATA_DELRISSA_EVENT, NOT_STARTED);
-		}
-        else error_log(ERROR_INST_DATA);
+		}else error_log(ERROR_INST_DATA);
     }
 
     void Aggro(Unit* who)
     {
-        DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_AGGRO);
+		DoScriptText(SAY_AGGRO, m_creature);
 
         for(uint8 i = 0; i < Adds.size(); ++i)
             if(Unit* pAdd = Unit::GetUnit(*m_creature, Adds[i]->guid))
@@ -215,8 +209,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
 		if(victim->GetTypeId() != TYPEID_PLAYER || m_creature->isDead())
             return;
 
-        DoYell(PlayerDeath[PlayersKilled].text, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, PlayerDeath[PlayersKilled].sound);
+        DoScriptText(PlayerDeath[PlayersKilled].id, m_creature);
         if( PlayersKilled < 4 )
             ++PlayersKilled;
     }
@@ -225,8 +218,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
     {
 		if(m_creature->isDead())//no sense to talk if dead..
 			return;
-        DoYell(LackeyDeath[LackeysKilled].text, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, LackeyDeath[LackeysKilled].sound);
+        DoScriptText(LackeyDeath[LackeysKilled].id, m_creature);
         if( LackeysKilled < 3 )
             ++LackeysKilled;
 
@@ -235,8 +227,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+		DoScriptText(SAY_DEATH, m_creature);
 
         CheckLootable();
 
@@ -764,8 +755,7 @@ struct TRINITY_DLL_DECL boss_yazzaiAI : public boss_priestess_guestAI
 
         if(Polymorph_Timer < diff)
         {
-            Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if(target)
+			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
                 DoCast(target, SPELL_POLYMORPH);
                 m_creature->getThreatManager().modifyThreatPercent(target,-100);
@@ -1132,15 +1122,9 @@ struct TRINITY_DLL_DECL boss_apokoAI : public boss_priestess_guestAI
         {
             switch(rand()%3)
             {
-                case 0:
-                    DoCast(m_creature, SPELL_WINDFURY_TOTEM);
-                    break;
-                case 1:
-                    DoCast(m_creature, SPELL_FIRE_NOVA_TOTEM);
-                    break;
-                case 2:
-                    DoCast(m_creature, SPELL_EARTHBIND_TOTEM);
-                    break;
+                case 0: DoCast(m_creature, SPELL_WINDFURY_TOTEM); break;
+                case 1: DoCast(m_creature, SPELL_FIRE_NOVA_TOTEM); break;
+                case 2: DoCast(m_creature, SPELL_EARTHBIND_TOTEM); break;
             }
             ++Totem_Amount;
             Totem_Timer = Totem_Amount*2000;

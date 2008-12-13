@@ -15,26 +15,33 @@
 */
 
 /* ScriptData
-SDName: boss_nerubenkan
-SD%Complete: 100
+SDName: Boss_Nerubenkan
+SD%Complete: 70
 SDComment: 
 SDCategory: Stratholme
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_stratholme.h"
 
 #define SPELL_ENCASINGWEBS          4962
 #define SPELL_PIERCEARMOR           6016
-#define SPELL_VIRULENTPOISON        16427
-//#define SPELL_RAISEUNDEADSCARAB     17235
+#define SPELL_CRYPT_SCARABS         31602
+#define SPELL_RAISEUNDEADSCARAB     17235
 
 struct TRINITY_DLL_DECL boss_nerubenkanAI : public ScriptedAI
 {
-    boss_nerubenkanAI(Creature *c) : ScriptedAI(c) {Reset();}
+	boss_nerubenkanAI(Creature *c) : ScriptedAI(c)
+	{
+		pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
+		Reset();
+	}
+	 	 
+	ScriptedInstance* pInstance;
 
     uint32 EncasingWebs_Timer;
     uint32 PierceArmor_Timer;
-    uint32 VirulentPoison_Timer;
+   uint32 CryptScarabs_Timer;
     uint32 RaiseUndeadScarab_Timer;
     int Rand;
     int RandX;
@@ -43,15 +50,21 @@ struct TRINITY_DLL_DECL boss_nerubenkanAI : public ScriptedAI
 
     void Reset()
     {
-        VirulentPoison_Timer = 3000;
+       CryptScarabs_Timer = 3000;
         EncasingWebs_Timer = 7000;
         PierceArmor_Timer = 19000;
-        RaiseUndeadScarab_Timer = 11000;
+         RaiseUndeadScarab_Timer = 3000;
     }
 
     void Aggro(Unit *who)
     {
     }
+
+	void JustDied(Unit* Killer)
+	{
+		if (pInstance)
+			pInstance->SetData(TYPE_NERUB,IN_PROGRESS);
+	}
 
     void RaiseUndeadScarab(Unit* victim)
     {
@@ -76,46 +89,38 @@ struct TRINITY_DLL_DECL boss_nerubenkanAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        //Return since we have no target
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
         //EncasingWebs
         if (EncasingWebs_Timer < diff)
         {
-            //Cast
+            
             DoCast(m_creature->getVictim(),SPELL_ENCASINGWEBS);
-            //30 seconds until we should cast this again
+            
             EncasingWebs_Timer = 30000;
         }else EncasingWebs_Timer -= diff;
 
         //PierceArmor
         if (PierceArmor_Timer < diff)
         {
-            //Cast
-            if (rand()%100 < 75) //75% chance to cast
-            {
+            if (rand()%100 < 75)        
                 DoCast(m_creature->getVictim(),SPELL_PIERCEARMOR);
-            }
-            //35 seconds until we should cast this again
+
             PierceArmor_Timer = 35000;
         }else PierceArmor_Timer -= diff;
 
-        //VirulentPoison
-        if (VirulentPoison_Timer < diff)
-        {
-            //Cast
-            DoCast(m_creature->getVictim(),SPELL_VIRULENTPOISON);
-            //20 seconds until we should cast this again
-            VirulentPoison_Timer = 20000;
-        }else VirulentPoison_Timer -= diff;
+        //CryptScarabs_Timer
+        if (CryptScarabs_Timer < diff)
+        {            
+            DoCast(m_creature->getVictim(),SPELL_CRYPT_SCARABS);            
+            CryptScarabs_Timer = 20000;
+        }else CryptScarabs_Timer -= diff;
 
         //RaiseUndeadScarab
         if (RaiseUndeadScarab_Timer < diff)
-        {
-            //Cast
-            RaiseUndeadScarab(m_creature->getVictim());
-            //16 seconds until we should cast this again
+        {            
+            RaiseUndeadScarab(m_creature->getVictim());        
             RaiseUndeadScarab_Timer = 16000;
         }else RaiseUndeadScarab_Timer -= diff;
 

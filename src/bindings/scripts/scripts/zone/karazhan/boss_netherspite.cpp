@@ -23,6 +23,9 @@ EndScriptData */
 
 #include "precompiled.h"
 
+#define EMOTE_PHASE_PORTAL          -1532089
+#define EMOTE_PHASE_BANISH          -1532090
+
 #define SPELL_NETHERBURN_AURA       30522
 #define SPELL_VOIDZONE              37014                   //Probably won't work
 #define SPELL_BERSERK               26662

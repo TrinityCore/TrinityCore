@@ -24,6 +24,8 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_zulgurub.h"
 
+#define SAY_AGGRO                       -1309014
+
 #define SPELL_BRAINWASHTOTEM            24262
 #define SPELL_POWERFULLHEALINGWARD      24309               //We will not use this spell. We will summon a totem by script cause the spell totems will not cast.
 #define SPELL_HEX                       24053
@@ -37,10 +39,6 @@ EndScriptData */
 #define SPELL_SHADOWSHOCK               19460
 #define SPELL_INVISIBLE                 24699
 
-#define SAY_AGGRO         "Welcome to da great show friends! Step right up to die!"
-
-#define SOUND_AGGRO       8425
-
 struct TRINITY_DLL_DECL boss_jindoAI : public ScriptedAI
 {
     boss_jindoAI(Creature *c) : ScriptedAI(c)
@@ -48,6 +46,8 @@ struct TRINITY_DLL_DECL boss_jindoAI : public ScriptedAI
         pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
         Reset();
     }
+ 
+	ScriptedInstance *pInstance;
 
     uint32 BrainWashTotem_Timer;
     uint32 HealingWard_Timer;
@@ -58,8 +58,6 @@ struct TRINITY_DLL_DECL boss_jindoAI : public ScriptedAI
     Creature *Shade;
     Creature *Skeletons;
     Creature *HealingWard;
-
-    ScriptedInstance *pInstance;
 
     void Reset()
     {
@@ -72,8 +70,7 @@ struct TRINITY_DLL_DECL boss_jindoAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_AGGRO,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_AGGRO);
+		DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -110,13 +107,13 @@ struct TRINITY_DLL_DECL boss_jindoAI : public ScriptedAI
         //Casting the delusion curse with a shade. So shade will attack the same target with the curse.
         if (Delusions_Timer < diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-
+			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+			{
             DoCast(target, SPELL_DELUSIONSOFJINDO);
 
             Shade = m_creature->SummonCreature(14986, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
             Shade->AI()->AttackStart(target);
+			}
 
             Delusions_Timer = 4000 + rand()%8000;
         }else Delusions_Timer -= diff;
@@ -165,7 +162,7 @@ struct TRINITY_DLL_DECL mob_healing_wardAI : public ScriptedAI
 {
     mob_healing_wardAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
+         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Reset();
     }
 

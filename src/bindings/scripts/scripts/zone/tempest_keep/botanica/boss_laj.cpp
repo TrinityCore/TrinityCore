@@ -16,12 +16,14 @@
 
 /* ScriptData
 SDName: Boss_Laj
-SD%Complete: 95
-SDComment: Immunities _may_ be applied by spells, but this has _not_ been confirmed to be proper way. Most spells require database support.
+SD%Complete: 90
+SDComment: Immunities are wrong, must be adjusted to use resistance from creature_templates. Most spells require database support.
 SDCategory: Tempest Keep, The Botanica
 EndScriptData */
 
 #include "precompiled.h"
+
+#define EMOTE_SUMMON                -1553006
 
 #define SPELL_ALLERGIC_REACTION     34697
 #define SPELL_TELEPORT_SELF         34673
@@ -34,8 +36,6 @@ EndScriptData */
 #define SPELL_SUMMON_FLAYER_4       34687
 #define SPELL_SUMMON_LASHER_4       34688
 #define SPELL_SUMMON_FLAYER_3       34690
-
-#define EMOTE_SUMMON                "emits a strange noise."
 
 #define MODEL_DEFAULT               13109
 #define MODEL_ARCANE                14213
@@ -153,7 +153,7 @@ struct TRINITY_DLL_DECL boss_lajAI : public ScriptedAI
         {
             if( Summon_Timer < diff )
             {
-                DoTextEmote(EMOTE_SUMMON,NULL);
+				DoScriptText(EMOTE_SUMMON, m_creature);
                 DoSummons();
                 Summon_Timer = 2500;
             }else Summon_Timer -= diff;

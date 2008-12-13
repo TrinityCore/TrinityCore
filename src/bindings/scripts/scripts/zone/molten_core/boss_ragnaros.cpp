@@ -23,6 +23,13 @@ EndScriptData */
 
 #include "precompiled.h"
 
+#define SAY_REINFORCEMENTS1         -1409013
+#define SAY_REINFORCEMENTS2         -1409014
+#define SAY_HAND                    -1409015
+#define SAY_WRATH                   -1409016
+#define SAY_KILL                    -1409017
+#define SAY_MAGMABURST              -1409018
+
 #define SPELL_HANDOFRAGNAROS        19780
 #define SPELL_WRATHOFRAGNAROS       20566
 #define SPELL_LAVABURST             21158
@@ -35,26 +42,6 @@ EndScriptData */
 #define SPELL_MELTWEAPON            21388
 #define SPELL_ELEMENTALFIRE         20564
 #define SPELL_ERRUPTION             17731
-
-#define SAY_ARRIVAL_1       "TOO SOON! YOU HAVE AWAKENED ME TOO SOON, EXECUTUS! WHAT IS THE MEANING OF THIS INTRUSION?"
-#define SAY_ARRIVAL_3       "FOOL! YOU ALLOWED THESE INSECTS TO RUN RAMPANT THROUGH THE HALLOWED CORE, AND NOW YOU LEAD THEM TO MY VERY LAIR? YOU HAVE FAILED ME, EXECUTUS! JUSTICE SHALL BE MET, INDEED!"
-#define SAY_ARRIVAL_5       "NOW FOR YOU, INSECTS. BOLDLY YOU SAUGHT THE POWER OF RAGNAROS NOW YOU SHALL SEE IT FIRST HAND."
-#define SAY_REINFORCEMENTS1 "COME FORTH, MY SERVANTS! DEFEND YOUR MASTER!"
-#define SAY_REINFORCEMENTS2 "YOU CANNOT DEFEAT THE LIVING FLAME! COME YOU MINIONS OF FIRE! COME FORTH YOU CREATURES OF HATE! YOUR MASTER CALLS!"
-#define SAY_HAND            "BY FIRE BE PURGED!"
-#define SAY_WRATH           "TASTE THE FLAMES OF SULFURON!"
-#define SAY_KILL            "DIE INSECT!"
-#define SAY_MAGMABURST      "MY PATIENCE IS DWINDILING! COME NATS TO YOUR DEATH!"
-
-#define SOUND_ARRIVAL_1         8043
-#define SOUND_ARRIVAL_3         8044
-#define SOUND_ARRIVAL_5         8045
-#define SOUND_REINFORCEMENTS1   8049
-#define SOUND_REINFORCEMENTS2   8050
-#define SOUND_HAND              8046
-#define SOUND_WRATH             8047
-#define SOUND_KILL              8051
-#define SOUND_MAGMABURST        8048
 
 #define ADD_1X 848.740356
 #define ADD_1Y -816.103455
@@ -137,14 +124,11 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
         if (rand()%5)
             return;
 
-        DoYell(SAY_KILL, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_KILL);
+		DoScriptText(SAY_KILL, m_creature);
     }
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_ARRIVAL_5,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_ARRIVAL_5);
     }
 
     void UpdateAI(const uint32 diff)
@@ -174,8 +158,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
 
             if (rand()%2 == 0)
             {
-                DoYell(SAY_WRATH,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_WRATH);
+				DoScriptText(SAY_WRATH, m_creature);
             }
 
             WrathOfRagnaros_Timer = 30000;
@@ -188,8 +171,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
 
             if (rand()%2==0)
             {
-                DoYell(SAY_HAND,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_HAND);
+				DoScriptText(SAY_HAND, m_creature);
             }
 
             HandOfRagnaros_Timer = 25000;
@@ -235,8 +217,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
 
             if (!HasSubmergedOnce)
             {
-                DoYell(SAY_REINFORCEMENTS1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_REINFORCEMENTS1);
+				DoScriptText(SAY_REINFORCEMENTS1, m_creature);
 
                 // summon 10 elementals
                 Unit* target = NULL;
@@ -254,8 +235,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
 
             }else
             {
-                DoYell(SAY_REINFORCEMENTS2,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_REINFORCEMENTS2);
+				DoScriptText(SAY_REINFORCEMENTS2, m_creature);
 
                 Unit* target = NULL;
                 for(int i = 0; i < 9;i++)
@@ -292,8 +272,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
                 if (!HasYelledMagmaBurst)
                 {
                     //Say our dialog
-                    DoYell(SAY_MAGMABURST,LANG_UNIVERSAL,NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_MAGMABURST);
+					DoScriptText(SAY_MAGMABURST, m_creature);
                     HasYelledMagmaBurst = true;
                 }
 

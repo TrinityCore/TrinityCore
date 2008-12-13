@@ -23,11 +23,13 @@ EndScriptData */
 
 #include "precompiled.h"
 
+#define SAY_TELEPORT            -1000100
+
 #define SPELL_MARKOFFROST        23182
 #define SPELL_MANASTORM          21097
 #define SPELL_CHILL              21098
 #define SPELL_FROSTBREATH        21099
-#define SPELL_REFLECT            22067                      //Old one was 30969
+#define SPELL_REFLECT            22067                      
 #define SPELL_CLEAVE              8255                      //Perhaps not right ID
 #define SPELL_ENRAGE             23537
 
@@ -68,6 +70,7 @@ struct TRINITY_DLL_DECL boss_azuregosAI : public ScriptedAI
 
         if(Teleport_Timer < diff)
         {
+			DoScriptText(SAY_TELEPORT, m_creature);
             std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
             std::list<HostilReference*>::iterator i = m_threatlist.begin();
             for (i = m_threatlist.begin(); i!= m_threatlist.end();++i)
@@ -107,9 +110,7 @@ struct TRINITY_DLL_DECL boss_azuregosAI : public ScriptedAI
         //ManaStorm_Timer
         if (ManaStorm_Timer < diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (target)
+			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target,SPELL_MANASTORM);
             ManaStorm_Timer = 7500 + rand()%5000;
         }else ManaStorm_Timer -= diff;
