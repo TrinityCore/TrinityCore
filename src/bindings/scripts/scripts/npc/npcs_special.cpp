@@ -890,6 +890,42 @@ CreatureAI* GetAI_npc_tonk_mine(Creature *_Creature)
     return new npc_tonk_mineAI(_Creature);
 }
 
+/*####
+## npc_winter_reveler
+####*/
+
+bool ReceiveEmote_npc_winter_reveler( Player *player, Creature *_Creature, uint32 emote )
+{
+	//TODO: check auralist.
+	//if()
+	//	return false;
+
+	if( emote == TEXTEMOTE_KISS )
+	{
+		_Creature->CastSpell(_Creature, 26218, false);
+		player->CastSpell(player, 26218, false);
+		switch(rand()%3)
+		{
+		case 0: _Creature->CastSpell(player, 26207, false); break;
+		case 1: _Creature->CastSpell(player, 26206, false); break;
+		case 2: _Creature->CastSpell(player, 45036, false); break;
+		}
+	}
+	return true;
+}
+
+/*####
+## npc_brewfest_reveler
+####*/
+
+bool ReceiveEmote_npc_brewfest_reveler( Player *player, Creature *_Creature, uint32 emote )
+{
+	if( emote == TEXTEMOTE_DANCE )
+		_Creature->CastSpell(player, 41586, false);
+
+	return true;
+}
+
 void AddSC_npcs_special()
 {
     Script *newscript;
@@ -949,5 +985,15 @@ void AddSC_npcs_special()
     newscript = new Script;
     newscript->Name="npc_tonk_mine";
     newscript->GetAI = &GetAI_npc_tonk_mine;
+    newscript->RegisterSelf();
+
+	newscript = new Script;
+    newscript->Name="npc_winter_reveler";
+    newscript->pReceiveEmote =  &ReceiveEmote_npc_winter_reveler;
+    newscript->RegisterSelf();
+
+	newscript = new Script;
+    newscript->Name="npc_brewfest_reveler";
+    newscript->pReceiveEmote =  &ReceiveEmote_npc_brewfest_reveler;
     newscript->RegisterSelf();
 }
