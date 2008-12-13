@@ -1473,7 +1473,14 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, const u
         y = m_caster->GetPositionY();
     }
 
-    float x_off, y_off;
+    Trinity::SpellNotifierCreatureAndPlayer notifier(*this, TagUnitMap, radius, type, TargetType, entry);
+    if((m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_PLAYERS_ONLY) 
+        || TargetType == SPELL_TARGETS_ENTRY && !entry)
+        m_caster->GetMap()->VisitWorld(x, y, radius, notifier);
+    else
+        m_caster->GetMap()->VisitAll(x, y, radius, notifier);
+
+    /*float x_off, y_off;
     CellPair p(Trinity::ComputeCellPair(x, y, x_off, y_off));
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
@@ -1491,7 +1498,7 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, const u
     {
         TypeContainerVisitor<Trinity::SpellNotifierCreatureAndPlayer, GridTypeMapContainer >  grid_object_notifier(notifier);
         cell_lock->Visit(cell_lock, grid_object_notifier, *m_caster->GetMap(), radius, x_off, y_off);
-    }
+    }*/
 }
 
 Unit* Spell::SearchNearbyTarget(float radius, SpellTargets TargetType, uint32 entry)
