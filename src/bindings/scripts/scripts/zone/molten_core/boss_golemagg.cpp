@@ -24,6 +24,8 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_molten_core.h"
 
+#define EMOTE_AEGIS                     -1409002
+
 #define SPELL_MAGMASPLASH               13879
 #define SPELL_PYROBLAST                 20228
 #define SPELL_EARTHQUAKE                19798
@@ -34,21 +36,19 @@ EndScriptData */
 #define SPELL_MANGLE                    19820
 #define SPELL_AEGIS                     20620               //This is self casted whenever we are below 50%
 
-#define EMOTE_AEGIS                     "refuses to die while its master is in trouble"
-
 struct TRINITY_DLL_DECL boss_golemaggAI : public ScriptedAI
 {
     boss_golemaggAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Reset();
     }
+	ScriptedInstance *pInstance;
 
     uint32 Pyroblast_Timer;
     uint32 EarthQuake_Timer;
     uint32 Enrage_Timer;
     uint32 Buff_Timer;
-    ScriptedInstance *pInstance;
 
     void Reset()
     {
@@ -66,7 +66,7 @@ struct TRINITY_DLL_DECL boss_golemaggAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        ScriptedInstance *pInstance = (m_creature->GetInstanceData()) ? ((ScriptedInstance*)m_creature->GetInstanceData()) : NULL;
+        
         if(pInstance)
             pInstance->SetData(DATA_GOLEMAGG_DEATH, 0);
     }
@@ -78,9 +78,8 @@ struct TRINITY_DLL_DECL boss_golemaggAI : public ScriptedAI
         //Pyroblast_Timer
         if (Pyroblast_Timer < diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (target) DoCast(target,SPELL_PYROBLAST);
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+				DoCast(target,SPELL_PYROBLAST);
 
             Pyroblast_Timer = 7000;
         }else Pyroblast_Timer -= diff;
@@ -154,7 +153,7 @@ struct TRINITY_DLL_DECL mob_core_ragerAI : public ScriptedAI
         if ( m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 50 )
         {
             DoCast(m_creature,SPELL_AEGIS);
-            DoTextEmote(EMOTE_AEGIS, NULL);
+			DoScriptText(EMOTE_AEGIS, m_creature);
         }
 
         //Check_Timer

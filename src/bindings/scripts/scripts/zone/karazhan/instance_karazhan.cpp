@@ -38,18 +38,15 @@ EndScriptData */
 8  - Netherspite (optional)
 9  - Chess Event
 10 - Prince Malchezzar
-11 - Netherbane
+11 - Nightbane
 */
 struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
 {
-    instance_karazhan(Map* map) : ScriptedInstance(map)
-    {
-        Initialize();
-    }
+    instance_karazhan(Map* map) : ScriptedInstance(map) {Initialize();}
 
     uint32 Encounters[ENCOUNTERS];
 
-    uint32 OperaEvent;                                      // 0 - OZ, 1 - HOOD, 2 - RAJ
+    uint32 OperaEvent;                                      
     uint32 OzDeathCount;
 
     uint64 CurtainGUID;
@@ -69,7 +66,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
         for (uint8 i = 0; i < ENCOUNTERS; ++i)
             Encounters[i] = NOT_STARTED;
 
-        OperaEvent      = rand()%3;                         // This never gets altered.
+        OperaEvent          = urand(1,3);                   // 1 - OZ, 2 - HOOD, 3 - RAJ, this never gets altered.
         OzDeathCount    = 0;
 
         CurtainGUID         = 0;
@@ -90,7 +87,8 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
     bool IsEncounterInProgress() const
     {
         for (uint8 i = 0; i < ENCOUNTERS; ++i)
-            if (Encounters[i] == IN_PROGRESS) return true;
+            if (Encounters[i] == IN_PROGRESS) 
+				return true;
 
         return false;
     }
@@ -110,7 +108,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
             case DATA_NETHERSPITE_EVENT:      return Encounters[8];
             case DATA_CHESS_EVENT:            return Encounters[9];
             case DATA_MALCHEZZAR_EVENT:       return Encounters[10];
-            case DATA_NETHERBANE_EVENT:       return Encounters[11];
+            case DATA_NIGHTBANE_EVENT:       return Encounters[11];
             case DATA_OPERA_PERFORMANCE:      return OperaEvent;
             case DATA_OPERA_OZ_DEATHCOUNT:    return OzDeathCount;
         }
@@ -120,7 +118,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
 
     void OnCreatureCreate(Creature *creature, uint32 entry)
     {
-        switch (entry)
+        switch (creature->GetEntry())
         {
             case 17229:   KilrekGUID = creature->GetGUID();      break;
             case 15688:   TerestianGUID = creature->GetGUID();   break;
@@ -128,9 +126,9 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
         }
     }
 
-    uint64 GetData64(uint32 identifier)
+    uint64 GetData64(uint32 data)
     {
-        switch (identifier)
+        switch (data)
         {
             case DATA_KILREK:                      return KilrekGUID;
             case DATA_TERESTIAN:                   return TerestianGUID;
@@ -148,12 +146,16 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
         return 0;
     }
 
-    void SetData(uint32 identifier, uint32 data)
+     void SetData(uint32 type, uint32 data)
     {
-        switch (identifier)
+         switch (type)
         {
             case DATA_ATTUMEN_EVENT:           Encounters[0]  = data; break;
-            case DATA_MOROES_EVENT:            Encounters[1]  = data; break;
+			case DATA_MOROES_EVENT:
+				if (Encounters[1] == DONE)
+					break;
+				Encounters[1] = data;
+				break;
             case DATA_MAIDENOFVIRTUE_EVENT:    Encounters[2]  = data; break;
             case DATA_OPTIONAL_BOSS_EVENT:     Encounters[3]  = data; break;
             case DATA_OPERA_EVENT:             Encounters[4]  = data; break;
@@ -163,7 +165,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
             case DATA_NETHERSPITE_EVENT:       Encounters[8]  = data; break;
             case DATA_CHESS_EVENT:             Encounters[9]  = data; break;
             case DATA_MALCHEZZAR_EVENT:        Encounters[10] = data; break;
-            case DATA_NETHERBANE_EVENT:        Encounters[11] = data; break;
+            case DATA_NIGHTBANE_EVENT:        Encounters[11] = data; break;
 
             case DATA_OPERA_OZ_DEATHCOUNT:     ++OzDeathCount;        break;
         }

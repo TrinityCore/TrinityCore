@@ -63,7 +63,7 @@ struct TRINITY_DLL_DECL boss_thespiaAI : public ScriptedAI
         LungBurst_Timer = 7000;
         EnvelopingWinds_Timer = 9000;
 
-        if (pInstance)
+        if (pInstance && m_creature->isAlive())
             pInstance->SetData(TYPE_HYDROMANCER_THESPIA, NOT_STARTED);
     }
 

@@ -16,7 +16,7 @@
 
 /* ScriptData
 SDName: boss_the_lurker_below
-SD%Complete: 10
+SD%Complete: 80
 SDComment:
 SDCategory: The Lurker Below
 EndScriptData */
@@ -27,7 +27,8 @@ EndScriptData */
 #include "Spell.h"
 
 #define SPELL_SPOUT			37433
-#define SPELL_SPOUT_2		42835
+#define SPELL_SPOUT_ANIM	42835
+#define SPELL_SPOUT_BREATH	37431
 #define SPELL_KNOCKBACK		19813
 #define SPELL_GEYSER		37478
 #define SPELL_WHIRL			37660
@@ -36,6 +37,8 @@ EndScriptData */
 #define SPELL_EMERGE		20568
 
 #define EMOTE_SPOUT	"takes a deep breath."
+
+#define SPOUT_DIST	100
 
 #define MOB_COILFANG_GUARDIAN 21873
 #define MOB_COILFANG_AMBUSHER 21865
@@ -48,30 +51,297 @@ EndScriptData */
 #define SPELL_ARCINGSMASH	38761 // Wrong SpellId. Can't find the right one.
 #define SPELL_HAMSTRING		26211
 
-struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public ScriptedAI
+float AddPos[9][3] = 
 {
-    boss_the_lurker_belowAI(Creature *c) : ScriptedAI(c) {Reset();}
-
-    void Reset()
-    {
-		
-	}
-
-    void MoveInLineOfSight(Unit *who)
-    {
-
-    }
-
-	void Aggro(Unit *who)
-    {
-		
-    }
-
-	void UpdateAI(const uint32 diff)
-    {
-		
-	}
+	{2.8553810, -459.823914, -19.182686},	//MOVE_AMBUSHER_1 X, Y, Z
+	{12.400000, -466.042267, -19.182686},	//MOVE_AMBUSHER_2 X, Y, Z
+	{51.366653, -460.836060, -19.182686},	//MOVE_AMBUSHER_3 X, Y, Z
+    {62.597980, -457.433044, -19.182686},	//MOVE_AMBUSHER_4 X, Y, Z
+    {77.607452, -384.302765, -19.182686},	//MOVE_AMBUSHER_5 X, Y, Z
+    {63.897900, -378.984924, -19.182686},	//MOVE_AMBUSHER_6 X, Y, Z
+    {34.447250, -387.333618, -19.182686},	//MOVE_GUARDIAN_1 X, Y, Z
+    {14.388216, -423.468018, -19.625271},	//MOVE_GUARDIAN_2 X, Y, Z
+	{42.471519, -445.115295, -19.769423}	//MOVE_GUARDIAN_3 X, Y, Z
 };
+ 
+enum RotationType
+{
+	NOROTATE = 0,
+	CLOCKWISE = 1,
+	COUNTERCLOCKWISE = 2,
+};
+
+struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
+{
+    boss_the_lurker_belowAI(Creature *c) : Scripted_NoMovementAI(c) 
+	{
+		pInstance = ((ScriptedInstance*)c->GetInstanceData());
+		Reset();
+		SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_SPOUT_ANIM);
+        if(TempSpell)
+		{
+			TempSpell->Effect[0] = 0;//remove all spell effect, only anim is needed
+			TempSpell->Effect[1] = 0;
+			TempSpell->Effect[2] = 0;
+		}
+	}
+
+	ScriptedInstance* pInstance;
+
+	bool Spawned;
+	uint32 RotTimer;
+	uint8 RotType;
+	double SpoutAngle;
+	uint32 SpoutAnimTimer;
+	bool Submerged;
+
+	uint32 WaterboltTimer;
+	uint32 SpoutTimer;
+	uint32 WhirlTimer;//after avery spout
+	uint32 PhaseTimer;
+	uint32 GeyserTimer;
+
+	void Reset()
+	{
+		m_creature->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING + MOVEMENTFLAG_LEVITATING);
+		m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+		m_creature->SetCorpseDelay(1000*60*60);
+		SpoutAngle = 0;
+		RotType = NOROTATE;
+		SpoutAnimTimer = 1000;
+		RotTimer = 20000;
+		Submerged = false;
+		Spawned = false;
+
+		WaterboltTimer = 3000;
+		SpoutTimer = 15000;
+		WhirlTimer = 18000;//after avery spout
+		PhaseTimer = 120000;
+		GeyserTimer = rand()%5000 + 15000;
+
+		if(pInstance)
+			pInstance->SetData(DATA_THELURKERBELOWEVENT, NOT_STARTED);
+ 	}
+ 
+     void MoveInLineOfSight(Unit *who)
+     {
+		if (!who || m_creature->getVictim())
+            return;
+
+		if (who->isTargetableForAttack() && who->isInAccessiblePlaceFor(m_creature) && m_creature->IsHostileTo(who))
+        {
+            float attackRadius = m_creature->GetAttackDistance(who);
+            if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
+				AttackStart(who);           
+        }
+     }
+ 
+	 void Aggro(Unit *who)
+	 {
+		 if(pInstance)
+			pInstance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);
+		
+		 if (!who || m_creature->getVictim()) 
+			return;
+		
+		 if (who->isTargetableForAttack() && who->isInAccessiblePlaceFor(m_creature) && m_creature->IsHostileTo(who))
+		 {
+			 float attackRadius = m_creature->GetAttackDistance(who);
+			 if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
+				 AttackStart(who);
+		 }
+	 }
+
+	 void JustDied(Unit* Killer)
+	 {
+		 if(pInstance)
+			pInstance->SetData(DATA_THELURKERBELOWEVENT, DONE);
+	 }
+
+	 void Rotate(const uint32 diff)
+	 { 		
+		 bool Spout = false;
+		 switch (RotType)
+		 {
+		 case NOROTATE:
+			 return;
+		 case CLOCKWISE://20secs for 360turn
+			 //no target if rotating!
+			 m_creature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+			 SpoutAngle += (double)diff/20000*(double)M_PI*2;
+			 if (SpoutAngle >= M_PI*2)SpoutAngle = 0;
+			 m_creature->SetOrientation(SpoutAngle);
+			 m_creature->StopMoving();
+			 Spout = true;
+			 break;
+		 case COUNTERCLOCKWISE://20secs for 360turn
+			 //no target if rotating!
+			 m_creature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+			 SpoutAngle -= (double)diff/20000*(double)M_PI*2;
+			 if (SpoutAngle <= 0)SpoutAngle = M_PI*2;
+			 m_creature->SetOrientation(SpoutAngle);
+			 m_creature->StopMoving();
+			 Spout = true;
+			 break;
+		 }
+
+		 if(!Spout)
+			 return;
+
+		 if(RotTimer<diff)//end rotate
+		 {
+			 RotType = NOROTATE;//set norotate state
+			 RotTimer=20000;
+			 m_creature->InterruptNonMeleeSpells(false);
+			 WhirlTimer = 4000; //whirl directly after spout ends
+			 return;
+		 }else RotTimer-=diff;
+
+		 if(SpoutAnimTimer<diff)
+		 {
+			 DoCast(m_creature,SPELL_SPOUT_ANIM,true);
+			 SpoutAnimTimer = 1000;			
+		 }else SpoutAnimTimer-=diff;
+
+		 std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
+		 for(std::list<HostilReference*>::iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
+		 {
+			 Unit *target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+			 if(target && target->GetTypeId() == TYPEID_PLAYER && m_creature->HasInArc((double)diff/20000*(double)M_PI*2,target) && m_creature->GetDistance(target) <= SPOUT_DIST && !target->IsInWater())
+				 DoCast(target,SPELL_SPOUT,true);//only knock back palyers in arc, in 100yards, not in water
+		 }
+	 }
+
+	 void StartRotate(Unit* victim)
+	 {
+		 switch (rand()%2)
+		 {
+		 case 0:
+			 RotType = CLOCKWISE;
+			 break;
+		 case 1:
+			 RotType = COUNTERCLOCKWISE;
+			 break;
+		 }
+		 RotTimer=20000;
+
+		 if(victim)
+			 SpoutAngle = m_creature->GetAngle(victim);	
+		 m_creature->MonsterTextEmote(EMOTE_SPOUT,0,true);
+		 //DoCast(m_creature,SPELL_SPOUT_BREATH);//take breath anim
+	 }
+ 
+	 void UpdateAI(const uint32 diff)
+	 {
+		 //Return since we have no target
+		 if (!m_creature->SelectHostilTarget() /*|| !m_creature->getVictim()*/ )//rotate resets target
+			 return;
+
+		 Rotate(diff);//always check rotate things
+		 if(!Submerged)
+		 {
+			 if(PhaseTimer < diff)
+			 {
+				 m_creature->InterruptNonMeleeSpells(false);
+				 DoCast(m_creature,SPELL_SUBMERGE);
+				 PhaseTimer = 60000;//60secs submerged
+				 Submerged = true;
+			 }else PhaseTimer-=diff;
+		 }
+		 
+		 if(!Submerged && RotType == NOROTATE)//is not spouting and not submerged
+		 {
+			 if(SpoutTimer < diff)
+			 {
+				 if(m_creature->getVictim() && RotType == NOROTATE)
+					 StartRotate(m_creature->getVictim());//start spout and random rotate
+
+				 SpoutTimer= 35000;
+				 return;
+			 }else SpoutTimer -= diff;
+
+			 //Whirl directly after a Spout and at random times
+			 if(WhirlTimer < diff)
+			 {
+				 WhirlTimer = rand()%5000 + 15000;
+				 DoCast(m_creature,SPELL_WHIRL);
+				 WaterboltTimer += 5000;//add 5secs to waterbolt timer, to add some time to run back to boss
+			 }else WhirlTimer -= diff;
+
+			 if(GeyserTimer < diff)
+			 {
+				 Unit* target = NULL;
+				 target = SelectUnit(SELECT_TARGET_RANDOM,1);
+
+				 if(target)
+					DoCast(target,SPELL_GEYSER,true);
+				 else
+					 target = SelectUnit(SELECT_TARGET_RANDOM,0);
+				 if(target)
+					 DoCast(target,SPELL_GEYSER,true);
+
+				 GeyserTimer = rand()%5000 + 15000;
+			 }else GeyserTimer -= diff;
+
+			 if(WaterboltTimer < diff)
+			 {
+				 Unit* target = SelectUnit(SELECT_TARGET_NEAREST,0,14,true);				
+				 if(!target)
+				 {
+					 target = SelectUnit(SELECT_TARGET_RANDOM,0);
+					 if(target)
+						 DoCast(target,SPELL_WATERBOLT);					
+				 }		
+				 WaterboltTimer = 3000;
+			 }else WaterboltTimer -= diff;
+
+			 if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+				return;
+
+			 DoMeleeAttackIfReady();
+
+		 }else if(!Submerged)
+			 return;
+		 else if(Submerged)//phase 2, submerged
+		 {
+			 if(PhaseTimer < diff)
+			 {
+				 Submerged = false;
+				 m_creature->InterruptNonMeleeSpells(false);//shouldn't be any
+				 m_creature->RemoveAllAuras();
+				 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+				 m_creature->RemoveFlag(UNIT_NPC_EMOTESTATE,EMOTE_STATE_SUBMERGED);
+				 m_creature->RemoveFlag(UNIT_FIELD_BYTES_1,9);
+				 DoCast(m_creature,SPELL_EMERGE);
+				 Spawned = false;
+				 SpoutTimer = 4000;	// directly cast Spout after emerging!
+				 WhirlTimer = 26000;
+				 PhaseTimer = 120000;
+				 return;
+			 }else PhaseTimer-=diff;
+			 
+			 if(!m_creature->isInCombat())
+				 m_creature->SetInCombatState(false);
+			 
+			 if(!Spawned)
+			 {
+				 m_creature->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+				 //spawn adds
+				 m_creature->SummonCreature(MOB_COILFANG_AMBUSHER,AddPos[0][0],AddPos[0][1],AddPos[0][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+				 m_creature->SummonCreature(MOB_COILFANG_AMBUSHER,AddPos[1][0],AddPos[1][1],AddPos[1][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+				 m_creature->SummonCreature(MOB_COILFANG_AMBUSHER,AddPos[2][0],AddPos[2][1],AddPos[2][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+				 m_creature->SummonCreature(MOB_COILFANG_AMBUSHER,AddPos[3][0],AddPos[3][1],AddPos[3][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+				 m_creature->SummonCreature(MOB_COILFANG_AMBUSHER,AddPos[4][0],AddPos[4][1],AddPos[4][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+				 m_creature->SummonCreature(MOB_COILFANG_AMBUSHER,AddPos[5][0],AddPos[5][1],AddPos[5][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+				 m_creature->SummonCreature(MOB_COILFANG_GUARDIAN,AddPos[6][0],AddPos[6][1],AddPos[6][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+				 m_creature->SummonCreature(MOB_COILFANG_GUARDIAN,AddPos[7][0],AddPos[7][1],AddPos[7][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+				 m_creature->SummonCreature(MOB_COILFANG_GUARDIAN,AddPos[8][0],AddPos[8][1],AddPos[8][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+				 Spawned = true;
+			 }
+		 }
+
+	}
+ };
 
 CreatureAI* GetAI_mob_coilfang_guardian(Creature *_Creature)
 {

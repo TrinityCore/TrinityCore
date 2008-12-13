@@ -28,6 +28,29 @@ EndScriptData */
 /*** OPERA WIZARD OF OZ EVENT *****/
 /*********************************/
 
+#define SAY_DOROTHEE_DEATH          -1532025
+#define SAY_DOROTHEE_SUMMON         -1532026
+#define SAY_DOROTHEE_TITO_DEATH     -1532027
+#define SAY_DOROTHEE_AGGRO          -1532028
+	 	 
+#define SAY_ROAR_AGGRO              -1532029
+#define SAY_ROAR_DEATH              -1532030
+#define SAY_ROAR_SLAY               -1532031
+	 	 
+#define SAY_STRAWMAN_AGGRO          -1532032
+#define SAY_STRAWMAN_DEATH          -1532033
+#define SAY_STRAWMAN_SLAY           -1532034
+	 	 
+#define SAY_TINHEAD_AGGRO           -1532035
+#define SAY_TINHEAD_DEATH           -1532036
+#define SAY_TINHEAD_SLAY            -1532037
+#define EMOTE_RUST                  -1532038
+	 	 
+#define SAY_CRONE_AGGRO             -1532039
+#define SAY_CRONE_AGGRO2            -1532040
+#define SAY_CRONE_DEATH             -1532041
+#define SAY_CRONE_SLAY              -1532042
+
 /**** Spells ****/
 // Dorothee
 #define SPELL_WATERBOLT         31012
@@ -63,46 +86,6 @@ EndScriptData */
 #define CREATURE_CYCLONE        18412
 #define CREATURE_CRONE          18168
 
-/***** Speech and Sound *****/
-#define SAY_DOROTHEE_DEATH          "Oh at last, at last. I can go home."
-#define SOUND_DOROTHEE_DEATH        9190
-#define SAY_DOROTHEE_SUMMON         "Don't let them hurt us, Tito! Oh, you won't, will you?"
-#define SOUND_DOROTHEE_SUMMON       9191
-#define SAY_DOROTHEE_TITO_DEATH     "Tito, oh Tito, no!"
-#define SOUND_DOROTHEE_TITO_DEATH   9192
-#define SAY_DOROTHEE_AGGRO          "Oh dear, we simply must find a way home! The old wizard could be our only hope! Strawman, Roar, Tinhead, will you... wait! Oh golly, look! We have visitors!"
-#define SOUND_DOROTHEE_AGGRO        9195
-
-#define SAY_ROAR_AGGRO              "Wanna fight? Huh? Do ya? C'mon, I'll fight you with both claws behind my back!"
-#define SOUND_ROAR_AGGRO            9227
-#define SAY_ROAR_DEATH              "You didn't have to go and do that."
-#define SOUND_ROAR_DEATH            9229
-#define SAY_ROAR_SLAY               "I think I'm going to go take fourty winks"
-#define SOUND_ROAR_SLAY             9230
-
-#define SAY_STRAWMAN_AGGRO          "Now what should I do with you? I simply can't make up my mind."
-#define SOUND_STRAWMAN_AGGRO        9254
-#define SAY_STRAWMAN_DEATH          "Don't let them make a mattress... out of me."
-#define SOUND_STRAWMAN_DEATH        9256
-#define SAY_STRAWMAN_SLAY           "I guess I'm not a failure after all."
-#define SOUND_STRAWMAN_SLAY         9257
-
-#define SAY_TINHEAD_AGGRO           "I could really use a heart. Say, can I have yours?"
-#define SOUND_TINHEAD_AGGRO         9268
-#define SAY_TINHEAD_DEATH           "Back to being an old rustbucket."
-#define SOUND_TINHEAD_DEATH         9270
-#define SAY_TINHEAD_SLAY            "Guess I'm not so rusty, after all."
-#define SOUND_TINHEAD_SLAY          9271
-
-#define SAY_CRONE_AGGRO             "Woe to each and every one of you my pretties!"
-#define SOUND_CRONE_AGGRO           9179
-#define SAY_CRONE_AGGRO2            "It will all be over soon!"
-#define SOUND_CRONE_AGGRO2          9307
-#define SAY_CRONE_DEATH             "How could you? What a cruel, cruel world!"
-#define SOUND_CRONE_DEATH           9178
-#define SAY_CRONE_SLAY              "Fixed you, didn't I?"
-#define SOUND_CRONE_SLAY            9180
-
 void SummonCroneIfReady(ScriptedInstance* pInstance, Creature *_Creature)
 {
     pInstance->SetData(DATA_OPERA_OZ_DEATHCOUNT, 0);        // Increment DeathCount
@@ -113,8 +96,6 @@ void SummonCroneIfReady(ScriptedInstance* pInstance, Creature *_Creature)
         {
             if(_Creature->getVictim())
                 Crone->AI()->AttackStart(_Creature->getVictim());
-
-            Crone->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
     }
 };
@@ -154,16 +135,14 @@ struct TRINITY_DLL_DECL boss_dorotheeAI : public ScriptedAI
 
     void Aggro(Unit* who)
     {
-        DoYell(SAY_DOROTHEE_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DOROTHEE_AGGRO);
+		DoScriptText(SAY_DOROTHEE_AGGRO, m_creature);
     }
 
     void SummonTito();                                      // See below
 
     void JustDied(Unit* killer)
     {
-        DoYell(SAY_DOROTHEE_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DOROTHEE_DEATH);
+        DoScriptText(SAY_DOROTHEE_DEATH, m_creature);
 
         if(pInstance)
             SummonCroneIfReady(pInstance, m_creature);
@@ -188,11 +167,13 @@ struct TRINITY_DLL_DECL boss_dorotheeAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         if(AggroTimer)
-            if(AggroTimer <= diff)
-        {
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            AggroTimer = 0;
-        }else AggroTimer -= diff;
+		{
+			if(AggroTimer <= diff)
+			{
+				m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				AggroTimer = 0;
+			}else AggroTimer -= diff;
+		}
 
         if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
@@ -248,8 +229,7 @@ struct TRINITY_DLL_DECL mob_titoAI : public ScriptedAI
             if(Dorothee && Dorothee->isAlive())
             {
                 ((boss_dorotheeAI*)Dorothee->AI())->TitoDied = true;
-                Dorothee->MonsterYell(SAY_DOROTHEE_TITO_DEATH, LANG_UNIVERSAL, 0);
-                DoPlaySoundToSet(Dorothee, SOUND_DOROTHEE_TITO_DEATH);
+				DoScriptText(SAY_DOROTHEE_TITO_DEATH, Dorothee);
             }
         }
     }
@@ -274,8 +254,7 @@ void boss_dorotheeAI::SummonTito()
     Creature* Tito = DoSpawnCreature(CREATURE_TITO, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
     if(Tito)
     {
-        DoYell(SAY_DOROTHEE_SUMMON, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DOROTHEE_SUMMON);
+		DoScriptText(SAY_DOROTHEE_SUMMON, m_creature);
         ((mob_titoAI*)Tito->AI())->DorotheeGUID = m_creature->GetGUID();
         Tito->AI()->AttackStart(m_creature->getVictim());
         SummonedTito = true;
@@ -322,8 +301,7 @@ struct TRINITY_DLL_DECL boss_strawmanAI : public ScriptedAI
 
     void Aggro(Unit* who)
     {
-        DoYell(SAY_STRAWMAN_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_STRAWMAN_AGGRO);
+		DoScriptText(SAY_STRAWMAN_AGGRO, m_creature);
     }
 
     void SpellHit(Unit* caster, const SpellEntry *Spell)
@@ -334,8 +312,7 @@ struct TRINITY_DLL_DECL boss_strawmanAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoYell(SAY_STRAWMAN_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_STRAWMAN_DEATH);
+		DoScriptText(SAY_STRAWMAN_DEATH, m_creature);
 
         if(pInstance)
             SummonCroneIfReady(pInstance, m_creature);
@@ -343,18 +320,19 @@ struct TRINITY_DLL_DECL boss_strawmanAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-        DoYell(SAY_STRAWMAN_SLAY, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_STRAWMAN_SLAY);
+		DoScriptText(SAY_STRAWMAN_SLAY, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
     {
         if(AggroTimer)
-            if(AggroTimer <= diff)
-        {
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            AggroTimer = 0;
-        }else AggroTimer -= diff;
+		{
+			if(AggroTimer <= diff)
+			{
+				m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				AggroTimer = 0;
+			}else AggroTimer -= diff;
+		}
 
         if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
@@ -402,8 +380,7 @@ struct TRINITY_DLL_DECL boss_tinheadAI : public ScriptedAI
 
     void Aggro(Unit* who)
     {
-        DoYell(SAY_TINHEAD_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_TINHEAD_AGGRO);
+		DoScriptText(SAY_TINHEAD_AGGRO, m_creature);
     }
 
     void AttackStart(Unit* who)
@@ -424,8 +401,7 @@ struct TRINITY_DLL_DECL boss_tinheadAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoYell(SAY_TINHEAD_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_TINHEAD_DEATH);
+		DoScriptText(SAY_TINHEAD_DEATH, m_creature);
 
         if(pInstance)
             SummonCroneIfReady(pInstance, m_creature);
@@ -433,18 +409,19 @@ struct TRINITY_DLL_DECL boss_tinheadAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-        DoYell(SAY_TINHEAD_SLAY, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_TINHEAD_SLAY);
+		DoScriptText(SAY_TINHEAD_SLAY, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
     {
         if(AggroTimer)
+		{
             if(AggroTimer < diff)
-        {
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            AggroTimer = 0;
-        }else AggroTimer -= diff;
+			{
+				m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				AggroTimer = 0;
+			}else AggroTimer -= diff;
+		}
 
         if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
@@ -460,7 +437,7 @@ struct TRINITY_DLL_DECL boss_tinheadAI : public ScriptedAI
             if(RustTimer < diff)
             {
                 RustCount++;
-                DoTextEmote("begins to rust", NULL);
+                 DoScriptText(EMOTE_RUST, m_creature);
                 DoCast(m_creature, SPELL_RUST);
                 RustTimer = 6000;
             }else RustTimer -= diff;
@@ -511,14 +488,12 @@ struct TRINITY_DLL_DECL boss_roarAI : public ScriptedAI
 
     void Aggro(Unit* who)
     {
-        DoYell(SAY_ROAR_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_ROAR_AGGRO);
+		DoScriptText(SAY_ROAR_AGGRO, m_creature);
     }
 
     void JustDied(Unit* killer)
     {
-        DoYell(SAY_ROAR_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_ROAR_DEATH);
+		DoScriptText(SAY_ROAR_DEATH, m_creature);
 
         if(pInstance)
             SummonCroneIfReady(pInstance, m_creature);
@@ -526,18 +501,19 @@ struct TRINITY_DLL_DECL boss_roarAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-        DoYell(SAY_ROAR_SLAY, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_ROAR_SLAY);
+		DoScriptText(SAY_ROAR_SLAY, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
     {
         if(AggroTimer)
+		{
             if(AggroTimer <= diff)
-        {
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            AggroTimer = 0;
-        }else AggroTimer -= diff;
+			{
+				m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				AggroTimer = 0;
+			}else AggroTimer -= diff;
+		}
 
         if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
@@ -587,22 +563,16 @@ struct TRINITY_DLL_DECL boss_croneAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_CRONE_AGGRO, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_CRONE_AGGRO);
-                break;
-            case 1:
-                DoYell(SAY_CRONE_AGGRO2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_CRONE_AGGRO2);
-                break;
+		case 0: DoScriptText(SAY_CRONE_AGGRO, m_creature); break;
+		case 1: DoScriptText(SAY_CRONE_AGGRO2, m_creature); break;
         }
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+		m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
     }
 
     void JustDied(Unit* killer)
     {
-        DoYell(SAY_CRONE_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_CRONE_DEATH);
+        DoScriptText(SAY_CRONE_DEATH, m_creature);
 
         if(pInstance)
         {
@@ -715,21 +685,18 @@ CreatureAI* GetAI_mob_cyclone(Creature* _Creature)
 /**** Opera Red Riding Hood Event ****/
 /************************************/
 
-#define GOSSIP_GRANDMA          "What phat lewtz you have grandmother?"
+/**** Yells for the Wolf ****/
+#define SAY_WOLF_AGGRO                  -1532043
+#define SAY_WOLF_SLAY                   -1532044
+#define SAY_WOLF_HOOD                   -1532045
+#define SOUND_WOLF_DEATH                9275                //Only sound on death, no text.
 
 /**** Spells For The Wolf ****/
 #define SPELL_LITTLE_RED_RIDING_HOOD    30768
 #define SPELL_TERRIFYING_HOWL           30752
 #define SPELL_WIDE_SWIPE                30761
 
-/**** Yells for the Wolf ****/
-#define SAY_WOLF_AGGRO      "All the better to own you with!"
-#define SOUND_WOLF_AGGRO    9276
-#define SOUND_WOLF_DEATH    9275                            // No speech
-#define SAY_WOLF_SLAY       "Mmmm... delicious."
-#define SOUND_WOLF_SLAY     9277
-#define SAY_WOLF_HOOD       "Run away little girl, run away!"
-#define SOUND_WOLF_HOOD     9278
+#define GOSSIP_GRANDMA          "What phat lewtz you have grandmother?"
 
 /**** The Wolf's Entry ****/
 #define CREATURE_BIG_BAD_WOLF           17521
@@ -795,8 +762,7 @@ struct TRINITY_DLL_DECL boss_bigbadwolfAI : public ScriptedAI
 
     void Aggro(Unit* who)
     {
-        DoYell(SAY_WOLF_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_WOLF_AGGRO);
+        DoScriptText(SAY_WOLF_AGGRO, m_creature);
     }
 
     void JustDied(Unit* killer)
@@ -826,8 +792,7 @@ struct TRINITY_DLL_DECL boss_bigbadwolfAI : public ScriptedAI
                 Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
                 if(target && target->GetTypeId() == TYPEID_PLAYER)
                 {
-                    DoYell(SAY_WOLF_HOOD, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature, SOUND_WOLF_HOOD);
+                    DoScriptText(SAY_WOLF_HOOD, m_creature);
 
                     DoCast(target, SPELL_LITTLE_RED_RIDING_HOOD, true);
                     TempThreat = m_creature->getThreatManager().getThreat(target);
@@ -883,6 +848,20 @@ CreatureAI* GetAI_boss_bigbadwolf(Creature* _Creature)
 /******** Opera Romeo and Juliet Event *******/
 /********************************************/
 
+/**** Speech *****/
+#define SAY_JULIANNE_AGGRO              -1532046
+#define SAY_JULIANNE_ENTER              -1532047
+#define SAY_JULIANNE_DEATH01            -1532048
+#define SAY_JULIANNE_DEATH02            -1532049
+#define SAY_JULIANNE_RESURRECT          -1532050
+#define SAY_JULIANNE_SLAY               -1532051
+	 	 
+#define SAY_ROMULO_AGGRO                -1532052
+#define SAY_ROMULO_DEATH                -1532053
+#define SAY_ROMULO_ENTER                -1532054
+#define SAY_ROMULO_RESURRECT            -1532055
+#define SAY_ROMULO_SLAY                 -1532056
+
 /***** Spells For Julianne *****/
 #define SPELL_BLINDING_PASSION          30890
 #define SPELL_DEVOTION                  30887
@@ -899,33 +878,6 @@ CreatureAI* GetAI_boss_bigbadwolf(Creature* _Creature)
 /**** Other Misc. Spells ****/
 #define SPELL_UNDYING_LOVE              30951
 #define SPELL_RES_VISUAL                24171
-
-/**** Speech and Text *****/
-/****** Julianne *******/
-#define SAY_JULIANNE_AGGRO          "What devil art thou, that dost torment me thus?"
-#define SOUND_JULIANNE_AGGRO        9196
-#define SAY_JULIANNE_ENTER          "Where is my lord? Where is my Romulo?"
-#define SOUND_JULIANNE_ENTER        9199
-#define SAY_JULIANNE_DEATH01        "Romulo, I come! Oh... this do I drink to thee!"
-#define SOUND_JULIANNE_DEATH01      9198
-#define SAY_JULIANNE_DEATH02        "Where is my Lord? Where is my Romulo? Ohh, happy dagger! This is thy sheath! There rust, and let me die!"
-#define SOUND_JULIANNE_DEATH02      9310
-#define SAY_JULIANNE_RESURRECT      "Come, gentle night; and give me back my Romulo!"
-#define SOUND_JULIANNE_RESURRECT    9200
-#define SAY_JULIANNE_SLAY           "Parting is such sweet sorrow."
-#define SOUND_JULIANNE_SLAY         9201
-
-/****** Romulo *******/
-#define SAY_ROMULO_AGGRO            "Wilt thou provoke me? Then have at thee, boy!"
-#define SOUND_ROMULO_AGGRO          9233
-#define SAY_ROMULO_DEATH            "Thou smilest... upon the stroke that... murders me."
-#define SOUND_ROMULO_DEATH          9235
-#define SAY_ROMULO_ENTER            "This day's black fate on more days doth depend. This but begins the woe. Others must end."
-#define SOUND_ROMULO_ENTER          9236
-#define SAY_ROMULO_RESURRECT        "Thou detestable maw, thou womb of death; I enforce thy rotten jaws to open!"
-#define SOUND_ROMULO_RESURRECT      9237
-#define SAY_ROMULO_SLAY             "How well my comfort is revived by this!"
-#define SOUND_ROMULO_SLAY           9238
 
 /*** Misc. Information ****/
 #define CREATURE_ROMULO             17533
@@ -1049,8 +1001,7 @@ struct TRINITY_DLL_DECL boss_julianneAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoYell(SAY_JULIANNE_DEATH02, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_JULIANNE_DEATH02);
+        DoScriptText(SAY_JULIANNE_DEATH02, m_creature);
 
         if(pInstance)
         {
@@ -1063,8 +1014,7 @@ struct TRINITY_DLL_DECL boss_julianneAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-        DoYell(SAY_JULIANNE_SLAY, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_JULIANNE_SLAY);
+       DoScriptText(SAY_JULIANNE_SLAY, m_creature);
     }
 
     void UpdateAI(const uint32 diff);
@@ -1116,8 +1066,7 @@ struct TRINITY_DLL_DECL boss_romuloAI : public ScriptedAI
 
     void Aggro(Unit* who)
     {
-        DoYell(SAY_ROMULO_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_ROMULO_AGGRO);
+        DoScriptText(SAY_ROMULO_AGGRO, m_creature);
         if(JulianneGUID)
         {
             Creature* Julianne = ((Creature*)Unit::GetUnit((*m_creature), JulianneGUID));
@@ -1139,14 +1088,12 @@ struct TRINITY_DLL_DECL boss_romuloAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoYell(SAY_ROMULO_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_ROMULO_DEATH);
+		DoScriptText(SAY_ROMULO_DEATH, m_creature);
     }
 
     void KilledUnit(Unit* victim)
     {
-        DoYell(SAY_ROMULO_SLAY, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_ROMULO_SLAY);
+		DoScriptText(SAY_ROMULO_SLAY, m_creature);
     }
 
     void UpdateAI(const uint32 diff);
@@ -1159,8 +1106,7 @@ void boss_julianneAI::DamageTaken(Unit* done_by, uint32 &damage)
 
     if(Phase == PHASE_JULIANNE)
     {
-        DoYell(SAY_JULIANNE_DEATH01, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_JULIANNE_DEATH01);
+		DoScriptText(SAY_JULIANNE_DEATH01, m_creature);
         m_creature->InterruptNonMeleeSpells(true);
         DoCast(m_creature, SPELL_DRINK_POISON);
         PretendToDie(m_creature);
@@ -1254,21 +1200,23 @@ void boss_romuloAI::DamageTaken(Unit* done_by, uint32 &damage)
 void boss_julianneAI::UpdateAI(const uint32 diff)
 {
     if(EntryYellTimer)
-        if(EntryYellTimer < diff)
-    {
-        DoYell(SAY_JULIANNE_ENTER, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_JULIANNE_ENTER);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        EntryYellTimer = 0;
-    }else EntryYellTimer -= diff;
+	{
+		if(EntryYellTimer < diff)
+		{
+			DoScriptText(SAY_JULIANNE_ENTER, m_creature);
+			m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+			EntryYellTimer = 0;
+		}else EntryYellTimer -= diff;
+	}
 
     if(AggroYellTimer)
-        if(AggroYellTimer < diff)
-    {
-        DoYell(SAY_JULIANNE_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_JULIANNE_AGGRO);
-        AggroYellTimer = 0;
-    }else AggroYellTimer -= diff;
+	{
+		if(AggroYellTimer < diff)
+		{
+			DoScriptText(SAY_JULIANNE_AGGRO, m_creature);
+			AggroYellTimer = 0;
+		}else AggroYellTimer -= diff;
+	}
 
     if(Phase == PHASE_ROMULO && !SummonedRomulo)
     {
@@ -1295,19 +1243,20 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
         return;
 
     if(RomuloDead)
+	{
         if(ResurrectTimer < diff)
-    {
-        Creature* Romulo = ((Creature*)Unit::GetUnit((*m_creature), RomuloGUID));
-        if(Romulo && ((boss_romuloAI*)Romulo->AI())->IsFakingDeath)
-        {
-            DoYell(SAY_JULIANNE_RESURRECT, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_JULIANNE_RESURRECT);
-            Resurrect(Romulo);
-            ((boss_romuloAI*)Romulo->AI())->IsFakingDeath = false;
-            ResurrectTimer = 10000;
-        }
-        RomuloDead = false;
-    }else ResurrectTimer -= diff;
+		{
+			Creature* Romulo = ((Creature*)Unit::GetUnit((*m_creature), RomuloGUID));
+			if(Romulo && ((boss_romuloAI*)Romulo->AI())->IsFakingDeath)
+			{
+				DoScriptText(SAY_JULIANNE_RESURRECT, m_creature);
+				Resurrect(Romulo);
+				((boss_romuloAI*)Romulo->AI())->IsFakingDeath = false;
+				ResurrectTimer = 10000;
+			}
+			RomuloDead = false;
+		}else ResurrectTimer -= diff;
+	}
 
     if(BlindingPassionTimer < diff)
     {
@@ -1336,8 +1285,7 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
                 DoCast(Romulo, SPELL_ETERNAL_AFFECTION);
             else
                 return;
-        }
-        else DoCast(m_creature, SPELL_ETERNAL_AFFECTION);
+        }else DoCast(m_creature, SPELL_ETERNAL_AFFECTION);
 
         EternalAffectionTimer = 45000 + rand()%15000;
     }else EternalAffectionTimer -= diff;
@@ -1351,19 +1299,20 @@ void boss_romuloAI::UpdateAI(const uint32 diff)
         return;
 
     if(JulianneDead)
+	{
         if(ResurrectTimer < diff)
-    {
-        Creature* Julianne = ((Creature*)Unit::GetUnit((*m_creature), JulianneGUID));
-        if(Julianne && ((boss_julianneAI*)Julianne->AI())->IsFakingDeath)
-        {
-            DoYell(SAY_ROMULO_RESURRECT, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_ROMULO_RESURRECT);
-            Resurrect(Julianne);
-            ((boss_julianneAI*)Julianne->AI())->IsFakingDeath = false;
-            ResurrectTimer = 10000;
-        }
-        JulianneDead = false;
-    }else ResurrectTimer -= diff;
+		{
+			Creature* Julianne = ((Creature*)Unit::GetUnit((*m_creature), JulianneGUID));
+			if(Julianne && ((boss_julianneAI*)Julianne->AI())->IsFakingDeath)
+			{
+				DoScriptText(SAY_ROMULO_RESURRECT, m_creature);
+				Resurrect(Julianne);
+				((boss_julianneAI*)Julianne->AI())->IsFakingDeath = false;
+				ResurrectTimer = 10000;
+			}
+			JulianneDead = false;
+		}else ResurrectTimer -= diff;
+	}
 
     if(BackwardLungeTimer < diff)
     {

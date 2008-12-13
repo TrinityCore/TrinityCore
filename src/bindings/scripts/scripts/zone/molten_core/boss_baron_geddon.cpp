@@ -23,6 +23,8 @@ EndScriptData */
 
 #include "precompiled.h"
 
+#define EMOTE_SERVICE               -1409000
+
 #define SPELL_INFERNO               19695
 #define SPELL_IGNITEMANA            19659
 #define SPELL_LIVINGBOMB            20475
@@ -53,10 +55,11 @@ struct TRINITY_DLL_DECL boss_baron_geddonAI : public ScriptedAI
             return;
 
         //If we are <2% hp cast Armageddom
-        if ( m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 2 && !m_creature->IsNonMeleeSpellCasted(false))
+        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 2)
         {
+			m_creature->InterruptNonMeleeSpells(true);
             DoCast(m_creature,SPELL_ARMAGEDDOM);
-            DoTextEmote("performs one last service for Ragnaros.",NULL);
+			DoScriptText(EMOTE_SERVICE, m_creature);
             return;
         }
 
@@ -70,9 +73,8 @@ struct TRINITY_DLL_DECL boss_baron_geddonAI : public ScriptedAI
         //IgniteMana_Timer
         if (IgniteMana_Timer < diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (target) DoCast(target,SPELL_IGNITEMANA);
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+				DoCast(target,SPELL_IGNITEMANA);
 
             IgniteMana_Timer = 30000;
         }else IgniteMana_Timer -= diff;
@@ -80,9 +82,8 @@ struct TRINITY_DLL_DECL boss_baron_geddonAI : public ScriptedAI
         //LivingBomb_Timer
         if (LivingBomb_Timer < diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (target) DoCast(target,SPELL_LIVINGBOMB);
+           if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+			   DoCast(target,SPELL_LIVINGBOMB);
 
             LivingBomb_Timer = 35000;
         }else LivingBomb_Timer -= diff;

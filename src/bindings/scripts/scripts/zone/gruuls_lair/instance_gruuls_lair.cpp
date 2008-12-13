@@ -33,7 +33,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
 {
-    instance_gruuls_lair(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_gruuls_lair(Map *map) : ScriptedInstance(map) {Initialize();};
 
     bool Encounters[ENCOUNTERS];
 

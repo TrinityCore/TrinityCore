@@ -3,7 +3,7 @@
  * Please see the included DOCS/LICENSE.TXT for more information */
 
 /* ScriptData
-SDName: instance_sunwell_plateau
+SDName: Instance_Sunwell_Plateau
 SD%Complete: 0
 SDComment: VERIFY SCRIPT
 SDCategory: Sunwell_Plateau
@@ -25,7 +25,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
 {
-    instance_sunwell_plateau(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_sunwell_plateau(Map *map) : ScriptedInstance(map) {Initialize();};
 
     uint32 Encounters[ENCOUNTERS];
 

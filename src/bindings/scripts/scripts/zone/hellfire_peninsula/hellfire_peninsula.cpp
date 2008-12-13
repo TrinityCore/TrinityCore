@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Hellfire_Peninsula
 SD%Complete: 100
-SDComment: Quest support: 9375, 10129, 10146, 10162, 10163, 10340, 10346, 10347, 10382 (Special flight paths)
+ SDComment: Quest support: 9375, 10129, 10146, 10162, 10163, 10340, 10346, 10347, 10382 (Special flight paths)
 SDCategory: Hellfire Peninsula
 EndScriptData */
 
@@ -143,167 +143,163 @@ bool GossipHello_npc_wing_commander_brack(Player *player, Creature *_Creature)
 
 bool GossipSelect_npc_wing_commander_brack(Player *player, Creature *_Creature, uint32 sender, uint32 action )
 {
-    if (action == GOSSIP_ACTION_INFO_DEF + 1)
-    {
-        player->CLOSE_GOSSIP_MENU();
-        player->CastSpell(player,33659,true);               //TaxiPath 584 (Gateways Murket and Shaadraz)
-    }
-    if (action == GOSSIP_ACTION_INFO_DEF + 2)
-    {
-        player->CLOSE_GOSSIP_MENU();
-        player->CastSpell(player,33825,true);               //TaxiPath 587 (Aerial Assault Flight (Horde))
-    }
-    if (action == GOSSIP_ACTION_INFO_DEF + 3)
-    {
-        player->CLOSE_GOSSIP_MENU();
-        player->CastSpell(player,34578,true);               //TaxiPath 604 (Taxi - Reaver's Fall to Spinebreaker Ridge)
-    }
-    return true;
+	switch(action)
+	{
+	case GOSSIP_ACTION_INFO_DEF + 1:        
+		player->CLOSE_GOSSIP_MENU();
+		player->CastSpell(player,33659,true);               //TaxiPath 584 (Gateways Murket and Shaadraz)
+		break;    
+	case GOSSIP_ACTION_INFO_DEF + 2:
+		player->CLOSE_GOSSIP_MENU();
+		player->CastSpell(player,33825,true);               //TaxiPath 587 (Aerial Assault Flight (Horde))
+		break;
+	case GOSSIP_ACTION_INFO_DEF + 3:    
+		player->CLOSE_GOSSIP_MENU();
+		player->CastSpell(player,34578,true);               //TaxiPath 604 (Taxi - Reaver's Fall to Spinebreaker Ridge)
+		break;
+	}
+		return true;
 }
 
 /*######
 ## npc_wounded_blood_elf
 ######*/
+	 	 
+#define SAY_ELF_START               -1000117
+#define SAY_ELF_SUMMON1             -1000118
+#define SAY_ELF_RESTING             -1000119
+#define SAY_ELF_SUMMON2             -1000120
+#define SAY_ELF_COMPLETE            -1000121
+#define SAY_ELF_AGGRO               -1000122
 
-#define QUEST_THE_ROAD_TO_FALCON_WATCH 9375
-#define SAY1      "Thank you for agreeing to help. Now, let's get out of here $N."
-#define SAY2      "Over there! They're following us!"
-#define SAY3      "Allow me a moment to rest. The journey taxes what little strength I have."
-#define SAY4      "Did you hear something?"
-#define SAY5      "Falcon Watch, at last! Now, where's my... Oh no! My pack, it's missing! Where has -"
-#define SAYAGGRO  "You won't keep me from getting to Falcon Watch!"
-
+#define QUEST_ROAD_TO_FALCON_WATCH  9375
+	 	 
 struct TRINITY_DLL_DECL npc_wounded_blood_elfAI : public npc_escortAI
 {
-    npc_wounded_blood_elfAI(Creature *c) : npc_escortAI(c) {Reset();}
+	npc_wounded_blood_elfAI(Creature *c) : npc_escortAI(c) {Reset();}
 
-    void WaypointReached(uint32 i)
-    {
-        Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+	void WaypointReached(uint32 i)
+	{
+		Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
 
-        if (!player)
-            return;
+		if (!player)
+			return;
+	 	 
+		switch (i)
+		{
+		case 0:
+			DoScriptText(SAY_ELF_START, m_creature, player);
+			break;
+		case 9:
+			DoScriptText(SAY_ELF_SUMMON1, m_creature, player);
+			// Spawn two Haal'eshi Talonguard
+			DoSpawnCreature(16967, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+			DoSpawnCreature(16967, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+			break;
+		case 13:
+			DoScriptText(SAY_ELF_RESTING, m_creature, player);
+			// make the NPC kneel
+			m_creature->HandleEmoteCommand(EMOTE_ONESHOT_KNEEL);
+			break;
+		case 14:
+			DoScriptText(SAY_ELF_SUMMON2, m_creature, player);
+			// Spawn two Haal'eshi Windwalker
+			DoSpawnCreature(16966, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+			DoSpawnCreature(16966, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+			break;
+		case 27:
+			DoScriptText(SAY_ELF_COMPLETE, m_creature, player);
+			// Award quest credit
+			Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+			if (player && player->GetTypeId() == TYPEID_PLAYER)
+				((Player*)player)->GroupEventHappens(QUEST_ROAD_TO_FALCON_WATCH,m_creature);
+			break;
+		}
+	}
+	 	 
+	void Reset()
+	{
+		if (!IsBeingEscorted)
+			m_creature->setFaction(1604);
+	}
 
-        switch (i)
-        {
+	void Aggro(Unit* who)
+	{
+		if (IsBeingEscorted)
+			DoScriptText(SAY_ELF_AGGRO, m_creature);
+	}
+	 	 
+	void JustSummoned(Creature* summoned)
+	{
+		summoned->AI()->AttackStart(m_creature);
+	}
 
-        case 0:
-            DoSay(SAY1, LANG_UNIVERSAL, player);
-            // Change faction, so mobs can attack
-            m_creature->setFaction(1610);
-            break;
+	void JustDied(Unit* killer)
+	{
+		if (!IsBeingEscorted)
+			return;
 
-        case 9:
-            DoSay(SAY2, LANG_UNIVERSAL, player);
-            // Spawn two Haal'eshi Talonguard
-            {
-                Creature* temp1 = m_creature->SummonCreature(16967, m_creature->GetPositionX()-15, m_creature->GetPositionY()-15, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
-                if (temp1) temp1->AI()->AttackStart(m_creature);
-                Creature* temp2 = m_creature->SummonCreature(16967, m_creature->GetPositionX()-17, m_creature->GetPositionY()-17, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
-                if (temp2) temp2->AI()->AttackStart(m_creature);
-            }
-            break;
-
-        case 13:
-            DoSay(SAY3, LANG_UNIVERSAL, player);
-            // NPC "should" kneel
-            m_creature->HandleEmoteCommand(EMOTE_STATE_KNEEL);
-            break;
-
-        case 14:
-            DoSay(SAY4, LANG_UNIVERSAL, player);
-            // Spawn two Haal'eshi Windwalker
-            {
-                Creature* temp3 = m_creature->SummonCreature(16966, m_creature->GetPositionX()-15, m_creature->GetPositionY()-15, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
-                if (temp3) temp3->AI()->AttackStart(m_creature);
-                Creature* temp4 = m_creature->SummonCreature(16966, m_creature->GetPositionX()-17, m_creature->GetPositionY()-17, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
-                if (temp4) temp4->AI()->AttackStart(m_creature);
-            }
-            break;
-
-        case 27:
-            DoSay(SAY5, LANG_UNIVERSAL, player);
-            // Set faction back to normal
-            m_creature->setFaction(1604);
-            // Award quest credit
-            if( PlayerGUID )
-            {
-                Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
-                if( player && player->GetTypeId() == TYPEID_PLAYER )
-                    ((Player*)player)->GroupEventHappens(9375,m_creature);
-            }
-            break;
-        }
-    }
-
-    void Aggro(Unit* who)
-    {
-        DoSay(SAYAGGRO, LANG_UNIVERSAL, who);
-    }
-
-    void Reset() { }
-
-    void JustDied(Unit* killer)
-        // If NPC dies, Quest fail
-    {
-        if (PlayerGUID)
-        {
-            Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
-            if (player)
-                ((Player*)player)->FailQuest(QUEST_THE_ROAD_TO_FALCON_WATCH);
-        }
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        npc_escortAI::UpdateAI(diff);
-    }
+		if (PlayerGUID)
+		{
+			// If NPC dies, player fails the quest
+			Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+			if (player && player->GetTypeId() == TYPEID_PLAYER)
+				((Player*)player)->FailQuest(QUEST_ROAD_TO_FALCON_WATCH);
+		}
+	}
+	 	 
+	void UpdateAI(const uint32 diff)
+	{
+		npc_escortAI::UpdateAI(diff);
+	}
 };
-
-bool QuestAccept_wounded_blood_elf(Player* player, Creature* creature, Quest const* quest)
-// Begin the escort quest
-{
-    if (quest->GetQuestId() == QUEST_THE_ROAD_TO_FALCON_WATCH)
-    {
-        ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
-    }
-    return true;
-}
-
+	 	 
 CreatureAI* GetAI_npc_wounded_blood_elf(Creature *_Creature)
 {
-    npc_wounded_blood_elfAI* thisAI = new npc_wounded_blood_elfAI(_Creature);
+	npc_wounded_blood_elfAI* welfAI = new npc_wounded_blood_elfAI(_Creature);
 
-    thisAI->AddWaypoint(0, -1137.72, 4272.10, 14.04, 3000);
-    thisAI->AddWaypoint(1, -1141.34, 4232.42, 14.63);
-    thisAI->AddWaypoint(2, -1133.47, 4220.88, 11.78);
-    thisAI->AddWaypoint(3, -1126.18, 4213.26, 13.51);
-    thisAI->AddWaypoint(4, -1100.12, 4204.32, 16.41);
-    thisAI->AddWaypoint(5, -1063.68, 4197.92, 15.51);
-    thisAI->AddWaypoint(6, -1027.28, 4194.36, 15.52);
-    thisAI->AddWaypoint(7, -995.68, 4189.59, 19.84);
-    thisAI->AddWaypoint(8, -970.90, 4188.60, 24.61);
-    thisAI->AddWaypoint(9, -961.93, 4193.34, 26.11, 80000); // Summon 1
-    thisAI->AddWaypoint(10, -935.52, 4210.99, 31.98);
-    thisAI->AddWaypoint(11, -913.42, 4218.27, 37.29);
-    thisAI->AddWaypoint(12, -896.53, 4207.73, 43.23);
-    thisAI->AddWaypoint(13, -868.49, 4194.77, 46.75, 17000); // Kneel and Rest Here
-    thisAI->AddWaypoint(14, -852.83, 4198.29, 47.28, 80000); // Summon 2
-    thisAI->AddWaypoint(15, -819.85, 4200.50, 46.37);
-    thisAI->AddWaypoint(16, -791.92, 4201.96, 44.19);
-    thisAI->AddWaypoint(17, -774.42, 4202.46, 47.41);
-    thisAI->AddWaypoint(18, -762.90, 4202.17, 48.81);
-    thisAI->AddWaypoint(19, -728.25, 4195.35, 50.68);
-    thisAI->AddWaypoint(20, -713.58, 4192.07, 53.98);
-    thisAI->AddWaypoint(21, -703.09, 4189.74, 56.96);
-    thisAI->AddWaypoint(22, -693.70, 4185.43, 57.06);
-    thisAI->AddWaypoint(23, -686.38, 4159.81, 60.26);
-    thisAI->AddWaypoint(24, -679.88, 4147.04, 64.20);
-    thisAI->AddWaypoint(25, -656.74, 4147.72, 64.11);
-    thisAI->AddWaypoint(26, -652.22, 4137.50, 64.58);
-    thisAI->AddWaypoint(27, -649.99, 4136.38, 64.63, 20000); // Award Quest Credit
-
-    return (CreatureAI*)thisAI;
+	welfAI->AddWaypoint(0, -1137.72, 4272.10, 14.04, 5000);
+	welfAI->AddWaypoint(1, -1141.34, 4232.42, 14.63);
+	welfAI->AddWaypoint(2, -1133.47, 4220.88, 11.78);
+	welfAI->AddWaypoint(3, -1126.18, 4213.26, 13.51);
+	welfAI->AddWaypoint(4, -1100.12, 4204.32, 16.41);
+	welfAI->AddWaypoint(5, -1063.68, 4197.92, 15.51);
+	welfAI->AddWaypoint(6, -1027.28, 4194.36, 15.52);
+	welfAI->AddWaypoint(7, -995.68, 4189.59, 19.84);
+	welfAI->AddWaypoint(8, -970.90, 4188.60, 24.61);
+	welfAI->AddWaypoint(9, -961.93, 4193.34, 26.11, 15000); // Summon 1
+	welfAI->AddWaypoint(10, -935.52, 4210.99, 31.98);
+	welfAI->AddWaypoint(11, -913.42, 4218.27, 37.29);
+	welfAI->AddWaypoint(12, -896.53, 4207.73, 43.23);
+	welfAI->AddWaypoint(13, -868.49, 4194.77, 46.75, 30000);// Kneel and Rest Here
+	welfAI->AddWaypoint(14, -852.83, 4198.29, 47.28, 15000);// Summon 2
+	welfAI->AddWaypoint(15, -819.85, 4200.50, 46.37);
+	welfAI->AddWaypoint(16, -791.92, 4201.96, 44.19);
+	welfAI->AddWaypoint(17, -774.42, 4202.46, 47.41);
+	welfAI->AddWaypoint(18, -762.90, 4202.17, 48.81);
+	welfAI->AddWaypoint(19, -728.25, 4195.35, 50.68);
+	welfAI->AddWaypoint(20, -713.58, 4192.07, 53.98);
+	welfAI->AddWaypoint(21, -703.09, 4189.74, 56.96);
+	welfAI->AddWaypoint(22, -693.70, 4185.43, 57.06);
+	welfAI->AddWaypoint(23, -686.38, 4159.81, 60.26);
+	welfAI->AddWaypoint(24, -679.88, 4147.04, 64.20);
+	welfAI->AddWaypoint(25, -656.74, 4147.72, 64.11);
+	welfAI->AddWaypoint(26, -652.22, 4137.50, 64.58);
+	welfAI->AddWaypoint(27, -649.99, 4136.38, 64.63, 30000);// Award Quest Credit
+	 	 
+	return (CreatureAI*)welfAI;
+}
+	 	 
+bool QuestAccept_npc_wounded_blood_elf(Player* player, Creature* creature, Quest const* quest)
+{
+	if (quest->GetQuestId() == QUEST_ROAD_TO_FALCON_WATCH)
+	{
+		((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
+		// Change faction so mobs attack
+		creature->setFaction(775);
+	}
+	 	 
+	return true;
 }
 
 /*######
@@ -335,6 +331,6 @@ void AddSC_hellfire_peninsula()
     newscript = new Script;
     newscript->Name="npc_wounded_blood_elf";
     newscript->GetAI = &GetAI_npc_wounded_blood_elf;
-    newscript->pQuestAccept = &QuestAccept_wounded_blood_elf;
+    newscript->pQuestAccept = &QuestAccept_npc_wounded_blood_elf;
     newscript->RegisterSelf();
 }

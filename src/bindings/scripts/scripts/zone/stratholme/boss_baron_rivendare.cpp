@@ -15,13 +15,14 @@
 */
 
 /* ScriptData
-SDName: boss_baron_rivendare
-SD%Complete: 100
+SDName: Boss_Baron_Rivendare
+SD%Complete: 70
 SDComment: aura applied/defined in database
 SDCategory: Stratholme
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_stratholme.h"
 
 #define SAY_0    "Intruders! More pawns of the Argent Dawn, no doubt. I already count one of their number among my prisoners. Withdraw from my domain before she is executed!"
 #define SAY_1    "You're still here? Your foolishness is amusing! The Argent Dawn wench needn't suffer in vain. Leave at once and she shall be spared!"
@@ -60,19 +61,29 @@ EndScriptData */
 #define ADD_6Z 115.055222
 #define ADD_6O 2.457497
 
-#define SPELL_SHADOWBOLT    18164
-#define SPELL_CLEAVE        15584
-#define SPELL_MORTALSTRIKE  13737
+#define SPELL_SHADOWBOLT    17393
+#define SPELL_CLEAVE        15284
+#define SPELL_MORTALSTRIKE  15708
 
-// spell 17473 should trigger -> 17471
-
-//#define SPELL_RAISEDEAD    17475
-//#define SPELL_DEATHPACT 17698
-//#define SPELL_SUMMONSKELETONS    17274
+#define SPELL_UNHOLY_AURA   17467
+#define SPELL_RAISEDEAD     17473                           //triggers death pact (17471)
+	 
+#define SPELL_RAISE_DEAD1   17475
+#define SPELL_RAISE_DEAD2   17476
+#define SPELL_RAISE_DEAD3   17477
+#define SPELL_RAISE_DEAD4   17478
+#define SPELL_RAISE_DEAD5   17479
+#define SPELL_RAISE_DEAD6   17480
 
 struct TRINITY_DLL_DECL boss_baron_rivendareAI : public ScriptedAI
 {
-    boss_baron_rivendareAI(Creature *c) : ScriptedAI(c) {Reset();}
+	boss_baron_rivendareAI(Creature *c) : ScriptedAI(c)
+	{
+		pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
+		Reset();
+	}
+	 	 
+	ScriptedInstance* pInstance;
 
     uint32 ShadowBolt_Timer;
     uint32 Cleave_Timer;
@@ -88,108 +99,71 @@ struct TRINITY_DLL_DECL boss_baron_rivendareAI : public ScriptedAI
         MortalStrike_Timer = 12000;
         //        RaiseDead_Timer = 30000;
         SummonSkeletons_Timer = 34000;
-
-        m_creature->LoadCreaturesAddon();
     }
 
     void Aggro(Unit *who)
     {
-                switch (rand()%6)
-                {
-                case 0:
-                    DoYell(SAY_0,LANG_UNIVERSAL,NULL);
-                    break;
-                case 1:
-                    DoYell(SAY_1,LANG_UNIVERSAL,NULL);
-                    break;
-                case 2:
-                    DoYell(SAY_2,LANG_UNIVERSAL,NULL);
-                    break;
-                case 3:
-                    DoYell(SAY_3,LANG_UNIVERSAL,NULL);
-                    break;
-                case 4:
-                    DoYell(SAY_4,LANG_UNIVERSAL,NULL);
-                    break;
-                case 5:
-                    DoYell(SAY_5,LANG_UNIVERSAL,NULL);
-                    break;
-                }
+		if (pInstance)
+			pInstance->SetData(TYPE_BARON,IN_PROGRESS);
     }
+
+	void JustSummoned(Creature* summoned)
+	{
+		if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+			 summoned->AI()->AttackStart(target);
+	}
+
+	 void JustDied(Unit* Killer)
+	 {
+		 if (pInstance)
+			 pInstance->SetData(TYPE_BARON,DONE);
+	 }
 
     void UpdateAI(const uint32 diff)
     {
-        //Return since we have no target
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
         //ShadowBolt
         if (ShadowBolt_Timer < diff)
         {
-            //Cast
-            if (rand()%100 < 70) //70% chance to cast
-            {
+			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))           
                 DoCast(m_creature->getVictim(),SPELL_SHADOWBOLT);
-            }
-            //10 seconds until we should cast this again
+            
             ShadowBolt_Timer = 10000;
         }else ShadowBolt_Timer -= diff;
 
         //Cleave
         if (Cleave_Timer < diff)
         {
-            //Cast
-            if (rand()%100 < 55) //55% chance to cast
-            {
-                DoCast(m_creature->getVictim(),SPELL_CLEAVE);
-            }
+			DoCast(m_creature->getVictim(),SPELL_CLEAVE);
             //13 seconds until we should cast this again
-            Cleave_Timer = 12000;
+            Cleave_Timer = 7000 + (rand()%10000);
         }else Cleave_Timer -= diff;
 
         //MortalStrike
         if (MortalStrike_Timer < diff)
         {
-            //Cast
-            if (rand()%100 < 30) //30% chance to cast
-            {
-                DoCast(m_creature->getVictim(),SPELL_MORTALSTRIKE);
-            }
-            //16 seconds until we should cast this again
-            MortalStrike_Timer = 16000;
+			DoCast(m_creature->getVictim(),SPELL_MORTALSTRIKE);
+			MortalStrike_Timer = 10000 + (rand()%15000);
         }else MortalStrike_Timer -= diff;
 
         //RaiseDead
         //            if (RaiseDead_Timer < diff)
-        //            {
-        //Cast
-        //                DoCast(m_creature,SPELL_RAISEDEAD);
-        //                DoSay("summon triggered",LANG_UNIVERSAL,NULL); //just a checkpoint
-        //45 seconds until we should cast this again
+		//			{
+		//		DoCast(m_creature,SPELL_RAISEDEAD);
         //                RaiseDead_Timer = 45000;
         //            }else RaiseDead_Timer -= diff;
 
         //SummonSkeletons
-        //Creature* Unit::SummonCreature(uint32 id, float x, float y, float z, float ang,TempSummonType spwtype,uint32 despwtime);
-
         if (SummonSkeletons_Timer < diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-
-            //Cast
-            Summoned = m_creature->SummonCreature(11197,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,29000);
-            ((CreatureAI*)Summoned->AI())->AttackStart(target);
-            Summoned = m_creature->SummonCreature(11197,ADD_2X,ADD_2Y,ADD_2Z,ADD_2O,TEMPSUMMON_TIMED_DESPAWN,29000);
-            ((CreatureAI*)Summoned->AI())->AttackStart(target);
-            Summoned = m_creature->SummonCreature(11197,ADD_3X,ADD_3Y,ADD_3Z,ADD_3O,TEMPSUMMON_TIMED_DESPAWN,29000);
-            ((CreatureAI*)Summoned->AI())->AttackStart(target);
-            Summoned = m_creature->SummonCreature(11197,ADD_4X,ADD_4Y,ADD_4Z,ADD_4O,TEMPSUMMON_TIMED_DESPAWN,29000);
-            ((CreatureAI*)Summoned->AI())->AttackStart(target);
-            Summoned = m_creature->SummonCreature(11197,ADD_5X,ADD_5Y,ADD_5Z,ADD_5O,TEMPSUMMON_TIMED_DESPAWN,29000);
-            ((CreatureAI*)Summoned->AI())->AttackStart(target);
-            Summoned = m_creature->SummonCreature(11197,ADD_6X,ADD_6Y,ADD_6Z,ADD_6O,TEMPSUMMON_TIMED_DESPAWN,29000);
-            ((CreatureAI*)Summoned->AI())->AttackStart(target);
+			m_creature->SummonCreature(11197,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,29000);
+			m_creature->SummonCreature(11197,ADD_2X,ADD_2Y,ADD_2Z,ADD_2O,TEMPSUMMON_TIMED_DESPAWN,29000);
+			m_creature->SummonCreature(11197,ADD_3X,ADD_3Y,ADD_3Z,ADD_3O,TEMPSUMMON_TIMED_DESPAWN,29000);
+			m_creature->SummonCreature(11197,ADD_4X,ADD_4Y,ADD_4Z,ADD_4O,TEMPSUMMON_TIMED_DESPAWN,29000);
+			m_creature->SummonCreature(11197,ADD_5X,ADD_5Y,ADD_5Z,ADD_5O,TEMPSUMMON_TIMED_DESPAWN,29000);
+			m_creature->SummonCreature(11197,ADD_6X,ADD_6Y,ADD_6Z,ADD_6O,TEMPSUMMON_TIMED_DESPAWN,29000);
 
             //34 seconds until we should cast this again
             SummonSkeletons_Timer = 40000;

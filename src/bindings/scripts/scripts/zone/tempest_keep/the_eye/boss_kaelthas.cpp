@@ -25,6 +25,44 @@ EndScriptData */
 #include "def_the_eye.h"
 #include "WorldPacket.h"
 
+ //kael'thas Speech
+#define SAY_INTRO                           -1550016
+#define SAY_INTRO_CAPERNIAN                 -1550017
+#define SAY_INTRO_TELONICUS                 -1550018
+#define SAY_INTRO_THALADRED                 -1550019
+#define SAY_INTRO_SANGUINAR                 -1550020
+#define SAY_PHASE2_WEAPON                   -1550021
+#define SAY_PHASE3_ADVANCE                  -1550022
+#define SAY_PHASE4_INTRO2                   -1550023
+#define SAY_PHASE5_NUTS                     -1550024
+#define SAY_SLAY1                           -1550025
+#define SAY_SLAY2                           -1550026
+#define SAY_SLAY3                           -1550027
+#define SAY_MINDCONTROL1                    -1550028
+#define SAY_MINDCONTROL2                    -1550029
+#define SAY_GRAVITYLAPSE1                   -1550030
+#define SAY_GRAVITYLAPSE2                   -1550031
+#define SAY_SUMMON_PHOENIX1                 -1550032
+#define SAY_SUMMON_PHOENIX2                 -1550033
+#define SAY_DEATH                           -1550034
+	 	 
+//Thaladred the Darkener speech
+#define SAY_THALADRED_AGGRO                 -1550035
+#define SAY_THALADRED_DEATH                 -1550036
+#define EMOTE_THALADRED_GAZE                -1550037
+
+//Lord Sanguinar speech
+#define SAY_SANGUINAR_AGGRO                 -1550038
+#define SAY_SANGUINAR_DEATH                 -1550039
+
+//Grand Astromancer Capernian speech
+#define SAY_CAPERNIAN_AGGRO                 -1550040
+#define SAY_CAPERNIAN_DEATH                 -1550041
+
+//Master Engineer Telonicus speech
+#define SAY_TELONICUS_AGGRO                 -1550042
+#define SAY_TELONICUS_DEATH                 -1550043
+
 //Phase 2 spells (Not used)
 #define SPELL_SUMMON_WEAPONS              36976
 #define SPELL_SUMMON_WEAPONA              36958
@@ -36,6 +74,7 @@ EndScriptData */
 #define SPELL_SUMMON_WEAPONG              36964
 #define SPELL_RES_VISUAL                  24171
 #define SPELL_WEAPON_SPAWN                41236
+
 //Phase 4 spells
 #define SPELL_FIREBALL                    22088             //wrong but works with CastCustomSpell
 #define SPELL_PYROBLAST                   36819
@@ -46,6 +85,7 @@ EndScriptData */
 #define SPELL_SHOCK_BARRIER               36815
 #define SPELL_PHOENIX_ANIMATION           36723
 #define SPELL_MIND_CONTROL                32830
+
 //Phase 5 spells
 #define SPELL_EXPLODE                     36092
 #define SPELL_FULLPOWER                   36187
@@ -53,103 +93,31 @@ EndScriptData */
 #define SPELL_GRAVITY_LAPSE               34480
 #define SPELL_GRAVITY_LAPSE_AURA          39432
 #define SPELL_NETHER_BEAM                 35873
+
 //Thaladred the Darkener spells
 #define SPELL_PSYCHIC_BLOW                10689
 #define SPELL_SILENCE                     30225
+
 //Lord Sanguinar spells
 #define SPELL_BELLOWING_ROAR              40636
+
 //Grand Astromancer Capernian spells
 #define CAPERNIAN_DISTANCE                20                //she casts away from the target
 #define SPELL_CAPERNIAN_FIREBALL          36971
 #define SPELL_CONFLAGRATION               37018
 #define SPELL_ARCANE_EXPLOSION            36970
+
 //Master Engineer Telonicus spells
 #define SPELL_BOMB                        37036
 #define SPELL_REMOTE_TOY                  37027
+
 //Nether Vapor spell
 #define SPELL_NETHER_VAPOR                35859
+
 //Phoenix spell
-#define SPELL_BURN                        36721
-
-//kael'thas Speech
-#define SAY_INTRO                         "Energy. Power. My people are addicted to it... a dependence made manifest after the Sunwell was destroyed. Welcome... to the future. A pity you are too late to stop it. No one can stop me now! Selama ashal'anore!"
-#define SOUND_INTRO                       11256
-
-#define SAY_ASTROMANCER_CAPERNIAN         "Capernian will see to it that your stay here is a short one."
-#define SOUND_ASTROMANCER_CAPERNIAN       11257
-
-#define SAY_ENGINEER_TELONICUS            "Well done, you have proven worthy to test your skills against my master engineer, Telonicus."
-#define SOUND_ENGINEER_TELONICUS          11258
-
-#define SAY_THALADRED_THE_DARKENER        "Let us see how your nerves hold up against the Darkener, Thaladred"
-#define SOUND_THALADRED_THE_DARKENER      11259
-
-#define SAY_LORD_SANGUINAR                "You have persevered against some of my best advisors... but none can withstand the might of the Blood Hammer. Behold, Lord Sanguinar!"
-#define SOUND_LORD_SANGUINAR              11260
-
-#define SAY_PHASE2                        "As you see, I have many weapons in my arsenal...."
-#define SOUND_PHASE2                      11261
-
-#define SAY_PHASE3                        "Perhaps I underestimated you. It would be unfair to make you fight all four advisors at once, but... fair treatment was never shown to my people. I'm just returning the favor."
-#define SOUND_PHASE3                      11262
-
-#define SAY_PHASE4                        "Alas, sometimes one must take matters into one's own hands. Balamore shanal!"
-#define SOUND_PHASE4                      11263
-
-#define SAY_PHASE5                        "I have not come this far to be stopped! The future I have planned will not be jeopardized! Now you will taste true power!!"
-#define SOUND_PHASE5                      11273
-
-#define SAY_SLAY1                         "You will not prevail."
-#define SOUND_SLAY1                       11270
-
-#define SAY_SLAY2                         "You gambled...and lost."
-#define SOUND_SLAY2                       11271
-
-#define SAY_MINDCONTROL1                  "Obey me."
-#define SOUND_MINDCONTROL1                11268
-
-#define SAY_MINDCONTROL2                  "Bow to my will."
-#define SOUND_MINDCONTROL2                11269
-
-#define SAY_GRAVITYLAPSE1                 "Let us see how you fare when your world is turned upside down."
-#define SOUND_GRAVITYLAPSE1               11264
-
-#define SAY_GRAVITYLAPSE2                 "Having trouble staying grounded?"
-#define SOUND_GRAVITYLAPSE2               11265
-
-#define SAY_SUMMON_PHOENIX1               "Anara'nel belore!"
-#define SOUND_SUMMON_PHOENIX1             11267
-
-#define SAY_SUMMON_PHOENIX2               "By the power of the sun!"
-#define SOUND_SUMMON_PHOENIX2             11266
-
-#define SAY_DEATH                         "For...Quel...thalas!"
-#define SOUND_DEATH                       11274
-
-//Thaladred the Darkener speech
-#define SAY_THALADRED_AGGRO               "Prepare yourselves!"
-#define SOUND_THALADRED_AGGRO             11203
-#define SAY_THALADRED_DEATH               "Forgive me, my prince! I have... failed."
-#define SOUND_THALADRED_DEATH             11204
-#define EMOTE_THALADRED_GAZE              "sets his gaze on $N!"
-
-//Lord Sanguinar speech
-#define SAY_SANGUINAR_AGGRO               "Blood for blood!"
-#define SOUND_SANGUINAR_AGGRO             11152
-#define SAY_SANGUINAR_DEATH               "NO! I ...will... not..."
-#define SOUND_SANGUINAR_DEATH             11153
-
-//Grand Astromancer Capernian speech
-#define SAY_CAPERNIAN_AGGRO               "The sin'dore reign supreme!"
-#define SOUND_CAPERNIAN_AGGRO             11117
-#define SAY_CAPERNIAN_DEATH               "This is not over!"
-#define SOUND_CAPERNIAN_DEATH             11118
-
-//Master Engineer Telonicus speech
-#define SAY_TELONICUS_AGGRO               "Anar'alah belore!"
-#define SOUND_TELONICUS_AGGRO             11157
-#define SAY_TELONICUS_DEATH               "More perils... await"
-#define SOUND_TELONICUS_DEATH             11158
+#define SPELL_BURN                          36720
+#define SPELL_EMBER_BLAST                   34341
+#define SPELL_REBIRTH                       41587
 
 //Creature IDs
 #define PHOENIX                           21362
@@ -158,9 +126,6 @@ EndScriptData */
 //Phoenix egg and phoenix model
 #define PHOENIX_MODEL           19682
 #define PHOENIX_EGG_MODEL       20245
-
-//#define PI                                3.141592
-#define TEMP_MC_WHISPER     "[SD2 Debug] You would be mind controlled here!"
 
 //weapon id + position
 float KaelthasWeapons[7][5] =
@@ -283,21 +248,23 @@ struct TRINITY_DLL_DECL advisorbase_ai : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         if (DelayRes_Timer)
+		{
             if (DelayRes_Timer <= diff)
-        {
-            DelayRes_Timer = 0;
-            FakeDeath = false;
+			{
+				DelayRes_Timer = 0;
+				FakeDeath = false;
 
-            Unit* Target = Unit::GetUnit((*m_creature), DelayRes_Target);
-            if (!Target)Target = m_creature->getVictim();
-            DoResetThreat();
-            AttackStart(Target);
-            m_creature->GetMotionMaster()->Clear();
-            m_creature->GetMotionMaster()->MoveChase(Target);
-            m_creature->AddThreat(Target, 0.0f);
-        }else DelayRes_Timer -= diff;
-    }
-
+				Unit* Target = Unit::GetUnit((*m_creature), DelayRes_Target);
+				if (!Target)
+					Target = m_creature->getVictim();
+				DoResetThreat();
+				AttackStart(Target);
+				m_creature->GetMotionMaster()->Clear();
+				m_creature->GetMotionMaster()->MoveChase(Target);
+				m_creature->AddThreat(Target, 0.0f);
+			}else DelayRes_Timer -= diff;
+		}
+	}
 };
 
 //Kael'thas AI
@@ -395,8 +362,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
             error_log("SD2: Kael'Thas One or more advisors missing, Skipping Phases 1-3");
             DoYell("SD2: Kael'Thas One or more advisors missing, Skipping Phases 1-3", LANG_UNIVERSAL, NULL);
 
-            DoYell(SAY_PHASE4, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_PHASE4);
+            DoScriptText(SAY_PHASE4_INTRO2, m_creature);
             Phase = 4;
 
             pInstance->SetData(DATA_KAELTHASEVENT, 4);
@@ -407,15 +373,13 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
             Unit *target = NULL;
             target = SelectUnit(SELECT_TARGET_RANDOM, 0);
             if(target)
-            {
                 AttackStart(target);
             }
-        }else
+        else
         {
             PrepareAdvisors();
 
-            DoYell(SAY_INTRO, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_INTRO);
+            DoScriptText(SAY_INTRO, m_creature);
 
             pInstance->SetData(DATA_KAELTHASEVENT, IN_PROGRESS);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -428,16 +392,11 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
     void KilledUnit()
     {
-        switch(rand()%2)
+		switch(rand()%3)
         {
-            case 0:
-                DoYell(SAY_SLAY1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY1);
-                break;
-            case 1:
-                DoYell(SAY_SLAY2,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY2);
-                break;
+		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+		case 2: DoScriptText(SAY_SLAY3, m_creature); break;
         }
     }
 
@@ -446,8 +405,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-        DoYell(SAY_DEATH,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_DEATH);
+		DoScriptText(SAY_DEATH, m_creature);
 
         if(pInstance)
             pInstance->SetData(DATA_KAELTHASEVENT, DONE);
@@ -510,8 +468,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                     case 0:
                         if(Phase_Timer < diff)
                         {
-                            DoYell(SAY_THALADRED_THE_DARKENER, LANG_UNIVERSAL, NULL);
-                            DoPlaySoundToSet(m_creature, SOUND_THALADRED_THE_DARKENER);
+                            DoScriptText(SAY_INTRO_THALADRED, m_creature);
 
                             //start advisor within 7 seconds
                             Phase_Timer = 7000;
@@ -545,8 +502,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         Advisor = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[0]));
                         if(Advisor && (Advisor->GetUInt32Value(UNIT_FIELD_BYTES_1) == PLAYER_STATE_DEAD))
                         {
-                            DoYell(SAY_LORD_SANGUINAR, LANG_UNIVERSAL, NULL);
-                            DoPlaySoundToSet(m_creature, SOUND_LORD_SANGUINAR);
+							DoScriptText(SAY_INTRO_SANGUINAR, m_creature);
 
                             //start advisor within 12.5 seconds
                             Phase_Timer = 12500;
@@ -580,8 +536,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         Advisor = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[1]));
                         if(Advisor && (Advisor->GetUInt32Value(UNIT_FIELD_BYTES_1) == PLAYER_STATE_DEAD))
                         {
-                            DoYell(SAY_ASTROMANCER_CAPERNIAN, LANG_UNIVERSAL, NULL);
-                            DoPlaySoundToSet(m_creature, SOUND_ASTROMANCER_CAPERNIAN);
+                            DoScriptText(SAY_INTRO_CAPERNIAN, m_creature);
 
                             //start advisor within 7 seconds
                             Phase_Timer = 7000;
@@ -615,8 +570,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         Advisor = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[2]));
                         if(Advisor && (Advisor->GetUInt32Value(UNIT_FIELD_BYTES_1) == PLAYER_STATE_DEAD))
                         {
-                            DoYell(SAY_ENGINEER_TELONICUS, LANG_UNIVERSAL, NULL);
-                            DoPlaySoundToSet(m_creature, SOUND_ENGINEER_TELONICUS);
+							DoScriptText(SAY_INTRO_TELONICUS, m_creature);
 
                             //start advisor within 8.4 seconds
                             Phase_Timer = 8400;
@@ -655,8 +609,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                             Phase = 2;
                             pInstance->SetData(DATA_KAELTHASEVENT, 2);
 
-                            DoYell(SAY_PHASE2, LANG_UNIVERSAL, NULL);
-                            DoPlaySoundToSet(m_creature, SOUND_PHASE2);
+                            DoScriptText(SAY_PHASE2_WEAPON, m_creature);
                             PhaseSubphase = 0;
                             Phase_Timer = 3500;
                             DoCast(m_creature, SPELL_SUMMON_WEAPONS);
@@ -702,8 +655,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                 if (PhaseSubphase == 2)
                     if (Phase_Timer < diff)
                 {
-                    DoYell(SAY_PHASE3, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature, SOUND_PHASE3);
+                    DoScriptText(SAY_PHASE3_ADVANCE, m_creature);
                     pInstance->SetData(DATA_KAELTHASEVENT, 3);
                     Phase = 3;
                     PhaseSubphase = 0;
@@ -732,8 +684,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
                 if(Phase_Timer < diff)
                 {
-                    DoYell(SAY_PHASE4, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature, SOUND_PHASE4);
+                    DoScriptText(SAY_PHASE4_INTRO2, m_creature);
                     Phase = 4;
 
                     pInstance->SetData(DATA_KAELTHASEVENT, 4);
@@ -741,9 +692,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-                    Unit *target = NULL;
-                    target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    if(target)
+                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     {
                         AttackStart(target);
                     }
@@ -796,8 +745,8 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
                     if (FlameStrike_Timer < diff)
                     {
-                        Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                        DoCast(pUnit, SPELL_FLAME_STRIKE);
+						if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
+							DoCast(pUnit, SPELL_FLAME_STRIKE);
 
                         FlameStrike_Timer = 30000;
                     }FlameStrike_Timer -= diff;
@@ -830,14 +779,8 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
                     switch(rand()%2)
                     {
-                        case 0:
-                            DoYell(SAY_SUMMON_PHOENIX1, LANG_UNIVERSAL, NULL);
-                            DoPlaySoundToSet(m_creature, SOUND_SUMMON_PHOENIX1);
-                            break;
-                        case 1:
-                            DoYell(SAY_SUMMON_PHOENIX2, LANG_UNIVERSAL, NULL);
-                            DoPlaySoundToSet(m_creature, SOUND_SUMMON_PHOENIX2);
-                            break;
+					case 0: DoScriptText(SAY_SUMMON_PHOENIX1, m_creature); break;
+					case 1: DoScriptText(SAY_SUMMON_PHOENIX2, m_creature); break;
                     }
 
                     Phoenix_Timer = 60000;
@@ -852,8 +795,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         Phase = 5;
                         Phase_Timer = 10000;
 
-                        DoYell(SAY_PHASE5, LANG_UNIVERSAL, NULL);
-                        DoPlaySoundToSet(m_creature, SOUND_PHASE5);
+						DoScriptText(SAY_PHASE5_NUTS, m_creature);
 
                         m_creature->StopMoving();
                         m_creature->GetMotionMaster()->Clear();
@@ -903,9 +845,6 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         Phase = 6;
                         AttackStart(m_creature->getVictim());
-                        m_creature->GetMotionMaster()->Clear();
-                        m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
-
                     }else Phase_Timer -= diff;
                 }
 
@@ -945,15 +884,8 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                             case 1:
                                 switch(rand()%2)
                                 {
-                                    case 0:
-                                        DoYell(SAY_GRAVITYLAPSE1, LANG_UNIVERSAL, NULL);
-                                        DoPlaySoundToSet(m_creature, SOUND_GRAVITYLAPSE1);
-                                        break;
-
-                                    case 1:
-                                        DoYell(SAY_GRAVITYLAPSE2, LANG_UNIVERSAL, NULL);
-                                        DoPlaySoundToSet(m_creature, SOUND_GRAVITYLAPSE2);
-                                        break;
+								case 0: DoScriptText(SAY_GRAVITYLAPSE1, m_creature); break;
+								case 1: DoScriptText(SAY_GRAVITYLAPSE2, m_creature); break;
                                 }
 
                                 // 2) At that point he will put a Gravity Lapse debuff on everyone
@@ -1009,8 +941,6 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                 GravityLapse_Timer = 60000;
                                 GravityLapse_Phase = 0;
                                 AttackStart(m_creature->getVictim());
-                                m_creature->GetMotionMaster()->Clear();
-                                m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
                                 DoResetThreat();
                                 break;
                         }
@@ -1029,8 +959,8 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         //NetherBeam_Timer
                         if(NetherBeam_Timer < diff)
                         {
-                            Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                            DoCast(pUnit, SPELL_NETHER_BEAM);
+							if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
+								DoCast(pUnit, SPELL_NETHER_BEAM);
 
                             NetherBeam_Timer = 4000;
                         }else NetherBeam_Timer -= diff;
@@ -1064,9 +994,8 @@ struct TRINITY_DLL_DECL boss_thaladred_the_darkenerAI : public advisorbase_ai
 
     void JustDied(Unit* pKiller)
     {
-        DoPlaySoundToSet(m_creature, SOUND_THALADRED_DEATH);
-        DoYell(SAY_THALADRED_DEATH, LANG_UNIVERSAL, NULL);
-    }
+		DoScriptText(SAY_THALADRED_DEATH, m_creature);
+	}
 
     void Aggro(Unit *who)
     {
@@ -1076,8 +1005,7 @@ struct TRINITY_DLL_DECL boss_thaladred_the_darkenerAI : public advisorbase_ai
         if (!who || FakeDeath)
             return;
 
-        DoYell(SAY_THALADRED_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_THALADRED_AGGRO);
+        DoScriptText(SAY_THALADRED_AGGRO, m_creature);
         m_creature->AddThreat(who, 5000000.0f);
     }
 
@@ -1096,13 +1024,11 @@ struct TRINITY_DLL_DECL boss_thaladred_the_darkenerAI : public advisorbase_ai
         //Gaze_Timer
         if(Gaze_Timer < diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if(target)
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
                 DoResetThreat();
                 m_creature->AddThreat(target, 5000000.0f);
-                DoTextEmote(EMOTE_THALADRED_GAZE, target);
+				DoScriptText(EMOTE_THALADRED_GAZE, m_creature, target);
                 Gaze_Timer = 8500;
             }
         }else Gaze_Timer -= diff;
@@ -1140,8 +1066,7 @@ struct TRINITY_DLL_DECL boss_lord_sanguinarAI : public advisorbase_ai
 
     void JustDied(Unit* Killer)
     {
-        DoPlaySoundToSet(m_creature, SOUND_SANGUINAR_DEATH);
-        DoYell(SAY_SANGUINAR_DEATH, LANG_UNIVERSAL, NULL);
+		DoScriptText(SAY_SANGUINAR_DEATH, m_creature);
     }
 
     void Aggro(Unit *who)
@@ -1152,8 +1077,7 @@ struct TRINITY_DLL_DECL boss_lord_sanguinarAI : public advisorbase_ai
         if (!who || FakeDeath)
             return;
 
-        DoYell(SAY_SANGUINAR_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_SANGUINAR_AGGRO);
+		DoScriptText(SAY_SANGUINAR_AGGRO, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -1203,8 +1127,7 @@ struct TRINITY_DLL_DECL boss_grand_astromancer_capernianAI : public advisorbase_
 
     void JustDied(Unit* pKiller)
     {
-        DoPlaySoundToSet(m_creature, SOUND_CAPERNIAN_DEATH);
-        DoYell(SAY_CAPERNIAN_DEATH, LANG_UNIVERSAL, NULL);
+        DoScriptText(SAY_CAPERNIAN_DEATH, m_creature);
     }
 
     void AttackStart(Unit* who)
@@ -1251,13 +1174,14 @@ struct TRINITY_DLL_DECL boss_grand_astromancer_capernianAI : public advisorbase_
 
         //Yell_Timer
         if(!Yell)
+		{
             if(Yell_Timer < diff)
-        {
-            DoYell(SAY_CAPERNIAN_AGGRO, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_CAPERNIAN_AGGRO);
+			{
+				DoScriptText(SAY_CAPERNIAN_AGGRO, m_creature);
 
-            Yell = true;
-        }else Yell_Timer -= diff;
+				Yell = true;
+			}else Yell_Timer -= diff;
+		}
 
         //Fireball_Timer
         if(Fireball_Timer < diff)
@@ -1326,8 +1250,7 @@ struct TRINITY_DLL_DECL boss_master_engineer_telonicusAI : public advisorbase_ai
 
     void JustDied(Unit* pKiller)
     {
-        DoPlaySoundToSet(m_creature, SOUND_TELONICUS_DEATH);
-        DoYell(SAY_TELONICUS_DEATH, LANG_UNIVERSAL, NULL);
+         DoScriptText(SAY_TELONICUS_DEATH, m_creature);
     }
 
     void Aggro(Unit *who)
@@ -1338,8 +1261,7 @@ struct TRINITY_DLL_DECL boss_master_engineer_telonicusAI : public advisorbase_ai
         if (!who || FakeDeath)
             return;
 
-        DoYell(SAY_TELONICUS_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_TELONICUS_AGGRO);
+        DoScriptText(SAY_TELONICUS_AGGRO, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -1364,10 +1286,7 @@ struct TRINITY_DLL_DECL boss_master_engineer_telonicusAI : public advisorbase_ai
         //RemoteToy_Timer
         if(RemoteToy_Timer < diff)
         {
-            Unit *target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-
-            if(target)
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(target, SPELL_REMOTE_TOY);
 
             RemoteToy_Timer = 10000+rand()%5000;
@@ -1428,92 +1347,95 @@ struct TRINITY_DLL_DECL mob_kael_flamestrikeAI : public ScriptedAI
 };
 
 //Phoenix AI
-struct TRINITY_DLL_DECL mob_phoenixAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_phoenix_tkAI : public ScriptedAI
 {
-    mob_phoenixAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_phoenix_tkAI(Creature *c) : ScriptedAI(c) {Reset();}
 
-    uint32 Burn_Timer;
-    uint32 Hatch_Timer;
-    uint32 EggVis_Timer;
-    bool IsEgg;
+	uint32 Cycle_Timer;
 
     void Reset()
     {
-        Burn_Timer = 1000;
-        Hatch_Timer = 15000;
-        EggVis_Timer = 0;
-        IsEgg = false;
-        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, PHOENIX_MODEL);
+        Cycle_Timer = 2000;
+		m_creature->CastSpell(m_creature,SPELL_BURN,true);
     }
 
-    void Hatch()
-    {
-        IsEgg = false;
-        m_creature->SetHealth(m_creature->GetMaxHealth());
-        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, PHOENIX_MODEL);
-        Burn_Timer = 1000;
-        Hatch_Timer = 15000;
-        EggVis_Timer = 0;
-        AttackStart(m_creature->getVictim());
-    }
+	void Aggro(Unit *who) { }
 
-    void DamageTaken(Unit* pKiller, uint32 &damage)
-    {
-        if (damage < m_creature->GetHealth())
-            return;
-
-        //Bird cannot die, only egg
-        if (!IsEgg)
-        {
-            //prevent death
-            damage = 0;
-            IsEgg = true;
-
-            m_creature->GetMotionMaster()->Clear();
-            m_creature->GetMotionMaster()->MoveIdle();
-            m_creature->SetHealth(m_creature->GetMaxHealth());
-            EggVis_Timer = 1000;
-            m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,PLAYER_STATE_DEAD);
-        }
-    }
-
-    void Aggro(Unit *who)
-    {
-    }
+	void JustDied(Unit* killer)
+	{
+		//is this spell in use anylonger?
+		//m_creature->CastSpell(m_creature,SPELL_EMBER_BLAST,true);
+		m_creature->SummonCreature(PHOENIX_EGG,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),m_creature->GetOrientation(),TEMPSUMMON_TIMED_DESPAWN,16000);
+	}
 
     void UpdateAI(const uint32 diff)
     {
-        //Check if we have a current target
-        if (!IsEgg)
-        {
-            //Return since we have no target
             if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
                 return;
 
-            if (Burn_Timer < diff)
-            {
-                DoCast(m_creature->getVictim(), SPELL_BURN);
-                Burn_Timer = 1000;
-            }else Burn_Timer -= diff;
+			if (Cycle_Timer < diff)
+			{
+				//spell Burn should possible do this, but it doesn't, so do this for now.
+				uint32 dmg = urand(4500,5500);
+				if (m_creature->GetHealth() > dmg)
+					m_creature->SetHealth(uint32(m_creature->GetHealth()-dmg));
+				Cycle_Timer = 2000;
+			}else Cycle_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }
-        else
-        {
-            if (EggVis_Timer)
-                if (EggVis_Timer <= diff)
-            {
-                m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, PHOENIX_EGG_MODEL);
-                m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                EggVis_Timer = 0;
-            }else EggVis_Timer -= diff;
+};
+ 
+//Phoenix Egg AI
+struct TRINITY_DLL_DECL mob_phoenix_egg_tkAI : public ScriptedAI
+{
+	mob_phoenix_egg_tkAI(Creature *c) : ScriptedAI(c) {Reset();}
 
-            if (Hatch_Timer < diff)
-            {
-                Hatch();
-            }else Hatch_Timer -= diff;
-        }
-    }
+	uint32 Rebirth_Timer;
+	 	 
+	void Reset()
+	{
+		Rebirth_Timer = 15000;
+	}
+	 	 
+	//ignore any
+	void MoveInLineOfSight(Unit* who) { return; }
+
+	void AttackStart(Unit* who)
+	{
+		if (m_creature->Attack(who, false))
+		{
+			m_creature->SetInCombatWith(who);
+			who->SetInCombatWith(m_creature);
+	 	 
+			if (!InCombat)
+			{
+				InCombat = true;
+				Aggro(who);
+			}
+			DoStartNoMovement(who);
+		}
+	}
+
+	void Aggro(Unit *who) { }
+
+	void JustSummoned(Creature* summoned)
+	{
+		summoned->AddThreat(m_creature->getVictim(), 0.0f);
+		 summoned->CastSpell(summoned,SPELL_REBIRTH,false);
+	}
+
+	void UpdateAI(const uint32 diff)
+	{
+		if (!Rebirth_Timer)
+			return;
+	 	 
+		if (Rebirth_Timer <= diff)
+		{
+			  m_creature->SummonCreature(PHOENIX,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),m_creature->GetOrientation(),TEMPSUMMON_CORPSE_DESPAWN,5000);
+			Rebirth_Timer = 0;
+		}else Rebirth_Timer -= diff;
+	}
 };
 
 CreatureAI* GetAI_boss_kaelthas(Creature *_Creature)
@@ -1546,46 +1468,55 @@ CreatureAI* GetAI_mob_kael_flamestrike(Creature *_Creature)
     return new mob_kael_flamestrikeAI (_Creature);
 }
 
-CreatureAI* GetAI_mob_phoenix(Creature *_Creature)
+CreatureAI* GetAI_mob_phoenix_tk(Creature *_Creature)
 {
-    return new mob_phoenixAI (_Creature);
+    return new mob_phoenix_tkAI (_Creature);
 }
 
+CreatureAI* GetAI_mob_phoenix_egg_tk(Creature *_Creature)
+{
+	return new mob_phoenix_egg_tkAI (_Creature);
+}
 void AddSC_boss_kaelthas()
 {
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_kaelthas";
-    newscript->GetAI = GetAI_boss_kaelthas;
+    newscript->GetAI = &GetAI_boss_kaelthas;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_thaladred_the_darkener";
-    newscript->GetAI = GetAI_boss_thaladred_the_darkener;
+    newscript->GetAI = &GetAI_boss_thaladred_the_darkener;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_lord_sanguinar";
-    newscript->GetAI = GetAI_boss_lord_sanguinar;
+    newscript->GetAI = &GetAI_boss_lord_sanguinar;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_grand_astromancer_capernian";
-    newscript->GetAI = GetAI_boss_grand_astromancer_capernian;
+    newscript->GetAI = &GetAI_boss_grand_astromancer_capernian;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_master_engineer_telonicus";
-    newscript->GetAI = GetAI_boss_master_engineer_telonicus;
+    newscript->GetAI = &GetAI_boss_master_engineer_telonicus;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name= "mob_kael_flamestrike";
-    newscript->GetAI = GetAI_mob_kael_flamestrike;
+    newscript->GetAI = &GetAI_mob_kael_flamestrike;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_phoenix";
-    newscript->GetAI = GetAI_mob_phoenix;
+    newscript->Name="mob_phoenix_tk";
+    newscript->GetAI = &GetAI_mob_phoenix_tk;
     newscript->RegisterSelf();
+
+	newscript = new Script;
+	newscript->Name = "mob_phoenix_egg_tk";
+	newscript->GetAI = &GetAI_mob_phoenix_egg_tk;
+	newscript->RegisterSelf();
 }

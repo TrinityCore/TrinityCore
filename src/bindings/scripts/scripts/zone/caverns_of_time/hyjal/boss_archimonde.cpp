@@ -16,14 +16,28 @@
 
 /* ScriptData
 SDName: Boss_Archimonde
-SD%Complete: 95
-SDComment: Doomfires not completely offlike due to core limitations for random moving.
+SD%Complete: 85
+SDComment: Doomfires not completely offlike due to core limitations for random moving. Tyrande and second phase not fully implemented.
 SDCategory: Caverns of Time, Mount Hyjal
 EndScriptData */
 
 #include "precompiled.h"
 #include "def_hyjal.h"
 #include "SpellAuras.h"
+
+//text id -1534018 are the text used when previous events complete. Not part of this script.
+#define SAY_AGGRO                   -1534019
+#define SAY_DOOMFIRE1               -1534020
+#define SAY_DOOMFIRE2               -1534021
+#define SAY_AIR_BURST1              -1534022
+#define SAY_AIR_BURST2              -1534023
+#define SAY_SLAY1                   -1534024
+#define SAY_SLAY2                   -1534025
+#define SAY_SLAY3                   -1534026
+#define SAY_ENRAGE                  -1534027
+#define SAY_DEATH                   -1534028
+#define SAY_SOUL_CHARGE1            -1534029
+#define SAY_SOUL_CHARGE2            -1534030
 
 #define SPELL_DENOUEMENT_WISP      32124
 #define SPELL_ANCIENT_SPARK        39349
@@ -36,6 +50,7 @@ EndScriptData */
 #define SPELL_HAND_OF_DEATH         35354
 #define SPELL_AIR_BURST             32014
 #define SPELL_GRIP_OF_THE_LEGION    31972
+#define SPELL_DOOMFIRE_STRIKE       31903                   //summons two creatures
 #define SPELL_DOOMFIRE_SPAWN        32074
 #define SPELL_DOOMFIRE_VISUAL       42344                   // This is actually a Zul'Aman spell, but the proper Doomfire spell sometimes freezes the server if a player stands in it for too long
 #define SPELL_DOOMFIRE_DAMAGE       31944
@@ -46,42 +61,6 @@ EndScriptData */
 #define SPELL_UNLEASH_SOUL_GREEN    32057
 #define SPELL_UNLEASH_SOUL_RED      32053
 #define SPELL_FEAR                  31970
-
-#define SAY_AGGRO           "Your resistance is insignificant!"
-#define SOUND_AGGRO         10987
-
-#define SAY_DOOMFIRE1       "This world will burn!"
-#define SOUND_DOOMFIRE1     10990
-
-#define SAY_DOOMFIRE2       "Manach sheek-thrish!"
-#define SOUND_DOOMFIRE2     11041
-
-#define SAY_AIR_BURST       "A-kreesh!"
-#define SOUND_AIR_BURST     10989
-
-#define SAY_AIR_BURST2      "Away vermin!"
-#define SOUND_AIR_BURST2    11043
-
-#define SAY_SLAY1           "All creation will be devoured!"
-#define SOUND_SLAY1         11044
-
-#define SAY_SLAY2           "Your soul will languish for eternity."
-#define SOUND_SLAY2         10991
-
-#define SAY_SLAY3           "I am the coming of the end!"
-#define SOUND_SLAY3         11045
-
-#define SAY_UNK1           "You are mine now."
-#define SOUND_UNK1          10988
-
-#define SAY_UNK2            "Bow to my will."
-#define SOUND_UNK2          11042
-
-#define SAY_ENRAGE          "At last it is here. Mourn and lament the passing of all you have ever known and all that would have been! Akmin-kurai!"
-#define SOUND_ENRAGE        10993
-
-#define SAY_DEATH           "No, it cannot be! Nooo!"
-#define SOUND_DEATH         10992
 
 #define CREATURE_ARCHIMONDE             17968
 #define CREATURE_DOOMFIRE               18095
@@ -270,7 +249,7 @@ struct TRINITY_DLL_DECL mob_doomfire_targettingAI : public ScriptedAI
             || who->GetEntry() == CREATURE_DOOMFIRE || who->GetEntry() == CREATURE_DOOMFIRE_TARGETING || !who->isTargetableForAttack())
             return;
 
-        m_creature->AddThreat(who, 1.0f);
+		m_creature->AddThreat(who, 0.0f);
     }
 
     void DamageTaken(Unit *done_by, uint32 &damage) { damage = 0; }
@@ -386,7 +365,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
             pInstance->SetData(DATA_ARCHIMONDEEVENT, NOT_STARTED);
 
         DrainNordrassilTimer = 0;
-        FearTimer = 40000;
+        FearTimer = 42000;
         AirBurstTimer = 30000;
         GripOfTheLegionTimer = 5000 + rand()%20000;
         DoomfireTimer = 20000;
@@ -407,8 +386,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
     void Aggro(Unit *who)
     {
         m_creature->InterruptSpell(CURRENT_CHANNELED_SPELL);
-        DoYell(SAY_AGGRO,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature, SOUND_AGGRO);
+        DoScriptText(SAY_AGGRO, m_creature);
         DoZoneInCombat();
 
         if(pInstance)
@@ -419,18 +397,9 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_SLAY1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY1);
-                break;
-            case 1:
-                DoYell(SAY_SLAY2,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY2);
-                break;
-            case 2:
-                DoYell(SAY_SLAY3,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY3);
-                break;
+		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+		case 2: DoScriptText(SAY_SLAY3, m_creature); break;
         }
 
         if(victim && (victim->GetTypeId() == TYPEID_PLAYER))
@@ -464,8 +433,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
 
     void JustDied(Unit *victim)
     {
-        DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature,SOUND_DEATH);
+		DoScriptText(SAY_DEATH, m_creature);
 
         if(pInstance)
             pInstance->SetData(DATA_ARCHIMONDEEVENT, DONE);
@@ -524,15 +492,10 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
             if(target)
                 Doomfire->AI()->AttackStart(target);
 
-            if(rand()%2 == 0)
-            {
-                DoYell(SAY_DOOMFIRE1, LANG_UNIVERSAL, m_creature);
-                DoPlaySoundToSet(m_creature, SOUND_DOOMFIRE1);
-            }else
-            {
-                DoYell(SAY_DOOMFIRE2, LANG_UNIVERSAL, m_creature);
-                DoPlaySoundToSet(m_creature, SOUND_DOOMFIRE2);
-            }
+            if(rand()%2 == 0)            
+				DoScriptText(SAY_DOOMFIRE1, m_creature);
+			else
+				DoScriptText(SAY_DOOMFIRE2, m_creature);            
         }
     }
 
@@ -626,13 +589,13 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
                     m_creature->GetMotionMaster()->Clear(false);
                     m_creature->GetMotionMaster()->MoveIdle();
                     Enraged = true;
-                    DoYell(SAY_ENRAGE, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature, SOUND_ENRAGE);
+					DoScriptText(SAY_ENRAGE, m_creature);
                 }
             }else EnrageTimer -= diff;
 
             if(CheckDistanceTimer < diff)
-            {                                               // To simplify the check, we simply summon a creature in the location and then check how far we are from the creature
+			{                                              
+				// To simplify the check, we simply summon a creature in the location and then check how far we are from the creature
                 Creature* Check = m_creature->SummonCreature(CREATURE_CHANNEL_TARGET, NORDRASSIL_X, NORDRASSIL_Y, NORDRASSIL_Z, 0, TEMPSUMMON_TIMED_DESPAWN, 2000);
                 if(Check)
                 {
@@ -642,8 +605,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
                         m_creature->GetMotionMaster()->Clear(false);
                         m_creature->GetMotionMaster()->MoveIdle();
                         Enraged = true;
-                        DoYell(SAY_ENRAGE, LANG_UNIVERSAL, NULL);
-                        DoPlaySoundToSet(m_creature, SOUND_ENRAGE);
+						DoScriptText(SAY_ENRAGE, m_creature);
                     }
                 }
                 CheckDistanceTimer = 5000;
@@ -656,6 +618,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
             {
                 m_creature->GetMotionMaster()->Clear(false);
                 m_creature->GetMotionMaster()->MoveIdle();
+				//all members of raid must get this buff
                 DoCast(m_creature->getVictim(), SPELL_PROTECTION_OF_ELUNE);
                 HasProtected = true;
                 Enraged = true;
@@ -703,14 +666,10 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
         if(AirBurstTimer < diff)
         {
             if(rand()%2 == 0)
-            {
-                DoYell(SAY_AIR_BURST, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_AIR_BURST);
-            }else
-            {
-                DoYell(SAY_AIR_BURST2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_AIR_BURST2);
-            }
+				DoScriptText(SAY_AIR_BURST1, m_creature);
+			else		
+				DoScriptText(SAY_AIR_BURST2, m_creature);
+
 
             DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_AIR_BURST);
             AirBurstTimer = 25000 + rand()%15000;
@@ -719,7 +678,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
         if(FearTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_FEAR);
-            FearTimer = 40000;
+            FearTimer = 42000;
         }else FearTimer -= diff;
 
         if(DoomfireTimer < diff)

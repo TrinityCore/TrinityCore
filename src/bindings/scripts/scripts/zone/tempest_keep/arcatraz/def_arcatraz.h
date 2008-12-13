@@ -16,4 +16,5 @@
 #define TYPE_WARDEN_5           9
 #define DATA_MELLICHAR          10
 #define TYPE_SHIELD_OPEN        11
+#define DATA_SPHERE_SHIELD      12
 #endif

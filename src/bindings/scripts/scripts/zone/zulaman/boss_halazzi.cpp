@@ -107,7 +107,7 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
         BerserkTimer = 600000;
         CheckTimer = 1000;
 
-        m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);
+        DoCast(m_creature, SPELL_DUAL_WIELD, true);
 
         Phase = PHASE_NONE;
         EnterPhase(PHASE_LYNX);
@@ -143,13 +143,17 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
             EnterPhase(PHASE_HUMAN);
     }
 
+    void AttackStart(Unit *who)
+    {
+        if(Phase != PHASE_MERGE) ScriptedAI::AttackStart(who);
+    }
+
     void EnterPhase(PhaseHalazzi NextPhase)
     {
         switch(NextPhase)
         {
         case PHASE_LYNX:
         case PHASE_ENRAGE:
-            m_creature->SetReactState(REACT_AGGRESSIVE);
             if(Phase == PHASE_MERGE)
             {
                 m_creature->CastSpell(m_creature, SPELL_TRANSFORM_MERGE, true);
@@ -189,10 +193,8 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
                 Lynx->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 Lynx->GetMotionMaster()->Clear();
                 Lynx->GetMotionMaster()->MoveFollow(m_creature, 0, 0);
-                ((Creature*)Lynx)->SetReactState(REACT_PASSIVE);
                 m_creature->GetMotionMaster()->Clear();
                 m_creature->GetMotionMaster()->MoveFollow(Lynx, 0, 0);
-                m_creature->SetReactState(REACT_PASSIVE);
                 TransformCount++;
             }break;
         default:
@@ -201,7 +203,7 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
         Phase = NextPhase;
     }
 
-    void UpdateAI(const uint32 diff)
+     void UpdateAI(const uint32 diff)
     {
         if(!m_creature->SelectHostilTarget() && !m_creature->getVictim())
             return;
@@ -279,10 +281,11 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
         {
             if(CheckTimer < diff)
             {
-				if(Unit *Lynx = Unit::GetUnit(*m_creature, LynxGUID))
+                Unit *Lynx = Unit::GetUnit(*m_creature, LynxGUID);
+				if(Lynx)
 				{
-					//Lynx->GetMotionMaster()->MoveFollow(m_creature, 0, 0);
-					//m_creature->GetMotionMaster()->MoveFollow(Lynx, 0, 0);
+					Lynx->GetMotionMaster()->MoveFollow(m_creature, 0, 0);
+					m_creature->GetMotionMaster()->MoveFollow(Lynx, 0, 0);
 					if(m_creature->IsWithinDistInMap(Lynx, 6.0f))
 					{
 						if(TransformCount < 3)
@@ -343,6 +346,12 @@ struct TRINITY_DLL_DECL boss_spiritlynxAI : public ScriptedAI
     {
         if(damage >= m_creature->GetHealth())
             damage = 0;
+    }
+
+    void AttackStart(Unit *who)
+    {
+        if(!m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+            ScriptedAI::AttackStart(who);
     }
 
     void Aggro(Unit *who) {/*DoZoneInCombat();*/}

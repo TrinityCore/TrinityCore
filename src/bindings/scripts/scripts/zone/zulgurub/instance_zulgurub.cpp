@@ -26,7 +26,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_zulgurub : public ScriptedInstance
 {
-    instance_zulgurub(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_zulgurub(Map *map) : ScriptedInstance(map) {Initialize();};
 
     //If all High Priest bosses were killed. Lorkhan, Zath and Ohgan are added too.
     bool IsBossDied[9];
