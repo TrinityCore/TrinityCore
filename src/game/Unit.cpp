@@ -12824,6 +12824,7 @@ void Unit::SetFeared(bool apply)
         if(HasAuraType(SPELL_AURA_PREVENTS_FLEEING))
             return;
 
+        SetUInt64Value(UNIT_FIELD_TARGET, 0);
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
         CastStop();
         //GetMotionMaster()->MovementExpired(false);
@@ -12839,7 +12840,10 @@ void Unit::SetFeared(bool apply)
         if(isAlive())
         {
             if( GetTypeId() != TYPEID_PLAYER && getVictim())
+            {
+                SetUInt64Value(UNIT_FIELD_TARGET, getVictim()->GetGUID());
                 GetMotionMaster()->MoveChase(getVictim());
+            }
             else
                 GetMotionMaster()->Initialize();
         }
@@ -12853,6 +12857,7 @@ void Unit::SetConfused(bool apply)
 {
     if(apply)
     {
+        SetUInt64Value(UNIT_FIELD_TARGET, 0);
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
         CastStop();
         GetMotionMaster()->MoveConfused();
@@ -12863,7 +12868,10 @@ void Unit::SetConfused(bool apply)
         if(isAlive())
         {
             if( GetTypeId() != TYPEID_PLAYER && getVictim())
+            {
+                SetUInt64Value(UNIT_FIELD_TARGET, getVictim()->GetGUID());
                 GetMotionMaster()->MoveChase(getVictim());
+            }
             else
                 GetMotionMaster()->Initialize();
         }
