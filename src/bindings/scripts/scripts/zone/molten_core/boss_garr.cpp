@@ -85,11 +85,6 @@ struct TRINITY_DLL_DECL mob_fireswornAI : public ScriptedAI
     void Reset()
     {
         Immolate_Timer = 4000;                              //These times are probably wrong
-
-        //m_creature->RemoveAllAuras();
-        //m_creature->DeleteThreatList();
-        //m_creature->CombatStop();
-        //DoGoHome();
     }
 
     void Aggro(Unit *who)
@@ -104,9 +99,7 @@ struct TRINITY_DLL_DECL mob_fireswornAI : public ScriptedAI
         //Immolate_Timer
         if (Immolate_Timer < diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (target)
+             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target,SPELL_IMMOLATE);
 
             Immolate_Timer = 5000 + rand()%5000;

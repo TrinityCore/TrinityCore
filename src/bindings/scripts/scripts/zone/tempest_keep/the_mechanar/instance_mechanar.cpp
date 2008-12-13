@@ -26,7 +26,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_mechanar : public ScriptedInstance
 {
-    instance_mechanar(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_mechanar(Map *map) : ScriptedInstance(map) {Initialize();};
 
     
     bool IsBossDied[1];

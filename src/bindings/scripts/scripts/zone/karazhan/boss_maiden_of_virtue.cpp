@@ -23,27 +23,19 @@ EndScriptData */
 
 #include "precompiled.h"
 
+#define SAY_AGGRO               -1532018
+#define SAY_SLAY1               -1532019
+#define SAY_SLAY2               -1532020
+#define SAY_SLAY3               -1532021
+#define SAY_REPENTANCE1         -1532022
+#define SAY_REPENTANCE2         -1532023
+#define SAY_DEATH               -1532024
+
 #define SPELL_REPENTANCE        29511
 #define SPELL_HOLYFIRE          29522
 #define SPELL_HOLYWRATH         32445
 #define SPELL_HOLYGROUND        29512
 #define SPELL_BERSERK           26662
-
-#define SAY_AGGRO               "Your behavior will not be tolerated!"
-#define SAY_SLAY1               "Ah ah ah..."
-#define SAY_SLAY2               "This is for the best."
-#define SAY_SLAY3               "Impure thoughts lead to profane actions."
-#define SAY_REPENTANCE1         "Cast out your corrupt thoughts."
-#define SAY_REPENTANCE2         "Your impurity must be cleansed."
-#define SAY_DEATH               "Death comes. Will your conscience be clear?"
-
-#define SOUND_AGGRO             9204
-#define SOUND_SLAY1             9207
-#define SOUND_SLAY2             9312
-#define SOUND_SLAY3             9311
-#define SOUND_REPENTANCE1       9313
-#define SOUND_REPENTANCE2       9208
-#define SOUND_DEATH             9206
 
 struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
 {
@@ -73,35 +65,25 @@ struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
 
     void KilledUnit(Unit* Victim)
     {
-        if(rand()%2) return;
+        if(rand()%2) 
+			return;
 
         switch(rand()%3)
         {
-        case 0:
-            DoYell(SAY_SLAY1,LANG_UNIVERSAL,Victim);
-            DoPlaySoundToSet(m_creature, SOUND_SLAY1);
-            break;
-        case 1:
-            DoYell(SAY_SLAY2,LANG_UNIVERSAL,Victim);
-            DoPlaySoundToSet(m_creature, SOUND_SLAY2);
-            break;
-        case 2:
-            DoYell(SAY_SLAY3,LANG_UNIVERSAL,Victim);
-            DoPlaySoundToSet(m_creature, SOUND_SLAY3);
-            break;
+        case 0: DoScriptText(SAY_SLAY1, m_creature);break;
+        case 1: DoScriptText(SAY_SLAY2, m_creature);break;
+        case 2: DoScriptText(SAY_SLAY3, m_creature);break;
         }
     }
 
     void JustDied(Unit* Killer)
     {
-        DoYell(SAY_DEATH,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
     }
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_AGGRO);
+         DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -127,40 +109,27 @@ struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
 
             switch(rand()%2)
             {
-            case 0:
-                DoYell(SAY_REPENTANCE1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_REPENTANCE1);
-                break;
-            case 1:
-                DoYell(SAY_REPENTANCE2,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_REPENTANCE2);
-                break;
+            case 0: DoScriptText(SAY_REPENTANCE1, m_creature);break;
+            case 1: DoScriptText(SAY_REPENTANCE2, m_creature);break;
             }
             Repentance_Timer = 30000 + rand()%15000;        //A little randomness on that spell
         }else Repentance_Timer -= diff;
 
         if (Holyfire_Timer < diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);            
-
-            if(target)
-            {
+			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))		
                 DoCast(target,SPELL_HOLYFIRE);
-                Holyfire_Timer = 8000 + rand()%17000; //Anywhere from 8 to 25 seconds, good luck having several of those in a row!
-            }
+
+                Holyfire_Timer = 8000 + rand()%17000; //Anywhere from 8 to 25 seconds, good luck having several of those in a row!         
         }else Holyfire_Timer -= diff;
 
         if (Holywrath_Timer < diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-
-            if (target)
-            {
-                DoCast(target,SPELL_HOLYWRATH);
-                Holywrath_Timer = 20000+(rand()%10000);     //20-30 secs sounds nice
-            }
+			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+				DoCast(target,SPELL_HOLYWRATH);
+            
+			Holywrath_Timer = 20000+(rand()%10000);     //20-30 secs sounds nice
+            
         }else Holywrath_Timer -= diff;
 
         DoMeleeAttackIfReady();

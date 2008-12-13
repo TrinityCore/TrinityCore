@@ -1,4 +1,4 @@
-/* Copyright (C) 2006,2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ /* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -37,7 +37,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
 {
-    instance_mount_hyjal(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_mount_hyjal(Map *map) : ScriptedInstance(map) {Initialize();};
 
     uint64 RageWinterchill;
     uint64 Anetheron;
@@ -125,6 +125,8 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
                 break;
         }
 
+		 debug_log("SD2: Instance Hyjal: Instance data updated for event %u (Data=%u)",type,data);
+
         if(data == DONE)
             SaveToDB();
     }
@@ -156,9 +158,8 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
     {
         OUT_SAVE_INST_DATA;
         std::ostringstream stream;
-        stream << Encounters[0] << " " << Encounters[1] << " "
-            << Encounters[2] << " " << Encounters[3] << " "
-            << Encounters[4];
+		stream << Encounters[0] << " " << Encounters[1] << " " << Encounters[2] << " "
+			<< Encounters[3] << " " << Encounters[4];
         char* out = new char[stream.str().length() + 1];
         strcpy(out, stream.str().c_str());
         if(out)
@@ -170,18 +171,19 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
         return NULL;
     }
 
-    void Load(const char* load)
+    void Load(const char* in)
     {
-        if(!load)
+        if (!in)
         {
             OUT_LOAD_INST_DATA_FAIL;
             return;
         }
 
-        OUT_LOAD_INST_DATA(load);
-        std::istringstream stream;
-        stream >> Encounters[1] >> Encounters[2] >> Encounters[3] >> Encounters[4];
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
+		OUT_LOAD_INST_DATA(in);
+		std::istringstream loadStream;
+		loadStream.str(in);
+		loadStream >> Encounters[0] >> Encounters[1] >> Encounters[2] >> Encounters[3] >> Encounters[4];
+		for(uint8 i = 0; i < ENCOUNTERS; ++i)
             if(Encounters[i] == IN_PROGRESS)                // Do not load an encounter as IN_PROGRESS - reset it instead.
                 Encounters[i] = NOT_STARTED;
         OUT_LOAD_INST_DATA_COMPLETE;

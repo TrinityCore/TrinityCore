@@ -24,6 +24,8 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_molten_core.h"
 
+#define ENCOUNTERS      9
+
 #define ID_LUCIFRON     12118
 #define ID_MAGMADAR     11982
 #define ID_GEHENNAS     12259
@@ -36,24 +38,20 @@ EndScriptData */
 #define ID_RAGNAROS     11502
 #define ID_FLAMEWAKERPRIEST     11662
 
-class TRINITY_DLL_SPEC instance_molten_core : public ScriptedInstance
+struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
 {
-    public:
-
-        instance_molten_core(Map *map) : ScriptedInstance(map) {}
+	 instance_molten_core(Map *map) : ScriptedInstance(map) {Initialize();};
 
         uint64 Lucifron, Magmadar, Gehennas, Garr, Geddon, Shazzrah, Sulfuron, Golemagg, Domo, Ragnaros, FlamewakerPriest;
-        uint64 RuneGUID[8];
+		uint64 RuneKoro, RuneZeth, RuneMazj, RuneTheri, RuneBlaz, RuneKress, RuneMohn;
 
         //If all Bosses are dead.
         bool IsBossDied[9];
 
-        uint32 CheckTimer;
+		uint32 Encounter[ENCOUNTERS];
 
-        //On creation, NOT load.
         void Initialize()
         {
-            //Clear all GUIDs
             Lucifron = 0;
             Magmadar = 0;
             Gehennas = 0;
@@ -66,14 +64,13 @@ class TRINITY_DLL_SPEC instance_molten_core : public ScriptedInstance
             Ragnaros = 0;
             FlamewakerPriest = 0;
 
-            RuneGUID[0] = 0;
-            RuneGUID[1] = 0;
-            RuneGUID[2] = 0;
-            RuneGUID[3] = 0;
-            RuneGUID[4] = 0;
-            RuneGUID[5] = 0;
-            RuneGUID[6] = 0;
-            RuneGUID[7] = 0;
+			RuneKoro = 0;
+			RuneZeth = 0;
+			RuneMazj = 0;
+			RuneTheri = 0;
+			RuneBlaz = 0;
+			RuneKress = 0;
+			RuneMohn = 0;
 
             IsBossDied[0] = false;
             IsBossDied[1] = false;
@@ -86,38 +83,49 @@ class TRINITY_DLL_SPEC instance_molten_core : public ScriptedInstance
             IsBossDied[7] = false;
             IsBossDied[8] = false;
 
-            CheckTimer = 10000;
-        }
-        //Called every map update
-        void Update(uint32 diff)
-        {
+             for(uint8 i = 0; i < ENCOUNTERS; i++)
+				  Encounter[i] = NOT_STARTED;
 
-            if (CheckTimer < diff)
-            {
-                //Check if all bosses are dead and activate Major Domo
-
-            }else CheckTimer -= diff;
 
         }
 
-        //Used by the map's CanEnter function.
-        //This is to prevent players from entering during boss encounters.
         bool IsEncounterInProgress() const
         {
             return false;
         };
 
-        //Called when a gameobject is created
-        void OnObjectCreate(GameObject *obj)
+        
+       void OnObjectCreate(GameObject *go)
         {
-            //Still searching for the individual rune ids.
-            //Currently they don't exist within most databases and are hard to find on websites
+             switch(go->GetEntry())
+			 {
+			 case 176951:                                    //Sulfuron
+				 RuneKoro = go->GetGUID();
+				 break;
+			 case 176952:                                    //Geddon
+				 RuneZeth = go->GetGUID();
+				 break;
+			 case 176953:                                    //Shazzrah
+				 RuneMazj = go->GetGUID();
+				 break;
+			 case 176954:                                    //Golemagg
+				 RuneTheri = go->GetGUID();
+				 break;
+			 case 176955:                                    //Garr
+				 RuneBlaz = go->GetGUID();
+				 break;
+			 case 176956:                                    //Magmadar
+				 RuneKress = go->GetGUID();
+				 break;
+			 case 176957:                                    //Gehennas
+				 RuneMohn = go->GetGUID();
+				 break;
+	 	         }
         }
 
-        //called on creature creation
+
         void OnCreatureCreate(Creature *creature, uint32 creature_entry)
         {
-            //Store specific creatures based on entry id
             switch (creature_entry)
             {
                 case ID_LUCIFRON:
@@ -180,7 +188,7 @@ class TRINITY_DLL_SPEC instance_molten_core : public ScriptedInstance
             }
 
             return 0;
-        }                                                   // end GetData64
+        }                                                 
 
         uint32 GetData(uint32 type)
         {
@@ -235,16 +243,16 @@ class TRINITY_DLL_SPEC instance_molten_core : public ScriptedInstance
             return 0;
         }
 
-        void SetData(uint32 type, uint32 data)
-        {
-            if(type == DATA_GOLEMAGG_DEATH)
-                IsBossDied[7] = true;
-        }
+		void SetData(uint32 type, uint32 data)
+		{
+			if (type == DATA_GOLEMAGG_DEATH)
+				IsBossDied[7] = true;
+		}
 };
 
-InstanceData* GetInstance_instance_molten_core(Map *_Map)
+InstanceData* GetInstance_instance_molten_core(Map *map)
 {
-    return new instance_molten_core (_Map);
+    return new instance_molten_core (map);
 }
 
 void AddSC_instance_molten_core()

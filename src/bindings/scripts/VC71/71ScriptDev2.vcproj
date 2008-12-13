@@ -1,116 +1,183 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="9,00"
 	Name="TrinityScript"
 	ProjectGUID="{4295C8A9-79B7-4354-8064-F05FB9CA0C96}"
 	RootNamespace="ScriptDev2"
-	Keyword="Win32Proj">
+	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\ScriptDev2__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="2"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="WIN32;_DEBUG;MANGOS_DEBUG;_WINDOWS;_USRDLL;SCRIPT"
-				MinimalRebuild="TRUE"
+				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="precompiled.h"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="4"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="4"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="trinitycore.lib zthread.lib"
 				OutputFile="$(OutDir)/TrinityScript.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\..\..\win\VC71\zthread__$(PlatformName)_$(ConfigurationName);..\..\..\..\win\VC71\trinitycore__$(PlatformName)_$(ConfigurationName)"
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/MaNGOSScript.pdb"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)/TrinityScript.lib"
-				TargetMachine="1"/>
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\ScriptDev2__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="2"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SCRIPT"
 				RuntimeLibrary="2"
 				EnableEnhancedInstructionSet="1"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="precompiled.h"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="trinitycore.lib zthread.lib"
 				OutputFile="$(OutDir)/TrinityScript.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\..\..\win\VC71\zthread__$(PlatformName)_$(ConfigurationName);..\..\..\..\win\VC71\trinitycore__$(PlatformName)_$(ConfigurationName)"
-				GenerateDebugInformation="FALSE"
+				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)/TrinityScript.lib"
-				TargetMachine="1"/>
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -269,6 +336,10 @@
 				<Filter
 					Name="Ashenvale Forest"
 					>
+					<File
+						RelativePath="..\scripts\zone\ashenvale_forest\ashenvale.cpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="Azshara"
@@ -312,7 +383,7 @@
 					<File
 						RelativePath="..\scripts\zone\deadmines\def_deadmines.h"
 						>
-					</File>					
+					</File>
 				</Filter>
 				<Filter
 					Name="Deadwind Pass"
@@ -526,10 +597,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\zone\scarlet_monastery\boss_high_inquisitor_whitemane.cpp"
-						>
-					</File>
-					<File
 						RelativePath="..\scripts\zone\scarlet_monastery\boss_houndmaster_loksey.cpp"
 						>
 					</File>
@@ -538,7 +605,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\zone\scarlet_monastery\boss_scarlet_commander_mograine.cpp"
+						RelativePath="..\scripts\zone\scarlet_monastery\boss_mograine_and_whitemane.cpp"
 						>
 					</File>
 					<File
@@ -1153,16 +1220,16 @@
 				<Filter
 					Name="Uldaman"
 					>
- 					<File
+					<File
 						RelativePath="..\scripts\zone\uldaman\boss_archaedas.cpp"
 						>
-					</File>					
-					<File
-						RelativePath="..\scripts\zone\uldaman\instance_uldaman.cpp"
-						>
-					</File>						
+					</File>
 					<File
 						RelativePath="..\scripts\zone\uldaman\boss_ironaya.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\uldaman\instance_uldaman.cpp"
 						>
 					</File>
 					<File
@@ -1555,7 +1622,7 @@
 						<File
 							RelativePath="..\scripts\zone\tempest_keep\the_eye\boss_alar.cpp"
 							>
-						</File>							
+						</File>
 						<File
 							RelativePath="..\scripts\zone\tempest_keep\the_eye\boss_astromancer.cpp"
 							>
@@ -1601,11 +1668,11 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\zone\tempest_keep\the_mechanar\instance_mechanar.cpp"
+							RelativePath="..\scripts\zone\tempest_keep\the_mechanar\def_mechanar.h"
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\zone\tempest_keep\the_mechanar\def_mechanar.h"
+							RelativePath="..\scripts\zone\tempest_keep\the_mechanar\instance_mechanar.cpp"
 							>
 						</File>
 					</Filter>
@@ -1701,15 +1768,15 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\zone\coilfang_resevoir\serpent_shrine\boss_lurker_below.cpp"
-							>
-						</File>						
-						<File
 							RelativePath="..\scripts\zone\coilfang_resevoir\serpent_shrine\boss_lady_vashj.cpp"
 							>
 						</File>
 						<File
 							RelativePath="..\scripts\zone\coilfang_resevoir\serpent_shrine\boss_leotheras_the_blind.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\coilfang_resevoir\serpent_shrine\boss_lurker_below.cpp"
 							>
 						</File>
 						<File

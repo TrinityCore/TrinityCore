@@ -1,28 +1,71 @@
 /* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-*/
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 /* ScriptData
 SDName: Stratholme
 SD%Complete: 100
-SDComment: trash mobs for strat. Simple AI mobs converted to EAI (except Mindless Skeleton and Thuzadin Acolyte)
+SDComment: Misc mobs for instance. GO-script to apply aura and start event for quest 8945
 SDCategory: Stratholme
 EndScriptData */
 
+/* ContentData
+go_gauntlet_gate
+mob_freed_soul
+mob_restless_soul
+mobs_spectral_ghostly_citizen
+EndContentData */
+
 #include "precompiled.h"
-#include "../../creature/simple_ai.h"
+#include "def_stratholme.h"
+
+/*######
+## go_gauntlet_gate (this is the _first_ of the gauntlet gates, two exist)
+######*/
+
+bool GOHello_go_gauntlet_gate(Player *player, GameObject* _GO)
+{
+    ScriptedInstance* pInstance = (ScriptedInstance*)_GO->GetInstanceData();
+
+    if (!pInstance)
+        return false;
+
+    if (pInstance->GetData(TYPE_BARON_RUN) != NOT_STARTED)
+        return false;
+
+    if (Group *pGroup = player->GetGroup())
+    {
+        for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+        {
+            Player* pGroupie = itr->getSource();
+            if (!pGroupie)
+                continue;
+
+            if (pGroupie->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
+                !pGroupie->HasAura(SPELL_BARON_ULTIMATUM,0) &&
+                pGroupie->GetMap() == _GO->GetMap())
+                pGroupie->CastSpell(pGroupie,SPELL_BARON_ULTIMATUM,true);
+        }
+    } else if (player->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
+                !player->HasAura(SPELL_BARON_ULTIMATUM,0) &&
+                player->GetMap() == _GO->GetMap())
+                player->CastSpell(player,SPELL_BARON_ULTIMATUM,true);
+
+    pInstance->SetData(TYPE_BARON_RUN,IN_PROGRESS);
+    return false;
+}
 
 /*######
 ## mob_freed_soul
@@ -40,116 +83,86 @@ struct TRINITY_DLL_DECL mob_freed_soulAI : public ScriptedAI
 
     void Reset()
     {
-
         switch (rand()%4)
         {
-        case 0:
-            DoSay(SAY_ZAPPED0,LANG_UNIVERSAL,NULL);
-            break;
-        case 1:
-            DoSay(SAY_ZAPPED1,LANG_UNIVERSAL,NULL);
-            break;
-        case 2:
-            DoSay(SAY_ZAPPED2,LANG_UNIVERSAL,NULL);
-            break;
-        case 3:
-            DoSay(SAY_ZAPPED3,LANG_UNIVERSAL,NULL);
-            break;
+            case 0: DoSay(SAY_ZAPPED0,LANG_UNIVERSAL,NULL); break;
+            case 1: DoSay(SAY_ZAPPED1,LANG_UNIVERSAL,NULL); break;
+            case 2: DoSay(SAY_ZAPPED2,LANG_UNIVERSAL,NULL); break;
+            case 3: DoSay(SAY_ZAPPED3,LANG_UNIVERSAL,NULL); break;
         }
     }
 
-    void Aggro(Unit* who)
-    {
-    }
+    void Aggro(Unit* who) { }
 };
+
 CreatureAI* GetAI_mob_freed_soul(Creature *_Creature)
 {
     return new mob_freed_soulAI (_Creature);
 }
+
 /*######
 ## mob_restless_soul
 ######*/
+
+#define SPELL_EGAN_BLASTER  17368
+#define SPELL_SOUL_FREED    17370
+#define QUEST_RESTLESS_SOUL 5282
+#define ENTRY_RESTLESS      11122
+#define ENTRY_FREED         11136
 
 struct TRINITY_DLL_DECL mob_restless_soulAI : public ScriptedAI
 {
     mob_restless_soulAI(Creature *c) : ScriptedAI(c) {Reset();}
 
-    Unit* PlayerHolder;
+    uint64 Tagger;
     uint32 Die_Timer;
-    bool OkToDie;
+    bool Tagged;
 
     void Reset()
     {
-        Die_Timer = 10000;
-        OkToDie = false;
-
-        PlayerHolder = NULL;
+        Tagger = 0;
+        Die_Timer = 5000;
+        Tagged = false;
     }
 
-    void Aggro(Unit* who)
-    {
-    }
-
-    void SummonFreedSoul(Unit* victim)
-    {
-        int Rand;
-        int RandX;
-        int RandY;
-
-        Rand = rand()%1;
-        switch (rand()%2)
-        {
-        case 0: RandX = 0 - Rand; break;
-        case 1: RandX = 0 + Rand; break;
-        }
-        Rand = 0;
-        Rand = rand()%1;
-        switch (rand()%2)
-        {
-        case 0: RandY = 0 - Rand; break;
-        case 1: RandY = 0 + Rand; break;
-        }
-        Rand = 0;
-        DoSpawnCreature(11136, RandX, RandY, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 300000);
-    }
+    void Aggro(Unit* who) { }
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
         if (caster->GetTypeId() == TYPEID_PLAYER)
         {
-            if(!PlayerHolder && !OkToDie && spell->Id == 17368 && ((Player*)caster)->GetQuestStatus(5282) == QUEST_STATUS_INCOMPLETE)
+            if (!Tagged && spell->Id == SPELL_EGAN_BLASTER && ((Player*)caster)->GetQuestStatus(QUEST_RESTLESS_SOUL) == QUEST_STATUS_INCOMPLETE)
             {
-                PlayerHolder = caster;
-                OkToDie = true;
-                Die_Timer = 5000;
+                Tagged = true;
+                Tagger = caster->GetGUID();
             }
         }
-        return;
+    }
+
+    void JustSummoned(Creature *summoned)
+    {
+        summoned->CastSpell(summoned,SPELL_SOUL_FREED,false);
     }
 
     void JustDied(Unit* Killer)
     {
-        if (Killer->GetTypeId() == TYPEID_PLAYER)
-        {
-            //check quest status
-            if(PlayerHolder == ((Player*)Killer) && ((Player*)Killer)->GetQuestStatus(5282) == QUEST_STATUS_INCOMPLETE)
-            {
-                SummonFreedSoul(m_creature->getVictim());
-            }
-        }
+        if (Tagged)
+            DoSpawnCreature(ENTRY_FREED, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 300000);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (PlayerHolder && OkToDie && Die_Timer < diff)
+        if (Tagged)
         {
-            PlayerHolder->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            if (Die_Timer < diff)
+            {
+                if (Unit* temp = Unit::GetUnit(*m_creature,Tagger))
+                    temp->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            }else Die_Timer -= diff;
         }
-        else Die_Timer -= diff;
-
-        return;
     }
 };
+
 CreatureAI* GetAI_mob_restless_soul(Creature *_Creature)
 {
     return new mob_restless_soulAI (_Creature);
@@ -159,177 +172,117 @@ CreatureAI* GetAI_mob_restless_soul(Creature *_Creature)
 ## mobs_spectral_ghostly_citizen
 ######*/
 
+#define SPELL_HAUNTING_PHANTOM  16336
+
 struct TRINITY_DLL_DECL mobs_spectral_ghostly_citizenAI : public ScriptedAI
 {
     mobs_spectral_ghostly_citizenAI(Creature *c) : ScriptedAI(c) {Reset();}
 
-    Unit* PlayerHolder;
     uint32 Die_Timer;
-    bool OkToDie;
+    bool Tagged;
 
     void Reset()
     {
         Die_Timer = 5000;
-        OkToDie = false;
-        PlayerHolder = NULL;
+        Tagged = false;
     }
 
-    void Aggro(Unit* who)
-    {
-    }
-
-    void SummonRestlessSoul(Unit* victim)
-    {
-        int Rand;
-        int RandX;
-        int RandY;
-
-        Rand = rand()%7;
-        switch (rand()%2)
-        {
-        case 0: RandX = 0 - Rand; break;
-        case 1: RandX = 0 + Rand; break;
-        }
-        Rand = 0;
-        Rand = rand()%7;
-        switch (rand()%2)
-        {
-        case 0: RandY = 0 - Rand; break;
-        case 1: RandY = 0 + Rand; break;
-        }
-        Rand = 0;
-        DoSpawnCreature(11122, RandX, RandY, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 600000);
-    }
+    void Aggro(Unit* who) { }
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
-        if (caster->GetTypeId() == TYPEID_PLAYER)
-        {
-            if(!PlayerHolder && !OkToDie && spell->Id == 17368 && ((Player*)caster)->GetQuestStatus(5282) == QUEST_STATUS_INCOMPLETE)
-            {
-                PlayerHolder = caster;
-                OkToDie = true;
-                Die_Timer = 5000;
-            }
-        }
-        return;
+        if (!Tagged && spell->Id == SPELL_EGAN_BLASTER)
+            Tagged = true;
     }
 
     void JustDied(Unit* Killer)
     {
-        if (Killer->GetTypeId() == TYPEID_PLAYER)
+        if (Tagged)
         {
-            //check quest status
-            if(PlayerHolder == ((Player*)Killer) && ((Player*)Killer)->GetQuestStatus(5282) == QUEST_STATUS_INCOMPLETE)
+            for(uint8 i = 0; i < 4; i++)
             {
-                SummonRestlessSoul(m_creature->getVictim());                        //always one
-                if (rand()%100 < 90) SummonRestlessSoul(m_creature->getVictim());   //90% a second
-                if (rand()%100 < 50) SummonRestlessSoul(m_creature->getVictim());   //50% a third
-                if (rand()%100 < 30) SummonRestlessSoul(m_creature->getVictim());   //30% a fourth
+                float x,y,z;
+                m_creature->GetRandomPoint(m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),25.0f,x,y,z);
+
+                int j = rand()%i;
+                if (!j)
+                    m_creature->SummonCreature(ENTRY_RESTLESS,x,y,z,0,TEMPSUMMON_CORPSE_DESPAWN,600000);
             }
         }
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (PlayerHolder && OkToDie && Die_Timer < diff)
+        if (Tagged)
         {
-            PlayerHolder->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            if (Die_Timer < diff)
+            {
+                m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            }else Die_Timer -= diff;
         }
-        else Die_Timer -= diff;
 
-        //Return since we have no target
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_mobs_spectral_ghostly_citizen(Creature *_Creature)
 {
     return new mobs_spectral_ghostly_citizenAI (_Creature);
 }
+
 bool ReciveEmote_mobs_spectral_ghostly_citizen(Player *player, Creature *_Creature, uint32 emote)
 {
-    _Creature->HandleEmoteCommand(emote);
-
-    if (emote == TEXTEMOTE_DANCE)
-        ((mobs_spectral_ghostly_citizenAI*)_Creature->AI())->EnterEvadeMode();
+    switch(emote)
+    {
+        case TEXTEMOTE_DANCE:
+            ((mobs_spectral_ghostly_citizenAI*)_Creature->AI())->EnterEvadeMode();
+            break;
+        case TEXTEMOTE_RUDE:
+            //Should instead cast spell, kicking player back. Spell not found.
+            if (_Creature->IsWithinDistInMap(player, 5))
+                _Creature->HandleEmoteCommand(EMOTE_ONESHOT_RUDE);
+            else
+                _Creature->HandleEmoteCommand(EMOTE_ONESHOT_RUDE);
+            break;
+        case TEXTEMOTE_WAVE:
+            _Creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
+            break;
+        case TEXTEMOTE_BOW:
+            _Creature->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
+            break;
+        case TEXTEMOTE_KISS:
+            _Creature->HandleEmoteCommand(EMOTE_ONESHOT_FLEX);
+            break;
+    }
 
     return true;
 }
-
-/*######
-## mob_mindless_skeleton
-######*/
-
-CreatureAI* GetAI_mob_mindless_skeleton(Creature *_Creature)
-{
-    SimpleAI* ai = new SimpleAI (_Creature);
-
-    //dazed
-    ai->Spell[0].Enabled = true;
-    ai->Spell[0].Spell_Id = 13496;
-    ai->Spell[0].Cooldown = 15000; 
-    ai->Spell[0].First_Cast = 3000;
-    ai->Spell[0].Cast_Target_Type = CAST_HOSTILE_TARGET;
-
-    ai->EnterEvadeMode();
-
-    return ai;
-}
-
-/*######
-## mob_thuzadin_acolyte
-######*/
-
-CreatureAI* GetAI_mob_thuzadin_acolyte(Creature *_Creature)
-{
-    SimpleAI* ai = new SimpleAI (_Creature);
-
-    //dazed
-    ai->Spell[0].Enabled = true;
-    ai->Spell[0].Spell_Id = 13496;
-    ai->Spell[0].Cooldown = 15000; 
-    ai->Spell[0].First_Cast = 1000;
-    ai->Spell[0].Cast_Target_Type = CAST_HOSTILE_TARGET;
-
-    ai->EnterEvadeMode();
-
-    return ai;
-}
-
-/*######
-## 
-######*/
 
 void AddSC_stratholme()
 {
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="mob_freed_soul";
-    newscript->GetAI = GetAI_mob_freed_soul;
+    newscript->Name = "go_gauntlet_gate";
+    newscript->pGOHello = &GOHello_go_gauntlet_gate;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_restless_soul";
-    newscript->GetAI = GetAI_mob_restless_soul;
+    newscript->Name = "mob_freed_soul";
+    newscript->GetAI = &GetAI_mob_freed_soul;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mobs_spectral_ghostly_citizen";
-    newscript->GetAI = GetAI_mobs_spectral_ghostly_citizen;
+    newscript->Name = "mob_restless_soul";
+    newscript->GetAI = &GetAI_mob_restless_soul;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mobs_spectral_ghostly_citizen";
+    newscript->GetAI = &GetAI_mobs_spectral_ghostly_citizen;
     newscript->pReceiveEmote = &ReciveEmote_mobs_spectral_ghostly_citizen;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name="mob_mindless_skeleton";
-    newscript->GetAI = GetAI_mob_mindless_skeleton;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name="mob_thuzadin_acolyte";
-    newscript->GetAI = GetAI_mob_thuzadin_acolyte;
     newscript->RegisterSelf();
 }

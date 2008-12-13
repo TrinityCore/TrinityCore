@@ -75,7 +75,7 @@ struct TRINITY_DLL_DECL boss_mekgineer_steamriggerAI : public ScriptedAI
         Summon50 = false;
         Summon25 = false;
 
-        if (pInstance)
+        if (pInstance && m_creature->isAlive())
             pInstance->SetData(TYPE_MEKGINEER_STEAMRIGGER, NOT_STARTED);
     }
 

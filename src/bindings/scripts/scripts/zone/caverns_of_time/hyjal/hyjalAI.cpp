@@ -16,7 +16,7 @@
 
 /* ScriptData
 SDName: HyjalAI
-SD%Complete: 99
+SD%Complete: 90
 SDComment: World Packet workaround for World States
 SDCategory: Caverns of Time, Mount Hyjal
 EndScriptData */
@@ -25,7 +25,8 @@ EndScriptData */
 #include "hyjalAI.h"
 #include "WorldPacket.h"
 
-float AllianceBase[4][3]=                                   // Locations for summoning waves in Alliance base
+// Locations for summoning waves in Alliance base
+float AllianceBase[4][3]=
 {
     {4979.010, -1709.134, 1339.674},
     {4969.123, -1705.904, 1341.363},
@@ -33,7 +34,8 @@ float AllianceBase[4][3]=                                   // Locations for sum
     {4975.262, -1698.239, 1341.427}
 };
 
-float HordeBase[4][3]=                                      // Locations for summoning waves in Horde base
+// Locations for summoning waves in Horde base
+float HordeBase[4][3]=         
 {
     {5554.399, -2581.419, 1480.820},
     {5538.996, -2577.742, 1479.790},
@@ -41,14 +43,11 @@ float HordeBase[4][3]=                                      // Locations for sum
     {5547.218, -2574.589, 1479.194}
 };
 
-float AttackArea[2][3]=                                     // used to inform the wave where to move and attack to
+// used to inform the wave where to move and attack to
+float AttackArea[2][3]=
 {
-    {                                                       // Alliance
-        5042.9189, -1776.2562, 1323.0621
-    },
-    {                                                       // Horde
-        5510.4815, -2676.7112, 1480.4314
-    }
+    {5042.9189, -1776.2562, 1323.0621}, // Alliance
+	{5510.4815, -2676.7112, 1480.4314} // Horde
 };
 
 hyjalAI::hyjalAI(Creature *c) : ScriptedAI(c)
@@ -59,20 +58,20 @@ hyjalAI::hyjalAI(Creature *c) : ScriptedAI(c)
 
 void hyjalAI::Reset()
 {
-    /** GUIDs **/
+    // GUIDs
     PlayerGUID = 0;
     BossGUID[0] = 0;
     BossGUID[1] = 0;
 
-    /** Timers **/
+    // Timers
     NextWaveTimer = 10000;
     CheckTimer = 0;
     RetreatTimer = 1000;
 
-    /** Misc **/
+    // Misc
     WaveCount = 0;
 
-    /** Set faction properly based on creature entry**/
+    // Set faction properly based on creature entry
     switch(m_creature->GetEntry())
     {
         case 17772:
@@ -80,36 +79,39 @@ void hyjalAI::Reset()
             DoCast(m_creature, SPELL_BRILLIANCE_AURA, true);
             break;
 
-        case 17852: Faction = 1; break;
+		case 17852:
+			Faction = 1;
+			break;
     }
 
-    /** Bools **/
+    //Bools 
     EventBegun = false;
     FirstBossDead = false;
     SecondBossDead = false;
     Summon = false;
     bRetreat = false;
+	Debug = false;
 
-    /** Flags **/
+    //Flags
     m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-    /** Initialize spells **/
+    //Initialize spells
     memset(Spell, 0, sizeof(Spell));
 
-    /** Reset World States **/
+    //Reset World States
     UpdateWorldState(WORLDSTATE_WAVES, 0);
     UpdateWorldState(WORLDSTATE_ENEMY, 0);
     UpdateWorldState(WORLDSTATE_ENEMYCOUNT, 0);
 
-    /** Reset Instance Data for trash count **/
+    //Reset Instance Data for trash count
     if(pInstance)
         pInstance->SetData(DATA_RESET_TRASH_COUNT, 0);
     else error_log(ERROR_INST_DATA);
 
-    /*** Visibility ***/
+    //Visibility
     m_creature->SetVisibility(VISIBILITY_ON);
 
-    /** If Jaina evades, reset the visibility of all other creatures in the grid. **/
+    //If Jaina evades, reset the visibility of all other creatures in the grid.
     if(CreatureList.empty())
         return;
 
@@ -130,6 +132,8 @@ void hyjalAI::EnterEvadeMode()
 
     if(m_creature->isAlive())
         m_creature->GetMotionMaster()->MoveTargetedHome();
+	
+	m_creature->SetLootRecipient(NULL);
 
     InCombat = false;
 }
@@ -158,15 +162,16 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
     Creature* pCreature = m_creature->SummonCreature(entry, SpawnLoc[0], SpawnLoc[1], SpawnLoc[2], 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
     if(pCreature)
     {
-        ++EnemyCount;                                       // Increment Enemy Count to be used in World States and instance script
+		// Increment Enemy Count to be used in World States and instance script
+		++EnemyCount;
 
         pCreature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
         pCreature->GetMotionMaster()->MovePoint(0, AttackLoc[0],AttackLoc[1],AttackLoc[2]);
-        pCreature->AddThreat(m_creature, 1.0f);
+		pCreature->AddThreat(m_creature, 0.0f);
         DoZoneInCombat(pCreature);
 
         // Check if creature is a boss.
-        if(pCreature->GetCreatureInfo()->rank == 3)
+        if (pCreature->isWorldBoss())
         {
             if(!FirstBossDead)  BossGUID[0] = pCreature->GetGUID();
             else                BossGUID[1] = pCreature->GetGUID();
@@ -177,8 +182,9 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
 
 void hyjalAI::SummonNextWave(Wave wave[18], uint32 Count, float Base[4][3])
 {
-    if(rand()%4 == 0)                                       // 1 in 4 chance we give a rally yell. Not sure if the chance is Blizzlike.
-        Talk(RALLY);
+	// 1 in 4 chance we give a rally yell. Not sure if the chance is offilike.
+	if (rand()%4 == 0)
+		Talk(RALLY);
 
     if(!pInstance)
     {
@@ -271,23 +277,18 @@ void hyjalAI::Talk(uint32 id)
 
     uint8 ind = *(index.begin()) + rand()%index.size();
 
-    char* Yell = NULL;
-    uint32 Sound = 0;
+	int32 YellId = 0;
     if(Faction == 0)                                        // Alliance
     {
-        Yell = JainaQuotes[ind].text;
-        Sound = JainaQuotes[ind].sound;
+		YellId = JainaQuotes[ind].textid;
     }
     else if(Faction == 1)                                   // Horde
     {
-        Yell = ThrallQuotes[ind].text;
-        Sound = ThrallQuotes[ind].sound;
+		YellId = ThrallQuotes[ind].textid;
     }
 
-    if(Yell)
-        DoYell(Yell, LANG_UNIVERSAL, NULL);
-    if(Sound)
-        DoPlaySoundToSet(m_creature, Sound);
+    if (YellId)
+		DoScriptText(YellId, m_creature);
 }
 
 // Slight workaround for now
@@ -359,18 +360,20 @@ void hyjalAI::Retreat()
 void hyjalAI::UpdateAI(const uint32 diff)
 {
     if(bRetreat)
+	{
         if(RetreatTimer < diff)
-    {
-        bRetreat = false;
-        if(CreatureList.empty())
-            return;
+		{
+			bRetreat = false;
+			if(CreatureList.empty())
+				return;
 
-        for(std::list<uint64>::iterator itr = CreatureList.begin(); itr != CreatureList.end(); ++itr)
-            if(Unit* pUnit = Unit::GetUnit(*m_creature, *itr))
-                pUnit->SetVisibility(VISIBILITY_OFF);
+			for(std::list<uint64>::iterator itr = CreatureList.begin(); itr != CreatureList.end(); ++itr)
+				if(Unit* pUnit = Unit::GetUnit(*m_creature, *itr))
+					pUnit->SetVisibility(VISIBILITY_OFF);
 
-        m_creature->SetVisibility(VISIBILITY_OFF);
-    }else RetreatTimer -= diff;
+			m_creature->SetVisibility(VISIBILITY_OFF);
+		}else RetreatTimer -= diff;
+	}
 
     if(!EventBegun)
         return;

@@ -24,6 +24,11 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_zulgurub.h"
 
+#define SAY_AGGRO                   -1309020
+#define SAY_FLEEING                 -1309021
+#define SAY_MINION_DESTROY          -1309022                //where does it belong?
+#define SAY_PROTECT_ALTAR           -1309023                //where does it belong?
+
 #define SPELL_BLOODSIPHON            24322
 #define SPELL_CORRUPTEDBLOOD         24328
 #define SPELL_CAUSEINSANITY          24327                  //Not working disabled.
@@ -37,11 +42,6 @@ EndScriptData */
 #define SPELL_ASPECT_OF_THEKAL       24689
 #define SPELL_ASPECT_OF_ARLOKK       24690
 
-#define SAY_AGGRO         "PRIDE HERALDS THE END OF YOUR WORLD. COME, MORTALS! FACE THE WRATH OF THE SOULFLAYER!"
-#define SOUND_AGGRO       8414
-
-#define SAY_SLAY          "Fleeing will do you no good, mortals!"
-
 struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
 {
     boss_hakkarAI(Creature *c) : ScriptedAI(c)
@@ -49,6 +49,8 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Reset();
     }
+
+	ScriptedInstance *pInstance;
 
     uint32 BloodSiphon_Timer;
     uint32 CorruptedBlood_Timer;
@@ -67,8 +69,6 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
     uint32 AspectOfMarli_Timer;
     uint32 AspectOfThekal_Timer;
     uint32 AspectOfArlokk_Timer;
-
-    ScriptedInstance *pInstance;
 
     bool Enraged;
 
@@ -97,13 +97,11 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_AGGRO,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_AGGRO);
+		DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        //Return since we have no target
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
@@ -122,26 +120,21 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
         }else CorruptedBlood_Timer -= diff;
 
         //CauseInsanity_Timer
-        //        if (CauseInsanity_Timer < diff)
-        //        {
-        //
-        //            Unit* target = NULL;
-        //            target = SelectUnit(SELECT_TARGET_RANDOM,0);
+		/*if (CauseInsanity_Timer < diff)
+		{        
+		if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+		DoCast(target,SPELL_CAUSEINSANITY);
 
-        //            DoCast(target,SPELL_CAUSEINSANITY);
-
-        //            CauseInsanity_Timer = 35000 + rand()%8000;
-        //        }else CauseInsanity_Timer -= diff;
+		CauseInsanity_Timer = 35000 + rand()%8000;
+		}else CauseInsanity_Timer -= diff;*/
 
         //WillOfHakkar_Timer
         if (WillOfHakkar_Timer < diff)
         {
+			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+				DoCast(target,SPELL_WILLOFHAKKAR);
 
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-
-            DoCast(target,SPELL_WILLOFHAKKAR);
-            WillOfHakkar_Timer = 25000 + rand()%10000;
+			WillOfHakkar_Timer = 25000 + rand()%10000;
         }else WillOfHakkar_Timer -= diff;
 
         if (!Enraged && Enrage_Timer < diff)

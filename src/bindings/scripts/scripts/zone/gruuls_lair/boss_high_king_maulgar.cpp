@@ -24,29 +24,16 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_gruuls_lair.h"
 
-//Sounds
-#define SOUND_AGGRO             11367
-#define SOUND_ENRAGE            11368
-#define SOUND_OGRE_DEATH1       11369
-#define SOUND_OGRE_DEATH2       11370
-#define SOUND_OGRE_DEATH3       11371
-#define SOUND_OGRE_DEATH4       11372
-#define SOUND_SLAY1             11373
-#define SOUND_SLAY2             11374
-#define SOUND_SLAY3             11375
-#define SOUND_DEATH             11376
-
-//Yells
-#define SAY_AGGRO				"Gronn are the real power in Outland!"
-#define SAY_ENRAGE				"You will not defeat the Hand of Gruul!"
-#define SAY_OGRE_DEATH1			"You not kill next one so easy!"
-#define SAY_OGRE_DEATH2			"Does not mean anything!"
-#define SAY_OGRE_DEATH3			"I'm not afraid of you!"
-#define SAY_OGRE_DEATH4			"Good, now you fight me!"
-#define SAY_SLAY1				"You not so tough after all!"
-#define SAY_SLAY2				"Ahahahaha!"
-#define SAY_SLAY3				"Maulgar is king!"
-#define SAY_DEATH				"Gruul will... crush you!"
+#define SAY_AGGRO               -1565000
+#define SAY_ENRAGE              -1565001
+#define SAY_OGRE_DEATH1         -1565002
+#define SAY_OGRE_DEATH2         -1565003
+#define SAY_OGRE_DEATH3         -1565004
+#define SAY_OGRE_DEATH4         -1565005
+#define SAY_SLAY1               -1565006
+#define SAY_SLAY2               -1565007
+#define SAY_SLAY3               -1565008
+#define SAY_DEATH               -1565009
 
 // High King Maulgar
 #define SPELL_ARCING_SMASH      39144
@@ -55,6 +42,7 @@ EndScriptData */
 #define SPELL_BERSERKER_C       26561
 #define SPELL_ROAR              16508
 #define SPELL_FLURRY            33232
+#define SPELL_DUAL_WIELD		29651 //used in phase
 
 // Olm the Summoner
 #define SPELL_DARK_DECAY        33129
@@ -106,7 +94,9 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
         MightyBlow_Timer = 40000;
         Whirlwind_Timer = 30000;
         Charging_Timer = 0;
-               Roar_Timer = 0;
+		Roar_Timer = 0;
+
+		m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, false);
 
         Phase2 = false;
 
@@ -133,57 +123,35 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-            case 0:
-                DoYell(SAY_SLAY1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY1);
-                break;
-            case 1:
-                DoYell(SAY_SLAY2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY2);
-                break;
-            case 2:
-                DoYell(SAY_SLAY3, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY3);
-                break;
+            case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+            case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+            case 2: DoScriptText(SAY_SLAY3, m_creature); break;
         }
     }
 
     void JustDied(Unit* Killer)
     {
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
-		DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
+        DoScriptText(SAY_DEATH, m_creature);
 		
         if (pInstance)
-               {
-            pInstance->SetData(DATA_MAULGAREVENT, DONE);
+		{
+			pInstance->SetData(DATA_MAULGAREVENT, DONE);
 
-                       GameObject* Door = NULL;
-                       Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_MAULGARDOOR));
-                       if(Door)
-                               Door->SetGoState(0);
-               }
-    }
+			GameObject* Door = NULL;
+			Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_MAULGARDOOR));
+			if(Door)
+				Door->SetGoState(0);
+		}
+	}
 
        void AddDeath()
        {
             switch(rand()%4)
 			{
-				case 0:
-					DoYell(SAY_OGRE_DEATH1, LANG_UNIVERSAL, NULL);
-					DoPlaySoundToSet(m_creature, SOUND_OGRE_DEATH1);
-					break;
-				case 1:
-					DoYell(SAY_OGRE_DEATH2, LANG_UNIVERSAL, NULL);
-					DoPlaySoundToSet(m_creature, SOUND_OGRE_DEATH2);
-					break;
-				case 2:
-					DoYell(SAY_OGRE_DEATH3, LANG_UNIVERSAL, NULL);
-					DoPlaySoundToSet(m_creature, SOUND_OGRE_DEATH3);
-					break;
-				case 3:
-					DoYell(SAY_OGRE_DEATH4, LANG_UNIVERSAL, NULL);
-					DoPlaySoundToSet(m_creature, SOUND_OGRE_DEATH4);
-					break;
+				case 0: DoScriptText(SAY_OGRE_DEATH1, m_creature);break;
+				case 1: DoScriptText(SAY_OGRE_DEATH2, m_creature);break;
+				case 2: DoScriptText(SAY_OGRE_DEATH3, m_creature);break;
+				case 3: DoScriptText(SAY_OGRE_DEATH4, m_creature);break;
 			}
        }
 
@@ -209,13 +177,12 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
 
         GetCouncil();
 
-        DoPlaySoundToSet(m_creature, SOUND_AGGRO);
-		DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
+        DoScriptText(SAY_AGGRO, m_creature);
 		
         pInstance->SetData64(DATA_MAULGAREVENT_TANK, who->GetGUID());
         pInstance->SetData(DATA_MAULGAREVENT, IN_PROGRESS);
 
-               DoZoneInCombat();
+		DoZoneInCombat();
     }
 
     void UpdateAI(const uint32 diff)
@@ -267,11 +234,10 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
         //Entering Phase 2
         if(!Phase2 && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 50)
         {
-            Phase2 = true;
-            DoPlaySoundToSet(m_creature, SOUND_ENRAGE);
-            DoYell(SAY_ENRAGE, LANG_UNIVERSAL, NULL);
-			DoCast(m_creature, SPELL_FLURRY);
-			
+			Phase2 = true;
+			DoScriptText(SAY_ENRAGE, m_creature);
+
+			m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);			
             m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, 0);
             m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY+1, 0);                
         }
