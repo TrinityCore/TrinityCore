@@ -3367,7 +3367,8 @@ bool ChatHandler::HandleDieCommand(const char* /*args*/)
 
     if( target->isAlive() )
     {
-        m_session->GetPlayer()->DealDamage(target, target->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+        //m_session->GetPlayer()->DealDamage(target, target->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+        m_session->GetPlayer()->Kill(target);
     }
 
     return true;
