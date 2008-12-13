@@ -137,6 +137,14 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
     {
         case SPELLFAMILY_GENERIC:
         {
+            //food/drink
+            if (spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED)
+                    for(int i = 0; i < 3; i++)
+                        if( spellInfo->EffectApplyAuraName[i]==SPELL_AURA_MOD_POWER_REGEN)
+                            return SPELL_DRINK;
+                        else if ( spellInfo->EffectApplyAuraName[i]==SPELL_AURA_MOD_REGEN)
+                            return SPELL_FOOD;
+
             // this may be a hack
             if((spellInfo->AttributesEx2 & SPELL_ATTR_EX2_FOOD)
                 && !spellInfo->Category)
@@ -271,6 +279,8 @@ bool IsSingleFromSpellSpecificPerTarget(uint32 spellSpec1,uint32 spellSpec2)
         case SPELL_ELEMENTAL_SHIELD:
         case SPELL_MAGE_POLYMORPH:
         case SPELL_WELL_FED:
+        case SPELL_DRINK:
+        case SPELL_FOOD:
             return spellSpec1==spellSpec2;
         case SPELL_BATTLE_ELIXIR:
             return spellSpec2==SPELL_BATTLE_ELIXIR
@@ -1146,6 +1156,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
     //if(spellId_1 == spellId_2) // auras due to the same spell
     //    return false;
 
+    //use data of highest rank spell(needed for spells which ranks have different effects)
+    spellId_1=GetLastSpellInChain(spellId_1);
+    spellId_2=GetLastSpellInChain(spellId_2);
+
     SpellEntry const *spellInfo_1 = sSpellStore.LookupEntry(spellId_1);
     SpellEntry const *spellInfo_2 = sSpellStore.LookupEntry(spellId_2);
 
@@ -1159,28 +1173,18 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
             ||(IsSingleFromSpellSpecificPerCaster(spellId_spec_1, spellId_spec_2) && sameCaster))
             return true;
 
+    // spells with different specific always stack
+    if(spellId_spec_1 || spellId_spec_2)
+        return false;
+
     if(spellInfo_1->SpellFamilyName != spellInfo_2->SpellFamilyName)
         return false;
 
     // generic spells
     if(!spellInfo_1->SpellFamilyName)
     {
-        if(spellInfo_1->Category && spellInfo_1->Category == spellInfo_2->Category)
-        {
-            if(spellInfo_1->Category == SPELL_CATEGORY_FOOD ||
-                spellInfo_1->Category == SPELL_CATEGORY_DRINK)
-                return true;
-        }
-
         if(!spellInfo_1->SpellIconID
             || spellInfo_1->SpellIconID != spellInfo_2->SpellIconID)
-            return false;
-    }
-
-    // if both elixirs are not battle/guardian/potions/flasks then always stack
-    else if(spellInfo_1->SpellFamilyName == SPELLFAMILY_POTION)
-    {
-        if(spellId_spec_1 || spellId_spec_2)
             return false;
     }
 
@@ -1212,16 +1216,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
                 }
     }
 
-    //not sure if this is correct. maybe some talent buff have same icons?
-    //maybe some creature spells have same visual and same icon but should stack?
-    //spells with the same icon (check needed when spell has different effects in other ranks example:Mark of the wild)
-    //if(spellInfo_1->SpellIconID 
-    //    && spellInfo_1->SpellIconID == spellInfo_2->SpellIconID)
-    //    return true; // maybe change this to IsRankSpellDueToSpell?
-
-    if(spellInfo_1->SpellFamilyName && IsRankSpellDueToSpell(spellInfo_1, spellId_2))
-        return true;
-
     //if spells have exactly the same effect they cannot stack
     for(uint32 i = 0; i < 3; ++i)
         if(spellInfo_1->Effect[i] != spellInfo_2->Effect[i]
@@ -1231,7 +1225,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
 
     return true;
 }
-
 bool SpellMgr::IsProfessionSpell(uint32 spellId)
 {
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);

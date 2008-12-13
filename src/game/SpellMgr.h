@@ -265,6 +265,8 @@ enum SpellSpecific
     SPELL_FLASK_ELIXIR      = 16,
     SPELL_WARLOCK_CORRUPTION= 17,
     SPELL_WELL_FED          = 18,
+    SPELL_DRINK             = 19,
+    SPELL_FOOD              = 20
 };
 
 SpellSpecific GetSpellSpecific(uint32 spellId);
@@ -789,6 +791,16 @@ class SpellMgr
                 return node->rank;
 
             return 0;
+        }
+
+        uint32 GetLastSpellInChain(uint32 spell_id) const
+        {
+            if (!GetSpellChainNode(spell_id))
+                return spell_id;
+            SpellChainMapNext const& nextMap = GetSpellChainNext();
+            for(SpellChainMapNext::const_iterator itr = nextMap.lower_bound(spell_id); itr != nextMap.upper_bound(spell_id); ++itr)
+                spell_id=itr->second;
+            return spell_id;
         }
 
         uint8 IsHighRankOfSpell(uint32 spell1,uint32 spell2) const
