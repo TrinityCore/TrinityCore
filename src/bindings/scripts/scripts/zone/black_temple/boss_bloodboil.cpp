@@ -24,6 +24,16 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_black_temple.h"
 
+//Speech'n'Sound
+#define SAY_AGGRO               -1564029
+#define SAY_SLAY1               -1564030
+#define SAY_SLAY2               -1564031
+#define SAY_SPECIAL1            -1564032
+#define SAY_SPECIAL2            -1564033
+#define SAY_ENRAGE1             -1564034
+#define SAY_ENRAGE2             -1564035
+#define SAY_DEATH               -1564036
+
 //Spells
 #define SPELL_ACID_GEYSER        40630
 #define SPELL_ACIDIC_WOUND       40481
@@ -40,27 +50,6 @@ EndScriptData */
 #define SPELL_TAUNT_GURTOGG      40603
 #define SPELL_INSIGNIFIGANCE     40618
 #define SPELL_BERSERK            45078
-
-//Speech'n'Sound
-#define SAY_AGGRO            "Horde will crush you!"
-#define SOUND_AGGRO          11432
-
-#define SAY_SLAY1            "Time to feast!"
-#define SOUND_SLAY1          11433
-
-#define SAY_SLAY2            "More! I want more!"
-#define SOUND_SLAY2          11434
-
-#define SAY_SPECIAL1         "Drink your blood! Eat your flesh!"
-#define SOUND_SPECIAL1       11435
-
-#define SAY_SPECIAL2         "I hunger!"
-#define SOUND_SPECIAL2       11436
-
-#define SAY_ENRAGE           "I'll rip the meat from your bones!"
-#define SOUND_ENRAGE         11437
-
-#define SOUND_DEATH          11439
 
 //This is used to sort the players by distance in preparation for the Bloodboil cast.
 struct TargetDistanceOrder : public std::binary_function<const Unit, const Unit, bool>
@@ -127,8 +116,7 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
     void Aggro(Unit *who)
     {
         DoZoneInCombat();
-        DoYell(SAY_AGGRO,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature, SOUND_AGGRO);
+		DoScriptText(SAY_AGGRO, m_creature);
         if(pInstance)
             pInstance->SetData(DATA_GURTOGGBLOODBOILEVENT, IN_PROGRESS);
     }
@@ -137,14 +125,8 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_SLAY1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY1);
-                break;
-            case 1:
-                DoYell(SAY_SLAY2,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature, SOUND_SLAY2);
-                break;
+		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
         }
     }
 
@@ -153,7 +135,7 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
         if(pInstance)
             pInstance->SetData(DATA_GURTOGGBLOODBOILEVENT, DONE);
 
-        DoPlaySoundToSet(m_creature,SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
     }
 
     // Note: This seems like a very complicated fix. The fix needs to be handled by the core, as implementation of limited-target AoE spells are still not limited.
@@ -162,7 +144,8 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
         // Get the Threat List
         std::list<HostilReference *> m_threatlist = m_creature->getThreatManager().getThreatList();
 
-        if(!m_threatlist.size()) return;                    // He doesn't have anyone in his threatlist, useless to continue
+        if(!m_threatlist.size()) // He doesn't have anyone in his threatlist, useless to continue
+			return;                    
 
         std::list<Unit *> targets;
         std::list<HostilReference *>::iterator itr = m_threatlist.begin();
@@ -231,12 +214,17 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
         }else FelAcidTimer -= diff;
 
         if(!m_creature->HasAura(SPELL_BERSERK, 0))
-            if(EnrageTimer < diff)
-        {
-            DoCast(m_creature, SPELL_BERSERK);
-            DoYell(SAY_ENRAGE,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature, SOUND_ENRAGE);
-        }else EnrageTimer -= diff;
+		{
+			if(EnrageTimer < diff)
+			{
+				DoCast(m_creature, SPELL_BERSERK);
+				switch(rand()%2)
+				{
+				case 0: DoScriptText(SAY_ENRAGE1, m_creature); break;
+				case 1: DoScriptText(SAY_ENRAGE2, m_creature); break;
+				}
+			}else EnrageTimer -= diff;
+		}
 
         if(Phase1)
         {
@@ -244,8 +232,8 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
             {
                 DoCast(m_creature->getVictim(), SPELL_BEWILDERING_STRIKE);
                 float mt_threat = m_creature->getThreatManager().getThreat(m_creature->getVictim());
-                Unit* target = SelectUnit(SELECT_TARGET_TOPAGGRO, 1);
-                m_creature->AddThreat(target, mt_threat);
+				if (Unit* target = SelectUnit(SELECT_TARGET_TOPAGGRO, 1))
+					m_creature->AddThreat(target, mt_threat);
                 BewilderingStrikeTimer = 20000;
             }else BewilderingStrikeTimer -= diff;
 
@@ -317,14 +305,8 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
 
                     switch(rand()%2)
                     {
-                        case 0:
-                            DoYell(SAY_SPECIAL1,LANG_UNIVERSAL,NULL);
-                            DoPlaySoundToSet(m_creature, SOUND_SPECIAL1);
-                            break;
-                        case 1:
-                            DoYell(SAY_SPECIAL2,LANG_UNIVERSAL,NULL);
-                            DoPlaySoundToSet(m_creature, SOUND_SPECIAL2);
-                            break;
+					case 0: DoScriptText(SAY_SPECIAL1, m_creature); break;
+					case 1: DoScriptText(SAY_SPECIAL2, m_creature); break;
                     }
 
                     AcidGeyserTimer = 1000;

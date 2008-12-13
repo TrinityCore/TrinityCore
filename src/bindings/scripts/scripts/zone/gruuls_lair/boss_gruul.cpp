@@ -24,24 +24,38 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_gruuls_lair.h"
 
+/* Yells & Quotes */
+#define SAY_AGGRO                   -1565010
+#define SAY_SLAM1                   -1565011
+#define SAY_SLAM2                   -1565012
+#define SAY_SHATTER1                -1565013
+#define SAY_SHATTER2                -1565014
+#define SAY_SLAY1                   -1565015
+#define SAY_SLAY2                   -1565016
+#define SAY_SLAY3                   -1565017
+#define SAY_DEATH                   -1565018
+#define EMOTE_GROW                  -1565019
+
+/* Spells */
 #define SPELL_GROWTH              36300
 #define SPELL_CAVE_IN             36240
 #define SPELL_GROUND_SLAM         33525                     // AoE Ground Slam applying Ground Slam to everyone with a script effect (most likely the knock back, we can code it to a set knockback)
-#define SPELL_SHATTER_EFFECT      33671
-#define SPELL_HURTFUL_STRIKE      33813
 #define SPELL_REVERBERATION       36297                     //AoE Silence
-#define SPELL_GRONN_LORDS_GRASP   33572                     //Already handled in GroundSlam
-#define SPELL_STONED              33652                     //-- Spell is self cast
 #define SPELL_SHATTER             33654
 #define SPELL_MAGNETIC_PULL       28337
 #define SPELL_KNOCK_BACK          24199                     //Knockback spell until correct implementation is made
-
-#define EMOTE_GROW              "grows in size!"
-#define SAY_AGGRO               "Come.... and die."
+#define SPELL_SHATTER_EFFECT        33671
+#define SPELL_HURTFUL_STRIKE        33813
+#define SPELL_STONED                33652                   //Spell is self cast
+#define SPELL_GRONN_LORDS_GRASP     33572                   //Triggered by Ground Slam
 
 struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
 {
-    boss_gruulAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_gruulAI(Creature *c) : ScriptedAI(c)  
+	{
+		pInstance = ((ScriptedInstance*)c->GetInstanceData());
+		Reset();
+	}
 
     ScriptedInstance *pInstance;
 
@@ -55,8 +69,6 @@ struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
 
     void Reset()
     {
-        pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
-
         Growth_Timer= 30000;
         CaveIn_Timer= 40000;
         GroundSlamTimer= 35000;
@@ -65,36 +77,36 @@ struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
         HurtfulStrike_Timer= 8000;
         Reverberation_Timer= 60000+45000;
 
-        if(pInstance)
-               {
-         pInstance->SetData(DATA_GRUULEVENT, NOT_STARTED);
+		if(pInstance)
+		{
+			pInstance->SetData(DATA_GRUULEVENT, NOT_STARTED);
 
-                GameObject* Door = NULL;
-                Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GRUULDOOR));
-                if(Door)
-                        Door->SetGoState(0);
-               }
-    }
+			GameObject* Door = NULL;
+			Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GRUULDOOR));
+			if(Door)
+				Door->SetGoState(0);
+		}
+	}
 
     void JustDied(Unit* Killer)
     {
-        if(pInstance)
-               {
-                       pInstance->SetData(DATA_GRUULEVENT, DONE);
-                       
-                       GameObject* Door = NULL;
-                       Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GRUULDOOR));
-                       if(Door)
-                               Door->SetGoState(0);
+		DoScriptText(SAY_DEATH, m_creature);
 
-               }
-    }
+		if(pInstance)
+		{
+				   pInstance->SetData(DATA_GRUULEVENT, DONE);
+
+				   GameObject* Door = NULL;
+				   Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GRUULDOOR));
+				   if(Door)
+					   Door->SetGoState(0);
+		}
+	}
 
     void Aggro(Unit *who)
     {
-
-        DoYell(SAY_AGGRO,LANG_UNIVERSAL,NULL);
-               DoZoneInCombat();
+		DoScriptText(SAY_AGGRO, m_creature);
+		DoZoneInCombat();
 
         if(pInstance)
                {
@@ -107,6 +119,16 @@ struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
                }
     }
 
+	void KilledUnit()
+	{
+		switch(rand()%3)
+		{	     
+		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+		case 2: DoScriptText(SAY_SLAY3, m_creature); break;
+		}
+	}
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
@@ -118,7 +140,7 @@ struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
         if (Growth_Timer < diff)
         {
             DoCast(m_creature,SPELL_GROWTH);
-            DoTextEmote(EMOTE_GROW,NULL);
+            DoScriptText(EMOTE_GROW, m_creature);
             Growth_Timer = 30000;
         }else Growth_Timer -= diff;
 
@@ -161,7 +183,8 @@ struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
                         }
 
                         GroundSlamTimer = 7000;
-                    } break;
+                     break;
+					}
 
                     case 1:
                     {
@@ -181,7 +204,8 @@ struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
 
                         GroundSlamTimer = 5000;
 
-                    } break;
+                     break;
+					}
 
                     case 2:
                     {
@@ -190,7 +214,8 @@ struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
 
                         GroundSlamTimer = 1000;
 
-                    } break;
+                     break;
+					}
 
                     case 3:
                     {
@@ -227,7 +252,8 @@ struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
                         if(Reverberation_Timer < 10000)     //Give a little time to the players to undo the damage from shatter
                             Reverberation_Timer += 10000;
 
-                    } break;
+                     break;
+					}
                 }
 
                 GroundSlamStage++;
@@ -254,18 +280,14 @@ struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
             // Reverberation
             if (Reverberation_Timer < diff)
             {
-                m_creature->CastSpell(m_creature->getVictim(), SPELL_REVERBERATION, true);
-
-                Reverberation_Timer = 30000;
+				DoCast(m_creature->getVictim(), SPELL_REVERBERATION, true);
+				Reverberation_Timer = 30000;
             }else Reverberation_Timer -= diff;
 
             // Cave In
             if (CaveIn_Timer < diff)
             {
-                Unit* target = NULL;
-                target = SelectUnit(SELECT_TARGET_RANDOM,0);
-
-                if(target)
+				if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                     DoCast(target,SPELL_CAVE_IN);
 
                 CaveIn_Timer = 20000;

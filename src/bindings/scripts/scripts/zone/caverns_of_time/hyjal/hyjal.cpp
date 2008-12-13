@@ -1,4 +1,4 @@
-/* Copyright (C) 2006,2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ /* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,8 +16,8 @@
 
 /* ScriptData
 SDName: Hyjal
-SD%Complete: 100
-SDComment:
+SD%Complete: 80
+SDComment: gossip text id's unknown
 SDCategory: Caverns of Time, Mount Hyjal
 EndScriptData */
 
@@ -30,12 +30,17 @@ EndContentData */
 #include "precompiled.h"
 #include "hyjalAI.h"
 
-#define GOSSIP_ITEM_BEGIN_ALLY  "We are ready to defend the Alliance base."
-#define GOSSIP_ITEM_ANETHERON   "The defenses are holding up; we can continue."
-#define GOSSIP_ITEM_RETREAT     "We can't keep this up. Let's retreat!"
+#define GOSSIP_ITEM_BEGIN_ALLY      "My companions and I are with you, Lady Proudmoore."
+#define GOSSIP_ITEM_ANETHERON       "We are ready for whatever Archimonde might send our way, Lady Proudmoore."
 
-#define GOSSIP_ITEM_BEGIN_HORDE "We're here to help! The Alliance are overrun."
-#define GOSSIP_ITEM_AZGALOR     "We're okay so far. Let's do this!"
+#define GOSSIP_ITEM_BEGIN_HORDE     "I am with you, Thrall."
+#define GOSSIP_ITEM_AZGALOR         "We have nothing to fear."
+
+#define GOSSIP_ITEM_RETREAT         "We can't keep this up. Let's retreat!"
+
+#define GOSSIP_ITEM_TYRANDE         "Aid us in defending Nordrassil"
+#define ITEM_TEAR_OF_GODDESS        24494
+
 
 CreatureAI* GetAI_npc_jaina_proudmoore(Creature *_Creature)
 {
@@ -72,10 +77,10 @@ bool GossipHello_npc_jaina_proudmoore(Player *player, Creature *_Creature)
     else if(RageEncounter == DONE && AnetheronEncounter == NOT_STARTED)
         player->ADD_GOSSIP_ITEM( 0, GOSSIP_ITEM_ANETHERON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
     else if(RageEncounter == DONE && AnetheronEncounter == DONE)
-        player->ADD_GOSSIP_ITEM( 0, GOSSIP_ITEM_RETREAT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+        player->ADD_GOSSIP_ITEM( 0, GOSSIP_ITEM_RETREAT, GOSSIP_SENDER_MAIN,    GOSSIP_ACTION_INFO_DEF + 2);
 
     if(player->isGameMaster())
-        player->ADD_GOSSIP_ITEM(2, "[GM] Toggle Debug Timers", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+        player->ADD_GOSSIP_ITEM(2, "[GM] Toggle Debug Timers", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
     player->SEND_GOSSIP_MENU(907, _Creature->GetGUID());
 
@@ -84,7 +89,6 @@ bool GossipHello_npc_jaina_proudmoore(Player *player, Creature *_Creature)
 
 bool GossipSelect_npc_jaina_proudmoore(Player *player, Creature *_Creature, uint32 sender, uint32 action)
 {
-    player->PlayerTalkClass->GetGossipMenu();
     hyjalAI* ai = ((hyjalAI*)_Creature->AI());
     switch(action)
     {
@@ -99,9 +103,9 @@ bool GossipSelect_npc_jaina_proudmoore(Player *player, Creature *_Creature, uint
         case GOSSIP_ACTION_INFO_DEF + 3:
             ai->Retreat();
             break;
-        case GOSSIP_ACTION_INFO_DEF + 4:
+         case GOSSIP_ACTION_INFO_DEF:
             ai->Debug = !ai->Debug;
-            outstring_log("SD2 : HyjalAI - Debug mode has been toggled");
+            debug_log("SD2: HyjalAI - Debug mode has been toggled");
             break;
     }
 
@@ -129,8 +133,14 @@ CreatureAI* GetAI_npc_thrall(Creature *_Creature)
 bool GossipHello_npc_thrall(Player *player, Creature *_Creature)
 {
     hyjalAI* ai = ((hyjalAI*)_Creature->AI());
+
+	if (ai->EventBegun)
+		return false;
+
     uint32 AnetheronEvent = ai->GetInstanceData(DATA_ANETHERONEVENT);
-    if(AnetheronEvent >= DONE && !ai->EventBegun)           // Only let them start the Horde phase if Anetheron is dead.
+
+	// Only let them start the Horde phases if Anetheron is dead.
+	if (AnetheronEvent == DONE)
     {
         uint32 KazrogalEvent = ai->GetInstanceData(DATA_KAZROGALEVENT);
         uint32 AzgalorEvent  = ai->GetInstanceData(DATA_AZGALOREVENT);
@@ -143,7 +153,7 @@ bool GossipHello_npc_thrall(Player *player, Creature *_Creature)
     }
 
     if(player->isGameMaster())
-        player->ADD_GOSSIP_ITEM(2, "[GM] Toggle Debug Timers", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+        player->ADD_GOSSIP_ITEM(2, "[GM] Toggle Debug Timers", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
     player->SEND_GOSSIP_MENU(907, _Creature->GetGUID());
 
@@ -152,7 +162,6 @@ bool GossipHello_npc_thrall(Player *player, Creature *_Creature)
 
 bool GossipSelect_npc_thrall(Player *player, Creature *_Creature, uint32 sender, uint32 action)
 {
-    player->PlayerTalkClass->GetGossipMenu();
     hyjalAI* ai = ((hyjalAI*)_Creature->AI());
     switch(action)
     {
@@ -167,26 +176,48 @@ bool GossipSelect_npc_thrall(Player *player, Creature *_Creature, uint32 sender,
         case GOSSIP_ACTION_INFO_DEF + 3:
             ai->Retreat();
             break;
-        case GOSSIP_ACTION_INFO_DEF + 4:
+        case GOSSIP_ACTION_INFO_DEF:
             ai->Debug = !ai->Debug;
-            outstring_log("SD2 : HyjalAI - Debug mode has been toggled");
+            debug_log("SD2: HyjalAI - Debug mode has been toggled");
             break;
     }
 
     return true;
 }
 
+CreatureAI* GetAI_npc_tyrande_whisperwind(Creature *_Creature)
+{
+	hyjalAI* ai = new hyjalAI(_Creature);
+	ai->Reset();
+	ai->EnterEvadeMode();
+
+	return ai;
+}
+
 bool GossipHello_npc_tyrande_whisperwind(Player* player, Creature* _Creature)
 {
-    player->ADD_GOSSIP_ITEM(1, "Aid us in defending Nordrassil", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-    player->SEND_GOSSIP_MENU(907, _Creature->GetGUID());
-    return true;
+	hyjalAI* ai = ((hyjalAI*)_Creature->AI());
+	uint32 AzgalorEvent = ai->GetInstanceData(DATA_AZGALOREVENT);
+
+	// Only let them get item if Azgalor is dead.
+	if (AzgalorEvent == DONE && !player->HasItemCount(ITEM_TEAR_OF_GODDESS,1))
+		player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_TYRANDE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+	player->SEND_GOSSIP_MENU(907, _Creature->GetGUID());
+	return true;
 }
 
 bool GossipSelect_npc_tyrande_whisperwind(Player *player, Creature *_Creature, uint32 sender, uint32 action)
 {
-    if(action == GOSSIP_ACTION_TRADE)
-        player->SEND_VENDORLIST( _Creature->GetGUID() );
+	if (action == GOSSIP_ACTION_INFO_DEF)  
+	{
+			ItemPosCountVec dest;
+			uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, ITEM_TEAR_OF_GODDESS, 1);
+			if (msg == EQUIP_ERR_OK)
+			{
+				player->StoreNewItem(dest, ITEM_TEAR_OF_GODDESS, true);
+			}
+			player->SEND_GOSSIP_MENU(907, _Creature->GetGUID());
+	}
 
     return true;
 }
@@ -213,5 +244,6 @@ void AddSC_hyjal()
     newscript->Name = "npc_tyrande_whisperwind";
     newscript->pGossipHello = &GossipHello_npc_tyrande_whisperwind;
     newscript->pGossipSelect = &GossipSelect_npc_tyrande_whisperwind;
+	newscript->GetAI = &GetAI_npc_tyrande_whisperwind;
     newscript->RegisterSelf();
 }

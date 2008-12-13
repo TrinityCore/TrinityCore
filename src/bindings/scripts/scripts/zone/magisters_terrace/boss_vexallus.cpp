@@ -24,19 +24,13 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_magisters_terrace.h"
 
-#define SAY_AGGRO           "Drain...life..."
-#define SOUND_AGGRO         12389
-
-#define SAY_ENERGY          "Un...con...tainable."
-#define SOUND_ENERGY        12392
-
-#define SAY_OVERLOAD        "Un...leash..."
-#define SOUND_OVERLOAD      12390
-
-#define SAY_KILL            "Con...sume."
-#define SOUND_KILL          12393
-
-#define SAY_DEATH           "What...happen...ed."
+#define SAY_AGGRO                   -1585007
+#define SAY_ENERGY                  -1585008
+#define SAY_OVERLOAD                -1585009
+#define SAY_KILL                    -1585010
+#define EMOTE_DISCHARGE_ENERGY      -1585011
+//is this text for real?
+#define SAY_DEATH                   "What...happen...ed."
 
 //Pure energy spell info
 #define SPELL_ENERGY_BOLT           44342
@@ -58,7 +52,7 @@ struct TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Reset();
-        Heroic = c->GetMap()->IsHeroic() ? true : false;
+         Heroic = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
@@ -91,8 +85,7 @@ struct TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        DoYell(SAY_KILL, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(victim, SOUND_KILL);
+		DoScriptText(SAY_KILL, m_creature);
     }
 
     void JustDied(Unit *victim)
@@ -111,8 +104,7 @@ struct TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_AGGRO);
+        DoScriptText(SAY_AGGRO, m_creature);
         if (pInstance)
             pInstance->SetData(DATA_VEXALLUS_EVENT, IN_PROGRESS);
     }
@@ -132,8 +124,8 @@ struct TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
             //used for check, when Vexallus cast adds 85%, 70%, 55%, 40%, 25%
             if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < (100-(SpawnAddInterval*(AlreadySpawnedAmount+1))))
             {
-                DoYell(SAY_ENERGY, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_ENERGY);
+				DoScriptText(SAY_ENERGY, m_creature);
+				DoScriptText(EMOTE_DISCHARGE_ENERGY, m_creature);
                 Creature* PureEnergyCreature = NULL;
                 PureEnergyCreature = DoSpawnCreature(CREATURE_PURE_ENERGY, 10, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                 Unit* target = NULL;
@@ -154,8 +146,7 @@ struct TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
 
             if(ChainLightningTimer < diff)
             {
-                Unit* target = NULL;
-                target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+				if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(target, SPELL_CHAIN_LIGHTNING);
                 ChainLightningTimer = 10000;
             }else ChainLightningTimer -= diff;
@@ -171,8 +162,7 @@ struct TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
         {
             if(OverloadTimer < diff)
             {
-                Unit* target = NULL;
-                target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+				if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(target, SPELL_OVERLOAD);
                 OverloadTimer = 2200;
             }else OverloadTimer -= diff;

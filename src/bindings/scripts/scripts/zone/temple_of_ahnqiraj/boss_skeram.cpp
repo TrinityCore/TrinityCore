@@ -25,19 +25,19 @@ EndScriptData */
 #include "def_temple_of_ahnqiraj.h"
 #include "Group.h"
 
+#define SAY_AGGRO1                  -1531000
+#define SAY_AGGRO2                  -1531001
+#define SAY_AGGRO3                  -1531002
+#define SAY_SLAY1                   -1531003
+#define SAY_SLAY2                   -1531004
+#define SAY_SLAY3                   -1531005
+#define SAY_SPLIT                   -1531006
+#define SAY_DEATH                   -1531007
+
 #define SPELL_ARCANE_EXPLOSION      25679
 #define SPELL_EARTH_SHOCK           26194
 #define SPELL_TRUE_FULFILLMENT4     26526
 #define SPELL_BLINK                 28391
-
-#define SOUND_AGGRO1       8615                             //8615 Are you so eager to die? I would be happy to accomodate you.
-#define SOUND_AGGRO2       8616                             //8616 Cower mortals! The age of darkness is at hand.
-#define SOUND_AGGRO3       8621                             //8621 Tremble! The end is upon you.
-#define SOUND_SLAY1        8617                             //8617 Let your death serve as an example!
-#define SOUND_SLAY2        8619                             //8619 Spineless wretchers you will drown in rivers of blood!
-#define SOUND_SLAY3        8620                             //8620 The screams of the dying will fill the air. A symphony of terror is about to begin!
-#define SOUND_SPLIT        8618                             //8618 Prepare for the return of the ancient ones!
-#define SOUND_DEATH        8622                             //8622 You only delay... the inevetable
 
 class ov_mycoordinates
 {
@@ -53,7 +53,7 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
 {
     boss_skeramAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
+		pInstance = ((ScriptedInstance*)c->GetInstanceData());
         IsImage = false;
         Reset();
     }
@@ -98,22 +98,16 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-            case 0:
-                DoPlaySoundToSet(m_creature,SOUND_SLAY1);
-                break;
-            case 1:
-                DoPlaySoundToSet(m_creature,SOUND_SLAY2);
-                break;
-            case 2:
-                DoPlaySoundToSet(m_creature,SOUND_SLAY3);
-                break;
+		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+		case 2: DoScriptText(SAY_SLAY3, m_creature); break;
         }
     }
 
     void JustDied(Unit* Killer)
     {
         if (!IsImage)
-            DoPlaySoundToSet(m_creature,SOUND_DEATH);
+			DoScriptText(SAY_DEATH, m_creature);
     }
 
     void Aggro(Unit *who)
@@ -122,15 +116,9 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
             return;
         switch(rand()%3)
         {
-            case 0:
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO1);
-                break;
-            case 1:
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO2);
-                break;
-            case 2:
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO3);
-                break;
+		case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
+		case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
+		case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
         }
     }
 
@@ -193,8 +181,7 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
         int procent = (int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5);
 
         //Summoning 2 Images and teleporting to a random position on 75% health
-        if ( (!Images75 && !IsImage) &&
-            (procent <= 75 && procent > 70) )
+        if ( (!Images75 && !IsImage) && (procent <= 75 && procent > 70) )
             DoSplit(75);
 
         //Summoning 2 Images and teleporting to a random position on 50% health
@@ -203,8 +190,7 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
             DoSplit(50);
 
         //Summoning 2 Images and teleporting to a random position on 25% health
-        if ( (!Images25 && !IsImage) &&
-            (procent <= 25 && procent > 20) )
+        if ( (!Images25 && !IsImage) && (procent <= 25 && procent > 20) )
             DoSplit(25);
 
         //Invisible_Timer
@@ -226,9 +212,7 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
 
     void DoSplit(int atPercent /* 75 50 25 */)
     {
-        DoPlaySoundToSet(m_creature,SOUND_SPLIT);
-        Unit* target = NULL;
-        target = SelectUnit(SELECT_TARGET_RANDOM,0);
+		DoScriptText(SAY_SPLIT, m_creature);
 
         ov_mycoordinates *place1 = new ov_mycoordinates(-8340.782227,2083.814453,125.648788,0);
         ov_mycoordinates *place2 = new ov_mycoordinates(-8341.546875,2118.504639,133.058151,0);
@@ -239,20 +223,26 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
         switch(rand()%3)
         {
             case 0:
-                bossc=place1;i1=place2;i2=place3;
+                bossc=place1;
+				i1=place2;
+				i2=place3;
                 break;
             case 1:
-                bossc=place2;i1=place1;i2=place3;
+                bossc=place2;
+				i1=place1;
+				i2=place3;
                 break;
             case 2:
-                bossc=place3;i1=place1;i2=place2;
+                bossc=place3;
+				i1=place1;
+				i2=place2;
                 break;
         }
 
         for (int tryi = 0; tryi < 41; tryi ++)
         {
             Unit *targetpl = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if (targetpl->isType(TYPEMASK_PLAYER))
+            if (targetpl->GetTypeId() == TYPEID_PLAYER)
             {
                 Group *grp = ((Player *)targetpl)->GetGroup();
                 if (grp)
@@ -282,14 +272,18 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
             case 25: Images25 = true; break;
         }
 
+		Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
+
         Image1 = m_creature->SummonCreature(15263, i1->x, i1->y, i1->z, i1->r, TEMPSUMMON_CORPSE_DESPAWN, 30000);
         Image1->SetMaxHealth(m_creature->GetMaxHealth() / 5);
         Image1->SetHealth(m_creature->GetHealth() / 5);
+		if (target)
         Image1->AI()->AttackStart(target);
 
         Image2 = m_creature->SummonCreature(15263,i2->x, i2->y, i2->z, i2->r, TEMPSUMMON_CORPSE_DESPAWN, 30000);
         Image2->SetMaxHealth(m_creature->GetMaxHealth() / 5);
         Image2->SetHealth(m_creature->GetHealth() / 5);
+		if (target)
         Image2->AI()->AttackStart(target);
 
         ((boss_skeramAI*)Image1->AI())->IsImage = true;

@@ -35,7 +35,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
 {
-    instance_the_eye(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_the_eye(Map *map) : ScriptedInstance(map) {Initialize();};
 
     uint64 ThaladredTheDarkener;
     uint64 LordSanguinar;

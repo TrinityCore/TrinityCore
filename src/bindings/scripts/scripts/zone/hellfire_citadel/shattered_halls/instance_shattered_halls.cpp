@@ -30,7 +30,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_shattered_halls : public ScriptedInstance
 {
-    instance_shattered_halls(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_shattered_halls(Map *map) : ScriptedInstance(map) {Initialize();};
 
     uint32 Encounter[ENCOUNTERS];
     uint64 nethekurseGUID;

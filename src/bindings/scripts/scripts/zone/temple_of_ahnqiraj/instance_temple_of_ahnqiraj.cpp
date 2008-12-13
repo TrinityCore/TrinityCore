@@ -26,7 +26,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_temple_of_ahnqiraj : public ScriptedInstance
 {
-    instance_temple_of_ahnqiraj(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_temple_of_ahnqiraj(Map *map) : ScriptedInstance(map) {Initialize();};
 
     //If Vem is dead...
     bool IsBossDied[3];

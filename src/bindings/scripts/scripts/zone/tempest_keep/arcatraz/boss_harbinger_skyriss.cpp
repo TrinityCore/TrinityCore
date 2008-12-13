@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Harbinger_Skyriss
 SD%Complete: 45
-SDComment: CombatAI not fully implemented. Timers will need adjustments. Need better method to "kill" the warden. Need more docs on how event fully work. Reset all event and force start over if fail at one point?
+SDComment: CombatAI not fully implemented. Timers will need adjustments. Need more docs on how event fully work. Reset all event and force start over if fail at one point?
 SDCategory: Tempest Keep, The Arcatraz
 EndScriptData */
 
@@ -29,32 +29,16 @@ EndContentData */
 #include "precompiled.h"
 #include "def_arcatraz.h"
 
-#define SAY_INTRO       "It is a small matter to control the mind of the weak... for I bear allegiance to powers untouched by time, unmoved by fate. No force on this world or beyond harbors the strength to bend our knee... not even the mighty Legion!"
-#define SOUND_INTRO     11122
-
-#define SAY_AGGRO       "Bear witness to the agent of your demise!"
-#define SOUND_AGGRO     11123
-
-#define SAY_KILL_1      "Your fate is written!"
-#define SOUND_KILL_1    11124
-#define SAY_KILL_2      "The chaos I have sown here is but a taste...."
-#define SOUND_KILL_2    11125
-
-#define SAY_MIND_1      "You will do my bidding, weakling."
-#define SOUND_MIND_1    11127
-#define SAY_MIND_2      "Your will is no longer your own."
-#define SOUND_MIND_2    11128
-
-#define SAY_FEAR_1      "Flee in terror!"
-#define SOUND_FEAR_1    11129
-#define SAY_FEAR_2      "I will show you horrors undreamed of!"
-#define SOUND_FEAR_2    11130
-
-#define SAY_IMAGE       "We span the universe, as countless as the stars!"
-#define SOUND_IMAGE     11131
-
-#define SAY_DEATH       "I am merely one of... infinite multitudes."
-#define SOUND_DEATH     11126
+#define SAY_INTRO               -1552000
+#define SAY_AGGRO               -1552001
+#define SAY_KILL_1              -1552002
+#define SAY_KILL_2              -1552003
+#define SAY_MIND_1              -1552004
+#define SAY_MIND_2              -1552005
+#define SAY_FEAR_1              -1552006
+#define SAY_FEAR_2              -1552007
+#define SAY_IMAGE               -1552008
+#define SAY_DEATH               -1552009
 
 #define SPELL_FEAR              39415
 
@@ -75,6 +59,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         HeroicMode = m_creature->GetMap()->IsHeroic();
+		Intro = false;
         Reset();
     }
 
@@ -96,11 +81,6 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
     {
         m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_ATTACKABLE_2);
 
-        if( Intro )
-            Intro = true;
-        else
-            Intro = false;
-
         IsImage33 = false;
         IsImage66 = false;
 
@@ -114,7 +94,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if(Intro)
+        if(!Intro)
             ScriptedAI::MoveInLineOfSight(who);
     }
 
@@ -131,27 +111,21 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature,SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
         if( pInstance )
             pInstance->SetData(TYPE_HARBINGERSKYRISS,DONE);
     }
 
     void KilledUnit(Unit* victim)
     {
-        /*if( victim->GetEntry() == 21436 )
-            return;*/
+		//won't yell killing pet/other unit
+		if( victim->GetEntry() == 21436 )
+            return;
 
         switch(rand()%2)
         {
-            case 0:
-                DoYell(SAY_KILL_1, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_KILL_1);
-                break;
-            case 1:
-                DoYell(SAY_KILL_2, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_KILL_2);
-                break;
+		case 0: DoScriptText(SAY_KILL_1, m_creature); break;
+		case 1: DoScriptText(SAY_KILL_2, m_creature); break;
         }
     }
 
@@ -165,8 +139,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
         if( m_creature->IsNonMeleeSpellCasted(false) )
             m_creature->InterruptNonMeleeSpells(false);
 
-        DoYell(SAY_IMAGE, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature,SOUND_IMAGE);
+        DoScriptText(SAY_IMAGE, m_creature);
 
         if( val == 66 )
             DoCast(m_creature, SPELL_66_ILLUSION);
@@ -186,14 +159,14 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
                 switch( Intro_Phase )
                 {
                     case 1:
-                        DoYell(SAY_INTRO, LANG_UNIVERSAL, NULL);
-                        DoPlaySoundToSet(m_creature,SOUND_INTRO);
+                         DoScriptText(SAY_INTRO, m_creature);
+						if (GameObject* Sphere = GameObject::GetGameObject(*m_creature,pInstance->GetData64(DATA_SPHERE_SHIELD)))
+							Sphere->SetGoState(0);
                         ++Intro_Phase;
                         Intro_Timer = 25000;
                         break;
                     case 2:
-                        DoYell(SAY_AGGRO, LANG_UNIVERSAL, NULL);
-                        DoPlaySoundToSet(m_creature,SOUND_AGGRO);
+                        DoScriptText(SAY_AGGRO, m_creature);
                         if( Unit *mellic = Unit::GetUnit(*m_creature,pInstance->GetData64(DATA_MELLICHAR)) )
                         {
                             //should have a better way to do this. possibly spell exist.
@@ -242,14 +215,8 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
 
             switch(rand()%2)
             {
-                case 0:
-                    DoYell(SAY_FEAR_1, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_FEAR_1);
-                    break;
-                case 1:
-                    DoYell(SAY_FEAR_2, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_FEAR_2);
-                    break;
+			case 0: DoScriptText(SAY_FEAR_1, m_creature); break;
+			case 1: DoScriptText(SAY_FEAR_2, m_creature); break;
             }
 
             if( Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1) )
@@ -267,14 +234,8 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
 
             switch(rand()%2)
             {
-                case 0:
-                    DoYell(SAY_MIND_1, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_MIND_1);
-                    break;
-                case 1:
-                    DoYell(SAY_MIND_2, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_MIND_2);
-                    break;
+			case 0: DoScriptText(SAY_MIND_1, m_creature); break;
+			case 1: DoScriptText(SAY_MIND_2, m_creature); break;
             }
 
             if( Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1) )

@@ -32,10 +32,8 @@ EndScriptData */
 
 #define SAY_SLAY_1                  -1556011
 #define SAY_SLAY_2                  -1556012
-
-#define SAY_DEATH                   -15560013
-
-#define EMOTE_ARCANE_EXP            -15560014
+#define SAY_DEATH                   -1556013
+#define EMOTE_ARCANE_EXP            -1556015
 
 #define SPELL_BLINK                 38194
 #define SPELL_BLINK_TELEPORT        38203

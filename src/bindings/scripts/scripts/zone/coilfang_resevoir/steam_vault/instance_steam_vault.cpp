@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+tet/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,8 +16,8 @@
 
 /* ScriptData
 SDName: Instance_Steam_Vault
-SD%Complete: 60
-SDComment: Workaround for opening of Main Chamber door. Trinity does not support scripting of Gameobject as this instance require.
+SD%Complete: 80
+SDComment:  Instance script and access panel GO
 SDCategory: Coilfang Resevoir, The Steamvault
 EndScriptData */
 
@@ -26,7 +26,7 @@ EndScriptData */
 
 #define ENCOUNTERS 4
 
-#define MAIN_CHAMBERS_DOOR      183049                      //door opened when hydromancer and mekgineer are died
+#define MAIN_CHAMBERS_DOOR      183049
 #define ACCESS_PANEL_HYDRO      184125
 #define ACCESS_PANEL_MEK        184126
 
@@ -36,50 +36,82 @@ EndScriptData */
 3 - Warlord Kalithresh Event
 */
 
+bool GOHello_go_main_chambers_access_panel(Player *player, GameObject* _GO)
+{
+	ScriptedInstance* pInstance = (ScriptedInstance*)_GO->GetInstanceData();
+
+	if (!pInstance)
+		return false;
+	 	 
+	if (_GO->GetEntry() == ACCESS_PANEL_HYDRO && pInstance->GetData(TYPE_HYDROMANCER_THESPIA) == DONE)
+		pInstance->SetData(TYPE_HYDROMANCER_THESPIA,SPECIAL);
+	 	 
+	if (_GO->GetEntry() == ACCESS_PANEL_MEK && pInstance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == DONE)
+		pInstance->SetData(TYPE_MEKGINEER_STEAMRIGGER,SPECIAL);
+	 	 
+	return true;
+}
+
 struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
 {
-    instance_steam_vault(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_steam_vault(Map *map) : ScriptedInstance(map) {Initialize();};
+
+	uint32 Encounter[ENCOUNTERS];
 
     uint64 ThespiaGUID;
     uint64 MekgineerGUID;
     uint64 KalithreshGUID;
-    uint32 Encounter[ENCOUNTERS];
 
-    bool IsHydromancerDead, IsMekgineerDead;
-    GameObject *MainChambersDoor;
-    GameObject *AccessPanelHydro;
-    GameObject *AccessPanelMek;
+	uint64 MainChambersDoor;
+	uint64 AccessPanelHydro;
+	uint64 AccessPanelMek;
 
     void Initialize()
     {
         ThespiaGUID = 0;
         MekgineerGUID = 0;
         KalithreshGUID = 0;
-        IsHydromancerDead = false;
-        IsMekgineerDead = false;
-        MainChambersDoor = NULL;
-        AccessPanelHydro = NULL;
-        AccessPanelMek = NULL;
+        MainChambersDoor = 0;
+		AccessPanelHydro = 0;
+		AccessPanelMek = 0;
 
         for(uint8 i = 0; i < ENCOUNTERS; i++)
-            Encounter[i] = false;
+			Encounter[i] = NOT_STARTED;
     }
 
     bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < ENCOUNTERS; i++)
-            if( Encounter[i] ) return true;
+             if (Encounter[i] == IN_PROGRESS)
+				 return true;
 
         return false;
     }
 
+	Player* GetPlayerInMap()
+	{
+		Map::PlayerList const& players = instance->GetPlayers();
+
+		if (!players.isEmpty())
+		{
+			for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+			{
+				if (Player* plr = itr->getSource())
+					return plr;
+			}
+		}
+	 	 
+		debug_log("SD2: Instance Steamvault: GetPlayerInMap, but PlayerList is empty!");
+		return NULL;
+	}
+
     void OnCreatureCreate(Creature *creature, uint32 creature_entry)
     {
-        switch(creature_entry)
+          switch(creature->GetEntry())
         {
-            case 17797: ThespiaGUID = creature->GetGUID(); break;
-            case 17796: MekgineerGUID = creature->GetGUID(); break;
-            case 17798: KalithreshGUID = creature->GetGUID(); break;
+		  case 17797: ThespiaGUID = creature->GetGUID(); break;
+		  case 17796: MekgineerGUID = creature->GetGUID(); break;
+		  case 17798: KalithreshGUID = creature->GetGUID(); break;
         }
     }
 
@@ -87,31 +119,51 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
     {
         switch(go->GetEntry())
         {
-            case MAIN_CHAMBERS_DOOR: MainChambersDoor = go; break;
-            case ACCESS_PANEL_HYDRO: AccessPanelHydro = go; break;
-            case ACCESS_PANEL_MEK:   AccessPanelMek = go; break;
+ 		case MAIN_CHAMBERS_DOOR: MainChambersDoor = go->GetGUID(); break;
+		case ACCESS_PANEL_HYDRO: AccessPanelHydro = go->GetGUID(); break;
+		case ACCESS_PANEL_MEK:   AccessPanelMek = go->GetGUID(); break;
         }
     }
 
     void SetData(uint32 type, uint32 data)
     {
+		Player *player = GetPlayerInMap();
+	 	 
+		if (!player)
+		{
+			debug_log("SD2: Instance Steamvault: SetData (Type: %u Data %u) cannot find any player.", type, data);
+			return;
+		}
+
         switch(type)
         {
             case TYPE_HYDROMANCER_THESPIA:
-                if(data == DONE)
-                {
-                    IsHydromancerDead = true;
-                    if( IsMekgineerDead && MainChambersDoor )
-                        MainChambersDoor->SetGoState(0);
-                }
-                Encounter[0] = data;
-                break;
+				if (data == SPECIAL)
+				{
+					if (GameObject *_go = GameObject::GetGameObject(*player,AccessPanelHydro))
+						_go->SetGoState(0);
+
+					if (GetData(TYPE_MEKGINEER_STEAMRIGGER) == SPECIAL)
+					{
+						if (GameObject *_go = GameObject::GetGameObject(*player,MainChambersDoor))
+							_go->SetGoState(0);
+					}
+					debug_log("SD2: Instance Steamvault: Access panel used.");
+				}
+				Encounter[0] = data;
+				break;
             case TYPE_MEKGINEER_STEAMRIGGER:
-                if(data == DONE)
-                {
-                    IsMekgineerDead = true;
-                    if( IsHydromancerDead && MainChambersDoor )
-                        MainChambersDoor->SetGoState(0);
+				if (data == SPECIAL)
+				{
+					if (GameObject *_go = GameObject::GetGameObject(*player,AccessPanelMek))
+						_go->SetGoState(0);
+
+					if (GetData(TYPE_HYDROMANCER_THESPIA) == SPECIAL)
+					{
+                     if (GameObject *_go = GameObject::GetGameObject(*player,MainChambersDoor))
+                      _go->SetGoState(0);
+					}
+					debug_log("SD2: Instance Steamvault: Access panel used.");
                 }
                 Encounter[1] = data;
                 break;
@@ -163,6 +215,12 @@ InstanceData* GetInstanceData_instance_steam_vault(Map* map)
 void AddSC_instance_steam_vault()
 {
     Script *newscript;
+
+	newscript = new Script;
+	newscript->Name = "go_main_chambers_access_panel";
+	newscript->pGOHello = &GOHello_go_main_chambers_access_panel;
+	newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "instance_steam_vault";
     newscript->GetInstanceData = GetInstanceData_instance_steam_vault;

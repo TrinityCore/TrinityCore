@@ -491,57 +491,13 @@ CreatureAI* GetAI_guard_bluffwatcher(Creature *_Creature)
  * guard_contested start
  *******************************************************/
 
-struct TRINITY_DLL_DECL guard_contested : public guardAI
+CreatureAI* GetAI_guard_contested(Creature *_Creature)
 {
-    guard_contested(Creature *c) : guardAI(c) {}
-
-    void MoveInLineOfSight(Unit *who)
-    {
-        if ( who->isAttackingPlayer() )
-        {
-            if(who->GetTypeId() == TYPEID_PLAYER || who->GetOwnerGUID() && GUID_HIPART(who->GetOwnerGUID())==HIGHGUID_PLAYER)
-            {
-                m_creature->AddThreat(who, 0.0f);
-                if(Unit* owner = who->GetOwner())
-                    m_creature->AddThreat(owner, 0.0f);
-
-                if(!m_creature->isInCombat())
-                {
-                    if (m_creature->GetEntry() == 15184)    //Cenarion Hold Infantry
-                    {
-                        srand (time(NULL));
-                        if (rand()%100 <= 30)
-                        {
-                            DoSay("Taste blade, mongrel!", LANG_UNIVERSAL,NULL);
-                        }
-                        else if (rand()%100 > 30 && rand()%100 < 50)
-                        {
-                            DoSay("Please tell me that you didn`t just do what I think you just did. Please tell me that I`m not going to have to hurt you...", LANG_UNIVERSAL,NULL);
-                        }
-                        else if (rand()%100 >= 50)
-                        {
-                            DoSay("As if we don`t have enough problems, you go and create more!", LANG_UNIVERSAL,NULL);
-                        }
-                    }
-                    else
-                    {
-                        SpellEntry const *spell = m_creature->reachWithSpellAttack(who);
-                        DoCastSpell(who, spell);
-                    }
-                }
-                AttackStart(who);
-            }
-        }
-    }
-};
+	 return new guardAI (_Creature);
+}
 /*******************************************************
  * guard_contested end
  *******************************************************/
-
-CreatureAI* GetAI_guard_contested(Creature *_Creature)
-{
-    return new guard_contested (_Creature);
-}
 
 /*******************************************************
  * guard_darnassus start

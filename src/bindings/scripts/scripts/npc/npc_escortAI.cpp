@@ -31,27 +31,30 @@ void npc_escortAI::AttackStart(Unit *who)
     if (IsBeingEscorted && !Defend)
         return;
 
-    if (who->isTargetableForAttack())
-    {
-        //Begin attack
+    
         if ( m_creature->Attack(who, true) )
         {
-            m_creature->GetMotionMaster()->MovementExpired();
-            m_creature->GetMotionMaster()->MoveChase(who);
             m_creature->AddThreat(who, 0.0f);
-        }
+			m_creature->SetInCombatWith(who);
+			who->SetInCombatWith(m_creature);
 
         if (!InCombat)
         {
             InCombat = true;
 
+			if (IsBeingEscorted)
+			{
             //Store last position
             m_creature->GetPosition(LastPos.x, LastPos.y, LastPos.z);
 
-            debug_log("SD2: EscortAI has entered combat via Attack and stored last location");
+             debug_log("SD2: EscortAI has entered combat and stored last location.");
+			}
 
             Aggro(who);
         }
+
+		m_creature->GetMotionMaster()->MovementExpired();
+		m_creature->GetMotionMaster()->MoveChase(who);
     }
 }
 
@@ -63,24 +66,7 @@ void npc_escortAI::MoveInLineOfSight(Unit *who)
     if(m_creature->getVictim() || !m_creature->canStartAttack(who))
         return;
 
-    //Begin attack
-    if ( m_creature->Attack(who, true) )
-    {
-        m_creature->GetMotionMaster()->MovementExpired();
-        m_creature->GetMotionMaster()->MoveChase(who);
-        m_creature->AddThreat(who, 0.0f);
-    }
-
-    if (!InCombat)
-    {
-        InCombat = true;
-
-        //Store last position
-        m_creature->GetPosition(LastPos.x, LastPos.y, LastPos.z);
-        debug_log("SD2: EscortAI has entered combat via LOS and stored last location");
-
-        Aggro(who);
-    }
+	AttackStart(who);
 }
 
 void npc_escortAI::JustRespawned()
@@ -106,7 +92,7 @@ void npc_escortAI::EnterEvadeMode()
 
     if (IsBeingEscorted)
     {
-        debug_log("SD2: EscortAI has left combat and is now returning to last point");
+        debug_log("SD2: EscortAI has left combat and is now returning to last point.");
         Returning = true;
         m_creature->GetMotionMaster()->MovementExpired();
         m_creature->GetMotionMaster()->MovePoint(WP_LAST_POINT, LastPos.x, LastPos.y, LastPos.z);
@@ -124,6 +110,7 @@ void npc_escortAI::UpdateAI(const uint32 diff)
 {
     //Waypoint Updating
     if (IsBeingEscorted && !InCombat && WaitTimer && !Returning)
+	{
         if (WaitTimer <= diff)
     {
         if (ReconnectWP)
@@ -137,7 +124,7 @@ void npc_escortAI::UpdateAI(const uint32 diff)
             if( !IsOnHold )
             {
                 m_creature->GetMotionMaster()->MovePoint(CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z );
-                debug_log("SD2: EscortAI Reconnect WP is: %d, %f, %f, %f", CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
+                debug_log("SD2: EscortAI Reconnect WP is: %u, %f, %f, %f", CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
                 WaitTimer = 0;
                 ReconnectWP = false;
                 return;
@@ -167,13 +154,15 @@ void npc_escortAI::UpdateAI(const uint32 diff)
         if( !IsOnHold )
         {
             m_creature->GetMotionMaster()->MovePoint(CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z );
-            debug_log("SD2: EscortAI Next WP is: %d, %f, %f, %f", CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
+            debug_log("SD2: EscortAI Next WP is: %u, %f, %f, %f", CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
             WaitTimer = 0;
         }
     }else WaitTimer -= diff;
+	}
 
     //Check if player is within range
     if (IsBeingEscorted && !InCombat && PlayerGUID)
+	{
         if (PlayerTimer < diff)
     {
         Unit* p = Unit::GetUnit(*m_creature, PlayerGUID);
@@ -198,6 +187,7 @@ void npc_escortAI::UpdateAI(const uint32 diff)
 
         PlayerTimer = 1000;
     }else PlayerTimer -= diff;
+	}
 
     //Check if we have a current target
     if( m_creature->isAlive() && m_creature->SelectHostilTarget() && m_creature->getVictim())
