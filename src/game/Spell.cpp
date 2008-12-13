@@ -1223,11 +1223,14 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
     }
 
     // Get Data Needed for Diminishing Returns, some effects may have multiple auras, so this must be done on spell hit, not aura add
-    m_diminishGroup = GetDiminishingReturnsGroupForSpell(m_spellInfo,m_triggeredByAuraSpell);
-    m_diminishLevel = unit->GetDiminishing(m_diminishGroup);
-    // Increase Diminishing on unit, current informations for actually casts will use values above
-    if((GetDiminishingReturnsGroupType(m_diminishGroup) == DRTYPE_PLAYER && unit->GetTypeId() == TYPEID_PLAYER) || GetDiminishingReturnsGroupType(m_diminishGroup) == DRTYPE_ALL)
-        unit->IncrDiminishing(m_diminishGroup);
+    if(m_diminishGroup = GetDiminishingReturnsGroupForSpell(m_spellInfo,m_triggeredByAuraSpell))
+    {
+        m_diminishLevel = unit->GetDiminishing(m_diminishGroup);
+        DiminishingReturnsType type = GetDiminishingReturnsGroupType(m_diminishGroup);
+        // Increase Diminishing on unit, current informations for actually casts will use values above
+        if((type == DRTYPE_PLAYER && unit->GetTypeId() == TYPEID_PLAYER) || type == DRTYPE_ALL)
+            unit->IncrDiminishing(m_diminishGroup);
+    }
 
     for(uint32 effectNumber=0;effectNumber<3;effectNumber++)
     {
