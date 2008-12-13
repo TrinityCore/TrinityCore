@@ -778,9 +778,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 
             case EVENT_PARASITIC_SHADOWFIEND:
                 {
-                    Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1, 200, true);
-                    if(!target) target = m_creature->getVictim();
-                    if(target)
+                    if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1, 200, true))
                         m_creature->CastSpell(target, SPELL_PARASITIC_SHADOWFIEND, true);
                     Timer[EVENT_PARASITIC_SHADOWFIEND] = 35000 + rand()%10000;
                 }break;

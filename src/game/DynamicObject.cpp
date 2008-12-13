@@ -115,20 +115,8 @@ void DynamicObject::Update(uint32 p_time)
 
     if(m_updateTimer < p_time)
     {
-        CellPair p(Trinity::ComputeCellPair(GetPositionX(), GetPositionY()));
-        Cell cell(p);
-        cell.data.Part.reserved = ALL_DISTRICT;
-        cell.SetNoCreate();
-
         Trinity::DynamicObjectUpdater notifier(*this,caster);
-
-        TypeContainerVisitor<Trinity::DynamicObjectUpdater, WorldTypeMapContainer > world_object_notifier(notifier);
-        TypeContainerVisitor<Trinity::DynamicObjectUpdater, GridTypeMapContainer > grid_object_notifier(notifier);
-
-        CellLock<GridReadGuard> cell_lock(cell, p);
-        cell_lock->Visit(cell_lock, world_object_notifier, *GetMap());
-        cell_lock->Visit(cell_lock, grid_object_notifier,  *GetMap());
-
+        GetMap()->VisitAll(GetPositionX(), GetPositionY(), GetRadius(), notifier);
         m_updateTimer = 500; // is this official-like?
     }else m_updateTimer -= p_time;
 
