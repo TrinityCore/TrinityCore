@@ -906,8 +906,7 @@ enum SpellMissInfo
     SPELL_MISS_IMMUNE2                 = 8,
     SPELL_MISS_DEFLECT                 = 9,
     SPELL_MISS_ABSORB                  = 10,
-    SPELL_MISS_REFLECT                 = 11,
-    SPELL_MISS_KILL                    = 12, // kill grounding totem
+    SPELL_MISS_REFLECT                 = 11
 };
 
 enum SpellHitType
