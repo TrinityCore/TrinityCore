@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: boss_the_lurker_below
 SD%Complete: 80
-SDComment:
+SDComment: Scalding Water other things.
 SDCategory: The Lurker Below
 EndScriptData */
 
