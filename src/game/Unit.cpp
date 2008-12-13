@@ -10176,6 +10176,8 @@ void Unit::setDeathState(DeathState s)
         // remove aurastates allowing special moves
         ClearAllReactives();
         ClearDiminishings();
+        GetMotionMaster()->Clear(false);
+        GetMotionMaster()->MoveIdle();
         StopMoving();
         //without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
         //do not why since in IncreaseMaxHealth currenthealth is checked
@@ -12816,11 +12818,9 @@ void Unit::SetFeared(bool apply)
     else
     {
         RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
-        GetMotionMaster()->MovementExpired(false);
-        if( GetTypeId() != TYPEID_PLAYER && isAlive() )
+        if(isAlive())
         {
-            // restore appropriate movement generator
-            if(getVictim())
+            if( GetTypeId() != TYPEID_PLAYER && getVictim())
                 GetMotionMaster()->MoveChase(getVictim());
             else
                 GetMotionMaster()->Initialize();
