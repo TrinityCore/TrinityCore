@@ -170,7 +170,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
         Entangle_Timer = 30000;
         StaticCharge_Timer = 10000+rand()%15000;
         ForkedLightning_Timer = 2000;
-        Check_Timer = 1000;
+        Check_Timer = 15000;
         EnchantedElemental_Timer = 5000;
         TaintedElemental_Timer = 50000;
         CoilfangElite_Timer = 45000+rand()%5000;
@@ -468,7 +468,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
                 if(!InMeleeRange)
                     CastShootOrMultishot();
 
-                Check_Timer = 1000;
+                Check_Timer = 5000;
             }else Check_Timer -= diff;
         }
         //Phase 2
