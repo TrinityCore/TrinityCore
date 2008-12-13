@@ -4339,8 +4339,7 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
             bool sameCaster = Aur->GetCasterGUID() == (*i).second->GetCasterGUID();
             if( spellmgr.IsNoStackSpellDueToSpell(spellId, i_spellId, sameCaster) )
             {
-                //some spells should be not removed by lower rank of them
-                // what is this spell?
+                //some spells should be not removed by lower rank of them (totem, paladin aura)
                 if (!sameCaster
                     &&(spellProto->Effect[effIndex]==SPELL_EFFECT_APPLY_AREA_AURA_PARTY)
                     &&(spellProto->DurationIndex==21)
