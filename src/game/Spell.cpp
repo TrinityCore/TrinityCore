@@ -783,6 +783,7 @@ void Spell::AddUnitTarget(Unit* pVictim, uint32 effIndex)
     target.targetGUID = targetGUID;                         // Store target GUID
     target.effectMask = 1<<effIndex;                        // Store index of effect
     target.processed  = false;                              // Effects not apply on target
+    target.killTarget = false;
 
     // Calculate hit result
     if(m_originalCaster)
@@ -1007,6 +1008,13 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     if (!unit)
         return;
 
+    if(target->killTarget)
+    {
+        // remove spell_magnet aura after first spell redirect and destroy target if its totem
+        if(unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->isTotem())
+            unit->Kill(unit);
+    }
+
     // Get original caster (if exist) and calculate damage/healing from him data
     Unit *caster = m_originalCasterGUID ? m_originalCaster : m_caster;
 
@@ -1035,12 +1043,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     {
         if (target->reflectResult == SPELL_MISS_NONE)       // If reflected spell hit caster -> do all effect on him
             DoSpellHitOnUnit(m_caster, mask);
-    }
-    else if (missInfo == SPELL_MISS_KILL)
-    {
-        // remove spell_magnet aura after first spell redirect and destroy target if its totem
-        if(unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->isTotem())
-            unit->Kill(unit);
     }
     else //TODO: This is a hack. need fix
     {
@@ -5382,7 +5384,7 @@ Unit* Spell::SelectMagnetTarget()
                     {
                         if (targetGUID == ihit->targetGUID)                 // Found in list
                         {
-                            (*ihit).missCondition = SPELL_MISS_KILL;
+                            (*ihit).killTarget = true;
                             break;
                         }
                     }
