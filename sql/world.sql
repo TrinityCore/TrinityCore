@@ -557,7 +557,7 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `creature_template_addon`;
 CREATE TABLE `creature_template_addon` (
   `entry` mediumint(8) unsigned NOT NULL default '0',
-  `path_id' int(11) unsigned NOT NULL default '0',
+  `path_id` int(11) unsigned NOT NULL default '0',
   `mount` mediumint(8) unsigned NOT NULL default '0',
   `bytes0` int(10) unsigned NOT NULL default '0',
   `bytes1` int(10) unsigned NOT NULL default '0',
