@@ -2138,6 +2138,12 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             // Kidney Shot
             if (spellproto->SpellFamilyFlags & 0x00000200000LL)
                 return DIMINISHING_KIDNEYSHOT;
+            // Sap
+            else if (spellproto->SpellFamilyFlags & 0x00000000080LL)
+                return DIMINISHING_POLYMORPH;
+            // Gouge
+            else if (spellproto->SpellFamilyFlags & 0x00000000008LL)
+                return DIMINISHING_POLYMORPH;
             // Blind
             else if (spellproto->SpellFamilyFlags & 0x00001000000LL)
                 return DIMINISHING_BLIND_CYCLONE;
@@ -2148,9 +2154,12 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             // Death Coil
             if (spellproto->SpellFamilyFlags & 0x00000080000LL)
                 return DIMINISHING_DEATHCOIL;
+            // Seduction
+            if (spellproto->SpellFamilyFlags & 0x00040000000LL)
+                return DIMINISHING_FEAR;
             // Fear
-            else if (spellproto->SpellFamilyFlags & 0x40840000000LL)
-                return DIMINISHING_WARLOCK_FEAR;
+            //else if (spellproto->SpellFamilyFlags & 0x40840000000LL)
+            //    return DIMINISHING_WARLOCK_FEAR;
             // Curses/etc
             else if (spellproto->SpellFamilyFlags & 0x00080000000LL)
                 return DIMINISHING_LIMITONLY;
