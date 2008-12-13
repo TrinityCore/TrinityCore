@@ -18909,6 +18909,9 @@ bool ItemPosCount::isContainedIn(ItemPosCountVec const& vec) const
 
 void Player::HandleFallDamage(MovementInfo& movementInfo)
 {
+    if(movementInfo.fallTime < 1500)
+        return;
+
     // calculate total z distance of the fall
     float z_diff = m_lastFallZ - movementInfo.z;
     sLog.outDebug("zDiff = %f", z_diff);
