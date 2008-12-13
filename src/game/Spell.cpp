@@ -2538,6 +2538,22 @@ void Spell::cast(bool skipCheck)
         handle_immediate();
     }
 
+    // Clear combo at finish state
+    if(m_caster->GetTypeId() == TYPEID_PLAYER && NeedsComboPoints(m_spellInfo))
+    {
+        // Not drop combopoints if negative spell and if any miss on enemy exist
+        bool needDrop = true;
+        //if (!IsPositiveSpell(m_spellInfo->Id))
+        for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
+            if (ihit->missCondition != SPELL_MISS_NONE && ihit->missCondition != SPELL_MISS_MISS/* && ihit->targetGUID!=m_caster->GetGUID()*/)
+            {
+                needDrop = false;
+                break;
+            }
+        if (needDrop)
+            ((Player*)m_caster)->ClearComboPoints();
+    }
+
     SetExecutedCurrently(false);
 }
 
@@ -2949,25 +2965,6 @@ void Spell::finish(bool ok)
             m_caster->resetAttackTimer(OFF_ATTACK);
         if(!(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_NOT_RESET_AUTOSHOT))
             m_caster->resetAttackTimer(RANGED_ATTACK);
-    }
-
-    //if (IsRangedAttackResetSpell())
-    //    m_caster->resetAttackTimer(RANGED_ATTACK);
-
-    // Clear combo at finish state
-    if(m_caster->GetTypeId() == TYPEID_PLAYER && NeedsComboPoints(m_spellInfo))
-    {
-        // Not drop combopoints if negative spell and if any miss on enemy exist
-        bool needDrop = true;
-        if (!IsPositiveSpell(m_spellInfo->Id))
-        for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
-            if (ihit->missCondition != SPELL_MISS_NONE && ihit->targetGUID!=m_caster->GetGUID())
-            {
-                needDrop = false;
-                break;
-            }
-        if (needDrop)
-            ((Player*)m_caster)->ClearComboPoints();
     }
 
     // call triggered spell only at successful cast (after clear combo points -> for add some if need)
