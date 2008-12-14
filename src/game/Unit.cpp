@@ -46,6 +46,7 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 #include "Path.h"
+#include "CreatureGroups.h"
 
 #include <math.h>
 
@@ -9685,6 +9686,10 @@ void Unit::CombatStart(Unit* target)
 {
     if(!target->IsStandState() && !target->hasUnitState(UNIT_STAT_STUNNED))
         target->SetStandState(PLAYER_STATE_NONE);
+
+	//Call creature group update
+	if(GetTypeId()==TYPEID_UNIT && ((Creature *)this)->GetFormationID())
+		CreatureGroupHolder[((Creature *)this)->GetFormationID()]->MemberHasAttacked(((Creature *)this));
 
     if(!target->isInCombat() && target->GetTypeId() != TYPEID_PLAYER
         && !((Creature*)target)->HasReactState(REACT_PASSIVE) && ((Creature*)target)->AI())

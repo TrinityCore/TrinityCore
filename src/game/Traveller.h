@@ -25,6 +25,7 @@
 #include "Creature.h"
 #include "Player.h"
 #include <cassert>
+#include "CreatureGroups.h"
 
 /** Traveller is a wrapper for units (creatures or players) that
  * travel from point A to point B using the destination holder.
@@ -78,7 +79,11 @@ inline void Traveller<Creature>::Relocation(float x, float y, float z, float ori
 template<>
 inline void Traveller<Creature>::MoveTo(float x, float y, float z, uint32 t)
 {
-    i_traveller.AI_SendMoveToPacket(x, y, z, t, i_traveller.GetUnitMovementFlags(), 0);
+    //Call for creature group update
+	if(i_traveller.IsFormationLeader() && !i_traveller.isInCombat())
+			CreatureGroupHolder[i_traveller.GetFormationID()]->LeaderMovedInEvade();
+	
+	i_traveller.AI_SendMoveToPacket(x, y, z, t, i_traveller.GetUnitMovementFlags(), 0);
 }
 
 // specialization for players

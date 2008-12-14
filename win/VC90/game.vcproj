@@ -520,7 +520,7 @@
 				>
 			</File>
 			<File
-			RelativePath="..\..\src\game\GMTicketHandler.cpp"
+				RelativePath="..\..\src\game\GMTicketHandler.cpp"
 				>
 			</File>
 			<File
@@ -638,7 +638,7 @@
 			<File
 				RelativePath="..\..\src\game\MapRefManager.h"
 				>
-			</File>			
+			</File>
 			<File
 				RelativePath="..\..\src\game\MiscHandler.cpp"
 				>
@@ -949,6 +949,14 @@
 			</File>
 			<File
 				RelativePath="..\..\src\game\CreatureAISelector.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\CreatureGroups.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\CreatureGroups.h"
 				>
 			</File>
 			<File
