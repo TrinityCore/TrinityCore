@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: boss_the_lurker_below
 SD%Complete: 80
-SDComment: Scalding Water other things.
+SDComment: Other things.
 SDCategory: The Lurker Below
 EndScriptData */
 
@@ -35,6 +35,7 @@ EndScriptData */
 #define SPELL_WATERBOLT		37138
 #define SPELL_SUBMERGE		37550
 #define SPELL_EMERGE		20568
+#define SPELL_SCALDINGWATER	37284
 
 #define EMOTE_SPOUT	"takes a deep breath."
 
@@ -236,6 +237,24 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 		 //Return since we have no target
 		 if (!m_creature->SelectHostilTarget() /*|| !m_creature->getVictim()*/ )//rotate resets target
 			 return;
+
+		 //Check if players in water and if in water cast spell
+		 Map *map = m_creature->GetMap();
+		 if (map->IsDungeon() && pInstance->GetData(DATA_THELURKERBELOWEVENT) == IN_PROGRESS)
+		 {
+			 Map::PlayerList const &PlayerList = map->GetPlayers();
+
+			 if (PlayerList.isEmpty())
+				 return;
+	 	 
+			 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+			 {
+				 if (i->getSource()->isAlive() && i->getSource()->IsInWater() && !i->getSource()->HasAura(SPELL_SCALDINGWATER, 0))
+					 i->getSource()->CastSpell(i->getSource(), SPELL_SCALDINGWATER, true);
+				 else if(!i->getSource()->IsInWater())
+					 i->getSource()->RemoveAurasDueToSpell(SPELL_SCALDINGWATER);
+			 }
+		 }
 
 		 Rotate(diff);//always check rotate things
 		 if(!Submerged)
