@@ -9060,7 +9060,7 @@ uint32 Unit::SpellHealingBonus(SpellEntry const *spellProto, uint32 healamount, 
     if (spellProto->Id == 15290 || spellProto->Id == 39373 ||
         spellProto->Id == 33778 || spellProto->Id == 379   ||
         spellProto->Id == 38395 || spellProto->Id == 40972 ||
-		spellProto->Id == 22845)
+		spellProto->Id == 22845 || spellProto->Id == 33504)
         return healamount;
 
     int32 AdvertisedBenefit = SpellBaseHealingBonus(GetSpellSchoolMask(spellProto));
