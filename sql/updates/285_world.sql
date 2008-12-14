@@ -1,4 +1,4 @@
--- general stuff
+﻿-- general stuff
 
 REPLACE INTO gameobject_template VALUES (178364,1,5773,"Horde Banner","",84,0,1,0,1479,196608,180101,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"");
 REPLACE INTO gameobject_template VALUES (178365,1,5771,"Alliance Banner","",83,0,1,0,1479,196608,180100,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"");
@@ -18,7 +18,7 @@ REPLACE INTO gameobject_template VALUES (180423,6,266,"Neutral Banner Aura, Larg
 REPLACE INTO gameobject_template VALUES (180424,0,3751,"Alterac Valley Gate","",100,0,3.5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"");
 
 -- following is the player loot.. it takes the id 1 - be sure that i don't delete anything
-REPLACE INTO `world`.`creature_loot_template` (`entry` ,`item` ,`ChanceOrQuestChance` ,`groupid` ,`mincountOrRef` ,`maxcount` ,`lootcondition` ,`condition_value1` ,`condition_value2`)
+REPLACE INTO `creature_loot_template` (`entry` ,`item` ,`ChanceOrQuestChance` ,`groupid` ,`mincountOrRef` ,`maxcount` ,`lootcondition` ,`condition_value1` ,`condition_value2`)
 VALUES ('1', '17306', '33', '0', '5', '15',  '6', '67', '0'),
 ('1', '17422', '100', '0', '20', '40', '0', '0', '0'),
 ('1', '17423', '33', '0', '5', '15',  '6', '469', '0'),
