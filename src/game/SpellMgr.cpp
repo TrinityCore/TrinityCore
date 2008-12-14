@@ -1156,11 +1156,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
 {
     //if(spellId_1 == spellId_2) // auras due to the same spell
     //    return false;
-
-    //use data of highest rank spell(needed for spells which ranks have different effects)
-    //spellId_1=GetLastSpellInChain(spellId_1);
-    //spellId_2=GetLastSpellInChain(spellId_2);
-
     SpellEntry const *spellInfo_1 = sSpellStore.LookupEntry(spellId_1);
     SpellEntry const *spellInfo_2 = sSpellStore.LookupEntry(spellId_2);
 
@@ -1217,14 +1212,19 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
                 }
     }
 
-    if(spellInfo_1->SpellFamilyName && IsRankSpellDueToSpell(spellInfo_1, spellId_2))
-        return true;    
+//    not needed now because we compare effects last rank of spells
+//    if(spellInfo_1->SpellFamilyName && IsRankSpellDueToSpell(spellInfo_1, spellId_2))
+//        return true;
+
+    //use data of highest rank spell(needed for spells which ranks have different effects)
+    SpellEntry const *spellInfo1=sSpellStore.LookupEntry(GetLastSpellInChain(spellId_1));
+    SpellEntry const *spellInfo2=sSpellStore.LookupEntry(GetLastSpellInChain(spellId_2));
 
     //if spells have exactly the same effect they cannot stack
     for(uint32 i = 0; i < 3; ++i)
-        if(spellInfo_1->Effect[i] != spellInfo_2->Effect[i]
-            || spellInfo_1->EffectApplyAuraName[i] != spellInfo_2->EffectApplyAuraName[i]
-            || spellInfo_1->EffectMiscValue[i] != spellInfo_2->EffectMiscValue[i]) // paladin resist aura
+        if(spellInfo1->Effect[i] != spellInfo2->Effect[i]
+            || spellInfo1->EffectApplyAuraName[i] != spellInfo2->EffectApplyAuraName[i]
+            || spellInfo1->EffectMiscValue[i] != spellInfo2->EffectMiscValue[i]) // paladin resist aura
             return false; // need itemtype check? need an example to add that check
 
     return true;
@@ -1305,9 +1305,18 @@ SpellEntry const* SpellMgr::SelectAuraRankForPlayerLevel(SpellEntry const* spell
 void SpellMgr::LoadSpellChains()
 {
     mSpellChains.clear();                                   // need for reload case
-    mSpellChainsNext.clear();                               // need for reload case
+    mSpellReq.clear();                                      // need for reload case
 
-    QueryResult *result = WorldDatabase.Query("SELECT spell_id, prev_spell, first_spell, rank, req_spell FROM spell_chain");
+    QueryResult *result = WorldDatabase.Query("SELECT spell_id, first_spell, rank, req_spell from spell_chain ORDER BY first_spell, rank");
+
+    struct SpellChainEntry
+    {
+    uint32 spell;
+    uint32 first;
+    uint32 req;
+    uint8  rank;
+    };
+
     if(result == NULL)
     {
         barGoLink bar( 1 );
@@ -1318,8 +1327,9 @@ void SpellMgr::LoadSpellChains()
         sLog.outErrorDb("`spell_chains` table is empty!");
         return;
     }
+    uint32 rows = 0;
 
-    uint32 count = 0;
+    SpellChainEntry *SpellChainTable = new SpellChainEntry [result->GetRowCount()];
 
     barGoLink bar( result->GetRowCount() );
     do
@@ -1327,13 +1337,65 @@ void SpellMgr::LoadSpellChains()
         bar.step();
         Field *fields = result->Fetch();
 
-        uint32 spell_id = fields[0].GetUInt32();
+        SpellChainTable[rows].spell = fields[0].GetUInt32();
+        SpellChainTable[rows].first = fields[1].GetUInt32();
+        SpellChainTable[rows].rank = fields[2].GetUInt32();
+        SpellChainTable[rows].req = fields[3].GetUInt32();
 
+        if (SpellChainTable[rows].req)
+           mSpellReq.insert (std::pair<uint32, uint32>(SpellChainTable[rows].req, SpellChainTable[rows].spell));
+
+        ++rows;
+    } while( result->NextRow() );
+    delete result;
+    uint32 cur_row=0;
+    do
+    {
+        uint32 spell_id=SpellChainTable[cur_row].spell;
         SpellChainNode node;
-        node.prev  = fields[1].GetUInt32();
-        node.first = fields[2].GetUInt32();
-        node.rank  = fields[3].GetUInt8();
-        node.req   = fields[4].GetUInt32();
+        node.first = SpellChainTable[cur_row].first;
+        node.rank  = SpellChainTable[cur_row].rank;
+        node.req   = SpellChainTable[cur_row].req;
+
+        //get field "prev"
+        if (spell_id == node.first || cur_row==0)
+        {
+            if (node.rank!=1)
+                sLog.outErrorDb("Incorrect rank for entry: %u",spell_id);
+            node.prev  = 0;
+        }
+        else if (SpellChainTable[cur_row-1].rank!=node.rank-1)
+        {
+            sLog.outErrorDb("Spells %u and %u (first: %u, rank: %d, req: %u) listed in `spell_chain` have not compatible rank data."
+                ,spell_id,SpellChainTable[cur_row-1].spell,node.first,node.rank,node.req);
+            node.prev  = 0;
+        }
+        else
+            node.prev=SpellChainTable[cur_row-1].spell;
+
+        //get field "next"
+        if (cur_row==rows-1 || SpellChainTable[cur_row+1].first!= node.first )
+        {
+            //get field "last"
+            for (uint32 last_row=1;SpellChainTable[cur_row-last_row].first == node.first;last_row++)
+                mSpellChains[SpellChainTable[cur_row-last_row].spell].last = spell_id;
+            node.last = spell_id;
+            node.next  = 0;
+        }
+        else if (SpellChainTable[cur_row+1].rank!=node.rank+1)
+        {
+            sLog.outErrorDb("Spells %u and %u (first: %u, rank: %d, req: %u) listed in `spell_chain` have not compatible rank data."
+                ,spell_id,SpellChainTable[cur_row+1].spell,node.first,node.rank,node.req);
+            node.next  = 0;
+        }
+        else
+        {
+            node.next=SpellChainTable[cur_row+1].spell;
+            node.last=0;
+        }
+
+
+        cur_row++;
 
         if(!sSpellStore.LookupEntry(spell_id))
         {
@@ -1341,34 +1403,17 @@ void SpellMgr::LoadSpellChains()
             continue;
         }
 
-        if(node.prev!=0 && !sSpellStore.LookupEntry(node.prev))
-        {
-            sLog.outErrorDb("Spell %u (prev: %u, first: %u, rank: %d, req: %u) listed in `spell_chain` has not existed previous rank spell.",
-                spell_id,node.prev,node.first,node.rank,node.req);
-            continue;
-        }
-
         if(!sSpellStore.LookupEntry(node.first))
         {
-            sLog.outErrorDb("Spell %u (prev: %u, first: %u, rank: %d, req: %u) listed in `spell_chain` has not existing first rank spell.",
-                spell_id,node.prev,node.first,node.rank,node.req);
-            continue;
-        }
-
-        // check basic spell chain data integrity (note: rank can be equal 0 or 1 for first/single spell)
-        if( (spell_id == node.first) != (node.rank <= 1) ||
-            (spell_id == node.first) != (node.prev == 0) ||
-            (node.rank <= 1) != (node.prev == 0) )
-        {
-            sLog.outErrorDb("Spell %u (prev: %u, first: %u, rank: %d, req: %u) listed in `spell_chain` has not compatible chain data.",
-                spell_id,node.prev,node.first,node.rank,node.req);
+            sLog.outErrorDb("Spell %u (first: %u, rank: %d, req: %u) listed in `spell_chain` has not existing first rank spell.",
+                spell_id,node.first,node.rank,node.req);
             continue;
         }
 
         if(node.req!=0 && !sSpellStore.LookupEntry(node.req))
         {
-            sLog.outErrorDb("Spell %u (prev: %u, first: %u, rank: %d, req: %u) listed in `spell_chain` has not existing required spell.",
-                spell_id,node.prev,node.first,node.rank,node.req);
+            sLog.outErrorDb("Spell %u (first: %u, rank: %d, req: %u) listed in `spell_chain` has not existing required spell.",
+                spell_id,node.first,node.rank,node.req);
             continue;
         }
 
@@ -1377,8 +1422,8 @@ void SpellMgr::LoadSpellChains()
         {
             if(node.rank!=pos->rank+1)
             {
-                sLog.outErrorDb("Talent %u (prev: %u, first: %u, rank: %d, req: %u) listed in `spell_chain` has wrong rank.",
-                    spell_id,node.prev,node.first,node.rank,node.req);
+                sLog.outErrorDb("Talent %u (first: %u, rank: %d, req: %u) listed in `spell_chain` has wrong rank.",
+                    spell_id,node.first,node.rank,node.req);
                 continue;
             }
 
@@ -1386,8 +1431,8 @@ void SpellMgr::LoadSpellChains()
             {
                 if(node.first!=talentEntry->RankID[0])
                 {
-                    sLog.outErrorDb("Talent %u (prev: %u, first: %u, rank: %d, req: %u) listed in `spell_chain` has wrong first rank spell.",
-                        spell_id,node.prev,node.first,node.rank,node.req);
+                    sLog.outErrorDb("Talent %u (first: %u, rank: %d, req: %u) listed in `spell_chain` has wrong first rank spell.",
+                        spell_id,node.first,node.rank,node.req);
                     continue;
                 }
 
@@ -1397,26 +1442,14 @@ void SpellMgr::LoadSpellChains()
                         spell_id,node.prev,node.first,node.rank,node.req);
                     continue;
                 }
-
-                if(node.req!=talentEntry->DependsOnSpell)
-                {
-                    sLog.outErrorDb("Talent %u (prev: %u, first: %u, rank: %d, req: %u) listed in `spell_chain` has wrong required spell.",
-                        spell_id,node.prev,node.first,node.rank,node.req);
-                    continue;
-                }
             }
         }
 
         mSpellChains[spell_id] = node;
+    }
+    while( cur_row<rows );
 
-        if(node.prev)
-            mSpellChainsNext.insert(SpellChainMapNext::value_type(node.prev,spell_id));
-
-        if(node.req)
-            mSpellChainsNext.insert(SpellChainMapNext::value_type(node.req,spell_id));
-
-        ++count;
-    } while( result->NextRow() );
+    delete[] SpellChainTable;
 
     // additional integrity checks
     for(SpellChainMap::iterator i = mSpellChains.begin(); i != mSpellChains.end(); ++i)
@@ -1457,19 +1490,11 @@ void SpellMgr::LoadSpellChains()
                     i->first,i->second.prev,i->second.first,i->second.rank,i->second.req,
                     i_req->second.prev,i_req->second.first,i_req->second.rank,i_req->second.req);
             }
-            else if( i_req->second.req )
-            {
-                sLog.outErrorDb("Spell %u (prev: %u, first: %u, rank: %d, req: %u) listed in `spell_chain` has required rank spell with required spell (prev: %u, first: %u, rank: %d, req: %u).",
-                    i->first,i->second.prev,i->second.first,i->second.rank,i->second.req,
-                    i_req->second.prev,i_req->second.first,i_req->second.rank,i_req->second.req);
-            }
         }
     }
 
-    delete result;
-
     sLog.outString();
-    sLog.outString( ">> Loaded %u spell chain records", count );
+    sLog.outString( ">> Loaded %u spell chain records", rows );
 }
 
 void SpellMgr::LoadSpellLearnSkills()
