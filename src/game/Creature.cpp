@@ -47,6 +47,7 @@
 #include "OutdoorPvPMgr.h"
 #include "GameEvent.h"
 #include "PossessedAI.h"
+#include "CreatureGroups.h"
 // apply implementation of the singletons
 #include "Policies/SingletonImp.h"
 
@@ -147,7 +148,7 @@ m_deathTimer(0), m_respawnTime(0), m_respawnDelay(25), m_corpseDelay(60), m_resp
 m_gossipOptionLoaded(false), m_emoteState(0), m_isPet(false), m_isTotem(false), m_reactState(REACT_AGGRESSIVE),
 m_regenTimer(2000), m_defaultMovementType(IDLE_MOTION_TYPE), m_equipmentId(0),
 m_AlreadyCallAssistance(false), m_regenHealth(true), m_AI_locked(false), m_isDeadByDefault(false),
-m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),m_creatureInfo(NULL), m_DBTableGuid(0)
+m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),m_creatureInfo(NULL), m_DBTableGuid(0), m_formationID(0)
 {
     m_valuesCount = UNIT_END;
 
@@ -181,13 +182,28 @@ void Creature::AddToWorld()
     ///- Register the creature for guid lookup
     if(!IsInWorld()) ObjectAccessor::Instance().AddObject(this);
     Unit::AddToWorld();
+	SearchFormation();
 }
 
 void Creature::RemoveFromWorld()
 {
-    ///- Remove the creature from the accessor
+    if(m_formationID)
+		formation_mgr.DestroyGroup(m_formationID, GetGUID());
+
+	///- Remove the creature from the accessor
     if(IsInWorld()) ObjectAccessor::Instance().RemoveObject(this);
     Unit::RemoveFromWorld();
+}
+
+void Creature::SearchFormation()
+{
+	uint32 lowguid = GetDBTableGUIDLow();
+	
+	if(CreatureGroupMap.find(lowguid) != CreatureGroupMap.end())
+	{
+		m_formationID = CreatureGroupMap[lowguid]->leaderGUID;	
+		formation_mgr.UpdateCreatureGroup(m_formationID, this);
+	}
 }
 
 void Creature::RemoveCorpse()
