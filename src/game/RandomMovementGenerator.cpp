@@ -28,6 +28,17 @@
 #define RUNNING_CHANCE_RANDOMMV 20                                  //will be "1 / RUNNING_CHANCE_RANDOMMV"
 
 template<>
+bool 
+RandomMovementGenerator<Creature>::GetDestination(float &x, float &y, float &z) const
+{
+    if(i_destinationHolder.HasArrived())
+        return false; 
+    
+    i_destinationHolder.GetDestination(x, y, z); 
+    return true;
+}
+
+template<>
 void
 RandomMovementGenerator<Creature>::_setRandomLocation(Creature &creature)
 {
