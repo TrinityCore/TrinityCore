@@ -28,6 +28,7 @@
 #include "LootMgr.h"
 #include "Database/DatabaseEnv.h"
 #include "Cell.h"
+#include "CreatureGroups.h"
 
 #include <list>
 
@@ -625,6 +626,10 @@ class TRINITY_DLL_SPEC Creature : public Unit
 		uint32 GetCurrentWaypointID(){return m_waypointID;}
 		void UpdateWaypointID(uint32 wpID){m_waypointID = wpID;}
 
+		void SearchFormation();
+		bool IsFormationLeader() {return GetDBTableGUIDLow() == m_formationID;}
+		uint32 GetFormationID(){return m_formationID;}
+
 	protected:
         bool CreateFromProto(uint32 guidlow,uint32 Entry,uint32 team, const CreatureData *data = NULL);
         bool InitEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);
@@ -678,7 +683,10 @@ class TRINITY_DLL_SPEC Creature : public Unit
 		//WaypointMovementGenerator vars
 		uint32 m_waypointID;
 		uint32 m_path_id;
- 
+		
+		//Formation var
+		uint32 m_formationID;
+
 		GridReference<Creature> m_gridRef;
         CreatureInfo const* m_creatureInfo;                 // in heroic mode can different from ObjMgr::GetCreatureTemplate(GetEntry())
 };

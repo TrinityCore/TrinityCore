@@ -62,6 +62,7 @@
 #include "GMTicketMgr.h"
 #include "Util.h"
 #include "Language.h"
+#include "CreatureGroups.h"
 
 INSTANTIATE_SINGLETON_1( World );
 
@@ -1257,7 +1258,10 @@ void World::SetInitialWorldSettings()
     sLog.outString( "Loading Waypoints..." );
     WaypointMgr.Load();
 
-    sLog.outString( "Loading GM tickets...");
+	sLog.outString( "Loading Creature Formations..." );
+	formation_mgr.LoadCreatureFormations();
+
+	sLog.outString( "Loading GM tickets...");
     ticketmgr.LoadGMTickets();
 
     ///- Handle outdated emails (delete/return)
