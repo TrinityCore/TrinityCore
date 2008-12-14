@@ -8632,6 +8632,11 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
 			{
 				CastingTime = 0;
 			}
+			// Darkmoon Card: Vengeance - 0.1%
+			else if (spellProto->SpellVisual == 9850 && spellProto->SpellIconID == 2230)
+			{
+				CastingTime = 3.5;
+			}
         case SPELLFAMILY_MAGE:
             // Ignite - do not modify, it is (8*Rank)% damage of procing Spell
             if(spellProto->Id==12654)
