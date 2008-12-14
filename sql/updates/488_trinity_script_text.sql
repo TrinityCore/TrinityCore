@@ -363,7 +363,7 @@ INSERT INTO `script_texts` (`entry`,`content_default`,`sound`,`type`,`language`,
 (-1509014,'Warriors! Captains! Continue the fight!',8613,1,0,'rajaxx SAY_UNK4'),
 (-1509015,'You are not worth my time $N!',8614,1,0,'rajaxx SAY_DEAGGRO'),
 (-1509016,'Breath your last!',8604,1,0,'rajaxx SAY_KILLS_ANDOROV'),
-(-1509017,'Soon you will know the price of your meddling, mortals... The master is nearly whole... And when he rises, your world will be cease!',0,1,0,'rajaxx SAY_COMPLETE_QUEST');
+(-1509017,'Soon you will know the price of your meddling, mortals... The master is nearly whole... And when he rises, your world will be cease!',0,1,0,'rajaxx SAY_COMPLETE_QUEST'),
 (-1509018,'I am rejuvinated!',8593,1,0,'ossirian SAY_SURPREME1'),
 (-1509019,'My powers are renewed!',8595,1,0,'ossirian SAY_SURPREME2'),
 (-1509020,'My powers return!',8596,1,0,'ossirian SAY_SURPREME3'),

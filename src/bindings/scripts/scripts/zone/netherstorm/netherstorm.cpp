@@ -444,8 +444,7 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
                 DoCast(target, SPELL_MANA_BURN);
                 ManaBurnTimer = 8000 + (rand()%10 * 1000); // 8-18 sec cd
             }
-        }
-        else ManaBurnTimer -= diff;
+        }else ManaBurnTimer -= diff;
 
         if(!Weak && m_creature->GetHealth() < (m_creature->GetMaxHealth() / 100 * WeakPercent) && target->GetQuestStatus(10190) == QUEST_STATUS_INCOMPLETE) // start: support for quest 10190
         {
@@ -473,6 +472,8 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
                 DrainedPhaseHunter->AI()->AttackStart(target);
             }
         } // end: support for quest 10190
+
+		DoMeleeAttackIfReady();
     }
 
 };
