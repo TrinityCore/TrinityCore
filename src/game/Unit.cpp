@@ -11045,10 +11045,9 @@ void Unit::CleanupsBeforeDelete()
         RemoveAllAuras();
         RemoveAllGameObjects();
         RemoveAllDynObjects();
-        GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
-
         UnpossessSelf(false);
         RemoveAllFromVision();
+        GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
     }
     RemoveFromWorld();
 }
