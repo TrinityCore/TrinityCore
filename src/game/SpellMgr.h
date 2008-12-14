@@ -634,13 +634,15 @@ typedef std::map<uint16, PetAura> SpellPetAuraMap;
 struct SpellChainNode
 {
     uint32 prev;
+    uint32 next;
     uint32 first;
+    uint32 last;
     uint32 req;
     uint8  rank;
 };
 
 typedef UNORDERED_MAP<uint32, SpellChainNode> SpellChainMap;
-typedef std::multimap<uint32, uint32> SpellChainMapNext;
+typedef std::multimap<uint32, uint32> SpellRequiredMap;
 
 // Spell learning properties (accessed using SpellMgr functions)
 struct SpellLearnSkillNode
@@ -781,7 +783,7 @@ class SpellMgr
             return 0;
         }
 
-        SpellChainMapNext const& GetSpellChainNext() const { return mSpellChainsNext; }
+        SpellRequiredMap const& GetSpellRequiredMap() const { return mSpellReq; }
 
         // Note: not use rank for compare to spell ranks: spell chains isn't linear order
         // Use IsHighRankOfSpell instead
@@ -795,11 +797,9 @@ class SpellMgr
 
         uint32 GetLastSpellInChain(uint32 spell_id) const
         {
-            if (!GetSpellChainNode(spell_id))
-                return spell_id;
-            SpellChainMapNext const& nextMap = GetSpellChainNext();
-            for(SpellChainMapNext::const_iterator itr = nextMap.lower_bound(spell_id); itr != nextMap.upper_bound(spell_id); ++itr)
-                spell_id=itr->second;
+            if(SpellChainNode const* node = GetSpellChainNode(spell_id))
+                return node->last;
+
             return spell_id;
         }
 
@@ -940,7 +940,7 @@ class SpellMgr
     private:
         SpellScriptTarget  mSpellScriptTarget;
         SpellChainMap      mSpellChains;
-        SpellChainMapNext  mSpellChainsNext;
+        SpellRequiredMap   mSpellReq;
         SpellLearnSkillMap mSpellLearnSkills;
         SpellLearnSpellMap mSpellLearnSpells;
         SpellTargetPositionMap mSpellTargetPositions;

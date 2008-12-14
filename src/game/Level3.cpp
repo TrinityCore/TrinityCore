@@ -1769,12 +1769,16 @@ bool ChatHandler::HandleLearnAllMySpellsCommand(const char* /*args*/)
 
 static void learnAllHighRanks(Player* player, uint32 spellid)
 {
-    SpellChainMapNext const& nextMap = spellmgr.GetSpellChainNext();
-    for(SpellChainMapNext::const_iterator itr = nextMap.lower_bound(spellid); itr != nextMap.upper_bound(spellid); ++itr)
+    SpellChainNode const* node;
+    do
     {
-        player->learnSpell(itr->second);
-        learnAllHighRanks(player,itr->second);
+        node = spellmgr.GetSpellChainNode(spellid);
+        player->learnSpell(spellid);
+        if (!node)
+            break;
+        spellid=node->next;
     }
+    while (node->next);
 }
 
 bool ChatHandler::HandleLearnAllMyTalentsCommand(const char* /*args*/)

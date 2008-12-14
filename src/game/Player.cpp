@@ -2911,12 +2911,12 @@ void Player::learnSpell(uint32 spell_id)
     bool learning = addSpell(spell_id,active);
 
     // learn all disabled higher ranks (recursive)
-    SpellChainMapNext const& nextMap = spellmgr.GetSpellChainNext();
-    for(SpellChainMapNext::const_iterator i = nextMap.lower_bound(spell_id); i != nextMap.upper_bound(spell_id); ++i)
+    SpellChainNode const* node = spellmgr.GetSpellChainNode(spell_id);
+    if (node)
     {
-        PlayerSpellMap::iterator iter = m_spells.find(i->second);
-        if (disabled && iter != m_spells.end() && iter->second->disabled)
-            learnSpell(i->second);
+        PlayerSpellMap::iterator iter = m_spells.find(node->next);
+        if (disabled && iter != m_spells.end() && iter->second->disabled )
+            learnSpell(node->next);
     }
 
     // prevent duplicated entires in spell book
@@ -2938,10 +2938,17 @@ void Player::removeSpell(uint32 spell_id, bool disabled)
         return;
 
     // unlearn non talent higher ranks (recursive)
-    SpellChainMapNext const& nextMap = spellmgr.GetSpellChainNext();
-    for(SpellChainMapNext::const_iterator itr2 = nextMap.lower_bound(spell_id); itr2 != nextMap.upper_bound(spell_id); ++itr2)
-        if(HasSpell(itr2->second) && !GetTalentSpellPos(itr2->second))
-            removeSpell(itr2->second,disabled);
+    SpellChainNode const* node = spellmgr.GetSpellChainNode(spell_id);
+    if (node)
+    {
+        if(HasSpell(node->next) && !GetTalentSpellPos(node->next))
+        removeSpell(node->next,disabled);
+    }
+    //unlearn spells dependent from recently removed spells
+    SpellRequiredMap const& reqMap = spellmgr.GetSpellRequiredMap();
+    SpellRequiredMap::const_iterator itr2 = reqMap.find(spell_id);
+    for (uint32 i=reqMap.count(spell_id);i>0;i--,itr2++)
+        removeSpell(itr2->second,disabled);
 
     // removing
     WorldPacket data(SMSG_REMOVED_SPELL, 4);
