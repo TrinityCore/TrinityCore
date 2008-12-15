@@ -215,6 +215,7 @@ class TRINITY_DLL_SPEC Aura
 
         void SetModifier(AuraType t, int32 a, uint32 pt, int32 miscValue);
         Modifier* GetModifier() {return &m_modifier;}
+        int32 GetModifierValuePerStack() {return m_modifier.m_amount;}
         int32 GetModifierValue() {return m_modifier.m_amount * m_stackAmount;}
         int32 GetMiscValue() {return m_spellProto->EffectMiscValue[m_effIndex];}
         int32 GetMiscBValue() {return m_spellProto->EffectMiscValueB[m_effIndex];}

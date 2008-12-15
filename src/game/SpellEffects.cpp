@@ -2351,10 +2351,12 @@ void Spell::EffectHeal( uint32 /*i*/ )
                 idx++;
             }
 
-            //int32 tickheal = caster->SpellHealingBonus(targetAura->GetSpellProto(), targetAura->GetModifier()->m_amount, DOT, unitTarget);
+            int32 tickheal = targetAura->GetModifierValuePerStack();
+            if(Unit* auraCaster = targetAura->GetCaster())
+                tickheal = auraCaster->SpellHealingBonus(targetAura->GetSpellProto(), tickheal, DOT, unitTarget);
             //int32 tickheal = targetAura->GetSpellProto()->EffectBasePoints[idx] + 1;
             //It is said that talent bonus should not be included
-            int32 tickheal = targetAura->GetModifierValue();
+            //int32 tickheal = targetAura->GetModifierValue();
             int32 tickcount = GetSpellDuration(targetAura->GetSpellProto()) / targetAura->GetSpellProto()->EffectAmplitude[idx];
             addhealth += tickheal * tickcount;
             unitTarget->RemoveAurasDueToCasterSpell(targetAura->GetId(), targetAura->GetCasterGUID());
