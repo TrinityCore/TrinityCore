@@ -96,6 +96,8 @@ $(srcdir)/CreatureAIRegistry.cpp \
 $(srcdir)/CreatureAIRegistry.h \
 $(srcdir)/CreatureAISelector.cpp \
 $(srcdir)/CreatureAISelector.h \
+$(srcdir)/CreatureGroups.cpp \
+$(srcdir)/CreatureGroups.h \
 $(srcdir)/Creature.cpp \
 $(srcdir)/Creature.h \
 $(srcdir)/debugcmds.cpp \
