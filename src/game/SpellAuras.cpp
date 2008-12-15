@@ -844,7 +844,7 @@ void Aura::_AddAura()
     // not call total regen auras at adding
     switch (m_modifier.m_auraname)
     {
-        case SPELL_AURA_PERIODIC_DAMAGE:
+        /*case SPELL_AURA_PERIODIC_DAMAGE:
         case SPELL_AURA_PERIODIC_LEECH:
             if(caster)
                 m_modifier.m_amount = caster->SpellDamageBonus(m_target, m_spellProto, m_modifier.m_amount, DOT);
@@ -852,8 +852,8 @@ void Aura::_AddAura()
         case SPELL_AURA_PERIODIC_HEAL:
             if(caster)
                 m_modifier.m_amount = caster->SpellHealingBonus(m_spellProto, m_modifier.m_amount, DOT, m_target);
-            break;
-        case SPELL_AURA_OBS_MOD_HEALTH: //need healing bonus?
+            break;*/
+        case SPELL_AURA_OBS_MOD_HEALTH:
         case SPELL_AURA_OBS_MOD_MANA:
             m_periodicTimer = m_modifier.periodictime;
             break;
@@ -5405,13 +5405,13 @@ void Aura::PeriodicTick()
             CleanDamage cleanDamage =  CleanDamage(0, BASE_ATTACK, MELEE_HIT_NORMAL );
 
             // ignore non positive values (can be result apply spellmods to aura damage
-            uint32 amount = GetModifierValue() > 0 ? GetModifierValue() : 0;
+            uint32 amount = GetModifierValuePerStack() > 0 ? GetModifierValuePerStack() : 0;
 
             uint32 pdamage;
 
             if(m_modifier.m_auraname == SPELL_AURA_PERIODIC_DAMAGE)
             {
-                pdamage = amount;
+                pdamage = pCaster->SpellDamageBonus(m_target,GetSpellProto(),amount,DOT);
 
                 // Calculate armor mitigation if it is a physical spell
                 // But not for bleed mechanic spells
@@ -5444,6 +5444,8 @@ void Aura::PeriodicTick()
             // Reduce dot damage from resilience for players
             if (m_target->GetTypeId()==TYPEID_PLAYER)
                 pdamage-=((Player*)m_target)->GetDotDamageReduction(pdamage);
+
+            pdamage *= GetStackAmount();
 
             pCaster->CalcAbsorbResist(m_target, GetSpellSchoolMask(GetSpellProto()), DOT, pdamage, &absorb, &resist);
 
@@ -5497,7 +5499,8 @@ void Aura::PeriodicTick()
             uint32 resist=0;
             CleanDamage cleanDamage =  CleanDamage(0, BASE_ATTACK, MELEE_HIT_NORMAL );
 
-            uint32 pdamage = m_modifier.m_amount > 0 ? m_modifier.m_amount : 0;
+            uint32 pdamage = GetModifierValuePerStack() > 0 ? GetModifierValuePerStack() : 0;
+            pdamage = pCaster->SpellDamageBonus(m_target,GetSpellProto(),pdamage,DOT);
 
             //Calculate armor mitigation if it is a physical spell
             if (GetSpellSchoolMask(GetSpellProto()) & SPELL_SCHOOL_MASK_NORMAL)
@@ -5567,6 +5570,8 @@ void Aura::PeriodicTick()
             if (m_target->GetTypeId()==TYPEID_PLAYER)
                 pdamage-=((Player*)m_target)->GetDotDamageReduction(pdamage);
 
+            pdamage *= GetStackAmount();
+
             pCaster->CalcAbsorbResist(m_target, GetSpellSchoolMask(GetSpellProto()), DOT, pdamage, &absorb, &resist);
 
             if(m_target->GetHealth() < pdamage)
@@ -5624,14 +5629,16 @@ void Aura::PeriodicTick()
                 return;
 
             // ignore non positive values (can be result apply spellmods to aura damage
-            uint32 amount = GetModifierValue() > 0 ? GetModifierValue() : 0;
+            uint32 amount = GetModifierValuePerStack() > 0 ? GetModifierValuePerStack() : 0;
 
             uint32 pdamage;
 
             if(m_modifier.m_auraname==SPELL_AURA_OBS_MOD_HEALTH)
                 pdamage = uint32(m_target->GetMaxHealth() * amount/100);
             else
-                pdamage = amount;
+                pdamage = pCaster->SpellHealingBonus(GetSpellProto(), amount, DOT, m_target);
+
+            pdamage *= GetStackAmount();
 
             //pdamage = pCaster->SpellHealingBonus(GetSpellProto(), pdamage, DOT, m_target);
 
