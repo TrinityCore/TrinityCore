@@ -35,9 +35,9 @@ EndScriptData */
 5 - Lady Vashj Event
 */
 
-bool GOHello_go_bridge_console(Player *player, GameObject* _GO)
+bool GOHello_go_bridge_console(Player *player, GameObject* go)
 {
-    ScriptedInstance* pInstance = (ScriptedInstance*)_GO->GetInstanceData();
+    ScriptedInstance* pInstance = (ScriptedInstance*)go->GetInstanceData();
 
 	if(!pInstance)
 		return false;
@@ -64,6 +64,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
 
 	uint64 ControlConsole;
 	uint64 BridgePart[3];
+	uint64 StrangePool;
 
     bool ShieldGeneratorDeactivated[4];
     bool Encounters[ENCOUNTERS];
@@ -84,6 +85,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
 		BridgePart[0] = 0;
 		BridgePart[1] = 0;
 		BridgePart[2] = 0;
+		StrangePool = 0;
 
         ShieldGeneratorDeactivated[0] = false;
         ShieldGeneratorDeactivated[1] = false;
@@ -125,6 +127,10 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
 				BridgePart[2] = go->GetGUID();
 				go->setActive(true);
             break;
+			case 184956:
+				StrangePool = go->GetGUID();
+				if(go->isActive())
+					SetData(DATA_STRANGE_POOL, DONE);
         }
     }
 
@@ -176,6 +182,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
     {
         switch(type)
         {
+		case DATA_STRANGE_POOL: StrangePool = data;
 		case DATA_CONTROL_CONSOLE:
 			if(data = DONE)
 			{
