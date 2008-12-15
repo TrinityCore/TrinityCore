@@ -1377,7 +1377,7 @@ void SpellMgr::LoadSpellChains()
         if (cur_row==rows-1 || SpellChainTable[cur_row+1].first!= node.first )
         {
             //get field "last"
-            for (uint32 last_row=1;SpellChainTable[cur_row-last_row].first == node.first;last_row++)
+            for (uint32 last_row = 1; cur_row - last_row < rows && SpellChainTable[cur_row - last_row].first == node.first; ++last_row)
                 mSpellChains[SpellChainTable[cur_row-last_row].spell].last = spell_id;
             node.last = spell_id;
             node.next  = 0;
