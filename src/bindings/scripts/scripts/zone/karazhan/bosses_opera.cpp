@@ -827,7 +827,7 @@ struct TRINITY_DLL_DECL boss_bigbadwolfAI : public ScriptedAI
         if(FearTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_TERRIFYING_HOWL);
-            FearTimer = 25000 + rand()%35000;
+            FearTimer = 25000 + rand()%10000;
         }else FearTimer -= diff;
 
         if(SwipeTimer < diff)
