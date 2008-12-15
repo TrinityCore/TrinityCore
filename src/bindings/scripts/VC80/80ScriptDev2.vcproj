@@ -2024,6 +2024,18 @@
 							RelativePath="..\scripts\zone\caverns_of_time\dark_portal\boss_temporus.cpp"
 							>
 						</File>
+						<File
+							RelativePath="..\scripts\zone\caverns_of_time\dark_portal\dark_portal.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\caverns_of_time\dark_portal\def_dark_portal.h"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\caverns_of_time\dark_portal\instance_dark_portal.cpp"
+							>
+						</File>
 					</Filter>
 					<Filter
 						Name="Battle for Mt. Hyjal"

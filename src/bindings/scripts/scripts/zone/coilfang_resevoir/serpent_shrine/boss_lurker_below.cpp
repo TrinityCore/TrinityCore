@@ -16,8 +16,8 @@
 
 /* ScriptData
 SDName: boss_the_lurker_below
-SD%Complete: 80
-SDComment: Other things.
+SD%Complete: 75
+SDComment: Pack summoning when it's does when it's appear how check this and check for coilfang frenzy if water is boiling they get deadstate
 SDCategory: The Lurker Below
 EndScriptData */
 
@@ -232,12 +232,8 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 		 //DoCast(m_creature,SPELL_SPOUT_BREATH);//take breath anim
 	 }
  
-	 void UpdateAI(const uint32 diff)
+	 void BoilingWater(bool active)
 	 {
-		 //Return since we have no target
-		 if (!m_creature->SelectHostilTarget() /*|| !m_creature->getVictim()*/ )//rotate resets target
-			 return;
-
 		 //Check if players in water and if in water cast spell
 		 Map *map = m_creature->GetMap();
 		 if (map->IsDungeon() && pInstance->GetData(DATA_THELURKERBELOWEVENT) == IN_PROGRESS)
@@ -255,6 +251,13 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 					 i->getSource()->RemoveAurasDueToSpell(SPELL_SCALDINGWATER);
 			 }
 		 }
+	 }
+
+	 void UpdateAI(const uint32 diff)
+	 {
+		 //Return since we have no target
+		 if (!m_creature->SelectHostilTarget() /*|| !m_creature->getVictim()*/ )//rotate resets target
+			 return;
 
 		 Rotate(diff);//always check rotate things
 		 if(!Submerged)

@@ -130,14 +130,14 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
 	 	 
 					debug_log("SD2: Instance Old Hillsbrad: go_barrel_old_hillsbrad count %u",mBarrelCount);
 
+					Encounter[0] = IN_PROGRESS;
+
 					if (mBarrelCount == 5)
-						SetData(TYPE_BARREL_DIVERSION,DONE);
-				}
-				if (data == DONE)
-				{
+					{
 					player->SummonCreature(DRAKE_ENTRY,2128.43,71.01,64.42,1.74,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1800000);
+					Encounter[0] = DONE;
+					}
 				}
-               Encounter[0] = data;
                 break;
             }
             case TYPE_THRALL_EVENT:

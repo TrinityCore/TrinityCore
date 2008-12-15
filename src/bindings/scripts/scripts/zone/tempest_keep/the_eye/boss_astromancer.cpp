@@ -16,7 +16,7 @@
 
 /* ScriptData
 SDName: Boss_Astromancer
-SD%Complete: 75
+SD%Complete: 80
 SDComment:
 SDCategory: Tempest Keep, The Eye
 EndScriptData */
@@ -171,7 +171,9 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
 
     float Portal_X(float radius)
     {
-        if ((rand()%2)==1) radius = -radius;
+        if ((rand()%2)==1) 
+			radius = -radius;
+
         return (radius * (float)(rand()%100)/100.0f + CENTER_X);
     }
 
@@ -204,8 +206,6 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
                     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     m_creature->SetVisibility(VISIBILITY_OFF);
                 }
-                if (Phase == 3)
-                    Phase = 1;
 
                 AppearDelay_Timer = 2000;
             }else AppearDelay_Timer -= diff;
@@ -306,15 +306,15 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
                         Portals[i][0] = Portal_X(SMALL_PORTAL_RADIUS);
                         Portals[i][1] = Portal_Y(Portals[i][0], SMALL_PORTAL_RADIUS);
                         Portals[i][2] = CENTER_Z;
-                    }else
+                    }
+					else
                     {
                         Portals[i][0] = Portal_X(LARGE_PORTAL_RADIUS);
                         Portals[i][1] = Portal_Y(Portals[i][0], LARGE_PORTAL_RADIUS);
                         Portals[i][2] = PORTAL_Z;
                     }
                 }
-                if((abs(Portals[2][0] - Portals[1][0]) < 7)
-                    && (abs(Portals[2][1] - Portals[1][1]) < 7))
+                if((abs(Portals[2][0] - Portals[1][0]) < 7) && (abs(Portals[2][1] - Portals[1][1]) < 7))
                 {
                     int i=1;
                     if(abs(CENTER_X + 26.0f - Portals[2][0]) < 7)
@@ -352,12 +352,15 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
         }
         else if(Phase == 3)
         {
+			m_creature->AttackStop();
+			m_creature->StopMoving();
+
             //Check Phase3_Timer
             if(Phase3_Timer < diff)
             {
+				Phase = 1;
+
                 //15 seconds later Solarian reappears out of one of the 3 portals. Simultaneously, 2 healers appear in the two other portals.
-                m_creature->AttackStop();
-                m_creature->StopMoving();
                 int i = rand()%3;
                 m_creature->GetMotionMaster()->Clear();
                 m_creature->Relocate(Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O);
