@@ -36,10 +36,6 @@ EndContentData */
 ## mob_unkor_the_ruthless
 ######*/
 
-/*
-UPDATE `creature_template` SET `ScriptName`='mob_unkor_the_ruthless' WHERE `entry`=18262;
-*/
-
 #define SAY_SUBMIT                      "I give up! Please don't kill me!"
 
 #define FACTION_HOSTILE                 45

@@ -22,6 +22,7 @@ SDCategory: Caverns of Time, The Dark Portal
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_dark_portal.h"
 
 #define SAY_ENTER               -1269000
 #define SAY_AGGRO               -1269001
@@ -38,7 +39,15 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_temporusAI : public ScriptedAI
 {
-    boss_temporusAI(Creature *c) : ScriptedAI(c) {Reset();}
+	boss_temporusAI(Creature *c) : ScriptedAI(c)
+	{
+		pInstance = ((ScriptedInstance*)c->GetInstanceData());
+		HeroicMode = m_creature->GetMap()->IsHeroic();
+		Reset();
+	}
+	 	 
+	ScriptedInstance *pInstance;
+	bool HeroicMode;
 
     uint32 Haste_Timer;
     uint32 SpellReflection_Timer;
@@ -69,20 +78,19 @@ struct TRINITY_DLL_DECL boss_temporusAI : public ScriptedAI
     void JustDied(Unit *victim)
     {
         DoScriptText(SAY_DEATH, m_creature);
+
+		if (pInstance)
+			pInstance->SetData(TYPE_RIFT,SPECIAL);
     }
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (!who || m_creature->getVictim())
-            return;
-
         //Despawn Time Keeper
-        if (who->GetTypeId() == TYPEID_UNIT)
+        if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == C_TIME_KEEPER)
         {
-            if(((Creature*)who)->GetEntry() == 17918 && m_creature->IsWithinDistInMap(who,20))
+			if (m_creature->IsWithinDistInMap(who,20.0f))
             {
-                //This is the wrong yell & sound for despawning time keepers!
-                DoScriptText(SAY_ENTER, m_creature);
+				DoScriptText(SAY_BANISH, m_creature);
 
                 m_creature->DealDamage(who, who->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             }
@@ -107,8 +115,6 @@ struct TRINITY_DLL_DECL boss_temporusAI : public ScriptedAI
         //Spell Reflection
         if (SpellReflection_Timer < diff)
         {
-            DoScriptText(SAY_BANISH, m_creature);
-
             DoCast(m_creature, SPELL_REFLECT);
             SpellReflection_Timer = 40000+rand()%10000;
         }else SpellReflection_Timer -= diff;

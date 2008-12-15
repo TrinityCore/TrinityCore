@@ -17,7 +17,6 @@
 #endif _TRINITY_SCRIPT_CONFIG
 
 //*** Global data ***
-int num_db_scripts;
 int num_sc_scripts;
 Script *m_scripts[MAX_SCRIPTS];
 
@@ -230,6 +229,8 @@ extern void AddSC_old_hillsbrad();
 extern void AddSC_boss_aeonus();
 extern void AddSC_boss_chrono_lord_deja();
 extern void AddSC_boss_temporus();
+extern void AddSC_dark_portal();
+extern void AddSC_instance_dark_portal();
 
 //Coilfang Resevoir
 //--Serpent Shrine Cavern
@@ -570,6 +571,8 @@ extern void AddSC_winterspring();
 extern void AddSC_zangarmarsh();
 
 //Zul'Farrak
+extern void AddSC_zulfarrak();
+
 //Zul'Gurub
 extern void AddSC_boss_jeklik();
 extern void AddSC_boss_venoxis();
@@ -1193,10 +1196,9 @@ void ScriptsFree()
     delete []SpellSummary;
 
     // Free resources before library unload
-    for(int i=0;i<num_db_scripts;i++)
+	for(int i=0;i<num_sc_scripts;i++)
         delete m_scripts[i];
 
-    num_db_scripts = 0;
     num_sc_scripts = 0;
 }
 
@@ -1247,8 +1249,6 @@ void ScriptsInit()
     //Load database (must be called after TScriptConfig.SetSource). In case it failed, no need to even try load.
     if (CanLoadDB)
         LoadDatabase();
-
-    num_db_scripts = GetScriptNames().size();
 
     outstring_log("TSCR: Loading C++ scripts");
     barGoLink bar(1);
@@ -1426,6 +1426,8 @@ void ScriptsInit()
     AddSC_boss_aeonus();
     AddSC_boss_chrono_lord_deja();
     AddSC_boss_temporus();
+	AddSC_dark_portal();
+	AddSC_instance_dark_portal();
 
     //Coilfang Resevoir
     //--Serpent Shrine Cavern
@@ -1765,6 +1767,8 @@ void ScriptsInit()
     AddSC_zangarmarsh();
 
     //Zul'Farrak
+	AddSC_zulfarrak();
+
     //Zul'Gurub
     AddSC_boss_jeklik();
     AddSC_boss_venoxis();
@@ -1793,7 +1797,7 @@ void ScriptsInit()
 
     // -------------------
 
-    outstring_log(">> Loaded %i C++ Scripts (of %i ScriptNames defined in Mangos database)", num_sc_scripts, num_db_scripts);
+	outstring_log(">> Loaded %i C++ Scripts.", num_sc_scripts);
 }
 
 //*********************************

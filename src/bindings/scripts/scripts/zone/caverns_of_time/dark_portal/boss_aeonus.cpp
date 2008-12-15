@@ -22,6 +22,7 @@ SDCategory: Caverns of Time, The Dark Portal
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_dark_portal.h"
 
 #define SAY_ENTER         -1269012
 #define SAY_AGGRO         -1269013
@@ -29,6 +30,7 @@ EndScriptData */
 #define SAY_SLAY1         -1269015
 #define SAY_SLAY2         -1269016
 #define SAY_DEATH         -1269017
+#define EMOTE_FRENZY      -1269018
 
 #define SPELL_CLEAVE        40504
 #define SPELL_TIME_STOP     31422
@@ -38,7 +40,15 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_aeonusAI : public ScriptedAI
 {
-    boss_aeonusAI(Creature *c) : ScriptedAI(c) {Reset();}
+	boss_aeonusAI(Creature *c) : ScriptedAI(c)
+	{
+		pInstance = ((ScriptedInstance*)c->GetInstanceData());
+		HeroicMode = m_creature->GetMap()->IsHeroic();
+		Reset();
+	}
+	 	 
+	ScriptedInstance *pInstance;
+	bool HeroicMode;
 
     uint32 SandBreath_Timer;
     uint32 TimeStop_Timer;
@@ -56,9 +66,27 @@ struct TRINITY_DLL_DECL boss_aeonusAI : public ScriptedAI
         DoScriptText(SAY_AGGRO, m_creature);
     }
 
+	void MoveInLineOfSight(Unit *who)
+	{
+		//Despawn Time Keeper
+		if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == C_TIME_KEEPER)
+		{
+			if (m_creature->IsWithinDistInMap(who,20.0f))
+			{
+				DoScriptText(SAY_BANISH, m_creature);
+				m_creature->DealDamage(who, who->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+			}
+		}
+	 	 
+		ScriptedAI::MoveInLineOfSight(who);
+	}
+
     void JustDied(Unit *victim)
     {
         DoScriptText(SAY_DEATH, m_creature);
+
+		 if (pInstance)
+			 pInstance->SetData(TYPE_RIFT,DONE);
     }
 
     void KilledUnit(Unit *victim)
@@ -79,18 +107,13 @@ struct TRINITY_DLL_DECL boss_aeonusAI : public ScriptedAI
         //Sand Breath
         if (SandBreath_Timer < diff)
         {
-            Unit* target = NULL;
-            target = m_creature->getVictim();
-            if (target)
-                DoCast(target, SPELL_SAND_BREATH);
+			DoCast(m_creature->getVictim(), SPELL_SAND_BREATH);
             SandBreath_Timer = 30000;
         }else SandBreath_Timer -= diff;
 
         //Time Stop
         if (TimeStop_Timer < diff)
         {
-            DoScriptText(SAY_BANISH, m_creature);
-
             DoCast(m_creature->getVictim(), SPELL_TIME_STOP);
             TimeStop_Timer = 40000;
         }else TimeStop_Timer -= diff;
@@ -98,6 +121,7 @@ struct TRINITY_DLL_DECL boss_aeonusAI : public ScriptedAI
         //Frenzy
         if (Frenzy_Timer < diff)
         {
+			DoScriptText(EMOTE_FRENZY, m_creature);
             DoCast(m_creature, SPELL_ENRAGE);
             Frenzy_Timer = 120000;
         }else Frenzy_Timer -= diff;

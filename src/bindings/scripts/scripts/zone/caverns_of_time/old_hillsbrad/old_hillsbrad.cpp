@@ -477,6 +477,9 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
     }
     void JustDied(Unit *slayer)
     {
+		if (pInstance)
+			pInstance->SetData(TYPE_THRALL_EVENT,FAIL);
+
 		// Don't do a yell if he kills self (if player goes too far or at the end).
         if(slayer == m_creature)                            
             return;
@@ -486,9 +489,8 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
 		case 0: DoScriptText(SAY_TH_RANDOM_DIE1, m_creature); break;
 		case 1: DoScriptText(SAY_TH_RANDOM_DIE2, m_creature); break;
         }
-        if( pInstance )
-            pInstance->SetData(TYPE_THRALL_EVENT,FAIL);
     }
+
     void UpdateAI(const uint32 diff)
     {
         npc_escortAI::UpdateAI(diff);
@@ -668,12 +670,15 @@ CreatureAI* GetAI_npc_thrall_old_hillsbrad(Creature *_Creature)
 bool GossipHello_npc_thrall_old_hillsbrad(Player *player, Creature *_Creature)
 {
     if( _Creature->isQuestGiver() )
-        player->PrepareQuestMenu( _Creature->GetGUID() );
+	{    
+		player->PrepareQuestMenu( _Creature->GetGUID() );
+		player->SendPreparedQuest(_Creature->GetGUID());
+	}
 
     ScriptedInstance* pInstance = ((ScriptedInstance*)_Creature->GetInstanceData());
     if( pInstance )
     {
-        if( pInstance->GetData(TYPE_BARREL_DIVERSION) == DONE && pInstance->GetData(TYPE_THRALL_EVENT) == NOT_STARTED )
+		if (pInstance->GetData(TYPE_BARREL_DIVERSION) == DONE && !pInstance->GetData(TYPE_THRALL_EVENT))
         {
             player->ADD_GOSSIP_ITEM( 0, "[PH] Start walking.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
             player->SEND_GOSSIP_MENU(GOSSIP_ID_START, _Creature->GetGUID());

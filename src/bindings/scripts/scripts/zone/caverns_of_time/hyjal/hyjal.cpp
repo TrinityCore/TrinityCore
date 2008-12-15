@@ -77,7 +77,7 @@ bool GossipHello_npc_jaina_proudmoore(Player *player, Creature *_Creature)
     else if(RageEncounter == DONE && AnetheronEncounter == NOT_STARTED)
         player->ADD_GOSSIP_ITEM( 0, GOSSIP_ITEM_ANETHERON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
     else if(RageEncounter == DONE && AnetheronEncounter == DONE)
-        player->ADD_GOSSIP_ITEM( 0, GOSSIP_ITEM_RETREAT, GOSSIP_SENDER_MAIN,    GOSSIP_ACTION_INFO_DEF + 2);
+        player->ADD_GOSSIP_ITEM( 0, GOSSIP_ITEM_RETREAT, GOSSIP_SENDER_MAIN,    GOSSIP_ACTION_INFO_DEF + 3);
 
     if(player->isGameMaster())
         player->ADD_GOSSIP_ITEM(2, "[GM] Toggle Debug Timers", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
