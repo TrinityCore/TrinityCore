@@ -593,6 +593,12 @@
 				RelativePath="..\..\src\game\CreatureAISelector.h">
 			</File>
 			<File
+				RelativePath="..\..\src\game\CreatureGroups.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\game\CreatureGroups.h">
+			</File>
+			<File
 				RelativePath="..\..\src\game\DestinationHolder.cpp">
 			</File>
 			<File
