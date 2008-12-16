@@ -1,5 +1,5 @@
 DELETE FROM gameobject WHERE id=184956;
-INSERT INTO gameobject (id, map, spawnMask, position_x, position_y, position_z, orientation, rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state) VALUES (184956, 548, 1, 39.1372, -418.625, -21.5806, 1.29069, 0, 0, 0.601475, 0.798891, 25, 0, 1)
+INSERT INTO gameobject (id, map, spawnMask, position_x, position_y, position_z, orientation, rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state) VALUES (184956, 548, 1, 39.1372, -418.625, -21.5806, 1.29069, 0, 0, 0.601475, 0.798891, 25, 0, 1);
 
 UPDATE `instance_template` SET `script`='instance_dark_portal' WHERE `map`=269;
 UPDATE `creature_template` SET `ScriptName`='npc_medivh_bm' WHERE `entry`=15608;
