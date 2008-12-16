@@ -92,7 +92,8 @@ void WaypointMovementGenerator<Player>::Reset(Player &unit){}
 template<>
 void WaypointMovementGenerator<Creature>::InitTraveller(Creature &unit, const WaypointData &node)
 {
-	node.run ? unit.RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE): unit.AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+	node.run ? unit.RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE):
+		unit.AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
 	
 	unit.SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
 	unit.SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
@@ -173,18 +174,12 @@ WaypointMovementGenerator<Creature>::Update(Creature &unit, const uint32 &diff)
 			//Determine waittime 
 			if(node.delay)
 				i_nextMoveTime.Reset(node.delay);
-			else 
-				i_nextMoveTime.Reset(100); //Prevents some lag
 			
-			if(node.event_id && rand()%100 < node.event_chance && !ExecuteScript)
-			{
+			if(node.event_id && rand()%100 < node.event_chance)
 				sWorld.ScriptsStart(sWaypointScripts, node.event_id, &unit, NULL);
-				ExecuteScript = true;	
-			}
-			
+				
 			MovementInform(unit);
 			unit.UpdateWaypointID(i_currentNode);
-			traveller.Relocation(node.x, node.y, node.z);
 			unit.clearUnitState(UNIT_STAT_MOVING);
 		}
     }
