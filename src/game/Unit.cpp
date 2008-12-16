@@ -9688,7 +9688,8 @@ void Unit::CombatStart(Unit* target)
         target->SetStandState(PLAYER_STATE_NONE);
 
 	//Call creature group update
-	if(GetTypeId()==TYPEID_UNIT && ((Creature *)this)->GetFormationID())
+	if(GetTypeId()==TYPEID_UNIT && ((Creature *)this)->GetFormationID() &&
+		CreatureGroupHolder.find(((Creature *)this)->GetFormationID()) != CreatureGroupHolder.end())
 		CreatureGroupHolder[((Creature *)this)->GetFormationID()]->MemberHasAttacked(((Creature *)this));
 
     if(!target->isInCombat() && target->GetTypeId() != TYPEID_PLAYER

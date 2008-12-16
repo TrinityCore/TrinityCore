@@ -627,7 +627,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
 		void UpdateWaypointID(uint32 wpID){m_waypointID = wpID;}
 
 		void SearchFormation();
-		bool IsFormationLeader() {return GetDBTableGUIDLow() == m_formationID;}
+		bool IsFormationLeader() {return (GetDBTableGUIDLow() && GetDBTableGUIDLow() == m_formationID);}
 		uint32 GetFormationID(){return m_formationID;}
 
 	protected:
