@@ -22,7 +22,8 @@
 #define C_TIME_KEEPER           17918
 #define C_RKEEP                 21104
 #define C_RLORD                 17839
-#define RIFT_BOSS               urand(0,1) ? C_RKEEP : C_RLORD
+//#define RIFT_BOSS               urand(0,1) ? C_RKEEP : C_RLORD
+#define RIFT_BOSS               C_RKEEP
 #define C_DEJA                  17879
 #define C_TEMPO                 17880
 #define C_AEONUS                17881
