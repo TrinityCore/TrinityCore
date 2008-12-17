@@ -553,12 +553,12 @@ bool ChatHandler::HandleReloadWpScriptsCommand(const char* arg)
     }
 
     if(*arg!='a')
-        sLog.outString( "Re-Loading Scripts from `event_scripts`...");
+        sLog.outString( "Re-Loading Scripts from `waypoint_scripts`...");
 
 	objmgr.LoadWaypointScripts();
  
 	if(*arg!='a')
-        SendGlobalSysMessage("DB table `event_scripts` reloaded.");
+        SendGlobalSysMessage("DB table `waypoint_scripts` reloaded.");
 
     return true;
 }
