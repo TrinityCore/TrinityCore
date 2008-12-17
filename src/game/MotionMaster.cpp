@@ -334,7 +334,6 @@ void MotionMaster::MovePath(uint32 path_id, bool repeatable)
             delete curr;
     }
 	
-	sLog.outError("attempting to move");
 	//i_owner->GetTypeId()==TYPEID_PLAYER ?
 		//Mutate(new WaypointMovementGenerator<Player>(path_id, repeatable)):
 		Mutate(new WaypointMovementGenerator<Creature>(path_id, repeatable));

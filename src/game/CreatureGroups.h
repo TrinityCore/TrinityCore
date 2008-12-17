@@ -29,7 +29,7 @@ struct FormationMember
 {
 	float follow_dist; 
 	float follow_angle; 
-	uint32 followerGUID; 
+	uint32 memberGUID; 
 	uint32 leaderGUID;
 	uint8 groupAI;
 };

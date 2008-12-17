@@ -25,7 +25,7 @@
 #include "Policies/SingletonImp.h"
 
 #define MAX_DESYNC 5.0f
-
+//TODO: Create group manager for each map
 INSTANTIATE_SINGLETON_1(CreatureGroupManager);
 
 UNORDERED_MAP<uint32, CreatureGroup*> CreatureGroupHolder;
@@ -69,18 +69,17 @@ void CreatureGroupManager::LoadCreatureFormations()
 	CreatureGroupMap.clear();
 	
 	//Check Integrity of the table
-	QueryResult *result = WorldDatabase.PQuery("SELECT MAX(`leader`) FROM `creature_formations`");
+	QueryResult *result = WorldDatabase.PQuery("SELECT MAX(`leaderGUID`) FROM `creature_formations`");
     
 	if(!result)
     {
         sLog.outErrorDb(" an error occured while loading the table `creature_formations` ( maybe it doesn't exist ?)\n");
         return;
     }
-	
 	delete result;
 
-	//Get data
-	result = WorldDatabase.PQuery("SELECT `leader`, `follower`, `dist`, `angle`, `groupAI` FROM `creature_formations` ORDER BY `leader`");
+	//Get group data
+	result = WorldDatabase.PQuery("SELECT `leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI` FROM `creature_formations` ORDER BY `leaderGUID`");
     
 	if(!result)
     {
@@ -88,12 +87,10 @@ void CreatureGroupManager::LoadCreatureFormations()
         return;
     }
 
-    uint32 total_records = result->GetRowCount();
-
+    uint32 total_records = result->GetRowCount(), lastLeaderGUID = 0;
 	barGoLink bar( total_records);
     Field *fields;
-    uint32 count = 0, lastLeaderGUID = 0;
-
+    
 	FormationMember *group_member;
 	//Loading data...
 	do
@@ -101,31 +98,30 @@ void CreatureGroupManager::LoadCreatureFormations()
         fields = result->Fetch();
         
 		bar.step();
-        count++;
-		
+        //Load group member data
 		group_member						= new FormationMember;
-
 		group_member->leaderGUID			= fields[0].GetUInt32();
-        group_member->followerGUID			= fields[1].GetUInt32();
-		group_member->follow_dist			= fields[2].GetUInt32();
-		group_member->follow_angle			= fields[3].GetUInt32();
+		group_member->memberGUID			= fields[1].GetUInt32();
 		group_member->groupAI				= fields[4].GetUInt8();
+		//If creature is group leader we may skip loading of dist/angle
+		if(group_member->leaderGUID != group_member->memberGUID)
+		{
+			group_member->follow_dist			= fields[2].GetUInt32();
+			group_member->follow_angle			= fields[3].GetUInt32();
+		}
 		
-		CreatureGroupMap[group_member->followerGUID] = group_member;
+		CreatureGroupMap[group_member->memberGUID] = group_member;
 		
 		if(lastLeaderGUID != group_member->leaderGUID)
-		{
 			lastLeaderGUID = group_member->leaderGUID;
-			CreatureGroupMap[lastLeaderGUID] = group_member;
-		}
 	} 
 	while(result->NextRow()) ;
-
-	delete result;
 	
 	sLog.outString();
-	sLog.outString( ">> Loaded %u creatures in formations", count );
+	sLog.outString( ">> Loaded %u creatures in formations", total_records );
     sLog.outString();
+	//Free some heap
+	delete result;
 }
 
 void CreatureGroup::AddMember(Creature *member)
@@ -155,7 +151,7 @@ void CreatureGroup::RemoveMember(uint64 guid)
 
 void CreatureGroup::MemberHasAttacked(Creature *member)
 {
-	uint8 groupAI = CreatureGroupMap[member->GetGUIDLow()]->groupAI;;
+	uint8 groupAI = CreatureGroupMap[member->GetDBTableGUIDLow()]->groupAI;;
 
 	for(UNORDERED_MAP<uint64, Creature*>::iterator itr = CreatureGroupMembers.begin(); itr != CreatureGroupMembers.end(); itr++)
 	{
