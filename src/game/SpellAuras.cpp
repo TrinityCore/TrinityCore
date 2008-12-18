@@ -1075,7 +1075,11 @@ void Aura::UpdateSlotCounterAndDuration()
     if(slot >= MAX_AURAS)
         return;
 
-    if(!m_procCharges)
+    // Three possibilities:
+    // Charge = 0; Stack >= 0
+    // Charge = 1; Stack >= 0
+    // Charge > 1; Stack = 0
+    if(m_procCharges < 2)
         SetAuraApplication(slot, m_stackAmount-1);
 
     UpdateAuraDuration();
