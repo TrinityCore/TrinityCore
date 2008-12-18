@@ -43,6 +43,7 @@ class WorldPacket;
 class InstanceData;
 class Group;
 class InstanceSave;
+class WorldObject;
 
 namespace ZThread
 {
