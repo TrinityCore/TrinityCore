@@ -681,7 +681,7 @@ inline bool IsProfessionSkill(uint32 skill)
     return  IsPrimaryProfessionSkill(skill) || skill == SKILL_FISHING || skill == SKILL_COOKING || skill == SKILL_FIRST_AID;
 }
 
-#define SPELL_ATTR_CU_PLAYERS_ONLY      0x00000001
+//#define SPELL_ATTR_CU_PLAYERS_ONLY      0x00000001
 #define SPELL_ATTR_CU_CONE_BACK         0x00000002
 #define SPELL_ATTR_CU_CONE_LINE         0x00000004
 #define SPELL_ATTR_CU_SHARE_DAMAGE      0x00000008
