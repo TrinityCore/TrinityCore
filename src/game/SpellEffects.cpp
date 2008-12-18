@@ -4203,25 +4203,17 @@ void Spell::EffectWeaponDmg(uint32 i)
     }
 
     // some spell specific modifiers
-    //bool customBonusDamagePercentMod = false;
-    //float bonusDamagePercentMod  = 1.0f;                    // applied to fixed effect damage bonus if set customBonusDamagePercentMod
-    float weaponDamagePercentMod = 1.0f;                    // applied to weapon damage (and to fixed effect damage bonus if customBonusDamagePercentMod not set
+    //float weaponDamagePercentMod = 1.0f;                    // applied to weapon damage (and to fixed effect damage bonus if customBonusDamagePercentMod not set
     float totalDamagePercentMod  = 1.0f;                    // applied to final bonus+weapon damage
-    bool normalized = false;
+    int32 fixed_bonus = 0;
     int32 spell_bonus = 0;                                  // bonus specific for spell
 
     switch(m_spellInfo->SpellFamilyName)
     {
         case SPELLFAMILY_WARRIOR:
         {
-            // Whirlwind, single only spell with 2 weapon white damage apply if have
-            if(m_caster->GetTypeId()==TYPEID_PLAYER && (m_spellInfo->SpellFamilyFlags & 0x00000400000000LL))
-            {
-                if(((Player*)m_caster)->GetWeaponForAttack(OFF_ATTACK,true))
-                    spell_bonus += m_caster->CalculateDamage (OFF_ATTACK, normalized);
-            }
             // Devastate bonus and sunder armor refresh
-            else if(m_spellInfo->SpellVisual == 671 && m_spellInfo->SpellIconID == 1508)
+            if(m_spellInfo->SpellVisual == 671 && m_spellInfo->SpellIconID == 1508)
             {
                 uint32 stack = 0;
 
@@ -4244,7 +4236,7 @@ void Spell::EffectWeaponDmg(uint32 i)
                 {
                     if(m_spellInfo->Effect[j] == SPELL_EFFECT_NORMALIZED_WEAPON_DMG)
                     {
-                        spell_bonus += (stack - 1) * CalculateDamage(j, unitTarget);
+                        fixed_bonus += (stack - 1) * CalculateDamage(j, unitTarget);
                         break;
                     }
                 }
@@ -4277,14 +4269,14 @@ void Spell::EffectWeaponDmg(uint32 i)
         }
         case SPELLFAMILY_ROGUE:
         {
-            // Ambush
-            /*if(m_spellInfo->SpellFamilyFlags & 0x00000200LL)
+            // Hemorrhage
+            if(m_spellInfo->SpellFamilyFlags & 0x2000000)
             {
-                customBonusDamagePercentMod = true;
-                bonusDamagePercentMod = 2.5f;               // 250%
-            }*/
+                if(m_caster->GetTypeId()==TYPEID_PLAYER)
+                    ((Player*)m_caster)->AddComboPoints(unitTarget, 1);
+            }
             // Mutilate (for each hand)
-            if(m_spellInfo->SpellFamilyFlags & 0x600000000LL)
+            else if(m_spellInfo->SpellFamilyFlags & 0x600000000LL)
             {
                 bool found = false;
                 // fast check
@@ -4336,19 +4328,32 @@ void Spell::EffectWeaponDmg(uint32 i)
                     }
                 }
             }
+            break;
+        }
+        case SPELLFAMILY_DRUID:
+        {
+            // Mangle (Cat): CP
+            if(m_spellInfo->SpellFamilyFlags==0x0000040000000000LL)
+            {
+                if(m_caster->GetTypeId()==TYPEID_PLAYER)
+                    ((Player*)m_caster)->AddComboPoints(unitTarget,1);
+            }
+            break;
         }
     }
 
-    for (int j = 0; j < 3; j++)
+    bool normalized = false;
+    float weaponDamagePercentMod = 1.0;
+    for (int j = 0; j < 3; ++j)
     {
         switch(m_spellInfo->Effect[j])
         {
             case SPELL_EFFECT_WEAPON_DAMAGE:
             case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
-                spell_bonus += CalculateDamage(j,unitTarget);
+                fixed_bonus += CalculateDamage(j,unitTarget);
                 break;
             case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
-                spell_bonus += CalculateDamage(j,unitTarget);
+                fixed_bonus += CalculateDamage(j,unitTarget);
                 normalized = true;
                 break;
             case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
@@ -4358,13 +4363,8 @@ void Spell::EffectWeaponDmg(uint32 i)
         }
     }
 
-    //fixed_bonus = int32(fixed_bonus*weaponDamagePercentMod);
-
-    // non-weapon damage
-    int32 bonus = spell_bonus;// + fixed_bonus;
-
     // apply to non-weapon bonus weapon total pct effect, weapon total flat effect included in weapon damage
-    if(bonus)
+    if(fixed_bonus || spell_bonus)
     {
         UnitMods unitMod;
         switch(m_attackType)
@@ -4376,35 +4376,48 @@ void Spell::EffectWeaponDmg(uint32 i)
         }
 
         float weapon_total_pct  = m_caster->GetModifierValue(unitMod, TOTAL_PCT);
-        bonus = int32(bonus*weapon_total_pct);
+
+        if(fixed_bonus)
+            fixed_bonus = int32(fixed_bonus * weapon_total_pct);
+        if(spell_bonus)
+            spell_bonus = int32(spell_bonus * weapon_total_pct);
+    }
+    
+    int32 weaponDamage = m_caster->CalculateDamage(m_attackType, normalized);
+
+    // Sequence is important
+    for (int j = 0; j < 3; ++j)
+    {
+        // We assume that a spell have at most one fixed_bonus
+        // and at most one weaponDamagePercentMod
+        switch(m_spellInfo->Effect[j])
+        {
+            case SPELL_EFFECT_WEAPON_DAMAGE:
+            case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
+            case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+                weaponDamage += fixed_bonus;
+                break;
+            case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
+                weaponDamage = int32(weaponDamage * weaponDamagePercentMod);
+            default:
+                break;                                      // not weapon damage effect, just skip
+        }
     }
 
-    // + weapon damage with applied weapon% dmg to base weapon damage in call
-    bonus += int32(m_caster->CalculateDamage(m_attackType, normalized)*weaponDamagePercentMod);
+    // only for Seal of Command
+    if(spell_bonus)
+        weaponDamage += spell_bonus;
 
-    // total damage
-    bonus = int32(bonus*totalDamagePercentMod);
+    // only for Mutilate
+    if(totalDamagePercentMod != 1.0f)
+        weaponDamage = int32(weaponDamage * totalDamagePercentMod);
 
     // prevent negative damage
-    uint32 eff_damage = uint32(bonus > 0 ? bonus : 0);
+    uint32 eff_damage = uint32(weaponDamage > 0 ? weaponDamage : 0);
 
     // Add melee damage bonuses (also check for negative)
     m_caster->MeleeDamageBonus(unitTarget, &eff_damage, m_attackType, m_spellInfo);
     m_damage+= eff_damage;
-
-    // Hemorrhage
-    if(m_spellInfo->SpellFamilyName==SPELLFAMILY_ROGUE && (m_spellInfo->SpellFamilyFlags & 0x2000000))
-    {
-        if(m_caster->GetTypeId()==TYPEID_PLAYER)
-            ((Player*)m_caster)->AddComboPoints(unitTarget, 1);
-    }
-
-    // Mangle (Cat): CP
-    if(m_spellInfo->SpellFamilyName==SPELLFAMILY_DRUID && (m_spellInfo->SpellFamilyFlags==0x0000040000000000LL))
-    {
-        if(m_caster->GetTypeId()==TYPEID_PLAYER)
-            ((Player*)m_caster)->AddComboPoints(unitTarget,1);
-    }
 
     // take ammo
     if(m_attackType == RANGED_ATTACK && m_caster->GetTypeId() == TYPEID_PLAYER)
