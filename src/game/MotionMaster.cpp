@@ -30,6 +30,7 @@
 #include "PointMovementGenerator.h"
 #include "TargetedMovementGenerator.h"
 #include "WaypointMovementGenerator.h"
+#include "RandomMovementGenerator.h"
 
 #include <cassert>
 
@@ -101,6 +102,16 @@ MotionMaster::Clear(bool reset)
     {
         assert( !empty() );
         top()->Reset(*i_owner);
+    }
+}
+
+void
+MotionMaster::MoveRandom(float spawndist)
+{
+	if(i_owner->GetTypeId()==TYPEID_UNIT)
+    {
+        DEBUG_LOG("Creature (GUID: %u) start moving random", i_owner->GetGUIDLow() );
+        Mutate(new RandomMovementGenerator<Creature>(spawndist));
     }
 }
 

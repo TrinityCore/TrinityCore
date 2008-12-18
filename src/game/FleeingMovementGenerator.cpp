@@ -49,6 +49,22 @@ FleeingMovementGenerator<T>::_setTargetLocation(T &owner)
     i_destinationHolder.SetDestination(traveller, x, y, z);
 }
 
+template<>
+bool FleeingMovementGenerator<Creature>::GetDestination(float &x, float &y, float &z) const
+{
+    if(i_destinationHolder.HasArrived())
+        return false; 
+    
+    i_destinationHolder.GetDestination(x, y, z); 
+    return true;
+}
+
+template<>
+bool FleeingMovementGenerator<Player>::GetDestination(float &x, float &y, float &z) const 
+{
+	return false;
+}
+
 template<class T>
 bool
 FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float &z)

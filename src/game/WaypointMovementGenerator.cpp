@@ -43,7 +43,6 @@ void
 WaypointMovementGenerator<Creature>::Initialize(Creature &u)
 {
 	i_currentNode = -1;
-	u.StopMoving();
 	if(!path_id)
 		path_id = u.GetWaypointPath();
 	waypoints = WaypointMgr.GetPath(path_id); 
@@ -84,7 +83,11 @@ bool WaypointMovementGenerator<Player>::GetDestination(float &x, float &y, float
 }
 
 template<>
-void WaypointMovementGenerator<Creature>::Reset(Creature &unit){}
+void WaypointMovementGenerator<Creature>::Reset(Creature &unit)
+{
+	StopedByPlayer = false;
+	i_nextMoveTime.Reset(0);
+}
 
 template<>
 void WaypointMovementGenerator<Player>::Reset(Player &unit){}

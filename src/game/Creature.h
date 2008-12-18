@@ -615,8 +615,8 @@ class TRINITY_DLL_SPEC Creature : public Unit
                 return m_charmInfo->GetCharmSpell(pos)->spellId;
         }
 
-        void SetCombatStartPosition(float x, float y, float z) { CombatStartX = x; CombatStartY = y; CombatStartZ = z; }
-        void GetCombatStartPosition(float &x, float &y, float &z) { x = CombatStartX; y = CombatStartY; z = CombatStartZ; }
+        void SetHomePosition(float x, float y, float z, float ori) { mHome_X = x; mHome_Y = y; mHome_Z = z; mHome_O = ori;}
+        void GetHomePosition(float &x, float &y, float &z, float &ori) { x = mHome_X; y = mHome_Y; z = mHome_Z; ori = mHome_O; }
 
         uint32 GetGlobalCooldown() const { return m_GlobalCooldown; }
     
@@ -675,9 +675,10 @@ class TRINITY_DLL_SPEC Creature : public Unit
         SpellSchoolMask m_meleeDamageSchoolMask;
         uint32 m_originalEntry;
 
-        float CombatStartX;
-        float CombatStartY;
-        float CombatStartZ;
+        float mHome_X;
+        float mHome_Y;
+        float mHome_Z;
+		float mHome_O;
 
     private:
 		//WaypointMovementGenerator vars

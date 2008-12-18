@@ -1542,7 +1542,8 @@ Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, floa
         return NULL;
     }
 
-    pCreature->Summon(spwtype, despwtime);
+	pCreature->SetHomePosition(x, y, z, ang);
+	pCreature->Summon(spwtype, despwtime);
 
     if(GetTypeId()==TYPEID_UNIT && ((Creature*)this)->AI())
         ((Creature*)this)->AI()->JustSummoned(pCreature);
