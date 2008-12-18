@@ -29,6 +29,7 @@
 #include "ObjectDefines.h"
 #include "GridDefines.h"
 #include "CreatureAI.h"
+#include "Map.h"
 
 #include <set>
 #include <string>
@@ -479,7 +480,7 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         Creature* SummonTrigger(float x, float y, float z, float ang, uint32 dur, CreatureAI* (*GetAI)(Creature*) = NULL);
         bool isActive() const { return m_isActive; }
         void setActive(bool isActive);
-        template<class NOTIFIER> void VisitNearbyObject(const float &radius, NOTIFIER &notifier) const;
+        template<class NOTIFIER> void VisitNearbyObject(const float &radius, NOTIFIER &notifier) const { GetMap()->VisitAll(GetPositionX(), GetPositionY(), radius, notifier); }
     protected:
         explicit WorldObject();
         std::string m_name;
