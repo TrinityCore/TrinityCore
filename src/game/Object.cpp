@@ -1620,3 +1620,9 @@ void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, 
 
 	UpdateGroundPositionZ(x,y,z);
 }
+
+template<class NOTIFIER>
+void WorldObject::VisitNearbyObject(const float &radius, NOTIFIER &notifier) const
+{
+    GetMap()->VisitAll(GetPositionX(), GetPositionY(), radius, notifier); 
+}
