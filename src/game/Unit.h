@@ -1393,6 +1393,13 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         void SetToNotify();
         bool m_Notified, m_IsInNotifyList;
+        void SetReducedThreatPercent(uint32 pct, uint64 guid)
+        {
+            m_reducedThreatPercent = pct;
+            m_misdirectionTargetGUID = guid;
+        }
+        uint32 GetReducedThreatPercent() { return m_reducedThreatPercent; }
+        Unit *GetMisdirectionTarget() { return m_misdirectionTargetGUID ? GetUnit(*this, m_misdirectionTargetGUID) : NULL; }
     protected:
         explicit Unit ();
 
@@ -1470,5 +1477,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         FollowerRefManager m_FollowingRefManager;
 
         ComboPointHolderSet m_ComboPointHolders;
+
+        uint32 m_reducedThreatPercent;
+        uint64 m_misdirectionTargetGUID;
 };
 #endif
