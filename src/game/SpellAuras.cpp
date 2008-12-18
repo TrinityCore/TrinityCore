@@ -2097,8 +2097,9 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 {
                     if (GetAuraDuration() <= 0 || m_removeMode==AURA_REMOVE_BY_DISPEL)
                     {
-                        int32 bp0 = m_modifier.m_amount; //GetModifierValue();
-						m_target->CastCustomSpell(m_target,33778,&bp0,NULL,NULL,true,NULL,this,GetCasterGUID());
+                        // final heal
+                        if(m_target->IsInWorld())
+                            m_target->CastCustomSpell(m_target,33778,&m_modifier.m_amount,NULL,NULL,true,NULL,this,GetCasterGUID());
                     }
                 }
                 return;
@@ -3061,8 +3062,24 @@ void Aura::HandleFeignDeath(bool apply, bool Real)
         m_target->SendMessageToSet(&data,true);
         */
 
-        m_target->SetVisibility(VISIBILITY_OFF);
-        m_target->SetVisibility(VISIBILITY_ON);
+        std::list<Unit*> targets;
+        Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(m_target, m_target, 100);
+        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(targets, u_check);
+        m_target->VisitNearbyObject(100, searcher);
+        for(std::list<Unit*>::iterator iter = targets.begin(); iter != targets.end(); ++iter)
+        {
+            if(!(*iter)->hasUnitState(UNIT_STAT_CASTING))
+                continue;
+
+            for(uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; i++)
+            {
+                if((*iter)->m_currentSpells[i]
+                && (*iter)->m_currentSpells[i]->m_targets.getUnitTargetGUID() == m_target->GetGUID())
+                {
+                    (*iter)->InterruptSpell(i, false);
+                }
+            }
+        }
                                                             // blizz like 2.0.x
         m_target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNKNOWN6);
                                                             // blizz like 2.0.x
