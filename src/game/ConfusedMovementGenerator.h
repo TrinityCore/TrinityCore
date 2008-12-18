@@ -18,8 +18,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef TRINITY_RANDOMMOTIONGENERATOR_H
-#define TRINITY_RANDOMMOTIONGENERATOR_H
+#ifndef TRINITY_CONFUSEDGENERATOR_H
+#define TRINITY_CONFUSEDGENERATOR_H
 
 #include "MovementGenerator.h"
 #include "DestinationHolder.h"
@@ -39,7 +39,14 @@ class TRINITY_DLL_SPEC ConfusedMovementGenerator
         void Reset(T &);
         bool Update(T &, const uint32 &);
 
-        MovementGeneratorType GetMovementGeneratorType() { return CONFUSED_MOTION_TYPE; }
+		bool GetDestination(float &x, float &y, float &z) const
+        {
+			if(i_destinationHolder.HasArrived()) return false;
+            i_destinationHolder.GetDestination(x,y,z);
+            return true;
+        }
+
+		MovementGeneratorType GetMovementGeneratorType() { return CONFUSED_MOTION_TYPE; }
     private:
         void _InitSpecific(T &, bool &, bool &);
         TimeTracker i_nextMoveTime;

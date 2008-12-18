@@ -24,7 +24,6 @@
 #include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "DestinationHolderImp.h"
-#include "ObjectMgr.h"
 #include "WorldPacket.h"
 
 void
@@ -49,7 +48,7 @@ HomeMovementGenerator<Creature>::_setTargetLocation(Creature & owner)
         return;
 
     float x, y, z;
-    owner.GetRespawnCoord(x, y, z);
+    owner.GetHomePosition(x, y, z, ori);
 
     CreatureTraveller traveller(owner);
 
@@ -71,13 +70,10 @@ HomeMovementGenerator<Creature>::Update(Creature &owner, const uint32& time_diff
         // restore orientation of not moving creature at returning to home
         if(owner.GetDefaultMovementType()==IDLE_MOTION_TYPE)
         {
-            if(CreatureData const* data = objmgr.GetCreatureData(owner.GetDBTableGUIDLow()))
-            {
-                owner.SetOrientation(data->orientation);
-                WorldPacket packet;
-                owner.BuildHeartBeatMsg(&packet);
-                owner.SendMessageToSet(&packet, false);
-            }
+			owner.SetOrientation(ori);
+			WorldPacket packet;
+			owner.BuildHeartBeatMsg(&packet);
+			owner.SendMessageToSet(&packet, false);
         }
         return false;
     }
