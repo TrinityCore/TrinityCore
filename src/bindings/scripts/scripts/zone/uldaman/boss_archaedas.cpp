@@ -418,22 +418,27 @@ EndScriptData */
 static uint64 altarOfTheKeeperCount[5];
 static uint32 altarOfTheKeeperCounter=0;
 
-
 bool GOHello_go_altar_of_the_keepers(Player *player, GameObject* go)
 {
+    ScriptedInstance* pInstance = ((ScriptedInstance*)player->GetInstanceData());
+    if (!pInstance) return true;
+
     bool alreadyUsed;
 
     go->AddUse ();
 
     alreadyUsed = false;
-    for (uint32 loop=0; loop<5; loop++) {
-        if (altarOfTheKeeperCount[loop] == player->GetGUID()) alreadyUsed = true;
+    for (uint32 loop=0; loop<5; ++loop)
+    {
+        if (altarOfTheKeeperCount[loop] == player->GetGUID())
+            alreadyUsed = true;
     }
-    if (!alreadyUsed)
+    if (!alreadyUsed && altarOfTheKeeperCounter < 5)
         altarOfTheKeeperCount[altarOfTheKeeperCounter++] = player->GetGUID();
     player->CastSpell (player, SPELL_BOSS_OBJECT_VISUAL, false);
 
-    if (altarOfTheKeeperCounter < NUMBER_NEEDED_TO_ACTIVATE) {
+    if (altarOfTheKeeperCounter < NUMBER_NEEDED_TO_ACTIVATE)
+    {
         //error_log ("not enough people yet, altarOfTheKeeperCounter = %d", altarOfTheKeeperCounter);
         return false;        // not enough people yet
     }
@@ -441,7 +446,8 @@ bool GOHello_go_altar_of_the_keepers(Player *player, GameObject* go)
     // Check to make sure at least three people are still casting
     uint32 count=0;
     Unit *pTarget;
-    for (uint32 x=0; x<=5; x++) {
+    for (uint32 x = 0; x < 5; ++x)
+    {
         pTarget = Unit::GetUnit(*player, altarOfTheKeeperCount[x]);
         //error_log ("number of people currently activating it: %d", x+1);
         if (!pTarget) continue;
@@ -449,13 +455,12 @@ bool GOHello_go_altar_of_the_keepers(Player *player, GameObject* go)
         if (count >= NUMBER_NEEDED_TO_ACTIVATE) break;
     }
 
-    if (count < NUMBER_NEEDED_TO_ACTIVATE) {
+    if (count < NUMBER_NEEDED_TO_ACTIVATE)
+    {
         // error_log ("still not enough people");
-        return false;            // not enough people
+        return true;            // not enough people
     }
 
-    ScriptedInstance* pInstance = ((ScriptedInstance*)player->GetInstanceData());
-    if (!pInstance) return false;
     //error_log ("activating stone keepers");
     pInstance->SetData(NULL,1);        // activate the Stone Keepers
     return true;
