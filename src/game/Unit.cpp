@@ -2792,7 +2792,8 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit *pVictim, WeaponAttackT
     // This is only wrapper
 
     // Miss chance based on melee
-    float miss_chance = MeleeMissChanceCalc(pVictim, attType);
+    //float miss_chance = MeleeMissChanceCalc(pVictim, attType);
+    float miss_chance = MeleeSpellMissChance(pVictim, attType, int32(GetWeaponSkillValue(attType,pVictim)) - int32(pVictim->GetDefenseSkillValue(this)), 0);
 
     // Critical hit chance
     float crit_chance = GetUnitCriticalChance(attType, pVictim);
@@ -3070,18 +3071,22 @@ bool Unit::isSpellBlocked(Unit *pVictim, SpellEntry const *spellProto, WeaponAtt
 
 // Melee based spells can be miss, parry or dodge on this step
 // Crit or block - determined on damage calculation phase! (and can be both in some time)
-float Unit::MeleeSpellMissChance(Unit *pVictim, WeaponAttackType attType, int32 skillDiff, SpellEntry const *spell)
+float Unit::MeleeSpellMissChance(const Unit *pVictim, WeaponAttackType attType, int32 skillDiff, uint32 spellId) const
 {
     // Calculate hit chance (more correct for chance mod)
     int32 HitChance;
 
     // PvP - PvE melee chances
-    int32 lchance = pVictim->GetTypeId() == TYPEID_PLAYER ? 5 : 7;
+    /*int32 lchance = pVictim->GetTypeId() == TYPEID_PLAYER ? 5 : 7;
     int32 leveldif = pVictim->getLevelForTarget(this) - getLevelForTarget(pVictim);
     if(leveldif < 3)
         HitChance = 95 - leveldif;
     else
-        HitChance = 93 - (leveldif - 2) * lchance;
+        HitChance = 93 - (leveldif - 2) * lchance;*/
+    if (spellId || attType == RANGED_ATTACK || !haveOffhandWeapon())
+        HitChance = 95.0f;
+    else
+        HitChance = 76.0f;
 
     // Hit chance depends from victim auras
     if(attType == RANGED_ATTACK)
@@ -3090,8 +3095,11 @@ float Unit::MeleeSpellMissChance(Unit *pVictim, WeaponAttackType attType, int32 
         HitChance += pVictim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE);
 
     // Spellmod from SPELLMOD_RESIST_MISS_CHANCE
-    if(Player *modOwner = GetSpellModOwner())
-        modOwner->ApplySpellMod(spell->Id, SPELLMOD_RESIST_MISS_CHANCE, HitChance);
+    if(spellId)
+    {
+        if(Player *modOwner = GetSpellModOwner())
+            modOwner->ApplySpellMod(spellId, SPELLMOD_RESIST_MISS_CHANCE, HitChance);
+    }
 
     // Miss = 100 - hit
     float miss_chance= 100.0f - HitChance;
@@ -3103,7 +3111,12 @@ float Unit::MeleeSpellMissChance(Unit *pVictim, WeaponAttackType attType, int32 
         miss_chance -= m_modMeleeHitChance;
 
     // bonus from skills is 0.04%
-    miss_chance -= skillDiff * 0.04f;
+    //miss_chance -= skillDiff * 0.04f;
+    int32 diff = -skillDiff;
+    if(pVictim->GetTypeId()==TYPEID_PLAYER)
+        miss_chance += diff > 0 ? diff * 0.04 : diff * 0.02;
+    else
+        miss_chance += diff > 10 ? 2 + (diff - 10) * 0.4 : diff * 0.1;
 
     // Limit miss chance from 0 to 60%
     if (miss_chance < 0.0f)
@@ -3127,7 +3140,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
     int32 fullSkillDiff = attackerWeaponSkill - int32(pVictim->GetDefenseSkillValue(this));
 
     uint32 roll = urand (0, 10000);
-    uint32 missChance = uint32(MeleeSpellMissChance(pVictim, attType, fullSkillDiff, spell)*100.0f);
+    uint32 missChance = uint32(MeleeSpellMissChance(pVictim, attType, fullSkillDiff, spell->Id)*100.0f);
 
     // Roll miss
     uint32 tmp = missChance;
@@ -3325,7 +3338,7 @@ SpellMissInfo Unit::SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool 
     return SPELL_MISS_NONE;
 }
 
-float Unit::MeleeMissChanceCalc(const Unit *pVictim, WeaponAttackType attType) const
+/*float Unit::MeleeMissChanceCalc(const Unit *pVictim, WeaponAttackType attType) const
 {
     if(!pVictim)
         return 0.0f;
@@ -3400,7 +3413,7 @@ float Unit::MeleeMissChanceCalc(const Unit *pVictim, WeaponAttackType attType) c
         return 60.0f;
 
     return misschance;
-}
+}*/
 
 uint32 Unit::GetDefenseSkillValue(Unit const* target) const
 {
@@ -11780,7 +11793,7 @@ SpellSchoolMask Unit::GetMeleeDamageSchoolMask() const
     return SPELL_SCHOOL_MASK_NORMAL;
 }
 
-Player* Unit::GetSpellModOwner()
+Player* Unit::GetSpellModOwner() const
 {
     if(GetTypeId()==TYPEID_PLAYER)
         return (Player*)this;
