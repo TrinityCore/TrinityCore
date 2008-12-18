@@ -73,7 +73,8 @@ class TRINITY_DLL_SPEC MotionMaster : private std::stack<MovementGenerator *>
 
         void MoveIdle();
         void MoveTargetedHome();
-        void MoveFollow(Unit* target, float dist, float angle);
+        void MoveRandom(float spawndist = 0.0f);
+		void MoveFollow(Unit* target, float dist, float angle);
         void MoveChase(Unit* target, float dist = 0.0f, float angle = 0.0f);
         void MoveConfused();
         void MoveFleeing(Unit* enemy);

@@ -21,6 +21,8 @@
 #include "Creature.h"
 #include "MapManager.h"
 #include "RandomMovementGenerator.h"
+#include "Traveller.h"
+#include "ObjectAccessor.h"
 #include "DestinationHolderImp.h"
 #include "Map.h"
 #include "Util.h"
@@ -42,9 +44,9 @@ template<>
 void
 RandomMovementGenerator<Creature>::_setRandomLocation(Creature &creature)
 {
-    float X,Y,Z,z,nx,ny,nz,wander_distance,ori,dist;
+    float X,Y,Z,z,nx,ny,nz,ori,dist;
 
-    creature.GetRespawnCoord(X, Y, Z, &ori, &wander_distance);
+    creature.GetHomePosition(X, Y, Z, ori);
 
     z = creature.GetPositionZ();
     uint32 mapid=creature.GetMapId();
@@ -120,8 +122,10 @@ RandomMovementGenerator<Creature>::Initialize(Creature &creature)
 {
     if(!creature.isAlive())
         return;
-
-    if (creature.canFly())
+	
+	wander_distance = creature.GetRespawnRadius();
+    
+	if (creature.canFly())
         creature.AddUnitMovementFlag(MOVEMENTFLAG_FLYING2);
     else
         creature.SetUnitMovementFlags(irand(0,RUNNING_CHANCE_RANDOMMV) > 0 ? MOVEMENTFLAG_WALK_MODE : MOVEMENTFLAG_NONE );
@@ -134,6 +138,10 @@ RandomMovementGenerator<Creature>::Reset(Creature &creature)
 {
     Initialize(creature);
 }
+
+template<>
+void
+RandomMovementGenerator<Creature>::Finalize(Creature &creature){}
 
 template<>
 bool

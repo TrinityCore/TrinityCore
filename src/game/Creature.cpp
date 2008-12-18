@@ -1403,8 +1403,10 @@ bool Creature::LoadFromDB(uint32 guid, Map *map)
         sLog.outError("ERROR: Creature (guidlow %d, entry %d) not loaded. Suggested coordinates isn't valid (X: %f Y: %f)",GetGUIDLow(),GetEntry(),GetPositionX(),GetPositionY());
         return false;
     }
-
-    m_respawnradius = data->spawndist;
+	//We should set first home position, because then AI calls home movement
+	SetHomePosition(data->posX,data->posY,data->posZ,data->orientation);
+    
+	m_respawnradius = data->spawndist;
 
     m_respawnDelay = data->spawntimesecs;
     m_isDeadByDefault = data->is_dead;
@@ -2003,7 +2005,7 @@ bool Creature::IsOutOfThreatArea(Unit* pVictim) const
     if(sMapStore.LookupEntry(GetMapId())->IsDungeon())
         return false;
 
-    float length = pVictim->GetDistance(CombatStartX,CombatStartY,CombatStartZ);
+    float length = pVictim->GetDistance(mHome_X, mHome_Y, mHome_Z);
     float AttackDist = GetAttackDistance(pVictim);
     uint32 ThreatRadius = sWorld.getConfig(CONFIG_THREAT_RADIUS);
 
