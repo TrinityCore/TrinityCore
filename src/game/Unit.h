@@ -912,7 +912,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void HandleEmoteCommand(uint32 anim_id);
         void AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType = BASE_ATTACK, bool extra = false );
 
-        float MeleeMissChanceCalc(const Unit *pVictim, WeaponAttackType attType) const;
+        //float MeleeMissChanceCalc(const Unit *pVictim, WeaponAttackType attType) const;
 
         void CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *damageInfo, WeaponAttackType attackType = BASE_ATTACK);
         void DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss);
@@ -920,7 +920,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void CalculateSpellDamage(SpellNonMeleeDamage *damageInfo, int32 damage, SpellEntry const *spellInfo, WeaponAttackType attackType = BASE_ATTACK);
         void DealSpellDamage(SpellNonMeleeDamage *damageInfo, bool durabilityLoss);
 
-        float  MeleeSpellMissChance(Unit *pVictim, WeaponAttackType attType, int32 skillDiff, SpellEntry const *spell);
+        float MeleeSpellMissChance(const Unit *pVictim, WeaponAttackType attType, int32 skillDiff, uint32 spellId) const;
         SpellMissInfo MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell);
         SpellMissInfo MagicSpellHitResult(Unit *pVictim, SpellEntry const *spell);
         SpellMissInfo SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool canReflect = false);
@@ -1048,7 +1048,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         }
         bool isCharmedOwnedByPlayerOrPlayer() const { return IS_PLAYER_GUID(GetCharmerOrOwnerOrOwnGUID()); }
 
-        Player* GetSpellModOwner();
+        Player* GetSpellModOwner() const;
 
         Unit* GetOwner() const;
         Pet* GetPet() const;
