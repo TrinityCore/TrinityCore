@@ -1916,7 +1916,7 @@ void SpellMgr::LoadSpellCustomAttr()
             tempSpell->MaxAffectedTargets = 3;
             break;
         case 42005: // Bloodboil
-            tempSpell->MaxAffectedTargets = 6;
+            tempSpell->MaxAffectedTargets = 5;
             break;
         case 8122: case 8124: case 10888: case 10890: // Psychic Scream
             tempSpell->Attributes |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
