@@ -1909,13 +1909,14 @@ void SpellMgr::LoadSpellCustomAttr()
         case 44869: // Spectral Blast
         case 45027: // Revitalize
         case 45976: // Muru Portal Channel
-            mSpellCustomAttr[i] |= SPELL_ATTR_CU_PLAYERS_ONLY;
             tempSpell->MaxAffectedTargets = 1;
             break;
         case 41376: // Spite
         case 39992: // Needle Spine
-            mSpellCustomAttr[i] |= SPELL_ATTR_CU_PLAYERS_ONLY;
             tempSpell->MaxAffectedTargets = 3;
+            break;
+        case 42005: // Bloodboil
+            tempSpell->MaxAffectedTargets = 6;
             break;
         case 8122: case 8124: case 10888: case 10890: // Psychic Scream
             tempSpell->Attributes |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
