@@ -38,6 +38,7 @@
 #include "PlayerDump.h"
 #include "SocialMgr.h"
 #include "Util.h"
+#include "ArenaTeam.h"
 #include "Language.h"
 
 class LoginQueryHolder : public SqlQueryHolder
@@ -61,7 +62,7 @@ bool LoginQueryHolder::Initialize()
 
     // NOTE: all fields in `characters` must be read to prevent lost character data at next save in case wrong DB structure.
     // !!! NOTE: including unused `zone`,`online`
-    res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADFROM,            "SELECT guid, account, data, name, race, class, position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, resettalents_time, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, dungeon_difficulty FROM characters WHERE guid = '%u'", GUID_LOPART(m_guid));
+    res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADFROM,            "SELECT guid, account, data, name, race, class, position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, resettalents_time, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, dungeon_difficulty, arena_pending_points FROM characters WHERE guid = '%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADGROUP,           "SELECT leaderGuid FROM group_member WHERE memberGuid ='%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADBOUNDINSTANCES,  "SELECT id, permanent, map, difficulty, resettime FROM character_instance LEFT JOIN instance ON instance = id WHERE guid = '%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADAURAS,           "SELECT caster_guid,spell,effect_index,stackcount,amount,maxduration,remaintime,remaincharges FROM character_aura WHERE guid = '%u'", GUID_LOPART(m_guid));
@@ -81,6 +82,7 @@ bool LoginQueryHolder::Initialize()
         res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADDECLINEDNAMES,   "SELECT genitive, dative, accusative, instrumental, prepositional FROM character_declinedname WHERE guid = '%u'",GUID_LOPART(m_guid));
     // in other case still be dummy query
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADGUILD,           "SELECT guildid,rank FROM guild_member WHERE guid = '%u'", GUID_LOPART(m_guid));
+    res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADARENAINFO,       "SELECT arenateamid, played_week, played_season, personal_rating FROM arena_team_member WHERE guid='%u'", GUID_LOPART(m_guid));
 
     return res;
 }
@@ -413,7 +415,7 @@ void WorldSession::HandleCharDeleteOpcode( WorldPacket & recv_data )
     }
 
     // is arena team captain
-    if(objmgr.GetArenaTeamByCapitan(guid))
+    if(objmgr.GetArenaTeamByCaptain(guid))
     {
         WorldPacket data(SMSG_CHAR_DELETE, 1);
         data << (uint8)CHAR_DELETE_FAILED_ARENA_CAPTAIN;
@@ -454,6 +456,12 @@ void WorldSession::HandleCharDeleteOpcode( WorldPacket & recv_data )
 void WorldSession::HandlePlayerLoginOpcode( WorldPacket & recv_data )
 {
     CHECK_PACKET_SIZE(recv_data,8);
+
+    if(PlayerLoading() || GetPlayer() != NULL)
+    {
+        sLog.outError("Player tryes to login again, AccountId = %d",GetAccountId());
+        return;
+    }
 
     m_playerLoading = true;
     uint64 playerGuid = 0;
@@ -895,39 +903,13 @@ void WorldSession::HandleToggleCloakOpcode( WorldPacket & /*recv_data*/ )
 
 void WorldSession::HandleChangePlayerNameOpcode(WorldPacket& recv_data)
 {
-    CHECK_PACKET_SIZE(recv_data,8+1);
-
     uint64 guid;
     std::string newname;
-    std::string oldname;
 
     CHECK_PACKET_SIZE(recv_data, 8+1);
 
     recv_data >> guid;
     recv_data >> newname;
-
-    QueryResult *result = CharacterDatabase.PQuery("SELECT at_login, name FROM characters WHERE guid ='%u'", GUID_LOPART(guid));
-    if (!result)
-    {
-        WorldPacket data(SMSG_CHAR_RENAME, 1);
-        data << (uint8)CHAR_CREATE_ERROR;
-        SendPacket( &data );
-        return;
-    }
-
-    uint32 at_loginFlags;
-    Field *fields = result->Fetch();
-    at_loginFlags = fields[0].GetUInt32();
-    oldname = fields[1].GetCppString();
-    delete result;
-
-    if (!(at_loginFlags & AT_LOGIN_RENAME))
-    {
-        WorldPacket data(SMSG_CHAR_RENAME, 1);
-        data << (uint8)CHAR_CREATE_ERROR;
-        SendPacket( &data );
-        return;
-    }
 
     // prevent character rename to invalid name
     if(!normalizePlayerName(newname))
@@ -955,36 +937,58 @@ void WorldSession::HandleChangePlayerNameOpcode(WorldPacket& recv_data)
         return;
     }
 
-    if(objmgr.GetPlayerGUIDByName(newname))                 // character with this name already exist
+    CharacterDatabase.escape_string(newname);
+
+    CharacterDatabase.AsyncPQuery(&WorldSession::HandleChangePlayerNameOpcodeCallBack, GUID_LOPART(guid), newname, "SELECT guid, at_login, name FROM characters WHERE guid = '%u' XOR name = '%s'", GUID_LOPART(guid), newname.c_str());
+}
+
+void WorldSession::HandleChangePlayerNameOpcodeCallBack(QueryResult *result, uint32 accountId, std::string newname)
+{
+    WorldSession * session = sWorld.FindSession(accountId);
+    if(!session)
+        return;
+
+    if (!result || result->GetRowCount() != 1)
     {
         WorldPacket data(SMSG_CHAR_RENAME, 1);
         data << (uint8)CHAR_CREATE_ERROR;
-        SendPacket( &data );
+        session->SendPacket( &data );
         return;
     }
 
-    if(newname == oldname)                                  // checked by client
+    Field *fields = result->Fetch();
+    uint32 guidLow = fields[0].GetUInt32();
+    uint64 guid = MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER);
+    uint32 at_loginFlags = fields[1].GetUInt32();
+    std::string oldname = fields[2].GetCppString();
+    delete result;
+    if(oldname == newname)
     {
         WorldPacket data(SMSG_CHAR_RENAME, 1);
-        data << (uint8)CHAR_NAME_FAILURE;
-        SendPacket( &data );
+        data << (uint8)CHAR_CREATE_ERROR;
+        session->SendPacket( &data );
         return;
     }
 
     // we have to check character at_login_flag & AT_LOGIN_RENAME also (fake packets hehe)
+    if (!(at_loginFlags & AT_LOGIN_RENAME))
+    {
+        WorldPacket data(SMSG_CHAR_RENAME, 1);
+        data << (uint8)CHAR_CREATE_ERROR;
+        session->SendPacket( &data );
+        return;
+    }
 
-    CharacterDatabase.escape_string(newname);
-    CharacterDatabase.PExecute("UPDATE characters set name = '%s', at_login = at_login & ~ %u WHERE guid ='%u'", newname.c_str(), uint32(AT_LOGIN_RENAME),GUID_LOPART(guid));
-    CharacterDatabase.PExecute("DELETE FROM character_declinedname WHERE guid ='%u'", GUID_LOPART(guid));
+    CharacterDatabase.PExecute("UPDATE characters set name = '%s', at_login = at_login & ~ %u WHERE guid ='%u'", newname.c_str(), uint32(AT_LOGIN_RENAME),guidLow);
+    CharacterDatabase.PExecute("DELETE FROM character_declinedname WHERE guid ='%u'", guidLow);
 
-    std::string IP_str = GetRemoteAddress();
-    sLog.outChar("Account: %d (IP: %s) Character:[%s] (guid:%u) Changed name to: %s",GetAccountId(),IP_str.c_str(),oldname.c_str(),GUID_LOPART(guid),newname.c_str());
+    sLog.outChar("Account: %d (IP: %s) Character:[%s] (guid:%u) Changed name to: %s",session->GetAccountId(),session->GetRemoteAddress().c_str(),oldname.c_str(),guidLow,newname.c_str());
 
     WorldPacket data(SMSG_CHAR_RENAME,1+8+(newname.size()+1));
     data << (uint8)RESPONSE_SUCCESS;
     data << guid;
     data << newname;
-    SendPacket(&data);
+    session->SendPacket(&data);
 }
 
 void WorldSession::HandleDeclinedPlayerNameOpcode(WorldPacket& recv_data)

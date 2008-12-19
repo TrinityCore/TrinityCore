@@ -53,13 +53,14 @@ struct GroupQueueInfo                                       // stores informatio
 {
     std::map<uint64, PlayerQueueInfo*> Players;             // player queue info map
     uint32  Team;                                           // Player team (ALLIANCE/HORDE)
-    bool    IsRated;                                        // rated
     uint32  BgTypeId;                                       // battleground type id
+    bool    IsRated;                                        // rated
     uint8   ArenaType;                                      // 2v2, 3v3, 5v5 or 0 when BG
     uint32  ArenaTeamId;                                    // team id if rated match
     uint32  JoinTime;                                       // time when group was added
     uint32  IsInvitedToBGInstanceGUID;                      // was invited to certain BG
     uint32  ArenaTeamRating;                                // if rated match, inited to the rating of the team
+    uint32  OpponentsTeamRating;                            // for rated arena matches
 };
 
 class BattleGround;
@@ -72,7 +73,7 @@ class BattleGroundQueue
         void Update(uint32 bgTypeId, uint32 queue_id, uint8 arenatype = 0, bool isRated = false, uint32 minRating = 0);
 
         GroupQueueInfo * AddGroup(Player * leader, uint32 BgTypeId, uint8 ArenaType, bool isRated, uint32 ArenaRating, uint32 ArenaTeamId = 0);
-        void AddPlayer(Player *plr, GroupQueueInfo * ginfo);
+        void AddPlayer(Player *plr, GroupQueueInfo *ginfo);
         void RemovePlayer(uint64 guid, bool decreaseInvitedCount);
         void DecreaseGroupLength(uint32 queueId, uint32 AsGroup);
         void BGEndedRemoveInvites(BattleGround * bg);
@@ -235,7 +236,6 @@ class BattleGroundMgr
         const bool isArenaTesting() const { return m_ArenaTesting; }
 
         void SetHolidayWeekends(uint32 mask);
-
     private:
 
         /* Battlegrounds */

@@ -86,7 +86,7 @@ enum BattleGroundTimeIntervals
 {
     RESURRECTION_INTERVAL           = 30000,                // ms
     REMIND_INTERVAL                 = 30000,                // ms
-    INVITE_ACCEPT_WAIT_TIME         = 120000,               // ms
+    INVITE_ACCEPT_WAIT_TIME         = 80000,                // ms
     TIME_TO_AUTOREMOVE              = 120000,               // ms
     MAX_OFFLINE_TIME                = 300000,               // ms
     START_DELAY0                    = 120000,               // ms
@@ -260,6 +260,7 @@ class BattleGround
     public:
         /* Construction */
         BattleGround();
+        /*BattleGround(const BattleGround& bg);*/
         virtual ~BattleGround();
         virtual void Update(time_t diff);                   // must be implemented in BG subclass of BG specific update code, but must in begginning call parent version
         virtual bool SetupBattleGround()                    // must be implemented in BG subclass
@@ -438,6 +439,7 @@ class BattleGround
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(float /*x*/, float /*y*/, float /*z*/, uint32 /*team*/)  { return NULL; }
 
         virtual void AddPlayer(Player *plr);                // must be implemented in BG subclass
+
         virtual void RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPacket);
                                                             // can be extended in in BG subclass
 

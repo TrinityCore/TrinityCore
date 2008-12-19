@@ -45,7 +45,9 @@ enum ArenaTeamCommandErrors
     ERR_ARENA_TEAM_PLAYER_NOT_IN_TEAM       = 0x09,
     ERR_ARENA_TEAM_PLAYER_NOT_IN_TEAM_SS    = 0x0A,
     ERR_ARENA_TEAM_PLAYER_NOT_FOUND_S       = 0x0B,
-    ERR_ARENA_TEAM_NOT_ALLIED               = 0x0C
+    ERR_ARENA_TEAM_NOT_ALLIED               = 0x0C,
+    ERR_ARENA_TEAM_PLAYER_TO_LOW            = 0x15,
+    ERR_ARENA_TEAM_FULL                     = 0x16
 };
 
 enum ArenaTeamEvents
@@ -87,14 +89,22 @@ struct ArenaTeamMember
 {
     uint64 guid;
     std::string name;
-    //uint32 unk2;
-    //uint8 unk1;
     uint8 Class;
     uint32 games_week;
     uint32 wins_week;
     uint32 games_season;
     uint32 wins_season;
-    //uint32 personal_rating;
+    uint32 personal_rating;
+
+    void ModifyPersonalRating(Player* plr, int32 mod, uint32 slot)
+    {
+        if (personal_rating + mod < 0)
+            personal_rating = 0;
+        else
+            personal_rating += mod;
+        if(plr)
+            plr->SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot*6) + 5, personal_rating);
+    }
 };
 
 struct ArenaTeamStats
@@ -115,58 +125,76 @@ class ArenaTeam
         ArenaTeam();
         ~ArenaTeam();
 
-        bool create(uint64 CaptainGuid, uint32 type, std::string ArenaTeamName);
+        bool Create(uint64 CaptainGuid, uint32 type, std::string ArenaTeamName);
         void Disband(WorldSession *session);
 
         typedef std::list<ArenaTeamMember> MemberList;
 
-        uint32 GetId() const { return Id; }
-        uint32 GetType() const { return Type; }
-        uint8 GetSlot() const;
+        uint32 GetId() const              { return Id; }
+        uint32 GetType() const            { return Type; }
+        uint8  GetSlot() const            { return GetSlotByType(GetType()); }
         static uint8 GetSlotByType(uint32 type);
-        const uint64& GetCaptain() const { return CaptainGuid; }
-        std::string GetName() const { return Name; }
+        const uint64& GetCaptain() const  { return CaptainGuid; }
+        std::string GetName() const       { return Name; }
         const ArenaTeamStats& GetStats() const { return stats; }
         void SetStats(uint32 stat_type, uint32 value);
-        uint32 GetRating() const { return stats.rating; }
+        uint32 GetRating() const          { return stats.rating; }
 
-        uint32 GetEmblemStyle() const { return EmblemStyle; }
-        uint32 GetEmblemColor() const { return EmblemColor; }
-        uint32 GetBorderStyle() const { return BorderStyle; }
-        uint32 GetBorderColor() const { return BorderColor; }
+        uint32 GetEmblemStyle() const     { return EmblemStyle; }
+        uint32 GetEmblemColor() const     { return EmblemColor; }
+        uint32 GetBorderStyle() const     { return BorderStyle; }
+        uint32 GetBorderColor() const     { return BorderColor; }
         uint32 GetBackgroundColor() const { return BackgroundColor; }
 
-        void SetCaptain(uint64 guid);
-        bool AddMember(uint64 PlayerGuid);
+        void SetCaptain(const uint64& guid);
+        bool AddMember(const uint64& PlayerGuid);
+
+        // Shouldn't be const uint64& ed, because than can reference guid from members on Disband
+        // and this method removes given record from list. So invalid reference can happen.
         void DelMember(uint64 guid);
 
         void SetEmblem(uint32 backgroundColor, uint32 emblemStyle, uint32 emblemColor, uint32 borderStyle, uint32 borderColor);
 
-        uint32 GetMembersSize() const { return members.size(); }
-        MemberList::iterator membersbegin(){ return members.begin(); }
-        MemberList::iterator membersEnd(){ return members.end(); }
-        bool HaveMember(uint64 guid) const;
-        ArenaTeamMember* GetMember(uint64 guid)
+        size_t GetMembersSize() const       { return members.size(); }
+        bool   Empty() const                { return members.empty(); }
+        MemberList::iterator membersBegin() { return members.begin(); }
+        MemberList::iterator membersEnd()   { return members.end(); }
+        bool HaveMember(const uint64& guid) const;
+
+        ArenaTeamMember* GetMember(const uint64& guid)
         {
             for (MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
-                if(itr->guid==guid)
+                if(itr->guid == guid)
                     return &(*itr);
 
             return NULL;
         }
-        ArenaTeamMember* GetMember(std::string& name)
+
+        ArenaTeamMember* GetMember(const std::string& name)
         {
             for (MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
-                if(itr->name==name)
+                if(itr->name == name)
                     return &(*itr);
 
             return NULL;
+        }
+
+        bool IsFighting() const
+        {
+            for (MemberList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
+            {
+                if (Player *p = objmgr.GetPlayer(itr->guid))
+                {
+                    if (p->GetMap()->IsBattleArena())
+                        return true;
+                }
+            }
+            return false;
         }
 
         bool LoadArenaTeamFromDB(uint32 ArenaTeamId);
         void LoadMembersFromDB(uint32 ArenaTeamId);
         void LoadStatsFromDB(uint32 ArenaTeamId);
-        void LoadPlayerStats(ArenaTeamMember* member);
 
         void SaveToDB();
 
@@ -178,17 +206,17 @@ class ArenaTeam
         void InspectStats(WorldSession *session, uint64 guid);
 
         uint32 GetPoints(uint32 MemberRating);
-        float GetChanceAgainst(uint32 rating);
-        int32 WonAgainstChance(float chance);
-        void MemberWon(Player * plr, uint32 againstrating);
-        int32 LostAgainstChance(float chance);
-        void MemberLost(Player * plr, uint32 againstrating);
+        float GetChanceAgainst(uint32 own_rating, uint32 enemy_rating);
+        int32 WonAgainst(uint32 againstRating);
+        void MemberWon(Player * plr, uint32 againstRating);
+        int32 LostAgainst(uint32 againstRating);
+        void MemberLost(Player * plr, uint32 againstRating);
 
-        void UpdateArenaPointsHelper();
-
-        void FinishWeek();
+        void UpdateArenaPointsHelper(std::map<uint32, uint32> & PlayerPoints);
 
         void NotifyStatsChanged();
+
+        void FinishWeek();
 
     protected:
 

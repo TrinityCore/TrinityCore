@@ -4840,6 +4840,8 @@ uint8 Spell::CheckItems()
             uint32 ItemClass = proto->Class;
             if (ItemClass == ITEM_CLASS_CONSUMABLE && m_targets.getUnitTarget())
             {
+                // such items should only fail if there is no suitable effect at all - see Rejuvenation Potions for example
+                uint8 failReason = 0;
                 for (int i = 0; i < 3; i++)
                 {
                     // skip check, pet not required like checks, and for TARGET_PET m_targets.getUnitTarget() is not the real target but the caster
@@ -4847,21 +4849,43 @@ uint8 Spell::CheckItems()
                         continue;
 
                     if (m_spellInfo->Effect[i] == SPELL_EFFECT_HEAL)
+                    {
                         if (m_targets.getUnitTarget()->GetHealth() == m_targets.getUnitTarget()->GetMaxHealth())
-                            return (uint8)SPELL_FAILED_ALREADY_AT_FULL_HEALTH;
+                        {
+                            failReason = (uint8)SPELL_FAILED_ALREADY_AT_FULL_HEALTH;
+                            continue;
+                        }
+                        else
+                        {
+                            failReason = 0;
+                            break;
+                        }
+                    }
 
                     // Mana Potion, Rage Potion, Thistle Tea(Rogue), ...
                     if (m_spellInfo->Effect[i] == SPELL_EFFECT_ENERGIZE)
                     {
                         if(m_spellInfo->EffectMiscValue[i] < 0 || m_spellInfo->EffectMiscValue[i] >= MAX_POWERS)
-                            return (uint8)SPELL_FAILED_ALREADY_AT_FULL_POWER;
+                        {
+                            failReason = (uint8)SPELL_FAILED_ALREADY_AT_FULL_POWER;
+                            continue;
+                        }
 
                         Powers power = Powers(m_spellInfo->EffectMiscValue[i]);
-
                         if (m_targets.getUnitTarget()->GetPower(power) == m_targets.getUnitTarget()->GetMaxPower(power))
-                            return (uint8)SPELL_FAILED_ALREADY_AT_FULL_POWER;
+                        {
+                            failReason = (uint8)SPELL_FAILED_ALREADY_AT_FULL_POWER;
+                            continue;
+                        }
+                        else
+                        {
+                            failReason = 0;
+                            break;
+                        }
                     }
                 }
+                if (failReason)
+                    return failReason;
             }
         }
     }

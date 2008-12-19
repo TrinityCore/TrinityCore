@@ -956,7 +956,7 @@ uint32 GameEvent::Update()                                  // return the next e
     uint32 nextEventDelay = max_ge_check_delay;             // 1 day
     uint32 calcDelay;
     std::set<uint16> activate, deactivate;
-    for (uint16 itr = 1; itr < mGameEvent.size(); itr++)
+    for (uint16 itr = 1; itr < mGameEvent.size(); ++itr)
     {
         // must do the activating first, and after that the deactivating
         // so first queue it

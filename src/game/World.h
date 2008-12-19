@@ -178,14 +178,17 @@ enum WorldConfigs
     CONFIG_LISTEN_RANGE_SAY,
     CONFIG_LISTEN_RANGE_TEXTEMOTE,
     CONFIG_LISTEN_RANGE_YELL,
+    CONFIG_ARENA_MAX_RATING_DIFFERENCE,
+    CONFIG_ARENA_RATING_DISCARD_TIMER,
+    CONFIG_ARENA_AUTO_DISTRIBUTE_POINTS,
+    CONFIG_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS,
+    CONFIG_BATTLEGROUND_PREMATURE_FINISH_TIMER,
 
     CONFIG_MAX_WHO,
-
     CONFIG_BG_START_MUSIC,
     CONFIG_START_ALL_SPELLS,
     CONFIG_HONOR_AFTER_DUEL,
     CONFIG_START_ALL_EXPLORED,
-
     CONFIG_START_ALL_REP,
     CONFIG_ALWAYS_MAXSKILL,
     CONFIG_PVP_TOKEN_ENABLE,
@@ -194,13 +197,7 @@ enum WorldConfigs
     CONFIG_PVP_TOKEN_COUNT,
     CONFIG_NO_RESET_TALENT_COST,
 
-    CONFIG_ARENA_MAX_RATING_DIFFERENCE,
-    CONFIG_ARENA_RATING_DISCARD_TIMER,
-    CONFIG_ARENA_AUTO_DISTRIBUTE_POINTS,
-    CONFIG_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS,
-    CONFIG_BATTLEGROUND_PREMATURE_FINISH_TIMER,
-
-    CONFIG_VALUE_COUNT,
+    CONFIG_VALUE_COUNT
 };
 
 /// Server rates
@@ -421,6 +418,7 @@ class World
         void LoadConfigSettings(bool reload = false);
 
         void SendWorldText(int32 string_id, ...);
+        void SendGlobalText(const char* text, WorldSession *self);
         void SendGlobalMessage(WorldPacket *packet, WorldSession *self = 0, uint32 team = 0);
         void SendZoneMessage(uint32 zone, WorldPacket *packet, WorldSession *self = 0, uint32 team = 0);
         void SendZoneText(uint32 zone, const char *text, WorldSession *self = 0, uint32 team = 0);
