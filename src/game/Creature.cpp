@@ -407,9 +407,8 @@ void Creature::Update(uint32 diff)
                     UpdateEntry(m_originalEntry);
 
                 CreatureInfo const *cinfo = GetCreatureInfo();
-
-                SelectLevel(cinfo);
-                SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
+				SelectLevel(cinfo);
+                
                 if (m_isDeadByDefault)
                 {
                     setDeathState(JUST_DIED);
@@ -504,8 +503,14 @@ void Creature::Update(uint32 diff)
             if (m_regenTimer != 0)
                 break;
 
-            if (!isInCombat() || IsPolymorphed())
-                RegenerateHealth();
+			if (!isInCombat())
+			{
+				if(HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER))
+					SetUInt32Value(UNIT_DYNAMIC_FLAGS, GetCreatureInfo()->dynamicflags);
+				RegenerateHealth();
+			}
+			else if(IsPolymorphed())
+					RegenerateHealth();
 
             RegenerateMana();
 
@@ -1655,12 +1660,11 @@ void Creature::setDeathState(DeathState s)
         SetLootRecipient(NULL);
         Unit::setDeathState(ALIVE);
         CreatureInfo const *cinfo = GetCreatureInfo();
-        SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
-        RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
+		RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
         AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
         SetUInt32Value(UNIT_NPC_FLAGS, cinfo->npcflag);
         clearUnitState(UNIT_STAT_ALL_STATE);
-        i_motionMaster.Clear();
+		i_motionMaster.Initialize();
         SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
         LoadCreaturesAddon(true);
     }
