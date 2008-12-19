@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Morogrim_Tidewalker
 SD%Complete: 90
-SDComment: Water globules don't explode properly
+SDComment: Water globules don't explode properly, remove hacks
 SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
@@ -55,6 +55,29 @@ EndScriptData */
 #define WATERY_GRAVE_Y4             -690.96
 #define WATERY_GRAVE_Z4             -14.44
 
+#define SPELL_WATERY_GRAVE_1	38023
+#define SPELL_WATERY_GRAVE_2	38024
+#define SPELL_WATERY_GRAVE_3	38025
+#define SPELL_WATERY_GRAVE_4	37850
+
+#define SPELL_SUMMON_WATER_GLOBULE_1	37854
+#define SPELL_SUMMON_WATER_GLOBULE_2	37858
+#define SPELL_SUMMON_WATER_GLOBULE_3	37860
+#define SPELL_SUMMON_WATER_GLOBULE_4	37861
+
+#define SPELL_SUMMON_MURLOC_A6	39813
+#define SPELL_SUMMON_MURLOC_A7	39814
+#define SPELL_SUMMON_MURLOC_A8	39815
+#define SPELL_SUMMON_MURLOC_A9	39816
+#define SPELL_SUMMON_MURLOC_A10	39817
+
+#define SPELL_SUMMON_MURLOC_B6	39818
+#define SPELL_SUMMON_MURLOC_B7	39819
+#define SPELL_SUMMON_MURLOC_B8	39820
+#define SPELL_SUMMON_MURLOC_B9	39821
+#define SPELL_SUMMON_MURLOC_B10	39822
+
+//Creatures
 #define WATER_GLOBULE               21913
 #define TIDEWALKER_LURKER           21920
 
@@ -119,7 +142,18 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
 
     void Aggro(Unit *who) { StartEvent(); }
 
-    void ApplyWateryGrave(Unit *player, uint8 pos)
+    void ApplyWateryGrave(Unit *player, uint8 target)
+    {
+		switch(target)
+        {
+		case 0: DoCast(player, SPELL_WATERY_GRAVE_1); break;
+		case 1: DoCast(player, SPELL_WATERY_GRAVE_2); break;
+		case 2: DoCast(player, SPELL_WATERY_GRAVE_3); break;
+		case 3: DoCast(player, SPELL_WATERY_GRAVE_4); break;
+        }
+    }
+
+	/*void ApplyWateryGrave(Unit *player, uint8 pos)
     {
         float x, y, z;
 
@@ -149,9 +183,9 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
 
         DoTeleportPlayer(player, x, y, z+1, player->GetOrientation());
         DoCast(player, SPELL_WATERY_GRAVE);
-    }
+    }*/
 
-    void SummonMurloc(float x, float y, float z)
+    /*void SummonMurloc(float x, float y, float z)
     {
         Creature *Summoned;
 
@@ -163,9 +197,9 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
             if (target)
                 Summoned->AI()->AttackStart(target);
         }
-    }
+    }*/
 
-    void SummonWaterGlobule(float x, float y, float z)
+    /*void SummonWaterGlobule(float x, float y, float z)
     {
         Creature *Globule;
 
@@ -177,7 +211,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
             if (target)
                 Globule->AI()->AttackStart(target);
         }
-    }
+    }*/
 
     void UpdateAI(const uint32 diff)
     {
@@ -202,7 +236,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
                     case 1: DoScriptText(SAY_SUMMON2, m_creature); break;
                 }
 
-                //north
+                /*//north
                 SummonMurloc(486.10, -723.64, -7.14);
                 SummonMurloc(482.58, -723.78, -7.14);
                 SummonMurloc(479.38, -723.91, -7.14);
@@ -216,8 +250,22 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
                 SummonMurloc(303.91, -725.64, -13.06);
                 SummonMurloc(300.23, -726, -11.89);
                 SummonMurloc(296.82, -726.33, -10.82);
-                SummonMurloc(293.64, -726.64, -9.81);
+                SummonMurloc(293.64, -726.64, -9.81);*/
 
+				if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+				{
+				DoCast(target, SPELL_SUMMON_MURLOC_A6);
+				DoCast(target, SPELL_SUMMON_MURLOC_A7);
+				DoCast(target, SPELL_SUMMON_MURLOC_A8);
+				DoCast(target, SPELL_SUMMON_MURLOC_A9);
+				DoCast(target, SPELL_SUMMON_MURLOC_A10);
+
+				DoCast(target, SPELL_SUMMON_MURLOC_B6);
+				DoCast(target, SPELL_SUMMON_MURLOC_B7);
+				DoCast(target, SPELL_SUMMON_MURLOC_B8);
+				DoCast(target, SPELL_SUMMON_MURLOC_B9);
+				DoCast(target, SPELL_SUMMON_MURLOC_B10);
+				}
                 DoScriptText(EMOTE_EARTHQUAKE, m_creature);
 
                 Earthquake = false;
@@ -265,13 +313,18 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
             //WateryGlobules_Timer
             if (WateryGlobules_Timer < diff)
             {
-                SummonWaterGlobule(WATERY_GRAVE_X1, WATERY_GRAVE_Y1, WATERY_GRAVE_Z1);
+                /*SummonWaterGlobule(WATERY_GRAVE_X1, WATERY_GRAVE_Y1, WATERY_GRAVE_Z1);
                 SummonWaterGlobule(WATERY_GRAVE_X2, WATERY_GRAVE_Y2, WATERY_GRAVE_Z2);
                 SummonWaterGlobule(WATERY_GRAVE_X3, WATERY_GRAVE_Y3, WATERY_GRAVE_Z3);
-                SummonWaterGlobule(WATERY_GRAVE_X4, WATERY_GRAVE_Y4, WATERY_GRAVE_Z4);
-
+                SummonWaterGlobule(WATERY_GRAVE_X4, WATERY_GRAVE_Y4, WATERY_GRAVE_Z4);*/
+				if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+				{
+					DoCast(target, SPELL_SUMMON_WATER_GLOBULE_1);
+					DoCast(target, SPELL_SUMMON_WATER_GLOBULE_2);
+					DoCast(target, SPELL_SUMMON_WATER_GLOBULE_3);
+					DoCast(target, SPELL_SUMMON_WATER_GLOBULE_4);
+				}
                 DoScriptText(EMOTE_WATERY_GLOBULES, m_creature);
-
                 WateryGlobules_Timer = 25000;
             }else WateryGlobules_Timer -= diff;
         }
@@ -281,6 +334,8 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
 };
 
 //Water Globule AI
+#define SPELL_GLOBULE_EXPLOSION 37852
+
 struct TRINITY_DLL_DECL mob_water_globuleAI : public ScriptedAI
 {
     mob_water_globuleAI(Creature *c) : ScriptedAI(c) {Reset();}
@@ -321,8 +376,7 @@ struct TRINITY_DLL_DECL mob_water_globuleAI : public ScriptedAI
         {
             if (m_creature->IsWithinDistInMap(m_creature->getVictim(), 5))
             {
-                uint32 damage = 4000+rand()%2000;
-                m_creature->DealDamage(m_creature->getVictim(), damage, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_FROST, NULL, false);
+				DoCast(m_creature->getVictim(), SPELL_GLOBULE_EXPLOSION);
 
                 //despawn
                 m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
