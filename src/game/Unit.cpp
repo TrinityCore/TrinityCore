@@ -585,7 +585,36 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
 
     //Script Event damage taken
     if( pVictim->GetTypeId()== TYPEID_UNIT && ((Creature *)pVictim)->AI() )
-        ((Creature *)pVictim)->AI()->DamageTaken(this, damage);
+	{
+		((Creature *)pVictim)->AI()->DamageTaken(this, damage);
+ 
+		// Set tagging
+		if(!pVictim->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER) && !((Creature*)pVictim)->isPet())
+		{
+			//Set Loot
+			switch(GetTypeId())
+			{
+				case TYPEID_PLAYER:
+				{
+					((Creature *)pVictim)->SetLootRecipient(this);
+					//Set tagged
+					((Creature *)pVictim)->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER);
+					break;
+				}
+				case TYPEID_UNIT:
+				{
+					if(((Creature*)this)->isPet())
+					{
+						((Creature *)pVictim)->SetLootRecipient(this->GetOwner()); 
+						((Creature *)pVictim)->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER);
+					}
+					break;
+				}
+			}
+		}
+	}
+    
+
 
     if(!damage) //when will zero damage? need interrupt aura?
     {
@@ -12637,7 +12666,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
         if(!cVictim->isPet())
         {
             cVictim->DeleteThreatList();
-            cVictim->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+            cVictim->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         }
 
         // Call KilledUnit for creatures, this needs to be called after the lootable flag is set
