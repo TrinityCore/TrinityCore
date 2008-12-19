@@ -380,7 +380,7 @@ bool Guild::FillPlayerData(uint64 guid, MemberSlot* memslot)
             return false;
 
         plLevel = Player::GetUInt32ValueFromDB(UNIT_FIELD_LEVEL, guid);
-        if(plLevel<1||plLevel>255)                          // can be at broken `data` field
+        if(plLevel<1||plLevel>STRONG_MAX_LEVEL)             // can be at broken `data` field
         {
             sLog.outError("Player (GUID: %u) has a broken data in field `characters`.`data`.",GUID_LOPART(guid));
             return false;

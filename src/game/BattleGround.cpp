@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "Object.h"
@@ -86,13 +86,14 @@ BattleGround::BattleGround()
 
     m_PrematureCountDown = false;
     m_PrematureCountDown = 0;
+
     m_HonorMode = BG_NORMAL;
 }
 
 BattleGround::~BattleGround()
 {
     // remove objects and creatures
-    // (this is done automatically in mapmanager update, when the instance is reset after the reset time)    
+    // (this is done automatically in mapmanager update, when the instance is reset after the reset time)
     int size = m_BgCreatures.size();
     for(int i = 0; i < size; ++i)
     {
@@ -241,8 +242,8 @@ void BattleGround::Update(time_t diff)
             // time's up!
             EndBattleGround(0); // noone wins
             m_PrematureCountDown = false;
-        } 
-        else 
+        }
+        else
         {
             uint32 newtime = m_PrematureCountDownTimer - diff;
             // announce every minute
@@ -306,6 +307,7 @@ void BattleGround::SendPacketToTeam(uint32 TeamID, WorldPacket *packet, Player *
             continue;
 
         uint32 team = itr->second.Team;//GetPlayerTeam(plr->GetGUID());
+        if(!team) team = plr->GetTeam();
 
         if(team == TeamID)
             plr->GetSession()->SendPacket(packet);
@@ -334,6 +336,7 @@ void BattleGround::PlaySoundToTeam(uint32 SoundID, uint32 TeamID)
         }
 
         uint32 team = itr->second.Team;//GetPlayerTeam(plr->GetGUID());
+        if(!team) team = plr->GetTeam();
 
         if(team == TeamID)
         {
@@ -356,7 +359,8 @@ void BattleGround::CastSpellOnTeam(uint32 SpellID, uint32 TeamID)
         }
 
         uint32 team = itr->second.Team;//GetPlayerTeam(plr->GetGUID());
-       
+        if(!team) team = plr->GetTeam();
+
         if(team == TeamID)
             plr->CastSpell(plr, SpellID, true);
     }
@@ -392,6 +396,7 @@ void BattleGround::RewardHonorToTeam(uint32 Honor, uint32 TeamID)
         }
 
         uint32 team = itr->second.Team;//GetPlayerTeam(plr->GetGUID());
+        if(!team) team = plr->GetTeam();
 
         if(team == TeamID)
             UpdatePlayerScore(plr, SCORE_BONUS_HONOR, Honor);
@@ -416,6 +421,7 @@ void BattleGround::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, 
         }
 
         uint32 team = itr->second.Team;//GetPlayerTeam(plr->GetGUID());
+        if(!team) team = plr->GetTeam();
 
         if(team == TeamID)
             plr->ModifyFactionReputation(factionEntry, Reputation);
@@ -438,7 +444,6 @@ void BattleGround::UpdateWorldStateForPlayer(uint32 Field, uint32 Value, Player 
 
 void BattleGround::EndBattleGround(uint32 winner)
 {
-    // battleground finished, remove from the running bg's list
     this->RemoveFromBGFreeSlotQueue();
 
     ArenaTeam * winner_arena_team = NULL;
@@ -496,11 +501,9 @@ void BattleGround::EndBattleGround(uint32 winner)
         {
             loser_rating = loser_arena_team->GetStats().rating;
             winner_rating = winner_arena_team->GetStats().rating;
-            float winner_chance = winner_arena_team->GetChanceAgainst(loser_rating);
-            float loser_chance = loser_arena_team->GetChanceAgainst(winner_rating);
-            int32 winner_change = winner_arena_team->WonAgainstChance(winner_chance);
-            int32 loser_change = loser_arena_team->LostAgainstChance(loser_chance);
-            sLog.outDebug("--- %u ; %u ; %d ; %d ; %u ; %u ---",winner_rating,loser_rating,winner_chance,loser_chance,winner_change,loser_change);
+            int32 winner_change = winner_arena_team->WonAgainst(loser_rating);
+            int32 loser_change = loser_arena_team->LostAgainst(winner_rating);
+            sLog.outDebug("--- Winner rating: %u, Loser rating: %u, Winner change: %u, Losser change: %u ---", winner_rating, loser_rating, winner_change, loser_change);
             if(winner == ALLIANCE)
             {
                 SetArenaTeamRatingChangeForTeam(ALLIANCE, winner_change);
@@ -538,7 +541,7 @@ void BattleGround::EndBattleGround(uint32 winner)
             plr->SpawnCorpseBones();
         }
 
-        uint32 team = itr->second.Team;//GetPlayerTeam(plr->GetGUID());
+        uint32 team = itr->second.Team;
         if(!team) team = plr->GetTeam();
 
         // per player calculation
@@ -555,6 +558,7 @@ void BattleGround::EndBattleGround(uint32 winner)
             if(!Source)
                 Source = plr;
             RewardMark(plr,ITEM_WINNER_COUNT);
+            UpdatePlayerScore(plr, SCORE_BONUS_HONOR, 20);
             RewardQuest(plr);
         }
         else
@@ -577,8 +581,8 @@ void BattleGround::EndBattleGround(uint32 winner)
     if(isArena() && isRated() && winner_arena_team && loser_arena_team)
     {
         // update arena points only after increasing the player's match count!
-        winner_arena_team->UpdateArenaPointsHelper();
-        loser_arena_team->UpdateArenaPointsHelper();
+        //obsolete: winner_arena_team->UpdateArenaPointsHelper();
+        //obsolete: loser_arena_team->UpdateArenaPointsHelper();
         // save the stat changes
         winner_arena_team->SaveToDB();
         loser_arena_team->SaveToDB();
@@ -693,7 +697,7 @@ void BattleGround::SendRewardMarkByMail(Player *plr,uint32 mark, uint32 count)
         int loc_idx = plr->GetSession()->GetSessionDbLocaleIndex();
         if ( loc_idx >= 0 )
             if(ItemLocale const *il = objmgr.GetItemLocale(markProto->ItemId))
-                if (il->Name.size() > loc_idx && !il->Name[loc_idx].empty())
+                if (il->Name.size() > size_t(loc_idx) && !il->Name[loc_idx].empty())
                     subject = il->Name[loc_idx];
 
         // text
@@ -906,8 +910,8 @@ void BattleGround::Reset()
     m_Players.clear();
     m_PlayerScores.clear();
 
-    // reset BGSubclass (this cleans up creatures and gos as well)
-    this->ResetBGSubclass();
+    // reset BGSubclass
+    ResetBGSubclass();
 }
 
 void BattleGround::StartBattleGround()
@@ -932,7 +936,7 @@ void BattleGround::AddPlayer(Player *plr)
     // Add to list/maps
     m_Players[guid] = bp;
 
-    UpdatePlayersCountByTeam(team, false);        // +1 player
+    UpdatePlayersCountByTeam(team, false);                  // +1 player
 
     WorldPacket data;
     sBattleGroundMgr.BuildPlayerJoinedBattleGroundPacket(&data, plr);
@@ -941,10 +945,8 @@ void BattleGround::AddPlayer(Player *plr)
     // add arena specific auras
     if(isArena())
     {
-        // remove auras first, only then reset spell cooldowns
-        // this is to prevent bugging amp. curse, combustion, etc. like spells
-        plr->RemoveArenaAuras();
         plr->RemoveArenaSpellCooldowns();
+        plr->RemoveArenaAuras();
         plr->RemoveAllEnchantments(TEMP_ENCHANTMENT_SLOT);
         if(team == ALLIANCE)                                // gold
         {
@@ -973,6 +975,8 @@ void BattleGround::AddPlayer(Player *plr)
             }
             (plr)->RemovePet(NULL,PET_SAVE_NOT_IN_SLOT);
         }
+    else
+            (plr)->SetTemporaryUnsummonedPetNumber(0);
 
         if(GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
         {
@@ -1023,7 +1027,7 @@ void BattleGround::RemoveFromBGFreeSlotQueue()
 // works in similar way that HasFreeSlotsForTeam did, but this is needed for join as group
 uint32 BattleGround::GetFreeSlotsForTeam(uint32 Team) const
 {
-    //if BG is starting ... invite anyone:
+    //if BG is starting ... invite anyone
     if (GetStatus() == STATUS_WAIT_JOIN)
         return (GetInvitedCount(Team) < GetMaxPlayersPerTeam()) ? GetMaxPlayersPerTeam() - GetInvitedCount(Team) : 0;
     //if BG is already started .. do not allow to join too much players of one faction
@@ -1045,7 +1049,7 @@ uint32 BattleGround::GetFreeSlotsForTeam(uint32 Team) const
         // default: allow 0
         uint32 diff = 0;
         // allow join one person if the sides are equal (to fill up bg to minplayersperteam)
-        if (otherTeam == GetInvitedCount(Team)) 
+        if (otherTeam == GetInvitedCount(Team))
             diff = 1;
         // allow join more ppl if the other side has more players
         else if(otherTeam > GetInvitedCount(Team))
@@ -1063,6 +1067,9 @@ uint32 BattleGround::GetFreeSlotsForTeam(uint32 Team) const
         // allow join more ppl if the other side has more players
         else if (otherIn > GetPlayersCountByTeam(Team))
             diff3 = otherIn - GetPlayersCountByTeam(Team);
+        // or other side has less than minPlayersPerTeam
+        else if (GetInvitedCount(Team) <= GetMinPlayersPerTeam())
+            diff3 = GetMinPlayersPerTeam() - GetInvitedCount(Team) + 1;
 
         // return the minimum of the 3 differences
 
@@ -1309,16 +1316,6 @@ Creature* BattleGround::AddCreature(uint32 entry, uint32 type, uint32 teamval, f
         return NULL;
     }
 
-    CreatureData &data = objmgr.NewOrExistCreatureData(pCreature->GetDBTableGUIDLow());
-    
-    data.id             = entry;
-//    data.mapid          = GetMapId();
-    data.posX           = x;
-    data.posY           = y;
-    data.posZ           = z;
-    data.orientation    = o;
-    data.spawndist      = 15;
-
     pCreature->AIM_Initialize();
 
     //pCreature->SetDungeonDifficulty(0);
@@ -1328,7 +1325,36 @@ Creature* BattleGround::AddCreature(uint32 entry, uint32 type, uint32 teamval, f
 
     return  pCreature;
 }
+/*
+void BattleGround::SpawnBGCreature(uint32 type, uint32 respawntime)
+{
+    Map * map = MapManager::Instance().FindMap(GetMapId(),GetInstanceId());
+    if(!map)
+        return false;
 
+    if(respawntime == 0)
+    {
+        Creature *obj = HashMapHolder<Creature>::Find(m_BgCreatures[type]);
+        if(obj)
+        {
+            //obj->Respawn();                               // bugged
+            obj->SetRespawnTime(0);
+            objmgr.SaveCreatureRespawnTime(obj->GetGUIDLow(), GetInstanceID(), 0);
+            map->Add(obj);
+        }
+    }
+    else
+    {
+        Creature *obj = HashMapHolder<Creature>::Find(m_BgCreatures[type]);
+        if(obj)
+        {
+            obj->setDeathState(DEAD);
+            obj->SetRespawnTime(respawntime);
+            map->Add(obj);
+        }
+    }
+}
+*/
 bool BattleGround::DelCreature(uint32 type)
 {
     Creature *cr = HashMapHolder<Creature>::Find(m_BgCreatures[type]);
@@ -1371,7 +1397,7 @@ bool BattleGround::AddSpiritGuide(uint32 type, float x, float y, float z, float 
     if(!pCreature)
     {
         sLog.outError("Can't create Spirit guide. BattleGround not created!");
-        this->EndNow();
+        EndNow();
         return false;
     }
 

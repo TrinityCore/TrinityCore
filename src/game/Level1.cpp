@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "Common.h"
@@ -136,7 +136,6 @@ bool ChatHandler::HandleAnnounceCommand(const char* args)
         return false;
 
     sWorld.SendWorldText(LANG_SYSTEMMESSAGE,args);
-
     return true;
 }
 
@@ -230,7 +229,6 @@ bool ChatHandler::HandleGMChatCommand(const char* args)
     return false;
 }
 
-
 //Enable\Dissable Invisible mode
 bool ChatHandler::HandleVisibleCommand(const char* args)
 {
@@ -303,7 +301,7 @@ bool ChatHandler::HandleGPSCommand(const char* args)
 
     Map2ZoneCoordinates(zone_x,zone_y,zone_id);
 
-    Map const *map = MapManager::Instance().GetMap(obj->GetMapId(), obj);
+    Map const *map = obj->GetMap();
     float ground_z = map->GetHeight(obj->GetPositionX(), obj->GetPositionY(), MAX_HEIGHT);
     float floor_z = map->GetHeight(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ());
 
@@ -363,18 +361,18 @@ bool ChatHandler::HandleNamegoCommand(const char* args)
             return false;
         }
 
-        Map* pMap = MapManager::Instance().GetMap(m_session->GetPlayer()->GetMapId(),m_session->GetPlayer());
+        Map* pMap = m_session->GetPlayer()->GetMap();
 
         if(pMap->IsBattleGroundOrArena())
         {
             // cannot summon to bg
-            SendSysMessage(LANG_CANNOT_SUMMON_TO_BG);
+            PSendSysMessage(LANG_CANNOT_SUMMON_TO_BG,chr->GetName());
             SetSentErrorMessage(true);
             return false;
         }
         else if(pMap->IsDungeon())
         {
-            Map* cMap = MapManager::Instance().GetMap(chr->GetMapId(),chr);
+            Map* cMap = chr->GetMap();
             if( cMap->Instanceable() && cMap->GetInstanceId() != pMap->GetInstanceId() )
             {
                 // cannot summon from instance to instance
@@ -456,20 +454,20 @@ bool ChatHandler::HandleGonameCommand(const char* args)
     Player *chr = objmgr.GetPlayer(name.c_str());
     if (chr)
     {
-        Map* cMap = MapManager::Instance().GetMap(chr->GetMapId(),chr);
+        Map* cMap = chr->GetMap();
         if(cMap->IsBattleGroundOrArena())
         {
             // only allow if gm mode is on
             if (!_player->isGameMaster())
             {
-                SendSysMessage(LANG_CANNOT_GO_TO_BG_GM);
+                PSendSysMessage(LANG_CANNOT_GO_TO_BG_GM,chr->GetName());
                 SetSentErrorMessage(true);
                 return false;
             }
             // if already in a bg, don't let port to other
             else if (_player->GetBattleGroundId())
             {
-                SendSysMessage(LANG_CANNOT_GO_TO_BG_FROM_BG);
+                PSendSysMessage(LANG_CANNOT_GO_TO_BG_FROM_BG,chr->GetName());
                 SetSentErrorMessage(true);
                 return false;
             }

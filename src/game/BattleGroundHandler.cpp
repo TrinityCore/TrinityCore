@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "Common.h"
@@ -29,11 +29,11 @@
 #include "ObjectAccessor.h"
 #include "Object.h"
 #include "Chat.h"
-#include "Language.h"
 #include "BattleGroundMgr.h"
 #include "BattleGroundWS.h"
 #include "BattleGround.h"
 #include "ArenaTeam.h"
+#include "Language.h"
 
 void WorldSession::HandleBattleGroundHelloOpcode( WorldPacket & recv_data )
 {
@@ -98,7 +98,7 @@ void WorldSession::HandleBattleGroundJoinOpcode( WorldPacket & recv_data )
     // can do this, since it's battleground, not arena
     uint32 bgQueueTypeId = sBattleGroundMgr.BGQueueTypeId(bgTypeId, 0);
 
-    // ignore if we already in BG or BG queue
+    // ignore if player is already in BG
     if(_player->InBattleGround())
         return;
 
@@ -146,80 +146,12 @@ void WorldSession::HandleBattleGroundJoinOpcode( WorldPacket & recv_data )
         if(!grp)
             return;
         uint32 err = grp->CanJoinBattleGroundQueue(bgTypeId, bgQueueTypeId, 0, bg->GetMaxPlayersPerTeam(), false, 0);
-        switch(err)
+        if (err != BG_JOIN_ERR_OK)
         {
-            // TODO: add error-based feedback to players in all cases
-        case BG_JOIN_ERR_GROUP_TOO_MANY:
-            {
-            WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_TOO_LARGE), NULL);
-            SendPacket(&data);
-            }
+            SendBattleGroundOrArenaJoinError(err);
             return;
-            break;
-        case BG_JOIN_ERR_OFFLINE_MEMBER:
-            {
-            WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_OFFLINE_MEMBER), NULL);
-            SendPacket(&data);
-            }
-            return;
-            break;
-        case BG_JOIN_ERR_MIXED_FACTION:
-            {
-            WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_MIXED_FACTION), NULL);
-            SendPacket(&data);
-            }
-            return;
-            break;
-        case BG_JOIN_ERR_MIXED_LEVELS:
-            {
-            WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_MIXED_LEVELS), NULL);
-            SendPacket(&data);
-            }
-            return;
-            break;
-        case BG_JOIN_ERR_GROUP_MEMBER_ALREADY_IN_QUEUE:
-            {
-            WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_MEMBER_ALREADY_IN_QUEUE), NULL);
-            SendPacket(&data);
-            }
-            return;
-            break;
-        case BG_JOIN_ERR_GROUP_DESERTER:
-            {
-            WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_MEMBER_DESERTER), NULL);
-            SendPacket(&data);
-            }
-            return;
-            break;
-        case BG_JOIN_ERR_ALL_QUEUES_USED:
-            {
-            WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_MEMBER_NO_FREE_QUEUE_SLOTS), NULL);
-            SendPacket(&data);
-            }
-            return;
-            break;
-            // all ok, can join
-        case BG_JOIN_ERR_OK:
-            break;
-            // these aren't possible outcomes in bgs 
-        case BG_JOIN_ERR_GROUP_NOT_ENOUGH:
-        case BG_JOIN_ERR_MIXED_ARENATEAM:
-            return;
-            break;
-            // not the above? shouldn't happen, don't let join
-        default:
-            return;
-            break;
-        };
+        }
     }
-
     // if we're here, then the conditions to join a bg are met. We can proceed in joining.
 
     // _player->GetGroup() was already checked, grp is already initialized
@@ -362,7 +294,7 @@ void WorldSession::HandleBattleGroundPlayerPortOpcode( WorldPacket &recv_data )
 
     uint8 type;                                             // arenatype if arena
     uint8 unk2;                                             // unk, can be 0x0 (may be if was invited?) and 0x1
-    uint32 instanceId;                                      
+    uint32 instanceId;
     uint32 bgTypeId;                                        // type id from dbc
     uint16 unk;                                             // 0x1F90 constant?
     uint8 action;                                           // enter battle 0x1, leave queue 0x0
@@ -400,7 +332,7 @@ void WorldSession::HandleBattleGroundPlayerPortOpcode( WorldPacket &recv_data )
                 uint8 israted = itrPlayerStatus->second.GroupInfo->IsRated;
                 uint8 status = 0;
 
-                
+
                 if(!itrPlayerStatus->second.GroupInfo->IsInvitedToBGInstanceGUID)
                 {
                     // not invited to bg, get template
@@ -432,7 +364,7 @@ void WorldSession::HandleBattleGroundPlayerPortOpcode( WorldPacket &recv_data )
     }
 
     uint32 bgQueueTypeId = 0;
-    // get the bg what we were invited to 
+    // get the bg what we were invited to
     BattleGroundQueue::QueuedPlayersMap::iterator itrPlayerStatus;
     bgQueueTypeId = sBattleGroundMgr.BGQueueTypeId(bgTypeId,type);
     itrPlayerStatus = sBattleGroundMgr.m_BattleGroundQueues[bgQueueTypeId].m_QueuedPlayers[_player->GetBattleGroundQueueIdFromLevel()].find(_player->GetGUID());
@@ -472,6 +404,7 @@ void WorldSession::HandleBattleGroundPlayerPortOpcode( WorldPacket &recv_data )
         uint32 arenatype = 0;
         uint32 israted = 0;
         uint32 rating = 0;
+        uint32 opponentsRating = 0;
         // get the team info from the queue
         BattleGroundQueue::QueuedPlayersMap::iterator pitr = sBattleGroundMgr.m_BattleGroundQueues[bgQueueTypeId].m_QueuedPlayers[_player->GetBattleGroundQueueIdFromLevel()].find(_player->GetGUID());
         if(pitr !=sBattleGroundMgr.m_BattleGroundQueues[bgQueueTypeId].m_QueuedPlayers[_player->GetBattleGroundQueueIdFromLevel()].end()
@@ -481,6 +414,7 @@ void WorldSession::HandleBattleGroundPlayerPortOpcode( WorldPacket &recv_data )
             arenatype = pitr->second.GroupInfo->ArenaType;
             israted = pitr->second.GroupInfo->IsRated;
             rating = pitr->second.GroupInfo->ArenaTeamRating;
+            opponentsRating = pitr->second.GroupInfo->OpponentsTeamRating;
         }
         else
         {
@@ -496,7 +430,7 @@ void WorldSession::HandleBattleGroundPlayerPortOpcode( WorldPacket &recv_data )
                 // resurrect the player
                 if(!_player->isAlive())
                 {
-                    _player->ResurrectPlayer(1.0f,false);
+                    _player->ResurrectPlayer(1.0f);
                     _player->SpawnCorpseBones();
                 }
                 // stop taxi flight at port
@@ -528,6 +462,19 @@ void WorldSession::HandleBattleGroundPlayerPortOpcode( WorldPacket &recv_data )
                 break;
             case 0:                                     // leave queue
                 queueSlot = _player->GetBattleGroundQueueIndex(bgQueueTypeId);
+                /*
+                if player leaves rated arena match before match start, it is counted as he played but he lost
+                */
+                if (israted)
+                {
+                    ArenaTeam * at = objmgr.GetArenaTeamById(team);
+                    if (at)
+                    {
+                        sLog.outDebug("UPDATING memberLost's personal arena rating for %u by opponents rating: %u, because he has left queue!", GUID_LOPART(_player->GetGUID()), opponentsRating);
+                        at->MemberLost(_player, opponentsRating);
+                        at->SaveToDB();
+                    }
+                }
                 _player->RemoveBattleGroundQueueId(bgQueueTypeId); // must be called this way, because if you move this call to queue->removeplayer, it causes bugs
                 sBattleGroundMgr.BuildBattleGroundStatusPacket(&data, bg, _player->GetTeam(), queueSlot, STATUS_NONE, 0, 0);
                 sBattleGroundMgr.m_BattleGroundQueues[bgQueueTypeId].RemovePlayer(_player->GetGUID(), true);
@@ -745,7 +692,7 @@ void WorldSession::HandleBattleGroundArenaJoin( WorldPacket & recv_data )
     BattleGround* bg = NULL;
     if( !(bg = sBattleGroundMgr.GetBattleGroundTemplate(BATTLEGROUND_AA)) )
     {
-        sLog.outError("Battleground: template bg (all arenas) not found");     
+        sLog.outError("Battleground: template bg (all arenas) not found");
         return;
     }
 
@@ -770,94 +717,16 @@ void WorldSession::HandleBattleGroundArenaJoin( WorldPacket & recv_data )
         if(!grp)
             return;
         uint32 err = grp->CanJoinBattleGroundQueue(bgTypeId, bgQueueTypeId, arenatype, arenatype, (bool)isRated, type);
-        switch(err)
+        if (err != BG_JOIN_ERR_OK)
         {
-            // TODO: add error-based feedback to players in all cases
-        case BG_JOIN_ERR_GROUP_TOO_MANY:
-            {
-            WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_ARENA_GROUP_TOO_LARGE), NULL);
-            SendPacket(&data);
-            }
+            SendBattleGroundOrArenaJoinError(err);
             return;
-            break;
-        case BG_JOIN_ERR_GROUP_NOT_ENOUGH:
-            {
-            WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_ARENA_NOT_ENOUGH_PLAYERS), NULL);
-            SendPacket(&data);
-            }
-            return;
-            break;
-        case BG_JOIN_ERR_MIXED_ARENATEAM:
-            {
-            WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_ARENA_YOUR_TEAM_ONLY), NULL);
-            SendPacket(&data);
-            }
-            return;
-            break;
-        case BG_JOIN_ERR_OFFLINE_MEMBER:
-            {
-            WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_OFFLINE_MEMBER), NULL);
-            SendPacket(&data);
-            }
-            return;
-            break;
-        case BG_JOIN_ERR_MIXED_FACTION:
-            {
-            WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_MIXED_FACTION), NULL);
-            SendPacket(&data);
-            }
-            return;
-            break;
-        case BG_JOIN_ERR_MIXED_LEVELS:
-            {
-            WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_MIXED_LEVELS), NULL);
-            SendPacket(&data);
-            }
-            return;
-            break;
-        case BG_JOIN_ERR_GROUP_MEMBER_ALREADY_IN_QUEUE:
-            {
-            WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_MEMBER_ALREADY_IN_QUEUE), NULL);
-            SendPacket(&data);
-            }
-            return;
-            break;
-        case BG_JOIN_ERR_GROUP_DESERTER:
-            {
-            WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_MEMBER_DESERTER), NULL);
-            SendPacket(&data);
-            }
-            return;
-            break;
-        case BG_JOIN_ERR_ALL_QUEUES_USED:
-            {
-            WorldPacket data;
-            ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(LANG_BG_GROUP_MEMBER_NO_FREE_QUEUE_SLOTS), NULL);
-            SendPacket(&data);
-            }
-            return;
-            break;
-            // all ok, can join
-        case BG_JOIN_ERR_OK:
-            break;
-            // not the above? shouldn't happen, don't let join
-        default:
-            return;
-            break;
-        };
+        }
     }
 
     uint32 ateamId = 0;
 
-    if(isRated)           
+    if(isRated)
     {
         ateamId = _player->GetArenaTeamId(type);
         // check real arenateam existence only here (if it was moved to group->CanJoin .. () then we would ahve to get it twice)
@@ -883,7 +752,7 @@ void WorldSession::HandleBattleGroundArenaJoin( WorldPacket & recv_data )
         if( arenatype )
             avg_pers_rating /= arenatype;
 
-        // if avg personal rating is more than 150 points below the team’s rating, the team will be queued against an opponent matching or similar to the average personal rating 
+        // if avg personal rating is more than 150 points below the teams rating, the team will be queued against an opponent matching or similar to the average personal rating
         if(avg_pers_rating + 150 < arenaRating)
             arenaRating = avg_pers_rating;
     }
@@ -951,4 +820,42 @@ void WorldSession::HandleBattleGroundReportAFK( WorldPacket & recv_data )
     sLog.outDebug("WorldSession::HandleBattleGroundReportAFK: %s reported %s", _player->GetName(), reportedPlayer->GetName());
 
     reportedPlayer->ReportedAfkBy(_player);
+}
+
+void WorldSession::SendBattleGroundOrArenaJoinError(uint8 err)
+{
+    WorldPacket data;
+    int32 msg;
+    switch (err)
+    {
+        case BG_JOIN_ERR_OFFLINE_MEMBER:
+            msg = LANG_BG_GROUP_OFFLINE_MEMBER;
+            break;
+        case BG_JOIN_ERR_GROUP_TOO_MANY:
+            msg = LANG_BG_GROUP_TOO_LARGE;
+            break;
+        case BG_JOIN_ERR_MIXED_FACTION:
+            msg = LANG_BG_GROUP_MIXED_FACTION;
+            break;
+        case BG_JOIN_ERR_MIXED_LEVELS:
+            msg = LANG_BG_GROUP_MIXED_LEVELS;
+            break;
+        case BG_JOIN_ERR_GROUP_MEMBER_ALREADY_IN_QUEUE:
+            msg = LANG_BG_GROUP_MEMBER_ALREADY_IN_QUEUE;
+            break;
+        case BG_JOIN_ERR_GROUP_DESERTER:
+            msg = LANG_BG_GROUP_MEMBER_DESERTER;
+            break;
+        case BG_JOIN_ERR_ALL_QUEUES_USED:
+            msg = LANG_BG_GROUP_MEMBER_NO_FREE_QUEUE_SLOTS;
+            break;
+        case BG_JOIN_ERR_GROUP_NOT_ENOUGH:
+        case BG_JOIN_ERR_MIXED_ARENATEAM:
+        default:
+            return;
+            break;
+    }
+    ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_UNIVERSAL, NULL, 0, GetTrinityString(msg), NULL);
+    SendPacket(&data);
+    return;
 }

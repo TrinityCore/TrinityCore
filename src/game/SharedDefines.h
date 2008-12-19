@@ -42,15 +42,23 @@ enum Races
     RACE_TAUREN         = 6,
     RACE_GNOME          = 7,
     RACE_TROLL          = 8,
-    RACE_GOBLIN         = 9,
+    //RACE_GOBLIN         = 9,
     RACE_BLOODELF       = 10,
     RACE_DRAENEI        = 11,
-    RACE_FEL_ORC        = 12,
-    RACE_NAGA           = 13,
-    RACE_BROKEN         = 14,
-    RACE_SKELETON       = 15,
-    MAX_RACES           = 16
+    //RACE_FEL_ORC        = 12,
+    //RACE_NAGA           = 13,
+    //RACE_BROKEN         = 14,
+    //RACE_SKELETON       = 15,
+    //RACE_VRYKUL         = 16,
+    //RACE_TUSKARR        = 17,
+    //RACE_FOREST_TROLL   = 18,
+    //RACE_TAUNKA         = 19,
+    //RACE_NORTHREND_SKELETON = 20,
+    //RACE_ICE_TROLL      = 21
 };
+
+// max+1 for player race
+#define MAX_RACES         12
 
 #define RACEMASK_ALL_PLAYABLE \
     ((1<<(RACE_HUMAN-1))   |(1<<(RACE_ORC-1))          |(1<<(RACE_DWARF-1))   | \
@@ -72,8 +80,10 @@ enum Classes
     CLASS_WARLOCK       = 9,
     // CLASS_UNK2       = 10,unused
     CLASS_DRUID         = 11,
-    MAX_CLASSES         = 12
 };
+
+// max+1 for player class
+#define MAX_CLASSES       12
 
 #define CLASSMASK_ALL_PLAYABLE \
     ((1<<(CLASS_WARRIOR-1))|(1<<(CLASS_PALADIN-1))|(1<<(CLASS_HUNTER-1))| \

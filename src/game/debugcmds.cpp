@@ -32,9 +32,9 @@
 #include "GossipDef.h"
 #include "Language.h"
 #include "MapManager.h"
+#include "BattleGroundMgr.h"
 #include <fstream>
 #include "ObjectMgr.h"
-#include "BattleGroundMgr.h"
 
 bool ChatHandler::HandleDebugInArcCommand(const char* /*args*/)
 {

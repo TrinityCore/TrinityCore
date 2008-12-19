@@ -628,7 +628,7 @@ void Channel::Invite(uint64 p, const char *newname)
         SendToOne(&data, newp->GetGUID());
         data.clear();
     }
-    MakePlayerInvited(&data, newp->GetGUID());
+    MakePlayerInvited(&data, newp->GetName());
     SendToOne(&data, p);
 }
 
@@ -918,13 +918,8 @@ void Channel::MakeNotModerated(WorldPacket *data)
 }
 
 // done 0x1D
-void Channel::MakePlayerInvited(WorldPacket *data, uint64 guid)
+void Channel::MakePlayerInvited(WorldPacket *data, const std::string& name)
 {
-    std::string name;
-
-    if(!objmgr.GetPlayerNameByGUID(guid, name) || name.empty())
-        return;                                             // player name not found
-
     MakeNotifyPacket(data, CHAT_PLAYER_INVITED_NOTICE);
     *data << name;
 }
