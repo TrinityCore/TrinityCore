@@ -93,7 +93,6 @@ class ByteBuffer;
 class WorldSession;
 class Creature;
 class Player;
-class Map;
 class UpdateMask;
 class InstanceData;
 class GameObject;

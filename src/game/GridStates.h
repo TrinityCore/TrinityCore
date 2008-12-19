@@ -22,6 +22,7 @@
 #define TRINITY_GRIDSTATES_H
 
 #include "Map.h"
+#include "Object.h"
 
 class TRINITY_DLL_DECL GridState
 {
