@@ -812,9 +812,10 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOADSPELLCOOLDOWNS       = 15,
     PLAYER_LOGIN_QUERY_LOADDECLINEDNAMES        = 16,
     PLAYER_LOGIN_QUERY_LOADGUILD                = 17,
-};
+    PLAYER_LOGIN_QUERY_LOADARENAINFO            = 18,
 
-#define MAX_PLAYER_LOGIN_QUERY                    18
+    MAX_PLAYER_LOGIN_QUERY
+};
 
 // Player summoning auto-decline time (in secs)
 #define MAX_PLAYER_SUMMON_DELAY                   (2*MINUTE)
@@ -1067,7 +1068,7 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         }
         uint8 CanStoreItems( Item **pItem,int count) const;
-        uint8 CanEquipNewItem( uint8 slot, uint16 &dest, uint32 item, uint32 count, bool swap ) const;
+        uint8 CanEquipNewItem( uint8 slot, uint16 &dest, uint32 item, bool swap ) const;
         uint8 CanEquipItem( uint8 slot, uint16 &dest, Item *pItem, bool swap, bool not_loading = true ) const;
         uint8 CanUnequipItems( uint32 item, uint32 count ) const;
         uint8 CanUnequipItem( uint16 src, bool swap ) const;
@@ -1078,10 +1079,10 @@ class TRINITY_DLL_SPEC Player : public Unit
         uint8 CanUseAmmo( uint32 item ) const;
         Item* StoreNewItem( ItemPosCountVec const& pos, uint32 item, bool update,int32 randomPropertyId = 0 );
         Item* StoreItem( ItemPosCountVec const& pos, Item *pItem, bool update );
-        Item* EquipNewItem( uint16 pos, uint32 item, uint32 count, bool update );
+        Item* EquipNewItem( uint16 pos, uint32 item, bool update );
         Item* EquipItem( uint16 pos, Item *pItem, bool update );
         void AutoUnequipOffhandIfNeed();
-        bool StoreNewItemInBestSlot(uint32 item_id, uint32 item_count);
+        bool StoreNewItemInBestSlots(uint32 item_id, uint32 item_count);
 
         uint8 _CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count = NULL) const;
         uint8 _CanStoreItem( uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 entry, uint32 count, Item *pItem = NULL, bool swap = false, uint32* no_space_count = NULL ) const;
@@ -1531,7 +1532,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         void SetInArenaTeam(uint32 ArenaTeamId, uint8 slot)
         {
             SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * 6), ArenaTeamId);
-            SaveDataFieldToDB();                            // needed?
         }
         uint32 GetArenaTeamId(uint8 slot) { return GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * 6)); }
         static uint32 GetArenaTeamIdFromDB(uint64 guid, uint8 slot);
@@ -2143,6 +2143,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         void _LoadFriendList(QueryResult *result);
         bool _LoadHomeBind(QueryResult *result);
         void _LoadDeclinedNames(QueryResult *result);
+        void _LoadArenaTeamInfo(QueryResult *result);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/

@@ -192,7 +192,7 @@ class Channel
         void MakeWrongFaction(WorldPacket *data);                               //? 0x1A
         void MakeInvalidName(WorldPacket *data);                                //? 0x1B
         void MakeNotModerated(WorldPacket *data);                               //? 0x1C
-        void MakePlayerInvited(WorldPacket *data, uint64 guid);                 //+ 0x1D
+        void MakePlayerInvited(WorldPacket *data, const std::string& name);     //+ 0x1D
         void MakePlayerInviteBanned(WorldPacket *data, uint64 guid);            //? 0x1E
         void MakeThrottled(WorldPacket *data);                                  //? 0x1F
         void MakeNotInArea(WorldPacket *data);                                  //? 0x20

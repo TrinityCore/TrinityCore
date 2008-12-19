@@ -78,6 +78,9 @@ void BattleGroundWS::Update(time_t diff)
                 return;
             }
 
+//            for(uint32 i = WS_SPIRIT_MAIN_ALLIANCE; i <= WS_SPIRIT_MAIN_HORDE; i++)
+//                SpawnBGCreature(i, RESPAWN_IMMEDIATELY);
+
             for(uint32 i = BG_WS_OBJECT_DOOR_A_1; i <= BG_WS_OBJECT_DOOR_H_4; i++)
             {
                 SpawnBGObject(i, RESPAWN_IMMEDIATELY);
