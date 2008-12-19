@@ -16,7 +16,7 @@
 
 /* ScriptData
 SDName: Boss_Fathomlord_Karathress
-SD%Complete: 70%
+SD%Complete: 70
 SDComment: Cyclone workaround
 SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
