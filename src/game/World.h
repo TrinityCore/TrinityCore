@@ -474,6 +474,7 @@ class World
         bool IsAllowedMap(uint32 mapid) { return m_forbiddenMapIds.count(mapid) == 0 ;}
 
         // for max speed access
+        static float GetMaxVisibleDistance()            { return m_MaxVisibleDistance;            }
         static float GetMaxVisibleDistanceForCreature() { return m_MaxVisibleDistanceForCreature; }
         static float GetMaxVisibleDistanceForPlayer()   { return m_MaxVisibleDistanceForPlayer;   }
         static float GetMaxVisibleDistanceForObject()   { return m_MaxVisibleDistanceForObject;   }
@@ -542,6 +543,7 @@ class World
         std::set<uint32> m_forbiddenMapIds;
 
         // for max speed access
+        static float m_MaxVisibleDistance;
         static float m_MaxVisibleDistanceForCreature;
         static float m_MaxVisibleDistanceForPlayer;
         static float m_MaxVisibleDistanceForObject;
