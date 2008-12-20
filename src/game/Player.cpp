@@ -2070,7 +2070,8 @@ void Player::SetGameMaster(bool on)
         getHostilRefManager().setOnlineOfflineState(true);
     }
 
-    ObjectAccessor::UpdateVisibilityForPlayer(this);
+    //ObjectAccessor::UpdateVisibilityForPlayer(this);
+    SetToNotify();
 }
 
 void Player::SetGMVisible(bool on)
@@ -3851,7 +3852,8 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
     }
 
     // update visibility
-    ObjectAccessor::UpdateVisibilityForPlayer(this);
+    //ObjectAccessor::UpdateVisibilityForPlayer(this);
+    SetToNotify();
 
     // some items limited to specific map
     DestroyZoneLimitedItem( true, GetZoneId());
