@@ -451,7 +451,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                 m_creature->SetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, cinfo->mindmg);
                 m_creature->SetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE, cinfo->maxdmg);
 
-                m_creature->SetAttackTime(OFF_ATTACK, (((uint32)m_creature->GetAttackTime(BASE_ATTACK)/1.5)));
+				m_creature->SetAttackTime(OFF_ATTACK, (m_creature->GetAttackTime(BASE_ATTACK)*150)/100);
             }
         }
         else if(phase == 2)

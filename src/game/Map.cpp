@@ -438,19 +438,20 @@ Map::LoadGrid(const Cell& cell, bool no_unload)
     {
         ObjectGridLoader loader(*grid, this, cell);
         loader.LoadN();
+        setGridObjectDataLoaded(true,cell.GridX(), cell.GridY());
 
         // Add resurrectable corpses to world object list in grid
         ObjectAccessor::Instance().AddCorpsesToGrid(GridPair(cell.GridX(),cell.GridY()),(*grid)(cell.CellX(), cell.CellY()), this);
 
-        setGridObjectDataLoaded(true,cell.GridX(), cell.GridY());
         // Not sure if this is the reason that far sight cause crash
         // Seems crash happens when trying to delete a far sight dynobj from an unopened grid
         ResetGridExpiry(*getNGrid(cell.GridX(), cell.GridY()), 1.0f);
         grid->SetGridState(GRID_STATE_ACTIVE);
+
         if(no_unload)
             getNGrid(cell.GridX(), cell.GridY())->setUnloadFlag(false);
     }
-    LoadVMap(63-cell.GridX(),63-cell.GridY());
+    //LoadVMap(63-cell.GridX(),63-cell.GridY());
 }
 
 bool Map::Add(Player *player)

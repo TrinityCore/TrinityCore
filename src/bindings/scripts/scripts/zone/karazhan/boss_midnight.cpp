@@ -101,25 +101,26 @@ struct TRINITY_DLL_DECL boss_midnightAI : public ScriptedAI
         }
         else if(Phase ==3)
         {
-            if(Mount_Timer)
-                if(Mount_Timer <= diff)
-            {
-                Mount_Timer = 0;
-                m_creature->SetVisibility(VISIBILITY_OFF);
-                m_creature->GetMotionMaster()->MoveIdle();
-                if (Unit *pAttumen = Unit::GetUnit(*m_creature, Attumen))
-                {
-                    pAttumen->SetUInt32Value(UNIT_FIELD_DISPLAYID, MOUNTED_DISPLAYID);
-                    pAttumen->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    if(pAttumen->getVictim())
-                    {
-                        pAttumen->GetMotionMaster()->MoveChase(pAttumen->getVictim());
-                        pAttumen->SetUInt64Value(UNIT_FIELD_TARGET, pAttumen->getVictim()->GetGUID());
-                    }
-                    pAttumen->SetFloatValue(OBJECT_FIELD_SCALE_X,1);
-                
+			if(Mount_Timer)
+			{
+				if(Mount_Timer <= diff)
+				{
+					Mount_Timer = 0;
+					m_creature->SetVisibility(VISIBILITY_OFF);
+					m_creature->GetMotionMaster()->MoveIdle();
+					if (Unit *pAttumen = Unit::GetUnit(*m_creature, Attumen))
+					{
+						pAttumen->SetUInt32Value(UNIT_FIELD_DISPLAYID, MOUNTED_DISPLAYID);
+						pAttumen->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+						if(pAttumen->getVictim())
+						{
+							pAttumen->GetMotionMaster()->MoveChase(pAttumen->getVictim());
+							pAttumen->SetUInt64Value(UNIT_FIELD_TARGET, pAttumen->getVictim()->GetGUID());
+						}
+						pAttumen->SetFloatValue(OBJECT_FIELD_SCALE_X,1);
+					}
 				} else Mount_Timer -= diff;
-				}
+			}
 		}
 
         if(Phase != 3)
@@ -201,29 +202,27 @@ struct TRINITY_DLL_DECL boss_attumenAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
 		if (Unit *pMidnight = Unit::GetUnit(*m_creature, Midnight))
-        {
-            pMidnight->DealDamage(pMidnight, pMidnight->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-        }
+			pMidnight->DealDamage(pMidnight, pMidnight->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);        
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if(ResetTimer)
-            if(ResetTimer <= diff)
-        {
-            ResetTimer = 0;
-            Unit *pMidnight = Unit::GetUnit(*m_creature, Midnight);
-            if(pMidnight)
-            {
-                pMidnight->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                pMidnight->SetVisibility(VISIBILITY_ON);
-            }
-            Midnight = 0;
-
-            m_creature->SetVisibility(VISIBILITY_OFF);
-            m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-        }
-        else ResetTimer -= diff;
+		if(ResetTimer)
+		{
+			if(ResetTimer <= diff)
+			{
+				ResetTimer = 0;
+				Unit *pMidnight = Unit::GetUnit(*m_creature, Midnight);
+				if(pMidnight)
+				{
+					pMidnight->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+					pMidnight->SetVisibility(VISIBILITY_ON);
+				}
+				Midnight = 0;
+				m_creature->SetVisibility(VISIBILITY_OFF);
+				m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+			}
+		} else ResetTimer -= diff;
 
         //Return since we have no target
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
@@ -293,10 +292,8 @@ struct TRINITY_DLL_DECL boss_attumenAI : public ScriptedAI
 
     void SpellHit(Unit *source, const SpellEntry *spell)
     {
-        if(spell->Mechanic == MECHANIC_DISARM)
-        {
-			DoScriptText(SAY_DISARMED, m_creature);
-        }
+        if(spell->Mechanic == MECHANIC_DISARM)        
+			DoScriptText(SAY_DISARMED, m_creature);        
     }
 };
 
