@@ -1767,6 +1767,9 @@ void Pet::LearnPetPassives()
     PetFamilySpellsStore::const_iterator petStore = sPetFamilySpellsStore.find(cFamily->ID);
     if(petStore != sPetFamilySpellsStore.end())
     {
+        // For general hunter pets skill 270
+        // Passive 01~10, Passive 00 (20782, not used), Ferocious Inspiration (34457)
+        // Scale 01~03 (34902~34904, bonus from owner, not used)
         for(PetFamilySpellsSet::const_iterator petSet = petStore->second.begin(); petSet != petStore->second.end(); ++petSet)
             addSpell(*petSet, ACT_DECIDE, PETSPELL_NEW, 0xffff, PETSPELL_FAMILY);
     }

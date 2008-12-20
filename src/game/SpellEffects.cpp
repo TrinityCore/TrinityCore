@@ -3469,7 +3469,7 @@ void Spell::EffectAddFarsight(uint32 i)
     CellPair pair = Trinity::ComputeCellPair(dynObj->GetPositionX(), dynObj->GetPositionY());
     Cell cell(pair);
     Map* map = dynObj->GetMap();
-    map->LoadGrid(cell);                        // In case the spell is casted into a different grid by player
+    map->EnsureGridLoadedForPlayer(cell, NULL, false);  // In case the spell is casted into a different grid by player
     map->Add(dynObj);
     map->SwitchGridContainers(dynObj, true);    // Needed for forwarding player packets
     dynObj->setActive(true);                    // Keep the grid updated even if there are no players in it

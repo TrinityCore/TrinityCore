@@ -30,6 +30,9 @@ EndScriptData */
 #define C_TIME_RIFT             17838
 	 	 
 #define SPELL_RIFT_CHANNEL      31387
+
+#define RIFT_BOSS               1
+inline uint32 RandRiftBoss() { return rand()%2 ? C_RKEEP : C_RLORD; }
 	 	 
 float PortalLocation[4][4]=
 {
@@ -271,6 +274,9 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 	Unit* SummonedPortalBoss(Unit* source)
 	{
 		uint32 entry = RiftWaves[GetRiftWaveId()].PortalBoss;
+		if (entry == RIFT_BOSS)
+			entry = RandRiftBoss();
+
 		float x,y,z;
 		source->GetRandomPoint(source->GetPositionX(),source->GetPositionY(),source->GetPositionZ(),10.0f,x,y,z);
 		//normalize Z-level if we can, if rift is not at ground level.

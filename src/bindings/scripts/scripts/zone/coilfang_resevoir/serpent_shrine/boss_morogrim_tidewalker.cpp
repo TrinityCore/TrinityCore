@@ -153,66 +153,6 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
         }
     }
 
-	/*void ApplyWateryGrave(Unit *player, uint8 pos)
-    {
-        float x, y, z;
-
-        switch(pos)
-        {
-            case 0:
-                x = WATERY_GRAVE_X1;
-                y = WATERY_GRAVE_Y1;
-                z = WATERY_GRAVE_Z1;
-                break;
-            case 1:
-                x = WATERY_GRAVE_X2;
-                y = WATERY_GRAVE_Y2;
-                z = WATERY_GRAVE_Z2;
-                break;
-            case 2:
-                x = WATERY_GRAVE_X3;
-                y = WATERY_GRAVE_Y3;
-                z = WATERY_GRAVE_Z3;
-                break;
-            case 3:
-                x = WATERY_GRAVE_X4;
-                y = WATERY_GRAVE_Y4;
-                z = WATERY_GRAVE_Z4;
-                break;
-        }
-
-        DoTeleportPlayer(player, x, y, z+1, player->GetOrientation());
-        DoCast(player, SPELL_WATERY_GRAVE);
-    }*/
-
-    /*void SummonMurloc(float x, float y, float z)
-    {
-        Creature *Summoned;
-
-        Summoned = m_creature->SummonCreature(TIDEWALKER_LURKER, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-        if (Summoned)
-        {
-            Unit *target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if (target)
-                Summoned->AI()->AttackStart(target);
-        }
-    }*/
-
-    /*void SummonWaterGlobule(float x, float y, float z)
-    {
-        Creature *Globule;
-
-        Globule = m_creature->SummonCreature(WATER_GLOBULE, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 30000); //they despawn after 30 seconds
-        if (Globule)
-        {
-            Unit *target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if (target)
-                Globule->AI()->AttackStart(target);
-        }
-    }*/
-
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
@@ -236,30 +176,16 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
                     case 1: DoScriptText(SAY_SUMMON2, m_creature); break;
                 }
 
-                /*//north
-                SummonMurloc(486.10, -723.64, -7.14);
-                SummonMurloc(482.58, -723.78, -7.14);
-                SummonMurloc(479.38, -723.91, -7.14);
-                SummonMurloc(476.03, -723.86, -7.14);
-                SummonMurloc(472.69, -723.69, -7.14);
-                SummonMurloc(469.04, -723.63, -7.14);
-
-                //south
-                SummonMurloc(311.63, -725.04, -13.15);
-                SummonMurloc(307.81, -725.34, -13.15);
-                SummonMurloc(303.91, -725.64, -13.06);
-                SummonMurloc(300.23, -726, -11.89);
-                SummonMurloc(296.82, -726.33, -10.82);
-                SummonMurloc(293.64, -726.64, -9.81);*/
-
 				if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
 				{
+				//north
 				DoCast(target, SPELL_SUMMON_MURLOC_A6);
 				DoCast(target, SPELL_SUMMON_MURLOC_A7);
 				DoCast(target, SPELL_SUMMON_MURLOC_A8);
 				DoCast(target, SPELL_SUMMON_MURLOC_A9);
 				DoCast(target, SPELL_SUMMON_MURLOC_A10);
 
+				//south
 				DoCast(target, SPELL_SUMMON_MURLOC_B6);
 				DoCast(target, SPELL_SUMMON_MURLOC_B7);
 				DoCast(target, SPELL_SUMMON_MURLOC_B8);
@@ -313,10 +239,6 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
             //WateryGlobules_Timer
             if (WateryGlobules_Timer < diff)
             {
-                /*SummonWaterGlobule(WATERY_GRAVE_X1, WATERY_GRAVE_Y1, WATERY_GRAVE_Z1);
-                SummonWaterGlobule(WATERY_GRAVE_X2, WATERY_GRAVE_Y2, WATERY_GRAVE_Z2);
-                SummonWaterGlobule(WATERY_GRAVE_X3, WATERY_GRAVE_Y3, WATERY_GRAVE_Z3);
-                SummonWaterGlobule(WATERY_GRAVE_X4, WATERY_GRAVE_Y4, WATERY_GRAVE_Z4);*/
 				if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
 				{
 					DoCast(target, SPELL_SUMMON_WATER_GLOBULE_1);
