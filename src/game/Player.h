@@ -2007,7 +2007,7 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         bool HaveAtClient(WorldObject const* u) const { return u==this || m_clientGUIDs.find(u->GetGUID())!=m_clientGUIDs.end(); }
 
-        bool canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool is3dDistance = true) const;
+        bool canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList = false, bool is3dDistance = true) const;
         bool IsVisibleInGridForPlayer(Player const* pl) const;
         bool IsVisibleGloballyFor(Player* pl) const;
 
