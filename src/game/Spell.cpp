@@ -421,66 +421,19 @@ void Spell::FillTargetMap()
         SetTargetMap(i,m_spellInfo->EffectImplicitTargetA[i],tmpUnitMap);
         SetTargetMap(i,m_spellInfo->EffectImplicitTargetB[i],tmpUnitMap);
 
-        if(m_targets.HasDest())
+        if(m_targets.HasDest()
+            && spellmgr.EffectTargetType[m_spellInfo->Effect[i]] == SPELL_REQUIRE_DEST)
         {
-            switch(m_spellInfo->Effect[i])
-            {
-                case SPELL_EFFECT_SUMMON:
-                case SPELL_EFFECT_SUMMON_WILD:
-                case SPELL_EFFECT_SUMMON_GUARDIAN:
-                case SPELL_EFFECT_TRANS_DOOR: //summon object
-                case SPELL_EFFECT_SUMMON_PET:
-                case SPELL_EFFECT_SUMMON_POSSESSED:
-                case SPELL_EFFECT_SUMMON_TOTEM:
-                case SPELL_EFFECT_SUMMON_OBJECT_WILD:
-                case SPELL_EFFECT_SUMMON_TOTEM_SLOT1:
-                case SPELL_EFFECT_SUMMON_TOTEM_SLOT2:
-                case SPELL_EFFECT_SUMMON_TOTEM_SLOT3:
-                case SPELL_EFFECT_SUMMON_TOTEM_SLOT4:
-                case SPELL_EFFECT_SUMMON_CRITTER:
-                case SPELL_EFFECT_SUMMON_OBJECT_SLOT1:
-                case SPELL_EFFECT_SUMMON_OBJECT_SLOT2:
-                case SPELL_EFFECT_SUMMON_OBJECT_SLOT3:
-                case SPELL_EFFECT_SUMMON_OBJECT_SLOT4:
-                case SPELL_EFFECT_SUMMON_DEAD_PET:
-                case SPELL_EFFECT_SUMMON_DEMON:
-                case SPELL_EFFECT_ADD_FARSIGHT:
-                case SPELL_EFFECT_TRIGGER_SPELL_2: //ritual of summon
-                case SPELL_EFFECT_TRIGGER_MISSILE:
-                {
-                    tmpUnitMap.clear();
-                    tmpUnitMap.push_back(m_caster);
-                    break;
-                }
-            }
+            tmpUnitMap.clear();
+            tmpUnitMap.push_back(m_caster);
         }
 
-        if(!m_spellInfo->EffectImplicitTargetA[i])
-        {
-            switch(m_spellInfo->Effect[i])
-            {
-                case SPELL_EFFECT_PARRY: // 0
-                case SPELL_EFFECT_BLOCK: // 0
-                case SPELL_EFFECT_SKILL: // always with dummy 3 as A
-                case SPELL_EFFECT_LEARN_SPELL: // 0
-                case SPELL_EFFECT_TRADE_SKILL: // 0 or 1
-                case SPELL_EFFECT_PROFICIENCY: // 0
-                    tmpUnitMap.push_back(m_caster);
-                    break;
-            }
-        }
+        if(!m_spellInfo->EffectImplicitTargetA[i]
+            && spellmgr.EffectTargetType[m_spellInfo->Effect[i]] == SPELL_REQUIRE_NONE)
+            tmpUnitMap.push_back(m_caster);
 
         if(tmpUnitMap.empty())
         {
-            /*if( m_spellInfo->EffectImplicitTargetA[i]==TARGET_SCRIPT ||
-                m_spellInfo->EffectImplicitTargetB[i]==TARGET_SCRIPT ||
-                m_spellInfo->EffectImplicitTargetA[i]==TARGET_SCRIPT_COORDINATES ||
-                m_spellInfo->EffectImplicitTargetB[i]==TARGET_SCRIPT_COORDINATES )
-            {
-                if(!(m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION))
-                    continue;
-            }*/
-
             // add here custom effects that need default target.
             // FOR EVERY TARGET TYPE THERE IS A DIFFERENT FILL!!
             switch(m_spellInfo->Effect[i])
@@ -494,26 +447,14 @@ void Spell::FillTargetMap()
                             // non-standard target selection
                             SpellRangeEntry const* srange = sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex);
                             float max_range = GetSpellMaxRange(srange);
-
-                            CellPair p(Trinity::ComputeCellPair(m_caster->GetPositionX(), m_caster->GetPositionY()));
-                            Cell cell(p);
-                            cell.data.Part.reserved = ALL_DISTRICT;
-                            cell.SetNoCreate();
-
                             WorldObject* result = NULL;
 
                             Trinity::CannibalizeObjectCheck u_check(m_caster, max_range);
                             Trinity::WorldObjectSearcher<Trinity::CannibalizeObjectCheck > searcher(result, u_check);
-
-                            TypeContainerVisitor<Trinity::WorldObjectSearcher<Trinity::CannibalizeObjectCheck >, GridTypeMapContainer > grid_searcher(searcher);
-                            CellLock<GridReadGuard> cell_lock(cell, p);
-                            cell_lock->Visit(cell_lock, grid_searcher, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
-
+                            m_caster->VisitNearbyGridObject(max_range, searcher);
                             if(!result)
-                            {
-                                TypeContainerVisitor<Trinity::WorldObjectSearcher<Trinity::CannibalizeObjectCheck >, WorldTypeMapContainer > world_searcher(searcher);
-                                cell_lock->Visit(cell_lock, world_searcher, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
-                            }
+                                m_caster->VisitNearbyWorldObject(max_range, searcher);
+
 
                             if(result)
                             {
@@ -1400,24 +1341,10 @@ void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, Unit* pUnitTarget, f
     if(m_spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE)
         max_range += unMaxTargets * CHAIN_SPELL_JUMP_RADIUS;
 
-    CellPair p(Trinity::ComputeCellPair(m_caster->GetPositionX(), m_caster->GetPositionY()));
-    Cell cell(p);
-    cell.data.Part.reserved = ALL_DISTRICT;
-    cell.SetNoCreate();
-
     std::list<Unit *> tempUnitMap;
-
-    {
-        Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(pUnitTarget, m_caster, max_range);
-        Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(tempUnitMap, u_check);
-
-        TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
-        TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
-
-        CellLock<GridReadGuard> cell_lock(cell, p);
-        cell_lock->Visit(cell_lock, world_unit_searcher, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
-        cell_lock->Visit(cell_lock, grid_unit_searcher, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
-    }
+    Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(pUnitTarget, m_caster, max_range);
+    Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(tempUnitMap, u_check);
+    m_caster->VisitNearbyObject(max_range, searcher);
 
     tempUnitMap.sort(TargetDistanceOrder(pUnitTarget));
 
@@ -1482,68 +1409,41 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, const u
         m_caster->GetMap()->VisitWorld(x, y, radius, notifier);
     else
         m_caster->GetMap()->VisitAll(x, y, radius, notifier);
-
-    /*float x_off, y_off;
-    CellPair p(Trinity::ComputeCellPair(x, y, x_off, y_off));
-    Cell cell(p);
-    cell.data.Part.reserved = ALL_DISTRICT;
-    cell.SetNoCreate();
-    CellLock<GridReadGuard> cell_lock(cell, p);
-
-    Trinity::SpellNotifierCreatureAndPlayer notifier(*this, TagUnitMap, radius, type, TargetType, entry);
-    
-    //if(TargetType != SPELL_TARGETS_ENTRY)
-    {
-        TypeContainerVisitor<Trinity::SpellNotifierCreatureAndPlayer, WorldTypeMapContainer > world_object_notifier(notifier);
-        cell_lock->Visit(cell_lock, world_object_notifier, *m_caster->GetMap(), radius, x_off, y_off);
-    }
-    if(!(m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_PLAYERS_ONLY))
-    {
-        TypeContainerVisitor<Trinity::SpellNotifierCreatureAndPlayer, GridTypeMapContainer >  grid_object_notifier(notifier);
-        cell_lock->Visit(cell_lock, grid_object_notifier, *m_caster->GetMap(), radius, x_off, y_off);
-    }*/
 }
 
 Unit* Spell::SearchNearbyTarget(float radius, SpellTargets TargetType, uint32 entry)
 {
-    CellPair p(Trinity::ComputeCellPair(m_caster->GetPositionX(), m_caster->GetPositionY()));
-    Cell cell(p);
-    cell.data.Part.reserved = ALL_DISTRICT;
-    cell.SetNoCreate();
-    CellLock<GridReadGuard> cell_lock(cell, p);
-
     Unit* target = NULL;
     switch(TargetType)
     {
         case SPELL_TARGETS_ENTRY:
         {
-            Creature* target = NULL;
-            Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck u_check(*m_caster, entry, true, radius);
-            Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(target, u_check);
-            TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, WorldTypeMapContainer >  world_unit_searcher(searcher);
-            TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
-            cell_lock->Visit(cell_lock, world_unit_searcher, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
-            cell_lock->Visit(cell_lock, grid_unit_searcher, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
-            return target;
-        }break;
+            if(entry)
+            {
+                Creature* target = NULL;
+                Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck u_check(*m_caster, entry, true, radius);
+                Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(target, u_check);
+                m_caster->VisitNearbyObject(radius, searcher);
+                return target;
+            }
+            else
+            {
+                //TODO: nearest player
+                return NULL;
+            }
+        }
         default:
         case SPELL_TARGETS_AOE_DAMAGE:
         {
             Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(m_caster, m_caster, radius);
             Trinity::UnitLastSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(target, u_check);
-            TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
-            TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
-            cell_lock->Visit(cell_lock, world_unit_searcher, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
-            cell_lock->Visit(cell_lock, grid_unit_searcher, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
+            m_caster->VisitNearbyObject(radius, searcher);
         }break;
         case SPELL_TARGETS_FRIENDLY:
         {
             Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(m_caster, m_caster, radius);
             Trinity::UnitLastSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(target, u_check);
-            TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
-            TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
-            cell_lock->Visit(cell_lock, world_unit_searcher, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
-            cell_lock->Visit(cell_lock, grid_unit_searcher, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
+            m_caster->VisitNearbyObject(radius, searcher);
         }break;
     }
     return target;
@@ -1775,16 +1675,9 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
 
                         if(i_spellST->second.targetEntry)
                         {
-                            CellPair p(Trinity::ComputeCellPair(m_caster->GetPositionX(), m_caster->GetPositionY()));
-                            Cell cell(p);
-                            cell.data.Part.reserved = ALL_DISTRICT;
-
                             Trinity::NearestGameObjectEntryInObjectRangeCheck go_check(*m_caster,i_spellST->second.targetEntry,range);
                             Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck> checker(p_GameObject,go_check);
-
-                            TypeContainerVisitor<Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck>, GridTypeMapContainer > object_checker(checker);
-                            CellLock<GridReadGuard> cell_lock(cell, p);
-                            cell_lock->Visit(cell_lock, object_checker, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
+                            m_caster->VisitNearbyGridObject(range, checker);
 
                             if(p_GameObject)
                             {
@@ -1812,20 +1705,9 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                     {
                         Creature *p_Creature = NULL;
 
-                        CellPair p(Trinity::ComputeCellPair(m_caster->GetPositionX(), m_caster->GetPositionY()));
-                        Cell cell(p);
-                        cell.data.Part.reserved = ALL_DISTRICT;
-                        cell.SetNoCreate();             // Really don't know what is that???
-
                         Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck u_check(*m_caster,i_spellST->second.targetEntry,i_spellST->second.type!=SPELL_TARGET_TYPE_DEAD,range);
                         Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(p_Creature, u_check);
-
-                        TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, WorldTypeMapContainer >  world_creature_searcher(searcher);
-                        TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer >  grid_creature_searcher(searcher);
-
-                        CellLock<GridReadGuard> cell_lock(cell, p);
-                        cell_lock->Visit(cell_lock, world_creature_searcher, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
-                        cell_lock->Visit(cell_lock, grid_creature_searcher, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
+                        m_caster->VisitNearbyObject(range, searcher);
 
                         if(p_Creature )
                         {
