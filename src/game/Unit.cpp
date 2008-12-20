@@ -1793,51 +1793,9 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
             damageInfo->HitInfo     |= HITINFO_GLANCING;
             damageInfo->TargetState  = VICTIMSTATE_NORMAL;
             damageInfo->procEx|=PROC_EX_NORMAL_HIT;
-            float reducePercent = 1.0f;                     //damage factor
-            // calculate base values and mods
-            float baseLowEnd = 1.3;
-            float baseHighEnd = 1.2;
-            switch(getClass())                              // lowering base values for casters
-            {
-                case CLASS_SHAMAN:
-                case CLASS_PRIEST:
-                case CLASS_MAGE:
-                case CLASS_WARLOCK:
-                case CLASS_DRUID:
-                    baseLowEnd  -= 0.7;
-                    baseHighEnd -= 0.3;
-                    break;
-            }
-
-            float maxLowEnd = 0.6;
-            switch(getClass())                              // upper for melee classes
-            {
-                case CLASS_WARRIOR:
-                case CLASS_ROGUE:
-                    maxLowEnd = 0.91;                       //If the attacker is a melee class then instead the lower value of 0.91
-            }
-
-            // calculate values
-            int32 diff = damageInfo->target->GetDefenseSkillValue() - GetWeaponSkillValue(damageInfo->attackType);
-            float lowEnd  = baseLowEnd - ( 0.05f * diff );
-            float highEnd = baseHighEnd - ( 0.03f * diff );
-
-            // apply max/min bounds
-            if ( lowEnd < 0.01f )                           //the low end must not go bellow 0.01f
-                lowEnd = 0.01f;
-            else if ( lowEnd > maxLowEnd )                  //the smaller value of this and 0.6 is kept as the low end
-                lowEnd = maxLowEnd;
-
-            if ( highEnd < 0.2f )                           //high end limits
-                highEnd = 0.2f;
-            if ( highEnd > 0.99f )
-                highEnd = 0.99f;
-
-            if(lowEnd > highEnd)                            // prevent negative range size
-                lowEnd = highEnd;
-
-            reducePercent = lowEnd + rand_norm() * ( highEnd - lowEnd );
-
+            int32 leveldif = int32(pVictim->getLevel()) - int32(getLevel());
+            if (leveldif > 3) leveldif = 3;
+            float reducePercent = 1 - leveldif * 0.1f;
             damageInfo->cleanDamage += damageInfo->damage-uint32(reducePercent *  damageInfo->damage);
             damageInfo->damage   = uint32(reducePercent *  damageInfo->damage);
             break;
@@ -2690,13 +2648,10 @@ void Unit::DoAttackDamage (Unit *pVictim, uint32 *damage, CleanDamage *cleanDama
 
 void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool extra )
 {
-    if(hasUnitState(UNIT_STAT_CONFUSED | UNIT_STAT_STUNNED | UNIT_STAT_FLEEING) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED) )
+    if(hasUnitState(UNIT_STAT_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED) )
         return;
 
     if (!pVictim->isAlive())
-        return;
-
-    if(IsNonMeleeSpellCasted(false))
         return;
 
     CombatStart(pVictim);
@@ -9411,8 +9366,7 @@ bool Unit::IsDamageToThreatSpell(SpellEntry const * spellInfo) const
     uint64 flags = spellInfo->SpellFamilyFlags;
 
     if((family == 5 && flags == 256) ||                     //Searing Pain
-        (family == 6 && flags == 8192) ||                   //Mind Blast
-        (family == 11 && flags == 1048576))                 //Earth Shock
+        (family == SPELLFAMILY_SHAMAN && flags == SPELLFAMILYFLAG_SHAMAN_FROST_SHOCK))
         return true;
 
     return false;
