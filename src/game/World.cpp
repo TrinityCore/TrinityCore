@@ -70,6 +70,7 @@ volatile bool World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
 volatile uint32 World::m_worldLoopCounter = 0;
 
+float World::m_MaxVisibleDistance			  = DEFAULT_VISIBILITY_DISTANCE;
 float World::m_MaxVisibleDistanceForCreature  = DEFAULT_VISIBILITY_DISTANCE;
 float World::m_MaxVisibleDistanceForPlayer    = DEFAULT_VISIBILITY_DISTANCE;
 float World::m_MaxVisibleDistanceForObject    = DEFAULT_VISIBILITY_DISTANCE;
