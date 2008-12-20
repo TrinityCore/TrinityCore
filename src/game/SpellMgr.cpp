@@ -1925,6 +1925,48 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         }
     }
+
+    for(int i = 0; i < TOTAL_SPELL_EFFECTS; ++i)
+    {
+        switch(i)
+        {
+            case SPELL_EFFECT_SUMMON:
+            case SPELL_EFFECT_SUMMON_WILD:
+            case SPELL_EFFECT_SUMMON_GUARDIAN:
+            case SPELL_EFFECT_TRANS_DOOR: //summon object
+            case SPELL_EFFECT_SUMMON_PET:
+            case SPELL_EFFECT_SUMMON_POSSESSED:
+            case SPELL_EFFECT_SUMMON_TOTEM:
+            case SPELL_EFFECT_SUMMON_OBJECT_WILD:
+            case SPELL_EFFECT_SUMMON_TOTEM_SLOT1:
+            case SPELL_EFFECT_SUMMON_TOTEM_SLOT2:
+            case SPELL_EFFECT_SUMMON_TOTEM_SLOT3:
+            case SPELL_EFFECT_SUMMON_TOTEM_SLOT4:
+            case SPELL_EFFECT_SUMMON_CRITTER:
+            case SPELL_EFFECT_SUMMON_OBJECT_SLOT1:
+            case SPELL_EFFECT_SUMMON_OBJECT_SLOT2:
+            case SPELL_EFFECT_SUMMON_OBJECT_SLOT3:
+            case SPELL_EFFECT_SUMMON_OBJECT_SLOT4:
+            case SPELL_EFFECT_SUMMON_DEAD_PET:
+            case SPELL_EFFECT_SUMMON_DEMON:
+            case SPELL_EFFECT_ADD_FARSIGHT:
+            case SPELL_EFFECT_TRIGGER_SPELL_2: //ritual of summon
+            case SPELL_EFFECT_TRIGGER_MISSILE:
+                EffectTargetType[i] = SPELL_REQUIRE_DEST;
+                break;
+            case SPELL_EFFECT_PARRY: // 0
+            case SPELL_EFFECT_BLOCK: // 0
+            case SPELL_EFFECT_SKILL: // always with dummy 3 as A
+            case SPELL_EFFECT_LEARN_SPELL: // 0
+            case SPELL_EFFECT_TRADE_SKILL: // 0 or 1
+            case SPELL_EFFECT_PROFICIENCY: // 0
+                EffectTargetType[i] = SPELL_REQUIRE_NONE;
+                break;
+            default:
+                EffectTargetType[i] = SPELL_REQUIRE_UNIT;
+                break;
+        }
+    }
 }
 
 void SpellMgr::LoadSpellLinked()

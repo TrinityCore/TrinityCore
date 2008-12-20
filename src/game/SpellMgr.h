@@ -233,6 +233,13 @@ enum SpellDisableTypes
     SPELL_DISABLE_CREATURE = 2
 };
 
+enum SpellEffectTargetTypes
+{
+    SPELL_REQUIRE_NONE,
+    SPELL_REQUIRE_UNIT,
+    SPELL_REQUIRE_DEST,
+};
+
 //Some SpellFamilyFlags
 #define SPELLFAMILYFLAG_ROGUE_VANISH            0x000000800LL
 #define SPELLFAMILYFLAG_ROGUE_STEALTH           0x000400000LL
@@ -917,6 +924,8 @@ class SpellMgr
             SpellLinkedMap::const_iterator itr = mSpellLinkedMap.find(spell_id);
             return itr != mSpellLinkedMap.end() ? &(itr->second) : NULL;
         }
+
+        SpellEffectTargetTypes EffectTargetType[TOTAL_SPELL_EFFECTS];
 
         // Modifiers
     public:
