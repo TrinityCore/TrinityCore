@@ -303,8 +303,8 @@ CreatureAI* GetAI_boss_exarch_maladaar(Creature *_Creature)
     return new boss_exarch_maladaarAI (_Creature);
 }
 
-#define SPELL_MORTAL_STRIKE         16856
-#define SPELL_SUNDER_ARMOR          16145
+#define SPELL_AV_MORTAL_STRIKE          16856
+#define SPELL_AV_MORTAL_STRIKE          16856
 
 struct TRINITY_DLL_DECL mob_avatar_of_martyredAI : public ScriptedAI
 {
@@ -328,7 +328,7 @@ struct TRINITY_DLL_DECL mob_avatar_of_martyredAI : public ScriptedAI
 
         if (Mortal_Strike_timer < diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_MORTAL_STRIKE);
+            DoCast(m_creature->getVictim(), SPELL_AV_MORTAL_STRIKE);
             Mortal_Strike_timer = 10000 + rand()%20 * 1000;
         } else Mortal_Strike_timer -= diff;
 

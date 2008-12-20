@@ -17,13 +17,14 @@
 /* ScriptData
 SDName: Netherstorm
 SD%Complete: 75
-SDComment: Quest support: 10438, 10652 (special flight paths), 10299,10321,10322,10323,10329,10330,10338,10365(Shutting Down Manaforge)
+SDComment: Quest support: 10438, 10652 (special flight paths), 10299,10321,10322,10323,10329,10330,10338,10365(Shutting Down Manaforge), 10198
 SDCategory: Netherstorm
 EndScriptData */
 
 /* ContentData
 npc_manaforge_control_console
 go_manaforge_control_console
+npc_commander_dawnforge
 npc_protectorate_nether_drake
 npc_veronia
 EndContentData */
@@ -331,6 +332,341 @@ bool GOHello_go_manaforge_control_console(Player *player, GameObject* _GO)
 }
 
 /*######
+## npc_commander_dawnforge
+######*/
+	 	 
+// The Speech of Dawnforge, Ardonis & Pathaleon
+#define SAY_COMMANDER_DAWNFORGE_1           -1000128
+#define SAY_ARCANIST_ARDONIS_1              -1000129
+#define SAY_COMMANDER_DAWNFORGE_2           -1000130
+#define SAY_PATHALEON_CULATOR_IMAGE_1       -1000131
+#define SAY_COMMANDER_DAWNFORGE_3           -1000132
+#define SAY_PATHALEON_CULATOR_IMAGE_2       -1000133
+#define SAY_PATHALEON_CULATOR_IMAGE_2_1     -1000134
+#define SAY_PATHALEON_CULATOR_IMAGE_2_2     -1000135
+#define SAY_COMMANDER_DAWNFORGE_4           -1000136
+#define SAY_ARCANIST_ARDONIS_2              -1000136
+#define SAY_COMMANDER_DAWNFORGE_5           -1000137
+
+#define QUEST_INFO_GATHERING                10198
+#define SPELL_SUNFURY_DISGUISE              34603
+	 	 
+// Entries of Arcanist Ardonis, Commander Dawnforge, Pathaleon the Curators Image
+int CreatureEntry[3][1] =
+{
+	{19830},                                                // Ardonis
+	{19831},                                                // Dawnforge
+	{21504}                                                 // Pathaleon
+};
+
+struct TRINITY_DLL_DECL npc_commander_dawnforgeAI : public ScriptedAI
+{
+	npc_commander_dawnforgeAI(Creature *c) : ScriptedAI(c) { Reset (); }
+
+
+	uint64 playerGUID;
+	uint64 ardonisGUID;
+	uint64 pathaleonGUID;
+
+
+	uint32 Phase;
+	uint32 PhaseSubphase;
+	uint32 Phase_Timer;
+	bool isEvent;
+	 	 
+	float angle_dawnforge;
+	float angle_ardonis;
+	 	 
+	void Reset()
+	{
+		playerGUID = 0;
+		ardonisGUID = 0;
+		pathaleonGUID = 0;
+
+		Phase = 1;
+		PhaseSubphase = 0;
+		Phase_Timer = 4000;
+		isEvent = false;
+	}
+	 	 
+	void Aggro(Unit *who) { }
+
+	//Select any creature in a grid
+	Creature* SelectCreatureInGrid(uint32 entry, float range)
+	{
+		Creature* pCreature = NULL;
+
+		CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
+		Cell cell(pair);
+		cell.data.Part.reserved = ALL_DISTRICT;
+		cell.SetNoCreate();
+	 	 
+		Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck creature_check(*m_creature, entry, true, range);
+		Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(pCreature, creature_check);
+	 	 
+		TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer> creature_searcher(searcher);
+	 	 
+		CellLock<GridReadGuard> cell_lock(cell, pair);
+		cell_lock->Visit(cell_lock, creature_searcher,*(m_creature->GetMap()));
+
+		return pCreature;
+	}
+	 	 
+	void JustSummoned(Creature *summoned)
+	{
+		pathaleonGUID = summoned->GetGUID();
+	}
+	 	 
+	// Emote Ardonis and Pathaleon
+	void Turn_to_Pathaleons_Image()
+	{
+		Unit *ardonis = Unit::GetUnit(*m_creature,ardonisGUID);
+		Unit *pathaleon = Unit::GetUnit(*m_creature,pathaleonGUID);
+		Player *player = (Player*)Unit::GetUnit(*m_creature,playerGUID);
+ 	 
+		if (!ardonis || !pathaleon || !player)
+			return;
+	 	 
+		//Calculate the angle to Pathaleon
+		angle_dawnforge = m_creature->GetAngle(pathaleon->GetPositionX(), pathaleon->GetPositionY());
+		angle_ardonis = ardonis->GetAngle(pathaleon->GetPositionX(), pathaleon->GetPositionY());
+
+		//Turn Dawnforge and update
+		m_creature->SetOrientation(angle_dawnforge);
+		m_creature->SendUpdateToPlayer(player);
+		//Turn Ardonis and update
+		ardonis->SetOrientation(angle_ardonis);
+		ardonis->SendUpdateToPlayer(player);
+
+		//Set them to kneel
+		m_creature->SetStandState(PLAYER_STATE_KNEEL);
+		ardonis->SetStandState(PLAYER_STATE_KNEEL);
+	}
+	 	 
+	//Set them back to each other
+	void Turn_to_eachother()
+	{
+		if (Unit *ardonis = Unit::GetUnit(*m_creature,ardonisGUID))
+		{
+			Player *player = (Player*)Unit::GetUnit(*m_creature,playerGUID);
+
+			if (!player)
+				return;
+	 	 
+			angle_dawnforge = m_creature->GetAngle(ardonis->GetPositionX(), ardonis->GetPositionY());
+			angle_ardonis = ardonis->GetAngle(m_creature->GetPositionX(), m_creature->GetPositionY());
+	 	 
+			//Turn Dawnforge and update
+			m_creature->SetOrientation(angle_dawnforge);
+			m_creature->SendUpdateToPlayer(player);
+			//Turn Ardonis and update
+			ardonis->SetOrientation(angle_ardonis);
+			ardonis->SendUpdateToPlayer(player);
+
+			//Set state
+			m_creature->SetStandState(PLAYER_STATE_NONE);
+			ardonis->SetStandState(PLAYER_STATE_NONE);
+		}
+	}
+	 	 
+	bool CanStartEvent(Player *player)
+	{
+		if (!isEvent)
+		{
+			Creature *ardonis = SelectCreatureInGrid(CreatureEntry[0][0], 10.0f);
+			if (!ardonis)
+				return false;
+
+			ardonisGUID = ardonis->GetGUID();
+			playerGUID = player->GetGUID();
+	 	 
+			isEvent = true;
+
+			Turn_to_eachother();
+			return true;
+		}
+	 	 
+		debug_log("SD2: npc_commander_dawnforge event already in progress, need to wait.");
+		return false;
+	}
+
+	void UpdateAI(const uint32 diff)
+	{
+		//Is event even running?
+		if (!isEvent)
+			return;
+
+		//Phase timing
+		if (Phase_Timer >= diff)
+		{
+			Phase_Timer -= diff;
+			return;
+		}
+	 	 
+		Unit *ardonis = Unit::GetUnit(*m_creature,ardonisGUID);
+		Unit *pathaleon = Unit::GetUnit(*m_creature,pathaleonGUID);
+		Player *player = (Player*)Unit::GetUnit(*m_creature,playerGUID);
+	 	 
+		if (!ardonis || !player)
+		{
+			Reset();
+			return;
+		}
+	 	 
+		if (Phase > 4 && !pathaleon)
+		{
+			Reset();
+			return;
+		}
+ 	 
+		//Phase 1 Dawnforge say
+		switch (Phase)
+		{
+		case 1:
+			DoScriptText(SAY_COMMANDER_DAWNFORGE_1, m_creature);
+			++Phase;
+			Phase_Timer = 16000;
+			break;
+			//Phase 2 Ardonis say
+		case 2:
+			DoScriptText(SAY_ARCANIST_ARDONIS_1, ardonis);
+			++Phase;
+			Phase_Timer = 16000;
+			break;
+			//Phase 3 Dawnforge say
+		case 3:
+			DoScriptText(SAY_COMMANDER_DAWNFORGE_2, m_creature);
+			++Phase;
+			Phase_Timer = 16000;
+			break;
+			//Phase 4 Pathaleon spawns up to phase 9
+		case 4:
+			//spawn pathaleon's image
+			m_creature->SummonCreature(CreatureEntry[2][0], 2325.851563, 2799.534668, 133.084229, 6.038996, TEMPSUMMON_TIMED_DESPAWN, 90000);
+			++Phase;
+			Phase_Timer = 500;
+			break;
+			//Phase 5 Pathaleon say
+		case 5:
+			DoScriptText(SAY_PATHALEON_CULATOR_IMAGE_1, pathaleon);
+			++Phase;
+			Phase_Timer = 6000;
+			break;
+			//Phase 6
+		case 6:
+			switch(PhaseSubphase)
+			{
+				//Subphase 1: Turn Dawnforge and Ardonis
+			case 0:
+				Turn_to_Pathaleons_Image();
+				++PhaseSubphase;
+				Phase_Timer = 8000;
+				break;
+				//Subphase 2 Dawnforge say
+			case 1:
+				DoScriptText(SAY_COMMANDER_DAWNFORGE_3, m_creature);
+				PhaseSubphase = 0;
+				++Phase;
+				Phase_Timer = 8000;
+				break;
+			}
+			break;
+			//Phase 7 Pathaleons say 3 Sentence, every sentence need a subphase
+		case 7:
+			switch(PhaseSubphase)
+			{
+				//Subphase 1
+			case 0:
+				DoScriptText(SAY_PATHALEON_CULATOR_IMAGE_2, pathaleon);
+				++PhaseSubphase;
+				Phase_Timer = 12000;
+				break;
+				//Subphase 2
+			case 1:
+				DoScriptText(SAY_PATHALEON_CULATOR_IMAGE_2_1, pathaleon);
+				++PhaseSubphase;
+				Phase_Timer = 16000;
+				break;
+				//Subphase 3
+			case 2:
+				DoScriptText(SAY_PATHALEON_CULATOR_IMAGE_2_2, pathaleon);
+				PhaseSubphase = 0;
+				++Phase;
+				Phase_Timer = 10000;
+				break;
+			}
+			break;
+			//Phase 8 Dawnforge & Ardonis say
+		case 8:
+			DoScriptText(SAY_COMMANDER_DAWNFORGE_4, m_creature);
+			DoScriptText(SAY_ARCANIST_ARDONIS_2, ardonis);
+			++Phase;
+			Phase_Timer = 4000;
+			break;
+			//Phase 9 Pathaleons Despawn, Reset Dawnforge & Ardonis angle
+		case 9:
+			Turn_to_eachother();
+			//hide pathaleon, unit will despawn shortly
+			pathaleon->SetVisibility(VISIBILITY_OFF);
+			PhaseSubphase = 0;
+			++Phase;
+			Phase_Timer = 3000;
+			break;
+			//Phase 10 Dawnforge say
+		case 10:
+			DoScriptText(SAY_COMMANDER_DAWNFORGE_5, m_creature);
+			player->AreaExploredOrEventHappens(QUEST_INFO_GATHERING);
+			Reset();
+			break;
+		}
+	 }
+};
+	 	 
+CreatureAI* GetAI_npc_commander_dawnforge(Creature* _Creature)
+{
+	return new npc_commander_dawnforgeAI(_Creature);
+}
+	 	 
+Creature* SearchDawnforge(Player *source, uint32 entry, float range)
+{
+	Creature* pCreature = NULL;
+
+	CellPair pair(Trinity::ComputeCellPair(source->GetPositionX(), source->GetPositionY()));
+	Cell cell(pair);
+	cell.data.Part.reserved = ALL_DISTRICT;
+	cell.SetNoCreate();
+	 	 
+	Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck creature_check(*source, entry, true, range);
+	Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(pCreature, creature_check);
+
+	TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer> creature_searcher(searcher);
+	 	 
+	CellLock<GridReadGuard> cell_lock(cell, pair);
+	cell_lock->Visit(cell_lock, creature_searcher,*(source->GetMap()));
+	 	 
+	return pCreature;
+}
+	 	 
+bool AreaTrigger_at_commander_dawnforge(Player *player, AreaTriggerEntry *at)
+{
+	//if player lost aura or not have at all, we should not try start event.
+	if (!player->HasAura(SPELL_SUNFURY_DISGUISE,0))
+		return false;
+	 	 
+	if (player->isAlive() && player->GetQuestStatus(QUEST_INFO_GATHERING) == QUEST_STATUS_INCOMPLETE)
+	{
+		Creature* Dawnforge = SearchDawnforge(player, CreatureEntry[1][0], 30.0f);
+
+		if (!Dawnforge)
+			return false;
+	 	 
+		if (((npc_commander_dawnforgeAI*)Dawnforge->AI())->CanStartEvent(player))
+			return true;
+	}
+	return false;
+}
+
+/*######
 ## npc_protectorate_nether_drake
 ######*/
 
@@ -393,12 +729,14 @@ bool GossipSelect_npc_veronia(Player *player, Creature *_Creature, uint32 sender
 ## mob_phase_hunter
 ######*/
 
-#define SUMMONED_MOB        19595
-#define EMOTE_WEAK          "is very weak"
+#define SUMMONED_MOB            19595
+#define EMOTE_WEAK              "is very weak"
 
 // Spells
-#define SPELL_PHASE_SLIP    36574
-#define SPELL_MANA_BURN     13321
+#define SPELL_PHASE_SLIP        36574
+#define SPELL_MANA_BURN         13321
+#define SPELL_MATERIALIZE       34804
+#define SPELL_DE_MATERIALIZE    34804
 
 struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
 {
@@ -406,6 +744,8 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
     mob_phase_hunterAI(Creature *c) : ScriptedAI(c) {Reset();}
     
     bool Weak;
+	bool Materialize;
+
     int WeakPercent;
     uint32 PlayerGUID;
     uint32 Health;
@@ -416,6 +756,8 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
     void Reset()
     {
         Weak = false;
+		Materialize = false;
+
         WeakPercent = 25 + (rand()%16); // 25-40
         PlayerGUID = 0;
         ManaBurnTimer = 5000 + (rand()%3 * 1000); // 5-8 sec cd
@@ -426,8 +768,19 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
         PlayerGUID = who->GetGUID();
     }
 
+	void SpellHit(Unit *caster, const SpellEntry *spell)
+	{
+		DoCast(m_creature, SPELL_DE_MATERIALIZE);
+	}
+
     void UpdateAI(const uint32 diff)
     {
+
+		if(!Materialize)
+		{
+			DoCast(m_creature, SPELL_MATERIALIZE);
+			Materialize = true;
+		}
 
         Player* target = NULL;
         target = ((Player*)Unit::GetUnit((*m_creature), PlayerGUID));
@@ -500,6 +853,16 @@ void AddSC_netherstorm()
     newscript->Name="npc_manaforge_control_console";
     newscript->GetAI = GetAI_npc_manaforge_control_console;
     newscript->RegisterSelf();
+
+	newscript = new Script;
+	newscript->Name = "npc_commander_dawnforge";
+	newscript->GetAI = GetAI_npc_commander_dawnforge;
+	newscript->RegisterSelf();
+	 	 
+	newscript = new Script;
+	newscript->Name = "at_commander_dawnforge";
+	newscript->pAreaTrigger = &AreaTrigger_at_commander_dawnforge;
+	newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_protectorate_nether_drake";
