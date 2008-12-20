@@ -454,6 +454,13 @@ Map::LoadGrid(const Cell& cell, bool no_unload)
     //LoadVMap(63-cell.GridX(),63-cell.GridY());
 }
 
+void Map::LoadGrid(float x, float y)
+{
+    CellPair pair = Trinity::ComputeCellPair(x, y);
+    Cell cell(pair);
+    EnsureGridLoadedForPlayer(cell, NULL, false);
+}
+
 bool Map::Add(Player *player)
 {
     player->GetMapRef().link(this, player);
