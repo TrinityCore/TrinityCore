@@ -1215,11 +1215,6 @@ Ra.Secure = 1
 #	PlayerStart.MapsExplored
 #		Players will start with all maps explored if enabled
 #
-#	PlayerInstantLogout
-#		Enable or disable instant logout for all players (NOT in combat/while dueling/while falling)
-#		Default: 0 - off
-#			 	1 - on
-#
 #	MusicInBattleground
 #		If enabled, "L70ETC - Power of the horde" will be played when BG starts ;)
 #
@@ -1261,7 +1256,6 @@ Ra.Secure = 1
 PlayerStart.AllReputation = 0
 PlayerStart.AllSpells = 0
 PlayerStart.MapsExplored = 0
-PlayerInstantLogout = 0
 MusicInBattleground = 0
 HonorPointsAfterDuel = 0
 AlwaysMaxWeaponSkill = 0

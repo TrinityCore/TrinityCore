@@ -656,12 +656,22 @@ void Map::Update(const uint32 &t_diff)
         unit->m_Notified = true;
         if(!unit->IsInWorld())
             continue;
-        CellPair val = Trinity::ComputeCellPair(unit->GetPositionX(), unit->GetPositionY());
-        Cell cell(val);
+        //CellPair val = Trinity::ComputeCellPair(unit->GetPositionX(), unit->GetPositionY());
+        //Cell cell(val);
+        //if(unit->GetTypeId() == TYPEID_PLAYER)
+        //    PlayerRelocationNotify((Player*)unit, cell, val);
+        //else
+        //    CreatureRelocationNotify((Creature*)unit, cell, val);
         if(unit->GetTypeId() == TYPEID_PLAYER)
-            PlayerRelocationNotify((Player*)unit, cell, val);
+        {
+            Trinity::PlayerRelocationNotifier notifier(*((Player*)unit));
+            VisitAll(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
+        }
         else
-            CreatureRelocationNotify((Creature*)unit, cell, val);
+        {
+            Trinity::CreatureRelocationNotifier notifier(*((Creature*)unit));
+            VisitAll(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
+        }
     }
     for(std::vector<uint64>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
     {
