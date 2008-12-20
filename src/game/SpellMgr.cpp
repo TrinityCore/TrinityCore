@@ -1919,6 +1919,7 @@ void SpellMgr::LoadSpellCustomAttr()
             tempSpell->MaxAffectedTargets = 5;
             break;
         case 8122: case 8124: case 10888: case 10890: // Psychic Scream
+        case 12494: // Frostbite
             tempSpell->Attributes |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
             break;
         default:
