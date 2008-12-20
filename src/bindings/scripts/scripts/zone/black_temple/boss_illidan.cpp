@@ -1060,13 +1060,16 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
 
     void KillAllElites()
     {
-        std::list<HostilReference*>::iterator itr;
-        for(itr = m_creature->getThreatManager().getThreatList().begin(); itr != m_creature->getThreatManager().getThreatList().end(); ++itr)
+        std::list<HostilReference*>& threatList = m_creature->getThreatManager().getThreatList();
+        std::vector<Unit*> eliteList;
+        for(std::list<HostilReference*>::iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
         {
             Unit* pUnit = Unit::GetUnit((*m_creature), (*itr)->getUnitGuid());
-            if(pUnit && (pUnit->GetTypeId() == TYPEID_UNIT) && (pUnit->GetEntry() == ILLIDARI_ELITE))
-                pUnit->setDeathState(JUST_DIED);
+            if(pUnit && pUnit->GetEntry() == ILLIDARI_ELITE)
+                eliteList.push_back(pUnit);
         }
+        for(std::vector<Unit*>::iterator itr = eliteList.begin(); itr != eliteList.end(); ++itr)
+            (*itr)->setDeathState(JUST_DIED);
         EnterEvadeMode();
     }
 
