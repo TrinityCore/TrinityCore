@@ -399,11 +399,13 @@ void WorldSession::SendSpiritResurrect()
             _player->TeleportTo(corpseGrave->map_id, corpseGrave->x, corpseGrave->y, corpseGrave->z, _player->GetOrientation());
         // or update at original position
         else
-            ObjectAccessor::UpdateVisibilityForPlayer(_player);
+            //ObjectAccessor::UpdateVisibilityForPlayer(_player);
+            _player->SetToNotify();
     }
     // or update at original position
     else
-        ObjectAccessor::UpdateVisibilityForPlayer(_player);
+        //ObjectAccessor::UpdateVisibilityForPlayer(_player);
+        _player->SetToNotify();
 
     _player->SaveToDB();
 }

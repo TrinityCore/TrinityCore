@@ -3066,9 +3066,9 @@ void Aura::HandleFeignDeath(bool apply, bool Real)
         */
 
         std::list<Unit*> targets;
-        Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(m_target, m_target, 100);
+        Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(m_target, m_target, World::GetMaxVisibleDistance());
         Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(targets, u_check);
-        m_target->VisitNearbyObject(100, searcher);
+        m_target->VisitNearbyObject(World::GetMaxVisibleDistance(), searcher);
         for(std::list<Unit*>::iterator iter = targets.begin(); iter != targets.end(); ++iter)
         {
             if(!(*iter)->hasUnitState(UNIT_STAT_CASTING))
@@ -3187,7 +3187,7 @@ void Aura::HandleModStealth(bool apply, bool Real)
             if(m_target->GetVisibility()!=VISIBILITY_OFF)
             {
                 //m_target->SetVisibility(VISIBILITY_GROUP_NO_DETECT);
-                m_target->SetVisibility(VISIBILITY_OFF);
+                //m_target->SetVisibility(VISIBILITY_OFF);
                 m_target->SetVisibility(VISIBILITY_GROUP_STEALTH);
             }
 
@@ -3320,7 +3320,8 @@ void Aura::HandleInvisibilityDetect(bool apply, bool Real)
             m_target->m_detectInvisibilityMask |= (1 << m_modifier.m_miscvalue);
     }
     if(Real && m_target->GetTypeId()==TYPEID_PLAYER)
-        ObjectAccessor::UpdateVisibilityForPlayer((Player*)m_target);
+        //ObjectAccessor::UpdateVisibilityForPlayer((Player*)m_target);
+        m_target->SetToNotify();
 }
 
 void Aura::HandleAuraModRoot(bool apply, bool Real)

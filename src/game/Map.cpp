@@ -476,8 +476,8 @@ bool Map::Add(Player *player)
     SendInitSelf(player);
     SendInitTransports(player);
 
-    UpdatePlayerVisibility(player,cell,p);
-    UpdateObjectsVisibilityFor(player,cell,p);
+    //UpdatePlayerVisibility(player,cell,p);
+    //UpdateObjectsVisibilityFor(player,cell,p);
 
     //AddNotifier(player,cell,p);
     AddUnitToNotify(player);
@@ -664,14 +664,16 @@ void Map::Update(const uint32 &t_diff)
         unit->m_Notified = true;
         if(!unit->IsInWorld())
             continue;
-        //CellPair val = Trinity::ComputeCellPair(unit->GetPositionX(), unit->GetPositionY());
-        //Cell cell(val);
+        CellPair val = Trinity::ComputeCellPair(unit->GetPositionX(), unit->GetPositionY());
+        Cell cell(val);
         //if(unit->GetTypeId() == TYPEID_PLAYER)
         //    PlayerRelocationNotify((Player*)unit, cell, val);
         //else
         //    CreatureRelocationNotify((Creature*)unit, cell, val);
         if(unit->GetTypeId() == TYPEID_PLAYER)
         {
+            UpdatePlayerVisibility((Player*)unit, cell, val);
+            UpdateObjectsVisibilityFor((Player*)unit, cell, val);
             Trinity::PlayerRelocationNotifier notifier(*((Player*)unit));
             VisitAll(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
         }
@@ -891,8 +893,8 @@ Map::PlayerRelocation(Player *player, float x, float y, float z, float orientati
     }
 
     // if move then update what player see and who seen
-    UpdatePlayerVisibility(player,new_cell,new_val);
-    UpdateObjectsVisibilityFor(player,new_cell,new_val);
+    //UpdatePlayerVisibility(player,new_cell,new_val);
+    //UpdateObjectsVisibilityFor(player,new_cell,new_val);
 
     // also update what possessing player sees
     if(player->isPossessedByPlayer())
