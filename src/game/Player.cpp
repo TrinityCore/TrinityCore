@@ -16036,7 +16036,8 @@ void Player::ResetInstances(uint8 method)
         // if the map is loaded, reset it
         Map *map = MapManager::Instance().FindMap(p->GetMapId(), p->GetInstanceId());
         if(map && map->IsDungeon())
-            ((InstanceMap*)map)->Reset(method);
+            if(!((InstanceMap*)map)->Reset(method))
+                continue;
 
         // since this is a solo instance there should not be any players inside
         if(method == INSTANCE_RESET_ALL || method == INSTANCE_RESET_CHANGE_DIFFICULTY)
