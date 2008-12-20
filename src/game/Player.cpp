@@ -473,7 +473,7 @@ Player::~Player ()
         for(BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
             itr->second.save->RemovePlayer(this);
 
-    if (isPossessing())
+    if (m_uint32Values && isPossessing())
         RemovePossess(false);
 
     delete m_declinedname;

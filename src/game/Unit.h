@@ -1084,7 +1084,13 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool isCharmed() const { return GetCharmerGUID() != 0; }
         bool isPossessed() const { return m_isPossessed; }
         bool isPossessedByPlayer() const { return m_isPossessed && IS_PLAYER_GUID(GetCharmerGUID()); }
-        bool isPossessing() const { return GetCharm() && GetCharm()->isPossessed(); }
+        bool isPossessing() const
+        {
+            if(Unit *u = GetCharm())
+                return u->isPossessed();
+            else
+                return false;
+        }
         bool isPossessing(Unit* u) const { return u->isPossessed() && GetCharmGUID() == u->GetGUID(); }
         bool isPossessingCreature() const { return isPossessing() && IS_CREATURE_GUID(GetCharmGUID()); }
 
