@@ -55,7 +55,7 @@ struct TRINITY_DLL_DECL boss_murmurAI : public Scripted_NoMovementAI
         pTarget = 0;
 
         //database should have `RegenHealth`=0 to prevent regen
-        uint32 hp = m_creature->GetMaxHealth()*0.4;
+        uint32 hp = (m_creature->GetMaxHealth()*40)/100;
         if (hp)
             m_creature->SetHealth(hp);
     }
