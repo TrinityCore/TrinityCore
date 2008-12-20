@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Shadowmoon_Valley
 SD%Complete: 100
-SDComment: Quest support: 10519, 10583, 10601, 10814, 10804, 10854, 11082, 11108. Vendor Drake Dealer Hurlunk. Teleporter TO Invasion Point: Cataclysm
+SDComment: Quest support: 10519, 10583, 10601, 10814, 10804, 10854, 11082. Vendor Drake Dealer Hurlunk.
 SDCategory: Shadowmoon Valley
 EndScriptData */
 
@@ -25,7 +25,6 @@ EndScriptData */
 mob_mature_netherwing_drake
 mob_enslaved_netherwing_drake
 npc_drake_dealer_hurlunk
-npc_invis_legion_teleporter
 npcs_flanis_swiftwing_and_kagrosh
 npc_murkblood_overseer
 npc_neltharaku
@@ -409,68 +408,6 @@ bool GossipSelect_npc_drake_dealer_hurlunk(Player *player, Creature *_Creature, 
         player->SEND_VENDORLIST( _Creature->GetGUID() );
 
     return true;
-}
-
-/*######
-## npc_invis_legion_teleporter
-######*/
-
-#define SPELL_TELE_A_TO   37387
-#define SPELL_TELE_H_TO   37389
-
-struct TRINITY_DLL_DECL npc_invis_legion_teleporterAI : public ScriptedAI
-{
-    npc_invis_legion_teleporterAI(Creature *c) : ScriptedAI(c) {Reset();}
-
-    uint64 PlayerGuid;
-    uint32 TeleTimer;
-
-    void Reset()
-    {
-        PlayerGuid=0;
-        TeleTimer = 5000;
-    }
-
-    void Aggro(Unit* who)
-    {
-    }
-
-    void MoveInLineOfSight(Unit *who)
-    {
-        if (!who || who->GetTypeId() != TYPEID_PLAYER)
-            return;
-
-        if(who->GetTypeId() == TYPEID_PLAYER && m_creature->GetDistance(who)<4)
-        {
-            if (who->isAlive() || !who->isInCombat())
-                PlayerGuid = who->GetGUID();
-        }
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if(TeleTimer < diff)
-        {
-            if(PlayerGuid)
-            {
-                Player* player = ((Player*)Unit::GetUnit((*m_creature), PlayerGuid));
-
-                if(m_creature->GetDistance(player)<3)
-                {
-                    if(player->GetTeam()== ALLIANCE && player->GetQuestRewardStatus(10589))
-                        player->CastSpell(player,SPELL_TELE_A_TO,false);
-                    if(player->GetTeam()== HORDE && player->GetQuestRewardStatus(10604))
-                        player->CastSpell(player,SPELL_TELE_H_TO,false);
-                }
-                PlayerGuid=0;
-            }
-            TeleTimer = 5000;
-        }else TeleTimer -= diff;
-    }
-};
-CreatureAI* GetAI_npc_invis_legion_teleporter(Creature *_Creature)
-{
-    return new npc_invis_legion_teleporterAI (_Creature);
 }
 
 /*######
@@ -1122,11 +1059,6 @@ void AddSC_shadowmoon_valley()
     newscript->Name="npc_drake_dealer_hurlunk";
     newscript->pGossipHello =  &GossipHello_npc_drake_dealer_hurlunk;
     newscript->pGossipSelect = &GossipSelect_npc_drake_dealer_hurlunk;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name="npc_invis_legion_teleporter";
-    newscript->GetAI = GetAI_npc_invis_legion_teleporter;
     newscript->RegisterSelf();
 
     newscript = new Script;
