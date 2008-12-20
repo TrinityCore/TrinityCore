@@ -161,6 +161,7 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         bool GetUnloadFlag(const GridPair &p) const { return getNGrid(p.x_coord, p.y_coord)->getUnloadFlag(); }
         void SetUnloadFlag(const GridPair &p, bool unload) { getNGrid(p.x_coord, p.y_coord)->setUnloadFlag(unload); }
         void LoadGrid(const Cell& cell, bool no_unload = false);
+        void LoadGrid(float x, float y);
         bool UnloadGrid(const uint32 &x, const uint32 &y, bool pForce);
         virtual void UnloadAll(bool pForce);
 
