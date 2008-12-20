@@ -16686,33 +16686,14 @@ void Player::SetRestBonus (float rest_bonus_new)
 void Player::HandleStealthedUnitsDetection()
 {
     std::list<Unit*> stealthedUnits;
-
-    CellPair p(Trinity::ComputeCellPair(GetPositionX(),GetPositionY()));
-    Cell cell(p);
-    cell.data.Part.reserved = ALL_DISTRICT;
-    cell.SetNoCreate();
-
     Trinity::AnyStealthedCheck u_check;
     Trinity::UnitListSearcher<Trinity::AnyStealthedCheck > searcher(stealthedUnits, u_check);
+    VisitNearbyObject(World::GetMaxVisibleDistance(), searcher);
 
-    TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyStealthedCheck >, WorldTypeMapContainer > world_unit_searcher(searcher);
-    TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyStealthedCheck >, GridTypeMapContainer >  grid_unit_searcher(searcher);
-
-    CellLock<GridReadGuard> cell_lock(cell, p);
-    cell_lock->Visit(cell_lock, world_unit_searcher, *MapManager::Instance().GetMap(GetMapId(), this));
-    cell_lock->Visit(cell_lock, grid_unit_searcher, *MapManager::Instance().GetMap(GetMapId(), this));
-
-    for (std::list<Unit*>::iterator i = stealthedUnits.begin(); i != stealthedUnits.end();)
+    for (std::list<Unit*>::iterator i = stealthedUnits.begin(); i != stealthedUnits.end(); ++i)
     {
-        if((*i)==this)
+        if (!HaveAtClient(*i) && canSeeOrDetect(*i, true))
         {
-            i = stealthedUnits.erase(i);
-            continue;
-        }
-
-        if ((*i)->isVisibleForOrDetect(this,true))
-        {
-
             (*i)->SendUpdateToPlayer(this);
             m_clientGUIDs.insert((*i)->GetGUID());
 
@@ -16734,12 +16715,7 @@ void Player::HandleStealthedUnitsDetection()
                         ((Unit*)(*i))->SendAttackStart(((Unit*)(*i))->getVictim());
                 }
             }
-
-            i = stealthedUnits.erase(i);
-            continue;
         }
-
-        ++i;
     }
 }
 
