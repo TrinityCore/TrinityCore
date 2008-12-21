@@ -29,6 +29,115 @@
 
 SpellMgr::SpellMgr()
 {
+    for(int i = 0; i < TOTAL_SPELL_EFFECTS; ++i)
+    {
+        switch(i)
+        {
+            case SPELL_EFFECT_SUMMON:
+            case SPELL_EFFECT_SUMMON_WILD:
+            case SPELL_EFFECT_SUMMON_GUARDIAN:
+            case SPELL_EFFECT_TRANS_DOOR: //summon object
+            case SPELL_EFFECT_SUMMON_PET:
+            case SPELL_EFFECT_SUMMON_POSSESSED:
+            case SPELL_EFFECT_SUMMON_TOTEM:
+            case SPELL_EFFECT_SUMMON_OBJECT_WILD:
+            case SPELL_EFFECT_SUMMON_TOTEM_SLOT1:
+            case SPELL_EFFECT_SUMMON_TOTEM_SLOT2:
+            case SPELL_EFFECT_SUMMON_TOTEM_SLOT3:
+            case SPELL_EFFECT_SUMMON_TOTEM_SLOT4:
+            case SPELL_EFFECT_SUMMON_CRITTER:
+            case SPELL_EFFECT_SUMMON_OBJECT_SLOT1:
+            case SPELL_EFFECT_SUMMON_OBJECT_SLOT2:
+            case SPELL_EFFECT_SUMMON_OBJECT_SLOT3:
+            case SPELL_EFFECT_SUMMON_OBJECT_SLOT4:
+            case SPELL_EFFECT_SUMMON_DEAD_PET:
+            case SPELL_EFFECT_SUMMON_DEMON:
+            case SPELL_EFFECT_ADD_FARSIGHT:
+            case SPELL_EFFECT_TRIGGER_SPELL_2: //ritual of summon
+            case SPELL_EFFECT_TRIGGER_MISSILE:
+            case SPELL_EFFECT_PERSISTENT_AREA_AURA:
+                EffectTargetType[i] = SPELL_REQUIRE_DEST;
+                break;
+            case SPELL_EFFECT_PARRY: // 0
+            case SPELL_EFFECT_BLOCK: // 0
+            case SPELL_EFFECT_SKILL: // always with dummy 3 as A
+            case SPELL_EFFECT_LEARN_SPELL: // 0
+            case SPELL_EFFECT_TRADE_SKILL: // 0 or 1
+            case SPELL_EFFECT_PROFICIENCY: // 0
+                EffectTargetType[i] = SPELL_REQUIRE_NONE;
+                break;
+            default:
+                EffectTargetType[i] = SPELL_REQUIRE_UNIT;
+                break;
+        }
+    }
+
+    for(int i = 0; i < TOTAL_SPELL_TARGETS; ++i)
+    {
+        switch(i)
+        {
+            case TARGET_UNIT_CASTER:
+            case TARGET_UNIT_CASTER_FISHING:
+            case TARGET_UNIT_MASTER:
+            case TARGET_UNIT_PET:
+                SpellTargetType[i] = TARGET_TYPE_UNIT_CASTER;
+                break;
+            case TARGET_UNIT_MINIPET:
+            case TARGET_UNIT_TARGET_ALLY:
+            case TARGET_UNIT_TARGET_RAID:
+            case TARGET_UNIT_TARGET_ANY:
+            case TARGET_UNIT_SINGLE_UNKNOWN:
+            case TARGET_UNIT_TARGET_ENEMY:
+                SpellTargetType[i] = TARGET_TYPE_UNIT_TARGET;
+                break;
+            case TARGET_UNIT_CHANNEL:
+            case TARGET_DEST_CHANNEL:
+                SpellTargetType[i] = TARGET_TYPE_CHANNEL;
+                break;
+            case TARGET_UNIT_AREA_ENEMY_GROUND:
+            case TARGET_UNIT_AREA_ENEMY:
+            case TARGET_UNIT_AREA_ALLY_GROUND:
+            case TARGET_UNIT_AREA_ALLY:
+            case TARGET_UNIT_AREA_ENTRY_GROUND:
+            case TARGET_UNIT_AREA_ENTRY:
+            case TARGET_UNIT_AREA_ENEMY_CHANNEL:
+                SpellTargetType[i] = TARGET_TYPE_AREA_DEST;
+                break;
+            case TARGET_DEST_TARGET_ENEMY:
+            case TARGET_DEST_TARGET_ENEMY_UNKNOWN:
+            case TARGET_DEST_TARGET_FRONT:
+            case TARGET_DEST_TARGET_BACK:
+            case TARGET_DEST_TARGET_RIGHT:
+            case TARGET_DEST_TARGET_LEFT:
+            case TARGET_DEST_TARGET_RANDOM:
+            case TARGET_DEST_TARGET_RADIUS:
+                SpellTargetType[i] = TARGET_TYPE_DEST_TARGET;
+                break;
+            case TARGET_DEST_CASTER_GROUND:
+            case TARGET_DEST_CASTER:
+            case TARGET_DEST_CASTER_FRONT_LEFT:
+            case TARGET_DEST_CASTER_BACK_LEFT:
+            case TARGET_DEST_CASTER_BACK_RIGHT:
+            case TARGET_DEST_CASTER_FRONT_RIGHT:
+            case TARGET_DEST_CASTER_FRONT:
+            case TARGET_MINION:
+            case TARGET_DEST_CASTER_FRONT_LEAP:
+            case TARGET_DEST_CASTER_FRONT_UNKNOWN:
+            case TARGET_DEST_CASTER_BACK:
+            case TARGET_DEST_CASTER_RIGHT:
+            case TARGET_DEST_CASTER_LEFT:
+            case TARGET_DEST_CASTER_RANDOM:
+            case TARGET_DEST_CASTER_RADIUS:
+                SpellTargetType[i] = TARGET_TYPE_DEST_CASTER;
+                break;
+            case TARGET_DEST_DEST_RANDOM:
+            case TARGET_DEST_DEST:
+                SpellTargetType[i] = TARGET_TYPE_DEST_DEST;
+                break;
+            default:
+                SpellTargetType[i] = TARGET_TYPE_DEFAULT;
+        }
+    }
 }
 
 SpellMgr::~SpellMgr()
@@ -503,7 +612,7 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex)
         return false;
 
     // AttributesEx check
-    if(spellproto->AttributesEx & (1<<7))
+    if(spellproto->AttributesEx & SPELL_ATTR_EX_NEGATIVE)
         return false;
 
     // ok, positive
@@ -1924,117 +2033,6 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         default:
             break;
-        }
-    }
-
-    for(int i = 0; i < TOTAL_SPELL_EFFECTS; ++i)
-    {
-        switch(i)
-        {
-            case SPELL_EFFECT_SUMMON:
-            case SPELL_EFFECT_SUMMON_WILD:
-            case SPELL_EFFECT_SUMMON_GUARDIAN:
-            case SPELL_EFFECT_TRANS_DOOR: //summon object
-            case SPELL_EFFECT_SUMMON_PET:
-            case SPELL_EFFECT_SUMMON_POSSESSED:
-            case SPELL_EFFECT_SUMMON_TOTEM:
-            case SPELL_EFFECT_SUMMON_OBJECT_WILD:
-            case SPELL_EFFECT_SUMMON_TOTEM_SLOT1:
-            case SPELL_EFFECT_SUMMON_TOTEM_SLOT2:
-            case SPELL_EFFECT_SUMMON_TOTEM_SLOT3:
-            case SPELL_EFFECT_SUMMON_TOTEM_SLOT4:
-            case SPELL_EFFECT_SUMMON_CRITTER:
-            case SPELL_EFFECT_SUMMON_OBJECT_SLOT1:
-            case SPELL_EFFECT_SUMMON_OBJECT_SLOT2:
-            case SPELL_EFFECT_SUMMON_OBJECT_SLOT3:
-            case SPELL_EFFECT_SUMMON_OBJECT_SLOT4:
-            case SPELL_EFFECT_SUMMON_DEAD_PET:
-            case SPELL_EFFECT_SUMMON_DEMON:
-            case SPELL_EFFECT_ADD_FARSIGHT:
-            case SPELL_EFFECT_TRIGGER_SPELL_2: //ritual of summon
-            case SPELL_EFFECT_TRIGGER_MISSILE:
-            case SPELL_EFFECT_PERSISTENT_AREA_AURA:
-                EffectTargetType[i] = SPELL_REQUIRE_DEST;
-                break;
-            case SPELL_EFFECT_PARRY: // 0
-            case SPELL_EFFECT_BLOCK: // 0
-            case SPELL_EFFECT_SKILL: // always with dummy 3 as A
-            case SPELL_EFFECT_LEARN_SPELL: // 0
-            case SPELL_EFFECT_TRADE_SKILL: // 0 or 1
-            case SPELL_EFFECT_PROFICIENCY: // 0
-                EffectTargetType[i] = SPELL_REQUIRE_NONE;
-                break;
-            default:
-                EffectTargetType[i] = SPELL_REQUIRE_UNIT;
-                break;
-        }
-    }
-
-    for(int i = 0; i < TOTAL_SPELL_TARGETS; ++i)
-    {
-        switch(i)
-        {
-            case TARGET_UNIT_CASTER:
-            case TARGET_UNIT_CASTER_FISHING:
-            case TARGET_UNIT_MASTER:
-            case TARGET_UNIT_PET:
-                SpellTargetType[i] = TARGET_TYPE_UNIT_CASTER;
-                break;
-            case TARGET_UNIT_MINIPET:
-            case TARGET_UNIT_TARGET_ALLY:
-            case TARGET_UNIT_TARGET_RAID:
-            case TARGET_UNIT_TARGET_ANY:
-            case TARGET_UNIT_SINGLE_UNKNOWN:
-            case TARGET_UNIT_TARGET_ENEMY:
-                SpellTargetType[i] = TARGET_TYPE_UNIT_TARGET;
-                break;
-            case TARGET_UNIT_CHANNEL:
-            case TARGET_DEST_CHANNEL:
-                SpellTargetType[i] = TARGET_TYPE_CHANNEL;
-                break;
-            case TARGET_UNIT_AREA_ENEMY_GROUND:
-            case TARGET_UNIT_AREA_ENEMY:
-            case TARGET_UNIT_AREA_ALLY_GROUND:
-            case TARGET_UNIT_AREA_ALLY:
-            case TARGET_UNIT_AREA_ENTRY_GROUND:
-            case TARGET_UNIT_AREA_ENTRY:
-            case TARGET_UNIT_AREA_ENEMY_CHANNEL:
-                SpellTargetType[i] = TARGET_TYPE_AREA_DEST;
-                break;
-            case TARGET_DEST_TARGET_ENEMY:
-            case TARGET_DEST_TARGET_ENEMY_UNKNOWN:
-            case TARGET_DEST_TARGET_FRONT:
-            case TARGET_DEST_TARGET_BACK:
-            case TARGET_DEST_TARGET_RIGHT:
-            case TARGET_DEST_TARGET_LEFT:
-            case TARGET_DEST_TARGET_RANDOM:
-            case TARGET_DEST_TARGET_RADIUS:
-                SpellTargetType[i] = TARGET_TYPE_DEST_TARGET;
-                break;
-            case TARGET_DEST_CASTER_GROUND:
-            case TARGET_DEST_CASTER:
-            case TARGET_DEST_CASTER_FRONT_LEFT:
-            case TARGET_DEST_CASTER_BACK_LEFT:
-            case TARGET_DEST_CASTER_BACK_RIGHT:
-            case TARGET_DEST_CASTER_FRONT_RIGHT:
-            case TARGET_DEST_CASTER_FRONT:
-            case TARGET_MINION:
-            case TARGET_DEST_CASTER_FRONT_LEAP:
-            case TARGET_DEST_CASTER_FRONT_UNKNOWN:
-            case TARGET_DEST_CASTER_BACK:
-            case TARGET_DEST_CASTER_RIGHT:
-            case TARGET_DEST_CASTER_LEFT:
-            case TARGET_DEST_CASTER_RANDOM:
-            case TARGET_DEST_CASTER_RADIUS:
-                SpellTargetType[i] = TARGET_TYPE_DEST_CASTER;
-                break;
-            case TARGET_DEST_DEST_RANDOM:
-            case TARGET_DEST_DEST:
-                SpellTargetType[i] = TARGET_TYPE_DEST_DEST;
-                break;
-            default:
-                SpellTargetType[i] = TARGET_TYPE_DEFAULT;
-
         }
     }
 }

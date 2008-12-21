@@ -484,7 +484,6 @@ void Pet::SavePetToDB(PetSaveMode mode)
         case PET_SAVE_AS_DELETED:
         {
             RemoveAllAuras();
-            uint32 owner = GUID_LOPART(GetOwnerGUID());
             DeleteFromDB(m_charmInfo->GetPetNumber());
             break;
         }
