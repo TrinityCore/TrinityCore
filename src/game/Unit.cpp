@@ -9981,7 +9981,8 @@ void Unit::SetVisibility(UnitVisibility x)
         Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(targets, check);
         VisitNearbyWorldObject(World::GetMaxVisibleDistance(), searcher);
         for(std::list<Unit*>::iterator iter = targets.begin(); iter != targets.end(); ++iter)
-            if((*iter)->GetTypeId() == TYPEID_PLAYER)
+            if(*iter != this && (*iter)->GetTypeId() == TYPEID_PLAYER
+                && ((Player*)(*iter))->HaveAtClient(this))
             {
                 DestroyForPlayer((Player*)(*iter));
                 ((Player*)(*iter))->m_clientGUIDs.erase(GetGUID());
