@@ -240,6 +240,18 @@ enum SpellEffectTargetTypes
     SPELL_REQUIRE_DEST,
 };
 
+enum SpellSelectTargetTypes
+{
+    TARGET_TYPE_DEFAULT,
+    TARGET_TYPE_UNIT_CASTER,
+    TARGET_TYPE_UNIT_TARGET,
+    TARGET_TYPE_CHANNEL,
+    TARGET_TYPE_AREA_DEST,
+    TARGET_TYPE_DEST_CASTER,
+    TARGET_TYPE_DEST_TARGET,
+    TARGET_TYPE_DEST_DEST,
+};
+
 //Some SpellFamilyFlags
 #define SPELLFAMILYFLAG_ROGUE_VANISH            0x000000800LL
 #define SPELLFAMILYFLAG_ROGUE_STEALTH           0x000400000LL
@@ -556,7 +568,7 @@ typedef UNORDERED_MAP<uint32, SpellProcEventEntry> SpellProcEventMap;
 typedef std::map<uint32, uint8> SpellElixirMap;
 
 // Spell script target related declarations (accessed using SpellMgr functions)
-enum SpellTargetType
+enum SpellScriptTargetType
 {
     SPELL_TARGET_TYPE_GAMEOBJECT = 0,
     SPELL_TARGET_TYPE_CREATURE   = 1,
@@ -567,8 +579,8 @@ enum SpellTargetType
 
 struct SpellTargetEntry
 {
-    SpellTargetEntry(SpellTargetType type_,uint32 targetEntry_) : type(type_), targetEntry(targetEntry_) {}
-    SpellTargetType type;
+    SpellTargetEntry(SpellScriptTargetType type_,uint32 targetEntry_) : type(type_), targetEntry(targetEntry_) {}
+    SpellScriptTargetType type;
     uint32 targetEntry;
 };
 
@@ -927,6 +939,7 @@ class SpellMgr
         }
 
         SpellEffectTargetTypes EffectTargetType[TOTAL_SPELL_EFFECTS];
+        SpellSelectTargetTypes SpellTargetType[TOTAL_SPELL_TARGETS];
 
         // Modifiers
     public:
