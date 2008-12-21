@@ -58,6 +58,8 @@
 #include "TemporarySummon.h"
 #include "ScriptCalls.h"
 #include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -5002,7 +5004,25 @@ void Spell::EffectSanctuary(uint32 /*i*/)
 {
     if(!unitTarget)
         return;
-    //unitTarget->CombatStop();
+
+    std::list<Unit*> targets;
+    Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(unitTarget, unitTarget, World::GetMaxVisibleDistance());
+    Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(targets, u_check);
+    unitTarget->VisitNearbyObject(World::GetMaxVisibleDistance(), searcher);
+    for(std::list<Unit*>::iterator iter = targets.begin(); iter != targets.end(); ++iter)
+    {
+        if(!(*iter)->hasUnitState(UNIT_STAT_CASTING))
+            continue;
+
+        for(uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; i++)
+        {
+            if((*iter)->m_currentSpells[i]
+            && (*iter)->m_currentSpells[i]->m_targets.getUnitTargetGUID() == unitTarget->GetGUID())
+            {
+                (*iter)->InterruptSpell(i, false);
+            }
+        }
+    }
 
     unitTarget->CombatStop();
     unitTarget->getHostilRefManager().deleteReferences();   // stop all fighting
