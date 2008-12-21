@@ -789,52 +789,51 @@ enum SpellImmunity
 enum Targets
 {
     TARGET_SELF                        = 1,
-    //TARGET_UNIT_CASTER
+    TARGET_UNIT_CASTER                 = 1,
     TARGET_RANDOM_ENEMY_CHAIN_IN_AREA  = 2,                 // only one spell has that, but regardless, it's a target type after all
     //TARGET_UNIT_NEARBY_ENEMY
     TARGET_UNIT_SINGLE_UNKNOWN         = 3,
     TARGET_UNIT_NEARBY_ALLY            = 4,
     TARGET_PET                         = 5,
-    //TARGET_UNIT_PET
+    TARGET_UNIT_PET                    = 5,
     TARGET_CHAIN_DAMAGE                = 6,
     TARGET_UNIT_TARGET_ENEMY           = 6,
     TARGET_UNIT_AREA_ENTRY             = 7,
     TARGET_AREAEFFECT_CUSTOM           = 8,
-    //TARGET_UNIT_AREA_ENTRY_GROUND
+    TARGET_UNIT_AREA_ENTRY_GROUND      = 8,
     TARGET_INNKEEPER_COORDINATES       = 9,                 // uses in teleport to innkeeper spells
     //TARGET_DEST_HOME
     TARGET_UNIT_TARGET_DEST_CASTER     = 11, // teleport target to caster
     TARGET_ALL_ENEMY_IN_AREA           = 15,
-    //TARGET_UNIT_AREA_ENEMY
+    TARGET_UNIT_AREA_ENEMY             = 15,
     TARGET_ALL_ENEMY_IN_AREA_INSTANT   = 16,
-    //TARGET_UNIT_AREA_ENEMY_GROUND
+    TARGET_UNIT_AREA_ENEMY_GROUND      = 16,
     TARGET_TABLE_X_Y_Z_COORDINATES     = 17,                // uses in teleport spells and some other
     //TARGET_DEST_TABLE
     TARGET_EFFECT_SELECT               = 18,                // highly depends on the spell effect
-    //TARGET_DEST_CASTER_GROUND
+    TARGET_DEST_CASTER_GROUND          = 18, 
     TARGET_ALL_PARTY_AROUND_CASTER     = 20,
     //TARGET_UNIT_PARTY_CASTER
     TARGET_SINGLE_FRIEND               = 21,
     TARGET_UNIT_TARGET_ALLY            = 21,
     TARGET_ALL_AROUND_CASTER           = 22,                // used only in TargetA, target selection dependent from TargetB
-    //TARGET_DEST_CASTER
+    TARGET_DEST_CASTER                 = 22,
     TARGET_GAMEOBJECT                  = 23,
     //TARGET_OBJECT_OPEN
     TARGET_IN_FRONT_OF_CASTER          = 24,
     //TARGET_UNIT_CONE_ENEMY
     TARGET_DUELVSPLAYER                = 25,
-    //TARGET_UNIT_TARGET
+    TARGET_UNIT_TARGET_ANY             = 25,
     TARGET_GAMEOBJECT_ITEM             = 26,
     //TARGET_OBJECT_ITEM_PICKLOCK
-    TARGET_MASTER                      = 27,
-    //TARGET_UNIT_MASTER
+    TARGET_UNIT_MASTER                 = 27,
     TARGET_ALL_ENEMY_IN_AREA_CHANNELED = 28,
-    //TARGET_UNIT_AREA_ENEMY_CHANNEL
+    TARGET_UNIT_AREA_ENEMY_CHANNEL     = 28,
     TARGET_UNIT_AREA_ALLY_CHANNEL      = 29, // 28,29 only used for effect 27, if interrupt channel, pstAA cancel
     TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER = 30,           // in TargetB used only with TARGET_ALL_AROUND_CASTER and in self casting range in TargetA
-    //TARGET_UNIT_AREA_ALLY
+    TARGET_UNIT_AREA_ALLY              = 30,
     TARGET_ALL_FRIENDLY_UNITS_IN_AREA  = 31,
-    //TARGET_UNIT_AREA_ALLY_GROUND
+    TARGET_UNIT_AREA_ALLY_GROUND       = 31,
     TARGET_MINION                      = 32,
     //TARGET_DEST_SUMMON
     TARGET_ALL_PARTY                   = 33,
@@ -848,8 +847,7 @@ enum Targets
     //TARGET_UNIT_PARTY_TARGET
     TARGET_SCRIPT                      = 38,
     //TARGET_UNIT_NEARBY_ENTRY
-    TARGET_SELF_FISHING                = 39,
-    //TARGET_UNIT_CASTER_FISHING
+    TARGET_UNIT_CASTER_FISHING         = 39,
     TARGET_OBJECT_USE                  = 40,
     TARGET_DEST_CASTER_FRONT_LEFT      = 41, //earth totem
     TARGET_DEST_CASTER_BACK_LEFT       = 42, //water totem
@@ -867,7 +865,7 @@ enum Targets
     TARGET_AREAEFFECT_CUSTOM_2         = 52,
     //TARGET_DUMMY
     TARGET_CURRENT_ENEMY_COORDINATES   = 53,                // set unit coordinates as dest, only 16 target B imlemented
-    //TARGET_DEST_TARGET_ENEMY
+    TARGET_DEST_TARGET_ENEMY           = 53,
     TARGET_UNIT_CONE_ENEMY_UNKNOWN     = 54,
     TARGET_DEST_CASTER_FRONT_LEAP      = 55, // for a leap spell
     TARGET_RANDOM_RAID_MEMBER          = 56,
@@ -880,7 +878,7 @@ enum Targets
     //TARGET_UNIT_CLASS_TARGET
     TARGET_TEST                        = 62, // for a test spell 
     TARGET_DUELVSPLAYER_COORDINATES    = 63,
-    //TARGET_DEST_TARGET_ENEMY_UNKNOWN
+    TARGET_DEST_TARGET_ENEMY_UNKNOWN   = 63,
     TARGET_DEST_TARGET_FRONT           = 64,
     TARGET_DEST_TARGET_BACK            = 65,                // uses in teleport behind spells
     TARGET_DEST_TARGET_RIGHT           = 66,
@@ -892,16 +890,16 @@ enum Targets
     TARGET_DEST_TARGET_RADIUS          = 75,
     TARGET_DEST_CHANNEL                = 76,
     TARGET_SINGLE_ENEMY                = 77,
-    //TARGET_UNIT_CHANNEL
+    TARGET_UNIT_CHANNEL                = 77,
     TARGET_DEST_CASTER_FRONT_UNKNOWN   = 78,
     TARGET_DEST_TABLE_UNKNOWN2         = 80,
     TARGET_DEST_DEST_RANDOM            = 86,
-    TARGET_SELF2                       = 87,
-    //TARGET_DEST_DEST
+    TARGET_DEST_DEST                   = 87,
     TARGET_UNIT_AREA_ALL_CHANNEL       = 88,
-    TARGET_NONCOMBAT_PET               = 90,
-    //TARGET_UNIT_MINIPET
+    TARGET_UNIT_MINIPET                = 90,
 };
+
+#define TOTAL_SPELL_TARGETS              91
 
 enum SpellMissInfo
 {

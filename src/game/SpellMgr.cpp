@@ -1729,7 +1729,7 @@ void SpellMgr::LoadSpellScriptTarget()
             }
         }
 
-        mSpellScriptTarget.insert(SpellScriptTarget::value_type(spellId,SpellTargetEntry(SpellTargetType(type),targetEntry)));
+        mSpellScriptTarget.insert(SpellScriptTarget::value_type(spellId,SpellTargetEntry(SpellScriptTargetType(type),targetEntry)));
 
         ++count;
     } while (result->NextRow());
@@ -1953,6 +1953,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case SPELL_EFFECT_ADD_FARSIGHT:
             case SPELL_EFFECT_TRIGGER_SPELL_2: //ritual of summon
             case SPELL_EFFECT_TRIGGER_MISSILE:
+            case SPELL_EFFECT_PERSISTENT_AREA_AURA:
                 EffectTargetType[i] = SPELL_REQUIRE_DEST;
                 break;
             case SPELL_EFFECT_PARRY: // 0
@@ -1966,6 +1967,74 @@ void SpellMgr::LoadSpellCustomAttr()
             default:
                 EffectTargetType[i] = SPELL_REQUIRE_UNIT;
                 break;
+        }
+    }
+
+    for(int i = 0; i < TOTAL_SPELL_TARGETS; ++i)
+    {
+        switch(i)
+        {
+            case TARGET_UNIT_CASTER:
+            case TARGET_UNIT_CASTER_FISHING:
+            case TARGET_UNIT_MASTER:
+            case TARGET_UNIT_PET:
+                SpellTargetType[i] = TARGET_TYPE_UNIT_CASTER;
+                break;
+            case TARGET_UNIT_MINIPET:
+            case TARGET_UNIT_TARGET_ALLY:
+            case TARGET_UNIT_TARGET_RAID:
+            case TARGET_UNIT_TARGET_ANY:
+            case TARGET_UNIT_SINGLE_UNKNOWN:
+            case TARGET_UNIT_TARGET_ENEMY:
+                SpellTargetType[i] = TARGET_TYPE_UNIT_TARGET;
+                break;
+            case TARGET_UNIT_CHANNEL:
+            case TARGET_DEST_CHANNEL:
+                SpellTargetType[i] = TARGET_TYPE_CHANNEL;
+                break;
+            case TARGET_UNIT_AREA_ENEMY_GROUND:
+            case TARGET_UNIT_AREA_ENEMY:
+            case TARGET_UNIT_AREA_ALLY_GROUND:
+            case TARGET_UNIT_AREA_ALLY:
+            case TARGET_UNIT_AREA_ENTRY_GROUND:
+            case TARGET_UNIT_AREA_ENTRY:
+            case TARGET_UNIT_AREA_ENEMY_CHANNEL:
+                SpellTargetType[i] = TARGET_TYPE_AREA_DEST;
+                break;
+            case TARGET_DEST_TARGET_ENEMY:
+            case TARGET_DEST_TARGET_ENEMY_UNKNOWN:
+            case TARGET_DEST_TARGET_FRONT:
+            case TARGET_DEST_TARGET_BACK:
+            case TARGET_DEST_TARGET_RIGHT:
+            case TARGET_DEST_TARGET_LEFT:
+            case TARGET_DEST_TARGET_RANDOM:
+            case TARGET_DEST_TARGET_RADIUS:
+                SpellTargetType[i] = TARGET_TYPE_DEST_TARGET;
+                break;
+            case TARGET_DEST_CASTER_GROUND:
+            case TARGET_DEST_CASTER:
+            case TARGET_DEST_CASTER_FRONT_LEFT:
+            case TARGET_DEST_CASTER_BACK_LEFT:
+            case TARGET_DEST_CASTER_BACK_RIGHT:
+            case TARGET_DEST_CASTER_FRONT_RIGHT:
+            case TARGET_DEST_CASTER_FRONT:
+            case TARGET_MINION:
+            case TARGET_DEST_CASTER_FRONT_LEAP:
+            case TARGET_DEST_CASTER_FRONT_UNKNOWN:
+            case TARGET_DEST_CASTER_BACK:
+            case TARGET_DEST_CASTER_RIGHT:
+            case TARGET_DEST_CASTER_LEFT:
+            case TARGET_DEST_CASTER_RANDOM:
+            case TARGET_DEST_CASTER_RADIUS:
+                SpellTargetType[i] = TARGET_TYPE_DEST_CASTER;
+                break;
+            case TARGET_DEST_DEST_RANDOM:
+            case TARGET_DEST_DEST:
+                SpellTargetType[i] = TARGET_TYPE_DEST_DEST;
+                break;
+            default:
+                SpellTargetType[i] = TARGET_TYPE_DEFAULT;
+
         }
     }
 }
