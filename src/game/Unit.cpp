@@ -9982,7 +9982,10 @@ void Unit::SetVisibility(UnitVisibility x)
         VisitNearbyWorldObject(World::GetMaxVisibleDistance(), searcher);
         for(std::list<Unit*>::iterator iter = targets.begin(); iter != targets.end(); ++iter)
             if((*iter)->GetTypeId() == TYPEID_PLAYER)
+            {
+                DestroyForPlayer((Player*)(*iter));
                 ((Player*)(*iter))->m_clientGUIDs.erase(GetGUID());
+            }
     }
     /*{
         Map *m = GetMap();
