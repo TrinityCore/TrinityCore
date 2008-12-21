@@ -34,7 +34,8 @@ class Pet;
 class Player;
 
 //comment the next line if CPU usage is too high
-#define LARGE_CELL
+//uncomment it otherwise
+//#define LARGE_CELL
 
 #ifdef LARGE_CELL
 #define MAX_NUMBER_OF_CELLS     4
