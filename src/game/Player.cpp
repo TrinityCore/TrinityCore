@@ -16039,7 +16039,10 @@ void Player::ResetInstances(uint8 method)
         Map *map = MapManager::Instance().FindMap(p->GetMapId(), p->GetInstanceId());
         if(map && map->IsDungeon())
             if(!((InstanceMap*)map)->Reset(method))
+            {
+                ++itr;
                 continue;
+            }
 
         // since this is a solo instance there should not be any players inside
         if(method == INSTANCE_RESET_ALL || method == INSTANCE_RESET_CHANGE_DIFFICULTY)
