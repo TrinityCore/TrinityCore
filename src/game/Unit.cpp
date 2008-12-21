@@ -894,15 +894,28 @@ void Unit::CastSpell(Unit* Victim,SpellEntry const *spellInfo, bool triggered, I
 
     SpellCastTargets targets;
     uint32 targetMask = spellInfo->Targets;
-    targets.setUnitTarget(Victim);
-    /*if(targetMask & (TARGET_FLAG_UNIT|TARGET_FLAG_UNK2))
+    //if(targetMask & (TARGET_FLAG_UNIT|TARGET_FLAG_UNK2))
+    for(int i = 0; i < 3; ++i)
     {
-        if(!Victim)
+        if(spellmgr.SpellTargetType[spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_UNIT_TARGET)
         {
-            sLog.outError("CastSpell: spell id %i by caster: %s %u) does not have unit target", spellInfo->Id,(GetTypeId()==TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId()==TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
-            return;
+            SpellRangeEntry const* srange = sSpellRangeStore.LookupEntry(spellInfo->rangeIndex);
+            if(srange && GetSpellMaxRange(srange) == 0.0f)
+            {
+                Victim = this;
+                break;
+            }
+            else if(!Victim)
+            {
+                sLog.outError("CastSpell: spell id %i by caster: %s %u) does not have unit target", spellInfo->Id,(GetTypeId()==TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId()==TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
+                return;
+            }
+            else
+                break;
         }
-    }*/
+    }
+    targets.setUnitTarget(Victim);
+
     if(targetMask & (TARGET_FLAG_SOURCE_LOCATION|TARGET_FLAG_DEST_LOCATION))
     {
         if(!Victim)
