@@ -262,7 +262,7 @@ bool OutdoorPvPNA::SetupOutdoorPvP()
     m_obj = new OutdoorPvPObjectiveNA(this);
     if(!m_obj)
         return false;
-    m_OutdoorPvPObjectives.insert(m_obj);
+    m_OutdoorPvPObjectives.push_back(m_obj);
 
     return true;
 }
@@ -660,7 +660,7 @@ bool OutdoorPvPObjectiveNA::Update(uint32 diff)
             SendUpdateWorldState(NA_UI_TOWER_SLIDER_POS, phase);
             SendUpdateWorldState(NA_UI_TOWER_SLIDER_N, m_NeutralValue);
         }
-        return true;
+        return m_OldState != m_State;
     }
     return false;
 }
