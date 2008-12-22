@@ -211,6 +211,6 @@ void AddSC_boss_doomwalker()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_doomwalker";
-    newscript->GetAI = GetAI_boss_doomwalker;
+    newscript->GetAI = &GetAI_boss_doomwalker;
     newscript->RegisterSelf();
 }

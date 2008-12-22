@@ -296,11 +296,11 @@ void AddSC_boss_taerar()
 
     newscript = new Script;
     newscript->Name="boss_taerar";
-    newscript->GetAI = GetAI_boss_taerar;
+    newscript->GetAI = &GetAI_boss_taerar;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_shade_of_taerar";
-    newscript->GetAI = GetAI_boss_shadeoftaerar;
+    newscript->GetAI = &GetAI_boss_shadeoftaerar;
     newscript->RegisterSelf();
 }

@@ -418,7 +418,7 @@ void AddSC_shattrath_city()
 
     newscript = new Script;
     newscript->Name="npc_salsalabim";
-    newscript->GetAI = GetAI_npc_salsalabim;
+    newscript->GetAI = &GetAI_npc_salsalabim;
     newscript->pGossipHello =  &GossipHello_npc_salsalabim;
     newscript->RegisterSelf();
 
@@ -436,6 +436,6 @@ void AddSC_shattrath_city()
 
        newscript = new Script;
     newscript->Name="npc_kservant";
-    newscript->GetAI = GetAI_npc_kservantAI;
+    newscript->GetAI = &GetAI_npc_kservantAI;
     newscript->RegisterSelf();
 }

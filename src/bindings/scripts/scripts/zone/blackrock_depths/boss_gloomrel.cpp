@@ -135,7 +135,7 @@ void AddSC_boss_gloomrel()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_gloomrel";
-    newscript->GetAI = GetAI_boss_gloomrel;
+    newscript->GetAI = &GetAI_boss_gloomrel;
     newscript->pGossipHello = &GossipHello_boss_gloomrel;
     newscript->pGossipSelect = &GossipSelect_boss_gloomrel;
     newscript->RegisterSelf();

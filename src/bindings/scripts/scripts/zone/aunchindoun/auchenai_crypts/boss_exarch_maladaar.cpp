@@ -343,16 +343,16 @@ void AddSC_boss_exarch_maladaar()
 
     newscript = new Script;
     newscript->Name="boss_exarch_maladaar";
-    newscript->GetAI = GetAI_boss_exarch_maladaar;
+    newscript->GetAI = &GetAI_boss_exarch_maladaar;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_avatar_of_martyred";
-    newscript->GetAI = GetAI_mob_avatar_of_martyred;
+    newscript->GetAI = &GetAI_mob_avatar_of_martyred;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_stolen_soul";
-    newscript->GetAI = GetAI_mob_stolen_soul;
+    newscript->GetAI = &GetAI_mob_stolen_soul;
     newscript->RegisterSelf();
 }

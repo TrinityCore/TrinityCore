@@ -244,11 +244,11 @@ void AddSC_boss_pathaleon_the_calculator()
     Script *newscript;    
     newscript = new Script;    
     newscript->Name="boss_pathaleon_the_calculator";    
-    newscript->GetAI = GetAI_boss_pathaleon_the_calculator;    
+    newscript->GetAI = &GetAI_boss_pathaleon_the_calculator;    
     newscript->RegisterSelf();
 
     newscript = new Script;    
     newscript->Name="mob_nether_wraith";    
-    newscript->GetAI = GetAI_mob_nether_wraith;    
+    newscript->GetAI = &GetAI_mob_nether_wraith;    
     newscript->RegisterSelf();
 }

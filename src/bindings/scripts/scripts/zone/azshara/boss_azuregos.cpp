@@ -149,6 +149,6 @@ void AddSC_boss_azuregos()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_azuregos";
-    newscript->GetAI = GetAI_boss_azuregos;
+    newscript->GetAI = &GetAI_boss_azuregos;
     newscript->RegisterSelf();
 }

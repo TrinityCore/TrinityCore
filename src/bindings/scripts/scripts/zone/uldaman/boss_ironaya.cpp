@@ -102,6 +102,6 @@ void AddSC_boss_ironaya()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_ironaya";
-    newscript->GetAI = GetAI_boss_ironaya;
+    newscript->GetAI = &GetAI_boss_ironaya;
     newscript->RegisterSelf();
 }

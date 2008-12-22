@@ -405,21 +405,21 @@ void AddSC_boss_terestian_illhoof()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_terestian_illhoof";
-    newscript->GetAI = GetAI_boss_terestian_illhoof;
+    newscript->GetAI = &GetAI_boss_terestian_illhoof;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_karazhan_imp";
-    newscript->GetAI = GetAI_mob_karazhan_imp;
+    newscript->GetAI = &GetAI_mob_karazhan_imp;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_kilrek";
-    newscript->GetAI = GetAI_mob_kilrek;
+    newscript->GetAI = &GetAI_mob_kilrek;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "mob_demon_chain";
-    newscript->GetAI = GetAI_mob_demon_chain;
+    newscript->GetAI = &GetAI_mob_demon_chain;
     newscript->RegisterSelf();
 }

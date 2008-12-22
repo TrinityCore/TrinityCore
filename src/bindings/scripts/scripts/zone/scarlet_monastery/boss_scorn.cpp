@@ -95,6 +95,6 @@ void AddSC_boss_scorn()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_scorn";
-    newscript->GetAI = GetAI_boss_scorn;
+    newscript->GetAI = &GetAI_boss_scorn;
     newscript->RegisterSelf();
 }

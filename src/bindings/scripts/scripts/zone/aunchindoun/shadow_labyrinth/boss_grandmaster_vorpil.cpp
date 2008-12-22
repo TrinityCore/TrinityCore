@@ -362,11 +362,11 @@ void AddSC_boss_grandmaster_vorpil()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_grandmaster_vorpil";
-    newscript->GetAI = GetAI_boss_grandmaster_vorpil;
+    newscript->GetAI = &GetAI_boss_grandmaster_vorpil;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_voidtraveler";
-    newscript->GetAI = GetAI_mob_voidtraveler;
+    newscript->GetAI = &GetAI_mob_voidtraveler;
     newscript->RegisterSelf();
 }

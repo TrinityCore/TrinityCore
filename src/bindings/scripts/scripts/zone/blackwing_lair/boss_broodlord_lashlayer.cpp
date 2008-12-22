@@ -123,6 +123,6 @@ void AddSC_boss_broodlord()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_broodlord";
-    newscript->GetAI = GetAI_boss_broodlord;
+    newscript->GetAI = &GetAI_boss_broodlord;
     newscript->RegisterSelf();
 }

@@ -96,6 +96,6 @@ void AddSC_boss_vilerel()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_vilerel";
-    newscript->GetAI = GetAI_boss_vilerel;
+    newscript->GetAI = &GetAI_boss_vilerel;
     newscript->RegisterSelf();
 }

@@ -648,17 +648,17 @@ void AddSC_boss_kalecgos()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_kalecgos";
-    newscript->GetAI = GetAI_boss_kalecgos;
+    newscript->GetAI = &GetAI_boss_kalecgos;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_sathrovarr";
-    newscript->GetAI = GetAI_boss_Sathrovarr;
+    newscript->GetAI = &GetAI_boss_Sathrovarr;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_kalec";
-    newscript->GetAI = GetAI_boss_kalec;
+    newscript->GetAI = &GetAI_boss_kalec;
     newscript->RegisterSelf();
 
     newscript = new Script;

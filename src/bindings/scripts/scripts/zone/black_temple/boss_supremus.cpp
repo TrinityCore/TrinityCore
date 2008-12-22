@@ -241,11 +241,11 @@ void AddSC_boss_supremus()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_supremus";
-    newscript->GetAI = GetAI_boss_supremus;
+    newscript->GetAI = &GetAI_boss_supremus;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="molten_flame";
-    newscript->GetAI = GetAI_molten_flame;
+    newscript->GetAI = &GetAI_molten_flame;
     newscript->RegisterSelf();
 }

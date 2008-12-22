@@ -642,11 +642,11 @@ void AddSC_boss_malchezaar()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_malchezaar";
-    newscript->GetAI = GetAI_boss_malchezaar;
+    newscript->GetAI = &GetAI_boss_malchezaar;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="netherspite_infernal";
-    newscript->GetAI = GetAI_netherspite_infernal;
+    newscript->GetAI = &GetAI_netherspite_infernal;
     newscript->RegisterSelf();
 }

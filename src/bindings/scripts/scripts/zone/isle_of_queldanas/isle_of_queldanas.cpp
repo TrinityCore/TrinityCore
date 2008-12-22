@@ -144,7 +144,7 @@ void AddSC_isle_of_queldanas()
 
     newscript = new Script;
     newscript->Name="npc_converted_sentry";
-    newscript->GetAI = GetAI_npc_converted_sentry;
+    newscript->GetAI = &GetAI_npc_converted_sentry;
     newscript->RegisterSelf();
 
     newscript = new Script;

@@ -100,6 +100,6 @@ void AddSC_boss_haterel()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_haterel";
-    newscript->GetAI = GetAI_boss_haterel;
+    newscript->GetAI = &GetAI_boss_haterel;
     newscript->RegisterSelf();
 }

@@ -437,15 +437,15 @@ void AddSC_karazhan()
     Script* newscript;
 
     newscript = new Script;
-    newscript->GetAI = GetAI_npc_barnesAI;
+    newscript->GetAI = &GetAI_npc_barnesAI;
     newscript->Name = "npc_barnes";
-    newscript->pGossipHello = GossipHello_npc_barnes;
-    newscript->pGossipSelect = GossipSelect_npc_barnes;
+    newscript->pGossipHello = &GossipHello_npc_barnes;
+    newscript->pGossipSelect = &GossipSelect_npc_barnes;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_berthold";
-    newscript->pGossipHello = GossipHello_npc_berthold;
-    newscript->pGossipSelect = GossipSelect_npc_berthold;
+    newscript->pGossipHello = &GossipHello_npc_berthold;
+    newscript->pGossipSelect = &GossipSelect_npc_berthold;
     newscript->RegisterSelf();
 }

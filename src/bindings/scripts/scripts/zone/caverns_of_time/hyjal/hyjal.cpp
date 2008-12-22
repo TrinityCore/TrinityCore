@@ -228,14 +228,14 @@ void AddSC_hyjal()
 
     newscript = new Script;
     newscript->Name = "npc_jaina_proudmoore";
-    newscript->GetAI = GetAI_npc_jaina_proudmoore;
+    newscript->GetAI = &GetAI_npc_jaina_proudmoore;
     newscript->pGossipHello = &GossipHello_npc_jaina_proudmoore;
     newscript->pGossipSelect = &GossipSelect_npc_jaina_proudmoore;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_thrall";
-    newscript->GetAI = GetAI_npc_thrall;
+    newscript->GetAI = &GetAI_npc_thrall;
     newscript->pGossipHello = &GossipHello_npc_thrall;
     newscript->pGossipSelect = &GossipSelect_npc_thrall;
     newscript->RegisterSelf();
