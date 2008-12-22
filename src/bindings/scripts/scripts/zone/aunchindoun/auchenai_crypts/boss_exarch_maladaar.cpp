@@ -143,7 +143,11 @@ CreatureAI* GetAI_mob_stolen_soul(Creature *_Creature)
 
 struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
 {
-    boss_exarch_maladaarAI(Creature *c) : ScriptedAI(c) {Reset();}
+	boss_exarch_maladaarAI(Creature *c) : ScriptedAI(c)
+	{
+		HasTaunted = false;
+		Reset();
+	}
 
     uint32 soulmodel;
     uint64 soulholder;
@@ -166,31 +170,20 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
         Ribbon_of_Souls_timer = 5000;
         StolenSoul_Timer = 25000 + rand()% 10000;
 
-        HasTaunted = false;
         Avatar_summoned = false;
     }
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (!m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessiblePlaceFor(m_creature))
-        {
-            if (!HasTaunted && m_creature->IsWithinDistInMap(who, 150.0))
-            {
-                DoScriptText(SAY_INTRO, m_creature);
-                HasTaunted = true;
-            }
+		if (!HasTaunted && m_creature->IsWithinDistInMap(who, 150.0))
+		{
+			DoScriptText(SAY_INTRO, m_creature);
+			HasTaunted = true;
+		}
 
-            if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
-                return;
+		ScriptedAI::MoveInLineOfSight(who);
+	}
 
-            float attackRadius = m_creature->GetAttackDistance(who);
-            if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
-            {
-                //who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-                AttackStart(who);
-            }
-        }
-    }
 
     void Aggro(Unit *who)
     {
@@ -207,13 +200,16 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
         if (summoned->GetEntry() == ENTRY_STOLEN_SOUL)
         {
             //SPELL_STOLEN_SOUL_VISUAL has shapeshift effect, but not implemented feature in Trinity for this spell.
-            summoned->SetDisplayId(soulmodel);
             summoned->CastSpell(summoned,SPELL_STOLEN_SOUL_VISUAL,false);
+			summoned->SetDisplayId(soulmodel);
+			summoned->setFaction(m_creature->getFaction());
 
             if (Unit *target = Unit::GetUnit(*m_creature,soulholder))
-                summoned->AI()->AttackStart(target);
+			{
 
             ((mob_stolen_soulAI*)summoned->AI())->SetMyClass(soulclass);
+			 summoned->AI()->AttackStart(target);
+			}
         }
     }
 
