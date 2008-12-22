@@ -19,6 +19,8 @@
 #ifndef OUTDOOR_PVP_MGR_H_
 #define OUTDOOR_PVP_MGR_H_
 
+#define OUTDOORPVP_OBJECTIVE_UPDATE_INTERVAL 1000
+
 #include "OutdoorPvP.h"
 #include "Policies/Singleton.h"
 
@@ -61,7 +63,7 @@ public:
 
     void HandleDropFlag(Player * plr, uint32 spellId);
 
-    typedef std::set<OutdoorPvP*> OutdoorPvPSet;
+    typedef std::vector<OutdoorPvP*> OutdoorPvPSet;
     typedef std::map<uint32 /* zoneid */, OutdoorPvP*> OutdoorPvPMap;
 private:
     // contains all initiated outdoor pvp events
@@ -70,6 +72,8 @@ private:
     // maps the zone ids to an outdoor pvp event
     // used in player event handling
     OutdoorPvPMap   m_OutdoorPvPMap;
+    // update interval
+    float m_UpdateTimer;
 };
 
 #define sOutdoorPvPMgr Trinity::Singleton<OutdoorPvPMgr>::Instance()

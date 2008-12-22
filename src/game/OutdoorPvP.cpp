@@ -28,7 +28,7 @@
 
 OutdoorPvPObjective::OutdoorPvPObjective(OutdoorPvP * pvp) 
 : m_PvP(pvp), m_AllianceActivePlayerCount(0), m_HordeActivePlayerCount(0),
-m_ShiftTimer(0), m_ShiftPhase(0), m_ShiftMaxPhase(0), m_OldPhase(0),
+m_ShiftPhase(0), m_ShiftMaxPhase(0), m_OldPhase(0),
 m_State(0), m_OldState(0), m_CapturePoint(0), m_NeutralValue(0), m_ShiftMaxCaptureSpeed(0), m_CapturePointCreature(0)
 {
 }
@@ -456,9 +456,6 @@ bool OutdoorPvP::Update(uint32 diff)
 bool OutdoorPvPObjective::Update(uint32 diff)
 {
     uint32 Challenger = 0;
-    if(m_ShiftTimer<diff)
-    {
-        m_ShiftTimer = OUTDOORPVP_OBJECTIVE_UPDATE_INTERVAL;
 
         // get the difference of numbers
         float fact_diff = (m_AllianceActivePlayerCount - m_HordeActivePlayerCount);
@@ -526,9 +523,6 @@ bool OutdoorPvPObjective::Update(uint32 diff)
         }
 
         return true;
-    } else m_ShiftTimer-=diff;
-
-    return false;
 }
 
 bool OutdoorPvPObjective::HandleCaptureCreaturePlayerMoveInLos(Player * p, Creature * c)
