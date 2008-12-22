@@ -17,11 +17,13 @@
 /* ScriptData
 SDName: Hellfire_Peninsula
 SD%Complete: 100
- SDComment: Quest support: 9375, 10129, 10146, 10162, 10163, 10340, 10346, 10347, 10382 (Special flight paths)
+ SDComment: Quest support: 9375, 9418, 10129, 10146, 10162, 10163, 10340, 10346, 10347, 10382 (Special flight paths)
 SDCategory: Hellfire Peninsula
 EndScriptData */
 
 /* ContentData
+npc_aeranas
+go_haaleshi_altar
 npc_wing_commander_dabiree
 npc_gryphoneer_windbellow
 npc_wing_commander_brack
@@ -30,6 +32,99 @@ EndContentData */
 
 #include "precompiled.h"
 #include "../../npc/npc_escortAI.h"
+
+/*######
+## npc_aeranas
+######*/
+
+#define SAY_SUMMON                      -1000138
+#define SAY_FREE                        -1000139
+
+#define FACTION_HOSTILE                 16
+#define FACTION_FRIENDLY                35
+
+#define SPELL_ENVELOPING_WINDS          15535
+#define SPELL_SHOCK                     12553
+
+#define C_AERANAS                       17085
+
+struct TRINITY_DLL_DECL npc_aeranasAI : public ScriptedAI
+{
+    npc_aeranasAI(Creature* c) : ScriptedAI(c) { Reset(); }
+
+    uint32 Faction_Timer;
+    uint32 EnvelopingWinds_Timer;
+    uint32 Shock_Timer;
+
+    void Reset()
+    {
+        Faction_Timer = 8000;
+        EnvelopingWinds_Timer = 9000;
+        Shock_Timer = 5000;
+
+        m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+        m_creature->setFaction(FACTION_FRIENDLY);
+
+        DoScriptText(SAY_SUMMON, m_creature);
+    }
+
+    void Aggro(Unit *who) {}
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (Faction_Timer)
+        {
+            if (Faction_Timer < diff)
+            {
+                m_creature->setFaction(FACTION_HOSTILE);
+                Faction_Timer = 0;
+            }else Faction_Timer -= diff;
+        }
+
+        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+            return;
+
+        if ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() < 30)
+        {
+            m_creature->setFaction(FACTION_FRIENDLY);
+            m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+            m_creature->RemoveAllAuras();
+            m_creature->DeleteThreatList();
+            m_creature->CombatStop();
+            DoScriptText(SAY_FREE, m_creature);
+            return;
+        }
+
+        if (Shock_Timer < diff)
+        {
+            DoCast(m_creature->getVictim(),SPELL_SHOCK);
+            Shock_Timer = 10000;
+        }else Shock_Timer -= diff;
+
+        if (EnvelopingWinds_Timer < diff)
+        {
+            DoCast(m_creature->getVictim(),SPELL_ENVELOPING_WINDS);
+            EnvelopingWinds_Timer = 25000;
+        }else EnvelopingWinds_Timer -= diff;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_npc_aeranas(Creature *_Creature)
+{
+    return new npc_aeranasAI (_Creature);
+}
+
+/*######
+## go_haaleshi_altar
+######*/
+
+bool GOHello_go_haaleshi_altar(Player *player, GameObject* _GO)
+{
+    _GO->SummonCreature(C_AERANAS,-1321.79, 4043.80, 116.24, 1.25, TEMPSUMMON_TIMED_DESPAWN, 180000);
+    return false;
+}
 
 /*######
 ## npc_wing_commander_dabiree
@@ -309,6 +404,16 @@ bool QuestAccept_npc_wounded_blood_elf(Player* player, Creature* creature, Quest
 void AddSC_hellfire_peninsula()
 {
     Script *newscript;
+
+    newscript = new Script;
+	 newscript->Name = "npc_aeranas";
+    newscript->GetAI = &GetAI_npc_aeranas;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_haaleshi_altar";
+    newscript->pGOHello = &GOHello_go_haaleshi_altar;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_wing_commander_dabiree";
