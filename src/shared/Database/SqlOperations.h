@@ -106,7 +106,7 @@ class SqlQueryHolder
         void SetSize(size_t size);
         QueryResult* GetResult(size_t index);
         void SetResult(size_t index, QueryResult *result);
-        void Execute(Trinity::IQueryCallback * callback, SqlDelayThread *thread, SqlResultQueue *queue);
+        bool Execute(Trinity::IQueryCallback * callback, SqlDelayThread *thread, SqlResultQueue *queue);
 };
 
 class SqlQueryHolderEx : public SqlOperation

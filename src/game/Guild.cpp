@@ -376,28 +376,41 @@ bool Guild::FillPlayerData(uint64 guid, MemberSlot* memslot)
         }
         else
         {
-        if(!objmgr.GetPlayerNameByGUID(guid, plName))       // player doesn't exist
-            return false;
+            QueryResult *result = CharacterDatabase.PQuery("SELECT name,data,zone,class FROM characters WHERE guid = '%u'", GUID_LOPART(guid));
+            if(!result)
+                return false;                                   // player doesn't exist
 
-        plLevel = Player::GetUInt32ValueFromDB(UNIT_FIELD_LEVEL, guid);
+            Field *fields = result->Fetch();
+
+            plName = fields[0].GetCppString();
+
+            Tokens data = StrSplit(fields[1].GetCppString(), " ");
+            plLevel = Player::GetUInt32ValueFromArray(data,UNIT_FIELD_LEVEL);
+
+            plZone = fields[2].GetUInt32();
+            plClass = fields[3].GetUInt32();
+            delete result;
+
         if(plLevel<1||plLevel>STRONG_MAX_LEVEL)             // can be at broken `data` field
         {
             sLog.outError("Player (GUID: %u) has a broken data in field `characters`.`data`.",GUID_LOPART(guid));
             return false;
         }
-        plZone = Player::GetZoneIdFromDB(guid);
 
-        QueryResult *result = CharacterDatabase.PQuery("SELECT class FROM characters WHERE guid='%u'", GUID_LOPART(guid));
-        if(!result)
-            return false;
-        plClass = (*result)[0].GetUInt32();
+        if(!plZone)
+        {
+            sLog.outError("Player (GUID: %u) has broken zone-data",GUID_LOPART(guid));
+            //here it will also try the same, to get the zone from characters-table, but additional it tries to find
+            plZone = Player::GetZoneIdFromDB(guid);
+            //the zone through xy coords.. this is a bit redundant, but
+            //shouldn't be called often
+        }
+
         if(plClass<CLASS_WARRIOR||plClass>=MAX_CLASSES)     // can be at broken `class` field
         {
             sLog.outError("Player (GUID: %u) has a broken data in field `characters`.`class`.",GUID_LOPART(guid));
             return false;
         }
-
-        delete result;
     }
 	}
 
