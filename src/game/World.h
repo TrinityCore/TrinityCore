@@ -419,7 +419,9 @@ class World
 
         void SendWorldText(int32 string_id, ...);
         void SendGlobalText(const char* text, WorldSession *self);
+        void SendGMText(int32 string_id, ...);
         void SendGlobalMessage(WorldPacket *packet, WorldSession *self = 0, uint32 team = 0);
+        void SendGlobalGMMessage(WorldPacket *packet, WorldSession *self = 0, uint32 team = 0);
         void SendZoneMessage(uint32 zone, WorldPacket *packet, WorldSession *self = 0, uint32 team = 0);
         void SendZoneText(uint32 zone, const char *text, WorldSession *self = 0, uint32 team = 0);
         void SendServerMessage(uint32 type, const char *text = "", Player* player = NULL);
