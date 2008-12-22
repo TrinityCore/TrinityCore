@@ -31,6 +31,7 @@ item_nether_wraith_beacon(i31742)   Summons creatures for quest Becoming a Spell
 item_flying_machine(i34060,i34061)  Engineering crafted flying machines
 item_gor_dreks_ointment(i30175)     Protecting Our Own(q10488)
 item_muiseks_vessel                 Cast on creature, they must be dead(q 3123,3124,3125,3126,3127)
+item_only_for_flight                Items which should only useable while flying
 item_protovoltaic_magneto_collector Prevents abuse
 item_razorthorn_flayer_gland        Quest Discovering Your Roots (q11520) and Rediscovering Your Roots (q11521). Prevents abuse
 item_tame_beast_rods(many)          Prevent cast on any other creature than the intended (for all tame beast quests)
@@ -65,13 +66,29 @@ bool ItemUse_item_area_52_special(Player *player, Item* _Item, SpellCastTargets 
 }
 
 /*#####
-# item_arcane_charges
+# item_only_for_flight
 #####*/
 
-bool ItemUse_item_arcane_charges(Player *player, Item* _Item, SpellCastTargets const& targets)
+bool ItemUse_item_only_for_flight(Player *player, Item* _Item, SpellCastTargets const& targets)
 {
+    uint32 itemId = _Item->GetEntry();
+    bool disabled = false;
+        
+    //for special scripts
+    switch(itemId)
+    {
+       case 24538:
+            if(!player->GetAreaId() == 3628)
+                disabled = true;
+                break;
+       case 34489:
+            if(!player->GetZoneId() == 4080)
+                disabled = true;     
+                break;
+    }
+    
     // allow use in flight only
-    if( player->isInFlight() )
+    if( player->isInFlight() && !disabled)
         return false;
 
     // error
@@ -458,8 +475,8 @@ void AddSC_item_scripts()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="item_arcane_charges";
-    newscript->pItemUse = ItemUse_item_arcane_charges;
+    newscript->Name="item_only_for_flight";
+    newscript->pItemUse = ItemUse_item_only_for_flight;
     newscript->RegisterSelf();
 
     newscript = new Script;

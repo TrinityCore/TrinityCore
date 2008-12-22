@@ -323,12 +323,10 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
                 }else Wait_Timer -= diff;
             }
 
-            //Blind highest aggro, and attack second highest
+            //Gouge highest aggro, and attack second highest
             if (Gouge_Timer < diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_GOUGE);
-                if (m_creature->getThreatManager().getThreat(m_creature->getVictim()))
-                    m_creature->getThreatManager().modifyThreatPercent(m_creature->getVictim(),-100);
+                DoCast(m_creature->getVictim(), SPELL_GOUGE);                
                 Gouge_Timer = 40000;
             }else Gouge_Timer -= diff;
 
