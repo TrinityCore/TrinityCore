@@ -129,6 +129,16 @@ bool ChatHandler::HandleNameAnnounceCommand(const char* args)
     return true;
 }
 
+bool ChatHandler::HandleGMNameAnnounceCommand(const char* args)
+{
+    WorldPacket data;
+    if(!*args)
+        return false;
+   
+    sWorld.SendGMText(LANG_GM_ANNOUNCE_COLOR, m_session->GetPlayer()->GetName(), args);
+    return true;
+}
+
 // global announce
 bool ChatHandler::HandleAnnounceCommand(const char* args)
 {
