@@ -558,7 +558,7 @@ bool ChatHandler::HandleReloadWpScriptsCommand(const char* arg)
 	objmgr.LoadWaypointScripts();
  
 	if(*arg!='a')
-        SendGlobalSysMessage("DB table `waypoint_scripts` reloaded.");
+        SendGlobalGMSysMessage("DB table `waypoint_scripts` reloaded.");
 
     return true;
 }
