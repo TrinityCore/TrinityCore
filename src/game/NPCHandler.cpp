@@ -174,6 +174,7 @@ void WorldSession::SendTrainerList( uint64 guid, const std::string& strTitle )
         bool primary_prof_first_rank = spellmgr.IsPrimaryProfessionFirstRankSpell(tSpell->spell);
 
         SpellChainNode const* chain_node = spellmgr.GetSpellChainNode(tSpell->spell);
+        uint32 req_spell = spellmgr.GetSpellRequired(tSpell->spell);
 
         data << uint32(tSpell->spell);
         data << uint8(_player->GetTrainerSpellState(tSpell));
@@ -184,8 +185,8 @@ void WorldSession::SendTrainerList( uint64 guid, const std::string& strTitle )
         data << uint8(tSpell->reqlevel);
         data << uint32(tSpell->reqskill);
         data << uint32(tSpell->reqskillvalue);
-        data << uint32(chain_node ? (chain_node->prev ? chain_node->prev : chain_node->req) : 0);
-        data << uint32(chain_node && chain_node->prev ? chain_node->req : 0);
+        data << uint32(chain_node && chain_node->prev ? chain_node->prev : req_spell);
+        data << uint32(chain_node && chain_node->prev ? req_spell : 0);
         data << uint32(0);
     }
 
