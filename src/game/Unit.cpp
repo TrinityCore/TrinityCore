@@ -8859,14 +8859,18 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     float LvlPenalty = CalculateLevelPenalty(spellProto);
 
     // Spellmod SpellDamage
-    float SpellModSpellDamage = 100.0f;
+    //float SpellModSpellDamage = 100.0f;
+    float CoefficientPtc = ((float)CastingTime/3500.0f)*DotFactor*100.0f;
 
     if(Player* modOwner = GetSpellModOwner())
-        modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_SPELL_BONUS_DAMAGE,SpellModSpellDamage);
+        //modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_SPELL_BONUS_DAMAGE,SpellModSpellDamage);
+        modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_SPELL_BONUS_DAMAGE,CoefficientPtc);
 
-    SpellModSpellDamage /= 100.0f;
+    //SpellModSpellDamage /= 100.0f;
+    CoefficientPtc /= 100.0f;
 
-    float DoneActualBenefit = DoneAdvertisedBenefit * (CastingTime / 3500.0f) * DotFactor * SpellModSpellDamage * LvlPenalty;
+    //float DoneActualBenefit = DoneAdvertisedBenefit * (CastingTime / 3500.0f) * DotFactor * SpellModSpellDamage * LvlPenalty;
+    float DoneActualBenefit = DoneAdvertisedBenefit * CoefficientPtc * LvlPenalty;
     float TakenActualBenefit = TakenAdvertisedBenefit;
     if(spellProto->SpellFamilyName)
         TakenActualBenefit *= (CastingTime / 3500.0f) * DotFactor * LvlPenalty;
@@ -9204,14 +9208,18 @@ uint32 Unit::SpellHealingBonus(SpellEntry const *spellProto, uint32 healamount, 
         float LvlPenalty = CalculateLevelPenalty(spellProto);
 
         // Spellmod SpellDamage
-        float SpellModSpellDamage = 100.0f;
+        //float SpellModSpellDamage = 100.0f;
+        float CoefficientPtc = ((float)CastingTime/3500.0f)*DotFactor*100.0f;
 
         if(Player* modOwner = GetSpellModOwner())
-            modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_SPELL_BONUS_DAMAGE,SpellModSpellDamage);
+            //modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_SPELL_BONUS_DAMAGE,SpellModSpellDamage);
+            modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_SPELL_BONUS_DAMAGE,CoefficientPtc);
 
-        SpellModSpellDamage /= 100.0f;
+        //SpellModSpellDamage /= 100.0f;
+        CoefficientPtc /= 100.0f;
 
-        ActualBenefit = (float)AdvertisedBenefit * ((float)CastingTime / 3500.0f) * DotFactor * SpellModSpellDamage * LvlPenalty;
+        //ActualBenefit = (float)AdvertisedBenefit * ((float)CastingTime / 3500.0f) * DotFactor * SpellModSpellDamage * LvlPenalty;
+        float ActualBenefit = (float)AdvertisedBenefit * CoefficientPtc * LvlPenalty;
     }
 
     // use float as more appropriate for negative values and percent applying
