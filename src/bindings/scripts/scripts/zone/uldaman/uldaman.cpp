@@ -176,7 +176,7 @@ void AddSC_uldaman()
 
     newscript = new Script;
     newscript->Name="mob_jadespine_basilisk";
-    newscript->GetAI = GetAI_mob_jadespine_basilisk;
+    newscript->GetAI = &GetAI_mob_jadespine_basilisk;
     newscript->RegisterSelf();
 
     newscript = new Script;

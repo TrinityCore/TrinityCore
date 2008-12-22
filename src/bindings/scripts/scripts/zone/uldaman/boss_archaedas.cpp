@@ -471,7 +471,7 @@ void AddSC_boss_archaedas()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_archaedas";
-    newscript->GetAI = GetAI_boss_archaedas;
+    newscript->GetAI = &GetAI_boss_archaedas;
     newscript->RegisterSelf();
 
     newscript = new Script;
@@ -481,7 +481,7 @@ void AddSC_boss_archaedas()
 
     newscript = new Script;
     newscript->Name="mob_archaedas_minions";
-    newscript->GetAI = GetAI_mob_archaedas_minions;
+    newscript->GetAI = &GetAI_mob_archaedas_minions;
     newscript->RegisterSelf();
 
     newscript = new Script;
@@ -491,6 +491,6 @@ void AddSC_boss_archaedas()
 
     newscript = new Script;
     newscript->Name="mob_stonekeepers";
-    newscript->GetAI = GetAI_mob_stonekeepers;
+    newscript->GetAI = &GetAI_mob_stonekeepers;
     newscript->RegisterSelf();
 }

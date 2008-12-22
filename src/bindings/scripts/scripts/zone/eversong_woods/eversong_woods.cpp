@@ -553,26 +553,26 @@ void AddSC_eversong_woods()
 
     newscript = new Script;
     newscript->Name="mobs_mana_tapped";
-    newscript->GetAI = GetAI_mobs_mana_tapped;
+    newscript->GetAI = &GetAI_mobs_mana_tapped;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name= "npc_prospector_anvilward";
-    newscript->GetAI = GetAI_npc_prospector_anvilward;
+    newscript->GetAI = &GetAI_npc_prospector_anvilward;
     newscript->pGossipHello =  &GossipHello_npc_prospector_anvilward;
     newscript->pGossipSelect = &GossipSelect_npc_prospector_anvilward;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_second_trial_controller";
-    newscript->GetAI = GetAI_master_kelerun_bloodmourn;
+    newscript->GetAI = &GetAI_master_kelerun_bloodmourn;
     newscript->pGossipHello = &GossipHello_master_kelerun_bloodmourn;
     newscript->pQuestAccept = &QuestAccept_master_kelerun_bloodmourn;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_second_trial_paladin";
-    newscript->GetAI = GetAI_npc_secondTrial;
+    newscript->GetAI = &GetAI_npc_secondTrial;
     newscript->RegisterSelf();
 
     newscript = new Script;

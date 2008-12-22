@@ -86,6 +86,6 @@ void AddSC_boss_doperel()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_doperel";
-    newscript->GetAI = GetAI_boss_doperel;
+    newscript->GetAI = &GetAI_boss_doperel;
     newscript->RegisterSelf();
 }

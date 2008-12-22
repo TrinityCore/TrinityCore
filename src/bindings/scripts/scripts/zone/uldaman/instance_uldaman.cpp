@@ -300,6 +300,6 @@ void AddSC_instance_uldaman()
     Script *newscript;
     newscript = new Script;
     newscript->Name = "instance_uldaman";
-    newscript->GetInstanceData = GetInstanceData_instance_uldaman;
+    newscript->GetInstanceData = &GetInstanceData_instance_uldaman;
     newscript->RegisterSelf();
 }

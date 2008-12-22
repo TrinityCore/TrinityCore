@@ -203,7 +203,7 @@ void AddSC_dustwallow_marsh()
 
     newscript = new Script;
     newscript->Name="mobs_risen_husk_spirit";
-    newscript->GetAI = GetAI_mobs_risen_husk_spirit;
+    newscript->GetAI = &GetAI_mobs_risen_husk_spirit;
     newscript->RegisterSelf();
 
     newscript = new Script;
@@ -213,7 +213,7 @@ void AddSC_dustwallow_marsh()
 
     newscript = new Script;
     newscript->Name="npc_deserter_agitator";
-    newscript->GetAI = GetAI_npc_deserter_agitator;
+    newscript->GetAI = &GetAI_npc_deserter_agitator;
     newscript->pGossipHello = &GossipHello_npc_deserter_agitator;
     newscript->RegisterSelf();
 

@@ -57,6 +57,6 @@ void AddSC_alterac_mountains()
 
     newscript = new Script;
     newscript->Name="npc_ravenholdt";
-    newscript->GetAI = GetAI_npc_ravenholdt;
+    newscript->GetAI = &GetAI_npc_ravenholdt;
     newscript->RegisterSelf();
 }

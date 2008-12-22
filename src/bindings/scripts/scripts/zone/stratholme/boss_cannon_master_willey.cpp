@@ -216,6 +216,6 @@ void AddSC_boss_cannon_master_willey()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_cannon_master_willey";
-    newscript->GetAI = GetAI_boss_cannon_master_willey;
+    newscript->GetAI = &GetAI_boss_cannon_master_willey;
     newscript->RegisterSelf();
 }

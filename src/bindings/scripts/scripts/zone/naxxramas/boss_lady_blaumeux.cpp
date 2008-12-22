@@ -142,6 +142,6 @@ void AddSC_boss_lady_blaumeux()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_lady_blaumeux";
-    newscript->GetAI = GetAI_boss_lady_blaumeux;
+    newscript->GetAI = &GetAI_boss_lady_blaumeux;
     newscript->RegisterSelf();
 }

@@ -797,21 +797,21 @@ void AddSC_boss_leotheras_the_blind()
 
     newscript = new Script;
     newscript->Name="boss_leotheras_the_blind";
-    newscript->GetAI = GetAI_boss_leotheras_the_blind;
+    newscript->GetAI = &GetAI_boss_leotheras_the_blind;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_leotheras_the_blind_demonform";
-    newscript->GetAI = GetAI_boss_leotheras_the_blind_demonform;
+    newscript->GetAI = &GetAI_boss_leotheras_the_blind_demonform;
     newscript->RegisterSelf();
 
 	newscript = new Script;
     newscript->Name="mob_greyheart_spellbinder";
-    newscript->GetAI = GetAI_mob_greyheart_spellbinder;
+    newscript->GetAI = &GetAI_mob_greyheart_spellbinder;
     newscript->RegisterSelf();
 
 	newscript = new Script;
     newscript->Name="mob_inner_demon";
-    newscript->GetAI = GetAI_mob_inner_demon;
+    newscript->GetAI = &GetAI_mob_inner_demon;
     newscript->RegisterSelf();
 }

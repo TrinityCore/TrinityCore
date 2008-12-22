@@ -363,22 +363,22 @@ void AddSC_terokkar_forest()
 
     newscript = new Script;
     newscript->Name="mob_unkor_the_ruthless";
-    newscript->GetAI = GetAI_mob_unkor_the_ruthless;
+    newscript->GetAI = &GetAI_mob_unkor_the_ruthless;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_infested_root_walker";
-    newscript->GetAI = GetAI_mob_infested_root_walker;
+    newscript->GetAI = &GetAI_mob_infested_root_walker;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_rotting_forest_rager";
-    newscript->GetAI = GetAI_mob_rotting_forest_rager;
+    newscript->GetAI = &GetAI_mob_rotting_forest_rager;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_netherweb_victim";
-    newscript->GetAI = GetAI_mob_netherweb_victim;
+    newscript->GetAI = &GetAI_mob_netherweb_victim;
     newscript->RegisterSelf();
 
     newscript = new Script;

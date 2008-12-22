@@ -236,11 +236,11 @@ void AddSC_boss_maexxna()
 
     newscript = new Script;
     newscript->Name="boss_maexxna";
-    newscript->GetAI = GetAI_boss_maexxna;
+    newscript->GetAI = &GetAI_boss_maexxna;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_webwrap";
-    newscript->GetAI = GetAI_mob_webwrap;
+    newscript->GetAI = &GetAI_mob_webwrap;
     newscript->RegisterSelf();
 }

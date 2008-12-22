@@ -110,6 +110,6 @@ void AddSC_boss_anubshiah()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_anubshiah";
-    newscript->GetAI = GetAI_boss_anubshiah;
+    newscript->GetAI = &GetAI_boss_anubshiah;
     newscript->RegisterSelf();
 }

@@ -270,11 +270,11 @@ void AddSC_boss_mekgineer_steamrigger()
 
     newscript = new Script;
     newscript->Name="boss_mekgineer_steamrigger";
-    newscript->GetAI = GetAI_boss_mekgineer_steamrigger;
+    newscript->GetAI = &GetAI_boss_mekgineer_steamrigger;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_steamrigger_mechanic";
-    newscript->GetAI = GetAI_mob_steamrigger_mechanic;
+    newscript->GetAI = &GetAI_mob_steamrigger_mechanic;
     newscript->RegisterSelf();
 }

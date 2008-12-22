@@ -391,26 +391,26 @@ void AddSC_boss_darkweaver_syth()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_darkweaver_syth";
-    newscript->GetAI = GetAI_boss_darkweaver_syth;
+    newscript->GetAI = &GetAI_boss_darkweaver_syth;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_syth_fire";
-    newscript->GetAI = GetAI_mob_syth_arcane;
+    newscript->GetAI = &GetAI_mob_syth_arcane;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_syth_arcane";
-    newscript->GetAI = GetAI_mob_syth_arcane;
+    newscript->GetAI = &GetAI_mob_syth_arcane;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_syth_frost";
-    newscript->GetAI = GetAI_mob_syth_frost;
+    newscript->GetAI = &GetAI_mob_syth_frost;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_syth_shadow";
-    newscript->GetAI = GetAI_mob_syth_shadow;
+    newscript->GetAI = &GetAI_mob_syth_shadow;
     newscript->RegisterSelf();
 }

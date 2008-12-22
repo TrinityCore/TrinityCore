@@ -851,12 +851,12 @@ void AddSC_netherstorm()
 
     newscript = new Script;
     newscript->Name="npc_manaforge_control_console";
-    newscript->GetAI = GetAI_npc_manaforge_control_console;
+    newscript->GetAI = &GetAI_npc_manaforge_control_console;
     newscript->RegisterSelf();
 
 	newscript = new Script;
 	newscript->Name = "npc_commander_dawnforge";
-	newscript->GetAI = GetAI_npc_commander_dawnforge;
+	newscript->GetAI = &GetAI_npc_commander_dawnforge;
 	newscript->RegisterSelf();
 	 	 
 	newscript = new Script;
@@ -878,6 +878,6 @@ void AddSC_netherstorm()
 
     newscript = new Script;
     newscript->Name = "mob_phase_hunter";
-    newscript->GetAI = GetAI_mob_phase_hunter;
+    newscript->GetAI = &GetAI_mob_phase_hunter;
     newscript->RegisterSelf();
 }

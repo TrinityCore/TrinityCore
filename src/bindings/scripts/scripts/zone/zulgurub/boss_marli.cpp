@@ -246,11 +246,11 @@ void AddSC_boss_marli()
 
     newscript = new Script;
     newscript->Name="boss_marli";
-    newscript->GetAI = GetAI_boss_marli;
+    newscript->GetAI = &GetAI_boss_marli;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_spawn_of_marli";
-    newscript->GetAI = GetAI_mob_spawn_of_marli;
+    newscript->GetAI = &GetAI_mob_spawn_of_marli;
     newscript->RegisterSelf();
 }

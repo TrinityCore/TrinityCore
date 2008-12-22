@@ -157,7 +157,7 @@ void AddSC_eastern_plaguelands()
 
     newscript = new Script;
     newscript->Name="mobs_ghoul_flayer";
-    newscript->GetAI = GetAI_mobs_ghoul_flayer;
+    newscript->GetAI = &GetAI_mobs_ghoul_flayer;
     newscript->RegisterSelf();
 
     newscript = new Script;
@@ -168,7 +168,7 @@ void AddSC_eastern_plaguelands()
 
     newscript = new Script;
     newscript->Name="npc_darrowshire_spirit";
-    newscript->GetAI = GetAI_npc_darrowshire_spirit;
+    newscript->GetAI = &GetAI_npc_darrowshire_spirit;
     newscript->pGossipHello = &GossipHello_npc_darrowshire_spirit;
     newscript->RegisterSelf();
 

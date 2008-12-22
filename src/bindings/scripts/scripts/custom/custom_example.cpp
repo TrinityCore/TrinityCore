@@ -269,7 +269,7 @@ void AddSC_custom_example()
 
     newscript = new Script;
     newscript->Name="custom_example";
-    newscript->GetAI = GetAI_custom_example;
+    newscript->GetAI = &GetAI_custom_example;
     newscript->pGossipHello = &GossipHello_custom_example;
     newscript->pGossipSelect = &GossipSelect_custom_example;
     newscript->pReceiveEmote = &ReceiveEmote_custom_example;

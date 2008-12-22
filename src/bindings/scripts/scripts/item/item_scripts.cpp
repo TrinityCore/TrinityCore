@@ -471,96 +471,96 @@ void AddSC_item_scripts()
 
     newscript = new Script;
     newscript->Name="item_area_52_special";
-    newscript->pItemUse = ItemUse_item_area_52_special;
+    newscript->pItemUse = &ItemUse_item_area_52_special;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_only_for_flight";
-    newscript->pItemUse = ItemUse_item_only_for_flight;
+    newscript->pItemUse = &ItemUse_item_only_for_flight;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_attuned_crystal_cores";
-    newscript->pItemUse = ItemUse_item_attuned_crystal_cores;
+    newscript->pItemUse = &ItemUse_item_attuned_crystal_cores;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_blackwhelp_net";
-    newscript->pItemUse = ItemUse_item_blackwhelp_net;
+    newscript->pItemUse = &ItemUse_item_blackwhelp_net;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_disciplinary_rod";
-    newscript->pItemUse = ItemUse_item_disciplinary_rod;
+    newscript->pItemUse = &ItemUse_item_disciplinary_rod;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_draenei_fishing_net";
-    newscript->pItemUse = ItemUse_item_draenei_fishing_net;
+    newscript->pItemUse = &ItemUse_item_draenei_fishing_net;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_nether_wraith_beacon";
-    newscript->pItemUse = ItemUse_item_nether_wraith_beacon;
+    newscript->pItemUse = &ItemUse_item_nether_wraith_beacon;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_flying_machine";
-    newscript->pItemUse = ItemUse_item_flying_machine;
+    newscript->pItemUse = &ItemUse_item_flying_machine;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_gor_dreks_ointment";
-    newscript->pItemUse = ItemUse_item_gor_dreks_ointment;
+    newscript->pItemUse = &ItemUse_item_gor_dreks_ointment;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_muiseks_vessel";
-    newscript->pItemUse = ItemUse_item_muiseks_vessel;
+    newscript->pItemUse = &ItemUse_item_muiseks_vessel;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_razorthorn_flayer_gland";
-    newscript->pItemUse = ItemUse_item_razorthorn_flayer_gland;
+    newscript->pItemUse = &ItemUse_item_razorthorn_flayer_gland;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_tame_beast_rods";
-    newscript->pItemUse = ItemUse_item_tame_beast_rods;
+    newscript->pItemUse = &ItemUse_item_tame_beast_rods;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_protovoltaic_magneto_collector";
-    newscript->pItemUse = ItemUse_item_protovoltaic_magneto_collector;
+    newscript->pItemUse = &ItemUse_item_protovoltaic_magneto_collector;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_soul_cannon";
-    newscript->pItemUse = ItemUse_item_soul_cannon;
+    newscript->pItemUse = &ItemUse_item_soul_cannon;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_sparrowhawk_net";
-    newscript->pItemUse = ItemUse_item_sparrowhawk_net;
+    newscript->pItemUse = &ItemUse_item_sparrowhawk_net;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_voodoo_charm";
-    newscript->pItemUse = ItemUse_item_voodoo_charm;
+    newscript->pItemUse = &ItemUse_item_voodoo_charm;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_vorenthals_presence";
-    newscript->pItemUse = ItemUse_item_vorenthals_presence;
+    newscript->pItemUse = &ItemUse_item_vorenthals_presence;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_yehkinyas_bramble";
-    newscript->pItemUse = ItemUse_item_yehkinyas_bramble;
+    newscript->pItemUse = &ItemUse_item_yehkinyas_bramble;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="item_zezzaks_shard";
-    newscript->pItemUse = ItemUse_item_zezzak_shard;
+    newscript->pItemUse = &ItemUse_item_zezzak_shard;
     newscript->RegisterSelf();
 }
