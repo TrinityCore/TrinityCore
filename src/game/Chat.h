@@ -81,6 +81,7 @@ class ChatHandler
         virtual bool needReportToTarget(Player* chr) const;
 
         void SendGlobalSysMessage(const char *str);
+        void SendGlobalGMSysMessage(const char *str);
 
         bool ExecuteCommandInTable(ChatCommand *table, const char* text, const std::string& fullcommand);
         bool ShowHelpForCommand(ChatCommand *table, const char* cmd);
@@ -109,8 +110,11 @@ class ChatHandler
         bool HandleGroupgoCommand(const char* args);
         bool HandleRecallCommand(const char* args);
         bool HandleNameAnnounceCommand(const char* args);
+        bool HandleGMNameAnnounceCommand(const char* args);
         bool HandleAnnounceCommand(const char* args);
+        bool HandleGMAnnounceCommand(const char* args);
         bool HandleNotifyCommand(const char* args);
+        bool HandleGMNotifyCommand(const char* args);
         bool HandleGMmodeCommand(const char* args);
         bool HandleGMChatCommand(const char* args);
         bool HandleVisibleCommand(const char* args);

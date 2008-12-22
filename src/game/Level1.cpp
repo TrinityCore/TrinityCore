@@ -129,6 +129,16 @@ bool ChatHandler::HandleNameAnnounceCommand(const char* args)
     return true;
 }
 
+bool ChatHandler::HandleGMNameAnnounceCommand(const char* args)
+{
+    WorldPacket data;
+    if(!*args)
+        return false;
+   
+    sWorld.SendGMText(LANG_GM_ANNOUNCE_COLOR, m_session->GetPlayer()->GetName(), args);
+    return true;
+}
+
 // global announce
 bool ChatHandler::HandleAnnounceCommand(const char* args)
 {
@@ -136,6 +146,16 @@ bool ChatHandler::HandleAnnounceCommand(const char* args)
         return false;
 
     sWorld.SendWorldText(LANG_SYSTEMMESSAGE,args);
+    return true;
+}
+
+// announce to logged in GMs
+bool ChatHandler::HandleGMAnnounceCommand(const char* args)
+{
+    if(!*args)
+        return false;
+
+    sWorld.SendGMText(LANG_GM_BROADCAST,args);
     return true;
 }
 
@@ -151,6 +171,22 @@ bool ChatHandler::HandleNotifyCommand(const char* args)
     WorldPacket data(SMSG_NOTIFICATION, (str.size()+1));
     data << str;
     sWorld.SendGlobalMessage(&data);
+
+    return true;
+}
+
+//notification GM at the screen
+bool ChatHandler::HandleGMNotifyCommand(const char* args)
+{
+    if(!*args)
+        return false;
+
+    std::string str = GetTrinityString(LANG_GM_NOTIFY);
+    str += args;
+
+    WorldPacket data(SMSG_NOTIFICATION, (str.size()+1));
+    data << str;
+    sWorld.SendGlobalGMMessage(&data);
 
     return true;
 }

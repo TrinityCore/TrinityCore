@@ -100,6 +100,8 @@ scripts/zone/black_temple/def_black_temple.h \
 scripts/zone/black_temple/illidari_council.cpp \
 scripts/zone/black_temple/instance_black_temple.cpp \
 scripts/zone/blackrock_depths/blackrock_depths.cpp \
+scripts/zone/blackrock_depths/instance_blackrock_depths.cpp \
+scripts/zone/blackrock_depths/def_blackrock_depths.h \
 scripts/zone/blackrock_depths/boss_ambassador_flamelash.cpp \
 scripts/zone/blackrock_depths/boss_angerrel.cpp \
 scripts/zone/blackrock_depths/boss_anubshiah.cpp \
