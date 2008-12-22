@@ -1,23 +1,3 @@
-/*
-These are Trinity sql. Need to check if they should be added again.
-[\sql\updates\230_world.sql]
-Line 1 : UPDATE `spell_proc_event` SET `procFlags` = '8396800' WHERE `entry` =14774;
-Line 2 : UPDATE `spell_proc_event` SET `procFlags` = '8396800' WHERE `entry` =14531;
-[\sql\updates\233_world.sql]
-Line 1 : UPDATE `spell_proc_event` SET `SchoolMask` = '1' WHERE `entry` = '41434';
-[\sql\updates\57_world_scripts.sql]
-Line 34 : DELETE FROM `spell_proc_event` WHERE `entry` = 43983;
-Line 35 : INSERT INTO `spell_proc_event` VALUES ('43983', '0', '0', '0', '0', '0', '16384', '0', '0');
-[\updates\78_world.sql]
-Line 12 : DELETE FROM spell_proc_event WHERE entry IN (34139,42368,43726,46092);
-Line 13 : INSERT INTO spell_proc_event (entry, SchoolMask, Category, SkillID, SpellFamilyName, SpellFamilyMask, procFlags, ppmRate, cooldown) VALUES
-Line 19 : DELETE FROM spell_proc_event where entry IN (34598, 34584, 36488);
-Line 20 : INSERT INTO spell_proc_event (entry, SchoolMask, Category, SkillID, SpellFamilyName, SpellFamilyMask, procFlags, ppmRate, cooldown) VALUES
-[\updates\79_world.sql]
-Line 1 : DELETE FROM spell_proc_event where entry = 42083;
-Line 2 : INSERT INTO spell_proc_event (entry, SchoolMask, Category, SkillID, SpellFamilyName, SpellFamilyMask, procFlags, ppmRate, cooldown) VALUES
-*/
-
 DROP TABLE IF EXISTS `spell_proc_event`;
 
 SET FOREIGN_KEY_CHECKS=0;
