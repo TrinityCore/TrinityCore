@@ -1,9 +1,9 @@
 -- demon fire
-update creature_template set spell1 = 40029, flags_extra = 128, scriptname = '' where entry = 23069;
+UPDATE `creature_template` SET spell1 = 40029, flags_extra = 128, ScriptName = '' WHERE entry = 23069;
 -- pillar of fire
-update creature_template set spell1 = 43218, flags_extra = 128, scriptname = '' where entry = 24187;
+UPDATE `creature_template` SET spell1 = 43218, flags_extra = 128, ScriptName = '' WHERE entry = 24187;
 -- Broggok Poison Cloud
-update creature_template set spell1 = 30914, flags_extra = 128, scriptname = '' where entry = 17662;
+UPDATE `creature_template` SET spell1 = 30914, flags_extra = 128, ScriptName = '' WHERE entry = 17662;
 
 
 INSERT INTO spell_linked_spell (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES (43468, 44007, 1, 'Storm Eye Safe Zone');
