@@ -1,4 +1,4 @@
-########################################################################
+########################################################################
 #
 # Makefile for compiling StormLib under linux
 #
@@ -9,7 +9,7 @@
 #    
 # Copyright (c) 2001 BMX-Chemnitz.DE All rights reserved.
 #
-########################################################################
+########################################################################
 
 FILES.cpp = SCommon.cpp SCompression.cpp SFileCompactArchive.cpp \
 	SFileCreateArchiveEx.cpp SFileExtractFile.cpp SFileFindFile.cpp \
