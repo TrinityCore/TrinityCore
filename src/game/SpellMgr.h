@@ -657,12 +657,15 @@ struct SpellChainNode
     uint32 next;
     uint32 first;
     uint32 last;
-    uint32 req;
     uint8  rank;
 };
 
 typedef UNORDERED_MAP<uint32, SpellChainNode> SpellChainMap;
-typedef std::multimap<uint32, uint32> SpellRequiredMap;
+
+//                 spell_id  req_spell
+typedef UNORDERED_MAP<uint32, uint32> SpellRequiredMap;
+
+typedef std::multimap<uint32, uint32> SpellsRequiringSpellMap;
 
 // Spell learning properties (accessed using SpellMgr functions)
 struct SpellLearnSkillNode
@@ -787,6 +790,15 @@ class SpellMgr
             return &itr->second;
         }
 
+        uint32 GetSpellRequired(uint32 spell_id) const
+        {
+            SpellRequiredMap::const_iterator itr = mSpellReq.find(spell_id);
+            if(itr == mSpellReq.end())
+                return NULL;
+
+            return itr->second;
+        }
+
         uint32 GetFirstSpellInChain(uint32 spell_id) const
         {
             if(SpellChainNode const* node = GetSpellChainNode(spell_id))
@@ -803,7 +815,7 @@ class SpellMgr
             return 0;
         }
 
-        SpellRequiredMap const& GetSpellRequiredMap() const { return mSpellReq; }
+        SpellsRequiringSpellMap const& GetSpellsRequiringSpell() const { return mSpellsReqSpell; }
 
         // Note: not use rank for compare to spell ranks: spell chains isn't linear order
         // Use IsHighRankOfSpell instead
@@ -947,6 +959,7 @@ class SpellMgr
 
         // Loading data at server startup
         void LoadSpellChains();
+        void LoadSpellRequired();
         void LoadSpellLearnSkills();
         void LoadSpellLearnSpells();
         void LoadSpellScriptTarget();
@@ -963,6 +976,7 @@ class SpellMgr
     private:
         SpellScriptTarget  mSpellScriptTarget;
         SpellChainMap      mSpellChains;
+        SpellsRequiringSpellMap   mSpellsReqSpell;
         SpellRequiredMap   mSpellReq;
         SpellLearnSkillMap mSpellLearnSkills;
         SpellLearnSpellMap mSpellLearnSpells;

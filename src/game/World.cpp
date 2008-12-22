@@ -1091,6 +1091,9 @@ void World::SetInitialWorldSettings()
     sLog.outString( "Loading Spell Chain Data..." );
     spellmgr.LoadSpellChains();
 
+    sLog.outString( "Loading Spell Required Data..." );
+    spellmgr.LoadSpellRequired();
+
     sLog.outString( "Loading Spell Elixir types..." );
     spellmgr.LoadSpellElixirs();
 

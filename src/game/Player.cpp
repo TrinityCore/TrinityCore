@@ -2952,8 +2952,8 @@ void Player::removeSpell(uint32 spell_id, bool disabled)
         removeSpell(node->next,disabled);
     }
     //unlearn spells dependent from recently removed spells
-    SpellRequiredMap const& reqMap = spellmgr.GetSpellRequiredMap();
-    SpellRequiredMap::const_iterator itr2 = reqMap.find(spell_id);
+    SpellsRequiringSpellMap const& reqMap = spellmgr.GetSpellsRequiringSpell();
+    SpellsRequiringSpellMap::const_iterator itr2 = reqMap.find(spell_id);
     for (uint32 i=reqMap.count(spell_id);i>0;i--,itr2++)
         removeSpell(itr2->second,disabled);
 
@@ -3546,9 +3546,12 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
         // check prev.rank requirement
         if(spell_chain->prev && !HasSpell(spell_chain->prev))
             return TRAINER_SPELL_RED;
+    }
 
+    if(uint32 spell_req = spellmgr.GetSpellRequired(trainer_spell->spell))
+    {
         // check additional spell requirement
-        if(spell_chain->req && !HasSpell(spell_chain->req))
+        if(!HasSpell(spell_req))
             return TRAINER_SPELL_RED;
     }
 

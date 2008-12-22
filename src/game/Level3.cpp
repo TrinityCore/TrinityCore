@@ -145,7 +145,7 @@ bool ChatHandler::HandleReloadAllSpellCommand(const char*)
     HandleReloadSkillDiscoveryTemplateCommand("a");
     HandleReloadSkillExtraItemTemplateCommand("a");
     HandleReloadSpellAffectCommand("a");
-    HandleReloadSpellChainCommand("a");
+    HandleReloadSpellRequiredCommand("a");
     HandleReloadSpellElixirCommand("a");
     HandleReloadSpellLearnSpellCommand("a");
     HandleReloadSpellProcEventCommand("a");
@@ -423,11 +423,11 @@ bool ChatHandler::HandleReloadSpellAffectCommand(const char*)
     return true;
 }
 
-bool ChatHandler::HandleReloadSpellChainCommand(const char*)
+bool ChatHandler::HandleReloadSpellRequiredCommand(const char*)
 {
-    sLog.outString( "Re-Loading Spell Chain Data... " );
-    spellmgr.LoadSpellChains();
-    SendGlobalSysMessage("DB table `spell_chain` (spell ranks) reloaded.");
+    sLog.outString( "Re-Loading Spell Required Data... " );
+    spellmgr.LoadSpellRequired();
+    SendGlobalSysMessage("DB table `spell_required` reloaded.");
     return true;
 }
 
