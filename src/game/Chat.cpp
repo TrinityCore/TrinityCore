@@ -533,7 +533,9 @@ ChatCommand * ChatHandler::getCommandTable()
         { "unaura",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleUnAuraCommand,              "", NULL },
         { "nameannounce",   SEC_MODERATOR,      false, &ChatHandler::HandleNameAnnounceCommand,        "", NULL }, 
         { "announce",       SEC_MODERATOR,      true,  &ChatHandler::HandleAnnounceCommand,            "", NULL },
+        { "gmannounce",     SEC_MODERATOR,      true,  &ChatHandler::HandleGMAnnounceCommand,          "", NULL },
         { "notify",         SEC_MODERATOR,      true,  &ChatHandler::HandleNotifyCommand,              "", NULL },
+        { "gmnotify",       SEC_MODERATOR,      true,  &ChatHandler::HandleGMNotifyCommand,            "", NULL },
         { "goname",         SEC_MODERATOR,      false, &ChatHandler::HandleGonameCommand,              "", NULL },
         { "namego",         SEC_MODERATOR,      false, &ChatHandler::HandleNamegoCommand,              "", NULL },
         { "groupgo",        SEC_MODERATOR,      false, &ChatHandler::HandleGroupgoCommand,             "", NULL },
@@ -720,6 +722,22 @@ void ChatHandler::SendGlobalSysMessage(const char *str)
     }
 
     free(buf);
+}
+
+void ChatHandler::SendGlobalGMSysMessage(const char *str)
+{
+    // Chat output
+    WorldPacket data;
+
+    // need copy to prevent corruption by strtok call in LineFromMessage original string
+    char* buf = strdup(str);
+    char* pos = buf;
+
+    while(char* line = LineFromMessage(pos))
+    {
+        FillSystemMessageData(&data, line);
+        sWorld.SendGlobalGMMessage(&data);
+     }
 }
 
 void ChatHandler::SendSysMessage(int32 entry)
