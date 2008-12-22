@@ -17,12 +17,14 @@
 /* ScriptData
 SDName: Tirisfal_Glades
 SD%Complete: 100
-SDComment: Quest support: 590
+SDComment: Quest support: 590, 1819
 SDCategory: Tirisfal Glades
 EndScriptData */
 
 /* ContentData
 npc_calvin_montague
+go_mausoleum_door
+go_mausoleum_trigger
 EndContentData */
 
 #include "precompiled.h"
@@ -76,6 +78,66 @@ bool QuestAccept_npc_calvin_montague(Player* player, Creature* creature, Quest c
     return true;
 }
 
+/*######
+## go_mausoleum_door
+## go_mausoleum_trigger
+######*/
+
+#define QUEST_ULAG      1819
+#define C_ULAG          6390
+#define GO_TRIGGER      104593
+#define GO_DOOR         176594
+
+GameObject* SearchMausoleumGo(Unit *source, uint32 entry, float range)
+{
+    GameObject* pGo = NULL;
+    
+    CellPair pair(Trinity::ComputeCellPair(source->GetPositionX(), source->GetPositionY()));
+    Cell cell(pair);
+    cell.data.Part.reserved = ALL_DISTRICT;
+    cell.SetNoCreate();
+     
+    Trinity::NearestGameObjectEntryInObjectRangeCheck go_check(*source, entry, range);
+    Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck> searcher(pGo, go_check);
+     
+    TypeContainerVisitor<Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck>, GridTypeMapContainer> go_searcher(searcher);
+    
+    CellLock<GridReadGuard> cell_lock(cell, pair);
+    cell_lock->Visit(cell_lock, go_searcher,*(source->GetMap()));
+    
+    return pGo;
+}
+
+bool GOHello_go_mausoleum_door(Player *player, GameObject* _GO)
+{
+    if (player->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
+        return false;
+    
+    if (GameObject *trigger = SearchMausoleumGo(player, GO_TRIGGER, 30))
+    {
+        trigger->SetGoState(1);
+        player->SummonCreature(C_ULAG, 2390.26, 336.47, 40.01, 2.26, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
+        return false;
+    }
+    
+    return false;
+}
+
+bool GOHello_go_mausoleum_trigger(Player *player, GameObject* _GO)
+{
+    if (player->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
+        return false;
+    
+    if (GameObject *door = SearchMausoleumGo(player, GO_DOOR, 30))
+    {
+        _GO->SetGoState(0);
+        door->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+        return true;
+    }
+    
+    return false;
+}
+
 void AddSC_tirisfal_glades()
 {
     Script *newscript;
@@ -84,5 +146,15 @@ void AddSC_tirisfal_glades()
     newscript->Name="npc_calvin_montague";
     newscript->GetAI = GetAI_npc_calvin_montague;
     newscript->pQuestAccept = &QuestAccept_npc_calvin_montague;
+    newscript->RegisterSelf();
+
+	newscript = new Script;
+    newscript->Name = "go_mausoleum_door";
+    newscript->pGOHello = &GOHello_go_mausoleum_door;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_mausoleum_trigger";
+    newscript->pGOHello = &GOHello_go_mausoleum_trigger;
     newscript->RegisterSelf();
 }

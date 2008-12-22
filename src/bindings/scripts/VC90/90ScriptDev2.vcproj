@@ -2318,6 +2318,14 @@
 						RelativePath="..\scripts\zone\blackrock_depths\boss_vilerel.cpp"
 						>
 					</File>
+					<File
+						RelativePath="..\scripts\zone\blackrock_depths\def_blackrock_depths.h"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\blackrock_depths\instance_blackrock_depths.cpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="Loch Modan"
