@@ -24,8 +24,6 @@
 #include <map>
 #include <set>
 
-#define OUTDOORPVP_OBJECTIVE_UPDATE_INTERVAL 1000
-
 #define OPVP_TRIGGER_CREATURE_ENTRY 12999
 
 enum ObjectiveStates{
@@ -133,8 +131,6 @@ protected:
     std::set<uint64> m_ActivePlayerGuids;
     int32 m_AllianceActivePlayerCount;
     int32 m_HordeActivePlayerCount;
-    // time left to capture the objective
-    uint32 m_ShiftTimer;
     // total shift needed to capture the objective
     float m_ShiftMaxPhase;
     // maximum speed of capture
@@ -173,7 +169,7 @@ public:
     // deletes all gos/creatures spawned by the pvp
     void DeleteSpawns();
 
-    typedef std::set<OutdoorPvPObjective *> OutdoorPvPObjectiveSet;
+    typedef std::vector<OutdoorPvPObjective *> OutdoorPvPObjectiveSet;
 
     // called from Player::UpdateZone to add / remove buffs given by outdoor pvp events
     virtual void HandlePlayerEnterZone(Player * plr, uint32 zone);
