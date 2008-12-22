@@ -7693,6 +7693,8 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
 
     if(basepoints0)
         CastCustomSpell(target,trigger_spell_id,&basepoints0,NULL,NULL,true,castItem,triggeredByAura);
+    else if(spellmgr.GetSpellCustomAttr(trigger_spell_id) & SPELL_ATTR_CU_AURA_SPELL)
+        AddAura(trigger_spell_id, target);
     else
         CastSpell(target,trigger_spell_id,true,castItem,triggeredByAura);
 
@@ -12939,4 +12941,23 @@ bool Unit::IsInRaidWith(Unit const *unit) const
         return p1->IsInSameRaidWith(p2);
     else
         return false;
+}
+
+void Unit::AddAura(uint32 spellId, Unit* target)
+{
+    if(!target)
+        return;
+
+    SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
+    if(!spellInfo)
+        return;
+
+    for(uint32 i = 0; i < 3; ++i)
+    {
+        if(spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA)
+        {
+            Aura *Aur = CreateAura(spellInfo, i, NULL, target, this);
+            target->AddAura(Aur);
+        }
+    }
 }

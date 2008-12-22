@@ -1987,17 +1987,29 @@ void SpellMgr::LoadSpellCustomAttr()
 {
     mSpellCustomAttr.resize(GetSpellStore()->GetNumRows());
 
-    SpellEntry *tempSpell;
+    SpellEntry *spellInfo;
     for(uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i)
     {
         mSpellCustomAttr[i] = 0;
-        tempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(i);
-        if(!tempSpell)
+        spellInfo = (SpellEntry*)GetSpellStore()->LookupEntry(i);
+        if(!spellInfo)
             continue;
+
+        bool auraSpell = true;
+        for(uint32 j = 0; j < 3; ++j)
+        {
+            if(spellInfo->Effect[j] && spellInfo->Effect[j] != SPELL_EFFECT_APPLY_AURA)
+            {
+                auraSpell = false;
+                break;
+            }
+        }
+        if(auraSpell)
+            mSpellCustomAttr[i] |= SPELL_ATTR_CU_AURA_SPELL;
 
         for(uint32 j = 0; j < 3; ++j)
         {
-            switch(tempSpell->EffectApplyAuraName[j])
+            switch(spellInfo->EffectApplyAuraName[j])
             {
                 case SPELL_AURA_PERIODIC_DAMAGE:
                 case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
@@ -2021,7 +2033,7 @@ void SpellMgr::LoadSpellCustomAttr()
             }
         }
 
-        if(tempSpell->SpellVisual == 3879)
+        if(spellInfo->SpellVisual == 3879)
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_CONE_BACK;
 
         switch(i)
@@ -2048,22 +2060,22 @@ void SpellMgr::LoadSpellCustomAttr()
         case 44869: // Spectral Blast
         case 45027: // Revitalize
         case 45976: // Muru Portal Channel
-            tempSpell->MaxAffectedTargets = 1;
+            spellInfo->MaxAffectedTargets = 1;
             break;
         case 41376: // Spite
         case 39992: // Needle Spine
-            tempSpell->MaxAffectedTargets = 3;
+            spellInfo->MaxAffectedTargets = 3;
             break;
         case 42005: // Bloodboil
-            tempSpell->MaxAffectedTargets = 5;
+            spellInfo->MaxAffectedTargets = 5;
             break;
         case 8122: case 8124: case 10888: case 10890: // Psychic Scream
         case 12494: // Frostbite
-            tempSpell->Attributes |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
+            spellInfo->Attributes |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
             break;
-        case 5530: // Mace spec (this will not be needed in 303
-            tempSpell->rangeIndex = 13; //inf
-            break;
+        //case 5530: // Mace spec (this will not be needed in 303
+        //    spellInfo->rangeIndex = 13; //inf
+        //    break;
         default:
             break;
         }
