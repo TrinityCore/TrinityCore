@@ -11641,9 +11641,9 @@ void Player::ApplyEnchantment(Item *item,EnchantmentSlot slot,bool apply, bool a
                 {
                     if(apply)
                     {
-                        int32 basepoints = int32(enchant_amount);
+                        int32 basepoints = 0;
                         // Random Property Exist - try found basepoints for spell (basepoints depends from item suffix factor)
-                        if (item->GetItemRandomPropertyId() !=0 && !enchant_amount)
+                        if (item->GetItemRandomPropertyId())
                         {
                             ItemRandomSuffixEntry const *item_rand = sItemRandomSuffixStore.LookupEntry(abs(item->GetItemRandomPropertyId()));
                             if (item_rand)

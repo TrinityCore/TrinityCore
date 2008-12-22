@@ -10274,8 +10274,12 @@ bool Unit::CanHaveThreatList() const
     if( !isAlive() )
         return false;
 
-    // pets and totems can not have threat list
-    if( ((Creature*)this)->isPet() || ((Creature*)this)->isTotem() )
+    // totems can not have threat list
+    if( ((Creature*)this)->isTotem() )
+        return false;
+
+    // pets can not have a threat list, unless they are controlled by a creature
+    if( ((Creature*)this)->isPet() && IS_PLAYER_GUID(((Pet*)this)->GetOwnerGUID()) )
         return false;
 
     return true;
@@ -10454,9 +10458,12 @@ int32 Unit::CalculateSpellDamage(SpellEntry const* spellProto, uint8 effect_inde
 
     uint8 comboPoints = unitPlayer ? unitPlayer->GetComboPoints() : 0;
 
-    int32 level = int32(getLevel()) - int32(spellProto->spellLevel);
-    if (level > spellProto->maxLevel && spellProto->maxLevel > 0)
-        level = spellProto->maxLevel;
+    int32 level = int32(getLevel());
+    if (level > (int32)spellProto->maxLevel && spellProto->maxLevel > 0)
+        level = (int32)spellProto->maxLevel;
+    else if (level < (int32)spellProto->baseLevel)
+        level = (int32)spellProto->baseLevel;
+    level-= (int32)spellProto->spellLevel;
 
     float basePointsPerLevel = spellProto->EffectRealPointsPerLevel[effect_index];
     float randomPointsPerLevel = spellProto->EffectDicePerLevel[effect_index];

@@ -27,6 +27,12 @@
 
 #include "Common.h"
 
+// Note: this include need for be sure have full definition of class WorldSession
+//       if this class definition not complite then VS for x64 release use different size for
+//       struct OpcodeHandler in this header and Opcode.cpp and get totally wrong data from
+//       table opcodeTable in source when Opcode.h included but WorldSession.h not included
+#include "WorldSession.h"
+
 /// List of Opcodes
 enum Opcodes
 {
@@ -1104,7 +1110,6 @@ enum SessionStatus
     STATUS_NEVER                                            ///< Opcode not accepted from client (deprecated or server side only)
 };
 
-class WorldSession;
 class WorldPacket;
 
 struct OpcodeHandler

@@ -937,18 +937,28 @@ void WorldSession::HandleChangePlayerNameOpcode(WorldPacket& recv_data)
         return;
     }
 
-    CharacterDatabase.escape_string(newname);
+    std::string escaped_newname = newname;
+    CharacterDatabase.escape_string(escaped_newname);
 
-    CharacterDatabase.AsyncPQuery(&WorldSession::HandleChangePlayerNameOpcodeCallBack, GUID_LOPART(guid), newname, "SELECT guid, at_login, name FROM characters WHERE guid = '%u' XOR name = '%s'", GUID_LOPART(guid), newname.c_str());
+    // make sure that the character belongs to the current account, that rename at login is enabled
+    // and that there is no character with the desired new name
+    CharacterDatabase.AsyncPQuery(&WorldSession::HandleChangePlayerNameOpcodeCallBack,
+        GetAccountId(), newname,
+        "SELECT guid, name FROM characters WHERE guid = %d AND account = %d AND (at_login & %d) = %d AND NOT EXISTS (SELECT NULL FROM characters WHERE name = '%s')",
+        GUID_LOPART(guid), GetAccountId(), AT_LOGIN_RENAME, AT_LOGIN_RENAME, escaped_newname.c_str()
+    );
 }
 
 void WorldSession::HandleChangePlayerNameOpcodeCallBack(QueryResult *result, uint32 accountId, std::string newname)
 {
     WorldSession * session = sWorld.FindSession(accountId);
     if(!session)
+    {
+        if(result) delete result;
         return;
+    }
 
-    if (!result || result->GetRowCount() != 1)
+    if (!result)
     {
         WorldPacket data(SMSG_CHAR_RENAME, 1);
         data << (uint8)CHAR_CREATE_ERROR;
@@ -956,33 +966,16 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(QueryResult *result, uin
         return;
     }
 
-    Field *fields = result->Fetch();
-    uint32 guidLow = fields[0].GetUInt32();
+    uint32 guidLow = result->Fetch()[0].GetUInt32();
     uint64 guid = MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER);
-    uint32 at_loginFlags = fields[1].GetUInt32();
-    std::string oldname = fields[2].GetCppString();
+    std::string oldname = result->Fetch()[1].GetCppString();
+
     delete result;
-    if(oldname == newname)
-    {
-        WorldPacket data(SMSG_CHAR_RENAME, 1);
-        data << (uint8)CHAR_CREATE_ERROR;
-        session->SendPacket( &data );
-        return;
-    }
 
-    // we have to check character at_login_flag & AT_LOGIN_RENAME also (fake packets hehe)
-    if (!(at_loginFlags & AT_LOGIN_RENAME))
-    {
-        WorldPacket data(SMSG_CHAR_RENAME, 1);
-        data << (uint8)CHAR_CREATE_ERROR;
-        session->SendPacket( &data );
-        return;
-    }
-
-    CharacterDatabase.PExecute("UPDATE characters set name = '%s', at_login = at_login & ~ %u WHERE guid ='%u'", newname.c_str(), uint32(AT_LOGIN_RENAME),guidLow);
+    CharacterDatabase.PExecute("UPDATE characters set name = '%s', at_login = at_login & ~ %u WHERE guid ='%u'", newname.c_str(), uint32(AT_LOGIN_RENAME), guidLow);
     CharacterDatabase.PExecute("DELETE FROM character_declinedname WHERE guid ='%u'", guidLow);
 
-    sLog.outChar("Account: %d (IP: %s) Character:[%s] (guid:%u) Changed name to: %s",session->GetAccountId(),session->GetRemoteAddress().c_str(),oldname.c_str(),guidLow,newname.c_str());
+    sLog.outChar("Account: %d (IP: %s) Character:[%s] (guid:%u) Changed name to: %s",session->GetAccountId(), session->GetRemoteAddress().c_str(), oldname.c_str(), guidLow, newname.c_str());
 
     WorldPacket data(SMSG_CHAR_RENAME,1+8+(newname.size()+1));
     data << (uint8)RESPONSE_SUCCESS;
