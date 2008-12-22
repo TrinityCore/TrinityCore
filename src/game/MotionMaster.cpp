@@ -163,8 +163,17 @@ MotionMaster::MoveTargetedHome()
     }
     else if(i_owner->GetTypeId()==TYPEID_UNIT && ((Creature*)i_owner)->GetCharmerOrOwnerGUID())
     {
-        sLog.outError("Pet or controlled creature (Entry: %u GUID: %u) attempt targeted home",
+        DEBUG_LOG("Pet or controlled creature (Entry: %u GUID: %u) targeting home",
             i_owner->GetEntry(), i_owner->GetGUIDLow() );
+        Unit *target = ((Creature*)i_owner)->GetCharmerOrOwner();
+        if(target)
+        {
+            i_owner->addUnitState(UNIT_STAT_FOLLOW);
+            DEBUG_LOG("Following %s (GUID: %u)",
+                target->GetTypeId()==TYPEID_PLAYER ? "player" : "creature",
+                target->GetTypeId()==TYPEID_PLAYER ? target->GetGUIDLow() : ((Creature*)target)->GetDBTableGUIDLow() );
+            Mutate(new TargetedMovementGenerator<Creature>(*target,PET_FOLLOW_DIST,PET_FOLLOW_ANGLE));
+        }
     }
     else
     {

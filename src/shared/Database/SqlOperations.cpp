@@ -81,15 +81,16 @@ void SqlResultQueue::Update()
     }
 }
 
-void SqlQueryHolder::Execute(Trinity::IQueryCallback * callback, SqlDelayThread *thread, SqlResultQueue *queue)
+bool SqlQueryHolder::Execute(Trinity::IQueryCallback * callback, SqlDelayThread *thread, SqlResultQueue *queue)
 {
     if(!callback || !thread || !queue)
-        return;
+        return false;
 
     /// delay the execution of the queries, sync them with the delay thread
     /// which will in turn resync on execution (via the queue) and call back
     SqlQueryHolderEx *holderEx = new SqlQueryHolderEx(this, callback, queue);
     thread->Delay(holderEx);
+    return true;
 }
 
 bool SqlQueryHolder::SetQuery(size_t index, const char *sql)
