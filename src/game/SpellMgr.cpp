@@ -2031,6 +2031,9 @@ void SpellMgr::LoadSpellCustomAttr()
         case 12494: // Frostbite
             tempSpell->Attributes |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
             break;
+        case 5530: // Mace spec (this will not be needed in 303
+            tempSpell->rangeIndex = 13; //inf
+            break;
         default:
             break;
         }
