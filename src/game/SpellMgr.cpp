@@ -1449,21 +1449,17 @@ void SpellMgr::LoadSpellRequired()
     sLog.outString( ">> Loaded %u spell required records", rows );
 }
 
-void SpellMgr::LoadSpellChains()
+struct SpellRankEntry
 {
-    mSpellChains.clear();                                   // need for reload case
-
-    struct SpellRankEntry
-    {
-        uint32 SkillId;
-        char const *SpellName;
-        uint32 DurationIndex;
-        uint32 RangeIndex;
-        uint32 SpellVisual;
-        uint32 ProcFlags;
-        uint64 SpellFamilyFlags;
-        uint32 TargetAuraState;
-        uint32 ManaCost;
+    uint32 SkillId;
+    char const *SpellName;
+    uint32 DurationIndex;
+    uint32 RangeIndex;
+    uint32 SpellVisual;
+    uint32 ProcFlags;
+    uint64 SpellFamilyFlags;
+    uint32 TargetAuraState;
+    uint32 ManaCost;
 
     bool operator()(const SpellRankEntry & _Left,const SpellRankEntry & _Right)const
     {
@@ -1478,12 +1474,17 @@ void SpellMgr::LoadSpellChains()
             : _Left.TargetAuraState < _Right.TargetAuraState
             );
     }
-    };
-    struct SpellRankValue
-    {
-        uint32 Id;
-        char const *Rank;
-    };
+};
+
+struct SpellRankValue
+{
+    uint32 Id;
+    char const *Rank;
+};
+
+void SpellMgr::LoadSpellChains()
+{
+    mSpellChains.clear();                                   // need for reload case
 
     std::multimap<SpellRankEntry, SpellRankValue,SpellRankEntry> RankMap;
 
