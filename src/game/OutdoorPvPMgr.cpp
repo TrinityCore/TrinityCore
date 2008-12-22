@@ -30,6 +30,7 @@ INSTANTIATE_SINGLETON_1( OutdoorPvPMgr );
 
 OutdoorPvPMgr::OutdoorPvPMgr()
 {
+    m_UpdateTimer = OUTDOORPVP_OBJECTIVE_UPDATE_INTERVAL;
     //sLog.outDebug("Instantiating OutdoorPvPMgr");
 }
 
@@ -54,7 +55,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
     }
     else
     {
-        m_OutdoorPvPSet.insert(pOP);
+        m_OutdoorPvPSet.push_back(pOP);
         sLog.outDebug("OutdoorPvP : HP successfully initiated.");
     }
 
@@ -68,7 +69,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
     }
     else
     {
-        m_OutdoorPvPSet.insert(pOP);
+        m_OutdoorPvPSet.push_back(pOP);
         sLog.outDebug("OutdoorPvP : NA successfully initiated.");
     }
 
@@ -82,7 +83,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
     }
     else
     {
-        m_OutdoorPvPSet.insert(pOP);
+        m_OutdoorPvPSet.push_back(pOP);
         sLog.outDebug("OutdoorPvP : TF successfully initiated.");
     }
 
@@ -95,7 +96,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
     }
     else
     {
-        m_OutdoorPvPSet.insert(pOP);
+        m_OutdoorPvPSet.push_back(pOP);
         sLog.outDebug("OutdoorPvP : ZM successfully initiated.");
     }
 
@@ -108,7 +109,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
     }
     else
     {
-        m_OutdoorPvPSet.insert(pOP);
+        m_OutdoorPvPSet.push_back(pOP);
         sLog.outDebug("OutdoorPvP : SI successfully initiated.");
     }
 
@@ -121,7 +122,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
     }
     else
     {
-        m_OutdoorPvPSet.insert(pOP);
+        m_OutdoorPvPSet.push_back(pOP);
         sLog.outDebug("OutdoorPvP : EP successfully initiated.");
     }
 }
@@ -172,10 +173,14 @@ OutdoorPvP * OutdoorPvPMgr::GetOutdoorPvPToZoneId(uint32 zoneid)
 
 void OutdoorPvPMgr::Update(uint32 diff)
 {
-    for(OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
+    if(m_UpdateTimer < diff)
     {
-        (*itr)->Update(diff);
-    }
+        for(OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
+        {
+            (*itr)->Update(diff);
+        }
+        m_UpdateTimer = OUTDOORPVP_OBJECTIVE_UPDATE_INTERVAL;
+    } else m_UpdateTimer -= diff;
 }
 
 bool OutdoorPvPMgr::HandleCustomSpell(Player *plr, uint32 spellId, GameObject * go)
