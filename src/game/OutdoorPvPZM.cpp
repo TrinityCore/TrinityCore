@@ -142,7 +142,7 @@ bool OutdoorPvPObjectiveZM_Beacon::Update(uint32 diff)
             SendUpdateWorldState(ZMBeaconInfo[m_TowerType].slider_pos, phase);
             SendUpdateWorldState(ZMBeaconInfo[m_TowerType].slider_n, m_NeutralValue);
         }
-        return true;
+        return m_OldState != m_State;
     }
     return false;
 }
@@ -205,10 +205,10 @@ bool OutdoorPvPZM::SetupOutdoorPvP()
     for(int i = 0; i < OutdoorPvPZMBuffZonesNum; ++i)
         sOutdoorPvPMgr.AddZone(OutdoorPvPZMBuffZones[i],this);
 
-    m_OutdoorPvPObjectives.insert(new OutdoorPvPObjectiveZM_Beacon(this,ZM_BEACON_WEST));
-    m_OutdoorPvPObjectives.insert(new OutdoorPvPObjectiveZM_Beacon(this,ZM_BEACON_EAST));
+    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveZM_Beacon(this,ZM_BEACON_WEST));
+    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveZM_Beacon(this,ZM_BEACON_EAST));
     m_GraveYard = new OutdoorPvPObjectiveZM_GraveYard(this);
-    m_OutdoorPvPObjectives.insert(m_GraveYard); // though the update function isn't used, the handleusego is!
+    m_OutdoorPvPObjectives.push_back(m_GraveYard); // though the update function isn't used, the handleusego is!
 
     return true;
 }

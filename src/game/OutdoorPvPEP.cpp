@@ -121,7 +121,7 @@ bool OutdoorPvPObjectiveEP_EWT::Update(uint32 diff)
             // send this too, sometimes it resets :S
             SendUpdateWorldState(EP_UI_TOWER_SLIDER_N, m_NeutralValue);
         }
-        return true;
+        return m_OldState != m_State;
     }
     return false;
 }
@@ -296,7 +296,7 @@ bool OutdoorPvPObjectiveEP_NPT::Update(uint32 diff)
             // send this too, sometimes it resets :S
             SendUpdateWorldState(EP_UI_TOWER_SLIDER_N, m_NeutralValue);
         }
-        return true;
+        return m_OldState != m_State;
     }
     return false;
 }
@@ -463,7 +463,7 @@ bool OutdoorPvPObjectiveEP_CGT::Update(uint32 diff)
             // send this too, sometimes it resets :S
             SendUpdateWorldState(EP_UI_TOWER_SLIDER_N, m_NeutralValue);
         }
-        return true;
+        return m_OldState != m_State;
     }
     return false;
 }
@@ -629,7 +629,7 @@ bool OutdoorPvPObjectiveEP_PWT::Update(uint32 diff)
             // send this too, sometimes it resets :S
             SendUpdateWorldState(EP_UI_TOWER_SLIDER_N, m_NeutralValue);
         }
-        return true;
+        return m_OldState != m_State;
     }
     return false;
 }
@@ -791,10 +791,10 @@ bool OutdoorPvPEP::SetupOutdoorPvP()
     for(int i = 0; i < EPBuffZonesNum; ++i)
         sOutdoorPvPMgr.AddZone(EPBuffZones[i],this);
 
-    m_OutdoorPvPObjectives.insert(new OutdoorPvPObjectiveEP_EWT(this));
-    m_OutdoorPvPObjectives.insert(new OutdoorPvPObjectiveEP_PWT(this));
-    m_OutdoorPvPObjectives.insert(new OutdoorPvPObjectiveEP_CGT(this));
-    m_OutdoorPvPObjectives.insert(new OutdoorPvPObjectiveEP_NPT(this));
+    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveEP_EWT(this));
+    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveEP_PWT(this));
+    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveEP_CGT(this));
+    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveEP_NPT(this));
     return true;
 }
 

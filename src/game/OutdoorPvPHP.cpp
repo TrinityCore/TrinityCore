@@ -72,11 +72,11 @@ bool OutdoorPvPHP::SetupOutdoorPvP()
     for(int i = 0; i < OutdoorPvPHPBuffZonesNum; ++i)
         sOutdoorPvPMgr.AddZone(OutdoorPvPHPBuffZones[i],this);
 
-    m_OutdoorPvPObjectives.insert(new OutdoorPvPObjectiveHP(this,HP_TOWER_BROKEN_HILL));
+    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveHP(this,HP_TOWER_BROKEN_HILL));
 
-    m_OutdoorPvPObjectives.insert(new OutdoorPvPObjectiveHP(this,HP_TOWER_OVERLOOK));
+    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveHP(this,HP_TOWER_OVERLOOK));
 
-    m_OutdoorPvPObjectives.insert(new OutdoorPvPObjectiveHP(this,HP_TOWER_STADIUM));
+    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveHP(this,HP_TOWER_STADIUM));
 
     return true;
 }
@@ -277,7 +277,7 @@ bool OutdoorPvPObjectiveHP::Update(uint32 diff)
             // send this too, sometimes the slider disappears, dunno why :(
             SendUpdateWorldState(HP_UI_TOWER_SLIDER_DISPLAY, 1);
         }
-        return true;
+        return m_OldState != m_State;
     }
     return false;
 }
