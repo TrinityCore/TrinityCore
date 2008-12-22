@@ -211,11 +211,11 @@ void AddSC_boss_jandicebarov()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_jandice_barov";
-    newscript->GetAI = GetAI_boss_jandicebarov;
+    newscript->GetAI = &GetAI_boss_jandicebarov;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_illusionofjandicebarov";
-    newscript->GetAI = GetAI_mob_illusionofjandicebarov;
+    newscript->GetAI = &GetAI_mob_illusionofjandicebarov;
     newscript->RegisterSelf();
 }

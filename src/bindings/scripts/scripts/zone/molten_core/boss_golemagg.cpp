@@ -190,11 +190,11 @@ void AddSC_boss_golemagg()
 
     newscript = new Script;
     newscript->Name="boss_golemagg";
-    newscript->GetAI = GetAI_boss_golemagg;
+    newscript->GetAI = &GetAI_boss_golemagg;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_core_rager";
-    newscript->GetAI = GetAI_mob_core_rager;
+    newscript->GetAI = &GetAI_mob_core_rager;
     newscript->RegisterSelf();
 }

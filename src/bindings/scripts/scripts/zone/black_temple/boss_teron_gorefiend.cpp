@@ -521,16 +521,16 @@ void AddSC_boss_teron_gorefiend()
     Script *newscript;
     newscript = new Script;
     newscript->Name = "mob_doom_blossom";
-    newscript->GetAI = GetAI_mob_doom_blossom;
+    newscript->GetAI = &GetAI_mob_doom_blossom;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "mob_shadowy_construct";
-    newscript->GetAI = GetAI_mob_shadowy_construct;
+    newscript->GetAI = &GetAI_mob_shadowy_construct;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_teron_gorefiend";
-    newscript->GetAI = GetAI_boss_teron_gorefiend;
+    newscript->GetAI = &GetAI_boss_teron_gorefiend;
     newscript->RegisterSelf();
 }

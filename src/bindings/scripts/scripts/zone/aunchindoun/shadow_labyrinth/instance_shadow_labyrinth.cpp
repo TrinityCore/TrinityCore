@@ -173,6 +173,6 @@ void AddSC_instance_shadow_labyrinth()
     Script *newscript;
     newscript = new Script;
     newscript->Name = "instance_shadow_labyrinth";
-    newscript->GetInstanceData = GetInstanceData_instance_shadow_labyrinth;
+    newscript->GetInstanceData = &GetInstanceData_instance_shadow_labyrinth;
     newscript->RegisterSelf();
 }

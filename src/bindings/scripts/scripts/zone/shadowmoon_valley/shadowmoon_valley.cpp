@@ -1042,17 +1042,17 @@ void AddSC_shadowmoon_valley()
 
     newscript = new Script;
     newscript->Name = "mob_mature_netherwing_drake";
-    newscript->GetAI = GetAI_mob_mature_netherwing_drake;
+    newscript->GetAI = &GetAI_mob_mature_netherwing_drake;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "mob_enslaved_netherwing_drake";
-    newscript->GetAI = GetAI_mob_enslaved_netherwing_drake;
+    newscript->GetAI = &GetAI_mob_enslaved_netherwing_drake;
     newscript->RegisterSelf();
 
 	newscript = new Script;
 	newscript->Name = "mob_dragonmaw_peon";
-	newscript->GetAI = GetAI_mob_dragonmaw_peon;
+	newscript->GetAI = &GetAI_mob_dragonmaw_peon;
 	newscript->RegisterSelf();
 
     newscript = new Script;
@@ -1092,18 +1092,18 @@ void AddSC_shadowmoon_valley()
 
 	newscript = new Script;
 	newscript->Name = "npc_overlord_morghor";
-	newscript->GetAI = GetAI_Overlord_Morghor;
+	newscript->GetAI = &GetAI_Overlord_Morghor;
 	newscript->pQuestAccept = &QuestAccept_Overlord_Morghor;
 	newscript->RegisterSelf();
 
 	newscript = new Script;
 	newscript->Name = "npc_lord_illidan_stormrage";
-	newscript->GetAI = GetAI_Lord_Illidan;
+	newscript->GetAI = &GetAI_Lord_Illidan;
 	newscript->RegisterSelf();
 
 	newscript = new Script;
 	newscript->Name = "npc_yarzill_the_merc";
-	newscript->GetAI = GetAI_Yarzill_The_Merc;
+	newscript->GetAI = &GetAI_Yarzill_The_Merc;
 	newscript->pGossipHello = &GossipHello_npc_yarzill_fly;
 	newscript->pGossipSelect = &GossipSelect_npc_yarzill_fly;
 	newscript->RegisterSelf();

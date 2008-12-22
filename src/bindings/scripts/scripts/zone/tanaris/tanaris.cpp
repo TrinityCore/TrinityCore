@@ -373,12 +373,12 @@ void AddSC_tanaris()
 
     newscript = new Script;
     newscript->Name="mob_aquementas";
-    newscript->GetAI = GetAI_mob_aquementas;
+    newscript->GetAI = &GetAI_mob_aquementas;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_custodian_of_time";
-    newscript->GetAI = GetAI_npc_custodian_of_time;
+    newscript->GetAI = &GetAI_npc_custodian_of_time;
     newscript->RegisterSelf();
 
     newscript = new Script;

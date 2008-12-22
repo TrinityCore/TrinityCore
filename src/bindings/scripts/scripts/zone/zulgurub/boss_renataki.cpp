@@ -146,6 +146,6 @@ void AddSC_boss_renataki()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_renataki";
-    newscript->GetAI = GetAI_boss_renataki;
+    newscript->GetAI = &GetAI_boss_renataki;
     newscript->RegisterSelf();
 }

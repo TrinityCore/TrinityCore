@@ -220,7 +220,7 @@ void AddSC_blackrock_depths()
 
     newscript = new Script;
     newscript->Name="phalanx";
-    newscript->GetAI = GetAI_mob_phalanx;
+    newscript->GetAI = &GetAI_mob_phalanx;
     newscript->RegisterSelf();
 
     newscript = new Script;

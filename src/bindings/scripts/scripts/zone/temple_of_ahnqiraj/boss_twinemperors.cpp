@@ -639,11 +639,11 @@ void AddSC_boss_twinemperors()
 
     newscript = new Script;
     newscript->Name="boss_veknilash";
-    newscript->GetAI = GetAI_boss_veknilash;
+    newscript->GetAI = &GetAI_boss_veknilash;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="boss_veklor";
-    newscript->GetAI = GetAI_boss_veklor;
+    newscript->GetAI = &GetAI_boss_veklor;
     newscript->RegisterSelf();
 }

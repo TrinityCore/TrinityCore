@@ -932,7 +932,7 @@ void AddSC_npcs_special()
 
     newscript = new Script;
     newscript->Name="npc_chicken_cluck";
-    newscript->GetAI = GetAI_npc_chicken_cluck;
+    newscript->GetAI = &GetAI_npc_chicken_cluck;
     newscript->pReceiveEmote =  &ReceiveEmote_npc_chicken_cluck;
     newscript->pQuestAccept =   &QuestAccept_npc_chicken_cluck;
     newscript->pQuestComplete = &QuestComplete_npc_chicken_cluck;
@@ -945,18 +945,18 @@ void AddSC_npcs_special()
 
     newscript = new Script;
     newscript->Name="npc_injured_patient";
-    newscript->GetAI = GetAI_npc_injured_patient;
+    newscript->GetAI = &GetAI_npc_injured_patient;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_doctor";
-    newscript->GetAI = GetAI_npc_doctor;
+    newscript->GetAI = &GetAI_npc_doctor;
     newscript->pQuestAccept = &QuestAccept_npc_doctor;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_guardian";
-    newscript->GetAI = GetAI_npc_guardian;
+    newscript->GetAI = &GetAI_npc_guardian;
     newscript->RegisterSelf();
 
     newscript = new Script;

@@ -383,11 +383,11 @@ void AddSC_boss_selin_fireheart()
 
     newscript = new Script;
     newscript->Name="boss_selin_fireheart";
-    newscript->GetAI = GetAI_boss_selin_fireheart;
+    newscript->GetAI = &GetAI_boss_selin_fireheart;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_fel_crystal";
-    newscript->GetAI = GetAI_mob_fel_crystal;
+    newscript->GetAI = &GetAI_mob_fel_crystal;
     newscript->RegisterSelf();
 }

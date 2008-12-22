@@ -130,7 +130,7 @@ void AddSC_bloodmyst_isle()
 
     newscript = new Script;
     newscript->Name="mob_webbed_creature";
-    newscript->GetAI = GetAI_mob_webbed_creature;
+    newscript->GetAI = &GetAI_mob_webbed_creature;
     newscript->RegisterSelf();
 
     newscript = new Script;

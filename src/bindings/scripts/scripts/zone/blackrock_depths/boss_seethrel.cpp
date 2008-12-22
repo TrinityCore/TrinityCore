@@ -110,6 +110,6 @@ void AddSC_boss_seethrel()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_seethrel";
-    newscript->GetAI = GetAI_boss_seethrel;
+    newscript->GetAI = &GetAI_boss_seethrel;
     newscript->RegisterSelf();
 }

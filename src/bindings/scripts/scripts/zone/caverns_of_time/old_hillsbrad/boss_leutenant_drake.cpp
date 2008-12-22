@@ -190,6 +190,6 @@ void AddSC_boss_lieutenant_drake()
 
     newscript = new Script;
     newscript->Name="boss_lieutenant_drake";
-    newscript->GetAI = GetAI_boss_lieutenant_drake;
+    newscript->GetAI = &GetAI_boss_lieutenant_drake;
     newscript->RegisterSelf();
 }

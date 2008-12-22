@@ -90,6 +90,6 @@ void AddSC_boss_halycon()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_halycon";
-    newscript->GetAI = GetAI_boss_halycon;
+    newscript->GetAI = &GetAI_boss_halycon;
     newscript->RegisterSelf();
 }

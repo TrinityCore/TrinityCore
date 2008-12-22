@@ -141,6 +141,6 @@ void AddSC_boss_sir_zeliek()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_sir_zeliek";
-    newscript->GetAI = GetAI_boss_sir_zeliek;
+    newscript->GetAI = &GetAI_boss_sir_zeliek;
     newscript->RegisterSelf();
 }

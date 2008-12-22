@@ -223,6 +223,6 @@ void AddSC_instance_steam_vault()
 
     newscript = new Script;
     newscript->Name = "instance_steam_vault";
-    newscript->GetInstanceData = GetInstanceData_instance_steam_vault;
+    newscript->GetInstanceData = &GetInstanceData_instance_steam_vault;
     newscript->RegisterSelf();
 }

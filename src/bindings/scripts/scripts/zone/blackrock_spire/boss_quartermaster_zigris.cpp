@@ -80,6 +80,6 @@ void AddSC_boss_quatermasterzigris()
     Script *newscript;
     newscript = new Script;
     newscript->Name="quartermaster_zigris";
-    newscript->GetAI = GetAI_boss_quatermasterzigris;
+    newscript->GetAI = &GetAI_boss_quatermasterzigris;
     newscript->RegisterSelf();
 }

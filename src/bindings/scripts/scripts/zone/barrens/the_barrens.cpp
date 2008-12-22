@@ -379,12 +379,12 @@ void AddSC_the_barrens()
 
     newscript = new Script;
     newscript->Name="npc_taskmaster_fizzule";
-    newscript->GetAI = GetAI_npc_taskmaster_fizzule;
+    newscript->GetAI = &GetAI_npc_taskmaster_fizzule;
     newscript->pReceiveEmote = &ReciveEmote_npc_taskmaster_fizzule;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_twiggy_flathead";
-    newscript->GetAI = GetAI_npc_twiggy_flathead;
+    newscript->GetAI = &GetAI_npc_twiggy_flathead;
     newscript->RegisterSelf();
 }

@@ -243,13 +243,13 @@ void AddSC_undercity()
 
     newscript = new Script;
     newscript->Name="npc_lady_sylvanas_windrunner";
-    newscript->GetAI = GetAI_npc_lady_sylvanas_windrunner;
+    newscript->GetAI = &GetAI_npc_lady_sylvanas_windrunner;
     newscript->pChooseReward = &ChooseReward_npc_lady_sylvanas_windrunner;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_highborne_lamenter";
-    newscript->GetAI = GetAI_npc_highborne_lamenter;
+    newscript->GetAI = &GetAI_npc_highborne_lamenter;
     newscript->RegisterSelf();
 
     newscript = new Script;

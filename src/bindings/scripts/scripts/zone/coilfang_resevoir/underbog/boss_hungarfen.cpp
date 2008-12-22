@@ -146,11 +146,11 @@ void AddSC_boss_hungarfen()
 
     newscript = new Script;
     newscript->Name="boss_hungarfen";
-    newscript->GetAI = GetAI_boss_hungarfen;
+    newscript->GetAI = &GetAI_boss_hungarfen;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_underbog_mushroom";
-    newscript->GetAI = GetAI_mob_underbog_mushroom;
+    newscript->GetAI = &GetAI_mob_underbog_mushroom;
     newscript->RegisterSelf();
 }

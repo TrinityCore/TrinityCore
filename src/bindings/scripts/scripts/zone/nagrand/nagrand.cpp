@@ -630,19 +630,19 @@ void AddSC_nagrand()
 
     newscript = new Script;
     newscript->Name="mob_shattered_rumbler";
-    newscript->GetAI = GetAI_mob_shattered_rumbler;
+    newscript->GetAI = &GetAI_mob_shattered_rumbler;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_lump";
-    newscript->GetAI = GetAI_mob_lump;
+    newscript->GetAI = &GetAI_mob_lump;
     newscript->pGossipHello =  &GossipHello_mob_lump;
     newscript->pGossipSelect = &GossipSelect_mob_lump;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_sunspring_villager";
-    newscript->GetAI = GetAI_mob_sunspring_villager;
+    newscript->GetAI = &GetAI_mob_sunspring_villager;
     newscript->RegisterSelf();
 
     newscript = new Script;
@@ -666,11 +666,11 @@ void AddSC_nagrand()
 
     newscript = new Script;
     newscript->Name="npc_creditmarker_visit_with_ancestors";
-    newscript->GetAI = GetAI_npc_creditmarker_visit_with_ancestors;
+    newscript->GetAI = &GetAI_npc_creditmarker_visit_with_ancestors;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_sparrowhawk";
-    newscript->GetAI = GetAI_mob_sparrowhawk;
+    newscript->GetAI = &GetAI_mob_sparrowhawk;
     newscript->RegisterSelf();
 }

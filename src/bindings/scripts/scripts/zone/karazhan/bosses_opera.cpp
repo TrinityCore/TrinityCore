@@ -1361,60 +1361,60 @@ void AddSC_bosses_opera()
 
     // Oz
     newscript = new Script;
-    newscript->GetAI = GetAI_boss_dorothee;
+    newscript->GetAI = &GetAI_boss_dorothee;
     newscript->Name = "boss_dorothee";
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->GetAI = GetAI_boss_strawman;
+    newscript->GetAI = &GetAI_boss_strawman;
     newscript->Name = "boss_strawman";
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->GetAI = GetAI_boss_tinhead;
+    newscript->GetAI = &GetAI_boss_tinhead;
     newscript->Name = "boss_tinhead";
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->GetAI = GetAI_boss_roar;
+    newscript->GetAI = &GetAI_boss_roar;
     newscript->Name = "boss_roar";
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->GetAI = GetAI_boss_crone;
+    newscript->GetAI = &GetAI_boss_crone;
     newscript->Name = "boss_crone";
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->GetAI = GetAI_mob_tito;
+    newscript->GetAI = &GetAI_mob_tito;
     newscript->Name = "mob_tito";
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->GetAI = GetAI_mob_cyclone;
+    newscript->GetAI = &GetAI_mob_cyclone;
     newscript->Name = "mob_cyclone";
     newscript->RegisterSelf();
 
     // Hood
     newscript = new Script;
-    newscript->pGossipHello = GossipHello_npc_grandmother;
-    newscript->pGossipSelect = GossipSelect_npc_grandmother;
+    newscript->pGossipHello = &GossipHello_npc_grandmother;
+    newscript->pGossipSelect = &GossipSelect_npc_grandmother;
     newscript->Name = "npc_grandmother";
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->GetAI = GetAI_boss_bigbadwolf;
+    newscript->GetAI = &GetAI_boss_bigbadwolf;
     newscript->Name = "boss_bigbadwolf";
     newscript->RegisterSelf();
 
     // Romeo And Juliet
     newscript = new Script;
-    newscript->GetAI = GetAI_boss_julianne;
+    newscript->GetAI = &GetAI_boss_julianne;
     newscript->Name = "boss_julianne";
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->GetAI = GetAI_boss_romulo;
+    newscript->GetAI = &GetAI_boss_romulo;
     newscript->Name = "boss_romulo";
     newscript->RegisterSelf();
 }

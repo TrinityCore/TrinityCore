@@ -191,6 +191,6 @@ void AddSC_instance_sunwell_plateau()
     Script *newscript;
     newscript = new Script;
     newscript->Name = "instance_sunwell_plateau";
-    newscript->GetInstanceData = GetInstanceData_instance_sunwell_plateau;
+    newscript->GetInstanceData = &GetInstanceData_instance_sunwell_plateau;
     newscript->RegisterSelf();
 }

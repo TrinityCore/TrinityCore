@@ -251,14 +251,14 @@ void AddSC_orgrimmar()
 
     newscript = new Script;
     newscript->Name="npc_shenthul";
-    newscript->GetAI = GetAI_npc_shenthul;
+    newscript->GetAI = &GetAI_npc_shenthul;
     newscript->pQuestAccept =  &QuestAccept_npc_shenthul;
     newscript->pReceiveEmote = &ReciveEmote_npc_shenthul;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_thrall_warchief";
-    newscript->GetAI = GetAI_npc_thrall_warchief;
+    newscript->GetAI = &GetAI_npc_thrall_warchief;
     newscript->pGossipHello =  &GossipHello_npc_thrall_warchief;
     newscript->pGossipSelect = &GossipSelect_npc_thrall_warchief;
     newscript->RegisterSelf();

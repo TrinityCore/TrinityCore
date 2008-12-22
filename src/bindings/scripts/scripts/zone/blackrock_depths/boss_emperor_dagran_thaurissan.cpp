@@ -99,6 +99,6 @@ void AddSC_boss_draganthaurissan()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_emperor_dagran_thaurissan";
-    newscript->GetAI = GetAI_boss_draganthaurissan;
+    newscript->GetAI = &GetAI_boss_draganthaurissan;
     newscript->RegisterSelf();
 }

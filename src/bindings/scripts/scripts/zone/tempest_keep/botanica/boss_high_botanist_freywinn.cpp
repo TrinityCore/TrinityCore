@@ -193,6 +193,6 @@ void AddSC_boss_high_botanist_freywinn()
 
     newscript = new Script;
     newscript->Name="boss_high_botanist_freywinn";
-    newscript->GetAI = GetAI_boss_high_botanist_freywinn;
+    newscript->GetAI = &GetAI_boss_high_botanist_freywinn;
     newscript->RegisterSelf();
 }
