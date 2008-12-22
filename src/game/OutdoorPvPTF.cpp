@@ -278,11 +278,11 @@ bool OutdoorPvPTF::SetupOutdoorPvP()
     for(int i = 0; i < OutdoorPvPTFBuffZonesNum; ++i)
         sOutdoorPvPMgr.AddZone(OutdoorPvPTFBuffZones[i],this);
 
-    m_OutdoorPvPObjectives.insert(new OutdoorPvPObjectiveTF(this,TF_TOWER_NW));
-    m_OutdoorPvPObjectives.insert(new OutdoorPvPObjectiveTF(this,TF_TOWER_N));
-    m_OutdoorPvPObjectives.insert(new OutdoorPvPObjectiveTF(this,TF_TOWER_NE));
-    m_OutdoorPvPObjectives.insert(new OutdoorPvPObjectiveTF(this,TF_TOWER_SE));
-    m_OutdoorPvPObjectives.insert(new OutdoorPvPObjectiveTF(this,TF_TOWER_S));
+    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveTF(this,TF_TOWER_NW));
+    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveTF(this,TF_TOWER_N));
+    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveTF(this,TF_TOWER_NE));
+    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveTF(this,TF_TOWER_SE));
+    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveTF(this,TF_TOWER_S));
 
     return true;
 }
@@ -360,7 +360,7 @@ bool OutdoorPvPObjectiveTF::Update(uint32 diff)
             // send this too, sometimes it resets :S
             SendUpdateWorldState(TF_UI_TOWER_SLIDER_N, m_NeutralValue);
         }
-        return true;
+        return m_OldState != m_State;
     }
     return false;
 }
