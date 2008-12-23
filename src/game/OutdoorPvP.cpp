@@ -27,42 +27,29 @@
 #include "WorldPacket.h"
 
 OutdoorPvPObjective::OutdoorPvPObjective(OutdoorPvP * pvp) 
-: m_PvP(pvp), m_AllianceActivePlayerCount(0), m_HordeActivePlayerCount(0),
-m_ShiftPhase(0), m_ShiftMaxPhase(0), m_OldPhase(0),
-m_State(0), m_OldState(0), m_CapturePoint(0), m_NeutralValue(0), m_ShiftMaxCaptureSpeed(0), m_CapturePointCreature(0)
+: m_PvP(pvp), m_ShiftPhase(0), m_ShiftMaxPhase(0), m_OldPhase(0),
+m_State(0), m_OldState(0), m_CapturePoint(0), m_NeutralValue(0), 
+m_ShiftMaxCaptureSpeed(0), m_CapturePointCreature(0)
 {
 }
 
 bool OutdoorPvPObjective::HandlePlayerEnter(Player * plr)
 {
+    uint32 team = (plr->GetTeam() == HORDE) ? 1 : 0;
     // only called if really entered, so no use in the return value anymore
     // player distance and activity state was checked already in the AI
-    std::set<uint64>::iterator pitr = m_ActivePlayerGuids.find(plr->GetGUID());
-    // if not already counted as active, add player
-    if(pitr == m_ActivePlayerGuids.end())
-    {
-        if(plr->GetTeam() == ALLIANCE)
-            ++m_AllianceActivePlayerCount;
-        else
-            ++m_HordeActivePlayerCount;
-        m_ActivePlayerGuids.insert(plr->GetGUID());
+    std::pair<std::set<uint64>::iterator,bool> newinsert = m_ActivePlayerGuids[team].insert(plr->GetGUID());
+    if(newinsert.second)
         sLog.outDebug("player %u entered an outdoorpvpobjective", plr->GetGUIDLow());
-        return true;
-    }
     return true;
 }
 
 void OutdoorPvPObjective::HandlePlayerLeave(Player * plr)
 {
+    uint32 team = (plr->GetTeam() == HORDE) ? 1 : 0;
     // only decrease the count if the player is in the active list
-    if(m_ActivePlayerGuids.find(plr->GetGUID())!=m_ActivePlayerGuids.end())
-    {
-        if(plr->GetTeam() == ALLIANCE)
-            --m_AllianceActivePlayerCount;
-        else
-            --m_HordeActivePlayerCount;
-        m_ActivePlayerGuids.erase(plr->GetGUID());
-    }
+    if(m_ActivePlayerGuids[team].erase(plr->GetGUID()) > 0)
+        sLog.outDebug("player %u left an outdoorpvpobjective", plr->GetGUIDLow());
 }
 
 void OutdoorPvPObjective::HandlePlayerActivityChanged(Player * plr)
@@ -453,12 +440,37 @@ bool OutdoorPvP::Update(uint32 diff)
     return objective_changed;
 }
 
+void OutdoorPvPObjective::UpdateActivePlayerProximityCheck()
+{
+    if(GameObject *cp = HashMapHolder<GameObject>::Find(m_CapturePoint))
+    {
+        for(int team = 0; team < 2; ++team)
+        {
+            for(std::set<uint64>::iterator itr = m_ActivePlayerGuids[team].begin(); itr != m_ActivePlayerGuids[team].end(); ++ itr)
+            {
+                // if the player is online
+                if(Player * pl = objmgr.GetPlayer(*itr))
+                {
+                    if(!cp->IsWithinDistInMap(pl,cp->GetGOInfo()->raw.data[0]))
+                        HandleCapturePointEvent(pl, cp->GetGOInfo()->raw.data[9]); //i_objective->HandlePlayerLeave((Player*)u);
+                }
+                else
+                {
+                    sLog.outError("Player ("I64FMTD") offline, bit still in outdoor pvp, this should never happen.",(*itr));
+                }
+            }
+        }
+    }
+}
+
 bool OutdoorPvPObjective::Update(uint32 diff)
 {
+    UpdateActivePlayerProximityCheck();
+
     uint32 Challenger = 0;
 
         // get the difference of numbers
-        float fact_diff = (m_AllianceActivePlayerCount - m_HordeActivePlayerCount);
+        float fact_diff = ((float)m_ActivePlayerGuids[0].size() - (float)m_ActivePlayerGuids[1].size());
 
         if(fact_diff<0)
         {
@@ -568,27 +580,30 @@ void OutdoorPvP::SendUpdateWorldState(uint32 field, uint32 value)
 
 void OutdoorPvPObjective::SendUpdateWorldState(uint32 field, uint32 value)
 {
-    // send to all players present in the area
-    for(std::set<uint64>::iterator itr = m_ActivePlayerGuids.begin(); itr != m_ActivePlayerGuids.end(); ++itr)
+    for(uint32 team = 0; team < 2; ++team)
     {
-        Player * plr = objmgr.GetPlayer(*itr);
-        if(plr)
+        // send to all players present in the area
+        for(std::set<uint64>::iterator itr = m_ActivePlayerGuids[team].begin(); itr != m_ActivePlayerGuids[team].end(); ++itr)
         {
-            plr->SendUpdateWorldState(field,value);
+            Player * plr = objmgr.GetPlayer(*itr);
+            if(plr)
+            {
+                plr->SendUpdateWorldState(field,value);
+            }
         }
     }
 }
 
 void OutdoorPvPObjective::SendObjectiveComplete(uint32 id,uint64 guid)
 {
-    uint32 controlling_faction;
+    uint32 team;
     switch(m_State)
     {
     case OBJECTIVESTATE_ALLIANCE:
-        controlling_faction = ALLIANCE;
+        team = 0;
         break;
     case OBJECTIVESTATE_HORDE:
-        controlling_faction = HORDE;
+        team = 1;
         break;
     default:
         return;
@@ -596,10 +611,10 @@ void OutdoorPvPObjective::SendObjectiveComplete(uint32 id,uint64 guid)
     }
 
     // send to all players present in the area
-    for(std::set<uint64>::iterator itr = m_ActivePlayerGuids.begin(); itr != m_ActivePlayerGuids.end(); ++itr)
+    for(std::set<uint64>::iterator itr = m_ActivePlayerGuids[team].begin(); itr != m_ActivePlayerGuids[team].end(); ++itr)
     {
         Player * plr = objmgr.GetPlayer(*itr);
-        if(plr && plr->GetTeam() == controlling_faction)
+        if(plr)
         {
             plr->KilledMonster(id,guid);
         }
@@ -657,8 +672,9 @@ bool OutdoorPvP::IsInsideObjective(Player *plr)
 
 bool OutdoorPvPObjective::IsInsideObjective(Player *plr)
 {
-    std::set<uint64>::iterator itr = m_ActivePlayerGuids.find(plr->GetGUID());
-    return itr != m_ActivePlayerGuids.end();
+    uint32 team = (plr->GetTeam() == HORDE) ? 1 : 0;
+    std::set<uint64>::iterator itr = m_ActivePlayerGuids[team].find(plr->GetGUID());
+    return itr != m_ActivePlayerGuids[team].end();
 }
 
 bool OutdoorPvP::HandleCustomSpell(Player *plr, uint32 spellId, GameObject * go)
