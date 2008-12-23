@@ -436,7 +436,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
         bool HasReactState(ReactStates state) const { return (m_reactState == state); }
         ///// TODO RENAME THIS!!!!!
         bool isCanTrainingOf(Player* player, bool msg) const;
-        bool isCanIneractWithBattleMaster(Player* player, bool msg) const;
+        bool isCanInteractWithBattleMaster(Player* player, bool msg) const;
         bool isCanTrainingAndResetTalentsOf(Player* pPlayer) const;
         bool IsOutOfThreatArea(Unit* pVictim) const;
         bool IsImmunedToSpell(SpellEntry const* spellInfo, bool useCharges = false);

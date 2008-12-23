@@ -1783,7 +1783,8 @@ void SpellMgr::LoadSpellScriptTarget()
         bar.step();
 
         sLog.outString();
-        sLog.outErrorDb(">> Loaded 0 SpellScriptTarget. DB table `spell_script_target` is empty.");
+        sLog.outString( ">> Loaded 0 spell script target" );
+        sLog.outErrorDb("`spell_script_target` table is empty!");
         return;
     }
 

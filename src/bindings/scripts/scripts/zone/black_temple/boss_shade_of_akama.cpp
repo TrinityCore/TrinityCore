@@ -347,7 +347,6 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
 
         if(!ChannelerList.empty())
         {
-            Channelers.clear();
             for(std::list<Creature*>::iterator itr = ChannelerList.begin(); itr != ChannelerList.end(); ++itr)
             {
                 ((mob_ashtongue_channelerAI*)(*itr)->AI())->ShadeGUID = m_creature->GetGUID();
