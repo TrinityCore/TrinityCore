@@ -235,7 +235,7 @@ void SendProfTrainerMenu_guard_azuremyst(Player *player, Creature *_Creature, ui
             break;
         case GOSSIP_ACTION_INFO_DEF + 9:                    //Jewelcrafting
             player->SEND_POI(-3781.55, -11541.8, 6, 6, 0, "Farii");
-            player->SEND_GOSSIP_MENU(10097,_Creature->GetGUID());
+            player->SEND_GOSSIP_MENU(10096,_Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF + 10:                   //Leatherworking
             player->SEND_POI(-3442.68, -12322.2, 6, 6, 0, "Moordo");

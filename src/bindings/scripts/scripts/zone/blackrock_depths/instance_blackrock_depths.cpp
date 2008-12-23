@@ -52,6 +52,8 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 	uint64 ShillDinger;
 	uint64 CrestKiller;
 
+	uint32 state;
+
 	bool Encounters[ENCOUNTERS];
 
 	void Initialize()
@@ -69,6 +71,8 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 		Ograbisi = 0;
 		ShillDinger = 0;
 		CrestKiller = 0;
+
+		state = 0;
 
 		for(uint8 i = 0; i < ENCOUNTERS; i++)
 			Encounters[i] = false;
@@ -96,7 +100,6 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 
 	uint32 GetData(uint32 type)
 	{
-		uint32 state = 0;
 		switch(type)
 		{
 		case DATA_DUGHAL:			return Encounters[0];break;
@@ -113,43 +116,43 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 		case DATA_GATE_S:			return GateShill;	break;
 		case DATA_CREATURE_JAZ:
 			if((((Creature*)Jaz)->isDead()))
-			//	state = 1;
-			//else
-			//	state = 0;
+				state = 1;
+			else
+				state = 0;
 			break;
 		case DATA_CREATURE_OGRABISI:
 			if((((Creature*)Ograbisi)->isDead()))
-			//	state = 1;
-			//else
-			//	state = 0;
+				state = 1;
+			else
+				state = 0;
 			break;
 		case DATA_CREATURE_CREST:
 			if((((Creature*)CrestKiller)->isDead()))
-			//	state = 1;
-			//else
-			//	state = 0;
+				state = 1;
+			else
+				state = 0;
 			break;
 		case DATA_CREATURE_SHILL:
 			if((((Creature*)ShillDinger)->isDead()))
-			//	state = 1;
-			//else
-			//	state = 0;
+				state = 1;
+			else
+				state = 0;
 			break;
 		}
-		return state;
+		return 0;
 	}
 
 	void OnObjectCreate(GameObject *go)
 	{
 		switch(go->GetEntry())
 		{
-		case 170561: SupplyRoomGate = go->GetGUID(); go->GetUInt32Value(GAMEOBJECT_STATE); break; 
-		case 170562: GateDughal = go->GetGUID();	break;
-		case 170566: GateTobias = go->GetGUID();	break;
-		case 170567: GateCrest = go->GetGUID(); break;
-		case 170568: GateJaz = go->GetGUID(); break;
-		case 170569: GateShill = go->GetGUID(); break;
-		case 166872: SupplyCrate = go->GetGUID(); break;
+		case 170561: SupplyRoomGate = go->GetGUID(); state = go->GetUInt32Value(GAMEOBJECT_STATE); break; 
+		case 170562: GateDughal = go->GetGUID(); state = go->GetUInt32Value(GAMEOBJECT_STATE);	break;
+		case 170566: GateTobias = go->GetGUID(); state = go->GetUInt32Value(GAMEOBJECT_STATE);	break;
+		case 170567: GateCrest = go->GetGUID(); state = go->GetUInt32Value(GAMEOBJECT_STATE); break;
+		case 170568: GateJaz = go->GetGUID(); state = go->GetUInt32Value(GAMEOBJECT_STATE); break;
+		case 170569: GateShill = go->GetGUID(); state = go->GetUInt32Value(GAMEOBJECT_STATE); break;
+		case 166872: SupplyCrate = go->GetGUID(); state = go->GetUInt32Value(GAMEOBJECT_STATE); break;
 		}
 	}
 
