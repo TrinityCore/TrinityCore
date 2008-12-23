@@ -2387,8 +2387,13 @@ void Spell::cast(bool skipCheck)
         return;
     }
 
+
+
     SendCastResult(castResult);
     SendSpellGo();                                          // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
+
+    for(int i = 0; i < 3; ++i)
+        m_currentBasePoints[i] = CalculateDamage(i, NULL);
 
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
     if (m_spellInfo->speed > 0.0f && !IsChanneledSpell(m_spellInfo))
@@ -3427,7 +3432,7 @@ void Spell::HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTar
     uint8 eff = m_spellInfo->Effect[i];
     uint32 mechanic = m_spellInfo->EffectMechanic[i];
 
-    damage = int32(CalculateDamage((uint8)i,unitTarget)*DamageMultiplier);
+    damage = int32(m_currentBasePoints[i] * DamageMultiplier);
 
     sLog.outDebug( "Spell: Effect : %u", eff);
 
