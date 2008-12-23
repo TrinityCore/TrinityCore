@@ -1258,7 +1258,7 @@ void Spell::EffectDummy(uint32 i)
             //Life Tap (only it have this with dummy effect)
             if (m_spellInfo->SpellFamilyFlags == 0x40000)
             {
-                float cost = m_currentBasePoints[0]+1;
+                float cost = m_currentBasePoints[0];//+1;
 
                 if(Player* modOwner = m_caster->GetSpellModOwner())
                     modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, cost,this);
@@ -1502,7 +1502,7 @@ void Spell::EffectDummy(uint32 i)
                     if(!unitTarget)
                         return;
 
-                    uint32 spell_id = m_currentBasePoints[i]+1;
+                    uint32 spell_id = m_spellInfo->EffectBasePoints[i]+1;//m_currentBasePoints[i]+1;
                     SpellEntry const* spell_proto = sSpellStore.LookupEntry(spell_id);
                     if(!spell_proto)
                         return;
@@ -2470,20 +2470,22 @@ void Spell::DoCreateItem(uint32 i, uint32 itemtype)
     // TODO: maybe all this can be replaced by using correct calculated `damage` value
     if(pProto->Class != ITEM_CLASS_CONSUMABLE || m_spellInfo->SpellFamilyName != SPELLFAMILY_MAGE)
     {
-        int32 basePoints = m_currentBasePoints[i];
+        num_to_add = m_currentBasePoints[i];
+        /*int32 basePoints = m_currentBasePoints[i];
         int32 randomPoints = m_spellInfo->EffectDieSides[i];
         if (randomPoints)
             num_to_add = basePoints + irand(1, randomPoints);
         else
-            num_to_add = basePoints + 1;
+            num_to_add = basePoints + 1;*/
     }
     else if (pProto->MaxCount == 1)
         num_to_add = 1;
     else if(player->getLevel() >= m_spellInfo->spellLevel)
     {
-        int32 basePoints = m_currentBasePoints[i];
+        num_to_add = m_currentBasePoints[i];
+        /*int32 basePoints = m_currentBasePoints[i];
         float pointPerLevel = m_spellInfo->EffectRealPointsPerLevel[i];
-        num_to_add = basePoints + 1 + uint32((player->getLevel() - m_spellInfo->spellLevel)*pointPerLevel);
+        num_to_add = basePoints + 1 + uint32((player->getLevel() - m_spellInfo->spellLevel)*pointPerLevel);*/
     }
     else
         num_to_add = 2;
@@ -2894,7 +2896,7 @@ void Spell::EffectOpenLock(uint32 /*i*/)
         SkillId = SKILL_LOCKPICKING;
 
     // skill bonus provided by casting spell (mostly item spells)
-    uint32 spellSkillBonus = uint32(m_currentBasePoints[0]+1);
+    uint32 spellSkillBonus = uint32(m_currentBasePoints[0]/*+1*/);
 
     uint32 reqSkillValue = lockInfo->requiredminingskill;
 
@@ -3798,7 +3800,7 @@ void Spell::EffectEnchantItemTmp(uint32 i)
     // Shaman Rockbiter Weapon
     if(i==0 && m_spellInfo->Effect[1]==SPELL_EFFECT_DUMMY)
     {
-        int32 enchnting_damage = m_currentBasePoints[1]+1;
+        int32 enchnting_damage = m_currentBasePoints[1];//+1;
 
         // enchanting id selected by calculated damage-per-sec stored in Effect[1] base value
         // with already applied percent bonus from Elemental Weapons talent
@@ -5304,7 +5306,7 @@ void Spell::EffectEnchantHeldItem(uint32 i)
         uint32 enchant_id = m_spellInfo->EffectMiscValue[i];
         int32 duration = GetSpellDuration(m_spellInfo);          //Try duration index first ..
         if(!duration)
-            duration = m_currentBasePoints[i]+1;            //Base points after ..
+            duration = m_currentBasePoints[i];//+1;            //Base points after ..
         if(!duration)
             duration = 10;                                  //10 seconds for enchants which don't have listed duration
 
@@ -5610,7 +5612,7 @@ void Spell::EffectReputation(uint32 i)
 
     Player *_player = (Player*)unitTarget;
 
-    int32  rep_change = m_currentBasePoints[i]+1;           // field store reputation change -1
+    int32  rep_change = m_currentBasePoints[i];//+1;           // field store reputation change -1
 
     uint32 faction_id = m_spellInfo->EffectMiscValue[i];
 
