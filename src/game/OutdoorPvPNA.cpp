@@ -577,9 +577,9 @@ bool OutdoorPvPObjectiveNA::Update(uint32 diff)
 {
     // let the controlling faction advance in phase
     bool capturable = false;
-    if(m_ControllingFaction == ALLIANCE && m_AllianceActivePlayerCount > m_HordeActivePlayerCount)
+    if(m_ControllingFaction == ALLIANCE && m_ActivePlayerGuids[0].size() > m_ActivePlayerGuids[1].size())
         capturable = true;
-    else if(m_ControllingFaction == HORDE && m_AllianceActivePlayerCount < m_HordeActivePlayerCount)
+    else if(m_ControllingFaction == HORDE && m_ActivePlayerGuids[0].size() < m_ActivePlayerGuids[1].size())
         capturable = true;
 
     if(m_GuardCheckTimer < diff)
