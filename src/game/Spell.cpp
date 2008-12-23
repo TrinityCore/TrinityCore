@@ -421,16 +421,17 @@ void Spell::FillTargetMap()
         SetTargetMap(i,m_spellInfo->EffectImplicitTargetA[i],tmpUnitMap);
         SetTargetMap(i,m_spellInfo->EffectImplicitTargetB[i],tmpUnitMap);
 
-        if(m_targets.HasDest()
-            && spellmgr.EffectTargetType[m_spellInfo->Effect[i]] == SPELL_REQUIRE_DEST)
+        if(spellmgr.EffectTargetType[m_spellInfo->Effect[i]] != SPELL_REQUIRE_UNIT)
         {
-            tmpUnitMap.clear();
-            tmpUnitMap.push_back(m_caster);
+            if(spellmgr.EffectTargetType[m_spellInfo->Effect[i]] == SPELL_REQUIRE_DEST 
+                && m_targets.HasDest() && m_spellInfo->speed > 0.0f)
+            {
+                float dist = m_caster->GetDistance(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ);
+                if (dist < 5.0f) dist = 5.0f;
+                m_delayMoment = (uint64) floor(dist / m_spellInfo->speed * 1000.0f);
+            }
+            continue;
         }
-
-        if(!m_spellInfo->EffectImplicitTargetA[i]
-            && spellmgr.EffectTargetType[m_spellInfo->Effect[i]] == SPELL_REQUIRE_NONE)
-            tmpUnitMap.push_back(m_caster);
 
         if(tmpUnitMap.empty())
         {
@@ -584,6 +585,8 @@ void Spell::FillTargetMap()
                     break;
             }
         }
+
+
         if(IsChanneledSpell(m_spellInfo) && !tmpUnitMap.empty())
             m_needAliveTargetMask  |= (1<<i);
 
@@ -726,11 +729,7 @@ void Spell::AddUnitTarget(Unit* pVictim, uint32 effIndex)
     {
         // calculate spell incoming interval
         // TODO: this is a hack
-        float dist;
-        if(m_spellInfo->Effect[effIndex] == SPELL_EFFECT_TRIGGER_MISSILE && m_targets.HasDest())
-            dist = m_caster->GetDistance(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ);
-        else
-            dist = m_caster->GetDistance(pVictim->GetPositionX(), pVictim->GetPositionY(), pVictim->GetPositionZ());
+        float dist = m_caster->GetDistance(pVictim->GetPositionX(), pVictim->GetPositionY(), pVictim->GetPositionZ());
 
         if (dist < 5.0f) dist = 5.0f;
         target.timeDelay = (uint64) floor(dist / m_spellInfo->speed * 1000.0f);
@@ -2460,6 +2459,7 @@ void Spell::handle_immediate()
 
 uint64 Spell::handle_delayed(uint64 t_offset)
 {
+    UpdatePointers();
     uint64 next_time = 0;
 
     if (!m_immediateHandled)
@@ -2551,12 +2551,18 @@ void Spell::_handle_immediate_phase()
     for(std::list<ItemTargetInfo>::iterator ihit= m_UniqueItemInfo.begin();ihit != m_UniqueItemInfo.end();++ihit)
         DoAllEffectOnTarget(&(*ihit));
 
+    if(!m_originalCaster)
+        return;
     // process ground
-    for(uint32 j = 0;j<3;j++)
+    for(uint32 j = 0; j < 3; ++j)
     {
-        // persistent area auras target only the ground
-        if(m_spellInfo->Effect[j] == SPELL_EFFECT_PERSISTENT_AREA_AURA)
-            HandleEffects(NULL,NULL,NULL, j);
+        if(spellmgr.EffectTargetType[m_spellInfo->Effect[j]] == SPELL_REQUIRE_DEST)
+        {
+            if(m_targets.HasDest())
+                HandleEffects(m_originalCaster, NULL, NULL, j);
+        }
+        else if(spellmgr.EffectTargetType[m_spellInfo->Effect[j]] == SPELL_REQUIRE_NONE)
+            HandleEffects(m_originalCaster, NULL, NULL, j);
     }
 }
 
@@ -2713,8 +2719,8 @@ void Spell::update(uint32 difftime)
                         cancel();
 
                     // check for incapacitating player states
-                    if( m_caster->hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_CONFUSED))
-                        cancel();
+                    //if( m_caster->hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_CONFUSED))
+                    //    cancel();
                 }
 
                 // check if there are alive targets left
@@ -5352,12 +5358,6 @@ bool SpellEvent::Execute(uint64 e_time, uint32 p_time)
 
                 return(true);                               // spell is deletable, finish event
             }
-            // event will be re-added automatically at the end of routine)
-        } break;
-
-        case SPELL_STATE_CASTING:
-        {
-            // this spell is in channeled state, process it on the next update
             // event will be re-added automatically at the end of routine)
         } break;
 

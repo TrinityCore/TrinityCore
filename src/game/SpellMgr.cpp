@@ -33,29 +33,29 @@ SpellMgr::SpellMgr()
     {
         switch(i)
         {
-            case SPELL_EFFECT_SUMMON:
-            case SPELL_EFFECT_SUMMON_WILD:
-            case SPELL_EFFECT_SUMMON_GUARDIAN:
-            case SPELL_EFFECT_TRANS_DOOR: //summon object
-            case SPELL_EFFECT_SUMMON_PET:
-            case SPELL_EFFECT_SUMMON_POSSESSED:
-            case SPELL_EFFECT_SUMMON_TOTEM:
-            case SPELL_EFFECT_SUMMON_OBJECT_WILD:
-            case SPELL_EFFECT_SUMMON_TOTEM_SLOT1:
-            case SPELL_EFFECT_SUMMON_TOTEM_SLOT2:
-            case SPELL_EFFECT_SUMMON_TOTEM_SLOT3:
-            case SPELL_EFFECT_SUMMON_TOTEM_SLOT4:
-            case SPELL_EFFECT_SUMMON_CRITTER:
-            case SPELL_EFFECT_SUMMON_OBJECT_SLOT1:
-            case SPELL_EFFECT_SUMMON_OBJECT_SLOT2:
-            case SPELL_EFFECT_SUMMON_OBJECT_SLOT3:
-            case SPELL_EFFECT_SUMMON_OBJECT_SLOT4:
-            case SPELL_EFFECT_SUMMON_DEAD_PET:
-            case SPELL_EFFECT_SUMMON_DEMON:
-            case SPELL_EFFECT_ADD_FARSIGHT:
-            case SPELL_EFFECT_TRIGGER_SPELL_2: //ritual of summon
-            case SPELL_EFFECT_TRIGGER_MISSILE:
-            case SPELL_EFFECT_PERSISTENT_AREA_AURA:
+            case SPELL_EFFECT_PERSISTENT_AREA_AURA: //27
+            case SPELL_EFFECT_SUMMON:               //28
+            case SPELL_EFFECT_TRIGGER_MISSILE:      //32
+            case SPELL_EFFECT_SUMMON_WILD:          //41
+            case SPELL_EFFECT_SUMMON_GUARDIAN:      //42
+            case SPELL_EFFECT_TRANS_DOOR:           //50 summon object
+            case SPELL_EFFECT_SUMMON_PET:           //56
+            case SPELL_EFFECT_ADD_FARSIGHT:         //72
+            case SPELL_EFFECT_SUMMON_POSSESSED:     //73
+            case SPELL_EFFECT_SUMMON_TOTEM:         //74
+            case SPELL_EFFECT_SUMMON_OBJECT_WILD:   //76
+            case SPELL_EFFECT_SUMMON_TOTEM_SLOT1:   //87
+            case SPELL_EFFECT_SUMMON_TOTEM_SLOT2:   //88
+            case SPELL_EFFECT_SUMMON_TOTEM_SLOT3:   //89
+            case SPELL_EFFECT_SUMMON_TOTEM_SLOT4:   //90
+            case SPELL_EFFECT_SUMMON_CRITTER:       //97
+            case SPELL_EFFECT_SUMMON_OBJECT_SLOT1:  //104
+            case SPELL_EFFECT_SUMMON_OBJECT_SLOT2:  //105
+            case SPELL_EFFECT_SUMMON_OBJECT_SLOT3:  //106
+            case SPELL_EFFECT_SUMMON_OBJECT_SLOT4:  //107
+            case SPELL_EFFECT_SUMMON_DEAD_PET:      //109
+            case SPELL_EFFECT_SUMMON_DEMON:         //112
+            case SPELL_EFFECT_TRIGGER_SPELL_2:      //151 ritual of summon
                 EffectTargetType[i] = SPELL_REQUIRE_DEST;
                 break;
             case SPELL_EFFECT_PARRY: // 0
