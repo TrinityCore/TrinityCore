@@ -89,7 +89,7 @@ void BattleGroundQueue::EligibleGroups::Init(BattleGroundQueue::QueuedGroupsList
             (*itr)->Players.size() <= MaxPlayers &&   // the group must fit in the bg
             ( !excludeTeam || (*itr)->ArenaTeamId != excludeTeam ) && // if excludeTeam is specified, leave out those arena team ids
             ( !IsRated || (*itr)->Players.size() == MaxPlayers ) &&   // if rated, then pass only if the player count is exact NEEDS TESTING! (but now this should never happen)
-            (  DisregardTime && (*itr)->JoinTime <= DisregardTime              // pass if disregard time is greater than join time
+            ( !DisregardTime || (*itr)->JoinTime <= DisregardTime              // pass if disregard time is greater than join time
                || (*itr)->ArenaTeamRating == 0                 // pass if no rating info
                || ( (*itr)->ArenaTeamRating >= MinRating       // pass if matches the rating range
                      && (*itr)->ArenaTeamRating <= MaxRating ) ) )
