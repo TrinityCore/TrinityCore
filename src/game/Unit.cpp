@@ -12956,8 +12956,16 @@ void Unit::AddAura(uint32 spellId, Unit* target)
     {
         if(spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA)
         {
-            Aura *Aur = CreateAura(spellInfo, i, NULL, target, this);
-            target->AddAura(Aur);
+            if(spellInfo->EffectImplicitTargetA[i] == TARGET_UNIT_CASTER)
+            {
+                Aura *Aur = CreateAura(spellInfo, i, NULL, this, this);
+                AddAura(Aur);
+            }
+            else
+            {
+                Aura *Aur = CreateAura(spellInfo, i, NULL, target, this);
+                target->AddAura(Aur);
+            }
         }
     }
 }
