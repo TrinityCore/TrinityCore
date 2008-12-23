@@ -126,11 +126,11 @@ protected:
     virtual bool DelObject(uint32 type);
     virtual bool DelCapturePoint();
 
+    virtual void UpdateActivePlayerProximityCheck();
+
 protected:
-    // active players in the area of the objective
-    std::set<uint64> m_ActivePlayerGuids;
-    int32 m_AllianceActivePlayerCount;
-    int32 m_HordeActivePlayerCount;
+    // active players in the area of the objective, 0 - alliance, 1 - horde
+    std::set<uint64> m_ActivePlayerGuids[2];
     // total shift needed to capture the objective
     float m_ShiftMaxPhase;
     // maximum speed of capture
