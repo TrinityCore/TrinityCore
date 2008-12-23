@@ -290,8 +290,8 @@ bool OutdoorPvPTF::SetupOutdoorPvP()
 bool OutdoorPvPObjectiveTF::Update(uint32 diff)
 {
     // can update even in locked state if gathers the controlling faction
-    bool canupdate = ((((OutdoorPvPTF*)m_PvP)->m_AllianceTowersControlled > 0) && this->m_AllianceActivePlayerCount > this->m_HordeActivePlayerCount) ||
-            ((((OutdoorPvPTF*)m_PvP)->m_HordeTowersControlled > 0) && this->m_AllianceActivePlayerCount < this->m_HordeActivePlayerCount);
+    bool canupdate = ((((OutdoorPvPTF*)m_PvP)->m_AllianceTowersControlled > 0) && this->m_ActivePlayerGuids[0].size() > this->m_ActivePlayerGuids[1].size()) ||
+            ((((OutdoorPvPTF*)m_PvP)->m_HordeTowersControlled > 0) && this->m_ActivePlayerGuids[0].size() < this->m_ActivePlayerGuids[1].size());
     // if gathers the other faction, then only update if the pvp is unlocked
     canupdate = canupdate || !((OutdoorPvPTF*)m_PvP)->m_IsLocked;
     if(canupdate && OutdoorPvPObjective::Update(diff))
