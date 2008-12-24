@@ -13003,17 +13003,23 @@ void Unit::GetPartyMember(std::list<Unit*> &TagUnitMap, float radius)
 
 void Unit::AddAura(uint32 spellId, Unit* target)
 {
-    if(!target)
+    if(!target || !target->isAlive())
         return;
 
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
     if(!spellInfo)
         return;
 
+    if (target->IsImmunedToSpell(spellInfo))
+        return;
+
     for(uint32 i = 0; i < 3; ++i)
     {
         if(spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA)
         {
+            if(target->IsImmunedToSpellEffect(spellInfo->Effect[i], spellInfo->EffectMechanic[i]))
+                continue;
+
             if(spellInfo->EffectImplicitTargetA[i] == TARGET_UNIT_CASTER)
             {
                 Aura *Aur = CreateAura(spellInfo, i, NULL, this, this);
