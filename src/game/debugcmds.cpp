@@ -63,6 +63,7 @@ bool ChatHandler::HandleDebugSpellFailCommand(const char* args)
     uint8 failnum = (uint8)atoi(px);
 
     WorldPacket data(SMSG_CAST_FAILED, 5);
+    data << uint8(0);
     data << uint32(133);
     data << uint8(failnum);
     m_session->SendPacket(&data);
@@ -568,5 +569,55 @@ bool ChatHandler::HandleDebugHostilRefList(const char * /*args*/)
         ref = ref->next();
     }
     SendSysMessage("End of hostil reference list.");
+    return true;
+}
+
+bool ChatHandler::HandleSpawnVehicle(const char* args)
+{
+    if(!args)
+        return false;
+
+    char* e = strtok((char*)args, " ");
+    char* i = strtok(NULL, " ");
+
+    if (!e || !i)
+        return false;
+
+    uint32 entry = (uint32)atoi(e);
+    uint32 id = (uint32)atoi(i);
+
+    CreatureInfo const *ci = objmgr.GetCreatureTemplate(entry);
+
+    if(!ci)
+        return false;
+
+    VehicleEntry const *ve = sVehicleStore.LookupEntry(id);
+
+    if(!ve)
+        return false;
+
+    Vehicle *v = new Vehicle;
+    Map *map = m_session->GetPlayer()->GetMap();
+    if(!v->Create(objmgr.GenerateLowGuid(HIGHGUID_VEHICLE), map, entry, id, m_session->GetPlayer()->GetTeam()))
+    {
+        delete v;
+        return false;
+    }
+
+    float px, py, pz;
+    m_session->GetPlayer()->GetClosePoint(px, py, pz, m_session->GetPlayer()->GetObjectSize());
+
+    v->Relocate(px, py, pz, m_session->GetPlayer()->GetOrientation());
+
+    if(!v->IsPositionValid())
+    {
+        sLog.outError("ERROR: Vehicle (guidlow %d, entry %d) not created. Suggested coordinates isn't valid (X: %f Y: %f)",
+            v->GetGUIDLow(), v->GetEntry(), v->GetPositionX(), v->GetPositionY());
+        delete v;
+        return false;
+    }
+
+    map->Add((Creature*)v);
+
     return true;
 }

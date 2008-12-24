@@ -40,7 +40,7 @@
 #endif
 
 #ifndef _TRINITY_REALM_CONFIG
-# define _TRINITY_REALM_CONFIG  "trinityrealm.conf"
+# define _TRINITY_REALM_CONFIG  "realmd.conf"
 #endif //_TRINITY_REALM_CONFIG
 
 #ifdef WIN32

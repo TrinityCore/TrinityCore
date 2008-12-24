@@ -59,7 +59,7 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
 	void OpenDoor(uint64 DoorGUID, bool open)
     {
         if(GameObject *Door = instance->GetGameObjectInMap(DoorGUID))
-            Door->SetUInt32Value(GAMEOBJECT_STATE, open ? 0 : 1);
+            Door->SetGoState(open ? 0 : 1);
     }
 
     void SetData(uint32 type, uint32 data)

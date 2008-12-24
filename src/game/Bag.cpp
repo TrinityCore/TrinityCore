@@ -34,7 +34,7 @@ Bag::Bag( ): Item()
 
     m_valuesCount = CONTAINER_END;
 
-    memset(m_bagslot, 0, sizeof(Item *) * MAX_BAG_SIZE);    // Maximum 20 Slots
+    memset(m_bagslot, 0, sizeof(Item *) * MAX_BAG_SIZE);
 }
 
 Bag::~Bag()

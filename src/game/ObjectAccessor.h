@@ -33,6 +33,7 @@
 #include "GridDefines.h"
 #include "Object.h"
 #include "Player.h"
+#include "Vehicle.h"
 
 #include <set>
 
@@ -150,6 +151,7 @@ class TRINITY_DLL_DECL ObjectAccessor : public Trinity::Singleton<ObjectAccessor
         static DynamicObject* GetDynamicObject(Unit const &, uint64);
         static Corpse* GetCorpse(WorldObject const &u, uint64 guid);
         static Pet* GetPet(uint64 guid);
+        static Vehicle* GetVehicle(uint64 guid);
         static Player* FindPlayer(uint64);
 
         Player* FindPlayerByName(const char *name) ;
