@@ -111,24 +111,8 @@ bool LoadADT(char* filename)
                     {
                         ChunkLiqHeight[j] = -999999;        // no liquid/water
                     }
-<<<<<<< HEAD:contrib/extractor/adt.cpp
-
-                }*/
-                break;
-            }
-            case 0x4d574d4f:                                // MWMO
-            {
-                /*
-                if (size)
-                {
-                    char *buf = new char[size];
-                    mf.read(buf, size);
-                    char *p=buf;
-                    while (p<buf+size)
-=======
                     // теперь вычисляем те что с водой и перезаписываем их в куске 
                     for(int b = 0; b <= LiqChunkData1->height; ++b)
->>>>>>> upstream/master:contrib/extractor/adt.cpp
                     {
                         for(int c = LiqChunkData1->xOffset; c <= (LiqChunkData1->xOffset + LiqChunkData1->width); ++c)
                         {
@@ -156,31 +140,8 @@ bool LoadADT(char* filename)
                         MapLiqHeight[k] = ChunkLiqHeight[p + s];
                         ++k;
                     }
-<<<<<<< HEAD:contrib/extractor/adt.cpp
-                    delete[] buf;
-                }*/
-                break;
-            }
-            case 0x4d564552:                                // MVER
-            case 0x4d484452:                                // MHDR header
-            case 0x4d434e4b:                                // MCNK
-            case 0x4d544558:                                // MTEX textures (strings)
-            case 0x4d4d4458:                                // MMDX m2 models (strings)
-            case 0x4d4d4944:                                // MMID offsets for strings in MMDX
-            case 0x4d574944:                                // MWID offsets for strings in MWMO
-            case 0x4d444446:                                // MDDF
-            case 0x4d46424f:                                // MFBO new in BC
-            case 0x4d48324f:                                // MH2O new in WotLK
-                break;
-            default:
-            {
-                // mf.seekRelative(-3);
-                printf("Unhandled map chunk: %u\n",fourcc);
-                break;
-=======
                     k = k + 120;
                 }
->>>>>>> upstream/master:contrib/extractor/adt.cpp
             }
             delete LiqOffsData;
             delete LiqChunkData1;
@@ -317,10 +278,6 @@ inline void LoadMapChunk(MPQFile &mf, chunk *_chunk)
                 if(chunkflags & 4 || chunkflags & 8)
                     MapLiqFlag[chunk_num] |= 1;             // water
                 if(chunkflags & 16)
-<<<<<<< HEAD:contrib/extractor/adt.cpp
-                    _chunk->flag |=2;
-
-=======
                     MapLiqFlag[chunk_num] |= 2;             // magma/slime
             }
             // заполнем так же как в MH2O
@@ -336,7 +293,6 @@ inline void LoadMapChunk(MPQFile &mf, chunk *_chunk)
                     ++k;    
                 }
                 k = k + 120;
->>>>>>> upstream/master:contrib/extractor/adt.cpp
             }
             delete []ChunkLiqHeight;
             break;
