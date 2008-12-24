@@ -1332,14 +1332,14 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
 //        return true;
 
     //use data of highest rank spell(needed for spells which ranks have different effects)
-    SpellEntry const *spellInfo1=sSpellStore.LookupEntry(GetLastSpellInChain(spellId_1));
-    SpellEntry const *spellInfo2=sSpellStore.LookupEntry(GetLastSpellInChain(spellId_2));
+    spellInfo_1=sSpellStore.LookupEntry(GetLastSpellInChain(spellId_1));
+    spellInfo_2=sSpellStore.LookupEntry(GetLastSpellInChain(spellId_2));
 
     //if spells have exactly the same effect they cannot stack
     for(uint32 i = 0; i < 3; ++i)
-        if(spellInfo1->Effect[i] != spellInfo2->Effect[i]
-            || spellInfo1->EffectApplyAuraName[i] != spellInfo2->EffectApplyAuraName[i]
-            || spellInfo1->EffectMiscValue[i] != spellInfo2->EffectMiscValue[i]) // paladin resist aura
+        if(spellInfo_1->Effect[i] != spellInfo_2->Effect[i]
+            || spellInfo_1->EffectApplyAuraName[i] != spellInfo_2->EffectApplyAuraName[i]
+            || spellInfo_1->EffectMiscValue[i] != spellInfo_2->EffectMiscValue[i]) // paladin resist aura
             return false; // need itemtype check? need an example to add that check
 
     return true;
@@ -1430,8 +1430,8 @@ void SpellMgr::LoadSpellRequired()
         bar.step();
 
         sLog.outString();
-        sLog.outString( ">> Loaded 0 spell chain records" );
-        sLog.outErrorDb("`spell_chains` table is empty!");
+        sLog.outString( ">> Loaded 0 spell required records" );
+        sLog.outErrorDb("`spell_required` table is empty!");
         return;
     }
     uint32 rows = 0;

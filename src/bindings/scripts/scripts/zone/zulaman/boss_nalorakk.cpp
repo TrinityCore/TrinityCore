@@ -435,20 +435,30 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
                 DoYell(YELL_SURGE, LANG_UNIVERSAL, NULL);
                 DoPlaySoundToSet(m_creature, SOUND_YELL_SURGE);
 
-                Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                Unit *target = NULL;
+				std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();
+				std::vector<Unit *> target_list;
+				for(std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+				{
+					target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+					//50 yard radius maximum
+					if(target && target->GetDistance2d(m_creature) < 50)
+						target_list.push_back(target);
+					target = NULL;
+				}
+				if(target_list.size())
+					target = *(target_list.begin()+rand()%target_list.size());
+
 				if(!target)
 					target = m_creature->getVictim();
                 TankGUID = m_creature->getVictim()->GetGUID();
                 ChargeTargetGUID = target->GetGUID();
-
-				if(target && m_creature->IsWithinDistInMap(target, 50.0f))
-				{
+			
 					float x, y, z;
 					target->GetContactPoint(m_creature, x, y, z);
 					m_creature->SetSpeed(MOVE_RUN, 5.0f);
 					m_creature->GetMotionMaster()->Clear();
-					m_creature->GetMotionMaster()->MovePoint(0, x, y, z);
-				}
+					m_creature->GetMotionMaster()->MovePoint(0, x, y, z);			
 
                 Surge_Timer = 15000 + rand()%5000;
                 return;

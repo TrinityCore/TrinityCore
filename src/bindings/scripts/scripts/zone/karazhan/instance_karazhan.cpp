@@ -61,6 +61,8 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
     uint64 GamesmansExitDoor;                               // Door after Chess
     uint64 NetherspaceDoor;                                 // Door at Malchezaar
 
+	uint64 ImageGUID;
+
     void Initialize()
     {
         for (uint8 i = 0; i < ENCOUNTERS; ++i)
@@ -82,6 +84,8 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
         GamesmansDoor       = 0;
         GamesmansExitDoor   = 0;
         NetherspaceDoor     = 0;
+
+		ImageGUID = 0;
     }
 
     bool IsEncounterInProgress() const
@@ -111,6 +115,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
             case DATA_NIGHTBANE_EVENT:       return Encounters[11];
             case DATA_OPERA_PERFORMANCE:      return OperaEvent;
             case DATA_OPERA_OZ_DEATHCOUNT:    return OzDeathCount;
+			case DATA_IMAGE_OF_MEDIVH:             return ImageGUID;
         }
 
         return 0;
@@ -173,6 +178,14 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
         if(data == DONE)
             SaveToDB();
     }
+
+	 void SetData64(uint32 identifier, uint64 data)
+	 {
+		 switch(identifier)
+		 {        
+		 case DATA_IMAGE_OF_MEDIVH: ImageGUID = data;
+		 }
+	 }
 
     void OnObjectCreate(GameObject* go)
     {
