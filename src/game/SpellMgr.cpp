@@ -80,6 +80,7 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_CASTER_FISHING:
             case TARGET_UNIT_MASTER:
             case TARGET_UNIT_PET:
+            case TARGET_UNIT_PARTY_CASTER:
                 SpellTargetType[i] = TARGET_TYPE_UNIT_CASTER;
                 break;
             case TARGET_UNIT_MINIPET:
@@ -102,6 +103,8 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_AREA_ALLY:
             case TARGET_UNIT_AREA_ENTRY_GROUND:
             case TARGET_UNIT_AREA_ENTRY:
+            case TARGET_UNIT_AREA_PARTY_GROUND:
+            case TARGET_UNIT_AREA_PARTY:
             case TARGET_UNIT_AREA_ENEMY_CHANNEL:
                 SpellTargetType[i] = TARGET_TYPE_AREA_DEST;
                 break;
@@ -2001,11 +2004,14 @@ void SpellMgr::LoadSpellCustomAttr()
         bool auraSpell = true;
         for(uint32 j = 0; j < 3; ++j)
         {
-            if(spellInfo->Effect[j] && spellInfo->Effect[j] != SPELL_EFFECT_APPLY_AURA)
-            {
-                auraSpell = false;
-                break;
-            }
+            if(spellInfo->Effect[j])
+                if(spellInfo->Effect[j] != SPELL_EFFECT_APPLY_AURA
+                || SpellTargetType[spellInfo->EffectImplicitTargetA[j]] != TARGET_TYPE_UNIT_TARGET)
+                //ignore target party for now
+                {
+                    auraSpell = false;
+                    break;
+                }
         }
         if(auraSpell)
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_AURA_SPELL;
