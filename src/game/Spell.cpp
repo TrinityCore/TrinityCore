@@ -1467,8 +1467,11 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                         TagUnitMap.push_back(owner);
                     break;
                 case TARGET_UNIT_PET:
-                    if(Pet* tmpUnit = m_caster->GetPet())
-                        TagUnitMap.push_back(tmpUnit);
+                    if(Pet* pet = m_caster->GetPet())
+                        TagUnitMap.push_back(pet);
+                    break;
+                case TARGET_UNIT_PARTY_CASTER:
+                    m_caster->GetPartyMember(TagUnitMap, radius);
                     break;
             }
         }break;
@@ -1559,6 +1562,11 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                     m_targets.m_targetMask |= TARGET_FLAG_DEST_LOCATION;
                 case TARGET_UNIT_AREA_ALLY:
                     SearchAreaTarget(TagUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_FRIENDLY);
+                    break;
+                case TARGET_UNIT_AREA_PARTY_GROUND:
+                    m_targets.m_targetMask |= TARGET_FLAG_DEST_LOCATION;
+                case TARGET_UNIT_AREA_PARTY:
+                    m_caster->GetPartyMember(TagUnitMap, radius);
                     break;
                 case TARGET_UNIT_AREA_ENTRY_GROUND:
                     m_targets.m_targetMask |= TARGET_FLAG_DEST_LOCATION;
@@ -1752,12 +1760,6 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             break;
         }
 
-        case TARGET_UNIT_AREA_PARTY_GROUND:
-            m_targets.m_targetMask |= TARGET_FLAG_DEST_LOCATION;
-        case TARGET_UNIT_PARTY_CASTER:
-        case TARGET_UNIT_AREA_PARTY:
-            m_caster->GetPartyMember(TagUnitMap, radius);
-            break;
         case TARGET_RANDOM_RAID_MEMBER:
         {
             if (m_caster->GetTypeId() == TYPEID_PLAYER)
