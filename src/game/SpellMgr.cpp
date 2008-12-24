@@ -61,7 +61,7 @@ SpellMgr::SpellMgr()
             case SPELL_EFFECT_PARRY: // 0
             case SPELL_EFFECT_BLOCK: // 0
             case SPELL_EFFECT_SKILL: // always with dummy 3 as A
-            case SPELL_EFFECT_LEARN_SPELL: // 0
+            //case SPELL_EFFECT_LEARN_SPELL: // 0 may be 5 pet
             case SPELL_EFFECT_TRADE_SKILL: // 0 or 1
             case SPELL_EFFECT_PROFICIENCY: // 0
                 EffectTargetType[i] = SPELL_REQUIRE_NONE;
