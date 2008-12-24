@@ -2416,8 +2416,9 @@ void Spell::_handle_immediate_phase()
     {
         if(spellmgr.EffectTargetType[m_spellInfo->Effect[j]] == SPELL_REQUIRE_DEST)
         {
-            if(m_targets.HasDest())
-                HandleEffects(m_originalCaster, NULL, NULL, j);
+            if(!m_targets.HasDest())
+                m_targets.setDestination(m_caster, false);
+            HandleEffects(m_originalCaster, NULL, NULL, j);
         }
         else if(spellmgr.EffectTargetType[m_spellInfo->Effect[j]] == SPELL_REQUIRE_NONE)
             HandleEffects(m_originalCaster, NULL, NULL, j);
