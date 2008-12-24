@@ -402,13 +402,11 @@ Spell::~Spell()
 
 void Spell::FillTargetMap()
 {
-    // TODO: ADD the correct target FILLS!!!!!!
-
-    for(uint32 i=0;i<3;i++)
+    for(uint32 i = 0; i < 3; ++i)
     {
         // not call for empty effect.
         // Also some spells use not used effect targets for store targets for dummy effect in triggered spells
-        if(m_spellInfo->Effect[i]==0)
+        if(!m_spellInfo->Effect[i])
             continue;
 
         // TODO: find a way so this is not needed?
@@ -417,9 +415,13 @@ void Spell::FillTargetMap()
             AddUnitTarget(m_caster, i);
 
         std::list<Unit*> tmpUnitMap;
+        uint32 targetA = m_spellInfo->EffectImplicitTargetA[i];
+        uint32 targetB = m_spellInfo->EffectImplicitTargetB[i];
 
-        SetTargetMap(i,m_spellInfo->EffectImplicitTargetA[i],tmpUnitMap);
-        SetTargetMap(i,m_spellInfo->EffectImplicitTargetB[i],tmpUnitMap);
+        if(targetA)
+            SetTargetMap(i, targetA, tmpUnitMap);
+        if(targetB) // In very rare case !A && B
+            SetTargetMap(i, targetB, tmpUnitMap);
 
         if(spellmgr.EffectTargetType[m_spellInfo->Effect[i]] != SPELL_REQUIRE_UNIT)
         {
@@ -433,7 +435,9 @@ void Spell::FillTargetMap()
             continue;
         }
 
-        if(tmpUnitMap.empty())
+        if(!targetA && !targetB)
+            AddUnitTarget(m_caster, i);
+        else if(tmpUnitMap.empty())
         {
             // add here custom effects that need default target.
             // FOR EVERY TARGET TYPE THERE IS A DIFFERENT FILL!!
