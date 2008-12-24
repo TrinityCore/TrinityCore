@@ -868,8 +868,7 @@ enum Targets
     TARGET_DEST_TARGET_ENEMY           = 53,
     TARGET_UNIT_CONE_ENEMY_UNKNOWN     = 54,
     TARGET_DEST_CASTER_FRONT_LEAP      = 55, // for a leap spell
-    TARGET_RANDOM_RAID_MEMBER          = 56,
-    //TARGET_UNIT_AREA_RAID
+    TARGET_UNIT_RAID                   = 56,
     TARGET_SINGLE_FRIEND_2             = 57,
     TARGET_UNIT_TARGET_RAID            = 57,
     TARGET_UNIT_CONE_ALLY              = 59,
