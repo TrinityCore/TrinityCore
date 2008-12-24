@@ -12943,8 +12943,25 @@ bool Unit::IsInRaidWith(Unit const *unit) const
         return false;
 }
 
-void Unit::GetRaidMember(std::list<Unit*> &TagUnitMap, float radius)
+void Unit::GetRaidMember(std::list<Unit*> &nearMembers, float radius)
 {
+    Player *owner = GetCharmerOrOwnerPlayerOrPlayerItself();
+    if(!owner)
+        return;
+
+    Group *pGroup = owner->GetGroup();
+    if(!pGroup)
+        return;
+
+    for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+    {
+        Player* Target = itr->getSource();
+
+        // IsHostileTo check duel and controlled by enemy
+        if( Target && Target != this && Target->isAlive() 
+            && IsWithinDistInMap(Target, radius) && !IsHostileTo(Target) )
+            nearMembers.push_back(Target);
+    }
 }
 
 void Unit::GetPartyMember(std::list<Unit*> &TagUnitMap, float radius)
