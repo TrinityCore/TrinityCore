@@ -813,7 +813,7 @@ enum Targets
     TARGET_EFFECT_SELECT               = 18,                // highly depends on the spell effect
     TARGET_DEST_CASTER_GROUND          = 18, 
     TARGET_ALL_PARTY_AROUND_CASTER     = 20,
-    //TARGET_UNIT_PARTY_CASTER
+    TARGET_UNIT_PARTY_CASTER           = 20,
     TARGET_SINGLE_FRIEND               = 21,
     TARGET_UNIT_TARGET_ALLY            = 21,
     TARGET_ALL_AROUND_CASTER           = 22,                // used only in TargetA, target selection dependent from TargetB
@@ -837,14 +837,14 @@ enum Targets
     TARGET_MINION                      = 32,
     //TARGET_DEST_SUMMON
     TARGET_ALL_PARTY                   = 33,
-    //TARGET_UNIT_AREA_PARTY
+    TARGET_UNIT_AREA_PARTY             = 33,
     TARGET_ALL_PARTY_AROUND_CASTER_2   = 34,                // used in Tranquility
-    //TARGET_UNIT_AREA_PARTY_GROUND
+    TARGET_UNIT_AREA_PARTY_GROUND      = 34,
     TARGET_SINGLE_PARTY                = 35,
     TARGET_UNIT_TARGET_PARTY           = 35,
     TARGET_DEST_CASTER_RANDOM_UNKNOWN  = 36, //unknown
     TARGET_AREAEFFECT_PARTY            = 37,
-    //TARGET_UNIT_PARTY_TARGET
+    TARGET_UNIT_PARTY_TARGET           = 37,
     TARGET_SCRIPT                      = 38,
     //TARGET_UNIT_NEARBY_ENTRY
     TARGET_UNIT_CASTER_FISHING         = 39,
