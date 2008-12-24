@@ -81,6 +81,7 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_MASTER:
             case TARGET_UNIT_PET:
             case TARGET_UNIT_PARTY_CASTER:
+            case TARGET_UNIT_RAID:
                 SpellTargetType[i] = TARGET_TYPE_UNIT_CASTER;
                 break;
             case TARGET_UNIT_MINIPET:
