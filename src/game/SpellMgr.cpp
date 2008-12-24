@@ -88,6 +88,8 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_TARGET_ANY:
             case TARGET_UNIT_SINGLE_UNKNOWN:
             case TARGET_UNIT_TARGET_ENEMY:
+            case TARGET_UNIT_TARGET_PARTY:
+            case TARGET_UNIT_PARTY_TARGET:
                 SpellTargetType[i] = TARGET_TYPE_UNIT_TARGET;
                 break;
             case TARGET_UNIT_CHANNEL:

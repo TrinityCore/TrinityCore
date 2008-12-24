@@ -12943,6 +12943,47 @@ bool Unit::IsInRaidWith(Unit const *unit) const
         return false;
 }
 
+void Unit::GetRaidMember(std::list<Unit*> &TagUnitMap, float radius)
+{
+}
+
+void Unit::GetPartyMember(std::list<Unit*> &TagUnitMap, float radius)
+{
+    Unit *owner = GetCharmerOrOwnerOrSelf();
+    Group *pGroup = NULL;
+    if (owner->GetTypeId() == TYPEID_PLAYER)
+        pGroup = ((Player*)owner)->GetGroup();
+
+    if(pGroup)
+    {
+        uint8 subgroup = ((Player*)owner)->GetSubGroup();
+
+        for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+        {
+            Player* Target = itr->getSource();
+
+            // IsHostileTo check duel and controlled by enemy
+            if( Target && Target->GetSubGroup()==subgroup && !IsHostileTo(Target) )
+            {
+                if(Target->isAlive() && IsWithinDistInMap(Target, radius) )
+                    TagUnitMap.push_back(Target);
+
+                if(Pet* pet = Target->GetPet())
+                    if(pet->isAlive() &&  IsWithinDistInMap(pet, radius) )
+                        TagUnitMap.push_back(pet);
+            }
+        }
+    }
+    else
+    {
+        if(owner->isAlive() && (owner == this || IsWithinDistInMap(owner, radius)))
+            TagUnitMap.push_back(owner);
+        if(Pet* pet = owner->GetPet())
+            if(pet->isAlive() && (pet == this && IsWithinDistInMap(pet, radius)))
+                TagUnitMap.push_back(pet);
+    }
+}
+
 void Unit::AddAura(uint32 spellId, Unit* target)
 {
     if(!target)
