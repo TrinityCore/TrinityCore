@@ -9,12 +9,12 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 ## Process this file with automake to produce Makefile.in
 
@@ -62,6 +62,7 @@ EXTRA_DIST += \
 	mysql/config-os2.h \
 	mysql/config-win.h \
 	mysql/errmsg.h \
+	mysql/libmysqld.def \
 	mysql/Libmysql.def \
 	mysql/m_ctype.h \
 	mysql/m_string.h \
@@ -167,32 +168,31 @@ EXTRA_DIST += \
 
 #  Sockets header files for Win32 builds
 EXTRA_DIST += \
-	sockets/Base64.h \
-	sockets/Exception.h \
-	sockets/File.h \
-	sockets/IFile.h \
-	sockets/Ipv4Address.h \
-	sockets/Ipv6Address.h \
-	sockets/ISocketHandler.h \
-	sockets/ListenSocket.h \
-	sockets/Lock.h \
-	sockets/Mutex.h \
-	sockets/Parse.h \
-	sockets/ResolvServer.h \
-	sockets/ResolvSocket.h \
-	sockets/SctpSocket.h \
-	sockets/SocketAddress.h \
-	sockets/Socket.h \
-	sockets/SocketHandler.h \
-	sockets/socket_include.h \
-	sockets/sockets-config.h \
-	sockets/StdLog.h \
-	sockets/StdoutLog.h \
-	sockets/StreamSocket.h \
-	sockets/TcpSocket.h \
-	sockets/Thread.h \
-	sockets/UdpSocket.h \
-	sockets/Utility.h
+	sockets\Base64.h \
+	sockets\CircularBuffer.h \
+	sockets\IFile.h \
+	sockets\Ipv4Address.h \
+	sockets\Ipv6Address.h \
+	sockets\ISocketHandler.h \
+	sockets\ListenSocket.h \
+	sockets\Mutex.h \
+	sockets\Parse.h \
+	sockets\RandomNumber.h \
+	sockets\ResolvServer.h \
+	sockets\ResolvSocket.h \
+	sockets\SctpSocket.h \
+	sockets\Socket.h \
+	sockets\socket_include.h \
+	sockets\SocketAddress.h \
+	sockets\SocketHandler.h \
+	sockets\sockets-config.h \
+	sockets\StdLog.h \
+	sockets\StdoutLog.h \
+	sockets\TcpSocket.h \
+	sockets\Thread.h \
+	sockets\UdpSocket.h \
+	sockets\Uid.h \
+	sockets\Utility.h
 
 #  VLD header files for Win32 builds
 EXTRA_DIST += \
