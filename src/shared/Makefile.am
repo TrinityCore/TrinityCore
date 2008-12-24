@@ -18,93 +18,49 @@
 
 ## Process this file with automake to produce Makefile.in
 
-## TODO move vmaps in src dir instead of src/shared
-
 ## Sub-directories to parse
-SUBDIRS = vmap
+SUBDIRS = Auth Config Database vmap
+
+## CPP flags for includes, defines, etc.
+AM_CPPFLAGS = $(MANGOS_INCLUDES) -I$(top_builddir)/src/shared -I$(srcdir) -I$(srcdir)/../../dep/include -I$(srcdir)/../framework -I$(srcdir)/../shared -I$(srcdir)/../../dep/include/g3dlite  -DSYSCONFDIR=\"$(sysconfdir)/\"
+## AM_CPPFLAGS += -I$(srcdir)/../game -I$(srcdir)/../realmd
 
 ## Build MaNGOS shared library and its parts as convenience library.
 #  All libraries will be convenience libraries. Might be changed to shared
 #  later.
-noinst_LIBRARIES = libshared.a
-
-libshared_a_CPPFLAGS = \
-$(MYSQL_INCLUDES) \
-$(POSTGRE_INCLUDES) \
-$(TRINI_INCLUDES) \
--I$(top_srcdir)/dep/include \
--I$(top_srcdir)/src/framework
+noinst_LIBRARIES = libmangosshared.a
 
 #  libmangosshared library will later be reused by ...
-libshared_a_SOURCES = \
-$(srcdir)/Base.cpp \
-$(srcdir)/Base.h \
-$(srcdir)/ByteBuffer.h \
-$(srcdir)/Common.cpp \
-$(srcdir)/Common.h \
-$(srcdir)/Errors.h \
-$(srcdir)/Log.cpp \
-$(srcdir)/Log.h \
-$(srcdir)/Mthread.cpp \
-$(srcdir)/Mthread.h \
-$(srcdir)/ProgressBar.cpp \
-$(srcdir)/ProgressBar.h \
-$(srcdir)/Timer.h \
-$(srcdir)/Util.cpp \
-$(srcdir)/Util.h \
-$(srcdir)/WorldPacket.h \
-$(srcdir)/SystemConfig.h \
-$(srcdir)../game/IRCConf.h \
-$(srcdir)/Auth/AuthCrypt.cpp \
-$(srcdir)/Auth/AuthCrypt.h \
-$(srcdir)/Auth/BigNumber.cpp \
-$(srcdir)/Auth/BigNumber.h \
-$(srcdir)/Auth/Hmac.cpp \
-$(srcdir)/Auth/Hmac.h \
-$(srcdir)/Auth/Sha1.cpp \
-$(srcdir)/Auth/Sha1.h \
-$(srcdir)/Auth/md5.c \
-$(srcdir)/Auth/md5.h \
-$(srcdir)/Config/dotconfpp/dotconfpp.cpp \
-$(srcdir)/Config/dotconfpp/dotconfpp.h \
-$(srcdir)/Config/dotconfpp/mempool.cpp \
-$(srcdir)/Config/dotconfpp/mempool.h \
-$(srcdir)/Config/Config.cpp \
-$(srcdir)/Config/Config.h \
-$(srcdir)/Config/ConfigEnv.h \
-$(srcdir)/Database/DBCStores.cpp \
-$(srcdir)/Database/DBCStores.h \
-$(srcdir)/Database/DBCStructure.h \
-$(srcdir)/Database/DBCfmt.cpp \
-$(srcdir)/Database/Database.cpp \
-$(srcdir)/Database/Database.h \
-$(srcdir)/Database/DatabaseEnv.h \
-$(srcdir)/Database/DatabaseImpl.h \
-$(srcdir)/Database/DatabaseMysql.cpp \
-$(srcdir)/Database/DatabasePostgre.cpp \
-$(srcdir)/Database/DatabaseMysql.h \
-$(srcdir)/Database/DatabasePostgre.h \
-$(srcdir)/Database/DatabaseSqlite.cpp \
-$(srcdir)/Database/DatabaseSqlite.h \
-$(srcdir)/Database/Field.cpp \
-$(srcdir)/Database/Field.h \
-$(srcdir)/Database/MySQLDelayThread.h \
-$(srcdir)/Database/PGSQLDelayThread.h \
-$(srcdir)/Database/QueryResult.h \
-$(srcdir)/Database/QueryResultMysql.cpp \
-$(srcdir)/Database/QueryResultMysql.h \
-$(srcdir)/Database/QueryResultPostgre.cpp \
-$(srcdir)/Database/QueryResultPostgre.h \
-$(srcdir)/Database/QueryResultSqlite.cpp \
-$(srcdir)/Database/QueryResultSqlite.h \
-$(srcdir)/Database/SQLStorage.cpp \
-$(srcdir)/Database/SQLStorage.h \
-$(srcdir)/Database/SqlDelayThread.cpp \
-$(srcdir)/Database/SqlDelayThread.h \
-$(srcdir)/Database/SqlOperations.cpp \
-$(srcdir)/Database/SqlOperations.h \
-$(srcdir)/Database/dbcfile.cpp \
-$(srcdir)/Database/dbcfile.h
+libmangosshared_a_SOURCES = \
+    Base.cpp \
+    Base.h \
+    ByteBuffer.h \
+    Common.cpp \
+    Common.h \
+    Errors.h \
+    Log.cpp \
+    Log.h \
+    MemoryLeaks.cpp \
+    MemoryLeaks.h \
+    ProgressBar.cpp \
+    ProgressBar.h \
+    Timer.h \
+    Util.cpp \
+    Util.h \
+    WorldPacket.h \
+    revision_nr.h \
+    revision.h
+
+# Get revision (git or svn)
+REVISION_FILE = revision.h
+
+BUILT_SOURCES = $(REVISION_FILE)
+CLEANFILES = $(REVISION_FILE)
+
+FORCE:
+
+$(REVISION_FILE) : $(top_builddir)/src/tools/genrevision/genrevision FORCE
+	$(top_builddir)/src/tools/genrevision/genrevision $(top_srcdir)
 
 ## Additional files to include when running 'make dist'
 #  Disabled packet logger

@@ -9,12 +9,12 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 ## Process this file with automake to produce Makefile.in
 
@@ -42,13 +42,11 @@ EXTRA_DIST += \
 	x64_Debug/libeay32.dll   \
 	x64_Debug/libeay32.lib   \
 	x64_Debug/libmySQL.dll   \
-	x64_Debug/libmysql.lib
+	x64_Debug/libmySQL.lib
 
 # Release libraries for Win64 builds.
 EXTRA_DIST += \
 	x64_release/libeay32.dll   \
 	x64_release/libeay32.lib   \
 	x64_release/libmySQL.dll   \
-	x64_release/libmysql.lib
-
-
+	x64_release/libmySQL.lib

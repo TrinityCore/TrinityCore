@@ -290,13 +290,6 @@ TRINI_INCLUDES="$POSTGRE_INCLUDES $MYSQL_INCLUDES $TRINI_INCLUDES"
 TRINI_LIBS="$POSTGRE_LIBS $MYSQL_LIBS $ZLIB $COMPATLIB $SSLLIB $TRINI_LIBS"
 
 ## Export defined variables
-AC_SUBST(ZLIB)
-AC_SUBST(COMPATLIB)
-AC_SUBST(SSLLIB)
-AC_SUBST(MYSQL_INCLUDES)
-AC_SUBST(MYSQL_LIBS)
-AC_SUBST(POSTGRE_INCLUDES)
-AC_SUBST(POSTGRE_LIBS)
 AC_SUBST(DOXYGEN)
 AC_SUBST(TRINITYD_DEBUG_INFO)
 AC_SUBST(TRINITYD_ENABLE_CLI)
@@ -321,6 +314,8 @@ AC_CONFIG_FILES([
    doc/Makefile
    Makefile
    src/Makefile
+   src/tools/Makefile
+   src/tools/genrevision/Makefile
    src/framework/Makefile
    src/shared/Makefile
    src/shared/Auth/Makefile
@@ -329,8 +324,10 @@ AC_CONFIG_FILES([
    src/shared/vmap/Makefile
    src/shared/SystemConfig.h
    src/game/Makefile
-   src/trinityrealm/Makefile
-   src/trinitycore/Makefile
+   src/realmd/Makefile
+   src/realmd/realmd.conf.dist
+   src/mangosd/Makefile
+   src/mangosd/mangosd.conf.dist
    src/bindings/Makefile
    src/bindings/interface/Makefile
 ])
@@ -338,11 +335,6 @@ AC_CONFIG_FILES([
 ## Configure ACE, if needed
 if test X$tri_need_to_build_ace = Xyes; then
   AC_CONFIG_SUBDIRS([dep/ACE_wrappers])
-fi
-
-## Configure ACE
-if test X$tri_build_scripts = Xyes; then
-AC_CONFIG_FILES([src/bindings/scripts/Makefile])
 fi
 
 AC_CONFIG_COMMANDS([default],[

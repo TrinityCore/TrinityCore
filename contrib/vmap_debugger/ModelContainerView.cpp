@@ -451,7 +451,7 @@ namespace VMAP
 
     //====================================================================
 
-    Vector3 ModelContainerView::convertPositionToTrinityRep(float x, float y, float z) const {
+    Vector3 ModelContainerView::convertPositionToMangosRep(float x, float y, float z) const {
         float pos[3];
         pos[0] = z;
         pos[1] = x;
@@ -490,7 +490,7 @@ namespace VMAP
 #if 0
             i_App->defaultController.getPosition();
             Vector3 pos = i_App->defaultController.getPosition();
-            Vector3 pos2 = convertPositionToTrinityRep(pos.x, pos.y, pos.z);
+            Vector3 pos2 = convertPositionToMangosRep(pos.x, pos.y, pos.z);
             //Vector3 pos3 = iVMapManager->convertPositionToInternalRep(pos2.x, pos2.y, pos2.z);
             //pos3 = iVMapManager->convertPositionToInternalRep(pos2.x, pos2.y, pos2.z);
 

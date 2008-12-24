@@ -11,25 +11,23 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
-// THIS FILE IS DEPRECATED
 
 #ifndef TRINITY_SYSTEMCONFIG_H
 #define TRINITY_SYSTEMCONFIG_H
 
+#ifndef _PACKAGENAME
+#define _PACKAGENAME "Trinity"
+#endif
+
 #include "Platform/Define.h"
 
-<<<<<<< HEAD:src/shared/SystemConfig.h.in
-// THIS IS TEMP :)
-#define _FULLVERSION "Trinity"
-=======
 #ifndef _VERSION
 #if PLATFORM == PLATFORM_WINDOWS
 # define _VERSION(REVD,REVT,REVN,REVH) "0.13.0-DEV" " (" REVD " " REVT " Revision " REVN " - " REVH ")"
@@ -73,7 +71,6 @@
 #endif
 
 #define _FULLVERSION(REVD,REVT,REVN,REVH) _PACKAGENAME "/" _VERSION(REVD,REVT,REVN,REVH) " for " _ENDIAN_PLATFORM
->>>>>>> upstream/master:src/shared/SystemConfig.h.in
 
 #define DEFAULT_PLAYER_LIMIT 100
 #define DEFAULT_WORLDSERVER_PORT 8085                       //8129
