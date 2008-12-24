@@ -688,10 +688,10 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player *player, WorldPacke
     }
 
     if (mask & GROUP_UPDATE_FLAG_CUR_HP)
-        *data << (uint32) player->GetHealth();
+        *data << (uint16) player->GetHealth();
 
     if (mask & GROUP_UPDATE_FLAG_MAX_HP)
-        *data << (uint32) player->GetMaxHealth();
+        *data << (uint16) player->GetMaxHealth();
 
     Powers powerType = player->getPowerType();
     if (mask & GROUP_UPDATE_FLAG_POWER_TYPE)
@@ -720,7 +720,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player *player, WorldPacke
         {
             if(auramask & (uint64(1) << i))
             {
-                *data << uint32(player->GetVisibleAura(i));
+                *data << uint16(player->GetUInt32Value(UNIT_FIELD_AURA + i));
                 *data << uint8(1);
             }
         }
@@ -754,17 +754,17 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player *player, WorldPacke
     if (mask & GROUP_UPDATE_FLAG_PET_CUR_HP)
     {
         if(pet)
-            *data << (uint32) pet->GetHealth();
+            *data << (uint16) pet->GetHealth();
         else
-            *data << (uint32) 0;
+            *data << (uint16) 0;
     }
 
     if (mask & GROUP_UPDATE_FLAG_PET_MAX_HP)
     {
         if(pet)
-            *data << (uint32) pet->GetMaxHealth();
+            *data << (uint16) pet->GetMaxHealth();
         else
-            *data << (uint32) 0;
+            *data << (uint16) 0;
     }
 
     if (mask & GROUP_UPDATE_FLAG_PET_POWER_TYPE)
@@ -801,7 +801,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player *player, WorldPacke
             {
                 if(auramask & (uint64(1) << i))
                 {
-                    *data << uint32(pet->GetVisibleAura(i));
+                    *data << uint16(pet->GetUInt32Value(UNIT_FIELD_AURA + i));
                     *data << uint8(1);
                 }
             }
@@ -824,7 +824,6 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode( WorldPacket &recv_data )
     if(!player)
     {
         WorldPacket data(SMSG_PARTY_MEMBER_STATS_FULL, 3+4+2);
-        data << uint8(0);                                   // only for SMSG_PARTY_MEMBER_STATS_FULL, probably arena/bg related
         data.appendPackGUID(Guid);
         data << (uint32) GROUP_UPDATE_FLAG_STATUS;
         data << (uint16) MEMBER_STATUS_OFFLINE;
@@ -835,7 +834,6 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode( WorldPacket &recv_data )
     Pet *pet = player->GetPet();
 
     WorldPacket data(SMSG_PARTY_MEMBER_STATS_FULL, 4+2+2+2+1+2*6+8+1+8);
-    data << uint8(0);                                       // only for SMSG_PARTY_MEMBER_STATS_FULL, probably arena/bg related
     data.append(player->GetPackGUID());
 
     uint32 mask1 = 0x00040BFF;                              // common mask, real flags used 0x000040BFF
@@ -845,8 +843,8 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode( WorldPacket &recv_data )
     Powers powerType = player->getPowerType();
     data << (uint32) mask1;                                 // group update mask
     data << (uint16) MEMBER_STATUS_ONLINE;                  // member's online status
-    data << (uint32) player->GetHealth();                   // GROUP_UPDATE_FLAG_CUR_HP
-    data << (uint32) player->GetMaxHealth();                // GROUP_UPDATE_FLAG_MAX_HP
+    data << (uint16) player->GetHealth();                   // GROUP_UPDATE_FLAG_CUR_HP
+    data << (uint16) player->GetMaxHealth();                // GROUP_UPDATE_FLAG_MAX_HP
     data << (uint8)  powerType;                             // GROUP_UPDATE_FLAG_POWER_TYPE
     data << (uint16) player->GetPower(powerType);           // GROUP_UPDATE_FLAG_CUR_POWER
     data << (uint16) player->GetMaxPower(powerType);        // GROUP_UPDATE_FLAG_MAX_POWER
@@ -860,11 +858,11 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode( WorldPacket &recv_data )
     data << (uint64) auramask;                              // placeholder
     for(uint8 i = 0; i < MAX_AURAS; ++i)
     {
-        if(uint32 aura = player->GetVisibleAura(i))
+        if(uint32 aura = player->GetUInt32Value(UNIT_FIELD_AURA + i))
         {
             auramask |= (uint64(1) << i);
-            data << (uint32) aura;
-            data << (uint8)  1;
+            data << uint16(aura);
+            data << uint8(1);
         }
     }
     data.put<uint64>(maskPos,auramask);                     // GROUP_UPDATE_FLAG_AURAS
@@ -875,8 +873,8 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode( WorldPacket &recv_data )
         data << (uint64) pet->GetGUID();                    // GROUP_UPDATE_FLAG_PET_GUID
         data << pet->GetName();                             // GROUP_UPDATE_FLAG_PET_NAME
         data << (uint16) pet->GetDisplayId();               // GROUP_UPDATE_FLAG_PET_MODEL_ID
-        data << (uint32) pet->GetHealth();                  // GROUP_UPDATE_FLAG_PET_CUR_HP
-        data << (uint32) pet->GetMaxHealth();               // GROUP_UPDATE_FLAG_PET_MAX_HP
+        data << (uint16) pet->GetHealth();                  // GROUP_UPDATE_FLAG_PET_CUR_HP
+        data << (uint16) pet->GetMaxHealth();               // GROUP_UPDATE_FLAG_PET_MAX_HP
         data << (uint8)  petpowertype;                      // GROUP_UPDATE_FLAG_PET_POWER_TYPE
         data << (uint16) pet->GetPower(petpowertype);       // GROUP_UPDATE_FLAG_PET_CUR_POWER
         data << (uint16) pet->GetMaxPower(petpowertype);    // GROUP_UPDATE_FLAG_PET_MAX_POWER
@@ -886,10 +884,10 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode( WorldPacket &recv_data )
         data << (uint64) petauramask;                       // placeholder
         for(uint8 i = 0; i < MAX_AURAS; ++i)
         {
-            if(uint32 petaura = pet->GetVisibleAura(i))
+            if(uint32 petaura = pet->GetUInt32Value(UNIT_FIELD_AURA + i))
             {
                 petauramask |= (uint64(1) << i);
-                data << (uint32) petaura;
+                data << (uint16) petaura;
                 data << (uint8)  1;
             }
         }

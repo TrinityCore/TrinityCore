@@ -45,7 +45,7 @@
 #define MAX_GRID_LOAD_TIME      50
 
 // magic *.map header
-const char MAP_MAGIC[] = "MAP_2.01";
+const char MAP_MAGIC[] = "MAP_2.00";
 
 GridState* si_GridStates[MAX_GRID_STATE];
 
@@ -257,7 +257,7 @@ template<>
 void Map::AddToGrid(Creature* obj, NGridType *grid, Cell const& cell)
 {
     // add to world object registry in grid
-    if(obj->isPet() || obj->isPossessedByPlayer() || obj->isVehicle())
+    if(obj->isPet() || obj->isPossessedByPlayer())
     {
         (*grid)(cell.CellX(), cell.CellY()).AddWorldObject<Creature>(obj, obj->GetGUID());
         obj->SetCurrentCell(cell);
@@ -301,7 +301,7 @@ template<>
 void Map::RemoveFromGrid(Creature* obj, NGridType *grid, Cell const& cell)
 {
     // remove from world object registry in grid
-    if(obj->isPet() || obj->isPossessedByPlayer() || obj->isVehicle())
+    if(obj->isPet() || obj->isPossessedByPlayer())
     {
         (*grid)(cell.CellX(), cell.CellY()).RemoveWorldObject<Creature>(obj, obj->GetGUID());
     }

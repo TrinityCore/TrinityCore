@@ -134,9 +134,6 @@ ObjectAccessor::GetCreatureOrPet(WorldObject const &u, uint64 guid)
     if(Creature *unit = GetPet(guid))
         return unit;
 
-    if(Creature *unit = GetVehicle(guid))
-        return unit;
-
     return GetCreature(u, guid);
 }
 
@@ -352,12 +349,6 @@ Pet*
 ObjectAccessor::GetPet(uint64 guid)
 {
     return GetObjectInWorld(guid, (Pet*)NULL);
-}
-
-Vehicle*
-ObjectAccessor::GetVehicle(uint64 guid)
-{
-    return GetObjectInWorld(guid, (Vehicle*)NULL);
 }
 
 Corpse*
@@ -611,7 +602,6 @@ template <class T> ZThread::FastMutex HashMapHolder<T>::i_lock;
 
 template class HashMapHolder<Player>;
 template class HashMapHolder<Pet>;
-template class HashMapHolder<Vehicle>;
 template class HashMapHolder<GameObject>;
 template class HashMapHolder<DynamicObject>;
 template class HashMapHolder<Creature>;
@@ -619,7 +609,6 @@ template class HashMapHolder<Corpse>;
 
 template Player* ObjectAccessor::GetObjectInWorld<Player>(uint32 mapid, float x, float y, uint64 guid, Player* /*fake*/);
 template Pet* ObjectAccessor::GetObjectInWorld<Pet>(uint32 mapid, float x, float y, uint64 guid, Pet* /*fake*/);
-template Vehicle* ObjectAccessor::GetObjectInWorld<Vehicle>(uint32 mapid, float x, float y, uint64 guid, Vehicle* /*fake*/);
 template Creature* ObjectAccessor::GetObjectInWorld<Creature>(uint32 mapid, float x, float y, uint64 guid, Creature* /*fake*/);
 template Corpse* ObjectAccessor::GetObjectInWorld<Corpse>(uint32 mapid, float x, float y, uint64 guid, Corpse* /*fake*/);
 template GameObject* ObjectAccessor::GetObjectInWorld<GameObject>(uint32 mapid, float x, float y, uint64 guid, GameObject* /*fake*/);

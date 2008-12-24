@@ -57,18 +57,10 @@ enum ItemModType
     ITEM_MOD_CRIT_TAKEN_RATING        = 34,
     ITEM_MOD_RESILIENCE_RATING        = 35,
     ITEM_MOD_HASTE_RATING             = 36,
-    ITEM_MOD_EXPERTISE_RATING         = 37,
-    ITEM_MOD_ATTACK_POWER             = 38,
-    ITEM_MOD_RANGED_ATTACK_POWER      = 39,
-    ITEM_MOD_FERAL_ATTACK_POWER       = 40,
-    ITEM_MOD_SPELL_HEALING_DONE       = 41,
-    ITEM_MOD_SPELL_DAMAGE_DONE        = 42,
-    ITEM_MOD_MANA_REGENERATION        = 43,
-    ITEM_MOD_ARMOR_PENETRATION_RATING = 44,
-    ITEM_MOD_SPELL_POWER              = 45
+    ITEM_MOD_EXPERTISE_RATING         = 37
 };
 
-#define MAX_ITEM_MOD                    46
+#define MAX_ITEM_MOD                    38
 
 enum ItemSpelltriggerType
 {
@@ -193,11 +185,10 @@ enum ItemClass
     ITEM_CLASS_QUEST                            = 12,
     ITEM_CLASS_KEY                              = 13,
     ITEM_CLASS_PERMANENT                        = 14,
-    ITEM_CLASS_MISC                             = 15,
-    ITEM_CLASS_GLYPH                            = 16
+    ITEM_CLASS_JUNK                             = 15
 };
 
-#define MAX_ITEM_CLASS                            17
+#define MAX_ITEM_CLASS                            16
 
 enum ItemSubclassConsumable
 {
@@ -223,11 +214,10 @@ enum ItemSubclassContainer
     ITEM_SUBCLASS_ENGINEERING_CONTAINER         = 4,
     ITEM_SUBCLASS_GEM_CONTAINER                 = 5,
     ITEM_SUBCLASS_MINING_CONTAINER              = 6,
-    ITEM_SUBCLASS_LEATHERWORKING_CONTAINER      = 7,
-    ITEM_SUBCLASS_INSCRIPTION_CONTAINER         = 8
+    ITEM_SUBCLASS_LEATHERWORKING_CONTAINER      = 7
 };
 
-#define MAX_ITEM_SUBCLASS_CONTAINER               9
+#define MAX_ITEM_SUBCLASS_CONTAINER               8
 
 enum ItemSubclassWeapon
 {
@@ -282,11 +272,10 @@ enum ItemSubclassArmor
     ITEM_SUBCLASS_ARMOR_SHIELD                  = 6,
     ITEM_SUBCLASS_ARMOR_LIBRAM                  = 7,
     ITEM_SUBCLASS_ARMOR_IDOL                    = 8,
-    ITEM_SUBCLASS_ARMOR_TOTEM                   = 9,
-    ITEM_SUBCLASS_ARMOR_SIGIL                   = 10
+    ITEM_SUBCLASS_ARMOR_TOTEM                   = 9
 };
 
-#define MAX_ITEM_SUBCLASS_ARMOR                   11
+#define MAX_ITEM_SUBCLASS_ARMOR                   10
 
 enum ItemSubclassReagent
 {
@@ -321,12 +310,10 @@ enum ItemSubclassTradeGoods
     ITEM_SUBCLASS_ELEMENTAL                     = 10,
     ITEM_SUBCLASS_TRADE_GOODS_OTHER             = 11,
     ITEM_SUBCLASS_ENCHANTING                    = 12,
-    ITEM_SUBCLASS_MATERIAL                      = 13,
-    ITEM_SUBCLASS_ARMOR_ENCHANTMENT             = 14,
-    ITEM_SUBCLASS_WEAPON_ENCHANTMENT            = 15
+    ITEM_SUBCLASS_MATERIAL                      = 13        // Added in 2.4.2
 };
 
-#define MAX_ITEM_SUBCLASS_TRADE_GOODS             16
+#define MAX_ITEM_SUBCLASS_TRADE_GOODS             14
 
 enum ItemSubclassGeneric
 {
@@ -436,8 +423,7 @@ const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
     MAX_ITEM_SUBCLASS_QUEST,
     MAX_ITEM_SUBCLASS_KEY,
     MAX_ITEM_SUBCLASS_PERMANENT,
-    MAX_ITEM_SUBCLASS_JUNK,
-    MAX_ITEM_SUBCLASS_GLYPH
+    MAX_ITEM_SUBCLASS_JUNK
 };
 
 inline uint8 ItemSubClassToDurabilityMultiplierId(uint32 ItemClass, uint32 ItemSubClass)
@@ -514,10 +500,7 @@ struct ItemPrototype
     uint32 MaxCount;
     uint32 Stackable;
     uint32 ContainerSlots;
-    uint32 StatsCount;
     _ItemStat ItemStat[10];
-    uint32 ScalingStatDistribution;                         // id from ScalingStatDistribution.dbc
-    uint32 ScalingStatValue;                                // mask for selecting column in ScalingStatValues.dbc
     _Damage Damage[5];
     uint32 Armor;
     uint32 HolyRes;
@@ -553,13 +536,12 @@ struct ItemPrototype
     uint32 GemProperties;                                   // id from GemProperties.dbc
     uint32 RequiredDisenchantSkill;
     float  ArmorDamageModifier;
-    int32  Duration;                                        // negative = realtime, positive = ingame time
-    uint32 ItemLimitCategory;                               // id from ItemLimitCategory.dbc
     uint32 ScriptId;
     uint32 DisenchantID;
     uint32 FoodType;
     uint32 MinMoneyLoot;
     uint32 MaxMoneyLoot;
+    int32 Duration;                                         // negative = realtime, positive = ingame time
 
     // helpers
     bool CanChangeEquipStateInCombat() const
@@ -580,46 +562,6 @@ struct ItemPrototype
         }
 
         return false;
-    }
-
-    uint32 GetScalingStatValuesColumn() const
-    {
-        if(ScalingStatValue & 0x00000001)                   // stat mod
-            return 0;
-        if(ScalingStatValue & 0x00000002)                   // stat mod
-            return 1;
-        if(ScalingStatValue & 0x00000004)                   // stat mod
-            return 2;
-        if(ScalingStatValue & 0x00000008)                   // stat mod
-            return 3;
-        if(ScalingStatValue & 0x00000010)                   // stat mod
-            return 4;
-        if(ScalingStatValue & 0x00000020)                   // armor mod
-            return 5;
-        if(ScalingStatValue & 0x00000040)                   // armor mod
-            return 6;
-        if(ScalingStatValue & 0x00000080)                   // armor mod
-            return 7;
-        if(ScalingStatValue & 0x00000100)                   // armor mod
-            return 8;
-        if(ScalingStatValue & 0x00000200)                   // damage mod
-            return 9;
-        if(ScalingStatValue & 0x00000400)                   // damage mod
-            return 10;
-        if(ScalingStatValue & 0x00000800)                   // damage mod
-            return 11;
-        if(ScalingStatValue & 0x00001000)                   // damage mod
-            return 12;
-        if(ScalingStatValue & 0x00002000)                   // damage mod
-            return 13;
-        if(ScalingStatValue & 0x00004000)                   // damage mod
-            return 14;
-        if(ScalingStatValue & 0x00008000)                   // spell power
-            return 15;
-        if(ScalingStatValue & 0x00020000)                   // feral AP
-            return 16;
-
-        return 0;
     }
 };
 

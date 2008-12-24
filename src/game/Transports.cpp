@@ -137,7 +137,7 @@ void MapManager::LoadTransports()
 Transport::Transport() : GameObject()
 {
                                                             // 2.3.2 - 0x5A
-    m_updateFlag = (UPDATEFLAG_TRANSPORT | UPDATEFLAG_LOWGUID | UPDATEFLAG_HIGHGUID | UPDATEFLAG_HAS_POSITION);
+    m_updateFlag = (UPDATEFLAG_TRANSPORT | UPDATEFLAG_LOWGUID | UPDATEFLAG_HIGHGUID | UPDATEFLAG_HASPOSITION);
 }
 
 bool Transport::Create(uint32 guidlow, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress, uint32 dynflags)
@@ -168,10 +168,9 @@ bool Transport::Create(uint32 guidlow, uint32 mapid, float x, float y, float z, 
     SetFloatValue(OBJECT_FIELD_SCALE_X, goinfo->size);
 
     SetUInt32Value(GAMEOBJECT_FACTION, goinfo->faction);
-    //SetUInt32Value(GAMEOBJECT_FLAGS, goinfo->flags);
-    SetUInt32Value(GAMEOBJECT_FLAGS, MAKE_PAIR32(0x28, 0x64));
-    SetUInt32Value(GAMEOBJECT_LEVEL, m_period);
-    SetEntry(goinfo->id);
+    SetUInt32Value(GAMEOBJECT_FLAGS, goinfo->flags);
+
+    SetUInt32Value(OBJECT_FIELD_ENTRY, goinfo->id);
 
     SetUInt32Value(GAMEOBJECT_DISPLAYID, goinfo->displayId);
 
@@ -180,7 +179,7 @@ bool Transport::Create(uint32 guidlow, uint32 mapid, float x, float y, float z, 
 
     SetGoAnimProgress(animprogress);
     if(dynflags)
-        SetUInt32Value(GAMEOBJECT_DYNAMIC, MAKE_PAIR32(0, dynflags));
+        SetUInt32Value(GAMEOBJECT_DYN_FLAGS, dynflags);
 
     return true;
 }

@@ -451,6 +451,12 @@ void WorldSession::HandleQuestPushToParty(WorldPacket& recvPacket)
 
                     _player->SendPushToPartyResponse(pPlayer, QUEST_PARTY_MSG_SHARING_QUEST);
 
+                    if( _player->GetDistance( pPlayer ) > 10 )
+                    {
+                        _player->SendPushToPartyResponse( pPlayer, QUEST_PARTY_MSG_TOO_FAR );
+                        continue;
+                    }
+
                     if( !pPlayer->SatisfyQuestStatus( pQuest, false ) )
                     {
                         _player->SendPushToPartyResponse( pPlayer, QUEST_PARTY_MSG_HAVE_QUEST );

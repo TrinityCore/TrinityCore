@@ -950,7 +950,7 @@ bool ChatHandler::HandleNpcDeleteCommand(const char* args)
     else
         unit = getSelectedCreature();
 
-    if(!unit || unit->isPet() || unit->isTotem() || unit->isVehicle())
+    if(!unit || unit->isPet() || unit->isTotem())
     {
         SendSysMessage(LANG_SELECT_CREATURE);
         SetSentErrorMessage(true);
@@ -1063,8 +1063,8 @@ bool ChatHandler::HandleTurnObjectCommand(const char* args)
     obj->Relocate(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), o);
 
     obj->SetFloatValue(GAMEOBJECT_FACING, o);
-    obj->SetFloatValue(GAMEOBJECT_PARENTROTATION+2, rot2);
-    obj->SetFloatValue(GAMEOBJECT_PARENTROTATION+3, rot3);
+    obj->SetFloatValue(GAMEOBJECT_ROTATION+2, rot2);
+    obj->SetFloatValue(GAMEOBJECT_ROTATION+3, rot3);
 
     map->Add(obj);
 
@@ -3213,59 +3213,6 @@ bool ChatHandler::HandleRenameCommand(const char* args)
     return true;
 }
 
-// customize characters
-bool ChatHandler::HandleCustomizeCommand(const char* args)
-{
-    Player* target = NULL;
-    uint64 targetGUID = 0;
-    std::string oldname;
-
-    char* px = strtok((char*)args, " ");
-
-    if(px)
-    {
-        oldname = px;
-
-        if(!normalizePlayerName(oldname))
-        {
-            SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        target = objmgr.GetPlayer(oldname.c_str());
-
-        if (!target)
-            targetGUID = objmgr.GetPlayerGUIDByName(oldname);
-    }
-
-    if(!target && !targetGUID)
-    {
-        target = getSelectedPlayer();
-    }
-
-    if(!target && !targetGUID)
-    {
-        SendSysMessage(LANG_PLAYER_NOT_FOUND);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    if(target)
-    {
-        PSendSysMessage(LANG_CUSTOMIZE_PLAYER, target->GetName());
-        target->SetAtLoginFlag(AT_LOGIN_CUSTOMIZE);
-        CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '8' WHERE guid = '%u'", target->GetGUIDLow());
-    }
-    else
-    {
-        PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, oldname.c_str(), GUID_LOPART(targetGUID));
-        CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '8' WHERE guid = '%u'", GUID_LOPART(targetGUID));
-    }
-
-    return true;
-}
-
 //spawn go
 bool ChatHandler::HandleGameObjectCommand(const char* args)
 {
@@ -3893,36 +3840,6 @@ bool ChatHandler::HandleRepairitemsCommand(const char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleWaterwalkCommand(const char* args)
-{
-    if(!*args)
-        return false;
-
-    Player *player = getSelectedPlayer();
-
-    if(!player)
-    {
-        PSendSysMessage(LANG_NO_CHAR_SELECTED);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    if (strncmp(args, "on", 3) == 0)
-        player->SetMovement(MOVE_WATER_WALK);               // ON
-    else if (strncmp(args, "off", 4) == 0)
-        player->SetMovement(MOVE_LAND_WALK);                // OFF
-    else
-    {
-        SendSysMessage(LANG_USE_BOL);
-        return false;
-    }
-
-    PSendSysMessage(LANG_YOU_SET_WATERWALK, args, player->GetName());
-    if(needReportToTarget(player))
-        ChatHandler(player).PSendSysMessage(LANG_YOUR_WATERWALK_SET, args, GetName());
-    return true;
-}
-
 bool ChatHandler::HandleNpcFollowCommand(const char* /*args*/)
 {
     Player *player = m_session->GetPlayer();
@@ -3976,72 +3893,6 @@ bool ChatHandler::HandleNpcUnFollowCommand(const char* /*args*/)
     creature->GetMotionMaster()->MovementExpired(true);
 
     PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU_NOW, creature->GetName());
-    return true;
-}
-
-bool ChatHandler::HandleNpcTameCommand(const char* /*args*/)
-{
-    Creature *creatureTarget = getSelectedCreature ();
-    if (!creatureTarget || creatureTarget->isPet ())
-    {
-        PSendSysMessage (LANG_SELECT_CREATURE);
-        SetSentErrorMessage (true);
-        return false;
-    }
-
-    Player *player = m_session->GetPlayer ();
-
-    if(player->GetPetGUID ())
-    {
-        SendSysMessage (LANG_YOU_ALREADY_HAVE_PET);
-        SetSentErrorMessage (true);
-        return false;
-    }
-
-    CreatureInfo const* cInfo = creatureTarget->GetCreatureInfo();
-
-    if (!cInfo->isTameable ())
-    {
-        PSendSysMessage (LANG_CREATURE_NON_TAMEABLE,cInfo->Entry);
-        SetSentErrorMessage (true);
-        return false;
-    }
-
-    // Everything looks OK, create new pet
-    Pet* pet = player->CreateTamedPetFrom (creatureTarget);
-    if (!pet)
-    {
-        PSendSysMessage (LANG_CREATURE_NON_TAMEABLE,cInfo->Entry);
-        SetSentErrorMessage (true);
-        return false;
-    }
-
-    // place pet before player
-    float x,y,z;
-    player->GetClosePoint (x,y,z,creatureTarget->GetObjectSize (),CONTACT_DISTANCE);
-    pet->Relocate (x,y,z,M_PI-player->GetOrientation ());
-
-    // set pet to defensive mode by default (some classes can't control controlled pets in fact).
-    pet->GetCharmInfo()->SetReactState(REACT_DEFENSIVE);
-
-    // calculate proper level
-    uint32 level = (creatureTarget->getLevel() < (player->getLevel() - 5)) ? (player->getLevel() - 5) : creatureTarget->getLevel();
-
-    // prepare visual effect for levelup
-    pet->SetUInt32Value(UNIT_FIELD_LEVEL, level - 1);
-
-    // add to world
-    pet->GetMap()->Add((Creature*)pet);
-
-    // visual effect for levelup
-    pet->SetUInt32Value(UNIT_FIELD_LEVEL, level);
-
-    // caster have pet now
-    player->SetPet(pet);
-
-    pet->SavePetToDB(PET_SAVE_AS_CURRENT);
-    player->PetSpellInitialize();
-
     return true;
 }
 
@@ -4204,7 +4055,7 @@ bool ChatHandler::HandlePetTpCommand(const char *args)
 
 	uint32 tp = atol(args);
 
-	//pet->SetTP(tp);
+	pet->SetTP(tp);
 
 	PSendSysMessage("Pet's tp changed to %u", tp);
 	return true;

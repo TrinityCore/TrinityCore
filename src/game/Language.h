@@ -328,8 +328,6 @@ enum TrinityStrings
     LANG_CREATURE_NOT_FOLLOW_YOU_NOW    = 342,
     LANG_CREATURE_NON_TAMEABLE          = 343,
     LANG_YOU_ALREADY_HAVE_PET           = 344,
-    LANG_CUSTOMIZE_PLAYER               = 345,
-    LANG_CUSTOMIZE_PLAYER_GUID          = 346,
     // Room for more level 2              345-399 not used
 
     // level 3 chat

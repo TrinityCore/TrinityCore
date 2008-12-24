@@ -289,11 +289,11 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
     void ClearWeapons()
     {
-        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
-        //m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO, 0);
+        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, 0);
+        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO, 0);
 
-        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, 0);
-        //m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO+2, 0);
+        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY+1, 0);
+        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO+2, 0);
 
         //damage
         const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
@@ -433,11 +433,11 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                 m_creature->CastSpell(m_creature, SPELL_THRASH_AURA, true);
 
                 //models
-                m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, AXE_EQUIP_MODEL);
-                //m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO, AXE_EQUIP_INFO);
+                m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, AXE_EQUIP_MODEL);
+                m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO, AXE_EQUIP_INFO);
 
-                m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, AXE_EQUIP_MODEL);
-                //m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO+2, AXE_EQUIP_INFO);
+                m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY+1, AXE_EQUIP_MODEL);
+                m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO+2, AXE_EQUIP_INFO);
 
                 //damage
                 const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
@@ -475,8 +475,8 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                     Creature *axe = m_creature->SummonCreature(MALCHEZARS_AXE, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
                     if(axe)
                     {
-                        axe->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, AXE_EQUIP_MODEL);
-                        //axe->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO, AXE_EQUIP_INFO);
+                        axe->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, AXE_EQUIP_MODEL);
+                        axe->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO, AXE_EQUIP_INFO);
 
                         axe->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         axe->setFaction(m_creature->getFaction());

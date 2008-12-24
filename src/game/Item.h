@@ -148,30 +148,29 @@ enum SellFailure
 // -1 from client enchantment slot number
 enum EnchantmentSlot
 {
-    PERM_ENCHANTMENT_SLOT           = 0,
-    TEMP_ENCHANTMENT_SLOT           = 1,
-    SOCK_ENCHANTMENT_SLOT           = 2,
-    SOCK_ENCHANTMENT_SLOT_2         = 3,
-    SOCK_ENCHANTMENT_SLOT_3         = 4,
-    BONUS_ENCHANTMENT_SLOT          = 5,
-    WOTLK_ENCHANTMENT_SLOT          = 6,
-    MAX_INSPECTED_ENCHANTMENT_SLOT  = 7,
+    PERM_ENCHANTMENT_SLOT       = 0,
+    TEMP_ENCHANTMENT_SLOT       = 1,
+    SOCK_ENCHANTMENT_SLOT       = 2,
+    SOCK_ENCHANTMENT_SLOT_2     = 3,
+    SOCK_ENCHANTMENT_SLOT_3     = 4,
+    BONUS_ENCHANTMENT_SLOT      = 5,
+    MAX_INSPECTED_ENCHANTMENT_SLOT = 6,
 
-    PROP_ENCHANTMENT_SLOT_0         = 7,                    // used with RandomSuffix
-    PROP_ENCHANTMENT_SLOT_1         = 8,                    // used with RandomSuffix
-    PROP_ENCHANTMENT_SLOT_2         = 9,                    // used with RandomSuffix and RandomProperty
-    PROP_ENCHANTMENT_SLOT_3         = 10,                   // used with RandomProperty
-    PROP_ENCHANTMENT_SLOT_4         = 11,                   // used with RandomProperty
-    MAX_ENCHANTMENT_SLOT            = 12
+    PROP_ENCHANTMENT_SLOT_0     = 6,                        // used with RandomSuffix
+    PROP_ENCHANTMENT_SLOT_1     = 7,                        // used with RandomSuffix
+    PROP_ENCHANTMENT_SLOT_2     = 8,                        // used with RandomSuffix and RandomProperty
+    PROP_ENCHANTMENT_SLOT_3     = 9,                        // used with RandomProperty
+    PROP_ENCHANTMENT_SLOT_4     = 10,                       // used with RandomProperty
+    MAX_ENCHANTMENT_SLOT        = 11
 };
 
-#define MAX_VISIBLE_ITEM_OFFSET       18                    // 18 fields per visible item (creator(2) + enchantments(13) + properties(1) + seed(1) + pad(1))
+#define MAX_VISIBLE_ITEM_OFFSET   16                        // 16 fields per visible item (creator(2) + enchantments(12) + properties(1) + pad(1))
 
 enum EnchantmentOffset
 {
     ENCHANTMENT_ID_OFFSET       = 0,
     ENCHANTMENT_DURATION_OFFSET = 1,
-    ENCHANTMENT_CHARGES_OFFSET  = 2                         // now here not only charges, but something new in wotlk
+    ENCHANTMENT_CHARGES_OFFSET  = 2
 };
 
 #define MAX_ENCHANTMENT_OFFSET    3
@@ -212,7 +211,6 @@ class TRINITY_DLL_SPEC Item : public Object
 
         void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_FLAGS,ITEM_FLAGS_BINDED,val); }
         bool IsSoulBound() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_BINDED); }
-        bool IsAccountBound() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_BOA); }
         bool IsBindedNotWith(uint64 guid) const { return IsSoulBound() && GetOwnerGUID()!= guid; }
         bool IsBoundByEnchant() const;
         virtual void SaveToDB();
@@ -258,9 +256,9 @@ class TRINITY_DLL_SPEC Item : public Object
         void SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration);
         void SetEnchantmentCharges(EnchantmentSlot slot, uint32 charges);
         void ClearEnchantment(EnchantmentSlot slot);
-        uint32 GetEnchantmentId(EnchantmentSlot slot)       const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET);}
-        uint32 GetEnchantmentDuration(EnchantmentSlot slot) const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET);}
-        uint32 GetEnchantmentCharges(EnchantmentSlot slot)  const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET);}
+        uint32 GetEnchantmentId(EnchantmentSlot slot)       const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET);}
+        uint32 GetEnchantmentDuration(EnchantmentSlot slot) const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET);}
+        uint32 GetEnchantmentCharges(EnchantmentSlot slot)  const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET);}
 
         void SendTimeUpdate(Player* owner);
         void UpdateDuration(Player* owner, uint32 diff);
