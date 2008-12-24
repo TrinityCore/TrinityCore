@@ -29,7 +29,7 @@
 #include "Master.h"
 
 #ifndef _TRINITY_CORE_CONFIG
-# define _TRINITY_CORE_CONFIG  "TrinityCore.conf"
+# define _TRINITY_CORE_CONFIG  "trinitycore.conf"
 #endif //_TRINITY_CORE_CONFIG
 
 // Format is YYYYMMDDRR where RR is the change in the conf file

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="9,00"
 	Name="TrinityRealm"
 	ProjectGUID="{563E9905-3657-460C-AE63-0AC39D162E23}"
 	RootNamespace="realmd"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -48,11 +49,7 @@
 				AdditionalOptions="/MP"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\realmd;..\..\dep\ACE_wrappers"
-<<<<<<< HEAD:win/VC80/realmd.vcproj
 				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;,WIN32,NDEBUG,_CONSOLE"
-=======
-				PreprocessorDefinitions="VERSION=&quot;0.13.0-DEV&quot;,WIN32,NDEBUG,_CONSOLE"
->>>>>>> upstream/master:win/VC80/realmd.vcproj
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -64,7 +61,7 @@
 				ProgramDataBaseFileName=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 				CompileAs="0"
 			/>
@@ -93,6 +90,8 @@
 				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.map"
 				SubSystem="1"
 				LargeAddressAware="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -111,9 +110,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -152,11 +148,7 @@
 				AdditionalOptions="/MP"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\realmd;..\..\dep\ACE_wrappers"
-<<<<<<< HEAD:win/VC80/realmd.vcproj
 				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;,WIN32,NDEBUG,_CONSOLE"
-=======
-				PreprocessorDefinitions="VERSION=&quot;0.13.0-DEV&quot;,WIN32,NDEBUG,_CONSOLE"
->>>>>>> upstream/master:win/VC80/realmd.vcproj
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -168,7 +160,7 @@
 				ProgramDataBaseFileName=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 				CompileAs="0"
 			/>
@@ -216,9 +208,6 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 				CommandLine="copy ..\..\src\trinityrealm\trinityrealm.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf.dist"
 			/>
@@ -254,11 +243,7 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\realmd;..\..\dep\ACE_wrappers"
-<<<<<<< HEAD:win/VC80/realmd.vcproj
 				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;_DEBUG;MANGOS_DEBUG;_CONSOLE"
-=======
-				PreprocessorDefinitions="VERSION=&quot;0.13.0-DEV&quot;;WIN32;_DEBUG;MANGOS_DEBUG;_CONSOLE"
->>>>>>> upstream/master:win/VC80/realmd.vcproj
 				IgnoreStandardIncludePath="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -269,7 +254,7 @@
 				ProgramDataBaseFileName=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 				CompileAs="0"
 			/>
@@ -298,7 +283,9 @@
 				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.map"
 				SubSystem="1"
 				LargeAddressAware="2"
+				RandomizedBaseAddress="1"
 				FixedBaseAddress="1"
+				DataExecutionPrevention="0"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -317,9 +304,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -358,11 +342,7 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\realmd;..\..\dep\ACE_wrappers"
-<<<<<<< HEAD:win/VC80/realmd.vcproj
 				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;_DEBUG;MANGOS_DEBUG;_CONSOLE"
-=======
-				PreprocessorDefinitions="VERSION=&quot;0.13.0-DEV&quot;;WIN32;_DEBUG;MANGOS_DEBUG;_CONSOLE"
->>>>>>> upstream/master:win/VC80/realmd.vcproj
 				IgnoreStandardIncludePath="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -373,7 +353,7 @@
 				ProgramDataBaseFileName=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 				CompileAs="0"
 			/>
@@ -400,8 +380,8 @@
 				GenerateMapFile="true"
 				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.map"
 				SubSystem="1"
-				TargetMachine="17"
 				FixedBaseAddress="1"
+				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -420,9 +400,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -455,10 +432,6 @@
 		</File>
 		<File
 			RelativePath="..\..\src\trinityrealm\RealmList.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\src\trinityrealm\resource.h"
 			>
 		</File>
 		<File

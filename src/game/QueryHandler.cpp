@@ -33,7 +33,6 @@
 #include "NPCHandler.h"
 #include "ObjectAccessor.h"
 #include "Pet.h"
-#include "MapManager.h"
 
 void WorldSession::SendNameQueryOpcode(Player *p)
 {
@@ -186,6 +185,7 @@ void WorldSession::HandleCreatureQueryOpcode( WorldPacket & recv_data )
         data << (uint32)ci->type;
         data << (uint32)ci->family;                         // family         wdbFeild9
         data << (uint32)ci->rank;                           // rank           wdbFeild10
+        data << (uint32)0;                                  // unknown        wdbFeild11
         data << (uint32)ci->PetSpellDataId;                 // Id from CreatureSpellData.dbc    wdbField12
         data << (uint32)ci->Modelid1;                       // Modelid1
         data << (uint32)ci->Modelid2;                       // Modelid2
@@ -276,43 +276,20 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket & /*recv_data*/)
 
     Corpse *corpse = GetPlayer()->GetCorpse();
 
+    uint8 found = 1;
     if(!corpse)
+        found = 0;
+
+    WorldPacket data(MSG_CORPSE_QUERY, (1+found*(5*4)));
+    data << uint8(found);
+    if(found)
     {
-        WorldPacket data(MSG_CORPSE_QUERY, 1);
-        data << uint8(0);                                   // corpse not found
-        SendPacket(&data);
-        return;
+        data << corpse->GetMapId();
+        data << corpse->GetPositionX();
+        data << corpse->GetPositionY();
+        data << corpse->GetPositionZ();
+        data << _player->GetMapId();
     }
-
-    int32 mapid = corpse->GetMapId();
-    float x = corpse->GetPositionX();
-    float y = corpse->GetPositionY();
-    float z = corpse->GetPositionZ();
-    int32 corpsemapid = _player->GetMapId();
-
-    if(Map *map = corpse->GetMap())
-    {
-        if(map->IsDungeon())
-        {
-            if(!map->GetEntrancePos(mapid, x, y))
-                return;
-
-            Map *entrance_map = MapManager::Instance().GetMap(mapid, _player);
-            if(!entrance_map)
-                return;
-
-            z = entrance_map->GetHeight(x, y, MAX_HEIGHT);
-            corpsemapid = corpse->GetMapId();
-        }
-    }
-
-    WorldPacket data(MSG_CORPSE_QUERY, 1+(5*4));
-    data << uint8(1);                                       // corpse found
-    data << int32(mapid);
-    data << float(x);
-    data << float(y);
-    data << float(z);
-    data << int32(corpsemapid);
     SendPacket(&data);
 }
 

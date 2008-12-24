@@ -336,12 +336,12 @@ struct GameObjectInfo
             uint32 mapID;                                   //0
             uint32 difficulty;                              //1
         } dungeonDifficulty;
-        //32 GAMEOBJECT_TYPE_BARBER_CHAIR
+        //32 GAMEOBJECT_TYPE_DO_NOT_USE_YET
         struct
         {
-            uint32 chairheight;                             //0
-            uint32 heightOffset;                            //1
-        } barberChair;
+            uint32 mapID;                                   //0
+            uint32 difficulty;                              //1
+        } doNotUseYet;
         //33 GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING
         struct
         {
@@ -350,13 +350,6 @@ struct GameObjectInfo
             uint32 state1Name;                              //2
             uint32 state2Name;                              //3
         } destructibleBuilding;
-        //34 GAMEOBJECT_TYPE_TRAPDOOR
-        struct  
-        {
-            uint32 whenToPause;                             // 0
-            uint32 startOpen;                               // 1
-            uint32 autoClose;                               // 2
-        } trapDoor;
 
         // not use for specific field access (only for output with loop by all filed), also this determinate max union size
         struct                                              // GAMEOBJECT_TYPE_SPELLCASTER
@@ -511,14 +504,14 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         void SetSpellId(uint32 id) { m_spellId = id;}
         uint32 GetSpellId() const { return m_spellId;}
         void getFishLoot(Loot *loot);
-        GameobjectTypes GetGoType() const { return GameobjectTypes(GetByteValue(GAMEOBJECT_BYTES_1, 1)); }
-        void SetGoType(GameobjectTypes type) { SetByteValue(GAMEOBJECT_BYTES_1, 1, type); }
-        uint8 GetGoState() const { return GetByteValue(GAMEOBJECT_BYTES_1, 0); }
-        void SetGoState(uint8 state) { SetByteValue(GAMEOBJECT_BYTES_1, 0, state); }
-        uint8 GetGoArtKit() const { return GetByteValue(GAMEOBJECT_BYTES_1, 2); }
-        void SetGoArtKit(uint8 artkit) { SetByteValue(GAMEOBJECT_BYTES_1, 2, artkit); }
-        uint8 GetGoAnimProgress() const { return GetByteValue(GAMEOBJECT_BYTES_1, 3); }
-        void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_BYTES_1, 3, animprogress); }
+        GameobjectTypes GetGoType() const { return GameobjectTypes(GetUInt32Value(GAMEOBJECT_TYPE_ID)); }
+        void SetGoType(GameobjectTypes type) { SetUInt32Value(GAMEOBJECT_TYPE_ID, type); }
+        uint32 GetGoState() const { return GetUInt32Value(GAMEOBJECT_STATE); }
+        void SetGoState(uint32 state) { SetUInt32Value(GAMEOBJECT_STATE, state); }
+        uint32 GetGoArtKit() const { return GetUInt32Value(GAMEOBJECT_ARTKIT); }
+        void SetGoArtKit(uint32 artkit);
+        uint32 GetGoAnimProgress() const { return GetUInt32Value(GAMEOBJECT_ANIMPROGRESS); }
+        void SetGoAnimProgress(uint32 animprogress) { SetUInt32Value(GAMEOBJECT_ANIMPROGRESS, animprogress); }
 
         void Use(Unit* user);
 

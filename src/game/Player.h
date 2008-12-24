@@ -35,7 +35,6 @@
 #include "Pet.h"
 #include "MapReference.h"
 #include "Util.h"                                           // for Tokens typedef
-#include "AchievementMgr.h"
 
 #include<string>
 #include<vector>
@@ -50,8 +49,6 @@ class Transport;
 class UpdateMask;
 class PlayerSocial;
 class OutdoorPvP;
-class AchievementMgr;
-class Vehicle;
 
 typedef std::deque<Mail*> PlayerMails;
 
@@ -83,17 +80,15 @@ struct PlayerSpell
 
 #define SPELL_WITHOUT_SLOT_ID uint16(-1)
 
-// Spell modifier (used for modify other spells)
 struct SpellModifier
 {
-    SpellModifier() : charges(0), lastAffected(NULL) {}
     SpellModOp   op   : 8;
     SpellModType type : 8;
     int16 charges     : 16;
     int32 value;
     uint64 mask;
-    uint64 mask2;
     uint32 spellId;
+    uint32 effectId;
     Spell const* lastAffected;
 };
 
@@ -227,39 +222,6 @@ struct Areas
     float x2;
     float y1;
     float y2;
-};
-
-#define MAX_RUNES       6
-#define RUNE_COOLDOWN   5                                   // 5*2=10 sec
-
-enum RuneType
-{
-    RUNE_BLOOD      = 0,
-    RUNE_UNHOLY     = 1,
-    RUNE_FROST      = 2,
-    RUNE_DEATH      = 3,
-    NUM_RUNE_TYPES  = 4
-};
-
-struct RuneInfo
-{
-    uint8 BaseRune;
-    uint8 CurrentRune;
-    uint8 Cooldown;
-};
-
-struct Runes
-{
-    RuneInfo runes[MAX_RUNES];
-    uint8 runeState;                                        // mask of available runes
-
-    void SetRuneState(uint8 index, bool set = true)
-    {
-        if(set)
-            runeState |= (1 << index);                      // usable
-        else
-            runeState &= ~(1 << index);                     // on cooldown
-    }
 };
 
 enum FactionFlags
@@ -430,7 +392,7 @@ enum PlayerFlags
     PLAYER_FLAGS_UNK3           = 0x00008000,               // strange visual effect (2.0.1), looks like PLAYER_FLAGS_GHOST flag
     PLAYER_FLAGS_SANCTUARY      = 0x00010000,               // player entered sanctuary
     PLAYER_FLAGS_UNK4           = 0x00020000,               // taxi benchmark mode (on/off) (2.0.1)
-    PLAYER_FLAGS_PVP_TIMER      = 0x00040000,               // 3.0.2, pvp timer active (after you disable pvp manually)
+    PLAYER_UNK                  = 0x00040000,               // 2.0.8...
 };
 
 // used for PLAYER__FIELD_KNOWN_TITLES field (uint64), (1<<bit_index) without (-1)
@@ -519,8 +481,7 @@ enum LootType
     LOOT_DISENCHANTING          = 5,                        // unsupported by client, sending LOOT_SKINNING instead
     LOOT_PROSPECTING            = 6,                        // unsupported by client, sending LOOT_SKINNING instead
     LOOT_INSIGNIA               = 7,                        // unsupported by client, sending LOOT_SKINNING instead
-    LOOT_FISHINGHOLE            = 8,                        // unsupported by client, sending LOOT_FISHING instead
-    LOOT_MILLING                = 9                         // unsupported by client, sending LOOT_SKINNING instead
+    LOOT_FISHINGHOLE            = 8                         // unsupported by client, sending LOOT_FISHING instead
 };
 
 enum MirrorTimerType
@@ -551,8 +512,7 @@ enum AtLoginFlags
     AT_LOGIN_NONE          = 0,
     AT_LOGIN_RENAME        = 1,
     AT_LOGIN_RESET_SPELLS  = 2,
-    AT_LOGIN_RESET_TALENTS = 4,
-    AT_LOGIN_CUSTOMIZE     = 8
+    AT_LOGIN_RESET_TALENTS = 4
 };
 
 typedef std::map<uint32, QuestStatusData> QuestStatusMap;
@@ -584,7 +544,7 @@ enum PlayerSlots
     // first slot for item stored (in any way in player m_items data)
     PLAYER_SLOT_START           = 0,
     // last+1 slot for item stored (in any way in player m_items data)
-    PLAYER_SLOT_END             = 200,
+    PLAYER_SLOT_END             = 118,
     PLAYER_SLOTS_COUNT          = (PLAYER_SLOT_END - PLAYER_SLOT_START)
 };
 
@@ -712,24 +672,6 @@ enum KeyRingSlots
     KEYRING_SLOT_END            = 118
 };
 
-enum VanityPetSlots
-{
-    VANITYPET_SLOT_START        = 118,
-    VANITYPET_SLOT_END          = 136
-};
-
-enum CurrencyTokenSlots
-{
-    CURRENCYTOKEN_SLOT_START    = 136,
-    CURRENCYTOKEN_SLOT_END      = 168
-};
-
-enum QuestBagSlots
-{
-    QUESTBAG_SLOT_START         = 168,
-    QUESTBAG_SLOT_END           = 200
-};
-
 struct ItemPosCount
 {
     ItemPosCount(uint16 _pos, uint8 _count) : pos(_pos), count(_count) {}
@@ -748,15 +690,14 @@ enum TradeSlots
 
 enum TransferAbortReason
 {
-    TRANSFER_ABORT_ERROR                    = 0x00,
-    TRANSFER_ABORT_MAX_PLAYERS              = 0x01,         // Transfer Aborted: instance is full
-    TRANSFER_ABORT_NOT_FOUND                = 0x02,         // Transfer Aborted: instance not found
-    TRANSFER_ABORT_TOO_MANY_INSTANCES       = 0x03,         // You have entered too many instances recently.
-    TRANSFER_ABORT_ZONE_IN_COMBAT           = 0x05,         // Unable to zone in while an encounter is in progress.
-    TRANSFER_ABORT_INSUF_EXPAN_LVL          = 0x06,         // You must have <TBC,WotLK> expansion installed to access this area.
-    TRANSFER_ABORT_DIFFICULTY               = 0x07,         // <Normal,Heroic,Epic> difficulty mode is not available for %s.
-    TRANSFER_ABORT_UNIQUE_MESSAGE           = 0x08,         // Until you've escaped TLK's grasp, you cannot leave this place!
-    TRANSFER_ABORT_TOO_MANY_REALM_INSTANCES = 0x09          // Additional instances cannot be launched, please try again later.
+    TRANSFER_ABORT_MAX_PLAYERS          = 0x0001,           // Transfer Aborted: instance is full
+    TRANSFER_ABORT_NOT_FOUND            = 0x0002,           // Transfer Aborted: instance not found
+    TRANSFER_ABORT_TOO_MANY_INSTANCES   = 0x0003,           // You have entered too many instances recently.
+    TRANSFER_ABORT_ZONE_IN_COMBAT       = 0x0005,           // Unable to zone in while an encounter is in progress.
+    TRANSFER_ABORT_INSUF_EXPAN_LVL1     = 0x0106,           // You must have TBC expansion installed to access this area.
+    TRANSFER_ABORT_DIFFICULTY1          = 0x0007,           // Normal difficulty mode is not available for %s.
+    TRANSFER_ABORT_DIFFICULTY2          = 0x0107,           // Heroic difficulty mode is not available for %s.
+    TRANSFER_ABORT_DIFFICULTY3          = 0x0207            // Epic difficulty mode is not available for %s.
 };
 
 enum InstanceResetWarningType
@@ -770,16 +711,15 @@ enum InstanceResetWarningType
 struct MovementInfo
 {
     // common
-    uint32  flags;
-    uint16  unk1;
+    //uint32  flags;
+    uint8   unk1;
     uint32  time;
     float   x, y, z, o;
     // transport
     uint64  t_guid;
     float   t_x, t_y, t_z, t_o;
     uint32  t_time;
-    int8    t_seat;
-    // swimming and unknown
+    // swimming and unk
     float   s_pitch;
     // last fall time
     uint32  fallTime;
@@ -790,17 +730,17 @@ struct MovementInfo
 
     MovementInfo()
     {
-        flags = 0;
+        //flags =
         time = t_time = fallTime = 0;
         unk1 = 0;
         x = y = z = o = t_x = t_y = t_z = t_o = s_pitch = j_unk = j_sinAngle = j_cosAngle = j_xyspeed = u_unk1 = 0.0f;
         t_guid = 0;
     }
 
-    void SetMovementFlags(uint32 _flags)
+    /*void SetMovementFlags(uint32 _flags)
     {
         flags = _flags;
-    }
+    }*/
 };
 
 // flags that use in movement check for example at spell casting
@@ -873,11 +813,9 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOADDECLINEDNAMES        = 16,
     PLAYER_LOGIN_QUERY_LOADGUILD                = 17,
     PLAYER_LOGIN_QUERY_LOADARENAINFO            = 18,
-    PLAYER_LOGIN_QUERY_LOADACHIEVEMENTS         = 19,
-    PLAYER_LOGIN_QUERY_LOADCRITERIAPROGRESS     = 20,
-    MAX_PLAYER_LOGIN_QUERY                      = 21
-};
 
+    MAX_PLAYER_LOGIN_QUERY
+};
 
 // Player summoning auto-decline time (in secs)
 #define MAX_PLAYER_SUMMON_DELAY                   (2*MINUTE)
@@ -899,7 +837,7 @@ class TRINITY_DLL_SPEC PlayerTaxi
         PlayerTaxi();
         ~PlayerTaxi() {}
         // Nodes
-        void InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint32 level);
+        void InitTaxiNodesForLevel(uint32 race, uint32 level);
         void LoadTaxiMask(const char* data);
         void SaveTaxiMask(const char* data);
 
@@ -1002,7 +940,7 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         void SendInitialPacketsBeforeAddToMap();
         void SendInitialPacketsAfterAddToMap();
-        void SendTransferAborted(uint32 mapid, uint8 reason, uint8 arg = 0);
+        void SendTransferAborted(uint32 mapid, uint16 reason);
         void SendInstanceResetWarning(uint32 mapid, uint32 time);
 
         bool CanInteractWithNPCs(bool alive = true) const;
@@ -1015,12 +953,10 @@ class TRINITY_DLL_SPEC Player : public Unit
         std::string afkMsg;
         std::string dndMsg;
 
-        uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair);
-
         PlayerSocial *GetSocial() { return m_social; }
 
         PlayerTaxi m_taxi;
-        void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(getRace(), getClass(), getLevel()); }
+        void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(getRace(),getLevel()); }
         bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, uint32 mount_id = 0 , Creature* npc = NULL);
                                                             // mount_id can be used in scripting calls
         bool isAcceptTickets() const { return GetSession()->GetSecurity() >= SEC_GAMEMASTER && (m_ExtraFlags & PLAYER_EXTRA_GM_ACCEPT_TICKETS); }
@@ -1116,7 +1052,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         bool HasBankBagSlot( uint8 slot ) const;
         bool HasItemCount( uint32 item, uint32 count, bool inBankAlso = false ) const;
         bool HasItemFitToSpellReqirements(SpellEntry const* spellInfo, Item const* ignoreItem = NULL);
-        bool CanNoReagentCast(SpellEntry const* spellInfo) const;
         Item* GetItemOrItemWithGemEquipped( uint32 item ) const;
         uint8 CanTakeMoreSimilarItems(Item* pItem) const { return _CanTakeMoreSimilarItems(pItem->GetEntry(),pItem->GetCount(),pItem); }
         uint8 CanTakeMoreSimilarItems(uint32 entry, uint32 count) const { return _CanTakeMoreSimilarItems(entry,count,NULL); }
@@ -1194,11 +1129,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         {
             // disarm applied only to mainhand weapon
             return !IsInFeralForm() && (!mainhand || !HasFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISARMED) );
-        }
-        bool IsTwoHandUsed() const
-        {
-            Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-            return mainItem && mainItem->GetProto()->InventoryType == INVTYPE_2HWEAPON && !CanTitanGrip();
         }
         void SendNewItem( Item *item, uint32 count, bool received, bool created, bool broadcast = false );
         bool BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint64 bagguid, uint8 slot);
@@ -1355,7 +1285,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         static void SetFloatValueInArray(Tokens& data,uint16 index, float value);
         static void SetUInt32ValueInDB(uint16 index, uint32 value, uint64 guid);
         static void SetFloatValueInDB(uint16 index, float value, uint64 guid);
-        static void Customize(uint64 guid, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair);
         static void SavePositionInDB(uint32 mapid, float x,float y,float z,float o,uint32 zone,uint64 guid);
 
         bool m_mailsLoaded;
@@ -1494,12 +1423,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         uint32 resetTalentsCost() const;
         void InitTalentForLevel();
 
-        void InitGlyphsForLevel();
-        void SetGlyphSlot(uint8 slot, uint32 slottype) { SetUInt32Value(PLAYER_FIELD_GLYPH_SLOTS_1 + slot, slottype); }
-        uint32 GetGlyphSlot(uint8 slot) { return GetUInt32Value(PLAYER_FIELD_GLYPH_SLOTS_1 + slot); }
-        void SetGlyph(uint8 slot, uint32 glyph) { SetUInt32Value(PLAYER_FIELD_GLYPHS_1 + slot, glyph); }
-        uint32 GetGlyph(uint8 slot) { return GetUInt32Value(PLAYER_FIELD_GLYPHS_1 + slot); }
-
         uint32 GetFreePrimaryProffesionPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS2); }
         void SetFreePrimaryProffesions(uint16 profs) { SetUInt32Value(PLAYER_CHARACTER_POINTS2,profs); }
         void InitPrimaryProffesions();
@@ -1508,6 +1431,8 @@ class TRINITY_DLL_SPEC Player : public Unit
         PlayerSpellMap      & GetSpellMap()       { return m_spells; }
 
         void AddSpellMod(SpellModifier* mod, bool apply);
+        int32 GetTotalFlatMods(uint32 spellId, SpellModOp op);
+        int32 GetTotalPctMods(uint32 spellId, SpellModOp op);
         bool IsAffectedBySpellmod(SpellEntry const *spellInfo, SpellModifier *mod, Spell const* spell = NULL);
         template <class T> T ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell const* spell = NULL);
         void RemoveSpellMods(Spell const* spell);
@@ -1664,10 +1589,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         void UpdateAllCritPercentages();
         void UpdateParryPercentage();
         void UpdateDodgePercentage();
-        void UpdateMeleeHitChances();
-        void UpdateRangedHitChances();
-        void UpdateSpellHitChances();
-
         void UpdateAllSpellCritChances();
         void UpdateSpellCritChance(uint32 school);
         void UpdateExpertise(WeaponAttackType attType);
@@ -1838,8 +1759,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         void SetCanParry(bool value);
         bool CanBlock() const { return m_canBlock; }
         void SetCanBlock(bool value);
-        bool CanTitanGrip() const { return m_canTitanGrip ; }
-        void SetCanTitanGrip(bool value) { m_canTitanGrip = value; }
 
         void SetRegularAttackTime();
         void SetBaseModValue(BaseModGroup modGroup, BaseModType modType, float value) { m_auraBaseMod[modGroup][modType] = value; }
@@ -1873,7 +1792,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         void SendUpdateWorldState(uint32 Field, uint32 Value);
         void SendDirectMessage(WorldPacket *data);
 
-        void SendAurasForTarget(Unit *target);
+        void SendAuraDurationsForTarget(Unit* target);
 
         PlayerMenu* PlayerTalkClass;
         std::vector<ItemSetEffect *> ItemSetEff;
@@ -2034,7 +1953,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         MovementInfo m_movementInfo;
         uint32 m_lastFallTime;
         float  m_lastFallZ;
-        Unit *m_mover;
         void SetFallInformation(uint32 time, float z)
         {
             m_lastFallTime = time;
@@ -2052,9 +1970,6 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         void SetClientControl(Unit* target, uint8 allowMove);
 
-        void EnterVehicle(Vehicle *vehicle);
-        void ExitVehicle(Vehicle *vehicle);
-
         uint64 GetFarSight() const { return GetUInt64Value(PLAYER_FARSIGHT); }
         void SetFarSight(uint64 guid) { SetUInt64Value(PLAYER_FARSIGHT, guid); }
 
@@ -2067,7 +1982,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         float GetTransOffsetZ() const { return m_movementInfo.t_z; }
         float GetTransOffsetO() const { return m_movementInfo.t_o; }
         uint32 GetTransTime() const { return m_movementInfo.t_time; }
-        int8 GetTransSeat() const { return m_movementInfo.t_seat; }
 
         uint32 GetSaveTimer() const { return m_nextSave; }
         void   SetSaveTimer(uint32 timer) { m_nextSave = timer; }
@@ -2166,18 +2080,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         WorldLocation& GetTeleportDest() { return m_teleport_dest; }
 
         DeclinedName const* GetDeclinedNames() const { return m_declinedname; }
-        uint8 GetRunesState() const { return m_runes->runeState; }
-        uint8 GetBaseRune(uint8 index) const { return m_runes->runes[index].BaseRune; }
-        uint8 GetCurrentRune(uint8 index) const { return m_runes->runes[index].CurrentRune; }
-        uint8 GetRuneCooldown(uint8 index) const { return m_runes->runes[index].Cooldown; }
-        void SetBaseRune(uint8 index, uint8 baseRune) { m_runes->runes[index].BaseRune = baseRune; }
-        void SetCurrentRune(uint8 index, uint8 currentRune) { m_runes->runes[index].CurrentRune = currentRune; }
-        void SetRuneCooldown(uint8 index, uint8 cooldown) { m_runes->runes[index].Cooldown = cooldown; m_runes->SetRuneState(index, (cooldown == 0) ? true : false); }
-        void ConvertRune(uint8 index, uint8 newType);
-        void ResyncRunes(uint8 count);
-        void AddRunePower(uint8 index);
-        void InitRunes();
-        AchievementMgr& GetAchievementMgr() { return m_achievementMgr; }
         bool HasTitle(uint32 bitIndex);
         bool HasTitle(CharTitlesEntry const* title) { return HasTitle(title->bit_index); }
         void SetTitle(CharTitlesEntry const* title);
@@ -2314,7 +2216,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         ActionButtonList m_actionButtons;
 
         float m_auraBaseMod[BASEMOD_END][MOD_END];
-        int16 m_baseRatingValue[MAX_COMBAT_RATING];
 
         SpellModList m_spellMods[MAX_SPELLMOD];
         int32 m_SpellModRemoveCount;
@@ -2348,6 +2249,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         bool   m_DailyQuestChanged;
         time_t m_lastDailyQuestTime;
 
+        uint32 m_regenTimer;
         uint32 m_breathTimer;
         uint32 m_drunkTimer;
         uint16 m_drunk;
@@ -2366,10 +2268,8 @@ class TRINITY_DLL_SPEC Player : public Unit
         uint32 m_ArmorProficiency;
         bool m_canParry;
         bool m_canBlock;
-        bool m_canTitanGrip;
         uint8 m_swingErrorMsg;
         float m_ammoDPS;
-
         ////////////////////Rest System/////////////////////
         int time_inn_enter;
         uint32 inn_pos_mapid;
@@ -2416,8 +2316,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         bool m_farsightVision;
 
         DeclinedName *m_declinedname;
-        Runes *m_runes;
-        AchievementMgr m_achievementMgr;
     private:
         // internal common parts for CanStore/StoreItem functions
         uint8 _CanStoreItem_InSpecificSlot( uint8 bag, uint8 slot, ItemPosCountVec& dest, ItemPrototype const *pProto, uint32& count, bool swap, Item *pSrcItem ) const;
