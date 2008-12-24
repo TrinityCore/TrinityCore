@@ -596,66 +596,31 @@ void AreaAura::Update(uint32 diff)
 
         if( !caster->hasUnitState(UNIT_STAT_ISOLATED) )
         {
-            Unit* owner = caster->GetCharmerOrOwner();
-            if (!owner)
-                owner = caster;
             std::list<Unit *> targets;
 
             switch(m_areaAuraType)
             {
                 case AREA_AURA_PARTY:
-                {
-                    Group *pGroup = NULL;
-
-                    if (owner->GetTypeId() == TYPEID_PLAYER)
-                        pGroup = ((Player*)owner)->GetGroup();
-
-                    if( pGroup)
-                    {
-                        uint8 subgroup = ((Player*)owner)->GetSubGroup();
-                        for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
-                        {
-                            Player* Target = itr->getSource();
-                            if(Target && Target->isAlive() && Target->GetSubGroup()==subgroup && caster->IsFriendlyTo(Target))
-                            {
-                                if(caster->IsWithinDistInMap(Target, m_radius))
-                                    targets.push_back(Target);
-                                Pet *pet = Target->GetPet();
-                                if(pet && pet->isAlive() && caster->IsWithinDistInMap(pet, m_radius))
-                                    targets.push_back(pet);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // add owner
-                        if( owner != caster && caster->IsWithinDistInMap(owner, m_radius) )
-                            targets.push_back(owner);
-                        // add caster's pet
-                        Unit* pet = caster->GetPet();
-                        if( pet && caster->IsWithinDistInMap(pet, m_radius))
-                            targets.push_back(pet);
-                    }
+                    caster->GetPartyMember(targets, m_radius); 
                     break;
-                }
                 case AREA_AURA_FRIEND:
                 {
-                    Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(caster, owner, m_radius);
+                    Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(caster, caster, m_radius);
                     Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(targets, u_check);
-                    caster->GetMap()->VisitAll(caster->GetPositionX(), caster->GetPositionY(), m_radius, searcher);
+                    caster->VisitNearbyObject(m_radius, searcher);
                     break;
                 }
                 case AREA_AURA_ENEMY:
                 {
-                    Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(caster, owner, m_radius); // No GetCharmer in searcher
+                    Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(caster, caster, m_radius); // No GetCharmer in searcher
                     Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(targets, u_check);
-                    caster->GetMap()->VisitAll(caster->GetPositionX(), caster->GetPositionY(), m_radius, searcher);
+                    caster->VisitNearbyObject(m_radius, searcher);
                     break;
                 }
                 case AREA_AURA_OWNER:
                 case AREA_AURA_PET:
                 {
-                    if(owner != caster)
+                    if(Unit *owner = caster->GetCharmerOrOwner())
                         targets.push_back(owner);
                     break;
                 }

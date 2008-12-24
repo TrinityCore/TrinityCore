@@ -1491,8 +1491,12 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 case TARGET_UNIT_TARGET_ALLY:
                 case TARGET_UNIT_TARGET_RAID:
                 case TARGET_UNIT_TARGET_ANY: // SelectMagnetTarget()?
+                case TARGET_UNIT_TARGET_PARTY:
                 case TARGET_UNIT_SINGLE_UNKNOWN:
                     TagUnitMap.push_back(m_targets.getUnitTarget());
+                    break;
+                case TARGET_UNIT_PARTY_TARGET:
+                    m_caster->GetPartyMember(TagUnitMap, radius);
                     break;
                 case TARGET_UNIT_TARGET_ENEMY:
                     if(Unit* pUnitTarget = SelectMagnetTarget())
@@ -1748,169 +1752,17 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             break;
         }
 
-        case TARGET_ALL_PARTY_AROUND_CASTER:
-        case TARGET_ALL_PARTY_AROUND_CASTER_2:
-        case TARGET_ALL_PARTY:
-        {
-            Player *pTarget = m_caster->GetCharmerOrOwnerPlayerOrPlayerItself();
-            Group *pGroup = pTarget ? pTarget->GetGroup() : NULL;
-
-            if(pGroup)
-            {
-                uint8 subgroup = pTarget->GetSubGroup();
-
-                for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
-                {
-                    Player* Target = itr->getSource();
-
-                    // IsHostileTo check duel and controlled by enemy
-                    if( Target && Target->GetSubGroup()==subgroup && !m_caster->IsHostileTo(Target) )
-                    {
-                        if( m_caster->IsWithinDistInMap(Target, radius) )
-                            TagUnitMap.push_back(Target);
-
-                        if(Pet* pet = Target->GetPet())
-                            if( m_caster->IsWithinDistInMap(pet, radius) )
-                                TagUnitMap.push_back(pet);
-                    }
-                }
-            }
-            else
-            {
-                Unit* ownerOrSelf = pTarget ? pTarget : m_caster->GetCharmerOrOwnerOrSelf();
-                if(ownerOrSelf==m_caster || m_caster->IsWithinDistInMap(ownerOrSelf, radius))
-                    TagUnitMap.push_back(ownerOrSelf);
-                if(Pet* pet = ownerOrSelf->GetPet())
-                    if( m_caster->IsWithinDistInMap(pet, radius) )
-                        TagUnitMap.push_back(pet);
-            }
-        }break;
+        case TARGET_UNIT_AREA_PARTY_GROUND:
+            m_targets.m_targetMask |= TARGET_FLAG_DEST_LOCATION;
+        case TARGET_UNIT_PARTY_CASTER:
+        case TARGET_UNIT_AREA_PARTY:
+            m_caster->GetPartyMember(TagUnitMap, radius);
+            break;
         case TARGET_RANDOM_RAID_MEMBER:
         {
             if (m_caster->GetTypeId() == TYPEID_PLAYER)
                 if(Player* target = ((Player*)m_caster)->GetNextRandomRaidMember(radius))
                     TagUnitMap.push_back(target);
-        }break;
-        // TARGET_SINGLE_PARTY means that the spells can only be casted on a party member and not on the caster (some seals, fire shield from imp, etc..)
-        case TARGET_SINGLE_PARTY:
-        {
-            Unit *target = m_targets.getUnitTarget();
-            // Thoses spells apparently can't be casted on the caster.
-            if( target && target != m_caster)
-            {
-                // Can only be casted on group's members or its pets
-                Group  *pGroup = NULL;
-
-                Unit* owner = m_caster->GetCharmerOrOwner();
-                Unit *targetOwner = target->GetCharmerOrOwner();
-                if(owner)
-                {
-                    if(owner->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        if( target == owner )
-                        {
-                            TagUnitMap.push_back(target);
-                            break;
-                        }
-                        pGroup = ((Player*)owner)->GetGroup();
-                    }
-                }
-                else if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                {
-                    if( targetOwner == m_caster && target->GetTypeId()==TYPEID_UNIT && ((Creature*)target)->isPet())
-                    {
-                        TagUnitMap.push_back(target);
-                        break;
-                    }
-                    pGroup = ((Player*)m_caster)->GetGroup();
-                }
-
-                if(pGroup)
-                {
-                    // Our target can also be a player's pet who's grouped with us or our pet. But can't be controlled player
-                    if(targetOwner)
-                    {
-                        if( targetOwner->GetTypeId() == TYPEID_PLAYER &&
-                            target->GetTypeId()==TYPEID_UNIT && (((Creature*)target)->isPet()) &&
-                            target->GetOwnerGUID()==targetOwner->GetGUID() &&
-                            pGroup->IsMember(((Player*)targetOwner)->GetGUID()))
-                        {
-                            TagUnitMap.push_back(target);
-                        }
-                    }
-                    // 1Our target can be a player who is on our group
-                    else if (target->GetTypeId() == TYPEID_PLAYER && pGroup->IsMember(((Player*)target)->GetGUID()))
-                    {
-                        TagUnitMap.push_back(target);
-                    }
-                }
-            }
-        }break;
-        case TARGET_AREAEFFECT_PARTY:
-        {
-            Unit* owner = m_caster->GetCharmerOrOwner();
-            Player *pTarget = NULL;
-
-            if(owner)
-            {
-                TagUnitMap.push_back(m_caster);
-                if(owner->GetTypeId() == TYPEID_PLAYER)
-                    pTarget = (Player*)owner;
-            }
-            else if (m_caster->GetTypeId() == TYPEID_PLAYER)
-            {
-                if(Unit* target = m_targets.getUnitTarget())
-                {
-                    if( target->GetTypeId() != TYPEID_PLAYER)
-                    {
-                        if(((Creature*)target)->isPet())
-                        {
-                            Unit *targetOwner = target->GetOwner();
-                            if(targetOwner->GetTypeId() == TYPEID_PLAYER)
-                                pTarget = (Player*)targetOwner;
-                        }
-                    }
-                    else
-                        pTarget = (Player*)target;
-                }
-            }
-
-            Group* pGroup = pTarget ? pTarget->GetGroup() : NULL;
-
-            if(pGroup)
-            {
-                uint8 subgroup = pTarget->GetSubGroup();
-
-                for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
-                {
-                    Player* Target = itr->getSource();
-
-                    // IsHostileTo check duel and controlled by enemy
-                    if(Target && Target->GetSubGroup()==subgroup && !m_caster->IsHostileTo(Target))
-                    {
-                        if( pTarget->IsWithinDistInMap(Target, radius) )
-                            TagUnitMap.push_back(Target);
-
-                        if(Pet* pet = Target->GetPet())
-                            if( pTarget->IsWithinDistInMap(pet, radius) )
-                                TagUnitMap.push_back(pet);
-                    }
-                }
-            }
-            else if (owner)
-            {
-                if(m_caster->IsWithinDistInMap(owner, radius))
-                    TagUnitMap.push_back(owner);
-            }
-            else if(pTarget)
-            {
-                TagUnitMap.push_back(pTarget);
-
-                if(Pet* pet = pTarget->GetPet())
-                    if( m_caster->IsWithinDistInMap(pet, radius) )
-                        TagUnitMap.push_back(pet);
-            }
-
         }break;
         case TARGET_CHAIN_HEAL:
         {
@@ -5445,9 +5297,10 @@ bool Spell::IsValidSingleTargetEffect(Unit const* target, Targets type) const
         case TARGET_UNIT_TARGET_ENEMY:
             return !m_caster->IsFriendlyTo(target);
         case TARGET_UNIT_TARGET_ALLY:
+        case TARGET_UNIT_PARTY_TARGET:
             return m_caster->IsFriendlyTo(target);
         case TARGET_UNIT_TARGET_PARTY:
-            return m_caster->IsInPartyWith(target);
+            return m_caster != target && m_caster->IsInPartyWith(target);
         case TARGET_UNIT_TARGET_RAID:
             return m_caster->IsInRaidWith(target);
     }

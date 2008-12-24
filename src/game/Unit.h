@@ -875,6 +875,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool IsNeutralToAll() const;
         bool IsInPartyWith(Unit const* unit) const;
         bool IsInRaidWith(Unit const* unit) const;
+        void GetPartyMember(std::list<Unit*> &units, float dist);
+        void GetRaidMember(std::list<Unit*> &units, float dist);
         bool IsContestedGuard() const
         {
             if(FactionTemplateEntry const* entry = getFactionTemplateEntry())
