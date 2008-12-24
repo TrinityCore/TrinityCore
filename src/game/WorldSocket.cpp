@@ -54,48 +54,8 @@
 
 struct ServerPktHeader
 {
-    /**
-     * size is the length of the payload _plus_ the length of the opcode
-     */
-    ServerPktHeader(uint32 size, uint16 cmd) : size(size)
-    {
-        uint8 headerIndex=0;
-        if(isLargePacket())
-        {
-            sLog.outDebug("initializing large server to client packet. Size: %u, cmd: %u", size, cmd);
-            header= new uint8[5];
-            header[headerIndex++] = 0x80|(0xFF &(size>>16));
-        }
-        else
-        {
-            header= new uint8[4];
-        }
-
-        header[headerIndex++] = 0xFF &(size>>8);
-        header[headerIndex++] = 0xFF &size;
-
-        header[headerIndex++] = 0xFF & cmd;
-        header[headerIndex++] = 0xFF & (cmd>>8);
-    }
-
-    ~ServerPktHeader()
-    {
-        delete[] header;
-    }
-
-    uint8 getHeaderLength()
-    {
-        // cmd = 2 bytes, size= 2||3bytes
-        return 2+(isLargePacket()?3:2);
-    }
-
-    bool isLargePacket()
-    {
-        return size > 0x7FFF;
-    }
-
-    const uint32 size;
-    uint8 *header;
+    uint16 size;
+    uint16 cmd;
 };
 
 struct ClientPktHeader
@@ -679,7 +639,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     // NOTE: ATM the socket is singlethread, have this in mind ...
     uint8 digest[20];
     uint32 clientSeed;
-    uint32 unk2, unk3;
+    uint32 unk2;
     uint32 BuiltNumberClient;
     uint32 id, security;
     //uint8 expansion = 0;
@@ -701,7 +661,6 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     recvPacket >> BuiltNumberClient;                        // for now no use
     recvPacket >> unk2;
     recvPacket >> account;
-    recvPacket >> unk3;
 
     if (recvPacket.size () < (4 + 4 + (account.size () + 1) + 4 + 20))
     {
@@ -921,8 +880,6 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     m_Crypt.SetKey (&K);
     m_Crypt.Init ();
 
-    m_Session->LoadAccountData();
-
     // In case needed sometime the second arg is in microseconds 1 000 000 = 1 sec
     ACE_OS::sleep (ACE_Time_Value (0, 10000));
 
@@ -1006,17 +963,23 @@ int WorldSocket::HandlePing (WorldPacket& recvPacket)
 
 int WorldSocket::iSendPacket (const WorldPacket& pct)
 {
-    ServerPktHeader header(pct.size()+2, pct.GetOpcode());
-    if (m_OutBuffer->space () < pct.size () + header.getHeaderLength())
+    if (m_OutBuffer->space () < pct.size () + sizeof (ServerPktHeader))
     {
         errno = ENOBUFS;
         return -1;
     }
 
+    ServerPktHeader header;
 
-    m_Crypt.EncryptSend ( header.header, header.getHeaderLength());
+    header.cmd = pct.GetOpcode ();
+    EndianConvert(header.cmd);
 
-    if (m_OutBuffer->copy ((char*) header.header, header.getHeaderLength()) == -1)
+    header.size = (uint16) pct.size () + 2;
+    EndianConvertReverse(header.size);
+
+    m_Crypt.EncryptSend ((uint8*) & header, sizeof (header));
+
+    if (m_OutBuffer->copy ((char*) & header, sizeof (header)) == -1)
         ACE_ASSERT (false);
 
     if (!pct.empty ())

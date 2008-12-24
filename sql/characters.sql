@@ -15,13 +15,22 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
+
+--
+-- Table structure for table `saved_variables`
+--
+
+CREATE TABLE `saved_variables` (
+    `NextArenaPointDistributionTime` bigint(40) UNSIGNED NOT NULL DEFAULT '0'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Variable Saves';
+
 --
 -- Table structure for table `character_db_version`
 --
 
 DROP TABLE IF EXISTS `character_db_version`;
 CREATE TABLE `character_db_version` (
-  `required_2008_12_22_19_characters_item_instance` bit(1) default NULL
+  `required_2008_12_15_01_character_arenas` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Last applied sql update to DB';
 
 --
@@ -33,28 +42,6 @@ LOCK TABLES `character_db_version` WRITE;
 INSERT INTO `character_db_version` VALUES
 (NULL);
 /*!40000 ALTER TABLE `character_db_version` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `account_data`
---
-
-DROP TABLE IF EXISTS `account_data`;
-CREATE TABLE `account_data` (
-  `account` int(11) unsigned NOT NULL default '0',
-  `type` int(11) unsigned NOT NULL default '0',
-  `time` bigint(11) unsigned NOT NULL default '0',
-  `data` longtext NOT NULL,
-  PRIMARY KEY  (`account`,`type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `account_data`
---
-
-LOCK TABLES `account_data` WRITE;
-/*!40000 ALTER TABLE `account_data` DISABLE KEYS */;
-/*!40000 ALTER TABLE `account_data` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -242,49 +229,6 @@ LOCK TABLES `characters` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `character_achievement`
---
-
-DROP TABLE IF EXISTS `character_achievement`;
-CREATE TABLE `character_achievement` (
-  `guid` int(11) NOT NULL,
-  `achievement` int(11) NOT NULL,
-  `date` int(11) NOT NULL,
-  PRIMARY KEY  (`guid`,`achievement`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `character_achievement`
---
-
-LOCK TABLES `character_achievement` WRITE;
-/*!40000 ALTER TABLE `character_achievement` DISABLE KEYS */;
-/*!40000 ALTER TABLE `character_achievement` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `character_achievement_progress`
---
-
-DROP TABLE IF EXISTS `character_achievement_progress`;
-CREATE TABLE `character_achievement_progress` (
-  `guid` int(11) NOT NULL,
-  `criteria` int(11) NOT NULL,
-  `counter` int(11) NOT NULL,
-  `date` int(11) NOT NULL,
-  PRIMARY KEY  (`guid`,`criteria`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `character_achievement_progress`
---
-
-LOCK TABLES `character_achievement_progress` WRITE;
-/*!40000 ALTER TABLE `character_achievement_progress` DISABLE KEYS */;
-/*!40000 ALTER TABLE `character_achievement_progress` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `character_action`
 --
 
@@ -466,7 +410,9 @@ CREATE TABLE `character_pet` (
   `level` int(11) unsigned NOT NULL default '1',
   `exp` int(11) unsigned NOT NULL default '0',
   `Reactstate` tinyint(1) unsigned NOT NULL default '0',
-  `talentpoints` int(11) unsigned NOT NULL default '0',
+  `loyaltypoints` int(11) NOT NULL default '0',
+  `loyalty` int(11) unsigned NOT NULL default '0',
+  `trainpoint` int(11) NOT NULL default '0',
   `name` varchar(100) default 'Pet',
   `renamed` tinyint(1) unsigned NOT NULL default '0',
   `slot` int(11) unsigned NOT NULL default '0',
@@ -1288,7 +1234,6 @@ CREATE TABLE `petition_sign` (
   `type` int(10) unsigned NOT NULL default '0',
   PRIMARY KEY  (`petitionguid`,`playerguid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Guild System';
-
 --
 -- Dumping data for table `petition_sign`
 --
@@ -1378,26 +1323,6 @@ LOCK TABLES `has_logged_in_before` WRITE;
 UNLOCK TABLES;
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
---
--- Table structure for table `saved_variables`
---
-
-DROP TABLE IF EXISTS `saved_variables`;
-CREATE TABLE `saved_variables` (
-    `NextArenaPointDistributionTime` bigint(40) UNSIGNED NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Variable Saves';
-
---
--- Dumping data for table `saved_variables`
---
-
-LOCK TABLES `saved_variables` WRITE;
-/*!40000 ALTER TABLE `saved_variables` DISABLE KEYS */;
-/*!40000 ALTER TABLE `saved_variables` ENABLE KEYS */;
-UNLOCK TABLES;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

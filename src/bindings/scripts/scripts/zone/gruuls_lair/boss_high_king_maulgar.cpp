@@ -238,8 +238,8 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
 			DoScriptText(SAY_ENRAGE, m_creature);
 
 			m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);			
-            m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
-            m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, 0);                
+            m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, 0);
+            m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY+1, 0);                
         }
 
         if(Phase2)

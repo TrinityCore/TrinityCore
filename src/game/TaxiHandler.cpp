@@ -71,7 +71,7 @@ void WorldSession::SendTaxiStatus( uint64 guid )
     sLog.outDebug( "WORLD: Sent SMSG_TAXINODE_STATUS" );
 }
 
-void WorldSession::HandleTaxiQueryAvailableNodes( WorldPacket & recv_data )
+void WorldSession::HandleTaxiQueryAvailableNodesOpcode( WorldPacket & recv_data )
 {
     CHECK_PACKET_SIZE(recv_data,8);
 

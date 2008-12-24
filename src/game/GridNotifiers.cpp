@@ -140,7 +140,7 @@ VisibleNotifier::Notify()
     // send data at target visibility change (adding to client)
     for(std::set<WorldObject*>::const_iterator vItr = i_visibleNow.begin(); vItr != i_visibleNow.end(); ++vItr)
         if((*vItr)!=&i_player && (*vItr)->isType(TYPEMASK_UNIT))
-            i_player.SendAurasForTarget((Unit*)(*vItr));
+            i_player.SendAuraDurationsForTarget((Unit*)(*vItr));
 }
 
 void 

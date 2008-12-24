@@ -89,13 +89,13 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 	void OpenGO(uint64 DoorGUID, bool open)
     {
         if(GameObject *Door = instance->GetGameObjectInMap(DoorGUID))
-            Door->SetGoState(open ? 0 : 1);
+            Door->SetUInt32Value(GAMEOBJECT_STATE, open ? 0 : 1);
     }
 
     void CloseGO(uint64 DoorGUID, bool close)
     {
         if(GameObject *Door = instance->GetGameObjectInMap(DoorGUID))
-            Door->SetGoState(close ? 1 : 0);
+            Door->SetUInt32Value(GAMEOBJECT_STATE, close ? 1 : 0);
     }
 
 	uint32 GetData(uint32 type)
@@ -146,13 +146,13 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 	{
 		switch(go->GetEntry())
 		{
-		case 170561: SupplyRoomGate = go->GetGUID(); state = go->GetGoState(); break; 
-		case 170562: GateDughal = go->GetGUID(); state = go->GetGoState();	break;
-		case 170566: GateTobias = go->GetGUID(); state = go->GetGoState();	break;
-		case 170567: GateCrest = go->GetGUID(); state = go->GetGoState(); break;
-		case 170568: GateJaz = go->GetGUID(); state = go->GetGoState(); break;
-		case 170569: GateShill = go->GetGUID(); state = go->GetGoState(); break;
-		case 166872: SupplyCrate = go->GetGUID(); state = go->GetGoState(); break;
+		case 170561: SupplyRoomGate = go->GetGUID(); state = go->GetUInt32Value(GAMEOBJECT_STATE); break; 
+		case 170562: GateDughal = go->GetGUID(); state = go->GetUInt32Value(GAMEOBJECT_STATE);	break;
+		case 170566: GateTobias = go->GetGUID(); state = go->GetUInt32Value(GAMEOBJECT_STATE);	break;
+		case 170567: GateCrest = go->GetGUID(); state = go->GetUInt32Value(GAMEOBJECT_STATE); break;
+		case 170568: GateJaz = go->GetGUID(); state = go->GetUInt32Value(GAMEOBJECT_STATE); break;
+		case 170569: GateShill = go->GetGUID(); state = go->GetUInt32Value(GAMEOBJECT_STATE); break;
+		case 166872: SupplyCrate = go->GetGUID(); state = go->GetUInt32Value(GAMEOBJECT_STATE); break;
 		}
 	}
 

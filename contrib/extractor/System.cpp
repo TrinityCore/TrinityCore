@@ -16,24 +16,21 @@
 extern unsigned int iRes;
 extern ArchiveSet gOpenArchives;
 
-bool ConvertADT(char*, char*);
+bool ConvertADT(char*,char*);
 
-typedef struct
-{
+typedef struct{
     char name[64];
-    uint32 id;
-} map_id;
+    unsigned int id;
+}map_id;
 
 typedef unsigned char uint8;
 typedef unsigned short uint16;
 typedef unsigned int uint32;
 
-map_id *map_ids;
-uint16 *areas;
-uint16 *LiqType;
-char output_path[128] = ".";
-char input_path[128] = ".";
-uint32 maxAreaId = 0;
+map_id * map_ids;
+uint16 * areas;
+char output_path[128]=".";
+char input_path[128]=".";
 
 enum Extract
 {
@@ -69,45 +66,46 @@ bool FileExists( const char* FileName )
 
 void Usage(char* prg)
 {
-    printf("Usage:\n%s -[var] [value]\n-i set input path\n-o set output path\n-r set resolution\n-e extract only MAP(1)/DBC(2) - standard: both(3)\nExample: %s -r 256 -i \"c:\\games\\game\"", prg, prg);
+    printf("Usage:\n%s -[var] [value]\n-i set input path\n-o set output path\n-r set resolution\n-e extract only MAP(1)/DBC(2) - standard: both(3)\nExample: %s -r 256 -i \"c:\\games\\game\"",
+    prg,prg);
     exit(1);
 }
 
 void HandleArgs(int argc, char * arg[])
 {
-    for(int c = 1; c < argc; ++c)
+    for(int c=1;c<argc;c++)
     {
-        // i - input path
-        // o - output path
-        // r - resolution, array of (r * r) heights will be created
-        // e - extract only MAP(1)/DBC(2) - standard both(3)
+        //i - input path
+        //o - output path
+        //r - resolution, array of (r * r) heights will be created
+        //e - extract only MAP(1)/DBC(2) - standard both(3)
         if(arg[c][0] != '-')
             Usage(arg[0]);
 
         switch(arg[c][1])
         {
             case 'i':
-                if(c + 1 < argc)                            // all ok
-                    strcpy(input_path, arg[(c++) + 1]);
+                if(c+1<argc)//all ok
+                    strcpy(input_path,arg[(c++) +1]);
                 else
                     Usage(arg[0]);
                 break;
             case 'o':
-                if(c + 1 < argc)                            // all ok
-                    strcpy(output_path, arg[(c++) + 1]);
+                if(c+1<argc)//all ok
+                    strcpy(output_path,arg[(c++) +1]);
                 else
                     Usage(arg[0]);
                 break;
             case 'r':
-                if(c + 1 < argc)                            // all ok
-                    iRes=atoi(arg[(c++) + 1]);
+                if(c+1<argc)//all ok
+                    iRes=atoi(arg[(c++) +1]);
                 else
                     Usage(arg[0]);
                 break;
             case 'e':
-                if(c + 1 < argc)                            // all ok
+                if(c+1<argc)//all ok
                 {
-                    extract=atoi(arg[(c++) + 1]);
+                    extract=atoi(arg[(c++) +1]);
                     if(!(extract > 0 && extract < 4))
                         Usage(arg[0]);
                 }
@@ -124,12 +122,12 @@ uint32 ReadMapDBC()
     DBCFile dbc("DBFilesClient\\Map.dbc");
     dbc.open();
 
-    size_t map_count = dbc.getRecordCount();
-    map_ids = new map_id[map_count];
-    for(uint32 x = 0; x < map_count; ++x)
+    uint32 map_count=dbc.getRecordCount();
+    map_ids=new map_id[map_count];
+    for(unsigned int x=0;x<map_count;x++)
     {
-        map_ids[x].id = dbc.getRecord(x).getUInt(0);
-        strcpy(map_ids[x].name, dbc.getRecord(x).getString(1));
+        map_ids[x].id=dbc.getRecord(x).getUInt(0);
+        strcpy(map_ids[x].name,dbc.getRecord(x).getString(1));
     }
     printf("Done! (%u maps loaded)\n", map_count);
     return map_count;
@@ -137,37 +135,18 @@ uint32 ReadMapDBC()
 
 void ReadAreaTableDBC()
 {
-    printf("Read AreaTable.dbc file...");
+    printf("Read AreaTable.dbc file... ");
     DBCFile dbc("DBFilesClient\\AreaTable.dbc");
     dbc.open();
 
-    size_t area_count = dbc.getRecordCount();
-    size_t maxid = dbc.getMaxId();
-    areas = new uint16[maxid + 1];
-    memset(areas, 0xff, (maxid + 1) * sizeof(uint16));
-
-    for(uint32 x = 0; x < area_count; ++x)
+    unsigned int area_count=dbc.getRecordCount();
+    uint32 maxid = dbc.getMaxId();
+    areas=new uint16[maxid + 1];
+    memset(areas, 0xff, sizeof(areas));
+    for(unsigned int x=0; x<area_count;++x)
         areas[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
 
-    maxAreaId = dbc.getMaxId();
-
     printf("Done! (%u areas loaded)\n", area_count);
-}
-
-void ReadLiquidTypeTableDBC()
-{
-    printf("Read LiquidType.dbc file...");
-    DBCFile dbc("DBFilesClient\\LiquidType.dbc");
-    dbc.open();
-    size_t LiqType_count = dbc.getRecordCount();
-    size_t LiqType_maxid = dbc.getMaxId();
-    LiqType = new uint16[LiqType_maxid + 1];
-    memset(LiqType, 0xff, (LiqType_maxid + 1) * sizeof(uint16));
-
-    for(uint32 x = 0; x < LiqType_count; ++x)
-        LiqType[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
-
-    printf("Done! (%u LiqTypes loaded)\n", LiqType_count);
 }
 
 void ExtractMapsFromMpq()
@@ -180,28 +159,27 @@ void ExtractMapsFromMpq()
     uint32 map_count = ReadMapDBC();
 
     ReadAreaTableDBC();
-    ReadLiquidTypeTableDBC();
 
-    unsigned int total = map_count * ADT_RES * ADT_RES;
-    unsigned int done = 0;
+    unsigned int total=map_count*ADT_RES*ADT_RES;
+    unsigned int done=0;
 
     std::string path = output_path;
     path += "/maps/";
     CreateDir(path);
 
-    for(uint32 x = 0; x < ADT_RES; ++x)
+    for(unsigned int x = 0; x < ADT_RES; ++x)
     {
-        for(uint32 y = 0; y < ADT_RES; ++y)
+        for(unsigned int y = 0; y < ADT_RES; ++y)
         {
-            for(uint32 z = 0; z < map_count; ++z)
+            for(unsigned int z = 0; z < map_count; ++z)
             {
-                sprintf(mpq_filename, "World\\Maps\\%s\\%s_%u_%u.adt", map_ids[z].name, map_ids[z].name, x, y);
-                sprintf(output_filename, "%s/maps/%03u%02u%02u.map", output_path, map_ids[z].id, y, x);
-                ConvertADT(mpq_filename, output_filename);
+                sprintf(mpq_filename,"World\\Maps\\%s\\%s_%u_%u.adt",map_ids[z].name,map_ids[z].name,x,y);
+                sprintf(output_filename,"%s/maps/%03u%02u%02u.map",output_path,map_ids[z].id,y,x);
+                ConvertADT(mpq_filename,output_filename);
                 done++;
             }
-            // draw progress bar
-            printf("Processing........................%d%%\r", (100 * done) / total);
+            //draw progess bar
+            printf("Processing........................%d%%\r",(100*done)/total);
         }
     }
 
@@ -244,7 +222,7 @@ void ExtractDBCFiles(int locale, bool basicLocale)
         string filename = path;
         filename += (iter->c_str() + strlen("DBFilesClient\\"));
 
-        FILE *output = fopen(filename.c_str(), "wb");
+        FILE *output=fopen(filename.c_str(), "wb");
         if(!output)
         {
             printf("Can't create the output file '%s'\n", filename.c_str());
@@ -283,9 +261,7 @@ void LoadCommonMPQFiles()
 {
     char filename[512];
 
-    sprintf(filename,"%s/Data/common-2.MPQ", input_path);
-    new MPQArchive(filename);
-    sprintf(filename,"%s/Data/lichking.MPQ", input_path);
+    sprintf(filename,"%s/Data/common.MPQ", input_path);
     new MPQArchive(filename);
     sprintf(filename,"%s/Data/expansion.MPQ", input_path);
     new MPQArchive(filename);
@@ -295,7 +271,7 @@ void LoadCommonMPQFiles()
         if(i > 1)
             sprintf(ext, "-%i", i);
 
-        sprintf(filename, "%s/Data/patch%s.MPQ", input_path, ext);
+        sprintf(filename,"%s/Data/patch%s.MPQ", input_path, ext);
         if(FileExists(filename))
             new MPQArchive(filename);
     }

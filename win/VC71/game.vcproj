@@ -136,14 +136,6 @@
 				RelativePath="..\..\src\game\AccountMgr.h">
 			</File>
 			<File
-				RelativePath="..\..\src\game\AchievementMgr.cpp">
-
-			</File>
-			<File
-				RelativePath="..\..\src\game\AchievementMgr.h">
-
-			</File>
-			<File
 				RelativePath="..\..\src\game\AddonHandler.cpp">
 			</File>
 			<File
@@ -217,9 +209,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\game\BattleGroundWS.h">
-			</File>
-			<File
-				RelativePath="..\..\src\game\CalendarHandler.cpp">
 			</File>
 			<File
 				RelativePath="..\..\src\game\Cell.h">
@@ -565,12 +554,6 @@
 				RelativePath="..\..\src\game\Bag.h">
 			</File>
 			<File
-				RelativePath="..\..\src\game\Calendar.cpp">
-			</File>
-			<File
-				RelativePath="..\..\src\game\Calendar.h">
-			</File>
-			<File
 				RelativePath="..\..\src\game\ConfusedMovementGenerator.cpp">
 			</File>
 			<File
@@ -843,12 +826,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\game\UpdateMask.h">
-			</File>
-			<File
-				RelativePath="..\..\src\game\Vehicle.cpp">
-			</File>
-			<File
-				RelativePath="..\..\src\game\Vehicle.h">
 			</File>
 			<File
 				RelativePath="..\..\src\game\WaypointMovementGenerator.cpp">

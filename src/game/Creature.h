@@ -244,7 +244,9 @@ struct NpcOptionLocale
 struct EquipmentInfo
 {
     uint32  entry;
-    uint32  equipentry[3];
+    uint32  equipmodel[3];
+    uint32  equipinfo[3];
+    uint32  equipslot[3];
 };
 
 // from `creature` table
@@ -421,7 +423,6 @@ class TRINITY_DLL_SPEC Creature : public Unit
         uint32 GetEquipmentId() const { return m_equipmentId; }
 
         bool isPet() const { return m_isPet; }
-        bool isVehicle() const { return m_isVehicle; }
         void SetCorpseDelay(uint32 delay) { m_corpseDelay = delay; }
         bool isTotem() const { return m_isTotem; }
         bool isRacialLeader() const { return GetCreatureInfo()->RacialLeader; }
@@ -656,11 +657,11 @@ class TRINITY_DLL_SPEC Creature : public Unit
 
         uint8 m_emoteState;
         bool m_isPet;                                       // set only in Pet::Pet
-        bool m_isVehicle;                                   // set only in Vehicle::Vehicle
         bool m_isTotem;                                     // set only in Totem::Totem
         ReactStates m_reactState;                           // for AI, not charmInfo
         void RegenerateMana();
         void RegenerateHealth();
+        uint32 m_regenTimer;
         MovementGeneratorType m_defaultMovementType;
         Cell m_currentCell;                                 // store current cell where creature listed
         uint32 m_DBTableGuid;                               ///< For new or temporary creatures is 0 for saved it is lowguid

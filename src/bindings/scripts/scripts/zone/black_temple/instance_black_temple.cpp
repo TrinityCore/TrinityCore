@@ -118,13 +118,13 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
     void OpenDoor(uint64 DoorGUID, bool open)
     {
         if(GameObject *Door = instance->GetGameObjectInMap(DoorGUID))
-            Door->SetGoState(open ? 0 : 1);
+            Door->SetUInt32Value(GAMEOBJECT_STATE, open ? 0 : 1);
     }
 
     void CloseDoor(uint64 DoorGUID, bool close)
     {
         if(GameObject *Door = instance->GetGameObjectInMap(DoorGUID))
-            Door->SetGoState(close ? 1 : 0);
+            Door->SetUInt32Value(GAMEOBJECT_STATE, close ? 1 : 0);
     }
 
     void OnCreatureCreate(Creature *creature, uint32 creature_entry)

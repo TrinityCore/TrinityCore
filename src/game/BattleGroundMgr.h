@@ -32,9 +32,9 @@ typedef std::map<uint32, BattleGround*> BattleGroundSet;
 //typedef std::map<uint32, BattleGroundQueue*> BattleGroundQueueSet;
 typedef std::deque<BattleGround*> BGFreeSlotQueueType;
 
-#define MAX_BATTLEGROUND_QUEUES 8                           // for level ranges 10-19, 20-29, 30-39, 40-49, 50-59, 60-69, 70-79, 80+
+#define MAX_BATTLEGROUND_QUEUES 7                           // for level ranges 10-19, 20-29, 30-39, 40-49, 50-59, 60-69, 70+
 
-#define MAX_BATTLEGROUND_TYPES 12                           // each BG type will be in array
+#define MAX_BATTLEGROUND_TYPES 9                            // each BG type will be in array
 
 #define MAX_BATTLEGROUND_QUEUE_TYPES 8
 

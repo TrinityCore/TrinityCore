@@ -132,6 +132,8 @@ struct BattleGroundObjectInfo
     uint32      spellid;
 };
 
+#define MAX_QUEUED_PLAYERS_MAP 7
+
 enum BattleGroundTypeId
 {
     BATTLEGROUND_AV     = 1,
@@ -141,10 +143,7 @@ enum BattleGroundTypeId
     BATTLEGROUND_BE     = 5,
     BATTLEGROUND_AA     = 6,
     BATTLEGROUND_EY     = 7,
-    BATTLEGROUND_RL     = 8,
-    BATTLEGROUND_SA     = 9,
-    BATTLEGROUND_DS     = 10,
-    BATTLEGROUND_RV     = 11
+    BATTLEGROUND_RL     = 8
 };
 
 // handle the queue types and bg types separately to enable joining queue for different sized arenas at the same time

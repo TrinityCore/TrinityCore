@@ -154,7 +154,6 @@ void WorldSession::HandleAutostoreLootItemOpcode( WorldPacket & recv_data )
         --loot->unlootedCount;
 
         player->SendNewItem(newitem, uint32(item->count), false, false, true);
-        player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item->itemid, item->count);
     }
     else
         player->SendEquipError( msg, NULL, NULL );
@@ -327,7 +326,7 @@ void WorldSession::DoLootRelease( uint64 lguid )
                             int32 ReqValue = 175;
                             LockEntry const *lockInfo = sLockStore.LookupEntry(go->GetGOInfo()->chest.lockId);
                             if(lockInfo)
-                                ReqValue = lockInfo->Skill[0];
+                                ReqValue = lockInfo->requiredminingskill;
                             float skill = float(player->GetSkillValue(SKILL_MINING))/(ReqValue+25);
                             double chance = pow(0.8*chance_rate,4*(1/double(max_amount))*double(uses));
                             if(roll_chance_f(100*chance+skill))
@@ -496,7 +495,6 @@ void WorldSession::HandleLootMasterGiveOpcode( WorldPacket & recv_data )
     // not move item from loot to target inventory
     Item * newitem = target->StoreNewItem( dest, item.itemid, true, item.randomPropertyId );
     target->SendNewItem(newitem, uint32(item.count), false, false, true );
-    target->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item.itemid, item.count);
 
     // mark as looted
     item.count=0;

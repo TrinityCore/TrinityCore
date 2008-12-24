@@ -324,7 +324,7 @@ void WorldSession::HandleItemQuerySingleOpcode( WorldPacket & recv_data )
         data << pProto->ItemId;
         data << pProto->Class;
         data << pProto->SubClass;
-        data << pProto->Unk0;                               // new 2.0.3, not exist in wdb cache?
+        data << uint32(-1);                                 // new 2.0.3, not exist in wdb cache?
         data << Name;
         data << uint8(0x00);                                //pProto->Name2; // blizz not send name there, just uint8(0x00); <-- \0 = empty string = empty name...
         data << uint8(0x00);                                //pProto->Name3; // blizz not send name there, just uint8(0x00);
@@ -349,14 +349,11 @@ void WorldSession::HandleItemQuerySingleOpcode( WorldPacket & recv_data )
         data << pProto->MaxCount;
         data << pProto->Stackable;
         data << pProto->ContainerSlots;
-        data << pProto->StatsCount;                         // item stats count
-        for(int i = 0; i < pProto->StatsCount; i++)
+        for(int i = 0; i < 10; i++)
         {
             data << pProto->ItemStat[i].ItemStatType;
             data << pProto->ItemStat[i].ItemStatValue;
         }
-        data << pProto->ScalingStatDistribution;            // scaling stats distribution
-        data << pProto->ScalingStatValue;                   // some kind of flags used to determine stat values column
         for(int i = 0; i < 5; i++)
         {
             data << pProto->Damage[i].DamageMin;
@@ -440,8 +437,7 @@ void WorldSession::HandleItemQuerySingleOpcode( WorldPacket & recv_data )
         data << pProto->GemProperties;
         data << pProto->RequiredDisenchantSkill;
         data << pProto->ArmorDamageModifier;
-        data << pProto->Duration;                           // added in 2.4.2.8209, duration (seconds)
-        data << pProto->ItemLimitCategory;                  // WotLK, ItemLimitCategory
+        data << uint32(0);                                  // added in 2.4.2.8209, duration (seconds)
         SendPacket( &data );
     }
     else
@@ -849,7 +845,6 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& /*recvPacket*/)
     if (_player->GetMoney() < price)
         return;
 
-    _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT, slot);
     _player->SetByteValue(PLAYER_BYTES_2, 2, slot);
     _player->ModifyMoney(-int32(price));
 }

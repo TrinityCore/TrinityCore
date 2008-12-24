@@ -736,7 +736,7 @@ struct TRINITY_DLL_DECL mob_pulsing_pumpkinAI : public ScriptedAI
 		sprouted = false;
 		DoCast(m_creature,SPELL_PUMPKIN_AURA,true);
 		DoCast(m_creature,SPELL_SPROUTING);
-		m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_STUNNED);
+		m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISABLE_ROTATE);
 	}
 
 	void Aggro(Unit *who){}
@@ -747,7 +747,7 @@ struct TRINITY_DLL_DECL mob_pulsing_pumpkinAI : public ScriptedAI
 		{
 			sprouted = true;
 			m_creature->RemoveAllAuras();
-			m_creature->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_STUNNED);
+			m_creature->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISABLE_ROTATE);
 			DoCast(m_creature,SPELL_SPROUT_BODY,true);
 			m_creature->UpdateEntry(PUMPKIN_FIEND);
 			DoStartMovement(m_creature->getVictim());
