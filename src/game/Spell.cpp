@@ -164,9 +164,6 @@ void SpellCastTargets::Update(Unit* caster)
         if(m_itemTarget)
             m_itemTargetEntry = m_itemTarget->GetEntry();
     }
-
-    m_originalCasterGUID = m_caster->GetGUID();
-    m_originalCaster = m_caster;
 }
 
 bool SpellCastTargets::read ( WorldPacket * data, Unit *caster )

@@ -180,13 +180,6 @@ class SpellCastTargets
         uint64 m_CorpseTargetGUID;
         uint64 m_itemTargetGUID;
         uint32 m_itemTargetEntry;
-
-		Unit* m_caster;
-
-		uint64 m_originalCasterGUID;                        // real source of cast (aura caster/etc), used for spell targets selection
-                                                            // e.g. damage around area spell trigered by victim aura and damage enemies of aura caster
-		Unit* m_originalCaster;                             // cached pointer for m_originalCaster, updated at Spell::UpdatePointers()
-
 };
 
 enum SpellState
