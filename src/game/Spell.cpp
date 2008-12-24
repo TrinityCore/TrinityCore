@@ -1500,6 +1500,12 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 case TARGET_UNIT_PARTY_CASTER:
                     m_caster->GetPartyMember(TagUnitMap, radius);
                     break;
+                case TARGET_UNIT_RAID:
+                    if(Unit *target = m_targets.getUnitTarget())
+                        TagUnitMap.push_back(target);
+                    else
+                        m_caster->GetRaidMember(TagUnitMap, radius);
+                    break;
             }
         }break;
 
@@ -1786,13 +1792,6 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             TagUnitMap.push_back(m_caster);
             break;
         }
-
-        case TARGET_RANDOM_RAID_MEMBER:
-        {
-            if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                if(Player* target = ((Player*)m_caster)->GetNextRandomRaidMember(radius))
-                    TagUnitMap.push_back(target);
-        }break;
         case TARGET_CHAIN_HEAL:
         {
             Unit* pUnitTarget = m_targets.getUnitTarget();
@@ -4129,7 +4128,7 @@ uint8 Spell::CanCast(bool strict)
                     SkillValue = 0;
 
                 // add the damage modifier from the spell casted (cheat lock / skeleton key etc.) (use m_currentBasePoints, CalculateDamage returns wrong value)
-                SkillValue += m_currentBasePoints[i]+1;
+                SkillValue += m_currentBasePoints[i]/*+1*/;
 
                 // get the required lock value
                 int32 ReqValue=0;
