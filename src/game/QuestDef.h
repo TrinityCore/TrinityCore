@@ -44,30 +44,33 @@ class ObjectMgr;
 enum QuestFailedReasons
 {
     INVALIDREASON_DONT_HAVE_REQ                 = 0,
-    INVALIDREASON_QUEST_FAILED_LOW_LEVEL        = 1,        //You are not high enough level for that quest.
-    INVALIDREASON_QUEST_FAILED_WRONG_RACE       = 6,        //That quest is not available to your race.
-    INVALIDREASON_QUEST_ALREADY_DONE            = 7,        //You have completed that quest.
-    INVALIDREASON_QUEST_ONLY_ONE_TIMED          = 12,       //You can only be on one timed quest at a time.
-    INVALIDREASON_QUEST_ALREADY_ON              = 13,       //You are already on that quest
-    INVALIDREASON_QUEST_FAILED_EXPANSION        = 16,       //This quest requires an expansion enabled account.
-    INVALIDREASON_QUEST_ALREADY_ON2             = 18,       //You are already on that quest
-    INVALIDREASON_QUEST_FAILED_MISSING_ITEMS    = 21,       //You don't have the required items with you. Check storage.
-    INVALIDREASON_QUEST_FAILED_NOT_ENOUGH_MONEY = 23,       //You don't have enough money for that quest.
-    INVALIDREASON_DAILY_QUESTS_REMAINING        = 26,       //You have already completed 10 daily quests today
-    INVALIDREASON_QUEST_FAILED_CAIS             = 27,       //You cannot complete quests once you have reached tired time
+    INVALIDREASON_QUEST_FAILED_LOW_LEVEL        = 1,        // You are not high enough level for that quest.
+    INVALIDREASON_QUEST_FAILED_WRONG_RACE       = 6,        // That quest is not available to your race.
+    INVALIDREASON_QUEST_ALREADY_DONE            = 7,        // You have completed that quest.
+    INVALIDREASON_QUEST_ONLY_ONE_TIMED          = 12,       // You can only be on one timed quest at a time.
+    INVALIDREASON_QUEST_ALREADY_ON              = 13,       // You are already on that quest.
+    INVALIDREASON_QUEST_FAILED_EXPANSION        = 16,       // This quest requires an expansion enabled account.
+    INVALIDREASON_QUEST_ALREADY_ON2             = 18,       // You are already on that quest.
+    INVALIDREASON_QUEST_FAILED_MISSING_ITEMS    = 21,       // You don't have the required items with you. Check storage.
+    INVALIDREASON_QUEST_FAILED_NOT_ENOUGH_MONEY = 23,       // You don't have enough money for that quest.
+    INVALIDREASON_DAILY_QUESTS_REMAINING        = 26,       // You have already completed 25 daily quests today.
+    INVALIDREASON_QUEST_FAILED_CAIS             = 27,       // You cannot complete quests once you have reached tired time.
+    INVALIDREASON_DAILY_QUEST_COMPLETED_TODAY   = 29        // You have completed that daily quest today.
 };
 
 enum QuestShareMessages
 {
-    QUEST_PARTY_MSG_SHARING_QUEST   = 0,
-    QUEST_PARTY_MSG_CANT_TAKE_QUEST = 1,
-    QUEST_PARTY_MSG_ACCEPT_QUEST    = 2,
-    QUEST_PARTY_MSG_REFUSE_QUEST    = 3,
-    QUEST_PARTY_MSG_TOO_FAR         = 4,
-    QUEST_PARTY_MSG_BUSY            = 5,
-    QUEST_PARTY_MSG_LOG_FULL        = 6,
-    QUEST_PARTY_MSG_HAVE_QUEST      = 7,
-    QUEST_PARTY_MSG_FINISH_QUEST    = 8,
+    QUEST_PARTY_MSG_SHARING_QUEST           = 0,
+    QUEST_PARTY_MSG_CANT_TAKE_QUEST         = 1,
+    QUEST_PARTY_MSG_ACCEPT_QUEST            = 2,
+    QUEST_PARTY_MSG_DECLINE_QUEST           = 3,
+    QUEST_PARTY_MSG_BUSY                    = 4,
+    QUEST_PARTY_MSG_LOG_FULL                = 5,
+    QUEST_PARTY_MSG_HAVE_QUEST              = 6,
+    QUEST_PARTY_MSG_FINISH_QUEST            = 7,
+    QUEST_PARTY_MSG_CANT_BE_SHARED_TODAY    = 8,
+    QUEST_PARTY_MSG_SHARING_TIMER_EXPIRED   = 9,
+    QUEST_PARTY_MSG_NOT_IN_PARTY            = 10
 };
 
 enum __QuestTradeSkill
@@ -190,6 +193,8 @@ class Quest
         int32  GetExclusiveGroup() const { return ExclusiveGroup; }
         uint32 GetNextQuestInChain() const { return NextQuestInChain; }
         uint32 GetCharTitleId() const { return CharTitleId; }
+        uint32 GetPlayersSlain() const { return PlayersSlain; }
+        uint32 GetBonusTalents() const { return BonusTalents; }
         uint32 GetSrcItemId() const { return SrcItemId; }
         uint32 GetSrcItemCount() const { return SrcItemCount; }
         uint32 GetSrcSpell() const { return SrcSpell; }
@@ -277,6 +282,8 @@ class Quest
         uint32 LimitTime;
         uint32 QuestFlags;
         uint32 CharTitleId;
+        uint32 PlayersSlain;
+        uint32 BonusTalents;
         int32  PrevQuestId;
         int32  NextQuestId;
         int32  ExclusiveGroup;

@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="9,00"
 	Name="TrinityRealm"
 	ProjectGUID="{563E9905-3657-460C-AE63-0AC39D162E23}"
 	RootNamespace="realmd"
+	Keyword="Win32Proj"
+	TargetFrameworkVersion="0"
 	>
 	<Platforms>
 		<Platform
@@ -22,7 +24,6 @@
 			OutputDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -48,7 +49,7 @@
 				AdditionalOptions="/MP"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\realmd;..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;,WIN32,NDEBUG,_CONSOLE"
+				PreprocessorDefinitions="VERSION=&quot;0.13.0-DEV&quot;,WIN32,NDEBUG,_CONSOLE"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -60,8 +61,9 @@
 				ProgramDataBaseFileName=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CallingConvention="0"
 				CompileAs="0"
 			/>
 			<Tool
@@ -89,6 +91,8 @@
 				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.map"
 				SubSystem="1"
 				LargeAddressAware="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -109,11 +113,8 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\src\trinityrealm\trinityrealm.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf.dist"
+				CommandLine="copy ..\..\src\realmd\realmd.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf.dist"
 			/>
 		</Configuration>
 		<Configuration
@@ -121,7 +122,6 @@
 			OutputDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -148,7 +148,7 @@
 				AdditionalOptions="/MP"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\realmd;..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;,WIN32,NDEBUG,_CONSOLE"
+				PreprocessorDefinitions="VERSION=&quot;0.13.0-DEV&quot;,WIN32,NDEBUG,_CONSOLE"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -160,8 +160,9 @@
 				ProgramDataBaseFileName=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CallingConvention="0"
 				CompileAs="0"
 			/>
 			<Tool
@@ -187,6 +188,8 @@
 				GenerateMapFile="true"
 				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.map"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -208,11 +211,8 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\src\trinityrealm\trinityrealm.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf.dist"
+				CommandLine="copy ..\..\src\realmd\realmd.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf.dist"
 			/>
 		</Configuration>
 		<Configuration
@@ -220,7 +220,6 @@
 			OutputDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -250,6 +249,7 @@
 				IgnoreStandardIncludePath="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				EnableFunctionLevelLinking="true"
 				RuntimeTypeInfo="true"
 				PrecompiledHeaderFile=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\realmd.pch"
 				AssemblerListingLocation=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\"
@@ -257,8 +257,9 @@
 				ProgramDataBaseFileName=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CallingConvention="0"
 				CompileAs="0"
 			/>
 			<Tool
@@ -286,7 +287,9 @@
 				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.map"
 				SubSystem="1"
 				LargeAddressAware="2"
+				RandomizedBaseAddress="1"
 				FixedBaseAddress="1"
+				DataExecutionPrevention="0"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -307,11 +310,8 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\src\trinityrealm\trinityrealm.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf.dist"
+				CommandLine="copy ..\..\src\realmd\realmd.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf.dist"
 			/>
 		</Configuration>
 		<Configuration
@@ -350,6 +350,7 @@
 				IgnoreStandardIncludePath="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				EnableFunctionLevelLinking="true"
 				RuntimeTypeInfo="true"
 				PrecompiledHeaderFile=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\realmd.pch"
 				AssemblerListingLocation=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\"
@@ -357,8 +358,9 @@
 				ProgramDataBaseFileName=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CallingConvention="0"
 				CompileAs="0"
 			/>
 			<Tool
@@ -384,8 +386,10 @@
 				GenerateMapFile="true"
 				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.map"
 				SubSystem="1"
-				TargetMachine="17"
+				RandomizedBaseAddress="1"
 				FixedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -406,11 +410,8 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\src\trinityrealm\trinityrealm.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf.dist"
+				CommandLine="copy ..\..\src\realmd\realmd.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf.dist"
 			/>
 		</Configuration>
 	</Configurations>
@@ -418,35 +419,31 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\src\trinityrealm\AuthCodes.h"
+			RelativePath="..\..\src\realmd\AuthCodes.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\AuthSocket.cpp"
+			RelativePath="..\..\src\realmd\AuthSocket.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\AuthSocket.h"
+			RelativePath="..\..\src\realmd\AuthSocket.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\Main.cpp"
+			RelativePath="..\..\src\realmd\Main.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\RealmList.cpp"
+			RelativePath="..\..\src\realmd\realmd.rc"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\RealmList.h"
+			RelativePath="..\..\src\realmd\RealmList.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\resource.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\src\trinityrealm\TrinityRealm.rc"
+			RelativePath="..\..\src\realmd\RealmList.h"
 			>
 		</File>
 		<File

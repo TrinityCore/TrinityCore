@@ -237,8 +237,7 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
 
         SpawnAdds();
 
-        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, 46916);
-        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO, 50268674);
+        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 46916);
         m_creature->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE );
     }
 

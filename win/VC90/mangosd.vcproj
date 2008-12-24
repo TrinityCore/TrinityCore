@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="9,00"
 	Name="TrinityCore"
 	ProjectGUID="{A3A04E47-43A2-4C08-90B3-029CEF558594}"
 	RootNamespace="mangosd"
+	Keyword="Win32Proj"
+	TargetFrameworkVersion="0"
 	>
 	<Platforms>
 		<Platform
@@ -22,7 +24,6 @@
 			OutputDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -47,8 +48,8 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\game,..\..\src\trinitycore;..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;NDEBUG;_CONSOLE;ENABLE_CLI"
+				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\game,..\..\src\mangosd;..\..\dep\ACE_wrappers"
+				PreprocessorDefinitions="VERSION=&quot;0.13.0-DEV&quot;;WIN32;NDEBUG;_CONSOLE;ENABLE_CLI"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -60,8 +61,9 @@
 				ProgramDataBaseFileName=".\trinitycore__$(PlatformName)_$(ConfigurationName)\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CallingConvention="0"
 				CompileAs="0"
 			/>
 			<Tool
@@ -90,6 +92,8 @@
 				SubSystem="1"
 				LargeAddressAware="2"
 				LinkTimeCodeGeneration="0"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)\TrinityCore.lib"
 			/>
 			<Tool
@@ -111,11 +115,8 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\trinitycore\trinitycore.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.conf.dist&#x0D;&#x0A;"
+				CommandLine="copy ..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)"
 			/>
 		</Configuration>
 		<Configuration
@@ -123,7 +124,6 @@
 			OutputDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -149,8 +149,8 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\game,..\..\src\trinitycore;..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;NDEBUG;_CONSOLE;ENABLE_CLI"
+				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\game,..\..\src\mangosd;..\..\dep\ACE_wrappers"
+				PreprocessorDefinitions="VERSION=&quot;0.13.0-DEV&quot;;WIN32;NDEBUG;_CONSOLE;ENABLE_CLI"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -162,8 +162,9 @@
 				ProgramDataBaseFileName=".\trinitycore__$(PlatformName)_$(ConfigurationName)\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CallingConvention="0"
 				CompileAs="0"
 			/>
 			<Tool
@@ -190,6 +191,8 @@
 				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.map"
 				SubSystem="1"
 				LinkTimeCodeGeneration="0"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)\TrinityCore.lib"
 				TargetMachine="17"
 			/>
@@ -212,9 +215,6 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 				CommandLine="copy ..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\trinitycore\trinitycore.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.conf.dist&#x0D;&#x0A;"
 			/>
@@ -224,7 +224,6 @@
 			OutputDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -249,11 +248,12 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\game,..\..\src\trinitycore;..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;_DEBUG;MANGOS_DEBUG;_CONSOLE;ENABLE_CLI"
+				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\game,..\..\src\mangosd;..\..\dep\ACE_wrappers"
+				PreprocessorDefinitions="VERSION=&quot;0.13.0-DEV&quot;;WIN32;_DEBUG;MANGOS_DEBUG;_CONSOLE;ENABLE_CLI"
 				IgnoreStandardIncludePath="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				EnableFunctionLevelLinking="true"
 				RuntimeTypeInfo="true"
 				PrecompiledHeaderFile=".\trinitycore__$(PlatformName)_$(ConfigurationName)\trinitycore.pch"
 				AssemblerListingLocation=".\trinitycore__$(PlatformName)_$(ConfigurationName)\"
@@ -261,8 +261,9 @@
 				ProgramDataBaseFileName=".\trinitycore__$(PlatformName)_$(ConfigurationName)\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CallingConvention="0"
 				CompileAs="0"
 			/>
 			<Tool
@@ -291,8 +292,10 @@
 				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.map"
 				SubSystem="1"
 				LargeAddressAware="2"
-				ImportLibrary="$(OutDir)\TrinityCore.lib"
+				RandomizedBaseAddress="1"
 				FixedBaseAddress="1"
+				DataExecutionPrevention="0"
+				ImportLibrary="$(OutDir)\TrinityCore.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -313,11 +316,8 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\trinitycore\trinitycore.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.conf.dist&#x0D;&#x0A;"
+				CommandLine="copy ..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)"
 			/>
 		</Configuration>
 		<Configuration
@@ -325,7 +325,6 @@
 			OutputDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -351,11 +350,12 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\game,..\..\src\trinitycore;..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;_DEBUG;MANGOS_DEBUG;_CONSOLE;ENABLE_CLI"
+				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\game,..\..\src\mangosd;..\..\dep\ACE_wrappers"
+				PreprocessorDefinitions="VERSION=&quot;0.13.0-DEV&quot;;WIN32;_DEBUG;MANGOS_DEBUG;_CONSOLE;ENABLE_CLI"
 				IgnoreStandardIncludePath="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				EnableFunctionLevelLinking="true"
 				RuntimeTypeInfo="true"
 				PrecompiledHeaderFile=".\trinitycore__$(PlatformName)_$(ConfigurationName)\trinitycore.pch"
 				AssemblerListingLocation=".\trinitycore__$(PlatformName)_$(ConfigurationName)\"
@@ -363,8 +363,9 @@
 				ProgramDataBaseFileName=".\trinitycore__$(PlatformName)_$(ConfigurationName)\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CallingConvention="0"
 				CompileAs="0"
 			/>
 			<Tool
@@ -391,9 +392,11 @@
 				GenerateMapFile="true"
 				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.map"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
+				FixedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)\TrinityCore.lib"
 				TargetMachine="17"
-				FixedBaseAddress="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -412,9 +415,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -458,39 +458,35 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath="..\..\src\trinitycore\CliRunnable.cpp"
+			RelativePath="..\..\src\mangosd\CliRunnable.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\CliRunnable.h"
+			RelativePath="..\..\src\mangosd\CliRunnable.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\Main.cpp"
+			RelativePath="..\..\src\mangosd\Main.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\Master.cpp"
+			RelativePath="..\..\src\mangosd\mangosd.rc"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\Master.h"
+			RelativePath="..\..\src\mangosd\Master.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\RASocket.cpp"
+			RelativePath="..\..\src\mangosd\Master.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\RASocket.h"
+			RelativePath="..\..\src\mangosd\RASocket.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\resource.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\src\trinitycore\TrinityCore.rc"
+			RelativePath="..\..\src\mangosd\RASocket.h"
 			>
 		</File>
 		<File
@@ -502,11 +498,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\WorldRunnable.cpp"
+			RelativePath="..\..\src\mangosd\WorldRunnable.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\WorldRunnable.h"
+			RelativePath="..\..\src\mangosd\WorldRunnable.h"
 			>
 		</File>
 	</Files>

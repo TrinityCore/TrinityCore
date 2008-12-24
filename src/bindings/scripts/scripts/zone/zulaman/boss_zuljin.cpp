@@ -207,9 +207,9 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
 
         Summons.DespawnAll();
 
-        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, 47174);
-        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO, 218172674);
-        m_creature->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
+        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 47174);
+        //m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO, 218172674);
+        //m_creature->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
     }
 
     void Aggro(Unit *who)
@@ -341,7 +341,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
             m_creature->Relocate(CENTER_X, CENTER_Y, CENTER_Z,0);
             m_creature->SendMonsterMove(CENTER_X, CENTER_Y, CENTER_Z,0,0,100);
             DoResetThreat();
-            m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, 0);
+            m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
             m_creature->RemoveAurasDueToSpell(Transform[Phase].unaura);
             DoCast(m_creature, Transform[Phase].spell);
             DoYell(Transform[Phase].text, LANG_UNIVERSAL, NULL);

@@ -428,6 +428,18 @@ LogColors = ""
 #        Default: 10 (client limitation)
 #                The number must be between 1 and 10
 #
+#    HeroicCharactersPerRealm
+#        Limit numbers of heroic class characters for account at realm
+#        Default: 1
+#                The number must be between 0 (not allowed) and 10
+#
+#    MinLevelForHeroicCharacterCreating
+#        Limit creating heroic characters only for account with another character of specific level (ignored for GM accounts)
+#                 0  - not require any existed chaarcter
+#                 1  - require at least any character existed
+#        Default: 55 - default requirement
+#
+#
 #    SkipCinematics
 #        Disable in-game script movie at first character's login(allows to prevent buggy intro in case of custom start location coordinates)
 #        Default: 0 - show intro for each new characrer
@@ -435,13 +447,17 @@ LogColors = ""
 #                 2 - disable intro show in all cases
 #
 #    MaxPlayerLevel
-#        Max level that can be reached by player for experience (in range from 1 to 255).
+#        Max level that can be reached by player for experience (in range from 1 to 100).
 #        Change not recommended
-#        Default: 70
+#        Default: 80
 #
 #    StartPlayerLevel
 #        Staring level that have character at creating (in range 1 to MaxPlayerLevel)
 #        Default: 1
+#
+#    StartHeroicPlayerLevel
+#        Staring level that have character of heroic class at creating (in range 1 to MaxPlayerLevel)
+#        Default: 55
 #
 #    StartPlayerMoney
 #        Amount of money that new players will start with.
@@ -556,7 +572,12 @@ LogColors = ""
 #        Default: 3600 sec (1 hour)
 #
 #    SkillChance.Prospecting
-#        For prospecting skillup not possible by default, but can be allowed as custom setting
+#        For prospecting skillup impossible by default, but can be allowed as custom setting
+#        Default: 0 - no skilups
+#                 1 - skilups possible
+#
+#    SkillChance.Milling
+#        For milling skillup impossible by default, but can be allowed as custom setting
 #        Default: 0 - no skilups
 #                 1 - skilups possible
 #
@@ -576,7 +597,7 @@ LogColors = ""
 
 GameType = 1
 RealmZone = 1
-Expansion = 1
+Expansion = 2
 DBC.Locale = 255
 DeclinedNames = 0
 StrictPlayerNames = 0
@@ -586,9 +607,12 @@ MaxWhoListReturns = 49
 CharactersCreatingDisabled = 0
 CharactersPerAccount = 50
 CharactersPerRealm = 10
+HeroicCharactersPerRealm = 1
+MinLevelForHeroicCharacterCreating = 55
 SkipCinematics = 0
-MaxPlayerLevel = 70
+MaxPlayerLevel = 80
 StartPlayerLevel = 1
+StartHeroicPlayerLevel = 55
 StartPlayerMoney = 0
 MaxHonorPoints = 75000
 StartHonorPoints = 0
@@ -614,6 +638,7 @@ MinPetitionSigns = 9
 MaxGroupXPDistance = 74
 MailDeliveryDelay = 3600
 SkillChance.Prospecting = 0
+SkillChance.Milling = 0
 Event.Announce = 0
 BeepAtStart = 1
 Motd = "Welcome to a Trinity Core server."
@@ -858,7 +883,7 @@ Channel.SilentlyGMJoin = 0
 #                 0 (not include)
 #
 #    GM.StartLevel
-#        GM starting level (1-255)
+#        GM starting level (1-100)
 #        Default: 1
 #
 ###################################################################################################################
@@ -926,8 +951,9 @@ Visibility.Distance.Grey.Object = 10
 #    Rate.Mana
 #    Rate.Rage.Income
 #    Rate.Rage.Loss
+#    Rate.RunicPower.Income
+#    Rate.RunicPower.Loss
 #    Rate.Focus
-#    Rate.Loyalty
 #        Health and power regeneration and rage income from damage.
 #        Default: 1
 #
@@ -1048,8 +1074,9 @@ Rate.Health = 1
 Rate.Mana = 1
 Rate.Rage.Income = 1
 Rate.Rage.Loss = 1
+Rate.RunicPower.Income = 1
+Rate.RunicPower.Loss = 1
 Rate.Focus = 1
-Rate.Loyalty = 1
 Rate.Skill.Discovery = 1
 Rate.Drop.Item.Poor = 1
 Rate.Drop.Item.Normal = 1

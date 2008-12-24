@@ -70,7 +70,7 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
             break;
 
             case ANCIENT_VAULT_DOOR:         
-                go->SetUInt32Value(GAMEOBJECT_STATE,1);
+                go->SetGoState(1);
                 go->SetUInt32Value(GAMEOBJECT_FLAGS, 33);
                 ancientVaultDoor = go->GetGUID();
             break;
@@ -93,7 +93,7 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
             return;
 
         go->SetUInt32Value(GAMEOBJECT_FLAGS, 33);
-        go->SetUInt32Value(GAMEOBJECT_STATE, 0);
+        go->SetGoState(0);
     }
 
     void ActivateStoneKeepers()

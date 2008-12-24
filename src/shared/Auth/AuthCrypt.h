@@ -32,7 +32,6 @@ class AuthCrypt
         AuthCrypt();
         ~AuthCrypt();
 
-        const static size_t CRYPTED_SEND_LEN = 4;
         const static size_t CRYPTED_RECV_LEN = 6;
 
         void Init();
