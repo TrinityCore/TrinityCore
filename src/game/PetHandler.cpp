@@ -174,9 +174,9 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
                     break;
             }
             break;
-        case ACT_DISABLED:                                  //0x8100    spell (disabled), ignore
-        case ACT_CAST:                                      //0x0100
-        case ACT_ENABLED:                                   //0xc100    spell
+        case ACT_DISABLED:                                  // 0x8100    spell (disabled), ignore
+        case ACT_PASSIVE:                                   // 0x0100
+        case ACT_ENABLED:                                   // 0xC100    spell
         {
             Unit* unit_target;
             if(guid2)
@@ -257,7 +257,7 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
                 if(pet->isPossessed())
                 {
                     WorldPacket data(SMSG_CAST_FAILED, (4+1+1));
-                    data << uint32(spellid) << uint8(2) << uint8(result);
+                    data << uint8(0) << uint32(spellid) << uint8(result);
                     switch (result)
                     {
                         case SPELL_FAILED_REQUIRES_SPELL_FOCUS:
@@ -369,7 +369,7 @@ void WorldSession::HandlePetSetAction( WorldPacket & recv_data )
         sLog.outDetail( "Player %s has changed pet spell action. Position: %u, Spell: %u, State: 0x%X\n", _player->GetName(), position, spell_id, act_state);
 
                                                             //if it's act for spell (en/disable/cast) and there is a spell given (0 = remove spell) which pet doesn't know, don't add
-        if(!((act_state == ACT_ENABLED || act_state == ACT_DISABLED || act_state == ACT_CAST) && spell_id && !pet->HasSpell(spell_id)))
+        if(!((act_state == ACT_ENABLED || act_state == ACT_DISABLED || act_state == ACT_PASSIVE) && spell_id && !pet->HasSpell(spell_id)))
         {
             //sign for autocast
             if(act_state == ACT_ENABLED && spell_id)
@@ -542,10 +542,9 @@ void WorldSession::HandlePetUnlearnOpcode(WorldPacket& recvPacket)
     {
         uint32 spell_id = itr->first;                       // Pet::removeSpell can invalidate iterator at erase NEW spell
         ++itr;
-        pet->removeSpell(spell_id);
+        //pet->removeSpell(spell_id);
+        pet->unlearnSpell(spell_id);
     }
-
-    pet->SetTP(pet->getLevel() * (pet->GetLoyaltyLevel() - 1));
 
     for(uint8 i = 0; i < 10; i++)
     {
@@ -616,11 +615,15 @@ void WorldSession::HandlePetCastSpellOpcode( WorldPacket& recvPacket )
 {
     sLog.outDetail("WORLD: CMSG_PET_CAST_SPELL");
 
-    CHECK_PACKET_SIZE(recvPacket,8+4);
+    CHECK_PACKET_SIZE(recvPacket,8+1+4+1);
     uint64 guid;
     uint32 spellid;
+    uint8  cast_count;
+    uint8  unk_flags;                                       // flags (if 0x02 - some additional data are received)
 
-    recvPacket >> guid >> spellid;
+    recvPacket >> guid >> cast_count >> spellid >> unk_flags;
+
+    sLog.outDebug("WORLD: CMSG_PET_CAST_SPELL, cast_count: %u, spellid %u, unk_flags %u", cast_count, spellid, unk_flags);
 
     // This opcode is also sent from charmed and possessed units (players and creatures)
     if(!_player->GetPet() && !_player->GetCharm())
@@ -655,6 +658,7 @@ void WorldSession::HandlePetCastSpellOpcode( WorldPacket& recvPacket )
     caster->clearUnitState(UNIT_STAT_FOLLOW);
 
     Spell *spell = new Spell(caster, spellInfo, false);
+    spell->m_cast_count = cast_count;                       // probably pending spell cast
     spell->m_targets = targets;
 
     int16 result = spell->PetCanCast(NULL);
@@ -712,4 +716,133 @@ void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Dec
     else
         data << uint8(0);
     SendPacket(&data);
+}
+
+void WorldSession::HandlePetLearnTalent( WorldPacket & recv_data )
+{
+    sLog.outDebug("WORLD: CMSG_PET_LEARN_TALENT");
+    recv_data.hexlike();
+
+    CHECK_PACKET_SIZE(recv_data, 8+4+4);
+
+    uint64 guid;
+    uint32 talent_id, requested_rank;
+    recv_data >> guid >> talent_id >> requested_rank;
+
+    Pet *pet = _player->GetPet();
+
+    if(!pet)
+        return;
+
+    if(guid != pet->GetGUID())
+        return;
+
+    uint32 CurTalentPoints =  pet->GetFreeTalentPoints();
+
+    if(CurTalentPoints == 0)
+        return;
+
+    if (requested_rank > 4)
+        return;
+
+    TalentEntry const *talentInfo = sTalentStore.LookupEntry(talent_id);
+
+    if(!talentInfo)
+        return;
+
+    TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
+
+    if(!talentTabInfo)
+        return;
+
+    CreatureInfo const *ci = pet->GetCreatureInfo();
+
+    if(!ci)
+        return;
+
+    CreatureFamilyEntry const *pet_family = sCreatureFamilyStore.LookupEntry(ci->family);
+
+    if(!pet_family)
+        return;
+
+    if(pet_family->petTalentType < 0)                       // not hunter pet
+        return;
+
+    // prevent learn talent for different family (cheating)
+    if(!((1 << pet_family->petTalentType) & talentTabInfo->petTalentMask))
+        return;
+
+    // prevent skip talent ranks (cheating)
+    if(requested_rank > 0 && !pet->HasSpell(talentInfo->RankID[requested_rank-1]))
+        return;
+
+    // Check if it requires another talent
+    if (talentInfo->DependsOn > 0)
+    {
+        if(TalentEntry const *depTalentInfo = sTalentStore.LookupEntry(talentInfo->DependsOn))
+        {
+            bool hasEnoughRank = false;
+            for (int i = talentInfo->DependsOnRank; i <= 4; i++)
+            {
+                if (depTalentInfo->RankID[i] != 0)
+                    if (pet->HasSpell(depTalentInfo->RankID[i]))
+                        hasEnoughRank = true;
+            }
+            if (!hasEnoughRank)
+                return;
+        }
+    }
+
+    // Find out how many points we have in this field
+    uint32 spentPoints = 0;
+
+    uint32 tTab = talentInfo->TalentTab;
+    if (talentInfo->Row > 0)
+    {
+        unsigned int numRows = sTalentStore.GetNumRows();
+        for (unsigned int i = 0; i < numRows; i++)          // Loop through all talents.
+        {
+            // Someday, someone needs to revamp
+            const TalentEntry *tmpTalent = sTalentStore.LookupEntry(i);
+            if (tmpTalent)                                  // the way talents are tracked
+            {
+                if (tmpTalent->TalentTab == tTab)
+                {
+                    for (int j = 0; j <= 4; j++)
+                    {
+                        if (tmpTalent->RankID[j] != 0)
+                        {
+                            if (pet->HasSpell(tmpTalent->RankID[j]))
+                            {
+                                spentPoints += j + 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // not have required min points spent in talent tree
+    if(spentPoints < (talentInfo->Row * 3))
+        return;
+
+    // spell not set in talent.dbc
+    uint32 spellid = talentInfo->RankID[requested_rank];
+    if( spellid == 0 )
+    {
+        sLog.outError("Talent.dbc have for talent: %u Rank: %u spell id = 0", talent_id, requested_rank);
+        return;
+    }
+
+    // already known
+    if(pet->HasSpell(spellid))
+        return;
+
+    // learn! (other talent ranks will unlearned at learning)
+    pet->learnSpell(spellid);
+    sLog.outDetail("TalentID: %u Rank: %u Spell: %u\n", talent_id, requested_rank, spellid);
+
+    // update free talent points
+    pet->SetFreeTalentPoints(CurTalentPoints - 1);
 }

@@ -82,10 +82,6 @@ void WorldSession::HandleLearnTalentOpcode( WorldPacket & recv_data )
         }
     }
 
-    // Check if it requires spell
-    if( talentInfo->DependsOnSpell && !player->HasSpell(talentInfo->DependsOnSpell) )
-        return;
-
     // Find out how many points we have in this field
     uint32 spentPoints = 0;
 

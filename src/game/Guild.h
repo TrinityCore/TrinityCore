@@ -56,7 +56,8 @@ enum GuildRankRights
     GR_RIGHT_REPAIR_FROM_GUILD  = 0x00020000,               // unused in 2.4.x?, Remove money withdraw capacity
     GR_RIGHT_WITHDRAW_REPAIR    = 0x00040000,               // withdraw for repair
     GR_RIGHT_WITHDRAW_GOLD      = 0x00080000,               // withdraw gold
-    GR_RIGHT_ALL                = 0x000FF1FF
+    GR_RIGHT_CREATE_GUILD_EVENT = 0x00100000,               // wotlk
+    GR_RIGHT_ALL                = 0x001FF1FF
 };
 
 enum Typecommand
@@ -156,6 +157,8 @@ enum GuildBankLogEntries
     GUILD_BANK_LOG_WITHDRAW_MONEY   = 5,
     GUILD_BANK_LOG_REPAIR_MONEY     = 6,
     GUILD_BANK_LOG_MOVE_ITEM2       = 7,
+    GUILD_BANK_LOG_UNK1             = 8,
+    GUILD_BANK_LOG_UNK2             = 9,
 };
 
 enum GuildEventLogEntryTypes

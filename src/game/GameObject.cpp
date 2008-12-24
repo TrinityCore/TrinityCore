@@ -46,7 +46,7 @@ GameObject::GameObject() : WorldObject()
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
                                                             // 2.3.2 - 0x58
-    m_updateFlag = (UPDATEFLAG_LOWGUID | UPDATEFLAG_HIGHGUID | UPDATEFLAG_HASPOSITION);
+    m_updateFlag = (UPDATEFLAG_LOWGUID | UPDATEFLAG_HIGHGUID | UPDATEFLAG_HAS_POSITION);
 
     m_valuesCount = GAMEOBJECT_END;
     m_respawnTime = 0;
@@ -127,17 +127,33 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, float x, float
     SetFloatValue(GAMEOBJECT_POS_Z, z);
     SetFloatValue(GAMEOBJECT_FACING, ang);                  //this is not facing angle
 
-    SetFloatValue (GAMEOBJECT_ROTATION, rotation0);
-    SetFloatValue (GAMEOBJECT_ROTATION+1, rotation1);
-    SetFloatValue (GAMEOBJECT_ROTATION+2, rotation2);
-    SetFloatValue (GAMEOBJECT_ROTATION+3, rotation3);
+    int64 rotation = 0;
+
+    float f_rot1 = sin(ang / 2.0f);
+    int64 i_rot1 = f_rot1 / atan(pow(2.0f, -20.0f));
+    rotation |= (i_rot1 << 43 >> 43) & 0x00000000001FFFFF;
+
+    //float f_rot2 = sin(0.0f / 2.0f);
+    //int64 i_rot2 = f_rot2 / atan(pow(2.0f, -20.0f));
+    //rotation |= (((i_rot2 << 22) >> 32) >> 11) & 0x000003FFFFE00000;
+
+    //float f_rot3 = sin(0.0f / 2.0f);
+    //int64 i_rot3 = f_rot3 / atan(pow(2.0f, -21.0f));
+    //rotation |= (i_rot3 >> 42) & 0x7FFFFC0000000000;
+
+    SetUInt64Value(GAMEOBJECT_ROTATION, rotation);
+
+    SetFloatValue(GAMEOBJECT_PARENTROTATION+0, rotation0);
+    SetFloatValue(GAMEOBJECT_PARENTROTATION+1, rotation1);
+    SetFloatValue(GAMEOBJECT_PARENTROTATION+2, rotation2);
+    SetFloatValue(GAMEOBJECT_PARENTROTATION+3, rotation3);
 
     SetFloatValue(OBJECT_FIELD_SCALE_X, goinfo->size);
 
     SetUInt32Value(GAMEOBJECT_FACTION, goinfo->faction);
     SetUInt32Value(GAMEOBJECT_FLAGS, goinfo->flags);
 
-    SetUInt32Value(OBJECT_FIELD_ENTRY, goinfo->id);
+    SetEntry(goinfo->id);
 
     SetUInt32Value(GAMEOBJECT_DISPLAYID, goinfo->displayId);
 
@@ -145,8 +161,6 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, float x, float
     SetGoType(GameobjectTypes(goinfo->type));
 
     SetGoAnimProgress(animprogress);
-
-    SetUInt32Value (GAMEOBJECT_ARTKIT, ArtKit);
 
     // Spell charges for GAMEOBJECT_TYPE_SPELLCASTER (22)
     if (goinfo->type == GAMEOBJECT_TYPE_SPELLCASTER)
@@ -264,7 +278,7 @@ void GameObject::Update(uint32 /*p_time*/)
                                 return;
                             }
                                                             // respawn timer
-                            MapManager::Instance().GetMap(GetMapId(), this)->Add(this);
+                            GetMap()->Add(this);
                             break;
                     }
                 }
@@ -414,7 +428,7 @@ void GameObject::Update(uint32 /*p_time*/)
             //burning flags in some battlegrounds, if you find better condition, just add it
             if (GetGoAnimProgress() > 0)
             {
-                SendObjectDeSpawnAnim(this->GetGUID());
+                SendObjectDeSpawnAnim(GetGUID());
                 //reset flags
                 SetUInt32Value(GAMEOBJECT_FLAGS, GetGOInfo()->flags);
             }
@@ -451,7 +465,7 @@ void GameObject::Refresh()
         return;
 
     if(isSpawned())
-        MapManager::Instance().GetMap(GetMapId(), this)->Add(this);
+        GetMap()->Add(this);
 }
 
 void GameObject::AddUniqueUse(Player* player)
@@ -504,7 +518,7 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask)
 
     if (!goI)
         return;
-    
+
     if (!m_DBTableGuid)
         m_DBTableGuid = GetGUIDLow();
     // update in loaded data (changing data only in this place)
@@ -517,34 +531,33 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask)
     data.posY = GetFloatValue(GAMEOBJECT_POS_Y);
     data.posZ = GetFloatValue(GAMEOBJECT_POS_Z);
     data.orientation = GetFloatValue(GAMEOBJECT_FACING);
-    data.rotation0 = GetFloatValue(GAMEOBJECT_ROTATION+0);
-    data.rotation1 = GetFloatValue(GAMEOBJECT_ROTATION+1);
-    data.rotation2 = GetFloatValue(GAMEOBJECT_ROTATION+2);
-    data.rotation3 = GetFloatValue(GAMEOBJECT_ROTATION+3);
+    data.rotation0 = GetFloatValue(GAMEOBJECT_PARENTROTATION+0);
+    data.rotation1 = GetFloatValue(GAMEOBJECT_PARENTROTATION+1);
+    data.rotation2 = GetFloatValue(GAMEOBJECT_PARENTROTATION+2);
+    data.rotation3 = GetFloatValue(GAMEOBJECT_PARENTROTATION+3);
     data.spawntimesecs = m_spawnedByDefault ? m_respawnDelayTime : -(int32)m_respawnDelayTime;
     data.animprogress = GetGoAnimProgress();
     data.go_state = GetGoState();
     data.spawnMask = spawnMask;
-    data.ArtKit = GetUInt32Value (GAMEOBJECT_ARTKIT);
 
     // updated in DB
     std::ostringstream ss;
     ss << "INSERT INTO gameobject VALUES ( "
         << m_DBTableGuid << ", "
-        << GetUInt32Value (OBJECT_FIELD_ENTRY) << ", "
+        << GetEntry() << ", "
         << mapid << ", "
         << (uint32)spawnMask << ", "
         << GetFloatValue(GAMEOBJECT_POS_X) << ", "
         << GetFloatValue(GAMEOBJECT_POS_Y) << ", "
         << GetFloatValue(GAMEOBJECT_POS_Z) << ", "
         << GetFloatValue(GAMEOBJECT_FACING) << ", "
-        << GetFloatValue(GAMEOBJECT_ROTATION) << ", "
-        << GetFloatValue(GAMEOBJECT_ROTATION+1) << ", "
-        << GetFloatValue(GAMEOBJECT_ROTATION+2) << ", "
-        << GetFloatValue(GAMEOBJECT_ROTATION+3) << ", "
+        << GetFloatValue(GAMEOBJECT_PARENTROTATION) << ", "
+        << GetFloatValue(GAMEOBJECT_PARENTROTATION+1) << ", "
+        << GetFloatValue(GAMEOBJECT_PARENTROTATION+2) << ", "
+        << GetFloatValue(GAMEOBJECT_PARENTROTATION+3) << ", "
         << m_respawnDelayTime << ", "
-        << GetGoAnimProgress() << ", "
-        << GetGoState() << ")";
+        << (uint32)GetGoAnimProgress() << ", "
+        << (uint32)GetGoState() << ")";
 
     WorldDatabase.BeginTransaction();
     WorldDatabase.PExecuteLog("DELETE FROM gameobject WHERE guid = '%u'", m_DBTableGuid);
@@ -563,7 +576,7 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
     }
 
     uint32 entry = data->id;
-    uint32 map_id = data->mapid;
+    //uint32 map_id = data->mapid;                          // already used before call
     float x = data->posX;
     float y = data->posY;
     float z = data->posZ;
@@ -576,12 +589,11 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
 
     uint32 animprogress = data->animprogress;
     uint32 go_state = data->go_state;
-    uint32 ArtKit = data->ArtKit;
 
     m_DBTableGuid = guid;
     if (map->GetInstanceId() != 0) guid = objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT);
 
-    if (!Create(guid,entry, map, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state, ArtKit) )
+    if (!Create(guid,entry, map, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state) )
         return false;
 
     switch(GetGOInfo()->type)
@@ -844,14 +856,6 @@ void GameObject::UseDoorOrButton(uint32 time_to_restore)
 
     m_cooldownTime = time(NULL) + time_to_restore;
 
-}
-
-void GameObject::SetGoArtKit(uint32 kit)
-{
-    SetUInt32Value(GAMEOBJECT_ARTKIT, kit);
-    GameObjectData *data = const_cast<GameObjectData*>(objmgr.GetGOData(m_DBTableGuid));
-    if(data)
-        data->ArtKit = kit;
 }
 
 void GameObject::SwitchDoorOrButton(bool activate)
@@ -1209,7 +1213,7 @@ void GameObject::Use(Unit* user)
 
             Player* player = (Player*)user;
 
-            if( player->isAllowUseBattleGroundObject() )     
+            if( player->isAllowUseBattleGroundObject() )
             {
                 // in battleground check
                 BattleGround *bg = player->GetBattleGround();
@@ -1246,6 +1250,26 @@ void GameObject::Use(Unit* user)
                 Delete();
             }
             break;
+        }
+        case GAMEOBJECT_TYPE_BARBER_CHAIR:                  //32
+        {
+            GameObjectInfo const* info = GetGOInfo();
+            if(!info)
+                return;
+
+            if(user->GetTypeId()!=TYPEID_PLAYER)
+                return;
+
+            Player* player = (Player*)user;
+
+            // fallback, will always work
+            player->TeleportTo(GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(),TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET);
+
+            WorldPacket data(SMSG_ENABLE_BARBER_SHOP, 0);
+            player->GetSession()->SendPacket(&data);
+
+            player->SetStandState(PLAYER_STATE_SIT_LOW_CHAIR+info->barberChair.chairheight);
+            return;
         }
         default:
             sLog.outDebug("Unknown Object Type %u", GetGoType());

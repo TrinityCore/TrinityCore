@@ -24,7 +24,11 @@
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\realmd;..\..\dep\ACE_wrappers"
+<<<<<<< HEAD:win/VC71/realmd.vcproj
 				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;,WIN32,NDEBUG,_CONSOLE"
+=======
+				PreprocessorDefinitions="VERSION=&quot;0.13.0-DEV&quot;,WIN32,NDEBUG,_CONSOLE"
+>>>>>>> upstream/master:win/VC71/realmd.vcproj
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
@@ -92,7 +96,11 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\realmd;..\..\dep\ACE_wrappers"
+<<<<<<< HEAD:win/VC71/realmd.vcproj
 				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;_DEBUG;MANGOS_DEBUG;_CONSOLE"
+=======
+				PreprocessorDefinitions="VERSION=&quot;0.13.0-DEV&quot;;WIN32;_DEBUG;MANGOS_DEBUG;_CONSOLE"
+>>>>>>> upstream/master:win/VC71/realmd.vcproj
 				IgnoreStandardIncludePath="FALSE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
