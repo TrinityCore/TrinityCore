@@ -12943,8 +12943,25 @@ bool Unit::IsInRaidWith(Unit const *unit) const
         return false;
 }
 
-void Unit::GetRaidMember(std::list<Unit*> &TagUnitMap, float radius)
+void Unit::GetRaidMember(std::list<Unit*> &nearMembers, float radius)
 {
+    Player *owner = GetCharmerOrOwnerPlayerOrPlayerItself();
+    if(!owner)
+        return;
+
+    Group *pGroup = owner->GetGroup();
+    if(!pGroup)
+        return;
+
+    for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+    {
+        Player* Target = itr->getSource();
+
+        // IsHostileTo check duel and controlled by enemy
+        if( Target && Target != this && Target->isAlive() 
+            && IsWithinDistInMap(Target, radius) && !IsHostileTo(Target) )
+            nearMembers.push_back(Target);
+    }
 }
 
 void Unit::GetPartyMember(std::list<Unit*> &TagUnitMap, float radius)
@@ -12986,17 +13003,23 @@ void Unit::GetPartyMember(std::list<Unit*> &TagUnitMap, float radius)
 
 void Unit::AddAura(uint32 spellId, Unit* target)
 {
-    if(!target)
+    if(!target || !target->isAlive())
         return;
 
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
     if(!spellInfo)
         return;
 
+    if (target->IsImmunedToSpell(spellInfo))
+        return;
+
     for(uint32 i = 0; i < 3; ++i)
     {
         if(spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA)
         {
+            if(target->IsImmunedToSpellEffect(spellInfo->Effect[i], spellInfo->EffectMechanic[i]))
+                continue;
+
             if(spellInfo->EffectImplicitTargetA[i] == TARGET_UNIT_CASTER)
             {
                 Aura *Aur = CreateAura(spellInfo, i, NULL, this, this);
