@@ -331,14 +331,26 @@ m_periodicTimer(0), m_PeriodicEventId(0), m_AuraDRGroup(DIMINISHING_NONE)
 
     m_spellProto = spellproto;
 
-    m_currentBasePoints = currentBasePoints ? *currentBasePoints : m_spellProto->EffectBasePoints[eff];
+    int32 damage;
+    if(currentBasePoints)
+    {
+        damage = *currentBasePoints;
+        m_currentBasePoints = damage - 1;
+    }
+    else
+    {
+        m_currentBasePoints = m_spellProto->EffectBasePoints[eff];
+        if(caster)
+            damage = caster->CalculateSpellDamage(m_spellProto, m_effIndex, m_currentBasePoints, target);
+        else
+            damage = m_currentBasePoints + 1;
+    }    
 
     m_isPassive = IsPassiveSpell(GetId());
     m_positive = IsPositiveEffect(GetId(), m_effIndex);
 
     m_applyTime = time(NULL);
 
-    int32 damage;
     if(!caster)
     {
         m_caster_guid = target->GetGUID();
@@ -349,7 +361,7 @@ m_periodicTimer(0), m_PeriodicEventId(0), m_AuraDRGroup(DIMINISHING_NONE)
     {
         m_caster_guid = caster->GetGUID();
 
-        damage        = caster->CalculateSpellDamage(m_spellProto,m_effIndex,m_currentBasePoints,target);
+        //damage        = caster->CalculateSpellDamage(m_spellProto,m_effIndex,m_currentBasePoints,target);
         m_maxduration = caster->CalculateSpellDuration(m_spellProto, m_effIndex, target);
 
         if (!damage && castItem && castItem->GetItemSuffixFactor())
