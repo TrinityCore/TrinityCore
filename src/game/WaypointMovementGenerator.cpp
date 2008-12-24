@@ -15,24 +15,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
-//Basic header
-#include <ctime>
-
+//Basic headers
 #include "WaypointMovementGenerator.h"
 #include "DestinationHolderImp.h"
-//Accessors
-#include "Database/DatabaseEnv.h"
+//Extended headers
 #include "ObjectMgr.h"
 #include "World.h"
 //Creature-specific headers
 #include "Creature.h"
 #include "CreatureAI.h"
-//Player-Specific
+//Player-specific
 #include "Player.h"
-//Visual
-#include "ProgressBar.h"
-#include "MapManager.h"
 
 template<class T>
 void
@@ -42,6 +35,8 @@ template<>
 void
 WaypointMovementGenerator<Creature>::Initialize(Creature &u)
 {
+	u.StopMoving();
+	i_nextMoveTime.Reset(0);
 	i_currentNode = -1;
 	if(!path_id)
 		path_id = u.GetWaypointPath();
@@ -160,6 +155,7 @@ WaypointMovementGenerator<Creature>::Update(Creature &unit, const uint32 &diff)
 					i_currentNode = 0; //Start moving all over again
 				else
 				{
+					unit.SetHomePosition(node.x, node.y, node.z, unit.GetOrientation());
 					unit.GetMotionMaster()->Initialize();
 					return false; //Clear the waypoint movement
 				}
@@ -184,6 +180,7 @@ WaypointMovementGenerator<Creature>::Update(Creature &unit, const uint32 &diff)
 			MovementInform(unit);
 			unit.UpdateWaypointID(i_currentNode);
 			unit.clearUnitState(UNIT_STAT_MOVING);
+			unit.Relocate(node.x, node.y, node.z);
 		}
     }
 	else 
