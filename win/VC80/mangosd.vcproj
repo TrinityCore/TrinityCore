@@ -47,13 +47,8 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				InlineFunctionExpansion="1"
-<<<<<<< HEAD:win/VC80/mangosd.vcproj
-				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\game,..\..\src\trinitycore;..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;NDEBUG;_CONSOLE;ENABLE_CLI"
-=======
 				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\game,..\..\src\mangosd;..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="VERSION=&quot;0.13.0-DEV&quot;;WIN32;NDEBUG;_CONSOLE;ENABLE_CLI"
->>>>>>> upstream/master:win/VC80/mangosd.vcproj
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -154,13 +149,8 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				InlineFunctionExpansion="1"
-<<<<<<< HEAD:win/VC80/mangosd.vcproj
-				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\game,..\..\src\trinitycore;..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;NDEBUG;_CONSOLE;ENABLE_CLI"
-=======
 				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\game,..\..\src\mangosd;..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="VERSION=&quot;0.13.0-DEV&quot;;WIN32;NDEBUG;_CONSOLE;ENABLE_CLI"
->>>>>>> upstream/master:win/VC80/mangosd.vcproj
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -259,13 +249,8 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-<<<<<<< HEAD:win/VC80/mangosd.vcproj
-				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\game,..\..\src\trinitycore;..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;_DEBUG;MANGOS_DEBUG;_CONSOLE;ENABLE_CLI"
-=======
 				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\game,..\..\src\mangosd;..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="VERSION=&quot;0.13.0-DEV&quot;;WIN32;_DEBUG;MANGOS_DEBUG;_CONSOLE;ENABLE_CLI"
->>>>>>> upstream/master:win/VC80/mangosd.vcproj
 				IgnoreStandardIncludePath="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -366,13 +351,8 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-<<<<<<< HEAD:win/VC80/mangosd.vcproj
-				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\game,..\..\src\trinitycore;..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;_DEBUG;MANGOS_DEBUG;_CONSOLE;ENABLE_CLI"
-=======
 				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\game,..\..\src\mangosd;..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="VERSION=&quot;0.13.0-DEV&quot;;WIN32;_DEBUG;MANGOS_DEBUG;_CONSOLE;ENABLE_CLI"
->>>>>>> upstream/master:win/VC80/mangosd.vcproj
 				IgnoreStandardIncludePath="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -478,39 +458,35 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath="..\..\src\trinitycore\CliRunnable.cpp"
+			RelativePath="..\..\src\mangosd\CliRunnable.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\CliRunnable.h"
+			RelativePath="..\..\src\mangosd\CliRunnable.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\Main.cpp"
+			RelativePath="..\..\src\mangosd\Main.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\Master.cpp"
+			RelativePath="..\..\src\mangosd\mangosd.rc"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\Master.h"
+			RelativePath="..\..\src\mangosd\Master.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\RASocket.cpp"
+			RelativePath="..\..\src\mangosd\Master.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\RASocket.h"
+			RelativePath="..\..\src\mangosd\RASocket.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\resource.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\src\trinitycore\TrinityCore.rc"
+			RelativePath="..\..\src\mangosd\RASocket.h"
 			>
 		</File>
 		<File
@@ -522,11 +498,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\WorldRunnable.cpp"
+			RelativePath="..\..\src\mangosd\WorldRunnable.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\WorldRunnable.h"
+			RelativePath="..\..\src\mangosd\WorldRunnable.h"
 			>
 		</File>
 	</Files>
