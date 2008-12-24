@@ -48,11 +48,7 @@
 				AdditionalOptions="/MP"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\realmd;..\..\dep\ACE_wrappers"
-<<<<<<< HEAD:win/VC80/realmd.vcproj
-				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;,WIN32,NDEBUG,_CONSOLE"
-=======
 				PreprocessorDefinitions="VERSION=&quot;0.13.0-DEV&quot;,WIN32,NDEBUG,_CONSOLE"
->>>>>>> upstream/master:win/VC80/realmd.vcproj
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -152,11 +148,7 @@
 				AdditionalOptions="/MP"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\realmd;..\..\dep\ACE_wrappers"
-<<<<<<< HEAD:win/VC80/realmd.vcproj
-				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;,WIN32,NDEBUG,_CONSOLE"
-=======
 				PreprocessorDefinitions="VERSION=&quot;0.13.0-DEV&quot;,WIN32,NDEBUG,_CONSOLE"
->>>>>>> upstream/master:win/VC80/realmd.vcproj
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -254,11 +246,7 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\realmd;..\..\dep\ACE_wrappers"
-<<<<<<< HEAD:win/VC80/realmd.vcproj
-				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;_DEBUG;MANGOS_DEBUG;_CONSOLE"
-=======
 				PreprocessorDefinitions="VERSION=&quot;0.13.0-DEV&quot;;WIN32;_DEBUG;MANGOS_DEBUG;_CONSOLE"
->>>>>>> upstream/master:win/VC80/realmd.vcproj
 				IgnoreStandardIncludePath="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -358,11 +346,7 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\realmd;..\..\dep\ACE_wrappers"
-<<<<<<< HEAD:win/VC80/realmd.vcproj
-				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;_DEBUG;MANGOS_DEBUG;_CONSOLE"
-=======
 				PreprocessorDefinitions="VERSION=&quot;0.13.0-DEV&quot;;WIN32;_DEBUG;MANGOS_DEBUG;_CONSOLE"
->>>>>>> upstream/master:win/VC80/realmd.vcproj
 				IgnoreStandardIncludePath="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -434,35 +418,31 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\src\trinityrealm\AuthCodes.h"
+			RelativePath="..\..\src\realmd\AuthCodes.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\AuthSocket.cpp"
+			RelativePath="..\..\src\realmd\AuthSocket.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\AuthSocket.h"
+			RelativePath="..\..\src\realmd\AuthSocket.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\Main.cpp"
+			RelativePath="..\..\src\realmd\Main.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\RealmList.cpp"
+			RelativePath="..\..\src\realmd\realmd.rc"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\RealmList.h"
+			RelativePath="..\..\src\realmd\RealmList.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\resource.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\src\trinityrealm\TrinityRealm.rc"
+			RelativePath="..\..\src\realmd\RealmList.h"
 			>
 		</File>
 		<File
