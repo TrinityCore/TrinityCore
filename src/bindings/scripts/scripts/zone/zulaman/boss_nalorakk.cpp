@@ -436,15 +436,19 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
                 DoPlaySoundToSet(m_creature, SOUND_YELL_SURGE);
 
                 Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 1);
-                if(!target) target = m_creature->getVictim();
+				if(!target)
+					target = m_creature->getVictim();
                 TankGUID = m_creature->getVictim()->GetGUID();
                 ChargeTargetGUID = target->GetGUID();
 
-                float x, y, z;
-                target->GetContactPoint(m_creature, x, y, z);
-                m_creature->SetSpeed(MOVE_RUN, 5.0f);
-                m_creature->GetMotionMaster()->Clear();
-                m_creature->GetMotionMaster()->MovePoint(0, x, y, z);
+				if(target && m_creature->IsWithinDistInMap(target, 50.0f))
+				{
+					float x, y, z;
+					target->GetContactPoint(m_creature, x, y, z);
+					m_creature->SetSpeed(MOVE_RUN, 5.0f);
+					m_creature->GetMotionMaster()->Clear();
+					m_creature->GetMotionMaster()->MovePoint(0, x, y, z);
+				}
 
                 Surge_Timer = 15000 + rand()%5000;
                 return;
