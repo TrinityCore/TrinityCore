@@ -64,6 +64,11 @@ SpellMgr::SpellMgr()
             //case SPELL_EFFECT_LEARN_SPELL: // 0 may be 5 pet
             case SPELL_EFFECT_TRADE_SKILL: // 0 or 1
             case SPELL_EFFECT_PROFICIENCY: // 0
+            case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
+            case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
+            case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
+            case SPELL_EFFECT_APPLY_AREA_AURA_PET:
+            case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
                 EffectTargetType[i] = SPELL_REQUIRE_NONE;
                 break;
             case SPELL_EFFECT_ENCHANT_ITEM:
