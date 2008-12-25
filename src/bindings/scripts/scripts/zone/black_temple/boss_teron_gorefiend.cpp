@@ -258,7 +258,7 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
                 m_creature->AddThreat(who, 1.0f);
             }
 
-            if(!InCombat && !Intro && m_creature->IsWithinDistInMap(who, 200.0f) && (who->GetTypeId() == TYPEID_PLAYER))
+            if(!InCombat && !Intro && m_creature->IsWithinDistInMap(who, 60.0f) && (who->GetTypeId() == TYPEID_PLAYER))
             {
                 if(pInstance)
                     pInstance->SetData(DATA_TERONGOREFIENDEVENT, IN_PROGRESS);

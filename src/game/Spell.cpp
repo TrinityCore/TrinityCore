@@ -404,13 +404,11 @@ Spell::~Spell()
 
 void Spell::FillTargetMap()
 {
-    // TODO: ADD the correct target FILLS!!!!!!
-
-    for(uint32 i=0;i<3;i++)
+    for(uint32 i = 0; i < 3; ++i)
     {
         // not call for empty effect.
         // Also some spells use not used effect targets for store targets for dummy effect in triggered spells
-        if(m_spellInfo->Effect[i]==0)
+        if(!m_spellInfo->Effect[i])
             continue;
 
         // TODO: find a way so this is not needed?
@@ -419,23 +417,34 @@ void Spell::FillTargetMap()
             AddUnitTarget(m_caster, i);
 
         std::list<Unit*> tmpUnitMap;
+        uint32 targetA = m_spellInfo->EffectImplicitTargetA[i];
+        uint32 targetB = m_spellInfo->EffectImplicitTargetB[i];
 
-        SetTargetMap(i,m_spellInfo->EffectImplicitTargetA[i],tmpUnitMap);
-        SetTargetMap(i,m_spellInfo->EffectImplicitTargetB[i],tmpUnitMap);
+        if(targetA)
+            SetTargetMap(i, targetA, tmpUnitMap);
+        if(targetB) // In very rare case !A && B
+            SetTargetMap(i, targetB, tmpUnitMap);
 
         if(spellmgr.EffectTargetType[m_spellInfo->Effect[i]] != SPELL_REQUIRE_UNIT)
         {
-            if(spellmgr.EffectTargetType[m_spellInfo->Effect[i]] == SPELL_REQUIRE_DEST 
-                && m_targets.HasDest() && m_spellInfo->speed > 0.0f)
+            if(spellmgr.EffectTargetType[m_spellInfo->Effect[i]] == SPELL_REQUIRE_DEST)
             {
-                float dist = m_caster->GetDistance(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ);
-                if (dist < 5.0f) dist = 5.0f;
-                m_delayMoment = (uint64) floor(dist / m_spellInfo->speed * 1000.0f);
+                if(m_targets.HasDest() && m_spellInfo->speed > 0.0f)
+                {
+                    float dist = m_caster->GetDistance(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ);
+                    if (dist < 5.0f) dist = 5.0f;
+                    m_delayMoment = (uint64) floor(dist / m_spellInfo->speed * 1000.0f);
+                }
+            }
+            else if(spellmgr.EffectTargetType[m_spellInfo->Effect[i]] == SPELL_REQUIRE_ITEM)
+            {
+                if(m_targets.getItemTarget())
+                    AddItemTarget(m_targets.getItemTarget(), i);
             }
             continue;
         }
 
-        if(tmpUnitMap.empty())
+        if(!targetA && !targetB)
         {
             // add here custom effects that need default target.
             // FOR EVERY TARGET TYPE THERE IS A DIFFERENT FILL!!
@@ -502,12 +511,12 @@ void Spell::FillTargetMap()
                 case SPELL_EFFECT_RESURRECT:
                 case SPELL_EFFECT_CREATE_ITEM:
                 case SPELL_EFFECT_TRIGGER_SPELL:
-                //case SPELL_EFFECT_TRIGGER_MISSILE: ??
                 case SPELL_EFFECT_SKILL_STEP:
                 case SPELL_EFFECT_PROFICIENCY:
                 case SPELL_EFFECT_SUMMON_OBJECT_WILD:
                 case SPELL_EFFECT_SELF_RESURRECT:
                 case SPELL_EFFECT_REPUTATION:
+                case SPELL_EFFECT_LEARN_SPELL:
                     if(m_targets.getUnitTarget())
                         tmpUnitMap.push_back(m_targets.getUnitTarget());
                     else
@@ -546,7 +555,7 @@ void Spell::FillTargetMap()
                     if(Pet* pet = m_caster->GetPet())
                         tmpUnitMap.push_back(pet);
                     break;
-                case SPELL_EFFECT_ENCHANT_ITEM:
+                /*case SPELL_EFFECT_ENCHANT_ITEM:
                 case SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY:
                 case SPELL_EFFECT_DISENCHANT:
                 case SPELL_EFFECT_FEED_PET:
@@ -554,7 +563,7 @@ void Spell::FillTargetMap()
                 case SPELL_EFFECT_MILLING:
                     if(m_targets.getItemTarget())
                         AddItemTarget(m_targets.getItemTarget(), i);
-                    break;
+                    break;*/
                 case SPELL_EFFECT_APPLY_AURA:
                     switch(m_spellInfo->EffectApplyAuraName[i])
                     {
@@ -2451,8 +2460,9 @@ void Spell::_handle_immediate_phase()
     {
         if(spellmgr.EffectTargetType[m_spellInfo->Effect[j]] == SPELL_REQUIRE_DEST)
         {
-            if(m_targets.HasDest())
-                HandleEffects(m_originalCaster, NULL, NULL, j);
+            if(!m_targets.HasDest())
+                m_targets.setDestination(m_caster, false);
+            HandleEffects(m_originalCaster, NULL, NULL, j);
         }
         else if(spellmgr.EffectTargetType[m_spellInfo->Effect[j]] == SPELL_REQUIRE_NONE)
             HandleEffects(m_originalCaster, NULL, NULL, j);

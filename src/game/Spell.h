@@ -468,7 +468,7 @@ class Spell
         Unit* m_caster;
 
         uint64 m_originalCasterGUID;                        // real source of cast (aura caster/etc), used for spell targets selection
-                                                            // e.g. damage around area spell trigered by victim aura and da,age emeies of aura caster
+                                                            // e.g. damage around area spell trigered by victim aura and damage enemies of aura caster
         Unit* m_originalCaster;                             // cached pointer for m_originalCaster, updated at Spell::UpdatePointers()
 
         Spell** m_selfContainer;                            // pointer to our spell container (if applicable)
