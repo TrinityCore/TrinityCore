@@ -6016,16 +6016,19 @@ void Spell::EffectSendTaxi(uint32 i)
     uint32 mountid = 0;
     switch(m_spellInfo->Id)
     {
-        case 31606:       //Stormcrow Amulet
+        case 31606:                                         //Stormcrow Amulet
             mountid = 17447;
             break;
-        case 45071:      //Quest - Sunwell Daily - Dead Scar Bombing Run
-        case 45113:      //Quest - Sunwell Daily - Ship Bombing Run
-        case 45353:      //Quest - Sunwell Daily - Ship Bombing Run Return
+        case 45071:                                         //Quest - Sunwell Daily - Dead Scar Bombing Run
+        case 45113:                                         //Quest - Sunwell Daily - Ship Bombing Run
+        case 45353:                                         //Quest - Sunwell Daily - Ship Bombing Run Return
             mountid = 22840;
             break;
-        case 34905:      //Stealth Flight
+        case 34905:                                         //Stealth Flight
             mountid = 6851;
+            break;
+        case 53335:                                         //Stormwind Harbor Flight - Peaceful
+            mountid = 6852;
             break;
     }
 
