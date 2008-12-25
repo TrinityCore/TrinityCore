@@ -174,14 +174,8 @@ bool SpellCastTargets::read ( WorldPacket * data, Unit *caster )
     *data >> m_targetMask;
 
     if(m_targetMask == TARGET_FLAG_SELF)
-    {
-        //m_destX = caster->GetPositionX();
-        //m_destY = caster->GetPositionY();
-        //m_destZ = caster->GetPositionZ();
-        //m_unitTarget = caster;
-        //m_unitTargetGUID = caster->GetGUID();
         return true;
-    }
+
     // TARGET_FLAG_UNK2 is used for non-combat pets, maybe other?
     if( m_targetMask & (TARGET_FLAG_UNIT|TARGET_FLAG_UNK2) )
         if(!readGUID(*data, m_unitTargetGUID))
@@ -721,7 +715,7 @@ void Spell::AddUnitTarget(Unit* pVictim, uint32 effIndex)
     target.targetGUID = targetGUID;                         // Store target GUID
     target.effectMask = 1<<effIndex;                        // Store index of effect
     target.processed  = false;                              // Effects not apply on target
-    target.killTarget = false;
+    target.damage     = 0;
 
     // Calculate hit result
     if(m_originalCaster)
@@ -942,13 +936,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     if (!unit)
         return;
 
-    if(target->killTarget)
-    {
-        // remove spell_magnet aura after first spell redirect and destroy target if its totem
-        if(unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->isTotem())
-            unit->Kill(unit);
-    }
-
     // Get original caster (if exist) and calculate damage/healing from him data
     Unit *caster = m_originalCasterGUID ? m_originalCaster : m_caster;
 
@@ -963,8 +950,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     unitTarget = unit;
 
     // Reset damage/healing counter
-    m_damage = 0;
-    m_healing = 0;
+    m_damage = target->damage;
+    m_healing = -target->damage;
 
     // Fill base trigger info
     uint32 procAttacker = m_procAttacker;
@@ -991,7 +978,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
 
     // All calculated do it!
     // Do healing and triggers
-    if (m_healing)
+    if (m_healing > 0)
     {
         bool crit = caster->isSpellCrit(NULL, m_spellInfo, m_spellSchoolMask);
         uint32 addhealth = m_healing;
@@ -1017,7 +1004,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
                 bg->UpdatePlayerScore(((Player*)caster), SCORE_HEALING_DONE, gain);
     }
     // Do damage and triggers
-    else if (m_damage)
+    else if (m_damage > 0)
     {
         // Fill base damage struct (unitTarget - is real spell target)
         SpellNonMeleeDamage damageInfo(caster, unitTarget, m_spellInfo->Id, m_spellSchoolMask);
@@ -1170,8 +1157,9 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
     {
         if (effectMask & (1<<effectNumber))
         {
-            HandleEffects(unit,NULL,NULL,effectNumber,m_damageMultipliers[effectNumber]);
-            if ( m_applyMultiplierMask & (1 << effectNumber) )
+            HandleEffects(unit,NULL,NULL,effectNumber/*,m_damageMultipliers[effectNumber]*/);
+            //Only damage and heal spells need this
+            /*if ( m_applyMultiplierMask & (1 << effectNumber) )
             {
                 // Get multiplier
                 float multiplier = m_spellInfo->DmgMultiplier[effectNumber];
@@ -1180,7 +1168,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
                     if(Player* modOwner = m_originalCaster->GetSpellModOwner())
                         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_EFFECT_PAST_FIRST, multiplier,this);
                 m_damageMultipliers[effectNumber] *= multiplier;
-            }
+            }*/
         }
     }
 
@@ -1450,6 +1438,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
     else
         radius = GetSpellMaxRange(sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex));
 
+    //Chain: 2, 6, 22, 25, 45, 77
     uint32 EffectChainTarget = m_spellInfo->EffectChainTarget[i];
     uint32 unMaxTargets = m_spellInfo->MaxAffectedTargets;
 
@@ -1460,6 +1449,13 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius,this);
             modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_JUMP_TARGETS, EffectChainTarget, this);
         }
+    }
+
+    if(EffectChainTarget > 1)
+    {
+        //otherwise, this multiplier is used for something else
+        m_damageMultipliers[i] = 1.0f;
+        m_applyMultiplierMask |= 1 << i;
     }
 
     switch(spellmgr.SpellTargetType[cur])
@@ -2203,23 +2199,6 @@ void Spell::cast(bool skipCheck)
 
     FillTargetMap();
 
-    // who did this hack?
-    // Conflagrate - consumes immolate
-    if ((m_spellInfo->TargetAuraState == AURA_STATE_IMMOLATE) && m_targets.getUnitTarget())
-    {
-        // for caster applied auras only
-        Unit::AuraList const &mPeriodic = m_targets.getUnitTarget()->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
-        for(Unit::AuraList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)
-        {
-            if( (*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARLOCK && ((*i)->GetSpellProto()->SpellFamilyFlags & 4) &&
-                (*i)->GetCasterGUID()==m_caster->GetGUID() )
-            {
-                m_targets.getUnitTarget()->RemoveAura((*i)->GetId(), (*i)->GetEffIndex());
-                break;
-            }
-        }
-    }
-
     if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(m_spellInfo->Id))
     {
         for(std::vector<int32>::const_iterator i = spell_triggered->begin(); i != spell_triggered->end(); ++i)
@@ -2250,13 +2229,10 @@ void Spell::cast(bool skipCheck)
         return;
     }
 
-
-
     SendCastResult(castResult);
     SendSpellGo();                                          // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
 
-    for(int i = 0; i < 3; ++i)
-        m_currentBasePoints[i] = CalculateDamage(i, NULL);
+    CalculateDamageDoneForAllTargets();
 
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
     if (m_spellInfo->speed > 0.0f && !IsChanneledSpell(m_spellInfo))
@@ -2398,17 +2374,6 @@ void Spell::_handle_immediate_phase()
         // Don't do spell log, if is school damage spell
         if(m_spellInfo->Effect[j] == SPELL_EFFECT_SCHOOL_DAMAGE || m_spellInfo->Effect[j] == 0)
             m_needSpellLog = false;
-
-        uint32 EffectChainTarget = m_spellInfo->EffectChainTarget[j];
-        if(m_originalCaster)
-            if(Player* modOwner = m_originalCaster->GetSpellModOwner())
-                modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_JUMP_TARGETS, EffectChainTarget, this);
-
-        // initialize multipliers
-        m_damageMultipliers[j] = 1.0f;
-        if( (m_spellInfo->EffectImplicitTargetA[j] == TARGET_CHAIN_DAMAGE || m_spellInfo->EffectImplicitTargetA[j] == TARGET_CHAIN_HEAL) &&
-            (EffectChainTarget > 1) )
-            m_applyMultiplierMask |= 1 << j;
     }
 
     // initialize Diminishing Returns Data
@@ -3287,7 +3252,7 @@ void Spell::HandleThreatSpells(uint32 spellId)
     DEBUG_LOG("Spell %u, rank %u, added an additional %i threat", spellId, spellmgr.GetSpellRank(spellId), threatSpell->threat);
 }
 
-void Spell::HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTarget,uint32 i, float DamageMultiplier)
+void Spell::HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTarget,uint32 i, float /*DamageMultiplier*/)
 {
     unitTarget = pUnitTarget;
     itemTarget = pItemTarget;
@@ -3296,13 +3261,14 @@ void Spell::HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTar
     uint8 eff = m_spellInfo->Effect[i];
     uint32 mechanic = m_spellInfo->EffectMechanic[i];
 
-    damage = int32(m_currentBasePoints[i] * DamageMultiplier);
-
     sLog.outDebug( "Spell: Effect : %u", eff);
 
     //Simply return. Do not display "immune" in red text on client
     if(unitTarget && unitTarget->IsImmunedToSpellEffect(eff, mechanic))
         return;
+
+    //we do not need DamageMultiplier here.
+    damage = CalculateDamage(i, NULL);
 
     if(eff<TOTAL_SPELL_EFFECTS)
     {
@@ -5152,7 +5118,7 @@ Unit* Spell::SelectMagnetTarget()
                     {
                         if (targetGUID == ihit->targetGUID)                 // Found in list
                         {
-                            (*ihit).killTarget = true;
+                            (*ihit).damage = target->GetHealth();
                             break;
                         }
                     }
@@ -5330,4 +5296,73 @@ bool Spell::IsValidSingleTargetSpell(Unit const* target) const
         //    return false;
     }
     return true;
+}
+
+void Spell::CalculateDamageDoneForAllTargets()
+{
+    float multiplier[3];
+    for(int i = 0; i < 3; ++i)
+    {
+        if ( m_applyMultiplierMask & (1 << i) )
+        {
+            // Get multiplier
+            multiplier[i] = m_spellInfo->DmgMultiplier[i];
+            // Apply multiplier mods
+            if(m_originalCaster)
+                if(Player* modOwner = m_originalCaster->GetSpellModOwner())
+                    modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_EFFECT_PAST_FIRST, multiplier[i], this);
+        }
+    }
+
+    for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+    {
+        TargetInfo target = *ihit;
+
+        uint32 mask = target.effectMask;
+        if(!mask)
+            continue;
+
+        Unit* unit = m_caster->GetGUID()==target.targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, target.targetGUID);
+        if (!unit)
+            return;
+
+        if (target.missCondition==SPELL_MISS_NONE)                          // In case spell hit target, do all effect on that target
+            target.damage += CalculateDamageDone(unit, mask, multiplier);
+        else if (target.missCondition == SPELL_MISS_REFLECT)                // In case spell reflect from target, do all effect on caster (if hit)
+        {
+            if (target.reflectResult == SPELL_MISS_NONE)       // If reflected spell hit caster -> do all effect on him
+                target.damage += CalculateDamageDone(m_caster, mask, multiplier);
+        }
+    }
+}
+
+int32 Spell::CalculateDamageDone(Unit *unit, const uint32 effectMask, float *multiplier)
+{
+    m_damage = 0;
+    unitTarget = unit;
+    for(uint32 i = 0; i < 3; ++i)
+    {
+        if (effectMask & (1<<i))
+        {
+            damage = CalculateDamage(i, NULL) * m_damageMultipliers[i];
+            switch(m_spellInfo->Effect[i])
+            {
+                case SPELL_EFFECT_SCHOOL_DAMAGE:
+                    SpellDamageSchoolDmg(i);
+                    break;
+                case SPELL_EFFECT_WEAPON_DAMAGE:
+                case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
+                case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+                case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
+                    SpellDamageWeaponDmg(i);
+                    break;
+                case SPELL_EFFECT_HEAL:
+                    SpellDamageHeal(i);
+                    break;
+            }
+            if ( m_applyMultiplierMask & (1 << i) )
+                m_damageMultipliers[i] *= multiplier[i];
+        }
+    }
+    return m_damage;
 }
