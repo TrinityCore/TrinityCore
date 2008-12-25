@@ -409,10 +409,11 @@ void Spell::FillTargetMap()
         if(!m_spellInfo->Effect[i])
             continue;
 
-        // TODO: find a way so this is not needed?
-        // for area auras always add caster as target (needed for totems for example)
-        if(IsAreaAuraEffect(m_spellInfo->Effect[i]))
-            AddUnitTarget(m_caster, i);
+        uint32 effectTargetType = spellmgr.EffectTargetType[m_spellInfo->Effect[i]];
+
+        // is it possible that areaaura is not applied to caster?
+        if(effectTargetType == SPELL_REQUIRE_NONE)
+            continue;
 
         std::list<Unit*> tmpUnitMap;
         uint32 targetA = m_spellInfo->EffectImplicitTargetA[i];
@@ -423,9 +424,9 @@ void Spell::FillTargetMap()
         if(targetB) // In very rare case !A && B
             SetTargetMap(i, targetB, tmpUnitMap);
 
-        if(spellmgr.EffectTargetType[m_spellInfo->Effect[i]] != SPELL_REQUIRE_UNIT)
+        if(effectTargetType != SPELL_REQUIRE_UNIT)
         {
-            if(spellmgr.EffectTargetType[m_spellInfo->Effect[i]] == SPELL_REQUIRE_DEST)
+            if(effectTargetType == SPELL_REQUIRE_DEST)
             {
                 if(m_targets.HasDest() && m_spellInfo->speed > 0.0f)
                 {
@@ -434,7 +435,7 @@ void Spell::FillTargetMap()
                     m_delayMoment = (uint64) floor(dist / m_spellInfo->speed * 1000.0f);
                 }
             }
-            else if(spellmgr.EffectTargetType[m_spellInfo->Effect[i]] == SPELL_REQUIRE_ITEM)
+            else if(effectTargetType == SPELL_REQUIRE_ITEM)
             {
                 if(m_targets.getItemTarget())
                     AddItemTarget(m_targets.getItemTarget(), i);
