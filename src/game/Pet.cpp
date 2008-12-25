@@ -1152,6 +1152,25 @@ bool Pet::InitStatsForLevel(uint32 petlevel)
             SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
             SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
 
+            switch(GetEntry())
+            {
+                case 1964: //force of nature
+                    SetCreateHealth(30 + 30*petlevel);
+                    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel * 2.5f - (petlevel / 2)));
+                    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel * 2.5f + (petlevel / 2)));
+                    break;
+                case 15352: //earth elemental 36213
+                    SetCreateHealth(100 + 120*petlevel);
+                    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
+                    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
+                    break;
+                case 15438: //fire elemental
+                    SetCreateHealth(30 + 40*petlevel);
+                    SetCreateMana(28 + 10*petlevel);
+                    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel * 4 - petlevel));
+                    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel * 4 + petlevel));
+                    break;
+                default:
             SetCreateMana(28 + 10*petlevel);
             SetCreateHealth(28 + 30*petlevel);
 
@@ -1161,6 +1180,8 @@ bool Pet::InitStatsForLevel(uint32 petlevel)
             SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
             //damage range is then petlevel / 2
             SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
+                    break;
+            }
             break;
         default:
             sLog.outError("Pet have incorrect type (%u) for levelup.", getPetType());
