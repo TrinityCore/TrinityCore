@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Azuremyst_Isle
 SD%Complete: 75
-SDComment: Quest support: 9283, 9537, 9582, 9554(special flight path, proper model for mount missing). Injured Draenei cosmetic only
+SDComment: Quest support: 9283, 9537, 9582, 9554, 9531(special flight path, proper model for mount missing). Injured Draenei cosmetic only
 SDCategory: Azuremyst Isle
 EndScriptData */
 
@@ -27,6 +27,7 @@ npc_engineer_spark_overgrind
 npc_injured_draenei
 npc_magwin
 npc_susurrus
+npc_geezle
 EndContentData */
 
 #include "precompiled.h"
@@ -463,6 +464,154 @@ bool GossipSelect_npc_susurrus(Player *player, Creature *_Creature, uint32 sende
 }
 
 /*######
+## npc_geezle
+######*/
+//delete from creature where id=17318;
+//update creature_template set scriptname='npc_geezle' where entry=17318;
+//delete from event_scripts where id=10675;
+//insert into event_scripts () VALUES (10675, 0, 10, 17318, 120000, 0, -5134.3, -11250.3, 5.29568, 6.23554), (10675, 72, 7, 9531, 0, 0, 0, 0, 0, 0);
+//update quest_template set specialflags=2, reqcreatureorgoid1=0, reqcreatureorgocount1=0 where entry=9531;
+#define GEEZLE_SAY_1	"What's the big idea, Spark?"
+#define SPARK_SAY_2		"What's the big idea? You nearly blew my cover, idiot! I told you to put the compass and navigation maps somewhere safe - not out in the open for any fool to discover."
+#define SPARK_SAY_3		"The Master has gone to great lengths to secure information about the whereabouts of the Exodar. You could have blown the entire operation, including the cover of our spy on the inside."
+#define GEEZLE_SAY_4	"Relax, Spark! I have it all under control. We'll strip mine the Exodar right out from under 'em - making both you and I very, very rich in the process."
+#define SPARK_SAY_5		"Relax? Do you know what Kael'thas does to those that fail him, Geezle? Eternal suffering and pain... Do NOT screw this up, fool."
+#define SPARK_SAY_6		"Our Bloodmyst scouts have located our contact. The fool, Velen, will soon leave himself open and defenseless -- long enough for us to strike! Now get out of my sight before I vaporize you..."
+#define GEEZLE_SAY_7	"Yes, sir. It won't happen again..."
+
+#define EMOTE_SPARK		"picks up the naga flag."
+#define MOB_SPARK		17243
+#define GO_NAGA_FLAG	181694
+
+static float SparkPos[4] = {-5030.95, -11291.99, 7.97};
+
+struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
+{
+	npc_geezleAI(Creature *c) : ScriptedAI(c) {Reset();}
+
+	std::list<GameObject*> FlagList;
+
+	uint64 SparkGUID;
+
+	uint32 Step;
+	uint32 SayTimer;
+	
+	bool EventStarted;
+
+	void Reset()
+	{
+		SparkGUID = 0;
+		Step = 0;
+		StartEvent();
+	}
+
+	void Aggro(Unit* who){}
+
+	void StartEvent()
+	{
+		Step = 1;
+		EventStarted = true;
+		Creature* Spark = m_creature->SummonCreature(MOB_SPARK, SparkPos[0], SparkPos[1], SparkPos[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000);
+		SparkGUID = Spark->GetGUID();
+		Spark->setActive(true);
+		Spark->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+		m_creature->GetMotionMaster()->MovePoint(0, -5092.26, -11252, 0.71);
+		Spark->GetMotionMaster()->MovePoint(0, -5080.70, -11253.61, 0.56);
+		SayTimer = 23000;
+	}
+
+	uint32 NextStep(uint32 Step)
+	{
+		Unit* Spark = Unit::GetUnit((*m_creature), SparkGUID);
+
+		switch(Step)
+		{
+		case 0: return 99999;
+		case 1:
+			//DespawnNagaFlag(true);
+			((Creature*)Spark)->TextEmote(EMOTE_SPARK, NULL, false);
+			return 1000;
+		case 2:
+			DoSay(GEEZLE_SAY_1, LANG_UNIVERSAL, Spark);
+			Spark->SetInFront(m_creature);
+			m_creature->SetInFront(Spark);
+			return 5000;
+		case 3:
+			((Creature*)Spark)->Say(SPARK_SAY_2, LANG_UNIVERSAL, NULL);
+			return 7000;
+		case 4:
+			((Creature*)Spark)->Say(SPARK_SAY_3, LANG_UNIVERSAL, NULL);
+			return 8000;
+		case 5:
+			DoSay(GEEZLE_SAY_4, LANG_UNIVERSAL, Spark);
+			return 8000;
+		case 6:
+			((Creature*)Spark)->Say(SPARK_SAY_5, LANG_UNIVERSAL, NULL);
+			return 9000;
+		case 7:
+			((Creature*)Spark)->Say(SPARK_SAY_6, LANG_UNIVERSAL, NULL);
+			return 8000;
+		case 8:
+			DoSay(GEEZLE_SAY_7, LANG_UNIVERSAL, Spark);
+			return 2000;
+		case 9:
+			m_creature->GetMotionMaster()->MoveTargetedHome();
+			Spark->GetMotionMaster()->MovePoint(0, -5030.95, -11291.99, 7.97);
+			return 20000;
+		case 10:
+			Spark->DealDamage(Spark,Spark->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+			//DespawnNagaFlag(false);
+			m_creature->SetVisibility(VISIBILITY_OFF);
+		default: return 99999999;
+		}
+	}
+
+	void DespawnNagaFlag(bool despawn)
+	{
+		CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
+		Cell cell(pair);
+		cell.data.Part.reserved = ALL_DISTRICT;
+		cell.SetNoCreate();
+ 
+		Trinity::AllGameObjectsWithEntryInGrid go_check(GO_NAGA_FLAG);
+		Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInGrid> go_search(FlagList, go_check);
+		TypeContainerVisitor
+			<Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInGrid>, GridTypeMapContainer> go_visit(go_search);
+		CellLock<GridReadGuard> cell_lock(cell, pair);
+		cell_lock->Visit(cell_lock, go_visit, *(m_creature->GetMap()));
+ 
+		Player* player = NULL;
+		if (!FlagList.empty())
+		{
+			for(std::list<GameObject*>::iterator itr = FlagList.begin(); itr != FlagList.end(); ++itr)
+			{
+				//TODO: Found how to despawn and respawn
+				if(despawn)
+					(*itr)->RemoveFromWorld();
+				else
+					(*itr)->Respawn();
+			}
+		} else error_log("SD2 ERROR: FlagList is empty!");
+	}
+
+	void UpdateAI(const uint32 diff)
+	{
+		if(SayTimer < diff)
+		{
+			if(EventStarted)
+			{
+				SayTimer = NextStep(Step++);
+			}
+		}else SayTimer -= diff;
+	}
+};
+
+CreatureAI* GetAI_npc_geezleAI(Creature *_Creature)
+{
+	return new npc_geezleAI(_Creature);
+}
+
+/*######
 ##
 ######*/
 
@@ -498,4 +647,10 @@ void AddSC_azuremyst_isle()
     newscript->pGossipHello =  &GossipHello_npc_susurrus;
     newscript->pGossipSelect = &GossipSelect_npc_susurrus;
     newscript->RegisterSelf();
+
+	newscript = new Script;
+	newscript->Name="npc_geezle";
+	newscript->GetAI = &GetAI_npc_geezleAI;
+	newscript->RegisterSelf();
+
 }
