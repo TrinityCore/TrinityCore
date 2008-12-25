@@ -944,6 +944,23 @@ void Pet::UpdateAttackPowerAndDamage(bool ranged)
                 frost = 0;
             SetBonusDamage( int32(frost * 0.4f));
         }
+        //force of nature
+        else if(GetEntry() == 1964)
+        {
+            int32 spellDmg = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_NATURE)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_NATURE);
+            if(spellDmg > 0)
+                SetBonusDamage(int32(spellDmg * 0.09f));
+        }
+        //greater fire elemental
+        else if(GetEntry() == 15438)
+        {
+            if(Unit* shaman = owner->GetOwner())
+            {
+                int32 spellDmg = int32(shaman->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE)) - shaman->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
+                if(spellDmg > 0)
+                    SetBonusDamage(int32(spellDmg * 0.4f));
+            }
+        }
     }
 
     SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, val + bonusAP);
