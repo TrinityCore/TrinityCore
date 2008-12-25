@@ -425,19 +425,24 @@ void Spell::FillTargetMap()
 
         if(spellmgr.EffectTargetType[m_spellInfo->Effect[i]] != SPELL_REQUIRE_UNIT)
         {
-            if(spellmgr.EffectTargetType[m_spellInfo->Effect[i]] == SPELL_REQUIRE_DEST 
-                && m_targets.HasDest() && m_spellInfo->speed > 0.0f)
+            if(spellmgr.EffectTargetType[m_spellInfo->Effect[i]] == SPELL_REQUIRE_DEST)
             {
-                float dist = m_caster->GetDistance(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ);
-                if (dist < 5.0f) dist = 5.0f;
-                m_delayMoment = (uint64) floor(dist / m_spellInfo->speed * 1000.0f);
+                if(m_targets.HasDest() && m_spellInfo->speed > 0.0f)
+                {
+                    float dist = m_caster->GetDistance(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ);
+                    if (dist < 5.0f) dist = 5.0f;
+                    m_delayMoment = (uint64) floor(dist / m_spellInfo->speed * 1000.0f);
+                }
+            }
+            else if(spellmgr.EffectTargetType[m_spellInfo->Effect[i]] == SPELL_REQUIRE_ITEM)
+            {
+                if(m_targets.getItemTarget())
+                    AddItemTarget(m_targets.getItemTarget(), i);
             }
             continue;
         }
 
         if(!targetA && !targetB)
-            AddUnitTarget(m_caster, i);
-        else if(tmpUnitMap.empty())
         {
             // add here custom effects that need default target.
             // FOR EVERY TARGET TYPE THERE IS A DIFFERENT FILL!!
@@ -504,10 +509,10 @@ void Spell::FillTargetMap()
                 case SPELL_EFFECT_RESURRECT:
                 case SPELL_EFFECT_CREATE_ITEM:
                 case SPELL_EFFECT_TRIGGER_SPELL:
-                //case SPELL_EFFECT_TRIGGER_MISSILE: ??
                 case SPELL_EFFECT_SKILL_STEP:
                 case SPELL_EFFECT_SELF_RESURRECT:
                 case SPELL_EFFECT_REPUTATION:
+                case SPELL_EFFECT_LEARN_SPELL:
                     if(m_targets.getUnitTarget())
                         tmpUnitMap.push_back(m_targets.getUnitTarget());
                     else
@@ -545,14 +550,14 @@ void Spell::FillTargetMap()
                     if(Pet* pet = m_caster->GetPet())
                         tmpUnitMap.push_back(pet);
                     break;
-                case SPELL_EFFECT_ENCHANT_ITEM:
+                /*case SPELL_EFFECT_ENCHANT_ITEM:
                 case SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY:
                 case SPELL_EFFECT_DISENCHANT:
                 case SPELL_EFFECT_FEED_PET:
                 case SPELL_EFFECT_PROSPECTING:
                     if(m_targets.getItemTarget())
                         AddItemTarget(m_targets.getItemTarget(), i);
-                    break;
+                    break;*/
                 case SPELL_EFFECT_APPLY_AURA:
                     switch(m_spellInfo->EffectApplyAuraName[i])
                     {
