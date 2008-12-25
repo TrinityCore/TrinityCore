@@ -66,6 +66,13 @@ SpellMgr::SpellMgr()
             case SPELL_EFFECT_PROFICIENCY: // 0
                 EffectTargetType[i] = SPELL_REQUIRE_NONE;
                 break;
+            case SPELL_EFFECT_ENCHANT_ITEM:
+            case SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY:
+            case SPELL_EFFECT_DISENCHANT:
+            case SPELL_EFFECT_FEED_PET:
+            case SPELL_EFFECT_PROSPECTING:
+                EffectTargetType[i] = SPELL_REQUIRE_ITEM;
+                break;
             default:
                 EffectTargetType[i] = SPELL_REQUIRE_UNIT;
                 break;
