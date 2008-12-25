@@ -302,6 +302,10 @@ void Spell::EffectEnvirinmentalDMG(uint32 i)
 
 void Spell::EffectSchoolDMG(uint32 effect_idx)
 {
+}
+
+void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
+{
     if( unitTarget && unitTarget->isAlive())
     {
         switch(m_spellInfo->SpellFamilyName)
@@ -394,6 +398,22 @@ void Spell::EffectSchoolDMG(uint32 effect_idx)
                     // Incinerate does more dmg (dmg*0.25) if the target is Immolated.
                     if(unitTarget->HasAuraState(AURA_STATE_IMMOLATE))
                         damage += int32(damage*0.25);
+                }
+
+                // Conflagrate - consumes immolate
+                if (m_spellInfo->TargetAuraState == AURA_STATE_IMMOLATE)
+                {
+                    // for caster applied auras only
+                    Unit::AuraList const &mPeriodic = unitTarget->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
+                    for(Unit::AuraList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)
+                    {
+                        if( (*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARLOCK && ((*i)->GetSpellProto()->SpellFamilyFlags & 4) &&
+                            (*i)->GetCasterGUID()==m_caster->GetGUID() )
+                        {
+                            unitTarget->RemoveAurasDueToCasterSpell((*i)->GetId(), m_caster->GetGUID());
+                            break;
+                        }
+                    }
                 }
                 break;
             }
@@ -532,6 +552,23 @@ void Spell::EffectSchoolDMG(uint32 effect_idx)
                 {
                     int32 base = irand((int32)m_caster->GetWeaponDamageRange(RANGED_ATTACK, MINDAMAGE),(int32)m_caster->GetWeaponDamageRange(RANGED_ATTACK, MAXDAMAGE));
                     damage += int32(float(base)/m_caster->GetAttackTime(RANGED_ATTACK)*2800 + m_caster->GetTotalAttackPowerValue(RANGED_ATTACK)*0.2f);
+
+                    bool found = false;
+
+                    // check dazed affect
+                    Unit::AuraList const& decSpeedList = unitTarget->GetAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+                    for(Unit::AuraList::const_iterator iter = decSpeedList.begin(); iter != decSpeedList.end(); ++iter)
+                    {
+                        if((*iter)->GetSpellProto()->SpellIconID==15 && (*iter)->GetSpellProto()->Dispel==0)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    //TODO: should this be put on taken but not done?
+                    if(found)
+                        m_damage += m_spellInfo->EffectBasePoints[1];
                 }
                 //Explosive Trap Effect
                 else if(m_spellInfo->SpellFamilyFlags & 0x00000004)
@@ -1258,7 +1295,7 @@ void Spell::EffectDummy(uint32 i)
             //Life Tap (only it have this with dummy effect)
             if (m_spellInfo->SpellFamilyFlags == 0x40000)
             {
-                float cost = m_currentBasePoints[0];//+1;
+                float cost = damage;
 
                 if(Player* modOwner = m_caster->GetSpellModOwner())
                     modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, cost,this);
@@ -1378,29 +1415,6 @@ void Spell::EffectDummy(uint32 i)
             }
             break;
         case SPELLFAMILY_HUNTER:
-            // Steady Shot
-            if(m_spellInfo->SpellFamilyFlags & 0x100000000LL)
-            {
-                if( !unitTarget || !unitTarget->isAlive())
-                    return;
-
-                bool found = false;
-
-                // check dazed affect
-                Unit::AuraList const& decSpeedList = unitTarget->GetAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
-                for(Unit::AuraList::const_iterator iter = decSpeedList.begin(); iter != decSpeedList.end(); ++iter)
-                {
-                    if((*iter)->GetSpellProto()->SpellIconID==15 && (*iter)->GetSpellProto()->Dispel==0)
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-
-                if(found)
-                    m_damage+= damage;
-                return;
-            }
             // Kill command
             if(m_spellInfo->SpellFamilyFlags & 0x00080000000000LL)
             {
@@ -2077,7 +2091,7 @@ void Spell::EffectApplyAura(uint32 i)
 
     sLog.outDebug("Spell: Aura is: %u", m_spellInfo->EffectApplyAuraName[i]);
 
-    Aura* Aur = CreateAura(m_spellInfo, i, &m_currentBasePoints[i], unitTarget, caster, m_CastItem);
+    Aura* Aur = CreateAura(m_spellInfo, i, &damage, unitTarget, caster, m_CastItem);
 
     // Now Reduce spell duration using data received at spell hit
     int32 duration = Aur->GetAuraMaxDuration();
@@ -2127,7 +2141,7 @@ void Spell::EffectApplyAura(uint32 i)
         if (AdditionalSpellInfo)
         {
             // applied at target by target
-            Aura* AdditionalAura = CreateAura(AdditionalSpellInfo, 0, &m_currentBasePoints[0], unitTarget,unitTarget, 0);
+            Aura* AdditionalAura = CreateAura(AdditionalSpellInfo, 0, NULL, unitTarget,unitTarget, 0);
             unitTarget->AddAura(AdditionalAura);
             sLog.outDebug("Spell: Additional Aura is: %u", AdditionalSpellInfo->EffectApplyAuraName[0]);
         }
@@ -2294,10 +2308,16 @@ void Spell::EffectPowerBurn(uint32 i)
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_MULTIPLE_VALUE, multiplier);
 
     new_damage = int32(new_damage*multiplier);
-    m_damage+=new_damage;
+    //m_damage+=new_damage; should not apply spell bonus
+    //TODO: no log
+    unitTarget->ModifyHealth(-new_damage);
 }
 
 void Spell::EffectHeal( uint32 /*i*/ )
+{
+}
+
+void Spell::SpellDamageHeal(uint32 /*i*/)
 {
     if( unitTarget && unitTarget->isAlive() && damage >= 0)
     {
@@ -2369,7 +2389,7 @@ void Spell::EffectHeal( uint32 /*i*/ )
         else
             addhealth = caster->SpellHealingBonus(m_spellInfo, addhealth,HEAL, unitTarget);
 
-        m_healing+=addhealth;
+        m_damage -= addhealth;
     }
 }
 
@@ -2470,7 +2490,7 @@ void Spell::DoCreateItem(uint32 i, uint32 itemtype)
     // TODO: maybe all this can be replaced by using correct calculated `damage` value
     if(pProto->Class != ITEM_CLASS_CONSUMABLE || m_spellInfo->SpellFamilyName != SPELLFAMILY_MAGE)
     {
-        num_to_add = m_currentBasePoints[i];
+        num_to_add = damage;
         /*int32 basePoints = m_currentBasePoints[i];
         int32 randomPoints = m_spellInfo->EffectDieSides[i];
         if (randomPoints)
@@ -2482,7 +2502,7 @@ void Spell::DoCreateItem(uint32 i, uint32 itemtype)
         num_to_add = 1;
     else if(player->getLevel() >= m_spellInfo->spellLevel)
     {
-        num_to_add = m_currentBasePoints[i];
+        num_to_add = damage;
         /*int32 basePoints = m_currentBasePoints[i];
         float pointPerLevel = m_spellInfo->EffectRealPointsPerLevel[i];
         num_to_add = basePoints + 1 + uint32((player->getLevel() - m_spellInfo->spellLevel)*pointPerLevel);*/
@@ -3076,7 +3096,7 @@ void Spell::EffectApplyAreaAura(uint32 i)
     if(!unitTarget->isAlive())
         return;
 
-    AreaAura* Aur = new AreaAura(m_spellInfo, i, &m_currentBasePoints[i], unitTarget, m_caster, m_CastItem);
+    AreaAura* Aur = new AreaAura(m_spellInfo, i, &damage, unitTarget, m_caster, m_CastItem);
     unitTarget->AddAura(Aur);
 }
 
@@ -4179,6 +4199,10 @@ void Spell::EffectTaunt(uint32 /*i*/)
 
 void Spell::EffectWeaponDmg(uint32 i)
 {
+}
+
+void Spell::SpellDamageWeaponDmg(uint32 i)
+{
     if(!unitTarget)
         return;
     if(!unitTarget->isAlive())
@@ -4464,9 +4488,10 @@ void Spell::EffectHealMaxHealth(uint32 /*i*/)
     if(!unitTarget->isAlive())
         return;
 
-    uint32 heal = m_caster->GetMaxHealth();
-
-    m_healing+=heal;
+    uint32 addhealth = unitTarget->GetMaxHealth() - unitTarget->GetHealth();
+    unitTarget->SetHealth(unitTarget->GetMaxHealth());
+    if(m_originalCaster)
+        m_originalCaster->SendHealSpellLog(unitTarget, m_spellInfo->Id, addhealth, false);
 }
 
 void Spell::EffectInterruptCast(uint32 i)
@@ -5306,7 +5331,7 @@ void Spell::EffectEnchantHeldItem(uint32 i)
         uint32 enchant_id = m_spellInfo->EffectMiscValue[i];
         int32 duration = GetSpellDuration(m_spellInfo);          //Try duration index first ..
         if(!duration)
-            duration = m_currentBasePoints[i];//+1;            //Base points after ..
+            duration = damage;//+1;            //Base points after ..
         if(!duration)
             duration = 10;                                  //10 seconds for enchants which don't have listed duration
 
@@ -5612,7 +5637,7 @@ void Spell::EffectReputation(uint32 i)
 
     Player *_player = (Player*)unitTarget;
 
-    int32  rep_change = m_currentBasePoints[i];//+1;           // field store reputation change -1
+    int32  rep_change = damage;//+1;           // field store reputation change -1
 
     uint32 faction_id = m_spellInfo->EffectMiscValue[i];
 
