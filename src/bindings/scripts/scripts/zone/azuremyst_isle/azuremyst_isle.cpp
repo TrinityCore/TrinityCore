@@ -466,11 +466,7 @@ bool GossipSelect_npc_susurrus(Player *player, Creature *_Creature, uint32 sende
 /*######
 ## npc_geezle
 ######*/
-//delete from creature where id=17318;
-//update creature_template set scriptname='npc_geezle' where entry=17318;
-//delete from event_scripts where id=10675;
-//insert into event_scripts () VALUES (10675, 0, 10, 17318, 120000, 0, -5134.3, -11250.3, 5.29568, 6.23554), (10675, 72, 7, 9531, 0, 0, 0, 0, 0, 0);
-//update quest_template set specialflags=2, reqcreatureorgoid1=0, reqcreatureorgocount1=0 where entry=9531;
+
 #define GEEZLE_SAY_1	"What's the big idea, Spark?"
 #define SPARK_SAY_2		"What's the big idea? You nearly blew my cover, idiot! I told you to put the compass and navigation maps somewhere safe - not out in the open for any fool to discover."
 #define SPARK_SAY_3		"The Master has gone to great lengths to secure information about the whereabouts of the Exodar. You could have blown the entire operation, including the cover of our spy on the inside."
