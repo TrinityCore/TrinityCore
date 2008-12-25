@@ -29,7 +29,6 @@ update `creature_template` set `npcflag`='1',`ScriptName`='npc_tobias_seecher' w
 update `instance_template` set `script`='instance_blackrock_depths' where `map`='230';
 */
 
-#include "GameObject.h"
 #include "precompiled.h"
 #include "def_blackrock_depths.h"
 
