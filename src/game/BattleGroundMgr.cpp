@@ -243,38 +243,6 @@ void BattleGroundQueue::AddPlayer(Player *plr, GroupQueueInfo *ginfo)
 
     // add the pinfo to ginfo's list
     ginfo->Players[plr->GetGUID()]  = &info;
-/*
-    if( sWorld.getConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE) )
-    {
-        BattleGround* bg = sBattleGroundMgr.GetBattleGround(bgTypeId);
-        char const* bgName = bg->GetName();
-
-        uint32 q_min_level = Player::GetMinLevelForBattleGroundQueueId(queue_id);
-        uint32 q_max_level = Player::GetMaxLevelForBattleGroundQueueId(queue_id);
-
-        // replace hardcoded max level by player max level for nice output
-        if(q_max_level > sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
-            q_max_level = sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL);
-
-        int8 MinPlayers = bg->GetMinPlayersPerTeam();
-
-        uint8 qHorde = m_QueuedPlayers[queue_id].Horde;
-        uint8 qAlliance = m_QueuedPlayers[queue_id].Alliance;
-
-        // Show queue status to player only (when joining queue)
-        if(sWorld.getConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_PLAYERONLY))
-        {
-            ChatHandler(plr).PSendSysMessage(LANG_BG_QUEUE_ANNOUNCE_SELF,
-                bgName, q_min_level, q_max_level, qAlliance, (MinPlayers > qAlliance) ? (MinPlayers - qAlliance) : 0, qHorde, (MinPlayers > qHorde) ? (MinPlayers - qHorde) : 0);
-        }
-        // System message
-        else
-        {
-            sWorld.SendWorldText(LANG_BG_QUEUE_ANNOUNCE_WORLD,
-                bgName, q_min_level, q_max_level, qAlliance, (MinPlayers > qAlliance) ? (MinPlayers - qAlliance) : 0, qHorde, (MinPlayers > qHorde) ? (MinPlayers - qHorde) : 0);
-        }
-
-    }*/
 }
 
 void BattleGroundQueue::RemovePlayer(uint64 guid, bool decreaseInvitedCount)
@@ -360,6 +328,11 @@ void BattleGroundQueue::RemovePlayer(uint64 guid, bool decreaseInvitedCount)
         // remove player queue info
         m_QueuedPlayers[queue_id].erase(itr);
         // remove group queue info if needed
+
+        //if we left BG queue(not porting) OR if arena team left queue for rated match
+        if((decreaseInvitedCount && !group->ArenaType) || (group->ArenaType && group->IsRated && group->Players.empty()))
+            AnnounceWorld(group, guid, false);
+
         if(group->Players.empty())
         {
             m_QueuedGroups[queue_id].erase(group_itr);
@@ -384,6 +357,85 @@ void BattleGroundQueue::RemovePlayer(uint64 guid, bool decreaseInvitedCount)
             }
             // then actually delete, this may delete the group as well!
             RemovePlayer(group->Players.begin()->first,decreaseInvitedCount);
+        }
+    }
+}
+
+void BattleGroundQueue::AnnounceWorld(GroupQueueInfo *ginfo, uint64 playerGUID, bool isAddedToQueue)
+{
+
+    if(ginfo->ArenaType) //if Arena
+    {
+        if( sWorld.getConfig(CONFIG_ARENA_QUEUE_ANNOUNCER_ENABLE) && ginfo->IsRated)
+        {
+            BattleGround* bg = sBattleGroundMgr.GetBattleGroundTemplate(ginfo->BgTypeId);
+            if(!bg)
+                return;
+
+            char const* bgName = bg->GetName();
+            if(isAddedToQueue)
+                sWorld.SendWorldText(LANG_ARENA_QUEUE_ANNOUNCE_WORLD_JOIN, bgName, ginfo->ArenaType, ginfo->ArenaType, ginfo->ArenaTeamRating);
+            else
+                sWorld.SendWorldText(LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT, bgName, ginfo->ArenaType, ginfo->ArenaType, ginfo->ArenaTeamRating);
+        }
+    }
+    else //if BG
+    {
+        if( sWorld.getConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE) )
+        {
+            Player *plr = objmgr.GetPlayer(playerGUID);
+            if(!plr)
+                return;
+
+            BattleGround* bg = sBattleGroundMgr.GetBattleGroundTemplate(ginfo->BgTypeId);
+            if(!bg)
+                return;
+
+            uint32 queue_id = plr->GetBattleGroundQueueIdFromLevel();
+            char const* bgName = bg->GetName();
+
+            uint32 q_min_level = Player::GetMinLevelForBattleGroundQueueId(queue_id);
+            uint32 q_max_level = Player::GetMaxLevelForBattleGroundQueueId(queue_id);
+
+            // replace hardcoded max level by player max level for nice output
+            if(q_max_level > sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
+                q_max_level = sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL);
+
+            int8 MinPlayers = bg->GetMinPlayersPerTeam();
+
+            uint8 qHorde = 0;
+            uint8 qAlliance = 0;
+
+            uint32 bgTypeId = ginfo->BgTypeId;
+            QueuedPlayersMap::iterator itr;
+            for(itr = m_QueuedPlayers[queue_id].begin(); itr!= m_QueuedPlayers[queue_id].end(); ++itr)
+            {
+                if(itr->second.GroupInfo->BgTypeId == bgTypeId)
+                {
+                    switch(itr->second.GroupInfo->Team)
+                    {
+                        case HORDE:
+                            qHorde++; break;
+                        case ALLIANCE:
+                            qAlliance++; break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            // Show queue status to player only (when joining queue)
+            if(sWorld.getConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_PLAYERONLY))
+            {
+                ChatHandler(plr).PSendSysMessage(LANG_BG_QUEUE_ANNOUNCE_SELF,
+                    bgName, q_min_level, q_max_level, qAlliance, MinPlayers, qHorde, MinPlayers);
+            }
+            // System message
+            else
+            {
+                sWorld.SendWorldText(LANG_BG_QUEUE_ANNOUNCE_WORLD,
+                    bgName, q_min_level, q_max_level, qAlliance, MinPlayers, qHorde, MinPlayers);
+            }
         }
     }
 }
@@ -715,6 +767,15 @@ void BattleGroundQueue::Update(uint32 bgTypeId, uint32 queue_id, uint8 arenatype
         {
             // create new battleground
             bg2 = sBattleGroundMgr.CreateNewBattleGround(bgTypeId);
+            if( sWorld.getConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE) )
+            {
+                char const* bgName = bg2->GetName();
+                uint32 q_min_level = Player::GetMinLevelForBattleGroundQueueId(queue_id);
+                uint32 q_max_level = Player::GetMaxLevelForBattleGroundQueueId(queue_id);
+                if(q_max_level > sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
+                    q_max_level = sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL);
+                sWorld.SendWorldText(LANG_BG_STARTED_ANNOUNCE_WORLD, bgName, q_min_level, q_max_level);
+            }
         }
 
         if(!bg2)

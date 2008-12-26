@@ -2018,15 +2018,18 @@ uint32 Unit::CalcArmorReducedDamage(Unit* pVictim, const uint32 damage)
     // Ignore enemy armor by SPELL_AURA_MOD_TARGET_RESISTANCE aura
     armor += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_TARGET_RESISTANCE, SPELL_SCHOOL_MASK_NORMAL);
 
-    if (armor<0.0f) armor=0.0f;
+    // Apply Player CR_ARMOR_PENETRATION rating
+    if (GetTypeId()==TYPEID_PLAYER)
+        armor *= 1.0f - ((Player*)this)->GetRatingBonusValue(CR_ARMOR_PENETRATION) / 100.0f;
 
-    float tmpvalue = 0.0f;
-    if(getLevel() <= 59)                                    //Level 1-59
-        tmpvalue = armor / (armor + 400.0f + 85.0f * getLevel());
-    else if(getLevel() < 70)                                //Level 60-69
-        tmpvalue = armor / (armor - 22167.5f + 467.5f * getLevel());
-    else                                                    //Level 70+
-        tmpvalue = armor / (armor + 10557.5f);
+    if (armor < 0.0f) armor=0.0f;
+
+    float levelModifier = getLevel();
+    if ( levelModifier > 59 )
+        levelModifier = levelModifier + (4.5f * (levelModifier-59));
+
+    float tmpvalue = 0.1f * armor / (8.5f * levelModifier + 40);
+    tmpvalue = tmpvalue/(1.0f + tmpvalue);
 
     if(tmpvalue < 0.0f)
         tmpvalue = 0.0f;
@@ -9759,7 +9762,7 @@ void Unit::Unmount()
     if(GetTypeId() == TYPEID_PLAYER && IsInWorld() && ((Player*)this)->GetTemporaryUnsummonedPetNumber() && isAlive())
     {
         Pet* NewPet = new Pet;
-        if(!NewPet->LoadPetFromDB(this, 0, ((Player*)this)->GetTemporaryUnsummonedPetNumber(), true))
+        if(!NewPet->LoadPetFromDB((Player*)this, 0, ((Player*)this)->GetTemporaryUnsummonedPetNumber(), true))
             delete NewPet;
 
         ((Player*)this)->SetTemporaryUnsummonedPetNumber(0);
@@ -12514,6 +12517,9 @@ Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget,uint32 spell_id)
     pet->SetCreatorGUID(GetGUID());
     pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, getFaction());
     pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, spell_id);
+
+    if(GetTypeId()==TYPEID_PLAYER)
+        pet->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
 
     uint32 level = (creatureTarget->getLevel() < (getLevel() - 5)) ? (getLevel() - 5) : creatureTarget->getLevel();
     pet->SetFreeTalentPoints(pet->GetMaxTalentPointsForLevel(level));

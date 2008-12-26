@@ -495,8 +495,8 @@ LogColors = ""
 #
 #    AlwaysMaxSkillForLevel
 #        Players will automatically gain max level dependent (weapon/defense) skill when logging in, leveling up etc.
-#        Default: 0 (true)
-#                 1 (false)
+#        Default: 0 (false)
+#                 1 (true)
 #
 #    ActivateWeather
 #        Activate weather system
@@ -510,11 +510,15 @@ LogColors = ""
 #
 #    Battleground.QueueAnnouncer.Enable
 #        Enable queue announcer posting to chat
-#        Default: 1 (true)
-#                 0 (false)
+#        Default: 0 (false)
+#                 1 (true)
 #
 #    Battleground.QueueAnnouncer.PlayerOnly
 #        Enable queue announcer posting to chat
+#        Default: 0 (false)
+#                 1 (true)
+#
+#    Arena.QueueAnnouncer.Enable: Enable queue announcer posting to chat
 #        Default: 0 (false)
 #                 1 (true)
 #
@@ -624,8 +628,9 @@ AllFlightPaths = 0
 AlwaysMaxSkillForLevel = 0
 ActivateWeather = 1
 Battleground.CastDeserter = 1
-Battleground.QueueAnnouncer.Enable = 1
+Battleground.QueueAnnouncer.Enable = 0
 Battleground.QueueAnnouncer.PlayerOnly = 0
+Arena.QueueAnnouncer.Enable = 0
 CastUnstuck = 1
 Instance.IgnoreLevel = 0
 Instance.IgnoreRaid = 0
