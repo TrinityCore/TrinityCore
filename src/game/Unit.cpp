@@ -899,13 +899,13 @@ void Unit::CastSpell(Unit* Victim,SpellEntry const *spellInfo, bool triggered, I
     {
         if(spellmgr.SpellTargetType[spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_UNIT_TARGET)
         {
-            SpellRangeEntry const* srange = sSpellRangeStore.LookupEntry(spellInfo->rangeIndex);
+            /*SpellRangeEntry const* srange = sSpellRangeStore.LookupEntry(spellInfo->rangeIndex);
             if(srange && GetSpellMaxRange(srange) == 0.0f)
             {
                 Victim = this;
                 break;
             }
-            else if(!Victim)
+            else */if(!Victim)
             {
                 sLog.outError("CastSpell: spell id %i by caster: %s %u) does not have unit target", spellInfo->Id,(GetTypeId()==TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId()==TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
                 return;
@@ -7693,8 +7693,8 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
 
     if(basepoints0)
         CastCustomSpell(target,trigger_spell_id,&basepoints0,NULL,NULL,true,castItem,triggeredByAura);
-    else if(spellmgr.GetSpellCustomAttr(trigger_spell_id) & SPELL_ATTR_CU_AURA_SPELL)
-        AddAura(trigger_spell_id, target);
+    //else if(spellmgr.GetSpellCustomAttr(trigger_spell_id) & SPELL_ATTR_CU_AURA_SPELL)
+    //    AddAura(trigger_spell_id, target);
     else
         CastSpell(target,trigger_spell_id,true,castItem,triggeredByAura);
 
