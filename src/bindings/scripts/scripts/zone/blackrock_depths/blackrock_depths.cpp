@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Blackrock_Depths
 SD%Complete: 95
-SDComment: Quest support: 4001, 4342, 7604. Vendor Lokhtos Darkbargainer.
+SDComment: Quest support: 4001, 4342, 7604, 4322. Vendor Lokhtos Darkbargainer.
 SDCategory: Blackrock Depths
 EndScriptData */
 
@@ -25,12 +25,15 @@ EndScriptData */
 mob_phalanx
 npc_kharan_mighthammer
 npc_lokhtos_darkbargainer
+npc_dughal_stormwing
+npc_marshal_windsor
+npc_marshal_reginald_windsor
+npc_tobias_seecher
 EndContentData */
 
 #include "precompiled.h"
 #include "../../npc/npc_escortAI.h"
 #include "def_blackrock_depths.h"
-#include "GameObject.h"
 
 /*######
 ## mob_phalanx
@@ -281,6 +284,7 @@ CreatureAI* GetAI_npc_dughal_stormwing(Creature *_Creature)
     dughal_stormwingAI->AddWaypoint(0, 280.42,-82.86, -77.12,0);
     dughal_stormwingAI->AddWaypoint(1, 287.64,-87.01, -76.79,0);
     dughal_stormwingAI->AddWaypoint(2, 354.63,-64.95, -67.53,0);
+
     return (CreatureAI*)dughal_stormwingAI;
 }
 bool GossipHello_npc_dughal_stormwing(Player *player, Creature *_Creature)
@@ -425,6 +429,7 @@ struct TRINITY_DLL_DECL npc_marshal_windsorAI : public npc_escortAI
 CreatureAI* GetAI_npc_marshal_windsor(Creature *_Creature)
 {    
     npc_marshal_windsorAI* marshal_windsorAI = new npc_marshal_windsorAI(_Creature);
+
     marshal_windsorAI->AddWaypoint(0, 316.336,-225.528, -77.7258,7000);
     marshal_windsorAI->AddWaypoint(1, 316.336,-225.528, -77.7258,2000);
 	marshal_windsorAI->AddWaypoint(2, 322.96,-207.13, -77.87,0);
@@ -445,6 +450,7 @@ CreatureAI* GetAI_npc_marshal_windsor(Creature *_Creature)
     marshal_windsorAI->AddWaypoint(17, 403.61,-51.71, -63.92,2000);
     marshal_windsorAI->AddWaypoint(18, 403.61,-51.71, -63.92,1000);
     marshal_windsorAI->AddWaypoint(19, 403.61,-51.71, -63.92,0);
+
     return (CreatureAI*)marshal_windsorAI;
 }
 
@@ -545,8 +551,8 @@ struct TRINITY_DLL_DECL npc_marshal_reginald_windsorAI : public npc_escortAI
 			break;
 		case 32:
 			m_creature->Say(SAY_REGINALD_WINDSOR_20_2, LANG_UNIVERSAL, PlayerGUID);
-			PlayerStart->GroupEventHappens(QUEST_JAIL_BREAK,m_creature);
-			pInstance->SetData(DATA_SHILL,ENCOUNTER_STATE_ENDED);
+			PlayerStart->GroupEventHappens(QUEST_JAIL_BREAK, m_creature);
+			pInstance->SetData(DATA_SHILL, ENCOUNTER_STATE_ENDED);
 			break;
 		}
 	}
@@ -636,6 +642,7 @@ struct TRINITY_DLL_DECL npc_marshal_reginald_windsorAI : public npc_escortAI
 CreatureAI* GetAI_npc_marshal_reginald_windsor(Creature *_Creature)
 {    
     npc_marshal_reginald_windsorAI* marshal_reginald_windsorAI = new npc_marshal_reginald_windsorAI(_Creature);
+
     marshal_reginald_windsorAI->AddWaypoint(0, 403.61,-52.71, -63.92,4000);
     marshal_reginald_windsorAI->AddWaypoint(1, 403.61,-52.71, -63.92,4000);
     marshal_reginald_windsorAI->AddWaypoint(2, 406.33,-54.87, -63.95,0);
@@ -667,10 +674,11 @@ CreatureAI* GetAI_npc_marshal_reginald_windsor(Creature *_Creature)
     marshal_reginald_windsorAI->AddWaypoint(28, 484.21,-56.24, -62.43,0);
 	marshal_reginald_windsorAI->AddWaypoint(29, 470.39,-6.01, -70.10,0);
     marshal_reginald_windsorAI->AddWaypoint(30, 451.27,30.85, -70.07,0);
-    marshal_reginald_windsorAI->AddWaypoint(31, 452.45,29.85, -70.37,1500); //tezi trqbva da se opravqt
+    marshal_reginald_windsorAI->AddWaypoint(31, 452.45,29.85, -70.37,1500);
     marshal_reginald_windsorAI->AddWaypoint(32, 452.45,29.85, -70.37,7000);
     marshal_reginald_windsorAI->AddWaypoint(33, 452.45,29.85, -70.37,10000);
     marshal_reginald_windsorAI->AddWaypoint(34, 451.27,31.85, -70.07,0);
+
 	return (CreatureAI*)marshal_reginald_windsorAI;
 }
 
@@ -742,6 +750,7 @@ CreatureAI* GetAI_npc_tobias_seecher(Creature *_Creature)
     tobias_seecherAI->AddWaypoint(2, 533.59, -249.38, -67.04);
     tobias_seecherAI->AddWaypoint(3, 519.44, -217.02, -59.34);
     tobias_seecherAI->AddWaypoint(4, 506.55, -153.49, -62.34);
+
     return (CreatureAI*)tobias_seecherAI;
 }
 
