@@ -446,8 +446,11 @@ void OutdoorPvPObjective::UpdateActivePlayerProximityCheck()
     {
         for(int team = 0; team < 2; ++team)
         {
-            for(std::set<uint64>::iterator itr = m_ActivePlayerGuids[team].begin(); itr != m_ActivePlayerGuids[team].end(); ++ itr)
+            std::set<uint64>::iterator itr, next;
+            for(itr = m_ActivePlayerGuids[team].begin(); itr != m_ActivePlayerGuids[team].end(); itr = next)
             {
+                next = itr;
+                ++next;
                 // if the player is online
                 if(Player * pl = objmgr.GetPlayer(*itr))
                 {
