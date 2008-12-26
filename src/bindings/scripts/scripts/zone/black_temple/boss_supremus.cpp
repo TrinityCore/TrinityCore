@@ -30,7 +30,7 @@ EndScriptData */
 
 //Spells
 #define SPELL_MOLTEN_PUNCH          40126
-#define SPELL_HURTFUL_STRIKE        41926
+#define SPELL_HATEFUL_STRIKE        41926
 #define SPELL_MOLTEN_FLAME          40980
 #define SPELL_VOLCANIC_ERUPTION     40117
 #define SPELL_VOLCANIC_SUMMON       40276
@@ -63,7 +63,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
     uint32 SwitchTargetTimer;
     uint32 PhaseSwitchTimer;
     uint32 SummonVolcanoTimer;
-    uint32 HurtfulStrikeTimer;
+    uint32 HatefulStrikeTimer;
     uint32 BerserkTimer;
 
     bool Phase1;
@@ -82,7 +82,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
             else ToggleDoors(false);
         }
 
-        HurtfulStrikeTimer = 5000;
+        HatefulStrikeTimer = 5000;
         SummonFlameTimer = 20000;
         SwitchTargetTimer = 90000;
         PhaseSwitchTimer = 60000;
@@ -123,7 +123,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
     void JustSummoned(Creature *summon) {summons.Summon(summon);}
     void SummonedCreatureDespawn(Creature *summon) {summons.Despawn(summon);}
 
-    Unit* CalculateHurtfulStrikeTarget()
+    Unit* CalculateHatefulStrikeTarget()
     {
         uint32 health = 0;
         Unit* target = NULL;
@@ -166,14 +166,14 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
 
         if(Phase1)
         {
-            if(HurtfulStrikeTimer < diff)
+            if(HatefulStrikeTimer < diff)
             {
-                if(Unit* target = CalculateHurtfulStrikeTarget())
+                if(Unit* target = CalculateHatefulStrikeTarget())
                 {
-                    DoCast(target, SPELL_HURTFUL_STRIKE);
-                    HurtfulStrikeTimer = 5000;
+                    DoCast(target, SPELL_HATEFUL_STRIKE);
+                    HatefulStrikeTimer = 5000;
                 }
-            }else HurtfulStrikeTimer -= diff;
+            }else HatefulStrikeTimer -= diff;
         }
 
         if(!Phase1)
