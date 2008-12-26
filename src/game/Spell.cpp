@@ -3890,7 +3890,8 @@ uint8 Spell::CanCast(bool strict)
                     SkillValue = 0;
 
                 // add the damage modifier from the spell casted (cheat lock / skeleton key etc.) (use m_currentBasePoints, CalculateDamage returns wrong value)
-                SkillValue += m_currentBasePoints[i]/*+1*/;
+                // TODO: is this a hack?
+                SkillValue += m_currentBasePoints[i]+1;
 
                 // get the required lock value
                 int32 ReqValue=0;
