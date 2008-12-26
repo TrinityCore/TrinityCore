@@ -36,11 +36,17 @@ void
 WaypointMovementGenerator<Creature>::Initialize(Creature &u)
 {
 	u.StopMoving();
-	i_nextMoveTime.Reset(0);
-	i_currentNode = -1;
 	if(!path_id)
 		path_id = u.GetWaypointPath();
-	waypoints = WaypointMgr.GetPath(path_id); 
+	waypoints = WaypointMgr.GetPath(path_id);
+    if(waypoints && waypoints->size())
+    {
+        Traveller<Creature> traveller(unit);
+        node = *(waypoints->at(i_currentNode));
+	    InitTraveller(u,node);
+	    i_destinationHolder.SetDestination(traveller, node.x, node.y, node.z);
+        i_nextMoveTime.Reset(i_destinationHolder.GetTotalTravelTime());
+    }
 }
 
 template<>
