@@ -152,7 +152,7 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 	Unit* FindCreature(uint32 entry, uint32 range);
 
 	//Get a single gameobject of given entry
-	GameObject* ScriptedAI::FindGameObject(uint32 entry);
+	GameObject* FindGameObject(uint32 entry);
 
     //Returns friendly unit with the most amount of hp missing from max hp
     Unit* DoSelectLowestHpFriendly(float range, uint32 MinHPDiff = 1);
