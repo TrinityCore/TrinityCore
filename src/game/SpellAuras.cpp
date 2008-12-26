@@ -2462,6 +2462,9 @@ void Aura::HandleAuraModShapeshift(bool apply, bool Real)
             else
                 modelid = 21244;
             break;
+        case FORM_METAMORPHOSIS:
+            modelid = 25277;
+            break;
         case FORM_AMBIENT:
         case FORM_SHADOW:
         case FORM_STEALTH:
@@ -5138,6 +5141,10 @@ void Aura::HandleShapeshiftBoosts(bool apply)
         case FORM_FLIGHT_EPIC:
             spellId  = 40122;
             spellId2 = 40121;
+            break;
+        case FORM_METAMORPHOSIS:
+            spellId  = 54817;
+            spellId2 = 54879;
             break;
         case FORM_SPIRITOFREDEMPTION:
             spellId  = 27792;

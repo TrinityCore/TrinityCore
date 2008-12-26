@@ -77,6 +77,7 @@ class BattleGroundQueue
         void RemovePlayer(uint64 guid, bool decreaseInvitedCount);
         void DecreaseGroupLength(uint32 queueId, uint32 AsGroup);
         void BGEndedRemoveInvites(BattleGround * bg);
+        void AnnounceWorld(GroupQueueInfo *ginfo, uint64 playerGUID, bool isAddedToQueue);
 
         typedef std::map<uint64, PlayerQueueInfo> QueuedPlayersMap;
         QueuedPlayersMap m_QueuedPlayers[MAX_BATTLEGROUND_QUEUES];
