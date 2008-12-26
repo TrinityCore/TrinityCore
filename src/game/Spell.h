@@ -505,7 +505,7 @@ class Spell
             SpellMissInfo reflectResult:8;
             uint8  effectMask:8;
             bool   processed:1;
-            bool   killTarget:1;
+            int32  damage;
         };
         std::list<TargetInfo> m_UniqueTargetInfo;
         uint8 m_needAliveTargetMask;                        // Mask req. alive targets
@@ -542,6 +542,11 @@ class Spell
         void SearchChainTarget(std::list<Unit*> &data, Unit* pUnitTarget, float max_range, uint32 unMaxTargets);
         bool IsValidSingleTargetEffect(Unit const* target, Targets type) const;
         bool IsValidSingleTargetSpell(Unit const* target) const;
+        void CalculateDamageDoneForAllTargets();
+        int32 CalculateDamageDone(Unit *unit, const uint32 effectMask, float *multiplier);
+        void SpellDamageSchoolDmg(uint32 i);
+        void SpellDamageWeaponDmg(uint32 i);
+        void SpellDamageHeal(uint32 i);
         // -------------------------------------------
 
         //List For Triggered Spells

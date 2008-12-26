@@ -1165,7 +1165,7 @@ bool Pet::InitStatsForLevel(uint32 petlevel)
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
                     break;
                 case 15438: //fire elemental
-                    SetCreateHealth(30 + 40*petlevel);
+                    SetCreateHealth(40*petlevel);
                     SetCreateMana(28 + 10*petlevel);
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel * 4 - petlevel));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel * 4 + petlevel));
