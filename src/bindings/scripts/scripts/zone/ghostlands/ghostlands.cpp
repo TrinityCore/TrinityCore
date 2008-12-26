@@ -211,6 +211,7 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
 			m_creature->setFaction(1602);
 
 		GameObject* Cage = FindGameObject(GO_CAGE);
+		if(Cage)
 		Cage->SetGoState(1);
 	}
  
