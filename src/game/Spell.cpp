@@ -1565,7 +1565,6 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             switch(cur)
             {
                 case TARGET_UNIT_AREA_ENEMY_GROUND:
-                case TARGET_UNIT_AREA_ENEMY_CHANNEL:
                     m_targets.m_targetMask |= TARGET_FLAG_DEST_LOCATION;
                 case TARGET_UNIT_AREA_ENEMY:
                     SearchAreaTarget(TagUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
@@ -5317,7 +5316,7 @@ void Spell::CalculateDamageDoneForAllTargets()
 
     for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
     {
-        TargetInfo target = *ihit;
+        TargetInfo &target = *ihit;
 
         uint32 mask = target.effectMask;
         if(!mask)
