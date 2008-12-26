@@ -1251,6 +1251,12 @@ Ra.Secure = 1
 #       example: "538,90"
 #       Note that it's HIGHLY DISCOURAGED to forbid starting maps (0, 1, 530)!
 #
+#    ShowKickInWorld
+#        determines wether a message is broadcasted to the entire server when a player gets kicked
+#        Default: 0
+#        1 = Enable
+#        0 = Disable
+#
 ###################################################################################################################
 
 PlayerStart.AllReputation = 0
@@ -1264,4 +1270,4 @@ PvPToken.MapAllowType = 4
 PvPToken.ItemID = 29434
 PvPToken.ItemCount = 1
 NoResetTalentsCost = 0
-
+ShowKickInWorld = 0
