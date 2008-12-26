@@ -5344,7 +5344,14 @@ int32 Spell::CalculateDamageDone(Unit *unit, const uint32 effectMask, float *mul
     {
         if (effectMask & (1<<i))
         {
-            damage = CalculateDamage(i, NULL) * m_damageMultipliers[i];
+            if(m_applyMultiplierMask & (1 << i))
+            {
+                damage = CalculateDamage(i, NULL) * m_damageMultipliers[i];
+                m_damageMultipliers[i] *= multiplier[i];
+            }
+            else
+                damage = CalculateDamage(i, NULL);
+
             switch(m_spellInfo->Effect[i])
             {
                 case SPELL_EFFECT_SCHOOL_DAMAGE:
@@ -5360,8 +5367,6 @@ int32 Spell::CalculateDamageDone(Unit *unit, const uint32 effectMask, float *mul
                     SpellDamageHeal(i);
                     break;
             }
-            if ( m_applyMultiplierMask & (1 << i) )
-                m_damageMultipliers[i] *= multiplier[i];
         }
     }
     return m_damage;
