@@ -162,6 +162,7 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
 			{
 			m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
 			GameObject* Cage = FindGameObject(GO_CAGE);
+			if(Cage)
 			Cage->SetGoState(0);
 			DoSay(SAY_START, LANG_UNIVERSAL, player);
 			break;
@@ -198,6 +199,7 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
 			m_creature->SetOrientation(5.858011);
 			DoSay(SAY_END2, LANG_UNIVERSAL, player);
 			Unit* CaptainHelios = FindCreature(NPC_CAPTAIN_HELIOS, 50);
+			if(CaptainHelios)
 			((Creature*)CaptainHelios)->Say(CAPTAIN_ANSWER, LANG_UNIVERSAL, PlayerGUID);
 			break;                        
 		}
