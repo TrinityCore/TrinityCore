@@ -41,7 +41,7 @@ WaypointMovementGenerator<Creature>::Initialize(Creature &u)
 	waypoints = WaypointMgr.GetPath(path_id);
     if(waypoints && waypoints->size())
     {
-        Traveller<Creature> traveller(unit);
+        Traveller<Creature> traveller(u);
         node = *(waypoints->at(i_currentNode));
 	    InitTraveller(u,node);
 	    i_destinationHolder.SetDestination(traveller, node.x, node.y, node.z);
