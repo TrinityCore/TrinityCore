@@ -568,7 +568,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
 
                     //TODO: should this be put on taken but not done?
                     if(found)
-                        m_damage += m_spellInfo->EffectBasePoints[1];
+                        damage += m_spellInfo->EffectBasePoints[1];
                 }
                 //Explosive Trap Effect
                 else if(m_spellInfo->SpellFamilyFlags & 0x00000004)
