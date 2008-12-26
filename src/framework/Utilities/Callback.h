@@ -142,7 +142,7 @@ namespace Trinity
             void _Execute() { (*m_method)(m_param1, m_param2, m_param3); }
         public:
             _SCallback(Method method, ParamType1 param1, ParamType2 param2, ParamType3 param3)
-                : m_method(method), m_param1(param1), m_param2(param2) {}
+                : m_method(method), m_param1(param1), m_param2(param2), m_param3(param3) {}
             _SCallback(_SCallback < ParamType1, ParamType2, ParamType3 > const& cb)
                 : m_method(cb.m_method), m_param1(cb.m_param1), m_param2(cb.m_param2), m_param3(cb.m_param3) {}
     };
