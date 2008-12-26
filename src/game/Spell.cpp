@@ -5325,7 +5325,7 @@ void Spell::CalculateDamageDoneForAllTargets()
 
         Unit* unit = m_caster->GetGUID()==target.targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, target.targetGUID);
         if (!unit)
-            return;
+            continue;
 
         if (target.missCondition==SPELL_MISS_NONE)                          // In case spell hit target, do all effect on that target
             target.damage += CalculateDamageDone(unit, mask, multiplier);
