@@ -420,6 +420,8 @@ void Spell::FillTargetMap()
 
         if(effectTargetType != SPELL_REQUIRE_UNIT)
         {
+            if(effectTargetType == SPELL_REQUIRE_CASTER)
+                AddUnitTarget(m_caster, i);
             if(effectTargetType == SPELL_REQUIRE_DEST)
             {
                 if(m_targets.HasDest() && m_spellInfo->speed > 0.0f)
