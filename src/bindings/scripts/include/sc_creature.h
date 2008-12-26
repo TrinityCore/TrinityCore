@@ -148,6 +148,12 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     void DoTeleportPlayer(Unit* pUnit, float x, float y, float z, float o);
     void DoTeleportAll(float x, float y, float z, float o);
 
+	//Get a single creature of given entry
+	Unit* FindCreature(uint32 entry, uint32 range);
+
+	//Get a single gameobject of given entry
+	GameObject* ScriptedAI::FindGameObject(uint32 entry);
+
     //Returns friendly unit with the most amount of hp missing from max hp
     Unit* DoSelectLowestHpFriendly(float range, uint32 MinHPDiff = 1);
 
