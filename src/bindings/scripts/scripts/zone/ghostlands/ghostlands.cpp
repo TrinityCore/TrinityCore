@@ -161,7 +161,8 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
 		case 0:			
 			{
 			m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-			setCage(true);
+			GameObject* Cage = FindGameObject(GO_CAGE);
+			Cage->SetGoState(0);
 			DoSay(SAY_START, LANG_UNIVERSAL, player);
 			break;
 			}
@@ -196,7 +197,8 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
 		case 33:
 			m_creature->SetOrientation(5.858011);
 			DoSay(SAY_END2, LANG_UNIVERSAL, player);
-			captainAnswer();
+			Unit* CaptainHelios = FindCreature(NPC_CAPTAIN_HELIOS, 50);
+			((Creature*)CaptainHelios)->Say(CAPTAIN_ANSWER, LANG_UNIVERSAL, PlayerGUID);
 			break;                        
 		}
 	}
@@ -207,7 +209,9 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
 	{
 		if (!IsBeingEscorted)
 			m_creature->setFaction(1602);
-		setCage(false);
+
+		GameObject* Cage = FindGameObject(GO_CAGE);
+		Cage->SetGoState(1);
 	}
  
 	void JustDied(Unit* killer)
@@ -224,57 +228,6 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
     {
         npc_escortAI::UpdateAI(diff);
     }
- 
-	void setCage(bool open)
-	{
-		CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
-		Cell cell(pair);
-		cell.data.Part.reserved = ALL_DISTRICT;
-		cell.SetNoCreate();
- 
-		Trinity::AllGameObjectsWithEntryInGrid go_check(GO_CAGE);
-		Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInGrid> go_search(CageList, go_check);
-		TypeContainerVisitor
-			<Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInGrid>, GridTypeMapContainer> go_visit(go_search);
-		CellLock<GridReadGuard> cell_lock(cell, pair);
-		cell_lock->Visit(cell_lock, go_visit, *(m_creature->GetMap()));
- 
-		if (!CageList.empty())
-		{
-			for(std::list<GameObject*>::iterator itr = CageList.begin(); itr != CageList.end(); ++itr)
-			{
-				if( open )
-					(*itr)->SetGoState(0);
-				else
-					(*itr)->SetGoState(1);
-			}
-		} else error_log("SD2 ERROR: CageList is empty!");
-	}
- 
-	void captainAnswer()
-	{
-		CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
-		Cell cell(pair);
-		cell.data.Part.reserved = ALL_DISTRICT;
-		cell.SetNoCreate();
- 
-		std::list<Creature*> NPCList;
-
-		Trinity::AllCreaturesOfEntryInRange check(m_creature, NPC_CAPTAIN_HELIOS, 100);
-		Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(NPCList, check);
-		TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> visitor(searcher);
- 
-		CellLock<GridReadGuard> cell_lock(cell, pair);
-		cell_lock->Visit(cell_lock, visitor, *(m_creature->GetMap()));
- 
-		if (!NPCList.empty())
-		{
-			for(std::list<Creature*>::iterator itr = NPCList.begin(); itr != NPCList.end(); ++itr)
-			{
-				(*itr)->Say(CAPTAIN_ANSWER, LANG_UNIVERSAL, PlayerGUID);
-			}
-		}else error_log("SD2 ERROR: Captain Helios not found!");
-	}
 };
  
 bool QuestAccept_npc_ranger_lilatha(Player* player, Creature* creature, Quest const* quest)
