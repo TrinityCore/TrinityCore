@@ -2997,7 +2997,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit *pVictim, WeaponAttack
         }
     }
 
-    if(GetTypeId()!=TYPEID_PLAYER && !(((Creature*)this)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_CRUSH) && !((Creature*)this)->isPet() )
+    if(GetTypeId()!=TYPEID_PLAYER && !(((Creature*)this)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_CRUSH) && !((Creature*)this)->isPet() && !SpellCasted /*Only autoattack can be crushing blow*/ )
     {
         // mobs can score crushing blows if they're 3 or more levels above victim
         // or when their weapon skill is 15 or more above victim's defense skill
@@ -8695,8 +8695,10 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                     TakenTotalMod *= (mod+100.0f)/100.0f;
                 }
                 break;
+            //This is changed in WLK, using aura 255
             //Mangle
             case 2312:
+            case 44955:
                 for(int j=0;j<3;j++)
                 {
                     if(GetEffectMechanic(spellProto, j)==MECHANIC_BLEED)
@@ -12352,7 +12354,7 @@ uint32 Unit::GetCastingTimeForBonus( SpellEntry const *spellProto, DamageEffectT
                 break;
         }
 
-        if(IsAreaEffectTarget(Targets(spellProto->EffectImplicitTargetA[i])) || IsAreaEffectTarget(Targets(spellProto->EffectImplicitTargetB[i])))
+        if(IsAreaEffectTarget[spellProto->EffectImplicitTargetA[i]] || IsAreaEffectTarget[spellProto->EffectImplicitTargetB[i]])
             AreaEffect = true;
     }
 
