@@ -81,7 +81,7 @@ class TRINITY_DLL_SPEC WaypointMovementGenerator
 
 	private:
 		WaypointData node;
-		uint32 i_currentNode, path_id;
+		uint32 path_id;
         TimeTrackerSmall i_nextMoveTime;
         WaypointPath *waypoints;
         bool repeating, StopedByPlayer;

@@ -467,25 +467,13 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
         else {
             if(LaceratingSlash_Timer < diff)
             {
-                if(!m_creature->getVictim()->HasAura(SPELL_MANGLEEFFECT, 0))
-                    DoCast(m_creature->getVictim(), SPELL_LACERATINGSLASH);
-                else
-                {
-                    int32 bp0 = 3470;
-                    m_creature->CastCustomSpell(m_creature->getVictim(), SPELL_LACERATINGSLASH, &bp0, NULL, NULL, false);
-                }
+                DoCast(m_creature->getVictim(), SPELL_LACERATINGSLASH);
                 LaceratingSlash_Timer = 18000 + rand()%5000;
             }else LaceratingSlash_Timer -= diff;
 
             if(RendFlesh_Timer < diff)
             {
-                if(!m_creature->getVictim()->HasAura(SPELL_MANGLEEFFECT, 0))
-                    DoCast(m_creature->getVictim(), SPELL_RENDFLESH);
-                else
-                {
-                    int32 bp1 = 4670;
-                    m_creature->CastCustomSpell(m_creature->getVictim(), SPELL_RENDFLESH, NULL, &bp1, NULL, false);
-                }
+                DoCast(m_creature->getVictim(), SPELL_RENDFLESH);
                 RendFlesh_Timer = 5000 + rand()%5000;
             }else RendFlesh_Timer -= diff;
 

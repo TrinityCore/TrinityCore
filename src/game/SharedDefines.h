@@ -833,7 +833,7 @@ enum Targets
     TARGET_GAMEOBJECT                  = 23,
     //TARGET_OBJECT_OPEN
     TARGET_IN_FRONT_OF_CASTER          = 24,
-    //TARGET_UNIT_CONE_ENEMY
+    TARGET_UNIT_CONE_ENEMY             = 24,
     TARGET_DUELVSPLAYER                = 25,
     TARGET_UNIT_TARGET_ANY             = 25,
     TARGET_GAMEOBJECT_ITEM             = 26,
@@ -886,7 +886,7 @@ enum Targets
     TARGET_UNIT_CONE_ALLY              = 59,
     TARGET_UNIT_AREA_SCRIPT            = 60,
     TARGET_AREAEFFECT_PARTY_AND_CLASS  = 61,
-    //TARGET_UNIT_CLASS_TARGET
+    TARGET_UNIT_CLASS_TARGET           = 61,
     TARGET_TEST                        = 62, // for a test spell 
     TARGET_DUELVSPLAYER_COORDINATES    = 63,
     TARGET_DEST_TARGET_ENEMY_UNKNOWN   = 63,

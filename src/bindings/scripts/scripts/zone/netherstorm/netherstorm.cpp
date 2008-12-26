@@ -670,11 +670,13 @@ bool AreaTrigger_at_commander_dawnforge(Player *player, AreaTriggerEntry *at)
 ## npc_protectorate_nether_drake
 ######*/
 
+#define GOSSIP_ITEM	"I'm ready to fly! Take me up, dragon!"
+
 bool GossipHello_npc_protectorate_nether_drake(Player *player, Creature *_Creature)
 {
     //On Nethery Wings
     if (player->GetQuestStatus(10438) == QUEST_STATUS_INCOMPLETE && player->HasItemCount(29778,1) )
-        player->ADD_GOSSIP_ITEM(0, "Fly me to Ultris", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
     player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
 
@@ -695,6 +697,49 @@ bool GossipSelect_npc_protectorate_nether_drake(Player *player, Creature *_Creat
         player->ActivateTaxiPathTo(nodes);                  //TaxiPath 627 (possibly 627+628(152->153->154->155) )
     }
     return true;
+}
+
+/*######
+## npc_professor_dabiri
+######*/
+
+#define SPELL_PHASE_DISTRUPTOR	35780
+#define GOSSIP_ITEM	"I need a new phase distruptor, Professor"
+#define WHISPER_DABIRI "Saeed is currently engaged or awaiting orders to engage. You may check directly east of me and see if Saeed is ready for you. If he is not present then he is off fighting another battle. I recommend that you wait for him to return before attacking Dimensius."
+
+#define QUEST_DIMENSIUS	10439
+#define QUEST_ON_NETHERY_WINGS 10438
+
+bool GossipHello_npc_professor_dabiri(Player *player, Creature *_Creature)
+{
+	if (_Creature->isQuestGiver())
+        player->PrepareQuestMenu( _Creature->GetGUID() );
+
+	if(player->GetQuestStatus(QUEST_ON_NETHERY_WINGS) == QUEST_STATUS_INCOMPLETE && !player->HasItemCount(29778, 1))
+		player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+	
+	player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+
+	return true;
+}
+
+bool GossipSelect_npc_professor_dabiri(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+{
+	if (action == GOSSIP_ACTION_INFO_DEF+1)
+	{
+		_Creature->CastSpell(player, SPELL_PHASE_DISTRUPTOR, false);
+		player->CLOSE_GOSSIP_MENU();
+	}
+
+	return true;
+}
+
+bool QuestAccept_npc_professor_dabiri(Player *player, Creature *creature, Quest const *quest )
+{
+	if(quest->GetQuestId() == QUEST_DIMENSIUS)
+		creature->Whisper(WHISPER_DABIRI, player->GetGUID(), false);
+
+	return true;
 }
 
 /*######
@@ -869,6 +914,13 @@ void AddSC_netherstorm()
     newscript->pGossipHello =   &GossipHello_npc_protectorate_nether_drake;
     newscript->pGossipSelect =  &GossipSelect_npc_protectorate_nether_drake;
     newscript->RegisterSelf();
+
+	newscript = new Script;
+	newscript->Name = "npc_professor_dabiri";
+	newscript->pGossipHello =   &GossipHello_npc_professor_dabiri;
+    newscript->pGossipSelect =  &GossipSelect_npc_professor_dabiri;
+	newscript->pQuestAccept = &QuestAccept_npc_professor_dabiri;
+	newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_veronia";
