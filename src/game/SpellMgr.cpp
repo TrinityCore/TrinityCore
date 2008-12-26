@@ -118,7 +118,8 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_AREA_ENTRY:
             case TARGET_UNIT_AREA_PARTY_GROUND:
             case TARGET_UNIT_AREA_PARTY:
-            case TARGET_UNIT_AREA_ENEMY_CHANNEL:
+            //case TARGET_UNIT_AREA_ENEMY_CHANNEL:
+            //case TARGET_UNIT_AREA_ALLY_CHANNEL:
                 SpellTargetType[i] = TARGET_TYPE_AREA_DEST;
                 break;
             case TARGET_DEST_TARGET_ENEMY:
@@ -154,6 +155,35 @@ SpellMgr::SpellMgr()
                 break;
             default:
                 SpellTargetType[i] = TARGET_TYPE_DEFAULT;
+        }
+    }
+
+    for(int i = 0; i < TOTAL_SPELL_TARGETS; ++i)
+    {
+        switch(i)
+        {
+            case TARGET_UNIT_AREA_ENEMY_GROUND:
+            case TARGET_UNIT_AREA_ENEMY:
+            case TARGET_UNIT_AREA_ALLY_GROUND:
+            case TARGET_UNIT_AREA_ALLY:
+            case TARGET_UNIT_AREA_ENTRY_GROUND:
+            case TARGET_UNIT_AREA_ENTRY:
+            case TARGET_UNIT_AREA_PARTY_GROUND:
+            case TARGET_UNIT_AREA_PARTY:
+            //Check persistant aura seperately
+            //case TARGET_UNIT_AREA_ENEMY_CHANNEL:
+            //case TARGET_UNIT_AREA_ALLY_CHANNEL:
+            case TARGET_UNIT_PARTY_TARGET:
+            case TARGET_UNIT_PARTY_CASTER:
+            case TARGET_UNIT_CONE_ENEMY:
+            case TARGET_UNIT_CONE_ALLY:
+            case TARGET_UNIT_CONE_ENEMY_UNKNOWN:
+            case TARGET_UNIT_RAID:
+                IsAreaEffectTarget[i] = true;
+                break;
+            default:
+                IsAreaEffectTarget[i] = false;
+                break;
         }
     }
 }
