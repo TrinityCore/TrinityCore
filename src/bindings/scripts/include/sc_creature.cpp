@@ -735,6 +735,56 @@ void ScriptedAI::DoTeleportAll(float x, float y, float z, float o)
                 i_pl->TeleportTo(m_creature->GetMapId(), x, y, z, o, TELE_TO_NOT_LEAVE_COMBAT);
 }
 
+Unit* ScriptedAI::FindCreature(uint32 entry, uint32 range)
+{              
+	CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
+    Cell cell(pair);
+    cell.data.Part.reserved = ALL_DISTRICT;
+    cell.SetNoCreate();
+
+    std::list<Creature*> NPCList;
+
+	Trinity::AllCreaturesOfEntryInRange check(m_creature, entry, range);
+	Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(NPCList, check);
+	TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> visitor(searcher);
+
+    CellLock<GridReadGuard> cell_lock(cell, pair);
+    cell_lock->Visit(cell_lock, visitor, *(m_creature->GetMap()));
+
+    if (!NPCList.empty())
+    {
+        for(std::list<Creature*>::iterator itr = NPCList.begin(); itr != NPCList.end(); ++itr)
+        {
+                       return Creature::GetUnit((*m_creature), (*itr)->GetGUID());
+        }
+    }else error_log("SD2 ERROR: Entry: %u not found!", entry); return NULL;
+}
+
+GameObject* ScriptedAI::FindGameObject(uint32 entry)
+{
+       CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
+       Cell cell(pair);
+       cell.data.Part.reserved = ALL_DISTRICT;
+       cell.SetNoCreate();
+
+       std::list<GameObject*> GOList;
+
+	   Trinity::AllGameObjectsWithEntryInGrid go_check(entry);
+	   Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInGrid> go_search(GOList, go_check);
+       TypeContainerVisitor
+		   <Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInGrid>, GridTypeMapContainer> go_visit(go_search);
+       CellLock<GridReadGuard> cell_lock(cell, pair);
+       cell_lock->Visit(cell_lock, go_visit, *(m_creature->GetMap()));
+
+       if (!GOList.empty())
+       {
+               for(std::list<GameObject*>::iterator itr = GOList.begin(); itr != GOList.end(); ++itr)
+               {
+                       return (*itr);
+               }
+       }
+       else error_log("SD2 ERROR: GameObject Entry: %u not found!", entry); return NULL;
+}
 
 Unit* ScriptedAI::DoSelectLowestHpFriendly(float range, uint32 MinHPDiff)
 {
