@@ -2916,7 +2916,7 @@ void Spell::EffectOpenLock(uint32 /*i*/)
         SkillId = SKILL_LOCKPICKING;
 
     // skill bonus provided by casting spell (mostly item spells)
-    uint32 spellSkillBonus = uint32(m_currentBasePoints[0]/*+1*/);
+    uint32 spellSkillBonus = uint32(damage/*m_currentBasePoints[0]+1*/);
 
     uint32 reqSkillValue = lockInfo->requiredminingskill;
 
