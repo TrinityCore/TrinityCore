@@ -108,6 +108,8 @@ extern void AddSC_npcs_special();
 extern void AddSC_alterac_mountains();
 
 //Arathi Highlands
+extern void AddSC_arathi_highlands();
+
 //Ashenvale Forest
 extern void AddSC_ashenvale();
 
@@ -1304,6 +1306,8 @@ void ScriptsInit()
     AddSC_alterac_mountains();
 
     //Arathi Highlands
+	AddSC_arathi_highlands();
+
     //Ashenvale Forest
 	AddSC_ashenvale();
 
