@@ -124,7 +124,7 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     void DoCastSpell(Unit* who,SpellEntry const *spellInfo, bool triggered = false);
 
     //Creature say
-    void DoSay(const char* text, uint32 language, Unit* target);
+    void DoSay(const char* text, uint32 language, Unit* target, bool SayEmote = false);
 
     //Creature Yell
     void DoYell(const char* text, uint32 language, Unit* target);
