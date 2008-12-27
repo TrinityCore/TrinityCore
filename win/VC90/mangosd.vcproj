@@ -116,7 +116,10 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)"
+				CommandLine="copy ..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;
+				&#x0A;
+				copy ..\..\src\mangosd\mangosd.conf.dist.in ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.conf.dist&#x0D;
+				&#x0A;"				
 			/>
 		</Configuration>
 		<Configuration
@@ -216,7 +219,10 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\trinitycore\trinitycore.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.conf.dist&#x0D;&#x0A;"
+				CommandLine="copy ..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;
+				&#x0A;
+				copy ..\..\src\mangosd\mangosd.conf.dist.in ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.conf.dist&#x0D;
+				&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -317,7 +323,10 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)"
+				CommandLine="copy ..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;
+				&#x0A;
+				copy ..\..\src\mangosd\mangosd.conf.dist.in ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.conf.dist&#x0D;
+				&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -418,7 +427,10 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\trinitycore\trinitycore.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.conf.dist&#x0D;&#x0A;"
+				CommandLine="copy ..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;
+				&#x0A;
+				copy ..\..\src\mangosd\mangosd.conf.dist.in ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.conf.dist&#x0D;
+				&#x0A;"				
 			/>
 		</Configuration>
 	</Configurations>
