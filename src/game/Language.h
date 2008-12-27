@@ -650,7 +650,7 @@ enum TrinityStrings
 
 //    LANG_YOUR_ARENA_TEAM_FULL           = 716, an opcode exists for this
 
-    /*LANG_BG_AV_ALLY                     = 717,
+    LANG_BG_AV_ALLY                     = 717,
     LANG_BG_AV_HORDE                    = 718,
     LANG_BG_AV_TOWER_TAKEN              = 719,
     LANG_BG_AV_TOWER_ASSAULTED          = 720,
@@ -677,7 +677,7 @@ enum TrinityStrings
     LANG_BG_AV_NODE_GRAVE_FROST         = 739,
     LANG_BG_AV_NODE_TOWER_FROST_E       = 740,
     LANG_BG_AV_NODE_TOWER_FROST_W       = 741,
-    LANG_BG_AV_NODE_GRAVE_FROST_HUT     = 742,*/
+    LANG_BG_AV_NODE_GRAVE_FROST_HUT     = 742,
 
     LANG_BG_AV_ONEMINTOSTART            = 743,
     LANG_BG_AV_HALFMINTOSTART           = 744,
@@ -689,7 +689,7 @@ enum TrinityStrings
 
     // Room for BG/ARENA                  750-769 not used
 
-/*    LANG_ARENA_TESTING                  = 785,
+    LANG_ARENA_TESTING                  = 785,
 
     LANG_AUTO_ANN                       = 786,
     LANG_ANNOUNCE_COLOR                 = 787,
@@ -711,14 +711,14 @@ enum TrinityStrings
     LANG_CANNOT_TELE_TO_BG              = 1135, // "You cannot teleport to a battleground or arena map."
     LANG_CANNOT_SUMMON_TO_BG            = 1136, // "You cannot summon players to a battleground or arena map."
     LANG_CANNOT_GO_TO_BG_GM             = 1137, // "You must be in GM mode to teleport to a player in a battleground."
-    LANG_CANNOT_GO_TO_BG_FROM_BG        = 1138, // "You cannot teleport to a battleground from another battleground. Please leave the current battleground first."*/
+    LANG_CANNOT_GO_TO_BG_FROM_BG        = 1138, // "You cannot teleport to a battleground from another battleground. Please leave the current battleground first."
 
 //                                      = 716, not used
     LANG_BG_STARTED_ANNOUNCE_WORLD      = 717,
     LANG_ARENA_QUEUE_ANNOUNCE_WORLD_JOIN= 718,
     LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT= 719,
 
-    LANG_BG_GROUP_TOO_LARGE             = 720,              // "Your group is too large for this battleground. Please regroup to join."
+    /*LANG_BG_GROUP_TOO_LARGE             = 720,              // "Your group is too large for this battleground. Please regroup to join."
     LANG_ARENA_GROUP_TOO_LARGE          = 721,              // "Your group is too large for this arena. Please regroup to join."
     LANG_ARENA_YOUR_TEAM_ONLY           = 722,              // "Your group has members not in your arena team. Please regroup to join."
     LANG_ARENA_NOT_ENOUGH_PLAYERS       = 723,              // "Your group does not have enough players to join this match."
@@ -735,7 +735,7 @@ enum TrinityStrings
     LANG_CANNOT_TELE_TO_BG              = 733,              // "You cannot teleport to a battleground or arena map."
     LANG_CANNOT_SUMMON_TO_BG            = 734,              // "You cannot summon players to a battleground or arena map."
     LANG_CANNOT_GO_TO_BG_GM             = 735,              // "You must be in GM mode to teleport to a player in a battleground."
-    LANG_CANNOT_GO_TO_BG_FROM_BG        = 736,              // "You cannot teleport to a battleground from another battleground. Please leave the current battleground first."
+    LANG_CANNOT_GO_TO_BG_FROM_BG        = 736,              // "You cannot teleport to a battleground from another battleground. Please leave the current battleground first."*/
     // Room for batleground/arena strings 737-799 not used
 
     // in game strings
