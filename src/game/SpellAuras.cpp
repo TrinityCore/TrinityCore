@@ -1190,6 +1190,10 @@ void Aura::TriggerSpell()
     uint64 originalCasterGUID = GetCasterGUID();
 
     SpellEntry const *triggeredSpellInfo = sSpellStore.LookupEntry(trigger_spell_id);
+    SpellRangeEntry const* srange = sSpellRangeStore.LookupEntry(triggeredSpellInfo->rangeIndex);
+    if(!GetSpellMaxRange(srange))
+        target = caster;    //for druid dispel poison
+
     SpellEntry const *auraSpellInfo = GetSpellProto();
     uint32 auraId = auraSpellInfo->Id;
 
