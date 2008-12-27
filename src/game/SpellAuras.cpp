@@ -1089,7 +1089,10 @@ void Aura::HandleAddModifier(bool apply, bool Real)
         {
             case 17941:    // Shadow Trance
             case 22008:    // Netherwind Focus
+            case 31834:    // Light's Grace
+            case 34754:    // Clearcasting
             case 34936:    // Backlash
+            case 48108:    // Hot Streak
                 m_procCharges = 1;
                 break;
         }

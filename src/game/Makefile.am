@@ -234,8 +234,6 @@ libmangosgame_a_SOURCES = \
     TaxiHandler.cpp \
     TemporarySummon.cpp \
     TemporarySummon.h \
-    tools.cpp \
-    Tools.h \
     TotemAI.cpp \
     TotemAI.h \
     Totem.cpp \
