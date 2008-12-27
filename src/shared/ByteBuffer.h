@@ -243,6 +243,32 @@ class ByteBuffer
             _rpos += len;
         }
 
+        bool readPackGUID(uint64& guid)
+        {
+            if(rpos()+1 > size())
+                return false;
+
+            guid = 0;
+
+            uint8 guidmark=0;
+            (*this) >> guidmark;
+
+            for(int i=0;i<8;i++)
+            {
+                if(guidmark & (uint8(1) << i))
+                {
+                    if(rpos()+1 > size())
+                        return false;
+
+                    uint8 bit;
+                    (*this) >> bit;
+                    guid |= (uint64(bit) << (i*8));
+                }
+            }
+
+            return true;
+        }
+
         const uint8 *contents() const { return &_storage[0]; }
 
         size_t size() const { return _storage.size(); }

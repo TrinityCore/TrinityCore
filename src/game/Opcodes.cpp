@@ -1181,7 +1181,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x47E*/ { "CMSG_FORCE_SAY_CHEAT",                         STATUS_NEVER,    &WorldSession::Handle_NULL                     },
     /*0x47F*/ { "SMSG_HEALTH_UPDATE",                           STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x480*/ { "SMSG_POWER_UPDATE",                            STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
-    /*0x481*/ { "CMSG_GAMEOBJ_REPORT_USE",                      STATUS_NEVER,    &WorldSession::Handle_NULL                     },
+    /*0x481*/ { "CMSG_GAMEOBJ_REPORT_USE",                      STATUS_LOGGEDIN, &WorldSession::HandleGameobjectReportUse       },
     /*0x482*/ { "SMSG_HIGHEST_THREAT_UPDATE",                   STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x483*/ { "SMSG_THREAT_UPDATE",                           STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x484*/ { "SMSG_THREAT_REMOVE",                           STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
