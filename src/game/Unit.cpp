@@ -12286,7 +12286,7 @@ uint32 Unit::GetCastingTimeForBonus( SpellEntry const *spellProto, DamageEffectT
     return CastingTime;
 }
 
-void Unit::UpdateAuraForGroup(uint8 slot)
+void Unit::UpdateAuraForGroup(uint8 slot, bool apply)
 {
     if(GetTypeId() == TYPEID_PLAYER)
     {
@@ -12294,7 +12294,10 @@ void Unit::UpdateAuraForGroup(uint8 slot)
         if(player->GetGroup())
         {
             player->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_AURAS);
-            player->SetAuraUpdateMask(slot);
+            if(apply)
+                player->SetAuraUpdateMask(slot);
+            else
+                player->UnsetAuraUpdateMask(slot);
         }
     }
     else if(GetTypeId() == TYPEID_UNIT && ((Creature*)this)->isPet())
@@ -12306,7 +12309,10 @@ void Unit::UpdateAuraForGroup(uint8 slot)
             if(owner && (owner->GetTypeId() == TYPEID_PLAYER) && ((Player*)owner)->GetGroup())
             {
                 ((Player*)owner)->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_AURAS);
-                pet->SetAuraUpdateMask(slot);
+                if(apply)
+                    pet->SetAuraUpdateMask(slot);
+                else
+                    pet->UnsetAuraUpdateMask(slot);
             }
         }
     }
