@@ -410,6 +410,9 @@ extern void AddSC_orgrimmar();
 //Razorfen Downs
 extern void AddSC_boss_amnennar_the_coldbringer();
 
+//Razorfen Kraul
+extern void AddSC_razorfen_kraul();
+
 //Redridge Mountains
 //Ruins of Ahn'Qiraj
 //Scarlet Monastery
@@ -1607,6 +1610,9 @@ void ScriptsInit()
     //Ragefire Chasm
     //Razorfen Downs
     AddSC_boss_amnennar_the_coldbringer();
+
+	//Razorfen Kraul
+	AddSC_razorfen_kraul();
 
     //Redridge Mountains
     //Ruins of Ahn'Qiraj

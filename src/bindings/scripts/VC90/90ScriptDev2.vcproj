@@ -702,6 +702,10 @@
 				<Filter
 					Name="Razorfen Kraul"
 					>
+					<File
+						RelativePath="..\scripts\zone\razorfen_kraul\razorfen_kraul.cpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="Redridge Mountains"
