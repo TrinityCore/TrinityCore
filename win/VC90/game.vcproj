@@ -1376,14 +1376,6 @@
 				RelativePath="..\..\src\game\PlayerDump.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\src\game\tools.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\Tools.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="References"

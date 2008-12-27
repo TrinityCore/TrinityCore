@@ -326,6 +326,7 @@ class TRINITY_DLL_SPEC WorldSession
 
         void HandleGameObjectUseOpcode(WorldPacket& recPacket);
         void HandleMeetingStoneInfo(WorldPacket& recPacket);
+        void HandleGameobjectReportUse(WorldPacket& recvPacket);
 
         void HandleNameQueryOpcode(WorldPacket& recvPacket);
 
