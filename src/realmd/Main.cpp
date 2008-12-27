@@ -40,12 +40,12 @@
 #endif
 
 #ifndef _TRINITY_REALM_CONFIG
-# define _TRINITY_REALM_CONFIG  "realmd.conf"
+# define _TRINITY_REALM_CONFIG  "TrinityRealm.conf"
 #endif //_TRINITY_REALM_CONFIG
 
 #ifdef WIN32
 #include "ServiceWin32.h"
-char serviceName[] = "realmd";
+char serviceName[] = "TrinityRealm";
 char serviceLongName[] = "Trinity realm service";
 char serviceDescription[] = "Massive Network Game Object Server";
 /*

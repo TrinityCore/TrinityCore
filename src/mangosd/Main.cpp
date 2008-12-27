@@ -40,7 +40,7 @@
 
 #ifdef WIN32
 #include "ServiceWin32.h"
-char serviceName[] = "Trinityd";
+char serviceName[] = "TrinityCore";
 char serviceLongName[] = "Trinity core service";
 char serviceDescription[] = "Massive Network Game Object Server";
 /*

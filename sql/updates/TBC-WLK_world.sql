@@ -9,19 +9,20 @@ alter table `creature_equip_template`
     change `equipmodel1` `equipentry1` mediumint(8) UNSIGNED default '0' NOT NULL,
     change `equipmodel2` `equipentry2` mediumint(8) UNSIGNED default '0' NOT NULL,
     change `equipmodel3` `equipentry3` mediumint(8) UNSIGNED default '0' NOT NULL;
+update `creature_template` set equipment_id = 0;
 	
 alter table `item_template`
     add column `ScalingStatDistribution` smallint(6) DEFAULT '0' NOT NULL after `stat_value10`,
     add column `ScalingStatValue` smallint(6) DEFAULT '0' NOT NULL after `ScalingStatDistribution`,
     add column `ItemLimitCategory` smallint(6) DEFAULT '0' NOT NULL after `ArmorDamageModifier`,
-    change `Duration` `Duration` int(11) NOT NULL default '0' COMMENT 'Duration in seconds. Negative value means realtime, postive value ingame time' after ArmorDamageModifier;
-	add column `StatsCount` tinyint(3) UNSIGNED DEFAULT '0' NOT NULL after `ContainerSlots`;
-	CHANGE COLUMN `TotemCategory` `TotemCategory` mediumint(9) NOT NULL default '0';
+    change `Duration` `Duration` int(11) NOT NULL default '0' COMMENT 'Duration in seconds. Negative value means realtime, postive value ingame time' after ArmorDamageModifier,
+    add column `StatsCount` tinyint(3) UNSIGNED DEFAULT '0' NOT NULL after `ContainerSlots`,
+    CHANGE COLUMN `TotemCategory` `TotemCategory` mediumint(9) NOT NULL default '0';
 
 
 alter table `quest_template`
     add column `PlayersSlain` tinyint(3) UNSIGNED DEFAULT '0' NOT NULL after `CharTitleId`,
-    add column `BonusTalents` tinyint(3) UNSIGNED DEFAULT '0' NOT NULL after `PlayersSlain`;
+    add column `BonusTalents` tinyint(3) UNSIGNED DEFAULT '0' NOT NULL after `PlayersSlain`,
     CHANGE `RewHonorableKills` `RewHonorableKills` int unsigned NOT NULL default '0';
 
 DROP TABLE IF EXISTS `milling_loot_template`;

@@ -114,7 +114,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\src\realmd\realmd.conf.dist.in ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf.dist"
+				CommandLine="copy ..\..\src\realmd\realmd.conf.dist.in ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf"
 			/>
 		</Configuration>
 		<Configuration
@@ -212,7 +212,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\src\realmd\realmd.conf.dist.in ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf.dist"
+				CommandLine="copy ..\..\src\realmd\realmd.conf.dist.in ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf"
 			/>
 		</Configuration>
 		<Configuration
@@ -311,7 +311,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\src\realmd\realmd.conf.dist.in ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf.dist"
+				CommandLine="copy ..\..\src\realmd\realmd.conf.dist.in ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf"
 			/>
 		</Configuration>
 		<Configuration
@@ -411,7 +411,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\src\realmd\realmd.conf.dist.in ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf.dist"
+				CommandLine="copy ..\..\src\realmd\realmd.conf.dist.in ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf"
 			/>
 		</Configuration>
 	</Configurations>
