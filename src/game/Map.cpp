@@ -653,7 +653,7 @@ bool Map::loaded(const GridPair &p) const
     }
 }*/
 
-void Map::Update(const uint32 &t_diff)
+void Map::RelocationNotify()
 {
     //creatures may be added to the list during update
     i_lock = true;
@@ -666,6 +666,7 @@ void Map::Update(const uint32 &t_diff)
             continue;
         CellPair val = Trinity::ComputeCellPair(unit->GetPositionX(), unit->GetPositionY());
         Cell cell(val);
+        cell.SetNoCreate();
         //if(unit->GetTypeId() == TYPEID_PLAYER)
         //    PlayerRelocationNotify((Player*)unit, cell, val);
         //else
@@ -693,7 +694,10 @@ void Map::Update(const uint32 &t_diff)
     }
     i_unitsToNotify.clear();
     i_lock = false;
+}
 
+void Map::Update(const uint32 &t_diff)
+{
     resetMarkedCells();
 
     //TODO: is there a better way to update activeobjects?
@@ -743,7 +747,7 @@ void Map::Update(const uint32 &t_diff)
                     CellPair pair(x,y);
                     Cell cell(pair);
                     cell.data.Part.reserved = CENTER_DISTRICT;
-                    cell.SetNoCreate();
+                    //cell.SetNoCreate();
                     CellLock<NullGuard> cell_lock(cell, pair);
                     cell_lock->Visit(cell_lock, grid_object_update,  *this);
                     cell_lock->Visit(cell_lock, world_object_update, *this);
@@ -753,6 +757,8 @@ void Map::Update(const uint32 &t_diff)
 
         //   UpdateActiveCells((*iter)->GetPositionX(), (*iter)->GetPositionY(), t_diff);
     }
+
+    RelocationNotify();
 
     // Don't unload grids if it's battleground, since we may have manually added GOs,creatures, those doesn't load from DB at grid re-load !
     // This isn't really bother us, since as soon as we have instanced BG-s, the whole map unloads as the BG gets ended

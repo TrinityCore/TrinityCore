@@ -259,6 +259,7 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         void AddActiveObject(WorldObject* obj) { i_activeObjects.insert(obj); }
         void RemoveActiveObject(WorldObject* obj) { i_activeObjects.erase(obj); }
         void AddUnitToNotify(Unit* unit);
+        void RelocationNotify();
 
         void SendToPlayers(WorldPacket const* data) const;
 

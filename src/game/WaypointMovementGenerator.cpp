@@ -33,24 +33,6 @@ WaypointMovementGenerator<T>::Initialize(T &u){}
 
 template<>
 void
-WaypointMovementGenerator<Creature>::Initialize(Creature &u)
-{
-	u.StopMoving();
-	if(!path_id)
-		path_id = u.GetWaypointPath();
-	waypoints = WaypointMgr.GetPath(path_id);
-    if(waypoints && waypoints->size())
-    {
-        Traveller<Creature> traveller(u);
-        node = *(waypoints->at(i_currentNode));
-	    InitTraveller(u,node);
-	    i_destinationHolder.SetDestination(traveller, node.x, node.y, node.z);
-        i_nextMoveTime.Reset(i_destinationHolder.GetTotalTravelTime());
-    }
-}
-
-template<>
-void
 WaypointMovementGenerator<Creature>::Finalize(Creature &u){}
 
 template<>
@@ -106,6 +88,24 @@ void WaypointMovementGenerator<Creature>::InitTraveller(Creature &unit, const Wa
 		unit.AddUnitMovementFlag(MOVEMENTFLAG_FLYING2);
 	
 	unit.addUnitState(UNIT_STAT_ROAMING);
+}
+
+template<>
+void
+WaypointMovementGenerator<Creature>::Initialize(Creature &u)
+{
+	u.StopMoving();
+	if(!path_id)
+		path_id = u.GetWaypointPath();
+	waypoints = WaypointMgr.GetPath(path_id);
+    if(waypoints && waypoints->size())
+    {
+        Traveller<Creature> traveller(u);
+        node = *(waypoints->at(i_currentNode));
+	    InitTraveller(u,node);
+	    i_destinationHolder.SetDestination(traveller, node.x, node.y, node.z);
+        i_nextMoveTime.Reset(i_destinationHolder.GetTotalTravelTime());
+    }
 }
 
 template<>
