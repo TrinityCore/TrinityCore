@@ -123,8 +123,7 @@ bool ChatHandler::HandleNameAnnounceCommand(const char* args)
     WorldPacket data;
     if(!*args)
         return false;
-    //char str[1024];
-    //sprintf(str, GetTrinityString(LANG_ANNOUNCE_COLOR), m_session->GetPlayer()->GetName(), args);
+
     sWorld.SendWorldText(LANG_ANNOUNCE_COLOR, m_session->GetPlayer()->GetName(), args);
     return true;
 }
@@ -1761,9 +1760,9 @@ bool ChatHandler::HandleLookupAreaCommand(const char* args)
                 // send area in "id - [name]" format
                 std::ostringstream ss;
                 if (m_session)
-					ss << areaEntry->ID << " - |cffffffff|Harea:" << areaEntry->ID << "|h[" << name << " " << localeNames[loc]<< "]|h|r";
-				else
-					ss << areaEntry->ID << " - " << name << " " << localeNames[loc];
+                    ss << areaEntry->ID << " - |cffffffff|Harea:" << areaEntry->ID << "|h[" << name << " " << localeNames[loc]<< "]|h|r";
+                else
+                    ss << areaEntry->ID << " - " << name << " " << localeNames[loc];
 
                 SendSysMessage (ss.str ().c_str());
 
@@ -1771,8 +1770,10 @@ bool ChatHandler::HandleLookupAreaCommand(const char* args)
             }
         }
     }
+
     if (counter == 0)                                      // if counter == 0 then we found nth
         SendSysMessage (LANG_COMMAND_NOAREAFOUND);
+
     return true;
 }
 
@@ -1801,7 +1802,7 @@ bool ChatHandler::HandleLookupTeleCommand(const char * args)
 
     std::ostringstream reply;
 
-	GameTeleMap const & teleMap = objmgr.GetGameTeleMap();
+    GameTeleMap const & teleMap = objmgr.GetGameTeleMap();
     for(GameTeleMap::const_iterator itr = teleMap.begin(); itr != teleMap.end(); ++itr)
     {
         GameTele const* tele = &itr->second;
@@ -1810,9 +1811,9 @@ bool ChatHandler::HandleLookupTeleCommand(const char * args)
             continue;
 
         if (m_session)
-			reply << "  |cffffffff|Htele:" << itr->first << "|h[" << tele->name << "]|h|r\n";
-		else
-			reply << "  " << itr->first << " " << tele->name << "\n";
+            reply << "  |cffffffff|Htele:" << itr->first << "|h[" << tele->name << "]|h|r\n";
+        else
+            reply << "  " << itr->first << " " << tele->name << "\n";
     }
 
     if(reply.str().empty())
@@ -1959,7 +1960,6 @@ bool ChatHandler::HandleSendMailCommand(const char* args)
         return false;
     }
 
-    uint32 mailId = objmgr.GenerateMailID();
     // from console show not existed sender
     uint32 sender_guidlo = m_session ? m_session->GetPlayer()->GetGUIDLow() : 0;
 
@@ -2157,7 +2157,7 @@ bool ChatHandler::HandleGroupgoCommand(const char* args)
         return false;
     }
 
-    Map* gmMap = MapManager::Instance().GetMap(m_session->GetPlayer()->GetMapId(),m_session->GetPlayer());
+    Map* gmMap = m_session->GetPlayer()->GetMap();
     bool to_instance =  gmMap->Instanceable();
 
     // we are in instance, and can summon only player in our group with us as lead
@@ -2187,7 +2187,7 @@ bool ChatHandler::HandleGroupgoCommand(const char* args)
 
         if (to_instance)
         {
-            Map* plMap = MapManager::Instance().GetMap(pl->GetMapId(),pl);
+            Map* plMap = pl->GetMap();
 
             if ( plMap->Instanceable() && plMap->GetInstanceId() != gmMap->GetInstanceId() )
             {
