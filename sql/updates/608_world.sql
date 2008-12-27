@@ -163,4 +163,4 @@ INSERT INTO `spell_script_target` VALUES
 (46852,0,181605), -- Ribbon Pole Music
 (46896,0,181605),
 (47104,1,26401),
-(49058,1,24968); -- Rocket Bot Attack
+(49058,1,24968); -- Rocket Bot Attack
