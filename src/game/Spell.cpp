@@ -1111,6 +1111,14 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
 
     if( m_caster != unit )
     {
+        if (unit->GetCharmerOrOwnerGUID() != m_caster->GetGUID())
+        {
+            if (unit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+            {
+                m_caster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_EVADE);
+                return;
+            }
+        }
         if( !m_caster->IsFriendlyTo(unit) )
         {
             // for delayed spells ignore not visible explicit target
