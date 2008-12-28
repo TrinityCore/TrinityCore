@@ -740,11 +740,11 @@ void ScriptedAI::DoTeleportAll(float x, float y, float z, float o)
                 i_pl->TeleportTo(m_creature->GetMapId(), x, y, z, o, TELE_TO_NOT_LEAVE_COMBAT);
 }
 
-Unit* ScriptedAI::FindCreature(uint32 entry, uint32 range)
+Unit* ScriptedAI::FindCreature(uint32 entry, uint32 range, uint32 district)
 {              
 	CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
     Cell cell(pair);
-    cell.data.Part.reserved = ALL_DISTRICT;
+    cell.data.Part.reserved = district;
     cell.SetNoCreate();
 
     std::list<Creature*> NPCList;
@@ -765,11 +765,11 @@ Unit* ScriptedAI::FindCreature(uint32 entry, uint32 range)
     }else error_log("SD2 ERROR: Entry: %u not found!", entry); return NULL;
 }
 
-GameObject* ScriptedAI::FindGameObject(uint32 entry)
+GameObject* ScriptedAI::FindGameObject(uint32 entry, uint32 district)
 {
        CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
        Cell cell(pair);
-       cell.data.Part.reserved = ALL_DISTRICT;
+       cell.data.Part.reserved = district;
        cell.SetNoCreate();
 
        std::list<GameObject*> GOList;
