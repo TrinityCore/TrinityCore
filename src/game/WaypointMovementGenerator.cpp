@@ -100,8 +100,8 @@ WaypointMovementGenerator<Creature>::Initialize(Creature &u)
     StopedByPlayer = false;
     if(!path_id)
         path_id = u.GetWaypointPath();
-	/*i_currentNode = 0;
     waypoints = WaypointMgr.GetPath(path_id);
+	/*i_currentNode = 0;
     if(waypoints && waypoints->size())
     {
         Traveller<Creature> traveller(u);
