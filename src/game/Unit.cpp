@@ -11095,6 +11095,8 @@ void Unit::CleanupsBeforeDelete()
 {
     if(m_uint32Values)                                      // only for fully created object
     {
+        UnpossessSelf(false);
+        RemoveAllFromVision();
         InterruptNonMeleeSpells(true);
         m_Events.KillAllEvents(false);                      // non-delatable (currently casted spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
         CombatStop();
@@ -11104,8 +11106,6 @@ void Unit::CleanupsBeforeDelete()
         RemoveAllAuras();
         RemoveAllGameObjects();
         RemoveAllDynObjects();
-        UnpossessSelf(false);
-        RemoveAllFromVision();
         GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
     }
     RemoveFromWorld();
