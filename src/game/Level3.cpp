@@ -722,43 +722,57 @@ bool ChatHandler::HandleLoadScriptsCommand(const char* args)
 
 bool ChatHandler::HandleAccountSetGmLevelCommand(const char* args)
 {
-    char* arg1 = strtok((char*)args, " ");
-    if( !arg1 )
+    if(!*args)
         return false;
-
-    /// must be NULL if targeted syntax and must be not nULL if not targeted
-    char* arg2 = strtok(NULL, " ");
 
     std::string targetAccountName;
     uint32 targetAccountId = 0;
     uint32 targetSecurity = 0;
+    uint32 gm = 0;
+    char* arg1 = strtok((char*)args, " ");
+    char* arg2 = strtok(NULL, " ");
 
-    /// only target player different from self allowed (if targetPlayer!=NULL then not console)
-    Player* targetPlayer = getSelectedPlayer();
-    if(targetPlayer && m_session->GetPlayer()!=targetPlayer)
+    if(getSelectedPlayer() && arg1 && !arg2)
     {
-        /// wrong command syntax or unexpected targeting
-        if(arg2)
-            return false;
+        targetAccountId = getSelectedPlayer()->GetSession()->GetAccountId();
+        accmgr.GetName(targetAccountId, targetAccountName);
+        Player* targetPlayer = getSelectedPlayer();
+        gm = atoi(arg1);
 
-        /// security level expected in arg2 after this if.
-        arg2 = arg1;
-
-        targetAccountId = targetPlayer->GetSession()->GetAccountId();
-        targetSecurity = targetPlayer->GetSession()->GetSecurity();
-        if(!accmgr.GetName(targetAccountId,targetAccountName))
+        // Check for invalid specified GM level.
+        if ( (gm < SEC_PLAYER || gm > SEC_ADMINISTRATOR) )
         {
-            PSendSysMessage(LANG_ACCOUNT_NOT_EXIST,targetAccountName.c_str());
+            SendSysMessage(LANG_BAD_VALUE);
             SetSentErrorMessage(true);
             return false;
         }
-    }
-    else
+
+        // Check if targets GM level and specified GM level is not higher than current gm level
+        targetSecurity = targetPlayer->GetSession()->GetSecurity();
+        if(targetSecurity >= m_session->GetSecurity() || gm >= m_session->GetSecurity() )
+        {
+            SendSysMessage(LANG_YOURS_SECURITY_IS_LOW);
+            SetSentErrorMessage(true);
+            return false;
+        }
+
+        // Decide which string to show
+        if(m_session->GetPlayer()!=targetPlayer)
+        {
+            PSendSysMessage(LANG_YOU_CHANGE_SECURITY, targetAccountName.c_str(), gm);
+        }else{
+            PSendSysMessage(LANG_YOURS_SECURITY_CHANGED, m_session->GetPlayer()->GetName(), gm);
+        }
+            
+        loginDatabase.PExecute("UPDATE account SET gmlevel = '%d' WHERE id = '%u'", gm, targetAccountId);
+        return true;
+    }else
     {
-        /// wrong command syntax (second arg expected)
+        // Check for second parameter
         if(!arg2)
             return false;
-
+        
+        // Check for account
         targetAccountName = arg1;
         if(!AccountMgr::normilizeString(targetAccountName))
         {
@@ -766,41 +780,34 @@ bool ChatHandler::HandleAccountSetGmLevelCommand(const char* args)
             SetSentErrorMessage(true);
             return false;
         }
+        
+        // Check for invalid specified GM level.
+        gm = atoi(arg2);
+        if ( (gm < SEC_PLAYER || gm > SEC_ADMINISTRATOR) )
+        {
+            SendSysMessage(LANG_BAD_VALUE);
+            SetSentErrorMessage(true);
+            return false;
+        }
+        
+        targetAccountId = accmgr.GetId(arg1);
+        /// m_session==NULL only for console
+        uint32 plSecurity = m_session ? m_session->GetSecurity() : SEC_CONSOLE;
 
-        targetAccountId = accmgr.GetId(targetAccountName);
+        /// can set security level only for target with less security and to less security that we have
+        /// This is also reject self apply in fact
         targetSecurity = accmgr.GetSecurity(targetAccountId);
+        if(targetSecurity >= plSecurity || gm >= plSecurity )
+        {
+            SendSysMessage(LANG_YOURS_SECURITY_IS_LOW);
+            SetSentErrorMessage(true);
+            return false;
+        }
+
+        PSendSysMessage(LANG_YOU_CHANGE_SECURITY, targetAccountName.c_str(), gm);
+        loginDatabase.PExecute("UPDATE account SET gmlevel = '%d' WHERE id = '%u'", gm, targetAccountId);
+        return true;
     }
-
-    int32 gm = (int32)atoi(arg2);
-    if ( gm < SEC_PLAYER || gm > SEC_ADMINISTRATOR )
-    {
-        SendSysMessage(LANG_BAD_VALUE);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    /// m_session==NULL only for console
-    uint32 plSecurity = m_session ? m_session->GetSecurity() : SEC_CONSOLE;
-
-    /// can set security level only for target with less security and to less security that we have
-    /// This is also reject self apply in fact
-    if(targetSecurity >= plSecurity || uint32(gm) >= plSecurity )
-    {
-        SendSysMessage(LANG_YOURS_SECURITY_IS_LOW);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    if(targetPlayer)
-    {
-        ChatHandler(targetPlayer).PSendSysMessage(LANG_YOURS_SECURITY_CHANGED,GetName(), gm);
-        targetPlayer->GetSession()->SetSecurity(gm);
-    }
-
-    PSendSysMessage(LANG_YOU_CHANGE_SECURITY, targetAccountName.c_str(), gm);
-    loginDatabase.PExecute("UPDATE account SET gmlevel = '%i' WHERE id = '%u'", gm, targetAccountId);
-
-    return true;
 }
 
 /// Set password for account
