@@ -382,7 +382,7 @@ void WorldSession::HandleGuildDemoteOpcode(WorldPacket& recvPacket)
     data << (uint8)3;
     data << GetPlayer()->GetName();
     data << plName;
-    data << guild->GetRankName(slot->RankId+1);
+    data << guild->GetRankName(slot->RankId);
     guild->BroadcastPacket(&data);
 }
 
