@@ -94,6 +94,8 @@ template<>
 void
 WaypointMovementGenerator<Creature>::Initialize(Creature &u)
 {
+    i_currentNode = 0;
+    StopedByPlayer = false;
 	u.StopMoving();
 	if(!path_id)
 		path_id = u.GetWaypointPath();
