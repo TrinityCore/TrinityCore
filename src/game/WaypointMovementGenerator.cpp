@@ -94,10 +94,14 @@ template<>
 void
 WaypointMovementGenerator<Creature>::Initialize(Creature &u)
 {
-	u.StopMoving();
-	if(!path_id)
-		path_id = u.GetWaypointPath();
-	waypoints = WaypointMgr.GetPath(path_id);
+    u.StopMoving();
+    i_currentNode = -1; // uint32, become 0 in the first update
+    i_nextMoveTime.Reset(0);
+    StopedByPlayer = false;
+    if(!path_id)
+        path_id = u.GetWaypointPath();
+	/*i_currentNode = 0;
+    waypoints = WaypointMgr.GetPath(path_id);
     if(waypoints && waypoints->size())
     {
         Traveller<Creature> traveller(u);
@@ -105,7 +109,7 @@ WaypointMovementGenerator<Creature>::Initialize(Creature &u)
 	    InitTraveller(u,node);
 	    i_destinationHolder.SetDestination(traveller, node.x, node.y, node.z);
         i_nextMoveTime.Reset(i_destinationHolder.GetTotalTravelTime());
-    }
+    }*/
 }
 
 template<>

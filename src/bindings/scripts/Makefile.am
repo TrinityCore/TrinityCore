@@ -69,6 +69,7 @@ scripts/npc/npc_innkeeper.cpp \
 scripts/npc/npc_professions.cpp \
 scripts/npc/npcs_special.cpp \
 scripts/zone/alterac_mountains/alterac_mountains.cpp \
+scripts/zone/arathi_highlands/arathi_highlands.cpp \
 scripts/zone/ashenvale_forest/ashenvale.cpp\
 scripts/zone/aunchindoun/auchenai_crypts/boss_exarch_maladaar.cpp \
 scripts/zone/aunchindoun/mana_tombs/boss_nexusprince_shaffar.cpp \
@@ -274,6 +275,7 @@ scripts/zone/netherstorm/netherstorm.cpp \
 scripts/zone/onyxias_lair/boss_onyxia.cpp \
 scripts/zone/orgrimmar/orgrimmar.cpp \
 scripts/zone/razorfen_downs/boss_amnennar_the_coldbringer.cpp \
+scripts/zone/razorfen_kraul/razorfen_kraul.cpp \
 scripts/zone/ruins_of_ahnqiraj/boss_ayamiss.cpp \
 scripts/zone/ruins_of_ahnqiraj/boss_buru.cpp \
 scripts/zone/ruins_of_ahnqiraj/boss_kurinnaxx.cpp \

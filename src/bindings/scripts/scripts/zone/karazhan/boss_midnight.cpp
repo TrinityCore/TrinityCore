@@ -58,6 +58,7 @@ struct TRINITY_DLL_DECL boss_midnightAI : public ScriptedAI
         Attumen = 0;
         Mount_Timer = 0;
 
+		m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->SetVisibility(VISIBILITY_ON);
     }
 

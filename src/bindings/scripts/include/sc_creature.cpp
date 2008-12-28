@@ -236,9 +236,14 @@ void ScriptedAI::DoCastSpell(Unit* who,SpellEntry const *spellInfo, bool trigger
     m_creature->CastSpell(who, spellInfo, triggered);
 }
 
-void ScriptedAI::DoSay(const char* text, uint32 language, Unit* target)
+void ScriptedAI::DoSay(const char* text, uint32 language, Unit* target, bool SayEmote)
 {
-    if (target) m_creature->Say(text, language, target->GetGUID());
+	if (target)
+	{
+		m_creature->Say(text, language, target->GetGUID());
+		if(SayEmote)
+			m_creature->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+	}
     else m_creature->Say(text, language, 0);
 }
 
