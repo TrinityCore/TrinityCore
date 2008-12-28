@@ -1987,7 +1987,8 @@ void ObjectMgr::LoadItemPrototypes()
 
 void ObjectMgr::LoadAuctionItems()
 {
-    QueryResult *result = CharacterDatabase.Query( "SELECT itemguid,item_template FROM auctionhouse" );
+    // data needs to be at first place for Item::LoadFromDB
+    QueryResult *result = CharacterDatabase.Query( "SELECT data,itemguid,item_template FROM auctionhouse JOIN item_instance ON itemguid = guid" );
 
     if( !result )
         return;
@@ -2002,8 +2003,8 @@ void ObjectMgr::LoadAuctionItems()
         bar.step();
 
         fields = result->Fetch();
-        uint32 item_guid        = fields[0].GetUInt32();
-        uint32 item_template    = fields[1].GetUInt32();
+        uint32 item_guid        = fields[1].GetUInt32();
+        uint32 item_template    = fields[2].GetUInt32();
 
         ItemPrototype const *proto = GetItemPrototype(item_template);
 
@@ -2015,7 +2016,7 @@ void ObjectMgr::LoadAuctionItems()
 
         Item *item = NewItemOrBag(proto);
 
-        if(!item->LoadFromDB(item_guid,0))
+        if(!item->LoadFromDB(item_guid,0, result))
         {
             delete item;
             continue;

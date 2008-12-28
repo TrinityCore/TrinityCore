@@ -874,6 +874,40 @@ bool ChatHandler::HandleModifyRageCommand(const char* args)
     return true;
 }
 
+// Edit Player Runic Power
+bool ChatHandler::HandleModifyRunicPowerCommand(const char* args)
+{
+    if(!*args)
+        return false;
+
+    int32 rune = atoi((char*)args)*10;
+    int32 runem = atoi((char*)args)*10;
+
+    if (rune <= 0 || runem <= 0 || runem < rune)
+    {
+        SendSysMessage(LANG_BAD_VALUE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    Player *chr = getSelectedPlayer();
+    if (chr == NULL)
+    {
+        SendSysMessage(LANG_NO_CHAR_SELECTED);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    PSendSysMessage(LANG_YOU_CHANGE_RUNIC_POWER, chr->GetName(), rune/10, runem/10);
+    if (needReportToTarget(chr))
+        ChatHandler(chr).PSendSysMessage(LANG_YOURS_RUNIC_POWER_CHANGED, GetName(), rune/10, runem/10);
+
+    chr->SetMaxPower(POWER_RUNIC_POWER,runem );
+    chr->SetPower(POWER_RUNIC_POWER, rune );
+
+    return true;
+}
+
 //Edit Player Faction
 bool ChatHandler::HandleModifyFactionCommand(const char* args)
 {
