@@ -882,7 +882,7 @@ void Aura::_AddAura()
                 SendAuraUpdate(false);
 
                 // update for out of range group members
-                m_target->UpdateAuraForGroup(slot);
+                m_target->UpdateAuraForGroup(slot, true);
             }
         }
         else                                                // use found slot
@@ -970,7 +970,7 @@ void Aura::_RemoveAura()
         SendAuraUpdate(true);
 
         // update for out of range group members
-        m_target->UpdateAuraForGroup(slot);
+        m_target->UpdateAuraForGroup(slot, false);
 
         if( IsSealSpell(GetSpellProto()) )
             m_target->ModifyAuraState(AURA_STATE_JUDGEMENT,false);

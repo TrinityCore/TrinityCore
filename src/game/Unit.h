@@ -1449,7 +1449,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void UpdateReactives(uint32 p_time);
 
         // group updates
-        void UpdateAuraForGroup(uint8 slot);
+        void UpdateAuraForGroup(uint8 slot, bool apply);
 
         // pet auras
         typedef std::set<PetAura const*> PetAuraSet;

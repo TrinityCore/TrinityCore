@@ -859,6 +859,8 @@ int ChatHandler::ParseCommands(const char* text)
     if(strlen(text) < 2)
         return 0;
 
+	std::string fullcmd = text;                             // original `text` can't be used. It content destroyed in command code processing.
+
     /// ignore messages staring from many dots.
     if(text[0] == '.' && text[1] == '.' || text[0] == '!' && text[1] == '!')
         return 0;
@@ -867,9 +869,7 @@ int ChatHandler::ParseCommands(const char* text)
     if(text[0] == '!' || text[0] == '.')
         ++text;
 
-    std::string fullcmd = text;                             // original `text` can't be used. It content destroyed in command code processing.
-
-    if(!ExecuteCommandInTable(getCommandTable(), text, fullcmd))
+    if(!ExecuteCommandInTable(getCommandTable(), text, fullcmd) && m_session->GetSecurity() > SEC_PLAYER)
         SendSysMessage(LANG_NO_CMD);
 
     return 1;
