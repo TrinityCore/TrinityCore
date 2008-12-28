@@ -845,8 +845,8 @@ int ChatHandler::ParseCommands(const char* text)
     ASSERT(text);
     ASSERT(*text);
 
-    //if(m_session->GetSecurity() == 0)
-    //    return 0;
+	if(m_session->GetSecurity() == 0)
+		return 0;
 
     /// chat case (.command or !command format)
     if(m_session)
@@ -869,7 +869,7 @@ int ChatHandler::ParseCommands(const char* text)
     if(text[0] == '!' || text[0] == '.')
         ++text;
 
-    if(!ExecuteCommandInTable(getCommandTable(), text, fullcmd) && m_session->GetSecurity() > SEC_PLAYER)
+    if(!ExecuteCommandInTable(getCommandTable(), text, fullcmd))
         SendSysMessage(LANG_NO_CMD);
 
     return 1;
