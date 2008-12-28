@@ -5593,554 +5593,506 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
     Unit*  target = NULL;
     int32  basepoints0 = 0;
 
+    if(triggeredByAura->GetModifier()->m_auraname == SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE)
+        basepoints0 = triggerAmount;
+
     Item* castItem = triggeredByAura->GetCastItemGUID() && GetTypeId()==TYPEID_PLAYER
         ? ((Player*)this)->GetItemByGuid(triggeredByAura->GetCastItemGUID()) : NULL;
 
     // Try handle uncnown trigger spells
     if (sSpellStore.LookupEntry(trigger_spell_id)==NULL)
-    switch (auraSpellInfo->SpellFamilyName)
     {
-     //=====================================================================
-     // Generic class
-     // ====================================================================
-     // .....
-     //=====================================================================
-     case SPELLFAMILY_GENERIC:
-//     if (auraSpellInfo->Id==59532)    // Abandon Passengers on Poly
-//     if (auraSpellInfo->Id==54775)    // Abandon Vehicle on Poly
-//     if (auraSpellInfo->Id==34082)      // Advantaged State (DND)
-     if (auraSpellInfo->Id == 23780)      // Aegis of Preservation (Aegis of Preservation trinket)
-         trigger_spell_id = 23781;
-//     else if (auraSpellInfo->Id==43504) // Alterac Valley OnKill Proc Aura
-//     else if (auraSpellInfo->Id == 48876)      // Beast's Mark
-//     {
-//         trigger_spell_id = 48877;
-//     }
-//     else if (auraSpellInfo->Id == 59237)      // Beast's Mark
-//     {
-//         trigger_spell_id = 59233;
-//     }
-//     else if (auraSpellInfo->Id==46939)   // Black Bow of the Betrayer
-//     {
-//         trigger_spell_id = 29471; // gain mana
-//         27526; // drain mana if possible
-//     }
-//     else if (auraSpellInfo->Id==50844) // Blood Mirror
-//     else if (auraSpellInfo->Id==54476) // Blood Presence
-//     else if (auraSpellInfo->Id==50689) // Blood Presence (Rank 1)
-//     else if (auraSpellInfo->Id==37030) // Chaotic Temperament
-//     else if (auraSpellInfo->Id==52856) // Charge
-     else if (auraSpellInfo->Id==43820)   // Charm of the Witch Doctor (Amani Charm of the Witch Doctor trinket)
-     {
-          // Pct value stored in dummy
-          basepoints0 = pVictim->GetCreateHealth() * auraSpellInfo->EffectBasePoints[1] / 100;
-          target = pVictim;
-          break;
-     }
-//     else if (auraSpellInfo->Id==41248) // Consuming Strikes
-//          trigger_spell_id = 41249;
-//     else if (auraSpellInfo->Id==45205) // Copy Offhand Weapon
-//     else if (auraSpellInfo->Id==57594) // Copy Ranged Weapon
-//     else if (auraSpellInfo->Id==41054) // Copy Weapon
-//          trigger_spell_id = 41055;
-//     else if (auraSpellInfo->Id==45343) // Dark Flame Aura
-//     else if (auraSpellInfo->Id==47300) // Dark Flame Aura
-     else if (auraSpellInfo->Id==57345) // Darkmoon Card: Greatness
-     {
-         uint32 stat = 0;
-         // strength
-         if (GetStat(STAT_STRENGTH) > stat){trigger_spell_id = 60229;stat = GetStat(STAT_STRENGTH);}
-         // agility
-         if (GetStat(STAT_AGILITY) > stat){trigger_spell_id = 60233;stat = GetStat(STAT_AGILITY);}
-         // intellect
-         if (GetStat(STAT_INTELLECT) > stat){trigger_spell_id = 60234;stat = GetStat(STAT_INTELLECT);}
-         // spirit
-         if (GetStat(STAT_SPIRIT) > stat){trigger_spell_id = 60235;stat = GetStat(STAT_SPIRIT);}
-     }
-//     else if (auraSpellInfo->Id==31255) // Deadly Swiftness (Rank 1)
-//     else if (auraSpellInfo->Id==5301)  // Defensive State (DND)
-//     else if (auraSpellInfo->Id==13358) // Defensive State (DND)
-//     else if (auraSpellInfo->Id==16092) // Defensive State (DND)
-//     else if (auraSpellInfo->Id==24949) // Defensive State 2 (DND)
-//     else if (auraSpellInfo->Id==40329) // Demo Shout Sensor
-     // Desperate Defense (Stonescythe Whelp, Stonescythe Alpha, Stonescythe Ambusher)
-     else if (auraSpellInfo->Id == 33896)
-         trigger_spell_id = 33898;
-//     else if (auraSpellInfo->Id==18943) // Double Attack
-//     else if (auraSpellInfo->Id==19194) // Double Attack
-//     else if (auraSpellInfo->Id==19817) // Double Attack
-//     else if (auraSpellInfo->Id==19818) // Double Attack
-//     else if (auraSpellInfo->Id==22835) // Drunken Rage
-//          trigger_spell_id = 14822;
- /*
-     else if (auraSpellInfo->SpellIconID==191) // Elemental Response
-     {
-         switch (auraSpellInfo->Id && auraSpellInfo->AttributesEx==0)
-         {
-         case 34191:
-         case 34329:
-         case 34524:
-         case 34582:
-         case 36733:break;
-         default:
-             sLog.outError("Unit::HandleProcTriggerSpell: Spell %u miss posibly Elemental Response",auraSpellInfo->Id);
-             return false;
-         }
-         //This generic aura self-triggers a different spell for each school of magic that lands on the wearer:
-         switch (procSpell->School)
-         {
-             case SPELL_SCHOOL_FIRE:   trigger_spell_id = 34192;break;//Fire:     34192
-             case SPELL_SCHOOL_FROST:  trigger_spell_id = 34193;break;//Frost:    34193
-             case SPELL_SCHOOL_ARCANE: trigger_spell_id = 34194;break;//Arcane:   34194
-             case SPELL_SCHOOL_NATURE: trigger_spell_id = 34195;break;//Nature:   34195
-             case SPELL_SCHOOL_SHADOW: trigger_spell_id = 34196;break;//Shadow:   34196
-             case SPELL_SCHOOL_HOLY:   trigger_spell_id = 34197;break;//Holy:     34197
-             case SPELL_SCHOOL_NORMAL: trigger_spell_id = 34198;break;//Physical: 34198
-             default:
-                 sLog.outError("Unit::HandleProcTriggerSpell: Spell %u Elemental Response wrong school",auraSpellInfo->Id);
-             return false;
-         }
-     }*/
-//     else if (auraSpellInfo->Id==40364) // Entangling Roots Sensor
-//     else if (auraSpellInfo->Id==33207) // Gossip NPC Periodic - Fidget
-//     else if (auraSpellInfo->Id==50051) // Ethereal Pet Aura
-//     else if (auraSpellInfo->Id==35321) // Gushing Wound
-//     else if (auraSpellInfo->Id==38363) // Gushing Wound
-//     else if (auraSpellInfo->Id==39215) // Gushing Wound
-//     else if (auraSpellInfo->Id==44527) // Hate Monster (Spar Buddy) (30 sec)
-//     else if (auraSpellInfo->Id==44819) // Hate Monster (Spar Buddy) (>30% Health)
-//     else if (auraSpellInfo->Id==44526) // Hate Monster (Spar) (30 sec)
-//     else if (auraSpellInfo->Id==44820) // Hate Monster (Spar) (<30%)
-//     else if (auraSpellInfo->Id==49059) // Horde, Hate Monster (Spar Buddy) (>30% Health)
-//     else if (auraSpellInfo->Id==40250) // Improved Duration
-//     else if (auraSpellInfo->Id==59288) // Infra-Green Shield
-//     else if (auraSpellInfo->Id==54072) // Knockback Ball Passive
-     else if (auraSpellInfo->Id==27522 || auraSpellInfo->Id==40336)   // Mana Drain Trigger
-     {
-         // On successful melee or ranged attack gain $29471s1 mana and if possible drain $27526s1 mana from the target.
-         if (this && this->isAlive())
-             CastSpell(this, 29471, true, castItem, triggeredByAura);
-         if (pVictim && pVictim->isAlive())
-             CastSpell(pVictim, 27526, true, castItem, triggeredByAura);
-         return true;
-     }
-//     else if (auraSpellInfo->Id==55580) // Mana Link
-//     else if (auraSpellInfo->Id==45903) // Offensive State
-//     else if (auraSpellInfo->Id==44326) // Pure Energy Passive
-//     else if (auraSpellInfo->Id==43453) // Rune Ward
-//     else if (auraSpellInfo->Id== 7137) // Shadow Charge (Rank 1)
-//     else if (auraSpellInfo->Id==36576) // Shaleskin (Shaleskin Flayer, Shaleskin Ripper) 30023 trigger
-//     else if (auraSpellInfo->Id==34783) // Spell Reflection
-//     else if (auraSpellInfo->Id==36096) // Spell Reflection
-//     else if (auraSpellInfo->Id==57587) // Steal Ranged ()
-//     else if (auraSpellInfo->Id==36207) // Steal Weapon
-//     else if (auraSpellInfo->Id== 7377) // Take Immune Periodic Damage <Not Working>
-//     else if (auraSpellInfo->Id==35205) // Vanish
-//     else if (auraSpellInfo->Id==42730) // Woe Strike
-//     else if (auraSpellInfo->Id==59735) // Woe Strike
-//     else if (auraSpellInfo->Id==46146) // [PH] Ahune  Spanky Hands
-     break;
-     //=====================================================================
-     // Mage
-     //=====================================================================
-     // Blazing Speed (Rank 1,2) trigger = 18350
-     //=====================================================================
-     case SPELLFAMILY_MAGE:
-     // Blazing Speed
-     if (auraSpellInfo->SpellIconID == 2127)
-     {
-         switch (auraSpellInfo->Id)
-         {
-             case 31641:  // Rank 1
-             case 31642:  // Rank 2
-                 trigger_spell_id = 31643;
-             break;
-             default:
-                 sLog.outError("Unit::HandleProcTriggerSpell: Spell %u miss posibly Blazing Speed",auraSpellInfo->Id);
-             return false;
-         }
-     }
-     break;
-     //=====================================================================
-     // Warrior
-     //=====================================================================
-     // Scent of Blood
-     //=====================================================================
-     case SPELLFAMILY_WARRIOR:
-     {
-         // Scent of Blood
-         if (auraSpellInfo->Id == 50421)
-             trigger_spell_id = 50422;
-     }
-     break;
-     //=====================================================================
-     // Warlock
-     //=====================================================================
-     // Pyroclasm             trigger = 18350
-     // Nether Protection     trigger = 1206
-     // Drain Soul (Rank 1-5) trigger = 0
-     //=====================================================================
-     case SPELLFAMILY_WARLOCK:
-     {
-         // Pyroclasm
-         if (auraSpellInfo->SpellIconID == 1137)
-         {
-             if(!pVictim || !pVictim->isAlive() || pVictim == this || procSpell == NULL)
-                 return false;
-             // Calculate spell tick count for spells
-             uint32 tick = 1; // Default tick = 1
+        switch (auraSpellInfo->SpellFamilyName)
+        {
+            case SPELLFAMILY_GENERIC:
+                //if (auraSpellInfo->Id==59532)             // Abandon Passengers on Poly
+                //if (auraSpellInfo->Id==54775)             // Abandon Vehicle on Poly
+                //if (auraSpellInfo->Id==34082)             // Advantaged State (DND)
+                if (auraSpellInfo->Id == 23780)             // Aegis of Preservation (Aegis of Preservation trinket)
+                    trigger_spell_id = 23781;
+                //else if (auraSpellInfo->Id==43504)        // Alterac Valley OnKill Proc Aura
+                //else if (auraSpellInfo->Id == 48876)      // Beast's Mark
+                //{
+                //    trigger_spell_id = 48877;
+                //}
+                //else if (auraSpellInfo->Id == 59237)      // Beast's Mark
+                //{
+                //    trigger_spell_id = 59233;
+                //}
+                //else if (auraSpellInfo->Id==46939)        // Black Bow of the Betrayer
+                //{
+                //    trigger_spell_id = 29471;             // gain mana
+                //                       27526;             // drain mana if possible
+                //}
+                //else if (auraSpellInfo->Id==50844)        // Blood Mirror
+                //else if (auraSpellInfo->Id==54476)        // Blood Presence
+                //else if (auraSpellInfo->Id==50689)        // Blood Presence (Rank 1)
+                //else if (auraSpellInfo->Id==37030)        // Chaotic Temperament
+                //else if (auraSpellInfo->Id==52856)        // Charge
+                else if (auraSpellInfo->Id==43820)          // Charm of the Witch Doctor (Amani Charm of the Witch Doctor trinket)
+                {
+                    // Pct value stored in dummy
+                    basepoints0 = pVictim->GetCreateHealth() * auraSpellInfo->EffectBasePoints[1] / 100;
+                    target = pVictim;
+                    break;
+                }
+                //else if (auraSpellInfo->Id==41248)        // Consuming Strikes
+                //    trigger_spell_id = 41249;
+                //else if (auraSpellInfo->Id==45205)        // Copy Offhand Weapon
+                //else if (auraSpellInfo->Id==57594)        // Copy Ranged Weapon
+                //else if (auraSpellInfo->Id==41054)        // Copy Weapon
+                //    trigger_spell_id = 41055;
+                //else if (auraSpellInfo->Id==45343)        // Dark Flame Aura
+                //else if (auraSpellInfo->Id==47300)        // Dark Flame Aura
+                else if (auraSpellInfo->Id==57345)          // Darkmoon Card: Greatness
+                {
+                    uint32 stat = 0;
+                    // strength
+                    if (GetStat(STAT_STRENGTH) > stat) { trigger_spell_id = 60229;stat = GetStat(STAT_STRENGTH); }
+                    // agility
+                    if (GetStat(STAT_AGILITY)  > stat) { trigger_spell_id = 60233;stat = GetStat(STAT_AGILITY);  }
+                    // intellect
+                    if (GetStat(STAT_INTELLECT)> stat) { trigger_spell_id = 60234;stat = GetStat(STAT_INTELLECT);}
+                    // spirit
+                    if (GetStat(STAT_SPIRIT)   > stat) { trigger_spell_id = 60235;stat = GetStat(STAT_SPIRIT);   }
+                }
+                //else if (auraSpellInfo->Id==31255)        // Deadly Swiftness (Rank 1)
+                //else if (auraSpellInfo->Id==5301)         // Defensive State (DND)
+                //else if (auraSpellInfo->Id==13358)        // Defensive State (DND)
+                //else if (auraSpellInfo->Id==16092)        // Defensive State (DND)
+                //else if (auraSpellInfo->Id==24949)        // Defensive State 2 (DND)
+                //else if (auraSpellInfo->Id==40329)        // Demo Shout Sensor
+                else if (auraSpellInfo->Id == 33896)        // Desperate Defense (Stonescythe Whelp, Stonescythe Alpha, Stonescythe Ambusher)
+                    trigger_spell_id = 33898;
+                //else if (auraSpellInfo->Id==18943)        // Double Attack
+                //else if (auraSpellInfo->Id==19194)        // Double Attack
+                //else if (auraSpellInfo->Id==19817)        // Double Attack
+                //else if (auraSpellInfo->Id==19818)        // Double Attack
+                //else if (auraSpellInfo->Id==22835)        // Drunken Rage
+                //    trigger_spell_id = 14822;
+                /*
+                else if (auraSpellInfo->SpellIconID==191)   // Elemental Response
+                {
+                    switch (auraSpellInfo->Id && auraSpellInfo->AttributesEx==0)
+                    {
+                        case 34191:
+                        case 34329:
+                        case 34524:
+                        case 34582:
+                        case 36733:
+                            break;
+                         default:
+                            sLog.outError("Unit::HandleProcTriggerSpell: Spell %u miss posibly Elemental Response",auraSpellInfo->Id);
+                            return false;
+                    }
+                    //This generic aura self-triggers a different spell for each school of magic that lands on the wearer:
+                    switch (procSpell->School)
+                    {
+                        case SPELL_SCHOOL_FIRE:  trigger_spell_id = 34192; break;
+                        case SPELL_SCHOOL_FROST: trigger_spell_id = 34193; break;
+                        case SPELL_SCHOOL_ARCANE:trigger_spell_id = 34194; break;
+                        case SPELL_SCHOOL_NATURE:trigger_spell_id = 34195; break;
+                        case SPELL_SCHOOL_SHADOW:trigger_spell_id = 34196; break;
+                        case SPELL_SCHOOL_HOLY:  trigger_spell_id = 34197; break;
+                        case SPELL_SCHOOL_NORMAL:trigger_spell_id = 34198; break;
+                        default:
+                            sLog.outError("Unit::HandleProcTriggerSpell: Spell %u Elemental Response wrong school",auraSpellInfo->Id);
+                            return false;
+                    }
+                }
+                */
+                //else if (auraSpellInfo->Id==40364)        // Entangling Roots Sensor
+                //else if (auraSpellInfo->Id==33207)        // Gossip NPC Periodic - Fidget
+                //else if (auraSpellInfo->Id==50051)        // Ethereal Pet Aura
+                //else if (auraSpellInfo->Id==35321)        // Gushing Wound
+                //else if (auraSpellInfo->Id==38363)        // Gushing Wound
+                //else if (auraSpellInfo->Id==39215)        // Gushing Wound
+                //else if (auraSpellInfo->Id==44527)        // Hate Monster (Spar Buddy) (30 sec)
+                //else if (auraSpellInfo->Id==44819)        // Hate Monster (Spar Buddy) (>30% Health)
+                //else if (auraSpellInfo->Id==44526)        // Hate Monster (Spar) (30 sec)
+                //else if (auraSpellInfo->Id==44820)        // Hate Monster (Spar) (<30%)
+                //else if (auraSpellInfo->Id==49059)        // Horde, Hate Monster (Spar Buddy) (>30% Health)
+                //else if (auraSpellInfo->Id==40250)        // Improved Duration
+                //else if (auraSpellInfo->Id==59288)        // Infra-Green Shield
+                //else if (auraSpellInfo->Id==54072)        // Knockback Ball Passive
+                else if (auraSpellInfo->Id==27522 || auraSpellInfo->Id==40336)
+                                                            // Mana Drain Trigger
+                {
+                    // On successful melee or ranged attack gain $29471s1 mana and if possible drain $27526s1 mana from the target.
+                    if (this && this->isAlive())
+                        CastSpell(this, 29471, true, castItem, triggeredByAura);
+                    if (pVictim && pVictim->isAlive())
+                        CastSpell(pVictim, 27526, true, castItem, triggeredByAura);
+                    return true;
+                }
+                //else if (auraSpellInfo->Id==55580)        // Mana Link
+                //else if (auraSpellInfo->Id==45903)        // Offensive State
+                //else if (auraSpellInfo->Id==44326)        // Pure Energy Passive
+                //else if (auraSpellInfo->Id==43453)        // Rune Ward
+                //else if (auraSpellInfo->Id== 7137)        // Shadow Charge (Rank 1)
+                //else if (auraSpellInfo->Id==36576)        // Shaleskin (Shaleskin Flayer, Shaleskin Ripper) 30023 trigger
+                //else if (auraSpellInfo->Id==34783)        // Spell Reflection
+                //else if (auraSpellInfo->Id==36096)        // Spell Reflection
+                //else if (auraSpellInfo->Id==57587)        // Steal Ranged ()
+                //else if (auraSpellInfo->Id==36207)        // Steal Weapon
+                //else if (auraSpellInfo->Id== 7377)        // Take Immune Periodic Damage <Not Working>
+                //else if (auraSpellInfo->Id==35205)        // Vanish
+                //else if (auraSpellInfo->Id==42730)        // Woe Strike
+                //else if (auraSpellInfo->Id==59735)        // Woe Strike
+                //else if (auraSpellInfo->Id==46146)        // [PH] Ahune  Spanky Hands
+                break;
+            case SPELLFAMILY_MAGE:
+                if (auraSpellInfo->SpellIconID == 2127)     // Blazing Speed
+                {
+                    switch (auraSpellInfo->Id)
+                    {
+                        case 31641:  // Rank 1
+                        case 31642:  // Rank 2
+                            trigger_spell_id = 31643;
+                            break;
+                        default:
+                            sLog.outError("Unit::HandleProcTriggerSpell: Spell %u miss posibly Blazing Speed",auraSpellInfo->Id);
+                            return false;
+                    }
+                }
+                break;
+            case SPELLFAMILY_WARRIOR:
+                if (auraSpellInfo->Id == 50421)             // Scent of Blood
+                    trigger_spell_id = 50422;
+                break;
+            case SPELLFAMILY_WARLOCK:
+            {
+                // Pyroclasm
+                if (auraSpellInfo->SpellIconID == 1137)
+                {
+                    if(!pVictim || !pVictim->isAlive() || pVictim == this || procSpell == NULL)
+                        return false;
+                    // Calculate spell tick count for spells
+                    uint32 tick = 1; // Default tick = 1
 
-             // Hellfire have 15 tick
-             if (procSpell->SpellFamilyFlags&0x0000000000000040LL)
-                 tick = 15;
-             // Rain of Fire have 4 tick
-             else if (procSpell->SpellFamilyFlags&0x0000000000000020LL)
-                 tick = 4;
-             else
-                 return false;
+                    // Hellfire have 15 tick
+                    if (procSpell->SpellFamilyFlags&0x0000000000000040LL)
+                        tick = 15;
+                    // Rain of Fire have 4 tick
+                    else if (procSpell->SpellFamilyFlags&0x0000000000000020LL)
+                        tick = 4;
+                    else
+                        return false;
 
-             // Calculate chance = baseChance / tick
-             float chance = 0;
-             switch (auraSpellInfo->Id)
-             {
-                 case 18096: chance = 13.0f / tick; break;
-                 case 18073: chance = 26.0f / tick; break;
-             }
-             // Roll chance
-             if (!roll_chance_f(chance))
-                 return false;
+                    // Calculate chance = baseChance / tick
+                    float chance = 0;
+                    switch (auraSpellInfo->Id)
+                    {
+                        case 18096: chance = 13.0f / tick; break;
+                        case 18073: chance = 26.0f / tick; break;
+                    }
+                    // Roll chance
+                    if (!roll_chance_f(chance))
+                        return false;
 
-             trigger_spell_id = 18093;
-         }
-         // Drain Soul
-         else if (auraSpellInfo->SpellFamilyFlags & 0x0000000000004000LL)
-         {
-             Unit::AuraList const& mAddFlatModifier = GetAurasByType(SPELL_AURA_ADD_FLAT_MODIFIER);
-             for(Unit::AuraList::const_iterator i = mAddFlatModifier.begin(); i != mAddFlatModifier.end(); ++i)
-             {
-                 if ((*i)->GetModifier()->m_miscvalue == SPELLMOD_CHANCE_OF_SUCCESS && (*i)->GetSpellProto()->SpellIconID == 113)
-                 {
-                     int32 value2 = CalculateSpellDamage((*i)->GetSpellProto(),2,(*i)->GetSpellProto()->EffectBasePoints[2],this);
-                     // Drain Soul
-                     CastCustomSpell(this, 18371, &basepoints0, NULL, NULL, true, castItem, triggeredByAura);
-                     break;
-                 }
-             }
-             // Not remove charge (aura removed on death in any cases)
-             // Need for correct work Drain Soul SPELL_AURA_CHANNEL_DEATH_ITEM aura
-             return false;
-         }
-         // Nether Protection
-         else if (auraSpellInfo->SpellIconID == 1985)
-         {
-             if (!procSpell)
-                 return false;
-             switch(GetFirstSchoolInMask(GetSpellSchoolMask(procSpell)))
-             {
-                 case SPELL_SCHOOL_NORMAL:
-                 case SPELL_SCHOOL_HOLY:
-                     return false;                   // ignore
-                 case SPELL_SCHOOL_FIRE:   trigger_spell_id = 54371; break;
-                 case SPELL_SCHOOL_NATURE: trigger_spell_id = 54375; break;
-                 case SPELL_SCHOOL_FROST:  trigger_spell_id = 54372; break;
-                 case SPELL_SCHOOL_SHADOW: trigger_spell_id = 54374; break;
-                 case SPELL_SCHOOL_ARCANE: trigger_spell_id = 54373; break;
-                 default:
-                     return false;
-             }
-         }
-         break;
-     }
-     //=====================================================================
-     // Priest
-     //=====================================================================
-     // Greater Heal Refund         trigger = 18350
-     // Blessed Recovery (Rank 1-3) trigger = 18350
-     //=====================================================================
-     case SPELLFAMILY_PRIEST:
-     {
-         // Greater Heal Refund
-         if (auraSpellInfo->Id==37594)
-             trigger_spell_id = 37595;
-         // Blessed Recovery
-         else if (auraSpellInfo->SpellIconID == 1875)
-         {
-             switch (auraSpellInfo->Id)
-             {
-                 case 27811: trigger_spell_id = 27813; break;
-                 case 27815: trigger_spell_id = 27817; break;
-                 case 27816: trigger_spell_id = 27818; break;
-                 default:
-                     sLog.outError("Unit::HandleProcTriggerSpell: Spell %u not handled in BR", auraSpellInfo->Id);
-                 return false;
-             }
-             basepoints0 = damage * triggerAmount / 100 / 3;
-             target = this;
-         }
-         break;
-     }
-     //=====================================================================
-     // Druid
-     // ====================================================================
-     // Druid Forms Trinket  trigger = 18350
-     // Entangling Roots     trigger = 30023
-     // Leader of the Pack   trigger = 18350
-     //=====================================================================
-     case SPELLFAMILY_DRUID:
-     {
-         // Druid Forms Trinket
-         if (auraSpellInfo->Id==37336)
-         {
-             switch(m_form)
-             {
-                 case 0:              trigger_spell_id = 37344;break;
-                 case FORM_CAT:       trigger_spell_id = 37341;break;
-                 case FORM_BEAR:
-                 case FORM_DIREBEAR:  trigger_spell_id = 37340;break;
-                 case FORM_TREE:      trigger_spell_id = 37342;break;
-                 case FORM_MOONKIN:   trigger_spell_id = 37343;break;
-                 default:
-                     return false;
-             }
-         }
-//         else if (auraSpellInfo->Id==40363)// Entangling Roots ()
-//             trigger_spell_id = ????;
-         // Leader of the Pack
-         else if (auraSpellInfo->Id == 24932)
-         {
-             if (triggerAmount == 0)
-                 return false;
-             basepoints0 = triggerAmount * GetMaxHealth() / 100;
-             trigger_spell_id = 34299;
-         }
-         break;
-     }
-     //=====================================================================
-     // Hunter
-     // ====================================================================
-     // ......
-     //=====================================================================
-     case SPELLFAMILY_HUNTER:
-     break;
-     //=====================================================================
-     // Paladin
-     // ====================================================================
-     // Blessed Life                   trigger = 31934
-     // Healing Discount               trigger = 18350
-     // Illumination (Rank 1-5)        trigger = 18350
-     // Lightning Capacitor            trigger = 18350
-     // Thunder Capacitor              trigger = 18350
-     // Soul Preserver                 trigger = 18350
-     //=====================================================================
-     case SPELLFAMILY_PALADIN:
-     {
- /*         // Blessed Life
-         if (auraSpellInfo->SpellIconID == 2137)
-         {
-             switch (auraSpellInfo->Id)
-             {
-                 case 31828: // Rank 1
-                 case 31829: // Rank 2
-                 case 31830: // Rank 3
+                    trigger_spell_id = 18093;
+                }
+                // Drain Soul
+                else if (auraSpellInfo->SpellFamilyFlags & 0x0000000000004000LL)
+                {
+                    Unit::AuraList const& mAddFlatModifier = GetAurasByType(SPELL_AURA_ADD_FLAT_MODIFIER);
+                    for(Unit::AuraList::const_iterator i = mAddFlatModifier.begin(); i != mAddFlatModifier.end(); ++i)
+                    {
+                        if ((*i)->GetModifier()->m_miscvalue == SPELLMOD_CHANCE_OF_SUCCESS && (*i)->GetSpellProto()->SpellIconID == 113)
+                        {
+                            int32 value2 = CalculateSpellDamage((*i)->GetSpellProto(),2,(*i)->GetSpellProto()->EffectBasePoints[2],this);
+                            // Drain Soul
+                            CastCustomSpell(this, 18371, &basepoints0, NULL, NULL, true, castItem, triggeredByAura);
+                            break;
+                        }
+                    }
+                    // Not remove charge (aura removed on death in any cases)
+                    // Need for correct work Drain Soul SPELL_AURA_CHANNEL_DEATH_ITEM aura
+                    return false;
+                }
+                // Nether Protection
+                else if (auraSpellInfo->SpellIconID == 1985)
+                {
+                    if (!procSpell)
+                        return false;
+                    switch(GetFirstSchoolInMask(GetSpellSchoolMask(procSpell)))
+                    {
+                        case SPELL_SCHOOL_NORMAL:
+                        case SPELL_SCHOOL_HOLY:
+                            return false;                   // ignore
+                        case SPELL_SCHOOL_FIRE:   trigger_spell_id = 54371; break;
+                        case SPELL_SCHOOL_NATURE: trigger_spell_id = 54375; break;
+                        case SPELL_SCHOOL_FROST:  trigger_spell_id = 54372; break;
+                        case SPELL_SCHOOL_SHADOW: trigger_spell_id = 54374; break;
+                        case SPELL_SCHOOL_ARCANE: trigger_spell_id = 54373; break;
+                        default:
+                            return false;
+                    }
+                }
+                break;
+            }
+            case SPELLFAMILY_PRIEST:
+            {
+                // Greater Heal Refund
+                if (auraSpellInfo->Id==37594)
+                    trigger_spell_id = 37595;
+                // Blessed Recovery
+                else if (auraSpellInfo->SpellIconID == 1875)
+                {
+                    switch (auraSpellInfo->Id)
+                    {
+                        case 27811: trigger_spell_id = 27813; break;
+                        case 27815: trigger_spell_id = 27817; break;
+                        case 27816: trigger_spell_id = 27818; break;
+                        default:
+                            sLog.outError("Unit::HandleProcTriggerSpell: Spell %u not handled in BR", auraSpellInfo->Id);
+                        return false;
+                    }
+                    basepoints0 = damage * triggerAmount / 100 / 3;
+                    target = this;
+                }
+                break;
+            }
+            case SPELLFAMILY_DRUID:
+            {
+                // Druid Forms Trinket
+                if (auraSpellInfo->Id==37336)
+                {
+                    switch(m_form)
+                    {
+                        case FORM_NONE:     trigger_spell_id = 37344;break;
+                        case FORM_CAT:      trigger_spell_id = 37341;break;
+                        case FORM_BEAR:
+                        case FORM_DIREBEAR: trigger_spell_id = 37340;break;
+                        case FORM_TREE:     trigger_spell_id = 37342;break;
+                        case FORM_MOONKIN:  trigger_spell_id = 37343;break;
+                        default:
+                            return false;
+                    }
+                }
+                //else if (auraSpellInfo->Id==40363)// Entangling Roots ()
+                //    trigger_spell_id = ????;
+                // Leader of the Pack
+                else if (auraSpellInfo->Id == 24932)
+                {
+                    if (triggerAmount == 0)
+                        return false;
+                    basepoints0 = triggerAmount * GetMaxHealth() / 100;
+                    trigger_spell_id = 34299;
+                }
+                break;
+            }
+            case SPELLFAMILY_HUNTER:
+                break;
+            case SPELLFAMILY_PALADIN:
+            {
+                /*
+                // Blessed Life
+                if (auraSpellInfo->SpellIconID == 2137)
+                {
+                    switch (auraSpellInfo->Id)
+                    {
+                        case 31828:                         // Rank 1
+                        case 31829:                         // Rank 2
+                        case 31830:                         // Rank 3
+                            break;
+                        default:
+                            sLog.outError("Unit::HandleProcTriggerSpell: Spell %u miss posibly Blessed Life", auraSpellInfo->Id);
+                            return false;
+                    }
+                }
+                */
+                // Healing Discount
+                if (auraSpellInfo->Id==37705)
+                {
+                    trigger_spell_id = 37706;
+                    target = this;
+                }
+                // Soul Preserver
+                if (auraSpellInfo->Id==60510)
+                {
+                    trigger_spell_id = 60515;
+                    target = this;
+                }
+                // Illumination
+                else if (auraSpellInfo->SpellIconID==241)
+                {
+                    if(!procSpell)
+                        return false;
+                    // procspell is triggered spell but we need mana cost of original casted spell
+                    uint32 originalSpellId = procSpell->Id;
+                    // Holy Shock
+                    if(procSpell->SpellFamilyFlags & 0x00200000)
+                    {
+                        switch(procSpell->Id)
+                        {
+                            case 25914: originalSpellId = 20473; break;
+                            case 25913: originalSpellId = 20929; break;
+                            case 25903: originalSpellId = 20930; break;
+                            case 27175: originalSpellId = 27174; break;
+                            case 33074: originalSpellId = 33072; break;
+                            default:
+                                sLog.outError("Unit::HandleProcTriggerSpell: Spell %u not handled in HShock",procSpell->Id);
+                               return false;
+                        }
+                    }
+                    SpellEntry const *originalSpell = sSpellStore.LookupEntry(originalSpellId);
+                    if(!originalSpell)
+                    {
+                        sLog.outError("Unit::HandleProcTriggerSpell: Spell %u unknown but selected as original in Illu",originalSpellId);
+                        return false;
+                    }
+                    // percent stored in effect 1 (class scripts) base points
+                    basepoints0 = originalSpell->manaCost*(auraSpellInfo->EffectBasePoints[1]+1)/100;
+                    trigger_spell_id = 20272;
+                    target = this;
+                }
+                // Lightning Capacitor
+                else if (auraSpellInfo->Id==37657)
+                {
+                    if(!pVictim || !pVictim->isAlive())
+                        return false;
+                    // stacking
+                    CastSpell(this, 37658, true, NULL, triggeredByAura);
+                    // counting
+                    Aura * dummy = GetDummyAura(37658);
+                    if (!dummy)
+                        return false;
+                    // release at 3 aura in stack (cont contain in basepoint of trigger aura)
+                    if(dummy->GetStackAmount() < triggerAmount)
+                        return false;
+
+                    RemoveAurasDueToSpell(37658);
+                    trigger_spell_id = 37661;
+                    target = pVictim;
+                }
+                // Thunder Capacitor
+                else if (auraSpellInfo->Id == 54841)
+                {
+                    if(!pVictim || !pVictim->isAlive())
+                        return false;
+                    // stacking
+                    CastSpell(this, 54842, true, NULL, triggeredByAura);
+                    // counting
+                    uint32 count = 0;
+                    AuraList const& dummyAura = GetAurasByType(SPELL_AURA_DUMMY);
+                    for(AuraList::const_iterator itr = dummyAura.begin(); itr != dummyAura.end(); ++itr)
+                        if((*itr)->GetId()==54842)
+                            ++count;
+                    // release at 3 aura in stack (cont contain in basepoint of trigger aura)
+                    if(count < triggerAmount)
+                        return false;
+
+                    RemoveAurasDueToSpell(54842);
+                    trigger_spell_id = 54843;
+                    target = pVictim;
+                }
+                break;
+            }
+            case SPELLFAMILY_SHAMAN:
+            {
+                // Lightning Shield (overwrite non existing triggered spell call in spell.dbc
+                if(auraSpellInfo->SpellFamilyFlags & 0x0000000000000400)
+                {
+                    switch(auraSpellInfo->Id)
+                    {
+                        case 324:                           // Rank 1
+                            trigger_spell_id = 26364; break;
+                        case 325:                           // Rank 2
+                            trigger_spell_id = 26365; break;
+                        case 905:                           // Rank 3
+                            trigger_spell_id = 26366; break;
+                        case 945:                           // Rank 4
+                            trigger_spell_id = 26367; break;
+                        case 8134:                          // Rank 5
+                            trigger_spell_id = 26369; break;
+                        case 10431:                         // Rank 6
+                            trigger_spell_id = 26370; break;
+                        case 10432:                         // Rank 7
+                            trigger_spell_id = 26363; break;
+                        case 25469:                         // Rank 8
+                            trigger_spell_id = 26371; break;
+                        case 25472:                         // Rank 9
+                            trigger_spell_id = 26372; break;
+                        case 49280:                         // Rank 10
+                            trigger_spell_id = 49278; break;
+                        case 49281:                         // Rank 11
+                            trigger_spell_id = 49279; break;
+                        default:
+                            sLog.outError("Unit::HandleProcTriggerSpell: Spell %u not handled in LShield", auraSpellInfo->Id);
+                        return false;
+                    }
+                }
+                // Lightning Shield (The Ten Storms set)
+                else if (auraSpellInfo->Id == 23551)
+                {
+                    trigger_spell_id = 23552;
+                    target = pVictim;
+                }
+                // Damage from Lightning Shield (The Ten Storms set)
+                else if (auraSpellInfo->Id == 23552)
+                    trigger_spell_id = 27635;
+                // Mana Surge (The Earthfury set)
+                else if (auraSpellInfo->Id == 23572)
+                {
+                    if(!procSpell)
+                        return false;
+                    basepoints0 = procSpell->manaCost * 35 / 100;
+                    trigger_spell_id = 23571;
+                    target = this;
+                }
+                // Nature's Guardian
+                else if (auraSpellInfo->SpellIconID == 2013)
+                {
+                    // Check health condition - should drop to less 30% (damage deal after this!)
+                    if (!(10*(int32(GetHealth() - damage)) < 3 * GetMaxHealth()))
+                        return false;
+
+                     if(pVictim && pVictim->isAlive())
+                         pVictim->getThreatManager().modifyThreatPercent(this,-10);
+
+                    basepoints0 = triggerAmount * GetMaxHealth() / 100;
+                    trigger_spell_id = 31616;
+                    target = this;
+                }
+                break;
+            }
+            case SPELLFAMILY_DEATHKNIGHT:
+            {
+                // Acclimation
+                if (auraSpellInfo->SpellIconID == 1930)
+                {
+                    if (!procSpell)
+                        return false;
+                    switch(GetFirstSchoolInMask(GetSpellSchoolMask(procSpell)))
+                    {
+                        case SPELL_SCHOOL_NORMAL:
+                            return false;                   // ignore
+                        case SPELL_SCHOOL_HOLY:   trigger_spell_id = 50490; break;
+                        case SPELL_SCHOOL_FIRE:   trigger_spell_id = 50362; break;
+                        case SPELL_SCHOOL_NATURE: trigger_spell_id = 50488; break;
+                        case SPELL_SCHOOL_FROST:  trigger_spell_id = 50485; break;
+                        case SPELL_SCHOOL_SHADOW: trigger_spell_id = 50489; break;
+                        case SPELL_SCHOOL_ARCANE: trigger_spell_id = 54373; break;
+                        default:
+                            return false;
+                    }
+                }
+                // Blood Presence
+                else if (auraSpellInfo->Id == 48266)
+                {
+                    if (GetTypeId() != TYPEID_PLAYER)
+                        return false;
+                    if (!((Player*)this)->isHonorOrXPTarget(pVictim))
+                        return false;
+                    trigger_spell_id = 50475;
+                    basepoints0 = damage * triggerAmount / 100;
+                }
+                break;
+            }
+            default:
                  break;
-                 default:
-                     sLog.outError("Unit::HandleProcTriggerSpell: Spell %u miss posibly Blessed Life", auraSpellInfo->Id);
-                 return false;
-             }
-         }*/
-         // Healing Discount
-         if (auraSpellInfo->Id==37705)
-         {
-             trigger_spell_id = 37706;
-             target = this;
-         }
-         // Soul Preserver
-         if (auraSpellInfo->Id==60510)
-         {
-             trigger_spell_id = 60515;
-             target = this;
-         }
-         // Illumination
-         else if (auraSpellInfo->SpellIconID==241)
-         {
-             if(!procSpell)
-                 return false;
-             // procspell is triggered spell but we need mana cost of original casted spell
-             uint32 originalSpellId = procSpell->Id;
-             // Holy Shock
-             if(procSpell->SpellFamilyFlags & 0x00200000)
-             {
-                 switch(procSpell->Id)
-                 {
-                     case 25914: originalSpellId = 20473; break;
-                     case 25913: originalSpellId = 20929; break;
-                     case 25903: originalSpellId = 20930; break;
-                     case 27175: originalSpellId = 27174; break;
-                     case 33074: originalSpellId = 33072; break;
-                     default:
-                         sLog.outError("Unit::HandleProcTriggerSpell: Spell %u not handled in HShock",procSpell->Id);
-                     return false;
-                 }
-             }
-             SpellEntry const *originalSpell = sSpellStore.LookupEntry(originalSpellId);
-             if(!originalSpell)
-             {
-                 sLog.outError("Unit::HandleProcTriggerSpell: Spell %u unknown but selected as original in Illu",originalSpellId);
-                 return false;
-             }
-             // percent stored in effect 1 (class scripts) base points
-             basepoints0 = originalSpell->manaCost*(auraSpellInfo->EffectBasePoints[1]+1)/100;
-             trigger_spell_id = 20272;
-             target = this;
-         }
-         // Lightning Capacitor
-         else if (auraSpellInfo->Id==37657)
-         {
-             if(!pVictim || !pVictim->isAlive())
-                 return false;
-             // stacking
-             CastSpell(this, 37658, true, NULL, triggeredByAura);
-             // counting
-             Aura * dummy = GetDummyAura(37658);
-             if (!dummy)
-                 return false;
-             // release at 3 aura in stack (cont contain in basepoint of trigger aura)
-             if(dummy->GetStackAmount() < triggerAmount)
-                 return false;
-
-             RemoveAurasDueToSpell(37658);
-             trigger_spell_id = 37661;
-             target = pVictim;
-         }
-         // Thunder Capacitor
-         else if (auraSpellInfo->Id == 54841)
-         {
-             if(!pVictim || !pVictim->isAlive())
-                 return false;
-             // stacking
-             CastSpell(this, 54842, true, NULL, triggeredByAura);
-             // counting
-             uint32 count = 0;
-             AuraList const& dummyAura = GetAurasByType(SPELL_AURA_DUMMY);
-             for(AuraList::const_iterator itr = dummyAura.begin(); itr != dummyAura.end(); ++itr)
-                 if((*itr)->GetId()==54842)
-                     ++count;
-             // release at 3 aura in stack (cont contain in basepoint of trigger aura)
-             if(count < triggerAmount)
-                 return false;
-
-             RemoveAurasDueToSpell(54842);
-             trigger_spell_id = 54843;
-             target = pVictim;
-         }
-         break;
-     }
-     //=====================================================================
-     // Shaman
-     //====================================================================
-     // Lightning Shield             trigger = 18350
-     // Mana Surge                   trigger = 18350
-     // Nature's Guardian (Rank 1-5) trigger = 18350
-     //=====================================================================
-     case SPELLFAMILY_SHAMAN:
-     {
-         // Lightning Shield (overwrite non existing triggered spell call in spell.dbc
-         if(auraSpellInfo->SpellFamilyFlags & 0x0000000000000400)
-         {
-             switch(auraSpellInfo->Id)
-             {
-                 case   324: trigger_spell_id = 26364; break;  // Rank 1
-                 case   325: trigger_spell_id = 26365; break;  // Rank 2
-                 case   905: trigger_spell_id = 26366; break;  // Rank 3
-                 case   945: trigger_spell_id = 26367; break;  // Rank 4
-                 case  8134: trigger_spell_id = 26369; break;  // Rank 5
-                 case 10431: trigger_spell_id = 26370; break;  // Rank 6
-                 case 10432: trigger_spell_id = 26363; break;  // Rank 7
-                 case 25469: trigger_spell_id = 26371; break;  // Rank 8
-                 case 25472: trigger_spell_id = 26372; break;  // Rank 9
-                 case 49280: trigger_spell_id = 49278; break;  // Rank 10
-                 case 49281: trigger_spell_id = 49279; break;  // Rank 11
-                 default:
-                     sLog.outError("Unit::HandleProcTriggerSpell: Spell %u not handled in LShield", auraSpellInfo->Id);
-                 return false;
-             }
-         }
-         // Lightning Shield (The Ten Storms set)
-         else if (auraSpellInfo->Id == 23551)
-         {
-             trigger_spell_id = 23552;
-             target = pVictim;
-         }
-         // Damage from Lightning Shield (The Ten Storms set)
-         else if (auraSpellInfo->Id == 23552)
-             trigger_spell_id = 27635;
-         // Mana Surge (The Earthfury set)
-         else if (auraSpellInfo->Id == 23572)
-         {
-             if(!procSpell)
-                 return false;
-             basepoints0 = procSpell->manaCost * 35 / 100;
-             trigger_spell_id = 23571;
-             target = this;
-         }
-         // Nature's Guardian
-         else if (auraSpellInfo->SpellIconID == 2013)
-         {
-             // Check health condition - should drop to less 30% (damage deal after this!)
-             if (!(10*(int32(GetHealth() - damage)) < 3 * GetMaxHealth()))
-                 return false;
-
-             if(pVictim && pVictim->isAlive())
-                 pVictim->getThreatManager().modifyThreatPercent(this,-10);
-
-             basepoints0 = triggerAmount * GetMaxHealth() / 100;
-             trigger_spell_id = 31616;
-             target = this;
-         }
-         break;
-     }
-     //=====================================================================
-     // Death Knight
-     //====================================================================
-     // Acclimation       trigger = 1206
-     // Blood Presence    trigger = 1206
-     //=====================================================================
-     case SPELLFAMILY_DEATHKNIGHT:
-     {
-         // Acclimation
-         if (auraSpellInfo->SpellIconID == 1930)
-         {
-             if (!procSpell)
-                 return false;
-             switch(GetFirstSchoolInMask(GetSpellSchoolMask(procSpell)))
-             {
-                 case SPELL_SCHOOL_NORMAL:
-                     return false;                   // ignore
-                 case SPELL_SCHOOL_HOLY:   trigger_spell_id = 50490; break;
-                 case SPELL_SCHOOL_FIRE:   trigger_spell_id = 50362; break;
-                 case SPELL_SCHOOL_NATURE: trigger_spell_id = 50488; break;
-                 case SPELL_SCHOOL_FROST:  trigger_spell_id = 50485; break;
-                 case SPELL_SCHOOL_SHADOW: trigger_spell_id = 50489; break;
-                 case SPELL_SCHOOL_ARCANE: trigger_spell_id = 54373; break;
-                 default:
-                     return false;
-             }
-         }
-         // Blood Presence
-         else if (auraSpellInfo->Id == 48266)
-         {
-             if (GetTypeId() != TYPEID_PLAYER)
-                 return false;
-             if (!((Player*)this)->RewardPlayerAndGroupAtKill(pVictim))
-                 return false;
-             trigger_spell_id = 50475;
-             basepoints0 = damage * triggerAmount / 100;
-         }
-         break;
-     }
-     // default
-     default:
-         break;
+        }
     }
 
     // All ok. Check current trigger spell
@@ -9937,6 +9889,7 @@ bool InitTriggerAuraData()
     isTriggerAura[SPELL_AURA_MOD_HASTE] = true;
     isTriggerAura[SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE]=true;
     isTriggerAura[SPELL_AURA_PRAYER_OF_MENDING] = true;
+    isTriggerAura[SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE] = true;
 
     isNonTriggerAura[SPELL_AURA_MOD_POWER_REGEN]=true;
     isNonTriggerAura[SPELL_AURA_RESIST_PUSHBACK]=true;
@@ -10169,6 +10122,14 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
                     (isVictim?"a victim's":"an attacker's"),triggeredByAura->GetId());
 
                 HandleMeandingAuraProc(triggeredByAura);
+                break;
+            }
+            case SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE:
+            {
+                sLog.outDebug("ProcDamageAndSpell: casting spell %u (triggered with value by %s aura of spell %u)", spellInfo->Id,(isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId());
+
+                if (!HandleProcTriggerSpell(pTarget, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
+                    continue;
                 break;
             }
             case SPELL_AURA_MOD_STUN:
