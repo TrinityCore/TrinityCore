@@ -542,6 +542,10 @@
 				<Filter
 					Name="Arathi Highlands"
 					>
+					<File
+						RelativePath="..\scripts\zone\arathi_highlands\arathi_highlands.cpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="Deadmines"
@@ -698,6 +702,10 @@
 				<Filter
 					Name="Razorfen Kraul"
 					>
+					<File
+						RelativePath="..\scripts\zone\razorfen_kraul\razorfen_kraul.cpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="Redridge Mountains"

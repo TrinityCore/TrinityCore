@@ -1127,6 +1127,14 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
 
     if( m_caster != unit )
     {
+        if (unit->GetCharmerOrOwnerGUID() != m_caster->GetGUID())
+        {
+            if (unit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+            {
+                m_caster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_EVADE);
+                return;
+            }
+        }
         if( !m_caster->IsFriendlyTo(unit) )
         {
             // for delayed spells ignore not visible explicit target
@@ -1536,10 +1544,10 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 case TARGET_UNIT_TARGET_ANY: // SelectMagnetTarget()?
                 case TARGET_UNIT_TARGET_PARTY:
                 case TARGET_UNIT_SINGLE_UNKNOWN:
-                    TagUnitMap.push_back(m_targets.getUnitTarget());
+                    TagUnitMap.push_back(target);
                     break;
                 case TARGET_UNIT_PARTY_TARGET:
-                    m_caster->GetPartyMember(TagUnitMap, radius);
+                    target->GetPartyMember(TagUnitMap, radius);
                     break;
                 case TARGET_UNIT_TARGET_ENEMY:
                     if(Unit* pUnitTarget = SelectMagnetTarget())
@@ -2148,11 +2156,11 @@ void Spell::cancel()
                 {
                     Unit* unit = m_caster->GetGUID()==(*ihit).targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID);
                     if( unit && unit->isAlive() )
-                        unit->RemoveAurasDueToSpell(m_spellInfo->Id);
+                        unit->RemoveAurasDueToCasterSpell(m_spellInfo->Id, m_caster->GetGUID());
                 }
             }
 
-            m_caster->RemoveAurasDueToSpell(m_spellInfo->Id);
+            m_caster->RemoveAurasDueToCasterSpell(m_spellInfo->Id, m_caster->GetGUID());
             SendChannelUpdate(0);
             SendInterrupted(0);
             SendCastResult(SPELL_FAILED_INTERRUPTED);
