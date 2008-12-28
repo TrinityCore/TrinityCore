@@ -337,7 +337,7 @@ inline bool IsSealSpell(SpellEntry const *spellInfo)
 {
     //Collection of all the seal family flags. No other paladin spell has any of those.
     return spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN &&
-        ( spellInfo->SpellFamilyFlags & 0x4000A000200LL );
+        ( spellInfo->SpellFamilyFlags & 0x26000C000A000000LL );
 }
 
 inline bool IsElementalShield(SpellEntry const *spellInfo)

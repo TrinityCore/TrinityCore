@@ -6145,12 +6145,7 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor, bool pvpt
                     victim_guid = 0;                        // Don't show HK: <rank> message, only log.
             }
 
-            if(k_level <= 5)
-                k_grey = 0;
-            else if( k_level <= 39 )
-                k_grey = k_level - 5 - k_level/10;
-            else
-                k_grey = k_level - 1 - k_level/5;
+            k_grey = Trinity::XP::GetGrayLevel(k_level);
 
             if(v_level<=k_grey)
                 return false;
@@ -19019,6 +19014,26 @@ uint32 Player::GetResurrectionSpellId()
         spell_id = 21169;
 
     return spell_id;
+}
+
+// Used in triggers for check "Only to targets that grant experience or honor" req
+bool Player::isHonorOrXPTarget(Unit* pVictim)
+{
+    uint32 v_level = pVictim->getLevel();
+    uint32 k_grey  = Trinity::XP::GetGrayLevel(getLevel());
+
+    // Victim level less gray level
+    if(v_level<=k_grey)
+        return false;
+
+    if(pVictim->GetTypeId() == TYPEID_UNIT)
+    {
+        if (((Creature*)pVictim)->isTotem() || 
+            ((Creature*)pVictim)->isPet() ||
+            ((Creature*)pVictim)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL)
+                return false;
+    }
+    return true;
 }
 
 bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
