@@ -1073,80 +1073,10 @@ void SpellMgr::LoadSpellProcEvents()
 
     sLog.outString();
     if (customProc)
-        sLog.outString( ">> Loaded %u custom spell proc event conditions +%u custom",  count, customProc );
+        sLog.outString( ">> Loaded %u extra spell proc event conditions +%u custom",  count, customProc );
     else
-        sLog.outString( ">> Loaded %u spell proc event conditions", count );
-
-    /*
-    // Commented for now, as it still produces many errors (still quite many spells miss spell_proc_event)
-    for (uint32 id = 0; id < sSpellStore.GetNumRows(); ++id)
-    {
-        SpellEntry const* spellInfo = sSpellStore.LookupEntry(id);
-        if (!spellInfo)
-            continue;
-
-        bool found = false;
-        for (int effectId = 0; effectId < 3; ++effectId)
-        {
-            // at this moment check only SPELL_AURA_PROC_TRIGGER_SPELL
-            if( spellInfo->EffectApplyAuraName[effectId] == SPELL_AURA_PROC_TRIGGER_SPELL )
-            {
-                found = true;
-                break;
-            }
-        }
-
-        if(!found)
-            continue;
-
-        if(GetSpellProcEvent(id))
-            continue;
-
-        sLog.outErrorDb("Spell %u (%s) misses spell_proc_event",id,spellInfo->SpellName[sWorld.GetDBClang()]);
-    }
-    */
+        sLog.outString( ">> Loaded %u extra spell proc event conditions", count );
 }
-
-/*
-bool SpellMgr::IsSpellProcEventCanTriggeredBy( SpellProcEventEntry const * spellProcEvent, SpellEntry const * procSpell, uint32 procFlags )
-{
-    if((procFlags & spellProcEvent->procFlags) == 0)
-        return false;
-
-    // Additional checks in case spell cast/hit/crit is the event
-    // Check (if set) school, category, skill line, spell talent mask
-    if(spellProcEvent->schoolMask && (!procSpell || (GetSpellSchoolMask(procSpell) & spellProcEvent->schoolMask) == 0))
-        return false;
-    if(spellProcEvent->category && (!procSpell || procSpell->Category != spellProcEvent->category))
-        return false;
-    if(spellProcEvent->skillId)
-    {
-        if (!procSpell)
-            return false;
-
-        SkillLineAbilityMap::const_iterator lower = spellmgr.GetBeginSkillLineAbilityMap(procSpell->Id);
-        SkillLineAbilityMap::const_iterator upper = spellmgr.GetEndSkillLineAbilityMap(procSpell->Id);
-
-        bool found = false;
-        for(SkillLineAbilityMap::const_iterator _spell_idx = lower; _spell_idx != upper; ++_spell_idx)
-        {
-            if(_spell_idx->second->skillId == spellProcEvent->skillId)
-            {
-                found = true;
-                break;
-            }
-        }
-        if (!found)
-            return false;
-    }
-    if(spellProcEvent->spellFamilyName && (!procSpell || spellProcEvent->spellFamilyName != procSpell->SpellFamilyName))
-        return false;
-    if(spellProcEvent->spellFamilyMask && (!procSpell || (spellProcEvent->spellFamilyMask & procSpell->SpellFamilyFlags) == 0))
-        return false;
-
-    return true;
-}
-*/
 
 bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const * spellProcEvent, uint32 EventProcFlag, SpellEntry const * procSpell, uint32 procFlags, uint32 procExtra, bool active)
 {
