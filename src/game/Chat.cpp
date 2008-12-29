@@ -33,6 +33,7 @@
 #include "MapManager.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
+#include "AccountMgr.h"
 
 bool ChatHandler::load_command_table = true;
 
@@ -666,6 +667,38 @@ bool ChatHandler::isAvailable(ChatCommand const& cmd) const
 {
     // check security level only for simple  command (without child commands)
     return m_session->GetSecurity() >= cmd.SecurityLevel;
+}
+
+bool ChatHandler::HasLowerSecurity(Player* target, uint64 guid)
+{
+    uint32 target_sec;
+
+    if (!sWorld.getConfig(CONFIG_GM_LOWER_SECURITY))
+        return false;
+
+    // allow everything from RA console
+    if (!m_session)
+        return false;
+
+    if (target)
+        target_sec = target->GetSession()->GetSecurity();
+    else if (guid)
+        target_sec = accmgr.GetSecurity(objmgr.GetPlayerAccountIdByGUID(guid));
+    else
+    {
+        SendSysMessage(LANG_PLAYER_NOT_FOUND);
+        SetSentErrorMessage(true);
+        return true;
+    }
+
+    if (m_session->GetSecurity() < target_sec)
+    {
+        SendSysMessage(LANG_YOURS_SECURITY_IS_LOW);
+        SetSentErrorMessage(true);
+        return true;
+    }
+
+    return false;
 }
 
 bool ChatHandler::hasStringAbbr(const char* name, const char* part)
