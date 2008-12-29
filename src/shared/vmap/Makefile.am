@@ -9,50 +9,50 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 ## Process this file with automake to produce Makefile.in
 
-noinst_LIBRARIES = libvmaps.a
+## Sub-directories to parse
 
-## Preprocessor flags
-libvmaps_a_CPPFLAGS = \
-$(TRINI_INCLUDES) \
--I$(top_srcdir)/dep/include \
--I$(top_srcdir)/dep/include/g3dlite
+## CPP flags for includes, defines, etc.
+AM_CPPFLAGS = $(TRINI_INCLUDES) -I$(top_builddir)/src/shared -I$(srcdir) -I$(srcdir)/../../../dep/include -I$(srcdir)/../../framework -I$(srcdir)/../../shared -I$(srcdir)/../../../dep/include/g3dlite
 
-libvmaps_a_SOURCES = \
-$(srcdir)/AABSPTree.h \
-$(srcdir)/BaseModel.cpp \
-$(srcdir)/BaseModel.h \
-$(srcdir)/CoordModelMapping.cpp \
-$(srcdir)/CoordModelMapping.h \
-$(srcdir)/DebugCmdLogger.cpp \
-$(srcdir)/DebugCmdLogger.h \
-$(srcdir)/IVMapManager.h \
-$(srcdir)/ManagedModelContainer.cpp \
-$(srcdir)/ManagedModelContainer.h \
-$(srcdir)/ModelContainer.cpp \
-$(srcdir)/ModelContainer.h \
-$(srcdir)/NodeValueAccess.h \
-$(srcdir)/ShortBox.h \
-$(srcdir)/ShortVector.h \
-$(srcdir)/SubModel.cpp \
-$(srcdir)/SubModel.h \
-$(srcdir)/TileAssembler.cpp \
-$(srcdir)/TileAssembler.h \
-$(srcdir)/TreeNode.cpp \
-$(srcdir)/TreeNode.h \
-$(srcdir)/VMapDefinitions.h \
-$(srcdir)/VMapFactory.cpp \
-$(srcdir)/VMapFactory.h \
-$(srcdir)/VMapManager.cpp \
-$(srcdir)/VMapManager.h \
-$(srcdir)/VMapTools.h
+## Build MaNGOS shared library and its parts as convenience library.
+#  All libraries will be convenience libraries. Might be changed to shared
+#  later.
+noinst_LIBRARIES = libmangosvmaps.a
 
-
+libmangosvmaps_a_SOURCES = \
+    AABSPTree.h \
+    BaseModel.cpp \
+    BaseModel.h \
+    CoordModelMapping.cpp \
+    CoordModelMapping.h \
+    DebugCmdLogger.cpp \
+    DebugCmdLogger.h \
+    IVMapManager.h \
+    ManagedModelContainer.cpp \
+    ManagedModelContainer.h \
+    ModelContainer.cpp \
+    ModelContainer.h \
+    NodeValueAccess.h \
+    ShortBox.h \
+    ShortVector.h \
+    SubModel.cpp \
+    SubModel.h \
+    TileAssembler.cpp \
+    TileAssembler.h \
+    TreeNode.cpp \
+    TreeNode.h \
+    VMapDefinitions.h \
+    VMapFactory.cpp \
+    VMapFactory.h \
+    VMapManager.cpp \
+    VMapManager.h \
+    VMapTools.h
