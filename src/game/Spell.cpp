@@ -670,7 +670,7 @@ void Spell::prepareDataForTriggerSystem()
                 m_procAttacker = PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL;
                 m_procVictim   = PROC_FLAG_TAKEN_POSITIVE_SPELL;
             }
-            else if (m_spellInfo->Id == 5019) // Wands
+            else if (m_spellInfo->Id != SPELL_ID_AUTOSHOT) // Wands
             {
                 m_procAttacker = PROC_FLAG_SUCCESSFUL_RANGED_SPELL_HIT;
                 m_procVictim   = PROC_FLAG_TAKEN_RANGED_SPELL_HIT;
@@ -2424,7 +2424,7 @@ void Spell::SendSpellCooldown()
 
     // shoot spells used equipped item cooldown values already assigned in GetAttackTime(RANGED_ATTACK)
     // prevent 0 cooldowns set by another way
-    if (rec <= 0 && catrec <= 0 && (cat == 76 || cat == 351))
+    if (rec <= 0 && catrec <= 0 && (cat == 76 || m_spellInfo->Id != SPELL_ID_AUTOSHOT))
         rec = _player->GetAttackTime(RANGED_ATTACK);
 
     // Now we have cooldown data (if found any), time to apply mods
