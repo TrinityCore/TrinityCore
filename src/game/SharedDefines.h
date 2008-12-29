@@ -1977,6 +1977,7 @@ enum CorpseDynFlags
 #define SPELL_ID_PASSIVE_RESURRECTION_SICKNESS   15007
 #define SPELL_ID_WEAPON_SWITCH_COOLDOWN_1_5s     6119
 #define SPELL_ID_WEAPON_SWITCH_COOLDOWN_1_0s     6123
+#define SPELL_ID_AUTOSHOT                        75         // used for checks in other spells interruption
 
 enum WeatherType
 {
@@ -2145,7 +2146,8 @@ enum SummonType
     SUMMON_TYPE_CRITTER3    = 307,
     SUMMON_TYPE_UNKNOWN5    = 409,
     SUMMON_TYPE_POSESSED3   = 427,
-    SUMMON_TYPE_POSESSED2   = 428
+    SUMMON_TYPE_POSESSED2   = 428,
+    SUMMON_TYPE_GUARDIAN2   = 1161
 };
 
 enum ResponseCodes
