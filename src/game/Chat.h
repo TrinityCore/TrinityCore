@@ -79,6 +79,7 @@ class ChatHandler
 
         virtual bool isAvailable(ChatCommand const& cmd) const;
         virtual bool needReportToTarget(Player* chr) const;
+        bool HasLowerSecurity(Player* target, uint64 guid);
 
         void SendGlobalSysMessage(const char *str);
         void SendGlobalGMSysMessage(const char *str);
