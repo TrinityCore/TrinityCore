@@ -878,8 +878,10 @@ int ChatHandler::ParseCommands(const char* text)
     ASSERT(text);
     ASSERT(*text);
 
-	if(m_session->GetSecurity() == 0)
-		return 0;
+	std::string fullcmd = text;
+
+	//if(m_session->GetSecurity() == 0)
+	//	return 0;
 
     /// chat case (.command or !command format)
     if(m_session)
@@ -891,8 +893,7 @@ int ChatHandler::ParseCommands(const char* text)
     /// ignore single . and ! in line
     if(strlen(text) < 2)
         return 0;
-
-	std::string fullcmd = text;                             // original `text` can't be used. It content destroyed in command code processing.
+    // original `text` can't be used. It content destroyed in command code processing.
 
     /// ignore messages staring from many dots.
     if(text[0] == '.' && text[1] == '.' || text[0] == '!' && text[1] == '!')
