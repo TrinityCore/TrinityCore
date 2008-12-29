@@ -481,7 +481,7 @@ enum ProcFlags
    PROC_FLAG_NONE                          = 0x00000000,
 
    PROC_FLAG_KILLED                        = 0x00000001,    // 00 Killed by agressor
-   PROC_FLAG_KILL_AND_GET_XP               = 0x00000002,    // 01 Kill that yields experience or honor
+   PROC_FLAG_KILL                          = 0x00000002,    // 01 Kill target (in most cases need XP/Honor reward)
 
    PROC_FLAG_SUCCESSFUL_MILEE_HIT          = 0x00000004,    // 02 Successful melee auto attack
    PROC_FLAG_TAKEN_MELEE_HIT               = 0x00000008,    // 03 Taken damage from melee auto attack hit
