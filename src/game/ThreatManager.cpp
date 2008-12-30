@@ -280,7 +280,7 @@ HostilReference* ThreatContainer::selectNextVictim(Creature* pAttacker, HostilRe
         
         // some units are preferred in comparison to others
         if(iter != lastRef && (target->IsImmunedToDamage(pAttacker->GetMeleeDamageSchoolMask(), false) ||
-                target->hasUnitState(UNIT_STAT_CONFUSED)
+                target->hasNegativeAuraWithInterruptFlag(AURA_INTERRUPT_FLAG_DAMAGE)
                 ) )
         {
             // current victim is a second choice target, so don't compare threat with it below
