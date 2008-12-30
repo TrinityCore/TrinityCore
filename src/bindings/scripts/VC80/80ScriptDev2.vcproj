@@ -1436,6 +1436,10 @@
 							RelativePath="..\scripts\zone\aunchindoun\auchenai_crypts\boss_exarch_maladaar.cpp"
 							>
 						</File>
+						<File
+							RelativePath="..\scripts\zone\aunchindoun\auchenai_crypts\boss_shirrak_the_dead_watcher.cpp"
+							>
+						</File>
 					</Filter>
 					<Filter
 						Name="Mana Tombs"
