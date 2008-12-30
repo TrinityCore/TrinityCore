@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Darkweaver_Syth
 SD%Complete: 85
-SDComment: Shock spells/times need more work. Heroic not implemented.
+SDComment: Shock spells/times need more work. Heroic partly implemented.
 SDCategory: Auchindoun, Sethekk Halls
 EndScriptData */
 
@@ -34,30 +34,31 @@ EndScriptData */
 
 #define SAY_DEATH                   -1556006
 
-#define SPELL_FROST_SHOCK           37865
+#define SPELL_FROST_SHOCK           21401 //37865
 #define SPELL_FLAME_SHOCK           34354
 #define SPELL_SHADOW_SHOCK          30138
 #define SPELL_ARCANE_SHOCK          37132
 
-#define SPELL_CHAIN_LIGHTNING       39945
+#define SPELL_CHAIN_LIGHTNING       15659 //15305
 
 #define SPELL_SUMMON_SYTH_FIRE      33537                   // Spawns 19203
 #define SPELL_SUMMON_SYTH_ARCANE    33538                   // Spawns 19205
 #define SPELL_SUMMON_SYTH_FROST     33539                   // Spawns 19204
 #define SPELL_SUMMON_SYTH_SHADOW    33540                   // Spawns 19206
 
-#define SPELL_FLAME_BUFFET          33526
-#define H_SPELL_FLAME_BUFFET        38141
-#define SPELL_ARCANE_BUFFET         33527
-#define H_SPELL_ARCANE_BUFFET       38138
-#define SPELL_FROST_BUFFET          33528
-#define H_SPELL_FROST_BUFFET        38142
-#define SPELL_SHADOW_BUFFET         33529
-#define H_SPELL_SHADOW_BUFFET       38143
+#define SPELL_FLAME_BUFFET          (HeroicMode?38141:33526)
+#define SPELL_ARCANE_BUFFET         (HeroicMode?38138:33527)
+#define SPELL_FROST_BUFFET          (HeroicMode?38142:33528)
+#define SPELL_SHADOW_BUFFET         (HeroicMode?38143:33529)
 
 struct TRINITY_DLL_DECL boss_darkweaver_sythAI : public ScriptedAI
 {
-    boss_darkweaver_sythAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_darkweaver_sythAI(Creature *c) : ScriptedAI(c) 
+
+	{
+        HeroicMode = m_creature->GetMap()->IsHeroic();
+        Reset();
+    }
 
     uint32 flameshock_timer;
     uint32 arcaneshock_timer;
@@ -68,6 +69,7 @@ struct TRINITY_DLL_DECL boss_darkweaver_sythAI : public ScriptedAI
     bool summon90;
     bool summon50;
     bool summon10;
+	bool HeroicMode;
 
     void Reset()
     {
@@ -204,10 +206,16 @@ CreatureAI* GetAI_boss_darkweaver_syth(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mob_syth_fireAI : public ScriptedAI
 {
-    mob_syth_fireAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_syth_fireAI(Creature *c) : ScriptedAI(c)
+
+	{
+        HeroicMode = m_creature->GetMap()->IsHeroic();
+        Reset();
+    }
 
     uint32 flameshock_timer;
     uint32 flamebuffet_timer;
+	bool HeroicMode;
 
     void Reset()
     {
@@ -250,10 +258,16 @@ CreatureAI* GetAI_mob_syth_fire(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mob_syth_arcaneAI : public ScriptedAI
 {
-    mob_syth_arcaneAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_syth_arcaneAI(Creature *c) : ScriptedAI(c) 
+
+	{
+		HeroicMode = m_creature->GetMap()->IsHeroic();
+        Reset();
+    }
 
     uint32 arcaneshock_timer;
     uint32 arcanebuffet_timer;
+	bool HeroicMode;
 
     void Reset()
     {
@@ -296,10 +310,16 @@ CreatureAI* GetAI_mob_syth_arcane(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mob_syth_frostAI : public ScriptedAI
 {
-    mob_syth_frostAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_syth_frostAI(Creature *c) : ScriptedAI(c) 
+	
+	{
+        HeroicMode = m_creature->GetMap()->IsHeroic();
+        Reset();
+    }
 
     uint32 frostshock_timer;
     uint32 frostbuffet_timer;
+	bool HeroicMode;
 
     void Reset()
     {
@@ -342,10 +362,16 @@ CreatureAI* GetAI_mob_syth_frost(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mob_syth_shadowAI : public ScriptedAI
 {
-    mob_syth_shadowAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_syth_shadowAI(Creature *c) : ScriptedAI(c) 
+
+	{
+        HeroicMode = m_creature->GetMap()->IsHeroic();
+        Reset();
+    }
 
     uint32 shadowshock_timer;
     uint32 shadowbuffet_timer;
+	bool HeroicMode;
 
     void Reset()
     {
