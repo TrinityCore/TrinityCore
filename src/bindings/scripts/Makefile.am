@@ -72,6 +72,7 @@ scripts/zone/alterac_mountains/alterac_mountains.cpp \
 scripts/zone/arathi_highlands/arathi_highlands.cpp \
 scripts/zone/ashenvale_forest/ashenvale.cpp\
 scripts/zone/aunchindoun/auchenai_crypts/boss_exarch_maladaar.cpp \
+scripts/zone/aunchindoun/auchenai_crypts/boss_shirrak_the_dead_watcher \
 scripts/zone/aunchindoun/mana_tombs/boss_nexusprince_shaffar.cpp \
 scripts/zone/aunchindoun/mana_tombs/boss_pandemonius.cpp \
 scripts/zone/aunchindoun/sethekk_halls/boss_darkweaver_syth.cpp \
