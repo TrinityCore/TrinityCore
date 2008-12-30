@@ -573,7 +573,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
 				DoCast(m_creature,SPELL_BODY_REGEN,true);
 				m_creature->CastSpell(Head, SPELL_FLYING_HEAD,true);
 				DoCast(m_creature,SPELL_CONFUSE,false);						//test
-				done_by->ProcDamageAndSpell(m_creature,PROC_FLAG_KILL_AND_GET_XP,PROC_FLAG_KILLED,PROC_EX_NONE,0);
+				done_by->ProcDamageAndSpell(m_creature,PROC_FLAG_KILL,PROC_FLAG_KILLED,PROC_EX_NONE,0);
 				whirlwind = 4000 + (rand()%5)*1000;
 				regen = 0;
 			}
