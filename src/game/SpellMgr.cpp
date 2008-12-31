@@ -1537,6 +1537,19 @@ void SpellMgr::LoadSpellChains()
 {
     mSpellChains.clear();                                   // need for reload case
 
+    std::vector<uint32> ChainedSpells;
+    for (uint32 ability_id=0;ability_id<sSkillLineAbilityStore.GetNumRows();ability_id++)
+    {
+        SkillLineAbilityEntry const *AbilityInfo=sSkillLineAbilityStore.LookupEntry(ability_id);
+        if (!AbilityInfo)
+            continue;
+        if (AbilityInfo->spellId==20154) //exception to these rules (not needed in 3.0.3)
+            continue;
+        if (!AbilityInfo->forward_spellid)
+            continue;
+        ChainedSpells.push_back(AbilityInfo->forward_spellid);
+    }
+
     std::multimap<SpellRankEntry, SpellRankValue,SpellRankEntry> RankMap;
 
     for (uint32 ability_id=0;ability_id<sSkillLineAbilityStore.GetNumRows();ability_id++)
@@ -1547,6 +1560,17 @@ void SpellMgr::LoadSpellChains()
 
         //get only spell with lowest ability_id to prevent doubles
         uint32 spell_id=AbilityInfo->spellId;
+        if (spell_id==20154) //exception to these rules (not needed in 3.0.3)
+            continue;
+        bool found=false;
+        for (uint32 i=0; i<ChainedSpells.size(); i++)
+        {
+           if (ChainedSpells.at(i)==spell_id)
+               found=true;
+        }
+        if (found)
+            continue;
+
         if(mSkillLineAbilityMap.lower_bound(spell_id)->second->id!=ability_id)
             continue;
         SpellEntry const *SpellInfo=sSpellStore.LookupEntry(spell_id);
@@ -1554,6 +1578,9 @@ void SpellMgr::LoadSpellChains()
             continue;
         std::string sRank = SpellInfo->Rank[sWorld.GetDefaultDbcLocale()];
         if(sRank.empty())
+            continue;
+        //exception to polymorph spells-make pig and turtle other chain than sheep
+        if ((SpellInfo->SpellFamilyName==SPELLFAMILY_MAGE) && (SpellInfo->SpellFamilyFlags & 0x1000000) && (SpellInfo->SpellIconID!=82))
             continue;
 
         SpellRankEntry entry;
@@ -1567,10 +1594,18 @@ void SpellMgr::LoadSpellChains()
         entry.TargetAuraState=SpellInfo->TargetAuraState;
         entry.SpellVisual=SpellInfo->SpellVisual;
         entry.ManaCost=SpellInfo->manaCost;
-        
-        value.Id=spell_id;
-        value.Rank=SpellInfo->Rank[sWorld.GetDefaultDbcLocale()];
-        RankMap.insert(std::pair<SpellRankEntry, SpellRankValue>(entry,value));
+
+        for (;;)
+        {
+            AbilityInfo=mSkillLineAbilityMap.lower_bound(spell_id)->second;
+            value.Id=spell_id;
+            value.Rank=SpellInfo->Rank[sWorld.GetDefaultDbcLocale()];
+            RankMap.insert(std::pair<SpellRankEntry, SpellRankValue>(entry,value));
+            spell_id=AbilityInfo->forward_spellid;
+            SpellInfo=sSpellStore.LookupEntry(spell_id);
+            if (!SpellInfo)
+                break;
+        }
     }
 
     barGoLink bar(RankMap.size());
@@ -1595,17 +1630,13 @@ void SpellMgr::LoadSpellChains()
             for (itr2 = RankErrorMap.lower_bound(err_entry);itr2!=RankErrorMap.upper_bound(err_entry);itr2++)
             {
                 sLog.outDebug("There is a duplicate rank entry (%s) for spell: %u",itr2->first,itr2->second->second.Id);
-                if (itr2->second->second.Id!=21084) //only one exception to these rules (not needed in 3.0.3)
-                {
-                    sLog.outDebug("Spell %u removed from chain data.",itr2->second->second.Id);
-                    RankMap.erase(itr2->second);
-                    itr=RankMap.lower_bound(entry);
-                }
+                sLog.outDebug("Spell %u removed from chain data.",itr2->second->second.Id);
+                RankMap.erase(itr2->second);
+                itr=RankMap.lower_bound(entry);
             }
             else
                 itr2++;
         }
-
         //do not proceed for spells with less than 2 ranks
         uint32 spell_max_rank=RankMap.count(entry);
         if (spell_max_rank<2)
@@ -1682,6 +1713,10 @@ void SpellMgr::LoadSpellChains()
             }
         }
     }
+
+//uncomment these two lines to print yourself list of spell_chains on startup
+//    for (UNORDERED_MAP<uint32, SpellChainNode>::iterator itr=mSpellChains.begin();itr!=mSpellChains.end();itr++)
+//       sLog.outString( "Id: %u, Rank: %d , %s",itr->first,itr->second.rank, sSpellStore.LookupEntry(itr->first)->Rank[sWorld.GetDefaultDbcLocale()]);
 
     sLog.outString();
     sLog.outString( ">> Loaded %u spell chains",count);
