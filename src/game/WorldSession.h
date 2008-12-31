@@ -523,6 +523,7 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleChannelRosterQuery(WorldPacket& recvPacket);
         void HandleChannelInfoQuery(WorldPacket& recvPacket);
         void HandleChannelJoinNotify(WorldPacket& recvPacket);
+		void HandleChannelDeclineInvite(WorldPacket& recvPacket);
 
         void HandleCompleteCinema(WorldPacket& recvPacket);
         void HandleNextCinematicCamera(WorldPacket& recvPacket);
