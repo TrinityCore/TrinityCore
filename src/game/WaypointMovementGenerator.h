@@ -80,7 +80,7 @@ class TRINITY_DLL_SPEC WaypointMovementGenerator
 		MovementGeneratorType GetMovementGeneratorType() { return WAYPOINT_MOTION_TYPE; }
 
 	private:
-		WaypointData node;
+		WaypointData *node;
 		uint32 path_id;
         TimeTrackerSmall i_nextMoveTime;
         WaypointPath *waypoints;
