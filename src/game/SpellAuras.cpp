@@ -651,7 +651,7 @@ void AreaAura::Update(uint32 diff)
                     //    actualBasePoints = actualSpellInfo->EffectBasePoints[m_effIndex];
                     AreaAura *aur;
                     if(actualSpellInfo == GetSpellProto())
-                        aur = new AreaAura(actualSpellInfo, m_effIndex, &damage, (*tIter), caster, NULL);
+                        aur = new AreaAura(actualSpellInfo, m_effIndex, &m_modifier.m_amount, (*tIter), caster, NULL);
                     else
                         aur = new AreaAura(actualSpellInfo, m_effIndex, NULL, (*tIter), caster, NULL);
                     (*tIter)->AddAura(aur);
