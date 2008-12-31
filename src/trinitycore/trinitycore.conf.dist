@@ -678,7 +678,7 @@ TalentsInspecting = 1
 #    ThreatRadius
 #        Radius for creature to evade after being pulled away from combat start point
 #        If ThreatRadius is less than creature aggro radius then aggro radius will be used
-#        Default: 100 yards
+#        Default: 60 yards
 #
 #    Rate.Creature.Aggro
 #        Aggro radius percent or off.
@@ -709,7 +709,7 @@ TalentsInspecting = 1
 #
 #    Rate.Corpse.Decay.Looted
 #         Controls how long the creature corpse stays after it had been looted, as a multiplier of its Corpse.Decay.* config.
-#         Default: 0.1
+#         Default: 0.5
 #
 #    Rate.Creature.Normal.Damage
 #    Rate.Creature.Elite.Elite.Damage
@@ -749,7 +749,7 @@ TalentsInspecting = 1
 #
 ###################################################################################################################
 
-ThreatRadius = 100
+ThreatRadius = 60
 Rate.Creature.Aggro = 1
 CreatureFamilyAssistanceRadius = 10
 CreatureFamilyAssistanceDelay = 1500
@@ -759,7 +759,7 @@ Corpse.Decay.RARE = 300
 Corpse.Decay.ELITE = 300
 Corpse.Decay.RAREELITE = 300
 Corpse.Decay.WORLDBOSS = 3600
-Rate.Corpse.Decay.Looted = 0.1
+Rate.Corpse.Decay.Looted = 0.5
 Rate.Creature.Normal.Damage = 1
 Rate.Creature.Elite.Elite.Damage = 1
 Rate.Creature.Elite.RAREELITE.Damage = 1

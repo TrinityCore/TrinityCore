@@ -232,6 +232,22 @@ AC_ARG_ENABLE(lc,
 ])
 AC_MSG_RESULT($TRINITYD_ENABLE_LC)
 
+# Enable short world sleep?
+AC_MSG_CHECKING(whether we use short world sleep)
+TRINITYD_ENABLE_SS=no
+AC_ARG_ENABLE(ss,
+[  --enable-ss Enable short world sleep],
+[
+    if test "$enableval" = "yes" ; then
+    CFLAGS="-DSHORT_SLEEP $CFLAGS"
+    CXXFLAGS="-DSHORT_SLEEP $CXXFLAGS"
+    TRINITYD_ENABLE_SS=yes
+    elif test "$withval" != "no" ; then
+    AC_MSG_ERROR(Please choose yes or no)
+    fi
+])
+AC_MSG_RESULT($TRINITYD_ENABLE_SS)
+
 ## Check for required header files.
 AC_HEADER_STDC
 AC_HEADER_DIRENT
