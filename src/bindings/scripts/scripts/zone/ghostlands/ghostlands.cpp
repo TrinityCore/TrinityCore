@@ -131,13 +131,13 @@ bool GOHello_gilded_brazier(Player *player, GameObject* _GO)
 ## npc_ranger_lilatha
 ######*/
  
-#define SAY_START                                                       "Let's go."
-#define SAY_PROGRESS1                                           "$N, let's use the antechamber to the right."
-#define SAY_PROGRESS2                                           "I can see the light at the end of the tunnel!"
-#define SAY_PROGRESS3                                           "There's Farstrider Enclave now, $C. Not far to go... Look out! Troll ambush!!"
-#define SAY_END1                                                        "Thank you for saving my life and bringing me back to safety, $N"
-#define SAY_END2                                                        "Captain Helios, I've been rescued from the Amani Catacombs. Reporting for duty, sir!"
-#define CAPTAIN_ANSWER                                          "Liatha, get someone to look at those injuries. Thank you for bringing her back safely."
+#define SAY_START           -1000140
+#define SAY_PROGRESS1       -1000141
+#define SAY_PROGRESS2       -1000142
+#define SAY_PROGRESS3       -1000143
+#define SAY_END1            -1000144
+#define SAY_END2            -1000145
+#define SAY_CAPTAIN_ANSWER      -1000146
  
 #define QUEST_ESCAPE_FROM_THE_CATACOMBS         9212
 #define GO_CAGE                                                         181152
@@ -164,18 +164,18 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
 			GameObject* Cage = FindGameObject(GO_CAGE);
 			if(Cage)
 			Cage->SetGoState(0);
-			DoSay(SAY_START, LANG_UNIVERSAL, player);
+			DoScriptText(SAY_START, m_creature, player);
 			break;
 			}
 		case 5:
-			DoSay(SAY_PROGRESS1, LANG_UNIVERSAL, player); break;
+			DoScriptText(SAY_PROGRESS1, m_creature, player);
 		case 11:			
-			DoSay(SAY_PROGRESS2, LANG_UNIVERSAL, player); 
+			DoScriptText(SAY_PROGRESS2, m_creature, player);
 			m_creature->SetOrientation(4.762841);
 			break;			
 		case 18:
 			{
-			DoSay(SAY_PROGRESS3, LANG_UNIVERSAL, player);
+			DoScriptText(SAY_PROGRESS3, m_creature, player);
 			Creature* Summ1 = m_creature->SummonCreature(16342, 7627.083984, -7532.538086, 152.128616, 1.082733, TEMPSUMMON_DEAD_DESPAWN, 0);
 			Creature* Summ2 = m_creature->SummonCreature(16343, 7620.432129, -7532.550293, 152.454865, 0.827478, TEMPSUMMON_DEAD_DESPAWN, 0);
 			Summ1->Attack(m_creature, true);
@@ -193,14 +193,14 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
 			break;
 		case 32:			
 			m_creature->SetOrientation(2.978281);
-			DoSay(SAY_END1, LANG_UNIVERSAL, player);
+			DoScriptText(SAY_END1, m_creature, player);
 			break;                                
 		case 33:
 			m_creature->SetOrientation(5.858011);
-			DoSay(SAY_END2, LANG_UNIVERSAL, player);
+			DoScriptText(SAY_END2, m_creature, player);
 			Unit* CaptainHelios = FindCreature(NPC_CAPTAIN_HELIOS, 50);
 			if(CaptainHelios)
-			((Creature*)CaptainHelios)->Say(CAPTAIN_ANSWER, LANG_UNIVERSAL, PlayerGUID);
+			DoScriptText(SAY_CAPTAIN_ANSWER, CaptainHelios, player);    
 			break;                        
 		}
 	}
