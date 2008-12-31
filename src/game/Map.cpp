@@ -257,7 +257,7 @@ template<>
 void Map::AddToGrid(Creature* obj, NGridType *grid, Cell const& cell)
 {
     // add to world object registry in grid
-    if(obj->isPet() || obj->isPossessedByPlayer())
+    if(obj->isPet() && IS_PLAYER_GUID(obj->GetOwnerGUID()) || obj->isPossessedByPlayer())
     {
         (*grid)(cell.CellX(), cell.CellY()).AddWorldObject<Creature>(obj, obj->GetGUID());
         obj->SetCurrentCell(cell);
