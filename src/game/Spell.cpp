@@ -2027,6 +2027,11 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
 
 void Spell::prepare(SpellCastTargets * targets, Aura* triggeredByAura)
 {
+    if(m_CastItem)
+        m_castItemGUID = m_CastItem->GetGUID();
+    else
+        m_castItemGUID = 0;
+    
     m_targets = *targets;
 
     m_spellState = SPELL_STATE_PREPARING;
@@ -4985,6 +4990,9 @@ void Spell::UpdatePointers()
         m_originalCaster = ObjectAccessor::GetUnit(*m_caster,m_originalCasterGUID);
         if(m_originalCaster && !m_originalCaster->IsInWorld()) m_originalCaster = NULL;
     }
+
+    if(m_castItemGUID && m_caster->GetTypeId() == TYPEID_PLAYER)
+        m_CastItem = ((Player*)m_caster)->GetItemByGuid(m_castItemGUID);
 
     m_targets.Update(m_caster);
 }
