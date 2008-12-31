@@ -33,10 +33,6 @@ class GameObject;
 class Pet;
 class Player;
 
-//comment the next line if CPU usage is too high
-//uncomment it otherwise
-//#define LARGE_CELL
-
 #ifdef LARGE_CELL
 #define MAX_NUMBER_OF_CELLS     4
 #define CENTER_GRID_CELL_ID     128
