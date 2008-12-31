@@ -198,6 +198,7 @@ enum WorldConfigs
     CONFIG_NO_RESET_TALENT_COST,
     CONFIG_SHOW_KICK_IN_WORLD,
     CONFIG_INTERVAL_LOG_UPDATE,
+	CONFIG_ENABLE_SINFO_LOGIN,
 
     CONFIG_VALUE_COUNT
 };
@@ -397,6 +398,11 @@ class World
         /// Get the current Message of the Day
         const char* GetMotd() const { return m_motd.c_str(); }
 
+		/// Set the string for new characters (first login)
+        void SetNewCharString(std::string str) { m_newCharString = str; }
+        /// Get the string for new characters (first login)
+        const std::string& GetNewCharString() const { return m_newCharString; }
+
         uint32 GetDefaultDbcLocale() const { return m_defaultDbcLocale; }
 
         /// Get the path where data (dbc, maps) are stored on disk
@@ -538,6 +544,8 @@ class World
         uint32 m_maxQueuedSessionCount;
 
         std::multimap<time_t, ScriptAction> m_scriptSchedule;
+
+		std::string m_newCharString;
 
         float rate_values[MAX_RATES];
         uint32 m_configs[CONFIG_VALUE_COUNT];
