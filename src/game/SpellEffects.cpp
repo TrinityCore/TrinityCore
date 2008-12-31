@@ -3575,7 +3575,7 @@ void Spell::EffectSummonGuardian(uint32 i)
     }
 
     // trigger
-    if(m_spellInfo->Id == 40276)
+    if(!m_originalCaster || m_originalCaster->GetTypeId() != TYPEID_PLAYER /*m_spellInfo->Id == 40276*/)
     {
         EffectSummonWild(i);
         return;
@@ -3987,6 +3987,12 @@ void Spell::EffectTameCreature(uint32 /*i*/)
 
 void Spell::EffectSummonPet(uint32 i)
 {
+    if(!m_originalCaster || m_originalCaster->GetTypeId() != TYPEID_PLAYER)
+    {
+        EffectSummonWild(i);
+        return;
+    }
+
     uint32 petentry = m_spellInfo->EffectMiscValue[i];
 
     Pet *OldSummon = m_caster->GetPet();
@@ -5768,6 +5774,7 @@ void Spell::EffectSummonCritter(uint32 i)
 
     // summon new pet
     Pet* critter = new Pet(MINI_PET);
+    critter->setActive(m_caster->isActive());
 
     Map *map = m_caster->GetMap();
     uint32 pet_number = objmgr.GeneratePetNumber();
