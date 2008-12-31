@@ -721,8 +721,11 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player *player, WorldPacke
         {
             if(auramask & (uint64(1) << i))
             {
-                *data << uint32(player->GetVisibleAura(i));
+                uint32 updatedAura = player->GetVisibleAura(i);
+                *data << uint32(updatedAura);
                 *data << uint8(1);
+                if(!updatedAura)
+                    player->UnsetAuraUpdateMask(i);
             }
         }
     }
@@ -802,8 +805,11 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player *player, WorldPacke
             {
                 if(auramask & (uint64(1) << i))
                 {
-                    *data << uint32(pet->GetVisibleAura(i));
+                    uint32 updatedAura = pet->GetVisibleAura(i);
+                    *data << uint32(updatedAura);
                     *data << uint8(1);
+                    if(!updatedAura)
+                        pet->UnsetAuraUpdateMask(i);
                 }
             }
         }
