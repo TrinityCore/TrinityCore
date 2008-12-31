@@ -515,10 +515,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\GMTicketHandler.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\game\GossipDef.cpp"
 				>
 			</File>
@@ -811,6 +807,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\game\TicketHandler.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\game\TradeHandler.cpp"
 				>
 			</File>
@@ -992,14 +992,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\game\GameObject.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\GMTicketMgr.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\GMTicketMgr.h"
 				>
 			</File>
 			<File
@@ -1212,6 +1204,14 @@
 			</File>
 			<File
 				RelativePath="..\..\src\game\TemporarySummon.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\TicketMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\TicketMgr.h"
 				>
 			</File>
 			<File

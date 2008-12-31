@@ -547,7 +547,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x204*/ { "CMSG_DECHARGE",                    STATUS_NEVER,    &WorldSession::Handle_NULL                     },
     /*0x205*/ { "CMSG_GMTICKET_CREATE",             STATUS_LOGGEDIN, &WorldSession::HandleGMTicketCreateOpcode      },
     /*0x206*/ { "SMSG_GMTICKET_CREATE",             STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
-    /*0x207*/ { "CMSG_GMTICKET_UPDATETEXT",         STATUS_LOGGEDIN, &WorldSession::HandleGMTicketUpdateTextOpcode  },
+    /*0x207*/ { "CMSG_GMTICKET_UPDATETEXT",         STATUS_LOGGEDIN, &WorldSession::HandleGMTicketUpdateOpcode		 },
     /*0x208*/ { "SMSG_GMTICKET_UPDATETEXT",         STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x209*/ { "SMSG_ACCOUNT_DATA_TIMES",          STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x20A*/ { "CMSG_REQUEST_ACCOUNT_DATA",        STATUS_LOGGEDIN, &WorldSession::HandleRequestAccountData        },
@@ -838,7 +838,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x327*/ { "CMSG_GM_UPDATE_TICKET_STATUS",     STATUS_NEVER,    &WorldSession::Handle_NULL                     },
     /*0x328*/ { "SMSG_GM_TICKET_STATUS_UPDATE",     STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x329*/ { "MSG_SET_DUNGEON_DIFFICULTY",       STATUS_LOGGEDIN, &WorldSession::HandleDungeonDifficultyOpcode   },
-    /*0x32A*/ { "CMSG_GMSURVEY_SUBMIT",             STATUS_LOGGEDIN, &WorldSession::HandleGMSurveySubmit            },
+	/*0x32A*/ { "CMSG_GMSURVEY_SUBMIT",             STATUS_LOGGEDIN, &WorldSession::Handle_NULL				        },//&WorldSession::HandleGMSurveySubmit
     /*0x32B*/ { "SMSG_UPDATE_INSTANCE_OWNERSHIP",   STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x32C*/ { "CMSG_IGNORE_KNOCKBACK_CHEAT",      STATUS_NEVER,    &WorldSession::Handle_NULL                     },
     /*0x32D*/ { "SMSG_CHAT_PLAYER_AMBIGUOUS",       STATUS_NEVER,    &WorldSession::Handle_ServerSide               },

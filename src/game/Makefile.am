@@ -116,9 +116,6 @@ $(srcdir)/GameObject.cpp \
 $(srcdir)/GameObject.h \
 $(srcdir)/GlobalEvents.cpp \
 $(srcdir)/GlobalEvents.h \
-$(srcdir)/GMTicketHandler.cpp \
-$(srcdir)/GMTicketMgr.cpp \
-$(srcdir)/GMTicketMgr.h \
 $(srcdir)/GossipDef.cpp \
 $(srcdir)/GossipDef.h \
 $(srcdir)/GridDefines.h \
@@ -256,6 +253,9 @@ $(srcdir)/TargetedMovementGenerator.h \
 $(srcdir)/TaxiHandler.cpp \
 $(srcdir)/TemporarySummon.cpp \
 $(srcdir)/TemporarySummon.h \
+$(srcdir)/TicketHandler.cpp \
+$(srcdir)/TicketMgr.cpp \
+$(srcdir)/TicketMgr.h \
 $(srcdir)/tools.cpp \
 $(srcdir)/Tools.h \
 $(srcdir)/TotemAI.cpp \

@@ -46,7 +46,7 @@ class ChatHandler
     public:
         explicit ChatHandler(WorldSession* session) : m_session(session) {}
         explicit ChatHandler(Player* player) : m_session(player->GetSession()) {}
-        ~ChatHandler() {}
+	     ~ChatHandler() {}
 
         static void FillMessageData( WorldPacket *data, WorldSession* session, uint8 type, uint32 language, const char *channelName, uint64 target_guid, const char *message, Unit *speaker);
 
@@ -72,6 +72,7 @@ class ChatHandler
         int ParseCommands(const char* text);
 
         virtual char const* GetName() const;
+		
     protected:
         explicit ChatHandler() : m_session(NULL) {}      // for CLI subclass
 
@@ -404,8 +405,20 @@ class ChatHandler
         bool HandleResetTalentsCommand(const char * args);
 
         bool HandleResetAllCommand(const char * args);
-        bool HandleTicketCommand(const char* args);
-        bool HandleDelTicketCommand(const char* args);
+
+		
+		// GM ticket command handlers
+		bool HandleGMTicketListCommand(const char* args);
+		bool HandleGMTicketListOnlineCommand(const char* args);
+		bool HandleGMTicketGetByIdCommand(const char* args);
+		bool HandleGMTicketGetByNameCommand(const char* args);
+		bool HandleGMTicketCloseByIdCommand(const char* args);
+		bool HandleGMTicketAssignToCommand(const char* args);
+		bool HandleGMTicketUnAssignCommand(const char* args);
+		bool HandleGMTicketCommentCommand(const char* args);
+		bool HandleGMTicketDeleteByIdCommand(const char* args);
+		bool HandleGMTicketReloadCommand(const char*);
+
         bool HandleMaxSkillCommand(const char* args);
         bool HandleSetSkillCommand(const char* args);
         bool HandleListCreatureCommand(const char* args);
@@ -490,7 +503,7 @@ class ChatHandler
         void SetSentErrorMessage(bool val){ sentErrorMessage = val;};
     private:
         WorldSession * m_session;                           // != NULL for chat command call and NULL for CLI command
-
+		
         // common global flag
         static bool load_command_table;
         bool sentErrorMessage;
