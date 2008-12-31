@@ -40,6 +40,8 @@
 #include "Util.h"
 #include "ArenaTeam.h"
 #include "Language.h"
+#include "Chat.h"
+#include "SystemConfig.h"
 
 class LoginQueryHolder : public SqlQueryHolder
 {
@@ -571,6 +573,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
 
     Player* pCurrChar = new Player(this);
     pCurrChar->GetMotionMaster()->Initialize();
+	 // for send server info and strings (config)
+    ChatHandler chH = ChatHandler(pCurrChar);
 
     // "GetAccountId()==db stored account id" checked in LoadFromDB (prevent login not own character using cheating tools)
     if(!pCurrChar->LoadFromDB(GUID_LOPART(playerGuid), holder))
@@ -636,6 +640,12 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
 
         SendPacket( &data );
         DEBUG_LOG( "WORLD: Sent motd (SMSG_MOTD)" );
+
+		// send server info
+        if(sWorld.getConfig(CONFIG_ENABLE_SINFO_LOGIN) == 1)
+            chH.PSendSysMessage(_FULLVERSION);
+
+        DEBUG_LOG( "WORLD: Sent server info" );
     }
 
     //QueryResult *result = CharacterDatabase.PQuery("SELECT guildid,rank FROM guild_member WHERE guid = '%u'",pCurrChar->GetGUIDLow());
@@ -709,7 +719,11 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
                 data << uint32(rEntry->CinematicSequence);
                 SendPacket( &data );
             }
-        }
+            
+			// send new char string if not empty
+            if (!sWorld.GetNewCharString().empty())
+                chH.PSendSysMessage(sWorld.GetNewCharString().c_str());
+         }
     }
 
     if (!pCurrChar->GetMap()->Add(pCurrChar))

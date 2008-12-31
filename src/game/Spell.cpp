@@ -1964,6 +1964,11 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
 
 void Spell::prepare(SpellCastTargets * targets, Aura* triggeredByAura)
 {
+    if(m_CastItem)
+        m_castItemGUID = m_CastItem->GetGUID();
+    else
+        m_castItemGUID = 0;
+    
     m_targets = *targets;
 
     m_spellState = SPELL_STATE_PREPARING;
@@ -3774,14 +3779,15 @@ uint8 Spell::CanCast(bool strict)
         if(uint8 castResult = CheckRange(strict))
             return castResult;
 
+    if(!m_IsTriggeredSpell)
     {
         if(uint8 castResult = CheckPower())
             return castResult;
-    }
 
-    if(!m_triggeredByAuraSpell)                             // triggered spell not affected by stun/etc
+    //if(!m_triggeredByAuraSpell)                             // triggered spell not affected by stun/etc
         if(uint8 castResult = CheckCasterAuras())
             return castResult;
+    }
 
     for (int i = 0; i < 3; i++)
     {
@@ -4663,7 +4669,12 @@ uint8 Spell::CheckItems()
     uint32 itemid, itemcount;
     Player* p_caster = (Player*)m_caster;
 
-    if(m_CastItem)
+    if(!m_CastItem)
+    {
+        if(m_castItemGUID)
+            return SPELL_FAILED_ITEM_NOT_READY;
+    }
+    else
     {
         itemid = m_CastItem->GetEntry();
         if( !p_caster->HasItemCount(itemid,1) )
@@ -5140,6 +5151,9 @@ void Spell::UpdatePointers()
         m_originalCaster = ObjectAccessor::GetUnit(*m_caster,m_originalCasterGUID);
         if(m_originalCaster && !m_originalCaster->IsInWorld()) m_originalCaster = NULL;
     }
+
+    if(m_castItemGUID && m_caster->GetTypeId() == TYPEID_PLAYER)
+        m_CastItem = ((Player*)m_caster)->GetItemByGuid(m_castItemGUID);
 
     m_targets.Update(m_caster);
 }

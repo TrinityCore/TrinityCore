@@ -36,7 +36,7 @@
 #include "GameEvent.h"
 #include "SpellMgr.h"
 #include "AccountMgr.h"
-#include "GMTicketMgr.h"
+//#include "GMTicketMgr.h"
 #include "WaypointManager.h"
 #include "Util.h"
 #include <cctype>
@@ -1967,7 +1967,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     return true;
 }
 
-//show tickets
+/*//show tickets
 void ChatHandler::ShowTicket(uint64 guid, char const* text, char const* time)
 {
     std::string name;
@@ -2148,7 +2148,7 @@ bool ChatHandler::HandleDelTicketCommand(const char *args)
 
     PSendSysMessage(LANG_COMMAND_TICKETPLAYERDEL,px);
     return true;
-}
+}*/
 
 //set spawn dist of creature
 bool ChatHandler::HandleNpcSpawnDistCommand(const char* args)

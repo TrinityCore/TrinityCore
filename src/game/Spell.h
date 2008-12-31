@@ -416,6 +416,7 @@ class Spell
         SpellEntry const* m_spellInfo;
         int32 m_currentBasePoints[3];                       // cache SpellEntry::EffectBasePoints and use for set custom base points
         Item* m_CastItem;
+        uint64 m_castItemGUID;
         uint8 m_cast_count;
         uint32 m_glyphIndex;
         SpellCastTargets m_targets;

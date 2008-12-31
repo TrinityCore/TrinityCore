@@ -34,6 +34,7 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 #include "AccountMgr.h"
+#include "TicketMgr.h"
 
 bool ChatHandler::load_command_table = true;
 
@@ -302,6 +303,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "locales_page_text",           SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesPageTextCommand,         "", NULL },
         { "locales_quest",               SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesQuestCommand,            "", NULL },
 		{ "waypoint_scripts",            SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadWpScriptsCommand,				 "", NULL },
+		{ "tickets",					 SEC_ADMINISTRATOR, true,  &ChatHandler::HandleGMTicketReloadCommand,				 "", NULL },
 
         { NULL,                          0,                 false, NULL,                                                     "", NULL }
     };
@@ -502,10 +504,25 @@ ChatCommand * ChatHandler::getCommandTable()
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
+	static ChatCommand ticketCommandTable[] =
+	{
+		{ "list",			SEC_MODERATOR,		false, &ChatHandler::HandleGMTicketListCommand,				"", NULL },
+		{ "onlinelist",		SEC_MODERATOR,		false, &ChatHandler::HandleGMTicketListOnlineCommand,		"", NULL },
+		{ "viewname",		SEC_MODERATOR,		false, &ChatHandler::HandleGMTicketGetByNameCommand,		"", NULL },
+		{ "viewid",			SEC_MODERATOR,		false, &ChatHandler::HandleGMTicketGetByIdCommand,			"", NULL },
+		{ "close",			SEC_MODERATOR,		false, &ChatHandler::HandleGMTicketCloseByIdCommand,		"", NULL },
+		{ "delete",			SEC_ADMINISTRATOR,	false, &ChatHandler::HandleGMTicketDeleteByIdCommand,		"", NULL },
+		{ "assign",			SEC_MODERATOR,		false, &ChatHandler::HandleGMTicketAssignToCommand,			"", NULL },
+		{ "unassign",		SEC_MODERATOR,		false, &ChatHandler::HandleGMTicketUnAssignCommand,			"", NULL },
+		{ "comment",		SEC_MODERATOR,		false, &ChatHandler::HandleGMTicketCommentCommand,			"", NULL },
+		{ NULL,				0,					false, NULL,												"", NULL }
+	};
+
     static ChatCommand commandTable[] =
     {
         { "account",        SEC_PLAYER,         true,  NULL,                                           "", accountCommandTable },
         { "gm",             SEC_MODERATOR,      true,  NULL,                                           "", gmCommandTable },
+		{ "ticket",			SEC_MODERATOR,		true,  NULL,										   "", ticketCommandTable },
         { "npc",            SEC_MODERATOR,      false, NULL,                                           "", npcCommandTable },
         { "go",             SEC_MODERATOR,      false, NULL,                                           "", goCommandTable },
         { "learn",          SEC_MODERATOR,      false, NULL,                                           "", learnCommandTable },
@@ -579,8 +596,6 @@ ChatCommand * ChatHandler::getCommandTable()
         { "additemset",     SEC_ADMINISTRATOR,  false, &ChatHandler::HandleAddItemSetCommand,          "", NULL },
         { "bank",           SEC_ADMINISTRATOR,  false, &ChatHandler::HandleBankCommand,                "", NULL },
         { "wchange",        SEC_ADMINISTRATOR,  false, &ChatHandler::HandleChangeWeather,              "", NULL },
-        { "ticket",         SEC_GAMEMASTER,     true,  &ChatHandler::HandleTicketCommand,              "", NULL },
-        { "delticket",      SEC_GAMEMASTER,     true,  &ChatHandler::HandleDelTicketCommand,           "", NULL },
         { "maxskill",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleMaxSkillCommand,            "", NULL },
         { "setskill",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleSetSkillCommand,            "", NULL },
         { "whispers",       SEC_MODERATOR,      false, &ChatHandler::HandleWhispersCommand,            "", NULL },
