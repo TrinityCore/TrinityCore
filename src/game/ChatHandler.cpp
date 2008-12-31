@@ -583,3 +583,8 @@ void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recv_data )
     ChatHandler::FillMessageData(&data, this, CHAT_MSG_IGNORED, LANG_UNIVERSAL, NULL, GetPlayer()->GetGUID(), GetPlayer()->GetName(),NULL);
     player->GetSession()->SendPacket(&data);
 }
+
+void WorldSession::HandleChannelDeclineInvite(WorldPacket &recvPacket)
+{
+    sLog.outDebug("Opcode %u", recvPacket.GetOpcode());
+}

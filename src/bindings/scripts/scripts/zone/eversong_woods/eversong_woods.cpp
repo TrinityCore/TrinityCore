@@ -17,13 +17,15 @@
 /* ScriptData
 SDName: Eversong_Woods
 SD%Complete: 100
-SDComment: Quest support: 8346, 8483
+SDComment: Quest support: 8346, 8483, 8488, 8490
 SDCategory: Eversong Woods
 EndScriptData */
 
 /* ContentData
 mobs_mana_tapped
 npc_prospector_anvilward
+npc_apprentice_mirveda
+npc_infused_crystal
 EndContentData */
 
 #include "precompiled.h"
@@ -547,6 +549,208 @@ bool GOHello_go_second_trial(Player *player, GameObject* _GO)
     return true;
 }
 
+/*######
+## npc_apprentice_mirveda
+######*/
+
+#define QUEST_UNEXPECTED_RESULT	8488
+#define MOB_GHARZUL		15958
+#define MOB_ANGERSHADE	15656
+
+struct TRINITY_DLL_DECL npc_apprentice_mirvedaAI : public ScriptedAI
+{
+	npc_apprentice_mirvedaAI(Creature* c) : ScriptedAI(c), Summons(m_creature) {Reset();}
+
+	uint32 KillCount;
+	uint64 PlayerGUID;
+	bool Summon;
+	SummonList Summons;
+
+	void Reset()
+	{
+		KillCount = 0;
+		PlayerGUID = 0;
+		Summons.DespawnAll();
+		Summon = false;
+	}
+
+	void Aggro(Unit* who){}
+
+	void JustSummoned(Creature *summoned)
+	{
+		summoned->AI()->AttackStart(m_creature);
+		Summons.Summon(summoned);
+	}
+
+	void SummonedCreatureDespawn(Creature* summoned) 
+	{
+		Summons.Despawn(summoned);
+		++KillCount;
+	}
+
+	void JustDied(Unit* killer)
+	{
+		if (PlayerGUID)
+		{
+			Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+			if (player)
+				((Player*)player)->FailQuest(QUEST_UNEXPECTED_RESULT);
+		}
+	}
+
+	void UpdateAI(const uint32 diff)
+	{
+		if(KillCount >= 3)
+		{
+			if (PlayerGUID)
+			{
+			Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+				((Player*)player)->GroupEventHappens(QUEST_UNEXPECTED_RESULT, m_creature);
+			}
+		}
+
+		if(Summon)
+		{
+			m_creature->SummonCreature(MOB_GHARZUL, 8745, -7134.32, 35.22, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
+			m_creature->SummonCreature(MOB_ANGERSHADE, 8745, -7134.32, 35.22, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
+			m_creature->SummonCreature(MOB_ANGERSHADE, 8745, -7134.32, 35.22, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
+			Summon = false;
+		}
+	}
+};
+
+bool QuestAccept_npc_apprentice_mirveda(Player* player, Creature* creature, Quest const* quest)
+{
+    if (quest->GetQuestId() == QUEST_UNEXPECTED_RESULT)
+    {
+		((npc_apprentice_mirvedaAI*)creature->AI())->Summon = true;
+		((npc_apprentice_mirvedaAI*)creature->AI())->PlayerGUID = player->GetGUID();
+    }
+    return true;
+}
+
+CreatureAI* GetAI_npc_apprentice_mirvedaAI(Creature *_Creature)
+{
+    return new npc_apprentice_mirvedaAI (_Creature);
+}
+
+/*######
+## npc_infused_crystal not working yet.
+######*/
+
+#define MOB_ENRAGED_WRAITH	17086
+#define EMOTE	"releases the last of its energies into the nerarby runestone, succesfully reactivating it."
+#define QUEST_POWERING_OUR_DEFENSES	8490
+
+struct Location
+{
+    float x, y, z;
+};
+
+static Location SpawnLocations[]=
+{
+	{8270.68, -7188.53, 139.619},
+	{8284.27, -7187.78, 139.603},
+	{8297.43, -7193.53, 139.603},
+	{8303.5, -7201.96, 139.577},
+	{8273.22, -7241.82, 139.382},
+	{8254.89, -7222.12, 139.603},
+	{8278.51, -7242.13, 139.162},
+	{8267.97, -7239.17, 139.517}
+};
+
+struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
+{
+	npc_infused_crystalAI(Creature* c) : Scripted_NoMovementAI(c) {Reset();}
+
+	uint32 EndTimer;
+	uint32 WaveTimer;
+	bool Completed;
+	bool Progress;
+	uint64 PlayerGUID;
+ 
+	void Reset()
+	{
+		EndTimer = 0;
+		WaveTimer = 0;
+		PlayerGUID = 0;
+		Completed = false;
+		Progress = false;
+	}
+
+	void Aggro(Unit* who){}
+ 
+	void JustSummoned(Creature *summoned)
+	{
+		summoned->AI()->AttackStart(m_creature);
+	}
+ 
+	void MoveInLineOfSight(Unit* who)
+	{
+		error_log("MoveLos");
+		if( who->GetTypeId() == TYPEID_PLAYER && !m_creature->canStartAttack(who) )
+		{
+			error_log("TypeId check");
+			if( ((Player*)who)->GetQuestStatus(QUEST_POWERING_OUR_DEFENSES) == QUEST_STATUS_INCOMPLETE )
+			{
+				error_log("Queststaus");
+				float Radius = 10.0;
+				if( m_creature->IsWithinDistInMap(who, Radius) )
+				{
+					PlayerGUID = who->GetGUID();
+					WaveTimer = 1000;
+					EndTimer = 60000;
+					Progress = true;
+					error_log("Event started");
+				}
+			}
+		}
+	}
+ 
+	void JustDied(Unit* killer)
+	{
+		if (PlayerGUID && !Completed)
+		{
+			Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+			if (player)
+				((Player*)player)->FailQuest(QUEST_POWERING_OUR_DEFENSES);
+		}
+	}
+ 
+	void UpdateAI(const uint32 diff)
+	{
+		if(EndTimer < diff && Progress)
+		{
+			DoTextEmote(EMOTE, NULL);
+			Completed = true;
+			if (PlayerGUID)
+			{
+				Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+				((Player*)player)->GroupEventHappens(QUEST_POWERING_OUR_DEFENSES, m_creature);
+			}
+			m_creature->DealDamage(m_creature,m_creature->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+			m_creature->RemoveCorpse();
+			error_log("EndTimer done");
+		}else EndTimer -= diff;
+
+		if(WaveTimer < diff && !Completed && Progress)
+		{
+			uint32 ran = rand()%8;
+			DoSpawnCreature(MOB_ENRAGED_WRAITH, SpawnLocations[ran].x, SpawnLocations[ran].y, SpawnLocations[ran].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
+			DoSpawnCreature(MOB_ENRAGED_WRAITH, SpawnLocations[ran].x, SpawnLocations[ran].y, SpawnLocations[ran].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
+			DoSpawnCreature(MOB_ENRAGED_WRAITH, SpawnLocations[ran].x, SpawnLocations[ran].y, SpawnLocations[ran].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
+			WaveTimer = 30000;
+			error_log("Wave summon");
+		}else WaveTimer -= diff;
+	}
+};
+ 
+
+CreatureAI* GetAI_npc_infused_crystalAI(Creature *_Creature)
+{
+    return new npc_infused_crystalAI (_Creature);
+}
+
 void AddSC_eversong_woods()
 {
     Script *newscript;
@@ -579,4 +783,15 @@ void AddSC_eversong_woods()
     newscript->Name="go_second_trial";
     newscript->pGOHello =  &GOHello_go_second_trial;
     newscript->RegisterSelf();
+
+	newscript = new Script;
+	newscript->Name = "npc_apprentice_mirveda";
+	newscript->GetAI = &GetAI_npc_apprentice_mirvedaAI;
+	newscript->pQuestAccept = &QuestAccept_npc_apprentice_mirveda;
+	newscript->RegisterSelf();
+
+	newscript = new Script;
+	newscript->Name = "npc_infused_crystal";
+	newscript->GetAI = &GetAI_npc_infused_crystalAI;
+	newscript->RegisterSelf();
 }

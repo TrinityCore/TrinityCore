@@ -3662,7 +3662,7 @@ void Spell::EffectSummonGuardian(uint32 i)
     }
 
     // trigger
-    if(m_spellInfo->Id == 40276)
+    if(!m_originalCaster || m_originalCaster->GetTypeId() != TYPEID_PLAYER /*m_spellInfo->Id == 40276*/)
     {
         EffectSummonWild(i);
         return;
@@ -3907,7 +3907,7 @@ void Spell::EffectEnchantItemTmp(uint32 i)
     // Shaman Rockbiter Weapon
     if(i==0 && m_spellInfo->Effect[1]==SPELL_EFFECT_DUMMY)
     {
-        int32 enchnting_damage = damage;//+1;
+        int32 enchnting_damage = CalculateDamage(1, NULL);//+1;
 
         // enchanting id selected by calculated damage-per-sec stored in Effect[1] base value
         // with already applied percent bonus from Elemental Weapons talent
@@ -4076,6 +4076,12 @@ void Spell::EffectTameCreature(uint32 /*i*/)
 
 void Spell::EffectSummonPet(uint32 i)
 {
+    if(!m_originalCaster || m_originalCaster->GetTypeId() != TYPEID_PLAYER)
+    {
+        EffectSummonWild(i);
+        return;
+    }
+
     uint32 petentry = m_spellInfo->EffectMiscValue[i];
 
     Pet *OldSummon = m_caster->GetPet();
@@ -5953,6 +5959,7 @@ void Spell::EffectSummonCritter(uint32 i)
 
     // summon new pet
     Pet* critter = new Pet(MINI_PET);
+    critter->setActive(m_caster->isActive());
 
     Map *map = m_caster->GetMap();
     uint32 pet_number = objmgr.GeneratePetNumber();
