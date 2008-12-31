@@ -353,11 +353,8 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
     m_glyphIndex = 0;
     m_triggeredByAuraSpell  = NULL;
 
-    //Auto Shot & Shoot
-    if( m_spellInfo->AttributesEx2 == 0x000020 && !triggered )
-        m_autoRepeat = true;
-    else
-        m_autoRepeat = false;
+    //Auto Shot & Shoot (wand)
+    m_autoRepeat = IsAutoRepeatRangedSpell(m_spellInfo);
 
     m_runesState = 0;
     m_powerCost = 0;                                        // setup to correct value in Spell::prepare, don't must be used before.
@@ -670,7 +667,8 @@ void Spell::prepareDataForTriggerSystem()
                 m_procAttacker = PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL;
                 m_procVictim   = PROC_FLAG_TAKEN_POSITIVE_SPELL;
             }
-            else if (m_spellInfo->Id != SPELL_ID_AUTOSHOT) // Wands
+                                                           // Wands
+            else if (IsAutoRepeatRangedSpell(m_spellInfo) && m_spellInfo->Id != SPELL_ID_AUTOSHOT)
             {
                 m_procAttacker = PROC_FLAG_SUCCESSFUL_RANGED_SPELL_HIT;
                 m_procVictim   = PROC_FLAG_TAKEN_RANGED_SPELL_HIT;
@@ -1984,7 +1982,7 @@ void Spell::prepare(SpellCastTargets * targets, Aura* triggeredByAura)
     m_caster->m_Events.AddEvent(Event, m_caster->m_Events.CalculateTime(1));
 
     //Prevent casting at cast another spell (ServerSide check)
-    if(m_caster->IsNonMeleeSpellCasted(false, true) && m_cast_count)
+    if(m_caster->IsNonMeleeSpellCasted(false, true, true) && m_cast_count)
     {
         SendCastResult(SPELL_FAILED_SPELL_IN_PROGRESS);
         finish(false);
@@ -2417,7 +2415,7 @@ void Spell::SendSpellCooldown()
 
     // shoot spells used equipped item cooldown values already assigned in GetAttackTime(RANGED_ATTACK)
     // prevent 0 cooldowns set by another way
-    if (rec <= 0 && catrec <= 0 && (cat == 76 || m_spellInfo->Id != SPELL_ID_AUTOSHOT))
+    if (rec <= 0 && catrec <= 0 && (cat == 76 || IsAutoRepeatRangedSpell(m_spellInfo) && m_spellInfo->Id != SPELL_ID_AUTOSHOT))
         rec = _player->GetAttackTime(RANGED_ATTACK);
 
     // Now we have cooldown data (if found any), time to apply mods
@@ -2455,7 +2453,7 @@ void Spell::SendSpellCooldown()
                 if(*i_scset == m_spellInfo->Id)             // skip main spell, already handled above
                     continue;
 
-                _player->AddSpellCooldown(m_spellInfo->Id, m_CastItem ? m_CastItem->GetEntry() : 0, catrecTime);
+                _player->AddSpellCooldown(*i_scset, m_CastItem ? m_CastItem->GetEntry() : 0, catrecTime);
             }
         }
     }

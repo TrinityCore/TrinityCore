@@ -352,6 +352,15 @@ bool IsSingleFromSpellSpecificPerCaster(uint32 spellSpec1, uint32 spellSpec2);
 bool IsSingleFromSpellSpecificPerTarget(uint32 spellSpec1, uint32 spellSpec2);
 bool IsPassiveSpell(uint32 spellId);
 
+inline bool IsPassiveSpellStackableWithRanks(SpellEntry const* spellProto)
+{
+    if(!IsPassiveSpell(spellProto->Id))
+        return false;
+
+    return !IsSpellHaveEffect(spellProto,SPELL_EFFECT_APPLY_AURA);
+}
+
+
 inline bool IsDeathPersistentSpell(SpellEntry const *spellInfo)
 {
     switch(spellInfo->Id)
@@ -417,6 +426,12 @@ inline bool isSpellBreakStealth(SpellEntry const* spellInfo)
 {
     return !(spellInfo->AttributesEx & SPELL_ATTR_EX_NOT_BREAK_STEALTH);
 }
+
+inline bool IsAutoRepeatRangedSpell(SpellEntry const* spellInfo)
+{
+    return (spellInfo->Attributes & SPELL_ATTR_RANGED) && (spellInfo->AttributesEx2 == 0x000020 /*autorepeat*/);
+}
+
 
 uint8 GetErrorAtShapeshiftedCast (SpellEntry const *spellInfo, uint32 form);
 
