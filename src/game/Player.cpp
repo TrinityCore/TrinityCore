@@ -268,9 +268,7 @@ Player::Player (WorldSession *session): Unit()
     m_divider = 0;
 
     m_ExtraFlags = 0;
-    if(GetSession()->GetSecurity() >= SEC_GAMEMASTER)
-        SetAcceptTicket(true);
-
+   
     // players always accept
     if(GetSession()->GetSecurity() == SEC_PLAYER)
         SetAcceptWhispers(true);
@@ -14311,17 +14309,6 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
                 if(extraflags & PLAYER_EXTRA_GM_ON)
                     SetGameMaster(true);
                 break;
-        }
-
-        switch(sWorld.getConfig(CONFIG_GM_ACCEPT_TICKETS))
-        {
-            default:
-            case 0:                        break;           // disable
-            case 1: SetAcceptTicket(true); break;           // enable
-            case 2:                                         // save state
-            if(extraflags & PLAYER_EXTRA_GM_ACCEPT_TICKETS)
-                SetAcceptTicket(true);
-            break;
         }
 
         switch(sWorld.getConfig(CONFIG_GM_CHAT))
