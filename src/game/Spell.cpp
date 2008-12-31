@@ -4535,7 +4535,12 @@ uint8 Spell::CheckItems()
     uint32 itemid, itemcount;
     Player* p_caster = (Player*)m_caster;
 
-    if(m_CastItem)
+    if(!m_CastItem)
+    {
+        if(m_castItemGUID)
+            return SPELL_FAILED_ITEM_NOT_READY;
+    }
+    else
     {
         itemid = m_CastItem->GetEntry();
         if( !p_caster->HasItemCount(itemid,1) )
