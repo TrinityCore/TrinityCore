@@ -720,7 +720,7 @@ void LoadDatabase()
     LoadTrinityStrings(TScriptDB,"script_texts",TEXT_SOURCE_RANGE,1+(TEXT_SOURCE_RANGE*2));
 
     // Gather Additional data from Script Texts
-    result = TScriptDB.PQuery("SELECT entry, sound, type, language FROM script_texts");
+    result = TScriptDB.PQuery("SELECT entry, sound, type, language, emote FROM script_texts");
 
     outstring_log("TSCR: Loading Script Texts additional data...");
     if (result)
