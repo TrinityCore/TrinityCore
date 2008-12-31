@@ -152,6 +152,7 @@ WaypointMovementGenerator<Creature>::Update(Creature &unit, const uint32 &diff)
 		{
 			if(StopedByPlayer)
 			{
+                assert(node);
 				InitTraveller(unit,node);
 				i_destinationHolder.SetDestination(traveller, node.x, node.y, node.z);
 				i_nextMoveTime.Reset(i_destinationHolder.GetTotalTravelTime());
