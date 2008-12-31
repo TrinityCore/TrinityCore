@@ -16,33 +16,17 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef TRINITYSERVER_MEMORY_H
-#define TRINITYSERVER_MEMORY_H
+#include "MemoryLeaks.h"
+#include "Policies/SingletonImp.h"
 
-#include "Platform/CompilerDefs.h"
+INSTANTIATE_SINGLETON_1( MemoryManager ) ;
 
-#if COMPILER == COMPILER_MICROSOFT
-
-#ifndef _WIN64
-// Visual Leak Detector support enabled
-//#include <vld/vld.h>
-// standard Visual Studio leak check disabled,
-//#  define _CRTDBG_MAP_ALLOC
-//#  include <stdlib.h>
-//#  include <crtdbg.h>
-#else
-#  define _CRTDBG_MAP_ALLOC
-#  include <stdlib.h>
-#  include <crtdbg.h>
-#endif
-
-#endif
-
-
-#include "Policies/Singleton.h"
-
-struct MemoryManager : public Trinity::Singleton < MemoryManager >
+MemoryManager::MemoryManager( )
 {
-    MemoryManager();
-};
-#endif
+    #if COMPILER == MICROSOFT
+    // standard leak check initialization
+    //_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+    // uncomment to disable Visual Leak Detector from code
+    //VLDDisable();
+    #endif
+}
