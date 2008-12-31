@@ -112,6 +112,9 @@ World::World()
 
     m_defaultDbcLocale = LOCALE_enUS;
     m_availableDbcLocaleMask = 0;
+
+    m_updateTimeSum = 0;
+    m_updateTimeCount = 0;
 }
 
 /// World destructor
@@ -1021,6 +1024,7 @@ void World::LoadConfigSettings(bool reload)
         m_configs[CONFIG_PVP_TOKEN_COUNT] = 1;
     m_configs[CONFIG_NO_RESET_TALENT_COST] = sConfig.GetBoolDefault("NoResetTalentsCost", false);
     m_configs[CONFIG_SHOW_KICK_IN_WORLD] = sConfig.GetBoolDefault("ShowKickInWorld", false);
+    m_configs[CONFIG_INTERVAL_LOG_UPDATE] = sConfig.GetIntDefault("RecordUpdateTimeDiffInterval", 60000);
 
     std::string forbiddenmaps = sConfig.GetStringDefault("ForbiddenMaps", "");
     char * forbiddenMaps = new char[forbiddenmaps.length() + 1];
@@ -1450,6 +1454,22 @@ void World::DetectDBCLang()
 /// Update the World !
 void World::Update(time_t diff)
 {
+    m_updateTime = uint32(diff);
+    if(m_configs[CONFIG_INTERVAL_LOG_UPDATE])
+    {
+        if(m_updateTimeSum > m_configs[CONFIG_INTERVAL_LOG_UPDATE])
+        {
+            sLog.outString("Update time diff: %u. Players online: %u.", m_updateTimeSum / m_updateTimeCount, GetActiveSessionCount());
+            m_updateTimeSum = m_updateTime;
+            m_updateTimeCount = 1;
+        }
+        else
+        {
+            m_updateTimeSum += m_updateTime;
+            ++m_updateTimeCount;
+        }
+    }
+
     ///- Update the different timers
     for(int i = 0; i < WUPDATE_COUNT; i++)
         if(m_timers[i].GetCurrent()>=0)

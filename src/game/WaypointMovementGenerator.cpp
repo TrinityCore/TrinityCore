@@ -107,7 +107,7 @@ WaypointMovementGenerator<Creature>::Initialize(Creature &u)
         Traveller<Creature> traveller(u);
         node = *(waypoints->at(i_currentNode));
 	    InitTraveller(u,node);
-	    i_destinationHolder.SetDestination(traveller, node.x, node.y, node.z);
+	    i_destinationHolder.SetDestination(traveller, node->x, node->y, node->z);
         i_nextMoveTime.Reset(i_destinationHolder.GetTotalTravelTime());
     }*/
 }
@@ -152,8 +152,9 @@ WaypointMovementGenerator<Creature>::Update(Creature &unit, const uint32 &diff)
 		{
 			if(StopedByPlayer)
 			{
-				InitTraveller(unit,node);
-				i_destinationHolder.SetDestination(traveller, node.x, node.y, node.z);
+                assert(node);
+				InitTraveller(unit, *node);
+				i_destinationHolder.SetDestination(traveller, node->x, node->y, node->z);
 				i_nextMoveTime.Reset(i_destinationHolder.GetTotalTravelTime());
 				StopedByPlayer = false;
 				return true;
@@ -165,7 +166,7 @@ WaypointMovementGenerator<Creature>::Update(Creature &unit, const uint32 &diff)
 					i_currentNode = 0; //Start moving all over again
 				else
 				{
-					unit.SetHomePosition(node.x, node.y, node.z, unit.GetOrientation());
+					unit.SetHomePosition(node->x, node->y, node->z, unit.GetOrientation());
 					unit.GetMotionMaster()->Initialize();
 					return false; //Clear the waypoint movement
 				}
@@ -173,24 +174,24 @@ WaypointMovementGenerator<Creature>::Update(Creature &unit, const uint32 &diff)
 			else 
 				i_currentNode++;
 
-			node = *(waypoints->at(i_currentNode));
-			InitTraveller(unit,node);
-			i_destinationHolder.SetDestination(traveller, node.x, node.y, node.z);
+			node = waypoints->at(i_currentNode);
+			InitTraveller(unit, *node);
+			i_destinationHolder.SetDestination(traveller, node->x, node->y, node->z);
 			i_nextMoveTime.Reset(i_destinationHolder.GetTotalTravelTime());
 		}
 		else
 		{
 			//Determine waittime 
-			if(node.delay)
-				i_nextMoveTime.Reset(node.delay);
+			if(node->delay)
+				i_nextMoveTime.Reset(node->delay);
 			
-			if(node.event_id && rand()%100 < node.event_chance)
-				sWorld.ScriptsStart(sWaypointScripts, node.event_id, &unit, NULL);
+			if(node->event_id && rand()%100 < node->event_chance)
+				sWorld.ScriptsStart(sWaypointScripts, node->event_id, &unit, NULL);
 				
 			MovementInform(unit);
 			unit.UpdateWaypointID(i_currentNode);
 			unit.clearUnitState(UNIT_STAT_MOVING);
-			unit.Relocate(node.x, node.y, node.z);
+			unit.Relocate(node->x, node->y, node->z);
 		}
     }
 	else 

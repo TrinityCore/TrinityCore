@@ -93,6 +93,7 @@ bool ChatHandler::HandleServerInfoCommand(const char* /*args*/)
     uint32 maxActiveClientsNum = sWorld.GetMaxActiveSessionCount();
     uint32 maxQueuedClientsNum = sWorld.GetMaxQueuedSessionCount();
     std::string str = secsToTimeString(sWorld.GetUptime());
+    uint32 updateTime = sWorld.GetUpdateTime();
 
     PSendSysMessage(_FULLVERSION); //char const* full;
     //if(m_session)
@@ -105,6 +106,7 @@ bool ChatHandler::HandleServerInfoCommand(const char* /*args*/)
     //PSendSysMessage(LANG_USING_WORLD_DB,sWorld.GetDBVersion());
     PSendSysMessage(LANG_CONNECTED_USERS, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
     PSendSysMessage(LANG_UPTIME, str.c_str());
+    PSendSysMessage("Update time diff: %u.", updateTime);
 
     return true;
 }
