@@ -197,6 +197,7 @@ enum WorldConfigs
     CONFIG_PVP_TOKEN_COUNT,
     CONFIG_NO_RESET_TALENT_COST,
     CONFIG_SHOW_KICK_IN_WORLD,
+    CONFIG_INTERVAL_LOG_UPDATE,
 
     CONFIG_VALUE_COUNT
 };
@@ -407,6 +408,8 @@ class World
         time_t const& GetGameTime() const { return m_gameTime; }
         /// Uptime (in secs)
         uint32 GetUptime() const { return uint32(m_gameTime - m_startTime); }
+        /// Update time
+        uint32 GetUpdateTime() const { return m_updateTime; }
 
         /// Get the maximum skill level a player can reach
         uint16 GetConfigMaxSkillValue() const
@@ -524,6 +527,8 @@ class World
         IntervalTimer m_timers[WUPDATE_COUNT];
         uint32 mail_timer;
         uint32 mail_timer_expires;
+        uint32 m_updateTime, m_updateTimeSum;
+        uint32 m_updateTimeCount;
 
         typedef UNORDERED_MAP<uint32, Weather*> WeatherMap;
         WeatherMap m_weathers;
