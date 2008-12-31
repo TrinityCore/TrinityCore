@@ -114,7 +114,7 @@ void TicketMgr::LoadGMTickets()
 {
 	// Delete all out of object holder
 	GM_TicketList.clear();
-	QueryResult *result = CharacterDatabase.Query( "SELECT `guid`, `playerGuid`, `name`, `message`, `timestamp`, `closed`, `assignedto`, `comment` FROM gm_tickets WHERE deleted = '0'" );
+	QueryResult *result = CharacterDatabase.Query( "SELECT `guid`, `playerGuid`, `name`, `message`, `timestamp`, `closed`, `assignedto`, `comment` FROM gm_tickets WHERE closed = '0'" );
 	GM_Ticket *ticket;
 	
 	//ticket = NULL;
