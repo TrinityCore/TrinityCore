@@ -18,55 +18,42 @@
 
 ## Process this file with automake to produce Makefile.in
 
+## CPP flags for includes, defines, etc.
+AM_CPPFLAGS = $(TRINI_INCLUDES) -I$(top_builddir)/src/shared -I$(srcdir)/../../dep/include -I$(srcdir)/../framework -I$(srcdir)/../shared -I$(srcdir) -DSYSCONFDIR=\"$(sysconfdir)/\"
+
 ## Build realm list daemon as standalone program
-bin_PROGRAMS = trinity-realm
+bin_PROGRAMS = trinity-realmd
+trinity_realmd_SOURCES = \
+    AuthCodes.h \
+    AuthSocket.cpp \
+    AuthSocket.h \
+    Main.cpp \
+    RealmList.cpp \
+    RealmList.h
 
-## Preprocessor flags
-trinity_realm_CPPFLAGS = \
-$(MYSQL_INCLUDES) \
-$(POSTGRE_INCLUDES) \
-$(TRINI_INCLUDES) \
--I$(top_srcdir)/dep/include \
--I$(top_srcdir)/src/framework \
--I$(top_srcdir)/src/shared \
--D_TRINITY_REALM_CONFIG='"$(sysconfdir)/trinityrealm.conf"'
+## Link realm list daemon against the shared library
+trinity_realmd_LDADD = ../shared/Database/libmangosdatabase.a ../shared/Config/libmangosconfig.a ../shared/Auth/libmangosauth.a ../shared/libmangosshared.a ../framework/libmangosframework.a ../../dep/src/sockets/libmangossockets.a ../../dep/src/zthread/libZThread.la
+trinity_realmd_LDFLAGS = -L../../dep/src/sockets -L../../dep/src/zthread -L$(libdir) $(TRINI_LIBS)
 
-## Sources
-trinity_realm_SOURCES = \
-$(srcdir)/AuthCodes.h \
-$(srcdir)/AuthSocket.cpp \
-$(srcdir)/AuthSocket.h \
-$(srcdir)/Main.cpp \
-$(srcdir)/RealmList.cpp \
-$(srcdir)/RealmList.h
-
-## Convenience libs to add
-trinity_realm_LDADD =  \
-$(top_builddir)/src/shared/libshared.a \
-$(top_builddir)/src/framework/libmangosframework.a \
-$(top_builddir)/dep/src/sockets/libmangossockets.a \
-$(top_builddir)/dep/src/zthread/libZThread.la
-
-## Linker flags
-trinity_realm_LDFLAGS = $(MYSQL_LIBS) $(POSTGRE_LIBS) $(ZLIB) $(COMPATLIB) $(SSLLIB) $(TRINI_LIBS)
+## Additional files to include when running 'make dist'
+#  Include realm list daemon configuration
+EXTRA_DIST = \
+    realmd.conf.dist
 
 ## Additional files to install
 sysconf_DATA = \
-	trinityrealm.conf.dist
+    realmd.conf.dist
 
-## Prevend overwrite of the config file, if its already installed
 install-data-hook:
 	@list='$(sysconf_DATA)'; for p in $$list; do \
       dest=`echo $$p | sed -e s/.dist//`; \
-	  if test -f $(DESTDIR)$(sysconfdir)/$$dest; then \
+      if test -f $(DESTDIR)$(sysconfdir)/$$dest; then \
         echo "$@ will not overwrite existing $(DESTDIR)$(sysconfdir)/$$dest"; \
       else \
-	    echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(sysconfdir)/$$dest"; \
-	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(sysconfdir)/$$dest; \
-	  fi; \
-	done
+        echo " $(INSTALL_DATA) $$p $(DESTDIR)$(sysconfdir)/$$dest"; \
+        $(INSTALL_DATA) $$p $(DESTDIR)$(sysconfdir)/$$dest; \
+      fi; \
+    done
 
-## Additional files to include when running 'make dist'
-EXTRA_DIST =  trinityrealm.conf.dist
-
-
+clean-local:
+	rm -f $(sysconf_DATA)

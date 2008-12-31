@@ -9,77 +9,54 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 ## Process this file with automake to produce Makefile.in
 
+## CPP flags for includes, defines, etc.
+AM_CPPFLAGS = $(TRINI_INCLUDES) -I$(top_builddir)/src/shared -I$(srcdir)/../../dep/include -I$(srcdir)/../framework -I$(srcdir)/../shared  -I$(srcdir)/../game -I$(srcdir) -DSYSCONFDIR=\"$(sysconfdir)/\"
+
 ## Build world list daemon as standalone program
-bin_PROGRAMS = trinity-core
+bin_PROGRAMS = trinity-worldd
+trinity_worldd_SOURCES = \
+    CliRunnable.cpp \
+    CliRunnable.h \
+    Main.cpp \
+    Master.cpp \
+    Master.h \
+    RASocket.cpp \
+    RASocket.h \
+    WorldRunnable.cpp \
+    WorldRunnable.h
 
-## Preprocessor flags
-trinity_core_CPPFLAGS = \
-$(MYSQL_INCLUDES) \
-$(POSTGRE_INCLUDES) \
-$(TRINI_INCLUDES) \
--I$(top_srcdir)/dep/include \
--I$(top_srcdir)/src/shared \
--I$(top_srcdir)/src/framework \
--I$(top_srcdir)/src/game \
--D_TRINITY_CORE_CONFIG='"$(sysconfdir)/trinitycore.conf"'
+## Link world daemon against the shared library
+trinity_worldd_LDADD = ../bindings/universal/libmangosscript.la ../game/libmangosgame.a ../shared/Database/libmangosdatabase.a ../shared/Config/libmangosconfig.a ../shared/Auth/libmangosauth.a ../shared/libmangosshared.a ../shared/vmap/libmangosvmaps.a ../framework/libmangosframework.a ../../dep/src/sockets/libmangossockets.a  ../../dep/src/zthread/libZThread.la ../../dep/src/g3dlite/libg3dlite.a
+trinity_worldd_LDFLAGS = -L../../dep/src/sockets -L../../dep/src/zthread -L../../dep/src/g3dlite -L../bindings/universal/ -L$(libdir) $(TRINI_LIBS) -export-dynamic
 
-## Sources
-trinity_core_SOURCES = \
-$(srcdir)/CliRunnable.cpp \
-$(srcdir)/CliRunnable.h \
-$(srcdir)/Main.cpp \
-$(srcdir)/Master.cpp \
-$(srcdir)/Master.h \
-$(srcdir)/RASocket.cpp \
-$(srcdir)/RASocket.h \
-$(srcdir)/WorldRunnable.cpp \
-$(srcdir)/WorldRunnable.h
-
-## Convenience libs to add
-trinity_core_LDADD = \
-$(top_builddir)/src/game/libgame.a \
-$(top_builddir)/src/shared/libshared.a \
-$(top_builddir)/src/shared/vmap/libvmaps.a \
-$(top_builddir)/src/framework/libmangosframework.a \
-$(top_builddir)/dep/src/sockets/libmangossockets.a \
-$(top_builddir)/dep/src/zthread/libZThread.la \
-$(top_builddir)/dep/src/g3dlite/libg3dlite.a
-
-if USE_TSCRIPTS
-trinity_core_LDADD += $(top_builddir)/src/bindings/scripts/libtrinityscript.la
-else
-trinity_core_LDADD += $(top_builddir)/src/bindings/interface/libtrinityscript.la
-endif
-
-## Linker flags
-trinity_core_LDFLAGS = $(MYSQL_LIBS) $(POSTGRE_LIBS) $(ZLIB) $(COMPATLIB) $(SSLLIB) $(TRINI_LIBS) -export-dynamic
+## Additional files to include when running 'make dist'
+#  Include world daemon configuration
+EXTRA_DIST = \
+    mangosd.conf.dist
 
 ## Additional files to install
 sysconf_DATA = \
-	trinitycore.conf.dist
+    mangosd.conf.dist
 
-EXTRA_DIST =  \
-        trinitycore.conf.dist
-
-## Prevend overwrite of the config file, if its already installed
 install-data-hook:
 	@list='$(sysconf_DATA)'; for p in $$list; do \
       dest=`echo $$p | sed -e s/.dist//`; \
-	  if test -f $(DESTDIR)$(sysconfdir)/$$dest; then \
+      if test -f $(DESTDIR)$(sysconfdir)/$$dest; then \
         echo "$@ will not overwrite existing $(DESTDIR)$(sysconfdir)/$$dest"; \
       else \
-	    echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(sysconfdir)/$$dest"; \
-	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(sysconfdir)/$$dest; \
-	  fi; \
-	done
+        echo " $(INSTALL_DATA) $$p $(DESTDIR)$(sysconfdir)/$$dest"; \
+        $(INSTALL_DATA) $$p $(DESTDIR)$(sysconfdir)/$$dest; \
+      fi; \
+    done
 
-
+clean-local:
+	rm -f $(sysconf_DATA)
