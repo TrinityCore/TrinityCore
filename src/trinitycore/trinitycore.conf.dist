@@ -572,6 +572,11 @@ LogColors = ""
 #    Motd
 #        Message of the Day. Displayed at worldlogin for every user ('@' for a newline).
 #
+#    Server.LoginInfo
+#        Enable/disable sending server info (core version) on login.
+#        Default: 0 - disable
+#                 1 - enable
+#
 ###################################################################################################################
 
 GameType = 1
@@ -617,6 +622,7 @@ SkillChance.Prospecting = 0
 Event.Announce = 0
 BeepAtStart = 1
 Motd = "Welcome to a Trinity Core server."
+Server.LoginInfo = 0
 
 ###################################################################################################################
 # PLAYER INTERACTION
@@ -1265,6 +1271,12 @@ Ra.Secure = 1
 #        Default: 60000 (diff is written into log every 60000 ms or 1 minute.
 #        >0 = Interval
 #        0 = Disable
+#
+#   PlayerStart.String
+#       If set to anything else than "", this string will be displayed to players when they login
+#       to a newly created character.
+#       Default: "" - send no text
+#
 ###################################################################################################################
 
 PlayerStart.AllReputation = 0
@@ -1280,3 +1292,4 @@ PvPToken.ItemCount = 1
 NoResetTalentsCost = 0
 ShowKickInWorld = 0
 RecordUpdateTimeDiffInterval = 60000
+PlayerStart.String = ""
