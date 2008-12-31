@@ -285,14 +285,15 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleLogoutRequestOpcode(WorldPacket& recvPacket);
         void HandlePlayerLogoutOpcode(WorldPacket& recvPacket);
         void HandleLogoutCancelOpcode(WorldPacket& recvPacket);
-        void HandleGMTicketGetTicketOpcode(WorldPacket& recvPacket);
-        void HandleGMTicketCreateOpcode(WorldPacket& recvPacket);
-        void HandleGMTicketSystemStatusOpcode(WorldPacket& recvPacket);
 
-        void HandleGMTicketDeleteOpcode(WorldPacket& recvPacket);
-        void HandleGMTicketUpdateTextOpcode(WorldPacket& recvPacket);
-
-        void HandleGMSurveySubmit(WorldPacket& recvPacket);
+		// GM Ticket opcodes
+		 void HandleGMTicketCreateOpcode(WorldPacket& recvPacket);
+		 void HandleGMTicketUpdateOpcode(WorldPacket& recvPacket);
+		 void HandleGMTicketDeleteOpcode(WorldPacket& recvPacket);
+		 void HandleGMTicketGetTicketOpcode(WorldPacket& recvPacket);
+		 void HandleGMTicketSystemStatusOpcode(WorldPacket& recvPacket);
+		
+        //void HandleGMSurveySubmit(WorldPacket& recvPacket);
 
         void HandleTogglePvP(WorldPacket& recvPacket);
 
@@ -542,6 +543,7 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleChannelRosterQuery(WorldPacket& recvPacket);
         void HandleChannelInfoQuery(WorldPacket& recvPacket);
         void HandleChannelJoinNotify(WorldPacket& recvPacket);
+		void HandleChannelDeclineInvite(WorldPacket& recvPacket);
 
         void HandleCompleteCinema(WorldPacket& recvPacket);
         void HandleNextCinematicCamera(WorldPacket& recvPacket);

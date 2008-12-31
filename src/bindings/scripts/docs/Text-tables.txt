@@ -37,6 +37,7 @@ content_loc8          This is the actual text presented in the Localization #8 C
 sound                 This value is the Sound ID that corresponds to the actual text used (Defined in SoundEntries.dbc).
 type                  Variables used to define type of text (Say/Yell/Textemote/Whisper).
 language              This value is the Language that the text is native in (Defined in Languages.dbc).
+emote                 Value from enum Emote (defined in Emotes.dbc). Only source of text will play this emote (not target, if target are defined in DoScriptText)
 comment               This is a comment regarding the text entry (For ACID, accepted format is to use Creature ID of NPC using it).
 
 Note: Fields `content_loc1` to `content_loc8` are NULL values by default and are handled by seperate localization projects.

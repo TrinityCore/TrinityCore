@@ -216,6 +216,38 @@ AC_ARG_ENABLE(ra,
 ])
 AC_MSG_RESULT($TRINITYD_ENABLE_RA)
 
+# Enable large cells?
+AC_MSG_CHECKING(whether we use large cells)
+TRINITYD_ENABLE_LC=no
+AC_ARG_ENABLE(lc,
+[  --enable-lc Enable large cells (more CPU usage)],
+[
+    if test "$enableval" = "yes" ; then
+    CFLAGS="-DLARGE_CELL $CFLAGS"
+    CXXFLAGS="-DLARGE_CELL $CXXFLAGS"
+    TRINITYD_ENABLE_LC=yes
+    elif test "$withval" != "no" ; then
+    AC_MSG_ERROR(Please choose yes or no)
+    fi
+])
+AC_MSG_RESULT($TRINITYD_ENABLE_LC)
+
+# Enable short world sleep?
+AC_MSG_CHECKING(whether we use short world sleep)
+TRINITYD_ENABLE_SS=no
+AC_ARG_ENABLE(ss,
+[  --enable-ss Enable short world sleep],
+[
+    if test "$enableval" = "yes" ; then
+    CFLAGS="-DSHORT_SLEEP $CFLAGS"
+    CXXFLAGS="-DSHORT_SLEEP $CXXFLAGS"
+    TRINITYD_ENABLE_SS=yes
+    elif test "$withval" != "no" ; then
+    AC_MSG_ERROR(Please choose yes or no)
+    fi
+])
+AC_MSG_RESULT($TRINITYD_ENABLE_SS)
+
 ## Check for required header files.
 AC_HEADER_STDC
 AC_HEADER_DIRENT

@@ -29,6 +29,7 @@ struct StringTextData
     uint32 SoundId;
     uint8  Type;
     uint32 Language;
+	uint32 Emote;
 };
 
 // Enums used by StringTextData::Type
@@ -654,7 +655,7 @@ void LoadDatabase()
     LoadTrinityStrings(TScriptDB,"eventai_texts",-1,1+(TEXT_SOURCE_RANGE));
 
     // Gather Additional data from EventAI Texts
-    result = TScriptDB.PQuery("SELECT entry, sound, type, language FROM eventai_texts");
+    result = TScriptDB.PQuery("SELECT entry, sound, type, language, emote FROM eventai_texts");
 
     outstring_log("TSCR: Loading EventAI Texts additional data...");
     if (result)
@@ -672,6 +673,7 @@ void LoadDatabase()
             temp.SoundId        = fields[1].GetInt32();
             temp.Type           = fields[2].GetInt32();
             temp.Language       = fields[3].GetInt32();
+			temp.Emote          = fields[4].GetInt32();
 
             if (i >= 0)
             {
@@ -736,6 +738,7 @@ void LoadDatabase()
             temp.SoundId        = fields[1].GetInt32();
             temp.Type           = fields[2].GetInt32();
             temp.Language       = fields[3].GetInt32();
+			temp.Emote          = fields[4].GetInt32();
 
             if (i >= 0)
             {
@@ -782,7 +785,7 @@ void LoadDatabase()
     LoadTrinityStrings(TScriptDB,"custom_texts",TEXT_SOURCE_RANGE*2,1+(TEXT_SOURCE_RANGE*3));
 
     // Gather Additional data from Custom Texts
-    result = TScriptDB.PQuery("SELECT entry, sound, type, language FROM custom_texts");
+    result = TScriptDB.PQuery("SELECT entry, sound, type, language, emote FROM custom_texts");
 
     outstring_log("TSCR: Loading Custom Texts additional data...");
     if (result)
@@ -800,6 +803,7 @@ void LoadDatabase()
             temp.SoundId        = fields[1].GetInt32();
             temp.Type           = fields[2].GetInt32();
             temp.Language       = fields[3].GetInt32();
+			temp.Emote          = fields[4].GetInt32();
 
             if (i >= 0)
             {
@@ -1838,7 +1842,7 @@ void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target)
         return;
     }
 
-    debug_log("TSCR: DoScriptText: text entry=%i, Sound=%u, Type=%u, Language=%u",textEntry,(*i).second.SoundId,(*i).second.Type,(*i).second.Language);
+    debug_log("TSCR: DoScriptText: text entry=%i, Sound=%u, Type=%u, Language=%u, Emote=%u",textEntry,(*i).second.SoundId,(*i).second.Type,(*i).second.Language,(*i).second.Emote);
 
     if((*i).second.SoundId)
     {
@@ -1849,6 +1853,16 @@ void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target)
         else
             error_log("TSCR: DoScriptText entry %i tried to process invalid sound id %u.",textEntry,(*i).second.SoundId);
     }
+
+	if((*i).second.Emote)
+	{
+		if (pSource->GetTypeId() == TYPEID_UNIT || pSource->GetTypeId() == TYPEID_PLAYER)
+		{
+			((Unit*)pSource)->HandleEmoteCommand((*i).second.Emote);
+		}
+		else
+			error_log("TSCR: DoScriptText entry %i tried to process emote for invalid TypeId (%u).",textEntry,pSource->GetTypeId());
+	}
 
     switch((*i).second.Type)
     {
