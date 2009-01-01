@@ -128,16 +128,20 @@ void WorldSession::HandleGMTicketDeleteOpcode( WorldPacket & /*recv_data*/)
 
 	GM_Ticket* ticket = ticketmgr.GetGMTicketByPlayer(GetPlayer()->GetGUID());
 
-	// Remove Tickets from Player
-	ticketmgr.RemoveGMTicketByPlayer(GetPlayer()->GetGUID());
+	// CHeck for Ticket
+	if(ticket)
+	{
+		// Remove Tickets from Player
+		
+		// Response - no errors
+		WorldPacket data(SMSG_GMTICKET_DELETETICKET, 4);
+		data << uint32(9);
+		// Send Packet
+		SendPacket(&data);
 
-	// Response - no errors
-	WorldPacket data(SMSG_GMTICKET_DELETETICKET, 4);
-	data << uint32(9);
-	// Send Packet
-	SendPacket(&data);
-
-	sWorld.SendGMText(LANG_COMMAND_TICKETPLAYERABANDON, GetPlayer()->GetName(), ticket->guid );
+		sWorld.SendGMText(LANG_COMMAND_TICKETPLAYERABANDON, GetPlayer()->GetName(), ticket->guid );
+		ticketmgr.RemoveGMTicketByPlayer(GetPlayer()->GetGUID());
+	}
 }
 
 void WorldSession::HandleGMTicketGetTicketOpcode( WorldPacket & /*recv_data*/)
@@ -163,7 +167,6 @@ void WorldSession::HandleGMTicketGetTicketOpcode( WorldPacket & /*recv_data*/)
 	data << ticket->message.c_str();
 
 	SendPacket(&data);
-
 
 }
 
