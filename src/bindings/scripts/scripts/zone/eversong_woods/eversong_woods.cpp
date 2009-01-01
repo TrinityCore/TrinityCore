@@ -672,25 +672,21 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
  
 	void Reset()
 	{
-		EndTimer = 60000;
+		EndTimer = 0;
 		Completed = false;
-		Progress = true;
+		Progress = false;
 		PlayerGUID = 0;
-		WaveTimer = 1000;
+		WaveTimer = 0;
 	}
 
 	void Aggro(Unit* who){}
  
 	void MoveInLineOfSight(Unit* who)
 	{
-		PlayerGUID = who->GetGUID();
-		error_log("MoveLos");
-		if( who->GetTypeId() == TYPEID_PLAYER && !m_creature->canStartAttack(who) )
+		if( who->GetTypeId() == TYPEID_PLAYER && !m_creature->canStartAttack(who) && !Progress)
 		{
-			error_log("TypeId check");
 			if( ((Player*)who)->GetQuestStatus(QUEST_POWERING_OUR_DEFENSES) == QUEST_STATUS_INCOMPLETE )
 			{
-				error_log("Queststaus");
 				float Radius = 10.0;
 				if( m_creature->IsWithinDistInMap(who, Radius) )
 				{
@@ -698,7 +694,6 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
 					WaveTimer = 1000;
 					EndTimer = 60000;
 					Progress = true;
-					error_log("Event started");
 				}
 			}
 		}
@@ -730,11 +725,9 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
 				Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
 				if(player)
 					((Player*)player)->CompleteQuest(QUEST_POWERING_OUR_DEFENSES);
-				error_log("quest complete");
 			}
 			m_creature->DealDamage(m_creature,m_creature->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 			m_creature->RemoveCorpse();
-			error_log("EndTimer done");
 		}else EndTimer -= diff;
 
 		if(WaveTimer < diff && !Completed && Progress)
@@ -746,7 +739,6 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
 			m_creature->SummonCreature(MOB_ENRAGED_WRAITH, SpawnLocations[ran2].x, SpawnLocations[ran2].y, SpawnLocations[ran2].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
 			m_creature->SummonCreature(MOB_ENRAGED_WRAITH, SpawnLocations[ran3].x, SpawnLocations[ran3].y, SpawnLocations[ran3].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
 			WaveTimer = 30000;
-			error_log("Wave summon");
 		}else WaveTimer -= diff;
 	}
 };
