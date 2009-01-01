@@ -34,7 +34,7 @@ struct GM_Ticket
 	std::string name;
 	std::string message;
 	uint64 timestamp;
-	uint16 closed;
+	bool closed;
 	uint64 assignedToGM;
 	std::string comment;
 };
