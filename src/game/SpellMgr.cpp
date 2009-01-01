@@ -2154,18 +2154,29 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         case 41376: // Spite
         case 39992: // Needle Spine
+		case 29576: //Multi-Shot
+		case 40816: //Saber Lash
+		case 37790: //Spread Shot
             spellInfo->MaxAffectedTargets = 3;
             break;
+		case 38310: //Multi-Shot
+			spellInfo->MaxAffectedTargets = 4;
+			break;
         case 42005: // Bloodboil
+		case 38296: //Spitfire Totem
+		case 37676: //Insidious Whisper
             spellInfo->MaxAffectedTargets = 5;
             break;
+		case 40827: //Sinful Beam
+		case 40859: //Sinister Beam
+		case 40860: //Vile Beam
+		case 40861: //Wicked Beam
+			spellInfo->MaxAffectedTargets = 10;
+			break;
         case 8122: case 8124: case 10888: case 10890: // Psychic Scream
         case 12494: // Frostbite
             spellInfo->Attributes |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
             break;
-        //case 5530: // Mace spec (this will not be needed in 303
-        //    spellInfo->rangeIndex = 13; //inf
-        //    break;
         default:
             break;
         }
