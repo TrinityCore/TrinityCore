@@ -560,8 +560,8 @@ bool ChatHandler::HandleGMTicketDeleteByIdCommand(const char* args)
 	
 	std::string gmname = m_session->GetPlayer()->GetName();
 	sWorld.SendGMText(LANG_COMMAND_TICKETDELETED, ticket->guid, gmname.c_str());
-	ticketmgr.DeleteGMTicketPermanently(ticket->guid);
 	Player *plr = objmgr.GetPlayer(ticket->playerGuid);
+	ticketmgr.DeleteGMTicketPermanently(ticket->guid);
 	if(plr && plr->IsInWorld())
 	{
 		// Force abandon ticket
