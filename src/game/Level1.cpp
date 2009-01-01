@@ -419,7 +419,7 @@ bool ChatHandler::HandleGMTicketAssignToCommand(const char* args)
 	std::string targm = targetgm;
 
 	if(!normalizePlayerName(targm))
-		return false;
+		return true;
 
 	Player *cplr = m_session->GetPlayer();
 	std::string gmname;
@@ -503,7 +503,7 @@ bool ChatHandler::HandleGMTicketUnAssignCommand(const char* args)
 
 bool ChatHandler::HandleGMTicketCommentCommand(const char* args)
 {
-	if(!args)
+	if(!*args)
 		return false;
 
 	char* tguid = strtok((char*)args, " ");
@@ -513,7 +513,6 @@ bool ChatHandler::HandleGMTicketCommentCommand(const char* args)
 	if(!comment)
 		return false;
 
-	std::string gmname; 
 	Player *cplr = m_session->GetPlayer();
 	GM_Ticket *ticket = ticketmgr.GetGMTicket(ticketGuid);
 
@@ -522,10 +521,9 @@ bool ChatHandler::HandleGMTicketCommentCommand(const char* args)
 		PSendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
 		return true;
 	}
-	if(ticket->assignedToGM == 0 && ticket->assignedToGM != cplr->GetGUID())
+	if(ticket->assignedToGM != 0 && ticket->assignedToGM != cplr->GetGUID())
 	{
-		gmname = objmgr.GetPlayer(ticket->assignedToGM)->GetName();
-		PSendSysMessage(LANG_COMMAND_TICKETALREADYASSIGNED, ticket->guid, gmname.c_str());
+		PSendSysMessage(LANG_COMMAND_TICKETALREADYASSIGNED, ticket->guid);
 		return true;
 	}
 
@@ -549,7 +547,7 @@ bool ChatHandler::HandleGMTicketDeleteByIdCommand(const char* args)
 
 	if(!ticket)
 	{
-		PSendSysMessage(LANG_COMMAND_TICKETNOTEXIST, ticketGuid);
+		SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
 		return true;
 	}
 	if(!ticket->closed == 1)
