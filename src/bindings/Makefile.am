@@ -18,8 +18,8 @@
 
 # interface folder is disabled for now
 
-if USE_TSCRIPTS
+#if USE_TSCRIPTS
 SUBDIRS = scripts
-else
-SUBDIRS = interface
-endif
+#else
+#SUBDIRS = interface
+#endif
