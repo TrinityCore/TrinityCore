@@ -92,6 +92,8 @@ libmangosgame_a_SOURCES = \
     CreatureAIRegistry.h \
     CreatureAISelector.cpp \
     CreatureAISelector.h \
+    CreatureGroups.cpp \
+    CreatureGroups.h \
     Creature.cpp \
     Creature.h \
     debugcmds.cpp \
@@ -110,9 +112,6 @@ libmangosgame_a_SOURCES = \
     GameObject.h \
     GlobalEvents.cpp \
     GlobalEvents.h \
-    GMTicketHandler.cpp \
-    GMTicketMgr.cpp \
-    GMTicketMgr.h \
     GossipDef.cpp \
     GossipDef.h \
     GridDefines.h \
@@ -188,6 +187,24 @@ libmangosgame_a_SOURCES = \
     ObjectPosSelector.h \
     Opcodes.cpp \
     Opcodes.h \
+    OutdoorPvP.cpp \
+    OutdoorPvP.h \
+    OutdoorPvPEP.cpp \
+    OutdoorPvPEP.h \
+    OutdoorPvPHP.cpp \
+    OutdoorPvPHP.h \
+    OutdoorPvPMgr.cpp \
+    OutdoorPvPMgr.h \
+    OutdoorPvPNA.cpp \
+    OutdoorPvPNA.h \
+    OutdoorPvPObjectiveAI.cpp \
+    OutdoorPvPObjectiveAI.h \
+    OutdoorPvPSI.cpp \
+    OutdoorPvPSI.h \
+    OutdoorPvPTF.cpp \
+    OutdoorPvPTF.h \
+    OutdoorPvPZM.cpp \
+    OutdoorPvPZM.h \
     Path.h \
     PetAI.cpp \
     PetAI.h \
@@ -199,6 +216,8 @@ libmangosgame_a_SOURCES = \
     Player.h \
     PlayerDump.cpp \
     PlayerDump.h \
+    PossessedAI.cpp \
+    PossessedAI.h \
     PointMovementGenerator.cpp \
     PointMovementGenerator.h \
     QueryHandler.cpp \
@@ -243,6 +262,9 @@ libmangosgame_a_SOURCES = \
     Transports.h \
     ThreatManager.cpp \
     ThreatManager.h \
+    TicketHandler.cpp \
+    TicketMgr.cpp \
+    TicketMgr.h \
     Traveller.h \
     Unit.cpp \
     Unit.h \

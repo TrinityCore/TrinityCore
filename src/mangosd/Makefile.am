@@ -35,8 +35,8 @@ trinity_worldd_SOURCES = \
     WorldRunnable.h
 
 ## Link world daemon against the shared library
-trinity_worldd_LDADD = ../bindings/universal/libmangosscript.la ../game/libmangosgame.a ../shared/Database/libmangosdatabase.a ../shared/Config/libmangosconfig.a ../shared/Auth/libmangosauth.a ../shared/libmangosshared.a ../shared/vmap/libmangosvmaps.a ../framework/libmangosframework.a ../../dep/src/sockets/libmangossockets.a  ../../dep/src/zthread/libZThread.la ../../dep/src/g3dlite/libg3dlite.a
-trinity_worldd_LDFLAGS = -L../../dep/src/sockets -L../../dep/src/zthread -L../../dep/src/g3dlite -L../bindings/universal/ -L$(libdir) $(TRINI_LIBS) -export-dynamic
+trinity_worldd_LDADD = ../bindings/scripts/libtrinityscript.la ../game/libmangosgame.a ../shared/Database/libmangosdatabase.a ../shared/Config/libmangosconfig.a ../shared/Auth/libmangosauth.a ../shared/libmangosshared.a ../shared/vmap/libmangosvmaps.a ../framework/libmangosframework.a ../../dep/src/sockets/libmangossockets.a  ../../dep/src/zthread/libZThread.la ../../dep/src/g3dlite/libg3dlite.a
+trinity_worldd_LDFLAGS = -L../../dep/src/sockets -L../../dep/src/zthread -L../../dep/src/g3dlite -L../bindings/scripts/ -L$(libdir) $(TRINI_LIBS) -export-dynamic
 
 ## Additional files to include when running 'make dist'
 #  Include world daemon configuration
