@@ -604,8 +604,9 @@ struct TRINITY_DLL_DECL npc_apprentice_mirvedaAI : public ScriptedAI
 		{
 			if (PlayerGUID)
 			{
-			Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
-				((Player*)player)->GroupEventHappens(QUEST_UNEXPECTED_RESULT, m_creature);
+				Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+				if(player)
+					((Player*)player)->CompleteQuest(QUEST_UNEXPECTED_RESULT);
 			}
 		}
 
@@ -672,28 +673,20 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
 	void Reset()
 	{
 		EndTimer = 0;
-		WaveTimer = 0;
-		PlayerGUID = 0;
 		Completed = false;
 		Progress = false;
+		PlayerGUID = 0;
+		WaveTimer = 0;
 	}
 
 	void Aggro(Unit* who){}
  
-	void JustSummoned(Creature *summoned)
-	{
-		summoned->AI()->AttackStart(m_creature);
-	}
- 
 	void MoveInLineOfSight(Unit* who)
 	{
-		error_log("MoveLos");
-		if( who->GetTypeId() == TYPEID_PLAYER && !m_creature->canStartAttack(who) )
+		if( who->GetTypeId() == TYPEID_PLAYER && !m_creature->canStartAttack(who) && !Progress)
 		{
-			error_log("TypeId check");
 			if( ((Player*)who)->GetQuestStatus(QUEST_POWERING_OUR_DEFENSES) == QUEST_STATUS_INCOMPLETE )
 			{
-				error_log("Queststaus");
 				float Radius = 10.0;
 				if( m_creature->IsWithinDistInMap(who, Radius) )
 				{
@@ -701,10 +694,14 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
 					WaveTimer = 1000;
 					EndTimer = 60000;
 					Progress = true;
-					error_log("Event started");
 				}
 			}
 		}
+ 	}
+
+	void JustSummoned(Creature *summoned)
+	{
+		summoned->AI()->AttackStart(m_creature);
 	}
  
 	void JustDied(Unit* killer)
@@ -726,26 +723,26 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
 			if (PlayerGUID)
 			{
 				Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
-				((Player*)player)->GroupEventHappens(QUEST_POWERING_OUR_DEFENSES, m_creature);
+				if(player)
+					((Player*)player)->CompleteQuest(QUEST_POWERING_OUR_DEFENSES);
 			}
 			m_creature->DealDamage(m_creature,m_creature->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 			m_creature->RemoveCorpse();
-			error_log("EndTimer done");
 		}else EndTimer -= diff;
 
 		if(WaveTimer < diff && !Completed && Progress)
 		{
-			uint32 ran = rand()%8;
-			DoSpawnCreature(MOB_ENRAGED_WRAITH, SpawnLocations[ran].x, SpawnLocations[ran].y, SpawnLocations[ran].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
-			DoSpawnCreature(MOB_ENRAGED_WRAITH, SpawnLocations[ran].x, SpawnLocations[ran].y, SpawnLocations[ran].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
-			DoSpawnCreature(MOB_ENRAGED_WRAITH, SpawnLocations[ran].x, SpawnLocations[ran].y, SpawnLocations[ran].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
+			uint32 ran1 = rand()%8;
+			uint32 ran2 = rand()%8;
+			uint32 ran3 = rand()%8;
+			m_creature->SummonCreature(MOB_ENRAGED_WRAITH, SpawnLocations[ran1].x, SpawnLocations[ran1].y, SpawnLocations[ran1].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
+			m_creature->SummonCreature(MOB_ENRAGED_WRAITH, SpawnLocations[ran2].x, SpawnLocations[ran2].y, SpawnLocations[ran2].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
+			m_creature->SummonCreature(MOB_ENRAGED_WRAITH, SpawnLocations[ran3].x, SpawnLocations[ran3].y, SpawnLocations[ran3].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
 			WaveTimer = 30000;
-			error_log("Wave summon");
 		}else WaveTimer -= diff;
 	}
 };
  
-
 CreatureAI* GetAI_npc_infused_crystalAI(Creature *_Creature)
 {
     return new npc_infused_crystalAI (_Creature);

@@ -49,7 +49,7 @@ GM_Ticket* TicketMgr::GetGMTicketByPlayer(uint64 playerGuid)
 {
 	for(GmTicketList::iterator i = GM_TicketList.begin(); i != GM_TicketList.end();)
 	{
-		if((*i)->playerGuid == playerGuid && !(*i)->closed)
+		if((*i)->playerGuid == playerGuid && (*i)->closed == 0)
 		{
 			return (*i);
 		}
@@ -72,7 +72,7 @@ GM_Ticket* TicketMgr::GetGMTicketByName(const char* name)
 
 	for(GmTicketList::iterator i = GM_TicketList.begin(); i != GM_TicketList.end();)
 	{
-		if((*i)->playerGuid == playerGuid && !(*i)->closed)
+		if((*i)->playerGuid == playerGuid && (*i)->closed == 0)
 		{
 			return (*i);
 		}
@@ -147,9 +147,9 @@ void TicketMgr::RemoveGMTicket(uint64 ticketGuid)
 {
 	for(GmTicketList::iterator i = GM_TicketList.begin(); i != GM_TicketList.end();)
 	{
-		if((*i)->guid == ticketGuid && !(*i)->closed)
+		if((*i)->guid == ticketGuid && (*i)->closed == 0)
 		{
-			(*i)->closed = true;
+			(*i)->closed = 1;
 			SaveGMTicket((*i));
 		}
 		++i;
@@ -161,7 +161,7 @@ void TicketMgr::RemoveGMTicketByPlayer(uint64 playerGuid)
 {
 	for(GmTicketList::iterator i = GM_TicketList.begin(); i != GM_TicketList.end();)
 	{
-		if((*i)->playerGuid == playerGuid && !(*i)->closed)
+		if((*i)->playerGuid == playerGuid && (*i)->closed == 0)
 		{
 			(*i)->closed = true;
 			SaveGMTicket((*i));
