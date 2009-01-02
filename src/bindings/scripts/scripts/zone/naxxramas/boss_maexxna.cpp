@@ -25,9 +25,14 @@ EndScriptData */
 
 #define SPELL_WEBTRAP           28622                       //Spell is normally used by the webtrap on the wall NOT by Maexxna
 #define SPELL_WEBSPRAY          29484
+#define H_SPELL_WEBSPRAY        54125
 #define SPELL_POISONSHOCK       28741
+#define H_SPELL_POISONSHOCK     54122
 #define SPELL_NECROTICPOISON    28776
-#define SPELL_ENRAGE            28747
+#define H_SPELL_NECROTICPOISON  54121
+#define SPELL_FRENZY            54123
+#define H_SPELL_FRENZY          54124
+
 #define SPELL_SUMMON_SPIDERLING 29434
 
 #define LOC_X1    3546.796
@@ -212,7 +217,7 @@ struct TRINITY_DLL_DECL boss_maexxnaAI : public ScriptedAI
         //Enrage if not already enraged and below 30%
         if (!Enraged && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 30)
         {
-            DoCast(m_creature,SPELL_ENRAGE);
+            DoCast(m_creature,SPELL_FRENZY);
             Enraged = true;
         }
 
