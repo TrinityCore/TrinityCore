@@ -342,6 +342,7 @@ extern void AddSC_boss_moroes();
 extern void AddSC_bosses_opera();
 extern void AddSC_instance_karazhan();
 extern void AddSC_karazhan();
+extern void AddSC_boss_nightbane();
 
 //Loch Modan
 extern void AddSC_loch_modan();
@@ -1547,6 +1548,7 @@ void ScriptsInit()
     AddSC_bosses_opera();
     AddSC_instance_karazhan();
     AddSC_karazhan();
+	AddSC_boss_nightbane();
 
     //Loch Modan
     AddSC_loch_modan();
