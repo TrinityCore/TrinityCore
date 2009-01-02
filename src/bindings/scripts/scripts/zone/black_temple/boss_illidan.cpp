@@ -1879,7 +1879,7 @@ void boss_illidan_stormrageAI::JustSummoned(Creature* summon)
             Unit *target = SelectUnit(SELECT_TARGET_TOPAGGRO, 0, 999, true);
             if(!target || target->HasAura(SPELL_PARASITIC_SHADOWFIEND, 0)
                 || target->HasAura(SPELL_PARASITIC_SHADOWFIEND2, 0))
-                target = SelectUnit(SELECT_TARGET_RANDOM, 0, 999, true);
+                target = SelectUnit(SELECT_TARGET_TOPAGGRO, 0, 999, true);
             if(target)
                 summon->AI()->AttackStart(target);
         }break;
