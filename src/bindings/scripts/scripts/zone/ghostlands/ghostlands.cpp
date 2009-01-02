@@ -161,7 +161,7 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
 		case 0:			
 			{
 			m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-			GameObject* Cage = FindGameObject(GO_CAGE);
+			GameObject* Cage = FindGameObject(GO_CAGE, 99);
 			if(Cage)
 			Cage->SetGoState(0);
 			DoScriptText(SAY_START, m_creature, player);
@@ -212,7 +212,7 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
 		if (!IsBeingEscorted)
 			m_creature->setFaction(1602);
 
-		GameObject* Cage = FindGameObject(GO_CAGE);
+		GameObject* Cage = FindGameObject(GO_CAGE, 99);
 		if(Cage)
 		Cage->SetGoState(1);
 	}
