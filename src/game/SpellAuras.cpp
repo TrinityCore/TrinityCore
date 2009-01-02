@@ -4536,7 +4536,7 @@ void Aura::HandleModPowerRegen(bool apply, bool Real)       // drinking
         else if( GetId() == 20577 )
         {
             // cannibalize anim
-            m_target->HandleEmoteCommand(398);
+            m_target->HandleEmoteCommand(EMOTE_STATE_CANNIBALIZE);
         }
 
         // Warrior talent, gain 1 rage every 3 seconds while in combat
