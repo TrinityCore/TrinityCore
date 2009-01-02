@@ -727,6 +727,8 @@ void Group::CountTheRoll(Rolls::iterator rollI, uint32 NumberOfPlayers)
 
             if(player && player->GetSession())
             {
+                player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT, roll->itemid, maxresul);
+
                 ItemPosCountVec dest;
                 LootItem *item = &(roll->getLoot()->items[roll->itemSlot]);
                 uint8 msg = player->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, roll->itemid, item->count );
@@ -772,6 +774,8 @@ void Group::CountTheRoll(Rolls::iterator rollI, uint32 NumberOfPlayers)
 
             if(player && player->GetSession())
             {
+                player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT, roll->itemid, maxresul);
+
                 ItemPosCountVec dest;
                 LootItem *item = &(roll->getLoot()->items[roll->itemSlot]);
                 uint8 msg = player->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, roll->itemid, item->count );
