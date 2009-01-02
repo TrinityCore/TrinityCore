@@ -2268,6 +2268,73 @@ void World::ScriptsProcess()
 				break;
 			}
             
+			case SCRIPT_COMMAND_CALLSCRIPT_TO_UNIT:
+			{
+				if(!step.script->datalong || !step.script->datalong2)
+				{
+					sLog.outError("SCRIPT_COMMAND_CALLSCRIPT calls invallid db_script_id or lowguid not present: skipping.");
+					break;
+				}
+				Creature* target = NULL;
+				
+				if(source) //using grid searcher
+				{
+					CellPair p(Trinity::ComputeCellPair(((Unit*)source)->GetPositionX(), ((Unit*)source)->GetPositionY()));
+					Cell cell(p);
+					cell.data.Part.reserved = ALL_DISTRICT;
+				
+					//sLog.outDebug("Attempting to find Creature: Db GUID: %i", step.script->datalong);
+					Trinity::CreatureWithDbGUIDCheck target_check(((Unit*)source), step.script->datalong);
+					Trinity::CreatureSearcher<Trinity::CreatureWithDbGUIDCheck> checker(target,target_check);
+				
+					TypeContainerVisitor<Trinity::CreatureSearcher <Trinity::CreatureWithDbGUIDCheck>, GridTypeMapContainer > unit_checker(checker);
+					CellLock<GridReadGuard> cell_lock(cell, p);
+					cell_lock->Visit(cell_lock, unit_checker, *(((Unit*)source)->GetMap()));
+				}
+				else //check hashmap holders
+				{
+					if(CreatureData const* data = objmgr.GetCreatureData(step.script->datalong))
+						ObjectAccessor::GetObjectInWorld<Creature>(data->mapid, data->posX, data->posY, MAKE_NEW_GUID(step.script->datalong, data->id, HIGHGUID_UNIT), target);
+				}
+				
+				if(!target)
+					break;
+				//Lets choose our ScriptMap map
+				ScriptMapMap datamap;
+				switch(step.script->dataint)
+				{
+					case 1:
+						datamap = sQuestEndScripts;
+						break;
+					case 2:
+						datamap = sQuestStartScripts;
+						break;
+					case 3:
+						datamap = sSpellScripts;
+						break;
+					case 4:
+						datamap = sGameObjectScripts;
+						break;
+					case 5:
+						datamap = sEventScripts;
+						break;
+					case 6:
+						datamap = sWaypointScripts;
+						break;
+					default:
+						{
+							sLog.outError("SCRIPT_COMMAND_CALLSCRIPT ERROR: no scriptmap present... ignoring");
+							m_scriptSchedule.erase(iter);
+							return;	
+						}
+				}
+				
+				uint32 script_id = step.script->datalong2;
+				
+				m_scriptSchedule.erase(iter);
+				ScriptsStart(datamap, script_id, target, NULL);
+			}
+			
 			default:
                 sLog.outError("Unknown script command %u called.",step.script->command);
                 break;
