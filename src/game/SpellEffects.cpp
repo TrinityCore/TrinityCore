@@ -1379,38 +1379,55 @@ void Spell::EffectDummy(uint32 i)
             }
             break;
         case SPELLFAMILY_WARLOCK:
-            //Life Tap (only it have this with dummy effect)
-            if (m_spellInfo->SpellFamilyFlags == 0x40000)
+            // Life Tap
+            if (m_spellInfo->SpellFamilyFlags & 0x0000000000040000LL)
             {
-                float cost = damage;
-
-                if(Player* modOwner = m_caster->GetSpellModOwner())
-                    modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, cost,this);
-
-                int32 dmg = m_caster->SpellDamageBonus(m_caster, m_spellInfo,uint32(cost > 0 ? cost : 0), SPELL_DIRECT_DAMAGE);
-
-                if(int32(m_caster->GetHealth()) > dmg)
+                // In 303 exist spirit depend
+                uint32 spirit = m_caster->GetStat(STAT_SPIRIT);
+                switch (m_spellInfo->Id)
+                {
+                    case  1454: damage+=spirit; break;
+                    case  1455: damage+=spirit*15/10; break;
+                    case  1456: damage+=spirit*2; break;
+                    case 11687: damage+=spirit*25/10; break;
+                    case 11688:
+                    case 11689:
+                    case 27222:
+                    case 57946: damage+=spirit*3; break;
+                    default:
+                        sLog.outError("Spell::EffectDummy: %u Life Tap need set spirit multipler", m_spellInfo->Id);
+                        return;
+                }
+//              Think its not need (also need remove Life Tap from SpellDamageBonus or add new value)
+//              damage = m_caster->SpellDamageBonus(m_caster, m_spellInfo,uint32(damage > 0 ? damage : 0), SPELL_DIRECT_DAMAGE);
+                if(int32(unitTarget->GetHealth()) > damage)
                 {
                     // Shouldn't Appear in Combat Log
-                    m_caster->ModifyHealth(-dmg);
+                    unitTarget->ModifyHealth(-damage);
 
-                    int32 mana = dmg;
-
+                    int32 mana = damage;
+                    // Improved Life Tap mod
                     Unit::AuraList const& auraDummy = m_caster->GetAurasByType(SPELL_AURA_DUMMY);
                     for(Unit::AuraList::const_iterator itr = auraDummy.begin(); itr != auraDummy.end(); ++itr)
                     {
-                        // only Imp. Life Tap have this in combination with dummy aura
                         if((*itr)->GetSpellProto()->SpellFamilyName==SPELLFAMILY_WARLOCK && (*itr)->GetSpellProto()->SpellIconID == 208)
                             mana = ((*itr)->GetModifier()->m_amount + 100)* mana / 100;
                     }
-
-                    m_caster->CastCustomSpell(m_caster,31818,&mana,NULL,NULL,true,NULL);
+                    m_caster->CastCustomSpell(unitTarget, 31818, &mana, NULL, NULL, true);
 
                     // Mana Feed
-                    int32 manaFeedVal = m_caster->CalculateSpellDamage(m_spellInfo,1, m_spellInfo->EffectBasePoints[1],m_caster);
-                    manaFeedVal = manaFeedVal * mana / 100;
+                    int32 manaFeedVal = 0;
+                    Unit::AuraList const& mod = m_caster->GetAurasByType(SPELL_AURA_ADD_FLAT_MODIFIER);
+                    for(Unit::AuraList::const_iterator itr = mod.begin(); itr != mod.end(); ++itr)
+                    {
+                        if((*itr)->GetSpellProto()->SpellFamilyName==SPELLFAMILY_WARLOCK && (*itr)->GetSpellProto()->SpellIconID == 1982)
+                            manaFeedVal+= (*itr)->GetModifier()->m_amount;
+                    }
                     if(manaFeedVal > 0)
-                        m_caster->CastCustomSpell(m_caster,32553,&manaFeedVal,NULL,NULL,true,NULL);
+                    {
+                        manaFeedVal = manaFeedVal * mana / 100;
+                        m_caster->CastCustomSpell(m_caster, 32553, &manaFeedVal, NULL, NULL, true, NULL);
+                    }
                 }
                 else
                     SendCastResult(SPELL_FAILED_FIZZLE);

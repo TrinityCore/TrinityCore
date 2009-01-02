@@ -185,7 +185,7 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         float GetHeight(float x, float y, float z, bool pCheckVMap=true) const;
         bool IsInWater(float x, float y, float z) const;    // does not use z pos. This is for future use
 
-        uint16 GetAreaFlag(float x, float y ) const;
+        uint16 GetAreaFlag(float x, float y, float z) const;
         uint8 GetTerrainType(float x, float y ) const;
         float GetWaterLevel(float x, float y ) const;
         bool IsUnderWater(float x, float y, float z) const;
@@ -193,14 +193,14 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         static uint32 GetAreaId(uint16 areaflag,uint32 map_id);
         static uint32 GetZoneId(uint16 areaflag,uint32 map_id);
 
-        uint32 GetAreaId(float x, float y) const
+        uint32 GetAreaId(float x, float y, float z) const
         {
-            return GetAreaId(GetAreaFlag(x,y),i_id);
+            return GetAreaId(GetAreaFlag(x,y,z),i_id);
         }
 
-        uint32 GetZoneId(float x, float y) const
+        uint32 GetZoneId(float x, float y, float z) const
         {
-            return GetZoneId(GetAreaFlag(x,y),i_id);
+            return GetZoneId(GetAreaFlag(x,y,z),i_id);
         }
 
         virtual void MoveAllCreaturesInMoveList();

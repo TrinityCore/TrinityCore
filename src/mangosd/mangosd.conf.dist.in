@@ -1289,6 +1289,26 @@ Ra.Secure = 1
 #       example: "538,90"
 #       Note that it's HIGHLY DISCOURAGED to forbid starting maps (0, 1, 530)!
 #
+#   ShowKickInWorld
+#        determines wether a message is broadcasted to the entire server when a player gets kicked
+#        Default: 0
+#        1 = Enable
+#        0 = Disable
+#
+#   RecordUpdateTimeDiffInterval
+#        record update time diff to the log file
+#        update diff can be used as a criterion of performance
+#        diff < 300: good performance
+#        diff > 600: bad performance, may be caused by high cpu usage
+#        Default: 60000 (diff is written into log every 60000 ms or 1 minute.
+#        >0 = Interval
+#        0 = Disable
+#
+#   PlayerStart.String
+#       If set to anything else than "", this string will be displayed to players when they login
+#       to a newly created character.
+#       Default: "" - send no text
+#
 ###################################################################################################################
 
 PlayerStart.AllReputation = 0
@@ -1302,4 +1322,6 @@ PvPToken.MapAllowType = 4
 PvPToken.ItemID = 29434
 PvPToken.ItemCount = 1
 NoResetTalentsCost = 0
-
+ShowKickInWorld = 0
+RecordUpdateTimeDiffInterval = 60000
+PlayerStart.String = ""
