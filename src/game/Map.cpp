@@ -1244,7 +1244,7 @@ float Map::GetHeight(float x, float y, float z, bool pUseVmaps) const
     }
 }
 
-uint16 Map::GetAreaFlag(float x, float y ) const
+uint16 Map::GetAreaFlag(float x, float y, float z) const
 {
     //local x,y coords
     float lx,ly;
@@ -1262,11 +1262,30 @@ uint16 Map::GetAreaFlag(float x, float y ) const
     // ensure GridMap is loaded
     const_cast<Map*>(this)->EnsureGridCreated(GridPair(63-gx,63-gy));
 
+    uint16 areaflag;
     if(GridMaps[gx][gy])
-        return GridMaps[gx][gy]->area_flag[(int)(lx)][(int)(ly)];
+        areaflag = GridMaps[gx][gy]->area_flag[(int)(lx)][(int)(ly)];
     // this used while not all *.map files generated (instances)
     else
-        return GetAreaFlagByMapId(i_id);
+        areaflag = GetAreaFlagByMapId(i_id);
+
+    //FIXME: some hacks for areas above or underground for ground area
+    //       required for area specific spells/etc, until map/vmap data
+    //       not provided correct areaflag with this hacks
+    switch(areaflag)
+    {
+        // Acherus: The Ebon Hold (Plaguelands: The Scarlet Enclave)
+        case 1984:                                          // Plaguelands: The Scarlet Enclave
+        case 2076:                                          // Death's Breach (Plaguelands: The Scarlet Enclave)
+        case 2745:                                          // The Noxious Pass (Plaguelands: The Scarlet Enclave)
+            if(z > 350.0f) areaflag = 2048; break;
+        // Acherus: The Ebon Hold (Eastern Plaguelands)
+        case 856:                                           // The Noxious Glade (Eastern Plaguelands)
+        case 2456:                                          // Death's Breach (Eastern Plaguelands)
+            if(z > 350.0f) areaflag = 1950; break;
+    }
+
+    return areaflag;
 }
 
 uint8 Map::GetTerrainType(float x, float y ) const
