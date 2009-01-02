@@ -1091,6 +1091,11 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         {
             m_caster->CombatStart(unit);
         }
+        else if(spellmgr.GetSpellCustomAttr(m_spellInfo->Id) & SPELL_ATTR_CU_AURA_CC)
+        {
+            if(!unit->IsStandState())
+                unit->SetStandState(PLAYER_STATE_NONE);
+        }
     }
 }
 
