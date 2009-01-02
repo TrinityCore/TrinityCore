@@ -2101,6 +2101,8 @@ void SpellMgr::LoadSpellCustomAttr()
 		case 29576: //Multi-Shot
 		case 40816: //Saber Lash
 		case 37790: //Spread Shot
+		case 46771: //Flame Sear
+		case 45248: //Shadow Blades
             spellInfo->MaxAffectedTargets = 3;
             break;
 		case 38310: //Multi-Shot
@@ -2109,6 +2111,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 42005: // Bloodboil
 		case 38296: //Spitfire Totem
 		case 37676: //Insidious Whisper
+		case 46009: //Negative Energy
             spellInfo->MaxAffectedTargets = 5;
             break;
 		case 40827: //Sinful Beam
