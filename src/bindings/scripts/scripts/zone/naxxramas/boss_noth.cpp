@@ -23,20 +23,22 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SAY_AGGRO1 "Glory to the master!"
-#define SAY_AGGRO2 "Your life is forfeit!"
-#define SAY_AGGRO3 "Die, trespasser!"
-#define SAY_SUMMON "Rise, my soldiers! Rise and fight once more!"
-#define SAY_SLAY1 "My task is done!"
-#define SAY_SLAY2 "Breathe no more!"
-#define SAY_DEATH "I will serve the master... in... death!"
-#define SOUND_AGGRO1      8845
-#define SOUND_AGGRO2      8846
-#define SOUND_AGGRO3      8847
-#define SOUND_SUMMON      8851
-#define SOUND_SLAY1      8849
-#define SOUND_SLAY2      8850
-#define SOUND_DEATH      8848
+#define SAY_AGGRO1              -1533075
+#define SAY_AGGRO2              -1533076
+#define SAY_AGGRO3              -1533077
+#define SAY_SUMMON              -1533078
+#define SAY_SLAY1               -1533079
+#define SAY_SLAY2               -1533080
+#define SAY_DEATH               -1533081
+
+#define SPELL_BLINK                     29211               //29208, 29209 and 29210 too
+#define SPELL_CRIPPLE                   29212
+#define H_SPELL_CRIPPLE                 54814
+#define SPELL_CURSE_PLAGUEBRINGER       28213
+#define H_SPELL_CURSE_PLAGUEBRINGER     54835
+#define SOUND_DEATH      8848	 
+
+#define C_PLAGUED_WARRIOR               16984
 
 // Teleport position of Noth on his balcony
 #define TELE_X 2631.370
@@ -44,12 +46,8 @@ EndScriptData */
 #define TELE_Z 274.040
 #define TELE_O 6.277
 
-#define SPELL_BLINK                           29211
-#define SPELL_CRIPPLE                         29212
-#define SPELL_CURSEPLAGUEBRINGER              28213
-#define SPELL_WRATHPLAGUEBRINGER              28214
-
 // IMPORTANT: BALCONY TELEPORT NOT ADDED YET! WILL BE ADDED SOON!
+// Dev note 26.12.2008: When is soon? :)
 
 struct TRINITY_DLL_DECL boss_nothAI : public ScriptedAI
 {
@@ -57,14 +55,12 @@ struct TRINITY_DLL_DECL boss_nothAI : public ScriptedAI
 
     uint32 Blink_Timer;
     uint32 Curse_Timer;
-    uint32 Wrath_Timer;
     uint32 Summon_Timer;
 
     void Reset()
     {
         Blink_Timer = 25000;
         Curse_Timer = 4000;
-        Wrath_Timer = 9000;
         Summon_Timer = 12000;
     }
 
@@ -72,18 +68,9 @@ struct TRINITY_DLL_DECL boss_nothAI : public ScriptedAI
     {
         switch (rand()%3)
         {
-            case 0:
-                DoYell(SAY_AGGRO1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO1);
-                break;
-            case 1:
-                DoYell(SAY_AGGRO2,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO2);
-                break;
-            case 2:
-                DoYell(SAY_AGGRO3,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO3);
-                break;
+		case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
+		case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
+		case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
         }
     }
 
@@ -91,21 +78,20 @@ struct TRINITY_DLL_DECL boss_nothAI : public ScriptedAI
     {
         switch (rand()%2)
         {
-            case 0:
-                DoYell(SAY_SLAY1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY1);
-                break;
-            case 1:
-                DoYell(SAY_SLAY2,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY2);
-                break;
+		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
         }
     }
 
+	void JustSummoned(Creature* summoned)
+	{
+		if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+			summoned->AddThreat(target,0.0f);
+	}
+
     void JustDied(Unit* Killer)
     {
-        DoYell(SAY_DEATH,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -125,39 +111,17 @@ struct TRINITY_DLL_DECL boss_nothAI : public ScriptedAI
         //Curse_Timer
         if (Curse_Timer < diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CURSEPLAGUEBRINGER);
+             DoCast(m_creature->getVictim(),SPELL_CURSE_PLAGUEBRINGER);
             Curse_Timer = 28000;
         }else Curse_Timer -= diff;
-
-        //Wrath_Timer
-        if (Wrath_Timer < diff)
-        {
-            DoCast(m_creature->getVictim(),SPELL_WRATHPLAGUEBRINGER);
-            Wrath_Timer = 18000;
-        }else Wrath_Timer -= diff;
 
         //Summon_Timer
         if (Summon_Timer < diff)
         {
-            DoYell(SAY_SUMMON,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature,SOUND_SUMMON);
+            DoScriptText(SAY_SUMMON, m_creature);
 
-            Unit* target = NULL;
-            Unit* SummonedSkeletons = NULL;
-
-            SummonedSkeletons = m_creature->SummonCreature(16984,2684.804,-3502.517,261.313,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,80000);
-            SummonedSkeletons = m_creature->SummonCreature(16984,2684.804,-3502.517,261.313,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,80000);
-            SummonedSkeletons = m_creature->SummonCreature(16984,2684.804,-3502.517,261.313,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,80000);
-            SummonedSkeletons = m_creature->SummonCreature(16984,2684.804,-3502.517,261.313,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,80000);
-            SummonedSkeletons = m_creature->SummonCreature(16984,2684.804,-3502.517,261.313,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,80000);
-            SummonedSkeletons = m_creature->SummonCreature(16984,2684.804,-3502.517,261.313,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,80000);
-
-            if (SummonedSkeletons)
-            {
-                target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                if (target)
-                    SummonedSkeletons->AddThreat(target,1.0f);
-            }
+			for(uint8 i = 0; i < 6; i++)
+				  m_creature->SummonCreature(C_PLAGUED_WARRIOR,2684.804,-3502.517,261.313,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,80000);
 
             Summon_Timer = 30500;
         } else Summon_Timer -= diff;

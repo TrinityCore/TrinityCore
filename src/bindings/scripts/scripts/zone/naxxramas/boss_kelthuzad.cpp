@@ -23,6 +23,44 @@ EndScriptData */
 
 #include "precompiled.h"
 
+//when shappiron dies. dialog between kel and lich king (in this order)
+#define SAY_SAPP_DIALOG1            -1533084
+#define SAY_SAPP_DIALOG2_LICH       -1533085
+#define SAY_SAPP_DIALOG3            -1533086
+#define SAY_SAPP_DIALOG4_LICH       -1533087
+#define SAY_SAPP_DIALOG5            -1533088
+ 	 
+//when cat dies
+#define SAY_CAT_DIED                -1533089
+	 	 
+//when each of the 4 wing bosses dies
+#define SAY_TAUNT1                  -1533090
+#define SAY_TAUNT2                  -1533091
+#define SAY_TAUNT3                  -1533092
+#define SAY_TAUNT4                  -1533093
+	 	 
+#define SAY_SUMMON_MINIONS          -1533105                //start of phase 1
+
+#define SAY_AGGRO1                  -1533094                //start of phase 2
+#define SAY_AGGRO2                  -1533095
+#define SAY_AGGRO3                  -1533096
+	 	 
+#define SAY_SLAY1                   -1533097
+#define SAY_SLAY2                   -1533098
+
+#define SAY_DEATH                   -1533099
+	 	 
+#define SAY_CHAIN1                  -1533100
+#define SAY_CHAIN2                  -1533101
+#define SAY_FROST_BLAST             -1533102
+	 	 
+#define SAY_REQUEST_AID             -1533103                //start of phase 3
+#define SAY_ANSWER_REQUEST          -1533104                //lich king answer
+	 	 
+#define SAY_SPECIAL1_MANA_DET       -1533106
+#define SAY_SPECIAL3_MANA_DET       -1533107
+#define SAY_SPECIAL2_DISPELL        -1533108
+
 //***THIS SCRIPTS IS UNDER DEVELOPMENT***
 /*
 DATA.
@@ -36,18 +74,6 @@ them first.
 Need DISPELL efect
 I also don't know the emotes
 */
-
-//Kel'thuzad. Still don't know where to use these...
-//Dialog
-//8878 dialog01 - Our preparations continue as planned, master.
-//8881 lich_naxx_dialog01 - It is good that you serve me so faithfully. Soon, all will serve the Lich King and in the end, you shall be rewarded...so long as you do not falter.
-//8879 dialog02 - I see no complications... Wait... What is this?
-//8882 lich_naxx_dialog03 - Your security measures have failed! See to this interruption immediately!
-//8880 dialog03 - Yes, master!
-//Bigglesworth death
-//No!!! A curse upon you, interlopers! The armies of the Lich King will hunt you down. You will not escape your fate...
-//slay
-//8818
 
 //common needed defines
 #define NAXXRAMAS_MAP                533
@@ -114,59 +140,14 @@ I also don't know the emotes
 
 //spells to be casted
 #define SPELL_FROST_BOLT            28478
+#define H_SPELL_FROST_BOLT          55802
 #define SPELL_FROST_BOLT_NOVA       28479
+#define H_SPELL_FROST_BOLT_NOVA     55807
+
 #define SPELL_CHAINS_OF_KELTHUZAD   28410
 #define SPELL_MANA_DETONATION       27819
 #define SPELL_SHADOW_FISURE         27810
 #define SPELL_FROST_BLAST           27808
-
-//On Aggro
-#define SAY_ARRIVAL1                "PRAY FOR MERCY!"
-#define SOUND_ARRIVAL1              8809
-#define SAY_ARRIVAL3                "SCREAM YOR DYING BREATH!"
-#define SOUND_ARRIVAL3              8810
-#define SAY_ARRIVAL5                "THE END IS UPON YOU!"
-#define SOUND_ARRIVAL5              8811
-
-//On Summon
-#define SAY_REINFORCEMENTS1         "MINIONS, SERVANTS, SOLDIERS OF THE COLD DARK, OBEY THE CALL OF KEL'THUZAD!"
-#define SOUND_REINFORCEMENTS1       8819
-#define SAY_REINFORCEMENTS2         "MASTER, I REQUIRE AID!"
-#define SOUND_REINFORCEMENTS2       8816
-#define SAY_LICH_NAXX_SUMMON        "VERY WELL. WARRIORS OF THE FROZEN WASTES RISE UP!. I COMMAND YOU TO FIGHT, KILL AND DIE AND DIE FOR YOUR MASTER! LET NONE SURVIVE!"
-#define SOUND_LICH_NAXX_SUMMON      8824
-
-//Random 1/4 taunt said when player enters 300 yards
-#define SAY_TAUNT01                 "WHO DARES VIOLATE THE SACTITY OF MY DOMAIN? BE WARNED, ALL WHO TRASPASS HERE ARE DOOMED"
-#define SOUND_TAUNT01               8820
-#define SAY_TAUNT02                 "FOOLS, YOU THINK YOURSELVES TRIUMPHANT? YOU HAVE ONLY TAKEN ONE STEP CLOSER TO THE ABYSS!"
-#define SOUND_TAUNT02               8821
-#define SAY_TAUNT03                 "I GROW TIRED OF THESE GAMES. PROCEED, AND I WILL BANISH YOUR SOULS TO OBLIVION!"
-#define SOUND_TAUNT03               8822
-#define SAY_TAUNT04                 "YOU HAVE NO IDEA WHAT HORRORS LIE AHEAD. YOU HAVE SEEN NOTHING! THE FROZEN HEART OF NAXXRAMAS AWAITS YOU!"
-#define SOUND_TAUNT04               8823
-
-//On kill unit
-#define SAY_SLAY                    "THE DARK VOID AWAITS YOU!"
-#define SOUND_SLAY                  8817
-
-//Specials
-#define SAY_FROST                   "I WILL FREEZE THE BLOOD IN YOUR VEINS!"
-#define SOUND_FROST                 8815
-#define SAY_CHAIN1                  "YOUR SOUL IS BOUND TO ME NOW!"
-#define SOUND_CHAIN1                8812
-#define SAY_CHAIN2                  "THERE WILL BE NO ESCAPE!"
-#define SOUND_CHAIN2                8813
-#define SAY_SPECIAL1                "YOUR PETTY MAGICS ARE NO CHALLENGE TO THE MIGTH OF THE SCOURGE"
-#define SOUND_SPECIAL1              9088
-#define SAY_SPECIAL2                "ENOUGH! I GROW TIRED OF THESE DISTRACTIONS!"
-#define SOUND_SPECIAL2              9090
-#define SAY_DISPEL                  "FOOLS, YOU HAVE SPREAD YOUR POWERS TOO THIN. BE FREE, MY MINIONS!"
-#define SOUND_DISPEL                9089
-
-//On death
-#define SAY_DEATH                   "DO NOT REJOICE... YOUR VICTORY IS A HOLLOW ONE... FOR I SHALL RETURN WITH POWERS BEYOND YOUR IMAGINING!"
-#define SOUND_DEATH                 8814
 
 struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
 {
@@ -206,6 +187,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
         GuardiansOfIcecrown_Timer = 5000;                   //5 seconds for summoning each Guardian of Icecrown in phase 3
 
         for(int i=0; i<5; i++)
+		{
             if(GuardiansOfIcecrown[i])
         {
             //delete creature
@@ -214,6 +196,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                 pUnit->DealDamage(pUnit, pUnit->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             GuardiansOfIcecrown[i] = 0;
         }
+		}
 
         Phase1_Timer = 310000;                              //Phase 1 lasts 5 minutes and 10 seconds
         Phase2 = false;
@@ -222,17 +205,15 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
 
     void KilledUnit()
     {
-        if (rand()%5)
-            return;
-
-        DoYell(SAY_SLAY, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_SLAY);
+		if (rand()%2)
+			DoScriptText(SAY_SLAY1, m_creature);
+		else
+			DoScriptText(SAY_SLAY2, m_creature);
     }
 
     void JustDied(Unit* Killer)
     {
-        DoYell(SAY_DEATH,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
         for(int i=0; i<5; i++)
             if(GuardiansOfIcecrown[i])
         {
@@ -281,47 +262,19 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
         }
     }
 
-    void SayInitialAggro()                                  //randomly select 1 of 3 say for aggro
-    {
-        switch(rand()%3)
-        {
-            case 0:
-                DoYell(SAY_ARRIVAL1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_ARRIVAL1);
-                break;
-            case 1:
-                DoYell(SAY_ARRIVAL3,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_ARRIVAL3);
-                break;
-            case 2:
-                DoYell(SAY_ARRIVAL5,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_ARRIVAL5);
-                break;
-        }
-    }
-
     void Aggro(Unit* who)
     {
         switch(rand()%3)
         {
-            case 0:
-                DoYell(SAY_ARRIVAL1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_ARRIVAL1);
-                break;
-            case 1:
-                DoYell(SAY_ARRIVAL3,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_ARRIVAL3);
-                break;
-            case 2:
-                DoYell(SAY_ARRIVAL5,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_ARRIVAL5);
-                break;
+		case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
+		case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
+		case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
         }
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget())
+         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
         if(m_creature->getVictim() && m_creature->isAlive())
@@ -330,118 +283,69 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             if(FrostBolt_Timer < diff)
             {
                 DoCast(m_creature->getVictim(),SPELL_FROST_BOLT);
-
-                if(rand()%2 == 0)
-                {
-                    DoYell(SAY_FROST,LANG_UNIVERSAL,NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_FROST);
-                }
                 //Cast again on time
                 FrostBolt_Timer = (rand()%60)*1000;
-            }
-            else FrostBolt_Timer -= diff;
+            }else FrostBolt_Timer -= diff;
 
             //Check for Frost Bolt Nova
             if(FrostBoltNova_Timer < diff)
             {
                 DoCast(m_creature->getVictim(),SPELL_FROST_BOLT_NOVA);
-
-                if(rand()%2 == 0)
-                {
-                    DoYell(SAY_FROST,LANG_UNIVERSAL,NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_FROST);
-                }
-
                 FrostBoltNova_Timer = 15000;
-            }
-            else FrostBoltNova_Timer -= diff;
+            }else FrostBoltNova_Timer -= diff;
 
             //Check for Chains Of Kelthuzad
             if(ChainsOfKelthuzad_Timer < diff)
             {
-                DoCast(m_creature->getVictim(),SPELL_CHAINS_OF_KELTHUZAD);
+                //DoCast(m_creature->getVictim(),SPELL_CHAINS_OF_KELTHUZAD);
 
-                if(rand()%2 == 0)
-                    if(rand()%2 == 0)
-                {
-                    DoYell(SAY_CHAIN1,LANG_UNIVERSAL,NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_CHAIN1);
-                }
-                else
-                {
-                    DoYell(SAY_CHAIN2,LANG_UNIVERSAL,NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_CHAIN2);
-                }
-
-                //cast again on time
+				//if(rand()%2 == 0)
+                   //DoScriptText(SAY_CHAIN1, m_creature);
+                //else
+                    //DoScriptText(SAY_CHAIN2, m_creature);
                 ChainsOfKelthuzad_Timer = (rand()%30+30)*1000;
-            }
-            else ChainsOfKelthuzad_Timer -= diff;
+            }else ChainsOfKelthuzad_Timer -= diff;
 
             //Check for Mana Detonation
             if(ManaDetonation_Timer < diff)
             {
                 //time to cast
-                //DoCast(m_creature->getVictim(),SPELL_MANA_DETONATION);
+                DoCast(m_creature->getVictim(),SPELL_MANA_DETONATION);
 
-                if(rand()%2 == 0)
-                {
-                    DoYell(SAY_SPECIAL1,LANG_UNIVERSAL,NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_SPECIAL1);
-                }
+                 if (rand()%2)
+					 DoScriptText(SAY_SPECIAL1_MANA_DET, m_creature);
                 ManaDetonation_Timer = 20000;
-            }
-            else ManaDetonation_Timer -= diff;
+            }else ManaDetonation_Timer -= diff;
 
             //Check for Shadow Fissure
             if(ShadowFisure_Timer < diff)
             {
                 DoCast(m_creature->getVictim(),SPELL_SHADOW_FISURE);
 
-                if(rand()%2 == 0)
-                {
-                    DoYell(SAY_SPECIAL2,LANG_UNIVERSAL,NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_SPECIAL2);
-                }
-
+               if (rand()%2)
+				   DoScriptText(SAY_SPECIAL3_MANA_DET, m_creature);
                 ShadowFisure_Timer = 25000;
-            }
-            else ShadowFisure_Timer -= diff;
+            }else ShadowFisure_Timer -= diff;
 
             //Check for Frost Blast
             if(FrostBlast_Timer < diff)
             {
                 //time to cast
-                //DoCast(m_creature->getVictim(),SPELL_FROST_BLAST);
+                DoCast(m_creature->getVictim(),SPELL_FROST_BLAST);
 
                 if(rand()%2 == 0)
-                {
-                    DoYell(SAY_FROST,LANG_UNIVERSAL,NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_FROST);
-                }
-
+					DoScriptText(SAY_FROST_BLAST, m_creature);
                 FrostBlast_Timer = (rand()%30+30)*1000;
-            }
-            else FrostBlast_Timer -= diff;
+            }else FrostBlast_Timer -= diff;
 
             //start phase 3 when we are 40% health
             if(!Phase3 && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 40)
             {
                 Phase3 = true;
-                switch(rand()%2)
-                {
-                    case 1:
-                        DoYell(SAY_REINFORCEMENTS1,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,SOUND_REINFORCEMENTS1);
-                        break;
-                    case 2:
-                        DoYell(SAY_REINFORCEMENTS2,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,SOUND_REINFORCEMENTS2);
-                        break;
-                }
+					DoScriptText(SAY_REQUEST_AID, m_creature);
                 //here Lich King should respond to KelThuzad but I don't know which creature to make talk
                 //so for now just make Kelthuzad says it.
-                DoPlaySoundToSet(m_creature,SOUND_LICH_NAXX_SUMMON);
+                DoScriptText(SAY_ANSWER_REQUEST, m_creature);
             }
 
             if(Phase3 && (GuardiansOfIcecrown_Count < 5))
@@ -530,13 +434,10 @@ CreatureAI* GetAI_boss_kelthuzadAI(Creature *_Creature)
 
 void AddSC_boss_kelthuzad()
 {
-    //This script is disabled until it has been throughly tested
 
-    /*
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_kelthuzad";
     newscript->GetAI = &GetAI_boss_kelthuzadAI;
     newscript->RegisterSelf();
-    */
 }
