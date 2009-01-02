@@ -595,6 +595,19 @@ namespace Trinity
             Unit const* i_funit;
             float i_range;
     };
+	
+	class CreatureWithDbGUIDCheck
+    {
+        public:
+            CreatureWithDbGUIDCheck(WorldObject const* obj, uint32 lowguid) : i_obj(obj), i_lowguid(lowguid) {}
+            bool operator()(Creature* u)
+            {
+				return u->GetDBTableGUIDLow() == i_lowguid;
+            }
+        private:
+            WorldObject const* i_obj;
+            uint32 i_lowguid;
+    };
 
     class AnyFriendlyUnitInObjectRangeCheck
     {
