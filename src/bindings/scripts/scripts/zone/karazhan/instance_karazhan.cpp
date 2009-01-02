@@ -59,7 +59,8 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
     uint64 MassiveDoor;                                     // Door at Netherspite
     uint64 GamesmansDoor;                                   // Door before Chess
     uint64 GamesmansExitDoor;                               // Door after Chess
-    uint64 NetherspaceDoor;                                 // Door at Malchezaar
+    uint64 NetherspaceDoor;	                               // Door at Malchezaar
+	uint64 MastersTerraceDoor[2];
 
 	uint64 ImageGUID;
 
@@ -84,6 +85,8 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
         GamesmansDoor       = 0;
         GamesmansExitDoor   = 0;
         NetherspaceDoor     = 0;
+		MastersTerraceDoor[0]= 0;
+		MastersTerraceDoor[1]= 0;
 
 		ImageGUID = 0;
     }
@@ -199,6 +202,8 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
             case 184276:   GamesmansDoor        = go->GetGUID();         break;
             case 184277:   GamesmansExitDoor    = go->GetGUID();         break;
             case 185134:   NetherspaceDoor      = go->GetGUID();         break;
+			case 184274:	MastersTerraceDoor[0] = go->GetGUID();	break;
+			case 184280:	MastersTerraceDoor[1] = go->GetGUID();	break;
         }
 
         switch(OperaEvent)
