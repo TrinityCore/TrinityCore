@@ -756,14 +756,12 @@ struct TRINITY_DLL_SPEC CharmInfo
 
 enum ReactiveType
 {
-    REACTIVE_DEFENSE      = 1,
-    REACTIVE_HUNTER_PARRY = 2,
-    REACTIVE_CRIT         = 3,
-    REACTIVE_HUNTER_CRIT  = 4,
-    REACTIVE_OVERPOWER    = 5
+    REACTIVE_DEFENSE      = 0,
+    REACTIVE_HUNTER_PARRY = 1,
+    REACTIVE_OVERPOWER    = 2
 };
 
-#define MAX_REACTIVE 6
+#define MAX_REACTIVE 3
 #define MAX_TOTEM 4
 
 // delay time next attack to prevent client attack animation problems
