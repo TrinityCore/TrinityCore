@@ -272,6 +272,26 @@ bool ChatHandler::HandleServerSetLogLevelCommand(const char *args)
     return true;
 }
 
+/// set diff time record interval
+bool ChatHandler::HandleServerSetDiffTimeCommand(const char *args)
+{
+    if(!*args)
+        return false;
+
+    char *NewTimeStr = strtok((char*)args, " ");
+    if(!NewTimeStr)
+        return false;
+
+    int32 NewTime =atoi(NewTimeStr);
+    if(NewTime < 0)
+        return false;
+
+    sWorld.SetRecordDiffInterval(NewTime);
+    printf( "Record diff every %u ms\n", NewTime);
+    return true;
+}
+
+
 /// @}
 
 #ifdef linux
