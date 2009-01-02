@@ -9708,7 +9708,7 @@ void Unit::SetInCombatWith(Unit* enemy)
 
 void Unit::CombatStart(Unit* target)
 {
-    if(!target->IsStandState() && !target->hasUnitState(UNIT_STAT_STUNNED))
+    if(!target->IsStandState()/* && !target->hasUnitState(UNIT_STAT_STUNNED)*/)
         target->SetStandState(PLAYER_STATE_NONE);
 
 	//Call creature group update
