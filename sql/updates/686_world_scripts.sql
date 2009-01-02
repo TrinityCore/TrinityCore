@@ -1,4 +1,3 @@
-UPDATE `quest_template` SET `SpecialFlags` = 2 WHERE `entry` = 1144;
 UPDATE `creature_template` SET `Scriptname`='npc_willix' WHERE entry=4508;
 
 DELETE FROM script_texts WHERE entry BETWEEN -1047000 and -1047010;
