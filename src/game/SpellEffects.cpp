@@ -2704,6 +2704,8 @@ void Spell::EffectEnergize(uint32 i)
     if(m_spellInfo->EffectMiscValue[i] < 0 || m_spellInfo->EffectMiscValue[i] >= MAX_POWERS)
         return;
 
+    Powers power = Powers(m_spellInfo->EffectMiscValue[i]);
+
     // Some level depends spells
     int multiplier = 0;
     int level_diff = 0;
@@ -2733,8 +2735,6 @@ void Spell::EffectEnergize(uint32 i)
 
     if(damage < 0)
         return;
-
-    Powers power = Powers(m_spellInfo->EffectMiscValue[i]);
 
     if(unitTarget->GetMaxPower(power) == 0)
         return;
@@ -5569,7 +5569,8 @@ void Spell::EffectFeedPet(uint32 i)
 
     Player *_player = (Player*)m_caster;
 
-    if(!itemTarget)
+    Item* foodItem = m_targets.getItemTarget();
+    if(!foodItem)
         return;
 
     Pet *pet = _player->GetPet();
@@ -5579,15 +5580,15 @@ void Spell::EffectFeedPet(uint32 i)
     if(!pet->isAlive())
         return;
 
-    int32 benefit = pet->GetCurrentFoodBenefitLevel(itemTarget->GetProto()->ItemLevel);
+    int32 benefit = pet->GetCurrentFoodBenefitLevel(foodItem->GetProto()->ItemLevel);
     if(benefit <= 0)
         return;
 
     uint32 count = 1;
-    _player->DestroyItemCount(itemTarget,count,true);
+    _player->DestroyItemCount(foodItem,count,true);
     // TODO: fix crash when a spell has two effects, both pointed at the same item target
 
-    m_caster->CastCustomSpell(m_caster,m_spellInfo->EffectTriggerSpell[i],&benefit,NULL,NULL,true);
+    m_caster->CastCustomSpell(pet,m_spellInfo->EffectTriggerSpell[i],&benefit,NULL,NULL,true);
 }
 
 void Spell::EffectDismissPet(uint32 /*i*/)
