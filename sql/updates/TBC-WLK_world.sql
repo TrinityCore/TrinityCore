@@ -5318,6 +5318,11 @@ INSERT INTO `playercreateinfo` VALUES
 (8 ,6,609,4298,2355.05,-5661.7, 426.026),
 (10,6,609,4298,2355.84,-5664.77,426.028),
 (11,6,609,4298,2358.17,-5663.21,426.027);
+DELETE FROM `playercreateinfo` WHERE `race`=7 AND `class` IN (4,8,9);
+INSERT INTO `playercreateinfo` VALUES
+(7,4,0,1,-6240,331,383),
+(7,8,0,1,-6240,331,383),
+(7,9,0,1,-6240,331,383);
 
 DELETE FROM playercreateinfo_action WHERE class = 6;
 INSERT INTO playercreateinfo_action VALUES
