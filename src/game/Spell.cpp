@@ -3489,9 +3489,9 @@ uint8 Spell::CanCast(bool strict)
         return SPELL_FAILED_CASTER_AURASTATE;
 
     // Caster aura req check if need
-    if(m_spellInfo->casterAuraSpell && !m_caster->isAuraPresent(m_spellInfo->casterAuraSpell))
+    if(m_spellInfo->casterAuraSpell && !m_caster->HasAura(m_spellInfo->casterAuraSpell))
         return SPELL_FAILED_CASTER_AURASTATE;
-    if(m_spellInfo->excludeCasterAuraSpell && m_caster->isAuraPresent(m_spellInfo->excludeCasterAuraSpell))
+    if(m_spellInfo->excludeCasterAuraSpell && m_caster->HasAura(m_spellInfo->excludeCasterAuraSpell))
         return SPELL_FAILED_CASTER_AURASTATE;
 
     // cancel autorepeat spells if cast start when moving
@@ -3513,9 +3513,9 @@ uint8 Spell::CanCast(bool strict)
             return SPELL_FAILED_TARGET_AURASTATE;
 
         // Target aura req check if need
-        if(m_spellInfo->targetAuraSpell && !target->isAuraPresent(m_spellInfo->targetAuraSpell))
+        if(m_spellInfo->targetAuraSpell && !target->HasAura(m_spellInfo->targetAuraSpell))
             return SPELL_FAILED_CASTER_AURASTATE;
-        if(m_spellInfo->excludeTargetAuraSpell && target->isAuraPresent(m_spellInfo->excludeTargetAuraSpell))
+        if(m_spellInfo->excludeTargetAuraSpell && target->HasAura(m_spellInfo->excludeTargetAuraSpell))
             return SPELL_FAILED_CASTER_AURASTATE;
 
         if(target != m_caster)

@@ -4012,11 +4012,11 @@ Aura* Unit::GetAura(uint32 spellId, uint32 effindex)
     return NULL;
 }
 
-bool Unit::isAuraPresent(uint32 spellId)
+bool Unit::HasAura(uint32 spellId) const
 {
-    for (int i=0; i<3; ++i)
+    for (int i = 0; i < 3 ; ++i)
     {
-        AuraMap::iterator iter = m_Auras.find(spellEffectPair(spellId, i));
+        AuraMap::const_iterator iter = m_Auras.find(spellEffectPair(spellId, i));
         if (iter != m_Auras.end())
             return true;
     }
