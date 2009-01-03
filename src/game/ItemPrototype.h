@@ -511,8 +511,8 @@ struct ItemPrototype
     uint32 RequiredCityRank;
     uint32 RequiredReputationFaction;                       // id from Faction.dbc
     uint32 RequiredReputationRank;
-    uint32 MaxCount;
-    uint32 Stackable;
+    int32  MaxCount;                                        // <=0: no limit
+    int32  Stackable;                                       // 0: not allowed, -1: put in player coin info tab and don't limit stacking (so 1 slot)
     uint32 ContainerSlots;
     uint32 StatsCount;
     _ItemStat ItemStat[10];
@@ -621,6 +621,8 @@ struct ItemPrototype
 
         return 0;
     }
+
+    uint32 GetMaxStackSize() const { return Stackable > 0 ? uint32(Stackable) : uint32(0x7FFFFFFF-1); }
 };
 
 struct ItemLocale

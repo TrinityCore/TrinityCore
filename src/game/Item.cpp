@@ -890,8 +890,8 @@ Item* Item::CreateItem( uint32 item, uint32 count, Player const* player )
     ItemPrototype const *pProto = objmgr.GetItemPrototype( item );
     if( pProto )
     {
-        if ( count > pProto->Stackable )
-            count = pProto->Stackable;
+        if ( count > pProto->GetMaxStackSize())
+            count = pProto->GetMaxStackSize();
 
         assert(count !=0 && "pProto->Stackable==0 but checked at loading already");
 

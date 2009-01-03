@@ -19,6 +19,15 @@ alter table `item_template`
     add column `StatsCount` tinyint(3) UNSIGNED DEFAULT '0' NOT NULL after `ContainerSlots`,
     CHANGE COLUMN `TotemCategory` `TotemCategory` mediumint(9) NOT NULL default '0';
 
+UPDATE item_template
+    SET maxcount = 0 WHERE maxcount > 32000;
+UPDATE item_template
+    SET stackable = 0 WHERE stackable > 32000;
+ALTER TABLE item_template
+    CHANGE COLUMN maxcount  maxcount  smallint(5) NOT NULL default '-1',
+    CHANGE COLUMN stackable stackable smallint(5) NOT NULL default '1';
+UPDATE item_template
+    SET stackable = -1 WHERE stackable = 0;	
 
 alter table `quest_template`
     add column `PlayersSlain` tinyint(3) UNSIGNED DEFAULT '0' NOT NULL after `CharTitleId`,
