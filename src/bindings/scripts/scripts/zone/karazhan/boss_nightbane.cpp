@@ -16,7 +16,7 @@
 
 /* ScriptData
 SDName: Boss_Nightbane
-SD%Complete: 70
+SD%Complete: 80
 SDComment: SDComment: skelleton adds need 2 more, timers,
 SDCategory: Karazhan
 EndScriptData */
@@ -26,7 +26,7 @@ EndScriptData */
  
 //phase 1
 #define SPELL_BELLOWING_ROAR        39427
-#define SPELL_CHARRED_EARTH         30129 //Also 30209 (Target Charred Earth) triggers this
+#define SPELL_CHARRED_EARTH         30129
 #define SPELL_DISTRACTING_ASH       30130
 #define SPELL_SMOLDERING_BREATH     30210
 #define SPELL_TAIL_SWEEP            25653
@@ -123,11 +123,10 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
         m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
 		m_creature->setActive(true);
 
-		if(pInstance)
-			pInstance->SetData(DATA_NIGHTBANE_EVENT, NOT_STARTED);
-
 		if(pInstance->GetData(DATA_NIGHTBANE_EVENT) == DONE)
 			m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+		else
+			pInstance->SetData(DATA_NIGHTBANE_EVENT, NOT_STARTED);
 
 		HandleTerraceDoors(true);
 
@@ -143,10 +142,10 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
     
 	void HandleTerraceDoors(bool open)
     {
-        //if(GameObject *Door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(DATA_MASTERS_TERRACE_DOOR_1)))
-        //    Door->SetUInt32Value(GAMEOBJECT_STATE, open ? 0 : 1);
-        //if(GameObject *Door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(DATA_MASTERS_TERRACE_DOOR_2)))
-        //    Door->SetUInt32Value(GAMEOBJECT_STATE, open ? 0 : 1);
+		if(GameObject *Door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(DATA_MASTERS_TERRACE_DOOR_1)))
+			Door->SetUInt32Value(GAMEOBJECT_STATE, open ? 0 : 1);
+		if(GameObject *Door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(DATA_MASTERS_TERRACE_DOOR_2)))
+			Door->SetUInt32Value(GAMEOBJECT_STATE, open ? 0 : 1);
     }
 
     void Aggro(Unit *who)
@@ -306,40 +305,37 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 			}
 
 			if (BellowingRoarTimer < diff)
-                {
-                    DoCast(m_creature->getVictim(),SPELL_BELLOWING_ROAR);
-                    BellowingRoarTimer = 30000+rand()%10000 ; //Timer
-                }else BellowingRoarTimer -= diff;
+			{
+				DoCast(m_creature->getVictim(),SPELL_BELLOWING_ROAR);
+				BellowingRoarTimer = 30000+rand()%10000 ; //Timer
+			}else BellowingRoarTimer -= diff;
 
             if (SmolderingBreathTimer < diff)
-                {
-                    DoCast(m_creature->getVictim(),SPELL_SMOLDERING_BREATH);
-                    SmolderingBreathTimer = 20000;//timer
+			{
+				DoCast(m_creature->getVictim(),SPELL_SMOLDERING_BREATH);
+				SmolderingBreathTimer = 20000;//timer
             }else SmolderingBreathTimer -= diff;
 
             if (CharredEarthTimer < diff)
-                {
-                    Unit* target = NULL;
-                    target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                    DoCast(target,SPELL_CHARRED_EARTH);
-                    CharredEarthTimer = 20000; //timer
+			{
+				if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))                   
+					DoCast(target,SPELL_CHARRED_EARTH);
+				CharredEarthTimer = 20000; //timer
             }else CharredEarthTimer -= diff;
 
             if (TailSweepTimer < diff)
-                {
-                    Unit* target = NULL;
-                    target = SelectUnit(SELECT_TARGET_RANDOM,0);                   
-                    if (!m_creature->HasInArc( M_PI, target)) 
-                        DoCast(target,SPELL_TAIL_SWEEP);
-                    TailSweepTimer = 15000;//timer
-                }else TailSweepTimer -= diff;
+			{
+				if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+					if (!m_creature->HasInArc( M_PI, target)) 
+						DoCast(target,SPELL_TAIL_SWEEP);
+				TailSweepTimer = 15000;//timer
+			}else TailSweepTimer -= diff;
 
             if (SearingCindersTimer < diff)
             {
-                    Unit* target = NULL;
-                    target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                    DoCast(target,SPELL_SEARING_CINDERS);
-                    SearingCindersTimer = 10000; //timer 
+				if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+					DoCast(target,SPELL_SEARING_CINDERS);
+				SearingCindersTimer = 10000; //timer 
             }else SearingCindersTimer -= diff;
 
             uint32 Prozent;
@@ -379,9 +375,8 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 
                 if (DistractingAshTimer < diff)
                 {
-                    Unit* target = NULL;
-                    target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                    DoCast(target,SPELL_DISTRACTING_ASH);
+					if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+						DoCast(target,SPELL_DISTRACTING_ASH);
                     DistractingAshTimer = 2000;//timer wrong
                 }else DistractingAshTimer -= diff;
             }
@@ -397,10 +392,9 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 
             if (FireballBarrageTimer < diff)
             {
-                    Unit* target = NULL;
-                    target = SelectUnit(SELECT_TARGET_FARTHEST,0);
-                    DoCast(target,SPELL_FIREBALL_BARRAGE);
-                    FireballBarrageTimer = 20000; //Timer 
+				if (Unit* target = SelectUnit(SELECT_TARGET_FARTHEST, 0))
+					DoCast(target,SPELL_FIREBALL_BARRAGE);
+				FireballBarrageTimer = 20000; //Timer 
             }else FireballBarrageTimer -= diff;
 
             if (FlyTimer < diff) //landing
