@@ -5287,6 +5287,9 @@ void ObjectMgr::LoadAreaTriggerTeleports()
     sLog.outString( ">> Loaded %u area trigger teleport definitions", count );
 }
 
+/*
+ * Searches for the areatrigger which teleports players out of the given map
+ */
 AreaTrigger const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
 {
     const MapEntry *mapEntry = sMapStore.LookupEntry(Map);
@@ -5297,6 +5300,23 @@ AreaTrigger const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
         {
             AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(itr->first);
             if(atEntry && atEntry->mapid == Map)
+                return &itr->second;
+        }
+    }
+    return NULL;
+}
+
+/**
+ * Searches for the areatrigger which teleports players to the given map
+ */
+AreaTrigger const* ObjectMgr::GetMapEntranceTrigger(uint32 Map) const
+{
+    for (AreaTriggerMap::const_iterator itr = mAreaTriggers.begin(); itr != mAreaTriggers.end(); ++itr)
+    {
+        if(itr->second.target_mapId == Map)
+        {
+            AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(itr->first);
+            if(atEntry)
                 return &itr->second;
         }
     }
