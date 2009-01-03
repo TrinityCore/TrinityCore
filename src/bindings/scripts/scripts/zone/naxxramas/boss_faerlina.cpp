@@ -23,29 +23,20 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SAY_GREET           "Your old lives, your mortal desires, mean nothing. You are acolytes of the master now, and you will serve the cause without question! The greatest glory is to die in the master's service!"
-#define SAY_AGGRO1          "Slay them in the master's name!"
-#define SAY_AGGRO2          "You cannot hide from me!"
-#define SAY_AGGRO3          "Kneel before me, worm!"
-#define SAY_AGGRO4          "Run while you still can!"
-#define SAY_SLAY1           "You have failed!"
-#define SAY_SLAY2           "Pathetic wretch!"
-#define SAY_DEATH           "The master... will avenge me!"
-#define SAY_RANDOM_AGGRO    "???"
-
-#define SOUND_GREET         8799
-#define SOUND_AGGRO1        8794
-#define SOUND_AGGRO2        8795
-#define SOUND_AGGRO3        8796
-#define SOUND_AGGRO4        8797
-#define SOUND_SLAY1         8800
-#define SOUND_SLAY2         8801
-#define SOUND_DEATH         8798
-#define SOUND_RANDOM_AGGRO  8955
+#define SAY_GREET                   -1533009
+#define SAY_AGGRO1                  -1533010
+#define SAY_AGGRO2                  -1533011
+#define SAY_AGGRO3                  -1533012
+#define SAY_AGGRO4                  -1533013
+#define SAY_SLAY1                   -1533014
+#define SAY_SLAY2                   -1533015
+#define SAY_DEATH                   -1533016
 
 #define SPELL_POSIONBOLT_VOLLEY     28796
+#define H_SPELL_POSIONBOLT_VOLLEY   54098
+#define SPELL_ENRAGE                28798
+#define H_SPELL_ENRAGE              54100
 #define SPELL_RAINOFFIRE            28794                   //Not sure if targeted AoEs work if casted directly upon a player
-#define SPELL_ENRAGE                26527
 
 struct TRINITY_DLL_DECL boss_faerlinaAI : public ScriptedAI
 {
@@ -68,90 +59,36 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public ScriptedAI
     {
         switch (rand()%4)
         {
-            case 0:
-                DoYell(SAY_AGGRO1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO1);
-                break;
-            case 1:
-                DoYell(SAY_AGGRO2,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO2);
-                break;
-            case 2:
-                DoYell(SAY_AGGRO3,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO3);
-                break;
-            case 3:
-                DoYell(SAY_AGGRO4,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO4);
-                break;
+		case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
+		case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
+		case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
+		case 3: DoScriptText(SAY_AGGRO4, m_creature); break;
         }
     }
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (!m_creature->getVictim() && who->isTargetableForAttack() && who->isInAccessiblePlaceFor(m_creature) && m_creature->IsHostileTo(who))
-        {
-            if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
-                return;
-
-            float attackRadius = m_creature->GetAttackDistance(who);
-            if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
-            {
-                //Say our dialog on initial aggro
-                if (!InCombat)
-                {
-                    switch (rand()%4)
-                    {
-                        case 0:
-                            DoYell(SAY_AGGRO1,LANG_UNIVERSAL,NULL);
-                            DoPlaySoundToSet(m_creature,SOUND_AGGRO1);
-                            break;
-                        case 1:
-                            DoYell(SAY_AGGRO2,LANG_UNIVERSAL,NULL);
-                            DoPlaySoundToSet(m_creature,SOUND_AGGRO2);
-                            break;
-                        case 2:
-                            DoYell(SAY_AGGRO3,LANG_UNIVERSAL,NULL);
-                            DoPlaySoundToSet(m_creature,SOUND_AGGRO3);
-                            break;
-                        case 3:
-                            DoYell(SAY_AGGRO4,LANG_UNIVERSAL,NULL);
-                            DoPlaySoundToSet(m_creature,SOUND_AGGRO4);
-                            break;
-                    }
-                }
-
-                //who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-                AttackStart(who);
-            }
-            else if (!HasTaunted && m_creature->IsWithinDistInMap(who, 60.0f))
-            {
-                DoYell(SAY_GREET, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature,SOUND_GREET);
+         if (!HasTaunted && m_creature->IsWithinDistInMap(who, 60.0f))            
+		 {
+                DoScriptText(SAY_GREET, m_creature);
                 HasTaunted = true;
-            }
+            
         }
+		 ScriptedAI::MoveInLineOfSight(who);
     }
 
     void KilledUnit(Unit* victim)
     {
         switch (rand()%2)
         {
-            case 0:
-                DoYell(SAY_SLAY1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY1);
-                break;
-            case 1:
-                DoYell(SAY_SLAY2,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY2);
-                break;
+            case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+            case 1: DoScriptText(SAY_SLAY2, m_creature); break;
         }
     }
 
     void JustDied(Unit* Killer)
     {
-        DoYell(SAY_DEATH,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_DEATH);
+		DoScriptText(SAY_DEATH, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -169,10 +106,8 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public ScriptedAI
         //RainOfFire_Timer
         if (RainOfFire_Timer < diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (target) DoCast(target,SPELL_RAINOFFIRE);
-
+			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+				DoCast(target,SPELL_RAINOFFIRE);
             RainOfFire_Timer = 16000;
         }else RainOfFire_Timer -= diff;
 
