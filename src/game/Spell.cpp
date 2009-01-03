@@ -3488,6 +3488,12 @@ uint8 Spell::CanCast(bool strict)
     if(m_spellInfo->CasterAuraStateNot && m_caster->HasAuraState(AuraState(m_spellInfo->CasterAuraStateNot)))
         return SPELL_FAILED_CASTER_AURASTATE;
 
+    // Caster aura req check if need
+    if(m_spellInfo->casterAuraSpell && !m_caster->isAuraPresent(m_spellInfo->casterAuraSpell))
+        return SPELL_FAILED_CASTER_AURASTATE;
+    if(m_spellInfo->excludeCasterAuraSpell && m_caster->isAuraPresent(m_spellInfo->excludeCasterAuraSpell))
+        return SPELL_FAILED_CASTER_AURASTATE;
+
     // cancel autorepeat spells if cast start when moving
     // (not wand currently autorepeat cast delayed to moving stop anyway in spell update code)
     if( m_caster->GetTypeId()==TYPEID_PLAYER && ((Player*)m_caster)->isMoving() )
@@ -3505,6 +3511,12 @@ uint8 Spell::CanCast(bool strict)
         // target state requirements (not allowed state), apply to self also
         if(m_spellInfo->TargetAuraStateNot && target->HasAuraState(AuraState(m_spellInfo->TargetAuraStateNot)))
             return SPELL_FAILED_TARGET_AURASTATE;
+
+        // Target aura req check if need
+        if(m_spellInfo->targetAuraSpell && !target->isAuraPresent(m_spellInfo->targetAuraSpell))
+            return SPELL_FAILED_CASTER_AURASTATE;
+        if(m_spellInfo->excludeTargetAuraSpell && target->isAuraPresent(m_spellInfo->excludeTargetAuraSpell))
+            return SPELL_FAILED_CASTER_AURASTATE;
 
         if(target != m_caster)
         {
