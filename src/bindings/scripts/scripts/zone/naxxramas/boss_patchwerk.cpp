@@ -23,22 +23,18 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SAY_AGGRO1      "Patchwerk want to play!"
-#define SAY_AGGRO2      "Kel'Thuzad make Patchwerk his Avatar of War!"
-#define SAY_SLAY        "No more play?"
-#define SAY_DEATH       "What happened to... Patch..."
+#define SAY_AGGRO1              -1533017
+#define SAY_AGGRO2              -1533018
+#define SAY_SLAY                -1533019
+#define SAY_DEATH               -1533020
 
-#define SOUND_AGGRO1    8909
-#define SOUND_AGGRO2    8910
-#define SOUND_SLAY      8912
-#define SOUND_DEATH     8911
-
-#define EMOTE_BERSERK   "Patchwerk goes into a berserker rage!"
-#define EMOTE_ENRAGE    "Patchwerk becomes enraged!"
+#define EMOTE_BERSERK           -1533021
+#define EMOTE_ENRAGE            -1533022
 
 #define SPELL_HATEFULSTRIKE     28308
-#define SPELL_ENRAGE            29691
-#define SPELL_BERSERK           27680
+#define H_SPELL_HATEFULSTRIKE   59192
+#define SPELL_ENRAGE            2813
+#define SPELL_BERSERK           26662
 #define SPELL_SLIMEBOLT         32309
 
 struct TRINITY_DLL_DECL boss_patchwerkAI : public ScriptedAI
@@ -63,27 +59,23 @@ struct TRINITY_DLL_DECL boss_patchwerkAI : public ScriptedAI
         if (rand()%5)
             return;
 
-        DoYell(SAY_SLAY, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_SLAY);
+        DoScriptText(SAY_SLAY, m_creature);
     }
 
     void JustDied(Unit* Killer)
     {
-        DoYell(SAY_DEATH, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+        DoScriptText(SAY_DEATH, m_creature);
     }
 
     void Aggro(Unit *who)
     {
         if (rand()%2)
         {
-            DoYell(SAY_AGGRO1, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_AGGRO1);
+             DoScriptText(SAY_AGGRO1, m_creature);
         }
         else
         {
-            DoYell(SAY_AGGRO2, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_AGGRO2);
+           DoScriptText(SAY_AGGRO2, m_creature);
         }
     }
 
@@ -122,7 +114,7 @@ struct TRINITY_DLL_DECL boss_patchwerkAI : public ScriptedAI
         if (Enrage_Timer < diff)
         {
             DoCast(m_creature, SPELL_BERSERK);
-            DoTextEmote(EMOTE_BERSERK, m_creature->getVictim());
+             DoScriptText(EMOTE_BERSERK, m_creature);
 
             Enrage_Timer = 300000;
         }else Enrage_Timer -= diff;
@@ -138,7 +130,7 @@ struct TRINITY_DLL_DECL boss_patchwerkAI : public ScriptedAI
         if (!Enraged && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 5)
         {
             DoCast(m_creature,SPELL_ENRAGE);
-            DoTextEmote(EMOTE_ENRAGE,NULL);
+            DoScriptText(EMOTE_ENRAGE,NULL);
             Enraged = true;
         }
 

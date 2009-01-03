@@ -23,18 +23,35 @@ EndScriptData */
 
 #include "precompiled.h"
 
+//Stalagg
+#define SAY_STAL_AGGRO          -1533023
+#define SAY_STAL_SLAY           -1533024
+#define SAY_STAL_DEATH          -1533025
+	 	 
+#define SPELL_POWERSURGE        28134
+	 	 
+//Feugen
+#define SAY_FEUG_AGGRO          -1533026
+#define SAY_FEUG_SLAY           -1533027
+#define SAY_FEUG_DEATH          -1533028
+	 	 
+#define SPELL_MANABURN          28135
+
+//both
+#define SPELL_WARSTOMP          28125
+	 	 
 //Thaddus
-//8873 Lamnt01 - Pleeease!
-//8874 Lamnt02 - Stop, make it stop!
-//8875 Lamnt03 - Help me! Save me!
-//8876 Lamnt04 - Please, nooo!
-//8872 greet - You are too late... I... must... OBEY!
-//8867 aggro1 - KILL!
-//8868 aggro2 - EAT YOUR BONES!
-//8869 aggro3 - BREAK YOU!
-//8871 elect - Now YOU feel pain!
-//8877 slay - You die now!
-//8870 die - Thank... you...
+#define SAY_GREET               -1533029
+#define SAY_AGGRO1              -1533030
+#define SAY_AGGRO2              -1533031
+#define SAY_AGGRO3              -1533032
+#define SAY_SLAY                -1533033
+#define SAY_ELECT               -1533034
+#define SAY_DEATH               -1533035
+#define SAY_SCREAM1             -1533036
+#define SAY_SCREAM2             -1533037
+#define SAY_SCREAM3             -1533038
+#define SAY_SCREAM4             -1533039
 
 #define SPELL_BALL_LIGHTNING                28299
 
@@ -44,6 +61,10 @@ EndScriptData */
 #define SPELL_CHARGE_NEGATIVE_DMGBUFF       29660
 #define SPELL_CHARGE_NEGATIVE_NEARDMG       28084
 
-#define SPELL_CHAIN_LIGHTNING               28900
+#define SPELL_CHAIN_LIGHTNING               28167
+#define H_SPELL_CHAIN_LIGHTNING             54531
 
 #define SPELL_BESERK                        26662
+
+ //generic
+#define C_TESLA_COIL                        16218           //the coils (emotes "Tesla Coil overloads!")
