@@ -63,6 +63,7 @@
 #include "Util.h"
 #include "Language.h"
 #include "CreatureGroups.h"
+#include "Transports.h"
 
 INSTANTIATE_SINGLETON_1( World );
 
@@ -1356,6 +1357,9 @@ void World::SetInitialWorldSettings()
     //Not sure if this can be moved up in the sequence (with static data loading) as it uses MapManager
     sLog.outString( "Loading Transports..." );
     MapManager::Instance().LoadTransports();
+	
+	sLog.outString( "Loading Transports Events..." );
+	objmgr.LoadTransportEvents();
 
     sLog.outString("Deleting expired bans..." );
     loginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
@@ -1614,7 +1618,7 @@ void World::ScriptsStart(ScriptMapMap const& scripts, uint32 id, Object* source,
         return;
 
     // prepare static data
-    uint64 sourceGUID = source->GetGUID();
+	uint64 sourceGUID = source ? source->GetGUID() : (uint64)0; //some script commands doesn't have source
     uint64 targetGUID = target ? target->GetGUID() : (uint64)0;
     uint64 ownerGUID  = (source->GetTypeId()==TYPEID_ITEM) ? ((Item*)source)->GetOwnerGUID() : (uint64)0;
 
@@ -1643,7 +1647,7 @@ void World::ScriptCommandStart(ScriptInfo const& script, uint32 delay, Object* s
     // NOTE: script record _must_ exist until command executed
 
     // prepare static data
-    uint64 sourceGUID = source->GetGUID();
+    uint64 sourceGUID = source ? source->GetGUID() : (uint64)0;
     uint64 targetGUID = target ? target->GetGUID() : (uint64)0;
     uint64 ownerGUID  = (source->GetTypeId()==TYPEID_ITEM) ? ((Item*)source)->GetOwnerGUID() : (uint64)0;
 
@@ -1697,12 +1701,22 @@ void World::ScriptsProcess()
                     source = HashMapHolder<Player>::Find(step.sourceGUID);
                     break;
                 case HIGHGUID_GAMEOBJECT:
-                    source = HashMapHolder<GameObject>::Find(step.sourceGUID);
+					source = HashMapHolder<GameObject>::Find(step.sourceGUID);
                     break;
                 case HIGHGUID_CORPSE:
                     source = HashMapHolder<Corpse>::Find(step.sourceGUID);
                     break;
-                default:
+				case HIGHGUID_MO_TRANSPORT:
+					for (MapManager::TransportSet::iterator iter = MapManager::Instance().m_Transports.begin(); iter != MapManager::Instance().m_Transports.end(); ++iter)
+					{
+						if((*iter)->GetGUID() == step.sourceGUID)
+						{	
+							source = reinterpret_cast<Object*>(*iter);
+							break;
+						}
+					}
+					break;
+				default:
                     sLog.outError("*_script source with unsupported high guid value %u",GUID_HIPART(step.sourceGUID));
                     break;
             }
@@ -2294,11 +2308,12 @@ void World::ScriptsProcess()
 				else //check hashmap holders
 				{
 					if(CreatureData const* data = objmgr.GetCreatureData(step.script->datalong))
-						ObjectAccessor::GetObjectInWorld<Creature>(data->mapid, data->posX, data->posY, MAKE_NEW_GUID(step.script->datalong, data->id, HIGHGUID_UNIT), target);
+						target = ObjectAccessor::GetObjectInWorld<Creature>(data->mapid, data->posX, data->posY, MAKE_NEW_GUID(step.script->datalong, data->id, HIGHGUID_UNIT), target);
 				}
 				
 				if(!target)
 					break;
+				
 				//Lets choose our ScriptMap map
 				ScriptMapMap datamap;
 				switch(step.script->dataint)
@@ -2322,19 +2337,25 @@ void World::ScriptsProcess()
 						datamap = sWaypointScripts;
 						break;
 					default:
-						{
-							sLog.outError("SCRIPT_COMMAND_CALLSCRIPT ERROR: no scriptmap present... ignoring");
-							m_scriptSchedule.erase(iter);
-							return;	
-						}
+						sLog.outError("SCRIPT_COMMAND_CALLSCRIPT ERROR: no scriptmap present... ignoring");
+						m_scriptSchedule.erase(iter);
+						return;	
 				}
-				
 				uint32 script_id = step.script->datalong2;
-				
 				m_scriptSchedule.erase(iter);
 				ScriptsStart(datamap, script_id, target, NULL);
+				return;
 			}
 			
+			case SCRIPT_COMMAND_PLAYSOUND:
+			{
+				if(!source)
+					break;
+				//datalong sound_id, datalong2 onlyself
+				((WorldObject*)source)->SendPlaySound(step.script->datalong, step.script->datalong2);
+				break;
+			}
+
 			default:
                 sLog.outError("Unknown script command %u called.",step.script->command);
                 break;
