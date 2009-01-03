@@ -489,6 +489,7 @@ class ObjectMgr
         }
 
         AreaTrigger const* GetGoBackTrigger(uint32 Map) const;
+        AreaTrigger const* GetMapEntranceTrigger(uint32 Map) const;
 
         uint32 GetAreaTriggerScriptId(uint32 trigger_id);
 
