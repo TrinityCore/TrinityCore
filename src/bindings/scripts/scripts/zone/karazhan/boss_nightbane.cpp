@@ -87,6 +87,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 
     bool intro;
     bool flying;
+	bool movement;
     uint32 wait_timer;
     uint32 MovePhase;
 
@@ -116,6 +117,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 			pInstance->SetData(DATA_NIGHTBANE_EVENT, NOT_STARTED);
 
         flying = false;
+		movement = false;
 
         if(!intro)
         {
@@ -184,6 +186,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
             {
                 flying = false;
                 phase = 1;
+				movement = true;
                 return;
             }
 
@@ -239,7 +242,12 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
         //  Phase 1 "GROUND FIGHT"
         if(phase == 1)
         {
-			m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+			if(movement)
+			{
+				DoStartMovement(m_creature->getVictim());
+				movement = false;
+			}
+
 			if (bellowingroar_timer < diff)
                 {
                     DoCast(m_creature->getVictim(),SPELL_BELLOWING_ROAR);

@@ -157,24 +157,24 @@ struct TRINITY_DLL_DECL npc_custodian_of_timeAI : public npc_escortAI
 
         switch( i )
         {
-            case 0: DoWhisper(WHISPER_CUSTODIAN_1, pTemp); break;
-            case 1: DoWhisper(WHISPER_CUSTODIAN_2, pTemp); break;
-            case 2: DoWhisper(WHISPER_CUSTODIAN_3, pTemp); break;
-            case 3: DoWhisper(WHISPER_CUSTODIAN_4, pTemp); break;
-            case 5: DoWhisper(WHISPER_CUSTODIAN_5, pTemp); break;
-            case 6: DoWhisper(WHISPER_CUSTODIAN_6, pTemp); break;
-            case 7: DoWhisper(WHISPER_CUSTODIAN_7, pTemp); break;
-            case 8: DoWhisper(WHISPER_CUSTODIAN_8, pTemp); break;
-            case 9: DoWhisper(WHISPER_CUSTODIAN_9, pTemp); break;
-            case 10: DoWhisper(WHISPER_CUSTODIAN_4, pTemp); break;
-            case 13: DoWhisper(WHISPER_CUSTODIAN_10, pTemp); break;
-            case 14: DoWhisper(WHISPER_CUSTODIAN_4, pTemp); break;
-            case 16: DoWhisper(WHISPER_CUSTODIAN_11, pTemp); break;
-            case 17: DoWhisper(WHISPER_CUSTODIAN_12, pTemp); break;
-            case 18: DoWhisper(WHISPER_CUSTODIAN_4, pTemp); break;
-            case 22: DoWhisper(WHISPER_CUSTODIAN_13, pTemp); break;
-            case 23: DoWhisper(WHISPER_CUSTODIAN_4, pTemp); break;
-            case 24:
+            case 2: DoWhisper(WHISPER_CUSTODIAN_1, pTemp); break;
+            case 3: DoWhisper(WHISPER_CUSTODIAN_2, pTemp); break;
+            case 4: DoWhisper(WHISPER_CUSTODIAN_3, pTemp); break;
+            case 5: DoWhisper(WHISPER_CUSTODIAN_4, pTemp); break;
+            case 7: DoWhisper(WHISPER_CUSTODIAN_5, pTemp); break;
+            case 8: DoWhisper(WHISPER_CUSTODIAN_6, pTemp); break;
+            case 9: DoWhisper(WHISPER_CUSTODIAN_7, pTemp); break;
+            case 10: DoWhisper(WHISPER_CUSTODIAN_8, pTemp); break;
+            case 11: DoWhisper(WHISPER_CUSTODIAN_9, pTemp); break;
+            case 12: DoWhisper(WHISPER_CUSTODIAN_4, pTemp); break;
+            case 15: DoWhisper(WHISPER_CUSTODIAN_10, pTemp); break;
+            case 16: DoWhisper(WHISPER_CUSTODIAN_4, pTemp); break;
+            case 18: DoWhisper(WHISPER_CUSTODIAN_11, pTemp); break;
+            case 19: DoWhisper(WHISPER_CUSTODIAN_12, pTemp); break;
+            case 20: DoWhisper(WHISPER_CUSTODIAN_4, pTemp); break;
+            case 24: DoWhisper(WHISPER_CUSTODIAN_13, pTemp); break;
+            case 25: DoWhisper(WHISPER_CUSTODIAN_4, pTemp); break;
+            case 26:
                 DoWhisper(WHISPER_CUSTODIAN_14, pTemp);
                 DoCast(pTemp,34883);
                 //below here is temporary workaround, to be removed when spell works properly
@@ -214,32 +214,34 @@ CreatureAI* GetAI_npc_custodian_of_time(Creature *_Creature)
 {
     npc_custodian_of_timeAI* custodian_of_timeAI = new npc_custodian_of_timeAI(_Creature);
 
-    custodian_of_timeAI->AddWaypoint(0, -8374.93,-4250.21, -204.38,5000);
-    custodian_of_timeAI->AddWaypoint(1, -8374.93,-4250.21, -204.38,16000);
-    custodian_of_timeAI->AddWaypoint(2, -8374.93,-4250.21, -204.38,10000);
-    custodian_of_timeAI->AddWaypoint(3, -8374.93,-4250.21, -204.38,2000);
-    custodian_of_timeAI->AddWaypoint(4, -8439.40,-4180.05, -209.25);
-    custodian_of_timeAI->AddWaypoint(5, -8437.82,-4120.84, -208.59,10000);
-    custodian_of_timeAI->AddWaypoint(6, -8437.82,-4120.84, -208.59,16000);
-    custodian_of_timeAI->AddWaypoint(7, -8437.82,-4120.84, -208.59,13000);
-    custodian_of_timeAI->AddWaypoint(8, -8437.82,-4120.84, -208.59,18000);
-    custodian_of_timeAI->AddWaypoint(9, -8437.82,-4120.84, -208.59,15000);
-    custodian_of_timeAI->AddWaypoint(10, -8437.82,-4120.84, -208.59,2000);
-    custodian_of_timeAI->AddWaypoint(11, -8467.26,-4198.63, -214.21);
-    custodian_of_timeAI->AddWaypoint(12, -8667.76,-4252.13, -209.56);
-    custodian_of_timeAI->AddWaypoint(13, -8703.71,-4234.58, -209.5,14000);
-    custodian_of_timeAI->AddWaypoint(14, -8703.71,-4234.58, -209.5,2000);
-    custodian_of_timeAI->AddWaypoint(15, -8642.81,-4304.37, -209.57);
-    custodian_of_timeAI->AddWaypoint(16, -8649.06,-4394.36, -208.46,6000);
-    custodian_of_timeAI->AddWaypoint(17, -8649.06,-4394.36, -208.46,18000);
-    custodian_of_timeAI->AddWaypoint(18, -8649.06,-4394.36, -208.46,2000);
-    custodian_of_timeAI->AddWaypoint(19, -8468.72,-4437.67, -215.45);
-    custodian_of_timeAI->AddWaypoint(20, -8427.54,-4426, -211.13);
-    custodian_of_timeAI->AddWaypoint(21, -8364.83,-4393.32, -205.91);
-    custodian_of_timeAI->AddWaypoint(22, -8304.54,-4357.2, -208.2,18000);
-    custodian_of_timeAI->AddWaypoint(23, -8304.54,-4357.2, -208.2,2000);
-    custodian_of_timeAI->AddWaypoint(24, -8375.42,-4250.41, -205.14,5000);
-    custodian_of_timeAI->AddWaypoint(25, -8375.42,-4250.41, -205.14,5000);
+    custodian_of_timeAI->AddWaypoint(0, -8535.57,-4212.61, -212.04);
+    custodian_of_timeAI->AddWaypoint(1, -8456.48,-4211.77, -213.30);
+    custodian_of_timeAI->AddWaypoint(2, -8374.93,-4250.21, -205.05,5000);
+    custodian_of_timeAI->AddWaypoint(3, -8374.93,-4250.21, -204.38,16000);
+    custodian_of_timeAI->AddWaypoint(4, -8374.93,-4250.21, -204.38,10000);
+    custodian_of_timeAI->AddWaypoint(5, -8374.93,-4250.21, -204.38,2000);
+    custodian_of_timeAI->AddWaypoint(6, -8439.40,-4180.05, -209.25);
+    custodian_of_timeAI->AddWaypoint(7, -8437.82,-4120.84, -208.59,10000);
+    custodian_of_timeAI->AddWaypoint(8, -8437.82,-4120.84, -208.59,16000);
+    custodian_of_timeAI->AddWaypoint(9, -8437.82,-4120.84, -208.59,13000);
+    custodian_of_timeAI->AddWaypoint(10, -8437.82,-4120.84, -208.59,18000);
+    custodian_of_timeAI->AddWaypoint(11, -8437.82,-4120.84, -208.59,15000);
+    custodian_of_timeAI->AddWaypoint(12, -8437.82,-4120.84, -208.59,2000);
+    custodian_of_timeAI->AddWaypoint(13, -8467.26,-4198.63, -214.21);
+    custodian_of_timeAI->AddWaypoint(14, -8667.76,-4252.13, -209.56);
+    custodian_of_timeAI->AddWaypoint(15, -8703.71,-4234.58, -209.5,14000);
+    custodian_of_timeAI->AddWaypoint(16, -8703.71,-4234.58, -209.5,2000);
+    custodian_of_timeAI->AddWaypoint(17, -8642.81,-4304.37, -209.57);
+    custodian_of_timeAI->AddWaypoint(18, -8649.06,-4394.36, -208.46,6000);
+    custodian_of_timeAI->AddWaypoint(19, -8649.06,-4394.36, -208.46,18000);
+    custodian_of_timeAI->AddWaypoint(20, -8649.06,-4394.36, -208.46,2000);
+    custodian_of_timeAI->AddWaypoint(21, -8468.72,-4437.67, -215.45);
+    custodian_of_timeAI->AddWaypoint(22, -8427.54,-4426, -211.13);
+    custodian_of_timeAI->AddWaypoint(23, -8364.83,-4393.32, -205.91);
+    custodian_of_timeAI->AddWaypoint(24, -8304.54,-4357.2, -208.2,18000);
+    custodian_of_timeAI->AddWaypoint(25, -8304.54,-4357.2, -208.2,2000);
+    custodian_of_timeAI->AddWaypoint(26, -8375.42,-4250.41, -205.14,5000);
+    custodian_of_timeAI->AddWaypoint(27, -8375.42,-4250.41, -205.14,5000);
 
     return (CreatureAI*)custodian_of_timeAI;
 }
