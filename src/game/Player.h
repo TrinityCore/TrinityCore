@@ -733,10 +733,10 @@ enum QuestBagSlots
 
 struct ItemPosCount
 {
-    ItemPosCount(uint16 _pos, uint8 _count) : pos(_pos), count(_count) {}
+    ItemPosCount(uint16 _pos, uint32 _count) : pos(_pos), count(_count) {}
     bool isContainedIn(std::vector<ItemPosCount> const& vec) const;
     uint16 pos;
-    uint8 count;
+    uint32 count;
 };
 typedef std::vector<ItemPosCount> ItemPosCountVec;
 
