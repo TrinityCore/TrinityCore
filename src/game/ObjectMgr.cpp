@@ -7655,3 +7655,39 @@ ObjectMgr::ScriptNameMap & GetScriptNames()
 {
     return objmgr.GetScriptNames();
 }
+
+void ObjectMgr::LoadTransportEvents()
+{
+	
+	QueryResult *result = WorldDatabase.Query("SELECT entry, waypoint_id, event_id FROM transport_events");
+
+    if( !result )
+    {
+        barGoLink bar1( 1 );
+        bar1.step();
+		sLog.outString( "\n>> Transport events table is empty \n" );
+        return;
+    }
+
+	barGoLink bar1( result->GetRowCount() );
+
+    do
+    {
+        bar1.step();
+		
+		Field *fields = result->Fetch();
+		
+		//Load event values
+        uint32 entry = fields[0].GetUInt32();
+        uint32 waypoint_id = fields[1].GetUInt32();
+		uint32 event_id = fields[2].GetUInt32();
+		
+		uint32 event_count = (entry*100)+waypoint_id;
+		TransportEventMap[event_count] = event_id;
+	}
+	while(result->NextRow());
+		
+	sLog.outString( "\n>> Loaded %u transport events \n", result->GetRowCount() );
+
+	delete result;
+}
