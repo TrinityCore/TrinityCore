@@ -130,20 +130,20 @@ CreatureAI* GetAI_mob_aquementas(Creature *_Creature)
 ## npc_custodian_of_time
 ######*/
 
-#define WHISPER_CUSTODIAN_1     "Greetings, $N. I will guide you through the cavern. Please try and keep up."
-#define WHISPER_CUSTODIAN_2     "We do not know if the Caverns of Time have always been accessible to mortals. Truly, it is impossible to tell as the Timeless One is in perpetual motion, changing our timeways as he sees fit. What you see now may very well not exist tomorrow. You may wake up and have no memory of this place."
-#define WHISPER_CUSTODIAN_3     "It is strange, I know... Most mortals cannot actually comprehend what they see here, as often, what they see is not anchored within their own perception of reality."
-#define WHISPER_CUSTODIAN_4     "Follow me, please."
-#define WHISPER_CUSTODIAN_5     "There are only two truths to be found here: First, that time is chaotic, always in flux, and completely malleable and second, perception does not dictate reality."
-#define WHISPER_CUSTODIAN_6     "As custodians of time, we watch over and care for Nozdormu's realm. The master is away at the moment, which means that attempts are being made to dramatically alter time. The master never meddles in the affairs of mortals but instead corrects the alterations made to time by others. He is reactionary in this regard."
-#define WHISPER_CUSTODIAN_7     "For normal maintenance of time, the Keepers of Time are sufficient caretakers. We are able to deal with most ordinary disturbances. I speak of little things, such as rogue mages changing something in the past to elevate their status or wealth in the present."
-#define WHISPER_CUSTODIAN_8     "These tunnels that you see are called timeways. They are infinite in number. The ones that currently exist in your reality are what the master has deemed as 'trouble spots.' These trouble spots may differ completely in theme but they always share a cause. That is, their existence is a result of the same temporal disturbance. Remember that should you venture inside one..."
-#define WHISPER_CUSTODIAN_9     "This timeway is in great disarray! We have agents inside right now attempting to restore order. What information I have indicates that Thrall's freedom is in jeopardy. A malevolent organization known as the Infinite Dragonflight is trying to prevent his escape. I fear without outside assistance, all will be lost."
-#define WHISPER_CUSTODIAN_10    "We have very little information on this timeway. Sa'at has been dispatched and is currently inside. The data we have gathered from his correspondence is that the Infinite Dragonflight are once again attempting to alter time. Could it be that the opening of the Dark Portal is being targeted for sabotage? Let us hope not..."
-#define WHISPER_CUSTODIAN_11    "This timeway is currently collapsing. What that may hold for the past, present and future is currently unknown..."
-#define WHISPER_CUSTODIAN_12    "The timeways are currently ranked in order from least catastrophic to most catastrophic. Note that they are all classified as catastrophic, meaning that any single one of these timeways collapsing would mean that your world would end. We only classify them in such a way so that the heroes and adventurers that are sent here know which timeway best suits their abilities."
-#define WHISPER_CUSTODIAN_13    "All we know of this timeway is that it leads to Mount Hyjal. The Infinite Dragonflight have gone to great lengths to prevent our involvement. We know next to nothing, mortal. Soridormi is currently attempting to break through the timeway's defenses but has thus far been unsuccessful. You might be our only hope of breaking through and resolving the conflict."
-#define WHISPER_CUSTODIAN_14    "Our time is at an end $N. I would wish you luck, if such a thing existed."
+#define WHISPER_CUSTODIAN_1     -1000150
+#define WHISPER_CUSTODIAN_2     -1000151
+#define WHISPER_CUSTODIAN_3     -1000152
+#define WHISPER_CUSTODIAN_4     -1000153
+#define WHISPER_CUSTODIAN_5     -1000154
+#define WHISPER_CUSTODIAN_6     -1000155
+#define WHISPER_CUSTODIAN_7     -1000156
+#define WHISPER_CUSTODIAN_8     -1000157
+#define WHISPER_CUSTODIAN_9     -1000158
+#define WHISPER_CUSTODIAN_10    -1000159
+#define WHISPER_CUSTODIAN_11    -1000160
+#define WHISPER_CUSTODIAN_12    -1000161
+#define WHISPER_CUSTODIAN_13    -1000162
+#define WHISPER_CUSTODIAN_14    -1000163
 
 struct TRINITY_DLL_DECL npc_custodian_of_timeAI : public npc_escortAI
 {
@@ -157,25 +157,25 @@ struct TRINITY_DLL_DECL npc_custodian_of_timeAI : public npc_escortAI
 
         switch( i )
         {
-            case 0: DoWhisper(WHISPER_CUSTODIAN_1, pTemp); break;
-            case 1: DoWhisper(WHISPER_CUSTODIAN_2, pTemp); break;
-            case 2: DoWhisper(WHISPER_CUSTODIAN_3, pTemp); break;
-            case 3: DoWhisper(WHISPER_CUSTODIAN_4, pTemp); break;
-            case 5: DoWhisper(WHISPER_CUSTODIAN_5, pTemp); break;
-            case 6: DoWhisper(WHISPER_CUSTODIAN_6, pTemp); break;
-            case 7: DoWhisper(WHISPER_CUSTODIAN_7, pTemp); break;
-            case 8: DoWhisper(WHISPER_CUSTODIAN_8, pTemp); break;
-            case 9: DoWhisper(WHISPER_CUSTODIAN_9, pTemp); break;
-            case 10: DoWhisper(WHISPER_CUSTODIAN_4, pTemp); break;
-            case 13: DoWhisper(WHISPER_CUSTODIAN_10, pTemp); break;
-            case 14: DoWhisper(WHISPER_CUSTODIAN_4, pTemp); break;
-            case 16: DoWhisper(WHISPER_CUSTODIAN_11, pTemp); break;
-            case 17: DoWhisper(WHISPER_CUSTODIAN_12, pTemp); break;
-            case 18: DoWhisper(WHISPER_CUSTODIAN_4, pTemp); break;
-            case 22: DoWhisper(WHISPER_CUSTODIAN_13, pTemp); break;
-            case 23: DoWhisper(WHISPER_CUSTODIAN_4, pTemp); break;
-            case 24:
-                DoWhisper(WHISPER_CUSTODIAN_14, pTemp);
+			case 2: DoScriptText(WHISPER_CUSTODIAN_1, m_creature, pTemp); break;
+            case 3: DoScriptText(WHISPER_CUSTODIAN_2, m_creature, pTemp); break;
+            case 4: DoScriptText(WHISPER_CUSTODIAN_3, m_creature, pTemp); break;
+            case 5: DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pTemp); break;
+            case 7: DoScriptText(WHISPER_CUSTODIAN_5, m_creature, pTemp); break;
+            case 8: DoScriptText(WHISPER_CUSTODIAN_6, m_creature, pTemp); break;
+            case 9: DoScriptText(WHISPER_CUSTODIAN_7, m_creature, pTemp); break;
+            case 10: DoScriptText(WHISPER_CUSTODIAN_8, m_creature, pTemp); break;
+            case 11: DoScriptText(WHISPER_CUSTODIAN_9, m_creature, pTemp); break;
+            case 12: DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pTemp); break;
+            case 15: DoScriptText(WHISPER_CUSTODIAN_10, m_creature, pTemp); break;
+            case 16: DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pTemp); break;
+            case 18: DoScriptText(WHISPER_CUSTODIAN_11, m_creature, pTemp); break;
+            case 19: DoScriptText(WHISPER_CUSTODIAN_12, m_creature, pTemp); break;
+            case 20: DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pTemp); break;
+            case 24: DoScriptText(WHISPER_CUSTODIAN_13, m_creature, pTemp); break;
+            case 25: DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pTemp); break;
+            case 26:
+                DoScriptText(WHISPER_CUSTODIAN_14, m_creature, pTemp);
                 DoCast(pTemp,34883);
                 //below here is temporary workaround, to be removed when spell works properly
                 ((Player*)pTemp)->AreaExploredOrEventHappens(10277);
@@ -214,32 +214,34 @@ CreatureAI* GetAI_npc_custodian_of_time(Creature *_Creature)
 {
     npc_custodian_of_timeAI* custodian_of_timeAI = new npc_custodian_of_timeAI(_Creature);
 
-    custodian_of_timeAI->AddWaypoint(0, -8374.93,-4250.21, -204.38,5000);
-    custodian_of_timeAI->AddWaypoint(1, -8374.93,-4250.21, -204.38,16000);
-    custodian_of_timeAI->AddWaypoint(2, -8374.93,-4250.21, -204.38,10000);
-    custodian_of_timeAI->AddWaypoint(3, -8374.93,-4250.21, -204.38,2000);
-    custodian_of_timeAI->AddWaypoint(4, -8439.40,-4180.05, -209.25);
-    custodian_of_timeAI->AddWaypoint(5, -8437.82,-4120.84, -208.59,10000);
-    custodian_of_timeAI->AddWaypoint(6, -8437.82,-4120.84, -208.59,16000);
-    custodian_of_timeAI->AddWaypoint(7, -8437.82,-4120.84, -208.59,13000);
-    custodian_of_timeAI->AddWaypoint(8, -8437.82,-4120.84, -208.59,18000);
-    custodian_of_timeAI->AddWaypoint(9, -8437.82,-4120.84, -208.59,15000);
-    custodian_of_timeAI->AddWaypoint(10, -8437.82,-4120.84, -208.59,2000);
-    custodian_of_timeAI->AddWaypoint(11, -8467.26,-4198.63, -214.21);
-    custodian_of_timeAI->AddWaypoint(12, -8667.76,-4252.13, -209.56);
-    custodian_of_timeAI->AddWaypoint(13, -8703.71,-4234.58, -209.5,14000);
-    custodian_of_timeAI->AddWaypoint(14, -8703.71,-4234.58, -209.5,2000);
-    custodian_of_timeAI->AddWaypoint(15, -8642.81,-4304.37, -209.57);
-    custodian_of_timeAI->AddWaypoint(16, -8649.06,-4394.36, -208.46,6000);
-    custodian_of_timeAI->AddWaypoint(17, -8649.06,-4394.36, -208.46,18000);
-    custodian_of_timeAI->AddWaypoint(18, -8649.06,-4394.36, -208.46,2000);
-    custodian_of_timeAI->AddWaypoint(19, -8468.72,-4437.67, -215.45);
-    custodian_of_timeAI->AddWaypoint(20, -8427.54,-4426, -211.13);
-    custodian_of_timeAI->AddWaypoint(21, -8364.83,-4393.32, -205.91);
-    custodian_of_timeAI->AddWaypoint(22, -8304.54,-4357.2, -208.2,18000);
-    custodian_of_timeAI->AddWaypoint(23, -8304.54,-4357.2, -208.2,2000);
-    custodian_of_timeAI->AddWaypoint(24, -8375.42,-4250.41, -205.14,5000);
-    custodian_of_timeAI->AddWaypoint(25, -8375.42,-4250.41, -205.14,5000);
+    custodian_of_timeAI->AddWaypoint(0, -8535.57,-4212.61, -212.04);
+    custodian_of_timeAI->AddWaypoint(1, -8456.48,-4211.77, -213.30);
+    custodian_of_timeAI->AddWaypoint(2, -8374.93,-4250.21, -205.05,5000);
+    custodian_of_timeAI->AddWaypoint(3, -8374.93,-4250.21, -204.38,16000);
+    custodian_of_timeAI->AddWaypoint(4, -8374.93,-4250.21, -204.38,10000);
+    custodian_of_timeAI->AddWaypoint(5, -8374.93,-4250.21, -204.38,2000);
+    custodian_of_timeAI->AddWaypoint(6, -8439.40,-4180.05, -209.25);
+    custodian_of_timeAI->AddWaypoint(7, -8437.82,-4120.84, -208.59,10000);
+    custodian_of_timeAI->AddWaypoint(8, -8437.82,-4120.84, -208.59,16000);
+    custodian_of_timeAI->AddWaypoint(9, -8437.82,-4120.84, -208.59,13000);
+    custodian_of_timeAI->AddWaypoint(10, -8437.82,-4120.84, -208.59,18000);
+    custodian_of_timeAI->AddWaypoint(11, -8437.82,-4120.84, -208.59,15000);
+    custodian_of_timeAI->AddWaypoint(12, -8437.82,-4120.84, -208.59,2000);
+    custodian_of_timeAI->AddWaypoint(13, -8467.26,-4198.63, -214.21);
+    custodian_of_timeAI->AddWaypoint(14, -8667.76,-4252.13, -209.56);
+    custodian_of_timeAI->AddWaypoint(15, -8703.71,-4234.58, -209.5,14000);
+    custodian_of_timeAI->AddWaypoint(16, -8703.71,-4234.58, -209.5,2000);
+    custodian_of_timeAI->AddWaypoint(17, -8642.81,-4304.37, -209.57);
+    custodian_of_timeAI->AddWaypoint(18, -8649.06,-4394.36, -208.46,6000);
+    custodian_of_timeAI->AddWaypoint(19, -8649.06,-4394.36, -208.46,18000);
+    custodian_of_timeAI->AddWaypoint(20, -8649.06,-4394.36, -208.46,2000);
+    custodian_of_timeAI->AddWaypoint(21, -8468.72,-4437.67, -215.45);
+    custodian_of_timeAI->AddWaypoint(22, -8427.54,-4426, -211.13);
+    custodian_of_timeAI->AddWaypoint(23, -8364.83,-4393.32, -205.91);
+    custodian_of_timeAI->AddWaypoint(24, -8304.54,-4357.2, -208.2,18000);
+    custodian_of_timeAI->AddWaypoint(25, -8304.54,-4357.2, -208.2,2000);
+    custodian_of_timeAI->AddWaypoint(26, -8375.42,-4250.41, -205.14,5000);
+    custodian_of_timeAI->AddWaypoint(27, -8375.42,-4250.41, -205.14,5000);
 
     return (CreatureAI*)custodian_of_timeAI;
 }
