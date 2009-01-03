@@ -323,7 +323,9 @@ class ObjectMgr
 
         typedef std::vector<std::string> ScriptNameMap;
 
-        Player* GetPlayer(const char* name) const { return ObjectAccessor::Instance().FindPlayerByName(name);}
+		UNORDERED_MAP<uint32, uint32> TransportEventMap;
+        
+		Player* GetPlayer(const char* name) const { return ObjectAccessor::Instance().FindPlayerByName(name);}
         Player* GetPlayer(uint64 guid) const { return ObjectAccessor::FindPlayer(guid); }
 
         static GameObjectInfo const *GetGameObjectInfo(uint32 id) { return sGOStorage.LookupEntry<GameObjectInfo>(id); }
@@ -536,6 +538,8 @@ class ObjectMgr
         void LoadEventScripts();
         void LoadSpellScripts();
 		void LoadWaypointScripts();
+		
+		void LoadTransportEvents();
 
         bool LoadTrinityStrings(DatabaseType& db, char const* table, int32 min_value, int32 max_value);
         bool LoadTrinityStrings() { return LoadTrinityStrings(WorldDatabase,"trinity_string",MIN_TRINITY_STRING_ID,MAX_TRINITY_STRING_ID); }
@@ -592,7 +596,7 @@ class ObjectMgr
         void LoadVendors();
         void LoadTrainerSpell();
         void LoadCompletedAchievements();
-
+		
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint32 level);
 

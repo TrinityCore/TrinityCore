@@ -29,6 +29,8 @@
 #include "Database/DBCStores.h"
 #include "ProgressBar.h"
 
+#include "World.h"
+
 void MapManager::LoadTransports()
 {
     QueryResult *result = WorldDatabase.Query("SELECT entry, name, period FROM transports");
@@ -317,7 +319,7 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids)
     if (keyFrames[keyFrames.size() - 1].mapid != keyFrames[0].mapid)
         teleport = true;
 
-    WayPoint pos(keyFrames[0].mapid, keyFrames[0].x, keyFrames[0].y, keyFrames[0].z, teleport);
+    WayPoint pos(keyFrames[0].mapid, keyFrames[0].x, keyFrames[0].y, keyFrames[0].z, teleport, 0);
     m_WayPoints[0] = pos;
     t += keyFrames[0].delay * 1000;
 
@@ -351,7 +353,7 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids)
                     }
 
                     //                    sLog.outString("T: %d, D: %f, x: %f, y: %f, z: %f", t, d, newX, newY, newZ);
-                    WayPoint pos(keyFrames[i].mapid, newX, newY, newZ, teleport);
+                    WayPoint pos(keyFrames[i].mapid, newX, newY, newZ, teleport, i);
                     if (teleport)
                         m_WayPoints[t] = pos;
                 }
@@ -397,13 +399,13 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids)
             cM = keyFrames[i + 1].mapid;
         }
 
-        WayPoint pos(keyFrames[i + 1].mapid, keyFrames[i + 1].x, keyFrames[i + 1].y, keyFrames[i + 1].z, teleport);
+        WayPoint pos(keyFrames[i + 1].mapid, keyFrames[i + 1].x, keyFrames[i + 1].y, keyFrames[i + 1].z, teleport, i);
 
         //        sLog.outString("T: %d, x: %f, y: %f, z: %f, t:%d", t, pos.x, pos.y, pos.z, teleport);
-
+/*
 		if(keyFrames[i+1].delay > 5)
 			pos.delayed = true;
-
+*/
         //if (teleport)
         m_WayPoints[t] = pos;
 
@@ -486,6 +488,13 @@ bool Transport::RemovePassenger(Player* passenger)
     return true;
 }
 
+void Transport::CheckForEvent(uint32 entry, uint32 wp_id)
+{
+	uint32 key = entry*100+wp_id;
+	if(objmgr.TransportEventMap.find(key) != objmgr.TransportEventMap.end())
+		sWorld.ScriptsStart(sEventScripts, objmgr.TransportEventMap[key], this, NULL);
+}
+
 void Transport::Update(uint32 /*p_time*/)
 {
     if (m_WayPoints.size() <= 1)
@@ -507,7 +516,7 @@ void Transport::Update(uint32 /*p_time*/)
             //MapManager::Instance().GetMap(m_curr->second.mapid)->GameobjectRelocation((GameObject *)this, m_curr->second.x, m_curr->second.y, m_curr->second.z, this->m_orientation);
             Relocate(m_curr->second.x, m_curr->second.y, m_curr->second.z);
         }
-
+/*
 		if(m_curr->second.delayed)
 		{
 			switch (GetEntry())
@@ -527,7 +536,7 @@ void Transport::Update(uint32 /*p_time*/)
 					SendPlaySound(5154, false); break;		// ShipDocked
 			}
 		}
-
+*/
         /*
         for(PlayerSet::iterator itr = m_passengers.begin(); itr != m_passengers.end();)
         {
@@ -548,5 +557,9 @@ void Transport::Update(uint32 /*p_time*/)
 
         if ((sLog.getLogFilter() & LOG_FILTER_TRANSPORT_MOVES)==0)
             sLog.outDetail("%s moved to %f %f %f %d", this->m_name.c_str(), m_curr->second.x, m_curr->second.y, m_curr->second.z, m_curr->second.mapid);
-    }
+    
+		//Transport Event System
+		CheckForEvent(this->GetEntry(), m_curr->second.id);
+		sLog.outDetail("%s is at wp id: %u", this->m_name.c_str(), m_curr->second.id);
+	}
 }
