@@ -1800,10 +1800,21 @@ void ObjectMgr::LoadItemPrototypes()
         else if(proto->RequiredReputationRank > MIN_REPUTATION_RANK)
             sLog.outErrorDb("Item (Entry: %u) has RequiredReputationFaction ==0 but RequiredReputationRank > 0, rank setting is useless.",i);
 
+        if(proto->MaxCount < -1)
+        {
+            sLog.outErrorDb("Item (Entry: %u) has too large negative in maxcount (%i), replace by value (-1) no storing limits.",i,proto->MaxCount);
+            const_cast<ItemPrototype*>(proto)->MaxCount = -1;
+        }
+
         if(proto->Stackable==0)
         {
-            sLog.outErrorDb("Item (Entry: %u) has wrong value in stackable (%u), replace by default 1.",i,proto->Stackable);
+            sLog.outErrorDb("Item (Entry: %u) has wrong value in stackable (%i), replace by default 1.",i,proto->Stackable);
             const_cast<ItemPrototype*>(proto)->Stackable = 1;
+        }
+        else if(proto->Stackable < -1)
+        {
+            sLog.outErrorDb("Item (Entry: %u) has too large negative in stackable (%i), replace by value (-1) no stacking limits.",i,proto->Stackable);
+            const_cast<ItemPrototype*>(proto)->Stackable = -1;
         }
         else if(proto->Stackable > 255)
         {
