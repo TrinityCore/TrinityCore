@@ -3974,7 +3974,7 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
         case SPELLFAMILY_GENERIC:
         {
             // Pounce Bleed
-            if ( m_spellProto->SpellIconID == 147 && m_spellProto->SpellVisual == 0 )
+            if ( m_spellProto->SpellIconID == 147 && m_spellProto->SpellVisual[0] == 0 )
             {
                 // $AP*0.18/6 bonus per tick
                 if (apply && !loading && caster)
