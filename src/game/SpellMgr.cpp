@@ -2159,6 +2159,7 @@ void SpellMgr::LoadSpellCustomAttr()
 		case 37790: //Spread Shot
 		case 46771: //Flame Sear
 		case 45248: //Shadow Blades
+		case 39835: //Needle Spine
             spellInfo->MaxAffectedTargets = 3;
             break;
 		case 38310: //Multi-Shot
