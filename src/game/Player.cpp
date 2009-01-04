@@ -3748,7 +3748,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     CharacterDatabase.PExecute("DELETE FROM character_achievement_progress WHERE guid = '%u'",guid);
     CharacterDatabase.CommitTransaction();
 
-    //loginDatabase.PExecute("UPDATE realmcharacters SET numchars = numchars - 1 WHERE acctid = %d AND realmid = %d", accountId, realmID);
+    //LoginDatabase.PExecute("UPDATE realmcharacters SET numchars = numchars - 1 WHERE acctid = %d AND realmid = %d", accountId, realmID);
     if(updateRealmChars) sWorld.UpdateRealmCharCount(accountId);
 }
 
@@ -3815,7 +3815,7 @@ void Player::BuildPlayerRepop()
     // BG - remove insignia related
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
 
-    SendCorpseReclaimDelay();
+//    SendCorpseReclaimDelay();
 
     // to prevent cheating
     corpse->ResetGhostTime();
@@ -3923,6 +3923,7 @@ void Player::KillPlayer()
     m_deathTimer = 6*MINUTE*1000;
 
     UpdateCorpseReclaimDelay();                             // dependent at use SetDeathPvP() call before kill
+    SendCorpseReclaimDelay();
 
     // don't create corpse at this moment, player might be falling
 
@@ -19283,7 +19284,8 @@ uint32 Player::GetCorpseReclaimDelay(bool pvp) const
 
     time_t now = time(NULL);
     // 0..2 full period
-    uint32 count = (now < m_deathExpireTime) ? (m_deathExpireTime - now)/DEATH_EXPIRE_STEP : 0;
+    // should be ceil(x)-1 but not floor(x)
+    uint32 count = (now < m_deathExpireTime - 1) ? (m_deathExpireTime - 1 - now)/DEATH_EXPIRE_STEP : 0;
     return copseReclaimDelay[count];
 }
 
@@ -19312,16 +19314,20 @@ void Player::UpdateCorpseReclaimDelay()
 void Player::SendCorpseReclaimDelay(bool load)
 {
     Corpse* corpse = GetCorpse();
-    if(!corpse)
+    if(load && !corpse)
         return;
+
+    bool pvp;
+    if(corpse)
+        pvp = (corpse->GetType() == CORPSE_RESURRECTABLE_PVP);
+    else
+        pvp = (m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH);
 
     uint32 delay;
     if(load)
     {
         if(corpse->GetGhostTime() > m_deathExpireTime)
             return;
-
-        bool pvp = corpse->GetType()==CORPSE_RESURRECTABLE_PVP;
 
         uint32 count;
         if( pvp && sWorld.getConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVP) ||
@@ -19343,7 +19349,7 @@ void Player::SendCorpseReclaimDelay(bool load)
         delay = expected_time-now;
     }
     else
-        delay = GetCorpseReclaimDelay(corpse->GetType()==CORPSE_RESURRECTABLE_PVP);
+        delay = GetCorpseReclaimDelay(pvp);
 
     //! corpse reclaim delay 30 * 1000ms or longer at often deaths
     WorldPacket data(SMSG_CORPSE_RECLAIM_DELAY, 4);

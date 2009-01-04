@@ -24,13 +24,9 @@
 #include "ObjectMgr.h"
 #include "Language.h"
 #include "Player.h"
-INSTANTIATE_SINGLETON_1( TicketMgr );
-
 #include "Common.h"
-//#include "Log.h"
 #include "ObjectAccessor.h"
-
-
+INSTANTIATE_SINGLETON_1( TicketMgr );
 
 GM_Ticket* TicketMgr::GetGMTicket(uint64 ticketGuid)
 {
@@ -106,7 +102,7 @@ void TicketMgr::DeleteGMTicketPermanently(uint64 ticketGuid)
 	}
 
 	// delete database record
-	CharacterDatabase.PExecute("DELETE FROM gm_tickets WHERE guid=%u", ticketGuid);
+	CharacterDatabase.PExecute("DELETE FROM `gm_tickets` WHERE guid= '%u'", ticketGuid);
 }
 
 
@@ -114,13 +110,13 @@ void TicketMgr::LoadGMTickets()
 {
 	// Delete all out of object holder
 	GM_TicketList.clear();
-	QueryResult *result = CharacterDatabase.Query( "SELECT `guid`, `playerGuid`, `name`, `message`, `timestamp`, `closed`, `assignedto`, `comment` FROM gm_tickets WHERE closed = '0'" );
+	QueryResult *result = CharacterDatabase.Query( "SELECT `guid`, `playerGuid`, `name`, `message`, `timestamp`, `closed`, `assignedto`, `comment` FROM `gm_tickets` WHERE `closed` = '0'" );
 	GM_Ticket *ticket;
 	
-	//ticket = NULL;
 	if(!result)
 		return;
 
+	// Assign values from SQL to the object holder
 	do
 	{
 		Field *fields = result->Fetch();
@@ -143,13 +139,13 @@ void TicketMgr::LoadGMTickets()
 	delete result;
 }
 
-void TicketMgr::RemoveGMTicket(uint64 ticketGuid)
+void TicketMgr::RemoveGMTicket(uint64 ticketGuid, uint64 GMguid)
 {
 	for(GmTicketList::iterator i = GM_TicketList.begin(); i != GM_TicketList.end();)
 	{
 		if((*i)->guid == ticketGuid && (*i)->closed == 0)
 		{
-			(*i)->closed = 1;
+			(*i)->closed = GMguid;
 			SaveGMTicket((*i));
 		}
 		++i;
@@ -157,13 +153,13 @@ void TicketMgr::RemoveGMTicket(uint64 ticketGuid)
 }
 
 
-void TicketMgr::RemoveGMTicketByPlayer(uint64 playerGuid)
+void TicketMgr::RemoveGMTicketByPlayer(uint64 playerGuid, uint64 GMguid)
 {
 	for(GmTicketList::iterator i = GM_TicketList.begin(); i != GM_TicketList.end();)
 	{
 		if((*i)->playerGuid == playerGuid && (*i)->closed == 0)
 		{
-			(*i)->closed = true;
+			(*i)->closed = GMguid;
 			SaveGMTicket((*i));
 		}
 		++i;
@@ -173,15 +169,15 @@ void TicketMgr::RemoveGMTicketByPlayer(uint64 playerGuid)
 void TicketMgr::SaveGMTicket(GM_Ticket* ticket)
 {
 	std::stringstream ss;
-	ss << "REPLACE INTO gm_tickets (`guid`, `playerGuid`, `name`, `message`, `timestamp`, `closed`, `assignedto`, `comment`) VALUES(";
-	ss << ticket->guid << ", ";
-	ss << ticket->playerGuid << ", '";
-	ss << ticket->name << "', '";
-	ss << ticket->message << "', " ;
-	ss << ticket->timestamp << ", ";
-	ss << ticket->closed << ", '";
-	ss << ticket->assignedToGM << "', '";
-	ss << ticket->comment << "');";
+	ss << "REPLACE INTO `gm_tickets` (`guid`, `playerGuid`, `name`, `message`, `timestamp`, `closed`, `assignedto`, `comment`) VALUES(\"";
+	ss << ticket->guid << "\", \"";
+	ss << ticket->playerGuid << "\", \"";
+	ss << ticket->name << "\", \"";
+	ss << ticket->message << "\", \"" ;
+	ss << ticket->timestamp << "\", \"";
+	ss << ticket->closed << "\", \"";
+	ss << ticket->assignedToGM << "\", \"";
+	ss << ticket->comment << "\");";
 
 	CharacterDatabase.BeginTransaction();
 	CharacterDatabase.Execute(ss.str().c_str());
@@ -203,5 +199,5 @@ uint64 TicketMgr::GenerateTicketID()
 		delete result;
 	}
 
-	return m_ticketid;
+	return ++m_ticketid;
 }
