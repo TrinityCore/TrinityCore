@@ -39,27 +39,13 @@ struct GM_Ticket
 	std::string comment;
 };
 
-enum GMticketType
-{
-	GM_TICKET_TYPE_STUCK				= 1,
-	GM_TICKET_TYPE_BEHAVIOR_HARASSMENT	= 2,
-	GM_TICKET_TYPE_GUILD				= 3,
-	GM_TICKET_TYPE_ITEM					= 4,
-	GM_TICKET_TYPE_ENVIRONMENTAL		= 5,
-	GM_TICKET_TYPE_NON_QUEST_CREEP		= 6,
-	GM_TICKET_TYPE_QUEST_QUEST_NPC		= 7,
-	GM_TICKET_TYPE_TECHNICAL			= 8,
-	GM_TICKET_TYPE_ACCOUNT_BILLING		= 9,
-	GM_TICKET_TYPE_CHARACTER			= 10
-};
-
 // Map Typedef
 typedef std::list<GM_Ticket*>                                       GmTicketList;
 
 class TicketMgr
 {
 	public:
-		TicketMgr(){}	//constructor
+		TicketMgr(){m_ticketid = 1;}	//constructor
 		~TicketMgr(){}	//destructor
 
 		// Object Holder
@@ -69,8 +55,8 @@ class TicketMgr
 		void DeleteAllRemovedGMTickets();
 		void DeleteGMTicketPermanently(uint64 ticketGuid);
 		void LoadGMTickets();
-		void RemoveGMTicketByPlayer(uint64 playerGuid);
-		void RemoveGMTicket(uint64 ticketGuid);
+		void RemoveGMTicketByPlayer(uint64 playerGuid, uint64 GMguid);
+		void RemoveGMTicket(uint64 ticketGuid, uint64 GMguid);
 		void UpdateGMTicket(GM_Ticket *ticket);
 		void SaveGMTicket(GM_Ticket* ticket);
 		
