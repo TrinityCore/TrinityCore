@@ -485,6 +485,7 @@ class ChatHandler
         bool HandleBindSightCommand(const char* args);
         bool HandleUnbindSightCommand(const char* args);
         bool HandleSpawnVehicle(const char * args);
+        bool HandleSendLargePacketCommand(const char * args);
 
         Player*   getSelectedPlayer();
         Creature* getSelectedCreature();

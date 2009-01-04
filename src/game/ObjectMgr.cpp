@@ -1767,14 +1767,30 @@ void ObjectMgr::LoadItemPrototypes()
             const_cast<ItemPrototype*>(proto)->RequiredSkill = 0;
         }
 
-        if(!(proto->AllowableClass & CLASSMASK_ALL_PLAYABLE))
         {
-            sLog.outErrorDb("Item (Entry: %u) not have in `AllowableClass` any playable classes (%u) and can't be equipped.",i,proto->AllowableClass);
-        }
 
-        if(!(proto->AllowableRace & RACEMASK_ALL_PLAYABLE))
-        {
-            sLog.outErrorDb("Item (Entry: %u) not have in `AllowableRace` any playable races (%u) and can't be equipped.",i,proto->AllowableRace);
+            // can be used in equip slot, as page read use in inventory, or spell casting at use
+            bool req = proto->InventoryType!=INVTYPE_NON_EQUIP || proto->PageText;
+            if(!req)
+            {
+                for (int j = 0; j < 5; ++j)
+                {
+                    if(proto->Spells[j].SpellId)
+                    {
+                        req = true;
+                        break;
+                    }
+                }
+            }
+
+            if(req)
+            {
+                if(!(proto->AllowableClass & CLASSMASK_ALL_PLAYABLE))
+                    sLog.outErrorDb("Item (Entry: %u) not have in `AllowableClass` any playable classes (%u) and can't be equipped or use.",i,proto->AllowableClass);
+
+                if(!(proto->AllowableRace & RACEMASK_ALL_PLAYABLE))
+                    sLog.outErrorDb("Item (Entry: %u) not have in `AllowableRace` any playable races (%u) and can't be equipped or use.",i,proto->AllowableRace);
+            }
         }
 
         if(proto->RequiredSpell && !sSpellStore.LookupEntry(proto->RequiredSpell))
