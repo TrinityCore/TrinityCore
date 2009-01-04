@@ -764,7 +764,7 @@ bool ChatHandler::HandleAccountSetGmLevelCommand(const char* args)
             PSendSysMessage(LANG_YOURS_SECURITY_CHANGED, m_session->GetPlayer()->GetName(), gm);
         }
             
-        loginDatabase.PExecute("UPDATE account SET gmlevel = '%d' WHERE id = '%u'", gm, targetAccountId);
+        LoginDatabase.PExecute("UPDATE account SET gmlevel = '%d' WHERE id = '%u'", gm, targetAccountId);
         return true;
     }else
     {
@@ -805,7 +805,7 @@ bool ChatHandler::HandleAccountSetGmLevelCommand(const char* args)
         }
 
         PSendSysMessage(LANG_YOU_CHANGE_SECURITY, targetAccountName.c_str(), gm);
-        loginDatabase.PExecute("UPDATE account SET gmlevel = '%d' WHERE id = '%u'", gm, targetAccountId);
+        LoginDatabase.PExecute("UPDATE account SET gmlevel = '%d' WHERE id = '%u'", gm, targetAccountId);
         return true;
     }
 }
@@ -5213,7 +5213,7 @@ bool ChatHandler::HandleBanInfoCharacterCommand(const char* args)
 
 bool ChatHandler::HandleBanInfoHelper(uint32 accountid, char const* accountname)
 {
-    QueryResult *result = loginDatabase.PQuery("SELECT FROM_UNIXTIME(bandate), unbandate-bandate, active, unbandate,banreason,bannedby FROM account_banned WHERE id = '%u' ORDER BY bandate ASC",accountid);
+    QueryResult *result = LoginDatabase.PQuery("SELECT FROM_UNIXTIME(bandate), unbandate-bandate, active, unbandate,banreason,bannedby FROM account_banned WHERE id = '%u' ORDER BY bandate ASC",accountid);
     if(!result)
     {
         PSendSysMessage(LANG_BANINFO_NOACCOUNTBAN, accountname);
@@ -5253,8 +5253,8 @@ bool ChatHandler::HandleBanInfoIPCommand(const char* args)
 
     std::string IP = cIP;
 
-    loginDatabase.escape_string(IP);
-    QueryResult *result = loginDatabase.PQuery("SELECT ip, FROM_UNIXTIME(bandate), FROM_UNIXTIME(unbandate), unbandate-UNIX_TIMESTAMP(), banreason,bannedby,unbandate-bandate FROM ip_banned WHERE ip = '%s'",IP.c_str());
+    LoginDatabase.escape_string(IP);
+    QueryResult *result = LoginDatabase.PQuery("SELECT ip, FROM_UNIXTIME(bandate), FROM_UNIXTIME(unbandate), unbandate-UNIX_TIMESTAMP(), banreason,bannedby,unbandate-bandate FROM ip_banned WHERE ip = '%s'",IP.c_str());
     if(!result)
     {
         PSendSysMessage(LANG_BANINFO_NOIP);
@@ -5272,14 +5272,14 @@ bool ChatHandler::HandleBanInfoIPCommand(const char* args)
 
 bool ChatHandler::HandleBanListCharacterCommand(const char* args)
 {
-    loginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
+    LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
 
     char* cFilter = strtok ((char*)args, " ");
     if(!cFilter)
         return false;
 
     std::string filter = cFilter;
-    loginDatabase.escape_string(filter);
+    LoginDatabase.escape_string(filter);
     QueryResult* result = CharacterDatabase.PQuery("SELECT account FROM characters WHERE name "_LIKE_" "_CONCAT3_("'%%'","'%s'","'%%'"),filter.c_str());
     if (!result)
     {
@@ -5292,22 +5292,22 @@ bool ChatHandler::HandleBanListCharacterCommand(const char* args)
 
 bool ChatHandler::HandleBanListAccountCommand(const char* args)
 {
-    loginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
+    LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
 
     char* cFilter = strtok((char*)args, " ");
     std::string filter = cFilter ? cFilter : "";
-    loginDatabase.escape_string(filter);
+    LoginDatabase.escape_string(filter);
 
     QueryResult* result;
 
     if(filter.empty())
     {
-        result = loginDatabase.Query("SELECT account.id, username FROM account, account_banned"
+        result = LoginDatabase.Query("SELECT account.id, username FROM account, account_banned"
             " WHERE account.id = account_banned.id AND active = 1 GROUP BY account.id");
     }
     else
     {
-        result = loginDatabase.PQuery("SELECT account.id, username FROM account, account_banned"
+        result = LoginDatabase.PQuery("SELECT account.id, username FROM account, account_banned"
             " WHERE account.id = account_banned.id AND active = 1 AND username "_LIKE_" "_CONCAT3_("'%%'","'%s'","'%%'")" GROUP BY account.id",
             filter.c_str());
     }
@@ -5333,7 +5333,7 @@ bool ChatHandler::HandleBanListHelper(QueryResult* result)
             Field* fields = result->Fetch();
             uint32 accountid = fields[0].GetUInt32();
 
-            QueryResult* banresult = loginDatabase.PQuery("SELECT account.username FROM account,account_banned WHERE account_banned.id='%u' AND account_banned.id=account.id",accountid);
+            QueryResult* banresult = LoginDatabase.PQuery("SELECT account.username FROM account,account_banned WHERE account_banned.id='%u' AND account_banned.id=account.id",accountid);
             if(banresult)
             {
                 Field* fields2 = banresult->Fetch();
@@ -5364,7 +5364,7 @@ bool ChatHandler::HandleBanListHelper(QueryResult* result)
                 accmgr.GetName (account_id,account_name);
 
             // No SQL injection. id is uint32.
-            QueryResult *banInfo = loginDatabase.PQuery("SELECT bandate,unbandate,bannedby,banreason FROM account_banned WHERE id = %u ORDER BY unbandate", account_id);
+            QueryResult *banInfo = LoginDatabase.PQuery("SELECT bandate,unbandate,bannedby,banreason FROM account_banned WHERE id = %u ORDER BY unbandate", account_id);
             if (banInfo)
             {
                 Field *fields2 = banInfo->Fetch();
@@ -5401,23 +5401,23 @@ bool ChatHandler::HandleBanListHelper(QueryResult* result)
 
 bool ChatHandler::HandleBanListIPCommand(const char* args)
 {
-    loginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
+    LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
 
     char* cFilter = strtok((char*)args, " ");
     std::string filter = cFilter ? cFilter : "";
-    loginDatabase.escape_string(filter);
+    LoginDatabase.escape_string(filter);
 
     QueryResult* result;
 
     if(filter.empty())
     {
-        result = loginDatabase.Query ("SELECT ip,bandate,unbandate,bannedby,banreason FROM ip_banned"
+        result = LoginDatabase.Query ("SELECT ip,bandate,unbandate,bannedby,banreason FROM ip_banned"
             " WHERE (bandate=unbandate OR unbandate>UNIX_TIMESTAMP())"
             " ORDER BY unbandate" );
     }
     else
     {
-        result = loginDatabase.PQuery( "SELECT ip,bandate,unbandate,bannedby,banreason FROM ip_banned"
+        result = LoginDatabase.PQuery( "SELECT ip,bandate,unbandate,bannedby,banreason FROM ip_banned"
             " WHERE (bandate=unbandate OR unbandate>UNIX_TIMESTAMP()) AND ip "_LIKE_" "_CONCAT3_("'%%'","'%s'","'%%'")
             " ORDER BY unbandate",filter.c_str() );
     }
@@ -6205,7 +6205,7 @@ bool ChatHandler::HandleInstanceSaveDataCommand(const char * /*args*/)
 bool ChatHandler::HandleGMListFullCommand(const char* /*args*/)
 {
     ///- Get the accounts with GM Level >0
-    QueryResult *result = loginDatabase.Query( "SELECT username,gmlevel FROM account WHERE gmlevel > 0" );
+    QueryResult *result = LoginDatabase.Query( "SELECT username,gmlevel FROM account WHERE gmlevel > 0" );
     if(result)
     {
         SendSysMessage(LANG_GMLIST);
@@ -6284,7 +6284,7 @@ bool ChatHandler::HandleAccountSetAddonCommand(const char* args)
         return false;
 
     // No SQL injection
-    loginDatabase.PExecute("UPDATE account SET expansion = '%d' WHERE id = '%u'",lev,account_id);
+    LoginDatabase.PExecute("UPDATE account SET expansion = '%d' WHERE id = '%u'",lev,account_id);
     PSendSysMessage(LANG_ACCOUNT_SETADDON,account_name.c_str(),account_id,lev);
     return true;
 }

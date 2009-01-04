@@ -375,6 +375,7 @@ scripts/zone/temple_of_ahnqiraj/mob_anubisath_sentinel.cpp \
 scripts/zone/terokkar_forest/terokkar_forest.cpp \
 scripts/zone/thunder_bluff/thunder_bluff.cpp \
 scripts/zone/tirisfal_glades/tirisfal_glades.cpp \
+scripts/zone/thousand_needles/thousand_needles.cpp \
 scripts/zone/uldaman/boss_archaedas.cpp \
 scripts/zone/uldaman/instance_uldaman.cpp \
 scripts/zone/uldaman/boss_ironaya.cpp \

@@ -115,7 +115,7 @@ bool ChatHandler::HandleMuteCommand(const char* args)
     if (chr)
         chr->GetSession()->m_muteTime = mutetime;
 
-    loginDatabase.PExecute("UPDATE account SET mutetime = " I64FMTD " WHERE id = '%u'",uint64(mutetime), account_id );
+    LoginDatabase.PExecute("UPDATE account SET mutetime = " I64FMTD " WHERE id = '%u'",uint64(mutetime), account_id );
 
     if(chr)
         ChatHandler(chr).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notspeaktime);
@@ -188,7 +188,7 @@ bool ChatHandler::HandleUnmuteCommand(const char* args)
         chr->GetSession()->m_muteTime = 0;
     }
 
-    loginDatabase.PExecute("UPDATE account SET mutetime = '0' WHERE id = '%u'", account_id );
+    LoginDatabase.PExecute("UPDATE account SET mutetime = '0' WHERE id = '%u'", account_id );
 
     if(chr)
         ChatHandler(chr).PSendSysMessage(LANG_YOUR_CHAT_ENABLED);
@@ -1896,7 +1896,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     uint32 security = 0;
     std::string last_login = GetTrinityString(LANG_ERROR);
 
-    QueryResult* result = loginDatabase.PQuery("SELECT username,gmlevel,last_ip,last_login FROM account WHERE id = '%u'",accId);
+    QueryResult* result = LoginDatabase.PQuery("SELECT username,gmlevel,last_ip,last_login FROM account WHERE id = '%u'",accId);
     if(result)
     {
         Field* fields = result->Fetch();
@@ -3870,9 +3870,9 @@ bool ChatHandler::HandleLookupPlayerIpCommand(const char* args)
     char* limit_str = strtok (NULL, " ");
     int32 limit = limit_str ? atoi (limit_str) : -1;
 
-    loginDatabase.escape_string (ip);
+    LoginDatabase.escape_string (ip);
 
-    QueryResult* result = loginDatabase.PQuery ("SELECT id,username FROM account WHERE last_ip = '%s'", ip.c_str ());
+    QueryResult* result = LoginDatabase.PQuery ("SELECT id,username FROM account WHERE last_ip = '%s'", ip.c_str ());
 
     return LookupPlayerSearchCommand (result,limit);
 }
@@ -3889,9 +3889,9 @@ bool ChatHandler::HandleLookupPlayerAccountCommand(const char* args)
     if (!AccountMgr::normilizeString (account))
         return false;
 
-    loginDatabase.escape_string (account);
+    LoginDatabase.escape_string (account);
 
-    QueryResult* result = loginDatabase.PQuery ("SELECT id,username FROM account WHERE username = '%s'", account.c_str ());
+    QueryResult* result = LoginDatabase.PQuery ("SELECT id,username FROM account WHERE username = '%s'", account.c_str ());
 
     return LookupPlayerSearchCommand (result,limit);
 }
@@ -3906,9 +3906,9 @@ bool ChatHandler::HandleLookupPlayerEmailCommand(const char* args)
     char* limit_str = strtok (NULL, " ");
     int32 limit = limit_str ? atoi (limit_str) : -1;
 
-    loginDatabase.escape_string (email);
+    LoginDatabase.escape_string (email);
 
-    QueryResult* result = loginDatabase.PQuery ("SELECT id,username FROM account WHERE email = '%s'", email.c_str ());
+    QueryResult* result = LoginDatabase.PQuery ("SELECT id,username FROM account WHERE email = '%s'", email.c_str ());
 
     return LookupPlayerSearchCommand (result,limit);
 }
