@@ -18792,7 +18792,8 @@ uint32 Player::GetCorpseReclaimDelay(bool pvp) const
 
     time_t now = time(NULL);
     // 0..2 full period
-    uint32 count = (now < m_deathExpireTime) ? (m_deathExpireTime - now)/DEATH_EXPIRE_STEP : 0;
+    // should be ceil(x)-1 but not floor(x)
+    uint32 count = (now < m_deathExpireTime - 1) ? (m_deathExpireTime - 1 - now)/DEATH_EXPIRE_STEP : 0;
     return copseReclaimDelay[count];
 }
 
