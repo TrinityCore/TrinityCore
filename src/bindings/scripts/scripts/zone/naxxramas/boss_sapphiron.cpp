@@ -23,6 +23,9 @@ EndScriptData */
 
 #include "precompiled.h"
 
+#define EMOTE_BREATH            -1533082
+#define EMOTE_ENRAGE            -1533083
+
 #define SPELL_ICEBOLT           28522
 #define SPELL_FROST_BREATH      29318
 #define SPELL_FROST_AURA        28531
@@ -72,11 +75,9 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget())
+        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
 
-        if(m_creature->getVictim() && m_creature->isAlive())
-        {
             if(phase == 1)
             {
                 if(FrostAura_Timer < diff)
@@ -87,19 +88,15 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
 
                 if(LifeDrain_Timer < diff)
                 {
-                    Unit* target = NULL;
-                    target = SelectUnit(SELECT_TARGET_RANDOM,0);
-
-                    DoCast(target,SPELL_LIFE_DRAIN);
+					if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+						DoCast(target,SPELL_LIFE_DRAIN);
                     LifeDrain_Timer = 24000;
                 }else LifeDrain_Timer -= diff;
 
                 if(Blizzard_Timer < diff)
                 {
-                    Unit* target = NULL;
-                    target = SelectUnit(SELECT_TARGET_RANDOM,0);
-
-                    DoCast(target,SPELL_BLIZZARD);
+ 					if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+						DoCast(target,SPELL_BLIZZARD);
                     Blizzard_Timer = 20000;
                 }else Blizzard_Timer -= diff;
 
@@ -120,16 +117,14 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
                         landoff = false;
                     }else Fly_Timer -= diff;
                 }
+			}
 
                 if (phase == 2)
                 {
                     if(Icebolt_Timer < diff && Icebolt_Count < 5)
                     {
-                        Unit* target = NULL;
-
-                        target = SelectUnit(SELECT_TARGET_RANDOM,0);
-
-                        DoCast(target,SPELL_ICEBOLT);
+						if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+							DoCast(target,SPELL_ICEBOLT);
                         Icebolt_Count ++;
                         Icebolt_Timer = 4000;
                     }else Icebolt_Timer -= diff;
@@ -138,7 +133,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
                     {
                         if(FrostBreath_Timer < diff )
                         {
-                            DoTextEmote("takes a deep breath...",NULL);
+                            DoScriptText(EMOTE_BREATH, m_creature);
                             DoCast(m_creature->getVictim(),SPELL_FROST_BREATH);
                             land_Timer = 2000;
                             landoff = true;
@@ -161,26 +156,18 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
 
                 }
 
-                if ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() < 11)
+                if ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() <= 10)
                 {
                     if (Beserk_Timer < diff)
                     {
-                        DoTextEmote("enrages!",NULL);
+                        DoScriptText(EMOTE_ENRAGE, m_creature);
                         DoCast(m_creature,SPELL_BESERK);
                         Beserk_Timer = 300000;
                     }else Beserk_Timer -= diff;
                 }
 
-                if( phase!=2 && m_creature->getVictim() && m_creature->IsWithinMeleeRange(m_creature->getVictim()))
-                {
-                    if( m_creature->isAttackReady() )
-                    {
-                        m_creature->AttackerStateUpdate(m_creature->getVictim());
-                        m_creature->resetAttackTimer();
-                    }
-                }
-            }
-        }
+                 if (phase!=2)
+					 DoMeleeAttackIfReady();
     }
 };
 

@@ -31,6 +31,8 @@
 #define DATA_GAMEOBJECT_GAME_DOOR       24
 #define DATA_GAMEOBJECT_GAME_EXIT_DOOR  25
 #define DATA_IMAGE_OF_MEDIVH            26
+#define DATA_MASTERS_TERRACE_DOOR_1		27
+#define DATA_MASTERS_TERRACE_DOOR_2		28
 
 // Opera Performances
 #define EVENT_OZ        1

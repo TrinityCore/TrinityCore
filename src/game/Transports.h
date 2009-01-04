@@ -78,6 +78,7 @@ class Transport : private GameObject
         void Update(uint32 p_time);
         bool AddPassenger(Player* passenger);
         bool RemovePassenger(Player* passenger);
+		void CheckForEvent(uint32 entry, uint32 wp_id);
 
         typedef std::set<Player*> PlayerSet;
         PlayerSet const& GetPassengers() const { return m_passengers; }
@@ -86,15 +87,15 @@ class Transport : private GameObject
     private:
         struct WayPoint
         {
-            WayPoint() : mapid(0), x(0), y(0), z(0), teleport(false) {}
-            WayPoint(uint32 _mapid, float _x, float _y, float _z, bool _teleport) :
-            mapid(_mapid), x(_x), y(_y), z(_z), teleport(_teleport), delayed(false) {}
+            WayPoint() : mapid(0), x(0), y(0), z(0), teleport(false), id(0) {}
+            WayPoint(uint32 _mapid, float _x, float _y, float _z, bool _teleport, uint32 _id) :
+            mapid(_mapid), x(_x), y(_y), z(_z), teleport(_teleport), id(_id) {}
             uint32 mapid;
             float x;
             float y;
             float z;
             bool teleport;
-			bool delayed;
+			uint32 id;
         };
 
         typedef std::map<uint32, WayPoint> WayPointMap;
