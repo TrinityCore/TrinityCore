@@ -36,8 +36,6 @@ void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
 	// always do a packet check
     CHECK_PACKET_SIZE(recv_data, 4*4+1+2*4);
 
-    uint32 map;
-    float x, y, z;
     std::string ticketText = "";
 	std::string ticketText2 = "";
 	GM_Ticket *ticket = new GM_Ticket;
@@ -45,13 +43,9 @@ void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
 	WorldPacket data(SMSG_GMTICKET_CREATE, 4);
 
 	// recv Data
-	recv_data >> map;
-	recv_data >> x;
-	recv_data >> y;
-	recv_data >> z;
 	recv_data >> ticketText;
 
-	// get additional data
+	// get additional data, rarely used
 	recv_data >> ticketText2;
 	
 	// assign values
@@ -65,7 +59,7 @@ void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
 	ticket->comment = "";
 
 	// remove ticket by player, shouldn't happen
-	ticketmgr.RemoveGMTicketByPlayer(GetPlayer()->GetGUID());
+	ticketmgr.RemoveGMTicketByPlayer(GetPlayer()->GetGUID(), GetPlayer()->GetGUID());
 	
 	// add ticket
 	ticketmgr.AddGMTicket(ticket, false);
@@ -140,7 +134,7 @@ void WorldSession::HandleGMTicketDeleteOpcode( WorldPacket & /*recv_data*/)
 		SendPacket(&data);
 
 		sWorld.SendGMText(LANG_COMMAND_TICKETPLAYERABANDON, GetPlayer()->GetName(), ticket->guid );
-		ticketmgr.RemoveGMTicketByPlayer(GetPlayer()->GetGUID());
+		ticketmgr.RemoveGMTicketByPlayer(GetPlayer()->GetGUID(), GetPlayer()->GetGUID());
 	}
 }
 

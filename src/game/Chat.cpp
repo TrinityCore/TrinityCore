@@ -300,7 +300,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "locales_page_text",           SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesPageTextCommand,         "", NULL },
         { "locales_quest",               SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesQuestCommand,            "", NULL },
 		{ "waypoint_scripts",            SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadWpScriptsCommand,				 "", NULL },
-		{ "tickets",					 SEC_ADMINISTRATOR, true,  &ChatHandler::HandleGMTicketReloadCommand,				 "", NULL },
+		{ "gm_tickets",					 SEC_ADMINISTRATOR, true,  &ChatHandler::HandleGMTicketReloadCommand,				 "", NULL },
 
         { "",                            SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadCommand,                        "", NULL },
         { NULL,                          0,                 false, NULL,                                                     "", NULL }
