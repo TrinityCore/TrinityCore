@@ -1006,7 +1006,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\zone\naxxramas\boss_feugen.cpp"
+						RelativePath="..\scripts\zone\naxxramas\boss_four_horsemen.cpp"
 						>
 					</File>
 					<File
@@ -1034,10 +1034,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\zone\naxxramas\boss_lady_blaumeux.cpp"
-						>
-					</File>
-					<File
 						RelativePath="..\scripts\zone\naxxramas\boss_loatheb.cpp"
 						>
 					</File>
@@ -1062,19 +1058,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\zone\naxxramas\boss_sir_zeliek.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\scripts\zone\naxxramas\boss_stalagg.cpp"
-						>
-					</File>
-					<File
 						RelativePath="..\scripts\zone\naxxramas\boss_thaddius.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\scripts\zone\naxxramas\boss_thane_korthazz.cpp"
 						>
 					</File>
 					<File

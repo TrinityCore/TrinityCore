@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Highlord_Mograine
 SD%Complete: 100
-SDComment:
+SDComment: SCRIPT OBSOLETE
 SDCategory: Naxxramas
 EndScriptData */
 
