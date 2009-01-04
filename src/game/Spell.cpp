@@ -1012,7 +1012,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         SpellNonMeleeDamage damageInfo(caster, unitTarget, m_spellInfo->Id, m_spellSchoolMask);
 
         // Add bonuses and fill damageInfo struct
-        caster->CalculateSpellDamage(&damageInfo, m_damage, m_spellInfo);
+        caster->CalculateSpellDamageTaken(&damageInfo, m_damage, m_spellInfo);
 
         // Send log damage message to client
         caster->SendSpellNonMeleeDamageLog(&damageInfo);
@@ -5367,19 +5367,14 @@ void Spell::CalculateDamageDoneForAllTargets()
 
 int32 Spell::CalculateDamageDone(Unit *unit, const uint32 effectMask, float *multiplier)
 {
-    m_damage = 0;
+    int32 damageDone = 0;
     unitTarget = unit;
     for(uint32 i = 0; i < 3; ++i)
     {
         if (effectMask & (1<<i))
         {
-            if(m_applyMultiplierMask & (1 << i))
-            {
-                damage = CalculateDamage(i, NULL) * m_damageMultipliers[i];
-                m_damageMultipliers[i] *= multiplier[i];
-            }
-            else
-                damage = CalculateDamage(i, NULL);
+            m_damage = 0;
+            damage = CalculateDamage(i, NULL);
 
             switch(m_spellInfo->Effect[i])
             {
@@ -5396,7 +5391,18 @@ int32 Spell::CalculateDamageDone(Unit *unit, const uint32 effectMask, float *mul
                     SpellDamageHeal(i);
                     break;
             }
+
+            if(m_damage > 0 && m_originalCaster)
+                m_originalCaster->SpellDamageBonus(unit, m_spellInfo, m_damage, SPELL_DIRECT_DAMAGE);
+            if(m_applyMultiplierMask & (1 << i))
+            {
+                m_damage *= m_damageMultipliers[i];
+                m_damageMultipliers[i] *= multiplier[i];
+            }
+            
+            damageDone += m_damage;
         }
     }
-    return m_damage;
+
+    return damageDone;
 }
