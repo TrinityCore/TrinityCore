@@ -8172,7 +8172,6 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
         ((WorldObject*)this)->SendMessageToSet(&data, true);
 
         ((Creature*)this)->CallAssistance();
-        ((Creature*)this)->SetHomePosition(GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
     }
 
     // delay offhand weapon attack to next attack time
@@ -9764,6 +9763,9 @@ void Unit::SetInCombatState(bool PvP)
         return;
 
     SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+
+    if(GetTypeId() != TYPEID_PLAYER)
+        ((Creature*)this)->SetHomePosition(GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
 
     if(GetTypeId() != TYPEID_PLAYER && ((Creature*)this)->isPet())
     {
