@@ -1478,13 +1478,14 @@ uint32 Unit::SpellNonMeleeDamageLog(Unit *pVictim, uint32 spellID, uint32 damage
 {
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellID);
     SpellNonMeleeDamage damageInfo(this, pVictim, spellInfo->Id, spellInfo->SchoolMask);
-    CalculateSpellDamage(&damageInfo, damage, spellInfo);
+    damage = SpellDamageBonus(pVictim, spellInfo, damage, SPELL_DIRECT_DAMAGE);
+    CalculateSpellDamageTaken(&damageInfo, damage, spellInfo);
     SendSpellNonMeleeDamageLog(&damageInfo);
     DealSpellDamage(&damageInfo, true);
     return damageInfo.damage;
 }
 
-void Unit::CalculateSpellDamage(SpellNonMeleeDamage *damageInfo, int32 damage, SpellEntry const *spellInfo, WeaponAttackType attackType)
+void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 damage, SpellEntry const *spellInfo, WeaponAttackType attackType)
 {
     SpellSchoolMask damageSchoolMask = SpellSchoolMask(damageInfo->schoolMask);
     Unit *pVictim = damageInfo->target;
@@ -1512,16 +1513,16 @@ void Unit::CalculateSpellDamage(SpellNonMeleeDamage *damageInfo, int32 damage, S
             if ( damageSchoolMask & SPELL_SCHOOL_MASK_NORMAL )
             {
                 //Calculate armor mitigation
-                damage = CalcArmorReducedDamage(pVictim, damage);
+                //damage = CalcArmorReducedDamage(pVictim, damage);
                 // Get blocked status
                 blocked = isSpellBlocked(pVictim, spellInfo, attackType);
             }
             // Magical Damage
-            else
+            /*else
             {
                 // Calculate damage bonus
                 damage = SpellDamageBonus(pVictim, spellInfo, damage, SPELL_DIRECT_DAMAGE);
-            }
+            }*/
             if (crit)
             {
                 damageInfo->HitInfo|= SPELL_HIT_TYPE_CRIT;
@@ -1567,7 +1568,7 @@ void Unit::CalculateSpellDamage(SpellNonMeleeDamage *damageInfo, int32 damage, S
         case SPELL_DAMAGE_CLASS_MAGIC:
         {
             // Calculate damage bonus
-            damage = SpellDamageBonus(pVictim, spellInfo, damage, SPELL_DIRECT_DAMAGE);
+            //damage = SpellDamageBonus(pVictim, spellInfo, damage, SPELL_DIRECT_DAMAGE);
             // If crit add critical bonus
             if (crit)
             {
@@ -1580,6 +1581,9 @@ void Unit::CalculateSpellDamage(SpellNonMeleeDamage *damageInfo, int32 damage, S
         }
         break;
     }
+
+    if( damageSchoolMask & SPELL_SCHOOL_MASK_NORMAL )
+        damage = CalcArmorReducedDamage(pVictim, damage);
 
     // Calculate absorb resist
     if(damage > 0)
@@ -8168,7 +8172,6 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
         ((WorldObject*)this)->SendMessageToSet(&data, true);
 
         ((Creature*)this)->CallAssistance();
-        ((Creature*)this)->SetHomePosition(GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
     }
 
     // delay offhand weapon attack to next attack time
@@ -8488,6 +8491,10 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
 {
     if(!spellProto || !pVictim || damagetype==DIRECT_DAMAGE )
         return pdamage;
+
+    if(spellProto->SchoolMask == SPELL_SCHOOL_MASK_NORMAL)
+        return pdamage;
+    //damage = CalcArmorReducedDamage(pVictim, damage);
 
     int32 BonusDamage = 0;
     if( GetTypeId()==TYPEID_UNIT )
@@ -9756,6 +9763,9 @@ void Unit::SetInCombatState(bool PvP)
         return;
 
     SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+
+    if(GetTypeId() != TYPEID_PLAYER)
+        ((Creature*)this)->SetHomePosition(GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
 
     if(GetTypeId() != TYPEID_PLAYER && ((Creature*)this)->isPet())
     {
@@ -11711,7 +11721,8 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
             {
                 sLog.outDebug("ProcDamageAndSpell: doing %u damage from spell id %u (triggered by %s aura of spell %u)", auraModifier->m_amount, spellInfo->Id, (isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId());
                 SpellNonMeleeDamage damageInfo(this, pTarget, spellInfo->Id, spellInfo->SchoolMask);
-                CalculateSpellDamage(&damageInfo, auraModifier->m_amount, spellInfo);
+                uint32 damage = SpellDamageBonus(pTarget, spellInfo, auraModifier->m_amount, SPELL_DIRECT_DAMAGE);
+                CalculateSpellDamageTaken(&damageInfo, damage, spellInfo);
                 SendSpellNonMeleeDamageLog(&damageInfo);
                 DealSpellDamage(&damageInfo, true);
                 break;
