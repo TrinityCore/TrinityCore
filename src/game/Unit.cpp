@@ -9757,18 +9757,16 @@ void Unit::SetInCombatState(bool PvP)
 
     SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
-    if(isCharmed() || GetTypeId()!=TYPEID_PLAYER && ((Creature*)this)->isPet())
-        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
-
-    if(GetTypeId() == TYPEID_PLAYER && GetPetGUID())
+    if(GetTypeId() != TYPEID_PLAYER && ((Creature*)this)->isPet())
     {
-        if(Pet *pet = GetPet())
-        {
-            pet->UpdateSpeed(MOVE_RUN, true);
-            pet->UpdateSpeed(MOVE_SWIM, true);
-            pet->UpdateSpeed(MOVE_FLIGHT, true);
-        }
+        UpdateSpeed(MOVE_RUN, true);
+        UpdateSpeed(MOVE_SWIM, true);
+        UpdateSpeed(MOVE_FLIGHT, true);
     }
+    else if(!isCharmed())
+        return;
+
+    SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
 }
 
 void Unit::ClearInCombat()
@@ -9776,19 +9774,22 @@ void Unit::ClearInCombat()
     m_CombatTimer = 0;
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
-    if(isCharmed() || GetTypeId()!=TYPEID_PLAYER && ((Creature*)this)->isPet())
-        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
-
     // Player's state will be cleared in Player::UpdateContestedPvP
     if(GetTypeId()!=TYPEID_PLAYER)
         clearUnitState(UNIT_STAT_ATTACK_PLAYER);
 
-    if(GetTypeId() == TYPEID_PLAYER && GetPetGUID())
+    if(GetTypeId() != TYPEID_PLAYER && ((Creature*)this)->isPet())
     {
-        if(Pet *pet = GetPet())
+        if(Unit *owner = GetOwner())
+        {
             for(int i = 0; i < MAX_MOVE_TYPE; ++i)
-                pet->SetSpeed(UnitMoveType(i), m_speed_rate[i], true);
+                SetSpeed(UnitMoveType(i), owner->GetSpeedRate(UnitMoveType(i)), true);
+        }
     }
+    else if(!isCharmed())
+        return;
+
+    RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
 }
 
 //TODO: remove this function
