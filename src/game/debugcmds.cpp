@@ -621,3 +621,13 @@ bool ChatHandler::HandleSpawnVehicle(const char* args)
 
     return true;
 }
+
+bool ChatHandler::HandleSendLargePacketCommand(const char* args)
+{
+    const char* stuffingString = "This is a dummy string to push the packet's size beyond 128000 bytes. ";
+    std::ostringstream ss;
+    while(strlen(ss.str().c_str()) < 128000)
+        ss << stuffingString;
+    SendSysMessage(ss.str().c_str());
+    return true;
+}
