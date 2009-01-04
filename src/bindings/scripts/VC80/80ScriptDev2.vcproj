@@ -1249,6 +1249,10 @@
 				<Filter
 					Name="Thousand Needles"
 					>
+					<File
+                        RelativePath="..\scripts\zone\thousand_needles\thousand_needles.cpp"
+                        >
+                    </File>
 				</Filter>
 				<Filter
 					Name="Silithus"
