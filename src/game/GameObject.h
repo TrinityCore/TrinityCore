@@ -516,7 +516,7 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         uint8 GetGoState() const { return GetByteValue(GAMEOBJECT_BYTES_1, 0); }
         void SetGoState(uint8 state) { SetByteValue(GAMEOBJECT_BYTES_1, 0, state); }
         uint8 GetGoArtKit() const { return GetByteValue(GAMEOBJECT_BYTES_1, 2); }
-        void SetGoArtKit(uint8 artkit) { SetByteValue(GAMEOBJECT_BYTES_1, 2, artkit); }
+        void SetGoArtKit(uint8 artkit);
         uint8 GetGoAnimProgress() const { return GetByteValue(GAMEOBJECT_BYTES_1, 3); }
         void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_BYTES_1, 3, animprogress); }
 

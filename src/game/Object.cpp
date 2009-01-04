@@ -570,6 +570,8 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                 IsActivateToQuest = true;
                 updateMask->SetBit(GAMEOBJECT_DYNAMIC);
             }
+            if (((GameObject*)this)->GetGoArtKit())
+                updateMask->SetBit(GAMEOBJECT_BYTES_1);
         }
     }
     else                                                    //case UPDATETYPE_VALUES
