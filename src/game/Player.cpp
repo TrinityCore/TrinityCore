@@ -606,13 +606,6 @@ bool Player::Create( uint32 guidlow, const std::string& name, uint8 race, uint8 
     SetUInt32Value( PLAYER_FIELD_TODAY_CONTRIBUTION, 0 );
     SetUInt32Value( PLAYER_FIELD_YESTERDAY_CONTRIBUTION, 0 );
 
-    for(uint32 i = 0; i < sGlyphSlotStore.GetNumRows(); ++i)
-    {
-        GlyphSlotEntry const * gs = sGlyphSlotStore.LookupEntry(i);
-        if(gs && gs->Order)
-            SetGlyphSlot(gs->Order - 1, gs->Id);
-    }
-
     // set starting level
     uint32 start_level = getClass() != CLASS_DEATH_KNIGHT
         ? sWorld.getConfig(CONFIG_START_PLAYER_LEVEL)
@@ -19790,6 +19783,11 @@ uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 n
 
 void Player::InitGlyphsForLevel()
 {
+    for(uint32 i = 0; i < sGlyphSlotStore.GetNumRows(); ++i)
+        if(GlyphSlotEntry const * gs = sGlyphSlotStore.LookupEntry(i))
+            if(gs->Order)
+                SetGlyphSlot(gs->Order - 1, gs->Id);
+
     uint32 level = getLevel();
     uint32 value = 0;
 
