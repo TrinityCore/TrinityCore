@@ -5393,7 +5393,7 @@ int32 Spell::CalculateDamageDone(Unit *unit, const uint32 effectMask, float *mul
             }
 
             if(m_damage > 0 && m_originalCaster)
-                m_originalCaster->SpellDamageBonus(unit, m_spellInfo, m_damage, SPELL_DIRECT_DAMAGE);
+                m_damage = m_originalCaster->SpellDamageBonus(unit, m_spellInfo, m_damage, SPELL_DIRECT_DAMAGE);
             if(m_applyMultiplierMask & (1 << i))
             {
                 m_damage *= m_damageMultipliers[i];
