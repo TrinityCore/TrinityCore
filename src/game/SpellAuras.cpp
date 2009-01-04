@@ -4855,11 +4855,9 @@ void Aura::HandleAuraModRangedAttackPowerOfStatPercent(bool apply, bool Real)
     if(!Real)
         return;
 
-    if(m_target->GetTypeId() == TYPEID_PLAYER && (m_target->getClassMask() & CLASSMASK_WAND_USERS)!=0)
-        return;
-
     // Recalculate bonus
-    ((Player*)m_target)->UpdateAttackPowerAndDamage(true);
+    if(m_target->GetTypeId() == TYPEID_PLAYER && !(m_target->getClassMask() & CLASSMASK_WAND_USERS))
+        ((Player*)m_target)->UpdateAttackPowerAndDamage(true);
 }
 
 void Aura::HandleAuraModAttackPowerOfStatPercent(bool apply, bool Real)
@@ -4868,11 +4866,9 @@ void Aura::HandleAuraModAttackPowerOfStatPercent(bool apply, bool Real)
     if(!Real)
         return;
 
-    if(m_target->GetTypeId() == TYPEID_PLAYER && (m_target->getClassMask() & CLASSMASK_WAND_USERS)!=0)
-        return;
-
     // Recalculate bonus
-    ((Player*)m_target)->UpdateAttackPowerAndDamage(false);
+    if(m_target->GetTypeId() == TYPEID_PLAYER)
+        ((Player*)m_target)->UpdateAttackPowerAndDamage(false);
 }
 
 /********************************/
