@@ -34,7 +34,7 @@ EndContentData */
 
 #define SAY_PROGRESS_1		"Ok, $N. Follow me to the cave where I'll attempt to harness the power of the rune stone into these goggles."
 #define SAY_PROGRESS_2		"I discovered this cave on our first day here. I believe the energy in the stone can be used to our advantage."
-#define SAY_PROGRESS_3		"I'll begin drawing energy from the stone. Your job, $N, i to defend me. This place is cursed... trust me."
+#define SAY_PROGRESS_3		"I'll begin drawing energy from the stone. Your job, $N, is to defend me. This place is cursed... trust me."
 #define EMOTE_PROGRESS_4	"begins tinkering with the goggles before the stone."
 #define SAY_AGGRO			"Help!!! Get these things off me so I can get my work done!"
 #define SAY_PROGRESS_5		"Almost done! Just a little longer!"
@@ -61,10 +61,8 @@ struct TRINITY_DLL_DECL npc_professor_phizzlethorpeAI : public npc_escortAI
 		case 8:DoTextEmote(EMOTE_PROGRESS_4, NULL);break;
 		case 9: 
 			{
-			Creature* sum1 = m_creature->SummonCreature(MOB_VENGEFUL_SURGE, -2052.96, -2142.49, 20.15, 1.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
-			Creature* sum2 = m_creature->SummonCreature(MOB_VENGEFUL_SURGE, -2052.96, -2142.49, 20.15, 1.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
-			sum1->Attack(m_creature, true);
-			sum2->Attack(m_creature, true);
+			m_creature->SummonCreature(MOB_VENGEFUL_SURGE, -2052.96, -2142.49, 20.15, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+			m_creature->SummonCreature(MOB_VENGEFUL_SURGE, -2052.96, -2142.49, 20.15, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
 			break;
 			}
 		case 10:DoSay(SAY_PROGRESS_5, LANG_UNIVERSAL, player, true);break;
@@ -73,9 +71,15 @@ struct TRINITY_DLL_DECL npc_professor_phizzlethorpeAI : public npc_escortAI
 		case 20:
 			DoTextEmote(EMOTE_PROGRESS_8, NULL);
 			DoSay(SAY_PROGRESS_9, LANG_UNIVERSAL, player, true);
+			if(player)
 			((Player*)player)->GroupEventHappens(QUEST_SUNKEN_TREASURE, m_creature);
 			break;
 		}
+	}
+
+	void JustSummoned(Creature *summoned)
+	{
+		summoned->AI()->AttackStart(m_creature);
 	}
 
 	void Reset(){}

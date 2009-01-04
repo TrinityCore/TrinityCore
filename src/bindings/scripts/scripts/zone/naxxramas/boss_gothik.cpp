@@ -21,18 +21,17 @@ SDComment: Placeholder
 SDCategory: Naxxramas
 EndScriptData */
 
-//Gothik
-//8806 spch - Foolishly you have sought your own demise. Brazenly you have disregarded powers beyond your understanding. You have fought hard to invade the realm of the harvester. Now there is only one way out - to walk the lonely path of the damned.
-//8808 tlpt - I have waited long enough! Now, you face the harvester of souls!
-//8806 slay - Death is the only escape.
-//8805 death - I... am... undone!
-
 #include "precompiled.h"
+
+#define SAY_SPEECH                  -1533040
+#define SAY_KILL                    -1533041
+#define SAY_DEATH                   -1533042
+#define SAY_TELEPORT                -1533043
 
 //Gothik
 #define SPELL_HARVESTSOUL           28679
-#define SPELL_SHADOWBOLT            19729
-
+#define SPELL_SHADOWBOLT            29317
+#define H_SPELL_SHADOWBOLT          56405
 //Unrelenting Trainee
 #define SPELL_EAGLECLAW             30285
 #define SPELL_KNOCKDOWN_PASSIVE     6961
