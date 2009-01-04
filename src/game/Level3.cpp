@@ -56,7 +56,6 @@
 //reload commands
 bool ChatHandler::HandleReloadAllCommand(const char*)
 {
-    HandleReloadAreaTriggerTeleportCommand("");
     HandleReloadSkillFishingBaseLevelCommand("");
 
     HandleReloadAllAreaCommand("");
