@@ -432,7 +432,7 @@ void ScriptedAI::SelectUnitList(std::list<Unit*> &targetList, uint32 num, Select
         std::list<HostilReference*> m_threatlist = m_creature->getThreatManager().getThreatList();
         std::list<HostilReference*>::iterator i;
         Unit *target;
-        while(m_threatlist.size())
+        while(m_threatlist.size() && num)
         {
             if(targetType == SELECT_TARGET_BOTTOMAGGRO)
             {
@@ -455,6 +455,7 @@ void ScriptedAI::SelectUnitList(std::list<Unit*> &targetList, uint32 num, Select
                 continue;                
             }
             targetList.push_back(target);
+            --num;
         }
     }
 }
