@@ -4257,7 +4257,7 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo *damageInfo)
             data << (uint32)damageInfo->resist;       // Resist
     }
 
-    data << (uint32)damageInfo->TargetState;
+    data << (uint8)damageInfo->TargetState;
     data << (uint32)0;
     data << (uint32)0;
 
@@ -4767,6 +4767,14 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     }
                     return false;
                 }
+                // Living Seed
+                case 48504:
+                {
+                    triggered_spell_id = 48503;
+                    basepoints0 = triggeredByAura->GetModifier()->m_amount;
+                    target = this;
+                    break;
+                }
             }
             break;
         }
@@ -5155,6 +5163,39 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     triggered_spell_id = 32747;
                     break;
                 }
+            }
+            // Eclipse
+            if (dummySpell->SpellIconID == 2856)
+            {
+                if (!procSpell)
+                    return false;
+                // Only 0 aura can proc
+                if (triggeredByAura->GetEffIndex()!=0)
+                    return true;
+                // Wrath crit
+                if (procSpell->SpellFamilyFlags & 0x0000000000000001LL)
+                {
+                    if (!roll_chance_i(60))
+                        return false;
+                    triggered_spell_id = 48518;
+                    target = this;
+                    break;
+                }
+                // Starfire crit
+                if (procSpell->SpellFamilyFlags & 0x0000000000000004LL)
+                {
+                    triggered_spell_id = 48517;
+                    target = this;
+                    break;
+                }
+                return false;
+            }
+            // Living Seed
+            else if (dummySpell->SpellIconID == 2860)
+            {
+                triggered_spell_id = 48504;
+                basepoints0 = triggeredByAura->GetModifier()->m_amount * damage / 100;
+                break;
             }
             break;
         }
@@ -5604,6 +5645,44 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     ((Player*)this)->AddSpellCooldown(dummySpell->Id,0,time(NULL) + cooldown);
 
                 return true;
+            }
+            // Glyph of Healing Wave
+            case 55440:
+            {
+                // Not proc from self heals
+                if (this==pVictim)
+                    return false;
+                basepoints0 = triggeredByAura->GetModifier()->m_amount * damage / 100;
+                target = this;
+                triggered_spell_id = 55533;
+                break;
+            }
+            break;
+        }
+        case SPELLFAMILY_DEATHKNIGHT:
+        {
+            // Vendetta
+            if (dummySpell->SpellFamilyFlags & 0x0000000000010000LL)
+            {
+                basepoints0 = triggeredByAura->GetModifier()->m_amount * GetMaxHealth() / 100;
+                triggered_spell_id = 50181;
+                target = this;
+                break;
+            }
+            // Necrosis
+            else if (dummySpell->SpellIconID == 2709)
+            {
+                basepoints0 = triggeredByAura->GetModifier()->m_amount * damage / 100;
+                triggered_spell_id = 51460;
+                break;
+            }
+            // Butchery
+            else if (dummySpell->SpellIconID == 2664)
+            {
+                basepoints0 = triggeredByAura->GetModifier()->m_amount;
+                triggered_spell_id = 50163;
+                target = this;
+                break;
             }
             break;
         }
