@@ -264,15 +264,24 @@ class TRINITY_DLL_SPEC Aura
         uint8 GetAuraLevel() const { return m_auraLevel; }
         void SetAuraLevel(uint8 level) { m_auraLevel = level; }
         uint8 GetAuraCharges() const { return m_procCharges; }
-        void SetAuraCharges(uint8 charges) { m_procCharges = charges; }
+        void SetAuraCharges(uint8 charges) 
+        {
+            if (m_procCharges == charges)
+                return;
+            m_procCharges = charges;
+            SendAuraUpdate(false);
+        }
+        bool DropAuraCharge() // return true if last charge dropped
+        { 
+            if (m_procCharges == 0)
+                return false;
+            m_procCharges--;
+            SendAuraUpdate(false);
+            return m_procCharges == 0;
+        }
+
         void SetAura(bool remove) { m_target->SetVisibleAura(m_auraSlot, remove ? 0 : GetId()); }
         void SendAuraUpdate(bool remove);
-        void UpdateAuraCharges()
-        {
-            // only aura in slot with charges and without stack limitation
-            if (m_auraSlot < MAX_AURAS && m_procCharges >= 1 && GetSpellProto()->StackAmount==0)
-                SendAuraUpdate(false);
-        }
 
         bool IsPositive() { return m_positive; }
         void SetNegative() { m_positive = false; }
@@ -299,9 +308,6 @@ class TRINITY_DLL_SPEC Aura
         bool IsUpdated() { return m_updated; }
         void SetUpdated(bool val) { m_updated = val; }
         void SetRemoveMode(AuraRemoveMode mode) { m_removeMode = mode; }
-
-        int32 m_procCharges;
-        void SetAuraProcCharges(int32 charges) { m_procCharges = charges; }
 
         Unit* GetTriggerTarget() const;
 
@@ -341,6 +347,7 @@ class TRINITY_DLL_SPEC Aura
         uint8 m_auraSlot;
         uint8 m_auraFlags;
         uint8 m_auraLevel;
+        int8  m_procCharges;
 
         bool m_positive:1;
         bool m_permanent:1;
