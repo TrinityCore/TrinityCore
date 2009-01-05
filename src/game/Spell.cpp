@@ -2641,6 +2641,68 @@ void Spell::finish(bool ok)
             m_caster->resetAttackTimer(RANGED_ATTACK);
     }
 
+    // Post effects apply on spell targets in some spells
+    if(!m_UniqueTargetInfo.empty())
+    {
+        uint32 spellId = 0;
+        switch(m_spellInfo->SpellFamilyName)
+        {
+            case SPELLFAMILY_GENERIC:
+            {
+                if (m_spellInfo->Mechanic == MECHANIC_BANDAGE)             // Bandages
+                    spellId = 11196;                                       // Recently Bandaged
+                else if(m_spellInfo->SpellIconID == 1662 && m_spellInfo->AttributesEx & 0x20) // Blood Fury (Racial)
+                    spellId = 23230;                                       // Blood Fury - Healing Reduction
+                break;
+            }
+            case SPELLFAMILY_MAGE:
+            {
+                if (m_spellInfo->SpellFamilyFlags&0x0000008000000000LL)    // Ice Block
+                    spellId = 41425;                                       // Hypothermia
+                break;
+            }
+            case SPELLFAMILY_PRIEST:
+            {
+                if (m_spellInfo->Mechanic == MECHANIC_SHIELD &&
+                    m_spellInfo->SpellIconID == 566)                       // Power Word: Shield
+                    spellId = 6788;                                        // Weakened Soul
+                break;
+            }
+            case SPELLFAMILY_PALADIN:
+            {
+                if (m_spellInfo->SpellFamilyFlags&0x0000000000400080LL)    // Divine Shield, Divine Protection or Hand of Protection
+                    spellId = 25771;                                       // Forbearance
+                break;
+            }
+            case SPELLFAMILY_SHAMAN:
+            {
+                if (m_spellInfo->Id == 2825)                               // Bloodlust
+                    spellId = 57724;                                       // Sated
+                else if (m_spellInfo->Id == 32182)                         // Heroism
+                    spellId = 57723;                                       // Exhaustion
+                break;
+            }
+            default:
+                break;
+        }
+        if (spellId)
+        {
+            for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
+            {
+                Unit* unit = m_caster->GetGUID()==ihit->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID);
+                if (unit)
+                {
+//                  TODO: fix me use cast spell (now post spell can immune by this spell)
+//                  m_caster->CastSpell(unit, spellId, true, m_CastItem);
+                    SpellEntry const *AdditionalSpellInfo = sSpellStore.LookupEntry(spellId);
+                    if (!AdditionalSpellInfo)
+                        continue;
+                    Aura* AdditionalAura = CreateAura(AdditionalSpellInfo, 0, &m_currentBasePoints[0], unit, m_caster, m_CastItem);
+                    unit->AddAura(AdditionalAura);
+                }
+            }
+        }
+    }
     // call triggered spell only at successful cast (after clear combo points -> for add some if need)
     if(!m_TriggerSpells.empty())
         TriggerSpell();
@@ -3790,16 +3852,14 @@ uint8 Spell::CanCast(bool strict)
         }
     }*/
 
-    if(!m_triggeredByAuraSpell)
+    if(!m_IsTriggeredSpell)
+    {
         if(uint8 castResult = CheckRange(strict))
             return castResult;
 
-    if(!m_IsTriggeredSpell)
-    {
         if(uint8 castResult = CheckPower())
             return castResult;
 
-    //if(!m_triggeredByAuraSpell)                             // triggered spell not affected by stun/etc
         if(uint8 castResult = CheckCasterAuras())
             return castResult;
     }
@@ -5229,6 +5289,12 @@ bool Spell::CheckTarget( Unit* target, uint32 eff, bool hitPhase )
         if (!CheckTargetCreatureType(target))
             return false;
     }
+
+    // Check Aura spell req (need for AoE spells)
+    if(m_spellInfo->targetAuraSpell && !target->HasAura(m_spellInfo->targetAuraSpell))
+        return false;
+    if (m_spellInfo->excludeTargetAuraSpell && target->HasAura(m_spellInfo->excludeTargetAuraSpell))
+        return false;
 
     // Check targets for not_selectable unit flag and remove
     // A player can cast spells on his pet (or other controlled unit) though in any state
