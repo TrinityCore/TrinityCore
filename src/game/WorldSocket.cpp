@@ -1072,7 +1072,7 @@ int WorldSocket::HandlePing (WorldPacket& recvPacket)
     return SendPacket (packet);
 }
 
-int WorldSocket::iSendPacket (const WorldPacket& pct)
+/*int WorldSocket::iSendPacket (const WorldPacket& pct)
 {
     ServerPktHeader header(pct.size()+2, pct.GetOpcode());
     if (m_OutBuffer->space () < pct.size () + header.getHeaderLength())
@@ -1120,4 +1120,4 @@ bool WorldSocket::iFlushPacketQueue ()
     }
 
     return haveone;
-}
+}*/
