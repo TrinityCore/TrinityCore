@@ -1418,6 +1418,17 @@ void World::DetectDBCLang()
     sLog.outString("Using %s DBC Locale as default. All available DBC locales: %s",localeNames[m_defaultDbcLocale],availableLocalsStr.empty() ? "<none>" : availableLocalsStr.c_str());
 }
 
+void World::RecordTimeDiff(const char *text)
+{
+    if(m_updateTimeCount != 1)
+        return;
+    sLog.outDebugInLine("Difftime ");
+    sLog.outDebugInLine(text);
+    time_t thisTime = time(NULL);    
+    sLog.outDebug(": %u.", uint32(thisTime - m_currentTime));
+    m_currentTime = thisTime;
+}
+
 /// Update the World !
 void World::Update(time_t diff)
 {
@@ -1429,6 +1440,7 @@ void World::Update(time_t diff)
             sLog.outString("Update time diff: %u. Players online: %u.", m_updateTimeSum / m_updateTimeCount, GetActiveSessionCount());
             m_updateTimeSum = m_updateTime;
             m_updateTimeCount = 1;
+            m_currentTime = time(NULL);
         }
         else
         {
@@ -1515,6 +1527,7 @@ void World::Update(time_t diff)
             }
         }
     }
+    RecordTimeDiff("UpdateAuction");
 
     /// <li> Handle session updates when the timer has passed
     if (m_timers[WUPDATE_SESSIONS].Passed())
@@ -1523,6 +1536,7 @@ void World::Update(time_t diff)
 
         UpdateSessions(diff);
     }
+    RecordTimeDiff("UpdateSessions");
 
     /// <li> Handle weather updates when the timer has passed
     if (m_timers[WUPDATE_WEATHERS].Passed())
@@ -1554,6 +1568,7 @@ void World::Update(time_t diff)
         m_timers[WUPDATE_UPTIME].Reset();
         WorldDatabase.PExecute("UPDATE uptime SET uptime = %d, maxplayers = %d WHERE starttime = " I64FMTD, tmpDiff, maxClientsNum, uint64(m_startTime));
     }
+    RecordTimeDiff("UpdateWeatherAndUptime");
 
     /// <li> Handle all other objects
     if (m_timers[WUPDATE_OBJECTS].Passed())
@@ -1570,9 +1585,11 @@ void World::Update(time_t diff)
 
         sOutdoorPvPMgr.Update(diff);
     }
+    RecordTimeDiff("UpdateMaps");
 
     // execute callbacks from sql queries that were queued recently
     UpdateResultQueue();
+    RecordTimeDiff("UpdateResultQueue");
 
     ///- Erase corpses once every 20 minutes
     if (m_timers[WUPDATE_CORPSES].Passed())
@@ -1600,6 +1617,7 @@ void World::Update(time_t diff)
 
     // And last, but not least handle the issued cli commands
     ProcessCliCommands();
+    RecordTimeDiff("UpdateRemainingThings");
 }
 
 void World::ForceGameEventUpdate()
