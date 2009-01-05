@@ -538,6 +538,8 @@ class World
         uint32 mail_timer_expires;
         uint32 m_updateTime, m_updateTimeSum;
         uint32 m_updateTimeCount;
+        time_t m_currentTime;
+        void RecordTimeDiff(const char * text);
 
         typedef UNORDERED_MAP<uint32, Weather*> WeatherMap;
         WeatherMap m_weathers;
