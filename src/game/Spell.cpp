@@ -5371,9 +5371,8 @@ Unit* Spell::SelectMagnetTarget()
         {
             if(Unit* magnet = (*itr)->GetCaster())
             {
-                if((*itr)->m_procCharges>0)
+                if((*itr)->DropAuraCharge())
                 {
-                    (*itr)->SetAuraProcCharges((*itr)->m_procCharges-1);
                     target = magnet;
                     m_targets.setUnitTarget(target);
                     AddUnitTarget(target, 0);
