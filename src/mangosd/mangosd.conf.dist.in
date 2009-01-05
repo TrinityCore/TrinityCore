@@ -1154,6 +1154,13 @@ Death.CorpseReclaimDelay.PvE = 1
 #                         in days
 #             Default: 7 (weekly)
 #
+# ArenaSeason.ID: current area season id show in client
+#             Default: 1
+#
+# ArenaSeason.InProgress: current area season state
+#             Default: 1 (active)
+#                      0 (finished)
+#
 ###################################################################################################################
 
 Arena.MaxRatingDifference = 0
