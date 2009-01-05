@@ -36,7 +36,7 @@ typedef std::deque<BattleGround*> BGFreeSlotQueueType;
 
 #define MAX_BATTLEGROUND_TYPES 12                           // each BG type will be in array
 
-#define MAX_BATTLEGROUND_QUEUE_TYPES 8
+#define MAX_BATTLEGROUND_QUEUE_TYPES 9
 
 #define BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY    86400     // seconds in a day
 
