@@ -1409,8 +1409,9 @@ void WorldSession::HandleFarSightOpcode( WorldPacket & recv_data )
             return;
     }
     // Update visibility after vision change
-    Cell cell(pair);
-    GetPlayer()->GetMap()->UpdateObjectsVisibilityFor(_player, cell, pair);
+    //Cell cell(pair);
+    //GetPlayer()->GetMap()->UpdateObjectsVisibilityFor(_player, cell, pair);
+    GetPlayer()->SetToNotify();
 }
 
 void WorldSession::HandleChooseTitleOpcode( WorldPacket & recv_data )

@@ -948,6 +948,7 @@ void World::LoadConfigSettings(bool reload)
     }
     if(m_MaxVisibleDistance < m_MaxVisibleDistanceInFlight)
         m_MaxVisibleDistance = m_MaxVisibleDistanceInFlight;
+    m_MaxVisibleDistance += 1.0f;
 
     ///- Read the "Data" directory from the config file
     std::string dataPath = sConfig.GetStringDefault("DataDir","./");
