@@ -583,7 +583,7 @@ ObjectAccessor::UpdateObjectVisibility(WorldObject *obj)
     obj->GetMap()->UpdateObjectVisibility(obj,cell,p);
 }
 
-void ObjectAccessor::UpdateVisibilityForPlayer( Player* player )
+/*void ObjectAccessor::UpdateVisibilityForPlayer( Player* player )
 {
     CellPair p = Trinity::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
     Cell cell(p);
@@ -591,7 +591,7 @@ void ObjectAccessor::UpdateVisibilityForPlayer( Player* player )
 
     m->UpdatePlayerVisibility(player,cell,p);
     m->UpdateObjectsVisibilityFor(player,cell,p);
-}
+}*/
 
 /// Define the static member of HashMapHolder
 

@@ -30,7 +30,7 @@
 
 using namespace Trinity;
 
-void
+/*void
 Trinity::PlayerNotifier::Visit(PlayerMapType &m)
 {
     for(PlayerMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
@@ -45,7 +45,7 @@ Trinity::PlayerNotifier::Visit(PlayerMapType &m)
             for (SharedVisionList::const_iterator it = i_player.GetSharedVisionList().begin(); it != i_player.GetSharedVisionList().end(); ++it)
                 (*it)->UpdateVisibilityOf(iter->getSource());
     }
-}
+}*/
 
 void
 VisibleChangesNotifier::Visit(PlayerMapType &m)
@@ -68,6 +68,12 @@ VisibleNotifier::Visit(PlayerMapType &m)
             continue;
 
         iter->getSource()->UpdateVisibilityOf(&i_player);
+        //i_player.UpdateVisibilityOf(iter->getSource());
+
+        //if (!i_player.GetSharedVisionList().empty())
+        //    for (SharedVisionList::const_iterator it = i_player.GetSharedVisionList().begin(); it != i_player.GetSharedVisionList().end(); ++it)
+        //        (*it)->UpdateVisibilityOf(iter->getSource());
+
         i_player.UpdateVisibilityOf(iter->getSource(),i_data,i_data_updates,i_visibleNow);
         i_clientGUIDs.erase(iter->getSource()->GetGUID());
     }
