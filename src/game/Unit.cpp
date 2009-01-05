@@ -2528,7 +2528,7 @@ SpellMissInfo Unit::SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool 
     if (spell->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)
         return SPELL_MISS_NONE;
 
-    // Check for immune (use charges)
+    // Check for immune
     if (pVictim->IsImmunedToSpell(spell))
         return SPELL_MISS_IMMUNE;
 
@@ -2538,7 +2538,7 @@ SpellMissInfo Unit::SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool 
         &&(!IsHostileTo(pVictim)))  //prevent from affecting enemy by "positive" spell
         return SPELL_MISS_NONE;
 
-    // Check for immune (use charges)
+    // Check for immune
     if (pVictim->IsImmunedToDamage(GetSpellSchoolMask(spell)))
         return SPELL_MISS_IMMUNE;
 
