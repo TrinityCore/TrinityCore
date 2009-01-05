@@ -7702,12 +7702,6 @@ void Player::SendInitWorldStates(bool forceZone, uint32 forceZoneId)
         case 1377:
             NumberOfFields = 15;
             break;
-        case 139:
-            NumberOfFields = 39;
-            break;
-        case 1377:
-            NumberOfFields = 13;
-            break;
         case 2597:
             NumberOfFields = 83;
             break;
