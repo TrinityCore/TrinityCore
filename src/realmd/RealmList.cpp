@@ -50,7 +50,6 @@ void RealmList::UpdateRealm( uint32 ID, const std::string& name, const std::stri
     Realm& realm = m_realms[name];
 
     realm.m_ID      = ID;
-    realm.name      = name;
     realm.icon      = icon;
     realm.color     = color;
     realm.timezone  = timezone;
