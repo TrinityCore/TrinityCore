@@ -3946,9 +3946,64 @@ bool ChatHandler::HandleActivateObjectCommand(const char *args)
 
 	// Activate
 	obj->SetLootState(GO_READY);
-	obj->UseDoorOrButton(10000);
+   	obj->UseDoorOrButton(10000);
 
 	PSendSysMessage("Object activated!");
 
 	return true;
+}
+
+// add creature, temp only
+bool ChatHandler::HandleTempAddSpwCommand(const char* args)
+{
+    if(!*args)
+        return false;
+    char* charID = strtok((char*)args, " ");
+    if (!charID)
+        return false;
+
+    Player *chr = m_session->GetPlayer();
+
+    float x = chr->GetPositionX();
+    float y = chr->GetPositionY();
+    float z = chr->GetPositionZ();
+    float ang = chr->GetOrientation();
+
+    uint32 id = atoi(charID);
+
+    chr->SummonCreature(id,x,y,z,ang,TEMPSUMMON_CORPSE_DESPAWN,120);
+
+    return true;
+}
+
+// add go, temp only
+bool ChatHandler::HandleTempGameObjectCommand(const char* args)
+{
+    if(!*args)
+        return false;
+    char* charID = strtok((char*)args, " ");
+    if (!charID)
+        return false;
+
+    Player *chr = m_session->GetPlayer();
+
+    char* spawntime = strtok(NULL, " ");
+    uint32 spawntm;
+
+    if( spawntime )
+        spawntm = atoi((char*)spawntime);
+
+    float x = chr->GetPositionX();
+    float y = chr->GetPositionY();
+    float z = chr->GetPositionZ();
+    float ang = chr->GetOrientation();
+
+    float rot2 = sin(ang/2);
+    float rot3 = cos(ang/2);
+
+    uint32 id = atoi(charID);
+
+    chr->SummonGameObject(id,x,y,z,ang,0,0,rot2,rot3,spawntm);
+
+    return true;
 }
