@@ -154,9 +154,10 @@ enum BattleGroundQueueTypeId
     BATTLEGROUND_QUEUE_WS     = 2,
     BATTLEGROUND_QUEUE_AB     = 3,
     BATTLEGROUND_QUEUE_EY     = 4,
-    BATTLEGROUND_QUEUE_2v2     = 5,
-    BATTLEGROUND_QUEUE_3v3     = 6,
-    BATTLEGROUND_QUEUE_5v5     = 7,
+    BATTLEGROUND_QUEUE_SA     = 5,
+    BATTLEGROUND_QUEUE_2v2    = 6,
+    BATTLEGROUND_QUEUE_3v3    = 7,
+    BATTLEGROUND_QUEUE_5v5    = 8,
 };
 
 enum ScoreType
