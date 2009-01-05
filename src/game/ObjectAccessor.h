@@ -198,7 +198,7 @@ class TRINITY_DLL_DECL ObjectAccessor : public Trinity::Singleton<ObjectAccessor
         static void _buildUpdateObject(Object* obj, UpdateDataMapType &);
 
         static void UpdateObjectVisibility(WorldObject* obj);
-        static void UpdateVisibilityForPlayer(Player* player);
+        //static void UpdateVisibilityForPlayer(Player* player);
     private:
         struct WorldObjectChangeAccumulator
         {

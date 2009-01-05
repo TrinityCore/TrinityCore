@@ -39,13 +39,13 @@ class Player;
 namespace Trinity
 {
 
-    struct TRINITY_DLL_DECL PlayerNotifier
+    /*struct TRINITY_DLL_DECL PlayerNotifier
     {
         explicit PlayerNotifier(Player &pl) : i_player(pl) {}
         void Visit(PlayerMapType &);
         template<class SKIP> void Visit(GridRefManager<SKIP> &) {}
         Player &i_player;
-    };
+    };*/
 
     struct TRINITY_DLL_DECL VisibleNotifier
     {
