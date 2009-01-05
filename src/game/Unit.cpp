@@ -1798,7 +1798,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
         {
             if(Unit* caster = (*i)->GetCaster())
             {
-                AuraList const& vOverRideCS = caster->GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
+                AuraList const& vOverRideCS = caster->GetAurasByType(SPELL_AURA_DUMMY);
                 for(AuraList::const_iterator k = vOverRideCS.begin(); k != vOverRideCS.end(); ++k)
                 {
                     switch((*k)->GetModifier()->m_miscvalue)
@@ -1806,8 +1806,6 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                         case 5065:                          // Rank 1
                         case 5064:                          // Rank 2
                         case 5063:                          // Rank 3
-                        case 5062:                          // Rank 4
-                        case 5061:                          // Rank 5
                         {
                             if(RemainingDamage >= (*i)->GetModifier()->m_amount)
                                 reflectDamage = (*i)->GetModifier()->m_amount * (*k)->GetModifier()->m_amount/100;
@@ -7139,7 +7137,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         {
             //Molten Fury
             case 4920: case 4919:
-                if(pVictim->HasAuraState(AURA_STATE_HEALTHLESS_20_PERCENT))
+                if(pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT))
                     TakenTotalMod *= (100.0f+(*i)->GetModifier()->m_amount)/100.0f; break;
         }
     }
@@ -7550,11 +7548,9 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                     {
                         switch((*i)->GetModifier()->m_miscvalue)
                         {
-                            case 849: crit_chance+= 10.0f; break; //Shatter Rank 1
-                            case 910: crit_chance+= 20.0f; break; //Shatter Rank 2
-                            case 911: crit_chance+= 30.0f; break; //Shatter Rank 3
-                            case 912: crit_chance+= 40.0f; break; //Shatter Rank 4
-                            case 913: crit_chance+= 50.0f; break; //Shatter Rank 5
+                            case 849: crit_chance+= 17.0f; break; //Shatter Rank 1
+                            case 910: crit_chance+= 34.0f; break; //Shatter Rank 2
+                            case 911: crit_chance+= 50.0f; break; //Shatter Rank 3
                         }
                     }
                 }
@@ -10145,17 +10141,6 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
                 // Remove by default, but if charge exist drop it
                 if (triggeredByAura->m_procCharges == 0)
                    removedSpells.push_back(triggeredByAura->GetId());
-                break;
-            case SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS:
-            case SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS:
-                // Hunter's Mark (1-4 Rangs)
-                if (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && (spellInfo->SpellFamilyFlags&0x0000000000000400LL))
-                {
-                    uint32 basevalue = triggeredByAura->GetBasePoints();
-                    auraModifier->m_amount += basevalue/10;
-                    if (auraModifier->m_amount > basevalue*4)
-                        auraModifier->m_amount = basevalue*4;
-                }
                 break;
             case SPELL_AURA_MOD_CASTING_SPEED:
                 // Skip melee hits or instant cast spells
