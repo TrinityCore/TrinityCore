@@ -1422,6 +1422,11 @@ void World::RecordTimeDiff(const char *text)
 {
     if(m_updateTimeCount != 1)
         return;
+    if(!text)
+    {
+        m_currentTime = getMSTime();
+        return;
+    }
     sLog.outDebugInLine("Difftime ");
     sLog.outDebugInLine(text);
     uint32 thisTime = getMSTime();    
@@ -1440,7 +1445,6 @@ void World::Update(time_t diff)
             sLog.outString("Update time diff: %u. Players online: %u.", m_updateTimeSum / m_updateTimeCount, GetActiveSessionCount());
             m_updateTimeSum = m_updateTime;
             m_updateTimeCount = 1;
-            m_currentTime = getMSTime();
         }
         else
         {
@@ -1527,8 +1531,8 @@ void World::Update(time_t diff)
             }
         }
     }
-    RecordTimeDiff("UpdateAuction");
 
+    RecordTimeDiff(NULL);
     /// <li> Handle session updates when the timer has passed
     if (m_timers[WUPDATE_SESSIONS].Passed())
     {
@@ -1568,7 +1572,6 @@ void World::Update(time_t diff)
         m_timers[WUPDATE_UPTIME].Reset();
         WorldDatabase.PExecute("UPDATE uptime SET uptime = %d, maxplayers = %d WHERE starttime = " I64FMTD, tmpDiff, maxClientsNum, uint64(m_startTime));
     }
-    RecordTimeDiff("UpdateWeatherAndUptime");
 
     /// <li> Handle all other objects
     if (m_timers[WUPDATE_OBJECTS].Passed())
@@ -1577,16 +1580,20 @@ void World::Update(time_t diff)
         ///- Update objects when the timer has passed (maps, transport, creatures,...)
         MapManager::Instance().Update(diff);                // As interval = 0
 
+        RecordTimeDiff(NULL);
         ///- Process necessary scripts
         if (!m_scriptSchedule.empty())
             ScriptsProcess();
+        RecordTimeDiff("UpdateScriptsProcess");
 
         sBattleGroundMgr.Update(diff);
+        RecordTimeDiff("UpdateBattleGroundMgr");
 
         sOutdoorPvPMgr.Update(diff);
+        RecordTimeDiff("UpdateOutdoorPvPMgr");
     }
-    RecordTimeDiff("UpdateMaps");
 
+    RecordTimeDiff(NULL);
     // execute callbacks from sql queries that were queued recently
     UpdateResultQueue();
     RecordTimeDiff("UpdateResultQueue");
@@ -1617,7 +1624,6 @@ void World::Update(time_t diff)
 
     // And last, but not least handle the issued cli commands
     ProcessCliCommands();
-    RecordTimeDiff("UpdateRemainingThings");
 }
 
 void World::ForceGameEventUpdate()

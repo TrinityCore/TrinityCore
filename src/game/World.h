@@ -517,6 +517,7 @@ class World
         void SetScriptsVersion(char const* version) { m_ScriptsVersion = version ? version : "unknown scripting library"; }
         char const* GetScriptsVersion() { return m_ScriptsVersion.c_str(); }
 
+        void RecordTimeDiff(const char * text);
     protected:
         void _UpdateGameTime();
         void ScriptsProcess();
@@ -539,7 +540,6 @@ class World
         uint32 m_updateTime, m_updateTimeSum;
         uint32 m_updateTimeCount;
         uint32 m_currentTime;
-        void RecordTimeDiff(const char * text);
 
         typedef UNORDERED_MAP<uint32, Weather*> WeatherMap;
         WeatherMap m_weathers;
