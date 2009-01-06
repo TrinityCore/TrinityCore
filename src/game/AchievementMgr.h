@@ -169,6 +169,6 @@ class AchievementGlobalMgr
         AchievementRewardLocales m_achievementRewardLocales;
 };
 
-#define achievementmgr MaNGOS::Singleton<AchievementGlobalMgr>::Instance()
+#define achievementmgr Trinity::Singleton<AchievementGlobalMgr>::Instance()
 
 #endif
