@@ -656,7 +656,8 @@ void LoadDatabase()
     LoadTrinityStrings(TScriptDB,"eventai_texts",-1,1+(TEXT_SOURCE_RANGE));
 
     // Gather Additional data from EventAI Texts
-    result = TScriptDB.PQuery("SELECT entry, sound, type, language, emote FROM eventai_texts");
+    //result = TScriptDB.PQuery("SELECT entry, sound, type, language, emote FROM eventai_texts");
+    result = TScriptDB.PQuery("SELECT entry, sound, type, language FROM eventai_texts");
 
     outstring_log("TSCR: Loading EventAI Texts additional data...");
     if (result)
@@ -674,7 +675,7 @@ void LoadDatabase()
             temp.SoundId        = fields[1].GetInt32();
             temp.Type           = fields[2].GetInt32();
             temp.Language       = fields[3].GetInt32();
-			temp.Emote          = fields[4].GetInt32();
+			temp.Emote          = 0;//fields[4].GetInt32();
 
             if (i >= 0)
             {
