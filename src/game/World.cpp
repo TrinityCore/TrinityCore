@@ -983,6 +983,7 @@ void World::LoadConfigSettings(bool reload)
     }
     if(m_MaxVisibleDistance < m_MaxVisibleDistanceInFlight)
         m_MaxVisibleDistance = m_MaxVisibleDistanceInFlight;
+    m_MaxVisibleDistance += 1.0f;
 
     ///- Read the "Data" directory from the config file
     std::string dataPath = sConfig.GetStringDefault("DataDir","./");
@@ -1461,6 +1462,17 @@ void World::DetectDBCLang()
     sLog.outString("Using %s DBC Locale as default. All available DBC locales: %s",localeNames[m_defaultDbcLocale],availableLocalsStr.empty() ? "<none>" : availableLocalsStr.c_str());
 }
 
+void World::RecordTimeDiff(const char *text)
+{
+    if(m_updateTimeCount != 1)
+        return;
+    sLog.outDebugInLine("Difftime ");
+    sLog.outDebugInLine(text);
+    uint32 thisTime = getMSTime();    
+    sLog.outDebug(": %u.", getMSTimeDiff(m_currentTime, thisTime));
+    m_currentTime = thisTime;
+}
+
 /// Update the World !
 void World::Update(time_t diff)
 {
@@ -1472,6 +1484,7 @@ void World::Update(time_t diff)
             sLog.outString("Update time diff: %u. Players online: %u.", m_updateTimeSum / m_updateTimeCount, GetActiveSessionCount());
             m_updateTimeSum = m_updateTime;
             m_updateTimeCount = 1;
+            m_currentTime = getMSTime();
         }
         else
         {
@@ -1558,6 +1571,7 @@ void World::Update(time_t diff)
             }
         }
     }
+    RecordTimeDiff("UpdateAuction");
 
     /// <li> Handle session updates when the timer has passed
     if (m_timers[WUPDATE_SESSIONS].Passed())
@@ -1566,6 +1580,7 @@ void World::Update(time_t diff)
 
         UpdateSessions(diff);
     }
+    RecordTimeDiff("UpdateSessions");
 
     /// <li> Handle weather updates when the timer has passed
     if (m_timers[WUPDATE_WEATHERS].Passed())
@@ -1597,6 +1612,7 @@ void World::Update(time_t diff)
         m_timers[WUPDATE_UPTIME].Reset();
         WorldDatabase.PExecute("UPDATE uptime SET uptime = %d, maxplayers = %d WHERE starttime = " I64FMTD, tmpDiff, maxClientsNum, uint64(m_startTime));
     }
+    RecordTimeDiff("UpdateWeatherAndUptime");
 
     /// <li> Handle all other objects
     if (m_timers[WUPDATE_OBJECTS].Passed())
@@ -1613,9 +1629,11 @@ void World::Update(time_t diff)
 
         sOutdoorPvPMgr.Update(diff);
     }
+    RecordTimeDiff("UpdateMaps");
 
     // execute callbacks from sql queries that were queued recently
     UpdateResultQueue();
+    RecordTimeDiff("UpdateResultQueue");
 
     ///- Erase corpses once every 20 minutes
     if (m_timers[WUPDATE_CORPSES].Passed())
@@ -1643,6 +1661,7 @@ void World::Update(time_t diff)
 
     // And last, but not least handle the issued cli commands
     ProcessCliCommands();
+    RecordTimeDiff("UpdateRemainingThings");
 }
 
 void World::ForceGameEventUpdate()
@@ -2339,6 +2358,7 @@ void World::ScriptsProcess()
 					sLog.outError("SCRIPT_COMMAND_CALLSCRIPT calls invallid db_script_id or lowguid not present: skipping.");
 					break;
 				}
+				//our target
 				Creature* target = NULL;
 				
 				if(source) //using grid searcher
@@ -2360,40 +2380,46 @@ void World::ScriptsProcess()
 					if(CreatureData const* data = objmgr.GetCreatureData(step.script->datalong))
 						target = ObjectAccessor::GetObjectInWorld<Creature>(data->mapid, data->posX, data->posY, MAKE_NEW_GUID(step.script->datalong, data->id, HIGHGUID_UNIT), target);
 				}
-				
+				//sLog.outDebug("attempting to pass target...");
 				if(!target)
 					break;
-				
+				//sLog.outDebug("target passed");
 				//Lets choose our ScriptMap map
-				ScriptMapMap datamap;
+				ScriptMapMap *datamap = NULL;
 				switch(step.script->dataint)
 				{
-					case 1:
-						datamap = sQuestEndScripts;
+					case 1://QUEST END SCRIPTMAP
+						datamap = &sQuestEndScripts;
 						break;
-					case 2:
-						datamap = sQuestStartScripts;
+					case 2://QUEST START SCRIPTMAP
+						datamap = &sQuestStartScripts;
 						break;
-					case 3:
-						datamap = sSpellScripts;
+					case 3://SPELLS SCRIPTMAP
+						datamap = &sSpellScripts;
 						break;
-					case 4:
-						datamap = sGameObjectScripts;
+					case 4://GAMEOBJECTS SCRIPTMAP
+						datamap = &sGameObjectScripts;
 						break;
-					case 5:
-						datamap = sEventScripts;
+					case 5://EVENTS SCRIPTMAP
+						datamap = &sEventScripts;
 						break;
-					case 6:
-						datamap = sWaypointScripts;
+					case 6://WAYPOINTS SCRIPTMAP
+						datamap = &sWaypointScripts;
 						break;
 					default:
 						sLog.outError("SCRIPT_COMMAND_CALLSCRIPT ERROR: no scriptmap present... ignoring");
-						m_scriptSchedule.erase(iter);
-						return;	
+						break;
 				}
+				//if no scriptmap present... 
+				if(!datamap)
+					break;
+				
 				uint32 script_id = step.script->datalong2;
+				//delete iter and return it to begin pos(next one)
 				m_scriptSchedule.erase(iter);
-				ScriptsStart(datamap, script_id, target, NULL);
+				iter = m_scriptSchedule.begin();
+				
+				ScriptsStart(*datamap, script_id, target, NULL);
 				return;
 			}
 			
