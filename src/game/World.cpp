@@ -2308,6 +2308,7 @@ void World::ScriptsProcess()
 					sLog.outError("SCRIPT_COMMAND_CALLSCRIPT calls invallid db_script_id or lowguid not present: skipping.");
 					break;
 				}
+				//our target
 				Creature* target = NULL;
 				
 				if(source) //using grid searcher
@@ -2329,40 +2330,46 @@ void World::ScriptsProcess()
 					if(CreatureData const* data = objmgr.GetCreatureData(step.script->datalong))
 						target = ObjectAccessor::GetObjectInWorld<Creature>(data->mapid, data->posX, data->posY, MAKE_NEW_GUID(step.script->datalong, data->id, HIGHGUID_UNIT), target);
 				}
-				
+				//sLog.outDebug("attempting to pass target...");
 				if(!target)
 					break;
-				
+				//sLog.outDebug("target passed");
 				//Lets choose our ScriptMap map
-				ScriptMapMap datamap;
+				ScriptMapMap *datamap = NULL;
 				switch(step.script->dataint)
 				{
-					case 1:
-						datamap = sQuestEndScripts;
+					case 1://QUEST END SCRIPTMAP
+						datamap = &sQuestEndScripts;
 						break;
-					case 2:
-						datamap = sQuestStartScripts;
+					case 2://QUEST START SCRIPTMAP
+						datamap = &sQuestStartScripts;
 						break;
-					case 3:
-						datamap = sSpellScripts;
+					case 3://SPELLS SCRIPTMAP
+						datamap = &sSpellScripts;
 						break;
-					case 4:
-						datamap = sGameObjectScripts;
+					case 4://GAMEOBJECTS SCRIPTMAP
+						datamap = &sGameObjectScripts;
 						break;
-					case 5:
-						datamap = sEventScripts;
+					case 5://EVENTS SCRIPTMAP
+						datamap = &sEventScripts;
 						break;
-					case 6:
-						datamap = sWaypointScripts;
+					case 6://WAYPOINTS SCRIPTMAP
+						datamap = &sWaypointScripts;
 						break;
 					default:
 						sLog.outError("SCRIPT_COMMAND_CALLSCRIPT ERROR: no scriptmap present... ignoring");
-						m_scriptSchedule.erase(iter);
-						return;	
+						break;
 				}
+				//if no scriptmap present... 
+				if(!datamap)
+					break;
+				
 				uint32 script_id = step.script->datalong2;
+				//delete iter and return it to begin pos(next one)
 				m_scriptSchedule.erase(iter);
-				ScriptsStart(datamap, script_id, target, NULL);
+				iter = m_scriptSchedule.begin();
+				
+				ScriptsStart(*datamap, script_id, target, NULL);
 				return;
 			}
 			
