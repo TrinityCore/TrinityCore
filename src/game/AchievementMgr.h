@@ -19,12 +19,18 @@
 #define __MANGOS_ACHIEVEMENTMGR_H
 
 #include "Common.h"
+#include "Policies/Singleton.h"
 #include "Database/DBCEnums.h"
 #include "Database/DBCStores.h"
 #include "Database/DatabaseEnv.h"
 
+#include <map>
+#include <string>
+
 #define CRITERIA_CAST_SPELL_REQ_COUNT 46
 #define ACHIEVEMENT_REWARD_COUNT 57
+
+typedef std::list<const AchievementCriteriaEntry*> AchievementCriteriaEntryList;
 
 struct CriteriaProgress
 {
@@ -43,10 +49,23 @@ struct CriteriaCastSpellRequirement
 
 struct AchievementReward
 {
-    uint32 achievementId;
     uint32 titleId[2];
     uint32 itemId;
+    uint32 sender;
+    std::string subject;
+    std::string text;
 };
+
+typedef std::map<uint32,AchievementReward> AchievementRewards;
+
+struct AchievementRewardLocale
+{
+    std::vector<std::string> subject;
+    std::vector<std::string> text;
+};
+
+typedef std::map<uint32,AchievementRewardLocale> AchievementRewardLocales;
+
 
 struct CompletedAchievementData
 {
@@ -95,7 +114,61 @@ class AchievementMgr
         Player* m_player;
         CriteriaProgressMap m_criteriaProgress;
         CompletedAchievementMap m_completedAchievements;
-        static const CriteriaCastSpellRequirement criteriaCastSpellRequirements[];
-        static const AchievementReward achievementRewards[];
 };
+
+class AchievementGlobalMgr
+{
+    public:
+        AchievementCriteriaEntryList const& GetAchievementCriteriaByType(AchievementCriteriaTypes type);
+
+        AchievementReward const* GetAchievementReward(AchievementEntry const* achievement) const
+        {
+            AchievementRewards::const_iterator iter = m_achievementRewards.find(achievement->ID);
+            return iter!=m_achievementRewards.end() ? &iter->second : NULL;
+        }
+
+        AchievementRewardLocale const* GetAchievementRewardLocale(AchievementEntry const* achievement) const
+        {
+            AchievementRewardLocales::const_iterator iter = m_achievementRewardLocales.find(achievement->ID);
+            return iter!=m_achievementRewardLocales.end() ? &iter->second : NULL;
+        }
+
+        static CriteriaCastSpellRequirement const * GetCriteriaCastSpellRequirement(AchievementCriteriaEntry const *achievementCriteria)
+        {
+            for (uint32 i=0; i < CRITERIA_CAST_SPELL_REQ_COUNT; ++i)
+                if (m_criteriaCastSpellRequirements[i].achievementCriteriaId == achievementCriteria->ID)
+                    return  &m_criteriaCastSpellRequirements[i];
+
+            return NULL;
+        }
+
+        bool IsRealmCompleted(AchievementEntry const* achievement) const
+        {
+            return m_allCompletedAchievements.find(achievement->ID) != m_allCompletedAchievements.end();
+        }
+
+        void SetRealmCompleted(AchievementEntry const* achievement)
+        {
+            m_allCompletedAchievements.insert(achievement->ID);
+        }
+
+        void LoadAchievementCriteriaList();
+        void LoadCompletedAchievements();
+        void LoadRewards();
+        void LoadRewardLocales();
+    private:
+        static const CriteriaCastSpellRequirement m_criteriaCastSpellRequirements[];
+
+        // store achievement criterias by type to speed up lookup
+        AchievementCriteriaEntryList m_AchievementCriteriasByType[ACHIEVEMENT_CRITERIA_TYPE_TOTAL];
+
+        typedef std::set<uint32> AllCompletedAchievements;
+        AllCompletedAchievements m_allCompletedAchievements;
+
+        AchievementRewards m_achievementRewards;
+        AchievementRewardLocales m_achievementRewardLocales;
+};
+
+#define achievementmgr MaNGOS::Singleton<AchievementGlobalMgr>::Instance()
+
 #endif
