@@ -152,11 +152,11 @@ namespace Trinity
         double x_offset = (double(x) - CENTER_GRID_CELL_OFFSET)/SIZE_OF_GRID_CELL;
         double y_offset = (double(y) - CENTER_GRID_CELL_OFFSET)/SIZE_OF_GRID_CELL;
 
-        int x_val = int(x_offset + 0.5);
-        int y_val = int(y_offset + 0.5);
-        x_off = (float(x_offset) - x_val) * SIZE_OF_GRID_CELL;
-        y_off = (float(y_offset) - y_val) * SIZE_OF_GRID_CELL;
-        return CellPair(x_val + CENTER_GRID_CELL_ID, y_val + CENTER_GRID_CELL_ID);
+        int x_val = int(x_offset + CENTER_GRID_CELL_ID + 0.5);
+        int y_val = int(y_offset + CENTER_GRID_CELL_ID + 0.5);
+        x_off = (float(x_offset) - x_val + CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL;
+        y_off = (float(y_offset) - y_val + CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL;
+        return CellPair(x_val, y_val);
     }
 
     inline void NormalizeMapCoord(float &c)
