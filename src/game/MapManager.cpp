@@ -246,17 +246,23 @@ MapManager::Update(time_t diff)
     if( !i_timer.Passed() )
         return;
 
+    sWorld.RecordTimeDiff(NULL);
     ObjectAccessor::Instance().UpdatePlayers(i_timer.GetCurrent());
+    sWorld.RecordTimeDiff("UpdatePlayers");
+
 
     for(MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
     {
         checkAndCorrectGridStatesArray();                   // debugging code, should be deleted some day
         iter->second->Update(i_timer.GetCurrent());
+        sLog.outDebugInLine("Difftime Map %u ", iter->second->GetId());
+        sWorld.RecordTimeDiff("UpdateMap");
     }
 
     ObjectAccessor::Instance().Update(i_timer.GetCurrent());
     for (TransportSet::iterator iter = m_Transports.begin(); iter != m_Transports.end(); ++iter)
         (*iter)->Update(i_timer.GetCurrent());
+    sWorld.RecordTimeDiff("UpdateTransports");
 
     i_timer.SetCurrent(0);
 }
