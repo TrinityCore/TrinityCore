@@ -790,6 +790,8 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
             break;
         case ACTION_T_FLEE:
             {
+                if(m_creature->HasAuraType(SPELL_AURA_PREVENTS_FLEEING))
+                    break;
                 TimetoFleeLeft = 8000;
                 m_creature->DoFleeToGetAssistance();
                 IsFleeing = true;

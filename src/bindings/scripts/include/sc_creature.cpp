@@ -746,8 +746,7 @@ Unit* ScriptedAI::FindCreature(uint32 entry, float range)
     Creature* target = NULL;
 	Trinity::AllCreaturesOfEntryInRange check(m_creature, entry, range);
 	Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(target, check);
-    m_creature->VisitNearbyGridObject(range, searcher);
-    if(!target) error_log("SD2 ERROR: Entry: %u not found!", entry);
+    m_creature->VisitNearbyObject(range, searcher);
     return target;
 }
 
@@ -757,70 +756,33 @@ GameObject* ScriptedAI::FindGameObject(uint32 entry, float range)
 	Trinity::AllGameObjectsWithEntryInGrid go_check(entry);
     Trinity::GameObjectSearcher<Trinity::AllGameObjectsWithEntryInGrid> searcher(target, go_check);
     m_creature->VisitNearbyGridObject(range, searcher);
-    if(!target) error_log("SD2 ERROR: Entry: %u not found!", entry);
     return target;
 }
 
 Unit* ScriptedAI::DoSelectLowestHpFriendly(float range, uint32 MinHPDiff)
 {
-    CellPair p(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
-    Cell cell(p);
-    cell.data.Part.reserved = ALL_DISTRICT;
-    cell.SetNoCreate();
-
     Unit* pUnit = NULL;
-
     Trinity::MostHPMissingInRange u_check(m_creature, range, MinHPDiff);
     Trinity::UnitLastSearcher<Trinity::MostHPMissingInRange> searcher(pUnit, u_check);
-
-    /*
-    typedef TYPELIST_4(GameObject, Creature*except pets*, DynamicObject, Corpse*Bones*) AllGridObjectTypes;
-    This means that if we only search grid then we cannot possibly return pets or players so this is safe
-    */
-    TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::MostHPMissingInRange>, GridTypeMapContainer >  grid_unit_searcher(searcher);
-
-    CellLock<GridReadGuard> cell_lock(cell, p);
-    cell_lock->Visit(cell_lock, grid_unit_searcher, *(m_creature->GetMap()));
+    m_creature->VisitNearbyObject(range, searcher);
     return pUnit;
 }
 
 std::list<Creature*> ScriptedAI::DoFindFriendlyCC(float range)
 {
-    CellPair p(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
-    Cell cell(p);
-    cell.data.Part.reserved = ALL_DISTRICT;
-    cell.SetNoCreate();
-
     std::list<Creature*> pList;
-
     Trinity::FriendlyCCedInRange u_check(m_creature, range);
     Trinity::CreatureListSearcher<Trinity::FriendlyCCedInRange> searcher(pList, u_check);
-
-    TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::FriendlyCCedInRange>, GridTypeMapContainer >  grid_creature_searcher(searcher);
-
-    CellLock<GridReadGuard> cell_lock(cell, p);
-    cell_lock->Visit(cell_lock, grid_creature_searcher, *(m_creature->GetMap()));
-    
+    m_creature->VisitNearbyObject(range, searcher);
     return pList;
 }
 
 std::list<Creature*> ScriptedAI::DoFindFriendlyMissingBuff(float range, uint32 spellid)
 {
-    CellPair p(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
-    Cell cell(p);
-    cell.data.Part.reserved = ALL_DISTRICT;
-    cell.SetNoCreate();
-
     std::list<Creature*> pList;
-
     Trinity::FriendlyMissingBuffInRange u_check(m_creature, range, spellid);
     Trinity::CreatureListSearcher<Trinity::FriendlyMissingBuffInRange> searcher(pList, u_check);
-
-    TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::FriendlyMissingBuffInRange>, GridTypeMapContainer >  grid_creature_searcher(searcher);
-
-    CellLock<GridReadGuard> cell_lock(cell, p);
-    cell_lock->Visit(cell_lock, grid_creature_searcher, *(m_creature->GetMap()));
-    
+    m_creature->VisitNearbyObject(range, searcher);
     return pList;
 }
 

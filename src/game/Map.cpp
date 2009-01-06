@@ -657,24 +657,30 @@ void Map::RelocationNotify()
 {
     //creatures may be added to the list during update
     i_lock = true;
+
+    //Notify
     for(std::vector<uint64>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
     {
         Unit *unit = ObjectAccessor::GetObjectInWorld(*iter, (Unit*)NULL);
-        if(!unit) continue;
+        if(!unit)
+            continue;
+
         unit->m_Notified = true;
+
         if(!unit->IsInWorld())
             continue;
-        CellPair val = Trinity::ComputeCellPair(unit->GetPositionX(), unit->GetPositionY());
-        Cell cell(val);
-        cell.SetNoCreate();
-        //if(unit->GetTypeId() == TYPEID_PLAYER)
-        //    PlayerRelocationNotify((Player*)unit, cell, val);
-        //else
-        //    CreatureRelocationNotify((Creature*)unit, cell, val);
+
         if(unit->GetTypeId() == TYPEID_PLAYER)
         {
-            UpdatePlayerVisibility((Player*)unit, cell, val);
-            UpdateObjectsVisibilityFor((Player*)unit, cell, val);
+            //UpdatePlayerVisibility((Player*)unit, cell, val);
+            //Trinity::PlayerNotifier pl_notifier(*player);
+            //VisitWorld(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), pl_notifier);
+
+            //UpdateObjectsVisibilityFor((Player*)unit, cell, val);
+            Trinity::VisibleNotifier ob_notifier(*((Player*)unit));
+            VisitAll(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), ob_notifier);
+            ob_notifier.Notify();
+
             Trinity::PlayerRelocationNotifier notifier(*((Player*)unit));
             VisitAll(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
         }
@@ -683,7 +689,20 @@ void Map::RelocationNotify()
             Trinity::CreatureRelocationNotifier notifier(*((Creature*)unit));
             VisitAll(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
         }
+
+        // Update visibility back to player who is controlling the unit
+        if(unit->GetSharedVisionList().size())
+        {
+            for(SharedVisionList::const_iterator it = unit->GetSharedVisionList().begin(); it != unit->GetSharedVisionList().end(); ++it)
+            {
+                Trinity::VisibleNotifier ob_notifier(**it);
+                VisitAll(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), ob_notifier);
+                ob_notifier.Notify();
+            }
+        }
     }
+
+    //Clear list
     for(std::vector<uint64>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
     {
         if(Unit *unit = ObjectAccessor::GetObjectInWorld(*iter, (Unit*)NULL))
@@ -693,6 +712,7 @@ void Map::RelocationNotify()
         }
     }
     i_unitsToNotify.clear();
+
     i_lock = false;
 }
 
@@ -814,7 +834,8 @@ void Map::Remove(Player *player, bool remove)
 
     SendRemoveTransports(player);
 
-    UpdateObjectsVisibilityFor(player,cell,p);
+    //UpdateObjectsVisibilityFor(player,cell,p);
+    AddUnitToNotify(player);
 
     if( remove )
         DeleteFromWorld(player);
@@ -903,8 +924,8 @@ Map::PlayerRelocation(Player *player, float x, float y, float z, float orientati
     //UpdateObjectsVisibilityFor(player,new_cell,new_val);
 
     // also update what possessing player sees
-    if(player->isPossessedByPlayer())
-        UpdateObjectsVisibilityFor((Player*)player->GetCharmer(), new_cell, new_val);
+    //if(player->isPossessedByPlayer())
+    //    UpdateObjectsVisibilityFor((Player*)player->GetCharmer(), new_cell, new_val);
 
     //PlayerRelocationNotify(player,new_cell,new_val);
     AddUnitToNotify(player);
@@ -947,8 +968,8 @@ Map::CreatureRelocation(Creature *creature, float x, float y, float z, float ang
     {
         creature->Relocate(x, y, z, ang);
         // Update visibility back to player who is controlling the creature
-        if(creature->isPossessedByPlayer())
-            UpdateObjectsVisibilityFor((Player*)creature->GetCharmer(), new_cell, new_val);
+        //if(creature->isPossessedByPlayer())
+        //    UpdateObjectsVisibilityFor((Player*)creature->GetCharmer(), new_cell, new_val);
 
         //CreatureRelocationNotify(creature,new_cell,new_val);
         AddUnitToNotify(creature);
@@ -1408,7 +1429,7 @@ void Map::UpdateObjectVisibility( WorldObject* obj, Cell cell, CellPair cellpair
     cell_lock->Visit(cell_lock, player_notifier, *this);
 }
 
-void Map::UpdatePlayerVisibility( Player* player, Cell cell, CellPair cellpair )
+/*void Map::UpdatePlayerVisibility( Player* player, Cell cell, CellPair cellpair )
 {
     cell.data.Part.reserved = ALL_DISTRICT;
 
@@ -1417,7 +1438,7 @@ void Map::UpdatePlayerVisibility( Player* player, Cell cell, CellPair cellpair )
 
     CellLock<ReadGuard> cell_lock(cell, cellpair);
     cell_lock->Visit(cell_lock, player_notifier, *this);
-}
+}*/
 
 void Map::UpdateObjectsVisibilityFor( Player* player, Cell cell, CellPair cellpair )
 {

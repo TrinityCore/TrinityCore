@@ -466,6 +466,9 @@ class ChatHandler
         bool HandlePlayAllCommand(const char* args);
         bool HandleRepairitemsCommand(const char* args);
 
+		bool HandleTempGameObjectCommand(const char* args);
+        bool HandleTempAddSpwCommand(const char* args);
+
         //! Development Commands
         bool HandleSetValue(const char* args);
         bool HandleGetValue(const char* args);
