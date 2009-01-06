@@ -1079,6 +1079,12 @@ Visibility.Distance.Grey.Object = 10
 #         Default: 1 (enabled)
 #                  0 (disabled)
 #
+#    Death.Bones.World
+#    Death.Bones.BattlegroundOrArena
+#         Enabled/disabled creating bones instead corpse at resurrection (in normal zones/instacnes, or battleground/arenas)
+#         Default: 1 (enabled)
+#                  0 (disabled)
+#
 ###################################################################################################################
 
 Rate.Health = 1
@@ -1132,6 +1138,8 @@ DurabilityLossChance.Block  = 0.05
 Death.SicknessLevel = 11
 Death.CorpseReclaimDelay.PvP = 1
 Death.CorpseReclaimDelay.PvE = 1
+Death.Bones.World = 1
+Death.Bones.BattlegroundOrArena = 1
 
 ###################################################################################################################
 #
