@@ -27,8 +27,13 @@
 #include "GameEvent.h"
 #include "World.h"
 #include "SpellMgr.h"
+#include "ProgressBar.h"
 
-const CriteriaCastSpellRequirement AchievementMgr::criteriaCastSpellRequirements[CRITERIA_CAST_SPELL_REQ_COUNT] =
+#include "Policies/SingletonImp.h"
+
+INSTANTIATE_SINGLETON_1(AchievementGlobalMgr);
+
+const CriteriaCastSpellRequirement AchievementGlobalMgr::m_criteriaCastSpellRequirements[CRITERIA_CAST_SPELL_REQ_COUNT] =
     {
         {5272, 3057, 0, 0},
         {5273, 2784, 0, 0},
@@ -76,68 +81,6 @@ const CriteriaCastSpellRequirement AchievementMgr::criteriaCastSpellRequirements
         {6320, 0, CLASS_PALADIN, RACE_DRAENEI},
         {6321, 0, CLASS_HUNTER, RACE_DWARF},
         {6662, 31261, 0, 0}
-        };
-
-const AchievementReward AchievementMgr::achievementRewards[ACHIEVEMENT_REWARD_COUNT] =
-    {
-        // achievementId, horde titleid, alliance titleid, itemid 
-        {45, 0, 0, 43348},
-        {46, 78, 78, 0},
-        {230, 72, 72, 0},
-        {456, 139, 139, 0},
-        {614, 0, 0, 44223},
-        {619, 0, 0, 44224},
-        {714, 47, 47, 0},
-        {762, 130, 130, 0},
-        {870, 127, 126, 0},
-        {871, 144, 144, 0},
-        {876, 0, 0, 43349},
-        {907, 48, 48, 0},
-        {913, 74, 74, 0},
-        {942, 79, 79, 0},
-        {943, 79, 79, 0},
-        {945, 131, 131, 0},
-        {948, 130, 130, 0},
-        {953, 132, 132, 0},
-        {978, 81, 81, 0},
-        {1015, 77, 77, 0},
-        {1021, 0, 0, 40643},
-        {1038, 75, 75, 0},
-        {1039, 76, 76, 0},
-        {1163, 128, 128, 0},
-        {1174, 82, 82, 0},
-        {1175, 72, 72, 0},
-        {1250, 0, 0, 40653},
-        {1400, 120, 120, 0},
-        {1402, 122, 122, 0},
-        {1516, 83, 83, 0},
-        {1563, 84, 84, 0},
-        {1656, 124, 124, 0},
-        {1657, 124, 124, 0},
-        {1658, 129, 129, 0},
-        {1681, 125, 125, 43300},
-        {1682, 125, 125, 43300},
-        {1683, 133, 133, 0},
-        {1684, 133, 133, 0},
-        {1691, 134, 134, 0},
-        {1692, 134, 134, 0},
-        {1693, 135, 135, 0},
-        {1707, 135, 135, 0},
-        {1784, 84, 84, 0},
-        {1793, 137, 137, 0},
-        {1956, 0, 0, 43824},
-        {2051, 140, 140, 0},
-        {2054, 121, 121, 0},
-        {2096, 0, 0, 44430},
-        {2136, 0, 0, 0},// <- TODO: find item for spell 59961
-        {2137, 0, 0, 0},// <- TODO: find item for spell 60021
-        {2138, 0, 0, 0},// <- TODO: find item for spell 59976
-        {2143, 0, 0, 44178},
-        {2144, 0, 0, 0},// <- TODO: find item for spell 60024
-        {2145, 0, 0, 0},// <- TODO: find item for spell 60024
-        {2186, 141, 141, 0},
-        {2187, 142, 142, 0},
-        {2188, 143, 143, 0}
     };
 
 AchievementMgr::AchievementMgr(Player *player)
@@ -364,7 +307,7 @@ void AchievementMgr::CheckAllAchievementCriteria()
 void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1, uint32 miscvalue2, Unit *unit, uint32 time)
 {
     sLog.outDetail("AchievementMgr::UpdateAchievementCriteria(%u, %u, %u, %u)", type, miscvalue1, miscvalue2, time);
-    AchievementCriteriaEntryList const& achievementCriteriaList = objmgr.GetAchievementCriteriaByType(type);
+    AchievementCriteriaEntryList const& achievementCriteriaList = achievementmgr.GetAchievementCriteriaByType(type);
     for(AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i!=achievementCriteriaList.end(); ++i)
     {
         AchievementCriteriaEntry const *achievementCriteria = (*i);
@@ -523,19 +466,9 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             {
                 if (!miscvalue1 || miscvalue1 != achievementCriteria->cast_spell.spellID)
                     continue;
+
                 // those requirements couldn't be found in the dbc
-
-                const CriteriaCastSpellRequirement *requirement = NULL;
-                for (uint32 i=0; i<CRITERIA_CAST_SPELL_REQ_COUNT; i++)
-                {
-                    if (criteriaCastSpellRequirements[i].achievementCriteriaId == achievementCriteria->ID)
-                    {
-                        requirement = &criteriaCastSpellRequirements[i];
-                        break;
-                    }
-                }
-
-                if (requirement)
+                if (CriteriaCastSpellRequirement const* requirement = AchievementGlobalMgr::GetCriteriaCastSpellRequirement(achievementCriteria))
                 {
                     if (!unit)
                         continue;
@@ -549,6 +482,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     if (requirement->playerClass && (unit->GetTypeId() != TYPEID_PLAYER || unit->getClass()!=requirement->playerClass))
                         continue;
                 }
+
                 SetCriteriaProgress(achievementCriteria, 1, true);
                 break;
             }
@@ -653,7 +587,7 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
     if(achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
     {
         // someone on this realm has already completed that achievement
-        if(objmgr.allCompletedAchievements.find(achievement->ID)!=objmgr.allCompletedAchievements.end())
+        if(achievementmgr.IsRealmCompleted(achievement))
             return false;
     }
 
@@ -838,55 +772,58 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
     // don't insert for ACHIEVEMENT_FLAG_REALM_FIRST_KILL since otherwise only the first group member would reach that achievement
     // TODO: where do set this instead?
     if(!(achievement->flags & ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
-        objmgr.allCompletedAchievements.insert(achievement->ID);
+        achievementmgr.SetRealmCompleted(achievement);
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT);
 
-    // reward items and titles
-    // TODO: rewards should be send by mail
-    AchievementReward const* reward = NULL;
-    for (uint32 i=0; i<ACHIEVEMENT_REWARD_COUNT; i++)
-    {
-        if (achievementRewards[i].achievementId == achievement->ID)
-        {
-            reward = &achievementRewards[i];
-            break;
-        }
-    }
+    // reward items and titles if any
+    AchievementReward const* reward = achievementmgr.GetAchievementReward(achievement);
 
-    if (reward)
+    // no rewards
+    if(!reward)
+        return;
+
+    // titles
+    if(uint32 titleId = reward->titleId[GetPlayer()->GetTeam() == HORDE?0:1])
     {
-        uint32 titleId = reward->titleId[GetPlayer()->GetTeam() == HORDE?0:1];
         if(CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(titleId))
             GetPlayer()->SetTitle(titleEntry);
+    }
 
-        if (reward->itemId)
+    // mail
+    if(reward->sender)
+    {
+        Item* item = reward->itemId ? Item::CreateItem(reward->itemId,1,GetPlayer ()) : NULL;
+
+        MailItemsInfo mi;
+        if(item)
         {
-            ItemPrototype const *pProto = objmgr.GetItemPrototype( reward->itemId );
+            // save new item before send
+            item->SaveToDB();                               // save for prevent lost at next mail load, if send fail then item will deleted
 
-            if(!pProto)
+            // item
+            mi.AddItem(item->GetGUIDLow(), item->GetEntry(), item);
+        }
+
+        int loc_idx = GetPlayer()->GetSession()->GetSessionDbLocaleIndex();
+
+        // subject and text
+        std::string subject = reward->subject;
+        std::string text = reward->text;
+        if ( loc_idx >= 0 )
+        {
+            if(AchievementRewardLocale const* loc = achievementmgr.GetAchievementRewardLocale(achievement))
             {
-                GetPlayer()->SendEquipError( EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL );
-                return;
-            }
-
-            ItemPosCountVec dest;
-            uint32 no_space = 0;
-            uint8 msg = GetPlayer()->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, reward->itemId, 1, &no_space );
-
-            if( msg != EQUIP_ERR_OK )
-            {
-                GetPlayer()->SendEquipError( msg, NULL, NULL );
-                return;
-            }
-            Item* pItem = GetPlayer()->StoreNewItem( dest, reward->itemId, true);
-
-            if(!pItem)
-            {
-                GetPlayer()->SendEquipError( EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL );
-                return;
+                if (loc->subject.size() > size_t(loc_idx) && !loc->subject[loc_idx].empty())
+                    subject = loc->subject[loc_idx];
+                if (loc->text.size() > size_t(loc_idx) && !loc->text[loc_idx].empty())
+                    text = loc->text[loc_idx];
             }
         }
+
+        uint32 itemTextId = objmgr.CreateItemText( text );
+
+        WorldSession::SendMailTo(GetPlayer(), MAIL_CREATURE, MAIL_STATIONERY_NORMAL, reward->sender, GetPlayer()->GetGUIDLow(), subject, itemTextId , &mi, 0, 0, MAIL_CHECK_MASK_NONE);
     }
 }
 
@@ -931,4 +868,218 @@ void AchievementMgr::BuildAllDataPacket(WorldPacket *data)
     }
 
     *data << int32(-1);
+}
+
+//==========================================================
+AchievementCriteriaEntryList const& AchievementGlobalMgr::GetAchievementCriteriaByType(AchievementCriteriaTypes type)
+{
+    return m_AchievementCriteriasByType[type];
+}
+
+void AchievementGlobalMgr::LoadAchievementCriteriaList()
+{
+    for (uint32 entryId = 0; entryId<sAchievementCriteriaStore.GetNumRows(); entryId++)
+    {
+        AchievementCriteriaEntry const* criteria = sAchievementCriteriaStore.LookupEntry(entryId);
+        if(!criteria)
+            continue;
+
+        m_AchievementCriteriasByType[criteria->requiredType].push_back(criteria);
+    }
+}
+
+
+void AchievementGlobalMgr::LoadCompletedAchievements()
+{
+    QueryResult *result = CharacterDatabase.Query("SELECT achievement FROM character_achievement GROUP BY achievement");
+
+    if(!result)
+        return;
+
+    do
+    {
+        Field *fields = result->Fetch();
+        m_allCompletedAchievements.insert(fields[0].GetUInt32());
+    } while(result->NextRow());
+
+    delete result;
+}
+
+void AchievementGlobalMgr::LoadRewards()
+{
+    m_achievementRewards.clear();                             // need for reload case
+
+    //                                                0      1        2        3     4       5        6
+    QueryResult *result = WorldDatabase.Query("SELECT entry, title_A, title_H, item, sender, subject, text FROM achievement_reward");
+
+    if(!result)
+    {
+        barGoLink bar(1);
+
+        bar.step();
+
+        sLog.outString("");
+        sLog.outString(">> Loaded 0 achievement rewards. DB table `achievement_reward` is empty.");
+        return;
+    }
+
+    barGoLink bar(result->GetRowCount());
+
+    do
+    {
+        Field *fields = result->Fetch();
+        bar.step();
+
+        uint32 entry = fields[0].GetUInt32();
+        if (!sAchievementStore.LookupEntry(entry))
+        {
+            sLog.outErrorDb( "Table `achievement_reward` has wrong achievement (Entry: %u), ignore", entry);
+            continue;
+        }
+
+        AchievementReward reward;
+        reward.titleId[0] = fields[1].GetUInt32();
+        reward.titleId[1] = fields[2].GetUInt32();
+        reward.itemId     = fields[3].GetUInt32();
+        reward.sender     = fields[4].GetUInt32();
+        reward.subject    = fields[5].GetCppString();
+        reward.text       = fields[6].GetCppString();
+
+        if ((reward.titleId[0]==0)!=(reward.titleId[1]==0))
+            sLog.outErrorDb( "Table `achievement_reward` (Entry: %u) has title (A: %u H: %u) only for one from teams.", entry, reward.titleId[0], reward.titleId[1]);
+
+        // must be title or mail at least
+        if (!reward.titleId[0] && !reward.titleId[1] && !reward.sender)
+        {
+            sLog.outErrorDb( "Table `achievement_reward` (Entry: %u) not have title or item reward data, ignore.", entry);
+            continue;
+        }
+
+        if (reward.titleId[0])
+        {
+            CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(reward.titleId[0]);
+            if (!titleEntry)
+            {
+                sLog.outErrorDb( "Table `achievement_reward` (Entry: %u) has invalid title id (%u) in `title_A`, set to 0", entry, reward.titleId[0]);
+                reward.titleId[0] = 0;
+            }
+        }
+
+        if (reward.titleId[1])
+        {
+            CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(reward.titleId[1]);
+            if (!titleEntry)
+            {
+                sLog.outErrorDb( "Table `achievement_reward` (Entry: %u) has invalid title id (%u) in `title_A`, set to 0", entry, reward.titleId[1]);
+                reward.titleId[1] = 0;
+            }
+        }
+
+        //check mail data before item for report including wrong item case
+        if (reward.sender)
+        {
+            if (!objmgr.GetCreatureTemplate(reward.sender))
+            {
+                sLog.outErrorDb( "Table `achievement_reward` (Entry: %u) has invalid creature entry %u as sender, mail reward skipped.", entry, reward.sender);
+                reward.sender = 0;
+            }
+        }
+        else
+        {
+            if (reward.itemId)
+                sLog.outErrorDb( "Table `achievement_reward` (Entry: %u) not have sender data but have item reward, item will not rewarded", entry);
+
+            if (!reward.subject.empty())
+                sLog.outErrorDb( "Table `achievement_reward` (Entry: %u) not have sender data but have mail subject.", entry);
+
+            if (!reward.text.empty())
+                sLog.outErrorDb( "Table `achievement_reward` (Entry: %u) not have sender data but have mail text.", entry);
+        }
+
+        if (reward.itemId)
+        {
+            if (!objmgr.GetItemPrototype(reward.itemId))
+            {
+                sLog.outErrorDb( "Table `achievement_reward` (Entry: %u) has invalid item id %u, reward mail will be without item.", entry, reward.itemId);
+                reward.itemId = 0;
+            }
+        }
+
+        m_achievementRewards[entry] = reward;
+
+    } while (result->NextRow());
+
+    delete result;
+
+    sLog.outString();
+    sLog.outString( ">> Loaded %u achievement reward locale strings", m_achievementRewardLocales.size() );
+}
+
+void AchievementGlobalMgr::LoadRewardLocales()
+{
+    m_achievementRewardLocales.clear();                       // need for reload case
+
+    QueryResult *result = WorldDatabase.Query("SELECT entry,subject_loc1,text_loc1,subject_loc2,text_loc2,subject_loc3,text_loc3,subject_loc4,text_loc4,subject_loc5,text_loc5,subject_loc6,text_loc6,subject_loc7,text_loc7,subject_loc8,text_loc8 FROM locales_achievement_reward");
+
+    if(!result)
+    {
+        barGoLink bar(1);
+
+        bar.step();
+
+        sLog.outString("");
+        sLog.outString(">> Loaded 0 achievement reward locale strings. DB table `locales_achievement_reward` is empty.");
+        return;
+    }
+
+    barGoLink bar(result->GetRowCount());
+
+    do
+    {
+        Field *fields = result->Fetch();
+        bar.step();
+
+        uint32 entry = fields[0].GetUInt32();
+
+        if(m_achievementRewards.find(entry)==m_achievementRewards.end())
+        {
+            sLog.outErrorDb( "Table `locales_achievement_reward` (Entry: %u) has locale strings for not existed achievement reward .", entry);
+            continue;
+        }
+
+        AchievementRewardLocale& data = m_achievementRewardLocales[entry];
+
+        for(int i = 1; i < MAX_LOCALE; ++i)
+        {
+            std::string str = fields[1+2*(i-1)].GetCppString();
+            if(!str.empty())
+            {
+                int idx = objmgr.GetOrNewIndexForLocale(LocaleConstant(i));
+                if(idx >= 0)
+                {
+                    if(data.subject.size() <= idx)
+                        data.subject.resize(idx+1);
+
+                    data.subject[idx] = str;
+                }
+            }
+            str = fields[1+2*(i-1)+1].GetCppString();
+            if(!str.empty())
+            {
+                int idx = objmgr.GetOrNewIndexForLocale(LocaleConstant(i));
+                if(idx >= 0)
+                {
+                    if(data.text.size() <= idx)
+                        data.text.resize(idx+1);
+
+                    data.text[idx] = str;
+                }
+            }
+        }
+    } while (result->NextRow());
+
+    delete result;
+
+    sLog.outString();
+    sLog.outString( ">> Loaded %u achievement reward locale strings", m_achievementRewardLocales.size() );
 }

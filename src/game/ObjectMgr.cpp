@@ -642,22 +642,6 @@ void ObjectMgr::LoadCreatureLocales()
     sLog.outString( ">> Loaded %u creature locale strings", mCreatureLocaleMap.size() );
 }
 
-void ObjectMgr::LoadCompletedAchievements()
-{
-    QueryResult *result = CharacterDatabase.Query("SELECT achievement FROM character_achievement GROUP BY achievement");
-
-    if(!result)
-        return;
-
-    do
-    {
-        Field *fields = result->Fetch();
-        allCompletedAchievements.insert(fields[0].GetUInt32());
-    } while(result->NextRow());
-
-    delete result;
-}
-
 void ObjectMgr::LoadNpcOptionLocales()
 {
     mNpcOptionLocaleMap.clear();                              // need for reload case
@@ -6491,23 +6475,6 @@ int ObjectMgr::GetOrNewIndexForLocale( LocaleConstant loc )
 
     m_LocalForIndex.push_back(loc);
     return m_LocalForIndex.size()-1;
-}
-
-AchievementCriteriaEntryList const& ObjectMgr::GetAchievementCriteriaByType(AchievementCriteriaTypes type)
-{
-    return m_AchievementCriteriasByType[type];
-}
-
-void ObjectMgr::LoadAchievementCriteriaList()
-{
-    for (uint32 entryId = 0; entryId<sAchievementCriteriaStore.GetNumRows(); entryId++)
-    {
-        AchievementCriteriaEntry const* criteria = sAchievementCriteriaStore.LookupEntry(entryId);
-        if(!criteria)
-            continue;
-
-        m_AchievementCriteriasByType[criteria->requiredType].push_back(criteria);
-    }
 }
 
 void ObjectMgr::LoadBattleMastersEntry()

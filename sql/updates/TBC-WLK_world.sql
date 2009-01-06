@@ -1,3 +1,39 @@
+DROP TABLE IF EXISTS `achievement_reward`;
+CREATE TABLE `achievement_reward` (
+  `entry` mediumint(8) unsigned NOT NULL default '0',
+  `title_A` mediumint(8) unsigned NOT NULL default '0',
+  `title_H` mediumint(8) unsigned NOT NULL default '0',
+  `item` mediumint(8) unsigned NOT NULL default '0',
+  `sender` mediumint(8) unsigned NOT NULL default '0',
+  `subject` varchar(255) default NULL,
+  `text` text,
+  PRIMARY KEY  (`entry`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
+
+
+DROP TABLE IF EXISTS `locales_achievement_reward`;
+CREATE TABLE `locales_achievement_reward` (
+  `entry` mediumint(8) unsigned NOT NULL default '0',
+  `subject_loc1` varchar(100) NOT NULL default '',
+  `subject_loc2` varchar(100) NOT NULL default '',
+  `subject_loc3` varchar(100) NOT NULL default '',
+  `subject_loc4` varchar(100) NOT NULL default '',
+  `subject_loc5` varchar(100) NOT NULL default '',
+  `subject_loc6` varchar(100) NOT NULL default '',
+  `subject_loc7` varchar(100) NOT NULL default '',
+  `subject_loc8` varchar(100) NOT NULL default '',
+  `text_loc1` text default NULL,
+  `text_loc2` text default NULL,
+  `text_loc3` text default NULL,
+  `text_loc4` text default NULL,
+  `text_loc5` text default NULL,
+  `text_loc6` text default NULL,
+  `text_loc7` text default NULL,
+  `text_loc8` text default NULL,
+  PRIMARY KEY  (`entry`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
 DELETE FROM battleground_template WHERE id IN (9,10,11);
 INSERT INTO battleground_template VALUES
 (9,0,0,0,0,1367,0,1368,0),
