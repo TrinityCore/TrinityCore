@@ -36,8 +36,8 @@ SpellMgr::SpellMgr()
             case SPELL_EFFECT_PERSISTENT_AREA_AURA: //27
             case SPELL_EFFECT_SUMMON:               //28
             case SPELL_EFFECT_TRIGGER_MISSILE:      //32
-            case SPELL_EFFECT_SUMMON_WILD:          //41
-            case SPELL_EFFECT_SUMMON_GUARDIAN:      //42
+            //case SPELL_EFFECT_SUMMON_WILD:          //41 not 303
+            //case SPELL_EFFECT_SUMMON_GUARDIAN:      //42 not 303
             case SPELL_EFFECT_TRANS_DOOR:           //50 summon object
             case SPELL_EFFECT_SUMMON_PET:           //56
             case SPELL_EFFECT_ADD_FARSIGHT:         //72
@@ -48,13 +48,13 @@ SpellMgr::SpellMgr()
             //case SPELL_EFFECT_SUMMON_TOTEM_SLOT2:   //88
             //case SPELL_EFFECT_SUMMON_TOTEM_SLOT3:   //89
             //case SPELL_EFFECT_SUMMON_TOTEM_SLOT4:   //90
-            case SPELL_EFFECT_SUMMON_CRITTER:       //97
+            //case SPELL_EFFECT_SUMMON_CRITTER:       //97 not 303
             case SPELL_EFFECT_SUMMON_OBJECT_SLOT1:  //104
             case SPELL_EFFECT_SUMMON_OBJECT_SLOT2:  //105
             case SPELL_EFFECT_SUMMON_OBJECT_SLOT3:  //106
             case SPELL_EFFECT_SUMMON_OBJECT_SLOT4:  //107
             case SPELL_EFFECT_SUMMON_DEAD_PET:      //109
-            case SPELL_EFFECT_SUMMON_DEMON:         //112
+            //case SPELL_EFFECT_SUMMON_DEMON:         //112 not 303
             case SPELL_EFFECT_TRIGGER_SPELL_2:      //151 ritual of summon
                 EffectTargetType[i] = SPELL_REQUIRE_DEST;
                 break;
@@ -1019,15 +1019,12 @@ void SpellMgr::LoadSpellProcEvents()
 
     uint32 count = 0;
 
-    //                                                0      1           2                3                4          5       6        7             8
-    QueryResult *result = WorldDatabase.Query("SELECT entry, SchoolMask, SpellFamilyName, SpellFamilyMask, procFlags, procEx, ppmRate, CustomChance, Cooldown FROM spell_proc_event");
+    //                                                0      1           2                3                 4                 5                 6          7       8        9             10
+    QueryResult *result = WorldDatabase.Query("SELECT entry, SchoolMask, SpellFamilyName, SpellFamilyMask0, SpellFamilyMask1, SpellFamilyMask2, procFlags, procEx, ppmRate, CustomChance, Cooldown FROM spell_proc_event");
     if( !result )
     {
-
         barGoLink bar( 1 );
-
         bar.step();
-
         sLog.outString();
         sLog.outString( ">> Loaded %u spell proc event conditions", count  );
         return;
@@ -1054,12 +1051,13 @@ void SpellMgr::LoadSpellProcEvents()
 
         spe.schoolMask      = fields[1].GetUInt32();
         spe.spellFamilyName = fields[2].GetUInt32();
-        spe.spellFamilyMask = fields[3].GetUInt64();
-        spe.procFlags       = fields[4].GetUInt32();
-        spe.procEx          = fields[5].GetUInt32();
-        spe.ppmRate         = fields[6].GetFloat();
-        spe.customChance    = fields[7].GetFloat();
-        spe.cooldown        = fields[8].GetUInt32();
+        spe.spellFamilyMask = (uint64)fields[3].GetUInt32()|((uint64)fields[4].GetUInt32()<<32);
+        spe.spellFamilyMask2= fields[5].GetUInt32();
+        spe.procFlags       = fields[6].GetUInt32();
+        spe.procEx          = fields[7].GetUInt32();
+        spe.ppmRate         = fields[8].GetFloat();
+        spe.customChance    = fields[9].GetFloat();
+        spe.cooldown        = fields[10].GetUInt32();
 
         mSpellProcEventMap[entry] = spe;
 
@@ -1120,9 +1118,10 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const * spellP
                 return false;
 
             // spellFamilyName is Ok need check for spellFamilyMask if present
-            if(spellProcEvent->spellFamilyMask)
+            if(spellProcEvent->spellFamilyMask || spellProcEvent->spellFamilyMask2)
             {
-                if ((spellProcEvent->spellFamilyMask & procSpell->SpellFamilyFlags) == 0)
+                if ((spellProcEvent->spellFamilyMask  & procSpell->SpellFamilyFlags ) == 0 &&
+                    (spellProcEvent->spellFamilyMask2 & procSpell->SpellFamilyFlags2) == 0)
                     return false;
                 active = true; // Spell added manualy -> so its active spell
             }

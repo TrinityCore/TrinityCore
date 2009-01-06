@@ -4161,9 +4161,7 @@ uint8 Spell::CanCast(bool strict)
 
                 break;
             }
-            // This is generic summon effect now and don't make this check for summon types similar
-            // SPELL_EFFECT_SUMMON_CRITTER, SPELL_EFFECT_SUMMON_WILD or SPELL_EFFECT_SUMMON_GUARDIAN.
-            // These won't show up in m_caster->GetPetGUID()
+            // This is generic summon effect 
             case SPELL_EFFECT_SUMMON:
             {
                 switch(m_spellInfo->EffectMiscValueB[i])
@@ -4184,10 +4182,8 @@ uint8 Spell::CanCast(bool strict)
                 }
                 break;
             }
-            // Don't make this check for SPELL_EFFECT_SUMMON_CRITTER, SPELL_EFFECT_SUMMON_WILD or SPELL_EFFECT_SUMMON_GUARDIAN.
-            // These won't show up in m_caster->GetPetGUID()
+            // Not used for summon?
             case SPELL_EFFECT_SUMMON_PHANTASM:
-            case SPELL_EFFECT_SUMMON_DEMON:
             {
                 if(m_caster->GetPetGUID())
                     return SPELL_FAILED_ALREADY_HAVE_SUMMON;

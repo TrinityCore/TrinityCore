@@ -4775,6 +4775,15 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     target = this;
                     break;
                 }
+                // Vampiric Touch (generic, used by some boss)
+                case 52723:
+                case 60501:
+                {
+                    triggered_spell_id = 52724;
+                    basepoints0 = damage / 2;
+                    target = this;
+                    break;
+                }
             }
             break;
         }
@@ -7677,6 +7686,16 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                             case 911: crit_chance+= 50.0f; break; //Shatter Rank 3
                         }
                     }
+                }
+                // Glyph of Shadowburn
+                if (spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK &&
+                    spellProto->SpellFamilyFlags & 0x0000000000000080 && 
+                    pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT))
+                {
+                    AuraList const& mOverrideClassScript = GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
+                    for(AuraList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
+                        if((*i)->GetModifier()->m_miscvalue == 7917)
+                            crit_chance+=(*i)->GetModifier()->m_amount;
                 }
             }
             break;
