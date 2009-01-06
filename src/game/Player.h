@@ -902,9 +902,7 @@ class TRINITY_DLL_SPEC PlayerTaxi
         // Nodes
         void InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint32 level);
         void LoadTaxiMask(const char* data);
-        void SaveTaxiMask(const char* data);
 
-        uint32 GetTaximask( uint8 index ) const { return m_taximask[index]; }
         bool IsTaximaskNodeKnown(uint32 nodeidx) const
         {
             uint8  field   = uint8((nodeidx - 1) / 32);
@@ -940,10 +938,14 @@ class TRINITY_DLL_SPEC PlayerTaxi
             return GetTaxiDestination();
         }
         bool empty() const { return m_TaxiDestinations.empty(); }
+
+        friend std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi);
     private:
         TaxiMask m_taximask;
         std::deque<uint32> m_TaxiDestinations;
 };
+
+std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi);
 
 class TRINITY_DLL_SPEC Player : public Unit
 {
