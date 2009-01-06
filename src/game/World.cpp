@@ -1424,8 +1424,8 @@ void World::RecordTimeDiff(const char *text)
         return;
     sLog.outDebugInLine("Difftime ");
     sLog.outDebugInLine(text);
-    time_t thisTime = time(NULL);    
-    sLog.outDebug(": %u.", uint32(thisTime - m_currentTime));
+    uint32 thisTime = getMSTime();    
+    sLog.outDebug(": %u.", getMSTimeDiff(m_currentTime, thisTime));
     m_currentTime = thisTime;
 }
 
@@ -1440,7 +1440,7 @@ void World::Update(time_t diff)
             sLog.outString("Update time diff: %u. Players online: %u.", m_updateTimeSum / m_updateTimeCount, GetActiveSessionCount());
             m_updateTimeSum = m_updateTime;
             m_updateTimeCount = 1;
-            m_currentTime = time(NULL);
+            m_currentTime = getMSTime();
         }
         else
         {
