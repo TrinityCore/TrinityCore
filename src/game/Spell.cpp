@@ -2102,7 +2102,7 @@ void Spell::prepare(SpellCastTargets * targets, Aura* triggeredByAura)
     // set timer base at cast time
     ReSetTimer();
 
-    if(m_IsTriggeredSpell)
+    if(m_IsTriggeredSpell || !m_casttime && !m_spellInfo->StartRecoveryTime && GetCurrentContainer() == CURRENT_GENERIC_SPELL)
         cast(true);
     else
     {
