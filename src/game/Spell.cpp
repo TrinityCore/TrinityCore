@@ -277,6 +277,7 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
     ASSERT( info == sSpellStore.LookupEntry( info->Id ) && "`info` must be pointer to sSpellStore element");
 
     m_spellInfo = info;
+    m_customAttr = spellmgr.GetSpellCustomAttr(m_spellInfo->Id);
     m_caster = Caster;
     m_selfContainer = NULL;
     m_triggeringContainer = triggeringContainer;
@@ -1091,7 +1092,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         {
             m_caster->CombatStart(unit);
         }
-        else if(spellmgr.GetSpellCustomAttr(m_spellInfo->Id) & SPELL_ATTR_CU_AURA_CC)
+        else if(m_customAttr & SPELL_ATTR_CU_AURA_CC)
         {
             if(!unit->IsStandState())
                 unit->SetStandState(PLAYER_STATE_NONE);
@@ -1134,7 +1135,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             }
 
             unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
-            if(spellmgr.GetSpellCustomAttr(m_spellInfo->Id) & SPELL_ATTR_CU_AURA_CC)
+            if(m_customAttr & SPELL_ATTR_CU_AURA_CC)
                 unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CC);
         }
         else
@@ -1205,12 +1206,11 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
     }
 
     //This is not needed with procflag patch
-    /*if(spellmgr.GetSpellCustomAttr(m_spellInfo->Id) && m_originalCaster)
+    /*if(m_originalCaster)
     {
-        uint32 flag = spellmgr.GetSpellCustomAttr(m_spellInfo->Id);
-        if(flag & SPELL_ATTR_CU_EFFECT_HEAL)
+        if(m_customAttr & SPELL_ATTR_CU_EFFECT_HEAL)
             m_originalCaster->ProcDamageAndSpell(unit, PROC_FLAG_HEAL, PROC_FLAG_NONE, 0, GetSpellSchoolMask(m_spellInfo), m_spellInfo);
-        if(m_originalCaster != unit && (flag & SPELL_ATTR_CU_EFFECT_DAMAGE)) 
+        if(m_originalCaster != unit && (m_customAttr & SPELL_ATTR_CU_EFFECT_DAMAGE)) 
             m_originalCaster->ProcDamageAndSpell(unit, PROC_FLAG_HIT_SPELL, PROC_FLAG_STRUCK_SPELL, 0, GetSpellSchoolMask(m_spellInfo), m_spellInfo);
     }*/
 }
@@ -1662,9 +1662,9 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
 
         case TARGET_IN_FRONT_OF_CASTER:
         case TARGET_UNIT_CONE_ENEMY_UNKNOWN:
-            if(spellmgr.GetSpellCustomAttr(m_spellInfo->Id) & SPELL_ATTR_CU_CONE_BACK)
+            if(m_customAttr & SPELL_ATTR_CU_CONE_BACK)
                 SearchAreaTarget(TagUnitMap, radius, PUSH_IN_BACK, SPELL_TARGETS_AOE_DAMAGE);
-            else if(spellmgr.GetSpellCustomAttr(m_spellInfo->Id) & SPELL_ATTR_CU_CONE_LINE)
+            else if(m_customAttr & SPELL_ATTR_CU_CONE_LINE)
                 SearchAreaTarget(TagUnitMap, radius, PUSH_IN_LINE, SPELL_TARGETS_AOE_DAMAGE);
             else
                 SearchAreaTarget(TagUnitMap, radius, PUSH_IN_FRONT, SPELL_TARGETS_AOE_DAMAGE);
@@ -2218,7 +2218,8 @@ void Spell::cast(bool skipCheck)
 
     FillTargetMap();
 
-    CalculateDamageDoneForAllTargets();
+    if(m_customAttr & SPELL_ATTR_CU_DIRECT_DAMAGE)
+        CalculateDamageDoneForAllTargets();
 
     // traded items have trade slot instead of guid in m_itemTargetGUID
     // set to real guid to be sent later to the client

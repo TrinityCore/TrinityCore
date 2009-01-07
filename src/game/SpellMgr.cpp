@@ -2121,6 +2121,17 @@ void SpellMgr::LoadSpellCustomAttr()
                 default:
                     break;
             }
+
+            switch(spellInfo->Effect[j])
+            {
+                case SPELL_EFFECT_SCHOOL_DAMAGE:
+                case SPELL_EFFECT_WEAPON_DAMAGE:
+                case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
+                case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+                case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
+                case SPELL_EFFECT_HEAL:
+                    mSpellCustomAttr[i] |= SPELL_ATTR_CU_DIRECT_DAMAGE;
+            }
         }
 
         if(spellInfo->SpellVisual == 3879)
