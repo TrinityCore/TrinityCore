@@ -715,7 +715,7 @@ enum AuraState
     //AURA_STATE_UNKNOWN20                  = 20,           //  c  | only (45317 Suicide)
     //AURA_STATE_UNKNOWN21                  = 21,           //     | not used
     //AURA_STATE_UNKNOWN22                  = 22,           // C   | not implemented yet (Requires Evasive Charges to use)
-    AURA_STATE_HEALTH_ABOVE_75_PERCENT      = 23,           // C   | not implemented yet
+    AURA_STATE_HEALTH_ABOVE_75_PERCENT      = 23,           // C   |
 };
 
 // Spell mechanics
