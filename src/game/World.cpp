@@ -1418,7 +1418,7 @@ void World::DetectDBCLang()
     sLog.outString("Using %s DBC Locale as default. All available DBC locales: %s",localeNames[m_defaultDbcLocale],availableLocalsStr.empty() ? "<none>" : availableLocalsStr.c_str());
 }
 
-void World::RecordTimeDiff(const char *text)
+void World::RecordTimeDiff(const char *text, ...)
 {
     if(m_updateTimeCount != 1)
         return;
@@ -1427,8 +1427,16 @@ void World::RecordTimeDiff(const char *text)
         m_currentTime = getMSTime();
         return;
     }
+
     sLog.outDebugInLine("Difftime ");
-    sLog.outDebugInLine(text);
+
+    va_list ap;
+    char str [256];
+    va_start(ap, text);
+    vsnprintf(str,256,text, ap );
+    va_end(ap);
+    sLog.outDebugInLine(str);
+
     uint32 thisTime = getMSTime();    
     sLog.outDebug(": %u.", getMSTimeDiff(m_currentTime, thisTime));
     m_currentTime = thisTime;

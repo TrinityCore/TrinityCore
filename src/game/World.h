@@ -517,7 +517,7 @@ class World
         void SetScriptsVersion(char const* version) { m_ScriptsVersion = version ? version : "unknown scripting library"; }
         char const* GetScriptsVersion() { return m_ScriptsVersion.c_str(); }
 
-        void RecordTimeDiff(const char * text);
+        void RecordTimeDiff(const char * text, ...);
     protected:
         void _UpdateGameTime();
         void ScriptsProcess();
