@@ -690,6 +690,7 @@ inline bool IsProfessionSkill(uint32 skill)
 #define SPELL_ATTR_CU_AURA_DOT          0x00000020
 #define SPELL_ATTR_CU_AURA_CC           0x00000040
 #define SPELL_ATTR_CU_AURA_SPELL        0x00000080
+#define SPELL_ATTR_CU_DIRECT_DAMAGE     0x00000100
 
 typedef std::vector<uint32> SpellCustomAttribute;
 
