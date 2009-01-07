@@ -8492,8 +8492,8 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     if(!spellProto || !pVictim || damagetype==DIRECT_DAMAGE )
         return pdamage;
 
-    if(spellProto->SchoolMask == SPELL_SCHOOL_MASK_NORMAL)
-        return pdamage;
+    //if(spellProto->SchoolMask == SPELL_SCHOOL_MASK_NORMAL)
+    //    return pdamage;
     //damage = CalcArmorReducedDamage(pVictim, damage);
 
     int32 BonusDamage = 0;
@@ -8871,7 +8871,9 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
 
     // Spellmod SpellDamage
     //float SpellModSpellDamage = 100.0f;
-    float CoefficientPtc = ((float)CastingTime/3500.0f)*DotFactor*100.0f;
+    float CoefficientPtc = DotFactor * 100.0f;
+    if(spellProto->SchoolMask != SPELL_SCHOOL_MASK_NORMAL)
+        CoefficientPtc *= ((float)CastingTime/3500.0f);
 
     if(Player* modOwner = GetSpellModOwner())
         //modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_SPELL_BONUS_DAMAGE,SpellModSpellDamage);
@@ -8881,10 +8883,11 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     CoefficientPtc /= 100.0f;
 
     //float DoneActualBenefit = DoneAdvertisedBenefit * (CastingTime / 3500.0f) * DotFactor * SpellModSpellDamage * LvlPenalty;
+    
     float DoneActualBenefit = DoneAdvertisedBenefit * CoefficientPtc * LvlPenalty;
-    float TakenActualBenefit = TakenAdvertisedBenefit;
-    if(spellProto->SpellFamilyName)
-        TakenActualBenefit *= (CastingTime / 3500.0f) * DotFactor * LvlPenalty;
+    float TakenActualBenefit = TakenAdvertisedBenefit * DotFactor * LvlPenalty;
+    if(spellProto->SpellFamilyName && spellProto->SchoolMask != SPELL_SCHOOL_MASK_NORMAL)
+        TakenActualBenefit *= ((float)CastingTime / 3500.0f);
 
     float tmpDamage = (float(pdamage)+DoneActualBenefit)*DoneTotalMod;
 
