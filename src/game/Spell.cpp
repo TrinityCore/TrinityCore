@@ -2218,16 +2218,7 @@ void Spell::cast(bool skipCheck)
 
     FillTargetMap();
 
-    if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(m_spellInfo->Id))
-    {
-        for(std::vector<int32>::const_iterator i = spell_triggered->begin(); i != spell_triggered->end(); ++i)
-        {
-            if(spell_triggered < 0)
-                m_caster->RemoveAurasDueToSpell(-(*i));
-            else
-                m_caster->CastSpell(m_targets.getUnitTarget() ? m_targets.getUnitTarget() : m_caster, *i, true);
-        }
-    }
+    CalculateDamageDoneForAllTargets();
 
     // traded items have trade slot instead of guid in m_itemTargetGUID
     // set to real guid to be sent later to the client
@@ -2251,8 +2242,6 @@ void Spell::cast(bool skipCheck)
     SendCastResult(castResult);
     SendSpellGo();                                          // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
 
-    CalculateDamageDoneForAllTargets();
-
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
     if (m_spellInfo->speed > 0.0f && !IsChanneledSpell(m_spellInfo))
     {
@@ -2272,20 +2261,15 @@ void Spell::cast(bool skipCheck)
         handle_immediate();
     }
 
-    // Clear combo at finish state
-    if(m_caster->GetTypeId() == TYPEID_PLAYER && NeedsComboPoints(m_spellInfo))
+    if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(m_spellInfo->Id))
     {
-        // Not drop combopoints if negative spell and if any miss on enemy exist
-        bool needDrop = true;
-        //if (!IsPositiveSpell(m_spellInfo->Id))
-        for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
-            if (ihit->missCondition != SPELL_MISS_NONE && ihit->missCondition != SPELL_MISS_MISS/* && ihit->targetGUID!=m_caster->GetGUID()*/)
-            {
-                needDrop = false;
-                break;
-            }
-        if (needDrop)
-            ((Player*)m_caster)->ClearComboPoints();
+        for(std::vector<int32>::const_iterator i = spell_triggered->begin(); i != spell_triggered->end(); ++i)
+        {
+            if(spell_triggered < 0)
+                m_caster->RemoveAurasDueToSpell(-(*i));
+            else
+                m_caster->CastSpell(m_targets.getUnitTarget() ? m_targets.getUnitTarget() : m_caster, *i, true);
+        }
     }
 
     SetExecutedCurrently(false);
@@ -3178,8 +3162,24 @@ void Spell::TakeCastItem()
 
 void Spell::TakePower()
 {
-    if(m_CastItem || m_triggeredByAuraSpell)
+    if(m_CastItem || m_triggeredByAuraSpell || !m_powerCost)
         return;
+
+    bool hit = true;
+    if(m_caster->GetTypeId() == TYPEID_PLAYER)
+    {
+        if(m_spellInfo->powerType == POWER_RAGE || m_spellInfo->powerType == POWER_ENERGY)
+            if(uint64 targetGUID = m_targets.getUnitTargetGUID())
+                for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                    if(ihit->targetGUID == targetGUID)
+                    {
+                        if(ihit->missCondition != SPELL_MISS_NONE && ihit->missCondition != SPELL_MISS_MISS/* && ihit->targetGUID!=m_caster->GetGUID()*/)
+                            hit = false;
+                        break;
+                    }
+        if(hit && NeedsComboPoints(m_spellInfo))
+            ((Player*)m_caster)->ClearComboPoints();
+    }
 
     // health as power used
     if(m_spellInfo->powerType == POWER_HEALTH)
@@ -3196,7 +3196,10 @@ void Spell::TakePower()
 
     Powers powerType = Powers(m_spellInfo->powerType);
 
-    m_caster->ModifyPower(powerType, -(int32)m_powerCost);
+    if(hit)
+        m_caster->ModifyPower(powerType, -m_powerCost);
+    else
+        m_caster->ModifyPower(powerType, -irand(0, m_powerCost/4));
 
     // Set the five second timer
     if (powerType == POWER_MANA && m_powerCost > 0)
