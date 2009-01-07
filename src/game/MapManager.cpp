@@ -255,8 +255,7 @@ MapManager::Update(time_t diff)
     {
         checkAndCorrectGridStatesArray();                   // debugging code, should be deleted some day
         iter->second->Update(i_timer.GetCurrent());
-        sLog.outDebugInLine("Difftime Map %u ", iter->second->GetId());
-        sWorld.RecordTimeDiff("UpdateMap");
+        sWorld.RecordTimeDiff("UpdateMap %u", iter->second->GetId());
     }
 
     ObjectAccessor::Instance().Update(i_timer.GetCurrent());
