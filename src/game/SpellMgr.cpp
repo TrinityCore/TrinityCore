@@ -2487,7 +2487,7 @@ uint8 GetSpellAllowedInLocationError(SpellEntry const *spellInfo,uint32 map_id,u
             }
 
             // elixirs not have another limitations
-            return true;
+            return 0;
         }
     }
 
