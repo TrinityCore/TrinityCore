@@ -567,6 +567,8 @@ class Spell
         // we can't store original aura link to prevent access to deleted auras
         // and in same time need aura data and after aura deleting.
         SpellEntry const* m_triggeredByAuraSpell;
+
+        uint32 m_customAttr;
 };
 
 namespace Trinity
