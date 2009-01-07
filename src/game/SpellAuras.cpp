@@ -3875,13 +3875,6 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool Real)
 
     m_isPeriodic = apply;
     m_isTrigger = apply;
-
-    // Curse of the Plaguebringer
-    if (!apply && m_spellProto->Id == 29213 && m_removeMode!=AURA_REMOVE_BY_DISPEL)
-    {
-        // Cast Wrath of the Plaguebringer if not dispelled
-        m_target->CastSpell(m_target, 29214, true, 0, this);
-    }
 }
 
 void Aura::HandlePeriodicEnergize(bool apply, bool Real)
@@ -3898,13 +3891,6 @@ void Aura::HandlePeriodicHeal(bool apply, bool Real)
         m_periodicTimer += m_modifier.periodictime;
 
     m_isPeriodic = apply;
-
-    // only at real apply
-    if (Real && apply && GetSpellProto()->Mechanic == MECHANIC_BANDAGE)
-    {
-        // provided m_target as original caster to prevent apply aura caster selection for this negative buff
-        m_target->CastSpell(m_target,11196,true,NULL,this,m_target->GetGUID());
-    }
 
     // For prevent double apply bonuses
     bool loading = (m_target->GetTypeId() == TYPEID_PLAYER && ((Player*)m_target)->GetSession()->PlayerLoading());
