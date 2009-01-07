@@ -88,27 +88,11 @@ bool ChatHandler::HandleMuteCommand(const char* args)
 
     Player *chr = objmgr.GetPlayer(guid);
 
-    // check security
-    uint32 account_id = 0;
-    uint32 security = 0;
-
-    if (chr)
-    {
-        account_id = chr->GetSession()->GetAccountId();
-        security = chr->GetSession()->GetSecurity();
-    }
-    else
-    {
-        account_id = objmgr.GetPlayerAccountIdByGUID(guid);
-        security = accmgr.GetSecurity(account_id);
-    }
-
-    if(m_session && security >= m_session->GetSecurity())
-    {
-        SendSysMessage(LANG_YOURS_SECURITY_IS_LOW);
-        SetSentErrorMessage(true);
+    // must have strong lesser security level
+    if(HasLowerSecurity (chr,guid,true))
         return false;
-    }
+
+    uint32 account_id = chr ? chr->GetSession()->GetAccountId() : objmgr.GetPlayerAccountIdByGUID(guid);
 
     time_t mutetime = time(NULL) + notspeaktime*60;
 
@@ -154,27 +138,11 @@ bool ChatHandler::HandleUnmuteCommand(const char* args)
 
     Player *chr = objmgr.GetPlayer(guid);
 
-    // check security
-    uint32 account_id = 0;
-    uint32 security = 0;
-
-    if (chr)
-    {
-        account_id = chr->GetSession()->GetAccountId();
-        security = chr->GetSession()->GetSecurity();
-    }
-    else
-    {
-        account_id = objmgr.GetPlayerAccountIdByGUID(guid);
-        security = accmgr.GetSecurity(account_id);
-    }
-
-    if(m_session && security >= m_session->GetSecurity())
-    {
-        SendSysMessage(LANG_YOURS_SECURITY_IS_LOW);
-        SetSentErrorMessage(true);
+    // must have strong lesser security level
+    if(HasLowerSecurity (chr,guid,true))
         return false;
-    }
+
+    uint32 account_id = chr ? chr->GetSession()->GetAccountId() : objmgr.GetPlayerAccountIdByGUID(guid);
 
     if (chr)
     {

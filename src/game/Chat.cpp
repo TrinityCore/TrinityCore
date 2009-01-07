@@ -688,29 +688,46 @@ bool ChatHandler::isAvailable(ChatCommand const& cmd) const
     return m_session->GetSecurity() >= cmd.SecurityLevel;
 }
 
-bool ChatHandler::HasLowerSecurity(Player* target, uint64 guid)
+bool ChatHandler::HasLowerSecurity(Player* target, uint64 guid, bool strong)
 {
-    uint32 target_sec;
-
-    if (!sWorld.getConfig(CONFIG_GM_LOWER_SECURITY))
-        return false;
-
-    // allow everything from RA console
-    if (!m_session)
-        return false;
+    WorldSession* target_session = NULL;
+    uint32 target_account = 0;
 
     if (target)
-        target_sec = target->GetSession()->GetSecurity();
+        target_session = target->GetSession();
     else if (guid)
-        target_sec = accmgr.GetSecurity(objmgr.GetPlayerAccountIdByGUID(guid));
-    else
+        target_account = objmgr.GetPlayerAccountIdByGUID(guid);
+
+    if(!target_session && !target_account)
     {
         SendSysMessage(LANG_PLAYER_NOT_FOUND);
         SetSentErrorMessage(true);
         return true;
     }
 
-    if (m_session->GetSecurity() < target_sec)
+    return HasLowerSecurityAccount(target_session,target_account,strong);
+}
+
+bool ChatHandler::HasLowerSecurityAccount(WorldSession* target, uint32 target_account, bool strong)
+{
+    uint32 target_sec;
+
+    // ignore only for non-players for non strong checks (when allow apply command at least to same sec level)
+    if (m_session->GetSecurity() > SEC_PLAYER && !strong && !sWorld.getConfig(CONFIG_GM_LOWER_SECURITY))
+        return false;
+
+    // allow everything from console and RA console
+    if (!m_session)
+        return false;
+
+    if (target)
+        target_sec = target->GetSecurity();
+    else if (target_account)
+        target_sec = accmgr.GetSecurity(target_account);
+    else
+        return true;                                        // caller must report error for (target==NULL && target_account==0)
+
+    if (m_session->GetSecurity() < target_sec || strong && m_session->GetSecurity() <= target_sec)
     {
         SendSysMessage(LANG_YOURS_SECURITY_IS_LOW);
         SetSentErrorMessage(true);
