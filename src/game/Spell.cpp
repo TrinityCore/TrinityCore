@@ -1994,38 +1994,26 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             break;
     }
 
-    if (unMaxTargets && TagUnitMap.size() > unMaxTargets)
+    if(unMaxTargets)
     {
-        // make sure one unit is always removed per iteration
-        uint32 removed_utarget = 0;
-        for (std::list<Unit*>::iterator itr = TagUnitMap.begin(), next; itr != TagUnitMap.end(); itr = next)
+        if(m_targets.getUnitTarget())
         {
-            next = itr;
-            ++next;
-            if (!*itr) continue;
-            if ((*itr) == m_targets.getUnitTarget())
-            {
-                TagUnitMap.erase(itr);
-                removed_utarget = 1;
-                //        break;
-            }
+            TagUnitMap.remove(m_targets.getUnitTarget());
+            if(m_spellInfo->Id != 5246) //Intimidating Shout 
+                --unMaxTargets;
         }
+
         // remove random units from the map
-        while (TagUnitMap.size() > unMaxTargets - removed_utarget)
+        std::list<Unit*>::iterator itr;
+        while(TagUnitMap.size() > unMaxTargets)
         {
-            uint32 poz = urand(0, TagUnitMap.size()-1);
-            for (std::list<Unit*>::iterator itr = TagUnitMap.begin(); itr != TagUnitMap.end(); ++itr, --poz)
-            {
-                if (!*itr) continue;
-                if (!poz)
-                {
-                    TagUnitMap.erase(itr);
-                    break;
-                }
-            }
+            itr = TagUnitMap.begin();
+            advance(itr, urand(0, TagUnitMap.size() - 1));
+            TagUnitMap.erase(itr);
         }
+
         // the player's target will always be added to the map
-        if (removed_utarget && m_targets.getUnitTarget())
+        if(m_targets.getUnitTarget() && m_spellInfo->Id != 5246)
             TagUnitMap.push_back(m_targets.getUnitTarget());
     }
 }
