@@ -1428,17 +1428,15 @@ void World::RecordTimeDiff(const char *text, ...)
         return;
     }
 
-    sLog.outDebugInLine("Difftime ");
+    uint32 thisTime = getMSTime();  
 
     va_list ap;
     char str [256];
     va_start(ap, text);
     vsnprintf(str,256,text, ap );
     va_end(ap);
-    sLog.outDebugInLine(str);
+    sLog.outDetail("Difftime %s: %u.", str, getMSTimeDiff(m_currentTime, thisTime));
 
-    uint32 thisTime = getMSTime();    
-    sLog.outDebug(": %u.", getMSTimeDiff(m_currentTime, thisTime));
     m_currentTime = thisTime;
 }
 

@@ -172,6 +172,7 @@ bool SpellCastTargets::read ( WorldPacket * data, Unit *caster )
         return false;
 
     *data >> m_targetMask;
+    sLog.outDebug("Spell read, target mask = %u", m_targetMask);
 
     if(m_targetMask == TARGET_FLAG_SELF)
         return true;
@@ -230,6 +231,7 @@ bool SpellCastTargets::read ( WorldPacket * data, Unit *caster )
 void SpellCastTargets::write ( WorldPacket * data )
 {
     *data << uint32(m_targetMask);
+    sLog.outDebug("Spell write, target mask = %u", m_targetMask);
 
     if( m_targetMask & ( TARGET_FLAG_UNIT | TARGET_FLAG_PVP_CORPSE | TARGET_FLAG_OBJECT | TARGET_FLAG_CORPSE | TARGET_FLAG_UNK2 ) )
     {
