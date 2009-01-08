@@ -2219,7 +2219,7 @@ void Spell::cast(bool skipCheck)
 
     if(!m_IsTriggeredSpell)
     {
-        TakePower();
+        //TakePower();
         TakeReagents();                                         // we must remove reagents before HandleEffects to allow place crafted item in same slot
     }
 
@@ -2249,6 +2249,11 @@ void Spell::cast(bool skipCheck)
     {
         // Immediate spell, no big deal
         handle_immediate();
+    }
+
+    if(!m_IsTriggeredSpell)
+    {
+        TakePower();
     }
 
     if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(m_spellInfo->Id))
