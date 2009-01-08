@@ -5093,6 +5093,10 @@ bool Spell::CheckTarget( Unit* target, uint32 eff, bool hitPhase )
             return false;
     }
 
+    //Do not check LOS for triggered spells
+    if(m_IsTriggeredSpell)
+        return true;
+
     //Check targets for LOS visibility (except spells without range limitations )
     switch(m_spellInfo->Effect[eff])
     {
