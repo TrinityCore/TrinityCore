@@ -882,23 +882,33 @@ enum Targets
     TARGET_DEST_TARGET_BACK            = 65,                // uses in teleport behind spells
     TARGET_DEST_TARGET_RIGHT           = 66,
     TARGET_DEST_TARGET_LEFT            = 67,
-    TARGET_DEST_TARGET_ENEMY_UNKNOWN2  = 70,
+    TARGET_DEST_TARGET_FRONT_LEFT      = 68,
+    TARGET_DEST_TARGET_BACK_LEFT       = 69,
+    TARGET_DEST_TARGET_BACK_RIGHT      = 70,
+    TARGET_DEST_TARGET_FRONT_RIGHT     = 71,
     TARGET_DEST_CASTER_RANDOM          = 72,
     TARGET_DEST_CASTER_RADIUS          = 73,
     TARGET_DEST_TARGET_RANDOM          = 74,
     TARGET_DEST_TARGET_RADIUS          = 75,
     TARGET_DEST_CHANNEL                = 76,
-    TARGET_SINGLE_ENEMY                = 77,
     TARGET_UNIT_CHANNEL                = 77,
-    TARGET_DEST_CASTER_FRONT_UNKNOWN   = 78,
-    TARGET_DEST_TABLE_UNKNOWN2         = 80,
+    TARGET_DEST_DEST_FRONT             = 78,
+    TARGET_DEST_DEST_BACK              = 79,
+    TARGET_DEST_DEST_RIGHT             = 80,
+    TARGET_DEST_DEST_LEFT              = 81,
+    TARGET_DEST_DEST_FRONT_LEFT        = 82,
+    TARGET_DEST_DEST_BACK_LEFT         = 83,
+    TARGET_DEST_DEST_BACK_RIGHT        = 84,
+    TARGET_DEST_DEST_FRONT_RIGHT       = 85,
     TARGET_DEST_DEST_RANDOM            = 86,
     TARGET_DEST_DEST                   = 87,
     TARGET_UNIT_AREA_ALL_CHANNEL       = 88,
+    TARGET_DEST_TRAJ                   = 89,
     TARGET_UNIT_MINIPET                = 90,
+    TARGET_CORPSE_AREA_ENEMY_PLAYER    = 93,
 };
 
-#define TOTAL_SPELL_TARGETS              91
+#define TOTAL_SPELL_TARGETS              94
 
 enum SpellMissInfo
 {

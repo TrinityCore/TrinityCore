@@ -126,11 +126,14 @@ SpellMgr::SpellMgr()
                 SpellTargetType[i] = TARGET_TYPE_AREA_DEST;
                 break;
             case TARGET_DEST_TARGET_ENEMY:
-            case TARGET_DEST_TARGET_ENEMY_UNKNOWN:
             case TARGET_DEST_TARGET_FRONT:
             case TARGET_DEST_TARGET_BACK:
             case TARGET_DEST_TARGET_RIGHT:
             case TARGET_DEST_TARGET_LEFT:
+            case TARGET_DEST_TARGET_FRONT_LEFT:
+            case TARGET_DEST_TARGET_BACK_LEFT:
+            case TARGET_DEST_TARGET_BACK_RIGHT:
+            case TARGET_DEST_TARGET_FRONT_RIGHT:
             case TARGET_DEST_TARGET_RANDOM:
             case TARGET_DEST_TARGET_RADIUS:
                 SpellTargetType[i] = TARGET_TYPE_DEST_TARGET;
@@ -144,7 +147,6 @@ SpellMgr::SpellMgr()
             case TARGET_DEST_CASTER_FRONT:
             case TARGET_MINION:
             case TARGET_DEST_CASTER_FRONT_LEAP:
-            case TARGET_DEST_CASTER_FRONT_UNKNOWN:
             case TARGET_DEST_CASTER_BACK:
             case TARGET_DEST_CASTER_RIGHT:
             case TARGET_DEST_CASTER_LEFT:
@@ -152,8 +154,16 @@ SpellMgr::SpellMgr()
             case TARGET_DEST_CASTER_RADIUS:
                 SpellTargetType[i] = TARGET_TYPE_DEST_CASTER;
                 break;
-            case TARGET_DEST_DEST_RANDOM:
             case TARGET_DEST_DEST:
+            case TARGET_DEST_DEST_FRONT_LEFT:
+            case TARGET_DEST_DEST_BACK_LEFT:
+            case TARGET_DEST_DEST_BACK_RIGHT:
+            case TARGET_DEST_DEST_FRONT_RIGHT:
+            case TARGET_DEST_DEST_FRONT:
+            case TARGET_DEST_DEST_BACK:
+            case TARGET_DEST_DEST_RIGHT:
+            case TARGET_DEST_DEST_LEFT:
+            case TARGET_DEST_DEST_RANDOM:
                 SpellTargetType[i] = TARGET_TYPE_DEST_DEST;
                 break;
             default:
@@ -469,7 +479,7 @@ bool IsPositiveTarget(uint32 targetA, uint32 targetB)
         case TARGET_IN_FRONT_OF_CASTER:
         case TARGET_ALL_ENEMY_IN_AREA_CHANNELED:
         case TARGET_CURRENT_ENEMY_COORDINATES:
-        case TARGET_SINGLE_ENEMY:
+        case TARGET_UNIT_CHANNEL:
             return false;
         case TARGET_ALL_AROUND_CASTER:
             return (targetB == TARGET_ALL_PARTY || targetB == TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER);

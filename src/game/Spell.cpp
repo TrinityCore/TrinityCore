@@ -1641,7 +1641,6 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 AddItemTarget(m_targets.getItemTarget(), i);
         }break;
 
-        case TARGET_DEST_TABLE_UNKNOWN2:
         case TARGET_TABLE_X_Y_Z_COORDINATES:
             if(SpellTargetPosition const* st = spellmgr.GetSpellTargetPosition(m_spellInfo->Id))
             {
@@ -1890,15 +1889,12 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
 
             float x, y, z, angle, dist;
 
-            if (m_spellInfo->EffectRadiusIndex[i])
-                dist = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
-            else
-                dist = 3.0f;//do we need this?
-            if (cur == TARGET_DEST_CASTER_RANDOM)
-                dist *= rand_norm(); // This case we need to consider caster size
-            else
-                dist -= m_caster->GetObjectSize(); // Size is calculated in GetNearPoint(), but we do not need it 
-            //need a new function to remove this repeated work
+            float objSize = m_caster->GetObjectSize();
+            dist = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+            if(dist < objSize)
+                dist = objSize;
+            else if(cur == TARGET_DEST_CASTER_RANDOM)
+                dist = objSize + (dist - objSize) * rand_norm();
 
             switch(cur)
             {
@@ -1908,7 +1904,6 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 case TARGET_DEST_CASTER_FRONT_RIGHT:angle = M_PI/4;     break;
                 case TARGET_MINION:
                 case TARGET_DEST_CASTER_FRONT_LEAP:
-                case TARGET_DEST_CASTER_FRONT_UNKNOWN:
                 case TARGET_DEST_CASTER_FRONT:      angle = 0.0f;       break;
                 case TARGET_DEST_CASTER_BACK:       angle = M_PI;       break;
                 case TARGET_DEST_CASTER_RIGHT:      angle = M_PI/2;     break;
@@ -1916,7 +1911,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 default:                            angle = rand_norm()*2*M_PI; break;
             }
 
-            m_caster->GetClosePoint(x, y, z, 0, dist, angle);
+            m_caster->GetClosePoint(x, y, z, dist, angle);
             m_targets.setDestination(x, y, z); // do not know if has ground visual
         }break;
 
@@ -1942,15 +1937,12 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
 
             float x, y, z, angle, dist;
 
-            if (m_spellInfo->EffectRadiusIndex[i])
-                dist = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
-            else
-                dist = 3.0f;//do we need this?
-            if (cur == TARGET_DEST_TARGET_RANDOM)
-                dist *= rand_norm(); // This case we need to consider caster size
-            else
-                dist -= target->GetObjectSize(); // Size is calculated in GetNearPoint(), but we do not need it 
-            //need a new function to remove this repeated work
+            float objSize = target->GetObjectSize();
+            dist = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+            if(dist < objSize)
+                dist = objSize;
+            else if(cur == TARGET_DEST_CASTER_RANDOM)
+                dist = objSize + (dist - objSize) * rand_norm();
 
             switch(cur)
             {
@@ -1958,10 +1950,14 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 case TARGET_DEST_TARGET_BACK:       angle = M_PI;       break;
                 case TARGET_DEST_TARGET_RIGHT:      angle = M_PI/2;     break;
                 case TARGET_DEST_TARGET_LEFT:       angle = -M_PI/2;    break;
+                case TARGET_DEST_TARGET_FRONT_LEFT: angle = -M_PI/4;    break;
+                case TARGET_DEST_TARGET_BACK_LEFT:  angle = -3*M_PI/4;  break;
+                case TARGET_DEST_TARGET_BACK_RIGHT: angle = 3*M_PI/4;   break;
+                case TARGET_DEST_TARGET_FRONT_RIGHT:angle = M_PI/4;     break;
                 default:                            angle = rand_norm()*2*M_PI; break;
             }
 
-            target->GetClosePoint(x, y, z, 0, dist, angle);
+            target->GetClosePoint(x, y, z, dist, angle);
             m_targets.setDestination(x, y, z); // do not know if has ground visual
         }break;
 
@@ -1973,23 +1969,33 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 break;
             }
 
+            if(cur == TARGET_DEST_DEST)
+                break;
+
+            float x, y, z, angle, dist;
+
+            dist = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+            if (cur == TARGET_DEST_DEST_RANDOM)
+                dist *= rand_norm();
+
             switch(cur)
             {
-                case TARGET_DEST_DEST_RANDOM:
-                {
-
-                    float x, y, z, dist, px, py, pz;
-                    dist = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
-                    x = m_targets.m_destX;
-                    y = m_targets.m_destY;
-                    z = m_targets.m_destZ;
-                    m_caster->GetRandomPoint(x, y, z, dist, px, py, pz);
-                    m_targets.setDestination(px, py, pz);
-                }
-                break;
-                case TARGET_DEST_DEST:
-                    break;
+                case TARGET_DEST_DEST_FRONT:      angle = 0.0f;       break;
+                case TARGET_DEST_DEST_BACK:       angle = M_PI;       break;
+                case TARGET_DEST_DEST_RIGHT:      angle = M_PI/2;     break;
+                case TARGET_DEST_DEST_LEFT:       angle = -M_PI/2;    break;
+                case TARGET_DEST_DEST_FRONT_LEFT: angle = -M_PI/4;    break;
+                case TARGET_DEST_DEST_BACK_LEFT:  angle = -3*M_PI/4;  break;
+                case TARGET_DEST_DEST_BACK_RIGHT: angle = 3*M_PI/4;   break;
+                case TARGET_DEST_DEST_FRONT_RIGHT:angle = M_PI/4;     break;
+                default:                          angle = rand_norm()*2*M_PI; break;
             }
+
+            x = m_targets.m_destX;
+            y = m_targets.m_destY;
+            z = m_targets.m_destZ;
+            m_caster->GetClosePointAt(x, y, z, dist, angle);
+            m_targets.setDestination(x, y, z); // do not know if has ground visual
         }break;
 
         default:
