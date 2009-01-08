@@ -998,6 +998,7 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_NO_RESET_TALENT_COST] = sConfig.GetBoolDefault("NoResetTalentsCost", false);
     m_configs[CONFIG_SHOW_KICK_IN_WORLD] = sConfig.GetBoolDefault("ShowKickInWorld", false);
     m_configs[CONFIG_INTERVAL_LOG_UPDATE] = sConfig.GetIntDefault("RecordUpdateTimeDiffInterval", 60000);
+    m_configs[CONFIG_MIN_LOG_UPDATE] = sConfig.GetIntDefault("MinRecordUpdateTimeDiff", 10);
 
     std::string forbiddenmaps = sConfig.GetStringDefault("ForbiddenMaps", "");
     char * forbiddenMaps = new char[forbiddenmaps.length() + 1];
@@ -1428,14 +1429,18 @@ void World::RecordTimeDiff(const char *text, ...)
         return;
     }
 
-    uint32 thisTime = getMSTime();  
+    uint32 thisTime = getMSTime();
+    uint32 diff = getMSTimeDiff(m_currentTime, thisTime);
 
-    va_list ap;
-    char str [256];
-    va_start(ap, text);
-    vsnprintf(str,256,text, ap );
-    va_end(ap);
-    sLog.outDetail("Difftime %s: %u.", str, getMSTimeDiff(m_currentTime, thisTime));
+    if(diff > m_configs[CONFIG_MIN_LOG_UPDATE])
+    {
+        va_list ap;
+        char str [256];
+        va_start(ap, text);
+        vsnprintf(str,256,text, ap );
+        va_end(ap);
+        sLog.outDetail("Difftime %s: %u.", str, diff);
+    }
 
     m_currentTime = thisTime;
 }
