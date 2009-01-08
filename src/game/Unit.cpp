@@ -1487,17 +1487,14 @@ uint32 Unit::SpellNonMeleeDamageLog(Unit *pVictim, uint32 spellID, uint32 damage
 
 void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 damage, SpellEntry const *spellInfo, WeaponAttackType attackType)
 {
-    SpellSchoolMask damageSchoolMask = SpellSchoolMask(damageInfo->schoolMask);
-    Unit *pVictim = damageInfo->target;
-
     if (damage < 0)
         return;
 
-    if(!this || !pVictim)
-        return;
-    if(!this->isAlive() || !pVictim->isAlive())
+    Unit *pVictim = damageInfo->target;
+    if(!pVictim || !pVictim->isAlive())
         return;
 
+    SpellSchoolMask damageSchoolMask = SpellSchoolMask(damageInfo->schoolMask);
     uint32 crTypeMask = pVictim->GetCreatureTypeMask();
     // Check spell crit chance
     bool crit = isSpellCrit(pVictim, spellInfo, damageSchoolMask, attackType);
@@ -1512,17 +1509,10 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 dama
             // Physical Damage
             if ( damageSchoolMask & SPELL_SCHOOL_MASK_NORMAL )
             {
-                //Calculate armor mitigation
-                //damage = CalcArmorReducedDamage(pVictim, damage);
                 // Get blocked status
                 blocked = isSpellBlocked(pVictim, spellInfo, attackType);
             }
-            // Magical Damage
-            /*else
-            {
-                // Calculate damage bonus
-                damage = SpellDamageBonus(pVictim, spellInfo, damage, SPELL_DIRECT_DAMAGE);
-            }*/
+
             if (crit)
             {
                 damageInfo->HitInfo|= SPELL_HIT_TYPE_CRIT;
@@ -1567,8 +1557,6 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 dama
         case SPELL_DAMAGE_CLASS_NONE:
         case SPELL_DAMAGE_CLASS_MAGIC:
         {
-            // Calculate damage bonus
-            //damage = SpellDamageBonus(pVictim, spellInfo, damage, SPELL_DIRECT_DAMAGE);
             // If crit add critical bonus
             if (crit)
             {
