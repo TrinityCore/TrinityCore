@@ -591,10 +591,13 @@ void Aura::Update(uint32 diff)
             // update before applying (aura can be removed in TriggerSpell or PeriodicTick calls)
             m_periodicTimer += m_modifier.periodictime;
 
-            if(m_isTrigger)
-                TriggerSpell();
-            else
-                PeriodicTick();
+            if(!m_target->hasUnitState(UNIT_STAT_ISOLATED))
+            {
+                if(m_isTrigger)
+                    TriggerSpell();
+                else
+                    PeriodicTick();
+            }
         }
     }
 }
