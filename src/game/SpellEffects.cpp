@@ -597,8 +597,11 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
             }
         }
 
-        if(damage >= 0)
-            m_damage+= damage;
+        if(m_originalCaster)
+            damage = m_originalCaster->SpellDamageBonus(unitTarget, m_spellInfo, damage, SPELL_DIRECT_DAMAGE);
+
+        if(damage > 0)
+            m_damage += damage;
     }
 }
 
