@@ -385,12 +385,17 @@ inline bool IsAreaAuraEffect(uint32 effect)
 
 inline bool IsDispelSpell(SpellEntry const *spellInfo)
 {
+    //spellsteal is also dispel
     if (spellInfo->Effect[0] == SPELL_EFFECT_DISPEL ||
+        spellInfo->Effect[0] == SPELL_EFFECT_STEAL_BENEFICIAL_BUFF ||
         spellInfo->Effect[1] == SPELL_EFFECT_DISPEL ||
-        spellInfo->Effect[2] == SPELL_EFFECT_DISPEL )
+        spellInfo->Effect[1] == SPELL_EFFECT_STEAL_BENEFICIAL_BUFF ||
+        spellInfo->Effect[2] == SPELL_EFFECT_DISPEL ||
+        spellInfo->Effect[2] == SPELL_EFFECT_STEAL_BENEFICIAL_BUFF)
         return true;
     return false;
 }
+
 inline bool isSpellBreakStealth(SpellEntry const* spellInfo)
 {
     return !(spellInfo->AttributesEx & SPELL_ATTR_EX_NOT_BREAK_STEALTH);
