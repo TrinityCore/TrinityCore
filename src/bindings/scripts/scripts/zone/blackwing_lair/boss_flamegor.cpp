@@ -65,8 +65,8 @@ struct TRINITY_DLL_DECL boss_flamegorAI : public ScriptedAI
         if (WingBuffet_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_WINGBUFFET);
-            if(m_creature->getThreatManager().getThreat(m_creature->getVictim()))
-                m_creature->getThreatManager().modifyThreatPercent(m_creature->getVictim(),-75);
+            if(DoGetThreat(m_creature->getVictim()))
+                DoModifyThreatPercent(m_creature->getVictim(),-75);
 
             WingBuffet_Timer = 25000;
         }else WingBuffet_Timer -= diff;

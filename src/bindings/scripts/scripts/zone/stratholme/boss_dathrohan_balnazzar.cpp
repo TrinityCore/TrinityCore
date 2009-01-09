@@ -247,8 +247,8 @@ struct TRINITY_DLL_DECL boss_dathrohan_balnazzarAI : public ScriptedAI
                 if (rand()%100 < 60) //60% chance to cast
                 {
                     DoCast(m_creature->getVictim(),SPELL_PSYCHICSCREAM);
-                    if(m_creature->getThreatManager().getThreat(m_creature->getVictim()))
-                        m_creature->getThreatManager().modifyThreatPercent(m_creature->getVictim(),-50);
+                    if(DoGetThreat(m_creature->getVictim()))
+                        DoModifyThreatPercent(m_creature->getVictim(),-50);
                 }
                 //15 seconds until we should cast this again
                 PsychicScream_Timer = 20000;
