@@ -1518,6 +1518,10 @@
 				<Filter
 					Name="Un&apos;Goro Crater"
 					>
+					<File
+						RelativePath="..\scripts\zone\ungoro_crater\ungoro_crater.cpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="Aunchindoun"

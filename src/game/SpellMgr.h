@@ -416,12 +416,17 @@ inline bool IsAreaAuraEffect(uint32 effect)
 
 inline bool IsDispelSpell(SpellEntry const *spellInfo)
 {
+    //spellsteal is also dispel
     if (spellInfo->Effect[0] == SPELL_EFFECT_DISPEL ||
+        spellInfo->Effect[0] == SPELL_EFFECT_STEAL_BENEFICIAL_BUFF ||
         spellInfo->Effect[1] == SPELL_EFFECT_DISPEL ||
-        spellInfo->Effect[2] == SPELL_EFFECT_DISPEL )
+        spellInfo->Effect[1] == SPELL_EFFECT_STEAL_BENEFICIAL_BUFF ||
+        spellInfo->Effect[2] == SPELL_EFFECT_DISPEL ||
+        spellInfo->Effect[2] == SPELL_EFFECT_STEAL_BENEFICIAL_BUFF)
         return true;
     return false;
 }
+
 inline bool isSpellBreakStealth(SpellEntry const* spellInfo)
 {
     return !(spellInfo->AttributesEx & SPELL_ATTR_EX_NOT_BREAK_STEALTH);
@@ -745,6 +750,7 @@ inline bool IsProfessionSkill(uint32 skill)
 #define SPELL_ATTR_CU_AURA_DOT          0x00000020
 #define SPELL_ATTR_CU_AURA_CC           0x00000040
 #define SPELL_ATTR_CU_AURA_SPELL        0x00000080
+#define SPELL_ATTR_CU_DIRECT_DAMAGE     0x00000100
 
 typedef std::vector<uint32> SpellCustomAttribute;
 

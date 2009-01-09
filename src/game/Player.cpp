@@ -1746,6 +1746,9 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             ResetContestedPvP();
 
+            DestroyForNearbyPlayers();
+            m_clientGUIDs.clear();
+
             // remove player from battleground on far teleport (when changing maps)
             if(BattleGround const* bg = GetBattleGround())
             {
@@ -19512,150 +19515,12 @@ void Player::HandleFallUnderMap()
     }
 }
 
-void Player::Possess(Unit *target)
-{
-    if(!target || target == this)
-        return;
-
-    // Don't allow possession of someone else's pet
-    if(target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->isPet() && target != GetPet())
-        return;
-
-    // Don't allow possession on transports or when in flight; also remove possession from the now-to-be-possessed
-    if (target->GetTypeId() == TYPEID_PLAYER)
-    {
-        if (((Player*)target)->m_transport || ((Player*)target)->isInFlight())
-            return;
-        if (target->isPossessing())
-            ((Player*)target)->RemovePossess(true);
-    }
-
-    // Remove any previous possession from the target
-    if (target->isPossessedByPlayer())
-        ((Player*)target->GetCharmer())->RemovePossess(false);
-    else if (target->isCharmed()) 
-        target->UncharmSelf();  // Target isn't possessed, but charmed; uncharm before possessing
-
-    // Remove our previous possession
-    if (isPossessing())
-        RemovePossess(true);
-    else if (GetCharm()) // We are charming a creature, not possessing it; uncharm ourself first
-        Uncharm();
-
-    // Interrupt any current casting of the target
-    if(target->IsNonMeleeSpellCasted(true))
-        target->InterruptNonMeleeSpells(true);
-
-    // Update the proper unit fields
-    SetPossessedTarget(target);
-
-    // Start channeling packets to possessor
-    target->AddPlayerToVision(this);
-
-    target->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, getFaction());
-    target->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-    target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNKNOWN5);
-    target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
-    SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-
-    if(target->GetTypeId() == TYPEID_UNIT)
-    {
-        ((Creature*)target)->InitPossessedAI(); // Initialize the possessed AI
-        target->StopMoving();
-        target->GetMotionMaster()->Clear(false);
-        target->GetMotionMaster()->MoveIdle();
-    }
-
-    target->CombatStop();
-    target->DeleteThreatList();
-
-    // Pets already have a properly initialized CharmInfo, don't overwrite it.
-    if(target->GetTypeId() == TYPEID_PLAYER || (target->GetTypeId() == TYPEID_UNIT && !((Creature*)target)->isPet()))
-    {
-        CharmInfo* charmInfo = target->InitCharmInfo(target);
-        charmInfo->InitPossessCreateSpells();
-    }
-
-    // Disable control for target player and remove AFK
-    if(target->GetTypeId() == TYPEID_PLAYER)
-    {
-        if(((Player*)target)->isAFK())
-            ((Player*)target)->ToggleAFK();
-        ((Player*)target)->SetViewport(target->GetGUID(), false);
-    }
-
-    // Set current viewport to target unit, controllable
-    SetViewport(target->GetGUID(), true);
-
-    PossessSpellInitialize();
-}
-
 void Player::RemovePossess(bool attack)
 {
-    Unit* target = GetCharm();
-    if(!target || !target->isPossessed())
-        return;
+    if(Unit *u = GetCharm())
+        u->RemoveCharmedOrPossessedBy(this);
 
-    // Remove area auras from possessed
-    Unit::AuraMap& tAuras = target->GetAuras();
-    for(Unit::AuraMap::iterator itr = tAuras.begin(); itr != tAuras.end();)
-    {
-        if(itr->second && itr->second->IsAreaAura())
-            target->RemoveAura(itr);
-        else
-            ++itr;
-    }
-
-    // Interrupt any current casting of the target
-    if(target->IsNonMeleeSpellCasted(true))
-        target->InterruptNonMeleeSpells(true);
-
-    RemovePossessedTarget();
-
-    // Stop channeling packets back to possessor
-    target->RemovePlayerFromVision(this);
-
-    if(target->GetTypeId() == TYPEID_PLAYER)
-        ((Player*)target)->setFactionForRace(target->getRace());
-    else if(target->GetTypeId() == TYPEID_UNIT)
-    {
-        if(((Creature*)target)->isPet())
-        {
-            if(Unit* owner = target->GetOwner())
-                target->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, owner->getFaction());
-        } else
-        {
-            if(CreatureInfo const* cInfo = ((Creature*)target)->GetCreatureInfo())
-                target->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, cInfo->faction_A);
-        }
-    }
-
-    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNKNOWN5);
-    RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-
-    // Remove pet spell action bar
-    WorldPacket data(SMSG_PET_SPELLS, 8);
-    data << uint64(0);
-    m_session->SendPacket(&data);
-
-    // Restore original view
-    SetViewport(GetGUID(), true);
-    if(target->GetTypeId() == TYPEID_PLAYER)
-        ((Player*)target)->SetViewport(target->GetGUID(), true);
-    else
-    {
-        target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
-        // Reinitialize the pet bar and make the pet come back to the owner
-        if(((Creature*)target)->isPet())
-        {
-            PetSpellInitialize();
-            if (!target->getVictim())
-            {
-                target->GetMotionMaster()->MoveFollow(this, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-                target->GetCharmInfo()->SetCommandState(COMMAND_FOLLOW);
-            }
-        }
-        else if (target->isAlive())
+        /*else if (target->isAlive())
         {
             // If we're still hostile to our target, continue attacking otherwise reset threat and go home
             if (Unit* victim = target->getVictim())
@@ -19682,10 +19547,7 @@ void Player::RemovePossess(bool attack)
             // Add high amount of threat on the player
             if(attack)
                 target->AddThreat(this, 1000000.0f);
-        }
-        // Disable the assigned possessed AI
-        ((Creature*)target)->DisablePossessedAI();
-    }
+        }*/
 }
 
 void Player::SetViewport(uint64 guid, bool moveable)

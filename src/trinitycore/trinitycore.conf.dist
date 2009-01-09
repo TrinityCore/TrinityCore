@@ -1265,6 +1265,9 @@ Ra.Secure = 1
 #        >0 = Interval
 #        0 = Disable
 #
+#   MinRecordUpdateTimeDiff
+#        only record update time diff which is greater than this value
+#
 #   PlayerStart.String
 #       If set to anything else than "", this string will be displayed to players when they login
 #       to a newly created character.
@@ -1285,4 +1288,5 @@ PvPToken.ItemCount = 1
 NoResetTalentsCost = 0
 ShowKickInWorld = 0
 RecordUpdateTimeDiffInterval = 60000
+MinRecordUpdateTimeDiff = 10
 PlayerStart.String = ""

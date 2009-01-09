@@ -189,8 +189,8 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
         pUnit = Unit::GetUnit((*m_creature), guid);
         if(pUnit)
         {
-            if(m_creature->getThreatManager().getThreat(pUnit))
-                m_creature->getThreatManager().modifyThreatPercent(pUnit, -100);
+            if(DoGetThreat(pUnit))
+                DoModifyThreatPercent(pUnit, -100);
             if(TargetThreat)
                 m_creature->AddThreat(pUnit, TargetThreat);
         }
@@ -231,7 +231,7 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
             if(BewilderingStrikeTimer < diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_BEWILDERING_STRIKE);
-                float mt_threat = m_creature->getThreatManager().getThreat(m_creature->getVictim());
+                float mt_threat = DoGetThreat(m_creature->getVictim());
 				if (Unit* target = SelectUnit(SELECT_TARGET_TOPAGGRO, 1))
 					m_creature->AddThreat(target, mt_threat);
                 BewilderingStrikeTimer = 20000;
@@ -240,7 +240,7 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
             if(EjectTimer < diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_EJECT1);
-                m_creature->getThreatManager().modifyThreatPercent(m_creature->getVictim(), -40);
+                DoModifyThreatPercent(m_creature->getVictim(), -40);
                 EjectTimer = 15000;
             }else EjectTimer -= diff;
 
@@ -286,11 +286,11 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
                 {
                     Phase1 = false;
 
-                    TargetThreat = m_creature->getThreatManager().getThreat(target);
+                    TargetThreat = DoGetThreat(target);
                     TargetGUID = target->GetGUID();
                     target->CastSpell(m_creature, SPELL_TAUNT_GURTOGG, true);
-                    if(m_creature->getThreatManager().getThreat(target))
-                        m_creature->getThreatManager().modifyThreatPercent(target, -100);
+                    if(DoGetThreat(target))
+                        DoModifyThreatPercent(target, -100);
                     m_creature->AddThreat(target, 50000000.0f);
                                                             // If VMaps are disabled, this spell can call the whole instance
                     DoCast(m_creature, SPELL_INSIGNIFIGANCE, true);

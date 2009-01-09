@@ -508,7 +508,7 @@ struct TRINITY_DLL_DECL boss_kagani_nightstrikeAI : public boss_priestess_guestA
         if(Gouge_Timer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_GOUGE);
-            m_creature->getThreatManager().modifyThreatPercent(m_creature->getVictim(),-100);
+            DoModifyThreatPercent(m_creature->getVictim(),-100);
             Gouge_Timer = 5500;
         }else Gouge_Timer -= diff;
 
@@ -758,7 +758,7 @@ struct TRINITY_DLL_DECL boss_yazzaiAI : public boss_priestess_guestAI
 			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
                 DoCast(target, SPELL_POLYMORPH);
-                m_creature->getThreatManager().modifyThreatPercent(target,-100);
+                DoModifyThreatPercent(target,-100);
                 Polymorph_Timer = 20000;
             }
         }else Polymorph_Timer -= diff;
@@ -1022,7 +1022,7 @@ struct TRINITY_DLL_DECL boss_garaxxasAI : public boss_priestess_guestAI
             if(Freezing_Trap_Timer < diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_FREEZING_TRAP);
-                m_creature->getThreatManager().modifyThreatPercent(m_creature->getVictim(),-100);
+                DoModifyThreatPercent(m_creature->getVictim(),-100);
                 Freezing_Trap_Timer = 30000;
             }else Freezing_Trap_Timer -= diff;
 

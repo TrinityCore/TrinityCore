@@ -711,9 +711,21 @@ void ScriptedAI::DoResetThreat()
     {
         Unit* pUnit = NULL;
         pUnit = Unit::GetUnit((*m_creature), (*itr)->getUnitGuid());
-        if(pUnit && m_creature->getThreatManager().getThreat(pUnit))
-            m_creature->getThreatManager().modifyThreatPercent(pUnit, -100);
+        if(pUnit && DoGetThreat(pUnit))
+            DoModifyThreatPercent(pUnit, -100);
     }
+}
+
+float ScriptedAI::DoGetThreat(Unit* pUnit)
+{
+    if(!pUnit) return 0.0f;
+    return m_creature->getThreatManager().getThreat(pUnit);
+}
+
+void ScriptedAI::DoModifyThreatPercent(Unit *pUnit, int32 pct)
+{
+    if(!pUnit) return;
+    m_creature->getThreatManager().modifyThreatPercent(pUnit, pct);
 }
 
 void ScriptedAI::DoTeleportPlayer(Unit* pUnit, float x, float y, float z, float o)
