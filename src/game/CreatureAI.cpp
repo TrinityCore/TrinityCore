@@ -19,7 +19,45 @@
  */
 
 #include "CreatureAI.h"
+#include "Creature.h"
+#include "Pet.h"
+#include "SpellAuras.h"
 
 CreatureAI::~CreatureAI()
 {
+}
+
+SimpleCharmedAI::SimpleCharmedAI(Unit &u) : me(u)
+{
+}
+
+void SimpleCharmedAI::UpdateAI(const uint32 /*diff*/)
+{
+    Creature *charmer = (Creature*)me.GetCharmer();
+
+    //kill self if charm aura has infinite duration
+    if(charmer->IsInEvadeMode())
+    {
+        Unit::AuraList const& auras = me.GetAurasByType(SPELL_AURA_MOD_CHARM);
+        for(Unit::AuraList::const_iterator iter = auras.begin(); iter != auras.end(); ++iter)
+            if((*iter)->GetCasterGUID() == charmer->GetGUID() && (*iter)->IsPermanent())
+            {
+                charmer->Kill(&me);
+                return;
+            }
+    }
+
+    if(!charmer->isInCombat())
+        me.GetMotionMaster()->MoveFollow(charmer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+
+    Unit *target = me.getVictim();
+    if(!target || !charmer->canAttack(target))
+    {
+        target = charmer->SelectNearestTarget();
+        if(!target)
+            return;
+
+        me.GetMotionMaster()->MoveChase(target);
+        me.Attack(target, true);
+    }
 }

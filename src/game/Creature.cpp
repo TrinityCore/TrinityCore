@@ -594,10 +594,6 @@ bool Creature::AIM_Initialize(CreatureAI* ai)
         return false;
     }
 
-    // don't allow AI switch when possessed
-    if (isPossessed())
-        return false;
-
     CreatureAI * oldAI = i_AI;
     i_motionMaster.Initialize();
     i_AI = ai ? ai : FactorySelector::selectAI(this);
@@ -620,6 +616,8 @@ void Creature::InitPossessedAI()
 void Creature::DisablePossessedAI()
 {
     if (!i_AI_possessed) return;
+
+    delete i_AI_possessed;
 
     // Signal the old AI that it's been re-enabled
     i_AI->OnPossess(false);
@@ -1158,6 +1156,7 @@ void Creature::SetLootRecipient(Unit *unit)
     if (!unit)
     {
         m_lootRecipient = 0;
+        RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER);
         return;
     }

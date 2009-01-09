@@ -158,7 +158,6 @@ Unit::Unit()
     m_removedAuras = 0;
     m_charmInfo = NULL;
     m_unit_movement_flags = 0;
-    m_isPossessed = false;
     m_reducedThreatPercent = 0;
     m_misdirectionTargetGUID = 0;
 
@@ -567,7 +566,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
 
                 CreatureInfo const* cInfo = ((Creature*)pVictim)->GetCreatureInfo();
                 if(cInfo && cInfo->lootid)
-                    pVictim->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                    pVictim->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
                 // some critters required for quests
                 if(GetTypeId() == TYPEID_PLAYER)
@@ -1160,17 +1159,14 @@ uint32 Unit::SpellNonMeleeDamageLog(Unit *pVictim, uint32 spellID, uint32 damage
 
 void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 damage, SpellEntry const *spellInfo, WeaponAttackType attackType)
 {
-    SpellSchoolMask damageSchoolMask = SpellSchoolMask(damageInfo->schoolMask);
-    Unit *pVictim = damageInfo->target;
-
     if (damage < 0)
         return;
 
-    if(!this || !pVictim)
-        return;
-    if(!this->isAlive() || !pVictim->isAlive())
+    Unit *pVictim = damageInfo->target;
+    if(!pVictim || !pVictim->isAlive())
         return;
 
+    SpellSchoolMask damageSchoolMask = SpellSchoolMask(damageInfo->schoolMask);
     uint32 crTypeMask = pVictim->GetCreatureTypeMask();
     // Check spell crit chance
     bool crit = isSpellCrit(pVictim, spellInfo, damageSchoolMask, attackType);
@@ -1185,17 +1181,10 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 dama
             // Physical Damage
             if ( damageSchoolMask & SPELL_SCHOOL_MASK_NORMAL )
             {
-                //Calculate armor mitigation
-                //damage = CalcArmorReducedDamage(pVictim, damage);
                 // Get blocked status
                 blocked = isSpellBlocked(pVictim, spellInfo, attackType);
             }
-            // Magical Damage
-            /*else
-            {
-                // Calculate damage bonus
-                damage = SpellDamageBonus(pVictim, spellInfo, damage, SPELL_DIRECT_DAMAGE);
-            }*/
+
             if (crit)
             {
                 damageInfo->HitInfo|= SPELL_HIT_TYPE_CRIT;
@@ -1240,8 +1229,6 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 dama
         case SPELL_DAMAGE_CLASS_NONE:
         case SPELL_DAMAGE_CLASS_MAGIC:
         {
-            // Calculate damage bonus
-            //damage = SpellDamageBonus(pVictim, spellInfo, damage, SPELL_DIRECT_DAMAGE);
             // If crit add critical bonus
             if (crit)
             {
@@ -7038,10 +7025,11 @@ void Unit::SetPet(Pet* pet)
 
 void Unit::SetCharm(Unit* pet)
 {
-    SetUInt64Value(UNIT_FIELD_CHARM, pet ? pet->GetGUID() : 0);
-
     if(GetTypeId() == TYPEID_PLAYER)
+    {
+        SetUInt64Value(UNIT_FIELD_CHARM, pet ? pet->GetGUID() : 0);
         ((Player*)this)->m_mover = pet ? pet : this;
+    }
 }
 
 void Unit::AddPlayerToVision(Player* plr) 
@@ -7082,21 +7070,6 @@ void Unit::UncharmSelf()
         return;
 
     RemoveSpellsCausingAura(SPELL_AURA_MOD_CHARM);
-}
-
-void Unit::UnpossessSelf(bool attack)
-{
-    if (!isPossessed() || !GetCharmer())
-        return;
-
-    if (GetCharmer()->GetTypeId() == TYPEID_PLAYER)
-        ((Player*)GetCharmer())->RemovePossess(attack);
-    else
-    {
-        GetCharmer()->SetCharm(0);
-        SetCharmerGUID(0);
-        m_isPossessed = false;
-    }
 }
 
 void Unit::UnsummonAllTotems()
@@ -7142,8 +7115,8 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     if(!spellProto || !pVictim || damagetype==DIRECT_DAMAGE )
         return pdamage;
 
-    if(spellProto->SchoolMask == SPELL_SCHOOL_MASK_NORMAL)
-        return pdamage;
+    //if(spellProto->SchoolMask == SPELL_SCHOOL_MASK_NORMAL)
+    //    return pdamage;
     //damage = CalcArmorReducedDamage(pVictim, damage);
 
     int32 BonusDamage = 0;
@@ -7521,7 +7494,9 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
 
     // Spellmod SpellDamage
     //float SpellModSpellDamage = 100.0f;
-    float CoefficientPtc = ((float)CastingTime/3500.0f)*DotFactor*100.0f;
+    float CoefficientPtc = DotFactor * 100.0f;
+    if(spellProto->SchoolMask != SPELL_SCHOOL_MASK_NORMAL)
+        CoefficientPtc *= ((float)CastingTime/3500.0f);
 
     if(Player* modOwner = GetSpellModOwner())
         //modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_SPELL_BONUS_DAMAGE,SpellModSpellDamage);
@@ -7531,10 +7506,11 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     CoefficientPtc /= 100.0f;
 
     //float DoneActualBenefit = DoneAdvertisedBenefit * (CastingTime / 3500.0f) * DotFactor * SpellModSpellDamage * LvlPenalty;
+    
     float DoneActualBenefit = DoneAdvertisedBenefit * CoefficientPtc * LvlPenalty;
-    float TakenActualBenefit = TakenAdvertisedBenefit;
-    if(spellProto->SpellFamilyName)
-        TakenActualBenefit *= (CastingTime / 3500.0f) * DotFactor * LvlPenalty;
+    float TakenActualBenefit = TakenAdvertisedBenefit * DotFactor * LvlPenalty;
+    if(spellProto->SpellFamilyName && spellProto->SchoolMask != SPELL_SCHOOL_MASK_NORMAL)
+        TakenActualBenefit *= ((float)CastingTime / 3500.0f);
 
     float tmpDamage = (float(pdamage)+DoneActualBenefit)*DoneTotalMod;
 
@@ -8642,6 +8618,24 @@ bool Unit::canDetectStealthOf(Unit const* target, float distance) const
     return distance < visibleDistance;
 }
 
+void Unit::DestroyForNearbyPlayers()
+{
+    if(!IsInWorld())
+        return;
+
+    std::list<Unit*> targets;
+    Trinity::AnyUnitInObjectRangeCheck check(this, World::GetMaxVisibleDistance());
+    Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(targets, check);
+    VisitNearbyWorldObject(World::GetMaxVisibleDistance(), searcher);
+    for(std::list<Unit*>::iterator iter = targets.begin(); iter != targets.end(); ++iter)
+        if(*iter != this && (*iter)->GetTypeId() == TYPEID_PLAYER
+            && ((Player*)(*iter))->HaveAtClient(this))
+        {
+            DestroyForPlayer((Player*)(*iter));
+            ((Player*)(*iter))->m_clientGUIDs.erase(GetGUID());
+        }
+}
+
 void Unit::SetVisibility(UnitVisibility x)
 {
     m_Visibility = x;
@@ -8650,27 +8644,7 @@ void Unit::SetVisibility(UnitVisibility x)
         SetToNotify();
 
     if(x == VISIBILITY_GROUP_STEALTH)
-    {
-        std::list<Unit*> targets;
-        Trinity::AnyUnitInObjectRangeCheck check(this, World::GetMaxVisibleDistance());
-        Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(targets, check);
-        VisitNearbyWorldObject(World::GetMaxVisibleDistance(), searcher);
-        for(std::list<Unit*>::iterator iter = targets.begin(); iter != targets.end(); ++iter)
-            if(*iter != this && (*iter)->GetTypeId() == TYPEID_PLAYER
-                && ((Player*)(*iter))->HaveAtClient(this))
-            {
-                DestroyForPlayer((Player*)(*iter));
-                ((Player*)(*iter))->m_clientGUIDs.erase(GetGUID());
-            }
-    }
-    /*{
-        Map *m = GetMap();
-
-        if(GetTypeId()==TYPEID_PLAYER)
-            m->PlayerRelocation((Player*)this,GetPositionX(),GetPositionY(),GetPositionZ(),GetOrientation());
-        else
-            m->CreatureRelocation((Creature*)this,GetPositionX(),GetPositionY(),GetPositionZ(),GetOrientation());
-    }*/
+        DestroyForNearbyPlayers();
 }
 
 void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
@@ -8905,7 +8879,7 @@ void Unit::setDeathState(DeathState s)
         UnsummonAllTotems();
 
         // Possessed unit died, restore control to possessor
-        UnpossessSelf(false);
+        RemoveCharmedOrPossessedBy(NULL);
         RemoveAllFromVision();
 
         ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
@@ -9779,7 +9753,7 @@ void Unit::CleanupsBeforeDelete()
 {
     if(m_uint32Values)                                      // only for fully created object
     {
-        UnpossessSelf(false);
+        RemoveCharmedOrPossessedBy(NULL);
         RemoveAllFromVision();
         InterruptNonMeleeSpells(true);
         m_Events.KillAllEvents(false);                      // non-delatable (currently casted spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
@@ -11439,22 +11413,236 @@ void Unit::SetConfused(bool apply)
         ((Player*)this)->SetClientControl(this, !apply);
 }
 
+void Unit::SetCharmedOrPossessedBy(Unit* charmer, bool possess)
+{
+    if(!charmer)
+        return;
+
+    assert(!possess || charmer->GetTypeId() == TYPEID_PLAYER);
+
+    if(this == charmer)
+        return;
+
+    if(isInFlight())
+        return;
+
+    if(GetTypeId() == TYPEID_PLAYER && ((Player*)this)->GetTransport())
+        return;
+
+    RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+    CastStop();
+    CombatStop(); //TODO: CombatStop(true) may cause crash (interrupt spells)
+    DeleteThreatList();
+
+    // Charmer stop charming
+    if(charmer->GetTypeId() == TYPEID_PLAYER)
+        ((Player*)charmer)->StopCharmOrPossess();
+
+    // Charmed stop charming
+    if(GetTypeId() == TYPEID_PLAYER)
+        ((Player*)this)->StopCharmOrPossess();
+
+    // Charmed stop being charmed
+    RemoveCharmedOrPossessedBy(NULL);
+
+    // Set charmed
+    charmer->SetCharm(this);
+    SetCharmerGUID(charmer->GetGUID());
+    setFaction(charmer->getFaction());
+    SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+
+    if(GetTypeId() == TYPEID_UNIT)
+    {
+        ((Creature*)this)->InitPossessedAI();
+        StopMoving();
+        GetMotionMaster()->Clear(false);
+        GetMotionMaster()->MoveIdle();
+    }
+    else
+    {
+        if(((Player*)this)->isAFK())
+            ((Player*)this)->ToggleAFK();
+        ((Player*)this)->SetViewport(GetGUID(), false);
+    }
+
+    // Pets already have a properly initialized CharmInfo, don't overwrite it.
+    if(GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT && !((Creature*)this)->isPet())
+    {
+        CharmInfo *charmInfo = InitCharmInfo(this);
+        charmInfo->SetReactState(REACT_DEFENSIVE);
+        if(possess)
+            charmInfo->InitPossessCreateSpells();
+        else
+            charmInfo->InitCharmCreateSpells();
+    }
+
+    //Set possessed
+    if(possess)
+    {
+        addUnitState(UNIT_STAT_POSSESSED);
+        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNKNOWN5);
+        AddPlayerToVision((Player*)charmer);
+        ((Player*)charmer)->SetViewport(GetGUID(), true);
+        charmer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+    }
+    // Charm demon
+    else if(GetTypeId() == TYPEID_UNIT && charmer->GetTypeId() == TYPEID_PLAYER && charmer->getClass() == CLASS_WARLOCK)
+    {
+        CreatureInfo const *cinfo = ((Creature*)this)->GetCreatureInfo();
+        if(cinfo && cinfo->type == CREATURE_TYPE_DEMON)
+        {
+            //to prevent client crash
+            SetFlag(UNIT_FIELD_BYTES_0, 2048);
+
+            //just to enable stat window
+            if(GetCharmInfo())
+                GetCharmInfo()->SetPetNumber(objmgr.GeneratePetNumber(), true);
+
+            //if charmed two demons the same session, the 2nd gets the 1st one's name
+            SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, time(NULL));
+        }
+    }
+
+    if(possess) 
+        ((Player*)charmer)->PossessSpellInitialize();
+    else if(charmer->GetTypeId() == TYPEID_PLAYER)
+        ((Player*)charmer)->CharmSpellInitialize();
+}
+
+void Unit::RemoveCharmedOrPossessedBy(Unit *charmer)
+{
+    if(!isCharmed())
+        return;
+
+    if(!charmer)
+        charmer = GetCharmer();
+    else if(charmer != GetCharmer()) // one aura overrides another?
+        return;
+
+    bool possess = hasUnitState(UNIT_STAT_POSSESSED);
+
+    CastStop();
+    CombatStop(); //TODO: CombatStop(true) may cause crash (interrupt spells)
+    getHostilRefManager().deleteReferences();
+    DeleteThreatList();
+    SetCharmerGUID(0);
+    RestoreFaction();
+
+    if(possess)
+    {
+        clearUnitState(UNIT_STAT_POSSESSED);
+        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNKNOWN5);
+    }
+
+    if(GetTypeId() == TYPEID_UNIT)
+    {
+        if(!((Creature*)this)->isPet())
+            RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+
+        ((Creature*)this)->DisablePossessedAI();
+        if(isAlive() && ((Creature*)this)->AI())
+        {
+            if(charmer && !IsFriendlyTo(charmer))
+            {
+                ((Creature*)this)->AddThreat(charmer, 10000.0f);
+                ((Creature*)this)->AI()->AttackStart(charmer);
+            }
+            else
+                ((Creature*)this)->AI()->EnterEvadeMode();
+        }
+    }
+    else
+        ((Player*)this)->SetViewport(GetGUID(), true);
+
+    // If charmer still exists
+    if(!charmer)
+        return;
+
+    assert(!possess || charmer->GetTypeId() == TYPEID_PLAYER);
+           
+    charmer->SetCharm(0);
+    if(possess)
+    {
+        RemovePlayerFromVision((Player*)charmer);
+        ((Player*)charmer)->SetViewport(charmer->GetGUID(), true);
+        charmer->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+    }
+    // restore UNIT_FIELD_BYTES_0
+    else if(GetTypeId() == TYPEID_UNIT && charmer->GetTypeId() == TYPEID_PLAYER && charmer->getClass() == CLASS_WARLOCK)
+    {
+        CreatureInfo const *cinfo = ((Creature*)this)->GetCreatureInfo();
+        if(cinfo && cinfo->type == CREATURE_TYPE_DEMON)
+        {
+            CreatureDataAddon const *cainfo = ((Creature*)this)->GetCreatureAddon();
+            if(cainfo && cainfo->bytes0 != 0)
+                SetUInt32Value(UNIT_FIELD_BYTES_0, cainfo->bytes0);
+            else
+                RemoveFlag(UNIT_FIELD_BYTES_0, 2048);
+
+            if(GetCharmInfo())
+                GetCharmInfo()->SetPetNumber(0, true);
+            else
+                sLog.outError("Aura::HandleModCharm: target="I64FMTD" with typeid=%d has a charm aura but no charm info!", GetGUID(), GetTypeId());
+        }
+    }
+
+    if(possess || charmer->GetTypeId() == TYPEID_PLAYER)
+    {
+        // Remove pet spell action bar
+        WorldPacket data(SMSG_PET_SPELLS, 8);
+        data << uint64(0);
+        ((Player*)charmer)->GetSession()->SendPacket(&data);
+    }
+}
+
+void Unit::RestoreFaction()
+{
+    if(GetTypeId() == TYPEID_PLAYER)
+        ((Player*)this)->setFactionForRace(getRace());
+    else
+    {
+        CreatureInfo const *cinfo = ((Creature*)this)->GetCreatureInfo();
+
+        if(((Creature*)this)->isPet())
+        {
+            if(Unit* owner = GetOwner())
+                setFaction(owner->getFaction());
+            else if(cinfo)
+                setFaction(cinfo->faction_A);
+        }
+        else if(cinfo)  // normal creature
+            setFaction(cinfo->faction_A);
+    }
+}
+
 bool Unit::IsInPartyWith(Unit const *unit) const
 {
-    const Player *p1 = GetCharmerOrOwnerPlayerOrPlayerItself();
-    const Player *p2 = unit->GetCharmerOrOwnerPlayerOrPlayerItself();
-    if(p1 && p2)
-        return p1->IsInSameGroupWith(p2);
+    if(this == unit)
+        return true;
+
+    const Unit *u1 = GetCharmerOrOwnerOrSelf();
+    const Unit *u2 = unit->GetCharmerOrOwnerOrSelf();
+    if(u1 == u2)
+        return true;
+
+    if(u1->GetTypeId() == TYPEID_PLAYER && u2->GetTypeId() == TYPEID_PLAYER)
+        return ((Player*)u1)->IsInSameGroupWith((Player*)u2);
     else
         return false;
 }
 
 bool Unit::IsInRaidWith(Unit const *unit) const
 {
-    const Player *p1 = GetCharmerOrOwnerPlayerOrPlayerItself();
-    const Player *p2 = unit->GetCharmerOrOwnerPlayerOrPlayerItself();
-    if(p1 && p2)
-        return p1->IsInSameRaidWith(p2);
+    if(this == unit)
+        return true;
+
+    const Unit *u1 = GetCharmerOrOwnerOrSelf();
+    const Unit *u2 = unit->GetCharmerOrOwnerOrSelf();
+    if(u1 == u2)
+        return true;
+
+    if(u1->GetTypeId() == TYPEID_PLAYER && u2->GetTypeId() == TYPEID_PLAYER)
+        return ((Player*)u1)->IsInSameRaidWith((Player*)u2);
     else
         return false;
 }

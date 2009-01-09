@@ -1036,6 +1036,7 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_NO_RESET_TALENT_COST] = sConfig.GetBoolDefault("NoResetTalentsCost", false);
     m_configs[CONFIG_SHOW_KICK_IN_WORLD] = sConfig.GetBoolDefault("ShowKickInWorld", false);
     m_configs[CONFIG_INTERVAL_LOG_UPDATE] = sConfig.GetIntDefault("RecordUpdateTimeDiffInterval", 60000);
+    m_configs[CONFIG_MIN_LOG_UPDATE] = sConfig.GetIntDefault("MinRecordUpdateTimeDiff", 10);
 
     std::string forbiddenmaps = sConfig.GetStringDefault("ForbiddenMaps", "");
     char * forbiddenMaps = new char[forbiddenmaps.length() + 1];
@@ -1471,14 +1472,29 @@ void World::DetectDBCLang()
     sLog.outString("Using %s DBC Locale as default. All available DBC locales: %s",localeNames[m_defaultDbcLocale],availableLocalsStr.empty() ? "<none>" : availableLocalsStr.c_str());
 }
 
-void World::RecordTimeDiff(const char *text)
+void World::RecordTimeDiff(const char *text, ...)
 {
     if(m_updateTimeCount != 1)
         return;
-    sLog.outDebugInLine("Difftime ");
-    sLog.outDebugInLine(text);
-    uint32 thisTime = getMSTime();    
-    sLog.outDebug(": %u.", getMSTimeDiff(m_currentTime, thisTime));
+    if(!text)
+    {
+        m_currentTime = getMSTime();
+        return;
+    }
+
+    uint32 thisTime = getMSTime();
+    uint32 diff = getMSTimeDiff(m_currentTime, thisTime);
+
+    if(diff > m_configs[CONFIG_MIN_LOG_UPDATE])
+    {
+        va_list ap;
+        char str [256];
+        va_start(ap, text);
+        vsnprintf(str,256,text, ap );
+        va_end(ap);
+        sLog.outDetail("Difftime %s: %u.", str, diff);
+    }
+
     m_currentTime = thisTime;
 }
 
@@ -1493,7 +1509,6 @@ void World::Update(time_t diff)
             sLog.outString("Update time diff: %u. Players online: %u.", m_updateTimeSum / m_updateTimeCount, GetActiveSessionCount());
             m_updateTimeSum = m_updateTime;
             m_updateTimeCount = 1;
-            m_currentTime = getMSTime();
         }
         else
         {
@@ -1580,8 +1595,8 @@ void World::Update(time_t diff)
             }
         }
     }
-    RecordTimeDiff("UpdateAuction");
 
+    RecordTimeDiff(NULL);
     /// <li> Handle session updates when the timer has passed
     if (m_timers[WUPDATE_SESSIONS].Passed())
     {
@@ -1621,7 +1636,6 @@ void World::Update(time_t diff)
         m_timers[WUPDATE_UPTIME].Reset();
         WorldDatabase.PExecute("UPDATE uptime SET uptime = %d, maxplayers = %d WHERE starttime = " I64FMTD, tmpDiff, maxClientsNum, uint64(m_startTime));
     }
-    RecordTimeDiff("UpdateWeatherAndUptime");
 
     /// <li> Handle all other objects
     if (m_timers[WUPDATE_OBJECTS].Passed())
@@ -1630,16 +1644,20 @@ void World::Update(time_t diff)
         ///- Update objects when the timer has passed (maps, transport, creatures,...)
         MapManager::Instance().Update(diff);                // As interval = 0
 
+        RecordTimeDiff(NULL);
         ///- Process necessary scripts
         if (!m_scriptSchedule.empty())
             ScriptsProcess();
+        RecordTimeDiff("UpdateScriptsProcess");
 
         sBattleGroundMgr.Update(diff);
+        RecordTimeDiff("UpdateBattleGroundMgr");
 
         sOutdoorPvPMgr.Update(diff);
+        RecordTimeDiff("UpdateOutdoorPvPMgr");
     }
-    RecordTimeDiff("UpdateMaps");
 
+    RecordTimeDiff(NULL);
     // execute callbacks from sql queries that were queued recently
     UpdateResultQueue();
     RecordTimeDiff("UpdateResultQueue");
@@ -1670,7 +1688,6 @@ void World::Update(time_t diff)
 
     // And last, but not least handle the issued cli commands
     ProcessCliCommands();
-    RecordTimeDiff("UpdateRemainingThings");
 }
 
 void World::ForceGameEventUpdate()

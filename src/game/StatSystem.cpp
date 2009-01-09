@@ -982,23 +982,6 @@ void Pet::UpdateAttackPowerAndDamage(bool ranged)
                 frost = 0;
             SetBonusDamage( int32(frost * 0.4f));
         }
-        //force of nature
-        else if(GetEntry() == 1964)
-        {
-            int32 spellDmg = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_NATURE)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_NATURE);
-            if(spellDmg > 0)
-                SetBonusDamage(int32(spellDmg * 0.09f));
-        }
-        //greater fire elemental
-        else if(GetEntry() == 15438)
-        {
-            if(Unit* shaman = owner->GetOwner())
-            {
-                int32 spellDmg = int32(shaman->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE)) - shaman->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
-                if(spellDmg > 0)
-                    SetBonusDamage(int32(spellDmg * 0.4f));
-            }
-        }
     }
 
     SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, val + bonusAP);
@@ -1024,11 +1007,33 @@ void Pet::UpdateDamagePhysical(WeaponAttackType attType)
     if(attType > BASE_ATTACK)
         return;
 
+    float bonusDamage = 0.0f;
+    if(Unit* owner = GetOwner())
+    {
+        //force of nature
+        if(GetEntry() == 1964)
+        {
+            int32 spellDmg = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_NATURE)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_NATURE);
+            if(spellDmg > 0)
+                bonusDamage = spellDmg * 0.09f;
+        }
+        //greater fire elemental
+        else if(GetEntry() == 15438)
+        {
+            if(Unit* shaman = owner->GetOwner())
+            {
+                int32 spellDmg = int32(shaman->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE)) - shaman->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
+                if(spellDmg > 0)
+                    bonusDamage = spellDmg * 0.4f;
+            }
+        }
+    }
+
     UnitMods unitMod = UNIT_MOD_DAMAGE_MAINHAND;
 
     float att_speed = float(GetAttackTime(BASE_ATTACK))/1000.0f;
 
-    float base_value  = GetModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType)/ 14.0f * att_speed;
+    float base_value  = GetModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType)/ 14.0f * att_speed  + bonusDamage;
     float base_pct    = GetModifierValue(unitMod, BASE_PCT);
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
     float total_pct   = GetModifierValue(unitMod, TOTAL_PCT);

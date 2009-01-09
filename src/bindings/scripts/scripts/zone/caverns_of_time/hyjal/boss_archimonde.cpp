@@ -291,7 +291,7 @@ struct TRINITY_DLL_DECL mob_doomfire_targettingAI : public ScriptedAI
                     target = SelectUnit(SELECT_TARGET_RANDOM, 1);
                     if(target && target->isAlive())
                     {
-                        m_creature->AddThreat(target, m_creature->getThreatManager().getThreat(m_creature->getVictim()));
+                        m_creature->AddThreat(target, DoGetThreat(m_creature->getVictim()));
                         m_creature->GetMotionMaster()->MoveChase(target);
                     }
                     break;
@@ -469,7 +469,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
             if(!m_creature->IsWithinDistInMap(target, m_creature->GetAttackDistance(target)))
                 return true;                                // Cast Finger of Death
             else                                            // This target is closest, he is our new tank
-                m_creature->AddThreat(target, m_creature->getThreatManager().getThreat(m_creature->getVictim()));
+                m_creature->AddThreat(target, DoGetThreat(m_creature->getVictim()));
         }
 
         return false;

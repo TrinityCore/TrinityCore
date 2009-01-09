@@ -139,8 +139,8 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
             DoCast(m_creature->getVictim(),SPELL_KNOCK_AWAY);
 
             //Drop 25% aggro
-            if(m_creature->getThreatManager().getThreat(m_creature->getVictim()))
-                m_creature->getThreatManager().modifyThreatPercent(m_creature->getVictim(),-25);
+            if(DoGetThreat(m_creature->getVictim()))
+                DoModifyThreatPercent(m_creature->getVictim(),-25);
 
             KnockAway_Timer = 30000;
         }else KnockAway_Timer -= diff;

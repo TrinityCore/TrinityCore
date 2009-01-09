@@ -34,6 +34,9 @@ namespace FactorySelector
 {
     CreatureAI* selectAI(Creature *creature)
     {
+        //if(creature->isPossessed())
+        //    creature->InitPossessedAI();
+
         // Allow scripting AI for normal creatures and not controlled pets (guardians and mini-pets)
         if((!creature->isPet() || !((Pet*)creature)->isControlled()) && !creature->isCharmed())
             if(CreatureAI* scriptedAI = Script->GetAI(creature))
@@ -62,8 +65,6 @@ namespace FactorySelector
                 ai_factory = ai_registry.GetRegistryItem("TotemAI");
             else if(creature->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
                 ai_factory = ai_registry.GetRegistryItem("NullCreatureAI");
-            else if(creature->isPossessed())
-                creature->InitPossessedAI();
         }
 
         // select by permit check

@@ -249,6 +249,14 @@ void WorldSession::LogoutPlayer(bool Save)
 
     if (_player)
     {
+        // Unpossess the current possessed unit of player
+        _player->StopCharmOrPossess();
+
+        // Remove any possession of this player on logout
+        _player->RemoveCharmedOrPossessedBy(NULL);
+
+        _player->DestroyForNearbyPlayers();
+
         if (uint64 lguid = GetPlayer()->GetLootGUID())
             DoLootRelease(lguid);
 
@@ -373,13 +381,6 @@ void WorldSession::LogoutPlayer(bool Save)
         // a) in group; b) not in raid group; c) logging out normally (not being kicked or disconnected)
         if(_player->GetGroup() && !_player->GetGroup()->isRaidGroup() && m_Socket)
             _player->RemoveFromGroup();
-
-        // Unpossess the current possessed unit of player
-        if (_player->isPossessing())
-            _player->RemovePossess(false);
-
-        // Remove any possession of this player on logout
-        _player->UnpossessSelf(false);
 
         ///- Remove the player from the world
         // the player may not be in the world when logging out

@@ -325,7 +325,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 }
 
                 // Meteor like spells (divided damage to targets)
-                if(spellmgr.GetSpellCustomAttr(m_spellInfo->Id) & SPELL_ATTR_CU_SHARE_DAMAGE)
+                if(m_customAttr & SPELL_ATTR_CU_SHARE_DAMAGE)
                 {
                     uint32 count = 0;
                     for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
@@ -682,8 +682,11 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
             }
         }
 
-        if(damage >= 0)
-            m_damage+= damage;
+        if(m_originalCaster)
+            damage = m_originalCaster->SpellDamageBonus(unitTarget, m_spellInfo, damage, SPELL_DIRECT_DAMAGE);
+
+        if(damage > 0)
+            m_damage += damage;
     }
 }
 
@@ -2367,7 +2370,9 @@ void Spell::EffectPowerBurn(uint32 i)
     new_damage = int32(new_damage*multiplier);
     //m_damage+=new_damage; should not apply spell bonus
     //TODO: no log
-    unitTarget->ModifyHealth(-new_damage);
+    //unitTarget->ModifyHealth(-new_damage);
+    if(m_originalCaster)
+        m_originalCaster->DealDamage(unitTarget, new_damage);
 }
 
 void Spell::EffectHeal( uint32 /*i*/ )
@@ -3759,7 +3764,7 @@ void Spell::EffectSummonPossessed(uint32 i)
     TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_OR_DEAD_DESPAWN;
 
     Creature* c = m_caster->SummonCreature(creatureEntry, px, py, pz, m_caster->GetOrientation(), summonType, duration);
-    ((Player*)m_caster)->Possess(c);
+    if(c) c->SetCharmedOrPossessedBy(m_caster, true);
 }
 
 void Spell::EffectTeleUnitsFaceCaster(uint32 i)
