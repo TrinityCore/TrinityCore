@@ -61,6 +61,7 @@ class TicketMgr
 		void SaveGMTicket(GM_Ticket* ticket);
 		
 		uint64 GenerateTicketID();
+		void InitTicketID();
 		GM_Ticket* GetGMTicket(uint64 ticketGuid);
 		GM_Ticket* GetGMTicketByPlayer(uint64 playerGuid);
 		GM_Ticket* GetGMTicketByName(const char *name);
