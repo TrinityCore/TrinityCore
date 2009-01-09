@@ -26,7 +26,7 @@
 #include "ObjectMgr.h"
 
 // Character Dump tables
-#define DUMP_TABLE_COUNT 19
+#define DUMP_TABLE_COUNT 18
 
 struct DumpTable
 {
