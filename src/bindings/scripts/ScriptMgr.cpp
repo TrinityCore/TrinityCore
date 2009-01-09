@@ -563,6 +563,8 @@ extern void AddSC_instance_uldaman();
 extern void AddSC_undercity();
 
 //Un'Goro Crater
+extern void AddSC_ungoro_crater();
+
 //Upper blackrock spire
 //Wailing caverns
 
@@ -1770,6 +1772,8 @@ void ScriptsInit()
     AddSC_undercity();
 
     //Un'Goro Crater
+	AddSC_ungoro_crater();
+
     //Upper blackrock spire
     //Wailing caverns
 

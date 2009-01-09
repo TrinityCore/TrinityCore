@@ -368,7 +368,6 @@ bool GossipSelect_npc_skyguard_handler_deesak(Player *player, Creature *_Creatur
 #define QUEST_EFTW_A	10051
 #define GO_CAGE			182794
 #define SPELL_CAT		32447
-//update creature_template set scriptname='npc_isla_starmane' where entry=18760;
 
 struct TRINITY_DLL_DECL npc_isla_starmaneAI : public npc_escortAI
 {
