@@ -945,7 +945,7 @@ void Player::HandleDrowning()
 
     AuraList const& mModWaterBreathing = GetAurasByType(SPELL_AURA_MOD_WATER_BREATHING);
     for(AuraList::const_iterator i = mModWaterBreathing.begin(); i != mModWaterBreathing.end(); ++i)
-        UnderWaterTime = uint32(UnderWaterTime * (100.0f + (*i)->GetModifierValue()) / 100.0f);
+        UnderWaterTime = uint32(UnderWaterTime * (100.0f + (*i)->GetModifier()->m_amount) / 100.0f);
 
     if ((m_isunderwater & 0x01) && !(m_isunderwater & 0x80) && isAlive())
     {
@@ -1987,7 +1987,7 @@ void Player::Regenerate(Powers power)
         AuraList const& ModPowerRegenPCTAuras = GetAurasByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
         for(AuraList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
             if ((*i)->GetModifier()->m_miscvalue == power)
-                addvalue *= ((*i)->GetModifierValue() + 100) / 100.0f;
+                addvalue *= ((*i)->GetModifier()->m_amount + 100) / 100.0f;
     }
 
     if (power != POWER_RAGE && power != POWER_RUNIC_POWER)
@@ -2028,7 +2028,7 @@ void Player::RegenerateHealth()
         {
             AuraList const& mModHealthRegenPct = GetAurasByType(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT);
             for(AuraList::const_iterator i = mModHealthRegenPct.begin(); i != mModHealthRegenPct.end(); ++i)
-                addvalue *= (100.0f + (*i)->GetModifierValue()) / 100.0f;
+                addvalue *= (100.0f + (*i)->GetModifier()->m_amount) / 100.0f;
         }
         else if(HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT))
             addvalue *= GetTotalAuraModifier(SPELL_AURA_MOD_REGEN_DURING_COMBAT) / 100.0f;
@@ -2226,7 +2226,7 @@ void Player::GiveXP(uint32 xp, Unit* victim)
     // handle SPELL_AURA_MOD_XP_PCT auras
     Unit::AuraList const& ModXPPctAuras = GetAurasByType(SPELL_AURA_MOD_XP_PCT);
     for(Unit::AuraList::const_iterator i = ModXPPctAuras.begin();i != ModXPPctAuras.end(); ++i)
-        xp = uint32(xp*(1.0f + (*i)->GetModifierValue() / 100.0f));
+        xp = uint32(xp*(1.0f + (*i)->GetModifier()->m_amount / 100.0f));
 
     // XP resting bonus for kill
     uint32 rested_bonus_xp = victim ? GetXPRestBonus(xp) : 0;
@@ -2633,7 +2633,7 @@ void Player::AddNewMailDeliverTime(time_t deliver_time)
     }
 }
 
-bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool loading, uint16 slot_id, bool disabled)
+bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool loading, bool disabled)
 {
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spell_id);
     if (!spellInfo)
@@ -2751,7 +2751,7 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool loading,
         else if(uint32 prev_spell = spellmgr.GetPrevSpellInChain(spell_id))
         {
             if(loading)                                     // at spells loading, no output, but allow save
-                addSpell(prev_spell,active,true,loading,SPELL_WITHOUT_SLOT_ID,disabled);
+                addSpell(prev_spell,active,true,loading,disabled);
             else                                            // at normal learning
                 learnSpell(prev_spell);
         }
@@ -2809,23 +2809,6 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool loading,
             }
         }
 
-        uint16 tmpslot=slot_id;
-
-        if (tmpslot == SPELL_WITHOUT_SLOT_ID)
-        {
-            uint16 maxid = 0;
-            PlayerSpellMap::iterator itr;
-            for (itr = m_spells.begin(); itr != m_spells.end(); ++itr)
-            {
-                if(itr->second->state == PLAYERSPELL_REMOVED)
-                    continue;
-                if (itr->second->slotId > maxid)
-                    maxid = itr->second->slotId;
-            }
-            tmpslot = maxid + 1;
-        }
-
-        newspell->slotId = tmpslot;
         m_spells[spell_id] = newspell;
 
         // return false if spell disabled
@@ -4961,22 +4944,8 @@ void Player::UpdateWeaponSkill (WeaponAttackType attType)
     UpdateAllCritPercentages();
 }
 
-void Player::UpdateCombatSkills(Unit *pVictim, WeaponAttackType attType, MeleeHitOutcome outcome, bool defence)
+void Player::UpdateCombatSkills(Unit *pVictim, WeaponAttackType attType, bool defence)
 {
-/* Not need, this checked on call this func from trigger system
-    switch(outcome)
-    {
-        case MELEE_HIT_CRIT:
-        case MELEE_HIT_DODGE:
-        case MELEE_HIT_PARRY:
-        case MELEE_HIT_BLOCK:
-        case MELEE_HIT_BLOCK_CRIT:
-            return;
-
-        default:
-            break;
-    }
-*/
     uint32 plevel = getLevel();                             // if defense than pVictim == attacker
     uint32 greylevel = Trinity::XP::GetGrayLevel(plevel);
     uint32 moblevel = pVictim->getLevelForTarget(this);
@@ -6920,7 +6889,7 @@ void Player::_ApplyWeaponDependentAuraCritMod(Item *item, WeaponAttackType attac
 
     if (item->IsFitToSpellRequirements(aura->GetSpellProto()))
     {
-        HandleBaseModValue(mod, FLAT_MOD, float (aura->GetModifierValue()), apply);
+        HandleBaseModValue(mod, FLAT_MOD, float (aura->GetModifier()->m_amount), apply);
     }
 }
 
@@ -6954,7 +6923,7 @@ void Player::_ApplyWeaponDependentAuraDamageMod(Item *item, WeaponAttackType att
 
     if (item->IsFitToSpellRequirements(aura->GetSpellProto()))
     {
-        HandleStatModifier(unitMod, unitModType, float(aura->GetModifierValue()),apply);
+        HandleStatModifier(unitMod, unitModType, float(aura->GetModifier()->m_amount),apply);
     }
 }
 
@@ -15342,7 +15311,7 @@ void Player::_LoadSpells(QueryResult *result)
         delete itr->second;
     m_spells.clear();
 
-    //QueryResult *result = CharacterDatabase.PQuery("SELECT spell,slot,active FROM character_spell WHERE guid = '%u'",GetGUIDLow());
+    //QueryResult *result = CharacterDatabase.PQuery("SELECT spell,active,disabled FROM character_spell WHERE guid = '%u'",GetGUIDLow());
 
     if(result)
     {
@@ -15350,7 +15319,7 @@ void Player::_LoadSpells(QueryResult *result)
         {
             Field *fields = result->Fetch();
 
-            addSpell(fields[0].GetUInt16(), fields[2].GetBool(), false, true, fields[1].GetUInt16(), fields[3].GetBool());
+            addSpell(fields[0].GetUInt16(), fields[1].GetBool(), false, true, fields[2].GetBool());
         }
         while( result->NextRow() );
 
@@ -15927,7 +15896,7 @@ void Player::_SaveAuras()
                     {
                         CharacterDatabase.PExecute("INSERT INTO character_aura (guid,caster_guid,spell,effect_index,stackcount,amount,maxduration,remaintime,remaincharges) "
                             "VALUES ('%u', '" I64FMTD "' ,'%u', '%u', '%u', '%d', '%d', '%d', '%d')",
-                            GetGUIDLow(), itr2->second->GetCasterGUID(), (uint32)itr2->second->GetId(), (uint32)itr2->second->GetEffIndex(), (uint32)itr2->second->GetStackAmount(), itr2->second->GetModifier()->m_amount,int(itr2->second->GetAuraMaxDuration()),int(itr2->second->GetAuraDuration()),int(itr2->second->GetAuraCharges()));
+                            GetGUIDLow(), itr2->second->GetCasterGUID(), (uint32)itr2->second->GetId(), (uint32)itr2->second->GetEffIndex(), (uint32)itr2->second->GetStackAmount(), itr2->second->GetModifier()->m_amount ,int(itr2->second->GetAuraMaxDuration()),int(itr2->second->GetAuraDuration()),int(itr2->second->GetAuraCharges()));
                     }
                 }
             }
@@ -16134,7 +16103,7 @@ void Player::_SaveSpells()
         if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->state == PLAYERSPELL_CHANGED)
             CharacterDatabase.PExecute("DELETE FROM character_spell WHERE guid = '%u' and spell = '%u'", GetGUIDLow(), itr->first);
         if (itr->second->state == PLAYERSPELL_NEW || itr->second->state == PLAYERSPELL_CHANGED)
-            CharacterDatabase.PExecute("INSERT INTO character_spell (guid,spell,slot,active,disabled) VALUES ('%u', '%u', '%u','%u','%u')", GetGUIDLow(), itr->first, itr->second->slotId,itr->second->active ? 1 : 0,itr->second->disabled ? 1 : 0);
+            CharacterDatabase.PExecute("INSERT INTO character_spell (guid,spell,active,disabled) VALUES ('%u', '%u', '%u', '%u')", GetGUIDLow(), itr->first, itr->second->active ? 1 : 0,itr->second->disabled ? 1 : 0);
 
         if (itr->second->state == PLAYERSPELL_REMOVED)
             _removeSpell(itr->first);

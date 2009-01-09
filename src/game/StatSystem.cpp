@@ -165,7 +165,7 @@ void Player::UpdateArmor()
     {
         Modifier* mod = (*i)->GetModifier();
         if(mod->m_miscvalue & SPELL_SCHOOL_MASK_NORMAL)
-            value += int32(GetStat(Stats((*i)->GetMiscBValue())) * (*i)->GetModifierValue() / 100.0f);
+            value += int32(GetStat(Stats((*i)->GetMiscBValue())) * mod->m_amount / 100.0f);
     }
 
     value *= GetModifierValue(unitMod, TOTAL_PCT);
@@ -612,10 +612,10 @@ void Player::UpdateExpertise(WeaponAttackType attack)
     {
         // item neutral spell
         if((*itr)->GetSpellProto()->EquippedItemClass == -1)
-            expertise += (*itr)->GetModifierValue();
+            expertise += (*itr)->GetModifier()->m_amount;
         // item dependent spell
         else if(weapon && weapon->IsFitToSpellRequirements((*itr)->GetSpellProto()))
-            expertise += (*itr)->GetModifierValue();
+            expertise += (*itr)->GetModifier()->m_amount;
     }
 
     if(expertise < 0)
@@ -645,7 +645,7 @@ void Player::UpdateManaRegen()
     for(AuraList::const_iterator i = regenAura.begin();i != regenAura.end(); ++i)
     {
         Modifier* mod = (*i)->GetModifier();
-        power_regen_mp5 += GetStat(Stats(mod->m_miscvalue)) * (*i)->GetModifierValue() / 500.0f;
+        power_regen_mp5 += GetStat(Stats(mod->m_miscvalue)) * mod->m_amount / 500.0f;
     }
 
     // Bonus from some dummy auras

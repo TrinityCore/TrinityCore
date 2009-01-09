@@ -658,22 +658,30 @@ void Spell::prepareDataForTriggerSystem()
             m_procVictim   = PROC_FLAG_TAKEN_MELEE_SPELL_HIT;
             break;
         case SPELL_DAMAGE_CLASS_RANGED:
-            m_procAttacker = PROC_FLAG_SUCCESSFUL_RANGED_SPELL_HIT;
-            m_procVictim   = PROC_FLAG_TAKEN_RANGED_SPELL_HIT;
-            break;
-        default:
-            if (IsPositiveSpell(m_spellInfo->Id))          // Check for positive spell
+            // Auto attack
+            if (m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_AUTOREPEAT_FLAG)
             {
-                m_procAttacker = PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL;
-                m_procVictim   = PROC_FLAG_TAKEN_POSITIVE_SPELL;
+                m_procAttacker = PROC_FLAG_SUCCESSFUL_RANGED_HIT;
+                m_procVictim   = PROC_FLAG_TAKEN_RANGED_HIT;
             }
-                                                           // Wands
-            else if (IsAutoRepeatRangedSpell(m_spellInfo) && m_spellInfo->Id != SPELL_ID_AUTOSHOT)
+            else // Ranged spell attack
             {
                 m_procAttacker = PROC_FLAG_SUCCESSFUL_RANGED_SPELL_HIT;
                 m_procVictim   = PROC_FLAG_TAKEN_RANGED_SPELL_HIT;
             }
-            else
+            break;
+        default:
+            if (IsPositiveSpell(m_spellInfo->Id))                                 // Check for positive spell
+            {
+                m_procAttacker = PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL;
+                m_procVictim   = PROC_FLAG_TAKEN_POSITIVE_SPELL;
+            }
+            else if (m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_AUTOREPEAT_FLAG) // Wands auto attack
+            {
+                m_procAttacker = PROC_FLAG_SUCCESSFUL_RANGED_HIT;
+                m_procVictim   = PROC_FLAG_TAKEN_RANGED_HIT;
+            }
+            else                                           // Negative spell
             {
                 m_procAttacker = PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT;
                 m_procVictim   = PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT;
