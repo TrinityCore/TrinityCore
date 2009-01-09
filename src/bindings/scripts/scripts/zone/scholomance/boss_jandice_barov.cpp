@@ -115,7 +115,7 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
             m_creature->setFaction(35);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,11686);  // Invisible Model
-            m_creature->getThreatManager().modifyThreatPercent(m_creature->getVictim(),-99);
+            DoModifyThreatPercent(m_creature->getVictim(),-99);
 
             //Summon 10 Illusions attacking random gamers
             Unit* target = NULL;

@@ -187,8 +187,8 @@ struct TRINITY_DLL_DECL boss_vemAI : public ScriptedAI
         if (KnockBack_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_KNOCKBACK);
-            if(m_creature->getThreatManager().getThreat(m_creature->getVictim()))
-                m_creature->getThreatManager().modifyThreatPercent(m_creature->getVictim(),-80);
+            if(DoGetThreat(m_creature->getVictim()))
+                DoModifyThreatPercent(m_creature->getVictim(),-80);
             KnockBack_Timer = 15000 + rand()%10000;
         }else KnockBack_Timer -= diff;
 
