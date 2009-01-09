@@ -36,6 +36,8 @@ void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
 	// always do a packet check
     CHECK_PACKET_SIZE(recv_data, 4*4+1+2*4);
 
+	uint32 map;
+    float x, y, z;
     std::string ticketText = "";
 	std::string ticketText2 = "";
 	GM_Ticket *ticket = new GM_Ticket;
@@ -43,7 +45,12 @@ void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
 	WorldPacket data(SMSG_GMTICKET_CREATE, 4);
 
 	// recv Data
-	recv_data >> ticketText;
+	//TODO: Add map coordinates to tickets.
+    recv_data >> map;
+    recv_data >> x;
+    recv_data >> y;
+    recv_data >> z;
+    recv_data >> ticketText;
 
 	// get additional data, rarely used
 	recv_data >> ticketText2;
