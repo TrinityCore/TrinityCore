@@ -434,8 +434,8 @@ struct TRINITY_DLL_DECL mob_zealot_zathAI : public ScriptedAI
         {
             DoCast(m_creature->getVictim(),SPELL_GOUGE);
 
-            if(m_creature->getThreatManager().getThreat(m_creature->getVictim()))
-                m_creature->getThreatManager().modifyThreatPercent(m_creature->getVictim(),-100);
+            if(DoGetThreat(m_creature->getVictim()))
+                DoModifyThreatPercent(m_creature->getVictim(),-100);
 
             Gouge_Timer = 17000+rand()%10000;
         }else Gouge_Timer -= diff;

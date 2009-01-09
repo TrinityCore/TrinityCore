@@ -684,7 +684,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 Unit* target = GetTargetByType(param2, pActionInvoker);
 
                 if (target)
-                    m_creature->getThreatManager().modifyThreatPercent(target, param1);
+                    DoModifyThreatPercent(target, param1);
             }
             break;
         case ACTION_T_THREAT_ALL_PCT:
@@ -696,7 +696,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 {
                     Temp = Unit::GetUnit((*m_creature),(*i)->getUnitGuid());
                     if (Temp)
-                        m_creature->getThreatManager().modifyThreatPercent(Temp, param1);
+                        DoModifyThreatPercent(Temp, param1);
                 }
             }
             break;

@@ -146,8 +146,8 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
                 m_creature->UpdateDamagePhysical(BASE_ATTACK);
                 DoCast(m_creature->getVictim(),SPELL_ENVOLWINGWEB);
 
-                if(m_creature->getThreatManager().getThreat(m_creature->getVictim()))
-                    m_creature->getThreatManager().modifyThreatPercent(m_creature->getVictim(),-100);
+                if(DoGetThreat(m_creature->getVictim()))
+                    DoModifyThreatPercent(m_creature->getVictim(),-100);
 
                 PhaseTwo = true;
                 Transform_Timer = 35000 + rand()%25000;

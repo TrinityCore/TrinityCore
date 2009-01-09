@@ -316,7 +316,7 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
             Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
             if(pUnit && pUnit->isAlive())
             {
-                float threat = m_creature->getThreatManager().getThreat(pUnit);
+                float threat = DoGetThreat(pUnit);
                 Blossom->AddThreat(pUnit, threat);
             }
         }

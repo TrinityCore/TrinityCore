@@ -105,8 +105,8 @@ struct TRINITY_DLL_DECL boss_darkmaster_gandlingAI : public ScriptedAI
                 target = SelectUnit(SELECT_TARGET_RANDOM,0);
                 if (target && target->GetTypeId() == TYPEID_PLAYER)
                 {
-                    if(m_creature->getThreatManager().getThreat(target))
-                        m_creature->getThreatManager().modifyThreatPercent(target, -100);
+                    if(DoGetThreat(target))
+                        DoModifyThreatPercent(target, -100);
 
                     switch(rand()%6)
                     {

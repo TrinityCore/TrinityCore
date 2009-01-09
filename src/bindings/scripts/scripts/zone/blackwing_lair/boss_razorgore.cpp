@@ -97,8 +97,8 @@ struct TRINITY_DLL_DECL boss_razorgoreAI : public ScriptedAI
             DoCast(m_creature->getVictim(),SPELL_CONFLAGRATION);
             //We will remove this threat reduction and add an aura check.
 
-            //if(m_creature->getThreatManager().getThreat(m_creature->getVictim()))
-            //m_creature->getThreatManager().modifyThreatPercent(m_creature->getVictim(),-50);
+            //if(DoGetThreat(m_creature->getVictim()))
+            //DoModifyThreatPercent(m_creature->getVictim(),-50);
 
             Conflagration_Timer = 12000;
         }else Conflagration_Timer -= diff;
