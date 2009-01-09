@@ -1911,7 +1911,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 default:                            angle = rand_norm()*2*M_PI; break;
             }
 
-            m_caster->GetClosePoint(x, y, z, dist, angle);
+            m_caster->GetGroundPointAroundUnit(x, y, z, dist, angle);
             m_targets.setDestination(x, y, z); // do not know if has ground visual
         }break;
 
@@ -1957,7 +1957,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 default:                            angle = rand_norm()*2*M_PI; break;
             }
 
-            target->GetClosePoint(x, y, z, dist, angle);
+            target->GetGroundPointAroundUnit(x, y, z, dist, angle);
             m_targets.setDestination(x, y, z); // do not know if has ground visual
         }break;
 
@@ -1994,7 +1994,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             x = m_targets.m_destX;
             y = m_targets.m_destY;
             z = m_targets.m_destZ;
-            m_caster->GetClosePointAt(x, y, z, dist, angle);
+            m_caster->GetGroundPoint(x, y, z, dist, angle);
             m_targets.setDestination(x, y, z); // do not know if has ground visual
         }break;
 

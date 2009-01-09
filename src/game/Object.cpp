@@ -1622,7 +1622,7 @@ void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, 
 	UpdateGroundPositionZ(x,y,z);
 }
 
-void WorldObject::GetClosePointAt(float &x, float &y, float &z, float dist, float angle)
+void WorldObject::GetGroundPoint(float &x, float &y, float &z, float dist, float angle)
 {
     angle += GetOrientation();
     x += dist * cos(angle);
