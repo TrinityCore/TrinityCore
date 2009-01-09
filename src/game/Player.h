@@ -899,8 +899,14 @@ class TRINITY_DLL_SPEC Player : public Unit
         void RemoveFromWorld();
 
         void SetViewport(uint64 guid, bool movable);
-        void Possess(Unit *target);
-        void RemovePossess(bool attack = true); 
+        void RemovePossess(bool attack = true);
+        void StopCharmOrPossess()
+        {
+            if(isPossessing())
+                RemovePossess(true);
+            else if(GetCharm())
+                Uncharm();
+        }
         WorldObject* GetFarsightTarget() const;
         void ClearFarsight();
         void RemoveFarsightTarget();
@@ -2325,6 +2331,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         MapReference m_mapRef;
 
         void UpdateCharmedAI();
+        UnitAI *i_AI;
 };
 
 void AddItemsSetItem(Player*player,Item *item);

@@ -3704,7 +3704,7 @@ void Spell::EffectSummonPossessed(uint32 i)
     TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_OR_DEAD_DESPAWN;
 
     Creature* c = m_caster->SummonCreature(creatureEntry, px, py, pz, m_caster->GetOrientation(), summonType, duration);
-    ((Player*)m_caster)->Possess(c);
+    if(c) c->SetCharmedOrPossessedBy(m_caster, true);
 }
 
 void Spell::EffectTeleUnitsFaceCaster(uint32 i)

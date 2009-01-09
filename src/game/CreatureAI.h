@@ -69,7 +69,22 @@ enum SelectAggroTarget
     SELECT_TARGET_FARTHEST,
 };
 
-class TRINITY_DLL_SPEC CreatureAI
+class TRINITY_DLL_SPEC UnitAI
+{
+    public:
+        virtual void UpdateAI(const uint32 diff) = 0;
+};
+
+class TRINITY_DLL_SPEC SimpleCharmedAI
+{
+    public:
+        SimpleCharmedAI(Unit &u);
+        virtual void UpdateAI(const uint32 diff);
+    private:
+        Unit &me;
+};
+
+class TRINITY_DLL_SPEC CreatureAI : public UnitAI
 {
     public:
 
