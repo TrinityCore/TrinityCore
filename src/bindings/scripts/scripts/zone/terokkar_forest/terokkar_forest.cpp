@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Terokkar_Forest
 SD%Complete: 80
-SDComment: Quest support: 9889(test script only, sql inside script), 10009, 10873, 10896, 11096. Skettis->Ogri'la Flight
+SDComment: Quest support: 9889, 10009, 10873, 10896, 11096, 10052, 10051. Skettis->Ogri'la Flight
 SDCategory: Terokkar Forest
 EndScriptData */
 
@@ -28,9 +28,11 @@ mob_rotting_forest_rager
 mob_netherweb_victim
 npc_floon
 npc_skyguard_handler_deesak
+npc_isla_starmane
 EndContentData */
 
 #include "precompiled.h"
+#include "../../npc/npc_escortAI.h"
 
 /*######
 ## mob_unkor_the_ruthless
@@ -354,8 +356,137 @@ bool GossipSelect_npc_skyguard_handler_deesak(Player *player, Creature *_Creatur
 }
 
 /*######
-## AddSC
+## npc_isla_starmane
 ######*/
+
+#define SAY_PROGRESS_1	"Ok let's get out of here!"
+#define SAY_PROGRESS_2	"You sure you're ready? Take a moment."
+#define SAY_PROGRESS_3	"Alright, let's do this!"
+#define SAY_PROGRESS_4	"Ok, I think I can make it on my own from here. Thank you so much for breaking me out of there!"
+
+#define QUEST_EFTW_H	10052
+#define QUEST_EFTW_A	10051
+#define GO_CAGE			182794
+#define SPELL_CAT		32447
+
+struct TRINITY_DLL_DECL npc_isla_starmaneAI : public npc_escortAI
+{
+	npc_isla_starmaneAI(Creature* c) : npc_escortAI(c) {Reset();}
+
+	bool Completed;
+
+	void WaypointReached(uint32 i)
+	{
+		Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+
+		if(!player)
+			return;
+
+		switch(i)
+		{
+		case 0: 
+			{
+			GameObject* Cage = FindGameObject(GO_CAGE, 99);
+			if(Cage)
+				Cage->SetGoState(0);
+			}break;
+		case 2: DoSay(SAY_PROGRESS_1, LANG_UNIVERSAL, player); break;
+		case 5: DoSay(SAY_PROGRESS_2, LANG_UNIVERSAL, player); break;
+		case 6: DoSay(SAY_PROGRESS_3, LANG_UNIVERSAL, player); break;
+		case 29:DoSay(SAY_PROGRESS_4, LANG_UNIVERSAL, player);
+			if (player)
+			{
+				if(((Player*)player)->GetTeam() == ALLIANCE)
+					((Player*)player)->GroupEventHappens(QUEST_EFTW_A, m_creature);
+				else if(((Player*)player)->GetTeam() == HORDE)
+					((Player*)player)->GroupEventHappens(QUEST_EFTW_H, m_creature);
+			} Completed = true; 
+			m_creature->SetInFront(player); break;
+		case 30: m_creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE); break;
+		case 31: DoCast(m_creature, SPELL_CAT); 
+			m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);	break;
+		}
+	}
+
+	void Reset()
+	{
+		Completed = false;
+	}
+
+	void Aggro(Unit* who){}
+
+	void JustDied(Unit* killer)
+	{
+		if (PlayerGUID)
+		{
+			Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+			if (player && !Completed)
+			{
+				if(((Player*)player)->GetTeam() == ALLIANCE)
+					((Player*)player)->FailQuest(QUEST_EFTW_A);
+				else if(((Player*)player)->GetTeam() == HORDE)
+					((Player*)player)->FailQuest(QUEST_EFTW_H);
+			}
+		}
+	}
+
+	void UpdateAI(const uint32 diff)
+	{
+		npc_escortAI::UpdateAI(diff);
+	}
+};
+
+bool QuestAccept_npc_isla_starmane(Player* player, Creature* creature, Quest const* quest)
+{
+	if (quest->GetQuestId() == QUEST_EFTW_H || quest->GetQuestId() == QUEST_EFTW_A)
+    {
+        ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
+    }
+    return true;
+}
+
+CreatureAI* GetAI_npc_isla_starmaneAI(Creature *_Creature)
+{
+	npc_isla_starmaneAI* thisAI = new npc_isla_starmaneAI(_Creature);
+
+	thisAI->AddWaypoint(0, -2265.21, 3091.14, 13.91);
+	thisAI->AddWaypoint(1, -2266.80, 3091.33, 13.82, 1000);
+	thisAI->AddWaypoint(2, -2268.20, 3091.14, 13.82, 7000);//progress1
+	thisAI->AddWaypoint(3, -2278.32, 3098.98, 13.82);
+	thisAI->AddWaypoint(4, -2294.82, 3110.59, 13.82);
+	thisAI->AddWaypoint(5, -2300.71, 3114.60, 13.82, 20000);//progress2
+	thisAI->AddWaypoint(6, -2300.71, 3114.60, 13.82, 3000);//progress3
+	thisAI->AddWaypoint(7, -2307.36, 3122.76, 13.79);
+	thisAI->AddWaypoint(8, -2312.83, 3130.55, 12.04);
+	thisAI->AddWaypoint(9, -2345.02, 3151.00, 8.38);
+	thisAI->AddWaypoint(10, -2351.97, 3157.61, 6.27);
+	thisAI->AddWaypoint(11, -2360.35, 3171.48, 3.31);
+	thisAI->AddWaypoint(12, -2371.44, 3185.41, 0.89);
+	thisAI->AddWaypoint(13, -2371.21, 3197.92, -0.96);
+	thisAI->AddWaypoint(14, -2380.35, 3210.45, -1.08);
+	thisAI->AddWaypoint(15, -2384.74, 3221.25, -1.17);
+	thisAI->AddWaypoint(16, -2386.15, 3233.39, -1.29);
+	thisAI->AddWaypoint(17, -2383.45, 3247.79, -1.32);
+	thisAI->AddWaypoint(18, -2367.50, 3265.64, -1.33);
+	thisAI->AddWaypoint(19, -2354.90, 3273.30, -1.50);
+	thisAI->AddWaypoint(20, -2348.88, 3280.58, -0.09);
+	thisAI->AddWaypoint(21, -2349.06, 3295.86, -0.95);
+	thisAI->AddWaypoint(22, -2350.43, 3328.27, -2.10);
+	thisAI->AddWaypoint(23, -2346.76, 3356.27, -2.82);
+	thisAI->AddWaypoint(24, -2340.56, 3370.68, -4.02);
+	thisAI->AddWaypoint(25, -2318.84, 3384.60, -7.61);
+	thisAI->AddWaypoint(26, -2313.99, 3398.61, -10.40);
+	thisAI->AddWaypoint(27, -2320.85, 3414.49, -11.49);
+	thisAI->AddWaypoint(28, -2338.26, 3426.06, -11.46);
+	thisAI->AddWaypoint(29, -2342.67, 3439.44, -11.32, 12000);//progress4 
+	thisAI->AddWaypoint(30, -2342.67, 3439.44, -11.32, 7000);//emote bye
+	thisAI->AddWaypoint(31, -2342.67, 3439.44, -11.32, 5000);//cat form
+	thisAI->AddWaypoint(32, -2344.60, 3461.27, -10.44);
+	thisAI->AddWaypoint(33, -2396.81, 3517.17, -3.55);
+	thisAI->AddWaypoint(34, -2439.23, 3523.00, -1.05);
+
+	return (CreatureAI*)thisAI;
+}
 
 void AddSC_terokkar_forest()
 {
@@ -392,4 +523,10 @@ void AddSC_terokkar_forest()
     newscript->pGossipHello =  &GossipHello_npc_skyguard_handler_deesak;
     newscript->pGossipSelect = &GossipSelect_npc_skyguard_handler_deesak;
     newscript->RegisterSelf();
+
+	newscript = new Script;
+	newscript->Name= "npc_isla_starmane";
+	newscript->GetAI = &GetAI_npc_isla_starmaneAI;
+	newscript->pQuestAccept = &QuestAccept_npc_isla_starmane;
+	newscript->RegisterSelf();
 }

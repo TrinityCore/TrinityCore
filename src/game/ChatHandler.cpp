@@ -316,9 +316,9 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
                 break;
 
             Group *group = GetPlayer()->GetGroup();
-            if(!group || !group->isRaidGroup())
+            if(!group || !group->isRaidGroup() || group->isBGGroup())
                 return;
-
+           
             WorldPacket data;
             ChatHandler::FillMessageData(&data, this, CHAT_MSG_RAID, lang, "", 0, msg.c_str(),NULL);
             group->BroadcastPacket(&data);
@@ -342,7 +342,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
                 break;
 
             Group *group = GetPlayer()->GetGroup();
-            if(!group || !group->isRaidGroup() || !group->IsLeader(GetPlayer()->GetGUID()))
+            if(!group || !group->isRaidGroup() || !group->IsLeader(GetPlayer()->GetGUID()) || group->isBGGroup())
                 return;
 
             WorldPacket data;
@@ -362,7 +362,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
                 break;
 
             Group *group = GetPlayer()->GetGroup();
-            if(!group || !group->isRaidGroup() || !(group->IsLeader(GetPlayer()->GetGUID()) || group->IsAssistant(GetPlayer()->GetGUID())))
+            if(!group || !group->isRaidGroup() || !(group->IsLeader(GetPlayer()->GetGUID()) || group->IsAssistant(GetPlayer()->GetGUID())) || group->isBGGroup())
                 return;
 
             WorldPacket data;
@@ -383,7 +383,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
                 break;
 
             Group *group = GetPlayer()->GetGroup();
-            if(!group || !group->isRaidGroup())
+            if(!group || !group->isRaidGroup() || !group->isBGGroup())
                 return;
 
             WorldPacket data;
@@ -404,7 +404,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
                 break;
 
             Group *group = GetPlayer()->GetGroup();
-            if(!group || !group->isRaidGroup() || !group->IsLeader(GetPlayer()->GetGUID()))
+            if(!group || !group->isRaidGroup() || !group->IsLeader(GetPlayer()->GetGUID()) || !group->isBGGroup())
                 return;
 
             WorldPacket data;

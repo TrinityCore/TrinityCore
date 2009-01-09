@@ -187,7 +187,7 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
             Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
             if(pUnit && pUnit->isAlive())
             {
-                float threat = m_creature->getThreatManager().getThreat(pUnit);
+                float threat = DoGetThreat(pUnit);
                 SummonedUnit->AddThreat(pUnit, 0.1f);
             }
         }

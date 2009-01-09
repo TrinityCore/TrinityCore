@@ -127,8 +127,8 @@ struct TRINITY_DLL_DECL boss_fankrissAI : public ScriptedAI
                 {
                     DoCast(target, SPELL_ROOT);
 
-                    if(m_creature->getThreatManager().getThreat(target))
-                        m_creature->getThreatManager().modifyThreatPercent(target, -100);
+                    if(DoGetThreat(target))
+                        DoModifyThreatPercent(target, -100);
 
                     switch(rand()%3)
                     {

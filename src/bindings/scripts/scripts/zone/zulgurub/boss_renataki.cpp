@@ -117,8 +117,8 @@ struct TRINITY_DLL_DECL boss_renatakiAI : public ScriptedAI
             Unit* target = NULL;
             target = SelectUnit(SELECT_TARGET_RANDOM,1);
 
-            if(m_creature->getThreatManager().getThreat(m_creature->getVictim()))
-                m_creature->getThreatManager().modifyThreatPercent(m_creature->getVictim(),-50);
+            if(DoGetThreat(m_creature->getVictim()))
+                DoModifyThreatPercent(m_creature->getVictim(),-50);
 
             if (target)
                 AttackStart(target);

@@ -101,7 +101,7 @@ struct TRINITY_DLL_DECL mob_inner_demonAI : public ScriptedAI
 		if(done_by->GetGUID() != victimGUID && done_by->GetGUID() != m_creature->GetGUID())
 		{
 			damage = 0;
-			m_creature->getThreatManager().modifyThreatPercent(done_by, -100);
+			DoModifyThreatPercent(done_by, -100);
 		}
 	}
 
@@ -343,7 +343,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 					if( pUnit_target && pUnit_target->isAlive())
 					{
 						pUnit->CastSpell(pUnit_target, SPELL_CONSUMING_MADNESS, true);
-						m_creature->getThreatManager().modifyThreatPercent(pUnit_target, -100);
+						DoModifyThreatPercent(pUnit_target, -100);
 					}
 				}
 			}

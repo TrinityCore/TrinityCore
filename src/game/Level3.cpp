@@ -6889,7 +6889,7 @@ bool ChatHandler::HandlePossessCommand(const char* args)
     if (pUnit->GetTypeId() == TYPEID_PLAYER)
         return false;
 
-    m_session->GetPlayer()->Possess(pUnit);
+    pUnit->SetCharmedOrPossessedBy(m_session->GetPlayer(), true);
 
     return true;
 }
@@ -6897,11 +6897,7 @@ bool ChatHandler::HandlePossessCommand(const char* args)
 bool ChatHandler::HandleUnPossessCommand(const char* args)
 {
     // Use this command to also unpossess ourselves
-    if (m_session->GetPlayer()->isPossessed())
-        m_session->GetPlayer()->UnpossessSelf(false);
-    else
-        m_session->GetPlayer()->RemovePossess(false);
-
+    m_session->GetPlayer()->RemoveCharmedOrPossessedBy(NULL);
     return true;
 }
 

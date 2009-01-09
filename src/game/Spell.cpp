@@ -171,6 +171,7 @@ bool SpellCastTargets::read ( WorldPacket * data, Unit *caster )
         return false;
 
     *data >> m_targetMask;
+    sLog.outDebug("Spell read, target mask = %u", m_targetMask);
 
     if(m_targetMask == TARGET_FLAG_SELF)
         return true;
@@ -229,6 +230,7 @@ bool SpellCastTargets::read ( WorldPacket * data, Unit *caster )
 void SpellCastTargets::write ( WorldPacket * data )
 {
     *data << uint32(m_targetMask);
+    sLog.outDebug("Spell write, target mask = %u", m_targetMask);
 
     if( m_targetMask & ( TARGET_FLAG_UNIT | TARGET_FLAG_PVP_CORPSE | TARGET_FLAG_OBJECT | TARGET_FLAG_OBJECT_UNK | TARGET_FLAG_CORPSE | TARGET_FLAG_UNK2 ) )
     {
@@ -276,6 +278,7 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
     ASSERT( info == sSpellStore.LookupEntry( info->Id ) && "`info` must be pointer to sSpellStore element");
 
     m_spellInfo = info;
+    m_customAttr = spellmgr.GetSpellCustomAttr(m_spellInfo->Id);
     m_caster = Caster;
     m_selfContainer = NULL;
     m_triggeringContainer = triggeringContainer;
@@ -1012,7 +1015,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         {
             m_caster->CombatStart(unit);
         }
-        else if(spellmgr.GetSpellCustomAttr(m_spellInfo->Id) & SPELL_ATTR_CU_AURA_CC)
+        else if(m_customAttr & SPELL_ATTR_CU_AURA_CC)
         {
             if(!unit->IsStandState())
                 unit->SetStandState(PLAYER_STATE_NONE);
@@ -1067,7 +1070,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             }
 
             unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
-            if(spellmgr.GetSpellCustomAttr(m_spellInfo->Id) & SPELL_ATTR_CU_AURA_CC)
+            if(m_customAttr & SPELL_ATTR_CU_AURA_CC)
                 unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CC);
         }
         else
@@ -1138,12 +1141,11 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
     }
 
     //This is not needed with procflag patch
-    /*if(spellmgr.GetSpellCustomAttr(m_spellInfo->Id) && m_originalCaster)
+    /*if(m_originalCaster)
     {
-        uint32 flag = spellmgr.GetSpellCustomAttr(m_spellInfo->Id);
-        if(flag & SPELL_ATTR_CU_EFFECT_HEAL)
+        if(m_customAttr & SPELL_ATTR_CU_EFFECT_HEAL)
             m_originalCaster->ProcDamageAndSpell(unit, PROC_FLAG_HEAL, PROC_FLAG_NONE, 0, GetSpellSchoolMask(m_spellInfo), m_spellInfo);
-        if(m_originalCaster != unit && (flag & SPELL_ATTR_CU_EFFECT_DAMAGE)) 
+        if(m_originalCaster != unit && (m_customAttr & SPELL_ATTR_CU_EFFECT_DAMAGE)) 
             m_originalCaster->ProcDamageAndSpell(unit, PROC_FLAG_HIT_SPELL, PROC_FLAG_STRUCK_SPELL, 0, GetSpellSchoolMask(m_spellInfo), m_spellInfo);
     }*/
 }
@@ -1582,7 +1584,6 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 AddItemTarget(m_targets.getItemTarget(), i);
         }break;
 
-        case TARGET_DEST_TABLE_UNKNOWN2:
         case TARGET_TABLE_X_Y_Z_COORDINATES:
             if(SpellTargetPosition const* st = spellmgr.GetSpellTargetPosition(m_spellInfo->Id))
             {
@@ -1605,9 +1606,9 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
 
         case TARGET_IN_FRONT_OF_CASTER:
         case TARGET_UNIT_CONE_ENEMY_UNKNOWN:
-            if(spellmgr.GetSpellCustomAttr(m_spellInfo->Id) & SPELL_ATTR_CU_CONE_BACK)
+            if(m_customAttr & SPELL_ATTR_CU_CONE_BACK)
                 SearchAreaTarget(TagUnitMap, radius, PUSH_IN_BACK, SPELL_TARGETS_AOE_DAMAGE);
-            else if(spellmgr.GetSpellCustomAttr(m_spellInfo->Id) & SPELL_ATTR_CU_CONE_LINE)
+            else if(m_customAttr & SPELL_ATTR_CU_CONE_LINE)
                 SearchAreaTarget(TagUnitMap, radius, PUSH_IN_LINE, SPELL_TARGETS_AOE_DAMAGE);
             else
                 SearchAreaTarget(TagUnitMap, radius, PUSH_IN_FRONT, SPELL_TARGETS_AOE_DAMAGE);
@@ -1831,15 +1832,12 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
 
             float x, y, z, angle, dist;
 
-            if (m_spellInfo->EffectRadiusIndex[i])
-                dist = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
-            else
-                dist = 3.0f;//do we need this?
-            if (cur == TARGET_DEST_CASTER_RANDOM)
-                dist *= rand_norm(); // This case we need to consider caster size
-            else
-                dist -= m_caster->GetObjectSize(); // Size is calculated in GetNearPoint(), but we do not need it 
-            //need a new function to remove this repeated work
+            float objSize = m_caster->GetObjectSize();
+            dist = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+            if(dist < objSize)
+                dist = objSize;
+            else if(cur == TARGET_DEST_CASTER_RANDOM)
+                dist = objSize + (dist - objSize) * rand_norm();
 
             switch(cur)
             {
@@ -1849,7 +1847,6 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 case TARGET_DEST_CASTER_FRONT_RIGHT:angle = M_PI/4;     break;
                 case TARGET_MINION:
                 case TARGET_DEST_CASTER_FRONT_LEAP:
-                case TARGET_DEST_CASTER_FRONT_UNKNOWN:
                 case TARGET_DEST_CASTER_FRONT:      angle = 0.0f;       break;
                 case TARGET_DEST_CASTER_BACK:       angle = M_PI;       break;
                 case TARGET_DEST_CASTER_RIGHT:      angle = M_PI/2;     break;
@@ -1857,7 +1854,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 default:                            angle = rand_norm()*2*M_PI; break;
             }
 
-            m_caster->GetClosePoint(x, y, z, 0, dist, angle);
+            m_caster->GetClosePoint(x, y, z, dist, angle);
             m_targets.setDestination(x, y, z); // do not know if has ground visual
         }break;
 
@@ -1883,15 +1880,12 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
 
             float x, y, z, angle, dist;
 
-            if (m_spellInfo->EffectRadiusIndex[i])
-                dist = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
-            else
-                dist = 3.0f;//do we need this?
-            if (cur == TARGET_DEST_TARGET_RANDOM)
-                dist *= rand_norm(); // This case we need to consider caster size
-            else
-                dist -= target->GetObjectSize(); // Size is calculated in GetNearPoint(), but we do not need it 
-            //need a new function to remove this repeated work
+            float objSize = target->GetObjectSize();
+            dist = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+            if(dist < objSize)
+                dist = objSize;
+            else if(cur == TARGET_DEST_CASTER_RANDOM)
+                dist = objSize + (dist - objSize) * rand_norm();
 
             switch(cur)
             {
@@ -1899,10 +1893,14 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 case TARGET_DEST_TARGET_BACK:       angle = M_PI;       break;
                 case TARGET_DEST_TARGET_RIGHT:      angle = M_PI/2;     break;
                 case TARGET_DEST_TARGET_LEFT:       angle = -M_PI/2;    break;
+                case TARGET_DEST_TARGET_FRONT_LEFT: angle = -M_PI/4;    break;
+                case TARGET_DEST_TARGET_BACK_LEFT:  angle = -3*M_PI/4;  break;
+                case TARGET_DEST_TARGET_BACK_RIGHT: angle = 3*M_PI/4;   break;
+                case TARGET_DEST_TARGET_FRONT_RIGHT:angle = M_PI/4;     break;
                 default:                            angle = rand_norm()*2*M_PI; break;
             }
 
-            target->GetClosePoint(x, y, z, 0, dist, angle);
+            target->GetClosePoint(x, y, z, dist, angle);
             m_targets.setDestination(x, y, z); // do not know if has ground visual
         }break;
 
@@ -1914,61 +1912,59 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 break;
             }
 
+            if(cur == TARGET_DEST_DEST)
+                break;
+
+            float x, y, z, angle, dist;
+
+            dist = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+            if (cur == TARGET_DEST_DEST_RANDOM)
+                dist *= rand_norm();
+
             switch(cur)
             {
-                case TARGET_DEST_DEST_RANDOM:
-                {
-
-                    float x, y, z, dist, px, py, pz;
-                    dist = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
-                    x = m_targets.m_destX;
-                    y = m_targets.m_destY;
-                    z = m_targets.m_destZ;
-                    m_caster->GetRandomPoint(x, y, z, dist, px, py, pz);
-                    m_targets.setDestination(px, py, pz);
-                }
-                break;
-                case TARGET_DEST_DEST:
-                    break;
+                case TARGET_DEST_DEST_FRONT:      angle = 0.0f;       break;
+                case TARGET_DEST_DEST_BACK:       angle = M_PI;       break;
+                case TARGET_DEST_DEST_RIGHT:      angle = M_PI/2;     break;
+                case TARGET_DEST_DEST_LEFT:       angle = -M_PI/2;    break;
+                case TARGET_DEST_DEST_FRONT_LEFT: angle = -M_PI/4;    break;
+                case TARGET_DEST_DEST_BACK_LEFT:  angle = -3*M_PI/4;  break;
+                case TARGET_DEST_DEST_BACK_RIGHT: angle = 3*M_PI/4;   break;
+                case TARGET_DEST_DEST_FRONT_RIGHT:angle = M_PI/4;     break;
+                default:                          angle = rand_norm()*2*M_PI; break;
             }
+
+            x = m_targets.m_destX;
+            y = m_targets.m_destY;
+            z = m_targets.m_destZ;
+            m_caster->GetClosePointAt(x, y, z, dist, angle);
+            m_targets.setDestination(x, y, z); // do not know if has ground visual
         }break;
 
         default:
             break;
     }
 
-    if (unMaxTargets && TagUnitMap.size() > unMaxTargets)
+    if(unMaxTargets)
     {
-        // make sure one unit is always removed per iteration
-        uint32 removed_utarget = 0;
-        for (std::list<Unit*>::iterator itr = TagUnitMap.begin(), next; itr != TagUnitMap.end(); itr = next)
+        if(m_targets.getUnitTarget())
         {
-            next = itr;
-            ++next;
-            if (!*itr) continue;
-            if ((*itr) == m_targets.getUnitTarget())
-            {
-                TagUnitMap.erase(itr);
-                removed_utarget = 1;
-                //        break;
-            }
+            TagUnitMap.remove(m_targets.getUnitTarget());
+            if(m_spellInfo->Id != 5246) //Intimidating Shout 
+                --unMaxTargets;
         }
+
         // remove random units from the map
-        while (TagUnitMap.size() > unMaxTargets - removed_utarget)
+        std::list<Unit*>::iterator itr;
+        while(TagUnitMap.size() > unMaxTargets)
         {
-            uint32 poz = urand(0, TagUnitMap.size()-1);
-            for (std::list<Unit*>::iterator itr = TagUnitMap.begin(); itr != TagUnitMap.end(); ++itr, --poz)
-            {
-                if (!*itr) continue;
-                if (!poz)
-                {
-                    TagUnitMap.erase(itr);
-                    break;
-                }
-            }
+            itr = TagUnitMap.begin();
+            advance(itr, urand(0, TagUnitMap.size() - 1));
+            TagUnitMap.erase(itr);
         }
+
         // the player's target will always be added to the map
-        if (removed_utarget && m_targets.getUnitTarget())
+        if(m_targets.getUnitTarget() && m_spellInfo->Id != 5246)
             TagUnitMap.push_back(m_targets.getUnitTarget());
     }
 }
@@ -2045,7 +2041,8 @@ void Spell::prepare(SpellCastTargets * targets, Aura* triggeredByAura)
     // set timer base at cast time
     ReSetTimer();
 
-    if(m_IsTriggeredSpell)
+    //item: first cast may destroy item and second cast causes crash
+    if(m_IsTriggeredSpell || !m_casttime && !m_spellInfo->StartRecoveryTime && !m_castItemGUID && GetCurrentContainer() == CURRENT_GENERIC_SPELL)
         cast(true);
     else
     {
@@ -2161,16 +2158,8 @@ void Spell::cast(bool skipCheck)
 
     FillTargetMap();
 
-    if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(m_spellInfo->Id))
-    {
-        for(std::vector<int32>::const_iterator i = spell_triggered->begin(); i != spell_triggered->end(); ++i)
-        {
-            if(spell_triggered < 0)
-                m_caster->RemoveAurasDueToSpell(-(*i));
-            else
-                m_caster->CastSpell(m_targets.getUnitTarget() ? m_targets.getUnitTarget() : m_caster, *i, true);
-        }
-    }
+    if(m_customAttr & SPELL_ATTR_CU_DIRECT_DAMAGE)
+        CalculateDamageDoneForAllTargets();
 
     // traded items have trade slot instead of guid in m_itemTargetGUID
     // set to real guid to be sent later to the client
@@ -2189,7 +2178,7 @@ void Spell::cast(bool skipCheck)
 
     if(!m_IsTriggeredSpell)
     {
-        TakePower();
+        //TakePower();
         TakeReagents();                                         // we must remove reagents before HandleEffects to allow place crafted item in same slot
     }
 
@@ -2201,8 +2190,6 @@ void Spell::cast(bool skipCheck)
 
     SendCastResult(castResult);
     SendSpellGo();                                          // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
-
-    CalculateDamageDoneForAllTargets();
 
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
     if (m_spellInfo->speed > 0.0f && !IsChanneledSpell(m_spellInfo))
@@ -2223,20 +2210,20 @@ void Spell::cast(bool skipCheck)
         handle_immediate();
     }
 
-    // Clear combo at finish state
-    if(m_caster->GetTypeId() == TYPEID_PLAYER && NeedsComboPoints(m_spellInfo))
+    if(!m_IsTriggeredSpell)
     {
-        // Not drop combopoints if negative spell and if any miss on enemy exist
-        bool needDrop = true;
-        //if (!IsPositiveSpell(m_spellInfo->Id))
-        for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
-            if (ihit->missCondition != SPELL_MISS_NONE && ihit->missCondition != SPELL_MISS_MISS/* && ihit->targetGUID!=m_caster->GetGUID()*/)
-            {
-                needDrop = false;
-                break;
-            }
-        if (needDrop)
-            ((Player*)m_caster)->ClearComboPoints();
+        TakePower();
+    }
+
+    if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(m_spellInfo->Id))
+    {
+        for(std::vector<int32>::const_iterator i = spell_triggered->begin(); i != spell_triggered->end(); ++i)
+        {
+            if(spell_triggered < 0)
+                m_caster->RemoveAurasDueToSpell(-(*i));
+            else
+                m_caster->CastSpell(m_targets.getUnitTarget() ? m_targets.getUnitTarget() : m_caster, *i, true);
+        }
     }
 
     SetExecutedCurrently(false);
@@ -3256,8 +3243,24 @@ void Spell::TakeCastItem()
 
 void Spell::TakePower()
 {
-    if(m_CastItem || m_triggeredByAuraSpell)
+    if(m_CastItem || m_triggeredByAuraSpell || !m_powerCost)
         return;
+
+    bool hit = true;
+    if(m_caster->GetTypeId() == TYPEID_PLAYER)
+    {
+        if(m_spellInfo->powerType == POWER_RAGE || m_spellInfo->powerType == POWER_ENERGY)
+            if(uint64 targetGUID = m_targets.getUnitTargetGUID())
+                for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                    if(ihit->targetGUID == targetGUID)
+                    {
+                        if(ihit->missCondition != SPELL_MISS_NONE && ihit->missCondition != SPELL_MISS_MISS/* && ihit->targetGUID!=m_caster->GetGUID()*/)
+                            hit = false;
+                        break;
+                    }
+        if(hit && NeedsComboPoints(m_spellInfo))
+            ((Player*)m_caster)->ClearComboPoints();
+    }
 
     // health as power used
     if(m_spellInfo->powerType == POWER_HEALTH)
@@ -3280,7 +3283,10 @@ void Spell::TakePower()
         return;
     }
 
-    m_caster->ModifyPower(powerType, -(int32)m_powerCost);
+    if(hit)
+        m_caster->ModifyPower(powerType, -m_powerCost);
+    else
+        m_caster->ModifyPower(powerType, -irand(0, m_powerCost/4));
 
     // Set the five second timer
     if (powerType == POWER_MANA && m_powerCost > 0)
@@ -5326,6 +5332,10 @@ bool Spell::CheckTarget( Unit* target, uint32 eff, bool hitPhase )
             return false;
     }
 
+    //Do not check LOS for triggered spells
+    if(m_IsTriggeredSpell)
+        return true;
+
     //Check targets for LOS visibility (except spells without range limitations )
     switch(m_spellInfo->Effect[eff])
     {
@@ -5630,8 +5640,14 @@ int32 Spell::CalculateDamageDone(Unit *unit, const uint32 effectMask, float *mul
                     break;
             }
 
-            if(m_damage > 0 && m_originalCaster)
-                m_damage = m_originalCaster->SpellDamageBonus(unit, m_spellInfo, m_damage, SPELL_DIRECT_DAMAGE);
+            if(m_damage > 0)
+            {
+                if(IsAreaEffectTarget[m_spellInfo->EffectImplicitTargetA[i]] || IsAreaEffectTarget[m_spellInfo->EffectImplicitTargetB[i]])
+                {
+                    if(int32 reducedPct = unit->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE))
+                        m_damage = m_damage * (100 + reducedPct) / 100;
+                }
+            }
             if(m_applyMultiplierMask & (1 << i))
             {
                 m_damage *= m_damageMultipliers[i];

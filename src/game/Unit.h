@@ -364,27 +364,28 @@ enum DeathState
 
 enum UnitState
 {
-    UNIT_STAT_DIED            = 0x0001,
-    UNIT_STAT_MELEE_ATTACKING = 0x0002,                     // player is melee attacking someone
-    //UNIT_STAT_MELEE_ATTACK_BY = 0x0004,                     // player is melee attack by someone
-    UNIT_STAT_STUNNED         = 0x0008,
-    UNIT_STAT_ROAMING         = 0x0010,
-    UNIT_STAT_CHASE           = 0x0020,
-    UNIT_STAT_SEARCHING       = 0x0040,
-    UNIT_STAT_FLEEING         = 0x0080,
+    UNIT_STAT_DIED            = 0x00000001,
+    UNIT_STAT_MELEE_ATTACKING = 0x00000002,                     // player is melee attacking someone
+    //UNIT_STAT_MELEE_ATTACK_BY = 0x00000004,                     // player is melee attack by someone
+    UNIT_STAT_STUNNED         = 0x00000008,
+    UNIT_STAT_ROAMING         = 0x00000010,
+    UNIT_STAT_CHASE           = 0x00000020,
+    UNIT_STAT_SEARCHING       = 0x00000040,
+    UNIT_STAT_FLEEING         = 0x00000080,
+    UNIT_STAT_IN_FLIGHT       = 0x00000100,                     // player is in flight mode
+    UNIT_STAT_FOLLOW          = 0x00000200,
+    UNIT_STAT_ROOT            = 0x00000400,
+    UNIT_STAT_CONFUSED        = 0x00000800,
+    UNIT_STAT_DISTRACTED      = 0x00001000,
+    UNIT_STAT_ISOLATED        = 0x00002000,                     // area auras do not affect other players
+    UNIT_STAT_ATTACK_PLAYER   = 0x00004000,
+    UNIT_STAT_CASTING         = 0x00008000,
+    UNIT_STAT_POSSESSED       = 0x00010000,
     UNIT_STAT_MOVING          = (UNIT_STAT_ROAMING | UNIT_STAT_CHASE | UNIT_STAT_SEARCHING | UNIT_STAT_FLEEING),
-    UNIT_STAT_IN_FLIGHT       = 0x0100,                     // player is in flight mode
-    UNIT_STAT_FOLLOW          = 0x0200,
-    UNIT_STAT_ROOT            = 0x0400,
-    UNIT_STAT_CONFUSED        = 0x0800,
-    UNIT_STAT_DISTRACTED      = 0x1000,
-    UNIT_STAT_ISOLATED        = 0x2000,                     // area auras do not affect other players
-    UNIT_STAT_ATTACK_PLAYER   = 0x4000,
-    UNIT_STAT_CASTING         = 0x8000,
     UNIT_STAT_LOST_CONTROL    = (UNIT_STAT_CONFUSED | UNIT_STAT_STUNNED | UNIT_STAT_FLEEING),
     UNIT_STAT_SIGHTLESS       = (UNIT_STAT_LOST_CONTROL | UNIT_STAT_CHASE | UNIT_STAT_SEARCHING),
     UNIT_STAT_CANNOT_AUTOATTACK     = (UNIT_STAT_LOST_CONTROL | UNIT_STAT_CASTING),
-    UNIT_STAT_ALL_STATE       = 0xffff                      //(UNIT_STAT_STOPPED | UNIT_STAT_MOVING | UNIT_STAT_IN_COMBAT | UNIT_STAT_IN_FLIGHT)
+    UNIT_STAT_ALL_STATE       = 0xffffffff                      //(UNIT_STAT_STOPPED | UNIT_STAT_MOVING | UNIT_STAT_IN_COMBAT | UNIT_STAT_IN_FLIGHT)
 };
 
 enum UnitMoveType
@@ -937,7 +938,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         uint16 GetMaxSkillValueForLevel(Unit const* target = NULL) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
         void RemoveSpellbyDamageTaken(uint32 damage, uint32 spell);
-        uint32 DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellEntry const *spellProto, bool durabilityLoss);
+        uint32 DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDamage = NULL, DamageEffectType damagetype = DIRECT_DAMAGE, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellEntry const *spellProto = NULL, bool durabilityLoss = true);
         void Kill(Unit *pVictim, bool durabilityLoss = true);
 
         void ProcDamageAndSpell(Unit *pVictim, uint32 procAttacker, uint32 procVictim, uint32 procEx, uint32 amount, WeaponAttackType attType = BASE_ATTACK, SpellEntry const *procSpell = NULL);
@@ -1093,35 +1094,24 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         Unit* GetCharmer() const;
         Unit* GetCharm() const;
         Unit* GetCharmerOrOwner() const { return GetCharmerGUID() ? GetCharmer() : GetOwner(); }
-        Unit* GetCharmerOrOwnerOrSelf()
+        Unit* GetCharmerOrOwnerOrSelf() const
         {
-            if(Unit* u = GetCharmerOrOwner())
+            if(Unit *u = GetCharmerOrOwner())
                 return u;
 
-            return this;
+            return (Unit*)this;
         }
         Player* GetCharmerOrOwnerPlayerOrPlayerItself() const;
 
         void SetPet(Pet* pet);
         void SetCharm(Unit* pet);
-        void SetPossessedTarget(Unit* target)
-        {
-            if (!target) return;
-            SetCharm(target);
-            target->SetCharmerGUID(GetGUID());
-            target->m_isPossessed = true;
-        }
-        void RemovePossessedTarget()
-        {
-            if (!GetCharm()) return;
-            GetCharm()->SetCharmerGUID(0);
-            GetCharm()->m_isPossessed = false;
-            SetCharm(0);
-        }
+        void SetCharmedOrPossessedBy(Unit* charmer, bool possess);
+        void RemoveCharmedOrPossessedBy(Unit* charmer);
+        void RestoreFaction();
 
         bool isCharmed() const { return GetCharmerGUID() != 0; }
-        bool isPossessed() const { return m_isPossessed; }
-        bool isPossessedByPlayer() const { return m_isPossessed && IS_PLAYER_GUID(GetCharmerGUID()); }
+        bool isPossessed() const { return hasUnitState(UNIT_STAT_POSSESSED); }
+        bool isPossessedByPlayer() const { return hasUnitState(UNIT_STAT_POSSESSED) && IS_PLAYER_GUID(GetCharmerGUID()); }
         bool isPossessing() const
         {
             if(Unit *u = GetCharm())
@@ -1139,7 +1129,6 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void RemovePlayerFromVision(Player* plr);
         void RemoveAllFromVision();
         void UncharmSelf();
-        void UnpossessSelf(bool attack);
 
         Pet* CreateTamedPetFrom(Creature* creatureTarget,uint32 spell_id = 0);
 
@@ -1260,6 +1249,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         // Visibility system
         UnitVisibility GetVisibility() const { return m_Visibility; }
         void SetVisibility(UnitVisibility x);
+        void DestroyForNearbyPlayers();
 
         // common function for visibility checks for player/creatures with detection code
         virtual bool canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList = false, bool is3dDistance = true) const;
@@ -1510,7 +1500,6 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         float m_speed_rate[MAX_MOVE_TYPE];
 
         CharmInfo *m_charmInfo;
-        bool m_isPossessed;
         SharedVisionList m_sharedVision;
 
         virtual SpellSchoolMask GetMeleeDamageSchoolMask() const;

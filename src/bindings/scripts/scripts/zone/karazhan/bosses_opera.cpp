@@ -795,9 +795,9 @@ struct TRINITY_DLL_DECL boss_bigbadwolfAI : public ScriptedAI
                     DoScriptText(SAY_WOLF_HOOD, m_creature);
 
                     DoCast(target, SPELL_LITTLE_RED_RIDING_HOOD, true);
-                    TempThreat = m_creature->getThreatManager().getThreat(target);
+                    TempThreat = DoGetThreat(target);
                     if(TempThreat)
-                        m_creature->getThreatManager().modifyThreatPercent(target, -100);
+                        DoModifyThreatPercent(target, -100);
                     HoodGUID = target->GetGUID();
                     m_creature->AddThreat(target, 1000000.0f);
                     ChaseTimer = 20000;
@@ -811,8 +811,8 @@ struct TRINITY_DLL_DECL boss_bigbadwolfAI : public ScriptedAI
                 if(target)
                 {
                     HoodGUID = 0;
-                    if(m_creature->getThreatManager().getThreat(target))
-                        m_creature->getThreatManager().modifyThreatPercent(target, -100);
+                    if(DoGetThreat(target))
+                        DoModifyThreatPercent(target, -100);
                     m_creature->AddThreat(target, TempThreat);
                     TempThreat = 0;
                 }
