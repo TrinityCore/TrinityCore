@@ -255,6 +255,8 @@ void WorldSession::LogoutPlayer(bool Save)
         // Remove any possession of this player on logout
         _player->RemoveCharmedOrPossessedBy(NULL);
 
+        _player->DestroyForNearbyPlayers();
+
         if (uint64 lguid = GetPlayer()->GetLootGUID())
             DoLootRelease(lguid);
 

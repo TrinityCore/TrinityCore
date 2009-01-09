@@ -9967,6 +9967,24 @@ bool Unit::canDetectStealthOf(Unit const* target, float distance) const
     return distance < visibleDistance;
 }
 
+void Unit::DestroyForNearbyPlayers()
+{
+    if(!IsInWorld())
+        return;
+
+    std::list<Unit*> targets;
+    Trinity::AnyUnitInObjectRangeCheck check(this, World::GetMaxVisibleDistance());
+    Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(targets, check);
+    VisitNearbyWorldObject(World::GetMaxVisibleDistance(), searcher);
+    for(std::list<Unit*>::iterator iter = targets.begin(); iter != targets.end(); ++iter)
+        if(*iter != this && (*iter)->GetTypeId() == TYPEID_PLAYER
+            && ((Player*)(*iter))->HaveAtClient(this))
+        {
+            DestroyForPlayer((Player*)(*iter));
+            ((Player*)(*iter))->m_clientGUIDs.erase(GetGUID());
+        }
+}
+
 void Unit::SetVisibility(UnitVisibility x)
 {
     m_Visibility = x;
@@ -9975,27 +9993,7 @@ void Unit::SetVisibility(UnitVisibility x)
         SetToNotify();
 
     if(x == VISIBILITY_GROUP_STEALTH)
-    {
-        std::list<Unit*> targets;
-        Trinity::AnyUnitInObjectRangeCheck check(this, World::GetMaxVisibleDistance());
-        Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(targets, check);
-        VisitNearbyWorldObject(World::GetMaxVisibleDistance(), searcher);
-        for(std::list<Unit*>::iterator iter = targets.begin(); iter != targets.end(); ++iter)
-            if(*iter != this && (*iter)->GetTypeId() == TYPEID_PLAYER
-                && ((Player*)(*iter))->HaveAtClient(this))
-            {
-                DestroyForPlayer((Player*)(*iter));
-                ((Player*)(*iter))->m_clientGUIDs.erase(GetGUID());
-            }
-    }
-    /*{
-        Map *m = GetMap();
-
-        if(GetTypeId()==TYPEID_PLAYER)
-            m->PlayerRelocation((Player*)this,GetPositionX(),GetPositionY(),GetPositionZ(),GetOrientation());
-        else
-            m->CreatureRelocation((Creature*)this,GetPositionX(),GetPositionY(),GetPositionZ(),GetOrientation());
-    }*/
+        DestroyForNearbyPlayers();
 }
 
 void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
