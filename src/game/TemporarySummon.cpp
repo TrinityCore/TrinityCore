@@ -172,9 +172,9 @@ void TemporarySummon::Summon(TempSummonType type, uint32 lifetime)
 
 void TemporarySummon::UnSummon()
 {
-    CombatStop();
+    RemoveCharmedOrPossessedBy(NULL);
 
-    UnpossessSelf(false);
+    CombatStop();
 
     CleanupsBeforeDelete();
     AddObjectToRemoveList();

@@ -687,21 +687,8 @@ void AreaAura::Update(uint32 diff)
         }
         else if( m_areaAuraType == AREA_AURA_PARTY)         // check if in same sub group
         {
-            // not check group if target == owner or target == pet
-            if (caster->GetCharmerOrOwnerGUID() != tmp_target->GetGUID() && caster->GetGUID() != tmp_target->GetCharmerOrOwnerGUID())
-            {
-                Player* check = caster->GetCharmerOrOwnerPlayerOrPlayerItself();
-
-                Group *pGroup = check ? check->GetGroup() : NULL;
-                if( pGroup )
-                {
-                    Player* checkTarget = tmp_target->GetCharmerOrOwnerPlayerOrPlayerItself();
-                    if(!checkTarget || !pGroup->SameSubGroup(check, checkTarget))
-                        tmp_target->RemoveAura(tmp_spellId, tmp_effIndex);
-                }
-                else
-                    tmp_target->RemoveAura(tmp_spellId, tmp_effIndex);
-            }
+            if(!tmp_target->IsInPartyWith(caster))
+                tmp_target->RemoveAura(tmp_spellId, tmp_effIndex);
         }
         else if( m_areaAuraType == AREA_AURA_PET || m_areaAuraType == AREA_AURA_OWNER )
         {
@@ -2866,24 +2853,22 @@ void Aura::HandleModPossess(bool apply, bool Real)
     if(!Real)
         return;
 
-    if(m_target->getLevel() > m_modifier.m_amount)
-        return;
-
-    // not possess yourself
-    if(GetCasterGUID() == m_target->GetGUID())
-        return;
-
     Unit* caster = GetCaster();
-    if(!caster)
-        return;
-
-    if( apply )
+    if(caster && caster->GetTypeId() == TYPEID_UNIT)
     {
-        if (caster->GetTypeId() == TYPEID_PLAYER)
-            ((Player*)caster)->Possess(m_target);
+        HandleModCharm(apply, Real);
+        return;
+    }
+
+    if(apply)
+    {
+        if(m_target->getLevel() > m_modifier.m_amount)
+            return;
+
+        m_target->SetCharmedOrPossessedBy(caster, true);
     }
     else
-        m_target->UnpossessSelf(true);
+        m_target->RemoveCharmedOrPossessedBy(caster);
 }
 
 void Aura::HandleModPossessPet(bool apply, bool Real)
@@ -2898,12 +2883,18 @@ void Aura::HandleModPossessPet(bool apply, bool Real)
         return;
 
     if(apply)
-    {
-        ((Player*)caster)->Possess(m_target);
-    }
+        m_target->SetCharmedOrPossessedBy(caster, true);
     else
     {
-        ((Player*)caster)->RemovePossess(false);
+        m_target->RemoveCharmedOrPossessedBy(caster);
+
+        // Reinitialize the pet bar and make the pet come back to the owner
+        ((Player*)caster)->PetSpellInitialize();
+        if(!m_target->getVictim())
+        {
+            m_target->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+            m_target->GetCharmInfo()->SetCommandState(COMMAND_FOLLOW);
+        }
     }
 }
 
@@ -2912,108 +2903,17 @@ void Aura::HandleModCharm(bool apply, bool Real)
     if(!Real)
         return;
 
-    // not charm yourself
-    if(GetCasterGUID() == m_target->GetGUID())
-        return;
-
     Unit* caster = GetCaster();
 
-    if( apply )
+    if(apply)
     {
-        if(!caster)
-            return;
-
         if(int32(m_target->getLevel()) > m_modifier.m_amount)
             return;
-
-        m_target->SetCharmerGUID(GetCasterGUID());
-        m_target->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE,caster->getFaction());
-        m_target->CastStop(m_target==caster ? GetId() : 0);
-        caster->SetCharm(m_target);
-
-        m_target->CombatStop();
-        m_target->DeleteThreatList();
-
-        if(m_target->GetTypeId() == TYPEID_UNIT)
-        {
-            ((Creature*)m_target)->AIM_Initialize();
-            CharmInfo *charmInfo = ((Creature*)m_target)->InitCharmInfo(m_target);
-            charmInfo->InitCharmCreateSpells();
-            charmInfo->SetReactState( REACT_DEFENSIVE );
-
-            if(caster->GetTypeId() == TYPEID_PLAYER && caster->getClass() == CLASS_WARLOCK)
-            {
-                CreatureInfo const *cinfo = ((Creature*)m_target)->GetCreatureInfo();
-                if(cinfo && cinfo->type == CREATURE_TYPE_DEMON)
-                {
-                    //to prevent client crash
-                    m_target->SetFlag(UNIT_FIELD_BYTES_0, 2048);
-                    //just to enable stat window
-                    charmInfo->SetPetNumber(objmgr.GeneratePetNumber(), true);
-                    //if charmed two demons the same session, the 2nd gets the 1st one's name
-                    m_target->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, time(NULL));
-                }
-            }
-        }
-
-        if(caster->GetTypeId() == TYPEID_PLAYER)
-        {
-            ((Player*)caster)->CharmSpellInitialize();
-        }
+        
+        m_target->SetCharmedOrPossessedBy(caster, false);
     }
     else
-    {
-        m_target->SetCharmerGUID(0);
-
-        if(m_target->GetTypeId() == TYPEID_PLAYER)
-            ((Player*)m_target)->setFactionForRace(m_target->getRace());
-        else
-        {
-            CreatureInfo const *cinfo = ((Creature*)m_target)->GetCreatureInfo();
-
-            // restore faction
-            if(((Creature*)m_target)->isPet())
-            {
-                if(Unit* owner = m_target->GetOwner())
-                    m_target->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE,owner->getFaction());
-                else if(cinfo)
-                    m_target->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE,cinfo->faction_A);
-            }
-            else if(cinfo)                              // normal creature
-                m_target->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE,cinfo->faction_A);
-
-            // restore UNIT_FIELD_BYTES_0
-            if(caster && cinfo && caster->GetTypeId() == TYPEID_PLAYER && caster->getClass() == CLASS_WARLOCK && cinfo->type == CREATURE_TYPE_DEMON)
-            {
-                CreatureDataAddon const *cainfo = ((Creature*)m_target)->GetCreatureAddon();
-                if(cainfo && cainfo->bytes0 != 0)
-                    m_target->SetUInt32Value(UNIT_FIELD_BYTES_0, cainfo->bytes0);
-                else
-                    m_target->RemoveFlag(UNIT_FIELD_BYTES_0, 2048);
-
-                if(m_target->GetCharmInfo())
-                    m_target->GetCharmInfo()->SetPetNumber(0, true);
-                else
-                    sLog.outError("Aura::HandleModCharm: target="I64FMTD" with typeid=%d has a charm aura but no charm info!", m_target->GetGUID(), m_target->GetTypeId());
-            }
-
-            ((Creature*)m_target)->AIM_Initialize();
-            if(((Creature*)m_target)->AI() && caster)
-                ((Creature*)m_target)->AI()->AttackStart(caster);
-        }
-
-        if(caster)
-        {
-            caster->SetCharm(0);
-
-            if(caster->GetTypeId() == TYPEID_PLAYER)
-            {
-                WorldPacket data(SMSG_PET_SPELLS, 8);
-                data << uint64(0);
-                ((Player*)caster)->GetSession()->SendPacket(&data);
-            }
-        }
-    }
+        m_target->RemoveCharmedOrPossessedBy(caster);
 }
 
 void Aura::HandleModConfuse(bool apply, bool Real)
