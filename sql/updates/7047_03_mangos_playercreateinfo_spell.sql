@@ -1,3 +1,5 @@
+ALTER TABLE db_version CHANGE COLUMN required_7047_02_mangos_playercreateinfo_action required_7047_03_mangos_playercreateinfo_spell bit;
+
 DELETE FROM `playercreateinfo_spell` WHERE `Spell` IN ('28880', 59542, 59543, 59544, 59545, 59547, 59548);
 
 INSERT INTO `playercreateinfo_spell` VALUES

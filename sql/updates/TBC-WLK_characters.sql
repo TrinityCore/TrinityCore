@@ -7,6 +7,9 @@ INSERT INTO character_spell SELECT characters.guid as guid, 59545, -1, 1, 0  FRO
 INSERT INTO character_spell SELECT characters.guid as guid, 59547, -1, 1, 0  FROM `characters` WHERE characters.race=11 AND characters.class = 7;
 INSERT INTO character_spell SELECT characters.guid as guid, 59548, -1, 1, 0  FROM `characters` WHERE characters.race=11 AND characters.class = 8;
 
+ALTER TABLE character_spell
+    DROP slot;
+
 DELETE FROM `playercreateinfo_action` WHERE `action` IN ('28880', 59542, 59543, 59544, 59545, 59547, 59548);
 INSERT INTO `playercreateinfo_action` VALUES
 (11,1,74,28880,0,0),
@@ -31,6 +34,7 @@ alter table `character_pet`
     drop column `trainpoint`,
     drop column `loyaltypoints`,
     drop column `loyalty`,
+	DROP column slot,
     add `talentpoints` int(11) UNSIGNED default '0' NOT NULL after `Reactstate`;
 
 DROP TABLE IF EXISTS `account_data`;	

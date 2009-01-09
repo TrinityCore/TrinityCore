@@ -1,3 +1,5 @@
+ALTER TABLE db_version CHANGE COLUMN required_7044_01_mangos_spell_proc_event required_7047_02_mangos_playercreateinfo_action bit;
+
 DELETE FROM `playercreateinfo_action` WHERE `action` IN ('28880', 59542, 59543, 59544, 59545, 59547, 59548);
 INSERT INTO `playercreateinfo_action` VALUES
 (11,1,74,28880,0,0),
