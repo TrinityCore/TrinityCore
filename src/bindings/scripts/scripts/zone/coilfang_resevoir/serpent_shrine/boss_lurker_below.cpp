@@ -211,16 +211,20 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 		 if(SpoutAnimTimer<diff)
 		 {
 			 DoCast(m_creature,SPELL_SPOUT_ANIM,true);
-			 SpoutAnimTimer = 1000;			
-		 }else SpoutAnimTimer-=diff;
+             SpoutAnimTimer = 1000;			
+         }else SpoutAnimTimer-=diff;
 
-		 std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
-		 for(std::list<HostilReference*>::iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
-		 {
-			 Unit *target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
-			 if(target && target->GetTypeId() == TYPEID_PLAYER && m_creature->HasInArc((double)diff/20000*(double)M_PI*2,target) && m_creature->GetDistance(target) <= SPOUT_DIST && !target->IsInWater())
-				 DoCast(target,SPELL_SPOUT,true);//only knock back palyers in arc, in 100yards, not in water
-		 }
+         Map *map = m_creature->GetMap();
+         if (map->IsDungeon() && pInstance->GetData(DATA_THELURKERBELOWEVENT) == IN_PROGRESS)
+         {
+             Map::PlayerList const &PlayerList = map->GetPlayers();
+             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+             {
+                 Player *target = i->getSource();
+                 if(target->isAlive() && m_creature->HasInArc((double)diff/20000*(double)M_PI*2,target) && m_creature->GetDistance(target) <= SPOUT_DIST && !target->IsInWater())
+				     DoCast(target,SPELL_SPOUT,true);//only knock back palyers in arc, in 100yards, not in water
+		     }
+         }
 	 }
 
 	 void StartRotate(Unit* victim)
