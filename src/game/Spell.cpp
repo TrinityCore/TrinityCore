@@ -641,6 +641,9 @@ void Spell::prepareDataForTriggerSystem()
             case SPELLFAMILY_WARLOCK: // For Hellfire Effect / Rain of Fire / Seed of Corruption triggers need do it
                 if (m_spellInfo->SpellFamilyFlags & 0x0000800000000060LL) m_canTrigger = true;
             break;
+            case SPELLFAMILY_PRIEST:  // For Penance heal/damage triggers need do it
+                if (m_spellInfo->SpellFamilyFlags & 0x0001800000000000LL) m_canTrigger = true;
+            break;
             case SPELLFAMILY_HUNTER:  // Hunter Explosive Trap Effect/Immolation Trap Effect/Frost Trap Aura/Snake Trap Effect
                 if (m_spellInfo->SpellFamilyFlags & 0x0000200000000014LL) m_canTrigger = true;
             break;
@@ -2234,9 +2237,13 @@ void Spell::handle_immediate()
     // start channeling if applicable
     if(IsChanneledSpell(m_spellInfo))
     {
-        m_spellState = SPELL_STATE_CASTING;
-        m_caster->AddInterruptMask(m_spellInfo->ChannelInterruptFlags);
-        SendChannelStart(GetSpellDuration(m_spellInfo));
+        int32 duration = GetSpellDuration(m_spellInfo);
+        if (duration)
+        {
+            m_spellState = SPELL_STATE_CASTING;
+            m_caster->AddInterruptMask(m_spellInfo->ChannelInterruptFlags);
+            SendChannelStart(duration);
+        }
     }
 
     // process immediate effects (items, ground, etc.) also initialize some variables
