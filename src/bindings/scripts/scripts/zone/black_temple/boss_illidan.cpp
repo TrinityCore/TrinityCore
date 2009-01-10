@@ -360,9 +360,10 @@ static Animation DemonTransformation[]=
 /************************************** Illidan's AI ***************************************/
 struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 {
-    boss_illidan_stormrageAI(Creature* c) : ScriptedAI(c)
+    boss_illidan_stormrageAI(Creature* c) : ScriptedAI(c), Summons(m_creature)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);
         Reset();
 
         SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_SHADOWFIEND_PASSIVE);
@@ -387,6 +388,8 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
     uint64 FlameGUID[2];
     uint64 GlaiveGUID[2];
 
+    SummonList Summons;
+
     void Reset();
 
     void JustSummoned(Creature* summon);
@@ -399,12 +402,13 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
                 if(summon->GetGUID() == FlameGUID[i])
                     FlameGUID[i] = 0;
 
-            if(!FlameGUID[0] && !FlameGUID[1])
+            if(!FlameGUID[0] && !FlameGUID[1] && Phase != PHASE_NULL)
             {
                 m_creature->InterruptNonMeleeSpells(true);
                 EnterPhase(PHASE_FLIGHT_SEQUENCE);
             }
         }
+        Summons.Despawn(summon);
     }
 
     void MovementInform(uint32 MovementType, uint32 Data)
@@ -896,7 +900,7 @@ struct TRINITY_DLL_DECL flame_of_azzinothAI : public ScriptedAI
         GlaiveGUID = 0;
     }
 
-    void Aggro(Unit *who) {}
+    void Aggro(Unit *who) {DoZoneInCombat();}
 
     void ChargeCheck()
     {        
@@ -1802,23 +1806,6 @@ void boss_illidan_stormrageAI::Reset()
     if(pInstance)
         pInstance->SetData(DATA_ILLIDANSTORMRAGEEVENT, NOT_STARTED);
 
-    for(uint8 i = 0; i < 2; i++)
-    {
-        if(FlameGUID[i])
-        {
-            if(GETUNIT(Flame, FlameGUID[i]))
-                Flame->setDeathState(JUST_DIED);
-            FlameGUID[i] = 0;
-        }
-
-        if(GlaiveGUID[i])
-        {
-            if(GETUNIT(Glaive, GlaiveGUID[i]))
-                Glaive->setDeathState(JUST_DIED);
-            GlaiveGUID[i] = 0;
-        }
-    }
-
     if(AkamaGUID)
     {
         if(GETCRE(Akama, AkamaGUID))
@@ -1835,15 +1822,11 @@ void boss_illidan_stormrageAI::Reset()
         AkamaGUID = 0;
     }
 
-    if(MaievGUID)
+    MaievGUID = 0;
+    for(int i = 0; i < 2; ++i)
     {
-        GETUNIT(Maiev, MaievGUID);
-        if(Maiev && Maiev->isAlive())
-        {
-            Maiev->CastSpell(Maiev, SPELL_TELEPORT_VISUAL, true);
-            Maiev->setDeathState(JUST_DIED);
-        }
-        MaievGUID = 0;
+        FlameGUID[i] = 0;
+        GlaiveGUID[i] = 0;
     }
 
     Phase = PHASE_NULL;
@@ -1862,17 +1845,23 @@ void boss_illidan_stormrageAI::Reset()
     m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, 0);
     m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY+1, 0);
     m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING + MOVEMENTFLAG_ONTRANSPORT);
-
-    m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);
     m_creature->setActive(false);
+    Summons.DespawnAll();
 }
 
 void boss_illidan_stormrageAI::JustSummoned(Creature* summon)
 {
+    Summons.Summon(summon);
     switch(summon->GetEntry())
     {
     case PARASITIC_SHADOWFIEND:
         {
+            if(Phase == PHASE_TALK_SEQUENCE)
+            {
+                summon->SetVisibility(VISIBILITY_OFF);
+                summon->setDeathState(JUST_DIED);
+                return;
+            }
             Unit *target = SelectUnit(SELECT_TARGET_TOPAGGRO, 0, 999, true);
             if(!target || target->HasAura(SPELL_PARASITIC_SHADOWFIEND, 0)
                 || target->HasAura(SPELL_PARASITIC_SHADOWFIEND2, 0))
@@ -1893,6 +1882,10 @@ void boss_illidan_stormrageAI::JustSummoned(Creature* summon)
             MaievGUID = summon->GetGUID();
             ((boss_maievAI*)summon->AI())->GetIllidanGUID(m_creature->GetGUID());
             ((boss_maievAI*)summon->AI())->EnterPhase(PHASE_TALK_SEQUENCE);
+        }break;
+    case FLAME_OF_AZZINOTH:
+        {
+            summon->AI()->AttackStart(summon->SelectNearestTarget(999));
         }break;
     default:
         break;
@@ -1945,6 +1938,7 @@ void boss_illidan_stormrageAI::HandleTalkSequence()
         }break;
     case 15:
         DoCast(m_creature, SPELL_DEATH); // Animate his kneeling + stun him
+        Summons.DespawnAll();
         break;
     case 17:
         if(GETUNIT(Akama, AkamaGUID))
@@ -2034,10 +2028,8 @@ void boss_illidan_stormrageAI::SummonFlamesOfAzzinoth()
             {
                 Flame->setFaction(m_creature->getFaction()); // Just in case the database has it as a different faction
                 Flame->SetMeleeDamageSchool(SPELL_SCHOOL_FIRE);
-                Flame->AI()->AttackStart(m_creature->getVictim()); // Attack our target!
                 FlameGUID[i] = Flame->GetGUID(); // Record GUID in order to check if they're dead later on to move to the next phase
                 ((flame_of_azzinothAI*)Flame->AI())->SetGlaiveGUID(GlaiveGUID[i]);
-                DoZoneInCombat(Flame);
                 Glaive->CastSpell(Flame, SPELL_AZZINOTH_CHANNEL, false); // Glaives do some random Beam type channel on it.
             }
         }
