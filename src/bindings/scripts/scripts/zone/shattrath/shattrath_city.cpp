@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Shattrath_City
 SD%Complete: 100
-SDComment: Quest support: 10004, 10009, 10211. Flask vendors, Teleport to Caverns of Time
+SDComment: Quest support: 10004, 10009, 10211, 10231. Flask vendors, Teleport to Caverns of Time
 SDCategory: Shattrath City
 EndScriptData */
 
@@ -27,10 +27,12 @@ npc_salsalabim
 npc_shattrathflaskvendors
 npc_zephyr
 npc_kservant
+npc_dirty_larry
 EndContentData */
 
 #include "precompiled.h"
 #include "../../npc/npc_escortAI.h"
+#include "GridNotifiers.h"
 
 /*######
 ## npc_raliq_the_drunk
@@ -406,6 +408,179 @@ CreatureAI* GetAI_npc_kservantAI(Creature *_Creature)
     return (CreatureAI*)kservantAI;
 }
 
+/*######
+# npc_dirty_larry
+######*/
+
+#define GOSSIP_BOOK	"Ezekiel said that you might have a certain book..."
+#define SAY_1		"Time to teach you a lesson in manners, little boy!"
+#define SAY_2		"Now I'm gonna give you to the count of '3' to get out of here before I sick the dogs on you."
+#define SAY_3		"1..."
+#define SAY_4		"2..."
+#define SAY_5		"Time to meet your maker!"
+#define SAY_GIVEUP	"Alright, we give up! Don't hurt us!"
+
+#define QUEST_WBI		10231
+#define NPC_CREEPJACK	19726
+#define NPC_MALONE		19725
+
+struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
+{
+	npc_dirty_larryAI(Creature* c) : ScriptedAI(c) {Reset();}
+
+	bool Event;
+	bool Attack;
+	bool Done;
+
+	uint64 PlayerGUID;
+
+	uint32 SayTimer;
+	uint32 Step;
+
+	void Reset()
+	{
+		Event = false;
+		Attack = false;
+		Done = false;
+
+		PlayerGUID = 0;
+		SayTimer = 0;
+		Step = 0;
+
+		m_creature->setFaction(1194);
+		Unit* Creepjack = FindCreature(NPC_CREEPJACK, 20);
+		if(Creepjack)
+		{
+			((Creature*)Creepjack)->AI()->EnterEvadeMode();
+			Creepjack->setFaction(1194);
+		}
+		Unit* Malone = FindCreature(NPC_MALONE, 20);
+		if(Malone)
+		{
+			((Creature*)Malone)->AI()->EnterEvadeMode();
+			Malone->setFaction(1194);
+		}
+	}
+
+	uint32 NextStep(uint32 Step)
+	{
+		Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+
+		switch(Step)
+		{
+		case 0:{ m_creature->SetInFront(player);
+			Unit* Creepjack = FindCreature(NPC_CREEPJACK, 20);
+			if(Creepjack)
+				Creepjack->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+			Unit* Malone = FindCreature(NPC_MALONE, 20);
+			if(Malone)
+				Malone->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+			m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP); }return 2000;
+		case 1: DoSay(SAY_1, LANG_UNIVERSAL, player); return 3000;
+		case 2: DoSay(SAY_2, LANG_UNIVERSAL, player, true); return 5000;
+		case 3: DoSay(SAY_3, LANG_UNIVERSAL, player); return 2000;
+		case 4: DoSay(SAY_4, LANG_UNIVERSAL, player); return 2000;
+		case 5: DoSay(SAY_5, LANG_UNIVERSAL, player); return 2000;
+		case 6: Attack = true; return 2000;
+		default: return 0;
+		}
+	}
+
+	void Aggro(Unit* who){}
+
+	void UpdateAI(const uint32 diff)
+	{
+		if(SayTimer < diff)
+        {
+            if(Event)
+                SayTimer = NextStep(Step++);
+        }else SayTimer -= diff;
+
+		if(Attack)
+		{
+			Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+			m_creature->setFaction(14);
+			m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+			if(player)
+			{
+			Unit* Creepjack = FindCreature(NPC_CREEPJACK, 20);
+			if(Creepjack)
+			{
+				Creepjack->Attack(player, true);
+				Creepjack->setFaction(14);
+				Creepjack->GetMotionMaster()->MoveChase(player);
+			}
+			Unit* Malone = FindCreature(NPC_MALONE, 20);
+			if(Malone)
+			{
+				Malone->Attack(player, true);
+				Malone->setFaction(14);
+				Malone->GetMotionMaster()->MoveChase(player);
+			}
+				m_creature->SetInCombatWith(player);
+				DoStartMovement(player);
+				AttackStart(player);
+			}
+			Attack = false;
+		}
+
+		if((m_creature->GetHealth()*100)/m_creature->GetMaxHealth() < 1 && !Done)
+		{
+			Unit* Creepjack = FindCreature(NPC_CREEPJACK, 20);
+			if(Creepjack)
+			{
+				((Creature*)Creepjack)->AI()->EnterEvadeMode();
+				Creepjack->setFaction(1194);
+			}
+			Unit* Malone = FindCreature(NPC_MALONE, 20);
+			if(Malone)
+			{
+				((Creature*)Malone)->AI()->EnterEvadeMode();
+				Malone->setFaction(1194);
+			}
+			m_creature->setFaction(1194);
+			Done = true;
+			DoSay(SAY_GIVEUP, LANG_UNIVERSAL, NULL);
+			m_creature->DeleteThreatList();
+			m_creature->CombatStop();
+			m_creature->GetMotionMaster()->MoveTargetedHome();
+			Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+			if(player)
+				((Player*)player)->GroupEventHappens(QUEST_WBI, m_creature);
+		}
+		DoMeleeAttackIfReady();
+	}
+};
+
+bool GossipHello_npc_dirty_larry(Player *player, Creature *creature)
+{
+	if (creature->isQuestGiver())
+        player->PrepareQuestMenu(creature->GetGUID());
+
+	if(player->GetQuestStatus(QUEST_WBI) == QUEST_STATUS_INCOMPLETE)
+		player->ADD_GOSSIP_ITEM(0, GOSSIP_BOOK, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+	player->SEND_GOSSIP_MENU(creature->GetNpcTextId(), creature->GetGUID());
+	return true;
+}
+
+bool GossipSelect_npc_dirty_larry(Player *player, Creature *creature, uint32 sender, uint32 action )
+{
+	if (action == GOSSIP_ACTION_INFO_DEF+1)
+	{
+		((npc_dirty_larryAI*)creature->AI())->Event = true;
+		((npc_dirty_larryAI*)creature->AI())->PlayerGUID = player->GetGUID();
+		player->CLOSE_GOSSIP_MENU();
+	}
+
+	return true;
+}
+
+CreatureAI* GetAI_npc_dirty_larryAI(Creature *_Creature)
+{
+    return new npc_dirty_larryAI (_Creature);
+}
+
 void AddSC_shattrath_city()
 {
     Script *newscript;
@@ -434,8 +609,15 @@ void AddSC_shattrath_city()
     newscript->pGossipSelect = &GossipSelect_npc_zephyr;
     newscript->RegisterSelf();
 
-       newscript = new Script;
+    newscript = new Script;
     newscript->Name="npc_kservant";
     newscript->GetAI = &GetAI_npc_kservantAI;
     newscript->RegisterSelf();
+
+	newscript = new Script;
+	newscript->Name="npc_dirty_larry";
+	newscript->GetAI = &GetAI_npc_dirty_larryAI;
+	newscript->pGossipHello =   &GossipHello_npc_dirty_larry;
+	newscript->pGossipSelect = &GossipSelect_npc_dirty_larry;
+	newscript->RegisterSelf();
 }
