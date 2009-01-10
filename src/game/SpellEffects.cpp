@@ -1442,6 +1442,30 @@ void Spell::EffectDummy(uint32 i)
             }
             break;
         case SPELLFAMILY_PRIEST:
+            // Penance
+            if (m_spellInfo->SpellFamilyFlags & 0x0080000000000000LL)
+            {
+                if (!unitTarget)
+                    return;
+
+                int hurt = 0;
+                int heal = 0;
+                switch(m_spellInfo->Id)
+                {
+                    case 47540: hurt = 47758; heal = 47757; break;
+                    case 53005: hurt = 53001; heal = 52986; break;
+                    case 53006: hurt = 53002; heal = 52987; break;
+                    case 53007: hurt = 53003; heal = 52988; break;
+                    default:
+                        sLog.outError("Spell::EffectDummy: Spell %u Penance need set correct heal/damage spell", m_spellInfo->Id);
+                        return;
+                }
+                if (m_caster->IsFriendlyTo(unitTarget))
+                    m_caster->CastSpell(unitTarget, heal, true, 0);
+                else
+                    m_caster->CastSpell(unitTarget, hurt, true, 0);
+                return;
+            }
             switch(m_spellInfo->Id )
             {
                 case 28598:                                 // Touch of Weakness triggered spell
