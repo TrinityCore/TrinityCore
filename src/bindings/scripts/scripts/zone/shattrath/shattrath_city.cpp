@@ -29,6 +29,7 @@ npc_zephyr
 npc_kservant
 npc_dirty_larry
 npc_ishanah
+npc_khadgar
 EndContentData */
 
 #include "precompiled.h"
@@ -590,6 +591,9 @@ CreatureAI* GetAI_npc_dirty_larryAI(Creature *_Creature)
 
 bool GossipHello_npc_ishanah(Player *player, Creature *_Creature)
 {
+	if (_Creature->isQuestGiver())
+		player->PrepareQuestMenu(_Creature->GetGUID());
+
     player->ADD_GOSSIP_ITEM(0, ISANAH_GOSSIP_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
     player->ADD_GOSSIP_ITEM(0, ISANAH_GOSSIP_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
 
@@ -606,6 +610,66 @@ bool GossipSelect_npc_ishanah(Player *player, Creature *_Creature, uint32 sender
         player->SEND_GOSSIP_MENU(9459, _Creature->GetGUID());
 
     return true;
+}
+
+/*######
+# npc_khadgar
+######*/
+
+#define KHADGAR_GOSSIP_1	"I've heard your name spoken only in whispers, mage. Who are you?"
+#define KHADGAR_GOSSIP_2	"Go on, please."
+#define KHADGAR_GOSSIP_3	"I see." //6th too this
+#define KHADGAR_GOSSIP_4	"What did you do then?"
+#define KHADGAR_GOSSIP_5	"What happened next?"
+#define KHADGAR_GOSSIP_7	"There was something else I wanted to ask you."
+
+bool GossipHello_npc_khadgar(Player *player, Creature *creature)
+{
+	if (creature->isQuestGiver())
+		player->PrepareQuestMenu(creature->GetGUID());
+	
+	if(!player->hasQuest(10211))
+		player->ADD_GOSSIP_ITEM(0, KHADGAR_GOSSIP_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+		player->SEND_GOSSIP_MENU(9243, creature->GetGUID());
+	
+	return true;
+}
+
+bool GossipSelect_npc_khadgar(Player *player, Creature *creature, uint32 sender, uint32 action)
+{
+	switch(action)
+	{
+	case GOSSIP_ACTION_INFO_DEF+1:
+		player->ADD_GOSSIP_ITEM(0, KHADGAR_GOSSIP_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+		player->SEND_GOSSIP_MENU(9876, creature->GetGUID());
+		break;
+	case GOSSIP_ACTION_INFO_DEF+2:
+		player->ADD_GOSSIP_ITEM(0, KHADGAR_GOSSIP_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+		player->SEND_GOSSIP_MENU(9877, creature->GetGUID());
+		break;
+	case GOSSIP_ACTION_INFO_DEF+3:
+		player->ADD_GOSSIP_ITEM(0, KHADGAR_GOSSIP_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+		player->SEND_GOSSIP_MENU(9878, creature->GetGUID());
+		break;
+	case GOSSIP_ACTION_INFO_DEF+4:
+		player->ADD_GOSSIP_ITEM(0, KHADGAR_GOSSIP_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+		player->SEND_GOSSIP_MENU(9879, creature->GetGUID());
+		break;
+	case GOSSIP_ACTION_INFO_DEF+5:
+		player->ADD_GOSSIP_ITEM(0, KHADGAR_GOSSIP_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
+		player->SEND_GOSSIP_MENU(9880, creature->GetGUID());
+		break;
+	case GOSSIP_ACTION_INFO_DEF+6:
+		player->ADD_GOSSIP_ITEM(0, KHADGAR_GOSSIP_7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+7);
+		player->SEND_GOSSIP_MENU(9881, creature->GetGUID());
+		break;
+	case GOSSIP_ACTION_INFO_DEF+7:
+		player->ADD_GOSSIP_ITEM(0, KHADGAR_GOSSIP_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+		player->SEND_GOSSIP_MENU(9243, creature->GetGUID());
+		break;
+	}
+	return true;
 }
 
 void AddSC_shattrath_city()
@@ -652,5 +716,11 @@ void AddSC_shattrath_city()
     newscript->Name="npc_ishanah";
     newscript->pGossipHello =  &GossipHello_npc_ishanah;
     newscript->pGossipSelect = &GossipSelect_npc_ishanah;
+    newscript->RegisterSelf();
+
+	newscript = new Script;
+	newscript->Name="npc_khadgar";
+	newscript->pGossipHello =  &GossipHello_npc_khadgar;
+    newscript->pGossipSelect = &GossipSelect_npc_khadgar;
     newscript->RegisterSelf();
 }
