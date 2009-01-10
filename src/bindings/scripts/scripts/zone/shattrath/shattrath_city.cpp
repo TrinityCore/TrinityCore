@@ -28,11 +28,11 @@ npc_shattrathflaskvendors
 npc_zephyr
 npc_kservant
 npc_dirty_larry
+npc_ishanah
 EndContentData */
 
 #include "precompiled.h"
 #include "../../npc/npc_escortAI.h"
-#include "GridNotifiers.h"
 
 /*######
 ## npc_raliq_the_drunk
@@ -581,6 +581,33 @@ CreatureAI* GetAI_npc_dirty_larryAI(Creature *_Creature)
     return new npc_dirty_larryAI (_Creature);
 }
 
+/*######
+# npc_ishanah
+######*/
+
+#define ISANAH_GOSSIP_1 "Who are the Sha'tar?"
+#define ISANAH_GOSSIP_2 "Isn't Shattrath a draenei city? Why do you allow others here?"
+
+bool GossipHello_npc_ishanah(Player *player, Creature *_Creature)
+{
+    player->ADD_GOSSIP_ITEM(0, ISANAH_GOSSIP_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+    player->ADD_GOSSIP_ITEM(0, ISANAH_GOSSIP_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+
+    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+
+    return true;
+}
+
+bool GossipSelect_npc_ishanah(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+{
+    if(action == GOSSIP_ACTION_INFO_DEF+1)
+        player->SEND_GOSSIP_MENU(9458, _Creature->GetGUID());
+    else if(action == GOSSIP_ACTION_INFO_DEF+2)
+        player->SEND_GOSSIP_MENU(9459, _Creature->GetGUID());
+
+    return true;
+}
+
 void AddSC_shattrath_city()
 {
     Script *newscript;
@@ -620,4 +647,10 @@ void AddSC_shattrath_city()
 	newscript->pGossipHello =   &GossipHello_npc_dirty_larry;
 	newscript->pGossipSelect = &GossipSelect_npc_dirty_larry;
 	newscript->RegisterSelf();
+
+	newscript = new Script;
+    newscript->Name="npc_ishanah";
+    newscript->pGossipHello =  &GossipHello_npc_ishanah;
+    newscript->pGossipSelect = &GossipSelect_npc_ishanah;
+    newscript->RegisterSelf();
 }
