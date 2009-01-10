@@ -367,7 +367,7 @@ CreatureAI* GetAI_npc_twiggy_flathead(Creature *_Creature)
 
 /*#####
 ## npc_wizzlecrank_shredder
-#####*/
+#####
 
 #define SAY_PROGRESS_1	"Alright, alright I think I can figure out how to operate this thing..."
 #define SAY_PROGRESS_2	"Arrrgh! This isn't right!"
@@ -424,7 +424,7 @@ CreatureAI* GetAI_npc_wizzlecrank_shredderAI(Creature *_Creature)
 	npc_wizzlecrank_shredderAI* thisAI = new npc_wizzlecrank_shredderAI(_Creature);
 
 	return (CreatureAI*)thisAI;
-}
+}*/
 
 void AddSC_the_barrens()
 {
@@ -453,9 +453,9 @@ void AddSC_the_barrens()
     newscript->GetAI = &GetAI_npc_twiggy_flathead;
     newscript->RegisterSelf();
 
-	newscript = new Script;
+/*	newscript = new Script;
 	newscript->Name="npc_wizzlecrank_shredder";
 	newscript->GetAI = &GetAI_npc_wizzlecrank_shredderAI;
 	newscript->pQuestAccept = &QuestAccept_npc_wizzlecrank_shredder;
-	newscript->RegisterSelf();
+	newscript->RegisterSelf();*/
 }
