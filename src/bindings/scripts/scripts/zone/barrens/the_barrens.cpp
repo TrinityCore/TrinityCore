@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: The_Barrens
 SD%Complete: 90
-SDComment: Quest support: 2458, 4921, 6981
+SDComment: Quest support: 2458, 4921, 6981, 1719, 863 
 SDCategory: Barrens
 EndScriptData */
 
@@ -25,9 +25,12 @@ EndScriptData */
 npc_beaten_corpse
 npc_sputtervalve
 npc_taskmaster_fizzule      remove hack when Trinity implement feature/detect spell kind to not aggro
+npc_twiggy_flathead
+npc_wizzlecrank_shredder
 EndContentData */
 
 #include "precompiled.h"
+#include "../../npc/npc_escortAI.h"
 
 /*######
 ## npc_beaten_corpse
@@ -361,6 +364,68 @@ CreatureAI* GetAI_npc_twiggy_flathead(Creature *_Creature)
 {
     return new npc_twiggy_flatheadAI (_Creature);
 }
+
+/*#####
+## npc_wizzlecrank_shredder
+#####*/
+
+#define SAY_PROGRESS_1	"Alright, alright I think I can figure out how to operate this thing..."
+#define SAY_PROGRESS_2	"Arrrgh! This isn't right!"
+#define SAY_PROGRESS_3	"Okay, I think I've got it, now. Follow me, $N!"
+
+#define SAY_MERCENARY_4	"There's the stolen shredder! Stop it or Lugwizzle will have our hides!"
+
+#define SAY_PROGRESS_5	"Looks like we're out of woods, eh? Wonder what this does..."
+#define SAY_PROGRESS_6	"Come on, don't break down on me now!"
+#define SAY_PROGRESS_7	"That was a close one! Well, let's get going, it's still a ways to Ratchet!"
+#define SAY_PROGRESS_8	"Hmm... I don't think this blinking red light is a good thing..."
+
+#define SAY_PILOT_10	"Looks like you'll have to go ahead to Ratchet and tell Sputtervalve that I've wrecked the shredder."
+#define SAY_PILOT_11	"I'll stay behind and guard the wreck. Hurry! Hopefully no one will notice the smoke..."
+
+#define QUEST_ESCAPE	863
+#define NPC_PILOT		3451
+#define MOB_MERCENARY	3282
+
+struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
+{
+	npc_wizzlecrank_shredderAI(Creature* c) : npc_escortAI(c) {Reset();}
+
+	void WaypointReached(uint32 i)
+	{
+		switch(i)
+		{
+		}
+	}
+
+	void Reset(){}
+
+	void Aggro(Unit* who){}
+
+	void JustDied(Unit* killer){}
+
+	void UpdateAI(const uint32 diff)
+	{
+		npc_escortAI::UpdateAI(diff);
+	}
+};
+
+bool QuestAccept_npc_wizzlecrank_shredder(Player* player, Creature* creature, Quest const* quest)
+{
+    if (quest->GetQuestId() == QUEST_ESCAPE)
+    {
+        ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
+    }
+    return true;
+}
+
+CreatureAI* GetAI_npc_wizzlecrank_shredderAI(Creature *_Creature)
+{
+	npc_wizzlecrank_shredderAI* thisAI = new npc_wizzlecrank_shredderAI(_Creature);
+
+	return (CreatureAI*)thisAI;
+}
+
 void AddSC_the_barrens()
 {
     Script *newscript;
@@ -387,4 +452,10 @@ void AddSC_the_barrens()
     newscript->Name="npc_twiggy_flathead";
     newscript->GetAI = &GetAI_npc_twiggy_flathead;
     newscript->RegisterSelf();
+
+	newscript = new Script;
+	newscript->Name="npc_wizzlecrank_shredder";
+	newscript->GetAI = &GetAI_npc_wizzlecrank_shredderAI;
+	newscript->pQuestAccept = &QuestAccept_npc_wizzlecrank_shredder;
+	newscript->RegisterSelf();
 }
