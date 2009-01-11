@@ -193,6 +193,9 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
             {
                 if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0, 999, true))
                 {
+					if(!target)
+						target = m_creature->getVictim();
+
                     DoCast(target, SPELL_VOLCANIC_SUMMON);
 					DoScriptText(EMOTE_GROUND_CRACK, m_creature);
                     SummonVolcanoTimer = 10000;
@@ -226,6 +229,55 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
     }
 };
 
+struct TRINITY_DLL_DECL npc_volcanoAI : public ScriptedAI
+{
+    npc_volcanoAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        Reset();
+    }
+    
+    ScriptedInstance *pInstance;
+    
+    uint32 CheckTimer;
+    bool Eruption;
+    
+    void Reset()
+    {
+        CheckTimer = 1500;
+        Eruption = false;
+        
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+    }
+    
+    void Aggro(Unit *who) {}
+    
+    void MoveInLineOfSight(Unit *who)
+    {
+        return; // paralyze the npc
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if(CheckTimer < diff)
+        {
+            uint64 SupremusGUID = pInstance->GetData64(DATA_SUPREMUS);
+            Creature* Supremus = ((Creature*)Unit::GetUnit((*m_creature), SupremusGUID));  
+            if(!Eruption && !((boss_supremusAI*)Supremus->AI())->Phase1)
+            {
+                Eruption = true;
+                DoCast(m_creature, SPELL_VOLCANIC_ERUPTION);
+            }
+            else if(Eruption && ((boss_supremusAI*)Supremus->AI())->Phase1)
+            {
+                m_creature->RemoveAura(SPELL_VOLCANIC_ERUPTION, 0);
+            }
+            CheckTimer = 1500;
+        }else CheckTimer -= diff;
+    }
+};
+
 CreatureAI* GetAI_boss_supremus(Creature *_Creature)
 {
     return new boss_supremusAI (_Creature);
@@ -234,6 +286,11 @@ CreatureAI* GetAI_boss_supremus(Creature *_Creature)
 CreatureAI* GetAI_molten_flame(Creature *_Creature)
 {
     return new molten_flameAI (_Creature);
+}
+
+CreatureAI* GetAI_npc_volcano(Creature *_Creature)
+{
+    return new npc_volcanoAI (_Creature);
 }
 
 void AddSC_boss_supremus()
@@ -247,5 +304,10 @@ void AddSC_boss_supremus()
     newscript = new Script;
     newscript->Name="molten_flame";
     newscript->GetAI = &GetAI_molten_flame;
+    newscript->RegisterSelf();
+
+	newscript = new Script;
+    newscript->Name="npc_volcano";
+    newscript->GetAI = &GetAI_npc_volcano;
     newscript->RegisterSelf();
 }
