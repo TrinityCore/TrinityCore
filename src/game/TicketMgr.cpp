@@ -169,18 +169,19 @@ void TicketMgr::RemoveGMTicketByPlayer(uint64 playerGuid, uint64 GMguid)
 
 void TicketMgr::SaveGMTicket(GM_Ticket* ticket)
 {
+	std::string msg = ticket->message;
+    CharacterDatabase.escape_string(msg);
 	std::stringstream ss;
-	ss << "REPLACE INTO `gm_tickets` (`guid`, `playerGuid`, `name`, `message`, `timestamp`, `closed`, `assignedto`, `comment`) VALUES(\"";
-	ss << ticket->guid << "\", \"";
-	ss << ticket->playerGuid << "\", \"";
-	ss << ticket->name << "\", \"";
-	ss << ticket->message << "\", \"" ;
-	ss << ticket->timestamp << "\", \"";
-	ss << ticket->closed << "\", \"";
-	ss << ticket->assignedToGM << "\", \"";
-	ss << ticket->comment << "\");";
-
-	CharacterDatabase.BeginTransaction();
+	ss << "REPLACE INTO `gm_tickets` (`guid`, `playerGuid`, `name`, `message`, `timestamp`, `closed`, `assignedto`, `comment`) VALUES('";
+	ss << ticket->guid << "', '";
+	ss << ticket->playerGuid << "', '";
+	ss << ticket->name << "', '";
+	ss << msg << "', '" ;
+	ss << ticket->timestamp << "', '";
+	ss << ticket->closed << "', '";
+	ss << ticket->assignedToGM << "', '";
+	ss << ticket->comment << "');";
+    CharacterDatabase.BeginTransaction();
 	CharacterDatabase.Execute(ss.str().c_str());
 	CharacterDatabase.CommitTransaction();
 		
