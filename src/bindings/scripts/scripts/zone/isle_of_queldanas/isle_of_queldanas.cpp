@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Isle_of_Queldanas
 SD%Complete: 100
-SDComment: Quest support: 11524, 11525, 11532, 11533, 11542, 11543
+SDComment: Quest support: 11524, 11525, 11532, 11533, 11542, 11543, 11541
 SDCategory: Isle Of Quel'Danas
 EndScriptData */
 
@@ -25,6 +25,7 @@ EndScriptData */
 npc_ayren_cloudbreaker
 npc_converted_sentry
 npc_unrestrained_dragonhawk
+npc_greengill_slave
 EndContentData */
 
 #include "precompiled.h"
@@ -132,6 +133,63 @@ bool GossipSelect_npc_unrestrained_dragonhawk(Player *player, Creature *_Creatur
     return true;
 }
 
+/*######
+## npc_greengill_slave
+######*/
+
+#define ENRAGE	45111
+#define ORB		45109
+#define QUESTG	11541
+#define DM		25060
+
+struct TRINITY_DLL_DECL npc_greengill_slaveAI : public ScriptedAI
+{
+	npc_greengill_slaveAI(Creature* c) : ScriptedAI(c) {Reset();}
+
+	uint64 PlayerGUID;
+
+	void Aggro(Unit* who){}
+
+	void Reset()
+	{
+	PlayerGUID = 0;
+	}
+
+	void SpellHit(Unit* caster, const SpellEntry* spell)
+	{
+		if(!caster)
+            return;
+
+		if(caster->GetTypeId() == TYPEID_PLAYER && spell->Id == ORB && !m_creature->HasAura(ENRAGE, 0))
+		{
+			PlayerGUID = caster->GetGUID();
+			if(PlayerGUID)
+            {
+                Unit* plr = Unit::GetUnit((*m_creature), PlayerGUID);
+                if(plr && ((Player*)plr)->GetQuestStatus(QUESTG) == QUEST_STATUS_INCOMPLETE)				
+					((Player*)plr)->KilledMonster(25086, m_creature->GetGUID());
+			}
+			DoCast(m_creature, ENRAGE);
+			Unit* Myrmidon = FindCreature(DM, 70);
+			if(Myrmidon)
+			{
+				m_creature->AddThreat(Myrmidon, 100000.0f);
+                AttackStart(Myrmidon);
+			}
+		}
+	}
+
+	void UpdateAI(const uint32 diff)
+	{
+		DoMeleeAttackIfReady();
+	}
+};
+
+CreatureAI* GetAI_npc_greengill_slaveAI(Creature* _Creature)
+{
+    return new npc_greengill_slaveAI(_Creature);
+}
+
 void AddSC_isle_of_queldanas()
 {
     Script *newscript;
@@ -152,4 +210,9 @@ void AddSC_isle_of_queldanas()
     newscript->pGossipHello = &GossipHello_npc_unrestrained_dragonhawk;
     newscript->pGossipSelect = &GossipSelect_npc_unrestrained_dragonhawk;
     newscript->RegisterSelf();
+
+	newscript = new Script;
+	newscript->Name="npc_greengill_slave";
+	newscript->GetAI = &GetAI_npc_greengill_slaveAI;
+	newscript->RegisterSelf();
 }
