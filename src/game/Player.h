@@ -143,8 +143,6 @@ enum ActionButtonType
 
 typedef std::map<uint8,ActionButton> ActionButtonList;
 
-typedef std::pair<uint16, uint8> CreateSpellPair;
-
 struct PlayerCreateInfoItem
 {
     PlayerCreateInfoItem(uint32 id, uint32 amount) : item_id(id), item_amount(amount) {}
@@ -176,6 +174,8 @@ struct PlayerLevelInfo
     uint8 stats[MAX_STATS];
 };
 
+typedef std::list<uint32> PlayerCreateInfoSpells;
+
 struct PlayerInfo
 {
                                                             // existence checked by displayId != 0             // existence checked by displayId != 0
@@ -191,7 +191,7 @@ struct PlayerInfo
     uint16 displayId_m;
     uint16 displayId_f;
     PlayerCreateInfoItems item;
-    std::list<CreateSpellPair> spell;
+    PlayerCreateInfoSpells spell;
     std::list<uint16> action[4];
 
     PlayerLevelInfo* levelInfo;                             //[level-1] 0..MaxPlayerLevel-1
@@ -961,23 +961,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         void AddToWorld();
         void RemoveFromWorld();
 
-        void SetViewport(uint64 guid, bool movable);
-        void RemovePossess(bool attack = true);
-        void StopCharmOrPossess()
-        {
-            if(isPossessing())
-                RemovePossess(true);
-            else if(GetCharm())
-                Uncharm();
-        }
-        WorldObject* GetFarsightTarget() const;
-        void ClearFarsight();
-        void RemoveFarsightTarget();
-        void SetFarsightTarget(WorldObject* target);
-        // Controls if vision is currently on farsight object, updated in FAR_SIGHT opcode
-        void SetFarsightVision(bool apply) { m_farsightVision = apply; }
-        bool HasFarsightVision() const { return m_farsightVision; }
-
         bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0);
 
         bool TeleportTo(WorldLocation const &loc, uint32 options = 0)
@@ -1484,11 +1467,11 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         void SendProficiency(uint8 pr1, uint32 pr2);
         void SendInitialSpells();
-        bool addSpell(uint32 spell_id, bool active, bool learning = true, bool loading = false, bool disabled = false);
+        bool addSpell(uint32 spell_id, bool active, bool learning, bool disabled);
         void learnSpell(uint32 spell_id);
         void removeSpell(uint32 spell_id, bool disabled = false);
         void resetSpells();
-        void learnDefaultSpells(bool loading = false);
+        void learnDefaultSpells();
         void learnQuestRewardedSpells();
         void learnQuestRewardedSpells(Quest const* quest);
 
@@ -2061,8 +2044,27 @@ class TRINITY_DLL_SPEC Player : public Unit
         void EnterVehicle(Vehicle *vehicle);
         void ExitVehicle(Vehicle *vehicle);
 
+        //void SetViewport(uint64 guid, bool movable);
+        void SetMover(Unit* target) { m_mover = target ? target : this; }
+        void RemovePossess(bool attack = true);
+        void StopCharmOrPossess()
+        {
+            if(isPossessing())
+                RemovePossess(true);
+            else if(GetCharm())
+                Uncharm();
+        }
+
         uint64 GetFarSight() const { return GetUInt64Value(PLAYER_FARSIGHT); }
         void SetFarSight(uint64 guid) { SetUInt64Value(PLAYER_FARSIGHT, guid); }
+        void SetBindSight(Unit *target);
+        WorldObject* GetFarsightTarget() const;
+        void ClearFarsight();
+        void RemoveFarsightTarget();
+        void SetFarsightTarget(WorldObject* target);
+        // Controls if vision is currently on farsight object, updated in FAR_SIGHT opcode
+        void SetFarsightVision(bool apply) { m_farsightVision = apply; }
+        bool HasFarsightVision() const { return m_farsightVision; }
 
         // Transports
         Transport * GetTransport() const { return m_transport; }
