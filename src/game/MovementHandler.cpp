@@ -197,12 +197,12 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
         return;
 
     // Handle possessed unit movement separately
-    Unit* pos_unit = GetPlayer()->GetCharm();
+    /*Unit* pos_unit = GetPlayer()->GetCharm();
     if (pos_unit && pos_unit->isPossessed()) // can be charmed but not possessed
     {
         HandlePossessedMovement(recv_data, movementInfo, movementInfo.flags);
         return;
-    }
+    }*/
 
     if (GetPlayer()->GetDontMove())
         return;
