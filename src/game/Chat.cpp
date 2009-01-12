@@ -712,12 +712,12 @@ bool ChatHandler::HasLowerSecurityAccount(WorldSession* target, uint32 target_ac
 {
     uint32 target_sec;
 
-    // ignore only for non-players for non strong checks (when allow apply command at least to same sec level)
-    if (m_session->GetSecurity() > SEC_PLAYER && !strong && !sWorld.getConfig(CONFIG_GM_LOWER_SECURITY))
-        return false;
-
     // allow everything from console and RA console
     if (!m_session)
+        return false;
+
+    // ignore only for non-players for non strong checks (when allow apply command at least to same sec level)
+    if (m_session->GetSecurity() > SEC_PLAYER && !strong && !sWorld.getConfig(CONFIG_GM_LOWER_SECURITY))
         return false;
 
     if (target)

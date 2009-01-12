@@ -681,6 +681,7 @@ void AreaAura::Update(uint32 diff)
                         aur = new AreaAura(actualSpellInfo, m_effIndex, &m_modifier.m_amount, (*tIter), caster, NULL);
                     else
                         aur = new AreaAura(actualSpellInfo, m_effIndex, NULL, (*tIter), caster, NULL);
+                    aur->SetAuraDuration(GetAuraDuration());
                     (*tIter)->AddAura(aur);
                 }
             }
@@ -2915,10 +2916,7 @@ void Aura::HandleBindSight(bool apply, bool Real)
     if(!caster || caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    if (apply)
-        m_target->AddPlayerToVision((Player*)caster);
-    else
-        m_target->RemovePlayerFromVision((Player*)caster);
+    ((Player*)caster)->SetBindSight(apply ? m_target : NULL);
 }
 
 void Aura::HandleFarSight(bool apply, bool Real)
@@ -5160,6 +5158,7 @@ void Aura::HandleShapeshiftBoosts(bool apply)
             break;
         case FORM_FLIGHT:
             spellId = 33948;
+            spellId2 = 34764;
             break;
         case FORM_FLIGHT_EPIC:
             spellId  = 40122;

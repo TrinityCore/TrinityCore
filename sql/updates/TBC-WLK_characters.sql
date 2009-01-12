@@ -1,4 +1,5 @@
 DELETE FROM `character_spell` WHERE `spell` IN ('28880', 59542, 59543, 59544, 59545, 59547, 59548);
+DELETE FROM `character_spell` WHERE `spell` IN (7376,3025,5419,5421,21156,7381,1178,21178,9635,21178,24905,5420,34123,33948,34090,34764,40121,40122);
 INSERT INTO character_spell SELECT characters.guid as guid, 28880, -1, 1, 0  FROM `characters` WHERE characters.race=11 AND characters.class = 1;
 INSERT INTO character_spell SELECT characters.guid as guid, 59542, -1, 1, 0  FROM `characters` WHERE characters.race=11 AND characters.class = 2;
 INSERT INTO character_spell SELECT characters.guid as guid, 59543, -1, 1, 0  FROM `characters` WHERE characters.race=11 AND characters.class = 3;
@@ -9,26 +10,6 @@ INSERT INTO character_spell SELECT characters.guid as guid, 59548, -1, 1, 0  FRO
 
 ALTER TABLE character_spell
     DROP slot;
-
-DELETE FROM `playercreateinfo_action` WHERE `action` IN ('28880', 59542, 59543, 59544, 59545, 59547, 59548);
-INSERT INTO `playercreateinfo_action` VALUES
-(11,1,74,28880,0,0),
-(11,2,3,59542,0,0),
-(11,3,3,59543,0,0),
-(11,5,3,59544,0,0),
-(11,6,6,59545,0,0),
-(11,7,3,59547,0,0),
-(11,8,3,59548,0,0);
-
-DELETE FROM `playercreateinfo_spell` WHERE `Spell` IN ('28880', 59542, 59543, 59544, 59545, 59547, 59548);
-INSERT INTO `playercreateinfo_spell` VALUES
-(11,1,28880,'Gift of the Naaru',1),
-(11,2,59542,'Gift of the Naaru',1),
-(11,3,59543,'Gift of the Naaru',1),
-(11,5,59544,'Gift of the Naaru',1),
-(11,6,59545,'Gift of the Naaru',1),
-(11,7,59547,'Gift of the Naaru',1),
-(11,8,59548,'Gift of the Naaru',1);
 
 alter table `character_pet`
     drop column `trainpoint`,

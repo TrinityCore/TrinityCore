@@ -715,7 +715,7 @@ bool Player::Create( uint32 guidlow, const std::string& name, uint8 race, uint8 
     }
 
     // original spells
-    learnDefaultSpells(true);
+    learnDefaultSpells();
 
     // original action bar
     std::list<uint16>::const_iterator action_itr[4];
@@ -2636,13 +2636,13 @@ void Player::AddNewMailDeliverTime(time_t deliver_time)
     }
 }
 
-bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool loading, bool disabled)
+bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool disabled)
 {
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spell_id);
     if (!spellInfo)
     {
         // do character spell book cleanup (all characters)
-        if(loading && !learning)                            // spell load case
+        if(!IsInWorld() && !learning)                       // spell load case
         {
             sLog.outError("Player::addSpell: Non-existed in SpellStore spell #%u request, deleting for all characters in `character_spell`.",spell_id);
             CharacterDatabase.PExecute("DELETE FROM character_spell WHERE spell = '%u'",spell_id);
@@ -2656,7 +2656,7 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool loading,
     if(!SpellMgr::IsSpellValid(spellInfo,this,false))
     {
         // do character spell book cleanup (all characters)
-        if(loading && !learning)                            // spell load case
+        if(!IsInWorld() && !learning)                       // spell load case
         {
             sLog.outError("Player::addSpell: Broken spell #%u learning not allowed, deleting for all characters in `character_spell`.",spell_id);
             CharacterDatabase.PExecute("DELETE FROM character_spell WHERE spell = '%u'",spell_id);
@@ -2680,8 +2680,8 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool loading,
         {
             itr->second->active = active;
 
-            // loading && !learning == explicitly load from DB and then exist in it already and set correctly
-            if(loading && !learning)
+            // !IsInWorld() && !learning == explicitly load from DB and then exist in it already and set correctly
+            if(!IsInWorld() && !learning)
                 itr->second->state = PLAYERSPELL_UNCHANGED;
             else if(itr->second->state != PLAYERSPELL_NEW)
                 itr->second->state = PLAYERSPELL_CHANGED;
@@ -2720,7 +2720,7 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool loading,
             default:                                        // known not saved yet spell (new or modified)
             {
                 // can be in case spell loading but learned at some previous spell loading
-                if(loading && !learning)
+                if(!IsInWorld() && !learning)
                     itr->second->state = PLAYERSPELL_UNCHANGED;
 
                 return false;
@@ -2753,8 +2753,8 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool loading,
         // non talent spell: learn low ranks (recursive call)
         else if(uint32 prev_spell = spellmgr.GetPrevSpellInChain(spell_id))
         {
-            if(loading)                                     // at spells loading, no output, but allow save
-                addSpell(prev_spell,active,true,loading,disabled);
+            if(!IsInWorld())                                // at spells loading, no output, but allow save
+                addSpell(prev_spell,active,true,disabled);
             else                                            // at normal learning
                 learnSpell(prev_spell);
         }
@@ -2779,7 +2779,7 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool loading,
                     {
                         if(spellmgr.IsHighRankOfSpell(spell_id,itr->first))
                         {
-                            if(!loading)                    // not send spell (re-/over-)learn packets at loading
+                            if(IsInWorld())                 // not send spell (re-/over-)learn packets at loading
                             {
                                 WorldPacket data(SMSG_SUPERCEDED_SPELL, (4));
                                 data << uint16(itr->first);
@@ -2794,7 +2794,7 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool loading,
                         }
                         else if(spellmgr.IsHighRankOfSpell(itr->first,spell_id))
                         {
-                            if(!loading)                    // not send spell (re-/over-)learn packets at loading
+                            if(IsInWorld())                 // not send spell (re-/over-)learn packets at loading
                             {
                                 WorldPacket data(SMSG_SUPERCEDED_SPELL, (4));
                                 data << uint16(spell_id);
@@ -2831,23 +2831,27 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool loading,
     // also cast passive spells (including all talents without SPELL_EFFECT_LEARN_SPELL) with additional checks
     else if (IsPassiveSpell(spell_id))
     {
-        // if spell doesn't require a stance or the player is in the required stance
-        if( ( !spellInfo->Stances &&
-            spell_id != 5420 && spell_id != 5419 && spell_id != 7376 &&
-            spell_id != 7381 && spell_id != 21156 && spell_id != 21009 &&
-            spell_id != 21178 && spell_id != 33948 && spell_id != 40121 ) ||
-            m_form != 0 && (spellInfo->Stances & (1<<(m_form-1))) ||
-            (spell_id ==  5420 && m_form == FORM_TREE) ||
-            (spell_id ==  5419 && m_form == FORM_TRAVEL) ||
-            (spell_id ==  7376 && m_form == FORM_DEFENSIVESTANCE) ||
-            (spell_id ==  7381 && m_form == FORM_BERSERKERSTANCE) ||
-            (spell_id == 21156 && m_form == FORM_BATTLESTANCE)||
-            (spell_id == 21178 && (m_form == FORM_BEAR || m_form == FORM_DIREBEAR) ) ||
-            (spell_id == 33948 && m_form == FORM_FLIGHT) ||
-            (spell_id == 40121 && m_form == FORM_FLIGHT_EPIC) )
+        bool need_cast =  false;
+
+        switch(spell_id)
+        {
+            // some spells not have stance data expacted cast at form change or present
+            case  5420: need_cast = (m_form == FORM_TREE);            break;
+            case  5419: need_cast = (m_form == FORM_TRAVEL);          break;
+            case  7376: need_cast = (m_form == FORM_DEFENSIVESTANCE); break;
+            case  7381: need_cast = (m_form == FORM_BERSERKERSTANCE); break;
+            case 21156: need_cast = (m_form == FORM_BATTLESTANCE);    break;
+            case 21178: need_cast = (m_form == FORM_BEAR || m_form == FORM_DIREBEAR); break;
+            case 33948: need_cast = (m_form == FORM_FLIGHT);          break;
+            case 34764: need_cast = (m_form == FORM_FLIGHT);          break;
+            case 40121: need_cast = (m_form == FORM_FLIGHT_EPIC);     break;
+            case 40122: need_cast = (m_form == FORM_FLIGHT_EPIC);     break;
+            // another spells have proper stance data
+            default: need_cast = !spellInfo->Stances || m_form != 0 && (spellInfo->Stances & (1<<(m_form-1))); break;
+        }
                                                             //Check CasterAuraStates
-            if (!spellInfo->CasterAuraState || HasAuraState(AuraState(spellInfo->CasterAuraState)))
-                CastSpell(this, spell_id, true);
+        if (need_cast && (!spellInfo->CasterAuraState || HasAuraState(AuraState(spellInfo->CasterAuraState))))
+            CastSpell(this, spell_id, true);
     }
     else if( IsSpellHaveEffect(spellInfo,SPELL_EFFECT_SKILL_STEP) )
     {
@@ -2930,14 +2934,14 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool loading,
     {
         if(!itr->second.autoLearned)
         {
-            if(loading)                                     // at spells loading, no output, but allow save
-                addSpell(itr->second.spell,true,true,loading);
+            if(!IsInWorld() || !itr->second.active)         // at spells loading, no output, but allow save
+                addSpell(itr->second.spell,itr->second.active,true,false);
             else                                            // at normal learning
                 learnSpell(itr->second.spell);
         }
     }
 
-    if(!loading)
+    if(IsInWorld())
     {
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL);
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS);
@@ -2954,7 +2958,7 @@ void Player::learnSpell(uint32 spell_id)
     bool disabled = (itr != m_spells.end()) ? itr->second->disabled : false;
     bool active = disabled ? itr->second->active : true;
 
-    bool learning = addSpell(spell_id,active);
+    bool learning = addSpell(spell_id,active,true,false);
 
     // learn all disabled higher ranks (recursive)
     SpellChainNode const* node = spellmgr.GetSpellChainNode(spell_id);
@@ -2965,8 +2969,8 @@ void Player::learnSpell(uint32 spell_id)
             learnSpell(node->next);
     }
 
-    // prevent duplicated entires in spell book
-    if(!learning)
+    // prevent duplicated entires in spell book, also not send if not in world (loading)
+    if(!learning || !IsInWorld ())
         return;
 
     WorldPacket data(SMSG_LEARNED_SPELL, 4);
@@ -14244,6 +14248,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     //Other way is to saves m_team into characters table.
     setFactionForRace(m_race);
     SetCharm(0);
+    SetMover(this);
 
     m_class = fields[5].GetUInt8();
 
@@ -14494,6 +14499,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
 
     // clear charm/summon related fields
     SetCharm(NULL);
+    SetMover(NULL);
     SetPet(NULL);
     SetCharmerGUID(NULL);
     SetOwnerGUID(NULL);
@@ -14558,6 +14564,8 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     // after spell load
     InitTalentForLevel();
     learnSkillRewardedSpells();
+    learnDefaultSpells();
+
 
     // after spell load, learn rewarded spell if need also
     _LoadQuestStatus(holder->GetResult(PLAYER_LOGIN_QUERY_LOADQUESTSTATUS));
@@ -15322,7 +15330,7 @@ void Player::_LoadSpells(QueryResult *result)
         {
             Field *fields = result->Fetch();
 
-            addSpell(fields[0].GetUInt16(), fields[1].GetBool(), false, true, fields[2].GetBool());
+            addSpell(fields[0].GetUInt16(), fields[1].GetBool(), false, fields[2].GetBool());
         }
         while( result->NextRow() );
 
@@ -18451,22 +18459,18 @@ void Player::resetSpells()
     learnQuestRewardedSpells();
 }
 
-void Player::learnDefaultSpells(bool loading)
+void Player::learnDefaultSpells()
 {
     // learn default race/class spells
     PlayerInfo const *info = objmgr.GetPlayerInfo(getRace(),getClass());
-    std::list<CreateSpellPair>::const_iterator spell_itr;
-    for (spell_itr = info->spell.begin(); spell_itr!=info->spell.end(); ++spell_itr)
+    for (PlayerCreateInfoSpells::const_iterator itr = info->spell.begin(); itr!=info->spell.end(); ++itr)
     {
-        uint16 tspell = spell_itr->first;
-        if (tspell)
-        {
-            sLog.outDebug("PLAYER: Adding initial spell, id = %u",tspell);
-            if(loading || !spell_itr->second)               // not care about passive spells or loading case
-                addSpell(tspell,spell_itr->second);
-            else                                            // but send in normal spell in game learn case
-                learnSpell(tspell);
-        }
+        uint32 tspell = *itr;
+        sLog.outDebug("PLAYER (Class: %u Race: %u): Adding initial spell, id = %u",uint32(getClass()),uint32(getRace()), tspell);
+        if(!IsInWorld())                                    // will send in INITIAL_SPELLS in list anyway at map add
+            addSpell(tspell,true,true,false);
+        else                                                // but send in normal spell in game learn case
+            learnSpell(tspell);
     }
 }
 
@@ -19550,38 +19554,46 @@ void Player::RemovePossess(bool attack)
         }*/
 }
 
-void Player::SetViewport(uint64 guid, bool moveable)
+/*void Player::SetViewport(uint64 guid, bool moveable)
 {
     WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE, 8+1);
     data.appendPackGUID(guid); // Packed guid of object to set client's view to
     data << (moveable ? uint8(0x01) : uint8(0x00)); // 0 - can't move; 1 - can move
     m_session->SendPacket(&data);
     sLog.outDetail("Viewport for "I64FMT" (%s) changed to "I64FMT, GetGUID(), GetName(), guid);
+}*/
+
+void Player::SetBindSight(Unit *target)
+{
+    if(target)
+        target->AddPlayerToVision(this);
+    else
+        target->RemovePlayerFromVision(this);
 }
 
 WorldObject* Player::GetFarsightTarget() const
 {
     // Players can have in farsight field another player's guid, a creature's guid, or a dynamic object's guid
-    if (uint64 guid = GetUInt64Value(PLAYER_FARSIGHT))
-        return (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*this, guid, TYPEMASK_PLAYER | TYPEMASK_UNIT | TYPEMASK_DYNAMICOBJECT);
+    if(uint64 guid = GetFarSight())
+        return (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*this, guid, TYPEMASK_FARSIGHTOBJ);
     return NULL;
 }
 
 void Player::RemoveFarsightTarget()
 {
-    if (WorldObject* fTarget = GetFarsightTarget())
+    if (WorldObject* target = GetFarsightTarget())
     {
-        if (fTarget->isType(TYPEMASK_PLAYER | TYPEMASK_UNIT))
-            ((Unit*)fTarget)->RemovePlayerFromVision(this);
+        if (target->isType(TYPEMASK_PLAYER | TYPEMASK_UNIT))
+            ((Unit*)target)->RemovePlayerFromVision(this);
     }
     ClearFarsight();
 }
 
 void Player::ClearFarsight()
 {
-    if (GetUInt64Value(PLAYER_FARSIGHT))
+    if(GetFarSight())
     {
-        SetUInt64Value(PLAYER_FARSIGHT, 0);
+        SetFarSight(0);
         WorldPacket data(SMSG_CLEAR_FAR_SIGHT_IMMEDIATE, 0);
         GetSession()->SendPacket(&data);
     }
@@ -19595,7 +19607,7 @@ void Player::SetFarsightTarget(WorldObject* obj)
     // Remove the current target if there is one
     RemoveFarsightTarget();
 
-    SetUInt64Value(PLAYER_FARSIGHT, obj->GetGUID());
+    SetFarSight(obj->GetGUID());
 }
 
 bool Player::isAllowUseBattleGroundObject()
@@ -19684,6 +19696,7 @@ void Player::EnterVehicle(Vehicle *vehicle)
     vehicle->setFaction(getFaction());
 
     SetCharm(vehicle);                                      // charm
+    SetMover(vehicle);
     SetFarSight(vehicle->GetGUID());                        // set view
 
     SetClientControl(vehicle, 1);                           // redirect controls to vehicle
@@ -19735,6 +19748,7 @@ void Player::ExitVehicle(Vehicle *vehicle)
     vehicle->setFaction((GetTeam() == ALLIANCE) ? vehicle->GetCreatureInfo()->faction_A : vehicle->GetCreatureInfo()->faction_H);
 
     SetCharm(NULL);
+    SetMover(NULL);
     SetFarSight(NULL);
 
     SetClientControl(vehicle, 0);

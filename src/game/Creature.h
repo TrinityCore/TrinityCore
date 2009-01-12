@@ -219,6 +219,8 @@ struct CreatureInfo
             return SKILL_HERBALISM;
         else if(type_flags & CREATURE_TYPEFLAGS_MININGLOOT)
             return SKILL_MINING;
+        else if(type_flags & CREATURE_TYPEFLAGS_ENGINEERLOOT)
+            return SKILL_ENGINERING;
         else
             return SKILL_SKINNING;                          // normal case
     }
