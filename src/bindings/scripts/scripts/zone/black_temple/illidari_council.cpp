@@ -290,59 +290,59 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
         if(!EventBegun) return;
 
         if(EndEventTimer)
-		{
-            if(EndEventTimer <= diff)
         {
-            if(DeathCount > 3)
+            if(EndEventTimer <= diff)
             {
-                if(pInstance)
+                if(DeathCount > 3)
                 {
-                    if(Creature* VoiceTrigger = ((Creature*)Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE))))
-                        VoiceTrigger->DealDamage(VoiceTrigger, VoiceTrigger->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                    pInstance->SetData(DATA_ILLIDARICOUNCILEVENT, DONE);
+                    if(pInstance)
+                    {
+                        if(Creature* VoiceTrigger = ((Creature*)Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE))))
+                            VoiceTrigger->DealDamage(VoiceTrigger, VoiceTrigger->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        pInstance->SetData(DATA_ILLIDARICOUNCILEVENT, DONE);
+                    }
+                    m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    return;
                 }
-                m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                return;
-            }
 
-            Creature* pMember = ((Creature*)Unit::GetUnit(*m_creature, Council[DeathCount]));
-            if(pMember && pMember->isAlive())
-                pMember->DealDamage(pMember, pMember->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            ++DeathCount;
-            EndEventTimer = 1500;
-        }else EndEventTimer -= diff;
-		}
+                Creature* pMember = ((Creature*)Unit::GetUnit(*m_creature, Council[DeathCount]));
+                if(pMember && pMember->isAlive())
+                    pMember->DealDamage(pMember, pMember->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                ++DeathCount;
+                EndEventTimer = 1500;
+            }else EndEventTimer -= diff;
+        }
 
         if(CheckTimer)
-		{
-            if(CheckTimer <= diff)
         {
-            uint8 EvadeCheck = 0;
-            for(uint8 i = 0; i < 4; ++i)
+            if(CheckTimer <= diff)
             {
-                if(Council[i])
+                uint8 EvadeCheck = 0;
+                for(uint8 i = 0; i < 4; ++i)
                 {
-                    if(Creature* Member = ((Creature*)Unit::GetUnit((*m_creature), Council[i])))
+                    if(Council[i])
                     {
-                        // This is the evade/death check.
-                        if(Member->isAlive() && !Member->SelectHostilTarget())
-                            ++EvadeCheck;                   //If all members evade, we reset so that players can properly reset the event
-                        else if(!Member->isAlive())         // If even one member dies, kill the rest, set instance data, and kill self.
+                        if(Creature* Member = ((Creature*)Unit::GetUnit((*m_creature), Council[i])))
                         {
-                            EndEventTimer = 1000;
-                            CheckTimer = 0;
-                            return;
+                            // This is the evade/death check.
+                            if(Member->isAlive() && !Member->SelectHostilTarget())
+                                ++EvadeCheck;                   //If all members evade, we reset so that players can properly reset the event
+                            else if(!Member->isAlive())         // If even one member dies, kill the rest, set instance data, and kill self.
+                            {
+                                EndEventTimer = 1000;
+                                CheckTimer = 0;
+                                return;
+                            }
                         }
                     }
                 }
-            }
 
-            if(EvadeCheck > 3)
-                Reset();
+                if(EvadeCheck > 3)
+                    Reset();
 
-            CheckTimer = 2000;
-        }else CheckTimer -= diff;
-		}
+                CheckTimer = 2000;
+            }else CheckTimer -= diff;
+        }
 
     }
 };
@@ -383,6 +383,20 @@ struct TRINITY_DLL_DECL boss_illidari_councilAI : public ScriptedAI
         // have been loaded and have their GUIDs set in the instance data system.
         if(!LoadedGUIDs)
             LoadGUIDs();
+    }
+
+    void EnterEvadeMode()
+    {
+        for(uint8 i = 0; i < 4; ++i)
+        {
+            if(Unit* pUnit = Unit::GetUnit(*m_creature, Council[i]))
+                if(pUnit != m_creature && pUnit->getVictim())
+                {
+                    AttackStart(pUnit->getVictim());
+                    return;
+                }
+        }
+        ScriptedAI::EnterEvadeMode();
     }
 
     void DamageTaken(Unit* done_by, uint32 &damage)
