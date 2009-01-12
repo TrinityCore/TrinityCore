@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: The_Barrens
 SD%Complete: 90
-SDComment: Quest support: 2458, 4921, 6981
+SDComment: Quest support: 2458, 4921, 6981, 1719, 863 
 SDCategory: Barrens
 EndScriptData */
 
@@ -25,9 +25,12 @@ EndScriptData */
 npc_beaten_corpse
 npc_sputtervalve
 npc_taskmaster_fizzule      remove hack when Trinity implement feature/detect spell kind to not aggro
+npc_twiggy_flathead
+npc_wizzlecrank_shredder
 EndContentData */
 
 #include "precompiled.h"
+#include "../../npc/npc_escortAI.h"
 
 /*######
 ## npc_beaten_corpse
@@ -361,6 +364,149 @@ CreatureAI* GetAI_npc_twiggy_flathead(Creature *_Creature)
 {
     return new npc_twiggy_flatheadAI (_Creature);
 }
+
+/*#####
+## npc_wizzlecrank_shredder	 TODO: Pilot scripting
+#####*/
+
+#define SAY_PROGRESS_1	"Alright, alright I think I can figure out how to operate this thing..."
+#define SAY_PROGRESS_2	"Arrrgh! This isn't right!"
+#define SAY_PROGRESS_3	"Okay, I think I've got it, now. Follow me, $N!"
+
+#define SAY_MERCENARY_4	"There's the stolen shredder! Stop it or Lugwizzle will have our hides!"
+
+#define SAY_PROGRESS_5	"Looks like we're out of woods, eh? Wonder what this does..."
+#define SAY_PROGRESS_6	"Come on, don't break down on me now!"
+#define SAY_PROGRESS_7	"That was a close one! Well, let's get going, it's still a ways to Ratchet!"
+#define SAY_PROGRESS_8	"Hmm... I don't think this blinking red light is a good thing..."
+
+#define SAY_PILOT_9		"Looks like you'll have to go ahead to Ratchet and tell Sputtervalve that I've wrecked the shredder."
+#define SAY_PILOT_10	"I'll stay behind and guard the wreck. Hurry! Hopefully no one will notice the smoke..."
+
+#define QUEST_ESCAPE	863
+#define NPC_PILOT		3451
+#define MOB_MERCENARY	3282
+
+struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
+{
+	npc_wizzlecrank_shredderAI(Creature* c) : npc_escortAI(c) {Reset();}
+
+	void WaypointReached(uint32 i)
+	{
+		Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+
+		if(!player)
+			return;
+
+		switch(i)
+		{
+		case 0: DoSay(SAY_PROGRESS_1, LANG_UNIVERSAL, NULL);
+			m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
+		case 1: DoSay(SAY_PROGRESS_2, LANG_UNIVERSAL, NULL); break;
+		case 10: DoSay(SAY_PROGRESS_3, LANG_UNIVERSAL, player);
+			m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
+		case 20:{
+			Unit* Mercenary = FindCreature(MOB_MERCENARY, 99);
+			if(Mercenary)
+			{
+				((Creature*)Mercenary)->Yell(SAY_MERCENARY_4, LANG_UNIVERSAL, NULL);
+				Mercenary->Attack(m_creature, true); 
+			}
+				}break;
+		case 21: DoSay(SAY_PROGRESS_5, LANG_UNIVERSAL, NULL);
+			m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
+		case 28: DoSay(SAY_PROGRESS_6, LANG_UNIVERSAL, NULL); break;
+		case 29: DoSay(SAY_PROGRESS_7, LANG_UNIVERSAL, NULL); break;
+		case 30: DoSay(SAY_PROGRESS_8, LANG_UNIVERSAL, NULL); break;
+		case 31: m_creature->SummonCreature(NPC_PILOT, 1088.77, -2985.39, 91.84, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 300000);
+			m_creature->setDeathState(JUST_DIED);
+			if (player && player->GetTypeId() == TYPEID_PLAYER)
+                    ((Player*)player)->GroupEventHappens(QUEST_ESCAPE, m_creature);
+			break;
+		case 32: {Unit* Pilot = FindCreature(NPC_PILOT, 30);
+			if(Pilot)
+				((Creature*)Pilot)->Say(SAY_PILOT_9, LANG_UNIVERSAL, NULL);}break;
+		case 33:{ Unit* Pilot = FindCreature(NPC_PILOT, 30);
+			if(Pilot)
+				((Creature*)Pilot)->Say(SAY_PILOT_10, LANG_UNIVERSAL, NULL);} break;																	   
+		}
+	}
+
+	void Reset()
+	{
+		m_creature->setDeathState(ALIVE);
+	}
+
+	void Aggro(Unit* who){}
+
+	void JustDied(Unit* killer)
+	{
+		if (PlayerGUID)
+        {
+			Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+            if (player)
+                ((Player*)player)->FailQuest(QUEST_ESCAPE);
+        }
+	}
+
+	void UpdateAI(const uint32 diff)
+	{
+		npc_escortAI::UpdateAI(diff);
+	}
+};
+
+bool QuestAccept_npc_wizzlecrank_shredder(Player* player, Creature* creature, Quest const* quest)
+{
+    if (quest->GetQuestId() == QUEST_ESCAPE)
+    {
+        ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
+		creature->setFaction(35);
+    }
+    return true;
+}
+
+CreatureAI* GetAI_npc_wizzlecrank_shredderAI(Creature *_Creature)
+{
+	npc_wizzlecrank_shredderAI* thisAI = new npc_wizzlecrank_shredderAI(_Creature);
+
+	thisAI->AddWaypoint(0, 1109.15, -3104.11, 82.41, 6000);//say1 spw
+	thisAI->AddWaypoint(1, 1105.39, -3102.86, 82.74, 2000);//say2 crazy running
+	thisAI->AddWaypoint(2, 1104.97, -3108.52, 83.10, 1000);
+	thisAI->AddWaypoint(3, 1110.01, -3110.48, 82.81, 1000);
+	thisAI->AddWaypoint(4, 1111.72, -3103.03, 82.21, 1000);
+	thisAI->AddWaypoint(5, 1106.98, -3099.44, 82.18, 1000);
+	thisAI->AddWaypoint(6, 1103.74, -3103.29, 83.05, 1000);
+	thisAI->AddWaypoint(7, 1112.55, -3106.56, 82.31, 1000);
+	thisAI->AddWaypoint(8, 1108.12, -3111.04, 82.99, 1000);
+	thisAI->AddWaypoint(9, 1109.32, -3100.39, 82.08, 1000);
+	thisAI->AddWaypoint(10, 1109.32, -3100.39, 82.08, 6000);//end of crazy running
+	thisAI->AddWaypoint(11, 1098.92, -3095.14, 82.97);
+	thisAI->AddWaypoint(12, 1100.94, -3082.60, 82.83);
+	thisAI->AddWaypoint(13, 1101.12, -3068.83, 82.53);
+	thisAI->AddWaypoint(14, 1096.97, -3051,99, 82.50);
+	thisAI->AddWaypoint(15, 1094.06, -3036.79, 82.70);
+	thisAI->AddWaypoint(16, 1098.22, -3027.84, 83.79);
+	thisAI->AddWaypoint(17, 1109.51, -3015.92, 85.73);
+	thisAI->AddWaypoint(18, 1119.87, -3007.21, 87.08);
+	thisAI->AddWaypoint(19, 1130.23, -3002.49, 91.27, 5000);//twice
+	thisAI->AddWaypoint(20, 1130.23, -3002.49, 91.27, 3000);//mercenary
+	thisAI->AddWaypoint(21, 1130.23, -3002.49, 91.27, 4000);//say
+	thisAI->AddWaypoint(22, 1129.73, -2985.89, 92.46);//crazy running
+	thisAI->AddWaypoint(23, 1124.10, -2983.29, 92.81);
+	thisAI->AddWaypoint(24, 1111.74, -2992.38, 91.59);
+	thisAI->AddWaypoint(25, 1111.06, -2976.54, 91.81);
+	thisAI->AddWaypoint(26, 1099.91, -2991.17, 91.67);
+	thisAI->AddWaypoint(27, 1096.32, -2981.55, 91.73);
+	thisAI->AddWaypoint(28, 1091.28, -2985.82, 91.74, 4000);//6
+	thisAI->AddWaypoint(29, 1091.28, -2985.82, 91.74, 3000);//7
+	thisAI->AddWaypoint(30, 1091.28, -2985.82, 91.74, 7000);//8
+	thisAI->AddWaypoint(31, 1091.28, -2985.82, 91.74, 3000);//justdied summon creature
+	thisAI->AddWaypoint(32, 1091.28, -2985.82, 91.74, 2000);//9
+	thisAI->AddWaypoint(33, 1091.28, -2985.82, 91.74, 7000);//10
+
+	return (CreatureAI*)thisAI;
+}
+
 void AddSC_the_barrens()
 {
     Script *newscript;
@@ -387,4 +533,10 @@ void AddSC_the_barrens()
     newscript->Name="npc_twiggy_flathead";
     newscript->GetAI = &GetAI_npc_twiggy_flathead;
     newscript->RegisterSelf();
+
+	newscript = new Script;
+	newscript->Name="npc_wizzlecrank_shredder";
+	newscript->GetAI = &GetAI_npc_wizzlecrank_shredderAI;
+	newscript->pQuestAccept = &QuestAccept_npc_wizzlecrank_shredder;
+	newscript->RegisterSelf();
 }

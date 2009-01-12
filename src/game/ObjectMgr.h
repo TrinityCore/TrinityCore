@@ -107,6 +107,8 @@ struct AreaTrigger
     uint32 requiredItem2;
     uint32 heroicKey;
     uint32 heroicKey2;
+	uint32 heroicQuest;
+    std::string heroicQuestFailedText;
     uint32 requiredQuest;
     std::string requiredFailedText;
     uint32 target_mapId;
