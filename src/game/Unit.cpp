@@ -7183,7 +7183,7 @@ Unit* Unit::GetCharm() const
 
         sLog.outError("Unit::GetCharm: Charmed creature %u not exist.",GUID_LOPART(charm_guid));
         const_cast<Unit*>(this)->SetCharm(0);
-        const_cast<Unit*>(this)->SetMover(0);
+        //const_cast<Unit*>(this)->SetMover(0);
     }
 
     return NULL;
