@@ -7183,6 +7183,7 @@ Unit* Unit::GetCharm() const
 
         sLog.outError("Unit::GetCharm: Charmed creature %u not exist.",GUID_LOPART(charm_guid));
         const_cast<Unit*>(this)->SetCharm(0);
+        const_cast<Unit*>(this)->SetMover(0);
     }
 
     return NULL;
@@ -7201,10 +7202,7 @@ void Unit::SetPet(Pet* pet)
 void Unit::SetCharm(Unit* pet)
 {
     if(GetTypeId() == TYPEID_PLAYER)
-    {
         SetUInt64Value(UNIT_FIELD_CHARM, pet ? pet->GetGUID() : 0);
-        ((Player*)this)->m_mover = pet ? pet : this;
-    }
 }
 
 void Unit::AddPlayerToVision(Player* plr) 
@@ -11636,7 +11634,7 @@ void Unit::SetCharmedOrPossessedBy(Unit* charmer, bool possess)
     {
         if(((Player*)this)->isAFK())
             ((Player*)this)->ToggleAFK();
-        ((Player*)this)->SetViewport(GetGUID(), false);
+        ((Player*)this)->SetClientControl(this, 0);
     }
 
     // Pets already have a properly initialized CharmInfo, don't overwrite it.
@@ -11656,7 +11654,8 @@ void Unit::SetCharmedOrPossessedBy(Unit* charmer, bool possess)
         addUnitState(UNIT_STAT_POSSESSED);
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNKNOWN5);
         AddPlayerToVision((Player*)charmer);
-        ((Player*)charmer)->SetViewport(GetGUID(), true);
+        ((Player*)charmer)->SetClientControl(this, 1);
+        ((Player*)charmer)->SetMover(this);
         charmer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
     }
     // Charm demon
@@ -11726,7 +11725,7 @@ void Unit::RemoveCharmedOrPossessedBy(Unit *charmer)
         }
     }
     else
-        ((Player*)this)->SetViewport(GetGUID(), true);
+        ((Player*)this)->SetClientControl(this, 1);
 
     // If charmer still exists
     if(!charmer)
@@ -11738,7 +11737,8 @@ void Unit::RemoveCharmedOrPossessedBy(Unit *charmer)
     if(possess)
     {
         RemovePlayerFromVision((Player*)charmer);
-        ((Player*)charmer)->SetViewport(charmer->GetGUID(), true);
+        ((Player*)charmer)->SetClientControl(charmer, 1);
+        ((Player*)charmer)->SetMover(charmer);
         charmer->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
     }
     // restore UNIT_FIELD_BYTES_0

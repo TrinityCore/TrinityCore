@@ -301,7 +301,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
         GetPlayer()->HandleFallUnderMap();
 }
 
-void WorldSession::HandlePossessedMovement(WorldPacket& recv_data, MovementInfo& movementInfo, uint32& MovementFlags)
+/*void WorldSession::HandlePossessedMovement(WorldPacket& recv_data, MovementInfo& movementInfo, uint32& MovementFlags)
 {
     // Whatever the client is controlling, it will send the GUID of the original player.
     // If current player is controlling, it must be handled like the controlled player sent these opcodes
@@ -359,7 +359,7 @@ void WorldSession::HandlePossessedMovement(WorldPacket& recv_data, MovementInfo&
         Map* map = MapManager::Instance().GetMap(pos_unit->GetMapId(), pos_unit);
         map->CreatureRelocation((Creature*)pos_unit, movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
     }
-}
+}*/
 
 void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recv_data)
 {
