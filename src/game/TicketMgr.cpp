@@ -108,11 +108,12 @@ void TicketMgr::DeleteGMTicketPermanently(uint64 ticketGuid)
 
 void TicketMgr::LoadGMTickets()
 {
+	InitTicketID();
 	// Delete all out of object holder
 	GM_TicketList.clear();
 	QueryResult *result = CharacterDatabase.Query( "SELECT `guid`, `playerGuid`, `name`, `message`, `timestamp`, `closed`, `assignedto`, `comment` FROM `gm_tickets` WHERE `closed` = '0'" );
 	GM_Ticket *ticket;
-	
+
 	if(!result)
 		return;
 
@@ -168,18 +169,19 @@ void TicketMgr::RemoveGMTicketByPlayer(uint64 playerGuid, uint64 GMguid)
 
 void TicketMgr::SaveGMTicket(GM_Ticket* ticket)
 {
+	std::string msg = ticket->message;
+    CharacterDatabase.escape_string(msg);
 	std::stringstream ss;
-	ss << "REPLACE INTO `gm_tickets` (`guid`, `playerGuid`, `name`, `message`, `timestamp`, `closed`, `assignedto`, `comment`) VALUES(\"";
-	ss << ticket->guid << "\", \"";
-	ss << ticket->playerGuid << "\", \"";
-	ss << ticket->name << "\", \"";
-	ss << ticket->message << "\", \"" ;
-	ss << ticket->timestamp << "\", \"";
-	ss << ticket->closed << "\", \"";
-	ss << ticket->assignedToGM << "\", \"";
-	ss << ticket->comment << "\");";
-
-	CharacterDatabase.BeginTransaction();
+	ss << "REPLACE INTO `gm_tickets` (`guid`, `playerGuid`, `name`, `message`, `timestamp`, `closed`, `assignedto`, `comment`) VALUES('";
+	ss << ticket->guid << "', '";
+	ss << ticket->playerGuid << "', '";
+	ss << ticket->name << "', '";
+	ss << msg << "', '" ;
+	ss << ticket->timestamp << "', '";
+	ss << ticket->closed << "', '";
+	ss << ticket->assignedToGM << "', '";
+	ss << ticket->comment << "');";
+    CharacterDatabase.BeginTransaction();
 	CharacterDatabase.Execute(ss.str().c_str());
 	CharacterDatabase.CommitTransaction();
 		
@@ -190,7 +192,7 @@ void TicketMgr::UpdateGMTicket(GM_Ticket *ticket)
 	SaveGMTicket(ticket);
 }
 
-uint64 TicketMgr::GenerateTicketID()
+void TicketMgr::InitTicketID()
 {
 	QueryResult *result = CharacterDatabase.Query("SELECT MAX(guid) FROM gm_tickets");
 	if(result)
@@ -198,6 +200,9 @@ uint64 TicketMgr::GenerateTicketID()
 		m_ticketid = result->Fetch()[0].GetUInt64() + 1;
 		delete result;
 	}
+}
 
+uint64 TicketMgr::GenerateTicketID()
+{
 	return ++m_ticketid;
-}
+}

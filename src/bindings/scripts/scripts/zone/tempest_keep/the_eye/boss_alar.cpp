@@ -111,11 +111,12 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
 
         m_creature->SetDisplayId(m_creature->GetNativeDisplayId());
         m_creature->SetSpeed(MOVE_RUN, DefaultMoveSpeedRate);
-        m_creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
-        m_creature->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
+        //m_creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
+        //m_creature->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
         m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
         m_creature->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        m_creature->setActive(false);
     }
 
     void Aggro(Unit *who)
@@ -125,6 +126,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
 
         m_creature->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING); // after enterevademode will be set walk movement
         DoZoneInCombat();
+        m_creature->setActive(true);
     }
 
     void JustDied(Unit *victim)
@@ -136,13 +138,8 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
     void JustSummoned(Creature *summon)
     {
         if(summon->GetEntry() == CREATURE_EMBER_OF_ALAR)
-        {
             if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-            {
                 summon->AI()->AttackStart(target);
-                summon->SetInCombatWith(target);
-            }
-        }
     }
 
     void MoveInLineOfSight(Unit *who) {}
@@ -405,7 +402,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
             else
             {
                 Unit *target = NULL;
-                if(Phase1 && (target = m_creature->SelectNearbyTarget()) && m_creature->IsHostileTo(target)) // core bug, 1620 faction bugged
+                if(Phase1 && (target = m_creature->SelectNearestTarget(5)))
                     m_creature->AI()->AttackStart(target);
                 else                   
                 {

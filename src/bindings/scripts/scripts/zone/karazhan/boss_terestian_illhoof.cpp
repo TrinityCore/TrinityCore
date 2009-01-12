@@ -272,7 +272,8 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
             if(SummonKilrek && Kilrek)
             {
                 Kilrek->Respawn();
-                Kilrek->AI()->AttackStart(m_creature->getVictim());
+                if(Kilrek->AI())
+                    Kilrek->AI()->AttackStart(m_creature->getVictim());
 
                 SummonKilrek = false;
             }
