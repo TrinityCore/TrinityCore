@@ -723,8 +723,9 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player *player, WorldPacke
                 uint32 updatedAura=player->GetUInt32Value(UNIT_FIELD_AURA + i);
                 *data << uint16(updatedAura);
                 *data << uint8(1);
-                if(!updatedAura)
-                    player->UnsetAuraUpdateMask(i);
+                //TODO: find a safe place to do this cleanup
+                //if(!updatedAura)
+                    //player->UnsetAuraUpdateMask(i);
             }
         }
     }
@@ -807,8 +808,9 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player *player, WorldPacke
                     uint32 updatedAura=pet->GetUInt32Value(UNIT_FIELD_AURA + i);
                     *data << uint16(updatedAura);
                     *data << uint8(1);
-                    if(!updatedAura)
-                        pet->UnsetAuraUpdateMask(i);
+                //TODO: find a safe place to do this cleanup
+                    //if(!updatedAura)
+                        //pet->UnsetAuraUpdateMask(i);
                 }
             }
         }
