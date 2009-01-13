@@ -361,6 +361,13 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
             if (spellInfo->Dispel == DISPEL_POISON)
                 return SPELL_STING;
 
+            // only hunter aspects have this (but not all aspects in hunter family)
+            if( spellInfo->SpellFamilyFlags & 0x0044000000380000LL || spellInfo->SpellFamilyFlags2 & 0x00003010)
+                return SPELL_ASPECT;
+            
+            if( spellInfo->SpellFamilyFlags2 & 0x00000002 )
+                return SPELL_TRACKER;
+
             break;
         }
         case SPELLFAMILY_PALADIN:
@@ -404,20 +411,6 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
     {
         return SPELL_WARLOCK_ARMOR;
     }
-
-    // only hunter aspects have this (but not all aspects in hunter family)
-    if( spellInfo->activeIconID == 122 && (GetSpellSchoolMask(spellInfo) & SPELL_SCHOOL_MASK_NATURE) &&
-        (spellInfo->Attributes & 0x50000) != 0 && (spellInfo->Attributes & 0x9000010) == 0)
-    {
-        return SPELL_ASPECT;
-    }
-
-    for(int i = 0; i < 3; i++)
-        if( spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA && (
-        spellInfo->EffectApplyAuraName[i] == SPELL_AURA_TRACK_CREATURES ||
-        spellInfo->EffectApplyAuraName[i] == SPELL_AURA_TRACK_RESOURCES ||
-        spellInfo->EffectApplyAuraName[i] == SPELL_AURA_TRACK_STEALTHED ) )
-            return SPELL_TRACKER;
 
     // elixirs can have different families, but potion most ofc.
     if(SpellSpecific sp = spellmgr.GetSpellElixirSpecific(spellInfo->Id))
