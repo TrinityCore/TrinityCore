@@ -3479,6 +3479,10 @@ void Aura::HandleAuraModRoot(bool apply, bool Real)
     if(!Real)
         return;
 
+    // Frost root aura -> freeze/unfreeze target
+    if (GetSpellSchoolMask(m_spellProto) & SPELL_SCHOOL_MASK_FROST)
+        m_target->ModifyAuraState(AURA_STATE_FROZEN, apply);
+
     m_target->SetControlled(apply, UNIT_STAT_ROOT);
 }
 

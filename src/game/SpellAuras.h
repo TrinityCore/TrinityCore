@@ -304,8 +304,6 @@ class TRINITY_DLL_SPEC Aura
         void _AddAura();
         void _RemoveAura();
 
-        void TriggerSpell();
-
         bool IsUpdated() { return m_updated; }
         void SetUpdated(bool val) { m_updated = val; }
         void SetRemoveMode(AuraRemoveMode mode) { m_removeMode = mode; }
@@ -319,6 +317,7 @@ class TRINITY_DLL_SPEC Aura
         void setDiminishGroup(DiminishingGroup group) { m_AuraDRGroup = group; }
         DiminishingGroup getDiminishGroup() const { return m_AuraDRGroup; }
 
+        void TriggerSpell();
         void PeriodicTick();
         void PeriodicDummyTick();
 
