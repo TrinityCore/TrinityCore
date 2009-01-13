@@ -1731,6 +1731,8 @@ void Spell::EffectDummy(uint32 i)
             //Shaman Rockbiter Weapon
             if (m_spellInfo->SpellFamilyFlags == 0x400000)
             {
+                // TODO: use expect spell for enchant (if exist talent)
+                // In 3.0.3 no mods present for rockbiter
                 uint32 spell_id = 0;
                 switch(m_spellInfo->Id)
                 {
@@ -1738,11 +1740,6 @@ void Spell::EffectDummy(uint32 i)
                     case  8018: spell_id = 36750; break;    // Rank 2
                     case  8019: spell_id = 36755; break;    // Rank 3
                     case 10399: spell_id = 36759; break;    // Rank 4
-                    case 16314: spell_id = 36763; break;    // Rank 5
-                    case 16315: spell_id = 36766; break;    // Rank 6
-                    case 16316: spell_id = 36771; break;    // Rank 7
-                    case 25479: spell_id = 36775; break;    // Rank 8
-                    case 25485: spell_id = 36499; break;    // Rank 9
                     default:
                         sLog.outError("Spell::EffectDummy: Spell %u not handled in RW",m_spellInfo->Id);
                         return;
@@ -1791,7 +1788,29 @@ void Spell::EffectDummy(uint32 i)
                 m_caster->CastCustomSpell(unitTarget,39609,&EffectBasePoints0,NULL,NULL,true,NULL,NULL,m_originalCasterGUID);
                 return;
             }
-
+            // Lava Lash
+            if (m_spellInfo->SpellFamilyFlags2 & 0x00000004)
+            {
+                if (m_caster->GetTypeId()!=TYPEID_PLAYER)
+                    return;
+                Item *item = ((Player*)m_caster)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+                if (item)
+                {
+                    // Damage is increased if your off-hand weapon is enchanted with Flametongue.
+                    Unit::AuraList const& auraDummy = m_caster->GetAurasByType(SPELL_AURA_DUMMY);
+                    for(Unit::AuraList::const_iterator itr = auraDummy.begin(); itr != auraDummy.end(); ++itr)
+                    {
+                        if( (*itr)->GetSpellProto()->SpellFamilyName==SPELLFAMILY_SHAMAN && 
+                            (*itr)->GetSpellProto()->SpellFamilyFlags & 0x0000000000200000LL &&
+                            (*itr)->GetCastItemGUID() == item->GetGUID())
+                        {
+                           m_damage += m_damage * damage / 100;
+                           return;
+                        }
+                    }
+                }
+                return;
+            }
             break;
     }
 
@@ -2050,12 +2069,7 @@ void Spell::EffectTriggerMissileSpell(uint32 effect_idx)
     if (m_CastItem)
         DEBUG_LOG("WORLD: cast Item spellId - %i", spellInfo->Id);
 
-    Spell *spell = new Spell(m_caster, spellInfo, true, m_originalCasterGUID );
-
-    SpellCastTargets targets;
-    targets.setDestination(m_targets.m_destX,m_targets.m_destY,m_targets.m_destZ);
-    spell->m_CastItem = m_CastItem;
-    spell->prepare(&targets, NULL);
+    m_caster->CastSpell(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, spellInfo->Id, true, m_CastItem, 0, m_originalCasterGUID);
 }
 
 void Spell::EffectTeleportUnits(uint32 i)

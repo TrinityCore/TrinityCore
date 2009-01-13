@@ -1,15 +1,16 @@
-DELETE FROM `character_spell` WHERE `spell` IN ('28880', 59542, 59543, 59544, 59545, 59547, 59548);
-DELETE FROM `character_spell` WHERE `spell` IN (7376,3025,5419,5421,21156,7381,1178,21178,9635,21178,24905,5420,34123,33948,34090,34764,40121,40122);
-INSERT INTO character_spell SELECT characters.guid as guid, 28880, -1, 1, 0  FROM `characters` WHERE characters.race=11 AND characters.class = 1;
-INSERT INTO character_spell SELECT characters.guid as guid, 59542, -1, 1, 0  FROM `characters` WHERE characters.race=11 AND characters.class = 2;
-INSERT INTO character_spell SELECT characters.guid as guid, 59543, -1, 1, 0  FROM `characters` WHERE characters.race=11 AND characters.class = 3;
-INSERT INTO character_spell SELECT characters.guid as guid, 59544, -1, 1, 0  FROM `characters` WHERE characters.race=11 AND characters.class = 5;
-INSERT INTO character_spell SELECT characters.guid as guid, 59545, -1, 1, 0  FROM `characters` WHERE characters.race=11 AND characters.class = 6;
-INSERT INTO character_spell SELECT characters.guid as guid, 59547, -1, 1, 0  FROM `characters` WHERE characters.race=11 AND characters.class = 7;
-INSERT INTO character_spell SELECT characters.guid as guid, 59548, -1, 1, 0  FROM `characters` WHERE characters.race=11 AND characters.class = 8;
-
 ALTER TABLE character_spell
     DROP slot;
+DELETE FROM `character_spell` WHERE `spell` IN (28880, 59542, 59543, 59544, 59545, 59547, 59548);
+DELETE FROM `character_spell` WHERE `spell` IN (7376,3025,5419,5421,21156,7381,1178,21178,9635,21178,24905,5420,34123,33948,34090,34764,40121,40122);
+DELETE FROM character_spell WHERE `spell` IN (
+ 20580, /*old Shadowmeld*/
+ 20600, /*Perception*/
+ 21009, /*old Shadowmeld Passive and new Elusiveness (learned as racial passive)*/
+ 21184  /*old Seal of Righteousness*/
+);
+/*old Shadow Resistance, leaned as racial passive of race 5 */
+DELETE FROM character_spell USING character_spell INNER JOIN characters ON character_spell.guid = characters.guid
+WHERE character_spell.spell = 20579 AND characters.race <> 5;
 
 alter table `character_pet`
     drop column `trainpoint`,
