@@ -12542,6 +12542,8 @@ bool Unit::HandleMeandingAuraProc( Aura* triggeredByAura )
 void Unit::RemoveAurasAtChanneledTarget(SpellEntry const* spellInfo)
 {
     uint64 target_guid = GetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT);
+    if(target_guid == GetGUID())
+        return;
 
     if(!IS_UNIT_GUID(target_guid))
         return;
