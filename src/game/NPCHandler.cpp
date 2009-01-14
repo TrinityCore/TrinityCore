@@ -166,17 +166,17 @@ void WorldSession::SendTrainerList( uint64 guid, const std::string& strTitle )
     {
         TrainerSpell const* tSpell = *itr;
 
-        if(!_player->IsSpellFitByClassAndRace(tSpell->spell))
+        if(!_player->IsSpellFitByClassAndRace(tSpell->learned_spell))
             continue;
 
         ++count;
 
-        bool primary_prof_first_rank = spellmgr.IsPrimaryProfessionFirstRankSpell(tSpell->spell);
+        bool primary_prof_first_rank = spellmgr.IsPrimaryProfessionFirstRankSpell(tSpell->learned_spell);
 
-        SpellChainNode const* chain_node = spellmgr.GetSpellChainNode(tSpell->spell);
+        SpellChainNode const* chain_node = spellmgr.GetSpellChainNode(tSpell->learned_spell);
         uint32 req_spell = spellmgr.GetSpellRequired(tSpell->spell);
 
-        data << uint32(tSpell->spell);
+        data << uint32(tSpell->spell);                      // learned spell (or cast-spell in profession case)
         data << uint8(_player->GetTrainerSpellState(tSpell));
         data << uint32(floor(tSpell->spellcost * fDiscountMod));
 
@@ -241,21 +241,27 @@ void WorldSession::HandleTrainerBuySpellOpcode( WorldPacket & recv_data )
     if(_player->GetMoney() < nSpellCost )
         return;
 
-    WorldPacket data(SMSG_PLAY_SPELL_VISUAL, 12);           // visual effect on trainer
-    data << uint64(guid) << uint32(0xB3);
-    SendPacket(&data);
-
-    data.Initialize(SMSG_PLAY_SPELL_IMPACT, 12);            // visual effect on player
-    data << uint64(_player->GetGUID()) << uint32(0x016A);
-    SendPacket(&data);
-
     _player->ModifyMoney( -int32(nSpellCost) );
 
-    // learn explicitly to prevent lost money at lags, learning spell will be only show spell animation
-    _player->learnSpell(trainer_spell->spell);
+    // learn explicitly or cast explicitly
+    if(trainer_spell->IsCastable ())
+        //FIXME: prof. spell entry in trainer list not marked gray until list re-open.
+        unit->CastSpell(_player,trainer_spell->spell,true);
+    else
+    {
+        WorldPacket data(SMSG_PLAY_SPELL_VISUAL, 12);           // visual effect on trainer
+        data << uint64(guid) << uint32(0xB3);
+        SendPacket(&data);
 
-    data.Initialize(SMSG_TRAINER_BUY_SUCCEEDED, 12);
-    data << uint64(guid) << uint32(spellId);
+        data.Initialize(SMSG_PLAY_SPELL_IMPACT, 12);            // visual effect on player
+        data << uint64(_player->GetGUID()) << uint32(0x016A);
+        SendPacket(&data);
+
+        _player->learnSpell(spellId);
+    }
+
+    WorldPacket data(SMSG_TRAINER_BUY_SUCCEEDED, 12);
+    data << uint64(guid) << uint32(trainer_spell->spell);
     SendPacket(&data);
 }
 
