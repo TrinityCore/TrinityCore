@@ -868,6 +868,7 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
             Creature* DrainedPhaseHunter = NULL;
              
             if(!DrainedPhaseHunter)
+				DrainedPhaseHunter = m_creature->SummonCreature(SUMMONED_MOB, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000); // summon the mob
              
             if(DrainedPhaseHunter)
             {
@@ -956,10 +957,7 @@ struct TRINITY_DLL_DECL npc_bessyAI : public npc_escortAI
         summoned->AI()->AttackStart(m_creature);
     }
 
-    void Aggro(Unit* who)
-    {
-
-    }
+    void Aggro(Unit* who){}
 
     void Reset()
     {
@@ -970,7 +968,8 @@ struct TRINITY_DLL_DECL npc_bessyAI : public npc_escortAI
     {
         npc_escortAI::UpdateAI(diff);
     }
-	};
+
+};
 
 bool QuestAccept_npc_bessy(Player* player, Creature* creature, Quest const* quest)
 {
