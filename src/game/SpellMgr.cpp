@@ -1225,7 +1225,7 @@ bool SpellMgr::canStackSpellRanks(SpellEntry const *spellInfo)
 {
     if(spellInfo->powerType != POWER_MANA && spellInfo->powerType != POWER_HEALTH)
         return false;
-    if(IsProfessionSpell(spellInfo->Id))
+    if(IsProfessionOrRidingSpell(spellInfo->Id))
         return false;
 
     // All stance spells. if any better way, change it.
@@ -1327,7 +1327,8 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
 
     return true;
 }
-bool SpellMgr::IsProfessionSpell(uint32 spellId)
+
+bool SpellMgr::IsProfessionOrRidingSpell(uint32 spellId)
 {
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
     if(!spellInfo)
@@ -1338,7 +1339,7 @@ bool SpellMgr::IsProfessionSpell(uint32 spellId)
 
     uint32 skill = spellInfo->EffectMiscValue[1];
 
-    return IsProfessionSkill(skill);
+    return IsProfessionOrRidingSkill(skill);
 }
 
 bool SpellMgr::IsPrimaryProfessionSpell(uint32 spellId)

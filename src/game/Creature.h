@@ -372,6 +372,10 @@ struct TrainerSpell
     uint32 reqskill;
     uint32 reqskillvalue;
     uint32 reqlevel;
+    uint32 learned_spell;
+
+    // helpers
+    bool IsCastable() const { return learned_spell != spell; }
 };
 
 typedef std::vector<TrainerSpell*> TrainerSpellList;

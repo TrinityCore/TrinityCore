@@ -757,6 +757,11 @@ typedef std::vector<uint32> SpellCustomAttribute;
 
 typedef std::map<int32, std::vector<int32> > SpellLinkedMap;
 
+inline bool IsProfessionOrRidingSkill(uint32 skill)
+{
+    return  IsProfessionSkill(skill) || skill == SKILL_RIDING;
+}
+
 class SpellMgr
 {
     // Constructors
@@ -935,6 +940,7 @@ class SpellMgr
             return false;
         }
 
+        static bool IsProfessionOrRidingSpell(uint32 spellId);
         static bool IsProfessionSpell(uint32 spellId);
         static bool IsPrimaryProfessionSpell(uint32 spellId);
         bool IsPrimaryProfessionFirstRankSpell(uint32 spellId) const;

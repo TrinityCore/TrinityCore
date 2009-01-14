@@ -815,10 +815,10 @@ struct GtRegenMPPerSptEntry
 struct ItemEntry
 {
    uint32   ID;
-   //uint32   Class;
-   //uint32   SubClass;
-   //uint32   Unk0;
-   //uint32   Material;
+   uint32   Class;
+   uint32   SubClass;
+   uint32   Unk0;
+   uint32   Material;
    uint32   DisplayId;
    uint32   InventoryType;
    uint32   Sheath;
