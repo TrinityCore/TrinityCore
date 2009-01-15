@@ -41,6 +41,7 @@ item_voodoo_charm                   Provide proper error message and target(q256
 item_vorenthals_presence(i30259)    Prevents abuse of this item
 item_yehkinyas_bramble(i10699)      Allow cast spell on vale screecher only and remove corpse if cast sucessful (q3520)
 item_zezzak_shard(i31463)           Quest The eyes of Grillok (q10813). Prevents abuse
+item_inoculating_crystal			Quest Inoculating. Prevent abuse
 EndContentData */
 
 #include "precompiled.h"
@@ -286,6 +287,25 @@ bool ItemUse_item_muiseks_vessel(Player *player, Item* _Item, SpellCastTargets c
 }
 
 /*#####
+# item_inoculating_crystal
+#####*/
+
+bool ItemUse_item_inoculating_crystal(Player *player, Item* _Item, SpellCastTargets const& targets)
+{
+    if( targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId()==TYPEID_UNIT &&
+        targets.getUnitTarget()->GetEntry() == 16518 )
+        return false;
+
+    WorldPacket data(SMSG_CAST_FAILED, (4+2));              // prepare packet error message
+    data << uint32(_Item->GetEntry());                      // itemId
+    data << uint8(SPELL_FAILED_BAD_TARGETS);                // reason
+    player->GetSession()->SendPacket(&data);                // send message: Invalid target
+
+    player->SendEquipError(EQUIP_ERR_NONE,_Item,NULL);      // break spell
+    return true;
+}
+
+/*#####
 # item_razorthorn_flayer_gland
 #####*/
 
@@ -517,6 +537,11 @@ void AddSC_item_scripts()
     newscript = new Script;
     newscript->Name="item_muiseks_vessel";
     newscript->pItemUse = &ItemUse_item_muiseks_vessel;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="item_inoculating_crystal";
+    newscript->pItemUse = &ItemUse_item_inoculating_crystal;
     newscript->RegisterSelf();
 
     newscript = new Script;
