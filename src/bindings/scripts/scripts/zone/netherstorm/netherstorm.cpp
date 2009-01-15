@@ -975,7 +975,8 @@ bool QuestAccept_npc_bessy(Player* player, Creature* creature, Quest const* ques
 {
     if (quest->GetQuestId() == Q_ALMABTRIEB)
     {
-		creature->setFaction(1603);
+		creature->setFaction(113);
+		creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
     }
     return true;
