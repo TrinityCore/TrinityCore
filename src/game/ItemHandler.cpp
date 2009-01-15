@@ -324,7 +324,7 @@ void WorldSession::HandleItemQuerySingleOpcode( WorldPacket & recv_data )
         data << pProto->ItemId;
         data << pProto->Class;
         data << pProto->SubClass;
-        data << pProto->Unk0;                               // new 2.0.3, not exist in wdb cache?
+        data << int32(pProto->Unk0);                        // new 2.0.3, not exist in wdb cache?
         data << Name;
         data << uint8(0x00);                                //pProto->Name2; // blizz not send name there, just uint8(0x00); <-- \0 = empty string = empty name...
         data << uint8(0x00);                                //pProto->Name3; // blizz not send name there, just uint8(0x00);
@@ -420,7 +420,7 @@ void WorldSession::HandleItemQuerySingleOpcode( WorldPacket & recv_data )
         data << pProto->PageMaterial;
         data << pProto->StartQuest;
         data << pProto->LockID;
-        data << pProto->Material;
+        data << int32(pProto->Material);
         data << pProto->Sheath;
         data << pProto->RandomProperty;
         data << pProto->RandomSuffix;
