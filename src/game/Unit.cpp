@@ -4596,6 +4596,11 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     Aura* Aur = i->second;
     SpellEntry const* AurSpellInfo = Aur->GetSpellProto();
 
+    // some ShapeshiftBoosts at remove trigger removing other auras including parent Shapeshift aura
+    // remove aura from list before to prevent deleting it before
+    m_Auras.erase(i);
+    ++m_removedAuras;                                       // internal count used by unit update
+
     Unit* caster = NULL;
     if (IsSingleTargetSpell(AurSpellInfo))
     {
@@ -4615,22 +4620,20 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     // remove from list before mods removing (prevent cyclic calls, mods added before including to aura list - use reverse order)
     if (Aur->GetModifier()->m_auraname < TOTAL_AURAS)
     {
-        m_modAuras[(*i).second->GetModifier()->m_auraname].remove((*i).second);
-        if((*i).second->GetSpellProto()->AuraInterruptFlags)
+        m_modAuras[Aur->GetModifier()->m_auraname].remove(Aur);
+
+        if(Aur->GetSpellProto()->AuraInterruptFlags)
         {
-            m_interruptableAuras.remove((*i).second);
+            m_interruptableAuras.remove(Aur);
             UpdateInterruptMask();
         }
-        if((*i).second->GetSpellProto()->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE)
-            m_ccAuras.remove((*i).second);
+
+        if(Aur->GetSpellProto()->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE)
+            m_ccAuras.remove(Aur);
     }
 
     // Set remove mode
     Aur->SetRemoveMode(mode);
-    // some ShapeshiftBoosts at remove trigger removing other auras including parent Shapeshift aura
-    // remove aura from list before to prevent deleting it before
-    m_Auras.erase(i);
-    ++m_removedAuras;                                       // internal count used by unit update
 
     // Statue unsummoned at aura remove
     Totem* statue = NULL;
@@ -4651,12 +4654,12 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
 
     if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(-(int32)Aur->GetSpellProto()->Id))
     {
-        for(std::vector<int32>::const_iterator i = spell_triggered->begin(); i != spell_triggered->end(); ++i)
+        for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
         {
             if(spell_triggered < 0)
-                RemoveAurasDueToSpell(-(*i));
+                RemoveAurasDueToSpell(-(*itr));
             else if(Unit* caster = Aur->GetCaster())
-                CastSpell(this, *i, true, 0, 0, caster->GetGUID());
+                CastSpell(this, *itr, true, 0, 0, caster->GetGUID());
         }
     }
 
