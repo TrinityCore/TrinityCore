@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Undercity
 SD%Complete: 95
-SDComment: Quest support: 6628(Parqual Fintallas questions/'answers' might have more to it, need more info), 9180(post-event).
+SDComment: Quest support: 6628, 9180(post-event).
 SDCategory: Undercity
 EndScriptData */
 
