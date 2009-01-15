@@ -108,7 +108,6 @@ Unit::Unit()
     //m_AurasCheck = 2000;
     //m_removeAuraTimer = 4;
     //tmpAura = NULL;
-    waterbreath = false;
 
     m_Visibility = VISIBILITY_ON;
 
@@ -1586,18 +1585,6 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
 
         if(roll_chance_f(Probability))
             CastSpell(pVictim, 1604, true);
-    }
-
-    // update at damage Judgement aura duration that applied by attacker at victim
-    if(damageInfo->damage)
-    {
-        AuraMap& vAuras = pVictim->GetAuras();
-        for(AuraMap::iterator itr = vAuras.begin(); itr != vAuras.end(); ++itr)
-        {
-            SpellEntry const *spellInfo = (*itr).second->GetSpellProto();
-            if( spellInfo->AttributesEx3 & 0x40000 && spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN && ((*itr).second->GetCasterGUID() == GetGUID()))
-                (*itr).second->RefreshAura();
-        }
     }
 
     // If not miss
@@ -5397,7 +5384,13 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 basepoints0 = GetAttackTime(BASE_ATTACK) * int32(ap*0.022f + 0.044f * holy) / 1000;
                 break;
             }
-
+            // Sacred Shield
+            if (dummySpell->SpellFamilyFlags&0x0008000000000000LL)
+            {
+                triggered_spell_id = 58597;
+                target = this;
+                break;
+            }
             switch(dummySpell->Id)
             {
                 // Judgement of Light
@@ -7856,13 +7849,21 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                 }
                 // Glyph of Shadowburn
                 if (spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK &&
-                    spellProto->SpellFamilyFlags & 0x0000000000000080 && 
+                    spellProto->SpellFamilyFlags & 0x0000000000000080LL && 
                     pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT))
                 {
                     AuraList const& mOverrideClassScript = GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
                     for(AuraList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
                         if((*i)->GetModifier()->m_miscvalue == 7917)
                             crit_chance+=(*i)->GetModifier()->m_amount;
+                }
+                // Sacred Shield
+                if (spellProto->SpellFamilyName == SPELLFAMILY_PALADIN &&
+                    spellProto->SpellFamilyFlags & 0x0000000040000000LL)
+                {
+                    Aura *aura = pVictim->GetDummyAura(58597);
+                    if (aura && aura->GetCasterGUID() == GetGUID())
+                        crit_chance+=aura->GetModifier()->m_amount;
                 }
             }
             break;

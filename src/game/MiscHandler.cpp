@@ -977,7 +977,7 @@ void WorldSession::HandleRequestAccountData(WorldPacket& recv_data)
     dest.resize(size);
 
     uLongf destSize = size;
-    if(compress(const_cast<uint8*>(dest.contents()), &destSize, (uint8*)adata->Data.c_str(), size) != Z_OK)
+    if(size && compress(const_cast<uint8*>(dest.contents()), &destSize, (uint8*)adata->Data.c_str(), size) != Z_OK)
     {
         sLog.outDebug("RAD: Failed to compress account data");
         return;

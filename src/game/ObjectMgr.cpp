@@ -1693,21 +1693,29 @@ void ObjectMgr::LoadItemPrototypes()
 
         if(dbcitem)
         {
-            if(proto->Class != dbcitem->Class || proto->SubClass != dbcitem->SubClass)
+            if(proto->Class != dbcitem->Class)
+            {
+                sLog.outErrorDb("Item (Entry: %u) not correct ñlass %u, must be %u (still using DB value).",i,proto->Class,dbcitem->Class);
+                // It safe let use Class from DB
+            }
+            /* disabled: have some strange wrong cases for Subclass values.
+               for enable also uncomment Subclass field in ItemEntry structure and in Itemfmt[]
+            if(proto->SubClass != dbcitem->SubClass)
             {
                 sLog.outErrorDb("Item (Entry: %u) not correct (Class: %u, Sub: %u) pair, must be (Class: %u, Sub: %u) (still using DB value).",i,proto->Class,proto->SubClass,dbcitem->Class,dbcitem->SubClass);
-                // It safe let use Class/Subclass from DB
+                // It safe let use Subclass from DB
             }
+            */
 
             if(proto->Unk0 != dbcitem->Unk0)
             {
-                sLog.outErrorDb("Item (Entry: %u) not correct %u Unk0, must be %u (still using DB value).",i,proto->Unk0,dbcitem->Unk0);
+                sLog.outErrorDb("Item (Entry: %u) not correct %i Unk0, must be %i (still using DB value).",i,proto->Unk0,dbcitem->Unk0);
                 // It safe let use Unk0 from DB
             }
 
             if(proto->Material != dbcitem->Material)
             {
-                sLog.outErrorDb("Item (Entry: %u) not correct %u material, must be %u (still using DB value).",i,proto->Material,dbcitem->Material);
+                sLog.outErrorDb("Item (Entry: %u) not correct %i material, must be %i (still using DB value).",i,proto->Material,dbcitem->Material);
                 // It safe let use Material from DB
             }
 

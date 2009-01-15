@@ -1972,7 +1972,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
     }
 }
 
-void Spell::prepare(SpellCastTargets * targets, Aura* triggeredByAura)
+void Spell::prepare(SpellCastTargets const* targets, Aura* triggeredByAura)
 {
     if(m_CastItem)
         m_castItemGUID = m_CastItem->GetGUID();
