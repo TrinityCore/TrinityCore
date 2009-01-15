@@ -128,59 +128,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     if(!Script->ItemUse(pUser,pItem,targets))
     {
         // no script or script not process request by self
-
-        // special learning case
-        if((pItem->GetProto()->Spells[0].SpellId==SPELL_ID_GENERIC_LEARN) || (pItem->GetProto()->Spells[0].SpellId==SPELL_ID_GENERIC_LEARN_PET))
-        {
-            uint32 learn_spell_id = pItem->GetProto()->Spells[0].SpellId;
-            uint32 learning_spell_id = pItem->GetProto()->Spells[1].SpellId;
-
-            SpellEntry const *spellInfo = sSpellStore.LookupEntry(learn_spell_id);
-            if(!spellInfo)
-            {
-                sLog.outError("Item (Entry: %u) in have wrong spell id %u, ignoring ",proto->ItemId, learn_spell_id);
-                pUser->SendEquipError(EQUIP_ERR_NONE,pItem,NULL);
-                return;
-            }
-
-            Spell *spell = new Spell(pUser, spellInfo, false);
-            spell->m_CastItem = pItem;
-            spell->m_cast_count = cast_count;               //set count of casts
-            spell->m_currentBasePoints[0] = learning_spell_id;
-            spell->prepare(&targets);
-            return;
-        }
-
-        // use triggered flag only for items with many spell casts and for not first cast
-        int count = 0;
-
-        for(int i = 0; i < 5; ++i)
-        {
-            _Spell const& spellData = pItem->GetProto()->Spells[i];
-
-            // no spell
-            if(!spellData.SpellId)
-                continue;
-
-            // wrong triggering type
-            if( spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_USE && spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_NO_DELAY_USE)
-                continue;
-
-            SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellData.SpellId);
-            if(!spellInfo)
-            {
-                sLog.outError("Item (Entry: %u) in have wrong spell id %u, ignoring ",proto->ItemId, spellData.SpellId);
-                continue;
-            }
-
-            Spell *spell = new Spell(pUser, spellInfo, (count > 0));
-            spell->m_CastItem = pItem;
-            spell->m_cast_count = cast_count;               // set count of casts
-            spell->m_glyphIndex = glyphIndex;               // glyph index
-            spell->prepare(&targets);
-
-            ++count;
-        }
+        pUser->CastItemUseSpell(pItem,targets,cast_count,glyphIndex);
     }
 }
 

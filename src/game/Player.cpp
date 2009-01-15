@@ -352,7 +352,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this)
     m_regenTimer = 0;
     m_weaponChangeTimer = 0;
     m_breathTimer = 0;
-    m_isunderwater = 0;
+    m_isunderwater = UNDERWATER_NONE;
     m_isInWater = false;
     m_drunkTimer = 0;
     m_drunk = 0;
@@ -930,14 +930,15 @@ void Player::EnvironmentalDamage(uint64 guid, EnviromentalDamage type, uint32 da
 
 void Player::HandleDrowning()
 {
-    if(!m_isunderwater)
+    if(!(m_isunderwater&~UNDERWATER_INLAVA))
         return;
 
     //if player is GM, have waterbreath, is dead or if breathing is disabled then return
-    if(waterbreath || isGameMaster() || !isAlive() || GetSession()->GetSecurity() >= sWorld.getConfig(CONFIG_DISABLE_BREATHING))
+    if(isGameMaster() || !isAlive() || HasAuraType(SPELL_AURA_WATER_BREATHING) || GetSession()->GetSecurity() >= sWorld.getConfig(CONFIG_DISABLE_BREATHING))
     {
         StopMirrorTimer(BREATH_TIMER);
-        m_isunderwater = 0;
+        // drop every flag _except_ LAVA - otherwise waterbreathing will prevent lava damage
+        m_isunderwater &= UNDERWATER_INLAVA;
         return;
     }
 
@@ -947,22 +948,22 @@ void Player::HandleDrowning()
     for(AuraList::const_iterator i = mModWaterBreathing.begin(); i != mModWaterBreathing.end(); ++i)
         UnderWaterTime = uint32(UnderWaterTime * (100.0f + (*i)->GetModifier()->m_amount) / 100.0f);
 
-    if ((m_isunderwater & 0x01) && !(m_isunderwater & 0x80) && isAlive())
+    if ((m_isunderwater & UNDERWATER_INWATER) && !(m_isunderwater & UNDERWATER_INLAVA) && isAlive())
     {
         //single trigger timer
-        if (!(m_isunderwater & 0x02))
+        if (!(m_isunderwater & UNDERWATER_WATER_TRIGGER))
         {
-            m_isunderwater|= 0x02;
+            m_isunderwater|= UNDERWATER_WATER_TRIGGER;
             m_breathTimer = UnderWaterTime + 1000;
         }
-        //single trigger "Breathbar"
-        if ( m_breathTimer <= UnderWaterTime && !(m_isunderwater & 0x04))
+        //single trigger "show Breathbar"
+        if ( m_breathTimer <= UnderWaterTime && !(m_isunderwater & UNDERWATER_WATER_BREATHB))
         {
-            m_isunderwater|= 0x04;
+            m_isunderwater|= UNDERWATER_WATER_BREATHB;
             StartMirrorTimer(BREATH_TIMER, UnderWaterTime);
         }
         //continuous trigger drowning "Damage"
-        if ((m_breathTimer == 0) && (m_isunderwater & 0x01))
+        if ((m_breathTimer == 0) && (m_isunderwater & UNDERWATER_INWATER))
         {
             //TODO: Check this formula
             uint64 guid = GetGUID();
@@ -973,33 +974,34 @@ void Player::HandleDrowning()
         }
     }
     //single trigger retract bar
-    else if (!(m_isunderwater & 0x01) && !(m_isunderwater & 0x08) && (m_isunderwater & 0x02) && (m_breathTimer > 0) && isAlive())
+    else if (!(m_isunderwater & UNDERWATER_INWATER) && (m_isunderwater & UNDERWATER_WATER_TRIGGER) && (m_breathTimer > 0) && isAlive())
     {
-        m_isunderwater = 0x08;
-
         uint32 BreathRegen = 10;
+        // m_breathTimer will be reduced in ModifyMirrorTimer
         ModifyMirrorTimer(BREATH_TIMER, UnderWaterTime, m_breathTimer,BreathRegen);
-        m_isunderwater = 0x10;
+        m_isunderwater = UNDERWATER_WATER_BREATHB_RETRACTING;
     }
     //remove bar
-    else if ((m_breathTimer < 50) && !(m_isunderwater & 0x01) && (m_isunderwater == 0x10))
+    else if ((m_breathTimer < 50) && !(m_isunderwater & UNDERWATER_INWATER) && (m_isunderwater == UNDERWATER_WATER_BREATHB_RETRACTING))
     {
         StopMirrorTimer(BREATH_TIMER);
-        m_isunderwater = 0;
+        m_isunderwater = UNDERWATER_NONE;
     }
 }
 
 void Player::HandleLava()
 {
-    if ((m_isunderwater & 0x80) && isAlive())
+    if ((m_isunderwater & UNDERWATER_INLAVA) && isAlive())
     {
+        /*
+         * arrai: how is this supposed to work? UNDERWATER_INLAVA is always set in this scope!
         // Single trigger Set BreathTimer
-        if (!(m_isunderwater & 0x80))
+        if (!(m_isunderwater & UNDERWATER_INLAVA))
         {
-            m_isunderwater|= 0x04;
+            m_isunderwater|= UNDERWATER_WATER_BREATHB;
             m_breathTimer = 1000;
         }
-
+        */
         // Reset BreathTimer and still in the lava
         if (!m_breathTimer)
         {
@@ -1013,10 +1015,10 @@ void Player::HandleLava()
             m_breathTimer = 1000;
         }
     }
-    else if (m_deathState == DEAD)                          // Disable breath timer and reset underwater flags
+    else if (!isAlive())                                    // Disable breath timer and reset underwater flags
     {
         m_breathTimer = 0;
-        m_isunderwater = 0;
+        m_isunderwater = UNDERWATER_NONE;
     }
 }
 
@@ -7125,6 +7127,92 @@ void Player::CastItemCombatSpell(Item *item,Unit* Target, WeaponAttackType attTy
     }
 }
 
+void Player::CastItemUseSpell(Item *item,SpellCastTargets const& targets,uint8 cast_count, uint32 glyphIndex)
+{
+    ItemPrototype const* proto = item->GetProto();
+    // special learning case
+    if(proto->Spells[0].SpellId==SPELL_ID_GENERIC_LEARN || proto->Spells[0].SpellId==SPELL_ID_GENERIC_LEARN_PET)
+    {
+        uint32 learn_spell_id = proto->Spells[0].SpellId;
+        uint32 learning_spell_id = proto->Spells[1].SpellId;
+
+        SpellEntry const *spellInfo = sSpellStore.LookupEntry(learn_spell_id);
+        if(!spellInfo)
+        {
+            sLog.outError("Player::CastItemUseSpell: Item (Entry: %u) in have wrong spell id %u, ignoring ",proto->ItemId, learn_spell_id);
+            SendEquipError(EQUIP_ERR_NONE,item,NULL);
+            return;
+        }
+
+        Spell *spell = new Spell(this, spellInfo, false);
+        spell->m_CastItem = item;
+        spell->m_cast_count = cast_count;                   //set count of casts
+        spell->m_currentBasePoints[0] = learning_spell_id;
+        spell->prepare(&targets);
+        return;
+    }
+
+    // use triggered flag only for items with many spell casts and for not first cast
+    int count = 0;
+
+    // item spells casted at use
+    for(int i = 0; i < 5; ++i)
+    {
+        _Spell const& spellData = proto->Spells[i];
+
+        // no spell
+        if(!spellData.SpellId)
+            continue;
+
+        // wrong triggering type
+        if( spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_USE && spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_NO_DELAY_USE)
+            continue;
+
+        SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellData.SpellId);
+        if(!spellInfo)
+        {
+            sLog.outError("Player::CastItemUseSpell: Item (Entry: %u) in have wrong spell id %u, ignoring",proto->ItemId, spellData.SpellId);
+            continue;
+        }
+
+        Spell *spell = new Spell(this, spellInfo, (count > 0));
+        spell->m_CastItem = item;
+        spell->m_cast_count = cast_count;                   // set count of casts
+        spell->m_glyphIndex = glyphIndex;                   // glyph index
+        spell->prepare(&targets);
+
+        ++count;
+    }
+
+    // Item enchantments spells casted at use
+    for(int e_slot = 0; e_slot < MAX_ENCHANTMENT_SLOT; ++e_slot)
+    {
+        uint32 enchant_id = item->GetEnchantmentId(EnchantmentSlot(e_slot));
+        SpellItemEnchantmentEntry const *pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
+        if(!pEnchant) continue;
+        for (int s=0;s<3;s++)
+        {
+            if(pEnchant->type[s]!=ITEM_ENCHANTMENT_TYPE_USE_SPELL)
+                continue;
+
+            SpellEntry const *spellInfo = sSpellStore.LookupEntry(pEnchant->spellid[s]);
+            if (!spellInfo)
+            {
+                sLog.outError("Player::CastItemUseSpell Enchant %i, cast unknown spell %i", pEnchant->ID, pEnchant->spellid[s]);
+                continue;
+            }
+
+            Spell *spell = new Spell(this, spellInfo, (count > 0));
+            spell->m_CastItem = item;
+            spell->m_cast_count = cast_count;               // set count of casts
+            spell->m_glyphIndex = glyphIndex;               // glyph index
+            spell->prepare(&targets);
+
+            ++count;
+        }
+    }
+}
+
 void Player::_RemoveAllItemMods()
 {
     sLog.outDebug("_RemoveAllItemMods start.");
@@ -12206,6 +12294,9 @@ void Player::ApplyEnchantment(Item *item,EnchantmentSlot slot,bool apply, bool a
                 }
                 break;
             }
+            case ITEM_ENCHANTMENT_TYPE_USE_SPELL:
+                // processed in Player::CastItemUseSpell
+                break;
             default:
                 sLog.outError("Unknown item enchantment display type: %d",enchant_display_type);
                 break;
@@ -19407,18 +19498,20 @@ PartyResult Player::CanUninviteFromGroup() const
 void Player::UpdateUnderwaterState( Map* m, float x, float y, float z )
 {
     float water_z  = m->GetWaterLevel(x,y);
-    float height_z = m->GetHeight(x,y,z, false);            // use .map base surface height
+    float terrain_z = m->GetHeight(x,y,z, false);           // use .map base surface height
     uint8 flag1    = m->GetTerrainType(x,y);
 
-    //!Underwater check, not in water if underground or above water level
-    if (height_z <= INVALID_HEIGHT || z < (height_z-2) || z > (water_z - 2) )
-        m_isunderwater &= 0x7A;
+    //!Underwater check, not in water if underground or above water level - take UC royal quater for example
+    if (terrain_z <= INVALID_HEIGHT || z < (terrain_z-2) || z > (water_z - 2) )
+        m_isunderwater &= ~UNDERWATER_INWATER;
     else if ((z < (water_z - 2)) && (flag1 & 0x01))
-        m_isunderwater |= 0x01;
+        m_isunderwater |= UNDERWATER_INWATER;
 
     //!in lava check, anywhere under lava level
-    if ((height_z <= INVALID_HEIGHT || z < (height_z - 0)) && (flag1 == 0x00) && IsInWater())
-        m_isunderwater |= 0x80;
+    if ((terrain_z <= INVALID_HEIGHT || z < (terrain_z - 0)) && (flag1 == 0x00) && IsInWater())
+        m_isunderwater |= UNDERWATER_INLAVA;
+    else
+        m_isunderwater &= ~UNDERWATER_INLAVA;
 }
 
 void Player::SetCanParry( bool value )
