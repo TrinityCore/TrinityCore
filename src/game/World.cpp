@@ -1308,7 +1308,7 @@ void World::SetInitialWorldSettings()
         exit(1);
 
     ///- Initialize game time and timers
-    sLog.outString( "DEBUG:: Initialize game time and timers" );
+    sLog.outDebug( "DEBUG:: Initialize game time and timers" );
     m_gameTime = time(NULL);
     m_startTime=m_gameTime;
 
@@ -1453,7 +1453,7 @@ void World::Update(time_t diff)
     {
         if(m_updateTimeSum > m_configs[CONFIG_INTERVAL_LOG_UPDATE])
         {
-            sLog.outString("Update time diff: %u. Players online: %u.", m_updateTimeSum / m_updateTimeCount, GetActiveSessionCount());
+            sLog.outBasic("Update time diff: %u. Players online: %u.", m_updateTimeSum / m_updateTimeCount, GetActiveSessionCount());
             m_updateTimeSum = m_updateTime;
             m_updateTimeCount = 1;
         }
