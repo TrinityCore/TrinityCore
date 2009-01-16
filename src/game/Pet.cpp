@@ -927,10 +927,10 @@ bool Pet::CreateBaseAtCreature(Creature* creature)
     }
     uint32 guid=objmgr.GenerateLowGuid(HIGHGUID_PET);
 
-    sLog.outBasic("SetInstanceID()");
+    sLog.outDebug("SetInstanceID()");
     SetInstanceId(creature->GetInstanceId());
 
-    sLog.outBasic("Create pet");
+    sLog.outDebug("Create pet");
     uint32 pet_number = objmgr.GeneratePetNumber();
     if(!Create(guid, creature->GetMap(), creature->GetEntry(), pet_number))
         return false;
