@@ -1695,7 +1695,7 @@ void ObjectMgr::LoadItemPrototypes()
         {
             if(proto->Class != dbcitem->Class)
             {
-                sLog.outErrorDb("Item (Entry: %u) not correct ñlass %u, must be %u (still using DB value).",i,proto->Class,dbcitem->Class);
+                sLog.outErrorDb("Item (Entry: %u) not correct class %u, must be %u (still using DB value).",i,proto->Class,dbcitem->Class);
                 // It safe let use Class from DB
             }
             /* disabled: have some strange wrong cases for Subclass values.
@@ -2656,6 +2656,67 @@ void ObjectMgr::LoadPlayerInfo()
                     pInfo->levelInfo[level] = pInfo->levelInfo[level-1];
                 }
             }
+        }
+    }
+
+    // Loading xp per level data
+    {
+        mPlayerXPperLevel.resize(sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL));
+        for (uint32 level = 0; level < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
+            mPlayerXPperLevel[level] = 0;
+
+        //                                                 0    1
+        QueryResult *result  = WorldDatabase.Query("SELECT lvl, xp_for_next_level FROM player_xp_for_level");
+
+        uint32 count = 0;
+
+        if (!result)
+        {
+            barGoLink bar( 1 );
+
+            sLog.outString();
+            sLog.outString( ">> Loaded %u xp for level definitions", count );
+            sLog.outErrorDb( "Error loading `player_xp_for_level` table or empty table.");
+            exit(1);
+        }
+
+        barGoLink bar( result->GetRowCount() );
+
+        do
+        {
+            Field* fields = result->Fetch();
+
+            uint32 current_level = fields[0].GetUInt32();
+            uint32 current_xp    = fields[1].GetUInt32();
+
+            if(current_level >= sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
+            {
+                if(current_level > STRONG_MAX_LEVEL)        // hardcoded level maximum
+                    sLog.outErrorDb("Wrong (> %u) level %u in `player_xp_for_level` table, ignoring.", STRONG_MAX_LEVEL,current_level);
+                else
+                    sLog.outDetail("Unused (> MaxPlayerLevel in mangosd.conf) level %u in `player_xp_for_levels` table, ignoring.",current_level);
+                continue;
+            }
+            //PlayerXPperLevel
+            mPlayerXPperLevel[current_level] = current_xp;
+            bar.step();
+            ++count;
+        }
+        while (result->NextRow());
+
+        delete result;
+
+        sLog.outString();
+        sLog.outString( ">> Loaded %u xp for level definitions", count );
+    }
+
+    // fill level gaps
+    for (uint32 level = 1; level < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
+    {
+        if( mPlayerXPperLevel[level] == 0)
+        {
+            sLog.outErrorDb("Level %i does not have XP for level data. Using data of level [%i] + 100.",level+1, level);
+            mPlayerXPperLevel[level] = mPlayerXPperLevel[level-1]+100;
         }
     }
 }
@@ -5883,6 +5944,13 @@ void ObjectMgr::LoadExplorationBaseXP()
 uint32 ObjectMgr::GetBaseXP(uint32 level)
 {
     return mBaseXPTable[level] ? mBaseXPTable[level] : 0;
+}
+
+uint32 ObjectMgr::GetXPForLevel(uint32 level)
+{
+    if (level < mPlayerXPperLevel.size())
+        return mPlayerXPperLevel[level];
+    return 0;
 }
 
 void ObjectMgr::LoadPetNames()
