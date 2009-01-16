@@ -231,7 +231,7 @@ bool Pet::LoadPetFromDB( Unit* owner, uint32 petentry, uint32 petnumber, bool cu
             SetUInt32Value(UNIT_FIELD_BYTES_0, 0x02020100);
             SetByteValue(UNIT_FIELD_BYTES_1, 1, fields[8].GetUInt32());
             SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE );
-            SetByteValue(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_UNK3 | UNIT_BYTE2_FLAG_AURAS | UNIT_BYTE2_FLAG_UNK5 );
+            SetByteValue(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY | UNIT_BYTE2_FLAG_AURAS | UNIT_BYTE2_FLAG_UNK5 );
 
             if(fields[12].GetBool())
                 SetByteValue(UNIT_FIELD_BYTES_2, 2, UNIT_RENAME_NOT_ALLOWED);
@@ -978,7 +978,7 @@ bool Pet::CreateBaseAtCreature(Creature* creature)
     {
         SetUInt32Value(UNIT_FIELD_BYTES_0, 0x02020100);
         SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE );
-        SetByteValue(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_UNK3 | UNIT_BYTE2_FLAG_AURAS | UNIT_BYTE2_FLAG_UNK5 );
+        SetByteValue(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY | UNIT_BYTE2_FLAG_AURAS | UNIT_BYTE2_FLAG_UNK5 );
         SetByteValue(UNIT_FIELD_BYTES_2, 2, UNIT_RENAME_ALLOWED);
 
         SetUInt32Value(UNIT_MOD_CAST_SPEED, creature->GetUInt32Value(UNIT_MOD_CAST_SPEED) );
@@ -1760,7 +1760,7 @@ bool Pet::Create(uint32 guidlow, Map *map, uint32 Entry, uint32 pet_number)
         return false;
 
     SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE );
-    SetByteValue(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_UNK3 | UNIT_BYTE2_FLAG_AURAS | UNIT_BYTE2_FLAG_UNK5 );
+    SetByteValue(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY | UNIT_BYTE2_FLAG_AURAS | UNIT_BYTE2_FLAG_UNK5 );
 
     if(getPetType() == MINI_PET)                            // always non-attackable
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
