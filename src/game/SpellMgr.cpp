@@ -1342,6 +1342,20 @@ bool SpellMgr::IsProfessionOrRidingSpell(uint32 spellId)
     return IsProfessionOrRidingSkill(skill);
 }
 
+bool SpellMgr::IsProfessionSpell(uint32 spellId)
+{
+    SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
+    if(!spellInfo)
+        return false;
+
+    if(spellInfo->Effect[1] != SPELL_EFFECT_SKILL)
+        return false;
+
+    uint32 skill = spellInfo->EffectMiscValue[1];
+
+    return IsProfessionSkill(skill);
+}
+
 bool SpellMgr::IsPrimaryProfessionSpell(uint32 spellId)
 {
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
