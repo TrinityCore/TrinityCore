@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Azuremyst_Isle
 SD%Complete: 75
-SDComment: Quest support: 9283, 9537, 9582, 9554, 9531(special flight path, proper model for mount missing). Injured Draenei cosmetic only
+SDComment: Quest support: 9283, 9537, 9582, 9554, 9531, 9303(special flight path, proper model for mount missing). Injured Draenei cosmetic only
 SDCategory: Azuremyst Isle
 EndScriptData */
 
@@ -28,6 +28,7 @@ npc_injured_draenei
 npc_magwin
 npc_susurrus
 npc_geezle
+mob_nestlewood_owlkin
 EndContentData */
 
 #include "precompiled.h"
@@ -608,8 +609,59 @@ CreatureAI* GetAI_npc_geezleAI(Creature *_Creature)
 }
 
 /*######
-##
+## mob_nestlewood_owlkin
 ######*/
+
+#define INOCULATION_CHANNEL	29528
+#define INOCULATED_OWLKIN	16534
+
+struct TRINITY_DLL_DECL mob_nestlewood_owlkinAI : public ScriptedAI
+{
+    mob_nestlewood_owlkinAI(Creature *c) : ScriptedAI(c) {Reset();}
+
+	uint32 ChannelTimer;
+	bool Channeled;
+	bool Hitted;
+
+    void Reset()
+    {
+		ChannelTimer = 0;
+		Channeled = false;
+		Hitted = false;
+    }
+
+    void Aggro(Unit *who){}
+
+    void SpellHit(Unit* caster, const SpellEntry* spell)
+    {
+        if(!caster)
+            return;
+
+        if(caster->GetTypeId() == TYPEID_PLAYER && spell->Id == INOCULATION_CHANNEL)
+		{
+			ChannelTimer = 3000;
+			Hitted = true;
+		}
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+		if(ChannelTimer < diff && !Channeled && Hitted)
+		{
+			m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+			m_creature->RemoveCorpse();
+			m_creature->SummonCreature(INOCULATED_OWLKIN, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 180000);
+			Channeled = true;
+		}else ChannelTimer -= diff;
+
+		DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_mob_nestlewood_owlkinAI(Creature *_Creature)
+{
+    return new mob_nestlewood_owlkinAI (_Creature);
+}
 
 void AddSC_azuremyst_isle()
 {
@@ -647,6 +699,11 @@ void AddSC_azuremyst_isle()
 	newscript = new Script;
 	newscript->Name="npc_geezle";
 	newscript->GetAI = &GetAI_npc_geezleAI;
+	newscript->RegisterSelf();
+
+	newscript = new Script;
+	newscript->Name="mob_nestlewood_owlkin";
+	newscript->GetAI = &GetAI_mob_nestlewood_owlkinAI;
 	newscript->RegisterSelf();
 
 }

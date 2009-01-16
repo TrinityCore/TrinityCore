@@ -443,6 +443,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "whisper",        SEC_MODERATOR,      false, &ChatHandler::HandleNpcWhisperCommand,          "", NULL },
         { "yell",           SEC_MODERATOR,      false, &ChatHandler::HandleNpcYellCommand,             "", NULL },
 		{ "addtemp",        SEC_GAMEMASTER,     false, &ChatHandler::HandleTempAddSpwCommand,          "", NULL },
+		{ "addformation",   SEC_MODERATOR,      false, &ChatHandler::HandleNpcAddFormationCommand,     "", NULL },
 
         //{ TODO: fix or remove this commands
         { "name",           SEC_GAMEMASTER,     false, &ChatHandler::HandleNameCommand,                "", NULL },

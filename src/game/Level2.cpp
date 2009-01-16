@@ -4366,3 +4366,49 @@ bool ChatHandler::HandleTempGameObjectCommand(const char* args)
 
     return true;
 }
+
+bool ChatHandler::HandleNpcAddFormationCommand(const char* args)
+{
+    if (!*args)
+        return false;
+
+    uint32 leaderGUID = (uint32) atoi((char*)args);
+    Creature *pCreature = getSelectedCreature();
+
+    if(!pCreature || !pCreature->GetDBTableGUIDLow())
+    {
+        SendSysMessage(LANG_SELECT_CREATURE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    uint32 lowguid = pCreature->GetDBTableGUIDLow();
+    if(pCreature->GetFormationID())
+    {
+        PSendSysMessage("Selected creature is already member of group %u", pCreature->GetFormationID());
+        return false;
+    }
+
+    if (!lowguid)
+        return false;
+
+    Player *chr = m_session->GetPlayer();
+    FormationMember *group_member;
+
+    group_member				 = new FormationMember;
+    group_member->follow_angle	 = pCreature->GetAngle(chr) - chr->GetOrientation();
+    group_member->follow_dist	 = sqrtf(pow(chr->GetPositionX() - pCreature->GetPositionX(),int(2))+pow(chr->GetPositionY()-pCreature->GetPositionY(),int(2)));
+    group_member->memberGUID	 = lowguid;
+    group_member->leaderGUID	 = leaderGUID;
+    group_member->groupAI		 = 0;			
+
+    CreatureGroupMap[lowguid] = group_member;
+    pCreature->SearchFormation();
+    
+    WorldDatabase.PExecuteLog("INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`) VALUES ('%u','%u','%f', '%f', '%u')",
+        leaderGUID, lowguid, group_member->follow_dist, group_member->follow_angle, group_member->groupAI);
+
+    PSendSysMessage("Creature %u added to formation with leader %u", lowguid, leaderGUID);
+
+    return true;
+ }

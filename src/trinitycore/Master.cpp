@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
  *
  * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
@@ -408,7 +408,7 @@ bool Master::_StartDB()
         sLog.outError("Database not specified in configuration file");
         return false;
     }
-    sLog.outString("World Database: %s", dbstring.c_str());
+    sLog.outDetail("World Database: %s", dbstring.c_str());
 
     ///- Initialise the world database
     if(!WorldDatabase.Initialize(dbstring.c_str()))
@@ -422,7 +422,7 @@ bool Master::_StartDB()
         sLog.outError("Character Database not specified in configuration file");
         return false;
     }
-    sLog.outString("Character Database: %s", dbstring.c_str());
+    sLog.outDetail("Character Database: %s", dbstring.c_str());
 
     ///- Initialise the Character database
     if(!CharacterDatabase.Initialize(dbstring.c_str()))
@@ -439,7 +439,7 @@ bool Master::_StartDB()
     }
 
     ///- Initialise the login database
-    sLog.outString("Login Database: %s", dbstring.c_str() );
+    sLog.outDetail("Login Database: %s", dbstring.c_str() );
     if(!LoginDatabase.Initialize(dbstring.c_str()))
     {
         sLog.outError("Cannot connect to login database %s",dbstring.c_str());
