@@ -218,11 +218,19 @@ CREATE TABLE `spell_proc_event` (
   PRIMARY KEY  (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `player_xp_for_level`;
+CREATE TABLE `player_xp_for_level` (
+  `lvl` int(3) unsigned NOT NULL,
+  `xp_for_next_level` int(10) unsigned NOT NULL,
+  PRIMARY KEY  (`lvl`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 INSERT INTO world.player_classlevelstats SELECT * FROM mangos.player_classlevelstats;
 INSERT INTO world.player_levelstats SELECT * FROM mangos.player_levelstats;
 INSERT INTO world.playercreateinfo_spell SELECT * FROM mangos.playercreateinfo_spell;
 INSERT INTO world.playercreateinfo_action SELECT * FROM mangos.playercreateinfo_action;
 INSERT INTO world.spell_learn_spell SELECT * FROM mangos.spell_learn_spell;
+INSERT INTO world.player_xp_for_level SELECT * FROM mangos.player_xp_for_level;
 
 
 DELETE FROM item_template WHERE entry IN (34648,34649,34650,34651,34652,34653,34655,34656,34657,34658,34659,38145,38147,41751);
