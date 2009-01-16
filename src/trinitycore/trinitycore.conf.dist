@@ -670,6 +670,7 @@ AllowTwoSide.Interaction.Auction = 0
 AllowTwoSide.Interaction.Mail = 0
 AllowTwoSide.WhoList = 0
 AllowTwoSide.AddFriend = 0
+AllowTwoSide.Trade = 0
 TalentsInspecting = 1
 
 ###################################################################################################################
