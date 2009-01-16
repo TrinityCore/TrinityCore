@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Netherstorm
 SD%Complete: 75
-SDComment: Quest support: 10438, 10652 (special flight paths), 10299,10321,10322,10323,10329,10330,10338,10365(Shutting Down Manaforge), 10198
+SDComment: Quest support: 10337, 10438, 10652 (special flight paths), 10299,10321,10322,10323,10329,10330,10338,10365(Shutting Down Manaforge), 10198
 SDCategory: Netherstorm
 EndScriptData */
 
@@ -27,9 +27,11 @@ go_manaforge_control_console
 npc_commander_dawnforge
 npc_protectorate_nether_drake
 npc_veronia
+npc_bessy
 EndContentData */
 
 #include "precompiled.h"
+#include "../../npc/npc_escortAI.h"
 
 /*######
 ## npc_manaforge_control_console
@@ -790,9 +792,10 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
     
     bool Weak;
 	bool Materialize;
+	bool Drained;
 
     int WeakPercent;
-    uint32 PlayerGUID;
+    uint64 PlayerGUID;
     uint32 Health;
     uint32 Level;
     uint32 PhaseSlipVulnerabilityTimer;
@@ -802,6 +805,7 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
     {
         Weak = false;
 		Materialize = false;
+		Drained = false;
 
         WeakPercent = 25 + (rand()%16); // 25-40
         PlayerGUID = 0;
@@ -820,65 +824,184 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-
 		if(!Materialize)
 		{
 			DoCast(m_creature, SPELL_MATERIALIZE);
 			Materialize = true;
 		}
 
-        Player* target = NULL;
-        target = ((Player*)Unit::GetUnit((*m_creature), PlayerGUID));
+		if(m_creature->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED) || m_creature->hasUnitState(UNIT_STAT_ROOT)) // if the mob is rooted/slowed by spells eg.: Entangling Roots, Frost Nova, Hamstring, Crippling Poison, etc. => remove it
+			DoCast(m_creature, SPELL_PHASE_SLIP);
         
-        if(!target)
+        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
-
-        if(m_creature->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED) || m_creature->hasUnitState(UNIT_STAT_ROOT)) // if the mob is rooted/slowed by spells eg.: Entangling Roots, Frost Nova, Hamstring, Crippling Poison, etc. => remove it
-            DoCast(m_creature, SPELL_PHASE_SLIP);
-        if(ManaBurnTimer < diff) // cast Mana Burn
-        {
-            if(target->GetCreateMana() > 0)
+        
+         if(ManaBurnTimer < diff) // cast Mana Burn
+         {
+            if(m_creature->getVictim()->GetCreateMana() > 0)
+             {
+                DoCast(m_creature->getVictim(), SPELL_MANA_BURN);
+                 ManaBurnTimer = 8000 + (rand()%10 * 1000); // 8-18 sec cd
+             }
+         }else ManaBurnTimer -= diff;
+ 
+        if(PlayerGUID) // start: support for quest 10190
+         {
+            Unit* target = Unit::GetUnit((*m_creature), PlayerGUID);
+            
+            if(target && !Weak && m_creature->GetHealth() < (m_creature->GetMaxHealth() / 100 * WeakPercent) && ((Player*)target)->GetQuestStatus(10190) == QUEST_STATUS_INCOMPLETE)
             {
-                DoCast(target, SPELL_MANA_BURN);
-                ManaBurnTimer = 8000 + (rand()%10 * 1000); // 8-18 sec cd
+                DoTextEmote(EMOTE_WEAK, 0);
+                Weak = true;
             }
-        }else ManaBurnTimer -= diff;
-
-        if(!Weak && m_creature->GetHealth() < (m_creature->GetMaxHealth() / 100 * WeakPercent) && target->GetQuestStatus(10190) == QUEST_STATUS_INCOMPLETE) // start: support for quest 10190
-        {
-            DoTextEmote(EMOTE_WEAK, 0);
-            Weak = true;
-        }
-        if(Weak && m_creature->HasAura(34219, 0))
-        {
-            Health = m_creature->GetHealth(); // get the normal mob's data
-            Level = m_creature->getLevel();
-
+            if(Weak && !Drained && m_creature->HasAura(34219, 0))
+            {
+                Drained = true;
+                
+                Health = m_creature->GetHealth(); // get the normal mob's data
+                Level = m_creature->getLevel();
+ 
             m_creature->AttackStop(); // delete the normal mob
             m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             m_creature->RemoveCorpse();
-            
+             
             Creature* DrainedPhaseHunter = NULL;
-            
+             
             if(!DrainedPhaseHunter)
-                DrainedPhaseHunter = m_creature->SummonCreature(SUMMONED_MOB, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000); // summon the mob
-            
+				DrainedPhaseHunter = m_creature->SummonCreature(SUMMONED_MOB, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000); // summon the mob
+             
             if(DrainedPhaseHunter)
             {
                 DrainedPhaseHunter->SetLevel(Level); // set the summoned mob's data
                 DrainedPhaseHunter->SetHealth(Health);
+               DrainedPhaseHunter->AddThreat(target, 10000.0f);
                 DrainedPhaseHunter->AI()->AttackStart(target);
-            }
-        } // end: support for quest 10190
+             }
+			}
+		}// end: support for quest 10190
 
 		DoMeleeAttackIfReady();
     }
-
 };
 
 CreatureAI* GetAI_mob_phase_hunter(Creature *_Creature)
 {
     return new mob_phase_hunterAI (_Creature);
+}
+
+/*######
+## npc_bessy
+######*/
+
+#define Q_ALMABTRIEB    10337
+#define N_THADELL	   20464
+#define SPAWN_FIRST     20512
+#define SPAWN_SECOND  19881
+#define SAY_THADELL_1   "Bessy, is that you?"
+#define SAY_THADELL_2   "Thank you for bringing back my Bessy, $N. I couldn't live without her!"
+
+struct TRINITY_DLL_DECL npc_bessyAI : public npc_escortAI
+{
+
+    npc_bessyAI(Creature *c) : npc_escortAI(c) {Reset();}
+
+    bool Completed;
+
+	void JustDied(Unit* killer)
+    {
+        if (PlayerGUID)
+        {
+            if (Unit* player = Unit::GetUnit((*m_creature), PlayerGUID))
+                ((Player*)player)->FailQuest(Q_ALMABTRIEB);
+        }
+    }
+    
+    void WaypointReached(uint32 i)
+    {
+        Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+        
+        if (!player)
+            return;
+
+        switch(i) 
+		{
+            case 3: //first spawn
+                m_creature->SummonCreature(SPAWN_FIRST, 2449.67, 2183.11, 96.85, 6.20, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                m_creature->SummonCreature(SPAWN_FIRST, 2449.53, 2184.43, 96.36, 6.27, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                m_creature->SummonCreature(SPAWN_FIRST, 2449.85, 2186.34, 97.57, 6.08, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+				break;
+
+            case 7:
+                m_creature->SummonCreature(SPAWN_SECOND, 2309.64, 2186.24, 92.25, 6.06, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                m_creature->SummonCreature(SPAWN_SECOND, 2309.25, 2183.46, 91.75, 6.22, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                break;
+
+            case 12:
+                if (player)
+                {
+                    ((Player*)player)->GroupEventHappens(Q_ALMABTRIEB, m_creature);
+                    Completed = true;
+                }
+                {Unit* Thadell = FindCreature(N_THADELL, 30);
+				if(Thadell)
+				((Creature*)Thadell)->Say(SAY_THADELL_1, LANG_UNIVERSAL, NULL);}break;
+			case 13:
+				{Unit* Thadell = FindCreature(N_THADELL, 30);
+				if(Thadell)
+				((Creature*)Thadell)->Say(SAY_THADELL_2, LANG_UNIVERSAL, NULL);}break;
+		}
+    }
+
+	void JustSummoned(Creature* summoned)
+    {
+        summoned->AI()->AttackStart(m_creature);
+    }
+
+    void Aggro(Unit* who){}
+
+    void Reset()
+    {
+        Completed = false;
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        npc_escortAI::UpdateAI(diff);
+    }
+
+};
+
+bool QuestAccept_npc_bessy(Player* player, Creature* creature, Quest const* quest)
+{
+    if (quest->GetQuestId() == Q_ALMABTRIEB)
+    {
+		creature->setFaction(113);
+		creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
+    }
+    return true;
+}
+
+CreatureAI* GetAI_npc_bessy(Creature *_Creature)
+{
+    npc_bessyAI* bessyAI = new npc_bessyAI(_Creature);
+
+    bessyAI->AddWaypoint(0, 2488.77, 2184.89, 104.64);
+    bessyAI->AddWaypoint(1, 2478.72, 2184.77, 98.58);
+    bessyAI->AddWaypoint(2, 2473.52, 2184.71, 99.00);
+    bessyAI->AddWaypoint(3, 2453.15, 2184.96, 97.09,4000);
+    bessyAI->AddWaypoint(4, 2424.18, 2184.15, 94.11);
+    bessyAI->AddWaypoint(5, 2413.18, 2184.15, 93.42);
+    bessyAI->AddWaypoint(6, 2402.02, 2183.90, 87.59);
+    bessyAI->AddWaypoint(7, 2333.31, 2181.63, 90.03,4000);
+    bessyAI->AddWaypoint(8, 2308.73, 2184.34, 92.04);
+    bessyAI->AddWaypoint(9, 2303.10, 2196.89, 94.94);
+    bessyAI->AddWaypoint(10, 2304.58, 2272.23, 96.67);
+    bessyAI->AddWaypoint(11, 2297.09, 2271.40, 95.16);
+    bessyAI->AddWaypoint(12, 2297.68, 2266.79, 95.07,4000);
+	bessyAI->AddWaypoint(13, 2297.67, 2266.76, 95.07,4000);
+
+    return (CreatureAI*)bessyAI;
 }
 
 /*######
@@ -931,5 +1054,11 @@ void AddSC_netherstorm()
     newscript = new Script;
     newscript->Name = "mob_phase_hunter";
     newscript->GetAI = &GetAI_mob_phase_hunter;
+    newscript->RegisterSelf();
+
+	newscript = new Script;
+    newscript->Name = "npc_bessy";
+    newscript->GetAI = &GetAI_npc_bessy;
+    newscript->pQuestAccept = &QuestAccept_npc_bessy;
     newscript->RegisterSelf();
 }

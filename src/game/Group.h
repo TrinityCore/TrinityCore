@@ -331,6 +331,9 @@ class TRINITY_DLL_SPEC Group
         InstanceGroupBind* GetBoundInstance(uint32 mapid, uint8 difficulty);
         BoundInstancesMap& GetBoundInstances(uint8 difficulty) { return m_boundInstances[difficulty]; }
 
+        // FG: evil hacks
+        void BroadcastGroupUpdate(void);
+
     protected:
         bool _addMember(const uint64 &guid, const char* name, bool isAssistant=false);
         bool _addMember(const uint64 &guid, const char* name, bool isAssistant, uint8 group);

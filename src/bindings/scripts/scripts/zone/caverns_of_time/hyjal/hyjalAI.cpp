@@ -230,6 +230,13 @@ void hyjalAI::StartEvent(Player* player)
     if(!player)
         return;
 
+	Map* Hyjal = m_creature->GetMap();
+	if(Hyjal->GetPlayersCountExceptGMs() < 15) //check if there are more than 15 players in hyjal (abuse prevent)
+	{
+		//error_log("Some Players try to farm in Hyjal (less than 15 people)");
+		return;
+	}
+
     Talk(BEGIN);
 
     EventBegun = true;
