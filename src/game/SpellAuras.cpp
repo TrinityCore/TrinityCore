@@ -3371,7 +3371,7 @@ void Aura::HandleModStealth(bool apply, bool Real)
     Unit::AuraList const& mDummyAuras = m_target->GetAurasByType(SPELL_AURA_DUMMY);
     for(Unit::AuraList::const_iterator i = mDummyAuras.begin();i != mDummyAuras.end(); ++i)
     {
-        if ((*i)->GetSpellProto()->SpellIconID == 2114)
+        if ((*i)->GetSpellProto()->SpellIconID == 2114 && Real)
         {
             if (apply)
             {

@@ -366,7 +366,7 @@ CreatureAI* GetAI_npc_twiggy_flathead(Creature *_Creature)
 }
 
 /*#####
-## npc_wizzlecrank_shredder	 TODO: Pilot scripting
+## npc_wizzlecrank_shredder	 NOTE: Part2 will be in ACID
 #####*/
 
 #define SAY_PROGRESS_1	"Alright, alright I think I can figure out how to operate this thing..."
@@ -379,9 +379,6 @@ CreatureAI* GetAI_npc_twiggy_flathead(Creature *_Creature)
 #define SAY_PROGRESS_6	"Come on, don't break down on me now!"
 #define SAY_PROGRESS_7	"That was a close one! Well, let's get going, it's still a ways to Ratchet!"
 #define SAY_PROGRESS_8	"Hmm... I don't think this blinking red light is a good thing..."
-
-#define SAY_PILOT_9		"Looks like you'll have to go ahead to Ratchet and tell Sputtervalve that I've wrecked the shredder."
-#define SAY_PILOT_10	"I'll stay behind and guard the wreck. Hurry! Hopefully no one will notice the smoke..."
 
 #define QUEST_ESCAPE	863
 #define NPC_PILOT		3451
@@ -422,13 +419,7 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
 			m_creature->setDeathState(JUST_DIED);
 			if (player && player->GetTypeId() == TYPEID_PLAYER)
                     ((Player*)player)->GroupEventHappens(QUEST_ESCAPE, m_creature);
-			break;
-		case 32: {Unit* Pilot = FindCreature(NPC_PILOT, 30);
-			if(Pilot)
-				((Creature*)Pilot)->Say(SAY_PILOT_9, LANG_UNIVERSAL, NULL);}break;
-		case 33:{ Unit* Pilot = FindCreature(NPC_PILOT, 30);
-			if(Pilot)
-				((Creature*)Pilot)->Say(SAY_PILOT_10, LANG_UNIVERSAL, NULL);} break;																	   
+			break;																	   
 		}
 	}
 
@@ -501,8 +492,6 @@ CreatureAI* GetAI_npc_wizzlecrank_shredderAI(Creature *_Creature)
 	thisAI->AddWaypoint(29, 1091.28, -2985.82, 91.74, 3000);//7
 	thisAI->AddWaypoint(30, 1091.28, -2985.82, 91.74, 7000);//8
 	thisAI->AddWaypoint(31, 1091.28, -2985.82, 91.74, 3000);//justdied summon creature
-	thisAI->AddWaypoint(32, 1091.28, -2985.82, 91.74, 2000);//9
-	thisAI->AddWaypoint(33, 1091.28, -2985.82, 91.74, 7000);//10
 
 	return (CreatureAI*)thisAI;
 }

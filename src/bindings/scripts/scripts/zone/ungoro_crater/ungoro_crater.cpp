@@ -126,8 +126,9 @@ bool QuestAccept_npc_ame(Player* player, Creature* creature, Quest const* quest)
     {
         ((npc_escortAI*)(creature->AI()))->Start(false, true, false, player->GetGUID());
         DoScriptText(SAY_READY, creature, player);
+		creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0); 
         // Change faction so mobs attack
-        creature->setFaction(775);
+        creature->setFaction(113);
     }
     return true;
 }

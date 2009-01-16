@@ -216,6 +216,8 @@ void WorldSession::HandleGroupAcceptOpcode( WorldPacket & /*recv_data*/ )
     uint8 subgroup = group->GetMemberGroup(GetPlayer()->GetGUID());
 
     GetPlayer()->SetGroup(group, subgroup);
+
+    group->BroadcastGroupUpdate();
 }
 
 void WorldSession::HandleGroupDeclineOpcode( WorldPacket & /*recv_data*/ )
@@ -724,8 +726,9 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player *player, WorldPacke
                 uint32 updatedAura = player->GetVisibleAura(i);
                 *data << uint32(updatedAura);
                 *data << uint8(1);
-                if(!updatedAura)
-                    player->UnsetAuraUpdateMask(i);
+                //TODO: find a safe place to do this cleanup
+                //if(!updatedAura)
+                    //player->UnsetAuraUpdateMask(i);
             }
         }
     }
@@ -808,8 +811,9 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player *player, WorldPacke
                     uint32 updatedAura = pet->GetVisibleAura(i);
                     *data << uint32(updatedAura);
                     *data << uint8(1);
-                    if(!updatedAura)
-                        pet->UnsetAuraUpdateMask(i);
+                //TODO: find a safe place to do this cleanup
+                    //if(!updatedAura)
+                        //pet->UnsetAuraUpdateMask(i);
                 }
             }
         }
