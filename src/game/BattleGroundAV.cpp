@@ -125,7 +125,7 @@ void BattleGroundAV::HandleQuestComplete(uint32 questid, Player *player)
         return;//maybe we should log this, cause this must be a cheater or a big bug
     uint8 team = GetTeamIndexByTeamId(player->GetTeam());
     //TODO add reputation, events (including quest not available anymore, next quest availabe, go/npc de/spawning)and maybe honor
-    sLog.outError("BG_AV Quest %i completed",questid);
+    sLog.outDebug("BG_AV Quest %i completed",questid);
     switch(questid)
     {
         case AV_QUEST_A_SCRAPS1:

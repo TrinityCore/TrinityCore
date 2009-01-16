@@ -322,9 +322,9 @@ void WorldSession::HandleGossipSelectOptionOpcode( WorldPacket & recv_data )
     {
         // recheck
         CHECK_PACKET_SIZE(recv_data,8+4+1);
-        sLog.outBasic("reading string");
+        sLog.outDebug("reading string");
         recv_data >> code;
-        sLog.outBasic("string read: %s", code.c_str());
+        sLog.outDebug("string read: %s", code.c_str());
     }
 
     Creature *unit = ObjectAccessor::GetNPCIfCanInteractWith(*_player, guid, UNIT_NPC_FLAG_NONE);
