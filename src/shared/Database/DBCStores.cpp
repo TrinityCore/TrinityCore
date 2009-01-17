@@ -568,7 +568,7 @@ uint32 GetAreaFlagByMapId(uint32 mapid)
 
 uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId)
 {
-    if(mapid != 530 || mapid != 571)                        // speed for most cases
+    if(mapid != 530 && mapid != 571)                        // speed for most cases
         return mapid;
 
     if(WorldMapAreaEntry const* wma = sWorldMapAreaStore.LookupEntry(zoneId))

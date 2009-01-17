@@ -285,6 +285,7 @@ enum SpellSelectTargetTypes
 #define SPELLFAMILYFLAG_WARRIOR_SUNDERARMOR     0x000004000LL
 #define SPELLFAMILYFLAG_SHAMAN_FROST_SHOCK      0x080000000LL
 
+#define SPELLFAMILYFLAG_PALADIN_SEALS           0x26000C000A000000LL
 // Spell clasification
 enum SpellSpecific
 {
@@ -338,7 +339,7 @@ inline bool IsSealSpell(SpellEntry const *spellInfo)
 {
     //Collection of all the seal family flags. No other paladin spell has any of those.
     return spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN &&
-        ( spellInfo->SpellFamilyFlags & 0x26000C000A000000LL );
+        ( spellInfo->SpellFamilyFlags & SPELLFAMILYFLAG_PALADIN_SEALS );
 }
 
 inline bool IsElementalShield(SpellEntry const *spellInfo)
