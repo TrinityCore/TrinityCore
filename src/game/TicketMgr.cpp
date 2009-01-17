@@ -111,7 +111,7 @@ void TicketMgr::LoadGMTickets()
 	InitTicketID();
 	// Delete all out of object holder
 	GM_TicketList.clear();
-	QueryResult *result = CharacterDatabase.Query( "SELECT `guid`, `playerGuid`, `name`, `message`, `timestamp`, `closed`, `assignedto`, `comment` FROM `gm_tickets` WHERE `closed` = '0'" );
+	QueryResult *result = CharacterDatabase.Query( "SELECT `guid`, `playerGuid`, `name`, `message`, `timestamp`, `closed`, `assignedto`, `comment` FROM `gm_tickets`" );
 	GM_Ticket *ticket;
 
 	if(!result)
@@ -197,7 +197,7 @@ void TicketMgr::InitTicketID()
 	QueryResult *result = CharacterDatabase.Query("SELECT MAX(guid) FROM gm_tickets");
 	if(result)
 	{
-		m_ticketid = result->Fetch()[0].GetUInt64() + 1;
+		m_ticketid = result->Fetch()[0].GetUInt64();
 		delete result;
 	}
 }

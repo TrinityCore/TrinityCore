@@ -14,6 +14,8 @@
 #define _NO_CVCONST_H
 #include <dbghelp.h>
 #include "WheatyExceptionReport.h"
+#include "SystemConfig.h"
+#include "revision.h"
 #define CrashFolder _T("Crashes")
 //#pragma comment(linker, "/defaultlib:dbghelp.lib")
 
@@ -329,22 +331,22 @@ void WheatyExceptionReport::PrintSystemInfo()
 //===========================================================================
 void WheatyExceptionReport::printTracesForAllThreads()
 {
-  HANDLE hThreadSnap = INVALID_HANDLE_VALUE; 
-  THREADENTRY32 te32; 
- 
+  HANDLE hThreadSnap = INVALID_HANDLE_VALUE;
+  THREADENTRY32 te32;
+
   DWORD dwOwnerPID = GetCurrentProcessId();
   m_hProcess = GetCurrentProcess();
-  // Take a snapshot of all running threads  
-  hThreadSnap = CreateToolhelp32Snapshot( TH32CS_SNAPTHREAD, 0 ); 
-  if( hThreadSnap == INVALID_HANDLE_VALUE ) 
-    return; 
- 
-  // Fill in the size of the structure before using it. 
-  te32.dwSize = sizeof(THREADENTRY32 ); 
- 
+  // Take a snapshot of all running threads
+  hThreadSnap = CreateToolhelp32Snapshot( TH32CS_SNAPTHREAD, 0 );
+  if( hThreadSnap == INVALID_HANDLE_VALUE )
+    return;
+
+  // Fill in the size of the structure before using it.
+  te32.dwSize = sizeof(THREADENTRY32 );
+
   // Retrieve information about the first thread,
   // and exit if unsuccessful
-  if( !Thread32First( hThreadSnap, &te32 ) ) 
+  if( !Thread32First( hThreadSnap, &te32 ) )
   {
     CloseHandle( hThreadSnap );    // Must clean up the
                                    //   snapshot object!
@@ -354,8 +356,8 @@ void WheatyExceptionReport::printTracesForAllThreads()
   // Now walk the thread list of the system,
   // and display information about each thread
   // associated with the specified process
-  do 
-  { 
+  do
+  {
     if( te32.th32OwnerProcessID == dwOwnerPID )
     {
         CONTEXT context;
@@ -367,7 +369,7 @@ void WheatyExceptionReport::printTracesForAllThreads()
         }
         CloseHandle(threadHandle);
     }
-  } while( Thread32Next(hThreadSnap, &te32 ) ); 
+  } while( Thread32Next(hThreadSnap, &te32 ) );
 
 //  Don't forget to clean up the snapshot object.
   CloseHandle( hThreadSnap );
@@ -385,6 +387,7 @@ PEXCEPTION_POINTERS pExceptionInfo )
     GetLocalTime(&systime);
 
     // Start out with a banner
+    _tprintf(_T("Revision: %s\r\n"), _FULLVERSION);
     _tprintf(_T("Date %u:%u:%u. Time %u:%u \r\n"), systime.wDay, systime.wMonth, systime.wYear, systime.wHour, systime.wMinute);
     PEXCEPTION_RECORD pExceptionRecord = pExceptionInfo->ExceptionRecord;
 
