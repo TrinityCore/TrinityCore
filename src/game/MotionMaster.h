@@ -68,7 +68,11 @@ class TRINITY_DLL_SPEC MotionMaster //: private std::stack<MovementGenerator *>
         void push(_Ty _Val) { ++i_top; Impl[i_top] = _Val; }
     public:
 
-        explicit MotionMaster(Unit *unit) : i_owner(unit), i_top(-1) {}
+        explicit MotionMaster(Unit *unit) : i_owner(unit), i_top(-1)
+        {
+            for(int i = 0; i < MAX_MOTION_SLOT; ++i)
+                Impl[i] = NULL;
+        }
         ~MotionMaster();
 
         void Initialize();
