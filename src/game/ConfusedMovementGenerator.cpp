@@ -65,6 +65,9 @@ ConfusedMovementGenerator<T>::Initialize(T &unit)
         i_waypoints[idx][2] =  z;
     }
 
+    unit.SetUInt64Value(UNIT_FIELD_TARGET, 0);
+    unit.SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
+    unit.CastStop();
     unit.StopMoving();
     unit.RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
     unit.addUnitState(UNIT_STAT_CONFUSED);
@@ -144,7 +147,10 @@ template<class T>
 void
 ConfusedMovementGenerator<T>::Finalize(T &unit)
 {
+    unit.RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
     unit.clearUnitState(UNIT_STAT_CONFUSED);
+    if(unit.GetTypeId() == TYPEID_UNIT && unit.getVictim())
+        unit.SetUInt64Value(UNIT_FIELD_TARGET, unit.getVictim()->GetGUID());
 }
 
 template void ConfusedMovementGenerator<Player>::Initialize(Player &player);

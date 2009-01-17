@@ -3728,7 +3728,7 @@ bool ChatHandler::HandleNpcUnFollowCommand(const char* /*args*/)
         return false;
     }
 
-    if (creature->GetMotionMaster()->empty() ||
+    if (/*creature->GetMotionMaster()->empty() ||*/
         creature->GetMotionMaster()->GetCurrentMovementGeneratorType ()!=TARGETED_MOTION_TYPE)
     {
         PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU);
