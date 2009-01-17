@@ -26,10 +26,6 @@ INSERT INTO trinity_string (`entry`, `content_default`, `content_loc1`, `content
 (2022, '\n|cff00ff00Message|r: \"%s\"|r ', '', '', '', '', '', '', '', ''),
 (2023, '\n|cff00ff00Comment|r: \"%s\"|r ', '', '', '', '', '', '', '', ''),
 (2024, '\n|cff00ccff%s|r |cff00ff00Added comment|r: \"%s\"|r ', '', '', '', '', '', '', '', '');
--- (2025, '', '', '', '', '', '', '', '', '')
--- (2026, '', '', '', '', '', '', '', '', '')
--- (2027, '', '', '', '', '', '', '', '', '')
--- (2028, '', '', '', '', '', '', '', '', '')
--- (2029, '', '', '', '', '', '', '', '', '')
+
 DELETE FROM `command` WHERE (`name` LIKE '%ticket closedlist%');
 INSERT INTO `command` (`name`,`security`,`help`) VALUES ('.ticket closedlist','1','Displays a list of closed GM tickets.');
