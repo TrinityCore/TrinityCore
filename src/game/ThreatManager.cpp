@@ -361,10 +361,15 @@ void ThreatManager::addThreat(Unit* pVictim, float pThreat, SpellSchoolMask scho
     {
         float reducedThreat = threat * pVictim->GetReducedThreatPercent() / 100;
         threat -= reducedThreat;
-        if(pVictim->GetMisdirectionTarget())
-            iThreatContainer.addThreat(pVictim->GetMisdirectionTarget(), reducedThreat);
+        if(Unit *unit = pVictim->GetMisdirectionTarget())
+            _addThreat(unit, reducedThreat);
     }
 
+    _addThreat(pVictim, threat);
+}
+
+void ThreatManager::_addThreat(Unit *pVictim, float threat)
+{
     HostilReference* ref = iThreatContainer.addThreat(pVictim, threat);
     // Ref is not in the online refs, search the offline refs next
     if(!ref)
