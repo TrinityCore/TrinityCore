@@ -12857,13 +12857,6 @@ void Unit::SetFeared(bool apply)
 {
     if(apply)
     {
-        if(HasAuraType(SPELL_AURA_PREVENTS_FLEEING))
-            return;
-
-        SetUInt64Value(UNIT_FIELD_TARGET, 0);
-        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
-        CastStop();
-        //GetMotionMaster()->MovementExpired(false);
         Unit *caster = NULL;
         Unit::AuraList const& fearAuras = GetAurasByType(SPELL_AURA_MOD_FEAR);
         if(!fearAuras.empty())
@@ -12872,17 +12865,8 @@ void Unit::SetFeared(bool apply)
     }
     else
     {
-        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
-        if(isAlive())
-        {
-            if( GetTypeId() != TYPEID_PLAYER && getVictim())
-            {
-                SetUInt64Value(UNIT_FIELD_TARGET, getVictim()->GetGUID());
-                GetMotionMaster()->MoveChase(getVictim());
-            }
-            else
-                GetMotionMaster()->Initialize();
-        }
+        if(isAlive() && GetMotionMaster()->GetCurrentMovementGeneratorType() == FLEEING_MOTION_TYPE))
+            GetMotionMaster()->MovementExpired();
     }
 
     if (GetTypeId() == TYPEID_PLAYER)
@@ -12893,24 +12877,12 @@ void Unit::SetConfused(bool apply)
 {
     if(apply)
     {
-        SetUInt64Value(UNIT_FIELD_TARGET, 0);
-        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
-        CastStop();
         GetMotionMaster()->MoveConfused();
     }
     else
     {
-        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
-        if(isAlive())
-        {
-            if( GetTypeId() != TYPEID_PLAYER && getVictim())
-            {
-                SetUInt64Value(UNIT_FIELD_TARGET, getVictim()->GetGUID());
-                GetMotionMaster()->MoveChase(getVictim());
-            }
-            else
-                GetMotionMaster()->Initialize();
-        }
+        if(isAlive() && GetMotionMaster()->GetCurrentMovementGeneratorType() == CONFUSED_MOTION_TYPE)
+            GetMotionMaster()->MovementExpired();
     }
 
     if(GetTypeId() == TYPEID_PLAYER)
