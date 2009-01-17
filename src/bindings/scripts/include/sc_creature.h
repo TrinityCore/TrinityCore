@@ -11,6 +11,8 @@
 #include "CreatureAI.h"
 #include "Creature.h"
 
+float GetSpellMaxRange(uint32 id);
+
 class SummonList : std::list<uint64>
 {
 public:

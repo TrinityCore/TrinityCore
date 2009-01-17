@@ -905,18 +905,11 @@ struct TRINITY_DLL_DECL flame_of_azzinothAI : public ScriptedAI
     void ChargeCheck()
     {        
         Unit* target = SelectUnit(SELECT_TARGET_FARTHEST, 0, 200, false);
-        if(target && (!m_creature->IsWithinDistInMap(target, FLAME_CHARGE_DISTANCE)))
+        if(target && (!m_creature->IsWithinCombatRange(target, FLAME_CHARGE_DISTANCE)))
         {
-            m_creature->AttackStop();
-            m_creature->GetMotionMaster()->Clear(false);
-            float x, y, z; // is it possible to fix charge?
-            target->GetContactPoint(m_creature, x, y, z);
-            m_creature->Relocate(x,y,z);
-            m_creature->SendMonsterMove(x, y, z, 0, MOVEMENTFLAG_WALK_MODE, 1);
-            //m_creature->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
-            m_creature->StopMoving();
-            //DoCast(target, SPELL_CHARGE);
             m_creature->AddThreat(target, 5000000.0f);
+            AttackStart(target);
+            DoCast(target, SPELL_CHARGE);
             DoTextEmote("sets its gaze on $N!", target);
         }
     }
@@ -964,7 +957,7 @@ struct TRINITY_DLL_DECL flame_of_azzinothAI : public ScriptedAI
         {
             ChargeCheck();
             EnrageCheck();
-            CheckTimer = 5000;
+            CheckTimer = 1000;
         }else CheckTimer -= diff;
 
         DoMeleeAttackIfReady();
