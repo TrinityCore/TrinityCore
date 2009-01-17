@@ -516,6 +516,7 @@ ChatCommand * ChatHandler::getCommandTable()
 		{ "viewname",		SEC_MODERATOR,		false, &ChatHandler::HandleGMTicketGetByNameCommand,		"", NULL },
 		{ "viewid",			SEC_MODERATOR,		false, &ChatHandler::HandleGMTicketGetByIdCommand,			"", NULL },
 		{ "close",			SEC_MODERATOR,		false, &ChatHandler::HandleGMTicketCloseByIdCommand,		"", NULL },
+		{ "closedlist",		SEC_MODERATOR,		false, &ChatHandler::HandleGMTicketListClosedCommand,		"", NULL },
 		{ "delete",			SEC_ADMINISTRATOR,	false, &ChatHandler::HandleGMTicketDeleteByIdCommand,		"", NULL },
 		{ "assign",			SEC_MODERATOR,		false, &ChatHandler::HandleGMTicketAssignToCommand,			"", NULL },
 		{ "unassign",		SEC_MODERATOR,		false, &ChatHandler::HandleGMTicketUnAssignCommand,			"", NULL },
@@ -527,7 +528,7 @@ ChatCommand * ChatHandler::getCommandTable()
     {
         { "account",        SEC_PLAYER,         true,  NULL,                                           "", accountCommandTable },
         { "gm",             SEC_MODERATOR,      true,  NULL,                                           "", gmCommandTable },
-		{ "ticket",			SEC_MODERATOR,		true,  NULL,										   "", ticketCommandTable },
+		{ "ticket",			SEC_MODERATOR,		false,  NULL,										   "", ticketCommandTable },
         { "npc",            SEC_MODERATOR,      false, NULL,                                           "", npcCommandTable },
         { "go",             SEC_MODERATOR,      false, NULL,                                           "", goCommandTable },
         { "learn",          SEC_MODERATOR,      false, NULL,                                           "", learnCommandTable },
