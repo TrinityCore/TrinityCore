@@ -47,31 +47,48 @@ enum MovementGeneratorType
     DISTRACT_MOTION_TYPE  = 10,                             // IdleMovementGenerator.h
 };
 
-class TRINITY_DLL_SPEC MotionMaster : private std::stack<MovementGenerator *>
+enum MovementSlot
+{
+    MOTION_SLOT_IDLE,
+    MOTION_SLOT_ACTIVE,
+    MOTION_SLOT_CONTROLLED,
+    MAX_MOTION_SLOT,
+};
+
+class TRINITY_DLL_SPEC MotionMaster //: private std::stack<MovementGenerator *>
 {
     private:
-        typedef std::stack<MovementGenerator *> Impl;
+        //typedef std::stack<MovementGenerator *> Impl;
+        typedef MovementGenerator* _Ty;
+        _Ty Impl[MAX_MOTION_SLOT];
+        int i_top;
+
+        int size() const { return i_top + 1; }
+        bool empty() const { return i_top < 0; }
+        void pop() { Impl[i_top] = NULL; --i_top; }
+        void push(_Ty _Val) { ++i_top; Impl[i_top] = _Val; }
     public:
 
-        explicit MotionMaster(Unit *unit) : i_owner(unit) {}
+        explicit MotionMaster(Unit *unit) : i_owner(unit), i_top(-1) {}
         ~MotionMaster();
 
         void Initialize();
 
-        MovementGenerator* operator->(void) { return top(); }
+        //MovementGenerator* operator->(void) { return top(); }
 
-        using Impl::top;
+        _Ty top() const { return Impl[i_top]; }
+        /*using Impl::top;
         using Impl::empty;
 
         typedef Impl::container_type::const_iterator const_iterator;
         const_iterator begin() const { return Impl::c.begin(); }
-        const_iterator end() const { return Impl::c.end(); }
+        const_iterator end() const { return Impl::c.end(); }*/
 
         void UpdateMotion(const uint32 &diff);
         void Clear(bool reset = true);
         void MovementExpired(bool reset = true);
 
-        void MoveIdle();
+        void MoveIdle(MovementSlot slot = MOTION_SLOT_ACTIVE);
         void MoveTargetedHome();
         void MoveRandom(float spawndist = 0.0f);
 		void MoveFollow(Unit* target, float dist, float angle);
@@ -89,7 +106,7 @@ class TRINITY_DLL_SPEC MotionMaster : private std::stack<MovementGenerator *>
 
         bool GetDestination(float &x, float &y, float &z);
     private:
-        void Mutate(MovementGenerator *m);                  // use Move* functions instead
+        void Mutate(MovementGenerator *m, MovementSlot slot);                  // use Move* functions instead
 
         Unit *i_owner;
 };
