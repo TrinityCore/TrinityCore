@@ -101,6 +101,7 @@ class TRINITY_DLL_SPEC MotionMaster //: private std::stack<MovementGenerator *>
         void MoveConfused();
         void MoveFleeing(Unit* enemy);
         void MovePoint(uint32 id, float x,float y,float z);
+        void MoveCharge(float x, float y, float z);
         void MoveTaxiFlight(uint32 path, uint32 pathnode);
         void MoveDistract(uint32 time);
 		void MovePath(uint32 path_id, bool repeatable);

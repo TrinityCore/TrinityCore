@@ -46,8 +46,10 @@ MotionMaster::Initialize()
     while(!empty())
     {
         MovementGenerator *curr = top();
-        curr->Finalize(*i_owner);
         pop();
+        if(!curr)
+            continue;
+        curr->Finalize(*i_owner);
         if( !isStatic( curr ) )
             delete curr;
     }
@@ -69,8 +71,10 @@ MotionMaster::~MotionMaster()
     while(!empty())
     {
         MovementGenerator *curr = top();
-        curr->Finalize(*i_owner);
         pop();
+        if(!curr)
+            continue;
+        curr->Finalize(*i_owner);
         if( !isStatic( curr ) )
             delete curr;
     }
@@ -92,8 +96,10 @@ MotionMaster::Clear(bool reset)
     while( !empty() && size() > 1 )
     {
         MovementGenerator *curr = top();
-        curr->Finalize(*i_owner);
         pop();
+        if(!curr)
+            continue;
+        curr->Finalize(*i_owner);
         if( !isStatic( curr ) )
             delete curr;
     }
@@ -269,6 +275,26 @@ MotionMaster::MovePoint(uint32 id, float x, float y, float z)
 }
 
 void
+MotionMaster::MoveCharge(float x, float y, float z)
+{
+    if(Impl[MOTION_SLOT_CONTROLLED] && Impl[MOTION_SLOT_CONTROLLED]->GetMovementGeneratorType() != DISTRACT_MOTION_TYPE)
+        return;
+
+    i_owner->addUnitState(UNIT_STAT_CHARGING);
+    if(i_owner->GetTypeId()==TYPEID_PLAYER)
+    {
+        DEBUG_LOG("Player (GUID: %u) charge point (X: %f Y: %f Z: %f)", i_owner->GetGUIDLow(), x, y, z );
+        Mutate(new PointMovementGenerator<Player>(0,x,y,z), MOTION_SLOT_CONTROLLED);
+    }
+    else
+    {
+        DEBUG_LOG("Creature (Entry: %u GUID: %u) charge point (X: %f Y: %f Z: %f)",
+            i_owner->GetEntry(), i_owner->GetGUIDLow(), x, y, z );
+        Mutate(new PointMovementGenerator<Creature>(0,x,y,z), MOTION_SLOT_CONTROLLED);
+    }
+}
+
+void
 MotionMaster::MoveFleeing(Unit* enemy)
 {
     if(!enemy)
@@ -366,14 +392,14 @@ void MotionMaster::MovePath(uint32 path_id, bool repeatable)
 		return;
 	//We set waypoint movement as new default movement generator
 	// clear ALL movement generators (including default)
-    while(!empty())
+    /*while(!empty())
     {
         MovementGenerator *curr = top();
         curr->Finalize(*i_owner);
         pop();
         if( !isStatic( curr ) )
             delete curr;
-    }
+    }*/
 	
 	//i_owner->GetTypeId()==TYPEID_PLAYER ?
 		//Mutate(new WaypointMovementGenerator<Player>(path_id, repeatable)):
