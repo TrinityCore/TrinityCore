@@ -44,7 +44,12 @@ bool PointMovementGenerator<T>::Update(T &unit, const uint32 &diff)
         return false;
 
     if(unit.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED))
-        return true;
+    {
+        if(unit.hasUnitState(UNIT_STAT_CHARGING))
+            return false;
+        else
+            return true;
+    }
 
     Traveller<T> traveller(unit);
 
@@ -53,7 +58,8 @@ bool PointMovementGenerator<T>::Update(T &unit, const uint32 &diff)
     if(i_destinationHolder.HasArrived())
     {
         unit.StopMoving();
-        MovementInform(unit);
+        if(!unit.hasUnitState(UNIT_STAT_CHARGING))
+            MovementInform(unit);
         return false;
     }
 

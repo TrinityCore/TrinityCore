@@ -246,9 +246,6 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
                         FlamePatch_Timer = 30000;
                         Phase1 = false; 
                         break;
-                    case WE_CHARGE:
-                        m_creature->SetSpeed(MOVE_RUN, DefaultMoveSpeedRate);
-                        break;
                     case WE_METEOR:
                         m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
                         m_creature->CastSpell(m_creature, SPELL_DIVE_BOMB_VISUAL, false);
@@ -336,17 +333,8 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
 
             if(Charge_Timer < diff)
             {
-                if(Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 1))
-                {
-                    m_creature->SetInFront(target);
-                    m_creature->GetMotionMaster()->Clear();
-                    m_creature->AttackStop();
-                    m_creature->SetSpeed(MOVE_RUN, 5.0f);
-                    DoCast(target, SPELL_CHARGE);
-                    WaitEvent = WE_CHARGE;
-                    WaitTimer = 1000;
-                    return;
-                }
+                Unit *target= SelectUnit(SELECT_TARGET_RANDOM, 1, GetSpellMaxRange(SPELL_CHARGE), true);
+                DoCast(target, SPELL_CHARGE);
                 Charge_Timer = 30000;
             }else Charge_Timer -= diff;
 
