@@ -47,15 +47,17 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TrinityRealm", "VC71\Trinit
 		{04BAF755-0D67-46F8-B1C6-77AE5368F3CB} = {04BAF755-0D67-46F8-B1C6-77AE5368F3CB}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ScriptsFull", "..\src\bindings\scripts\VC71\71ScriptDev2.vcproj", "{4295C8A9-79B7-4354-8064-F05FB9CA0C96}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TrinityScript", "..\src\bindings\scripts\VC71\71ScriptDev2.vcproj", "{4295C8A9-79B7-4354-8064-F05FB9CA0C96}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D1EA3EE9-4DCF-4CB9-BA6E-B9321E0D552A} = {D1EA3EE9-4DCF-4CB9-BA6E-B9321E0D552A}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ACE_Wraper", "VC71\ACE_vc71.vcproj", "{7C74F49E-FECA-1BAD-6757-8A6348EA12C8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ACEWrappers", "VC71\ACE_vc71.vcproj", "{7C74F49E-FECA-1BAD-6757-8A6348EA12C8}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "genrevision", "VC71\genrevision.vcproj", "{803F488E-4C5A-4866-8D5C-1E6C03C007C2}"
+ EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -108,6 +110,14 @@ Global
 		{7C74F49E-FECA-1BAD-6757-8A6348EA12C8}.Debug.Build.0 = Debug|Win32
 		{7C74F49E-FECA-1BAD-6757-8A6348EA12C8}.Release.ActiveCfg = Release|Win32
 		{7C74F49E-FECA-1BAD-6757-8A6348EA12C8}.Release.Build.0 = Release|Win32
+		{803F488E-4C5A-4866-8D5C-1E6C03C007C2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{803F488E-4C5A-4866-8D5C-1E6C03C007C2}.Debug|Win32.Build.0 = Debug|Win32
+		{803F488E-4C5A-4866-8D5C-1E6C03C007C2}.Debug|x64.ActiveCfg = Debug|x64
+		{803F488E-4C5A-4866-8D5C-1E6C03C007C2}.Debug|x64.Build.0 = Debug|x64
+		{803F488E-4C5A-4866-8D5C-1E6C03C007C2}.Release|Win32.ActiveCfg = Release|Win32
+		{803F488E-4C5A-4866-8D5C-1E6C03C007C2}.Release|Win32.Build.0 = Release|Win32
+		{803F488E-4C5A-4866-8D5C-1E6C03C007C2}.Release|x64.ActiveCfg = Release|x64
+		{803F488E-4C5A-4866-8D5C-1E6C03C007C2}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
