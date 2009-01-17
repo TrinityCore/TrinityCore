@@ -8570,23 +8570,12 @@ void Unit::CombatStart(Unit* target)
     if(!target->IsStandState()/* && !target->hasUnitState(UNIT_STAT_STUNNED)*/)
         target->SetStandState(PLAYER_STATE_NONE);
 
-	//Call creature group update
-	if(GetTypeId()==TYPEID_UNIT && ((Creature *)this)->GetFormationID() &&
-		CreatureGroupHolder.find(((Creature *)this)->GetFormationID()) != CreatureGroupHolder.end())
-		CreatureGroupHolder[((Creature *)this)->GetFormationID()]->MemberHasAttacked(((Creature *)this));
-
     if(!target->isInCombat() && target->GetTypeId() != TYPEID_PLAYER
         && !((Creature*)target)->HasReactState(REACT_PASSIVE) && ((Creature*)target)->AI())
-    {
-        SetInCombatWith(target);
-        target->SetInCombatWith(this);
         ((Creature*)target)->AI()->AttackStart(this);
-    }
-    else
-    {
-        SetInCombatWith(target);
-        target->SetInCombatWith(this);
-    }
+
+    SetInCombatWith(target);
+    target->SetInCombatWith(this);
 
     Unit *who = target->GetCharmerOrOwnerOrSelf();
     if(who->GetTypeId() == TYPEID_PLAYER)
@@ -8599,6 +8588,14 @@ void Unit::CombatStart(Unit* target)
     {
         me->UpdatePvP(true);
         me->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
+    }
+
+    //Call creature group update
+    if(GetTypeId()==TYPEID_UNIT && ((Creature*)this)->GetFormationID())
+    {
+        CreatureGroupHolderType::iterator itr = CreatureGroupHolder.find(((Creature*)this)->GetFormationID());
+        if(itr != CreatureGroupHolder.end())
+           itr->second->MemberHasAttacked(((Creature*)this));
     }
 }
 
@@ -9297,12 +9294,15 @@ bool Unit::SelectHostilTarget()
     }
 
     // search nearby enemy before enter evade mode
-    if(Unit *target = ((Creature*)this)->SelectNearestTarget())
+    if(((Creature*)this)->HasReactState(REACT_AGGRESSIVE))
     {
-        if(!((Creature*)this)->IsOutOfThreatArea(target))
+        if(Unit *target = ((Creature*)this)->SelectNearestTarget())
         {
-            ((Creature*)this)->AI()->AttackStart(target);
-            return true;
+            if(!((Creature*)this)->IsOutOfThreatArea(target))
+            {
+                ((Creature*)this)->AI()->AttackStart(target);
+                return true;
+            }
         }
     }
 
