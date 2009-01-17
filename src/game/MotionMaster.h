@@ -63,7 +63,6 @@ class TRINITY_DLL_SPEC MotionMaster //: private std::stack<MovementGenerator *>
         _Ty Impl[MAX_MOTION_SLOT];
         int i_top;
 
-        int size() const { return i_top + 1; }
         bool empty() const { return i_top < 0; }
         void pop() { Impl[i_top] = NULL; --i_top; }
         void push(_Ty _Val) { ++i_top; Impl[i_top] = _Val; }
@@ -76,7 +75,9 @@ class TRINITY_DLL_SPEC MotionMaster //: private std::stack<MovementGenerator *>
 
         //MovementGenerator* operator->(void) { return top(); }
 
+        int size() const { return i_top + 1; }
         _Ty top() const { return Impl[i_top]; }
+        _Ty GetMotionSlot(int slot) { return Impl[slot]; }
         /*using Impl::top;
         using Impl::empty;
 
