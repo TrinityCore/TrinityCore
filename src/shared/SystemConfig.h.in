@@ -27,6 +27,7 @@
 #endif
 
 #include "Platform/Define.h"
+#include "revision.h" //-----here u are ------ _REVISION is the magic key
 
 #ifndef _VERSION
 #if PLATFORM == PLATFORM_WINDOWS
@@ -70,7 +71,6 @@
 # define _REALMD_CONFIG  SYSCONFDIR"realmd.conf"
 #endif
 
-#define _FULLVERSION "Trinity"
 
 #define DEFAULT_PLAYER_LIMIT 100
 #define DEFAULT_WORLDSERVER_PORT 8085                       //8129
