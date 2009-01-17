@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
  *
  * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
@@ -21,6 +21,8 @@
 /// \addtogroup Trinityd Trinity Daemon
 /// @{
 /// \file
+#include "SystemConfig.h"
+#include "revision.h"
 
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
@@ -62,6 +64,7 @@ uint32 realmID;                                             ///< Id of the realm
 void usage(const char *prog)
 {
     sLog.outString("Usage: \n %s [<options>]\n"
+        "    --version                print version and exist\n\r"
         "    -c config_file           use config_file as configuration file\n\r"
         #ifdef WIN32
         "    Running as service functions:\n\r"
@@ -90,6 +93,12 @@ extern int main(int argc, char **argv)
             }
             else
                 cfg_file = argv[c];
+        }
+
+        if( strcmp(argv[c],"--version") == 0)
+        {
+            printf("%s\n", _FULLVERSION);
+            return 0;
         }
 
         #ifdef WIN32
@@ -138,7 +147,7 @@ extern int main(int argc, char **argv)
         return 1;
     }
     sLog.outString("Using configuration file %s.", cfg_file);
-    
+
     uint32 confVersion = sConfig.GetIntDefault("ConfVersion", 0);
     if (confVersion < _TRINITY_CORE_CONFVER)
     {

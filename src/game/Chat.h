@@ -68,6 +68,7 @@ class ChatHandler
         void SendSysMessage(          int32     entry);
         void PSendSysMessage(         const char *format, ...) ATTR_PRINTF(2,3);
         void PSendSysMessage(         int32     entry, ...  );
+        std::string PGetParseString(int32 entry, ...);
 
         int ParseCommands(const char* text);
 
@@ -412,6 +413,7 @@ class ChatHandler
 		// GM ticket command handlers
 		bool HandleGMTicketListCommand(const char* args);
 		bool HandleGMTicketListOnlineCommand(const char* args);
+		bool HandleGMTicketListClosedCommand(const char* args);
 		bool HandleGMTicketGetByIdCommand(const char* args);
 		bool HandleGMTicketGetByNameCommand(const char* args);
 		bool HandleGMTicketCloseByIdCommand(const char* args);
