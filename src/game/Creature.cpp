@@ -1676,16 +1676,15 @@ bool Creature::FallGround()
     if (getDeathState() == DEAD_FALLING)
         return false;
 
-    // Let's do with no vmap because no way to get far distance with vmap high call
-    float tz = GetMap()->GetHeight(GetPositionX(), GetPositionY(), GetPositionZ(), false);
-
-    // Abort too if the ground is very near
-    if (fabs(GetPositionZ() - tz) < 0.1f)
+	float x, y, z;
+	GetPosition(x, y, z);
+	float ground_Z = GetMap()->GetVmapHeight(x, y, z, true);
+    if (fabs(ground_Z - z) < 0.1f)
         return false;
 
     Unit::setDeathState(DEAD_FALLING);
-    GetMotionMaster()->MovePoint(0, GetPositionX(), GetPositionY(), tz);
-    Relocate(GetPositionX(), GetPositionY(), tz);
+    GetMotionMaster()->MovePoint(0, x, y, ground_Z);
+    Relocate(x, y, ground_Z);
     return true;
 }
 
