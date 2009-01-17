@@ -392,7 +392,10 @@ void MotionMaster::propagateSpeedChange()
         (*it)->unitSpeedChanged();
     }*/
     for(int i = 0; i <= i_top; ++i)
-        Impl[i]->unitSpeedChanged();
+    {
+        if(Impl[i])
+            Impl[i]->unitSpeedChanged();
+    }
 }
 
 MovementGeneratorType MotionMaster::GetCurrentMovementGeneratorType() const

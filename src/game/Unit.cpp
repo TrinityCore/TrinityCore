@@ -12865,7 +12865,7 @@ void Unit::SetFeared(bool apply)
     }
     else
     {
-        if(isAlive() && GetMotionMaster()->GetCurrentMovementGeneratorType() == FLEEING_MOTION_TYPE))
+        if(isAlive() && GetMotionMaster()->GetCurrentMovementGeneratorType() == FLEEING_MOTION_TYPE)
             GetMotionMaster()->MovementExpired();
     }
 

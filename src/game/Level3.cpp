@@ -5766,7 +5766,10 @@ bool ChatHandler::HandleMovegensCommand(const char* /*args*/)
     {
         MovementGenerator* mg = mm->GetMotionSlot(i);
         if(!mg)
+        {
             SendSysMessage("Empty");
+            continue;
+        }
         switch(mg->GetMovementGeneratorType())
         {
             case IDLE_MOTION_TYPE:          SendSysMessage(LANG_MOVEGENS_IDLE);          break;
