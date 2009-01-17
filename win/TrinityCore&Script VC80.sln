@@ -45,6 +45,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TrinityScript", "..\src\bin
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ACEWrappers", "VC80\ACE_vc8.vcproj", "{AD537C9A-FECA-1BAD-6757-8A6348EA12C8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "genrevision", "VC80\genrevision.vcproj", "{803F488E-4C5A-4866-8D5C-1E6C03C007C2}"
+ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -141,6 +143,14 @@ Global
 		{AD537C9A-FECA-1BAD-6757-8A6348EA12C8}.Release|Win32.Build.0 = Release|Win32
 		{AD537C9A-FECA-1BAD-6757-8A6348EA12C8}.Release|x64.ActiveCfg = Release|x64
 		{AD537C9A-FECA-1BAD-6757-8A6348EA12C8}.Release|x64.Build.0 = Release|x64
+		{803F488E-4C5A-4866-8D5C-1E6C03C007C2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{803F488E-4C5A-4866-8D5C-1E6C03C007C2}.Debug|Win32.Build.0 = Debug|Win32
+		{803F488E-4C5A-4866-8D5C-1E6C03C007C2}.Debug|x64.ActiveCfg = Debug|x64
+		{803F488E-4C5A-4866-8D5C-1E6C03C007C2}.Debug|x64.Build.0 = Debug|x64
+		{803F488E-4C5A-4866-8D5C-1E6C03C007C2}.Release|Win32.ActiveCfg = Release|Win32
+		{803F488E-4C5A-4866-8D5C-1E6C03C007C2}.Release|Win32.Build.0 = Release|Win32
+		{803F488E-4C5A-4866-8D5C-1E6C03C007C2}.Release|x64.ActiveCfg = Release|x64
+		{803F488E-4C5A-4866-8D5C-1E6C03C007C2}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

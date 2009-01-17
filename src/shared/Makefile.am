@@ -50,8 +50,10 @@ libmangosshared_a_SOURCES = \
     WorldPacket.h \
     revision_nr.h \
     revision.h
+$(srcdir)/revision.h
 
 # Get revision (git or svn)
+# Get HG revision
 REVISION_FILE = revision.h
 
 BUILT_SOURCES = $(REVISION_FILE)
@@ -61,6 +63,7 @@ FORCE:
 
 $(REVISION_FILE) : $(top_builddir)/src/tools/genrevision/genrevision FORCE
 	$(top_builddir)/src/tools/genrevision/genrevision $(top_srcdir)
+	cp $(top_builddir)/src/shared/revision.h $(top_srcdir)/src/shared
 
 ## Additional files to include when running 'make dist'
 #  Disabled packet logger
