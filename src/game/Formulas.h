@@ -80,8 +80,17 @@ namespace Trinity
 
         inline uint32 BaseGain(uint32 pl_level, uint32 mob_level, ContentLevels content)
         {
-            //TODO: need modifier for CONTENT_71_80 different from CONTENT_61_70?
-            const uint32 nBaseExp = content == CONTENT_1_60 ? 45 : 235;
+            uint32 nBaseExp;
+            switch(content)
+            {
+                case CONTENT_1_60:  nBaseExp = 45;  break;
+                case CONTENT_61_70: nBaseExp = 235; break;
+                case CONTENT_71_80: nBaseExp = 580; break;
+                default:
+                    sLog.outError("BaseGain: Unsupported content level %u",content);
+                    nBaseExp = 45;  break;
+            }
+
             if( mob_level >= pl_level )
             {
                 uint32 nLevelDiff = mob_level - pl_level;
