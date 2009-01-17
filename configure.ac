@@ -353,6 +353,8 @@ AC_CONFIG_FILES([
    doc/Makefile
    Makefile
    src/Makefile
+   src/tools/Makefile
+   src/tools/genrevision/Makefile
    src/framework/Makefile
    src/shared/Makefile
    src/shared/Auth/Makefile
