@@ -1,0 +1,4 @@
+#ifndef __SVN_REVISION_H__
+#define __SVN_REVISION_H__
+ #define _REVISION "794" //change this to your current revision
+#endif // __SVN_REVISION_H__

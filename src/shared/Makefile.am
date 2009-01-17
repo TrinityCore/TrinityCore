@@ -104,7 +104,21 @@ $(srcdir)/Database/SqlDelayThread.h \
 $(srcdir)/Database/SqlOperations.cpp \
 $(srcdir)/Database/SqlOperations.h \
 $(srcdir)/Database/dbcfile.cpp \
-$(srcdir)/Database/dbcfile.h
+$(srcdir)/Database/dbcfile.h \
+$(srcdir)/revision.h
+
+
+# Get HG revision
+REVISION_FILE = revision.h
+
+BUILT_SOURCES = $(REVISION_FILE)
+CLEANFILES = $(REVISION_FILE)
+
+FORCE:
+
+$(REVISION_FILE) : $(top_builddir)/src/tools/genrevision/genrevision FORCE
+	$(top_builddir)/src/tools/genrevision/genrevision $(top_srcdir)
+	cp $(top_builddir)/src/shared/revision.h $(top_srcdir)/src/shared
 
 ## Additional files to include when running 'make dist'
 #  Disabled packet logger

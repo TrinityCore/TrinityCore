@@ -23,7 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SPELL_INHABITMAGIC          32264	            
+#define SPELL_INHIBITMAGIC          32264	            
 #define SPELL_ATTRACTMAGIC          32265
 #define N_SPELL_CARNIVOROUSBITE     36383
 #define H_SPELL_CARNIVOROUSBITE     39382
@@ -44,7 +44,7 @@ struct TRINITY_DLL_DECL boss_shirrak_the_dead_watcherAI : public ScriptedAI
         Reset();
     }
 
-    uint32 Inhabitmagic_Timer;
+    uint32 Inhibitmagic_Timer;
     uint32 Attractmagic_Timer;
     uint32 Carnivorousbite_Timer;
     uint32 FocusFire_Timer;
@@ -53,7 +53,7 @@ struct TRINITY_DLL_DECL boss_shirrak_the_dead_watcherAI : public ScriptedAI
 
     void Reset()
     {       
-        Inhabitmagic_Timer = 3000;
+        Inhibitmagic_Timer = 0;
         Attractmagic_Timer = 28000;
         Carnivorousbite_Timer = 10000;
         FocusFire_Timer = 17000;
@@ -79,22 +79,38 @@ struct TRINITY_DLL_DECL boss_shirrak_the_dead_watcherAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
+		//Inhibitmagic_Timer
+        if (Inhibitmagic_Timer < diff)
+        { 
+            float dist; 
+            Map *map = m_creature->GetMap(); 
+            Map::PlayerList const &PlayerList = map->GetPlayers(); 
+            for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i) 
+                if (Player* i_pl = i->getSource()) 
+                    if (i_pl->isAlive() && (dist = i_pl->GetDistance(m_creature)) < 45)
+                    {
+                        i_pl->RemoveAurasDueToSpell(SPELL_INHIBITMAGIC);
+                        m_creature->AddAura(SPELL_INHIBITMAGIC, i_pl);
+                        if(dist < 35)
+                            m_creature->AddAura(SPELL_INHIBITMAGIC, i_pl);
+                        if(dist < 25)
+                            m_creature->AddAura(SPELL_INHIBITMAGIC, i_pl);
+                        if(dist < 15)
+                            m_creature->AddAura(SPELL_INHIBITMAGIC, i_pl);
+                    }
+            Inhibitmagic_Timer = 3000+(rand()%1000);
+        }else Inhibitmagic_Timer -= diff;
+
         //Return since we have no target
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
             return;
-
-        //Inhabitmagic_Timer
-        if (Inhabitmagic_Timer < diff)
-        {
-            DoCast(m_creature,SPELL_INHABITMAGIC);
-            Inhabitmagic_Timer = 2000+(rand()%2000);
-        }else Inhabitmagic_Timer -= diff;
 
         //Attractmagic_Timer
         if (Attractmagic_Timer < diff)
         {
             DoCast(m_creature,SPELL_ATTRACTMAGIC);
             Attractmagic_Timer = 30000;
+			Carnivorousbite_Timer = 1500;
         }else Attractmagic_Timer -= diff;
 
         //Carnivorousbite_Timer
@@ -108,20 +124,20 @@ struct TRINITY_DLL_DECL boss_shirrak_the_dead_watcherAI : public ScriptedAI
         if (FocusFire_Timer < diff)
         {
             // Summon Focus Fire & Emote
-            Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (target && target->GetTypeId() == TYPEID_PLAYER)
+            Unit *target = SelectUnit(SELECT_TARGET_RANDOM,1);
+            if (target && target->GetTypeId() == TYPEID_PLAYER && target->isAlive())
             {
                 focusedTarget = target;
                 m_creature->SummonCreature(ENTRY_FOCUS_FIRE,target->GetPositionX(),target->GetPositionY(),target->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,5500);
 
                 // Emote
-                std::string *emote = new std::string("focuses his energy on ");
+                std::string *emote = new std::string("focuses on ");
                 emote->append(target->GetName());
+				emote->append("!");
                 DoTextEmote(emote->c_str(),NULL,true);
                 delete emote;
-
-                FocusFire_Timer = 15000+(rand()%5000);
             }
+			FocusFire_Timer = 15000+(rand()%5000);
         }else FocusFire_Timer -= diff;
 
         DoMeleeAttackIfReady();
@@ -143,7 +159,7 @@ struct TRINITY_DLL_DECL mob_focus_fireAI : public ScriptedAI
 
     bool HeroicMode;
     uint32 FieryBlast_Timer;
-    bool fiery1, fiery2, fiery3;
+    bool fiery1, fiery2;
 
     void Reset()
     {

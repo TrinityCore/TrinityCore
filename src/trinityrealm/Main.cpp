@@ -31,6 +31,7 @@
 #include "sockets/ListenSocket.h"
 #include "AuthSocket.h"
 #include "SystemConfig.h"
+#include "revision.h"
 #include "Util.h"
 
 // Format is YYYYMMDDRR where RR is the change in the conf file
@@ -70,6 +71,7 @@ DatabaseType LoginDatabase;                                 ///< Accessor to the
 void usage(const char *prog)
 {
     sLog.outString("Usage: \n %s [<options>]\n"
+        "    --version                print version and exist\n\r"
         "    -c config_file           use config_file as configuration file\n\r"
         #ifdef WIN32
         "    Running as service functions:\n\r"
@@ -98,6 +100,12 @@ extern int main(int argc, char **argv)
             }
             else
                 cfg_file = argv[c];
+        }
+
+        if( strcmp(argv[c],"--version") == 0)
+        {
+            printf("%s\n", _FULLVERSION);
+            return 0;
         }
 
         #ifdef WIN32

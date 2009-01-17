@@ -276,7 +276,7 @@ InstanceData* CreateInstanceData(Map *map)
 
     return tmpscript->GetInstanceData(map);
 }
-*/
+
 void ScriptedAI::UpdateAI(const uint32)
 {
     //Check if we have a current target
@@ -319,3 +319,4 @@ void ScriptedAI::DoGoHome()
     if( !m_creature->getVictim() && m_creature->isAlive() )
         m_creature->GetMotionMaster()->MoveTargetedHome();
 }
+*/
