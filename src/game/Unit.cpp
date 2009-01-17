@@ -10411,12 +10411,15 @@ bool Unit::SelectHostilTarget()
     }
 
     // search nearby enemy before enter evade mode
-    if(Unit *target = ((Creature*)this)->SelectNearestTarget())
+    if(((Creature*)target)->HasReactState(REACT_AGGRESSIVE))
     {
-        if(!((Creature*)this)->IsOutOfThreatArea(target))
+        if(Unit *target = ((Creature*)this)->SelectNearestTarget())
         {
-            ((Creature*)this)->AI()->AttackStart(target);
-            return true;
+            if(!((Creature*)this)->IsOutOfThreatArea(target))
+            {
+                ((Creature*)this)->AI()->AttackStart(target);
+                return true;
+            }
         }
     }
 
