@@ -342,7 +342,7 @@ Unit* ScriptedAI::SelectUnit(SelectAggroTarget targetType, uint32 position, floa
             Unit *target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
             if(!target
                 || playerOnly && target->GetTypeId() != TYPEID_PLAYER
-                || dist && !m_creature->IsWithinDistInMap(target, dist))
+                || dist && !m_creature->IsWithinCombatRange(target, dist))
             {
                 continue;
             }
@@ -388,7 +388,7 @@ Unit* ScriptedAI::SelectUnit(SelectAggroTarget targetType, uint32 position, floa
             target = Unit::GetUnit(*m_creature,(*i)->getUnitGuid());
             if(!target
                 || playerOnly && target->GetTypeId() != TYPEID_PLAYER
-                || dist && !m_creature->IsWithinDistInMap(target, dist))
+                || dist && !m_creature->IsWithinCombatRange(target, dist))
             {
                 m_threatlist.erase(i);
             }
@@ -414,7 +414,7 @@ void ScriptedAI::SelectUnitList(std::list<Unit*> &targetList, uint32 num, Select
             Unit *target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
             if(!target
                 || playerOnly && target->GetTypeId() != TYPEID_PLAYER
-                || dist && !m_creature->IsWithinDistInMap(target, dist))
+                || dist && !m_creature->IsWithinCombatRange(target, dist))
             {
                 continue;
             }
@@ -448,7 +448,7 @@ void ScriptedAI::SelectUnitList(std::list<Unit*> &targetList, uint32 num, Select
             m_threatlist.erase(i);
             if(!target
                 || playerOnly && target->GetTypeId() != TYPEID_PLAYER
-                || dist && !m_creature->IsWithinDistInMap(target, dist))
+                || dist && !m_creature->IsWithinCombatRange(target, dist))
             {
                 continue;                
             }
@@ -573,6 +573,16 @@ bool ScriptedAI::CanCast(Unit* Target, SpellEntry const *Spell, bool Triggered)
         return false;
 
     return true;
+}
+
+
+float GetSpellMaxRange(uint32 id)
+{
+    SpellEntry const *spellInfo = GetSpellStore()->LookupEntry(id);
+    if(!spellInfo) return 0;
+    SpellRangeEntry const *range = GetSpellRangeStore()->LookupEntry(spellInfo->rangeIndex);
+    if(!range) return 0;
+    return range->maxRange;
 }
 
 void FillSpellSummary()

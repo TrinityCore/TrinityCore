@@ -112,9 +112,6 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
     uint32 ShapeShift_Timer;
     uint32 Berserk_Timer;
 
-    uint64 ChargeTargetGUID;
-    uint64 TankGUID;
-
     bool inBearForm;
     bool MoveEvent;
     bool inMove;
@@ -144,9 +141,6 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
         Mangle_Timer = 10000 + rand()%5000;
         ShapeShift_Timer = 45000 + rand()%5000;
         Berserk_Timer = 600000;
-
-        ChargeTargetGUID = 0;
-        TankGUID = 0;
 
         inBearForm = false;
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 5122);
@@ -301,15 +295,7 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
 
     void MovementInform(uint32 type, uint32 id)
     {
-        if(!MoveEvent)
-        {
-            if(ChargeTargetGUID)
-            {
-                if(Unit* target = Unit::GetUnit(*m_creature, ChargeTargetGUID))
-                    m_creature->CastSpell(target, SPELL_SURGE, true);
-                ChargeTargetGUID = 0;
-            }
-        }else 
+        if(MoveEvent)
         {
             if(type != POINT_MOTION_TYPE)
                 return;
@@ -358,19 +344,6 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
                     (*m_creature).GetMotionMaster()->MovePoint(MovePhase,NalorakkWay[MovePhase][0],NalorakkWay[MovePhase][1],NalorakkWay[MovePhase][2]);
                     waitTimer = 0;
                 }else waitTimer -= diff;
-        }
-
-        if(TankGUID)
-        {
-            if(!ChargeTargetGUID)
-            {
-                m_creature->SetSpeed(MOVE_RUN, 1.2f);
-                m_creature->GetMotionMaster()->Clear();
-                if(Unit* target = Unit::GetUnit(*m_creature, TankGUID))
-                    m_creature->GetMotionMaster()->MoveChase(target);
-                TankGUID = 0;
-            }
-            return;
         }
 
         if(!m_creature->SelectHostilTarget() && !m_creature->getVictim())
@@ -434,37 +407,13 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
             {
                 DoYell(YELL_SURGE, LANG_UNIVERSAL, NULL);
                 DoPlaySoundToSet(m_creature, SOUND_YELL_SURGE);
-
-                Unit *target = NULL;
-				std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();
-				std::vector<Unit *> target_list;
-				for(std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
-				{
-					target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
-					//50 yard radius maximum
-					if(target && target->GetDistance2d(m_creature) < 50)
-						target_list.push_back(target);
-					target = NULL;
-				}
-				if(target_list.size())
-					target = *(target_list.begin()+rand()%target_list.size());
-
-				if(!target)
-					target = m_creature->getVictim();
-                TankGUID = m_creature->getVictim()->GetGUID();
-                ChargeTargetGUID = target->GetGUID();
-			
-					float x, y, z;
-					target->GetContactPoint(m_creature, x, y, z);
-					m_creature->SetSpeed(MOVE_RUN, 5.0f);
-					m_creature->GetMotionMaster()->Clear();
-					m_creature->GetMotionMaster()->MovePoint(0, x, y, z);			
-
+                Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 1, GetSpellMaxRange(SPELL_SURGE), true);
+                DoCast(target, SPELL_SURGE);
                 Surge_Timer = 15000 + rand()%5000;
-                return;
             }else Surge_Timer -= diff;
         }
-        else {
+        else
+        {
             if(LaceratingSlash_Timer < diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_LACERATINGSLASH);

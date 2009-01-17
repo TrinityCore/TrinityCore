@@ -181,6 +181,9 @@ Unit::~Unit()
     RemoveAllDynObjects();
 
     if(m_charmInfo) delete m_charmInfo;
+
+    RemoveAllAuras();
+    assert(m_Auras.begin() == m_Auras.end());
 }
 
 void Unit::Update( uint32 p_time )
@@ -3973,18 +3976,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
         }
     }
 
-    if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(-(int32)Aur->GetSpellProto()->Id))
-    {
-        for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
-        {
-            if(spell_triggered < 0)
-                RemoveAurasDueToSpell(-(*itr));
-            else if(Unit* caster = Aur->GetCaster())
-                CastSpell(this, *itr, true, 0, 0, caster->GetGUID());
-        }
-    }
-
-    sLog.outDebug("Aura %u now is remove mode %d",Aur->GetModifier()->m_auraname, mode);
+    sLog.outDebug("Aura %u (%u) now is remove mode %d", Aur->GetId(), Aur->GetModifier()->m_auraname, mode);
     assert(!Aur->IsInUse());
     Aur->ApplyModifier(false,true);
     Aur->_RemoveAura();
@@ -3995,6 +3987,20 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
 
     if(statue)
         statue->UnSummon();
+
+    if(mode != AURA_REMOVE_BY_STACK)
+    {
+        if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(-(int32)Aur->GetSpellProto()->Id))
+        {
+            for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+            {
+                if(spell_triggered < 0)
+                    RemoveAurasDueToSpell(-(*itr));
+                else if(Unit* caster = Aur->GetCaster())
+                    CastSpell(this, *itr, true, 0, 0, caster->GetGUID());
+            }
+        }
+    }
 
     // only way correctly remove all auras from list
     if( m_Auras.empty() )
