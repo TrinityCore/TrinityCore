@@ -58,7 +58,9 @@ class CreatureGroup
 		bool isEmpty() {return CreatureGroupMembers.empty();}
 };
 
-extern UNORDERED_MAP<uint32, CreatureGroup*> CreatureGroupHolder;
+typedef UNORDERED_MAP<uint32, CreatureGroup*> CreatureGroupHolderType;
+
+extern CreatureGroupHolderType CreatureGroupHolder;
 extern UNORDERED_MAP<uint32, FormationMember*> CreatureGroupMap;
 
 #define formation_mgr Trinity::Singleton<CreatureGroupManager>::Instance()

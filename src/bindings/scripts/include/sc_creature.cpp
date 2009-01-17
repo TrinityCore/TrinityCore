@@ -86,7 +86,6 @@ void ScriptedAI::AttackStart(Unit* who, bool melee)
     {
         m_creature->AddThreat(who, 0.0f);
         m_creature->SetInCombatWith(who);
-        who->SetInCombatWith(m_creature);
 
         if (!InCombat)
         {
@@ -110,7 +109,6 @@ void ScriptedAI::AttackStart(Unit* who)
     {
         m_creature->AddThreat(who, 0.0f);
         m_creature->SetInCombatWith(who);
-        who->SetInCombatWith(m_creature);
 
         if (!InCombat)
         {
@@ -823,7 +821,6 @@ void Scripted_NoMovementAI::AttackStart(Unit* who)
     {
         m_creature->AddThreat(who, 0.0f);
         m_creature->SetInCombatWith(who);
-        who->SetInCombatWith(m_creature);
 
         if (!InCombat)
         {
