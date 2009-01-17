@@ -131,12 +131,79 @@ bool QuestComplete_npc_chicken_cluck(Player *player, Creature *_Creature, const 
 ## npc_dancing_flames
 ######*/
 
-bool ReceiveEmote_npc_dancing_flames( Player *player, Creature *_Creature, uint32 emote )
-{
-    if( emote == TEXTEMOTE_DANCE )
-        _Creature->CastSpell(player,47057,false);
+#define SPELL_BRAZIER		45423
+#define SPELL_SEDUCTION		47057
+#define SPELL_FIERY_AURA	45427
 
-    return true;
+struct TRINITY_DLL_DECL npc_dancing_flamesAI : public ScriptedAI
+{
+    npc_dancing_flamesAI(Creature *c) : ScriptedAI(c) {Reset();}
+ 
+	bool active;
+	uint32 can_iteract;
+
+    void Reset()
+	{
+		active = true;
+		can_iteract = 3500;
+		DoCast(m_creature,SPELL_BRAZIER,true);
+		DoCast(m_creature,SPELL_FIERY_AURA,false);
+		float x, y, z;
+		m_creature->GetPosition(x,y,z);
+		m_creature->Relocate(x,y,z + 0.94f);
+		m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_LEVITATING);
+		m_creature->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
+		WorldPacket data;						//send update position to client
+		m_creature->BuildHeartBeatMsg(&data);
+		m_creature->SendMessageToSet(&data,true);
+	}
+
+    void UpdateAI(const uint32 diff)
+	{
+		if (!active)
+		{
+			if(can_iteract <= diff){
+				active = true;
+				can_iteract = 3500;
+				m_creature->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
+			}else can_iteract -= diff;
+		}
+	}
+
+    void Aggro(Unit* who){}
+};
+
+CreatureAI* GetAI_npc_dancing_flames(Creature *_Creature)
+{
+    return new npc_dancing_flamesAI(_Creature);
+}
+
+bool ReceiveEmote_npc_dancing_flames( Player *player, Creature *flame, uint32 emote )
+{
+	if ( ((npc_dancing_flamesAI*)flame->AI())->active &&
+		flame->IsWithinLOS(player->GetPositionX(),player->GetPositionY(),player->GetPositionZ()) && flame->IsWithinDistInMap(player,30.0f))
+	{
+		flame->SetInFront(player);
+		((npc_dancing_flamesAI*)flame->AI())->active = false;
+
+		WorldPacket data;
+		flame->BuildHeartBeatMsg(&data);
+		flame->SendMessageToSet(&data,true);
+		switch(emote)
+		{
+			case TEXTEMOTE_KISS:	flame->HandleEmoteCommand(EMOTE_ONESHOT_SHY); break;
+			case TEXTEMOTE_WAVE:    flame->HandleEmoteCommand(EMOTE_ONESHOT_WAVE); break;
+			case TEXTEMOTE_BOW:		flame->HandleEmoteCommand(EMOTE_ONESHOT_BOW); break;
+			case TEXTEMOTE_JOKE:	flame->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH); break;
+			case TEXTEMOTE_DANCE:
+			{
+				if (!player->HasAura(SPELL_SEDUCTION,0))
+					flame->CastSpell(player,SPELL_SEDUCTION,true);
+			}
+			break;
+		}
+	}
+	return true;
 }
 
 /*######
@@ -940,6 +1007,7 @@ void AddSC_npcs_special()
 
     newscript = new Script;
     newscript->Name="npc_dancing_flames";
+	newscript->GetAI = &GetAI_npc_dancing_flames;
     newscript->pReceiveEmote =  &ReceiveEmote_npc_dancing_flames;
     newscript->RegisterSelf();
 
