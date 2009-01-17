@@ -175,6 +175,8 @@ class TRINITY_DLL_SPEC ThreatManager
         Unit* iOwner;
         ThreatContainer iThreatContainer;
         ThreatContainer iThreatOfflineContainer;
+
+        void _addThreat(Unit* target, float threat);
     public:
         explicit ThreatManager(Unit *pOwner);
 
