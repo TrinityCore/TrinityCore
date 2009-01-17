@@ -2085,7 +2085,7 @@ bool ChatHandler::HandleModifyBitCommand(const char* args)
     if( !*args )
         return false;
 
-    Unit *unit = this->getSelectedUnit();
+    Unit *unit = getSelectedUnit();
     if (!unit)
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);

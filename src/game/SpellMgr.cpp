@@ -1273,6 +1273,11 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
     if(spellInfo_1->SpellFamilyName != spellInfo_2->SpellFamilyName)
         return false;
 
+    // TODO: Is this needed?
+    // Allow stack passive and not passive spells
+    if ((spellInfo_1->Attributes & SPELL_ATTR_PASSIVE)!=(spellInfo_2->Attributes & SPELL_ATTR_PASSIVE))
+        return false;
+
     // generic spells
     if(!spellInfo_1->SpellFamilyName)
     {
