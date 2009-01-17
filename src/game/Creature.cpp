@@ -1871,18 +1871,10 @@ void Creature::DoFleeToGetAssistance(float radius) // Optional parameter
     CellLock<GridReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, grid_creature_searcher, *(GetMap()));
 
-    if(!GetMotionMaster()->empty() && (GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE))
-        GetMotionMaster()->Clear(false);
-    if(pCreature == NULL)
-    {
-        GetMotionMaster()->MoveIdle();
+    if(!pCreature)
         GetMotionMaster()->MoveFleeing(getVictim());
-    }
     else
-    {
-        GetMotionMaster()->MoveIdle();
         GetMotionMaster()->MovePoint(0,pCreature->GetPositionX(),pCreature->GetPositionY(),pCreature->GetPositionZ());
-    }
 }
 
 Unit* Creature::SelectNearestTarget(float dist) const
@@ -2142,7 +2134,7 @@ bool Creature::HasSpellCooldown(uint32 spell_id) const
 
 bool Creature::IsInEvadeMode() const
 {
-    return !i_motionMaster.empty() && i_motionMaster.GetCurrentMovementGeneratorType() == HOME_MOTION_TYPE;
+    return /*!i_motionMaster.empty() &&*/ i_motionMaster.GetCurrentMovementGeneratorType() == HOME_MOTION_TYPE;
 }
 
 bool Creature::HasSpell(uint32 spellID) const

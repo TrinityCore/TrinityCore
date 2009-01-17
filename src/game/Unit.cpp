@@ -2656,7 +2656,7 @@ SpellMissInfo Unit::SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool 
         Unit::AuraList const& mReflectSpellsSchool = pVictim->GetAurasByType(SPELL_AURA_REFLECT_SPELLS_SCHOOL);
         for(Unit::AuraList::const_iterator i = mReflectSpellsSchool.begin(); i != mReflectSpellsSchool.end(); ++i)
             if((*i)->GetModifier()->m_miscvalue & GetSpellSchoolMask(spell))
-                reflectchance = (*i)->GetModifier()->m_amount;
+                reflectchance += (*i)->GetModifier()->m_amount;
         if (reflectchance > 0 && roll_chance_i(reflectchance))
         {
             // Start triggers for remove charges if need (trigger only for victim, and mark as active spell)
@@ -3294,11 +3294,8 @@ int32 Unit::GetMaxPositiveAuraModifier(AuraType auratype) const
 
     AuraList const& mTotalAuraList = GetAurasByType(auratype);
     for(AuraList::const_iterator i = mTotalAuraList.begin();i != mTotalAuraList.end(); ++i)
-    {
-        int32 amount = (*i)->GetModifier()->m_amount;
-        if (amount > modifier)
-            modifier = amount;
-    }
+        if ((*i)->GetModifier()->m_amount > modifier)
+            modifier = (*i)->GetModifier()->m_amount;
 
     return modifier;
 }
@@ -3309,11 +3306,8 @@ int32 Unit::GetMaxNegativeAuraModifier(AuraType auratype) const
 
     AuraList const& mTotalAuraList = GetAurasByType(auratype);
     for(AuraList::const_iterator i = mTotalAuraList.begin();i != mTotalAuraList.end(); ++i)
-    {
-        int32 amount = (*i)->GetModifier()->m_amount;
-        if (amount < modifier)
-            modifier = amount;
-    }
+        if ((*i)->GetModifier()->m_amount < modifier)
+            modifier = (*i)->GetModifier()->m_amount;
 
     return modifier;
 }
@@ -3327,7 +3321,7 @@ int32 Unit::GetTotalAuraModifierByMiscMask(AuraType auratype, uint32 misc_mask) 
     {
         Modifier* mod = (*i)->GetModifier();
         if (mod->m_miscvalue & misc_mask)
-            modifier += (*i)->GetModifier()->m_amount;
+            modifier += mod->m_amount;
     }
     return modifier;
 }
@@ -3341,7 +3335,7 @@ float Unit::GetTotalAuraMultiplierByMiscMask(AuraType auratype, uint32 misc_mask
     {
         Modifier* mod = (*i)->GetModifier();
         if (mod->m_miscvalue & misc_mask)
-            multiplier *= (100.0f + (*i)->GetModifier()->m_amount)/100.0f;
+            multiplier *= (100.0f + mod->m_amount)/100.0f;
     }
     return multiplier;
 }
@@ -3354,9 +3348,8 @@ int32 Unit::GetMaxPositiveAuraModifierByMiscMask(AuraType auratype, uint32 misc_
     for(AuraList::const_iterator i = mTotalAuraList.begin();i != mTotalAuraList.end(); ++i)
     {
         Modifier* mod = (*i)->GetModifier();
-        int32 amount = (*i)->GetModifier()->m_amount;
-        if (mod->m_miscvalue & misc_mask && amount > modifier)
-            modifier = amount;
+        if (mod->m_miscvalue & misc_mask && mod->m_amount > modifier)
+            modifier = mod->m_amount;
     }
 
     return modifier;
@@ -3370,9 +3363,8 @@ int32 Unit::GetMaxNegativeAuraModifierByMiscMask(AuraType auratype, uint32 misc_
     for(AuraList::const_iterator i = mTotalAuraList.begin();i != mTotalAuraList.end(); ++i)
     {
         Modifier* mod = (*i)->GetModifier();
-        int32 amount = (*i)->GetModifier()->m_amount;
-        if (mod->m_miscvalue & misc_mask && amount < modifier)
-            modifier = amount;
+        if (mod->m_miscvalue & misc_mask && mod->m_amount < modifier)
+            modifier = mod->m_amount;
     }
 
     return modifier;
@@ -3387,7 +3379,7 @@ int32 Unit::GetTotalAuraModifierByMiscValue(AuraType auratype, int32 misc_value)
     {
         Modifier* mod = (*i)->GetModifier();
         if (mod->m_miscvalue == misc_value)
-            modifier += (*i)->GetModifier()->m_amount;
+            modifier += mod->m_amount;
     }
     return modifier;
 }
@@ -3401,7 +3393,7 @@ float Unit::GetTotalAuraMultiplierByMiscValue(AuraType auratype, int32 misc_valu
     {
         Modifier* mod = (*i)->GetModifier();
         if (mod->m_miscvalue == misc_value)
-            multiplier *= (100.0f + (*i)->GetModifier()->m_amount)/100.0f;
+            multiplier *= (100.0f + mod->m_amount)/100.0f;
     }
     return multiplier;
 }
@@ -3414,9 +3406,8 @@ int32 Unit::GetMaxPositiveAuraModifierByMiscValue(AuraType auratype, int32 misc_
     for(AuraList::const_iterator i = mTotalAuraList.begin();i != mTotalAuraList.end(); ++i)
     {
         Modifier* mod = (*i)->GetModifier();
-        int32 amount = (*i)->GetModifier()->m_amount;
-        if (mod->m_miscvalue == misc_value && amount > modifier)
-            modifier = amount;
+        if (mod->m_miscvalue == misc_value && mod->m_amount > modifier)
+            modifier = mod->m_amount;
     }
 
     return modifier;
@@ -3430,9 +3421,8 @@ int32 Unit::GetMaxNegativeAuraModifierByMiscValue(AuraType auratype, int32 misc_
     for(AuraList::const_iterator i = mTotalAuraList.begin();i != mTotalAuraList.end(); ++i)
     {
         Modifier* mod = (*i)->GetModifier();
-		int32 amount = (*i)->GetModifier()->m_amount;
-        if (mod->m_miscvalue == misc_value && amount < modifier)
-            modifier = amount;
+        if (mod->m_miscvalue == misc_value && mod->m_amount < modifier)
+            modifier = mod->m_amount;
     }
 
     return modifier;
@@ -3997,9 +3987,6 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     sLog.outDebug("Aura %u now is remove mode %d",Aur->GetModifier()->m_auraname, mode);
     assert(!Aur->IsInUse());
     Aur->ApplyModifier(false,true);
-	
-	Aur->SetStackAmount(0);
-	
     Aur->_RemoveAura();
     delete Aur;
 
@@ -7406,7 +7393,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
             (*i)->GetSpellProto()->EquippedItemInventoryTypeMask == 0 )
                                                             // 0 == any inventory type (not wand then)
         {
-            DoneTotalMod *= ((*i)->GetModifier()->m_amount +100.0f)/100.0f;
+            DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
         }
     }
 
@@ -7414,13 +7401,13 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     AuraList const& mDamageDoneVersus = GetAurasByType(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS);
     for(AuraList::const_iterator i = mDamageDoneVersus.begin();i != mDamageDoneVersus.end(); ++i)
         if(creatureTypeMask & uint32((*i)->GetModifier()->m_miscvalue))
-            DoneTotalMod *= ((*i)->GetModifier()->m_amount +100.0f)/100.0f;
+            DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
 
     // ..taken
     AuraList const& mModDamagePercentTaken = pVictim->GetAurasByType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
     for(AuraList::const_iterator i = mModDamagePercentTaken.begin(); i != mModDamagePercentTaken.end(); ++i)
         if( (*i)->GetModifier()->m_miscvalue & GetSpellSchoolMask(spellProto) )
-            TakenTotalMod *= ((*i)->GetModifier()->m_amount +100.0f)/100.0f;
+            TakenTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
 
     // .. taken pct: scripted (increases damage of * against targets *)
     AuraList const& mOverrideClassScript = GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
@@ -8343,13 +8330,13 @@ void Unit::MeleeDamageBonus(Unit *pVictim, uint32 *pdamage,WeaponAttackType attT
     AuraList const& mDamageDoneVersus = GetAurasByType(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS);
     for(AuraList::const_iterator i = mDamageDoneVersus.begin();i != mDamageDoneVersus.end(); ++i)
         if(creatureTypeMask & uint32((*i)->GetModifier()->m_miscvalue))
-            DoneTotalMod *= ((*i)->GetModifier()->m_amount +100.0f)/100.0f;
+            DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
 
     // ..taken
     AuraList const& mModDamagePercentTaken = pVictim->GetAurasByType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
     for(AuraList::const_iterator i = mModDamagePercentTaken.begin(); i != mModDamagePercentTaken.end(); ++i)
         if((*i)->GetModifier()->m_miscvalue & GetMeleeDamageSchoolMask())
-            TakenTotalMod *= ((*i)->GetModifier()->m_amount +100.0f)/100.0f;
+            TakenTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
 
     // .. taken pct: dummy auras
     AuraList const& mDummyAuras = pVictim->GetAurasByType(SPELL_AURA_DUMMY);
@@ -8407,13 +8394,13 @@ void Unit::MeleeDamageBonus(Unit *pVictim, uint32 *pdamage,WeaponAttackType attT
     {
         AuraList const& mModMeleeDamageTakenPercent = pVictim->GetAurasByType(SPELL_AURA_MOD_MELEE_DAMAGE_TAKEN_PCT);
         for(AuraList::const_iterator i = mModMeleeDamageTakenPercent.begin(); i != mModMeleeDamageTakenPercent.end(); ++i)
-            TakenTotalMod *= ((*i)->GetModifier()->m_amount +100.0f)/100.0f;
+            TakenTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
     }
     else
     {
         AuraList const& mModRangedDamageTakenPercent = pVictim->GetAurasByType(SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN_PCT);
         for(AuraList::const_iterator i = mModRangedDamageTakenPercent.begin(); i != mModRangedDamageTakenPercent.end(); ++i)
-            TakenTotalMod *= ((*i)->GetModifier()->m_amount +100.0f)/100.0f;
+            TakenTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
     }
 
     float tmpDamage = float(int32(*pdamage) + DoneFlatBenefit) * DoneTotalMod;
@@ -11575,13 +11562,6 @@ void Unit::SetFeared(bool apply)
 {
     if(apply)
     {
-        if(HasAuraType(SPELL_AURA_PREVENTS_FLEEING))
-            return;
-
-        SetUInt64Value(UNIT_FIELD_TARGET, 0);
-        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
-        CastStop();
-        //GetMotionMaster()->MovementExpired(false);
         Unit *caster = NULL;
         Unit::AuraList const& fearAuras = GetAurasByType(SPELL_AURA_MOD_FEAR);
         if(!fearAuras.empty())
@@ -11590,17 +11570,8 @@ void Unit::SetFeared(bool apply)
     }
     else
     {
-        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
-        if(isAlive())
-        {
-            if( GetTypeId() != TYPEID_PLAYER && getVictim())
-            {
-                SetUInt64Value(UNIT_FIELD_TARGET, getVictim()->GetGUID());
-                GetMotionMaster()->MoveChase(getVictim());
-            }
-            else
-                GetMotionMaster()->Initialize();
-        }
+        if(isAlive() && GetMotionMaster()->GetCurrentMovementGeneratorType() == FLEEING_MOTION_TYPE)
+            GetMotionMaster()->MovementExpired();
     }
 
     if (GetTypeId() == TYPEID_PLAYER)
@@ -11611,24 +11582,12 @@ void Unit::SetConfused(bool apply)
 {
     if(apply)
     {
-        SetUInt64Value(UNIT_FIELD_TARGET, 0);
-        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
-        CastStop();
         GetMotionMaster()->MoveConfused();
     }
     else
     {
-        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
-        if(isAlive())
-        {
-            if( GetTypeId() != TYPEID_PLAYER && getVictim())
-            {
-                SetUInt64Value(UNIT_FIELD_TARGET, getVictim()->GetGUID());
-                GetMotionMaster()->MoveChase(getVictim());
-            }
-            else
-                GetMotionMaster()->Initialize();
-        }
+        if(isAlive() && GetMotionMaster()->GetCurrentMovementGeneratorType() == CONFUSED_MOTION_TYPE)
+            GetMotionMaster()->MovementExpired();
     }
 
     if(GetTypeId() == TYPEID_PLAYER)
@@ -11702,7 +11661,7 @@ void Unit::SetCharmedOrPossessedBy(Unit* charmer, bool possess)
     if(possess)
     {
         addUnitState(UNIT_STAT_POSSESSED);
-        //SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
+        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
         AddPlayerToVision((Player*)charmer);
         ((Player*)charmer)->SetClientControl(this, 1);
         ((Player*)charmer)->SetMover(this);
@@ -11754,7 +11713,7 @@ void Unit::RemoveCharmedOrPossessedBy(Unit *charmer)
     if(possess)
     {
         clearUnitState(UNIT_STAT_POSSESSED);
-        //RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
+        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
     }
 
     if(GetTypeId() == TYPEID_UNIT)
