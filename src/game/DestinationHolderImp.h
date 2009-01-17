@@ -95,10 +95,16 @@ DestinationHolder<TRAVELLER>::StartTravel(TRAVELLER &traveller, bool sendMove)
         dist = sqrt((dx*dx) + (dy*dy) + (dz*dz));
     else                                                    //Walking on the ground
         dist = sqrt((dx*dx) + (dy*dy));
-    float speed = traveller.Speed();
 
-    speed *=  0.001f;                                       // speed is in seconds so convert from second to millisecond
-    i_totalTravelTime = static_cast<uint32>(dist/speed);
+    if(traveller.GetTraveller().hasUnitState(UNIT_STAT_CHARGING))
+        i_totalTravelTime = 1000;
+    else
+    {
+        float speed = traveller.Speed();
+        speed *=  0.001f;                                       // speed is in seconds so convert from second to millisecond
+        i_totalTravelTime = static_cast<uint32>(dist/speed);
+    }
+
     i_timeElapsed = 0;
     if(sendMove)
         traveller.MoveTo(i_destX, i_destY, i_destZ, i_totalTravelTime);
