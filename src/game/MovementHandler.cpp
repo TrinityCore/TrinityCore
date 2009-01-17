@@ -181,6 +181,9 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     uint32 opcode = recv_data.GetOpcode();
     sLog.outDebug("WORLD: Recvd %s (%u, 0x%X) opcode", LookupOpcodeName(opcode), opcode, opcode);
 
+    if(GetPlayer()->GetDontMove())
+        return;
+
     /* extract packet */
     MovementInfo movementInfo;
     ReadMovementInfo(recv_data, &movementInfo);
@@ -195,20 +198,6 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
 
     if (!Trinity::IsValidMapCoord(movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o))
         return;
-
-    // Handle possessed unit movement separately
-    /*Unit* pos_unit = GetPlayer()->GetCharm();
-    if (pos_unit && pos_unit->isPossessed()) // can be charmed but not possessed
-    {
-        HandlePossessedMovement(recv_data, movementInfo, movementInfo.flags);
-        return;
-    }*/
-
-    if (GetPlayer()->GetDontMove())
-        return;
-
-    //Save movement flags
-    GetPlayer()->SetUnitMovementFlags(movementInfo.flags);
 
     /* handle special cases */
     if (movementInfo.flags & MOVEMENTFLAG_ONTRANSPORT)
