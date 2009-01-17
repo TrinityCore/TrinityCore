@@ -155,8 +155,8 @@ void MotionMaster::MoveIdle(MovementSlot slot)
 void
 MotionMaster::MoveTargetedHome()
 {
-    if(i_owner->hasUnitState(UNIT_STAT_FLEEING))
-        return;
+    //if(i_owner->hasUnitState(UNIT_STAT_FLEEING))
+    //    return;
 
     Clear(false);
 
@@ -230,8 +230,6 @@ MotionMaster::MoveChase(Unit* target, float dist, float angle)
 void
 MotionMaster::MoveFollow(Unit* target, float dist, float angle)
 {
-    Clear();
-
     // ignore movement request if target not exist
     if(!target)
         return;
@@ -276,6 +274,9 @@ MotionMaster::MoveFleeing(Unit* enemy)
     if(!enemy)
         return;
 
+    if(i_owner->HasAuraType(SPELL_AURA_PREVENTS_FLEEING))
+        return;
+
     if(i_owner->GetTypeId()==TYPEID_PLAYER)
     {
         DEBUG_LOG("Player (GUID: %u) flee from %s (GUID: %u)", i_owner->GetGUIDLow(),
@@ -312,6 +313,9 @@ MotionMaster::MoveTaxiFlight(uint32 path, uint32 pathnode)
 void
 MotionMaster::MoveDistract(uint32 timer)
 {
+    if(Impl[MOTION_SLOT_CONTROLLED])
+        return;
+
     if(i_owner->GetTypeId()==TYPEID_PLAYER)
     {
         DEBUG_LOG("Player (GUID: %u) distracted (timer: %u)", i_owner->GetGUIDLow(), timer);
@@ -388,7 +392,10 @@ void MotionMaster::propagateSpeedChange()
         (*it)->unitSpeedChanged();
     }*/
     for(int i = 0; i <= i_top; ++i)
-        Impl[i]->unitSpeedChanged();
+    {
+        if(Impl[i])
+            Impl[i]->unitSpeedChanged();
+    }
 }
 
 MovementGeneratorType MotionMaster::GetCurrentMovementGeneratorType() const
