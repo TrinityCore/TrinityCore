@@ -257,6 +257,9 @@ Unit::~Unit()
     RemoveAllDynObjects();
 
     if(m_charmInfo) delete m_charmInfo;
+
+    RemoveAllAuras();
+    assert(m_Auras.begin() == m_Auras.end());
 }
 
 void Unit::Update( uint32 p_time )
