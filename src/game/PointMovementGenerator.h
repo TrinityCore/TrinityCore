@@ -35,7 +35,7 @@ class TRINITY_DLL_SPEC PointMovementGenerator
             i_x(_x), i_y(_y), i_z(_z), i_nextMoveTime(0) {}
 
         void Initialize(T &);
-        void Finalize(T &){}
+        void Finalize(T &unit){unit.clearUnitState(UNIT_STAT_CHARGING);}
         void Reset(T &unit){unit.StopMoving();}
         bool Update(T &, const uint32 &diff);
 
