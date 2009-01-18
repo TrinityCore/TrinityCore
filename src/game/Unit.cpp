@@ -258,8 +258,9 @@ Unit::~Unit()
 
     if(m_charmInfo) delete m_charmInfo;
 
-    RemoveAllAuras();
-    assert(m_Auras.begin() == m_Auras.end());
+    sLog.outDetail("Deconstruct Unit Entry = %u", GetEntry());
+    if(m_scAuras.size())
+        sLog.outError("Unit %u has sc auras during deconstruction", GetEntry());
 }
 
 void Unit::Update( uint32 p_time )
@@ -4662,13 +4663,6 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
 	Aur->SetStackAmount(0);
 	
     Aur->_RemoveAura();
-    delete Aur;
-
-    if(caster_channeled)
-        RemoveAurasAtChanneledTarget (AurSpellInfo);
-
-    if(statue)
-        statue->UnSummon();
 
     if(mode != AURA_REMOVE_BY_STACK)
     {
@@ -4683,6 +4677,14 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
             }
         }
     }
+
+    delete Aur;
+
+    if(caster_channeled)
+        RemoveAurasAtChanneledTarget (AurSpellInfo);
+
+    if(statue)
+        statue->UnSummon();
 
     // only way correctly remove all auras from list
     if( m_Auras.empty() )
