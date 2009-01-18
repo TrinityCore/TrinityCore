@@ -4662,13 +4662,6 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
 	Aur->SetStackAmount(0);
 	
     Aur->_RemoveAura();
-    delete Aur;
-
-    if(caster_channeled)
-        RemoveAurasAtChanneledTarget (AurSpellInfo);
-
-    if(statue)
-        statue->UnSummon();
 
     if(mode != AURA_REMOVE_BY_STACK)
     {
@@ -4683,6 +4676,14 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
             }
         }
     }
+
+    delete Aur;
+
+    if(caster_channeled)
+        RemoveAurasAtChanneledTarget (AurSpellInfo);
+
+    if(statue)
+        statue->UnSummon();
 
     // only way correctly remove all auras from list
     if( m_Auras.empty() )
