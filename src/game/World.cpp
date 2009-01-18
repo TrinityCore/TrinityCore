@@ -526,6 +526,11 @@ void World::LoadConfigSettings(bool reload)
 
     ///- Read other configuration items from the config file
 
+	///- Do we allow flying mounts in Azeroth/Outland and others (others being instances, BGs, arenas)?
+    m_configs[CONFIG_FLYING_MOUNTS_AZEROTH] = sConfig.GetBoolDefault("FlyingMounts.Azeroth", false);
+    m_configs[CONFIG_FLYING_MOUNTS_OUTLAND] = sConfig.GetBoolDefault("FlyingMounts.Outland", true);
+    m_configs[CONFIG_FLYING_MOUNTS_OTHERS] = sConfig.GetBoolDefault("FlyingMounts.Others", false);
+
     m_configs[CONFIG_COMPRESSION] = sConfig.GetIntDefault("Compression", 1);
     if(m_configs[CONFIG_COMPRESSION] < 1 || m_configs[CONFIG_COMPRESSION] > 9)
     {
