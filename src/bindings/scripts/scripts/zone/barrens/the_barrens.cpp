@@ -407,7 +407,8 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
 			if(Mercenary)
 			{
 				((Creature*)Mercenary)->Yell(SAY_MERCENARY_4, LANG_UNIVERSAL, NULL);
-				Mercenary->Attack(m_creature, true); 
+				((Creature*)Mercenary)->AI()->AttackStart(m_creature);
+				AttackStart(Mercenary);
 			}
 				}break;
 		case 21: DoSay(SAY_PROGRESS_5, LANG_UNIVERSAL, NULL);
@@ -474,7 +475,7 @@ CreatureAI* GetAI_npc_wizzlecrank_shredderAI(Creature *_Creature)
 	thisAI->AddWaypoint(11, 1098.92, -3095.14, 82.97);
 	thisAI->AddWaypoint(12, 1100.94, -3082.60, 82.83);
 	thisAI->AddWaypoint(13, 1101.12, -3068.83, 82.53);
-	thisAI->AddWaypoint(14, 1096.97, -3051,99, 82.50);
+	thisAI->AddWaypoint(14, 1096.97, -3051.99, 82.50);
 	thisAI->AddWaypoint(15, 1094.06, -3036.79, 82.70);
 	thisAI->AddWaypoint(16, 1098.22, -3027.84, 83.79);
 	thisAI->AddWaypoint(17, 1109.51, -3015.92, 85.73);
