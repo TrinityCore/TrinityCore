@@ -305,6 +305,7 @@ struct TRINITY_DLL_DECL	npc_kayra_longmaneAI : public npc_escortAI
 		case 19: m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
 			DoSay(SAY_PROGRESS_5, LANG_UNIVERSAL, player); break;
 		case 26: DoSay(SAY_PROGRESS_6, LANG_UNIVERSAL, player);
+			Completed = true;
 			if(player)
 				((Player*)player)->GroupEventHappens(QUEST_EFU, m_creature);
 			break;
@@ -313,7 +314,7 @@ struct TRINITY_DLL_DECL	npc_kayra_longmaneAI : public npc_escortAI
 
 	void JustDied(Unit* killer)
 	{
-		if (PlayerGUID)
+		if (PlayerGUID && !Completed)
 		{
 			Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
 			if (player && !Completed)
