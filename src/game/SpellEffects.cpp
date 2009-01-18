@@ -3579,7 +3579,8 @@ void Spell::EffectSummonGuardian(uint32 i)
     }
 
     // trigger
-    if(!m_originalCaster || m_originalCaster->GetTypeId() != TYPEID_PLAYER /*m_spellInfo->Id == 40276*/)
+    if(!m_originalCaster || m_originalCaster->GetTypeId() != TYPEID_PLAYER 
+        && !((Creature*)m_originalCaster)->isTotem()/*m_spellInfo->Id == 40276*/)
     {
         EffectSummonWild(i);
         return;
