@@ -290,66 +290,6 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
         GetPlayer()->HandleFallUnderMap();
 }
 
-/*void WorldSession::HandlePossessedMovement(WorldPacket& recv_data, MovementInfo& movementInfo, uint32& MovementFlags)
-{
-    // Whatever the client is controlling, it will send the GUID of the original player.
-    // If current player is controlling, it must be handled like the controlled player sent these opcodes
-
-    Unit* pos_unit = GetPlayer()->GetCharm();
-
-    if (pos_unit->GetTypeId() == TYPEID_PLAYER && ((Player*)pos_unit)->GetDontMove())
-        return;
-
-    //Save movement flags
-    pos_unit->SetUnitMovementFlags(MovementFlags);
-
-    // Remove possession if possessed unit enters a transport
-    if (MovementFlags & MOVEMENTFLAG_ONTRANSPORT)
-    {
-        GetPlayer()->RemovePossess(true);
-        return;
-    }
-
-    recv_data.put<uint32>(5, getMSTime());
-    WorldPacket data(recv_data.GetOpcode(), pos_unit->GetPackGUID().size()+recv_data.size());
-    data.append(pos_unit->GetPackGUID());
-    data.append(recv_data.contents(), recv_data.size());
-    // Send the packet to self but not to the possessed player; for creatures the first bool is irrelevant
-    pos_unit->SendMessageToSet(&data, true, false);
-
-    // Possessed is a player
-    if (pos_unit->GetTypeId() == TYPEID_PLAYER)
-    {
-        Player* plr = (Player*)pos_unit;
-        
-        if (recv_data.GetOpcode() == MSG_MOVE_FALL_LAND)
-            plr->HandleFallDamage(movementInfo);
-
-        if(((MovementFlags & MOVEMENTFLAG_SWIMMING) != 0) != plr->IsInWater())
-        {
-            // Now client not include swimming flag in case jumping under water
-            plr->SetInWater( !plr->IsInWater() || plr->GetBaseMap()->IsUnderWater(movementInfo.x, movementInfo.y, movementInfo.z) );
-        }
-        
-        plr->SetPosition(movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o, false);
-        plr->m_movementInfo = movementInfo;
-
-        if(plr->isMovingOrTurning())
-            plr->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
-
-        if(movementInfo.z < -500.0f)
-        {
-            GetPlayer()->RemovePossess(false);
-            plr->HandleFallUnderMap();
-        }
-    } 
-    else // Possessed unit is a creature
-    {
-        Map* map = MapManager::Instance().GetMap(pos_unit->GetMapId(), pos_unit);
-        map->CreatureRelocation((Creature*)pos_unit, movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
-    }
-}*/
-
 void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: Recvd %s (%u, 0x%X) opcode", LookupOpcodeName(recv_data.GetOpcode()), recv_data.GetOpcode(), recv_data.GetOpcode());

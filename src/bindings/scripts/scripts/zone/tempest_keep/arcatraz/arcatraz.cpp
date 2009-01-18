@@ -258,8 +258,6 @@ CreatureAI* GetAI_npc_millhouse_manastorm(Creature *_Creature)
 #define SPELL_TARGET_OMEGA  36852
 #define SPELL_BUBBLE_VISUAL 36849
 
-#define GOBJECT_SHIELD				184802
-
 struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
 {
     npc_warden_mellicharAI(Creature *c) : ScriptedAI(c)
@@ -360,7 +358,8 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
                 case 2:
                     DoCast(m_creature,SPELL_TARGET_ALPHA);
                     pInstance->SetData(TYPE_WARDEN_1,IN_PROGRESS);
-					m_creature->SummonGameObject(GOBJECT_SHIELD, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()-0.5, m_creature->GetOrientation(), 0, 0, 0, 0, 0);
+					if (GameObject *Sphere = GameObject::GetGameObject(*m_creature,pInstance->GetData64(DATA_SPHERE_SHIELD)))
+						Sphere->SetGoState(1);
                     break;
                 case 3:
                     DoCast(m_creature,SPELL_TARGET_BETA);

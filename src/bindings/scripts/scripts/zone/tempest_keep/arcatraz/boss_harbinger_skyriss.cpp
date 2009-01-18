@@ -79,7 +79,8 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_ATTACKABLE_2);
+        if(!Intro)
+			m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_ATTACKABLE_2);
 
         IsImage33 = false;
         IsImage66 = false;
@@ -95,19 +96,13 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
     void MoveInLineOfSight(Unit *who)
     {
         if(!Intro)
-            ScriptedAI::MoveInLineOfSight(who);
+		{
+			return;
+		}
+        ScriptedAI::MoveInLineOfSight(who);
     }
 
-    void AttackStart(Unit* who)
-    {
-        if(!Intro)
-            ScriptedAI::AttackStart(who);
-    }
-
-    void Aggro(Unit *who)
-    {
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_ATTACKABLE_2);
-    }
+    void Aggro(Unit *who) {}
 
     void JustDied(Unit* Killer)
     {
@@ -129,11 +124,6 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
         }
     }
 
-    void JustSummoned(Creature *summoned)
-    {
-        summoned->AI()->AttackStart(m_creature->getVictim());
-    }
-
     void DoSplit(uint32 val)
     {
         if( m_creature->IsNonMeleeSpellCasted(false) )
@@ -149,7 +139,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if( !Intro && !InCombat )
+        if(!Intro)
         {
             if( !pInstance )
                 return;
@@ -178,6 +168,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
                         Intro_Timer = 3000;
                         break;
                     case 3:
+						m_creature->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_ATTACKABLE_2);
                         Intro = true;
                         break;
                 }

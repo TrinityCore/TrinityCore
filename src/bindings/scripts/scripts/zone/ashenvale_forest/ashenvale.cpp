@@ -55,6 +55,7 @@ struct TRINITY_DLL_DECL npc_torekAI : public npc_escortAI
    
 	uint32 Rend_Timer;
 	uint32 Thunderclap_Timer;
+	bool Completed;
    
 	void WaypointReached(uint32 i)
 	{
@@ -79,6 +80,7 @@ struct TRINITY_DLL_DECL npc_torekAI : public npc_escortAI
 			break;
 		case 20:
 			DoScriptText(SAY_WIN, m_creature, player);
+			Completed = true;
 			if (player && player->GetTypeId() == TYPEID_PLAYER)
 				((Player*)player)->GroupEventHappens(QUEST_TOREK_ASSULT,m_creature);
 			break;
@@ -92,6 +94,7 @@ struct TRINITY_DLL_DECL npc_torekAI : public npc_escortAI
 	{
 		Rend_Timer = 5000;
 		Thunderclap_Timer = 8000;
+		Completed = false;
 	}
    
 	void Aggro(Unit* who)
@@ -105,7 +108,7 @@ struct TRINITY_DLL_DECL npc_torekAI : public npc_escortAI
    
 	void JustDied(Unit* killer)
 	{
-		if (PlayerGUID)
+		if (PlayerGUID && !Completed)
 		{
 			if (Unit* player = Unit::GetUnit((*m_creature), PlayerGUID))
 				((Player*)player)->FailQuest(QUEST_TOREK_ASSULT);
@@ -140,6 +143,7 @@ bool QuestAccept_npc_torek(Player* player, Creature* creature, Quest const* ques
 		//TODO: find companions, make them follow Torek, at any time (possibly done by mangos/database in future?)
 		((npc_escortAI*)(creature->AI()))->Start(true, true, true, player->GetGUID());
 		DoScriptText(SAY_READY, creature, player);
+		creature->setFaction(113);
 	}
    
 	return true;
@@ -258,7 +262,7 @@ bool QuestAccept_npc_ruul_snowhoof(Player* player, Creature* creature, Quest con
 {
     if (quest->GetQuestId() == QUEST_FREEDOM_TO_RUUL)
     {
-        creature->setFaction(1603);
+        creature->setFaction(113);
         ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
     }
     return true;

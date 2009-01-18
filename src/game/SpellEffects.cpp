@@ -3698,7 +3698,8 @@ void Spell::EffectSummonGuardian(uint32 i)
     }
 
     // trigger
-    if(!m_originalCaster || m_originalCaster->GetTypeId() != TYPEID_PLAYER /*m_spellInfo->Id == 40276*/)
+    if(!m_originalCaster || m_originalCaster->GetTypeId() != TYPEID_PLAYER 
+        && !((Creature*)m_originalCaster)->isTotem()/*m_spellInfo->Id == 40276*/)
     {
         EffectSummonWild(i);
         return;
@@ -6047,14 +6048,16 @@ void Spell::EffectKnockBack(uint32 i)
 
     float vsin = sin(m_caster->GetAngle(unitTarget));
     float vcos = cos(m_caster->GetAngle(unitTarget));
+    float speedxy = float(m_spellInfo->EffectMiscValue[i])/10;
+    float speedz = float(damage/-10);
 
     WorldPacket data(SMSG_MOVE_KNOCK_BACK, (8+4+4+4+4+4));
     data.append(unitTarget->GetPackGUID());
     data << uint32(0);                                      // Sequence
     data << float(vcos);                                    // x direction
     data << float(vsin);                                    // y direction
-    data << float(m_spellInfo->EffectMiscValue[i])/10;      // Horizontal speed
-    data << float(damage/-10);                              // Z Movement speed (vertical)
+    data << float(speedxy);                                 // Horizontal speed
+    data << float(speedz);                                  // Z Movement speed (vertical)
 
     ((Player*)unitTarget)->GetSession()->SendPacket(&data);
 }

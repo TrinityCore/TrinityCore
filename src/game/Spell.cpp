@@ -4394,11 +4394,33 @@ uint8 Spell::CanCast(bool strict)
             case SPELL_AURA_FLY:
             {
                 // not allow cast fly spells at old maps by players (all spells is self target)
-                if(m_caster->GetTypeId()==TYPEID_PLAYER)
+                if(m_caster->GetTypeId()==TYPEID_PLAYER && !((Player*)m_caster)->isGameMaster())
                 {
                     uint32 v_map = GetVirtualMapForMapAndZone(m_caster->GetMapId(), m_caster->GetZoneId());
-                    if( !((Player*)m_caster)->isGameMaster() && v_map != 530 && !(v_map == 571 && ((Player*)m_caster)->HasSpell(54197)))
-                        return SPELL_FAILED_NOT_HERE;
+                    switch(v_map)
+                    {
+                        case 0:
+                        case 1:
+                        {
+                            if (!sWorld.getConfig(CONFIG_FLYING_MOUNTS_AZEROTH))
+                                return SPELL_FAILED_NOT_HERE;
+                        } break;
+                        case 530:
+                        {
+                            if (!sWorld.getConfig(CONFIG_FLYING_MOUNTS_OUTLAND))
+                                return SPELL_FAILED_NOT_HERE;
+                        } break;
+                        case 571:
+                        {
+                            if(!((Player*)m_caster)->HasSpell(54197))
+                                return SPELL_FAILED_NOT_HERE;
+                        } break;
+                        default:
+                        {
+                            if (!sWorld.getConfig(CONFIG_FLYING_MOUNTS_OTHERS))
+                                return SPELL_FAILED_NOT_HERE;
+                        } break;
+                    }
                 }
 
                 break;

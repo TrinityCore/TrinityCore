@@ -57,7 +57,7 @@ bool PointMovementGenerator<T>::Update(T &unit, const uint32 &diff)
 
     if(i_destinationHolder.HasArrived())
     {
-        unit.StopMoving();
+        //unit.StopMoving();
         if(!unit.hasUnitState(UNIT_STAT_CHARGING))
             MovementInform(unit);
         return false;

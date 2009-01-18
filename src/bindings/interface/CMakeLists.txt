@@ -11,7 +11,7 @@ SET(trinityinterface_LIB_SRCS
    Scripts/sc_defines.h
 )
 
-add_library(trinityinterface STATIC ${trinityinterface_LIB_SRCS})
+add_library(trinityinterface SHARED ${trinityinterface_LIB_SRCS})
 
 target_link_libraries(trinityinterface)
 
