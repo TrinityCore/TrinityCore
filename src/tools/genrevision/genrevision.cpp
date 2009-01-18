@@ -24,9 +24,9 @@
 
 #pragma warning(disable:4996)
 
-/*
 struct RawData
 {
+    char hash_str[200];
     char rev_str[200];
     char date_str[200];
     char time_str[200];
@@ -56,6 +56,45 @@ void extractDataFromSvn(FILE* EntriesFile, bool url, RawData& data)
         strcpy(data.rev_str,num_str);
 }
 
+void extractDataFromHG(FILE* EntriesFile, std::string path, bool url, RawData& data)
+{
+    char buf[200];
+
+    char hash_str[200];
+    char revision_str[200];
+
+    bool found = false;
+    while(fgets(buf,200,EntriesFile))
+    {
+        if(sscanf(buf,"%s %s",hash_str,revision_str)==2)
+        {
+            found = true;
+            break;
+        }
+    }
+
+    if(!found)
+    {
+        strcpy(data.hash_str,"*");
+        strcpy(data.rev_str,"*");
+        strcpy(data.date_str,"*");
+        strcpy(data.time_str,"*");
+        return;
+    }
+
+    char thash_str[200];
+    for(int i = 11;i >= 0; --i)
+    {
+        thash_str[i] = hash_str[i];
+    }
+
+    strcpy(data.hash_str,thash_str);
+    strcpy(data.rev_str,revision_str);
+
+    strcpy(data.date_str,"*");
+    strcpy(data.time_str,"*");
+}
+
 void extractDataFromGit(FILE* EntriesFile, std::string path, bool url, RawData& data)
 {
     char buf[200];
@@ -76,6 +115,7 @@ void extractDataFromGit(FILE* EntriesFile, std::string path, bool url, RawData& 
 
     if(!found)
     {
+        strcpy(data.hash_str,"*");
         strcpy(data.rev_str,"*");
         strcpy(data.date_str,"*");
         strcpy(data.time_str,"*");
@@ -117,6 +157,7 @@ void extractDataFromGit(FILE* EntriesFile, std::string path, bool url, RawData& 
     }
     else
         strcpy(data.rev_str,hash_str);
+        strcpy(data.hash_str,"*");
 
     time_t rev_time = 0;
     // extracting date/time
@@ -188,54 +229,154 @@ bool extractDataFromGit(std::string filename, std::string path, bool url, RawDat
     return true;
 }
 
-std::string generateHeader(char const* rev_str, char const* date_str, char const* time_str)
+bool extractDataFromHG(std::string filename, std::string path, bool url, RawData& data)
+{
+    FILE* EntriesFile = fopen(filename.c_str(), "r");
+    if(!EntriesFile)
+        return false;
+
+    extractDataFromHG(EntriesFile,path,url,data);
+    fclose(EntriesFile);
+    return true;
+}
+
+std::string generateHeader(char const* rev_str, char const* date_str, char const* time_str, char const* hash_str)
 {
     std::ostringstream newData;
     newData << "#ifndef __REVISION_H__" << std::endl;
     newData << "#define __REVISION_H__"  << std::endl;
-    newData << " #define REVISION_ID \"" << rev_str << "\"" << std::endl;
-    newData << " #define REVISION_DATE \"" << date_str << "\"" << std::endl;
-    newData << " #define REVISION_TIME \"" << time_str << "\""<< std::endl;
+    newData << " #define _REVISION \"" << rev_str << "\"" << std::endl;
+    newData << " #define _HASH \"" << hash_str << "\"" << std::endl;
+    newData << " #define _REVISION_DATE \"" << date_str << "\"" << std::endl;
+    newData << " #define _REVISION_TIME \"" << time_str << "\""<< std::endl;
     newData << "#endif // __REVISION_H__" << std::endl;
     return newData.str();
 }
-*/
+
 int main(int argc, char **argv)
 {
+    bool use_url = false;
+    bool hg_prefered = true;
+    bool git_prefered = false;
+    bool svn_prefered = false;
     std::string path;
 
-    if(argc >= 1 && argv[1] )
+    // Call: tool {options} [path]
+    //    -h use hg prefered (default)
+    //    -g use git prefered
+    //    -s use svn prefered
+    //    -r use only revision (without repo URL) (default)
+    //    -u include repositire URL as commit URL or "rev at URL"
+    for(int k = 1; k <= argc; ++k)
     {
-        path = argv[1];
-        if(path.size() > 0 && (path[path.size()-1]!='/' || path[path.size()-1]!='\\'))
-            path += '/';
+        if(!argv[k] || !*argv[k])
+            break;
+
+        if(argv[k][0]!='-')
+        {
+            path = argv[k];
+            if(path.size() > 0 && (path[path.size()-1]!='/' || path[path.size()-1]!='\\'))
+                path += '/';
+            break;
+        }
+
+        switch(argv[k][1])
+        {
+            case 'h':
+                hg_prefered = true;
+                git_prefered = false;
+                svn_prefered = false;
+                continue;
+            case 'g':
+                hg_prefered = false;
+                git_prefered = true;
+                svn_prefered = false;
+                continue;
+            case 'r':
+                use_url = false;
+                continue;
+            case 's':
+                hg_prefered = false;
+                git_prefered = false;
+                svn_prefered = true;
+                continue;
+            case 'u':
+                use_url = true;
+                continue;
+            default:
+                printf("Unknown option %s",argv[k]);
+                return 1;
+        }
     }
 
-    FILE* EntriesFile = fopen((path+".hg/branch.cache").c_str(), "r");
-    if(!EntriesFile)
-        EntriesFile = fopen((path+"_hg/branch.cache").c_str(), "r");
 
-    std::ostringstream newData;
+    /// new data extraction
+    std::string newData;
 
-    if(!EntriesFile)
     {
-        newData << "#ifndef __SVN_REVISION_H__" << std::endl;
-        newData << "#define __SVN_REVISION_H__"  << std::endl;
-        newData << " #define _REVISION \"Unknown\"" << std::endl;
-        newData << "#endif // __SVN_REVISION_H__" << std::endl;
-    }
-    else
-    {
-        char revision[100];
-        char temp[100];
-        fscanf(EntriesFile,"%s%s",temp, &revision);
-        newData << "#ifndef __SVN_REVISION_H__" << std::endl;
-        newData << "#define __SVN_REVISION_H__"  << std::endl;
-        newData << " #define _REVISION \"" << revision << "\"" << std::endl;
-        newData << "#endif // __SVN_REVISION_H__" << std::endl;
-        fclose(EntriesFile);
+        RawData data;
+
+        bool res = false;
+
+        if(svn_prefered)
+        {
+            /// SVN data
+            res = extractDataFromSvn(path+".svn/entries",use_url,data);
+            if (!res)
+                res = extractDataFromSvn(path+"_svn/entries",use_url,data);
+            // HG data
+            if (!res)
+                res = extractDataFromHG(path+".hg/branch.cache",path,use_url,data);
+            if (!res)
+                res = extractDataFromHG(path+"_hg/branch.cache",path,use_url,data);
+            // GIT data
+            if (!res)
+                res = extractDataFromGit(path+".git/FETCH_HEAD",path,use_url,data);
+            if (!res)
+                res = extractDataFromGit(path+"_git/FETCH_HEAD",path,use_url,data);
+        }
+        else if(git_prefered)
+        {
+            // GIT data
+            res = extractDataFromGit(path+".git/FETCH_HEAD",path,use_url,data);
+            if (!res)
+                res = extractDataFromGit(path+"_git/FETCH_HEAD",path,use_url,data);
+            // HG data
+            if (!res)
+                res = extractDataFromHG(path+".hg/branch.cache",path,use_url,data);
+            if (!res)
+                res = extractDataFromHG(path+"_hg/branch.cache",path,use_url,data);
+           /// SVN data
+            if (!res)
+                res = extractDataFromSvn(path+".svn/entries",use_url,data);
+            if (!res)
+                res = extractDataFromSvn(path+"_svn/entries",use_url,data);
+        }
+
+        else if(hg_prefered)
+        {
+            // HG data
+            res = extractDataFromHG(path+".hg/branch.cache",path,use_url,data);
+            if (!res)
+                res = extractDataFromHG(path+"_hg/branch.cache",path,use_url,data);
+            /// SVN data
+            if (!res)
+                res = extractDataFromSvn(path+".svn/entries",use_url,data);
+            if (!res)
+                res = extractDataFromSvn(path+"_svn/entries",use_url,data);
+            // GIT data
+            if (!res)
+                res = extractDataFromGit(path+".git/FETCH_HEAD",path,use_url,data);
+            if (!res)
+                res = extractDataFromGit(path+"_git/FETCH_HEAD",path,use_url,data);
+        }
+        if(res)
+            newData = generateHeader(data.rev_str,data.date_str,data.time_str,data.hash_str);
+        else
+            newData = generateHeader("*", "*", "*", "*");
     }
 
+    /// get existed header data for compare
     std::string oldData;
 
     if(FILE* HeaderFile = fopen("revision.h","rb"))
@@ -251,11 +392,12 @@ int main(int argc, char **argv)
         fclose(HeaderFile);
     }
 
-    if(newData.str() != oldData)
+    /// update header only if different data
+    if(newData != oldData)
     {
         if(FILE* OutputFile = fopen("revision.h","wb"))
         {
-            fprintf(OutputFile,"%s",newData.str().c_str());
+            fprintf(OutputFile,"%s",newData.c_str());
             fclose(OutputFile);
         }
     }

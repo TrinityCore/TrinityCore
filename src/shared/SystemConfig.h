@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
  *
  * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
@@ -25,7 +25,7 @@
 #define TRINITY_SYSTEMCONFIG_H
 
 #include "Platform/Define.h"
-#include "revision.h" //-----here u are ------ _REVISION is the magic key
+#include "revision.h"
 
 
 #define _PACKAGENAME "TrinityCore "
@@ -39,12 +39,12 @@
 
 #if PLATFORM == PLATFORM_WINDOWS
 # ifdef _WIN64
-#  define _FULLVERSION _PACKAGENAME "Rev: " _REVISION  " (Win64," _ENDIAN_STRING ")"
+#  define _FULLVERSION _PACKAGENAME "Rev: " _REVISION  " Hash: " _HASH " (Win64," _ENDIAN_STRING ")"
 # else
-#  define _FULLVERSION _PACKAGENAME "Rev: " _REVISION  " (Win32," _ENDIAN_STRING ")"
+#  define _FULLVERSION _PACKAGENAME "Rev: " _REVISION  " Hash: " _HASH " (Win32," _ENDIAN_STRING ")"
 # endif
 #else
-#  define _FULLVERSION _PACKAGENAME "Rev: " _REVISION  " (Unix," _ENDIAN_STRING ")"
+#  define _FULLVERSION _PACKAGENAME "Rev: " _REVISION  " Hash: " _HASH " (Unix," _ENDIAN_STRING ")"
 #endif
 
 #define DEFAULT_PLAYER_LIMIT 100
