@@ -1,5 +1,5 @@
 PROJECT(Trinity)
-cmake_minimum_required(VERSION 2.4)
+cmake_minimum_required(VERSION 2.6)
 cmake_policy(SET CMP0005 OLD)
 
 include(cmake/FindAce.cmake)
@@ -121,9 +121,12 @@ FIND_ACE(ACE)
 if(ACE_FOUND)
 message(STATUS "Found ACE library: ${ACE_LIBRARY}")
 message(STATUS "Include dir is: ${ACE_INCLUDE_DIR}")
-#else(ACE_FOUND)
-#message( "** ACE library not found, will try to build it myself.")
-#SET(BUILD_ACE 1)    BRIAN LIKES MEN
+else(ACE_FOUND)
+message(SEND_ERROR "** ACE library not found! Trinity Core cannot be compiled!")
+message(SEND_ERROR "** Please build ACE from http://www.cs.wustl.edu/~schmidt/ACE.html")
+message(SEND_ERROR "** your distro may provide a binary for ACE e.g. for ubuntu try apt-get install libace-dev")
+return()
+#SET(BUILD_ACE 1)
 #SET(ACE_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/dep/ACE_wrappers ${CMAKE_BINARY_DIR}/dep/ACE_wrappers")
 #SET(ACE_LIBRARY ACE)
 #message(STATUS "I will try to build ACE from: ${ACE_INCLUDE_DIR}")
@@ -152,6 +155,12 @@ ${CMAKE_CURRENT_BINARY_DIR}/src/shared
 ${CMAKE_CURRENT_SOURCE_DIR}/..
 ${ACE_INCLUDE_DIR}
 )
+
+if(PREFIX)
+message("* Running ldconfig")
+file(WRITE /etc/ld.so.conf.d/trinitycore.conf "${CMAKE_INSTALL_PREFIX}/lib")
+execute_process(COMMAND ldconfig)
+endif(PREFIX)
 
 add_subdirectory(dep)
 add_subdirectory(doc)

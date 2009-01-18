@@ -51,6 +51,11 @@ EndScriptData */
 #define SPELL_BERSERK                   26662
 #define SPELL_DUAL_WIELD                42459
 
+#define FREEZING 45203
+#define FROST_BOLT 44843
+#define ENCAPSULATE 45665
+#define ENCAPSULATE_CHANELLING 45661
+
 struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
 {
     boss_brutallusAI(Creature *c) : ScriptedAI(c)
@@ -66,6 +71,9 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
     uint32 StompTimer;
     uint32 BerserkTimer;
 
+	uint32 ConversationTimer;
+	bool Intro;
+
     void Reset()
     {
         SlashTimer = 11000;
@@ -73,11 +81,17 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
         BurnTimer = 60000;
         BerserkTimer = 360000;
         m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);
+
+		if(pInstance)
+			pInstance->SetData(DATA_BRUTALLUS, NOT_STARTED);
     }
 
     void Aggro(Unit *who)
     {
 		DoScriptText(YELL_AGGRO, m_creature);
+
+		if(pInstance)
+			pInstance->SetData(DATA_BRUTALLUS, IN_PROGRESS);
     }
 
     void KilledUnit(Unit* victim)
@@ -93,6 +107,9 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
 		DoScriptText(YELL_DEATH, m_creature);
+
+		if(pInstance)
+			pInstance->SetData(DATA_BRUTALLUS, DONE);
     }
 
     void UpdateAI(const uint32 diff)

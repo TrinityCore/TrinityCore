@@ -111,6 +111,7 @@ bool QuestAccept_npc_professor_phizzlethorpe(Player* player, Creature* creature,
     {
 		creature->Say(SAY_PROGRESS_1, LANG_UNIVERSAL, player->GetGUID());
         ((npc_escortAI*)(creature->AI()))->Start(false, false, false, player->GetGUID());
+		creature->setFaction(113);
     }
     return true;
 }

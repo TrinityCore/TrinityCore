@@ -502,6 +502,21 @@ LogColors = ""
 #        Default: 0 (false)
 #                 1 (true)
 #
+#    FlyingMounts.Azeroth
+#        Enable/disable flying mounts in Azeroth (map 0 and 1).
+#        Default: 0 - off
+#                 1 - on (may be crashy)
+#
+#    FlyingMounts.Outland
+#        Enable/disable flying mounts in Outland (map 530).
+#        Default: 1 - on
+#                 0 - off
+#
+#    FlyingMounts.Others
+#        Enable/disable flying mounts in other maps (instances, arenas, BGs, etc).
+#        Default: 0 - off
+#                 1 - on (may be crashy)
+#
 #    CastUnstuck
 #        Allow cast or not Unstuck spell at .start or client Help option use
 #        Default: 1 (true)
@@ -607,6 +622,9 @@ ActivateWeather = 1
 Battleground.CastDeserter = 1
 Battleground.QueueAnnouncer.Enable = 1
 Battleground.QueueAnnouncer.PlayerOnly = 0
+FlyingMounts.Azeroth = 0
+FlyingMounts.Outland = 1
+FlyingMounts.Others = 0
 CastUnstuck = 1
 Instance.IgnoreLevel = 0
 Instance.IgnoreRaid = 0
@@ -650,6 +668,11 @@ Server.LoginInfo = 0
 #
 #    AllowTwoSide.AddFriend
 #        Allow or not adding friends from other team in friend list.
+#        Default: 0 (Not allowed)
+#                 1 (Allowed)
+#
+#    AllowTwoSide.Trade
+#        Allow or not trading with other team in party.
 #        Default: 0 (Not allowed)
 #                 1 (Allowed)
 #
