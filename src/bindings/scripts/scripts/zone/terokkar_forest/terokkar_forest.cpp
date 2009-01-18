@@ -441,6 +441,7 @@ bool QuestAccept_npc_isla_starmane(Player* player, Creature* creature, Quest con
 	if (quest->GetQuestId() == QUEST_EFTW_H || quest->GetQuestId() == QUEST_EFTW_A)
     {
         ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
+		creature->setFaction(113);
     }
     return true;
 }
