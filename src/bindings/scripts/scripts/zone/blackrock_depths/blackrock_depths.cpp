@@ -1314,4 +1314,10 @@ void AddSC_blackrock_depths()
     newscript->Name="npc_marshal_reginald_windsor";
 	newscript->GetAI = &GetAI_npc_marshal_reginald_windsor;
 	newscript->RegisterSelf();*/
+
+	 newscript = new Script;
+	 newscript->Name = "npc_rocknot";
+	 newscript->GetAI = &GetAI_npc_rocknot;
+	 newscript->pChooseReward = &ChooseReward_npc_rocknot;
+	 newscript->RegisterSelf();
 }
