@@ -50,6 +50,7 @@ EndContentData */
 #define SPELL_ETHEREAL_BEACON_VISUAL    32368
 
 #define ENTRY_BEACON                    18431
+#define ENTRY_SHAFFAR                   18344
 
 struct TRINITY_DLL_DECL boss_nexusprince_shaffarAI : public ScriptedAI
 {
@@ -204,6 +205,7 @@ struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
     {
         HeroicMode = m_creature->GetMap()->IsHeroic();
         Reset();
+		CanEvade = false;
     }
 
     bool HeroicMode;
@@ -239,6 +241,13 @@ struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
         {
             DoCast(m_creature->getVictim(),SPELL_ARCANE_BOLT);
             ArcaneBolt_Timer = 2000 + rand()%2500;
+			Unit *shaffar = FindCreature(ENTRY_SHAFFAR, 100);
+            if(!shaffar || shaffar->isDead())
+            {
+				m_creature->SetVisibility(VISIBILITY_OFF);
+                m_creature->SetLootRecipient(NULL);
+                m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            }
         }else ArcaneBolt_Timer -= diff;
 
         if( Apprentice_Timer < diff )

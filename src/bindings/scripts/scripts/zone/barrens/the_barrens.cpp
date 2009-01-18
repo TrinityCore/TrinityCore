@@ -451,7 +451,7 @@ bool QuestAccept_npc_wizzlecrank_shredder(Player* player, Creature* creature, Qu
     if (quest->GetQuestId() == QUEST_ESCAPE)
     {
         ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
-		creature->setFaction(35);
+		creature->setFaction(113);
     }
     return true;
 }
