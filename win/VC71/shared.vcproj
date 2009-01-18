@@ -444,28 +444,6 @@
 			Outputs="revision.h"
 		    />
 		    </FileConfiguration>
-		    <FileConfiguration
-		    Name="Release|x64"
-		    >
-		    <Tool
-			Name="VCCustomBuildTool"
-			Description="Getting Version... :)"
-			CommandLine="cd $(InputDir)&#x0D;&#x0A;&quot;$(TargetDir)\..\genrevision__$(PlatformName)_$(ConfigurationName)\genrevision.exe&quot; &quot;..\..&quot;&#x0D;&#x0A;"
-			AdditionalDependencies="$(SolutionDir)../.hg/branch.cache"
-			Outputs="revision.h"
-		    />
-		    </FileConfiguration>
-		    <FileConfiguration
-		    Name="Debug|x64"
-		    >
-		    <Tool
-			Name="VCCustomBuildTool"
-			Description="Getting Version... :)"
-			CommandLine="cd $(InputDir)&#x0D;&#x0A;&quot;$(TargetDir)\..\genrevision__$(PlatformName)_$(ConfigurationName)\genrevision.exe&quot; &quot;..\..&quot;&#x0D;&#x0A;"
-			AdditionalDependencies="$(SolutionDir)../.hg/branch.cache"
-			Outputs="revision.h"
-		    />
-		    </FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\..\src\shared\ServiceWin32.cpp">
