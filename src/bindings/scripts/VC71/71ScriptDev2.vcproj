@@ -2099,23 +2099,11 @@
 					<File
 						RelativePath="..\scripts\zone\blackrock_depths\boss_ambassador_flamelash.cpp"
 						>
-					</File>
-					<File
-						RelativePath="..\scripts\zone\blackrock_depths\boss_angerrel.cpp"
-						>
-					</File>
+					</File>				
 					<File
 						RelativePath="..\scripts\zone\blackrock_depths\boss_anubshiah.cpp"
 						>
-					</File>
-					<File
-						RelativePath="..\scripts\zone\blackrock_depths\boss_doomrel.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\scripts\zone\blackrock_depths\boss_doperel.cpp"
-						>
-					</File>
+					</File>									
 					<File
 						RelativePath="..\scripts\zone\blackrock_depths\boss_emperor_dagran_thaurissan.cpp"
 						>
@@ -2123,11 +2111,7 @@
 					<File
 						RelativePath="..\scripts\zone\blackrock_depths\boss_general_angerforge.cpp"
 						>
-					</File>
-					<File
-						RelativePath="..\scripts\zone\blackrock_depths\boss_gloomrel.cpp"
-						>
-					</File>
+					</File>					
 					<File
 						RelativePath="..\scripts\zone\blackrock_depths\boss_gorosh_the_dervish.cpp"
 						>
@@ -2135,11 +2119,7 @@
 					<File
 						RelativePath="..\scripts\zone\blackrock_depths\boss_grizzle.cpp"
 						>
-					</File>
-					<File
-						RelativePath="..\scripts\zone\blackrock_depths\boss_haterel.cpp"
-						>
-					</File>
+					</File>					
 					<File
 						RelativePath="..\scripts\zone\blackrock_depths\boss_high_interrogator_gerstahn.cpp"
 						>
@@ -2151,13 +2131,9 @@
 					<File
 						RelativePath="..\scripts\zone\blackrock_depths\boss_moira_bronzebeard.cpp"
 						>
-					</File>
+					</File>					
 					<File
-						RelativePath="..\scripts\zone\blackrock_depths\boss_seethrel.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\scripts\zone\blackrock_depths\boss_vilerel.cpp"
+						RelativePath="..\scripts\zone\blackrock_depths\boss_tomb_of_seven.cpp"
 						>
 					</File>
 				</Filter>
