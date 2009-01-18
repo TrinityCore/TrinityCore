@@ -122,7 +122,9 @@ if(ACE_FOUND)
 message(STATUS "Found ACE library: ${ACE_LIBRARY}")
 message(STATUS "Include dir is: ${ACE_INCLUDE_DIR}")
 else(ACE_FOUND)
-message(SEND_ERROR "** ACE library not found! Trinity Core will not build!")
+message(SEND_ERROR "** ACE library not found! Trinity Core cannot be compiled!")
+message(SEND_ERROR "** Please build ACE from http://www.cs.wustl.edu/~schmidt/ACE.html")
+message(SEND_ERROR "** your distro may provide a binary for ACE e.g. for ubuntu try apt-get install libace-dev")
 return()
 #SET(BUILD_ACE 1)
 #SET(ACE_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/dep/ACE_wrappers ${CMAKE_BINARY_DIR}/dep/ACE_wrappers")
@@ -153,6 +155,12 @@ ${CMAKE_CURRENT_BINARY_DIR}/src/shared
 ${CMAKE_CURRENT_SOURCE_DIR}/..
 ${ACE_INCLUDE_DIR}
 )
+
+if(PREFIX)
+message("* Running ldconfig")
+file(WRITE /etc/ld.so.conf.d/trinitycore.conf "${CMAKE_INSTALL_PREFIX}/lib")
+execute_process(COMMAND ldconfig)
+endif(PREFIX)
 
 add_subdirectory(dep)
 add_subdirectory(doc)
