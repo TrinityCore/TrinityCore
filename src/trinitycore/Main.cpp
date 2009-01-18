@@ -64,7 +64,7 @@ uint32 realmID;                                             ///< Id of the realm
 void usage(const char *prog)
 {
     sLog.outString("Usage: \n %s [<options>]\n"
-        "    --version                print version and exist\n\r"
+        "    --version                print version and exit\n\r"
         "    -c config_file           use config_file as configuration file\n\r"
         #ifdef WIN32
         "    Running as service functions:\n\r"
