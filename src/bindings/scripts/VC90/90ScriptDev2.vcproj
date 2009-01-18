@@ -2263,19 +2263,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\zone\blackrock_depths\boss_angerrel.cpp"
-						>
-					</File>
-					<File
 						RelativePath="..\scripts\zone\blackrock_depths\boss_anubshiah.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\scripts\zone\blackrock_depths\boss_doomrel.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\scripts\zone\blackrock_depths\boss_doperel.cpp"
 						>
 					</File>
 					<File
@@ -2287,19 +2275,11 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\zone\blackrock_depths\boss_gloomrel.cpp"
-						>
-					</File>
-					<File
 						RelativePath="..\scripts\zone\blackrock_depths\boss_gorosh_the_dervish.cpp"
 						>
 					</File>
 					<File
 						RelativePath="..\scripts\zone\blackrock_depths\boss_grizzle.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\scripts\zone\blackrock_depths\boss_haterel.cpp"
 						>
 					</File>
 					<File
@@ -2315,11 +2295,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\zone\blackrock_depths\boss_seethrel.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\scripts\zone\blackrock_depths\boss_vilerel.cpp"
+						RelativePath="..\scripts\zone\blackrock_depths\boss_tomb_of_seven.cpp"
 						>
 					</File>
 					<File
