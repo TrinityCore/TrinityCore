@@ -140,6 +140,7 @@ bool QuestAccept_npc_torek(Player* player, Creature* creature, Quest const* ques
 		//TODO: find companions, make them follow Torek, at any time (possibly done by mangos/database in future?)
 		((npc_escortAI*)(creature->AI()))->Start(true, true, true, player->GetGUID());
 		DoScriptText(SAY_READY, creature, player);
+		creature->setFaction(113);
 	}
    
 	return true;
@@ -258,7 +259,7 @@ bool QuestAccept_npc_ruul_snowhoof(Player* player, Creature* creature, Quest con
 {
     if (quest->GetQuestId() == QUEST_FREEDOM_TO_RUUL)
     {
-        creature->setFaction(1603);
+        creature->setFaction(113);
         ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
     }
     return true;

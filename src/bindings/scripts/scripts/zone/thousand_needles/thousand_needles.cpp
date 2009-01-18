@@ -102,7 +102,7 @@ bool QuestAccept_npc_swiftmountain(Player* player, Creature* creature, Quest con
         ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
         DoScriptText(SAY_READY, creature, player);
         // Change faction so mobs attack
-        creature->setFaction(775);
+        creature->setFaction(113);
     }
 
     return true;
