@@ -258,8 +258,9 @@ Unit::~Unit()
 
     if(m_charmInfo) delete m_charmInfo;
 
-    RemoveAllAuras();
-    assert(m_Auras.begin() == m_Auras.end());
+    sLog.outDetail("Deconstruct Unit Entry = %u", GetEntry());
+    if(m_scAuras.size())
+        sLog.outError("Unit %u has sc auras during deconstruction", GetEntry());
 }
 
 void Unit::Update( uint32 p_time )
