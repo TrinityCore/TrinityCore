@@ -258,9 +258,12 @@ Unit::~Unit()
 
     if(m_charmInfo) delete m_charmInfo;
 
-    sLog.outDetail("Deconstruct Unit Entry = %u", GetEntry());
-    if(m_scAuras.size())
-        sLog.outError("Unit %u has sc auras during deconstruction", GetEntry());
+    if(m_uint32Values)
+    {
+        sLog.outDetail("Deconstruct Unit Entry = %u", GetEntry());
+        if(m_scAuras.size())
+            sLog.outError("Unit %u has sc auras during deconstruction", GetEntry());
+    }
 }
 
 void Unit::Update( uint32 p_time )
