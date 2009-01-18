@@ -91,11 +91,16 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
     }
 
     ScriptedInstance* pInstance;
+	Map::PlayerList const *PlayerList;
 
     uint32 TidalWave_Timer;
     uint32 WateryGrave_Timer;
     uint32 Earthquake_Timer;
     uint32 WateryGlobules_Timer;
+	uint32 SummonSpell;
+    uint32 globulespell[4];
+    int8 Playercount;
+    int8 counter;
 
     bool Earthquake;
     bool Phase2;
@@ -106,6 +111,10 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
         WateryGrave_Timer = 30000;
         Earthquake_Timer = 40000;
         WateryGlobules_Timer = 0;
+		globulespell[0] = SPELL_SUMMON_WATER_GLOBULE_1;
+        globulespell[1] = SPELL_SUMMON_WATER_GLOBULE_2;
+        globulespell[2] = SPELL_SUMMON_WATER_GLOBULE_3;
+        globulespell[3] = SPELL_SUMMON_WATER_GLOBULE_4;
 
         Earthquake = false;
         Phase2 = false;
@@ -126,9 +135,9 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-            case 0: DoScriptText(SAY_SLAY1, m_creature); break;
-            case 1: DoScriptText(SAY_SLAY2, m_creature); break;
-            case 2: DoScriptText(SAY_SLAY3, m_creature); break;
+		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+		case 2: DoScriptText(SAY_SLAY3, m_creature); break;
         }
     }
 
@@ -139,17 +148,22 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, NOT_STARTED);
     }
+ 
+	void Aggro(Unit *who) 
+	{ 
+        PlayerList = &((InstanceMap*)m_creature->GetMap())->GetPlayers();
+        Playercount = PlayerList->getSize();
+        StartEvent();
+	}
 
-    void Aggro(Unit *who) { StartEvent(); }
-
-    void ApplyWateryGrave(Unit *player, uint8 target)
+    void ApplyWateryGrave(Unit *player, uint8 i)
     {
-		switch(target)
+		switch(i)
         {
-		case 0: DoCast(player, SPELL_WATERY_GRAVE_1); break;
-		case 1: DoCast(player, SPELL_WATERY_GRAVE_2); break;
-		case 2: DoCast(player, SPELL_WATERY_GRAVE_3); break;
-		case 3: DoCast(player, SPELL_WATERY_GRAVE_4); break;
+		case 0: player->CastSpell(player, SPELL_WATERY_GRAVE_1, true); break;
+        case 1: player->CastSpell(player, SPELL_WATERY_GRAVE_2, true); break;
+        case 2: player->CastSpell(player, SPELL_WATERY_GRAVE_3, true); break;
+        case 3: player->CastSpell(player, SPELL_WATERY_GRAVE_4, true); break;
         }
     }
 
@@ -176,28 +190,42 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
                     case 1: DoScriptText(SAY_SUMMON2, m_creature); break;
                 }
 
-				if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-				{
-				//north
-				DoCast(target, SPELL_SUMMON_MURLOC_A6);
-				DoCast(target, SPELL_SUMMON_MURLOC_A7);
-				DoCast(target, SPELL_SUMMON_MURLOC_A8);
-				DoCast(target, SPELL_SUMMON_MURLOC_A9);
-				DoCast(target, SPELL_SUMMON_MURLOC_A10);
+				Unit* target;
+				using std::set;
+                set<int> SummonList;
+                set<int>::iterator itr;
 
-				//south
-				DoCast(target, SPELL_SUMMON_MURLOC_B6);
-				DoCast(target, SPELL_SUMMON_MURLOC_B7);
-				DoCast(target, SPELL_SUMMON_MURLOC_B8);
-				DoCast(target, SPELL_SUMMON_MURLOC_B9);
-				DoCast(target, SPELL_SUMMON_MURLOC_B10);
+				target = SelectUnit(SELECT_TARGET_RANDOM, 0, 50, true);
+                m_creature->CastSpell(target, SummonSpell, false);
+                SummonSpell++;
+
+				for (int8 i = 0; i < 9; i++)                       //bad hack
+                {                                                   //instead of casting 9 spell in one update
+                    counter = 0;                                    // selecet 9 players which cast our spells
+                    do{target = SelectUnit(SELECT_TARGET_RANDOM, 0, 50, true); //check if player is already selected
+                    if(counter > Playercount)
+                        break;
+                    if(target) itr = SummonList.find(target->GetGUID());
+                    counter++;
+                    } while (itr != SummonList.end());
+
+					if(target){
+						SummonList.insert(target->GetGUID());
+						target->CastSpell(target, SummonSpell, false); //player cast on himself (this works)
+					}
+					SummonSpell++;
+
+					if(SummonSpell > SPELL_SUMMON_MURLOC_B10)       //reset all variables for earthquake
+					{
+						SummonSpell = SPELL_SUMMON_MURLOC_A6;
+                        SummonList.clear();
+                        DoScriptText(EMOTE_EARTHQUAKE, m_creature);
+                        Earthquake = false;
+                        Earthquake_Timer = 40000+rand()%5000;
+					}
 				}
-                DoScriptText(EMOTE_EARTHQUAKE, m_creature);
-
-                Earthquake = false;
-                Earthquake_Timer = 40000+rand()%5000;
-            }
-        }else Earthquake_Timer -= diff;
+			}		
+		}else Earthquake_Timer -= diff;
 
         //TidalWave_Timer
         if (TidalWave_Timer < diff)
@@ -213,11 +241,21 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
             {
                 //Teleport 4 players under the waterfalls
                 Unit *target;
+				using std::set;
+                set<int>list;
+                set<int>::iterator itr;
                 for(uint8 i = 0; i < 4; i++)
                 {
-                    target = SelectUnit(SELECT_TARGET_RANDOM, 1);
-                    if (target && (target->GetTypeId() == TYPEID_PLAYER) && !target->HasAura(SPELL_WATERY_GRAVE, 0) && target->IsWithinDistInMap(m_creature, 50))
-                        ApplyWateryGrave(target, i);
+					counter = 0; 
+					do{target = SelectUnit(SELECT_TARGET_RANDOM, 1, 50, true);    //target players only
+					if(counter < Playercount)
+						break;
+					if(target) itr = list.find(target->GetGUID());
+					counter++;
+					}while(itr != list.end());
+					if(target){list.insert(target->GetGUID());
+					ApplyWateryGrave(target, i);
+					}
                 }
 
                 switch(rand()%2)
@@ -239,13 +277,22 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
             //WateryGlobules_Timer
             if (WateryGlobules_Timer < diff)
             {
-				if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-				{
-					DoCast(target, SPELL_SUMMON_WATER_GLOBULE_1);
-					DoCast(target, SPELL_SUMMON_WATER_GLOBULE_2);
-					DoCast(target, SPELL_SUMMON_WATER_GLOBULE_3);
-					DoCast(target, SPELL_SUMMON_WATER_GLOBULE_4);
-				}
+				Unit* globuletarget;
+                using std::set;
+                set<int>globulelist;
+                set<int>::iterator itr;
+                for (int8 g = 0; g < 4; g++)  //one unit cant cast more than one spell per update, so some players have to cast for us XD
+                {
+                    counter = 0;
+                    do {globuletarget = SelectUnit(SELECT_TARGET_RANDOM, 0,50,true);
+                    if(globuletarget) itr = globulelist.find(globuletarget->GetGUID());
+                    if (counter > Playercount)
+                        break;
+                    counter++;
+                    } while (itr != globulelist.end());
+                    if(globuletarget)globulelist.insert(globuletarget->GetGUID());
+                    globuletarget->CastSpell(globuletarget, globulespell[g], true);
+                }
                 DoScriptText(EMOTE_WATERY_GLOBULES, m_creature);
                 WateryGlobules_Timer = 25000;
             }else WateryGlobules_Timer -= diff;

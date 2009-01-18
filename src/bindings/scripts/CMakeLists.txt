@@ -380,7 +380,7 @@ SET(trinityscript_LIB_SRCS
    system.cpp
 )
 
-add_library(trinityscript STATIC ${trinityscript_LIB_SRCS})
+add_library(trinityscript SHARED ${trinityscript_LIB_SRCS})
 
 target_link_libraries(trinityscript)
 

@@ -13,7 +13,6 @@ SET(trinitydatabase_STAT_SRCS
    DatabasePostgre.h
    DatabaseSqlite.cpp
    DatabaseSqlite.h
-#Brian likes men
    Field.cpp
    Field.h
    MySQLDelayThread.h

@@ -133,8 +133,12 @@ bool ChatHandler::HandleBuyErrorCommand(const char* args)
 bool ChatHandler::HandleSendOpcodeCommand(const char* /*args*/)
 {
     Unit *unit = getSelectedUnit();
+    Player *player = NULL;
     if (!unit || (unit->GetTypeId() != TYPEID_PLAYER))
-        unit = m_session->GetPlayer();
+        player = m_session->GetPlayer();
+    else
+        player = (Player*)unit;
+    if(!unit) unit = player;
 
     std::ifstream ifs("opcode.txt");
     if(ifs.bad())
@@ -193,6 +197,14 @@ bool ChatHandler::HandleSendOpcodeCommand(const char* /*args*/)
         {
             data.append(unit->GetPackGUID());
         }
+        else if(type == "myguid")
+            data.append(player->GetPackGUID());
+        else if(type == "pos")
+        {
+            data << unit->GetPositionX();
+            data << unit->GetPositionY();
+            data << unit->GetPositionZ();
+        }
         else
         {
             sLog.outDebug("Sending opcode: unknown type '%s'", type.c_str());
@@ -202,7 +214,7 @@ bool ChatHandler::HandleSendOpcodeCommand(const char* /*args*/)
     ifs.close();
     sLog.outDebug("Sending opcode %u", data.GetOpcode());
     data.hexlike();
-    ((Player*)unit)->GetSession()->SendPacket(&data);
+    player->GetSession()->SendPacket(&data);
     PSendSysMessage(LANG_COMMAND_OPCODESENT, data.GetOpcode(), unit->GetName());
     return true;
 }

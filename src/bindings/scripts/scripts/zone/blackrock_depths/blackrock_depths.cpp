@@ -17,11 +17,13 @@
 /* ScriptData
 SDName: Blackrock_Depths
 SD%Complete: 95
-SDComment: Quest support: 4001, 4342, 7604, 4322. Vendor Lokhtos Darkbargainer.
+SDComment: Quest support: 4001, 4342, 7604, 4322. Vendor Lokhtos Darkbargainer. Need to rewrite the Jail Break support
 SDCategory: Blackrock Depths
 EndScriptData */
 
 /* ContentData
+at_ring_of_law
+npc_grimstone
 mob_phalanx
 npc_kharan_mighthammer
 npc_lokhtos_darkbargainer
@@ -29,11 +31,304 @@ npc_dughal_stormwing
 npc_marshal_windsor
 npc_marshal_reginald_windsor
 npc_tobias_seecher
+npc_rocknot
 EndContentData */
 
 #include "precompiled.h"
 #include "../../npc/npc_escortAI.h"
 #include "def_blackrock_depths.h"
+
+#define C_GRIMSTONE         10096
+#define C_THELDREN          16059
+    
+//4 or 6 in total? 1+2+1 / 2+2+2 / 3+3. Depending on this, code should be changed.
+#define MOB_AMOUNT          4
+    
+uint32 RingMob[]=
+{
+	8925,                                                   // Dredge Worm
+	8926,                                                   // Deep Stinger
+	8927,                                                   // Dark Screecher
+	8928,                                                   // Burrowing Thundersnout
+	8933,                                                   // Cave Creeper
+	8932,                                                   // Borer Beetle
+};
+    
+uint32 RingBoss[]=
+{
+	9027,                                                   // Gorosh
+	9028,                                                   // Grizzle
+	9029,                                                   // Eviscerator
+	9030,                                                   // Ok'thor
+	9031,                                                   // Anub'shiah
+	9032,                                                   // Hedrum
+};
+    
+float RingLocations[6][3]=
+{
+	{604.802673, -191.081985, -54.058590},                  // ring
+	{604.072998, -222.106918, -52.743759},                  // first gate
+	{621.400391, -214.499054, -52.814453},                  // hiding in corner
+	{601.300781, -198.556992, -53.950256},                  // ring
+	{631.818359, -180.548126, -52.654770},                  // second gate
+	{627.390381, -201.075974, -52.692917}                   // hiding in corner
+};
+    
+bool AreaTrigger_at_ring_of_law(Player *player, AreaTriggerEntry *at)
+{
+	ScriptedInstance* pInstance = ((ScriptedInstance*)player->GetInstanceData());
+   
+	if (pInstance)
+	{
+		if (pInstance->GetData(TYPE_RING_OF_LAW) == IN_PROGRESS || pInstance->GetData(TYPE_RING_OF_LAW) == DONE)
+			return false;
+    
+		pInstance->SetData(TYPE_RING_OF_LAW,IN_PROGRESS);
+		player->SummonCreature(C_GRIMSTONE,625.559,-205.618,-52.735,2.609,TEMPSUMMON_DEAD_DESPAWN,0);
+
+		return false;
+	}
+	return false;
+}
+    
+/*######
+## npc_grimstone
+######*/
+    
+//TODO: implement quest part of event (different end boss)
+struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
+{
+	npc_grimstoneAI(Creature *c) : npc_escortAI(c)
+	{
+		pInstance = ((ScriptedInstance*)c->GetInstanceData());
+		MobSpawnId = rand()%6;
+		Reset();
+	}
+
+	ScriptedInstance* pInstance;
+   
+	uint8 EventPhase;
+	uint32 Event_Timer;
+   
+	uint8 MobSpawnId;
+	uint8 MobCount;
+	uint32 MobDeath_Timer;
+
+	uint64 RingMobGUID[4];
+	uint64 RingBossGUID;
+   
+	bool CanWalk;
+   
+	void Reset()
+	{
+		m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+   
+		EventPhase = 0;
+		Event_Timer = 1000;
+  
+		MobCount = 0;
+		MobDeath_Timer = 0;
+   
+		for(uint8 i = 0; i < MOB_AMOUNT; i++)
+			RingMobGUID[i] = 0;
+   
+		RingBossGUID = 0;
+   
+		CanWalk = false;
+	}
+
+	void Aggro(Unit *who) { }
+   
+	void DoGate(uint32 id, uint32 state)
+	{
+		if (GameObject *go = GameObject::GetGameObject(*m_creature,pInstance->GetData64(id)))
+			go->SetGoState(state);
+   
+		debug_log("SD2: npc_grimstone, arena gate update state.");
+	}
+   
+	//TODO: move them to center
+	void SummonRingMob()
+	{
+		if (Creature* tmp = m_creature->SummonCreature(RingMob[MobSpawnId],608.960,-235.322,-53.907,1.857,TEMPSUMMON_DEAD_DESPAWN,0))
+			RingMobGUID[MobCount] = tmp->GetGUID();
+   
+		++MobCount;
+   
+		if (MobCount == MOB_AMOUNT)
+			MobDeath_Timer = 2500;
+	}
+   
+	//TODO: move them to center
+	void SummonRingBoss()
+	{
+		if (Creature* tmp = m_creature->SummonCreature(RingBoss[rand()%6],644.300,-175.989,-53.739,3.418,TEMPSUMMON_DEAD_DESPAWN,0))
+			RingBossGUID = tmp->GetGUID();
+   
+		MobDeath_Timer = 2500;
+	}
+   
+	void WaypointReached(uint32 i)
+	{
+		switch(i)
+		{
+		case 0:
+			DoScriptText(-1000000, m_creature);//2
+			CanWalk = false;
+			Event_Timer = 5000;
+			break;
+		case 1:
+			DoScriptText(-1000000, m_creature);//4
+			CanWalk = false;
+			Event_Timer = 5000;
+			break;
+		case 2:
+			CanWalk = false;
+			break;
+		case 3:
+			DoScriptText(-1000000, m_creature);//5
+			break;
+		case 4:
+			DoScriptText(-1000000, m_creature);//6
+			CanWalk = false;
+			Event_Timer = 5000;
+			break;
+		case 5:
+			if (pInstance)
+			{
+				pInstance->SetData(TYPE_RING_OF_LAW,DONE);
+				debug_log("SD2: npc_grimstone: event reached end and set complete.");
+			}
+			break;
+		}
+	}
+   
+	void UpdateAI(const uint32 diff)
+	{
+		if (!pInstance)
+			return;
+
+		if (MobDeath_Timer)
+		{
+			if (MobDeath_Timer <= diff)
+			{
+				MobDeath_Timer = 2500;
+
+				if (RingBossGUID)
+				{
+					Creature *boss = (Creature*)Unit::GetUnit(*m_creature,RingBossGUID);
+					if (boss && !boss->isAlive() && boss->isDead())
+					{
+						RingBossGUID = 0;
+						Event_Timer = 5000;
+						MobDeath_Timer = 0;
+						return;
+					}
+					return;
+				}
+   
+				for(uint8 i = 0; i < MOB_AMOUNT; i++)
+				{
+					Creature *mob = (Creature*)Unit::GetUnit(*m_creature,RingMobGUID[i]);
+					if (mob && !mob->isAlive() && mob->isDead())
+					{
+						RingMobGUID[i] = 0;
+						--MobCount;
+
+						//seems all are gone, so set timer to continue and discontinue this
+						if (!MobCount)
+						{
+							Event_Timer = 5000;
+							MobDeath_Timer = 0;
+						}
+					}
+				}
+			}else MobDeath_Timer -= diff;
+		}
+   
+		if (Event_Timer)
+		{
+			if (Event_Timer <= diff)
+			{
+				switch(EventPhase)
+				{
+				case 0:
+					DoScriptText(-1000000, m_creature);//1
+					DoGate(DATA_ARENA4,1);
+					Start(false, false, false);
+					CanWalk = true;
+					Event_Timer = 0;
+					break;
+				case 1:
+					CanWalk = true;
+					Event_Timer = 0;
+					break;
+				case 2:
+					Event_Timer = 2000;
+					break;
+				case 3:
+					DoGate(DATA_ARENA1,0);
+					Event_Timer = 3000;
+					break;
+				case 4:
+					CanWalk = true;
+					m_creature->SetVisibility(VISIBILITY_OFF);
+					SummonRingMob();
+					Event_Timer = 8000;
+					break;
+				case 5:
+					SummonRingMob();
+					SummonRingMob();
+					Event_Timer = 8000;
+					break;
+				case 6:
+					SummonRingMob();
+					Event_Timer = 0;
+					break;
+				case 7:
+					m_creature->SetVisibility(VISIBILITY_ON);
+					DoGate(DATA_ARENA1,1);
+					DoScriptText(-1000000, m_creature);//4
+					CanWalk = true;
+					Event_Timer = 0;
+					break;
+				case 8:
+					DoGate(DATA_ARENA2,0);
+					Event_Timer = 5000;
+					break;
+				case 9:
+					m_creature->SetVisibility(VISIBILITY_OFF);
+					SummonRingBoss();
+					Event_Timer = 0;
+					break;
+				case 10:
+					//if quest, complete
+					DoGate(DATA_ARENA2,1);
+					DoGate(DATA_ARENA3,0);
+					DoGate(DATA_ARENA4,0);
+					CanWalk = true;
+					Event_Timer = 0;
+					break;
+				}
+				++EventPhase;
+			}else Event_Timer -= diff;
+		}
+   
+		if (CanWalk)
+			npc_escortAI::UpdateAI(diff);
+	   }
+};
+   
+CreatureAI* GetAI_npc_grimstone(Creature *_Creature)
+{
+	npc_grimstoneAI* Grimstone_AI = new npc_grimstoneAI(_Creature);
+
+	for(uint8 i = 0; i < 6; ++i)
+		Grimstone_AI->AddWaypoint(i, RingLocations[i][0], RingLocations[i][1], RingLocations[i][2]);
+   
+	return (CreatureAI*)Grimstone_AI;
+  
+}
 
 /*######
 ## mob_phalanx
@@ -107,19 +402,33 @@ CreatureAI* GetAI_mob_phalanx(Creature *_Creature)
 #define QUEST_4001  4001
 #define QUEST_4342  4342
 
+#define GOSSIP_ITEM_KHARAN_1    "I need to know where the princess are, Kharan!"
+#define GOSSIP_ITEM_KHARAN_2    "All is not lost, Kharan!"
+	 	 
+#define GOSSIP_ITEM_KHARAN_3    "Gor'shak is my friend, you can trust me."
+#define GOSSIP_ITEM_KHARAN_4    "Not enough, you need to tell me more."
+#define GOSSIP_ITEM_KHARAN_5    "So what happened?"
+#define GOSSIP_ITEM_KHARAN_6    "Continue..."
+#define GOSSIP_ITEM_KHARAN_7    "So you suspect that someone on the inside was involved? That they were tipped off?"
+#define GOSSIP_ITEM_KHARAN_8    "Continue with your story please."
+#define GOSSIP_ITEM_KHARAN_9    "Indeed."
+#define GOSSIP_ITEM_KHARAN_10   "The door is open, Kharan. You are a free man."
+
 bool GossipHello_npc_kharan_mighthammer(Player *player, Creature *_Creature)
 {
     if( _Creature->isQuestGiver() )
         player->PrepareQuestMenu( _Creature->GetGUID() );
 
     if( player->GetQuestStatus(QUEST_4001) == QUEST_STATUS_INCOMPLETE )
-        player->ADD_GOSSIP_ITEM( 0, "I need to know where the princess are, Kharan!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+         player->ADD_GOSSIP_ITEM( 0, GOSSIP_ITEM_KHARAN_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
     if( player->GetQuestStatus(4342) == QUEST_STATUS_INCOMPLETE )
-        player->ADD_GOSSIP_ITEM( 0, "All is not lost, Kharan!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+        player->ADD_GOSSIP_ITEM( 0, GOSSIP_ITEM_KHARAN_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
 
-    if( player->GetTeam() == HORDE ) player->SEND_GOSSIP_MENU(2473, _Creature->GetGUID());
-    if( player->GetTeam() == ALLIANCE ) player->SEND_GOSSIP_MENU(2474, _Creature->GetGUID());
+	if (player->GetTeam() == HORDE)
+		player->SEND_GOSSIP_MENU(2473, _Creature->GetGUID());
+	else
+		player->SEND_GOSSIP_MENU(2474, _Creature->GetGUID());
 
     return true;
 }
@@ -129,42 +438,44 @@ bool GossipSelect_npc_kharan_mighthammer(Player *player, Creature *_Creature, ui
     switch (action)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
-            player->ADD_GOSSIP_ITEM(0, "Gor'shak is my friend, you can trust me.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+             player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_KHARAN_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
             player->SEND_GOSSIP_MENU(2475, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
-            player->ADD_GOSSIP_ITEM(0, "Not enough, you need to tell me more.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+            player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_KHARAN_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
             player->SEND_GOSSIP_MENU(2476, _Creature->GetGUID());
             break;
 
         case GOSSIP_ACTION_INFO_DEF+3:
-            player->ADD_GOSSIP_ITEM(0, "So what happened?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+            player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_KHARAN_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
             player->SEND_GOSSIP_MENU(2477, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+4:
-            player->ADD_GOSSIP_ITEM(0, "Continue...", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+            player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_KHARAN_6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
             player->SEND_GOSSIP_MENU(2478, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+5:
-            player->ADD_GOSSIP_ITEM(0, "So you suspect that someone on the inside was involved? That they were tipped off?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
+             player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_KHARAN_7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
             player->SEND_GOSSIP_MENU(2479, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+6:
-            player->ADD_GOSSIP_ITEM(0, "Continue with your story please.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+7);
+            player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_KHARAN_8, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+7);
             player->SEND_GOSSIP_MENU(2480, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+7:
-            player->ADD_GOSSIP_ITEM(0, "Indeed.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+8);
+            player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_KHARAN_9, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+8);
             player->SEND_GOSSIP_MENU(2481, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+8:
-            player->ADD_GOSSIP_ITEM(0, "The door is open, Kharan. You are a free man.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+9);
+            player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_KHARAN_10, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+9);
             player->SEND_GOSSIP_MENU(2482, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+9:
             player->CLOSE_GOSSIP_MENU();
-            if( player->GetTeam() == HORDE ) player->AreaExploredOrEventHappens(QUEST_4001);
-            if( player->GetTeam() == ALLIANCE ) player->AreaExploredOrEventHappens(QUEST_4342);
+            if (player->GetTeam() == HORDE)
+				player->AreaExploredOrEventHappens(QUEST_4001);
+			else
+				player->AreaExploredOrEventHappens(QUEST_4342);
             break;
     }
     return true;
@@ -179,19 +490,22 @@ bool GossipSelect_npc_kharan_mighthammer(Player *player, Creature *_Creature, ui
 #define QUEST_A_BINDING_CONTRACT                         7604
 #define SPELL_CREATE_THORIUM_BROTHERHOOD_CONTRACT_DND    23059
 
+#define GOSSIP_ITEM_SHOW_ACCESS     "Show me what I have access to, Lothos."
+#define GOSSIP_ITEM_GET_CONTRACT    "Get Thorium Brotherhood Contract"
+
 bool GossipHello_npc_lokhtos_darkbargainer(Player *player, Creature *_Creature)
 {
     if (_Creature->isQuestGiver())
         player->PrepareQuestMenu( _Creature->GetGUID() );
 
     if (_Creature->isVendor() && player->GetReputationRank(59) >= REP_FRIENDLY)
-        player->ADD_GOSSIP_ITEM( 1, "Show me what I have access to, Lothos.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+          player->ADD_GOSSIP_ITEM( 1, GOSSIP_ITEM_SHOW_ACCESS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
     if (player->GetQuestRewardStatus(QUEST_A_BINDING_CONTRACT) != 1 &&
         !player->HasItemCount(ITEM_THRORIUM_BROTHERHOOD_CONTRACT, 1, true) &&
         player->HasItemCount(ITEM_SULFURON_INGOT, 1))
     {
-        player->ADD_GOSSIP_ITEM(0, "Get Thorium Brotherhood Contract", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_GET_CONTRACT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
     }
 
     if (player->GetReputationRank(59) < REP_FRIENDLY)
@@ -209,10 +523,9 @@ bool GossipSelect_npc_lokhtos_darkbargainer(Player *player, Creature *_Creature,
         player->CLOSE_GOSSIP_MENU();
         player->CastSpell(player, SPELL_CREATE_THORIUM_BROTHERHOOD_CONTRACT_DND, false);
     }
-    if (action == GOSSIP_ACTION_TRADE)
-    {
-        player->SEND_VENDORLIST( _Creature->GetGUID() );
-    }
+    if (action == GOSSIP_ACTION_TRADE)   
+		player->SEND_VENDORLIST( _Creature->GetGUID() );
+    
     return true;
 }
 
@@ -225,7 +538,7 @@ bool GossipSelect_npc_lokhtos_darkbargainer(Player *player, Creature *_Creature,
 #define GOSSIP_DUGHAL			"You're free, Dughal! Get out of here!"
 
 ScriptedInstance *pInstance;
-
+/*
 struct TRINITY_DLL_DECL npc_dughal_stormwingAI : public npc_escortAI
 {
     npc_dughal_stormwingAI(Creature *c) : npc_escortAI(c) { Reset(); }
@@ -308,7 +621,7 @@ bool GossipSelect_npc_dughal_stormwing(Player *player, Creature *_Creature, uint
     }
     return true;
 }
-
+ */
 /*######
 ## npc_marshal_windsor
 ######*/
@@ -325,7 +638,7 @@ bool GossipSelect_npc_dughal_stormwing(Player *player, Creature *_Creature, uint
 #define MOB_ENTRY_REGINALD_WINDSOR	9682    
 
 Player* PlayerStart;
-
+/*
 struct TRINITY_DLL_DECL npc_marshal_windsorAI : public npc_escortAI
 {
 	npc_marshal_windsorAI(Creature *c) : npc_escortAI(c) 
@@ -354,7 +667,7 @@ struct TRINITY_DLL_DECL npc_marshal_windsorAI : public npc_escortAI
 			pInstance->SetData(DATA_SUPPLY_ROOM, ENCOUNTER_STATE_IN_PROGRESS);
 			break;
 		case 13:
-			m_creature->HandleEmoteCommand(EMOTE_STATE_USESTANDING);/*EMOTE_STATE_WORK*/
+			m_creature->HandleEmoteCommand(EMOTE_STATE_USESTANDING);//EMOTE_STATE_WORK
 			break;
 		case 14:
 			pInstance->SetData(DATA_GATE_SR,0);
@@ -364,7 +677,7 @@ struct TRINITY_DLL_DECL npc_marshal_windsorAI : public npc_escortAI
 			m_creature->Say(SAY_WINDSOR_9, LANG_UNIVERSAL, PlayerGUID); 
 			break;
 		case 17: 
-			m_creature->HandleEmoteCommand(EMOTE_STATE_USESTANDING);/*EMOTE_STATE_WORK*/
+			m_creature->HandleEmoteCommand(EMOTE_STATE_USESTANDING);//EMOTE_STATE_WORK
 			break;
 		case 18:
 			pInstance->SetData(DATA_GATE_SC,0);
@@ -468,7 +781,7 @@ bool QuestAccept_npc_marshal_windsor(Player *player, Creature *creature, Quest c
 		}
     return false;
 }
-
+  */
 /*######
 ## npc_marshal_reginald_windsor
 ######*/
@@ -491,7 +804,7 @@ bool QuestAccept_npc_marshal_windsor(Player *player, Creature *creature, Quest c
 #define MOB_ENTRY_CREST_KILLER		9680    
 
 int wp = 0;
-
+/*
 struct TRINITY_DLL_DECL npc_marshal_reginald_windsorAI : public npc_escortAI
 {
 	npc_marshal_reginald_windsorAI(Creature *c) : npc_escortAI(c) 
@@ -681,13 +994,13 @@ CreatureAI* GetAI_npc_marshal_reginald_windsor(Creature *_Creature)
 
 	return (CreatureAI*)marshal_reginald_windsorAI;
 }
-
+*/
 /*######
 ## npc_tobias_seecher
 ######*/
 
 #define SAY_TOBIAS_FREE			"Thank you! I will run for safety immediately!"
-
+/*
 struct TRINITY_DLL_DECL npc_tobias_seecherAI : public npc_escortAI
 {
     npc_tobias_seecherAI(Creature *c) :npc_escortAI(c) {Reset();}
@@ -775,6 +1088,172 @@ bool GossipSelect_npc_tobias_seecher(Player *player, Creature *_Creature, uint32
     }
     return true;
 }
+*/
+
+/*######
+## npc_rocknot
+######*/
+   
+#define SAY_GOT_BEER        -1230000
+#define SPELL_DRUNKEN_RAGE  14872
+#define QUEST_ALE           4295
+   
+float BarWpLocations[8][3]=
+{
+	{883.294861, -188.926300, -43.703655},
+	{872.763550, -185.605621, -43.703655},                  //b1
+	{867.923401, -188.006393, -43.703655},                  //b2
+	{863.295898, -190.795212, -43.703655},                  //b3
+	{856.139587, -194.652756, -43.703655},                  //b4
+	{851.878906, -196.928131, -43.703655},                  //b5
+	{877.035217, -187.048080, -43.703655},
+	{891.198000, -197.924000, -43.620400}                   //home
+};
+   
+uint32 BarWpWait[8]=
+{
+	0,
+	5000,
+	5000,
+	5000,
+	5000,
+	15000,
+	0,
+	0
+};
+   
+struct TRINITY_DLL_DECL npc_rocknotAI : public npc_escortAI
+{
+	npc_rocknotAI(Creature *c) : npc_escortAI(c)
+	{
+		pInstance = ((ScriptedInstance*)c->GetInstanceData());
+		Reset();
+	}
+   
+	ScriptedInstance* pInstance;
+
+	uint32 BreakKeg_Timer;
+	uint32 BreakDoor_Timer;
+
+	void Reset()
+	{
+		if (IsBeingEscorted)
+			return;
+
+		BreakKeg_Timer = 0;
+		BreakDoor_Timer = 0;
+	}
+
+	void Aggro(Unit *who) { }
+   
+	void DoGo(uint32 id, uint32 state)
+	{
+		if (GameObject *go = GameObject::GetGameObject(*m_creature,pInstance->GetData64(id)))
+			go->SetGoState(state);
+	}
+   
+	void WaypointReached(uint32 i)
+	{
+		if (!pInstance)
+			return;
+   
+		switch(i)
+		{
+		case 1:
+			m_creature->HandleEmoteCommand(EMOTE_ONESHOT_KICK);
+			break;
+		case 2:
+			m_creature->HandleEmoteCommand(EMOTE_ONESHOT_ATTACKUNARMED);
+			break;
+		case 3:
+			m_creature->HandleEmoteCommand(EMOTE_ONESHOT_ATTACKUNARMED);
+			break;
+		case 4:
+			m_creature->HandleEmoteCommand(EMOTE_ONESHOT_KICK);
+			break;
+		case 5:
+			m_creature->HandleEmoteCommand(EMOTE_ONESHOT_KICK);
+			BreakKeg_Timer = 2000;
+			break;
+		}
+	}
+   
+	void UpdateAI(const uint32 diff)
+	{
+		if (!pInstance)
+			return;
+   
+		if (BreakKeg_Timer)
+		{
+			if (BreakKeg_Timer <= diff)
+			{
+				DoGo(DATA_GO_BAR_KEG,0);
+				BreakKeg_Timer = 0;
+				BreakDoor_Timer = 1000;
+			}else BreakKeg_Timer -= diff;
+		}
+   
+		if (BreakDoor_Timer)
+		{
+			if (BreakDoor_Timer <= diff)
+			{
+				DoGo(DATA_GO_BAR_DOOR,2);
+				DoGo(DATA_GO_BAR_KEG_TRAP,0);               //doesn't work very well, leaving code here for future
+				//spell by trap has effect61, this indicate the bar go hostile
+
+				if (Unit *tmp = Unit::GetUnit(*m_creature,pInstance->GetData64(DATA_PHALANX)))
+					tmp->setFaction(14);
+   
+				//for later, this event(s) has alot more to it.
+				//optionally, DONE can trigger bar to go hostile.
+				pInstance->SetData(TYPE_BAR,DONE);
+   
+				BreakDoor_Timer = 0;
+			}else BreakDoor_Timer -= diff;
+		}
+   
+		npc_escortAI::UpdateAI(diff);
+	}
+};
+   
+CreatureAI* GetAI_npc_rocknot(Creature *_Creature)
+{
+	npc_rocknotAI* Rocknot_AI = new npc_rocknotAI(_Creature);
+   
+	for(uint8 i = 0; i < 8; ++i)
+		Rocknot_AI->AddWaypoint(i, BarWpLocations[i][0], BarWpLocations[i][1], BarWpLocations[i][2], BarWpWait[i]);
+   
+	return (CreatureAI*)Rocknot_AI;
+}
+   
+bool ChooseReward_npc_rocknot(Player *player, Creature *_Creature, const Quest *_Quest, uint32 item)
+{
+	ScriptedInstance* pInstance = ((ScriptedInstance*)_Creature->GetInstanceData());
+   
+	if (!pInstance)
+		return true;
+   
+	if (pInstance->GetData(TYPE_BAR) == DONE || pInstance->GetData(TYPE_BAR) == SPECIAL)
+		return true;
+   
+	if (_Quest->GetQuestId() == QUEST_ALE)
+	{
+		if (pInstance->GetData(TYPE_BAR) != IN_PROGRESS)
+			pInstance->SetData(TYPE_BAR,IN_PROGRESS);
+
+		pInstance->SetData(TYPE_BAR,SPECIAL);
+   
+		//keep track of amount in instance script, returns SPECIAL if amount ok and event in progress
+		if (pInstance->GetData(TYPE_BAR) == SPECIAL)
+		{
+			DoScriptText(SAY_GOT_BEER, _Creature);
+			_Creature->CastSpell(_Creature,SPELL_DRUNKEN_RAGE,false);
+			((npc_escortAI*)(_Creature->AI()))->Start(false, false, false);
+		}
+	}
+   
+	return true;
+}
 
 /*######
 ##
@@ -783,6 +1262,16 @@ bool GossipSelect_npc_tobias_seecher(Player *player, Creature *_Creature, uint32
 void AddSC_blackrock_depths()
 {
     Script *newscript;
+
+	newscript = new Script;
+	newscript->Name = "at_ring_of_law";
+	newscript->pAreaTrigger = &AreaTrigger_at_ring_of_law;
+	newscript->RegisterSelf();
+
+	 newscript = new Script;
+	 newscript->Name = "npc_grimstone";
+	 newscript->GetAI = &GetAI_npc_grimstone;
+	 newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="phalanx";
@@ -800,7 +1289,7 @@ void AddSC_blackrock_depths()
     newscript->pGossipHello =  &GossipHello_npc_lokhtos_darkbargainer;
     newscript->pGossipSelect = &GossipSelect_npc_lokhtos_darkbargainer;
     newscript->RegisterSelf();
-
+/*
 	newscript = new Script;
 	newscript->Name="npc_dughal_stormwing";
 	newscript->pGossipHello =  &GossipHello_npc_dughal_stormwing;
@@ -824,5 +1313,11 @@ void AddSC_blackrock_depths()
 	newscript = new Script;
     newscript->Name="npc_marshal_reginald_windsor";
 	newscript->GetAI = &GetAI_npc_marshal_reginald_windsor;
-	newscript->RegisterSelf();
+	newscript->RegisterSelf();*/
+
+	 newscript = new Script;
+	 newscript->Name = "npc_rocknot";
+	 newscript->GetAI = &GetAI_npc_rocknot;
+	 newscript->pChooseReward = &ChooseReward_npc_rocknot;
+	 newscript->RegisterSelf();
 }
