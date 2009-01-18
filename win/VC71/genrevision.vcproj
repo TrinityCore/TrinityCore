@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
     ProjectType="Visual C++"
-    Version="9,00"
+    Version="7,10"
     Name="genrevision"
     ProjectGUID="{803F488E-4C5A-4866-8D5C-1E6C03C007C2}"
     RootNamespace="genrevision"
