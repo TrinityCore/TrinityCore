@@ -653,6 +653,11 @@ Server.LoginInfo = 0
 #        Default: 0 (Not allowed)
 #                 1 (Allowed)
 #
+#    AllowTwoSide.Trade
+#        Allow or not trading with other team in party.
+#        Default: 0 (Not allowed)
+#                 1 (Allowed)
+#
 #    TalentsInspecting
 #        Allow other players see character talents in inspect dialog (Characters in Gamemaster mode can
 #        inspect talents always)
