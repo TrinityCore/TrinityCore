@@ -291,7 +291,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
 };
 
 //Water Globule AI
-#define SPELL_GLOBULE_EXPLOSION 37852
+#define SPELL_GLOBULE_EXPLOSION 37871
 
 struct TRINITY_DLL_DECL mob_water_globuleAI : public ScriptedAI
 {
