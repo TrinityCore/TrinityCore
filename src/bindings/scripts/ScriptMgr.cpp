@@ -630,7 +630,7 @@ void LoadDatabase()
     QueryResult *result;
 
     //Get Version information
-    result = TScriptDB.PQuery("SELECT version FROM script_db_version");
+    result = TScriptDB.PQuery("SELECT script_version FROM version LIMIT 1");
 
     if (result)
     {
@@ -641,7 +641,7 @@ void LoadDatabase()
 
     }else
     {
-        error_log("TSCR: Missing `script_db_version` information.");
+        error_log("TSCR: Missing `version.script_version` information.");
         outstring_log("");
     }
 
