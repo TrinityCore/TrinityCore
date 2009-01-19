@@ -66,7 +66,7 @@ void AuthCrypt::SetKey(BigNumber *bn)
     GenerateKey(key, bn);
     _key.resize(SHA_DIGEST_LENGTH);
     std::copy(key, key + SHA_DIGEST_LENGTH, _key.begin());
-    delete key;
+    delete[] key;
 }
 
 AuthCrypt::~AuthCrypt()

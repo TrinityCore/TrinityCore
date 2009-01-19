@@ -2717,15 +2717,25 @@ bool ChatHandler::HandleLookupSkillCommand(const char* args)
 
             if(loc < MAX_LOCALE)
             {
+                char valStr[50] = "";
                 char const* knownStr = "";
                 if(target && target->HasSkill(id))
+                {
                     knownStr = GetTrinityString(LANG_KNOWN);
+                    uint32 curValue = target->GetPureSkillValue(id);
+                    uint32 maxValue  = target->GetPureMaxSkillValue(id);
+                    uint32 permValue = target->GetSkillPermBonusValue(id);
+                    uint32 tempValue = target->GetSkillTempBonusValue(id);
+
+                    char const* valFormat = GetTrinityString(LANG_SKILL_VALUES);
+                    snprintf(valStr,50,valFormat,curValue,maxValue,permValue,tempValue);
+                }
 
                 // send skill in "id - [namedlink locale]" format
                 if (m_session)
-                    PSendSysMessage(LANG_SKILL_LIST_CHAT,id,id,name.c_str(),localeNames[loc],knownStr);
+                    PSendSysMessage(LANG_SKILL_LIST_CHAT,id,id,name.c_str(),localeNames[loc],knownStr,valStr);
                 else
-                    PSendSysMessage(LANG_SKILL_LIST_CONSOLE,id,name.c_str(),localeNames[loc],knownStr);
+                    PSendSysMessage(LANG_SKILL_LIST_CONSOLE,id,name.c_str(),localeNames[loc],knownStr,valStr);
 
                 ++counter;
             }
@@ -3922,8 +3932,6 @@ bool ChatHandler::HandleShowAreaCommand(const char* args)
     if (!*args)
         return false;
 
-    int area = atoi((char*)args);
-
     Player *chr = getSelectedPlayer();
     if (chr == NULL)
     {
@@ -3932,10 +3940,11 @@ bool ChatHandler::HandleShowAreaCommand(const char* args)
         return false;
     }
 
+    int area = GetAreaFlagByAreaID(atoi((char*)args));
     int offset = area / 32;
     uint32 val = (uint32)(1 << (area % 32));
 
-    if(offset >= 128)
+    if(area<0 || offset >= 128)
     {
         SendSysMessage(LANG_BAD_VALUE);
         SetSentErrorMessage(true);
@@ -3954,8 +3963,6 @@ bool ChatHandler::HandleHideAreaCommand(const char* args)
     if (!*args)
         return false;
 
-    int area = atoi((char*)args);
-
     Player *chr = getSelectedPlayer();
     if (chr == NULL)
     {
@@ -3964,10 +3971,11 @@ bool ChatHandler::HandleHideAreaCommand(const char* args)
         return false;
     }
 
+    int area = GetAreaFlagByAreaID(atoi((char*)args));
     int offset = area / 32;
     uint32 val = (uint32)(1 << (area % 32));
 
-    if(offset >= 128)
+    if(area<0 || offset >= 128)
     {
         SendSysMessage(LANG_BAD_VALUE);
         SetSentErrorMessage(true);

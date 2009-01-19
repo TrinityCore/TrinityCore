@@ -529,8 +529,6 @@ class Spell
         // Spell target subsystem
         //*****************************************
         // Targets store structures and data
-        uint32 m_countOfHit;
-        uint32 m_countOfMiss;
         struct TargetInfo
         {
             uint64 targetGUID;
