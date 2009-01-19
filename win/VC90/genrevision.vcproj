@@ -21,8 +21,8 @@
     <Configurations>
         <Configuration
             Name="Debug|Win32"
-            OutputDirectory=".\gensvnrevision__$(PlatformName)_$(ConfigurationName)"
-            IntermediateDirectory=".\gensvnrevision__$(PlatformName)_$(ConfigurationName)"
+            OutputDirectory=".\genrevision__$(PlatformName)_$(ConfigurationName)"
+            IntermediateDirectory=".\genrevision__$(PlatformName)_$(ConfigurationName)"
             ConfigurationType="1"
             CharacterSet="1"
             >
@@ -168,8 +168,8 @@
         </Configuration>
         <Configuration
             Name="Debug|x64"
-            OutputDirectory=".\gensvnrevision__$(PlatformName)_$(ConfigurationName)"
-            IntermediateDirectory=".\gensvnrevision__$(PlatformName)_$(ConfigurationName)"
+            OutputDirectory=".\genrevision__$(PlatformName)_$(ConfigurationName)"
+            IntermediateDirectory=".\genrevision__$(PlatformName)_$(ConfigurationName)"
             ConfigurationType="1"
             CharacterSet="1"
             >
@@ -241,8 +241,8 @@
         </Configuration>
         <Configuration
             Name="Release|x64"
-            OutputDirectory=".\gensvnrevision__$(PlatformName)_$(ConfigurationName)"
-            IntermediateDirectory=".\gensvnrevision__$(PlatformName)_$(ConfigurationName)"
+            OutputDirectory=".\genrevision__$(PlatformName)_$(ConfigurationName)"
+            IntermediateDirectory=".\genrevision__$(PlatformName)_$(ConfigurationName)"
             ConfigurationType="1"
             CharacterSet="1"
             WholeProgramOptimization="1"
