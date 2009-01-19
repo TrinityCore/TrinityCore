@@ -856,8 +856,8 @@ bool ChatHandler::HandleNpcAddCommand(const char* args)
 {
     if(!*args)
         return false;
-    char* charID = strtok((char*)args, " ");
-    if (!charID)
+    char* charID = extractKeyFromLink((char*)args,"Hcreature_entry");
+    if(!charID)
         return false;
 
     char* team = strtok(NULL, " ");
