@@ -1307,6 +1307,12 @@ void Spell::EffectDummy(uint32 i)
                 m_caster->CastCustomSpell(m_caster,34846,&chargeBasePoints0,NULL,NULL,true);
                 return;
             }
+			//Slam
+			if(m_spellInfo->SpellFamilyFlags[0] & 0x200000 && m_spellInfo->SpellIconID == 559)
+			{
+				int32 bp0 = damage;
+				m_caster->CastCustomSpell(unitTarget, 50783, &bp0, NULL, NULL, true, 0);
+			}
             // Execute
             if(m_spellInfo->SpellFamilyFlags[0] & 0x20000000)
             {
