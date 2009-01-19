@@ -96,7 +96,7 @@ void WorldSession::HandleBattleGroundJoinOpcode( WorldPacket & recv_data )
     sLog.outDebug( "WORLD: Recvd CMSG_BATTLEMASTER_JOIN Message from: " I64FMT, guid);
 
     // can do this, since it's battleground, not arena
-    uint32 bgQueueTypeId = sBattleGroundMgr.BGQueueTypeId(bgTypeId, 0);
+    uint32 bgQueueTypeId = BattleGroundMgr::BGQueueTypeId(bgTypeId, 0);
 
     // ignore if player is already in BG
     if(_player->InBattleGround())
@@ -370,7 +370,7 @@ void WorldSession::HandleBattleGroundPlayerPortOpcode( WorldPacket &recv_data )
     uint32 bgQueueTypeId = 0;
     // get the bg what we were invited to
     BattleGroundQueue::QueuedPlayersMap::iterator itrPlayerStatus;
-    bgQueueTypeId = sBattleGroundMgr.BGQueueTypeId(bgTypeId,type);
+    bgQueueTypeId = BattleGroundMgr::BGQueueTypeId(bgTypeId,type);
     itrPlayerStatus = sBattleGroundMgr.m_BattleGroundQueues[bgQueueTypeId].m_QueuedPlayers[_player->GetBattleGroundQueueIdFromLevel()].find(_player->GetGUID());
 
     if(itrPlayerStatus == sBattleGroundMgr.m_BattleGroundQueues[bgQueueTypeId].m_QueuedPlayers[_player->GetBattleGroundQueueIdFromLevel()].end())
@@ -531,7 +531,7 @@ void WorldSession::HandleBattlefieldStatusOpcode( WorldPacket & /*recv_data*/ )
         BattleGround *bg = _player->GetBattleGround();
         if(bg)
         {
-            uint32 bgQueueTypeId = sBattleGroundMgr.BGQueueTypeId(bg->GetTypeID(), bg->GetArenaType());
+            uint32 bgQueueTypeId = BattleGroundMgr::BGQueueTypeId(bg->GetTypeID(), bg->GetArenaType());
             uint32 queueSlot = _player->GetBattleGroundQueueIndex(bgQueueTypeId);
             if((bg->GetStatus() <= STATUS_IN_PROGRESS))
             {
@@ -541,7 +541,7 @@ void WorldSession::HandleBattlefieldStatusOpcode( WorldPacket & /*recv_data*/ )
             for (uint32 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
             {
                 uint32 queue_id = _player->GetBattleGroundQueueId(i);       // battlegroundqueueid stores the type id, not the instance id, so this is definitely wrong
-                uint8 arenatype = sBattleGroundMgr.BGArenaType(queue_id);
+                uint8 arenatype = BattleGroundMgr::BGArenaType(queue_id);
                 uint8 isRated = 0;
                 if (i == queueSlot || !queue_id)                            // we need to get the instance ids
                     continue;
@@ -553,7 +553,7 @@ void WorldSession::HandleBattlefieldStatusOpcode( WorldPacket & /*recv_data*/ )
                     arenatype = itrPlayerStatus->second.GroupInfo->ArenaType;
                     isRated = itrPlayerStatus->second.GroupInfo->IsRated;
                 }
-                BattleGround *bg2 = sBattleGroundMgr.GetBattleGroundTemplate(sBattleGroundMgr.BGTemplateId(queue_id)); //  try this
+                BattleGround *bg2 = sBattleGroundMgr.GetBattleGroundTemplate(BattleGroundMgr::BGTemplateId(queue_id)); //  try this
                 if(bg2)
                 {
                     //in this call is small bug, this call should be filled by player's waiting time in queue
@@ -572,8 +572,8 @@ void WorldSession::HandleBattlefieldStatusOpcode( WorldPacket & /*recv_data*/ )
             uint32 queue_id = _player->GetBattleGroundQueueId(i);
             if(!queue_id)
                 continue;
-            uint32 bgTypeId = sBattleGroundMgr.BGTemplateId(queue_id);
-            uint8 arenatype = sBattleGroundMgr.BGArenaType(queue_id);
+            uint32 bgTypeId = BattleGroundMgr::BGTemplateId(queue_id);
+            uint8 arenatype = BattleGroundMgr::BGArenaType(queue_id);
             uint8 isRated = 0;
             BattleGround *bg = sBattleGroundMgr.GetBattleGroundTemplate(bgTypeId);
             BattleGroundQueue::QueuedPlayersMap::iterator itrPlayerStatus = sBattleGroundMgr.m_BattleGroundQueues[queue_id].m_QueuedPlayers[_player->GetBattleGroundQueueIdFromLevel()].find(_player->GetGUID());
@@ -701,7 +701,7 @@ void WorldSession::HandleBattleGroundArenaJoin( WorldPacket & recv_data )
     }
 
     uint8 bgTypeId = bg->GetTypeID();
-    uint32 bgQueueTypeId = sBattleGroundMgr.BGQueueTypeId(bgTypeId, arenatype);
+    uint32 bgQueueTypeId = BattleGroundMgr::BGQueueTypeId(bgTypeId, arenatype);
 
     // check queueing conditions
     if(!asGroup)
