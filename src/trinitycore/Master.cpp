@@ -458,6 +458,9 @@ bool Master::_StartDB()
     ///- Clean the database before starting
     clearOnlineAccounts();
 
+	///- Insert version info into DB
+    WorldDatabase.PExecute("UPDATE `version` SET `core_version` = '%s'", _FULLVERSION);
+
     sWorld.LoadDBVersion();
 
     sLog.outString("Using %s", sWorld.GetDBVersion());
