@@ -4644,7 +4644,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
 
     // Statue unsummoned at aura remove
     Totem* statue = NULL;
-    bool caster_channeled = false;
+    bool channeled = false;
     if(IsChanneledSpell(AurSpellInfo))
     {
         if(!caster)                                         // can be already located for IsSingleTargetSpell case
@@ -4654,8 +4654,15 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
         {
             if(caster->GetTypeId()==TYPEID_UNIT && ((Creature*)caster)->isTotem() && ((Totem*)caster)->GetTotemType()==TOTEM_STATUE)
                 statue = ((Totem*)caster);
-            else
-                caster_channeled = caster==this;
+
+            // stop caster chanelling state
+            else if(caster->m_currentSpells[CURRENT_CHANNELED_SPELL] 
+                //prevent recurential call
+                && caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->getState() != SPELL_STATE_FINISHED)
+            {
+                caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->cancel(false);
+                channeled = true;
+            }
         }
     }
 
@@ -4683,8 +4690,13 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
 
     delete Aur;
 
-    if(caster_channeled)
-        RemoveAurasAtChanneledTarget (AurSpellInfo);
+    if(channeled)
+    {
+        //if target is not caster remove auras also on caster
+        if (caster!=this)
+            caster->RemoveAurasAtChanneledTarget (AurSpellInfo, caster);
+        RemoveAurasAtChanneledTarget (AurSpellInfo, caster);
+    }
 
     if(statue)
         statue->UnSummon();
@@ -12553,23 +12565,23 @@ bool Unit::HandleMeandingAuraProc( Aura* triggeredByAura )
     return true;
 }
 
-void Unit::RemoveAurasAtChanneledTarget(SpellEntry const* spellInfo)
+void Unit::RemoveAurasAtChanneledTarget(SpellEntry const* spellInfo, Unit * caster)
 {
-    uint64 target_guid = GetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT);
+/*    uint64 target_guid = GetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT);
     if(target_guid == GetGUID())
         return;
 
     if(!IS_UNIT_GUID(target_guid))
         return;
 
-    Unit* target = ObjectAccessor::GetUnit(*this, target_guid);
-    if(!target)
+    Unit* target = ObjectAccessor::GetUnit(*this, target_guid);*/
+    if(!caster)
         return;
 
-    for (AuraMap::iterator iter = target->GetAuras().begin(); iter != target->GetAuras().end(); )
+    for (AuraMap::iterator iter = GetAuras().begin(); iter != GetAuras().end(); )
     {
-        if (iter->second->GetId() == spellInfo->Id && iter->second->GetCasterGUID()==GetGUID())
-            target->RemoveAura(iter);
+        if (iter->second->GetId() == spellInfo->Id && iter->second->GetCasterGUID() == caster->GetGUID())
+            RemoveAura(iter);
         else
             ++iter;
     }
