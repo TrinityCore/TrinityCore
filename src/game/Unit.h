@@ -356,7 +356,7 @@ enum UnitState
     UNIT_STAT_STUNNED         = 0x00000008,
     UNIT_STAT_ROAMING         = 0x00000010,
     UNIT_STAT_CHASE           = 0x00000020,
-    UNIT_STAT_SEARCHING       = 0x00000040,
+    //UNIT_STAT_SEARCHING       = 0x00000040,
     UNIT_STAT_FLEEING         = 0x00000080,
     UNIT_STAT_IN_FLIGHT       = 0x00000100,                     // player is in flight mode
     UNIT_STAT_FOLLOW          = 0x00000200,
@@ -368,9 +368,9 @@ enum UnitState
     UNIT_STAT_CASTING         = 0x00008000,
     UNIT_STAT_POSSESSED       = 0x00010000,
     UNIT_STAT_CHARGING        = 0x00020000,
-    UNIT_STAT_MOVING          = (UNIT_STAT_ROAMING | UNIT_STAT_CHASE | UNIT_STAT_SEARCHING | UNIT_STAT_FOLLOW),
+    UNIT_STAT_MOVING          = (UNIT_STAT_ROAMING | UNIT_STAT_CHASE),
     UNIT_STAT_LOST_CONTROL    = (UNIT_STAT_CONFUSED | UNIT_STAT_STUNNED | UNIT_STAT_FLEEING | UNIT_STAT_CHARGING),
-    UNIT_STAT_SIGHTLESS       = (UNIT_STAT_LOST_CONTROL | UNIT_STAT_CHASE | UNIT_STAT_SEARCHING),
+    UNIT_STAT_SIGHTLESS       = (UNIT_STAT_LOST_CONTROL | UNIT_STAT_CHASE),
     UNIT_STAT_CANNOT_AUTOATTACK     = (UNIT_STAT_LOST_CONTROL | UNIT_STAT_CASTING),
     UNIT_STAT_ALL_STATE       = 0xffffffff                      //(UNIT_STAT_STOPPED | UNIT_STAT_MOVING | UNIT_STAT_IN_COMBAT | UNIT_STAT_IN_FLIGHT)
 };
@@ -1419,8 +1419,6 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         AuraMap m_Auras;
 
-        std::list<Aura *> m_scAuras;                        // casted singlecast auras
-
         typedef std::list<uint64> DynObjectGUIDs;
         DynObjectGUIDs m_dynObjGUIDs;
 
@@ -1430,9 +1428,11 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         uint32 m_removedAuras;
 
         AuraList m_modAuras[TOTAL_AURAS];
-        uint32 m_interruptMask;
+        AuraList m_scAuras;                        // casted singlecast auras
         AuraList m_interruptableAuras;
         AuraList m_ccAuras;
+        uint32 m_interruptMask;
+
         float m_auraModifiersGroup[UNIT_MOD_END][MODIFIER_TYPE_END];
         float m_weaponDamage[MAX_ATTACK][2];
         bool m_canModifyStats;
