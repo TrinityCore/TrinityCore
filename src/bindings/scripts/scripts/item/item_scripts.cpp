@@ -105,8 +105,11 @@ bool ItemUse_item_attuned_crystal_cores(Player *player, Item* _Item, SpellCastTa
 {
     if( targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId()==TYPEID_UNIT &&
         targets.getUnitTarget()->GetEntry() == 24972 && targets.getUnitTarget()->isDead() )
-        return false;
-
+	{
+		((Creature*)targets.getUnitTarget())->RemoveCorpse();
+		return false;
+	}
+        
     player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,_Item,NULL);
     return true;
 }
