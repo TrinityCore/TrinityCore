@@ -2114,7 +2114,7 @@ void Spell::prepare(SpellCastTargets * targets, Aura* triggeredByAura)
     }
 }
 
-void Spell::cancel()
+void Spell::cancel(bool report)
 {
     if(m_spellState == SPELL_STATE_FINISHED)
         return;
@@ -2144,7 +2144,7 @@ void Spell::cancel()
             m_caster->RemoveAurasDueToCasterSpell(m_spellInfo->Id, m_caster->GetGUID());
             SendChannelUpdate(0);
             SendInterrupted(0);
-            SendCastResult(SPELL_FAILED_INTERRUPTED);
+            SendCastResult(report ? SPELL_FAILED_INTERRUPTED : SPELL_FAILED_DONT_REPORT);
         } break;
 
         default:
