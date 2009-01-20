@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="ACEWrappers"
+	Name="ACE_Wrappers"
 	ProjectGUID="{BD537C9A-FECA-1BAD-6757-8A6348EA12C8}"
 	RootNamespace="ACE"
 	Keyword="Win32Proj"
