@@ -1,5 +1,4 @@
 INSTALL(FILES
-XXX_characters.sql
 11_characters.sql
 45_characters.sql
 54_world.sql
@@ -143,4 +142,6 @@ XXX_characters.sql
 905_world_scripts.sql
 917_world.sql
 919_world.sql
+927_characters.sql
+930_characters.sql
 DESTINATION share/trinity/sql/updates)
