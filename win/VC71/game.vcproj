@@ -200,6 +200,16 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="AuctionHouseBot"
+			>
+			<File
+				RelativePath="..\..\src\game\AuctionHouseBot.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\game\AuctionHouseBot.h">
+			</File>
+		</Filter>
+		<Filter
 			Name="Objects"
 			>
 			<File
@@ -213,6 +223,12 @@
 			<File
 				RelativePath="..\..\src\game\AuctionHouseObject.h"
 				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\AuctionHouseBot.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\game\AuctionHouseBot.h">
 			</File>
 			<File
 				RelativePath="..\..\src\game\Bag.cpp"
