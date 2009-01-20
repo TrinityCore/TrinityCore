@@ -3592,20 +3592,20 @@ void Spell::EffectSummonGuardian(uint32 i)
     // Search old Guardian only for players (if casted spell not have duration or cooldown)
     // FIXME: some guardians have control spell applied and controlled by player and anyway player can't summon in this time
     //        so this code hack in fact
-    if( m_caster->GetTypeId() == TYPEID_PLAYER && (duration <= 0 || GetSpellRecoveryTime(m_spellInfo)==0) )
-        if(((Player*)m_caster)->HasGuardianWithEntry(pet_entry))
+    if( m_originalCaster->GetTypeId() == TYPEID_PLAYER && (duration <= 0 || GetSpellRecoveryTime(m_spellInfo)==0) )
+        if(((Player*)m_originalCaster)->HasGuardianWithEntry(pet_entry))
             return;                                         // find old guardian, ignore summon
 
     // in another case summon new
-    uint32 level = m_caster->getLevel();
+    uint32 level = m_originalCaster->getLevel();
 
     // level of pet summoned using engineering item based at engineering skill level
-    if(m_caster->GetTypeId()==TYPEID_PLAYER && m_CastItem)
+    if(m_originalCaster->GetTypeId()==TYPEID_PLAYER && m_CastItem)
     {
         ItemPrototype const *proto = m_CastItem->GetProto();
         if(proto && proto->RequiredSkill == SKILL_ENGINERING)
         {
-            uint16 skill202 = ((Player*)m_caster)->GetSkillValue(SKILL_ENGINERING);
+            uint16 skill202 = ((Player*)m_originalCaster)->GetSkillValue(SKILL_ENGINERING);
             if(skill202)
             {
                 level = skill202/5;
@@ -3668,14 +3668,14 @@ void Spell::EffectSummonGuardian(uint32 i)
         if(duration > 0)
             spawnCreature->SetDuration(duration);
 
-        spawnCreature->SetOwnerGUID(m_caster->GetGUID());
+        spawnCreature->SetOwnerGUID(m_originalCaster->GetGUID());
         spawnCreature->setPowerType(POWER_MANA);
         spawnCreature->SetUInt32Value(UNIT_NPC_FLAGS , 0);
-        spawnCreature->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE,m_caster->getFaction());
+        spawnCreature->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE,m_originalCaster->getFaction());
         spawnCreature->SetUInt32Value(UNIT_FIELD_FLAGS,0);
         spawnCreature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
         spawnCreature->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP,0);
-        spawnCreature->SetCreatorGUID(m_caster->GetGUID());
+        spawnCreature->SetCreatorGUID(m_originalCaster->GetGUID());
         spawnCreature->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
 
         spawnCreature->InitStatsForLevel(level);
@@ -3683,8 +3683,8 @@ void Spell::EffectSummonGuardian(uint32 i)
 
         spawnCreature->AIM_Initialize();
 
-        if(m_caster->GetTypeId()==TYPEID_PLAYER)
-            ((Player*)m_caster)->AddGuardian(spawnCreature);
+        if(m_originalCaster->GetTypeId()==TYPEID_PLAYER)
+            ((Player*)m_originalCaster)->AddGuardian(spawnCreature);
 
         map->Add((Creature*)spawnCreature);
     }
