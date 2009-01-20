@@ -3440,7 +3440,8 @@ uint8 Spell::CanCast(bool strict)
             // check correctness positive/negative cast target (pet cast real check and cheating check)
             if(IsPositiveSpell(m_spellInfo->Id))
             {
-                if(m_caster->IsHostileTo(target))
+                                                     //dispel positivity is dependant on target, don't check it
+                if(m_caster->IsHostileTo(target) && !IsDispel(m_spellInfo))
                     return SPELL_FAILED_BAD_TARGETS;
             }
             else
