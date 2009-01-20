@@ -65,7 +65,7 @@ EndScriptData */
 #define SPELL_SUMMON_WATER_GLOBULE_3	37860
 #define SPELL_SUMMON_WATER_GLOBULE_4	37861
 
-#define SPELL_SUMMON_MURLOC_A6	39813
+/*#define SPELL_SUMMON_MURLOC_A6	39813
 #define SPELL_SUMMON_MURLOC_A7	39814
 #define SPELL_SUMMON_MURLOC_A8	39815
 #define SPELL_SUMMON_MURLOC_A9	39816
@@ -75,7 +75,21 @@ EndScriptData */
 #define SPELL_SUMMON_MURLOC_B7	39819
 #define SPELL_SUMMON_MURLOC_B8	39820
 #define SPELL_SUMMON_MURLOC_B9	39821
-#define SPELL_SUMMON_MURLOC_B10	39822
+#define SPELL_SUMMON_MURLOC_B10	39822*/
+
+float MurlocCords[10][5] =
+{
+      {21920, 424.36, -715.4, -7.14, 0.124},
+       {21920, 425.13, -719.3, -7.14, 0.124},
+       {21920, 425.05, -724.23, -7.14, 0.124},
+       {21920, 424.91, -728.68, -7.14, 0.124},
+      {21920, 424.84, -732.18, -7.14, 0.124},
+       {21920, 321.05, -734.2, -13.15, 0.124},
+       {21920, 321.05, -729.4, -13.15, 0.124},
+       {21920, 321.05, -724.03, -13.15, 0.124},
+      {21920, 321.05, -718.73, -13.15, 0.124},
+       {21920, 321.05, -714.24, -13.15, 0.124}
+};
 
 //Creatures
 #define WATER_GLOBULE               21913
@@ -97,7 +111,6 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
     uint32 WateryGrave_Timer;
     uint32 Earthquake_Timer;
     uint32 WateryGlobules_Timer;
-	uint32 SummonSpell;
     uint32 globulespell[4];
     int8 Playercount;
     int8 counter;
@@ -190,41 +203,16 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
                     case 1: DoScriptText(SAY_SUMMON2, m_creature); break;
                 }
 
-				Unit* target;
-				using std::set;
-                set<int> SummonList;
-                set<int>::iterator itr;
-
-				target = SelectUnit(SELECT_TARGET_RANDOM, 0, 50, true);
-                m_creature->CastSpell(target, SummonSpell, false);
-                SummonSpell++;
-
-				for (int8 i = 0; i < 9; i++)                       //bad hack
-                {                                                   //instead of casting 9 spell in one update
-                    counter = 0;                                    // selecet 9 players which cast our spells
-                    do{target = SelectUnit(SELECT_TARGET_RANDOM, 0, 50, true); //check if player is already selected
-                    if(counter > Playercount)
-                        break;
-                    if(target) itr = SummonList.find(target->GetGUID());
-                    counter++;
-                    } while (itr != SummonList.end());
-
-					if(target){
-						SummonList.insert(target->GetGUID());
-						target->CastSpell(target, SummonSpell, false); //player cast on himself (this works)
-					}
-					SummonSpell++;
-
-					if(SummonSpell > SPELL_SUMMON_MURLOC_B10)       //reset all variables for earthquake
-					{
-						SummonSpell = SPELL_SUMMON_MURLOC_A6;
-                        SummonList.clear();
-                        DoScriptText(EMOTE_EARTHQUAKE, m_creature);
-                        Earthquake = false;
-                        Earthquake_Timer = 40000+rand()%5000;
-					}
+				for(uint8 i = 0; i < 10; i++)
+				{
+					Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+					Creature* Murloc = m_creature->SummonCreature(MurlocCords[i][0],MurlocCords[i][1],MurlocCords[i][2],MurlocCords[i][3],MurlocCords[i][4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+					Murloc->AI()->AttackStart(target);
 				}
-			}		
+				DoScriptText(EMOTE_EARTHQUAKE, m_creature);
+				Earthquake = false;
+				Earthquake_Timer = 40000+rand()%5000;
+			}				
 		}else Earthquake_Timer -= diff;
 
         //TidalWave_Timer
@@ -303,7 +291,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
 };
 
 //Water Globule AI
-#define SPELL_GLOBULE_EXPLOSION 37852
+#define SPELL_GLOBULE_EXPLOSION 37871
 
 struct TRINITY_DLL_DECL mob_water_globuleAI : public ScriptedAI
 {

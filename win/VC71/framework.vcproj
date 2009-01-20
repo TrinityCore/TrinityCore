@@ -23,7 +23,7 @@
 				AdditionalOptions="/Zl"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\src\framework;..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="WIN32;_DEBUG;MANGOS_DEBUG;_LIB"
+				PreprocessorDefinitions="WIN32;_DEBUG;TRINITY_DEBUG;_LIB"
 				MinimalRebuild="FALSE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"

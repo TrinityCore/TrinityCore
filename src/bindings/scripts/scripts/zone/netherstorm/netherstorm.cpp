@@ -789,10 +789,10 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
 {
 
     mob_phase_hunterAI(Creature *c) : ScriptedAI(c) {Reset();}
-    
+
     bool Weak;
-	bool Materialize;
-	bool Drained;
+    bool Materialize;
+    bool Drained;
 
     int WeakPercent;
     uint64 PlayerGUID;
@@ -804,8 +804,8 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
     void Reset()
     {
         Weak = false;
-		Materialize = false;
-		Drained = false;
+        Materialize = false;
+        Drained = false;
 
         WeakPercent = 25 + (rand()%16); // 25-40
         PlayerGUID = 0;
@@ -814,42 +814,44 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        PlayerGUID = who->GetGUID();
+        if(Player *player = who->GetCharmerOrOwnerPlayerOrPlayerItself())
+            PlayerGUID = player->GetGUID();
     }
 
-	void SpellHit(Unit *caster, const SpellEntry *spell)
-	{
-		DoCast(m_creature, SPELL_DE_MATERIALIZE);
-	}
+    void SpellHit(Unit *caster, const SpellEntry *spell)
+    {
+        DoCast(m_creature, SPELL_DE_MATERIALIZE);
+    }
 
     void UpdateAI(const uint32 diff)
     {
-		if(!Materialize)
-		{
-			DoCast(m_creature, SPELL_MATERIALIZE);
-			Materialize = true;
-		}
+        if(!Materialize)
+        {
+            DoCast(m_creature, SPELL_MATERIALIZE);
+            Materialize = true;
+        }
 
-		if(m_creature->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED) || m_creature->hasUnitState(UNIT_STAT_ROOT)) // if the mob is rooted/slowed by spells eg.: Entangling Roots, Frost Nova, Hamstring, Crippling Poison, etc. => remove it
-			DoCast(m_creature, SPELL_PHASE_SLIP);
-        
+        if(m_creature->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED) || m_creature->hasUnitState(UNIT_STAT_ROOT)) // if the mob is rooted/slowed by spells eg.: Entangling Roots, Frost Nova, Hamstring, Crippling Poison, etc. => remove it
+            DoCast(m_creature, SPELL_PHASE_SLIP);
+
         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
             return;
-        
-         if(ManaBurnTimer < diff) // cast Mana Burn
-         {
+
+        if(ManaBurnTimer < diff) // cast Mana Burn
+        {
             if(m_creature->getVictim()->GetCreateMana() > 0)
-             {
+            {
                 DoCast(m_creature->getVictim(), SPELL_MANA_BURN);
-                 ManaBurnTimer = 8000 + (rand()%10 * 1000); // 8-18 sec cd
-             }
-         }else ManaBurnTimer -= diff;
- 
+                ManaBurnTimer = 8000 + (rand()%10 * 1000); // 8-18 sec cd
+            }
+        }else ManaBurnTimer -= diff;
+
         if(PlayerGUID) // start: support for quest 10190
-         {
+        {
             Unit* target = Unit::GetUnit((*m_creature), PlayerGUID);
-            
-            if(target && !Weak && m_creature->GetHealth() < (m_creature->GetMaxHealth() / 100 * WeakPercent) && ((Player*)target)->GetQuestStatus(10190) == QUEST_STATUS_INCOMPLETE)
+
+            if(target && !Weak && m_creature->GetHealth() < (m_creature->GetMaxHealth() / 100 * WeakPercent) 
+                && ((Player*)target)->GetQuestStatus(10190) == QUEST_STATUS_INCOMPLETE)
             {
                 DoTextEmote(EMOTE_WEAK, 0);
                 Weak = true;
@@ -857,30 +859,30 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
             if(Weak && !Drained && m_creature->HasAura(34219, 0))
             {
                 Drained = true;
-                
+
                 Health = m_creature->GetHealth(); // get the normal mob's data
                 Level = m_creature->getLevel();
- 
-            m_creature->AttackStop(); // delete the normal mob
-            m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            m_creature->RemoveCorpse();
-             
-            Creature* DrainedPhaseHunter = NULL;
-             
-            if(!DrainedPhaseHunter)
-				DrainedPhaseHunter = m_creature->SummonCreature(SUMMONED_MOB, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000); // summon the mob
-             
-            if(DrainedPhaseHunter)
-            {
-                DrainedPhaseHunter->SetLevel(Level); // set the summoned mob's data
-                DrainedPhaseHunter->SetHealth(Health);
-               DrainedPhaseHunter->AddThreat(target, 10000.0f);
-                DrainedPhaseHunter->AI()->AttackStart(target);
-             }
-			}
-		}// end: support for quest 10190
 
-		DoMeleeAttackIfReady();
+                m_creature->AttackStop(); // delete the normal mob
+                m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                m_creature->RemoveCorpse();
+
+                Creature* DrainedPhaseHunter = NULL;
+
+                if(!DrainedPhaseHunter)
+                    DrainedPhaseHunter = m_creature->SummonCreature(SUMMONED_MOB, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000); // summon the mob
+
+                if(DrainedPhaseHunter)
+                {
+                    DrainedPhaseHunter->SetLevel(Level); // set the summoned mob's data
+                    DrainedPhaseHunter->SetHealth(Health);
+                    DrainedPhaseHunter->AddThreat(target, 10000.0f);
+                    DrainedPhaseHunter->AI()->AttackStart(target);
+                }
+            }
+        }// end: support for quest 10190
+
+        DoMeleeAttackIfReady();
     }
 };
 

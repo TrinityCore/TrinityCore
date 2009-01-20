@@ -53,7 +53,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TrinityScript", "..\src\bin
 		{D1EA3EE9-4DCF-4CB9-BA6E-B9321E0D552A} = {D1EA3EE9-4DCF-4CB9-BA6E-B9321E0D552A}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ACEWrappers", "VC71\ACE_vc71.vcproj", "{7C74F49E-FECA-1BAD-6757-8A6348EA12C8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ACE_Wrappers", "VC71\ACE_vc71.vcproj", "{7C74F49E-FECA-1BAD-6757-8A6348EA12C8}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
