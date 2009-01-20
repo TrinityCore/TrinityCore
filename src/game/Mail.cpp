@@ -30,6 +30,7 @@
 #include "Unit.h"
 #include "Language.h"
 #include "Database/DBCStores.h"
+#include "AuctionHouseBot.h"
 
 void MailItem::deleteItem( bool inDB )
 {
@@ -348,7 +349,14 @@ void WorldSession::HandleReturnToSender(WorldPacket & recv_data )
         }
     }
 
-    SendReturnToSender(MAIL_NORMAL, GetAccountId(), m->receiver, m->sender, m->subject, m->itemTextId, &mi, m->money, m->mailTemplateId);
+    if (m->sender == AHBplayerGUID)
+    {
+        SendReturnToSender(MAIL_CREATURE, GetAccountId(), m->receiver, m->sender, m->subject, m->itemTextId, &mi, m->money, m->mailTemplateId);
+    }
+    else
+    {
+        SendReturnToSender(MAIL_NORMAL, GetAccountId(), m->receiver, m->sender, m->subject, m->itemTextId, &mi, m->money, m->mailTemplateId);
+    }
 
     delete m;                                               //we can deallocate old mail
     pl->SendMailResult(mailId, MAIL_RETURNED_TO_SENDER, 0);
@@ -765,6 +773,14 @@ void WorldSession::HandleMsgQueryNextMailtime(WorldPacket & /*recv_data*/ )
 
 void WorldSession::SendMailTo(Player* receiver, uint8 messageType, uint8 stationery, uint32 sender_guidlow_or_entry, uint32 receiver_guidlow, std::string subject, uint32 itemTextId, MailItemsInfo* mi, uint32 money, uint32 COD, uint32 checked, uint32 deliver_delay, uint16 mailTemplateId)
 {
+    if (receiver_guidlow == AHBplayerGUID)
+    {
+        if(messageType == MAIL_AUCTION && mi)        // auction mail with items
+        {
+            mi->deleteIncludedItems(true);
+        }
+        return;
+    }
     uint32 mailId = objmgr.GenerateMailID();
 
     time_t deliver_time = time(NULL) + deliver_delay;
