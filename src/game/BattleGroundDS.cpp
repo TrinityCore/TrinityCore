@@ -30,7 +30,7 @@ BattleGroundDS::~BattleGroundDS()
 
 }
 
-void BattleGroundDS::Update(time_t diff)
+void BattleGroundDS::Update(uint32 diff)
 {
     BattleGround::Update(diff);
 }

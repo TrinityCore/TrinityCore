@@ -30,7 +30,7 @@ BattleGroundRV::~BattleGroundRV()
 
 }
 
-void BattleGroundRV::Update(time_t diff)
+void BattleGroundRV::Update(uint32 diff)
 {
     BattleGround::Update(diff);
 }

@@ -325,7 +325,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleAuraModAttackPowerOfStatPercent,           //268 SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT
     &Aura::HandleNULL,                                      //269 ignore DR effects?
     &Aura::HandleNULL,                                      //270
-    &Aura::HandleNULL,                                      //271 increase damage done?
+    &Aura::HandleNoImmediateEffect,                         //271 SPELL_AURA_MOD_DAMAGE_FROM_CASTER    implemented in Unit::SpellDamageBonus
     &Aura::HandleNULL,                                      //272 reduce spell cast time?
     &Aura::HandleNULL,                                      //273
     &Aura::HandleNULL,                                      //274 proc free shot?
@@ -6446,7 +6446,7 @@ void Aura::PeriodicDummyTick()
                 if (!caster)
                     return;
                 // Skip 0 tick
-                if (m_duration < m_modifier.periodictime)
+                if (m_duration > m_modifier.periodictime)
                     return;
                 int32 damage = caster->CalculateSpellDamage(spell, GetEffIndex(), GetBasePoints(), m_target);
                 damage+=caster->GetTotalAttackPowerValue(RANGED_ATTACK) * 8 / 100;

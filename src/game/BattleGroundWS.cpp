@@ -58,7 +58,7 @@ BattleGroundWS::~BattleGroundWS()
 {
 }
 
-void BattleGroundWS::Update(time_t diff)
+void BattleGroundWS::Update(uint32 diff)
 {
     BattleGround::Update(diff);
 

@@ -35,7 +35,7 @@ class BattleGroundDS : public BattleGround
     public:
         BattleGroundDS();
         ~BattleGroundDS();
-        void Update(time_t diff);
+        void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
         virtual void AddPlayer(Player *plr);

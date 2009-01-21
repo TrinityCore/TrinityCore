@@ -32,7 +32,7 @@ BattleGroundAA::~BattleGroundAA()
 
 }
 
-void BattleGroundAA::Update(time_t diff)
+void BattleGroundAA::Update(uint32 diff)
 {
     BattleGround::Update(diff);
 }

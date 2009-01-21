@@ -136,7 +136,7 @@ class BattleGroundWS : public BattleGround
         /* Construction */
         BattleGroundWS();
         ~BattleGroundWS();
-        void Update(time_t diff);
+        void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
         virtual void AddPlayer(Player *plr);

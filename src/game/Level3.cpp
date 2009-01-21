@@ -343,6 +343,15 @@ bool ChatHandler::HandleReloadLootTemplatesSkinningCommand(const char*)
     return true;
 }
 
+bool ChatHandler::HandleReloadLootTemplatesSpellCommand(const char*)
+{
+    sLog.outString( "Re-Loading Loot Tables... (`spell_loot_template`)" );
+    LoadLootTemplates_Spell();
+    LootTemplates_Spell.CheckLootRefs();
+    SendGlobalSysMessage("DB table `spell_loot_template` reloaded.");
+    return true;
+}
+
 bool ChatHandler::HandleReloadTrinityStringCommand(const char*)
 {
     sLog.outString( "Re-Loading trinity_string Table!" );
