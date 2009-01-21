@@ -1431,6 +1431,14 @@
 							RelativePath="..\scripts\zone\hellfire_citadel\blood_furnace\boss_the_maker.cpp"
 							>
 						</File>
+						<File
+							RelativePath="..\scripts\zone\hellfire_citadel\blood_furnace\def_blood_furnace.h"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\hellfire_citadel\blood_furnace\instance_blood_furnace.cpp"
+							>
+						</File>
 					</Filter>
 					<Filter
 						Name="Magtheridon&apos;s lair"
