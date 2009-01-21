@@ -24,30 +24,30 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_blood_furnace.h"
 
-#define ENTRY_DOOR1                 181823
-#define ENTRY_DOOR2                 181766
+#define ENTRY_SEWER1                 181823
+#define ENTRY_SEWER2                 181766
 
 struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
 {
     instance_blood_furnace(Map *map) : ScriptedInstance(map) {Initialize();};
 
 
-    uint64 Door1GUID;
-    uint64 Door2GUID;
+    uint64 Sewer1GUID;
+    uint64 Sewer2GUID;
 
 
     void Initialize()
     {
-        Door1GUID = 0;
-        Door2GUID = 0;
+        Sewer1GUID = 0;
+        Sewer2GUID = 0;
     }
 
     void OnObjectCreate(GameObject *go)
     {
         switch(go->GetEntry())
         {
-            case ENTRY_DOOR1: Door1GUID = go->GetGUID(); break;
-            case ENTRY_DOOR2: Door2GUID = go->GetGUID(); break;
+            case ENTRY_SEWER1: Sewer1GUID = go->GetGUID(); break;
+            case ENTRY_SEWER2: Sewer2GUID = go->GetGUID(); break;
         }
     }
 
@@ -64,7 +64,7 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
             }
         }
 	 	 
-        debug_log("SD2: Instance Blood Furnace: GetPlayerInMap, but PlayerList is empty!");
+        debug_log("TSCR: Instance Blood Furnace: GetPlayerInMap, but PlayerList is empty!");
         return NULL;
     }
 	 	 
@@ -74,7 +74,7 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
 	 
         if (!player || !guid)
         {
-            debug_log("SD2: Blood Furnace: HandleGameObject fail");
+            debug_log("TSCR: Blood Furnace: HandleGameObject fail");
             return;
         }
 	 	 
@@ -89,8 +89,8 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
             case DATA_KELIDANEVENT:
                 if( data == DONE )
                 {
-                    HandleGameObject(Door1GUID,0);
-                    HandleGameObject(Door2GUID,0);
+                    HandleGameObject(Sewer1GUID,0);
+                    HandleGameObject(Sewer2GUID,0);
                 }
                 break;
         }
