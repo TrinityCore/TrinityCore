@@ -207,8 +207,8 @@ class BattleGroundMgr
 
         uint32 CreateBattleGround(uint32 bgTypeId, uint32 MinPlayersPerTeam, uint32 MaxPlayersPerTeam, uint32 LevelMin, uint32 LevelMax, char* BattleGroundName, uint32 MapID, float Team1StartLocX, float Team1StartLocY, float Team1StartLocZ, float Team1StartLocO, float Team2StartLocX, float Team2StartLocY, float Team2StartLocZ, float Team2StartLocO);
 
-        inline void AddBattleGround(uint32 ID, BattleGround* BG) { m_BattleGrounds[ID] = BG; };
-        inline void RemoveBattleGround(uint32 instanceID) { m_BattleGrounds.erase(instanceID); }
+        void AddBattleGround(uint32 ID, BattleGround* BG) { m_BattleGrounds[ID] = BG; };
+        void RemoveBattleGround(uint32 instanceID) { m_BattleGrounds.erase(instanceID); }
 
         void CreateInitialBattleGrounds();
 

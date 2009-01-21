@@ -1222,7 +1222,7 @@ void WorldSession::HandleRemoveGlyph( WorldPacket & recv_data )
     uint32 slot;
     recv_data >> slot;
 
-    if(slot > 5)
+    if(slot > MAX_GLYPH_SLOT_INDEX)
     {
         sLog.outDebug("Client sent wrong glyph slot number in opcode CMSG_REMOVE_GLYPH %u", slot);
         return;

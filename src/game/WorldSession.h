@@ -51,7 +51,7 @@ class CharacterHandler;
 
 struct AccountData
 {
-    AccountData() : Time(NULL), Data("") {}
+    AccountData() : Time(0), Data("") {}
 
     time_t Time;
     std::string Data;

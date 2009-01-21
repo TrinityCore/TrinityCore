@@ -199,8 +199,8 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleAuraModBaseResistancePCT,                  //142 SPELL_AURA_MOD_BASE_RESISTANCE_PCT
     &Aura::HandleAuraModResistanceExclusive,                //143 SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE
     &Aura::HandleNoImmediateEffect,                         //144 SPELL_AURA_SAFE_FALL                  implemented in WorldSession::HandleMovementOpcodes
-    &Aura::HandleUnused,                                    //145 SPELL_AURA_CHARISMA obsolete?
-    &Aura::HandleUnused,                                    //146 SPELL_AURA_PERSUADED obsolete?
+    &Aura::HandleAuraModPetTalentsPoints,                   //145 SPELL_AURA_MOD_PET_TALENT_POINTS
+    &Aura::HandleNoImmediateEffect,                         //146 SPELL_AURA_ALLOW_TAME_PET_TYPE
     &Aura::HandleNULL,                                      //147 SPELL_AURA_ADD_CREATURE_IMMUNITY
     &Aura::HandleAuraRetainComboPoints,                     //148 SPELL_AURA_RETAIN_COMBO_POINTS
     &Aura::HandleNoImmediateEffect,                         //149 SPELL_AURA_RESIST_PUSHBACK
@@ -2917,7 +2917,7 @@ void Aura::HandleFarSight(bool apply, bool Real)
     if(!caster || caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    ((Player*)caster)->SetFarSight(apply ? m_target->GetGUID() : NULL);
+    ((Player*)caster)->SetFarSightGUID(apply ? m_target->GetGUID() : 0);
 }
 
 void Aura::HandleAuraTrackCreatures(bool apply, bool Real)
@@ -3024,7 +3024,7 @@ void Aura::HandleAuraModScale(bool apply, bool Real)
         }
     }
     if(caster->GetTypeId() == TYPEID_PLAYER)
-        ((Player*)caster)->SetFarSight(apply ? m_target->GetGUID() : NULL);
+        ((Player*)caster)->SetFarSightGUID(apply ? m_target->GetGUID() : 0);
 }
 
 void Aura::HandleModPossessPet(bool apply, bool Real)
@@ -3045,7 +3045,7 @@ void Aura::HandleModPossessPet(bool apply, bool Real)
     else
         pet->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
 
-    ((Player*)caster)->SetFarSight(apply ? pet->GetGUID() : NULL);
+    ((Player*)caster)->SetFarSightGUID(apply ? pet->GetGUID() : NULL);
     ((Player*)caster)->SetCharm(apply ? pet : NULL);
     ((Player*)caster)->SetClientControl(pet, apply ? 1 : 0);
 
@@ -3061,9 +3061,19 @@ void Aura::HandleModPossessPet(bool apply, bool Real)
         pet->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
         pet->SetUnitMovementFlags(MOVEMENTFLAG_NONE);
     }
+}*/
+
+void Aura::HandleAuraModPetTalentsPoints(bool Apply, bool Real)
+{
+    if(!Real)
+        return;
+
+    // Recalculate pet tlaent points
+    if (Pet *pet=m_target->GetPet())
+        pet->InitTalentForLevel();
 }
 
-void Aura::HandleModCharm(bool apply, bool Real)
+/*void Aura::HandleModCharm(bool apply, bool Real)
 {
     if(!Real)
         return;
