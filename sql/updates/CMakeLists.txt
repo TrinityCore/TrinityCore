@@ -124,7 +124,6 @@ INSTALL(FILES
 817_world_scripts.sql
 822_world_scripts.sql
 826_world_scripts.sql
-832_characters.sql
 833_world_scripts.sql
 834_world_scripts.sql
 837_world_scripts.sql
