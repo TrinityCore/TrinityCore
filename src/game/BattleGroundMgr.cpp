@@ -1097,7 +1097,7 @@ BattleGroundMgr::~BattleGroundMgr()
 }
 
 // used to update running battlegrounds, and delete finished ones
-void BattleGroundMgr::Update(time_t diff)
+void BattleGroundMgr::Update(uint32 diff)
 {
     BattleGroundSet::iterator itr, next;
     for(itr = m_BattleGrounds.begin(); itr != m_BattleGrounds.end(); itr = next)

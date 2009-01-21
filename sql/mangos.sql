@@ -22,7 +22,7 @@
 DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
-  `required_7118_01_mangos_skill_discovery_template` bit(1) default NULL
+  `required_7133_02_mangos_spell_loot_template` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -12999,7 +12999,7 @@ DROP TABLE IF EXISTS `skill_discovery_template`;
 CREATE TABLE `skill_discovery_template` (
   `spellId` mediumint(8) unsigned NOT NULL default '0' COMMENT 'SpellId of the discoverable spell',
   `reqSpell` mediumint(8) unsigned NOT NULL default '0' COMMENT 'spell requirement',
-  `reqClass` tinyint(2) unsigned NOT NULL default '0' COMMENT 'class requirement',
+  `reqSkillValue` smallint(5) unsigned NOT NULL default '0' COMMENT 'skill points requirement',
   `chance` float NOT NULL default '0' COMMENT 'chance to discover',
   PRIMARY KEY (`spellId`,`reqSpell`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Skill Discovery System';
@@ -16223,6 +16223,33 @@ INSERT INTO `spell_learn_spell` VALUES
 
 
 /*!40000 ALTER TABLE `spell_learn_spell` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `spell_loot_template`
+--
+
+DROP TABLE IF EXISTS `spell_loot_template`;
+CREATE TABLE `spell_loot_template` (
+  `entry` mediumint(8) unsigned NOT NULL default '0',
+  `item` mediumint(8) unsigned NOT NULL default '0',
+  `ChanceOrQuestChance` float NOT NULL default '100',
+  `groupid` tinyint(3) unsigned NOT NULL default '0',
+  `mincountOrRef` mediumint(9) NOT NULL default '1',
+  `maxcount` tinyint(3) unsigned NOT NULL default '1',
+  `lootcondition` tinyint(3) unsigned NOT NULL default '0',
+  `condition_value1` mediumint(8) unsigned NOT NULL default '0',
+  `condition_value2` mediumint(8) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`entry`,`item`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
+
+--
+-- Dumping data for table `spell_loot_template`
+--
+
+LOCK TABLES `spell_loot_template` WRITE;
+/*!40000 ALTER TABLE `spell_loot_template` DISABLE KEYS */;
+/*!40000 ALTER TABLE `spell_loot_template` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

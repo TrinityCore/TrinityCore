@@ -940,7 +940,7 @@ class TRINITY_DLL_SPEC PlayerTaxi
         void AppendTaximaskTo(ByteBuffer& data,bool all);
 
         // Destinations
-        bool LoadTaxiDestinationsFromString(const std::string& values);
+        bool LoadTaxiDestinationsFromString(const std::string& values, uint32 team);
         std::string SaveTaxiDestinationsToString();
 
         void ClearTaxiDestinations() { m_TaxiDestinations.clear(); }
@@ -1154,6 +1154,8 @@ class TRINITY_DLL_SPEC Player : public Unit
         Item* EquipItem( uint16 pos, Item *pItem, bool update );
         void AutoUnequipOffhandIfNeed();
         bool StoreNewItemInBestSlots(uint32 item_id, uint32 item_count);
+        void AutoStoreLootItem(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store);
+        void AutoStoreLootItem(uint32 loot_id, LootStore const& store) { AutoStoreLootItem(NULL_BAG,NULL_SLOT,loot_id,store); }
 
         uint8 _CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count = NULL) const;
         uint8 _CanStoreItem( uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 entry, uint32 count, Item *pItem = NULL, bool swap = false, uint32* no_space_count = NULL ) const;
@@ -1418,7 +1420,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         void SetSelection(const uint64 &guid) { m_curSelection = guid; SetUInt64Value(UNIT_FIELD_TARGET, guid); }
 
         uint8 GetComboPoints() { return m_comboPoints; }
-        uint64 GetComboTarget() { return m_comboTarget; }
+        const uint64& GetComboTarget() const { return m_comboTarget; }
 
         void AddComboPoints(Unit* target, int8 count);
         void ClearComboPoints();
@@ -2178,9 +2180,9 @@ class TRINITY_DLL_SPEC Player : public Unit
         GroupReference& GetGroupRef() { return m_group; }
         void SetGroup(Group *group, int8 subgroup = -1);
         uint8 GetSubGroup() const { return m_group.getSubGroup(); }
-        uint32 GetGroupUpdateFlag() { return m_groupUpdateMask; }
+        uint32 GetGroupUpdateFlag() const { return m_groupUpdateMask; }
         void SetGroupUpdateFlag(uint32 flag) { m_groupUpdateMask |= flag; }
-        uint64 GetAuraUpdateMask() { return m_auraUpdateMask; }
+        const uint64& GetAuraUpdateMask() const { return m_auraUpdateMask; }
         void SetAuraUpdateMask(uint8 slot) { m_auraUpdateMask |= (uint64(1) << slot); }
         void UnsetAuraUpdateMask(uint8 slot) { m_auraUpdateMask &= ~(uint64(1) << slot); }
         Player* GetNextRandomRaidMember(float radius);

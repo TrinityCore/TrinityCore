@@ -5443,7 +5443,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
             {
                 triggered_spell_id = 57669;
                 target = this;
-                return true;
+                break;
             }
             // Lock and Load
             if ( dummySpell->SpellIconID == 3579 )
@@ -7679,6 +7679,12 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 break;
         }
     }
+
+    // From caster spells
+    AuraList const& mOwnerTaken = pVictim->GetAurasByType(SPELL_AURA_MOD_DAMAGE_FROM_CASTER);
+    for(AuraList::const_iterator i = mOwnerTaken.begin(); i != mOwnerTaken.end(); ++i)
+        if( (*i)->GetCasterGUID() == GetGUID() && (*i)->isAffectedOnSpell(spellProto))
+            TakenTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
 
     // Distribute Damage over multiple effects, reduce by AoE
     CastingTime = GetCastingTimeForBonus( spellProto, damagetype, CastingTime );
@@ -10457,6 +10463,7 @@ bool InitTriggerAuraData()
     isTriggerAura[SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE]=true;
     isTriggerAura[SPELL_AURA_PRAYER_OF_MENDING] = true;
     isTriggerAura[SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE] = true;
+    isTriggerAura[SPELL_AURA_MOD_DAMAGE_FROM_CASTER] = true;
 
     isNonTriggerAura[SPELL_AURA_MOD_POWER_REGEN]=true;
     isNonTriggerAura[SPELL_AURA_RESIST_PUSHBACK]=true;
@@ -10710,6 +10717,11 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
             case SPELL_AURA_MOD_MECHANIC_RESISTANCE:
                 // Compare mechanic
                 if (procSpell==NULL || procSpell->Mechanic != auraModifier->m_miscvalue)
+                    continue;
+                break;
+            case SPELL_AURA_MOD_DAMAGE_FROM_CASTER:
+                // Compare casters
+                if (triggeredByAura->GetCasterGUID() != pTarget->GetGUID())
                     continue;
                 break;
             default:

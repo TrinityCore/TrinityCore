@@ -37,7 +37,7 @@ BattleGroundRL::~BattleGroundRL()
 
 }
 
-void BattleGroundRL::Update(time_t diff)
+void BattleGroundRL::Update(uint32 diff)
 {
     BattleGround::Update(diff);
 

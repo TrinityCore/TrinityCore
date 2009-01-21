@@ -196,7 +196,7 @@ void PlayerTaxi::AppendTaximaskTo( ByteBuffer& data, bool all )
     }
 }
 
-bool PlayerTaxi::LoadTaxiDestinationsFromString( const std::string& values )
+bool PlayerTaxi::LoadTaxiDestinationsFromString( const std::string& values, uint32 team )
 {
     ClearTaxiDestinations();
 
@@ -223,6 +223,10 @@ bool PlayerTaxi::LoadTaxiDestinationsFromString( const std::string& values )
         if(!path)
             return false;
     }
+
+    // can't load taxi path without mount set (quest taxi path?)
+    if(!objmgr.GetTaxiMount(GetTaxiSource(),team))
+        return false;
 
     return true;
 }
@@ -14767,7 +14771,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     }
 
     // Not finish taxi flight path
-    if(!m_taxi.LoadTaxiDestinationsFromString(taxi_nodes))
+    if(!m_taxi.LoadTaxiDestinationsFromString(taxi_nodes,GetTeam()))
     {
         // problems with taxi path loading
         TaxiNodesEntry const* nodeEntry = NULL;
@@ -20100,4 +20104,24 @@ void Player::InitRunes()
 
     for(uint32 i = 0; i < NUM_RUNE_TYPES; ++i)
         SetFloatValue(PLAYER_RUNE_REGEN_1 + i, 0.1f);
+}
+
+void Player::AutoStoreLootItem(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store)
+{
+    Loot loot;
+    loot.FillLoot (loot_id,store,this);
+    if(loot.items.empty ())
+        return;
+    LootItem const* lootItem = &loot.items[0];
+
+    ItemPosCountVec dest;
+    uint8 msg = CanStoreNewItem (bag,slot,dest,lootItem->itemid,lootItem->count);
+    if(msg != EQUIP_ERR_OK && slot != NULL_SLOT)
+        msg = CanStoreNewItem( bag, NULL_SLOT,dest,lootItem->itemid,lootItem->count);
+    if( msg != EQUIP_ERR_OK && bag != NULL_BAG)
+        msg = CanStoreNewItem( NULL_BAG, NULL_SLOT,dest,lootItem->itemid,lootItem->count);
+    if(msg != EQUIP_ERR_OK)
+        return;
+
+    StoreNewItem (dest,lootItem->itemid,true,lootItem->randomPropertyId);
 }

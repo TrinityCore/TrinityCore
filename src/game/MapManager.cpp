@@ -241,7 +241,7 @@ void MapManager::RemoveBonesFromMap(uint32 mapid, uint64 guid, float x, float y)
 }
 
 void
-MapManager::Update(time_t diff)
+MapManager::Update(uint32 diff)
 {
     i_timer.Update(diff);
     if( !i_timer.Passed() )
