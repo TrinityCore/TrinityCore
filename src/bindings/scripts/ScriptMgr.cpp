@@ -299,6 +299,7 @@ extern void AddSC_instance_gruuls_lair();
 extern void AddSC_boss_broggok();
 extern void AddSC_boss_kelidan_the_breaker();
 extern void AddSC_boss_the_maker();
+extern void AddSC_instance_blood_furnace();
 
 //--Magtheridon's Lair
 extern void AddSC_boss_magtheridon();
@@ -1503,6 +1504,7 @@ void ScriptsInit()
     AddSC_boss_broggok();
     AddSC_boss_kelidan_the_breaker();
     AddSC_boss_the_maker();
+	AddSC_instance_blood_furnace();
 
     //--Magtheridon's Lair
     AddSC_boss_magtheridon();
