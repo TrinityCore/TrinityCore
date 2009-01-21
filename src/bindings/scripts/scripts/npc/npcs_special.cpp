@@ -31,6 +31,7 @@ npc_doctor              100%    Gustaf Vanhowzen and Gregory Victor, quest 6622 
 npc_mount_vendor        100%    Regular mount vendors all over the world. Display gossip if player doesn't meet the requirements to buy
 npc_rogue_trainer       80%     Scripted trainers, so they are able to offer item 17126 for class quest 6681
 npc_sayge               100%    Darkmoon event fortune teller, buff player based on answers given
+npc_snake_trap_serpents 80%		AI for snakes that summoned by Snake Trap
 EndContentData */
 
 #include "precompiled.h"
@@ -272,7 +273,7 @@ static Location HordeCoords[]=
     {                                                       // Left, front
         -1017.25, -3500.85, 62.98, 4.34
     },
-    {                                                       // Right, Front
+    {                                                      // Right, Front
         -1020.95, -3499.21, 62.98, 4.34
     }
 };
@@ -993,6 +994,142 @@ bool ReceiveEmote_npc_brewfest_reveler( Player *player, Creature *_Creature, uin
 	return true;
 }
 
+/*####
+## npc_snake_trap_serpents
+####*/
+
+#define SPELL_MIND_NUMBING_POISON    8692    //Viper
+#define SPELL_DEADLY_POISON          34655   //Venomous Snake
+#define SPELL_CRIPPLING_POISON       3409    //Viper
+
+#define VENOMOUS_SNAKE_TIMER 1200        
+#define VIPER_TIMER 3000
+
+#define C_VIPER 19921
+
+#define RAND 5
+
+struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
+{
+    npc_snake_trap_serpentsAI(Creature *c) : ScriptedAI(c) {Reset();}
+
+    uint32 SpellTimer;
+    Unit *Owner;
+    bool IsViper;
+         
+    void Aggro(Unit *who) {}
+
+    void Reset()
+    {
+		Owner = m_creature->GetOwner();
+		
+		if (!m_creature->isPet() || !Owner) 
+			return;
+
+		CreatureInfo const *Info = m_creature->GetCreatureInfo();
+
+        if(Info->Entry == C_VIPER)
+            IsViper = true;
+
+        //We have to reload the states from db for summoned guardians
+        m_creature->SetMaxHealth(Info->maxhealth);
+        m_creature->SetHealth(Info->maxhealth);
+        m_creature->SetStatFloatValue(UNIT_FIELD_MINDAMAGE, Info->mindmg);
+        m_creature->SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, Info->maxdmg);
+
+        //Add delta to make them not all hit the same time
+        uint32 delta = (rand() % 7) *100;
+        m_creature->SetStatFloatValue(UNIT_FIELD_BASEATTACKTIME, Info->baseattacktime + delta);
+        m_creature->SetStatFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER , Info->attackpower);
+
+        InCombat = false;
+
+	}
+
+    //Redefined for random target selection:
+    void MoveInLineOfSight(Unit *who)
+    {
+        if (!m_creature->isPet() || !Owner)
+			return;
+        
+        if( !m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessiblePlaceFor(m_creature) && Owner->IsHostileTo(who))//don't attack not-pvp-flaged
+        {
+            if (m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
+                return;
+            
+            float attackRadius = m_creature->GetAttackDistance(who);
+            if( m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who) )
+            {                
+				if (!(rand() % RAND) )
+                {                       
+                    m_creature->setAttackTimer(BASE_ATTACK, (rand() % 10) * 100); 
+                    SpellTimer = (rand() % 10) * 100;
+                    AttackStart(who);
+                    InCombat = true;
+				}
+			}
+		}        
+	} 
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (!m_creature->isPet() || !Owner)
+			return;
+
+        //Follow if not in combat
+        if (!m_creature->hasUnitState(UNIT_STAT_FOLLOW)&& !InCombat) 
+        {
+            m_creature->GetMotionMaster()->Clear();
+            m_creature->GetMotionMaster()->MoveFollow(Owner,PET_FOLLOW_DIST,PET_FOLLOW_ANGLE);
+        }
+        
+        //No victim -> get new from owner (need this because MoveInLineOfSight won't work while following -> corebug)
+        if (!m_creature->getVictim())
+        {
+            if (InCombat) 
+				DoStopAttack();
+
+			InCombat = false;
+            
+			if(Owner->getAttackerForHelper())
+				AttackStart(Owner->getAttackerForHelper());
+
+            return;
+        }
+        
+        if (SpellTimer < diff)
+        {
+			if (IsViper) //Viper
+            {
+                if (rand() % 3 == 0) //33% chance to cast
+                {
+                    uint32 spell; 
+                    if( rand() % 2 == 0)
+                        spell = SPELL_MIND_NUMBING_POISON;
+                    else
+                        spell = SPELL_CRIPPLING_POISON;
+                    
+                    DoCast(m_creature->getVictim(),spell);
+                }
+                        
+				SpellTimer = VIPER_TIMER;
+            }
+            else //Venomous Snake
+            {
+                if (rand() % 10 < 8) //80% chance to cast
+                    DoCast(m_creature->getVictim(),SPELL_DEADLY_POISON);
+                SpellTimer = VENOMOUS_SNAKE_TIMER + (rand() %5)*100;
+            }
+        }else SpellTimer-=diff; 
+		DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_npc_snake_trap_serpents(Creature *_Creature)
+{
+    return new npc_snake_trap_serpentsAI(_Creature);
+}
+
 void AddSC_npcs_special()
 {
     Script *newscript;
@@ -1063,5 +1200,10 @@ void AddSC_npcs_special()
 	newscript = new Script;
     newscript->Name="npc_brewfest_reveler";
     newscript->pReceiveEmote =  &ReceiveEmote_npc_brewfest_reveler;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="npc_snake_trap_serpents";
+    newscript->GetAI = &GetAI_npc_snake_trap_serpents;
     newscript->RegisterSelf();
 }
