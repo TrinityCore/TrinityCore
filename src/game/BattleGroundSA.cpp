@@ -29,7 +29,7 @@ BattleGroundSA::~BattleGroundSA()
 
 }
 
-void BattleGroundSA::Update(time_t diff)
+void BattleGroundSA::Update(uint32 diff)
 {
     BattleGround::Update(diff);
 }

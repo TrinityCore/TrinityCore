@@ -32,14 +32,14 @@
 struct SkillDiscoveryEntry
 {
     uint32  spellId;                                        // discavered spell
-    uint32  reqClass;                                       // class limitation
+    uint32  reqSkillValue;                                  // skill level limitation
     float   chance;                                         // chance
 
     SkillDiscoveryEntry()
-        : spellId(0), reqClass(0), chance(0) {}
+        : spellId(0), reqSkillValue(0), chance(0) {}
 
-    SkillDiscoveryEntry(uint16 _spellId, uint32 req_class, float _chance)
-        : spellId(_spellId), reqClass(req_class), chance(_chance) {}
+    SkillDiscoveryEntry(uint16 _spellId, uint32 req_skill_val, float _chance)
+        : spellId(_spellId), reqSkillValue(req_skill_val), chance(_chance) {}
 };
 
 typedef std::list<SkillDiscoveryEntry> SkillDiscoveryList;
@@ -54,8 +54,8 @@ void LoadSkillDiscoveryTable()
 
     uint32 count = 0;
 
-    //                                                0        1         2         3
-    QueryResult *result = WorldDatabase.Query("SELECT spellId, reqSpell, reqClass, chance FROM skill_discovery_template");
+    //                                                0        1         2              3
+    QueryResult *result = WorldDatabase.Query("SELECT spellId, reqSpell, reqSkillValue, chance FROM skill_discovery_template");
 
     if (result)
     {
@@ -70,18 +70,13 @@ void LoadSkillDiscoveryTable()
 
             uint32 spellId         = fields[0].GetUInt32();
             int32  reqSkillOrSpell = fields[1].GetInt32();
-            uint32 reqClass        = fields[2].GetInt32();
+            uint32 reqSkillValue   = fields[2].GetInt32();
             float  chance          = fields[3].GetFloat();
 
             if( chance <= 0 )                               // chance
             {
-                ssNonDiscoverableEntries << "spellId = " << spellId << " reqSkillOrSpell = " << reqSkillOrSpell << " reqClass = " << reqClass << " chance = " << chance << "(chance problem)\n";
-                continue;
-            }
-
-            if(reqClass && (reqClass >= MAX_CLASSES || ((1 << (reqClass-1)) & CLASSMASK_ALL_PLAYABLE)==0))
-            {
-                ssNonDiscoverableEntries << "spellId = " << spellId << " reqSkillOrSpell = " << reqSkillOrSpell << " reqClass = " << reqClass << " chance = " << chance << "(class problem)\n";
+                ssNonDiscoverableEntries << "spellId = " << spellId << " reqSkillOrSpell = " << reqSkillOrSpell
+                    << " reqSkillValue = " << reqSkillValue << " chance = " << chance << "(chance problem)\n";
                 continue;
             }
 
@@ -103,7 +98,7 @@ void LoadSkillDiscoveryTable()
                     continue;
                 }
 
-                SkillDiscoveryStore[reqSkillOrSpell].push_back( SkillDiscoveryEntry(spellId, reqClass, chance) );
+                SkillDiscoveryStore[reqSkillOrSpell].push_back( SkillDiscoveryEntry(spellId, reqSkillValue, chance) );
             }
             else if( reqSkillOrSpell == 0 )                 // skill case
             {
@@ -118,7 +113,7 @@ void LoadSkillDiscoveryTable()
 
                 for(SkillLineAbilityMap::const_iterator _spell_idx = lower; _spell_idx != upper; ++_spell_idx)
                 {
-                    SkillDiscoveryStore[-int32(_spell_idx->second->skillId)].push_back( SkillDiscoveryEntry(spellId, reqClass, chance) );
+                    SkillDiscoveryStore[-int32(_spell_idx->second->skillId)].push_back( SkillDiscoveryEntry(spellId, reqSkillValue, chance) );
                 }
             }
             else
@@ -144,53 +139,57 @@ void LoadSkillDiscoveryTable()
     }
 }
 
+uint32 GetExplicitDiscoverySpell(uint32 spellId, Player* player)
+{
+    // explicit discovery spell chances (always success if case exist)
+    // in this case we have both skill and spell
+    SkillDiscoveryMap::iterator tab = SkillDiscoveryStore.find(spellId);
+    if(tab == SkillDiscoveryStore.end())
+        return 0;
+
+    SkillLineAbilityMap::const_iterator lower = spellmgr.GetBeginSkillLineAbilityMap(spellId);
+    SkillLineAbilityMap::const_iterator upper = spellmgr.GetEndSkillLineAbilityMap(spellId);
+    uint32 skillvalue = lower != upper ? player->GetSkillValue(lower->second->skillId) : 0;
+
+    float full_chance = 0;
+    for(SkillDiscoveryList::iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
+        if(item_iter->reqSkillValue <= skillvalue)
+            if(!player->HasSpell(item_iter->spellId))
+                full_chance += item_iter->chance;
+
+    float rate = full_chance / 100.0f;
+    float roll = rand_chance() * rate;              // roll now in range 0..full_chance
+
+    for(SkillDiscoveryList::iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
+    {
+        if(item_iter->reqSkillValue > skillvalue)
+            continue;
+
+        if(player->HasSpell(item_iter->spellId))
+            continue;
+
+        if(item_iter->chance > roll)
+            return item_iter->spellId;
+
+        roll -= item_iter->chance;
+    }
+
+    return 0;
+}
+
 uint32 GetSkillDiscoverySpell(uint32 skillId, uint32 spellId, Player* player)
 {
+    uint32 skillvalue = skillId ? player->GetSkillValue(skillId) : 0;
+
     // check spell case
     SkillDiscoveryMap::iterator tab = SkillDiscoveryStore.find(spellId);
 
     if(tab != SkillDiscoveryStore.end())
     {
-        SpellEntry const* spellInfo = sSpellStore.LookupEntry (spellId);
-        if(!spellInfo)
-            return 0;
-
-        // explicit discovery spell chances (alwasy success if case exist)
-        if(IsExplicitDiscoverySpell(spellInfo))
-        {
-            float full_chance = 0;
-            for(SkillDiscoveryList::iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
-                if(!item_iter->reqClass || player->getClass ()==item_iter->reqClass)
-                    if(!player->HasSpell(item_iter->spellId))
-                        full_chance += item_iter->chance;
-
-            float rate = full_chance / 100.0f;
-            float roll = rand_chance() * rate;              // roll now in range 0..full_chance
-
-            for(SkillDiscoveryList::iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
-            {
-                if(item_iter->reqClass && player->getClass ()!= item_iter->reqClass)
-                    continue;
-
-                if(player->HasSpell(item_iter->spellId))
-                    continue;
-
-                if(item_iter->chance > roll)
-                    return item_iter->spellId;
-
-                roll -= item_iter->chance;
-            }
-
-            return 0;
-        }
-
-
         for(SkillDiscoveryList::iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
         {
-            if(item_iter->reqClass && player->getClass ()!= item_iter->reqClass)
-                continue;
-
             if( roll_chance_f(item_iter->chance * sWorld.getRate(RATE_SKILL_DISCOVERY))
+                && item_iter->reqSkillValue <= skillvalue
                 && !player->HasSpell(item_iter->spellId) )
                 return item_iter->spellId;
         }
@@ -207,10 +206,8 @@ uint32 GetSkillDiscoverySpell(uint32 skillId, uint32 spellId, Player* player)
     {
         for(SkillDiscoveryList::iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
         {
-            if(item_iter->reqClass && player->getClass ()!= item_iter->reqClass)
-                continue;
-
             if( roll_chance_f(item_iter->chance * sWorld.getRate(RATE_SKILL_DISCOVERY))
+                && item_iter->reqSkillValue <= skillvalue
                 && !player->HasSpell(item_iter->spellId) )
                 return item_iter->spellId;
         }

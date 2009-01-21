@@ -294,7 +294,7 @@ Creature* BattleGroundAV::AddAVCreature(uint16 cinfoid, uint16 type )
     return creature;
 }
 
-void BattleGroundAV::Update(time_t diff)
+void BattleGroundAV::Update(uint32 diff)
 {
     BattleGround::Update(diff);
     if (GetStatus() == STATUS_WAIT_JOIN && GetPlayersSize())

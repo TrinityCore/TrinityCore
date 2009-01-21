@@ -51,7 +51,7 @@ BattleGroundEY::~BattleGroundEY()
 {
 }
 
-void BattleGroundEY::Update(time_t diff)
+void BattleGroundEY::Update(uint32 diff)
 {
     BattleGround::Update(diff);
     // after bg start we get there (once)

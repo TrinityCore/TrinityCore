@@ -106,7 +106,7 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
                     }
                     // only place where pet can be player
                     pet->clearUnitState(UNIT_STAT_FOLLOW);
-                    uint64 selguid = _player->GetSelection();
+                    const uint64& selguid = _player->GetSelection();
                     Unit *TargetUnit = ObjectAccessor::GetUnit(*_player, selguid);
                     if(!TargetUnit)
                         return;
@@ -118,27 +118,35 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
                     //if(!pet->IsWithinLOSInMap(TargetUnit))
                     //    return;
 
-                    if(pet->GetTypeId() != TYPEID_PLAYER)
+                    // This is true if pet has no target or has target but targets differs.
+                    if(pet->getVictim() != TargetUnit)
                     {
-                        if (((Creature*)pet)->AI())
-                            ((Creature*)pet)->AI()->AttackStart(TargetUnit);
-
-                        //10% chance to play special pet attack talk, else growl
-                        if(((Creature*)pet)->isPet() && ((Pet*)pet)->getPetType() == SUMMON_PET && pet != TargetUnit && urand(0, 100) < 10)
-                            pet->SendPetTalk((uint32)PET_TALK_ATTACK);
-                        else
-                        {
-                            // 90% chance for pet and 100% chance for charmed creature
-                            pet->SendPetAIReaction(guid1);
-                        }
-                    }
-                    else                                    // charmed player
-                    {
-                        if(pet->getVictim() && pet->getVictim() != TargetUnit)
+                        if (pet->getVictim())
                             pet->AttackStop();
 
-                        pet->Attack(TargetUnit,true);
-                        pet->SendPetAIReaction(guid1);
+                        if(pet->GetTypeId() != TYPEID_PLAYER)
+                        {
+                            pet->GetMotionMaster()->Clear();
+                            if (((Creature*)pet)->AI())
+                                ((Creature*)pet)->AI()->AttackStart(TargetUnit);
+
+                            //10% chance to play special pet attack talk, else growl
+                            if(((Creature*)pet)->isPet() && ((Pet*)pet)->getPetType() == SUMMON_PET && pet != TargetUnit && urand(0, 100) < 10)
+                                pet->SendPetTalk((uint32)PET_TALK_ATTACK);
+                            else
+                            {
+                                // 90% chance for pet and 100% chance for charmed creature
+                                pet->SendPetAIReaction(guid1);
+                            }
+                        }
+                        else                                    // charmed player
+                        {
+                            if(pet->getVictim() && pet->getVictim() != TargetUnit)
+                                pet->AttackStop();
+
+                            pet->Attack(TargetUnit,true);
+                            pet->SendPetAIReaction(guid1);
+                        }
                     }
                     break;
                 }
@@ -178,14 +186,12 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
         case ACT_PASSIVE:                                   // 0x0100
         case ACT_ENABLED:                                   // 0xC100    spell
         {
-            Unit* unit_target;
-            if(guid2)
-                unit_target = ObjectAccessor::GetUnit(*_player,guid2);
-            else
-                unit_target = NULL;
-
+            Unit* unit_target = NULL;
             if (((Creature*)pet)->GetGlobalCooldown() > 0)
                 return;
+
+            if(guid2)
+                unit_target = ObjectAccessor::GetUnit(*_player,guid2);
 
             // do not cast unknown spells
             SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellid );
@@ -211,7 +217,7 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
 
             int16 result = spell->PetCanCast(unit_target);
 
-                                                            //auto turn to target unless possessed
+            //auto turn to target unless possessed
             if(result == SPELL_FAILED_UNIT_NOT_INFRONT && !pet->isPossessed())
             {
                 pet->SetInFront(unit_target);
@@ -242,12 +248,15 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
 
                 if( unit_target && !GetPlayer()->IsFriendlyTo(unit_target) && !pet->isPossessed())
                 {
-                    pet->clearUnitState(UNIT_STAT_FOLLOW);
-                    if(pet->getVictim())
-                        pet->AttackStop();
-                    pet->GetMotionMaster()->Clear();
-                    if (((Creature*)pet)->AI())
-                        ((Creature*)pet)->AI()->AttackStart(unit_target);
+                    // This is true if pet has no target or has target but targets differs.
+                    if (pet->getVictim() != unit_target)
+                    {
+                        if (pet->getVictim())
+                            pet->AttackStop();
+                        pet->GetMotionMaster()->Clear();
+                        if (((Creature*)pet)->AI())
+                            ((Creature*)pet)->AI()->AttackStart(unit_target);
+                    }
                 }
 
                 spell->prepare(&(spell->m_targets));

@@ -238,7 +238,7 @@ class BattleGroundAB : public BattleGround
         BattleGroundAB();
         ~BattleGroundAB();
 
-        void Update(time_t diff);
+        void Update(uint32 diff);
         void AddPlayer(Player *plr);
         void RemovePlayer(Player *plr,uint64 guid);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
