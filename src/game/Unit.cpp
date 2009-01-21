@@ -261,8 +261,17 @@ Unit::~Unit()
     if(m_uint32Values)
     {
         sLog.outDetail("Deconstruct Unit Entry = %u", GetEntry());
-        if(m_scAuras.size())
+        /*for(int i = 0; i < TOTAL_AURAS; ++i)
+        {
+            if(m_modAuras[i].begin() != m_modAuras[i].end())
+                sLog.outError("Unit %u has mod auras during deconstruction", GetEntry());
+        }
+        if(m_scAuras.begin() != m_scAuras.end())
             sLog.outError("Unit %u has sc auras during deconstruction", GetEntry());
+        if(m_interruptableAuras.begin() != m_interruptableAuras.end())
+            sLog.outError("Unit %u has interruptable auras during deconstruction", GetEntry());
+        if(m_ccAuras.begin() != m_ccAuras.end())
+            sLog.outError("Unit %u has cc auras during deconstruction", GetEntry());*/
     }
 }
 
@@ -10390,18 +10399,17 @@ void Unit::TauntFadeOut(Unit *taunter)
 
 //======================================================================
 
-bool Unit::SelectHostilTarget()
+Unit* Creature::SelectHostilTarget()
 {
     //function provides main threat functionality
     //next-victim-selection algorithm and evade mode are called
     //threat list sorting etc.
 
-    assert(GetTypeId()== TYPEID_UNIT);
     Unit* target = NULL;
 
     //This function only useful once AI has been initialized
-    if (!((Creature*)this)->AI())
-        return false;
+    if (!AI())
+        return NULL;
 
     if(!m_ThreatManager.isThreatListEmpty())
     {
@@ -10417,36 +10425,36 @@ bool Unit::SelectHostilTarget()
     {
         if(!hasUnitState(UNIT_STAT_STUNNED))
             SetInFront(target);
-        ((Creature*)this)->AI()->AttackStart(target);
-        return true;
+        AI()->AttackStart(target);
+        return getVictim();
     }
 
     // no target but something prevent go to evade mode
     if( !isInCombat() /*|| HasAuraType(SPELL_AURA_MOD_TAUNT)*/ )
-        return false;
+        return NULL;
 
     // last case when creature don't must go to evade mode:
     // it in combat but attacker not make any damage and not enter to aggro radius to have record in threat list
     // for example at owner command to pet attack some far away creature
     // Note: creature not have targeted movement generator but have attacker in this case
-    if( GetMotionMaster()->GetCurrentMovementGeneratorType() != TARGETED_MOTION_TYPE )
+    /*if( GetMotionMaster()->GetCurrentMovementGeneratorType() != TARGETED_MOTION_TYPE )
     {
         for(AttackerSet::const_iterator itr = m_attackers.begin(); itr != m_attackers.end(); ++itr)
         {
             if( (*itr)->IsInMap(this) && canAttack(*itr) && (*itr)->isInAccessiblePlaceFor((Creature*)this) )
                 return false;
         }
-    }
+    }*/
 
     // search nearby enemy before enter evade mode
-    if(((Creature*)this)->HasReactState(REACT_AGGRESSIVE))
+    if(HasReactState(REACT_AGGRESSIVE))
     {
-        if(Unit *target = ((Creature*)this)->SelectNearestTarget())
+        if(target = SelectNearestTarget())
         {
-            if(!((Creature*)this)->IsOutOfThreatArea(target))
+            if(!IsOutOfThreatArea(target))
             {
-                ((Creature*)this)->AI()->AttackStart(target);
-                return true;
+                AI()->AttackStart(target);
+                return getVictim();
             }
         }
     }
@@ -10457,16 +10465,16 @@ bool Unit::SelectHostilTarget()
         for(Unit::AuraList::const_iterator itr = iAuras.begin(); itr != iAuras.end(); ++itr)
             if((*itr)->IsPermanent())
             {
-                ((Creature*)this)->AI()->EnterEvadeMode();
+                AI()->EnterEvadeMode();
                 break;
             }
-        return false;                
+        return NULL;                
     }
 
     // enter in evade mode in other case
-    ((Creature*)this)->AI()->EnterEvadeMode();
+    AI()->EnterEvadeMode();
 
-    return false;
+    return NULL;
 }
 
 //======================================================================
