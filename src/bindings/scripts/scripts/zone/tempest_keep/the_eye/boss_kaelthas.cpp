@@ -270,7 +270,7 @@ struct TRINITY_DLL_DECL advisorbase_ai : public ScriptedAI
 //Kael'thas AI
 struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 {
-    boss_kaelthasAI(Creature *c) : ScriptedAI(c), Summons(m_creature)
+    boss_kaelthasAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         AdvisorGuid[0] = 0;
@@ -281,7 +281,8 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
     }
 
     ScriptedInstance* pInstance;
-	SummonList Summons;
+
+	std::list<uint64> Phoenix;
 
     uint32 Fireball_Timer;
     uint32 ArcaneDisruption_Timer;
@@ -333,6 +334,31 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 		}
 	}
 
+	void CleanPhoenix()
+	{
+        CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
+        Cell cell(pair);
+        cell.data.Part.reserved = ALL_DISTRICT;
+        cell.SetNoCreate();
+
+        std::list<Creature*> PhoenixList;
+
+        Trinity::AllCreaturesOfEntryInRange check(m_creature, PHOENIX, 50);
+        Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(PhoenixList, check);
+        TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> visitor(searcher);
+
+        CellLock<GridReadGuard> cell_lock(cell, pair);
+        cell_lock->Visit(cell_lock, visitor, *(m_creature->GetMap()));
+
+        if(!PhoenixList.empty())
+        {
+            for(std::list<Creature*>::iterator itr = PhoenixList.begin(); itr != PhoenixList.end(); ++itr)
+            {
+				(*itr)->RemoveFromWorld();
+            }
+		}
+	}
+
     void Reset()
     {
         Fireball_Timer = 5000+rand()%10000;
@@ -354,7 +380,9 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
         if(InCombat)
             PrepareAdvisors();
+
 		DeleteLegs();
+		CleanPhoenix();
 
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -364,14 +392,12 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
         if(pInstance)
             pInstance->SetData(DATA_KAELTHASEVENT, NOT_STARTED);
-
-		Summons.DespawnEntry(PHOENIX);
     }
 
     void PrepareAdvisors()
     {
         Creature *pCreature;
-        for(uint8 i = 0; i < 4; i++)
+        for(uint8 i = 0; i < 4; ++i)
         {
             pCreature = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[i]));
             if(pCreature)
@@ -445,7 +471,6 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 			summoned->setFaction(m_creature->getFaction());
 			Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
 			summoned->AI()->AttackStart(target);
-			Summons.Summon(summoned);
 		}
 	}
 
@@ -462,7 +487,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
             pInstance->SetData(DATA_KAELTHASEVENT, DONE);
 
         Creature *pCreature;
-        for(uint8 i = 0; i < 4; i++)
+        for(uint8 i = 0; i < 4; ++i)
         {
             pCreature = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[i]));
             if(pCreature)
@@ -488,7 +513,6 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
             float attackRadius = m_creature->GetAttackDistance(who);
             if (Phase >= 4 && m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
             {
-                //who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
                 AttackStart(who);
             }
             else if(who->isAlive())
@@ -524,7 +548,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                             //start advisor within 7 seconds
                             Phase_Timer = 7000;
 
-                            PhaseSubphase++;
+                            ++PhaseSubphase;
                         }else Phase_Timer -= diff;
                         break;
 
@@ -544,7 +568,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                     Advisor->AI()->AttackStart(target);
                             }
 
-                            PhaseSubphase++;
+                            ++PhaseSubphase;
                         }else Phase_Timer -= diff;
                         break;
 
@@ -558,7 +582,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                             //start advisor within 12.5 seconds
                             Phase_Timer = 12500;
 
-                            PhaseSubphase++;
+                            ++PhaseSubphase;
                         }
                         break;
 
@@ -578,7 +602,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                     Advisor->AI()->AttackStart(target);
                             }
 
-                            PhaseSubphase++;
+                            ++PhaseSubphase;
                         }else Phase_Timer -= diff;
                         break;
 
@@ -592,7 +616,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                             //start advisor within 7 seconds
                             Phase_Timer = 7000;
 
-                            PhaseSubphase++;
+                            ++PhaseSubphase;
                         }
                         break;
 
@@ -612,7 +636,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                     Advisor->AI()->AttackStart(target);
                             }
 
-                            PhaseSubphase++;
+                            ++PhaseSubphase;
                         }else Phase_Timer -= diff;
                         break;
 
@@ -626,7 +650,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                             //start advisor within 8.4 seconds
                             Phase_Timer = 8400;
 
-                            PhaseSubphase++;
+                            ++PhaseSubphase;
                         }
                         break;
 
@@ -648,7 +672,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
                             Phase_Timer = 3000;
 
-                            PhaseSubphase++;
+                            ++PhaseSubphase;
                         }else Phase_Timer -= diff;
                         break;
 
@@ -683,13 +707,13 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                 if (PhaseSubphase == 1)
                 {
                     Creature* Weapon;
-                    for (uint32 i = 0; i < 7; i++)
+                    for (uint32 i = 0; i < 7; ++i)
                     {
 						Unit* Target = SelectUnit(SELECT_TARGET_RANDOM, 0);
                         Weapon = m_creature->SummonCreature(((uint32)KaelthasWeapons[i][0]),KaelthasWeapons[i][1],KaelthasWeapons[i][2],KaelthasWeapons[i][3],0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
 
                         if (!Weapon)
-                            error_log("SD2: Kael'thas weapon %i could not be spawned", i);
+                            error_log("STSCR: Kael'thas weapon %i could not be spawned", i);
                         else
                         {
                             Weapon->setFaction(m_creature->getFaction());
@@ -722,11 +746,11 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                     Unit* Target = SelectUnit(SELECT_TARGET_RANDOM, 0);
 
                     Creature* Advisor;
-                    for (uint32 i = 0; i < 4; i++)
+                    for (uint32 i = 0; i < 4; ++i)
                     {
                         Advisor = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[i]));
                         if (!Advisor)
-                            error_log("SD2: Kael'Thas Advisor %u does not exist. Possibly despawned? Incorrectly Killed?", i);
+                            error_log("TSCR: Kael'Thas Advisor %u does not exist. Possibly despawned? Incorrectly Killed?", i);
                         else ((advisorbase_ai*)Advisor->AI())->Revive(Target);
                     }
 
@@ -811,7 +835,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 						
 							Unit* target =SelectUnit(SELECT_TARGET_RANDOM, 1, 70, true);
 							if(!target) target = m_creature->getVictim();
-							debug_log("SD2: Kael'Thas mind control not supported.");
+							debug_log("TSCR: Kael'Thas mind control not supported.");
 							DoCast(target, SPELL_MIND_CONTROL);
                         }
 
@@ -870,7 +894,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 						if (PyrosCasted < 3 && Check_Timer < diff)
                         {
                             DoCast(m_creature->getVictim(), SPELL_PYROBLAST);
-                            PyrosCasted++;
+                            ++PyrosCasted;
 
 							Check_Timer = 4400;
 						}else Check_Timer -= diff;
@@ -958,7 +982,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                     }
                                 }
                                 GravityLapse_Timer = 10000;
-                                GravityLapse_Phase++;
+                                ++GravityLapse_Phase;
                                 break;
 
                             case 2:
@@ -967,7 +991,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                 DoCast(m_creature, SPELL_NETHER_VAPOR);
 
                                 GravityLapse_Timer = 20000;
-                                GravityLapse_Phase++;
+                                ++GravityLapse_Phase;
                                 break;
 
                             case 3:
