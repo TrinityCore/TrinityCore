@@ -3044,7 +3044,7 @@ void Spell::SendLogExecute()
                         data << uint8(0);
                     break;
                 case SPELL_EFFECT_CREATE_ITEM:
-                case SPELL_EFFECT_157:
+                case SPELL_EFFECT_CREATE_ITEM_2:
                     data << uint32(m_spellInfo->EffectItemType[0]);
                     break;
                 case SPELL_EFFECT_SUMMON:

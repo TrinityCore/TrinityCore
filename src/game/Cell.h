@@ -93,13 +93,13 @@ struct TRINITY_DLL_DECL Cell
         y = data.Part.grid_y*MAX_NUMBER_OF_CELLS + data.Part.cell_y;
     }
 
-    inline bool DiffCell(const Cell &cell) const
+    bool DiffCell(const Cell &cell) const
     {
         return( data.Part.cell_x != cell.data.Part.cell_x ||
             data.Part.cell_y != cell.data.Part.cell_y );
     }
 
-    inline bool DiffGrid(const Cell &cell) const
+    bool DiffGrid(const Cell &cell) const
     {
         return( data.Part.grid_x != cell.data.Part.grid_x ||
             data.Part.grid_y != cell.data.Part.grid_y );

@@ -133,7 +133,13 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         virtual ~Map();
 
         // currently unused for normal maps
-        virtual bool CanUnload(const uint32& diff);
+        bool CanUnload(uint32 diff)
+        {
+            if(!m_unloadTimer) return false;
+            if(m_unloadTimer <= diff) return true;
+            m_unloadTimer -= diff;
+            return false;
+        }
 
         virtual bool Add(Player *);
         virtual void Remove(Player *, bool);
@@ -152,7 +158,7 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
 
         template<class LOCK_TYPE, class T, class CONTAINER> void Visit(const CellLock<LOCK_TYPE> &cell, TypeContainerVisitor<T, CONTAINER> &visitor);
 
-        inline bool IsRemovalGrid(float x, float y) const
+        bool IsRemovalGrid(float x, float y) const
         {
             GridPair p = Trinity::ComputeGridPair(x, y);
             return( !getNGrid(p.x_coord, p.y_coord) || getNGrid(p.x_coord, p.y_coord)->GetGridState() == GRID_STATE_REMOVAL );
@@ -307,7 +313,7 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         bool isGridObjectDataLoaded(uint32 x, uint32 y) const { return getNGrid(x,y)->isGridObjectDataLoaded(); }
         void setGridObjectDataLoaded(bool pLoaded, uint32 x, uint32 y) { getNGrid(x,y)->setGridObjectDataLoaded(pLoaded); }
 
-        inline void setNGrid(NGridType* grid, uint32 x, uint32 y);
+        void setNGrid(NGridType* grid, uint32 x, uint32 y);
 
         void UpdateActiveCells(const float &x, const float &y, const uint32 &t_diff);
     protected:

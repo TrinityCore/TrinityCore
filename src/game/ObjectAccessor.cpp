@@ -277,22 +277,6 @@ ObjectAccessor::UpdateObject(Object* obj, Player* exceptPlayer)
 }
 
 void
-ObjectAccessor::AddUpdateObject(Object *obj)
-{
-    Guard guard(i_updateGuard);
-    i_objects.insert(obj);
-}
-
-void
-ObjectAccessor::RemoveUpdateObject(Object *obj)
-{
-    Guard guard(i_updateGuard);
-    std::set<Object *>::iterator iter = i_objects.find(obj);
-    if( iter != i_objects.end() )
-        i_objects.erase( iter );
-}
-
-void
 ObjectAccessor::_buildUpdateObject(Object *obj, UpdateDataMapType &update_players)
 {
     bool build_for_all = true;

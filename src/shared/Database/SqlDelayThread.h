@@ -42,7 +42,7 @@ class SqlDelayThread : public ZThread::Runnable
         SqlDelayThread(Database* db);
 
         ///< Put sql statement to delay queue
-        inline bool Delay(SqlOperation* sql) { m_sqlQueue.add(sql); return true; }
+        bool Delay(SqlOperation* sql) { m_sqlQueue.add(sql); return true; }
 
         virtual void Stop();                                ///< Stop event
         virtual void run();                                 ///< Main Thread loop

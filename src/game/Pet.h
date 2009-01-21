@@ -203,13 +203,18 @@ class Pet : public Creature
 
         void InitPetCreateSpells();
         void CheckLearning(uint32 spellid);
+
+        bool resetTalents(bool no_cost = false);
         uint32 resetTalentsCost() const;
-        uint8 GetMaxTalentPointsForLevel(uint32 level) { return (level >= 20) ? ((level - 16) / 4) : 0; }
+        void InitTalentForLevel();
+
+        uint8 GetMaxTalentPointsForLevel(uint32 level);
         uint8 GetFreeTalentPoints() { return GetByteValue(UNIT_FIELD_BYTES_1, 1); }
         void SetFreeTalentPoints(uint8 points) { SetByteValue(UNIT_FIELD_BYTES_1, 1, points); }
 
         uint32  m_resetTalentsCost;
         time_t  m_resetTalentsTime;
+        uint32  m_usedTalentCount;
 
         uint64 GetAuraUpdateMask() { return m_auraUpdateMask; }
         void SetAuraUpdateMask(uint8 slot) { m_auraUpdateMask |= (uint64(1) << slot); }

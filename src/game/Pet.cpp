@@ -55,6 +55,7 @@ Pet::Pet(PetType type) : Creature()
 
     m_resetTalentsCost = 0;
     m_resetTalentsTime = 0;
+    m_usedTalentCount = 0;
 
     m_auraUpdateMask = 0;
 
@@ -725,6 +726,7 @@ void Pet::GivePetLevel(uint32 level)
         return;
 
     InitStatsForLevel(level);
+    InitTalentForLevel();
 }
 
 bool Pet::CreateBaseAtCreature(Creature* creature)
@@ -1325,22 +1327,42 @@ bool Pet::addSpell(uint16 spell_id, uint16 active, PetSpellState state, PetSpell
     else
         newspell->active = active;
 
-    uint32 chainstart = spellmgr.GetFirstSpellInChain(spell_id);
-
-    for (PetSpellMap::iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
+    // talent: unlearn all other talent ranks (high and low)
+    if(TalentSpellPos const* talentPos = GetTalentSpellPos(spell_id))
     {
-        if(itr->second->state == PETSPELL_REMOVED) continue;
-
-        if(spellmgr.GetFirstSpellInChain(itr->first) == chainstart)
+        if(TalentEntry const *talentInfo = sTalentStore.LookupEntry( talentPos->talent_id ))
         {
-            newspell->active = itr->second->active;
+            for(int i=0; i <5; ++i)
+            {
+                // skip learning spell and no rank spell case
+                uint32 rankSpellId = talentInfo->RankID[i];
+                if(!rankSpellId || rankSpellId==spell_id)
+                    continue;
 
-            if(newspell->active == ACT_ENABLED)
-                ToggleAutocast(itr->first, false);
+                // skip unknown ranks
+                if(!HasSpell(rankSpellId))
+                    continue;
+                removeSpell(rankSpellId);
+            }
+        }
+    }
+    else if(uint32 chainstart = spellmgr.GetFirstSpellInChain(spell_id))
+    {
+        for (PetSpellMap::iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
+        {
+            if(itr->second->state == PETSPELL_REMOVED) continue;
 
-            oldspell_id = itr->first;
-            unlearnSpell(itr->first);
-            break;
+            if(spellmgr.GetFirstSpellInChain(itr->first) == chainstart)
+            {
+                newspell->active = itr->second->active;
+
+                if(newspell->active == ACT_ENABLED)
+                    ToggleAutocast(itr->first, false);
+
+                oldspell_id = itr->first;
+                unlearnSpell(itr->first);
+                break;
+            }
         }
     }
 
@@ -1354,6 +1376,15 @@ bool Pet::addSpell(uint16 spell_id, uint16 active, PetSpellState state, PetSpell
     if(newspell->active == ACT_ENABLED)
         ToggleAutocast(spell_id, true);
 
+    uint32 talentCost = GetTalentSpellCost(spell_id);
+    if (talentCost)
+    {
+        int32 free_points = GetMaxTalentPointsForLevel(getLevel());
+        m_usedTalentCount+=talentCost;
+        // update free talent points
+        free_points-=m_usedTalentCount;
+        SetFreeTalentPoints(free_points > 0 ? free_points : 0);
+    }
     return true;
 }
 
@@ -1363,19 +1394,17 @@ bool Pet::learnSpell(uint16 spell_id)
     if (!addSpell(spell_id))
         return false;
 
-    if(GetOwner()->GetTypeId() == TYPEID_PLAYER)
+    Unit* owner = GetOwner();
+    if(owner && owner->GetTypeId() == TYPEID_PLAYER)
     {
         if(!m_loading)
         {
             WorldPacket data(SMSG_PET_LEARNED_SPELL, 2);
             data << uint16(spell_id);
-            ((Player*)GetOwner())->GetSession()->SendPacket(&data);
+            ((Player*)owner)->GetSession()->SendPacket(&data);
         }
-    }
-
-    Unit* owner = GetOwner();
-    if(owner->GetTypeId() == TYPEID_PLAYER)
         ((Player*)owner)->PetSpellInitialize();
+    }
     return true;
 }
 
@@ -1432,6 +1461,18 @@ bool Pet::removeSpell(uint16 spell_id)
         itr->second->state = PETSPELL_REMOVED;
 
     RemoveAurasDueToSpell(spell_id);
+
+    uint32 talentCost = GetTalentSpellCost(spell_id);
+    if (talentCost > 0)
+    {
+        if (m_usedTalentCount > talentCost)
+            m_usedTalentCount-=talentCost;
+        else
+            m_usedTalentCount = 0;
+        // update free talent points
+        int32 free_points = GetMaxTalentPointsForLevel(getLevel()) - m_usedTalentCount;
+        SetFreeTalentPoints(free_points > 0 ? free_points : 0);
+    }
 
     return true;
 }
@@ -1512,6 +1553,110 @@ void Pet::CheckLearning(uint32 spellid)
     }
 }
 
+bool Pet::resetTalents(bool no_cost)
+{
+    Unit *owner = GetOwner();
+    if (!owner || owner->GetTypeId()!=TYPEID_PLAYER)
+        return false;
+
+    CreatureInfo const * ci = GetCreatureInfo();
+    if(!ci)
+        return false;
+    // Check pet talent type
+    CreatureFamilyEntry const *pet_family = sCreatureFamilyStore.LookupEntry(ci->family);
+    if(!pet_family || pet_family->petTalentType < 0)
+        return false;
+
+    Player *player = (Player *)owner;
+
+    uint32 level = getLevel();
+    uint32 talentPointsForLevel = GetMaxTalentPointsForLevel(level);
+
+    if (m_usedTalentCount == 0)
+    {
+        SetFreeTalentPoints(talentPointsForLevel);
+        return false;
+    }
+
+    uint32 cost = 0;
+
+    if(!no_cost)
+    {
+        cost = resetTalentsCost();
+
+        if (player->GetMoney() < cost)
+        {
+            player->SendBuyError( BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
+            return false;
+        }
+    }
+
+    for (unsigned int i = 0; i < sTalentStore.GetNumRows(); i++)
+    {
+        TalentEntry const *talentInfo = sTalentStore.LookupEntry(i);
+
+        if (!talentInfo) continue;
+
+        TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry( talentInfo->TalentTab );
+
+        if(!talentTabInfo)
+            continue;
+
+        // unlearn only talents for pets family talent type
+        if(!((1 << pet_family->petTalentType) & talentTabInfo->petTalentMask))
+            continue;
+
+        for (int j = 0; j < 5; j++)
+        {
+            for(PetSpellMap::iterator itr = m_spells.begin(); itr != m_spells.end();)
+            {
+                if(itr->second->state == PETSPELL_REMOVED)
+                {
+                    ++itr;
+                    continue;
+                }
+                // remove learned spells (all ranks)
+                uint32 itrFirstId = spellmgr.GetFirstSpellInChain(itr->first);
+
+                // unlearn if first rank is talent or learned by talent
+                if (itrFirstId == talentInfo->RankID[j] || spellmgr.IsSpellLearnToSpell(talentInfo->RankID[j],itrFirstId))
+                {
+                    removeSpell(itr->first);
+                    itr = m_spells.begin();
+                    continue;
+                }
+                else
+                    ++itr;
+            }
+        }
+    }
+
+    SetFreeTalentPoints(talentPointsForLevel);
+
+    if(!no_cost)
+    {
+        player->ModifyMoney(-(int32)cost);
+
+        m_resetTalentsCost = cost;
+        m_resetTalentsTime = time(NULL);
+    }
+    player->PetSpellInitialize();
+    return true;
+}
+
+void Pet::InitTalentForLevel()
+{
+    uint32 level = getLevel();
+    uint32 talentPointsForLevel = GetMaxTalentPointsForLevel(level);
+    // Reset talents in case low level (on level down) or wrong points for level (hunter can unlearn TP increase talent)
+    if(talentPointsForLevel == 0 || m_usedTalentCount > talentPointsForLevel)
+    {
+        // Remove all talent points
+        resetTalents(true);
+    }
+    SetFreeTalentPoints(talentPointsForLevel - m_usedTalentCount);
+}
+
 uint32 Pet::resetTalentsCost() const
 {
     uint32 days = (sWorld.GetGameTime() - m_resetTalentsTime)/DAY;
@@ -1528,6 +1673,15 @@ uint32 Pet::resetTalentsCost() const
     // then increasing at a rate of 1 gold; cap 10 gold
     else
         return (m_resetTalentsCost + 1*GOLD > 10*GOLD ? 10*GOLD : m_resetTalentsCost + 1*GOLD);
+}
+
+uint8 Pet::GetMaxTalentPointsForLevel(uint32 level)
+{
+    uint8 points = (level >= 20) ? ((level - 16) / 4) : 0;
+    // Mod points from owner SPELL_AURA_MOD_PET_TALENT_POINTS
+    if (Unit *owner = GetOwner())
+        points+=owner->GetTotalAuraModifier(SPELL_AURA_MOD_PET_TALENT_POINTS);
+    return points;
 }
 
 void Pet::ToggleAutocast(uint32 spellid, bool apply)
@@ -1594,7 +1748,8 @@ bool Pet::Create(uint32 guidlow, Map *map, uint32 Entry, uint32 pet_number)
 
 bool Pet::HasSpell(uint32 spell) const
 {
-    return (m_spells.find(spell) != m_spells.end());
+    PetSpellMap::const_iterator itr = m_spells.find((uint16)spell);
+    return (itr != m_spells.end() && itr->second->state != PETSPELL_REMOVED );
 }
 
 // Get all passive spells in our skill line

@@ -4657,7 +4657,7 @@ void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
     AuraList const& modRatingFromStat = GetAurasByType(SPELL_AURA_MOD_RATING_FROM_STAT);
     for(AuraList::const_iterator i = modRatingFromStat.begin();i != modRatingFromStat.end(); ++i)
         if ((*i)->GetMiscValue() & (1<<cr))
-            amount += GetStat(Stats((*i)->GetMiscBValue())) * (*i)->GetModifier()->m_amount / 100.0f;
+            amount += int32(GetStat(Stats((*i)->GetMiscBValue())) * (*i)->GetModifier()->m_amount / 100.0f);
     if (amount < 0)
         amount = 0;
     SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr, uint32(amount));
@@ -6683,7 +6683,7 @@ void Player::_ApplyItemBonuses(ItemPrototype const *proto, uint8 slot, bool appl
                     uint32 level = ((getLevel() > ssd->MaxLevel) ? ssd->MaxLevel : getLevel());
                     if(ScalingStatValuesEntry const *ssv = sScalingStatValuesStore.LookupEntry(level))
                     {
-                        int multiplier = ssv->Multiplier[proto->GetScalingStatValuesColumn()];
+                        uint32 multiplier = ssv->Multiplier[proto->GetScalingStatValuesColumn()];
                         val = (multiplier * modifier) / 10000;
                     }
                 }
@@ -6692,7 +6692,7 @@ void Player::_ApplyItemBonuses(ItemPrototype const *proto, uint8 slot, bool appl
         else
         {
             statType = proto->ItemStat[i].ItemStatType;
-            val = float(proto->ItemStat[i].ItemStatValue);
+            val = proto->ItemStat[i].ItemStatValue;
         }
 
         if(val == 0)
@@ -14667,12 +14667,12 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     SetCharm(NULL);
     SetMover(NULL);
     SetPet(NULL);
-    SetCharmerGUID(NULL);
-    SetOwnerGUID(NULL);
-    SetCreatorGUID(NULL);
+    SetCharmerGUID(0);
+    SetOwnerGUID(0);
+    SetCreatorGUID(0);
 
     // reset some aura modifiers before aura apply
-    SetFarSight(NULL);
+    SetFarSightGUID(0);
     SetUInt32Value(PLAYER_TRACK_CREATURES, 0 );
     SetUInt32Value(PLAYER_TRACK_RESOURCES, 0 );
 
@@ -14720,6 +14720,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     //_LoadMail();
 
     _LoadAuras(holder->GetResult(PLAYER_LOGIN_QUERY_LOADAURAS), time_diff);
+    _LoadGlyphAuras();
 
     // add ghost flag (must be after aura load: PLAYER_FLAGS_GHOST set in aura)
     if( HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST) )
@@ -14986,6 +14987,36 @@ void Player::_LoadAuras(QueryResult *result, uint32 timediff)
 
     if(m_class == CLASS_WARRIOR)
         CastSpell(this,SPELL_ID_PASSIVE_BATTLE_STANCE,true);
+}
+
+void Player::_LoadGlyphAuras()
+{
+    for (uint8 i = 0; i <= MAX_GLYPH_SLOT_INDEX; ++i)
+    {
+        if (uint32 glyph = GetGlyph(i))
+        {
+            if (GlyphPropertiesEntry const *gp = sGlyphPropertiesStore.LookupEntry(glyph))
+            {
+                if (GlyphSlotEntry const *gs = sGlyphSlotStore.LookupEntry(GetGlyphSlot(i)))
+                {
+                    if(gp->TypeFlags == gs->TypeFlags)
+                    {
+                        CastSpell(this, gp->SpellId, true);
+                        continue;
+                    }
+                    else
+                        sLog.outError("Player %s has glyph with typeflags %u in slot with typeflags %u, removing.", m_name.c_str(), gp->TypeFlags, gs->TypeFlags);
+                }
+                else
+                    sLog.outError("Player %s has not existing glyph slot entry %u on index %u", m_name.c_str(), GetGlyphSlot(i), i);
+            }
+            else
+                sLog.outError("Player %s has not existing glyph entry %u on index %u", m_name.c_str(), glyph, i);
+
+            // On any error remove glyph
+            SetGlyph(i, 0);
+        }
+    }
 }
 
 void Player::LoadCorpse()
@@ -19766,7 +19797,7 @@ void Player::ClearFarsight()
 {
     if(GetFarSight())
     {
-        SetFarSight(0);
+        SetFarSightGUID(0);
         WorldPacket data(SMSG_CLEAR_FAR_SIGHT_IMMEDIATE, 0);
         GetSession()->SendPacket(&data);
     }
@@ -19780,7 +19811,7 @@ void Player::SetFarsightTarget(WorldObject* obj)
     // Remove the current target if there is one
     RemoveFarsightTarget();
 
-    SetFarSight(obj->GetGUID());
+    SetFarSightGUID(obj->GetGUID());
 }
 
 bool Player::isAllowUseBattleGroundObject()
@@ -19870,7 +19901,7 @@ void Player::EnterVehicle(Vehicle *vehicle)
 
     SetCharm(vehicle);                                      // charm
     SetMover(vehicle);
-    SetFarSight(vehicle->GetGUID());                        // set view
+    SetFarSightGUID(vehicle->GetGUID());                        // set view
 
     SetClientControl(vehicle, 1);                           // redirect controls to vehicle
 
@@ -19922,7 +19953,7 @@ void Player::ExitVehicle(Vehicle *vehicle)
 
     SetCharm(NULL);
     SetMover(NULL);
-    SetFarSight(NULL);
+    SetFarSightGUID(0);
 
     SetClientControl(vehicle, 0);
 

@@ -4488,8 +4488,10 @@ bool ChatHandler::HandleResetLevelCommand(const char * args)
     // reset level to summoned pet
     Pet* pet = player->GetPet();
     if(pet && pet->getPetType()==SUMMON_PET)
+    {
         pet->InitStatsForLevel(1);
-
+        pet->InitTalentForLevel();
+    }
     return true;
 }
 
@@ -4601,13 +4603,6 @@ bool ChatHandler::HandleResetTalentsCommand(const char * args)
     else
         player = getSelectedPlayer();
 
-    if(!player && !playerGUID)
-    {
-        SendSysMessage(LANG_NO_CHAR_SELECTED);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
     if(player)
     {
         player->resetTalents(true);
@@ -4616,14 +4611,33 @@ bool ChatHandler::HandleResetTalentsCommand(const char * args)
 
         if(m_session->GetPlayer()!=player)
             PSendSysMessage(LANG_RESET_TALENTS_ONLINE,player->GetName());
+        return true;
     }
-    else
+    else if (playerGUID)
     {
         CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '%u' WHERE guid = '%u'",uint32(AT_LOGIN_RESET_TALENTS), GUID_LOPART(playerGUID) );
         PSendSysMessage(LANG_RESET_TALENTS_OFFLINE,pName);
+        return true;
+    }
+    // Try reset talenents as Hunter Pet
+    Creature* creature = getSelectedCreature();
+    if (creature && creature->isPet() && ((Pet *)creature)->getPetType() == HUNTER_PET)
+    {
+        ((Pet *)creature)->resetTalents(true);
+        Unit *owner = creature->GetOwner();
+        if (owner && owner->GetTypeId() == TYPEID_PLAYER)
+        {
+            player = (Player *)owner;
+            ChatHandler(player).SendSysMessage(LANG_RESET_TALENTS);
+            if(m_session->GetPlayer()!=player)
+                PSendSysMessage(LANG_RESET_TALENTS_ONLINE,player->GetName());
+        }
+        return true;
     }
 
-    return true;
+    SendSysMessage(LANG_NO_CHAR_SELECTED);
+    SetSentErrorMessage(true);
+    return false;
 }
 
 bool ChatHandler::HandleResetAllCommand(const char * args)
