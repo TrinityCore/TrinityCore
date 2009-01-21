@@ -379,6 +379,8 @@ SET(trinityscript_LIB_SRCS
 
 add_library(trinityscript SHARED ${trinityscript_LIB_SRCS})
 
+add_definitions(-D_TRINITY_SCRIPT_CONFIG='"${CONF_DIR}/trinitycore.conf"')
+
 target_link_libraries(trinityscript)
 
 set_target_properties(trinityscript PROPERTIES VERSION 4.2.0 SOVERSION 4)
