@@ -51,9 +51,9 @@ class TRINITY_DLL_DECL WorldLog : public Trinity::Singleton<WorldLog, Trinity::C
     public:
         void Initialize();
         /// Is the world logger active?
-        inline bool LogWorld(void) const { return (i_file != NULL); }
+        bool LogWorld(void) const { return (i_file != NULL); }
         /// %Log to the file
-        inline void Log(char const *fmt, ...)
+        void Log(char const *fmt, ...)
         {
             if( LogWorld() )
             {

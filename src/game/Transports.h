@@ -38,16 +38,16 @@ class TransportPath
             uint32 delay;
         };
 
-        inline void SetLength(const unsigned int sz)
+        void SetLength(const unsigned int sz)
         {
             i_nodes.resize( sz );
         }
 
-        inline unsigned int Size(void) const { return i_nodes.size(); }
-        inline bool Empty(void) const { return i_nodes.empty(); }
-        inline void Resize(unsigned int sz) { i_nodes.resize(sz); }
-        inline void Clear(void) { i_nodes.clear(); }
-        inline PathNode* GetNodes(void) { return static_cast<PathNode *>(&i_nodes[0]); }
+        unsigned int Size(void) const { return i_nodes.size(); }
+        bool Empty(void) const { return i_nodes.empty(); }
+        void Resize(unsigned int sz) { i_nodes.resize(sz); }
+        void Clear(void) { i_nodes.clear(); }
+        PathNode* GetNodes(void) { return static_cast<PathNode *>(&i_nodes[0]); }
 
         PathNode& operator[](const unsigned int idx) { return i_nodes[idx]; }
         const PathNode& operator()(const unsigned int idx) const { return i_nodes[idx]; }

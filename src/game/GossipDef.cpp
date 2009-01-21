@@ -127,7 +127,7 @@ bool PlayerMenu::GossipOptionCoded( unsigned int Selection )
 void PlayerMenu::SendGossipMenu( uint32 TitleTextId, uint64 npcGUID )
 {
     WorldPacket data( SMSG_GOSSIP_MESSAGE, (100) );         // guess size
-    data << npcGUID;
+    data << uint64(npcGUID);
     data << uint32(0);                                      // new 2.4.0
     data << uint32( TitleTextId );
     data << uint32( mGossipMenu.MenuItemCount() );          // max count 0x0F

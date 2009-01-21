@@ -48,7 +48,7 @@ class TRINITY_DLL_SPEC PathMovementBase
         PathMovementBase() : i_currentNode(0) {}
         virtual ~PathMovementBase() {};
 
-        inline bool MovementInProgress(void) const { return i_currentNode < i_path.Size(); }
+        bool MovementInProgress(void) const { return i_currentNode < i_path.Size(); }
 
         void LoadPath(T &);
         void ReloadPath(T &);
@@ -109,7 +109,7 @@ public PathMovementBase<Player>
 
         Path& GetPath() { return i_path; }
         uint32 GetPathAtMapEnd() const;
-        inline bool HasArrived() const { return (i_currentNode >= i_path.Size()); }
+        bool HasArrived() const { return (i_currentNode >= i_path.Size()); }
         void SetCurrentNodeAfterTeleport();
         void SkipCurrentNode() { ++i_currentNode; }
 		bool GetDestination(float& x, float& y, float& z) const { i_destinationHolder.GetDestination(x,y,z); return true; }

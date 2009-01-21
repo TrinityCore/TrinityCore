@@ -507,11 +507,11 @@ void WorldSession::HandlePetUnlearnOpcode(WorldPacket& recvPacket)
 
     sLog.outDetail("CMSG_PET_UNLEARN");
     uint64 guid;
-    recvPacket >> guid;
+    recvPacket >> guid;                 // Pet guid
 
     Pet* pet = _player->GetPet();
 
-    if(!pet || pet->getPetType() != HUNTER_PET || pet->m_spells.size() <= 1)
+    if(!pet || pet->getPetType() != HUNTER_PET || pet->m_usedTalentCount == 0)
         return;
 
     if(guid != pet->GetGUID())
@@ -526,37 +526,7 @@ void WorldSession::HandlePetUnlearnOpcode(WorldPacket& recvPacket)
         sLog.outError("WorldSession::HandlePetUnlearnOpcode: object "I64FMTD" is considered pet-like but doesn't have a charminfo!", pet->GetGUID());
         return;
     }
-
-    uint32 cost = pet->resetTalentsCost();
-
-    if (GetPlayer()->GetMoney() < cost)
-    {
-        GetPlayer()->SendBuyError( BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
-        return;
-    }
-
-    for(PetSpellMap::iterator itr = pet->m_spells.begin(); itr != pet->m_spells.end();)
-    {
-        uint32 spell_id = itr->first;                       // Pet::removeSpell can invalidate iterator at erase NEW spell
-        ++itr;
-        //pet->removeSpell(spell_id);
-        pet->unlearnSpell(spell_id);
-    }
-
-    for(uint8 i = 0; i < 10; i++)
-    {
-        if(charmInfo->GetActionBarEntry(i)->SpellOrAction && charmInfo->GetActionBarEntry(i)->Type == ACT_ENABLED || charmInfo->GetActionBarEntry(i)->Type == ACT_DISABLED)
-            charmInfo->GetActionBarEntry(i)->SpellOrAction = 0;
-    }
-
-    // relearn pet passives
-    pet->LearnPetPassives();
-
-    pet->m_resetTalentsTime = time(NULL);
-    pet->m_resetTalentsCost = cost;
-    GetPlayer()->ModifyMoney(-(int32)cost);
-
-    GetPlayer()->PetSpellInitialize();
+    pet->resetTalents();
 }
 
 void WorldSession::HandlePetSpellAutocastOpcode( WorldPacket& recvPacket )
@@ -839,7 +809,4 @@ void WorldSession::HandlePetLearnTalent( WorldPacket & recv_data )
     // learn! (other talent ranks will unlearned at learning)
     pet->learnSpell(spellid);
     sLog.outDetail("TalentID: %u Rank: %u Spell: %u\n", talent_id, requested_rank, spellid);
-
-    // update free talent points
-    pet->SetFreeTalentPoints(CurTalentPoints - 1);
 }

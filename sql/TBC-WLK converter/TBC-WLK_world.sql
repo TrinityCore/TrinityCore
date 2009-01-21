@@ -100,6 +100,10 @@ CREATE TABLE `spell_affect` (
   PRIMARY KEY  (`entry`,`effectId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+ALTER TABLE skill_discovery_template
+   DROP PRIMARY KEY,
+   ADD PRIMARY KEY (`spellId`,`reqSpell`),
+   ADD COLUMN reqClass tinyint(2) unsigned NOT NULL default '0' COMMENT 'class requirement' AFTER reqSpell;
 
 -- command
 DELETE FROM `command` WHERE `name` = 'modify runicpower';
