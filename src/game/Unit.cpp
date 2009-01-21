@@ -4660,8 +4660,13 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
                 //prevent recurential call
                 && caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->getState() != SPELL_STATE_FINISHED)
             {
-                caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->cancel(false);
-                channeled = true;
+                if (caster==this || !IsAreaOfEffectSpell(AurSpellInfo))
+                {
+                    // remove auras only for non-aoe spells or when chanelled aura is removed
+                    // because aoe spells don't require aura on target to continue
+                    caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->cancel(false);
+                    channeled = true;
+                }
             }
         }
     }
