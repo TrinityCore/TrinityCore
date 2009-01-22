@@ -30,6 +30,8 @@ npc_murkblood_overseer
 npc_neltharaku
 npc_karynaku
 npc_oronok_tornheart
+npc_overlord_morghor
+npc_yarzill_the_merc
 npc_earthmender_wilda
 EndContentData */
 
@@ -44,7 +46,7 @@ EndContentData */
 #define SPELL_JUST_EATEN                38502
 #define SPELL_NETHER_BREATH             38467
 
-#define SAY_JUST_EATEN                  "Thank you, mortal."
+#define SAY_JUST_EATEN                  -1000222
 
 struct TRINITY_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
 {
@@ -120,7 +122,7 @@ struct TRINITY_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
             IsEating = false;
             DoCast(m_creature, SPELL_JUST_EATEN);
             m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
-            DoSay(SAY_JUST_EATEN, LANG_DRACONIC, NULL);
+            DoScriptText(SAY_JUST_EATEN, m_creature);
             if(PlayerGUID)
             {
                 Player* plr = ((Player*)Unit::GetUnit((*m_creature), PlayerGUID));
@@ -637,402 +639,195 @@ bool QuestAccept_npc_karynaku(Player* player, Creature* creature, Quest const* q
 }
 
 /*####
-# quest_lord_illidan_stormrage
+# npc_overlord_morghor
 ####*/
+
 #define QUEST_LORD_ILLIDAN_STORMRAGE 11108
-#define LORD_ILLIDAN_STORMRAGE 22083
+
+#define C_ILLIDAN 22083
+#define C_YARZILL 23141
 
 #define SPELL_ONE 39990 // Red Lightning Bolt
 #define SPELL_TWO 41528 // Mark of Stormrage
 #define SPELL_THREE 40216 // Dragonaw Faction
 #define SPELL_FOUR 42016 // Dragonaw Trasform
 
-#define OVERLORD_SAY_1 "Come, $N. Lord Stormrage awaits."
-#define OVERLORD_SAY_2 "Lord Illidan will be here shortly."
-#define OVERLORD_SAY_3 "Lord Illidan, this is the Dragonmaw that I, and others, have told you about. He will lead us to victory!"
-#define OVERLORD_SAY_4 "But... My lord, I do not understand. $N... He is the orc that has..."
-#define OVERLORD_SAY_5 "It will be done, my lord."
-#define OVERLORD_SAY_6 "So you thought to make a fool of Mor'ghor, eh? Before you are delivered to Lord Illidan, you will feel pain that you could not know to exist. I will take pleasure in exacting my own vengeance."
+#define OVERLORD_SAY_1 -1000206
+#define OVERLORD_SAY_2 -1000207
+#define OVERLORD_SAY_3 -1000208
+#define OVERLORD_SAY_4 -1000209
+#define OVERLORD_SAY_5 -1000210
+#define OVERLORD_SAY_6 -1000211
 
-#define OVERLORD_YELL_1 "Warriors of Dragonmaw, gather 'round! One among you has attained the rank of highlord! Bow your heads in reverence! Show your respect and allegiance to Highlord $N!"
-#define OVERLORD_YELL_2 "All hail Lord Illidan!"
+#define OVERLORD_YELL_1 -1000212
+#define OVERLORD_YELL_2 -1000213
 
-#define LORD_ILLIDAN_SAY_1 "What is the meaning of this, Mor'ghor?"
-#define LORD_ILLIDAN_SAY_2 "SILENCE!"
-#define LORD_ILLIDAN_SAY_3 "Blathering idiot. You incomprehensibly incompetent buffoon..."
-#define LORD_ILLIDAN_SAY_4 "THIS is your hero?"
-#define LORD_ILLIDAN_SAY_5 "You have been deceived, imbecile."
-#define LORD_ILLIDAN_SAY_6 "This... whole... operation... HAS BEEN COMPROMISED!"
-#define LORD_ILLIDAN_SAY_7 "I expect to see this insect's carcass in pieces in my lair within the hour. Fail and you will suffer a fate so much worse than death."
+#define LORD_ILLIDAN_SAY_1 -1000214
+#define LORD_ILLIDAN_SAY_2 -1000215
+#define LORD_ILLIDAN_SAY_3 -1000216
+#define LORD_ILLIDAN_SAY_4 -1000217
+#define LORD_ILLIDAN_SAY_5 -1000218
+#define LORD_ILLIDAN_SAY_6 -1000219
+#define LORD_ILLIDAN_SAY_7 -1000220
 
-#define YARZILL_THE_MERC_SAY "You will not harm the boy, Mor'ghor! Quickly, $N, climb on my back!"
+#define YARZILL_THE_MERC_SAY -1000221
 
-#define GOSSIP_FLY "Lets Do! <MISSING TEXT>"
-
-bool GossipHello_npc_yarzill_fly(Player *player, Creature *_Creature)
+struct TRINITY_DLL_DECL npc_overlord_morghorAI : public ScriptedAI
 {
-	if (player->GetQuestStatus(QUEST_LORD_ILLIDAN_STORMRAGE) == QUEST_STATUS_COMPLETE)
-	{
-		player->ADD_GOSSIP_ITEM(0, GOSSIP_FLY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-		player->SEND_GOSSIP_MENU(3961,_Creature->GetGUID());
-		return true;
-	}else{
-		return false;
-	}
-}
-
-bool GossipSelect_npc_yarzill_fly(Player *player, Creature *_Creature, uint32 sender, uint32 action)
-{
-	if (action == GOSSIP_ACTION_INFO_DEF + 1)
-	{
-		std::vector<uint32> nodes;
-		nodes.resize(2);
-		nodes[0] = 173;
-		nodes[1] = 174;
-		error_log("SD2: Player %s started quest 11108 which has disabled taxi node, need to be fixed in core", player->GetName());
-		//player->ActivateTaxiPathTo(nodes, 23468);
-		return true;
-	}
-	return false;
-}
-
-struct TRINITY_DLL_DECL Yarzill_The_MercAI : public ScriptedAI
-{
-	Yarzill_The_MercAI(Creature *c) : ScriptedAI(c) {Reset();}
-
-void Reset(){}
-
-void Aggro(Unit *who){}
-
-void DoSpeach(Unit *target)
-{
-DoSay(YARZILL_THE_MERC_SAY,LANG_UNIVERSAL,target);
-}
-};
-
-struct TRINITY_DLL_DECL Lord_IllidanAI : public ScriptedAI
-{
-Lord_IllidanAI(Creature *c) : ScriptedAI(c) {Reset();}
-
-void Reset(){}
-
-void Aggro(Unit *who){}
-
-void DoSpeach(int phase)
-{
-	switch(phase)
-	{
-	case 1:
-		DoSay(LORD_ILLIDAN_SAY_1,LANG_UNIVERSAL,NULL);
-		break;
-	case 2:
-		DoSay(LORD_ILLIDAN_SAY_2,LANG_UNIVERSAL,NULL);
-		break;
-	case 3:
-		DoSay(LORD_ILLIDAN_SAY_3,LANG_UNIVERSAL,NULL);
-		break;
-	case 4:
-		DoSay(LORD_ILLIDAN_SAY_4,LANG_UNIVERSAL,NULL);
-		break;
-	case 5:
-		DoSay(LORD_ILLIDAN_SAY_5,LANG_UNIVERSAL,NULL);
-		break;
-	case 6:
-		DoSay(LORD_ILLIDAN_SAY_6,LANG_UNIVERSAL,NULL);
-		break;
-	case 7:
-		DoSay(LORD_ILLIDAN_SAY_7,LANG_UNIVERSAL,NULL);
-		break;
-	case 0:
-	default:
-		break;
-	}
-}
-};
-
-struct TRINITY_DLL_DECL Overlord_MorghorAI : public ScriptedAI
-{
-    Overlord_MorghorAI(Creature *c) : ScriptedAI(c)
-    {
-        Lord = NULL;
-        Yarzill = NULL;
-        Reset();
-    }
-
-    Unit* m_player;
-    Unit* PlayerCheck;
-
-    uint32 SpeachTimer;
-    uint32 SpeachNum;
+    npc_overlord_morghorAI(Creature *c) : ScriptedAI(c) {Reset();}
 
     uint64 PlayerGUID;
-    uint64 YazillGUID;
+    uint64 IllidanGUID;
 
-    bool DoingSpeach;
-    bool Failed;
+    uint32 ConversationTimer;
+    uint32 Step;
 
-    Creature* Lord;
-    Creature* Yarzill;
+    bool Event;
 
     void Reset()
     {
-        if (Lord)
-        {
-            Lord->SetUInt64Value(UNIT_FIELD_TARGET, 0);
-            Lord->SetVisibility(VISIBILITY_OFF);
-            Lord->setDeathState(JUST_DIED);
-        }
-
-        if (Yarzill)
-        {
-            Yarzill->SetUInt64Value(UNIT_FIELD_TARGET, 0);
-        }
-
-        m_creature->Relocate(-5085.77, 577.231, 86.6719, 2.32608);
-        m_creature->SetUInt32Value(UNIT_NPC_FLAGS, 2);
-        m_creature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
-        m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
-        m_player = NULL;
-        PlayerCheck = NULL;
         PlayerGUID = 0;
-        YazillGUID = 0;
-        Lord = NULL;
-        Yarzill = NULL;
-        DoingSpeach = false;
-        Failed = false;
-        SpeachNum = 0;
-        SpeachTimer = 0;
+        IllidanGUID = 0;
+
+        ConversationTimer = 0;
+        Step = 0;
+
+        Event = false;
     }
 
-    void BeginSpeach(Unit* target)
+    void Aggro(Unit* who){}
+
+    void StartEvent()
     {
         m_creature->SetUInt32Value(UNIT_NPC_FLAGS, 0);
-        m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
-        DoSay(OVERLORD_SAY_1,LANG_UNIVERSAL,target);
-        m_player = target;
-        PlayerCheck = NULL;
-        PlayerGUID = target->GetGUID();
-        SpeachTimer = 4200;
-        SpeachNum = 0;
-        DoingSpeach = true;
+        m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);                
+        Unit* Illidan = m_creature->SummonCreature(C_ILLIDAN, -5107.83, 602.584, 85.2393, 4.92598, TEMPSUMMON_CORPSE_DESPAWN, 0);
+        IllidanGUID = Illidan->GetGUID();
+        Illidan->SetVisibility(VISIBILITY_OFF);
+        if(PlayerGUID)
+        {
+            Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+            DoScriptText(OVERLORD_SAY_1, m_creature, player);         
+        }
+        ConversationTimer = 4200;
+        Step = 0;
+        Event = true;
     }
 
-    void Aggro(Unit *who){}
-
-    void MoveInLineOfSight(Unit *who)
+    uint32 NextStep(uint32 Step)
     {
-        if (!who)
-            return;
+        Unit* plr = Unit::GetUnit((*m_creature), PlayerGUID);        
 
-        if (DoingSpeach)
+        Unit* Illi = Unit::GetUnit((*m_creature), IllidanGUID);
+
+        switch(Step)
         {
-            if (who->GetEntry() == 23141 && m_creature->IsWithinDistInMap(who, 15))
+        case 0: return 0; break;
+        case 1: m_creature->GetMotionMaster()->MovePoint(0, -5104.41, 595.297, 85.6838); return 9000; break;    
+        case 2: DoScriptText(OVERLORD_YELL_1, m_creature, plr); return 4500; break;                    
+        case 3: m_creature->SetInFront(plr); return 3200;  break;
+        case 4: DoScriptText(OVERLORD_SAY_2, m_creature, plr); return 2000; break;
+        case 5: Illi->SetVisibility(VISIBILITY_ON); return 350; break;
+        case 6:
+            Illi->CastSpell(Illi, SPELL_ONE, true);
+            Illi->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->GetGUID());
+            m_creature->SetUInt64Value(UNIT_FIELD_TARGET, IllidanGUID);
+            return 2000; break;                    
+        case 7: DoScriptText(OVERLORD_YELL_2, m_creature); return 4500; break;                    
+        case 8: m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 8); return 2500; break;                    
+        case 9: DoScriptText(OVERLORD_SAY_3, m_creature); return 6500; break;                    
+        case 10: DoScriptText(LORD_ILLIDAN_SAY_1, Illi); return 5000;  break;                    
+        case 11: DoScriptText(OVERLORD_SAY_4, m_creature, plr); return 6000; break;
+        case 12: DoScriptText(LORD_ILLIDAN_SAY_2, Illi); return 5500; break;                    
+        case 13: DoScriptText(LORD_ILLIDAN_SAY_3, Illi); return 4000; break;                    
+        case 14: Illi->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID); return 1500; break;                    
+        case 15: DoScriptText(LORD_ILLIDAN_SAY_4, Illi); return 1500; break;                    
+        case 16: 
+            if (plr)
             {
-                if (!YazillGUID)
-                {
-                    YazillGUID = who->GetGUID();
-                }
-            }
+                Illi->CastSpell(plr, SPELL_TWO, true);
+                plr->RemoveAurasDueToSpell(SPELL_THREE);
+                plr->RemoveAurasDueToSpell(SPELL_FOUR);
+                return 5000;
+            }else{
+                ((Player*)plr)->FailQuest(QUEST_LORD_ILLIDAN_STORMRAGE); Step = 30; return 100;
+            }break;                    
+        case 17: DoScriptText(LORD_ILLIDAN_SAY_5, Illi); return 5000; break;                    
+        case 18: DoScriptText(LORD_ILLIDAN_SAY_6, Illi); return 5000; break;                    
+        case 19: DoScriptText(LORD_ILLIDAN_SAY_7, Illi); return 5000; break;                    
+        case 20: 
+            Illi->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
+            Illi->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
+            return 500; break;                  
+        case 21: DoScriptText(OVERLORD_SAY_5, m_creature); return 500; break;                    
+        case 22: 
+            Illi->SetVisibility(VISIBILITY_OFF);
+            Illi->setDeathState(JUST_DIED);                    
+            return 1000; break;            
+        case 23: m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0); return 2000; break;                    
+        case 24: m_creature->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID); return 5000; break;
+        case 25: DoScriptText(OVERLORD_SAY_6, m_creature); return 2000; break;                    
+        case 26: ((Player*)plr)->CompleteQuest(QUEST_LORD_ILLIDAN_STORMRAGE); return 6000; break;                    
+        case 27:
+            {
+            Unit* Yarzill = FindCreature(C_YARZILL, 50);
+            if (Yarzill)
+                Yarzill->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID);
+            return 500; }break;            
+        case 28:
+            plr->RemoveAurasDueToSpell(SPELL_TWO);
+            plr->RemoveAurasDueToSpell(41519);
+            plr->CastSpell(plr, SPELL_THREE, true);
+            plr->CastSpell(plr, SPELL_FOUR, true);
+            return 1000; break;           
+        case 29:
+            {
+            Unit* Yarzill = FindCreature(C_YARZILL, 50);
+            if(Yarzill)
+                DoScriptText(YARZILL_THE_MERC_SAY, Yarzill, plr);
+            return 5000; }break;
+        case 30:
+            {
+            Unit* Yarzill = FindCreature(C_YARZILL, 50);
+            if (Yarzill)
+                Yarzill->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+            return 5000; }break;
+        case 31:
+            {
+            Unit* Yarzill = FindCreature(C_YARZILL, 50);
+            if (Yarzill)
+                Yarzill->CastSpell(plr, 41540, true);             
+            return 1000;}break;
+        case 32: m_creature->GetMotionMaster()->MovePoint(0, -5085.77, 577.231, 86.6719); return 5000; break;                    
+        case 33: Reset(); return 100; break;
+
+        default : return 9999999;
         }
     }
 
     void UpdateAI(const uint32 diff)
     {
-        //Speach
-        if (DoingSpeach)
+        if(ConversationTimer < diff)
         {
-            if (SpeachTimer < diff)
+            if(Event && IllidanGUID && PlayerGUID)
             {
-                if (YazillGUID && !Yarzill)
-                    Yarzill = ((Creature*)Unit::GetUnit((*m_creature), YazillGUID));
-
-                if (!m_creature->IsWithinDistInMap(m_player, 50) && ((Player*)m_player)->GetQuestStatus(QUEST_LORD_ILLIDAN_STORMRAGE) == QUEST_STATUS_INCOMPLETE)
-                {
-                    ((Player*)m_player)->FailQuest(QUEST_LORD_ILLIDAN_STORMRAGE);
-                    SpeachNum = 30;
-                }
-
-                switch (SpeachNum)
-                {
-                    // Overlord Movement
-                case 0:
-                    m_creature->GetMotionMaster()->MovePoint(0, -5104.41, 595.297, 85.6838);
-                    SpeachTimer = 9000; SpeachNum++; break;
-                    // Overlord Yell 1
-                case 1:
-                    m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SHOUT);
-                    DoYell(OVERLORD_YELL_1,LANG_UNIVERSAL,m_player);
-                    SpeachTimer = 4500; SpeachNum++; break;
-                    // Overlord Angle
-                case 2:
-                    m_creature->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID);
-                    SpeachTimer = 3200; SpeachNum++; break;
-                    // Overlord Say 2
-                case 3:
-                    DoSay(OVERLORD_SAY_2,LANG_UNIVERSAL,NULL);
-                    SpeachTimer = 2000; SpeachNum++; break;
-                    // Summon Illidan
-                case 4:
-                    Lord = m_creature->SummonCreature(LORD_ILLIDAN_STORMRAGE, -5107.83, 602.584, 85.2393, 4.92598, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    Lord->LoadCreaturesAddon();
-                    SpeachTimer = 350; SpeachNum++; break;
-                    // Illidan Cast Red Bolt
-                case 5:
-                    Lord->CastSpell(Lord, SPELL_ONE, true);
-                    Lord->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->GetGUID());
-                    m_creature->SetUInt64Value(UNIT_FIELD_TARGET, Lord->GetGUID());
-                    SpeachTimer = 2000; SpeachNum++; break;
-                    // Overlord Yell 2
-                case 6:
-                    DoYell(OVERLORD_YELL_2,LANG_UNIVERSAL,NULL);
-                    SpeachTimer = 4500; SpeachNum++; break;
-                    // Overlord Kneel
-                case 7:
-                    m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,8);
-                    SpeachTimer = 2500; SpeachNum++; break;
-                    // Overlord Say 3
-                case 8:
-                    DoSay(OVERLORD_SAY_3,LANG_UNIVERSAL,NULL);
-                    SpeachTimer = 6500; SpeachNum++; break;
-                    // Illidan Say 1
-                case 9:
-                    ((Lord_IllidanAI*)Lord->AI())->DoSpeach(1);
-                    SpeachTimer = 5000; SpeachNum++; break;
-                    // Overlord Say 4
-                case 10:
-                    DoSay(OVERLORD_SAY_4,LANG_UNIVERSAL,m_player);
-                    SpeachTimer = 6000; SpeachNum++; break;
-                    // Illidan Say 2
-                case 11:
-                    ((Lord_IllidanAI*)Lord->AI())->DoSpeach(2);
-                    SpeachTimer = 5500; SpeachNum++; break;
-                    // Illidan Say 3
-                case 12:
-                    ((Lord_IllidanAI*)Lord->AI())->DoSpeach(3);
-                    SpeachTimer = 4000; SpeachNum++; break;
-                    // Illidan Angle
-                case 13:
-                    Lord->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID);
-                    SpeachTimer = 1500; SpeachNum++; break;
-                    // Illidan Say 4
-                case 14:
-                    ((Lord_IllidanAI*)Lord->AI())->DoSpeach(4);
-                    SpeachTimer = 1500; SpeachNum++; break;
-                    // Illidan Cast
-                case 15:
-                    PlayerCheck = Unit::GetUnit(*Lord, PlayerGUID);
-                    if (PlayerCheck)
-                    {
-                        Lord->CastSpell(m_player, SPELL_TWO, true);
-                        m_player->RemoveAurasDueToSpell(SPELL_THREE);
-                        m_player->RemoveAurasDueToSpell(SPELL_FOUR);
-                        SpeachTimer = 5000; SpeachNum++;
-                    }
-                    else
-                    {
-                        ((Player*)m_player)->FailQuest(QUEST_LORD_ILLIDAN_STORMRAGE);
-                        SpeachTimer = 100; SpeachNum = 30;
-                    }
-                    break;
-                    // Illidan Say 5
-                case 16:
-                    ((Lord_IllidanAI*)Lord->AI())->DoSpeach(5);
-                    SpeachTimer = 5000; SpeachNum++; break;
-                    // Illidan Say 6
-                case 17:
-                    ((Lord_IllidanAI*)Lord->AI())->DoSpeach(6);
-                    SpeachTimer = 5000; SpeachNum++; break;
-                    // Illidan Say 7
-                case 18:
-                    ((Lord_IllidanAI*)Lord->AI())->DoSpeach(7);
-                    SpeachTimer = 5000; SpeachNum++; break;
-                    // Illidan Fly
-                case 19:
-                    Lord->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-                    Lord->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
-                    SpeachTimer = 500; SpeachNum++; break;
-                    // Overlord Say 5
-                case 20:
-                    DoSay(OVERLORD_SAY_5,LANG_UNIVERSAL,NULL);
-                    SpeachTimer = 500; SpeachNum++; break;
-                    // Illidan Despawn
-                case 21:
-                    Lord->SetVisibility(VISIBILITY_OFF);
-                    Lord->setDeathState(JUST_DIED);
-                    Lord = NULL;
-                    SpeachTimer = 1000; SpeachNum++; break;
-                    // Overlord Stand Up
-                case 22:
-                    m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
-                    SpeachTimer = 2000; SpeachNum++; break;
-                    // Overlord Angle
-                case 23:
-                    m_creature->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID);
-                    SpeachTimer = 5000; SpeachNum++; break;
-                    // Overlord Say 6
-                case 24:
-                    DoSay(OVERLORD_SAY_6,LANG_UNIVERSAL,NULL);
-                    SpeachTimer = 2000; SpeachNum++; break;
-                    // Complete Quest
-                case 25:
-                    ((Player*)m_player)->CompleteQuest(QUEST_LORD_ILLIDAN_STORMRAGE);
-                    SpeachTimer = 6000; SpeachNum++; break;
-                    // Goblin Angle
-                case 26:
-                    if (Yarzill)
-                        Yarzill->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID);
-                    SpeachTimer = 500; SpeachNum++; break;
-                    // Cast Again Dragonaw Illusion
-                case 27:
-                    m_player->RemoveAurasDueToSpell(SPELL_TWO);
-                    m_player->RemoveAurasDueToSpell(41519);
-                    m_player->CastSpell(m_player, SPELL_THREE, true);
-                    m_player->CastSpell(m_player, SPELL_FOUR, true);
-                    SpeachTimer = 1000; SpeachNum++; break;
-                    // Goblin
-                case 28:
-                    if (Yarzill)
-                        ((Yarzill_The_MercAI*)Yarzill->AI())->DoSpeach(m_player);
-                    SpeachTimer = 5000; SpeachNum++; break;
-                    // Goblin Off
-                case 29:
-                    if (Yarzill)
-                        Yarzill->SetUInt64Value(UNIT_FIELD_TARGET, 0);
-                    SpeachTimer = 5000; SpeachNum++; break;
-                    // Overlord Go Back
-                case 30:
-                    m_creature->GetMotionMaster()->MovePoint(0, -5085.77, 577.231, 86.6719);
-                    SpeachTimer = 5000; SpeachNum++; break;
-                    // Reset
-                case 31:
-                    Reset();
-                    break;
-                default: break;
-                }
-            }else SpeachTimer -= diff;
-        }
+                ConversationTimer = NextStep(++Step);
+            }
+        }else ConversationTimer -= diff;
     }
 };
 
-CreatureAI* GetAI_Overlord_Morghor(Creature *_Creature)
+CreatureAI* GetAI_npc_overlord_morghorAI(Creature *_Creature)
 {
-return new Overlord_MorghorAI(_Creature);
+return new npc_overlord_morghorAI(_Creature);
 }
 
-CreatureAI* GetAI_Lord_Illidan(Creature *_Creature)
-{
-return new Lord_IllidanAI(_Creature);
-}
-
-CreatureAI* GetAI_Yarzill_The_Merc(Creature *_Creature)
-{
-return new Yarzill_The_MercAI(_Creature);
-}
-bool QuestAccept_Overlord_Morghor(Player *player, Creature *_Creature, const Quest *_Quest )
+bool QuestAccept_npc_overlord_morghor(Player *player, Creature *_Creature, const Quest *_Quest )
 {
 	if(_Quest->GetQuestId() == QUEST_LORD_ILLIDAN_STORMRAGE)
 	{
-		((Overlord_MorghorAI*)_Creature->AI())->BeginSpeach((Unit*)player);
+        ((npc_overlord_morghorAI*)_Creature->AI())->PlayerGUID = player->GetGUID();
+        ((npc_overlord_morghorAI*)_Creature->AI())->StartEvent();        
 		return true;
 	}
 	return false;
@@ -1042,42 +837,44 @@ bool QuestAccept_Overlord_Morghor(Player *player, Creature *_Creature, const Que
 # npc_earthmender_wilda
 ####*/
 
-#define SAY_START                                                                              "I sense the tortured spirits, $N. They are this way, come quickly!"
-#define SAY_AGGRO1                                                                             "Watch out!"
-#define SAY_AGGRO2                                                                             "Naga attackers! Defend yourself!"
-#define ASSASSIN_SAY_AGGRO1                                                            "Kill them all!"
-#define ASSASSIN_SAY_AGGRO2                                                            "You will never essscape Coilssskarrr..."
-#define SAY_PROGRESS1                                                                  "Grant me protection $N, i must break trough their foul magic!"
-#define SAY_PROGRESS2                                                                  "The naga of Coilskar are exceptionally cruel to their prisoners. It is a miracle that I survived inside that watery prison for as long as I did. Earthmother be praised."
-#define SAY_PROGRESS3                                                                  "Now we must find the exit."
-#define SAY_PROGRESS4                                                                  "Lady Vashj must answer for these atrocities. She must be brought to justice!"
-#define SAY_PROGRESS5                                                                  "The tumultuous nature of the great waterways of Azeroth and Draenor are a direct result of tormented water spirits."
-#define SAY_PROGRESS6                                                                  "It shouldn't be much further, $N. The exit is just up ahead."
-#define SAY_END                                                                                        "Thank you, $N. Please return to my brethren at the Altar of Damnation, near the Hand of Gul'dan, and tell them that Wilda is safe. May the Earthmother watch over you..."
+#define SAY_START -1000223
+#define SAY_AGGRO1 -1000224
+#define SAY_AGGRO2 -1000225
+#define ASSASSIN_SAY_AGGRO1 -1000226
+#define ASSASSIN_SAY_AGGRO2 -1000227
+#define SAY_PROGRESS1 -1000228
+#define SAY_PROGRESS2 -1000229
+#define SAY_PROGRESS3 -1000230
+#define SAY_PROGRESS4 -1000231
+#define SAY_PROGRESS5 -1000232
+#define SAY_PROGRESS6 -1000233
+#define SAY_END -1000234
 
-
-#define QUEST_ESCAPE_FROM_COILSKAR_CISTERN                             10451
-#define NPC_COILSKAR_ASSASSIN                                                  21044
+#define QUEST_ESCAPE_FROM_COILSKAR_CISTERN 10451
+#define NPC_COILSKAR_ASSASSIN 21044
 
 struct TRINITY_DLL_DECL npc_earthmender_wildaAI : public npc_escortAI
 {
     npc_earthmender_wildaAI(Creature *c) : npc_escortAI(c) {Reset();}
 
-       void Aggro(Unit *who)
-       {
-               Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+    bool Completed;
 
-               if(who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == NPC_COILSKAR_ASSASSIN)
-                       DoSay(SAY_AGGRO2, LANG_UNIVERSAL, player);
-               else DoSay(SAY_AGGRO1, LANG_UNIVERSAL, player);
-       }
+    void Aggro(Unit *who)
+    {
+        Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
 
-       void Reset()
-       {
-               m_creature->setFaction(1726);
-       }
+        if(who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == NPC_COILSKAR_ASSASSIN)
+            DoScriptText(SAY_AGGRO2, m_creature, player);
+        else DoScriptText(SAY_AGGRO1, m_creature, player);
+    }
 
-       void WaypointReached(uint32 i)
+    void Reset()
+    {
+        m_creature->setFaction(1726);
+        Completed = false;
+    }
+
+    void WaypointReached(uint32 i)
     {
         Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
 
@@ -1086,120 +883,92 @@ struct TRINITY_DLL_DECL npc_earthmender_wildaAI : public npc_escortAI
 
         switch(i)
         {
-               case 0:
-                       DoSay(SAY_START, LANG_UNIVERSAL, player);
-                       m_creature->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
-                       break;
-               case 13:
-                       DoSay(SAY_PROGRESS1, LANG_UNIVERSAL, player);
-                       SummonAssassin();
-                       break;
-               case 14:
-                       SummonAssassin(); break;
-               case 15:
-                       DoSay(SAY_PROGRESS3, LANG_UNIVERSAL, player); break;
+               case 0: DoScriptText(SAY_START, m_creature, player); break;
+               case 13: DoScriptText(SAY_PROGRESS1, m_creature, player);
+                   SummonAssassin();
+                   break;
+               case 14: SummonAssassin(); break;
+               case 15: DoScriptText(SAY_PROGRESS3, m_creature, player); break;
                case 19: 
-                       switch(rand()%3)
-                               {
-                               case 0:
-                                       DoSay(SAY_PROGRESS2, LANG_UNIVERSAL, player); break;
-                               case 1:
-                                       DoSay(SAY_PROGRESS4, LANG_UNIVERSAL, player); break;
-                               case 2:
-                                       DoSay(SAY_PROGRESS5, LANG_UNIVERSAL, player); break;
-                               }
-                       break;
-               case 20:
-                       SummonAssassin(); break;
+                   switch(rand()%3)
+                   {
+                   case 0: DoScriptText(SAY_PROGRESS2, m_creature, player); break;
+                   case 1: DoScriptText(SAY_PROGRESS4, m_creature, player); break;
+                   case 2: DoScriptText(SAY_PROGRESS5, m_creature, player); break;
+                   }
+                   break;
+               case 20: SummonAssassin(); break;
                case 26:
-                       switch(rand()%3)
-                               {
-                               case 0:
-                                       DoSay(SAY_PROGRESS2, LANG_UNIVERSAL, player); break;
-                               case 1:
-                                       DoSay(SAY_PROGRESS4, LANG_UNIVERSAL, player); break;
-                               case 2:
-                                       DoSay(SAY_PROGRESS5, LANG_UNIVERSAL, player); break;
-                               }
-                       break;
-               case 27:
-                       SummonAssassin(); break;
+                   switch(rand()%3)
+                   {
+                   case 0: DoScriptText(SAY_PROGRESS2, m_creature, player); break;
+                   case 1: DoScriptText(SAY_PROGRESS4, m_creature, player); break;
+                   case 2: DoScriptText(SAY_PROGRESS5, m_creature, player); break;
+                   }
+                   break;
+               case 27: SummonAssassin(); break;
                case 33:
-                       switch(rand()%3)
-                               {
-                               case 0:
-                                       DoSay(SAY_PROGRESS2, LANG_UNIVERSAL, player); break;
-                               case 1:
-                                       DoSay(SAY_PROGRESS4, LANG_UNIVERSAL, player); break;
-                               case 2:
-                                       DoSay(SAY_PROGRESS5, LANG_UNIVERSAL, player); break;
-                               }
-                       break;
-               case 34:
-                       SummonAssassin(); break;
+                   switch(rand()%3)
+                   {
+                   case 0: DoScriptText(SAY_PROGRESS2, m_creature, player); break;
+                   case 1: DoScriptText(SAY_PROGRESS4, m_creature, player); break;
+                   case 2: DoScriptText(SAY_PROGRESS5, m_creature, player); break;
+                   }
+                   break;
+               case 34: SummonAssassin(); break;
                case 37:
-                       switch(rand()%3)
-                               {
-                               case 0:
-                                       DoSay(SAY_PROGRESS2, LANG_UNIVERSAL, player); break;
-                               case 1:
-                                       DoSay(SAY_PROGRESS4, LANG_UNIVERSAL, player); break;
-                               case 2:
-                                       DoSay(SAY_PROGRESS5, LANG_UNIVERSAL, player); break;
-                               }
-                       break;
-               case 38:
-                       SummonAssassin(); break;
-               case 39:
-                       DoSay(SAY_PROGRESS6, LANG_UNIVERSAL, player); break;
+                   switch(rand()%3)
+                   {
+                   case 0: DoScriptText(SAY_PROGRESS2, m_creature, player); break;
+                   case 1: DoScriptText(SAY_PROGRESS4, m_creature, player); break;
+                   case 2: DoScriptText(SAY_PROGRESS5, m_creature, player); break;
+                   }
+                   break;
+               case 38: SummonAssassin(); break;
+               case 39: DoScriptText(SAY_PROGRESS6, m_creature, player); break;
                case 43:
-                       switch(rand()%3)
-                               {
-                               case 0:
-                                       DoSay(SAY_PROGRESS2, LANG_UNIVERSAL, player); break;
-                               case 1:
-                                       DoSay(SAY_PROGRESS4, LANG_UNIVERSAL, player); break;
-                               case 2:
-                                       DoSay(SAY_PROGRESS5, LANG_UNIVERSAL, player); break;
-                               }
-                       break;
-               case 44:
-                       SummonAssassin(); break;
-               case 50:
-                       DoSay(SAY_END, LANG_UNIVERSAL, player);
-                       ((Player*)player)->GroupEventHappens(QUEST_ESCAPE_FROM_COILSKAR_CISTERN, m_creature);
-                       break;
+                   switch(rand()%3)
+                   {
+                   case 0: DoScriptText(SAY_PROGRESS2, m_creature, player); break;
+                   case 1: DoScriptText(SAY_PROGRESS4, m_creature, player); break;
+                   case 2: DoScriptText(SAY_PROGRESS5, m_creature, player); break;
+                   }
+                   break;
+               case 44: SummonAssassin(); break;
+               case 50: 
+                   DoScriptText(SAY_END, m_creature, player);
+                   ((Player*)player)->GroupEventHappens(QUEST_ESCAPE_FROM_COILSKAR_CISTERN, m_creature);
+                   Completed = true;
+                   break;
                }
        }
 
        void SummonAssassin()
        {
-       Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+           Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
 
-       Creature* CoilskarAssassin = m_creature->SummonCreature(NPC_COILSKAR_ASSASSIN, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 0);
-       if( CoilskarAssassin )
+           Unit* CoilskarAssassin = m_creature->SummonCreature(NPC_COILSKAR_ASSASSIN, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 0);
+           if( CoilskarAssassin )
+           {
+               switch(rand()%2)
                {
-                       switch(rand()%2)
-                       {
-                               case 0:
-                                       CoilskarAssassin->Say(ASSASSIN_SAY_AGGRO1, LANG_UNIVERSAL, PlayerGUID); break;
-                               case 1:
-                                       CoilskarAssassin->Say(ASSASSIN_SAY_AGGRO2, LANG_UNIVERSAL, PlayerGUID); break;
-                       }
-                       CoilskarAssassin->AI()->AttackStart(m_creature);
-              }
-       else error_log("SD2 ERROR: Coilskar Assassin couldn't be summmoned");
+               case 0: DoScriptText(ASSASSIN_SAY_AGGRO1, CoilskarAssassin, player); break;
+               case 1: DoScriptText(ASSASSIN_SAY_AGGRO2, CoilskarAssassin, player); break;
+               }
+               ((Creature*)CoilskarAssassin)->AI()->AttackStart(m_creature);
+           }
+           else error_log("SD2 ERROR: Coilskar Assassin couldn't be summmoned");
        }
 
        void JustDied(Unit* killer)
-    {
-        if (PlayerGUID)
        {
-            Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
-            if (player)
-                ((Player*)player)->FailQuest(QUEST_ESCAPE_FROM_COILSKAR_CISTERN);
-        }
-    }
+           if (PlayerGUID && !Completed)
+           {
+               Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+               if (player)
+                   ((Player*)player)->FailQuest(QUEST_ESCAPE_FROM_COILSKAR_CISTERN);
+           }
+       }
 
        void UpdateAI(const uint32 diff) 
        {
@@ -1333,20 +1102,8 @@ void AddSC_shadowmoon_valley()
 
 	newscript = new Script;
 	newscript->Name = "npc_overlord_morghor";
-	newscript->GetAI = &GetAI_Overlord_Morghor;
-	newscript->pQuestAccept = &QuestAccept_Overlord_Morghor;
-	newscript->RegisterSelf();
-
-	newscript = new Script;
-	newscript->Name = "npc_lord_illidan_stormrage";
-	newscript->GetAI = &GetAI_Lord_Illidan;
-	newscript->RegisterSelf();
-
-	newscript = new Script;
-	newscript->Name = "npc_yarzill_the_merc";
-	newscript->GetAI = &GetAI_Yarzill_The_Merc;
-	newscript->pGossipHello = &GossipHello_npc_yarzill_fly;
-	newscript->pGossipSelect = &GossipSelect_npc_yarzill_fly;
+	newscript->GetAI = &GetAI_npc_overlord_morghorAI;
+	newscript->pQuestAccept = &QuestAccept_npc_overlord_morghor;
 	newscript->RegisterSelf();
 
 	newscript = new Script;
