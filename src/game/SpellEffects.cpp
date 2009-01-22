@@ -5882,6 +5882,10 @@ void Spell::EffectSendTaxi(uint32 i)
         case 34905:      //Stealth Flight
             mountid = 6851;
             break;
+        case 41533:      //Fly of the Netherwing
+        case 41540:      //Fly of the Netherwing
+            mountid = 23468;
+            break;
     }
 
     ((Player*)unitTarget)->ActivateTaxiPathTo(nodes,mountid);
