@@ -154,6 +154,7 @@ bool GossipSelect_npc_loramus_thalipedes(Player *player, Creature *_Creature, ui
 /*####
 # mob_rizzle_sprysprocket
 ####*/
+
 #define MOB_DEPTH_CHARGE 23025
 #define SPELL_RIZZLE_BLACKJACK 39865
 #define SPELL_RIZZLE_ESCAPE 39871
@@ -162,9 +163,12 @@ bool GossipSelect_npc_loramus_thalipedes(Player *player, Creature *_Creature, ui
 #define SPELL_PERIODIC_DEPTH_CHARGE 39912
 #define SPELL_GIVE_SOUTHFURY_MOONSTONE 39886
 
-#define SAY_RIZZLE_START "You, there! Hand over that moonstone and nobody gets hurt!"
-#define SAY_RIZZLE_GRENADE "Just chill!"
-#define SAY_RIZZLE_FINAL "All right, you win! I surrender! Just don't hurt me!"
+#define SAY_RIZZLE_START -1000245
+#define SAY_RIZZLE_GRENADE -1000246
+#define SAY_RIZZLE_FINAL -1000247
+
+#define GOSSIP_GET_MOONSTONE "Hand over the Southfury moonstone and I'll let you go."
+
 //next message must be send to player when Rizzle jump into river, not implemented
 #define MSG_ESCAPE_NOTICE "Rizzle Sprysprocket takes the Southfury moonstone and escapes into the river. Follow her!"
 
@@ -230,7 +234,6 @@ float WPs[58][4] =
 {1927.09, -3679.56, 33.9118, 3.42},
 {1873.57, -3695.32, 33.9118, 3.44}
 };
-
 
 struct TRINITY_DLL_DECL mob_rizzle_sprysprocketAI : public ScriptedAI
 {
@@ -327,7 +330,7 @@ struct TRINITY_DLL_DECL mob_rizzle_sprysprocketAI : public ScriptedAI
             Player *player = (Player *)Unit::GetUnit((*m_creature), PlayerGUID);
             if(player)
             {
-               DoWhisper(SAY_RIZZLE_GRENADE, player);
+               DoScriptText(SAY_RIZZLE_GRENADE, m_creature, player);
                DoCast(player, SPELL_RIZZLE_FROST_GRENADE, true);
             }
             Grenade_Timer = 30000;
@@ -344,7 +347,7 @@ struct TRINITY_DLL_DECL mob_rizzle_sprysprocketAI : public ScriptedAI
             float dist = m_creature->GetDistance(player);
 			if(dist < 10 && m_creature->GetPositionX() > player->GetPositionX() && !Reached)
             {
-                DoYell(SAY_RIZZLE_FINAL, LANG_UNIVERSAL, NULL);
+                DoScriptText(SAY_RIZZLE_FINAL, m_creature);
                 m_creature->SetUInt32Value(UNIT_NPC_FLAGS, 1);
 				m_creature->setFaction(35);
                 m_creature->StopMoving();
@@ -375,7 +378,7 @@ struct TRINITY_DLL_DECL mob_rizzle_sprysprocketAI : public ScriptedAI
         if(who->GetTypeId() == TYPEID_PLAYER && ((Player *)who)->GetQuestStatus(10994) == QUEST_STATUS_INCOMPLETE)
         {
             PlayerGUID = who->GetGUID();
-            DoYell(SAY_RIZZLE_START, LANG_UNIVERSAL, NULL);
+            DoScriptText(SAY_RIZZLE_START, m_creature);
             DoCast(who, SPELL_RIZZLE_BLACKJACK, false);
             return;
         }
@@ -394,7 +397,7 @@ struct TRINITY_DLL_DECL mob_rizzle_sprysprocketAI : public ScriptedAI
             return;
         }
 
-        CurrWP++;
+        ++CurrWP;
         ContinueWP = true;
     }
 
@@ -404,7 +407,7 @@ bool GossipHello_mob_rizzle_sprysprocket(Player *player, Creature *_Creature)
 {
     if(player->GetQuestStatus(10994) != QUEST_STATUS_INCOMPLETE)
         return true;
-    player->ADD_GOSSIP_ITEM( 0, "Hand over the Southfury moonstone and I'll let you go.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    player->ADD_GOSSIP_ITEM( 0, GOSSIP_GET_MOONSTONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
     player->SEND_GOSSIP_MENU(10811,_Creature->GetGUID());
     return true;
 }
