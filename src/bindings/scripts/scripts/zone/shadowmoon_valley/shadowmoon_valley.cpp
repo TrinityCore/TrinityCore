@@ -31,7 +31,6 @@ npc_neltharaku
 npc_karynaku
 npc_oronok_tornheart
 npc_overlord_morghor
-npc_yarzill_the_merc
 npc_earthmender_wilda
 EndContentData */
 
