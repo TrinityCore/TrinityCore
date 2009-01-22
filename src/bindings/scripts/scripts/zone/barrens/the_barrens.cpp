@@ -36,12 +36,14 @@ EndContentData */
 ## npc_beaten_corpse
 ######*/
 
+#define GOSSIP_CORPSE "Examine corpse in detail..."
+
 bool GossipHello_npc_beaten_corpse(Player *player, Creature *_Creature)
 {
     if( player->GetQuestStatus(4921) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(4921) == QUEST_STATUS_COMPLETE)
-        player->ADD_GOSSIP_ITEM(0,"Examine corpse in detail...",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_CORPSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-    player->SEND_GOSSIP_MENU(3557,_Creature->GetGUID());
+    player->SEND_GOSSIP_MENU(3557, _Creature->GetGUID());
     return true;
 }
 
@@ -49,7 +51,7 @@ bool GossipSelect_npc_beaten_corpse(Player *player, Creature *_Creature, uint32 
 {
     if(action == GOSSIP_ACTION_INFO_DEF +1)
     {
-        player->SEND_GOSSIP_MENU(3558,_Creature->GetGUID());
+        player->SEND_GOSSIP_MENU(3558, _Creature->GetGUID());
         player->KilledMonster( 10668,_Creature->GetGUID() );
     }
     return true;
@@ -59,15 +61,17 @@ bool GossipSelect_npc_beaten_corpse(Player *player, Creature *_Creature, uint32 
 ## npc_sputtervalve
 ######*/
 
+#define GOSSIP_SPUTTERVALVE "Can you tell me about this shard?"
+
 bool GossipHello_npc_sputtervalve(Player *player, Creature *_Creature)
 {
     if (_Creature->isQuestGiver())
         player->PrepareQuestMenu( _Creature->GetGUID() );
 
     if( player->GetQuestStatus(6981) == QUEST_STATUS_INCOMPLETE)
-        player->ADD_GOSSIP_ITEM(0,"Can you tell me about this shard?",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF);
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_SPUTTERVALVE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(),_Creature->GetGUID());
+    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
     return true;
 }
 
@@ -75,7 +79,7 @@ bool GossipSelect_npc_sputtervalve(Player *player, Creature *_Creature, uint32 s
 {
     if(action == GOSSIP_ACTION_INFO_DEF)
     {
-        player->SEND_GOSSIP_MENU(2013,_Creature->GetGUID());
+        player->SEND_GOSSIP_MENU(2013, _Creature->GetGUID());
         player->AreaExploredOrEventHappens(6981);
     }
     return true;
@@ -85,7 +89,7 @@ bool GossipSelect_npc_sputtervalve(Player *player, Creature *_Creature, uint32 s
 ## npc_taskmaster_fizzule
 ######*/
 
-//#define FACTION_HOSTILE_F       430
+//#define FACTION_HOSTILE_F     430
 #define FACTION_HOSTILE_F       16
 #define FACTION_FRIENDLY_F      35
 
@@ -173,11 +177,11 @@ bool ReciveEmote_npc_taskmaster_fizzule(Player *player, Creature *_Creature, uin
 
 #define BIG_WILL 6238
 #define AFFRAY_CHALLENGER 6240
-#define SAY_BIG_WILL_READY                  "Ready when you are, warrior"
-#define SAY_TWIGGY_FLATHEAD_BEGIN           "The Affray has begun, get ready to fight!"
-#define SAY_TWIGGY_FLATHEAD_FRAY            "You! Enter the fray!"
-#define SAY_TWIGGY_FLATHEAD_DOWN            "Challenger is down!"
-#define SAY_TWIGGY_FLATHEAD_OVER            "The Affray is over"
+#define SAY_BIG_WILL_READY                  -1000267
+#define SAY_TWIGGY_FLATHEAD_BEGIN           -1000268
+#define SAY_TWIGGY_FLATHEAD_FRAY            -1000269
+#define SAY_TWIGGY_FLATHEAD_DOWN            -1000270
+#define SAY_TWIGGY_FLATHEAD_OVER            -1000271
 
 float AffrayChallengerLoc[6][4]=
 {
@@ -214,7 +218,8 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
         Wave = 0;
         PlayerGUID = 0;
 
-        for(uint8 i = 0; i < 6; i++) {
+        for(uint8 i = 0; i < 6; ++i) 
+        {
             AffrayChallenger[i] = 0;
             Challenger_down[i] = false;
         }
@@ -249,14 +254,17 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
 
             if(!pWarrior->isAlive() && pWarrior->GetQuestStatus(1719) == QUEST_STATUS_INCOMPLETE) {
                 EventInProgress = false;
-                DoYell(SAY_TWIGGY_FLATHEAD_DOWN,LANG_UNIVERSAL,NULL);
+                DoScriptText(SAY_TWIGGY_FLATHEAD_DOWN, m_creature);
                 pWarrior->FailQuest(1719);
 
-                for(uint8 i = 0; i < 6; i++) {
-                    if (AffrayChallenger[i]) {
+                for(uint8 i = 0; i < 6; ++i) 
+                {
+                    if (AffrayChallenger[i]) 
+                    {
                         Creature* pCreature = (Creature*)Unit::GetUnit((*m_creature), AffrayChallenger[i]);
                         if(pCreature) {
-                            if(pCreature->isAlive()) {
+                            if(pCreature->isAlive()) 
+                            {
                                 pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
                                 pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 pCreature->setDeathState(JUST_DIED);
@@ -267,7 +275,8 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                     Challenger_down[i] = false;
                 }
 
-                if (BigWill) {
+                if (BigWill) 
+                {
                     Creature* pCreature = (Creature*)Unit::GetUnit((*m_creature), BigWill);
                     if(pCreature) {
                         if(pCreature->isAlive()) {
@@ -280,22 +289,24 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                 BigWill = 0;
             }
 
-            if (!EventGrate && EventInProgress) {
+            if (!EventGrate && EventInProgress) 
+            {
                 float x,y,z;
                 pWarrior->GetPosition(x, y, z);
 
                 if (x >= -1684 && x <= -1674 && y >= -4334 && y <= -4324) {
                     pWarrior->AreaExploredOrEventHappens(1719);
-                    DoYell(SAY_TWIGGY_FLATHEAD_BEGIN,LANG_UNIVERSAL,NULL);
+                    DoScriptText(SAY_TWIGGY_FLATHEAD_BEGIN, m_creature);
 
-                    for(uint8 i = 0; i < 6; i++) {
+                    for(uint8 i = 0; i < 6; ++i) 
+                    {
                         Creature* pCreature = m_creature->SummonCreature(AFFRAY_CHALLENGER, AffrayChallengerLoc[i][0], AffrayChallengerLoc[i][1], AffrayChallengerLoc[i][2], AffrayChallengerLoc[i][3], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
                         if(!pCreature)
                             continue;
                         pCreature->setFaction(35);
                         pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        pCreature->HandleEmoteCommand(15);
+                        pCreature->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
                         AffrayChallenger[i] = pCreature->GetGUID();
                     }
                     Wave_Timer = 5000;
@@ -303,13 +314,18 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                     EventGrate = true;
                 }
             }
-            else if (EventInProgress) {
-                if (Challenger_checker < diff) {
-                    for(uint8 i = 0; i < 6; i++) {
-                        if (AffrayChallenger[i]) {
+            else if (EventInProgress) 
+            {
+                if (Challenger_checker < diff) 
+                {
+                    for(uint8 i = 0; i < 6; ++i) 
+                    {
+                        if (AffrayChallenger[i]) 
+                        {
                             Creature* pCreature = (Creature*)Unit::GetUnit((*m_creature), AffrayChallenger[i]);
-                            if((!pCreature || (!pCreature->isAlive())) && !Challenger_down[i]) {
-                                DoYell(SAY_TWIGGY_FLATHEAD_DOWN,LANG_UNIVERSAL,NULL);
+                            if((!pCreature || (!pCreature->isAlive())) && !Challenger_down[i]) 
+                            {
+                                DoScriptText(SAY_TWIGGY_FLATHEAD_DOWN, m_creature);
                                 Challenger_down[i] = true;
                             }
                         }
@@ -317,17 +333,20 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                     Challenger_checker = 1000;
                 } else Challenger_checker -= diff;
 
-                if(Wave_Timer < diff) {
-                    if (AffrayChallenger[Wave] && Wave < 6 && !EventBigWill) {
-                        DoYell(SAY_TWIGGY_FLATHEAD_FRAY,LANG_UNIVERSAL,NULL);
+                if(Wave_Timer < diff) 
+                {
+                    if (AffrayChallenger[Wave] && Wave < 6 && !EventBigWill) 
+                    {
+                        DoScriptText(SAY_TWIGGY_FLATHEAD_FRAY, m_creature);
                         Creature* pCreature = (Creature*)Unit::GetUnit((*m_creature), AffrayChallenger[Wave]);
-                        if(pCreature && (pCreature->isAlive())) {
+                        if(pCreature && (pCreature->isAlive())) 
+                        {
                             pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            pCreature->HandleEmoteCommand(15);
+                            pCreature->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
                             pCreature->setFaction(14);
                             ((CreatureAI*)pCreature->AI())->AttackStart(pWarrior);
-                            Wave++;
+                            ++Wave;
                             Wave_Timer = 20000;
                         }
                     }
@@ -338,16 +357,18 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                             //pCreature->GetMotionMaster()->MovePoint(0, -1693, -4343, 4.32);
                             //pCreature->GetMotionMaster()->MovePoint(1, -1684, -4333, 2.78);
                             pCreature->GetMotionMaster()->MovePoint(2, -1682, -4329, 2.79);
-                            //pCreature->HandleEmoteCommand(15);
-                            pCreature->HandleEmoteCommand(27);
+                            //pCreature->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+                            pCreature->HandleEmoteCommand(EMOTE_STATE_READYUNARMED);
                             EventBigWill = true;
                             Wave_Timer = 1000;
                         }
                     }
-                    else if (Wave >= 6 && EventBigWill && BigWill) {
+                    else if (Wave >= 6 && EventBigWill && BigWill) 
+                    {
                         Creature* pCreature = (Creature*)Unit::GetUnit((*m_creature), BigWill);
-                        if (!pCreature || !pCreature->isAlive()) {
-                            DoYell(SAY_TWIGGY_FLATHEAD_OVER,LANG_UNIVERSAL,NULL);
+                        if (!pCreature || !pCreature->isAlive()) 
+                        {
+                            DoScriptText(SAY_TWIGGY_FLATHEAD_OVER, m_creature);
                             EventInProgress = false;
                             EventBigWill = false;
                             EventGrate = false;
@@ -360,25 +381,26 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
         }
     }
 };
+
 CreatureAI* GetAI_npc_twiggy_flathead(Creature *_Creature)
 {
     return new npc_twiggy_flatheadAI (_Creature);
 }
 
 /*#####
-## npc_wizzlecrank_shredder	 NOTE: Part2 will be in ACID
+## npc_wizzlecrank_shredder
 #####*/
 
-#define SAY_PROGRESS_1	"Alright, alright I think I can figure out how to operate this thing..."
-#define SAY_PROGRESS_2	"Arrrgh! This isn't right!"
-#define SAY_PROGRESS_3	"Okay, I think I've got it, now. Follow me, $N!"
+#define SAY_PROGRESS_1	-1000272
+#define SAY_PROGRESS_2	-1000273
+#define SAY_PROGRESS_3	-1000274
 
-#define SAY_MERCENARY_4	"There's the stolen shredder! Stop it or Lugwizzle will have our hides!"
+#define SAY_MERCENARY_4	-1000275
 
-#define SAY_PROGRESS_5	"Looks like we're out of woods, eh? Wonder what this does..."
-#define SAY_PROGRESS_6	"Come on, don't break down on me now!"
-#define SAY_PROGRESS_7	"That was a close one! Well, let's get going, it's still a ways to Ratchet!"
-#define SAY_PROGRESS_8	"Hmm... I don't think this blinking red light is a good thing..."
+#define SAY_PROGRESS_5	-1000276
+#define SAY_PROGRESS_6	-1000277
+#define SAY_PROGRESS_7	-1000278
+#define SAY_PROGRESS_8	-1000279
 
 #define QUEST_ESCAPE	863
 #define NPC_PILOT		3451
@@ -387,6 +409,8 @@ CreatureAI* GetAI_npc_twiggy_flathead(Creature *_Creature)
 struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
 {
 	npc_wizzlecrank_shredderAI(Creature* c) : npc_escortAI(c) {Reset();}
+
+    bool Completed;
 
 	void WaypointReached(uint32 i)
 	{
@@ -397,27 +421,28 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
 
 		switch(i)
 		{
-		case 0: DoSay(SAY_PROGRESS_1, LANG_UNIVERSAL, NULL);
+		case 0: DoScriptText(SAY_PROGRESS_1, m_creature);
 			m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
-		case 1: DoSay(SAY_PROGRESS_2, LANG_UNIVERSAL, NULL); break;
-		case 10: DoSay(SAY_PROGRESS_3, LANG_UNIVERSAL, player);
+		case 1: DoScriptText(SAY_PROGRESS_2, m_creature); break;
+		case 10: DoScriptText(SAY_PROGRESS_3, m_creature, player);
 			m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
 		case 20:{
 			Unit* Mercenary = FindCreature(MOB_MERCENARY, 99);
 			if(Mercenary)
 			{
-				((Creature*)Mercenary)->Yell(SAY_MERCENARY_4, LANG_UNIVERSAL, NULL);
+				DoScriptText(SAY_MERCENARY_4, Mercenary);
 				((Creature*)Mercenary)->AI()->AttackStart(m_creature);
 				AttackStart(Mercenary);
 			}
 				}break;
-		case 21: DoSay(SAY_PROGRESS_5, LANG_UNIVERSAL, NULL);
+		case 21: DoScriptText(SAY_PROGRESS_5, m_creature);
 			m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
-		case 28: DoSay(SAY_PROGRESS_6, LANG_UNIVERSAL, NULL); break;
-		case 29: DoSay(SAY_PROGRESS_7, LANG_UNIVERSAL, NULL); break;
-		case 30: DoSay(SAY_PROGRESS_8, LANG_UNIVERSAL, NULL); break;
+		case 28: DoScriptText(SAY_PROGRESS_6, m_creature); break;
+		case 29: DoScriptText(SAY_PROGRESS_7, m_creature); break;
+		case 30: DoScriptText(SAY_PROGRESS_8, m_creature); break;
 		case 31: m_creature->SummonCreature(NPC_PILOT, 1088.77, -2985.39, 91.84, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 300000);
 			m_creature->setDeathState(JUST_DIED);
+            Completed = true;
 			if (player && player->GetTypeId() == TYPEID_PLAYER)
                     ((Player*)player)->GroupEventHappens(QUEST_ESCAPE, m_creature);
 			break;																	   
@@ -427,13 +452,15 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
 	void Reset()
 	{
 		m_creature->setDeathState(ALIVE);
+        Completed = false;
+        m_creature->setFaction(69);
 	}
 
 	void Aggro(Unit* who){}
 
 	void JustDied(Unit* killer)
 	{
-		if (PlayerGUID)
+		if (PlayerGUID && !Completed)
         {
 			Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
             if (player)
@@ -461,8 +488,8 @@ CreatureAI* GetAI_npc_wizzlecrank_shredderAI(Creature *_Creature)
 {
 	npc_wizzlecrank_shredderAI* thisAI = new npc_wizzlecrank_shredderAI(_Creature);
 
-	thisAI->AddWaypoint(0, 1109.15, -3104.11, 82.41, 6000);//say1 spw
-	thisAI->AddWaypoint(1, 1105.39, -3102.86, 82.74, 2000);//say2 crazy running
+	thisAI->AddWaypoint(0, 1109.15, -3104.11, 82.41, 6000);
+	thisAI->AddWaypoint(1, 1105.39, -3102.86, 82.74, 2000);
 	thisAI->AddWaypoint(2, 1104.97, -3108.52, 83.10, 1000);
 	thisAI->AddWaypoint(3, 1110.01, -3110.48, 82.81, 1000);
 	thisAI->AddWaypoint(4, 1111.72, -3103.03, 82.21, 1000);
@@ -471,7 +498,7 @@ CreatureAI* GetAI_npc_wizzlecrank_shredderAI(Creature *_Creature)
 	thisAI->AddWaypoint(7, 1112.55, -3106.56, 82.31, 1000);
 	thisAI->AddWaypoint(8, 1108.12, -3111.04, 82.99, 1000);
 	thisAI->AddWaypoint(9, 1109.32, -3100.39, 82.08, 1000);
-	thisAI->AddWaypoint(10, 1109.32, -3100.39, 82.08, 6000);//end of crazy running
+	thisAI->AddWaypoint(10, 1109.32, -3100.39, 82.08, 6000);
 	thisAI->AddWaypoint(11, 1098.92, -3095.14, 82.97);
 	thisAI->AddWaypoint(12, 1100.94, -3082.60, 82.83);
 	thisAI->AddWaypoint(13, 1101.12, -3068.83, 82.53);
@@ -480,19 +507,19 @@ CreatureAI* GetAI_npc_wizzlecrank_shredderAI(Creature *_Creature)
 	thisAI->AddWaypoint(16, 1098.22, -3027.84, 83.79);
 	thisAI->AddWaypoint(17, 1109.51, -3015.92, 85.73);
 	thisAI->AddWaypoint(18, 1119.87, -3007.21, 87.08);
-	thisAI->AddWaypoint(19, 1130.23, -3002.49, 91.27, 5000);//twice
-	thisAI->AddWaypoint(20, 1130.23, -3002.49, 91.27, 3000);//mercenary
-	thisAI->AddWaypoint(21, 1130.23, -3002.49, 91.27, 4000);//say
-	thisAI->AddWaypoint(22, 1129.73, -2985.89, 92.46);//crazy running
+	thisAI->AddWaypoint(19, 1130.23, -3002.49, 91.27, 5000);
+	thisAI->AddWaypoint(20, 1130.23, -3002.49, 91.27, 3000);
+	thisAI->AddWaypoint(21, 1130.23, -3002.49, 91.27, 4000);
+	thisAI->AddWaypoint(22, 1129.73, -2985.89, 92.46);
 	thisAI->AddWaypoint(23, 1124.10, -2983.29, 92.81);
 	thisAI->AddWaypoint(24, 1111.74, -2992.38, 91.59);
 	thisAI->AddWaypoint(25, 1111.06, -2976.54, 91.81);
 	thisAI->AddWaypoint(26, 1099.91, -2991.17, 91.67);
 	thisAI->AddWaypoint(27, 1096.32, -2981.55, 91.73);
-	thisAI->AddWaypoint(28, 1091.28, -2985.82, 91.74, 4000);//6
-	thisAI->AddWaypoint(29, 1091.28, -2985.82, 91.74, 3000);//7
-	thisAI->AddWaypoint(30, 1091.28, -2985.82, 91.74, 7000);//8
-	thisAI->AddWaypoint(31, 1091.28, -2985.82, 91.74, 3000);//justdied summon creature
+	thisAI->AddWaypoint(28, 1091.28, -2985.82, 91.74, 4000);
+	thisAI->AddWaypoint(29, 1091.28, -2985.82, 91.74, 3000);
+	thisAI->AddWaypoint(30, 1091.28, -2985.82, 91.74, 7000);
+	thisAI->AddWaypoint(31, 1091.28, -2985.82, 91.74, 3000);
 
 	return (CreatureAI*)thisAI;
 }
