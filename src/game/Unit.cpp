@@ -4673,8 +4673,13 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
                 {
                     // remove auras only for non-aoe spells or when chanelled aura is removed
                     // because aoe spells don't require aura on target to continue
-                    caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->cancel(false);
-                    channeled = true;
+                    if (AurSpellInfo->EffectApplyAuraName[Aur->GetEffIndex()]!=SPELL_AURA_PERIODIC_DUMMY 
+                        && AurSpellInfo->EffectApplyAuraName[Aur->GetEffIndex()]!= SPELL_AURA_DUMMY)
+                        //don't stop channeling of scripted spells (this is actually a hack)
+                    {
+                        caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->cancel(false);
+                        channeled = true;
+                    }
                 }
             }
         }
