@@ -32,16 +32,16 @@ EndContentData */
 ## npc_professor_phizzlethorpe
 ######*/
 
-#define SAY_PROGRESS_1		"Ok, $N. Follow me to the cave where I'll attempt to harness the power of the rune stone into these goggles."
-#define SAY_PROGRESS_2		"I discovered this cave on our first day here. I believe the energy in the stone can be used to our advantage."
-#define SAY_PROGRESS_3		"I'll begin drawing energy from the stone. Your job, $N, is to defend me. This place is cursed... trust me."
-#define EMOTE_PROGRESS_4	"begins tinkering with the goggles before the stone."
-#define SAY_AGGRO			"Help!!! Get these things off me so I can get my work done!"
-#define SAY_PROGRESS_5		"Almost done! Just a little longer!"
-#define SAY_PROGRESS_6		"I've done it! I have harnessed the power of the stone into the goggles! Let's get out of here!"
-#define SAY_PROGRESS_7		"Phew! Glad to be back from that creepy cave."
-#define EMOTE_PROGRESS_8	"hands one glowing goggles over to Doctor Draxlegauge."
-#define SAY_PROGRESS_9		"Doctor Draxlegauge will give you further instructions, $N. Many thanks for your help!"
+#define SAY_PROGRESS_1		-1000235 
+#define SAY_PROGRESS_2		-1000236
+#define SAY_PROGRESS_3		-1000237 
+#define EMOTE_PROGRESS_4	-1000238 
+#define SAY_AGGRO			-1000239 
+#define SAY_PROGRESS_5		-1000240
+#define SAY_PROGRESS_6		-1000241
+#define SAY_PROGRESS_7		-1000242
+#define EMOTE_PROGRESS_8	-1000243
+#define SAY_PROGRESS_9		-1000244
 
 #define QUEST_SUNKEN_TREASURE	665
 #define MOB_VENGEFUL_SURGE	2776
@@ -50,29 +50,32 @@ struct TRINITY_DLL_DECL npc_professor_phizzlethorpeAI : public npc_escortAI
 {
 	npc_professor_phizzlethorpeAI(Creature *c) : npc_escortAI(c) {Reset();}
 
+    bool Completed;
+
 	void WaypointReached(uint32 i)
 	{
 		Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
 
 		switch(i)
 		{
-		case 4:DoSay(SAY_PROGRESS_2, LANG_UNIVERSAL, player, true);break;
-		case 5:DoSay(SAY_PROGRESS_3, LANG_UNIVERSAL, player, true);break;
-		case 8:DoTextEmote(EMOTE_PROGRESS_4, NULL);break;
+		case 4:DoScriptText(SAY_PROGRESS_2, m_creature, player);break;
+		case 5:DoScriptText(SAY_PROGRESS_3, m_creature, player);break;
+		case 8:DoScriptText(EMOTE_PROGRESS_4, m_creature);break;
 		case 9: 
 			{
 			m_creature->SummonCreature(MOB_VENGEFUL_SURGE, -2052.96, -2142.49, 20.15, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
 			m_creature->SummonCreature(MOB_VENGEFUL_SURGE, -2052.96, -2142.49, 20.15, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
 			break;
 			}
-		case 10:DoSay(SAY_PROGRESS_5, LANG_UNIVERSAL, player, true);break;
-		case 11:DoSay(SAY_PROGRESS_6, LANG_UNIVERSAL, player, true);break;
-		case 19:DoSay(SAY_PROGRESS_7, LANG_UNIVERSAL, player, true); break;
+		case 10:DoScriptText(SAY_PROGRESS_5, m_creature, player);break;
+		case 11:DoScriptText(SAY_PROGRESS_6, m_creature, player);break;
+		case 19:DoScriptText(SAY_PROGRESS_7, m_creature, player); break;
 		case 20:
-			DoTextEmote(EMOTE_PROGRESS_8, NULL);
-			DoSay(SAY_PROGRESS_9, LANG_UNIVERSAL, player, true);
+			DoScriptText(EMOTE_PROGRESS_8, m_creature);
+			DoScriptText(SAY_PROGRESS_9, m_creature, player);
+            Completed = true;
 			if(player)
-			((Player*)player)->GroupEventHappens(QUEST_SUNKEN_TREASURE, m_creature);
+                ((Player*)player)->GroupEventHappens(QUEST_SUNKEN_TREASURE, m_creature);
 			break;
 		}
 	}
@@ -82,16 +85,20 @@ struct TRINITY_DLL_DECL npc_professor_phizzlethorpeAI : public npc_escortAI
 		summoned->AI()->AttackStart(m_creature);
 	}
 
-	void Reset(){}
+	void Reset()
+    {
+        Completed = true;
+        m_creature->setFaction(35);
+    }
 
 	void Aggro(Unit* who)
 	{
-		DoSay(SAY_AGGRO, LANG_UNIVERSAL, NULL);
+		DoScriptText(SAY_AGGRO, m_creature, NULL);
 	}
 
 	void JustDied(Unit* killer)
 	{
-		if (PlayerGUID)
+		if (PlayerGUID && !Completed )
 		{
 			Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
 			if (player)
@@ -109,7 +116,7 @@ bool QuestAccept_npc_professor_phizzlethorpe(Player* player, Creature* creature,
 {
     if (quest->GetQuestId() == QUEST_SUNKEN_TREASURE)
     {
-		creature->Say(SAY_PROGRESS_1, LANG_UNIVERSAL, player->GetGUID());
+		DoScriptText(SAY_PROGRESS_1, creature, player);
         ((npc_escortAI*)(creature->AI()))->Start(false, false, false, player->GetGUID());
 		creature->setFaction(113);
     }
