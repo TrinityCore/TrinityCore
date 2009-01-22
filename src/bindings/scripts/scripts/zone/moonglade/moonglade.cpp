@@ -36,6 +36,9 @@ EndContentData */
 ## npc_bunthen_plainswind
 ######*/
 
+#define GOSSIP_BP1 "Do you know where I can find Half Pendant of Aquatic Endurance?"
+#define GOSSIP_BP2 "I'd like to fly to Thunder Bluff."
+
 bool GossipHello_npc_bunthen_plainswind(Player *player, Creature *_Creature)
 {
     if(player->getClass() != CLASS_DRUID)
@@ -43,16 +46,16 @@ bool GossipHello_npc_bunthen_plainswind(Player *player, Creature *_Creature)
     else if(player->GetTeam() != HORDE)
     {
         if(player->GetQuestStatus(272) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM( 0, "Do you know where I can find Half Pendant of Aquatic Endurance?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            player->ADD_GOSSIP_ITEM( 0, GOSSIP_BP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
 
         player->SEND_GOSSIP_MENU(4917,_Creature->GetGUID());
     }
     else if(player->getClass() == CLASS_DRUID && player->GetTeam() == HORDE)
     {
-        player->ADD_GOSSIP_ITEM( 0, "I'd like to fly to Thunder Bluff.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        player->ADD_GOSSIP_ITEM( 0, GOSSIP_BP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
         if(player->GetQuestStatus(30) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM( 0, "Do you know where I can find Half Pendant of Aquatic Endurance?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+            player->ADD_GOSSIP_ITEM( 0, GOSSIP_BP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
 
         player->SEND_GOSSIP_MENU(4918,_Creature->GetGUID());
     }
@@ -141,6 +144,8 @@ bool GossipSelect_npc_great_bear_spirit(Player *player, Creature *_Creature, uin
 ## npc_silva_filnaveth
 ######*/
 
+#define GOSSIP_SF1 "Do you know where I can find Half Pendant of Aquatic Agility?"
+#define GOSSIP_SF2 "I'd like to fly to Rut'theran Village."
 bool GossipHello_npc_silva_filnaveth(Player *player, Creature *_Creature)
 {
     if(player->getClass() != CLASS_DRUID)
@@ -148,16 +153,16 @@ bool GossipHello_npc_silva_filnaveth(Player *player, Creature *_Creature)
     else if(player->GetTeam() != ALLIANCE)
     {
         if(player->GetQuestStatus(30) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM( 0, "Do you know where I can find Half Pendant of Aquatic Agility?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            player->ADD_GOSSIP_ITEM( 0, GOSSIP_SF1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
 
         player->SEND_GOSSIP_MENU(4915,_Creature->GetGUID());
     }
     else if(player->getClass() == CLASS_DRUID && player->GetTeam() == ALLIANCE)
     {
-        player->ADD_GOSSIP_ITEM( 0, "I'd like to fly to Rut'theran Village.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        player->ADD_GOSSIP_ITEM( 0, GOSSIP_SF2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
         if(player->GetQuestStatus(272) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM( 0, "Do you know where I can find Half Pendant of Aquatic Agility?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+            player->ADD_GOSSIP_ITEM( 0, GOSSIP_SF1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
 
         player->SEND_GOSSIP_MENU(4914,_Creature->GetGUID());
     }
@@ -243,6 +248,7 @@ float Clintar_spirit_WP[41][5] =
 };
 
 #define ASPECT_RAVEN 22915
+
 #define ASPECT_RAVEN_SUMMON_X 7472.96
 #define ASPECT_RAVEN_SUMMON_Y -3074.18
 #define ASPECT_RAVEN_SUMMON_Z 427.566
@@ -250,13 +256,14 @@ float Clintar_spirit_WP[41][5] =
 #define CLINTAR_SPIRIT_SUMMON_Y -3122.5632
 #define CLINTAR_SPIRIT_SUMMON_Z 438.9842
 #define CLINTAR_SPIRIT_SUMMON_O 0.8594
-#define CLINTAR_SPIRIT_SAY_START "A shadowy, sinister presence has invader the Emerald Dream. Its power is poised to spill over into our world, $N. We must oppose it! That's why I cannot accompany you in person."
-#define CLINTAR_SPIRIT_SAY_UNDER_ATTACK_1 "The Emerald Dream will never be yours!"
-#define CLINTAR_SPIRIT_SAY_UNDER_ATTACK_2 "Begone from this place!"
-#define CLINTAR_SPIRIT_SAY_GET_ONE "That's the first relic, but there are still two more. Follow me, $N."
-#define CLINTAR_SPIRIT_SAY_GET_TWO "I've recovered the second relic. Take a moment to rest, and then we'll continue to the last reliquary."
-#define CLINTAR_SPIRIT_SAY_GET_THREE "We have all three of the relics, but my energy is rapidly fading. We must make our way back to Dreamwarden Lurosa! He will let you know what to do next."
-#define CLINTAR_SPIRIT_SAY_GET_FINAL "Lurosa, I am entrusting the Relics of Aviana to $N, who will take them to Morthis Whisperwing. I must return completely to the Emerald Dream now. Do not let $N fail!"
+
+#define CLINTAR_SPIRIT_SAY_START -1000286
+#define CLINTAR_SPIRIT_SAY_UNDER_ATTACK_1 -1000287
+#define CLINTAR_SPIRIT_SAY_UNDER_ATTACK_2 -1000288
+#define CLINTAR_SPIRIT_SAY_GET_ONE -1000289
+#define CLINTAR_SPIRIT_SAY_GET_TWO -1000290
+#define CLINTAR_SPIRIT_SAY_GET_THREE -1000291
+#define CLINTAR_SPIRIT_SAY_GET_FINAL -1000292
 
 struct TRINITY_DLL_DECL npc_clintar_spiritAI : public npc_escortAI
 {
@@ -289,6 +296,7 @@ public:
     {
         if(!PlayerGUID)
             return;
+
         Player *player = (Player *)Unit::GetUnit((*m_creature), PlayerGUID);
         if(player && player->GetQuestStatus(10965) == QUEST_STATUS_INCOMPLETE)
         {
@@ -314,12 +322,8 @@ public:
         uint32 rnd = rand()%2;
         switch(rnd)
         {
-            case 0:
-                m_creature->Say(CLINTAR_SPIRIT_SAY_UNDER_ATTACK_1, 0, who->GetGUID());
-                break;
-            case 1:
-                m_creature->Say(CLINTAR_SPIRIT_SAY_UNDER_ATTACK_2, 0,who->GetGUID());
-                break;
+            case 0: DoScriptText(CLINTAR_SPIRIT_SAY_UNDER_ATTACK_1, m_creature, who); break;
+            case 1: DoScriptText(CLINTAR_SPIRIT_SAY_UNDER_ATTACK_2, m_creature, who); break;
         }
     }
 
@@ -329,7 +333,7 @@ public:
             return;
         if(player->GetQuestStatus(10965) == QUEST_STATUS_INCOMPLETE)
         {
-            for(uint8 i = 0; i < 41; i++)
+            for(uint8 i = 0; i < 41; ++i)
             {
                 AddWaypoint(i, Clintar_spirit_WP[i][0], Clintar_spirit_WP[i][1], Clintar_spirit_WP[i][2], (uint32)Clintar_spirit_WP[i][4]);
             }
@@ -392,7 +396,7 @@ public:
                             break;
                         case 1:
                             m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
-                            m_creature->Say(CLINTAR_SPIRIT_SAY_GET_ONE,0,PlayerGUID);
+                            DoScriptText(CLINTAR_SPIRIT_SAY_GET_ONE, m_creature, player);
                             Event_onWait = false;
                             break;
                     }
@@ -415,7 +419,7 @@ public:
                     switch(Step)
                     {
                         case 0:
-                            m_creature->Say(CLINTAR_SPIRIT_SAY_GET_TWO,0,PlayerGUID);
+                            DoScriptText(CLINTAR_SPIRIT_SAY_GET_TWO, m_creature, player);
                             Event_Timer = 15000;
                             Step = 1;
                             break;
@@ -462,7 +466,7 @@ public:
                     switch(Step)
                     {
                         case 0:
-                            m_creature->Say(CLINTAR_SPIRIT_SAY_GET_THREE, 0, PlayerGUID);
+                            DoScriptText(CLINTAR_SPIRIT_SAY_GET_THREE, m_creature, player);
                             Event_Timer = 4000;
                             Step = 1;
                             break;
@@ -476,7 +480,7 @@ public:
                     {
                         case 0:
                             m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, 2);
-                            m_creature->Say(CLINTAR_SPIRIT_SAY_GET_FINAL, 0, PlayerGUID);
+                            DoScriptText(CLINTAR_SPIRIT_SAY_GET_FINAL, m_creature, player);
 							player->CompleteQuest(10965);
                             Event_Timer = 1500;
                             Step = 1;
