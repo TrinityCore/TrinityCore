@@ -24,7 +24,7 @@ EndScriptData */
 /* ContentData
 npc_beaten_corpse
 npc_sputtervalve
-npc_taskmaster_fizzule      remove hack when Trinity implement feature/detect spell kind to not aggro
+npc_taskmaster_fizzule
 npc_twiggy_flathead
 npc_wizzlecrank_shredder
 EndContentData */

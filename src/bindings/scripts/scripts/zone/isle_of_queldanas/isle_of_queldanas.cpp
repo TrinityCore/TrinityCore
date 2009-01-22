@@ -34,13 +34,15 @@ EndContentData */
 ## npc_ayren_cloudbreaker
 ######*/
 
+#define GOSSIP_FLY1 "Speaking of action, I've been ordered to undertake an air strike."
+#define GOSSIP_FLY2 "I need to intercept the Dawnblade reinforcements."
 bool GossipHello_npc_ayren_cloudbreaker(Player *player, Creature *_Creature)
 {
     if( player->GetQuestStatus(11532) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(11533) == QUEST_STATUS_INCOMPLETE)
-        player->ADD_GOSSIP_ITEM(0,"Speaking of action, I've been ordered to undertake an air strike.",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_FLY1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
     if( player->GetQuestStatus(11542) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(11543) == QUEST_STATUS_INCOMPLETE)
-        player->ADD_GOSSIP_ITEM(0,"I need to intercept the Dawnblade reinforcements.",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+2);
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_FLY2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
 
     player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(),_Creature->GetGUID());
     return true;
@@ -65,8 +67,8 @@ bool GossipSelect_npc_ayren_cloudbreaker(Player *player, Creature *_Creature, ui
 ## npc_converted_sentry
 ######*/
 
-#define SAY_CONVERTED_1         "Deployment sucessful. Trespassers will be neutralized."
-#define SAY_CONVERTED_2         "Objective acquired. Initiating security routines."
+#define SAY_CONVERTED_1         -1000284
+#define SAY_CONVERTED_2         -1000284
 
 #define SPELL_CONVERT_CREDIT    45009
 
@@ -95,10 +97,10 @@ struct TRINITY_DLL_DECL npc_converted_sentryAI : public ScriptedAI
             if( Timer <= diff )
             {
                 uint32 i = urand(1,2);
-                if( i=1 ) DoSay(SAY_CONVERTED_1,LANG_UNIVERSAL,NULL);
-                else DoSay(SAY_CONVERTED_2,LANG_UNIVERSAL,NULL);
+                if( i=1 ) DoScriptText(SAY_CONVERTED_1, m_creature);
+                else DoScriptText(SAY_CONVERTED_2, m_creature);
 
-                DoCast(m_creature,SPELL_CONVERT_CREDIT);
+                DoCast(m_creature, SPELL_CONVERT_CREDIT);
                 ((Pet*)m_creature)->SetDuration(7500);
                 Credit = true;
             }else Timer -= diff;
@@ -114,10 +116,12 @@ CreatureAI* GetAI_npc_converted_sentry(Creature *_Creature)
 ## npc_unrestrained_dragonhawk
 ######*/
 
+#define GOSSIP_UD "<Ride the dragonhawk to Sun's Reach>"
+
 bool GossipHello_npc_unrestrained_dragonhawk(Player *player, Creature *_Creature)
 {
     if( player->GetQuestStatus(11542) == QUEST_STATUS_COMPLETE || player->GetQuestStatus(11543) == QUEST_STATUS_COMPLETE )
-        player->ADD_GOSSIP_ITEM(0,"<Ride the dragonhawk to Sun's Reach>",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_UD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
     player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(),_Creature->GetGUID());
     return true;
