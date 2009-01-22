@@ -28,6 +28,7 @@ EndScriptData */
 ######*/
 
 #define GOSSIP_HELLO "Buy somethin', will ya?"
+
 bool GossipHello_npc_gregan_brewspewer(Player *player, Creature *_Creature)
 {
     if( _Creature->isQuestGiver() )
