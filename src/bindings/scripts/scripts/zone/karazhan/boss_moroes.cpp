@@ -276,13 +276,13 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
         {
             for (uint8 i = 0; i < 4; ++i)
             {
-                Unit* Temp = NULL;
+                Creature* Temp = NULL;
                 if (AddGUID[i])
                 {
-                    Temp = Unit::GetUnit((*m_creature),AddGUID[i]);
+                    Temp = (Creature*)Unit::GetUnit((*m_creature),AddGUID[i]);
                     if (Temp && Temp->isAlive())
                         if (!Temp->SelectHostilTarget() || !Temp->getVictim() )
-                            ((Creature*)Temp)->AI()->AttackStart(m_creature->getVictim());
+                            Temp->AI()->AttackStart(m_creature->getVictim());
                 }
             }
             CheckAdds_Timer = 5000;
