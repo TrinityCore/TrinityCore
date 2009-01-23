@@ -104,7 +104,8 @@ bool ItemUse_item_only_for_flight(Player *player, Item* _Item, SpellCastTargets 
 bool ItemUse_item_attuned_crystal_cores(Player *player, Item* _Item, SpellCastTargets const& targets)
 {
     if( targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId()==TYPEID_UNIT &&
-        targets.getUnitTarget()->GetEntry() == 24972 && targets.getUnitTarget()->isDead() )
+        targets.getUnitTarget()->GetEntry() == 24972 && targets.getUnitTarget()->isDead() &&
+		(player->GetQuestStatus(11524) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(11525) == QUEST_STATUS_INCOMPLETE) )
 	{
 		((Creature*)targets.getUnitTarget())->RemoveCorpse();
 		return false;

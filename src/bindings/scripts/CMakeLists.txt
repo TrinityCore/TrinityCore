@@ -157,8 +157,11 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/hellfire_citadel/blood_furnace/boss_broggok.cpp
    scripts/zone/hellfire_citadel/blood_furnace/boss_kelidan_the_breaker.cpp
    scripts/zone/hellfire_citadel/blood_furnace/boss_the_maker.cpp
+   scripts/zone/hellfire_citadel/blood_furnace/instance_blood_furnace.cpp
+   scripts/zone/hellfire_citadel/blood_furnace/def_blood_furnace.h
    scripts/zone/hellfire_citadel/hellfire_ramparts/boss_omor_the_unscarred.cpp
    scripts/zone/hellfire_citadel/hellfire_ramparts/boss_watchkeeper_gargolmar.cpp
+   scripts/zone/hellfire_citadel/hellfire_ramparts/boss_vazruden_the_herald.cpp
    scripts/zone/hellfire_citadel/magtheridons_lair/boss_magtheridon.cpp
    scripts/zone/hellfire_citadel/magtheridons_lair/def_magtheridons_lair.h
    scripts/zone/hellfire_citadel/magtheridons_lair/instance_magtheridons_lair.cpp
@@ -376,6 +379,8 @@ SET(trinityscript_LIB_SRCS
 )
 
 add_library(trinityscript SHARED ${trinityscript_LIB_SRCS})
+
+add_definitions(-D_TRINITY_SCRIPT_CONFIG='"${CONF_DIR}/trinitycore.conf"')
 
 target_link_libraries(trinityscript)
 

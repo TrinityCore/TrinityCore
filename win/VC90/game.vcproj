@@ -886,6 +886,16 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="AuctionHouseBot"
+			>
+			<File
+				RelativePath="..\..\src\game\AuctionHouseBot.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\game\AuctionHouseBot.h">
+			</File>
+		</Filter>
+		<Filter
 			Name="Object"
 			>
 			<File

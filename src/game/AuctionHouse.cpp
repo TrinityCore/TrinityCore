@@ -28,6 +28,7 @@
 #include "UpdateMask.h"
 #include "AuctionHouseObject.h"
 #include "Util.h"
+#include "AuctionHouseBot.h"
 
 //please DO NOT use iterator++, because it is slower than ++iterator!!!
 //post-incrementation is always slower than pre-incrementation !
@@ -171,7 +172,10 @@ void WorldSession::SendAuctionOutbiddedMail(AuctionEntry *auction, uint32 newPri
         std::ostringstream msgAuctionOutbiddedSubject;
         msgAuctionOutbiddedSubject << auction->item_template << ":0:" << AUCTION_OUTBIDDED;
 
-        if (oldBidder)
+        if (oldBidder && !_player)
+             oldBidder->GetSession()->SendAuctionBidderNotification( auction->location, auction->Id, AHBplayerGUID, newPrice, objmgr.GetAuctionOutBid(auction->bid), auction->item_template);
+
+        if (oldBidder && _player)
             oldBidder->GetSession()->SendAuctionBidderNotification( auction->location, auction->Id, _player->GetGUID(), newPrice, objmgr.GetAuctionOutBid(auction->bid), auction->item_template);
 
         WorldSession::SendMailTo(oldBidder, MAIL_AUCTION, MAIL_STATIONERY_AUCTION, auction->location, auction->bidder, msgAuctionOutbiddedSubject.str(), 0, NULL, auction->bid, 0, MAIL_CHECK_MASK_NONE);

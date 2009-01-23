@@ -86,7 +86,10 @@ struct TRINITY_DLL_DECL boss_aeonusAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
 
 		 if (pInstance)
+         {
 			 pInstance->SetData(TYPE_RIFT,DONE);
+             pInstance->SetData(TYPE_MEDIVH,DONE);//FIXME: later should be removed 
+         }
     }
 
     void KilledUnit(Unit *victim)

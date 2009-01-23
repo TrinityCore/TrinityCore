@@ -51,6 +51,7 @@
 #include "BattleGroundMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "TemporarySummon.h"
+#include "AuctionHouseBot.h"
 #include "WaypointMovementGenerator.h"
 #include "VMapFactory.h"
 #include "GlobalEvents.h"
@@ -1453,6 +1454,9 @@ void World::SetInitialWorldSettings()
     uint32 nextGameEvent = gameeventmgr.Initialize();
     m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    //depend on next event
 
+    sLog.outString("Initialize AuctionHouseBot...");
+    AuctionHouseBotInit();
+
     sLog.outString( "WORLD: World initialized" );
 }
 
@@ -1564,7 +1568,8 @@ void World::Update(uint32 diff)
     /// <ul><li> Handle auctions when the timer has passed
     if (m_timers[WUPDATE_AUCTIONS].Passed())
     {
-        m_timers[WUPDATE_AUCTIONS].Reset();
+        AuctionHouseBot();
+       m_timers[WUPDATE_AUCTIONS].Reset();
 
         ///- Update mails (return old mails with item, or delete them)
         //(tested... works on win)

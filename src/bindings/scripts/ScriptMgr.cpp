@@ -299,6 +299,7 @@ extern void AddSC_instance_gruuls_lair();
 extern void AddSC_boss_broggok();
 extern void AddSC_boss_kelidan_the_breaker();
 extern void AddSC_boss_the_maker();
+extern void AddSC_instance_blood_furnace();
 
 //--Magtheridon's Lair
 extern void AddSC_boss_magtheridon();
@@ -313,6 +314,7 @@ extern void AddSC_instance_shattered_halls();
 //--Ramparts
 extern void AddSC_boss_watchkeeper_gargolmar();
 extern void AddSC_boss_omor_the_unscarred();
+extern void AddSC_boss_vazruden_the_herald();
 
 //Hellfire Peninsula
 extern void AddSC_boss_doomlordkazzak();
@@ -1503,6 +1505,7 @@ void ScriptsInit()
     AddSC_boss_broggok();
     AddSC_boss_kelidan_the_breaker();
     AddSC_boss_the_maker();
+	AddSC_instance_blood_furnace();
 
     //--Magtheridon's Lair
     AddSC_boss_magtheridon();
@@ -1517,6 +1520,7 @@ void ScriptsInit()
     //--Ramparts
     AddSC_boss_watchkeeper_gargolmar();
     AddSC_boss_omor_the_unscarred();
+    AddSC_boss_vazruden_the_herald();
 
     //Hellfire Peninsula
     AddSC_boss_doomlordkazzak();

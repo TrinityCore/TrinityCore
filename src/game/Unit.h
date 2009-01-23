@@ -1148,7 +1148,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit *dispeler);
         void RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit *stealer);
         void RemoveAurasDueToSpellByCancel(uint32 spellId);
-        void RemoveAurasAtChanneledTarget(SpellEntry const* spellInfo);
+        void RemoveAurasAtChanneledTarget(SpellEntry const* spellInfo, Unit * caster);
         void RemoveNotOwnSingleTargetAuras();
 
         void RemoveSpellsCausingAura(AuraType auraType);
@@ -1275,7 +1275,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void AddThreat(Unit* pVictim, float threat, SpellSchoolMask schoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellEntry const *threatSpell = NULL);
         float ApplyTotalThreatModifier(float threat, SpellSchoolMask schoolMask = SPELL_SCHOOL_MASK_NORMAL);
         void DeleteThreatList();
-        bool SelectHostilTarget();
+        //bool SelectHostilTarget();
         void TauntApply(Unit* pVictim);
         void TauntFadeOut(Unit *taunter);
         ThreatManager& getThreatManager() { return m_ThreatManager; }
@@ -1506,6 +1506,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         uint32 m_reactiveTimer[MAX_REACTIVE];
         uint32 m_regenTimer;
 
+        ThreatManager m_ThreatManager;
     private:
         void SendAttackStop(Unit* victim);                  // only from AttackStop(Unit*)
         //void SendAttackStart(Unit* pVictim);                // only from Unit::AttackStart(Unit*)
@@ -1525,7 +1526,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         Diminishing m_Diminishing;
         // Manage all Units threatening us
-        ThreatManager m_ThreatManager;
+//        ThreatManager m_ThreatManager;
         // Manage all Units that are threatened by us
         HostilRefManager m_HostilRefManager;
 

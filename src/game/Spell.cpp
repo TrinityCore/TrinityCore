@@ -2058,7 +2058,7 @@ void Spell::prepare(SpellCastTargets const* targets, Aura* triggeredByAura)
     }
 }
 
-void Spell::cancel()
+void Spell::cancel(bool report)
 {
     if(m_spellState == SPELL_STATE_FINISHED)
         return;
@@ -2088,7 +2088,7 @@ void Spell::cancel()
             m_caster->RemoveAurasDueToCasterSpell(m_spellInfo->Id, m_caster->GetGUID());
             SendChannelUpdate(0);
             SendInterrupted(0);
-            SendCastResult(SPELL_FAILED_INTERRUPTED);
+            SendCastResult(report ? SPELL_FAILED_INTERRUPTED : SPELL_FAILED_DONT_REPORT);
         } break;
 
         default:
@@ -3687,7 +3687,8 @@ uint8 Spell::CanCast(bool strict)
             // check correctness positive/negative cast target (pet cast real check and cheating check)
             if(IsPositiveSpell(m_spellInfo->Id))
             {
-                if(m_caster->IsHostileTo(target))
+                                                     //dispel positivity is dependant on target, don't check it
+                if(m_caster->IsHostileTo(target) && !IsDispel(m_spellInfo))
                     return SPELL_FAILED_BAD_TARGETS;
             }
             else
@@ -3931,6 +3932,12 @@ uint8 Spell::CanCast(bool strict)
                     // hart version required facing
                     if(m_targets.getUnitTarget() && !m_caster->IsFriendlyTo(m_targets.getUnitTarget()) && !m_caster->HasInArc( M_PI, target ))
                         return SPELL_FAILED_UNIT_NOT_INFRONT;
+                }
+                else if (m_spellInfo->Id == 19938)          // Awaken Peon
+                {
+                    Unit *unit = m_targets.getUnitTarget();
+                    if(!unit || !unit->HasAura(17743, 0))
+                        return SPELL_FAILED_BAD_TARGETS;
                 }
                 break;
             }

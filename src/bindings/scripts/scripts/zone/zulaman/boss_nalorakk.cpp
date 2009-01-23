@@ -395,7 +395,7 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
 
             if(Mangle_Timer < diff)
             {
-                if(!m_creature->getVictim()->HasAura(SPELL_MANGLEEFFECT, 0))
+                if(m_creature->getVictim() && !m_creature->getVictim()->HasAura(SPELL_MANGLEEFFECT, 0))
                 {
                     DoCast(m_creature->getVictim(), SPELL_MANGLE);
                     Mangle_Timer = 1000;

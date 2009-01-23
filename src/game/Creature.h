@@ -635,6 +635,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
 		bool IsFormationLeader() {return (GetDBTableGUIDLow() && GetDBTableGUIDLow() == m_formationID);}
 		uint32 GetFormationID(){return m_formationID;}
 
+        Unit *SelectHostilTarget();
 	protected:
         bool CreateFromProto(uint32 guidlow,uint32 Entry,uint32 team, const CreatureData *data = NULL);
         bool InitEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);

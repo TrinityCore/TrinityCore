@@ -182,6 +182,16 @@
 			<File
 				RelativePath="..\..\src\game\BattleGroundBE.cpp">
 			</File>
+			Name="AuctionHouseBot"
+			>
+			<File
+				RelativePath="..\..\src\game\AuctionHouseBot.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\game\AuctionHouseBot.h">
+			</File>
+		</Filter>
+		<Filter
 			<File
 				RelativePath="..\..\src\game\BattleGroundBE.h">
 			</File>
@@ -190,6 +200,12 @@
 			</File>
 			<File
 				RelativePath="..\..\src\game\BattleGroundDS.h">
+			</File>
+			<File
+				RelativePath="..\..\src\game\AuctionHouseBot.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\game\AuctionHouseBot.h">
 			</File>
 			<File
 				RelativePath="..\..\src\game\BattleGroundEY.cpp">
