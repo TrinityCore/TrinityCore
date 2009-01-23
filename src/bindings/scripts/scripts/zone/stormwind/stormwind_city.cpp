@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Stormwind_City
 SD%Complete: 100
-SDComment: Quest support: 1640, 1447, 4185, 11223 (DB support required for spell 42711). Receive emote General Marcus
+SDComment: Quest support: 1640, 1447, 4185, 11223. Receive emote General Marcus
 SDCategory: Stormwind City
 EndScriptData */
 

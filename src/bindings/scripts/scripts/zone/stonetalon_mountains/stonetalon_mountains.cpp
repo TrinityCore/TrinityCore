@@ -33,6 +33,12 @@ EndContentData */
 ## npc_braug_dimspirit
 ######*/
 
+#define GOSSIP_HBD1 "Ysera"
+#define GOSSIP_HBD2 "Neltharion"
+#define GOSSIP_HBD3 "Nozdormu"
+#define GOSSIP_HBD4 "Alexstrasza"
+#define GOSSIP_HBD5 "Malygos"
+
 bool GossipHello_npc_braug_dimspirit(Player *player, Creature *_Creature)
 {
     if (_Creature->isQuestGiver())
@@ -40,11 +46,11 @@ bool GossipHello_npc_braug_dimspirit(Player *player, Creature *_Creature)
 
     if (player->GetQuestStatus(6627) == QUEST_STATUS_INCOMPLETE)
     {
-        player->ADD_GOSSIP_ITEM( 0, "Ysera", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        player->ADD_GOSSIP_ITEM( 0, "Neltharion", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-        player->ADD_GOSSIP_ITEM( 0, "Nozdormu", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        player->ADD_GOSSIP_ITEM( 0, "Alexstrasza", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        player->ADD_GOSSIP_ITEM( 0, "Malygos", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->ADD_GOSSIP_ITEM( 0, GOSSIP_HBD1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->ADD_GOSSIP_ITEM( 0, GOSSIP_HBD2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+        player->ADD_GOSSIP_ITEM( 0, GOSSIP_HBD3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->ADD_GOSSIP_ITEM( 0, GOSSIP_HBD4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->ADD_GOSSIP_ITEM( 0, GOSSIP_HBD5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
         player->SEND_GOSSIP_MENU(5820, _Creature->GetGUID());
     }
@@ -74,9 +80,9 @@ bool GossipSelect_npc_braug_dimspirit(Player *player, Creature *_Creature, uint3
 ## npc_kaya_flathoof
 ######*/
 
-#define SAY_START	"Let's go before they find out I'm free!"
-#define SAY_AMBUSH	"Look out! We're under attack!"
-#define SAY_END		"Thank you for helping me. I know my way back from here."
+#define SAY_START	-1000347
+#define SAY_AMBUSH	-1000348
+#define SAY_END		-1000349
 
 #define QUEST_PK	6523
 #define MOB_GB		11912
@@ -97,13 +103,13 @@ struct TRINITY_DLL_DECL npc_kaya_flathoofAI : public npc_escortAI
 		switch(i)
 		{
 		case 22:
-			DoSay(SAY_AMBUSH, LANG_UNIVERSAL, NULL);
+			DoScriptText(SAY_AMBUSH, m_creature);
 			m_creature->SummonCreature(MOB_GB, -48.53, -503.34, -46.31, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
 			m_creature->SummonCreature(MOB_GR, -38.85, -503.77, -45.90, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
 			m_creature->SummonCreature(MOB_GS, -36.37, -496.23, -45.71, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
 			break;
 		case 23: m_creature->SetInFront(player);
-			DoSay(SAY_END, LANG_UNIVERSAL, player, true);
+			DoScriptText(SAY_END, m_creature, player);
 			if (player && player->GetTypeId() == TYPEID_PLAYER)
 				((Player*)player)->GroupEventHappens(QUEST_PK, m_creature);
 			break;
@@ -140,7 +146,7 @@ bool QuestAccept_npc_kaya_flathoof(Player* player, Creature* creature, Quest con
     if (quest->GetQuestId() == QUEST_PK)
     {
         ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
-		creature->Say(SAY_START, LANG_UNIVERSAL, NULL);
+		DoScriptText(SAY_START, creature);
 		creature->setFaction(113);
 		creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
     }
