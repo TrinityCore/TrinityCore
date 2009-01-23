@@ -38,7 +38,7 @@ EndContentData */
 
 #define GOSSIP_ITEM_BLESS_ASH     "Grant me your mark, wise ancient."
 #define GOSSIP_ITEM_BLESS_KEL     "Grant me your mark, mighty ancient."
-#define GOSSIP_REWARD_BLESS       "You have my blessing"
+#define GOSSIP_REWARD_BLESS       -1000359
 //#define TEXT_BLESSINGS        "<You need higher standing with Cenarion Expedition to recive a blessing.>"
 
 bool GossipHello_npcs_ashyen_and_keleth(Player *player, Creature *_Creature )
@@ -69,19 +69,19 @@ bool GossipSelect_npcs_ashyen_and_keleth(Player *player, Creature *_Creature, ui
             {                                               //mark of lore
                 case REP_FRIENDLY:
                     _Creature->CastSpell(player, 31808, true);
-                    _Creature->Say(GOSSIP_REWARD_BLESS, LANG_UNIVERSAL, 0);
+                    DoScriptText(GOSSIP_REWARD_BLESS, _Creature);
                     break;
                 case REP_HONORED:
                     _Creature->CastSpell(player, 31810, true);
-                    _Creature->Say(GOSSIP_REWARD_BLESS, LANG_UNIVERSAL, 0);
+                    DoScriptText(GOSSIP_REWARD_BLESS, _Creature);
                     break;
                 case REP_REVERED:
                     _Creature->CastSpell(player, 31811, true);
-                    _Creature->Say(GOSSIP_REWARD_BLESS, LANG_UNIVERSAL, 0);
+                    DoScriptText(GOSSIP_REWARD_BLESS, _Creature);
                     break;
                 case REP_EXALTED:
                     _Creature->CastSpell(player, 31815, true);
-                    _Creature->Say(GOSSIP_REWARD_BLESS, LANG_UNIVERSAL, 0);
+                    DoScriptText(GOSSIP_REWARD_BLESS, _Creature);
                     break;
             }
         }
@@ -92,19 +92,19 @@ bool GossipSelect_npcs_ashyen_and_keleth(Player *player, Creature *_Creature, ui
             {
                 case REP_FRIENDLY:
                     _Creature->CastSpell(player, 31807, true);
-                    _Creature->Say(GOSSIP_REWARD_BLESS, LANG_UNIVERSAL, 0);
+                    DoScriptText(GOSSIP_REWARD_BLESS, _Creature);
                     break;
                 case REP_HONORED:
                     _Creature->CastSpell(player, 31812, true);
-                    _Creature->Say(GOSSIP_REWARD_BLESS, LANG_UNIVERSAL, 0);
+                    DoScriptText(GOSSIP_REWARD_BLESS, _Creature);
                     break;
                 case REP_REVERED:
                     _Creature->CastSpell(player, 31813, true);
-                    _Creature->Say(GOSSIP_REWARD_BLESS, LANG_UNIVERSAL, 0);
+                    DoScriptText(GOSSIP_REWARD_BLESS, _Creature);
                     break;
                 case REP_EXALTED:
                     _Creature->CastSpell(player, 31814, true);
-                    _Creature->Say(GOSSIP_REWARD_BLESS, LANG_UNIVERSAL, 0);
+                    DoScriptText(GOSSIP_REWARD_BLESS, _Creature);
                     break;
             }
         }
@@ -255,12 +255,12 @@ bool GossipSelect_npc_mortog_steamhead(Player *player, Creature *_Creature, uint
 ## npc_kayra_longmane
 ######*/
 
-#define SAY_PROGRESS_1	"Is the way clear? Let's get out while we can, $N."
-#define SAY_PROGRESS_2	"Looks like we won't get away so easy. Get ready!"
-#define SAY_PROGRESS_3	"Let's keep moving. We're not safe here!"
-#define SAY_PROGRESS_4	"Look out, $N! Enemies ahead!"
-#define SAY_PROGRESS_5	"We're almost to the refuge! Let's go."
-#define SAY_PROGRESS_6	"I can see my fellow druids from here. Thank you, $N. I'm sure Ysiel will reward you for your actions!"
+#define SAY_PROGRESS_1	-1000360
+#define SAY_PROGRESS_2	-1000361
+#define SAY_PROGRESS_3	-1000362
+#define SAY_PROGRESS_4	-1000363
+#define SAY_PROGRESS_5	-1000364
+#define SAY_PROGRESS_6	-1000365
 
 #define QUEST_EFU	9752
 #define MOB_AMBUSH	18042
@@ -274,6 +274,7 @@ struct TRINITY_DLL_DECL	npc_kayra_longmaneAI : public npc_escortAI
 	void Reset()
 	{
 		Completed = false;
+        m_creature->setFaction(1660);
 	}
 
 	void Aggro(Unit* who){}
@@ -290,21 +291,21 @@ struct TRINITY_DLL_DECL	npc_kayra_longmaneAI : public npc_escortAI
 
 		switch(i)
 		{
-		case 0: DoSay(SAY_PROGRESS_1, LANG_UNIVERSAL, player); break;
-		case 5: DoSay(SAY_PROGRESS_2, LANG_UNIVERSAL, player);
+		case 0: DoScriptText(SAY_PROGRESS_1, m_creature, player); break;
+		case 5: DoScriptText(SAY_PROGRESS_2, m_creature, player);
 			m_creature->SummonCreature(MOB_AMBUSH, -922.24, 5357.98, 17.93, 5.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
 			m_creature->SummonCreature(MOB_AMBUSH, -922.24, 5357.98, 17.93, 5.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
 			break;
-		case 6: DoSay(SAY_PROGRESS_3, LANG_UNIVERSAL, player);
+		case 6: DoScriptText(SAY_PROGRESS_3, m_creature, player);
 			m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
 			break;
-		case 18: DoSay(SAY_PROGRESS_4, LANG_UNIVERSAL, player);
+		case 18: DoScriptText(SAY_PROGRESS_4, m_creature, player);
 			m_creature->SummonCreature(MOB_AMBUSH, -671.86, 5379.81, 22.12, 5.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
 			m_creature->SummonCreature(MOB_AMBUSH, -671.86, 5379.81, 22.12, 5.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
 			break;
 		case 19: m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-			DoSay(SAY_PROGRESS_5, LANG_UNIVERSAL, player); break;
-		case 26: DoSay(SAY_PROGRESS_6, LANG_UNIVERSAL, player);
+			DoScriptText(SAY_PROGRESS_5, m_creature, player); break;
+		case 26: DoScriptText(SAY_PROGRESS_6, m_creature, player);
 			Completed = true;
 			if(player)
 				((Player*)player)->GroupEventHappens(QUEST_EFU, m_creature);
