@@ -1634,6 +1634,10 @@
 							>
 						</File>
 						<File
+							RelativePath="..\scripts\zone\hellfire_citadel\hellfire_ramparts\boss_vazruden_the_herald.cpp"
+							>
+						</File>
+						<File
 							RelativePath="..\scripts\zone\hellfire_citadel\hellfire_ramparts\boss_watchkeeper_gargolmar.cpp"
 							>
 						</File>
