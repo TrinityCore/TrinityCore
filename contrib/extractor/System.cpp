@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <deque>
 #include <set>
+#include <cstdlib>
 
 #ifdef WIN32
 #include "direct.h"
