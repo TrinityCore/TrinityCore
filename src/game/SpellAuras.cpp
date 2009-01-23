@@ -249,7 +249,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleModMeleeRangedSpeedPct,                    //192 SPELL_AURA_HASTE_MELEE
     &Aura::HandleModCombatSpeedPct,                         //193 SPELL_AURA_MELEE_SLOW (in fact combat (any type attack) speed pct)
     &Aura::HandleUnused,                                    //194 SPELL_AURA_MOD_IGNORE_ABSORB_SCHOOL
-    &Aura::HandleUnused,                                    //195 SPELL_AURA_MOD_DEPRICATED_2 not used now (old SPELL_AURA_MOD_SPELL_HEALING_OF_INTELLECT)
+    &Aura::HandleNoImmediateEffect,                         //195 SPELL_AURA_MOD_IGNORE_ABSORB_FOR_SPELL     implement in Unit::CalculateSpellDamage
     &Aura::HandleNULL,                                      //196 SPELL_AURA_MOD_COOLDOWN
     &Aura::HandleNoImmediateEffect,                         //197 SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE implemented in Unit::SpellCriticalBonus Unit::GetUnitCriticalChance
     &Aura::HandleUnused,                                    //198 SPELL_AURA_MOD_ALL_WEAPON_SKILLS
@@ -281,7 +281,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleUnused,                                    //224 unused
     &Aura::HandleNoImmediateEffect,                         //225 SPELL_AURA_PRAYER_OF_MENDING
     &Aura::HandleAuraPeriodicDummy,                         //226 SPELL_AURA_PERIODIC_DUMMY
-    &Aura::HandleNULL,                                      //227 periodic trigger spell
+    &Aura::HandlePeriodicTriggerSpellWithValue,             //227 SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE
     &Aura::HandleNoImmediateEffect,                         //228 stealth detection
     &Aura::HandleNULL,                                      //229 SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE
     &Aura::HandleAuraModIncreaseMaxHealth,                  //230 Commanding Shout
@@ -309,7 +309,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNULL,                                      //252 haste all?
     &Aura::HandleNULL,                                      //253 SPELL_AURA_MOD_BLOCK_CRIT_CHANCE
     &Aura::HandleNULL,                                      //254 SPELL_AURA_MOD_DISARM_SHIELD disarm Shield
-    &Aura::HandleNULL,                                      //255 SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT
+    &Aura::HandleNoImmediateEffect,                         //255 SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT    implemented in Unit::SpellDamageBonus
     &Aura::HandleNoReagentUseAura,                          //256 SPELL_AURA_NO_REAGENT_USE Use SpellClassMask for spell select
     &Aura::HandleNULL,                                      //257 SPELL_AURA_MOD_TARGET_RESIST_BY_SPELL_CLASS Use SpellClassMask for spell select
     &Aura::HandleNULL,                                      //258 SPELL_AURA_MOD_SPELL_VISUAL
@@ -321,10 +321,10 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNULL,                                      //264 unused
     &Aura::HandleNULL,                                      //265 unused
     &Aura::HandleNULL,                                      //266 unused
-    &Aura::HandleNULL,                                      //267 some immunity?
+    &Aura::HandleNoImmediateEffect,                         //267 SPELL_AURA_MOD_IMMUNE_AURA_APPLY_SCHOOL         implemented in Unit::IsImmunedToSpellEffect
     &Aura::HandleAuraModAttackPowerOfStatPercent,           //268 SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT
     &Aura::HandleNULL,                                      //269 ignore DR effects?
-    &Aura::HandleNULL,                                      //270
+    &Aura::HandleNULL,                                      //270 SPELL_AURA_MOD_IGNORE_TARGET_RESIST
     &Aura::HandleNoImmediateEffect,                         //271 SPELL_AURA_MOD_DAMAGE_FROM_CASTER    implemented in Unit::SpellDamageBonus
     &Aura::HandleNULL,                                      //272 reduce spell cast time?
     &Aura::HandleNULL,                                      //273
@@ -344,7 +344,7 @@ Aura::Aura(SpellEntry const* spellproto, uint32 eff, int32 *currentBasePoints, U
 m_spellmod(NULL), m_caster_guid(0), m_castItemGuid(castItem?castItem->GetGUID():0), m_target(target),
 m_timeCla(1000), m_periodicTimer(0), m_removeMode(AURA_REMOVE_BY_DEFAULT), m_AuraDRGroup(DIMINISHING_NONE),
 m_effIndex(eff), m_auraSlot(MAX_AURAS), m_auraFlags(AFLAG_NONE), m_auraLevel(1), m_procCharges(0), m_stackAmount(1),
-m_positive(false), m_permanent(false), m_isPeriodic(false), m_isTrigger(false), m_isAreaAura(false), m_isPersistent(false), 
+m_positive(false), m_permanent(false), m_isPeriodic(false), m_isAreaAura(false), m_isPersistent(false),
 m_updated(false), m_isRemovedOnShapeLost(true), m_in_use(false)
 {
     assert(target);
@@ -613,12 +613,7 @@ void Aura::Update(uint32 diff)
             m_periodicTimer += m_modifier.periodictime;
 
             if(!m_target->hasUnitState(UNIT_STAT_ISOLATED))
-            {
-                if(m_isTrigger)
-                    TriggerSpell();
-                else
-                    PeriodicTick();
-            }
+                PeriodicTick();
         }
     }
 }
@@ -861,7 +856,7 @@ void Aura::_AddAura()
             // Conflagrate aura state on Immolate
             if (m_spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellProto->SpellFamilyFlags & 4)
                 m_target->ModifyAuraState(AURA_STATE_IMMOLATE, true);
-            
+
             // Faerie Fire (druid versions)
             if (m_spellProto->SpellFamilyName == SPELLFAMILY_DRUID && m_spellProto->SpellFamilyFlags & 0x0000000000000400LL)
                 m_target->ModifyAuraState(AURA_STATE_FAERIE_FIRE, true);
@@ -984,7 +979,7 @@ void Aura::_RemoveAura()
             for(Unit::AuraMap::iterator i = Auras.begin(); i != Auras.end(); ++i)
             {
                 SpellEntry const *auraSpellInfo = (*i).second->GetSpellProto();
-                if(auraSpellInfo->SpellFamilyName  == m_spellProto->SpellFamilyName && 
+                if(auraSpellInfo->SpellFamilyName  == m_spellProto->SpellFamilyName &&
                    auraSpellInfo->SpellFamilyFlags == m_spellProto->SpellFamilyFlags )
                 {
                     found = true;
@@ -1204,6 +1199,7 @@ void Aura::HandleAddTargetTrigger(bool apply, bool Real)
         m_spellmod = NULL;
     }
 }
+
 void Aura::TriggerSpell()
 {
     Unit* caster = GetCaster();
@@ -1214,8 +1210,6 @@ void Aura::TriggerSpell()
 
     // generic casting code with custom spells and target/caster customs
     uint32 trigger_spell_id = GetSpellProto()->EffectTriggerSpell[m_effIndex];
-
-    uint64 originalCasterGUID = GetCasterGUID();
 
     SpellEntry const *triggeredSpellInfo = sSpellStore.LookupEntry(trigger_spell_id);
     SpellEntry const *auraSpellInfo = GetSpellProto();
@@ -1894,17 +1888,17 @@ void Aura::TriggerSpell()
                     return;
 
                 caster = target;
-                originalCasterGUID = 0;
                 break;
             }
             // Mana Tide
             case 16191:
             {
-                caster->CastCustomSpell(target, trigger_spell_id, &m_modifier.m_amount, NULL, NULL, true, NULL, this, originalCasterGUID);
+                caster->CastCustomSpell(target, trigger_spell_id, &m_modifier.m_amount, NULL, NULL, true, NULL, this);
                 return;
             }
         }
     }
+<<<<<<< HEAD:src/game/SpellAuras.cpp
     if(!GetSpellMaxRange(sSpellRangeStore.LookupEntry(triggeredSpellInfo->rangeIndex)))
         target = m_target;    //for druid dispel poison
     m_target->CastSpell(target, triggeredSpellInfo, true, 0, this, originalCasterGUID);
@@ -1917,6 +1911,25 @@ Unit* Aura::GetTriggerTarget() const
         ((Player*)m_target)->GetSelection() :*/
         m_target->GetUInt64Value(UNIT_FIELD_TARGET));
     return target ? target : m_target;
+=======
+    // All ok cast by default case
+    caster->CastSpell(target, triggeredSpellInfo, true, 0, this);
+}
+
+void Aura::TriggerSpellWithValue()
+{
+    Unit* caster = GetCaster();
+    Unit* target = GetTriggerTarget();
+
+    if(!caster || !target)
+        return;
+
+    // generic casting code with custom spells and target/caster customs
+    uint32 trigger_spell_id = GetSpellProto()->EffectTriggerSpell[m_effIndex];
+    int32  basepoints0 = this->GetModifier()->m_amount;
+
+    caster->CastCustomSpell(target, trigger_spell_id, &basepoints0, 0, 0, true, 0, this);
+>>>>>>> upstream/master:src/game/SpellAuras.cpp
 }
 
 /*********************************************************/
@@ -2052,14 +2065,14 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
         if (caster && m_removeMode == AURA_REMOVE_BY_DEATH)
         {
             // Stop caster Arcane Missle chanelling on death
-            if (m_spellProto->SpellFamilyName == SPELLFAMILY_MAGE && 
+            if (m_spellProto->SpellFamilyName == SPELLFAMILY_MAGE &&
                 m_spellProto->SpellFamilyFlags&0x0000000000000800LL)
             {
                 caster->InterruptSpell(CURRENT_CHANNELED_SPELL);
                 return;
             }
             // Stop caster Penance chanelling on death
-            if (m_spellProto->SpellFamilyName == SPELLFAMILY_PRIEST && 
+            if (m_spellProto->SpellFamilyName == SPELLFAMILY_PRIEST &&
                 m_spellProto->SpellFamilyFlags2 & 0x00000080)
             {
                 caster->InterruptSpell(CURRENT_CHANNELED_SPELL);
@@ -3944,7 +3957,14 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool Real)
         m_periodicTimer += m_modifier.periodictime;
 
     m_isPeriodic = apply;
-    m_isTrigger = apply;
+}
+
+void Aura::HandlePeriodicTriggerSpellWithValue(bool apply, bool Real)
+{
+    if (m_periodicTimer <= 0)
+        m_periodicTimer += m_modifier.periodictime;
+
+    m_isPeriodic = apply;
 }
 
 void Aura::HandlePeriodicEnergize(bool apply, bool Real)
@@ -6087,6 +6107,16 @@ void Aura::PeriodicTick()
             PeriodicDummyTick();
             break;
         }
+        case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
+        {
+            TriggerSpell();
+            break;
+        }
+        case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
+        {
+            TriggerSpellWithValue();
+            break;
+        }
         default:
             break;
     }
@@ -6197,7 +6227,7 @@ void Aura::PeriodicDummyTick()
 //        case 33208: break;
 //        // Gossip NPC Periodic - Despawn
 //        case 33209: break;
- 
+
             // TODO: now its not periodic dummy - need move out from here
             // Aspect of the Viper
             case 34074:

@@ -777,11 +777,10 @@ bool Pet::CreateBaseAtCreature(Creature* creature)
     SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, objmgr.GetXPForLevel(creature->getLevel())/4);
     SetUInt32Value(UNIT_NPC_FLAGS, 0);
 
-    CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(creature->GetCreatureInfo()->family);
-    if( char* familyname = cFamily->Name[sWorld.GetDefaultDbcLocale()] )
-        SetName(familyname);
+    if(CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cinfo->family))
+        SetName(cFamily->Name[sWorld.GetDefaultDbcLocale()]);
     else
-        SetName(creature->GetName());
+        SetName(creature->GetNameForLocaleIdx(objmgr.GetDBCLocaleIndex()));
 
     if(cinfo->type == CREATURE_TYPE_BEAST)
     {

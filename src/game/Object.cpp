@@ -258,7 +258,7 @@ void Object::DestroyForPlayer(Player *target) const
 void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags, uint32 flags2) const
 {
     uint16 unk_flags = ((GetTypeId() == TYPEID_PLAYER) ? ((Player*)this)->m_movementInfo.unk1 : 0);
-    
+
     if(GetTypeId() == TYPEID_UNIT)
         if(((Creature*)this)->isVehicle())
             unk_flags |= 0x20;                              // always allow pitch

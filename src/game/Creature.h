@@ -174,7 +174,7 @@ struct CreatureInfo
     uint32  rangeattacktime;
     uint32  unit_flags;                                     // enum UnitFlags mask values
     uint32  dynamicflags;
-    uint32  family;                                         // enum CreatureFamily values for type==CREATURE_TYPE_BEAST, or 0 in another cases
+    uint32  family;                                         // enum CreatureFamily values (optional)
     uint32  trainer_type;
     uint32  trainer_spell;
     uint32  classNum;

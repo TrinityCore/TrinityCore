@@ -50,6 +50,7 @@ DBCStorage <ChrRacesEntry> sChrRacesStore(ChrRacesEntryfmt);
 DBCStorage <CreatureDisplayInfoEntry> sCreatureDisplayInfoStore(CreatureDisplayInfofmt);
 DBCStorage <CreatureFamilyEntry> sCreatureFamilyStore(CreatureFamilyfmt);
 DBCStorage <CreatureSpellDataEntry> sCreatureSpellDataStore(CreatureSpellDatafmt);
+DBCStorage <CreatureTypeEntry> sCreatureTypeStore(CreatureTypefmt);
 
 DBCStorage <DurabilityQualityEntry> sDurabilityQualityStore(DurabilityQualityfmt);
 DBCStorage <DurabilityCostsEntry> sDurabilityCostsStore(DurabilityCostsfmt);
@@ -192,7 +193,7 @@ void LoadDBCStores(const std::string& dataPath)
 {
     std::string dbcPath = dataPath+"dbc/";
 
-    const uint32 DBCFilesCount = 69;
+    const uint32 DBCFilesCount = 70;
 
     barGoLink bar( DBCFilesCount );
 
@@ -223,7 +224,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sBattlemasterListStore,    dbcPath,"BattlemasterList.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sBarberShopStyleStore,     dbcPath,"BarberShopStyle.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sCharStartOutfitStore,     dbcPath,"CharStartOutfit.dbc");
-    
+
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sCharTitlesStore,          dbcPath,"CharTitles.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sChatChannelsStore,        dbcPath,"ChatChannels.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sChrClassesStore,          dbcPath,"ChrClasses.dbc");
@@ -231,6 +232,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sCreatureDisplayInfoStore, dbcPath,"CreatureDisplayInfo.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sCreatureFamilyStore,      dbcPath,"CreatureFamily.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sCreatureSpellDataStore,   dbcPath,"CreatureSpellData.dbc");
+    LoadDBC(availableDbcLocales,bar,bad_dbc_files,sCreatureTypeStore,        dbcPath,"CreatureType.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sDurabilityCostsStore,     dbcPath,"DurabilityCosts.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sDurabilityQualityStore,   dbcPath,"DurabilityQuality.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sEmotesTextStore,          dbcPath,"EmotesText.dbc");
@@ -407,18 +409,6 @@ void LoadDBCStores(const std::string& dataPath)
 
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sTaxiNodesStore,           dbcPath,"TaxiNodes.dbc");
 
-    // Initialize global taxinodes mask
-    memset(sTaxiNodesMask,0,sizeof(sTaxiNodesMask));
-    for(uint32 i = 1; i < sTaxiNodesStore.GetNumRows(); ++i)
-    {
-        if(sTaxiNodesStore.LookupEntry(i))
-        {
-            uint8  field   = (uint8)((i - 1) / 32);
-            uint32 submask = 1<<((i-1)%32);
-            sTaxiNodesMask[field] |= submask;
-        }
-    }
-
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sTaxiPathStore,            dbcPath,"TaxiPath.dbc");
     for(uint32 i = 1; i < sTaxiPathStore.GetNumRows(); ++i)
         if(TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(i))
@@ -445,6 +435,47 @@ void LoadDBCStores(const std::string& dataPath)
         if(TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(i))
             sTaxiPathNodesByPath[entry->path][entry->index] = TaxiPathNode(entry->mapid,entry->x,entry->y,entry->z,entry->actionFlag,entry->delay);
     sTaxiPathNodeStore.Clear();
+
+    // Initialize global taxinodes mask
+    // include existed nodes that have at least single not spell base (scripted) path
+    {
+        std::set<uint32> spellPaths;
+        for(uint32 i = 1; i < sSpellStore.GetNumRows (); ++i)
+            if(SpellEntry const* sInfo = sSpellStore.LookupEntry (i))
+                for(int j=0; j < 3; ++j)
+                    if(sInfo->Effect[j]==123 /*SPELL_EFFECT_SEND_TAXI*/)
+                        spellPaths.insert(sInfo->EffectMiscValue[j]);
+
+        memset(sTaxiNodesMask,0,sizeof(sTaxiNodesMask));
+        for(uint32 i = 1; i < sTaxiNodesStore.GetNumRows(); ++i)
+        {
+            if(!sTaxiNodesStore.LookupEntry(i))
+                continue;
+
+            TaxiPathSetBySource::const_iterator src_i = sTaxiPathSetBySource.find(i);
+            if(src_i!=sTaxiPathSetBySource.end() && !src_i->second.empty())
+            {
+                bool ok = false;
+                for(TaxiPathSetForSource::const_iterator dest_i = src_i->second.begin();dest_i != src_i->second.end(); ++dest_i)
+                {
+                    // not spell path
+                    if(spellPaths.find(dest_i->second.ID)==spellPaths.end())
+                    {
+                        ok = true;
+                        break;
+                    }
+                }
+
+                if(!ok)
+                    continue;
+            }
+
+            // valid taxi netowrk node
+            uint8  field   = (uint8)((i - 1) / 32);
+            uint32 submask = 1<<((i-1)%32);
+            sTaxiNodesMask[field] |= submask;
+        }
+    }
 
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sTotemCategoryStore,       dbcPath,"TotemCategory.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sVehicleStore,             dbcPath,"Vehicle.dbc");
@@ -476,11 +507,11 @@ void LoadDBCStores(const std::string& dataPath)
     // check at up-to-date DBC files (2425 is last item extended cost added in 3.0.1)
     // check at up-to-date DBC files (76 is last char title added in 3.0.1)
     // check at up-to-date DBC files (2311 is last area added in 3.0.1)
-    if( !sSpellStore.LookupEntry(54909)            || 
-        !sSkillLineAbilityStore.LookupEntry(19162) || 
+    if( !sSpellStore.LookupEntry(54909)            ||
+        !sSkillLineAbilityStore.LookupEntry(19162) ||
         !sMapStore.LookupEntry(619)                ||
-        !sGemPropertiesStore.LookupEntry(1361)     || 
-        !sItemExtendedCostStore.LookupEntry(2425)  || 
+        !sGemPropertiesStore.LookupEntry(1361)     ||
+        !sItemExtendedCostStore.LookupEntry(2425)  ||
         !sCharTitlesStore.LookupEntry(76)          ||
         !sAreaStore.LookupEntry(2311)              )
     {
@@ -489,8 +520,7 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     sLog.outString();
-    sLog.outString( ">> Loaded %d data stores", DBCFilesCount );
-    sLog.outString();
+    sLog.outString( ">> Initialized %d data stores", DBCFilesCount );
 }
 
 SimpleFactionsList const* GetFactionTeamList(uint32 faction)
