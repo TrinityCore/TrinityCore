@@ -39,15 +39,15 @@ EndContentData */
 ## npc_draenei_survivor
 ######*/
 
-#define HEAL1        "The last thing I remember is the ship falling and us getting into the pods. I'll go see how I can help. Thank you!"
-#define HEAL2        "$C, Where am I? Who are you? Oh no! What happened to the ship?."
-#define HEAL3        "$C You saved me! I owe you a debt that I can never repay. I'll go see if I can help the others."
-#define HEAL4        "Ugh... what is this place? Is that all that's left of the ship over there?"
+#define HEAL1        -1000248
+#define HEAL2        -1000249
+#define HEAL3        -1000250
+#define HEAL4        -1000251
 
-#define HELP1        "Oh, the pain..."
-#define HELP2        "Everything hurts, Please make it stop..."
-#define HELP3        "Ughhh... I hurt. Can you help me?"
-#define HELP4        "I don't know if I can make it, please help me..."
+#define HELP1        -1000252
+#define HELP2        -1000253
+#define HELP3        -1000254
+#define HELP4        -1000255
 
 struct TRINITY_DLL_DECL npc_draenei_survivorAI : public ScriptedAI
 {
@@ -94,22 +94,22 @@ struct TRINITY_DLL_DECL npc_draenei_survivorAI : public ScriptedAI
             switch (rand()%4)                               //Random switch between 4 texts
             {
                 case 0:
-                    DoSay(HELP1, LANG_UNIVERSAL, NULL);
+                    DoScriptText(HELP1, m_creature);
                     SayingTimer = 15000;
                     say = false;
                     break;
                 case 1:
-                    DoSay(HELP2, LANG_UNIVERSAL, NULL);
+                    DoScriptText(HELP2, m_creature);
                     SayingTimer = 15000;
                     say = false;
                     break;
                 case 2:
-                    DoSay(HELP3, LANG_UNIVERSAL, NULL);
+                    DoScriptText(HELP3, m_creature);
                     SayingTimer = 15000;
                     say = false;
                     break;
                 case 3:
-                    DoSay(HELP4, LANG_UNIVERSAL, NULL);
+                    DoScriptText(HELP4, m_creature);
                     SayingTimer = 15000;
                     say = false;
                     break;
@@ -181,10 +181,10 @@ struct TRINITY_DLL_DECL npc_draenei_survivorAI : public ScriptedAI
             m_creature->HandleEmoteCommand(ANIM_RISE);
             switch (rand()%4)                               //This switch doesn't work at all, creature say nothing!
             {
-                case 0: DoSay(HEAL1, LANG_UNIVERSAL, Hitter); break;
-                case 1: DoSay(HEAL2, LANG_UNIVERSAL, Hitter); break;
-                case 2: DoSay(HEAL3, LANG_UNIVERSAL, Hitter); break;
-                case 3: DoSay(HEAL4, LANG_UNIVERSAL, Hitter); break;
+                case 0: DoScriptText(HEAL1, m_creature, Hitter); break;
+                case 1: DoScriptText(HEAL2, m_creature, Hitter); break;
+                case 2: DoScriptText(HEAL3, m_creature, Hitter); break;
+                case 3: DoScriptText(HEAL4, m_creature, Hitter); break;
             }
             HealSay    = true;
         }
@@ -199,10 +199,12 @@ CreatureAI* GetAI_npc_draenei_survivor(Creature *_Creature)
 ## npc_engineer_spark_overgrind
 ######*/
 
-#define SAY_TEXT        "Yes Master, all goes along as planned."
-#define SAY_EMOTE       "puts the shell to his ear."
+#define SAY_TEXT        -1000256
+#define SAY_EMOTE       -1000257
+#define ATTACK_YELL     -1000258
+
 #define GOSSIP_FIGHT    "Traitor! You will be brought to justice!"
-#define ATTACK_YELL     "Now I cut you!"
+
 #define SPELL_DYNAMITE  7978
 
 struct TRINITY_DLL_DECL npc_engineer_spark_overgrindAI : public ScriptedAI
@@ -227,8 +229,8 @@ struct TRINITY_DLL_DECL npc_engineer_spark_overgrindAI : public ScriptedAI
         {
             if (Emote_Timer < diff)
             {
-                DoSay(SAY_TEXT,LANG_UNIVERSAL,NULL);
-                DoTextEmote(SAY_EMOTE,NULL);
+                DoScriptText(SAY_TEXT, m_creature);
+                DoScriptText(SAY_EMOTE, m_creature);
                 Emote_Timer = 120000 + rand()%30000;
             }else Emote_Timer -= diff;
         }
@@ -266,7 +268,7 @@ bool GossipSelect_npc_engineer_spark_overgrind(Player *player, Creature *_Creatu
     {
         player->CLOSE_GOSSIP_MENU();
         _Creature->setFaction(14);
-        _Creature->Yell(ATTACK_YELL, LANG_UNIVERSAL, player->GetGUID());
+        DoScriptText(ATTACK_YELL, _Creature, player);
         ((npc_engineer_spark_overgrindAI*)_Creature->AI())->AttackStart(player);
     }
     return true;
@@ -468,15 +470,16 @@ bool GossipSelect_npc_susurrus(Player *player, Creature *_Creature, uint32 sende
 ## npc_geezle
 ######*/
 
-#define GEEZLE_SAY_1	"What's the big idea, Spark?"
-#define SPARK_SAY_2		"What's the big idea? You nearly blew my cover, idiot! I told you to put the compass and navigation maps somewhere safe - not out in the open for any fool to discover."
-#define SPARK_SAY_3		"The Master has gone to great lengths to secure information about the whereabouts of the Exodar. You could have blown the entire operation, including the cover of our spy on the inside."
-#define GEEZLE_SAY_4	"Relax, Spark! I have it all under control. We'll strip mine the Exodar right out from under 'em - making both you and I very, very rich in the process."
-#define SPARK_SAY_5		"Relax? Do you know what Kael'thas does to those that fail him, Geezle? Eternal suffering and pain... Do NOT screw this up, fool."
-#define SPARK_SAY_6		"Our Bloodmyst scouts have located our contact. The fool, Velen, will soon leave himself open and defenseless -- long enough for us to strike! Now get out of my sight before I vaporize you..."
-#define GEEZLE_SAY_7	"Yes, sir. It won't happen again..."
+#define GEEZLE_SAY_1	-1000259
+#define SPARK_SAY_2		-1000260
+#define SPARK_SAY_3		-1000261
+#define GEEZLE_SAY_4	-1000262
+#define SPARK_SAY_5		-1000263
+#define SPARK_SAY_6		-1000264
+#define GEEZLE_SAY_7	-1000265
 
-#define EMOTE_SPARK		"picks up the naga flag."
+#define EMOTE_SPARK		-1000266
+
 #define MOB_SPARK		17243
 #define GO_NAGA_FLAG	181694
 
@@ -526,31 +529,19 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
 		case 0: return 99999;
 		case 1:
 			//DespawnNagaFlag(true);
-			((Creature*)Spark)->TextEmote(EMOTE_SPARK, NULL, false);
+			DoScriptText(EMOTE_SPARK, Spark);
 			return 1000;
 		case 2:
-			DoSay(GEEZLE_SAY_1, LANG_UNIVERSAL, Spark);
+			DoScriptText(GEEZLE_SAY_1, m_creature, Spark);
 			Spark->SetInFront(m_creature);
 			m_creature->SetInFront(Spark);
 			return 5000;
-		case 3:
-			((Creature*)Spark)->Say(SPARK_SAY_2, LANG_UNIVERSAL, NULL);
-			return 7000;
-		case 4:
-			((Creature*)Spark)->Say(SPARK_SAY_3, LANG_UNIVERSAL, NULL);
-			return 8000;
-		case 5:
-			DoSay(GEEZLE_SAY_4, LANG_UNIVERSAL, Spark);
-			return 8000;
-		case 6:
-			((Creature*)Spark)->Say(SPARK_SAY_5, LANG_UNIVERSAL, NULL);
-			return 9000;
-		case 7:
-			((Creature*)Spark)->Say(SPARK_SAY_6, LANG_UNIVERSAL, NULL);
-			return 8000;
-		case 8:
-			DoSay(GEEZLE_SAY_7, LANG_UNIVERSAL, Spark);
-			return 2000;
+		case 3: DoScriptText(SPARK_SAY_2, Spark); return 7000;
+		case 4: DoScriptText(SPARK_SAY_3, Spark); return 8000;
+		case 5: DoScriptText(GEEZLE_SAY_4, m_creature, Spark); return 8000;
+		case 6: DoScriptText(SPARK_SAY_5, Spark); return 9000;
+		case 7: DoScriptText(SPARK_SAY_6, Spark); return 8000;
+		case 8: DoScriptText(GEEZLE_SAY_7, m_creature, Spark); return 2000;
 		case 9:
 			m_creature->GetMotionMaster()->MoveTargetedHome();
 			Spark->GetMotionMaster()->MovePoint(0, -5030.95, -11291.99, 7.97);
@@ -597,7 +588,7 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
 		{
 			if(EventStarted)
 			{
-				SayTimer = NextStep(Step++);
+				SayTimer = NextStep(++Step);
 			}
 		}else SayTimer -= diff;
 	}

@@ -38,7 +38,7 @@ EndContentData */
 ## mob_unkor_the_ruthless
 ######*/
 
-#define SAY_SUBMIT                      "I give up! Please don't kill me!"
+#define SAY_SUBMIT                      -1000351
 
 #define FACTION_HOSTILE                 45
 #define FACTION_FRIENDLY                35
@@ -68,7 +68,7 @@ struct TRINITY_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
 
     void DoNice()
     {
-        DoSay(SAY_SUBMIT,LANG_UNIVERSAL,NULL);
+        DoScriptText(SAY_SUBMIT, m_creature);
         m_creature->setFaction(FACTION_FRIENDLY);
         m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, PLAYER_STATE_SIT);
         m_creature->RemoveAllAuras();
@@ -242,7 +242,8 @@ CreatureAI* GetAI_mob_netherweb_victim(Creature *_Creature)
 
 #define GOSSIP_FLOON1           "You owe Sim'salabim money. Hand them over or die!"
 #define GOSSIP_FLOON2           "Hand over the money or die...again!"
-#define SAY_FLOON_ATTACK        "I choose the third option: KILLING YOU!"
+
+#define SAY_FLOON_ATTACK        -1000352
 
 #define FACTION_HOSTILE_FL      1738
 #define FACTION_FRIENDLY_FL     35
@@ -320,7 +321,7 @@ bool GossipSelect_npc_floon(Player *player, Creature *_Creature, uint32 sender, 
     {
         player->CLOSE_GOSSIP_MENU();
         _Creature->setFaction(FACTION_HOSTILE_FL);
-        ((npc_floonAI*)_Creature->AI())->DoSay(SAY_FLOON_ATTACK,LANG_UNIVERSAL,player);
+        DoScriptText(SAY_FLOON_ATTACK, _Creature, player);
         ((npc_floonAI*)_Creature->AI())->AttackStart(player);
     }
     return true;
@@ -359,10 +360,10 @@ bool GossipSelect_npc_skyguard_handler_deesak(Player *player, Creature *_Creatur
 ## npc_isla_starmane
 ######*/
 
-#define SAY_PROGRESS_1	"Ok let's get out of here!"
-#define SAY_PROGRESS_2	"You sure you're ready? Take a moment."
-#define SAY_PROGRESS_3	"Alright, let's do this!"
-#define SAY_PROGRESS_4	"Ok, I think I can make it on my own from here. Thank you so much for breaking me out of there!"
+#define SAY_PROGRESS_1	-1000353
+#define SAY_PROGRESS_2	-1000354
+#define SAY_PROGRESS_3	-1000355
+#define SAY_PROGRESS_4	-1000356
 
 #define QUEST_EFTW_H	10052
 #define QUEST_EFTW_A	10051
@@ -390,10 +391,10 @@ struct TRINITY_DLL_DECL npc_isla_starmaneAI : public npc_escortAI
 			if(Cage)
 				Cage->SetGoState(0);
 			}break;
-		case 2: DoSay(SAY_PROGRESS_1, LANG_UNIVERSAL, player); break;
-		case 5: DoSay(SAY_PROGRESS_2, LANG_UNIVERSAL, player); break;
-		case 6: DoSay(SAY_PROGRESS_3, LANG_UNIVERSAL, player); break;
-		case 29:DoSay(SAY_PROGRESS_4, LANG_UNIVERSAL, player);
+		case 2: DoScriptText(SAY_PROGRESS_1, m_creature, player); break;
+		case 5: DoScriptText(SAY_PROGRESS_2, m_creature, player); break;
+		case 6: DoScriptText(SAY_PROGRESS_3, m_creature, player); break;
+		case 29:DoScriptText(SAY_PROGRESS_4, m_creature, player);
 			if (player)
 			{
 				if(((Player*)player)->GetTeam() == ALLIANCE)
@@ -411,6 +412,7 @@ struct TRINITY_DLL_DECL npc_isla_starmaneAI : public npc_escortAI
 	void Reset()
 	{
 		Completed = false;
+        m_creature->setFaction(1660);
 	}
 
 	void Aggro(Unit* who){}

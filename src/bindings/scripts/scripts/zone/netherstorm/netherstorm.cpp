@@ -37,12 +37,12 @@ EndContentData */
 ## npc_manaforge_control_console
 ######*/
 
-#define EMOTE_START     "Warning! Emergency shutdown process initiated by $N. Shutdown will complete in two minutes."
-#define EMOTE_60        "Emergency shutdown will complete in one minute."
-#define EMOTE_30        "Emergency shutdown will complete in thirty seconds."
-#define EMOTE_10        "Emergency shutdown will complete in ten seconds."
-#define EMOTE_COMPLETE  "Emergency shutdown complete."
-#define EMOTE_ABORT     "Emergency shutdown aborted."
+#define EMOTE_START     -1000296
+#define EMOTE_60        -1000297
+#define EMOTE_30        -1000298
+#define EMOTE_10        -1000299
+#define EMOTE_COMPLETE  -1000300
+#define EMOTE_ABORT     -1000301
 
 #define ENTRY_BNAAR_C_CONSOLE   20209
 #define ENTRY_CORUU_C_CONSOLE   20417
@@ -95,7 +95,7 @@ struct TRINITY_DLL_DECL npc_manaforge_control_consoleAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoTextEmote(EMOTE_ABORT, NULL);
+        DoScriptText(EMOTE_ABORT, m_creature);
 
         if( someplayer )
         {
@@ -227,32 +227,32 @@ struct TRINITY_DLL_DECL npc_manaforge_control_consoleAI : public ScriptedAI
                 case 1:
                     if( someplayer )
                     {
-                        Unit* u = Unit::GetUnit((*m_creature),someplayer);
-                        if( u && u->GetTypeId() == TYPEID_PLAYER ) DoTextEmote(EMOTE_START, u);
+                        Unit* u = Unit::GetUnit((*m_creature), someplayer);
+                        if( u && u->GetTypeId() == TYPEID_PLAYER ) DoScriptText(EMOTE_START, m_creature, u);
                     }
                     Event_Timer = 60000;
                     Wave = true;
                     ++Phase;
                     break;
                 case 2:
-                    DoTextEmote(EMOTE_60, NULL);
+                    DoScriptText(EMOTE_60, m_creature);
                     Event_Timer = 30000;
                     ++Phase;
                     break;
                 case 3:
-                    DoTextEmote(EMOTE_30, NULL);
+                    DoScriptText(EMOTE_30, m_creature);
                     Event_Timer = 20000;
                     DoFinalSpawnForCreature(m_creature);
                     ++Phase;
                     break;
                 case 4:
-                    DoTextEmote(EMOTE_10, NULL);
+                    DoScriptText(EMOTE_10, m_creature);
                     Event_Timer = 10000;
                     Wave = false;
                     ++Phase;
                     break;
                 case 5:
-                    DoTextEmote(EMOTE_COMPLETE, NULL);
+                    DoScriptText(EMOTE_COMPLETE, m_creature);
                     if( someplayer )
                     {
                         Unit* u = Unit::GetUnit((*m_creature),someplayer);
@@ -488,7 +488,7 @@ struct TRINITY_DLL_DECL npc_commander_dawnforgeAI : public ScriptedAI
 			return true;
 		}
 	 	 
-		debug_log("SD2: npc_commander_dawnforge event already in progress, need to wait.");
+		debug_log("TSCR: npc_commander_dawnforge event already in progress, need to wait.");
 		return false;
 	}
 
@@ -707,7 +707,7 @@ bool GossipSelect_npc_protectorate_nether_drake(Player *player, Creature *_Creat
 
 #define SPELL_PHASE_DISTRUPTOR	35780
 #define GOSSIP_ITEM	"I need a new phase distruptor, Professor"
-#define WHISPER_DABIRI "Saeed is currently engaged or awaiting orders to engage. You may check directly east of me and see if Saeed is ready for you. If he is not present then he is off fighting another battle. I recommend that you wait for him to return before attacking Dimensius."
+#define WHISPER_DABIRI -1000302
 
 #define QUEST_DIMENSIUS	10439
 #define QUEST_ON_NETHERY_WINGS 10438
@@ -739,7 +739,7 @@ bool GossipSelect_npc_professor_dabiri(Player *player, Creature *_Creature, uint
 bool QuestAccept_npc_professor_dabiri(Player *player, Creature *creature, Quest const *quest )
 {
 	if(quest->GetQuestId() == QUEST_DIMENSIUS)
-		creature->Whisper(WHISPER_DABIRI, player->GetGUID(), false);
+		DoScriptText(WHISPER_DABIRI, creature, player);
 
 	return true;
 }
@@ -748,6 +748,8 @@ bool QuestAccept_npc_professor_dabiri(Player *player, Creature *creature, Quest 
 ## npc_veronia
 ######*/
 
+#define GOSSIP_HV "Fly me to Manaforge Coruu please"
+
 bool GossipHello_npc_veronia(Player *player, Creature *_Creature)
 {
     if (_Creature->isQuestGiver())
@@ -755,7 +757,7 @@ bool GossipHello_npc_veronia(Player *player, Creature *_Creature)
 
     //Behind Enemy Lines
     if (player->GetQuestStatus(10652) && !player->GetQuestRewardStatus(10652))
-        player->ADD_GOSSIP_ITEM(0, "Fly me to Manaforge Coruu please", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_HV, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
     player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
 
@@ -777,7 +779,7 @@ bool GossipSelect_npc_veronia(Player *player, Creature *_Creature, uint32 sender
 ######*/
 
 #define SUMMONED_MOB            19595
-#define EMOTE_WEAK              "is very weak"
+#define EMOTE_WEAK              -1000303
 
 // Spells
 #define SPELL_PHASE_SLIP        36574
@@ -853,7 +855,7 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
             if(target && !Weak && m_creature->GetHealth() < (m_creature->GetMaxHealth() / 100 * WeakPercent) 
                 && ((Player*)target)->GetQuestStatus(10190) == QUEST_STATUS_INCOMPLETE)
             {
-                DoTextEmote(EMOTE_WEAK, 0);
+                DoScriptText(EMOTE_WEAK, m_creature);
                 Weak = true;
             }
             if(Weak && !Drained && m_creature->HasAura(34219, 0))
@@ -896,11 +898,11 @@ CreatureAI* GetAI_mob_phase_hunter(Creature *_Creature)
 ######*/
 
 #define Q_ALMABTRIEB    10337
-#define N_THADELL	   20464
+#define N_THADELL       20464
 #define SPAWN_FIRST     20512
-#define SPAWN_SECOND  19881
-#define SAY_THADELL_1   "Bessy, is that you?"
-#define SAY_THADELL_2   "Thank you for bringing back my Bessy, $N. I couldn't live without her!"
+#define SPAWN_SECOND    19881
+#define SAY_THADELL_1   -1000304
+#define SAY_THADELL_2   -1000305
 
 struct TRINITY_DLL_DECL npc_bessyAI : public npc_escortAI
 {
@@ -946,11 +948,11 @@ struct TRINITY_DLL_DECL npc_bessyAI : public npc_escortAI
                 }
                 {Unit* Thadell = FindCreature(N_THADELL, 30);
 				if(Thadell)
-				((Creature*)Thadell)->Say(SAY_THADELL_1, LANG_UNIVERSAL, NULL);}break;
+                    DoScriptText(SAY_THADELL_1, m_creature);}break;
 			case 13:
 				{Unit* Thadell = FindCreature(N_THADELL, 30);
 				if(Thadell)
-				((Creature*)Thadell)->Say(SAY_THADELL_2, LANG_UNIVERSAL, NULL);}break;
+                    DoScriptText(SAY_THADELL_2, m_creature, player);}break;
 		}
     }
 
@@ -964,6 +966,7 @@ struct TRINITY_DLL_DECL npc_bessyAI : public npc_escortAI
     void Reset()
     {
         Completed = false;
+        m_creature->setFaction(35);
     }
 
     void UpdateAI(const uint32 diff)

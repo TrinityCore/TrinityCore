@@ -353,7 +353,7 @@ class Spell
         ~Spell();
 
         void prepare(SpellCastTargets const* targets, Aura* triggeredByAura = NULL);
-        void cancel();
+        void cancel(bool report = true);
         void update(uint32 difftime);
         void cast(bool skipCheck = false);
         void finish(bool ok = true);
