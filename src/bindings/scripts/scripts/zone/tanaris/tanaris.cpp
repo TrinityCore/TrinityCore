@@ -37,7 +37,7 @@ EndContentData */
 ## mob_aquementas
 ######*/
 
-#define AGGRO_YELL_AQUE     "Who dares awaken Aquementas?"
+#define AGGRO_YELL_AQUE     -1000350
 
 #define SPELL_AQUA_JET      13586
 #define SPELL_FROST_SHOCK   15089
@@ -80,7 +80,7 @@ struct TRINITY_DLL_DECL mob_aquementasAI : public ScriptedAI
 
     void Aggro(Unit* who)
     {
-        DoYell(AGGRO_YELL_AQUE,LANG_UNIVERSAL,who);
+        DoScriptText(AGGRO_YELL_AQUE, m_creature, who);
     }
 
     void UpdateAI(const uint32 diff)
@@ -397,23 +397,23 @@ struct TRINITY_DLL_DECL npc_OOX17AI : public npc_escortAI
                 m_creature->SummonCreature(SPAWN_FIRST, -8350.96, -4445.79, 10.10, 6.20, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                 m_creature->SummonCreature(SPAWN_FIRST, -8355.96, -4447.79, 10.10, 6.27, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                 m_creature->SummonCreature(SPAWN_FIRST, -8353.96, -4442.79, 10.10, 6.08, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-				m_creature->Say(SAY_CHICKEN_AMB, LANG_UNIVERSAL, NULL);
+				DoScriptText(SAY_CHICKEN_AMB, m_creature);
 				break;
 
             case 56:
                 m_creature->SummonCreature(SPAWN_SECOND_1, -7510.07, -4795.50, 9.35, 6.06, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                 m_creature->SummonCreature(SPAWN_SECOND_2, -7515.07, -4797.50, 9.35, 6.22, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
 				m_creature->SummonCreature(SPAWN_SECOND_2, -7518.07, -4792.50, 9.35, 6.22, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-				m_creature->Say(SAY_CHICKEN_AMB, LANG_UNIVERSAL, NULL);
+				DoScriptText(SAY_CHICKEN_AMB, m_creature);
 				{Unit* scoff = FindCreature(SPAWN_SECOND_2, 30);
 				if(scoff)
-				((Creature*)scoff)->Say(SAY_SCOFF, LANG_UNIVERSAL, NULL);}break;
+				DoScriptText(SAY_SCOFF, scoff);}break;
                 break;
 
             case 86:
                 if (player)
                 {
-					m_creature->Say(SAY_CHICKEN_COMP, LANG_UNIVERSAL, NULL);
+					DoScriptText(SAY_CHICKEN_COMP, m_creature);
                     ((Player*)player)->GroupEventHappens(Q_OOX17, m_creature);
                 }
 				break;
@@ -424,15 +424,11 @@ struct TRINITY_DLL_DECL npc_OOX17AI : public npc_escortAI
 
 	void Aggro(Unit* who)
     {
-		switch (rand()%2) {
-			case 0: 
-				m_creature->Say(SAY_CHICKEN_AGGRO_1, LANG_UNIVERSAL, 0);
-				break;
-			case 1: 
-				m_creature->Say(SAY_CHICKEN_AGGRO_2, LANG_UNIVERSAL, 0);
-				break;
-		}
-	
+		switch (rand()%2) 
+        {
+        case 0:	DoScriptText(SAY_CHICKEN_AGGRO_1, m_creature); break;
+        case 1: DoScriptText(SAY_CHICKEN_AGGRO_2, m_creature); break;
+		}	
     }
 
 	void JustSummoned(Creature* summoned)
@@ -466,7 +462,7 @@ bool QuestAccept_npc_OOX17(Player* player, Creature* creature, Quest const* ques
 		creature->SetHealth(creature->GetMaxHealth());
 		creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
 		creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
-		creature->Say(SAY_CHICKEN_ACC, LANG_UNIVERSAL, NULL);
+		DoScriptText(SAY_CHICKEN_ACC, creature);
         ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
 
     }
