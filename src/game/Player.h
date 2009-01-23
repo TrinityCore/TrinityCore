@@ -2057,6 +2057,7 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         bool CanFly() const { return HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY); }
         bool IsFlying() const { return HasUnitMovementFlag(MOVEMENTFLAG_FLYING); }
+        bool IsAllowUseFlyMountsHere() const;
 
         void HandleDrowning();
         void HandleFallDamage(MovementInfo& movementInfo);

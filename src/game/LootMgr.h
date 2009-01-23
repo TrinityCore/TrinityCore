@@ -130,7 +130,7 @@ class LootStore
 {
     public:
         explicit LootStore(char const* name, char const* entryName, bool ratesAllowed)
-            : m_name(name), m_entryName(entryName), m_ratesAllowed(m_ratesAllowed) {}
+            : m_name(name), m_entryName(entryName), m_ratesAllowed(ratesAllowed) {}
         virtual ~LootStore() { Clear(); }
 
         void Verify() const;
