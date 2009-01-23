@@ -4370,16 +4370,10 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                 Unit::AuraList const& list = unitTarget->GetAurasByType(SPELL_AURA_MOD_RESISTANCE);
                 for(Unit::AuraList::const_iterator itr=list.begin();itr!=list.end();++itr)
                 {
-<<<<<<< HEAD:src/game/SpellEffects.cpp
                     SpellEntry const *proto = (*itr)->GetSpellProto();
                     if(proto->SpellFamilyName == SPELLFAMILY_WARRIOR
-                        && proto->SpellFamilyFlags == SPELLFAMILYFLAG_WARRIOR_SUNDERARMOR)
-=======
-                    SpellEntry const *spellInfo = (*itr).second->GetSpellProto();
-                    if( spellInfo->SpellFamilyName == SPELLFAMILY_WARRIOR &&
-                        spellInfo->SpellFamilyFlags & 0x0000000000004000LL &&
-                        (*itr).second->GetCasterGUID() == m_caster->GetGUID())
->>>>>>> upstream/master:src/game/SpellEffects.cpp
+                        && proto->SpellFamilyFlags == SPELLFAMILYFLAG_WARRIOR_SUNDERARMOR
+                        && (*itr)->GetCasterGUID() == m_caster->GetGUID())
                     {
                         (*itr)->RefreshAura();
                         stack = (*itr)->GetStackAmount();
