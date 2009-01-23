@@ -3,3 +3,5 @@ convert TBC DB to WLK DB:
 2. create a database called "mangos" and run mangos.sql.
 3. run TBC-WLK_characters.sql in "characters" database.
 4. run TBC-WLK_world.sql in "world" database.
+
+only to 7133. you need to manually apply mangos sql from 7141

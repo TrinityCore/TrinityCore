@@ -662,7 +662,7 @@ struct UnitActionBarEntry
 
     union
     {
-        struct 
+        struct
         {
             uint16 SpellOrAction;
             uint16 Type;

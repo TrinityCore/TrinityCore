@@ -29,7 +29,7 @@ WaypointStore WaypointMgr;
 
 void WaypointStore::Free()
 {
-	waypoint_map.clear();
+    waypoint_map.clear();
 }
 
 void WaypointStore::Load()

@@ -1604,7 +1604,7 @@ void Guild::DisplayGuildBankLogs(WorldSession *session, uint8 TabId)
         {
             data << uint8((*itr)->LogEntry);
             data << uint64(MAKE_NEW_GUID((*itr)->PlayerGuid,0,HIGHGUID_PLAYER));
-            if ((*itr)->LogEntry == GUILD_BANK_LOG_DEPOSIT_MONEY || 
+            if ((*itr)->LogEntry == GUILD_BANK_LOG_DEPOSIT_MONEY ||
                 (*itr)->LogEntry == GUILD_BANK_LOG_WITHDRAW_MONEY ||
                 (*itr)->LogEntry == GUILD_BANK_LOG_REPAIR_MONEY ||
                 (*itr)->LogEntry == GUILD_BANK_LOG_UNK1 ||
@@ -1634,7 +1634,7 @@ void Guild::DisplayGuildBankLogs(WorldSession *session, uint8 TabId)
         {
             data << uint8((*itr)->LogEntry);
             data << uint64(MAKE_NEW_GUID((*itr)->PlayerGuid,0,HIGHGUID_PLAYER));
-            if ((*itr)->LogEntry == GUILD_BANK_LOG_DEPOSIT_MONEY || 
+            if ((*itr)->LogEntry == GUILD_BANK_LOG_DEPOSIT_MONEY ||
                 (*itr)->LogEntry == GUILD_BANK_LOG_WITHDRAW_MONEY ||
                 (*itr)->LogEntry == GUILD_BANK_LOG_REPAIR_MONEY ||
                 (*itr)->LogEntry == GUILD_BANK_LOG_UNK1 ||

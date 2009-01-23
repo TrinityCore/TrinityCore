@@ -10,4 +10,4 @@ DELETE FROM character_spell WHERE `spell` IN (
 
 /*old Shadow Resistance, leaned as racial passive of race 5 */
 DELETE FROM character_spell USING character_spell INNER JOIN characters ON character_spell.guid = characters.guid
-WHERE character_spell.spell = 20579 AND characters.race <> 5; 
+WHERE character_spell.spell = 20579 AND characters.race <> 5;

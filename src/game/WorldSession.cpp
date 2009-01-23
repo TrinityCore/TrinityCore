@@ -544,7 +544,7 @@ void WorldSession::LoadAccountData()
     if(!result)
         return;
 
-    do 
+    do
     {
         Field *fields = result->Fetch();
 

@@ -100,7 +100,8 @@ struct InstanceTemplate
     uint32 levelMin;
     uint32 levelMax;
     uint32 maxPlayers;
-    uint32 reset_delay;
+    uint32 maxPlayersHeroic;
+    uint32 reset_delay;                                 // FIX ME: now exist normal/heroic raids with possible different time of reset.
     float startLocX;
     float startLocY;
     float startLocZ;
@@ -384,6 +385,7 @@ class TRINITY_DLL_SPEC InstanceMap : public Map
         bool CanEnter(Player* player);
         void SendResetWarnings(uint32 timeLeft) const;
         void SetResetSchedule(bool on);
+        uint32 GetMaxPlayers() const;
     private:
         bool m_resetAfterUnload;
         bool m_unloadWhenEmpty;
