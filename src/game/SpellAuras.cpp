@@ -1898,10 +1898,9 @@ void Aura::TriggerSpell()
             }
         }
     }
-<<<<<<< HEAD:src/game/SpellAuras.cpp
     if(!GetSpellMaxRange(sSpellRangeStore.LookupEntry(triggeredSpellInfo->rangeIndex)))
         target = m_target;    //for druid dispel poison
-    m_target->CastSpell(target, triggeredSpellInfo, true, 0, this, originalCasterGUID);
+    m_target->CastSpell(target, triggeredSpellInfo, true, 0, this, GetCasterGUID());
 }
 
 Unit* Aura::GetTriggerTarget() const
@@ -1911,9 +1910,6 @@ Unit* Aura::GetTriggerTarget() const
         ((Player*)m_target)->GetSelection() :*/
         m_target->GetUInt64Value(UNIT_FIELD_TARGET));
     return target ? target : m_target;
-=======
-    // All ok cast by default case
-    caster->CastSpell(target, triggeredSpellInfo, true, 0, this);
 }
 
 void Aura::TriggerSpellWithValue()
@@ -1929,7 +1925,6 @@ void Aura::TriggerSpellWithValue()
     int32  basepoints0 = this->GetModifier()->m_amount;
 
     caster->CastCustomSpell(target, trigger_spell_id, &basepoints0, 0, 0, true, 0, this);
->>>>>>> upstream/master:src/game/SpellAuras.cpp
 }
 
 /*********************************************************/
