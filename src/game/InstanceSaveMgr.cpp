@@ -361,8 +361,8 @@ void InstanceSaveManager::PackInstances()
         bar.step();
     }
 
-    sLog.outString();
     sLog.outString( ">> Instance numbers remapped, next instance id is %u", InstanceNumber );
+    sLog.outString();
 }
 
 void InstanceSaveManager::LoadResetTimes()
@@ -454,7 +454,7 @@ void InstanceSaveManager::LoadResetTimes()
     // add the global reset times to the priority queue
     for(uint32 i = 0; i < sInstanceTemplate.MaxEntry; i++)
     {
-        InstanceTemplate* temp = (InstanceTemplate*)objmgr.GetInstanceTemplate(i);
+        InstanceTemplate const* temp = objmgr.GetInstanceTemplate(i);
         if(!temp) continue;
         // only raid/heroic maps have a global reset time
         const MapEntry* entry = sMapStore.LookupEntry(temp->map);
@@ -583,7 +583,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, bool warn, uint32 timeLe
 {
     // global reset for all instances of the given map
     // note: this isn't fast but it's meant to be executed very rarely
-    Map *map = (MapInstanced*)MapManager::Instance().GetBaseMap(mapid);
+    Map const *map = MapManager::Instance().GetBaseMap(mapid);
     if(!map->Instanceable())
         return;
     uint64 now = (uint64)time(NULL);
@@ -591,7 +591,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, bool warn, uint32 timeLe
     if(!warn)
     {
         // this is called one minute before the reset time
-        InstanceTemplate* temp = (InstanceTemplate*)objmgr.GetInstanceTemplate(mapid);
+        InstanceTemplate const* temp = objmgr.GetInstanceTemplate(mapid);
         if(!temp || !temp->reset_delay)
         {
             sLog.outError("InstanceSaveManager::ResetOrWarnAll: no instance template or reset delay for map %d", mapid);

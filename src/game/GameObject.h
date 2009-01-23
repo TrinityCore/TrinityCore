@@ -351,7 +351,7 @@ struct GameObjectInfo
             uint32 state2Name;                              //3
         } destructibleBuilding;
         //34 GAMEOBJECT_TYPE_TRAPDOOR
-        struct  
+        struct
         {
             uint32 whenToPause;                             // 0
             uint32 startOpen;                               // 1
