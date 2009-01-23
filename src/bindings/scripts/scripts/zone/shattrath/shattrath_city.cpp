@@ -225,10 +225,12 @@ bool GossipSelect_npc_shattrathflaskvendors(Player *player, Creature *_Creature,
 # npc_zephyr
 ######*/
 
+#define GOSSIP_HZ "Take me to the Caverns of Time."
+
 bool GossipHello_npc_zephyr(Player *player, Creature *_Creature)
 {
     if( player->GetReputationRank(989) >= REP_REVERED )
-        player->ADD_GOSSIP_ITEM(0, "Take me to the Caverns of Time.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_HZ, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
     player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
 
@@ -247,28 +249,28 @@ bool GossipSelect_npc_zephyr(Player *player, Creature *_Creature, uint32 sender,
 # npc_kservant
 ######*/
 
-#define SAY1       "Follow me, stranger. This won't take long."
-#define WHISP1     "Shattrath was once the draenei capital of this world. Its name means \"dwelling of light.\""
-#define WHISP2     "When the Burning Legion turned the orcs against the draenei, the fiercest battle was fought here. The draenei fought tooth and nail, but in the end the city fell."
-#define WHISP3     "The city was left in ruins and darkness... until the Sha'tar arrived."
-#define WHISP4     "Let us go into the Lower City. I will warn you that as one of the only safe havens in Outland, Shattrath has attracted droves of refugees from all wars, current and past. "
-#define WHISP5     "The Sha'tar, or \"born from light\" are the naaru that came to Outland to fight the demons of the Burning Legion."
-#define WHISP6     "They were drawn to the ruins of Shattrath City where a small remnant of the draenei priesthood conducted its rites inside a ruined temple on this very spot."
-#define WHISP7     "The priesthood, known as the Aldor, quickly regained its strength as word spread that the naaru had returned and reconstruction soon began. The ruined temple is now used as an infirmary for injured refugees."
-#define WHISP8     "It wouldn't be long, however, before the city came under attack once again. This time, the attack came from Illidan's armies. A large regiment of blood elves had been sent by Illidan's ally, Kael'thas Sunstrider, to lay waste to the city."
-#define WHISP9     "As the regiment of blood elves crossed this very bridge, the Aldor's exarchs and vindicators lined up to defend the Terrace of Light. But then the unexpected happened. "
-#define WHISP10    "The blood elves laid down their weapons in front of the city's defenders; their leader, a blood elf elder known as Voren'thal, stormed into the Terrace of Light and demanded to speak to A'dal."
-#define WHISP11    "As the naaru approached him, Voren'thal kneeled before him and uttered the following words: \"I've seen you in a vision, naaru. My race's only hope for survival lies with you. My followers and I are here to serve you.\""
-#define WHISP12    "The defection of Voren'thal and his followers was the largest loss ever incurred by Kael's forces. And these weren't just any blood elves. Many of the best and brightest amongst Kael's scholars and magisters had been swayed by Voren'thal's influence."
-#define WHISP13    "The naaru accepted the defectors, who would become known as the Scryers; their dwelling lies in the platform above. Only those initiated with the Scryers are allowed there."
-#define WHISP14    "The Aldor are followers of the Light and forgiveness and redemption are values they understand. However, they found hard to forget the deeds of the blood elves while under Kaell's command."
-#define WHISP15    "Many of the priesthood had been slain by the same magisters who now vowed to serve the naaru. They were not happy to share the city with their former enemies."
-#define WHISP16    "The Aldor's most holy temple and its surrounding dwellings lie on the terrace above. As a holy site, only the initiated are welcome inside."
-#define WHISP17    "The attacks against Shattrath continued, but the city did not fall, as you can see. On the contrary, the naaru known as Xi'ri led a successful incursion into Shadowmoon Valley - Illidan's doorstep."
-#define WHISP18    "There he continues to wage war on Illidan with the assistance of the Aldor and the Scryers. The two factions have not given up on their old feuds, though."
-#define WHISP19    "Such is their animosity that they vie for the honor of being sent to assist the naaru there. Each day, that decision is made here by A'dal. The armies gather here to receive A'dal's blessing before heading to Shadowmoon."
-#define WHISP20    "Khadgar should be ready to see you again. Just remember that to serve the Sha'tar you will most likely have to ally with the Aldor or the Scryers. And seeking the favor of one group will cause the others' dislike."
-#define WHISP21    "Good luck stranger, and welcome to Shattrath City."
+#define SAY1       -1000306
+#define WHISP1     -1000307
+#define WHISP2     -1000308
+#define WHISP3     -1000309
+#define WHISP4     -1000310
+#define WHISP5     -1000311
+#define WHISP6     -1000312
+#define WHISP7     -1000313
+#define WHISP8     -1000314
+#define WHISP9     -1000315
+#define WHISP10    -1000316
+#define WHISP11    -1000317
+#define WHISP12    -1000318
+#define WHISP13    -1000319
+#define WHISP14    -1000320
+#define WHISP15    -1000321
+#define WHISP16    -1000322
+#define WHISP17    -1000323
+#define WHISP18    -1000324
+#define WHISP19    -1000325
+#define WHISP20    -1000326
+#define WHISP21    -1000327
 
 struct TRINITY_DLL_DECL npc_kservantAI : public npc_escortAI
 {
@@ -279,33 +281,34 @@ public:
     void WaypointReached(uint32 i)
     {
         Unit *pTemp = Unit::GetUnit(*m_creature,PlayerGUID);
+        
         if( !pTemp )
             return;
 
         switch(i)
         {
-            case 0: DoSay(SAY1, LANG_UNIVERSAL, pTemp); break;
-            case 4: DoWhisper(WHISP1, pTemp); break;
-            case 6: DoWhisper(WHISP2, pTemp); break;
-            case 7: DoWhisper(WHISP3, pTemp); break;
-            case 8: DoWhisper(WHISP4, pTemp); break;
-            case 17: DoWhisper(WHISP5, pTemp); break;
-            case 18: DoWhisper(WHISP6, pTemp); break;
-            case 19: DoWhisper(WHISP7, pTemp); break;
-            case 33: DoWhisper(WHISP8, pTemp); break;
-            case 34: DoWhisper(WHISP9, pTemp); break;
-            case 35: DoWhisper(WHISP10, pTemp); break;
-            case 36: DoWhisper(WHISP11, pTemp); break;
-            case 43: DoWhisper(WHISP12, pTemp); break;
-            case 44: DoWhisper(WHISP13, pTemp); break;
-            case 49: DoWhisper(WHISP14, pTemp); break;
-            case 50: DoWhisper(WHISP15, pTemp); break;
-            case 51: DoWhisper(WHISP16, pTemp); break;
-            case 52: DoWhisper(WHISP17, pTemp); break;
-            case 53: DoWhisper(WHISP18, pTemp); break;
-            case 54: DoWhisper(WHISP19, pTemp); break;
-            case 55: DoWhisper(WHISP20, pTemp); break;
-            case 56: DoWhisper(WHISP21, pTemp);
+            case 0: DoScriptText(SAY1, m_creature, pTemp); break;
+            case 4: DoScriptText(WHISP1, m_creature, pTemp); break;
+            case 6: DoScriptText(WHISP2, m_creature, pTemp); break;
+            case 7: DoScriptText(WHISP3, m_creature, pTemp); break;
+            case 8: DoScriptText(WHISP4, m_creature, pTemp); break;
+            case 17: DoScriptText(WHISP5, m_creature, pTemp); break;
+            case 18: DoScriptText(WHISP6, m_creature, pTemp); break;
+            case 19: DoScriptText(WHISP7, m_creature, pTemp); break;
+            case 33: DoScriptText(WHISP8, m_creature, pTemp); break;
+            case 34: DoScriptText(WHISP9, m_creature, pTemp); break;
+            case 35: DoScriptText(WHISP10, m_creature, pTemp); break;
+            case 36: DoScriptText(WHISP11, m_creature, pTemp); break;
+            case 43: DoScriptText(WHISP12, m_creature, pTemp); break;
+            case 44: DoScriptText(WHISP13, m_creature, pTemp); break;
+            case 49: DoScriptText(WHISP14, m_creature, pTemp); break;
+            case 50: DoScriptText(WHISP15, m_creature, pTemp); break;
+            case 51: DoScriptText(WHISP16, m_creature, pTemp); break;
+            case 52: DoScriptText(WHISP17, m_creature, pTemp); break;
+            case 53: DoScriptText(WHISP18, m_creature, pTemp); break;
+            case 54: DoScriptText(WHISP19, m_creature, pTemp); break;
+            case 55: DoScriptText(WHISP20, m_creature, pTemp); break;
+            case 56: DoScriptText(WHISP21, m_creature, pTemp);
                if( PlayerGUID )
                 {
                     Unit* player = ((Creature*)Unit::GetUnit((*m_creature), PlayerGUID));
@@ -414,12 +417,13 @@ CreatureAI* GetAI_npc_kservantAI(Creature *_Creature)
 ######*/
 
 #define GOSSIP_BOOK	"Ezekiel said that you might have a certain book..."
-#define SAY_1		"Time to teach you a lesson in manners, little boy!"
-#define SAY_2		"Now I'm gonna give you to the count of '3' to get out of here before I sick the dogs on you."
-#define SAY_3		"1..."
-#define SAY_4		"2..."
-#define SAY_5		"Time to meet your maker!"
-#define SAY_GIVEUP	"Alright, we give up! Don't hurt us!"
+
+#define SAY_1		-1000328
+#define SAY_2		-1000329
+#define SAY_3		-1000330
+#define SAY_4		-1000331
+#define SAY_5		-1000332
+#define SAY_GIVEUP	-1000333
 
 #define QUEST_WBI		10231
 #define NPC_CREEPJACK	19726
@@ -477,11 +481,11 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
 			if(Malone)
 				Malone->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
 			m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP); }return 2000;
-		case 1: DoSay(SAY_1, LANG_UNIVERSAL, player); return 3000;
-		case 2: DoSay(SAY_2, LANG_UNIVERSAL, player, true); return 5000;
-		case 3: DoSay(SAY_3, LANG_UNIVERSAL, player); return 2000;
-		case 4: DoSay(SAY_4, LANG_UNIVERSAL, player); return 2000;
-		case 5: DoSay(SAY_5, LANG_UNIVERSAL, player); return 2000;
+		case 1: DoScriptText(SAY_1, m_creature, player); return 3000;
+		case 2: DoScriptText(SAY_2, m_creature, player); return 5000;
+		case 3: DoScriptText(SAY_3, m_creature, player); return 2000;
+		case 4: DoScriptText(SAY_4, m_creature, player); return 2000;
+		case 5: DoScriptText(SAY_5, m_creature, player); return 2000;
 		case 6: Attack = true; return 2000;
 		default: return 0;
 		}
@@ -494,7 +498,7 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
 		if(SayTimer < diff)
         {
             if(Event)
-                SayTimer = NextStep(Step++);
+                SayTimer = NextStep(++Step);
         }else SayTimer -= diff;
 
 		if(Attack)
@@ -541,7 +545,7 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
 			}
 			m_creature->setFaction(1194);
 			Done = true;
-			DoSay(SAY_GIVEUP, LANG_UNIVERSAL, NULL);
+			DoScriptText(SAY_GIVEUP, m_creature, NULL);
 			m_creature->DeleteThreatList();
 			m_creature->CombatStop();
 			m_creature->GetMotionMaster()->MoveTargetedHome();

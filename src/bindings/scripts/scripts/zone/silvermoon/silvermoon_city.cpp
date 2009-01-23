@@ -31,7 +31,7 @@ EndContentData */
 # npc_blood_knight_stillblade
 #######*/
 
-#define SAY_HEAL "Thank you, dear Paladin, you just saved my life."
+#define SAY_HEAL -1000334
 
 #define QUEST_REDEEMING_THE_DEAD        9685
 #define SPELL_SHIMMERING_VESSEL         31225
@@ -82,7 +82,7 @@ struct TRINITY_DLL_DECL npc_blood_knight_stillbladeAI : public ScriptedAI
             m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
             m_creature->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
             //m_creature->RemoveAllAuras();
-            DoSay(SAY_HEAL,LANG_THALASSIAN,NULL);
+            DoScriptText(SAY_HEAL, m_creature);
             spellHit = true;
         }
     }
