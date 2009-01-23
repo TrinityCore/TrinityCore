@@ -33,6 +33,8 @@ EndContentData */
 ## npc_astor_hadren
 ######*/
 
+#define GOSSIP_HAH "You're Astor Hadren, right?"
+#define GOSSIP_SAH "You've got something I need, Astor. And I'll be taking it now."
 struct TRINITY_DLL_DECL npc_astor_hadrenAI : public ScriptedAI
 {
     npc_astor_hadrenAI(Creature *c) : ScriptedAI(c) {Reset();}
@@ -60,7 +62,7 @@ CreatureAI* GetAI_npc_astor_hadren(Creature *_creature)
 bool GossipHello_npc_astor_hadren(Player *player, Creature *_Creature)
 {
     if (player->GetQuestStatus(1886) == QUEST_STATUS_INCOMPLETE)
-        player->ADD_GOSSIP_ITEM( 0, "You're Astor Hadren, right?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        player->ADD_GOSSIP_ITEM( 0, GOSSIP_HAH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
     player->SEND_GOSSIP_MENU(623, _Creature->GetGUID());
 
@@ -72,7 +74,7 @@ bool GossipSelect_npc_astor_hadren(Player *player, Creature *_Creature, uint32 s
     switch (action)
     {
         case GOSSIP_ACTION_INFO_DEF + 1:
-            player->ADD_GOSSIP_ITEM( 0, "You've got something I need, Astor. And I'll be taking it now.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            player->ADD_GOSSIP_ITEM( 0, GOSSIP_SAH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
             player->SEND_GOSSIP_MENU(624, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF + 2:
@@ -89,20 +91,20 @@ bool GossipSelect_npc_astor_hadren(Player *player, Creature *_Creature, uint32 s
 ## npc_deathstalker_erland
 ######*/
 
-#define SAY_QUESTACCEPT	"Let's get to the others, and keep an eye open for those wolves cutside..."
-#define SAY_START		"Be careful, $N. Those wolves like to hide among the trees."
-#define SAY_AGGRO_1		"A Mottled Worg attacks!"
-#define SAY_AGGRO_2		"Beware! I am under attack!"
-#define SAY_LAST		"We're almost there!"
+#define SAY_QUESTACCEPT	-1000335
+#define SAY_START		-1000336
+#define SAY_AGGRO_1		-1000337
+#define SAY_AGGRO_2		-1000338
+#define SAY_LAST		-1000339
 
-#define SAY_THANKS		"We made it! Thanks, $N. I couldn't have gotten without you."
-#define SAY_RANE		"It's good to see you again, Erland. What is your report?"
-#define SAY_ANSWER		"Masses of wolves are to the east, and whoever lived at Malden's Orchard is gone."
-#define SAY_MOVE_QUINN	"If I am excused, then I'd like to check on Quinn..."
+#define SAY_THANKS		-1000340
+#define SAY_RANE		-1000341
+#define SAY_ANSWER		-1000342
+#define SAY_MOVE_QUINN	-1000343
 
-#define SAY_GREETINGS	"Hello, Quinn. How are you faring?"
-#define SAY_QUINN		"I've been better. Ivar the Foul got the better of me..."
-#define SAY_ON_BYE		"Try to take better care of yourself, Quinn. You were lucky this time."
+#define SAY_GREETINGS	-1000344
+#define SAY_QUINN		-1000345
+#define SAY_ON_BYE		-1000346
 
 #define QUEST_ESCORTING	435
 #define NPC_RANE		1950
@@ -121,25 +123,26 @@ struct TRINITY_DLL_DECL npc_deathstalker_erlandAI : public npc_escortAI
 
 		switch(i)
 		{
-		case 1: DoSay(SAY_START, LANG_UNIVERSAL, player);break;
+		case 1: DoScriptText(SAY_START, m_creature, player);break;
 		case 13: 
-			DoSay(SAY_LAST, LANG_UNIVERSAL, player);
-			((Player*)player)->GroupEventHappens(QUEST_ESCORTING, m_creature);break;
-		case 14: DoSay(SAY_THANKS, LANG_UNIVERSAL, player);break;
+			DoScriptText(SAY_LAST, m_creature, player);
+            if(player)
+                ((Player*)player)->GroupEventHappens(QUEST_ESCORTING, m_creature);break;
+		case 14: DoScriptText(SAY_THANKS, m_creature, player);break;
 		case 15: {	
 				Unit* Rane = FindCreature(NPC_RANE, 20);
 				if(Rane)
-					((Creature*)Rane)->Say(SAY_RANE, LANG_UNIVERSAL, NULL);				
+					DoScriptText(SAY_RANE, Rane);				
 				break;}
-		case 16: DoSay(SAY_ANSWER, LANG_UNIVERSAL, NULL);break;
-		case 17: DoSay(SAY_MOVE_QUINN, LANG_UNIVERSAL, NULL); break;
-		case 24: DoSay(SAY_GREETINGS, LANG_UNIVERSAL, NULL);break;
+		case 16: DoScriptText(SAY_ANSWER, m_creature);break;
+		case 17: DoScriptText(SAY_MOVE_QUINN, m_creature); break;
+		case 24: DoScriptText(SAY_GREETINGS, m_creature);break;
 		case 25: {
 				Unit* Quinn = FindCreature(NPC_QUINN, 20);
 				if(Quinn)
-					((Creature*)Quinn)->Say(SAY_QUINN, LANG_GUTTERSPEAK, NULL);
+					DoScriptText(SAY_QUINN, Quinn);
 				break;}
-		case 26: DoSay(SAY_ON_BYE, LANG_UNIVERSAL, NULL);break;
+		case 26: DoScriptText(SAY_ON_BYE, m_creature, NULL);break;
 			
 		}
 	}
@@ -150,8 +153,8 @@ struct TRINITY_DLL_DECL npc_deathstalker_erlandAI : public npc_escortAI
 	{
 		switch(rand()%2)
 		{
-		case 0: DoSay(SAY_AGGRO_1, LANG_UNIVERSAL, who);break;
-		case 1: DoSay(SAY_AGGRO_2, LANG_UNIVERSAL, who);break;
+		case 0: DoScriptText(SAY_AGGRO_1, m_creature, who);break;
+		case 1: DoScriptText(SAY_AGGRO_2, m_creature, who);break;
 		}
 	}
 
@@ -165,7 +168,7 @@ bool QuestAccept_npc_deathstalker_erland(Player* player, Creature* creature, Que
 {
     if (quest->GetQuestId() == QUEST_ESCORTING)
 	{
-		creature->Say(SAY_QUESTACCEPT, LANG_UNIVERSAL, player->GetGUID());
+		DoScriptText(SAY_QUESTACCEPT, creature, player);
 		((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
 	}
     

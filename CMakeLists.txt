@@ -156,12 +156,12 @@ ${CMAKE_CURRENT_SOURCE_DIR}/..
 ${ACE_INCLUDE_DIR}
 )
 
-if(PREFIX)
-message("* Running ldconfig")
-file(WRITE /etc/ld.so.conf.d/trinitycore.conf "${CMAKE_INSTALL_PREFIX}/lib")
-execute_process(COMMAND ldconfig)
-endif(PREFIX)
+SET(CMAKE_SKIP_BUILD_RPATH FALSE)
+SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 add_subdirectory(dep)
 add_subdirectory(doc)
 add_subdirectory(src)
+add_subdirectory(sql)

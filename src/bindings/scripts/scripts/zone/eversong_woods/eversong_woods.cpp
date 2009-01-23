@@ -60,6 +60,12 @@ CreatureAI* GetAI_mobs_mana_tapped(Creature *_Creature)
 ## npc_prospector_anvilward
 ######*/
 
+#define GOSSIP_HELLO    "I need a moment of your time, sir."
+#define GOSSIP_SELECT   "Why... yes, of course. I've something to show you right inside this building, Mr. Anvilward."
+
+#define SAY_PR_1 -1000281
+#define SAY_PR_2 -1000282
+
 #define QUEST_THE_DWARVEN_SPY 8483
 
 struct TRINITY_DLL_DECL npc_prospector_anvilwardAI : public npc_escortAI
@@ -70,17 +76,16 @@ struct TRINITY_DLL_DECL npc_prospector_anvilwardAI : public npc_escortAI
     // Pure Virtual Functions
     void WaypointReached(uint32 i)
     {
+        Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+
+        if(!player)
+            return;
+
         switch (i)
         {
-            case 0:
-                m_creature->Say("Very well. Let's see what you have to show me, $N.", LANG_UNIVERSAL, PlayerGUID);
-                break;
-            case 5:
-                m_creature->Say("What manner of trick is this, $R? If you seek to ambush me, I warn you I will not go down quietly!", LANG_UNIVERSAL, PlayerGUID);
-                break;
-            case 6:
-                m_creature->setFaction(24);
-                break;
+            case 0: DoScriptText(SAY_PR_1, m_creature, player); break;
+            case 5: DoScriptText(SAY_PR_2, m_creature, player); break;
+            case 6: m_creature->setFaction(24); break;
         }
     }
 
@@ -88,20 +93,17 @@ struct TRINITY_DLL_DECL npc_prospector_anvilwardAI : public npc_escortAI
 
     void Reset()
     {
-        //Default npc faction
         m_creature->setFaction(35);
     }
 
     void JustDied(Unit* killer)
-    {
-        //Default npc faction
+    {    
         m_creature->setFaction(35);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        npc_escortAI::UpdateAI(diff);                       //Must update npc_escortAI
-
+        npc_escortAI::UpdateAI(diff);                       
     }
 };
 
@@ -114,8 +116,8 @@ CreatureAI* GetAI_npc_prospector_anvilward(Creature *_Creature)
     thisAI->AddWaypoint(2, 9309.63, -6658.84, 22.43);
     thisAI->AddWaypoint(3, 9304.43, -6649.31, 26.46);
     thisAI->AddWaypoint(4, 9298.83, -6648.00, 28.61);
-    thisAI->AddWaypoint(5, 9291.06, -6653.46, 31.83,2500);
-    thisAI->AddWaypoint(6, 9289.08, -6660.17, 31.85,5000);
+    thisAI->AddWaypoint(5, 9291.06, -6653.46, 31.83, 2500);
+    thisAI->AddWaypoint(6, 9289.08, -6660.17, 31.85, 5000);
     thisAI->AddWaypoint(7, 9291.06, -6653.46, 31.83);
 
     return (CreatureAI*)thisAI;
@@ -124,7 +126,7 @@ CreatureAI* GetAI_npc_prospector_anvilward(Creature *_Creature)
 bool GossipHello_npc_prospector_anvilward(Player *player, Creature *_Creature)
 {
     if( player->GetQuestStatus(QUEST_THE_DWARVEN_SPY) == QUEST_STATUS_INCOMPLETE )
-        player->ADD_GOSSIP_ITEM(0, "I need a moment of your time, sir.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_HELLO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
     player->SEND_GOSSIP_MENU(8239, _Creature->GetGUID());
     return true;
@@ -135,12 +137,11 @@ bool GossipSelect_npc_prospector_anvilward(Player *player, Creature *_Creature, 
     switch(action)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
-            player->ADD_GOSSIP_ITEM( 0, "Why... yes, of course. I've something to show you right inside this building, Mr. Anvilward.",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+2);
+            player->ADD_GOSSIP_ITEM( 0, GOSSIP_SELECT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
             player->SEND_GOSSIP_MENU(8240, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
             player->CLOSE_GOSSIP_MENU();
-            //attack,defend,walk
             ((npc_escortAI*)(_Creature->AI()))->Start(true, true, false, player->GetGUID());
             break;
     }
@@ -636,11 +637,11 @@ CreatureAI* GetAI_npc_apprentice_mirvedaAI(Creature *_Creature)
 }
 
 /*######
-## npc_infused_crystal not working yet.
+## npc_infused_crystal
 ######*/
 
 #define MOB_ENRAGED_WRAITH	17086
-#define EMOTE	"releases the last of its energies into the nerarby runestone, succesfully reactivating it."
+#define EMOTE	-1000283
 #define QUEST_POWERING_OUR_DEFENSES	8490
 
 struct Location
@@ -718,7 +719,7 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
 	{
 		if(EndTimer < diff && Progress)
 		{
-			DoTextEmote(EMOTE, NULL);
+			DoScriptText(EMOTE, m_creature);
 			Completed = true;
 			if (PlayerGUID)
 			{

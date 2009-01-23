@@ -124,7 +124,6 @@ INSTALL(FILES
 817_world_scripts.sql
 822_world_scripts.sql
 826_world_scripts.sql
-832_characters.sql
 833_world_scripts.sql
 834_world_scripts.sql
 837_world_scripts.sql
@@ -142,4 +141,20 @@ INSTALL(FILES
 905_world_scripts.sql
 917_world.sql
 919_world.sql
+927_characters.sql
+930_characters.sql
+933_world_scripts.sql
+935_world_scripts.sql
+940_world_scripts.sql
+945_world_scripts.sql
+947_world_scripts.sql
+948_world_scripts.sql
+950_world_scripts.sql
+951_world_scripts.sql
+952_world_scripts.sql
+953_world_scripts.sql
+954_world_scripts.sql
+955_world_scripts.sql
+956_world_scripts.sql
+957_world_scripts.sql
 DESTINATION share/trinity/sql/updates)

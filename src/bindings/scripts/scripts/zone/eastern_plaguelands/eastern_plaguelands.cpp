@@ -45,9 +45,8 @@ struct TRINITY_DLL_DECL mobs_ghoul_flayerAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
         if( Killer->GetTypeId() == TYPEID_PLAYER )
-            DoSpawnCreature(11064,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN,60000);
+            DoSpawnCreature(11064, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
     }
-
 };
 
 CreatureAI* GetAI_mobs_ghoul_flayer(Creature *_Creature)
