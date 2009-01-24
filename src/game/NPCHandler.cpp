@@ -500,6 +500,10 @@ void WorldSession::HandleListStabledPetsOpcode( WorldPacket & recv_data )
     if(GetPlayer()->hasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
 
+    // remove mounts this fix bug where getting pet from stable while mounted deletes pet.
+    if(GetPlayer()->IsMounted())
+        GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+
     SendStablePet(npcGUID);
 }
 
