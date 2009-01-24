@@ -19,8 +19,9 @@ UPDATE `gameobject_template` SET `ScriptName`='go_orb_of_command' WHERE `entry`=
 UPDATE `gameobject_template` SET `ScriptName`='go_tablet_of_madness' WHERE `entry`=180368;
 UPDATE `gameobject_template` SET `ScriptName`='go_tablet_of_the_seven' WHERE `entry`=169294;
 UPDATE `gameobject_template` set `ScriptName`='go_manticron_cube' where entry = 181713;
-UPDATE `gameobject_template` SET `ScriptName` = 'go_mausoleum_trigger' WHERE `entry` = 104593;
-UPDATE `gameobject_template` SET `ScriptName` = 'go_mausoleum_door' WHERE `entry` = 176594;
+UPDATE `gameobject_template` SET `ScriptName`='go_mausoleum_trigger' WHERE `entry` = 104593;
+UPDATE `gameobject_template` SET `ScriptName`='go_mausoleum_door' WHERE `entry` = 176594;
+UPDATE `gameobject_template` SET `scriptname`='go_crystal_prison' WHERE `entry`=185126;
 
 /* GUARD */
 UPDATE `creature_template` SET `ScriptName`='guard_azuremyst' WHERE `entry`=18038;
@@ -716,9 +717,11 @@ UPDATE `creature_template` SET `ScriptName`='npc_oronok_tornheart' WHERE `entry`
 UPDATE `creature_template` SET `ScriptName`='mob_mature_netherwing_drake' WHERE `entry`=21648;
 UPDATE `creature_template` SET `ScriptName`='mob_enslaved_netherwing_drake' WHERE `entry`=21722;
 UPDATE `creature_template` SET `ScriptName`='npc_overlord_morghor' WHERE entry=	23139;
-UPDATE `creature_template` SET `ScriptName`='' WHERE entry=22083;
 UPDATE `creature_template` SET `ScriptName`='' WHERE entry=23141;
-UPDATE `creature_template` SET `ScriptName`='npc_earthmender_wilda' where entry=21027;
+UPDATE `creature_template` SET `ScriptName`='mob_illidari_spawn' WHERE `entry` IN (22075, 22074, 19797);
+UPDATE `creature_template` SET `ScriptName`='mob_torloth_the_magnificent' WHERE `entry`='22076';
+UPDATE `creature_template  SET `ScriptName`='npc_lord_illidan_stormrage' WHERE `entry`=22083;
+UPDATE `creature_template` SET `ScriptName`='npc_earthmender_wilda' WHERE `entry`=21027;
 
 /* SHATTRATH */
 UPDATE `creature_template` SET `ScriptName`='npc_raliq_the_drunk' WHERE `entry`=18585;
