@@ -130,7 +130,7 @@ ObjectAccessor::GetNPCIfCanInteractWith(Player const &player, uint64 guid, uint3
 }
 
 Creature*
-ObjectAccessor::GetCreatureOrPet(WorldObject const &u, uint64 guid)
+ObjectAccessor::GetCreatureOrPetOrVehicle(WorldObject const &u, uint64 guid)
 {
     if(Creature *unit = GetPet(guid))
         return unit;
@@ -166,7 +166,7 @@ ObjectAccessor::GetUnit(WorldObject const &u, uint64 guid)
     if(IS_PLAYER_GUID(guid))
         return FindPlayer(guid);
 
-    return GetCreatureOrPet(u, guid);
+    return GetCreatureOrPetOrVehicle(u, guid);
 }
 
 Corpse*
@@ -189,7 +189,7 @@ Object* ObjectAccessor::GetObjectByTypeMask(Player const &p, uint64 guid, uint32
 
     if(typemask & TYPEMASK_UNIT)
     {
-        obj = GetCreatureOrPet(p,guid);
+        obj = GetCreatureOrPetOrVehicle(p,guid);
         if(obj) return obj;
     }
 

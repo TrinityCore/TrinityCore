@@ -386,7 +386,7 @@ void WorldSession::HandlePetCancelAuraOpcode( WorldPacket& recvPacket)
         return;
     }
 
-    Creature* pet=ObjectAccessor::GetCreatureOrPet(*_player,guid);
+    Creature* pet=ObjectAccessor::GetCreatureOrPetOrVehicle(*_player,guid);
 
     if(!pet)
     {

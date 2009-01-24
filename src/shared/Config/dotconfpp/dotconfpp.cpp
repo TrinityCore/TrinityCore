@@ -138,7 +138,7 @@ int DOTCONFDocument::cleanupLine(char * line)
             quoted = !quoted;
             ++line; continue;
         }
-        if(isspace(*line) && !quoted){
+        if(isspace((unsigned char)*line) && !quoted){
             *bg++ = 0;
             if(strlen(start)){
 
@@ -154,7 +154,7 @@ int DOTCONFDocument::cleanupLine(char * line)
                 words.push_back(word);
             }
             start = bg;
-            while(isspace(*++line)) {}
+            while(isspace((unsigned char)*++line)) {}
 
             continue;
         }

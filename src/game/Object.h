@@ -73,6 +73,7 @@ enum TypeID
     TYPEID_AIGROUP       = 8,
     TYPEID_AREATRIGGER   = 9
 };
+#define MAX_TYPEID         10
 
 uint32 GuidHigh2TypeId(uint32 guid_hi);
 
