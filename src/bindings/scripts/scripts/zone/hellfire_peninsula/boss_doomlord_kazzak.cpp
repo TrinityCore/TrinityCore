@@ -23,6 +23,19 @@ EndScriptData */
 
 #include "precompiled.h"
 
+#define SAY_INTRO                       -1000375
+#define SAY_AGGRO1                      -1000376
+#define SAY_AGGRO2                      -1000377
+#define SAY_SURPREME1                   -1000378
+#define SAY_SURPREME2                   -1000379
+#define SAY_KILL1                       -1000380
+#define SAY_KILL2                       -1000381
+#define SAY_KILL3                       -1000382
+#define SAY_DEATH                       -1000383
+#define EMOTE_FRENZY                    -1000384
+#define SAY_RAND1                       -1000385
+#define SAY_RAND2                       -1000386
+
 #define SPELL_SHADOWVOLLEY              32963
 #define SPELL_CLEAVE                    31779
 #define SPELL_THUNDERCLAP               36706
@@ -55,13 +68,39 @@ struct TRINITY_DLL_DECL boss_doomlordkazzakAI : public ScriptedAI
         Twisted_Reflection_Timer = 33000;                   // Timer may be incorrect
     }
 
-    void Aggro(Unit *who) {}
+    void JustRespawned()
+    {
+        DoScriptText(SAY_INTRO, m_creature);
+    }
+	 	 
+    void Aggro(Unit *who)
+    {
+        switch(rand()%2)	 	         
+        {
+        case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
+        case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
+        }
+    }
 
     void KilledUnit(Unit* victim)
     {
         // When Kazzak kills a player (not pets/totems), he regens some health
-        if(victim->GetTypeId() == TYPEID_PLAYER)
+         if (victim->GetTypeId() != TYPEID_PLAYER)
+             return;
+
             DoCast(m_creature,SPELL_CAPTURESOUL);
+
+            switch(rand()%3)
+            {
+            case 0: DoScriptText(SAY_KILL1, m_creature); break;
+            case 1: DoScriptText(SAY_KILL2, m_creature); break;
+            case 2: DoScriptText(SAY_KILL3, m_creature); break;
+            }
+    }
+	 	 
+    void JustDied(Unit *victim)
+    {
+        DoScriptText(SAY_DEATH, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -112,6 +151,7 @@ struct TRINITY_DLL_DECL boss_doomlordkazzakAI : public ScriptedAI
         //Enrage_Timer
         if (Enrage_Timer < diff)
         {
+            DoScriptText(EMOTE_FRENZY, m_creature);
             DoCast(m_creature,SPELL_ENRAGE);
             Enrage_Timer = 30000;
         }else Enrage_Timer -= diff;
@@ -126,6 +166,7 @@ struct TRINITY_DLL_DECL boss_doomlordkazzakAI : public ScriptedAI
     }
 
 };
+
 CreatureAI* GetAI_boss_doomlordkazzak(Creature *_Creature)
 {
     return new boss_doomlordkazzakAI (_Creature);
