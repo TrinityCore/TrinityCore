@@ -27,10 +27,6 @@
 
 #define SPELL_TELEPORT_VISUAL   41232
 
-#define WORLDSTATE_WAVES        2842
-#define WORLDSTATE_ENEMY        2453
-#define WORLDSTATE_ENEMYCOUNT   2454
-
 //Spells for Jaina
 #define SPELL_BRILLIANCE_AURA     31260                     // The database must handle this spell via creature_addon
 #define SPELL_BLIZZARD            31266

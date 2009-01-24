@@ -5,6 +5,10 @@
 #ifndef DEF_HYJAL_H
 #define DEF_HYJAL_H
 
+#define WORLD_STATE_WAVES         2842
+#define WORLD_STATE_ENEMY         2453
+#define WORLD_STATE_ENEMYCOUNT    2454
+
 #define DATA_ANETHERON            1
 #define DATA_ANETHERONEVENT       2
 #define DATA_ARCHIMONDE           3
@@ -21,5 +25,5 @@
 #define DATA_TRASH                14
 #define DATA_RESET_TRASH_COUNT    15
 
-#define ERROR_INST_DATA     "SD2: Instance data not set properly for Mount Hyjal. Encounters will be buggy"
+#define ERROR_INST_DATA     "TSCR: Instance data not set properly for Mount Hyjal. Encounters will be buggy"
 #endif
