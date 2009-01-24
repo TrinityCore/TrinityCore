@@ -9559,6 +9559,8 @@ Unit* Creature::SelectHostilTarget()
     //threat list sorting etc.
 
 
+    if (!this->isAlive())
+        return false;
     //This function only useful once AI has been initialized
     if (!AI())
         return NULL;
