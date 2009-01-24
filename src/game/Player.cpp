@@ -18753,8 +18753,7 @@ void Player::SetClientControl(Unit* target, uint8 allowMove)
 void Player::UpdateZoneDependentAuras( uint32 newZone )
 {
     // remove new continent flight forms
-    if( !isGameMaster() &&
-        GetVirtualMapForMapAndZone(GetMapId(),newZone) != 530)
+    if(!CanFlyInMap(GetVirtualMapForMapAndZone(GetMapId(),newZone)))
     {
         RemoveSpellsCausingAura(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED);
         RemoveSpellsCausingAura(SPELL_AURA_FLY);
@@ -19218,4 +19217,56 @@ void Player::UpdateCharmedAI()
         GetMotionMaster()->MoveChase(target);
         Attack(target, true);
     }
+}
+
+bool Player::CanFlyInMap(const uint32 mapID) const
+{
+    // we return false if the map doesn't even exist
+    MapEntry const *entry = sMapStore.LookupEntry(mapID);
+    if(!entry)
+    {
+        sLog.outDebug("Unknown mapID handed to Player::CanFlyInMap; disallowing flying.");
+        return false;
+    }
+
+    // GMs can always fly
+    if( isGameMaster() )
+    {
+        return true;
+    }
+
+    // check whether we can fly here depending on map/config
+    switch(mapID)
+    {
+        // kalimdor/eastern kingdoms
+    case 0:
+    case 1:
+        {
+            return sWorld.getConfig(CONFIG_FLYING_MOUNTS_AZEROTH);
+        }
+        // outland
+    case 530:
+        {
+            return sWorld.getConfig(CONFIG_FLYING_MOUNTS_OUTLAND);
+        }
+        // all other maps
+    default:
+        {
+            return sWorld.getConfig(CONFIG_FLYING_MOUNTS_OTHERS);        
+        }
+    }
+}
+
+// this is just a dummy function that does the same as CanFlyInMap, but based on area ID
+bool Player::CanFlyInArea(const uint32 areaID) const
+{
+    // we return false if the area doesn't even exist
+    AreaTableEntry const *entry = sAreaStore.LookupEntry(areaID);
+    if(!entry)
+    {
+        sLog.outDebug("Unknown areaID handed to Player::CanFlyInArea; disallowing flying.");
+        return false;
+    }
+
+    return CanFlyInMap(entry->mapid);
 }
