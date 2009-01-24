@@ -40,7 +40,7 @@ EndScriptData */
 #define SPELL_ENRAGE                33653
 #define SPELL_MARK_DEATH            37128
 
-struct MANGOS_DLL_DECL boss_doomwalkerAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_doomwalkerAI : public ScriptedAI
 {
     boss_doomwalkerAI(Creature *c) : ScriptedAI(c) {Reset();}
 
