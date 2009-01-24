@@ -2036,6 +2036,10 @@ class TRINITY_DLL_SPEC Player : public Unit
         uint32 GetOldPetSpell() const { return m_oldpetspell; }
         void SetOldPetSpell(uint32 petspell) { m_oldpetspell = petspell; }
 
+        // check if player can fly in map/area according to config
+        bool CanFlyInMap(const uint32 mapID) const;
+        bool CanFlyInArea(const uint32 areaID) const;
+
         /*********************************************************/
         /***                 INSTANCE SYSTEM                   ***/
         /*********************************************************/
