@@ -405,7 +405,7 @@ struct TRINITY_DLL_DECL npc_OOX17AI : public npc_escortAI
                 m_creature->SummonCreature(SPAWN_SECOND_2, -7515.07, -4797.50, 9.35, 6.22, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
 				m_creature->SummonCreature(SPAWN_SECOND_2, -7518.07, -4792.50, 9.35, 6.22, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
 				DoScriptText(SAY_CHICKEN_AMB, m_creature);
-				{Unit* scoff = FindCreature(SPAWN_SECOND_2, 30);
+				{Unit* scoff = FindCreature(SPAWN_SECOND_2, 30, m_creature);
 				if(scoff)
 				DoScriptText(SAY_SCOFF, scoff);}break;
                 break;

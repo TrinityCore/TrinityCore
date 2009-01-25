@@ -761,21 +761,25 @@ void ScriptedAI::DoTeleportAll(float x, float y, float z, float o)
                 i_pl->TeleportTo(m_creature->GetMapId(), x, y, z, o, TELE_TO_NOT_LEAVE_COMBAT);
 }
 
-Unit* ScriptedAI::FindCreature(uint32 entry, float range)
-{              
+Unit* FindCreature(uint32 entry, float range, Unit* Finder)
+{   
+    if(!Finder)
+        return NULL;
     Creature* target = NULL;
-	Trinity::AllCreaturesOfEntryInRange check(m_creature, entry, range);
+	Trinity::AllCreaturesOfEntryInRange check(Finder, entry, range);
 	Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(target, check);
-    m_creature->VisitNearbyObject(range, searcher);
+    Finder->VisitNearbyObject(range, searcher);
     return target;
 }
 
-GameObject* ScriptedAI::FindGameObject(uint32 entry, float range)
+GameObject* FindGameObject(uint32 entry, float range, Unit* Finder)
 {
+    if(!Finder)
+        return NULL;
     GameObject* target = NULL;
 	Trinity::AllGameObjectsWithEntryInGrid go_check(entry);
     Trinity::GameObjectSearcher<Trinity::AllGameObjectsWithEntryInGrid> searcher(target, go_check);
-    m_creature->VisitNearbyGridObject(range, searcher);
+    Finder->VisitNearbyGridObject(range, searcher);
     return target;
 }
 
