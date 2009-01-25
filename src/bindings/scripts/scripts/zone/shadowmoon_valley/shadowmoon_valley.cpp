@@ -165,15 +165,6 @@ CreatureAI* GetAI_mob_mature_netherwing_drake(Creature *_creature)
 # mob_enslaved_netherwing_drake
 ####*/
 
-Creature* SelectCreatureInGrid(Unit* pUnit, uint32 entry, float range)
-{
-    Creature* target = NULL;
-    Trinity::AllCreaturesOfEntryInRange check(pUnit, entry, range);
-    Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(target, check);
-    pUnit->VisitNearbyObject(range, searcher);
-    return target;
-}
-
 #define FACTION_DEFAULT     62
 #define FACTION_FRIENDLY    1840                            // Not sure if this is correct, it was taken off of Mordenai.
 
@@ -221,7 +212,7 @@ struct TRINITY_DLL_DECL mob_enslaved_netherwing_drakeAI : public ScriptedAI
             m_creature->setFaction(FACTION_FRIENDLY);
             DoCast(caster, SPELL_FORCE_OF_NELTHARAKU, true);
 
-            Creature* Dragonmaw = SelectCreatureInGrid(m_creature, CREATURE_DRAGONMAW_SUBJUGATOR, 50);
+            Unit* Dragonmaw = FindCreature(CREATURE_DRAGONMAW_SUBJUGATOR, 50, m_creature);
 
             if(Dragonmaw)
             {
@@ -281,7 +272,7 @@ struct TRINITY_DLL_DECL mob_enslaved_netherwing_drakeAI : public ScriptedAI
 
                         float dx, dy, dz;
 
-                        Creature* EscapeDummy = SelectCreatureInGrid(m_creature, CREATURE_ESCAPE_DUMMY, 30);
+                        Unit* EscapeDummy = FindCreature(CREATURE_ESCAPE_DUMMY, 30, m_creature);
                         if(EscapeDummy)
                             EscapeDummy->GetPosition(dx, dy, dz);
                         else
@@ -637,7 +628,7 @@ bool QuestAccept_npc_karynaku(Player* player, Creature* creature, Quest const* q
         nodes.resize(2);
         nodes[0] = 161;                                     // From Karynaku
         nodes[1] = 162;                                     // To Mordenai
-        error_log("SD2: Player %s started quest 10870 which has disabled taxi node, need to be fixed in core", player->GetName());
+        error_log("TSCR: Player %s started quest 10870 which has disabled taxi node, need to be fixed in core", player->GetName());
         //player->ActivateTaxiPathTo(nodes, 20811);
     }
 
@@ -780,7 +771,7 @@ struct TRINITY_DLL_DECL npc_overlord_morghorAI : public ScriptedAI
             return 6000; break; 
         case 27:
             {
-            Unit* Yarzill = FindCreature(C_YARZILL, 50);
+            Unit* Yarzill = FindCreature(C_YARZILL, 50, m_creature);
             if (Yarzill)
                 Yarzill->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID);
             return 500; }break;            
@@ -792,19 +783,19 @@ struct TRINITY_DLL_DECL npc_overlord_morghorAI : public ScriptedAI
             return 1000; break;           
         case 29:
             {
-            Unit* Yarzill = FindCreature(C_YARZILL, 50);
+            Unit* Yarzill = FindCreature(C_YARZILL, 50, m_creature);
             if(Yarzill)
                 DoScriptText(YARZILL_THE_MERC_SAY, Yarzill, plr);
             return 5000; }break;
         case 30:
             {
-            Unit* Yarzill = FindCreature(C_YARZILL, 50);
+            Unit* Yarzill = FindCreature(C_YARZILL, 50, m_creature);
             if (Yarzill)
                 Yarzill->SetUInt64Value(UNIT_FIELD_TARGET, 0);
             return 5000; }break;
         case 31:
             {
-            Unit* Yarzill = FindCreature(C_YARZILL, 50);
+            Unit* Yarzill = FindCreature(C_YARZILL, 50, m_creature);
             if (Yarzill)
                 Yarzill->CastSpell(plr, 41540, true);             
             return 1000;}break;
@@ -1128,10 +1119,10 @@ struct WaveData
 
 static WaveData WavesInfo[]=
 {
-    {9, 0, 22075, 10000, 7000, -1000371},//Illidari Soldier
-    {2, 9, 22074, 10000, 7000, -1000372},//Illidari Mind Breaker
-    {4, 11, 19797, 10000, 7000, -1000373},//Illidari Highlord
-    {1, 15, 22076, 10000, 7000, -1000374} //Torloth The Magnificent
+    {9, 0, 22075, 10000, 7000, -1000371},   //Illidari Soldier
+    {2, 9, 22074, 10000, 7000, -1000372},   //Illidari Mind Breaker
+    {4, 11, 19797, 10000, 7000, -1000373},  //Illidari Highlord
+    {1, 15, 22076, 10000, 7000, -1000374}   //Torloth The Magnificent
 };
 
 struct SpawnSpells
@@ -1141,15 +1132,15 @@ struct SpawnSpells
 
 static SpawnSpells SpawnCast[]=
 {
-    {10000, 15000, 35871},// Illidari Soldier Cast - Spellbreaker
-    {10000, 10000, 38985},// Illidari Mind Breake Cast - Focused Bursts
-    {35000, 35000, 22884},// Illidari Mind Breake Cast - Psychic Scream
-    {20000, 20000, 17194},// Illidari Mind Breake Cast - Mind Blast
-    {8000, 15000, 38010},// Illidari Highlord Cast - Curse of Flames
-    {12000, 20000, 16102},// Illidari Highlord Cast - Flamestrike
-    {10000, 15000, 15284},// Torloth the Magnificent Cast - Cleave
-    {18000, 20000, 39082},// Torloth the Magnificent Cast - Shadowfury
-    {25000, 28000, 33961}// Torloth the Magnificent Cast - Spell Reflection
+    {10000, 15000, 35871},  // Illidari Soldier Cast - Spellbreaker
+    {10000, 10000, 38985},  // Illidari Mind Breake Cast - Focused Bursts
+    {35000, 35000, 22884},  // Illidari Mind Breake Cast - Psychic Scream
+    {20000, 20000, 17194},  // Illidari Mind Breake Cast - Mind Blast
+    {8000, 15000, 38010},   // Illidari Highlord Cast - Curse of Flames
+    {12000, 20000, 16102},  // Illidari Highlord Cast - Flamestrike
+    {10000, 15000, 15284},  // Torloth the Magnificent Cast - Cleave
+    {18000, 20000, 39082},  // Torloth the Magnificent Cast - Shadowfury
+    {25000, 28000, 33961}   // Torloth the Magnificent Cast - Spell Reflection
 };
 
 /*######
@@ -1618,13 +1609,13 @@ bool GOQuestAccept_GO_crystal_prison(Player* plr, GameObject* go, Quest const* q
 {
     if(quest->GetQuestId() == QUEST_BATTLE_OF_THE_CRIMSON_WATCH )
     {
-        Creature* Illidan = SelectCreatureInGrid(plr, 22083, 50);
+        Unit* Illidan = FindCreature(22083, 50, plr);
  
-        if(Illidan && !(((npc_lord_illidan_stormrageAI*)Illidan->AI())->EventStarted))
+        if(Illidan && !(((npc_lord_illidan_stormrageAI*)((Creature*)Illidan)->AI())->EventStarted))
         {
-            ((npc_lord_illidan_stormrageAI*)Illidan->AI())->PlayerGUID = plr->GetGUID();
-            ((npc_lord_illidan_stormrageAI*)Illidan->AI())->LiveCount = 0;
-            ((npc_lord_illidan_stormrageAI*)Illidan->AI())->EventStarted=true;
+            ((npc_lord_illidan_stormrageAI*)((Creature*)Illidan)->AI())->PlayerGUID = plr->GetGUID();
+            ((npc_lord_illidan_stormrageAI*)((Creature*)Illidan)->AI())->LiveCount = 0;
+            ((npc_lord_illidan_stormrageAI*)((Creature*)Illidan)->AI())->EventStarted=true;
         }
     }
  return true;

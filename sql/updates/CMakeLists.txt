@@ -158,4 +158,7 @@ INSTALL(FILES
 956_world_scripts.sql
 957_world_scripts.sql
 963_world_scripts.sql
+965_world_scripts.sql
+966_world_scripts.sql
+970_world_scripts.sql
 DESTINATION share/trinity/sql/updates)

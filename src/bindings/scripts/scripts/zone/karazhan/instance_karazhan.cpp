@@ -61,8 +61,9 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
     uint64 GamesmansExitDoor;                               // Door after Chess
     uint64 NetherspaceDoor;	                               // Door at Malchezaar
 	uint64 MastersTerraceDoor[2];
-
 	uint64 ImageGUID;
+
+    bool NightbaneSummoned;
 
     void Initialize()
     {
@@ -87,8 +88,9 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
         NetherspaceDoor     = 0;
 		MastersTerraceDoor[0]= 0;
 		MastersTerraceDoor[1]= 0;
-
 		ImageGUID = 0;
+
+        NightbaneSummoned = false;
     }
 
     bool IsEncounterInProgress() const
@@ -131,6 +133,9 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
             case 17229:   KilrekGUID = creature->GetGUID();      break;
             case 15688:   TerestianGUID = creature->GetGUID();   break;
             case 15687:   MoroesGUID = creature->GetGUID();      break;
+            case 17225:   if(NightbaneSummoned)creature->RemoveFromWorld();
+                          else NightbaneSummoned = true;
+                          break;
         }
     }
 

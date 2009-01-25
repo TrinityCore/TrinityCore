@@ -427,7 +427,7 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
 		case 10: DoScriptText(SAY_PROGRESS_3, m_creature, player);
 			m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
 		case 20:{
-			Unit* Mercenary = FindCreature(MOB_MERCENARY, 99);
+			Unit* Mercenary = FindCreature(MOB_MERCENARY, 99, m_creature);
 			if(Mercenary)
 			{
 				DoScriptText(SAY_MERCENARY_4, Mercenary);
