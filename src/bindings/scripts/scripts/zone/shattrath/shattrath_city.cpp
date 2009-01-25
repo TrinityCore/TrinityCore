@@ -453,13 +453,13 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
 		Step = 0;
 
 		m_creature->setFaction(1194);
-		Unit* Creepjack = FindCreature(NPC_CREEPJACK, 20);
+		Unit* Creepjack = FindCreature(NPC_CREEPJACK, 20, m_creature);
 		if(Creepjack)
 		{
 			((Creature*)Creepjack)->AI()->EnterEvadeMode();
 			Creepjack->setFaction(1194);
 		}
-		Unit* Malone = FindCreature(NPC_MALONE, 20);
+		Unit* Malone = FindCreature(NPC_MALONE, 20, m_creature);
 		if(Malone)
 		{
 			((Creature*)Malone)->AI()->EnterEvadeMode();
@@ -474,10 +474,10 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
 		switch(Step)
 		{
 		case 0:{ m_creature->SetInFront(player);
-			Unit* Creepjack = FindCreature(NPC_CREEPJACK, 20);
+			Unit* Creepjack = FindCreature(NPC_CREEPJACK, 20, m_creature);
 			if(Creepjack)
 				Creepjack->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-			Unit* Malone = FindCreature(NPC_MALONE, 20);
+			Unit* Malone = FindCreature(NPC_MALONE, 20, m_creature);
 			if(Malone)
 				Malone->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
 			m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP); }return 2000;
@@ -508,14 +508,14 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
 			m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 			if(player)
 			{
-			Unit* Creepjack = FindCreature(NPC_CREEPJACK, 20);
+			Unit* Creepjack = FindCreature(NPC_CREEPJACK, 20, m_creature);
 			if(Creepjack)
 			{
 				Creepjack->Attack(player, true);
 				Creepjack->setFaction(14);
 				Creepjack->GetMotionMaster()->MoveChase(player);
 			}
-			Unit* Malone = FindCreature(NPC_MALONE, 20);
+			Unit* Malone = FindCreature(NPC_MALONE, 20, m_creature);
 			if(Malone)
 			{
 				Malone->Attack(player, true);
@@ -531,13 +531,13 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
 
 		if((m_creature->GetHealth()*100)/m_creature->GetMaxHealth() < 1 && !Done)
 		{
-			Unit* Creepjack = FindCreature(NPC_CREEPJACK, 20);
+			Unit* Creepjack = FindCreature(NPC_CREEPJACK, 20, m_creature);
 			if(Creepjack)
 			{
 				((Creature*)Creepjack)->AI()->EnterEvadeMode();
 				Creepjack->setFaction(1194);
 			}
-			Unit* Malone = FindCreature(NPC_MALONE, 20);
+			Unit* Malone = FindCreature(NPC_MALONE, 20, m_creature);
 			if(Malone)
 			{
 				((Creature*)Malone)->AI()->EnterEvadeMode();
