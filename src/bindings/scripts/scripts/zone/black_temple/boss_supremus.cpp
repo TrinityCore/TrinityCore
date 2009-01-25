@@ -77,9 +77,9 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
             if(m_creature->isAlive())
             {
                 pInstance->SetData(DATA_SUPREMUSEVENT, NOT_STARTED);
-                ToggleDoors(true);
+                //ToggleDoors(true);
             }
-            else ToggleDoors(false);
+            //else ToggleDoors(false);
         }
 
         HatefulStrikeTimer = 5000;

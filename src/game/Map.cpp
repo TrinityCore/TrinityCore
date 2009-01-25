@@ -797,6 +797,10 @@ void Map::Update(const uint32 &t_diff)
 
 void Map::Remove(Player *player, bool remove)
 {
+    player->DestroyForNearbyPlayers();
+    player->m_IsInNotifyList = false;
+    player->m_Notified = false;
+
     // this may be called during Map::Update
     // after decrement+unlink, ++m_mapRefIter will continue correctly
     // when the first element of the list is being removed
@@ -835,7 +839,7 @@ void Map::Remove(Player *player, bool remove)
     SendRemoveTransports(player);
 
     //UpdateObjectsVisibilityFor(player,cell,p);
-    AddUnitToNotify(player);
+    //AddUnitToNotify(player);
 
     if( remove )
         DeleteFromWorld(player);

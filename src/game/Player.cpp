@@ -1758,7 +1758,15 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             ResetContestedPvP();
 
-            DestroyForNearbyPlayers();
+            /*DestroyForNearbyPlayers();
+            {
+                UpdateData data;
+                for(ClientGUIDs::iterator i = m_clientGUIDs.begin(); i != m_clientGUIDs.end(); ++i)
+                    data.AddOutOfRangeGUID(*i);
+                WorldPacket packet;
+                data.BuildPacket(&packet);
+                GetSession()->SendPacket(&packet);
+            }*/
             m_clientGUIDs.clear();
 
             // remove player from battleground on far teleport (when changing maps)
