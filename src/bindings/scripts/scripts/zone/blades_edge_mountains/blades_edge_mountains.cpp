@@ -64,11 +64,11 @@ CreatureAI* GetAI_mobs_bladespire_ogre(Creature *_Creature)
 ## mobs_nether_drake
 ######*/
 
-#define SAY_NIHIL_1         "Muahahahaha! You fool! You've released me from my banishment in the interstices between space and time!"
-#define SAY_NIHIL_2         "All of Draenor shall quick beneath my feet! I will destroy this world and reshape it in my image!"
-#define SAY_NIHIL_3         "Where shall I begin? I cannot bother myself with a worm such as yourself. There is a world to be conquered!"
-#define SAY_NIHIL_4         "No doubt the fools that banished me are long dead. I shall take wing survey my demense. Pray to whatever gods you hold dear that we do not meet again."
-#define SAY_NIHIL_INTERRUPT "NOOOOooooooo!"
+#define SAY_NIHIL_1         -1000396
+#define SAY_NIHIL_2         -1000397
+#define SAY_NIHIL_3         -1000398
+#define SAY_NIHIL_4         -1000399
+#define SAY_NIHIL_INTERRUPT -1000400
 
 #define ENTRY_WHELP                 20021
 #define ENTRY_PROTO                 21821
@@ -156,7 +156,7 @@ struct TRINITY_DLL_DECL mobs_nether_drakeAI : public ScriptedAI
                 case ENTRY_NIHIL:
                     if( NihilSpeech_Phase )
                     {
-                        DoYell(SAY_NIHIL_INTERRUPT,LANG_UNIVERSAL,NULL);
+                        DoScriptText(SAY_NIHIL_INTERRUPT, m_creature);
                         IsNihil = false;
                         switch(rand()%3)
                         {
@@ -196,19 +196,19 @@ struct TRINITY_DLL_DECL mobs_nether_drakeAI : public ScriptedAI
                     switch( NihilSpeech_Phase )
                     {
                         case 1:
-                            DoSay(SAY_NIHIL_1,LANG_UNIVERSAL,NULL);
+                            DoScriptText(SAY_NIHIL_1, m_creature);
                             ++NihilSpeech_Phase;
                             break;
                         case 2:
-                            DoSay(SAY_NIHIL_2,LANG_UNIVERSAL,NULL);
+                            DoScriptText(SAY_NIHIL_2, m_creature);
                             ++NihilSpeech_Phase;
                             break;
                         case 3:
-                            DoSay(SAY_NIHIL_3,LANG_UNIVERSAL,NULL);
+                            DoScriptText(SAY_NIHIL_3, m_creature);
                             ++NihilSpeech_Phase;
                             break;
                         case 4:
-                            DoSay(SAY_NIHIL_4,LANG_UNIVERSAL,NULL);
+                            DoScriptText(SAY_NIHIL_4, m_creature);
                             ++NihilSpeech_Phase;
                             break;
                         case 5:
@@ -261,6 +261,8 @@ CreatureAI* GetAI_mobs_nether_drake(Creature *_Creature)
 ## npc_daranelle
 ######*/
 
+#define SAY_DARANELLE -1000401
+
 struct TRINITY_DLL_DECL npc_daranelleAI : public ScriptedAI
 {
     npc_daranelleAI(Creature *c) : ScriptedAI(c) {Reset();}
@@ -279,7 +281,7 @@ struct TRINITY_DLL_DECL npc_daranelleAI : public ScriptedAI
         {
             if(who->HasAura(36904,0))
             {
-                DoSay("Good $N, you are under the spell's influence. I must analyze it quickly, then we can talk.",LANG_COMMON,who);
+                DoScriptText(SAY_DARANELLE, m_creature, who);
                 //TODO: Move the below to updateAI and run if this statement == true
                 ((Player*)who)->KilledMonster(21511, m_creature->GetGUID());
                 ((Player*)who)->RemoveAurasDueToSpell(36904);
@@ -299,10 +301,12 @@ CreatureAI* GetAI_npc_daranelle(Creature *_Creature)
 ## npc_overseer_nuaar
 ######*/
 
+#define GOSSIP_HON "Overseer, I am here to negotiate on behalf of the Cenarion Expedition."
+
 bool GossipHello_npc_overseer_nuaar(Player *player, Creature *_Creature)
 {
     if (player->GetQuestStatus(10682) == QUEST_STATUS_INCOMPLETE)
-        player->ADD_GOSSIP_ITEM( 0, "Overseer, I am here to negotiate on behalf of the Cenarion Expedition.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->ADD_GOSSIP_ITEM( 0, GOSSIP_HON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
     player->SEND_GOSSIP_MENU(10532, _Creature->GetGUID());
 
@@ -323,10 +327,13 @@ bool GossipSelect_npc_overseer_nuaar(Player *player, Creature *_Creature, uint32
 ## npc_saikkal_the_elder
 ######*/
 
+#define GOSSIP_HSTE "Yes... yes, it's me."
+#define GOSSIP_SSTE "Yes elder. Tell me more of the book."
+
 bool GossipHello_npc_saikkal_the_elder(Player *player, Creature *_Creature)
 {
     if (player->GetQuestStatus(10980) == QUEST_STATUS_INCOMPLETE)
-        player->ADD_GOSSIP_ITEM( 0, "Yes... yes, it's me.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->ADD_GOSSIP_ITEM( 0, GOSSIP_HSTE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
     player->SEND_GOSSIP_MENU(10794, _Creature->GetGUID());
 
@@ -338,7 +345,7 @@ bool GossipSelect_npc_saikkal_the_elder(Player *player, Creature *_Creature, uin
     switch (action)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
-            player->ADD_GOSSIP_ITEM( 0, "Yes elder. Tell me more of the book.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            player->ADD_GOSSIP_ITEM( 0, GOSSIP_SSTE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
             player->SEND_GOSSIP_MENU(10795, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
