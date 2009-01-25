@@ -25,6 +25,12 @@ private:
     Creature *m_creature;
 };
 
+//Get a single creature of given entry
+Unit* FindCreature(uint32 entry, float range, Unit* Finder);
+
+//Get a single gameobject of given entry
+GameObject* FindGameObject(uint32 entry, float range, Unit* Finder);
+
 struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 {
     ScriptedAI(Creature* creature) : m_creature(creature), InCombat(false), IsFleeing(false) {}
@@ -152,12 +158,6 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     //Teleports a player without dropping threat (only teleports to same map)
     void DoTeleportPlayer(Unit* pUnit, float x, float y, float z, float o);
     void DoTeleportAll(float x, float y, float z, float o);
-
-	//Get a single creature of given entry
-	Unit* FindCreature(uint32 entry, float range);
-
-	//Get a single gameobject of given entry
-	GameObject* FindGameObject(uint32 entry, float range);
 
     //Returns friendly unit with the most amount of hp missing from max hp
     Unit* DoSelectLowestHpFriendly(float range, uint32 MinHPDiff = 1);

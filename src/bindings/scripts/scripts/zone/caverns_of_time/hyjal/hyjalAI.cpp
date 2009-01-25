@@ -17,13 +17,12 @@
 /* ScriptData
 SDName: HyjalAI
 SD%Complete: 90
-SDComment: World Packet workaround for World States
+SDComment:
 SDCategory: Caverns of Time, Mount Hyjal
 EndScriptData */
 
 #include "precompiled.h"
 #include "hyjalAI.h"
-#include "WorldPacket.h"
 
 // Locations for summoning waves in Alliance base
 float AllianceBase[4][3]=
@@ -99,9 +98,9 @@ void hyjalAI::Reset()
     memset(Spell, 0, sizeof(Spell));
 
     //Reset World States
-    UpdateWorldState(WORLDSTATE_WAVES, 0);
-    UpdateWorldState(WORLDSTATE_ENEMY, 0);
-    UpdateWorldState(WORLDSTATE_ENEMYCOUNT, 0);
+    UpdateWorldState(WORLD_STATE_WAVES, 0);
+    UpdateWorldState(WORLD_STATE_ENEMY, 0);
+    UpdateWorldState(WORLD_STATE_ENEMYCOUNT, 0);
 
     //Reset Instance Data for trash count
     if(pInstance)
@@ -204,22 +203,24 @@ void hyjalAI::SummonNextWave(Wave wave[18], uint32 Count, float Base[4][3])
         uint32 stateValue = Count+1;
         if(FirstBossDead)
             stateValue -= 9;                                // Subtract 9 from it to give the proper wave number if we are greater than 8
-        UpdateWorldState(WORLDSTATE_WAVES, stateValue);     // Set world state to our current wave number
-        UpdateWorldState(WORLDSTATE_ENEMY, 1);
-        //UpdateWorldState(WORLDSTATE_ENEMYCOUNT, EnemyCount); // Let Instance Script handle this
-        pInstance->SetData(DATA_TRASH, EnemyCount);
+        UpdateWorldState(WORLD_STATE_WAVES, stateValue);    // Set world state to our current wave number
+        UpdateWorldState(WORLD_STATE_ENEMY, 1);             // Enable world state
+
+        pInstance->SetData(DATA_TRASH, EnemyCount);         // Send data for instance script to update count
+
         if(!Debug)
             NextWaveTimer = wave[Count].WaveTimer;
         else
         {
             NextWaveTimer = 15000;
-            DoTextEmote(": Debug Mode is enabled. Next Wave in 15 seconds", NULL);
+            debug_log("TSCR: HyjalAI: debug mode is enabled. Next Wave in 15 seconds");
         }
     }
     else
     {
-        UpdateWorldState(WORLDSTATE_WAVES, 0);              // Set world state for waves to 0 to disable it.
-        UpdateWorldState(WORLDSTATE_ENEMYCOUNT, 1);         // Set World State for enemies invading to 1.
+        UpdateWorldState(WORLD_STATE_WAVES, 0);             // Set world state for waves to 0 to disable it.
+        UpdateWorldState(WORLD_STATE_ENEMY, 1);
+        UpdateWorldState(WORLD_STATE_ENEMYCOUNT, 1);        // Set World State for enemies invading to 1.
         Summon = false;
     }
     CheckTimer = 5000;
@@ -241,9 +242,9 @@ void hyjalAI::StartEvent(Player* player)
 
     m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-    UpdateWorldState(WORLDSTATE_WAVES, 0);
-    UpdateWorldState(WORLDSTATE_ENEMY, 0);
-    UpdateWorldState(WORLDSTATE_ENEMYCOUNT, 0);
+    UpdateWorldState(WORLD_STATE_WAVES, 0);
+    UpdateWorldState(WORLD_STATE_ENEMY, 0);
+    UpdateWorldState(WORLD_STATE_ENEMYCOUNT, 0);
 }
 
 uint32 hyjalAI::GetInstanceData(uint32 Event)
@@ -291,20 +292,25 @@ void hyjalAI::Talk(uint32 id)
 		DoScriptText(YellId, m_creature);
 }
 
-// Slight workaround for now
-void hyjalAI::UpdateWorldState(uint32 field, uint32 value)
+void hyjalAI::UpdateWorldState(uint32 id, uint32 state)
 {
     Map * map = m_creature->GetMap();
-    if(!map->IsDungeon()) return;
+    
+    if(!map->IsDungeon()) 
+        return;
 
-    WorldPacket data(SMSG_UPDATE_WORLD_STATE, 8);
+    Map::PlayerList const& players = map->GetPlayers();
+	 
+    if (!players.isEmpty())
+    {
+            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            {
+                if (Player* player = itr->getSource())
+                    player->SendUpdateWorldState(id,state);
+            }
+    }else debug_log("TSCR: HyjalAI: UpdateWorldState, but PlayerList is empty");
 
-    data << field;
-    data << value;
-
-    map->SendToPlayers(&data);
-
-    // TODO: Uncomment and remove everything above this line only when the core patch for this is accepted
+     //remove everything above this line only when/if the core patch for this is accepted and needed
     //m_creature->GetMap()->UpdateWorldState(field, value);
 }
 
@@ -420,7 +426,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
                     CheckTimer = 0;
                     m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     BossGUID[i] = 0;
-                    UpdateWorldState(WORLDSTATE_ENEMY, 0);  // Reset world state for enemies to disable it
+                    UpdateWorldState(WORLD_STATE_ENEMY, 0); // Reset world state for enemies to disable it
                 }
             }
         }

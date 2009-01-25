@@ -153,7 +153,7 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
         Phase = 0;
 
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE,0);
+        m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
     }
 
     void Aggro(Unit* who)
@@ -227,18 +227,18 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
             switch(Counter)
             {
             case 0:
-                m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE,375);  // I R ANNNGRRRY!
+                m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);  // I R ANNNGRRRY!
                 Timer = 3000;
                 break;
             case 1:
                 Timer = 2800;
-                m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE,374);  // Release the cube
+                m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SUBMERGE);  // Release the cube
                 break;
             case 2:
                 Timer = 5000;
                 if(Creature* Summon = DoSpawnCreature(23417+Phase, 0, 0, 0, 0, TEMPSUMMON_DEAD_DESPAWN, 0))
                 {
-                    m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE,373);  // Ribs: open
+                    m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SUBMERGED);  // Ribs: open
                     Summon->AI()->AttackStart(SelectUnit(SELECT_TARGET_TOPAGGRO, 0));
                     EssenceGUID = Summon->GetGUID();
                 }else EnterEvadeMode();
@@ -263,7 +263,7 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
             case 4:
                 Timer = 1500;
                 if(Essence->IsWithinDistInMap(m_creature, 10))
-                    Essence->SetUInt32Value(UNIT_NPC_EMOTESTATE, 374); //rotate and disappear
+                    Essence->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SUBMERGE); //rotate and disappear
                 else
                     return;
                 break;
@@ -420,7 +420,7 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
 
         if(SoulDrainTimer < diff)
         {
-            DoCast(m_creature, SPELL_SOUL_DRAIN);
+            DoCast(m_creature->getVictim(), SPELL_SOUL_DRAIN);
             SoulDrainTimer = 60000;
         }else SoulDrainTimer -= diff;
 

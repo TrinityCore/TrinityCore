@@ -557,11 +557,16 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
 				}
 			}
 		}
-	}
-    
+	}    
 
+    if (damagetype != NODAMAGE)
+    {
+       // interrupting auras with AURA_INTERRUPT_FLAG_DAMAGE before checking !damage (absorbed damage breaks that type of auras)
+       pVictim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_DAMAGE, spellProto ? spellProto->Id : 0);
+       pVictim->RemoveSpellbyDamageTaken(damage, spellProto ? spellProto->Id : 0);
+    }
 
-    if(!damage) //when will zero damage? need interrupt aura?
+    if(!damage)
     {
         // Rage from physical damage received .
         if(cleanDamage && cleanDamage->damage && (damageSchoolMask & SPELL_SCHOOL_MASK_NORMAL) && pVictim->GetTypeId() == TYPEID_PLAYER && (pVictim->getPowerType() == POWER_RAGE))
@@ -893,9 +898,6 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
 
         if (damagetype != NODAMAGE && damage)// && pVictim->GetTypeId() == TYPEID_PLAYER)
         {
-            pVictim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_DAMAGE, spellProto ? spellProto->Id : 0);
-            pVictim->RemoveSpellbyDamageTaken(damage, spellProto ? spellProto->Id : 0);
-
             /*const SpellEntry *se = i->second->GetSpellProto();
             next = i; ++next;
             if (spellProto && spellProto->Id == se->Id) // Not drop auras added by self
