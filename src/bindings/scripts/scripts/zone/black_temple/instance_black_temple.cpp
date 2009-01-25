@@ -55,8 +55,6 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
     uint64 BloodElfCouncilVoice;
     uint64 IllidanStormrage;
 
-    uint16 BossKilled;
-
     uint64 NajentusGate;
     uint64 MainTempleDoors;
     uint64 ShadeOfAkamaDoor;
@@ -71,6 +69,7 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
     uint64 IllidanDoor[2];
 
     uint32 Encounters[ENCOUNTERS];
+    std::string str_data;
 
     void Initialize()
     {
@@ -87,8 +86,6 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
         BloodElfCouncilVoice = 0;
         IllidanStormrage = 0;
 
-        BossKilled = 0;
-
         NajentusGate    = 0;
         MainTempleDoors = 0;
         ShadeOfAkamaDoor= 0;
@@ -103,29 +100,48 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
         IllidanDoor[0]  = 0;
         IllidanDoor[1]  = 0;
 
-        for(uint8 i = 0; i < ENCOUNTERS; i++)
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
             Encounters[i] = NOT_STARTED;
     }
 
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < ENCOUNTERS; i++)
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
             if(Encounters[i] == IN_PROGRESS) return true;
 
         return false;
     }
 
-    void OpenDoor(uint64 DoorGUID, bool open)
-    {
-        if(GameObject *Door = instance->GetGameObjectInMap(DoorGUID))
-            Door->SetGoState(open ? 0 : 1);
-    }
+    Player* GetPlayerInMap()
+	{
+		Map::PlayerList const& players = instance->GetPlayers();
 
-    void CloseDoor(uint64 DoorGUID, bool close)
-    {
-        if(GameObject *Door = instance->GetGameObjectInMap(DoorGUID))
-            Door->SetGoState(close ? 1 : 0);
-    }
+		if (!players.isEmpty())
+		{
+			for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+			{
+				if (Player* plr = itr->getSource())
+					return plr;
+			}
+		}
+	 	 
+		debug_log("TSCR: Instance Black Temple: GetPlayerInMap, but PlayerList is empty!");
+		return NULL;
+	}
+
+	void HandleGameObject(uint64 guid, uint32 state)
+	{
+		Player *player = GetPlayerInMap();
+	 
+		if (!player || !guid)
+		{
+			debug_log("TSCR: Black Temple: HandleGameObject fail");
+			return;
+		}
+	 	 
+		if (GameObject *go = GameObject::GetGameObject(*player,guid))
+			go->SetGoState(state);
+	}
 
     void OnCreatureCreate(Creature *creature, uint32 creature_entry)
     {
@@ -150,38 +166,19 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
     {
         switch(go->GetEntry())
         {
-        case 185483:                                    // Gate past Naj'entus (at the entrance to Supermoose's courtyards)
-            NajentusGate = go->GetGUID();break;
-        case 185882:                                    // Main Temple Doors - right past Supermoose (Supremus)
-            MainTempleDoors = go->GetGUID();break;
-        case 185478:
-            ShadeOfAkamaDoor = go->GetGUID();break;
-        case 185480: 
-            CommonDoor = go->GetGUID();break;
-        case 186153:
-            TeronDoor = go->GetGUID();break;
-        case 185892:
-            GuurtogDoor = go->GetGUID();break;
-        case 185479:
-            TempleDoor = go->GetGUID();break;
-        case 185482:
-            MotherDoor = go->GetGUID();break;
-        case 185481:
-            CouncilDoor = go->GetGUID();break;
-        case 186152://used by council
-            SimpleDoor = go->GetGUID();break;
-        case 185905:                                    // Gate leading to Temple Summit
-            IllidanGate = go->GetGUID();
-            go->SetUInt32Value(GAMEOBJECT_FLAGS,GO_FLAG_NODESPAWN+GO_FLAG_INTERACT_COND);
-            break;
-        case 186261:                                    // Right door at Temple Summit
-            IllidanDoor[0] = go->GetGUID();
-            go->SetUInt32Value(GAMEOBJECT_FLAGS,GO_FLAG_NODESPAWN+GO_FLAG_INTERACT_COND);
-            break;
-        case 186262:                                    // Left door at Temple Summit
-            IllidanDoor[1] = go->GetGUID();
-            go->SetUInt32Value(GAMEOBJECT_FLAGS,GO_FLAG_NODESPAWN+GO_FLAG_INTERACT_COND);
-            break;
+        case 185483: NajentusGate = go->GetGUID();break; // Gate past Naj'entus (at the entrance to Supermoose's courtyards)
+        case 185882: MainTempleDoors = go->GetGUID();break; // Main Temple Doors - right past Supermoose (Supremus)
+        case 185478: ShadeOfAkamaDoor = go->GetGUID();break;
+        case 185480: CommonDoor = go->GetGUID();break;
+        case 186153: TeronDoor = go->GetGUID();break;
+        case 185892: GuurtogDoor = go->GetGUID();break;
+        case 185479: TempleDoor = go->GetGUID();break;
+        case 185482: MotherDoor = go->GetGUID();break;
+        case 185481: CouncilDoor = go->GetGUID();break;
+        case 186152: SimpleDoor = go->GetGUID();break;
+        case 185905: IllidanGate = go->GetGUID(); break; // Gate leading to Temple Summit
+        case 186261: IllidanDoor[0] = go->GetGUID(); break; // Right door at Temple Summit
+        case 186262: IllidanDoor[1] = go->GetGUID(); break; // Left door at Temple Summit
         }
     }
 
@@ -215,54 +212,82 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
     {
         switch(type)
         {
-        case DATA_HIGHWARLORDNAJENTUSEVENT:   Encounters[0] = data;                        break;
-        case DATA_SUPREMUSEVENT:              Encounters[1] = data;         break;
-        case DATA_SHADEOFAKAMAEVENT:          Encounters[2] = data;         break;
-        case DATA_TERONGOREFIENDEVENT:        Encounters[3] = data;         break;
-        case DATA_GURTOGGBLOODBOILEVENT:      Encounters[4] = data;         break;
-        case DATA_RELIQUARYOFSOULSEVENT:      Encounters[5] = data;         break;
-        case DATA_MOTHERSHAHRAZEVENT:         Encounters[6] = data;         break;
-        case DATA_ILLIDARICOUNCILEVENT:       Encounters[7] = data;         break;
+        case DATA_HIGHWARLORDNAJENTUSEVENT:
+            if(data == DONE)
+            {
+                HandleGameObject(NajentusGate, 0);
+            }
+            Encounters[0] = data;break;
+        case DATA_SUPREMUSEVENT:
+            if(data == DONE)
+            {
+                HandleGameObject(NajentusGate, 0);
+            }
+            Encounters[1] = data; break;
+        case DATA_SHADEOFAKAMAEVENT:          
+            if(data == IN_PROGRESS)
+            {
+                HandleGameObject(ShadeOfAkamaDoor, 1);
+            }else HandleGameObject(ShadeOfAkamaDoor, 0);
+            Encounters[2] = data; break;
+        case DATA_TERONGOREFIENDEVENT:        
+            if(data == IN_PROGRESS)
+            {
+                HandleGameObject(TeronDoor, 1);
+                HandleGameObject(CommonDoor, 1);
+            }else
+            {
+                HandleGameObject(TeronDoor, 0);
+                HandleGameObject(CommonDoor, 0);
+            }
+            Encounters[3] = data; break;
+        case DATA_GURTOGGBLOODBOILEVENT:
+            if(data == DONE)
+            {
+                HandleGameObject(GuurtogDoor, 0);
+            }
+            Encounters[4] = data; break;
+        case DATA_RELIQUARYOFSOULSEVENT:      
+            if(data == DONE)
+            {
+                HandleGameObject(TempleDoor, 0);
+            }
+            Encounters[5] = data;         break;
+        case DATA_MOTHERSHAHRAZEVENT: 
+            if(data == DONE)
+            {
+                HandleGameObject(MotherDoor, 0);
+            }
+            Encounters[6] = data; break;
+        case DATA_ILLIDARICOUNCILEVENT:
+            if(data == IN_PROGRESS)
+            {
+                HandleGameObject(CouncilDoor, 1);
+                HandleGameObject(SimpleDoor, 1);
+            }else
+            {
+                HandleGameObject(CouncilDoor, 0);
+                HandleGameObject(SimpleDoor, 0);
+            }
+            Encounters[7] = data; break;
         case DATA_ILLIDANSTORMRAGEEVENT:      Encounters[8] = data;         break;
         }
 
-        if(data == DONE)
-        {
-            SaveToDB();
-            BossKilled++;
-        }
-        CheckInstanceStatus();
-    }
+        if (data == DONE)
+		{		 	 
+            OUT_SAVE_INST_DATA;
 
-    void CheckInstanceStatus()
-    {
-        if(BossKilled >= 6)
-            OpenDoor(TempleDoor, true);
-        if(Encounters[0] == DONE)
-            OpenDoor(NajentusGate, true);
-        if(Encounters[2] == IN_PROGRESS)
-            CloseDoor(ShadeOfAkamaDoor, true);
-        else OpenDoor(ShadeOfAkamaDoor, true);
-        if(Encounters[3] == IN_PROGRESS)
-        {
-            CloseDoor(TeronDoor, true);
-            CloseDoor(CommonDoor, true);
-        }else{ 
-            OpenDoor(TeronDoor, true);
-            OpenDoor(CommonDoor, true);
-        }
-        if(Encounters[4] == DONE)
-            OpenDoor(GuurtogDoor, true);
-        if(Encounters[6] == DONE)
-            OpenDoor(MotherDoor, true);
-        if(Encounters[7] == IN_PROGRESS)
-        {
-            CloseDoor(CouncilDoor, true);
-            CloseDoor(SimpleDoor, true);
-        }else{
-            OpenDoor(CouncilDoor, true);
-            OpenDoor(SimpleDoor, true);                     
-        }
+			std::ostringstream saveStream;
+			saveStream << Encounters[0] << " " << Encounters[1] << " "
+				<< Encounters[2] << " " << Encounters[3] << " " << Encounters[4] 
+            << " " << Encounters[5] << " " << Encounters[6] << " " << Encounters[7]
+            << " " << Encounters[8];
+	 	 
+			str_data = saveStream.str();
+
+			SaveToDB();
+			OUT_SAVE_INST_DATA_COMPLETE;
+		}
     }
 
     uint32 GetData(uint32 type)
@@ -283,42 +308,32 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
         return 0;
     }
 
-    const char* Save()
-    {
-        OUT_SAVE_INST_DATA;
-        std::ostringstream stream;
-        stream << Encounters[0] << " " << Encounters[1] << " " << Encounters[2] << " "
-            << Encounters[3] << " " << Encounters[4] << " " << Encounters[5] << " "
-            << Encounters[6] << " " << Encounters[7] << " " << Encounters[8];
-        char* out = new char[stream.str().length() + 1];
-        strcpy(out, stream.str().c_str());
-        if(out)
-        {
-            OUT_SAVE_INST_DATA_COMPLETE;
-            return out;
-        }
+   const char* Save()
+	{
+		return str_data.c_str();
+	}
+	 	 
+	void Load(const char* in)
+	{
+		if (!in)
+		{
+			OUT_LOAD_INST_DATA_FAIL;
+			return;
+		}
+	 	 
+		OUT_LOAD_INST_DATA(in);
 
-        return NULL;
-    }
-
-    void Load(const char* in)
-    {
-        if(!in)
-        {
-            OUT_LOAD_INST_DATA_FAIL;
-            return;
-        }
-
-        OUT_LOAD_INST_DATA(in);
-        std::istringstream stream(in);
-        stream >> Encounters[0] >> Encounters[1] >> Encounters[2] >> Encounters[3]
-        >> Encounters[4] >> Encounters[5] >> Encounters[6] >> Encounters[7]
-        >> Encounters[8];
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if(Encounters[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
-                Encounters[i] = NOT_STARTED;
-        OUT_LOAD_INST_DATA_COMPLETE;
-    }
+		std::istringstream loadStream(in);
+		loadStream >> Encounters[0] >> Encounters[1] >> Encounters[2] 
+        >> Encounters[3] >> Encounters[4] >> Encounters[5] >> Encounters[6] 
+        >> Encounters[7] >> Encounters[8];
+	 	 
+		for(uint8 i = 0; i < ENCOUNTERS; ++i)
+			if (Encounters[i] == IN_PROGRESS)
+				Encounters[i] = NOT_STARTED;
+	 	 
+		OUT_LOAD_INST_DATA_COMPLETE;
+	}
 };
 
 InstanceData* GetInstanceData_instance_black_temple(Map* map)
