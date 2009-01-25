@@ -397,6 +397,7 @@ bool IsAuraAddedBySpell(uint32 auraType, uint32 spellId);
 uint8 GetSpellAllowedInLocationError(SpellEntry const *spellInfo,uint32 map_id,uint32 zone_id,uint32 area_id);
 
 static bool IsAreaEffectTarget[TOTAL_SPELL_TARGETS];
+
 inline bool IsAreaOfEffectSpell(SpellEntry const *spellInfo)
 {
     if(IsAreaEffectTarget[spellInfo->EffectImplicitTargetA[0]] || IsAreaEffectTarget[spellInfo->EffectImplicitTargetB[0]])
@@ -873,6 +874,14 @@ class SpellMgr
             return 0;
         }
 
+        uint32 GetNextSpellInChain(uint32 spell_id) const
+        {
+            if(SpellChainNode const* node = GetSpellChainNode(spell_id))
+                return node->next;
+
+            return 0;
+        }
+
         SpellsRequiringSpellMap const& GetSpellsRequiringSpell() const { return mSpellsReqSpell; }
 
         // Note: not use rank for compare to spell ranks: spell chains isn't linear order
@@ -956,6 +965,9 @@ class SpellMgr
         static bool IsProfessionSpell(uint32 spellId);
         static bool IsPrimaryProfessionSpell(uint32 spellId);
         bool IsPrimaryProfessionFirstRankSpell(uint32 spellId) const;
+
+        bool IsSkillBonusSpell(uint32 spellId) const;
+
 
         // Spell script targets
         SpellScriptTarget::const_iterator GetBeginSpellScriptTarget(uint32 spell_id) const

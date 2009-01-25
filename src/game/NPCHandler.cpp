@@ -243,24 +243,22 @@ void WorldSession::HandleTrainerBuySpellOpcode( WorldPacket & recv_data )
 
     _player->ModifyMoney( -int32(nSpellCost) );
 
+    WorldPacket data(SMSG_PLAY_SPELL_VISUAL, 12);           // visual effect on trainer
+    data << uint64(guid) << uint32(0xB3);
+    SendPacket(&data);
+
+    data.Initialize(SMSG_PLAY_SPELL_IMPACT, 12);            // visual effect on player
+    data << uint64(_player->GetGUID()) << uint32(0x016A);
+    SendPacket(&data);
+
     // learn explicitly or cast explicitly
     if(trainer_spell->IsCastable ())
         //FIXME: prof. spell entry in trainer list not marked gray until list re-open.
-        unit->CastSpell(_player,trainer_spell->spell,true);
+        _player->CastSpell(_player,trainer_spell->spell,true);
     else
-    {
-        WorldPacket data(SMSG_PLAY_SPELL_VISUAL, 12);           // visual effect on trainer
-        data << uint64(guid) << uint32(0xB3);
-        SendPacket(&data);
+        _player->learnSpell(spellId,false);
 
-        data.Initialize(SMSG_PLAY_SPELL_IMPACT, 12);            // visual effect on player
-        data << uint64(_player->GetGUID()) << uint32(0x016A);
-        SendPacket(&data);
-
-        _player->learnSpell(spellId);
-    }
-
-    WorldPacket data(SMSG_TRAINER_BUY_SUCCEEDED, 12);
+    data.Initialize(SMSG_TRAINER_BUY_SUCCEEDED, 12);
     data << uint64(guid) << uint32(trainer_spell->spell);
     SendPacket(&data);
 }

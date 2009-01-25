@@ -203,7 +203,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNoImmediateEffect,                         //146 SPELL_AURA_ALLOW_TAME_PET_TYPE
     &Aura::HandleNULL,                                      //147 SPELL_AURA_ADD_CREATURE_IMMUNITY
     &Aura::HandleAuraRetainComboPoints,                     //148 SPELL_AURA_RETAIN_COMBO_POINTS
-    &Aura::HandleNoImmediateEffect,                         //149 SPELL_AURA_RESIST_PUSHBACK
+    &Aura::HandleNoImmediateEffect,                         //149 SPELL_AURA_REDUCE_PUSHBACK
     &Aura::HandleShieldBlockValue,                          //150 SPELL_AURA_MOD_SHIELD_BLOCKVALUE_PCT
     &Aura::HandleAuraTrackStealthed,                        //151 SPELL_AURA_TRACK_STEALTHED
     &Aura::HandleNoImmediateEffect,                         //152 SPELL_AURA_MOD_DETECTED_RANGE implemented in Creature::GetAttackDistance
@@ -314,7 +314,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNULL,                                      //257 SPELL_AURA_MOD_TARGET_RESIST_BY_SPELL_CLASS Use SpellClassMask for spell select
     &Aura::HandleNULL,                                      //258 SPELL_AURA_MOD_SPELL_VISUAL
     &Aura::HandleNULL,                                      //259 corrupt healing over time spell
-    &Aura::HandleNULL,                                      //260
+    &Aura::HandleNoImmediateEffect,                         //260 SPELL_AURA_SCREEN_EFFECT (miscvalue = id in ScreenEffect.dbc) not required any code
     &Aura::HandleNULL,                                      //261 out of phase?
     &Aura::HandleNULL,                                      //262
     &Aura::HandleNULL,                                      //263 SPELL_AURA_ALLOW_ONLY_ABILITY player can use only abilites set in SpellClassMask
@@ -2139,6 +2139,28 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
         }
         case SPELLFAMILY_MAGE:
         {
+            break;
+        }
+        case SPELLFAMILY_PRIEST:
+        {
+            // Pain and Suffering
+            if( m_spellProto->SpellIconID == 2874 && m_target->GetTypeId()==TYPEID_PLAYER )
+            {
+                if(apply)
+                {
+                    // Reduce backfire damage (dot damage) from Shadow Word: Death
+                    SpellModifier *mod = new SpellModifier;
+                    mod->op = SPELLMOD_DOT;
+                    mod->value = m_modifier.m_amount;
+                    mod->type = SPELLMOD_PCT;
+                    mod->spellId = GetId();
+                    mod->mask = 0x0000000200000000LL;
+                    mod->mask2= 0LL;
+                    m_spellmod = mod;
+                }
+                ((Player*)m_target)->AddSpellMod(m_spellmod, apply);
+                return;
+            }
             break;
         }
         case SPELLFAMILY_DRUID:
@@ -5039,6 +5061,7 @@ void Aura::HandleShapeshiftBoosts(bool apply)
             break;
         case FORM_TREE:
             spellId = 5420;
+            spellId2 = 34123;
             break;
         case FORM_TRAVEL:
             spellId = 5419;
@@ -6073,47 +6096,11 @@ void Aura::PeriodicDummyTick()
                 {
                     if ((*i)->GetId() == GetId())
                     {
-                        // Get tick number
-                        int32 tick = (m_maxduration - m_duration) / m_modifier.periodictime;
-                        // Default case (not on arenas)
-                        if (tick == 0)
-                        {
-                            (*i)->GetModifier()->m_amount = m_modifier.m_amount;
-                            ((Player*)m_target)->UpdateManaRegen();
-                            // Disable continue
-                            m_isPeriodic = false;
-                        }
-                        return;
-                        //**********************************************
-                        // Code commended since arena patch not added
-                        // This feature uses only in arenas
-                        //**********************************************
-                        // Here need increase mana regen per tick (6 second rule)
-                        // on 0 tick -   0  (handled in 2 second)
-                        // on 1 tick - 166% (handled in 4 second)
-                        // on 2 tick - 133% (handled in 6 second)
-                        // Not need update after 3 tick
-                        /*
-                        if (tick > 3)
-                            return;
-                        // Apply bonus for 0 - 3 tick
-                        switch (tick)
-                        {
-                            case 0:   // 0%
-                                (*i)->GetModifier()->m_amount = m_modifier.m_amount = 0;
-                                break;
-                            case 1:   // 166%
-                                (*i)->GetModifier()->m_amount = m_modifier.m_amount * 5 / 3;
-                                break;
-                            case 2:   // 133%
-                                (*i)->GetModifier()->m_amount = m_modifier.m_amount * 4 / 3;
-                                break;
-                            default:  // 100% - normal regen
-                                (*i)->GetModifier()->m_amount = m_modifier.m_amount;
-                                break;
-                        }
+                        (*i)->GetModifier()->m_amount = m_modifier.m_amount;
                         ((Player*)m_target)->UpdateManaRegen();
-                        return;*/
+                        // Disable continue
+                        m_isPeriodic = false;
+                        return;
                     }
                 }
                 return;

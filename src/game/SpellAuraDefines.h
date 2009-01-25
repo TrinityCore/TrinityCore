@@ -193,7 +193,7 @@ enum AuraType
     SPELL_AURA_ALLOW_TAME_PET_TYPE = 146,
     SPELL_AURA_ADD_CREATURE_IMMUNITY = 147,
     SPELL_AURA_RETAIN_COMBO_POINTS = 148,
-    SPELL_AURA_RESIST_PUSHBACK  = 149,                      //    Resist Pushback
+    SPELL_AURA_REDUCE_PUSHBACK  = 149,                      //    Reduce Pushback
     SPELL_AURA_MOD_SHIELD_BLOCKVALUE_PCT = 150,
     SPELL_AURA_TRACK_STEALTHED  = 151,                      //    Track Stealthed
     SPELL_AURA_MOD_DETECTED_RANGE = 152,                    //    Mod Detected Range
@@ -304,7 +304,7 @@ enum AuraType
     SPELL_AURA_MOD_TARGET_RESIST_BY_SPELL_CLASS = 257,
     SPELL_AURA_258 = 258,
     SPELL_AURA_259 = 259,
-    SPELL_AURA_260 = 260,
+    SPELL_AURA_SCREEN_EFFECT = 260,
     SPELL_AURA_261 = 261,
     SPELL_AURA_262 = 262,
     SPELL_AURA_ALLOW_ONLY_ABILITY = 263,
