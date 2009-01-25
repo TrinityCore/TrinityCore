@@ -854,6 +854,12 @@ Channel.SilentlyGMJoin = 0
 #                 0 (disable)
 #                 1 (enable)
 #
+#    GM.Visible
+#        GM visibility at login
+#        Default: 2 (last save state)
+#                 0 (invisible)
+#                 1 (visible)
+#
 #    GM.AcceptTickets
 #        Is GM accepting tickets from player by default or not.
 #        Default: 2 (last save state)
@@ -896,17 +902,24 @@ Channel.SilentlyGMJoin = 0
 #        Default: 0 (disable)
 #                 1 (enable)
 #
+#    GM.AllowAchievementGain
+#        If enabled it allows gaining achievements for GM characters
+#        Default: 0 (disable)
+#                 1 (enable) (default)
+#
 ###################################################################################################################
 
-GM.LoginState     = 2
-GM.AcceptTickets  = 2
-GM.Chat           = 2
-GM.WhisperingTo   = 2
-GM.InGMList       = 0
-GM.InWhoList      = 0
-GM.LogTrade       = 1
-GM.StartLevel     = 70
-GM.LowerSecurity  = 0
+GM.LoginState            = 2
+GM.Visible               = 2
+GM.AcceptTickets         = 2
+GM.Chat                  = 2
+GM.WhisperingTo          = 2
+GM.InGMList              = 0
+GM.InWhoList             = 0
+GM.LogTrade              = 1
+GM.StartLevel            = 80
+GM.LowerSecurity         = 0
+GM.AllowAchievementGain  = 1
 
 ###################################################################################################################
 # VISIBILITY AND RADIUSES

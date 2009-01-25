@@ -736,10 +736,7 @@ class ObjectMgr
 
         // reserved names
         void LoadReservedPlayersNames();
-        bool IsReservedName(const std::string& name) const
-        {
-            return m_ReservedNames.find(name) != m_ReservedNames.end();
-        }
+        bool IsReservedName(const std::string& name) const;
 
         // name with valid structure and symbols
         static bool IsValidName( const std::string& name, bool create = false );
@@ -872,7 +869,7 @@ class ObjectMgr
         PetCreateSpellMap   mPetCreateSpell;
 
         //character reserved names
-        typedef std::set<std::string> ReservedNamesMap;
+        typedef std::set<std::wstring> ReservedNamesMap;
         ReservedNamesMap    m_ReservedNames;
 
         std::set<uint32>    m_DisabledPlayerSpells;

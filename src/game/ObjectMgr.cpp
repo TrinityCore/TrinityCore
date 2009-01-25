@@ -6486,17 +6486,35 @@ void ObjectMgr::LoadReservedPlayersNames()
         bar.step();
         fields = result->Fetch();
         std::string name= fields[0].GetCppString();
-        if(normalizePlayerName(name))
+
+        std::wstring wstr;
+        if(!Utf8toWStr (name,wstr))
         {
-            m_ReservedNames.insert(name);
-            ++count;
+            sLog.outError("Table `reserved_name` have invalid name: %s", name.c_str() );
+            continue;
         }
+
+        wstrToLower(wstr);
+
+        m_ReservedNames.insert(wstr);
+        ++count;
     } while ( result->NextRow() );
 
     delete result;
 
     sLog.outString();
     sLog.outString( ">> Loaded %u reserved player names", count );
+}
+
+bool ObjectMgr::IsReservedName( const std::string& name ) const
+{
+    std::wstring wstr;
+    if(!Utf8toWStr (name,wstr))
+        return false;
+
+    wstrToLower(wstr);
+
+    return m_ReservedNames.find(wstr) != m_ReservedNames.end();
 }
 
 enum LanguageType

@@ -1244,17 +1244,18 @@ void BattleGroundMgr::BuildBattleGroundStatusPacket(WorldPacket *data, BattleGro
 void BattleGroundMgr::BuildPvpLogDataPacket(WorldPacket *data, BattleGround *bg)
 {
     uint8 type = (bg->isArena() ? 1 : 0);
-                                                            // last check on 2.4.1
+                                                            // last check on 3.0.3
     data->Initialize(MSG_PVP_LOG_DATA, (1+1+4+40*bg->GetPlayerScoresSize()));
-    *data << uint8(type);                                   // seems to be type (battleground=0/arena=1)
+    *data << uint8(type);                                   // type (battleground=0/arena=1)
 
     if(type)                                                // arena
     {
         // it seems this must be according to BG_WINNER_A/H and _NOT_ BG_TEAM_A/H
         for(int i = 1; i >= 0; --i)
         {
-            *data << uint32(3000-bg->m_ArenaTeamRatingChanges[i]);                      // rating change: showed value - 3000
+            *data << uint32(bg->m_ArenaTeamRatingChanges[i]);
             *data << uint32(3999);  // huge thanks for TOM_RUS for this!
+            *data << uint32(0);     // unknown - new in 3.0.3
             sLog.outDebug("rating change: %d", bg->m_ArenaTeamRatingChanges[i]);
         }
         for(int i = 1; i >= 0; --i)
@@ -1268,9 +1269,9 @@ void BattleGroundMgr::BuildPvpLogDataPacket(WorldPacket *data, BattleGround *bg)
         }
     }
 
-    if(bg->GetWinner() == 2)
+    if(bg->GetStatus() != STATUS_WAIT_LEAVE)
     {
-        *data << uint8(0);                                  // bg in progress
+        *data << uint8(0);                                  // bg not ended
     }
     else
     {
@@ -1284,9 +1285,6 @@ void BattleGroundMgr::BuildPvpLogDataPacket(WorldPacket *data, BattleGround *bg)
     {
         *data << (uint64)itr->first;
         *data << (int32)itr->second->KillingBlows;
-        Player *plr = objmgr.GetPlayer(itr->first);
-        uint32 team = bg->GetPlayerTeam(itr->first);
-        if(!team && plr) team = plr->GetTeam();
         if(type == 0)
         {
             *data << (int32)itr->second->HonorableKills;
@@ -1295,18 +1293,12 @@ void BattleGroundMgr::BuildPvpLogDataPacket(WorldPacket *data, BattleGround *bg)
         }
         else
         {
-            // that part probably wrong
-            if(plr)
-            {
-                if(team == HORDE)
-                    *data << uint8(0);
-                else if(team == ALLIANCE)
-                {
-                    *data << uint8(1);
-                }
-                else
-                    *data << uint8(0);
-            }
+            Player *plr = objmgr.GetPlayer(itr->first);
+            uint32 team = bg->GetPlayerTeam(itr->first);
+            if(!team && plr)
+                team = plr->GetTeam();
+            if( ( bg->GetWinner()==0 && team == ALLIANCE ) || ( bg->GetWinner()==1 && team==HORDE ) )
+                *data << uint8(1);
             else
                 *data << uint8(0);
         }

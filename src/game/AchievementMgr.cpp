@@ -325,6 +325,10 @@ void AchievementMgr::CheckAllAchievementCriteria()
 void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1, uint32 miscvalue2, Unit *unit, uint32 time)
 {
     sLog.outDetail("AchievementMgr::UpdateAchievementCriteria(%u, %u, %u, %u)", type, miscvalue1, miscvalue2, time);
+
+    if (!sWorld.getConfig(CONFIG_GM_ALLOW_ACHIEVEMENT_GAINS) && m_player->GetSession()->GetSecurity() > SEC_PLAYER)
+        return;
+
     AchievementCriteriaEntryList const& achievementCriteriaList = achievementmgr.GetAchievementCriteriaByType(type);
     for(AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i!=achievementCriteriaList.end(); ++i)
     {
@@ -930,7 +934,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
     }
 
     sLog.outString();
-    sLog.outErrorDb(">> Loaded %u achievement criteria.",m_AchievementCriteriasByType->size());
+    sLog.outString(">> Loaded %u achievement criteria.",m_AchievementCriteriasByType->size());
 }
 
 

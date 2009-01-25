@@ -105,7 +105,7 @@ enum PetNameInvalidReason
     PET_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME              = 16
 };
 
-typedef UNORDERED_MAP<uint16, PetSpell*> PetSpellMap;
+typedef UNORDERED_MAP<uint32, PetSpell*> PetSpellMap;
 typedef std::map<uint32,uint32> TeachSpellMap;
 typedef std::vector<uint32> AutoSpellList;
 
@@ -190,12 +190,12 @@ class Pet : public Creature
         void _LoadSpells();
         void _SaveSpells();
 
-        bool addSpell(uint16 spell_id,uint16 active = ACT_DECIDE, PetSpellState state = PETSPELL_NEW, PetSpellType type = PETSPELL_NORMAL);
-        bool learnSpell(uint16 spell_id);
+        bool addSpell(uint32 spell_id,uint16 active = ACT_DECIDE, PetSpellState state = PETSPELL_NEW, PetSpellType type = PETSPELL_NORMAL);
+        bool learnSpell(uint32 spell_id);
         void learnLevelupSpells();
-        bool unlearnSpell(uint16 spell_id);
-        bool removeSpell(uint16 spell_id);
-        bool _removeSpell(uint16 spell_id);
+        bool unlearnSpell(uint32 spell_id);
+        bool removeSpell(uint32 spell_id);
+        bool _removeSpell(uint32 spell_id);
 
         PetSpellMap     m_spells;
         TeachSpellMap   m_teachspells;
