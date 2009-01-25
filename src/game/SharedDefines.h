@@ -832,7 +832,6 @@ enum Targets
     TARGET_UNIT_PARTY_CASTER           = 20,
     TARGET_SINGLE_FRIEND               = 21,
     TARGET_UNIT_TARGET_ALLY            = 21,
-    TARGET_ALL_AROUND_CASTER           = 22,                // used only in TargetA, target selection dependent from TargetB
     TARGET_DEST_CASTER                 = 22,
     TARGET_GAMEOBJECT                  = 23,
     //TARGET_OBJECT_OPEN

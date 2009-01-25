@@ -615,7 +615,7 @@ void FillSpellSummary()
             //Spell targets AoE at enemy
             if ( TempSpell->EffectImplicitTargetA[j] == TARGET_ALL_ENEMY_IN_AREA ||
                 TempSpell->EffectImplicitTargetA[j] == TARGET_ALL_ENEMY_IN_AREA_INSTANT ||
-                TempSpell->EffectImplicitTargetA[j] == TARGET_ALL_AROUND_CASTER ||
+                TempSpell->EffectImplicitTargetA[j] == TARGET_DEST_CASTER ||
                 TempSpell->EffectImplicitTargetA[j] == TARGET_ALL_ENEMY_IN_AREA_CHANNELED )
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_AOE_ENEMY-1);
 
@@ -624,7 +624,7 @@ void FillSpellSummary()
                 TempSpell->EffectImplicitTargetA[j] == TARGET_CURRENT_ENEMY_COORDINATES ||
                 TempSpell->EffectImplicitTargetA[j] == TARGET_ALL_ENEMY_IN_AREA ||
                 TempSpell->EffectImplicitTargetA[j] == TARGET_ALL_ENEMY_IN_AREA_INSTANT ||
-                TempSpell->EffectImplicitTargetA[j] == TARGET_ALL_AROUND_CASTER ||
+                TempSpell->EffectImplicitTargetA[j] == TARGET_DEST_CASTER ||
                 TempSpell->EffectImplicitTargetA[j] == TARGET_ALL_ENEMY_IN_AREA_CHANNELED )
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_ANY_ENEMY-1);
 
@@ -637,7 +637,7 @@ void FillSpellSummary()
             //Spell targets aoe friends
             if ( TempSpell->EffectImplicitTargetA[j] == TARGET_ALL_PARTY_AROUND_CASTER ||
                 TempSpell->EffectImplicitTargetA[j] == TARGET_AREAEFFECT_PARTY ||
-                TempSpell->EffectImplicitTargetA[j] == TARGET_ALL_AROUND_CASTER)
+                TempSpell->EffectImplicitTargetA[j] == TARGET_DEST_CASTER)
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_AOE_FRIEND-1);
 
             //Spell targets any friend(or self)
@@ -646,7 +646,7 @@ void FillSpellSummary()
                 TempSpell->EffectImplicitTargetA[j] == TARGET_SINGLE_PARTY ||
                 TempSpell->EffectImplicitTargetA[j] == TARGET_ALL_PARTY_AROUND_CASTER ||
                 TempSpell->EffectImplicitTargetA[j] == TARGET_AREAEFFECT_PARTY ||
-                TempSpell->EffectImplicitTargetA[j] == TARGET_ALL_AROUND_CASTER)
+                TempSpell->EffectImplicitTargetA[j] == TARGET_DEST_CASTER)
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_ANY_FRIEND-1);
 
             //Make sure that this spell includes a damage effect

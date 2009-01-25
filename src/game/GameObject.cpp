@@ -360,8 +360,8 @@ void GameObject::Update(uint32 /*p_time*/)
                 {
                     //Unit *caster =  owner ? owner : ok;
 
-                    //caster->CastSpell(ok, goInfo->trap.spellId, true);
                     CastSpell(ok, goInfo->trap.spellId);
+                    //caster->CastSpell(ok, goInfo->trap.spellId, true, 0, 0, GetGUID());
                     m_cooldownTime = time(NULL) + 4;        // 4 seconds
 
                     if(NeedDespawn)
@@ -411,7 +411,7 @@ void GameObject::Update(uint32 /*p_time*/)
                     for (; it != end; it++)
                     {
                         Unit* owner = Unit::GetUnit(*this, uint64(*it));
-                        if (owner) owner->CastSpell(owner, spellId, false);
+                        if (owner) owner->CastSpell(owner, spellId, false, 0, 0, GetGUID());
                     }
 
                     m_unique_users.clear();
@@ -826,7 +826,7 @@ void GameObject::TriggeringLinkedGameObject( uint32 trapEntry, Unit* target)
     // found correct GO
     // FIXME: when GO casting will be implemented trap must cast spell to target
     if(trapGO)
-        target->CastSpell(target,trapSpell,true);
+        target->CastSpell(target,trapSpell,true, 0, 0, GetGUID());
 }
 
 GameObject* GameObject::LookupFishingHoleAround(float range)
