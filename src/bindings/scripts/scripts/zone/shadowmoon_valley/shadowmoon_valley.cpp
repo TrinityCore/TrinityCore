@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Shadowmoon_Valley
 SD%Complete: 100
-SDComment: Quest support: 10519, 10583, 10601, 10814, 10804, 10854, 11082, 10781, 10451. Vendor Drake Dealer Hurlunk.
+SDComment: Quest support: 10519, 10583, 10601, 10814, 10804, 10854, 10458, 10481, 10480, 11082, 10781, 10451. Vendor Drake Dealer Hurlunk.
 SDCategory: Shadowmoon Valley
 EndScriptData */
 
@@ -36,6 +36,7 @@ mob_torloth_the_magnificent
 mob_illidari_spawn 
 npc_lord_illidan_stormrage
 go_crystal_prison
+npc_enraged_spirit
 EndContentData */
 
 #include "precompiled.h"
@@ -958,7 +959,7 @@ struct TRINITY_DLL_DECL npc_earthmender_wildaAI : public npc_escortAI
                }
                ((Creature*)CoilskarAssassin)->AI()->AttackStart(m_creature);
            }
-           else error_log("SD2 ERROR: Coilskar Assassin couldn't be summmoned");
+           else error_log("TSCR ERROR: Coilskar Assassin couldn't be summmoned");
        }
 
        void JustDied(Unit* killer)
@@ -1636,6 +1637,120 @@ CreatureAI* GetAI_mob_torloth_the_magnificent(Creature* c)
     return new mob_torloth_the_magnificentAI(c);
 }
 
+/*####
+# npc_enraged_spirits
+####*/
+
+/* QUESTS */
+#define QUEST_ENRAGED_SPIRITS_FIRE_EARTH 10458
+#define QUEST_ENRAGED_SPIRITS_AIR 10481
+#define QUEST_ENRAGED_SPIRITS_WATER 10480
+
+/* Totem */
+#define ENTRY_TOTEM_OF_SPIRITS 21071
+#define RADIUS_TOTEM_OF_SPIRITS 15
+
+/* SPIRITS */
+#define ENTRY_ENRAGED_EARTH_SPIRIT 21050
+#define ENTRY_ENRAGED_FIRE_SPIRIT 21061
+#define ENTRY_ENRAGED_AIR_SPIRIT 21060
+#define ENTRY_ENRAGED_WATER_SPIRIT 21059
+
+/* SOULS */
+#define ENTRY_EARTHEN_SOUL 21073
+#define ENTRY_FIERY_SOUL 21097
+#define ENTRY_ENRAGED_AIRY_SOUL 21116
+#define ENTRY_ENRAGED_WATERY_SOUL 21109  // wrong model
+
+/* SPELL KILLCREDIT - not working!?! - using KilledMonster */
+#define SPELL_EARTHEN_SOUL_CAPTURED_CREDIT 36108
+#define SPELL_FIERY_SOUL_CAPTURED_CREDIT 36117
+#define SPELL_AIRY_SOUL_CAPTURED_CREDIT 36182
+#define SPELL_WATERY_SOUL_CAPTURED_CREDIT 36171
+
+/* KilledMonster Workaround */
+#define CREDIT_FIRE 21094
+#define CREDIT_WATER 21095
+#define CREDIT_AIR 21096
+#define CREDIT_EARTH 21092
+
+/* Captured Spell/Buff */
+#define SPELL_SOUL_CAPTURED 36115
+
+/* Factions */
+#define ENRAGED_SOUL_FRIENDLY 35
+#define ENRAGED_SOUL_HOSTILE 14
+
+struct TRINITY_DLL_DECL npc_enraged_spiritAI : public ScriptedAI
+{
+    npc_enraged_spiritAI(Creature *c) : ScriptedAI(c) {Reset();}
+
+    void Reset()   { }
+
+    void Aggro(Unit *who){}
+
+    void JustDied(Unit* killer)
+    {
+        // always spawn spirit on death
+        // if totem around
+        // move spirit to totem and cast kill count
+        uint32 entry = 0;
+        uint32 credit = 0;
+
+        switch(m_creature->GetEntry()) {
+          case ENTRY_ENRAGED_FIRE_SPIRIT:
+            entry  = ENTRY_FIERY_SOUL;
+            //credit = SPELL_FIERY_SOUL_CAPTURED_CREDIT;
+            credit = CREDIT_FIRE;
+          break;
+          case ENTRY_ENRAGED_EARTH_SPIRIT:
+            entry  = ENTRY_EARTHEN_SOUL;
+            //credit = SPELL_EARTHEN_SOUL_CAPTURED_CREDIT;
+            credit = CREDIT_EARTH;
+          break;
+          case ENTRY_ENRAGED_AIR_SPIRIT:
+            entry  = ENTRY_ENRAGED_AIRY_SOUL;
+            //credit = SPELL_AIRY_SOUL_CAPTURED_CREDIT;
+            credit = CREDIT_AIR;
+          break;
+          case ENTRY_ENRAGED_WATER_SPIRIT:
+            entry  = ENTRY_ENRAGED_WATERY_SOUL;
+            //credit = SPELL_WATERY_SOUL_CAPTURED_CREDIT;
+            credit = CREDIT_WATER;
+          break;
+        }
+
+        // Spawn Soul on Kill ALWAYS!
+        Creature* Summoned = NULL;
+        Unit* totemOspirits = NULL;
+
+        if ( entry != 0 )
+            Summoned = DoSpawnCreature(entry, 0, 0, 1, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5000);
+
+        // FIND TOTEM, PROCESS QUEST
+        if (Summoned) 
+        {
+             totemOspirits = FindCreature(ENTRY_TOTEM_OF_SPIRITS, RADIUS_TOTEM_OF_SPIRITS, m_creature);
+             if (totemOspirits) 
+             {
+                 Summoned->setFaction(ENRAGED_SOUL_FRIENDLY);
+                 Summoned->GetMotionMaster()->MovePoint(0,totemOspirits->GetPositionX(), totemOspirits->GetPositionY(), Summoned->GetPositionZ());
+
+                 Player* Owner = (Player*)totemOspirits->GetOwner();
+                 if (Owner)
+                     // DoCast(Owner, credit); -- not working!
+                     Owner->KilledMonster(credit, Summoned->GetGUID());
+                 DoCast(totemOspirits,SPELL_SOUL_CAPTURED);
+             }
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_enraged_spirit(Creature *_Creature)
+{
+return new npc_enraged_spiritAI(_Creature);
+}
+
 /*#####
 #
 ######*/
@@ -1708,21 +1823,26 @@ void AddSC_shadowmoon_valley()
 
     newscript = new Script;
     newscript->Name = "npc_lord_illidan_stormrage";
-    newscript->GetAI = GetAI_npc_lord_illidan_stormrage; 
+    newscript->GetAI = &GetAI_npc_lord_illidan_stormrage; 
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "go_crystal_prison";
-    newscript->pGOQuestAccept = GOQuestAccept_GO_crystal_prison;
+    newscript->pGOQuestAccept = &GOQuestAccept_GO_crystal_prison;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "mob_illidari_spawn"; 
-    newscript->GetAI = GetAI_mob_illidari_spawn;
+    newscript->GetAI = &GetAI_mob_illidari_spawn;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "mob_torloth_the_magnificent";
-    newscript->GetAI = GetAI_mob_torloth_the_magnificent;
+    newscript->GetAI = &GetAI_mob_torloth_the_magnificent;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_enraged_spirit";
+    newscript->GetAI = &GetAI_npc_enraged_spirit;
     newscript->RegisterSelf();
 }
