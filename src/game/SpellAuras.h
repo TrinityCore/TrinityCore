@@ -22,15 +22,6 @@
 
 #include "SpellAuraDefines.h"
 
-struct DamageManaShield
-{
-    uint32 m_spellId;
-    uint32 m_modType;
-    int32 m_schoolType;
-    uint32 m_totalAbsorb;
-    uint32 m_currAbsorb;
-};
-
 struct Modifier
 {
     AuraType m_auraname;
