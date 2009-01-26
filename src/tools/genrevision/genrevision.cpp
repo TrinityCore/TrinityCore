@@ -87,6 +87,7 @@ void extractDataFromHG(FILE* EntriesFile, std::string path, bool url, RawData& d
     {
         thash_str[i] = hash_str[i];
     }
+    thash_str[12] = '\0';
 
     strcpy(data.hash_str,thash_str);
     strcpy(data.rev_str,revision_str);
