@@ -53,7 +53,7 @@ endif(CONF_DIR)
 message("* Will install to: ${CMAKE_INSTALL_PREFIX}")
 message("* With config dir at: ${CONF_DIR}")
 
-SET(LIBSDIR "/usr/lib /usr/local/lib /lib")
+SET(LIBSDIR ${CMAKE_INSTALL_PREFIX}/lib)
 FIND_LIBRARY(SSLLIB NAMES ssl DOC "SSL library")
 FIND_LIBRARY(ZLIB z "Zlib library")
 
