@@ -38,7 +38,7 @@ EXECUTE_PROCESS(
         OUTPUT_VARIABLE HG_REVISION
 )
 
-message("* Trinity Core revision: ${HG_REVISION}")
+message("* TrinityCore & MaNGOS revision: ${HG_REVISION}")
 
 IF (PREFIX)
     SET(CMAKE_INSTALL_PREFIX ${PREFIX})
