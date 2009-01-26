@@ -1692,12 +1692,10 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
 
 		if(sWorld.getConfig(CONFIG_SHOW_KICK_IN_WORLD) == 1)
  		{
-
 			sWorld.SendWorldText(LANG_COMMAND_KICKMESSAGE, player->GetName(), kicker.c_str(), reason.c_str());
  		}
  		else
  		{
-
 			PSendSysMessage(LANG_COMMAND_KICKMESSAGE, player->GetName(), kicker.c_str(), reason.c_str());
 		}
 

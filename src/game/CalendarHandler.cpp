@@ -22,11 +22,52 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "Opcodes.h"
+#include "InstanceSaveMgr.h"
+
+
 
 void WorldSession::HandleCalendarGetCalendar(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: CMSG_CALENDAR_GET_CALENDAR");
     recv_data.hexlike();
+
+    time_t cur_time = time(NULL);
+
+    WorldPacket data(SMSG_CALENDAR_SEND_CALENDAR,4+4*0+4+4*0+4+4);
+
+    // TODO: calendar invite event output
+    data << (uint32) 0;                                     //invite node count
+    // TODO: calendar event output
+    data << (uint32) 0;                                     //event count
+
+    data << (uint32) 0;                                     //wtf??
+    data << (uint32) secsToTimeBitFields(cur_time);         // current time
+
+    uint32 counter = 0;
+    size_t p_counter = data.wpos();
+    data << uint32(counter);                                // instance save count
+
+    for(int i = 0; i < TOTAL_DIFFICULTIES; ++i)
+    {
+        for (Player::BoundInstancesMap::iterator itr = _player->m_boundInstances[i].begin(); itr != _player->m_boundInstances[i].end(); ++itr)
+        {
+            if(itr->second.perm)
+            {
+                InstanceSave *save = itr->second.save;
+                data << uint32(save->GetMapId());
+                data << uint32(save->GetDifficulty());
+                data << uint32(save->GetResetTime() - cur_time);
+                data << uint64(save->GetInstanceId());      // instance save id as unique instance copy id
+                ++counter;
+            }
+        }
+    }
+    data.put<uint32>(p_counter,counter);
+
+    data << (uint32) 1135753200;                            //wtf?? (28.12.2005 12:00)
+    sLog.outDebug("Sending calendar");
+    //data.hexlike();
+    SendPacket(&data);
 }
 
 void WorldSession::HandleCalendarGetEvent(WorldPacket &recv_data)
