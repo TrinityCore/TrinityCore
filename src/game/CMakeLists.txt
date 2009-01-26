@@ -4,6 +4,8 @@
 SET(game_STAT_SRCS
    AccountMgr.cpp
    AccountMgr.h
+   AchievementMgr.h
+   AchievementMgr.cpp
    AddonHandler.cpp
    AddonHandler.h
    AggressorAI.cpp
@@ -23,22 +25,31 @@ SET(game_STAT_SRCS
    BattleGroundAB.cpp
    BattleGroundAV.cpp
    BattleGroundBE.cpp
+   BattleGroundDS.cpp
    BattleGroundEY.cpp
    BattleGroundNA.cpp
    BattleGroundRL.cpp
+   BattleGroundRV.cpp
+   BattleGroundSA.cpp
    BattleGroundWS.cpp
    BattleGround.h
    BattleGroundAA.h
    BattleGroundAB.h
    BattleGroundAV.h
    BattleGroundBE.h
+   BattleGroundDS.h
    BattleGroundEY.h
    BattleGroundNA.h
    BattleGroundRL.h
+   BattleGroundRV.h
+   BattleGroundSA.h
    BattleGroundWS.h
    BattleGroundHandler.cpp
    BattleGroundMgr.cpp
    BattleGroundMgr.h
+   Calendar.cpp
+   Calendar.h
+   CalendarHandler.cpp
    Cell.h
    CellImpl.h
    Channel.cpp
@@ -130,6 +141,8 @@ SET(game_STAT_SRCS
    MapInstanced.h
    MapManager.cpp
    MapManager.h
+   MapReference.h
+   MapRefManager.h
    MiscHandler.cpp
    MotionMaster.cpp
    MotionMaster.h
@@ -150,6 +163,8 @@ SET(game_STAT_SRCS
    Object.h
    ObjectMgr.cpp
    ObjectMgr.h
+   ObjectPosSelector.cpp
+   ObjectPosSelector.h
    Opcodes.cpp
    Opcodes.h
    OutdoorPvP.cpp
@@ -240,6 +255,8 @@ SET(game_STAT_SRCS
    UpdateData.h
    UpdateFields.h
    UpdateMask.h
+   Vehicle.cpp
+   Vehicle.h
    VoiceChatHandler.cpp
    WaypointManager.cpp
    WaypointManager.h
