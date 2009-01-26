@@ -50,7 +50,6 @@ libmangosshared_a_SOURCES = \
     WorldPacket.h \
     revision_nr.h \
     revision.h
-$(srcdir)/revision.h
 
 # Get revision (git or svn)
 # Get HG revision

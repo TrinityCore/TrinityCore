@@ -1,6 +1,6 @@
 add_subdirectory(framework)
 add_subdirectory(shared)
-add_subdirectory(trinityrealm)
+add_subdirectory(realmd)
 add_subdirectory(game)
 add_subdirectory(bindings)
-add_subdirectory(trinitycore)
+add_subdirectory(mangosd)
