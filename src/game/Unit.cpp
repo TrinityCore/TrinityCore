@@ -7720,19 +7720,157 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         if( (*i)->GetModifier()->m_miscvalue & GetSpellSchoolMask(spellProto) )
             TakenTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
 
-    // .. taken pct: scripted (increases damage of * against targets *)
-    AuraList const& mOverrideClassScript = GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
+    // done scripted mod (take it from owner)
+    Unit *owner = GetOwner();
+    if (!owner) owner = this;
+    AuraList const& mOverrideClassScript= owner->GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
     for(AuraList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
     {
+        if (!(*i)->isAffectedOnSpell(spellProto))
+            continue;
         switch((*i)->GetModifier()->m_miscvalue)
         {
-            //Molten Fury
-            case 4920: case 4919:
+            // Molten Fury
+            case 4920:
+            case 4919:
+            {
                 if(pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT))
-                    TakenTotalMod *= (100.0f+(*i)->GetModifier()->m_amount)/100.0f; break;
+                    TakenTotalMod *= (100.0f+(*i)->GetModifier()->m_amount)/100.0f;
+                break;
+            }
+            // Soul Siphon
+            case 4992:
+            case 4993:
+            {
+                // effect 1 m_amount
+                int32 maxPercent = (*i)->GetModifier()->m_amount;
+                // effect 0 m_amount
+                int32 stepPercent = CalculateSpellDamage((*i)->GetSpellProto(), 0, (*i)->GetSpellProto()->EffectBasePoints[0], this);
+                // count affliction effects and calc additional damage in percentage
+                int32 modPercent = 0;
+                Unit::AuraMap const& victimAuras = pVictim->GetAuras();
+                for (Unit::AuraMap::const_iterator itr = victimAuras.begin(); itr != victimAuras.end(); ++itr)
+                {
+                    SpellEntry const* m_spell = itr->second->GetSpellProto();
+                    if (m_spell->SpellFamilyName != SPELLFAMILY_WARLOCK || !(m_spell->SpellFamilyFlags & 0x0004071B8044C402LL))
+                        continue;
+                    modPercent += stepPercent;
+                    if (modPercent >= maxPercent)
+                    {
+                        modPercent = maxPercent;
+                        break;
+                    }
+                }
+                DoneTotalMod *= (modPercent+100.0f)/100.0f;
+                break;
+            }
+            // Starfire Bonus
+            case 5481:
+            {
+                AuraList const& auras = pVictim->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
+                for(AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                {
+                    SpellEntry const* m_spell = (*itr)->GetSpellProto();
+                    if (m_spell->SpellFamilyName == SPELLFAMILY_DRUID &&
+                        m_spell->SpellFamilyFlags & 0x0000000000200002LL)
+                    {
+                        DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
+                        break;
+                    }
+                }
+                break;
+            }
+            case 4418: // Increased Shock Damage
+            case 4554: // Increased Lightning Damage
+            case 4555: // Improved Moonfire
+            case 5142: // Increased Lightning Damage
+            case 5147: // Improved Consecration
+            case 5148: // Idol of the Shooting Star
+            case 6008: // Increased Lightning Damage / Totem of Hex
+            {
+                pdamage+=(*i)->GetModifier()->m_amount;
+                break;
+            }
+            // Tundra Stalker
+            // Merciless Combat
+            case 7277:
+            {
+                // Merciless Combat
+                if ((*i)->GetSpellProto()->SpellIconID == 2656)
+                {
+                    if(pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT))
+                        TakenTotalMod *= (100.0f+(*i)->GetModifier()->m_amount)/100.0f;
+                }
+                else // Tundra Stalker
+                {
+                    AuraList const& auras = pVictim->GetAurasByType(SPELL_AURA_DUMMY);
+                    for(AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                    {
+                        SpellEntry const* m_spell = (*itr)->GetSpellProto();
+                        if (m_spell->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT &&
+                            m_spell->SpellFamilyFlags & 0x0400000000000000LL)
+                        {
+                            DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
+            case 7293:
+            {
+                AuraList const& auras = pVictim->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
+                for(AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                {
+                    SpellEntry const* m_spell = (*itr)->GetSpellProto();
+                    if (m_spell->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT &&
+                        m_spell->SpellFamilyFlags & 0x0200000000000000LL)
+                    {
+                        DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
+                        break;
+                    }
+                }
+                break;
+            }
+            // Twisted Faith
+            case 7377:
+            {
+                AuraList const& auras = pVictim->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
+                for(AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                {
+                    SpellEntry const* m_spell = (*itr)->GetSpellProto();
+                    if (m_spell->SpellFamilyName == SPELLFAMILY_PRIEST &&
+                        m_spell->SpellFamilyFlags & 0x0000000000008000LL &&
+                        (*itr)->GetCasterGUID()==GetGUID())
+                    {
+                        DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
+                        break;
+                    }
+                }
+                break;
+            }
+            // Marked for Death
+            case 7598:
+            case 7599:
+            case 7600:
+            case 7601:
+            case 7602:
+            {
+                AuraList const& auras = pVictim->GetAurasByType(SPELL_AURA_MOD_STALKED);
+                for(AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                {
+                    SpellEntry const* m_spell = (*itr)->GetSpellProto();
+                    if (m_spell->SpellFamilyName == SPELLFAMILY_HUNTER &&
+                        m_spell->SpellFamilyFlags & 0x0000000000000400LL)
+                    {
+                        DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
+                        break;
+                    }
+                }
+                break;
+            }
         }
     }
-
     // .. taken pct: dummy auras
     AuraList const& mDummyAuras = pVictim->GetAurasByType(SPELL_AURA_DUMMY);
     for(AuraList::const_iterator i = mDummyAuras.begin(); i != mDummyAuras.end(); ++i)
@@ -7752,8 +7890,8 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 }
                 break;
             //This is changed in WLK, using aura 255
-            //Mangle
-            case 2312:
+            // Mangle
+            /*case 2312:
             case 44955:
                 for(int j=0;j<3;j++)
                 {
@@ -7763,7 +7901,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                         break;
                     }
                 }
-                break;
+                break;*/
         }
     }
 
