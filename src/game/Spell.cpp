@@ -1461,7 +1461,6 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 case TARGET_UNIT_TARGET_RAID:
                 case TARGET_UNIT_TARGET_ANY: // SelectMagnetTarget()?
                 case TARGET_UNIT_TARGET_PARTY:
-                case TARGET_UNIT_SINGLE_UNKNOWN:
                     TagUnitMap.push_back(target);
                     break;
                 case TARGET_UNIT_PARTY_TARGET:

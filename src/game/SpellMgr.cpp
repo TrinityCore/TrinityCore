@@ -103,7 +103,6 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_TARGET_ALLY:
             case TARGET_UNIT_TARGET_RAID:
             case TARGET_UNIT_TARGET_ANY:
-            case TARGET_UNIT_SINGLE_UNKNOWN:
             case TARGET_UNIT_TARGET_ENEMY:
             case TARGET_UNIT_TARGET_PARTY:
             case TARGET_UNIT_PARTY_TARGET:
