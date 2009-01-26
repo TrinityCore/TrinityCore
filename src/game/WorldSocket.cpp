@@ -793,17 +793,17 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
     QueryResult *result =
           LoginDatabase.PQuery ("SELECT "
-                                "id, " //0
-                                "gmlevel, " //1
-                                "sessionkey, " //2
-                                "last_ip, " //3
-                                "locked, " //4
-                                "sha_pass_hash, " //5
-                                "v, " //6
-                                "s, " //7
-                                "expansion, " //8
-                                "mutetime, " //9
-                                "locale " //10
+                                "id, "                      //0
+                                "gmlevel, "                 //1
+                                "sessionkey, "              //2
+                                "last_ip, "                 //3
+                                "locked, "                  //4
+                                "sha_pass_hash, "           //5
+                                "v, "                       //6
+                                "s, "                       //7
+                                "expansion, "               //8
+                                "mutetime, "                //9
+                                "locale "                   //10
                                 "FROM account "
                                 "WHERE username = '%s'",
                                 safe_account.c_str ());
@@ -897,6 +897,9 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
     id = fields[0].GetUInt32 ();
     security = fields[1].GetUInt16 ();
+    if(security > SEC_ADMINISTRATOR)                        // prevent invalid security settings in DB
+        security = SEC_ADMINISTRATOR;
+
     K.SetHexStr (fields[2].GetString ());
 
     time_t mutetime = time_t (fields[9].GetUInt64 ());
