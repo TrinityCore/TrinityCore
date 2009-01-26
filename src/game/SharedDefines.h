@@ -806,10 +806,9 @@ enum Targets
 {
     TARGET_SELF                        = 1,
     TARGET_UNIT_CASTER                 = 1,
-    TARGET_RANDOM_ENEMY_CHAIN_IN_AREA  = 2,                 // only one spell has that, but regardless, it's a target type after all
-    //TARGET_UNIT_NEARBY_ENEMY
-    TARGET_UNIT_SINGLE_UNKNOWN         = 3,
-    TARGET_UNIT_NEARBY_ALLY            = 4,
+    TARGET_UNIT_NEARBY_ENEMY           = 2,
+    TARGET_UNIT_NEARBY_ALLY            = 3,
+    TARGET_UNIT_NEARBY_ALLY_UNK        = 4,
     TARGET_PET                         = 5,
     TARGET_UNIT_PET                    = 5,
     TARGET_CHAIN_DAMAGE                = 6,

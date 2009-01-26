@@ -1292,7 +1292,7 @@ bool ChatHandler::HandleSetSkillCommand(const char* args)
 {
     // number or [name] Shift-click form |color|Hskill:skill_id|h[name]|h|r
     char* skill_p = extractKeyFromLink((char*)args,"Hskill");
-    if(!skill_p) 
+    if(!skill_p)
         return false;
 
     char *level_p = strtok (NULL, " ");
