@@ -1288,6 +1288,7 @@ struct ChainHealingOrder : public std::binary_function<const Unit*, const Unit*,
     {
         return (ChainHealingHash(_Left) < ChainHealingHash(_Right));
     }
+
     int32 ChainHealingHash(Unit const* Target) const
     {
         if (Target == MainTarget)
@@ -1303,18 +1304,6 @@ struct ChainHealingOrder : public std::binary_function<const Unit*, const Unit*,
         else
             return 40000 - Target->GetMaxHealth() + Target->GetHealth();
     }
-};
-
-class ChainHealingFullHealth: std::unary_function<const Unit*, bool>
-{
-    public:
-        const Unit* MainTarget;
-        ChainHealingFullHealth(const Unit* Target) : MainTarget(Target) {};
-
-        bool operator()(const Unit* Target)
-        {
-            return (Target != MainTarget && Target->GetHealth() == Target->GetMaxHealth());
-        }
 };
 
 // Helper for targets nearest to the spell target
@@ -1341,7 +1330,15 @@ void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, float max_range, uin
         max_range += num * CHAIN_SPELL_JUMP_RADIUS;
 
     std::list<Unit*> tempUnitMap;
-    SearchAreaTarget(tempUnitMap, max_range, PUSH_TARGET_CENTER, TargetType);
+    if(TargetType == SPELL_TARGETS_CHAINHEAL)
+    {
+        SearchAreaTarget(tempUnitMap, max_range, PUSH_TARGET_CENTER, SPELL_TARGETS_ALLY);
+        tempUnitMap.sort(ChainHealingOrder(m_caster));
+        if(cur->GetHealth() == cur->GetMaxHealth() && tempUnitMap.size())
+            cur = tempUnitMap.front();
+    }
+    else
+        SearchAreaTarget(tempUnitMap, max_range, PUSH_TARGET_CENTER, TargetType);
     tempUnitMap.remove(cur);
 
     while(num)
@@ -1352,19 +1349,34 @@ void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, float max_range, uin
         if(tempUnitMap.empty())
             break;
 
-        tempUnitMap.sort(TargetDistanceOrder(cur));
-        std::list<Unit*>::iterator next = tempUnitMap.begin();
+        std::list<Unit*>::iterator next;
 
-        if(cur->GetDistance(*next) > CHAIN_SPELL_JUMP_RADIUS)
-            break;
-
-        while(!cur->IsWithinLOSInMap(*next)
-            || m_spellInfo->DmgClass==SPELL_DAMAGE_CLASS_MELEE 
-            && !m_caster->isInFront(*next, max_range))
+        if(TargetType == SPELL_TARGETS_CHAINHEAL)
         {
-            ++next;
-            if(next == tempUnitMap.end())
-                return;
+            next = tempUnitMap.begin();
+            while(cur->GetDistance(*next) > CHAIN_SPELL_JUMP_RADIUS
+                || !cur->IsWithinLOSInMap(*next))
+            {
+                ++next;
+                if(next == tempUnitMap.end())
+                    return;
+            }
+        }
+        else
+        {
+            tempUnitMap.sort(TargetDistanceOrder(cur));
+            next = tempUnitMap.begin();
+
+            if(cur->GetDistance(*next) > CHAIN_SPELL_JUMP_RADIUS)
+                break;
+            while(!cur->IsWithinLOSInMap(*next)
+                || m_spellInfo->DmgClass==SPELL_DAMAGE_CLASS_MELEE 
+                && !m_caster->isInFront(*next, max_range))
+            {
+                ++next;
+                if(next == tempUnitMap.end() || cur->GetDistance(*next) > CHAIN_SPELL_JUMP_RADIUS)
+                    return;
+            }
         }
 
         cur = *next;
@@ -1536,6 +1548,12 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                         TagUnitMap.push_back(SelectMagnetTarget());
                     else if(SelectMagnetTarget())   //TODO: chain target should also use magnet target
                         SearchChainTarget(TagUnitMap, radius, EffectChainTarget, SPELL_TARGETS_ENEMY);
+                    break;
+                case TARGET_UNIT_CHAINHEAL:
+                    if(EffectChainTarget <= 1)
+                        TagUnitMap.push_back(target);
+                    else
+                        SearchChainTarget(TagUnitMap, radius, EffectChainTarget, SPELL_TARGETS_CHAINHEAL);
                     break;
             }
         }break;
@@ -1791,66 +1809,6 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             TagUnitMap.push_back(m_caster);
             break;
         }
-        case TARGET_CHAIN_HEAL:
-        {
-            Unit* pUnitTarget = m_targets.getUnitTarget();
-            if(!pUnitTarget)
-                break;
-
-            if (EffectChainTarget <= 1)
-                TagUnitMap.push_back(pUnitTarget);
-            else
-            {
-                unMaxTargets = EffectChainTarget;
-                float max_range = radius + unMaxTargets * CHAIN_SPELL_JUMP_RADIUS;
-
-                std::list<Unit *> tempUnitMap;
-                Trinity::SpellNotifierCreatureAndPlayer notifier(*this, tempUnitMap, max_range, PUSH_SELF_CENTER, SPELL_TARGETS_ALLY);
-                m_caster->VisitNearbyObject(max_range, notifier);
-
-                if(m_caster != pUnitTarget && std::find(tempUnitMap.begin(),tempUnitMap.end(),m_caster) == tempUnitMap.end() )
-                    tempUnitMap.push_front(m_caster);
-
-                tempUnitMap.sort(TargetDistanceOrder(pUnitTarget));
-
-                if(tempUnitMap.empty())
-                    break;
-
-                if(*tempUnitMap.begin() == pUnitTarget)
-                    tempUnitMap.erase(tempUnitMap.begin());
-
-                TagUnitMap.push_back(pUnitTarget);
-                uint32 t = unMaxTargets - 1;
-                Unit *prev = pUnitTarget;
-                std::list<Unit*>::iterator next = tempUnitMap.begin();
-
-                while(t && next != tempUnitMap.end() )
-                {
-                    if(prev->GetDistance(*next) > CHAIN_SPELL_JUMP_RADIUS)
-                        break;
-
-                    if(!prev->IsWithinLOSInMap(*next))
-                    {
-                        ++next;
-                        continue;
-                    }
-
-                    if((*next)->GetHealth() == (*next)->GetMaxHealth())
-                    {
-                        next = tempUnitMap.erase(next);
-                        continue;
-                    }
-
-                    prev = *next;
-                    TagUnitMap.push_back(prev);
-                    tempUnitMap.erase(next);
-                    tempUnitMap.sort(TargetDistanceOrder(prev));
-                    next = tempUnitMap.begin();
-
-                    --t;
-                }
-            }
-        }break;
         case TARGET_AREAEFFECT_PARTY_AND_CLASS:
         {
             Player* targetPlayer = m_targets.getUnitTarget() && m_targets.getUnitTarget()->GetTypeId() == TYPEID_PLAYER
