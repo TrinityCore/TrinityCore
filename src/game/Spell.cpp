@@ -1330,55 +1330,45 @@ struct TargetDistanceOrder : public std::binary_function<const Unit, const Unit,
     }
 };
 
-void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, Unit* pUnitTarget, float max_range, uint32 unMaxTargets)
+void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, float max_range, uint32 num, SpellTargets TargetType)
 {
-    if(!pUnitTarget)
+    Unit *cur = m_targets.getUnitTarget();
+    if(!cur)
         return;
 
     //FIXME: This very like horrible hack and wrong for most spells
     if(m_spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE)
-        max_range += unMaxTargets * CHAIN_SPELL_JUMP_RADIUS;
+        max_range += num * CHAIN_SPELL_JUMP_RADIUS;
 
-    std::list<Unit *> tempUnitMap;
-    Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(pUnitTarget, m_caster, max_range);
-    Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(tempUnitMap, u_check);
-    m_caster->VisitNearbyObject(max_range, searcher);
+    std::list<Unit*> tempUnitMap;
+    SearchAreaTarget(tempUnitMap, max_range, PUSH_TARGET_CENTER, TargetType);
+    tempUnitMap.remove(cur);
 
-    tempUnitMap.sort(TargetDistanceOrder(pUnitTarget));
-
-    if(tempUnitMap.empty())
-        return;
-
-    uint32 t = unMaxTargets;
-    if(pUnitTarget != m_caster)
+    while(num)
     {
-        if(*tempUnitMap.begin() == pUnitTarget)
-            tempUnitMap.erase(tempUnitMap.begin());
-        TagUnitMap.push_back(pUnitTarget);
-        --t;
-    }
-    Unit *prev = pUnitTarget;
+        TagUnitMap.push_back(cur);
+        --num;
 
-    std::list<Unit*>::iterator next = tempUnitMap.begin();
-
-    while(t && next != tempUnitMap.end())
-    {
-        if(prev->GetDistance(*next) > CHAIN_SPELL_JUMP_RADIUS)
+        if(tempUnitMap.empty())
             break;
 
-        if(!prev->IsWithinLOSInMap(*next)
-            || m_spellInfo->DmgClass==SPELL_DAMAGE_CLASS_MELEE && !m_caster->isInFront(*next, max_range))
+        tempUnitMap.sort(TargetDistanceOrder(cur));
+        std::list<Unit*>::iterator next = tempUnitMap.begin();
+
+        if(cur->GetDistance(*next) > CHAIN_SPELL_JUMP_RADIUS)
+            break;
+
+        while(!cur->IsWithinLOSInMap(*next)
+            || m_spellInfo->DmgClass==SPELL_DAMAGE_CLASS_MELEE 
+            && !m_caster->isInFront(*next, max_range))
         {
             ++next;
-            continue;
+            if(next == tempUnitMap.end())
+                return;
         }
 
-        prev = *next;
-        TagUnitMap.push_back(prev);
-        tempUnitMap.erase(next);
-        tempUnitMap.sort(TargetDistanceOrder(prev));
-        next = tempUnitMap.begin();
-        --t;
+        cur = *next;
+        tempUnitMap.erase(next);        
     }
 }
 
@@ -1395,10 +1385,21 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, const u
         x = m_targets.m_destX;
         y = m_targets.m_destY;
     }
-    else
+    else if(type == PUSH_SELF_CENTER)
     {
         x = m_caster->GetPositionX();
         y = m_caster->GetPositionY();
+    }
+    else if(type == PUSH_TARGET_CENTER)
+    {
+        Unit *target = m_targets.getUnitTarget();
+        if(!target)
+        {
+            sLog.outError( "SPELL: cannot find unit target for spell ID %u\n", m_spellInfo->Id );
+            return;
+        }
+        x = target->GetPositionX();
+        y = target->GetPositionY();
     }
 
     Trinity::SpellNotifierCreatureAndPlayer notifier(*this, TagUnitMap, radius, type, TargetType, entry);
@@ -1431,13 +1432,13 @@ Unit* Spell::SearchNearbyTarget(float radius, SpellTargets TargetType, uint32 en
             }
         }
         default:
-        case SPELL_TARGETS_AOE_DAMAGE:
+        case SPELL_TARGETS_ENEMY:
         {
             Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(m_caster, m_caster, radius);
             Trinity::UnitLastSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(target, u_check);
             m_caster->VisitNearbyObject(radius, searcher);
         }break;
-        case SPELL_TARGETS_FRIENDLY:
+        case SPELL_TARGETS_ALLY:
         {
             Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(m_caster, m_caster, radius);
             Trinity::UnitLastSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(target, u_check);
@@ -1531,13 +1532,10 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                     target->GetPartyMember(TagUnitMap, radius);
                     break;
                 case TARGET_UNIT_TARGET_ENEMY:
-                    if(Unit* pUnitTarget = SelectMagnetTarget())
-                    {
-                        if(EffectChainTarget <= 1)
-                            TagUnitMap.push_back(pUnitTarget);
-                        else //TODO: chain target should also use magnet target
-                            SearchChainTarget(TagUnitMap, pUnitTarget, radius, EffectChainTarget);
-                    }
+                    if(EffectChainTarget <= 1)
+                        TagUnitMap.push_back(SelectMagnetTarget());
+                    else if(SelectMagnetTarget())   //TODO: chain target should also use magnet target
+                        SearchChainTarget(TagUnitMap, radius, EffectChainTarget, SPELL_TARGETS_ENEMY);
                     break;
             }
         }break;
@@ -1584,12 +1582,12 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 case TARGET_UNIT_AREA_ENEMY_GROUND:
                     m_targets.m_targetMask |= TARGET_FLAG_DEST_LOCATION;
                 case TARGET_UNIT_AREA_ENEMY:
-                    SearchAreaTarget(TagUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+                    SearchAreaTarget(TagUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_ENEMY);
                     break;
                 case TARGET_UNIT_AREA_ALLY_GROUND:
                     m_targets.m_targetMask |= TARGET_FLAG_DEST_LOCATION;
                 case TARGET_UNIT_AREA_ALLY:
-                    SearchAreaTarget(TagUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_FRIENDLY);
+                    SearchAreaTarget(TagUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_ALLY);
                     break;
                 case TARGET_UNIT_AREA_PARTY_GROUND:
                     m_targets.m_targetMask |= TARGET_FLAG_DEST_LOCATION;
@@ -1604,7 +1602,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                     SpellScriptTarget::const_iterator upper = spellmgr.GetEndSpellScriptTarget(m_spellInfo->Id);
                     if(lower==upper)
                     {
-                        SearchAreaTarget(TagUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+                        SearchAreaTarget(TagUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_ENEMY);
                         sLog.outErrorDb("Spell (ID: %u) (caster Entry: %u) does not have record in `spell_script_target`", m_spellInfo->Id, m_caster->GetEntry());
                         break;
                     }
@@ -1664,32 +1662,39 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
         case TARGET_IN_FRONT_OF_CASTER:
         case TARGET_UNIT_CONE_ENEMY_UNKNOWN:
             if(m_customAttr & SPELL_ATTR_CU_CONE_BACK)
-                SearchAreaTarget(TagUnitMap, radius, PUSH_IN_BACK, SPELL_TARGETS_AOE_DAMAGE);
+                SearchAreaTarget(TagUnitMap, radius, PUSH_IN_BACK, SPELL_TARGETS_ENEMY);
             else if(m_customAttr & SPELL_ATTR_CU_CONE_LINE)
-                SearchAreaTarget(TagUnitMap, radius, PUSH_IN_LINE, SPELL_TARGETS_AOE_DAMAGE);
+                SearchAreaTarget(TagUnitMap, radius, PUSH_IN_LINE, SPELL_TARGETS_ENEMY);
             else
-                SearchAreaTarget(TagUnitMap, radius, PUSH_IN_FRONT, SPELL_TARGETS_AOE_DAMAGE);
+                SearchAreaTarget(TagUnitMap, radius, PUSH_IN_FRONT, SPELL_TARGETS_ENEMY);
             break;
         case TARGET_UNIT_CONE_ALLY:
-            SearchAreaTarget(TagUnitMap, radius, PUSH_IN_FRONT, SPELL_TARGETS_FRIENDLY);
+            SearchAreaTarget(TagUnitMap, radius, PUSH_IN_FRONT, SPELL_TARGETS_ALLY);
             break;
 
         // nearby target
         case TARGET_UNIT_NEARBY_ALLY:
-        {
-            if(Unit* pUnitTarget = SearchNearbyTarget(radius, SPELL_TARGETS_FRIENDLY))
-                TagUnitMap.push_back(pUnitTarget);
-        }break;
-        case TARGET_RANDOM_ENEMY_CHAIN_IN_AREA:
-        {
-            if(EffectChainTarget <= 1)
+            if(!m_targets.getUnitTarget())
+                m_targets.setUnitTarget(SearchNearbyTarget(radius, SPELL_TARGETS_ALLY));
+            if(m_targets.getUnitTarget())
             {
-                if(Unit* pUnitTarget = SearchNearbyTarget(radius, SPELL_TARGETS_AOE_DAMAGE))
-                    TagUnitMap.push_back(pUnitTarget);
+                if(EffectChainTarget <= 1)
+                    TagUnitMap.push_back(m_targets.getUnitTarget());
+                else
+                    SearchChainTarget(TagUnitMap, radius, EffectChainTarget, SPELL_TARGETS_ALLY);
             }
-            else
-                SearchChainTarget(TagUnitMap, m_caster, radius, EffectChainTarget);
-        }break;
+            break;
+        case TARGET_RANDOM_ENEMY_CHAIN_IN_AREA:
+            if(!m_targets.getUnitTarget())
+                m_targets.setUnitTarget(SearchNearbyTarget(radius, SPELL_TARGETS_ENEMY));
+            if(m_targets.getUnitTarget())
+            {
+                if(EffectChainTarget <= 1)
+                    TagUnitMap.push_back(m_targets.getUnitTarget());
+                else
+                    SearchChainTarget(TagUnitMap, radius, EffectChainTarget, SPELL_TARGETS_ENEMY);
+            }
+            break;
         case TARGET_SCRIPT:
         case TARGET_SCRIPT_COORDINATES:
         case TARGET_UNIT_AREA_SCRIPT:
@@ -1800,7 +1805,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 float max_range = radius + unMaxTargets * CHAIN_SPELL_JUMP_RADIUS;
 
                 std::list<Unit *> tempUnitMap;
-                Trinity::SpellNotifierCreatureAndPlayer notifier(*this, tempUnitMap, max_range, PUSH_SELF_CENTER, SPELL_TARGETS_FRIENDLY);
+                Trinity::SpellNotifierCreatureAndPlayer notifier(*this, tempUnitMap, max_range, PUSH_SELF_CENTER, SPELL_TARGETS_ALLY);
                 m_caster->VisitNearbyObject(max_range, notifier);
 
                 if(m_caster != pUnitTarget && std::find(tempUnitMap.begin(),tempUnitMap.end(),m_caster) == tempUnitMap.end() )
