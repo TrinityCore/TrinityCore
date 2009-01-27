@@ -83,6 +83,7 @@ enum SpellNotifyPushType
     PUSH_IN_LINE,
     PUSH_SELF_CENTER,
     PUSH_DEST_CENTER,
+    PUSH_TARGET_CENTER,
 };
 
 bool IsQuestTameSpell(uint32 spellId);
@@ -202,8 +203,8 @@ enum ReplenishType
 
 enum SpellTargets
 {
-    SPELL_TARGETS_FRIENDLY,
-    SPELL_TARGETS_AOE_DAMAGE,
+    SPELL_TARGETS_ALLY,
+    SPELL_TARGETS_ENEMY,
     SPELL_TARGETS_ENTRY
 };
 
@@ -539,8 +540,9 @@ class Spell
         bool IsAliveUnitPresentInTargetList();
         void SearchAreaTarget(std::list<Unit*> &data, float radius, const uint32 &type,
             SpellTargets TargetType, uint32 entry = 0);
+        void SearchChainTarget(std::list<Unit*> &data, float radius, uint32 unMaxTargets,
+            SpellTargets TargetType);
         Unit* SearchNearbyTarget(float radius, SpellTargets TargetType, uint32 entry = 0);
-        void SearchChainTarget(std::list<Unit*> &data, Unit* pUnitTarget, float max_range, uint32 unMaxTargets);
         bool IsValidSingleTargetEffect(Unit const* target, Targets type) const;
         bool IsValidSingleTargetSpell(Unit const* target) const;
         void CalculateDamageDoneForAllTargets();
@@ -584,7 +586,7 @@ namespace Trinity
         uint32 i_entry;
 
         SpellNotifierCreatureAndPlayer(Spell &spell, std::list<Unit*> &data, float radius, const uint32 &type,
-            SpellTargets TargetType = SPELL_TARGETS_AOE_DAMAGE, uint32 entry = 0)
+            SpellTargets TargetType = SPELL_TARGETS_ENEMY, uint32 entry = 0)
             : i_data(&data), i_spell(spell), i_push_type(type), i_radius(radius), i_TargetType(TargetType), i_entry(entry)
         {
             i_caster = spell.GetCaster();
@@ -604,11 +606,11 @@ namespace Trinity
 
                 switch (i_TargetType)
                 {
-                    case SPELL_TARGETS_FRIENDLY:
+                    case SPELL_TARGETS_ALLY:
                         if (!itr->getSource()->isAttackableByAOE() || !i_caster->IsFriendlyTo( itr->getSource() ))
                             continue;
                         break;
-                    case SPELL_TARGETS_AOE_DAMAGE:
+                    case SPELL_TARGETS_ENEMY:
                     {
                         if(itr->getSource()->GetTypeId()==TYPEID_UNIT && ((Creature*)itr->getSource())->isTotem())
                             continue;
