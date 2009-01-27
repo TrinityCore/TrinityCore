@@ -1397,11 +1397,6 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, const u
         x = m_targets.m_destX;
         y = m_targets.m_destY;
     }
-    else if(type == PUSH_SELF_CENTER)
-    {
-        x = m_caster->GetPositionX();
-        y = m_caster->GetPositionY();
-    }
     else if(type == PUSH_TARGET_CENTER)
     {
         Unit *target = m_targets.getUnitTarget();
@@ -1412,6 +1407,11 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, const u
         }
         x = target->GetPositionX();
         y = target->GetPositionY();
+    }
+    else
+    {
+        x = m_caster->GetPositionX();
+        y = m_caster->GetPositionY();
     }
 
     Trinity::SpellNotifierCreatureAndPlayer notifier(*this, TagUnitMap, radius, type, TargetType, entry);
