@@ -81,7 +81,6 @@ enum SpellNotifyPushType
     PUSH_IN_FRONT,
     PUSH_IN_BACK,
     PUSH_IN_LINE,
-    PUSH_SELF_CENTER,
     PUSH_DEST_CENTER,
     PUSH_TARGET_CENTER,
 };
@@ -653,11 +652,7 @@ namespace Trinity
                         if(i_caster->isInLine((Unit*)(itr->getSource()), i_radius ))
                             i_data->push_back(itr->getSource());
                         break;
-                    case PUSH_SELF_CENTER:
-                        if(i_caster->IsWithinDistInMap((Unit*)(itr->getSource()), i_radius))
-                            i_data->push_back(itr->getSource());
-                        break;
-                    case PUSH_DEST_CENTER:
+                    default:
                         if((itr->getSource()->GetDistance(i_spell.m_targets.m_destX, i_spell.m_targets.m_destY, i_spell.m_targets.m_destZ) < i_radius ))
                             i_data->push_back(itr->getSource());
                         break;
