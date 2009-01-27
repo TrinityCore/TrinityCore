@@ -106,6 +106,7 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_TARGET_ENEMY:
             case TARGET_UNIT_TARGET_PARTY:
             case TARGET_UNIT_PARTY_TARGET:
+            case TARGET_UNIT_CHAINHEAL:
                 SpellTargetType[i] = TARGET_TYPE_UNIT_TARGET;
                 break;
             case TARGET_UNIT_CHANNEL:
