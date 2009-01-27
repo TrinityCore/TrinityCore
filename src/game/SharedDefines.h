@@ -867,8 +867,7 @@ enum Targets
     TARGET_DEST_CASTER_BACK_LEFT       = 42, //water totem
     TARGET_DEST_CASTER_BACK_RIGHT      = 43, //air totem
     TARGET_DEST_CASTER_FRONT_RIGHT     = 44, //fire totem
-    TARGET_CHAIN_HEAL                  = 45,
-    //TARGET_UNIT_CHAINHEAL
+    TARGET_UNIT_CHAINHEAL              = 45,
     TARGET_SCRIPT_COORDINATES          = 46,
     //TARGET_DEST_NEARBY_ENTRY
     TARGET_DEST_CASTER_FRONT           = 47,
