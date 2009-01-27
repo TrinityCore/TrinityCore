@@ -249,9 +249,6 @@ ObjectUpdater::Visit(GridRefManager<T> &m)
     }
 }
 
-template void ObjectUpdater::Visit<GameObject>(GameObjectMapType &);
-template void ObjectUpdater::Visit<DynamicObject>(DynamicObjectMapType &);
-
 bool CannibalizeObjectCheck::operator()(Corpse* u)
 {
     // ignore bones
@@ -268,3 +265,6 @@ bool CannibalizeObjectCheck::operator()(Corpse* u)
 
     return false;
 }
+
+template void ObjectUpdater::Visit<GameObject>(GameObjectMapType &);
+template void ObjectUpdater::Visit<DynamicObject>(DynamicObjectMapType &);
