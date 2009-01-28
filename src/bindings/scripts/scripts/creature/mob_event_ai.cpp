@@ -1225,7 +1225,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Check if we are in combat (also updates calls threat update code)
-        bool Combat = InCombat ? (m_creature->SelectHostilTarget() && m_creature->getVictim()) : false;
+        bool Combat = InCombat ? m_creature->SelectHostilTarget() : false;
 
         //Must return if creature isn't alive. Normally select hostil target and get victim prevent this
         if (!m_creature->isAlive())
@@ -1233,11 +1233,9 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
 
         if (IsFleeing)
         {
-            if(TimetoFleeLeft < diff 
-                || m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE 
-                && m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FLEEING_MOTION_TYPE)
+            if(TimetoFleeLeft < diff)
             {
-                m_creature->GetMotionMaster()->Clear(false);
+                m_creature->SetControlled(false, UNIT_STAT_FLEEING);
                 m_creature->SetNoCallAssistance(false);
                 m_creature->CallAssistance();
                 if(m_creature->getVictim())

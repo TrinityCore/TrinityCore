@@ -12904,6 +12904,7 @@ void Unit::SetFeared(bool apply)
         Unit::AuraList const& fearAuras = GetAurasByType(SPELL_AURA_MOD_FEAR);
         if(!fearAuras.empty())
             caster = ObjectAccessor::GetUnit(*this, fearAuras.front()->GetCasterGUID());
+        if(!caster) caster = getVictim();
         GetMotionMaster()->MoveFleeing(caster);             // caster==NULL processed in MoveFleeing
     }
     else
