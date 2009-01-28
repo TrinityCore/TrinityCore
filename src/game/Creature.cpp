@@ -1870,22 +1870,12 @@ void Creature::DoFleeToGetAssistance(float radius) // Optional parameter
         return;
 
     Creature* pCreature = NULL;
-
-    CellPair p(Trinity::ComputeCellPair(GetPositionX(), GetPositionY()));
-    Cell cell(p);
-    cell.data.Part.reserved = ALL_DISTRICT;
-    cell.SetNoCreate();
-
     Trinity::NearestAssistCreatureInCreatureRangeCheck u_check(this,getVictim(),radius);
     Trinity::CreatureLastSearcher<Trinity::NearestAssistCreatureInCreatureRangeCheck> searcher(pCreature, u_check);
-
-    TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestAssistCreatureInCreatureRangeCheck>, GridTypeMapContainer >  grid_creature_searcher(searcher);
-
-    CellLock<GridReadGuard> cell_lock(cell, p);
-    cell_lock->Visit(cell_lock, grid_creature_searcher, *(GetMap()));
+    VisitNearbyGridObject(radius, searcher);
 
     if(!pCreature)
-        GetMotionMaster()->MoveFleeing(getVictim());
+        SetControlled(true, UNIT_STAT_FLEEING);
     else
         GetMotionMaster()->MovePoint(0,pCreature->GetPositionX(),pCreature->GetPositionY(),pCreature->GetPositionZ());
 }
