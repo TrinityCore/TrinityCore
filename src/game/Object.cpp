@@ -1159,6 +1159,14 @@ float WorldObject::GetDistance(const float x, const float y, const float z) cons
     return ( dist > 0 ? dist : 0);
 }
 
+float WorldObject::GetDistanceSq(const float &x, const float &y, const float &z) const
+{
+    float dx = GetPositionX() - x;
+    float dy = GetPositionY() - y;
+    float dz = GetPositionZ() - z;
+    return dx*dx + dy*dy + dz*dz;
+}
+
 float WorldObject::GetDistance2d(const WorldObject* obj) const
 {
     float dx = GetPositionX() - obj->GetPositionX();
