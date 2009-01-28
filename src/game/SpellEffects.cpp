@@ -4814,10 +4814,9 @@ void Spell::EffectScriptEffect(uint32 effIndex)
         {
             if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
                 return;
-            unitTarget->HandleEmoteCommand(EMOTE_STATE_DANCE);
+            unitTarget->HandleEmoteCommand(EMOTE_STATE_DANCE);            
             break;
         }
-
         // Netherbloom
         case 28702:
         {
