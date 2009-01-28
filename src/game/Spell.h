@@ -580,14 +580,16 @@ namespace Trinity
         std::list<Unit*> *i_data;
         Spell &i_spell;
         const uint32& i_push_type;
-        float i_radius;
+        float i_radius, i_radiusSq;
         SpellTargets i_TargetType;
         Unit* i_caster;
         uint32 i_entry;
+        float i_x, i_y, i_z;
 
         SpellNotifierCreatureAndPlayer(Spell &spell, std::list<Unit*> &data, float radius, const uint32 &type,
-            SpellTargets TargetType = SPELL_TARGETS_ENEMY, uint32 entry = 0)
-            : i_data(&data), i_spell(spell), i_push_type(type), i_radius(radius), i_TargetType(TargetType), i_entry(entry)
+            SpellTargets TargetType = SPELL_TARGETS_ENEMY, uint32 entry = 0, float x = 0, float y = 0, float z = 0)
+            : i_data(&data), i_spell(spell), i_push_type(type), i_radius(radius), i_radiusSq(radius*radius)
+            , i_TargetType(TargetType), i_entry(entry), i_x(x), i_y(y), i_z(z)
         {
             i_caster = spell.GetCaster();
         }
@@ -653,7 +655,7 @@ namespace Trinity
                             i_data->push_back(itr->getSource());
                         break;
                     default:
-                        if((itr->getSource()->GetDistance(i_spell.m_targets.m_destX, i_spell.m_targets.m_destY, i_spell.m_targets.m_destZ) < i_radius ))
+                        if((itr->getSource()->GetDistanceSq(i_x, i_y, i_z) < i_radiusSq))
                             i_data->push_back(itr->getSource());
                         break;
                 }
