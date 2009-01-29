@@ -36,7 +36,7 @@ class TRINITY_DLL_DECL AggressorAI : public CreatureAI
 
     public:
 
-        AggressorAI(Creature &c);
+        AggressorAI(Creature *c);
 
         void MoveInLineOfSight(Unit *);
         void AttackStart(Unit *);
