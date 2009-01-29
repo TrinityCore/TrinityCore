@@ -38,7 +38,7 @@ AggressorAI::Permissible(const Creature *creature)
     return PERMIT_BASE_NO;
 }
 
-AggressorAI::AggressorAI(Creature &c) : i_creature(c), i_victimGuid(0), i_state(STATE_NORMAL), i_tracker(TIME_INTERVAL_LOOK)
+AggressorAI::AggressorAI(Creature *c) : i_creature(*c), i_victimGuid(0), i_state(STATE_NORMAL), i_tracker(TIME_INTERVAL_LOOK)
 {
 }
 
