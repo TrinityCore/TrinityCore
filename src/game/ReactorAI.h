@@ -29,7 +29,7 @@ class TRINITY_DLL_DECL ReactorAI : public CreatureAI
 {
     public:
 
-        ReactorAI(Creature &c) : i_creature(c), i_victimGuid(0) {}
+        ReactorAI(Creature *c) : i_creature(*c), i_victimGuid(0) {}
 
         void MoveInLineOfSight(Unit *);
         void AttackStart(Unit *);
