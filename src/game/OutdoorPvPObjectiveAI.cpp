@@ -27,8 +27,8 @@
 
 OutdoorPvPObjectiveAI::OutdoorPvPObjectiveAI(Creature *c) : i_creature(*c)
 {
-    sLog.outDebug("OutdoorPvP objective AI assigned to creature guid %u", c.GetGUIDLow());
-    c.SetReactState(REACT_AGGRESSIVE);
+    sLog.outDebug("OutdoorPvP objective AI assigned to creature guid %u", i_creature.GetGUIDLow());
+    i_creature.SetReactState(REACT_AGGRESSIVE);
 }
 
 void OutdoorPvPObjectiveAI::MoveInLineOfSight(Unit *u)
