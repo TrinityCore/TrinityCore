@@ -616,7 +616,7 @@ void Creature::InitPossessedAI()
     if (!isPossessed()) return;
 
     if (!i_AI_possessed)
-        i_AI_possessed = new PossessedAI(*this);
+        i_AI_possessed = new PossessedAI(this);
 
     // Signal the old AI that it's been disabled
     i_AI->OnPossess(true);
