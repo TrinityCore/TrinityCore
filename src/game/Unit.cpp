@@ -10409,6 +10409,10 @@ Unit* Creature::SelectHostilTarget()
     //next-victim-selection algorithm and evade mode are called
     //threat list sorting etc.
 
+    //This should not be called by unit who does not have a threatlist
+    //or who does not have threat (totem/pet/critter)
+    //otherwise enterevademode every update
+
     Unit* target = NULL;
 
     //This function only useful once AI has been initialized
@@ -10446,7 +10450,7 @@ Unit* Creature::SelectHostilTarget()
         for(AttackerSet::const_iterator itr = m_attackers.begin(); itr != m_attackers.end(); ++itr)
         {
             if( (*itr)->IsInMap(this) && canAttack(*itr) && (*itr)->isInAccessiblePlaceFor((Creature*)this) )
-                return false;
+                return NULL;
         }
     }*/
 
@@ -12902,12 +12906,7 @@ void Unit::SetFeared(bool apply)
         if(!fearAuras.empty())
             caster = ObjectAccessor::GetUnit(*this, fearAuras.front()->GetCasterGUID());
         if(!caster)
-        {
-            if(getVictim())
-                caster = getVictim();
-            else if(m_attackers.size())
-                caster = *m_attackers.begin();
-        }
+            caster = getAttackerForHelper();
         GetMotionMaster()->MoveFleeing(caster);             // caster==NULL processed in MoveFleeing
     }
     else
