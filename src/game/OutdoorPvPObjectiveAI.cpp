@@ -25,10 +25,10 @@
 
 #define MAX_OUTDOOR_PVP_DISTANCE 200 // the max value in capture point type go data0 is 100 currently, so use twice that much to handle leaving as well
 
-OutdoorPvPObjectiveAI::OutdoorPvPObjectiveAI(Creature &c) : i_creature(c)
+OutdoorPvPObjectiveAI::OutdoorPvPObjectiveAI(Creature *c) : i_creature(*c)
 {
-    sLog.outDebug("OutdoorPvP objective AI assigned to creature guid %u", c.GetGUIDLow());
-    c.SetReactState(REACT_AGGRESSIVE);
+    sLog.outDebug("OutdoorPvP objective AI assigned to creature guid %u", i_creature.GetGUIDLow());
+    i_creature.SetReactState(REACT_AGGRESSIVE);
 }
 
 void OutdoorPvPObjectiveAI::MoveInLineOfSight(Unit *u)

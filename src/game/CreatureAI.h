@@ -72,21 +72,25 @@ enum SelectAggroTarget
 class TRINITY_DLL_SPEC UnitAI
 {
     public:
+        UnitAI(Unit *u) : me(u) {}
         virtual void UpdateAI(const uint32 diff) = 0;
+    protected:
+        Unit *me;
 };
 
-class TRINITY_DLL_SPEC SimpleCharmedAI
+class TRINITY_DLL_SPEC SimpleCharmedAI : public UnitAI
 {
     public:
-        SimpleCharmedAI(Unit &u);
         virtual void UpdateAI(const uint32 diff);
-    private:
-        Unit &me;
 };
 
 class TRINITY_DLL_SPEC CreatureAI : public UnitAI
 {
+    protected:
+        Creature *me;
     public:
+        CreatureAI() : UnitAI(NULL), me(NULL) {}
+        CreatureAI(Creature *c) : UnitAI((Unit*)c), me(c) {}
 
         virtual ~CreatureAI();
 
@@ -97,10 +101,10 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
         virtual void AttackStart(Unit *) = 0;
 
         // Called at stopping attack by any attacker
-        virtual void EnterEvadeMode() = 0;
+        virtual void EnterEvadeMode();
 
         // Called at any Damage from any attacker (before damage apply)
-        virtual void DamageTaken(Unit *done_by, uint32 & /*damage*/) { AttackedBy(done_by); }
+        virtual void DamageTaken(Unit *done_by, uint32 & /*damage*/) {}
 
         // Is unit visible for MoveInLineOfSight
         virtual bool IsVisible(Unit *) const = 0;
@@ -127,9 +131,6 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
 
         // Called when vitim entered water and creature can not enter water
         virtual bool canReachByRangeAttack(Unit*) { return false; }
-
-        // Called when the creature is attacked
-        virtual void AttackedBy(Unit * /*attacker*/) {}
 
         // Called when creature is spawned or respawned (for reseting variables)
         virtual void JustRespawned() {}

@@ -580,9 +580,6 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         // no xp,health if type 8 /critters/
         if ( pVictim->GetCreatureType() == CREATURE_TYPE_CRITTER)
         {
-            // critters run away when hit
-            pVictim->GetMotionMaster()->MoveFleeing(this);
-
             // allow loot only if has loot_id in creature_template
             if(damage >= pVictim->GetHealth())
             {
@@ -841,13 +838,13 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
 
         if(damagetype != DOT)
         {
-            if(getVictim())
-            {
+            if(!getVictim())
+            /*{
                 // if have target and damage pVictim just call AI reaction
                 if(pVictim != getVictim() && pVictim->GetTypeId()==TYPEID_UNIT && ((Creature*)pVictim)->AI())
                     ((Creature*)pVictim)->AI()->AttackedBy(this);
             }
-            else
+            else*/
             {
                 // if not have main target then attack state with target (including AI call)
                 //start melee attacks only after melee hit
@@ -7288,8 +7285,8 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
     m_attacking = victim;
     m_attacking->_addAttacker(this);
 
-    if(m_attacking->GetTypeId()==TYPEID_UNIT && ((Creature*)m_attacking)->AI())
-        ((Creature*)m_attacking)->AI()->AttackedBy(this);
+    //if(m_attacking->GetTypeId()==TYPEID_UNIT && ((Creature*)m_attacking)->AI())
+    //    ((Creature*)m_attacking)->AI()->AttackedBy(this);
 
     if(GetTypeId()==TYPEID_UNIT)
     {
@@ -9744,6 +9741,10 @@ Unit* Creature::SelectHostilTarget()
     //next-victim-selection algorithm and evade mode are called
     //threat list sorting etc.
 
+    //This should not be called by unit who does not have a threatlist
+    //or who does not have threat (totem/pet/critter)
+    //otherwise enterevademode every update
+
 
     if (!this->isAlive())
         return false;
@@ -9808,7 +9809,7 @@ Unit* Creature::SelectHostilTarget()
         for(AttackerSet::const_iterator itr = m_attackers.begin(); itr != m_attackers.end(); ++itr)
         {
             if( (*itr)->IsInMap(this) && canAttack(*itr) && (*itr)->isInAccessiblePlaceFor((Creature*)this) )
-                return false;
+                return NULL;
         }
     }*/
 
@@ -12100,6 +12101,8 @@ void Unit::SetFeared(bool apply)
         Unit::AuraList const& fearAuras = GetAurasByType(SPELL_AURA_MOD_FEAR);
         if(!fearAuras.empty())
             caster = ObjectAccessor::GetUnit(*this, fearAuras.front()->GetCasterGUID());
+        if(!caster)
+            caster = getAttackerForHelper();
         GetMotionMaster()->MoveFleeing(caster);             // caster==NULL processed in MoveFleeing
     }
     else

@@ -23,22 +23,36 @@
 
 #include "CreatureAI.h"
 
-class TRINITY_DLL_DECL NullCreatureAI : public CreatureAI
+class TRINITY_DLL_DECL PassiveAI : public CreatureAI
 {
     public:
-
-        NullCreatureAI(Creature &) {}
-        NullCreatureAI() {}
-
-        ~NullCreatureAI();
+        PassiveAI(Creature *c) : CreatureAI(c) {}
+        ~PassiveAI() {}
 
         void MoveInLineOfSight(Unit *) {}
         void AttackStart(Unit *) {}
-        void EnterEvadeMode() {}
 
         bool IsVisible(Unit *) const { return false;  }
 
-        void UpdateAI(const uint32) {}
+        void UpdateAI(const uint32);
         static int Permissible(const Creature *) { return PERMIT_BASE_IDLE;  }
 };
+
+class TRINITY_DLL_DECL NullCreatureAI : public PassiveAI
+{
+    public:
+        NullCreatureAI(Creature *c) : PassiveAI(c) {}
+
+        void EnterEvadeMode() {}
+};
+
+class TRINITY_DLL_DECL CritterAI : public PassiveAI
+{
+    public:
+        CritterAI(Creature *c) : PassiveAI(c) {}
+
+        void DamageTaken(Unit *done_by, uint32 & /*damage*/);
+        void EnterEvadeMode();
+};
+
 #endif

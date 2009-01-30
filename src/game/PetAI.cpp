@@ -38,7 +38,7 @@ int PetAI::Permissible(const Creature *creature)
     return PERMIT_BASE_NO;
 }
 
-PetAI::PetAI(Creature &c) : i_pet(c), i_tracker(TIME_INTERVAL_LOOK), inCombat(false)
+PetAI::PetAI(Creature *c) : i_pet(*c), i_tracker(TIME_INTERVAL_LOOK), inCombat(false)
 {
     m_AllySet.clear();
     UpdateAllies();
@@ -339,10 +339,10 @@ void PetAI::UpdateAllies()
         m_AllySet.insert(owner->GetGUID());
 }
 
-void PetAI::AttackedBy(Unit *attacker)
+/*void PetAI::AttackedBy(Unit *attacker)
 {
     //when attacked, fight back in case 1)no victim already AND 2)not set to passive AND 3)not set to stay, unless can it can reach attacker with melee attack anyway
     if(!i_pet.getVictim() && i_pet.GetCharmInfo() && !i_pet.GetCharmInfo()->HasReactState(REACT_PASSIVE) &&
         (!i_pet.GetCharmInfo()->HasCommandState(COMMAND_STAY) || i_pet.IsWithinMeleeRange(attacker)))
         AttackStart(attacker);
-}
+}*/

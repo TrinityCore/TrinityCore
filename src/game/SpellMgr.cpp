@@ -503,6 +503,7 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex)
         case 37675:                                         // Chaos Blast
         case 41519:                                         // Mark of Stormrage
         case 34877:                                         // Custodian of Time
+        case 34700:
             return false;
     }
 

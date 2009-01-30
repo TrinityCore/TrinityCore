@@ -36,7 +36,7 @@ class TRINITY_DLL_DECL GuardAI : public CreatureAI
 
     public:
 
-        GuardAI(Creature &c);
+        GuardAI(Creature *c);
 
         void MoveInLineOfSight(Unit *);
         void AttackStart(Unit *);

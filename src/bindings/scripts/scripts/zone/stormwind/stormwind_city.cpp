@@ -149,7 +149,6 @@ struct TRINITY_DLL_DECL npc_dashel_stonefistAI : public ScriptedAI
             //m_creature->CombatStop();
             EnterEvadeMode();
         }
-        AttackedBy(done_by);
     }
 
     void Aggro(Unit *who) {}
