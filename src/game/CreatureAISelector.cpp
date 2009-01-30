@@ -65,6 +65,8 @@ namespace FactorySelector
                 ai_factory = ai_registry.GetRegistryItem("TotemAI");
             else if(creature->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
                 ai_factory = ai_registry.GetRegistryItem("NullCreatureAI");
+            else if(creature->GetCreatureType() == CREATURE_TYPE_CRITTER)
+                ai_factory = ai_registry.GetRegistryItem("CritterAI");
         }
 
         // select by permit check
@@ -91,7 +93,7 @@ namespace FactorySelector
         ainame = (ai_factory == NULL) ? "NullCreatureAI" : ai_factory->key();
 
         DEBUG_LOG("Creature %u used AI is %s.", creature->GetGUIDLow(), ainame.c_str() );
-        return ( ai_factory == NULL ? new NullCreatureAI : ai_factory->Create(creature) );
+        return ( ai_factory == NULL ? new NullCreatureAI(creature) : ai_factory->Create(creature) );
     }
 
     MovementGenerator* selectMovementGenerator(Creature *creature)

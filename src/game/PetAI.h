@@ -31,13 +31,11 @@ class TRINITY_DLL_DECL PetAI : public CreatureAI
 {
     public:
 
-        PetAI(Creature &c);
+        PetAI(Creature *c);
 
         void MoveInLineOfSight(Unit *);
         void AttackStart(Unit *);
         void EnterEvadeMode();
-        void DamageTaken(Unit *done_by, uint32& /*damage*/) { AttackedBy(done_by); }
-        void AttackedBy(Unit*);
         bool IsVisible(Unit *) const;
         void JustDied(Unit* who) { _stopAttack(); }
 

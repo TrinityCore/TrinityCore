@@ -27,37 +27,47 @@ CreatureAI::~CreatureAI()
 {
 }
 
-SimpleCharmedAI::SimpleCharmedAI(Unit &u) : me(u)
+void CreatureAI::EnterEvadeMode()
 {
+    if(!me) return;
+
+    me->RemoveAllAuras();
+    me->DeleteThreatList();
+    me->CombatStop();
+    me->LoadCreaturesAddon();
+    me->SetLootRecipient(NULL);
+
+    if(me->isAlive())
+        me->GetMotionMaster()->MoveTargetedHome();
 }
 
 void SimpleCharmedAI::UpdateAI(const uint32 /*diff*/)
 {
-    Creature *charmer = (Creature*)me.GetCharmer();
+    Creature *charmer = (Creature*)me->GetCharmer();
 
     //kill self if charm aura has infinite duration
     if(charmer->IsInEvadeMode())
     {
-        Unit::AuraList const& auras = me.GetAurasByType(SPELL_AURA_MOD_CHARM);
+        Unit::AuraList const& auras = me->GetAurasByType(SPELL_AURA_MOD_CHARM);
         for(Unit::AuraList::const_iterator iter = auras.begin(); iter != auras.end(); ++iter)
             if((*iter)->GetCasterGUID() == charmer->GetGUID() && (*iter)->IsPermanent())
             {
-                charmer->Kill(&me);
+                charmer->Kill(me);
                 return;
             }
     }
 
     if(!charmer->isInCombat())
-        me.GetMotionMaster()->MoveFollow(charmer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+        me->GetMotionMaster()->MoveFollow(charmer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
 
-    Unit *target = me.getVictim();
+    Unit *target = me->getVictim();
     if(!target || !charmer->canAttack(target))
     {
         target = charmer->SelectNearestTarget();
         if(!target)
             return;
 
-        me.GetMotionMaster()->MoveChase(target);
-        me.Attack(target, true);
+        me->GetMotionMaster()->MoveChase(target);
+        me->Attack(target, true);
     }
 }

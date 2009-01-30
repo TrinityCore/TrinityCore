@@ -336,6 +336,8 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data )
     SetUInt32Value(UNIT_FIELD_FLAGS,GetCreatureInfo()->unit_flags);
     SetUInt32Value(UNIT_DYNAMIC_FLAGS,GetCreatureInfo()->dynamicflags);
 
+    RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+
     SetMeleeDamageSchool(SpellSchools(GetCreatureInfo()->dmgschool));
     SetModifierValue(UNIT_MOD_ARMOR,             BASE_VALUE, float(GetCreatureInfo()->armor));
     SetModifierValue(UNIT_MOD_RESISTANCE_HOLY,   BASE_VALUE, float(GetCreatureInfo()->resistance1));
@@ -374,6 +376,12 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data )
         SetReactState(REACT_DEFENSIVE);
     else
         SetReactState(REACT_AGGRESSIVE);
+
+    if(GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_TAUNT)
+    {
+        ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+        ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
+    }
 
     return true;
 }
@@ -482,7 +490,7 @@ void Creature::Update(uint32 diff)
             if(!isAlive())
                 break;
 
-            if(!IsInEvadeMode())
+            if(!IsInEvadeMode() && m_AI_enabled)
             {
                 // do not allow the AI to be changed during update
                 m_AI_locked = true;
@@ -599,6 +607,7 @@ bool Creature::AIM_Initialize(CreatureAI* ai)
     i_AI = ai ? ai : FactorySelector::selectAI(this);
     if (oldAI)
         delete oldAI;
+    m_AI_enabled = true;
     return true;
 }
 
@@ -607,10 +616,13 @@ void Creature::InitPossessedAI()
     if (!isPossessed()) return;
 
     if (!i_AI_possessed)
-        i_AI_possessed = new PossessedAI(*this);
+        i_AI_possessed = new PossessedAI(this);
 
     // Signal the old AI that it's been disabled
     i_AI->OnPossess(true);
+
+    if(!(GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_CHARM_AI))
+        m_AI_enabled = false;
 }
 
 void Creature::DisablePossessedAI()
@@ -621,6 +633,8 @@ void Creature::DisablePossessedAI()
 
     // Signal the old AI that it's been re-enabled
     i_AI->OnPossess(false);
+
+    m_AI_enabled = true;
 }
 
 bool Creature::Create (uint32 guidlow, Map *map, uint32 Entry, uint32 team, const CreatureData *data)
@@ -1855,22 +1869,12 @@ void Creature::DoFleeToGetAssistance(float radius) // Optional parameter
         return;
 
     Creature* pCreature = NULL;
-
-    CellPair p(Trinity::ComputeCellPair(GetPositionX(), GetPositionY()));
-    Cell cell(p);
-    cell.data.Part.reserved = ALL_DISTRICT;
-    cell.SetNoCreate();
-
     Trinity::NearestAssistCreatureInCreatureRangeCheck u_check(this,getVictim(),radius);
     Trinity::CreatureLastSearcher<Trinity::NearestAssistCreatureInCreatureRangeCheck> searcher(pCreature, u_check);
-
-    TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestAssistCreatureInCreatureRangeCheck>, GridTypeMapContainer >  grid_creature_searcher(searcher);
-
-    CellLock<GridReadGuard> cell_lock(cell, p);
-    cell_lock->Visit(cell_lock, grid_creature_searcher, *(GetMap()));
+    VisitNearbyGridObject(radius, searcher);
 
     if(!pCreature)
-        GetMotionMaster()->MoveFleeing(getVictim());
+        SetControlled(true, UNIT_STAT_FLEEING);
     else
         GetMotionMaster()->MovePoint(0,pCreature->GetPositionX(),pCreature->GetPositionY(),pCreature->GetPositionZ());
 }
