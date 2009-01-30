@@ -315,9 +315,9 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNULL,                                      //258 SPELL_AURA_MOD_SPELL_VISUAL
     &Aura::HandleNULL,                                      //259 corrupt healing over time spell
     &Aura::HandleNoImmediateEffect,                         //260 SPELL_AURA_SCREEN_EFFECT (miscvalue = id in ScreenEffect.dbc) not required any code
-    &Aura::HandleNULL,                                      //261 out of phase?
+    &Aura::HandlePhase,                                     //261 SPELL_AURA_PHASE undetactable invisibility?     implemented in Unit::isVisibleForOrDetect
     &Aura::HandleNULL,                                      //262
-    &Aura::HandleNULL,                                      //263 SPELL_AURA_ALLOW_ONLY_ABILITY player can use only abilites set in SpellClassMask
+    &Aura::HandleNULL,                                      //263 SPELL_AURA_ALLOW_ONLY_ABILITY player can use only abilities set in SpellClassMask
     &Aura::HandleNULL,                                      //264 unused
     &Aura::HandleNULL,                                      //265 unused
     &Aura::HandleNULL,                                      //266 unused
@@ -6546,4 +6546,25 @@ void Aura::HandleModCharm(bool apply, bool Real)
     }
     else
         m_target->RemoveCharmedOrPossessedBy(caster);
+}
+
+void Aura::HandlePhase(bool apply, bool Real)
+{
+    // no-phase is also phase state so same code for apply and remove
+
+    // phase auras normaly not expected at BG but anyway better check
+    if(Real && m_target->GetTypeId()==TYPEID_PLAYER)
+    {
+        // drop flag at invisible in bg
+        if(((Player*)m_target)->InBattleGround())
+            if(BattleGround *bg = ((Player*)m_target)->GetBattleGround())
+                bg->EventPlayerDroppedFlag((Player*)m_target);
+    }
+
+    // apply/remove only if not in GM invisibility
+    if(m_target->GetVisibility()!=VISIBILITY_OFF)
+    {
+        // just need triggering visibility update base at aura presence
+        m_target->SetVisibility(m_target->GetVisibility());
+    }
 }
