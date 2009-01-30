@@ -5512,7 +5512,7 @@ void Aura::PeriodicTick()
                 }
             }
             else
-                pdamage = uint32(m_target->GetMaxHealth()*amount/100);
+                pdamage = uint32(m_target->GetMaxHealth()*pdamage/100);
 
             //As of 2.2 resilience reduces damage from DoT ticks as much as the chance to not be critically hit
             // Reduce dot damage from resilience for players
