@@ -1755,6 +1755,9 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
 
     // Get unit state (need for some absorb check)
     uint32 unitflag = pVictim->GetUInt32Value(UNIT_FIELD_FLAGS);
+    // Reflect damage spells (not cast any damage spell in aura lookup)
+    uint32 reflectSpell = 0;
+    int32  reflectDamage = 0;
     // Need remove expired auras after
     bool existExpired = false;
     // absorb without mana cost
@@ -1810,12 +1813,11 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                 // Reflective Shield (Lady Malande boss)
                 if (spellProto->Id == 41475)
                 {
-                    int32 reflectDamage = 0;
                     if(RemainingDamage < currentAbsorb)
                         reflectDamage = RemainingDamage / 2;
                     else
                         reflectDamage = currentAbsorb / 2;
-                    pVictim->CastCustomSpell(this, 33619, &reflectDamage, NULL, NULL, true, NULL, *i);
+                    reflectSpell = 33619;
                     break;
                 }
                 if (spellProto->Id == 39228 || // Argussian Compass
@@ -1884,13 +1886,9 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                                     reflectDamage = (*k)->GetModifier()->m_amount * currentAbsorb/100;
                                 else
                                     reflectDamage = (*k)->GetModifier()->m_amount * RemainingDamage/100;
+                                reflectSpell = 33619;
                             } break;
                             default: break;
-                        }
-                        if (reflectDamage)
-                        {
-                            pVictim->CastCustomSpell(this, 33619, &reflectDamage, NULL, NULL, true, NULL, *i);
-                            break;
                         }
                     }
                     break;
@@ -1982,6 +1980,9 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                 ++i;
         }
     }
+    // Cast back reflect damage spell
+    if (reflectSpell)
+        pVictim->CastCustomSpell(this,  reflectSpell, &reflectDamage, NULL, NULL, true);
 
     // absorb by mana cost
     AuraList const& vManaShield = pVictim->GetAurasByType(SPELL_AURA_MANA_SHIELD);
@@ -4675,7 +4676,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     if(!target)
                         return false;
 
-                    basepoints0 = int32(damage * 2.5f);     // manaregen
                     triggered_spell_id = 34650;
                     break;
                 }
@@ -5980,6 +5980,8 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                             case 10432: spell = 26363; break;
                             case 25469: spell = 26371; break;
                             case 25472: spell = 26372; break;
+                            case 49280: spell = 49278; break;
+                            case 49281: spell = 49279; break;
                             default:
                                 return false;
                         }
@@ -6535,6 +6537,10 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
                             trigger_spell_id = 26371; break;
                         case 25472:                         // Rank 9
                             trigger_spell_id = 26372; break;
+                        case 49280:                         // Rank 10
+                            trigger_spell_id = 49278; break;
+                        case 49281:                         // Rank 11
+                            trigger_spell_id = 49279; break;
                         default:
                             sLog.outError("Unit::HandleProcTriggerSpell: Spell %u not handled in LShield", auraSpellInfo->Id);
                         return false;
@@ -7402,51 +7408,7 @@ void Unit::RemoveAllAttackers()
 
 void Unit::ModifyAuraState(AuraState flag, bool apply)
 {
-    if (apply)
-    {
-        if (!HasFlag(UNIT_FIELD_AURASTATE, 1<<(flag-1)))
-        {
-            SetFlag(UNIT_FIELD_AURASTATE, 1<<(flag-1));
-            if(GetTypeId() == TYPEID_PLAYER)
-            {
-                const PlayerSpellMap& sp_list = ((Player*)this)->GetSpellMap();
-                for (PlayerSpellMap::const_iterator itr = sp_list.begin(); itr != sp_list.end(); ++itr)
-                {
-                    if(itr->second->state == PLAYERSPELL_REMOVED) continue;
-                    SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
-                    if (!spellInfo || !IsPassiveSpell(itr->first)) continue;
-                    if (spellInfo->CasterAuraState == flag)
-                        CastSpell(this, itr->first, true, NULL);
-                }
-            }
-        }
-    }
-    else
-    {
-        if (HasFlag(UNIT_FIELD_AURASTATE,1<<(flag-1)))
-        {
-            RemoveFlag(UNIT_FIELD_AURASTATE, 1<<(flag-1));
-            Unit::AuraMap& tAuras = GetAuras();
-            for (Unit::AuraMap::iterator itr = tAuras.begin(); itr != tAuras.end();)
-            {
-                SpellEntry const* spellProto = (*itr).second->GetSpellProto();
-                if (spellProto->CasterAuraState == flag)
-                {
-                    // exceptions (applied at state but not removed at state change)
-                    // Rampage
-                    if(spellProto->SpellIconID==2006 && spellProto->SpellFamilyName==SPELLFAMILY_WARRIOR && spellProto->SpellFamilyFlags==0x100000)
-                    {
-                        ++itr;
-                        continue;
-                    }
-
-                    RemoveAura(itr);
-                }
-                else
-                    ++itr;
-            }
-        }
-    }
+    ApplyModFlag(UNIT_FIELD_AURASTATE, 1<<(flag-1), apply);
 }
 
 Unit *Unit::GetOwner() const
@@ -7596,7 +7558,7 @@ void Unit::SendEnergizeSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage, Po
     SendMessageToSet(&data, true);
 }
 
-uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint32 pdamage, DamageEffectType damagetype)
+uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 stack)
 {
     if(!spellProto || !pVictim || damagetype==DIRECT_DAMAGE )
         return pdamage;
@@ -7611,8 +7573,8 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     // Taken/Done total percent damage auras
     float DoneTotalMod = 1.0f;
     float TakenTotalMod = 1.0f;
-    uint32 DoneTotal = 0;
-    uint32 TakenTotal = 0;
+    int32 DoneTotal = 0;
+    int32 TakenTotal = 0;
 
     // ..done
     // Pet damage
@@ -7799,107 +7761,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         }
     }
 
-    // ..taken
-    AuraList const& mModDamagePercentTaken = pVictim->GetAurasByType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
-    for(AuraList::const_iterator i = mModDamagePercentTaken.begin(); i != mModDamagePercentTaken.end(); ++i)
-        if( (*i)->GetModifier()->m_miscvalue & GetSpellSchoolMask(spellProto) )
-            TakenTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
-
-    // .. taken pct: dummy auras
-    AuraList const& mDummyAuras = pVictim->GetAurasByType(SPELL_AURA_DUMMY);
-    for(AuraList::const_iterator i = mDummyAuras.begin(); i != mDummyAuras.end(); ++i)
-    {
-        switch((*i)->GetSpellProto()->SpellIconID)
-        {
-            //Cheat Death
-            case 2109:
-                if( ((*i)->GetModifier()->m_miscvalue & GetSpellSchoolMask(spellProto)) )
-                {
-                    if(pVictim->GetTypeId() != TYPEID_PLAYER)
-                        continue;
-                    float mod = -((Player*)pVictim)->GetRatingBonusValue(CR_CRIT_TAKEN_SPELL)*2*4;
-                    if (mod < (*i)->GetModifier()->m_amount)
-                        mod = (*i)->GetModifier()->m_amount;
-                    TakenTotalMod *= (mod+100.0f)/100.0f;
-                }
-                break;
-        }
-    }
-
-    // From caster spells
-    AuraList const& mOwnerTaken = pVictim->GetAurasByType(SPELL_AURA_MOD_DAMAGE_FROM_CASTER);
-    for(AuraList::const_iterator i = mOwnerTaken.begin(); i != mOwnerTaken.end(); ++i)
-        if( (*i)->GetCasterGUID() == GetGUID() && (*i)->isAffectedOnSpell(spellProto))
-            TakenTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
-
-    // Mod damage from spell mechanic
-    uint32 mechanicMask = GetAllSpellMechanicMask(spellProto);
-    if (mechanicMask)
-    {
-        AuraList const& mDamageDoneMechanic = pVictim->GetAurasByType(SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT);
-        for(AuraList::const_iterator i = mDamageDoneMechanic.begin();i != mDamageDoneMechanic.end(); ++i)
-            if(mechanicMask & uint32(1<<((*i)->GetModifier()->m_miscvalue)))
-                TakenTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
-    }
-
-    // Damage Done from spell damage bonus
-    uint32 CastingTime = !IsChanneledSpell(spellProto) ? GetSpellCastTime(spellProto) : GetSpellDuration(spellProto);
-
-    // Taken/Done fixed damage bonus auras
-    int32 DoneAdvertisedBenefit  = SpellBaseDamageBonus(GetSpellSchoolMask(spellProto));
-    int32 TakenAdvertisedBenefit = SpellBaseDamageBonusForVictim(GetSpellSchoolMask(spellProto), pVictim);
-
-    // Pets just add their bonus damage to their spell damage
-    // note that their spell damage is just gain of their own auras
-    if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->isPet())
-        DoneAdvertisedBenefit += ((Pet*)this)->GetBonusDamage();
-
-    // Damage over Time spells bonus calculation
-    float DotFactor = 1.0f;
-    if(damagetype == DOT)
-    {
-        int32 DotDuration = GetSpellDuration(spellProto);
-        // 200% limit
-        if(DotDuration > 0)
-        {
-            if(DotDuration > 30000) DotDuration = 30000;
-            if(!IsChanneledSpell(spellProto)) DotFactor = DotDuration / 15000.0f;
-            int x = 0;
-            for(int j = 0; j < 3; j++)
-            {
-                if( spellProto->Effect[j] == SPELL_EFFECT_APPLY_AURA && (
-                    spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_DAMAGE ||
-                    spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_LEECH) )
-                {
-                    x = j;
-                    break;
-                }
-            }
-            int DotTicks = 6;
-            if(spellProto->EffectAmplitude[x] != 0)
-                DotTicks = DotDuration / spellProto->EffectAmplitude[x];
-            if(DotTicks)
-            {
-                DoneAdvertisedBenefit /= DotTicks;
-                TakenAdvertisedBenefit /= DotTicks;
-            }
-        }
-    }
-    // Distribute Damage over multiple effects, reduce by AoE
-    CastingTime = GetCastingTimeForBonus( spellProto, damagetype, CastingTime );
-
-    // 50% for damage and healing spells for leech spells from damage bonus and 0% from healing
-    for(int j = 0; j < 3; ++j)
-    {
-        if( spellProto->Effect[j] == SPELL_EFFECT_HEALTH_LEECH ||
-            spellProto->Effect[j] == SPELL_EFFECT_APPLY_AURA && spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_LEECH )
-        {
-            CastingTime /= 2;
-            break;
-        }
-    }
-
-    switch(spellProto->SpellFamilyName)
+    /*switch(spellProto->SpellFamilyName)
     {
 		case SPELLFAMILY_GENERIC:
 			// Siphon Essence - 0%
@@ -8090,51 +7952,143 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
             {
                 CastingTime = 500;
             }
-            break;
-        case SPELLFAMILY_DRUID:
-            // Hurricane triggered spell
-            if((spellProto->SpellFamilyFlags & 0x400000LL) && spellProto->SpellIconID == 220)
-            {
-                CastingTime = 500;
-            }
-            break;
-        case SPELLFAMILY_WARRIOR:
-        case SPELLFAMILY_HUNTER:
-        case SPELLFAMILY_ROGUE:
-            CastingTime = 0;
-            break;
-        default:
-            break;
+            break;*/
+
+    // Custom scripted damage
+    // Ice Lance
+    if (spellProto->SpellFamilyName == SPELLFAMILY_MAGE && spellProto->SpellIconID == 186)
+    {
+        if (pVictim->isFrozen())
+            DoneTotalMod *= 3.0f;
     }
 
-    float LvlPenalty = CalculateLevelPenalty(spellProto);
+    // ..taken
+    AuraList const& mModDamagePercentTaken = pVictim->GetAurasByType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
+    for(AuraList::const_iterator i = mModDamagePercentTaken.begin(); i != mModDamagePercentTaken.end(); ++i)
+        if( (*i)->GetModifier()->m_miscvalue & GetSpellSchoolMask(spellProto) )
+            TakenTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
 
-    // Spellmod SpellDamage
-    //float SpellModSpellDamage = 100.0f;
-    float CoefficientPtc = DotFactor * 100.0f;
-    if(spellProto->SchoolMask != SPELL_SCHOOL_MASK_NORMAL)
-        CoefficientPtc *= ((float)CastingTime/3500.0f);
+    // .. taken pct: dummy auras
+    if (pVictim->GetTypeId() == TYPEID_PLAYER)
+    {
+        //Cheat Death
+        if (Aura *dummy = pVictim->GetDummyAura(45182))
+        {
+            float mod = -((Player*)pVictim)->GetRatingBonusValue(CR_CRIT_TAKEN_SPELL)*2*4;
+            if (mod < dummy->GetModifier()->m_amount)
+                mod = dummy->GetModifier()->m_amount;
+            TakenTotalMod *= (mod+100.0f)/100.0f;
+        }
+    }
 
+    // From caster spells
+    AuraList const& mOwnerTaken = pVictim->GetAurasByType(SPELL_AURA_MOD_DAMAGE_FROM_CASTER);
+    for(AuraList::const_iterator i = mOwnerTaken.begin(); i != mOwnerTaken.end(); ++i)
+        if( (*i)->GetCasterGUID() == GetGUID() && (*i)->isAffectedOnSpell(spellProto))
+            TakenTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
+
+    // Mod damage from spell mechanic
+    uint32 mechanicMask = GetAllSpellMechanicMask(spellProto);
+    if (mechanicMask)
+    {
+        AuraList const& mDamageDoneMechanic = pVictim->GetAurasByType(SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT);
+        for(AuraList::const_iterator i = mDamageDoneMechanic.begin();i != mDamageDoneMechanic.end(); ++i)
+            if(mechanicMask & uint32(1<<((*i)->GetModifier()->m_miscvalue)))
+                TakenTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
+    }
+
+    // Taken/Done fixed damage bonus auras
+    int32 DoneAdvertisedBenefit  = SpellBaseDamageBonus(GetSpellSchoolMask(spellProto));
+    int32 TakenAdvertisedBenefit = SpellBaseDamageBonusForVictim(GetSpellSchoolMask(spellProto), pVictim);
+    // Pets just add their bonus damage to their spell damage
+    // note that their spell damage is just gain of their own auras
+    if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->isPet())
+        DoneAdvertisedBenefit += ((Pet*)this)->GetBonusDamage();
+
+    // Check for table values
+    float coeff;
+    SpellBonusEntry const* bonus = spellmgr.GetSpellBonusData(spellProto->Id);
+    if (bonus)
+    {
+        if (damagetype == DOT)
+            coeff = bonus->dot_damage;
+        else
+            coeff = bonus->direct_damage;
+        if (bonus->ap_bonus)
+            DoneTotal+=bonus->ap_bonus * GetTotalAttackPowerValue(BASE_ATTACK) * stack;
+    }
+    // Default calculation
+    else if (DoneAdvertisedBenefit || TakenAdvertisedBenefit)
+    {
+        // Damage Done from spell damage bonus
+        uint32 CastingTime = !IsChanneledSpell(spellProto) ? GetSpellCastTime(spellProto) : GetSpellDuration(spellProto);
+        // Damage over Time spells bonus calculation
+        float DotFactor = 1.0f;
+        if(damagetype == DOT)
+        {
+            int32 DotDuration = GetSpellDuration(spellProto);
+            // 200% limit
+            if(DotDuration > 0)
+            {
+                if(DotDuration > 30000) DotDuration = 30000;
+                if(!IsChanneledSpell(spellProto)) DotFactor = DotDuration / 15000.0f;
+                int x = 0;
+                for(int j = 0; j < 3; j++)
+                {
+                    if( spellProto->Effect[j] == SPELL_EFFECT_APPLY_AURA && (
+                        spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_DAMAGE ||
+                        spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_LEECH) )
+                    {
+                        x = j;
+                        break;
+                    }
+                }
+                int DotTicks = 6;
+                if(spellProto->EffectAmplitude[x] != 0)
+                    DotTicks = DotDuration / spellProto->EffectAmplitude[x];
+                if(DotTicks)
+                {
+                    DoneAdvertisedBenefit /= DotTicks;
+                    TakenAdvertisedBenefit /= DotTicks;
+                }
+            }
+        }
+        // Distribute Damage over multiple effects, reduce by AoE
+        CastingTime = GetCastingTimeForBonus( spellProto, damagetype, CastingTime );
+
+        // 50% for damage and healing spells for leech spells from damage bonus and 0% from healing
+        for(int j = 0; j < 3; ++j)
+        {
+            if( spellProto->Effect[j] == SPELL_EFFECT_HEALTH_LEECH ||
+                spellProto->Effect[j] == SPELL_EFFECT_APPLY_AURA && spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_LEECH )
+            {
+                CastingTime /= 2;
+                break;
+            }
+        }
+        if(spellProto->SchoolMask != SPELL_SCHOOL_MASK_NORMAL)
+            coeff = (CastingTime / 3500.0f) * DotFactor;
+        else
+            coeff = DotFactor;
+    }
+
+    float coeff2 = CalculateLevelPenalty(spellProto) * stack;
+    if(spellProto->SpellFamilyName) //TODO: fix this
+        TakenTotal+= TakenAdvertisedBenefit * coeff * coeff2;
     if(Player* modOwner = GetSpellModOwner())
-        //modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_SPELL_BONUS_DAMAGE,SpellModSpellDamage);
-        modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_SPELL_BONUS_DAMAGE,CoefficientPtc);
+    {
+        coeff *= 100.0f;
+        modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_SPELL_BONUS_DAMAGE, coeff);
+        coeff /= 100.0f;
+    }
+    DoneTotal += DoneAdvertisedBenefit * coeff * coeff2;
 
-    //SpellModSpellDamage /= 100.0f;
-    CoefficientPtc /= 100.0f;
-
-    //float DoneActualBenefit = DoneAdvertisedBenefit * (CastingTime / 3500.0f) * DotFactor * SpellModSpellDamage * LvlPenalty;
-    
-    float DoneActualBenefit = DoneAdvertisedBenefit * CoefficientPtc * LvlPenalty;
-    float TakenActualBenefit = TakenAdvertisedBenefit * DotFactor * LvlPenalty;
-    if(spellProto->SpellFamilyName && spellProto->SchoolMask != SPELL_SCHOOL_MASK_NORMAL)
-        TakenActualBenefit *= ((float)CastingTime / 3500.0f);
-
-    float tmpDamage = (float(pdamage)+DoneActualBenefit + DoneTotal)*DoneTotalMod;
+    float tmpDamage = (pdamage + DoneTotal) * DoneTotalMod;
     // apply spellmod to Done damage (flat and pct)
     if(Player* modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spellProto->Id, damagetype == DOT ? SPELLMOD_DOT : SPELLMOD_DAMAGE, tmpDamage);
 
-    tmpDamage = (tmpDamage + TakenActualBenefit + TakenTotal)*TakenTotalMod;
+    tmpDamage = (tmpDamage + TakenTotal) * TakenTotalMod;
 
     return tmpDamage > 0 ? uint32(tmpDamage) : 0;
 }
@@ -8361,15 +8315,18 @@ uint32 Unit::SpellCriticalHealingBonus(SpellEntry const *spellProto, uint32 dama
     return damage;
 }
 
-uint32 Unit::SpellHealingBonus(SpellEntry const *spellProto, uint32 healamount, DamageEffectType damagetype, Unit *pVictim)
+uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint32 healamount, DamageEffectType damagetype, uint32 stack)
 {
+    // No heal amount for this class spells
+    if (spellProto->DmgClass == SPELL_DAMAGE_CLASS_NONE)
+        return healamount;
+
     // For totems get healing bonus from owner (statue isn't totem in fact)
     if( GetTypeId()==TYPEID_UNIT && ((Creature*)this)->isTotem() && ((Totem*)this)->GetTotemType()!=TOTEM_STATUE)
         if(Unit* owner = GetOwner())
-            return owner->SpellHealingBonus(spellProto, healamount, damagetype, pVictim);
+            return owner->SpellHealingBonus(pVictim, spellProto, healamount, damagetype, stack);
 
-    // Healing Done
-
+    // TODO: to be deleted
     // These Spells are doing fixed amount of healing (TODO found less hack-like check)
     if (spellProto->Id == 15290 || spellProto->Id == 39373 ||
         spellProto->Id == 33778 || spellProto->Id == 379   ||
@@ -8378,11 +8335,12 @@ uint32 Unit::SpellHealingBonus(SpellEntry const *spellProto, uint32 healamount, 
         spellProto->Id == 34299)
         return healamount;
 
+    // Healing Done
     // Taken/Done total percent damage auras
     float  DoneTotalMod = 1.0f;
     float  TakenTotalMod = 1.0f;
-    uint32 DoneTotal = 0;
-    uint32 TakenTotal = 0;
+    int32  DoneTotal = 0;
+    int32  TakenTotal = 0;
 
     // Healing done percent
     AuraList const& mHealingDonePct = GetAurasByType(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
@@ -8470,58 +8428,7 @@ uint32 Unit::SpellHealingBonus(SpellEntry const *spellProto, uint32 healamount, 
         }
     }
 
-    int32 DoneAdvertisedBenefit  = SpellBaseHealingBonus(GetSpellSchoolMask(spellProto));
-    int32 TakenAdvertisedBenefit = SpellBaseHealingBonusForVictim(GetSpellSchoolMask(spellProto), pVictim);
-    if (DoneAdvertisedBenefit != 0 && TakenAdvertisedBenefit!=0)
-    {
-        // Healing over Time spells
-        float DotFactor = 1.0f;
-        if(damagetype == DOT)
-        {
-            int32 DotDuration = GetSpellDuration(spellProto);
-            if(DotDuration > 0)
-            {
-                // 200% limit
-                if(DotDuration > 30000) DotDuration = 30000;
-                if(!IsChanneledSpell(spellProto)) DotFactor = DotDuration / 15000.0f;
-                int x = 0;
-                for(int j = 0; j < 3; j++)
-                {
-                    if( spellProto->Effect[j] == SPELL_EFFECT_APPLY_AURA && (
-                        spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_HEAL ||
-                        spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_LEECH) )
-                    {
-                        x = j;
-                        break;
-                    }
-                }
-                int DotTicks = 6;
-                if(spellProto->EffectAmplitude[x] != 0)
-                    DotTicks = DotDuration / spellProto->EffectAmplitude[x];
-                if(DotTicks)
-                {
-                    DoneAdvertisedBenefit /= DotTicks;
-                    TakenAdvertisedBenefit /= DotTicks;
-                }
-            }
-        }
-        uint32 CastingTime = GetSpellCastTime(spellProto);
-
-        // distribute healing to all effects, reduce AoE damage
-        CastingTime = GetCastingTimeForBonus( spellProto, damagetype, CastingTime );
-
-        // 0% bonus for damage and healing spells for leech spells from healing bonus
-        for(int j = 0; j < 3; ++j)
-        {
-            if( spellProto->Effect[j] == SPELL_EFFECT_HEALTH_LEECH ||
-                spellProto->Effect[j] == SPELL_EFFECT_APPLY_AURA && spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_LEECH )
-            {
-                CastingTime = 0;
-                break;
-            }
-        }
-
-        // Exception
+        /*// Exception
         switch (spellProto->SpellFamilyName)
         {
             case SPELLFAMILY_GENERIC:
@@ -8576,24 +8483,84 @@ uint32 Unit::SpellHealingBonus(SpellEntry const *spellProto, uint32 healamount, 
             case SPELLFAMILY_HUNTER:
                 CastingTime = 0;
                 break;
-        }
+        }*/
 
-        float LvlPenalty = CalculateLevelPenalty(spellProto);
+    // Taken/Done fixed damage bonus auras
+    int32 DoneAdvertisedBenefit  = SpellBaseHealingBonus(GetSpellSchoolMask(spellProto));
+    int32 TakenAdvertisedBenefit = SpellBaseHealingBonusForVictim(GetSpellSchoolMask(spellProto), pVictim);
 
-        // Spellmod SpellDamage
-        //float SpellModSpellDamage = 100.0f;
-        float CoefficientPtc = ((float)CastingTime/3500.0f)*DotFactor*100.0f;
-
-        if(Player* modOwner = GetSpellModOwner())
-            //modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_SPELL_BONUS_DAMAGE,SpellModSpellDamage);
-            modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_SPELL_BONUS_DAMAGE,CoefficientPtc);
-
-        //SpellModSpellDamage /= 100.0f;
-        CoefficientPtc /= 100.0f;
-
-        DoneTotal  += (float)DoneAdvertisedBenefit * CoefficientPtc * LvlPenalty;
-        TakenTotal += (float)TakenAdvertisedBenefit * CoefficientPtc * LvlPenalty;
+    // Check for table values
+    SpellBonusEntry const* bonus = spellmgr.GetSpellBonusData(spellProto->Id);
+    float coeff;
+    if (bonus)
+    {
+        if (damagetype == DOT)
+            coeff = bonus->dot_damage;
+        else
+            coeff = bonus->direct_damage;
+        if (bonus->ap_bonus)
+            DoneTotal+=bonus->ap_bonus * GetTotalAttackPowerValue(BASE_ATTACK) * stack;
     }
+    // Default calculation
+    else if (DoneAdvertisedBenefit || TakenAdvertisedBenefit)
+    {
+        // Damage Done from spell damage bonus
+        uint32 CastingTime = !IsChanneledSpell(spellProto) ? GetSpellCastTime(spellProto) : GetSpellDuration(spellProto);
+        // Damage over Time spells bonus calculation
+        float DotFactor = 1.0f;
+        if(damagetype == DOT)
+        {
+            int32 DotDuration = GetSpellDuration(spellProto);
+            // 200% limit
+            if(DotDuration > 0)
+            {
+                if(DotDuration > 30000) DotDuration = 30000;
+                if(!IsChanneledSpell(spellProto)) DotFactor = DotDuration / 15000.0f;
+                int x = 0;
+                for(int j = 0; j < 3; j++)
+                {
+                    if( spellProto->Effect[j] == SPELL_EFFECT_APPLY_AURA && (
+                        spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_DAMAGE ||
+                        spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_LEECH) )
+                    {
+                        x = j;
+                        break;
+                    }
+                }
+                int DotTicks = 6;
+                if(spellProto->EffectAmplitude[x] != 0)
+                    DotTicks = DotDuration / spellProto->EffectAmplitude[x];
+                if(DotTicks)
+                {
+                    DoneAdvertisedBenefit /= DotTicks;
+                    TakenAdvertisedBenefit /= DotTicks;
+                }
+            }
+        }
+        // Distribute Damage over multiple effects, reduce by AoE
+        CastingTime = GetCastingTimeForBonus( spellProto, damagetype, CastingTime );
+        // 50% for damage and healing spells for leech spells from damage bonus and 0% from healing
+        for(int j = 0; j < 3; ++j)
+        {
+            if( spellProto->Effect[j] == SPELL_EFFECT_HEALTH_LEECH ||
+                spellProto->Effect[j] == SPELL_EFFECT_APPLY_AURA && spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_LEECH )
+            {
+                CastingTime /= 2;
+                break;
+            }
+        }
+        coeff = (CastingTime / 3500.0f) * DotFactor;
+    }
+
+    float coeff2 = CalculateLevelPenalty(spellProto) * 1.88f * stack;
+    TakenTotal+= TakenAdvertisedBenefit * coeff * coeff2;
+    if(Player* modOwner = GetSpellModOwner())
+    {
+        coeff *= 100.0f;
+        modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_SPELL_BONUS_DAMAGE, coeff);
+        coeff /= 100.0f;
+    }
+    DoneTotal += DoneAdvertisedBenefit * coeff * coeff2;
 
     // use float as more appropriate for negative values and percent applying
     float heal = (healamount + DoneTotal)*DoneTotalMod;
@@ -8609,7 +8576,7 @@ uint32 Unit::SpellHealingBonus(SpellEntry const *spellProto, uint32 healamount, 
         Unit::AuraList const& auraDummy = pVictim->GetAurasByType(SPELL_AURA_DUMMY);
         for(Unit::AuraList::const_iterator itr = auraDummy.begin(); itr!=auraDummy.end(); ++itr)
             if((*itr)->GetId() == 29203)
-                TakenTotalMod *= (*itr)->GetModifier()->m_amount;
+                TakenTotalMod *= ((*itr)->GetModifier()->m_amount+100.0f) / 100.0f;
     }
 
     // Healing taken percent
@@ -8859,8 +8826,8 @@ void Unit::MeleeDamageBonus(Unit *pVictim, uint32 *pdamage,WeaponAttackType attT
         TakenFlatBenefit += pVictim->GetTotalAuraModifier(SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN);
 
     // Done/Taken total percent damage auras
-    float DoneTotalMod = 1;
-    float TakenTotalMod = 1;
+    float DoneTotalMod = 1.0f;
+    float TakenTotalMod = 1.0f;
 
     // ..done
     // SPELL_AURA_MOD_DAMAGE_PERCENT_DONE included in weapon damage
@@ -10754,7 +10721,7 @@ bool InitTriggerAuraData()
     isTriggerAura[SPELL_AURA_DAMAGE_IMMUNITY] = true;
     isTriggerAura[SPELL_AURA_PROC_TRIGGER_SPELL] = true;
     isTriggerAura[SPELL_AURA_PROC_TRIGGER_DAMAGE] = true;
-    isTriggerAura[SPELL_AURA_MOD_CASTING_SPEED] = true;
+    isTriggerAura[SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK] = true;
     isTriggerAura[SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT] = true;
     isTriggerAura[SPELL_AURA_MOD_POWER_COST_SCHOOL] = true;
     isTriggerAura[SPELL_AURA_REFLECT_SPELLS_SCHOOL] = true;
@@ -10998,7 +10965,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
                     continue;
                 break;
             }
-            case SPELL_AURA_MOD_CASTING_SPEED:
+            case SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK:
                 // Skip melee hits or instant cast spells
                 if (procSpell == NULL || GetSpellCastTime(procSpell) == 0)
                     continue;
