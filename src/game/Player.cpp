@@ -20189,11 +20189,11 @@ bool Player::IsAllowUseFlyMountsHere() const
     {
         case 0:
         case 1:
-            if (!sWorld.getConfig(CONFIG_FLYING_MOUNTS_AZEROTH))
+            //if (!sWorld.getConfig(CONFIG_FLYING_MOUNTS_AZEROTH))
                 return false;
             break;
         case 530:
-            if (!sWorld.getConfig(CONFIG_FLYING_MOUNTS_OUTLAND))
+            //if (!sWorld.getConfig(CONFIG_FLYING_MOUNTS_OUTLAND))
                 return false;
             break;
         case 571:
@@ -20201,7 +20201,7 @@ bool Player::IsAllowUseFlyMountsHere() const
                 return false;
             break;
         default:
-            if (!sWorld.getConfig(CONFIG_FLYING_MOUNTS_OTHERS))
+            //if (!sWorld.getConfig(CONFIG_FLYING_MOUNTS_OTHERS))
                 return false;
             break;
     }
