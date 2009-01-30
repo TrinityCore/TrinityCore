@@ -360,7 +360,7 @@ bool IsAuraAddedBySpell(uint32 auraType, uint32 spellId);
 
 bool IsSpellAllowedInLocation(SpellEntry const *spellInfo,uint32 map_id,uint32 zone_id,uint32 area_id);
 
-static bool IsAreaEffectTarget[TOTAL_SPELL_TARGETS];
+extern bool IsAreaEffectTarget[TOTAL_SPELL_TARGETS];
 inline bool IsAreaOfEffectSpell(SpellEntry const *spellInfo)
 {
     if(IsAreaEffectTarget[spellInfo->EffectImplicitTargetA[0]] || IsAreaEffectTarget[spellInfo->EffectImplicitTargetB[0]])

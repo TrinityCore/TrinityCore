@@ -27,6 +27,8 @@
 #include "Chat.h"
 #include "Spell.h"
 
+bool IsAreaEffectTarget[TOTAL_SPELL_TARGETS];
+
 SpellMgr::SpellMgr()
 {
     for(int i = 0; i < TOTAL_SPELL_EFFECTS; ++i)
