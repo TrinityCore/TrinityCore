@@ -73,8 +73,6 @@ void PetAI::AttackStart(Unit *u)
 
     if(i_pet.Attack(u,true))
     {
-        i_pet.SetInCombatWith(u);
-
         i_pet.clearUnitState(UNIT_STAT_FOLLOW);
         // TMGs call CreatureRelocation which via MoveInLineOfSight can call this function
         // thus with the following clear the original TMG gets invalidated and crash, doh

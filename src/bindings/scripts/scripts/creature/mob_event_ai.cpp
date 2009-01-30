@@ -1150,8 +1150,6 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
         if (m_creature->Attack(who, MeleeEnabled))
          {
             //Begin melee attack if we are within range
-            m_creature->AddThreat(who, 0.0f);
-            m_creature->SetInCombatWith(who);
 
             if (!InCombat)
             {
