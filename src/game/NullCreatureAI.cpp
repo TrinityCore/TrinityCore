@@ -19,7 +19,23 @@
  */
 
 #include "NullCreatureAI.h"
+#include "Creature.h"
 
-NullCreatureAI::~NullCreatureAI()
+void PassiveAI::UpdateAI(const uint32)
 {
+    if(me->isInCombat() && me->getAttackers().empty())
+        EnterEvadeMode();
+}
+
+void CritterAI::DamageTaken(Unit *done_by, uint32 &)
+{
+    if(!me->hasUnitState(UNIT_STAT_FLEEING))
+        me->SetControlled(true, UNIT_STAT_FLEEING);
+}
+
+void CritterAI::EnterEvadeMode()
+{
+    if(me->hasUnitState(UNIT_STAT_FLEEING))
+        me->SetControlled(false, UNIT_STAT_FLEEING);
+    CreatureAI::EnterEvadeMode();
 }

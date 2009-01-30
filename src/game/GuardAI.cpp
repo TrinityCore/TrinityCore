@@ -33,7 +33,7 @@ int GuardAI::Permissible(const Creature *creature)
     return PERMIT_BASE_NO;
 }
 
-GuardAI::GuardAI(Creature &c) : i_creature(c), i_victimGuid(0), i_state(STATE_NORMAL), i_tracker(TIME_INTERVAL_LOOK)
+GuardAI::GuardAI(Creature *c) : i_creature(*c), i_victimGuid(0), i_state(STATE_NORMAL), i_tracker(TIME_INTERVAL_LOOK)
 {
 }
 
