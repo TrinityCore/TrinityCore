@@ -605,7 +605,15 @@ struct SpellProcEventEntry
     uint32      cooldown;                                   // hidden cooldown used for some spell proc events, applied to _triggered_spell_
 };
 
+struct SpellBonusEntry
+{
+    float  direct_damage;
+    float  dot_damage;
+    float  ap_bonus;
+};
+
 typedef UNORDERED_MAP<uint32, SpellProcEventEntry> SpellProcEventMap;
+typedef UNORDERED_MAP<uint32, SpellBonusEntry>     SpellBonusMap;
 
 #define ELIXIR_BATTLE_MASK    0x1
 #define ELIXIR_GUARDIAN_MASK  0x2
@@ -830,6 +838,23 @@ class SpellMgr
 
         static bool IsSpellProcEventCanTriggeredBy( SpellProcEventEntry const * spellProcEvent, uint32 EventProcFlag, SpellEntry const * procSpell, uint32 procFlags, uint32 procExtra, bool active);
 
+        // Spell bonus data
+        SpellBonusEntry const* GetSpellBonusData(uint32 spellId) const
+        {
+            // Lookup data
+            SpellBonusMap::const_iterator itr = mSpellBonusMap.find(spellId);
+            if( itr != mSpellBonusMap.end( ) )
+                return &itr->second;
+            // Not found, try lookup for 1 spell rank if exist
+            if (uint32 rank_1 = GetFirstSpellInChain(spellId))
+            {
+                SpellBonusMap::const_iterator itr = mSpellBonusMap.find(rank_1);
+                if( itr != mSpellBonusMap.end( ) )
+                    return &itr->second;
+            }
+            return NULL;
+        }
+
         // Spell target coordinates
         SpellTargetPosition const* GetSpellTargetPosition(uint32 spell_id) const
         {
@@ -1041,6 +1066,7 @@ class SpellMgr
         void LoadSpellAffects();
         void LoadSpellElixirs();
         void LoadSpellProcEvents();
+        void LoadSpellBonusess();
         void LoadSpellTargetPositions();
         void LoadSpellThreats();
         void LoadSkillLineAbilityMap();
@@ -1060,6 +1086,7 @@ class SpellMgr
         SpellAffectMap     mSpellAffectMap;
         SpellElixirMap     mSpellElixirs;
         SpellProcEventMap  mSpellProcEventMap;
+        SpellBonusMap      mSpellBonusMap;
         SkillLineAbilityMap mSkillLineAbilityMap;
         SpellPetAuraMap     mSpellPetAuraMap;
         SpellCustomAttribute  mSpellCustomAttr;
