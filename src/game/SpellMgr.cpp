@@ -2587,6 +2587,10 @@ uint8 GetSpellAllowedInLocationError(SpellEntry const *spellInfo,uint32 map_id,u
         case 51721:                                         // Dominion Over Acherus
         case 54055:                                         // Dominion Over Acherus
             return area_id == 4281 || area_id == 4342 ? 0 : SPELL_FAILED_INCORRECT_AREA;
+        case 51852:                                         // The Eye of Acherus
+        {
+            return map_id == 609 ? 0 : SPELL_FAILED_REQUIRES_AREA;
+        }
         case 54119:                                         // Mist of the Kvaldir
             return area_id == 4028 || area_id == 4029 || area_id == 4106 || area_id == 4031 ? 0 : SPELL_FAILED_INCORRECT_AREA;
     }

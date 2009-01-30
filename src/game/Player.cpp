@@ -19453,20 +19453,24 @@ void Player::UpdateZoneDependentAuras( uint32 newZone )
     }
 
     // Some spells applied at enter into zone (with subzones)
-    // Human Illusion
-    // NOTE: these are removed by RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CHANGE_MAP);
-    if ( newZone == 2367 )                                  // Old Hillsbrad Foothills
+    switch(newZone)
     {
-        uint32 spellid = 0;
-        // all horde races
-        if( GetTeam() == HORDE )
-            spellid = getGender() == GENDER_FEMALE ? 35481 : 35480;
-        // and some alliance races
-        else if( getRace() == RACE_NIGHTELF || getRace() == RACE_DRAENEI )
-            spellid = getGender() == GENDER_FEMALE ? 35483 : 35482;
+        case 2367:                                          // Old Hillsbrad Foothills
+        {
+            // Human Illusion
+            // NOTE: these are removed by RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CHANGE_MAP);
+            uint32 spellid = 0;
+            // all horde races
+            if( GetTeam() == HORDE )
+                spellid = getGender() == GENDER_FEMALE ? 35481 : 35480;
+            // and some alliance races
+            else if( getRace() == RACE_NIGHTELF || getRace() == RACE_DRAENEI )
+                spellid = getGender() == GENDER_FEMALE ? 35483 : 35482;
 
-        if(spellid && !HasAura(spellid,0) )
-            CastSpell(this,spellid,true);
+            if(spellid && !HasAura(spellid,0) )
+                CastSpell(this,spellid,true);
+            break;
+        }
     }
 }
 
