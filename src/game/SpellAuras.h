@@ -211,6 +211,7 @@ class TRINITY_DLL_SPEC Aura
         void HandleAuraIncreaseBaseHealthPercent(bool Apply, bool Real);
         void HandleNoReagentUseAura(bool Apply, bool Real);
         void HandleModAttackerSpellHitChance(bool apply, bool Real);
+        void HandlePhase(bool Apply, bool Real);
 
         virtual ~Aura();
 
