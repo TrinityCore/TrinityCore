@@ -774,7 +774,6 @@ LOCK TABLES `character_tutorial` WRITE;
 UNLOCK TABLES;
 
 --
-  `arena_pending_points` int (10) UNSIGNED NOT NULL default '0',
 -- Table structure for table `corpse`
 --
 
