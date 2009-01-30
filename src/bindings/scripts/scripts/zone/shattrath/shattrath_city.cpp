@@ -522,7 +522,6 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
 				Malone->setFaction(14);
 				Malone->GetMotionMaster()->MoveChase(player);
 			}
-				m_creature->SetInCombatWith(player);
 				DoStartMovement(player);
 				AttackStart(player);
 			}

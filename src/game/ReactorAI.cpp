@@ -50,8 +50,6 @@ ReactorAI::AttackStart(Unit *p)
     if(i_creature.Attack(p,true))
     {
         DEBUG_LOG("Tag unit GUID: %u (TypeId: %u) as a victim", p->GetGUIDLow(), p->GetTypeId());
-        i_creature.SetInCombatWith(p);
-        p->SetInCombatWith(&i_creature);
 
         i_creature.AddThreat(p, 0.0f);
         i_victimGuid = p->GetGUID();
