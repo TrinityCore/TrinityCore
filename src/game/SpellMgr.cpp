@@ -2150,8 +2150,12 @@ void SpellMgr::LoadSpellCustomAttr()
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_DIRECT_DAMAGE;
                     break;
                 case SPELL_EFFECT_CHARGE:
-                    spellInfo->speed = SPEED_CHARGE;
+                    if(!spellInfo->speed)
+                        spellInfo->speed = SPEED_CHARGE;
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_CHARGE;
+                case SPELL_EFFECT_TRIGGER_SPELL:
+                    if(spellInfo->Targets & (TARGET_FLAG_SOURCE_LOCATION|TARGET_FLAG_DEST_LOCATION))
+                        spellInfo->Effect[j] = SPELL_EFFECT_TRIGGER_MISSILE;
                     break;
             }
         }

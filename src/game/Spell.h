@@ -320,7 +320,7 @@ class Spell
         void EffectQuestFail(uint32 i);
         void EffectRedirectThreat(uint32 i);
 
-        Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID = 0, Spell** triggeringContainer = NULL );
+        Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID = 0, Spell** triggeringContainer = NULL, bool skipCheck = false );
         ~Spell();
 
         void prepare(SpellCastTargets * targets, Aura* triggeredByAura = NULL);
@@ -571,6 +571,7 @@ class Spell
         SpellEntry const* m_triggeredByAuraSpell;
 
         uint32 m_customAttr;
+        bool m_skipCheck;
 };
 
 namespace Trinity
