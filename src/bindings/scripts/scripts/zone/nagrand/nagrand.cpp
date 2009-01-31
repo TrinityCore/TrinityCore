@@ -125,7 +125,7 @@ struct TRINITY_DLL_DECL mob_lumpAI : public ScriptedAI
                 m_creature->DeleteThreatList();
                 m_creature->CombatStop();
                 m_creature->setFaction(1080);               //friendly
-                m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, PLAYER_STATE_SIT);
+                m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_SIT);
                 DoScriptText(LUMP_DEFEAT, m_creature);
 
                 bReset = true;
@@ -139,7 +139,7 @@ struct TRINITY_DLL_DECL mob_lumpAI : public ScriptedAI
             m_creature->RemoveAura(SPELL_VISUAL_SLEEP,0);
 
         if (!m_creature->IsStandState())
-            m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, PLAYER_STATE_NONE);
+            m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
 
         switch(rand()%2)
         {

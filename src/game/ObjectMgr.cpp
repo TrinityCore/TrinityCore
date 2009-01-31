@@ -5859,10 +5859,10 @@ void ObjectMgr::LoadGameobjectInfo()
                 break;
             }
             case GAMEOBJECT_TYPE_CHAIR:                     //7
-                if(goInfo->chair.height > 2)
+                if(goInfo->chair.height > (UNIT_STAND_STATE_SIT_HIGH_CHAIR-UNIT_STAND_STATE_SIT_LOW_CHAIR) )
                 {
-                    sLog.outErrorDb("Gameobject (Entry: %u GoType: %u) have data1=%u but correct chair height in range 0..2.",
-                        id,goInfo->type,goInfo->chair.height);
+                    sLog.outErrorDb("Gameobject (Entry: %u GoType: %u) have data1=%u but correct chair height in range 0..%i.",
+                        id,goInfo->type,goInfo->chair.height,UNIT_STAND_STATE_SIT_HIGH_CHAIR-UNIT_STAND_STATE_SIT_LOW_CHAIR);
 
                     // prevent client and server unexpected work
                     const_cast<GameObjectInfo*>(goInfo)->chair.height = 0;
@@ -5957,6 +5957,16 @@ void ObjectMgr::LoadGameobjectInfo()
                 }
                 break;
             }
+            case GAMEOBJECT_TYPE_BARBER_CHAIR:              //32
+                if(goInfo->barberChair.chairheight > (UNIT_STAND_STATE_SIT_HIGH_CHAIR-UNIT_STAND_STATE_SIT_LOW_CHAIR) )
+                {
+                    sLog.outErrorDb("Gameobject (Entry: %u GoType: %u) have data1=%u but correct chair height in range 0..%i.",
+                        id,goInfo->type,goInfo->barberChair.chairheight,UNIT_STAND_STATE_SIT_HIGH_CHAIR-UNIT_STAND_STATE_SIT_LOW_CHAIR);
+
+                    // prevent client and server unexpected work
+                    const_cast<GameObjectInfo*>(goInfo)->barberChair.chairheight = 0;
+                }
+                break;
         }
     }
 

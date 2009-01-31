@@ -441,8 +441,8 @@ struct TRINITY_DLL_DECL npc_commander_dawnforgeAI : public ScriptedAI
 		ardonis->SendUpdateToPlayer(player);
 
 		//Set them to kneel
-		m_creature->SetStandState(PLAYER_STATE_KNEEL);
-		ardonis->SetStandState(PLAYER_STATE_KNEEL);
+		m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
+		ardonis->SetStandState(UNIT_STAND_STATE_KNEEL);
 	}
 	 	 
 	//Set them back to each other
@@ -466,8 +466,8 @@ struct TRINITY_DLL_DECL npc_commander_dawnforgeAI : public ScriptedAI
 			ardonis->SendUpdateToPlayer(player);
 
 			//Set state
-			m_creature->SetStandState(PLAYER_STATE_NONE);
-			ardonis->SetStandState(PLAYER_STATE_NONE);
+			m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+			ardonis->SetStandState(UNIT_STAND_STATE_STAND);
 		}
 	}
 	 	 
