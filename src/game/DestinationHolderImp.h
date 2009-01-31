@@ -98,7 +98,7 @@ DestinationHolder<TRAVELLER>::StartTravel(TRAVELLER &traveller, bool sendMove)
 
     float speed;
     if(traveller.GetTraveller().hasUnitState(UNIT_STAT_CHARGING))
-        speed = 0.025f;                         // assume it is 25 yard per second
+        speed = SPEED_CHARGE * 0.001f;
     else
         speed = traveller.Speed() * 0.001f;     // speed is in seconds so convert from second to millisecond
     i_totalTravelTime = static_cast<uint32>(dist/speed);
