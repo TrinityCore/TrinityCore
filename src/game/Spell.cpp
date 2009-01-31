@@ -273,13 +273,14 @@ void SpellCastTargets::write ( WorldPacket * data )
         *data << m_strTarget;
 }
 
-Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID, Spell** triggeringContainer )
+Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID, Spell** triggeringContainer, bool skipCheck )
 {
     ASSERT( Caster != NULL && info != NULL );
     ASSERT( info == sSpellStore.LookupEntry( info->Id ) && "`info` must be pointer to sSpellStore element");
 
     m_spellInfo = info;
     m_customAttr = spellmgr.GetSpellCustomAttr(m_spellInfo->Id);
+    m_skipCheck = skipCheck;
     m_caster = Caster;
     m_selfContainer = NULL;
     m_triggeringContainer = triggeringContainer;
@@ -734,7 +735,11 @@ void Spell::AddUnitTarget(Unit* pVictim, uint32 effIndex)
 
     // Calculate hit result
     if(m_originalCaster)
+    {
         target.missCondition = m_originalCaster->SpellHitResult(pVictim, m_spellInfo, m_canReflect);
+        if(m_skipCheck && target.missCondition != SPELL_MISS_IMMUNE)
+            target.missCondition = SPELL_MISS_NONE;
+    }
     else
         target.missCondition = SPELL_MISS_EVADE; //SPELL_MISS_NONE;
 
@@ -980,7 +985,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         if (target->reflectResult == SPELL_MISS_NONE)       // If reflected spell hit caster -> do all effect on him
             DoSpellHitOnUnit(m_caster, mask);
     }
-    else //TODO: This is a hack. need fix
+    /*else //TODO: This is a hack. need fix
     {
         uint32 tempMask = 0;
         for(uint32 i = 0; i < 3; ++i)
@@ -989,7 +994,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
                 tempMask |= 1<<i;
         if(tempMask &= mask)
             DoSpellHitOnUnit(unit, tempMask);
-    }
+    }*/
 
     // All calculated do it!
     // Do healing and triggers
@@ -3299,7 +3304,7 @@ void Spell::TriggerSpell()
 {
     for(TriggerSpells::iterator si=m_TriggerSpells.begin(); si!=m_TriggerSpells.end(); ++si)
     {
-        Spell* spell = new Spell(m_caster, (*si), true, m_originalCasterGUID, m_selfContainer);
+        Spell* spell = new Spell(m_caster, (*si), true, m_originalCasterGUID, m_selfContainer, true);
         spell->prepare(&m_targets);                         // use original spell original targets
     }
 }
@@ -3626,7 +3631,7 @@ uint8 Spell::CanCast(bool strict)
         }
     }*/
 
-    if(!m_triggeredByAuraSpell)
+    if(!m_skipCheck && !m_triggeredByAuraSpell)
         if(uint8 castResult = CheckRange(strict))
             return castResult;
 
