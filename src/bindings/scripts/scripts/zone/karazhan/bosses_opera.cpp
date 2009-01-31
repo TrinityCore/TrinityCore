@@ -905,7 +905,7 @@ void PretendToDie(Creature* _Creature)
     _Creature->SetUInt64Value(UNIT_FIELD_TARGET,0);
     _Creature->GetMotionMaster()->Clear();
     _Creature->GetMotionMaster()->MoveIdle();
-    _Creature->SetUInt32Value(UNIT_FIELD_BYTES_1,PLAYER_STATE_DEAD);
+    _Creature->SetUInt32Value(UNIT_FIELD_BYTES_1,UNIT_STAND_STATE_DEAD);
 };
 
 void Resurrect(Creature* target)

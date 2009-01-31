@@ -133,7 +133,7 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
         m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
         m_creature->SetVisibility(VISIBILITY_ON);
-        m_creature->SetStandState(PLAYER_STATE_SLEEP);
+        m_creature->SetStandState(UNIT_STAND_STATE_SLEEP);
 
         ArcaneBuffetTimer = 8000;
         FrostBreathTimer = 15000;
@@ -158,7 +158,7 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
 
     void Aggro(Unit* who)
     {
-        m_creature->SetStandState(PLAYER_STATE_NONE);
+        m_creature->SetStandState(UNIT_STAND_STATE_STAND);
         DoScriptText(SAY_EVIL_AGGRO, m_creature);
         GameObject *Door = GameObject::GetGameObject(*m_creature, DoorGUID);
         if(Door) Door->SetLootState(GO_ACTIVATED);
