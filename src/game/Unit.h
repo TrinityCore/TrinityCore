@@ -390,6 +390,8 @@ enum UnitMoveType
 #define MAX_MOVE_TYPE 8
 
 extern float baseMoveSpeed[MAX_MOVE_TYPE];
+// assume it is 25 yard per 0.6 second
+#define SPEED_CHARGE    42.0f
 
 enum WeaponAttackType
 {
