@@ -40,9 +40,6 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     //CreatureAI Functions
     //*************
 
-    //Called if IsVisible(Unit *who) is true at each *who move
-    void MoveInLineOfSight(Unit *);
-
     //Called at each attack of m_creature by any victim
     void AttackStart(Unit *);
     void AttackStart(Unit *, bool melee);
