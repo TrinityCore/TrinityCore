@@ -238,7 +238,7 @@ struct TRINITY_DLL_DECL advisorbase_ai : public ScriptedAI
             m_creature->SetUInt64Value(UNIT_FIELD_TARGET,0);
             m_creature->GetMotionMaster()->Clear();
             m_creature->GetMotionMaster()->MoveIdle();
-            m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,PLAYER_STATE_DEAD);
+            m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,UNIT_STAND_STATE_DEAD);
 
             if (pInstance->GetData(DATA_KAELTHASEVENT) == 3)
                 JustDied(pKiller);
@@ -575,7 +575,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         //Subphase 2 - Start
                     case 2:
                         Advisor = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[0]));
-                        if(Advisor && (Advisor->GetUInt32Value(UNIT_FIELD_BYTES_1) == PLAYER_STATE_DEAD))
+                        if(Advisor && (Advisor->GetUInt32Value(UNIT_FIELD_BYTES_1) == UNIT_STAND_STATE_DEAD))
                         {
 							DoScriptText(SAY_INTRO_SANGUINAR, m_creature);
 
@@ -609,7 +609,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         //Subphase 3 - Start
                     case 4:
                         Advisor = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[1]));
-                        if(Advisor && (Advisor->GetUInt32Value(UNIT_FIELD_BYTES_1) == PLAYER_STATE_DEAD))
+                        if(Advisor && (Advisor->GetUInt32Value(UNIT_FIELD_BYTES_1) == UNIT_STAND_STATE_DEAD))
                         {
                             DoScriptText(SAY_INTRO_CAPERNIAN, m_creature);
 
@@ -643,7 +643,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         //Subphase 4 - Start
                     case 6:
                         Advisor = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[2]));
-                        if(Advisor && (Advisor->GetUInt32Value(UNIT_FIELD_BYTES_1) == PLAYER_STATE_DEAD))
+                        if(Advisor && (Advisor->GetUInt32Value(UNIT_FIELD_BYTES_1) == UNIT_STAND_STATE_DEAD))
                         {
 							DoScriptText(SAY_INTRO_TELONICUS, m_creature);
 
@@ -679,7 +679,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         //End of phase 1
                     case 8:
                         Advisor = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[3]));
-                        if(Advisor && (Advisor->GetUInt32Value(UNIT_FIELD_BYTES_1) == PLAYER_STATE_DEAD))
+                        if(Advisor && (Advisor->GetUInt32Value(UNIT_FIELD_BYTES_1) == UNIT_STAND_STATE_DEAD))
                         {
                             Phase = 2;
                             pInstance->SetData(DATA_KAELTHASEVENT, 2);
@@ -1467,7 +1467,7 @@ struct TRINITY_DLL_DECL mob_phoenix_tkAI : public ScriptedAI
                if(SummonEgg == 1){ //hack die animation
                        m_creature->RemoveAllAuras();
                        DoStartNoMovement(m_creature->getVictim());
-                       m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, PLAYER_STATE_DEAD);
+                       m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
                        SummonEgg = 2;
                        Cycle_Timer = 1000;
                }

@@ -1033,7 +1033,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         else if(m_customAttr & SPELL_ATTR_CU_AURA_CC)
         {
             if(!unit->IsStandState())
-                unit->SetStandState(PLAYER_STATE_NONE);
+                unit->SetStandState(UNIT_STAND_STATE_STAND);
         }
     }
 }

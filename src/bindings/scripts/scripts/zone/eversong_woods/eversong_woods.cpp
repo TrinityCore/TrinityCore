@@ -229,7 +229,7 @@ struct TRINITY_DLL_DECL npc_secondTrialAI : public ScriptedAI
       questPhase = 0;
       summonerGuid = 0;
 
-      m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, PLAYER_STATE_KNEEL);
+      m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_KNEEL);
       m_creature->setFaction(FACTION_FRIENDLY);
 
       spellFlashLight = false;
@@ -268,7 +268,7 @@ struct TRINITY_DLL_DECL npc_secondTrialAI : public ScriptedAI
       if ( questPhase == 1 ) {
 
         if ( timer < diff ) {
-              m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, PLAYER_STATE_NONE);
+              m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
               m_creature->setFaction(FACTION_HOSTILE);
               questPhase = 0;
 
