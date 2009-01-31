@@ -425,7 +425,7 @@ void Spell::FillTargetMap()
         {
             if(effectTargetType == SPELL_REQUIRE_CASTER)
                 AddUnitTarget(m_caster, i);
-            if(effectTargetType == SPELL_REQUIRE_DEST)
+            /*else if(effectTargetType == SPELL_REQUIRE_DEST)
             {
                 if(m_targets.HasDest() && m_spellInfo->speed > 0.0f)
                 {
@@ -433,7 +433,7 @@ void Spell::FillTargetMap()
                     if (dist < 5.0f) dist = 5.0f;
                     m_delayMoment = (uint64) floor(dist / m_spellInfo->speed * 1000.0f);
                 }
-            }
+            }*/
             else if(effectTargetType == SPELL_REQUIRE_ITEM)
             {
                 if(m_targets.getItemTarget())
@@ -612,6 +612,16 @@ void Spell::FillTargetMap()
 
         for(std::list<Unit*>::iterator iunit= tmpUnitMap.begin();iunit != tmpUnitMap.end();++iunit)
             AddUnitTarget((*iunit), i);
+    }
+
+    if(m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
+    {
+        if(m_spellInfo->speed > 0.0f && m_targets.HasDest())
+        {
+            float dist = m_caster->GetDistance(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ);
+            if (dist < 5.0f) dist = 5.0f;
+            m_delayMoment = (uint64) floor(dist / m_spellInfo->speed * 1000.0f);
+        }
     }
 }
 
@@ -2209,6 +2219,8 @@ void Spell::cast(bool skipCheck)
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
     if (m_spellInfo->speed > 0.0f && !IsChanneledSpell(m_spellInfo))
     {
+        if(m_customAttr & SPELL_ATTR_CU_CHARGE)
+            EffectCharge(0);
 
         // Remove used for cast item if need (it can be already NULL after TakeReagents call
         // in case delayed spell remove item at cast delay start
@@ -2284,12 +2296,14 @@ uint64 Spell::handle_delayed(uint64 t_offset)
         m_immediateHandled = true;
     }
 
+    bool single_missile = (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION);
+
     // now recheck units targeting correctness (need before any effects apply to prevent adding immunity at first effect not allow apply second spell effect and similar cases)
     for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end();++ihit)
     {
         if (ihit->processed == false)
         {
-            if ( ihit->timeDelay <= t_offset )
+            if ( single_missile || ihit->timeDelay <= t_offset )
                 DoAllEffectOnTarget(&(*ihit));
             else if( next_time == 0 || ihit->timeDelay < next_time )
                 next_time = ihit->timeDelay;
@@ -2301,7 +2315,7 @@ uint64 Spell::handle_delayed(uint64 t_offset)
     {
         if (ighit->processed == false)
         {
-            if ( ighit->timeDelay <= t_offset )
+            if ( single_missile || ighit->timeDelay <= t_offset )
                 DoAllEffectOnTarget(&(*ighit));
             else if( next_time == 0 || ighit->timeDelay < next_time )
                 next_time = ighit->timeDelay;
