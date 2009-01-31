@@ -39,7 +39,6 @@ class TRINITY_DLL_DECL GuardAI : public CreatureAI
         GuardAI(Creature *c);
 
         void MoveInLineOfSight(Unit *);
-        void AttackStart(Unit *);
         void EnterEvadeMode();
         void JustDied(Unit *);
         bool IsVisible(Unit *) const;

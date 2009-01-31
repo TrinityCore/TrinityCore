@@ -33,7 +33,7 @@ int GuardAI::Permissible(const Creature *creature)
     return PERMIT_BASE_NO;
 }
 
-GuardAI::GuardAI(Creature *c) : i_creature(*c), i_victimGuid(0), i_state(STATE_NORMAL), i_tracker(TIME_INTERVAL_LOOK)
+GuardAI::GuardAI(Creature *c) : CreatureAI(c), i_creature(*c), i_victimGuid(0), i_state(STATE_NORMAL), i_tracker(TIME_INTERVAL_LOOK)
 {
 }
 
@@ -110,7 +110,7 @@ void GuardAI::EnterEvadeMode()
 void GuardAI::UpdateAI(const uint32 /*diff*/)
 {
     // update i_victimGuid if i_creature.getVictim() !=0 and changed
-    if(!i_creature.SelectHostilTarget() || !i_creature.getVictim())
+    if(!UpdateVictim())
         return;
 
     i_victimGuid = i_creature.getVictim()->GetGUID();
@@ -129,23 +129,6 @@ bool GuardAI::IsVisible(Unit *pl) const
 {
     return i_creature.GetDistance(pl) < sWorld.getConfig(CONFIG_SIGHT_GUARDER)
         && pl->isVisibleForOrDetect(&i_creature,true);
-}
-
-void GuardAI::AttackStart(Unit *u)
-{
-    if( !u )
-        return;
-
-    //    DEBUG_LOG("Creature %s tagged a victim to kill [guid=%u]", i_creature.GetName(), u->GetGUIDLow());
-    if(i_creature.Attack(u,true))
-    {
-        i_creature.SetInCombatWith(u);
-        u->SetInCombatWith(&i_creature);
-
-        i_creature.AddThreat(u, 0.0f);
-        i_victimGuid = u->GetGUID();
-        i_creature.GetMotionMaster()->MoveChase(u);
-    }
 }
 
 void GuardAI::JustDied(Unit *killer)

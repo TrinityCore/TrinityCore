@@ -351,7 +351,7 @@ class Spell
         void EffectActivateRune(uint32 i);
         void EffectTitanGrip(uint32 i);
 
-        Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID = 0, Spell** triggeringContainer = NULL );
+        Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID = 0, Spell** triggeringContainer = NULL, bool skipCheck = false );
         ~Spell();
 
         void prepare(SpellCastTargets const* targets, Aura* triggeredByAura = NULL);
@@ -611,6 +611,7 @@ class Spell
         SpellEntry const* m_triggeredByAuraSpell;
 
         uint32 m_customAttr;
+        bool m_skipCheck;
 };
 
 namespace Trinity

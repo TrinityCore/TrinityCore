@@ -94,7 +94,7 @@ boss_gatewatcher_iron_handAI(Creature *c) : ScriptedAI(c)
     void UpdateAI(const uint32 diff)    
     {       
         //Return since we have no target        
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )            
+        if (!UpdateVictim() )            
             return;         
 
         //Shadow Power        

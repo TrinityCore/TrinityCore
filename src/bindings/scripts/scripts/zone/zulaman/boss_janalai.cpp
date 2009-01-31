@@ -336,7 +336,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
             return;
         }
 
-        if(!m_creature->SelectHostilTarget() && !m_creature->getVictim())
+        if(!UpdateVictim())
             return;   
 
         //enrage if under 25% hp before 5 min.
@@ -642,7 +642,7 @@ struct TRINITY_DLL_DECL mob_hatchlingAI : public ScriptedAI
             return;
         }
 
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if(!UpdateVictim())
             return;
 
         if(BuffetTimer < diff)

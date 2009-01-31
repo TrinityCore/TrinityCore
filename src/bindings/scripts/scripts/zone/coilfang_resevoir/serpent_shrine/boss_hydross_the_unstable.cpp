@@ -223,7 +223,7 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
 			beam=true;
 		}
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         // corrupted form

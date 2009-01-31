@@ -102,7 +102,7 @@ struct TRINITY_DLL_DECL boss_shirrak_the_dead_watcherAI : public ScriptedAI
         }else Inhibitmagic_Timer -= diff;
 
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         //Attractmagic_Timer
@@ -173,7 +173,7 @@ struct TRINITY_DLL_DECL mob_focus_fireAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         //FieryBlast_Timer

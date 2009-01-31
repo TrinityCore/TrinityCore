@@ -111,7 +111,7 @@ struct TRINITY_DLL_DECL npc_shenthulAI : public ScriptedAI
             Reset_Timer = 60000;
         } else Salute_Timer -= diff;
 
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         DoMeleeAttackIfReady();
@@ -178,7 +178,7 @@ struct TRINITY_DLL_DECL npc_thrall_warchiefAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if(!UpdateVictim())
             return;
 
         if( ChainLightning_Timer < diff )

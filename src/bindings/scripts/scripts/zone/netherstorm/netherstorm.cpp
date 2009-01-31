@@ -836,7 +836,7 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
         if(m_creature->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED) || m_creature->hasUnitState(UNIT_STAT_ROOT)) // if the mob is rooted/slowed by spells eg.: Entangling Roots, Frost Nova, Hamstring, Crippling Poison, etc. => remove it
             DoCast(m_creature, SPELL_PHASE_SLIP);
 
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         if(ManaBurnTimer < diff) // cast Mana Burn

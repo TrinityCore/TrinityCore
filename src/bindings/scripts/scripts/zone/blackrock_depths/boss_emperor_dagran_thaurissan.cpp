@@ -57,7 +57,7 @@ struct TRINITY_DLL_DECL boss_draganthaurissanAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         if (HandOfThaurissan_Timer < diff)

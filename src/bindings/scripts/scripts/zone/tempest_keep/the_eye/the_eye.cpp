@@ -50,7 +50,7 @@ struct TRINITY_DLL_DECL mob_crystalcore_devastatorAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //Check if we have a current target

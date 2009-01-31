@@ -325,7 +325,7 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
                         if(Creature* Member = ((Creature*)Unit::GetUnit((*m_creature), Council[i])))
                         {
                             // This is the evade/death check.
-                            if(Member->isAlive() && !Member->SelectHostilTarget())
+                            if(Member->isAlive() && !Member->getVictim())
                                 ++EvadeCheck;                   //If all members evade, we reset so that players can properly reset the event
                             else if(!Member->isAlive())         // If even one member dies, kill the rest, set instance data, and kill self.
                             {
@@ -490,7 +490,7 @@ struct TRINITY_DLL_DECL boss_gathios_the_shattererAI : public boss_illidari_coun
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if(!UpdateVictim())
             return;
 
         if(BlessingTimer < diff)
@@ -578,7 +578,7 @@ struct TRINITY_DLL_DECL boss_high_nethermancer_zerevorAI : public boss_illidari_
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if(!UpdateVictim())
             return;
 
         if(Cooldown)
@@ -666,7 +666,7 @@ struct TRINITY_DLL_DECL boss_lady_malandeAI : public boss_illidari_councilAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if(!UpdateVictim())
             return;
 
         if(EmpoweredSmiteTimer < diff)
@@ -740,7 +740,7 @@ struct TRINITY_DLL_DECL boss_veras_darkshadowAI : public boss_illidari_councilAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if(!UpdateVictim())
             return;
 
         if(!HasVanished)

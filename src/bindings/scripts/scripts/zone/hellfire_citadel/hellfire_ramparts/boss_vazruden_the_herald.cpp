@@ -107,7 +107,7 @@ struct TRINITY_DLL_DECL boss_nazanAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
         {
             if(UnsummonCheck < diff && m_creature->isAlive())
             {
@@ -220,7 +220,7 @@ struct TRINITY_DLL_DECL boss_vazrudenAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
         {
             if(UnsummonCheck < diff && m_creature->isAlive())
             {
@@ -430,7 +430,7 @@ struct TRINITY_DLL_DECL mob_hellfire_sentryAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         if(KidneyShot_Timer < diff)

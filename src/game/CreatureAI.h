@@ -29,6 +29,7 @@
 
 class Unit;
 class Creature;
+class Player;
 struct SpellEntry;
 
 #define TIME_INTERVAL_LOOK   5000
@@ -71,46 +72,47 @@ enum SelectAggroTarget
 
 class TRINITY_DLL_SPEC UnitAI
 {
-    public:
-        UnitAI(Unit *u) : me(u) {}
-        virtual void UpdateAI(const uint32 diff) = 0;
     protected:
         Unit *me;
+    public:
+        UnitAI(Unit *u) : me(u) {}
+        virtual void AttackStart(Unit *);
+        virtual void UpdateAI(const uint32 diff) = 0;
 };
 
-class TRINITY_DLL_SPEC SimpleCharmedAI : public UnitAI
+class TRINITY_DLL_SPEC PlayerAI : public UnitAI
+{
+    protected:
+        Player *me;
+    public:
+        PlayerAI(Player *p) : UnitAI((Unit*)p), me(p) {}
+};
+
+class TRINITY_DLL_SPEC SimpleCharmedAI : public PlayerAI
 {
     public:
-        virtual void UpdateAI(const uint32 diff);
+        void UpdateAI(const uint32 diff);
 };
 
 class TRINITY_DLL_SPEC CreatureAI : public UnitAI
 {
     protected:
         Creature *me;
+
+        bool UpdateVictim();
     public:
-        CreatureAI() : UnitAI(NULL), me(NULL) {}
         CreatureAI(Creature *c) : UnitAI((Unit*)c), me(c) {}
 
-        virtual ~CreatureAI();
+        virtual ~CreatureAI() {}
 
         // Called if IsVisible(Unit *who) is true at each *who move
-        virtual void MoveInLineOfSight(Unit *) = 0;
-
-        // Called at each attack of m_creature by any victim
-        virtual void AttackStart(Unit *) = 0;
+        virtual void MoveInLineOfSight(Unit *);
 
         // Called at stopping attack by any attacker
         virtual void EnterEvadeMode();
 
         // Called at any Damage from any attacker (before damage apply)
         virtual void DamageTaken(Unit *done_by, uint32 & /*damage*/) {}
-
-        // Is unit visible for MoveInLineOfSight
-        virtual bool IsVisible(Unit *) const = 0;
-
-        // Called at World update tick
-        virtual void UpdateAI(const uint32 diff ) = 0;
 
         // Called when the creature is killed
         virtual void JustDied(Unit *) {}

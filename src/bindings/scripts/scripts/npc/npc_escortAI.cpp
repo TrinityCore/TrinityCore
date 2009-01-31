@@ -35,8 +35,6 @@ void npc_escortAI::AttackStart(Unit *who)
         if ( m_creature->Attack(who, true) )
         {
             m_creature->AddThreat(who, 0.0f);
-			m_creature->SetInCombatWith(who);
-			who->SetInCombatWith(m_creature);
 
         if (!InCombat)
         {
@@ -190,7 +188,7 @@ void npc_escortAI::UpdateAI(const uint32 diff)
 	}
 
     //Check if we have a current target
-    if( m_creature->isAlive() && m_creature->SelectHostilTarget() && m_creature->getVictim())
+    if( m_creature->isAlive() && UpdateVictim())
     {
         //If we are within range melee the target
         if( m_creature->IsWithinMeleeRange(m_creature->getVictim()))

@@ -94,7 +94,7 @@ struct TRINITY_DLL_DECL mob_aquementasAI : public ScriptedAI
             }else SwitchFaction_Timer -= diff;
         }
 
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         if( !isFriendly )
@@ -449,7 +449,7 @@ struct TRINITY_DLL_DECL npc_OOX17AI : public npc_escortAI
     void UpdateAI(const uint32 diff)
     {
         npc_escortAI::UpdateAI(diff);
-		if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+		if (!UpdateVictim())
 			return;
     }
 	};
