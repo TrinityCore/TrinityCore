@@ -93,7 +93,7 @@ struct TRINITY_DLL_DECL mob_kilrekAI : public ScriptedAI
         }
 
         Creature* Terestian = ((Creature*)Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_TERESTIAN)));
-        if(Terestian && (!Terestian->SelectHostilTarget() && !Terestian->getVictim()))
+        if(Terestian && !Terestian->getVictim())
             Terestian->AddThreat(who, 1.0f);
     }
 
@@ -114,7 +114,7 @@ struct TRINITY_DLL_DECL mob_kilrekAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         if (AmplifyTimer < diff)
@@ -219,7 +219,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
         {
             // Put Kil'rek in combat against our target so players don't skip him
             Creature* Kilrek = ((Creature*)Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_KILREK)));
-            if(Kilrek && (!Kilrek->SelectHostilTarget() && !Kilrek->getVictim()))
+            if(Kilrek && !Kilrek->getVictim())
                 Kilrek->AddThreat(who, 1.0f);
 
             pInstance->SetData(DATA_TERESTIAN_EVENT, IN_PROGRESS);
@@ -257,7 +257,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->getVictim() && !m_creature->SelectHostilTarget())
+        if(!UpdateVictim())
             return;
 
         if(CheckKilrekTimer < diff)
@@ -368,7 +368,7 @@ struct TRINITY_DLL_DECL mob_karazhan_impAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         if(FireboltTimer < diff)

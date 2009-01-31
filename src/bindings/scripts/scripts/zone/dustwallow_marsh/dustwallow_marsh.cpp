@@ -63,7 +63,7 @@ struct TRINITY_DLL_DECL mobs_risen_husk_spiritAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         if( ConsumeFlesh_Timer < diff )

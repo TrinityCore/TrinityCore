@@ -390,7 +390,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
     {
         if(!TankGUID)
         {
-            if(!m_creature->SelectHostilTarget() && !m_creature->getVictim())
+            if(!UpdateVictim())
                 return;
 
             if(m_creature->GetHealth() < health_20 * (4 - Phase))

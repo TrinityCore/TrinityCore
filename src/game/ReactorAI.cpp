@@ -41,22 +41,6 @@ ReactorAI::MoveInLineOfSight(Unit *)
 {
 }
 
-void
-ReactorAI::AttackStart(Unit *p)
-{
-    if(!p)
-        return;
-
-    if(i_creature.Attack(p,true))
-    {
-        DEBUG_LOG("Tag unit GUID: %u (TypeId: %u) as a victim", p->GetGUIDLow(), p->GetTypeId());
-
-        i_creature.AddThreat(p, 0.0f);
-        i_victimGuid = p->GetGUID();
-        i_creature.GetMotionMaster()->MoveChase(p);
-    }
-}
-
 bool
 ReactorAI::IsVisible(Unit *) const
 {
@@ -67,7 +51,7 @@ void
 ReactorAI::UpdateAI(const uint32 /*time_diff*/)
 {
     // update i_victimGuid if i_creature.getVictim() !=0 and changed
-    if(!i_creature.SelectHostilTarget() || !i_creature.getVictim())
+    if(!UpdateVictim())
         return;
 
     i_victimGuid = i_creature.getVictim()->GetGUID();

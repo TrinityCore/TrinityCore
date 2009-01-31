@@ -456,7 +456,7 @@ struct TRINITY_DLL_DECL boss_veknilashAI : public boss_twinemperorsAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         if (!TryActivateAfterTTelep(diff))
@@ -542,7 +542,7 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         // reset arcane burst after teleport - we need to do this because

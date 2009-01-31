@@ -93,7 +93,7 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
         }
 
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //CurseOfBlood_Timer
@@ -177,7 +177,7 @@ struct TRINITY_DLL_DECL mob_illusionofjandicebarovAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //Cleave_Timer

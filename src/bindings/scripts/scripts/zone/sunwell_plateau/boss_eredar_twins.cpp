@@ -258,7 +258,7 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
             }
         }
 
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         if(sisterdeath)
@@ -604,7 +604,7 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
             }
         }
 
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         if(sisterdeath)
@@ -738,7 +738,7 @@ struct TRINITY_DLL_DECL mob_shadow_imageAI : public ScriptedAI
             kill_timer = 9999999;
         }else kill_timer -=diff;
 
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         if(shadowfury_timer < diff)

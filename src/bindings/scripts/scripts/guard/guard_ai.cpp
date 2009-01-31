@@ -92,7 +92,7 @@ void guardAI::UpdateAI(const uint32 diff)
     }else BuffTimer -= diff;
 
     //Return since we have no target
-    if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+    if (!UpdateVictim())
         return;
 
     // Make sure our attack is ready and we arn't currently casting

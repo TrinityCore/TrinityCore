@@ -38,27 +38,8 @@ AggressorAI::Permissible(const Creature *creature)
     return PERMIT_BASE_NO;
 }
 
-AggressorAI::AggressorAI(Creature *c) : i_creature(*c), i_victimGuid(0), i_state(STATE_NORMAL), i_tracker(TIME_INTERVAL_LOOK)
+AggressorAI::AggressorAI(Creature *c) : CreatureAI(c), i_creature(*c), i_victimGuid(0), i_state(STATE_NORMAL), i_tracker(TIME_INTERVAL_LOOK)
 {
-}
-
-void
-AggressorAI::MoveInLineOfSight(Unit *u)
-{
-    if(!i_creature.getVictim() && i_creature.canStartAttack(u))
-        AttackStart(u);
-
-    /*
-            if(!i_creature.getVictim())
-            {
-                AttackStart(u);
-            }
-            else if(sMapStore.LookupEntry(i_creature.GetMapId())->IsDungeon())
-            {
-                u->SetInCombatWith(&i_creature);
-                i_creature.AddThreat(u, 0.0f);
-            }
-            */
 }
 
 void AggressorAI::EnterEvadeMode()
@@ -118,7 +99,7 @@ void
 AggressorAI::UpdateAI(const uint32 /*diff*/)
 {
     // update i_victimGuid if i_creature.getVictim() !=0 and changed
-    if(!i_creature.SelectHostilTarget() || !i_creature.getVictim())
+    if(!UpdateVictim())
         return;
 
     i_victimGuid = i_creature.getVictim()->GetGUID();
@@ -130,28 +111,5 @@ AggressorAI::UpdateAI(const uint32 /*diff*/)
             i_creature.AttackerStateUpdate(i_creature.getVictim());
             i_creature.resetAttackTimer();
         }
-    }
-}
-
-bool
-AggressorAI::IsVisible(Unit *pl) const
-{
-    return i_creature.GetDistance(pl) < sWorld.getConfig(CONFIG_SIGHT_MONSTER)
-        && pl->isVisibleForOrDetect(&i_creature,true);
-}
-
-void
-AggressorAI::AttackStart(Unit *u)
-{
-    if( !u )
-        return;
-
-    if(i_creature.Attack(u,true))
-    {
-        i_creature.AddThreat(u, 0.0f);
-        //    DEBUG_LOG("Creature %s tagged a victim to kill [guid=%u]", i_creature.GetName(), u->GetGUIDLow());
-        i_victimGuid = u->GetGUID();
-
-        i_creature.GetMotionMaster()->MoveChase(u);
     }
 }

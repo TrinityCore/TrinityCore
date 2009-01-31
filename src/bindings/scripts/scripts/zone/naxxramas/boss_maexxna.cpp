@@ -176,7 +176,7 @@ struct TRINITY_DLL_DECL boss_maexxnaAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //WebTrap_Timer

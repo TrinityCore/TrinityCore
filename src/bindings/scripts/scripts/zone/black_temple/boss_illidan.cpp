@@ -694,7 +694,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if((!m_creature->SelectHostilTarget() && !m_creature->getVictim()) && Phase < PHASE_TALK_SEQUENCE)
+        if((!UpdateVictim()) && Phase < PHASE_TALK_SEQUENCE)
             return;
 
         Event = EVENT_NULL;
@@ -942,7 +942,7 @@ struct TRINITY_DLL_DECL flame_of_azzinothAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if(!UpdateVictim())
             return;
 
         if(FlameBlastTimer < diff)
@@ -1353,7 +1353,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             }
         }
 
-        if(!m_creature->SelectHostilTarget() && !m_creature->getVictim())
+        if(!UpdateVictim())
             return;
 
         if(m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 20)
@@ -1494,7 +1494,7 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if((!m_creature->SelectHostilTarget() || !m_creature->getVictim()) 
+        if((!UpdateVictim()) 
             && !Timer[EVENT_MAIEV_STEALTH])
             return;
 
@@ -1697,7 +1697,7 @@ struct TRINITY_DLL_DECL shadow_demonAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() && !m_creature->getVictim()) return;
+        if(!UpdateVictim()) return;
 
         if(m_creature->getVictim()->GetTypeId() != TYPEID_PLAYER) return; // Only cast the below on players.
 

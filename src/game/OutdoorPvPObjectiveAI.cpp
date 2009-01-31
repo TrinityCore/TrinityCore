@@ -25,18 +25,18 @@
 
 #define MAX_OUTDOOR_PVP_DISTANCE 200 // the max value in capture point type go data0 is 100 currently, so use twice that much to handle leaving as well
 
-OutdoorPvPObjectiveAI::OutdoorPvPObjectiveAI(Creature *c) : i_creature(*c)
+OutdoorPvPObjectiveAI::OutdoorPvPObjectiveAI(Creature *c) : NullCreatureAI(c)
 {
-    sLog.outDebug("OutdoorPvP objective AI assigned to creature guid %u", i_creature.GetGUIDLow());
-    i_creature.SetReactState(REACT_AGGRESSIVE);
+    sLog.outDebug("OutdoorPvP objective AI assigned to creature guid %u", me->GetGUIDLow());
+    me->SetReactState(REACT_AGGRESSIVE);
 }
 
 void OutdoorPvPObjectiveAI::MoveInLineOfSight(Unit *u)
 {
     // IsVisible only passes for players in range, so no need to check again
     // leaving/entering distance will be checked based on go range data
-    if((u->GetTypeId() == TYPEID_PLAYER) && i_creature.IsWithinDistInMap(u, MAX_OUTDOOR_PVP_DISTANCE))
-        sOutdoorPvPMgr.HandleCaptureCreaturePlayerMoveInLos(((Player*)u),&i_creature);
+    if((u->GetTypeId() == TYPEID_PLAYER) && me->IsWithinDistInMap(u, MAX_OUTDOOR_PVP_DISTANCE))
+        sOutdoorPvPMgr.HandleCaptureCreaturePlayerMoveInLos(((Player*)u), me);
 }
 
 int OutdoorPvPObjectiveAI::Permissible(const Creature * c)
@@ -45,22 +45,3 @@ int OutdoorPvPObjectiveAI::Permissible(const Creature * c)
     return PERMIT_BASE_NO;
 }
 
-bool OutdoorPvPObjectiveAI::IsVisible(Unit *pl) const
-{
-    return (pl->GetTypeId() == TYPEID_PLAYER) && (i_creature.GetDistance(pl) < MAX_OUTDOOR_PVP_DISTANCE);
-}
-
-void OutdoorPvPObjectiveAI::AttackStart(Unit *)
-{
-    //EnterEvadeMode();
-}
-
-void OutdoorPvPObjectiveAI::EnterEvadeMode()
-{
-//    i_creature.DeleteThreatList();
-//    i_creature.CombatStop();
-}
-
-void OutdoorPvPObjectiveAI::UpdateAI(const uint32 diff)
-{
-}
