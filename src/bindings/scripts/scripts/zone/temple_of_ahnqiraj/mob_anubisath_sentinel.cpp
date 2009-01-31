@@ -175,7 +175,7 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
         std::list<Creature*> assistList;
 
         NearbyAQSentinel u_check(nears);
-        Trinity::CreatureListSearcher<NearbyAQSentinel> searcher(assistList, u_check);
+        Trinity::CreatureListSearcher<NearbyAQSentinel> searcher(m_creature, assistList, u_check);
         TypeContainerVisitor<Trinity::CreatureListSearcher<NearbyAQSentinel>, GridTypeMapContainer >  grid_creature_searcher(searcher);
         CellLock<GridReadGuard> cell_lock(cell, p);
         cell_lock->Visit(cell_lock, grid_creature_searcher, *(nears->GetMap()));

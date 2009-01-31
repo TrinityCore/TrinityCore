@@ -22,7 +22,7 @@
 DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
-  `required_7205_01_mangos_spell_chain` bit(1) default NULL
+  `required_7207_02_mangos_gameobject` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -488,6 +488,7 @@ CREATE TABLE `creature` (
   `id` mediumint(8) unsigned NOT NULL default '0' COMMENT 'Creature Identifier',
   `map` smallint(5) unsigned NOT NULL default '0' COMMENT 'Map Identifier',
   `spawnMask` tinyint(3) unsigned NOT NULL default '1',
+  `phaseMask` smallint(5) unsigned NOT NULL default '1',
   `modelid` mediumint(8) unsigned NOT NULL default '0',
   `equipment_id` mediumint(9) NOT NULL default '0',
   `position_x` float NOT NULL default '0',
@@ -1244,6 +1245,7 @@ CREATE TABLE `gameobject` (
   `id` mediumint(8) unsigned NOT NULL default '0' COMMENT 'Gameobject Identifier',
   `map` smallint(5) unsigned NOT NULL default '0' COMMENT 'Map Identifier',
   `spawnMask` tinyint(3) unsigned NOT NULL default '1',
+  `phaseMask` smallint(5) unsigned NOT NULL default '1',
   `position_x` float NOT NULL default '0',
   `position_y` float NOT NULL default '0',
   `position_z` float NOT NULL default '0',

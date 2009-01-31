@@ -154,6 +154,11 @@ Deliverer::Visit(PlayerMapType &m)
 {
     for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
+        //if (!i_source.InSamePhase(iter->getSource()))
+        //    continue;
+        if(!iter->getSource()->InSamePhase(i_phaseMask))
+            continue;
+
         if (!i_dist || iter->getSource()->GetDistance(&i_source) <= i_dist)
         {
             // Send packet to all who are sharing the player's vision
@@ -174,6 +179,9 @@ Deliverer::Visit(CreatureMapType &m)
 {
     for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
+        if(!iter->getSource()->InSamePhase(i_phaseMask))
+            continue;
+
         if (!i_dist || iter->getSource()->GetDistance(&i_source) <= i_dist)
         {
             // Send packet to all who are sharing the creature's vision
@@ -192,6 +200,9 @@ Deliverer::Visit(DynamicObjectMapType &m)
 {
     for (DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
+        if(!iter->getSource()->InSamePhase(i_phaseMask))
+            continue;
+
         if (IS_PLAYER_GUID(iter->getSource()->GetCasterGUID()))
         {
             // Send packet back to the caster if the caster has vision of dynamic object

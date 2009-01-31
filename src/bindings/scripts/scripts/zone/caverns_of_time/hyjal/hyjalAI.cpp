@@ -324,7 +324,7 @@ void hyjalAI::Retreat()
     // First get all creatures.
     std::list<Creature*> creatures;
     Trinity::AllFriendlyCreaturesInGrid creature_check(m_creature);
-    Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> creature_searcher(creatures, creature_check);
+    Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> creature_searcher(m_creature, creatures, creature_check);
     TypeContainerVisitor
         <Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid>,
         GridTypeMapContainer> creature_visitor(creature_searcher);
@@ -332,7 +332,7 @@ void hyjalAI::Retreat()
     // Then get all Ancient Gem Veins. NOTE: Grid Search will only be able to find those in the grid.
     std::list<GameObject*> goList;
     Trinity::AllGameObjectsWithEntryInGrid go_check(185557);
-    Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInGrid> go_search(goList, go_check);
+    Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInGrid> go_search(m_creature, goList, go_check);
     TypeContainerVisitor
         <Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInGrid>, GridTypeMapContainer> go_visit(go_search);
 

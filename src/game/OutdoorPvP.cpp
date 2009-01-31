@@ -95,7 +95,7 @@ bool OutdoorPvPObjective::AddObject(uint32 type, uint32 entry, uint32 map, float
     if(!pMap)
         return true;
     GameObject * go = new GameObject;
-    if(!go->Create(guid,entry, pMap,x,y,z,o,rotation0,rotation1,rotation2,rotation3,100,1))
+    if(!go->Create(guid,entry, pMap,PHASEMASK_NORMAL,x,y,z,o,rotation0,rotation1,rotation2,rotation3,100,1))
     {
         sLog.outError("Gameobject template %u not found in database.", entry);
         delete go;
@@ -156,7 +156,7 @@ bool OutdoorPvPObjective::AddCreature(uint32 type, uint32 entry, uint32 teamval,
     if(!pMap)
         return true;
     Creature* pCreature = new Creature;
-    if (!pCreature->Create(guid, pMap, entry, teamval))
+    if (!pCreature->Create(guid, pMap, PHASEMASK_NORMAL, entry, teamval))
     {
         sLog.outError("Can't create creature entry: %u",entry);
         delete pCreature;
@@ -256,7 +256,7 @@ bool OutdoorPvPObjective::AddCapturePoint(uint32 entry, uint32 map, float x, flo
         return true;
     // add GO...
     GameObject * go = new GameObject;
-    if(!go->Create(guid,entry, pMap,x,y,z,o,rotation0,rotation1,rotation2,rotation3,100,1))
+    if(!go->Create(guid,entry, pMap,PHASEMASK_NORMAL,x,y,z,o,rotation0,rotation1,rotation2,rotation3,100,1))
     {
         sLog.outError("Gameobject template %u not found in database.", entry);
         delete go;
@@ -269,7 +269,7 @@ bool OutdoorPvPObjective::AddCapturePoint(uint32 entry, uint32 map, float x, flo
     }
     // add creature...
     Creature* pCreature = new Creature;
-    if (!pCreature->Create(creature_guid, pMap, OPVP_TRIGGER_CREATURE_ENTRY, 0))
+    if (!pCreature->Create(creature_guid, pMap, PHASEMASK_NORMAL, OPVP_TRIGGER_CREATURE_ENTRY, 0))
     {
         sLog.outError("Can't create creature entry: %u",entry);
         delete pCreature;

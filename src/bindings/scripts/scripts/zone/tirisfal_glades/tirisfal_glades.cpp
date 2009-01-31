@@ -100,7 +100,7 @@ GameObject* SearchMausoleumGo(Unit *source, uint32 entry, float range)
     cell.SetNoCreate();
      
     Trinity::NearestGameObjectEntryInObjectRangeCheck go_check(*source, entry, range);
-    Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck> searcher(pGo, go_check);
+    Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck> searcher(source, pGo, go_check);
      
     TypeContainerVisitor<Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck>, GridTypeMapContainer> go_searcher(searcher);
     

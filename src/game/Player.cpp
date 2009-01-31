@@ -2096,9 +2096,15 @@ void Player::SetGameMaster(bool on)
 
         getHostilRefManager().setOnlineOfflineState(false);
         CombatStop();
+
+        SetPhaseMask(PHASEMASK_ANYWHERE,false);             // see and visible in all phases
     }
     else
     {
+        // restore phase
+        AuraList const& phases = GetAurasByType(SPELL_AURA_PHASE);
+        SetPhaseMask(!phases.empty() ? phases.front()->GetMiscValue() : PHASEMASK_NORMAL,false);
+
         m_ExtraFlags &= ~ PLAYER_EXTRA_GM_ON;
         setFactionForRace(getRace());
         RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_GM);
@@ -4056,8 +4062,7 @@ void Player::CreateCorpse()
     Corpse *corpse = new Corpse( (m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH) ? CORPSE_RESURRECTABLE_PVP : CORPSE_RESURRECTABLE_PVE );
     SetPvPDeath(false);
 
-    if(!corpse->Create(objmgr.GenerateLowGuid(HIGHGUID_CORPSE), this, GetMapId(), GetPositionX(),
-        GetPositionY(), GetPositionZ(), GetOrientation()))
+    if(!corpse->Create(objmgr.GenerateLowGuid(HIGHGUID_CORPSE), this))
     {
         delete corpse;
         return;
@@ -17321,7 +17326,7 @@ void Player::HandleStealthedUnitsDetection()
 {
     std::list<Unit*> stealthedUnits;
     Trinity::AnyStealthedCheck u_check;
-    Trinity::UnitListSearcher<Trinity::AnyStealthedCheck > searcher(stealthedUnits, u_check);
+    Trinity::UnitListSearcher<Trinity::AnyStealthedCheck > searcher(this, stealthedUnits, u_check);
     VisitNearbyObject(World::GetMaxVisibleDistance(), searcher);
 
     for (std::list<Unit*>::iterator i = stealthedUnits.begin(); i != stealthedUnits.end(); ++i)
@@ -18135,6 +18140,10 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool
     // Always can see self
     if (u == this)
         return true;
+
+    // phased visibility (both must phased in same way)
+    if(!InSamePhase(u))
+        return false;
 
     // player visible for other player if not logout and at same transport
     // including case when player is out of world
@@ -20271,4 +20280,25 @@ void Player::_LoadSkills()
         if(GetPureSkillValue (SKILL_UNARMED) < base_skill)
             SetSkill(SKILL_UNARMED, base_skill,base_skill);
     }
+}
+
+uint32 Player::GetPhaseMaskForSpawn() const
+{
+    uint32 phase = PHASEMASK_NORMAL;
+    if(!isGameMaster())
+        phase = GetPhaseMask();
+    else
+    {
+        AuraList const& phases = GetAurasByType(SPELL_AURA_PHASE);
+        if(phases.empty())
+            phase = GetPhaseMask();
+        else
+            phase = phases.front()->GetMiscValue();
+    }
+
+    // some aura phases include 1 normal map in addition to phase itself
+    if(uint32 n_phase = phase & ~PHASEMASK_NORMAL)
+        return n_phase;
+
+    return PHASEMASK_NORMAL;
 }

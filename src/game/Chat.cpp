@@ -1323,8 +1323,8 @@ GameObject* ChatHandler::GetObjectGlobalyWithGuidOrNearWithDbGuid(uint32 lowguid
         Cell cell(p);
         cell.data.Part.reserved = ALL_DISTRICT;
 
-        Trinity::GameObjectWithDbGUIDCheck go_check(*pl,lowguid);
-        Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(obj,go_check);
+        MaNGOS::GameObjectWithDbGUIDCheck go_check(*pl,lowguid);
+        MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck> checker(pl,obj,go_check);
 
         TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
         CellLock<GridReadGuard> cell_lock(cell, p);

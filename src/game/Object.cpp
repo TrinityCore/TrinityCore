@@ -1082,6 +1082,9 @@ bool Object::PrintIndexError(uint32 index, bool set) const
 }
 
 WorldObject::WorldObject()
+    : m_mapId(0), m_InstanceId(0), m_phaseMask(PHASEMASK_NORMAL),
+    m_positionX(0.0f), m_positionY(0.0f), m_positionZ(0.0f), m_orientation(0.0f),
+    mSemaphoreTeleport(false)
 {
     m_positionX         = 0.0f;
     m_positionY         = 0.0f;
@@ -1134,11 +1137,12 @@ void WorldObject::RemoveFromWorld()
     Object::RemoveFromWorld();
 }
 
-void WorldObject::_Create( uint32 guidlow, HighGuid guidhigh, uint32 mapid )
+void WorldObject::_Create( uint32 guidlow, HighGuid guidhigh, uint32 mapid, uint32 phaseMask )
 {
     Object::_Create(guidlow, 0, guidhigh);
 
     m_mapId = mapid;
+    m_phaseMask = phaseMask;
 }
 
 uint32 WorldObject::GetZoneId() const
@@ -1445,9 +1449,9 @@ void WorldObject::MonsterSay(int32 textId, uint32 language, uint64 TargetGuid)
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
-    Trinity::MessageChatLocaleCacheDo say_do(*this, CHAT_MSG_MONSTER_SAY, textId,language,TargetGuid,sWorld.getConfig(CONFIG_LISTEN_RANGE_SAY));
-    Trinity::PlayerWorker<Trinity::MessageChatLocaleCacheDo> say_worker(say_do);
-    TypeContainerVisitor<Trinity::PlayerWorker<Trinity::MessageChatLocaleCacheDo>, WorldTypeMapContainer > message(say_worker);
+    MaNGOS::MessageChatLocaleCacheDo say_do(*this, CHAT_MSG_MONSTER_SAY, textId,language,TargetGuid,sWorld.getConfig(CONFIG_LISTEN_RANGE_SAY));
+    MaNGOS::PlayerWorker<MaNGOS::MessageChatLocaleCacheDo> say_worker(this,say_do);
+    TypeContainerVisitor<MaNGOS::PlayerWorker<MaNGOS::MessageChatLocaleCacheDo>, WorldTypeMapContainer > message(say_worker);
     CellLock<GridReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, message, *GetMap());
 }
@@ -1460,9 +1464,9 @@ void WorldObject::MonsterYell(int32 textId, uint32 language, uint64 TargetGuid)
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
-    Trinity::MessageChatLocaleCacheDo say_do(*this, CHAT_MSG_MONSTER_YELL, textId,language,TargetGuid,sWorld.getConfig(CONFIG_LISTEN_RANGE_YELL));
-    Trinity::PlayerWorker<Trinity::MessageChatLocaleCacheDo> say_worker(say_do);
-    TypeContainerVisitor<Trinity::PlayerWorker<Trinity::MessageChatLocaleCacheDo>, WorldTypeMapContainer > message(say_worker);
+    MaNGOS::MessageChatLocaleCacheDo say_do(*this, CHAT_MSG_MONSTER_YELL, textId,language,TargetGuid,sWorld.getConfig(CONFIG_LISTEN_RANGE_YELL));
+    MaNGOS::PlayerWorker<MaNGOS::MessageChatLocaleCacheDo> say_worker(this,say_do);
+    TypeContainerVisitor<MaNGOS::PlayerWorker<MaNGOS::MessageChatLocaleCacheDo>, WorldTypeMapContainer > message(say_worker);
     CellLock<GridReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, message, *GetMap());
 }
@@ -1475,9 +1479,9 @@ void WorldObject::MonsterTextEmote(int32 textId, uint64 TargetGuid, bool IsBossE
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
-    Trinity::MessageChatLocaleCacheDo say_do(*this, IsBossEmote ? CHAT_MSG_RAID_BOSS_EMOTE : CHAT_MSG_MONSTER_EMOTE, textId,LANG_UNIVERSAL,TargetGuid,sWorld.getConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE));
-    Trinity::PlayerWorker<Trinity::MessageChatLocaleCacheDo> say_worker(say_do);
-    TypeContainerVisitor<Trinity::PlayerWorker<Trinity::MessageChatLocaleCacheDo>, WorldTypeMapContainer > message(say_worker);
+    MaNGOS::MessageChatLocaleCacheDo say_do(*this, IsBossEmote ? CHAT_MSG_RAID_BOSS_EMOTE : CHAT_MSG_MONSTER_EMOTE, textId,LANG_UNIVERSAL,TargetGuid,sWorld.getConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE));
+    MaNGOS::PlayerWorker<MaNGOS::MessageChatLocaleCacheDo> say_worker(this,say_do);
+    TypeContainerVisitor<MaNGOS::PlayerWorker<MaNGOS::MessageChatLocaleCacheDo>, WorldTypeMapContainer > message(say_worker);
     CellLock<GridReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, message, *GetMap());
 }
@@ -1605,7 +1609,7 @@ Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, floa
     if (GetTypeId()==TYPEID_PLAYER)
         team = ((Player*)this)->GetTeam();
 
-    if (!pCreature->Create(objmgr.GenerateLowGuid(HIGHGUID_UNIT), GetMap(), id, team))
+    if (!pCreature->Create(objmgr.GenerateLowGuid(HIGHGUID_UNIT), GetMap(), GetPhaseMask(), id, team))
     {
         delete pCreature;
         return NULL;
@@ -1644,17 +1648,16 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
 {
     if(!IsInWorld())
         return NULL;
-    Map * map = GetMap();
-    if(!map)
-        return NULL;
+
     GameObjectInfo const* goinfo = objmgr.GetGameObjectInfo(entry);
     if(!goinfo)
     {
         sLog.outErrorDb("Gameobject template %u not found in database!", entry);
         return NULL;
     }
+    Map *map = GetMap();
     GameObject *go = new GameObject();
-    if(!go->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT),entry,map,x,y,z,ang,rotation0,rotation1,rotation2,rotation3,100,1))
+    if(!go->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, map, GetPhaseMask(), x,y,z,ang,rotation0,rotation1,rotation2,rotation3,100,1))
         return NULL;
     go->SetRespawnTime(respawnTime);
     if(GetTypeId()==TYPEID_PLAYER || GetTypeId()==TYPEID_UNIT) //not sure how to handle this
@@ -1713,4 +1716,10 @@ void WorldObject::GetGroundPoint(float &x, float &y, float &z, float dist, float
     UpdateGroundPositionZ(x, y, z);
 }
 
+void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
+{
+    m_phaseMask = newPhaseMask;
 
+    if(update && IsInWorld())
+        ObjectAccessor::UpdateObjectVisibility(this);
+}

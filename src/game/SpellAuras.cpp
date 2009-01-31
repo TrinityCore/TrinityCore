@@ -637,14 +637,14 @@ void AreaAura::Update(uint32 diff)
                 case AREA_AURA_FRIEND:
                 {
                     Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(caster, caster, m_radius);
-                    Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(targets, u_check);
+                    Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(caster, targets, u_check);
                     caster->VisitNearbyObject(m_radius, searcher);
                     break;
                 }
                 case AREA_AURA_ENEMY:
                 {
                     Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(caster, caster, m_radius); // No GetCharmer in searcher
-                    Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(targets, u_check);
+                    Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(caster, targets, u_check);
                     caster->VisitNearbyObject(m_radius, searcher);
                     break;
                 }
@@ -3205,7 +3205,7 @@ void Aura::HandleFeignDeath(bool apply, bool Real)
 
         std::list<Unit*> targets;
         Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(m_target, m_target, World::GetMaxVisibleDistance());
-        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(targets, u_check);
+        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(m_target, targets, u_check);
         m_target->VisitNearbyObject(World::GetMaxVisibleDistance(), searcher);
         for(std::list<Unit*>::iterator iter = targets.begin(); iter != targets.end(); ++iter)
         {
@@ -6534,21 +6534,35 @@ void Aura::HandleModCharm(bool apply, bool Real)
 
 void Aura::HandlePhase(bool apply, bool Real)
 {
+    if(!Real)
+        return;
+
+    // always non stackable
+    if(apply)
+    {
+        Unit::AuraList const& phases = m_target->GetAurasByType(SPELL_AURA_PHASE);
+        if(!phases.empty())
+            m_target->RemoveAurasDueToSpell(phases.front()->GetId(),this);
+    }
+
     // no-phase is also phase state so same code for apply and remove
 
-    // phase auras normaly not expected at BG but anyway better check
-    if(Real && m_target->GetTypeId()==TYPEID_PLAYER)
+    // phase auras normally not expected at BG but anyway better check
+    if(m_target->GetTypeId()==TYPEID_PLAYER)
     {
         // drop flag at invisible in bg
         if(((Player*)m_target)->InBattleGround())
             if(BattleGround *bg = ((Player*)m_target)->GetBattleGround())
                 bg->EventPlayerDroppedFlag((Player*)m_target);
-    }
 
-    // apply/remove only if not in GM invisibility
-    if(m_target->GetVisibility()!=VISIBILITY_OFF)
-    {
-        // just need triggering visibility update base at aura presence
-        m_target->SetVisibility(m_target->GetVisibility());
+        // GM-mode have mask 0xFFFFFFFF
+        if(!((Player*)m_target)->isGameMaster())
+            m_target->SetPhaseMask(apply ? GetMiscValue() : PHASEMASK_NORMAL,false);
     }
+    else
+        m_target->SetPhaseMask(apply ? GetMiscValue() : PHASEMASK_NORMAL,false);
+
+    // need triggering visibility update base at phase update of not GM invisible (other GMs anyway see in any phases)
+    if(m_target->GetVisibility()!=VISIBILITY_OFF)
+        m_target->SetVisibility(m_target->GetVisibility());
 }
