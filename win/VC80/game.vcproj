@@ -415,7 +415,10 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\BattleGroundBE.h"
+				RelativePath="..\..\src\game\BattleGroundBE.h">
+			</File>
+		</Filter>
+		<Filter
 			Name="AuctionHouseBot"
 			>
 			<File
@@ -426,8 +429,8 @@
 			</File>
 		</Filter>
 		<Filter
-				>
-			</File>
+			Name="Objects"
+			>
 			<File
 				RelativePath="..\..\src\game\BattleGroundDS.cpp"
 				>
