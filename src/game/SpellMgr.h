@@ -396,7 +396,7 @@ bool IsAuraAddedBySpell(uint32 auraType, uint32 spellId);
 
 uint8 GetSpellAllowedInLocationError(SpellEntry const *spellInfo,uint32 map_id,uint32 zone_id,uint32 area_id);
 
-static bool IsAreaEffectTarget[TOTAL_SPELL_TARGETS];
+extern bool IsAreaEffectTarget[TOTAL_SPELL_TARGETS];
 
 inline bool IsAreaOfEffectSpell(SpellEntry const *spellInfo)
 {
@@ -773,6 +773,7 @@ inline bool IsProfessionSkill(uint32 skill)
 #define SPELL_ATTR_CU_AURA_CC           0x00000040
 #define SPELL_ATTR_CU_AURA_SPELL        0x00000080
 #define SPELL_ATTR_CU_DIRECT_DAMAGE     0x00000100
+#define SPELL_ATTR_CU_CHARGE            0x00000200
 
 typedef std::vector<uint32> SpellCustomAttribute;
 

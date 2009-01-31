@@ -147,7 +147,7 @@ struct TRINITY_DLL_DECL custom_exampleAI : public ScriptedAI
         }
 
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //Spell 1 timer

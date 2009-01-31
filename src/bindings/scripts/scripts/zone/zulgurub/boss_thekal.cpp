@@ -107,7 +107,7 @@ struct TRINITY_DLL_DECL boss_thekalAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->getVictim() && !m_creature->SelectHostilTarget())
+        if (!UpdateVictim())
             return;
 
             //Check_Timer for the death of LorKhan and Zath.
@@ -274,7 +274,7 @@ struct TRINITY_DLL_DECL mob_zealot_lorkhanAI : public ScriptedAI
 
     void UpdateAI (const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         //Shield_Timer
@@ -412,7 +412,7 @@ struct TRINITY_DLL_DECL mob_zealot_zathAI : public ScriptedAI
 
     void UpdateAI (const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         //SweepingStrikes_Timer

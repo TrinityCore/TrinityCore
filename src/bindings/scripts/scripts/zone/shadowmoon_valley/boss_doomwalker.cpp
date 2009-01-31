@@ -90,7 +90,7 @@ struct TRINITY_DLL_DECL boss_doomwalkerAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //Spell Enrage, when hp <= 20% gain enrage

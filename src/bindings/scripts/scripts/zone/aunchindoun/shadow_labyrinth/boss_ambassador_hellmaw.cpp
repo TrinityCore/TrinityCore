@@ -164,7 +164,7 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public ScriptedAI
             //DoWhine("I haz no mount!", LANG_UNIVERSAL, NULL);
         }
 
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         if (CorrosiveAcid_Timer < diff)

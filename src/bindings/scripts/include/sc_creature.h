@@ -33,15 +33,12 @@ GameObject* FindGameObject(uint32 entry, float range, Unit* Finder);
 
 struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 {
-    ScriptedAI(Creature* creature) : m_creature(creature), InCombat(false), IsFleeing(false) {}
+    ScriptedAI(Creature* creature) : CreatureAI(creature), m_creature(creature), InCombat(false), IsFleeing(false) {}
     ~ScriptedAI() {}
 
     //*************
     //CreatureAI Functions
     //*************
-
-    //Called if IsVisible(Unit *who) is true at each *who move
-    void MoveInLineOfSight(Unit *);
 
     //Called at each attack of m_creature by any victim
     void AttackStart(Unit *);
@@ -52,9 +49,6 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 
     // Called at any Damage from any attacker (before damage apply)
     void DamageTaken(Unit *done_by, uint32 &damage) {}
-
-    //Is unit visible for MoveInLineOfSight
-    bool IsVisible(Unit *who) const;
 
     //Called at World update tick
     void UpdateAI(const uint32);

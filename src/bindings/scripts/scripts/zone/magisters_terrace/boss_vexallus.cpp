@@ -111,7 +111,7 @@ struct TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         if(m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 11)
@@ -200,7 +200,7 @@ struct TRINITY_DLL_DECL mob_pure_energyAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->getVictim() || !m_creature->SelectHostilTarget())
+        if(!UpdateVictim())
             return;
 
         if(EnergyBoltTimer < diff)

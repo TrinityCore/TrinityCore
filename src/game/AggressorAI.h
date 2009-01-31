@@ -38,10 +38,7 @@ class TRINITY_DLL_DECL AggressorAI : public CreatureAI
 
         AggressorAI(Creature *c);
 
-        void MoveInLineOfSight(Unit *);
-        void AttackStart(Unit *);
         void EnterEvadeMode();
-        bool IsVisible(Unit *) const;
 
         void UpdateAI(const uint32);
         static int Permissible(const Creature *);

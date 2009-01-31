@@ -66,7 +66,7 @@ struct TRINITY_DLL_DECL boss_bloodmage_thalnosAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //If we are <35% hp

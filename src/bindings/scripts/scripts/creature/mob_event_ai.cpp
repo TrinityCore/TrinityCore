@@ -1150,8 +1150,6 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
         if (m_creature->Attack(who, MeleeEnabled))
          {
             //Begin melee attack if we are within range
-            m_creature->AddThreat(who, 0.0f);
-            m_creature->SetInCombatWith(who);
 
             if (!InCombat)
             {
@@ -1225,7 +1223,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Check if we are in combat (also updates calls threat update code)
-        bool Combat = InCombat ? m_creature->SelectHostilTarget() : false;
+        bool Combat = InCombat ? UpdateVictim() : false;
 
         //Must return if creature isn't alive. Normally select hostil target and get victim prevent this
         if (!m_creature->isAlive())

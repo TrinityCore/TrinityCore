@@ -226,7 +226,7 @@ struct TRINITY_DLL_DECL mobs_nether_drakeAI : public ScriptedAI
             return;                                         //anything below here is not interesting for Nihil, so skip it
         }
 
-        if( !m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if( !UpdateVictim() )
             return;
 
         if( IntangiblePresence_Timer <= diff )

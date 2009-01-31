@@ -32,8 +32,6 @@ class TRINITY_DLL_DECL PassiveAI : public CreatureAI
         void MoveInLineOfSight(Unit *) {}
         void AttackStart(Unit *) {}
 
-        bool IsVisible(Unit *) const { return false;  }
-
         void UpdateAI(const uint32);
         static int Permissible(const Creature *) { return PERMIT_BASE_IDLE;  }
 };
@@ -43,6 +41,7 @@ class TRINITY_DLL_DECL NullCreatureAI : public PassiveAI
     public:
         NullCreatureAI(Creature *c) : PassiveAI(c) {}
 
+        void UpdateAI(const uint32) {}
         void EnterEvadeMode() {}
 };
 

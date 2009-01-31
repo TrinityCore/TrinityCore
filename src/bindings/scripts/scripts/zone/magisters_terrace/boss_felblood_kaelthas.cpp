@@ -292,7 +292,7 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->getVictim() && !m_creature->SelectHostilTarget())
+        if(!UpdateVictim())
             return;
 
         switch(Phase)
@@ -548,7 +548,7 @@ struct TRINITY_DLL_DECL mob_felkael_phoenixAI : public ScriptedAI
             CheckTimer = 1000;
         }else CheckTimer -= diff;
 
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
 		if (BurnTimer < diff)
@@ -648,7 +648,7 @@ struct TRINITY_DLL_DECL mob_arcane_sphereAI : public ScriptedAI
             m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
         else DespawnTimer -= diff;
 
-        if(!m_creature->getVictim() || !m_creature->SelectHostilTarget())
+        if(!UpdateVictim())
 			ChangeTargetTimer = 0;
 
         if(ChangeTargetTimer < diff)

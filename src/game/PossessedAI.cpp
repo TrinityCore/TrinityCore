@@ -107,12 +107,6 @@ void PossessedAI::UpdateAI(const uint32 diff)
     }
 }
 
-bool PossessedAI::_isVisible(Unit *u) const
-{
-    return i_pet.GetDistance(u) < sWorld.getConfig(CONFIG_SIGHT_MONSTER)
-        && u->isVisibleForOrDetect(&i_pet,true);
-}
-
 void PossessedAI::JustDied(Unit *u)
 {
     // We died while possessed, disable our loot

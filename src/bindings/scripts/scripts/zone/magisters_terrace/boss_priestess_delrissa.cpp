@@ -253,7 +253,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if(!UpdateVictim())
             return;
 
         if(HealTimer < diff)
@@ -480,7 +480,7 @@ struct TRINITY_DLL_DECL boss_kagani_nightstrikeAI : public boss_priestess_guestA
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         boss_priestess_guestAI::UpdateAI(diff);
@@ -559,7 +559,7 @@ struct TRINITY_DLL_DECL boss_kagani_nightstrikeAI : public boss_priestess_guestA
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         //Chain cast
@@ -611,7 +611,7 @@ struct TRINITY_DLL_DECL boss_ellris_duskhallowAI : public boss_priestess_guestAI
             HasSummonedImp = true;
         }
 
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         boss_priestess_guestAI::UpdateAI(diff);
@@ -685,7 +685,7 @@ struct TRINITY_DLL_DECL boss_eramas_brightblazeAI : public boss_priestess_guestA
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         boss_priestess_guestAI::UpdateAI(diff);
@@ -748,7 +748,7 @@ struct TRINITY_DLL_DECL boss_yazzaiAI : public boss_priestess_guestAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         boss_priestess_guestAI::UpdateAI(diff);		
@@ -867,7 +867,7 @@ struct TRINITY_DLL_DECL boss_warlord_salarisAI : public boss_priestess_guestAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         boss_priestess_guestAI::UpdateAI(diff);
@@ -1006,7 +1006,7 @@ struct TRINITY_DLL_DECL boss_garaxxasAI : public boss_priestess_guestAI
             }
         }
 
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         boss_priestess_guestAI::UpdateAI(diff);
@@ -1113,7 +1113,7 @@ struct TRINITY_DLL_DECL boss_apokoAI : public boss_priestess_guestAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         boss_priestess_guestAI::UpdateAI(diff);
@@ -1200,7 +1200,7 @@ struct TRINITY_DLL_DECL boss_zelfanAI : public boss_priestess_guestAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         boss_priestess_guestAI::UpdateAI(diff);

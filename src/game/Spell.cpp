@@ -290,13 +290,14 @@ void SpellCastTargets::write ( WorldPacket * data )
         *data << m_strTarget;
 }
 
-Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID, Spell** triggeringContainer )
+Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID, Spell** triggeringContainer, bool skipCheck )
 {
     ASSERT( Caster != NULL && info != NULL );
     ASSERT( info == sSpellStore.LookupEntry( info->Id ) && "`info` must be pointer to sSpellStore element");
 
     m_spellInfo = info;
     m_customAttr = spellmgr.GetSpellCustomAttr(m_spellInfo->Id);
+    m_skipCheck = skipCheck;
     m_caster = Caster;
     m_selfContainer = NULL;
     m_triggeringContainer = triggeringContainer;
@@ -442,7 +443,7 @@ void Spell::FillTargetMap()
         {
             if(effectTargetType == SPELL_REQUIRE_CASTER)
                 AddUnitTarget(m_caster, i);
-            if(effectTargetType == SPELL_REQUIRE_DEST)
+            /*else if(effectTargetType == SPELL_REQUIRE_DEST)
             {
                 if(m_targets.HasDest() && m_spellInfo->speed > 0.0f)
                 {
@@ -450,7 +451,7 @@ void Spell::FillTargetMap()
                     if (dist < 5.0f) dist = 5.0f;
                     m_delayMoment = (uint64) floor(dist / m_spellInfo->speed * 1000.0f);
                 }
-            }
+            }*/
             else if(effectTargetType == SPELL_REQUIRE_ITEM)
             {
                 if(m_targets.getItemTarget())
@@ -633,6 +634,16 @@ void Spell::FillTargetMap()
         for(std::list<Unit*>::iterator iunit= tmpUnitMap.begin();iunit != tmpUnitMap.end();++iunit)
             AddUnitTarget((*iunit), i);
     }
+
+    if(m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
+    {
+        if(m_spellInfo->speed > 0.0f && m_targets.HasDest())
+        {
+            float dist = m_caster->GetDistance(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ);
+            if (dist < 5.0f) dist = 5.0f;
+            m_delayMoment = (uint64) floor(dist / m_spellInfo->speed * 1000.0f);
+        }
+    }
 }
 
 void Spell::prepareDataForTriggerSystem()
@@ -763,7 +774,11 @@ void Spell::AddUnitTarget(Unit* pVictim, uint32 effIndex)
 
     // Calculate hit result
     if(m_originalCaster)
+    {
         target.missCondition = m_originalCaster->SpellHitResult(pVictim, m_spellInfo, m_canReflect);
+        if(m_skipCheck && target.missCondition != SPELL_MISS_IMMUNE)
+            target.missCondition = SPELL_MISS_NONE;
+    }
     else
         target.missCondition = SPELL_MISS_EVADE; //SPELL_MISS_NONE;
 
@@ -923,7 +938,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         if (target->reflectResult == SPELL_MISS_NONE)       // If reflected spell hit caster -> do all effect on him
             DoSpellHitOnUnit(m_caster, mask);
     }
-    else //TODO: This is a hack. need fix
+    /*else //TODO: This is a hack. need fix
     {
         uint32 tempMask = 0;
         for(uint32 i = 0; i < 3; ++i)
@@ -932,7 +947,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
                 tempMask |= 1<<i;
         if(tempMask &= mask)
             DoSpellHitOnUnit(unit, tempMask);
-    }
+    }*/
 
     // All calculated do it!
     // Do healing and triggers
@@ -2206,6 +2221,8 @@ void Spell::cast(bool skipCheck)
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
     if (m_spellInfo->speed > 0.0f && !IsChanneledSpell(m_spellInfo))
     {
+        if(m_customAttr & SPELL_ATTR_CU_CHARGE)
+            EffectCharge(0);
 
         // Remove used for cast item if need (it can be already NULL after TakeReagents call
         // in case delayed spell remove item at cast delay start
@@ -2288,12 +2305,14 @@ uint64 Spell::handle_delayed(uint64 t_offset)
         m_immediateHandled = true;
     }
 
+    bool single_missile = (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION);
+
     // now recheck units targeting correctness (need before any effects apply to prevent adding immunity at first effect not allow apply second spell effect and similar cases)
     for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end();++ihit)
     {
         if (ihit->processed == false)
         {
-            if ( ihit->timeDelay <= t_offset )
+            if ( single_missile || ihit->timeDelay <= t_offset )
                 DoAllEffectOnTarget(&(*ihit));
             else if( next_time == 0 || ihit->timeDelay < next_time )
                 next_time = ihit->timeDelay;
@@ -2305,7 +2324,7 @@ uint64 Spell::handle_delayed(uint64 t_offset)
     {
         if (ighit->processed == false)
         {
-            if ( ighit->timeDelay <= t_offset )
+            if ( single_missile || ighit->timeDelay <= t_offset )
                 DoAllEffectOnTarget(&(*ighit));
             else if( next_time == 0 || ighit->timeDelay < next_time )
                 next_time = ighit->timeDelay;
@@ -3486,7 +3505,7 @@ void Spell::TriggerSpell()
 {
     for(TriggerSpells::iterator si=m_TriggerSpells.begin(); si!=m_TriggerSpells.end(); ++si)
     {
-        Spell* spell = new Spell(m_caster, (*si), true, m_originalCasterGUID, m_selfContainer);
+        Spell* spell = new Spell(m_caster, (*si), true, m_originalCasterGUID, m_selfContainer, true);
         spell->prepare(&m_targets);                         // use original spell original targets
     }
 }

@@ -50,7 +50,7 @@ struct TRINITY_DLL_DECL boss_houndmaster_lokseyAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //If we are <10% hp cast healing spells at self and Mograine

@@ -104,8 +104,6 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
         if (m_creature->Attack(who, true))
         {
             m_creature->AddThreat(who, 0.0f);
-            m_creature->SetInCombatWith(who);
-            who->SetInCombatWith(m_creature);
 
             if (!InCombat)
             {
@@ -188,7 +186,7 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
             } else EventProgress_Timer -= diff;
         }
 
-        if( !m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if( !UpdateVictim() )
             return;
 
         if( !LowHp && ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 20) )

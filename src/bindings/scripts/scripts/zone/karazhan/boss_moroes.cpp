@@ -260,7 +260,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         if(pInstance && !pInstance->GetData(DATA_MOROES_EVENT))
@@ -281,7 +281,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
                 {
                     Temp = (Creature*)Unit::GetUnit((*m_creature),AddGUID[i]);
                     if (Temp && Temp->isAlive())
-                        if (!Temp->SelectHostilTarget() || !Temp->getVictim() )
+                        if (!Temp->getVictim() )
                             Temp->AI()->AttackStart(m_creature->getVictim());
                 }
             }
@@ -450,7 +450,7 @@ struct TRINITY_DLL_DECL boss_baroness_dorothea_millstipeAI : public boss_moroes_
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         boss_moroes_guestAI::UpdateAI(diff);
@@ -505,7 +505,7 @@ struct TRINITY_DLL_DECL boss_baron_rafe_dreugerAI : public boss_moroes_guestAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         boss_moroes_guestAI::UpdateAI(diff);
@@ -560,7 +560,7 @@ struct TRINITY_DLL_DECL boss_lady_catriona_von_indiAI : public boss_moroes_guest
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         boss_moroes_guestAI::UpdateAI(diff);
@@ -630,7 +630,7 @@ struct TRINITY_DLL_DECL boss_lady_keira_berrybuckAI : public boss_moroes_guestAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         boss_moroes_guestAI::UpdateAI(diff);
@@ -693,7 +693,7 @@ struct TRINITY_DLL_DECL boss_lord_robin_darisAI : public boss_moroes_guestAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         boss_moroes_guestAI::UpdateAI(diff);
@@ -745,7 +745,7 @@ struct TRINITY_DLL_DECL boss_lord_crispin_ferenceAI : public boss_moroes_guestAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         boss_moroes_guestAI::UpdateAI(diff);

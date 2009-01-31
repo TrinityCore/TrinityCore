@@ -289,7 +289,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
             WaitTimer = 0;
         }else WaitTimer -= diff;
 
-        if(!m_creature->SelectHostilTarget()) 
+        if(!UpdateVictim()) 
             return;
 
         if(Flying)

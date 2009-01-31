@@ -297,7 +297,7 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
 
         }
 
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if(!UpdateVictim())
             return;
 
         DoMeleeAttackIfReady();

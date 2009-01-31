@@ -7296,6 +7296,12 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
         ((WorldObject*)this)->SendMessageToSet(&data, true);
 
         ((Creature*)this)->CallAssistance();
+
+        // should not let player enter combat by right clicking target
+        SetInCombatWith(victim);
+        if(victim->GetTypeId() == TYPEID_PLAYER)
+            victim->SetInCombatWith(this);
+        AddThreat(victim, 0.0f);
     }
 
     // delay offhand weapon attack to next attack time
@@ -9735,7 +9741,7 @@ void Unit::TauntFadeOut(Unit *taunter)
 
 //======================================================================
 
-Unit* Creature::SelectHostilTarget()
+Unit* Creature::SelectVictim()
 {
     //function provides main threat functionality
     //next-victim-selection algorithm and evade mode are called
@@ -9746,13 +9752,8 @@ Unit* Creature::SelectHostilTarget()
     //otherwise enterevademode every update
 
 
-    if (!this->isAlive())
-        return false;
-    //This function only useful once AI has been initialized
-    if (!AI())
-        return NULL;
-    Unit* target = NULL;
 
+    Unit* target = NULL;
     // First checking if we have some taunt on us
     const AuraList& tauntAuras = GetAurasByType(SPELL_AURA_MOD_TAUNT);
     if ( !tauntAuras.empty() )
@@ -9792,18 +9793,15 @@ Unit* Creature::SelectHostilTarget()
     {
         if(!hasUnitState(UNIT_STAT_STUNNED))
             SetInFront(target);
-        AI()->AttackStart(target);
-        return getVictim();
+        return target;
     }
-
-    // no target but something prevent go to evade mode
-    if( !isInCombat() /*|| HasAuraType(SPELL_AURA_MOD_TAUNT)*/ )
-        return NULL;
 
     // last case when creature don't must go to evade mode:
     // it in combat but attacker not make any damage and not enter to aggro radius to have record in threat list
     // for example at owner command to pet attack some far away creature
     // Note: creature not have targeted movement generator but have attacker in this case
+    if(m_attackers.size())
+        return NULL;
     /*if( GetMotionMaster()->GetCurrentMovementGeneratorType() != TARGETED_MOTION_TYPE )
     {
         for(AttackerSet::const_iterator itr = m_attackers.begin(); itr != m_attackers.end(); ++itr)
@@ -9816,14 +9814,9 @@ Unit* Creature::SelectHostilTarget()
     // search nearby enemy before enter evade mode
     if(HasReactState(REACT_AGGRESSIVE))
     {
-        if(target = SelectNearestTarget())
-        {
-            if(!IsOutOfThreatArea(target))
-            {
-                AI()->AttackStart(target);
-                return getVictim();
-            }
-        }
+        target = SelectNearestTarget();
+        if(target && !IsOutOfThreatArea(target))
+            return target;
     }
 
     if(m_invisibilityMask)

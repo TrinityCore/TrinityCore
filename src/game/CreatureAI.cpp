@@ -20,17 +20,39 @@
 
 #include "CreatureAI.h"
 #include "Creature.h"
+#include "Player.h"
 #include "Pet.h"
 #include "SpellAuras.h"
 
-CreatureAI::~CreatureAI()
+void UnitAI::AttackStart(Unit *victim)
 {
+    if(!victim)
+        return;
+
+    if(me->Attack(victim, true))
+    {
+        //DEBUG_LOG("Creature %s tagged a victim to kill [guid=%u]", me->GetName(), victim->GetGUIDLow());
+        me->GetMotionMaster()->MoveChase(victim);
+    }
+}
+
+void CreatureAI::MoveInLineOfSight(Unit *who)
+{
+    if(!me->getVictim() && me->canStartAttack(who))
+        AttackStart(who);
+}
+
+bool CreatureAI::UpdateVictim()
+{
+    if(!me->isInCombat())
+        return false;
+    if(Unit *victim = me->SelectVictim())
+        AttackStart(victim);
+    return me->getVictim();
 }
 
 void CreatureAI::EnterEvadeMode()
 {
-    if(!me) return;
-
     me->RemoveAllAuras();
     me->DeleteThreatList();
     me->CombatStop();
@@ -62,12 +84,5 @@ void SimpleCharmedAI::UpdateAI(const uint32 /*diff*/)
 
     Unit *target = me->getVictim();
     if(!target || !charmer->canAttack(target))
-    {
-        target = charmer->SelectNearestTarget();
-        if(!target)
-            return;
-
-        me->GetMotionMaster()->MoveChase(target);
-        me->Attack(target, true);
-    }
+        AttackStart(charmer->SelectNearestTarget());
 }

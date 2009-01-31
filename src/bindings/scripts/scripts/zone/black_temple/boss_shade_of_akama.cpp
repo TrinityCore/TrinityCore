@@ -440,7 +440,6 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
                         Akama->AddThreat(m_creature, 10000000.0f);
                         m_creature->Attack(Akama, true);
                         Akama->Attack(m_creature, true);
-						m_creature->SetInCombatWith(Akama);
                     }
                 }
             }
@@ -749,7 +748,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
                 }
             }else SoulRetrieveTimer -= diff;
 
-        if(!m_creature->getVictim() || !m_creature->SelectHostilTarget())
+        if(!UpdateVictim())
             return;
 
         if(DestructivePoisonTimer < diff)

@@ -274,7 +274,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-         if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+         if (!UpdateVictim())
             return;
 
         if(m_creature->getVictim() && m_creature->isAlive())

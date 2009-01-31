@@ -113,7 +113,7 @@ struct TRINITY_DLL_DECL mob_inner_demonAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
 		if (m_creature->getVictim()->GetGUID() != victimGUID)
@@ -403,7 +403,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (m_creature->HasAura(AURA_BANISH, 0) || !m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (m_creature->HasAura(AURA_BANISH, 0) || !UpdateVictim())
 		{
 			if(BanishTimer<diff)
 			{
@@ -626,7 +626,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blind_demonformAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
         //ChaosBlast_Timer
 		if(m_creature->GetDistance(m_creature->getVictim()) < 30)
@@ -723,7 +723,7 @@ struct TRINITY_DLL_DECL mob_greyheart_spellbinderAI : public ScriptedAI
 			}
 		}
 		
-		if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+		if(!UpdateVictim())
 		{
 			CastChanneling();
 			return;

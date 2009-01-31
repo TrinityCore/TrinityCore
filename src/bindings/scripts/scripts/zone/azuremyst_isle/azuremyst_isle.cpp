@@ -235,7 +235,7 @@ struct TRINITY_DLL_DECL npc_engineer_spark_overgrindAI : public ScriptedAI
             }else Emote_Timer -= diff;
         }
 
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if(!UpdateVictim())
             return;
 
         if (Dynamite_Timer < diff)

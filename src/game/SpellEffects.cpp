@@ -160,7 +160,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectUnused,                                   // 93 SPELL_EFFECT_SUMMON_PHANTASM
     &Spell::EffectSelfResurrect,                            // 94 SPELL_EFFECT_SELF_RESURRECT
     &Spell::EffectSkinning,                                 // 95 SPELL_EFFECT_SKINNING
-    &Spell::EffectCharge,                                   // 96 SPELL_EFFECT_CHARGE
+    &Spell::EffectUnused,                                   // 96 SPELL_EFFECT_CHARGE
     &Spell::EffectUnused,                                   // 97 SPELL_EFFECT_97
     &Spell::EffectKnockBack,                                // 98 SPELL_EFFECT_KNOCK_BACK
     &Spell::EffectDisEnchant,                               // 99 SPELL_EFFECT_DISENCHANT
@@ -654,6 +654,9 @@ void Spell::EffectDummy(uint32 i)
 {
     if(!unitTarget && !gameObjTarget && !itemTarget)
         return;
+
+    uint32 spell_id = 0;
+    int32 bp = 0;
 
     // selection by spell family
     switch(m_spellInfo->SpellFamilyName)
@@ -1306,9 +1309,9 @@ void Spell::EffectDummy(uint32 i)
                 if (Aura *aura = m_caster->GetDummyAura(58367))
                     rage+=aura->GetModifier()->m_amount;
 
-                int32 basePoints0 = damage+int32(rage * m_spellInfo->DmgMultiplier[i] +
+                spell_id = 20647;
+                int32 bp = damage+int32(rage * m_spellInfo->DmgMultiplier[i] +
                                                  m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.2f);
-                m_caster->CastCustomSpell(unitTarget, 20647, &basePoints0, NULL, NULL, true, 0);
                 m_caster->SetPower(POWER_RAGE,0);
                 return;
             }
@@ -1805,6 +1808,24 @@ void Spell::EffectDummy(uint32 i)
                 return;
             }
             break;
+    }
+
+    //spells triggered by dummy effect should not miss
+    if(spell_id)
+    {
+        SpellEntry const *spellInfo = sSpellStore.LookupEntry( spell_id );
+
+        if(!spellInfo)
+        {
+            sLog.outError("EffectDummy of spell %u: triggering unknown spell id %i\n", m_spellInfo->Id, spell_id);
+            return;
+        }
+            
+        Spell* spell = new Spell(m_caster, spellInfo, true, m_originalCasterGUID, NULL, true);
+        if(bp) spell->m_currentBasePoints[0] = bp;
+        SpellCastTargets targets;
+        targets.setUnitTarget(unitTarget);
+        spell->prepare(&targets);
     }
 
     // pet auras
@@ -6006,16 +6027,20 @@ void Spell::EffectSkinning(uint32 /*i*/)
 
 void Spell::EffectCharge(uint32 /*i*/)
 {
-    if(!unitTarget || !m_caster)
+    if(!m_caster)
+        return;
+
+    Unit *target = m_targets.getUnitTarget();
+    if(!target)
         return;
 
     float x, y, z;
-    unitTarget->GetContactPoint(m_caster, x, y, z);
+    target->GetContactPoint(m_caster, x, y, z);
     m_caster->GetMotionMaster()->MoveCharge(x, y, z);
 
     // not all charge effects used in negative spells
     if ( !IsPositiveSpell(m_spellInfo->Id) && m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->Attack(unitTarget,true);
+        m_caster->Attack(target, true);
 }
 
 void Spell::EffectSummonCritter(uint32 i)

@@ -346,7 +346,7 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
                 }else waitTimer -= diff;
         }
 
-        if(!m_creature->SelectHostilTarget() && !m_creature->getVictim())
+        if(!UpdateVictim())
             return;
 
         if(Berserk_Timer < diff)
