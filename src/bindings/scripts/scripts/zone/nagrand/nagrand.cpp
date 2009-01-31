@@ -163,7 +163,7 @@ struct TRINITY_DLL_DECL mob_lumpAI : public ScriptedAI
         }
 
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //Spear_Throw_Timer

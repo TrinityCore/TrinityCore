@@ -148,7 +148,7 @@ struct TRINITY_DLL_DECL npc_taskmaster_fizzuleAI : public ScriptedAI
             } else Reset_Timer -= diff;
         }
 
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         DoMeleeAttackIfReady();

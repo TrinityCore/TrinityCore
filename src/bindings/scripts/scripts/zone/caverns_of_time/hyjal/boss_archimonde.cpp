@@ -256,7 +256,7 @@ struct TRINITY_DLL_DECL mob_doomfire_targettingAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if(!UpdateVictim())
             return;
 
         if(SummonTimer < diff)
@@ -574,7 +574,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
             }else DrainNordrassilTimer -= diff;
         }
 
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if(!UpdateVictim())
             return;
 
         if(((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 10) && !BelowTenPercent && !Enraged)

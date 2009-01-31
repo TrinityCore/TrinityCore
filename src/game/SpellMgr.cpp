@@ -27,6 +27,8 @@
 #include "Chat.h"
 #include "Spell.h"
 
+bool IsAreaEffectTarget[TOTAL_SPELL_TARGETS];
+
 SpellMgr::SpellMgr()
 {
     for(int i = 0; i < TOTAL_SPELL_EFFECTS; ++i)
@@ -2170,6 +2172,15 @@ void SpellMgr::LoadSpellCustomAttr()
                 case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
                 case SPELL_EFFECT_HEAL:
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_DIRECT_DAMAGE;
+                    break;
+                case SPELL_EFFECT_CHARGE:
+                    if(!spellInfo->speed)
+                        spellInfo->speed = SPEED_CHARGE;
+                    mSpellCustomAttr[i] |= SPELL_ATTR_CU_CHARGE;
+                case SPELL_EFFECT_TRIGGER_SPELL:
+                    if(spellInfo->Targets & (TARGET_FLAG_SOURCE_LOCATION|TARGET_FLAG_DEST_LOCATION))
+                        spellInfo->Effect[j] = SPELL_EFFECT_TRIGGER_MISSILE;
+                    break;
             }
         }
 

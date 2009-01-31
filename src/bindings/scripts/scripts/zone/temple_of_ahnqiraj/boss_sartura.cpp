@@ -86,7 +86,7 @@ struct TRINITY_DLL_DECL boss_sarturaAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         if (WhirlWind)
@@ -197,7 +197,7 @@ struct TRINITY_DLL_DECL mob_sartura_royal_guardAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         if (!WhirlWind && WhirlWind_Timer < diff)

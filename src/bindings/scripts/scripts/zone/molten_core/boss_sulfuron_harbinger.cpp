@@ -65,7 +65,7 @@ struct TRINITY_DLL_DECL boss_sulfuronAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //DemoralizingShout_Timer
@@ -150,7 +150,7 @@ struct TRINITY_DLL_DECL mob_flamewaker_priestAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //Casting Heal to Sulfuron or other Guards.

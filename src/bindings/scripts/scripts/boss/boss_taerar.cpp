@@ -115,7 +115,7 @@ struct TRINITY_DLL_DECL boss_taerarAI : public ScriptedAI
         }
 
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //Sleep_Timer
@@ -259,7 +259,7 @@ struct TRINITY_DLL_DECL boss_shadeoftaerarAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //PoisonCloud_Timer

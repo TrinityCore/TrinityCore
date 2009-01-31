@@ -342,7 +342,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
 			return;
 		}
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         if(Phase == 1 || Phase == 3)

@@ -331,7 +331,7 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() && !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         if(CheckAddState_Timer < diff)
@@ -458,7 +458,7 @@ struct TRINITY_DLL_DECL boss_thurgAI : public boss_hexlord_addAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         if(bloodlust_timer < diff)
@@ -526,7 +526,7 @@ struct TRINITY_DLL_DECL boss_alyson_antilleAI : public boss_hexlord_addAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         if(flashheal_timer < diff)
@@ -611,7 +611,7 @@ struct TRINITY_DLL_DECL boss_gazakrothAI : public boss_hexlord_addAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         if(firebolt_timer < diff)
@@ -644,7 +644,7 @@ struct TRINITY_DLL_DECL boss_lord_raadanAI : public boss_hexlord_addAI
     }
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         if (thunderclap_timer < diff)
@@ -680,7 +680,7 @@ struct TRINITY_DLL_DECL boss_darkheartAI : public boss_hexlord_addAI
     }
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         if (psychicwail_timer < diff)
@@ -731,7 +731,7 @@ struct TRINITY_DLL_DECL boss_slitherAI : public boss_hexlord_addAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         if (venomspit_timer < diff)
@@ -763,7 +763,7 @@ struct TRINITY_DLL_DECL boss_fenstalkerAI : public boss_hexlord_addAI
     }
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         if (volatileinf_timer < diff)
@@ -799,7 +799,7 @@ struct TRINITY_DLL_DECL boss_koraggAI : public boss_hexlord_addAI
     }
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if(!UpdateVictim() )
             return;
 
         if (mightyblow_timer < diff)

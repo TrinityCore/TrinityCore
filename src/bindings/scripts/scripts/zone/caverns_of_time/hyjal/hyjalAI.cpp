@@ -433,7 +433,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
         CheckTimer = 5000;
     }else CheckTimer -= diff;
 
-    if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+    if(!UpdateVictim())
         return;
 
     for(uint8 i = 0; i < 3; ++i)

@@ -59,7 +59,7 @@ struct TRINITY_DLL_DECL boss_ayamissAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         //If he is 70% start phase 2

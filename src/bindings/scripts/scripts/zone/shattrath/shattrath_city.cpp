@@ -62,7 +62,7 @@ struct TRINITY_DLL_DECL npc_raliq_the_drunkAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if(!UpdateVictim())
             return;
 
         if( Uppercut_Timer < diff )
@@ -136,7 +136,7 @@ struct TRINITY_DLL_DECL npc_salsalabimAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if(!UpdateVictim())
             return;
 
         if( MagneticPull_Timer < diff )
@@ -522,7 +522,6 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
 				Malone->setFaction(14);
 				Malone->GetMotionMaster()->MoveChase(player);
 			}
-				m_creature->SetInCombatWith(player);
 				DoStartMovement(player);
 				AttackStart(player);
 			}

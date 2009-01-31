@@ -19,25 +19,17 @@
 #ifndef TRINITY_OUTDOORPVPOBJECTIVEAI_H
 #define TRINITY_OUTDOORPVPOBJECTIVEAI_H
 
-#include "CreatureAI.h"
+#include "NullCreatureAI.h"
 
 class Creature;
 
-class TRINITY_DLL_DECL OutdoorPvPObjectiveAI : public CreatureAI
+class TRINITY_DLL_DECL OutdoorPvPObjectiveAI : public NullCreatureAI
 {
     public:
-
         OutdoorPvPObjectiveAI(Creature *c);
 
         void MoveInLineOfSight(Unit *);
-        bool IsVisible(Unit *) const;
-        void AttackStart(Unit *);
-        void EnterEvadeMode();
-        void UpdateAI(const uint32 diff);
 
         static int Permissible(const Creature *);
-
-    private:
-        Creature &i_creature;
 };
 #endif

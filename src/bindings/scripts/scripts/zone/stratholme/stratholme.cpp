@@ -222,7 +222,7 @@ struct TRINITY_DLL_DECL mobs_spectral_ghostly_citizenAI : public ScriptedAI
             }else Die_Timer -= diff;
         }
 
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         DoMeleeAttackIfReady();

@@ -52,7 +52,7 @@ struct TRINITY_DLL_DECL boss_angerrelAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //SunderArmor_Timer
@@ -110,7 +110,7 @@ struct TRINITY_DLL_DECL boss_doperelAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //SinisterStrike_Timer
@@ -170,7 +170,7 @@ struct TRINITY_DLL_DECL boss_haterelAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //ShadowBolt_Timer
@@ -242,7 +242,7 @@ struct TRINITY_DLL_DECL boss_vilerelAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //MindBlast_Timer
@@ -315,7 +315,7 @@ struct TRINITY_DLL_DECL boss_seethrelAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //FrostArmor_Timer
@@ -391,7 +391,7 @@ struct TRINITY_DLL_DECL boss_gloomrelAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         //Hamstring_Timer
@@ -520,7 +520,7 @@ struct TRINITY_DLL_DECL boss_doomrelAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         //ShadowVolley_Timer
