@@ -58,7 +58,7 @@ class Corpse : public WorldObject
         void RemoveFromWorld();
 
         bool Create( uint32 guidlow );
-        bool Create( uint32 guidlow, Player *owner, uint32 mapid, float x, float y, float z, float ang );
+        bool Create( uint32 guidlow, Player *owner );
 
         void SaveToDB();
         bool LoadFromDB(uint32 guid, QueryResult *result, uint32 InstanceId);

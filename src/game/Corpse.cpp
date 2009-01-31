@@ -71,26 +71,26 @@ bool Corpse::Create( uint32 guidlow )
     return true;
 }
 
-bool Corpse::Create( uint32 guidlow, Player *owner, uint32 mapid, float x, float y, float z, float ang )
+bool Corpse::Create( uint32 guidlow, Player *owner)
 {
     SetInstanceId(owner->GetInstanceId());
 
-    WorldObject::_Create(guidlow, HIGHGUID_CORPSE, mapid);
+    WorldObject::_Create(guidlow, HIGHGUID_CORPSE, owner->GetMapId(), owner->GetPhaseMask());
 
-    Relocate(x,y,z,ang);
+    Relocate(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), owner->GetOrientation());
 
     if(!IsPositionValid())
     {
         sLog.outError("ERROR: Corpse (guidlow %d, owner %s) not created. Suggested coordinates isn't valid (X: %f Y: %f)",
-            guidlow,owner->GetName(),x,y);
+            guidlow,owner->GetName(),owner->GetPositionX(), owner->GetPositionY());
         return false;
     }
 
     SetFloatValue( OBJECT_FIELD_SCALE_X, 1 );
-    SetFloatValue( CORPSE_FIELD_POS_X, x );
-    SetFloatValue( CORPSE_FIELD_POS_Y, y );
-    SetFloatValue( CORPSE_FIELD_POS_Z, z );
-    SetFloatValue( CORPSE_FIELD_FACING, ang );
+    SetFloatValue( CORPSE_FIELD_POS_X, GetPositionX() );
+    SetFloatValue( CORPSE_FIELD_POS_Y, GetPositionY() );
+    SetFloatValue( CORPSE_FIELD_POS_Z, GetPositionZ() );
+    SetFloatValue( CORPSE_FIELD_FACING, GetOrientation() );
     SetUInt64Value( CORPSE_FIELD_OWNER, owner->GetGUID() );
 
     m_grid = Trinity::ComputeGridPair(GetPositionX(), GetPositionY());
@@ -100,17 +100,18 @@ bool Corpse::Create( uint32 guidlow, Player *owner, uint32 mapid, float x, float
 
 void Corpse::SaveToDB()
 {
-    // prevent DB data inconsistance problems and duplicates
+    // prevent DB data inconsistence problems and duplicates
     CharacterDatabase.BeginTransaction();
     DeleteFromDB();
 
     std::ostringstream ss;
-    ss  << "INSERT INTO corpse (guid,player,position_x,position_y,position_z,orientation,zone,map,data,time,corpse_type,instance) VALUES ("
+    ss  << "INSERT INTO corpse (guid,player,position_x,position_y,position_z,orientation,zone,map,data,time,corpse_type,instance,phaseMask) VALUES ("
         << GetGUIDLow() << ", " << GUID_LOPART(GetOwnerGUID()) << ", " << GetPositionX() << ", " << GetPositionY() << ", " << GetPositionZ() << ", "
         << GetOrientation() << ", "  << GetZoneId() << ", "  << GetMapId() << ", '";
     for(uint16 i = 0; i < m_valuesCount; i++ )
         ss << GetUInt32Value(i) << " ";
-    ss << "'," << uint64(m_time) <<", " << uint32(GetType()) << ", " << int(GetInstanceId()) << ")";
+    ss  << "'," << uint64(m_time) <<", " << uint32(GetType())
+        << ", " << int(GetInstanceId()) << ", " << int(GetPhaseMask()) << ")";
     CharacterDatabase.Execute( ss.str().c_str() );
     CharacterDatabase.CommitTransaction();
 }
@@ -143,8 +144,8 @@ bool Corpse::LoadFromDB(uint32 guid, QueryResult *result, uint32 InstanceId)
 {
     bool external = (result != NULL);
     if (!external)
-        //                                        0          1          2          3           4   5    6    7           8
-        result = CharacterDatabase.PQuery("SELECT position_x,position_y,position_z,orientation,map,data,time,corpse_type,instance FROM corpse WHERE guid = '%u'",guid);
+        //                                        0          1          2          3           4   5    6    7           8        9
+        result = CharacterDatabase.PQuery("SELECT position_x,position_y,position_z,orientation,map,data,time,corpse_type,instance,phaseMask FROM corpse WHERE guid = '%u'",guid);
 
     if( ! result )
     {
@@ -166,8 +167,8 @@ bool Corpse::LoadFromDB(uint32 guid, QueryResult *result, uint32 InstanceId)
 
 bool Corpse::LoadFromDB(uint32 guid, Field *fields)
 {
-    //                                          0          1          2          3           4   5    6    7           8
-    //result = CharacterDatabase.PQuery("SELECT position_x,position_y,position_z,orientation,map,data,time,corpse_type,instance FROM corpse WHERE guid = '%u'",guid);
+    //                                          0          1          2          3           4   5    6    7           8        9
+    //result = CharacterDatabase.PQuery("SELECT position_x,position_y,position_z,orientation,map,data,time,corpse_type,instance,phaseMask FROM corpse WHERE guid = '%u'",guid);
     float positionX = fields[0].GetFloat();
     float positionY = fields[1].GetFloat();
     float positionZ = fields[2].GetFloat();
@@ -188,6 +189,7 @@ bool Corpse::LoadFromDB(uint32 guid, Field *fields)
         return false;
     }
     uint32 instanceid  = fields[8].GetUInt32();
+    uint32 phaseMask   = fields[9].GetUInt32();
 
     // overwrite possible wrong/corrupted guid
     SetUInt64Value(OBJECT_FIELD_GUID, MAKE_NEW_GUID(guid, 0, HIGHGUID_CORPSE));
@@ -195,6 +197,7 @@ bool Corpse::LoadFromDB(uint32 guid, Field *fields)
     // place
     SetInstanceId(instanceid);
     SetMapId(mapid);
+    SetPhaseMask(phaseMask,false);
     Relocate(positionX,positionY,positionZ,ort);
 
     if(!IsPositionValid())

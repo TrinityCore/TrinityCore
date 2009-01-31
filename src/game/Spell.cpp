@@ -478,7 +478,7 @@ void Spell::FillTargetMap()
                             WorldObject* result = NULL;
 
                             Trinity::CannibalizeObjectCheck u_check(m_caster, max_range);
-                            Trinity::WorldObjectSearcher<Trinity::CannibalizeObjectCheck > searcher(result, u_check);
+                            Trinity::WorldObjectSearcher<Trinity::CannibalizeObjectCheck > searcher(m_caster, result, u_check);
                             m_caster->VisitNearbyGridObject(max_range, searcher);
                             if(!result)
                                 m_caster->VisitNearbyWorldObject(max_range, searcher);
@@ -1398,7 +1398,7 @@ Unit* Spell::SearchNearbyTarget(float radius, SpellTargets TargetType, uint32 en
             {
                 Creature* target = NULL;
                 Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck u_check(*m_caster, entry, true, radius);
-                Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(target, u_check);
+                Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(m_caster, target, u_check);
                 m_caster->VisitNearbyObject(radius, searcher);
                 return target;
             }
@@ -1412,13 +1412,13 @@ Unit* Spell::SearchNearbyTarget(float radius, SpellTargets TargetType, uint32 en
         case SPELL_TARGETS_ENEMY:
         {
             Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(m_caster, m_caster, radius);
-            Trinity::UnitLastSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(target, u_check);
+            Trinity::UnitLastSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(m_caster, target, u_check);
             m_caster->VisitNearbyObject(radius, searcher);
         }break;
         case SPELL_TARGETS_ALLY:
         {
             Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(m_caster, m_caster, radius);
-            Trinity::UnitLastSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(target, u_check);
+            Trinity::UnitLastSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(m_caster, target, u_check);
             m_caster->VisitNearbyObject(radius, searcher);
         }break;
     }
@@ -1707,7 +1707,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                         if(i_spellST->second.targetEntry)
                         {
                             Trinity::NearestGameObjectEntryInObjectRangeCheck go_check(*m_caster,i_spellST->second.targetEntry,range);
-                            Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck> checker(p_GameObject,go_check);
+                            Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck> checker(m_caster, p_GameObject,go_check);
                             m_caster->VisitNearbyGridObject(range, checker);
 
                             if(p_GameObject)
@@ -1737,7 +1737,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                         Creature *p_Creature = NULL;
 
                         Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck u_check(*m_caster,i_spellST->second.targetEntry,i_spellST->second.type!=SPELL_TARGET_TYPE_DEAD,range);
-                        Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(p_Creature, u_check);
+                        Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(m_caster, p_Creature, u_check);
                         m_caster->VisitNearbyObject(range, searcher);
 
                         if(p_Creature )
@@ -3776,7 +3776,7 @@ uint8 Spell::CanCast(bool strict)
                                 cell.data.Part.reserved = ALL_DISTRICT;
 
                                 MaNGOS::NearestGameObjectEntryInObjectRangeCheck go_check(*m_caster,i_spellST->second.targetEntry,range);
-                                MaNGOS::GameObjectLastSearcher<MaNGOS::NearestGameObjectEntryInObjectRangeCheck> checker(p_GameObject,go_check);
+                                MaNGOS::GameObjectLastSearcher<MaNGOS::NearestGameObjectEntryInObjectRangeCheck> checker(m_caster, p_GameObject,go_check);
 
                                 TypeContainerVisitor<MaNGOS::GameObjectLastSearcher<MaNGOS::NearestGameObjectEntryInObjectRangeCheck>, GridTypeMapContainer > object_checker(checker);
                                 CellLock<GridReadGuard> cell_lock(cell, p);
@@ -3814,7 +3814,7 @@ uint8 Spell::CanCast(bool strict)
                             cell.SetNoCreate();             // Really don't know what is that???
 
                             MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck u_check(*m_caster,i_spellST->second.targetEntry,i_spellST->second.type!=SPELL_TARGET_TYPE_DEAD,range);
-                            MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(p_Creature, u_check);
+                            MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(m_caster, p_Creature, u_check);
 
                             TypeContainerVisitor<MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer >  grid_creature_searcher(searcher);
 
@@ -4875,8 +4875,8 @@ uint8 Spell::CheckItems()
         cell.data.Part.reserved = ALL_DISTRICT;
 
         GameObject* ok = NULL;
-        Trinity::GameObjectFocusCheck go_check(m_caster,m_spellInfo->RequiresSpellFocus);
-        Trinity::GameObjectSearcher<Trinity::GameObjectFocusCheck> checker(ok,go_check);
+        MaNGOS::GameObjectFocusCheck go_check(m_caster,m_spellInfo->RequiresSpellFocus);
+        MaNGOS::GameObjectSearcher<MaNGOS::GameObjectFocusCheck> checker(m_caster,ok,go_check);
 
         TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectFocusCheck>, GridTypeMapContainer > object_checker(checker);
         CellLock<GridReadGuard> cell_lock(cell, p);

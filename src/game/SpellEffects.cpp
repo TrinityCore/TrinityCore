@@ -675,7 +675,7 @@ void Spell::EffectDummy(uint32 i)
 
                     if (!creatureTarget || !pGameObj) return;
 
-                    if (!pGameObj->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), 181574, creatureTarget->GetMap(),
+                    if (!pGameObj->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), 181574, creatureTarget->GetMap(), creatureTarget->GetPhaseMask(),
                         creatureTarget->GetPositionX(), creatureTarget->GetPositionY(), creatureTarget->GetPositionZ(), 
                         creatureTarget->GetOrientation(), 0, 0, 0, 0, 100, 1))
                     {
@@ -3289,7 +3289,8 @@ void Spell::EffectSummon(uint32 i)
 
     Map *map = m_caster->GetMap();
     uint32 pet_number = objmgr.GeneratePetNumber();
-    if(!spawnCreature->Create(objmgr.GenerateLowGuid(HIGHGUID_PET),map,m_spellInfo->EffectMiscValue[i], pet_number))
+    if(!spawnCreature->Create(objmgr.GenerateLowGuid(HIGHGUID_PET),map,m_caster->GetPhaseMask(),
+        m_spellInfo->EffectMiscValue[i], pet_number))
     {
         sLog.outErrorDb("Spell::EffectSummon: no such creature entry %u",m_spellInfo->EffectMiscValue[i]);
         delete spawnCreature;
@@ -3739,7 +3740,8 @@ void Spell::EffectSummonGuardian(uint32 i)
 
         Map *map = m_caster->GetMap();
         uint32 pet_number = objmgr.GeneratePetNumber();
-        if(!spawnCreature->Create(objmgr.GenerateLowGuid(HIGHGUID_PET), map,m_spellInfo->EffectMiscValue[i], pet_number))
+        if(!spawnCreature->Create(objmgr.GenerateLowGuid(HIGHGUID_PET), map,m_caster->GetPhaseMask(),
+            m_spellInfo->EffectMiscValue[i], pet_number))
         {
             sLog.outError("no such creature entry %u",m_spellInfo->EffectMiscValue[i]);
             delete spawnCreature;
@@ -4187,7 +4189,8 @@ void Spell::EffectSummonPet(uint32 i)
 
     Map *map = m_caster->GetMap();
     uint32 pet_number = objmgr.GeneratePetNumber();
-    if(!NewSummon->Create(objmgr.GenerateLowGuid(HIGHGUID_PET), map, petentry, pet_number))
+    if(!NewSummon->Create(objmgr.GenerateLowGuid(HIGHGUID_PET), map, m_caster->GetPhaseMask(),
+        petentry, pet_number))
     {
         delete NewSummon;
         return;
@@ -4667,7 +4670,7 @@ void Spell::EffectSummonObjectWild(uint32 i)
     Map *map = target->GetMap();
 
     if(!pGameObj->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), gameobject_id, map,
-        x, y, z, target->GetOrientation(), 0, 0, 0, 0, 100, 1))
+        m_caster->GetPhaseMask(), x, y, z, target->GetOrientation(), 0, 0, 0, 0, 100, 1))
     {
         delete pGameObj;
         return;
@@ -4715,7 +4718,7 @@ void Spell::EffectSummonObjectWild(uint32 i)
     {
         GameObject* linkedGO = new GameObject;
         if(linkedGO->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), linkedEntry, map,
-            x, y, z, target->GetOrientation(), 0, 0, 0, 0, 100, 1))
+            m_caster->GetPhaseMask(), x, y, z, target->GetOrientation(), 0, 0, 0, 0, 100, 1))
         {
             linkedGO->SetRespawnTime(duration > 0 ? duration/1000 : 0);
             linkedGO->SetSpellId(m_spellInfo->Id);
@@ -5300,7 +5303,7 @@ void Spell::EffectSanctuary(uint32 /*i*/)
 
     std::list<Unit*> targets;
     Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(unitTarget, unitTarget, World::GetMaxVisibleDistance());
-    Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(targets, u_check);
+    Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(unitTarget, targets, u_check);
     unitTarget->VisitNearbyObject(World::GetMaxVisibleDistance(), searcher);
     for(std::list<Unit*>::iterator iter = targets.begin(); iter != targets.end(); ++iter)
     {
@@ -5381,7 +5384,8 @@ void Spell::EffectDuel(uint32 i)
     uint32 gameobject_id = m_spellInfo->EffectMiscValue[i];
 
     Map *map = m_caster->GetMap();
-    if(!pGameObj->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), gameobject_id, map,
+    if(!pGameObj->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), gameobject_id,
+        map, m_caster->GetPhaseMask(),
         m_caster->GetPositionX()+(unitTarget->GetPositionX()-m_caster->GetPositionX())/2 ,
         m_caster->GetPositionY()+(unitTarget->GetPositionY()-m_caster->GetPositionY())/2 ,
         m_caster->GetPositionZ(),
@@ -5564,7 +5568,8 @@ void Spell::EffectSummonTotem(uint32 i)
 
     Totem* pTotem = new Totem;
 
-    if(!pTotem->Create(objmgr.GenerateLowGuid(HIGHGUID_UNIT), m_caster->GetMap(), m_spellInfo->EffectMiscValue[i], team ))
+    if(!pTotem->Create(objmgr.GenerateLowGuid(HIGHGUID_UNIT), m_caster->GetMap(), m_caster->GetPhaseMask(),
+        m_spellInfo->EffectMiscValue[i], team ))
     {
         delete pTotem;
         return;
@@ -5775,7 +5780,8 @@ void Spell::EffectSummonObject(uint32 i)
         m_caster->GetClosePoint(x,y,z,DEFAULT_WORLD_OBJECT_SIZE);
 
     Map *map = m_caster->GetMap();
-    if(!pGameObj->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), go_id, map, x, y, z, m_caster->GetOrientation(), 0, 0, rot2, rot3, 0, 1))
+    if(!pGameObj->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), go_id, map,
+        m_caster->GetPhaseMask(), x, y, z, m_caster->GetOrientation(), 0, 0, rot2, rot3, 0, 1))
     {
         delete pGameObj;
         return;
@@ -6072,8 +6078,8 @@ void Spell::EffectSummonCritter(uint32 i)
 
     Map *map = m_caster->GetMap();
     uint32 pet_number = objmgr.GeneratePetNumber();
-    if(!critter->Create(objmgr.GenerateLowGuid(HIGHGUID_PET),
-        map, pet_entry, pet_number))
+    if(!critter->Create(objmgr.GenerateLowGuid(HIGHGUID_PET), map, m_caster->GetPhaseMask(),
+        pet_entry, pet_number))
     {
         sLog.outError("Spell::EffectSummonCritter, spellid %u: no such creature entry %u", m_spellInfo->Id, pet_entry);
         delete critter;
@@ -6410,7 +6416,7 @@ void Spell::EffectTransmitted(uint32 effIndex)
     GameObject* pGameObj = new GameObject;
 
     if(!pGameObj->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), name_id, cMap,
-        fx, fy, fz, m_caster->GetOrientation(), 0, 0, 0, 0, 100, 1))
+        m_caster->GetPhaseMask(), fx, fy, fz, m_caster->GetOrientation(), 0, 0, 0, 0, 100, 1))
     {
         delete pGameObj;
         return;
@@ -6481,7 +6487,7 @@ void Spell::EffectTransmitted(uint32 effIndex)
     {
         GameObject* linkedGO = new GameObject;
         if(linkedGO->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), linkedEntry, cMap,
-            fx, fy, fz, m_caster->GetOrientation(), 0, 0, 0, 0, 100, 1))
+            m_caster->GetPhaseMask(), fx, fy, fz, m_caster->GetOrientation(), 0, 0, 0, 0, 100, 1))
         {
             linkedGO->SetRespawnTime(duration > 0 ? duration/1000 : 0);
             linkedGO->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel() );

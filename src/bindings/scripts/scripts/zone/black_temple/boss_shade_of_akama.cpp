@@ -346,7 +346,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
         std::list<Creature*> ChannelerList;
 
         Trinity::AllCreaturesOfEntryInRange check(m_creature, CREATURE_CHANNELER, 50);
-        Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(ChannelerList, check);
+        Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(m_creature, ChannelerList, check);
         TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> visitor(searcher);
 
         CellLock<GridReadGuard> cell_lock(cell, pair);

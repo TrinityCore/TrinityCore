@@ -344,7 +344,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
         std::list<Creature*> PhoenixList;
 
         Trinity::AllCreaturesOfEntryInRange check(m_creature, PHOENIX, 50);
-        Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(PhoenixList, check);
+        Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(m_creature, PhoenixList, check);
         TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> visitor(searcher);
 
         CellLock<GridReadGuard> cell_lock(cell, pair);

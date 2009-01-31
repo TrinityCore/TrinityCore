@@ -3658,6 +3658,7 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
         return false;
 
     uint32 spellId = Aur->GetId();
+    uint32 effIndex = Aur->GetEffIndex();
 
     // passive spell special case (only non stackable with ranks)
     if(IsPassiveSpell(spellId))
@@ -3665,8 +3666,6 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
         if(IsPassiveSpellStackableWithRanks(spellProto))
             return true;
     }
-
-    uint32 effIndex = Aur->GetEffIndex();
 
     SpellSpecific spellId_spec = GetSpellSpecific(spellId);
 
@@ -9343,7 +9342,7 @@ void Unit::DestroyForNearbyPlayers()
 
     std::list<Unit*> targets;
     Trinity::AnyUnitInObjectRangeCheck check(this, World::GetMaxVisibleDistance());
-    Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(targets, check);
+    Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targets, check);
     VisitNearbyWorldObject(World::GetMaxVisibleDistance(), searcher);
     for(std::list<Unit*>::iterator iter = targets.begin(); iter != targets.end(); ++iter)
         if(*iter != this && (*iter)->GetTypeId() == TYPEID_PLAYER
@@ -11330,7 +11329,7 @@ Unit* Unit::SelectNearbyTarget(float dist) const
 {
     std::list<Unit *> targets;
     Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(this, this, dist);
-    Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(targets, u_check);
+    Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(this, targets, u_check);
     VisitNearbyObject(dist, searcher);
 
     // remove current target
@@ -12507,4 +12506,13 @@ float Unit::MeleeSpellMissChance(const Unit *pVictim, WeaponAttackType attType, 
     if (miss_chance > 60.0f)
         return 60.0f;
     return miss_chance;
+}
+
+void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
+{
+    WorldObject::SetPhaseMask(newPhaseMask,update);
+
+    if(IsInWorld())
+        if(Pet* pet = GetPet())
+            pet->SetPhaseMask(newPhaseMask,true);
 }

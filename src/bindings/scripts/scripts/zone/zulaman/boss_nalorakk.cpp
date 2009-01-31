@@ -159,7 +159,7 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
             cell.SetNoCreate();
 
             Trinity::AllFriendlyCreaturesInGrid check(m_creature);
-            Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> searcher(templist, check);
+            Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> searcher(m_creature, templist, check);
 
             TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid>, GridTypeMapContainer> cSearcher(searcher);
 

@@ -61,7 +61,7 @@ bool DynamicObject::Create( uint32 guidlow, Unit *caster, uint32 spellId, uint32
 {
     SetInstanceId(caster->GetInstanceId());
 
-    WorldObject::_Create(guidlow, HIGHGUID_DYNAMICOBJECT, caster->GetMapId());
+    WorldObject::_Create(guidlow, HIGHGUID_DYNAMICOBJECT, caster->GetMapId(), caster->GetPhaseMask());
     Relocate(x,y,z,0);
 
     if(!IsPositionValid())

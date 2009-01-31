@@ -539,7 +539,7 @@ bool GOHello_go_second_trial(Player *player, GameObject* _GO)
 
     Creature* event_controller = NULL;
     Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck u_check(*_GO, MASTER_KELERUN_BLOODMOURN, true, 30);
-    Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(event_controller, u_check);
+    Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(player, event_controller, u_check);
     TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
     //cell_lock->Visit(cell_lock, grid_unit_searcher, *MapManager::Instance().GetMap(_GO->GetMap(), _GO));
     cell_lock->Visit(cell_lock, grid_unit_searcher, *(_GO->GetMap()));
