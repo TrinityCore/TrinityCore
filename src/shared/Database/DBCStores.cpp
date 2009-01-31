@@ -500,20 +500,15 @@ void LoadDBCStores(const std::string& dataPath)
         exit(1);
     }
 
-    // check at up-to-date DBC files (54909 is last added spell in 3.0.1)
-    // check at up-to-date DBC files (19162 is last added spell in abilities in 3.0.1)
-    // check at up-to-date DBC files (619 is last map added in 3.0.1)
-    // check at up-to-date DBC files (1361 is last gem property added in 3.0.1)
-    // check at up-to-date DBC files (2425 is last item extended cost added in 3.0.1)
-    // check at up-to-date DBC files (76 is last char title added in 3.0.1)
-    // check at up-to-date DBC files (2311 is last area added in 3.0.1)
-    if( !sSpellStore.LookupEntry(54909)            ||
-        !sSkillLineAbilityStore.LookupEntry(19162) ||
-        !sMapStore.LookupEntry(619)                ||
-        !sGemPropertiesStore.LookupEntry(1361)     ||
-        !sItemExtendedCostStore.LookupEntry(2425)  ||
-        !sCharTitlesStore.LookupEntry(76)          ||
-        !sAreaStore.LookupEntry(2311)              )
+    // Check loaded DBC files proper version
+    if( !sSpellStore.LookupEntry(54909)            ||       // last added spell in 3.0.8a
+        !sSpellStore.LookupEntry(49184)            ||       // last added spell in 3.0.8a
+        sSpellStore.LookupEntry(49184)->RecoveryTime!=5000||// last changed spell in 3.0.8a
+        !sMapStore.LookupEntry(624)                ||       // last map added in 3.0.8a
+        !sGemPropertiesStore.LookupEntry(1557)     ||       // last gem property added in 3.0.8a
+        !sItemExtendedCostStore.LookupEntry(2589)  ||       // last item extended cost added in 3.0.8a
+        !sCharTitlesStore.LookupEntry(144)         ||       // last char title added in 3.0.8a
+        !sAreaStore.LookupEntry(2769)              )        // last area (areaflag) added in 3.0.8a
     {
         sLog.outError("\nYou have _outdated_ DBC files. Please extract correct versions from current using client.");
         exit(1);

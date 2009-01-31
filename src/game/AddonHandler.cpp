@@ -66,63 +66,84 @@ bool AddonHandler::BuildAddonPacket(WorldPacket *Source, WorldPacket *Target)
     if (Source->rpos() + 4 > Source->size())
         return false;
 
-    *Source >> TempValue;                                   //get real size of the packed structure
+    *Source >> TempValue;                                   // get real size of the packed structure
 
     // empty addon packet, nothing process, can't be received from real client
     if(!TempValue)
         return false;
 
-    AddonRealSize = TempValue;                              //temp value because ZLIB only excepts uLongf
+    AddonRealSize = TempValue;                              // temp value because ZLIB only excepts uLongf
 
-    CurrentPosition = Source->rpos();                       //get the position of the pointer in the structure
+    CurrentPosition = Source->rpos();                       // get the position of the pointer in the structure
 
-    AddOnPacked.resize(AddonRealSize);                      //resize target for zlib action
+    AddOnPacked.resize(AddonRealSize);                      // resize target for zlib action
 
     if (!uncompress(const_cast<uint8*>(AddOnPacked.contents()), &AddonRealSize, const_cast<uint8*>((*Source).contents() + CurrentPosition), (*Source).size() - CurrentPosition)!= Z_OK)
     {
         Target->Initialize(SMSG_ADDON_INFO);
 
-        while(AddOnPacked.rpos() < AddOnPacked.size())
+        uint32 addonsCount;
+        AddOnPacked >> addonsCount;                         // addons count?
+
+        for(uint32 i = 0; i < addonsCount; ++i)
         {
-            std::string AddonNames;
-            uint8 unk6;
-            uint32 crc, unk7;
+            std::string addonName;
+            uint8 enabled;
+            uint32 crc, unk2;
 
             // check next addon data format correctness
-            if(AddOnPacked.rpos()+1+4+4+1 > AddOnPacked.size())
+            if(AddOnPacked.rpos()+1 > AddOnPacked.size())
                 return false;
 
-            AddOnPacked >> AddonNames;
+            AddOnPacked >> addonName;
 
             // recheck next addon data format correctness
-            if(AddOnPacked.rpos()+4+4+1 > AddOnPacked.size())
+            if(AddOnPacked.rpos()+1+4+4 > AddOnPacked.size())
                 return false;
 
-            AddOnPacked >> crc >> unk7 >> unk6;
+            AddOnPacked >> enabled >> crc >> unk2;
 
-            //sLog.outDebug("ADDON: Name:%s CRC:%x Unknown1 :%x Unknown2 :%x", AddonNames.c_str(), crc, unk7, unk6);
+            sLog.outDebug("ADDON: Name: %s, Enabled: 0x%x, CRC: 0x%x, Unknown2: 0x%x", addonName.c_str(), enabled, crc, unk2);
 
-            *Target << (uint8)2;
+            uint8 state = (enabled ? 2 : 1);
+            *Target << uint8(state);
 
-            uint8 unk1 = 1;
-            *Target << (uint8)unk1;
+            uint8 unk1 = (enabled ? 1 : 0);
+            *Target << uint8(unk1);
             if (unk1)
             {
-                uint8 unk2 = crc != 0x1c776d01LL;           //If addon is Standard addon CRC
-                *Target << (uint8)unk2;
+                uint8 unk2 = (crc != 0x4c1c776d);           // If addon is Standard addon CRC
+                *Target << uint8(unk2);
                 if (unk2)
                     Target->append(tdata, sizeof(tdata));
 
-                *Target << (uint32)0;
+                *Target << uint32(0);
             }
 
-            uint8 unk3 = 0;
-            *Target << (uint8)unk3;
+            uint8 unk3 = (enabled ? 0 : 1);
+            *Target << uint8(unk3);
             if (unk3)
             {
-                // String, 256
+                // String, 256 (null terminated?)
+                *Target << uint8(0);
             }
         }
+
+        uint32 unk4;
+        AddOnPacked >> unk4;
+
+        uint32 count = 0;
+        *Target << uint32(count);
+        /*for(uint32 i = 0; i < count; ++i)
+        {
+            uint32
+            string (16 bytes)
+            string (16 bytes)
+            uint32
+        }*/
+
+        if(AddOnPacked.rpos() != AddOnPacked.size())
+            sLog.outDebug("packet under read!");
     }
     else
     {

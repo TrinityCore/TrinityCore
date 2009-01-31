@@ -595,10 +595,17 @@ void PlayerMenu::SendQuestQueryResponse( Quest const *pQuest )
             data << uint32(pQuest->ReqCreatureOrGOId[iI]);
         }
         data << uint32(pQuest->ReqCreatureOrGOCount[iI]);
-        data << uint32(pQuest->ReqItemId[iI]);
-        data << uint32(pQuest->ReqItemCount[iI]);
         data << uint32(0);                                  // added in WotLK, dunno if offset if correct
     }
+
+    for (iI = 0; iI < QUEST_OBJECTIVES_COUNT; ++iI)
+    {
+        data << uint32(pQuest->ReqItemId[iI]);
+        data << uint32(pQuest->ReqItemCount[iI]);
+    }
+
+    data << uint32(0);                                      // TODO: 5 item objective
+    data << uint32(0);
 
     for (iI = 0; iI < QUEST_OBJECTIVES_COUNT; iI++)
         data << ObjectiveText[iI];
