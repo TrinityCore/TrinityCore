@@ -346,8 +346,8 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
             if (spellInfo->Dispel == DISPEL_CURSE)
                 return SPELL_CURSE;
 
-            // family flag 37 (only part spells have family name)
-            if (spellInfo->SpellFamilyFlags & 0x2000000000LL)
+            // Warlock (Demon Armor | Demon Skin | Fel Armor)
+            if (spellInfo->SpellFamilyFlags & 0x2000002000000000LL || spellInfo->SpellFamilyFlags2 & 0x00000010)
                 return SPELL_WARLOCK_ARMOR;
 
             //seed of corruption and corruption
@@ -404,12 +404,6 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
             if ((spellInfo->Attributes & 0x10) && (spellInfo->AttributesEx2 & 0x10) && (spellInfo->AttributesEx4 & 0x200000))
                 return SPELL_PRESENCE;
             break;
-    }
-
-    // only warlock armor/skin have this (in additional to family cases)
-    if( spellInfo->SpellVisual[0] == 130 && spellInfo->SpellIconID == 89)
-    {
-        return SPELL_WARLOCK_ARMOR;
     }
 
     // elixirs can have different families, but potion most ofc.

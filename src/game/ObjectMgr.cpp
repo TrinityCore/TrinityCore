@@ -5513,11 +5513,6 @@ void ObjectMgr::SetHighestGuids()
         delete result;
     }
 
-    // pet guids are not saved to DB, set to 0 (pet guid != pet id)
-    m_hiPetGuid = 0;
-    // same for vehicles
-    m_hiVehicleGuid = 0;
-
     result = CharacterDatabase.Query( "SELECT MAX(guid) FROM item_instance" );
     if( result )
     {
@@ -5671,7 +5666,6 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
             }
             return m_hiPetGuid++;
         case HIGHGUID_VEHICLE:
-            ++m_hiVehicleGuid;
             if(m_hiVehicleGuid>=0x00FFFFFF)
             {
                 sLog.outError("Vehicle guid overflow!! Can't continue, shutting down server. ");
