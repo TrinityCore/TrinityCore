@@ -609,6 +609,9 @@ void Spell::EffectDummy(uint32 i)
     if(!unitTarget && !gameObjTarget && !itemTarget)
         return;
 
+    uint32 spell_id = 0;
+    int32 bp = 0;
+
     // selection by spell family
     switch(m_spellInfo->SpellFamilyName)
     {
@@ -1279,8 +1282,8 @@ void Spell::EffectDummy(uint32 i)
                 if(!unitTarget)
                     return;
 
-				int32 basePoints0 = damage+int32(m_caster->GetPower(POWER_RAGE) * m_spellInfo->DmgMultiplier[i]);
-                m_caster->CastCustomSpell(unitTarget, 20647, &basePoints0, NULL, NULL, true, 0);
+                spell_id = 20647;
+				bp = damage+int32(m_caster->GetPower(POWER_RAGE) * m_spellInfo->DmgMultiplier[i]);
                 m_caster->SetPower(POWER_RAGE,0);
                 return;
             }
@@ -1680,6 +1683,24 @@ void Spell::EffectDummy(uint32 i)
             }
 
             break;
+    }
+
+    //spells triggered by dummy effect should not miss
+    if(spell_id)
+    {
+        SpellEntry const *spellInfo = sSpellStore.LookupEntry( spell_id );
+
+        if(!spellInfo)
+        {
+            sLog.outError("EffectDummy of spell %u: triggering unknown spell id %i\n", m_spellInfo->Id, spell_id);
+            return;
+        }
+
+        Spell* spell = new Spell(m_caster, spellInfo, true, m_originalCasterGUID, NULL, true);
+        if(bp) spell->m_currentBasePoints[0] = bp;
+        SpellCastTargets targets;
+        targets.setUnitTarget(unitTarget);
+        spell->prepare(&targets);
     }
 
     // pet auras
