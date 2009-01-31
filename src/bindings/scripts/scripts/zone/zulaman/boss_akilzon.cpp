@@ -188,7 +188,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
 
             {
                 Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(m_creature, m_creature, 999);
-                Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(tempUnitMap, u_check);
+                Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(m_creature, tempUnitMap, u_check);
 
                 TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
                 TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);

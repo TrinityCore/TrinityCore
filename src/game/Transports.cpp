@@ -147,6 +147,7 @@ bool Transport::Create(uint32 guidlow, uint32 mapid, float x, float y, float z, 
     Relocate(x,y,z,ang);
 
     SetMapId(mapid);
+    // instance id and phaseMask isn't set to values different from std.
 
     if(!IsPositionValid())
     {

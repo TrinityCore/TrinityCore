@@ -2094,8 +2094,8 @@ void World::ScriptsProcess()
                 Cell cell(p);
                 cell.data.Part.reserved = ALL_DISTRICT;
 
-                Trinity::GameObjectWithDbGUIDCheck go_check(*summoner,step.script->datalong);
-                Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(go,go_check);
+                MaNGOS::GameObjectWithDbGUIDCheck go_check(*summoner,step.script->datalong);
+                MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck> checker(summoner, go,go_check);
 
                 TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
                 CellLock<GridReadGuard> cell_lock(cell, p);
@@ -2155,8 +2155,8 @@ void World::ScriptsProcess()
                 Cell cell(p);
                 cell.data.Part.reserved = ALL_DISTRICT;
 
-                Trinity::GameObjectWithDbGUIDCheck go_check(*caster,step.script->datalong);
-                Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(door,go_check);
+                MaNGOS::GameObjectWithDbGUIDCheck go_check(*caster,step.script->datalong);
+                MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck> checker(caster,door,go_check);
 
                 TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
                 CellLock<GridReadGuard> cell_lock(cell, p);
@@ -2211,8 +2211,8 @@ void World::ScriptsProcess()
                 Cell cell(p);
                 cell.data.Part.reserved = ALL_DISTRICT;
 
-                Trinity::GameObjectWithDbGUIDCheck go_check(*caster,step.script->datalong);
-                Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(door,go_check);
+                MaNGOS::GameObjectWithDbGUIDCheck go_check(*caster,step.script->datalong);
+                MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck> checker(caster,door,go_check);
 
                 TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
                 CellLock<GridReadGuard> cell_lock(cell, p);
@@ -2428,7 +2428,7 @@ void World::ScriptsProcess()
 				
 					//sLog.outDebug("Attempting to find Creature: Db GUID: %i", step.script->datalong);
 					Trinity::CreatureWithDbGUIDCheck target_check(((Unit*)source), step.script->datalong);
-					Trinity::CreatureSearcher<Trinity::CreatureWithDbGUIDCheck> checker(target,target_check);
+					Trinity::CreatureSearcher<Trinity::CreatureWithDbGUIDCheck> checker(((Unit*)source), target, target_check);
 				
 					TypeContainerVisitor<Trinity::CreatureSearcher <Trinity::CreatureWithDbGUIDCheck>, GridTypeMapContainer > unit_checker(checker);
 					CellLock<GridReadGuard> cell_lock(cell, p);

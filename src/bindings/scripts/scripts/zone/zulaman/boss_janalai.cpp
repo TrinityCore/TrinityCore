@@ -239,7 +239,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
             cell.SetNoCreate();
 
             Trinity::AllCreaturesOfEntryInRange check(m_creature, MOB_EGG, 100);
-            Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(templist, check);
+            Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(m_creature, templist, check);
 
             TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
 
@@ -274,7 +274,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
             cell.SetNoCreate();
 
             Trinity::AllCreaturesOfEntryInRange check(m_creature, MOB_FIRE_BOMB, 100);
-            Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(templist, check);
+            Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(m_creature, templist, check);
 
             TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
 
@@ -518,7 +518,7 @@ struct TRINITY_DLL_DECL mob_amanishi_hatcherAI : public ScriptedAI
             cell.SetNoCreate();
 
             Trinity::AllCreaturesOfEntryInRange check(m_creature, 23817, 50);
-            Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(templist, check);
+            Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(m_creature, templist, check);
 
             TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
 
