@@ -189,12 +189,16 @@ bool SpellCastTargets::read ( WorldPacket * data, Unit *caster )
         if(!data->readPackGUID(m_unitTargetGUID))
             return false;
 
-    if( m_targetMask & ( TARGET_FLAG_OBJECT | TARGET_FLAG_OBJECT_UNK ))
+    if( m_targetMask & ( TARGET_FLAG_OBJECT ))
         if(!data->readPackGUID(m_GOTargetGUID))
             return false;
 
     if(( m_targetMask & ( TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM )) && caster->GetTypeId() == TYPEID_PLAYER)
         if(!data->readPackGUID(m_itemTargetGUID))
+            return false;
+
+    if( m_targetMask & (TARGET_FLAG_CORPSE | TARGET_FLAG_PVP_CORPSE ) )
+        if(!data->readPackGUID(m_CorpseTargetGUID))
             return false;
 
     /*if( m_targetMask & TARGET_FLAG_SOURCE_LOCATION )
@@ -209,7 +213,10 @@ bool SpellCastTargets::read ( WorldPacket * data, Unit *caster )
 
     if( m_targetMask & (TARGET_FLAG_SOURCE_LOCATION | TARGET_FLAG_DEST_LOCATION) )
     {
-        if(data->rpos()+4+4+4 > data->size())
+        if(data->rpos()+1+4+4+4 > data->size())
+            return false;
+
+        if(!data->readPackGUID(m_unitTargetGUID))
             return false;
 
         *data >> m_destX >> m_destY >> m_destZ;
@@ -226,10 +233,6 @@ bool SpellCastTargets::read ( WorldPacket * data, Unit *caster )
         *data >> m_strTarget;
     }
 
-    if( m_targetMask & (TARGET_FLAG_CORPSE | TARGET_FLAG_PVP_CORPSE ) )
-        if(!data->readPackGUID(m_CorpseTargetGUID))
-            return false;
-
     // find real units/GOs
     Update(caster);
     return true;
@@ -240,7 +243,7 @@ void SpellCastTargets::write ( WorldPacket * data )
     *data << uint32(m_targetMask);
     sLog.outDebug("Spell write, target mask = %u", m_targetMask);
 
-    if( m_targetMask & ( TARGET_FLAG_UNIT | TARGET_FLAG_PVP_CORPSE | TARGET_FLAG_OBJECT | TARGET_FLAG_OBJECT_UNK | TARGET_FLAG_CORPSE | TARGET_FLAG_UNK2 ) )
+    if( m_targetMask & ( TARGET_FLAG_UNIT | TARGET_FLAG_PVP_CORPSE | TARGET_FLAG_OBJECT | TARGET_FLAG_CORPSE | TARGET_FLAG_UNK2 ) )
     {
         if(m_targetMask & TARGET_FLAG_UNIT)
         {
@@ -249,7 +252,7 @@ void SpellCastTargets::write ( WorldPacket * data )
             else
                 *data << uint8(0);
         }
-        else if( m_targetMask & ( TARGET_FLAG_OBJECT | TARGET_FLAG_OBJECT_UNK ) )
+        else if( m_targetMask & TARGET_FLAG_OBJECT )
         {
             if(m_GOTarget)
                 data->append(m_GOTarget->GetPackGUID());
@@ -274,7 +277,14 @@ void SpellCastTargets::write ( WorldPacket * data )
         *data << m_srcX << m_srcY << m_srcZ;
 
     if( m_targetMask & TARGET_FLAG_DEST_LOCATION )
+    {
+        if(m_unitTarget)
+            data->append(m_unitTarget->GetPackGUID());
+        else
+            *data << uint8(0);
+
         *data << m_destX << m_destY << m_destZ;
+    }
 
     if( m_targetMask & TARGET_FLAG_STRING )
         *data << m_strTarget;

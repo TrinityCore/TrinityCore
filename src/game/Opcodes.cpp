@@ -1218,4 +1218,11 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x4A3*/ { "SMSG_SERVER_BUCK_DATA_START",                  STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x4A4*/ { "CMSG_QUERY_VEHICLE_STATUS",                    STATUS_NEVER,    &WorldSession::Handle_NULL                     },
     /*0x4A5*/ { "SMSG_PET_GUIDS",                               STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
+    /*0x4A6*/ { "SMSG_CLIENTCACHE_VERSION",                     STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
+    /*0x4A7*/ { "UMSG_UNKNOWN_1191",                            STATUS_NEVER,    &WorldSession::Handle_NULL                     },
+    /*0x4A8*/ { "UMSG_UNKNOWN_1192",                            STATUS_NEVER,    &WorldSession::Handle_NULL                     },
+    /*0x4A9*/ { "UMSG_UNKNOWN_1193",                            STATUS_NEVER,    &WorldSession::Handle_NULL                     },
+    /*0x4AA*/ { "UMSG_UNKNOWN_1194",                            STATUS_NEVER,    &WorldSession::Handle_NULL                     },
+    /*0x4AB*/ { "UMSG_UNKNOWN_1195",                            STATUS_NEVER,    &WorldSession::Handle_NULL                     },
+    /*0x4AC*/ { "UMSG_UNKNOWN_1196",                            STATUS_NEVER,    &WorldSession::Handle_NULL                     },
 };
