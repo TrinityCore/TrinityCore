@@ -131,8 +131,7 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        Unit *victim = m_creature->SelectHostilTarget();
-        if(!victim)
+        if(!UpdateVictim())
             return;
 
         if( m_creature->getVictim() && m_creature->isAlive())
@@ -235,11 +234,11 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
                 }else Fear_Timer -=diff;
 
                 //Mortal Strike if target below 50% hp
-                if (victim && victim->GetHealth() < victim->GetMaxHealth()*0.5)
+                if (m_creature->getVictim() && m_creature->getVictim()->GetHealth() < m_creature->getVictim()->GetMaxHealth()*0.5)
                 {
                     if (MortalStrike_Timer < diff)
                     {
-                        DoCast(victim,SPELL_MORTAL_STRIKE);
+                        DoCast(m_creature->getVictim(),SPELL_MORTAL_STRIKE);
                         MortalStrike_Timer = 15000;
                     }else MortalStrike_Timer -= diff;
                 }
@@ -295,7 +294,7 @@ struct TRINITY_DLL_DECL mob_ohganAI : public ScriptedAI
     void UpdateAI (const uint32 diff)
     {
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         //SunderArmor_Timer

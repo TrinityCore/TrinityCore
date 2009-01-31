@@ -73,7 +73,7 @@ struct TRINITY_DLL_DECL npc_chicken_cluckAI : public ScriptedAI
             else ResetFlagTimer -= diff;
         }
 
-        if(m_creature->SelectHostilTarget() && m_creature->getVictim())
+        if(UpdateVictim())
             DoMeleeAttackIfReady();
     }
 };
@@ -611,7 +611,7 @@ struct TRINITY_DLL_DECL npc_guardianAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         if (m_creature->isAttackReady())

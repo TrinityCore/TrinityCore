@@ -89,7 +89,7 @@ struct TRINITY_DLL_DECL mob_doom_blossomAI : public ScriptedAI
             CheckTeronTimer = 5000;
         }else CheckTeronTimer -= diff;
 
-        if(!m_creature->getVictim() || !m_creature->SelectHostilTarget())
+        if(!UpdateVictim())
             return;
 
         if(ShadowBoltTimer < diff)
@@ -390,7 +390,7 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
             }else AggroTimer -= diff;
         }
 
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim() || Intro)
+        if(!UpdateVictim() || Intro)
             return;
 
         if(SummonShadowsTimer < diff)

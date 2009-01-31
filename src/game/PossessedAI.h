@@ -28,7 +28,7 @@ class Creature;
 class TRINITY_DLL_DECL PossessedAI : public CreatureAI
 {
     public:
-        PossessedAI(Creature *c) : i_pet(*c), i_victimGuid(0) {}
+        PossessedAI(Creature *c) : CreatureAI(c), i_pet(*c), i_victimGuid(0) {}
 
         // Possessed creatures shouldn't aggro by themselves
         void MoveInLineOfSight(Unit *) {}
@@ -36,7 +36,6 @@ class TRINITY_DLL_DECL PossessedAI : public CreatureAI
         void EnterEvadeMode() {}
         void JustDied(Unit*);
         void KilledUnit(Unit* victim);
-        bool IsVisible(Unit * u) const { return _isVisible(u); }
 
         void UpdateAI(const uint32);
         // Never permit this to be used, it must always be initialized with Creature::InitPossessedAI()

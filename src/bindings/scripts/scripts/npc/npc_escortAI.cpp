@@ -188,7 +188,7 @@ void npc_escortAI::UpdateAI(const uint32 diff)
 	}
 
     //Check if we have a current target
-    if( m_creature->isAlive() && m_creature->SelectHostilTarget() && m_creature->getVictim())
+    if( m_creature->isAlive() && UpdateVictim())
     {
         //If we are within range melee the target
         if( m_creature->IsWithinMeleeRange(m_creature->getVictim()))

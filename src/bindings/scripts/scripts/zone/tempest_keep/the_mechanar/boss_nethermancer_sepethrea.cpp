@@ -101,7 +101,7 @@ boss_nethermancer_sepethreaAI(Creature *c) : ScriptedAI(c)
     {
         
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )            
+        if (!UpdateVictim() )            
             return;  
 
         //Frost Attack        
@@ -198,7 +198,7 @@ struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         if (!onlyonce)

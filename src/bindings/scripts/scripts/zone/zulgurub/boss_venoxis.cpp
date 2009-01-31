@@ -87,7 +87,7 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-          if (!m_creature->getVictim() && !m_creature->SelectHostilTarget())
+          if (!UpdateVictim())
             return;
 
             if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth() > 50))

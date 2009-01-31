@@ -282,7 +282,7 @@ struct TRINITY_DLL_DECL npc_secondTrialAI : public ScriptedAI
          else timer -= diff;
       }
 
-      if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+      if (!UpdateVictim())
           return;
 
       // healer
@@ -400,7 +400,7 @@ struct TRINITY_DLL_DECL master_kelerun_bloodmournAI : public ScriptedAI
          else timer -= diff;
       }
 
-      if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+      if (!UpdateVictim())
           return;
 
       DoMeleeAttackIfReady();

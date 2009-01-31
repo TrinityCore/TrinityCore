@@ -79,7 +79,7 @@
     
         void UpdateAI(const uint32 diff)
         {
-            if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+            if (!UpdateVictim())
                 return;
     
             // Mark of Blaumeux
@@ -175,7 +175,7 @@
    
        void UpdateAI(const uint32 diff)
        {
-           if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+           if (!UpdateVictim())
                return;
    
            DoMeleeAttackIfReady();
@@ -235,7 +235,7 @@
    
        void UpdateAI(const uint32 diff)
        {
-           if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+           if (!UpdateVictim())
                return;
    
            // Mark of Korthazz
@@ -331,7 +331,7 @@
        void UpdateAI(const uint32 diff)
        {
            //Return since we have no target
-           if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+           if (!UpdateVictim())
                return;
    
            // Mark of Zeliek

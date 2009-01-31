@@ -219,7 +219,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         if(CloseDoorTimer)
@@ -539,7 +539,7 @@ struct TRINITY_DLL_DECL water_elementalAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         if(CastTimer < diff)

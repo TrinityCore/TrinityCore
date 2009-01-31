@@ -86,7 +86,7 @@ struct TRINITY_DLL_DECL boss_curatorAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         if (Evocating && !m_creature->HasAura(SPELL_EVOCATION, 0))

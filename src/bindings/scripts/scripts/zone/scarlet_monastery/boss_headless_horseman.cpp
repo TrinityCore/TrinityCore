@@ -649,7 +649,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
 				DoPlaySoundToSet(m_creature, RandomLaught[rand()%3]);
 			} else laugh -= diff;
 
-			if (m_creature->SelectHostilTarget() && m_creature->getVictim())
+			if (UpdateVictim())
 			{
 				DoMeleeAttackIfReady();
 				if (cleave < diff) {
@@ -778,7 +778,7 @@ struct TRINITY_DLL_DECL mob_pulsing_pumpkinAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
 		if (sprouted)
-			if (m_creature->SelectHostilTarget() && m_creature->getVictim())
+			if (UpdateVictim())
 				DoMeleeAttackIfReady();
 	}
 };

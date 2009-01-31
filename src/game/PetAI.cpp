@@ -38,7 +38,7 @@ int PetAI::Permissible(const Creature *creature)
     return PERMIT_BASE_NO;
 }
 
-PetAI::PetAI(Creature *c) : i_pet(*c), i_tracker(TIME_INTERVAL_LOOK), inCombat(false)
+PetAI::PetAI(Creature *c) : CreatureAI(c), i_pet(*c), i_tracker(TIME_INTERVAL_LOOK), inCombat(false)
 {
     m_AllySet.clear();
     UpdateAllies();
@@ -85,11 +85,6 @@ void PetAI::AttackStart(Unit *u)
 
 void PetAI::EnterEvadeMode()
 {
-}
-
-bool PetAI::IsVisible(Unit *pl) const
-{
-    return _isVisible(pl);
 }
 
 bool PetAI::_needToStop() const
@@ -289,13 +284,6 @@ void PetAI::UpdateAI(const uint32 diff)
             m_targetSpellStore.erase(m_targetSpellStore.begin());
         }
     }
-}
-
-bool PetAI::_isVisible(Unit *u) const
-{
-    //return false;                                           //( ((Creature*)&i_pet)->GetDistanceSq(u) * 1.0<= sWorld.getConfig(CONFIG_SIGHT_GUARDER) && !u->m_stealth && u->isAlive());
-    return i_pet.GetDistance(u) < sWorld.getConfig(CONFIG_SIGHT_GUARDER)
-        && u->isVisibleForOrDetect(&i_pet,true);
 }
 
 void PetAI::UpdateAllies()

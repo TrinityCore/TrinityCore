@@ -206,7 +206,7 @@ struct TRINITY_DLL_DECL eye_of_cthunAI : public Scripted_NoMovementAI
     void UpdateAI(const uint32 diff)
     {
         //Check if we have a target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //No instance
@@ -561,7 +561,7 @@ struct TRINITY_DLL_DECL cthunAI : public Scripted_NoMovementAI
     void UpdateAI(const uint32 diff)
     {
         //Check if we have a target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
         {
             //No target so we'll use this section to do our random wispers instance wide
             //WisperTimer
@@ -952,7 +952,7 @@ struct TRINITY_DLL_DECL eye_tentacleAI : public Scripted_NoMovementAI
     void UpdateAI(const uint32 diff)
     {
         //Check if we have a target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //KillSelfTimer
@@ -1015,7 +1015,7 @@ struct TRINITY_DLL_DECL claw_tentacleAI : public Scripted_NoMovementAI
     void UpdateAI(const uint32 diff)
     {
         //Check if we have a target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //EvadeTimer
@@ -1112,7 +1112,7 @@ struct TRINITY_DLL_DECL giant_claw_tentacleAI : public Scripted_NoMovementAI
     void UpdateAI(const uint32 diff)
     {
         //Check if we have a target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //EvadeTimer
@@ -1211,7 +1211,7 @@ struct TRINITY_DLL_DECL giant_eye_tentacleAI : public Scripted_NoMovementAI
     void UpdateAI(const uint32 diff)
     {
         //Check if we have a target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //BeamTimer
@@ -1232,7 +1232,7 @@ struct TRINITY_DLL_DECL giant_eye_tentacleAI : public Scripted_NoMovementAI
 void flesh_tentacleAI::UpdateAI(const uint32 diff)
 {
     //Check if we have a target
-    if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+    if (!UpdateVictim())
         return;
 
     if (Parent)

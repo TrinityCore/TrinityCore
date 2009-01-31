@@ -111,7 +111,7 @@ struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public Scripted_NoMovementAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //only two may be wrong, perhaps increase timer and spawn periodically instead.

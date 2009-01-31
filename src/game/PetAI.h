@@ -36,7 +36,6 @@ class TRINITY_DLL_DECL PetAI : public CreatureAI
         void MoveInLineOfSight(Unit *);
         void AttackStart(Unit *);
         void EnterEvadeMode();
-        bool IsVisible(Unit *) const;
         void JustDied(Unit* who) { _stopAttack(); }
 
         void UpdateAI(const uint32);

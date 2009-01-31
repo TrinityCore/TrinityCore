@@ -82,7 +82,7 @@ struct TRINITY_DLL_DECL mobs_spitelashesAI : public ScriptedAI
                 DoCast(m_creature,6924);                    //visual explosion
             }
         }
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         //TODO: add abilities for the different creatures

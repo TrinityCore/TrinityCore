@@ -347,7 +347,7 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() && !m_creature->getVictim())
+        if (!UpdateVictim())
             return;	
 
         if(CheckTimer < diff)
@@ -528,7 +528,7 @@ void boss_kalecgosAI::UpdateAI(const uint32 diff)
     }
     else
     {
-        if (!m_creature->SelectHostilTarget() && !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         if(CheckTimer < diff)
