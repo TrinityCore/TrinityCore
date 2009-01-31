@@ -132,7 +132,7 @@ struct TRINITY_DLL_DECL boss_archaedasAI : public ScriptedAI
         }
 
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
 
@@ -270,7 +270,7 @@ struct TRINITY_DLL_DECL mob_archaedas_minionsAI : public ScriptedAI
         }
 
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
 
@@ -383,7 +383,7 @@ struct TRINITY_DLL_DECL mob_stonekeepersAI : public ScriptedAI
     {
 
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         DoMeleeAttackIfReady();

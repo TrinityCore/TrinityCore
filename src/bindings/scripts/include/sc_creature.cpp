@@ -63,20 +63,6 @@ void SummonList::DespawnAll()
     clear();
 }
 
-bool ScriptedAI::IsVisible(Unit* who) const
-{
-    if (!who)
-        return false;
-
-    return (m_creature->GetDistance(who) < VISIBLE_RANGE) && who->isVisibleForOrDetect(m_creature,true);
-}
-
-void ScriptedAI::MoveInLineOfSight(Unit *who)
-{
-    if(!m_creature->getVictim() && m_creature->canStartAttack(who))
-        AttackStart(who);
-}
-
 void ScriptedAI::AttackStart(Unit* who, bool melee)
 {
     if (!who)
@@ -121,7 +107,7 @@ void ScriptedAI::AttackStart(Unit* who)
 void ScriptedAI::UpdateAI(const uint32 diff)
 {
     //Check if we have a current target
-    if (m_creature->isAlive() && m_creature->SelectHostilTarget() && m_creature->getVictim())
+    if (m_creature->isAlive() && UpdateVictim())
     {
         if (m_creature->isAttackReady() )
         {

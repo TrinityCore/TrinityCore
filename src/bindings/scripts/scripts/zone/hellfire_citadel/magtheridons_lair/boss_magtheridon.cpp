@@ -154,7 +154,7 @@ struct TRINITY_DLL_DECL mob_abyssalAI : public ScriptedAI
             m_creature->setDeathState(JUST_DIED);
         }else Despawn_Timer -= diff;
 
-        if(!m_creature->SelectHostilTarget() && !m_creature->getVictim())
+        if(!UpdateVictim())
             return;
 
         if(FireBlast_Timer < diff)
@@ -323,7 +323,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
             }else RandChat_Timer -= diff;
         }
 
-        if(!m_creature->SelectHostilTarget() && !m_creature->getVictim())
+        if(!UpdateVictim())
             return;
 
         if(NeedCheckCube) NeedCheckCubeStatus();
@@ -470,7 +470,7 @@ struct TRINITY_DLL_DECL mob_hellfire_channelerAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() && !m_creature->getVictim())
+        if(!UpdateVictim())
             return;    
  
         if(ShadowBoltVolley_Timer < diff)

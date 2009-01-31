@@ -144,7 +144,7 @@ struct TRINITY_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
                 EnterEvadeMode();
         else ResetTimer -= diff;
 
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if(!UpdateVictim())
             return;
 
         if(CastTimer < diff)
@@ -251,7 +251,7 @@ struct TRINITY_DLL_DECL mob_enslaved_netherwing_drakeAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if(!UpdateVictim())
         {
             if(Tapped)
                 if(FlyTimer < diff)
@@ -1167,7 +1167,7 @@ struct TRINITY_DLL_DECL mob_illidari_spawnAI : public ScriptedAI
  
     void UpdateAI(const uint32 diff)
     { 
-        if(!m_creature->getVictim() || !m_creature->SelectHostilTarget())
+        if(!UpdateVictim())
             return;
 
         if(!Timers)

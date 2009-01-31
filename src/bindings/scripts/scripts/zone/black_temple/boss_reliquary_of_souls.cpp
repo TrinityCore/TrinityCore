@@ -397,7 +397,7 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() && !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //Supposed to be cast on nearest target
@@ -491,7 +491,7 @@ struct TRINITY_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() && !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         if(RuneShieldTimer < diff)
@@ -580,7 +580,7 @@ struct TRINITY_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() && !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         if(!CheckedAggro)

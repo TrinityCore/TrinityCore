@@ -93,7 +93,7 @@ struct TRINITY_DLL_DECL boss_noxxionAI : public ScriptedAI
         }
 
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         //ToxicVolley_Timer

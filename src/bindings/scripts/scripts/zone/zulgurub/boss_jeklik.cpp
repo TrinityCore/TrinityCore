@@ -94,7 +94,7 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-		if (!m_creature->getVictim() && !m_creature->SelectHostilTarget())            
+		if (!UpdateVictim())            
 			return;
 
         if( m_creature->getVictim() && m_creature->isAlive())
@@ -238,7 +238,7 @@ struct TRINITY_DLL_DECL mob_batriderAI : public ScriptedAI
 
     void UpdateAI (const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         //Bomb_Timer

@@ -132,7 +132,7 @@ struct TRINITY_DLL_DECL boss_darkweaver_sythAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         if (((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() < 90) && !summon90)
@@ -228,7 +228,7 @@ struct TRINITY_DLL_DECL mob_syth_fireAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         if(flameshock_timer < diff)
@@ -280,7 +280,7 @@ struct TRINITY_DLL_DECL mob_syth_arcaneAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         if(arcaneshock_timer < diff)
@@ -332,7 +332,7 @@ struct TRINITY_DLL_DECL mob_syth_frostAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         if(frostshock_timer < diff)
@@ -384,7 +384,7 @@ struct TRINITY_DLL_DECL mob_syth_shadowAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         if(shadowshock_timer < diff)

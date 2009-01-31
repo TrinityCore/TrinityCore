@@ -119,7 +119,7 @@ struct TRINITY_DLL_DECL npc_torekAI : public npc_escortAI
 	{
 		npc_escortAI::UpdateAI(diff);
    
-		if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+		if (!UpdateVictim())
 			return;
    
 		if (Rend_Timer < diff)

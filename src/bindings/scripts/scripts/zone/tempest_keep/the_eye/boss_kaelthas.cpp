@@ -783,7 +783,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
             case 6:
             {
                 //Return since we have no target
-                if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+                if (!UpdateVictim() )
                     return;
 
                 //Fireball_Timer
@@ -1091,7 +1091,7 @@ struct TRINITY_DLL_DECL boss_thaladred_the_darkenerAI : public advisorbase_ai
             return;
 
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         //Gaze_Timer
@@ -1162,7 +1162,7 @@ struct TRINITY_DLL_DECL boss_lord_sanguinarAI : public advisorbase_ai
             return;
 
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         //Fear_Timer
@@ -1240,7 +1240,7 @@ struct TRINITY_DLL_DECL boss_grand_astromancer_capernianAI : public advisorbase_
             return;
 
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         //Yell_Timer
@@ -1344,7 +1344,7 @@ struct TRINITY_DLL_DECL boss_master_engineer_telonicusAI : public advisorbase_ai
             return;
 
         //Return since we have no target
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if (!UpdateVictim() )
             return;
 
         //Bomb_Timer
@@ -1444,7 +1444,7 @@ struct TRINITY_DLL_DECL mob_phoenix_tkAI : public ScriptedAI
 
        void UpdateAI(const uint32 diff)
        {
-               if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+               if (!UpdateVictim())
                        return;
 
                if(SummonEgg < 2){

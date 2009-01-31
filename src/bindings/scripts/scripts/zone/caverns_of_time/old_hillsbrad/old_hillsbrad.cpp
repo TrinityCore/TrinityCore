@@ -495,7 +495,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
     {
         npc_escortAI::UpdateAI(diff);
 
-		if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+		if (!UpdateVictim())
 			return;
 
              //TODO: add his abilities'n-crap here

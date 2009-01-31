@@ -108,7 +108,7 @@ struct TRINITY_DLL_DECL npc_ameAI : public npc_escortAI
     void UpdateAI(const uint32 diff)
     {
         npc_escortAI::UpdateAI(diff);
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
    
         if (DEMORALIZINGSHOUT_Timer < diff)

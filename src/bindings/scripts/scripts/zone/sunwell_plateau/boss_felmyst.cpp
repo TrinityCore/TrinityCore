@@ -389,7 +389,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() && !m_creature->getVictim())
+        if (!UpdateVictim())
         {
             if(Phase == PHASE_FLIGHT && !m_creature->IsInEvadeMode())
                 EnterEvadeMode();

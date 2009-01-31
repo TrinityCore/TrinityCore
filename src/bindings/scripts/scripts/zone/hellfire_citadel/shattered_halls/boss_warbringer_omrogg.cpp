@@ -328,7 +328,7 @@ struct TRINITY_DLL_DECL boss_warbringer_omroggAI : public ScriptedAI
             }
         }else Delay_Timer -= diff;
 
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         if (BlastCount && BlastWave_Timer <= diff)

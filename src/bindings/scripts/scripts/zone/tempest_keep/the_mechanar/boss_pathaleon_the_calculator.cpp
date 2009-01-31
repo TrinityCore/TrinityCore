@@ -101,7 +101,7 @@ struct TRINITY_DLL_DECL boss_pathaleon_the_calculatorAI : public ScriptedAI
     void UpdateAI(const uint32 diff)    
     {       
         //Return since we have no target        
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )            
+        if (!UpdateVictim() )            
             return;         
        
         if(Summon_Timer < diff)        
@@ -197,7 +197,7 @@ struct TRINITY_DLL_DECL mob_nether_wraithAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         if(ArcaneMissiles_Timer < diff)

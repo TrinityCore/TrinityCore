@@ -249,7 +249,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 	 void UpdateAI(const uint32 diff)
 	 {
 		 //Return since we have no target
-		 if (!m_creature->SelectHostilTarget() /*|| !m_creature->getVictim()*/ )//rotate resets target
+		 if (!UpdateVictim() /*|| !m_creature->getVictim()*/ )//rotate resets target
 			 return;
 
 		  //Check if players in water and if in water cast spell
@@ -328,7 +328,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 				 WaterboltTimer = 3000;
 			 }else WaterboltTimer -= diff;
 
-			 if (!m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+			 if (!UpdateVictim() )
 				return;
 
 			 DoMeleeAttackIfReady();

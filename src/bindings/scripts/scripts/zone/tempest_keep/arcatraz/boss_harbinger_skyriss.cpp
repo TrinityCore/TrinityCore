@@ -175,7 +175,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
             }else Intro_Timer -=diff;
         }
 
-        if( !m_creature->SelectHostilTarget() || !m_creature->getVictim() )
+        if( !UpdateVictim() )
             return;
 
         if( !IsImage66 && ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() <= 66) )
