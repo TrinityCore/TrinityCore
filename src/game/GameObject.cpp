@@ -744,10 +744,6 @@ bool GameObject::isVisibleForInState(Player const* u, bool inVisibleList) const
             if(check stuff here)
                 return false;
         }*/
-
-        // Smuggled Mana Cell required 10 invisibility type detection/state
-        if(GetEntry()==187039 && ((u->m_detectInvisibilityMask | u->m_invisibilityMask) & (1<<10))==0)
-            return false;
     }
 
     // check distance
