@@ -248,7 +248,6 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement)
     if(Guild* guild = objmgr.GetGuildById(GetPlayer()->GetGuildId()))
     {
         WorldPacket data(SMSG_MESSAGECHAT, 200);
-        data << uint8(CHAT_MSG_ACHIEVEMENT);
         data << uint8(CHAT_MSG_GUILD_ACHIEVEMENT);
         data << uint32(LANG_UNIVERSAL);
         data << uint64(GetPlayer()->GetGUID());
