@@ -22,7 +22,7 @@
 DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
-  `required_7207_02_mangos_gameobject` bit(1) default NULL
+  `required_7209_01_mangos_spell_bonus_data` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -17287,6 +17287,7 @@ INSERT INTO `spell_bonus_data` VALUES
 ('53719', '0.25', '0', '0.16', 'Paladin - Seal of The Martyr Enemy Proc'),
 ('53718', '0.25', '0', '0.16', 'Paladin - Seal of The Martyr Self Proc'),
 ('25742', '0.07', '0', '0.039', 'Paladin - Seal of Righteousness Dummy Proc'),
+('53595', '0', '0', '0','Paladin - Hammer of the Righteous'),
 ('31803', '0', '0.013', '0.15', 'Paladin - Holy Vengeance'),
 ('52042', '0.045', '0', '0', 'Shaman - Healing Stream Totem Triggered Heal'),
 ('32546', '0.8068', '0', '0', 'Priest - Binding Heal'),
