@@ -8186,14 +8186,34 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                             break;
                     }
                 }
-                
-                // Sacred Shield
-                if (spellProto->SpellFamilyName == SPELLFAMILY_PALADIN &&
-                    spellProto->SpellFamilyFlags & 0x0000000040000000LL)
+                // Custom crit by class
+                switch(spellProto->SpellFamilyName)
                 {
-                    Aura *aura = pVictim->GetDummyAura(58597);
-                    if (aura && aura->GetCasterGUID() == GetGUID())
-                        crit_chance+=aura->GetModifier()->m_amount;
+                    case SPELLFAMILY_PALADIN:
+                        // Sacred Shield
+                        if (spellProto->SpellFamilyFlags & 0x0000000040000000LL)
+                        {
+                            Aura *aura = pVictim->GetDummyAura(58597);
+                            if (aura && aura->GetCasterGUID() == GetGUID())
+                            crit_chance+=aura->GetModifier()->m_amount;
+                            break;
+                        }
+                    break;
+                    case SPELLFAMILY_SHAMAN:
+                        // Lava Burst
+                        if (spellProto->SpellFamilyFlags & 0x0000100000000000LL)
+                        {
+                            if (Aura *flameShock = pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_SHAMAN, 0x0000000010000000LL, 0, GetGUID()))
+                            {
+                                // Consume shock aura if not have Glyph of Flame Shock
+                                if (!GetAura(55447, 0))
+                                    pVictim->RemoveAurasByCasterSpell(flameShock->GetId(), GetGUID());
+                                return true;
+                            }
+                            break;
+                        }
+                    break;
+
                 }
             }
             break;
