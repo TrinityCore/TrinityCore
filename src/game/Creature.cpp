@@ -1245,6 +1245,7 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
         << GetEntry() << ","
         << mapid <<","
         << (uint32)spawnMask << ","
+        << (uint32)GetPhaseMask() << ","
         << displayId <<","
         << GetEquipmentId() <<","
         << GetPositionX() << ","

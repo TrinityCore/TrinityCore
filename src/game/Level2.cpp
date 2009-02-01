@@ -1754,6 +1754,27 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
 	return true;
 }
 
+//set temporary phase mask for player
+bool ChatHandler::HandleModifyPhaseCommand(const char* args)
+{
+    if (!*args)
+        return false;
+
+    uint32 phasemask = (uint32)atoi((char*)args);
+
+    Unit *target = getSelectedUnit();
+    if(!target)
+        target = m_session->GetPlayer();
+
+    // check online security
+    else if (target->GetTypeId() == TYPEID_PLAYER && HasLowerSecurity((Player*)target, 0))
+        return false;
+
+    target->SetPhaseMask(phasemask,true);
+
+    return true;
+}
+
 //show info of player
 bool ChatHandler::HandlePInfoCommand(const char* args)
 {
@@ -4410,3 +4431,73 @@ bool ChatHandler::HandleNpcAddFormationCommand(const char* args)
 
     return true;
  }
+
+//change phasemask of creature or pet
+bool ChatHandler::HandleNpcSetPhaseCommand(const char* args)
+{
+    if (!*args)
+        return false;
+
+    uint32 phasemask = (uint32) atoi((char*)args);
+    if ( phasemask == 0 )
+    {
+        SendSysMessage(LANG_BAD_VALUE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    Creature* pCreature = getSelectedCreature();
+    if(!pCreature)
+    {
+        SendSysMessage(LANG_SELECT_CREATURE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    pCreature->SetPhaseMask(phasemask,true);
+
+    if(!pCreature->isPet())
+        pCreature->SaveToDB();
+
+    return true;
+}
+
+//set pahsemask for selected object
+bool ChatHandler::HandleGOPhaseCommand(const char* args)
+{
+    // number or [name] Shift-click form |color|Hgameobject:go_id|h[name]|h|r
+    char* cId = extractKeyFromLink((char*)args,"Hgameobject");
+    if(!cId)
+        return false;
+
+    uint32 lowguid = atoi(cId);
+    if(!lowguid)
+       return false;
+
+    GameObject* obj = NULL;
+    // by DB guid
+    if (GameObjectData const* go_data = objmgr.GetGOData(lowguid))
+        obj = GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid,go_data->id);
+
+    if(!obj)
+    {
+        PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, lowguid);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    if (!*args)
+        return false;
+
+    uint32 phasemask = (uint32) atoi((char*)args);
+    if ( phasemask == 0 )
+    {
+        SendSysMessage(LANG_BAD_VALUE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    obj->SetPhaseMask(phasemask,true);
+    obj->SaveToDB();
+    return true;
+}
