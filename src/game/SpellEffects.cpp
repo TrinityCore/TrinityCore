@@ -5128,14 +5128,15 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     if (!unitTarget)
                         return;
                     // Refresh Shadow Word: Pain on target
-                    Unit::AuraList const &mPeriodic = unitTarget->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
-                    for(Unit::AuraList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)
+                    Unit::AuraMap& auras = unitTarget->GetAuras();
+                    for(Unit::AuraMap::iterator itr = auras.begin(); itr != auras.end(); ++itr)
                     {
-                        if( (*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_PRIEST &&
-                            (*i)->GetSpellProto()->SpellFamilyFlags & 0x0000000000008000LL &&
-                            (*i)->GetCasterGUID()==m_caster->GetGUID() )
+                        SpellEntry const *spellInfo = (*itr).second->GetSpellProto();
+                        if( spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST &&
+                            spellInfo->SpellFamilyFlags &  0x0000000000008000LL &&
+                            (*itr).second->GetCasterGUID() == m_caster->GetGUID())
                         {
-                            (*i)->RefreshAura();
+                            (*itr).second->RefreshAura();
                             return;
                         }
                     }
