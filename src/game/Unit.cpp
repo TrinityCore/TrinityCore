@@ -5871,6 +5871,9 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
             // Improved Water Shield
             if (dummySpell->SpellIconID == 2287)
             {
+                // Lesser Healing Wave need aditional 60% roll
+                if (procSpell->SpellFamilyFlags & 0x0000000000000080LL && !roll_chance_i(60))
+                    return false;
                 // lookup water shield
                 AuraList const& vs = GetAurasByType(SPELL_AURA_PROC_TRIGGER_SPELL);
                 for(AuraList::const_iterator itr = vs.begin(); itr != vs.end(); ++itr)
