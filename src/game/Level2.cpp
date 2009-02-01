@@ -4486,10 +4486,8 @@ bool ChatHandler::HandleGOPhaseCommand(const char* args)
         return false;
     }
 
-    if (!*args)
-        return false;
-
-    uint32 phasemask = (uint32) atoi((char*)args);
+    char* phaseStr = strtok (NULL, " ");
+    uint32 phasemask = phaseStr? atoi(phaseStr) : 0;
     if ( phasemask == 0 )
     {
         SendSysMessage(LANG_BAD_VALUE);
