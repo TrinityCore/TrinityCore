@@ -552,6 +552,7 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
         << GetEntry() << ", "
         << mapid << ", "
         << (uint32)spawnMask << ", "
+        << (uint32)GetPhaseMask() << ","
         << GetFloatValue(GAMEOBJECT_POS_X) << ", "
         << GetFloatValue(GAMEOBJECT_POS_Y) << ", "
         << GetFloatValue(GAMEOBJECT_POS_Z) << ", "

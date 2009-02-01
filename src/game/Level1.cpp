@@ -653,6 +653,8 @@ bool ChatHandler::HandleVisibleCommand(const char* args)
     return false;
 }
 
+
+
 bool ChatHandler::HandleGPSCommand(const char* args)
 {
     WorldObject *obj = NULL;
@@ -661,6 +663,13 @@ bool ChatHandler::HandleGPSCommand(const char* args)
         std::string name = args;
         if(normalizePlayerName(name))
             obj = objmgr.GetPlayer(name.c_str());
+
+        if(!obj)
+        {
+            uint64 guid = extractGuidFromLink((char*)args);
+            if(guid)
+                obj = (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*m_session->GetPlayer(),guid,TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
+        }
 
         if(!obj)
         {
@@ -711,6 +720,7 @@ bool ChatHandler::HandleGPSCommand(const char* args)
         obj->GetMapId(), (mapEntry ? mapEntry->name[m_session->GetSessionDbcLocale()] : "<unknown>" ),
         zone_id, (zoneEntry ? zoneEntry->area_name[m_session->GetSessionDbcLocale()] : "<unknown>" ),
         area_id, (areaEntry ? areaEntry->area_name[m_session->GetSessionDbcLocale()] : "<unknown>" ),
+        obj->GetPhaseMask(),
         obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), obj->GetOrientation(),
         cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), obj->GetInstanceId(),
         zone_x, zone_y, ground_z, floor_z, have_map, have_vmap );
@@ -723,6 +733,7 @@ bool ChatHandler::HandleGPSCommand(const char* args)
         obj->GetMapId(), (mapEntry ? mapEntry->name[sWorld.GetDefaultDbcLocale()] : "<unknown>" ),
         zone_id, (zoneEntry ? zoneEntry->area_name[sWorld.GetDefaultDbcLocale()] : "<unknown>" ),
         area_id, (areaEntry ? areaEntry->area_name[sWorld.GetDefaultDbcLocale()] : "<unknown>" ),
+        obj->GetPhaseMask(),
         obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), obj->GetOrientation(),
         cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), obj->GetInstanceId(),
         zone_x, zone_y, ground_z, floor_z, have_map, have_vmap );
