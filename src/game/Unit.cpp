@@ -3753,6 +3753,18 @@ void Unit::RemoveAura(uint32 spellId, uint32 effindex, Aura* except)
     }
 }
 
+void Unit::RemoveAurasByCasterSpell(uint32 spellId, uint64 casterGUID)
+{
+    for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end(); )
+    {
+        Aura *aur = iter->second;
+        if (aur->GetId() == spellId && aur->GetCasterGUID() == casterGUID)
+            RemoveAura(iter);
+        else
+            ++iter;
+    }
+}
+
 void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit *dispeler)
 {
     for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end(); )
@@ -3867,25 +3879,6 @@ void Unit::RemoveAurasDueToSpell(uint32 spellId, Aura* except)
 {
     for (int i = 0; i < 3; ++i)
         RemoveAura(spellId,i,except);
-}
-
-void Unit::RemoveAurasDueToCasterSpell(uint32 spellId, uint64 guid)
-{
-    for (int k=0; k < 3; ++k)
-    {
-        spellEffectPair spair = spellEffectPair(spellId, k);
-        for (AuraMap::iterator iter = m_Auras.lower_bound(spair); iter != m_Auras.upper_bound(spair);)
-        {
-            if (iter->second->GetCasterGUID() == guid)
-            {
-                RemoveAura(iter);
-                break;
-                //iter = m_Auras.upper_bound(spair);          // overwrite by more appropriate
-            }
-            else
-                ++iter;
-        }
-    }
 }
 
 void Unit::RemoveAurasDueToItemSpell(Item* castItem,uint32 spellId)
@@ -4124,6 +4117,22 @@ Aura* Unit::GetAura(uint32 spellId, uint32 effindex)
     AuraMap::iterator iter = m_Auras.find(spellEffectPair(spellId, effindex));
     if (iter != m_Auras.end())
         return iter->second;
+    return NULL;
+}
+
+Aura* Unit::GetAura(AuraType type, uint32 family, uint64 familyFlag, uint32 familyFlag2, uint64 casterGUID)
+{
+    AuraList const& auras = GetAurasByType(type);
+    for(AuraList::const_iterator i = auras.begin();i != auras.end(); ++i)
+    {
+        SpellEntry const *spell = (*i)->GetSpellProto();
+        if (spell->SpellFamilyName == family && (spell->SpellFamilyFlags & familyFlag || spell->SpellFamilyFlags2 & familyFlag2))
+        {
+            if (casterGUID && (*i)->GetCasterGUID()!=casterGUID)
+                continue;
+            return (*i);
+        }
+    }
     return NULL;
 }
 
@@ -7661,17 +7670,8 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 break;
             case 5481: // Starfire Bonus
             {
-                AuraList const& auras = pVictim->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
-                for(AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-                {
-                    SpellEntry const* m_spell = (*itr)->GetSpellProto();
-                    if (m_spell->SpellFamilyName == SPELLFAMILY_DRUID &&
-                        m_spell->SpellFamilyFlags & 0x0000000000200002LL)
-                    {
-                        DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
-                        break;
-                    }
-                }
+                if (pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, 0x0000000000200002LL))
+                    DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
                 break;
             }
             case 4418: // Increased Shock Damage
@@ -7697,50 +7697,23 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 }
                 else // Tundra Stalker
                 {
-                    AuraList const& auras = pVictim->GetAurasByType(SPELL_AURA_DUMMY);
-                    for(AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-                    {
-                        SpellEntry const* m_spell = (*itr)->GetSpellProto();
-                        if (m_spell->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT &&
-                            m_spell->SpellFamilyFlags & 0x0400000000000000LL)
-                        {
-                            DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
-                            break;
-                        }
-                    }
+                    if (pVictim->GetAura(SPELL_AURA_DUMMY, SPELLFAMILY_DEATHKNIGHT, 0x0400000000000000LL))
+                        DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
+                    break;
                 }
                 break;
             }
             case 7293: // Rage of Rivendare
             {
-                AuraList const& auras = pVictim->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
-                for(AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-                {
-                    SpellEntry const* m_spell = (*itr)->GetSpellProto();
-                    if (m_spell->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT &&
-                        m_spell->SpellFamilyFlags & 0x0200000000000000LL)
-                    {
-                        DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
-                        break;
-                    }
-                }
+                if (pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DEATHKNIGHT, 0x0200000000000000LL))
+                    DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
                 break;
             }
             // Twisted Faith
             case 7377:
             {
-                AuraList const& auras = pVictim->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
-                for(AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-                {
-                    SpellEntry const* m_spell = (*itr)->GetSpellProto();
-                    if (m_spell->SpellFamilyName == SPELLFAMILY_PRIEST &&
-                        m_spell->SpellFamilyFlags & 0x0000000000008000LL &&
-                        (*itr)->GetCasterGUID()==GetGUID())
-                    {
-                        DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
-                        break;
-                    }
-                }
+                if (pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x0000000000008000LL, 0, GetGUID()))
+                    DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
                 break;
             }
             // Marked for Death
@@ -7750,17 +7723,8 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
             case 7601:
             case 7602:
             {
-                AuraList const& auras = pVictim->GetAurasByType(SPELL_AURA_MOD_STALKED);
-                for(AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-                {
-                    SpellEntry const* m_spell = (*itr)->GetSpellProto();
-                    if (m_spell->SpellFamilyName == SPELLFAMILY_HUNTER &&
-                        m_spell->SpellFamilyFlags & 0x0000000000000400LL)
-                    {
-                        DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
-                        break;
-                    }
-                }
+                if (pVictim->GetAura(SPELL_AURA_MOD_STALKED, SPELLFAMILY_HUNTER, 0x0000000000000400LL))
+                    DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
                 break;
             }
         }
@@ -8380,17 +8344,8 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
                 break;
             case 7798: // Glyph of Regrowth
             {
-                AuraList const& auras = pVictim->GetAurasByType(SPELL_AURA_PERIODIC_HEAL);
-                for(AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-                {
-                    SpellEntry const* m_spell = (*itr)->GetSpellProto();
-                    if (m_spell->SpellFamilyName == SPELLFAMILY_DRUID &&
-                        m_spell->SpellFamilyFlags & 0x0000000000000040LL)
-                    {
-                        DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
-                        break;
-                    }
-                }
+                if (pVictim->GetAura(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_DRUID, 0x0000000000000040LL))
+                    DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
                 break;
             }
             case 8477: // Nourish Heal Boost
@@ -8413,19 +8368,8 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
             }
             case 7871: // Glyph of Lesser Healing Wave
             {
-                AuraList const& auras = pVictim->GetAurasByType(SPELL_AURA_DUMMY);
-                for(AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-                {
-                    if ((*itr)->GetCasterGUID()!=GetGUID())
-                        continue;
-                    SpellEntry const* m_spell = (*itr)->GetSpellProto();
-                    if (m_spell->SpellFamilyName == SPELLFAMILY_SHAMAN &&
-                        m_spell->SpellFamilyFlags & 0x0000040000000000LL)
-                    {
-                        DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
-                        break;
-                    }
-                }
+                if (pVictim->GetAura(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, 0x0000040000000000LL, 0, GetGUID()))
+                    DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
                 break;
             }
             default:

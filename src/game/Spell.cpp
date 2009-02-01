@@ -2064,11 +2064,11 @@ void Spell::cancel(bool report)
                 {
                     Unit* unit = m_caster->GetGUID()==(*ihit).targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID);
                     if( unit && unit->isAlive() )
-                        unit->RemoveAurasDueToCasterSpell(m_spellInfo->Id, m_caster->GetGUID());
+                        unit->RemoveAurasByCasterSpell(m_spellInfo->Id, m_caster->GetGUID());
                 }
             }
 
-            m_caster->RemoveAurasDueToCasterSpell(m_spellInfo->Id, m_caster->GetGUID());
+            m_caster->RemoveAurasByCasterSpell(m_spellInfo->Id, m_caster->GetGUID());
             SendChannelUpdate(0);
             SendInterrupted(0);
             SendCastResult(report ? SPELL_FAILED_INTERRUPTED : SPELL_FAILED_DONT_REPORT);
