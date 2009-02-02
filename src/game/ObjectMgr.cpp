@@ -869,6 +869,15 @@ void ObjectMgr::LoadCreatureTemplates()
                 sLog.outErrorDb("Creature (Entry: %u) has non-existing PetSpellDataId (%u)", cInfo->Entry, cInfo->PetSpellDataId);
         }
 
+        for(int i = 0; i < CREATURE_MAX_SPELLS; ++i)
+        {
+            if(cInfo->spells[i] && !sSpellStore.LookupEntry(cInfo->spells[i]))
+            {
+                sLog.outErrorDb("Creature (Entry: %u) has non-existing Spell%d (%u), set to 0", cInfo->Entry, i+1,cInfo->spells[i]);
+                const_cast<CreatureInfo*>(cInfo)->spells[i] = 0;
+            }
+        }
+
         if(cInfo->MovementType >= MAX_DB_MOTION_TYPE)
         {
             sLog.outErrorDb("Creature (Entry: %u) has wrong movement generator type (%u), ignore and set to IDLE.",cInfo->Entry,cInfo->MovementType);
