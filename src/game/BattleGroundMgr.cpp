@@ -97,87 +97,24 @@ void BattleGroundQueue::EligibleGroups::Init(BattleGroundQueue::QueuedGroupsList
                      && (*itr)->ArenaTeamRating <= MaxRating ) ) )
         {
             // the group matches the conditions
-            // insert it in order of groupsize, and join time
-            uint32 size = (*itr)->Players.size();
-            uint32 jointime = (*itr)->JoinTime;
-            bool inserted = false;
-
-            for(std::list<GroupQueueInfo *>::iterator elig_itr = begin(); elig_itr != end(); ++elig_itr)
-            {
-                // if the next one's size is smaller, then insert
-                // also insert if the next one's size is equal, but it joined the queue later
-                if( ((*elig_itr)->Players.size()<size) ||
-                    ((*elig_itr)->Players.size() == size && (*elig_itr)->JoinTime > jointime) )
-                {
-                    insert(elig_itr,(*itr));
-                    inserted = true;
-                    break;
-                }
-            }
-            // if not inserted -> this is the smallest group -> push_back
-            if(!inserted)
-            {
-                push_back((*itr));
-            }
-        }
-    }
-}
-
-// remove group from eligible groups
-// used when building selection pools
-void BattleGroundQueue::EligibleGroups::RemoveGroup(GroupQueueInfo * ginfo)
-{
-    for(std::list<GroupQueueInfo *>::iterator itr = begin(); itr != end(); ++itr)
-    {
-        if((*itr)==ginfo)
-        {
-            erase(itr);
-            return;
+            // the source is ordered by join time in decreasing order
+            // so here we push_front for increasing order
+            push_front((*itr));
         }
     }
 }
 
 // selection pool initialization, used to clean up from prev selection
-void BattleGroundQueue::SelectionPool::Init()
+void BattleGroundQueue::SelectionPool::Init(EligibleGroups * curr)
 {
+    m_CurrEligGroups = curr;
     SelectedGroups.clear();
-    MaxGroup = 0;
     PlayerCount = 0;
 }
 
-// get the maximal group from the selection pool
-// used when building the pool, and have to remove the largest
-GroupQueueInfo * BattleGroundQueue::SelectionPool::GetMaximalGroup()
-{
-    if(SelectedGroups.empty())
-    {
-        sLog.outError("Getting max group when selection pool is empty, this should never happen.");
-        MaxGroup = NULL;
-        return 0;
-    }
-    // actually select the max group if it's not set
-    if(MaxGroup==0 && !SelectedGroups.empty())
-    {
-        uint32 max_size = 0;
-        for(std::list<GroupQueueInfo *>::iterator itr = SelectedGroups.begin(); itr != SelectedGroups.end(); ++itr)
-        {
-            if(max_size<(*itr)->Players.size())
-            {
-                MaxGroup =(*itr);
-                max_size = MaxGroup->Players.size();
-            }
-        }
-    }
-    return MaxGroup;
-}
-
 // remove group info from selection pool
-// used when building selection pools and have to remove maximal group
 void BattleGroundQueue::SelectionPool::RemoveGroup(GroupQueueInfo *ginfo)
 {
-    // uninitiate max group info if needed
-    if(MaxGroup == ginfo)
-        MaxGroup = 0;
     // find what to remove
     for(std::list<GroupQueueInfo *>::iterator itr = SelectedGroups.begin(); itr != SelectedGroups.end(); ++itr)
     {
@@ -198,11 +135,6 @@ void BattleGroundQueue::SelectionPool::AddGroup(GroupQueueInfo * ginfo)
     SelectedGroups.push_back(ginfo);
     // increase selected players count
     PlayerCount+=ginfo->Players.size();
-    if(!MaxGroup || ginfo->Players.size() > MaxGroup->Players.size())
-    {
-        // update max group info if needed
-        MaxGroup = ginfo;
-    }
 }
 
 // add group to bg queue with the given leader and bg specifications
@@ -486,6 +418,35 @@ bool BattleGroundQueue::InviteGroupToBG(GroupQueueInfo * ginfo, BattleGround * b
     return false;
 }
 
+// used to recursively select groups from eligible groups
+bool BattleGroundQueue::SelectionPool::Build(uint32 MinPlayers, uint32 MaxPlayers, EligibleGroups::iterator startitr)
+{
+    // start from the specified start iterator
+    for(EligibleGroups::iterator itr1 = startitr; itr1 != m_CurrEligGroups->end(); ++itr1)
+    {
+        // if it fits in, select it
+        if(GetPlayerCount() + (*itr1)->Players.size() <= MaxPlayers)
+        {
+            EligibleGroups::iterator next = itr1;
+            ++next;
+            AddGroup((*itr1));
+            if(GetPlayerCount() >= MinPlayers)
+            {
+                // enough players are selected
+                return true;
+            }
+            // try building from the rest of the elig. groups
+            // if that succeeds, return true
+            if(Build(MinPlayers,MaxPlayers,next))
+                return true;
+            // the rest didn't succeed, so this group cannot be included
+            RemoveGroup((*itr1));
+        }
+    }
+    // build didn't succeed
+    return false;
+}
+
 // this function is responsible for the selection of queued groups when trying to create new battlegrounds
 bool BattleGroundQueue::BuildSelectionPool(uint32 bgTypeId, uint32 queue_id, uint32 MinPlayers, uint32 MaxPlayers,  SelectionPoolBuildMode mode, uint8 ArenaType, bool isRated, uint32 MinRating, uint32 MaxRating, uint32 DisregardTime, uint32 excludeTeam)
 {
@@ -509,34 +470,25 @@ bool BattleGroundQueue::BuildSelectionPool(uint32 bgTypeId, uint32 queue_id, uin
         break;
     }
 
-    // inititate the groups eligible to create the bg
+    // initiate the groups eligible to create the bg
     m_EligibleGroups.Init(&(m_QueuedGroups[queue_id]), bgTypeId, side, MaxPlayers, ArenaType, isRated, MinRating, MaxRating, DisregardTime, excludeTeam);
     // init the selected groups (clear)
-    m_SelectionPools[mode].Init();
-    while(!(m_EligibleGroups.empty()))
+    // and set m_CurrEligGroups pointer
+    // we set it this way to only have one EligibleGroups object to save some memory
+    m_SelectionPools[mode].Init(&m_EligibleGroups);
+    // build succeeded
+    if(m_SelectionPools[mode].Build(MinPlayers,MaxPlayers,m_EligibleGroups.begin()))
     {
-        sLog.outDebug("m_EligibleGroups is not empty, continue building selection pool");
-        // in decreasing group size, add groups to join if they fit in the MaxPlayersPerTeam players
-        for(EligibleGroups::iterator itr= m_EligibleGroups.begin(); itr!=m_EligibleGroups.end(); ++itr)
+        // the selection pool is set, return
+        sLog.outDebug("Battleground-debug: pool build succeeded, return true");
+        sLog.outDebug("Battleground-debug: Player size for mode %u is %u", mode, m_SelectionPools[mode].GetPlayerCount());
+        for(std::list<GroupQueueInfo* >::iterator itr = m_SelectionPools[mode].SelectedGroups.begin(); itr != m_SelectionPools[mode].SelectedGroups.end(); ++itr)
         {
-            // get the maximal not yet checked group
-            GroupQueueInfo * MaxGroup = (*itr);
-            // if it fits in the maxplayer size, add it
-            if( (m_SelectionPools[mode].GetPlayerCount() + MaxGroup->Players.size()) <= MaxPlayers )
-            {
-                m_SelectionPools[mode].AddGroup(MaxGroup);
-            }
+            sLog.outDebug("Battleground-debug: queued group in selection with %u players",(*itr)->Players.size());
+            for(std::map<uint64, PlayerQueueInfo * >::iterator itr2 = (*itr)->Players.begin(); itr2 != (*itr)->Players.end(); ++itr2)
+                sLog.outDebug("Battleground-debug:    player in above group GUID %u", (uint32)(itr2->first));
         }
-        if(m_SelectionPools[mode].GetPlayerCount()>=MinPlayers)
-        {
-            // the selection pool is set, return
-            sLog.outDebug("pool build succeeded, return true");
-            return true;
-        }
-        // if the selection pool's not set, then remove the group with the highest player count, and try again with the rest.
-        GroupQueueInfo * MaxGroup = m_SelectionPools[mode].GetMaximalGroup();
-        m_EligibleGroups.RemoveGroup(MaxGroup);
-        m_SelectionPools[mode].RemoveGroup(MaxGroup);
+        return true;
     }
     // failed to build a selection pool matching the given values
     return false;
@@ -588,7 +540,7 @@ void BattleGroundQueue::BGEndedRemoveInvites(BattleGround *bg)
                     // remove player from queue, this might delete the ginfo as well! don't use that pointer after this!
                     RemovePlayer(itr2->first, true);
                     // this is probably unneeded, since this player was already invited -> does not fit when initing eligible groups
-                    // but updateing the queue can't hurt
+                    // but updating the queue can't hurt
                     Update(bgQueueTypeId, bg->GetQueueType());
                     // send info to client
                     WorldPacket data;
@@ -710,12 +662,12 @@ void BattleGroundQueue::Update(uint32 bgTypeId, uint32 queue_id, uint8 arenatype
     // try to build the selection pools
     bool bAllyOK = BuildSelectionPool(bgTypeId, queue_id, MinPlayersPerTeam, MaxPlayersPerTeam, NORMAL_ALLIANCE, arenatype, isRated, arenaMinRating, arenaMaxRating, discardTime);
     if(bAllyOK)
-        sLog.outDebug("Battleground: ally pool succesfully build");
+        sLog.outDebug("Battleground: ally pool successfully built");
     else
         sLog.outDebug("Battleground: ally pool wasn't created");
     bool bHordeOK = BuildSelectionPool(bgTypeId, queue_id, MinPlayersPerTeam, MaxPlayersPerTeam, NORMAL_HORDE, arenatype, isRated, arenaMinRating, arenaMaxRating, discardTime);
     if(bHordeOK)
-        sLog.outDebug("Battleground: horde pool succesfully built");
+        sLog.outDebug("Battleground: horde pool successfully built");
     else
         sLog.outDebug("Battleground: horde pool wasn't created");
 
@@ -813,9 +765,9 @@ void BattleGroundQueue::Update(uint32 bgTypeId, uint32 queue_id, uint8 arenatype
             std::list<GroupQueueInfo* >::iterator itr_alliance = m_SelectionPools[NORMAL_ALLIANCE].SelectedGroups.begin();
             std::list<GroupQueueInfo* >::iterator itr_horde = m_SelectionPools[NORMAL_HORDE].SelectedGroups.begin();
             (*itr_alliance)->OpponentsTeamRating = (*itr_horde)->ArenaTeamRating;
-            sLog.outDebug("setting oposite teamrating for team %u to %u", (*itr_alliance)->ArenaTeamId, (*itr_alliance)->OpponentsTeamRating);
+            sLog.outDebug("setting opposite team rating for team %u to %u", (*itr_alliance)->ArenaTeamId, (*itr_alliance)->OpponentsTeamRating);
             (*itr_horde)->OpponentsTeamRating = (*itr_alliance)->ArenaTeamRating;
-            sLog.outDebug("setting oposite teamrating for team %u to %u", (*itr_horde)->ArenaTeamId, (*itr_horde)->OpponentsTeamRating);
+            sLog.outDebug("setting opposite team rating for team %u to %u", (*itr_horde)->ArenaTeamId, (*itr_horde)->OpponentsTeamRating);
         }
 
         // start the battleground
@@ -1133,10 +1085,10 @@ void BattleGroundMgr::Update(uint32 diff)
     {
         if(m_AutoDistributionTimeChecker < diff)
         {
-            if(time(NULL)/*sWorld.GetGameTime()*/ > m_NextAutoDistributionTime)
+            if(time(NULL) > m_NextAutoDistributionTime)
             {
                 DistributeArenaPoints();
-                m_NextAutoDistributionTime = time(NULL)/*sWorld.GetGameTime()*/ + BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY * sWorld.getConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS);
+                m_NextAutoDistributionTime = time(NULL) + BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY * sWorld.getConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS);
                 CharacterDatabase.PExecute("UPDATE saved_variables SET NextArenaPointDistributionTime = '"I64FMTD"'", m_NextAutoDistributionTime);
             }
             m_AutoDistributionTimeChecker = 600000; // check 10 minutes

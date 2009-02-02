@@ -1322,7 +1322,7 @@ void Spell::EffectDummy(uint32 i)
                 int32 bp = damage+int32(rage * m_spellInfo->DmgMultiplier[i] +
                                                  m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.2f);
                 m_caster->SetPower(POWER_RAGE,0);
-                return;
+                break;
             }
             // Slam
             if(m_spellInfo->SpellFamilyFlags[0] & 0x200000)
