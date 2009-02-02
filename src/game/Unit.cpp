@@ -8289,7 +8289,6 @@ uint32 Unit::SpellCriticalHealingBonus(SpellEntry const *spellProto, uint32 dama
             break;
     }
 
-    crit_bonus = int32(crit_bonus * GetTotalAuraMultiplier(SPELL_AURA_MOD_CRITICAL_HEALING_BONUS));
 
     if(pVictim)
     {
@@ -8299,6 +8298,8 @@ uint32 Unit::SpellCriticalHealingBonus(SpellEntry const *spellProto, uint32 dama
 
     if(crit_bonus > 0)
         damage += crit_bonus;
+
+    damage = int32(damage * GetTotalAuraMultiplier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT));
 
     return damage;
 }
