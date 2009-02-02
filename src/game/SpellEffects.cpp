@@ -1285,7 +1285,7 @@ void Spell::EffectDummy(uint32 i)
                 spell_id = 20647;
 				bp = damage+int32(m_caster->GetPower(POWER_RAGE) * m_spellInfo->DmgMultiplier[i]);
                 m_caster->SetPower(POWER_RAGE,0);
-                return;
+                break;
             }
             if(m_spellInfo->Id==21977)                      //Warrior's Wrath
             {
