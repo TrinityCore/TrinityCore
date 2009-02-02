@@ -90,7 +90,6 @@ class BattleGroundQueue
         {
         public:
             void Init(QueuedGroupsList * source, uint32 BgTypeId, uint32 side, uint32 MaxPlayers, uint8 ArenaType = 0, bool IsRated = false, uint32 MinRating = 0, uint32 MaxRating = 0, uint32 DisregardTime = 0, uint32 excludeTeam = 0);
-            void RemoveGroup(GroupQueueInfo * ginfo);
         };
 
         EligibleGroups m_EligibleGroups;
@@ -99,16 +98,16 @@ class BattleGroundQueue
         class SelectionPool
         {
         public:
-            void Init();
+            void Init(EligibleGroups * curr);
             void AddGroup(GroupQueueInfo * group);
-            GroupQueueInfo * GetMaximalGroup();
             void RemoveGroup(GroupQueueInfo * group);
             uint32 GetPlayerCount() const {return PlayerCount;}
+            bool Build(uint32 MinPlayers, uint32 MaxPlayers, EligibleGroups::iterator startitr);
         public:
             std::list<GroupQueueInfo *> SelectedGroups;
         private:
             uint32 PlayerCount;
-            GroupQueueInfo * MaxGroup;
+            EligibleGroups * m_CurrEligGroups;
         };
 
         enum SelectionPoolBuildMode
