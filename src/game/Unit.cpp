@@ -1262,7 +1262,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 dama
     }
 
     if( damageSchoolMask & SPELL_SCHOOL_MASK_NORMAL )
-        damage = CalcArmorReducedDamage(pVictim, damage);
+        damage = CalcArmorReducedDamage(pVictim, damage, spellInfo, attackType);
 
     // Calculate absorb resist
     if(damage > 0)
@@ -1286,6 +1286,37 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 dama
     else
         damage = 0;
     damageInfo->damage = damage;
+}
+
+int32 Unit::GetIgnoredArmorMultiplier(SpellEntry const *spellInfo, WeaponAttackType attackType)
+{
+    if (GetTypeId() != TYPEID_PLAYER)
+        return 0;
+    //check if spell uses weapon
+    if (spellInfo && spellInfo->EquippedItemClass!=ITEM_CLASS_WEAPON)
+        return 0;
+    Item *item = NULL;
+    if(attackType == BASE_ATTACK)
+        item = ((Player*)this)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+    else if (attackType == OFF_ATTACK)
+        item = ((Player*)this)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+    else if (attackType == RANGED_ATTACK)
+        item = ((Player*)this)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
+    if (!item)
+        return 0;
+
+    AuraList const& armAuras = GetAurasByType(SPELL_AURA_MOD_WEAPONTYPE_IGNORE_TARGET_RESISTANCE);
+    int32 armorIgnored = 0;
+    for(AuraList::const_iterator i = armAuras.begin();i != armAuras.end(); ++i)
+    {
+        if (!((*i)->GetSpellProto()->EquippedItemClass==item->GetProto()->Class
+            && (*i)->GetSpellProto()->EquippedItemSubClassMask & (1<<item->GetProto()->SubClass)))
+            continue;
+
+        if((*i)->GetModifier()->m_amount)
+            armorIgnored += (*i)->GetModifier()->m_amount;
+    }
+    return (-armorIgnored);
 }
 
 void Unit::DealSpellDamage(SpellNonMeleeDamage *damageInfo, bool durabilityLoss)
@@ -1384,7 +1415,7 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
     // Add melee damage bonus
     MeleeDamageBonus(damageInfo->target, &damage, damageInfo->attackType);
     // Calculate armor reduction
-    damageInfo->damage = CalcArmorReducedDamage(damageInfo->target, damage);
+    damageInfo->damage = CalcArmorReducedDamage(damageInfo->target, damage, NULL , damageInfo->attackType);
     damageInfo->cleanDamage += damage - damageInfo->damage;
 
     damageInfo->hitOutCome = RollMeleeOutcomeAgainst(damageInfo->target, damageInfo->attackType);
@@ -1679,12 +1710,17 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
     SendMessageToSet(&data, true);
 }
 
-uint32 Unit::CalcArmorReducedDamage(Unit* pVictim, const uint32 damage)
+uint32 Unit::CalcArmorReducedDamage(Unit* pVictim, const uint32 damage, SpellEntry const *spellInfo, WeaponAttackType attackType)
 {
     uint32 newdamage = 0;
     float armor = pVictim->GetArmor();
     // Ignore enemy armor by SPELL_AURA_MOD_TARGET_RESISTANCE aura
     armor += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_TARGET_RESISTANCE, SPELL_SCHOOL_MASK_NORMAL);
+
+    armor *= float((GetIgnoredArmorMultiplier(spellInfo, attackType)+100.0f)/100.0f);
+    if(spellInfo)
+        if(Player *modOwner = GetSpellModOwner())
+            modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_IGNORE_ARMOR, armor);
 
     // Apply Player CR_ARMOR_PENETRATION rating
     if (GetTypeId()==TYPEID_PLAYER)
@@ -11678,7 +11714,10 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura* aura, SpellEntry con
     }
     // Apply chance modifer aura
     if(Player* modOwner = GetSpellModOwner())
+    {
         modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_CHANCE_OF_SUCCESS,chance);
+        modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_PROC_CHANCE,chance);
+    }
 
     return roll_chance_f(chance);
 }

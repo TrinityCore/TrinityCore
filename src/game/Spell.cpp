@@ -3242,6 +3242,12 @@ void Spell::TakePower()
                     {
                         if(ihit->missCondition != SPELL_MISS_NONE && ihit->missCondition != SPELL_MISS_MISS/* && ihit->targetGUID!=m_caster->GetGUID()*/)
                             hit = false;
+                        if (ihit->missCondition != SPELL_MISS_NONE)
+                        {
+                            //lower spell cost on fail (by talent aura)
+                            if(Player *modOwner = ((Player*)m_caster)->GetSpellModOwner())
+                                modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_SPELL_COST_REFUND_ON_FAIL, m_powerCost);
+                        }
                         break;
                     }
         if(hit && NeedsComboPoints(m_spellInfo))
