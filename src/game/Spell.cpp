@@ -2030,8 +2030,7 @@ void Spell::prepare(SpellCastTargets const* targets, Aura* triggeredByAura)
     // set timer base at cast time
     ReSetTimer();
 
-    //item: first cast may destroy item and second cast causes crash
-    if(m_IsTriggeredSpell || !m_casttime && !m_spellInfo->StartRecoveryTime && !m_castItemGUID && GetCurrentContainer() == CURRENT_GENERIC_SPELL)
+    if(m_IsTriggeredSpell)
         cast(true);
     else
     {
@@ -2040,9 +2039,16 @@ void Spell::prepare(SpellCastTargets const* targets, Aura* triggeredByAura)
         if(isSpellBreakStealth(m_spellInfo) )
             m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CAST);
 
-        m_caster->SetCurrentCastedSpell( this );
-        m_selfContainer = &(m_caster->m_currentSpells[GetCurrentContainer()]);
-        SendSpellStart();
+        if(!m_casttime && !m_spellInfo->StartRecoveryTime 
+            && !m_castItemGUID     //item: first cast may destroy item and second cast causes crash
+            && GetCurrentContainer() == CURRENT_GENERIC_SPELL)
+            cast(true);
+        else
+        {
+            m_caster->SetCurrentCastedSpell( this );
+            m_selfContainer = &(m_caster->m_currentSpells[GetCurrentContainer()]);
+            SendSpellStart();
+        }
     }
 }
 
@@ -2147,9 +2153,6 @@ void Spell::cast(bool skipCheck)
 
     FillTargetMap();
 
-    if(m_customAttr & SPELL_ATTR_CU_DIRECT_DAMAGE)
-        CalculateDamageDoneForAllTargets();
-
     if(m_spellInfo->SpellFamilyName)
     {
         if (m_spellInfo->excludeCasterAuraSpell)
@@ -2205,12 +2208,15 @@ void Spell::cast(bool skipCheck)
     SendCastResult(castResult);
     SendSpellGo();                                          // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
 
+    if(m_customAttr & SPELL_ATTR_CU_DIRECT_DAMAGE)
+        CalculateDamageDoneForAllTargets();
+
+    if(m_customAttr & SPELL_ATTR_CU_CHARGE)
+        EffectCharge(0);
+
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
     if (m_spellInfo->speed > 0.0f && !IsChanneledSpell(m_spellInfo))
     {
-        if(m_customAttr & SPELL_ATTR_CU_CHARGE)
-            EffectCharge(0);
-
         // Remove used for cast item if need (it can be already NULL after TakeReagents call
         // in case delayed spell remove item at cast delay start
         TakeCastItem();
@@ -2226,6 +2232,32 @@ void Spell::cast(bool skipCheck)
         handle_immediate();
     }
 
+    //are there any spells need to be triggered after hit?
+    // handle SPELL_AURA_ADD_TARGET_TRIGGER auras
+    Unit::AuraList const& targetTriggers = m_caster->GetAurasByType(SPELL_AURA_ADD_TARGET_TRIGGER);
+    for(Unit::AuraList::const_iterator i = targetTriggers.begin(); i != targetTriggers.end(); ++i)
+    {
+        if (!(*i)->isAffectedOnSpell(m_spellInfo))
+            continue;
+        for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
+            if( ihit->missCondition == SPELL_MISS_NONE )
+            {
+                // check m_caster->GetGUID() let load auras at login and speedup most often case
+                Unit *unit = m_caster->GetGUID()== ihit->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID);
+                if (unit && unit->isAlive())
+                {
+                    SpellEntry const *auraSpellInfo = (*i)->GetSpellProto();
+                    uint32 auraSpellIdx = (*i)->GetEffIndex();
+                    // Calculate chance at that moment (can be depend for example from combo points)
+                    int32 chance = m_caster->CalculateSpellDamage(auraSpellInfo, auraSpellIdx, (*i)->GetBasePoints(),unit);
+                    if(roll_chance_i(chance))
+                        for (int j=0; j != (*i)->GetStackAmount(); ++j)
+                            m_caster->CastSpell(unit, auraSpellInfo->EffectTriggerSpell[auraSpellIdx], true, NULL, (*i));
+                }
+            }
+    }
+
+    // combo points should not be taken before SPELL_AURA_ADD_TARGET_TRIGGER auras are handled
     if(!m_IsTriggeredSpell)
     {
         TakePower();
@@ -2619,30 +2651,6 @@ void Spell::finish(bool ok)
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         ((Player*)m_caster)->RemoveSpellMods(this);
 
-    // handle SPELL_AURA_ADD_TARGET_TRIGGER auras
-    Unit::AuraList const& targetTriggers = m_caster->GetAurasByType(SPELL_AURA_ADD_TARGET_TRIGGER);
-    for(Unit::AuraList::const_iterator i = targetTriggers.begin(); i != targetTriggers.end(); ++i)
-    {
-        if (!(*i)->isAffectedOnSpell(m_spellInfo))
-            continue;
-        for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
-            if( ihit->missCondition == SPELL_MISS_NONE )
-            {
-                // check m_caster->GetGUID() let load auras at login and speedup most often case
-                Unit *unit = m_caster->GetGUID()== ihit->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID);
-                if (unit && unit->isAlive())
-                {
-                    SpellEntry const *auraSpellInfo = (*i)->GetSpellProto();
-                    uint32 auraSpellIdx = (*i)->GetEffIndex();
-                    // Calculate chance at that moment (can be depend for example from combo points)
-                    int32 chance = m_caster->CalculateSpellDamage(auraSpellInfo, auraSpellIdx, (*i)->GetBasePoints(),unit);
-                    if(roll_chance_i(chance))
-                        for (int j=0; j != (*i)->GetStackAmount(); ++j)
-                            m_caster->CastSpell(unit, auraSpellInfo->EffectTriggerSpell[auraSpellIdx], true, NULL, (*i));
-                }
-            }
-    }
-
     // Heal caster for all health leech from all targets
     if (m_healthLeech)
     {
@@ -2660,6 +2668,7 @@ void Spell::finish(bool ok)
     }
 
     // call triggered spell only at successful cast (after clear combo points -> for add some if need)
+    // I assume what he means is that some triggered spells may add combo points
     if(!m_TriggerSpells.empty())
         TriggerSpell();
 

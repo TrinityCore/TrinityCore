@@ -9275,9 +9275,9 @@ bool Unit::canDetectInvisibilityOf(Unit const* u) const
 {
     if(m_invisibilityMask & u->m_invisibilityMask) // same group
         return true;
-    AuraList const& auras = GetAurasByType(SPELL_AURA_MOD_STALKED); // Hunter mark
+    AuraList const& auras = u->GetAurasByType(SPELL_AURA_MOD_STALKED); // Hunter mark
     for(AuraList::const_iterator iter = auras.begin(); iter != auras.end(); ++iter)
-        if((*iter)->GetCasterGUID()==u->GetGUID())
+        if((*iter)->GetCasterGUID()==GetGUID())
             return true;
 
     if(uint32 mask = (m_detectInvisibilityMask & u->m_invisibilityMask))
@@ -9326,6 +9326,11 @@ bool Unit::canDetectStealthOf(Unit const* target, float distance) const
         return false;
     if(HasAuraType(SPELL_AURA_DETECT_STEALTH))
         return true;
+
+    AuraList const& auras = target->GetAurasByType(SPELL_AURA_MOD_STALKED); // Hunter mark
+    for(AuraList::const_iterator iter = auras.begin(); iter != auras.end(); ++iter)
+        if((*iter)->GetCasterGUID()==GetGUID())
+            return true;
 
     //Visible distance based on stealth value (stealth rank 4 300MOD, 10.5 - 3 = 7.5)
     float visibleDistance = 10.5f - target->GetTotalAuraModifier(SPELL_AURA_MOD_STEALTH) / 100.0f;
