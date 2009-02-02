@@ -511,6 +511,9 @@ class ChatHandler
         uint64    extractGuidFromLink(char* text);
         GameTele const* extractGameTeleFromLink(char* text);
         bool GetPlayerGroupAndGUIDByName(const char* cname, Player* &plr, Group* &group, uint64 &guid, bool offline = false);
+        std::string extractPlayerNameFromLink(char* text);
+
+        std::string playerLink(std::string const& name) const { return m_session ? "|cffffffff|Hplayer:"+name+"|h["+name+"]|h|r" : name; }
 
         GameObject* GetObjectGlobalyWithGuidOrNearWithDbGuid(uint32 lowguid,uint32 entry);
 
