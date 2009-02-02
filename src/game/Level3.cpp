@@ -3801,7 +3801,7 @@ bool ChatHandler::HandleDamageCommand(const char * args)
     SpellSchoolMask schoolmask = SpellSchoolMask(1 << school);
 
     if ( schoolmask & SPELL_SCHOOL_MASK_NORMAL )
-        damage = m_session->GetPlayer()->CalcArmorReducedDamage(target, damage);
+        damage = m_session->GetPlayer()->CalcArmorReducedDamage(target, damage, NULL, BASE_ATTACK);
 
     char* spellStr = strtok((char*)NULL, " ");
 
