@@ -3281,8 +3281,7 @@ void Aura::HandleModStealth(bool apply, bool Real)
         // only at real aura add
         if(Real)
         {
-            if(GetId()!=SPELL_ID_SHADOWMELD)
-                m_target->SetStandFlags(UNIT_STAND_FLAGS_CREEP);
+            m_target->SetStandFlags(UNIT_STAND_FLAGS_CREEP);
             if(m_target->GetTypeId()==TYPEID_PLAYER)
                 m_target->SetFlag(PLAYER_FIELD_BYTES2, 0x2000);
 
@@ -3303,8 +3302,7 @@ void Aura::HandleModStealth(bool apply, bool Real)
             // if last SPELL_AURA_MOD_STEALTH and no GM invisibility
             if(!m_target->HasAuraType(SPELL_AURA_MOD_STEALTH) && m_target->GetVisibility()!=VISIBILITY_OFF)
             {
-                if(GetId()!=SPELL_ID_SHADOWMELD)
-                    m_target->RemoveStandFlags(UNIT_STAND_FLAGS_CREEP);
+                m_target->RemoveStandFlags(UNIT_STAND_FLAGS_CREEP);
                 if(m_target->GetTypeId()==TYPEID_PLAYER)
                     m_target->RemoveFlag(PLAYER_FIELD_BYTES2, 0x2000);
 
