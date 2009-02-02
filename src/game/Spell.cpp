@@ -2252,6 +2252,34 @@ void Spell::cast(bool skipCheck)
         handle_immediate();
     }
 
+    //handle SPELL_AURA_ADD_TARGET_TRIGGER auras
+    //are there any spells need to be triggered after hit?
+    Unit::AuraList const& targetTriggers = m_caster->GetAurasByType(SPELL_AURA_ADD_TARGET_TRIGGER);
+    for(Unit::AuraList::const_iterator i = targetTriggers.begin(); i != targetTriggers.end(); ++i)
+    {
+        SpellEntry const *auraSpellInfo = (*i)->GetSpellProto();
+        uint32 auraSpellIdx = (*i)->GetEffIndex();
+        if (IsAffectedBy(auraSpellInfo, auraSpellIdx))
+        {
+            for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
+                if( ihit->effectMask & (1<<auraSpellIdx) )
+            {
+                // check m_caster->GetGUID() let load auras at login and speedup most often case
+                Unit *unit = m_caster->GetGUID()== ihit->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID);
+                if (unit && unit->isAlive())
+                {
+                    // Calculate chance at that moment (can be depend for example from combo points)
+                    int32 chance = m_caster->CalculateSpellDamage(auraSpellInfo, auraSpellIdx, (*i)->GetBasePoints(),unit);
+
+                    if(roll_chance_i(chance))
+                        for (int j=0; j != (*i)->GetStackAmount(); ++j)
+                            m_caster->CastSpell(unit, auraSpellInfo->EffectTriggerSpell[auraSpellIdx], true, NULL, (*i));
+                }
+            }
+        }
+    }
+
+    // combo points should not be taken before SPELL_AURA_ADD_TARGET_TRIGGER auras are handled
     if(!m_IsTriggeredSpell)
     {
         TakePower();
@@ -2638,32 +2666,6 @@ void Spell::finish(bool ok)
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         ((Player*)m_caster)->RemoveSpellMods(this);
 
-    //handle SPELL_AURA_ADD_TARGET_TRIGGER auras
-    Unit::AuraList const& targetTriggers = m_caster->GetAurasByType(SPELL_AURA_ADD_TARGET_TRIGGER);
-    for(Unit::AuraList::const_iterator i = targetTriggers.begin(); i != targetTriggers.end(); ++i)
-    {
-        SpellEntry const *auraSpellInfo = (*i)->GetSpellProto();
-        uint32 auraSpellIdx = (*i)->GetEffIndex();
-        if (IsAffectedBy(auraSpellInfo, auraSpellIdx))
-        {
-            for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
-                if( ihit->effectMask & (1<<auraSpellIdx) )
-            {
-                // check m_caster->GetGUID() let load auras at login and speedup most often case
-                Unit *unit = m_caster->GetGUID()== ihit->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID);
-                if (unit && unit->isAlive())
-                {
-                    // Calculate chance at that moment (can be depend for example from combo points)
-                    int32 chance = m_caster->CalculateSpellDamage(auraSpellInfo, auraSpellIdx, (*i)->GetBasePoints(),unit);
-
-                    if(roll_chance_i(chance))
-                        for (int j=0; j != (*i)->GetStackAmount(); ++j)
-                            m_caster->CastSpell(unit, auraSpellInfo->EffectTriggerSpell[auraSpellIdx], true, NULL, (*i));
-                }
-            }
-        }
-    }
-
     // Heal caster for all health leech from all targets
     if (m_healthLeech)
     {
@@ -2681,6 +2683,7 @@ void Spell::finish(bool ok)
     }
 
     // call triggered spell only at successful cast (after clear combo points -> for add some if need)
+    // I assume what he means is that some triggered spells may add combo points
     if(!m_TriggerSpells.empty())
         TriggerSpell();
 
