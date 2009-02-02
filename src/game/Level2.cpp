@@ -713,7 +713,7 @@ bool ChatHandler::HandleModifyRepCommand(const char * args)
     }
 
     target->SetFactionReputation(factionEntry,amount);
-    PSendSysMessage(LANG_COMMAND_MODIFY_REP, factionEntry->name[m_session->GetSessionDbcLocale()], factionId, target->GetName(), target->GetReputation(factionId));
+    PSendSysMessage(LANG_COMMAND_MODIFY_REP, factionEntry->name[m_session->GetSessionDbcLocale()], factionId, GetNameLink(target).c_str(), target->GetReputation(factionId));
     return true;
 }
 
@@ -2098,7 +2098,7 @@ bool ChatHandler::HandleDelTicketCommand(const char *args)
         if(Player* pl = objmgr.GetPlayer(MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER)))
         {
             pl->GetSession()->SendGMTicketGetTicket(0x0A, 0);
-            PSendSysMessage(LANG_COMMAND_TICKETPLAYERDEL, pl->GetName());
+            PSendSysMessage(LANG_COMMAND_TICKETPLAYERDEL, GetNameLink(pl).c_str());
         }
         else
             PSendSysMessage(LANG_COMMAND_TICKETDEL);
@@ -3252,9 +3252,7 @@ bool ChatHandler::HandleRenameCommand(const char* args)
         if (HasLowerSecurity(target, 0))
             return false;
 
-        std::string tNameLink = playerLink(target->GetName());
-
-        PSendSysMessage(LANG_RENAME_PLAYER, tNameLink.c_str());
+        PSendSysMessage(LANG_RENAME_PLAYER, GetNameLink(target).c_str());
         target->SetAtLoginFlag(AT_LOGIN_RENAME);
         CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '1' WHERE guid = '%u'", target->GetGUIDLow());
     }
@@ -3312,9 +3310,7 @@ bool ChatHandler::HandleCustomizeCommand(const char* args)
 
     if(target)
     {
-        std::string tNameLink = playerLink(target->GetName());
-
-        PSendSysMessage(LANG_CUSTOMIZE_PLAYER, tNameLink.c_str());
+        PSendSysMessage(LANG_CUSTOMIZE_PLAYER, GetNameLink(target).c_str());
         target->SetAtLoginFlag(AT_LOGIN_CUSTOMIZE);
         CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '8' WHERE guid = '%u'", target->GetGUIDLow());
     }
@@ -3969,9 +3965,9 @@ bool ChatHandler::HandleRepairitemsCommand(const char* /*args*/)
     // Repair items
     target->DurabilityRepairAll(false, 0, false);
 
-    PSendSysMessage(LANG_YOU_REPAIR_ITEMS, target->GetName());
+    PSendSysMessage(LANG_YOU_REPAIR_ITEMS, GetNameLink(target).c_str());
     if(needReportToTarget(target))
-        ChatHandler(target).PSendSysMessage(LANG_YOUR_ITEMS_REPAIRED, GetName());
+        ChatHandler(target).PSendSysMessage(LANG_YOUR_ITEMS_REPAIRED, GetNameLink().c_str());
     return true;
 }
 
@@ -4003,9 +3999,9 @@ bool ChatHandler::HandleWaterwalkCommand(const char* args)
         return false;
     }
 
-    PSendSysMessage(LANG_YOU_SET_WATERWALK, args, player->GetName());
+    PSendSysMessage(LANG_YOU_SET_WATERWALK, args, GetNameLink(player).c_str());
     if(needReportToTarget(player))
-        ChatHandler(player).PSendSysMessage(LANG_YOUR_WATERWALK_SET, args, GetName());
+        ChatHandler(player).PSendSysMessage(LANG_YOUR_WATERWALK_SET, args, GetNameLink().c_str());
     return true;
 }
 
