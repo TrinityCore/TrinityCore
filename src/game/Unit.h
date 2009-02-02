@@ -102,7 +102,7 @@ enum SpellModOp
     SPELLMOD_CASTING_TIME           = 10,
     SPELLMOD_COOLDOWN               = 11,
     SPELLMOD_EFFECT2                = 12,
-    // spellmod 13 unused
+    SPELLMOD_IGNORE_ARMOR           = 13,
     SPELLMOD_COST                   = 14,
     SPELLMOD_CRIT_DAMAGE_BONUS      = 15,
     SPELLMOD_RESIST_MISS_CHANCE     = 16,
@@ -110,13 +110,16 @@ enum SpellModOp
     SPELLMOD_CHANCE_OF_SUCCESS      = 18,
     SPELLMOD_ACTIVATION_TIME        = 19,
     SPELLMOD_EFFECT_PAST_FIRST      = 20,
-    SPELLMOD_CASTING_TIME_OLD       = 21,
+    SPELLMOD_GLOBAL_COOLDOWN        = 21, //TODO: GCD is not checked by server currently
     SPELLMOD_DOT                    = 22,
     SPELLMOD_EFFECT3                = 23,
     SPELLMOD_SPELL_BONUS_DAMAGE     = 24,
-    // spellmod 25, 26 unused
+    // spellmod 25
+    SPELLMOD_PROC_CHANCE            = 26,
     SPELLMOD_MULTIPLE_VALUE         = 27,
-    SPELLMOD_RESIST_DISPEL_CHANCE   = 28
+    SPELLMOD_RESIST_DISPEL_CHANCE   = 28,
+    SPELLMOD_CRIT_DAMAGE_BONUS_2    = 29, //one not used spell
+    SPELLMOD_SPELL_COST_REFUND_ON_FAIL = 30
 };
 
 #define MAX_SPELLMOD 32
@@ -442,10 +445,9 @@ enum WeaponAttackType
 {
     BASE_ATTACK   = 0,
     OFF_ATTACK    = 1,
-    RANGED_ATTACK = 2
+    RANGED_ATTACK = 2,
+    MAX_ATTACK
 };
-
-#define MAX_ATTACK  3
 
 enum CombatRating
 {
@@ -991,6 +993,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss);
 
         void CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 damage, SpellEntry const *spellInfo, WeaponAttackType attackType = BASE_ATTACK);
+        int32 GetIgnoredArmorMultiplier(SpellEntry const *spellInfo, WeaponAttackType attackType);
         void DealSpellDamage(SpellNonMeleeDamage *damageInfo, bool durabilityLoss);
 
         float MeleeSpellMissChance(const Unit *pVictim, WeaponAttackType attType, int32 skillDiff, uint32 spellId) const;
@@ -1410,7 +1413,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         virtual bool IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index) const;
                                                             // redefined in Creature
 
-        uint32 CalcArmorReducedDamage(Unit* pVictim, const uint32 damage);
+        uint32 CalcArmorReducedDamage(Unit* pVictim, const uint32 damage, SpellEntry const *spellInfo, WeaponAttackType attackType=MAX_ATTACK);
         void CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEffectType damagetype, const uint32 damage, uint32 *absorb, uint32 *resist);
 
         void  UpdateSpeed(UnitMoveType mtype, bool forced);
