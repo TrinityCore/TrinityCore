@@ -2157,11 +2157,24 @@ void Spell::cast(bool skipCheck)
         else if (m_spellInfo->excludeTargetAuraSpell)
             m_preCastSpell = m_spellInfo->excludeTargetAuraSpell;
     }
-    else if (m_spellInfo->Mechanic == MECHANIC_BANDAGE) // Bandages
-        m_preCastSpell = 11196;                                // Recently Bandaged
-    else if(m_spellInfo->SpellIconID == 1662 && m_spellInfo->AttributesEx & 0x20)
-        m_preCastSpell = 23230;                                // Blood Fury - Healing Reduction
+    switch (m_spellInfo->SpellFamilyName)
+    {
+        case SPELLFAMILY_GENERIC:
+        {
+            if (m_spellInfo->Mechanic == MECHANIC_BANDAGE) // Bandages
+                m_preCastSpell = 11196;                                // Recently Bandaged
+            else if(m_spellInfo->SpellIconID == 1662 && m_spellInfo->AttributesEx & 0x20)
+                m_preCastSpell = 23230;                                // Blood Fury - Healing Reduction
+            break;
+        }
 
+        case SPELLFAMILY_PRIEST:
+        {
+            if (m_spellInfo->Id == 47585)                              // Dispersion (transform)
+                m_preCastSpell = 60069;                                // Dispersion (mana regen)
+            break;
+        }
+    }
     // traded items have trade slot instead of guid in m_itemTargetGUID
     // set to real guid to be sent later to the client
     m_targets.updateTradeSlotItem();
