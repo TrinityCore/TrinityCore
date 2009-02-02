@@ -2206,9 +2206,6 @@ void Spell::cast(bool skipCheck)
 
     FillTargetMap();
 
-    if(m_customAttr & SPELL_ATTR_CU_DIRECT_DAMAGE)
-        CalculateDamageDoneForAllTargets();
-
     // traded items have trade slot instead of guid in m_itemTargetGUID
     // set to real guid to be sent later to the client
     m_targets.updateTradeSlotItem();
@@ -2231,12 +2228,15 @@ void Spell::cast(bool skipCheck)
     SendCastResult(castResult);
     SendSpellGo();                                          // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
 
+    if(m_customAttr & SPELL_ATTR_CU_DIRECT_DAMAGE)
+        CalculateDamageDoneForAllTargets();
+
+    if(m_customAttr & SPELL_ATTR_CU_CHARGE)
+        EffectCharge(0);
+
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
     if (m_spellInfo->speed > 0.0f && !IsChanneledSpell(m_spellInfo))
     {
-        if(m_customAttr & SPELL_ATTR_CU_CHARGE)
-            EffectCharge(0);
-
         // Remove used for cast item if need (it can be already NULL after TakeReagents call
         // in case delayed spell remove item at cast delay start
         TakeCastItem();
