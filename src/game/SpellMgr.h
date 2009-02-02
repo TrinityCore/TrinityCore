@@ -346,8 +346,8 @@ inline bool IsElementalShield(SpellEntry const *spellInfo)
 {
     // family flags 10 (Lightning), 42 (Earth), 37 (Water), proc shield from T2 8 pieces bonus
     return (spellInfo->SpellFamilyFlags[1] & 0x420
-        || spellInfo->SpellFamilyFlags[0] & 0x00000400
-        || spellInfo->Id == 23552);
+        || spellInfo->SpellFamilyFlags[0] & 0x00000400)
+        || spellInfo->Id == 23552;
 }
 
 inline bool IsExplicitDiscoverySpell(SpellEntry const *spellInfo)
