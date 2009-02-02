@@ -2150,48 +2150,17 @@ void Spell::cast(bool skipCheck)
     if(m_customAttr & SPELL_ATTR_CU_DIRECT_DAMAGE)
         CalculateDamageDoneForAllTargets();
 
-    switch(m_spellInfo->SpellFamilyName)
+    if(m_spellInfo->SpellFamilyName)
     {
-        case SPELLFAMILY_GENERIC:
-        {
-            if (m_spellInfo->Mechanic == MECHANIC_BANDAGE)             // Bandages
-                m_preCastSpell = 11196;                                // Recently Bandaged
-            else if(m_spellInfo->SpellIconID == 1662 && m_spellInfo->AttributesEx & 0x20) // Blood Fury (Racial)
-                m_preCastSpell = 23230;                                // Blood Fury - Healing Reduction
-            break;
-        }
-        case SPELLFAMILY_MAGE:
-        {
-            if (m_spellInfo->SpellFamilyFlags[1] & 0x00000080)    // Ice Block
-                m_preCastSpell = 41425;                                // Hypothermia
-            break;
-        }
-        case SPELLFAMILY_PRIEST:
-        {
-            if (m_spellInfo->Mechanic == MECHANIC_SHIELD &&
-                m_spellInfo->SpellIconID == 566)                       // Power Word: Shield
-                m_preCastSpell = 6788;                                 // Weakened Soul
-            if (m_spellInfo->Id == 47585)                              // Dispersion (transform)
-                m_preCastSpell = 60069;                                // Dispersion (mana regen)
-            break;
-        }
-        case SPELLFAMILY_PALADIN:
-        {
-            if (m_spellInfo->SpellFamilyFlags[0] & 0x400080)           // Divine Shield, Divine Protection or Hand of Protection
-                m_preCastSpell = 25771;                                // Forbearance
-            break;
-        }
-        case SPELLFAMILY_SHAMAN:
-        {
-            if (m_spellInfo->Id == 2825)                               // Bloodlust
-                m_preCastSpell = 57724;                                // Sated
-            else if (m_spellInfo->Id == 32182)                         // Heroism
-                m_preCastSpell = 57723;                                // Exhaustion
-            break;
-        }
-        default:
-            break;
+        if (m_spellInfo->excludeCasterAuraSpell)
+            m_preCastSpell = m_spellInfo->excludeCasterAuraSpell;
+        else if (m_spellInfo->excludeTargetAuraSpell)
+            m_preCastSpell = m_spellInfo->excludeTargetAuraSpell;
     }
+    else if (m_spellInfo->Mechanic == MECHANIC_BANDAGE) // Bandages
+        m_preCastSpell = 11196;                                // Recently Bandaged
+    else if(m_spellInfo->SpellIconID == 1662 && m_spellInfo->AttributesEx & 0x20)
+        m_preCastSpell = 23230;                                // Blood Fury - Healing Reduction
 
     // traded items have trade slot instead of guid in m_itemTargetGUID
     // set to real guid to be sent later to the client
