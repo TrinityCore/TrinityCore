@@ -1983,7 +1983,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             break;
     }
 
-    if(unMaxTargets)
+    if(unMaxTargets && TagUnitMap.size() > 1)
     {
         if(m_targets.getUnitTarget())
         {
