@@ -1051,6 +1051,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
         unit->IsImmunedToSpell(m_spellInfo)))
     {
         m_caster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_IMMUNE);
+        m_damage = 0;
         return;
     }
 
@@ -1073,6 +1074,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             unit->GetCharmerOrOwnerGUID() != m_caster->GetGUID())
         {
             m_caster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_EVADE);
+                m_damage = 0;
             return;
         }
 
@@ -1082,6 +1084,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             if(m_spellInfo->speed > 0.0f && unit==m_targets.getUnitTarget() && !unit->isVisibleForOrDetect(m_caster,false))
             {
                 m_caster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_EVADE);
+                m_damage = 0;
                 return;
             }
 
@@ -1096,6 +1099,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             if(m_spellInfo->speed > 0.0f && unit->GetTypeId() == TYPEID_PLAYER && !IsPositiveSpell(m_spellInfo->Id))
             {
                 m_caster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_EVADE);
+                m_damage = 0;
                 return;
             }
 
@@ -1930,7 +1934,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             break;
     }
 
-    if(unMaxTargets)
+    if(unMaxTargets && TagUnitMap.size() > 1)
     {
         if(m_targets.getUnitTarget())
         {
