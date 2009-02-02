@@ -6298,6 +6298,8 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor, bool pvpt
         if(groupsize > 1)
             honor /= groupsize;
 
+        // apply honor multiplier from aura (not stacking-get highest)
+        honor *= (float(GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HONOR_GAIN_PCT))+100.0f)/100.0f;
         honor *= (((float)urand(8,12))/10);                 // approx honor: 80% - 120% of real honor
     }
 
