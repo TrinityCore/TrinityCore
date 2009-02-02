@@ -1154,7 +1154,7 @@ struct SpellEntry
     uint32    SpellVisual[2];                               // 134-135  m_spellVisualID
     uint32    SpellIconID;                                  // 136      m_spellIconID
     uint32    activeIconID;                                 // 137      m_activeIconID
-    //uint32    spellPriority;                              // 138      m_spellPriority not used
+    //uint32    spellPriority;                              // 138 not used
     char*     SpellName[16];                                // 139-154  m_name_lang
     //uint32    SpellNameFlag;                              // 155 not used
     char*     Rank[16];                                     // 156-171  m_nameSubtext_lang
