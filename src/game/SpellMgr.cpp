@@ -327,17 +327,17 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
         case SPELLFAMILY_MAGE:
         {
             // family flags 18(Molten), 25(Frost/Ice), 28(Mage)
-            if (spellInfo->SpellFamilyFlags & 0x12040000)
+            if (spellInfo->SpellFamilyFlags[0] & 0x12040000)
                 return SPELL_MAGE_ARMOR;
 
-            if ((spellInfo->SpellFamilyFlags & 0x1000000) && spellInfo->EffectApplyAuraName[0]==SPELL_AURA_MOD_CONFUSE)
+            if ((spellInfo->SpellFamilyFlags[0] & 0x1000000) && spellInfo->EffectApplyAuraName[0]==SPELL_AURA_MOD_CONFUSE)
                 return SPELL_MAGE_POLYMORPH;
 
             break;
         }
         case SPELLFAMILY_WARRIOR:
         {
-            if (spellInfo->SpellFamilyFlags & 0x00008000010000LL)
+            if (spellInfo->SpellFamilyFlags[1] & 0x000080 || spellInfo->SpellFamilyFlags[0] & 0x10000LL)
                 return SPELL_POSITIVE_SHOUT;
 
             break;
@@ -349,11 +349,11 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
                 return SPELL_CURSE;
 
             // Warlock (Demon Armor | Demon Skin | Fel Armor)
-            if (spellInfo->SpellFamilyFlags & 0x2000002000000000LL || spellInfo->SpellFamilyFlags2 & 0x00000010)
+            if (spellInfo->SpellFamilyFlags[1] & 0x20000020 || spellInfo->SpellFamilyFlags[2] & 0x00000010)
                 return SPELL_WARLOCK_ARMOR;
 
             //seed of corruption and corruption
-            if (spellInfo->SpellFamilyFlags & 0x1000000002LL)
+            if (spellInfo->SpellFamilyFlags[1] & 0x10 || spellInfo->SpellFamilyFlags[0] & 0x2)
                 return SPELL_WARLOCK_CORRUPTION;
             break;
         }
@@ -363,11 +363,11 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
             if (spellInfo->Dispel == DISPEL_POISON)
                 return SPELL_STING;
 
-            // only hunter aspects have this (but not all aspects in hunter family)
-            if( spellInfo->SpellFamilyFlags & 0x0044000000380000LL || spellInfo->SpellFamilyFlags2 & 0x00003010)
+            // only hunter aspects have this
+            if( spellInfo->SpellFamilyFlags[1] & 0x00440000 || spellInfo->SpellFamilyFlags[0] & 0x00380000 || spellInfo->SpellFamilyFlags[2] & 0x00003010)
                 return SPELL_ASPECT;
 
-            if( spellInfo->SpellFamilyFlags2 & 0x00000002 )
+            if( spellInfo->SpellFamilyFlags[2] & 0x00000002 )
                 return SPELL_TRACKER;
 
             break;
@@ -377,10 +377,10 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
             if (IsSealSpell(spellInfo))
                 return SPELL_SEAL;
 
-            if (spellInfo->SpellFamilyFlags & 0x0000000011010002LL)
+            if (spellInfo->SpellFamilyFlags[0] & 0x11010002)
                 return SPELL_BLESSING;
 
-            if ((spellInfo->SpellFamilyFlags & 0x00000820180400LL) && (spellInfo->AttributesEx3 & 0x200))
+            if ((spellInfo->SpellFamilyFlags[1] & 0x000008 || spellInfo->SpellFamilyFlags[0] & 20180400) && (spellInfo->AttributesEx3 & 0x200))
                 return SPELL_JUDGEMENT;
 
             for (int i = 0; i < 3; i++)
@@ -928,22 +928,15 @@ void SpellMgr::LoadSpellAffects()
             continue;
         }
 
-        SpellAffectEntry affect;
-        affect.SpellClassMask[0] = fields[2].GetUInt32();
-        affect.SpellClassMask[1] = fields[3].GetUInt32();
-        affect.SpellClassMask[2] = fields[4].GetUInt32();
+        flag96 affect(fields[2].GetUInt32(), fields[3].GetUInt32(), fields[4].GetUInt32());
 
         // Spell.dbc have own data
-        uint32 const *ptr = 0;
-        switch (effectId)
-        {
-            case 0: ptr = &spellInfo->EffectSpellClassMaskA[0]; break;
-            case 1: ptr = &spellInfo->EffectSpellClassMaskB[0]; break;
-            case 2: ptr = &spellInfo->EffectSpellClassMaskC[0]; break;
-            default:
-                continue;
-        }
-        if(ptr[0] == affect.SpellClassMask[0] || ptr[1] == affect.SpellClassMask[1] || ptr[2] == affect.SpellClassMask[2])
+        if (effectId>3)
+            continue;
+
+        flag96 dbc_affect;
+        dbc_affect = spellInfo->EffectSpellClassMask[effectId];
+        if(dbc_affect[0] == affect[0] || dbc_affect[1] == affect[1] || dbc_affect[2] == affect[2])
         {
             char text[]="ABC";
             sLog.outErrorDb("Spell %u listed in `spell_affect` have redundant (same with EffectSpellClassMask%c) data for effect index (%u) and not needed, skipped.", entry, text[effectId], effectId);
@@ -974,16 +967,9 @@ void SpellMgr::LoadSpellAffects()
                 spellInfo->EffectApplyAuraName[effectId] != SPELL_AURA_ADD_TARGET_TRIGGER) )
                 continue;
 
-            uint32 const *ptr = 0;
-            switch (effectId)
-            {
-                case 0: ptr = &spellInfo->EffectSpellClassMaskA[0]; break;
-                case 1: ptr = &spellInfo->EffectSpellClassMaskB[0]; break;
-                case 2: ptr = &spellInfo->EffectSpellClassMaskC[0]; break;
-                default:
-                    continue;
-            }
-            if(ptr[0] || ptr[1] || ptr[2])
+            flag96 dbc_affect;
+            dbc_affect = spellInfo->EffectSpellClassMask[effectId];
+            if(dbc_affect)
                 continue;
 
             if(mSpellAffectMap.find((id<<8) + effectId) !=  mSpellAffectMap.end())
@@ -1006,8 +992,7 @@ bool SpellMgr::IsAffectedByMod(SpellEntry const *spellInfo, SpellModifier *mod) 
         return false;
 
     // true
-    if (mod->mask  & spellInfo->SpellFamilyFlags ||
-        mod->mask2 & spellInfo->SpellFamilyFlags2)
+    if (mod->mask  & spellInfo->SpellFamilyFlags)
         return true;
 
     return false;
@@ -1164,8 +1149,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const * spellP
             // spellFamilyName is Ok need check for spellFamilyMask if present
             if(spellProcEvent->spellFamilyMask || spellProcEvent->spellFamilyMask2)
             {
-                if ((spellProcEvent->spellFamilyMask  & procSpell->SpellFamilyFlags ) == 0 &&
-                    (spellProcEvent->spellFamilyMask2 & procSpell->SpellFamilyFlags2) == 0)
+                if ((spellProcEvent->spellFamilyMask  & procSpell->SpellFamilyFlags ) == 0)
                     return false;
                 active = true; // Spell added manualy -> so its active spell
             }
@@ -1608,7 +1592,7 @@ void SpellMgr::LoadSpellChains()
         if(sRank.empty())
             continue;
         //exception to polymorph spells-make pig and turtle other chain than sheep
-        if ((SpellInfo->SpellFamilyName==SPELLFAMILY_MAGE) && (SpellInfo->SpellFamilyFlags & 0x1000000) && (SpellInfo->SpellIconID!=82))
+        if ((SpellInfo->SpellFamilyName==SPELLFAMILY_MAGE) && (SpellInfo->SpellFamilyFlags[0] & 0x1000000) && (SpellInfo->SpellIconID!=82))
             continue;
 
         SpellRankEntry entry;
@@ -2332,7 +2316,7 @@ void SpellMgr::LoadPetLevelupSpellMap()
                 continue;
 
             // not pet spell
-            if(!(spell->SpellFamilyFlags & 0x1000000000000000LL))
+            if(!(spell->SpellFamilyFlags[1] & 0x10000000))
                 continue;
 
             // not Growl or Cower (generics)
@@ -2678,46 +2662,46 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
         case SPELLFAMILY_ROGUE:
         {
             // Kidney Shot
-            if (spellproto->SpellFamilyFlags & 0x00000200000LL)
+            if (spellproto->SpellFamilyFlags[0] & 0x200000)
                 return DIMINISHING_KIDNEYSHOT;
             // Sap
-            else if (spellproto->SpellFamilyFlags & 0x00000000080LL)
+            else if (spellproto->SpellFamilyFlags[0] & 0x80)
                 return DIMINISHING_POLYMORPH;
             // Gouge
-            else if (spellproto->SpellFamilyFlags & 0x00000000008LL)
+            else if (spellproto->SpellFamilyFlags[0] & 0x8)
                 return DIMINISHING_POLYMORPH;
             // Blind
-            else if (spellproto->SpellFamilyFlags & 0x00001000000LL)
+            else if (spellproto->SpellFamilyFlags[0] & 0x00001000000)
                 return DIMINISHING_BLIND_CYCLONE;
             break;
         }
         case SPELLFAMILY_WARLOCK:
         {
             // Death Coil
-            if (spellproto->SpellFamilyFlags & 0x00000080000LL)
+            if (spellproto->SpellFamilyFlags[0] & 0x00000080000)
                 return DIMINISHING_DEATHCOIL;
             // Seduction
-            if (spellproto->SpellFamilyFlags & 0x00040000000LL)
+            if (spellproto->SpellFamilyFlags[0] & 0x00040000000)
                 return DIMINISHING_FEAR;
             // Fear
             //else if (spellproto->SpellFamilyFlags & 0x40840000000LL)
             //    return DIMINISHING_WARLOCK_FEAR;
             // Curses/etc
-            else if (spellproto->SpellFamilyFlags & 0x00080000000LL)
+            else if (spellproto->SpellFamilyFlags[0] & 0x80000000)
                 return DIMINISHING_LIMITONLY;
             break;
         }
         case SPELLFAMILY_DRUID:
         {
             // Cyclone
-            if (spellproto->SpellFamilyFlags & 0x02000000000LL)
+            if (spellproto->SpellFamilyFlags[1] & 0x020)
                 return DIMINISHING_BLIND_CYCLONE;
             break;
         }
         case SPELLFAMILY_WARRIOR:
         {
             // Hamstring - limit duration to 10s in PvP
-            if (spellproto->SpellFamilyFlags & 0x00000000002LL)
+            if (spellproto->SpellFamilyFlags[0] & 0x00000000002)
                 return DIMINISHING_LIMITONLY;
             break;
         }

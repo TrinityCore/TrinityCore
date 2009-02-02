@@ -275,17 +275,16 @@ enum SpellSelectTargetTypes
 };
 
 //Some SpellFamilyFlags
-#define SPELLFAMILYFLAG_ROGUE_VANISH            0x000000800LL
-#define SPELLFAMILYFLAG_ROGUE_STEALTH           0x000400000LL
-#define SPELLFAMILYFLAG_ROGUE_BACKSTAB          0x000800004LL
-#define SPELLFAMILYFLAG_ROGUE_SAP               0x000000080LL
-#define SPELLFAMILYFLAG_ROGUE_FEINT             0x008000000LL
-#define SPELLFAMILYFLAG_ROGUE_KIDNEYSHOT        0x000200000LL
-#define SPELLFAMILYFLAG_ROGUE__FINISHING_MOVE   0x9003E0000LL
-#define SPELLFAMILYFLAG_WARRIOR_SUNDERARMOR     0x000004000LL
-#define SPELLFAMILYFLAG_SHAMAN_FROST_SHOCK      0x080000000LL
+#define SPELLFAMILYFLAG_ROGUE_VANISH            0x00000800
+#define SPELLFAMILYFLAG_ROGUE_STEALTH           0x00400000
+#define SPELLFAMILYFLAG_ROGUE_BACKSTAB          0x00800004
+#define SPELLFAMILYFLAG_ROGUE_SAP               0x00000080
+#define SPELLFAMILYFLAG_ROGUE_FEINT             0x08000000
+#define SPELLFAMILYFLAG_ROGUE_KIDNEYSHOT        0x00200000
+//#define SPELLFAMILYFLAG_ROGUE__FINISHING_MOVE   0x9003E0000LL
+#define SPELLFAMILYFLAG_WARRIOR_SUNDERARMOR     0x00004000
+#define SPELLFAMILYFLAG_SHAMAN_FROST_SHOCK      0x80000000
 
-#define SPELLFAMILYFLAG_PALADIN_SEALS           0x26000C000A000000LL
 // Spell clasification
 enum SpellSpecific
 {
@@ -339,13 +338,16 @@ inline bool IsSealSpell(SpellEntry const *spellInfo)
 {
     //Collection of all the seal family flags. No other paladin spell has any of those.
     return spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN &&
-        ( spellInfo->SpellFamilyFlags & SPELLFAMILYFLAG_PALADIN_SEALS );
+        ( spellInfo->SpellFamilyFlags[1] & 0x26000C00
+        || spellInfo->SpellFamilyFlags[0] & 0x0A000000 );
 }
 
 inline bool IsElementalShield(SpellEntry const *spellInfo)
 {
     // family flags 10 (Lightning), 42 (Earth), 37 (Water), proc shield from T2 8 pieces bonus
-    return (spellInfo->SpellFamilyFlags & 0x42000000400LL) || spellInfo->Id == 23552;
+    return (spellInfo->SpellFamilyFlags[1] & 0x420
+        || spellInfo->SpellFamilyFlags[0] & 0x00000400
+        || spellInfo->Id == 23552);
 }
 
 inline bool IsExplicitDiscoverySpell(SpellEntry const *spellInfo)
@@ -512,11 +514,7 @@ bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group);
 DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group);
 
 // Spell affects related declarations (accessed using SpellMgr functions)
-struct SpellAffectEntry
-{
-    uint32 SpellClassMask[3];
-};
-typedef UNORDERED_MAP<uint32, SpellAffectEntry> SpellAffectMap;
+typedef UNORDERED_MAP<uint32, flag96> SpellAffectMap;
 
 // Spell proc event related declarations (accessed using SpellMgr functions)
 enum ProcFlags
@@ -596,7 +594,7 @@ struct SpellProcEventEntry
 {
     uint32      schoolMask;                                 // if nonzero - bit mask for matching proc condition based on spell candidate's school: Fire=2, Mask=1<<(2-1)=2
     uint32      spellFamilyName;                            // if nonzero - for matching proc condition based on candidate spell's SpellFamilyNamer value
-    uint64      spellFamilyMask;                            // if nonzero - for matching proc condition based on candidate spell's SpellFamilyFlags  (like auras 107 and 108 do)
+    flag96      spellFamilyMask;                            // if nonzero - for matching proc condition based on candidate spell's SpellFamilyFlags  (like auras 107 and 108 do)
     uint32      spellFamilyMask2;                           // if nonzero - for matching proc condition based on candidate spell's SpellFamilyFlags2 (like auras 107 and 108 do)
     uint32      procFlags;                                  // bitmask for matching proc event
     uint32      procEx;                                     // proc Extend info (see ProcFlagsEx)
@@ -794,7 +792,7 @@ class SpellMgr
         // Accessors (const or static functions)
     public:
         // Spell affects
-        SpellAffectEntry const*GetSpellAffect(uint16 spellId, uint8 effectId) const
+        flag96 const*GetSpellAffect(uint16 spellId, uint8 effectId) const
         {
             SpellAffectMap::const_iterator itr = mSpellAffectMap.find((spellId<<8) + effectId);
             if( itr != mSpellAffectMap.end( ) )
