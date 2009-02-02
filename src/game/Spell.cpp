@@ -1129,6 +1129,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
         unit->IsImmunedToSpell(m_spellInfo,true) ))
     {
         m_caster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_IMMUNE);
+        m_damage = 0;
         return;
     }
 
@@ -1139,6 +1140,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             if (unit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             {
                 m_caster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_EVADE);
+                m_damage = 0;
                 return;
             }
         }
@@ -1148,6 +1150,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             if(m_spellInfo->speed > 0.0f && unit==m_targets.getUnitTarget() && !unit->isVisibleForOrDetect(m_caster,false))
             {
                 m_caster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_EVADE);
+                m_damage = 0;
                 return;
             }
 
@@ -1162,6 +1165,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             if(m_spellInfo->speed > 0.0f && unit->GetTypeId() == TYPEID_PLAYER && !IsPositiveSpell(m_spellInfo->Id))
             {
                 m_caster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_EVADE);
+                m_damage = 0;
                 return;
             }
 
