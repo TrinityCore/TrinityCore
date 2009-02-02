@@ -4943,7 +4943,7 @@ void Aura::HandleNoReagentUseAura(bool Apply, bool Real)
     flag96 mask;
     Unit::AuraList const& noReagent = m_target->GetAurasByType(SPELL_AURA_NO_REAGENT_USE);
         for(Unit::AuraList::const_iterator i = noReagent.begin(); i !=  noReagent.end(); ++i)
-            mask = (*i)->m_spellProto->EffectSpellClassMask[(*i)->m_effIndex];
+            mask |= (*i)->m_spellProto->EffectSpellClassMask[(*i)->m_effIndex];
 
     m_target->SetUInt32Value(PLAYER_NO_REAGENT_COST_1  , mask[0]);
     m_target->SetUInt32Value(PLAYER_NO_REAGENT_COST_1+1, mask[1]);
