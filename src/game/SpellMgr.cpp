@@ -2150,7 +2150,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_DIRECT_DAMAGE;
                     break;
                 case SPELL_EFFECT_CHARGE:
-                    if(!spellInfo->speed)
+                    if(!spellInfo->speed && !spellInfo->SpellFamilyName)
                         spellInfo->speed = SPEED_CHARGE;
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_CHARGE;
                 case SPELL_EFFECT_TRIGGER_SPELL:
