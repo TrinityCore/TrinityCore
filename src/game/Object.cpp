@@ -458,6 +458,8 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags, uint32 flags2)
                 *data << path.GetNodes()[i].z;
             }
 
+            *data << uint8(0);                              // added in 3.0.8
+
             /*for(uint32 i = 0; i < poscount; i++)
             {
                 // path points
