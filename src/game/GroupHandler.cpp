@@ -555,8 +555,17 @@ void WorldSession::HandleGroupChangeSubGroupOpcode( WorldPacket & recv_data )
         return;
     /********************/
 
+    //Do not allow leader to change group of player in combat
+    Player *movedPlayer=objmgr.GetPlayer(name.c_str());
+    if (movedPlayer->isInCombat())
+    {
+        WorldPacket data(SMSG_GROUP_SWAP_FAILED, (0));
+        SendPacket(&data);
+        return;
+    }
+
     // everything's fine, do it
-    group->ChangeMembersGroup(objmgr.GetPlayer(name.c_str()), groupNr);
+    group->ChangeMembersGroup(movedPlayer), groupNr);
 }
 
 void WorldSession::HandleGroupAssistantOpcode( WorldPacket & recv_data )
