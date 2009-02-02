@@ -17165,18 +17165,20 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
 {
     uint16 Opcode= (mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER;
 
+    uint8 i=0;
+    flag96 _mask;
     for(int eff=0;eff<96;++eff)
     {
-        uint64 _mask = 0;
-        uint64 _mask2= 0;
-        if (eff<64) _mask = uint64(1) << (eff- 0);
-        else        _mask2= uint64(1) << (eff-64);
-        if ( mod->mask & _mask || mod->mask2 & _mask2)
+        if ((eff!=0) && (eff%32==0))
+            i++;
+
+        _mask[i] = uint32(1) << (eff-(32*i));
+        if ( mod->mask & _mask)
         {
             int32 val = 0;
             for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
             {
-                if ((*itr)->type == mod->type && ((*itr)->mask & _mask || (*itr)->mask2 & _mask2))
+                if ((*itr)->type == mod->type && (*itr)->mask & _mask )
                     val += (*itr)->value;
             }
             val += apply ? mod->value : -(mod->value);
@@ -19190,10 +19192,11 @@ bool Player::CanNoReagentCast(SpellEntry const* spellInfo) const
         return true;
 
     // Check no reagent use mask
-    uint64 noReagentMask_0_1 = GetUInt64Value(PLAYER_NO_REAGENT_COST_1);
-    uint32 noReagentMask_2   = GetUInt64Value(PLAYER_NO_REAGENT_COST_1+2);
-    if (spellInfo->SpellFamilyFlags  & noReagentMask_0_1 ||
-        spellInfo->SpellFamilyFlags2 & noReagentMask_2)
+    flag96 noReagentMask;
+    noReagentMask[0] = GetUInt32Value(PLAYER_NO_REAGENT_COST_1);
+    noReagentMask[1] = GetUInt32Value(PLAYER_NO_REAGENT_COST_1+1);
+    noReagentMask[2] = GetUInt32Value(PLAYER_NO_REAGENT_COST_1+2);
+    if (spellInfo->SpellFamilyFlags  & noReagentMask)
         return true;
 
     return false;

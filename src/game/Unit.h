@@ -1335,7 +1335,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         uint8 GetVisibleAurasCount() { return m_visibleAuras.size(); }
 
         Aura* GetAura(uint32 spellId, uint32 effindex);
-        Aura* GetAura(AuraType type, uint32 family, uint64 familyFlag, uint32 familyFlag2 = 0, uint64 casterGUID = 0);
+        Aura* GetAura(AuraType type, uint32 family, uint32 familyFlag1 = 0, uint32 familyFlag2 = 0, uint32 familyFlag3 = 0, uint64 casterGUID = 0);
 
         AuraMap      & GetAuras()       { return m_Auras; }
         AuraMap const& GetAuras() const { return m_Auras; }

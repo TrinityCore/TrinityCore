@@ -80,6 +80,8 @@
 #pragma warning(disable:4305)
 
 #pragma warning(disable:4005)
+
+#pragma warning(disable:4522)//warning when class has 2 constructosr
 #endif                                                      // __SHOW_STUPID_WARNINGS__
 #endif                                                      // __GNUC__
 

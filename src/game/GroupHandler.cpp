@@ -565,7 +565,7 @@ void WorldSession::HandleGroupChangeSubGroupOpcode( WorldPacket & recv_data )
     }
 
     // everything's fine, do it
-    group->ChangeMembersGroup(movedPlayer), groupNr);
+    group->ChangeMembersGroup(movedPlayer, groupNr);
 }
 
 void WorldSession::HandleGroupAssistantOpcode( WorldPacket & recv_data )
