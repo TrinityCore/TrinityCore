@@ -5455,7 +5455,7 @@ void Aura::PeriodicTick()
                 if ( GetSpellSchoolMask(GetSpellProto()) & SPELL_SCHOOL_MASK_NORMAL &&
                      GetEffectMechanic(GetSpellProto(), m_effIndex) != MECHANIC_BLEED)
                 {
-                    uint32 pdamageReductedArmor = pCaster->CalcArmorReducedDamage(m_target, pdamage);
+                    uint32 pdamageReductedArmor = pCaster->CalcArmorReducedDamage(m_target, pdamage, GetSpellProto());
                     cleanDamage.damage += pdamage - pdamageReductedArmor;
                     pdamage = pdamageReductedArmor;
                 }
@@ -5541,7 +5541,7 @@ void Aura::PeriodicTick()
             //Calculate armor mitigation if it is a physical spell
             if (GetSpellSchoolMask(GetSpellProto()) & SPELL_SCHOOL_MASK_NORMAL)
             {
-                uint32 pdamageReductedArmor = pCaster->CalcArmorReducedDamage(m_target, pdamage);
+                uint32 pdamageReductedArmor = pCaster->CalcArmorReducedDamage(m_target, pdamage, GetSpellProto());
                 cleanDamage.damage += pdamage - pdamageReductedArmor;
                 pdamage = pdamageReductedArmor;
             }
