@@ -24,7 +24,8 @@
 #include "Platform/Define.h"
 #include <cassert>
 
-#define MaNGOS Trinity
+#define MaNGOS              Trinity
+#define GetMangosString     GetTrinityString
 
 enum Gender
 {
