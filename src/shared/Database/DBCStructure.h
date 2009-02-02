@@ -23,6 +23,7 @@
 
 #include "DBCEnums.h"
 #include "Platform/Define.h"
+#include "Util.h"
 
 #include <map>
 #include <set>
@@ -1149,9 +1150,7 @@ struct SpellEntry
     int32     EffectMiscValueB[3];                          // 116-118  m_effectMiscValueB
     uint32    EffectTriggerSpell[3];                        // 119-121  m_effectTriggerSpell
     float     EffectPointsPerComboPoint[3];                 // 122-124  m_effectPointsPerCombo
-    uint32    EffectSpellClassMaskA[3];                     // 125-127  m_effectSpellClassMaskA
-    uint32    EffectSpellClassMaskB[3];                     // 128-130  m_effectSpellClassMaskB
-    uint32    EffectSpellClassMaskC[3];                     // 131-133  m_effectSpellClassMaskC
+    flag96    EffectSpellClassMask[3];                      //
     uint32    SpellVisual[2];                               // 134-135  m_spellVisualID
     uint32    SpellIconID;                                  // 136      m_spellIconID
     uint32    activeIconID;                                 // 137      m_activeIconID
@@ -1169,8 +1168,7 @@ struct SpellEntry
     uint32    StartRecoveryTime;                            // 209      m_startRecoveryTime
     uint32    MaxTargetLevel;                               // 210      m_maxTargetLevel
     uint32    SpellFamilyName;                              // 211      m_spellClassSet
-    uint64    SpellFamilyFlags;                             // 212-213  m_spellClassMask NOTE: size is 12 bytes!!!
-    uint32    SpellFamilyFlags2;                            // 214      addition to m_spellClassMask
+    flag96    SpellFamilyFlags;                             // 212-214
     uint32    MaxAffectedTargets;                           // 215      m_maxTargets
     uint32    DmgClass;                                     // 216      m_defenseType
     uint32    PreventionType;                               // 217      m_preventionType

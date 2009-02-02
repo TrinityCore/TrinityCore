@@ -329,7 +329,7 @@ void WorldSession::HandleCancelAuraOpcode( WorldPacket& recvPacket)
         return;
 
 	// lifebloom must delete final heal effect
-	if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && (spellInfo->SpellFamilyFlags & 0x1000000000LL) )
+	if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && (spellInfo->SpellFamilyFlags[1] & 0x10) )
 	{
 		Unit::AuraMap::iterator iter;
 		while((iter = _player->m_Auras.find(Unit::spellEffectPair(spellId, 1))) != _player->m_Auras.end())

@@ -101,8 +101,7 @@ struct SpellModifier
     SpellModType type : 8;
     int16 charges     : 16;
     int32 value;
-    uint64 mask;
-    uint64 mask2;
+    flag96 mask;
     uint32 spellId;
     Spell const* lastAffected;
 };
