@@ -1442,6 +1442,13 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
     uint32 EffectChainTarget = m_spellInfo->EffectChainTarget[i];
     uint32 unMaxTargets = m_spellInfo->MaxAffectedTargets;
 
+    Unit::AuraList const& Auras = m_caster->GetAurasByType(SPELL_AURA_MOD_ABILITY_AFFECTED_TARGETS);
+    for(Unit::AuraList::const_iterator j = Auras.begin();j != Auras.end(); ++j)
+    {
+        if((*j)->isAffectedOnSpell(m_spellInfo))
+            unMaxTargets+=(*j)->GetModifier()->m_amount;
+    }
+
     if(m_originalCaster)
     {
         if(Player* modOwner = m_originalCaster->GetSpellModOwner())
