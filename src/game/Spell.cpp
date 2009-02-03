@@ -3285,6 +3285,35 @@ void Spell::TakePower()
         m_caster->SetLastManaUse(getMSTime());
 }
 
+void Spell::TakeAmmo()
+{
+    if(m_attackType == RANGED_ATTACK && m_caster->GetTypeId() == TYPEID_PLAYER)
+    {
+        Item *pItem = ((Player*)m_caster)->GetWeaponForAttack( RANGED_ATTACK );
+
+        // wands don't have ammo
+        if(!pItem  || pItem->IsBroken() || pItem->GetProto()->SubClass==ITEM_SUBCLASS_WEAPON_WAND)
+            return;
+
+        if( pItem->GetProto()->InventoryType == INVTYPE_THROWN )
+        {
+            if(pItem->GetMaxStackCount()==1)
+            {
+                // decrease durability for non-stackable throw weapon
+                ((Player*)m_caster)->DurabilityPointLossForEquipSlot(EQUIPMENT_SLOT_RANGED);
+            }
+            else
+            {
+                // decrease items amount for stackable throw weapon
+                uint32 count = 1;
+                ((Player*)m_caster)->DestroyItemCount( pItem, count, true);
+            }
+        }
+        else if(uint32 ammo = ((Player*)m_caster)->GetUInt32Value(PLAYER_AMMO_ID))
+            ((Player*)m_caster)->DestroyItemCount(ammo, 1, true);
+    }
+}
+
 uint8 Spell::CheckRuneCost(uint32 runeCostID)
 {
     if(m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -5609,6 +5638,14 @@ void Spell::CalculateDamageDoneForAllTargets()
         }
     }
 
+    bool usesAmmo=true;
+    Unit::AuraList const& Auras = m_caster->GetAurasByType(SPELL_AURA_ABILITY_CONSUME_NO_AMMO);
+    for(Unit::AuraList::const_iterator j = Auras.begin();j != Auras.end(); ++j)
+    {
+        if((*j)->isAffectedOnSpell(m_spellInfo))
+            usesAmmo=false;
+    }
+
     for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
     {
         TargetInfo &target = *ihit;
@@ -5620,6 +5657,28 @@ void Spell::CalculateDamageDoneForAllTargets()
         Unit* unit = m_caster->GetGUID()==target.targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, target.targetGUID);
         if (!unit)
             continue;
+
+        if (usesAmmo)
+        {
+            bool ammoTaken=false;
+            for (uint8 i=0;i<3;i++)
+            {
+                if (!(mask & 1<<i))
+                    continue;
+                switch (m_spellInfo->Effect[i])
+                {
+                    case SPELL_EFFECT_SCHOOL_DAMAGE:
+                    case SPELL_EFFECT_WEAPON_DAMAGE:
+                    case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
+                    case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+                    case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
+                    ammoTaken=true;
+                    TakeAmmo();
+                }
+                if (ammoTaken)
+                    break;
+            }
+        }
 
         if (target.missCondition==SPELL_MISS_NONE)                          // In case spell hit target, do all effect on that target
             target.damage += CalculateDamageDone(unit, mask, multiplier);
