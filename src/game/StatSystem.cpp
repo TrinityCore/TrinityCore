@@ -427,8 +427,15 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, fl
         weapon_mindamage = lvl*0.85*att_speed;
         weapon_maxdamage = lvl*1.25*att_speed;
     }
-    else if(!IsUseEquipedWeapon(attType==BASE_ATTACK))      //check if player not in form but still can't use weapon (broken/etc)
+    else if(!CanUseAttackType(attType))      //check if player not in form but still can't use (disarm case)
     {
+        //cannot use ranged/off attack, set values to 0
+        if (attType != BASE_ATTACK)
+        {
+            min_damage=0;
+            max_damage=0;
+            return;
+        }
         weapon_mindamage = BASE_MINDAMAGE;
         weapon_maxdamage = BASE_MAXDAMAGE;
     }
@@ -820,7 +827,7 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
     float total_pct   = GetModifierValue(unitMod, TOTAL_PCT);
 
-    if(attType == BASE_ATTACK && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED))
+    if(!CanUseAttackType(attType))
     {
         weapon_mindamage = 0;
         weapon_maxdamage = 0;
