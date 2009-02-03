@@ -360,6 +360,7 @@ class Spell
         void cast(bool skipCheck = false);
         void finish(bool ok = true);
         void TakePower();
+        void TakeAmmo();
         uint8 CheckRuneCost(uint32 runeCostID);
         void TakeRunePower();
         void TakeReagents();

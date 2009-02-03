@@ -248,8 +248,8 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleAuraModUseNormalSpeed,                     //191 SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED
     &Aura::HandleModMeleeRangedSpeedPct,                    //192 SPELL_AURA_HASTE_MELEE
     &Aura::HandleModCombatSpeedPct,                         //193 SPELL_AURA_MELEE_SLOW (in fact combat (any type attack) speed pct)
-    &Aura::HandleUnused,                                    //194 SPELL_AURA_MOD_IGNORE_ABSORB_SCHOOL
-    &Aura::HandleNoImmediateEffect,                         //195 SPELL_AURA_MOD_IGNORE_ABSORB_FOR_SPELL     implement in Unit::CalculateSpellDamage
+    &Aura::HandleNoImmediateEffect,                         //194 SPELL_AURA_MOD_TARGET_ABSORB_SCHOOL implemented in Unit::CalcAbsorbResist
+    &Aura::HandleNoImmediateEffect,                         //195 SPELL_AURA_MOD_TARGET_ABILITY_ABSORB_SCHOOL implemented in Unit::CalcAbsorbResist
     &Aura::HandleNULL,                                      //196 SPELL_AURA_MOD_COOLDOWN
     &Aura::HandleNoImmediateEffect,                         //197 SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE implemented in Unit::SpellCriticalBonus Unit::GetUnitCriticalChance
     &Aura::HandleUnused,                                    //198 SPELL_AURA_MOD_ALL_WEAPON_SKILLS
@@ -308,7 +308,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNULL,                                      //251 SPELL_AURA_MOD_ENEMY_DODGE
     &Aura::HandleNULL,                                      //252 haste all?
     &Aura::HandleNULL,                                      //253 SPELL_AURA_MOD_BLOCK_CRIT_CHANCE
-    &Aura::HandleNULL,                                      //254 SPELL_AURA_MOD_DISARM_SHIELD disarm Shield
+    &Aura::HandleAuraModDisarm,                             //254 SPELL_AURA_MOD_DISARM_OFFHAND
     &Aura::HandleNoImmediateEffect,                         //255 SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT    implemented in Unit::SpellDamageBonus
     &Aura::HandleNoReagentUseAura,                          //256 SPELL_AURA_NO_REAGENT_USE Use SpellClassMask for spell select
     &Aura::HandleNULL,                                      //257 SPELL_AURA_MOD_TARGET_RESIST_BY_SPELL_CLASS Use SpellClassMask for spell select
@@ -323,16 +323,16 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNULL,                                      //266 unused
     &Aura::HandleNoImmediateEffect,                         //267 SPELL_AURA_MOD_IMMUNE_AURA_APPLY_SCHOOL         implemented in Unit::IsImmunedToSpellEffect
     &Aura::HandleAuraModAttackPowerOfStatPercent,           //268 SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT
-    &Aura::HandleNULL,                                      //269 ignore DR effects?
-    &Aura::HandleNULL,                                      //270 SPELL_AURA_MOD_IGNORE_TARGET_RESIST
+    &Aura::HandleNoImmediateEffect,                         //269 SPELL_AURA_MOD_IGNORE_TARGET_RESIST implemented in Unit::CalcAbsorbResist and CalcArmorReducedDamage
+    &Aura::HandleNoImmediateEffect,                         //270 SPELL_AURA_MOD_ABILITY_IGNORE_TARGET_RESIST implemented in Unit::CalcAbsorbResist and CalcArmorReducedDamage
     &Aura::HandleNoImmediateEffect,                         //271 SPELL_AURA_MOD_DAMAGE_FROM_CASTER    implemented in Unit::SpellDamageBonus
     &Aura::HandleNULL,                                      //272 reduce spell cast time?
-    &Aura::HandleNULL,                                      //273
-    &Aura::HandleNULL,                                      //274 proc free shot?
+    &Aura::HandleUnused,                                    //273 clientside
+    &Aura::HandleNoImmediateEffect,                         //274 SPELL_AURA_CONSUME_NO_AMMO implemented in spell::CalculateDamageDoneForAllTargets
     &Aura::HandleNoImmediateEffect,                         //275 SPELL_AURA_MOD_IGNORE_SHAPESHIFT Use SpellClassMask for spell select
     &Aura::HandleNULL,                                      //276 mod damage % mechanic?
-    &Aura::HandleNoImmediateEffect,                         //277 SPELL_AURA_MOD_MAX_AFFECTED_TARGETS Use SpellClassMask for spell select
-    &Aura::HandleNULL,                                      //278 SPELL_AURA_MOD_DISARM_RANGED disarm ranged weapon
+    &Aura::HandleNoImmediateEffect,                         //277 SPELL_AURA_MOD_ABILITY_AFFECTED_TARGETS implemented in spell::settargetmap
+    &Aura::HandleAuraModDisarm,                             //278 SPELL_AURA_MOD_DISARM_RANGED disarm ranged weapon
     &Aura::HandleNULL,                                      //279
     &Aura::HandleNULL,                                      //280 SPELL_AURA_MOD_TARGET_ARMOR_PCT
     &Aura::HandleNoImmediateEffect,                         //281 SPELL_AURA_MOD_HONOR_GAIN_PCT implemented in Player::RewardHonor
@@ -3223,37 +3223,52 @@ void Aura::HandleFeignDeath(bool apply, bool Real)
 
 void Aura::HandleAuraModDisarm(bool apply, bool Real)
 {
-    if(!Real)
+    if (!Real)
         return;
+    AuraType type = GetModifier()->m_auraname;
 
-    if(!apply && m_target->HasAuraType(SPELL_AURA_MOD_DISARM))
+    //Prevent handling aura twice
+    if(apply && m_target->GetAurasByType(type).size()>1)
         return;
-
-    // not sure for it's correctness
+    if(!apply && m_target->HasAuraType(type))
+        return;
+    uint32 field, flag, slot;
+    WeaponAttackType attType;
+    switch (type)
+    {
+    case SPELL_AURA_MOD_DISARM:
+        field=UNIT_FIELD_FLAGS;
+        flag=UNIT_FLAG_DISARMED;
+        slot=EQUIPMENT_SLOT_MAINHAND;
+        attType=BASE_ATTACK;
+    break;
+    case SPELL_AURA_MOD_DISARM_OFFHAND:
+        field=UNIT_FIELD_FLAGS_2;
+        flag=UNIT_FLAG2_DISARM_OFFHAND;
+        slot=EQUIPMENT_SLOT_OFFHAND;
+        attType=OFF_ATTACK;
+    break;
+    case SPELL_AURA_MOD_DISARM_RANGED:
+        field=UNIT_FIELD_FLAGS_2;
+        flag=UNIT_FLAG2_DISARM_RANGED;
+        slot=EQUIPMENT_SLOT_RANGED;
+        attType=RANGED_ATTACK;
+    break;
+    }
     if(apply)
-        m_target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED);
+        m_target->SetFlag(field, flag);
     else
-        m_target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED);
+        m_target->RemoveFlag(field, flag);
 
     if (m_target->GetTypeId() == TYPEID_PLAYER)
     {
-        // main-hand attack speed already set to special value for feral form already and don't must change and reset at remove.
-        if (((Player *)m_target)->IsInFeralForm())
+        Item *pItem = ((Player*)m_target)->GetItemByPos( INVENTORY_SLOT_BAG_0, slot );
+        if(!pItem )
             return;
-
-        if (apply)
-            m_target->SetAttackTime(BASE_ATTACK,BASE_ATTACK_TIME);
-        else
-            ((Player *)m_target)->SetRegularAttackTime();
+        ((Player*)m_target)->_ApplyItemMods(pItem, slot, !apply);
     }
-    else
-    {
-        // creature does not have equipment
-        if(apply && !((Creature*)m_target)->GetCurrentEquipmentId())
-            return;
-    }
-
-    m_target->UpdateDamagePhysical(BASE_ATTACK);
+    else if (((Creature*)m_target)->GetCurrentEquipmentId())
+        m_target->UpdateDamagePhysical(attType);
 }
 
 void Aura::HandleAuraModStun(bool apply, bool Real)
@@ -5478,7 +5493,7 @@ void Aura::PeriodicTick()
             if (m_target->GetTypeId()==TYPEID_PLAYER)
                 pdamage-=((Player*)m_target)->GetDotDamageReduction(pdamage);
 
-            pCaster->CalcAbsorbResist(m_target, GetSpellSchoolMask(GetSpellProto()), DOT, pdamage, &absorb, &resist);
+            pCaster->CalcAbsorbResist(m_target, GetSpellSchoolMask(GetSpellProto()), DOT, pdamage, &absorb, &resist, m_spellProto);
 
             sLog.outDetail("PeriodicTick: %u (TypeId: %u) attacked %u (TypeId: %u) for %u dmg inflicted by %u abs is %u",
                 GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), m_target->GetGUIDLow(), m_target->GetTypeId(), pdamage, GetId(),absorb);
@@ -5549,7 +5564,7 @@ void Aura::PeriodicTick()
             if (m_target->GetTypeId()==TYPEID_PLAYER)
                 pdamage-=((Player*)m_target)->GetDotDamageReduction(pdamage);
 
-            pCaster->CalcAbsorbResist(m_target, GetSpellSchoolMask(GetSpellProto()), DOT, pdamage, &absorb, &resist);
+            pCaster->CalcAbsorbResist(m_target, GetSpellSchoolMask(GetSpellProto()), DOT, pdamage, &absorb, &resist, m_spellProto);
 
             if(m_target->GetHealth() < pdamage)
                 pdamage = uint32(m_target->GetHealth());
