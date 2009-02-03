@@ -1293,15 +1293,15 @@ int32 Unit::GetIgnoredArmorMultiplier(SpellEntry const *spellInfo, WeaponAttackT
     if (GetTypeId() != TYPEID_PLAYER)
         return 0;
     //check if spell uses weapon
-    if (spellInfo && spellInfo->EquippedItemClass!=ITEM_CLASS_WEAPON)
+    if (!spellInfo || spellInfo->EquippedItemClass!=ITEM_CLASS_WEAPON)
         return 0;
     Item *item = NULL;
     if(attackType == BASE_ATTACK)
-        item = ((Player*)this)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+        item = ((Player*)this)->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
     else if (attackType == OFF_ATTACK)
-        item = ((Player*)this)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+        item = ((Player*)this)->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
     else if (attackType == RANGED_ATTACK)
-        item = ((Player*)this)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
+        item = ((Player*)this)->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
     if (!item)
         return 0;
 
@@ -1657,7 +1657,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
         if(GetTypeId() == TYPEID_PLAYER && pVictim->isAlive())
         {
             for(int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
-                ((Player*)this)->CastItemCombatSpell(((Player*)this)->GetItemByPos(INVENTORY_SLOT_BAG_0,i), pVictim, damageInfo->attackType);
+                ((Player*)this)->CastItemCombatSpell(((Player*)this)->GetUseableItemByPos(INVENTORY_SLOT_BAG_0,i), pVictim, damageInfo->attackType);
         }
 
         // victim's damage shield
@@ -2919,7 +2919,7 @@ float Unit::GetUnitBlockChance() const
         Player const* player = (Player const*)this;
         if(player->CanBlock() )
         {
-            Item *tmpitem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+            Item *tmpitem = player->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
             if(tmpitem && !tmpitem->IsBroken() && tmpitem->GetProto()->Block)
                 return GetFloatValue(PLAYER_BLOCK_PERCENTAGE);
         }
@@ -11681,13 +11681,13 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura* aura, SpellEntry con
         {
             Item *item = NULL;
             if(attType == BASE_ATTACK)
-                item = ((Player*)this)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                item = ((Player*)this)->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
             else if (attType == OFF_ATTACK)
-                item = ((Player*)this)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+                item = ((Player*)this)->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
             else
-                item = ((Player*)this)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
+                item = ((Player*)this)->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
 
-            if (!((Player*)this)->IsUseEquipedWeapon(attType==BASE_ATTACK))
+            if (((Player*)this)->IsInFeralForm())
                 return false;
 
             if(!item || item->IsBroken() || item->GetProto()->Class != ITEM_CLASS_WEAPON || !((1<<item->GetProto()->SubClass) & spellProto->EquippedItemSubClassMask))
@@ -11696,7 +11696,7 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura* aura, SpellEntry con
         else if(spellProto->EquippedItemClass == ITEM_CLASS_ARMOR)
         {
             // Check if player is wearing shield
-            Item *item = ((Player*)this)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+            Item *item = ((Player*)this)->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
             if(!item || item->IsBroken() || item->GetProto()->Class != ITEM_CLASS_ARMOR || !((1<<item->GetProto()->SubClass) & spellProto->EquippedItemSubClassMask))
                 return false;
         }
