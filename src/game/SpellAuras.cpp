@@ -328,10 +328,10 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNoImmediateEffect,                         //271 SPELL_AURA_MOD_DAMAGE_FROM_CASTER    implemented in Unit::SpellDamageBonus
     &Aura::HandleNULL,                                      //272 reduce spell cast time?
     &Aura::HandleNULL,                                      //273
-    &Aura::HandleNoImmediateEffect,                         //274 SPELL_AURA_ABILITY_CONSUME_NO_AMMO implemented in spell::CalculateDamageDoneForAllTargets
+    &Aura::HandleNULL,                                      //274 proc free shot?
     &Aura::HandleNoImmediateEffect,                         //275 SPELL_AURA_MOD_IGNORE_SHAPESHIFT Use SpellClassMask for spell select
     &Aura::HandleNULL,                                      //276 mod damage % mechanic?
-    &Aura::HandleNoImmediateEffect,                         //277 SPELL_AURA_MOD_MAX_AFFECTED_TARGETS Use SpellClassMask for spell select
+    &Aura::HandleNoImmediateEffect,                         //277 SPELL_AURA_MOD_ABILITY_AFFECTED_TARGETS implemented in spell::settargetmap
     &Aura::HandleAuraModDisarm,                             //278 SPELL_AURA_MOD_DISARM_RANGED disarm ranged weapon
     &Aura::HandleNULL,                                      //279
     &Aura::HandleNULL,                                      //280 SPELL_AURA_MOD_TARGET_ARMOR_PCT
@@ -3227,7 +3227,7 @@ void Aura::HandleAuraModDisarm(bool apply, bool Real)
         return;
     AuraType type = GetModifier()->m_auraname;
 
-    //Prevent handling aura mod twice
+    //Prevent handling aura twice
     if(apply && m_target->GetAurasByType(type).size()>1)
         return;
     if(!apply && m_target->HasAuraType(type))
