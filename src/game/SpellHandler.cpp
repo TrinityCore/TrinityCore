@@ -50,7 +50,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 
     recvPacket >> bagIndex >> slot >> cast_count >> spellid >> item_guid >> glyphIndex >> unk_flags;
 
-    Item *pItem = pUser->GetItemByPos(bagIndex, slot);
+    Item *pItem = pUser->GetUseableItemByPos(bagIndex, slot);
     if(!pItem)
     {
         pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL );
@@ -349,7 +349,7 @@ void WorldSession::HandleCancelAuraOpcode( WorldPacket& recvPacket)
 
 		}
 	}
-		
+
     // channeled spell case (it currently casted then)
     if(IsChanneledSpell(spellInfo))
     {

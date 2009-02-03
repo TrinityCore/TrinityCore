@@ -544,6 +544,8 @@ enum UnitFlags2
     UNIT_FLAG2_UNK1             = 0x00000002,               // Hide unit model (show only player equip)
     UNIT_FLAG2_COMPREHEND_LANG  = 0x00000008,
     UNIT_FLAG2_FORCE_MOVE       = 0x00000040,
+    UNIT_FLAG2_DISARM_OFFHAND   = 0x00000080,
+    UNIT_FLAG2_DISARM_RANGED    = 0x00000400,               //this does not disable ranged weapon display (maybe additional flag needed?)
     UNIT_FLAG2_REGENERATE_POWER = 0x00000800
 };
 
@@ -1005,6 +1007,16 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         float GetUnitParryChance()    const;
         float GetUnitBlockChance()    const;
         float GetUnitCriticalChance(WeaponAttackType attackType, const Unit *pVictim) const;
+        bool CanUseAttackType( uint8 attacktype ) const
+        {
+            switch(attacktype)
+            {
+                case BASE_ATTACK: return !HasFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISARMED);
+                case OFF_ATTACK: return !HasFlag(UNIT_FIELD_FLAGS_2,UNIT_FLAG2_DISARM_OFFHAND);
+                case RANGED_ATTACK: return !HasFlag(UNIT_FIELD_FLAGS_2,UNIT_FLAG2_DISARM_RANGED);
+            }
+            return true;
+        }
 
         virtual uint32 GetShieldBlockValue() const =0;
         uint32 GetUnitMeleeSkill(Unit const* target = NULL) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
@@ -1414,7 +1426,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
                                                             // redefined in Creature
 
         uint32 CalcArmorReducedDamage(Unit* pVictim, const uint32 damage, SpellEntry const *spellInfo, WeaponAttackType attackType=MAX_ATTACK);
-        void CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEffectType damagetype, const uint32 damage, uint32 *absorb, uint32 *resist);
+        void CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEffectType damagetype, const uint32 damage, uint32 *absorb, uint32 *resist, SpellEntry const *spellInfo = NULL);
 
         void  UpdateSpeed(UnitMoveType mtype, bool forced);
         float GetSpeed( UnitMoveType mtype ) const;

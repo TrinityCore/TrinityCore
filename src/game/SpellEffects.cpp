@@ -300,7 +300,7 @@ void Spell::EffectEnvirinmentalDMG(uint32 i)
     // currently each enemy selected explicitly and self cast damage, we prevent apply self casted spell bonuses/etc
     damage = m_spellInfo->EffectBasePoints[i]+m_spellInfo->EffectBaseDice[i];
 
-    m_caster->CalcAbsorbResist(m_caster,GetSpellSchoolMask(m_spellInfo), SPELL_DIRECT_DAMAGE, damage, &absorb, &resist);
+    m_caster->CalcAbsorbResist(m_caster,GetSpellSchoolMask(m_spellInfo), SPELL_DIRECT_DAMAGE, damage, &absorb, &resist, m_spellInfo);
 
     m_caster->SendSpellNonMeleeDamageLog(m_caster, m_spellInfo->Id, damage, GetSpellSchoolMask(m_spellInfo), absorb, resist, false, 0, false);
     if(m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -4575,33 +4575,6 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
     // Add melee damage bonuses (also check for negative)
     m_caster->MeleeDamageBonus(unitTarget, &eff_damage, m_attackType, m_spellInfo);
     m_damage+= eff_damage;
-
-    // take ammo
-    if(m_attackType == RANGED_ATTACK && m_caster->GetTypeId() == TYPEID_PLAYER)
-    {
-        Item *pItem = ((Player*)m_caster)->GetWeaponForAttack( RANGED_ATTACK );
-
-        // wands don't have ammo
-        if(!pItem  || pItem->IsBroken() || pItem->GetProto()->SubClass==ITEM_SUBCLASS_WEAPON_WAND)
-            return;
-
-        if( pItem->GetProto()->InventoryType == INVTYPE_THROWN )
-        {
-            if(pItem->GetMaxStackCount()==1)
-            {
-                // decrease durability for non-stackable throw weapon
-                ((Player*)m_caster)->DurabilityPointLossForEquipSlot(EQUIPMENT_SLOT_RANGED);
-            }
-            else
-            {
-                // decrease items amount for stackable throw weapon
-                uint32 count = 1;
-                ((Player*)m_caster)->DestroyItemCount( pItem, count, true);
-            }
-        }
-        else if(uint32 ammo = ((Player*)m_caster)->GetUInt32Value(PLAYER_AMMO_ID))
-            ((Player*)m_caster)->DestroyItemCount(ammo, 1, true);
-    }
 }
 
 void Spell::EffectThreat(uint32 /*i*/)

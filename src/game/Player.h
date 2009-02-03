@@ -1061,9 +1061,15 @@ class TRINITY_DLL_SPEC Player : public Unit
         Item* GetItemByGuid( uint64 guid ) const;
         Item* GetItemByPos( uint16 pos ) const;
         Item* GetItemByPos( uint8 bag, uint8 slot ) const;
+        inline Item* Player::GetUseableItemByPos( uint8 bag, uint8 slot ) const //Does additional check for disarmed weapons
+        {
+            if (!CanUseAttackType(GetAttackBySlot(slot)))
+                return NULL;
+            return GetItemByPos(bag, slot);
+        }
         Item* GetWeaponForAttack(WeaponAttackType attackType, bool useable = false) const;
         Item* GetShield(bool useable = false) const;
-        static uint32 GetAttackBySlot( uint8 slot );        // MAX_ATTACK if not weapon slot
+        static uint8 GetAttackBySlot( uint8 slot );        // MAX_ATTACK if not weapon slot
         std::vector<Item *> &GetItemUpdateQueue() { return m_itemUpdateQueue; }
         static bool IsInventoryPos( uint16 pos ) { return IsInventoryPos(pos >> 8,pos & 255); }
         static bool IsInventoryPos( uint8 bag, uint8 slot );
@@ -1153,11 +1159,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         uint32 GetWeaponProficiency() const { return m_WeaponProficiency; }
         uint32 GetArmorProficiency() const { return m_ArmorProficiency; }
         bool IsInFeralForm() const { return m_form == FORM_CAT || m_form == FORM_BEAR || m_form == FORM_DIREBEAR; }
-        bool IsUseEquipedWeapon( bool mainhand ) const
-        {
-            // disarm applied only to mainhand weapon
-            return !IsInFeralForm() && (!mainhand || !HasFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISARMED) );
-        }
         bool IsTwoHandUsed() const
         {
             Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
