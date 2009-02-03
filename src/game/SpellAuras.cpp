@@ -308,7 +308,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNULL,                                      //251 SPELL_AURA_MOD_ENEMY_DODGE
     &Aura::HandleNULL,                                      //252 haste all?
     &Aura::HandleNULL,                                      //253 SPELL_AURA_MOD_BLOCK_CRIT_CHANCE
-    &Aura::HandleNULL,                                      //254 SPELL_AURA_MOD_DISARM_SHIELD disarm Shield
+    &Aura::HandleAuraModDisarm,                             //254 SPELL_AURA_MOD_DISARM_OFFHAND
     &Aura::HandleNoImmediateEffect,                         //255 SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT    implemented in Unit::SpellDamageBonus
     &Aura::HandleNoReagentUseAura,                          //256 SPELL_AURA_NO_REAGENT_USE Use SpellClassMask for spell select
     &Aura::HandleNULL,                                      //257 SPELL_AURA_MOD_TARGET_RESIST_BY_SPELL_CLASS Use SpellClassMask for spell select
@@ -332,7 +332,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNoImmediateEffect,                         //275 SPELL_AURA_MOD_IGNORE_SHAPESHIFT Use SpellClassMask for spell select
     &Aura::HandleNULL,                                      //276 mod damage % mechanic?
     &Aura::HandleNoImmediateEffect,                         //277 SPELL_AURA_MOD_MAX_AFFECTED_TARGETS Use SpellClassMask for spell select
-    &Aura::HandleNULL,                                      //278 SPELL_AURA_MOD_DISARM_RANGED disarm ranged weapon
+    &Aura::HandleAuraModDisarm,                             //278 SPELL_AURA_MOD_DISARM_RANGED disarm ranged weapon
     &Aura::HandleNULL,                                      //279
     &Aura::HandleNULL,                                      //280 SPELL_AURA_MOD_TARGET_ARMOR_PCT
     &Aura::HandleNoImmediateEffect,                         //281 SPELL_AURA_MOD_HONOR_GAIN_PCT implemented in Player::RewardHonor
@@ -3223,37 +3223,48 @@ void Aura::HandleFeignDeath(bool apply, bool Real)
 
 void Aura::HandleAuraModDisarm(bool apply, bool Real)
 {
-    if(!Real)
+    if (!Real)
         return;
-
-    if(!apply && m_target->HasAuraType(SPELL_AURA_MOD_DISARM))
+    AuraType type = GetModifier()->m_auraname;
+    if(!apply && m_target->HasAuraType(type))
         return;
-
-    // not sure for it's correctness
+    uint32 field, flag, slot;
+    WeaponAttackType attType;
+    switch (type)
+    {
+    case SPELL_AURA_MOD_DISARM:
+        field=UNIT_FIELD_FLAGS;
+        flag=UNIT_FLAG_DISARMED;
+        slot=EQUIPMENT_SLOT_MAINHAND;
+        attType=BASE_ATTACK;
+    break;
+    case SPELL_AURA_MOD_DISARM_OFFHAND:
+        field=UNIT_FIELD_FLAGS_2;
+        flag=UNIT_FLAG2_DISARM_OFFHAND;
+        slot=EQUIPMENT_SLOT_OFFHAND;
+        attType=OFF_ATTACK;
+    break;
+    case SPELL_AURA_MOD_DISARM_RANGED:
+        field=UNIT_FIELD_FLAGS_2;
+        flag=UNIT_FLAG2_DISARM_RANGED;
+        slot=EQUIPMENT_SLOT_RANGED;
+        attType=RANGED_ATTACK;
+    break;
+    }
     if(apply)
-        m_target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED);
+        m_target->SetFlag(field, flag);
     else
-        m_target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED);
+        m_target->RemoveFlag(field, flag);
 
     if (m_target->GetTypeId() == TYPEID_PLAYER)
     {
-        // main-hand attack speed already set to special value for feral form already and don't must change and reset at remove.
-        if (((Player *)m_target)->IsInFeralForm())
+        Item *pItem = ((Player*)m_target)->GetItemByPos( INVENTORY_SLOT_BAG_0, slot );
+        if(!pItem )
             return;
-
-        if (apply)
-            m_target->SetAttackTime(BASE_ATTACK,BASE_ATTACK_TIME);
-        else
-            ((Player *)m_target)->SetRegularAttackTime();
+        ((Player*)m_target)->_ApplyItemMods(pItem, slot, !apply);
     }
-    else
-    {
-        // creature does not have equipment
-        if(apply && !((Creature*)m_target)->GetCurrentEquipmentId())
-            return;
-    }
-
-    m_target->UpdateDamagePhysical(BASE_ATTACK);
+    else if (((Creature*)m_target)->GetCurrentEquipmentId())
+        m_target->UpdateDamagePhysical(attType);
 }
 
 void Aura::HandleAuraModStun(bool apply, bool Real)
