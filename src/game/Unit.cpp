@@ -1267,21 +1267,8 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 dama
     // Calculate absorb resist
     if(damage > 0)
     {
-        // lookup absorb/resist ignore auras on caster for spell
-        bool ignore = false;
-        Unit::AuraList const& ignoreAbsorb = GetAurasByType(SPELL_AURA_MOD_IGNORE_ABSORB_FOR_SPELL);
-        for(Unit::AuraList::const_iterator i = ignoreAbsorb.begin(); i != ignoreAbsorb.end(); ++i)
-            if ((*i)->isAffectedOnSpell(spellInfo))
-            {
-                ignore = true;
-                break;
-            }
-
-        if (!ignore)
-        {
-            CalcAbsorbResist(pVictim, damageSchoolMask, SPELL_DIRECT_DAMAGE, damage, &damageInfo->absorb, &damageInfo->resist);
-            damage-= damageInfo->absorb + damageInfo->resist;
-        }
+        CalcAbsorbResist(pVictim, damageSchoolMask, SPELL_DIRECT_DAMAGE, damage, &damageInfo->absorb, &damageInfo->resist, spellInfo);
+        damage-= damageInfo->absorb + damageInfo->resist;
     }
     else
         damage = 0;
@@ -1722,6 +1709,21 @@ uint32 Unit::CalcArmorReducedDamage(Unit* pVictim, const uint32 damage, SpellEnt
         if(Player *modOwner = GetSpellModOwner())
             modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_IGNORE_ARMOR, armor);
 
+    AuraList const& ResIgnoreAurasAb = GetAurasByType(SPELL_AURA_MOD_ABILITY_IGNORE_TARGET_RESIST);
+    for(AuraList::const_iterator j = ResIgnoreAurasAb.begin();j != ResIgnoreAurasAb.end(); ++j)
+    {
+        if( (*j)->GetModifier()->m_miscvalue & SPELL_SCHOOL_MASK_NORMAL
+            && (*j)->isAffectedOnSpell(spellInfo))
+            armor= float(armor) * (float(100-(*j)->GetModifier()->m_amount)/100.0f);
+    }
+
+    AuraList const& ResIgnoreAuras = GetAurasByType(SPELL_AURA_MOD_IGNORE_TARGET_RESIST);
+    for(AuraList::const_iterator j = ResIgnoreAuras.begin();j != ResIgnoreAuras.end(); ++j)
+    {
+        if( (*j)->GetModifier()->m_miscvalue & SPELL_SCHOOL_MASK_NORMAL)
+            armor= float(armor) * (float(100-(*j)->GetModifier()->m_amount)/100.0f);
+    }
+
     // Apply Player CR_ARMOR_PENETRATION rating
     if (GetTypeId()==TYPEID_PLAYER)
         armor *= 1.0f - ((Player*)this)->GetRatingBonusValue(CR_ARMOR_PENETRATION) / 100.0f;
@@ -1744,7 +1746,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* pVictim, const uint32 damage, SpellEnt
     return (newdamage > 1) ? newdamage : 1;
 }
 
-void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffectType damagetype, const uint32 damage, uint32 *absorb, uint32 *resist)
+void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffectType damagetype, const uint32 damage, uint32 *absorb, uint32 *resist, SpellEntry const *spellInfo)
 {
     if(!pVictim || !pVictim->isAlive() || !damage)
         return;
@@ -1780,6 +1782,21 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
             *resist += uint32(damage * m / 4);
         if(*resist > damage)
             *resist = damage;
+
+        AuraList const& ResIgnoreAurasAb = GetAurasByType(SPELL_AURA_MOD_ABILITY_IGNORE_TARGET_RESIST);
+        for(AuraList::const_iterator j = ResIgnoreAurasAb.begin();j != ResIgnoreAurasAb.end(); ++j)
+        {
+            if( (*j)->GetModifier()->m_miscvalue & schoolMask
+                && (*j)->isAffectedOnSpell(spellInfo))
+                *resist= float(*resist) * (float(100-(*j)->GetModifier()->m_amount)/100.0f);
+        }
+
+        AuraList const& ResIgnoreAuras = GetAurasByType(SPELL_AURA_MOD_IGNORE_TARGET_RESIST);
+        for(AuraList::const_iterator j = ResIgnoreAuras.begin();j != ResIgnoreAuras.end(); ++j)
+        {
+            if( (*j)->GetModifier()->m_miscvalue & schoolMask)
+                *resist= float(*resist) * (float(100-(*j)->GetModifier()->m_amount)/100.0f);
+        }
     }
     else
         *resist = 0;
@@ -1989,6 +2006,21 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
         // If need absorb less damage
         if (RemainingDamage < currentAbsorb)
             currentAbsorb = RemainingDamage;
+
+        AuraList const& AbsIgnoreAurasAb = GetAurasByType(SPELL_AURA_MOD_TARGET_ABILITY_ABSORB_SCHOOL);
+        for(AuraList::const_iterator j = AbsIgnoreAurasAb.begin();j != AbsIgnoreAurasAb.end(); ++j)
+        {
+            if( (*j)->GetModifier()->m_miscvalue & (*i)->GetModifier()->m_miscvalue
+                && (*j)->isAffectedOnSpell(spellInfo))
+                currentAbsorb= float(currentAbsorb) * (float(100-(*j)->GetModifier()->m_amount)/100.0f);
+        }
+
+        AuraList const& AbsIgnoreAuras = GetAurasByType(SPELL_AURA_MOD_TARGET_ABSORB_SCHOOL);
+        for(AuraList::const_iterator j = AbsIgnoreAuras.begin();j != AbsIgnoreAuras.end(); ++j)
+        {
+            if( (*j)->GetModifier()->m_miscvalue & (*i)->GetModifier()->m_miscvalue)
+                currentAbsorb= float(currentAbsorb) * (float(100-(*j)->GetModifier()->m_amount)/100.0f);
+        }
 
         RemainingDamage -= currentAbsorb;
 
@@ -8595,7 +8627,7 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
 
     AuraList const& mHealingGet= pVictim->GetAurasByType(SPELL_AURA_MOD_HEALING_RECEIVED);
     for(AuraList::const_iterator i = mHealingGet.begin(); i != mHealingGet.end(); ++i)
-        if ((*i)->isAffectedOnSpell(spellProto))
+        if (GetGUID()==(*i)->GetCasterGUID() && (*i)->isAffectedOnSpell(spellProto) )
             TakenTotalMod *= ((*i)->GetModifier()->m_amount + 100.0f) / 100.0f;
 
     heal = (heal + TakenTotal) * TakenTotalMod;
