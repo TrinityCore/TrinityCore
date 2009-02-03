@@ -46,38 +46,6 @@
 INSTANTIATE_SINGLETON_2(ObjectAccessor, CLASS_LOCK);
 INSTANTIATE_CLASS_MUTEX(ObjectAccessor, ZThread::FastMutex);
 
-namespace Trinity
-{
-    struct TRINITY_DLL_DECL BuildUpdateForPlayer
-    {
-        Player &i_player;
-        UpdateDataMapType &i_updatePlayers;
-
-        BuildUpdateForPlayer(Player &player, UpdateDataMapType &data_map) : i_player(player), i_updatePlayers(data_map) {}
-
-        void Visit(PlayerMapType &m)
-        {
-            for(PlayerMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
-            {
-                if( iter->getSource() == &i_player )
-                    continue;
-
-                UpdateDataMapType::iterator iter2 = i_updatePlayers.find(iter->getSource());
-                if( iter2 == i_updatePlayers.end() )
-                {
-                    std::pair<UpdateDataMapType::iterator, bool> p = i_updatePlayers.insert( ObjectAccessor::UpdateDataValueType(iter->getSource(), UpdateData()) );
-                    assert(p.second);
-                    iter2 = p.first;
-                }
-
-                i_player.BuildValuesUpdateBlockForPlayer(&iter2->second, iter2->first);
-            }
-        }
-
-        template<class SKIP> void Visit(GridRefManager<SKIP> &) {}
-    };
-}
-
 ObjectAccessor::ObjectAccessor() {}
 ObjectAccessor::~ObjectAccessor() {}
 
