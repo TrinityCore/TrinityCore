@@ -718,9 +718,10 @@ bool GameObject::isVisibleForInState(Player const* u, bool inVisibleList) const
             return false;
 
         // special invisibility cases
-        if(GetGOInfo()->type == GAMEOBJECT_TYPE_TRAP && GetGOInfo()->trap.stealthed && u->IsHostileTo(GetOwner()))
+        if(GetGOInfo()->type == GAMEOBJECT_TYPE_TRAP && GetGOInfo()->trap.stealthed)
         {
-            if(!canDetectTrap(u, GetDistance(u)))
+            Unit *owner = GetOwner();
+            if(owner && u->IsHostileTo(owner) && !canDetectTrap(u, GetDistance(u)))
                 return false;
         }
 
