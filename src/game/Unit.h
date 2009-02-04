@@ -1452,6 +1452,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         uint32 m_reactiveTimer[MAX_REACTIVE];
 
         ThreatManager m_ThreatManager;
+
+        bool m_AI_enabled;
     private:
         void SendAttackStop(Unit* victim);                  // only from AttackStop(Unit*)
         //void SendAttackStart(Unit* pVictim);                // only from Unit::AttackStart(Unit*)
