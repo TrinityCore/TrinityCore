@@ -12403,6 +12403,9 @@ void Player::ApplyEnchantment(Item *item,EnchantmentSlot slot,bool apply, bool a
             case ITEM_ENCHANTMENT_TYPE_USE_SPELL:
                 // processed in Player::CastItemUseSpell
                 break;
+            case ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET:
+                // nothing do..
+                break;
             default:
                 sLog.outError("Unknown item enchantment (id = %d) display type: %d", enchant_id, enchant_display_type);
                 break;
