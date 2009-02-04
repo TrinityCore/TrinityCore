@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: boss_postmaster_malown
 SD%Complete: 50
-SDComment: 
+SDComment:
 SDCategory: Stratholme
 EndScriptData */
 
@@ -127,7 +127,7 @@ struct TRINITY_DLL_DECL boss_postmaster_malownAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-}; 
+};
 CreatureAI* GetAI_boss_postmaster_malown(Creature *_Creature)
 {
     return new boss_postmaster_malownAI (_Creature);

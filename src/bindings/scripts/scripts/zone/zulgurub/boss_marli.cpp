@@ -45,7 +45,7 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
 		pInstance = ((ScriptedInstance*)c->GetInstanceData());
 		Reset();
 	}
-	 	 
+
 	ScriptedInstance *pInstance;
 
     uint32 SpawnStartSpiders_Timer;
@@ -111,7 +111,7 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
             if (!Spawned && SpawnStartSpiders_Timer < diff)
             {
 				DoScriptText(SAY_SPIDER_SPAWN, m_creature);
-                
+
 				Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
 
                 Spider = m_creature->SummonCreature(15041,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);

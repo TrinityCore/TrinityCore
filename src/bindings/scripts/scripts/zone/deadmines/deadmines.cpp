@@ -73,7 +73,7 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
                 DoPlaySound(IronCladDoor, SOUND_MR_SMITE_ALARM1);
                 State=CANNON_BLAST_INITIATED;
                 break;
-            case CANNON_BLAST_INITIATED:    
+            case CANNON_BLAST_INITIATED:
                 PiratesDelay_Timer = PIRATES_DELAY_TIMER;
                 if(CannonBlast_Timer<diff)
                 {
@@ -83,9 +83,9 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
                     LeverStucked();
                     IronCladDoor->Yell(SAY_MR_SMITE_ALARM2, LANG_UNIVERSAL, 0);
                     DoPlaySound(IronCladDoor, SOUND_MR_SMITE_ALARM2);
-                    State = PIRATES_ATTACK;                        
+                    State = PIRATES_ATTACK;
                 }else
-                    CannonBlast_Timer-=diff;                                
+                    CannonBlast_Timer-=diff;
                 break;
             case PIRATES_ATTACK:
                 if(PiratesDelay_Timer<diff)
@@ -104,7 +104,7 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
         DefiasPirate2 = IronCladDoor->SummonCreature(657,IronCladDoor->GetPositionX() + 3,IronCladDoor->GetPositionY()-6,IronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
         DefiasCompanion = IronCladDoor->SummonCreature(3450,IronCladDoor->GetPositionX() + 2,IronCladDoor->GetPositionY()-6,IronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
     }
-    
+
     void MoveCreaturesInside()
     {
         MoveCreatureInside(DefiasPirate1);
@@ -155,14 +155,14 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
     {
         if (type == EVENT_STATE)
         {
-            if (DefiasCannon && IronCladDoor)            
-                State=data;            
+            if (DefiasCannon && IronCladDoor)
+                State=data;
         }
     }
 
     uint32 GetData(uint32 type)
     {
-        if (type == EVENT_STATE)        
+        if (type == EVENT_STATE)
             return State;
         return 0;
     }
@@ -221,7 +221,7 @@ void AddSC_instance_deadmines()
     newscript->Name = "instance_deadmines";
     newscript->GetInstanceData = &GetInstanceData_instance_deadmines;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name = "item_defias_gunpowder";
     newscript->pItemUse = &ItemUse_item_defias_gunpowder;

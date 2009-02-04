@@ -112,7 +112,7 @@ struct TRINITY_DLL_DECL generic_creatureAI : public ScriptedAI
                 m_creature->resetAttackTimer();
             }
         }
-        else 
+        else
         {
             //Only run this code if we arn't already casting
             if (!m_creature->IsNonMeleeSpellCasted(false))
@@ -155,7 +155,7 @@ struct TRINITY_DLL_DECL generic_creatureAI : public ScriptedAI
             }
         }
     }
-}; 
+};
 CreatureAI* GetAI_generic_creature(Creature *_Creature)
 {
     return new generic_creatureAI (_Creature);

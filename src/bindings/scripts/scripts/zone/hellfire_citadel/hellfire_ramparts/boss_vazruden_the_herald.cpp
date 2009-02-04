@@ -85,7 +85,7 @@ struct TRINITY_DLL_DECL boss_nazanAI : public ScriptedAI
         Turn_Timer = 0;
         UnsummonCheck = 5000;
     }
-	
+
     void Aggro(Unit* who) {}
 
     void JustSummoned(Creature *summoned)
@@ -309,7 +309,7 @@ struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
     void SummonAdds()
     {
         if(!summoned)
-        {			
+        {
             Creature* Vazruden = m_creature->SummonCreature(ENTRY_VAZRUDEN,VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,6000000);
             VazrudenGUID = Vazruden->GetGUID();
             Creature* Nazan = m_creature->SummonCreature(ENTRY_NAZAN,VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,6000000);
@@ -406,7 +406,7 @@ struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
             break;
         }
     }
-}; 
+};
 
 struct TRINITY_DLL_DECL mob_hellfire_sentryAI : public ScriptedAI
 {

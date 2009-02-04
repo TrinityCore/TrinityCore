@@ -228,7 +228,7 @@ struct TRINITY_DLL_DECL boss_thekalAI : public ScriptedAI
             }
 
             DoMeleeAttackIfReady();
-		
+
     }
 };
 

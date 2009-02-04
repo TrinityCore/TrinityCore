@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Grandmaster_Vorpil
 SD%Complete: 100
-SDComment: 
+SDComment:
 SDCategory: Auchindoun, Shadow Labyrinth
 EndScriptData */
 
@@ -51,7 +51,7 @@ EndScriptData */
 
 float VorpilPosition[3] = {-252.8820,-264.3030,17.1};
 
-float VoidPortalCoords[5][3] = 
+float VoidPortalCoords[5][3] =
 {
     {-283.5894, -239.5718, 12.7},
     {-306.5853, -258.4539, 12.7},
@@ -143,7 +143,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
     bool Intro, HelpYell;
     bool sumportals;
     bool HeroicMode;
-   
+
     uint32 ShadowBoltVolley_Timer;
     uint32 DrawShadows_Timer;
     uint32 summonTraveler_Timer;
@@ -288,7 +288,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
             DoCast(m_creature,HeroicMode?H_SPELL_RAIN_OF_FIRE:SPELL_RAIN_OF_FIRE);
 
             ShadowBoltVolley_Timer = 6000;
-            DrawShadows_Timer = 30000;    
+            DrawShadows_Timer = 30000;
         }else DrawShadows_Timer -= diff;
 
         if ( summonTraveler_Timer < diff)

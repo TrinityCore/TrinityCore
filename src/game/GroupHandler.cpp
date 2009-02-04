@@ -550,7 +550,7 @@ void WorldSession::HandleGroupChangeSubGroupOpcode( WorldPacket & recv_data )
     /** error handling **/
     if(!group->IsLeader(GetPlayer()->GetGUID()) && !group->IsAssistant(GetPlayer()->GetGUID()))
         return;
-        
+
     if (!group->HasFreeSlotSubGroup(groupNr))
         return;
     /********************/

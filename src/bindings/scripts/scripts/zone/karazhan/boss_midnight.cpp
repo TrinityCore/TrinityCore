@@ -203,7 +203,7 @@ struct TRINITY_DLL_DECL boss_attumenAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
 		if (Unit *pMidnight = Unit::GetUnit(*m_creature, Midnight))
-			pMidnight->DealDamage(pMidnight, pMidnight->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);        
+			pMidnight->DealDamage(pMidnight, pMidnight->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
     }
 
     void UpdateAI(const uint32 diff)
@@ -293,8 +293,8 @@ struct TRINITY_DLL_DECL boss_attumenAI : public ScriptedAI
 
     void SpellHit(Unit *source, const SpellEntry *spell)
     {
-        if(spell->Mechanic == MECHANIC_DISARM)        
-			DoScriptText(SAY_DISARMED, m_creature);        
+        if(spell->Mechanic == MECHANIC_DISARM)
+			DoScriptText(SAY_DISARMED, m_creature);
     }
 };
 

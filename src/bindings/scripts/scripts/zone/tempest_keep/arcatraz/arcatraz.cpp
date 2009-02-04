@@ -311,7 +311,7 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
     {
         DoScriptText(YELL_INTRO1, m_creature);
         DoCast(m_creature,SPELL_BUBBLE_VISUAL);
-		
+
         if( pInstance )
         {
             pInstance->SetData(TYPE_HARBINGERSKYRISS,IN_PROGRESS);

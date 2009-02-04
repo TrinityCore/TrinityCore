@@ -684,7 +684,7 @@ void Spell::EffectDummy(uint32 i)
                     if (!creatureTarget || !pGameObj) return;
 
                     if (!pGameObj->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), 181574, creatureTarget->GetMap(), creatureTarget->GetPhaseMask(),
-                        creatureTarget->GetPositionX(), creatureTarget->GetPositionY(), creatureTarget->GetPositionZ(), 
+                        creatureTarget->GetPositionX(), creatureTarget->GetPositionY(), creatureTarget->GetPositionZ(),
                         creatureTarget->GetOrientation(), 0, 0, 0, 0, 100, 1))
                     {
                         delete pGameObj;
@@ -3615,7 +3615,7 @@ void Spell::EffectAddFarsight(uint32 i)
     map->Add(dynObj);
     map->SwitchGridContainers(dynObj, true);    // Needed for forwarding player packets
     dynObj->setActive(true);                    // Keep the grid updated even if there are no players in it
-      
+
     // Need to update visibility of object for client to accept farsight guid
     ((Player*)m_caster)->UpdateVisibilityOf(dynObj);
     ((Player*)m_caster)->SetFarsightTarget(dynObj);
@@ -3698,7 +3698,7 @@ void Spell::EffectSummonGuardian(uint32 i)
     }
 
     // trigger
-    if(!m_originalCaster || m_originalCaster->GetTypeId() != TYPEID_PLAYER 
+    if(!m_originalCaster || m_originalCaster->GetTypeId() != TYPEID_PLAYER
         && !((Creature*)m_originalCaster)->isTotem()/*m_spellInfo->Id == 40276*/)
     {
         EffectSummonWild(i);
@@ -4598,7 +4598,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
         if(spell_bonus)
             spell_bonus = int32(spell_bonus * weapon_total_pct);
     }
-    
+
     int32 weaponDamage = m_caster->CalculateDamage(m_attackType, normalized);
 
     // Sequence is important

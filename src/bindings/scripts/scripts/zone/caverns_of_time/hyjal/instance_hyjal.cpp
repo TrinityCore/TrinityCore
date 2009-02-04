@@ -147,7 +147,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
     void UpdateWorldState(uint32 id, uint32 state)
     {
         Map::PlayerList const& players = instance->GetPlayers();
- 
+
         if (!players.isEmpty())
         {
                 for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)

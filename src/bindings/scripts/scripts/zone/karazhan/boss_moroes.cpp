@@ -147,7 +147,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
 
 			if (PlayerList.isEmpty())
 				return;
-	 	 
+
 			for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
 			{
 				if (i->getSource()->isAlive() && i->getSource()->HasAura(SPELL_GARROTE,0))
@@ -326,7 +326,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
             //Gouge highest aggro, and attack second highest
             if (Gouge_Timer < diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_GOUGE);                
+                DoCast(m_creature->getVictim(), SPELL_GOUGE);
                 Gouge_Timer = 40000;
             }else Gouge_Timer -= diff;
 

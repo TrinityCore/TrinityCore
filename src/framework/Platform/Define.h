@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2005-2008 Mangos <http://www.mangosproject.org/>
  *
  * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>

@@ -366,7 +366,7 @@ void MotionMaster::Mutate(MovementGenerator *m, MovementSlot slot)
     }
     else if(i_top < slot)
     {
-        i_top = slot;        
+        i_top = slot;
     }
     m->Initialize(*i_owner);
     Impl[slot] = m;
@@ -400,13 +400,13 @@ void MotionMaster::MovePath(uint32 path_id, bool repeatable)
         if( !isStatic( curr ) )
             delete curr;
     }*/
-	
+
 	//i_owner->GetTypeId()==TYPEID_PLAYER ?
 		//Mutate(new WaypointMovementGenerator<Player>(path_id, repeatable)):
 		Mutate(new WaypointMovementGenerator<Creature>(path_id, repeatable), MOTION_SLOT_IDLE);
-	
-	DEBUG_LOG("%s (GUID: %u) start moving over path(Id:%u, repeatable: %s)", 
-		i_owner->GetTypeId()==TYPEID_PLAYER ? "Player" : "Creature", 
+
+	DEBUG_LOG("%s (GUID: %u) start moving over path(Id:%u, repeatable: %s)",
+		i_owner->GetTypeId()==TYPEID_PLAYER ? "Player" : "Creature",
 		i_owner->GetGUIDLow(), path_id, repeatable ? "YES" : "NO" );
 }
 
