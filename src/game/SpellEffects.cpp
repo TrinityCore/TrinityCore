@@ -1319,7 +1319,7 @@ void Spell::EffectDummy(uint32 i)
                     rage+=aura->GetModifier()->m_amount;
 
                 spell_id = 20647;
-                int32 bp = damage+int32(rage * m_spellInfo->DmgMultiplier[i] +
+                bp = damage+int32(rage * m_spellInfo->DmgMultiplier[i] +
                                                  m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.2f);
                 m_caster->SetPower(POWER_RAGE,0);
                 break;
