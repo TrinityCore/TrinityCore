@@ -57,17 +57,17 @@ void WaypointStore::Load()
 	barGoLink bar( total_records);
     Field *fields;
     uint32 last_id = 0;
-    
+
 	do
     {
         fields = result->Fetch();
         uint32 id = fields[0].GetUInt32();
         bar.step();
         WaypointData *wp = new WaypointData;
-		
+
 		if(last_id != id)
 			path_data = new WaypointPath;
-		
+
 		float x,y,z;
         x = fields[2].GetFloat();
         y = fields[3].GetFloat();
@@ -84,12 +84,12 @@ void WaypointStore::Load()
         wp->delay = fields[6].GetUInt32();
         wp->event_id = fields[7].GetUInt32();
         wp->event_chance = fields[8].GetUInt8();
-        
+
 		path_data->push_back(wp);
-	
-	if(id != last_id)	
+
+	if(id != last_id)
 		waypoint_map[id] = path_data;
-		
+
 		last_id = id;
 
 	} while(result->NextRow()) ;
@@ -100,28 +100,28 @@ void WaypointStore::Load()
 
 void WaypointStore::UpdatePath(uint32 id)
 {
-	
+
 	if(waypoint_map.find(id)!= waypoint_map.end())
 		waypoint_map[id]->clear();
-	
+
 	QueryResult *result;
 
     result = WorldDatabase.PQuery("SELECT `id`,`point`,`position_x`,`position_y`,`position_z`,`move_flag`,`delay`,`action`,`action_chance` FROM `waypoint_data` WHERE id = %u ORDER BY `point`", id);
-    
+
 	if(!result)
 		return;
-    
+
 	WaypointPath* path_data;
-	
+
 	path_data = new WaypointPath;
-	
+
 	Field *fields;
-	
+
 	do
     {
 		fields = result->Fetch();
         uint32 id = fields[0].GetUInt32();
-        
+
         WaypointData *wp = new WaypointData;
 
 		float x,y,z;
@@ -140,11 +140,11 @@ void WaypointStore::UpdatePath(uint32 id)
         wp->delay = fields[6].GetUInt32();
         wp->event_id = fields[7].GetUInt32();
         wp->event_chance = fields[8].GetUInt8();
-     
+
 		path_data->push_back(wp);
 
 	}while (result->NextRow());
- 
+
 	waypoint_map[id] = path_data;
 
 	delete result;

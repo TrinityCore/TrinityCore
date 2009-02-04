@@ -124,15 +124,15 @@ struct TRINITY_DLL_DECL npc_deathstalker_erlandAI : public npc_escortAI
 		switch(i)
 		{
 		case 1: DoScriptText(SAY_START, m_creature, player);break;
-		case 13: 
+		case 13:
 			DoScriptText(SAY_LAST, m_creature, player);
             if(player)
                 ((Player*)player)->GroupEventHappens(QUEST_ESCORTING, m_creature);break;
 		case 14: DoScriptText(SAY_THANKS, m_creature, player);break;
-		case 15: {	
+		case 15: {
 				Unit* Rane = FindCreature(NPC_RANE, 20, m_creature);
 				if(Rane)
-					DoScriptText(SAY_RANE, Rane);				
+					DoScriptText(SAY_RANE, Rane);
 				break;}
 		case 16: DoScriptText(SAY_ANSWER, m_creature);break;
 		case 17: DoScriptText(SAY_MOVE_QUINN, m_creature); break;
@@ -143,7 +143,7 @@ struct TRINITY_DLL_DECL npc_deathstalker_erlandAI : public npc_escortAI
 					DoScriptText(SAY_QUINN, Quinn);
 				break;}
 		case 26: DoScriptText(SAY_ON_BYE, m_creature, NULL);break;
-			
+
 		}
 	}
 
@@ -171,7 +171,7 @@ bool QuestAccept_npc_deathstalker_erland(Player* player, Creature* creature, Que
 		DoScriptText(SAY_QUESTACCEPT, creature, player);
 		((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
 	}
-    
+
     return true;
 }
 
@@ -193,10 +193,10 @@ CreatureAI* GetAI_npc_deathstalker_erlandAI(Creature *_Creature)
 	deathstalker_erlandAI->AddWaypoint(11, 1294.84, 1137.25, 51.75);
 	deathstalker_erlandAI->AddWaypoint(12, 1292.89, 1158.99, 52.65);
 	deathstalker_erlandAI->AddWaypoint(13, 1290.75, 1168.67, 52.56, 1000); //complete quest and say last
-	deathstalker_erlandAI->AddWaypoint(14, 1287.12, 1203.49, 52.66, 5000); 
-	deathstalker_erlandAI->AddWaypoint(15, 1287.12, 1203.49, 52.66, 4000); 
-	deathstalker_erlandAI->AddWaypoint(16, 1287.12, 1203.49, 52.66, 5000); 
-	deathstalker_erlandAI->AddWaypoint(17, 1287.12, 1203.49, 52.66, 4000); 
+	deathstalker_erlandAI->AddWaypoint(14, 1287.12, 1203.49, 52.66, 5000);
+	deathstalker_erlandAI->AddWaypoint(15, 1287.12, 1203.49, 52.66, 4000);
+	deathstalker_erlandAI->AddWaypoint(16, 1287.12, 1203.49, 52.66, 5000);
+	deathstalker_erlandAI->AddWaypoint(17, 1287.12, 1203.49, 52.66, 4000);
 	deathstalker_erlandAI->AddWaypoint(18, 1290.72, 1207.44, 52.69);
 	deathstalker_erlandAI->AddWaypoint(19, 1297.50, 1207.18, 53.74);
 	deathstalker_erlandAI->AddWaypoint(20, 1301.32, 1220.90, 53.74);

@@ -38,7 +38,7 @@ class TRINITY_DLL_DECL ScriptedInstance : public InstanceData
         virtual void Update(uint32) {}
 
         // Save and Load instance data to the database
-        const char* Save() { return NULL; } 
+        const char* Save() { return NULL; }
         void Load(const char* in) { }
 };
 

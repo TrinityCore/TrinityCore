@@ -97,7 +97,7 @@ struct TRINITY_DLL_DECL npc_kyle_frenziedAI : public ScriptedAI
     void MovementInform(uint32 type, uint32 id)
 	{
 		if(type == POINT_MOTION_TYPE)
-		{	
+		{
 			switch(STATE)
 			{
 			case 1:
@@ -129,7 +129,7 @@ struct TRINITY_DLL_DECL npc_kyle_frenziedAI : public ScriptedAI
 		{
 			switch(STATE)
 			{
-			case 2: 
+			case 2:
 				STATE = 3; wait = 7000;
 				m_creature->UpdateEntry(23622,HORDE);
 				m_creature->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);

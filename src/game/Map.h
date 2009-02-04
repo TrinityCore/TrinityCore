@@ -134,13 +134,13 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
 
         // currently unused for normal maps
         bool CanUnload(uint32 diff)
-        { 
-            if(!m_unloadTimer) 
+        {
+            if(!m_unloadTimer)
                 return false;
-            if(m_unloadTimer <= diff) 
-                return true; 
-            m_unloadTimer -= diff; 
-            return false; 
+            if(m_unloadTimer <= diff)
+                return true;
+            m_unloadTimer -= diff;
+            return false;
         }
 
         virtual bool Add(Player *);

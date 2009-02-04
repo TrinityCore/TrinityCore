@@ -30,7 +30,7 @@ EndScriptData */
 #define TARETHA_ENTRY   18887
 
 #define DRAKE_ENTRY             17848
-	 	 
+
 #define QUEST_ENTRY_DIVERSION   10283
 #define LODGE_QUEST_TRIGGER     20155
 
@@ -68,15 +68,15 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
 					return plr;
 			}
 		}
-	 	 
+
 		debug_log("SD2: Instance Old Hillsbrad: GetPlayerInMap, but PlayerList is empty!");
 		return NULL;
 	}
-	 	 
+
 	void UpdateOHWorldState()
 	{
 		Map::PlayerList const& players = instance->GetPlayers();
-	 	 
+
 		if (!players.isEmpty())
 		{
 			for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
@@ -124,10 +124,10 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
 				{
 					if (mBarrelCount >= 5)
 						return;
-	 	 
+
 					++mBarrelCount;
 					UpdateOHWorldState();
-	 	 
+
 					debug_log("SD2: Instance Old Hillsbrad: go_barrel_old_hillsbrad count %u",mBarrelCount);
 
 					Encounter[0] = IN_PROGRESS;

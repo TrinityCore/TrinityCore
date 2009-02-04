@@ -46,7 +46,7 @@ struct TRINITY_DLL_DECL boss_jindoAI : public ScriptedAI
         pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
         Reset();
     }
- 
+
 	ScriptedInstance *pInstance;
 
     uint32 BrainWashTotem_Timer;

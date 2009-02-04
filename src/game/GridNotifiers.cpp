@@ -149,7 +149,7 @@ VisibleNotifier::Notify()
             i_player.SendAuraDurationsForTarget((Unit*)(*vItr));
 }
 
-void 
+void
 Deliverer::Visit(PlayerMapType &m)
 {
     for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
@@ -169,7 +169,7 @@ Deliverer::Visit(PlayerMapType &m)
     }
 }
 
-void 
+void
 Deliverer::Visit(CreatureMapType &m)
 {
     for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)

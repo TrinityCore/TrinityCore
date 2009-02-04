@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
  *
  * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
@@ -39,7 +39,7 @@ class BasicEvent
         // return false if event does not want to be deleted
         // e_time is execution time, p_time is update interval
         virtual bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) { return true; }
-        
+
         virtual bool IsDeletable() const { return true; }   // this event can be safely deleted
 
         virtual void Abort(uint64 /*e_time*/) {}            // this method executes when the event is aborted

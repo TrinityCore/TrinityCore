@@ -32,20 +32,20 @@ EndScriptData */
 #define SAY_DOROTHEE_SUMMON         -1532026
 #define SAY_DOROTHEE_TITO_DEATH     -1532027
 #define SAY_DOROTHEE_AGGRO          -1532028
-	 	 
+
 #define SAY_ROAR_AGGRO              -1532029
 #define SAY_ROAR_DEATH              -1532030
 #define SAY_ROAR_SLAY               -1532031
-	 	 
+
 #define SAY_STRAWMAN_AGGRO          -1532032
 #define SAY_STRAWMAN_DEATH          -1532033
 #define SAY_STRAWMAN_SLAY           -1532034
-	 	 
+
 #define SAY_TINHEAD_AGGRO           -1532035
 #define SAY_TINHEAD_DEATH           -1532036
 #define SAY_TINHEAD_SLAY            -1532037
 #define EMOTE_RUST                  -1532038
-	 	 
+
 #define SAY_CRONE_AGGRO             -1532039
 #define SAY_CRONE_AGGRO2            -1532040
 #define SAY_CRONE_DEATH             -1532041
@@ -855,7 +855,7 @@ CreatureAI* GetAI_boss_bigbadwolf(Creature* _Creature)
 #define SAY_JULIANNE_DEATH02            -1532049
 #define SAY_JULIANNE_RESURRECT          -1532050
 #define SAY_JULIANNE_SLAY               -1532051
-	 	 
+
 #define SAY_ROMULO_AGGRO                -1532052
 #define SAY_ROMULO_DEATH                -1532053
 #define SAY_ROMULO_ENTER                -1532054

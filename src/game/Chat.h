@@ -73,7 +73,7 @@ class ChatHandler
         int ParseCommands(const char* text);
 
         virtual char const* GetName() const;
-		
+
     protected:
         explicit ChatHandler() : m_session(NULL) {}      // for CLI subclass
 
@@ -410,7 +410,7 @@ class ChatHandler
 
         bool HandleResetAllCommand(const char * args);
 
-		
+
 		// GM ticket command handlers
 		bool HandleGMTicketListCommand(const char* args);
 		bool HandleGMTicketListOnlineCommand(const char* args);
@@ -433,7 +433,7 @@ class ChatHandler
         bool HandlePasswordCommand(const char* args);
         bool HandleLockAccountCommand(const char* args);
         bool HandleRespawnCommand(const char* args);
-                
+
 		//New Wp Commands
 		bool HandleWpAddCommand(const char* args);
         bool HandleWpLoadPathCommand(const char* args);
@@ -511,7 +511,7 @@ class ChatHandler
         void SetSentErrorMessage(bool val){ sentErrorMessage = val;};
     private:
         WorldSession * m_session;                           // != NULL for chat command call and NULL for CLI command
-		
+
         // common global flag
         static bool load_command_table;
         bool sentErrorMessage;

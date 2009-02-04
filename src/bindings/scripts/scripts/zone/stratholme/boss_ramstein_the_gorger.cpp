@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Ramstein_The_Gorger
 SD%Complete: 70
-SDComment: 
+SDComment:
 SDCategory: Stratholme
 EndScriptData */
 
@@ -36,7 +36,7 @@ struct TRINITY_DLL_DECL boss_ramstein_the_gorgerAI : public ScriptedAI
 		pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
 		Reset();
 	}
-	 	 
+
 	ScriptedInstance* pInstance;
 
     uint32 Trample_Timer;
@@ -83,7 +83,7 @@ struct TRINITY_DLL_DECL boss_ramstein_the_gorgerAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-}; 
+};
 CreatureAI* GetAI_boss_ramstein_the_gorger(Creature *_Creature)
 {
     return new boss_ramstein_the_gorgerAI (_Creature);

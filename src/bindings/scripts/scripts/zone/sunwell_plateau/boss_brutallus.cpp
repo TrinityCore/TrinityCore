@@ -34,7 +34,7 @@ EndScriptData */
 #define YELL_MADR_ICE_BLOCK             -1580033
 #define YELL_MADR_TRAP                  -1580034
 #define YELL_MADR_DEATH                 -1580035
-	 
+
 #define YELL_AGGRO                      -1580022
 #define YELL_KILL1                      -1580023
 #define YELL_KILL2                      -1580024
@@ -44,7 +44,7 @@ EndScriptData */
 #define YELL_LOVE3                      -1580028
 #define YELL_BERSERK                    -1580029
 #define YELL_DEATH                      -1580030
-	 	 
+
 #define SPELL_METEOR_SLASH              45150
 #define SPELL_BURN                      45141
 #define SPELL_STOMP                     45185
@@ -131,7 +131,7 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
 			case 1: DoScriptText(YELL_LOVE2, m_creature); break;
 			case 2: DoScriptText(YELL_LOVE3, m_creature); break;
 			}
-            
+
 			Unit *Target = m_creature->getVictim();
             DoCast(Target,SPELL_STOMP);
             if(Target->HasAura(45151,0)) Target->RemoveAura(45151,0);

@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Instance_Blackrock_Depths
 SD%Complete: 100
-SDComment: 
+SDComment:
 SDCategory: Blackrock Depths
 EndScriptData */
 
@@ -33,10 +33,10 @@ update `instance_template` set `script`='instance_blackrock_depths' where `map`=
 #include "def_blackrock_depths.h"
 
 #define ENCOUNTERS              6
-    
+
 #define C_EMPEROR               9019
 #define C_PHALANX               9502
-    
+
 #define GO_ARENA1               161525
 #define GO_ARENA2               161522
 #define GO_ARENA3               161524
@@ -54,17 +54,17 @@ update `instance_template` set `script`='instance_blackrock_depths' where `map`=
 #define GO_GOLEM_ROOM_N         170573
 #define GO_GOLEM_ROOM_S         170574
 #define GO_THONE_ROOM           170575
-    
+
 struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 {
 	instance_blackrock_depths(Map *map) : ScriptedInstance(map) {Initialize();};
-    
+
 	uint32 Encounter[ENCOUNTERS];
 	std::string str_data;
-    
+
 	uint64 EmperorGUID;
 	uint64 PhalanxGUID;
-    
+
 	uint64 GoArena1GUID;
 	uint64 GoArena2GUID;
 	uint64 GoArena3GUID;
@@ -84,7 +84,7 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 	uint64 GoThoneGUID;
 
 	uint32 BarAleCount;
-   
+
 	void Initialize()
 	{
 		EmperorGUID = 0;
@@ -109,11 +109,11 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 		GoThoneGUID = 0;
 
 		BarAleCount = 0;
-   
+
 		for(uint8 i = 0; i < ENCOUNTERS; i++)
 			Encounter[i] = NOT_STARTED;
 	}
-   
+
 	Player* GetPlayerInMap()
 	{
 		Map::PlayerList const& players = instance->GetPlayers();
@@ -126,11 +126,11 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 					return plr;
 			}
 		}
-   
+
 		debug_log("SD2: Instance Blackrock Depths: GetPlayerInMap, but PlayerList is empty!");
 		return NULL;
 	}
-   
+
 	void OnCreatureCreate(Creature *creature, uint32 creature_entry)
 	{
 		switch(creature->GetEntry())
@@ -163,7 +163,7 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 		case GO_THONE_ROOM: GoThoneGUID = go->GetGUID(); break;
 		}
 	}
-   
+
 	void SetData(uint32 type, uint32 data)
 	{
 		Player *player = GetPlayerInMap();
@@ -173,9 +173,9 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 			debug_log("SD2: Instance Blackrock Depths: SetData (Type: %u Data %u) cannot find any player.", type, data);
 			return;
 		}
-   
+
 		debug_log("SD2: Instance Blackrock Depths: SetData update (Type: %u Data %u)", type, data);
-   
+
 		switch(type)
 		{
 		case TYPE_RING_OF_LAW:
@@ -210,12 +210,12 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 				<< Encounter[3] << " " << Encounter[4] << " " << Encounter[5];
 
 			str_data = saveStream.str();
-   
+
 			SaveToDB();
 			OUT_SAVE_INST_DATA_COMPLETE;
 		}
 	}
-   
+
 	uint32 GetData(uint32 type)
 	{
 		switch(type)
@@ -238,7 +238,7 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 		}
 		return 0;
 	}
-   
+
 	uint64 GetData64(uint32 data)
 	{
 		switch(data)
@@ -264,12 +264,12 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 		}
 		return 0;
 	}
-   
+
 	const char* Save()
 	{
 		return str_data.c_str();
 	}
-   
+
 	void Load(const char* in)
 	{
 		if (!in)
@@ -277,7 +277,7 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 			OUT_LOAD_INST_DATA_FAIL;
 			return;
 		}
-   
+
 		OUT_LOAD_INST_DATA(in);
 
 		std::istringstream loadStream(in);
@@ -287,16 +287,16 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 		for(uint8 i = 0; i < ENCOUNTERS; ++i)
 			if (Encounter[i] == IN_PROGRESS)
 				Encounter[i] = NOT_STARTED;
-   
+
 		OUT_LOAD_INST_DATA_COMPLETE;
 	}
 };
-   
+
 InstanceData* GetInstanceData_instance_blackrock_depths(Map* map)
 {
 	return new instance_blackrock_depths(map);
 }
-   
+
    void AddSC_instance_blackrock_depths()
    {
        Script *newscript;

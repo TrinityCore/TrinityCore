@@ -144,7 +144,7 @@ ChatCommand * ChatHandler::getCommandTable()
 		{ "modify",         SEC_GAMEMASTER,     false, &ChatHandler::HandleWpModifyCommand,            "", NULL },
 		{ "event",			SEC_GAMEMASTER,     false, &ChatHandler::HandleWpEventCommand,				"", NULL },
 		{ "unload",			SEC_GAMEMASTER,     false, &ChatHandler::HandleWpUnLoadPathCommand,		"", NULL },
-		
+
 		{ NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
@@ -534,11 +534,11 @@ ChatCommand * ChatHandler::getCommandTable()
         { "event",          SEC_GAMEMASTER,     false, NULL,                                           "", eventCommandTable },
         { "gobject",        SEC_GAMEMASTER,     false, NULL,                                           "", gobjectCommandTable },
         { "honor",          SEC_GAMEMASTER,     false, NULL,                                           "", honorCommandTable },
-        
+
 		//wp commands
 		{ "path",           SEC_GAMEMASTER,     false, NULL,                                           "", wpCommandTable },
         { "loadpath",		SEC_ADMINISTRATOR,  false, &ChatHandler::HandleReloadAllPaths,			   "", NULL },
-	
+
 		{ "quest",          SEC_ADMINISTRATOR,  false, NULL,                                           "", questCommandTable },
         { "reload",         SEC_ADMINISTRATOR,  true,  NULL,                                           "", reloadCommandTable },
         { "list",           SEC_ADMINISTRATOR,  true,  NULL,                                           "", listCommandTable },
@@ -553,7 +553,7 @@ ChatCommand * ChatHandler::getCommandTable()
 
         { "aura",           SEC_ADMINISTRATOR,  false, &ChatHandler::HandleAuraCommand,                "", NULL },
         { "unaura",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleUnAuraCommand,              "", NULL },
-        { "nameannounce",   SEC_MODERATOR,      false, &ChatHandler::HandleNameAnnounceCommand,        "", NULL }, 
+        { "nameannounce",   SEC_MODERATOR,      false, &ChatHandler::HandleNameAnnounceCommand,        "", NULL },
         { "gmnameannounce", SEC_MODERATOR,      false, &ChatHandler::HandleGMNameAnnounceCommand,      "", NULL },
         { "announce",       SEC_MODERATOR,      true,  &ChatHandler::HandleAnnounceCommand,            "", NULL },
         { "gmannounce",     SEC_MODERATOR,      true,  &ChatHandler::HandleGMAnnounceCommand,          "", NULL },
@@ -622,10 +622,10 @@ ChatCommand * ChatHandler::getCommandTable()
         { "sendmessage",    SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleSendMessageCommand,         "", NULL },
         { "playall",        SEC_ADMINISTRATOR,  false, &ChatHandler::HandlePlayAllCommand,             "", NULL },
         { "repairitems",    SEC_GAMEMASTER,     false, &ChatHandler::HandleRepairitemsCommand,         "", NULL },
-        { "freeze",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleFreezeCommand,              "", NULL }, 
-        { "unfreeze",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleUnFreezeCommand,            "", NULL }, 
-        { "listfreeze",     SEC_ADMINISTRATOR,  false, &ChatHandler::HandleListFreezeCommand,          "", NULL }, 
-        { "flusharenapoints", SEC_ADMINISTRATOR, false, &ChatHandler::HandleFlushArenaPointsCommand,   "", NULL }, 
+        { "freeze",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleFreezeCommand,              "", NULL },
+        { "unfreeze",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleUnFreezeCommand,            "", NULL },
+        { "listfreeze",     SEC_ADMINISTRATOR,  false, &ChatHandler::HandleListFreezeCommand,          "", NULL },
+        { "flusharenapoints", SEC_ADMINISTRATOR, false, &ChatHandler::HandleFlushArenaPointsCommand,   "", NULL },
         { "possess",        SEC_ADMINISTRATOR,  false, &ChatHandler::HandlePossessCommand,             "", NULL },
         { "unpossess",      SEC_ADMINISTRATOR,  false, &ChatHandler::HandleUnPossessCommand,           "", NULL },
         { "bindsight",      SEC_ADMINISTRATOR,  false, &ChatHandler::HandleBindSightCommand,           "", NULL },

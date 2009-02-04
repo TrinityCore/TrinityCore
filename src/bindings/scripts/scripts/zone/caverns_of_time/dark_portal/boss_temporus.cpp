@@ -45,7 +45,7 @@ struct TRINITY_DLL_DECL boss_temporusAI : public ScriptedAI
 		HeroicMode = m_creature->GetMap()->IsHeroic();
 		Reset();
 	}
-	 	 
+
 	ScriptedInstance *pInstance;
 	bool HeroicMode;
 

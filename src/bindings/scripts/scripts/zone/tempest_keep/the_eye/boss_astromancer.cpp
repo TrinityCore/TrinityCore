@@ -171,7 +171,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
 
     float Portal_X(float radius)
     {
-        if ((rand()%2)==1) 
+        if ((rand()%2)==1)
 			radius = -radius;
 
         return (radius * (float)(rand()%100)/100.0f + CENTER_X);
@@ -202,7 +202,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
             {
                 AppearDelay = false;
                 if (Phase == 2)
-                {                
+                {
                     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     m_creature->SetVisibility(VISIBILITY_OFF);
                 }

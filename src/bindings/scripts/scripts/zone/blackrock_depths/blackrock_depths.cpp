@@ -40,10 +40,10 @@ EndContentData */
 
 #define C_GRIMSTONE         10096
 #define C_THELDREN          16059
-    
+
 //4 or 6 in total? 1+2+1 / 2+2+2 / 3+3. Depending on this, code should be changed.
 #define MOB_AMOUNT          4
-    
+
 uint32 RingMob[]=
 {
 	8925,                                                   // Dredge Worm
@@ -53,7 +53,7 @@ uint32 RingMob[]=
 	8933,                                                   // Cave Creeper
 	8932,                                                   // Borer Beetle
 };
-    
+
 uint32 RingBoss[]=
 {
 	9027,                                                   // Gorosh
@@ -63,7 +63,7 @@ uint32 RingBoss[]=
 	9031,                                                   // Anub'shiah
 	9032,                                                   // Hedrum
 };
-    
+
 float RingLocations[6][3]=
 {
 	{604.802673, -191.081985, -54.058590},                  // ring
@@ -73,16 +73,16 @@ float RingLocations[6][3]=
 	{631.818359, -180.548126, -52.654770},                  // second gate
 	{627.390381, -201.075974, -52.692917}                   // hiding in corner
 };
-    
+
 bool AreaTrigger_at_ring_of_law(Player *player, AreaTriggerEntry *at)
 {
 	ScriptedInstance* pInstance = ((ScriptedInstance*)player->GetInstanceData());
-   
+
 	if (pInstance)
 	{
 		if (pInstance->GetData(TYPE_RING_OF_LAW) == IN_PROGRESS || pInstance->GetData(TYPE_RING_OF_LAW) == DONE)
 			return false;
-    
+
 		pInstance->SetData(TYPE_RING_OF_LAW,IN_PROGRESS);
 		player->SummonCreature(C_GRIMSTONE,625.559,-205.618,-52.735,2.609,TEMPSUMMON_DEAD_DESPAWN,0);
 
@@ -90,11 +90,11 @@ bool AreaTrigger_at_ring_of_law(Player *player, AreaTriggerEntry *at)
 	}
 	return false;
 }
-    
+
 /*######
 ## npc_grimstone
 ######*/
-    
+
 //TODO: implement quest part of event (different end boss)
 struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
 {
@@ -106,68 +106,68 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
 	}
 
 	ScriptedInstance* pInstance;
-   
+
 	uint8 EventPhase;
 	uint32 Event_Timer;
-   
+
 	uint8 MobSpawnId;
 	uint8 MobCount;
 	uint32 MobDeath_Timer;
 
 	uint64 RingMobGUID[4];
 	uint64 RingBossGUID;
-   
+
 	bool CanWalk;
-   
+
 	void Reset()
 	{
 		m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-   
+
 		EventPhase = 0;
 		Event_Timer = 1000;
-  
+
 		MobCount = 0;
 		MobDeath_Timer = 0;
-   
+
 		for(uint8 i = 0; i < MOB_AMOUNT; i++)
 			RingMobGUID[i] = 0;
-   
+
 		RingBossGUID = 0;
-   
+
 		CanWalk = false;
 	}
 
 	void Aggro(Unit *who) { }
-   
+
 	void DoGate(uint32 id, uint32 state)
 	{
 		if (GameObject *go = GameObject::GetGameObject(*m_creature,pInstance->GetData64(id)))
 			go->SetGoState(state);
-   
+
 		debug_log("SD2: npc_grimstone, arena gate update state.");
 	}
-   
+
 	//TODO: move them to center
 	void SummonRingMob()
 	{
 		if (Creature* tmp = m_creature->SummonCreature(RingMob[MobSpawnId],608.960,-235.322,-53.907,1.857,TEMPSUMMON_DEAD_DESPAWN,0))
 			RingMobGUID[MobCount] = tmp->GetGUID();
-   
+
 		++MobCount;
-   
+
 		if (MobCount == MOB_AMOUNT)
 			MobDeath_Timer = 2500;
 	}
-   
+
 	//TODO: move them to center
 	void SummonRingBoss()
 	{
 		if (Creature* tmp = m_creature->SummonCreature(RingBoss[rand()%6],644.300,-175.989,-53.739,3.418,TEMPSUMMON_DEAD_DESPAWN,0))
 			RingBossGUID = tmp->GetGUID();
-   
+
 		MobDeath_Timer = 2500;
 	}
-   
+
 	void WaypointReached(uint32 i)
 	{
 		switch(i)
@@ -202,7 +202,7 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
 			break;
 		}
 	}
-   
+
 	void UpdateAI(const uint32 diff)
 	{
 		if (!pInstance)
@@ -226,7 +226,7 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
 					}
 					return;
 				}
-   
+
 				for(uint8 i = 0; i < MOB_AMOUNT; i++)
 				{
 					Creature *mob = (Creature*)Unit::GetUnit(*m_creature,RingMobGUID[i]);
@@ -245,7 +245,7 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
 				}
 			}else MobDeath_Timer -= diff;
 		}
-   
+
 		if (Event_Timer)
 		{
 			if (Event_Timer <= diff)
@@ -313,21 +313,21 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
 				++EventPhase;
 			}else Event_Timer -= diff;
 		}
-   
+
 		if (CanWalk)
 			npc_escortAI::UpdateAI(diff);
 	   }
 };
-   
+
 CreatureAI* GetAI_npc_grimstone(Creature *_Creature)
 {
 	npc_grimstoneAI* Grimstone_AI = new npc_grimstoneAI(_Creature);
 
 	for(uint8 i = 0; i < 6; ++i)
 		Grimstone_AI->AddWaypoint(i, RingLocations[i][0], RingLocations[i][1], RingLocations[i][2]);
-   
+
 	return (CreatureAI*)Grimstone_AI;
-  
+
 }
 
 /*######
@@ -404,7 +404,7 @@ CreatureAI* GetAI_mob_phalanx(Creature *_Creature)
 
 #define GOSSIP_ITEM_KHARAN_1    "I need to know where the princess are, Kharan!"
 #define GOSSIP_ITEM_KHARAN_2    "All is not lost, Kharan!"
-	 	 
+
 #define GOSSIP_ITEM_KHARAN_3    "Gor'shak is my friend, you can trust me."
 #define GOSSIP_ITEM_KHARAN_4    "Not enough, you need to tell me more."
 #define GOSSIP_ITEM_KHARAN_5    "So what happened?"
@@ -523,9 +523,9 @@ bool GossipSelect_npc_lokhtos_darkbargainer(Player *player, Creature *_Creature,
         player->CLOSE_GOSSIP_MENU();
         player->CastSpell(player, SPELL_CREATE_THORIUM_BROTHERHOOD_CONTRACT_DND, false);
     }
-    if (action == GOSSIP_ACTION_TRADE)   
+    if (action == GOSSIP_ACTION_TRADE)
 		player->SEND_VENDORLIST( _Creature->GetGUID() );
-    
+
     return true;
 }
 
@@ -591,7 +591,7 @@ struct TRINITY_DLL_DECL npc_dughal_stormwingAI : public npc_escortAI
     }
 };
 CreatureAI* GetAI_npc_dughal_stormwing(Creature *_Creature)
-{    
+{
     npc_dughal_stormwingAI* dughal_stormwingAI = new npc_dughal_stormwingAI(_Creature);
 
     dughal_stormwingAI->AddWaypoint(0, 280.42,-82.86, -77.12,0);
@@ -635,18 +635,18 @@ bool GossipSelect_npc_dughal_stormwing(Player *player, Creature *_Creature, uint
 #define SAY_WINDSOR_4_3				"Good work! We're almost there, $N. This way."
 #define SAY_WINDSOR_6				"This is it, $N. My stuff should be in that room. Cover me, I'm going in!"
 #define SAY_WINDSOR_9				"Ah, there it is!"
-#define MOB_ENTRY_REGINALD_WINDSOR	9682    
+#define MOB_ENTRY_REGINALD_WINDSOR	9682
 
 Player* PlayerStart;
 /*
 struct TRINITY_DLL_DECL npc_marshal_windsorAI : public npc_escortAI
 {
-	npc_marshal_windsorAI(Creature *c) : npc_escortAI(c) 
-	{ 
+	npc_marshal_windsorAI(Creature *c) : npc_escortAI(c)
+	{
 		pInstance = ((ScriptedInstance*)c->GetInstanceData());
-		Reset(); 
+		Reset();
 	}
-	  
+
 	void WaypointReached(uint32 i)
     {
 	switch( i )
@@ -674,9 +674,9 @@ struct TRINITY_DLL_DECL npc_marshal_windsorAI : public npc_escortAI
 			m_creature->setFaction(11);
 			break;
 		case 16:
-			m_creature->Say(SAY_WINDSOR_9, LANG_UNIVERSAL, PlayerGUID); 
+			m_creature->Say(SAY_WINDSOR_9, LANG_UNIVERSAL, PlayerGUID);
 			break;
-		case 17: 
+		case 17:
 			m_creature->HandleEmoteCommand(EMOTE_STATE_USESTANDING);//EMOTE_STATE_WORK
 			break;
 		case 18:
@@ -692,7 +692,7 @@ struct TRINITY_DLL_DECL npc_marshal_windsorAI : public npc_escortAI
 		}
 	}
 
-    void Aggro(Unit* who) 
+    void Aggro(Unit* who)
 		{
 		switch(rand()%3)
 			{
@@ -716,9 +716,9 @@ struct TRINITY_DLL_DECL npc_marshal_windsorAI : public npc_escortAI
 			IsOnHold = false;
 		if(!pInstance->GetData(DATA_GATE_D) && pInstance->GetData(DATA_DUGHAL) == ENCOUNTER_STATE_NOT_STARTED )
 			{
-			m_creature->Say(SAY_WINDSOR_4_2, LANG_UNIVERSAL, PlayerGUID);    
+			m_creature->Say(SAY_WINDSOR_4_2, LANG_UNIVERSAL, PlayerGUID);
 			pInstance->SetData(DATA_DUGHAL, ENCOUNTER_STATE_BEFORE_START);
-			}	
+			}
 		if( pInstance->GetData(DATA_DUGHAL) == ENCOUNTER_STATE_OBJECTIVE_COMPLETED )
 			{
 			m_creature->Say(SAY_WINDSOR_4_3, LANG_UNIVERSAL, PlayerGUID);
@@ -740,7 +740,7 @@ struct TRINITY_DLL_DECL npc_marshal_windsorAI : public npc_escortAI
     }
 };
 CreatureAI* GetAI_npc_marshal_windsor(Creature *_Creature)
-{    
+{
     npc_marshal_windsorAI* marshal_windsorAI = new npc_marshal_windsorAI(_Creature);
 
     marshal_windsorAI->AddWaypoint(0, 316.336,-225.528, -77.7258,7000);
@@ -769,13 +769,13 @@ CreatureAI* GetAI_npc_marshal_windsor(Creature *_Creature)
 
 bool QuestAccept_npc_marshal_windsor(Player *player, Creature *creature, Quest const *quest )
 {
-    if( quest->GetQuestId() == 4322 )                     
+    if( quest->GetQuestId() == 4322 )
 		{PlayerStart = player;
 		if( pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED )
 		{
 				((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
 				pInstance->SetData(DATA_QUEST_JAIL_BREAK,ENCOUNTER_STATE_IN_PROGRESS);
-				creature->setFaction(11); 
+				creature->setFaction(11);
 		}
 
 		}
@@ -800,25 +800,25 @@ bool QuestAccept_npc_marshal_windsor(Player *player, Creature *creature, Quest c
 #define SAY_REGINALD_WINDSOR_14_2	"Excellent work, $N. Let's find the exit. I think I know the way. Follow me!"
 #define SAY_REGINALD_WINDSOR_20_1	"We made it!"
 #define SAY_REGINALD_WINDSOR_20_2	"Meet me at Maxwell's encampment. We'll go over the next stages of the plan there and figure out a way to decode my tablets without the decryption ring."
-#define MOB_ENTRY_SHILL_DINGER		9678    
-#define MOB_ENTRY_CREST_KILLER		9680    
+#define MOB_ENTRY_SHILL_DINGER		9678
+#define MOB_ENTRY_CREST_KILLER		9680
 
 int wp = 0;
 /*
 struct TRINITY_DLL_DECL npc_marshal_reginald_windsorAI : public npc_escortAI
 {
-	npc_marshal_reginald_windsorAI(Creature *c) : npc_escortAI(c) 
-	{ 
-		Reset(); 
+	npc_marshal_reginald_windsorAI(Creature *c) : npc_escortAI(c)
+	{
+		Reset();
 	}
-	  
+
 	void WaypointReached(uint32 i)
     {
 	wp=i;
 	switch( i )
         {
 		case 0:
-			m_creature->setFaction(11); 
+			m_creature->setFaction(11);
 			m_creature->Say(SAY_REGINALD_WINDSOR_0_1, LANG_UNIVERSAL, PlayerGUID);
 			break;
 		case 1:
@@ -889,7 +889,7 @@ struct TRINITY_DLL_DECL npc_marshal_reginald_windsorAI : public npc_escortAI
         }
     }
 
-    void Aggro(Unit* who) 
+    void Aggro(Unit* who)
 		{
 		switch(rand()%3)
 			{
@@ -953,7 +953,7 @@ struct TRINITY_DLL_DECL npc_marshal_reginald_windsorAI : public npc_escortAI
     }
 };
 CreatureAI* GetAI_npc_marshal_reginald_windsor(Creature *_Creature)
-{    
+{
     npc_marshal_reginald_windsorAI* marshal_reginald_windsorAI = new npc_marshal_reginald_windsorAI(_Creature);
 
     marshal_reginald_windsorAI->AddWaypoint(0, 403.61,-52.71, -63.92,4000);
@@ -1004,7 +1004,7 @@ CreatureAI* GetAI_npc_marshal_reginald_windsor(Creature *_Creature)
 struct TRINITY_DLL_DECL npc_tobias_seecherAI : public npc_escortAI
 {
     npc_tobias_seecherAI(Creature *c) :npc_escortAI(c) {Reset();}
-    
+
     void Aggro(Unit* who) { }
     void Reset() {}
 
@@ -1055,7 +1055,7 @@ struct TRINITY_DLL_DECL npc_tobias_seecherAI : public npc_escortAI
 };
 
 CreatureAI* GetAI_npc_tobias_seecher(Creature *_Creature)
-{    
+{
     npc_tobias_seecherAI* tobias_seecherAI = new npc_tobias_seecherAI(_Creature);
 
     tobias_seecherAI->AddWaypoint(0, 549.21, -281.07, -75.27);
@@ -1093,11 +1093,11 @@ bool GossipSelect_npc_tobias_seecher(Player *player, Creature *_Creature, uint32
 /*######
 ## npc_rocknot
 ######*/
-   
+
 #define SAY_GOT_BEER        -1230000
 #define SPELL_DRUNKEN_RAGE  14872
 #define QUEST_ALE           4295
-   
+
 float BarWpLocations[8][3]=
 {
 	{883.294861, -188.926300, -43.703655},
@@ -1109,7 +1109,7 @@ float BarWpLocations[8][3]=
 	{877.035217, -187.048080, -43.703655},
 	{891.198000, -197.924000, -43.620400}                   //home
 };
-   
+
 uint32 BarWpWait[8]=
 {
 	0,
@@ -1121,7 +1121,7 @@ uint32 BarWpWait[8]=
 	0,
 	0
 };
-   
+
 struct TRINITY_DLL_DECL npc_rocknotAI : public npc_escortAI
 {
 	npc_rocknotAI(Creature *c) : npc_escortAI(c)
@@ -1129,7 +1129,7 @@ struct TRINITY_DLL_DECL npc_rocknotAI : public npc_escortAI
 		pInstance = ((ScriptedInstance*)c->GetInstanceData());
 		Reset();
 	}
-   
+
 	ScriptedInstance* pInstance;
 
 	uint32 BreakKeg_Timer;
@@ -1145,18 +1145,18 @@ struct TRINITY_DLL_DECL npc_rocknotAI : public npc_escortAI
 	}
 
 	void Aggro(Unit *who) { }
-   
+
 	void DoGo(uint32 id, uint32 state)
 	{
 		if (GameObject *go = GameObject::GetGameObject(*m_creature,pInstance->GetData64(id)))
 			go->SetGoState(state);
 	}
-   
+
 	void WaypointReached(uint32 i)
 	{
 		if (!pInstance)
 			return;
-   
+
 		switch(i)
 		{
 		case 1:
@@ -1177,12 +1177,12 @@ struct TRINITY_DLL_DECL npc_rocknotAI : public npc_escortAI
 			break;
 		}
 	}
-   
+
 	void UpdateAI(const uint32 diff)
 	{
 		if (!pInstance)
 			return;
-   
+
 		if (BreakKeg_Timer)
 		{
 			if (BreakKeg_Timer <= diff)
@@ -1192,7 +1192,7 @@ struct TRINITY_DLL_DECL npc_rocknotAI : public npc_escortAI
 				BreakDoor_Timer = 1000;
 			}else BreakKeg_Timer -= diff;
 		}
-   
+
 		if (BreakDoor_Timer)
 		{
 			if (BreakDoor_Timer <= diff)
@@ -1203,46 +1203,46 @@ struct TRINITY_DLL_DECL npc_rocknotAI : public npc_escortAI
 
 				if (Unit *tmp = Unit::GetUnit(*m_creature,pInstance->GetData64(DATA_PHALANX)))
 					tmp->setFaction(14);
-   
+
 				//for later, this event(s) has alot more to it.
 				//optionally, DONE can trigger bar to go hostile.
 				pInstance->SetData(TYPE_BAR,DONE);
-   
+
 				BreakDoor_Timer = 0;
 			}else BreakDoor_Timer -= diff;
 		}
-   
+
 		npc_escortAI::UpdateAI(diff);
 	}
 };
-   
+
 CreatureAI* GetAI_npc_rocknot(Creature *_Creature)
 {
 	npc_rocknotAI* Rocknot_AI = new npc_rocknotAI(_Creature);
-   
+
 	for(uint8 i = 0; i < 8; ++i)
 		Rocknot_AI->AddWaypoint(i, BarWpLocations[i][0], BarWpLocations[i][1], BarWpLocations[i][2], BarWpWait[i]);
-   
+
 	return (CreatureAI*)Rocknot_AI;
 }
-   
+
 bool ChooseReward_npc_rocknot(Player *player, Creature *_Creature, const Quest *_Quest, uint32 item)
 {
 	ScriptedInstance* pInstance = ((ScriptedInstance*)_Creature->GetInstanceData());
-   
+
 	if (!pInstance)
 		return true;
-   
+
 	if (pInstance->GetData(TYPE_BAR) == DONE || pInstance->GetData(TYPE_BAR) == SPECIAL)
 		return true;
-   
+
 	if (_Quest->GetQuestId() == QUEST_ALE)
 	{
 		if (pInstance->GetData(TYPE_BAR) != IN_PROGRESS)
 			pInstance->SetData(TYPE_BAR,IN_PROGRESS);
 
 		pInstance->SetData(TYPE_BAR,SPECIAL);
-   
+
 		//keep track of amount in instance script, returns SPECIAL if amount ok and event in progress
 		if (pInstance->GetData(TYPE_BAR) == SPECIAL)
 		{
@@ -1251,7 +1251,7 @@ bool ChooseReward_npc_rocknot(Player *player, Creature *_Creature, const Quest *
 			((npc_escortAI*)(_Creature->AI()))->Start(false, false, false);
 		}
 	}
-   
+
 	return true;
 }
 
