@@ -149,7 +149,7 @@ bool IsPassiveStackableSpell( uint32 spellId )
 
 Unit::Unit()
 : WorldObject(), i_motionMaster(this), m_ThreatManager(this), m_HostilRefManager(this)
-, m_IsInNotifyList(false), m_Notified(false)
+, m_IsInNotifyList(false), m_Notified(false), m_AI_enabled(false)
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
@@ -3576,7 +3576,11 @@ uint32 Unit::GetWeaponSkillValue (WeaponAttackType attType, Unit const* target) 
 
         // feral or unarmed skill only for base attack
         if(attType != BASE_ATTACK && !item )
+        {
+            if(attType == RANGED_ATTACK && getClass() == CLASS_PALADIN) //hammer
+                return GetMaxSkillValueForLevel(); 
             return 0;
+        }
 
         if(((Player*)this)->IsInFeralForm())
             return GetMaxSkillValueForLevel();              // always maximized SKILL_FERAL_COMBAT in fact
