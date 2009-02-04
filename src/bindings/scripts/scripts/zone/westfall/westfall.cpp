@@ -170,7 +170,7 @@ CreatureAI* GetAI_npc_defias_traitor(Creature *_Creature)
 void AddSC_westfall()
 {
     Script *newscript;
-    
+
     newscript = new Script;
     newscript->Name="npc_defias_traitor";
     newscript->GetAI = &GetAI_npc_defias_traitor;

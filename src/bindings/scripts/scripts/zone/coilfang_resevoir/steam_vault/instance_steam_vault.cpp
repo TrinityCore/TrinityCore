@@ -42,13 +42,13 @@ bool GOHello_go_main_chambers_access_panel(Player *player, GameObject* _GO)
 
 	if (!pInstance)
 		return false;
-	 	 
+
 	if (_GO->GetEntry() == ACCESS_PANEL_HYDRO && pInstance->GetData(TYPE_HYDROMANCER_THESPIA) == DONE)
 		pInstance->SetData(TYPE_HYDROMANCER_THESPIA,SPECIAL);
-	 	 
+
 	if (_GO->GetEntry() == ACCESS_PANEL_MEK && pInstance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == DONE)
 		pInstance->SetData(TYPE_MEKGINEER_STEAMRIGGER,SPECIAL);
-	 	 
+
 	return true;
 }
 
@@ -100,7 +100,7 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
 					return plr;
 			}
 		}
-	 	 
+
 		debug_log("SD2: Instance Steamvault: GetPlayerInMap, but PlayerList is empty!");
 		return NULL;
 	}
@@ -128,7 +128,7 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
     void SetData(uint32 type, uint32 data)
     {
 		Player *player = GetPlayerInMap();
-	 	 
+
 		if (!player)
 		{
 			debug_log("SD2: Instance Steamvault: SetData (Type: %u Data %u) cannot find any player.", type, data);

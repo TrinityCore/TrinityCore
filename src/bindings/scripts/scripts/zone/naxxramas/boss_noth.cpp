@@ -36,7 +36,7 @@ EndScriptData */
 #define H_SPELL_CRIPPLE                 54814
 #define SPELL_CURSE_PLAGUEBRINGER       28213
 #define H_SPELL_CURSE_PLAGUEBRINGER     54835
-#define SOUND_DEATH      8848	 
+#define SOUND_DEATH      8848
 
 #define C_PLAGUED_WARRIOR               16984
 

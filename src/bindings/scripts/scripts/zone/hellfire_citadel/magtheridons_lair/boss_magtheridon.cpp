@@ -55,7 +55,7 @@ static Yell RandomTaunt[]=
 #define MOB_CHANNELLER      17256
 #define MOB_ABYSSAL         17454
 
-#define SPELL_BLASTNOVA             30616  
+#define SPELL_BLASTNOVA             30616
 #define SPELL_CLEAVE                30619
 #define SPELL_QUAKE_TRIGGER         30657 // must be cast with 30561 as the proc spell
 #define SPELL_QUAKE_KNOCKBACK       30571
@@ -125,7 +125,7 @@ struct TRINITY_DLL_DECL mob_abyssalAI : public ScriptedAI
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             m_creature->CastSpell(m_creature, SPELL_DEBRIS_VISUAL, true);
             FireBlast_Timer = 5000;
-            Despawn_Timer = 10000;     
+            Despawn_Timer = 10000;
         }
     }
 
@@ -169,9 +169,9 @@ struct TRINITY_DLL_DECL mob_abyssalAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
 {
-    boss_magtheridonAI(Creature *c) : ScriptedAI(c) 
+    boss_magtheridonAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance =(ScriptedInstance*)m_creature->GetInstanceData();      
+        pInstance =(ScriptedInstance*)m_creature->GetInstanceData();
         m_creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
         m_creature->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
 
@@ -208,7 +208,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
     bool NeedCheckCube;
 
     void Reset()
-    {   
+    {
         if(pInstance)
         {
             pInstance->SetData(DATA_MAGTHERIDON_EVENT, NOT_STARTED);
@@ -379,10 +379,10 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
             Blaze_Timer = 20000 + rand()%20000;
         }else Blaze_Timer -= diff;
 
-        if(!Phase3 && m_creature->GetHealth()*10 < m_creature->GetMaxHealth()*3 
+        if(!Phase3 && m_creature->GetHealth()*10 < m_creature->GetMaxHealth()*3
             && !m_creature->IsNonMeleeSpellCasted(false) // blast nova
             && !m_creature->hasUnitState(UNIT_STAT_STUNNED)) // shadow cage and earthquake
-        {                        
+        {
             Phase3 = true;
             DoScriptText(SAY_CHAMBER_DESTROY, m_creature);
             m_creature->CastSpell(m_creature, SPELL_CAMERA_SHAKE, true);
@@ -471,8 +471,8 @@ struct TRINITY_DLL_DECL mob_hellfire_channelerAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         if(!UpdateVictim())
-            return;    
- 
+            return;
+
         if(ShadowBoltVolley_Timer < diff)
         {
             DoCast(m_creature, SPELL_SHADOW_BOLT_VOLLEY);
@@ -497,7 +497,7 @@ struct TRINITY_DLL_DECL mob_hellfire_channelerAI : public ScriptedAI
         {
             if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 m_creature->CastSpell(target, SPELL_BURNING_ABYSSAL, true);
-            Infernal_Timer = 30000 + rand()%10000; 
+            Infernal_Timer = 30000 + rand()%10000;
         }else Infernal_Timer -= diff;
 
         DoMeleeAttackIfReady();

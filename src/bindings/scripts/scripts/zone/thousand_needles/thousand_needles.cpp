@@ -52,7 +52,7 @@ npc_swiftmountainAI(Creature *c) : npc_escortAI(c) {Reset();}
         {
         case 46:
             DoScriptText(SAY_AGGRO, m_creature, player);
-            break;           
+            break;
 		 case 47:
             m_creature->SummonCreature(ENTRY_WYVERN, -5016.45, -935.01, -5.46, 5.36,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
             m_creature->SummonCreature(ENTRY_WYVERN, -5001.98, -934.96, -5.55, 3.18,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
@@ -63,13 +63,13 @@ npc_swiftmountainAI(Creature *c) : npc_escortAI(c) {Reset();}
             if (player && player->GetTypeId() == TYPEID_PLAYER)
                 ((Player*)player)->GroupEventHappens(QUEST_HOMEWARD_BOUND,m_creature);
             break;
-        
+
         }
     }
 
     void Reset()
     {
-        
+
     }
 
     void Aggro(Unit* who)
@@ -184,7 +184,7 @@ CreatureAI* GetAI_npc_swiftmountain(Creature *_Creature)
    thisAI->AddWaypoint(69, -4932.68, -1084.42, -51.00);
    thisAI->AddWaypoint(70, -4938.3, -1100.41, -50.71, 5000);
    thisAI->AddWaypoint(71, -4937.34, -1102.87, -49.82);
-    
+
     return (CreatureAI*)thisAI;
 }
 

@@ -132,7 +132,7 @@ struct TRINITY_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
 			Creature* pAdvisor = NULL;
 			for( int i=0; i<3; i++ )
 
-		
+
 		if(RAdvisors[i])
 		{
 			pAdvisor = ((Creature*)Unit::GetUnit((*m_creature), RAdvisors[i]));
@@ -145,8 +145,8 @@ struct TRINITY_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
 		}
 		pInstance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
 		}
-			
-		
+
+
 	}
 
     void EventSharkkisDeath()
@@ -290,7 +290,7 @@ struct TRINITY_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
 							break;
 						}
 					}
-				}               
+				}
 				if( continueTriggering )
 				{
 					DoCast(m_creature, SPELL_BLESSING_OF_THE_TIDES);
@@ -338,7 +338,7 @@ struct TRINITY_DLL_DECL boss_fathomguard_sharkkisAI : public ScriptedAI
 		{
 			Pet->DealDamage( Pet, Pet->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false );
 		}
-		
+
 		SummonedPet = 0;
 
         if( pInstance )
@@ -404,7 +404,7 @@ struct TRINITY_DLL_DECL boss_fathomguard_sharkkisAI : public ScriptedAI
 			DoCast(m_creature->getVictim(), SPELL_MULTISHOT);
 			Multishot_Timer = 20000;
 		}else Multishot_Timer -= diff;
- 
+
 		//TheBeastWithin_Timer
 		if(TheBeastWithin_Timer < diff)
 		{
@@ -416,7 +416,7 @@ struct TRINITY_DLL_DECL boss_fathomguard_sharkkisAI : public ScriptedAI
 			}
 			TheBeastWithin_Timer = 30000;
 		}else TheBeastWithin_Timer -= diff;
- 
+
 		//Pet_Timer
 		if(Pet_Timer < diff && pet == false)
 		{
@@ -704,7 +704,7 @@ struct TRINITY_DLL_DECL boss_fathomguard_caribdisAI : public ScriptedAI
 				break;
 			case 1:
 				pUnit = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_SHARKKIS));
-				break; 
+				break;
 			case 2:
 				pUnit = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_TIDALVESS));
 				break;
@@ -713,7 +713,7 @@ struct TRINITY_DLL_DECL boss_fathomguard_caribdisAI : public ScriptedAI
 				break;
             }
         }else pUnit = m_creature;
- 
+
                 return pUnit;
         }
 };

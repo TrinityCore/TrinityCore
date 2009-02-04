@@ -492,10 +492,10 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
             if(target)
                 Doomfire->AI()->AttackStart(target);
 
-            if(rand()%2 == 0)            
+            if(rand()%2 == 0)
 				DoScriptText(SAY_DOOMFIRE1, m_creature);
 			else
-				DoScriptText(SAY_DOOMFIRE2, m_creature);            
+				DoScriptText(SAY_DOOMFIRE2, m_creature);
         }
     }
 
@@ -594,7 +594,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
             }else EnrageTimer -= diff;
 
             if(CheckDistanceTimer < diff)
-			{                                              
+			{
 				// To simplify the check, we simply summon a creature in the location and then check how far we are from the creature
                 Creature* Check = m_creature->SummonCreature(CREATURE_CHANNEL_TARGET, NORDRASSIL_X, NORDRASSIL_Y, NORDRASSIL_Z, 0, TEMPSUMMON_TIMED_DESPAWN, 2000);
                 if(Check)
@@ -667,7 +667,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
         {
             if(rand()%2 == 0)
 				DoScriptText(SAY_AIR_BURST1, m_creature);
-			else		
+			else
 				DoScriptText(SAY_AIR_BURST2, m_creature);
 
 

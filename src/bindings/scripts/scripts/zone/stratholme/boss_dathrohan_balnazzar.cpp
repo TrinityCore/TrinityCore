@@ -26,7 +26,7 @@ EndScriptData */
 //Dathrohan spells
 #define SPELL_CRUSADERSHAMMER    17286 //AOE stun
 #define SPELL_CRUSADERSTRIKE    17281
-#define SPELL_MINDBLAST    17287 
+#define SPELL_MINDBLAST    17287
 #define SPELL_HOLYSTRIKE    17284 //weapon dmg +3
 #define SPELL_DAZED    1604
 
@@ -114,7 +114,7 @@ struct TRINITY_DLL_DECL boss_dathrohan_balnazzarAI : public ScriptedAI
 
         m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,10545);
         m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.00f);
-        
+
     }
 
     void JustDied(Unit* Victim)
@@ -295,12 +295,12 @@ struct TRINITY_DLL_DECL boss_dathrohan_balnazzarAI : public ScriptedAI
             //                MindControl_Timer = 15000;
             //            }else MindControl_Timer -= diff;
 
-            //END ELSE TRANSFORMED            
+            //END ELSE TRANSFORMED
         }
 
         DoMeleeAttackIfReady();
     }
-}; 
+};
 CreatureAI* GetAI_boss_dathrohan_balnazzar(Creature *_Creature)
 {
     return new boss_dathrohan_balnazzarAI (_Creature);

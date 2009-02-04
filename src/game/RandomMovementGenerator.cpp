@@ -30,13 +30,13 @@
 #define RUNNING_CHANCE_RANDOMMV 20                                  //will be "1 / RUNNING_CHANCE_RANDOMMV"
 
 template<>
-bool 
+bool
 RandomMovementGenerator<Creature>::GetDestination(float &x, float &y, float &z) const
 {
     if(i_destinationHolder.HasArrived())
-        return false; 
-    
-    i_destinationHolder.GetDestination(x, y, z); 
+        return false;
+
+    i_destinationHolder.GetDestination(x, y, z);
     return true;
 }
 
@@ -65,7 +65,7 @@ RandomMovementGenerator<Creature>::_setRandomLocation(Creature &creature)
     nx = X + distanceX;
     ny = Y + distanceY;
 
-    // prevent invalid coordinates generation 
+    // prevent invalid coordinates generation
     Trinity::NormalizeMapCoord(nx);
     Trinity::NormalizeMapCoord(ny);
 
@@ -122,9 +122,9 @@ RandomMovementGenerator<Creature>::Initialize(Creature &creature)
 {
     if(!creature.isAlive())
         return;
-	
+
 	wander_distance = creature.GetRespawnRadius();
-    
+
 	if (creature.canFly())
         creature.AddUnitMovementFlag(MOVEMENTFLAG_FLYING2);
     else

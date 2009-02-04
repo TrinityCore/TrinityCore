@@ -13,7 +13,7 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-   
+
 /* ScriptData
 SDName: Dark_Portal
 SD%Complete: 30
@@ -26,7 +26,7 @@ npc_medivh_bm
 npc_time_rift
 npc_saat
 EndContentData */
-    
+
 #include "precompiled.h"
 #include "def_dark_portal.h"
 
@@ -42,18 +42,18 @@ EndContentData */
 
 #define SPELL_CHANNEL           31556
 #define SPELL_PORTAL_RUNE       32570                       //aura(portal on ground effect)
-	 	 
+
 #define SPELL_BLACK_CRYSTAL     32563                       //aura
 #define SPELL_PORTAL_CRYSTAL    32564                       //summon
-	 	 
+
 #define SPELL_BANISH_PURPLE     32566                       //aura
 #define SPELL_BANISH_GREEN      32567                       //aura
-	 	 
+
 #define SPELL_CORRUPT           31326
 #define SPELL_CORRUPT_AEONUS    37853
 
 #define C_COUNCIL_ENFORCER      17023
-	 	 
+
 struct TRINITY_DLL_DECL npc_medivh_bmAI : public ScriptedAI
 {
 	npc_medivh_bmAI(Creature *c) : ScriptedAI(c)
@@ -61,9 +61,9 @@ struct TRINITY_DLL_DECL npc_medivh_bmAI : public ScriptedAI
 		pInstance = ((ScriptedInstance*)c->GetInstanceData());
 		Reset();
 	}
-	 	 
+
 	ScriptedInstance *pInstance;
-	 	 
+
 	uint32 SpellCorrupt_Timer;
 	uint32 Check_Timer;
 
@@ -77,25 +77,25 @@ struct TRINITY_DLL_DECL npc_medivh_bmAI : public ScriptedAI
 
 		if (!pInstance)
 			return;
-	 	 
+
 		if (pInstance->GetData(TYPE_MEDIVH) == IN_PROGRESS)
 			m_creature->CastSpell(m_creature,SPELL_CHANNEL,true);
 		else if (m_creature->HasAura(SPELL_CHANNEL,0))
 			m_creature->RemoveAura(SPELL_CHANNEL,0);
-	 	 
+
 		m_creature->CastSpell(m_creature,SPELL_PORTAL_RUNE,true);
 	}
-	 	 
+
 	void MoveInLineOfSight(Unit *who)
 	{
 		if (!pInstance)
 			return;
-	 	 
+
 		if (who->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(who, 10.0f))
 		{
 			if (pInstance->GetData(TYPE_MEDIVH) == IN_PROGRESS)
 				return;
-	 	 
+
 			DoScriptText(SAY_INTRO, m_creature);
 			pInstance->SetData(TYPE_MEDIVH,IN_PROGRESS);
 			m_creature->CastSpell(m_creature,SPELL_CHANNEL,false);
@@ -108,7 +108,7 @@ struct TRINITY_DLL_DECL npc_medivh_bmAI : public ScriptedAI
 
 			uint32 entry = who->GetEntry();
 			if (entry == C_ASSAS || entry == C_WHELP || entry == C_CHRON || entry == C_EXECU || entry == C_VANQU)
-			{				
+			{
 				who->StopMoving();
 				who->CastSpell(m_creature,SPELL_CORRUPT,false);
 			}
@@ -119,15 +119,15 @@ struct TRINITY_DLL_DECL npc_medivh_bmAI : public ScriptedAI
 			}
 		}
 	}
-	 	 
+
 	void AttackStart(Unit *who)
 	{
 		//if (pInstance && pInstance->GetData(TYPE_MEDIVH) == IN_PROGRESS)
 		//return;
-	 	 
+
 		//ScriptedAI::AttackStart(who);
 	}
-	 	 
+
 	void Aggro(Unit *who) {}
 
 	void SpellHit(Unit* caster, const SpellEntry* spell)
@@ -141,15 +141,15 @@ struct TRINITY_DLL_DECL npc_medivh_bmAI : public ScriptedAI
 		if (spell->Id == SPELL_CORRUPT)
 			SpellCorrupt_Timer = 3000;
 	}
-	 	 
-	void JustDied(Unit* Killer) 
+
+	void JustDied(Unit* Killer)
 	{
 		if (Killer->GetEntry() == m_creature->GetEntry())
 			return;
 
 		DoScriptText(SAY_DEATH, m_creature);
 	}
-	 	 
+
 	void UpdateAI(const uint32 diff)
 	{
 		if (!pInstance)
@@ -177,7 +177,7 @@ struct TRINITY_DLL_DECL npc_medivh_bmAI : public ScriptedAI
 				uint32 pct = pInstance->GetData(DATA_SHIELD);
 
 				Check_Timer = 5000;
-	 	 
+
 				if (Life25 && pct <= 25)
 				{
 					DoScriptText(SAY_WEAK25, m_creature);
@@ -194,7 +194,7 @@ struct TRINITY_DLL_DECL npc_medivh_bmAI : public ScriptedAI
 					DoScriptText(SAY_WEAK75, m_creature);
 					Life75 = false;
 				}
-	 	 
+
 				//if we reach this it means event was running but at some point reset.
 				if (pInstance->GetData(TYPE_MEDIVH) == NOT_STARTED)
 				{
@@ -212,14 +212,14 @@ struct TRINITY_DLL_DECL npc_medivh_bmAI : public ScriptedAI
 				}
 			}else Check_Timer -= diff;
 		}
-	 	 
+
 		//if (!UpdateVictim())
 		//return;
-	 	 
+
 		//DoMeleeAttackIfReady();
 	}
 };
-	 	 
+
 CreatureAI* GetAI_npc_medivh_bm(Creature *_Creature)
 {
 	return new npc_medivh_bmAI (_Creature);
@@ -229,7 +229,7 @@ struct Wave
 {
 	uint32 PortalMob[4];                                    //spawns for portal waves (in order)
 };
-	 	 
+
 static Wave PortalWaves[]=
 {
 	{C_ASSAS, C_WHELP, C_CHRON, 0},
@@ -244,7 +244,7 @@ struct TRINITY_DLL_DECL npc_time_riftAI : public ScriptedAI
 		pInstance = ((ScriptedInstance*)c->GetInstanceData());
 		Reset();
 	}
-	 	 
+
 	ScriptedInstance *pInstance;
 
 	uint32 TimeRiftWave_Timer;
@@ -252,7 +252,7 @@ struct TRINITY_DLL_DECL npc_time_riftAI : public ScriptedAI
 	uint8 mPortalCount;
 	uint8 mWaveId;
 
-	void Reset() 
+	void Reset()
 	{
 
 		TimeRiftWave_Timer = 15000;
@@ -260,15 +260,15 @@ struct TRINITY_DLL_DECL npc_time_riftAI : public ScriptedAI
 
 		if (!pInstance)
 			return;
-	 	 
+
 		mPortalCount = pInstance->GetData(DATA_PORTAL_COUNT);
-	 	 
+
 		if (mPortalCount < 6)
 			mWaveId = 0;
 		else if (mPortalCount > 12)
 			mWaveId = 2;
 		else mWaveId = 1;
-	
+
 	}
 	void Aggro(Unit *who) {}
 
@@ -286,32 +286,32 @@ struct TRINITY_DLL_DECL npc_time_riftAI : public ScriptedAI
 
 		float x,y,z;
 		m_creature->GetRandomPoint(m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),10.0f,x,y,z);
-	 	 
+
 		//normalize Z-level if we can, if rift is not at ground level.
 		z = std::max(m_creature->GetMap()->GetHeight(x, y, MAX_HEIGHT), m_creature->GetMap()->GetWaterLevel(x, y));
-	 	 
+
 		Unit *Summon = m_creature->SummonCreature(creature_entry,x,y,z,m_creature->GetOrientation(),
 			TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000);
-	 	 
+
 		if (Summon)
 		{
 			if (Unit *temp = Unit::GetUnit(*m_creature,pInstance->GetData64(DATA_MEDIVH)))
 				Summon->AddThreat(temp,0.0f);
 		}
 	}
-	 	 
+
 	void DoSelectSummon()
 	{
 		uint32 entry = 0;
-	 	 
+
 		if ((mRiftWaveCount > 2 && mWaveId < 1) || mRiftWaveCount > 3)
 			mRiftWaveCount = 0;
-	 	 
+
 		entry = PortalWaves[mWaveId].PortalMob[mRiftWaveCount];
 		debug_log("SD2: npc_time_rift: summoning wave creature (Wave %u, Entry %u).",mRiftWaveCount,entry);
-	 	 
+
 		++mRiftWaveCount;
-	 	 
+
 		if (entry == C_WHELP)
 		{
 			for(uint8 i = 0; i < 3; i++)
@@ -323,23 +323,23 @@ struct TRINITY_DLL_DECL npc_time_riftAI : public ScriptedAI
 	{
 		if (!pInstance)
 			return;
-	 	 
+
 		if (TimeRiftWave_Timer < diff)
 		{
 			DoSelectSummon();
 			TimeRiftWave_Timer = 15000;
 		}else TimeRiftWave_Timer -= diff;
-	 	 
+
 		if (m_creature->IsNonMeleeSpellCasted(false))
 			return;
-	 	 
+
 		debug_log("SD2: npc_time_rift: not casting anylonger, i need to die.");
 		m_creature->setDeathState(JUST_DIED);
 
 		pInstance->SetData(TYPE_RIFT,SPECIAL);
 	}
 };
-	 	 
+
 CreatureAI* GetAI_npc_time_rift(Creature *_Creature)
 {
 	return new npc_time_riftAI (_Creature);
@@ -350,7 +350,7 @@ CreatureAI* GetAI_npc_time_rift(Creature *_Creature)
 #define GOSSIP_ITEM_OBTAIN      "[PH] Obtain Chrono-Beacon"
 #define SPELL_CHRONO_BEACON     34975
 #define ITEM_CHRONO_BEACON      24289
-	 	 
+
 bool GossipHello_npc_saat(Player *player, Creature *_Creature)
 {
 	if (_Creature->isQuestGiver())
@@ -368,11 +368,11 @@ bool GossipHello_npc_saat(Player *player, Creature *_Creature)
 		player->SEND_GOSSIP_MENU(10001,_Creature->GetGUID());
 		return true;
 	}
-	 	 
+
 	player->SEND_GOSSIP_MENU(10002,_Creature->GetGUID());
 	return true;
 }
-	 	 
+
 bool GossipSelect_npc_saat(Player *player, Creature *_Creature, uint32 sender, uint32 action)
 {
 	if (action == GOSSIP_ACTION_INFO_DEF+1)
@@ -382,7 +382,7 @@ bool GossipSelect_npc_saat(Player *player, Creature *_Creature, uint32 sender, u
 	}
 	return true;
 }
-	 	 
+
 void AddSC_dark_portal()
 {
 	Script *newscript;
@@ -391,7 +391,7 @@ void AddSC_dark_portal()
 	newscript->Name = "npc_medivh_bm";
 	newscript->GetAI = &GetAI_npc_medivh_bm;
 	newscript->RegisterSelf();
-	 	 
+
 	newscript = new Script;
 	newscript->Name = "npc_time_rift";
 	newscript->GetAI = &GetAI_npc_time_rift;

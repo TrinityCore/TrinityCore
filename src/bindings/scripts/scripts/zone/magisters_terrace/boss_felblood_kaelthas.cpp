@@ -140,7 +140,7 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
 				pInstance->SetData(DATA_KAELTHAS_EVENT, NOT_STARTED);
 		}
     }
-	
+
 	void KilledUnit(Unit* victim)
     {
         if(victim && (victim->GetTypeId() == TYPEID_PLAYER))
@@ -177,7 +177,7 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
 
     void SetThreatList(Creature* SummonedUnit)
     {
-        if(!SummonedUnit) 
+        if(!SummonedUnit)
 			return;
 
         std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
@@ -276,7 +276,7 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
         Map::PlayerList const &PlayerList = map->GetPlayers();
 		Map::PlayerList::const_iterator i;
 		for (i = PlayerList.begin(); i != PlayerList.end(); ++i)
-		{ 
+		{
             if(Player* i_pl = i->getSource())
             {
                 i_pl->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_FLY);
@@ -419,10 +419,10 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
                             GravityLapseTimer = 30000;
                             GravityLapsePhase = 4;
                             for(uint8 i = 0; i < 3; ++i)
-                            {								
+                            {
 								Creature* Orb = m_creature->SummonCreature(CREATURE_ARCANE_SPHERE,KaelLocations[3+i][0],KaelLocations[3+i][1],LOCATION_Z,0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,30000);
-								if(Orb) 
-								{			
+								if(Orb)
+								{
 									SetThreatList(Orb);
 									Unit *target = SelectUnit(SELECT_TARGET_BOTTOMAGGRO,i);
 									if(target)
@@ -564,7 +564,7 @@ struct TRINITY_DLL_DECL mob_felkael_phoenixAI : public ScriptedAI
 				DoCast(m_creature->getVictim(), SPELL_PHOENIX_FIREBALL);
 			}
 			BurnTimer = 2000;
-		}else BurnTimer -= diff;		
+		}else BurnTimer -= diff;
 
         //DoMeleeAttackIfReady();
     }
@@ -586,7 +586,7 @@ struct TRINITY_DLL_DECL mob_felkael_phoenix_eggAI : public Scripted_NoMovementAI
     void MoveInLineOfSight(Unit* who) {}
     void UpdateAI(const uint32 diff)
     {
-		
+
         if(HatchTimer < diff)
         {
 			Creature *bird = DoSpawnCreature(CREATURE_PHOENIX, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 60000);
@@ -695,7 +695,7 @@ bool GOHello_go_movie_orb(Player *player, GameObject* _GO)
 		WorldPacket data(SMSG_TRIGGER_CINEMATIC, 4);
         data << (uint32)164;
         player->GetSession()->SendPacket(&data);
-		
+
 		if (player->GetQuestStatus(11490) == QUEST_STATUS_INCOMPLETE)
 		{
 			Unit *qUnit = player->SummonCreature(25042,player->GetPositionX(),player->GetPositionY(),player->GetPositionZ()-10,0,TEMPSUMMON_CORPSE_DESPAWN,0);
