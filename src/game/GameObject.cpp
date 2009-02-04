@@ -718,12 +718,11 @@ bool GameObject::isVisibleForInState(Player const* u, bool inVisibleList) const
             return false;
 
         // special invisibility cases
-        /* TODO: implement trap stealth, take look at spell 2836
         if(GetGOInfo()->type == GAMEOBJECT_TYPE_TRAP && GetGOInfo()->trap.stealthed && u->IsHostileTo(GetOwner()))
         {
-            if(check stuff here)
+            if(!canDetectTrap(u, GetDistance(u)))
                 return false;
-        }*/
+        }
 
         // Smuggled Mana Cell required 10 invisibility type detection/state
         if(GetEntry()==187039 && ((u->m_detectInvisibilityMask | u->m_invisibilityMask) & (1<<10))==0)
@@ -733,6 +732,27 @@ bool GameObject::isVisibleForInState(Player const* u, bool inVisibleList) const
     // check distance
     return IsWithinDistInMap(u,World::GetMaxVisibleDistanceForObject() +
         (inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f), false);
+}
+
+bool GameObject::canDetectTrap(Player const* u, float distance) const
+{
+    if(u->hasUnitState(UNIT_STAT_STUNNED))
+        return false;
+    if(distance < GetGOInfo()->size) //collision
+        return true;
+    if(!u->HasInArc(M_PI, this)) //behind
+        return false;
+    if(u->HasAuraType(SPELL_AURA_DETECT_STEALTH))
+        return true;
+
+    //Visible distance is modified by -Level Diff (every level diff = 0.25f in visible distance)
+    float visibleDistance = (int32(u->getLevel()) - int32(GetOwner()->getLevel()))* 0.25f;
+    //GetModifier for trap (miscvalue 1)
+    //35y for aura 2836
+    //WARNING: these values are guessed, may be not blizzlike
+    visibleDistance += u->GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DETECT, 1)* 0.5f;
+
+    return distance < visibleDistance;
 }
 
 void GameObject::Respawn()
