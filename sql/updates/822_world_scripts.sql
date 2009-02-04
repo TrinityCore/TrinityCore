@@ -1,3 +1,3 @@
-update creature_template set scriptname='npc_kayra_longmane' where entry=17969;
-delete from creature_template_addon where entry=17969;
-update quest_template set specialflags=2 where entry=9752;
+UPDATE `creature_template` SET `ScriptName`='npc_kayra_longmane' WHERE `entry`=17969;
+DELETE FROM `creature_template_addon` WHERE `entry`=17969;
+UPDATE `quest_template` SET specialflags=2 WHERE `entry`=9752;
