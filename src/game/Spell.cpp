@@ -2206,12 +2206,15 @@ void Spell::cast(bool skipCheck)
 
     FillTargetMap();
 
+    if(m_spellState == SPELL_STATE_FINISHED)                // stop cast if spell marked as finish somewhere in Take*/FillTargetMap
+    {
+        SetExecutedCurrently(false);
+        return;
+    }
+
     // traded items have trade slot instead of guid in m_itemTargetGUID
     // set to real guid to be sent later to the client
     m_targets.updateTradeSlotItem();
-
-    // CAST SPELL
-    SendSpellCooldown();
 
     if(!m_IsTriggeredSpell)
     {
@@ -2219,12 +2222,8 @@ void Spell::cast(bool skipCheck)
         TakeReagents();                                         // we must remove reagents before HandleEffects to allow place crafted item in same slot
     }
 
-    if(m_spellState == SPELL_STATE_FINISHED)                // stop cast if spell marked as finish somewhere in Take*/FillTargetMap
-    {
-        SetExecutedCurrently(false);
-        return;
-    }
-
+    // CAST SPELL
+    SendSpellCooldown();
     SendCastResult(castResult);
     SendSpellGo();                                          // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
 
@@ -2270,10 +2269,13 @@ void Spell::cast(bool skipCheck)
                 {
                     // Calculate chance at that moment (can be depend for example from combo points)
                     int32 chance = m_caster->CalculateSpellDamage(auraSpellInfo, auraSpellIdx, (*i)->GetBasePoints(),unit);
+                    chance *= (*i)->GetStackAmount();
 
                     if(roll_chance_i(chance))
-                        for (int j=0; j != (*i)->GetStackAmount(); ++j)
-                            m_caster->CastSpell(unit, auraSpellInfo->EffectTriggerSpell[auraSpellIdx], true, NULL, (*i));
+                    {
+                        if(SpellEntry const *spellInfo = sSpellStore.LookupEntry(auraSpellInfo->EffectTriggerSpell[auraSpellIdx]))
+                            m_TriggerSpells.push_back(spellInfo);
+                    }
                 }
             }
         }
