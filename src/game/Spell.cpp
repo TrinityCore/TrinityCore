@@ -2100,8 +2100,9 @@ void Spell::prepare(SpellCastTargets * targets, Aura* triggeredByAura)
         {
             m_caster->SetCurrentCastedSpell( this );
             m_selfContainer = &(m_caster->m_currentSpells[GetCurrentContainer()]);
-            SendSpellStart();
         }
+
+        SendSpellStart();
     }
 }
 
@@ -2182,13 +2183,16 @@ void Spell::cast(bool skipCheck)
     if(m_caster->GetTypeId() != TYPEID_PLAYER && m_targets.getUnitTarget() && m_targets.getUnitTarget() != m_caster)
         m_caster->SetInFront(m_targets.getUnitTarget());
 
-    castResult = CheckPower();
-    if(castResult != 0)
+    if(!m_IsTriggeredSpell)
     {
-        SendCastResult(castResult);
-        finish(false);
-        SetExecutedCurrently(false);
-        return;
+        castResult = CheckPower();
+        if(castResult != 0)
+        {
+            SendCastResult(castResult);
+            finish(false);
+            SetExecutedCurrently(false);
+            return;
+        }
     }
 
     // triggered cast called from Spell::prepare where it was already checked
@@ -2224,7 +2228,7 @@ void Spell::cast(bool skipCheck)
 
     // CAST SPELL
     SendSpellCooldown();
-    SendCastResult(castResult);
+    //SendCastResult(castResult);
     SendSpellGo();                                          // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
 
     if(m_customAttr & SPELL_ATTR_CU_DIRECT_DAMAGE)
@@ -3646,16 +3650,14 @@ uint8 Spell::CanCast(bool strict)
         }
     }*/
 
-    if(!m_skipCheck && !m_triggeredByAuraSpell)
+    if(!m_IsTriggeredSpell)
+    {
         if(uint8 castResult = CheckRange(strict))
             return castResult;
 
-    if(!m_IsTriggeredSpell)
-    {
         if(uint8 castResult = CheckPower())
             return castResult;
 
-    //if(!m_triggeredByAuraSpell)                             // triggered spell not affected by stun/etc
         if(uint8 castResult = CheckCasterAuras())
             return castResult;
     }
