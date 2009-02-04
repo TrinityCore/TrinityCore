@@ -54,7 +54,7 @@ void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
 
 	// get additional data, rarely used
 	recv_data >> ticketText2;
-	
+
 	// assign values
 	ticket->name = GetPlayer()->GetName();
 	ticket->guid = ticketmgr.GenerateTicketID();
@@ -67,7 +67,7 @@ void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
 
 	// remove ticket by player, shouldn't happen
 	ticketmgr.RemoveGMTicketByPlayer(GetPlayer()->GetGUID(), GetPlayer()->GetGUID());
-	
+
 	// add ticket
 	ticketmgr.AddGMTicket(ticket, false);
 
@@ -76,15 +76,15 @@ void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
 
 	// Send ticket creation
 	SendPacket(&data);
-	
+
 	sWorld.SendGMText(LANG_COMMAND_TICKETNEW, ticket->name.c_str(), ticket->guid);
-	
+
 }
 
 void WorldSession::HandleGMTicketUpdateOpcode( WorldPacket & recv_data)
 {
 	// always do a packet check
-	CHECK_PACKET_SIZE(recv_data,1); 
+	CHECK_PACKET_SIZE(recv_data,1);
 
 	std::string message = "";
 	time_t t = time(NULL);
@@ -98,7 +98,7 @@ void WorldSession::HandleGMTicketUpdateOpcode( WorldPacket & recv_data)
 	GM_Ticket *ticket = ticketmgr.GetGMTicketByPlayer(GetPlayer()->GetGUID());
 
 	// Check if player has a GM Ticket yet
-	if(!ticket) 
+	if(!ticket)
 	{
 		// Response - error couldnt find existing Ticket
 		data << uint32(1);
@@ -133,7 +133,7 @@ void WorldSession::HandleGMTicketDeleteOpcode( WorldPacket & /*recv_data*/)
 	if(ticket)
 	{
 		// Remove Tickets from Player
-		
+
 		// Response - no errors
 		WorldPacket data(SMSG_GMTICKET_DELETETICKET, 4);
 		data << uint32(9);
@@ -150,12 +150,12 @@ void WorldSession::HandleGMTicketGetTicketOpcode( WorldPacket & /*recv_data*/)
 	// NO recv_data NO packet size check
 
 	WorldPacket data(SMSG_GMTICKET_GETTICKET, 400);
-	
+
 	// get Current Ticket
 	GM_Ticket *ticket = ticketmgr.GetGMTicketByPlayer(GetPlayer()->GetGUID());
 
 	// check for existing ticket
-	if(!ticket) 
+	if(!ticket)
 	{
 		data << uint32(10);
 		// send packet
@@ -183,8 +183,8 @@ void WorldSession::HandleGMTicketSystemStatusOpcode( WorldPacket & /*recv_data*/
 	// in case of disactivity, this should be set to (0)
 
 	data << uint32(1);
-	
-	
+
+
 	// Send Packet
 	SendPacket(&data);
 }

@@ -251,7 +251,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
 		}
 
         if (FrostCooldown)
-		{        
+		{
 			if (FrostCooldown >= diff)
                 FrostCooldown -= diff;
         else FrostCooldown = 0;

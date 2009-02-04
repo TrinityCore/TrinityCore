@@ -685,7 +685,7 @@ enum SpellEffects
     SPELL_EFFECT_153                       = 153,
     SPELL_EFFECT_154                       = 154,
     SPELL_EFFECT_TITAN_GRIP                = 155,
-    SPELL_EFFECT_ADD_SOCKET                = 156,
+    SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC    = 156,
     SPELL_EFFECT_CREATE_ITEM_2             = 157,
     SPELL_EFFECT_MILLING                   = 158,
     SPELL_EFFECT_ALLOW_RENAME_PET          = 159,
@@ -829,7 +829,7 @@ enum Targets
     TARGET_TABLE_X_Y_Z_COORDINATES     = 17,                // uses in teleport spells and some other
     //TARGET_DEST_TABLE
     TARGET_EFFECT_SELECT               = 18,                // highly depends on the spell effect
-    TARGET_DEST_CASTER_GROUND          = 18, 
+    TARGET_DEST_CASTER_GROUND          = 18,
     TARGET_ALL_PARTY_AROUND_CASTER     = 20,
     TARGET_UNIT_PARTY_CASTER           = 20,
     TARGET_SINGLE_FRIEND               = 21,
@@ -891,7 +891,7 @@ enum Targets
     TARGET_UNIT_AREA_SCRIPT            = 60,
     TARGET_AREAEFFECT_PARTY_AND_CLASS  = 61,
     TARGET_UNIT_CLASS_TARGET           = 61,
-    TARGET_TEST                        = 62, // for a test spell 
+    TARGET_TEST                        = 62, // for a test spell
     TARGET_DUELVSPLAYER_COORDINATES    = 63,
     TARGET_DEST_TARGET_ENEMY_UNKNOWN   = 63,
     TARGET_DEST_TARGET_FRONT           = 64,

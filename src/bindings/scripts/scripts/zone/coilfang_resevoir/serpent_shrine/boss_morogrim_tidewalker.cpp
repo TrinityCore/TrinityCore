@@ -141,7 +141,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
         DoScriptText(SAY_AGGRO, m_creature);
 
         if (pInstance)
-            pInstance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, IN_PROGRESS); 
+            pInstance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, IN_PROGRESS);
     }
 
     void KilledUnit(Unit *victim)
@@ -161,9 +161,9 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, NOT_STARTED);
     }
- 
-	void Aggro(Unit *who) 
-	{ 
+
+	void Aggro(Unit *who)
+	{
         PlayerList = &((InstanceMap*)m_creature->GetMap())->GetPlayers();
         Playercount = PlayerList->getSize();
         StartEvent();
@@ -212,7 +212,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
 				DoScriptText(EMOTE_EARTHQUAKE, m_creature);
 				Earthquake = false;
 				Earthquake_Timer = 40000+rand()%5000;
-			}				
+			}
 		}else Earthquake_Timer -= diff;
 
         //TidalWave_Timer
@@ -234,7 +234,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
                 set<int>::iterator itr;
                 for(uint8 i = 0; i < 4; i++)
                 {
-					counter = 0; 
+					counter = 0;
 					do{target = SelectUnit(SELECT_TARGET_RANDOM, 1, 50, true);    //target players only
 					if(counter < Playercount)
 						break;

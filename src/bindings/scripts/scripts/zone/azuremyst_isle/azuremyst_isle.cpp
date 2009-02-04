@@ -314,16 +314,16 @@ CreatureAI* GetAI_npc_injured_draenei(Creature *_Creature)
 /*######
 ## npc_magwin
 ######*/
-	 	 
+
 #define SAY_START               -1000111
 #define SAY_AGGRO               -1000112
 #define SAY_PROGRESS            -1000113
 #define SAY_END1                -1000114
 #define SAY_END2                -1000115
 #define EMOTE_HUG               -1000116
-	 	 
+
 #define QUEST_A_CRY_FOR_HELP    9528
-	 	 
+
 struct TRINITY_DLL_DECL npc_magwinAI : public npc_escortAI
 {
 	npc_magwinAI(Creature *c) : npc_escortAI(c) {Reset();}
@@ -332,7 +332,7 @@ struct TRINITY_DLL_DECL npc_magwinAI : public npc_escortAI
 	void WaypointReached(uint32 i)
 	{
 		Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
-	 
+
 		if (!player)
 			return;
 
@@ -355,7 +355,7 @@ struct TRINITY_DLL_DECL npc_magwinAI : public npc_escortAI
 			break;
 		}
 	}
-	 	 
+
 	void Aggro(Unit* who)
 	{
 		DoScriptText(SAY_AGGRO, m_creature, who);
@@ -376,7 +376,7 @@ struct TRINITY_DLL_DECL npc_magwinAI : public npc_escortAI
 				((Player*)player)->FailQuest(QUEST_A_CRY_FOR_HELP);
 		}
 	}
-	 	 
+
 	void UpdateAI(const uint32 diff)
 	{
 		npc_escortAI::UpdateAI(diff);
@@ -392,7 +392,7 @@ bool QuestAccept_npc_magwin(Player* player, Creature* creature, Quest const* que
 	}
 	return true;
 }
-	 	 
+
 CreatureAI* GetAI_npc_magwinAI(Creature *_Creature)
 {
 	npc_magwinAI* magwinAI = new npc_magwinAI(_Creature);
@@ -495,7 +495,7 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
 
 	uint32 Step;
 	uint32 SayTimer;
-	
+
 	bool EventStarted;
 
 	void Reset()
@@ -560,14 +560,14 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
 		Cell cell(pair);
 		cell.data.Part.reserved = ALL_DISTRICT;
 		cell.SetNoCreate();
- 
+
 		Trinity::AllGameObjectsWithEntryInGrid go_check(GO_NAGA_FLAG);
 		Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInGrid> go_search(m_creature, FlagList, go_check);
 		TypeContainerVisitor
 			<Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInGrid>, GridTypeMapContainer> go_visit(go_search);
 		CellLock<GridReadGuard> cell_lock(cell, pair);
 		cell_lock->Visit(cell_lock, go_visit, *(m_creature->GetMap()));
- 
+
 		Player* player = NULL;
 		if (!FlagList.empty())
 		{

@@ -18,7 +18,7 @@
 SDName: boss_Akilzon
 SD%Complete: 75%
 SDComment: Missing timer for Call Lightning and Sound ID's
-SQLUpdate: 
+SQLUpdate:
 #Temporary fix for Soaring Eagles
 
 EndScriptData */
@@ -109,8 +109,8 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
         StormSequenceTimer = 0;
 
         isRaining = false;
-        
-        SetWeather(WEATHER_STATE_FINE, 0.0f);        
+
+        SetWeather(WEATHER_STATE_FINE, 0.0f);
     }
 
     void Aggro(Unit *who)
@@ -148,7 +148,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
 
     void DespawnSummons()
     {
-		for (uint8 i = 0; i < 8; i++) 
+		for (uint8 i = 0; i < 8; i++)
         {
 			Unit* bird = Unit::GetUnit(*m_creature,BirdGUIDs[i]);
 			if(bird && bird->isAlive())
@@ -204,12 +204,12 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
                 {
                     Cloud->CastCustomSpell(*i, 43137, &bp0, NULL, NULL, true, 0, 0, m_creature->GetGUID());
                 }
-            }		
+            }
             // visual
             float x,y,z;
-			z = m_creature->GetPositionZ();			
+			z = m_creature->GetPositionZ();
             for(uint8 i = 0; i < 5+rand()%5; ++i)
-            {               
+            {
                 x = 343+rand()%60;
                 y = 1380+rand()%60;
                 if(Unit *trigger = m_creature->SummonTrigger(x, y, z, 0, 2000))
@@ -221,7 +221,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
 					if (Cloud)
 						Cloud->CastCustomSpell(trigger, /*43661*/43137, &bp0, NULL, NULL,true, 0, 0, Cloud->GetGUID());
                 }
-            }			
+            }
         }
         StormCount++;
         if(StormCount > 10)
@@ -231,7 +231,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
             m_creature->InterruptNonMeleeSpells(false);
             CloudGUID = 0;
 			if (Cloud)
-				Cloud->DealDamage(Cloud, Cloud->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false); 
+				Cloud->DealDamage(Cloud, Cloud->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             SetWeather(WEATHER_STATE_FINE, 0.0f);
             isRaining = false;
         }
@@ -305,7 +305,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
                 return;
             }
 			target->CastSpell(target, 44007, true);//cloud visual
-			m_creature->CastSpell(target, SPELL_ELECTRICAL_STORM, false);//storm cyclon + visual		
+			m_creature->CastSpell(target, SPELL_ELECTRICAL_STORM, false);//storm cyclon + visual
             float x,y,z;
 			target->GetPosition(x,y,z);
 			if (target)
@@ -330,7 +330,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
             StormSequenceTimer = 0;
         } else ElectricalStorm_Timer -= diff;
 
-        if (SummonEagles_Timer < diff) 
+        if (SummonEagles_Timer < diff)
         {
             DoYell(SAY_ONSUMMON, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_ONSUMMON);
@@ -338,11 +338,11 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
             float x, y, z;
             m_creature->GetPosition(x, y, z);
 
-			for (uint8 i = 0; i < 8; i++) 
+			for (uint8 i = 0; i < 8; i++)
             {
 				Unit* bird = Unit::GetUnit(*m_creature,BirdGUIDs[i]);
 				if(!bird)//they despawned on die
-				{					
+				{
 					if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
 					{
 						x = target->GetPositionX() + 10 - rand()%20;
@@ -357,7 +357,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
 						pCreature->AI()->AttackStart(m_creature->getVictim());
 						BirdGUIDs[i] = pCreature->GetGUID();
 					}
-				}				
+				}
 			}
             SummonEagles_Timer = 999999;
         } else SummonEagles_Timer -= diff;

@@ -67,7 +67,7 @@ EndScriptData */
 
 #define SPELL_UNHOLY_AURA   17467
 #define SPELL_RAISEDEAD     17473                           //triggers death pact (17471)
-	 
+
 #define SPELL_RAISE_DEAD1   17475
 #define SPELL_RAISE_DEAD2   17476
 #define SPELL_RAISE_DEAD3   17477
@@ -82,7 +82,7 @@ struct TRINITY_DLL_DECL boss_baron_rivendareAI : public ScriptedAI
 		pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
 		Reset();
 	}
-	 	 
+
 	ScriptedInstance* pInstance;
 
     uint32 ShadowBolt_Timer;
@@ -127,9 +127,9 @@ struct TRINITY_DLL_DECL boss_baron_rivendareAI : public ScriptedAI
         //ShadowBolt
         if (ShadowBolt_Timer < diff)
         {
-			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))           
+			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(m_creature->getVictim(),SPELL_SHADOWBOLT);
-            
+
             ShadowBolt_Timer = 10000;
         }else ShadowBolt_Timer -= diff;
 

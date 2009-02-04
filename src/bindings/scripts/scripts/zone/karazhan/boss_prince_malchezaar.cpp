@@ -156,7 +156,7 @@ struct TRINITY_DLL_DECL netherspite_infernalAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 {
-    boss_malchezaarAI(Creature *c) : ScriptedAI(c) 
+    boss_malchezaarAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Reset();

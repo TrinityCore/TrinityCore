@@ -30,33 +30,33 @@ EndScriptData */
 #define SAY_GATH_DEATH          -1564093
 #define SAY_GATH_SPECIAL1       -1564077
 #define SAY_GATH_SPECIAL2       -1564081
-	 	 
+
 #define SAY_VERA_SLAY           -1564086
 #define SAY_VERA_COMNT          -1564089
 #define SAY_VERA_DEATH          -1564094
 #define SAY_VERA_SPECIAL1       -1564078
 #define SAY_VERA_SPECIAL2       -1564082
-	 	 
+
 #define SAY_MALA_SLAY           -1564087
 #define SAY_MALA_COMNT          -1564090
 #define SAY_MALA_DEATH          -1564095
 #define SAY_MALA_SPECIAL1       -1564079
 #define SAY_MALA_SPECIAL2       -1564083
-	 	 
+
 #define SAY_ZERE_SLAY           -1564088
 #define SAY_ZERE_COMNT          -1564091
 #define SAY_ZERE_DEATH          -1564096
 #define SAY_ZERE_SPECIAL1       -1564080
 #define SAY_ZERE_SPECIAL2       -1564084
-	 	 
+
 #define ERROR_INST_DATA           "SD2 ERROR: Instance Data for Black Temple not set properly; Illidari Council event will not function properly."
-	 	 
+
 struct CouncilYells
 {
 	int32 entry;
 	uint32 timer;
 };
-	 	 
+
 static CouncilYells CouncilAggro[]=
 {
 	{-1564069, 5000},                                       // Gathios
@@ -64,7 +64,7 @@ static CouncilYells CouncilAggro[]=
 	{-1564071, 5000},                                       // Malande
 	{-1564072, 0},                                          // Zerevor
 };
-	 	 
+
 // Need to get proper timers for this later
 static CouncilYells CouncilEnrage[]=
 {
@@ -456,7 +456,7 @@ struct TRINITY_DLL_DECL boss_gathios_the_shattererAI : public boss_illidari_coun
 
     void JustDied(Unit *victim)
     {
-		DoScriptText(SAY_GATH_DEATH, m_creature);       
+		DoScriptText(SAY_GATH_DEATH, m_creature);
     }
 
     Unit* SelectCouncilMember()
@@ -568,12 +568,12 @@ struct TRINITY_DLL_DECL boss_high_nethermancer_zerevorAI : public boss_illidari_
 
     void KilledUnit(Unit *victim)
     {
-		DoScriptText(SAY_ZERE_SLAY, m_creature);      
+		DoScriptText(SAY_ZERE_SLAY, m_creature);
     }
 
     void JustDied(Unit *victim)
     {
-		DoScriptText(SAY_ZERE_DEATH, m_creature);        
+		DoScriptText(SAY_ZERE_DEATH, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -656,12 +656,12 @@ struct TRINITY_DLL_DECL boss_lady_malandeAI : public boss_illidari_councilAI
 
     void KilledUnit(Unit *victim)
     {
-		DoScriptText(SAY_MALA_SLAY, m_creature);        
+		DoScriptText(SAY_MALA_SLAY, m_creature);
     }
 
     void JustDied(Unit *victim)
     {
-		DoScriptText(SAY_MALA_DEATH, m_creature);       
+		DoScriptText(SAY_MALA_DEATH, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -730,7 +730,7 @@ struct TRINITY_DLL_DECL boss_veras_darkshadowAI : public boss_illidari_councilAI
 
     void KilledUnit(Unit *victim)
     {
-		DoScriptText(SAY_VERA_SLAY, m_creature);        
+		DoScriptText(SAY_VERA_SLAY, m_creature);
     }
 
     void JustDied(Unit *victim)

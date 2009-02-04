@@ -225,7 +225,7 @@ class TRINITY_DLL_SPEC Group
 
             return (mslot1->group==slot2->group);
         }
-		
+
 		bool HasFreeSlotSubGroup(uint8 subgroup) const
 		{
 			return (m_subGroupsCounts && m_subGroupsCounts[subgroup] < MAXGROUPSIZE);
@@ -348,15 +348,15 @@ class TRINITY_DLL_SPEC Group
         bool _setMainAssistant(const uint64 &guid);
 
         void _homebindIfInstance(Player *player);
-		
+
 		void _initRaidSubGroupsCounter()
 		{
 			// Sub group counters initialization
 			if (!m_subGroupsCounts)
 				m_subGroupsCounts = new uint8[MAXRAIDSIZE / MAXGROUPSIZE];
-				
+
 			memset((void*)m_subGroupsCounts, 0, (MAXRAIDSIZE / MAXGROUPSIZE)*sizeof(uint8));
-			
+
 			for (member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
 				++m_subGroupsCounts[itr->group];
 		}
@@ -380,13 +380,13 @@ class TRINITY_DLL_SPEC Group
             }
             return m_memberSlots.end();
         }
-		
+
 		void SubGroupCounterIncrease(uint8 subgroup)
 		{
 			if (m_subGroupsCounts)
 				++m_subGroupsCounts[subgroup];
 		}
-		
+
 		void SubGroupCounterDecrease(uint8 subgroup)
 		{
 			if (m_subGroupsCounts)

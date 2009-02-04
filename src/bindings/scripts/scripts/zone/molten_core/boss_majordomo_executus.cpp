@@ -28,18 +28,18 @@ EndScriptData */
 #define SAY_SLAY            -1409005
 #define SAY_SPECIAL         -1409006
 #define SAY_DEFEAT          -1409007
-	 	 
+
 #define SAY_SUMMON_MAJ      -1409008
 #define SAY_ARRIVAL1_RAG    -1409009
 #define SAY_ARRIVAL2_MAJ    -1409010
 #define SAY_ARRIVAL3_RAG    -1409011
 #define SAY_ARRIVAL5_RAG    -1409012
-	 	 
+
 #define SPAWN_RAG_X         838.51
 #define SPAWN_RAG_Y         -829.84
 #define SPAWN_RAG_Z         -232.00
 #define SPAWN_RAG_O         1.70
-	 	 
+
 #define SPELL_MAGIC_REFLECTION      20619
 #define SPELL_DAMAGE_REFLECTION     21075
 

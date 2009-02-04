@@ -281,7 +281,7 @@ public:
     void WaypointReached(uint32 i)
     {
         Unit *pTemp = Unit::GetUnit(*m_creature,PlayerGUID);
-        
+
         if( !pTemp )
             return;
 
@@ -408,7 +408,7 @@ CreatureAI* GetAI_npc_kservantAI(Creature *_Creature)
     kservantAI->AddWaypoint(54, -1850.060669, 5472.610840, 0.857320, 9000);
     kservantAI->AddWaypoint(55, -1850.060669, 5472.610840, 0.857320, 9000);
     kservantAI->AddWaypoint(56, -1850.060669, 5472.610840, 0.857320, 4000);
-    
+
     return (CreatureAI*)kservantAI;
 }
 
@@ -630,12 +630,12 @@ bool GossipHello_npc_khadgar(Player *player, Creature *creature)
 {
 	if (creature->isQuestGiver())
 		player->PrepareQuestMenu(creature->GetGUID());
-	
+
 	if(!player->hasQuest(10211))
 		player->ADD_GOSSIP_ITEM(0, KHADGAR_GOSSIP_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
 		player->SEND_GOSSIP_MENU(9243, creature->GetGUID());
-	
+
 	return true;
 }
 

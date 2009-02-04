@@ -46,7 +46,7 @@ struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
 		HeroicMode = m_creature->GetMap()->IsHeroic();
 		Reset();
 	}
-	 	 
+
 	ScriptedInstance *pInstance;
 	bool HeroicMode;
 
@@ -75,7 +75,7 @@ struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
 				m_creature->DealDamage(who, who->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 			}
 		}
-	 	 
+
 		ScriptedAI::MoveInLineOfSight(who);
 	}
 

@@ -58,7 +58,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
         MagtheridonGUID = 0;
         ChannelerGUID.clear();
         DoorGUID = 0;
-        ColumnGUID.clear();      
+        ColumnGUID.clear();
 
         CageTimer = 0;
         RespawnTimer = 0;

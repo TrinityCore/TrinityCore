@@ -40,19 +40,19 @@ class WaypointStore
 {
     private :
 		uint32	records;
-			
+
 	public:
         void UpdatePath(uint32 id);
 		void Load();
         void Free();
-        
+
         WaypointPath* GetPath(uint32 id)
         {
 			if(waypoint_map.find(id) != waypoint_map.end())
                 return waypoint_map[id];
 			else return 0;
 		}
-		
+
 		inline uint32 GetRecordsCount() { return records; }
 };
 

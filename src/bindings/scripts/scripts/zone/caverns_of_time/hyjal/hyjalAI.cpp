@@ -34,7 +34,7 @@ float AllianceBase[4][3]=
 };
 
 // Locations for summoning waves in Horde base
-float HordeBase[4][3]=         
+float HordeBase[4][3]=
 {
     {5554.399, -2581.419, 1480.820},
     {5538.996, -2577.742, 1479.790},
@@ -83,7 +83,7 @@ void hyjalAI::Reset()
 			break;
     }
 
-    //Bools 
+    //Bools
     EventBegun = false;
     FirstBossDead = false;
     SecondBossDead = false;
@@ -131,7 +131,7 @@ void hyjalAI::EnterEvadeMode()
 
     if(m_creature->isAlive())
         m_creature->GetMotionMaster()->MoveTargetedHome();
-	
+
 	m_creature->SetLootRecipient(NULL);
 
     InCombat = false;
@@ -295,12 +295,12 @@ void hyjalAI::Talk(uint32 id)
 void hyjalAI::UpdateWorldState(uint32 id, uint32 state)
 {
     Map * map = m_creature->GetMap();
-    
-    if(!map->IsDungeon()) 
+
+    if(!map->IsDungeon())
         return;
 
     Map::PlayerList const& players = map->GetPlayers();
-	 
+
     if (!players.isEmpty())
     {
             for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)

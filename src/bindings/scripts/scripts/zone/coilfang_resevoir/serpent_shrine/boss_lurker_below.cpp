@@ -52,7 +52,7 @@ EndScriptData */
 #define SPELL_ARCINGSMASH	38761 // Wrong SpellId. Can't find the right one.
 #define SPELL_HAMSTRING		26211
 
-float AddPos[9][3] = 
+float AddPos[9][3] =
 {
 	{2.8553810, -459.823914, -19.182686},	//MOVE_AMBUSHER_1 X, Y, Z
 	{12.400000, -466.042267, -19.182686},	//MOVE_AMBUSHER_2 X, Y, Z
@@ -64,7 +64,7 @@ float AddPos[9][3] =
     {14.388216, -423.468018, -19.625271},	//MOVE_GUARDIAN_2 X, Y, Z
 	{42.471519, -445.115295, -19.769423}	//MOVE_GUARDIAN_3 X, Y, Z
 };
- 
+
 enum RotationType
 {
 	NOROTATE = 0,
@@ -74,7 +74,7 @@ enum RotationType
 
 struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 {
-    boss_the_lurker_belowAI(Creature *c) : Scripted_NoMovementAI(c) 
+    boss_the_lurker_belowAI(Creature *c) : Scripted_NoMovementAI(c)
 	{
 		pInstance = ((ScriptedInstance*)c->GetInstanceData());
 		Reset();
@@ -133,7 +133,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 		}*/
 
  	}
- 
+
      void MoveInLineOfSight(Unit *who)
      {
 		if (!who || m_creature->getVictim())
@@ -143,18 +143,18 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
         {
             float attackRadius = m_creature->GetAttackDistance(who);
             if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
-				AttackStart(who);           
+				AttackStart(who);
         }
      }
- 
+
 	 void Aggro(Unit *who)
 	 {
 		 if(pInstance)
 			pInstance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);
-		
-		 if (!who || m_creature->getVictim()) 
+
+		 if (!who || m_creature->getVictim())
 			return;
-		
+
 		 if (who->isTargetableForAttack() && who->isInAccessiblePlaceFor(m_creature) && m_creature->IsHostileTo(who))
 		 {
 			 float attackRadius = m_creature->GetAttackDistance(who);
@@ -170,7 +170,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 	 }
 
 	 void Rotate(const uint32 diff)
-	 { 		
+	 {
 		 bool Spout = false;
 		 switch (RotType)
 		 {
@@ -211,7 +211,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 		 if(SpoutAnimTimer<diff)
 		 {
 			 DoCast(m_creature,SPELL_SPOUT_ANIM,true);
-             SpoutAnimTimer = 1000;			
+             SpoutAnimTimer = 1000;
          }else SpoutAnimTimer-=diff;
 
          Map *map = m_creature->GetMap();
@@ -241,7 +241,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 		 RotTimer=20000;
 
 		 if(victim)
-			 SpoutAngle = m_creature->GetAngle(victim);	
+			 SpoutAngle = m_creature->GetAngle(victim);
 		 m_creature->MonsterTextEmote(EMOTE_SPOUT,0,true);
 		 //DoCast(m_creature,SPELL_SPOUT_BREATH);//take breath anim
 	 }
@@ -260,7 +260,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 
 			 if (PlayerList.isEmpty())
 				 return;
-	 	 
+
 			 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
 			 {
 				 if (i->getSource()->isAlive() && i->getSource()->IsInWater() && !i->getSource()->HasAura(SPELL_SCALDINGWATER, 0))
@@ -281,7 +281,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 				 Submerged = true;
 			 }else PhaseTimer-=diff;
 		 }
-		 
+
 		 if(!Submerged && RotType == NOROTATE)//is not spouting and not submerged
 		 {
 			 if(SpoutTimer < diff)
@@ -318,13 +318,13 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 
 			 if(WaterboltTimer < diff)
 			 {
-				 Unit* target = SelectUnit(SELECT_TARGET_NEAREST,0,14,true);				
+				 Unit* target = SelectUnit(SELECT_TARGET_NEAREST,0,14,true);
 				 if(!target)
 				 {
 					 target = SelectUnit(SELECT_TARGET_RANDOM,0);
 					 if(target)
-						 DoCast(target,SPELL_WATERBOLT);					
-				 }		
+						 DoCast(target,SPELL_WATERBOLT);
+				 }
 				 WaterboltTimer = 3000;
 			 }else WaterboltTimer -= diff;
 
@@ -352,10 +352,10 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 				 PhaseTimer = 120000;
 				 return;
 			 }else PhaseTimer-=diff;
-			 
+
 			 if(!m_creature->isInCombat())
 				 m_creature->SetInCombatState(false);
-			 
+
 			 if(!Spawned)
 			 {
 				 m_creature->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -397,7 +397,7 @@ CreatureAI* GetAI_mob_coilfang_guardian(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mob_coilfang_ambusherAI : public Scripted_NoMovementAI
 {
-    mob_coilfang_ambusherAI(Creature *c) : Scripted_NoMovementAI(c) 
+    mob_coilfang_ambusherAI(Creature *c) : Scripted_NoMovementAI(c)
 	{
 		Reset();
 		SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_SHOOT);
@@ -407,7 +407,7 @@ struct TRINITY_DLL_DECL mob_coilfang_ambusherAI : public Scripted_NoMovementAI
 
 	uint32 MultiShotTimer;
 	uint32 ShootBowTimer;
-    
+
     void Reset()
     {
 		MultiShotTimer = 10000;
@@ -417,7 +417,7 @@ struct TRINITY_DLL_DECL mob_coilfang_ambusherAI : public Scripted_NoMovementAI
 
 	void Aggro(Unit *who)
     {
-		
+
     }
 
     void MoveInLineOfSight(Unit *who)
@@ -434,7 +434,7 @@ struct TRINITY_DLL_DECL mob_coilfang_ambusherAI : public Scripted_NoMovementAI
     {
 		if(MultiShotTimer < diff)
 		{
-			if(m_creature->getVictim())			
+			if(m_creature->getVictim())
 				DoCast(m_creature->getVictim(), SPELL_SPREAD_SHOT, true);
 
 			MultiShotTimer = 10000;
@@ -444,7 +444,7 @@ struct TRINITY_DLL_DECL mob_coilfang_ambusherAI : public Scripted_NoMovementAI
 		if(ShootBowTimer < diff)
 		{
 			Unit* target = NULL;
-			target = SelectUnit(SELECT_TARGET_RANDOM, 0);	
+			target = SelectUnit(SELECT_TARGET_RANDOM, 0);
 			int bp0 = 1100;
 			if(target)
 				m_creature->CastCustomSpell(target,SPELL_SHOOT,&bp0,NULL,NULL,true);

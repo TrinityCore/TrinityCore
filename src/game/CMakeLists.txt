@@ -76,7 +76,7 @@ SET(game_STAT_SRCS
    Creature.h
    CreatureGroups.cpp
    CreatureGroups.h
-   debugcmds.cpp
+   Debugcmds.cpp
    DestinationHolder.cpp
    DestinationHolder.h
    DestinationHolderImp.h
@@ -236,7 +236,7 @@ SET(game_STAT_SRCS
    TicketHandler.cpp
    TicketMgr.cpp
    TicketMgr.h 
-   tools.cpp
+   Tools.cpp
    Tools.h
    TotemAI.cpp
    TotemAI.h

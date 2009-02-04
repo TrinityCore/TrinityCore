@@ -29,7 +29,7 @@ EndScriptData */
 #define SPELL_MANASTORM          21097
 #define SPELL_CHILL              21098
 #define SPELL_FROSTBREATH        21099
-#define SPELL_REFLECT            22067                      
+#define SPELL_REFLECT            22067
 #define SPELL_CLEAVE              8255                      //Perhaps not right ID
 #define SPELL_ENRAGE             23537
 

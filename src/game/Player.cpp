@@ -289,7 +289,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this)
     m_divider = 0;
 
     m_ExtraFlags = 0;
-   
+
     // players always accept
     if(GetSession()->GetSecurity() == SEC_PLAYER)
         SetAcceptWhispers(true);
@@ -1583,13 +1583,13 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     {
         GetSession()->SendNotification(LANG_NO_ENTER_CHAMPIONS_HALL);
         return false;
-    } 
+    }
 
 	if(mapid == 450 && GetTeam() == ALLIANCE)
 	{
         GetSession()->SendNotification(LANG_NO_ENTER_HALL_OF_LEGENDS);
         return false;
-    } 
+    }
 
     // client without expansion support
     if(GetSession()->Expansion() < mEntry->Expansion())
@@ -8263,7 +8263,7 @@ void Player::SendInitWorldStates(bool forceZone, uint32 forceZoneId)
                     data << uint32(2474)  << uint32(50);  //: ally / horde slider percentage, 100 for ally, 0 for horde  // show only in direct vicinity!
                     data << uint32(2473)  << uint32(0);   //: ally / horde slider display                                // show only in direct vicinity!
                     data << uint32(0x9a8) << uint32(0x0);           // 20 // show the neutral stadium icon      // 2472
-                    data << uint32(0x9a7) << uint32(0x0);           // 21 // show the ally stadium icon         // 2471 
+                    data << uint32(0x9a7) << uint32(0x0);           // 21 // show the ally stadium icon         // 2471
                     data << uint32(0x9a6) << uint32(0x1);           // 22 // show the horde stadium icon        // 2470
                 }
             }
@@ -8356,7 +8356,7 @@ void Player::SendInitWorldStates(bool forceZone, uint32 forceZoneId)
                     data << uint32(0x9e1) << uint32(0x0);           // 10 //2529
                     data << uint32(0x9e0) << uint32(0x0);           // 11
                     data << uint32(0x9df) << uint32(0x0);           // 12
-                    data << uint32(0xa5d) << uint32(0x1);           // 13 //2653 
+                    data << uint32(0xa5d) << uint32(0x1);           // 13 //2653
                     data << uint32(0xa5c) << uint32(0x0);           // 14 //2652 east beacon neutral
                     data << uint32(0xa5b) << uint32(0x1);           // 15 horde
                     data << uint32(0xa5a) << uint32(0x0);           // 16 ally
@@ -8372,7 +8372,7 @@ void Player::SendInitWorldStates(bool forceZone, uint32 forceZoneId)
                     data << uint32(0xa00) << uint32(0x0);           // 26 // 2560
                     data << uint32(0x9ff) << uint32(0x1);           // 27
                     data << uint32(0x9fe) << uint32(0x0);           // 28
-                    data << uint32(0x9fd) << uint32(0x0);           // 29 
+                    data << uint32(0x9fd) << uint32(0x0);           // 29
                     data << uint32(0x9fc) << uint32(0x1);           // 30
                     data << uint32(0x9fb) << uint32(0x0);           // 31
                     data << uint32(0xa62) << uint32(0x0);           // 32 // 2658
@@ -12403,6 +12403,9 @@ void Player::ApplyEnchantment(Item *item,EnchantmentSlot slot,bool apply, bool a
             case ITEM_ENCHANTMENT_TYPE_USE_SPELL:
                 // processed in Player::CastItemUseSpell
                 break;
+            case ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET:
+                // nothing do..
+                break;
             default:
                 sLog.outError("Unknown item enchantment (id = %d) display type: %d", enchant_id, enchant_display_type);
                 break;
@@ -16053,7 +16056,7 @@ void Player::SaveToDB()
     // save pet (hunter pet level and experience and all type pets health/mana).
     if(Pet* pet = GetPet())
         pet->SavePetToDB(PET_SAVE_AS_CURRENT);
-        
+
     //to prevent access to DB we should cache some data, which is used very often
     /*CachePlayerInfoMap::iterator _iter = objmgr.m_mPlayerInfoMap.find(GetGUIDLow());
     if(_iter != objmgr.m_mPlayerInfoMap.end())//skip new players
@@ -19807,13 +19810,13 @@ void Player::RemovePossess(bool attack)
                     target->GetMotionMaster()->Clear();
                     target->GetMotionMaster()->MoveTargetedHome();
                 }
-            } 
+            }
             else
             {
                 target->GetMotionMaster()->Clear();
                 target->GetMotionMaster()->MoveTargetedHome();
             }
-            
+
             // Add high amount of threat on the player
             if(attack)
                 target->AddThreat(this, 1000000.0f);
