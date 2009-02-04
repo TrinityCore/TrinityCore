@@ -6,7 +6,10 @@ INSERT INTO `battleground_template` VALUES
 (11,5,5,10,80,1364,0,1365,0);
 
 -- command
-DELETE FROM `command` WHERE name = 'reload';
+DELETE FROM `command` WHERE `name` = 'reload all_locales';
+INSERT INTO `command` VALUES
+('reload all_locales',3,'Syntax: .reload all_locales\r\n\r\nReload all `locales_*` tables with reload support added and that can be _safe_ reloaded.');
+
 DELETE FROM `command` WHERE `name` = 'modify runicpower';
 INSERT INTO `command` VALUES
 ('modify runicpower',1,'Syntax: .modify runicpower #newrunicpower\r\n\r\nModify the runic power of the selected player. If no player is selected, modify your runic power.');
@@ -57,7 +60,7 @@ INSERT INTO `trinity_string` VALUES
 (1109,'%d - %s %s %s %s',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (1122,'(%u/%u +perm %u +temp %u)',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 
--- data mangos 4.2.2009
+-- data from mangos.sql
 -- playercreateinfo_action
 INSERT IGNORE INTO `playercreateinfo_action` (`race`, `class`, `button`, `action`, `type`, `misc`) VALUES
 (1, 1, 1, 78, 0, 0),
@@ -9118,3 +9121,17 @@ INSERT INTO `item_template` VALUES
 (38145,1,0,-1,'Deathweave Bag',1282,1,32768,1,0,0,18,-1,-1,35,0,0,0,0,0,0,0,0,0,1,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,-1,0,0,0,0,-1,0,-1,0,0,0,0,-1,0,-1,0,0,0,0,-1,0,-1,0,0,0,0,-1,0,-1,1,'',0,0,0,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,0,0,'',0,0,0,0),
 (38147,4,0,-1,'Corrupted Band',963,2,32768,1,534,133,11,-1,-1,60,55,0,0,0,0,0,0,0,0,1,0,3,4,11,3,6,32,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,-1,0,0,0,0,-1,0,-1,0,0,0,0,-1,0,-1,0,0,0,0,-1,0,-1,0,0,0,0,-1,0,-1,1,'',0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,0,0,'',0,0,0,0),
 (41751,0,5,-1,'Black Mushroom',36728,1,0,1,100,5,0,-1,-1,65,55,0,0,0,0,0,0,0,0,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,27094,0,-1,0,0,11,1000,0,0,0,0,-1,0,-1,0,0,0,0,-1,0,-1,0,0,0,0,-1,0,-1,0,0,0,0,-1,0,-1,0,'',0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,0,0,'',0,0,0,0);
+
+DELETE FROM `playercreateinfo` WHERE class = 6;
+INSERT INTO `playercreateinfo` VALUES
+(1 ,6,609,4298,2355.84,-5664.77,426.028),
+(2 ,6,609,4298,2358.44,-5666.9, 426.023),
+(3 ,6,609,4298,2358.44,-5666.9, 426.023),
+(4 ,6,609,4298,2356.21,-5662.21,426.026),
+(5 ,6,609,4298,2356.21,-5662.21,426.026),
+(6 ,6,609,4298,2358.17,-5663.21,426.027),
+(7 ,6,609,4298,2355.05,-5661.7, 426.026),
+(8 ,6,609,4298,2355.05,-5661.7, 426.026),
+(10,6,609,4298,2355.84,-5664.77,426.028),
+(11,6,609,4298,2358.17,-5663.21,426.027);
+
