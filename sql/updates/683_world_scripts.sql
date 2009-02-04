@@ -1,2 +1,2 @@
-update quest_template set specialflags=2 where entry=665;
-update creature_template set scriptname='npc_professor_phizzlethorpe' where entry=2768;
+UPDATE `quest_template` SET `SpecialFlags`=2 WHERE `entry`=665;
+UPDATE `creature_template` SET `ScriptName`='npc_professor_phizzlethorpe' WHERE `entry`=2768;

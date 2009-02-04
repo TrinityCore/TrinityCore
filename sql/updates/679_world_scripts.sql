@@ -1,1 +1,1 @@
-update creature_template set scriptname='npc_deathstalker_erland' where entry=1978;
+UPDATE `creature_template` SET `ScriptName`='npc_deathstalker_erland' WHERE `entry`=1978;
