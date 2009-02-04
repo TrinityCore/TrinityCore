@@ -58,7 +58,7 @@ namespace FactorySelector
         if(!ai_factory)
         {
             if( creature->isGuard() )
-                ai_factory = ai_registry.GetRegistryItem("GuardAI"); 
+                ai_factory = ai_registry.GetRegistryItem("GuardAI");
             else if(creature->isPet() || (creature->isCharmed() && !creature->isPossessed()))
                 ai_factory = ai_registry.GetRegistryItem("PetAI");
             else if(creature->isTotem())

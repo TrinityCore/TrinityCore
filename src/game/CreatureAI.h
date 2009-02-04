@@ -129,7 +129,7 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
         virtual void SpellHit(Unit*, const SpellEntry*) {}
 
         // Called when spell hits a target
-        virtual void SpellHitTarget(Unit* target, const SpellEntry*) {} 
+        virtual void SpellHitTarget(Unit* target, const SpellEntry*) {}
 
         // Called when vitim entered water and creature can not enter water
         virtual bool canReachByRangeAttack(Unit*) { return false; }

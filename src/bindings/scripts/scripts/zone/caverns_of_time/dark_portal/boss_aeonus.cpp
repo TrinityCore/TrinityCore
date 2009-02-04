@@ -46,7 +46,7 @@ struct TRINITY_DLL_DECL boss_aeonusAI : public ScriptedAI
 		HeroicMode = m_creature->GetMap()->IsHeroic();
 		Reset();
 	}
-	 	 
+
 	ScriptedInstance *pInstance;
 	bool HeroicMode;
 
@@ -77,7 +77,7 @@ struct TRINITY_DLL_DECL boss_aeonusAI : public ScriptedAI
 				m_creature->DealDamage(who, who->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 			}
 		}
-	 	 
+
 		ScriptedAI::MoveInLineOfSight(who);
 	}
 
@@ -88,7 +88,7 @@ struct TRINITY_DLL_DECL boss_aeonusAI : public ScriptedAI
 		 if (pInstance)
          {
 			 pInstance->SetData(TYPE_RIFT,DONE);
-             pInstance->SetData(TYPE_MEDIVH,DONE);//FIXME: later should be removed 
+             pInstance->SetData(TYPE_MEDIVH,DONE);//FIXME: later should be removed
          }
     }
 

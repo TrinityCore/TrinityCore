@@ -27,19 +27,19 @@ EndScriptData */
 #define SAY_STAL_AGGRO          -1533023
 #define SAY_STAL_SLAY           -1533024
 #define SAY_STAL_DEATH          -1533025
-	 	 
+
 #define SPELL_POWERSURGE        28134
-	 	 
+
 //Feugen
 #define SAY_FEUG_AGGRO          -1533026
 #define SAY_FEUG_SLAY           -1533027
 #define SAY_FEUG_DEATH          -1533028
-	 	 
+
 #define SPELL_MANABURN          28135
 
 //both
 #define SPELL_WARSTOMP          28125
-	 	 
+
 //Thaddus
 #define SAY_GREET               -1533029
 #define SAY_AGGRO1              -1533030

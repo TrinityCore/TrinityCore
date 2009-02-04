@@ -318,7 +318,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
             Group *group = GetPlayer()->GetGroup();
             if(!group || !group->isRaidGroup() || group->isBGGroup())
                 return;
-           
+
             WorldPacket data;
             ChatHandler::FillMessageData(&data, this, CHAT_MSG_RAID, lang, "", 0, msg.c_str(),NULL);
             group->BroadcastPacket(&data);

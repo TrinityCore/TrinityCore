@@ -124,7 +124,7 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
 					return plr;
 			}
 		}
-	 	 
+
 		debug_log("TSCR: Instance Black Temple: GetPlayerInMap, but PlayerList is empty!");
 		return NULL;
 	}
@@ -132,13 +132,13 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
 	void HandleGameObject(uint64 guid, uint32 state)
 	{
 		Player *player = GetPlayerInMap();
-	 
+
 		if (!player || !guid)
 		{
 			debug_log("TSCR: Black Temple: HandleGameObject fail");
 			return;
 		}
-	 	 
+
 		if (GameObject *go = GameObject::GetGameObject(*player,guid))
 			go->SetGoState(state);
 	}
@@ -224,13 +224,13 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
                 HandleGameObject(NajentusGate, 0);
             }
             Encounters[1] = data; break;
-        case DATA_SHADEOFAKAMAEVENT:          
+        case DATA_SHADEOFAKAMAEVENT:
             if(data == IN_PROGRESS)
             {
                 HandleGameObject(ShadeOfAkamaDoor, 1);
             }else HandleGameObject(ShadeOfAkamaDoor, 0);
             Encounters[2] = data; break;
-        case DATA_TERONGOREFIENDEVENT:        
+        case DATA_TERONGOREFIENDEVENT:
             if(data == IN_PROGRESS)
             {
                 HandleGameObject(TeronDoor, 1);
@@ -247,13 +247,13 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
                 HandleGameObject(GuurtogDoor, 0);
             }
             Encounters[4] = data; break;
-        case DATA_RELIQUARYOFSOULSEVENT:      
+        case DATA_RELIQUARYOFSOULSEVENT:
             if(data == DONE)
             {
                 HandleGameObject(TempleDoor, 0);
             }
             Encounters[5] = data;         break;
-        case DATA_MOTHERSHAHRAZEVENT: 
+        case DATA_MOTHERSHAHRAZEVENT:
             if(data == DONE)
             {
                 HandleGameObject(MotherDoor, 0);
@@ -274,15 +274,15 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
         }
 
         if (data == DONE)
-		{		 	 
+		{
             OUT_SAVE_INST_DATA;
 
 			std::ostringstream saveStream;
 			saveStream << Encounters[0] << " " << Encounters[1] << " "
-				<< Encounters[2] << " " << Encounters[3] << " " << Encounters[4] 
+				<< Encounters[2] << " " << Encounters[3] << " " << Encounters[4]
             << " " << Encounters[5] << " " << Encounters[6] << " " << Encounters[7]
             << " " << Encounters[8];
-	 	 
+
 			str_data = saveStream.str();
 
 			SaveToDB();
@@ -312,7 +312,7 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
 	{
 		return str_data.c_str();
 	}
-	 	 
+
 	void Load(const char* in)
 	{
 		if (!in)
@@ -320,18 +320,18 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
 			OUT_LOAD_INST_DATA_FAIL;
 			return;
 		}
-	 	 
+
 		OUT_LOAD_INST_DATA(in);
 
 		std::istringstream loadStream(in);
-		loadStream >> Encounters[0] >> Encounters[1] >> Encounters[2] 
-        >> Encounters[3] >> Encounters[4] >> Encounters[5] >> Encounters[6] 
+		loadStream >> Encounters[0] >> Encounters[1] >> Encounters[2]
+        >> Encounters[3] >> Encounters[4] >> Encounters[5] >> Encounters[6]
         >> Encounters[7] >> Encounters[8];
-	 	 
+
 		for(uint8 i = 0; i < ENCOUNTERS; ++i)
 			if (Encounters[i] == IN_PROGRESS)
 				Encounters[i] = NOT_STARTED;
-	 	 
+
 		OUT_LOAD_INST_DATA_COMPLETE;
 	}
 };

@@ -29,34 +29,34 @@ EndScriptData */
 #define SAY_SAPP_DIALOG3            -1533086
 #define SAY_SAPP_DIALOG4_LICH       -1533087
 #define SAY_SAPP_DIALOG5            -1533088
- 	 
+
 //when cat dies
 #define SAY_CAT_DIED                -1533089
-	 	 
+
 //when each of the 4 wing bosses dies
 #define SAY_TAUNT1                  -1533090
 #define SAY_TAUNT2                  -1533091
 #define SAY_TAUNT3                  -1533092
 #define SAY_TAUNT4                  -1533093
-	 	 
+
 #define SAY_SUMMON_MINIONS          -1533105                //start of phase 1
 
 #define SAY_AGGRO1                  -1533094                //start of phase 2
 #define SAY_AGGRO2                  -1533095
 #define SAY_AGGRO3                  -1533096
-	 	 
+
 #define SAY_SLAY1                   -1533097
 #define SAY_SLAY2                   -1533098
 
 #define SAY_DEATH                   -1533099
-	 	 
+
 #define SAY_CHAIN1                  -1533100
 #define SAY_CHAIN2                  -1533101
 #define SAY_FROST_BLAST             -1533102
-	 	 
+
 #define SAY_REQUEST_AID             -1533103                //start of phase 3
 #define SAY_ANSWER_REQUEST          -1533104                //lich king answer
-	 	 
+
 #define SAY_SPECIAL1_MANA_DET       -1533106
 #define SAY_SPECIAL3_MANA_DET       -1533107
 #define SAY_SPECIAL2_DISPELL        -1533108

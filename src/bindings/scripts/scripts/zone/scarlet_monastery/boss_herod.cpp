@@ -58,7 +58,7 @@ struct TRINITY_DLL_DECL boss_herodAI : public ScriptedAI
     void Aggro(Unit *who)
     {
 		DoScriptText(SAY_AGGRO, m_creature);
-		DoCast(m_creature,SPELL_RUSHINGCHARGE);      
+		DoCast(m_creature,SPELL_RUSHINGCHARGE);
     }
 
 	 void KilledUnit(Unit *victim)
@@ -167,7 +167,7 @@ CreatureAI* GetAI_mob_scarlet_trainee(Creature* _Creature)
 
 	for(uint32 i = 0; i < 12; ++i)
 		thisAI->AddWaypoint(i, Location[i][0], Location[i][1], Location[i][2], Wait[i][0]);
-	 	 
+
 	return ((CreatureAI*)thisAI);
 }
 

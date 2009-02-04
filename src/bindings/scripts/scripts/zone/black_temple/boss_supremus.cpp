@@ -236,23 +236,23 @@ struct TRINITY_DLL_DECL npc_volcanoAI : public ScriptedAI
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Reset();
     }
-    
+
     ScriptedInstance *pInstance;
-    
+
     uint32 CheckTimer;
     bool Eruption;
-    
+
     void Reset()
     {
         CheckTimer = 1500;
         Eruption = false;
-        
+
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
-    
+
     void Aggro(Unit *who) {}
-    
+
     void MoveInLineOfSight(Unit *who)
     {
         return; // paralyze the npc
@@ -263,7 +263,7 @@ struct TRINITY_DLL_DECL npc_volcanoAI : public ScriptedAI
         if(CheckTimer < diff)
         {
             uint64 SupremusGUID = pInstance->GetData64(DATA_SUPREMUS);
-            Creature* Supremus = ((Creature*)Unit::GetUnit((*m_creature), SupremusGUID));  
+            Creature* Supremus = ((Creature*)Unit::GetUnit((*m_creature), SupremusGUID));
             if(!Eruption && !((boss_supremusAI*)Supremus->AI())->Phase1)
             {
                 Eruption = true;

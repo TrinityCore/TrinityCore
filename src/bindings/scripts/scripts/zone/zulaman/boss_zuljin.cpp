@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_ZulJin
 SD%Complete: 85%
-SDComment: 
+SDComment:
 EndScriptData */
 
 #include "precompiled.h"
@@ -203,7 +203,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
         Pillar_Of_Fire_Timer = 7000;
 
         ClawTargetGUID = 0;
-        TankGUID = 0;        
+        TankGUID = 0;
 
         Summons.DespawnAll();
 
@@ -218,14 +218,14 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
             pInstance->SetData(DATA_ZULJINEVENT, IN_PROGRESS);
 
         DoZoneInCombat();
-        
+
         DoYell(YELL_INTRO,LANG_UNIVERSAL,NULL);
         DoPlaySoundToSet(m_creature, SOUND_INTRO);
         SpawnAdds();
         EnterPhase(0);
     }
 
-    void KilledUnit(Unit* victim)    
+    void KilledUnit(Unit* victim)
     {
         if(Intro_Timer)
             return;
@@ -239,11 +239,11 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
         case 1:
             DoYell(YELL_KILL_TWO, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_KILL_TWO);
-            break;        
+            break;
         }
     }
 
-    void JustDied(Unit* Killer)    
+    void JustDied(Unit* Killer)
     {
         if(pInstance)
             pInstance->SetData(DATA_ZULJINEVENT, DONE);
@@ -385,7 +385,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
         }
         Phase = NextPhase;
     }
-    
+
     void UpdateAI(const uint32 diff)
     {
         if(!TankGUID)
@@ -584,7 +584,7 @@ struct TRINITY_DLL_DECL feather_vortexAI : public ScriptedAI
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
         if(spell->Id == SPELL_ZAP_INFORM)
-            m_creature->CastSpell(caster, SPELL_ZAP_DAMAGE, true);           
+            m_creature->CastSpell(caster, SPELL_ZAP_DAMAGE, true);
     }
 
     void UpdateAI(const uint32 diff)
