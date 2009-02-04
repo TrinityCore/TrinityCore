@@ -59,7 +59,7 @@ npc_willixAI(Creature *c) : npc_escortAI(c) {Reset();}
 		case 3:
 			m_creature->HandleEmoteCommand(EMOTE_STATE_POINT);
 			DoScriptText(SAY_POINT, m_creature, player);
-			break; 
+			break;
 		case 4:
 			m_creature->SummonCreature(ENTRY_BOAR, 2137.66, 1843.98, 48.08, 1.54, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
 			break;
@@ -149,7 +149,7 @@ CreatureAI* GetAI_npc_willix(Creature *_Creature)
 	thisAI->AddWaypoint(5, 2140.22, 1845.02, 48.32);
 	thisAI->AddWaypoint(6, 2131.5, 1804.29, 46.85);
 	thisAI->AddWaypoint(7, 2096.18, 1789.03, 51.13);
-	thisAI->AddWaypoint(8, 2074.46, 1780.09, 55.64, 3000); 
+	thisAI->AddWaypoint(8, 2074.46, 1780.09, 55.64, 3000);
 	thisAI->AddWaypoint(9, 2055.12, 1768.67, 58.46, 5000);
 	thisAI->AddWaypoint(10, 2037.83, 1748.62, 60.27);
 	thisAI->AddWaypoint(11, 2037.51, 1728.94, 60.85);
@@ -161,7 +161,7 @@ CreatureAI* GetAI_npc_willix(Creature *_Creature)
 	thisAI->AddWaypoint(17, 2123.96, 1732.56, 52.27);
 	thisAI->AddWaypoint(18, 2153.82, 1728.73, 51.92);
 	thisAI->AddWaypoint(19, 2163.49, 1706.33, 54.42);
-	thisAI->AddWaypoint(20, 2158.75, 1695.98, 55.70); 
+	thisAI->AddWaypoint(20, 2158.75, 1695.98, 55.70);
 	thisAI->AddWaypoint(21, 2142.6, 1680.72, 58.24);
 	thisAI->AddWaypoint(22, 2118.31, 1671.54, 59.21);
 	thisAI->AddWaypoint(23, 2086.02, 1672.04, 61.24);
@@ -188,7 +188,7 @@ CreatureAI* GetAI_npc_willix(Creature *_Creature)
 	thisAI->AddWaypoint(44, 1954.87, 1592.02, 82.18);
 	thisAI->AddWaypoint(45, 1948.35, 1571.35, 80.96, 30000);
 	thisAI->AddWaypoint(46, 1947.02, 1566.42, 81.80, 30000);
-	
+
 	return (CreatureAI*)thisAI;
 }
 

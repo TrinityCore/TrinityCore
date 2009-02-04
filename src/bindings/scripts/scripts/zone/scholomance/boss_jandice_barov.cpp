@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_jandicebarov
 SD%Complete: 100
-SDComment: 
+SDComment:
 SDCategory: Scholomance
 EndScriptData */
 
@@ -80,7 +80,7 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
     {
         if (Invisible && Invisible_Timer < diff)
         {
-            //Become visible again 
+            //Become visible again
             m_creature->setFaction(14);
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,11073);     //Jandice Model
@@ -137,7 +137,7 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
         //            {
         //                  //Cast
         //                DoCast(m_creature->getVictim(),SPELL_ILLUSION);
-        //                                
+        //
         //                  //3 Illusion will be summoned
         //                  if (Illusioncounter < 3)
         //                  {
@@ -149,7 +149,7 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
         //                      Illusion_Timer = 15000;
         //                      Illusioncounter=0;
         //                  }
-        //                  
+        //
         //            }else Illusion_Timer -= diff;
 
         DoMeleeAttackIfReady();
@@ -166,7 +166,7 @@ struct TRINITY_DLL_DECL mob_illusionofjandicebarovAI : public ScriptedAI
 
     void Reset()
     {
-        Cleave_Timer = 2000 + rand()%6000;       
+        Cleave_Timer = 2000 + rand()%6000;
         m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
     }
 
@@ -192,7 +192,7 @@ struct TRINITY_DLL_DECL mob_illusionofjandicebarovAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-}; 
+};
 
 
 CreatureAI* GetAI_boss_jandicebarov(Creature *_Creature)

@@ -247,7 +247,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
             m_charmInfo->GetActionBarEntry(index)->SpellOrAction = atol((*iter).c_str());
 
             // patch for old data where some spells have ACT_DECIDE but should have ACT_CAST
-            // so overwrite old state 
+            // so overwrite old state
             SpellEntry const *spellInfo = sSpellStore.LookupEntry(m_charmInfo->GetActionBarEntry(index)->SpellOrAction);
             if (spellInfo && spellInfo->AttributesEx & SPELL_ATTR_EX_UNAUTOCASTABLE_BY_PET) m_charmInfo->GetActionBarEntry(index)->Type = ACT_ENABLED;
         }
@@ -1674,7 +1674,7 @@ void Pet::ToggleAutocast(uint32 spellid, bool apply)
     //if(const SpellEntry *tempSpell = GetSpellStore()->LookupEntry(spellid))
     //    if(tempSpell->EffectImplicitTargetA[0] != TARGET_ALL_AROUND_CASTER
     //        && tempSpell->EffectImplicitTargetA[0] != TARGET_CHAIN_DAMAGE)
-    //        return;    
+    //        return;
 
     PetSpellMap::const_iterator itr = m_spells.find(spellid);
 

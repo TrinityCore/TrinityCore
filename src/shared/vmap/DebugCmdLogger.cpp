@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
@@ -25,7 +25,7 @@ using namespace G3D;
 namespace VMAP
 {
 
-    bool CommandFileRW::appendCmd(const Command& 
+    bool CommandFileRW::appendCmd(const Command&
 #ifdef _DEBUG
         pCommand
 #endif
@@ -55,7 +55,7 @@ namespace VMAP
 
     //=========================================================
 
-    bool CommandFileRW::appendCmds(const Array<Command>& 
+    bool CommandFileRW::appendCmds(const Array<Command>&
 #ifdef _DEBUG
         pCmdArray
 #endif

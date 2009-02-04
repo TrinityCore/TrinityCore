@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Guard_AI
 SD%Complete: 90
-SDComment: 
+SDComment:
 SDCategory: Guards
 EndScriptData */
 
@@ -51,7 +51,7 @@ void guardAI::Aggro(Unit *who)
 			break;
 		}
 	}
-	 	 
+
 	if (SpellEntry const *spell = m_creature->reachWithSpellAttack(who))
 		DoCastSpell(who, spell);
 }

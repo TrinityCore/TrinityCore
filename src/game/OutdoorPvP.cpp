@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -26,9 +26,9 @@
 #include "Group.h"
 #include "WorldPacket.h"
 
-OutdoorPvPObjective::OutdoorPvPObjective(OutdoorPvP * pvp) 
+OutdoorPvPObjective::OutdoorPvPObjective(OutdoorPvP * pvp)
 : m_PvP(pvp), m_ShiftPhase(0), m_ShiftMaxPhase(0), m_OldPhase(0),
-m_State(0), m_OldState(0), m_CapturePoint(0), m_NeutralValue(0), 
+m_State(0), m_OldState(0), m_CapturePoint(0), m_NeutralValue(0),
 m_ShiftMaxCaptureSpeed(0), m_CapturePointCreature(0)
 {
 }
@@ -767,7 +767,7 @@ int32 OutdoorPvPObjective::HandleOpenGo(Player *plr, uint64 guid)
     std::map<uint64,uint32>::iterator itr = m_ObjectTypes.find(guid);
     if(itr != m_ObjectTypes.end())
     {
-        return itr->second;   
+        return itr->second;
     }
     return -1;
 }

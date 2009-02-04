@@ -38,13 +38,13 @@ EndScriptData */
 #define C_CRYSTAL               10415                       //three ziggurat crystals
 #define C_BARON                 10440
 #define C_YSIDA_TRIGGER         16100
-	 	 
+
 #define C_RAMSTEIN              10439
 #define C_ABOM_BILE             10416
 #define C_ABOM_VENOM            10417
 #define C_BLACK_GUARD           10394
 #define C_YSIDA                 16031
-	 	 
+
 #define ENCOUNTERS              6
 
 struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
@@ -57,7 +57,7 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
 
 	uint32 BaronRun_Timer;
 	uint32 SlaugtherSquare_Timer;
-	 	 
+
 	uint64 serviceEntranceGUID;
 	uint64 gauntletGate1GUID;
 	uint64 ziggurat1GUID;
@@ -68,12 +68,12 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
 	uint64 portGauntletGUID;
 	uint64 portSlaugtherGUID;
 	uint64 portElderGUID;
-	 	 
+
 	uint64 baronGUID;
 	uint64 ysidaTriggerGUID;
 	std::set<uint64> crystalsGUID;
 	std::set<uint64> abomnationGUID;
-	 	 
+
 	void Initialize()
 	{
 		for(uint8 i = 0; i < ENCOUNTERS; i++)
@@ -81,10 +81,10 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
 
 		for(uint8 i = 0; i < 5; i++)
 			IsSilverHandDead[5] = false;
-	 	 
+
 		BaronRun_Timer = 0;
 		SlaugtherSquare_Timer = 0;
-	 	 
+
 		serviceEntranceGUID = 0;
 		gauntletGate1GUID = 0;
 		ziggurat1GUID = 0;
@@ -95,13 +95,13 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
 		portGauntletGUID = 0;
 		portSlaugtherGUID = 0;
 		portElderGUID = 0;
-	 	 
+
 		baronGUID = 0;
 		ysidaTriggerGUID = 0;
 		crystalsGUID.clear();
 		abomnationGUID.clear();
 	}
-	 	 
+
 	Player* GetPlayerInMap()
 	{
 		Map::PlayerList const& players = instance->GetPlayers();
@@ -114,11 +114,11 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
 					return plr;
 			}
 		}
-	 	 
+
 		debug_log("SD2: Instance Stratholme: GetPlayerInMap, but PlayerList is empty!");
 		return NULL;
 	}
-	
+
 	bool StartSlaugtherSquare()
 	{
 		//change to DONE when crystals implemented
@@ -128,11 +128,11 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
 			UpdateGoState(portSlaugtherGUID,0,false);
 			return true;
 		}
-	 	 
+
 		debug_log("SD2: Instance Stratholme: Cannot open slaugther square yet.");
 		return false;
 	}
-	 	 
+
 	//if withRestoreTime true, then newState will be ignored and GO should be restored to original state after 10 seconds
 	void UpdateGoState(uint64 goGuid, uint32 newState, bool withRestoreTime)
 	{
@@ -140,7 +140,7 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
 
 		if (!player || !goGuid)
 			return;
-	 	 
+
 		if (GameObject *go = GameObject::GetGameObject(*player, goGuid))
 		{
 			if (withRestoreTime)
@@ -161,7 +161,7 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
 		case C_ABOM_VENOM:      abomnationGUID.insert(creature->GetGUID()); break;
 		}
 	}
-	 	 
+
 	void OnObjectCreate(GameObject *go)
 	{
 		switch(go->GetEntry())
@@ -293,7 +293,7 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
 				}
 			}
 			Encounter[5] = data;
-			break;	 	 
+			break;
 		case TYPE_SH_AELMAR:
 			IsSilverHandDead[0] = (data) ? true : false;
 			break;
@@ -335,7 +335,7 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
 		  }
 		  return 0;
 	}
-	 	 
+
 	uint64 GetData64(uint32 data)
 	{
 		switch(data)
@@ -347,7 +347,7 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
 		}
 		return 0;
 	}
-	 	 
+
 	void Update(uint32 diff)
 	{
 		if (BaronRun_Timer)
@@ -369,7 +369,7 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
 				{
 					for(uint8 i = 0; i < 4; i++)
 						p->SummonCreature(C_BLACK_GUARD,4032.84,-3390.24,119.73,4.71,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1800000);
-	 	 
+
 					UpdateGoState(ziggurat4GUID,0,false);
 					UpdateGoState(ziggurat5GUID,0,false);
 					debug_log("SD2: Instance Stratholme: Black guard sentries spawned. Opening gates to baron.");

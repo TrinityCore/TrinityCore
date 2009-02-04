@@ -31,7 +31,7 @@ EndContentData */
 /*###
 ## npc_highlord_demitrian
 ###*/
-	 	 
+
 #define GOSSIP_DEMITRIAN1 "What do you know of it?"
 #define GOSSIP_DEMITRIAN2 "I am listening , Demitrian."
 #define GOSSIP_DEMITRIAN3 "Continue, please."
@@ -39,20 +39,20 @@ EndContentData */
 #define GOSSIP_DEMITRIAN5 "<Nod>"
 #define GOSSIP_DEMITRIAN6 "Caught unaware? How?"
 #define GOSSIP_DEMITRIAN7 "So what did Ragnaros do next?"
- 	 
+
 bool GossipHello_npc_highlord_demitrian(Player *player, Creature *_Creature)
 {
 	if (_Creature->isQuestGiver())
 		player->PrepareQuestMenu(_Creature->GetGUID());
-	 	 
+
 	if (player->GetQuestStatus(7785) == QUEST_STATUS_NONE &&
 		(player->HasItemCount(18563,1,false) || player->HasItemCount(18564,1,false)))
 		player->ADD_GOSSIP_ITEM(0, GOSSIP_DEMITRIAN1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-	 	 
+
 	player->SEND_GOSSIP_MENU(6812, _Creature->GetGUID());
- 	 	return true;	
+ 	 	return true;
 }
-	 	 
+
 bool GossipSelect_npc_highlord_demitrian(Player *player, Creature *_Creature, uint32 sender, uint32 action)
 {
 	switch (action)

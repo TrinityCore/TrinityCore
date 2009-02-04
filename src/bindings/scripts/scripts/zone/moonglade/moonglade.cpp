@@ -201,7 +201,7 @@ bool GossipSelect_npc_silva_filnaveth(Player *player, Creature *_Creature, uint3
 ## npc_clintar_spirit
 ######*/
 
-float Clintar_spirit_WP[41][5] = 
+float Clintar_spirit_WP[41][5] =
 {
  //pos_x   pos_y    pos_z    orien waitTime
 {7465.28, -3115.46, 439.327, 0.83, 4000},
@@ -524,7 +524,7 @@ CreatureAI* GetAI_npc_clintar_spirit(Creature *_Creature)
 # npc_clintar_dreamwalker
 ####*/
 
-#define CLINTAR_SPIRIT 22916 
+#define CLINTAR_SPIRIT 22916
 
 bool QuestAccept_npc_clintar_dreamwalker(Player *player, Creature *creature, Quest const *quest )
 {
@@ -538,7 +538,7 @@ bool QuestAccept_npc_clintar_dreamwalker(Player *player, Creature *creature, Que
 }
 
 /*####
-# 
+#
 ####*/
 
 void AddSC_moonglade()

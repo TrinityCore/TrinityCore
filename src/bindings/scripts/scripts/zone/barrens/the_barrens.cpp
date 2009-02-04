@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: The_Barrens
 SD%Complete: 90
-SDComment: Quest support: 2458, 4921, 6981, 1719, 863 
+SDComment: Quest support: 2458, 4921, 6981, 1719, 863
 SDCategory: Barrens
 EndScriptData */
 
@@ -218,7 +218,7 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
         Wave = 0;
         PlayerGUID = 0;
 
-        for(uint8 i = 0; i < 6; ++i) 
+        for(uint8 i = 0; i < 6; ++i)
         {
             AffrayChallenger[i] = 0;
             Challenger_down[i] = false;
@@ -257,13 +257,13 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                 DoScriptText(SAY_TWIGGY_FLATHEAD_DOWN, m_creature);
                 pWarrior->FailQuest(1719);
 
-                for(uint8 i = 0; i < 6; ++i) 
+                for(uint8 i = 0; i < 6; ++i)
                 {
-                    if (AffrayChallenger[i]) 
+                    if (AffrayChallenger[i])
                     {
                         Creature* pCreature = (Creature*)Unit::GetUnit((*m_creature), AffrayChallenger[i]);
                         if(pCreature) {
-                            if(pCreature->isAlive()) 
+                            if(pCreature->isAlive())
                             {
                                 pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
                                 pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -275,7 +275,7 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                     Challenger_down[i] = false;
                 }
 
-                if (BigWill) 
+                if (BigWill)
                 {
                     Creature* pCreature = (Creature*)Unit::GetUnit((*m_creature), BigWill);
                     if(pCreature) {
@@ -289,7 +289,7 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                 BigWill = 0;
             }
 
-            if (!EventGrate && EventInProgress) 
+            if (!EventGrate && EventInProgress)
             {
                 float x,y,z;
                 pWarrior->GetPosition(x, y, z);
@@ -298,7 +298,7 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                     pWarrior->AreaExploredOrEventHappens(1719);
                     DoScriptText(SAY_TWIGGY_FLATHEAD_BEGIN, m_creature);
 
-                    for(uint8 i = 0; i < 6; ++i) 
+                    for(uint8 i = 0; i < 6; ++i)
                     {
                         Creature* pCreature = m_creature->SummonCreature(AFFRAY_CHALLENGER, AffrayChallengerLoc[i][0], AffrayChallengerLoc[i][1], AffrayChallengerLoc[i][2], AffrayChallengerLoc[i][3], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
                         if(!pCreature)
@@ -314,16 +314,16 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                     EventGrate = true;
                 }
             }
-            else if (EventInProgress) 
+            else if (EventInProgress)
             {
-                if (Challenger_checker < diff) 
+                if (Challenger_checker < diff)
                 {
-                    for(uint8 i = 0; i < 6; ++i) 
+                    for(uint8 i = 0; i < 6; ++i)
                     {
-                        if (AffrayChallenger[i]) 
+                        if (AffrayChallenger[i])
                         {
                             Creature* pCreature = (Creature*)Unit::GetUnit((*m_creature), AffrayChallenger[i]);
-                            if((!pCreature || (!pCreature->isAlive())) && !Challenger_down[i]) 
+                            if((!pCreature || (!pCreature->isAlive())) && !Challenger_down[i])
                             {
                                 DoScriptText(SAY_TWIGGY_FLATHEAD_DOWN, m_creature);
                                 Challenger_down[i] = true;
@@ -333,13 +333,13 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                     Challenger_checker = 1000;
                 } else Challenger_checker -= diff;
 
-                if(Wave_Timer < diff) 
+                if(Wave_Timer < diff)
                 {
-                    if (AffrayChallenger[Wave] && Wave < 6 && !EventBigWill) 
+                    if (AffrayChallenger[Wave] && Wave < 6 && !EventBigWill)
                     {
                         DoScriptText(SAY_TWIGGY_FLATHEAD_FRAY, m_creature);
                         Creature* pCreature = (Creature*)Unit::GetUnit((*m_creature), AffrayChallenger[Wave]);
-                        if(pCreature && (pCreature->isAlive())) 
+                        if(pCreature && (pCreature->isAlive()))
                         {
                             pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -363,10 +363,10 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                             Wave_Timer = 1000;
                         }
                     }
-                    else if (Wave >= 6 && EventBigWill && BigWill) 
+                    else if (Wave >= 6 && EventBigWill && BigWill)
                     {
                         Creature* pCreature = (Creature*)Unit::GetUnit((*m_creature), BigWill);
-                        if (!pCreature || !pCreature->isAlive()) 
+                        if (!pCreature || !pCreature->isAlive())
                         {
                             DoScriptText(SAY_TWIGGY_FLATHEAD_OVER, m_creature);
                             EventInProgress = false;
@@ -445,7 +445,7 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
             Completed = true;
 			if (player && player->GetTypeId() == TYPEID_PLAYER)
                     ((Player*)player)->GroupEventHappens(QUEST_ESCAPE, m_creature);
-			break;																	   
+			break;
 		}
 	}
 

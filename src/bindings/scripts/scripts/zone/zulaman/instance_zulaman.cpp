@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: instance_zulaman
 SD%Complete: 80
-SDComment: 
+SDComment:
 SDCategory: Zul'Aman
 EndScriptData */
 
@@ -46,7 +46,7 @@ static SHostageInfo HostageInfo[] =
     {23999, 187021, 400, 1414, 74.36, 3.3}, // eagle
     {24001, 186672, -35, 1134, 18.71, 1.9}, // dragonhawk
     {24024, 186667, 413, 1117,  6.32, 3.1}  // lynx
-    
+
 };
 
 struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
@@ -96,7 +96,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
             RandVendor[i] = NOT_STARTED;
     }
 
-    bool IsEncounterInProgress() const 
+    bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < ENCOUNTERS; i++)
             if(Encounters[i] == IN_PROGRESS) return true;
@@ -105,7 +105,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
     }
 
     void OnCreatureCreate(Creature *creature, uint32 creature_entry)
-    {		
+    {
         switch(creature_entry)
         {
         case 23578://janalai
@@ -292,7 +292,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
         case DATA_ZULJINEVENT:   return Encounters[5];
         case DATA_CHESTLOOTED:   return ChestLooted;
         case TYPE_RAND_VENDOR_1: return RandVendor[0];
-        case TYPE_RAND_VENDOR_2: return RandVendor[1];                
+        case TYPE_RAND_VENDOR_2: return RandVendor[1];
         default:                 return 0;
         }
     }

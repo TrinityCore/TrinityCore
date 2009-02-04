@@ -74,7 +74,7 @@ static bool procPrepared = InitTriggerAuraData();
 
 Unit::Unit()
 : WorldObject(), i_motionMaster(this), m_ThreatManager(this), m_HostilRefManager(this)
-, m_IsInNotifyList(false), m_Notified(false)
+, m_IsInNotifyList(false), m_Notified(false), m_AI_enabled(false)
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
@@ -464,7 +464,7 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
 
     // interrupt channeled spell
     if(Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
-        if(spell->getState() == SPELL_STATE_CASTING 
+        if(spell->getState() == SPELL_STATE_CASTING
             && (spell->m_spellInfo->ChannelInterruptFlags & flag)
             && spell->m_spellInfo->Id != except)
             InterruptNonMeleeSpells(false);
@@ -532,7 +532,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
     if( pVictim->GetTypeId()== TYPEID_UNIT && ((Creature *)pVictim)->AI() )
 	{
 		((Creature *)pVictim)->AI()->DamageTaken(this, damage);
- 
+
 		// Set tagging
 		if(!pVictim->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER) && !((Creature*)pVictim)->isPet())
 		{
@@ -550,14 +550,14 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
 				{
 					if(((Creature*)this)->isPet())
 					{
-						((Creature *)pVictim)->SetLootRecipient(this->GetOwner()); 
+						((Creature *)pVictim)->SetLootRecipient(this->GetOwner());
 						((Creature *)pVictim)->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER);
 					}
 					break;
 				}
 			}
 		}
-	}    
+	}
 
     if (damagetype != NODAMAGE)
     {
@@ -3034,7 +3034,11 @@ uint32 Unit::GetWeaponSkillValue (WeaponAttackType attType, Unit const* target) 
 
         // feral or unarmed skill only for base attack
         if(attType != BASE_ATTACK && !item )
+        {
+            if(attType == RANGED_ATTACK && getClass() == CLASS_PALADIN) //hammer
+                return GetMaxSkillValueForLevel(); 
             return 0;
+        }
 
         if(((Player*)this)->IsInFeralForm())
             return GetMaxSkillValueForLevel();              // always maximized SKILL_FERAL_COMBAT in fact
@@ -4053,7 +4057,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
                 statue = ((Totem*)caster);
 
             // stop caster chanelling state
-            else if(caster->m_currentSpells[CURRENT_CHANNELED_SPELL] 
+            else if(caster->m_currentSpells[CURRENT_CHANNELED_SPELL]
                 //prevent recurential call
                 && caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->getState() != SPELL_STATE_FINISHED)
             {
@@ -4061,7 +4065,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
                 {
                     // remove auras only for non-aoe spells or when chanelled aura is removed
                     // because aoe spells don't require aura on target to continue
-                    if (AurSpellInfo->EffectApplyAuraName[Aur->GetEffIndex()]!=SPELL_AURA_PERIODIC_DUMMY 
+                    if (AurSpellInfo->EffectApplyAuraName[Aur->GetEffIndex()]!=SPELL_AURA_PERIODIC_DUMMY
                         && AurSpellInfo->EffectApplyAuraName[Aur->GetEffIndex()]!= SPELL_AURA_DUMMY)
                         //don't stop channeling of scripted spells (this is actually a hack)
                     {
@@ -7561,8 +7565,8 @@ void Unit::SetCharm(Unit* pet)
         SetUInt64Value(UNIT_FIELD_CHARM, pet ? pet->GetGUID() : 0);
 }
 
-void Unit::AddPlayerToVision(Player* plr) 
-{ 
+void Unit::AddPlayerToVision(Player* plr)
+{
     if (m_sharedVision.empty() && GetTypeId() == TYPEID_UNIT)
     {
         setActive(true);
@@ -7572,9 +7576,9 @@ void Unit::AddPlayerToVision(Player* plr)
     plr->SetFarsightTarget(this);
 }
 
-void Unit::RemovePlayerFromVision(Player* plr) 
-{ 
-    m_sharedVision.remove(plr); 
+void Unit::RemovePlayerFromVision(Player* plr)
+{
+    m_sharedVision.remove(plr);
     if (m_sharedVision.empty() && GetTypeId() == TYPEID_UNIT)
     {
         setActive(false);
@@ -8499,7 +8503,7 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
                     CastingTime = damagetype == DOT ? 3500 : 1010;
                 }
 				// Improved Leader of the Pack
-				else if (spellProto->AttributesEx2 == 536870912 && spellProto->SpellIconID == 312 
+				else if (spellProto->AttributesEx2 == 536870912 && spellProto->SpellIconID == 312
 					&& spellProto->AttributesEx3 == 33554432)
 				{
 					CastingTime = 0;
@@ -9216,7 +9220,7 @@ bool Unit::isAttackableByAOE() const
     if(!isAlive())
         return false;
 
-    if(HasFlag(UNIT_FIELD_FLAGS, 
+    if(HasFlag(UNIT_FIELD_FLAGS,
         UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_2))
         return false;
 
@@ -9867,7 +9871,7 @@ Unit* Creature::SelectVictim()
                 AI()->EnterEvadeMode();
                 break;
             }
-        return NULL;                
+        return NULL;
     }
 
     // enter in evade mode in other case
@@ -12257,7 +12261,7 @@ void Unit::SetCharmedOrPossessedBy(Unit* charmer, bool possess)
         }
     }
 
-    if(possess) 
+    if(possess)
         ((Player*)charmer)->PossessSpellInitialize();
     else if(charmer->GetTypeId() == TYPEID_PLAYER)
         ((Player*)charmer)->CharmSpellInitialize();
@@ -12313,7 +12317,7 @@ void Unit::RemoveCharmedOrPossessedBy(Unit *charmer)
         return;
 
     assert(!possess || charmer->GetTypeId() == TYPEID_PLAYER);
-           
+
     charmer->SetCharm(0);
     if(possess)
     {
@@ -12417,7 +12421,7 @@ void Unit::GetRaidMember(std::list<Unit*> &nearMembers, float radius)
         Player* Target = itr->getSource();
 
         // IsHostileTo check duel and controlled by enemy
-        if( Target && Target != this && Target->isAlive() 
+        if( Target && Target != this && Target->isAlive()
             && IsWithinDistInMap(Target, radius) && !IsHostileTo(Target) )
             nearMembers.push_back(Target);
     }

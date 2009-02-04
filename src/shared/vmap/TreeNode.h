@@ -1,4 +1,4 @@
-/* 
+/*
 * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
 *
 * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
@@ -109,11 +109,11 @@ namespace VMAP
             // See if the ray will ever hit this node or its children
             G3D::Vector3 location;
             bool alreadyInsideBounds = false;
-            bool rayWillHitBounds = 
+            bool rayWillHitBounds =
                 MyCollisionDetection::collisionLocationForMovingPointFixedAABox(
                 ray.origin, ray.direction, iBounds, location, alreadyInsideBounds);
 
-            bool canHitThisNode = (alreadyInsideBounds ||                
+            bool canHitThisNode = (alreadyInsideBounds ||
                 (rayWillHitBounds && ((location - ray.origin).squaredLength() < (distance*distance))));
 
             return canHitThisNode;
@@ -121,8 +121,8 @@ namespace VMAP
 
         template<typename RayCallback, typename TNode, typename TValue>
         void intersectRay(
-            const G3D::Ray& ray, 
-            RayCallback& intersectCallback, 
+            const G3D::Ray& ray,
+            RayCallback& intersectCallback,
             float& distance,
             const NodeValueAccess<TNode, TValue>& pNodeValueAccess,
             bool pStopAtFirstHit,
@@ -134,7 +134,7 @@ namespace VMAP
                 }
 
                 // Test for intersection against every object at this node.
-                for (unsigned int v = iStartPosition; v < (iNumberOfValues+iStartPosition); ++v) {        
+                for (unsigned int v = iStartPosition; v < (iNumberOfValues+iStartPosition); ++v) {
                     const TValue& nodeValue = pNodeValueAccess.getValue(v);
                     bool canHitThisObject = true;
                     if (! intersectCallbackIsFast) {
@@ -142,11 +142,11 @@ namespace VMAP
                         G3D::Vector3 location;
                         const G3D::AABox& bounds = nodeValue.getAABoxBounds();
                         bool alreadyInsideBounds = false;
-                        bool rayWillHitBounds = 
+                        bool rayWillHitBounds =
                             MyCollisionDetection::collisionLocationForMovingPointFixedAABox(
                             ray.origin, ray.direction, bounds, location, alreadyInsideBounds);
 
-                        canHitThisObject = (alreadyInsideBounds ||                
+                        canHitThisObject = (alreadyInsideBounds ||
                             (rayWillHitBounds && ((location - ray.origin).squaredLength() < (distance*distance))));
                     }
 
@@ -160,7 +160,7 @@ namespace VMAP
                 }
 
                 // There are three cases to consider next:
-                // 
+                //
                 //  1. the ray can start on one side of the splitting plane and never enter the other,
                 //  2. the ray can start on one side and enter the other, and
                 //  3. the ray can travel exactly down the splitting plane
@@ -205,7 +205,7 @@ namespace VMAP
                         return;
                 }
                 if (ray.direction[iSplitAxis] != 0) {
-                    // See if there was an intersection before hitting the splitting plane.  
+                    // See if there was an intersection before hitting the splitting plane.
                     // If so, there is no need to look on the far side and recursion terminates.
                     float distanceToSplittingPlane = (iSplitLocation - ray.origin[iSplitAxis]) / ray.direction[iSplitAxis];
                     if (distanceToSplittingPlane > distance) {

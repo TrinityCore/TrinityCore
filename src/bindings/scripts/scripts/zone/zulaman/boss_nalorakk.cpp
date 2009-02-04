@@ -26,15 +26,15 @@ EndScriptData */
 #include "GridNotifiers.h"
 
 //Trash Waves
-float NalorakkWay[8][3] = 
+float NalorakkWay[8][3] =
 {
     { 18.569, 1414.512, 11.42},// waypoint 1
     {-17.264, 1419.551, 12.62},
     {-52.642, 1419.357, 27.31},// waypoint 2
     {-69.908, 1419.721, 27.31},
-    {-79.929, 1395.958, 27.31}, 
+    {-79.929, 1395.958, 27.31},
     {-80.072, 1374.555, 40.87},// waypoint 3
-    {-80.072, 1314.398, 40.87},    
+    {-80.072, 1314.398, 40.87},
     {-80.072, 1295.775, 48.60} // waypoint 4
 };
 
@@ -249,7 +249,7 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
 
                                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    
+
                                 MoveEvent = false;
                             }
                             break;
@@ -269,16 +269,16 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
         DoZoneInCombat();
     }
 
-    void JustDied(Unit* Killer)    
+    void JustDied(Unit* Killer)
     {
         if(pInstance)
             pInstance->SetData(DATA_NALORAKKEVENT, DONE);
 
         DoYell(YELL_DEATH,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature, SOUND_YELL_DEATH);  
+        DoPlaySoundToSet(m_creature, SOUND_YELL_DEATH);
     }
 
-    void KilledUnit(Unit* victim)    
+    void KilledUnit(Unit* victim)
     {
         switch(rand()%2)
         {
@@ -289,7 +289,7 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
         case 1:
             DoYell(YELL_KILL_TWO, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_YELL_KILL_TWO);
-            break;        
+            break;
         }
     }
 
@@ -329,7 +329,7 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
                     inMove = false;
                     return;
             }
-            
+
         }
     }
 
@@ -433,7 +433,7 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
             }else DeafeningRoar_Timer -= diff;
         }
 
-        DoMeleeAttackIfReady();            
+        DoMeleeAttackIfReady();
     }
 };
 
