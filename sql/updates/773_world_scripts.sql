@@ -1,7 +1,7 @@
-Update quest_template set SpecialFlags=2 where entry=4770;
-UPDATE `creature_template` SET `ScriptName` = 'npc_swiftmountain' WHERE `entry` = 10427;
+UPDATE `quest_template` SET `SpecialFlags`=2 WHERE `entry`=4770;
+UPDATE `creature_template` SET `ScriptName`='npc_swiftmountain' WHERE `entry`=10427;
 DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000149 AND -1000147;
-INSERT INTO script_texts
+INSERT INTO `script_texts`
    (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `comment`)
 VALUES
   (-1000147, 'Lets go $N. I am ready to start to Whitereach Post.', NULL, NULL, 'Gehen wir $N.Ich bin bereit,mich zum Weissgipfelposten aufzumachen.', NULL, NULL, NULL, NULL, NULL, 0, 0, 0, NULL),

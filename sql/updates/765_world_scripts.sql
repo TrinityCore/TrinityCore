@@ -1,4 +1,4 @@
-UPDATE `creature_template` SET `flags_extra` = 0 WHERE `entry` = 20129;
+UPDATE `creature_template` SET `flags_extra`=0 WHERE `entry`=20129;
 
 -- Insert English and French dialogs in database
 DELETE FROM `script_texts` WHERE entry BETWEEN -1000150 and -1000163;
