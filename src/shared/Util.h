@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
  *
  * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
@@ -161,7 +161,7 @@ inline bool isEastAsianCharacter(wchar_t wchar)
         return true;
     if(wchar >= 0x31F0 && wchar <= 0x31FF)                  // Katakana Phonetic Ext.
         return true;
-    if(wchar >= 0x3400 && wchar <= 0x4DB5)                  // CJK Ideographs Ext. A 
+    if(wchar >= 0x3400 && wchar <= 0x4DB5)                  // CJK Ideographs Ext. A
         return true;
     if(wchar >= 0x4E00 && wchar <= 0x9FC3)                  // Unified CJK Ideographs
         return true;

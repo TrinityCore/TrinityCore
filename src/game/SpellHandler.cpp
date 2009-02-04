@@ -383,7 +383,7 @@ void WorldSession::HandleCancelAuraOpcode( WorldPacket& recvPacket)
 
 		}
 	}
-		
+
     // channeled spell case (it currently casted then)
     if(IsChanneledSpell(spellInfo))
     {

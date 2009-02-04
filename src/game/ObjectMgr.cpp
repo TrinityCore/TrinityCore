@@ -222,7 +222,7 @@ void ObjectMgr::LoadPlayerInfoInCache()
         pPPlayerInfo->unArenaInfoSlot0 = Player::GetUInt32ValueFromArray(tdata,PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 0 * 6 + 5);
         pPPlayerInfo->unArenaInfoSlot1 = Player::GetUInt32ValueFromArray(tdata,PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 1 * 6 + 5);
         pPPlayerInfo->unArenaInfoSlot2 = Player::GetUInt32ValueFromArray(tdata,PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 2 * 6 + 5);
-    
+
         pPPlayerInfo->unClass = (uint32)fields[3].GetUInt32();
         m_mPlayerInfoMap[fields[0].GetUInt32()] = pPPlayerInfo;
     }
@@ -1020,7 +1020,7 @@ uint32 ObjectMgr::ChooseDisplayId(uint32 team, const CreatureInfo *cinfo, const 
     if (!data || data->displayid == 0) // use defaults from the template
     {
         display_id = cinfo->GetRandomValidModelId();
-    } else display_id = data->displayid; // overwritten from creature data        
+    } else display_id = data->displayid; // overwritten from creature data
 
     return display_id;
 }
@@ -7555,7 +7555,7 @@ ObjectMgr::ScriptNameMap & GetScriptNames()
 
 void ObjectMgr::LoadTransportEvents()
 {
-	
+
 	QueryResult *result = WorldDatabase.Query("SELECT entry, waypoint_id, event_id FROM transport_events");
 
     if( !result )
@@ -7571,19 +7571,19 @@ void ObjectMgr::LoadTransportEvents()
     do
     {
         bar1.step();
-		
+
 		Field *fields = result->Fetch();
-		
+
 		//Load event values
         uint32 entry = fields[0].GetUInt32();
         uint32 waypoint_id = fields[1].GetUInt32();
 		uint32 event_id = fields[2].GetUInt32();
-		
+
 		uint32 event_count = (entry*100)+waypoint_id;
 		TransportEventMap[event_count] = event_id;
 	}
 	while(result->NextRow());
-		
+
 	sLog.outString( "\n>> Loaded %u transport events \n", result->GetRowCount() );
 
 	delete result;

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -269,7 +269,7 @@ bool OutdoorPvPTF::SetupOutdoorPvP()
 
     m_IsLocked = false;
     m_LockTimer = TF_LOCK_TIME;
-    m_LockTimerUpdate = 0; 
+    m_LockTimerUpdate = 0;
     hours_left = 6;
     second_digit = 0;
     first_digit = 0;

@@ -126,22 +126,22 @@ bool GossipSelect_npc_erozion(Player *player, Creature *_Creature, uint32 sender
 #define SAY_TH_EPOCH_WONDER         -1560031
 #define SAY_TH_EPOCH_KILL_TARETHA   -1560032
 #define SAY_TH_EVENT_COMPLETE       -1560033
-	 	 
+
 #define SAY_TH_RANDOM_LOW_HP1       -1560034
 #define SAY_TH_RANDOM_LOW_HP2       -1560035
-	 	 
+
 #define SAY_TH_RANDOM_DIE1          -1560036
 #define SAY_TH_RANDOM_DIE2          -1560037
-	 	 
+
 #define SAY_TH_RANDOM_AGGRO1        -1560038
 #define SAY_TH_RANDOM_AGGRO2        -1560039
 #define SAY_TH_RANDOM_AGGRO3        -1560040
 #define SAY_TH_RANDOM_AGGRO4        -1560041
-	 	 
+
 #define SAY_TH_RANDOM_KILL1         -1560042
 #define SAY_TH_RANDOM_KILL2         -1560043
 #define SAY_TH_RANDOM_KILL3         -1560044
-	 	 
+
 #define SAY_TH_LEAVE_COMBAT1        -1560045
 #define SAY_TH_LEAVE_COMBAT2        -1560046
 #define SAY_TH_LEAVE_COMBAT3        -1560047
@@ -269,7 +269,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
             case 29:
                 DoScriptText(SAY_TH_SKARLOC_MEET, m_creature);
                 m_creature->SummonCreature(17862,2036.48,271.22,63.43,5.27,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000);
-                //temporary,skarloc should rather be triggered to walk up to thrall        
+                //temporary,skarloc should rather be triggered to walk up to thrall
                 break;
             case 30:
                 IsOnHold = true;
@@ -364,7 +364,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
 
 				//trigger taretha to run down outside
 				if (uint64 TarethaGUID = pInstance->GetData64(DATA_TARETHA))
-				{	                 
+				{
 					if (Creature* Taretha = ((Creature*)Unit::GetUnit(*m_creature, TarethaGUID)))
 						((npc_escortAI*)(Taretha->AI()))->Start(false, false, true, PlayerGUID);
 				}
@@ -380,13 +380,13 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
 							pPlayer->KilledMonster(20156,m_creature->GetGUID());
 					}
 				}
-				     
+
 				//alot will happen here, thrall and taretha talk, erozion appear at spot to explain
 				m_creature->SummonCreature(EROZION_ENTRY,2646.47,680.416,55.38,4.16,TEMPSUMMON_TIMED_DESPAWN,120000);
 			break;
 		}
 	}
-				
+
 
     void Reset()
     {
@@ -481,7 +481,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
 			pInstance->SetData(TYPE_THRALL_EVENT,FAIL);
 
 		// Don't do a yell if he kills self (if player goes too far or at the end).
-        if(slayer == m_creature)                            
+        if(slayer == m_creature)
             return;
 
         switch(rand()%2)
@@ -670,7 +670,7 @@ CreatureAI* GetAI_npc_thrall_old_hillsbrad(Creature *_Creature)
 bool GossipHello_npc_thrall_old_hillsbrad(Player *player, Creature *_Creature)
 {
     if( _Creature->isQuestGiver() )
-	{    
+	{
 		player->PrepareQuestMenu( _Creature->GetGUID() );
 		player->SendPreparedQuest(_Creature->GetGUID());
 	}

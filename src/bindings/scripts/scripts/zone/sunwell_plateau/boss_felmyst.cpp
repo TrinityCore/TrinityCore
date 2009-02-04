@@ -36,7 +36,7 @@ EndScriptData */
 #define SPELL_ENCAPSULATE_AOE           45662
 // FLIGHT PHASE SPELL
 #define SPELL_VAPOR_SELECT      45391   // fel to player, force cast 45392, 50000y selete target
-#define SPELL_VAPOR_SUMMON      45392   // player summon vapor, radius around caster, 5y, 
+#define SPELL_VAPOR_SUMMON      45392   // player summon vapor, radius around caster, 5y,
 #define SPELL_VAPOR_FORCE       45388   // vapor to fel, force cast 45389
 #define SPELL_VAPOR_CHANNEL     45389   // fel to vapor, green beam channel
 #define SPELL_VAPOR_TRIGGER     45411   // linked to 45389, vapor to self, trigger 45410 and 46931
@@ -127,7 +127,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
 {
     boss_felmystAI(Creature *c) : ScriptedAI(c)
     {
-        Reset(); 
+        Reset();
 
         // wait for core patch be accepted
         SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_ENCAPSULATE_EFFECT);
@@ -250,7 +250,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
     {
         if(Phase != PHASE_GROUND && damage >= m_creature->GetHealth())
             damage = 0;
-    }            
+    }
 
     void EnterPhase(PhaseFelmyst NextPhase)
     {

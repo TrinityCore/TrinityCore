@@ -270,7 +270,7 @@ enum TrinityStrings
     LANG_COMMAND_WHISPEROFF             = 286,
     LANG_COMMAND_CREATGUIDNOTFOUND      = 287,
 	// TICKET STRINGS NEED REWRITE // 288-296 FREE
-   
+
 	// END
     LANG_COMMAND_SPAWNDIST              = 297,
     LANG_COMMAND_SPAWNTIME              = 298,
@@ -757,15 +757,15 @@ enum TrinityStrings
     LANG_MUST_MALE_OR_FEMALE            = 1119,
     LANG_YOU_CHANGE_GENDER              = 1120,
     LANG_YOUR_GENDER_CHANGED            = 1121,
-   
+
 	// Ticket Strings 2000-2029
-	LANG_COMMAND_TICKETNEW              = 2000, 
-    LANG_COMMAND_TICKETUPDATED          = 2001, 
+	LANG_COMMAND_TICKETNEW              = 2000,
+    LANG_COMMAND_TICKETUPDATED          = 2001,
 	LANG_COMMAND_TICKETPLAYERABANDON    = 2002,
 	LANG_COMMAND_TICKETCLOSED			= 2003,
 	LANG_COMMAND_TICKETDELETED			= 2004,
 	LANG_COMMAND_TICKETNOTEXIST         = 2005,
-	LANG_COMMAND_TICKETCLOSEFIRST       = 2006, 
+	LANG_COMMAND_TICKETCLOSEFIRST       = 2006,
 	LANG_COMMAND_TICKETALREADYASSIGNED  = 2007,
 	LANG_COMMAND_TICKETRELOAD			= 2008,
 	LANG_COMMAND_TICKETSHOWLIST			= 2009,
@@ -798,7 +798,7 @@ enum TrinityStrings
     LANG_INSTANCE_NOT_AS_GHOST          = 5008,
     LANG_COMMAND_PLAYED_TO_ALL          = 5009,
     // Room for more Trinity strings      5010-9999
-    // Used for GM Announcements        
+    // Used for GM Announcements
     LANG_GM_BROADCAST                    = 6613,
     LANG_GM_NOTIFY                       = 6614,
     LANG_GM_ANNOUNCE_COLOR               = 6615,

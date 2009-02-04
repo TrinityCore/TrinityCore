@@ -130,7 +130,7 @@ EndScriptData */
 #define SPELL_FAN_BLADES                39954 // bugged visual
 
 // Other defines
-#define CENTER_X            676.740 
+#define CENTER_X            676.740
 #define CENTER_Y            305.297
 #define CENTER_Z            353.192
 
@@ -246,7 +246,7 @@ struct Yells
 static Yells Conversation[]=
 {
     {11463, "Akama... your duplicity is hardly surprising. I should have slaughtered you and your malformed brethren long ago.", ILLIDAN_STORMRAGE, 8000, 0, true},
-    {0, NULL, ILLIDAN_STORMRAGE, 5000, 396, true}, 
+    {0, NULL, ILLIDAN_STORMRAGE, 5000, 396, true},
     {11389, "We've come to end your reign, Illidan. My people and all of Outland shall be free!", AKAMA, 7000, 25, true},
     {0, NULL, AKAMA, 5000, 66, true},
     {11464, "Boldly said. But I remain unconvinced.", ILLIDAN_STORMRAGE, 8000, 396, true},
@@ -423,7 +423,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             EnterPhase(PHASE_FLIGHT);
         }
         else // handle flight sequence
-            Timer[EVENT_FLIGHT_SEQUENCE] = 1000;    
+            Timer[EVENT_FLIGHT_SEQUENCE] = 1000;
     }
 
     void Aggro(Unit *who)
@@ -688,7 +688,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             break;
         }
         if(Phase == PHASE_TRANSFORM_SEQUENCE)
-            Timer[EVENT_TRANSFORM_SEQUENCE] = DemonTransformation[TransformCount].timer;        
+            Timer[EVENT_TRANSFORM_SEQUENCE] = DemonTransformation[TransformCount].timer;
         TransformCount++;
     }
 
@@ -793,7 +793,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 
             case EVENT_DRAW_SOUL:
                 DoCast(m_creature->getVictim(), SPELL_DRAW_SOUL);
-                Timer[EVENT_DRAW_SOUL] = 50000 + rand()%10000;          
+                Timer[EVENT_DRAW_SOUL] = 50000 + rand()%10000;
                 break;
 
                 //PHASE_NORMAL_2
@@ -833,7 +833,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
                 break;
 
             case EVENT_EYE_BLAST:
-                CastEyeBlast(); 
+                CastEyeBlast();
                 Timer[EVENT_EYE_BLAST] = 0;
                 break;
 
@@ -903,7 +903,7 @@ struct TRINITY_DLL_DECL flame_of_azzinothAI : public ScriptedAI
     void Aggro(Unit *who) {DoZoneInCombat();}
 
     void ChargeCheck()
-    {        
+    {
         Unit* target = SelectUnit(SELECT_TARGET_FARTHEST, 0, 200, false);
         if(target && (!m_creature->IsWithinCombatRange(target, FLAME_CHARGE_DISTANCE)))
         {
@@ -1494,7 +1494,7 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if((!UpdateVictim()) 
+        if((!UpdateVictim())
             && !Timer[EVENT_MAIEV_STEALTH])
             return;
 
@@ -1728,7 +1728,7 @@ struct TRINITY_DLL_DECL mob_parasitic_shadowfiendAI : public ScriptedAI
     uint32 CheckTimer;
 
     void Reset()
-    {        
+    {
         if(pInstance)
             IllidanGUID = pInstance->GetData64(DATA_ILLIDANSTORMRAGE);
         else
@@ -1744,7 +1744,7 @@ struct TRINITY_DLL_DECL mob_parasitic_shadowfiendAI : public ScriptedAI
     {
         if( m_creature->isAttackReady() && m_creature->IsWithinMeleeRange(m_creature->getVictim()))
         {
-            if(!m_creature->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND, 0) 
+            if(!m_creature->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND, 0)
                 && !m_creature->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND2, 0))
             {
                 m_creature->CastSpell(m_creature->getVictim(), SPELL_PARASITIC_SHADOWFIEND2, true, 0, 0, IllidanGUID); //do not stack

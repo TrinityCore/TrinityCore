@@ -87,7 +87,7 @@ struct TRINITY_DLL_DECL boss_silver_hand_bossesAI : public ScriptedAI
     }
 
     void JustDied(Unit* Killer)
-    { 
+    {
         if(pInstance)
         {
             switch(m_creature->GetEntry())
@@ -147,7 +147,7 @@ CreatureAI* GetAI_boss_silver_hand_bossesAI(Creature *_Creature)
 }
 
 /*#####
-# 
+#
 #####*/
 
 void AddSC_boss_order_of_silver_hand()

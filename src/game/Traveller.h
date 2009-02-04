@@ -83,7 +83,7 @@ inline void Traveller<Creature>::MoveTo(float x, float y, float z, uint32 t)
 	if(i_traveller.IsFormationLeader() && !i_traveller.isInCombat() &&
 		CreatureGroupHolder.find(i_traveller.GetFormationID()) != CreatureGroupHolder.end())
 		CreatureGroupHolder[i_traveller.GetFormationID()]->LeaderMovedInEvade();
-	
+
 	i_traveller.AI_SendMoveToPacket(x, y, z, t, i_traveller.GetUnitMovementFlags(), 0);
 }
 

@@ -385,7 +385,7 @@ struct TRINITY_DLL_DECL npc_isla_starmaneAI : public npc_escortAI
 
 		switch(i)
 		{
-		case 0: 
+		case 0:
 			{
 			GameObject* Cage = FindGameObject(GO_CAGE, 10, m_creature);
 			if(Cage)
@@ -401,10 +401,10 @@ struct TRINITY_DLL_DECL npc_isla_starmaneAI : public npc_escortAI
 					((Player*)player)->GroupEventHappens(QUEST_EFTW_A, m_creature);
 				else if(((Player*)player)->GetTeam() == HORDE)
 					((Player*)player)->GroupEventHappens(QUEST_EFTW_H, m_creature);
-			} Completed = true; 
+			} Completed = true;
 			m_creature->SetInFront(player); break;
 		case 30: m_creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE); break;
-		case 31: DoCast(m_creature, SPELL_CAT); 
+		case 31: DoCast(m_creature, SPELL_CAT);
 			m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);	break;
 		}
 	}
@@ -481,7 +481,7 @@ CreatureAI* GetAI_npc_isla_starmaneAI(Creature *_Creature)
 	thisAI->AddWaypoint(26, -2313.99, 3398.61, -10.40);
 	thisAI->AddWaypoint(27, -2320.85, 3414.49, -11.49);
 	thisAI->AddWaypoint(28, -2338.26, 3426.06, -11.46);
-	thisAI->AddWaypoint(29, -2342.67, 3439.44, -11.32, 12000);//progress4 
+	thisAI->AddWaypoint(29, -2342.67, 3439.44, -11.32, 12000);//progress4
 	thisAI->AddWaypoint(30, -2342.67, 3439.44, -11.32, 7000);//emote bye
 	thisAI->AddWaypoint(31, -2342.67, 3439.44, -11.32, 5000);//cat form
 	thisAI->AddWaypoint(32, -2344.60, 3461.27, -10.44);

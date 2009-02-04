@@ -1356,7 +1356,7 @@ namespace Trinity
     {
         public:
             MessageChatLocaleCacheDo(WorldObject const& obj, ChatMsg msgtype, int32 textId, uint32 language, uint64 targetGUID, float dist)
-                : i_object(obj), i_msgtype(msgtype), i_textId(textId), i_language(language), 
+                : i_object(obj), i_msgtype(msgtype), i_textId(textId), i_language(language),
                 i_targetGUID(targetGUID), i_dist(dist)
             {
             }
@@ -1669,7 +1669,7 @@ void WorldObject::GetNearPoint2D(float &x, float &y, float distance2d, float abs
 void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, float &z, float searcher_size, float distance2d, float absAngle ) const
 {
     GetNearPoint2D(x,y,distance2d+searcher_size,absAngle);
-    
+
 	z = GetPositionZ();
 
 	UpdateGroundPositionZ(x,y,z);

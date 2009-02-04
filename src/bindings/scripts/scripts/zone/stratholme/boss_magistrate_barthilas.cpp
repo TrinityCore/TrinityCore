@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Magistrate_Barthilas
 SD%Complete: 70
-SDComment: 
+SDComment:
 SDCategory: Stratholme
 EndScriptData */
 
@@ -28,7 +28,7 @@ EndScriptData */
 #define SPELL_CROWDPUMMEL    10887
 #define SPELL_MIGHTYBLOW    14099
 #define SPELL_FURIOUS_ANGER     16791
-	 	 
+
 #define MODEL_NORMAL            10433
 #define MODEL_HUMAN             3637
 
@@ -61,11 +61,11 @@ struct TRINITY_DLL_DECL boss_magistrate_barthilasAI : public ScriptedAI
 		else
 			m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_HUMAN);
 	}
-	 	 
+
 	void MoveInLineOfSight(Unit *who)
 	{
 		//nothing to see here yet
-	 	 
+
 		ScriptedAI::MoveInLineOfSight(who);
 	}
 
@@ -89,7 +89,7 @@ struct TRINITY_DLL_DECL boss_magistrate_barthilasAI : public ScriptedAI
 			FuriousAnger_Timer = 4000;
 			if (AngerCount > 25)
 				return;
-	 	 
+
 			++AngerCount;
 			m_creature->CastSpell(m_creature,SPELL_FURIOUS_ANGER,false);
 		}else FuriousAnger_Timer -= diff;
@@ -110,14 +110,14 @@ struct TRINITY_DLL_DECL boss_magistrate_barthilasAI : public ScriptedAI
 
         //MightyBlow
         if (MightyBlow_Timer < diff)
-        {            
+        {
             DoCast(m_creature->getVictim(),SPELL_MIGHTYBLOW);
 			MightyBlow_Timer = 20000;
         }else MightyBlow_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
-}; 
+};
 CreatureAI* GetAI_boss_magistrate_barthilas(Creature *_Creature)
 {
     return new boss_magistrate_barthilasAI (_Creature);

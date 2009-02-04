@@ -69,12 +69,12 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
                 archaedasTempleDoor = go->GetGUID();
             break;
 
-            case ANCIENT_VAULT_DOOR:         
+            case ANCIENT_VAULT_DOOR:
                 go->SetUInt32Value(GAMEOBJECT_STATE,1);
                 go->SetUInt32Value(GAMEOBJECT_FLAGS, 33);
                 ancientVaultDoor = go->GetGUID();
             break;
-        } 
+        }
     }
 
     void SetFrozenState(Creature *creature)
@@ -236,7 +236,7 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
             ActivateArchaedas (data);
         }
     }
-   
+
 
     void OnCreatureCreate (Creature *creature, uint32 creature_entry)
     {

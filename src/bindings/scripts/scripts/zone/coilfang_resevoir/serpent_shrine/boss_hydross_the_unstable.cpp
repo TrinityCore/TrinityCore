@@ -79,7 +79,7 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
     boss_hydross_the_unstableAI(Creature *c) : ScriptedAI(c), Summons(m_creature)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();		
+        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -124,7 +124,7 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
     }
 
 	void SummonBeams()
-	{		
+	{
 		Creature* beamer = m_creature->SummonCreature(ENTRY_BEAM_DUMMY,-258.333,-356.34,22.0499,5.90835,TEMPSUMMON_CORPSE_DESPAWN,0);
 		if(beamer)
 		{
@@ -133,7 +133,7 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
 			beamer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 			beams[0]=beamer->GetGUID();
 		}
-		beamer = beamer = m_creature->SummonCreature(ENTRY_BEAM_DUMMY,-219.918,-371.308,22.0042,2.73072,TEMPSUMMON_CORPSE_DESPAWN,0);		
+		beamer = beamer = m_creature->SummonCreature(ENTRY_BEAM_DUMMY,-219.918,-371.308,22.0042,2.73072,TEMPSUMMON_CORPSE_DESPAWN,0);
 		if(beamer)
 		{
 			beamer->CastSpell(m_creature,SPELL_BLUE_BEAM,true);
@@ -143,7 +143,7 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
 		}
 	}
 	void DeSummonBeams()
-	{		
+	{
 		for(uint8 i=0;i<2;i++)
 		{
 			Creature* mob = (Creature*)Unit::GetUnit(*m_creature,beams[i]);

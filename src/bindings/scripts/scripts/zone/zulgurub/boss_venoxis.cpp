@@ -44,7 +44,7 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
 		pInstance = ((ScriptedInstance*)c->GetInstanceData());
 		Reset();
 	}
-	 	 
+
 	ScriptedInstance *pInstance;
 
     uint32 HolyFire_Timer;
@@ -181,7 +181,7 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
                 }
             }
             DoMeleeAttackIfReady();
-        
+
     }
 };
 CreatureAI* GetAI_boss_venoxis(Creature *_Creature)

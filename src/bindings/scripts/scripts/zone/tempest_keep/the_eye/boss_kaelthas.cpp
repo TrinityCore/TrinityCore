@@ -45,7 +45,7 @@ EndScriptData */
 #define SAY_SUMMON_PHOENIX1                 -1550032
 #define SAY_SUMMON_PHOENIX2                 -1550033
 #define SAY_DEATH                           -1550034
-	 	 
+
 //Thaladred the Darkener speech
 #define SAY_THALADRED_AGGRO                 -1550035
 #define SAY_THALADRED_DEATH                 -1550036
@@ -76,7 +76,7 @@ EndScriptData */
 #define SPELL_WEAPON_SPAWN                41236
 
 //Phase 4 spells
-#define SPELL_FIREBALL                    36805  
+#define SPELL_FIREBALL                    36805
 #define SPELL_PYROBLAST                   36819
 #define SPELL_FLAME_STRIKE                36735
 #define SPELL_FLAME_STRIKE_VIS            36730
@@ -174,7 +174,7 @@ struct TRINITY_DLL_DECL advisorbase_ai : public ScriptedAI
     {
         if (!who || FakeDeath || m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
-        
+
         ScriptedAI::AttackStart(who);
     }
 
@@ -832,7 +832,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         if (m_creature->getThreatManager().getThreatList().size() >= 2)
                         for (uint32 i = 0; i < 3; i++)
                         {
-						
+
 							Unit* target =SelectUnit(SELECT_TARGET_RANDOM, 1, 70, true);
 							if(!target) target = m_creature->getVictim();
 							debug_log("TSCR: Kael'Thas mind control not supported.");

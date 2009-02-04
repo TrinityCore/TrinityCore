@@ -32,7 +32,7 @@ class TRINITY_DLL_SPEC RandomMovementGenerator
     public:
 		// Wander dist is related on db spawn dist. So what if we wanna set eandom movement on summoned creature?!
 		RandomMovementGenerator(float spawn_dist = 0.0f) : i_nextMoveTime(0), wander_distance(spawn_dist) {}
- 
+
 		void _setRandomLocation(T &);
         void Initialize(T &);
         void Finalize(T &);

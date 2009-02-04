@@ -13,14 +13,14 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-    
+
 /* ScriptData
 SDName: Instance_Dark_Portal
 SD%Complete: 50
 SDComment: Quest support: 9836, 10297. Currently in progress.
 SDCategory: Caverns of Time, The Dark Portal
 EndScriptData */
-   
+
 #include "precompiled.h"
 #include "def_dark_portal.h"
 
@@ -28,12 +28,12 @@ EndScriptData */
 
 #define C_MEDIVH                15608
 #define C_TIME_RIFT             17838
-	 	 
+
 #define SPELL_RIFT_CHANNEL      31387
 
 #define RIFT_BOSS               1
 inline uint32 RandRiftBoss() { return rand()%2 ? C_RKEEP : C_RLORD; }
-	 	 
+
 float PortalLocation[4][4]=
 {
 	{-2041.06, 7042.08, 29.99, 1.30},
@@ -41,13 +41,13 @@ float PortalLocation[4][4]=
 	{-1885.82, 7107.36, 22.32, 3.07},
 	{-1928.11, 7175.95, 22.11, 3.44}
 };
-	 	 
+
 struct Wave
 {
 	uint32 PortalBoss;                                      //protector of current portal
 	uint32 NextPortalTime;                                  //time to next portal, or 0 if portal boss need to be killed
 };
-	 	 
+
 static Wave RiftWaves[]=
 {
 	{RIFT_BOSS, 0},
@@ -57,44 +57,44 @@ static Wave RiftWaves[]=
 	{RIFT_BOSS, 120000},
 	{C_AEONUS, 0}
 };
-	 	 
+
 struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 {
 	instance_dark_portal(Map *map) : ScriptedInstance(map) {Initialize();};
-	 	 
+
 	uint32 Encounter[ENCOUNTERS];
-	 	 
+
 	uint32 mRiftPortalCount;
 	uint32 mShieldPercent;
 	uint8 mRiftWaveCount;
 	uint8 mRiftWaveId;
-	 	 
+
 	uint32 NextPortal_Timer;
-	 	 
+
 	uint64 MedivhGUID;
 	uint8 CurrentRiftId;
-	 	 
+
 	void Initialize()
 	{
 		MedivhGUID          = 0;
 		Clear();
 	}
-	 	 
+
 	void Clear()
 	{
 		for(uint8 i = 0; i < ENCOUNTERS; i++)
 			Encounter[i] = NOT_STARTED;
-	 	 
+
 		mRiftPortalCount    = 0;
 		mShieldPercent      = 100;
 		mRiftWaveCount      = 0;
 		mRiftWaveId         = 0;
-		
+
 		CurrentRiftId = 0;
-	 	 
+
 		NextPortal_Timer    = 0;
 	}
-	 	 
+
 	Player* GetPlayerInMap()
 	{
 		Map::PlayerList const& players = instance->GetPlayers();
@@ -107,11 +107,11 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 					return plr;
 			}
 		}
-	 	 
+
 		debug_log("SD2: Instance Black Portal: GetPlayerInMap, but PlayerList is empty!");
 		return NULL;
 	}
-	 	 
+
 	void UpdateBMWorldState(uint32 id, uint32 state)
 	{
 		Map::PlayerList const& players = instance->GetPlayers();
@@ -125,19 +125,19 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 			}
 		}else debug_log("SD2: Instance Black Portal: UpdateBMWorldState, but PlayerList is empty!");
 	}
-	 	 
+
 	void InitWorldState(bool Enable = true)
 	{
 		UpdateBMWorldState(WORLD_STATE_BM,Enable ? 1 : 0);
 		UpdateBMWorldState(WORLD_STATE_BM_SHIELD,100);
 		UpdateBMWorldState(WORLD_STATE_BM_RIFT,0);
 	}
-	 	 
+
 	bool IsEncounterInProgress()
 	{
 		if (GetData(TYPE_MEDIVH) == IN_PROGRESS)
 			return true;
-	 	 
+
 		return false;
 	}
 
@@ -154,7 +154,7 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 		if (creature->GetEntry() == C_MEDIVH)
 			MedivhGUID = creature->GetGUID();
 	}
-	 	 
+
 	//what other conditions to check?
 	bool CanProgressEvent()
 	{
@@ -180,7 +180,7 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 			return mRiftWaveId;
 		}
 	}
-	 	 
+
 	void SetData(uint32 type, uint32 data)
 	{
 		Player *player = GetPlayerInMap();
@@ -190,7 +190,7 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 			debug_log("SD2: Instance Black Portal: SetData (Type: %u Data %u) cannot find any player.", type, data);
 			return;
 		}
-	 	 
+
 		switch(type)
 		{
 		case TYPE_MEDIVH:
@@ -231,7 +231,7 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 						player->GroupEventHappens(QUEST_MASTER_TOUCH,medivh);
 					}
 				}
-	 	 
+
 				Encounter[0] = data;
 			}
 			break;
@@ -246,7 +246,7 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 			break;
 		}
 	}
-	 	 
+
 	uint32 GetData(uint32 type)
 	{
 		switch(type)
@@ -262,7 +262,7 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 		}
 		return 0;
 	}
-	 	 
+
 	uint64 GetData64(uint32 data)
 	{
 		if (data == DATA_MEDIVH)
@@ -283,17 +283,17 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 		z = std::max(instance->GetHeight(x, y, MAX_HEIGHT), instance->GetWaterLevel(x, y));
 
 		debug_log("SD2: Instance Dark Portal: Summoning rift boss entry %u.",entry);
-	 	 
+
 		Unit *Summon = source->SummonCreature(entry,x,y,z,source->GetOrientation(),
 			TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
-	 	 
+
 		if (Summon)
 			return Summon;
-	 	 
+
 		debug_log("SD2: Instance Dark Portal: what just happened there? No boss, no loot, no fun...");
 		return NULL;
 	}
-		 	 
+
 	void DoSpawnPortal()
 	{
 		Player *player = GetPlayerInMap();
@@ -301,7 +301,7 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 			return;
 
 		if (Unit *medivh = Unit::GetUnit(*player,MedivhGUID))
-		{	 	 
+		{
 			for(uint8 i = 0; i < 4; i++)
 			{
 				int tmp = rand()%4;
@@ -316,18 +316,18 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 						TEMPSUMMON_CORPSE_DESPAWN,0);
 					if (temp)
 					{
-					
+
 						temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 						temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-						
-	 	 
+
+
 						if (Unit* boss = SummonedPortalBoss(temp))
 						{
 							if (boss->GetEntry() == C_AEONUS)
 							{
 								boss->AddThreat(medivh,0.0f);
 							}
-							else 
+							else
 							{
 								boss->AddThreat(temp,0.0f);
 								temp->CastSpell(boss,SPELL_RIFT_CHANNEL,false);
@@ -336,10 +336,10 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 					}
 					break;
 				}
-			}			
+			}
 		}
 	}
-	 	 
+
 	void Update(uint32 diff)
 	{
 		if (Encounter[1] != IN_PROGRESS)
@@ -365,12 +365,12 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 		}
 	}
 };
-	 	 
+
 InstanceData* GetInstanceData_instance_dark_portal(Map* map)
 {
 	return new instance_dark_portal(map);
 }
-	 	 
+
 void AddSC_instance_dark_portal()
 {
 	Script *newscript;

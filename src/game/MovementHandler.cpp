@@ -365,7 +365,7 @@ void WorldSession::HandlePossessedMovement(WorldPacket& recv_data, MovementInfo&
     if (pos_unit->GetTypeId() == TYPEID_PLAYER)
     {
         Player* plr = (Player*)pos_unit;
-        
+
         if (recv_data.GetOpcode() == MSG_MOVE_FALL_LAND)
             plr->HandleFallDamage(movementInfo);
 
@@ -374,7 +374,7 @@ void WorldSession::HandlePossessedMovement(WorldPacket& recv_data, MovementInfo&
             // Now client not include swimming flag in case jumping under water
             plr->SetInWater( !plr->IsInWater() || plr->GetBaseMap()->IsUnderWater(movementInfo.x, movementInfo.y, movementInfo.z) );
         }
-        
+
         plr->SetPosition(movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o, false);
         plr->m_movementInfo = movementInfo;
 
@@ -386,7 +386,7 @@ void WorldSession::HandlePossessedMovement(WorldPacket& recv_data, MovementInfo&
             GetPlayer()->RemovePossess(false);
             plr->HandleFallUnderMap();
         }
-    } 
+    }
     else // Possessed unit is a creature
     {
         Map* map = MapManager::Instance().GetMap(pos_unit->GetMapId(), pos_unit);

@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: boss_archaedas
 SD%Complete: 100
-SDComment: Archaedas is activated when 3 prople click on his altar.  
+SDComment: Archaedas is activated when 3 prople click on his altar.
 Every 10 seconds he will awaken one of his minions along the wall.
 At 66%, he will awaken the 6 Guardians.
 At 33%, he will awaken the Vault Walkers
@@ -258,7 +258,7 @@ struct TRINITY_DLL_DECL mob_archaedas_minionsAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        // we're still in the awaken animation 
+        // we're still in the awaken animation
         if (wakingUp && Awaken_Timer >= 0) {
             Awaken_Timer -= diff;
             return;        // dont do anything until we are done

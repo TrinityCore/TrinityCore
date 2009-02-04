@@ -534,7 +534,7 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
 
     // interrupt channeled spell
     if(Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
-        if(spell->getState() == SPELL_STATE_CASTING 
+        if(spell->getState() == SPELL_STATE_CASTING
             && (spell->m_spellInfo->ChannelInterruptFlags & flag)
             && spell->m_spellInfo->Id != except)
             InterruptNonMeleeSpells(false);
@@ -602,7 +602,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
     if( pVictim->GetTypeId()== TYPEID_UNIT && ((Creature *)pVictim)->AI() )
 	{
 		((Creature *)pVictim)->AI()->DamageTaken(this, damage);
- 
+
 		// Set tagging
 		if(!pVictim->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER) && !((Creature*)pVictim)->isPet())
 		{
@@ -620,14 +620,14 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
 				{
 					if(((Creature*)this)->isPet())
 					{
-						((Creature *)pVictim)->SetLootRecipient(this->GetOwner()); 
+						((Creature *)pVictim)->SetLootRecipient(this->GetOwner());
 						((Creature *)pVictim)->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER);
 					}
 					break;
 				}
 			}
 		}
-	}    
+	}
 
     if (damagetype != NODAMAGE)
     {
@@ -4508,7 +4508,7 @@ void Unit::RemoveSingleAuraFromStackByDispel(uint32 spellId)
                 iter->second->ApplyModifier(false,true);
 			    iter->second->SetStackAmount(iter->second->GetStackAmount()-1);
                 iter->second->ApplyModifier(true,true);
- 
+
                 iter->second->UpdateSlotCounterAndDuration();
                 return; // not remove aura if stack amount > 1
             }
@@ -4668,7 +4668,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
                 statue = ((Totem*)caster);
 
             // stop caster chanelling state
-            else if(caster->m_currentSpells[CURRENT_CHANNELED_SPELL] 
+            else if(caster->m_currentSpells[CURRENT_CHANNELED_SPELL]
                 //prevent recurential call
                 && caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->getState() != SPELL_STATE_FINISHED)
             {
@@ -4676,7 +4676,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
                 {
                     // remove auras only for non-aoe spells or when chanelled aura is removed
                     // because aoe spells don't require aura on target to continue
-                    if (AurSpellInfo->EffectApplyAuraName[Aur->GetEffIndex()]!=SPELL_AURA_PERIODIC_DUMMY 
+                    if (AurSpellInfo->EffectApplyAuraName[Aur->GetEffIndex()]!=SPELL_AURA_PERIODIC_DUMMY
                         && AurSpellInfo->EffectApplyAuraName[Aur->GetEffIndex()]!= SPELL_AURA_DUMMY)
                         //don't stop channeling of scripted spells (this is actually a hack)
                     {
@@ -4691,9 +4691,9 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     sLog.outDebug("Aura %u (%u) now is remove mode %d", Aur->GetId(), Aur->GetModifier()->m_auraname, mode);
     assert(!Aur->IsInUse());
     Aur->ApplyModifier(false,true);
-	
+
 	Aur->SetStackAmount(0);
-	
+
     Aur->_RemoveAura();
 
     if(mode != AURA_REMOVE_BY_STACK)
@@ -8437,8 +8437,8 @@ void Unit::SetCharm(Unit* pet)
         SetUInt64Value(UNIT_FIELD_CHARM, pet ? pet->GetGUID() : 0);
 }
 
-void Unit::AddPlayerToVision(Player* plr) 
-{ 
+void Unit::AddPlayerToVision(Player* plr)
+{
     if (m_sharedVision.empty() && GetTypeId() == TYPEID_UNIT)
     {
         setActive(true);
@@ -8448,9 +8448,9 @@ void Unit::AddPlayerToVision(Player* plr)
     plr->SetFarsightTarget(this);
 }
 
-void Unit::RemovePlayerFromVision(Player* plr) 
-{ 
-    m_sharedVision.remove(plr); 
+void Unit::RemovePlayerFromVision(Player* plr)
+{
+    m_sharedVision.remove(plr);
     if (m_sharedVision.empty() && GetTypeId() == TYPEID_UNIT)
     {
         setActive(false);
@@ -8910,7 +8910,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     CoefficientPtc /= 100.0f;
 
     //float DoneActualBenefit = DoneAdvertisedBenefit * (CastingTime / 3500.0f) * DotFactor * SpellModSpellDamage * LvlPenalty;
-    
+
     float DoneActualBenefit = DoneAdvertisedBenefit * CoefficientPtc * LvlPenalty;
     float TakenActualBenefit = TakenAdvertisedBenefit * DotFactor * LvlPenalty;
     if(spellProto->SpellFamilyName && spellProto->SchoolMask != SPELL_SCHOOL_MASK_NORMAL)
@@ -9224,7 +9224,7 @@ uint32 Unit::SpellHealingBonus(SpellEntry const *spellProto, uint32 healamount, 
                     CastingTime = damagetype == DOT ? 3500 : 1010;
                 }
 				// Improved Leader of the Pack
-				else if (spellProto->AttributesEx2 == 536870912 && spellProto->SpellIconID == 312 
+				else if (spellProto->AttributesEx2 == 536870912 && spellProto->SpellIconID == 312
 					&& spellProto->AttributesEx3 == 33554432)
 				{
 					CastingTime = 0;
@@ -9864,7 +9864,7 @@ bool Unit::isAttackableByAOE() const
     if(!isAlive())
         return false;
 
-    if(HasFlag(UNIT_FIELD_FLAGS, 
+    if(HasFlag(UNIT_FIELD_FLAGS,
         UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_2))
         return false;
 
@@ -10479,7 +10479,7 @@ Unit* Creature::SelectVictim()
                 AI()->EnterEvadeMode();
                 break;
             }
-        return NULL;                
+        return NULL;
     }
 
     // enter in evade mode in other case
@@ -13028,7 +13028,7 @@ void Unit::SetCharmedOrPossessedBy(Unit* charmer, bool possess)
         }
     }
 
-    if(possess) 
+    if(possess)
         ((Player*)charmer)->PossessSpellInitialize();
     else if(charmer->GetTypeId() == TYPEID_PLAYER)
         ((Player*)charmer)->CharmSpellInitialize();
@@ -13084,7 +13084,7 @@ void Unit::RemoveCharmedOrPossessedBy(Unit *charmer)
         return;
 
     assert(!possess || charmer->GetTypeId() == TYPEID_PLAYER);
-           
+
     charmer->SetCharm(0);
     if(possess)
     {
@@ -13187,7 +13187,7 @@ void Unit::GetRaidMember(std::list<Unit*> &nearMembers, float radius)
         Player* Target = itr->getSource();
 
         // IsHostileTo check duel and controlled by enemy
-        if( Target && Target != this && Target->isAlive() 
+        if( Target && Target != this && Target->isAlive()
             && IsWithinDistInMap(Target, radius) && !IsHostileTo(Target) )
             nearMembers.push_back(Target);
     }

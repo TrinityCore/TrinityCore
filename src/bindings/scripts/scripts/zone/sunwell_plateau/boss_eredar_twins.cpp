@@ -76,7 +76,7 @@ EndScriptData */
 #define SPELL_BLAZE                     45235//on main target every 3 secs
 #define SPELL_FLAME_SEAR                46771
 #define SPELL_BLAZE_SUMMON              45236 //187366 GO
-#define SPELL_BLAZE_BURN                45246 
+#define SPELL_BLAZE_BURN                45246
 
 #define YELL_CANFLAGRATION              "Fire to the aid of shadow!" //only if Sacrolash is not dead
 #define SOUND_CANFLAGRATION             12489
@@ -113,8 +113,8 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
 
 
     uint32 enrage_timer;
-    
-    void Reset() 
+
+    void Reset()
     {
         InCombat = false;
         if(pInstance)
@@ -139,7 +139,7 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
             shadowblades_timer = 10000;
             shadownova_timer = 30000;
             confoundingblow_timer = 25000;
-            shadowimage_timer = 20000;    
+            shadowimage_timer = 20000;
             conflagration_timer = 30000;
             sisterdeath = false;
 
@@ -147,7 +147,7 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
         }
 
     }
-    void Aggro(Unit *who) 
+    void Aggro(Unit *who)
     {
         DoZoneInCombat();
         if(pInstance)
@@ -168,7 +168,7 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
                 DoPlaySoundToSet(m_creature,SOUND_SAC_KILL_1);
                 DoYell(YELL_SAC_KILL_1 ,LANG_UNIVERSAL,NULL);
                 break;
-            case 1: 
+            case 1:
                 DoPlaySoundToSet(m_creature,SOUND_SAC_KILL_2);
                 DoYell(YELL_SAC_KILL_2 ,LANG_UNIVERSAL,NULL);
                 break;
@@ -185,7 +185,7 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
         }
         else
         {
-            m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE); 
+            m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         }
     }
 
@@ -194,12 +194,12 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
         switch(spell->Id)
         {
         case SPELL_SHADOW_BLADES:
-        case SPELL_SHADOW_NOVA: 
-        case SPELL_CONFOUNDING_BLOW: 
+        case SPELL_SHADOW_NOVA:
+        case SPELL_CONFOUNDING_BLOW:
         case SPELL_SHADOW_FURY:
             HandleTouchedSpells(target, SPELL_DARK_TOUCHED);
             break;
-        case SPELL_CONFLAGRATION:        
+        case SPELL_CONFLAGRATION:
             HandleTouchedSpells(target, SPELL_FLAME_TOUCHED);
             break;
         }
@@ -238,20 +238,20 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
         }
     }
 
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         if(!sisterdeath)
         {
             if (pInstance)
             {
-                Unit* Temp = NULL; 
+                Unit* Temp = NULL;
                 Temp = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_ALYTHESS));
                 if (Temp && Temp->isDead())
                 {
                     DoYell(YELL_SISTER_ALYTHESS_DEAD ,LANG_UNIVERSAL,NULL);
                     DoPlaySoundToSet(m_creature,SOUND_SISTER_ALYTHESS_DEAD);
                     sisterdeath = true;
-                    
+
                     m_creature->InterruptSpell(CURRENT_GENERIC_SPELL);
                     DoCast(m_creature,SPELL_EMPOWER);
                 }
@@ -298,7 +298,7 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
         }
 
         if(confoundingblow_timer < diff)
-        {   
+        {
             if (!m_creature->IsNonMeleeSpellCasted(false))
             {
                 Unit* target = NULL;
@@ -319,7 +319,7 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
                 temp->AI()->AttackStart(target);
             }
             shadowimage_timer = 20000;
-        }else shadowimage_timer -=diff;        
+        }else shadowimage_timer -=diff;
 
         if(shadowblades_timer < diff)
         {
@@ -340,7 +340,7 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
         }else enrage_timer -= diff;
 
         if( m_creature->isAttackReady() && !m_creature->IsNonMeleeSpellCasted(false))
-        {   
+        {
             //If we are within range melee the target
             if( m_creature->IsWithinMeleeRange(m_creature->getVictim()))
             {
@@ -381,7 +381,7 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
 
     uint32 enrage_timer;
 
-    void Reset() 
+    void Reset()
     {
         InCombat = false;
         if(pInstance)
@@ -413,7 +413,7 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
             IntroYell_Timer = 10000;
         }
     }
-    void Aggro(Unit *who) 
+    void Aggro(Unit *who)
     {
         DoZoneInCombat();
         if(pInstance)
@@ -467,7 +467,7 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
                 DoPlaySoundToSet(m_creature,SOUND_ALY_KILL_1);
                 DoYell(YELL_ALY_KILL_1 ,LANG_UNIVERSAL,NULL);
                 break;
-            case 1: 
+            case 1:
                 DoPlaySoundToSet(m_creature,SOUND_ALY_KILL_2);
                 DoYell(YELL_ALY_KILL_2 ,LANG_UNIVERSAL,NULL);
                 break;
@@ -493,13 +493,13 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
         switch(spell->Id)
         {
 
-        case SPELL_BLAZE: 
+        case SPELL_BLAZE:
             target->CastSpell(target,SPELL_BLAZE_SUMMON,true);
         case SPELL_CONFLAGRATION:
-        case SPELL_FLAME_SEAR: 
+        case SPELL_FLAME_SEAR:
             HandleTouchedSpells(target, SPELL_FLAME_TOUCHED);
             break;
-        case SPELL_SHADOW_NOVA: 
+        case SPELL_SHADOW_NOVA:
             HandleTouchedSpells(target, SPELL_DARK_TOUCHED);
             break;
         }
@@ -546,37 +546,37 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
         case 0: DoPlaySoundToSet(m_creature,SOUND_INTRO); return 0;
         case 1:
             if(Sacrolash)
-                Sacrolash->Yell(YELL_INTRO_SAC_1, LANG_UNIVERSAL,NULL); 
+                Sacrolash->Yell(YELL_INTRO_SAC_1, LANG_UNIVERSAL,NULL);
             return 1000;
-        case 2: 
-            m_creature->Yell(YELL_INTRO_ALY_2, LANG_UNIVERSAL,NULL); 
+        case 2:
+            m_creature->Yell(YELL_INTRO_ALY_2, LANG_UNIVERSAL,NULL);
             return 1000;
-        case 3: 
+        case 3:
             if(Sacrolash)
-                Sacrolash->Yell(YELL_INTRO_SAC_3, LANG_UNIVERSAL,NULL); 
+                Sacrolash->Yell(YELL_INTRO_SAC_3, LANG_UNIVERSAL,NULL);
             return 2000;
-        case 4: 
-            m_creature->Yell(YELL_INTRO_ALY_4, LANG_UNIVERSAL,NULL); 
+        case 4:
+            m_creature->Yell(YELL_INTRO_ALY_4, LANG_UNIVERSAL,NULL);
             return 1000;
         case 5:
             if(Sacrolash)
-                Sacrolash->Yell(YELL_INTRO_SAC_5, LANG_UNIVERSAL,NULL); 
+                Sacrolash->Yell(YELL_INTRO_SAC_5, LANG_UNIVERSAL,NULL);
             return 2000;
-        case 6: 
-            m_creature->Yell(YELL_INTRO_ALY_6, LANG_UNIVERSAL,NULL); 
+        case 6:
+            m_creature->Yell(YELL_INTRO_ALY_6, LANG_UNIVERSAL,NULL);
             return 1000;
-        case 7: 
+        case 7:
             if(Sacrolash)
-                Sacrolash->Yell(YELL_INTRO_SAC_7, LANG_UNIVERSAL,NULL); 
+                Sacrolash->Yell(YELL_INTRO_SAC_7, LANG_UNIVERSAL,NULL);
             return 3000;
-        case 8: 
-            m_creature->Yell(YELL_INTRO_ALY_8, LANG_UNIVERSAL,NULL); 
+        case 8:
+            m_creature->Yell(YELL_INTRO_ALY_8, LANG_UNIVERSAL,NULL);
             return 900000;
         }
         return 10000;
     }
 
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         if(IntroStepCounter < 9)
         {
@@ -590,14 +590,14 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
         {
             if (pInstance)
             {
-                Unit* Temp = NULL; 
+                Unit* Temp = NULL;
                 Temp = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SACROLASH));
                 if (Temp && Temp->isDead())
                 {
                     DoYell(YELL_SISTER_SACROLASH_DEAD ,LANG_UNIVERSAL,NULL);
                     DoPlaySoundToSet(m_creature,SOUND_SISTER_SACROLASH_DEAD);
                     sisterdeath = true;
-                    
+
                     m_creature->InterruptSpell(CURRENT_GENERIC_SPELL);
                     DoCast(m_creature,SPELL_EMPOWER);
                 }
@@ -613,14 +613,14 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
             {
                 if (!m_creature->IsNonMeleeSpellCasted(false))
                 {
-                    Unit* target = NULL;       
+                    Unit* target = NULL;
                     target = SelectUnit(SELECT_TARGET_RANDOM, 0);
                     DoCast(target,SPELL_SHADOW_NOVA);
                     shadownova_timer= 30000+(rand()%5000);
                 }
             }else shadownova_timer -=diff;
         }
-        else 
+        else
         {
             if (conflagration_timer < diff)
             {
@@ -631,7 +631,7 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
                     target = SelectUnit(SELECT_TARGET_RANDOM, 0);
                     DoCast(target,SPELL_CONFLAGRATION);
                     conflagration_timer = 30000+(rand()%5000);
-                    
+
                     if(!sisterdeath)
                     {
                         m_creature->MonsterTextEmote("directs Conflagration at $N",target->GetGUID(),true);
@@ -660,7 +660,7 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
                 DoCast(m_creature,SPELL_PYROGENICS,true);
                 pyrogenics_timer = 15000;
             }
-        }else pyrogenics_timer -= diff;      
+        }else pyrogenics_timer -= diff;
 
         if (blaze_timer < diff)
         {
@@ -695,7 +695,7 @@ struct TRINITY_DLL_DECL mob_shadow_imageAI : public ScriptedAI
     uint32 kill_timer;
     uint32 darkstrike_timer;
 
-    void Reset() 
+    void Reset()
     {
         shadowfury_timer = 5000 + (rand()%15000);
         darkstrike_timer = 3000;
@@ -710,7 +710,7 @@ struct TRINITY_DLL_DECL mob_shadow_imageAI : public ScriptedAI
         switch(spell->Id)
         {
 
-        case SPELL_SHADOW_FURY: 
+        case SPELL_SHADOW_FURY:
         case SPELL_DARK_STRIKE:
             if(!target->HasAura(SPELL_DARK_FLAME,0))
             {
@@ -727,7 +727,7 @@ struct TRINITY_DLL_DECL mob_shadow_imageAI : public ScriptedAI
         }
     }
 
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         if(!m_creature->HasAura(SPELL_IMAGE_VISUAL,0))
             DoCast(m_creature,SPELL_IMAGE_VISUAL);
@@ -745,12 +745,12 @@ struct TRINITY_DLL_DECL mob_shadow_imageAI : public ScriptedAI
         {
             DoCast(m_creature,SPELL_SHADOW_FURY);
             shadowfury_timer = 10000;
-        }else shadowfury_timer -=diff;        
-        
+        }else shadowfury_timer -=diff;
+
         if(darkstrike_timer < diff)
         {
             if(!m_creature->IsNonMeleeSpellCasted(false))
-            {   
+            {
                 //If we are within range melee the target
                 if( m_creature->IsWithinMeleeRange(m_creature->getVictim()))
                 {

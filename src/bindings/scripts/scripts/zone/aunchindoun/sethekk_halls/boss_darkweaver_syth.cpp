@@ -53,7 +53,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_darkweaver_sythAI : public ScriptedAI
 {
-    boss_darkweaver_sythAI(Creature *c) : ScriptedAI(c) 
+    boss_darkweaver_sythAI(Creature *c) : ScriptedAI(c)
 
 	{
         HeroicMode = m_creature->GetMap()->IsHeroic();
@@ -258,7 +258,7 @@ CreatureAI* GetAI_mob_syth_fire(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mob_syth_arcaneAI : public ScriptedAI
 {
-    mob_syth_arcaneAI(Creature *c) : ScriptedAI(c) 
+    mob_syth_arcaneAI(Creature *c) : ScriptedAI(c)
 
 	{
 		HeroicMode = m_creature->GetMap()->IsHeroic();
@@ -310,8 +310,8 @@ CreatureAI* GetAI_mob_syth_arcane(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mob_syth_frostAI : public ScriptedAI
 {
-    mob_syth_frostAI(Creature *c) : ScriptedAI(c) 
-	
+    mob_syth_frostAI(Creature *c) : ScriptedAI(c)
+
 	{
         HeroicMode = m_creature->GetMap()->IsHeroic();
         Reset();
@@ -362,7 +362,7 @@ CreatureAI* GetAI_mob_syth_frost(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mob_syth_shadowAI : public ScriptedAI
 {
-    mob_syth_shadowAI(Creature *c) : ScriptedAI(c) 
+    mob_syth_shadowAI(Creature *c) : ScriptedAI(c)
 
 	{
         HeroicMode = m_creature->GetMap()->IsHeroic();

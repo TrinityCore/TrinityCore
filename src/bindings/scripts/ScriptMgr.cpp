@@ -650,7 +650,7 @@ void LoadDatabase()
     // Drop Existing Text Map, only done once and we are ready to add data from multiple sources.
     TextMap.clear();
 
-    // Load EventAI Text 
+    // Load EventAI Text
     outstring_log("TSCR: Loading EventAI Texts...");
     LoadTrinityStrings(TScriptDB,"eventai_texts",-1,1+(TEXT_SOURCE_RANGE));
 
@@ -716,7 +716,7 @@ void LoadDatabase()
         outstring_log(">> Loaded 0 additional EventAI Texts data. DB table `eventai_texts` is empty.");
     }
 
-    // Load Script Text 
+    // Load Script Text
     outstring_log("TSCR: Loading Script Texts...");
     LoadTrinityStrings(TScriptDB,"script_texts",TEXT_SOURCE_RANGE,1+(TEXT_SOURCE_RANGE*2));
 
@@ -781,7 +781,7 @@ void LoadDatabase()
         outstring_log(">> Loaded 0 additional Script Texts data. DB table `script_texts` is empty.");
     }
 
-    // Load Custom Text 
+    // Load Custom Text
     outstring_log("TSCR: Loading Custom Texts...");
     LoadTrinityStrings(TScriptDB,"custom_texts",TEXT_SOURCE_RANGE*2,1+(TEXT_SOURCE_RANGE*3));
 
@@ -1198,7 +1198,7 @@ void LoadDatabase()
 
 struct TSpellSummary {
     uint8 Targets;                                          // set of enum SelectTarget
-    uint8 Effects;                                          // set of enum SelectEffect 
+    uint8 Effects;                                          // set of enum SelectEffect
 }extern *SpellSummary;
 
 TRINITY_DLL_EXPORT

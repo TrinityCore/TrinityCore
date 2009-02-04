@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Hex_Lord_Malacrass
 SD%Complete:
-SDComment: 
+SDComment:
 SDCategory: Zul'Aman
 EndScriptData */
 
@@ -465,7 +465,7 @@ struct TRINITY_DLL_DECL boss_thurgAI : public boss_hexlord_addAI
         if(bloodlust_timer < diff)
         {
             std::list<Creature*> templist = DoFindFriendlyMissingBuff(50, SPELL_BLOODLUST);
-            if(!templist.empty()) 
+            if(!templist.empty())
             {
                 if(Unit* target = *(templist.begin()))
                     m_creature->CastSpell(target, SPELL_BLOODLUST, false);
@@ -649,7 +649,7 @@ struct TRINITY_DLL_DECL boss_lord_raadanAI : public boss_hexlord_addAI
             return;
 
         if (thunderclap_timer < diff)
-        { 
+        {
             m_creature->CastSpell(m_creature->getVictim(),SPELL_THUNDERCLAP, false);
             thunderclap_timer = 12000;
         }else thunderclap_timer -= diff;
@@ -685,7 +685,7 @@ struct TRINITY_DLL_DECL boss_darkheartAI : public boss_hexlord_addAI
             return;
 
         if (psychicwail_timer < diff)
-        { 
+        {
             m_creature->CastSpell(m_creature->getVictim(),SPELL_PSYCHIC_WAIL, false);
             psychicwail_timer = 12000;
         }else psychicwail_timer -= diff;
@@ -736,7 +736,7 @@ struct TRINITY_DLL_DECL boss_slitherAI : public boss_hexlord_addAI
             return;
 
         if (venomspit_timer < diff)
-        { 
+        {
             if(Unit* victim = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 m_creature->CastSpell(victim,SPELL_VENOM_SPIT, false);
             venomspit_timer = 2500;
@@ -768,7 +768,7 @@ struct TRINITY_DLL_DECL boss_fenstalkerAI : public boss_hexlord_addAI
             return;
 
         if (volatileinf_timer < diff)
-        { 
+        {
             // core bug
             m_creature->getVictim()->CastSpell(m_creature->getVictim(),SPELL_VOLATILE_INFECTION, false);
             volatileinf_timer = 12000;
@@ -804,7 +804,7 @@ struct TRINITY_DLL_DECL boss_koraggAI : public boss_hexlord_addAI
             return;
 
         if (mightyblow_timer < diff)
-        { 
+        {
             m_creature->CastSpell(m_creature->getVictim(),SPELL_MIGHTY_BLOW, false);
             mightyblow_timer = 12000;
         }

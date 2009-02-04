@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -204,7 +204,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player *plr, uint32 spellId)
                             return true;
                         if(!go->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT),SI_SILITHYST_MOUND, map,plr->GetPositionX(),plr->GetPositionY(),plr->GetPositionZ(),plr->GetOrientation(),0,0,0,0,100,1))
                         {
-                            delete go;                
+                            delete go;
                         }
                         else
                         {
@@ -230,7 +230,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player *plr, uint32 spellId)
                             return true;
                         if(!go->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT),SI_SILITHYST_MOUND, map ,plr->GetPositionX(),plr->GetPositionY(),plr->GetPositionZ(),plr->GetOrientation(),0,0,0,0,100,1))
                         {
-                            delete go;                
+                            delete go;
                         }
                         else
                         {

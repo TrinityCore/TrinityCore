@@ -13,7 +13,7 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-   
+
 /* ScriptData
 SDName: Instance_Scarlet_Monastery
 SD%Complete: 50
@@ -57,7 +57,7 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
 		MograineGUID = 0;
 		WhitemaneGUID = 0;
 		DoorHighInquisitorGUID = 0;
-   
+
 		for(uint8 i = 0; i < ENCOUNTERS; i++)
 			Encounter[i] = NOT_STARTED;
     }
@@ -96,7 +96,7 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
 			}break;
 		case DATA_HORSEMAN_EVENT:
 			if (data == DONE)
-			{				
+			{
 				for(std::set<uint64>::iterator itr = HorsemanAdds.begin(); itr != HorsemanAdds.end(); ++itr)
 				{
 					Creature* add = instance->GetCreatureInMap(*itr);
@@ -123,14 +123,14 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
 			case DATA_WHITEMANE:			return WhitemaneGUID;
 			case DATA_DOOR_WHITEMANE:		return DoorHighInquisitorGUID;
         }
-		return 0; 
+		return 0;
 	}
 
 	uint32 GetData(uint32 type)
 	{
 		if (type == TYPE_MOGRAINE_AND_WHITE_EVENT)
 			return Encounter[0];
-   
+
 		return 0;
 	}
 };

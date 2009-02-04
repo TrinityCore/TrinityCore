@@ -504,7 +504,7 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask)
 
     if (!goI)
         return;
-    
+
     if (!m_DBTableGuid)
         m_DBTableGuid = GetGUIDLow();
     // update in loaded data (changing data only in this place)
@@ -1209,7 +1209,7 @@ void GameObject::Use(Unit* user)
 
             Player* player = (Player*)user;
 
-            if( player->isAllowUseBattleGroundObject() )     
+            if( player->isAllowUseBattleGroundObject() )
             {
                 // in battleground check
                 BattleGround *bg = player->GetBattleGround();

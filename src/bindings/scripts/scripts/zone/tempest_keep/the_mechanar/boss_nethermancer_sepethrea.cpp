@@ -59,39 +59,39 @@ boss_nethermancer_sepethreaAI(Creature *c) : ScriptedAI(c)
     uint32 knockback_Timer;
     uint32 solarburn_Timer;
 
-    void Reset()    
+    void Reset()
     {
-        frost_attack_Timer = 7000 + rand()%3000;        
+        frost_attack_Timer = 7000 + rand()%3000;
         arcane_blast_Timer = 12000 + rand()%6000;
         dragons_breath_Timer = 18000 + rand()%4000;
         knockback_Timer = 22000 + rand()%6000;
         solarburn_Timer = 30000;
-    }  
+    }
 
-    void Aggro(Unit *who)    
-    {   
+    void Aggro(Unit *who)
+    {
 		DoScriptText(SAY_AGGRO, m_creature);
-	 	 
+
 		//Summon two guards, three in heroic
 		uint8 am = (HeroicMode ? 1 : 2);
-		for(int i = 0; i < am; i++)	
+		for(int i = 0; i < am; i++)
 		{
-			DoCast(who,SPELL_SUMMON_RAGIN_FLAMES);	
-		}   
+			DoCast(who,SPELL_SUMMON_RAGIN_FLAMES);
+		}
 		DoScriptText(SAY_SUMMON, m_creature);
-    }     
+    }
 
-    void KilledUnit(Unit* victim)    
+    void KilledUnit(Unit* victim)
     {
 		switch(rand()%2)
 		{
 		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
 		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
-		}    
+		}
 	}
 
-    void JustDied(Unit* Killer)    
-    {        
+    void JustDied(Unit* Killer)
+    {
         DoScriptText(SAY_DEATH, m_creature);
         if(pInstance)
             pInstance->SetData(DATA_SEPETHREA_DEATH, 0);
@@ -99,28 +99,28 @@ boss_nethermancer_sepethreaAI(Creature *c) : ScriptedAI(c)
 
     void UpdateAI(const uint32 diff)
     {
-        
-        //Return since we have no target
-        if (!UpdateVictim() )            
-            return;  
 
-        //Frost Attack        
-        if(frost_attack_Timer < diff)        
-        {                      
+        //Return since we have no target
+        if (!UpdateVictim() )
+            return;
+
+        //Frost Attack
+        if(frost_attack_Timer < diff)
+        {
             DoCast(m_creature->getVictim(),SPELL_FROST_ATTACK);
-            frost_attack_Timer = 7000 + rand()%30000;               
+            frost_attack_Timer = 7000 + rand()%30000;
         }else frost_attack_Timer -= diff;
 
-        //Arcane Blast        
-        if(arcane_blast_Timer < diff)        
-        {            
+        //Arcane Blast
+        if(arcane_blast_Timer < diff)
+        {
             DoCast(m_creature->getVictim(), SPELL_ARCANE_BLAST);
-            arcane_blast_Timer = 15000;                
+            arcane_blast_Timer = 15000;
         }else arcane_blast_Timer -= diff;
 
-        //Dragons Breath        
-        if(dragons_breath_Timer < diff)        
-        {            
+        //Dragons Breath
+        if(dragons_breath_Timer < diff)
+        {
             DoCast(m_creature->getVictim(),SPELL_DRAGONS_BREATH);
             {
                 if (rand()%2)
@@ -132,30 +132,30 @@ boss_nethermancer_sepethreaAI(Creature *c) : ScriptedAI(c)
 				case 1: DoScriptText(SAY_DRAGONS_BREATH_2, m_creature); break;
                 }
             }
-            dragons_breath_Timer = 12000 + rand()%10000;                
-        }else dragons_breath_Timer -= diff;          
+            dragons_breath_Timer = 12000 + rand()%10000;
+        }else dragons_breath_Timer -= diff;
 
-        //Knockback        
-        if(knockback_Timer < diff)        
-        {            
-            DoCast(m_creature->getVictim(),SPELL_KNOCKBACK);             
-            knockback_Timer = 15000 + rand()%10000;                
+        //Knockback
+        if(knockback_Timer < diff)
+        {
+            DoCast(m_creature->getVictim(),SPELL_KNOCKBACK);
+            knockback_Timer = 15000 + rand()%10000;
         }else knockback_Timer -= diff;
 
-        //Solarburn        
-        if(solarburn_Timer < diff)        
-        {            
-            DoCast(m_creature->getVictim(),SPELL_SOLARBURN);             
-            solarburn_Timer = 30000;                
+        //Solarburn
+        if(solarburn_Timer < diff)
+        {
+            DoCast(m_creature->getVictim(),SPELL_SOLARBURN);
+            solarburn_Timer = 30000;
         }else solarburn_Timer -= diff;
 
         DoMeleeAttackIfReady();
 
-    } 
+    }
 };
 
 CreatureAI* GetAI_boss_nethermancer_sepethrea(Creature *_Creature)
-{    
+{
     return new boss_nethermancer_sepethreaAI (_Creature);
 }
 
@@ -183,7 +183,7 @@ struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
     bool onlyonce;
 
     void Reset()
-    {   
+    {
         inferno_Timer = 10000;
         flame_timer = 500;
         Check_Timer = 2000;
@@ -246,15 +246,15 @@ CreatureAI* GetAI_mob_ragin_flames(Creature *_Creature)
     return new mob_ragin_flamesAI (_Creature);
 }
 void AddSC_boss_nethermancer_sepethrea()
-{    
-    Script *newscript;    
-    newscript = new Script;    
-    newscript->Name="boss_nethermancer_sepethrea";    
-    newscript->GetAI = &GetAI_boss_nethermancer_sepethrea;    
+{
+    Script *newscript;
+    newscript = new Script;
+    newscript->Name="boss_nethermancer_sepethrea";
+    newscript->GetAI = &GetAI_boss_nethermancer_sepethrea;
     newscript->RegisterSelf();
 
-    newscript = new Script;    
-    newscript->Name="mob_ragin_flames";    
-    newscript->GetAI = &GetAI_mob_ragin_flames;    
+    newscript = new Script;
+    newscript->Name="mob_ragin_flames";
+    newscript->GetAI = &GetAI_mob_ragin_flames;
     newscript->RegisterSelf();
 }

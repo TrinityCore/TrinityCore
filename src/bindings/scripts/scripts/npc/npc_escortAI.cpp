@@ -31,7 +31,7 @@ void npc_escortAI::AttackStart(Unit *who)
     if (IsBeingEscorted && !Defend)
         return;
 
-    
+
         if ( m_creature->Attack(who, true) )
         {
             m_creature->AddThreat(who, 0.0f);
@@ -237,7 +237,7 @@ void npc_escortAI::MovementInform(uint32 type, uint32 id)
 
 void npc_escortAI::OnPossess(bool apply)
 {
-    // We got possessed in the middle of being escorted, store the point 
+    // We got possessed in the middle of being escorted, store the point
     // where we left off to come back to when possess is removed
     if (IsBeingEscorted)
     {

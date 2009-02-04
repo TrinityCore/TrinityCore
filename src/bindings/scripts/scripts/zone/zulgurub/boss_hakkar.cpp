@@ -121,7 +121,7 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
 
         //CauseInsanity_Timer
 		/*if (CauseInsanity_Timer < diff)
-		{        
+		{
 		if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
 		DoCast(target,SPELL_CAUSEINSANITY);
 
