@@ -44,7 +44,7 @@ bool GOHello_go_bridge_console(Player *player, GameObject* go)
 
 	if (pInstance)
 		pInstance->SetData(DATA_CONTROL_CONSOLE, DONE);
-	
+
     return true;
 }
 

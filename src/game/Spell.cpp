@@ -1123,7 +1123,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
         return;
 
     // Recheck immune (only for delayed spells)
-    if( m_spellInfo->speed && 
+    if( m_spellInfo->speed &&
         !(m_spellInfo->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)
         && (unit->IsImmunedToDamage(GetSpellSchoolMask(m_spellInfo),true) ||
         unit->IsImmunedToSpell(m_spellInfo,true) ))
@@ -1231,7 +1231,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
     {
         if(m_customAttr & SPELL_ATTR_CU_EFFECT_HEAL)
             m_originalCaster->ProcDamageAndSpell(unit, PROC_FLAG_HEAL, PROC_FLAG_NONE, 0, GetSpellSchoolMask(m_spellInfo), m_spellInfo);
-        if(m_originalCaster != unit && (m_customAttr & SPELL_ATTR_CU_EFFECT_DAMAGE)) 
+        if(m_originalCaster != unit && (m_customAttr & SPELL_ATTR_CU_EFFECT_DAMAGE))
             m_originalCaster->ProcDamageAndSpell(unit, PROC_FLAG_HIT_SPELL, PROC_FLAG_STRUCK_SPELL, 0, GetSpellSchoolMask(m_spellInfo), m_spellInfo);
     }*/
 }
@@ -1389,7 +1389,7 @@ void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, float max_range, uin
             if(cur->GetDistance(*next) > CHAIN_SPELL_JUMP_RADIUS)
                 break;
             while(!cur->IsWithinLOSInMap(*next)
-                || m_spellInfo->DmgClass==SPELL_DAMAGE_CLASS_MELEE 
+                || m_spellInfo->DmgClass==SPELL_DAMAGE_CLASS_MELEE
                 && !m_caster->isInFront(*next, max_range))
             {
                 ++next;
@@ -1399,7 +1399,7 @@ void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, float max_range, uin
         }
 
         cur = *next;
-        tempUnitMap.erase(next);        
+        tempUnitMap.erase(next);
     }
 }
 
@@ -1437,7 +1437,7 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, const u
     }
 
     Trinity::SpellNotifierCreatureAndPlayer notifier(*this, TagUnitMap, radius, type, TargetType, entry, x, y, z);
-    if((m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_PLAYERS_ONLY) 
+    if((m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_PLAYERS_ONLY)
         || TargetType == SPELL_TARGETS_ENTRY && !entry)
         m_caster->GetMap()->VisitWorld(x, y, radius, notifier);
     else
@@ -1992,7 +1992,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
         if(m_targets.getUnitTarget())
         {
             TagUnitMap.remove(m_targets.getUnitTarget());
-            if(m_spellInfo->Id != 5246) //Intimidating Shout 
+            if(m_spellInfo->Id != 5246) //Intimidating Shout
                 --unMaxTargets;
         }
 
@@ -2017,7 +2017,7 @@ void Spell::prepare(SpellCastTargets * targets, Aura* triggeredByAura)
         m_castItemGUID = m_CastItem->GetGUID();
     else
         m_castItemGUID = 0;
-    
+
     m_targets = *targets;
 
     m_spellState = SPELL_STATE_PREPARING;
@@ -2092,7 +2092,7 @@ void Spell::prepare(SpellCastTargets * targets, Aura* triggeredByAura)
         if(isSpellBreakStealth(m_spellInfo) )
             m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CAST);
 
-        if(!m_casttime && !m_spellInfo->StartRecoveryTime 
+        if(!m_casttime && !m_spellInfo->StartRecoveryTime
             && !m_castItemGUID     //item: first cast may destroy item and second cast causes crash
             && GetCurrentContainer() == CURRENT_GENERIC_SPELL)
             cast(true);
@@ -2147,14 +2147,14 @@ void Spell::cancel(bool report)
     // Unsummon summon as possessed creatures on spell cancel
     for (int i = 0; i < 3; i++)
     {
-        if (m_spellInfo->Effect[i] == SPELL_EFFECT_SUMMON && 
-            (m_spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED || 
-             m_spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED2 || 
+        if (m_spellInfo->Effect[i] == SPELL_EFFECT_SUMMON &&
+            (m_spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED ||
+             m_spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED2 ||
              m_spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED3))
         {
             // Possession is removed in the UnSummon function
             if (m_caster->GetCharm())
-                ((TemporarySummon*)m_caster->GetCharm())->UnSummon(); 
+                ((TemporarySummon*)m_caster->GetCharm())->UnSummon();
         }
     }
 
@@ -3462,7 +3462,7 @@ uint8 Spell::CanCast(bool strict)
         }
 
         //Must be behind the target.
-        if( m_spellInfo->AttributesEx2 == 0x100000 && (m_spellInfo->AttributesEx & 0x200) == 0x200 && target->HasInArc(M_PI, m_caster) 
+        if( m_spellInfo->AttributesEx2 == 0x100000 && (m_spellInfo->AttributesEx & 0x200) == 0x200 && target->HasInArc(M_PI, m_caster)
             && (m_spellInfo->SpellFamilyName != SPELLFAMILY_DRUID || m_spellInfo->SpellFamilyFlags != 0x0000000000020000LL))
         {
             SendInterrupted(2);
@@ -5423,7 +5423,7 @@ int32 Spell::CalculateDamageDone(Unit *unit, const uint32 effectMask, float *mul
                 m_damage *= m_damageMultipliers[i];
                 m_damageMultipliers[i] *= multiplier[i];
             }
-            
+
             damageDone += m_damage;
         }
     }

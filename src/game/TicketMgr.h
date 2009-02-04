@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS 
+ * Copyright (C) 2005-2008 MaNGOS
  *
- * Copyright (C) 2008 Trinity 
+ * Copyright (C) 2008 Trinity
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,13 +59,13 @@ class TicketMgr
 		void RemoveGMTicket(uint64 ticketGuid, uint64 GMguid);
 		void UpdateGMTicket(GM_Ticket *ticket);
 		void SaveGMTicket(GM_Ticket* ticket);
-		
+
 		uint64 GenerateTicketID();
 		void InitTicketID();
 		GM_Ticket* GetGMTicket(uint64 ticketGuid);
 		GM_Ticket* GetGMTicketByPlayer(uint64 playerGuid);
 		GM_Ticket* GetGMTicketByName(const char *name);
-		
+
 
 	protected:
 		uint64 m_ticketid;

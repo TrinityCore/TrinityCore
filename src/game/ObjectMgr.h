@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
  *
  * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
@@ -324,7 +324,7 @@ class ObjectMgr
         typedef std::vector<std::string> ScriptNameMap;
 
 		UNORDERED_MAP<uint32, uint32> TransportEventMap;
-        
+
 		Player* GetPlayer(const char* name) const { return ObjectAccessor::Instance().FindPlayerByName(name);}
         Player* GetPlayer(uint64 guid) const { return ObjectAccessor::FindPlayer(guid); }
 
@@ -537,7 +537,7 @@ class ObjectMgr
         void LoadEventScripts();
         void LoadSpellScripts();
 		void LoadWaypointScripts();
-		
+
 		void LoadTransportEvents();
 
         bool LoadTrinityStrings(DatabaseType& db, char const* table, int32 min_value, int32 max_value);
@@ -594,7 +594,7 @@ class ObjectMgr
         void LoadNpcTextId();
         void LoadVendors();
         void LoadTrainerSpell();
-		
+
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint32 level);
 
@@ -614,7 +614,7 @@ class ObjectMgr
         uint32 GeneratePetNumber();
         uint32 GenerateArenaTeamId();
         uint32 GenerateGuildId();
-        
+
         void LoadPlayerInfoInCache();
         PCachePlayerInfo GetPlayerInfoFromCache(uint32 unPlayerGuid) const;
         CachePlayerInfoMap m_mPlayerInfoMap;

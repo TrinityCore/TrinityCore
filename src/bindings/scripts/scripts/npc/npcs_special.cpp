@@ -139,7 +139,7 @@ bool QuestComplete_npc_chicken_cluck(Player *player, Creature *_Creature, const 
 struct TRINITY_DLL_DECL npc_dancing_flamesAI : public ScriptedAI
 {
     npc_dancing_flamesAI(Creature *c) : ScriptedAI(c) {Reset();}
- 
+
 	bool active;
 	uint32 can_iteract;
 
@@ -899,7 +899,7 @@ struct TRINITY_DLL_DECL npc_steam_tonkAI : public ScriptedAI
 
     void Reset() {}
     void Aggro(Unit *who) {}
-    
+
     void OnPossess(bool apply)
     {
         if (apply)
@@ -921,11 +921,11 @@ CreatureAI* GetAI_npc_steam_tonk(Creature *_Creature)
     return new npc_steam_tonkAI(_Creature);
 }
 
-#define SPELL_TONK_MINE_DETONATE 25099   
+#define SPELL_TONK_MINE_DETONATE 25099
 
 struct TRINITY_DLL_DECL npc_tonk_mineAI : public ScriptedAI
 {
-    npc_tonk_mineAI(Creature *c) : ScriptedAI(c) 
+    npc_tonk_mineAI(Creature *c) : ScriptedAI(c)
     {
         m_creature->SetReactState(REACT_PASSIVE);
         Reset();
@@ -1002,7 +1002,7 @@ bool ReceiveEmote_npc_brewfest_reveler( Player *player, Creature *_Creature, uin
 #define SPELL_DEADLY_POISON          34655   //Venomous Snake
 #define SPELL_CRIPPLING_POISON       3409    //Viper
 
-#define VENOMOUS_SNAKE_TIMER 1200        
+#define VENOMOUS_SNAKE_TIMER 1200
 #define VIPER_TIMER 3000
 
 #define C_VIPER 19921
@@ -1016,14 +1016,14 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
     uint32 SpellTimer;
     Unit *Owner;
     bool IsViper;
-         
+
     void Aggro(Unit *who) {}
 
     void Reset()
     {
 		Owner = m_creature->GetOwner();
-		
-		if (!m_creature->isPet() || !Owner) 
+
+		if (!m_creature->isPet() || !Owner)
 			return;
 
 		CreatureInfo const *Info = m_creature->GetCreatureInfo();
@@ -1051,25 +1051,25 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
     {
         if (!m_creature->isPet() || !Owner)
 			return;
-        
+
         if( !m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessiblePlaceFor(m_creature) && Owner->IsHostileTo(who))//don't attack not-pvp-flaged
         {
             if (m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                 return;
-            
+
             float attackRadius = m_creature->GetAttackDistance(who);
             if( m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who) )
-            {                
+            {
 				if (!(rand() % RAND) )
-                {                       
-                    m_creature->setAttackTimer(BASE_ATTACK, (rand() % 10) * 100); 
+                {
+                    m_creature->setAttackTimer(BASE_ATTACK, (rand() % 10) * 100);
                     SpellTimer = (rand() % 10) * 100;
                     AttackStart(who);
                     InCombat = true;
 				}
 			}
-		}        
-	} 
+		}
+	}
 
     void UpdateAI(const uint32 diff)
     {
@@ -1077,41 +1077,41 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
 			return;
 
         //Follow if not in combat
-        if (!m_creature->hasUnitState(UNIT_STAT_FOLLOW)&& !InCombat) 
+        if (!m_creature->hasUnitState(UNIT_STAT_FOLLOW)&& !InCombat)
         {
             m_creature->GetMotionMaster()->Clear();
             m_creature->GetMotionMaster()->MoveFollow(Owner,PET_FOLLOW_DIST,PET_FOLLOW_ANGLE);
         }
-        
+
         //No victim -> get new from owner (need this because MoveInLineOfSight won't work while following -> corebug)
         if (!m_creature->getVictim())
         {
-            if (InCombat) 
+            if (InCombat)
 				DoStopAttack();
 
 			InCombat = false;
-            
+
 			if(Owner->getAttackerForHelper())
 				AttackStart(Owner->getAttackerForHelper());
 
             return;
         }
-        
+
         if (SpellTimer < diff)
         {
 			if (IsViper) //Viper
             {
                 if (rand() % 3 == 0) //33% chance to cast
                 {
-                    uint32 spell; 
+                    uint32 spell;
                     if( rand() % 2 == 0)
                         spell = SPELL_MIND_NUMBING_POISON;
                     else
                         spell = SPELL_CRIPPLING_POISON;
-                    
+
                     DoCast(m_creature->getVictim(),spell);
                 }
-                        
+
 				SpellTimer = VIPER_TIMER;
             }
             else //Venomous Snake
@@ -1120,7 +1120,7 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
                     DoCast(m_creature->getVictim(),SPELL_DEADLY_POISON);
                 SpellTimer = VENOMOUS_SNAKE_TIMER + (rand() %5)*100;
             }
-        }else SpellTimer-=diff; 
+        }else SpellTimer-=diff;
 		DoMeleeAttackIfReady();
     }
 };

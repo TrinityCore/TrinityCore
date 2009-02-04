@@ -113,7 +113,7 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
 				pInstance->SetData(DATA_SELIN_EVENT, DONE);
 			else pInstance->SetData(DATA_SELIN_EVENT, NOT_STARTED);
         }else error_log(ERROR_INST_DATA);
-		
+
         DrainLifeTimer = 3000 + rand()%4000;
         DrainManaTimer = DrainLifeTimer + 5000;
         FelExplosionTimer = 2100;

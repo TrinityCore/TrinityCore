@@ -371,7 +371,7 @@ struct TRINITY_DLL_DECL mob_rizzle_sprysprocketAI : public ScriptedAI
 	}
 
     void AttackStart(Unit *who)
-    {        
+    {
         if (!who || PlayerGUID)
             return;
 
@@ -447,7 +447,7 @@ struct TRINITY_DLL_DECL mob_depth_chargeAI : public ScriptedAI
         we_must_die = false;
         must_die_timer = 1000;
     }
- 
+
     void UpdateAI(const uint32 diff)
     {
         if(we_must_die)
@@ -471,9 +471,9 @@ struct TRINITY_DLL_DECL mob_depth_chargeAI : public ScriptedAI
             return;
         }
     }
- 
+
     void AttackStart(Unit *who)
-    {        
+    {
         return;
     }
 

@@ -1,4 +1,4 @@
-/* 
+/*
 * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
 *
 * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
@@ -34,7 +34,7 @@ The collision detection is modified to return true, if we are inside an object.
 
 namespace VMAP
 {
-    template<class TValue> 
+    template<class TValue>
     class IntersectionCallBack {
     public:
         TValue*      closestEntity;

@@ -12,7 +12,7 @@
 * You should have received a copy of the GNU General Public License
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/   
+*/
 
 /* ScriptData
 SDName: boss_alar
@@ -40,7 +40,7 @@ EndScriptData */
 #define CREATURE_FLAME_PATCH_ALAR     20602 // Flame Patch - every 30 sec in phase 2
 #define SPELL_FLAME_PATCH             35380 //
 
-static float waypoint[6][3] = 
+static float waypoint[6][3] =
 {
     {340.15, 58.65, 17.71},
     {388.09, 31.54, 20.18},
@@ -166,9 +166,9 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
                 m_creature->RemoveAllAuras();
                 m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 m_creature->AttackStop();
-                m_creature->SetUInt64Value(UNIT_FIELD_TARGET, 0); 
+                m_creature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
                 m_creature->SetSpeed(MOVE_RUN, 5.0f);
-                m_creature->GetMotionMaster()->Clear(); 
+                m_creature->GetMotionMaster()->Clear();
                 m_creature->GetMotionMaster()->MovePoint(0, waypoint[5][0], waypoint[5][1], waypoint[5][2]);
             }
         }
@@ -225,7 +225,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
                         m_creature->CastSpell(m_creature, SPELL_FLAME_QUILLS, true);
                         Platforms_Move_Timer = 1;
                         WaitTimer = 10000;
-                        WaitEvent = WE_DUMMY;                    
+                        WaitEvent = WE_DUMMY;
                         return;
                     case WE_DIE:
                         m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, PLAYER_STATE_DEAD);
@@ -244,7 +244,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
                         Charge_Timer = 7000;
                         DiveBomb_Timer = 40000+rand()%5000;
                         FlamePatch_Timer = 30000;
-                        Phase1 = false; 
+                        Phase1 = false;
                         break;
                     case WE_METEOR:
                         m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
@@ -314,7 +314,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
                         else
                             cur_wp++;
                         WaitEvent = WE_PLATFORM;
-                    } 
+                    }
                     else // flame quill
                     {
                         cur_wp = 4;
@@ -392,9 +392,9 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
                 Unit *target = NULL;
                 if(Phase1 && (target = m_creature->SelectNearestTarget(5)))
                     m_creature->AI()->AttackStart(target);
-                else                   
+                else
                 {
-                    m_creature->CastSpell(m_creature, SPELL_FLAME_BUFFET, true);           
+                    m_creature->CastSpell(m_creature, SPELL_FLAME_BUFFET, true);
                     m_creature->setAttackTimer(BASE_ATTACK, 1500);
                 }
             }

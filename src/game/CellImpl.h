@@ -154,7 +154,7 @@ Cell::Visit(const CellLock<LOCK_TYPE> &l, TypeContainerVisitor<T, CONTAINER> &vi
     {
         m.Visit(l, visitor);
         return;
-    }                
+    }
 
     CellPair begin_cell = standing_cell;
     CellPair end_cell = standing_cell;

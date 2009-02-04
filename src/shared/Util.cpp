@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
  *
  * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
@@ -28,7 +28,7 @@
 typedef ZThread::ThreadLocal<MTRand> MTRandTSS;
 
 /* NOTE: Not sure if static initialization is ok for TSS objects ,
- * as I see zthread uses custom implementation of the TSS 
+ * as I see zthread uses custom implementation of the TSS
  * ,and in the consturctor there is no code ,so I suppose its ok
  * If its not ok ,change it to use singleton.
  */

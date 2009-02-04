@@ -929,7 +929,7 @@ bool ChatHandler::HandleReloadWpScriptsCommand(const char* arg)
         sLog.outString( "Re-Loading Scripts from `waypoint_scripts`...");
 
 	objmgr.LoadWaypointScripts();
- 
+
 	if(*arg!='a')
         SendGlobalGMSysMessage("DB table `waypoint_scripts` reloaded.");
 
@@ -1136,7 +1136,7 @@ bool ChatHandler::HandleAccountSetGmLevelCommand(const char* args)
         }else{
             PSendSysMessage(LANG_YOURS_SECURITY_CHANGED, m_session->GetPlayer()->GetName(), gm);
         }
-            
+
         LoginDatabase.PExecute("UPDATE account SET gmlevel = '%d' WHERE id = '%u'", gm, targetAccountId);
         return true;
     }else
@@ -1144,7 +1144,7 @@ bool ChatHandler::HandleAccountSetGmLevelCommand(const char* args)
         // Check for second parameter
         if(!arg2)
             return false;
-        
+
         // Check for account
         targetAccountName = arg1;
         if(!AccountMgr::normilizeString(targetAccountName))
@@ -1153,7 +1153,7 @@ bool ChatHandler::HandleAccountSetGmLevelCommand(const char* args)
             SetSentErrorMessage(true);
             return false;
         }
-        
+
         // Check for invalid specified GM level.
         gm = atoi(arg2);
         if ( (gm < SEC_PLAYER || gm > SEC_ADMINISTRATOR) )
@@ -1162,7 +1162,7 @@ bool ChatHandler::HandleAccountSetGmLevelCommand(const char* args)
             SetSentErrorMessage(true);
             return false;
         }
-        
+
         targetAccountId = accmgr.GetId(arg1);
         /// m_session==NULL only for console
         uint32 plSecurity = m_session ? m_session->GetSecurity() : SEC_CONSOLE;
@@ -7075,7 +7075,7 @@ bool ChatHandler::HandleFreezeCommand(const char *args)
     {
         player = getSelectedPlayer();
         if (player) //prevent crash with creature as target
-        {   
+        {
             name = player->GetName();
             normalizePlayerName(name);
         }
@@ -7136,7 +7136,7 @@ bool ChatHandler::HandleFreezeCommand(const char *args)
                 if (eff>=TOTAL_SPELL_EFFECTS)
                     continue;
                 if( eff == SPELL_EFFECT_APPLY_AREA_AURA_PARTY || eff == SPELL_EFFECT_APPLY_AURA ||
-                    eff == SPELL_EFFECT_PERSISTENT_AREA_AURA || eff == SPELL_EFFECT_APPLY_AREA_AURA_FRIEND || 
+                    eff == SPELL_EFFECT_PERSISTENT_AREA_AURA || eff == SPELL_EFFECT_APPLY_AREA_AURA_FRIEND ||
                     eff == SPELL_EFFECT_APPLY_AREA_AURA_ENEMY)
                 {
                     Aura *Aur = CreateAura(spellInfo, i, NULL, player);
@@ -7160,7 +7160,7 @@ bool ChatHandler::HandleUnFreezeCommand(const char *args)
     {
         player = getSelectedPlayer();
         if (player) //prevent crash with creature as target
-        {   
+        {
             name = player->GetName();
         }
     }
@@ -7192,7 +7192,7 @@ bool ChatHandler::HandleUnFreezeCommand(const char *args)
     if (!player)
     {
         if (TargetName)
-        {        
+        {
             //check for offline players
             QueryResult *result = CharacterDatabase.PQuery("SELECT characters.guid FROM `characters` WHERE characters.name = '%s'",name.c_str());
             if(!result)
@@ -7311,7 +7311,7 @@ bool ChatHandler::HandleBindSightCommand(const char* args)
     Unit* pUnit = getSelectedUnit();
     if (!pUnit)
         return false;
-        
+
     if (m_session->GetPlayer()->isPossessing())
         return false;
 
@@ -7324,7 +7324,7 @@ bool ChatHandler::HandleUnbindSightCommand(const char* args)
 {
     if (m_session->GetPlayer()->isPossessing())
         return false;
-        
+
     m_session->GetPlayer()->RemoveFarsightTarget();
     return true;
 }

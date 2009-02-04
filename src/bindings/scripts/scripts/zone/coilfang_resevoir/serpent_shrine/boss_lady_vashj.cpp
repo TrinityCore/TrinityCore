@@ -66,8 +66,8 @@ EndScriptData */
 #define TAINTED_ELEMENTAL             22009
 #define COILFANG_STRIDER              22056
 #define COILFANG_ELITE                22055
-#define TOXIC_SPOREBAT                22140 
-#define TOXIC_SPORES_TRIGGER          22207 
+#define TOXIC_SPOREBAT                22140
+#define TOXIC_SPORES_TRIGGER          22207
 
 float ElementPos[8][4] =
 {
@@ -81,7 +81,7 @@ float ElementPos[8][4] =
     {-58.9, -901.6, 21.5, 6}
 };
 
-float ElementWPPos[8][3] = 
+float ElementWPPos[8][3] =
 {
     {71.700752, -883.905884, 41.097168},
     {45.039848, -868.022827, 41.097015},
@@ -93,7 +93,7 @@ float ElementWPPos[8][3] =
     {69.945908, -964.663940, 41.097054}
 };
 
-float SporebatWPPos[8][3] = 
+float SporebatWPPos[8][3] =
 {
     {31.6,-896.3,59.1},
     {9.1, -913.9, 56},
@@ -135,7 +135,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
         pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
 		Intro = false;
 		Reset();
-		CanAttack = false;//must be after reset()    
+		CanAttack = false;//must be after reset()
 		m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); //set it only once on creature create (no need do intro if wiped)
     }
 
@@ -143,7 +143,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
 
     uint64 ShieldGeneratorChannel[4];
 
-	uint32 AggroTimer; 
+	uint32 AggroTimer;
     uint32 ShockBlast_Timer;
     uint32 Entangle_Timer;
     uint32 StaticCharge_Timer;
@@ -165,7 +165,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
 
     void Reset()
     {
-		AggroTimer = 19000; 
+		AggroTimer = 19000;
         ShockBlast_Timer = 1+rand()%60000;
         Entangle_Timer = 30000;
         StaticCharge_Timer = 10000+rand()%15000;
@@ -193,12 +193,12 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
         }
 
         if(pInstance)
-			pInstance->SetData(DATA_LADYVASHJEVENT, NOT_STARTED);			
+			pInstance->SetData(DATA_LADYVASHJEVENT, NOT_STARTED);
         ShieldGeneratorChannel[0] = 0;
         ShieldGeneratorChannel[1] = 0;
         ShieldGeneratorChannel[2] = 0;
         ShieldGeneratorChannel[3] = 0;
-		
+
 		m_creature->SetCorpseDelay(1000*60*60);
     }
 
@@ -271,7 +271,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
 		if (!Intro)
 		{
 			Intro = true;
-			DoScriptText(SAY_INTRO, m_creature);			
+			DoScriptText(SAY_INTRO, m_creature);
 		}
 		if (!CanAttack)
 			return;
@@ -327,9 +327,9 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
 			if(AggroTimer < diff)
 			{
 				CanAttack = true;
-				m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); 
+				m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 				AggroTimer=19000;
-			}else 
+			}else
 			{
 				AggroTimer-=diff;
 				return;
@@ -596,7 +596,7 @@ struct TRINITY_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
 	Unit *Vashj;
 
     void Reset()
-    {        
+    {
 		m_creature->SetSpeed(MOVE_WALK,0.6);//walk
 		m_creature->SetSpeed(MOVE_RUN,0.6);//run
 		move = 0;
@@ -628,17 +628,17 @@ struct TRINITY_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
     void Aggro(Unit *who) { return; }
 
     void MoveInLineOfSight(Unit *who){return;}
-	
+
     void UpdateAI(const uint32 diff)
     {
 		if(!pInstance)
-			return;		
+			return;
 
-		if (!Vashj) 
+		if (!Vashj)
 		{
 			return;
 		}
-		
+
 		if(move < diff)
         {
 			m_creature->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
@@ -678,9 +678,9 @@ struct TRINITY_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
             {
                 //call Unsummon()
 				m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            }	
+            }
 			move = 1000;
-		}else move -= diff;      
+		}else move -= diff;
     }
 };
 
@@ -777,12 +777,12 @@ struct TRINITY_DLL_DECL mob_toxic_sporebatAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-		
+
     }
 
     void MoveInLineOfSight(Unit *who)
 	{
-		
+
     }
 
 	void MovementInform(uint32 type, uint32 id)
@@ -807,7 +807,7 @@ struct TRINITY_DLL_DECL mob_toxic_sporebatAI : public ScriptedAI
 			m_creature->GetMotionMaster()->MovePoint(1,SporebatWPPos[rndpos][0], SporebatWPPos[rndpos][1], SporebatWPPos[rndpos][2]);
 			movement_timer = 6000;
 		}else movement_timer -= diff;
-		
+
 		//toxic spores
 		if(bolt_timer < diff)
 		{
@@ -986,7 +986,7 @@ bool ItemUse_item_tainted_core(Player *player, Item* _Item, SpellCastTargets con
             if(Channel)
             {
                 //call Unsummon()
-                Channel->setDeathState(JUST_DIED);				
+                Channel->setDeathState(JUST_DIED);
             }
 
             pInstance->SetData(identifier, 1);

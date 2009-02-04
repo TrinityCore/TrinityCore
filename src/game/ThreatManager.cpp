@@ -267,17 +267,17 @@ HostilReference* ThreatContainer::selectNextVictim(Creature* pAttacker, HostilRe
 {
     HostilReference* currentRef = NULL;
     bool found = false;
-    
+
     std::list<HostilReference*>::iterator lastRef = iThreatList.end();
     lastRef--;
-    
+
     for(std::list<HostilReference*>::iterator iter = iThreatList.begin(); iter != iThreatList.end() && !found; ++iter)
     {
         currentRef = (*iter);
 
         Unit* target = currentRef->getTarget();
         assert(target);                                     // if the ref has status online the target must be there !
-        
+
         // some units are preferred in comparison to others
         if(iter != lastRef && (target->IsImmunedToDamage(pAttacker->GetMeleeDamageSchoolMask(), false) ||
                 target->hasUnitState(UNIT_STAT_CONFUSED)

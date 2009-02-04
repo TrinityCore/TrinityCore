@@ -84,10 +84,10 @@ bool Group::Create(const uint64 &guid, const char * name)
     m_leaderName = name;
 
     m_groupType  = isBGGroup() ? GROUPTYPE_RAID : GROUPTYPE_NORMAL;
-	
+
 	if (m_groupType == GROUPTYPE_RAID)
 		_initRaidSubGroupsCounter();
-		
+
     m_lootMethod = GROUP_LOOT;
     m_lootThreshold = ITEM_QUALITY_UNCOMMON;
     m_looterGuid = guid;
@@ -143,10 +143,10 @@ bool Group::LoadGroupFromDB(const uint64 &leaderGuid, QueryResult *result, bool 
     }
 
     m_groupType  = (*result)[13].GetBool() ? GROUPTYPE_RAID : GROUPTYPE_NORMAL;
-	
+
 	if (m_groupType == GROUPTYPE_RAID)
 		_initRaidSubGroupsCounter();
-		
+
     m_difficulty = (*result)[14].GetUInt8();
     m_mainTank = (*result)[0].GetUInt64();
     m_mainAssistant = (*result)[1].GetUInt64();
@@ -189,18 +189,18 @@ bool Group::LoadMemberFromDB(uint32 guidLow, uint8 subgroup, bool assistant)
     member.group     = subgroup;
     member.assistant = assistant;
     m_memberSlots.push_back(member);
-	
+
 	SubGroupCounterIncrease(subgroup);
-	
+
     return true;
 }
 
 void Group::ConvertToRaid()
 {
 	m_groupType = GROUPTYPE_RAID;
-	
+
 	_initRaidSubGroupsCounter();
-	
+
 	if(!isBGGroup()) CharacterDatabase.PExecute("UPDATE groups SET isRaid = 1 WHERE leaderGuid='%u'", GUID_LOPART(m_leaderGuid));
 	SendUpdate();
 }
@@ -1006,7 +1006,7 @@ bool Group::_addMember(const uint64 &guid, const char* name, bool isAssistant, u
     member.group     = group;
     member.assistant = isAssistant;
     m_memberSlots.push_back(member);
-	
+
 	SubGroupCounterIncrease(group);
 
     if(player)
@@ -1149,11 +1149,11 @@ bool Group::_setMembersGroup(const uint64 &guid, const uint8 &group)
         return false;
 
     slot->group = group;
-	
+
 	SubGroupCounterIncrease(group);
-	
+
     if(!isBGGroup()) CharacterDatabase.PExecute("UPDATE group_member SET subgroup='%u' WHERE memberGuid='%u'", group, GUID_LOPART(guid));
-	
+
     return true;
 }
 
@@ -1211,9 +1211,9 @@ void Group::ChangeMembersGroup(const uint64 &guid, const uint8 &group)
     {
 		uint8 prevSubGroup;
 		prevSubGroup = GetMemberGroup(guid);
-		
+
 		SubGroupCounterDecrease(prevSubGroup);
-		
+
         if(_setMembersGroup(guid, group))
             SendUpdate();
     }
@@ -1230,9 +1230,9 @@ void Group::ChangeMembersGroup(Player *player, const uint8 &group)
     {
 		uint8 prevSubGroup;
 		prevSubGroup = player->GetSubGroup();
-		
+
 		SubGroupCounterDecrease(prevSubGroup);
-		
+
         player->GetGroupRef().setSubGroup(group);
         SendUpdate();
     }

@@ -630,7 +630,7 @@ void Spell::EffectDummy(uint32 i)
                     if (!creatureTarget || !pGameObj) return;
 
                     if (!pGameObj->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), 181574, creatureTarget->GetMap(),
-                        creatureTarget->GetPositionX(), creatureTarget->GetPositionY(), creatureTarget->GetPositionZ(), 
+                        creatureTarget->GetPositionX(), creatureTarget->GetPositionY(), creatureTarget->GetPositionZ(),
                         creatureTarget->GetOrientation(), 0, 0, 0, 0, 100, 1))
                     {
                         delete pGameObj;
@@ -955,7 +955,7 @@ void Spell::EffectDummy(uint32 i)
                 {
                     Aura * dummy = m_caster->GetDummyAura(28734);
                     if (dummy)
-                    {                        
+                    {
                         int32 bp = damage * dummy->GetStackAmount();
                         m_caster->CastCustomSpell(m_caster, 28733, &bp, NULL, NULL, true);
                         m_caster->RemoveAurasDueToSpell(28734);
@@ -3517,7 +3517,7 @@ void Spell::EffectAddFarsight(uint32 i)
     map->Add(dynObj);
     map->SwitchGridContainers(dynObj, true);    // Needed for forwarding player packets
     dynObj->setActive(true);                    // Keep the grid updated even if there are no players in it
-      
+
     // Need to update visibility of object for client to accept farsight guid
     ((Player*)m_caster)->UpdateVisibilityOf(dynObj);
     ((Player*)m_caster)->SetFarsightTarget(dynObj);
@@ -3600,7 +3600,7 @@ void Spell::EffectSummonGuardian(uint32 i)
     }
 
     // trigger
-    if(!m_originalCaster || m_originalCaster->GetTypeId() != TYPEID_PLAYER 
+    if(!m_originalCaster || m_originalCaster->GetTypeId() != TYPEID_PLAYER
         && !((Creature*)m_originalCaster)->isTotem()/*m_spellInfo->Id == 40276*/)
     {
         EffectSummonWild(i);
@@ -4437,7 +4437,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
         if(spell_bonus)
             spell_bonus = int32(spell_bonus * weapon_total_pct);
     }
-    
+
     int32 weaponDamage = m_caster->CalculateDamage(m_attackType, normalized);
 
     // Sequence is important
@@ -4835,7 +4835,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
         {
             if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
                 return;
-            unitTarget->HandleEmoteCommand(EMOTE_STATE_DANCE);            
+            unitTarget->HandleEmoteCommand(EMOTE_STATE_DANCE);
             break;
         }
         // Netherbloom
@@ -4962,7 +4962,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
             int bag=19;
             int slot=0;
             Item* item = NULL;
-            
+
             while (bag < 256)
             {
                 item = ((Player*)m_caster)->GetItemByPos(bag,slot);

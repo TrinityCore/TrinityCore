@@ -467,7 +467,7 @@
 			Name="Chat Commands"
 			>
 			<File
-				RelativePath="..\..\src\game\debugcmds.cpp"
+				RelativePath="..\..\src\game\Debugcmds.cpp"
 				>
 			</File>
 			<File
@@ -511,7 +511,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\tools.cpp"
+				RelativePath="..\..\src\game\Tools.cpp"
 				>
 			</File>
 			<File

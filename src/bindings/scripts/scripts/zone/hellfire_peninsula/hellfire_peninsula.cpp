@@ -240,15 +240,15 @@ bool GossipSelect_npc_wing_commander_brack(Player *player, Creature *_Creature, 
 {
 	switch(action)
 	{
-	case GOSSIP_ACTION_INFO_DEF + 1:        
+	case GOSSIP_ACTION_INFO_DEF + 1:
 		player->CLOSE_GOSSIP_MENU();
 		player->CastSpell(player,33659,true);               //TaxiPath 584 (Gateways Murket and Shaadraz)
-		break;    
+		break;
 	case GOSSIP_ACTION_INFO_DEF + 2:
 		player->CLOSE_GOSSIP_MENU();
 		player->CastSpell(player,33825,true);               //TaxiPath 587 (Aerial Assault Flight (Horde))
 		break;
-	case GOSSIP_ACTION_INFO_DEF + 3:    
+	case GOSSIP_ACTION_INFO_DEF + 3:
 		player->CLOSE_GOSSIP_MENU();
 		player->CastSpell(player,34578,true);               //TaxiPath 604 (Taxi - Reaver's Fall to Spinebreaker Ridge)
 		break;
@@ -259,7 +259,7 @@ bool GossipSelect_npc_wing_commander_brack(Player *player, Creature *_Creature, 
 /*######
 ## npc_wounded_blood_elf
 ######*/
-	 	 
+
 #define SAY_ELF_START               -1000117
 #define SAY_ELF_SUMMON1             -1000118
 #define SAY_ELF_RESTING             -1000119
@@ -268,7 +268,7 @@ bool GossipSelect_npc_wing_commander_brack(Player *player, Creature *_Creature, 
 #define SAY_ELF_AGGRO               -1000122
 
 #define QUEST_ROAD_TO_FALCON_WATCH  9375
-	 	 
+
 struct TRINITY_DLL_DECL npc_wounded_blood_elfAI : public npc_escortAI
 {
 	npc_wounded_blood_elfAI(Creature *c) : npc_escortAI(c) {Reset();}
@@ -279,7 +279,7 @@ struct TRINITY_DLL_DECL npc_wounded_blood_elfAI : public npc_escortAI
 
 		if (!player)
 			return;
-	 	 
+
 		switch (i)
 		{
 		case 0:
@@ -311,7 +311,7 @@ struct TRINITY_DLL_DECL npc_wounded_blood_elfAI : public npc_escortAI
 			break;
 		}
 	}
-	 	 
+
 	void Reset()
 	{
 		if (!IsBeingEscorted)
@@ -323,7 +323,7 @@ struct TRINITY_DLL_DECL npc_wounded_blood_elfAI : public npc_escortAI
 		if (IsBeingEscorted)
 			DoScriptText(SAY_ELF_AGGRO, m_creature);
 	}
-	 	 
+
 	void JustSummoned(Creature* summoned)
 	{
 		summoned->AI()->AttackStart(m_creature);
@@ -342,13 +342,13 @@ struct TRINITY_DLL_DECL npc_wounded_blood_elfAI : public npc_escortAI
 				((Player*)player)->FailQuest(QUEST_ROAD_TO_FALCON_WATCH);
 		}
 	}
-	 	 
+
 	void UpdateAI(const uint32 diff)
 	{
 		npc_escortAI::UpdateAI(diff);
 	}
 };
-	 	 
+
 CreatureAI* GetAI_npc_wounded_blood_elf(Creature *_Creature)
 {
 	npc_wounded_blood_elfAI* welfAI = new npc_wounded_blood_elfAI(_Creature);
@@ -381,10 +381,10 @@ CreatureAI* GetAI_npc_wounded_blood_elf(Creature *_Creature)
 	welfAI->AddWaypoint(25, -656.74, 4147.72, 64.11);
 	welfAI->AddWaypoint(26, -652.22, 4137.50, 64.58);
 	welfAI->AddWaypoint(27, -649.99, 4136.38, 64.63, 30000);// Award Quest Credit
-	 	 
+
 	return (CreatureAI*)welfAI;
 }
-	 	 
+
 bool QuestAccept_npc_wounded_blood_elf(Player* player, Creature* creature, Quest const* quest)
 {
 	if (quest->GetQuestId() == QUEST_ROAD_TO_FALCON_WATCH)
@@ -393,7 +393,7 @@ bool QuestAccept_npc_wounded_blood_elf(Player* player, Creature* creature, Quest
 		// Change faction so mobs attack
 		creature->setFaction(775);
 	}
-	 	 
+
 	return true;
 }
 
@@ -432,7 +432,7 @@ void AddSC_hellfire_peninsula()
     newscript->pGossipHello =   &GossipHello_npc_wing_commander_brack;
     newscript->pGossipSelect =  &GossipSelect_npc_wing_commander_brack;
     newscript->RegisterSelf();
-	
+
     newscript = new Script;
     newscript->Name="npc_wounded_blood_elf";
     newscript->GetAI = &GetAI_npc_wounded_blood_elf;

@@ -50,6 +50,8 @@ $(srcdir)/ArenaTeam.cpp \
 $(srcdir)/ArenaTeam.h \
 $(srcdir)/ArenaTeamHandler.cpp \
 $(srcdir)/AuctionHouse.cpp \
+$(srcdir)/AuctionHouseBot.cpp \
+$(srcdir)/AuctionHouseBot.h \
 $(srcdir)/AuctionHouseObject.h \
 $(srcdir)/Bag.cpp \
 $(srcdir)/Bag.h \
@@ -100,7 +102,7 @@ $(srcdir)/CreatureGroups.cpp \
 $(srcdir)/CreatureGroups.h \
 $(srcdir)/Creature.cpp \
 $(srcdir)/Creature.h \
-$(srcdir)/debugcmds.cpp \
+$(srcdir)/Debugcmds.cpp \
 $(srcdir)/DestinationHolder.cpp \
 $(srcdir)/DestinationHolder.h \
 $(srcdir)/DestinationHolderImp.h \
@@ -256,7 +258,7 @@ $(srcdir)/TemporarySummon.h \
 $(srcdir)/TicketHandler.cpp \
 $(srcdir)/TicketMgr.cpp \
 $(srcdir)/TicketMgr.h \
-$(srcdir)/tools.cpp \
+$(srcdir)/Tools.cpp \
 $(srcdir)/Tools.h \
 $(srcdir)/TotemAI.cpp \
 $(srcdir)/TotemAI.h \

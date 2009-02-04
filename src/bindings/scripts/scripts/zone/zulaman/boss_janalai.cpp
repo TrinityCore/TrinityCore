@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Janalai
 SD%Complete: 100
-SDComment: 
+SDComment:
 SDCategory: Zul'Aman
 EndScriptData */
 
@@ -46,10 +46,10 @@ EndScriptData */
 #define SPELL_HATCH_ALL             43144
 #define SPELL_BERSERK               45078
 // -- Fire Bob Spells
-#define SPELL_FIRE_BOMB_CHANNEL     42621 // last forever    
+#define SPELL_FIRE_BOMB_CHANNEL     42621 // last forever
 #define SPELL_FIRE_BOMB_THROW       42628 // throw visual
 #define SPELL_FIRE_BOMB_DUMMY       42629 // bomb visual
-#define SPELL_FIRE_BOMB_DAMAGE      42630 
+#define SPELL_FIRE_BOMB_DAMAGE      42630
 
 // --Summons
 #define MOB_AMANI_HATCHER           23818
@@ -66,12 +66,12 @@ EndScriptData */
 const int area_dx = 44;
 const int area_dy = 51;
 
-float JanalainPos[1][3] = 
+float JanalainPos[1][3] =
 {
     {-33.93, 1149.27, 19}
 };
 
-float FireWallCoords[4][4] = 
+float FireWallCoords[4][4] =
 {
     {-10.13, 1149.27, 19, 3.1415},
     {-33.93, 1123.90, 19, 0.5*3.1415},
@@ -100,7 +100,7 @@ float hatcherway[2][5][3] =
 struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
 {
     boss_janalaiAI(Creature *c) : ScriptedAI(c)
-    { 
+    {
         pInstance =((ScriptedInstance*)c->GetInstanceData());
         Reset();
 
@@ -128,7 +128,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
 
     bool isFlameBreathing;
 
-    uint64 FireBombGUIDs[40];    
+    uint64 FireBombGUIDs[40];
 
     void Reset()
     {
@@ -166,7 +166,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
     void KilledUnit(Unit* victim)
     {
         switch(rand()%2)
-        {        
+        {
 		case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
 		case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
         }
@@ -337,7 +337,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
         }
 
         if(!UpdateVictim())
-            return;   
+            return;
 
         //enrage if under 25% hp before 5 min.
         if(!enraged && m_creature->GetHealth() * 4 < m_creature->GetMaxHealth())
@@ -355,7 +355,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
             {
 				DoScriptText(SAY_BERSERK, m_creature);
                 m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
-                EnrageTimer = 300000;            
+                EnrageTimer = 300000;
             }
         }else EnrageTimer -= diff;
 
@@ -393,7 +393,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
 
         if(!noeggs)
         {
-            if(100 * m_creature->GetHealth() < 35 * m_creature->GetMaxHealth()) 
+            if(100 * m_creature->GetHealth() < 35 * m_creature->GetMaxHealth())
             {
 				DoScriptText(SAY_ALL_EGGS, m_creature);
 
@@ -409,8 +409,8 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
             else if(HatcherTimer < diff)
             {
                 if(HatchAllEggs(0))
-                { 
-					DoScriptText(SAY_SUMMON_HATCHER, m_creature);                   
+                {
+					DoScriptText(SAY_SUMMON_HATCHER, m_creature);
                     m_creature->SummonCreature(MOB_AMANI_HATCHER,hatcherway[0][0][0],hatcherway[0][0][1],hatcherway[0][0][2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,10000);
                     m_creature->SummonCreature(MOB_AMANI_HATCHER,hatcherway[1][0][0],hatcherway[1][0][1],hatcherway[1][0][2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,10000);
                     HatcherTimer = 90000;
@@ -429,10 +429,10 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
             ResetTimer = 5000;
         }else ResetTimer -= diff;
 
-        DoMeleeAttackIfReady();    
+        DoMeleeAttackIfReady();
 
         if(FireBreathTimer < diff)
-        {  
+        {
             if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
             {
                 m_creature->AttackStop();
@@ -441,9 +441,9 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
                 m_creature->StopMoving();
                 isFlameBreathing = true;
             }
-            FireBreathTimer = 8000;            
+            FireBreathTimer = 8000;
         }else FireBreathTimer -= diff;
-    }    
+    }
 };
 
 CreatureAI* GetAI_boss_janalaiAI(Creature *_Creature)
@@ -480,7 +480,7 @@ CreatureAI* GetAI_mob_jandalai_firebombAI(Creature *_Creature)
 struct TRINITY_DLL_DECL mob_amanishi_hatcherAI : public ScriptedAI
 {
     mob_amanishi_hatcherAI(Creature *c) : ScriptedAI(c)
-    { 
+    {
         pInstance =((ScriptedInstance*)c->GetInstanceData());
         Reset();
     }
@@ -554,12 +554,12 @@ struct TRINITY_DLL_DECL mob_amanishi_hatcherAI : public ScriptedAI
             HatchNum = 1;
             WaitTimer = 5000;
         }
-        else 
+        else
             WaitTimer = 1;
     }
 
     void UpdateAI(const uint32 diff)
-    { 
+    {
         if(!pInstance || !(pInstance->GetData(DATA_JANALAIEVENT) == IN_PROGRESS))
         {
             m_creature->SetVisibility(VISIBILITY_OFF);
@@ -578,7 +578,7 @@ struct TRINITY_DLL_DECL mob_amanishi_hatcherAI : public ScriptedAI
             }
         }
         else
-        {   
+        {
             if(WaitTimer < diff)
             {
                 if(HatchEggs(HatchNum))
@@ -612,7 +612,7 @@ CreatureAI* GetAI_mob_amanishi_hatcherAI(Creature *_Creature)
 struct TRINITY_DLL_DECL mob_hatchlingAI : public ScriptedAI
 {
     mob_hatchlingAI(Creature *c) : ScriptedAI(c)
-    { 
+    {
         pInstance =((ScriptedInstance*)c->GetInstanceData());
         Reset();
     }
@@ -675,7 +675,7 @@ struct TRINITY_DLL_DECL mob_eggAI : public ScriptedAI
         {
             DoSpawnCreature(MOB_HATCHLING, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
             m_creature->SetDisplayId(11686);
-        }            
+        }
     }
 };
 
@@ -690,17 +690,17 @@ void AddSC_boss_janalai()
     newscript = new Script;
     newscript->Name="boss_janalai";
     newscript->GetAI = &GetAI_boss_janalaiAI;
-    newscript->RegisterSelf();  
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_janalai_firebomb";
     newscript->GetAI = &GetAI_mob_jandalai_firebombAI;
-    newscript->RegisterSelf();  
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_janalai_hatcher";
     newscript->GetAI = &GetAI_mob_amanishi_hatcherAI;
-    newscript->RegisterSelf(); 
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_janalai_hatchling";
@@ -710,5 +710,5 @@ void AddSC_boss_janalai()
     newscript = new Script;
     newscript->Name="mob_janalai_egg";
     newscript->GetAI = &GetAI_mob_eggAI;
-    newscript->RegisterSelf(); 
+    newscript->RegisterSelf();
 }

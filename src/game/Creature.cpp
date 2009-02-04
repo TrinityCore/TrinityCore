@@ -198,10 +198,10 @@ void Creature::RemoveFromWorld()
 void Creature::SearchFormation()
 {
 	uint32 lowguid = GetDBTableGUIDLow();
-	
+
 	if(CreatureGroupMap.find(lowguid) != CreatureGroupMap.end())
 	{
-		m_formationID = CreatureGroupMap[lowguid]->leaderGUID;	
+		m_formationID = CreatureGroupMap[lowguid]->leaderGUID;
 		formation_mgr.UpdateCreatureGroup(m_formationID, this);
 	}
 }
@@ -417,7 +417,7 @@ void Creature::Update(uint32 diff)
 
                 CreatureInfo const *cinfo = GetCreatureInfo();
 				SelectLevel(cinfo);
-                
+
                 if (m_isDeadByDefault)
                 {
                     setDeathState(JUST_DIED);
@@ -1424,7 +1424,7 @@ bool Creature::LoadFromDB(uint32 guid, Map *map)
     }
 	//We should set first home position, because then AI calls home movement
 	SetHomePosition(data->posX,data->posY,data->posZ,data->orientation);
-    
+
 	m_respawnradius = data->spawndist;
 
     m_respawnDelay = data->spawntimesecs;
