@@ -97,13 +97,13 @@ struct TRINITY_DLL_DECL npc_prospector_anvilwardAI : public npc_escortAI
     }
 
     void JustDied(Unit* killer)
-    {    
+    {
         m_creature->setFaction(35);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        npc_escortAI::UpdateAI(diff);                       
+        npc_escortAI::UpdateAI(diff);
     }
 };
 
@@ -543,7 +543,7 @@ bool GOHello_go_second_trial(Player *player, GameObject* _GO)
     TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
     //cell_lock->Visit(cell_lock, grid_unit_searcher, *MapManager::Instance().GetMap(_GO->GetMap(), _GO));
     cell_lock->Visit(cell_lock, grid_unit_searcher, *(_GO->GetMap()));
-    
+
     if ( event_controller )
        ((master_kelerun_bloodmournAI*)event_controller->AI())->StartEvent();
 
@@ -583,7 +583,7 @@ struct TRINITY_DLL_DECL npc_apprentice_mirvedaAI : public ScriptedAI
 		Summons.Summon(summoned);
 	}
 
-	void SummonedCreatureDespawn(Creature* summoned) 
+	void SummonedCreatureDespawn(Creature* summoned)
 	{
 		Summons.Despawn(summoned);
 		++KillCount;
@@ -670,7 +670,7 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
 	bool Completed;
 	bool Progress;
 	uint64 PlayerGUID;
- 
+
 	void Reset()
 	{
 		EndTimer = 0;
@@ -681,7 +681,7 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
 	}
 
 	void Aggro(Unit* who){}
- 
+
 	void MoveInLineOfSight(Unit* who)
 	{
 		if( who->GetTypeId() == TYPEID_PLAYER && !m_creature->canStartAttack(who) && !Progress)
@@ -704,7 +704,7 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
 	{
 		summoned->AI()->AttackStart(m_creature);
 	}
- 
+
 	void JustDied(Unit* killer)
 	{
 		if (PlayerGUID && !Completed)
@@ -714,7 +714,7 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
 				((Player*)player)->FailQuest(QUEST_POWERING_OUR_DEFENSES);
 		}
 	}
- 
+
 	void UpdateAI(const uint32 diff)
 	{
 		if(EndTimer < diff && Progress)
@@ -743,7 +743,7 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
 		}else WaveTimer -= diff;
 	}
 };
- 
+
 CreatureAI* GetAI_npc_infused_crystalAI(Creature *_Creature)
 {
     return new npc_infused_crystalAI (_Creature);

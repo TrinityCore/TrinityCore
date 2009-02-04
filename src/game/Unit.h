@@ -1103,7 +1103,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         void DeMorph();
 
-        void SendAttackStart(Unit* pVictim); 
+        void SendAttackStart(Unit* pVictim);
         void SendAttackStateUpdate(CalcDamageInfo *damageInfo);
         void SendAttackStateUpdate(uint32 HitInfo, Unit *target, uint8 SwingType, SpellSchoolMask damageSchoolMask, uint32 Damage, uint32 AbsorbDamage, uint32 Resist, VictimState TargetState, uint32 BlockedAmount);
         void SendSpellNonMeleeDamageLog(SpellNonMeleeDamage *log);
@@ -1559,6 +1559,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         uint32 m_regenTimer;
 
         ThreatManager m_ThreatManager;
+
+        bool m_AI_enabled;
     private:
         void SendAttackStop(Unit* victim);                  // only from AttackStop(Unit*)
         //void SendAttackStart(Unit* pVictim);                // only from Unit::AttackStart(Unit*)

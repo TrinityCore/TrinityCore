@@ -25,7 +25,7 @@ EndScriptData */
 
 #define SAY_AGGRO                   -1249000
 #define SAY_KILL                    -1249001
-#define SAY_PHASE_2_TRANS           -1249002	 	 
+#define SAY_PHASE_2_TRANS           -1249002
 #define SAY_PHASE_3_TRANS           -1249003
 #define EMOTE_BREATH                -1249004
 
@@ -263,7 +263,7 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
 		if(random<4){
 			m_creature->GetMotionMaster()->MovePoint(0, MovementLocations[random][0], MovementLocations[random][1], MovementLocations[random][2]);}
 	}
-	
+
 	void SummonWhelps(uint32 Phase)
 	{
 		if(Phase == 2)

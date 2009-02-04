@@ -53,14 +53,14 @@ template<>
 bool WaypointMovementGenerator<Creature>::GetDestination(float &x, float &y, float &z) const
 {
     if(i_destinationHolder.HasArrived())
-        return false; 
-    
-    i_destinationHolder.GetDestination(x, y, z); 
+        return false;
+
+    i_destinationHolder.GetDestination(x, y, z);
     return true;
 }
 
 template<>
-bool WaypointMovementGenerator<Player>::GetDestination(float &x, float &y, float &z) const 
+bool WaypointMovementGenerator<Player>::GetDestination(float &x, float &y, float &z) const
 {
 	return false;
 }
@@ -80,13 +80,13 @@ void WaypointMovementGenerator<Creature>::InitTraveller(Creature &unit, const Wa
 {
 	node.run ? unit.RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE):
 		unit.AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-	
+
 	unit.SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
 	unit.SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-	
+
     if(unit.canFly())
 		unit.AddUnitMovementFlag(MOVEMENTFLAG_FLYING2);
-	
+
 	unit.addUnitState(UNIT_STAT_ROAMING);
 }
 
@@ -133,7 +133,7 @@ WaypointMovementGenerator<Creature>::Update(Creature &unit, const uint32 &diff)
 
 	if(!path_id)
 		return false;
-    
+
 	// Waypoint movement can be switched on/off
     // This is quite handy for escort quests and other stuff
 	if(unit.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED))
@@ -161,7 +161,7 @@ WaypointMovementGenerator<Creature>::Update(Creature &unit, const uint32 &diff)
 				StopedByPlayer = false;
 				return true;
 			}
-			
+
 			if(i_currentNode == waypoints->size() - 1) //If that's our last waypoint
 			{
 				if(repeating) //If the movement is repeating
@@ -173,7 +173,7 @@ WaypointMovementGenerator<Creature>::Update(Creature &unit, const uint32 &diff)
 					return false; //Clear the waypoint movement
 				}
 			}
-			else 
+			else
 				i_currentNode++;
 
 			node = waypoints->at(i_currentNode);
@@ -183,20 +183,20 @@ WaypointMovementGenerator<Creature>::Update(Creature &unit, const uint32 &diff)
 		}
 		else
 		{
-			//Determine waittime 
+			//Determine waittime
 			if(node->delay)
 				i_nextMoveTime.Reset(node->delay);
-			
+
 			if(node->event_id && rand()%100 < node->event_chance)
 				sWorld.ScriptsStart(sWaypointScripts, node->event_id, &unit, NULL);
-				
+
 			MovementInform(unit);
 			unit.UpdateWaypointID(i_currentNode);
 			unit.clearUnitState(UNIT_STAT_MOVING);
 			unit.Relocate(node->x, node->y, node->z);
 		}
     }
-	else 
+	else
 	{
 		if(unit.IsStopped() && !i_destinationHolder.HasArrived())
 		{

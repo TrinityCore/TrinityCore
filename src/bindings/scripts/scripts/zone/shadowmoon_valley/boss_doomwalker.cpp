@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Doomwalker
 SD%Complete: 100
-SDComment: 
+SDComment:
 SDCategory: Shadowmoon Valley
 EndScriptData */
 

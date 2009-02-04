@@ -336,7 +336,7 @@ bool GOHello_go_manaforge_control_console(Player *player, GameObject* _GO)
 /*######
 ## npc_commander_dawnforge
 ######*/
-	 	 
+
 // The Speech of Dawnforge, Ardonis & Pathaleon
 #define SAY_COMMANDER_DAWNFORGE_1           -1000128
 #define SAY_ARCANIST_ARDONIS_1              -1000129
@@ -352,7 +352,7 @@ bool GOHello_go_manaforge_control_console(Player *player, GameObject* _GO)
 
 #define QUEST_INFO_GATHERING                10198
 #define SPELL_SUNFURY_DISGUISE              34603
-	 	 
+
 // Entries of Arcanist Ardonis, Commander Dawnforge, Pathaleon the Curators Image
 int CreatureEntry[3][1] =
 {
@@ -375,10 +375,10 @@ struct TRINITY_DLL_DECL npc_commander_dawnforgeAI : public ScriptedAI
 	uint32 PhaseSubphase;
 	uint32 Phase_Timer;
 	bool isEvent;
-	 	 
+
 	float angle_dawnforge;
 	float angle_ardonis;
-	 	 
+
 	void Reset()
 	{
 		playerGUID = 0;
@@ -390,7 +390,7 @@ struct TRINITY_DLL_DECL npc_commander_dawnforgeAI : public ScriptedAI
 		Phase_Timer = 4000;
 		isEvent = false;
 	}
-	 	 
+
 	void Aggro(Unit *who) { }
 
 	//Select any creature in a grid
@@ -402,33 +402,33 @@ struct TRINITY_DLL_DECL npc_commander_dawnforgeAI : public ScriptedAI
 		Cell cell(pair);
 		cell.data.Part.reserved = ALL_DISTRICT;
 		cell.SetNoCreate();
-	 	 
+
 		Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck creature_check(*m_creature, entry, true, range);
 		Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(m_creature, pCreature, creature_check);
-	 	 
+
 		TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer> creature_searcher(searcher);
-	 	 
+
 		CellLock<GridReadGuard> cell_lock(cell, pair);
 		cell_lock->Visit(cell_lock, creature_searcher,*(m_creature->GetMap()));
 
 		return pCreature;
 	}
-	 	 
+
 	void JustSummoned(Creature *summoned)
 	{
 		pathaleonGUID = summoned->GetGUID();
 	}
-	 	 
+
 	// Emote Ardonis and Pathaleon
 	void Turn_to_Pathaleons_Image()
 	{
 		Unit *ardonis = Unit::GetUnit(*m_creature,ardonisGUID);
 		Unit *pathaleon = Unit::GetUnit(*m_creature,pathaleonGUID);
 		Player *player = (Player*)Unit::GetUnit(*m_creature,playerGUID);
- 	 
+
 		if (!ardonis || !pathaleon || !player)
 			return;
-	 	 
+
 		//Calculate the angle to Pathaleon
 		angle_dawnforge = m_creature->GetAngle(pathaleon->GetPositionX(), pathaleon->GetPositionY());
 		angle_ardonis = ardonis->GetAngle(pathaleon->GetPositionX(), pathaleon->GetPositionY());
@@ -444,7 +444,7 @@ struct TRINITY_DLL_DECL npc_commander_dawnforgeAI : public ScriptedAI
 		m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
 		ardonis->SetStandState(UNIT_STAND_STATE_KNEEL);
 	}
-	 	 
+
 	//Set them back to each other
 	void Turn_to_eachother()
 	{
@@ -454,10 +454,10 @@ struct TRINITY_DLL_DECL npc_commander_dawnforgeAI : public ScriptedAI
 
 			if (!player)
 				return;
-	 	 
+
 			angle_dawnforge = m_creature->GetAngle(ardonis->GetPositionX(), ardonis->GetPositionY());
 			angle_ardonis = ardonis->GetAngle(m_creature->GetPositionX(), m_creature->GetPositionY());
-	 	 
+
 			//Turn Dawnforge and update
 			m_creature->SetOrientation(angle_dawnforge);
 			m_creature->SendUpdateToPlayer(player);
@@ -470,7 +470,7 @@ struct TRINITY_DLL_DECL npc_commander_dawnforgeAI : public ScriptedAI
 			ardonis->SetStandState(UNIT_STAND_STATE_STAND);
 		}
 	}
-	 	 
+
 	bool CanStartEvent(Player *player)
 	{
 		if (!isEvent)
@@ -481,13 +481,13 @@ struct TRINITY_DLL_DECL npc_commander_dawnforgeAI : public ScriptedAI
 
 			ardonisGUID = ardonis->GetGUID();
 			playerGUID = player->GetGUID();
-	 	 
+
 			isEvent = true;
 
 			Turn_to_eachother();
 			return true;
 		}
-	 	 
+
 		debug_log("TSCR: npc_commander_dawnforge event already in progress, need to wait.");
 		return false;
 	}
@@ -504,23 +504,23 @@ struct TRINITY_DLL_DECL npc_commander_dawnforgeAI : public ScriptedAI
 			Phase_Timer -= diff;
 			return;
 		}
-	 	 
+
 		Unit *ardonis = Unit::GetUnit(*m_creature,ardonisGUID);
 		Unit *pathaleon = Unit::GetUnit(*m_creature,pathaleonGUID);
 		Player *player = (Player*)Unit::GetUnit(*m_creature,playerGUID);
-	 	 
+
 		if (!ardonis || !player)
 		{
 			Reset();
 			return;
 		}
-	 	 
+
 		if (Phase > 4 && !pathaleon)
 		{
 			Reset();
 			return;
 		}
- 	 
+
 		//Phase 1 Dawnforge say
 		switch (Phase)
 		{
@@ -623,12 +623,12 @@ struct TRINITY_DLL_DECL npc_commander_dawnforgeAI : public ScriptedAI
 		}
 	 }
 };
-	 	 
+
 CreatureAI* GetAI_npc_commander_dawnforge(Creature* _Creature)
 {
 	return new npc_commander_dawnforgeAI(_Creature);
 }
-	 	 
+
 Creature* SearchDawnforge(Player *source, uint32 entry, float range)
 {
 	Creature* pCreature = NULL;
@@ -637,31 +637,31 @@ Creature* SearchDawnforge(Player *source, uint32 entry, float range)
 	Cell cell(pair);
 	cell.data.Part.reserved = ALL_DISTRICT;
 	cell.SetNoCreate();
-	 	 
+
 	Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck creature_check(*source, entry, true, range);
 	Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(source, pCreature, creature_check);
 
 	TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer> creature_searcher(searcher);
-	 	 
+
 	CellLock<GridReadGuard> cell_lock(cell, pair);
 	cell_lock->Visit(cell_lock, creature_searcher,*(source->GetMap()));
-	 	 
+
 	return pCreature;
 }
-	 	 
+
 bool AreaTrigger_at_commander_dawnforge(Player *player, AreaTriggerEntry *at)
 {
 	//if player lost aura or not have at all, we should not try start event.
 	if (!player->HasAura(SPELL_SUNFURY_DISGUISE,0))
 		return false;
-	 	 
+
 	if (player->isAlive() && player->GetQuestStatus(QUEST_INFO_GATHERING) == QUEST_STATUS_INCOMPLETE)
 	{
 		Creature* Dawnforge = SearchDawnforge(player, CreatureEntry[1][0], 30.0f);
 
 		if (!Dawnforge)
 			return false;
-	 	 
+
 		if (((npc_commander_dawnforgeAI*)Dawnforge->AI())->CanStartEvent(player))
 			return true;
 	}
@@ -719,7 +719,7 @@ bool GossipHello_npc_professor_dabiri(Player *player, Creature *_Creature)
 
 	if(player->GetQuestStatus(QUEST_ON_NETHERY_WINGS) == QUEST_STATUS_INCOMPLETE && !player->HasItemCount(29778, 1))
 		player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-	
+
 	player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
 
 	return true;
@@ -852,7 +852,7 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
         {
             Unit* target = Unit::GetUnit((*m_creature), PlayerGUID);
 
-            if(target && !Weak && m_creature->GetHealth() < (m_creature->GetMaxHealth() / 100 * WeakPercent) 
+            if(target && !Weak && m_creature->GetHealth() < (m_creature->GetMaxHealth() / 100 * WeakPercent)
                 && ((Player*)target)->GetQuestStatus(10190) == QUEST_STATUS_INCOMPLETE)
             {
                 DoScriptText(EMOTE_WEAK, m_creature);
@@ -919,15 +919,15 @@ struct TRINITY_DLL_DECL npc_bessyAI : public npc_escortAI
                 ((Player*)player)->FailQuest(Q_ALMABTRIEB);
         }
     }
-    
+
     void WaypointReached(uint32 i)
     {
         Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
-        
+
         if (!player)
             return;
 
-        switch(i) 
+        switch(i)
 		{
             case 3: //first spawn
                 m_creature->SummonCreature(SPAWN_FIRST, 2449.67, 2183.11, 96.85, 6.20, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
@@ -1031,7 +1031,7 @@ void AddSC_netherstorm()
 	newscript->Name = "npc_commander_dawnforge";
 	newscript->GetAI = &GetAI_npc_commander_dawnforge;
 	newscript->RegisterSelf();
-	 	 
+
 	newscript = new Script;
 	newscript->Name = "at_commander_dawnforge";
 	newscript->pAreaTrigger = &AreaTrigger_at_commander_dawnforge;

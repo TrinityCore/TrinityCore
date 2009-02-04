@@ -53,14 +53,14 @@ template<>
 bool FleeingMovementGenerator<Creature>::GetDestination(float &x, float &y, float &z) const
 {
     if(i_destinationHolder.HasArrived())
-        return false; 
-    
-    i_destinationHolder.GetDestination(x, y, z); 
+        return false;
+
+    i_destinationHolder.GetDestination(x, y, z);
     return true;
 }
 
 template<>
-bool FleeingMovementGenerator<Player>::GetDestination(float &x, float &y, float &z) const 
+bool FleeingMovementGenerator<Player>::GetDestination(float &x, float &y, float &z) const
 {
 	return false;
 }

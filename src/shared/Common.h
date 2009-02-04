@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
@@ -25,9 +25,9 @@
 // TODO this thingy looks like hack ,but its not, need to
 // make separate header however, because It makes mess here.
 #ifdef HAVE_CONFIG_H
-// Remove Some things that we will define 
-// This is in case including another config.h 
-// before trinity config.h 
+// Remove Some things that we will define
+// This is in case including another config.h
+// before trinity config.h
 #ifdef PACKAGE
 #undef PACKAGE
 #endif //PACKAGE

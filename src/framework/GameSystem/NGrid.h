@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
@@ -67,7 +67,7 @@ class TRINITY_DLL_DECL NGrid
     public:
 
         typedef Grid<ACTIVE_OBJECT, WORLD_OBJECT_TYPES, GRID_OBJECT_TYPES, ThreadModel> GridType;
-        NGrid(uint32 id, int32 x, int32 y, time_t expiry, bool unload = true) : 
+        NGrid(uint32 id, int32 x, int32 y, time_t expiry, bool unload = true) :
             i_gridId(id), i_cellstate(GRID_STATE_INVALID), i_x(x), i_y(y), i_GridObjectDataLoaded(false)
             {
                 i_GridInfo = GridInfo(expiry, unload);

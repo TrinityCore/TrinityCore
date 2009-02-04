@@ -124,7 +124,7 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
 		}
 	}
 
-    void Aggro(Unit *who) 
+    void Aggro(Unit *who)
 	{
 	 DoScriptText(SAY_AGGRO, m_creature);
 	}

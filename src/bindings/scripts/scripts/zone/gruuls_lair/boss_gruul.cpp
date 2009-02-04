@@ -51,7 +51,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
 {
-    boss_gruulAI(Creature *c) : ScriptedAI(c)  
+    boss_gruulAI(Creature *c) : ScriptedAI(c)
 	{
 		pInstance = ((ScriptedInstance*)c->GetInstanceData());
 		Reset();
@@ -122,7 +122,7 @@ struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
 	void KilledUnit()
 	{
 		switch(rand()%3)
-		{	     
+		{
 		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
 		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
 		case 2: DoScriptText(SAY_SLAY3, m_creature); break;

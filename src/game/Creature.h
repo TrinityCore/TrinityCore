@@ -625,10 +625,10 @@ class TRINITY_DLL_SPEC Creature : public Unit
         void GetHomePosition(float &x, float &y, float &z, float &ori) { x = mHome_X; y = mHome_Y; z = mHome_Z; ori = mHome_O; }
 
         uint32 GetGlobalCooldown() const { return m_GlobalCooldown; }
-    
+
 		uint32 GetWaypointPath(){return m_path_id;}
 		void LoadPath(uint32 pathid) { m_path_id = pathid; }
-	
+
 		uint32 GetCurrentWaypointID(){return m_waypointID;}
 		void UpdateWaypointID(uint32 wpID){m_waypointID = wpID;}
 
@@ -677,7 +677,6 @@ class TRINITY_DLL_SPEC Creature : public Unit
         bool m_AlreadyCallAssistance;
         bool m_regenHealth;
         bool m_AI_locked;
-        bool m_AI_enabled;
         bool m_isDeadByDefault;
 
         SpellSchoolMask m_meleeDamageSchoolMask;
@@ -692,7 +691,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
 		//WaypointMovementGenerator vars
 		uint32 m_waypointID;
 		uint32 m_path_id;
-		
+
 		//Formation var
 		uint32 m_formationID;
 

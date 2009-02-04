@@ -136,7 +136,7 @@ void ScriptedAI::EnterEvadeMode()
         {
             if(owner->isAlive())
                 m_creature->GetMotionMaster()->MoveFollow(owner,PET_FOLLOW_DIST,PET_FOLLOW_ANGLE);
-        } 
+        }
         else
             m_creature->GetMotionMaster()->MoveTargetedHome();
     }
@@ -434,7 +434,7 @@ void ScriptedAI::SelectUnitList(std::list<Unit*> &targetList, uint32 num, Select
                 || playerOnly && target->GetTypeId() != TYPEID_PLAYER
                 || dist && !m_creature->IsWithinCombatRange(target, dist))
             {
-                continue;                
+                continue;
             }
             targetList.push_back(target);
             --num;
@@ -634,15 +634,15 @@ void FillSpellSummary()
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_ANY_FRIEND-1);
 
             //Make sure that this spell includes a damage effect
-            if ( TempSpell->Effect[j] == SPELL_EFFECT_SCHOOL_DAMAGE || 
-                TempSpell->Effect[j] == SPELL_EFFECT_INSTAKILL || 
-                TempSpell->Effect[j] == SPELL_EFFECT_ENVIRONMENTAL_DAMAGE || 
+            if ( TempSpell->Effect[j] == SPELL_EFFECT_SCHOOL_DAMAGE ||
+                TempSpell->Effect[j] == SPELL_EFFECT_INSTAKILL ||
+                TempSpell->Effect[j] == SPELL_EFFECT_ENVIRONMENTAL_DAMAGE ||
                 TempSpell->Effect[j] == SPELL_EFFECT_HEALTH_LEECH )
                 SpellSummary[i].Effects |= 1 << (SELECT_EFFECT_DAMAGE-1);
 
             //Make sure that this spell includes a healing effect (or an apply aura with a periodic heal)
-            if ( TempSpell->Effect[j] == SPELL_EFFECT_HEAL || 
-                TempSpell->Effect[j] == SPELL_EFFECT_HEAL_MAX_HEALTH || 
+            if ( TempSpell->Effect[j] == SPELL_EFFECT_HEAL ||
+                TempSpell->Effect[j] == SPELL_EFFECT_HEAL_MAX_HEALTH ||
                 TempSpell->Effect[j] == SPELL_EFFECT_HEAL_MECHANICAL ||
                 (TempSpell->Effect[j] == SPELL_EFFECT_APPLY_AURA  && TempSpell->EffectApplyAuraName[j]== 8 ))
                 SpellSummary[i].Effects |= 1 << (SELECT_EFFECT_HEALING-1);
@@ -746,7 +746,7 @@ void ScriptedAI::DoTeleportAll(float x, float y, float z, float o)
 }
 
 Unit* FindCreature(uint32 entry, float range, Unit* Finder)
-{   
+{
     if(!Finder)
         return NULL;
     Creature* target = NULL;

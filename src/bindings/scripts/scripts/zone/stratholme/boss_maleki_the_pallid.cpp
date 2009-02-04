@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: boss_maleki_the_pallid
 SD%Complete: 100
-SDComment: 
+SDComment:
 SDCategory: Stratholme
 EndScriptData */
 
@@ -92,7 +92,7 @@ struct TRINITY_DLL_DECL boss_maleki_the_pallidAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-}; 
+};
 CreatureAI* GetAI_boss_maleki_the_pallid(Creature *_Creature)
 {
     return new boss_maleki_the_pallidAI (_Creature);
