@@ -1,1 +1,1 @@
-ALTER TABLE eventai_texts DROP COLUMN emote;
+ALTER TABLE `eventai_texts` DROP COLUMN `emote`;
