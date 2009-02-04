@@ -23,7 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SPELL_INHIBITMAGIC          32264	            
+#define SPELL_INHIBITMAGIC          32264
 #define SPELL_ATTRACTMAGIC          32265
 #define N_SPELL_CARNIVOROUSBITE     36383
 #define H_SPELL_CARNIVOROUSBITE     39382
@@ -52,7 +52,7 @@ struct TRINITY_DLL_DECL boss_shirrak_the_dead_watcherAI : public ScriptedAI
     Unit *focusedTarget;
 
     void Reset()
-    {       
+    {
         Inhibitmagic_Timer = 0;
         Attractmagic_Timer = 28000;
         Carnivorousbite_Timer = 10000;
@@ -81,12 +81,12 @@ struct TRINITY_DLL_DECL boss_shirrak_the_dead_watcherAI : public ScriptedAI
     {
 		//Inhibitmagic_Timer
         if (Inhibitmagic_Timer < diff)
-        { 
-            float dist; 
-            Map *map = m_creature->GetMap(); 
-            Map::PlayerList const &PlayerList = map->GetPlayers(); 
-            for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i) 
-                if (Player* i_pl = i->getSource()) 
+        {
+            float dist;
+            Map *map = m_creature->GetMap();
+            Map::PlayerList const &PlayerList = map->GetPlayers();
+            for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                if (Player* i_pl = i->getSource())
                     if (i_pl->isAlive() && (dist = i_pl->GetDistance(m_creature)) < 45)
                     {
                         i_pl->RemoveAurasDueToSpell(SPELL_INHIBITMAGIC);
@@ -142,7 +142,7 @@ struct TRINITY_DLL_DECL boss_shirrak_the_dead_watcherAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-}; 
+};
 
 CreatureAI* GetAI_boss_shirrak_the_dead_watcher(Creature *_Creature)
 {
@@ -189,7 +189,7 @@ struct TRINITY_DLL_DECL mob_focus_fireAI : public ScriptedAI
 
         //DoMeleeAttackIfReady();
     }
-}; 
+};
 
 CreatureAI* GetAI_mob_focus_fire(Creature *_Creature)
 {

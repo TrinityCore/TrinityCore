@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: boss_Halazzi
 SD%Complete: 80
-SDComment: 
+SDComment:
 SDCategory: Zul'Aman
 EndScriptData */
 
@@ -74,7 +74,7 @@ enum PhaseHalazzi
 struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
 {
     boss_halazziAI(Creature *c) : ScriptedAI(c)
-    { 
+    {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Reset();
         // need to find out what controls totem's spell cooldown
@@ -293,7 +293,7 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
 						else
 							EnterPhase(PHASE_ENRAGE);
 					}
-				}                
+				}
                 CheckTimer = 1000;
             }else CheckTimer -= diff;
         }

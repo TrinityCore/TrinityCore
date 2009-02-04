@@ -68,11 +68,11 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-         if (!HasTaunted && m_creature->IsWithinDistInMap(who, 60.0f))            
+         if (!HasTaunted && m_creature->IsWithinDistInMap(who, 60.0f))
 		 {
                 DoScriptText(SAY_GREET, m_creature);
                 HasTaunted = true;
-            
+
         }
 		 ScriptedAI::MoveInLineOfSight(who);
     }

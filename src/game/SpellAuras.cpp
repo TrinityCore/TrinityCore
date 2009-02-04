@@ -366,7 +366,7 @@ m_updated(false), m_isRemovedOnShapeLost(true), m_in_use(false)
             damage = caster->CalculateSpellDamage(m_spellProto, m_effIndex, m_currentBasePoints, target);
         else
             damage = m_currentBasePoints + 1;
-    }    
+    }
 
     m_isPassive = IsPassiveSpell(GetId());
     m_positive = IsPositiveEffect(GetId(), m_effIndex);
@@ -1313,7 +1313,7 @@ void Aura::TriggerSpell()
 //                    // Five Fat Finger Exploding Heart Technique
 //                    case 27673: break;
                     // Nitrous Boost
-                    case 27746: 
+                    case 27746:
                     {
                         if (caster->GetPower(POWER_MANA) >= 10)
                         {
@@ -1621,7 +1621,7 @@ void Aura::TriggerSpell()
                                 (*i)->ApplyModifier(true);
                                 break;
                             }
-                        }                        
+                        }
                     }break;
 //                    // Dementia
 //                    case 41404: break;
@@ -2270,7 +2270,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         if (totem && totem->isTotem())
                             totem->AddPlayerToVision((Player*)caster);
                     }
-                } 
+                }
                 else
                     ((Player*)caster)->RemoveFarsightTarget();
                 return;
@@ -3821,7 +3821,7 @@ void Aura::HandleAuraModSchoolImmunity(bool apply, bool Real)
 {
     if(apply && m_modifier.m_miscvalue == SPELL_SCHOOL_MASK_NORMAL)
         m_target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_UNATTACKABLE);
- 
+
     m_target->ApplySpellImmune(GetId(),IMMUNITY_SCHOOL,m_modifier.m_miscvalue,apply);
 
     if(Real && apply && GetSpellProto()->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY)
@@ -5432,7 +5432,7 @@ void Aura::PeriodicTick()
                         break;
                     }
                     case 41337:// aura of anger
-                    {                        
+                    {
                         Unit::AuraList const& mMod = m_target->GetAurasByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
                         for(Unit::AuraList::const_iterator i = mMod.begin(); i != mMod.end(); ++i)
                         {
@@ -5443,7 +5443,7 @@ void Aura::PeriodicTick()
                                 (*i)->ApplyModifier(true);
                                 break;
                             }
-                        }                        
+                        }
                         m_modifier.m_amount += 100;
                     }break;
                     default:

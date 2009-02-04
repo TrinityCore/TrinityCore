@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Instance_Mechanar
 SD%Complete: 100
-SDComment: 
+SDComment:
 SDCategory: Mechanar
 EndScriptData */
 
@@ -28,19 +28,19 @@ struct TRINITY_DLL_DECL instance_mechanar : public ScriptedInstance
 {
     instance_mechanar(Map *map) : ScriptedInstance(map) {Initialize();};
 
-    
+
     bool IsBossDied[1];
 
     void OnCreatureCreate (Creature *creature, uint32 creature_entry)
     {
-    } 
+    }
 
     void Initialize()
     {
         IsBossDied[0] = false;
     }
 
-    bool IsEncounterInProgress() const 
+    bool IsEncounterInProgress() const
     {
         //not active
         return false;

@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: boss_cannon_master_willey
 SD%Complete: 100
-SDComment: 
+SDComment:
 SDCategory: Stratholme
 EndScriptData */
 
@@ -197,14 +197,14 @@ struct TRINITY_DLL_DECL boss_cannon_master_willeyAI : public ScriptedAI
                 m_creature->SummonCreature(11054,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,240000);
                 m_creature->SummonCreature(11054,ADD_3X,ADD_3Y,ADD_3Z,ADD_3O,TEMPSUMMON_TIMED_DESPAWN,240000);
                 break;
-            }            
+            }
             //30 seconds until we should cast this again
             SummonRifleman_Timer = 30000;
         }else SummonRifleman_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
-}; 
+};
 CreatureAI* GetAI_boss_cannon_master_willey(Creature *_Creature)
 {
     return new boss_cannon_master_willeyAI (_Creature);

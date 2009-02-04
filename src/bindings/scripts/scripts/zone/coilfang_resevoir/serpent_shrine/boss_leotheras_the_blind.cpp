@@ -40,7 +40,7 @@ EndScriptData */
 #define SPELL_MINDBLAST			37531
 
 // --- Spells used by Inner Demons and creature ID
-#define INNER_DEMON_ID			21857 
+#define INNER_DEMON_ID			21857
 #define AURA_DEMONIC_ALIGNMENT	37713
 #define SPELL_SHADOWBOLT		39309
 #define SPELL_SOUL_LINK			38007
@@ -80,13 +80,13 @@ struct TRINITY_DLL_DECL mob_inner_demonAI : public ScriptedAI
     }
 
     uint32 ShadowBolt_Timer;
-	
+
 	uint32 Link_Timer;
 	uint64 victimGUID;
 
     void Reset()
     {
-        ShadowBolt_Timer = 10000;		
+        ShadowBolt_Timer = 10000;
 		Link_Timer = 1000;
     }
 	void JustDied(Unit *victim)
@@ -136,7 +136,7 @@ struct TRINITY_DLL_DECL mob_inner_demonAI : public ScriptedAI
 		{
 			DoCast(m_creature->getVictim(), SPELL_SHADOWBOLT, false);
 			ShadowBolt_Timer = 10000;
-		}else ShadowBolt_Timer -= diff; 
+		}else ShadowBolt_Timer -= diff;
 
        DoMeleeAttackIfReady();
     }
@@ -149,7 +149,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 		m_creature->GetPosition(x,y,z);
         pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
         Demon = 0;
-		
+
 		for(uint8 i = 0; i < 3; i++)//clear guids
 			SpellBinderGUID[i] = 0;
         Reset();
@@ -164,14 +164,14 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 	uint32 Berserk_Timer;
 	uint32 InnerDemons_Timer;
 	uint32 BanishTimer;
-	
+
 	bool DealDamage;
 	bool NeedThreatReset;
     bool DemonForm;
     bool IsFinalForm;
 	bool EnrageUsed;
 	float x,y,z;
-	
+
 	uint64 InnderDemon[5];
 	uint32 InnderDemon_Count;
     uint64 Demon;
@@ -203,7 +203,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 		m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);
 		m_creature->SetCorpseDelay(1000*60*60);
 		if(pInstance)
-			pInstance->SetData(DATA_LEOTHERASTHEBLINDEVENT, NOT_STARTED); 
+			pInstance->SetData(DATA_LEOTHERASTHEBLINDEVENT, NOT_STARTED);
     }
 
 	void CheckChannelers(bool DoEvade = true)
@@ -228,7 +228,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 			Creature* binder = m_creature->SummonCreature(MOB_SPELLBINDER,nx,ny,z,o,TEMPSUMMON_DEAD_DESPAWN,0);
 			if (binder)
 				SpellBinderGUID[i] = binder->GetGUID();
-			
+
 		}
 	}
 	void MoveInLineOfSight(Unit *who)
@@ -272,14 +272,14 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 
 		// channelers == 0 remove banish aura
 		if(AliveChannelers == 0 && m_creature->HasAura(AURA_BANISH, 0))
-		{	
+		{
 			// removing banish aura
 			m_creature->RemoveAurasDueToSpell(AURA_BANISH);
 
-			// Leotheras is getting immune again 
+			// Leotheras is getting immune again
             m_creature->ApplySpellImmune(AURA_BANISH, IMMUNITY_MECHANIC, MECHANIC_BANISH, true);
 
-			// changing model to bloodelf 
+			// changing model to bloodelf
             m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_NIGHTELF);
 
 			// and reseting equipment
@@ -292,7 +292,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 				if(victim)
 					m_creature->getThreatManager().addThreat(victim, 1);
 				StartEvent();
-			}		
+			}
 		}
 		else if(AliveChannelers != 0 && !m_creature->HasAura(AURA_BANISH, 0))
 		{
@@ -303,7 +303,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 
 			// changing model
             m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_DEMON);
-			
+
 			// and removing weapons
             m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID  , 0);
             m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, 0);
@@ -418,7 +418,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 				Unit *newTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
 				if(newTarget)
 				{
-					DoResetThreat();				
+					DoResetThreat();
 					m_creature->GetMotionMaster()->Clear();
 					m_creature->GetMotionMaster()->MovePoint(0,newTarget->GetPositionX(),newTarget->GetPositionY(),newTarget->GetPositionZ());
 				}
@@ -427,13 +427,13 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 
 		// reseting after changing forms and after ending whirlwind
 		if(NeedThreatReset && !m_creature->HasAura(SPELL_WHIRLWIND, 0))
-		{	
+		{
 			// when changing forms seting timers (or when ending whirlwind - to avoid adding new variable i use Whirlwind_Timer to countdown 2s while whirlwinding)
 			if(DemonForm)
 				InnerDemons_Timer = 30000;
 			else
 				Whirlwind_Timer =  15000;
-			
+
 			NeedThreatReset = false;
 			DoResetThreat();
 			m_creature->GetMotionMaster()->Clear();
@@ -486,7 +486,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 				m_creature->StopMoving();
 			if(ChaosBlast_Timer < diff)
 			{
-				// will cast only when in range of spell 
+				// will cast only when in range of spell
 				if(m_creature->GetDistance(m_creature->getVictim()) < 30)
 				{
 					//m_creature->CastSpell(m_creature->getVictim(), SPELL_CHAOS_BLAST, true);
@@ -499,13 +499,13 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 			if(InnerDemons_Timer < diff)
 			{
 				std::list<HostilReference *>& ThreatList = m_creature->getThreatManager().getThreatList();
-				std::vector<Unit *> TargetList; 
+				std::vector<Unit *> TargetList;
 				for(std::list<HostilReference *>::iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
 				{
 					Unit *tempTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
 					if(tempTarget && tempTarget->GetTypeId() == TYPEID_PLAYER && tempTarget->GetGUID() != m_creature->getVictim()->GetGUID() && TargetList.size()<5)
 						TargetList.push_back( tempTarget );
-				}	
+				}
 				SpellEntry *spell = (SpellEntry *)GetSpellStore()->LookupEntry(SPELL_INSIDIOUS_WHISPER);
 				for(std::vector<Unit *>::iterator itr = TargetList.begin(); itr != TargetList.end(); ++itr)
 				{
@@ -516,7 +516,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 						{
 							((ScriptedAI *)demon->AI())->AttackStart( (*itr) );
 							((mob_inner_demonAI *)demon->AI())->victimGUID = (*itr)->GetGUID();
-														
+
 							for (int i=0; i<3; i++)
 							{
 								if (!spell->Effect[i])
@@ -631,15 +631,15 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blind_demonformAI : public ScriptedAI
         //ChaosBlast_Timer
 		if(m_creature->GetDistance(m_creature->getVictim()) < 30)
 			m_creature->StopMoving();
-		
+
 		if(ChaosBlast_Timer < diff)
          {
-			// will cast only when in range od spell 
+			// will cast only when in range od spell
 			if(m_creature->GetDistance(m_creature->getVictim()) < 30)
 			{
 				//m_creature->CastSpell(m_creature->getVictim(),SPELL_CHAOS_BLAST,true);
 				int damage = 100;
-				m_creature->CastCustomSpell(m_creature->getVictim(), SPELL_CHAOS_BLAST, &damage, NULL, NULL, false, NULL, NULL, m_creature->GetGUID());  
+				m_creature->CastCustomSpell(m_creature->getVictim(), SPELL_CHAOS_BLAST, &damage, NULL, NULL, false, NULL, NULL, m_creature->GetGUID());
 				ChaosBlast_Timer = 3000;
 			}
          }else ChaosBlast_Timer -= diff;
@@ -705,12 +705,12 @@ struct TRINITY_DLL_DECL mob_greyheart_spellbinderAI : public ScriptedAI
 					DoCast(leotheras, BANISH_BEAM);
 			}
 		}
-	}	
+	}
 
 	void UpdateAI(const uint32 diff)
 	{
 		if(pInstance)
-		{	
+		{
 			if(!leotherasGUID)
 				leotherasGUID = pInstance->GetData64(DATA_LEOTHERAS);
 
@@ -722,7 +722,7 @@ struct TRINITY_DLL_DECL mob_greyheart_spellbinderAI : public ScriptedAI
 					AttackStart(victim);
 			}
 		}
-		
+
 		if(!UpdateVictim())
 		{
 			CastChanneling();
@@ -757,7 +757,7 @@ struct TRINITY_DLL_DECL mob_greyheart_spellbinderAI : public ScriptedAI
 				    for(uint8 i = 0; i < CURRENT_MAX_SPELL; ++i)
 					    if(i_pl->m_currentSpells[i])
 						    isCasting = true;
-    				
+
 				    if(isCasting)
 				    {
 					    DoCast(i_pl, SPELL_EARTHSHOCK);

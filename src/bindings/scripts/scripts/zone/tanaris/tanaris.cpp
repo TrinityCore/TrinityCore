@@ -384,11 +384,11 @@ bool GossipSelect_npc_stone_watcher_of_norgannon(Player *player, Creature *_Crea
 struct TRINITY_DLL_DECL npc_OOX17AI : public npc_escortAI
 {
 	npc_OOX17AI(Creature *c) : npc_escortAI(c) {Reset();}
-    
+
     void WaypointReached(uint32 i)
     {
         Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
-        
+
         if (!player)
             return;
 
@@ -424,11 +424,11 @@ struct TRINITY_DLL_DECL npc_OOX17AI : public npc_escortAI
 
 	void Aggro(Unit* who)
     {
-		switch (rand()%2) 
+		switch (rand()%2)
         {
         case 0:	DoScriptText(SAY_CHICKEN_AGGRO_1, m_creature); break;
         case 1: DoScriptText(SAY_CHICKEN_AGGRO_2, m_creature); break;
-		}	
+		}
     }
 
 	void JustSummoned(Creature* summoned)

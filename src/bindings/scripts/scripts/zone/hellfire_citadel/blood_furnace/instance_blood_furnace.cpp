@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Instance_Blood_Furnace
 SD%Complete: 85
-SDComment: 
+SDComment:
 SDCategory: Hellfire Citadel, Blood Furnace
 EndScriptData */
 
@@ -63,21 +63,21 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
                     return plr;
             }
         }
-	 	 
+
         debug_log("TSCR: Instance Blood Furnace: GetPlayerInMap, but PlayerList is empty!");
         return NULL;
     }
-	 	 
+
     void HandleGameObject(uint64 guid, uint32 state)
     {
         Player *player = GetPlayerInMap();
-	 
+
         if (!player || !guid)
         {
             debug_log("TSCR: Blood Furnace: HandleGameObject fail");
             return;
         }
-	 	 
+
         if (GameObject *go = GameObject::GetGameObject(*player,guid))
             go->SetGoState(state);
     }

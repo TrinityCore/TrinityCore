@@ -48,7 +48,7 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
 		pInstance = ((ScriptedInstance*)c->GetInstanceData());
 		Reset();
 	}
-	 	 
+
 	ScriptedInstance *pInstance;
 
     uint32 Charge_Timer;
@@ -94,7 +94,7 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-		if (!UpdateVictim())            
+		if (!UpdateVictim())
 			return;
 
         if( m_creature->getVictim() && m_creature->isAlive())

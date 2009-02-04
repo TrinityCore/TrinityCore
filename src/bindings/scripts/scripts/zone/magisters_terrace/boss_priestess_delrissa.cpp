@@ -99,7 +99,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Adds.clear();
 		//SummonAdds();
-        Reset();        
+        Reset();
         Heroic = c->GetMap()->IsHeroic();
     }
 
@@ -192,7 +192,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
             {
 				pAdd->AI()->EnterEvadeMode();
 				pAdd->GetMotionMaster()->MovePoint(0,LackeyLocations[i][0], LackeyLocations[i][1], POS_Z);
-            }	
+            }
 			if(!pAdd || (pAdd && pAdd->isDead()))
             {
 				if(pAdd)
@@ -751,7 +751,7 @@ struct TRINITY_DLL_DECL boss_yazzaiAI : public boss_priestess_guestAI
         if(!UpdateVictim() )
             return;
 
-        boss_priestess_guestAI::UpdateAI(diff);		
+        boss_priestess_guestAI::UpdateAI(diff);
 
         if(Polymorph_Timer < diff)
         {
@@ -816,7 +816,7 @@ struct TRINITY_DLL_DECL boss_yazzaiAI : public boss_priestess_guestAI
 				x = rand()%2 ? x+10+rand()%10 : x-10-rand()%10;
 				y = rand()%2 ? y+10+rand()%10 : y-10-rand()%10;
 				m_creature->Relocate(x,y,z);
-				m_creature->SendMonsterMove(x, y, m_creature->GetPositionZ(), 0,0,0); 
+				m_creature->SendMonsterMove(x, y, m_creature->GetPositionZ(), 0,0,0);
 			}
             Blink_Timer = 8000;
         }else Blink_Timer -= diff;
@@ -1206,7 +1206,7 @@ struct TRINITY_DLL_DECL boss_zelfanAI : public boss_priestess_guestAI
         boss_priestess_guestAI::UpdateAI(diff);
 
         if(Goblin_Dragon_Gun_Timer < diff)
-        {           
+        {
 			if (m_creature->GetDistance(m_creature->getVictim()) <= 5)
 			{
 				Goblin_Dragon_Gun_Timer = 10000;

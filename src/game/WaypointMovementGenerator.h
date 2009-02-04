@@ -53,7 +53,7 @@ class TRINITY_DLL_SPEC PathMovementBase
         void LoadPath(T &);
         void ReloadPath(T &);
         uint32 GetCurrentNode() const { return i_currentNode; }
-		
+
     protected:
         uint32 i_currentNode;
         DestinationHolder< Traveller<T> > i_destinationHolder;
@@ -66,9 +66,9 @@ class TRINITY_DLL_SPEC WaypointMovementGenerator
     : public MovementGeneratorMedium< T, WaypointMovementGenerator<T> >, public PathMovementBase<T>
 {
 	public:
-		WaypointMovementGenerator(uint32 _path_id = 0, bool _repeating = true) : 
+		WaypointMovementGenerator(uint32 _path_id = 0, bool _repeating = true) :
 		  i_nextMoveTime(0), path_id(_path_id), repeating(_repeating), StopedByPlayer(false), node(NULL) {}
-        
+
 		void Initialize(T &);
         void Finalize(T &);
 		void MovementInform(T &);
