@@ -1,1 +1,1 @@
-update creature_template set scriptname='npc_isla_starmane' where entry=18760;
+UPDATE `creature_template` SET `ScriptName`='npc_isla_starmane' WHERE `entry`=18760;

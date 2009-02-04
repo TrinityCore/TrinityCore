@@ -617,7 +617,6 @@ UPDATE `creature_template` SET `ScriptName`='boss_heigan' WHERE `entry`=15936;
 UPDATE `creature_template` SET `ScriptName`='boss_loatheb' WHERE `entry`=16011;
 UPDATE `creature_template` SET `ScriptName`='boss_razuvious' WHERE `entry`=16061;
 UPDATE `creature_template` SET `ScriptName`='boss_gothik' WHERE `entry`=16060;
-UPDATE `creature_template` SET `ScriptName`='boss_highlord_mograine' WHERE `entry`=16062;
 UPDATE `creature_template` SET `ScriptName`='boss_thane_korthazz' WHERE `entry`=16064;
 UPDATE `creature_template` SET `ScriptName`='boss_sir_zeliek' WHERE `entry`=16063;
 UPDATE `creature_template` SET `ScriptName`='boss_lady_blaumeux' WHERE `entry`=16065;
@@ -629,6 +628,8 @@ UPDATE `creature_template` SET `ScriptName`='boss_stalagg' WHERE `entry`=15929;
 UPDATE `creature_template` SET `ScriptName`='boss_fugen' WHERE `entry`=15930;
 UPDATE `creature_template` SET `ScriptName`='boss_sapphiron' WHERE `entry`=15989;
 UPDATE `creature_template` SET `ScriptName`='boss_kelthuzad' WHERE `entry`=15990;
+UPDATE `creature_template` SET `ScriptName`='' WHERE `entry`=16062;
+UPDATE `creature_template` SET `ScriptName`='boss_rivendare_naxx' WHERE `entry`=30549;
 
 /* NETHERSTORM */
 UPDATE `gameobject_template` SET `ScriptName`='go_manaforge_control_console' WHERE `entry` IN (183770,183956,184311,184312);
