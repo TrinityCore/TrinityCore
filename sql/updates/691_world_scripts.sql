@@ -1,1 +1,1 @@
-update creature_template set scriptname='npc_earthmender_wilda' where entry=21027;
+UPDATE `creature_template` SET `ScriptName`='npc_earthmender_wilda' WHERE `entry`=21027;

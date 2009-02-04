@@ -1,5 +1,5 @@
 DROP TABLE IF EXISTS `custom_texts`;
-CREATE TABLE `custom_texts` (
+CREATE TABLE IF NOT EXISTS `custom_texts` (
   `entry` mediumint(8) NOT NULL,
   `content_default` text NOT NULL,
   `content_loc1` text,
@@ -10,9 +10,10 @@ CREATE TABLE `custom_texts` (
   `content_loc6` text,
   `content_loc7` text,
   `content_loc8` text,
-  `sound` mediumint(8) unsigned NOT NULL default '0',
-  `type` tinyint unsigned NOT NULL default '0',
-  `language` tinyint unsigned NOT NULL default '0',
+  `sound` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `language` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `emote` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `comment` text,
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Custom Texts';
@@ -69,15 +70,16 @@ CREATE TABLE `eventai_texts` (
   `content_loc6` text,
   `content_loc7` text,
   `content_loc8` text,
-  `sound` mediumint(8) unsigned NOT NULL default '0',
-  `type` tinyint unsigned NOT NULL default '0',
-  `language` tinyint unsigned NOT NULL default '0',
+  `sound` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `language` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `emote` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `comment` text,
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Script Texts';
 
 DROP TABLE IF EXISTS `script_texts`;
-CREATE TABLE `script_texts` (
+CREATE TABLE IF NOT EXISTS `script_texts` (
   `entry` mediumint(8) NOT NULL,
   `content_default` text NOT NULL,
   `content_loc1` text,
@@ -88,14 +90,16 @@ CREATE TABLE `script_texts` (
   `content_loc6` text,
   `content_loc7` text,
   `content_loc8` text,
-  `sound` mediumint(8) unsigned NOT NULL default '0',
-  `type` tinyint unsigned NOT NULL default '0',
-  `language` tinyint unsigned NOT NULL default '0',
+  `sound` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `language` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `emote` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `comment` text,
   PRIMARY KEY  (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Script Texts';
 
+DROP TABLE IF EXISTS `sd2_db_version`;
 DROP TABLE IF EXISTS `script_db_version`;
 CREATE TABLE `script_db_version` (
-  `version` varchar(255) NOT NULL default '' COMMENT 'Script Database version string'
+`version` varchar(255) NOT NULL default '' COMMENT 'Database version string'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
