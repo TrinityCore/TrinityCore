@@ -34,13 +34,13 @@ CREATE TABLE `locales_achievement_reward` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
-DELETE FROM battleground_template WHERE id IN (9,10,11);
-INSERT INTO battleground_template VALUES
+DELETE FROM `battleground_template` WHERE id IN (9,10,11);
+INSERT INTO `battleground_template` VALUES
 (9,0,0,0,0,1367,0,1368,0),
 (10,5,5,10,80,1362,0,1363,0),
 (11,5,5,10,80,1364,0,1365,0);
 
-TRUNCATE creature_equip_template;
+TRUNCATE `creature_equip_template`;
 alter table `creature_equip_template`
     drop column `equipinfo1`,
     drop column `equipinfo2`,
@@ -53,7 +53,7 @@ alter table `creature_equip_template`
     change `equipmodel3` `equipentry3` mediumint(8) UNSIGNED default '0' NOT NULL;
 update `creature_template` set equipment_id = 0;
 	
-alter table `item_template`
+ALTER TABLE `item_template`
     add column `ScalingStatDistribution` smallint(6) DEFAULT '0' NOT NULL after `stat_value10`,
     add column `ScalingStatValue` smallint(6) DEFAULT '0' NOT NULL after `ScalingStatDistribution`,
     add column `ItemLimitCategory` smallint(6) DEFAULT '0' NOT NULL after `ArmorDamageModifier`,
@@ -71,7 +71,7 @@ ALTER TABLE item_template
 UPDATE item_template
     SET stackable = -1 WHERE stackable = 0;	
 
-alter table `quest_template`
+ALTER TABLE `quest_template`
     add column `PlayersSlain` tinyint(3) UNSIGNED DEFAULT '0' NOT NULL after `CharTitleId`,
     add column `BonusTalents` tinyint(3) UNSIGNED DEFAULT '0' NOT NULL after `PlayersSlain`,
     CHANGE `RewHonorableKills` `RewHonorableKills` int unsigned NOT NULL default '0';
