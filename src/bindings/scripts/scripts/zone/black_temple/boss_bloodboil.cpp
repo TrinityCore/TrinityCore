@@ -145,7 +145,7 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
         std::list<HostilReference *> m_threatlist = m_creature->getThreatManager().getThreatList();
 
         if(!m_threatlist.size()) // He doesn't have anyone in his threatlist, useless to continue
-			return;                    
+			return;
 
         std::list<Unit *> targets;
         std::list<HostilReference *>::iterator itr = m_threatlist.begin();

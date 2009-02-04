@@ -142,7 +142,7 @@ struct TRINITY_DLL_DECL mob_shadowy_constructAI : public ScriptedAI
     {
         if(!who || (!who->isAlive()) || (who->GetGUID() == GhostGUID))
             return;
-		
+
 		ScriptedAI::MoveInLineOfSight(who);
     }
 
@@ -381,7 +381,7 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
                 if(AggroTargetGUID)
                 {
                     Unit* pUnit = Unit::GetUnit((*m_creature), AggroTargetGUID);
-                    if(pUnit)                   
+                    if(pUnit)
                         AttackStart(pUnit);
 
                     DoZoneInCombat();

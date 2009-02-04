@@ -134,7 +134,7 @@ bool GOHello_gilded_brazier(Player *player, GameObject* _GO)
 /*######
 ## npc_ranger_lilatha
 ######*/
- 
+
 #define SAY_START           -1000140
 #define SAY_PROGRESS1       -1000141
 #define SAY_PROGRESS2       -1000142
@@ -142,7 +142,7 @@ bool GOHello_gilded_brazier(Player *player, GameObject* _GO)
 #define SAY_END1            -1000144
 #define SAY_END2            -1000145
 #define SAY_CAPTAIN_ANSWER  -1000146
- 
+
 #define QUEST_ESCAPE_FROM_THE_CATACOMBS 9212
 #define GO_CAGE 181152
 #define NPC_CAPTAIN_HELIOS 16220
@@ -152,7 +152,7 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
 	npc_ranger_lilathaAI(Creature *c) : npc_escortAI(c) {Reset();}
 
 	std::list<GameObject*> CageList;
- 
+
 	void WaypointReached(uint32 i)
 	{
 		Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
@@ -162,7 +162,7 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
 
         switch(i)
 		{
-		case 0:			
+		case 0:
 			{
 			m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
 			GameObject* Cage = FindGameObject(GO_CAGE, 20, m_creature);
@@ -173,10 +173,10 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
 			}
 		case 5:
 			DoScriptText(SAY_PROGRESS1, m_creature, player);
-		case 11:			
+		case 11:
 			DoScriptText(SAY_PROGRESS2, m_creature, player);
 			m_creature->SetOrientation(4.762841);
-			break;			
+			break;
 		case 18:
 			{
 			DoScriptText(SAY_PROGRESS3, m_creature, player);
@@ -185,30 +185,30 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
 			Summ1->Attack(m_creature, true);
 			Summ2->Attack(player, true);
 			m_creature->AI()->AttackStart(Summ1);
-			break;			
+			break;
 			}
 		case 19: m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
 		case 25: m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
 		case 30:
 			if (player && player->GetTypeId() == TYPEID_PLAYER)
-				((Player*)player)->GroupEventHappens(QUEST_ESCAPE_FROM_THE_CATACOMBS,m_creature);                
+				((Player*)player)->GroupEventHappens(QUEST_ESCAPE_FROM_THE_CATACOMBS,m_creature);
 			break;
-		case 32:			
+		case 32:
 			m_creature->SetOrientation(2.978281);
 			DoScriptText(SAY_END1, m_creature, player);
-			break;                                
+			break;
 		case 33:
 			m_creature->SetOrientation(5.858011);
 			DoScriptText(SAY_END2, m_creature, player);
 			Unit* CaptainHelios = FindCreature(NPC_CAPTAIN_HELIOS, 50, m_creature);
 			if(CaptainHelios)
-			DoScriptText(SAY_CAPTAIN_ANSWER, CaptainHelios, player);    
-			break;                        
+			DoScriptText(SAY_CAPTAIN_ANSWER, CaptainHelios, player);
+			break;
 		}
 	}
- 
+
     void Aggro(Unit* who) {}
- 
+
 	void Reset()
 	{
 		if (!IsBeingEscorted)
@@ -218,7 +218,7 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
 		if(Cage)
 		Cage->SetGoState(1);
 	}
- 
+
 	void JustDied(Unit* killer)
 	{
 		if (PlayerGUID)
@@ -228,13 +228,13 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
 				((Player*)player)->FailQuest(QUEST_ESCAPE_FROM_THE_CATACOMBS);
 		}
 	}
- 
+
 	void UpdateAI(const uint32 diff)
     {
         npc_escortAI::UpdateAI(diff);
     }
 };
- 
+
 bool QuestAccept_npc_ranger_lilatha(Player* player, Creature* creature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_ESCAPE_FROM_THE_CATACOMBS)
@@ -244,11 +244,11 @@ bool QuestAccept_npc_ranger_lilatha(Player* player, Creature* creature, Quest co
     }
     return true;
 }
- 
+
 CreatureAI* GetAI_npc_ranger_lilathaAI(Creature *_Creature)
 {
     npc_ranger_lilathaAI* ranger_lilathaAI = new npc_ranger_lilathaAI(_Creature);
- 
+
 	ranger_lilathaAI->AddWaypoint(0, 7545.07, -7359.87, 162.354, 4000); // Say0
 	ranger_lilathaAI->AddWaypoint(1, 7550.048340, -7362.237793, 162.235657);
 	ranger_lilathaAI->AddWaypoint(2, 7566.976074, -7364.315430, 161.738770);
@@ -283,11 +283,11 @@ CreatureAI* GetAI_npc_ranger_lilathaAI(Creature *_Creature)
 	ranger_lilathaAI->AddWaypoint(31, 7603.768066, -7667.000488, 153.997726);
 	ranger_lilathaAI->AddWaypoint(32, 7603.768066, -7667.000488, 153.997726, 4000);  // Say4 & Set orientation
 	ranger_lilathaAI->AddWaypoint(33, 7603.768066, -7667.000488, 153.997726, 8000);  // Say5 & Set orientation
-	ranger_lilathaAI->AddWaypoint(34, 7603.768066, -7667.000488, 153.997726); 
- 
+	ranger_lilathaAI->AddWaypoint(34, 7603.768066, -7667.000488, 153.997726);
+
 	return (CreatureAI*)ranger_lilathaAI;
 }
- 
+
 void AddSC_ghostlands()
 {
     Script *newscript;

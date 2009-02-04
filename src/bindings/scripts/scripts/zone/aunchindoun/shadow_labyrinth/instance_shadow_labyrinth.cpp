@@ -104,21 +104,21 @@ struct TRINITY_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
 					return plr;
 			}
 		}
-	 	 
+
 		debug_log("SD2: Instance Shadow Labyrinth: GetPlayerInMap, but PlayerList is empty!");
 		return NULL;
 	}
-	 	 
+
 	void HandleGameObject(uint64 guid, uint32 state)
 	{
 		Player *player = GetPlayerInMap();
-	 
+
 		if (!player || !guid)
 		{
 			debug_log("SD2: Shadow Labyrinth: HandleGameObject fail");
 			return;
 		}
-	 	 
+
 		if (GameObject *go = GameObject::GetGameObject(*player,guid))
 			go->SetGoState(state);
 	}
@@ -166,20 +166,20 @@ struct TRINITY_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
                 Encounter[4] = data;
                 break;
         }
-		
+
 		if (data == DONE)
 		{
 			if (type == TYPE_OVERSEER && FelOverseerCount != 0)
 				return;
-	 	 
+
 			OUT_SAVE_INST_DATA;
 
 			std::ostringstream saveStream;
 			saveStream << Encounter[0] << " " << Encounter[1] << " "
 				<< Encounter[2] << " " << Encounter[3] << " " << Encounter[4];
-	 	 
+
 			str_data = saveStream.str();
-	 	 
+
 			SaveToDB();
 			OUT_SAVE_INST_DATA_COMPLETE;
 		}
@@ -209,7 +209,7 @@ struct TRINITY_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
 	{
 		return str_data.c_str();
 	}
-	 	 
+
 	void Load(const char* in)
 	{
 		if (!in)
@@ -217,16 +217,16 @@ struct TRINITY_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
 			OUT_LOAD_INST_DATA_FAIL;
 			return;
 		}
-	 	 
+
 		OUT_LOAD_INST_DATA(in);
 
 		std::istringstream loadStream(in);
 		loadStream >> Encounter[0] >> Encounter[1] >> Encounter[2] >> Encounter[3] >> Encounter[4];
-	 	 
+
 		for(uint8 i = 0; i < ENCOUNTERS; ++i)
 			if (Encounter[i] == IN_PROGRESS)
 				Encounter[i] = NOT_STARTED;
-	 	 
+
 		OUT_LOAD_INST_DATA_COMPLETE;
 	}
 };

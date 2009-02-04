@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: boss_timmy_the_cruel
 SD%Complete: 100
-SDComment: 
+SDComment:
 SDCategory: Stratholme
 EndScriptData */
 
@@ -66,7 +66,7 @@ struct TRINITY_DLL_DECL boss_timmy_the_cruelAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-}; 
+};
 CreatureAI* GetAI_boss_timmy_the_cruel(Creature *_Creature)
 {
     return new boss_timmy_the_cruelAI (_Creature);

@@ -58,7 +58,7 @@ EndScriptData */
 #define AURA_OF_SUFFERING               41292
 #define AURA_OF_SUFFERING_ARMOR         42017 // linked aura, need core support
 #define ESSENCE_OF_SUFFERING_PASSIVE    41296 // periodic trigger 41294
-#define ESSENCE_OF_SUFFERING_PASSIVE2   41623 
+#define ESSENCE_OF_SUFFERING_PASSIVE2   41623
 #define SPELL_FIXATE_TARGET             41294 // dummy, select target
 #define SPELL_FIXATE_TAUNT              41295 // force taunt
 #define SPELL_ENRAGE                    41305
@@ -117,7 +117,7 @@ struct TRINITY_DLL_DECL npc_enslaved_soulAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
 {
-    boss_reliquary_of_soulsAI(Creature *c) : ScriptedAI(c) 
+    boss_reliquary_of_soulsAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         EssenceGUID = 0;
@@ -282,7 +282,7 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
                 EssenceGUID = 0;
                 SoulCount = 0;
                 SoulDeathCount = 0;
-                Timer = 3000;            
+                Timer = 3000;
                 break;
             case 6:
                 if(SoulCount < NUMBER_ENSLAVED_SOUL)
@@ -467,7 +467,7 @@ struct TRINITY_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
         if(m_creature->m_currentSpells[CURRENT_GENERIC_SPELL])
             for(uint8 i = 0; i < 3; ++i)
                 if(spell->Effect[i] == SPELL_EFFECT_INTERRUPT_CAST)
-                    if(m_creature->m_currentSpells[CURRENT_GENERIC_SPELL]->m_spellInfo->Id == SPELL_SOUL_SHOCK 
+                    if(m_creature->m_currentSpells[CURRENT_GENERIC_SPELL]->m_spellInfo->Id == SPELL_SOUL_SHOCK
                         || m_creature->m_currentSpells[CURRENT_GENERIC_SPELL]->m_spellInfo->Id == SPELL_DEADEN)
                         m_creature->InterruptSpell(CURRENT_GENERIC_SPELL, false);
     }
@@ -483,9 +483,9 @@ struct TRINITY_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-        case 0: DoScriptText(DESI_SAY_SLAY1, m_creature); break;            
-        case 1: DoScriptText(DESI_SAY_SLAY2, m_creature); break;            
-        case 2: DoScriptText(DESI_SAY_SLAY3, m_creature); break;           
+        case 0: DoScriptText(DESI_SAY_SLAY1, m_creature); break;
+        case 1: DoScriptText(DESI_SAY_SLAY2, m_creature); break;
+        case 2: DoScriptText(DESI_SAY_SLAY3, m_creature); break;
         }
     }
 
@@ -572,8 +572,8 @@ struct TRINITY_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-        case 0: DoScriptText(ANGER_SAY_SLAY1, m_creature); break;           
-        case 1: DoScriptText(ANGER_SAY_SLAY2, m_creature); break;            
+        case 0: DoScriptText(ANGER_SAY_SLAY1, m_creature); break;
+        case 1: DoScriptText(ANGER_SAY_SLAY2, m_creature); break;
         }
     }
 
@@ -592,7 +592,7 @@ struct TRINITY_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
         if(CheckTankTimer < diff)
         {
             if(m_creature->getVictim()->GetGUID() != AggroTargetGUID)
-            {     
+            {
 				DoScriptText(ANGER_SAY_BEFORE, m_creature);
                 DoCast(m_creature, SPELL_SELF_SEETHE, true);
                 AggroTargetGUID = m_creature->getVictim()->GetGUID();

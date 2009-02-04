@@ -20,12 +20,12 @@ SD%Complete: 70
 SDComment: Quest support: 6544, 6482
 SDCategory: Ashenvale Forest
 EndScriptData */
-  
+
 /* ContentData
 npc_torek
 npc_ruul_snowhoof
 EndContentData */
-   
+
 #include "precompiled.h"
 #include "../../npc/npc_escortAI.h"
 
@@ -43,7 +43,7 @@ EndContentData */
 #define SPELL_THUNDERCLAP           8078
 
 #define QUEST_TOREK_ASSULT          6544
-   
+
 #define ENTRY_SPLINTERTREE_RAIDER   12859
 #define ENTRY_DURIEL                12860
 #define ENTRY_SILVERWING_SENTINEL   12896
@@ -52,18 +52,18 @@ EndContentData */
 struct TRINITY_DLL_DECL npc_torekAI : public npc_escortAI
 {
 	npc_torekAI(Creature *c) : npc_escortAI(c) {Reset();}
-   
+
 	uint32 Rend_Timer;
 	uint32 Thunderclap_Timer;
 	bool Completed;
-   
+
 	void WaypointReached(uint32 i)
 	{
 		Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
 
 		if (!player)
 			return;
-   
+
 		switch (i)
 		{
 		case 1:
@@ -89,23 +89,23 @@ struct TRINITY_DLL_DECL npc_torekAI : public npc_escortAI
 			break;
 		}
 	}
-   
+
 	void Reset()
 	{
 		Rend_Timer = 5000;
 		Thunderclap_Timer = 8000;
 		Completed = false;
 	}
-   
+
 	void Aggro(Unit* who)
 	{
 	}
-   
+
 	void JustSummoned(Creature* summoned)
 	{
 		summoned->AI()->AttackStart(m_creature);
 	}
-   
+
 	void JustDied(Unit* killer)
 	{
 		if (PlayerGUID && !Completed)
@@ -114,14 +114,14 @@ struct TRINITY_DLL_DECL npc_torekAI : public npc_escortAI
 				((Player*)player)->FailQuest(QUEST_TOREK_ASSULT);
 		}
 	}
-   
+
 	void UpdateAI(const uint32 diff)
 	{
 		npc_escortAI::UpdateAI(diff);
-   
+
 		if (!UpdateVictim())
 			return;
-   
+
 		if (Rend_Timer < diff)
 		{
 			DoCast(m_creature->getVictim(),SPELL_REND);
@@ -135,7 +135,7 @@ struct TRINITY_DLL_DECL npc_torekAI : public npc_escortAI
 		}else Thunderclap_Timer -= diff;
 	}
 };
-   
+
 bool QuestAccept_npc_torek(Player* player, Creature* creature, Quest const* quest)
 {
 	if (quest->GetQuestId() == QUEST_TOREK_ASSULT)
@@ -145,14 +145,14 @@ bool QuestAccept_npc_torek(Player* player, Creature* creature, Quest const* ques
 		DoScriptText(SAY_READY, creature, player);
 		creature->setFaction(113);
 	}
-   
+
 	return true;
 }
-   
+
 CreatureAI* GetAI_npc_torek(Creature *_Creature)
 {
 	npc_torekAI* thisAI = new npc_torekAI(_Creature);
-   
+
 	thisAI->AddWaypoint(0, 1782.63, -2241.11, 109.73, 5000);
 	thisAI->AddWaypoint(1, 1788.88, -2240.17, 111.71);
 	thisAI->AddWaypoint(2, 1797.49, -2238.11, 112.31);
@@ -176,7 +176,7 @@ CreatureAI* GetAI_npc_torek(Creature *_Creature)
 	thisAI->AddWaypoint(20, 1776.90, -2024.56, 109.83);     //win
 	thisAI->AddWaypoint(21, 1776.87, -2028.31, 109.83,60000);//stay
 	thisAI->AddWaypoint(22, 1776.90, -2028.30, 109.83);
-   
+
 	return (CreatureAI*)thisAI;
 }
 
@@ -184,13 +184,13 @@ CreatureAI* GetAI_npc_torek(Creature *_Creature)
 # npc_ruul_snowhoof
 ####*/
 
-#define QUEST_FREEDOM_TO_RUUL    6482        
+#define QUEST_FREEDOM_TO_RUUL    6482
 #define GO_CAGE                  178147
 
 struct TRINITY_DLL_DECL npc_ruul_snowhoofAI : public npc_escortAI
 {
     npc_ruul_snowhoofAI(Creature *c) : npc_escortAI(c) {Reset();}
- 
+
     void WaypointReached(uint32 i)
     {
         Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
@@ -200,33 +200,33 @@ struct TRINITY_DLL_DECL npc_ruul_snowhoofAI : public npc_escortAI
 
         switch(i)
         {
-        case 0:    {        
+        case 0:    {
                 m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                 GameObject* Cage = FindGameObject(GO_CAGE, 20, m_creature);
                 if(Cage)
                     Cage->SetGoState(0);
                 break;}
-        case 13:        
+        case 13:
                 m_creature->SummonCreature(3922, 3449.218018, -587.825073, 174.978867, 4.714445, TEMPSUMMON_DEAD_DESPAWN, 60000);
                 m_creature->SummonCreature(3921, 3446.384521, -587.830872, 175.186279, 4.714445, TEMPSUMMON_DEAD_DESPAWN, 60000);
-                m_creature->SummonCreature(3926, 3444.218994, -587.835327, 175.380600, 4.714445, TEMPSUMMON_DEAD_DESPAWN, 60000);                
-                break; 
+                m_creature->SummonCreature(3926, 3444.218994, -587.835327, 175.380600, 4.714445, TEMPSUMMON_DEAD_DESPAWN, 60000);
+                break;
         case 19:
                 m_creature->SummonCreature(3922, 3508.344482, -492.024261, 186.929031, 4.145029, TEMPSUMMON_DEAD_DESPAWN, 60000);
                 m_creature->SummonCreature(3921, 3506.265625, -490.531006, 186.740128, 4.239277, TEMPSUMMON_DEAD_DESPAWN, 60000);
                 m_creature->SummonCreature(3926, 3503.682373, -489.393799, 186.629684, 4.349232, TEMPSUMMON_DEAD_DESPAWN, 60000);
-                break;            
-                
+                break;
+
         case 21:{
                 if (player && player->GetTypeId() == TYPEID_PLAYER)
                     ((Player*)player)->GroupEventHappens(QUEST_FREEDOM_TO_RUUL,m_creature);
-    
-                break;  }                      
+
+                break;  }
         }
     }
- 
+
     void Aggro(Unit* who) {}
- 
+
     void Reset()
     {
         if (!IsBeingEscorted)
@@ -251,13 +251,13 @@ struct TRINITY_DLL_DECL npc_ruul_snowhoofAI : public npc_escortAI
                 ((Player*)player)->FailQuest(QUEST_FREEDOM_TO_RUUL);
         }
     }
- 
+
     void UpdateAI(const uint32 diff)
     {
         npc_escortAI::UpdateAI(diff);
     }
 };
- 
+
 bool QuestAccept_npc_ruul_snowhoof(Player* player, Creature* creature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_FREEDOM_TO_RUUL)
@@ -267,13 +267,13 @@ bool QuestAccept_npc_ruul_snowhoof(Player* player, Creature* creature, Quest con
     }
     return true;
 }
- 
+
 CreatureAI* GetAI_npc_ruul_snowhoofAI(Creature *_Creature)
 {
     npc_ruul_snowhoofAI* ruul_snowhoofAI = new npc_ruul_snowhoofAI(_Creature);
- 
+
     ruul_snowhoofAI->AddWaypoint(0, 3347.250089, -694.700989, 159.925995);
-    ruul_snowhoofAI->AddWaypoint(1, 3341.527039, -694.725891, 161.124542, 4000); 
+    ruul_snowhoofAI->AddWaypoint(1, 3341.527039, -694.725891, 161.124542, 4000);
     ruul_snowhoofAI->AddWaypoint(2, 3338.351074, -686.088138, 163.444000);
     ruul_snowhoofAI->AddWaypoint(3, 3352.744873, -677.721741, 162.316269);
     ruul_snowhoofAI->AddWaypoint(4, 3370.291016, -669.366943, 160.751358);
@@ -294,14 +294,14 @@ CreatureAI* GetAI_npc_ruul_snowhoofAI(Creature *_Creature)
     ruul_snowhoofAI->AddWaypoint(19,3497.619385, -510.411499, 188.345322, 1000); // Ambush 2
     ruul_snowhoofAI->AddWaypoint(20,3498.498047, -497.787506, 185.806274);
     ruul_snowhoofAI->AddWaypoint(21,3484.218750, -489.717529, 182.389862, 4000); // End
- 
+
     return (CreatureAI*)ruul_snowhoofAI;
 }
 
 void AddSC_ashenvale()
 {
 	Script *newscript;
-   
+
 	newscript = new Script;
 	newscript->Name = "npc_torek";
 	newscript->GetAI = &GetAI_npc_torek;

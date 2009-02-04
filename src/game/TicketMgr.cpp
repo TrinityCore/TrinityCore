@@ -63,7 +63,7 @@ GM_Ticket* TicketMgr::GetGMTicketByName(const char* name)
 	Player *plr = objmgr.GetPlayer(pname.c_str());
 	if(!plr)
 		return NULL;
-	
+
 	uint64 playerGuid = plr->GetGUID();
 
 	for(GmTicketList::iterator i = GM_TicketList.begin(); i != GM_TicketList.end();)
@@ -184,7 +184,7 @@ void TicketMgr::SaveGMTicket(GM_Ticket* ticket)
     CharacterDatabase.BeginTransaction();
 	CharacterDatabase.Execute(ss.str().c_str());
 	CharacterDatabase.CommitTransaction();
-		
+
 }
 
 void TicketMgr::UpdateGMTicket(GM_Ticket *ticket)

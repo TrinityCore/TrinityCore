@@ -84,7 +84,7 @@ CreatureAI* GetAI_npc_shadowfang_prisoner(Creature *_Creature)
 bool GossipHello_npc_shadowfang_prisoner(Player *player, Creature *_Creature)
 {
     ScriptedInstance* pInstance = ((ScriptedInstance*)_Creature->GetInstanceData());
-	
+
 	if (!pInstance)
 		return false;
 

@@ -106,29 +106,29 @@ struct TRINITY_DLL_DECL instance_magisters_terrace : public ScriptedInstance
     {
         switch(identifier)
         {
-            case DATA_SELIN_EVENT:       
-				Encounters[0] = data;  
+            case DATA_SELIN_EVENT:
+				Encounters[0] = data;
 				if(data==DONE)
 				{
 					DoorState[0] = 0;
 					SaveToDB();
 				}
 				break;
-            case DATA_VEXALLUS_EVENT:    
-				Encounters[1] = data;  
+            case DATA_VEXALLUS_EVENT:
+				Encounters[1] = data;
 				if(data==DONE)
 				{
 					DoorState[1] = 0;
 					SaveToDB();
 				}
 				break;
-            case DATA_DELRISSA_EVENT:    
-				Encounters[2] = data;  
+            case DATA_DELRISSA_EVENT:
+				Encounters[2] = data;
 				if(data==DONE)
 				{
 					DoorState[2] = 0;
 					SaveToDB();
-				}				
+				}
 				break;
             case DATA_KAELTHAS_EVENT:    Encounters[3] = data;  break;
 
@@ -177,20 +177,20 @@ struct TRINITY_DLL_DECL instance_magisters_terrace : public ScriptedInstance
     {
         switch(go->GetEntry())
         {
-            case 187896:  
-				VexallusDoorGUID = go->GetGUID();       
+            case 187896:
+				VexallusDoorGUID = go->GetGUID();
 				go->SetGoState(DoorState[1]);
 				break;
             //SunwellRaid Gate 02
-            case 187979:  
-				SelinDoorGUID = go->GetGUID(); 
+            case 187979:
+				SelinDoorGUID = go->GetGUID();
 				go->SetGoState(DoorState[0]);
 				break;
             //Assembly Chamber Door
             case 188065:  SelinEncounterDoorGUID = go->GetGUID(); break;
-            case 187770:  
-				DelrissaDoorGUID = go->GetGUID();  
-				go->SetGoState(DoorState[2]);				
+            case 187770:
+				DelrissaDoorGUID = go->GetGUID();
+				go->SetGoState(DoorState[2]);
 				break;
             case 188165:  KaelStatue[0] = go->GetGUID();          break;
             case 188166:  KaelStatue[1] = go->GetGUID();          break;

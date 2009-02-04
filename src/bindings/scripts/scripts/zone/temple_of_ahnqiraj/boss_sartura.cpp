@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Sartura
 SD%Complete: 95
-SDComment: 
+SDComment:
 SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
@@ -63,7 +63,7 @@ struct TRINITY_DLL_DECL boss_sarturaAI : public ScriptedAI
 
         WhirlWind = false;
         AggroReset = false;
-        Enraged = false; 
+        Enraged = false;
         EnragedHard = false;
 
     }
@@ -144,7 +144,7 @@ struct TRINITY_DLL_DECL boss_sarturaAI : public ScriptedAI
                     DoCast(m_creature, SPELL_ENRAGE);
                     Enraged = true;
                 }
-            } 
+            }
 
             //After 10 minutes hard enrage
             if (!EnragedHard)
@@ -159,7 +159,7 @@ struct TRINITY_DLL_DECL boss_sarturaAI : public ScriptedAI
             DoMeleeAttackIfReady();
         }
     }
-}; 
+};
 
 
 struct TRINITY_DLL_DECL mob_sartura_royal_guardAI : public ScriptedAI
@@ -172,7 +172,7 @@ struct TRINITY_DLL_DECL mob_sartura_royal_guardAI : public ScriptedAI
     uint32 AggroReset_Timer;
     uint32 AggroResetEnd_Timer;
     uint32 KnockBack_Timer;
-    
+
     bool WhirlWind;
     bool AggroReset;
 
@@ -184,7 +184,7 @@ struct TRINITY_DLL_DECL mob_sartura_royal_guardAI : public ScriptedAI
         AggroReset_Timer = 45000 + rand()%10000;
         AggroResetEnd_Timer = 5000;
         KnockBack_Timer = 10000;
-        
+
         WhirlWind = false;
         AggroReset = false;
 

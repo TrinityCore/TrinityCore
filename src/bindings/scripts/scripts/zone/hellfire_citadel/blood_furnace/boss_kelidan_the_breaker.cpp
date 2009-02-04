@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Kelidan_The_Breaker
 SD%Complete: 100
-SDComment: 
+SDComment:
 SDCategory: Hellfire Citadel, Blood Furnace
 EndScriptData */
 
@@ -182,7 +182,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
         DoScriptText(SAY_DIE, m_creature);
-       if(pInstance) 
+       if(pInstance)
 		   pInstance->SetData(DATA_KELIDANEVENT, DONE);
     }
 
