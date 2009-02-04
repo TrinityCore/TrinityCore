@@ -1061,7 +1061,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         Item* GetItemByGuid( uint64 guid ) const;
         Item* GetItemByPos( uint16 pos ) const;
         Item* GetItemByPos( uint8 bag, uint8 slot ) const;
-        inline Item* Player::GetUseableItemByPos( uint8 bag, uint8 slot ) const //Does additional check for disarmed weapons
+        inline Item* GetUseableItemByPos( uint8 bag, uint8 slot ) const //Does additional check for disarmed weapons
         {
             if (!CanUseAttackType(GetAttackBySlot(slot)))
                 return NULL;
