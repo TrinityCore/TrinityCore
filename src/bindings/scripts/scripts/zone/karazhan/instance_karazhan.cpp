@@ -46,7 +46,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
 
     uint32 Encounters[ENCOUNTERS];
 
-    uint32 OperaEvent;                                      
+    uint32 OperaEvent;
     uint32 OzDeathCount;
 
     uint64 CurtainGUID;
@@ -96,7 +96,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
     bool IsEncounterInProgress() const
     {
         for (uint8 i = 0; i < ENCOUNTERS; ++i)
-            if (Encounters[i] == IN_PROGRESS) 
+            if (Encounters[i] == IN_PROGRESS)
 				return true;
 
         return false;
@@ -192,7 +192,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
 	 void SetData64(uint32 identifier, uint64 data)
 	 {
 		 switch(identifier)
-		 {        
+		 {
 		 case DATA_IMAGE_OF_MEDIVH: ImageGUID = data;
 		 }
 	 }

@@ -160,13 +160,13 @@ DestinationHolder<TRAVELLER>::UpdateTraveller(TRAVELLER &traveller, uint32 diff,
         }
         // Change movement computation to micro movement based on last tick coords, this makes system work
         // even on multiple floors zones without hugh vmaps usage ;)
-        
+
         // Take care of underrun of uint32
         if (i_totalTravelTime >= i_timeElapsed)
             i_totalTravelTime -= i_timeElapsed;     // Consider only the remaining part
         else
             i_totalTravelTime = 0;
-        
+
         i_timeElapsed = 0;
         i_fromX = x;                            // and change origine
         i_fromY = y;                            // then I take into account only micro movement

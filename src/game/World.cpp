@@ -403,7 +403,7 @@ void World::LoadConfigSettings(bool reload)
             sLog.outError("World settings reload fail: can't read settings from %s.",sConfig.GetFilename().c_str());
             return;
         }
-        //TODO Check if config is outdated 
+        //TODO Check if config is outdated
     }
 
     ///- Read the player limit and the Message of the day from the config file
@@ -1440,7 +1440,7 @@ void World::SetInitialWorldSettings()
     //Not sure if this can be moved up in the sequence (with static data loading) as it uses MapManager
     sLog.outString( "Loading Transports..." );
     MapManager::Instance().LoadTransports();
-	
+
 	sLog.outString( "Loading Transports Events..." );
 	objmgr.LoadTransportEvents();
 
@@ -1835,7 +1835,7 @@ void World::ScriptsProcess()
 					for (MapManager::TransportSet::iterator iter = MapManager::Instance().m_Transports.begin(); iter != MapManager::Instance().m_Transports.end(); ++iter)
 					{
 						if((*iter)->GetGUID() == step.sourceGUID)
-						{	
+						{
 							source = reinterpret_cast<Object*>(*iter);
 							break;
 						}
@@ -2385,7 +2385,7 @@ void World::ScriptsProcess()
 
                 break;
             }
-	
+
 			case SCRIPT_COMMAND_LOAD_PATH:
 			{
 				if(!source)
@@ -2398,18 +2398,18 @@ void World::ScriptsProcess()
                 {
                     sLog.outError("SCRIPT_COMMAND_START_MOVE source mover isn't unit (TypeId: %u), skipping.",source->GetTypeId());
                     break;
-                }	
-				
+                }
+
 				if(!WaypointMgr.GetPath(step.script->datalong))
 				{
                     sLog.outError("SCRIPT_COMMAND_START_MOVE source mover has an invallid path, skipping.", step.script->datalong2);
                     break;
                 }
-				
+
 				dynamic_cast<Unit*>(source)->GetMotionMaster()->MovePath(step.script->datalong, step.script->datalong2);
 				break;
 			}
-            
+
 			case SCRIPT_COMMAND_CALLSCRIPT_TO_UNIT:
 			{
 				if(!step.script->datalong || !step.script->datalong2)
@@ -2419,17 +2419,17 @@ void World::ScriptsProcess()
 				}
 				//our target
 				Creature* target = NULL;
-				
+
 				if(source) //using grid searcher
 				{
 					CellPair p(Trinity::ComputeCellPair(((Unit*)source)->GetPositionX(), ((Unit*)source)->GetPositionY()));
 					Cell cell(p);
 					cell.data.Part.reserved = ALL_DISTRICT;
-				
+
 					//sLog.outDebug("Attempting to find Creature: Db GUID: %i", step.script->datalong);
 					Trinity::CreatureWithDbGUIDCheck target_check(((Unit*)source), step.script->datalong);
 					Trinity::CreatureSearcher<Trinity::CreatureWithDbGUIDCheck> checker(((Unit*)source), target, target_check);
-				
+
 					TypeContainerVisitor<Trinity::CreatureSearcher <Trinity::CreatureWithDbGUIDCheck>, GridTypeMapContainer > unit_checker(checker);
 					CellLock<GridReadGuard> cell_lock(cell, p);
 					cell_lock->Visit(cell_lock, unit_checker, *(((Unit*)source)->GetMap()));
@@ -2469,19 +2469,19 @@ void World::ScriptsProcess()
 						sLog.outError("SCRIPT_COMMAND_CALLSCRIPT ERROR: no scriptmap present... ignoring");
 						break;
 				}
-				//if no scriptmap present... 
+				//if no scriptmap present...
 				if(!datamap)
 					break;
-				
+
 				uint32 script_id = step.script->datalong2;
 				//delete iter and return it to begin pos(next one)
 				m_scriptSchedule.erase(iter);
 				iter = m_scriptSchedule.begin();
-				
+
 				ScriptsStart(*datamap, script_id, target, NULL);
 				return;
 			}
-			
+
 			case SCRIPT_COMMAND_PLAYSOUND:
 			{
 				if(!source)

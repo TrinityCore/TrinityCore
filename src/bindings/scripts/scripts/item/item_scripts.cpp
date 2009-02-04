@@ -74,7 +74,7 @@ bool ItemUse_item_only_for_flight(Player *player, Item* _Item, SpellCastTargets 
 {
     uint32 itemId = _Item->GetEntry();
     bool disabled = false;
-        
+
     //for special scripts
     switch(itemId)
     {
@@ -84,10 +84,10 @@ bool ItemUse_item_only_for_flight(Player *player, Item* _Item, SpellCastTargets 
                 break;
        case 34489:
             if(player->GetZoneId() != 4080)
-                disabled = true;     
+                disabled = true;
                 break;
     }
-    
+
     // allow use in flight only
     if( player->isInFlight() && !disabled)
         return false;
@@ -110,7 +110,7 @@ bool ItemUse_item_attuned_crystal_cores(Player *player, Item* _Item, SpellCastTa
 		((Creature*)targets.getUnitTarget())->RemoveCorpse();
 		return false;
 	}
-        
+
     player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,_Item,NULL);
     return true;
 }

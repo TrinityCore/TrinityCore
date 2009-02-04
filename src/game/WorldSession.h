@@ -292,7 +292,7 @@ class TRINITY_DLL_SPEC WorldSession
 		 void HandleGMTicketDeleteOpcode(WorldPacket& recvPacket);
 		 void HandleGMTicketGetTicketOpcode(WorldPacket& recvPacket);
 		 void HandleGMTicketSystemStatusOpcode(WorldPacket& recvPacket);
-		
+
         //void HandleGMSurveySubmit(WorldPacket& recvPacket);
 
         void HandleTogglePvP(WorldPacket& recvPacket);

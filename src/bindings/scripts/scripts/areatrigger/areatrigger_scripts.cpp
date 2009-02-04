@@ -44,13 +44,13 @@ bool AreaTrigger_at_legion_teleporter(Player *player, AreaTriggerEntry *at)
 			player->CastSpell(player,SPELL_TELE_A_TO,false);
 			return true;
 		}
-	 	 
+
 		if (player->GetTeam()== HORDE && player->GetQuestRewardStatus(10604))
 		{
 			player->CastSpell(player,SPELL_TELE_H_TO,false);
 			return true;
 		}
-	 	 
+
 		return false;
 	}
 	return false;

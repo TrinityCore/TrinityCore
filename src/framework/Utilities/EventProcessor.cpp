@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
@@ -70,13 +70,13 @@ void EventProcessor::KillAllEvents(bool force)
     {
         EventList::iterator i_old = i;
         ++i;
-        
+
         i_old->second->to_Abort = true;
         i_old->second->Abort(m_time);
         if(force || i_old->second->IsDeletable())
         {
             delete i_old->second;
-            
+
             if(!force)                                      // need per-element cleanup
                 m_events.erase (i_old);
         }

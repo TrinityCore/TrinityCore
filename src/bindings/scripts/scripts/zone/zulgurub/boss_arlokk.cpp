@@ -123,7 +123,7 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
                 Panther = m_creature->SummonCreature(15101,-11532.79980,-1649.6734,41.4800,0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
 
                 if(markedTarget && Panther )
-				{					
+				{
 					DoScriptText(SAY_FEAST_PANTHER, m_creature, markedTarget);
                     Panther ->AI()->AttackStart(markedTarget);
 				}else Panther ->AI()->AttackStart(target);

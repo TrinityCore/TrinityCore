@@ -72,10 +72,10 @@ struct TRINITY_DLL_DECL boss_doomlordkazzakAI : public ScriptedAI
     {
         DoScriptText(SAY_INTRO, m_creature);
     }
-	 	 
+
     void Aggro(Unit *who)
     {
-        switch(rand()%2)	 	         
+        switch(rand()%2)
         {
         case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
         case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
@@ -97,7 +97,7 @@ struct TRINITY_DLL_DECL boss_doomlordkazzakAI : public ScriptedAI
             case 2: DoScriptText(SAY_KILL3, m_creature); break;
             }
     }
-	 	 
+
     void JustDied(Unit *victim)
     {
         DoScriptText(SAY_DEATH, m_creature);

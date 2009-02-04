@@ -107,7 +107,7 @@ namespace Trinity
         void SendPacket(Player* plr);
         template<class SKIP> void Visit(GridRefManager<SKIP> &) {}
     };
-        
+
     struct TRINITY_DLL_DECL MessageDeliverer : public Deliverer
     {
         MessageDeliverer(Player &pl, WorldPacket *msg, bool to_possessor, bool to_self) : Deliverer(pl, msg, to_possessor, to_self) {}
@@ -631,7 +631,7 @@ namespace Trinity
             Unit const* i_funit;
             float i_range;
     };
-	
+
 	class CreatureWithDbGUIDCheck
     {
         public:
@@ -750,7 +750,7 @@ namespace Trinity
     class NearestHostileUnitInAttackDistanceCheck
     {
         public:
-            explicit NearestHostileUnitInAttackDistanceCheck(Creature const* creature, float dist = 0) : m_creature(creature) 
+            explicit NearestHostileUnitInAttackDistanceCheck(Creature const* creature, float dist = 0) : m_creature(creature)
             {
                 m_range = (dist == 0 ? 9999 : dist);
                 m_force = (dist == 0 ? false : true);
@@ -926,7 +926,7 @@ namespace Trinity
         FriendlyMissingBuffInRange(Unit const* obj, float range, uint32 spellid) : i_obj(obj), i_range(range), i_spell(spellid) {}
         bool operator()(Unit* u)
         {
-            if(u->isAlive() && u->isInCombat() && /*!i_obj->IsHostileTo(u)*/ i_obj->IsFriendlyTo(u) && i_obj->IsWithinDistInMap(u, i_range) && 
+            if(u->isAlive() && u->isInCombat() && /*!i_obj->IsHostileTo(u)*/ i_obj->IsFriendlyTo(u) && i_obj->IsWithinDistInMap(u, i_range) &&
                 !(u->HasAura(i_spell, 0) || u->HasAura(i_spell, 1) || u->HasAura(i_spell, 2)))
             {
                 return true;

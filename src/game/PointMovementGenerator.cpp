@@ -32,7 +32,7 @@ void PointMovementGenerator<T>::Initialize(T &unit)
     unit.StopMoving();
     Traveller<T> traveller(unit);
     i_destinationHolder.SetDestination(traveller,i_x,i_y,i_z);
-    
+
     if (unit.GetTypeId() == TYPEID_UNIT && ((Creature*)&unit)->canFly())
         unit.AddUnitMovementFlag(MOVEMENTFLAG_FLYING2);
 }

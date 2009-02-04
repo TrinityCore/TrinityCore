@@ -238,7 +238,7 @@ void GameEvent::LoadFromDB()
     }
 
     // load game event saves
-    //                                       0         1      2 
+    //                                       0         1      2
     result = CharacterDatabase.Query("SELECT event_id, state, UNIX_TIMESTAMP(next_start) FROM game_event_save");
 
     count = 0;
@@ -624,7 +624,7 @@ void GameEvent::LoadFromDB()
     }
 
     // load conditions of the events
-    //                                   0         1             2        3                      4         
+    //                                   0         1             2        3                      4
     result = WorldDatabase.Query("SELECT event_id, condition_id, req_num, max_world_state_field, done_world_state_field FROM game_event_condition");
 
     count = 0;
@@ -669,7 +669,7 @@ void GameEvent::LoadFromDB()
     }
 
     // load condition saves
-    //                                       0         1             2         
+    //                                       0         1             2
     result = CharacterDatabase.Query("SELECT event_id, condition_id, done FROM game_event_condition_save");
 
     count = 0;
@@ -1388,7 +1388,7 @@ void GameEvent::UpdateEventQuests(uint16 event_id, bool Activate)
         if (Activate)                                       // Add the pair(id,quest) to the multimap
             CreatureQuestMap.insert(QuestRelations::value_type(itr->first, itr->second));
         else
-        {   
+        {
             if(!hasCreatureQuestActiveEventExcept(itr->second,event_id))
             {
                 // Remove the pair(id,quest) from the multimap
@@ -1413,7 +1413,7 @@ void GameEvent::UpdateEventQuests(uint16 event_id, bool Activate)
         if (Activate)                                       // Add the pair(id,quest) to the multimap
             GameObjectQuestMap.insert(QuestRelations::value_type(itr->first, itr->second));
         else
-        {   
+        {
             if(!hasGameObjectQuestActiveEventExcept(itr->second,event_id))
             {
                 // Remove the pair(id,quest) from the multimap

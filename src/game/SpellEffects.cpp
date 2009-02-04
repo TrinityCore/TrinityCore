@@ -220,7 +220,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //153 SPELL_EFFECT_CREATE_PET               misc value is creature entry
     &Spell::EffectNULL,                                     //154 unused
     &Spell::EffectTitanGrip,                                //155 SPELL_EFFECT_TITAN_GRIP Allows you to equip two-handed axes, maces and swords in one hand, but you attack $49152s1% slower than normal.
-    &Spell::EffectNULL,                                     //156 Add Socket
+    &Spell::EffectEnchantItemPrismatic,                     //156 SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC
     &Spell::EffectCreateItem,                               //157 SPELL_EFFECT_CREATE_ITEM_2            create/learn item/spell for profession
     &Spell::EffectMilling,                                  //158 SPELL_EFFECT_MILLING                  milling
     &Spell::EffectRenamePet                                 //159 SPELL_EFFECT_ALLOW_RENAME_PET         allow rename pet once again
@@ -684,7 +684,7 @@ void Spell::EffectDummy(uint32 i)
                     if (!creatureTarget || !pGameObj) return;
 
                     if (!pGameObj->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), 181574, creatureTarget->GetMap(), creatureTarget->GetPhaseMask(),
-                        creatureTarget->GetPositionX(), creatureTarget->GetPositionY(), creatureTarget->GetPositionZ(), 
+                        creatureTarget->GetPositionX(), creatureTarget->GetPositionY(), creatureTarget->GetPositionZ(),
                         creatureTarget->GetOrientation(), 0, 0, 0, 0, 100, 1))
                     {
                         delete pGameObj;
@@ -1319,7 +1319,7 @@ void Spell::EffectDummy(uint32 i)
                     rage+=aura->GetModifier()->m_amount;
 
                 spell_id = 20647;
-                int32 bp = damage+int32(rage * m_spellInfo->DmgMultiplier[i] +
+                bp = damage+int32(rage * m_spellInfo->DmgMultiplier[i] +
                                                  m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.2f);
                 m_caster->SetPower(POWER_RAGE,0);
                 break;
@@ -3615,7 +3615,7 @@ void Spell::EffectAddFarsight(uint32 i)
     map->Add(dynObj);
     map->SwitchGridContainers(dynObj, true);    // Needed for forwarding player packets
     dynObj->setActive(true);                    // Keep the grid updated even if there are no players in it
-      
+
     // Need to update visibility of object for client to accept farsight guid
     ((Player*)m_caster)->UpdateVisibilityOf(dynObj);
     ((Player*)m_caster)->SetFarsightTarget(dynObj);
@@ -3698,7 +3698,7 @@ void Spell::EffectSummonGuardian(uint32 i)
     }
 
     // trigger
-    if(!m_originalCaster || m_originalCaster->GetTypeId() != TYPEID_PLAYER 
+    if(!m_originalCaster || m_originalCaster->GetTypeId() != TYPEID_PLAYER
         && !((Creature*)m_originalCaster)->isTotem()/*m_spellInfo->Id == 40276*/)
     {
         EffectSummonWild(i);
@@ -3888,7 +3888,7 @@ void Spell::EffectTradeSkill(uint32 /*i*/)
     // ((Player*)unitTarget)->SetSkill(skillid,skillval?skillval:1,skillmax+75);
 }
 
-void Spell::EffectEnchantItemPerm(uint32 i)
+void Spell::EffectEnchantItemPerm(uint32 effect_idx)
 {
     if(m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
@@ -3897,9 +3897,10 @@ void Spell::EffectEnchantItemPerm(uint32 i)
 
     Player* p_caster = (Player*)m_caster;
 
+    // not grow at item use at item case
     p_caster->UpdateCraftSkill(m_spellInfo->Id);
 
-    uint32 enchant_id = m_spellInfo->EffectMiscValue[i];
+    uint32 enchant_id = m_spellInfo->EffectMiscValue[effect_idx];
     if (!enchant_id)
         return;
 
@@ -3927,6 +3928,64 @@ void Spell::EffectEnchantItemPerm(uint32 i)
 
     // add new enchanting if equipped
     item_owner->ApplyEnchantment(itemTarget,PERM_ENCHANTMENT_SLOT,true);
+}
+
+void Spell::EffectEnchantItemPrismatic(uint32 effect_idx)
+{
+    if(m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+    if (!itemTarget)
+        return;
+
+    Player* p_caster = (Player*)m_caster;
+
+    uint32 enchant_id = m_spellInfo->EffectMiscValue[effect_idx];
+    if (!enchant_id)
+        return;
+
+    SpellItemEnchantmentEntry const *pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
+    if(!pEnchant)
+        return;
+
+    // support only enchantings with add socket in this slot
+    {
+        bool add_socket = false;
+        for(int i = 0; i < 3; ++i)
+        {
+            if(pEnchant->type[i]==ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET)
+            {
+                add_socket = true;
+                break;
+            }
+        }
+        if(!add_socket)
+        {
+            sLog.outError("Spell::EffectEnchantItemPrismatic: attempt apply enchant spell %u with SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC (%u) but without ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET (u), not suppoted yet.",
+                m_spellInfo->Id,SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC,ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET);
+            return;
+        }
+    }
+
+    // item can be in trade slot and have owner diff. from caster
+    Player* item_owner = itemTarget->GetOwner();
+    if(!item_owner)
+        return;
+
+    if(item_owner!=p_caster && p_caster->GetSession()->GetSecurity() > SEC_PLAYER && sWorld.getConfig(CONFIG_GM_LOG_TRADE) )
+    {
+        sLog.outCommand(p_caster->GetSession()->GetAccountId(),"GM %s (Account: %u) enchanting(perm): %s (Entry: %d) for player: %s (Account: %u)",
+            p_caster->GetName(),p_caster->GetSession()->GetAccountId(),
+            itemTarget->GetProto()->Name1,itemTarget->GetEntry(),
+            item_owner->GetName(),item_owner->GetSession()->GetAccountId());
+    }
+
+    // remove old enchanting before applying new if equipped
+    item_owner->ApplyEnchantment(itemTarget,PRISMATIC_ENCHANTMENT_SLOT,false);
+
+    itemTarget->SetEnchantment(PRISMATIC_ENCHANTMENT_SLOT, enchant_id, 0, 0);
+
+    // add new enchanting if equipped
+    item_owner->ApplyEnchantment(itemTarget,PRISMATIC_ENCHANTMENT_SLOT,true);
 }
 
 void Spell::EffectEnchantItemTmp(uint32 i)
@@ -4539,7 +4598,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
         if(spell_bonus)
             spell_bonus = int32(spell_bonus * weapon_total_pct);
     }
-    
+
     int32 weaponDamage = m_caster->CalculateDamage(m_attackType, normalized);
 
     // Sequence is important

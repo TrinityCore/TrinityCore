@@ -484,7 +484,7 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
             pInstance->SetData64(DATA_IMAGE_OF_MEDIVH, m_creature->GetGUID());
             (*m_creature).GetMotionMaster()->MovePoint(1,MedivPos[0],MedivPos[1],MedivPos[2]);
             Step = 0;
-        }else 
+        }else
         {
             m_creature->DealDamage(m_creature,m_creature->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             m_creature->RemoveCorpse();
@@ -591,11 +591,11 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
             }
 			return 50000;
 		case 15:
-			arca->DealDamage(arca,arca->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);			
+			arca->DealDamage(arca,arca->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 			return 5000;
-        default : return 9999999; 
-        }  
-         
+        default : return 9999999;
+        }
+
     }
 
     void UpdateAI(const uint32 diff)

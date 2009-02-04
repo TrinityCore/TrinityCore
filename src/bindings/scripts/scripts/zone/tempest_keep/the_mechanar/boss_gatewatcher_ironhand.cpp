@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Gatewatcher_Ironhand
 SD%Complete: 75
-SDComment: 
+SDComment:
 SDCategory: Tempest Keep, The Mechanar
 EndScriptData */
 
@@ -41,35 +41,35 @@ EndScriptData */
 
 // Gatewatcher Iron-Hand AI
 struct TRINITY_DLL_DECL boss_gatewatcher_iron_handAI : public ScriptedAI
-{    
+{
 boss_gatewatcher_iron_handAI(Creature *c) : ScriptedAI(c)
 {
 	pInstance = ((ScriptedInstance*)c->GetInstanceData());
 	HeroicMode = m_creature->GetMap()->IsHeroic();
 	Reset();
 }
-	 	 
+
 	ScriptedInstance *pInstance;
 
 	bool HeroicMode;
 
-    uint32 Shadow_Power_Timer;    
+    uint32 Shadow_Power_Timer;
     uint32 Jackhammer_Timer;
-    uint32 Stream_of_Machine_Fluid_Timer;        
+    uint32 Stream_of_Machine_Fluid_Timer;
 
-    void Reset()    
-    {         
-        Shadow_Power_Timer = 25000;        
+    void Reset()
+    {
+        Shadow_Power_Timer = 25000;
         Jackhammer_Timer = 45000;
         Stream_of_Machine_Fluid_Timer = 55000;
 
-    }     
-    void Aggro(Unit *who)    
-    {        
+    }
+    void Aggro(Unit *who)
+    {
 		DoScriptText(SAY_AGGRO_1, m_creature);
-    }     
+    }
 
-    void KilledUnit(Unit* victim)    
+    void KilledUnit(Unit* victim)
     {
         if (rand()%2)
             return;
@@ -79,34 +79,34 @@ boss_gatewatcher_iron_handAI(Creature *c) : ScriptedAI(c)
 		case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
 		case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
         }
-    }   
+    }
 
-    void JustDied(Unit* Killer)    
-    {        
+    void JustDied(Unit* Killer)
+    {
 		DoScriptText(SAY_DEATH_1, m_creature);
 
 		if (!pInstance)
 			return;
-	 	 
-		//TODO: Add door check/open code    
+
+		//TODO: Add door check/open code
 	}
 
-    void UpdateAI(const uint32 diff)    
-    {       
-        //Return since we have no target        
-        if (!UpdateVictim() )            
-            return;         
+    void UpdateAI(const uint32 diff)
+    {
+        //Return since we have no target
+        if (!UpdateVictim() )
+            return;
 
-        //Shadow Power        
-        if(Shadow_Power_Timer < diff)        
-        {            
+        //Shadow Power
+        if(Shadow_Power_Timer < diff)
+        {
 			DoCast(m_creature,HeroicMode ? H_SPELL_SHADOW_POWER : SPELL_SHADOW_POWER);
-            Shadow_Power_Timer = 20000 + rand()%8000;                
-        }else Shadow_Power_Timer -= diff;         
+            Shadow_Power_Timer = 20000 + rand()%8000;
+        }else Shadow_Power_Timer -= diff;
 
-        //Jack Hammer        
-        if(Jackhammer_Timer < diff)        
-        {            
+        //Jack Hammer
+        if(Jackhammer_Timer < diff)
+        {
 			//TODO: expect cast this about 5 times in a row (?), announce it by emote only once
 			DoScriptText(EMOTE_HAMMER, m_creature);
 			DoCast(m_creature->getVictim(),HeroicMode ? H_SPELL_JACKHAMMER : SPELL_JACKHAMMER);
@@ -119,30 +119,30 @@ boss_gatewatcher_iron_handAI(Creature *c) : ScriptedAI(c)
             {
 			case 0: DoScriptText(SAY_HAMMER_1, m_creature); break;
 			case 1: DoScriptText(SAY_HAMMER_2, m_creature); break;
-            }        
-            Jackhammer_Timer = 30000;                
-        }else Jackhammer_Timer -= diff;          
+            }
+            Jackhammer_Timer = 30000;
+        }else Jackhammer_Timer -= diff;
 
-        //Stream of Machine Fluid        
-        if(Stream_of_Machine_Fluid_Timer < diff)        
-        {            
-            DoCast(m_creature->getVictim(),SPELL_STREAM_OF_MACHINE_FLUID);             
-            Stream_of_Machine_Fluid_Timer = 35000 + rand()%15000;                
+        //Stream of Machine Fluid
+        if(Stream_of_Machine_Fluid_Timer < diff)
+        {
+            DoCast(m_creature->getVictim(),SPELL_STREAM_OF_MACHINE_FLUID);
+            Stream_of_Machine_Fluid_Timer = 35000 + rand()%15000;
         }else Stream_of_Machine_Fluid_Timer -= diff;
 
         DoMeleeAttackIfReady();
-	} 
-};   
+	}
+};
 CreatureAI* GetAI_boss_gatewatcher_iron_hand(Creature *_Creature)
-{    
+{
     return new boss_gatewatcher_iron_handAI (_Creature);
-} 
+}
 
 void AddSC_boss_gatewatcher_iron_hand()
-{    
-    Script *newscript;    
-    newscript = new Script;    
-    newscript->Name="boss_gatewatcher_iron_hand";    
-    newscript->GetAI = &GetAI_boss_gatewatcher_iron_hand;    
+{
+    Script *newscript;
+    newscript = new Script;
+    newscript->Name="boss_gatewatcher_iron_hand";
+    newscript->GetAI = &GetAI_boss_gatewatcher_iron_hand;
     newscript->RegisterSelf();
 }

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
@@ -27,9 +27,9 @@
 
 struct FormationMember
 {
-	float follow_dist; 
-	float follow_angle; 
-	uint32 memberGUID; 
+	float follow_dist;
+	float follow_angle;
+	uint32 memberGUID;
 	uint32 leaderGUID;
 	uint8 groupAI;
 };
@@ -46,7 +46,7 @@ class CreatureGroup
 {
 	UNORDERED_MAP<uint64, Creature*>CreatureGroupMembers;
 	Creature *m_leader; //Important do not forget sometimes to work with pointers instead synonims :D:D
-	
+
 	public:
 		CreatureGroup() : m_leader(NULL) {}
 		~CreatureGroup(){sLog.outDebug("Destroying group");}

@@ -94,7 +94,7 @@ struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
             return false;
         };
 
-        
+
        void OnObjectCreate(GameObject *go)
         {
              switch(go->GetEntry())
@@ -188,7 +188,7 @@ struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
             }
 
             return 0;
-        }                                                 
+        }
 
         uint32 GetData(uint32 type)
         {
