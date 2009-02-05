@@ -1,5 +1,5 @@
-DELETE FROM script_texts WHERE entry BETWEEN -1000333 and -1000306;
-INSERT INTO script_texts (entry, content_default, type, comment) VALUES
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000333 and -1000306;
+INSERT INTO `script_texts` (entry, content_default, type, comment) VALUES
 (-1000306, 'Follow me, stranger. This won\'t take long.', 0, 'npc_kservant - SAY1'),
 (-1000307, 'Shattrath was once the draenei capital of this world. Its name means \"dwelling of light.\"', 4, 'npc_kservant - WHISP1'),
 (-1000308, 'When the Burning Legion turned the orcs against the draenei, the fiercest battle was fought here. The draenei fought tooth and nail, but in the end the city fell.', 4, 'npc_kservant - WHISP2'),
@@ -31,12 +31,12 @@ INSERT INTO script_texts (entry, content_default, type, comment) VALUES
 (-1000332, 'Time to meet your maker!', 0, ''),
 (-1000333, 'Alright, we give up! Don\'t hurt us!', 0, '');
 
-DELETE FROM script_texts WHERE entry=-1000334;
-INSERT INTO script_texts (entry, content_default, type, language, comment) VALUES
+DELETE FROM `script_texts` WHERE `entry`=-1000334;
+INSERT INTO `script_texts` (entry, content_default, type, language, comment) VALUES
 (-1000334, 'Thank you, dear Paladin, you just saved my life.', 0, 10, 'stillblade - SAY_HEAL');
 
-DELETE FROM script_texts WHERE entry BETWEEN -1000349 and -1000335;
-INSERT INTO script_texts (entry, content_default, type, comment) VALUES
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000349 and -1000335;
+INSERT INTO `script_texts` (entry, content_default, type, comment) VALUES
 (-1000335, 'Let\'s get to the others, and keep an eye open for those wolves cutside...', 0, 'npc_deathstalker_erland 
 - SAY_QUESTACCEPT'),
 (-1000336, 'Be careful, $N. Those wolves like to hide among the trees.', 0, 'npc_deathstalker_erland - SAY_START'),

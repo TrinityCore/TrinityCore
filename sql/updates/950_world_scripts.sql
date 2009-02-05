@@ -1,5 +1,5 @@
-DELETE FROM script_texts WHERE entry BETWEEN -1000266 and -1000248;
-INSERT INTO script_texts (entry, content_default, type, emote, comment) VALUES
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000266 and -1000248;
+INSERT INTO `script_texts` (entry, content_default, type, emote, comment) VALUES
 (-1000248, 'The last thing I remember is the ship falling and us getting into the pods. I\'ll go see how I can help. Thank you!', 0, 0, 'draenei survivor - HEAL1'),
 (-1000249, '$C, Where am I? Who are you? Oh no! What happened to the ship?.', 0, 0, 'draenei survivor - HEAL2'),
 (-1000250, '$C You saved me! I owe you a debt that I can never repay. I\'ll go see if I can help the others.', 0, 0, 'draenei survivor - HEAL3'),

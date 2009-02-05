@@ -1,5 +1,5 @@
-DELETE FROM script_texts where entry BETWEEN -1000292 and -1000286;
-INSERT INTO script_texts (entry, content_default, type, emote, comment) VALUES
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000292 and -1000286;
+INSERT INTO `script_texts` (entry, content_default, type, emote, comment) VALUES
 (-1000286, 'A shadowy, sinister presence has invader the Emerald Dream. Its power is poised to spill over into our world, $N. We must oppose it! That\'s why I cannot accompany you in person.', 0, 0, 'clintar_spirit'),
 (-1000287, 'The Emerald Dream will never be yours!', 0, 0, 'clintar_spirit'),
 (-1000288, 'Begone from this place!', 0, 0, 'clintar_spirit'),

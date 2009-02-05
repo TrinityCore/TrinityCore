@@ -1,5 +1,5 @@
-DELETE FROM script_texts WHERE entry BETWEEN -1000305 and -1000293;
-INSERT INTO script_texts (entry, content_default, type, comment) VALUES
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000305 and -1000293;
+INSERT INTO `script_texts` (entry, content_default, type, comment) VALUES
 (-1000293, 'In Nagrand, food hunt ogre!', 0, 'LUMP_SAY0'),
 (-1000294, 'You taste good with maybe a little salt and pepper.', 0, 'LUMP_SAY1'),
 (-1000295, 'OK, OK! Lump give up!', 0, 'LUMP_DEFEAT'),
