@@ -1,5 +1,3 @@
-/*  */
-
 /* WORLD BOSS */
 UPDATE `creature_template` SET `ScriptName`='boss_ysondre' WHERE `entry`=14887;
 UPDATE `creature_template` SET `ScriptName`='boss_emeriss' WHERE `entry`=14889;
@@ -107,9 +105,9 @@ UPDATE `creature_template` SET `ScriptName`='mob_depth_charge' WHERE `entry`=230
 UPDATE `creature_template` SET `ScriptName`='npc_torek' WHERE `entry`=12858;
 UPDATE `creature_template` SET `ScriptName`='npc_ruul_snowhoof' WHERE `entry`=12818;
 
-/*  */
+
 /* AUCHINDOUN */
-/*  */
+
 
 /* MANA TOMBS */
 UPDATE `creature_template` SET `ScriptName`='boss_pandemonius' WHERE `entry`=18341;
@@ -227,6 +225,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_rocknot' WHERE `entry`=9503;
 UPDATE `creature_template` SET `ScriptName`='mob_phalanx' WHERE `entry`=9502;
 
 /* BLACKROCK SPIRE */
+
 /* BLACKROCK SPIRE Lower bosses */
 UPDATE `creature_template` SET `ScriptName`='boss_highlord_omokk' WHERE `entry`=9196;
 UPDATE `creature_template` SET `ScriptName`='boss_shadow_hunter_voshgajin' WHERE `entry`=9236;
@@ -308,9 +307,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_time_rift' WHERE `entry`=17838;
 UPDATE `creature_template` SET `ScriptName`='npc_saat' WHERE `entry`=20201;
 
 
-/*  */
 /* COILFANG RESERVOIR */
-/*  */
 
 /* THE SLAVE PENS */
 
@@ -437,9 +434,9 @@ UPDATE `creature_template` SET `ScriptName`='boss_blindeye_the_seer' WHERE `entr
 UPDATE `creature_template` SET `ScriptName`='boss_olm_the_summoner' WHERE `entry`=18834;
 UPDATE `creature_template` SET `ScriptName`='boss_krosh_firehand' WHERE `entry`=18832;
 
-/*  */
+
 /* HELLFIRE CITADEL */
-/*  */
+
 
 /* BLOOD FURNACE */
 /* The Maker,Broggok,Kelidan,Broggok's cloud */
@@ -809,9 +806,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_OOX17' WHERE `entry`=7784;
 /* TELDRASSIL */
 
 
-/*  */
 /* TEMPEST KEEP */
-/*  */
 
 /* THE MECHANAR */
 UPDATE `creature_template` SET `ScriptName`='boss_gatewatcher_iron_hand' WHERE `entry`=19710;
@@ -954,6 +949,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_jandalai_firebomb' WHERE `entry
 UPDATE `creature_template` SET `ScriptName`='mob_amanishi_hatcher' WHERE `entry`=23818;
 UPDATE `creature_template` SET `ScriptName`='mob_hatchling' WHERE `entry`=23598;
 UPDATE `creature_template` SET `ScriptName`='npc_forest_frog' WHERE `entry`=24396;
+UPDATE `creature_template` SET `ScriptName`='boss_akilzon' WHERE `entry`=23574;
 
 /* ZUL'FARRAK */
 UPDATE `creature_template` SET `ScriptName`='npc_sergeant_bly' WHERE `entry`=7604;
