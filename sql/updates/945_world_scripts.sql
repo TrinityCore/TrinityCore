@@ -1,5 +1,5 @@
 UPDATE `creature_template` SET `ScriptName`='' WHERE `entry`=22083;
-UPDATE `creature_template` SET `ScriptName`='npc_overlord_morghor' WHERE `entry`=	23139;
+UPDATE `creature_template` SET `ScriptName`='npc_overlord_morghor' WHERE `entry`=23139;
 UPDATE `creature_template` SET `ScriptName`='' WHERE `entry`=23141;
 DELETE FROM `script_texts` WHERE entry BETWEEN -1000221 and -1000206;
 INSERT INTO `script_texts` (entry, content_default, type, emote, comment) VALUES

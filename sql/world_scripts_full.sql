@@ -718,7 +718,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_neltharaku' WHERE `entry`=21657
 UPDATE `creature_template` SET `ScriptName`='npc_oronok_tornheart' WHERE `entry`=21183;
 UPDATE `creature_template` SET `ScriptName`='mob_mature_netherwing_drake' WHERE `entry`=21648;
 UPDATE `creature_template` SET `ScriptName`='mob_enslaved_netherwing_drake' WHERE `entry`=21722;
-UPDATE `creature_template` SET `ScriptName`='npc_overlord_morghor' WHERE `entry`=	23139;
+UPDATE `creature_template` SET `ScriptName`='npc_overlord_morghor' WHERE `entry`=23139;
 UPDATE `creature_template` SET `ScriptName`='' WHERE `entry`=23141;
 UPDATE `creature_template` SET `ScriptName`='mob_illidari_spawn' WHERE `entry` IN (22075, 22074, 19797);
 UPDATE `creature_template` SET `ScriptName`='mob_torloth_the_magnificent' WHERE `entry`=22076;
