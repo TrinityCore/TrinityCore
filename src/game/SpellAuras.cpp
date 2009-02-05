@@ -1078,6 +1078,8 @@ void Aura::RefreshAura()
 
 bool Aura::isAffectedOnSpell(SpellEntry const *spell) const
 {
+    if (!spell)
+        return false;
     // Check family name
     if (spell->SpellFamilyName != m_spellProto->SpellFamilyName)
         return false;
