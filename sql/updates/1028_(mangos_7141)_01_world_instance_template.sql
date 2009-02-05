@@ -1,4 +1,4 @@
-ALTER TABLE db_version CHANGE COLUMN required_7133_02_mangos_spell_loot_template required_7141_01_mangos_instance_template bit;
+/*ALTER TABLE db_version CHANGE COLUMN required_7133_02_mangos_spell_loot_template required_7141_01_mangos_instance_template bit;*/
 
 ALTER TABLE instance_template ADD maxPlayersHeroic tinyint(3) unsigned NOT NULL default '0' AFTER maxPlayers;
 
