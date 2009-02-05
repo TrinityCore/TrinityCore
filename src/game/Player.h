@@ -400,9 +400,8 @@ enum PlayerFlags
     PLAYER_FLAGS_UNK21          = 0x00100000,
     PLAYER_FLAGS_UNK22          = 0x00200000,
     PLAYER_FLAGS_UNK23          = 0x00400000,
-    PLAYER_FLAGS_UNK24          = 0x00800000,               // disabled all abilitys on tab except autoattack
-    PLAYER_FLAGS_UNK25          = 0x01000000,               // disabled all melee ability on tab include autoattack
-
+    PLAYER_ALLOW_ONLY_ABILITY   = 0x00800000,                // used by bladestorm and killing spree
+    PLAYER_FLAGS_UNK25          = 0x01000000                 // disabled all melee ability on tab include autoattack
 };
 
 // used for PLAYER__FIELD_KNOWN_TITLES field (uint64), (1<<bit_index) without (-1)
