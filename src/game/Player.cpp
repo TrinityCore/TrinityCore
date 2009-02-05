@@ -18808,11 +18808,13 @@ void Player::UpdateAreaDependentAuras( uint32 newArea )
 
 uint32 Player::GetCorpseReclaimDelay(bool pvp) const
 {
-    if( pvp && !sWorld.getConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVP) ||
-       !pvp && !sWorld.getConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVE) )
+    if(pvp)
     {
-        return copseReclaimDelay[0];
+        if(!sWorld.getConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVP))
+            return copseReclaimDelay[0];
     }
+    else if(!sWorld.getConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVE) )
+        return 0;
 
     time_t now = time(NULL);
     // 0..2 full period
@@ -18882,6 +18884,8 @@ void Player::SendCorpseReclaimDelay(bool load)
     }
     else
         delay = GetCorpseReclaimDelay(pvp);
+
+    if(!delay) return;
 
     //! corpse reclaim delay 30 * 1000ms or longer at often deaths
     WorldPacket data(SMSG_CORPSE_RECLAIM_DELAY, 4);
