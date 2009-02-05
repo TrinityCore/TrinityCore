@@ -5,4 +5,4 @@ Convert DB from 2.4.3 to 3.0.x:
 3. Run TBC-WLK_world_run_only_once.sql in "world" database.
 4. Run TBC-WLK_world.sql in "world" database.
 
-After that you need to manually apply mangos sqls from 6958_01_mangos_spell_proc_event (including)
+After that you need to manually apply all sqls starting from 1_world_scripts.sql (in sql/updates)
