@@ -1,1 +1,1 @@
-update creature_template set scriptname='npc_wizzlecrank_shredder' where entry=3439;
+UPDATE `creature_template` SET `ScriptName`='npc_wizzlecrank_shredder' WHERE `entry`=3439;

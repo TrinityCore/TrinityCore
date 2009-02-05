@@ -1,5 +1,5 @@
-DELETE FROM script_texts WHERE entry BETWEEN -1000279 and -1000267;
-INSERT INTO script_texts (entry, content_default, type, comment) VALUES
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000279 and -1000267;
+INSERT INTO `script_texts` (entry, content_default, type, comment) VALUES
 (-1000267, 'Ready when you are, warrior.', 1, 'flathead - SAY_BIG_WILL_READY'),
 (-1000268, 'The Affray has begun, get ready to fight!', 1, 'flathead - SAY_TWIGGY_FLATHEAD_BEGIN'),
 (-1000269, 'You! Enter the fray!', 1, 'flathead - SAY_TWIGGY_FLATHEAD_FRAY'),

@@ -1,8 +1,8 @@
-update creature_template set scriptname='' where entry=22083;
-update creature_template set scriptname='npc_overlord_morghor' where entry=23139;
-update creature_template set scriptname='' where entry=23141;
-DELETE FROM script_texts WHERE entry BETWEEN -1000221 and -1000206;
-INSERT INTO script_texts (entry, content_default, type, emote, comment) VALUES
+UPDATE `creature_template` SET `ScriptName`='' WHERE `entry`=22083;
+UPDATE `creature_template` SET `ScriptName`='npc_overlord_morghor' WHERE `entry`=	23139;
+UPDATE `creature_template` SET `ScriptName`='' WHERE `entry`=23141;
+DELETE FROM `script_texts` WHERE entry BETWEEN -1000221 and -1000206;
+INSERT INTO `script_texts` (entry, content_default, type, emote, comment) VALUES
 (-1000206, 'Come, $N. Lord Stormrage awaits.', 0, 1, 'OVERLORD_SAY_1'),
 (-1000207, 'Lord Illidan will be here shortly.', 0, 1, 'OVERLORD_SAY_2'),
 (-1000208, 'Lord Illidan, this is the Dragonmaw that I, and others, have told you about. He will lead us to victory!', 0, 1, 'OVERLORD_SAY_3'),
@@ -20,12 +20,12 @@ INSERT INTO script_texts (entry, content_default, type, emote, comment) VALUES
 (-1000220, 'I expect to see this insect\'s carcass in pieces in my lair within the hour. Fail and you will suffer a fate so much worse than death.', 0, 1, 'LORD_ILLIDAN_SAY_7'),
 (-1000221, 'You will not harm the boy, Mor\'ghor! Quickly, $N, climb on my back!', 0, 22, 'YARZILL_THE_MERC_SAY');
 
-DELETE FROM script_texts WHERE entry='-1000222';
-INSERT INTO script_texts (entry, content_default, type, language, emote, comment) VALUES
+DELETE FROM `script_texts` WHERE `entry`='-1000222';
+INSERT INTO `script_texts` (entry, content_default, type, language, emote, comment) VALUES
 (-1000222, 'Thank you, mortal.', 0, 11, 1, 'SAY_JUST_EATEN');
 
-DELETE FROM script_texts WHERE entry BETWEEN -1000234 and -1000223;
-INSERT INTO script_texts (entry, content_default, emote, comment) VALUES
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000234 and -1000223;
+INSERT INTO `script_texts` (entry, content_default, emote, comment) VALUES
 (-1000223, 'I sense the tortured spirits, $N. They are this way, come quickly!', 1, 'SAY_START'),
 (-1000224, 'Watch out!', 0, 'SAY_AGGRO1'),
 (-1000225, 'Naga attackers! Defend yourself!', 0, 'SAY_AGGRO2'),
@@ -38,4 +38,3 @@ INSERT INTO script_texts (entry, content_default, emote, comment) VALUES
 (-1000232, 'The tumultuous nature of the great waterways of Azeroth and Draenor are a direct result of tormented water spirits.', 0, 'SAY_PROGRESS5'),
 (-1000233, 'It shouldn\'t be much further, $N. The exit is just up ahead.', 0, 'SAY_PROGRESS6'),
 (-1000234, 'Thank you, $N. Please return to my brethren at the Altar of Damnation, near the Hand of Gul\'dan, and tell them that Wilda is safe. May the Earthmother watch over you...', 0, 'SAY_END');
-

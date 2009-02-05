@@ -1,5 +1,5 @@
-DELETE FROM script_texts WHERE entry BETWEEN -1000244 and -1000235;
-INSERT INTO script_texts (entry, content_default, type, emote, comment) VALUES
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000244 and -1000235;
+INSERT INTO `script_texts` (entry, content_default, type, emote, comment) VALUES
 (-1000235, 'Ok, $N. Follow me to the cave where I\'ll attempt to harness the power of the rune stone into these goggles.', 0, 1, 'phizzlethorpe - SAY_PROGRESS_1'),
 (-1000236, 'I discovered this cave on our first day here. I believe the energy in the stone can be used to our advantage.', 0, 1, 'phizzlethorpe - SAY_PROGRESS_2'),
 (-1000237, 'I\'ll begin drawing energy from the stone. Your job, $N, is to defend me. This place is cursed... trust me.', 0, 1, 'phizzlethorpe - SAY_PROGRESS_3'),

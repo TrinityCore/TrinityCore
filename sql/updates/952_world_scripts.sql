@@ -1,5 +1,5 @@
-DELETE FROM script_texts where entry BETWEEN -1000285 and -1000280;
-INSERT INTO script_texts (entry, content_default, type, language, comment) VALUES
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000285 and -1000280;
+INSERT INTO `script_texts` (entry, content_default, type, language, comment) VALUES
 (-1000280, 'Thank you, dear Paladin, you just saved my life.', 0, 7, 'faulk - SAY_HEAL'),
 
 (-1000281, 'Very well. Let\'s see what you have to show me, $N.', 0, 0, 'anvilvard - SAY_PR_1'),
