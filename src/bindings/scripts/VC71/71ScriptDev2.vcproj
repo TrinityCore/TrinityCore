@@ -1970,7 +1970,10 @@
 					</File>
 				</Filter>
 				  <Filter
-	 	                                         Name="Borean Tundra">
+	 	                                    Name="Borean Tundra">
+											<File
+												RelativePath="..\scripts\zone\borean_tundra\borean_tundra.cpp"
+											>
 	 	                                 </Filter>
 	 	                                 <Filter
 	 	                                         Name="Howling Fjord">

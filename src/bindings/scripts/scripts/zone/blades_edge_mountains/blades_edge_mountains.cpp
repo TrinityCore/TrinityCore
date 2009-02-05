@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Blades_Edge_Mountains
 SD%Complete: 90
-SDComment: Quest support: 10503, 10504, 10556, 10609, 10682, 10980. Ogri'la->Skettis Flight. (npc_daranelle needs bit more work before consider complete)
+SDComment: Quest support: 10503, 10504, 10556, 10609, 10682, 10821, 10980. Ogri'la->Skettis Flight. (npc_daranelle needs bit more work before consider complete)
 SDCategory: Blade's Edge Mountains
 EndScriptData */
 
@@ -28,9 +28,19 @@ npc_daranelle
 npc_overseer_nuaar
 npc_saikkal_the_elder
 npc_skyguard_handler_irena
+go_legion_obelisk
 EndContentData */
 
 #include "precompiled.h"
+
+//Support for quest: You're Fired! (10821)
+bool 	obelisk_one, obelisk_two, obelisk_three, obelisk_four, obelisk_five;	
+
+#define LEGION_OBELISK_ONE           185193
+#define LEGION_OBELISK_TWO           185195
+#define LEGION_OBELISK_THREE         185196
+#define LEGION_OBELISK_FOUR          185197
+#define LEGION_OBELISK_FIVE          185198
 
 /*######
 ## mobs_bladespire_ogre
@@ -392,6 +402,48 @@ bool GossipSelect_npc_skyguard_handler_irena(Player *player, Creature *_Creature
 }
 
 /*######
+## go_legion_obelisk
+######*/
+
+bool GOHello_go_legion_obelisk(Player *player, GameObject* _GO)
+{	
+	if ( player->GetQuestStatus(10821) == QUEST_STATUS_INCOMPLETE )
+	{
+		switch( _GO->GetEntry() )
+		{
+			case LEGION_OBELISK_ONE:
+				  obelisk_one = true;
+				 break;
+			case LEGION_OBELISK_TWO:
+				  obelisk_two = true;
+			     break;
+			case LEGION_OBELISK_THREE:
+				  obelisk_three = true;
+			     break;
+			case LEGION_OBELISK_FOUR:
+			      obelisk_four = true;
+			     break;
+			case LEGION_OBELISK_FIVE:
+			      obelisk_five = true;
+			     break;
+		}
+	
+		if ( obelisk_one == true && obelisk_two == true && obelisk_three == true && obelisk_four == true && obelisk_five == true )
+		{
+			_GO->SummonCreature(19963,2943.40f,4778.20f,284.49f,0.94f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,120000);
+			//reset global var
+			obelisk_one = false;
+			obelisk_two = false;
+			obelisk_three = false;
+			obelisk_four = false;
+			obelisk_five = false;
+		}
+	}
+	
+	return true;
+}
+
+/*######
 ## AddSC
 ######*/
 
@@ -424,6 +476,11 @@ void AddSC_blades_edge_mountains()
     newscript->Name="npc_saikkal_the_elder";
     newscript->pGossipHello = &GossipHello_npc_saikkal_the_elder;
     newscript->pGossipSelect = &GossipSelect_npc_saikkal_the_elder;
+    newscript->RegisterSelf();
+	
+    newscript = new Script;
+    newscript->Name="go_legion_obelisk";
+    newscript->pGOHello =           &GOHello_go_legion_obelisk;
     newscript->RegisterSelf();
 
     newscript = new Script;
