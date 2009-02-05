@@ -1,1 +1,0 @@
-ALTER TABLE character_db_version CHANGE COLUMN required_2008_12_22_19_characters_item_instance required_6976_02_characters_character_db_version bit;
