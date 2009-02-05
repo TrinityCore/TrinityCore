@@ -106,6 +106,7 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/blasted_lands/blasted_lands.cpp
    scripts/zone/blasted_lands/boss_kruul.cpp
    scripts/zone/bloodmyst_isle/bloodmyst_isle.cpp
+   scripts/zone/borean_tundra/borean_tundra.cpp
    scripts/zone/burning_steppes/burning_steppes.cpp
    scripts/zone/caverns_of_time/dark_portal/def_dark_portal.h
    scripts/zone/caverns_of_time/dark_portal/instance_dark_portal.cpp
