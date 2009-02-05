@@ -18,4 +18,6 @@ INSTALL(FILES
 1185_(mangos_7214)_01_world_command.sql
 1185_(mangos_7214)_02_world_trinity_string.sql
 1185_(mangos_7214)_03_mangos_spell_proc_event.sql
+1206_world_scripts.sql
+1207_world_scripts.sql
 DESTINATION share/trinity/sql/updates)

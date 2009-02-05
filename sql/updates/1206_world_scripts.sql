@@ -1,1 +1,1 @@
-UPDATE `gameobject_template` SET `ScriptName` = 'go_legion_obelisk' WHERE `entry` = 185193;UPDATE `gameobject_template` SET `ScriptName` = 'go_legion_obelisk' WHERE `entry` = 185195;UPDATE `gameobject_template` SET `ScriptName` = 'go_legion_obelisk' WHERE `entry` = 185196;UPDATE `gameobject_template` SET `ScriptName` = 'go_legion_obelisk' WHERE `entry` = 185197;UPDATE `gameobject_template` SET `ScriptName` = 'go_legion_obelisk' WHERE `entry` = 185198;
+UPDATE `gameobject_template` SET `ScriptName`='go_legion_obelisk' WHERE `entry` IN (185193,185195,185196,185197,185198);

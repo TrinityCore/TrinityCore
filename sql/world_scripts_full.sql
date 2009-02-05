@@ -20,6 +20,7 @@ UPDATE `gameobject_template` set `ScriptName`='go_manticron_cube' WHERE `entry`=
 UPDATE `gameobject_template` SET `ScriptName`='go_mausoleum_trigger' WHERE `entry`=104593;
 UPDATE `gameobject_template` SET `ScriptName`='go_mausoleum_door' WHERE `entry`=176594;
 UPDATE `gameobject_template` SET `ScriptName`='go_crystal_prison' WHERE `entry`=185126;
+UPDATE `gameobject_template` SET `ScriptName`='go_legion_obelisk' WHERE `entry` IN (185193,185195,185196,185197,185198);
 
 /* GUARD */
 UPDATE `creature_template` SET `ScriptName`='guard_azuremyst' WHERE `entry`=18038;
@@ -95,7 +96,6 @@ UPDATE `creature_template` SET `ScriptName`='npc_ravenholdt' WHERE `entry`=13936
 
 /* ALTERAC VALLEY */
 
-
 /* ARATHI HIGHLANDS */
 UPDATE `creature_template` SET `ScriptName`='npc_professor_phizzlethorpe' WHERE `entry`=2768;
 
@@ -105,9 +105,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_depth_charge' WHERE `entry`=230
 UPDATE `creature_template` SET `ScriptName`='npc_torek' WHERE `entry`=12858;
 UPDATE `creature_template` SET `ScriptName`='npc_ruul_snowhoof' WHERE `entry`=12818;
 
-
 /* AUCHINDOUN */
-
 
 /* MANA TOMBS */
 UPDATE `creature_template` SET `ScriptName`='boss_pandemonius' WHERE `entry`=18341;
@@ -150,7 +148,6 @@ UPDATE `creature_template` SET `ScriptName`='npc_geezle' WHERE `entry`=17318;
 UPDATE `creature_template` SET `ScriptName`='mob_nestlewood_owlkin' WHERE `entry`=16518;
 
 /* BADLANDS */
-
 
 /* BARRENS */
 UPDATE `creature_template` SET `ScriptName`='npc_beaten_corpse' WHERE `entry`=10668;
@@ -199,7 +196,6 @@ UPDATE `creature_template` SET `ScriptName`='npc_spirit_of_olum' WHERE `entry`=2
 -- UPDATE `creature_template` SET `ScriptName`='mob_shadowy_construct' WHERE `entry`=23111; -- Shadowy Construct in Teron Gorefiend's encounter. Commented until Mind Control is implemented.
 
 /* BLACKFATHOM DEPTHS */
-
 
 /* BLACKROCK DEPTHS */
 UPDATE `creature_template` SET `ScriptName`='boss_emperor_dagran_thaurissan' WHERE `entry`=9019;
@@ -269,6 +265,10 @@ UPDATE `creature_template` SET `ScriptName`='npc_fallen_hero_of_horde' WHERE `en
 UPDATE `creature_template` SET `ScriptName`='mob_webbed_creature' WHERE `entry`=17680;
 UPDATE `creature_template` SET `ScriptName`='npc_captured_sunhawk_agent' WHERE `entry`=17824;
 
+/* BOREAN TUNDRA */
+UPDATE `creature_template` SET `ScriptName`='npc_surristrasz' WHERE `entry`=24795;
+UPDATE `creature_template` SET `ScriptName`='npc_tiare' WHERE `entry`=30051;
+
 /* BURNING STEPPES */
 UPDATE `creature_template` SET `ScriptName`='npc_ragged_john' WHERE `entry`=9563;
 
@@ -305,7 +305,6 @@ UPDATE `creature_template` SET `ScriptName`='boss_temporus' WHERE `entry`=17880;
 UPDATE `creature_template` SET `ScriptName`='npc_medivh_bm' WHERE `entry`=15608;
 UPDATE `creature_template` SET `ScriptName`='npc_time_rift' WHERE `entry`=17838;
 UPDATE `creature_template` SET `ScriptName`='npc_saat' WHERE `entry`=20201;
-
 
 /* COILFANG RESERVOIR */
 
@@ -352,9 +351,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_coilfang_strider' WHERE `entry`
 UPDATE `creature_template` SET `ScriptName`='mob_fathom_sporebat' WHERE `entry`=22140;
 UPDATE `creature_template` SET `ScriptName`='mob_shield_generator_channel' WHERE `entry`=19870;
 
-
 /* DARKSHORE */
-
 
 /* DEADMINES */
 UPDATE `instance_template` SET `script`='instance_deadmines' WHERE `map`=36;
@@ -365,22 +362,16 @@ UPDATE `gameobject_template` SET `ScriptName`='go_main_chambers_access_panel' WH
 
 /* DEADWIND PASS */
 
-
 /* DESOLACE */
 
-
 /* DIRE MAUL */
-
 
 /* DUN MOROGH */
 UPDATE `creature_template` SET `ScriptName`='npc_narm_faulk' WHERE `entry`=6177;
 
-
 /* DUROTAR */
 
-
 /* DUSKWOOD */
-
 
 /* DUSTWALLOW MARSH */
 UPDATE `creature_template` SET `ScriptName`='mobs_risen_husk_spirit' WHERE `entry` IN (23554,23555);
@@ -423,7 +414,6 @@ update `gameobject_template` SET `ScriptName`='go_gilded_brazier' WHERE `entry`=
 
 /* GNOMEREGAN */
 
-
 /* GRUUL'S LAIR */
 UPDATE `instance_template` SET `script`='instance_gruuls_lair' WHERE `map` =565;
 UPDATE `creature_template` SET `ScriptName`='boss_gruul' WHERE `entry`=19044;
@@ -434,9 +424,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_blindeye_the_seer' WHERE `entr
 UPDATE `creature_template` SET `ScriptName`='boss_olm_the_summoner' WHERE `entry`=18834;
 UPDATE `creature_template` SET `ScriptName`='boss_krosh_firehand' WHERE `entry`=18832;
 
-
 /* HELLFIRE CITADEL */
-
 
 /* BLOOD FURNACE */
 /* The Maker,Broggok,Kelidan,Broggok's cloud */
@@ -482,9 +470,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_wounded_blood_elf' WHERE `entry
 
 /* HILLSBRAD FOOTHILLS */
 
-
 /* HINTERLANDS */
-
 
 /* IRONFORGE */
 UPDATE `creature_template` SET `ScriptName`='npc_royal_historian_archesonus' WHERE `entry`=8879;
@@ -648,14 +634,13 @@ UPDATE `creature_template` SET `ScriptName`='npc_thrall_warchief' WHERE `entry`=
 
 /* RAGEFIRE CHASM */
 
-
 /* RAZORFEN DOWNS */
 UPDATE `creature_template` SET `ScriptName`='boss_amnennar_the_coldbringer' WHERE `entry`=7358;
 
 /* RAZORFEN KRAUL */
 UPDATE `creature_template` SET `Scriptname`='npc_willix' WHERE `entry`=4508;
-/* REDRIDGE MOUNTAINS */
 
+/* REDRIDGE MOUNTAINS */
 
 /* RUINS OF AHN'QIRAJ */
 UPDATE `instance_template` SET `script`='instance_ruins_of_ahnqiraj' WHERE `map`=509;
@@ -794,7 +779,6 @@ update `creature_template` set `ScriptName`='mob_shadow_image' WHERE `entry`=252
 
 /* SWAMP OF SORROWS */
 
-
 /* TANARIS */
 UPDATE `creature_template` SET `ScriptName`='mob_aquementas' WHERE `entry`=9453;
 UPDATE `creature_template` SET `ScriptName`='npc_custodian_of_time' WHERE `entry`=20129;
@@ -804,7 +788,6 @@ UPDATE `creature_template` SET `ScriptName`='npc_stone_watcher_of_norgannon' WHE
 UPDATE `creature_template` SET `ScriptName`='npc_OOX17' WHERE `entry`=7784;
 
 /* TELDRASSIL */
-
 
 /* TEMPEST KEEP */
 
@@ -918,7 +901,6 @@ UPDATE `creature_template` SET `ScriptName`='npc_parqual_fintallas' WHERE `entry
 
 /* WAILING CAVERNS */
 
-
 /* WESTERN PLAGUELANDS */
 UPDATE `creature_template` SET `ScriptName`='npcs_dithers_and_arbington' WHERE `entry` IN (11056,11057);
 UPDATE `creature_template` SET `ScriptName`='npc_the_scourge_cauldron' WHERE `entry`=11152;
@@ -927,7 +909,6 @@ UPDATE `creature_template` SET `ScriptName`='npc_the_scourge_cauldron' WHERE `en
 UPDATE `creature_template` SET `ScriptName`='npc_defias_traitor' WHERE `entry`=467;
 
 /* WETLANDS */
-
 
 /* WINTERSPRING */
 UPDATE `creature_template` SET `ScriptName`='npc_lorax' WHERE `entry`=10918;
