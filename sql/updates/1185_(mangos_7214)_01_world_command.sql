@@ -1,4 +1,4 @@
-ALTER TABLE db_version CHANGE COLUMN required_7209_01_mangos_spell_bonus_data required_7214_01_mangos_command bit;
+/*ALTER TABLE db_version CHANGE COLUMN required_7209_01_mangos_spell_bonus_data required_7214_01_mangos_command bit;*/
 
 DELETE FROM `command` WHERE `name` IN ('gps','modify phase','npc phase','gobject phase');
 INSERT INTO `command` VALUES

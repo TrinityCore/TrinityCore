@@ -1,4 +1,4 @@
-ALTER TABLE db_version CHANGE COLUMN required_7196_02_mangos_spell_bonus_data required_7199_01_mangos_spell_bonus_data bit;
+/*ALTER TABLE db_version CHANGE COLUMN required_7196_02_mangos_spell_bonus_data required_7199_01_mangos_spell_bonus_data bit;*/
 
 DELETE FROM `spell_bonus_data` WHERE `entry` IN (44614, 139, 49821, 53022, 18265, 31117, 28176);
 INSERT INTO `spell_bonus_data` VALUES

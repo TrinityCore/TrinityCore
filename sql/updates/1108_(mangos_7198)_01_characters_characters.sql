@@ -1,7 +1,7 @@
-ALTER TABLE character_db_version CHANGE COLUMN required_7113_01_characters_character_achievement_progress required_7198_01_characters_characters bit;
+/*ALTER TABLE character_db_version CHANGE COLUMN required_7113_01_characters_character_achievement_progress required_7198_01_characters_characters bit;*/
 
 UPDATE `characters`.`item_instance` AS `t1`
-INNER JOIN `mangos`.`item_template` AS `t2` ON
+INNER JOIN `world`.`item_template` AS `t2` ON
 `t2`.`entry` = SUBSTRING_INDEX(SUBSTRING_INDEX(`t1`.`data`,' ',4),' ',-1)
 SET `t1`.`data` = CONCAT(
   SUBSTRING_INDEX(SUBSTRING_INDEX(`t1`.`data`,' ',16),' ',-16), ' ',
@@ -14,7 +14,7 @@ SET `t1`.`data` = CONCAT(
 WHERE (`t2`.`spellid_1` = 55884) AND (SUBSTRING_INDEX(data,' ',64) = data AND SUBSTRING_INDEX(data,' ',64-1) <> data);
 
 UPDATE `characters`.`item_instance` AS `t1`
-INNER JOIN `mangos`.`item_template` AS `t2` ON
+INNER JOIN `world`.`item_template` AS `t2` ON
 `t2`.`entry` = SUBSTRING_INDEX(SUBSTRING_INDEX(`t1`.`data`,' ',4),' ',-1)
 SET `t1`.`data` = CONCAT(
   SUBSTRING_INDEX(SUBSTRING_INDEX(`t1`.`data`,' ',16),' ',-16), ' ',
