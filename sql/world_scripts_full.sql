@@ -954,6 +954,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_jandalai_firebomb' WHERE `entry
 UPDATE `creature_template` SET `ScriptName`='mob_amanishi_hatcher' WHERE `entry`=23818;
 UPDATE `creature_template` SET `ScriptName`='mob_hatchling' WHERE `entry`=23598;
 UPDATE `creature_template` SET `ScriptName`='npc_forest_frog' WHERE `entry`=24396;
+UPDATE `creature_template` SET `ScriptName`='boss_akilzon' WHERE `entry`=23574;
 
 /* ZUL'FARRAK */
 UPDATE `creature_template` SET `ScriptName`='npc_sergeant_bly' WHERE `entry`=7604;
