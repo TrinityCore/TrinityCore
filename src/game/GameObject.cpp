@@ -738,17 +738,38 @@ bool GameObject::isVisibleForInState(Player const* u, bool inVisibleList) const
             return false;
 
         // special invisibility cases
-        /* TODO: implement trap stealth, take look at spell 2836
-        if(GetGOInfo()->type == GAMEOBJECT_TYPE_TRAP && GetGOInfo()->trap.stealthed && u->IsHostileTo(GetOwner()))
+        if(GetGOInfo()->type == GAMEOBJECT_TYPE_TRAP && GetGOInfo()->trap.stealthed)
         {
-            if(check stuff here)
+            Unit *owner = GetOwner();
+            if(owner && u->IsHostileTo(owner) && !canDetectTrap(u, GetDistance(u)))
                 return false;
-        }*/
+        }
     }
 
     // check distance
     return IsWithinDistInMap(u,World::GetMaxVisibleDistanceForObject() +
         (inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f), false);
+}
+
+bool GameObject::canDetectTrap(Player const* u, float distance) const
+{
+    if(u->hasUnitState(UNIT_STAT_STUNNED))
+        return false;
+    if(distance < GetGOInfo()->size) //collision
+        return true;
+    if(!u->HasInArc(M_PI, this)) //behind
+        return false;
+    if(u->HasAuraType(SPELL_AURA_DETECT_STEALTH))
+        return true;
+
+    //Visible distance is modified by -Level Diff (every level diff = 0.25f in visible distance)
+    float visibleDistance = (int32(u->getLevel()) - int32(GetOwner()->getLevel()))* 0.25f;
+    //GetModifier for trap (miscvalue 1)
+    //35y for aura 2836
+    //WARNING: these values are guessed, may be not blizzlike
+    visibleDistance += u->GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DETECT, 1)* 0.5f;
+
+    return distance < visibleDistance;
 }
 
 void GameObject::Respawn()
