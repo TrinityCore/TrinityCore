@@ -1,4 +1,4 @@
-ALTER TABLE db_version CHANGE COLUMN required_7149_01_mangos_spell_proc_event required_7150_01_mangos_playercreateinfo_spell bit;
+/*ALTER TABLE db_version CHANGE COLUMN required_7149_01_mangos_spell_proc_event required_7150_01_mangos_playercreateinfo_spell bit;*/
 
 DELETE FROM `playercreateinfo_spell` WHERE Spell = 58284;
 
