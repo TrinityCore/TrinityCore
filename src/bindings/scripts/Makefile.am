@@ -140,6 +140,7 @@ scripts/zone/blades_edge_mountains/blades_edge_mountains.cpp \
 scripts/zone/blasted_lands/blasted_lands.cpp \
 scripts/zone/blasted_lands/boss_kruul.cpp \
 scripts/zone/bloodmyst_isle/bloodmyst_isle.cpp \
+scripts/zone/borean_tundra/borean_tundra.cpp \
 scripts/zone/burning_steppes/burning_steppes.cpp \
 scripts/zone/caverns_of_time/dark_portal/boss_aeonus.cpp \
 scripts/zone/caverns_of_time/dark_portal/boss_chrono_lord_deja.cpp \

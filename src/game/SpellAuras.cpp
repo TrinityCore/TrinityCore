@@ -316,8 +316,8 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNULL,                                      //259 corrupt healing over time spell
     &Aura::HandleNoImmediateEffect,                         //260 SPELL_AURA_SCREEN_EFFECT (miscvalue = id in ScreenEffect.dbc) not required any code
     &Aura::HandlePhase,                                     //261 SPELL_AURA_PHASE undetactable invisibility?     implemented in Unit::isVisibleForOrDetect
-    &Aura::HandleNULL,                                      //262
-    &Aura::HandleNULL,                                      //263 SPELL_AURA_ALLOW_ONLY_ABILITY player can use only abilities set in SpellClassMask
+    &Aura::HandleNoImmediateEffect,                         //262 SPELL_AURA_ABILITY_IGNORE_AURASTATE implemented in spell::cancast
+    &Aura::HandleAuraAllowOnlyAbility,                      //263 SPELL_AURA_ALLOW_ONLY_ABILITY player can use only abilities set in SpellClassMask
     &Aura::HandleNULL,                                      //264 unused
     &Aura::HandleNULL,                                      //265 unused
     &Aura::HandleNULL,                                      //266 unused
@@ -4967,6 +4967,23 @@ void Aura::HandleNoReagentUseAura(bool Apply, bool Real)
 /***                    OTHERS                         ***/
 /*********************************************************/
 
+void Aura::HandleAuraAllowOnlyAbility(bool apply, bool Real)
+{
+    if(!Real)
+        return;
+
+    if(!apply && m_target->HasAuraType(SPELL_AURA_ALLOW_ONLY_ABILITY))
+        return;
+
+    if(m_target->GetTypeId()==TYPEID_PLAYER)
+    {
+        if (apply)
+            m_target->SetFlag(PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY);
+        else
+            m_target->RemoveFlag(PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY);
+    }
+}
+
 void Aura::HandleShapeshiftBoosts(bool apply)
 {
     uint32 spellId = 0;
@@ -6538,3 +6555,4 @@ void Aura::HandlePhase(bool apply, bool Real)
     if(m_target->GetVisibility()!=VISIBILITY_OFF)
         m_target->SetVisibility(m_target->GetVisibility());
 }
+

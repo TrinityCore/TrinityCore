@@ -6,28 +6,24 @@ INSERT INTO `battleground_template` VALUES
 (11,5,5,10,80,1364,0,1365,0);
 
 -- command
-DELETE FROM `command` WHERE `name` = 'reload all_locales';
-INSERT INTO `command` VALUES
-('reload all_locales',3,'Syntax: .reload all_locales\r\n\r\nReload all `locales_*` tables with reload support added and that can be _safe_ reloaded.');
-
+DELETE FROM `command` WHERE `name` = 'reload';
 DELETE FROM `command` WHERE `name` = 'modify runicpower';
 INSERT INTO `command` VALUES
 ('modify runicpower',1,'Syntax: .modify runicpower #newrunicpower\r\n\r\nModify the runic power of the selected player. If no player is selected, modify your runic power.');
-
 -- string
 DELETE FROM `trinity_string` WHERE `entry` in (345,346);
 INSERT INTO `trinity_string` VALUES
 (345,'Forced customize for player %s will be requested at next login.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (346,'Forced customize for player %s (GUID #%u) will be requested at next login.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 
-DELETE FROM `trinity_string` WHERE entry in (712,717,718,719);
+DELETE FROM `trinity_string` WHERE `entry` in (712,717,718,719);
 INSERT INTO `trinity_string` VALUES
 (712,'|cffff0000[BG Queue Announcer]:|r %s -- [%u-%u] A: %u/%u, H: %u/%u|r',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (717,'|cffff0000[BG Queue Announcer]:|r %s -- [%u-%u] Started!|r',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (718,'|cffff0000[Arena Queue Announcer]:|r %s -- Joined : %ux%u : %u|r',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (719,'|cffff0000[Arena Queue Announcer]:|r %s -- Exited : %ux%u : %u|r',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 
-DELETE FROM `trinity_string` WHERE entry in (720,721,722,723,724,725,726,727,728,729,730,731,732,733,734,735,736);
+DELETE FROM `trinity_string` WHERE `entry` in (720,721,722,723,724,725,726,727,728,729,730,731,732,733,734,735,736);
 INSERT INTO `trinity_string` VALUES
 (720,'Your group is too large for this battleground. Please regroup to join.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (721,'Your group is too large for this arena. Please regroup to join.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
@@ -47,7 +43,7 @@ INSERT INTO `trinity_string` VALUES
 (735,'You must be in GM mode to teleport to a player in a battleground.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (736,'You cannot teleport to a battleground from another battleground. Please leave the current battleground first.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 
-DELETE FROM `trinity_string` WHERE entry in (1122,1123,1124,1125,1126,1127,1128,1129,1130,1131,1132,1133,1134,1135,1136,1137,1138);
+DELETE FROM `trinity_string` WHERE `entry` IN (1122,1123,1124,1125,1126,1127,1128,1129,1130,1131,1132,1133,1134,1135,1136,1137,1138);
 
 DELETE FROM `trinity_string` WHERE `entry` IN (173,174);
 INSERT INTO `trinity_string` VALUES
@@ -9104,7 +9100,6 @@ INSERT IGNORE INTO `spell_learn_spell` (`entry`, `SpellID`, `Active`) VALUES
 -- spell_loot_template
 -- No data yet
 
-
 DELETE FROM `item_template` WHERE entry IN (34648,34649,34650,34651,34652,34653,34655,34656,34657,34658,34659,38145,38147,41751);
 INSERT INTO `item_template` VALUES
 (34648,4,4,-1,'Acherus Knight\'s Greaves',51496,2,32768,1,51,10,8,-1,-1,60,55,0,0,0,0,0,0,0,0,1,0,3,4,10,7,12,3,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,392,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,-1,0,0,0,0,-1,0,-1,0,0,0,0,-1,0,-1,0,0,0,0,-1,0,-1,0,0,0,0,-1,0,-1,1,'',0,0,0,0,0,6,0,0,0,0,0,55,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,0,0,'',0,0,0,0),
@@ -9134,4 +9129,8 @@ INSERT INTO `playercreateinfo` VALUES
 (8 ,6,609,4298,2355.05,-5661.7, 426.026),
 (10,6,609,4298,2355.84,-5664.77,426.028),
 (11,6,609,4298,2358.17,-5663.21,426.027);
-
+DELETE FROM `playercreateinfo` WHERE `race`=7 AND `class` IN (4,8,9);
+INSERT INTO `playercreateinfo` VALUES
+(7,4,0,1,-6240,331,383),
+(7,8,0,1,-6240,331,383),
+(7,9,0,1,-6240,331,383);
