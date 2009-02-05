@@ -209,6 +209,9 @@ extern void AddSC_blasted_lands();
 //Bloodmyst Isle
 extern void AddSC_bloodmyst_isle();
 
+//Borean Tundra
+extern void AddSC_borean_tundra();
+
 //Burning steppes
 extern void AddSC_burning_steppes();
 
@@ -1415,6 +1418,9 @@ void ScriptsInit()
 
     //Bloodmyst Isle
     AddSC_bloodmyst_isle();
+	
+    //Borean Tundra
+    AddSC_borean_tundra();
 
     //Burning steppes
     AddSC_burning_steppes();

@@ -305,6 +305,7 @@ class TRINITY_DLL_SPEC Aura
         Unit* GetTriggerTarget() const;
 
         // add/remove SPELL_AURA_MOD_SHAPESHIFT (36) linked auras
+        void HandleAuraAllowOnlyAbility(bool apply, bool Real);
         void HandleShapeshiftBoosts(bool apply);
 
         // Allow Apply Aura Handler to modify and access m_AuraDRGroup
