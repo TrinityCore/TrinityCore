@@ -1,5 +1,5 @@
 INSTALL(FILES
-1_world_scripts.sql
+805_world_scripts
 875_(mangos_7047)_01_characters_character_spell.sql
 875_(mangos_7059)_01_characters_pet_spell.sql
 1026_(mangos_7113)_01_characters_character_achievement_progress.sql
