@@ -21,7 +21,7 @@ UPDATE `gameobject_template` SET `ScriptName`='go_tablet_of_the_seven' WHERE `en
 UPDATE `gameobject_template` set `ScriptName`='go_manticron_cube' WHERE `entry`=181713;
 UPDATE `gameobject_template` SET `ScriptName`='go_mausoleum_trigger' WHERE `entry`=104593;
 UPDATE `gameobject_template` SET `ScriptName`='go_mausoleum_door' WHERE `entry`=176594;
-UPDATE `gameobject_template` SET `scriptname`='go_crystal_prison' WHERE `entry`=185126;
+UPDATE `gameobject_template` SET `ScriptName`='go_crystal_prison' WHERE `entry`=185126;
 
 /* GUARD */
 UPDATE `creature_template` SET `ScriptName`='guard_azuremyst' WHERE `entry`=18038;
@@ -67,6 +67,7 @@ UPDATE `item_template` SET `ScriptName`='item_vorenthals_presence' WHERE `entry`
 UPDATE `item_template` SET `ScriptName`='item_yehkinyas_bramble' WHERE `entry`=10699;
 UPDATE `item_template` SET `ScriptName`='item_zezzaks_shard' WHERE `entry`=31463;
 UPDATE `item_template` SET `ScriptName`='item_only_for_flight' WHERE `entry` IN (34475, 34489, 24538);
+UPDATE `item_template` SET `ScriptName`='item_inoculating_crystal' WHERE `entry`=22962;
 
 /* NPC (usually creatures to be found in more than one specific zone) */
 UPDATE `creature_template` SET `ScriptName`='npc_chicken_cluck' WHERE `entry`=620;
@@ -219,11 +220,11 @@ UPDATE `creature_template` SET `ScriptName`='boss_high_interrogator_gerstahn' WH
 UPDATE `creature_template` SET `ScriptName`='boss_magmus' WHERE `entry`=9938;
 UPDATE `creature_template` SET `ScriptName`='boss_seethrel' WHERE `entry`=9038;
 UPDATE `creature_template` SET `ScriptName`='boss_vilerel' WHERE `entry`=9036;
-UPDATE `creature_template` SET `ScriptName`='phalanx' WHERE `entry`=9502;
 UPDATE `creature_template` SET `ScriptName`='npc_lokhtos_darkbargainer' WHERE `entry`=12944;
 UPDATE `creature_template` SET `ScriptName`='npc_kharan_mighthammer' WHERE `entry`=9021;
 UPDATE `creature_template` SET `ScriptName`='npc_grimstone' WHERE `entry`=10096;
 UPDATE `creature_template` SET `ScriptName`='npc_rocknot' WHERE `entry`=9503;
+UPDATE `creature_template` SET `ScriptName`='mob_phalanx' WHERE `entry`=9502;
 
 /* BLACKROCK SPIRE */
 /* BLACKROCK SPIRE Lower bosses */
@@ -329,7 +330,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_steamrigger_mechanic' WHERE `en
 /* SERPENTSHRINE CAVERN */
 UPDATE `instance_template` SET `script`='instance_serpent_shrine' WHERE `map`=548;
 UPDATE `creature_template` SET `ScriptName`='boss_hydross_the_unstable' WHERE `entry`=21216;
-UPDATE `creature_template` SET `ScriptName`='mob_toxic_sporebat' WHERE entry=22140;
+UPDATE `creature_template` SET `ScriptName`='mob_toxic_sporebat' WHERE `entry`=22140;
 /* Leotheras the Blind event */
 UPDATE `creature_template` SET `ScriptName`='boss_leotheras_the_blind' WHERE `entry`=21215;
 UPDATE `creature_template` SET `ScriptName`='boss_leotheras_the_blind_demonform' WHERE `entry`=21845;
@@ -420,7 +421,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_screecher_spirit' WHERE `entry`
 UPDATE `creature_template` SET `ScriptName`='npc_blood_knight_dawnstar' WHERE `entry`=17832;
 UPDATE `creature_template` SET `ScriptName`='npc_budd_nedreck' WHERE `entry`=23559;
 UPDATE `creature_template` SET `ScriptName`='npc_rathis_tomber' WHERE `entry`=16224;
-UPDATE `creature_template` SET `Scriptname`='npc_ranger_lilatha' WHERE entry=16295;
+UPDATE `creature_template` SET `Scriptname`='npc_ranger_lilatha' WHERE `entry`=16295;
 update `gameobject_template` SET `ScriptName`='go_gilded_brazier' WHERE `entry`=181956;
 
 /* GNOMEREGAN */
@@ -638,7 +639,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_protectorate_nether_drake' WHER
 UPDATE `creature_template` SET `ScriptName`='npc_veronia' WHERE `entry`=20162;
 UPDATE `creature_template` SET `ScriptName`='mob_phase_hunter' WHERE `entry`=18879;
 UPDATE `creature_template` SET `ScriptName`='npc_professor_dabiri' WHERE `entry`=20907;
-UPDATE `creature_template` SET `ScriptName`='npc_bessy' WHERE entry =20415;
+UPDATE `creature_template` SET `ScriptName`='npc_bessy' WHERE `entry`=20415;
 
 /* ONYXIA'S LAIR */
 UPDATE `creature_template` SET `ScriptName`='boss_onyxia' WHERE `entry`=10184;
@@ -655,7 +656,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_thrall_warchief' WHERE `entry`=
 UPDATE `creature_template` SET `ScriptName`='boss_amnennar_the_coldbringer' WHERE `entry`=7358;
 
 /* RAZORFEN KRAUL */
-UPDATE `creature_template` SET `Scriptname`='npc_willix' WHERE entry=4508;
+UPDATE `creature_template` SET `Scriptname`='npc_willix' WHERE `entry`=4508;
 /* REDRIDGE MOUNTAINS */
 
 
@@ -717,8 +718,8 @@ UPDATE `creature_template` SET `ScriptName`='npc_neltharaku' WHERE `entry`=21657
 UPDATE `creature_template` SET `ScriptName`='npc_oronok_tornheart' WHERE `entry`=21183;
 UPDATE `creature_template` SET `ScriptName`='mob_mature_netherwing_drake' WHERE `entry`=21648;
 UPDATE `creature_template` SET `ScriptName`='mob_enslaved_netherwing_drake' WHERE `entry`=21722;
-UPDATE `creature_template` SET `ScriptName`='npc_overlord_morghor' WHERE entry=	23139;
-UPDATE `creature_template` SET `ScriptName`='' WHERE entry=23141;
+UPDATE `creature_template` SET `ScriptName`='npc_overlord_morghor' WHERE `entry`=	23139;
+UPDATE `creature_template` SET `ScriptName`='' WHERE `entry`=23141;
 UPDATE `creature_template` SET `ScriptName`='mob_illidari_spawn' WHERE `entry` IN (22075, 22074, 19797);
 UPDATE `creature_template` SET `ScriptName`='mob_torloth_the_magnificent' WHERE `entry`=22076;
 UPDATE `creature_template` SET `ScriptName`='npc_lord_illidan_stormrage' WHERE `entry`=22083;
@@ -786,7 +787,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_freed_soul' WHERE `entry`=11136
 
 /* SUNWELL PLATEAU */
 update `instance_template` set `script` ='instance_sunwell_plateau' where map =580;
-UPDATE `creature_template` SET `ScriptName`='boss_brutallus' WHERE entry =24882;
+UPDATE `creature_template` SET `ScriptName`='boss_brutallus' WHERE `entry` =24882;
 UPDATE `creature_template` SET `ScriptName`='boss_felmyst' WHERE `entry`=25038;
 UPDATE `creature_template` SET `ScriptName`='mob_felmyst_vapor' WHERE `entry`=25265;
 UPDATE `creature_template` SET `ScriptName`='mob_felmyst_trail' WHERE `entry`=25267;

@@ -1,5 +1,5 @@
-DELETE FROM script_texts WHERE entry BETWEEN -1000395 AND -1000375;
-INSERT INTO script_texts (entry,content_default,sound,type,language,emote,comment) VALUES
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000395 AND -1000375;
+INSERT INTO `script_texts` (entry,content_default,sound,type,language,emote,comment) VALUES
 (-1000375 ,'I remember well the sting of defeat at the conclusion of the Third War. I have waited far too long for my revenge. Now the shadow of the Legion falls over this world. It is only a matter of time until all of your failed creation... is undone.',11332,1,0,0,'kazzak SAY_INTRO'),
 (-1000376,'The Legion will conquer all!',11333,1,0,0,'kazzak SAY_AGGRO1'),
 (-1000377,'All mortals will perish!',11334,1,0,0,'kazzak SAY_AGGRO2'),

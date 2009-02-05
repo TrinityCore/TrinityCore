@@ -1,4 +1,4 @@
-delete from spell_script_target where entry=42222;
-insert into `spell_script_target` values
+UPDATE `creature_template` SET `ScriptName`='npc_kyle_frenzied' WHERE `entry`='23616';
+DELETE FROM `spell_script_target` WHERE `entry`=42222;
+INSERT INTO `spell_script_target` values
 ('42222','1','23616');
-update `creature_template` set `scriptname`='npc_kyle_frenzied' where `entry`='23616';
