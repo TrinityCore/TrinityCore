@@ -365,10 +365,6 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);
         Reset();
-
-        SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_SHADOWFIEND_PASSIVE);
-        if(TempSpell)
-            TempSpell->EffectApplyAuraName[0] = 4; // proc debuff, and summon infinite fiends
     }
 
     ScriptedInstance* pInstance;
