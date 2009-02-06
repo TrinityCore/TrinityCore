@@ -20370,9 +20370,7 @@ uint32 Player::GetPhaseMaskForSpawn() const
     else
     {
         AuraList const& phases = GetAurasByType(SPELL_AURA_PHASE);
-        if(phases.empty())
-            phase = GetPhaseMask();
-        else
+        if(!phases.empty())
             phase = phases.front()->GetMiscValue();
     }
 
