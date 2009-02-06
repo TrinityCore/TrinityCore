@@ -328,7 +328,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this)
     // group is initialized in the reference constructor
     SetGroupInvite(NULL);
     m_groupUpdateMask = 0;
-    m_auraUpdateMask = 0;
+    m_auraRaidUpdateMask = 0;
 
     duel = NULL;
 
@@ -4020,8 +4020,7 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
             {
                 if(Aura* Aur = GetAura(SPELL_ID_PASSIVE_RESURRECTION_SICKNESS,i))
                 {
-                    Aur->SetAuraDuration(delta*1000);
-                    Aur->SendAuraUpdate(false);
+                    Aur->SetAuraDurationAndUpdate(delta*1000);
                 }
             }
         }
@@ -18699,9 +18698,9 @@ void Player::SendUpdateToOutOfRangeGroupMembers()
         group->UpdatePlayerOutOfRange(this);
 
     m_groupUpdateMask = GROUP_UPDATE_FLAG_NONE;
-    m_auraUpdateMask = 0;
+    m_auraRaidUpdateMask = 0;
     if(Pet *pet = GetPet())
-        pet->ResetAuraUpdateMask();
+        pet->ResetAuraUpdateMaskForRaid();
 }
 
 void Player::SendTransferAborted(uint32 mapid, uint8 reason, uint8 arg)
@@ -18926,35 +18925,39 @@ void Player::SendAurasForTarget(Unit *target)
     Unit::VisibleAuraMap const *visibleAuras = target->GetVisibleAuras();
     for(Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
     {
-        for(uint32 j = 0; j < 3; ++j)
+        Aura * aura=NULL;
+        for (uint8 i=0 ; i<3; i++)
         {
-            if(Aura *aura = target->GetAura(itr->second, j))
+            if (itr->second.m_slotAuras[i])
             {
-                data << uint8(aura->GetAuraSlot());
-                data << uint32(aura->GetId());
-
-                if(aura->GetId())
-                {
-                    uint8 auraFlags = aura->GetAuraFlags();
-                    // flags
-                    data << uint8(auraFlags);
-                    // level
-                    data << uint8(aura->GetAuraLevel());
-                    // charges
-                    data << uint8(aura->GetAuraCharges());
-
-                    if(!(auraFlags & AFLAG_NOT_CASTER))
-                    {
-                        data << uint8(0);                   // packed GUID of someone (caster?)
-                    }
-
-                    if(auraFlags & AFLAG_DURATION)          // include aura duration
-                    {
-                        data << uint32(aura->GetAuraMaxDuration());
-                        data << uint32(aura->GetAuraDuration());
-                    }
-                }
+                aura=itr->second.m_slotAuras[i];
                 break;
+            }
+        }
+        if(aura)
+        {
+            data << uint8(aura->GetAuraSlot());
+            data << uint32(aura->GetId());
+
+            if(aura->GetId())
+            {
+                // flags
+                data << itr->second.m_Flags;
+                // level
+                data << itr->second.m_Level;
+                // charges
+                data << uint8(aura->GetAuraCharges());
+
+                if(!(itr->second.m_Flags & AFLAG_NOT_CASTER))
+                {
+                    data << uint8(0);                   // packed GUID of someone (caster?)
+                }
+
+                if(itr->second.m_Flags & AFLAG_DURATION)          // include aura duration
+                {
+                    data << uint32(aura->GetAuraMaxDuration());
+                    data << uint32(aura->GetAuraDuration());
+                }
             }
         }
     }

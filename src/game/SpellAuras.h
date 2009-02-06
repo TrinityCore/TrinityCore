@@ -230,6 +230,12 @@ class TRINITY_DLL_SPEC Aura
         void SetAuraMaxDuration(int32 duration) { m_maxduration = duration; }
         int32 GetAuraDuration() const { return m_duration; }
         void SetAuraDuration(int32 duration) { m_duration = duration; }
+        void SetAuraDurationAndUpdate(int32 duration) 
+        {
+            m_duration = duration;
+            if(GetAuraSlot() < MAX_AURAS)                        // slot found send data to client
+            { m_target->UpdateAuraForGroup(GetAuraSlot()); }
+        }
         time_t GetAuraApplyTime() { return m_applyTime; }
 
         SpellModifier *getAuraSpellMod() {return m_spellmod; }
@@ -249,29 +255,24 @@ class TRINITY_DLL_SPEC Aura
 
         uint8 GetAuraSlot() const { return m_auraSlot; }
         void SetAuraSlot(uint8 slot) { m_auraSlot = slot; }
-        uint8 GetAuraFlags() const { return m_auraFlags; }
-        void SetAuraFlags(uint8 flags) { m_auraFlags = flags; }
-        uint8 GetAuraLevel() const { return m_auraLevel; }
-        void SetAuraLevel(uint8 level) { m_auraLevel = level; }
         uint8 GetAuraCharges() const { return m_procCharges; }
         void SetAuraCharges(uint8 charges)
         {
             if (m_procCharges == charges)
                 return;
             m_procCharges = charges;
-            SendAuraUpdate(false);
+            if(GetAuraSlot() < MAX_AURAS)                        // slot found send data to client
+            { m_target->UpdateAuraForGroup(GetAuraSlot()); }
         }
         bool DropAuraCharge() // return true if last charge dropped
         {
             if (m_procCharges == 0)
                 return false;
             m_procCharges--;
-            SendAuraUpdate(false);
+            if(GetAuraSlot() < MAX_AURAS)                        // slot found send data to client
+            { m_target->UpdateAuraForGroup(GetAuraSlot()); }
             return m_procCharges == 0;
         }
-
-        void SetAura(bool remove) { m_target->SetVisibleAura(m_auraSlot, remove ? 0 : GetId()); }
-        void SendAuraUpdate(bool remove);
 
         int8 GetStackAmount() {return m_stackAmount;}
         //int32 GetModifierValuePerStack() {return m_modifier.m_amount / m_stackAmount;}

@@ -769,12 +769,21 @@ void Aura::_AddAura()
     if(!m_target)
         return;
 
+    Unit* caster = GetCaster();
+
+    // passive auras (except totem auras) do not get placed in the slots
+    // area auras with SPELL_AURA_NONE are not shown on target
+    // all further code applies only to active spells
+    if(!((m_spellProto->Attributes & 0x80 || !m_isPassive || (caster && caster->GetTypeId() == TYPEID_UNIT && ((Creature*)caster)->isTotem())) &&
+        (m_spellProto->Effect[GetEffIndex()] != SPELL_EFFECT_APPLY_AREA_AURA_ENEMY || m_target != caster)))
+        return;
+
     // Second aura if some spell
     bool secondaura = false;
     // Try find slot for aura
     uint8 slot = NULL_AURA_SLOT;
-    // Lookup for some spell auras (and get slot from it)
-    for(uint8 i = 0; i < m_effIndex; i++)
+    // Lookup for auras already applied from spell
+    for(uint8 i = 0; i < 3; i++)
     {
         Unit::spellEffectPair spair = Unit::spellEffectPair(GetId(), i);
         for(Unit::AuraMap::const_iterator itr = m_target->GetAuras().lower_bound(spair); itr != m_target->GetAuras().upper_bound(spair); ++itr)
@@ -791,7 +800,7 @@ void Aura::_AddAura()
             break;
     }
     // Lookup free slot
-    if (!secondaura && m_target->GetVisibleAurasCount() < MAX_AURAS)
+    if (!secondaura && m_target->GetVisibleAurasCount() < MAX_AURAS )
     {
         Unit::VisibleAuraMap const *visibleAuras = m_target->GetVisibleAuras();
         for(uint8 i = 0; i < MAX_AURAS; ++i)
@@ -800,71 +809,82 @@ void Aura::_AddAura()
             if(itr == visibleAuras->end())
             {
                 slot = i;
-                // update for out of range group members (on 1 slot use)
-                m_target->UpdateAuraForGroup(slot);
                 break;
             }
         }
     }
 
-    Unit* caster = GetCaster();
-
-    // passive auras (except totem auras) do not get placed in the slots
-    // area auras with SPELL_AURA_NONE are not shown on target
-    if((!m_isPassive || (caster && caster->GetTypeId() == TYPEID_UNIT && ((Creature*)caster)->isTotem())) &&
-        (m_spellProto->Effect[GetEffIndex()] != SPELL_EFFECT_APPLY_AREA_AURA_ENEMY || m_target != caster))
+    if (!secondaura)
     {
-        SetAuraSlot( slot );
-        if(slot < MAX_AURAS)                        // slot found send data to client
-        {
-            SetAura(false);
-            SetAuraFlags((1 << GetEffIndex()) | AFLAG_NOT_CASTER | ((GetAuraMaxDuration() > 0) ? AFLAG_DURATION : AFLAG_NONE) | (IsPositive() ? AFLAG_POSITIVE : AFLAG_NEGATIVE));
-            SetAuraLevel(caster ? caster->getLevel() : sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL));
-            SendAuraUpdate(false);
-        }
+        AuraSlotEntry t_entry;
+        t_entry.m_Flags=(IsPositive() ? AFLAG_POSITIVE : AFLAG_NEGATIVE) | AFLAG_NOT_CASTER | ((GetAuraMaxDuration() > 0) ? AFLAG_DURATION : AFLAG_NONE);
+        t_entry.m_Level=(caster ? caster->getLevel() : sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL));
 
-        //*****************************************************
-        // Update target aura state flag (at 1 aura apply)
-        // TODO: Make it easer
-        //*****************************************************
-        if (!secondaura)
-        {
-            // Sitdown on apply aura req seated
-            if (m_spellProto->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED && !m_target->IsSitState())
-                m_target->SetStandState(UNIT_STAND_STATE_SIT);
+        //init pointers-prevent unexpected behaviour
+        for(uint8 i = 0; i < 3; i++)
+            t_entry.m_slotAuras[i]=NULL;
 
-            // register aura diminishing on apply
-            if (getDiminishGroup() != DIMINISHING_NONE )
-                m_target->ApplyDiminishingAura(getDiminishGroup(),true);
+        t_entry.m_Level=(caster ? caster->getLevel() : sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL));
+        m_target->SetVisibleAura(slot, t_entry);
+    }
 
-            // Update Seals information
-            if (IsSealSpell(m_spellProto))
-                m_target->ModifyAuraState(AURA_STATE_JUDGEMENT, true);
+    sLog.outError("aura::_addaura slot:%d", slot);
 
-            // Conflagrate aura state on Immolate
-            if (m_spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellProto->SpellFamilyFlags[0] & 4)
-                m_target->ModifyAuraState(AURA_STATE_IMMOLATE, true);
+    AuraSlotEntry * entry;
+    entry=m_target->GetVisibleAura(slot);
 
-            // Faerie Fire (druid versions)
-            if (m_spellProto->SpellFamilyName == SPELLFAMILY_DRUID && m_spellProto->SpellFamilyFlags[0] & 0x400)
-                m_target->ModifyAuraState(AURA_STATE_FAERIE_FIRE, true);
+    entry->m_Flags |= (1 << GetEffIndex());
+    entry->m_slotAuras[GetEffIndex()]=this;
 
-            // Victorious
-            if (m_spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR &&  m_spellProto->SpellFamilyFlags[1] & 0x00040000)
-                m_target->ModifyAuraState(AURA_STATE_WARRIOR_VICTORY_RUSH, true);
+    SetAuraSlot( slot );
 
-            // Swiftmend state on Regrowth & Rejuvenation
-            if (m_spellProto->SpellFamilyName == SPELLFAMILY_DRUID && m_spellProto->SpellFamilyFlags[0] & 0x50 )
-                m_target->ModifyAuraState(AURA_STATE_SWIFTMEND, true);
+    if(slot < MAX_AURAS)                        // slot found send data to client
+    {
+        // update for out of range group members (on 1 slot use)
+        m_target->UpdateAuraForGroup(slot);
+    }
 
-            // Deadly poison aura state
-            if(m_spellProto->SpellFamilyName == SPELLFAMILY_ROGUE && m_spellProto->SpellFamilyFlags[0] & 0x10000)
-                m_target->ModifyAuraState(AURA_STATE_DEADLY_POISON, true);
+    //*****************************************************
+    // Update target aura state flag (at 1 aura apply)
+    // TODO: Make it easer
+    //*****************************************************
+    if (!secondaura)
+    {
+        // Sitdown on apply aura req seated
+        if (m_spellProto->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED && !m_target->IsSitState())
+            m_target->SetStandState(UNIT_STAND_STATE_SIT);
 
-            // Enrage aura state
-            if(m_spellProto->Dispel == DISPEL_ENRAGE)
-                m_target->ModifyAuraState(AURA_STATE_ENRAGE, true);
-        }
+        // register aura diminishing on apply
+        if (getDiminishGroup() != DIMINISHING_NONE )
+            m_target->ApplyDiminishingAura(getDiminishGroup(),true);
+
+        // Update Seals information
+        if (IsSealSpell(m_spellProto))
+            m_target->ModifyAuraState(AURA_STATE_JUDGEMENT, true);
+
+        // Conflagrate aura state on Immolate
+        if (m_spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellProto->SpellFamilyFlags[0] & 4)
+            m_target->ModifyAuraState(AURA_STATE_IMMOLATE, true);
+
+        // Faerie Fire (druid versions)
+        if (m_spellProto->SpellFamilyName == SPELLFAMILY_DRUID && m_spellProto->SpellFamilyFlags[0] & 0x400)
+            m_target->ModifyAuraState(AURA_STATE_FAERIE_FIRE, true);
+
+        // Victorious
+        if (m_spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR &&  m_spellProto->SpellFamilyFlags[1] & 0x00040000)
+            m_target->ModifyAuraState(AURA_STATE_WARRIOR_VICTORY_RUSH, true);
+
+        // Swiftmend state on Regrowth & Rejuvenation
+        if (m_spellProto->SpellFamilyName == SPELLFAMILY_DRUID && m_spellProto->SpellFamilyFlags[0] & 0x50 )
+            m_target->ModifyAuraState(AURA_STATE_SWIFTMEND, true);
+
+        // Deadly poison aura state
+        if(m_spellProto->SpellFamilyName == SPELLFAMILY_ROGUE && m_spellProto->SpellFamilyFlags[0] & 0x10000)
+            m_target->ModifyAuraState(AURA_STATE_DEADLY_POISON, true);
+
+        // Enrage aura state
+        if(m_spellProto->Dispel == DISPEL_ENRAGE)
+            m_target->ModifyAuraState(AURA_STATE_ENRAGE, true);
     }
 }
 
@@ -894,38 +914,30 @@ void Aura::_RemoveAura()
     if(slot >= MAX_AURAS)                                   // slot not set
         return;
 
-    if(m_target->GetVisibleAura(slot) == 0)
+    if(!m_target->GetVisibleAura(slot))                     //slot already removed-shouldn't happen
         return;
 
     bool lastaura = true;
 
-    // find other aura in same slot (current already removed from list)
-    for(uint8 i = 0; i < 3; i++)
+    AuraSlotEntry * entry=m_target->GetVisibleAura(slot);
+
+    entry->m_slotAuras[GetEffIndex()]=NULL;            //unregister aura
+    Aura * ptr= NULL;
+    for (uint8 i=0 ; i<3; i++)                              //check slot for more auras of the spell
     {
-        Unit::spellEffectPair spair = Unit::spellEffectPair(GetId(), i);
-        for(Unit::AuraMap::const_iterator itr = m_target->GetAuras().lower_bound(spair); itr != m_target->GetAuras().upper_bound(spair); ++itr)
+        if (entry->m_slotAuras[i])
         {
-            if(itr->second->GetAuraSlot()==slot)
-            {
-                lastaura = false;
-                break;
-            }
-        }
-        if(!lastaura)
+            ptr=entry->m_slotAuras[i];
             break;
+        }
     }
 
     // only remove icon when the last aura of the spell is removed (current aura already removed from list)
-    if (lastaura)
+    if(!ptr)
     {
         // unregister aura diminishing (and store last time)
         if (getDiminishGroup() != DIMINISHING_NONE )
             m_target->ApplyDiminishingAura(getDiminishGroup(),false);
-
-        SetAura(true);
-        SetAuraFlags(AFLAG_NONE);
-        SetAuraLevel(0);
-        SendAuraUpdate(true);
 
         // update for out of range group members
         m_target->UpdateAuraForGroup(slot);
@@ -996,38 +1008,6 @@ void Aura::_RemoveAura()
     }
 }
 
-void Aura::SendAuraUpdate(bool remove)
-{
-    WorldPacket data(SMSG_AURA_UPDATE);
-    data.append(m_target->GetPackGUID());
-    data << uint8(GetAuraSlot());
-    data << uint32(remove ? 0 : GetId());
-
-    if(remove)
-    {
-        m_target->SendMessageToSet(&data, true);
-        return;
-    }
-
-    uint8 auraFlags = GetAuraFlags();
-    data << uint8(auraFlags);
-    data << uint8(GetAuraLevel());
-    data << uint8(m_procCharges ? m_procCharges : m_stackAmount);
-
-    if(!(auraFlags & AFLAG_NOT_CASTER))
-    {
-        data << uint8(0);                                   // pguid
-    }
-
-    if(auraFlags & AFLAG_DURATION)
-    {
-        data << uint32(GetAuraMaxDuration());
-        data << uint32(GetAuraDuration());
-    }
-
-    m_target->SendMessageToSet(&data, true);
-}
-
 void Aura::SetStackAmount(uint8 stackAmount)
 {
     if (stackAmount != m_stackAmount)
@@ -1073,7 +1053,11 @@ bool Aura::modStackAmount(int32 num)
 void Aura::RefreshAura()
 {
     m_duration = m_maxduration;
-    SendAuraUpdate(false);
+    if(GetAuraSlot() < MAX_AURAS)                        // slot found send data to client
+    {
+        // update for out of range group members (on 1 slot use)
+        m_target->UpdateAuraForGroup(GetAuraSlot());
+    }
 }
 
 bool Aura::isAffectedOnSpell(SpellEntry const *spell) const
@@ -5780,13 +5764,13 @@ void Aura::PeriodicTick()
                 int32 gain = pCaster->ModifyPower(power,gain_amount);
                 m_target->AddThreat(pCaster, float(gain) * 0.5f, GetSpellSchoolMask(GetSpellProto()), GetSpellProto());
             }
-			// Mark of Kaz'rogal
-			if(GetId() == 31447 && m_target->GetPower(power) == 0)
-			{
-				m_target->CastSpell(m_target, 31463, true, 0, this);
-				// Remove aura
-				SetAuraDuration(0);
-			}
+            // Mark of Kaz'rogal
+            if(GetId() == 31447 && m_target->GetPower(power) == 0)
+            {
+                m_target->CastSpell(m_target, 31463, true, 0, this);
+                // Remove aura
+                SetAuraDuration(0);
+            }
             break;
         }
         case SPELL_AURA_PERIODIC_ENERGIZE:
