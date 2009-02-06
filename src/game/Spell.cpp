@@ -1488,10 +1488,11 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                     m_caster->GetPartyMember(TagUnitMap, radius);
                     break;
                 case TARGET_UNIT_RAID:
-                    if(Unit *target = m_targets.getUnitTarget())
-                        TagUnitMap.push_back(target);
-                    else
-                        m_caster->GetRaidMember(TagUnitMap, radius);
+                    //if(Unit *target = m_targets.getUnitTarget())
+                    //    TagUnitMap.push_back(target);
+                    //else
+                    m_caster->GetRaidMember(TagUnitMap, radius);
+                    TagUnitMap.push_back(m_caster);
                     break;
             }
         }break;
