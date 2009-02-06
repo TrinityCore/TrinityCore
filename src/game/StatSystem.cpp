@@ -71,9 +71,12 @@ bool Player::UpdateStats(Stats stat)
         default:
             break;
     }
+
     // Need update (exist AP from stat auras)
-    UpdateAttackPowerAndDamage();
-    UpdateAttackPowerAndDamage(true);
+    if (HasAuraTypeWithMiscvalue(SPELL_AURA_MOD_MEELE_ATTACK_POWER_OF_STAT_PERCENT, stat))
+        UpdateAttackPowerAndDamage(false);
+    if (HasAuraTypeWithMiscvalue(SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT, stat))
+        UpdateAttackPowerAndDamage(true);
 
     UpdateSpellDamageAndHealingBonus();
     UpdateManaRegen();

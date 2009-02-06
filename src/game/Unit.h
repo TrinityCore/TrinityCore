@@ -1366,6 +1366,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         AuraList const& GetAurasByType(AuraType type) const { return m_modAuras[type]; }
         void ApplyAuraProcTriggerDamage(Aura* aura, bool apply);
 
+        bool HasAuraTypeWithMiscvalue(AuraType auratype, uint32 miscvalue) const;
         int32 GetTotalAuraModifier(AuraType auratype) const;
         float GetTotalAuraMultiplier(AuraType auratype) const;
         int32 GetMaxPositiveAuraModifier(AuraType auratype) const;
