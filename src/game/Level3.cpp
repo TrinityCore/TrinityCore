@@ -4749,6 +4749,45 @@ bool ChatHandler::HandleListAurasCommand (const char * /*args*/)
     return true;
 }
 
+bool ChatHandler::HandleResetAchievementsCommand (const char * args)
+{
+    char* pName = strtok((char*)args, "");
+    Player *player = NULL;
+    uint64 guid = 0;
+    if (pName)
+    {
+        std::string name = extractPlayerNameFromLink(pName);
+        if(name.empty())
+        {
+            SendSysMessage(LANG_PLAYER_NOT_FOUND);
+            SetSentErrorMessage(true);
+            return false;
+        }
+
+        guid = objmgr.GetPlayerGUIDByName(name);
+        player = objmgr.GetPlayer(guid);
+    }
+    else
+    {
+        player = getSelectedPlayer();
+        if(player)
+            guid = player->GetGUID();
+    }
+
+    if(!player && !guid)
+    {
+        SendSysMessage(LANG_NO_CHAR_SELECTED);
+        return true;
+    }
+
+    if(player)
+        player->GetAchievementMgr().Reset();
+    else if(guid)
+        AchievementMgr::DeleteFromDB(GUID_LOPART(guid));
+
+    return true;
+}
+
 bool ChatHandler::HandleResetHonorCommand (const char * args)
 {
     char* pName = strtok((char*)args, "");
