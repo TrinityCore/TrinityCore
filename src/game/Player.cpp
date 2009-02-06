@@ -20249,7 +20249,7 @@ void Player::AutoStoreLootItem(uint8 bag, uint8 slot, uint32 loot_id, LootStore 
     if(msg != EQUIP_ERR_OK)
     {
         SendEquipError( msg, NULL, NULL );
-        return
+        return;
     }
     Item* pItem = StoreNewItem (dest,lootItem->itemid,true,lootItem->randomPropertyId);
     SendNewItem(pItem, lootItem->count, true, false);
