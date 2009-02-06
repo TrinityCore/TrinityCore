@@ -948,5 +948,7 @@ TRINITY_DLL_SPEC bool LoadTrinityStrings(DatabaseType& db, char const* table,int
 TRINITY_DLL_SPEC uint32 GetAreaTriggerScriptId(uint32 trigger_id);
 TRINITY_DLL_SPEC uint32 GetScriptId(const char *name);
 TRINITY_DLL_SPEC ObjectMgr::ScriptNameMap& GetScriptNames();
+TRINITY_DLL_SPEC GameObjectInfo const *GetGameObjectInfo(uint32 id);
+TRINITY_DLL_SPEC CreatureInfo const *GetCreatureInfo(uint32 id);
 
 #endif

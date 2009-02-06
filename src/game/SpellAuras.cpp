@@ -240,7 +240,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNULL,                                      //183 SPELL_AURA_MOD_CRITICAL_THREAT
     &Aura::HandleNoImmediateEffect,                         //184 SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE  implemented in Unit::RollMeleeOutcomeAgainst
     &Aura::HandleNoImmediateEffect,                         //185 SPELL_AURA_MOD_ATTACKER_RANGED_HIT_CHANCE implemented in Unit::RollMeleeOutcomeAgainst
-    &Aura::HandleModAttackerSpellHitChance,                 //186 SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE  implemented in Unit::MagicSpellHitResult
+    &Aura::HandleNoImmediateEffect,                         //186 SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE  implemented in Unit::MagicSpellHitResult
     &Aura::HandleNoImmediateEffect,                         //187 SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_CHANCE  implemented in Unit::GetUnitCriticalChance
     &Aura::HandleNoImmediateEffect,                         //188 SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_CHANCE implemented in Unit::GetUnitCriticalChance
     &Aura::HandleModRating,                                 //189 SPELL_AURA_MOD_RATING
@@ -2094,12 +2094,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 return;
             }
 
-            // electrical storm safe zone
-            if (GetId() == 44007)
-            {
-                m_target->ApplySpellImmune(44007, IMMUNITY_ID, 43657, apply);
-                return;
-            }
             break;
         }
         case SPELLFAMILY_MAGE:
@@ -6428,15 +6422,6 @@ void Aura::HandleAuraConvertRune(bool apply, bool Real)
             }
         }
     }
-}
-
-void Aura::HandleModAttackerSpellHitChance(bool apply, bool Real)
-{
-    if(GetId() != 31224)
-        return;
-
-    //cloak of shadows : flare
-    m_target->ApplySpellImmune(31224, IMMUNITY_ID, 1543, apply);
 }
 
 void Aura::HandleModPossess(bool apply, bool Real)

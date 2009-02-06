@@ -1154,15 +1154,14 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
     if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->AI())
         ((Creature*)m_caster)->AI()->SpellHitTarget(unit, m_spellInfo);
 
-    if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(m_spellInfo->Id + 1000000))
+    if(m_customAttr & SPELL_ATTR_CU_LINK_HIT)
     {
-        for(std::vector<int32>::const_iterator i = spell_triggered->begin(); i != spell_triggered->end(); ++i)
-        {
-            if(spell_triggered < 0)
-                unit->RemoveAurasDueToSpell(-(*i));
-            else
-                unit->CastSpell(unit, *i, true, 0, 0, m_caster->GetGUID());
-        }
+        if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(m_spellInfo->Id + SPELL_LINK_HIT))
+            for(std::vector<int32>::const_iterator i = spell_triggered->begin(); i != spell_triggered->end(); ++i)
+                if(*i < 0)
+                    unit->RemoveAurasDueToSpell(-(*i));
+                else
+                    unit->CastSpell(unit, *i, true, 0, 0, m_caster->GetGUID());
     }
 
     //This is not needed with procflag patch
@@ -2272,15 +2271,14 @@ void Spell::cast(bool skipCheck)
         TakePower();
     }
 
-    if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(m_spellInfo->Id))
+    if(m_customAttr & SPELL_ATTR_CU_LINK_CAST)
     {
-        for(std::vector<int32>::const_iterator i = spell_triggered->begin(); i != spell_triggered->end(); ++i)
-        {
-            if(spell_triggered < 0)
-                m_caster->RemoveAurasDueToSpell(-(*i));
-            else
-                m_caster->CastSpell(m_targets.getUnitTarget() ? m_targets.getUnitTarget() : m_caster, *i, true);
-        }
+        if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(m_spellInfo->Id))
+            for(std::vector<int32>::const_iterator i = spell_triggered->begin(); i != spell_triggered->end(); ++i)
+                if(*i < 0)
+                    m_caster->RemoveAurasDueToSpell(-(*i));
+                else
+                    m_caster->CastSpell(m_targets.getUnitTarget() ? m_targets.getUnitTarget() : m_caster, *i, true);
     }
 
     SetExecutedCurrently(false);

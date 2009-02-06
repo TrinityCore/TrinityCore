@@ -8,6 +8,7 @@
 #include "precompiled.h"
 #include "Item.h"
 #include "Spell.h"
+#include "ObjectMgr.h"
 
 // Spell summary for ScriptedAI::SelectSpell
 struct TSpellSummary {
@@ -827,4 +828,24 @@ void Scripted_NoMovementAI::AttackStart(Unit* who)
 
         DoStartNoMovement(who);
     }
+}
+
+void LoadOverridenSQLData()
+{
+    GameObjectInfo *goInfo;
+
+    // Sunwell Plateau : Kalecgos : Spectral Rift
+    goInfo = const_cast<GameObjectInfo*>(GetGameObjectInfo(187055));
+    if(goInfo && goInfo->type == GAMEOBJECT_TYPE_GOOBER)
+        goInfo->goober.lockId = 1714; // need LOCKTYPE_QUICK_OPEN
+}
+
+void LoadOverridenDBCData()
+{
+    SpellEntry *spellInfo;
+
+    // Black Temple : Illidan : Parasitic Shadowfiend Passive
+    spellInfo = const_cast<SpellEntry*>(GetSpellStore()->LookupEntry(41913));
+    if(spellInfo)
+        spellInfo->EffectApplyAuraName[0] = 4; // proc debuff, and summon infinite fiends
 }

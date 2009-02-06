@@ -312,6 +312,16 @@ enum SpellSpecific
     SPELL_PRESENCE          = 21,
 };
 
+#define SPELL_LINKED_MAX_SPELLS  200000
+
+enum SpellLinkedType
+{
+    SPELL_LINK_CAST     = 0,            // +: cast; -: remove
+    SPELL_LINK_HIT      = 1 * 200000,
+    SPELL_LINK_AURA     = 2 * 200000,   // +: aura; -: immune
+    SPELL_LINK_REMOVE   = 0,
+};
+
 SpellSpecific GetSpellSpecific(uint32 spellId);
 
 // Different spell properties
@@ -778,6 +788,11 @@ inline bool IsProfessionSkill(uint32 skill)
 #define SPELL_ATTR_CU_AURA_SPELL        0x00000080
 #define SPELL_ATTR_CU_DIRECT_DAMAGE     0x00000100
 #define SPELL_ATTR_CU_CHARGE            0x00000200
+#define SPELL_ATTR_CU_LINK_CAST         0x00000400
+#define SPELL_ATTR_CU_LINK_HIT          0x00000800
+#define SPELL_ATTR_CU_LINK_AURA         0x00001000
+#define SPELL_ATTR_CU_LINK_REMOVE       0x00002000
+
 
 typedef std::vector<uint32> SpellCustomAttribute;
 

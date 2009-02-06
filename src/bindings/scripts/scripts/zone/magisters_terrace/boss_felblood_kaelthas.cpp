@@ -24,7 +24,6 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_magisters_terrace.h"
 #include "WorldPacket.h"
-#include "ObjectMgr.h"
 
 #define SAY_AGGRO                   -1585023                //This yell should be done when the room is cleared. For now, set it as aggro yell.
 #define SAY_PHOENIX                 -1585024
