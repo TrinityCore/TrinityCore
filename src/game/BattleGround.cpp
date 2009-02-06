@@ -976,7 +976,7 @@ void BattleGround::AddPlayer(Player *plr)
             }
             (plr)->RemovePet(NULL,PET_SAVE_NOT_IN_SLOT);
         }
-    else
+        else
             (plr)->SetTemporaryUnsummonedPetNumber(0);
 
         if(GetStatus() == STATUS_WAIT_JOIN)                 // not started yet

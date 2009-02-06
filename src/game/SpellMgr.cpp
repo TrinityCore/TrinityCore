@@ -2696,11 +2696,41 @@ uint8 GetSpellAllowedInLocationError(SpellEntry const *spellInfo,uint32 map_id,u
         case 54055:                                         // Dominion Over Acherus
             return area_id == 4281 || area_id == 4342 ? 0 : SPELL_FAILED_INCORRECT_AREA;
         case 51852:                                         // The Eye of Acherus
-        {
             return map_id == 609 ? 0 : SPELL_FAILED_REQUIRES_AREA;
-        }
         case 54119:                                         // Mist of the Kvaldir
             return area_id == 4028 || area_id == 4029 || area_id == 4106 || area_id == 4031 ? 0 : SPELL_FAILED_INCORRECT_AREA;
+        case 23333:                                         // Warsong Flag
+        case 23335:                                         // Silverwing Flag
+            return map_id == 489 ? 0 : SPELL_FAILED_REQUIRES_AREA;
+        case 34976:                                         // Netherstorm Flag
+            return map_id == 566 ? 0 : SPELL_FAILED_REQUIRES_AREA;
+        case 2584:                                          // Waiting to Resurrect
+        case 22011:                                         // Spirit Heal Channel
+        case 22012:                                         // Spirit Heal
+        case 24171:                                         // Resurrection Impact Visual
+        case 42792:                                         // Recently Dropped Flag
+        case 43681:                                         // Inactive
+        case 44521:                                         // Preparation
+        case 44535:                                         // Spirit Heal (mana)
+        {
+            MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
+            if(!mapEntry)
+                return SPELL_FAILED_INCORRECT_AREA;
+
+            return mapEntry->IsBattleGround() ? 0 : SPELL_FAILED_REQUIRES_AREA;
+        }
+        case 32724:                                         // Gold Team (Alliance)
+        case 32725:                                         // Green Team (Alliance)
+        case 32727:                                         // Arena Preparation
+        case 35774:                                         // Gold Team (Horde)
+        case 35775:                                         // Green Team (Horde)
+        {
+            MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
+            if(!mapEntry)
+                return SPELL_FAILED_INCORRECT_AREA;
+
+            return mapEntry->IsBattleArena() ? 0 : SPELL_FAILED_REQUIRES_AREA;
+        }
     }
 
     return 0;
