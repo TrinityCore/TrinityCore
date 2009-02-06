@@ -94,6 +94,7 @@ Unit::Unit()
     m_state = 0;
     m_form = FORM_NONE;
     m_deathState = ALIVE;
+    uint64 m_auraUpdateMask;
 
     for (uint32 i = 0; i < CURRENT_MAX_SPELL; i++)
         m_currentSpells[i] = NULL;
@@ -207,6 +208,18 @@ void Unit::Update( uint32 p_time )
     _UpdateAura();
     }else
     m_AurasCheck -= p_time;*/
+    const uint64& auramask = GetAuraUpdateMask();
+    if (auramask)
+    {
+        for(uint32 i = 0; i < MAX_AURAS; ++i)
+        {
+            if(auramask & (uint64(1) << i))
+            {
+                SendAuraUpdate(i);
+            }
+        }
+        ResetAuraUpdateMask();
+    }
 
     // WARNING! Order of execution here is important, do not change.
     // Spells must be processed with event system BEFORE they go to _UpdateSpells.
@@ -4163,7 +4176,11 @@ void Unit::DelayAura(uint32 spellId, uint32 effindex, int32 delaytime)
             iter->second->SetAuraDuration(0);
         else
             iter->second->SetAuraDuration(iter->second->GetAuraDuration() - delaytime);
-        iter->second->SendAuraUpdate(false);
+        if(iter->second->GetAuraSlot() < MAX_AURAS)                        // slot found send data to client
+        {
+            // update for out of range group members (on 1 slot use)
+            UpdateAuraForGroup(iter->second->GetAuraSlot());
+        }
         sLog.outDebug("Aura %u partially interrupted on unit %u, new duration: %u ms",iter->second->GetModifier()->m_auraname, GetGUIDLow(), iter->second->GetAuraDuration());
     }
 }
@@ -11538,7 +11555,7 @@ void Unit::UpdateAuraForGroup(uint8 slot)
         if(player->GetGroup())
         {
             player->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_AURAS);
-            player->SetAuraUpdateMask(slot);
+            player->SetAuraUpdateMaskForRaid(slot);
         }
     }
     else if(GetTypeId() == TYPEID_UNIT && ((Creature*)this)->isPet())
@@ -11550,10 +11567,11 @@ void Unit::UpdateAuraForGroup(uint8 slot)
             if(owner && (owner->GetTypeId() == TYPEID_PLAYER) && ((Player*)owner)->GetGroup())
             {
                 ((Player*)owner)->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_AURAS);
-                pet->SetAuraUpdateMask(slot);
+                pet->SetAuraUpdateMaskForRaid(slot);
             }
         }
     }
+    SetAuraUpdateMask(slot);
 }
 
 float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized)
@@ -12462,6 +12480,55 @@ void Unit::GetPartyMember(std::list<Unit*> &TagUnitMap, float radius)
             if(pet->isAlive() && (pet == this && IsWithinDistInMap(pet, radius)))
                 TagUnitMap.push_back(pet);
     }
+}
+
+void Unit::SendAuraUpdate(uint8 slot)
+{
+    WorldPacket data(SMSG_AURA_UPDATE);
+
+    Aura * ptr=NULL;
+    VisibleAuraMap const *visibleAuras = GetVisibleAuras();
+    AuraSlotEntry * entry=GetVisibleAura(slot);
+    if (!entry)
+        return;
+
+    //Get pointer to first aura-it doesn't matter which one we use (at least it shouldn't)
+    for (uint8 i=0 ; i<3; i++)
+    {
+        if (entry->m_slotAuras[i])
+        {
+            ptr=entry->m_slotAuras[i];
+            break;
+        }
+    }
+
+    data.append(GetPackGUID());
+    data << uint8(slot);
+    data << uint32(ptr ? ptr->GetId() : 0);
+
+    if(!ptr)
+    {
+        RemoveVisibleAura(slot);
+        SendMessageToSet(&data, true);
+        return;
+    }
+
+    data << uint8(entry->m_Flags);
+    data << uint8(entry->m_Level);
+    data << uint8(ptr->GetAuraCharges()? ptr->GetAuraCharges() : ptr->GetStackAmount());
+
+    if(!(entry->m_Flags & AFLAG_NOT_CASTER))
+    {
+        data << uint8(0);                                   // pguid
+    }
+
+    if(entry->m_Flags & AFLAG_DURATION)
+    {
+        data << uint32(ptr->GetAuraMaxDuration());
+        data << uint32(ptr->GetAuraDuration());
+    }
+
+    SendMessageToSet(&data, true);
 }
 
 void Unit::AddAura(uint32 spellId, Unit* target)

@@ -2142,9 +2142,8 @@ class TRINITY_DLL_SPEC Player : public Unit
         uint8 GetSubGroup() const { return m_group.getSubGroup(); }
         uint32 GetGroupUpdateFlag() const { return m_groupUpdateMask; }
         void SetGroupUpdateFlag(uint32 flag) { m_groupUpdateMask |= flag; }
-        const uint64& GetAuraUpdateMask() const { return m_auraUpdateMask; }
-        void SetAuraUpdateMask(uint8 slot) { m_auraUpdateMask |= (uint64(1) << slot); }
-        void UnsetAuraUpdateMask(uint8 slot) { m_auraUpdateMask &= ~(uint64(1) << slot); }
+        const uint64& GetAuraUpdateMaskForRaid() const { return m_auraRaidUpdateMask; }
+        void SetAuraUpdateMaskForRaid(uint8 slot) { m_auraRaidUpdateMask |= (uint64(1) << slot); }
         Player* GetNextRandomRaidMember(float radius);
         PartyResult CanUninviteFromGroup() const;
 
@@ -2390,7 +2389,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         GroupReference m_group;
         Group *m_groupInvite;
         uint32 m_groupUpdateMask;
-        uint64 m_auraUpdateMask;
+        uint64 m_auraRaidUpdateMask;
 
         // Temporarily removed pet cache
         uint32 m_temporaryUnsummonedPetNumber;

@@ -216,10 +216,9 @@ class Pet : public Creature
         time_t  m_resetTalentsTime;
         uint32  m_usedTalentCount;
 
-        const uint64& GetAuraUpdateMask() const { return m_auraUpdateMask; }
-        void SetAuraUpdateMask(uint8 slot) { m_auraUpdateMask |= (uint64(1) << slot); }
-        void UnsetAuraUpdateMask(uint8 slot) { m_auraUpdateMask &= ~(uint64(1) << slot); }
-        void ResetAuraUpdateMask() { m_auraUpdateMask = 0; }
+        const uint64& GetAuraUpdateMaskForRaid() const { return m_auraRaidUpdateMask; }
+        void SetAuraUpdateMaskForRaid(uint8 slot) { m_auraRaidUpdateMask |= (uint64(1) << slot); }
+        void ResetAuraUpdateMaskForRaid() { m_auraRaidUpdateMask = 0; }
 
         DeclinedName const* GetDeclinedNames() const { return m_declinedname; }
 
@@ -229,7 +228,7 @@ class Pet : public Creature
         PetType m_petType;
         int32   m_duration;                                 // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
         int32   m_bonusdamage;
-        uint64  m_auraUpdateMask;
+        uint64  m_auraRaidUpdateMask;
         bool    m_loading;
 
         DeclinedName *m_declinedname;

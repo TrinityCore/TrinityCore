@@ -806,6 +806,14 @@ enum ReactiveType
 #define MAX_REACTIVE 3
 #define MAX_TOTEM 4
 
+struct AuraSlotEntry
+{
+    uint8 m_Flags;
+    uint8 m_Level;
+    uint32 m_spellId;
+    Aura * m_slotAuras[3];
+};
+
 // delay time next attack to prevent client attack animation problems
 #define ATTACK_DISPLAY_DELAY 200
 
@@ -820,7 +828,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         typedef std::list<Aura *> AuraList;
         typedef std::list<DiminishingReturn> Diminishing;
         typedef std::set<uint32> ComboPointHolderSet;
-        typedef std::map<uint8, uint32> VisibleAuraMap;
+
+        typedef std::map<uint8, AuraSlotEntry> VisibleAuraMap;
 
         virtual ~Unit ( );
 
@@ -1332,22 +1341,22 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void removeHatedBy(HostilReference* /*pHostilReference*/ ) { /* nothing to do yet */ }
         HostilRefManager& getHostilRefManager() { return m_HostilRefManager; }
 
-        uint32 GetVisibleAura(uint8 slot)
+        VisibleAuraMap const *GetVisibleAuras() { return &m_visibleAuras; }
+        uint8 GetVisibleAurasCount() { return m_visibleAuras.size(); }
+        AuraSlotEntry * GetVisibleAura(uint8 slot)
         {
             VisibleAuraMap::iterator itr = m_visibleAuras.find(slot);
             if(itr != m_visibleAuras.end())
-                return itr->second;
+                return &itr->second;
             return 0;
         }
-        void SetVisibleAura(uint8 slot, uint32 spellid)
-        {
-            if(spellid == 0)
-                m_visibleAuras.erase(slot);
-            else
-                m_visibleAuras[slot] = spellid;
-        }
-        VisibleAuraMap const *GetVisibleAuras() { return &m_visibleAuras; }
-        uint8 GetVisibleAurasCount() { return m_visibleAuras.size(); }
+        void SetVisibleAura(uint8 slot, AuraSlotEntry entry) { m_visibleAuras[slot] = entry; }
+        void RemoveVisibleAura(uint8 slot) { m_visibleAuras.erase(slot); }
+
+        const uint64& GetAuraUpdateMask() const { return m_auraUpdateMask; }
+        void SetAuraUpdateMask(uint8 slot) { m_auraUpdateMask |= (uint64(1) << slot); }
+        void ResetAuraUpdateMask() { m_auraUpdateMask = 0; }
+        void SendAuraUpdate(uint8 slot);
 
         Aura* GetAura(uint32 spellId, uint32 effindex);
         Aura* GetAura(AuraType type, uint32 family, uint32 familyFlag1 = 0, uint32 familyFlag2 = 0, uint32 familyFlag3 = 0, uint64 casterGUID = 0);
@@ -1523,6 +1532,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         DeathState m_deathState;
 
+        uint64 m_auraUpdateMask;
         AuraMap m_Auras;
 
         typedef std::list<uint64> DynObjectGUIDs;
