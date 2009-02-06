@@ -373,9 +373,3 @@ UPDATE item_instance SET data= CONCAT(
   SUBSTRING_INDEX(SUBSTRING_INDEX(data,' ',60),' ',-60+30),' 0 ',
   SUBSTRING_INDEX(SUBSTRING_INDEX(data,' ',134),' ',-134+60))
 WHERE SUBSTRING_INDEX(data,' ',134) = data AND SUBSTRING_INDEX(data,' ',134-1) <> data;
-
-
-
-
-
-	

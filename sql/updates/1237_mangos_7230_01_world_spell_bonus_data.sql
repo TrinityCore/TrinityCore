@@ -1,4 +1,4 @@
-ALTER TABLE db_version CHANGE COLUMN required_7230_01_mangos_spell_chain required_7230_02_mangos_spell_bonus_data bit;
+/*ALTER TABLE db_version CHANGE COLUMN required_7230_01_mangos_spell_chain required_7230_02_mangos_spell_bonus_data bit;*/
 
 DELETE FROM `spell_bonus_data` WHERE `entry` IN (18220,18937,18938,27265,59092);
 INSERT INTO `spell_bonus_data` VALUES
