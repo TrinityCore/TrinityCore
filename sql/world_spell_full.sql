@@ -15,6 +15,7 @@ CREATE TABLE `spell_linked_spell` (
 
 INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
 -- class
+(31224,  -1543,  2, 'Cloak of Shadows - Flare'),
 (15237,  23455,  0, 'Holy Nova (rank1)'),
 (15430,  23458,  0, 'Holy Nova (rank2)'),
 (15431,  23459,  0, 'Holy Nova (rank3)'),
@@ -37,6 +38,7 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 -- Zul'aman
 (44008,  45265,  1, 'Static Disruption Visual'),
 (43648,  44007,  1, 'Storm Eye Safe Zone'),
+(44007,  -43657, 2, 'Storm Eye Safe Zone Immune'),
 (43658,  43653,  0, 'Electrical Arc Visual'),
 (43658,  43654,  0, 'Electrical Arc Visual'),
 (43658,  43655,  0, 'Electrical Arc Visual'),
@@ -52,8 +54,7 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 (39908,  40017,  1, 'Eye Blast'),
 (40604,  40616,  1, 'Fel Rage Aura'),
 (40616,  41625,  1, 'Fel Rage Aura'),
-(41292,  42017,  1, 'Aura of Suffering'),
-(-41292, -42017, 0, 'Aura of Suffering'),
+(41292,  42017,  2, 'Aura of Suffering'),
 -- sunwell
 (44869,  44866,  1, 'Spectral Blast Portal'),
 # (44869, 46648, 1, 'Spectral Blast Visual'), cause severe lag seems should be casted by go
@@ -62,6 +63,7 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 # (46021, 44852, 1, 'Spectral Realm Aura'), 44852 makes boss friendly to you
 (-46021, 46020,  0, 'Teleport: Normal Realm'),
 (46020,  44867,  1, 'Spectral Exhaustion'),
+(44867,  -46019, 2, 'Spectral Exhaustion - Teleport: Spectral Realm'),
 (45661,  45665,  1, 'Encapsulate'),
 (45347,  -45348, 1, 'Remove Flame Touched'),
 (45348,  -45347, 1, 'Remove Dark Touched'),

@@ -1098,7 +1098,7 @@ DurabilityLossChance.Parry  = 0.05
 DurabilityLossChance.Block  = 0.05
 Death.SicknessLevel = 11
 Death.CorpseReclaimDelay.PvP = 1
-Death.CorpseReclaimDelay.PvE = 1
+Death.CorpseReclaimDelay.PvE = 0
 
 ###################################################################################################################
 #

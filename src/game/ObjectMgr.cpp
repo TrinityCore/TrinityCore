@@ -7919,6 +7919,16 @@ ObjectMgr::ScriptNameMap & GetScriptNames()
     return objmgr.GetScriptNames();
 }
 
+GameObjectInfo const *GetGameObjectInfo(uint32 id)
+{
+    return objmgr.GetGameObjectInfo(id);
+}
+
+CreatureInfo const *GetCreatureInfo(uint32 id)
+{
+    return objmgr.GetCreatureTemplate(id);
+}
+
 void ObjectMgr::LoadTransportEvents()
 {
 

@@ -64,6 +64,8 @@ uint32 EAI_ErrorLevel;
 //*** End EventAI data ***
 
 void FillSpellSummary();
+void LoadOverridenSQLData();
+void LoadOverridenDBCData();
 
 // -- Scripts to be added --
 
@@ -1822,6 +1824,11 @@ void ScriptsInit()
     // -------------------
 
 	outstring_log(">> Loaded %i C++ Scripts.", num_sc_scripts);
+
+    outstring_log(">> Load Overriden SQL Data.");
+    LoadOverridenSQLData();
+    outstring_log(">> Load Overriden DBC Data.");
+    LoadOverridenDBCData();
 }
 
 //*********************************
