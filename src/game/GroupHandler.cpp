@@ -726,18 +726,15 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player *player, WorldPacke
 
     if (mask & GROUP_UPDATE_FLAG_AURAS)
     {
-        const uint64& auramask = player->GetAuraUpdateMask();
+        const uint64& auramask = player->GetAuraUpdateMaskForRaid();
         *data << uint64(auramask);
         for(uint32 i = 0; i < MAX_AURAS; ++i)
         {
             if(auramask & (uint64(1) << i))
             {
-                uint32 updatedAura = player->GetVisibleAura(i);
-                *data << uint32(updatedAura);
+                AuraSlotEntry * pAura = player->GetVisibleAura(i);
+                *data << uint32(pAura ? pAura->m_spellId : 0);
                 *data << uint8(1);
-                //TODO: find a safe place to do this cleanup
-                //if(!updatedAura)
-                    //player->UnsetAuraUpdateMask(i);
             }
         }
     }
@@ -811,18 +808,15 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player *player, WorldPacke
     {
         if(pet)
         {
-            const uint64& auramask = pet->GetAuraUpdateMask();
+            const uint64& auramask = pet->GetAuraUpdateMaskForRaid();
             *data << uint64(auramask);
             for(uint32 i = 0; i < MAX_AURAS; ++i)
             {
                 if(auramask & (uint64(1) << i))
                 {
-                    uint32 updatedAura = pet->GetVisibleAura(i);
-                    *data << uint32(updatedAura);
+                    AuraSlotEntry * pAura = pet->GetVisibleAura(i);
+                    *data << uint32(pAura ? pAura->m_spellId : 0);
                     *data << uint8(1);
-                //TODO: find a safe place to do this cleanup
-                    //if(!updatedAura)
-                        //pet->UnsetAuraUpdateMask(i);
                 }
             }
         }
@@ -880,10 +874,10 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode( WorldPacket &recv_data )
     data << (uint64) auramask;                              // placeholder
     for(uint8 i = 0; i < MAX_AURAS; ++i)
     {
-        if(uint32 aura = player->GetVisibleAura(i))
+        if(AuraSlotEntry * pAura = player->GetVisibleAura(i))
         {
             auramask |= (uint64(1) << i);
-            data << (uint32) aura;
+            data << (uint32) pAura->m_spellId;
             data << (uint8)  1;
         }
     }
@@ -906,10 +900,10 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode( WorldPacket &recv_data )
         data << (uint64) petauramask;                       // placeholder
         for(uint8 i = 0; i < MAX_AURAS; ++i)
         {
-            if(uint32 petaura = pet->GetVisibleAura(i))
+            if(AuraSlotEntry * pAura = pet->GetVisibleAura(i))
             {
                 petauramask |= (uint64(1) << i);
-                data << (uint32) petaura;
+                data << (uint32) pAura->m_spellId;
                 data << (uint8)  1;
             }
         }
