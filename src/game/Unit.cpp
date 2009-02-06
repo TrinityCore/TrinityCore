@@ -3403,6 +3403,16 @@ void Unit::DeMorph()
     SetDisplayId(GetNativeDisplayId());
 }
 
+bool Unit::HasAuraTypeWithMiscvalue(AuraType auratype, uint32 miscvalue) const
+{
+    AuraList const& mTotalAuraList = GetAurasByType(auratype);
+    for(AuraList::const_iterator i = mTotalAuraList.begin();i != mTotalAuraList.end(); ++i)
+        if (miscvalue == (*i)->GetModifier()->m_miscvalue)
+            return true;
+
+    return false;
+}
+
 int32 Unit::GetTotalAuraModifier(AuraType auratype) const
 {
     int32 modifier = 0;
