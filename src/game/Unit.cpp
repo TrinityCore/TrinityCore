@@ -8656,6 +8656,18 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
     if(maxval)
         TakenTotalMod *= (100.0f + maxval) / 100.0f;
 
+    if(damagetype==DOT)
+    {
+        // Healing over time taken percent
+        float minval_hot = GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HOT_PCT);
+        if(minval_hot)
+            TakenTotalMod *= (100.0f + minval_hot) / 100.0f;
+
+        float maxval_hot = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HOT_PCT);
+        if(maxval_hot)
+            TakenTotalMod *= (100.0f + maxval_hot) / 100.0f;
+    }
+
     AuraList const& mHealingGet= pVictim->GetAurasByType(SPELL_AURA_MOD_HEALING_RECEIVED);
     for(AuraList::const_iterator i = mHealingGet.begin(); i != mHealingGet.end(); ++i)
         if (GetGUID()==(*i)->GetCasterGUID() && (*i)->isAffectedOnSpell(spellProto) )
