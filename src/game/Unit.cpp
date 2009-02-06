@@ -94,7 +94,7 @@ Unit::Unit()
     m_state = 0;
     m_form = FORM_NONE;
     m_deathState = ALIVE;
-    uint64 m_auraUpdateMask;
+    m_auraUpdateMask = 0;
 
     for (uint32 i = 0; i < CURRENT_MAX_SPELL; i++)
         m_currentSpells[i] = NULL;
