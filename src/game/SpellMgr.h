@@ -355,6 +355,12 @@ inline bool IsExplicitDiscoverySpell(SpellEntry const *spellInfo)
     return spellInfo->Effect[0]==SPELL_EFFECT_CREATE_ITEM_2 && spellInfo->Effect[1]==SPELL_EFFECT_SCRIPT_EFFECT;
 }
 
+inline bool IsLootCraftingSpell(SpellEntry const *spellInfo)
+{
+    return spellInfo->Effect[0]==SPELL_EFFECT_CREATE_ITEM_2 &&
+        (spellInfo->Effect[1]==SPELL_EFFECT_SCRIPT_EFFECT || !spellInfo->EffectItemType[0]);
+}
+
 int32 CompareAuraRanks(uint32 spellId_1, uint32 effIndex_1, uint32 spellId_2, uint32 effIndex_2);
 bool IsSingleFromSpellSpecificPerCaster(uint32 spellSpec1, uint32 spellSpec2);
 bool IsSingleFromSpellSpecificPerTarget(uint32 spellSpec1, uint32 spellSpec2);

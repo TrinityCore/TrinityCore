@@ -221,7 +221,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //154 unused
     &Spell::EffectTitanGrip,                                //155 SPELL_EFFECT_TITAN_GRIP Allows you to equip two-handed axes, maces and swords in one hand, but you attack $49152s1% slower than normal.
     &Spell::EffectEnchantItemPrismatic,                     //156 SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC
-    &Spell::EffectCreateItem,                               //157 SPELL_EFFECT_CREATE_ITEM_2            create/learn item/spell for profession
+    &Spell::EffectCreateItem2,                              //157 SPELL_EFFECT_CREATE_ITEM_2            create/learn item/spell for profession
     &Spell::EffectMilling,                                  //158 SPELL_EFFECT_MILLING                  milling
     &Spell::EffectRenamePet                                 //159 SPELL_EFFECT_ALLOW_RENAME_PET         allow rename pet once again
 };
@@ -2726,6 +2726,22 @@ void Spell::DoCreateItem(uint32 i, uint32 itemtype)
 
 void Spell::EffectCreateItem(uint32 i)
 {
+    DoCreateItem(i,m_spellInfo->EffectItemType[i]);
+}
+
+void Spell::EffectCreateItem2(uint32 i)
+{
+    // special case: generate using spell_loot_template
+    if(!m_spellInfo->EffectItemType[i])
+    {
+        if(m_caster->GetTypeId()!=TYPEID_PLAYER)
+            return;
+
+        // create some random items
+        if(!((Player*)m_caster)->AutoStoreLootItem(m_spellInfo->Id,LootTemplates_Spell))
+            player->SendEquipError( msg, NULL, NULL );
+        return;
+    }
     DoCreateItem(i,m_spellInfo->EffectItemType[i]);
 }
 
