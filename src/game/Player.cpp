@@ -20232,7 +20232,7 @@ void Player::InitRunes()
         SetFloatValue(PLAYER_RUNE_REGEN_1 + i, 0.1f);
 }
 
-bool Player::AutoStoreLootItem(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store)
+void Player::AutoStoreLootItem(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store)
 {
     Loot loot;
     loot.FillLoot (loot_id,store,this);
@@ -20247,10 +20247,12 @@ bool Player::AutoStoreLootItem(uint8 bag, uint8 slot, uint32 loot_id, LootStore 
     if( msg != EQUIP_ERR_OK && bag != NULL_BAG)
         msg = CanStoreNewItem( NULL_BAG, NULL_SLOT,dest,lootItem->itemid,lootItem->count);
     if(msg != EQUIP_ERR_OK)
-        return;
-
-    if(Item* pItem = StoreNewItem (dest,lootItem->itemid,true,lootItem->randomPropertyId))
-        SendNewItem(pItem, lootItem->count, true, true);
+    {
+        SendEquipError( msg, NULL, NULL );
+        return
+    }
+    Item* pItem = StoreNewItem (dest,lootItem->itemid,true,lootItem->randomPropertyId);
+    SendNewItem(pItem, lootItem->count, true, false);
 }
 
 uint32 Player::CalculateTalentsPoints() const
