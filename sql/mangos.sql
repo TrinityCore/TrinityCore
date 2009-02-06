@@ -22,7 +22,7 @@
 DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
-  `required_7214_02_mangos_mangos_string` bit(1) default NULL
+  `required_7230_02_mangos_spell_bonus_data` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -14836,7 +14836,7 @@ INSERT INTO spell_chain VALUES
 (27216,25311,172,8,0),
 (47812,27216,172,9,0),
 (47813,47812,172,10,0),
-/*CurseofAgony*/
+/*Curse of Agony*/
 (980,0,980,1,0),
 (1014,980,980,2,0),
 (6217,1014,980,3,0),
@@ -14846,27 +14846,27 @@ INSERT INTO spell_chain VALUES
 (27218,11713,980,7,0),
 (47863,27218,980,8,0),
 (47864,47863,980,9,0),
-/*CurseofDoom*/
+/*Curse of Doom*/
 (603,0,603,1,0),
 (30910,603,603,2,0),
 (47867,30910,603,3,0),
-/*CurseofRecklessness*/
+/*Curse of Recklessness*/
 (704,0,704,1,0),
 (7658,704,704,2,0),
 (7659,7658,704,3,0),
 (11717,7659,704,4,0),
 (27226,11717,704,5,0),
 (57595,27226,704,6,0),
-/*CurseoftheElements*/
+/*Curse of the Elements*/
 (1490,0,1490,1,0),
 (11721,1490,1490,2,0),
 (11722,11721,1490,3,0),
 (27228,11722,1490,4,0),
 (47865,27228,1490,5,0),
-/*CurseofTongues*/
+/*Curse of Tongues*/
 (1714,0,1714,1,0),
 (11719,1714,1714,2,0),
-/*CurseofWeakness*/
+/*Curse of Weakness*/
 (702,0,702,1,0),
 (1108,702,702,2,0),
 (6205,1108,702,3,0),
@@ -14876,14 +14876,20 @@ INSERT INTO spell_chain VALUES
 (27224,11708,702,7,0),
 (30909,27224,702,8,0),
 (50511,30909,702,9,0),
-/*DeathCoil*/
+/*Dark Pact*/
+(18220,0,    18220,1,0),
+(18937,18220,18220,2,0),
+(18938,18937,18220,3,0),
+(27265,18938,18220,4,0),
+(59092,27265,18220,5,0),
+/*Death Coil*/
 (6789,0,6789,1,0),
 (17925,6789,6789,2,0),
 (17926,17925,6789,3,0),
 (27223,17926,6789,4,0),
 (47859,27223,6789,5,0),
 (47860,47859,6789,6,0),
-/*DrainLife*/
+/*Drain Life*/
 (689,0,689,1,0),
 (699,689,689,2,0),
 (709,699,689,3,0),
@@ -17424,7 +17430,11 @@ INSERT INTO `spell_bonus_data` VALUES
 ('42218', '0.952', '0', '0', 'Warlock - Rain of Fire Triggered Rank 5'),
 ('47817', '0.952', '0', '0', 'Warlock - Rain of Fire Triggered Rank 6'),
 ('47818', '0.952', '0', '0', 'Warlock - Rain of Fire Triggered Rank 7'),
-('18220', '0.96', '0', '0', 'Warlock - Dark Pact'),
+('18220', '0.96', '0', '0', 'Warlock - Dark Pact Rank 1'),
+('18937', '0.96', '0', '0', 'Warlock - Dark Pact Rank 2'),
+('18938', '0.96', '0', '0', 'Warlock - Dark Pact Rank 3'),
+('27265', '0.96', '0', '0', 'Warlock - Dark Pact Rank 4'),
+('59092', '0.96', '0', '0', 'Warlock - Dark Pact Rank 5'),
 ('6229', '0.3', '0', '0', 'Warlock - Shadow Ward');
 /*!40000 ALTER TABLE `spell_bonus_data` ENABLE KEYS */;
 UNLOCK TABLES;
