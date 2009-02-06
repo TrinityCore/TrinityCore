@@ -1276,7 +1276,7 @@ void LoadLootTemplates_Spell()
             continue;
 
         // possible cases
-        if(!IsExplicitDiscoverySpell (spellInfo))
+        if( !IsLootCraftingSpell(spellInfo))
             continue;
 
         if(!ids_set.count(spell_id))
