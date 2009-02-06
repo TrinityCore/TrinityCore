@@ -92,6 +92,38 @@ AchievementMgr::~AchievementMgr()
 {
 }
 
+void AchievementMgr::Reset()
+{
+    for(CompletedAchievementMap::iterator iter = m_completedAchievements.begin(); iter!=m_completedAchievements.end(); ++iter)
+    {
+        WorldPacket data(SMSG_ACHIEVEMENT_DELETED,4);
+        data << uint32(iter->first);
+        m_player->SendDirectMessage(&data);
+    }
+
+    for(CriteriaProgressMap::iterator iter = m_criteriaProgress.begin(); iter!=m_criteriaProgress.end(); ++iter)
+    {
+        WorldPacket data(SMSG_CRITERIA_DELETED,4);
+        data << uint32(iter->first);
+        m_player->SendDirectMessage(&data);
+    }
+
+    m_completedAchievements.clear();
+    m_criteriaProgress.clear();
+    DeleteFromDB(m_player->GetGUIDLow());
+
+    // re-fill data
+    CheckAllAchievementCriteria();
+}
+
+void AchievementMgr::DeleteFromDB(uint32 lowguid)
+{
+    CharacterDatabase.BeginTransaction ();
+    CharacterDatabase.PExecute("DELETE FROM character_achievement WHERE guid = %u",lowguid);
+    CharacterDatabase.PExecute("DELETE FROM character_achievement_progress WHERE guid = %u",lowguid);
+    CharacterDatabase.CommitTransaction ();
+}
+
 void AchievementMgr::SaveToDB()
 {
     if(!m_completedAchievements.empty())
@@ -99,7 +131,7 @@ void AchievementMgr::SaveToDB()
         bool need_execute = false;
         std::ostringstream ssdel;
         std::ostringstream ssins;
-        for(CompletedAchievementMap::iterator iter = m_completedAchievements.begin(); iter!=m_completedAchievements.end(); iter++)
+        for(CompletedAchievementMap::iterator iter = m_completedAchievements.begin(); iter!=m_completedAchievements.end(); ++iter)
         {
             if(!iter->second.changed)
                 continue;
@@ -314,7 +346,7 @@ void AchievementMgr::SendCriteriaUpdate(uint32 id, CriteriaProgress const* progr
 void AchievementMgr::CheckAllAchievementCriteria()
 {
     // suppress sending packets
-    for(uint32 i=0; i<ACHIEVEMENT_CRITERIA_TYPE_TOTAL; i++)
+    for(uint32 i=0; i<ACHIEVEMENT_CRITERIA_TYPE_TOTAL; ++i)
         UpdateAchievementCriteria(AchievementCriteriaTypes(i));
 }
 

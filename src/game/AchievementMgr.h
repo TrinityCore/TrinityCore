@@ -93,6 +93,8 @@ class AchievementMgr
         AchievementMgr(Player* pl);
         ~AchievementMgr();
 
+        void Reset();
+        static void DeleteFromDB(uint32 lowguid);
         void LoadFromDB(QueryResult *achievementResult, QueryResult *criteriaResult);
         void SaveToDB();
         void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1=0, uint32 miscvalue2=0, Unit *unit=NULL, uint32 time=0);

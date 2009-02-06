@@ -407,6 +407,7 @@ class ChatHandler
         bool HandleDelTeleCommand(const char * args);
         bool HandleListAurasCommand(const char * args);
 
+        bool HandleResetAchievementsCommand(const char * args);
         bool HandleResetHonorCommand(const char * args);
         bool HandleResetLevelCommand(const char * args);
         bool HandleResetSpellsCommand(const char * args);
