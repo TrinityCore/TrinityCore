@@ -8783,7 +8783,7 @@ bool Unit::IsImmunedToSpell(SpellEntry const* spellInfo)
     SpellImmuneList const& mechanicList = m_spellImmune[IMMUNITY_MECHANIC];
     for(SpellImmuneList::const_iterator itr = mechanicList.begin(); itr != mechanicList.end(); ++itr)
     {
-        if(itr->type == spellInfo->Mechanic)
+        if(itr->type & (1<<spellInfo->Mechanic))
         {
             return true;
         }
@@ -8803,6 +8803,8 @@ bool Unit::IsImmunedToSpell(SpellEntry const* spellInfo)
 
 bool Unit::IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index) const
 {
+    if (!spellInfo)
+        return false;
     //If m_immuneToEffect type contain this effect type, IMMUNE effect.
     uint32 effect = spellInfo->Effect[index];
     SpellImmuneList const& effectList = m_spellImmune[IMMUNITY_EFFECT];
@@ -8814,7 +8816,7 @@ bool Unit::IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index) con
     {
         SpellImmuneList const& mechanicList = m_spellImmune[IMMUNITY_MECHANIC];
         for (SpellImmuneList::const_iterator itr = mechanicList.begin(); itr != mechanicList.end(); ++itr)
-            if(itr->type == mechanic)
+            if(itr->type & 1<<(spellInfo->EffectMechanic[index]))
                 return true;
     }
 
