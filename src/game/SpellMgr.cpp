@@ -2266,8 +2266,27 @@ void SpellMgr::LoadSpellLinked()
         }
 
         if(type) //we will find a better way when more types are needed
-            trigger += 1000000;
+        {
+            if(trigger > 0)
+                trigger += SPELL_LINKED_MAX_SPELLS * type;
+            else
+                trigger -= SPELL_LINKED_MAX_SPELLS * type;
+        }
         mSpellLinkedMap[trigger].push_back(effect);
+
+        if(trigger > 0)
+        {
+            switch(type)
+            {
+                case 0: mSpellCustomAttr[trigger] |= SPELL_ATTR_CU_LINK_CAST; break;
+                case 1: mSpellCustomAttr[trigger] |= SPELL_ATTR_CU_LINK_HIT;  break;
+                case 2: mSpellCustomAttr[trigger] |= SPELL_ATTR_CU_LINK_AURA; break;
+            }
+        }
+        else
+        {
+            mSpellCustomAttr[-trigger] |= SPELL_ATTR_CU_LINK_REMOVE;
+        }
 
         ++count;
     } while( result->NextRow() );

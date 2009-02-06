@@ -4248,6 +4248,18 @@ bool Unit::AddAura(Aura *Aur)
     }
 
     Aur->ApplyModifier(true,true);
+
+    uint32 id = Aur->GetId();
+    if(spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_AURA)
+    {
+        if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(id + SPELL_LINK_AURA))
+            for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+                if(*itr < 0)
+                    ApplySpellImmune(id, IMMUNITY_ID, *itr, true);
+                else if(Unit* caster = Aur->GetCaster())
+                    caster->AddAura(*itr, this);
+    }
+
     sLog.outDebug("Aura %u now is in use", Aur->GetModifier()->m_auraname);
     return true;
 }
@@ -4698,15 +4710,24 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
 
     if(mode != AURA_REMOVE_BY_STACK)
     {
-        if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(-(int32)Aur->GetSpellProto()->Id))
+        uint32 id = Aur->GetId();
+        if(spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_REMOVE)
         {
-            for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
-            {
-                if(*itr < 0)
-                    RemoveAurasDueToSpell(-(*itr));
-                else if(Unit* caster = Aur->GetCaster())
-                    CastSpell(this, *itr, true, 0, 0, caster->GetGUID());
-            }
+            if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(-(int32)id))
+                for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+                    if(*itr < 0)
+                        RemoveAurasDueToSpell(-(*itr));
+                    else if(Unit* caster = Aur->GetCaster())
+                        CastSpell(this, *itr, true, 0, 0, caster->GetGUID());
+        }
+        if(spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_AURA)
+        {
+            if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(id + SPELL_LINK_AURA))
+                for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+                    if(*itr < 0)
+                        ApplySpellImmune(id, IMMUNITY_ID, *itr, false);
+                    else
+                        RemoveAurasDueToSpell(*itr);
         }
     }
 
@@ -13249,12 +13270,12 @@ void Unit::AddAura(uint32 spellId, Unit* target)
             if(target->IsImmunedToSpellEffect(spellInfo->Effect[i], spellInfo->EffectMechanic[i]))
                 continue;
 
-            if(spellInfo->EffectImplicitTargetA[i] == TARGET_UNIT_CASTER)
+            /*if(spellInfo->EffectImplicitTargetA[i] == TARGET_UNIT_CASTER)
             {
                 Aura *Aur = CreateAura(spellInfo, i, NULL, this, this);
                 AddAura(Aur);
             }
-            else
+            else*/
             {
                 Aura *Aur = CreateAura(spellInfo, i, NULL, target, this);
                 target->AddAura(Aur);
