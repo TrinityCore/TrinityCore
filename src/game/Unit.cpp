@@ -4702,7 +4702,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
         {
             for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
             {
-                if(spell_triggered < 0)
+                if(*itr < 0)
                     RemoveAurasDueToSpell(-(*itr));
                 else if(Unit* caster = Aur->GetCaster())
                     CastSpell(this, *itr, true, 0, 0, caster->GetGUID());
