@@ -2738,8 +2738,7 @@ void Spell::EffectCreateItem2(uint32 i)
             return;
 
         // create some random items
-        if(!((Player*)m_caster)->AutoStoreLootItem(m_spellInfo->Id,LootTemplates_Spell))
-            player->SendEquipError( msg, NULL, NULL );
+        ((Player*)m_caster)->AutoStoreLootItem(m_spellInfo->Id,LootTemplates_Spell);
         return;
     }
     DoCreateItem(i,m_spellInfo->EffectItemType[i]);
