@@ -597,6 +597,11 @@ LogColors = ""
 #    Motd
 #        Message of the Day. Displayed at worldlogin for every user ('@' for a newline).
 #
+#    Server.LoginInfo
+#        Enable/disable sending server info (core version) on login.
+#        Default: 0 - disable
+#                 1 - enable
+#
 ###################################################################################################################
 
 GameType = 1
@@ -647,6 +652,7 @@ SkillChance.Milling = 0
 Event.Announce = 0
 BeepAtStart = 1
 Motd = "Welcome to a Trinity Core server."
+Server.LoginInfo = 0
 
 ###################################################################################################################
 # PLAYER INTERACTION
@@ -677,6 +683,11 @@ Motd = "Welcome to a Trinity Core server."
 #        Default: 0 (Not allowed)
 #                 1 (Allowed)
 #
+#    AllowTwoSide.Trade
+#        Allow or not trading with other team in party.
+#        Default: 0 (Not allowed)
+#                 1 (Allowed)
+#
 #    TalentsInspecting
 #        Allow other players see character talents in inspect dialog (Characters in Gamemaster mode can
 #        inspect talents always)
@@ -694,6 +705,7 @@ AllowTwoSide.Interaction.Auction = 0
 AllowTwoSide.Interaction.Mail = 0
 AllowTwoSide.WhoList = 0
 AllowTwoSide.AddFriend = 0
+AllowTwoSide.Trade = 0
 TalentsInspecting = 1
 
 ###################################################################################################################
@@ -702,7 +714,7 @@ TalentsInspecting = 1
 #    ThreatRadius
 #        Radius for creature to evade after being pulled away from combat start point
 #        If ThreatRadius is less than creature aggro radius then aggro radius will be used
-#        Default: 100 yards
+#        Default: 60 yards
 #
 #    Rate.Creature.Aggro
 #        Aggro radius percent or off.
@@ -733,7 +745,7 @@ TalentsInspecting = 1
 #
 #    Rate.Corpse.Decay.Looted
 #         Controls how long the creature corpse stays after it had been looted, as a multiplier of its Corpse.Decay.* config.
-#         Default: 0.1
+#         Default: 0.5
 #
 #    Rate.Creature.Normal.Damage
 #    Rate.Creature.Elite.Elite.Damage
@@ -773,7 +785,7 @@ TalentsInspecting = 1
 #
 ###################################################################################################################
 
-ThreatRadius = 100
+ThreatRadius = 60
 Rate.Creature.Aggro = 1
 CreatureFamilyAssistanceRadius = 10
 CreatureFamilyAssistanceDelay = 1500
@@ -783,7 +795,7 @@ Corpse.Decay.RARE = 300
 Corpse.Decay.ELITE = 300
 Corpse.Decay.RAREELITE = 300
 Corpse.Decay.WORLDBOSS = 3600
-Rate.Corpse.Decay.Looted = 0.1
+Rate.Corpse.Decay.Looted = 0.5
 Rate.Creature.Normal.Damage = 1
 Rate.Creature.Elite.Elite.Damage = 1
 Rate.Creature.Elite.RAREELITE.Damage = 1
@@ -949,7 +961,7 @@ GM.AllowAchievementGain  = 1
 #    Visibility.Distance.Grey.Unit
 #        Visibility grey distance for creatures/players (fast changing objects)
 #        addition to appropriate object type Visibility.Distance.* use in case visibility removing to
-#        object (except corpse around distences) If � is distance and G is grey distance then object
+#        object (except corpse around distences) If D is distance and G is grey distance then object
 #        make visible if distance to it <= D but make non visible if distance > D+G
 #        Default: 1 (yard)
 #
@@ -978,6 +990,7 @@ Visibility.Distance.Grey.Object = 10
 #    Rate.RunicPower.Income
 #    Rate.RunicPower.Loss
 #    Rate.Focus
+#    Rate.Loyalty
 #        Health and power regeneration and rage income from damage.
 #        Default: 1
 #
@@ -1005,6 +1018,10 @@ Visibility.Distance.Grey.Object = 10
 #    Rate.XP.Quest
 #    Rate.XP.Explore
 #        XP rates
+#        Default: 1
+#
+#    Rate.XP.PastLevel70
+#        XP needed per level past 70 (Rates below 1 not recommended)
 #        Default: 1
 #
 #    Rate.Rest.InGame
@@ -1103,6 +1120,7 @@ Rate.Rage.Loss = 1
 Rate.RunicPower.Income = 1
 Rate.RunicPower.Loss = 1
 Rate.Focus = 1
+Rate.Loyalty = 1
 Rate.Skill.Discovery = 1
 Rate.Drop.Item.Poor = 1
 Rate.Drop.Item.Normal = 1
@@ -1116,6 +1134,7 @@ Rate.Drop.Money = 1
 Rate.XP.Kill    = 1
 Rate.XP.Quest   = 1
 Rate.XP.Explore = 1
+Rate.XP.PastLevel70 = 1
 Rate.Rest.InGame = 1
 Rate.Rest.Offline.InTavernOrCity = 1
 Rate.Rest.Offline.InWilderness = 1
@@ -1145,7 +1164,7 @@ DurabilityLossChance.Parry  = 0.05
 DurabilityLossChance.Block  = 0.05
 Death.SicknessLevel = 11
 Death.CorpseReclaimDelay.PvP = 1
-Death.CorpseReclaimDelay.PvE = 1
+Death.CorpseReclaimDelay.PvE = 0
 Death.Bones.World = 1
 Death.Bones.BattlegroundOrArena = 1
 
@@ -1227,6 +1246,79 @@ Network.Threads = 1
 Network.OutKBuff = -1
 Network.OutUBuff = 65536
 Network.TcpNodelay = 1
+
+###################################################################################################################
+# AUCTION HOUSE BOT SETTINGS
+# 
+#    AuctionHouseBot.EnableSeller
+#        Enable/Disable the part of AHBot that puts items up for auction
+#    Default 0 (disabled)
+#
+#    AuctionHouseBot.EnableBuyer
+#        Enable/Disable the part of AHBot that buys items from players
+#    Default 0 (disabled)
+#
+#    Auction House Bot character data
+#        AuctionHouseBot.Account is the account number (in realmd->account table) of the player you want to run as the auction bot.
+#         AuctionHouseBot.GUID is the GUID (in characters->characters table) of the player you want to run as the auction bot. 
+#    Default: 0 (Auction House Bot disabled)
+#
+#    AuctionHouseBot.VendorItems
+#        Include items that can be bought from vendors.
+#    Default 0
+#
+#    AuctionHouseBot.LootItems
+#        Include items that can be looted or fished for.
+#    Default 1
+#
+#    AuctionHouseBot.OtherItems
+#        Include misc. items.
+#    Default 0
+#
+#    AuctionHouseBot.Bonding_types
+#        Indicates which bonding types to allow seller to put up for auction
+#            No_Bind
+#             Default 1
+#            Bind_When_Picked_Up
+#             Default 0
+#            Bind_When_Equipped
+#             Default 1
+#            Bind_When_Use
+#             Default 1
+#            Bind_Quest_Item
+#             Default 0
+#              
+#    AuctionHouseBot.ItemsPerCycle
+#        Number of Items to Add/Remove from the AH during mass operations
+#    Default 200
+#
+#    AuctionHouseBot.UseBuyPriceForSeller
+#        Should the Seller use BuyPrice or SellPrice to determine Bid Prices
+#    Default 0 (use SellPrice)
+#
+#    AuctionHouseBot.UseBuyPriceForBuyer
+#        Should the Buyer use BuyPrice or SellPrice to determine Bid Prices
+#    Default 0 (use SellPrice)
+#
+#    All other settings have been moved to sql
+#
+###################################################################################################################
+
+AuctionHouseBot.EnableSeller = 0
+AuctionHouseBot.EnableBuyer = 0
+AuctionHouseBot.Account = 0
+AuctionHouseBot.GUID = 0
+AuctionHouseBot.VendorItems = 0
+AuctionHouseBot.LootItems = 1
+AuctionHouseBot.OtherItems = 0
+AuctionHouseBot.No_Bind = 1
+AuctionHouseBot.Bind_When_Picked_Up = 0
+AuctionHouseBot.Bind_When_Equipped = 1
+AuctionHouseBot.Bind_When_Use = 1
+AuctionHouseBot.Bind_Quest_Item = 0
+AuctionHouseBot.ItemsPerCycle = 200
+AuctionHouseBot.UseBuyPriceForSeller = 0
+AuctionHouseBot.UseBuyPriceForBuyer = 0
 
 ###################################################################################################################
 # CONSOLE AND REMOTE ACCESS
@@ -1329,6 +1421,9 @@ Ra.Secure = 1
 #        >0 = Interval
 #        0 = Disable
 #
+#   MinRecordUpdateTimeDiff
+#        only record update time diff which is greater than this value
+#
 #   PlayerStart.String
 #       If set to anything else than "", this string will be displayed to players when they login
 #       to a newly created character.
@@ -1349,4 +1444,5 @@ PvPToken.ItemCount = 1
 NoResetTalentsCost = 0
 ShowKickInWorld = 0
 RecordUpdateTimeDiffInterval = 60000
+MinRecordUpdateTimeDiff = 10
 PlayerStart.String = ""
