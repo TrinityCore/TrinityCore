@@ -264,12 +264,11 @@ DELETE FROM character_spell                    WHERE spell = 3104;
 /* This cleanup character_action. This is like delete from character_action where type=0 and action not in character_spell for same player */
 DELETE FROM ca,cs USING `character_action` ca LEFT JOIN `character_spell` cs ON ca.`guid`=cs.`guid` AND ca.`action`=cs.`spell` WHERE ca.`type`=0 AND cs.`guid` IS NULL;
 
-alter table `character_pet`
-    drop column `trainpoint`,
-    drop column `loyaltypoints`,
-    drop column `loyalty`,
-	DROP column slot,
-    add `talentpoints` int(11) UNSIGNED default '0' NOT NULL after `Reactstate`;
+ALTER TABLE `character_pet`
+    DROP COLUMN `trainpoint`,
+    DROP COLUMN `loyaltypoints`,
+    DROP COLUMN `loyalty`,
+    ADD `talentpoints` int(11) UNSIGNED default '0' NOT NULL after `Reactstate`;
 
 DROP TABLE IF EXISTS `account_data`;	
 CREATE TABLE `account_data` (
@@ -296,7 +295,8 @@ CREATE TABLE `character_achievement_progress` (
       `date` int(11) NOT NULL,
       PRIMARY KEY  (`guid`,`criteria`)
     ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-	
+
+-- 3.x character converting...	
 UPDATE characters SET data = REPLACE(data,'  ',' ');
 UPDATE characters SET data = CONCAT(TRIM(data),' ');
 UPDATE characters SET data = CONCAT(
