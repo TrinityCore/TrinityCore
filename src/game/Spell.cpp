@@ -1219,7 +1219,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
     {
         for(std::vector<int32>::const_iterator i = spell_triggered->begin(); i != spell_triggered->end(); ++i)
         {
-            if(spell_triggered < 0)
+            if(*i < 0)
                 unit->RemoveAurasDueToSpell(-(*i));
             else
                 unit->CastSpell(unit, *i, true, 0, 0, m_caster->GetGUID());
@@ -2295,7 +2295,7 @@ void Spell::cast(bool skipCheck)
     {
         for(std::vector<int32>::const_iterator i = spell_triggered->begin(); i != spell_triggered->end(); ++i)
         {
-            if(spell_triggered < 0)
+            if(*i < 0)
                 m_caster->RemoveAurasDueToSpell(-(*i));
             else
                 m_caster->CastSpell(m_targets.getUnitTarget() ? m_targets.getUnitTarget() : m_caster, *i, true);
