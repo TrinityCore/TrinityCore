@@ -10015,7 +10015,7 @@ int32 Unit::CalculateSpellDamage(SpellEntry const* spellProto, uint8 effect_inde
     return value;
 }
 
-int32 Unit::CalculateSpellDuration(SpellEntry const* spellProto, uint8 effect_index, Unit const* target)
+int32 Unit::CalcSpellDuration(SpellEntry const* spellProto)
 {
     Player* unitPlayer = (GetTypeId() == TYPEID_PLAYER) ? (Player*)this : NULL;
 
@@ -10031,16 +10031,24 @@ int32 Unit::CalculateSpellDuration(SpellEntry const* spellProto, uint8 effect_in
     else
         duration = minduration;
 
-    if (duration > 0)
+    return duration;
+}
+
+int32 Unit::ModSpellDuration(SpellEntry const* spellProto, uint8 effect_index, Unit const* target, int32 duration)
+{
+    //don't mod permament auras duration
+    if (duration<0)
+        return duration;
+
+    //cut duration only of negative effects
+    if (!IsPositiveEffect(spellProto->Id, effect_index) )
     {
         int32 mechanic = GetEffectMechanic(spellProto, effect_index);
+
         // Find total mod value (negative bonus)
         int32 durationMod_always = target->GetTotalAuraModifierByMiscValue(SPELL_AURA_MECHANIC_DURATION_MOD, mechanic);
-        // Modify from SPELL_AURA_MOD_DURATION_OF_EFFECTS_BY_DISPEL aura (stack always ?)
-        durationMod_always+=target->GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DURATION_OF_EFFECTS_BY_DISPEL, spellProto->Dispel);
         // Find max mod (negative bonus)
         int32 durationMod_not_stack = target->GetMaxNegativeAuraModifierByMiscValue(SPELL_AURA_MECHANIC_DURATION_MOD_NOT_STACK, mechanic);
-
         int32 durationMod = 0;
         // Select strongest negative mod
         if (durationMod_always > durationMod_not_stack)
@@ -10049,12 +10057,24 @@ int32 Unit::CalculateSpellDuration(SpellEntry const* spellProto, uint8 effect_in
             durationMod = durationMod_always;
 
         if (durationMod != 0)
-            duration = int32(int64(duration) * (100+durationMod) /100);
+            duration *= float(100.0f+durationMod) /100.0f;
 
-        if (duration < 0) duration = 0;
+        // there are only negative mods currently
+        durationMod_always =target->GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_AURA_DURATION_BY_DISPEL, spellProto->Dispel);
+        durationMod_not_stack=target->GetMaxNegativeAuraModifierByMiscValue(SPELL_AURA_MOD_AURA_DURATION_BY_DISPEL_NOT_STACK, spellProto->Dispel);
+
+        durationMod=0;
+        if (durationMod_always > durationMod_not_stack)
+            durationMod += durationMod_not_stack;
+        else
+            durationMod += durationMod_always;
+
+        if (durationMod != 0)
+            duration *= float(100.0f+durationMod) /100.0f;
     }
-
-    return duration;
+    //else positive mods here, there are no currently
+    //when there will be, change GetTotalAuraModifierByMiscValue to GetTotalPositiveAuraModifierByMiscValue
+    return duration>0 ? duration : 0;
 }
 
 DiminishingLevels Unit::GetDiminishing(DiminishingGroup group)

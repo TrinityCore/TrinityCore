@@ -299,8 +299,8 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleUnused,                                    //242 SPELL_AURA_MOD_SPELL_DAMAGE_FROM_HEALING
     &Aura::HandleUnused,                                    //243 used by two test spells
     &Aura::HandleComprehendLanguage,                        //244 Comprehend language
-    &Aura::HandleUnused,                                    //245 SPELL_AURA_MOD_DURATION_OF_MAGIC_EFFECTS
-    &Aura::HandleNoImmediateEffect,                         //246 SPELL_AURA_MOD_DURATION_OF_EFFECTS_BY_DISPEL
+    &Aura::HandleNoImmediateEffect,                         //245 SPELL_AURA_MOD_AURA_DURATION_BY_DISPEL
+    &Aura::HandleNoImmediateEffect,                         //246 SPELL_AURA_MOD_AURA_DURATION_BY_DISPEL_NOT_STACK implemented in Spell::EffectApplyAura
     &Aura::HandleUnused,                                    //247 unused
     &Aura::HandleNoImmediateEffect,                         //248 SPELL_AURA_MOD_COMBAT_RESULT_CHANCE         implemented in Unit::RollMeleeOutcomeAgainst
     &Aura::HandleAuraConvertRune,                           //249 SPELL_AURA_CONVERT_RUNE
@@ -377,14 +377,14 @@ m_updated(false), m_isRemovedOnShapeLost(true), m_in_use(false)
     {
         m_caster_guid = target->GetGUID();
         //damage = m_currentBasePoints+1;                     // stored value-1
-        m_maxduration = target->CalculateSpellDuration(m_spellProto, m_effIndex, target);
+        m_maxduration = target->CalcSpellDuration(m_spellProto);
     }
     else
     {
         m_caster_guid = caster->GetGUID();
 
         //damage        = caster->CalculateSpellDamage(m_spellProto,m_effIndex,m_currentBasePoints,target);
-        m_maxduration = caster->CalculateSpellDuration(m_spellProto, m_effIndex, target);
+        m_maxduration = caster->CalcSpellDuration(m_spellProto);
 
         if (!damage && castItem && castItem->GetItemSuffixFactor())
         {

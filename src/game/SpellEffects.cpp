@@ -2244,6 +2244,9 @@ void Spell::EffectApplyAura(uint32 i)
     unitTarget->ApplyDiminishingToDuration(m_diminishGroup,duration,caster,m_diminishLevel);
     Aur->setDiminishGroup(m_diminishGroup);
 
+    //apply mods only here, area auras don't have duration
+    duration = caster->ModSpellDuration(m_spellInfo, i, unitTarget, duration);
+
     // if Aura removed and deleted, do not continue.
     if(duration== 0 && !(Aur->IsPermanent()))
     {
@@ -4693,7 +4696,7 @@ void Spell::EffectInterruptCast(uint32 i)
             {
                 if(m_originalCaster)
                 {
-                    int32 duration = m_originalCaster->CalculateSpellDuration(m_spellInfo, i, unitTarget);
+                    int32 duration = m_originalCaster->ModSpellDuration(m_spellInfo, i, unitTarget, m_originalCaster->CalcSpellDuration(m_spellInfo));
                     unitTarget->ProhibitSpellScholl(GetSpellSchoolMask(unitTarget->m_currentSpells[i]->m_spellInfo), duration/*GetSpellDuration(m_spellInfo)*/);
                 }
                 unitTarget->InterruptSpell(i,false);
