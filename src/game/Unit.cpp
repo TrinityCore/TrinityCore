@@ -10366,13 +10366,23 @@ Powers Unit::GetPowerTypeByAuraGroup(UnitMods unitMod) const
 
 float Unit::GetTotalAttackPowerValue(WeaponAttackType attType) const
 {
-    UnitMods unitMod = (attType == RANGED_ATTACK) ? UNIT_MOD_ATTACK_POWER_RANGED : UNIT_MOD_ATTACK_POWER;
+//get value from unit field instead of calculating from mods-because mods from stat are not added to unit_mods
+    int32 index, index_mod, index_mult;
+    if (attType == RANGED_ATTACK)
+    {
+        index=UNIT_FIELD_RANGED_ATTACK_POWER;
+        index_mod=UNIT_FIELD_RANGED_ATTACK_POWER_MODS;
+        index_mult=UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER;
+    }
+    else //meele
+    {
+        index=UNIT_FIELD_ATTACK_POWER;
+        index_mod=UNIT_FIELD_ATTACK_POWER_MODS;
+        index_mult=UNIT_FIELD_ATTACK_POWER_MULTIPLIER;
+    }
 
-    float val = GetTotalAuraModValue(unitMod);
-    if(val < 0.0f)
-        val = 0.0f;
-
-    return val;
+    float val = float(GetUInt32Value(index) + GetUInt32Value(index_mod)) * float(GetFloatValue(index_mult)+1);
+    return (val < 0.0f)? 0.0f : val;
 }
 
 float Unit::GetWeaponDamageRange(WeaponAttackType attType ,WeaponDamageRange type) const
