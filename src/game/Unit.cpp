@@ -1251,6 +1251,9 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 dama
             if (blocked)
             {
                 damageInfo->blocked = uint32(pVictim->GetShieldBlockValue());
+                //double blocked amount if block is critical
+                if (isBlockCritical())
+                    damageInfo->blocked+=damageInfo->blocked;
                 if (damage < damageInfo->blocked)
                     damageInfo->blocked = damage;
                 damage-=damageInfo->blocked;
@@ -1506,6 +1509,9 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
             damageInfo->HitInfo |= HITINFO_BLOCK;
             damageInfo->procEx|=PROC_EX_BLOCK;
             damageInfo->blocked_amount = damageInfo->target->GetShieldBlockValue();
+            //double blocked amount if block is critical
+            if (isBlockCritical())
+                damageInfo->blocked_amount+=damageInfo->blocked_amount;
             if (damageInfo->blocked_amount >= damageInfo->damage)
             {
                 damageInfo->TargetState = VICTIMSTATE_BLOCKS;
@@ -2513,6 +2519,13 @@ bool Unit::isSpellBlocked(Unit *pVictim, SpellEntry const *spellProto, WeaponAtt
         if (roll_chance_f(blockChance))
             return true;
     }
+    return false;
+}
+
+bool Unit::isBlockCritical()
+{
+    if (roll_chance_i(GetTotalAuraModifier(SPELL_AURA_MOD_BLOCK_CRIT_CHANCE)))
+        return true;
     return false;
 }
 
