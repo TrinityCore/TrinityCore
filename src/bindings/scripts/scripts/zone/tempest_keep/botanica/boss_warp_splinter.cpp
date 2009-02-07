@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Warp_Splinter
 SD%Complete: 80
-SDComment: Includes Sapling (need some better control with these). Spells for boss possibly need some rework.
+SDComment: Includes Sapling (need some better control with these).
 SDCategory: Tempest Keep, The Botanica
 EndScriptData */
 
@@ -26,6 +26,8 @@ EndScriptData */
 /*#####
 # mob_treant (Sapling)
 #####*/
+
+#define SPELL_HEAL_FATHER   6262
 
 struct TRINITY_DLL_DECL mob_treantAI  : public ScriptedAI
 {
@@ -36,26 +38,38 @@ struct TRINITY_DLL_DECL mob_treantAI  : public ScriptedAI
     }
 
     uint64 WarpGuid;
+    uint32 check_Timer;
 
     void Reset()
     {
-        m_creature->SetSpeed( MOVE_RUN, 0.5f, true);
-        m_creature->SetUnitMovementFlags(0);
+        check_Timer = 0;
     }
 
-    void Aggro(Unit *who)
-    {
-        return;
-    }
+    void Aggro(Unit *who) {}
 
-    void MoveInLineOfSight(Unit *who)
-    {
-    }
+    void MoveInLineOfSight(Unit*) {}
 
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim() )
+        {
+            if(WarpGuid && check_Timer < diff)
+            {
+                if(Unit *Warp = (Unit*)Unit::GetUnit(*m_creature, WarpGuid))
+                {
+                    if(m_creature->IsWithinMeleeRange(Warp,2.5f))
+                    {
+                        int32 CurrentHP_Treant = (int32)m_creature->GetHealth();
+                        Warp->CastCustomSpell(Warp,SPELL_HEAL_FATHER,&CurrentHP_Treant, 0, 0, true,0 ,0, m_creature->GetGUID());
+                        m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        return;
+                    }
+                    m_creature->GetMotionMaster()->MoveFollow(Warp,0,0);
+                }
+                check_Timer = 1000;
+            }else check_Timer -= diff;
             return;
+        }
 
         if (m_creature->getVictim()->GetGUID() !=  WarpGuid)
             DoMeleeAttackIfReady();
@@ -75,14 +89,13 @@ struct TRINITY_DLL_DECL mob_treantAI  : public ScriptedAI
 
 #define WAR_STOMP           34716
 #define SUMMON_TREANTS      34727                           // DBC: 34727, 34731, 34733, 34734, 34736, 34739, 34741 (with Ancestral Life spell 34742)   // won't work (guardian summon)
-#define ARCANE_VOLLEY       36705                           //37078, 34785 //must additional script them (because Splinter eats them after 20 sec ^)
-#define SPELL_HEAL_FATHER   6262
+#define ARCANE_VOLLEY       (HeroicMode?39133:36705)
 
 #define CREATURE_TREANT     19949
 
 #define TREANT_SPAWN_DIST   50                              //50 yards from Warp Splinter's spawn point
 
-float treant_pos[6][3] =
+float treant_pos[6][3] = 
 {
     {24.301233, 427.221100, -27.060635},
     {16.795492, 359.678802, -27.355425},
@@ -96,6 +109,7 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
 {
     boss_warp_splinterAI(Creature *c) : ScriptedAI(c)
     {
+        HeroicMode = c->GetMap()->IsHeroic();
         Treant_Spawn_Pos_X = c->GetPositionX();
         Treant_Spawn_Pos_Y = c->GetPositionY();
         Reset();
@@ -104,9 +118,7 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
     uint32 War_Stomp_Timer;
     uint32 Summon_Treants_Timer;
     uint32 Arcane_Volley_Timer;
-    uint32 CheckTreantLOS_Timer;
-    uint32 TreantLife_Timer;
-    uint64 Treant_GUIDs[6];
+    bool HeroicMode;
 
     float Treant_Spawn_Pos_X;
     float Treant_Spawn_Pos_Y;
@@ -116,11 +128,6 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
         War_Stomp_Timer = 25000 + rand()%15000;
         Summon_Treants_Timer = 45000;
         Arcane_Volley_Timer = 8000 + rand()%12000;
-        CheckTreantLOS_Timer = 1000;
-        TreantLife_Timer = 999999;
-
-        for(int i = 0; i < 6; ++i)
-            Treant_GUIDs[i] = 0;
 
         m_creature->SetSpeed( MOVE_RUN, 0.7f, true);
     }
@@ -147,50 +154,20 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
     void SummonTreants()
     {
         for(int i = 0; i < 6; ++i)
-        {
+        {            
             float angle = (M_PI / 3) * i;
 
             float X = Treant_Spawn_Pos_X + TREANT_SPAWN_DIST * cos(angle);
             float Y = Treant_Spawn_Pos_Y + TREANT_SPAWN_DIST * sin(angle);
-            //float Z = m_creature->GetMap()->GetHeight(X,Y, m_creature->GetPositionZ());
-            //float Z = m_creature->GetPositionZ();
             float O = - m_creature->GetAngle(X,Y);
 
-            Creature* pTreant = m_creature->SummonCreature(CREATURE_TREANT,treant_pos[i][0],treant_pos[i][1],treant_pos[i][2],O,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,40000);
-            if(pTreant)
-            {
-                //pTreant->GetMotionMaster()->Mutate(new TargetedMovementGenerator<Creature>(*m_creature));
-                pTreant->AddThreat(m_creature, 0.1f);
-                Treant_GUIDs[i] = pTreant->GetGUID();
+            if(Creature *pTreant = m_creature->SummonCreature(CREATURE_TREANT,treant_pos[i][0],treant_pos[i][1],treant_pos[i][2],O,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,25000))
                 ((mob_treantAI*)pTreant->AI())->WarpGuid = m_creature->GetGUID();
-            }
         }
         switch(rand()%2)
-        {
+        { 
 		case 0: DoScriptText(SAY_SUMMON_1, m_creature); break;
 		case 1: DoScriptText(SAY_SUMMON_2, m_creature); break;
-        }
-    }
-
-    // Warp Splinter eat treants if they are near him
-    void EatTreant()
-    {
-        for( int i=0; i<6; ++i )
-        {
-            Unit *pTreant = Unit::GetUnit(*m_creature, Treant_GUIDs[i]);
-
-            if( pTreant )
-            {
-                if( m_creature->IsWithinDistInMap(pTreant, 5))
-                {
-                    // 2) Heal Warp Splinter
-                    int32 CurrentHP_Treant = (int32)pTreant->GetHealth();
-                    m_creature->CastCustomSpell(m_creature,SPELL_HEAL_FATHER,&CurrentHP_Treant, 0, 0, true,0 ,0, m_creature->GetGUID());
-
-                    // 3) Kill Treant
-                    pTreant->DealDamage(pTreant, pTreant->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                }
-            }
         }
     }
 
@@ -203,29 +180,22 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
         if(War_Stomp_Timer < diff)
         {
             DoCast(m_creature->getVictim(),WAR_STOMP);
-            War_Stomp_Timer = 25000 + rand()%15000;
+            War_Stomp_Timer = 25000 + rand()%15000;        
         }else War_Stomp_Timer -= diff;
 
         //Check for Arcane Volley
         if(Arcane_Volley_Timer < diff)
         {
             DoCast(m_creature->getVictim(),ARCANE_VOLLEY);
-            Arcane_Volley_Timer = 20000 + rand()%15000;
+            Arcane_Volley_Timer = 20000 + rand()%15000; 
         }else Arcane_Volley_Timer -= diff;
 
         //Check for Summon Treants
         if(Summon_Treants_Timer < diff)
         {
             SummonTreants();
-            Summon_Treants_Timer = 45000;
+            Summon_Treants_Timer = 45000;        
         }else Summon_Treants_Timer -= diff;
-
-        // I check if there is a Treant in Warp Splinter's LOS, so he can eat them
-        if( CheckTreantLOS_Timer < diff)
-        {
-            EatTreant();
-            CheckTreantLOS_Timer = 1000;
-        }else CheckTreantLOS_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
