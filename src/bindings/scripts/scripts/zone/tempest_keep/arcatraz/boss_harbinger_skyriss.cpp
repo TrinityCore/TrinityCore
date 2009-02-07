@@ -111,6 +111,19 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
             pInstance->SetData(TYPE_HARBINGERSKYRISS,DONE);
     }
 
+    void JustSummoned(Creature *summon)
+    {
+        if(!summon)
+            return;
+        if(IsImage66)
+            summon->SetHealth((summon->GetMaxHealth()*33)/100);
+        else
+            summon->SetHealth((summon->GetMaxHealth()*66)/100);
+        if(m_creature->getVictim())
+            if(Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                summon->AI()->AttackStart(target);
+     }
+
     void KilledUnit(Unit* victim)
     {
 		//won't yell killing pet/other unit
