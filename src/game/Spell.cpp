@@ -2097,17 +2097,14 @@ void Spell::prepare(SpellCastTargets * targets, Aura* triggeredByAura)
         if(isSpellBreakStealth(m_spellInfo) )
             m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CAST);
 
+        m_caster->SetCurrentCastedSpell( this );
+        m_selfContainer = &(m_caster->m_currentSpells[GetCurrentContainer()]);
+        SendSpellStart();
+
         if(!m_casttime && !m_spellInfo->StartRecoveryTime
             && !m_castItemGUID     //item: first cast may destroy item and second cast causes crash
             && GetCurrentContainer() == CURRENT_GENERIC_SPELL)
             cast(true);
-        else
-        {
-            m_caster->SetCurrentCastedSpell( this );
-            m_selfContainer = &(m_caster->m_currentSpells[GetCurrentContainer()]);
-        }
-
-        SendSpellStart();
     }
 }
 
