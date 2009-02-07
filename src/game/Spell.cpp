@@ -1215,6 +1215,12 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
     if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->AI())
         ((Creature*)m_caster)->AI()->SpellHitTarget(unit, m_spellInfo);
 
+    for(ChanceTriggerSpells::const_iterator i = m_ChanceTriggerSpells.begin(); i != m_ChanceTriggerSpells.end(); ++i)
+    {
+        if(roll_chance_i(i->second))
+            m_caster->CastSpell(unit, i->first, true);
+    }
+
     if(m_customAttr & SPELL_ATTR_CU_LINK_HIT)
     {
         if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(m_spellInfo->Id + SPELL_LINK_HIT))
@@ -2263,23 +2269,11 @@ void Spell::cast(bool skipCheck)
         uint32 auraSpellIdx = (*i)->GetEffIndex();
         if (IsAffectedBy(auraSpellInfo, auraSpellIdx))
         {
-            for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
-                if( ihit->effectMask & (1<<auraSpellIdx) )
-            {
-                // check m_caster->GetGUID() let load auras at login and speedup most often case
-                Unit *unit = m_caster->GetGUID()== ihit->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID);
-                if (unit && unit->isAlive())
-                {
-                    // Calculate chance at that moment (can be depend for example from combo points)
-                    int32 chance = m_caster->CalculateSpellDamage(auraSpellInfo, auraSpellIdx, (*i)->GetBasePoints(),unit);
-                    chance *= (*i)->GetStackAmount();
-
-                    if(roll_chance_i(chance))
-                    {
-                        if(SpellEntry const *spellInfo = sSpellStore.LookupEntry(auraSpellInfo->EffectTriggerSpell[auraSpellIdx]))
-                            m_TriggerSpells.push_back(spellInfo);
-                    }
-                }
+            if(SpellEntry const *spellInfo = sSpellStore.LookupEntry(auraSpellInfo->EffectTriggerSpell[auraSpellIdx]))
+            {            
+                // Calculate chance at that moment (can be depend for example from combo points)
+                int32 chance = m_caster->CalculateSpellDamage(auraSpellInfo, auraSpellIdx, (*i)->GetBasePoints(), NULL);
+                m_ChanceTriggerSpells.push_back(std::make_pair(spellInfo, chance * (*i)->GetStackAmount()));
             }
         }
     }
