@@ -596,8 +596,10 @@ class Spell
         // -------------------------------------------
 
         //List For Triggered Spells
-        typedef std::list<SpellEntry const*> TriggerSpells;
+        typedef std::vector<SpellEntry const*> TriggerSpells;
         TriggerSpells m_TriggerSpells;
+        typedef std::vector< std::pair<SpellEntry const*, int32> > ChanceTriggerSpells;
+        ChanceTriggerSpells m_ChanceTriggerSpells;
 
         uint32 m_spellState;
         uint32 m_timer;
