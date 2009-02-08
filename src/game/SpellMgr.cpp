@@ -509,7 +509,8 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex)
         case 37675:                                         // Chaos Blast
         case 41519:                                         // Mark of Stormrage
         case 34877:                                         // Custodian of Time
-        case 34700:
+        case 34700:                                         // Allergic Reaction
+        case 31719:                                         // Suspension
             return false;
     }
 
@@ -2186,7 +2187,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 41635: // Prayer of Mending
         case 44869: // Spectral Blast
         case 45027: // Revitalize
-        case 45976: // Muru Portal Channel
+        case 45976: // Muru Portal Channel        
             spellInfo->MaxAffectedTargets = 1;
             break;
         case 41376: // Spite
@@ -2217,6 +2218,10 @@ void SpellMgr::LoadSpellCustomAttr()
         case 8122: case 8124: case 10888: case 10890: // Psychic Scream
         case 12494: // Frostbite
             spellInfo->Attributes |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
+            break;
+        case 38794: case 33711: //Murmur's Touch
+            spellInfo->MaxAffectedTargets = 1;
+            spellInfo->EffectTriggerSpell[0] = 33760;
             break;
         default:
             break;
