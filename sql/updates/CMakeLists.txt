@@ -1,3 +1,5 @@
+add_subdirectory(2.4.3_updates)
+
 INSTALL(FILES
 805_world_scripts
 875_mangos_7047_01_characters_character_spell.sql
