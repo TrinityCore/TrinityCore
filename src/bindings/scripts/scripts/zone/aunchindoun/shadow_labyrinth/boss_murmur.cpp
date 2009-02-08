@@ -29,7 +29,6 @@ EndScriptData */
 #define SPELL_SONIC_BOOM_EFFECT     (HeroicMode?38795:33666)
 #define SPELL_RESONANCE             33657
 #define SPELL_MURMURS_TOUCH         (HeroicMode?38794:33711)
-#define SPELL_MURMURS_TOUCH_VISUAL  33760
 #define SPELL_MAGNETIC_PULL         33689
 #define SPELL_SONIC_SHOCK           38797
 #define SPELL_THUNDERING_STORM      39365
@@ -40,13 +39,6 @@ struct TRINITY_DLL_DECL boss_murmurAI : public Scripted_NoMovementAI
     {
         HeroicMode = m_creature->GetMap()->IsHeroic();
         Reset();
-
-        // need core fix
-        if(SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_MURMURS_TOUCH))
-        {
-            TempSpell->EffectTriggerSpell[0] = SPELL_MURMURS_TOUCH_VISUAL;
-            TempSpell->MaxAffectedTargets = 1;
-        }
     }
 
     uint32 SonicBoom_Timer;
