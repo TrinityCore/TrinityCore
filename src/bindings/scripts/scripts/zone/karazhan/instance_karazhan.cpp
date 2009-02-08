@@ -40,6 +40,7 @@ EndScriptData */
 10 - Prince Malchezzar
 11 - Nightbane
 */
+
 struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
 {
     instance_karazhan(Map* map) : ScriptedInstance(map) {Initialize();}
@@ -63,7 +64,8 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
 	uint64 MastersTerraceDoor[2];
 	uint64 ImageGUID;
 
-    bool NightbaneSummoned;
+    uint8 Nightbane;
+    bool CheckNightbane;
 
     void Initialize()
     {
@@ -90,7 +92,9 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
 		MastersTerraceDoor[1]= 0;
 		ImageGUID = 0;
 
-        NightbaneSummoned = false;
+        Nightbane = 0;
+      
+        CheckNightbane = false;
     }
 
     bool IsEncounterInProgress() const
@@ -117,7 +121,12 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
             case DATA_NETHERSPITE_EVENT:      return Encounters[8];
             case DATA_CHESS_EVENT:            return Encounters[9];
             case DATA_MALCHEZZAR_EVENT:       return Encounters[10];
-            case DATA_NIGHTBANE_EVENT:       return Encounters[11];
+            case DATA_NIGHTBANE_EVENT:
+                if(CheckNightbane)
+                {
+                    CheckNightbane = false;
+                    return Nightbane;
+                }else return Encounters[11];
             case DATA_OPERA_PERFORMANCE:      return OperaEvent;
             case DATA_OPERA_OZ_DEATHCOUNT:    return OzDeathCount;
 			case DATA_IMAGE_OF_MEDIVH:             return ImageGUID;
@@ -133,9 +142,6 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
             case 17229:   KilrekGUID = creature->GetGUID();      break;
             case 15688:   TerestianGUID = creature->GetGUID();   break;
             case 15687:   MoroesGUID = creature->GetGUID();      break;
-            case 17225:   if(NightbaneSummoned)creature->RemoveFromWorld();
-                          else NightbaneSummoned = true;
-                          break;
         }
     }
 
@@ -180,8 +186,13 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
             case DATA_NETHERSPITE_EVENT:       Encounters[8]  = data; break;
             case DATA_CHESS_EVENT:             Encounters[9]  = data; break;
             case DATA_MALCHEZZAR_EVENT:        Encounters[10] = data; break;
-            case DATA_NIGHTBANE_EVENT:        Encounters[11] = data; break;
-
+            case DATA_NIGHTBANE_EVENT:  
+                if(data == 6)
+                {
+                    Nightbane;
+                    CheckNightbane = true;
+                }else Encounters[11] = data;
+                break;
             case DATA_OPERA_OZ_DEATHCOUNT:     ++OzDeathCount;        break;
         }
 
