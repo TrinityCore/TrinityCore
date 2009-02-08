@@ -254,6 +254,7 @@ extern void AddSC_instance_steam_vault();
 
 //--Underbog
 extern void AddSC_boss_hungarfen();
+extern void AddSC_boss_the_black_stalker();
 
 //Darkshore
 //Darnassus
@@ -1460,6 +1461,7 @@ void ScriptsInit()
 
     //--Underbog
     AddSC_boss_hungarfen();
+    AddSC_boss_the_black_stalker();
 
     //Darkshore
     //Darnassus
