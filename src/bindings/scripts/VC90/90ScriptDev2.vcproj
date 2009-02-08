@@ -2013,6 +2013,10 @@
 							RelativePath="..\scripts\zone\coilfang_resevoir\underbog\boss_hungarfen.cpp"
 							>
 						</File>
+						<File
+							RelativePath="..\scripts\zone\coilfang_resevoir\underbog\boss_the_black_stalker.cpp"
+							>
+						</File>
 					</Filter>
 				</Filter>
 				<Filter
