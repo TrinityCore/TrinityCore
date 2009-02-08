@@ -1,4 +1,4 @@
-ALTER TABLE db_version CHANGE COLUMN required_7230_02_mangos_spell_bonus_data required_7235_01_mangos_command bit;
+/*ALTER TABLE db_version CHANGE COLUMN required_7230_02_mangos_spell_bonus_data required_7235_01_mangos_command bit;*/
 
 DELETE FROM `command` WHERE `name` = 'reset achievements';
 INSERT INTO `command` VALUES

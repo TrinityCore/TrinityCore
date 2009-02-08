@@ -1,7 +1,7 @@
 UPDATE `creature_template` SET `flags_extra`=0 WHERE `entry`=20129;
 
 -- Insert English and French dialogs in database
-DELETE FROM `script_texts` WHERE entry BETWEEN -1000150 and -1000163;
+DELETE FROM `script_texts` WHERE entry BETWEEN -1000163 and -1000150;
 INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc2`, `type`, `language`, `comment`) VALUES
 (-1000150, 'Greetings, $N. I will guide you through the cavern. Please try and keep up.', 'Salutations, $N. Je vais vous guider à travers cette grotte. Veuillez me suivre.', 4, 0, 'WHISPER_CUSTODIAN_1'),
 (-1000151, 'We do not know if the Caverns of Time have always been accessible to mortals. Truly, it is impossible to tell as the Timeless One is in perpetual motion, changing our timeways as he sees fit. What you see now may very well not exist tomorrow. You may wake up and have no memory of this place.', 'Nous ne savons pas si les Grottes du Temps ont toujours été accessibles aux mortels. Vraiment, c\'est impossible à dire étant donné que l\'Intemporel est en mouvement perpétuel, changeant nos spirales temporelles comme bon lui semble. Ce que vous voyez aujourd\'hui peut très bien ne plus exister demain. Vous pourriez vous réveiller sans aucun souvenir de cet endroit.', 4, 0, 'WHISPER_CUSTODIAN_2'),
