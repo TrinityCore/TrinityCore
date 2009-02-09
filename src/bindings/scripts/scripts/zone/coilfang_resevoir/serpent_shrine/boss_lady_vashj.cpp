@@ -993,6 +993,15 @@ bool ItemUse_item_tainted_core(Player *player, Item* _Item, SpellCastTargets con
 
             //remove this item
             player->DestroyItemCount(31088, 1, true);
+            return true;
+        }
+        else if( targets.getUnitTarget()->GetTypeId() == TYPEID_UNIT )
+            return false;
+        else if(targets.getUnitTarget()->GetTypeId() == TYPEID_PLAYER)
+        {
+            player->DestroyItemCount(31088, 1, true);
+            player->CastSpell(targets.getUnitTarget(), 38134, true);
+            return true;
         }
     }
     return true;
@@ -1066,5 +1075,3 @@ void AddSC_boss_lady_vashj()
     newscript->pItemUse = &ItemUse_item_tainted_core;
     newscript->RegisterSelf();
 }
-
-

@@ -56,15 +56,6 @@ float IntroWay[8][3] =
     {-11163   , -1903  ,91.473}
 };
 
-//float IntroWay[5][3] =
-//{
-//    {-11000.00, -1765.75, 140.40},
-//    {-11000.00, -1765.75, 171.00},
-//    {-11173.67, -1832.26, 117.76},
-//    {-11142.75, -1916.78, 119.769},
-//    {-11161.91, -1911.148, 91.473}
-//};
-
 struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 {
     boss_nightbaneAI(Creature* c) : ScriptedAI(c)
@@ -123,10 +114,12 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
         m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
 		m_creature->setActive(true);
 
-		if(pInstance->GetData(DATA_NIGHTBANE_EVENT) == DONE)
-			m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-		else
-			pInstance->SetData(DATA_NIGHTBANE_EVENT, NOT_STARTED);
+        pInstance->SetData(DATA_NIGHTBANE_EVENT, 6);
+        if(pInstance->GetData(DATA_NIGHTBANE_EVENT) > 1)
+        {
+            m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            m_creature->RemoveCorpse();
+        }else pInstance->SetData(DATA_NIGHTBANE_EVENT, NOT_STARTED);
 
 		HandleTerraceDoors(true);
 

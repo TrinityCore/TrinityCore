@@ -338,6 +338,14 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
 
                 switch(m_spellInfo->Id)                     // better way to check unknown
                 {
+                    case 35354://hand of death
+                    {
+                        if(unitTarget && unitTarget->HasAura(38528,0))//protection of elune
+                        {
+                            damage = 0;
+                        }
+                        break;
+                    }
                     // percent from health with min
                     case 25599:                             // Thundercrash
                     {
