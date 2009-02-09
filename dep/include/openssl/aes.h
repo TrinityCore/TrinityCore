@@ -7,7 +7,7 @@
  * are met:
  *
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer. 
+ *    notice, this list of conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in
@@ -58,8 +58,8 @@
 #error AES is disabled.
 #endif
 
-#define AES_ENCRYPT	1
-#define AES_DECRYPT	0
+#define AES_ENCRYPT 1
+#define AES_DECRYPT 0
 
 /* Because array size can't be a const in C, the following two are macros.
    Both sizes are in bytes. */
@@ -84,51 +84,51 @@ typedef struct aes_key_st AES_KEY;
 const char *AES_options(void);
 
 int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
-	AES_KEY *key);
+    AES_KEY *key);
 int AES_set_decrypt_key(const unsigned char *userKey, const int bits,
-	AES_KEY *key);
+    AES_KEY *key);
 
 void AES_encrypt(const unsigned char *in, unsigned char *out,
-	const AES_KEY *key);
+    const AES_KEY *key);
 void AES_decrypt(const unsigned char *in, unsigned char *out,
-	const AES_KEY *key);
+    const AES_KEY *key);
 
 void AES_ecb_encrypt(const unsigned char *in, unsigned char *out,
-	const AES_KEY *key, const int enc);
+    const AES_KEY *key, const int enc);
 void AES_cbc_encrypt(const unsigned char *in, unsigned char *out,
-	const unsigned long length, const AES_KEY *key,
-	unsigned char *ivec, const int enc);
+    const unsigned long length, const AES_KEY *key,
+    unsigned char *ivec, const int enc);
 void AES_cfb128_encrypt(const unsigned char *in, unsigned char *out,
-	const unsigned long length, const AES_KEY *key,
-	unsigned char *ivec, int *num, const int enc);
+    const unsigned long length, const AES_KEY *key,
+    unsigned char *ivec, int *num, const int enc);
 void AES_cfb1_encrypt(const unsigned char *in, unsigned char *out,
-	const unsigned long length, const AES_KEY *key,
-	unsigned char *ivec, int *num, const int enc);
+    const unsigned long length, const AES_KEY *key,
+    unsigned char *ivec, int *num, const int enc);
 void AES_cfb8_encrypt(const unsigned char *in, unsigned char *out,
-	const unsigned long length, const AES_KEY *key,
-	unsigned char *ivec, int *num, const int enc);
+    const unsigned long length, const AES_KEY *key,
+    unsigned char *ivec, int *num, const int enc);
 void AES_cfbr_encrypt_block(const unsigned char *in,unsigned char *out,
-			    const int nbits,const AES_KEY *key,
-			    unsigned char *ivec,const int enc);
+                const int nbits,const AES_KEY *key,
+                unsigned char *ivec,const int enc);
 void AES_ofb128_encrypt(const unsigned char *in, unsigned char *out,
-	const unsigned long length, const AES_KEY *key,
-	unsigned char *ivec, int *num);
+    const unsigned long length, const AES_KEY *key,
+    unsigned char *ivec, int *num);
 void AES_ctr128_encrypt(const unsigned char *in, unsigned char *out,
-	const unsigned long length, const AES_KEY *key,
-	unsigned char ivec[AES_BLOCK_SIZE],
-	unsigned char ecount_buf[AES_BLOCK_SIZE],
-	unsigned int *num);
+    const unsigned long length, const AES_KEY *key,
+    unsigned char ivec[AES_BLOCK_SIZE],
+    unsigned char ecount_buf[AES_BLOCK_SIZE],
+    unsigned int *num);
 
 /* For IGE, see also http://www.links.org/files/openssl-ige.pdf */
 /* NB: the IV is _two_ blocks long */
 void AES_ige_encrypt(const unsigned char *in, unsigned char *out,
-		     const unsigned long length, const AES_KEY *key,
-		     unsigned char *ivec, const int enc);
+             const unsigned long length, const AES_KEY *key,
+             unsigned char *ivec, const int enc);
 /* NB: the IV is _four_ blocks long */
 void AES_bi_ige_encrypt(const unsigned char *in, unsigned char *out,
-			const unsigned long length, const AES_KEY *key,
-			const AES_KEY *key2, const unsigned char *ivec,
-			const int enc);
+            const unsigned long length, const AES_KEY *key,
+            const AES_KEY *key2, const unsigned char *ivec,
+            const int enc);
 
 
 #ifdef  __cplusplus

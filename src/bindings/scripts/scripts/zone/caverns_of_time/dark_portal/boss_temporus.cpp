@@ -39,15 +39,15 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_temporusAI : public ScriptedAI
 {
-	boss_temporusAI(Creature *c) : ScriptedAI(c)
-	{
-		pInstance = ((ScriptedInstance*)c->GetInstanceData());
-		HeroicMode = m_creature->GetMap()->IsHeroic();
-		Reset();
-	}
+    boss_temporusAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        HeroicMode = m_creature->GetMap()->IsHeroic();
+        Reset();
+    }
 
-	ScriptedInstance *pInstance;
-	bool HeroicMode;
+    ScriptedInstance *pInstance;
+    bool HeroicMode;
 
     uint32 Haste_Timer;
     uint32 SpellReflection_Timer;
@@ -79,8 +79,8 @@ struct TRINITY_DLL_DECL boss_temporusAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
 
-		if (pInstance)
-			pInstance->SetData(TYPE_RIFT,SPECIAL);
+        if (pInstance)
+            pInstance->SetData(TYPE_RIFT,SPECIAL);
     }
 
     void MoveInLineOfSight(Unit *who)
@@ -88,9 +88,9 @@ struct TRINITY_DLL_DECL boss_temporusAI : public ScriptedAI
         //Despawn Time Keeper
         if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == C_TIME_KEEPER)
         {
-			if (m_creature->IsWithinDistInMap(who,20.0f))
+            if (m_creature->IsWithinDistInMap(who,20.0f))
             {
-				DoScriptText(SAY_BANISH, m_creature);
+                DoScriptText(SAY_BANISH, m_creature);
 
                 m_creature->DealDamage(who, who->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             }

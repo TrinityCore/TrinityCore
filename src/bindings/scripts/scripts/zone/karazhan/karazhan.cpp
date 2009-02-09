@@ -49,31 +49,31 @@ EndContentData */
 struct Dialogue
 {
     int32 textid;
-	uint32 timer;
+    uint32 timer;
 };
 
 static Dialogue OzDialogue[]=
 {
-	{-1532103, 6000},
-	{-1532104, 18000},
-	{-1532105, 9000},
-	{-1532106, 15000}
+    {-1532103, 6000},
+    {-1532104, 18000},
+    {-1532105, 9000},
+    {-1532106, 15000}
 };
 
 static Dialogue HoodDialogue[]=
 {
-	{-1532107, 6000},
-	{-1532108, 10000},
-	{-1532109, 14000},
-	{-1532110, 15000}
+    {-1532107, 6000},
+    {-1532108, 10000},
+    {-1532109, 14000},
+    {-1532110, 15000}
 };
 
 static Dialogue RAJDialogue[]=
 {
-	{-1532111, 5000},
-	{-1532112, 7000},
-	{-1532113, 14000},
-	{-1532114, 14000}
+    {-1532111, 5000},
+    {-1532112, 7000},
+    {-1532113, 14000},
+    {-1532114, 14000}
 };
 
 // Entries and spawn locations for creatures in Oz event
@@ -166,7 +166,7 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
 
                 float x,y,z;
                 m_creature->GetPosition(x, y, z);
-				if (Creature* Spotlight = m_creature->SummonCreature(CREATURE_SPOTLIGHT, x, y, z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 50000))
+                if (Creature* Spotlight = m_creature->SummonCreature(CREATURE_SPOTLIGHT, x, y, z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 50000))
                 {
                     Spotlight->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     Spotlight->CastSpell(Spotlight, SPELL_SPOTLIGHT, false);
@@ -177,7 +177,7 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
             case 5:
                 if(pInstance)
                 {
-					if (GameObject* Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT)))
+                    if (GameObject* Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT)))
                         Door->SetGoState(1);
                 }
                 IsBeingEscorted = false;
@@ -194,21 +194,21 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
         {
             case EVENT_OZ:
                 if (OzDialogue[count].textid)
-					 text = OzDialogue[count].textid;
+                     text = OzDialogue[count].textid;
                 if(OzDialogue[count].timer)
                     TalkTimer = OzDialogue[count].timer;
                 break;
 
             case EVENT_HOOD:
-				if (HoodDialogue[count].textid)
-					text = HoodDialogue[count].textid;
+                if (HoodDialogue[count].textid)
+                    text = HoodDialogue[count].textid;
                 if(HoodDialogue[count].timer)
                     TalkTimer = HoodDialogue[count].timer;
                 break;
 
             case EVENT_RAJ:
                  if (RAJDialogue[count].textid)
-					 text = RAJDialogue[count].textid;
+                     text = RAJDialogue[count].textid;
                 if(RAJDialogue[count].timer)
                     TalkTimer = RAJDialogue[count].timer;
                 break;
@@ -249,7 +249,7 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
         if(PerformanceReady)
         {
             if(CurtainTimer)
-			{
+            {
                 if(CurtainTimer <= diff)
             {
                 PrepareEncounter();
@@ -257,12 +257,12 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
                 if(!pInstance)
                     return;
 
-				if (GameObject* Curtain = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GAMEOBJECT_CURTAINS)))
+                if (GameObject* Curtain = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GAMEOBJECT_CURTAINS)))
                     Curtain->SetGoState(0);
 
                 CurtainTimer = 0;
             }else CurtainTimer -= diff;
-			}
+            }
 
             if(!RaidWiped)
             {
@@ -310,7 +310,7 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
 
         pInstance->SetData(DATA_OPERA_EVENT, IN_PROGRESS);
 
-		if (GameObject* Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT)))
+        if (GameObject* Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT)))
             Door->SetGoState(0);
 
         m_creature->CastSpell(m_creature, SPELL_TUXEDO, true);
@@ -451,7 +451,7 @@ bool GossipSelect_npc_berthold(Player* player, Creature* _Creature, uint32 sende
 #define SPELL_FIRE_BALL             30967
 #define SPELL_UBER_FIREBALL         30971
 #define SPELL_CONFLAGRATION_BLAST   30977
-#define SPELL_MANA_SHIELD			31635
+#define SPELL_MANA_SHIELD           31635
 
 static float MedivPos[4] = {-11161.49,-1902.24,91.48,1.94};
 static float ArcanagosPos[4] = {-11169.75,-1881.48,95.39,4.83};
@@ -473,11 +473,11 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
     uint32 FireMedivhTimer;
     uint32 FireArcanagosTimer;
 
-	bool EventStarted;
+    bool EventStarted;
 
     void Reset()
     {
-		ArcanagosGUID = 0;
+        ArcanagosGUID = 0;
 
         if(pInstance && pInstance->GetData64(DATA_IMAGE_OF_MEDIVH) == 0)
         {
@@ -551,7 +551,7 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
             return 5000;
         case 8:
             FireMedivhTimer = 500;
-			DoCast(m_creature, SPELL_MANA_SHIELD);
+            DoCast(m_creature, SPELL_MANA_SHIELD);
             return 10000;
         case 9:
             m_creature->TextEmote(EMOTE_DIALOG_MEDIVH_7, 0, false);
@@ -565,34 +565,34 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
                 ((Creature*)arca)->Yell(SAY_DIALOG_ARCANAGOS_8, LANG_UNIVERSAL, NULL);
             return 5000;
         case 12:
-			arca->GetMotionMaster()->MovePoint(0, -11010.82,-1761.18, 156.47);
-			arca->setActive(true);
-			arca->InterruptNonMeleeSpells(true);
-			arca->SetSpeed(MOVE_FLIGHT, 2.0f);
+            arca->GetMotionMaster()->MovePoint(0, -11010.82,-1761.18, 156.47);
+            arca->setActive(true);
+            arca->InterruptNonMeleeSpells(true);
+            arca->SetSpeed(MOVE_FLIGHT, 2.0f);
             return 10000;
         case 13:
             m_creature->Yell(SAY_DIALOG_MEDIVH_9, LANG_UNIVERSAL, NULL);
             return 10000;
-		case 14:
-			m_creature->SetVisibility(VISIBILITY_OFF);
-			m_creature->ClearInCombat();
+        case 14:
+            m_creature->SetVisibility(VISIBILITY_OFF);
+            m_creature->ClearInCombat();
 
-			if(map->IsDungeon())
-			{
+            if(map->IsDungeon())
+            {
                 InstanceMap::PlayerList const &PlayerList = ((InstanceMap*)map)->GetPlayers();
                 for (InstanceMap::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
-					if(i->getSource()->isAlive())
+                    if(i->getSource()->isAlive())
                     {
-						if(i->getSource()->GetQuestStatus(9645) == QUEST_STATUS_INCOMPLETE)
-							i->getSource()->CompleteQuest(9645);
+                        if(i->getSource()->GetQuestStatus(9645) == QUEST_STATUS_INCOMPLETE)
+                            i->getSource()->CompleteQuest(9645);
                     }
                 }
             }
-			return 50000;
-		case 15:
-			arca->DealDamage(arca,arca->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-			return 5000;
+            return 50000;
+        case 15:
+            arca->DealDamage(arca,arca->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            return 5000;
         default : return 9999999;
         }
 
@@ -653,7 +653,7 @@ void AddSC_karazhan()
     newscript->pGossipSelect = &GossipSelect_npc_berthold;
     newscript->RegisterSelf();
 
-	newscript = new Script;
+    newscript = new Script;
     newscript->Name = "npc_image_of_medivh";
     newscript->GetAI = &GetAI_npc_image_of_medivh;
     newscript->RegisterSelf();

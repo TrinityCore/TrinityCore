@@ -189,7 +189,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
     bool IsBanished;
     bool HasKilledAkama;
     bool reseting;
-	bool GridSearcherSucceeded;
+    bool GridSearcherSucceeded;
 
     void Reset()
     {
@@ -257,17 +257,17 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
                     {
                         Channeler->RemoveCorpse();
                         Channeler->Respawn();
-						Channeler->InterruptNonMeleeSpells(true);
-						Channeler->RemoveAurasDueToSpell(SPELL_SHADE_SOUL_CHANNEL);
+                        Channeler->InterruptNonMeleeSpells(true);
+                        Channeler->RemoveAurasDueToSpell(SPELL_SHADE_SOUL_CHANNEL);
                     }
 
-					if (Channeler->isAlive())
-					{
+                    if (Channeler->isAlive())
+                    {
                     Channeler->CastSpell(m_creature, SPELL_SHADE_SOUL_CHANNEL, true);
                     Channeler->CastSpell(m_creature, SPELL_SHADE_SOUL_CHANNEL_2, true);
                     Channeler->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-					GridSearcherSucceeded = true;
-					}
+                    GridSearcherSucceeded = true;
+                    }
                 }
             }
         }else error_log("SD2 ERROR: No Channelers are stored in the list. This encounter will not work properly");
@@ -329,8 +329,8 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
                 {
                     Spawn->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                     Spawn->GetMotionMaster()->MovePoint(0, AGGRO_X, AGGRO_Y, AGGRO_Z);
-					Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
-					Spawn->AI()->AttackStart(target);
+                    Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                    Spawn->AI()->AttackStart(target);
                 }
             }
         }

@@ -1,10 +1,10 @@
 /**
   @file Vector2.h
- 
+
   2D vector class
- 
+
   @maintainer Morgan McGuire, matrix@graphics3d.com
-  
+
   @created 2001-06-02
   @edited  2006-01-14
   Copyright 2000-2006, Morgan McGuire.
@@ -21,7 +21,7 @@
 
 namespace G3D {
 
-class Vector2;    
+class Vector2;
 class Vector3;
 class Vector4;
 
@@ -47,7 +47,7 @@ public:
     Vector2(float coordinate[2]);
     Vector2(double coordinate[2]);
     Vector2(const Vector2& rkVector);
-    Vector2(const class Vector2int16& v); 
+    Vector2(const class Vector2int16& v);
 
     float& operator[] (int i);
     const float& operator[] (int i) const;
@@ -87,7 +87,7 @@ public:
      Linear interpolation
      */
     inline Vector2 lerp(const Vector2& v, float alpha) const {
-        return (*this) + (v - *this) * alpha; 
+        return (*this) + (v - *this) * alpha;
     }
 
     inline Vector2 clamp(const Vector2& low, const Vector2& high) const {
@@ -137,10 +137,10 @@ public:
     inline static const Vector2& one() { static const Vector2 v(1, 1); return v; }
     static const Vector2& unitX();
     static const Vector2& unitY();
-    static const Vector2& inf(); 
+    static const Vector2& inf();
     static const Vector2& nan();
     /** smallest (most negative) representable vector */
-    static const Vector2& minFinite(); 
+    static const Vector2& minFinite();
     /** Largest representable vector */
     static const Vector2& maxFinite();
 

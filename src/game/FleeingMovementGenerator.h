@@ -37,7 +37,7 @@ class TRINITY_DLL_SPEC FleeingMovementGenerator
         void Finalize(T &);
         void Reset(T &);
         bool Update(T &, const uint32 &);
-		bool GetDestination(float &x, float &y, float &z) const;
+        bool GetDestination(float &x, float &y, float &z) const;
 
         MovementGeneratorType GetMovementGeneratorType() { return FLEEING_MOTION_TYPE; }
 

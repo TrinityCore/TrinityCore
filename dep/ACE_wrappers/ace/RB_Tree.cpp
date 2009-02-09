@@ -1076,7 +1076,7 @@ ACE_RB_Tree<EXT_ID, INT_ID, COMPARE_KEYS, ACE_LOCK>::remove_i (ACE_RB_Tree_Node<
       y->color (z->color ());
       z->color (yColor);
 
-      //Reassign the y pointer to z because the node that y points to will be 
+      //Reassign the y pointer to z because the node that y points to will be
       //deleted
       y = z;
     }

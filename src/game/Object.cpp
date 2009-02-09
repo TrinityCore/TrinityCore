@@ -1595,8 +1595,8 @@ Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, floa
         return NULL;
     }
 
-	pCreature->SetHomePosition(x, y, z, ang);
-	pCreature->Summon(spwtype, despwtime);
+    pCreature->SetHomePosition(x, y, z, ang);
+    pCreature->Summon(spwtype, despwtime);
 
     if(GetTypeId()==TYPEID_UNIT && ((Creature*)this)->AI())
         ((Creature*)this)->AI()->JustSummoned(pCreature);
@@ -1670,9 +1670,9 @@ void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, 
 {
     GetNearPoint2D(x,y,distance2d+searcher_size,absAngle);
 
-	z = GetPositionZ();
+    z = GetPositionZ();
 
-	UpdateGroundPositionZ(x,y,z);
+    UpdateGroundPositionZ(x,y,z);
 }
 
 void WorldObject::GetGroundPoint(float &x, float &y, float &z, float dist, float angle)

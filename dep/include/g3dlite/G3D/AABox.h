@@ -1,10 +1,10 @@
 /**
   @file AABox.h
- 
+
   Axis-aligned box class
- 
+
   @maintainer Morgan McGuire, matrix@graphics3d.com
- 
+
   @created 2004-01-10
   @edited  2006-02-10
 
@@ -112,23 +112,23 @@ public:
     }
 
     /**
-	 @deprecated Use culledBy(Array<Plane>&)
+     @deprecated Use culledBy(Array<Plane>&)
      */
     bool culledBy(
         const class Plane*  plane,
         int                 numPlanes,
-		int32&				cullingPlaneIndex,
-		const uint32  		testMask,
+        int32&              cullingPlaneIndex,
+        const uint32        testMask,
         uint32&             childMask) const;
 
     /**
-	 @deprecated Use culledBy(Array<Plane>&)
+     @deprecated Use culledBy(Array<Plane>&)
      */
     bool culledBy(
         const class Plane*  plane,
         int                 numPlanes,
-		int32&				cullingPlaneIndex = dummy,
-		const uint32  		testMask = 0xFFFFFF) const;
+        int32&              cullingPlaneIndex = dummy,
+        const uint32        testMask = 0xFFFFFF) const;
 
     /**
      Splits the box into two AABoxes along the specified axis.  low contains
@@ -137,46 +137,46 @@ public:
      */
     void split(const Vector3::Axis& axis, float location, AABox& low, AABox& high) const;
 
-	/**
-	 Conservative culling test for up to 32 planes.	
-	 Returns true if there exists a <CODE>plane[p]</CODE> for
+    /**
+     Conservative culling test for up to 32 planes.
+     Returns true if there exists a <CODE>plane[p]</CODE> for
      which the entire object is in the negative half space
      (opposite the plane normal).
 
-	 <CODE>testMask</CODE> and <CODE>childMask</CODE>
-	 are used for optimizing bounding volume hierarchies.
+     <CODE>testMask</CODE> and <CODE>childMask</CODE>
+     are used for optimizing bounding volume hierarchies.
      The version of this method that produces childMask
      is slower than the version without; it should only
      be used for parent nodes.
 
-	 @param cullingPlaneIndex The index of the first plane for which
-	  the entire object is in the negative half-space.  The function
-	  exits early when one plane is found.  -1 when the function
-	  returns false (i.e. when no plane culls the whole object).
+     @param cullingPlaneIndex The index of the first plane for which
+      the entire object is in the negative half-space.  The function
+      exits early when one plane is found.  -1 when the function
+      returns false (i.e. when no plane culls the whole object).
 
-	 @param testMask  If bit <I>p</I> is 0, the 
-	   bounding volume automatically passes the culling test for
-	   <CODE>plane[p]</CODE> (i.e. it is known that the volume
-	   is entirely within the positive half space).  The function
+     @param testMask  If bit <I>p</I> is 0, the
+       bounding volume automatically passes the culling test for
+       <CODE>plane[p]</CODE> (i.e. it is known that the volume
+       is entirely within the positive half space).  The function
        must return false if testMask is 0 and test all planes
        when testMask is -1 (0xFFFFFFFF).
 
      @param childMask Test mask for the children of this volume.
-       
-	 */
-	bool culledBy(
-		const Array<Plane>&		plane,
-		int32&					cullingPlaneIndex,
-		const uint32  			testMask,
+
+     */
+    bool culledBy(
+        const Array<Plane>&     plane,
+        int32&                  cullingPlaneIndex,
+        const uint32            testMask,
         uint32&                 childMask) const;
 
     /**
      Conservative culling test that does not produce a mask for children.
      */
-	bool culledBy(
-		const Array<Plane>&		plane,
-		int32&					cullingPlaneIndex = dummy,
-		const uint32  			testMask		  = -1) const;
+    bool culledBy(
+        const Array<Plane>&     plane,
+        int32&                  cullingPlaneIndex = dummy,
+        const uint32            testMask          = -1) const;
 
     inline bool contains(
         const Vector3&      point) const {
@@ -248,7 +248,7 @@ public:
  Hashing function for use with Table.
  */
 inline unsigned int hashCode(const G3D::AABox& b) {
-	return b.hashCode();
+    return b.hashCode();
 }
 
 

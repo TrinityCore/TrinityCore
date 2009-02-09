@@ -39,14 +39,14 @@ class TRINITY_DLL_SPEC ConfusedMovementGenerator
         void Reset(T &);
         bool Update(T &, const uint32 &);
 
-		bool GetDestination(float &x, float &y, float &z) const
+        bool GetDestination(float &x, float &y, float &z) const
         {
-			if(i_destinationHolder.HasArrived()) return false;
+            if(i_destinationHolder.HasArrived()) return false;
             i_destinationHolder.GetDestination(x,y,z);
             return true;
         }
 
-		MovementGeneratorType GetMovementGeneratorType() { return CONFUSED_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() { return CONFUSED_MOTION_TYPE; }
     private:
         void _InitSpecific(T &, bool &, bool &);
         TimeTracker i_nextMoveTime;

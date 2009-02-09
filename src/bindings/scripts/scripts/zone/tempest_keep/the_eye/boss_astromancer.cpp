@@ -128,7 +128,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
 
     void StartEvent()
     {
-		DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, m_creature);
 
         if(pInstance)
             pInstance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, IN_PROGRESS);
@@ -138,9 +138,9 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-		case 0: DoScriptText(SAY_KILL1, m_creature); break;
-		case 1: DoScriptText(SAY_KILL2, m_creature); break;
-		case 2: DoScriptText(SAY_KILL3, m_creature); break;
+        case 0: DoScriptText(SAY_KILL1, m_creature); break;
+        case 1: DoScriptText(SAY_KILL2, m_creature); break;
+        case 2: DoScriptText(SAY_KILL3, m_creature); break;
         }
     }
 
@@ -148,7 +148,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
     {
         m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize);
         m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_HUMAN);
-		DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, m_creature);
 
         if(pInstance)
             pInstance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, DONE);
@@ -164,15 +164,15 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
         Creature* Summoned = m_creature->SummonCreature(entry, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
         if(Summoned)
         {
-			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-				Summoned->AI()->AttackStart(target);
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                Summoned->AI()->AttackStart(target);
         }
     }
 
     float Portal_X(float radius)
     {
         if ((rand()%2)==1)
-			radius = -radius;
+            radius = -radius;
 
         return (radius * (float)(rand()%100)/100.0f + CENTER_X);
     }
@@ -271,7 +271,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
             if (MarkOfTheAstromancer_Timer < diff)
             {
                 //A debuff that lasts for 5 seconds, cast several times each phase on a random raid member, but not the main tank
-				if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1))
+                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1))
                 {
                     DoCast(target, SPELL_MARK_OF_THE_ASTROMANCER);
 
@@ -307,7 +307,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
                         Portals[i][1] = Portal_Y(Portals[i][0], SMALL_PORTAL_RADIUS);
                         Portals[i][2] = CENTER_Z;
                     }
-					else
+                    else
                     {
                         Portals[i][0] = Portal_X(LARGE_PORTAL_RADIUS);
                         Portals[i][1] = Portal_Y(Portals[i][0], LARGE_PORTAL_RADIUS);
@@ -346,19 +346,19 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
                     for (int j=1; j<=4; j++)
                         SummonMinion(SOLARIUM_AGENT, Portals[i][0], Portals[i][1], Portals[i][2]);
 
-				DoScriptText(SAY_SUMMON1, m_creature);
+                DoScriptText(SAY_SUMMON1, m_creature);
                 Phase2_Timer = 10000;
             } else Phase2_Timer -= diff;
         }
         else if(Phase == 3)
         {
-			m_creature->AttackStop();
-			m_creature->StopMoving();
+            m_creature->AttackStop();
+            m_creature->StopMoving();
 
             //Check Phase3_Timer
             if(Phase3_Timer < diff)
             {
-				Phase = 1;
+                Phase = 1;
 
                 //15 seconds later Solarian reappears out of one of the 3 portals. Simultaneously, 2 healers appear in the two other portals.
                 int i = rand()%3;
@@ -402,8 +402,8 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
             //To make sure she wont be invisible or not selecatble
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             m_creature->SetVisibility(VISIBILITY_ON);
-			DoScriptText(SAY_VOIDA, m_creature);
-			DoScriptText(SAY_VOIDB, m_creature);
+            DoScriptText(SAY_VOIDA, m_creature);
+            DoScriptText(SAY_VOIDB, m_creature);
             m_creature->SetArmor(WV_ARMOR);
             m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_VOIDWALKER);
             m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize*2.5f);

@@ -1291,7 +1291,7 @@ void Spell::EffectDummy(uint32 i)
                     return;
 
                 spell_id = 20647;
-				bp = damage+int32(m_caster->GetPower(POWER_RAGE) * m_spellInfo->DmgMultiplier[i]);
+                bp = damage+int32(m_caster->GetPower(POWER_RAGE) * m_spellInfo->DmgMultiplier[i]);
                 m_caster->SetPower(POWER_RAGE,0);
                 break;
             }
@@ -3385,13 +3385,13 @@ void Spell::EffectDispel(uint32 i)
                 SpellEntry const* spellInfo = sSpellStore.LookupEntry(j->first);
                 data << uint32(spellInfo->Id);              // Spell Id
                 data << uint8(0);                           // 0 - dispelled !=0 cleansed
-				if(spellInfo->StackAmount!= 0)
-				{
-					//Why are Aura's Removed by EffIndex? Auras should be removed as a whole.....
-					unitTarget->RemoveSingleAuraFromStackByDispel(spellInfo->Id);
-				}
-				else
-				unitTarget->RemoveAurasDueToSpellByDispel(spellInfo->Id, j->second, m_caster);
+                if(spellInfo->StackAmount!= 0)
+                {
+                    //Why are Aura's Removed by EffIndex? Auras should be removed as a whole.....
+                    unitTarget->RemoveSingleAuraFromStackByDispel(spellInfo->Id);
+                }
+                else
+                unitTarget->RemoveAurasDueToSpellByDispel(spellInfo->Id, j->second, m_caster);
              }
             m_caster->SendMessageToSet(&data, true);
 

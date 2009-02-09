@@ -888,7 +888,7 @@ void Aura::_AddAura()
             SetAuraSlot( slot );
         }
 
-		UpdateSlotCounterAndDuration();
+        UpdateSlotCounterAndDuration();
 
         // Update Seals information
         if( IsSealSpell(GetSpellProto()) )
@@ -5674,13 +5674,13 @@ void Aura::PeriodicTick()
                 int32 gain = pCaster->ModifyPower(power,gain_amount);
                 m_target->AddThreat(pCaster, float(gain) * 0.5f, GetSpellSchoolMask(GetSpellProto()), GetSpellProto());
             }
-			// Mark of Kaz'rogal
-			if(GetId() == 31447 && m_target->GetPower(power) == 0)
-			{
-				m_target->CastSpell(m_target, 31463, true, 0, this);
-				// Remove aura
-				SetAuraDuration(0);
-			}
+            // Mark of Kaz'rogal
+            if(GetId() == 31447 && m_target->GetPower(power) == 0)
+            {
+                m_target->CastSpell(m_target, 31463, true, 0, this);
+                // Remove aura
+                SetAuraDuration(0);
+            }
             break;
         }
         case SPELL_AURA_PERIODIC_ENERGIZE:

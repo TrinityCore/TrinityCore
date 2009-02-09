@@ -14,7 +14,7 @@ enum EncounterState
     IN_PROGRESS   = 1,
     FAIL          = 2,
     DONE          = 3,
-	SPECIAL		  = 4
+    SPECIAL       = 4
 };
 
 #define OUT_SAVE_INST_DATA             debug_log("SD2: Saving Instance Data for Instance %s (Map %d, Instance Id %d)", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())

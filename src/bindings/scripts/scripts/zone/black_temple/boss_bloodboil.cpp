@@ -116,7 +116,7 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
     void Aggro(Unit *who)
     {
         DoZoneInCombat();
-		DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, m_creature);
         if(pInstance)
             pInstance->SetData(DATA_GURTOGGBLOODBOILEVENT, IN_PROGRESS);
     }
@@ -125,8 +125,8 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
-		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+        case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+        case 1: DoScriptText(SAY_SLAY2, m_creature); break;
         }
     }
 
@@ -145,7 +145,7 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
         std::list<HostilReference *> m_threatlist = m_creature->getThreatManager().getThreatList();
 
         if(!m_threatlist.size()) // He doesn't have anyone in his threatlist, useless to continue
-			return;
+            return;
 
         std::list<Unit *> targets;
         std::list<HostilReference *>::iterator itr = m_threatlist.begin();
@@ -214,17 +214,17 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
         }else FelAcidTimer -= diff;
 
         if(!m_creature->HasAura(SPELL_BERSERK, 0))
-		{
-			if(EnrageTimer < diff)
-			{
-				DoCast(m_creature, SPELL_BERSERK);
-				switch(rand()%2)
-				{
-				case 0: DoScriptText(SAY_ENRAGE1, m_creature); break;
-				case 1: DoScriptText(SAY_ENRAGE2, m_creature); break;
-				}
-			}else EnrageTimer -= diff;
-		}
+        {
+            if(EnrageTimer < diff)
+            {
+                DoCast(m_creature, SPELL_BERSERK);
+                switch(rand()%2)
+                {
+                case 0: DoScriptText(SAY_ENRAGE1, m_creature); break;
+                case 1: DoScriptText(SAY_ENRAGE2, m_creature); break;
+                }
+            }else EnrageTimer -= diff;
+        }
 
         if(Phase1)
         {
@@ -232,8 +232,8 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
             {
                 DoCast(m_creature->getVictim(), SPELL_BEWILDERING_STRIKE);
                 float mt_threat = DoGetThreat(m_creature->getVictim());
-				if (Unit* target = SelectUnit(SELECT_TARGET_TOPAGGRO, 1))
-					m_creature->AddThreat(target, mt_threat);
+                if (Unit* target = SelectUnit(SELECT_TARGET_TOPAGGRO, 1))
+                    m_creature->AddThreat(target, mt_threat);
                 BewilderingStrikeTimer = 20000;
             }else BewilderingStrikeTimer -= diff;
 
@@ -305,8 +305,8 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
 
                     switch(rand()%2)
                     {
-					case 0: DoScriptText(SAY_SPECIAL1, m_creature); break;
-					case 1: DoScriptText(SAY_SPECIAL2, m_creature); break;
+                    case 0: DoScriptText(SAY_SPECIAL1, m_creature); break;
+                    case 1: DoScriptText(SAY_SPECIAL2, m_creature); break;
                     }
 
                     AcidGeyserTimer = 1000;

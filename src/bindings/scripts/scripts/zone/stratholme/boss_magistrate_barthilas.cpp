@@ -34,45 +34,45 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_magistrate_barthilasAI : public ScriptedAI
 {
-	boss_magistrate_barthilasAI(Creature *c) : ScriptedAI(c)
-	{
-		pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
-		Reset();
-	}
+    boss_magistrate_barthilasAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
+        Reset();
+    }
 
-	ScriptedInstance* pInstance;
+    ScriptedInstance* pInstance;
 
     uint32 DrainingBlow_Timer;
     uint32 CrowdPummel_Timer;
     uint32 MightyBlow_Timer;
     uint32 FuriousAnger_Timer;
-	uint32 AngerCount;
+    uint32 AngerCount;
 
     void Reset()
     {
-		DrainingBlow_Timer = 20000;
-		CrowdPummel_Timer = 15000;
-		MightyBlow_Timer = 10000;
-		FuriousAnger_Timer = 5000;
-		AngerCount = 0;
+        DrainingBlow_Timer = 20000;
+        CrowdPummel_Timer = 15000;
+        MightyBlow_Timer = 10000;
+        FuriousAnger_Timer = 5000;
+        AngerCount = 0;
 
-		if (m_creature->isAlive())
-			m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_NORMAL);
-		else
-			m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_HUMAN);
-	}
+        if (m_creature->isAlive())
+            m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_NORMAL);
+        else
+            m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_HUMAN);
+    }
 
-	void MoveInLineOfSight(Unit *who)
-	{
-		//nothing to see here yet
+    void MoveInLineOfSight(Unit *who)
+    {
+        //nothing to see here yet
 
-		ScriptedAI::MoveInLineOfSight(who);
-	}
+        ScriptedAI::MoveInLineOfSight(who);
+    }
 
-	void JustDied(Unit* Killer)
-	{
-		m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_HUMAN);
-	}
+    void JustDied(Unit* Killer)
+    {
+        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_HUMAN);
+    }
 
     void Aggro(Unit *who)
     {
@@ -84,35 +84,35 @@ struct TRINITY_DLL_DECL boss_magistrate_barthilasAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-		if (FuriousAnger_Timer < diff)
-		{
-			FuriousAnger_Timer = 4000;
-			if (AngerCount > 25)
-				return;
+        if (FuriousAnger_Timer < diff)
+        {
+            FuriousAnger_Timer = 4000;
+            if (AngerCount > 25)
+                return;
 
-			++AngerCount;
-			m_creature->CastSpell(m_creature,SPELL_FURIOUS_ANGER,false);
-		}else FuriousAnger_Timer -= diff;
+            ++AngerCount;
+            m_creature->CastSpell(m_creature,SPELL_FURIOUS_ANGER,false);
+        }else FuriousAnger_Timer -= diff;
 
         //DrainingBlow
         if (DrainingBlow_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_DRAININGBLOW);
-			DrainingBlow_Timer = 15000;
+            DrainingBlow_Timer = 15000;
         }else DrainingBlow_Timer -= diff;
 
         //CrowdPummel
         if (CrowdPummel_Timer < diff)
         {
-			DoCast(m_creature->getVictim(),SPELL_CROWDPUMMEL);
-			CrowdPummel_Timer = 15000;
+            DoCast(m_creature->getVictim(),SPELL_CROWDPUMMEL);
+            CrowdPummel_Timer = 15000;
         }else CrowdPummel_Timer -= diff;
 
         //MightyBlow
         if (MightyBlow_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_MIGHTYBLOW);
-			MightyBlow_Timer = 20000;
+            MightyBlow_Timer = 20000;
         }else MightyBlow_Timer -= diff;
 
         DoMeleeAttackIfReady();

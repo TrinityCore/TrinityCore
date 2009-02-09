@@ -1575,15 +1575,15 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     if(!InBattleGround() && mEntry->IsBattleGroundOrArena())
         return false;
 
-	// 449 - Champions' Hall (Alliance) // 450 - Hall of Legends (Horde)
-	if(mapid == 449 && GetTeam()==HORDE)
+    // 449 - Champions' Hall (Alliance) // 450 - Hall of Legends (Horde)
+    if(mapid == 449 && GetTeam()==HORDE)
     {
         GetSession()->SendNotification(LANG_NO_ENTER_CHAMPIONS_HALL);
         return false;
     }
 
-	if(mapid == 450 && GetTeam() == ALLIANCE)
-	{
+    if(mapid == 450 && GetTeam() == ALLIANCE)
+    {
         GetSession()->SendNotification(LANG_NO_ENTER_HALL_OF_LEGENDS);
         return false;
     }
@@ -15447,8 +15447,8 @@ void Player::SaveToDB()
     ss << ", '";
     ss << m_taxi.SaveTaxiDestinationsToString();
 
-	ss << "', '0', '";
-	ss << GetSession()->GetLatency();
+    ss << "', '0', '";
+    ss << GetSession()->GetLatency();
     ss << "' )";
 
     CharacterDatabase.Execute( ss.str().c_str() );
@@ -18754,7 +18754,7 @@ void Player::UpdateZoneDependentAuras( uint32 newZone )
 {
     // remove new continent flight forms
     if( !isGameMaster() &&
-	GetVirtualMapForMapAndZone(GetMapId(),newZone) != 530)
+    GetVirtualMapForMapAndZone(GetMapId(),newZone) != 530)
     {
         RemoveSpellsCausingAura(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED);
         RemoveSpellsCausingAura(SPELL_AURA_FLY);

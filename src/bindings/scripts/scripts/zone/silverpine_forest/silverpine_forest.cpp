@@ -91,86 +91,86 @@ bool GossipSelect_npc_astor_hadren(Player *player, Creature *_Creature, uint32 s
 ## npc_deathstalker_erland
 ######*/
 
-#define SAY_QUESTACCEPT	-1000335
-#define SAY_START		-1000336
-#define SAY_AGGRO_1		-1000337
-#define SAY_AGGRO_2		-1000338
-#define SAY_LAST		-1000339
+#define SAY_QUESTACCEPT -1000335
+#define SAY_START       -1000336
+#define SAY_AGGRO_1     -1000337
+#define SAY_AGGRO_2     -1000338
+#define SAY_LAST        -1000339
 
-#define SAY_THANKS		-1000340
-#define SAY_RANE		-1000341
-#define SAY_ANSWER		-1000342
-#define SAY_MOVE_QUINN	-1000343
+#define SAY_THANKS      -1000340
+#define SAY_RANE        -1000341
+#define SAY_ANSWER      -1000342
+#define SAY_MOVE_QUINN  -1000343
 
-#define SAY_GREETINGS	-1000344
-#define SAY_QUINN		-1000345
-#define SAY_ON_BYE		-1000346
+#define SAY_GREETINGS   -1000344
+#define SAY_QUINN       -1000345
+#define SAY_ON_BYE      -1000346
 
-#define QUEST_ESCORTING	435
-#define NPC_RANE		1950
-#define NPC_QUINN		1951
+#define QUEST_ESCORTING 435
+#define NPC_RANE        1950
+#define NPC_QUINN       1951
 
 struct TRINITY_DLL_DECL npc_deathstalker_erlandAI : public npc_escortAI
 {
-	npc_deathstalker_erlandAI(Creature *c) : npc_escortAI(c) {Reset();}
+    npc_deathstalker_erlandAI(Creature *c) : npc_escortAI(c) {Reset();}
 
-	void WaypointReached(uint32 i)
-	{
-		Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+    void WaypointReached(uint32 i)
+    {
+        Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
 
-		if (!player)
+        if (!player)
             return;
 
-		switch(i)
-		{
-		case 1: DoScriptText(SAY_START, m_creature, player);break;
-		case 13:
-			DoScriptText(SAY_LAST, m_creature, player);
+        switch(i)
+        {
+        case 1: DoScriptText(SAY_START, m_creature, player);break;
+        case 13:
+            DoScriptText(SAY_LAST, m_creature, player);
             if(player)
                 ((Player*)player)->GroupEventHappens(QUEST_ESCORTING, m_creature);break;
-		case 14: DoScriptText(SAY_THANKS, m_creature, player);break;
-		case 15: {
-				Unit* Rane = FindCreature(NPC_RANE, 20, m_creature);
-				if(Rane)
-					DoScriptText(SAY_RANE, Rane);
-				break;}
-		case 16: DoScriptText(SAY_ANSWER, m_creature);break;
-		case 17: DoScriptText(SAY_MOVE_QUINN, m_creature); break;
-		case 24: DoScriptText(SAY_GREETINGS, m_creature);break;
-		case 25: {
-				Unit* Quinn = FindCreature(NPC_QUINN, 20, m_creature);
-				if(Quinn)
-					DoScriptText(SAY_QUINN, Quinn);
-				break;}
-		case 26: DoScriptText(SAY_ON_BYE, m_creature, NULL);break;
+        case 14: DoScriptText(SAY_THANKS, m_creature, player);break;
+        case 15: {
+                Unit* Rane = FindCreature(NPC_RANE, 20, m_creature);
+                if(Rane)
+                    DoScriptText(SAY_RANE, Rane);
+                break;}
+        case 16: DoScriptText(SAY_ANSWER, m_creature);break;
+        case 17: DoScriptText(SAY_MOVE_QUINN, m_creature); break;
+        case 24: DoScriptText(SAY_GREETINGS, m_creature);break;
+        case 25: {
+                Unit* Quinn = FindCreature(NPC_QUINN, 20, m_creature);
+                if(Quinn)
+                    DoScriptText(SAY_QUINN, Quinn);
+                break;}
+        case 26: DoScriptText(SAY_ON_BYE, m_creature, NULL);break;
 
-		}
-	}
+        }
+    }
 
-	void Reset() {}
+    void Reset() {}
 
-	void Aggro(Unit* who)
-	{
-		switch(rand()%2)
-		{
-		case 0: DoScriptText(SAY_AGGRO_1, m_creature, who);break;
-		case 1: DoScriptText(SAY_AGGRO_2, m_creature, who);break;
-		}
-	}
+    void Aggro(Unit* who)
+    {
+        switch(rand()%2)
+        {
+        case 0: DoScriptText(SAY_AGGRO_1, m_creature, who);break;
+        case 1: DoScriptText(SAY_AGGRO_2, m_creature, who);break;
+        }
+    }
 
-	void UpdateAI(const uint32 diff)
-	{
-		npc_escortAI::UpdateAI(diff);
-	}
+    void UpdateAI(const uint32 diff)
+    {
+        npc_escortAI::UpdateAI(diff);
+    }
 };
 
 bool QuestAccept_npc_deathstalker_erland(Player* player, Creature* creature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_ESCORTING)
-	{
-		DoScriptText(SAY_QUESTACCEPT, creature, player);
-		((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
-	}
+    {
+        DoScriptText(SAY_QUESTACCEPT, creature, player);
+        ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
+    }
 
     return true;
 }
@@ -179,35 +179,35 @@ CreatureAI* GetAI_npc_deathstalker_erlandAI(Creature *_Creature)
 {
     npc_deathstalker_erlandAI* deathstalker_erlandAI = new npc_deathstalker_erlandAI(_Creature);
 
-	deathstalker_erlandAI->AddWaypoint(0, 1406.32, 1083.10, 52.55);
-	deathstalker_erlandAI->AddWaypoint(1, 1400.49, 1080.42, 52.50); //first say
-	deathstalker_erlandAI->AddWaypoint(2, 1388.48, 1083.10, 52.52);
-	deathstalker_erlandAI->AddWaypoint(3, 1370.16, 1084.02, 52.30);
-	deathstalker_erlandAI->AddWaypoint(4, 1359.02, 1080.85, 52.46);
-	deathstalker_erlandAI->AddWaypoint(5, 1341.43, 1087.39, 52.69);
-	deathstalker_erlandAI->AddWaypoint(6, 1321.93, 1090.51, 50.66);
-	deathstalker_erlandAI->AddWaypoint(7, 1312.98, 1095.91, 47.49);
-	deathstalker_erlandAI->AddWaypoint(8, 1301.09, 1102.94, 47.76);
-	deathstalker_erlandAI->AddWaypoint(9, 1297.73, 1106.35, 50.18);
-	deathstalker_erlandAI->AddWaypoint(10, 1295.49, 1124.32, 50.49);
-	deathstalker_erlandAI->AddWaypoint(11, 1294.84, 1137.25, 51.75);
-	deathstalker_erlandAI->AddWaypoint(12, 1292.89, 1158.99, 52.65);
-	deathstalker_erlandAI->AddWaypoint(13, 1290.75, 1168.67, 52.56, 1000); //complete quest and say last
-	deathstalker_erlandAI->AddWaypoint(14, 1287.12, 1203.49, 52.66, 5000);
-	deathstalker_erlandAI->AddWaypoint(15, 1287.12, 1203.49, 52.66, 4000);
-	deathstalker_erlandAI->AddWaypoint(16, 1287.12, 1203.49, 52.66, 5000);
-	deathstalker_erlandAI->AddWaypoint(17, 1287.12, 1203.49, 52.66, 4000);
-	deathstalker_erlandAI->AddWaypoint(18, 1290.72, 1207.44, 52.69);
-	deathstalker_erlandAI->AddWaypoint(19, 1297.50, 1207.18, 53.74);
-	deathstalker_erlandAI->AddWaypoint(20, 1301.32, 1220.90, 53.74);
-	deathstalker_erlandAI->AddWaypoint(21, 1298.55, 1220.43, 53.74);
-	deathstalker_erlandAI->AddWaypoint(22, 1297.59, 1211.23, 58.47);
-	deathstalker_erlandAI->AddWaypoint(23, 1305.01, 1206.10, 58.51);
-	deathstalker_erlandAI->AddWaypoint(24, 1310.51, 1207.36, 58.51, 5000);
-	deathstalker_erlandAI->AddWaypoint(25, 1310.51, 1207.36, 58.51, 5000);
-	deathstalker_erlandAI->AddWaypoint(26, 1310.51, 1207.36, 58.51, 2000);
+    deathstalker_erlandAI->AddWaypoint(0, 1406.32, 1083.10, 52.55);
+    deathstalker_erlandAI->AddWaypoint(1, 1400.49, 1080.42, 52.50); //first say
+    deathstalker_erlandAI->AddWaypoint(2, 1388.48, 1083.10, 52.52);
+    deathstalker_erlandAI->AddWaypoint(3, 1370.16, 1084.02, 52.30);
+    deathstalker_erlandAI->AddWaypoint(4, 1359.02, 1080.85, 52.46);
+    deathstalker_erlandAI->AddWaypoint(5, 1341.43, 1087.39, 52.69);
+    deathstalker_erlandAI->AddWaypoint(6, 1321.93, 1090.51, 50.66);
+    deathstalker_erlandAI->AddWaypoint(7, 1312.98, 1095.91, 47.49);
+    deathstalker_erlandAI->AddWaypoint(8, 1301.09, 1102.94, 47.76);
+    deathstalker_erlandAI->AddWaypoint(9, 1297.73, 1106.35, 50.18);
+    deathstalker_erlandAI->AddWaypoint(10, 1295.49, 1124.32, 50.49);
+    deathstalker_erlandAI->AddWaypoint(11, 1294.84, 1137.25, 51.75);
+    deathstalker_erlandAI->AddWaypoint(12, 1292.89, 1158.99, 52.65);
+    deathstalker_erlandAI->AddWaypoint(13, 1290.75, 1168.67, 52.56, 1000); //complete quest and say last
+    deathstalker_erlandAI->AddWaypoint(14, 1287.12, 1203.49, 52.66, 5000);
+    deathstalker_erlandAI->AddWaypoint(15, 1287.12, 1203.49, 52.66, 4000);
+    deathstalker_erlandAI->AddWaypoint(16, 1287.12, 1203.49, 52.66, 5000);
+    deathstalker_erlandAI->AddWaypoint(17, 1287.12, 1203.49, 52.66, 4000);
+    deathstalker_erlandAI->AddWaypoint(18, 1290.72, 1207.44, 52.69);
+    deathstalker_erlandAI->AddWaypoint(19, 1297.50, 1207.18, 53.74);
+    deathstalker_erlandAI->AddWaypoint(20, 1301.32, 1220.90, 53.74);
+    deathstalker_erlandAI->AddWaypoint(21, 1298.55, 1220.43, 53.74);
+    deathstalker_erlandAI->AddWaypoint(22, 1297.59, 1211.23, 58.47);
+    deathstalker_erlandAI->AddWaypoint(23, 1305.01, 1206.10, 58.51);
+    deathstalker_erlandAI->AddWaypoint(24, 1310.51, 1207.36, 58.51, 5000);
+    deathstalker_erlandAI->AddWaypoint(25, 1310.51, 1207.36, 58.51, 5000);
+    deathstalker_erlandAI->AddWaypoint(26, 1310.51, 1207.36, 58.51, 2000);
 
-	return (CreatureAI*)deathstalker_erlandAI;
+    return (CreatureAI*)deathstalker_erlandAI;
 }
 
 /*######
@@ -225,9 +225,9 @@ void AddSC_silverpine_forest()
     newscript->GetAI = &GetAI_npc_astor_hadren;
     newscript->RegisterSelf();
 
-	newscript = new Script;
-	newscript->Name="npc_deathstalker_erland";
-	newscript->GetAI = &GetAI_npc_deathstalker_erlandAI;
-	newscript->pQuestAccept = &QuestAccept_npc_deathstalker_erland;
-	newscript->RegisterSelf();
+    newscript = new Script;
+    newscript->Name="npc_deathstalker_erland";
+    newscript->GetAI = &GetAI_npc_deathstalker_erlandAI;
+    newscript->pQuestAccept = &QuestAccept_npc_deathstalker_erland;
+    newscript->RegisterSelf();
 }

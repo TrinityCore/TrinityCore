@@ -35,18 +35,18 @@ namespace ZThread {
    * @date <2003-07-27T14:18:37-0400>
    * @version 2.3.0
    *
-   * An abstraction for dealing with POSIX thread specific storage (tss). 
+   * An abstraction for dealing with POSIX thread specific storage (tss).
    * Provides get/set and creation/destruction.
    */
   template <typename T>
     class TSS : private NonCopyable {
-  
+
     pthread_key_t _key;
 
     public:
 
     /**
-     * Create a new object for accessing tss. 
+     * Create a new object for accessing tss.
      */
     TSS() {
 
@@ -57,15 +57,15 @@ namespace ZThread {
     }
 
     /**
-     * Destroy the underlying supoprt for accessing tss with this 
+     * Destroy the underlying supoprt for accessing tss with this
      * object.
      */
     ~TSS() {
-  
+
       pthread_key_delete(_key);
-    
+
     }
- 
+
     /**
      * Get the value stored in tss.
      *
@@ -76,8 +76,8 @@ namespace ZThread {
     T get() const {
       return reinterpret_cast<T>(pthread_getspecific(_key));
     }
-  
- 
+
+
     /**
      * Store a value in tss.
      *
@@ -90,11 +90,11 @@ namespace ZThread {
 
       T oldValue = get();
       pthread_setspecific(_key, value);
-    
+
       return oldValue;
-    
+
     }
-   
+
   };
 
 }

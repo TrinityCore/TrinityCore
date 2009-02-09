@@ -25,7 +25,7 @@
 
 #include "zthread/Exceptions.h"
 
-namespace ZThread { 
+namespace ZThread {
 
   /**
    * @class Lockable
@@ -33,18 +33,18 @@ namespace ZThread {
    * @date <2003-07-16T10:33:32-0400>
    * @version 2.3.0
    *
-   * The Lockable interface defines a common method of adding general <i>acquire-release</i> 
-   * semantics to an object. An <i>acquire-release</i> protocol does not necessarily imply 
-   * exclusive access. 
+   * The Lockable interface defines a common method of adding general <i>acquire-release</i>
+   * semantics to an object. An <i>acquire-release</i> protocol does not necessarily imply
+   * exclusive access.
    */
   class Lockable {
-  public:  
-  
+  public:
+
     //! Destroy a Lockable object.
     virtual ~Lockable() {}
 
-    /** 
-     * Acquire the Lockable object. 
+    /**
+     * Acquire the Lockable object.
      *
      * This method may or may not block the caller for an indefinite amount
      * of time. Those details are defined by specializations of this class.
@@ -52,40 +52,40 @@ namespace ZThread {
      * @exception Interrupted_Exception thrown if the calling thread is interrupted before
      *            the operation completes.
      *
-     * @post The Lockable is acquired only if no exception was thrown. 
+     * @post The Lockable is acquired only if no exception was thrown.
      */
     virtual void acquire() = 0;
 
-    /** 
-     * Attempt to acquire the Lockable object. 
+    /**
+     * Attempt to acquire the Lockable object.
      *
      * This method may or may not block the caller for a definite amount
      * of time. Those details are defined by specializations of this class;
-     * however, this method includes a timeout value that can be used to 
-     * limit the maximum amount of time that a specialization <i>could</i> block. 
+     * however, this method includes a timeout value that can be used to
+     * limit the maximum amount of time that a specialization <i>could</i> block.
      *
      * @param timeout - maximum amount of time (milliseconds) this method could block
      *
-     * @return 
-     *   - <em>true</em>  if the operation completes and the Lockable is acquired before 
-     *     the timeout expires. 
+     * @return
+     *   - <em>true</em>  if the operation completes and the Lockable is acquired before
+     *     the timeout expires.
      *   - <em>false</em> if the operation times out before the Lockable can be acquired.
-     * 
+     *
      * @exception Interrupted_Exception thrown if the calling thread is interrupted before
      *            the operation completes.
      *
-     * @post The Lockable is acquired only if no exception was thrown. 
+     * @post The Lockable is acquired only if no exception was thrown.
      */
     virtual bool tryAcquire(unsigned long timeout) = 0;
-  
-    /** 
+
+    /**
      * Release the Lockable object.
      *
      * This method may or may not block the caller for an indefinite amount
      * of time. Those details are defined by specializations of this class.
      *
-     * @post The Lockable is released only if no exception was thrown. 
-     */    
+     * @post The Lockable is released only if no exception was thrown.
+     */
     virtual void release() = 0;
 
   };

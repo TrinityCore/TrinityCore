@@ -33,7 +33,7 @@ EndScriptData */
 #define POD_DELTA   183964                                  //pod third boss wave
 #define POD_GAMMA   183962                                  //pod fourth boss wave
 #define POD_OMEGA   183965                                  //pod fifth boss wave
-#define WARDENS_SHIELD	184802								// warden shield
+#define WARDENS_SHIELD  184802                              // warden shield
 #define SEAL_SPHERE 184802                                  //shield 'protecting' mellichar
 
 #define MELLICHAR   20904                                   //skyriss will kill this unit
@@ -59,10 +59,10 @@ struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
     GameObject *Pod_Beta;
     GameObject *Pod_Delta;
     GameObject *Pod_Omega;
-	GameObject *Wardens_Shield;
+    GameObject *Wardens_Shield;
 
-	uint64 GoSphereGUID;
-	uint64 MellicharGUID;
+    uint64 GoSphereGUID;
+    uint64 MellicharGUID;
 
     void Initialize()
     {
@@ -73,10 +73,10 @@ struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
         Pod_Delta = NULL;
         Pod_Gamma = NULL;
         Pod_Omega = NULL;
-		Wardens_Shield = NULL;
+        Wardens_Shield = NULL;
 
-		GoSphereGUID = 0;
-		MellicharGUID = 0;
+        GoSphereGUID = 0;
+        MellicharGUID = 0;
 
         for(uint8 i = 0; i < ENCOUNTERS; i++)
             Encounter[i] = NOT_STARTED;
@@ -86,7 +86,7 @@ struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
     {
         for(uint8 i = 0; i < ENCOUNTERS; i++)
             if(Encounter[i])
-				return true;
+                return true;
 
         return false;
     }
@@ -97,20 +97,20 @@ struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
         {
             case CONTAINMENT_CORE_SECURITY_FIELD_ALPHA: Containment_Core_Security_Field_Alpha = go; break;
             case CONTAINMENT_CORE_SECURITY_FIELD_BETA:  Containment_Core_Security_Field_Beta =  go; break;
-			case SEAL_SPHERE: GoSphereGUID = go->GetGUID(); break;
+            case SEAL_SPHERE: GoSphereGUID = go->GetGUID(); break;
             case POD_ALPHA: Pod_Alpha = go; break;
             case POD_BETA:  Pod_Beta =  go; break;
             case POD_DELTA: Pod_Delta = go; break;
             case POD_GAMMA: Pod_Gamma = go; break;
             case POD_OMEGA: Pod_Omega = go; break;
-			//case WARDENS_SHIELD: Wardens_Shield = go; break;
+            //case WARDENS_SHIELD: Wardens_Shield = go; break;
         }
     }
 
     void OnCreatureCreate(Creature *creature, uint32 creature_entry)
     {
         if (creature->GetEntry() == MELLICHAR)
-			MellicharGUID = creature->GetGUID();
+            MellicharGUID = creature->GetGUID();
     }
 
     void SetData(uint32 type, uint32 data)
@@ -215,9 +215,9 @@ struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
         switch(data)
         {
             case DATA_MELLICHAR:
-				return MellicharGUID;
-			case DATA_SPHERE_SHIELD:
-				return GoSphereGUID;
+                return MellicharGUID;
+            case DATA_SPHERE_SHIELD:
+                return GoSphereGUID;
         }
         return 0;
     }

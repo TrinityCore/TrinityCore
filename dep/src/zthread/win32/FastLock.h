@@ -39,10 +39,10 @@ namespace ZThread {
    * @version 2.2.11
    *
    * This FastLock implementation is based on a Win32 Mutex
-   * object. This will perform better under high contention, 
+   * object. This will perform better under high contention,
    * but will not be as fast as the spin lock under reasonable
    * circumstances.
-   */ 
+   */
   class FastLock : private NonCopyable {
 
     HANDLE _hMutex;
@@ -51,11 +51,11 @@ namespace ZThread {
 #endif
 
   public:
-  
+
     /**
      * Create a new FastLock
      */
-    FastLock() { 
+    FastLock() {
 
 #ifndef NDEBUG
       _locked = false;
@@ -68,11 +68,11 @@ namespace ZThread {
 
     }
 
-  
+
     ~FastLock() {
       ::CloseHandle(_hMutex);
     }
-  
+
   void acquire() {
 
     if(::WaitForSingleObject(_hMutex, INFINITE) != WAIT_OBJECT_0) {
@@ -113,7 +113,7 @@ namespace ZThread {
 
     switch(::WaitForSingleObject(_hMutex, timeout)) {
       case WAIT_OBJECT_0:
-      
+
 #ifndef NDEBUG
 
         // Simulate deadlock to provide consistent behavior. This
@@ -122,7 +122,7 @@ namespace ZThread {
 
         while(_locked)
           ThreadOps::yield();
-      
+
         _locked = true;
 
 #endif

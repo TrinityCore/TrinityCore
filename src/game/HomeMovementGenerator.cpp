@@ -70,10 +70,10 @@ HomeMovementGenerator<Creature>::Update(Creature &owner, const uint32& time_diff
         // restore orientation of not moving creature at returning to home
         if(owner.GetDefaultMovementType()==IDLE_MOTION_TYPE)
         {
-			owner.SetOrientation(ori);
-			WorldPacket packet;
-			owner.BuildHeartBeatMsg(&packet);
-			owner.SendMessageToSet(&packet, false);
+            owner.SetOrientation(ori);
+            WorldPacket packet;
+            owner.BuildHeartBeatMsg(&packet);
+            owner.SendMessageToSet(&packet, false);
         }
         return false;
     }

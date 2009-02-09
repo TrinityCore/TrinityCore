@@ -29,7 +29,7 @@ struct StringTextData
     uint32 SoundId;
     uint8  Type;
     uint32 Language;
-	uint32 Emote;
+    uint32 Emote;
 };
 
 // Enums used by StringTextData::Type
@@ -677,7 +677,7 @@ void LoadDatabase()
             temp.SoundId        = fields[1].GetInt32();
             temp.Type           = fields[2].GetInt32();
             temp.Language       = fields[3].GetInt32();
-			temp.Emote          = 0;//fields[4].GetInt32();
+            temp.Emote          = 0;//fields[4].GetInt32();
 
             if (i >= 0)
             {
@@ -742,7 +742,7 @@ void LoadDatabase()
             temp.SoundId        = fields[1].GetInt32();
             temp.Type           = fields[2].GetInt32();
             temp.Language       = fields[3].GetInt32();
-			temp.Emote          = fields[4].GetInt32();
+            temp.Emote          = fields[4].GetInt32();
 
             if (i >= 0)
             {
@@ -807,7 +807,7 @@ void LoadDatabase()
             temp.SoundId        = fields[1].GetInt32();
             temp.Type           = fields[2].GetInt32();
             temp.Language       = fields[3].GetInt32();
-			temp.Emote          = fields[4].GetInt32();
+            temp.Emote          = fields[4].GetInt32();
 
             if (i >= 0)
             {
@@ -1211,7 +1211,7 @@ void ScriptsFree()
     delete []SpellSummary;
 
     // Free resources before library unload
-	for(int i=0;i<num_sc_scripts;i++)
+    for(int i=0;i<num_sc_scripts;i++)
         delete m_scripts[i];
 
     num_sc_scripts = 0;
@@ -1319,15 +1319,15 @@ void ScriptsInit()
     AddSC_alterac_mountains();
 
     //Arathi Highlands
-	AddSC_arathi_highlands();
+    AddSC_arathi_highlands();
 
     //Ashenvale Forest
-	AddSC_ashenvale();
+    AddSC_ashenvale();
 
     //Aunchindoun
     //--Auchenai Crypts
     AddSC_boss_exarch_maladaar();
-	AddSC_boss_shirrak_the_dead_watcher();
+    AddSC_boss_shirrak_the_dead_watcher();
 
     //--Mana Tombs
     AddSC_boss_nexusprince_shaffar();
@@ -1372,17 +1372,17 @@ void ScriptsInit()
     //Blackfathom Depths
     //Blackrock Depths
     AddSC_blackrock_depths();
-	AddSC_boss_ambassador_flamelash();
-	AddSC_boss_anubshiah();
-	AddSC_boss_draganthaurissan();
-	AddSC_boss_general_angerforge();
-	AddSC_boss_gorosh_the_dervish();
-	AddSC_boss_grizzle();
-	AddSC_boss_high_interrogator_gerstahn();
-	AddSC_boss_magmus();
-	AddSC_boss_moira_bronzebeard();
-	AddSC_boss_tomb_of_seven();
-	AddSC_instance_blackrock_depths();
+    AddSC_boss_ambassador_flamelash();
+    AddSC_boss_anubshiah();
+    AddSC_boss_draganthaurissan();
+    AddSC_boss_general_angerforge();
+    AddSC_boss_gorosh_the_dervish();
+    AddSC_boss_grizzle();
+    AddSC_boss_high_interrogator_gerstahn();
+    AddSC_boss_magmus();
+    AddSC_boss_moira_bronzebeard();
+    AddSC_boss_tomb_of_seven();
+    AddSC_instance_blackrock_depths();
 
     //Blackrock Spire
     AddSC_boss_drakkisath();
@@ -1439,8 +1439,8 @@ void ScriptsInit()
     AddSC_boss_aeonus();
     AddSC_boss_chrono_lord_deja();
     AddSC_boss_temporus();
-	AddSC_dark_portal();
-	AddSC_instance_dark_portal();
+    AddSC_dark_portal();
+    AddSC_instance_dark_portal();
 
     //Coilfang Resevoir
     //--Serpent Shrine Cavern
@@ -1450,7 +1450,7 @@ void ScriptsInit()
     AddSC_boss_leotheras_the_blind();
     AddSC_boss_morogrim_tidewalker();
     AddSC_instance_serpentshrine_cavern();
-	AddSC_boss_the_lurker_below();
+    AddSC_boss_the_lurker_below();
 
     //--Slave Pens
     //--Steam Vault
@@ -1509,7 +1509,7 @@ void ScriptsInit()
     AddSC_boss_broggok();
     AddSC_boss_kelidan_the_breaker();
     AddSC_boss_the_maker();
-	AddSC_instance_blood_furnace();
+    AddSC_instance_blood_furnace();
 
     //--Magtheridon's Lair
     AddSC_boss_magtheridon();
@@ -1549,7 +1549,7 @@ void ScriptsInit()
     AddSC_bosses_opera();
     AddSC_instance_karazhan();
     AddSC_karazhan();
-	AddSC_boss_nightbane();
+    AddSC_boss_nightbane();
 
     //Loch Modan
     AddSC_loch_modan();
@@ -1604,7 +1604,7 @@ void ScriptsInit()
     AddSC_boss_noth();
     AddSC_boss_gluth();
     AddSC_boss_sapphiron();
-	AddSC_boss_four_horsemen();
+    AddSC_boss_four_horsemen();
 
     //Netherstorm
     AddSC_netherstorm();
@@ -1619,8 +1619,8 @@ void ScriptsInit()
     //Razorfen Downs
     AddSC_boss_amnennar_the_coldbringer();
 
-	//Razorfen Kraul
-	AddSC_razorfen_kraul();
+    //Razorfen Kraul
+    AddSC_razorfen_kraul();
 
     //Redridge Mountains
     //Ruins of Ahn'Qiraj
@@ -1628,14 +1628,14 @@ void ScriptsInit()
     AddSC_boss_arcanist_doan();
     AddSC_boss_azshir_the_sleepless();
     AddSC_boss_bloodmage_thalnos();
-	AddSC_boss_headless_horseman();
+    AddSC_boss_headless_horseman();
     AddSC_boss_herod();
     AddSC_boss_high_inquisitor_fairbanks();
     AddSC_boss_houndmaster_loksey();
     AddSC_boss_interrogator_vishas();
     AddSC_boss_scorn();
-	AddSC_instance_scarlet_monastery();
-	AddSC_boss_mograine_and_whitemane();
+    AddSC_instance_scarlet_monastery();
+    AddSC_boss_mograine_and_whitemane();
 
     //Scholomance
     AddSC_boss_darkmaster_gandling();
@@ -1701,10 +1701,10 @@ void ScriptsInit()
     AddSC_stratholme();
 
     //Sunken Temple
-	//Sunwell Plateau
+    //Sunwell Plateau
     AddSC_instance_sunwell_plateau();
     AddSC_boss_kalecgos();
-	AddSC_boss_brutallus();
+    AddSC_boss_brutallus();
     AddSC_boss_felmyst();
     AddSC_boss_eredar_twins();
 
@@ -1752,7 +1752,7 @@ void ScriptsInit()
     AddSC_terokkar_forest();
 
     //Thousand Needles
-	AddSC_thousand_needles();
+    AddSC_thousand_needles();
 
     //Thunder Bluff
     AddSC_thunder_bluff();
@@ -1770,7 +1770,7 @@ void ScriptsInit()
     AddSC_undercity();
 
     //Un'Goro Crater
-	AddSC_ungoro_crater();
+    AddSC_ungoro_crater();
 
     //Upper blackrock spire
     //Wailing caverns
@@ -1789,7 +1789,7 @@ void ScriptsInit()
     AddSC_zangarmarsh();
 
     //Zul'Farrak
-	AddSC_zulfarrak();
+    AddSC_zulfarrak();
 
     //Zul'Gurub
     AddSC_boss_jeklik();
@@ -1809,17 +1809,17 @@ void ScriptsInit()
 
     //Zul'Aman
     AddSC_boss_akilzon();
-	AddSC_boss_halazzi();
-	AddSC_boss_hex_lord_malacrass();
-	AddSC_boss_janalai();
-	AddSC_boss_nalorakk();
-	AddSC_boss_zuljin();
-	AddSC_instance_zulaman();
-	AddSC_zulaman();
+    AddSC_boss_halazzi();
+    AddSC_boss_hex_lord_malacrass();
+    AddSC_boss_janalai();
+    AddSC_boss_nalorakk();
+    AddSC_boss_zuljin();
+    AddSC_instance_zulaman();
+    AddSC_zulaman();
 
     // -------------------
 
-	outstring_log(">> Loaded %i C++ Scripts.", num_sc_scripts);
+    outstring_log(">> Loaded %i C++ Scripts.", num_sc_scripts);
 
     outstring_log(">> Load Overriden SQL Data.");
     LoadOverridenSQLData();
@@ -1864,15 +1864,15 @@ void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target)
             error_log("TSCR: DoScriptText entry %i tried to process invalid sound id %u.",textEntry,(*i).second.SoundId);
     }
 
-	if((*i).second.Emote)
-	{
-		if (pSource->GetTypeId() == TYPEID_UNIT || pSource->GetTypeId() == TYPEID_PLAYER)
-		{
-			((Unit*)pSource)->HandleEmoteCommand((*i).second.Emote);
-		}
-		else
-			error_log("TSCR: DoScriptText entry %i tried to process emote for invalid TypeId (%u).",textEntry,pSource->GetTypeId());
-	}
+    if((*i).second.Emote)
+    {
+        if (pSource->GetTypeId() == TYPEID_UNIT || pSource->GetTypeId() == TYPEID_PLAYER)
+        {
+            ((Unit*)pSource)->HandleEmoteCommand((*i).second.Emote);
+        }
+        else
+            error_log("TSCR: DoScriptText entry %i tried to process emote for invalid TypeId (%u).",textEntry,pSource->GetTypeId());
+    }
 
     switch((*i).second.Type)
     {
@@ -1923,7 +1923,7 @@ void Script::RegisterSelf()
 TRINITY_DLL_EXPORT
 char const* ScriptsVersion()
 {
-	return "Default Trinity scripting library";
+    return "Default Trinity scripting library";
 }
 TRINITY_DLL_EXPORT
 bool GossipHello ( Player * player, Creature *_Creature )

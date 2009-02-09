@@ -283,7 +283,7 @@ struct CreatureDataAddon
 {
     uint32 guidOrEntry;
     uint32 path_id;
-	uint32 mount;
+    uint32 mount;
     uint32 bytes0;
     uint32 bytes1;
     uint32 bytes2;
@@ -622,18 +622,18 @@ class TRINITY_DLL_SPEC Creature : public Unit
 
         uint32 GetGlobalCooldown() const { return m_GlobalCooldown; }
 
-		uint32 GetWaypointPath(){return m_path_id;}
-		void LoadPath(uint32 pathid) { m_path_id = pathid; }
+        uint32 GetWaypointPath(){return m_path_id;}
+        void LoadPath(uint32 pathid) { m_path_id = pathid; }
 
-		uint32 GetCurrentWaypointID(){return m_waypointID;}
-		void UpdateWaypointID(uint32 wpID){m_waypointID = wpID;}
+        uint32 GetCurrentWaypointID(){return m_waypointID;}
+        void UpdateWaypointID(uint32 wpID){m_waypointID = wpID;}
 
-		void SearchFormation();
-		bool IsFormationLeader() {return (GetDBTableGUIDLow() && GetDBTableGUIDLow() == m_formationID);}
-		uint32 GetFormationID(){return m_formationID;}
+        void SearchFormation();
+        bool IsFormationLeader() {return (GetDBTableGUIDLow() && GetDBTableGUIDLow() == m_formationID);}
+        uint32 GetFormationID(){return m_formationID;}
 
         Unit *SelectVictim();
-	protected:
+    protected:
         bool CreateFromProto(uint32 guidlow,uint32 Entry,uint32 team, const CreatureData *data = NULL);
         bool InitEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);
 
@@ -681,17 +681,17 @@ class TRINITY_DLL_SPEC Creature : public Unit
         float mHome_X;
         float mHome_Y;
         float mHome_Z;
-		float mHome_O;
+        float mHome_O;
 
     private:
-		//WaypointMovementGenerator vars
-		uint32 m_waypointID;
-		uint32 m_path_id;
+        //WaypointMovementGenerator vars
+        uint32 m_waypointID;
+        uint32 m_path_id;
 
-		//Formation var
-		uint32 m_formationID;
+        //Formation var
+        uint32 m_formationID;
 
-		GridReference<Creature> m_gridRef;
+        GridReference<Creature> m_gridRef;
         CreatureInfo const* m_creatureInfo;                 // in heroic mode can different from ObjMgr::GetCreatureTemplate(GetEntry())
 };
 

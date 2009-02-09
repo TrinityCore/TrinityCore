@@ -35,7 +35,7 @@ namespace ZThread {
    *
    * @see ThreadLocal
    */
-  class ZTHREAD_API ThreadLocalImpl : private NonCopyable {   
+  class ZTHREAD_API ThreadLocalImpl : private NonCopyable {
   public:
 
     class Value;
@@ -52,17 +52,17 @@ namespace ZThread {
 
     //! Create a ThreadLocalImpl
     ThreadLocalImpl();
-  
+
     //! Destroy a ThreadLocalImpl
     ~ThreadLocalImpl();
-  
+
     /**
      * @class InitialValueFn
      */
     template <typename T>
-    struct InitialValueFn {      
+    struct InitialValueFn {
       T operator()() { return T(); }
-    }; 
+    };
 
     /**
      * @class ChildValueFn
@@ -71,18 +71,18 @@ namespace ZThread {
       template <typename T>
       T operator()(const T& value) { return T(value); }
     };
- 
+
     /**
      * @class UniqueChildValueFn
      */
     struct UniqueChildValueFn : public ChildValueFn { };
-    
+
     /**
      * @class InheritableValueFn
      */
     struct InheritableValueFn {
 
-      template <typename T>    
+      template <typename T>
       bool operator()(const T&) { return true; }
 
       bool operator()(const UniqueChildValueFn&) { return false; }

@@ -25,7 +25,7 @@
 
 // =====================================================================================
 // The following section describes the symbols the configure program will define.
-// If you are not using configure (autoconf), then you make want to set these by 
+// If you are not using configure (autoconf), then you make want to set these by
 // uncommenting them here, or whatever other means you'd like.
 // =====================================================================================
 
@@ -75,7 +75,7 @@
 // Uncomment to select the vannila dual mutex implementation of FastRecursiveLock
 // #define ZTHREAD_DUAL_LOCKS 1
 
-// Uncomment to select a POSIX implementation of FastRecursiveLock that does not 
+// Uncomment to select a POSIX implementation of FastRecursiveLock that does not
 // spin, but instead sleeps on a condition variable.
 // #define ZTHREAD_CONDITION_LOCKS 1
 
@@ -92,7 +92,7 @@
 // The following section will attempt to guess the best configuration for your system
 // ===================================================================================
 
-// Select an implementation by checking out the environment, first looking for 
+// Select an implementation by checking out the environment, first looking for
 // compilers, then by looking for other definitions that could be present
 
 #if !defined(ZT_POSIX) && !defined(ZT_WIN9X) && !defined(ZT_WIN32) && !defined(ZT_MACOS)
@@ -116,7 +116,7 @@
 #  define ZT_POSIX
 
 // Check for definitions from well known headers
-#elif defined(_POSIX_SOURCE) || defined(_XOPEN_SOURCE) 
+#elif defined(_POSIX_SOURCE) || defined(_XOPEN_SOURCE)
 
 #  define ZT_POSIX
 
@@ -148,8 +148,8 @@
 
 #endif
 
-// Windows users will get a static build by default, unless they 
-// define either ZTHREAD_IMPORTS or ZTHREAD_EXPORTS. Client code 
+// Windows users will get a static build by default, unless they
+// define either ZTHREAD_IMPORTS or ZTHREAD_EXPORTS. Client code
 // of a dll version of this library should define the first flag;
 // To build the dll version of this library, define the second.
 
@@ -157,29 +157,29 @@
 #  error "Import and export declarations are not valid"
 #else
 
-#  if defined(ZTHREAD_IMPORTS) 
+#  if defined(ZTHREAD_IMPORTS)
 #    define ZTHREAD_API __declspec(dllimport)
-#  elif defined(ZTHREAD_EXPORTS) 
+#  elif defined(ZTHREAD_EXPORTS)
 #    define ZTHREAD_API __declspec(dllexport)
 #  else
-#    define ZTHREAD_API 
+#    define ZTHREAD_API
 #  endif
 
 #endif
 
-// Once the API decorator is configured, create a macro for 
-// explicit template instantiation (whose need can hopefully 
+// Once the API decorator is configured, create a macro for
+// explicit template instantiation (whose need can hopefully
 // be removed from the library)
 
 #if defined(ZTHREAD_EXPORTS)
-#  define EXPLICIT_TEMPLATE(X) template class __declspec( dllexport ) X; 
+#  define EXPLICIT_TEMPLATE(X) template class __declspec( dllexport ) X;
 #elif defined(ZTHREAD_IMPORTS)
-#  define EXPLICIT_TEMPLATE(X) template class __declspec( dllimport ) X; 
+#  define EXPLICIT_TEMPLATE(X) template class __declspec( dllimport ) X;
 #else
 #  define EXPLICIT_TEMPLATE(X)
 #endif
 
-// Give libc a hint, should be defined by the user - but people tend 
+// Give libc a hint, should be defined by the user - but people tend
 // to forget.
 
 #if !defined(REENTRANT)
@@ -192,7 +192,7 @@
 
 #if defined(_MSC_VER)
 #  pragma warning(disable:4275)
-#  pragma warning(disable:4290) 
+#  pragma warning(disable:4290)
 #  pragma warning(disable:4786)
 #  pragma warning(disable:4251)
 #  pragma warning(disable:4355)
@@ -202,16 +202,16 @@
 #if \
 (defined(ZT_POSIX) && defined(ZT_WIN32)) \
  || (defined(ZT_POSIX) && defined(ZT_WIN9X)) \
-    || (defined(ZT_WIN32) && defined(ZT_WIN9X)) 
+    || (defined(ZT_WIN32) && defined(ZT_WIN9X))
 
 #  error "Only one implementation should be selected!"
 
 #endif
 
 #if defined(ZTHREAD_NOINLINE)
-#  define ZTHREAD_INLINE 
+#  define ZTHREAD_INLINE
 #else
-#  define ZTHREAD_INLINE inline 
+#  define ZTHREAD_INLINE inline
 #endif
 
 #endif // __ZTCONFIG_H__

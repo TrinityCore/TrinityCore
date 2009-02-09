@@ -44,7 +44,7 @@ Group::Group()
     m_lootMethod        = (LootMethod)0;
     m_looterGuid        = 0;
     m_lootThreshold     = ITEM_QUALITY_UNCOMMON;
-	m_subGroupsCounts   = NULL;
+    m_subGroupsCounts   = NULL;
 
     for(int i=0; i<TARGETICONCOUNT; i++)
         m_targetIcons[i] = 0;
@@ -74,8 +74,8 @@ Group::~Group()
     for(uint8 i = 0; i < TOTAL_DIFFICULTIES; i++)
         for(BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
             itr->second.save->RemoveGroup(this);
-	if (m_subGroupsCounts)
-		delete[] m_subGroupsCounts;
+    if (m_subGroupsCounts)
+        delete[] m_subGroupsCounts;
 }
 
 bool Group::Create(const uint64 &guid, const char * name)
@@ -85,8 +85,8 @@ bool Group::Create(const uint64 &guid, const char * name)
 
     m_groupType  = isBGGroup() ? GROUPTYPE_RAID : GROUPTYPE_NORMAL;
 
-	if (m_groupType == GROUPTYPE_RAID)
-		_initRaidSubGroupsCounter();
+    if (m_groupType == GROUPTYPE_RAID)
+        _initRaidSubGroupsCounter();
 
     m_lootMethod = GROUP_LOOT;
     m_lootThreshold = ITEM_QUALITY_UNCOMMON;
@@ -144,8 +144,8 @@ bool Group::LoadGroupFromDB(const uint64 &leaderGuid, QueryResult *result, bool 
 
     m_groupType  = (*result)[13].GetBool() ? GROUPTYPE_RAID : GROUPTYPE_NORMAL;
 
-	if (m_groupType == GROUPTYPE_RAID)
-		_initRaidSubGroupsCounter();
+    if (m_groupType == GROUPTYPE_RAID)
+        _initRaidSubGroupsCounter();
 
     m_difficulty = (*result)[14].GetUInt8();
     m_mainTank = (*result)[0].GetUInt64();
@@ -190,19 +190,19 @@ bool Group::LoadMemberFromDB(uint32 guidLow, uint8 subgroup, bool assistant)
     member.assistant = assistant;
     m_memberSlots.push_back(member);
 
-	SubGroupCounterIncrease(subgroup);
+    SubGroupCounterIncrease(subgroup);
 
     return true;
 }
 
 void Group::ConvertToRaid()
 {
-	m_groupType = GROUPTYPE_RAID;
+    m_groupType = GROUPTYPE_RAID;
 
-	_initRaidSubGroupsCounter();
+    _initRaidSubGroupsCounter();
 
-	if(!isBGGroup()) CharacterDatabase.PExecute("UPDATE groups SET isRaid = 1 WHERE leaderGuid='%u'", GUID_LOPART(m_leaderGuid));
-	SendUpdate();
+    if(!isBGGroup()) CharacterDatabase.PExecute("UPDATE groups SET isRaid = 1 WHERE leaderGuid='%u'", GUID_LOPART(m_leaderGuid));
+    SendUpdate();
 }
 
 bool Group::AddInvite(Player *player)
@@ -974,17 +974,17 @@ bool Group::_addMember(const uint64 &guid, const char* name, bool isAssistant)
     if (m_subGroupsCounts)
     {
         bool groupFound = false;
-		for (; groupid < MAXRAIDSIZE/MAXGROUPSIZE; ++groupid)
-		{
-			if (m_subGroupsCounts[groupid] < MAXGROUPSIZE)
-			{
-				groupFound = true;
-				break;
-			}
-		}
-		// We are raid group and no one slot is free
-		if (!groupFound)
-				return false;
+        for (; groupid < MAXRAIDSIZE/MAXGROUPSIZE; ++groupid)
+        {
+            if (m_subGroupsCounts[groupid] < MAXGROUPSIZE)
+            {
+                groupFound = true;
+                break;
+            }
+        }
+        // We are raid group and no one slot is free
+        if (!groupFound)
+                return false;
     }
 
     return _addMember(guid, name, isAssistant, groupid);
@@ -1007,7 +1007,7 @@ bool Group::_addMember(const uint64 &guid, const char* name, bool isAssistant, u
     member.assistant = isAssistant;
     m_memberSlots.push_back(member);
 
-	SubGroupCounterIncrease(group);
+    SubGroupCounterIncrease(group);
 
     if(player)
     {
@@ -1046,10 +1046,10 @@ bool Group::_removeMember(const uint64 &guid)
 
     member_witerator slot = _getMemberWSlot(guid);
     if (slot != m_memberSlots.end())
-	{
-		SubGroupCounterDecrease(slot->group);
+    {
+        SubGroupCounterDecrease(slot->group);
         m_memberSlots.erase(slot);
-	}
+    }
 
     if(!isBGGroup())
         CharacterDatabase.PExecute("DELETE FROM group_member WHERE memberGuid='%u'", GUID_LOPART(guid));
@@ -1150,7 +1150,7 @@ bool Group::_setMembersGroup(const uint64 &guid, const uint8 &group)
 
     slot->group = group;
 
-	SubGroupCounterIncrease(group);
+    SubGroupCounterIncrease(group);
 
     if(!isBGGroup()) CharacterDatabase.PExecute("UPDATE group_member SET subgroup='%u' WHERE memberGuid='%u'", group, GUID_LOPART(guid));
 
@@ -1209,16 +1209,16 @@ void Group::ChangeMembersGroup(const uint64 &guid, const uint8 &group)
     Player *player = objmgr.GetPlayer(guid);
     if (!player)
     {
-		uint8 prevSubGroup;
-		prevSubGroup = GetMemberGroup(guid);
+        uint8 prevSubGroup;
+        prevSubGroup = GetMemberGroup(guid);
 
-		SubGroupCounterDecrease(prevSubGroup);
+        SubGroupCounterDecrease(prevSubGroup);
 
         if(_setMembersGroup(guid, group))
             SendUpdate();
     }
     else
-		ChangeMembersGroup(player, group);
+        ChangeMembersGroup(player, group);
 }
 
 // only for online members
@@ -1228,10 +1228,10 @@ void Group::ChangeMembersGroup(Player *player, const uint8 &group)
         return;
     if(_setMembersGroup(player->GetGUID(), group))
     {
-		uint8 prevSubGroup;
-		prevSubGroup = player->GetSubGroup();
+        uint8 prevSubGroup;
+        prevSubGroup = player->GetSubGroup();
 
-		SubGroupCounterDecrease(prevSubGroup);
+        SubGroupCounterDecrease(prevSubGroup);
 
         player->GetGroupRef().setSubGroup(group);
         SendUpdate();

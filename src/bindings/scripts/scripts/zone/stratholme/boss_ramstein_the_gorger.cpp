@@ -31,13 +31,13 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_ramstein_the_gorgerAI : public ScriptedAI
 {
-	boss_ramstein_the_gorgerAI(Creature *c) : ScriptedAI(c)
-	{
-		pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
-		Reset();
-	}
+    boss_ramstein_the_gorgerAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
+        Reset();
+    }
 
-	ScriptedInstance* pInstance;
+    ScriptedInstance* pInstance;
 
     uint32 Trample_Timer;
     uint32 Knockout_Timer;
@@ -52,14 +52,14 @@ struct TRINITY_DLL_DECL boss_ramstein_the_gorgerAI : public ScriptedAI
     {
     }
 
-	void JustDied(Unit* Killer)
-	{
-		for(uint8 i = 0; i < 30; i++)
-			m_creature->SummonCreature(C_MINDLESS_UNDEAD,3969.35,-3391.87,119.11,5.91,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1800000);
+    void JustDied(Unit* Killer)
+    {
+        for(uint8 i = 0; i < 30; i++)
+            m_creature->SummonCreature(C_MINDLESS_UNDEAD,3969.35,-3391.87,119.11,5.91,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1800000);
 
-		if (pInstance)
-			pInstance->SetData(TYPE_RAMSTEIN,DONE);
-	}
+        if (pInstance)
+            pInstance->SetData(TYPE_RAMSTEIN,DONE);
+    }
 
     void UpdateAI(const uint32 diff)
     {
@@ -77,7 +77,7 @@ struct TRINITY_DLL_DECL boss_ramstein_the_gorgerAI : public ScriptedAI
         //Knockout
         if (Knockout_Timer < diff)
         {
-			DoCast(m_creature->getVictim(),SPELL_KNOCKOUT);
+            DoCast(m_creature->getVictim(),SPELL_KNOCKOUT);
             Knockout_Timer = 10000;
         }else Knockout_Timer -= diff;
 

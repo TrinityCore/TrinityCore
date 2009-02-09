@@ -39,21 +39,21 @@ namespace ZThread {
  * @version 2.2.11
  *
  * This FastRecursiveLock implementation is based on a Win32 Mutex
- * object. This will perform better under high contention, 
+ * object. This will perform better under high contention,
  * but will not be as fast as the spin lock under reasonable
  * circumstances.
- */ 
+ */
 class FastRecursiveLock : private NonCopyable {
 
   HANDLE _hMutex;
   volatile unsigned int _count;
 
   public:
-  
+
   /**
    * Create a new FastRecursiveLock
    */
-  FastRecursiveLock() : _count(0) { 
+  FastRecursiveLock() : _count(0) {
 
     _hMutex = ::CreateMutex(0, 0, 0);
     assert(_hMutex != NULL);
@@ -62,12 +62,12 @@ class FastRecursiveLock : private NonCopyable {
 
   }
 
-  
+
   ~FastRecursiveLock() {
     ::CloseHandle(_hMutex);
   }
 
-  
+
   void acquire() {
 
     if(::WaitForSingleObject(_hMutex, INFINITE) != WAIT_OBJECT_0) {

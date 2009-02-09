@@ -27,35 +27,35 @@
 
 struct FormationMember
 {
-	float follow_dist;
-	float follow_angle;
-	uint32 memberGUID;
-	uint32 leaderGUID;
-	uint8 groupAI;
+    float follow_dist;
+    float follow_angle;
+    uint32 memberGUID;
+    uint32 leaderGUID;
+    uint8 groupAI;
 };
 
 class CreatureGroupManager
 {
-	public:
-		void UpdateCreatureGroup(uint32 group_id, Creature *member);
-		void DestroyGroup(uint32 group_id, uint64 guid);
-		void LoadCreatureFormations();
+    public:
+        void UpdateCreatureGroup(uint32 group_id, Creature *member);
+        void DestroyGroup(uint32 group_id, uint64 guid);
+        void LoadCreatureFormations();
 };
 
 class CreatureGroup
 {
-	UNORDERED_MAP<uint64, Creature*>CreatureGroupMembers;
-	Creature *m_leader; //Important do not forget sometimes to work with pointers instead synonims :D:D
+    UNORDERED_MAP<uint64, Creature*>CreatureGroupMembers;
+    Creature *m_leader; //Important do not forget sometimes to work with pointers instead synonims :D:D
 
-	public:
-		CreatureGroup() : m_leader(NULL) {}
-		~CreatureGroup(){sLog.outDebug("Destroying group");}
-		void AddMember(Creature *);
-		void RemoveMember(uint64 guid);
-		void LeaderMovedInEvade();
-		void MemberHasAttacked(Creature *);
-		void SetMemberDestination(Creature *);
-		bool isEmpty() {return CreatureGroupMembers.empty();}
+    public:
+        CreatureGroup() : m_leader(NULL) {}
+        ~CreatureGroup(){sLog.outDebug("Destroying group");}
+        void AddMember(Creature *);
+        void RemoveMember(uint64 guid);
+        void LeaderMovedInEvade();
+        void MemberHasAttacked(Creature *);
+        void SetMemberDestination(Creature *);
+        bool isEmpty() {return CreatureGroupMembers.empty();}
 };
 
 typedef UNORDERED_MAP<uint32, CreatureGroup*> CreatureGroupHolderType;

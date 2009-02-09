@@ -39,10 +39,10 @@ namespace ZThread {
    *
    * A FastRecursiveMutex is a small fast implementation of a recursive, mutally exclusive
    * Lockable object. This implementation is a bit faster than the other Mutex classes
-   * as it involved the least overhead. However, this slight increase in speed is 
-   * gained by sacrificing the robustness provided by the other classes. 
+   * as it involved the least overhead. However, this slight increase in speed is
+   * gained by sacrificing the robustness provided by the other classes.
    *
-   * A FastRecursiveMutex has the useful property of not being interruptable; that is to say  
+   * A FastRecursiveMutex has the useful property of not being interruptable; that is to say
    * that acquire() and tryAcquire() will not throw Interrupted_Exceptions.
    *
    * @see RecursiveMutex
@@ -54,13 +54,13 @@ namespace ZThread {
    * <b>Error Checking</b>
    *
    * No error checking is performed, this means there is the potential for deadlock.
-   */ 
+   */
   class ZTHREAD_API FastRecursiveMutex : public Lockable, private NonCopyable {
-    
+
     FastRecursiveLock* _lock;
 
   public:
-  
+
     //! Create a new FastRecursiveMutex
     FastRecursiveMutex();
 
@@ -68,7 +68,7 @@ namespace ZThread {
     virtual ~FastRecursiveMutex();
 
     /**
-     * Acquire exclusive access to the mutex. The calling thread will block until the 
+     * Acquire exclusive access to the mutex. The calling thread will block until the
      * lock can be acquired. No safety or state checks are performed. The calling thread
      * may acquire the mutex nore than once.
      *
@@ -76,21 +76,21 @@ namespace ZThread {
      * @exception Interrupted_Exception never thrown
      */
     virtual void acquire();
-  
+
     /**
      * Release access. No safety or state checks are performed.
-     * 
+     *
      * @pre the caller should have previously acquired this lock at least once.
      */
     virtual void release();
-  
+
     /**
-     * Try to acquire exclusive access to the mutex. The calling thread will block until the 
+     * Try to acquire exclusive access to the mutex. The calling thread will block until the
      * lock can be acquired. No safety or state checks are performed. The calling thread
      * may acquire the mutex more than once.
      *
      * @param timeout unused
-     * @return 
+     * @return
      * - <em>true</em> if the lock was acquired
      * - <em>false</em> if the lock was acquired
      *
@@ -98,8 +98,8 @@ namespace ZThread {
      * @exception Interrupted_Exception never thrown
      */
     virtual bool tryAcquire(unsigned long timeout);
-  
-  }; 
+
+  };
 
 } // namespace ZThread
 

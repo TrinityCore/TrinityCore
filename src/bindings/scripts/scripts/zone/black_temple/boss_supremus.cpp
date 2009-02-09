@@ -152,11 +152,11 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
             return;
 
         if(!m_creature->HasAura(SPELL_BERSERK, 0))
-		{
+        {
             if(BerserkTimer < diff)
                 DoCast(m_creature, SPELL_BERSERK);
             else BerserkTimer -= diff;
-		}
+        }
 
         if(SummonFlameTimer < diff)
         {
@@ -184,7 +184,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
                 {
                     DoResetThreat();
                     m_creature->AddThreat(target, 5000000.0f);
-					DoScriptText(EMOTE_NEW_TARGET, m_creature);
+                    DoScriptText(EMOTE_NEW_TARGET, m_creature);
                     SwitchTargetTimer = 10000;
                 }
             }else SwitchTargetTimer -= diff;
@@ -193,11 +193,11 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
             {
                 if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0, 999, true))
                 {
-					if(!target)
-						target = m_creature->getVictim();
+                    if(!target)
+                        target = m_creature->getVictim();
 
                     DoCast(target, SPELL_VOLCANIC_SUMMON);
-					DoScriptText(EMOTE_GROUND_CRACK, m_creature);
+                    DoScriptText(EMOTE_GROUND_CRACK, m_creature);
                     SummonVolcanoTimer = 10000;
                 }
             }else SummonVolcanoTimer -= diff;
@@ -306,7 +306,7 @@ void AddSC_boss_supremus()
     newscript->GetAI = &GetAI_molten_flame;
     newscript->RegisterSelf();
 
-	newscript = new Script;
+    newscript = new Script;
     newscript->Name="npc_volcano";
     newscript->GetAI = &GetAI_npc_volcano;
     newscript->RegisterSelf();

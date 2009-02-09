@@ -379,7 +379,7 @@ ACE_OutputCDR::write_wstring (ACE_CDR::ULong len,
             this->write_ulong (
               ACE_Utils::truncate_cast<ACE_CDR::ULong> (
                 ACE_OutputCDR::wchar_maxbytes_ * len));
-          
+
           if (good_ulong)
             {
               return this->write_wchar_array (x, len);
@@ -1371,7 +1371,7 @@ ACE_InputCDR::read_wstring (ACE_CDR::WChar*& x)
     }
 
   ACE_CDR::ULong len = 0;
-  
+
   if (!this->read_ulong (len))
     {
       return false;

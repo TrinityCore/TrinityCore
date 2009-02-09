@@ -70,18 +70,18 @@ struct TRINITY_DLL_DECL boss_sarturaAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-		DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, m_creature);
     }
 
-	 void JustDied(Unit* Killer)
-	 {
-		 DoScriptText(SAY_DEATH, m_creature);
-	 }
+     void JustDied(Unit* Killer)
+     {
+         DoScriptText(SAY_DEATH, m_creature);
+     }
 
-	 void KilledUnit(Unit* victim)
-	 {
-		 DoScriptText(SAY_SLAY, m_creature);
-	 }
+     void KilledUnit(Unit* victim)
+     {
+         DoScriptText(SAY_SLAY, m_creature);
+     }
 
     void UpdateAI(const uint32 diff)
     {

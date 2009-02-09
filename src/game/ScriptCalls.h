@@ -65,7 +65,7 @@ typedef struct
 {
     scriptCallScriptsInit ScriptsInit;
     scriptCallScriptsFree ScriptsFree;
-	scriptCallScriptsVersion ScriptsVersion;
+    scriptCallScriptsVersion ScriptsVersion;
 
     scriptCallGossipHello GossipHello;
     scriptCallGOChooseReward GOChooseReward;

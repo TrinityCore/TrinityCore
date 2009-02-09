@@ -33,12 +33,12 @@ namespace ZThread {
    * @date <2003-07-27T14:18:43-0400>
    * @version 2.3.0
    *
-   * An abstraction for dealing with WIN32 thread specific storage (tss). 
+   * An abstraction for dealing with WIN32 thread specific storage (tss).
    * Provides get/set and creation/destruction.
    */
   template <typename T>
     class TSS {
-  
+
     DWORD _key;
     bool _valid;
 
@@ -55,16 +55,16 @@ namespace ZThread {
     }
 
     /**
-     * Destroy the underlying supoprt for accessing tss with this 
+     * Destroy the underlying supoprt for accessing tss with this
      * object.
      */
     virtual ~TSS() {
-  
-      if(_valid) 
+
+      if(_valid)
         ::TlsFree(_key);
-   
+
     }
- 
+
     /**
      * Get the value stored in tss.
      *
@@ -97,8 +97,8 @@ namespace ZThread {
       return oldValue;
 
     }
- 
- 
+
+
   };
 
 }

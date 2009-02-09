@@ -56,7 +56,7 @@ namespace VMAP
         Vector3 lo = Vector3(inf(), inf(), inf());
         Vector3 hi = Vector3(-inf(), -inf(), -inf());
 
-        for(int i=0; i<	root->getNValues(); i++) {
+        for(int i=0; i< root->getNValues(); i++) {
             SubModel sm = pModelContainer->getSubModel(root->getStartPosition() + i);
             lo = lo.min(sm.getAABoxBounds().low());
             hi = hi.max(sm.getAABoxBounds().high());
@@ -502,7 +502,7 @@ namespace VMAP
 
         if(ui->keyPressed(GKey::fromString("2"))) { //dec count1
             gCount1--;
-            if(gCount1 < 0) 
+            if(gCount1 < 0)
                 gCount1 = 0;
         }
 
@@ -529,7 +529,7 @@ namespace VMAP
 
 
         if(ui->keyPressed(GKey::LEFT_MOUSE)) {
-            if(		iCurrCmdIndex>0) {
+            if(     iCurrCmdIndex>0) {
                 --iCurrCmdIndex;
                 printf("restart last command\n");
                 processCommand();

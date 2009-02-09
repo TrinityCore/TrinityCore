@@ -1,12 +1,12 @@
 /**
  @file Vector3.cpp
- 
+
  3D vector class
- 
+
  @maintainer Morgan McGuire, matrix@graphics3d.com
- 
+
  @cite Portions based on Dave Eberly's Magic Software Library at http://www.magic-software.com
- 
+
  @created 2001-06-02
  @edited  2006-01-30
  */
@@ -20,7 +20,7 @@
 #include "G3D/Vector3int16.h"
 #include "G3D/Matrix3.h"
 #include "G3D/Vector2.h"
- 
+
 namespace G3D {
 
 Vector3 Vector3::dummy;
@@ -38,7 +38,7 @@ Vector3::Vector3(const class Vector2& v, float _z) : x(v.x), y(v.y), z(_z) {
 }
 
 Vector3::Axis Vector3::primaryAxis() const {
-    
+
     Axis a = X_AXIS;
 
     double nx = abs(x);
@@ -94,7 +94,7 @@ Vector3 Vector3::random() {
     Vector3 result;
 
     do {
-        result = Vector3(uniformRandom(-1.0, 1.0), 
+        result = Vector3(uniformRandom(-1.0, 1.0),
                          uniformRandom(-1.0, 1.0),
                          uniformRandom(-1.0, 1.0));
     } while (result.squaredMagnitude() >= 1.0f);
@@ -109,7 +109,7 @@ Vector3 Vector3::operator/ (float fScalar) const {
     Vector3 kQuot;
 
     if ( fScalar != 0.0 ) {
-		float fInvScalar = 1.0f / fScalar;
+        float fInvScalar = 1.0f / fScalar;
         kQuot.x = fInvScalar * x;
         kQuot.y = fInvScalar * y;
         kQuot.z = fInvScalar * z;
@@ -122,7 +122,7 @@ Vector3 Vector3::operator/ (float fScalar) const {
 //----------------------------------------------------------------------------
 Vector3& Vector3::operator/= (float fScalar) {
     if (fScalar != 0.0) {
-		float fInvScalar = 1.0f / fScalar;
+        float fInvScalar = 1.0f / fScalar;
         x *= fInvScalar;
         y *= fInvScalar;
         z *= fInvScalar;
@@ -137,10 +137,10 @@ Vector3& Vector3::operator/= (float fScalar) {
 
 //----------------------------------------------------------------------------
 float Vector3::unitize (float fTolerance) {
-	float fMagnitude = magnitude();
+    float fMagnitude = magnitude();
 
     if (fMagnitude > fTolerance) {
-		float fInvMagnitude = 1.0f / fMagnitude;
+        float fInvMagnitude = 1.0f / fMagnitude;
         x *= fInvMagnitude;
         y *= fInvMagnitude;
         z *= fInvMagnitude;
@@ -260,12 +260,12 @@ void Vector3::orthonormalize (Vector3 akVector[3]) {
     akVector[0].unitize();
 
     // compute u1
-	float fDot0 = akVector[0].dot(akVector[1]);
+    float fDot0 = akVector[0].dot(akVector[1]);
     akVector[1] -= akVector[0] * fDot0;
     akVector[1].unitize();
 
     // compute u2
-	float fDot1 = akVector[1].dot(akVector[2]);
+    float fDot1 = akVector[1].dot(akVector[2]);
     fDot0 = akVector[0].dot(akVector[2]);
     akVector[2] -= akVector[0] * fDot0 + akVector[1] * fDot1;
     akVector[2].unitize();

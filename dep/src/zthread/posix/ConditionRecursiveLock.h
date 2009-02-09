@@ -38,13 +38,13 @@ namespace ZThread {
  * @version 2.2.0
  *
  * This is an implementation of a FastRecursiveLock for any vannila
- * POSIX system. It is based on a condition variable and a mutex; 
+ * POSIX system. It is based on a condition variable and a mutex;
  * because of this it is important to not that its waiting properties
  * are not the same as other mutex implementations that generally
  * based on spin locks. Under high contention, this implementation may
  * be preferable to a spin lock, although refactoring the design of
  * code that puts a mutex under alot of preasure may be worth investigating.
- */ 
+ */
 class FastRecursiveLock : private NonCopyable {
 
   //! Serialize state
@@ -62,25 +62,25 @@ class FastRecursiveLock : private NonCopyable {
 public:
 
   inline FastRecursiveLock() : _owner(0), _count(0) {
-    
+
     pthread_mutex_init(&_mtx, 0);
     if(pthread_cond_init(&_cond, 0) != 0) {
       assert(0);
     }
 
   }
-  
+
   inline ~FastRecursiveLock() {
 
     pthread_mutex_destroy(&_mtx);
     if(pthread_cond_destroy(&_cond) != 0) {
-      assert(0); 
+      assert(0);
     }
-    
+
   }
-  
+
   inline void acquire() {
-    
+
     pthread_t self = pthread_self();
     pthread_mutex_lock(&_mtx);
 
@@ -91,14 +91,14 @@ public:
       do { // ignore signals
         status = pthread_cond_wait(&_cond, &_mtx);
       } while(status == EINTR && _owner == 0);
-      
+
     }
-    
+
     _owner = self;
     _count++;
 
     pthread_mutex_unlock(&_mtx);
- 
+
   }
 
   inline bool tryAcquire(unsigned long timeout=0) {
@@ -109,10 +109,10 @@ public:
     // If the caller owns the lock, or there is no owner update the count
     bool success = (_owner == 0 || pthread_equal(_owner, self));
     if(success) {
-      
+
       _owner = self;
       _count++;
-      
+
     }
 
     pthread_mutex_unlock(&_mtx);
@@ -122,7 +122,7 @@ public:
   }
 
   inline void release() {
-    
+
     assert(pthread_equal(_owner, pthread_self()));
 
     pthread_mutex_lock(&_mtx);
@@ -134,13 +134,13 @@ public:
     }
 
     pthread_mutex_unlock(&_mtx);
-    
+
   }
-  
-  
+
+
 }; /* FastRecursiveLock */
 
 
-} // namespace ZThread 
+} // namespace ZThread
 
 #endif

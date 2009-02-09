@@ -33,7 +33,7 @@ namespace ZThread {
   /**
    * @class AtomicCount
    * @author Eric Crahen <http://www.code-foo.com>
-   * @date <2003-07-16T09:41:55-0400> 
+   * @date <2003-07-16T09:41:55-0400>
    * @version 2.3.0
    *
    * This class provides an interface to a small integer whose value can be
@@ -42,33 +42,33 @@ namespace ZThread {
    * counts.
    */
   class ZTHREAD_API AtomicCount : public NonCopyable {
-  
+
     void* _value;
-  
+
   public:
-  
+
     //! Create a new AtomicCount, initialized to a value of 1
     AtomicCount();
 
     //! Destroy a new AtomicCount
     ~AtomicCount();
-  
+
     //! Postfix decrement and return the current value
     size_t operator--(int);
-  
+
     //! Postfix increment and return the current value
-    size_t operator++(int);  
+    size_t operator++(int);
 
     //! Prefix decrement and return the current value
     size_t operator--();
-  
+
     //! Prefix increment and return the current value
-    size_t operator++();  
+    size_t operator++();
 
 
   }; /* AtomicCount */
 
-  
+
 } // namespace ZThread
 
 #endif // __ZTATOMICCOUNT_H__

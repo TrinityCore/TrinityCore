@@ -68,9 +68,9 @@ struct TRINITY_DLL_DECL boss_nothAI : public ScriptedAI
     {
         switch (rand()%3)
         {
-		case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
-		case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
-		case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
+        case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
+        case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
+        case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
         }
     }
 
@@ -78,16 +78,16 @@ struct TRINITY_DLL_DECL boss_nothAI : public ScriptedAI
     {
         switch (rand()%2)
         {
-		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
-		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+        case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+        case 1: DoScriptText(SAY_SLAY2, m_creature); break;
         }
     }
 
-	void JustSummoned(Creature* summoned)
-	{
-		if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-			summoned->AddThreat(target,0.0f);
-	}
+    void JustSummoned(Creature* summoned)
+    {
+        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+            summoned->AddThreat(target,0.0f);
+    }
 
     void JustDied(Unit* Killer)
     {
@@ -120,8 +120,8 @@ struct TRINITY_DLL_DECL boss_nothAI : public ScriptedAI
         {
             DoScriptText(SAY_SUMMON, m_creature);
 
-			for(uint8 i = 0; i < 6; i++)
-				  m_creature->SummonCreature(C_PLAGUED_WARRIOR,2684.804,-3502.517,261.313,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,80000);
+            for(uint8 i = 0; i < 6; i++)
+                  m_creature->SummonCreature(C_PLAGUED_WARRIOR,2684.804,-3502.517,261.313,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,80000);
 
             Summon_Timer = 30500;
         } else Summon_Timer -= diff;
