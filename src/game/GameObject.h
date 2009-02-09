@@ -511,7 +511,7 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         void Delete();
         void SetSpellId(uint32 id) { m_spellId = id;}
         uint32 GetSpellId() const { return m_spellId;}
-        void getFishLoot(Loot *loot);
+        void getFishLoot(Loot *loot, Player* loot_owner);
         GameobjectTypes GetGoType() const { return GameobjectTypes(GetByteValue(GAMEOBJECT_BYTES_1, 1)); }
         void SetGoType(GameobjectTypes type) { SetByteValue(GAMEOBJECT_BYTES_1, 1, type); }
         uint8 GetGoState() const { return GetByteValue(GAMEOBJECT_BYTES_1, 0); }
