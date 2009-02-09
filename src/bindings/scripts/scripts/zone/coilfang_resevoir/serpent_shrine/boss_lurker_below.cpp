@@ -74,7 +74,7 @@ enum RotationType
 
 struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 {
-    boss_the_lurker_belowAI(Creature *c) : Scripted_NoMovementAI(c)
+    boss_the_lurker_belowAI(Creature *c) : Scripted_NoMovementAI(c), Summons(m_creature)
 	{
 		pInstance = ((ScriptedInstance*)c->GetInstanceData());
 		Reset();
@@ -88,14 +88,17 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 	}
 
 	ScriptedInstance* pInstance;
+    SummonList Summons;
 
 	bool Spawned;
-	uint32 RotTimer;
-	uint8 RotType;
-	double SpoutAngle;
-	uint32 SpoutAnimTimer;
-	bool Submerged;
+    bool Submerged;
 
+    double SpoutAngle;
+
+    uint8 RotType;	
+
+	uint32 RotTimer;	
+	uint32 SpoutAnimTimer;	
 	uint32 WaterboltTimer;
 	uint32 SpoutTimer;
 	uint32 WhirlTimer;//after avery spout
@@ -107,18 +110,22 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 		m_creature->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING + MOVEMENTFLAG_LEVITATING);
 		m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 		m_creature->SetCorpseDelay(1000*60*60);
-		SpoutAngle = 0;
-		RotType = NOROTATE;
-		SpoutAnimTimer = 1000;
-		RotTimer = 20000;
-		Submerged = false;
-		Spawned = false;
 
+        RotType = NOROTATE;
+
+		SpoutAngle = 0;		
+		SpoutAnimTimer = 1000;
+		RotTimer = 20000;		
 		WaterboltTimer = 3000;
 		SpoutTimer = 15000;
 		WhirlTimer = 18000;//after avery spout
 		PhaseTimer = 120000;
 		GeyserTimer = rand()%5000 + 15000;
+
+        Submerged = false;
+		Spawned = false;
+
+        Summons.DespawnAll();
 
 		if(pInstance)
 			pInstance->SetData(DATA_THELURKERBELOWEVENT, NOT_STARTED);
@@ -131,7 +138,6 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 			m_creature->SetVisibility(VISIBILITY_ON);
 			m_creature->SetReactState(REACT_AGGRESSIVE);
 		}*/
-
  	}
 
      void MoveInLineOfSight(Unit *who)
@@ -167,6 +173,8 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 	 {
 		 if(pInstance)
 			pInstance->SetData(DATA_THELURKERBELOWEVENT, DONE);
+
+         Summons.DespawnAll();
 	 }
 
 	 void Rotate(const uint32 diff)
@@ -231,18 +239,15 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 	 {
 		 switch (rand()%2)
 		 {
-		 case 0:
-			 RotType = CLOCKWISE;
-			 break;
-		 case 1:
-			 RotType = COUNTERCLOCKWISE;
-			 break;
+		 case 0: RotType = CLOCKWISE; break;
+		 case 1: RotType = COUNTERCLOCKWISE; break;
 		 }
-		 RotTimer=20000;
+         RotTimer=20000;
 
-		 if(victim)
+         if(victim)
 			 SpoutAngle = m_creature->GetAngle(victim);
-		 m_creature->MonsterTextEmote(EMOTE_SPOUT,0,true);
+
+         m_creature->MonsterTextEmote(EMOTE_SPOUT,0,true);
 		 //DoCast(m_creature,SPELL_SPOUT_BREATH);//take breath anim
 	 }
 
@@ -360,20 +365,19 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 			 {
 				 m_creature->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 				 //spawn adds
-				 m_creature->SummonCreature(MOB_COILFANG_AMBUSHER,AddPos[0][0],AddPos[0][1],AddPos[0][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-				 m_creature->SummonCreature(MOB_COILFANG_AMBUSHER,AddPos[1][0],AddPos[1][1],AddPos[1][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-				 m_creature->SummonCreature(MOB_COILFANG_AMBUSHER,AddPos[2][0],AddPos[2][1],AddPos[2][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-				 m_creature->SummonCreature(MOB_COILFANG_AMBUSHER,AddPos[3][0],AddPos[3][1],AddPos[3][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-				 m_creature->SummonCreature(MOB_COILFANG_AMBUSHER,AddPos[4][0],AddPos[4][1],AddPos[4][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-				 m_creature->SummonCreature(MOB_COILFANG_AMBUSHER,AddPos[5][0],AddPos[5][1],AddPos[5][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-				 m_creature->SummonCreature(MOB_COILFANG_GUARDIAN,AddPos[6][0],AddPos[6][1],AddPos[6][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-				 m_creature->SummonCreature(MOB_COILFANG_GUARDIAN,AddPos[7][0],AddPos[7][1],AddPos[7][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-				 m_creature->SummonCreature(MOB_COILFANG_GUARDIAN,AddPos[8][0],AddPos[8][1],AddPos[8][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-				 Spawned = true;
-			 }
-		 }
+                 for (uint8 i = 0; i < 9; ++i)
+                 {
+                     Creature* Summoned;
+                     if(i < 7) 
+                         Summoned = m_creature->SummonCreature(MOB_COILFANG_AMBUSHER,AddPos[i][0],AddPos[i][1],AddPos[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                     else Summoned = m_creature->SummonCreature(MOB_COILFANG_GUARDIAN,AddPos[i][0],AddPos[i][1],AddPos[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
 
-	}
+                     Summons.Summon(Summoned);
+                     Spawned = true;
+                 }
+             }
+         }
+         }
  };
 
 CreatureAI* GetAI_mob_coilfang_guardian(Creature *_Creature)
