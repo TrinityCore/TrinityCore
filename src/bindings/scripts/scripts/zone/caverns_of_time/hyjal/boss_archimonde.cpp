@@ -249,7 +249,7 @@ struct TRINITY_DLL_DECL mob_doomfire_targettingAI : public ScriptedAI
             || who->GetEntry() == CREATURE_DOOMFIRE || who->GetEntry() == CREATURE_DOOMFIRE_TARGETING || !who->isTargetableForAttack())
             return;
 
-		m_creature->AddThreat(who, 0.0f);
+        m_creature->AddThreat(who, 0.0f);
     }
 
     void DamageTaken(Unit *done_by, uint32 &damage) { damage = 0; }
@@ -397,9 +397,9 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
-		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
-		case 2: DoScriptText(SAY_SLAY3, m_creature); break;
+        case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+        case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+        case 2: DoScriptText(SAY_SLAY3, m_creature); break;
         }
 
         if(victim && (victim->GetTypeId() == TYPEID_PLAYER))
@@ -433,7 +433,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
 
     void JustDied(Unit *victim)
     {
-		DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, m_creature);
 
         if(pInstance)
             pInstance->SetData(DATA_ARCHIMONDEEVENT, DONE);
@@ -493,9 +493,9 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
                 Doomfire->AI()->AttackStart(target);
 
             if(rand()%2 == 0)
-				DoScriptText(SAY_DOOMFIRE1, m_creature);
-			else
-				DoScriptText(SAY_DOOMFIRE2, m_creature);
+                DoScriptText(SAY_DOOMFIRE1, m_creature);
+            else
+                DoScriptText(SAY_DOOMFIRE2, m_creature);
         }
     }
 
@@ -589,13 +589,13 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
                     m_creature->GetMotionMaster()->Clear(false);
                     m_creature->GetMotionMaster()->MoveIdle();
                     Enraged = true;
-					DoScriptText(SAY_ENRAGE, m_creature);
+                    DoScriptText(SAY_ENRAGE, m_creature);
                 }
             }else EnrageTimer -= diff;
 
             if(CheckDistanceTimer < diff)
-			{
-				// To simplify the check, we simply summon a creature in the location and then check how far we are from the creature
+            {
+                // To simplify the check, we simply summon a creature in the location and then check how far we are from the creature
                 Creature* Check = m_creature->SummonCreature(CREATURE_CHANNEL_TARGET, NORDRASSIL_X, NORDRASSIL_Y, NORDRASSIL_Z, 0, TEMPSUMMON_TIMED_DESPAWN, 2000);
                 if(Check)
                 {
@@ -605,7 +605,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
                         m_creature->GetMotionMaster()->Clear(false);
                         m_creature->GetMotionMaster()->MoveIdle();
                         Enraged = true;
-						DoScriptText(SAY_ENRAGE, m_creature);
+                        DoScriptText(SAY_ENRAGE, m_creature);
                     }
                 }
                 CheckDistanceTimer = 5000;
@@ -618,7 +618,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
             {
                 m_creature->GetMotionMaster()->Clear(false);
                 m_creature->GetMotionMaster()->MoveIdle();
-				//all members of raid must get this buff
+                //all members of raid must get this buff
                 DoCast(m_creature->getVictim(), SPELL_PROTECTION_OF_ELUNE);
                 HasProtected = true;
                 Enraged = true;
@@ -666,9 +666,9 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
         if(AirBurstTimer < diff)
         {
             if(rand()%2 == 0)
-				DoScriptText(SAY_AIR_BURST1, m_creature);
-			else
-				DoScriptText(SAY_AIR_BURST2, m_creature);
+                DoScriptText(SAY_AIR_BURST1, m_creature);
+            else
+                DoScriptText(SAY_AIR_BURST2, m_creature);
 
 
             DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_AIR_BURST);

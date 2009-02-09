@@ -169,8 +169,8 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-		case 0: DoScriptText(SAY_EVIL_SLAY1, m_creature); break;
-		case 1: DoScriptText(SAY_EVIL_SLAY2, m_creature); break;
+        case 0: DoScriptText(SAY_EVIL_SLAY1, m_creature); break;
+        case 1: DoScriptText(SAY_EVIL_SLAY2, m_creature); break;
         }
     }
 
@@ -215,7 +215,7 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
         switch(TalkSequence)
         {
         case 1:
-			DoScriptText(SAY_EVIL_ENRAGE, m_creature);
+            DoScriptText(SAY_EVIL_ENRAGE, m_creature);
             TalkTimer = 3000;
             break;
         case 2:
@@ -321,7 +321,7 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
 
     void JustDied(Unit *killer)
     {
-		DoScriptText(SAY_SATH_DEATH, m_creature);
+        DoScriptText(SAY_SATH_DEATH, m_creature);
         m_creature->Relocate(m_creature->GetPositionX(), m_creature->GetPositionY(), DRAGON_REALM_Z, m_creature->GetOrientation());
         TeleportAllPlayersBack();
         if(Unit *Kalecgos = Unit::GetUnit(*m_creature, KalecgosGUID))
@@ -381,7 +381,7 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
 
         if(ShadowBoltTimer < diff)
         {
-			DoScriptText(SAY_SATH_SPELL1, m_creature);
+            DoScriptText(SAY_SATH_SPELL1, m_creature);
             DoCast(m_creature, SPELL_SHADOW_BOLT);
             ShadowBoltTimer = 7000+(rand()%3000);
         }else ShadowBoltTimer -= diff;
@@ -396,7 +396,7 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
 
         if(CorruptionStrikeTimer < diff)
         {
-			DoScriptText(SAY_SATH_SPELL2, m_creature);
+            DoScriptText(SAY_SATH_SPELL2, m_creature);
             DoCast(m_creature->getVictim(), SPELL_CORRUPTION_STRIKE);
             CorruptionStrikeTimer = 13000;
         }else CorruptionStrikeTimer -= diff;
@@ -611,7 +611,7 @@ void boss_sathrovarrAI::Enrage()
         error_log("SD2 ERROR: unable to find Kalec");
         return;
     }
-	DoScriptText(SAY_SATH_ENRAGE, m_creature);
+    DoScriptText(SAY_SATH_ENRAGE, m_creature);
     m_creature->CastSpell(m_creature, SPELL_ENRAGE, true);
     Kalecgos->CastSpell(Kalecgos, SPELL_ENRAGE, true);
     isEnraged = true;

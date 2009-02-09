@@ -53,7 +53,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
 {
     instance_zulaman(Map *map) : ScriptedInstance(map) {Initialize();};
 
-	uint64 HarkorsSatchelGUID;
+    uint64 HarkorsSatchelGUID;
     uint64 TanzarsTrunkGUID;
     uint64 AshlisBagGUID;
     uint64 KrazsPackageGUID;
@@ -74,10 +74,10 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
 
     void Initialize()
     {
-		HarkorsSatchelGUID = 0;
-		TanzarsTrunkGUID = 0;
-		AshlisBagGUID = 0;
-		KrazsPackageGUID = 0;
+        HarkorsSatchelGUID = 0;
+        TanzarsTrunkGUID = 0;
+        AshlisBagGUID = 0;
+        KrazsPackageGUID = 0;
 
         uint64 HexLordGateGUID = 0;
         uint64 ZulJinGateGUID = 0;

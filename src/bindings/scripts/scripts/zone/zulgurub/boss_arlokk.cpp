@@ -36,15 +36,15 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
 {
-	boss_arlokkAI(Creature *c) : ScriptedAI(c)
-	{
-		pInstance = ((ScriptedInstance*)c->GetInstanceData());
-		Reset();
-	}
+    boss_arlokkAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        Reset();
+    }
 
-	ScriptedInstance *pInstance;
+    ScriptedInstance *pInstance;
 
-	uint32 ShadowWordPain_Timer;
+    uint32 ShadowWordPain_Timer;
     uint32 Gouge_Timer;
     uint32 Mark_Timer;
     uint32 Cleave_Timer;
@@ -81,12 +81,12 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-		DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void JustDied(Unit* Killer)
     {
-		DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, m_creature);
         m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,15218);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
@@ -123,10 +123,10 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
                 Panther = m_creature->SummonCreature(15101,-11532.79980,-1649.6734,41.4800,0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
 
                 if(markedTarget && Panther )
-				{
-					DoScriptText(SAY_FEAST_PANTHER, m_creature, markedTarget);
+                {
+                    DoScriptText(SAY_FEAST_PANTHER, m_creature, markedTarget);
                     Panther ->AI()->AttackStart(markedTarget);
-				}else Panther ->AI()->AttackStart(target);
+                }else Panther ->AI()->AttackStart(target);
 
                 Panther = m_creature->SummonCreature(15101,-11532.9970,-1606.4840,41.2979,0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
 

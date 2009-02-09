@@ -65,7 +65,7 @@
 #  include "macos/UpTimeStrategy.h"
 
 #elif defined(HAVE_PERFORMANCECOUNTER)
-              
+
 #  include "win32/PerformanceCounterStrategy.h"
 
 #elif defined(HAVE_FTIME)

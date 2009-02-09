@@ -23,22 +23,22 @@
 #define HAVE_MEMORY_H 1
 
 /* defined when pthreads is available */
-#define HAVE_POSIX_THREADS 
+#define HAVE_POSIX_THREADS
 
 /* Defined if pthread_keycreate() is available */
 /* #undef HAVE_PTHREADKEYCREATE */
 
 /* Defined if pthread_key_create() is available */
-#define HAVE_PTHREADKEY_CREATE 
+#define HAVE_PTHREADKEY_CREATE
 
 /* Defined if pthread_yield() is available */
-#define HAVE_PTHREAD_YIELD 
+#define HAVE_PTHREAD_YIELD
 
 /* Defined if -lrt is needed for RT scheduling */
-#define HAVE_SCHED_RT 
+#define HAVE_SCHED_RT
 
 /* Defined if sched_yield() is available */
-#define HAVE_SCHED_YIELD 
+#define HAVE_SCHED_YIELD
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #define HAVE_STDINT_H 1

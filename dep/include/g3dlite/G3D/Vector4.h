@@ -1,10 +1,10 @@
 /**
   @file Vector4.h
- 
+
   Homogeneous vector class.
- 
+
   @maintainer Morgan McGuire, matrix@graphics3d.com
- 
+
   @created 2002-07-09
   @edited  2005-03-28
 
@@ -23,7 +23,7 @@
 
 namespace G3D {
 
-class Vector2;    
+class Vector2;
 class Vector3;
 class Vector4;
 
@@ -116,7 +116,7 @@ public:
     // arithmetic operations
     Vector4 operator+ (const Vector4& rkVector) const;
     Vector4 operator- (const Vector4& rkVector) const;
-    
+
     inline Vector4 operator*(const Vector4& rkVector) const {
         return Vector4(x * rkVector.x, y * rkVector.y, z * rkVector.z, w * rkVector.w);
     }

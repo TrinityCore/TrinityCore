@@ -53,7 +53,7 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
 {
     boss_skeramAI(Creature *c) : ScriptedAI(c)
     {
-		pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
         IsImage = false;
         Reset();
     }
@@ -98,16 +98,16 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
-		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
-		case 2: DoScriptText(SAY_SLAY3, m_creature); break;
+        case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+        case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+        case 2: DoScriptText(SAY_SLAY3, m_creature); break;
         }
     }
 
     void JustDied(Unit* Killer)
     {
         if (!IsImage)
-			DoScriptText(SAY_DEATH, m_creature);
+            DoScriptText(SAY_DEATH, m_creature);
     }
 
     void Aggro(Unit *who)
@@ -116,9 +116,9 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
             return;
         switch(rand()%3)
         {
-		case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
-		case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
-		case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
+        case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
+        case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
+        case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
         }
     }
 
@@ -212,7 +212,7 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
 
     void DoSplit(int atPercent /* 75 50 25 */)
     {
-		DoScriptText(SAY_SPLIT, m_creature);
+        DoScriptText(SAY_SPLIT, m_creature);
 
         ov_mycoordinates *place1 = new ov_mycoordinates(-8340.782227,2083.814453,125.648788,0);
         ov_mycoordinates *place2 = new ov_mycoordinates(-8341.546875,2118.504639,133.058151,0);
@@ -224,18 +224,18 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
         {
             case 0:
                 bossc=place1;
-				i1=place2;
-				i2=place3;
+                i1=place2;
+                i2=place3;
                 break;
             case 1:
                 bossc=place2;
-				i1=place1;
-				i2=place3;
+                i1=place1;
+                i2=place3;
                 break;
             case 2:
                 bossc=place3;
-				i1=place1;
-				i2=place2;
+                i1=place1;
+                i2=place2;
                 break;
         }
 
@@ -272,18 +272,18 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
             case 25: Images25 = true; break;
         }
 
-		Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
+        Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
 
         Image1 = m_creature->SummonCreature(15263, i1->x, i1->y, i1->z, i1->r, TEMPSUMMON_CORPSE_DESPAWN, 30000);
         Image1->SetMaxHealth(m_creature->GetMaxHealth() / 5);
         Image1->SetHealth(m_creature->GetHealth() / 5);
-		if (target)
+        if (target)
         Image1->AI()->AttackStart(target);
 
         Image2 = m_creature->SummonCreature(15263,i2->x, i2->y, i2->z, i2->r, TEMPSUMMON_CORPSE_DESPAWN, 30000);
         Image2->SetMaxHealth(m_creature->GetMaxHealth() / 5);
         Image2->SetHealth(m_creature->GetHealth() / 5);
-		if (target)
+        if (target)
         Image2->AI()->AttackStart(target);
 
         ((boss_skeramAI*)Image1->AI())->IsImage = true;

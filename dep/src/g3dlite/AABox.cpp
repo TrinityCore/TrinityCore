@@ -59,22 +59,22 @@ Vector3 AABox::randomSurfacePoint() const {
     // The probability of choosing a given face is proportional to
     // its area.
     if (r < aXY) {
-        return 
-            lo + 
+        return
+            lo +
             Vector3(
                 (float)random(0, extent.x),
                 (float)random(0, extent.y),
                 d * extent.z);
     } else if (r < aYZ) {
-        return 
-            lo + 
+        return
+            lo +
             Vector3(
                 d * extent.x,
                 (float)random(0, extent.y),
                 (float)random(0, extent.z));
     } else {
-        return 
-            lo + 
+        return
+            lo +
             Vector3(
                 (float)random(0, extent.x),
                 d * extent.y,
@@ -85,8 +85,8 @@ Vector3 AABox::randomSurfacePoint() const {
 
 Vector3 AABox::randomInteriorPoint() const {
     return Vector3(
-        (float)random(lo.x, hi.x), 
-        (float)random(lo.y, hi.y), 
+        (float)random(lo.x, hi.x),
+        (float)random(lo.y, hi.y),
         (float)random(lo.z, hi.z));
 }
 #endif
@@ -112,21 +112,21 @@ bool AABox::intersects(const AABox& other) const {
 
 
 bool AABox::culledBy(
-    const Array<Plane>&		plane,
-	int&				    cullingPlaneIndex,
-	const uint32			inMask,
-	uint32&					outMask) const {
+    const Array<Plane>&     plane,
+    int&                    cullingPlaneIndex,
+    const uint32            inMask,
+    uint32&                 outMask) const {
 
-	return culledBy(plane.getCArray(), plane.size(), cullingPlaneIndex, inMask, outMask);
+    return culledBy(plane.getCArray(), plane.size(), cullingPlaneIndex, inMask, outMask);
 }
 
 
 bool AABox::culledBy(
-    const Array<Plane>&		plane,
-	int&				    cullingPlaneIndex,
-	const uint32			inMask) const {
+    const Array<Plane>&     plane,
+    int&                    cullingPlaneIndex,
+    const uint32            inMask) const {
 
-	return culledBy(plane.getCArray(), plane.size(), cullingPlaneIndex, inMask);
+    return culledBy(plane.getCArray(), plane.size(), cullingPlaneIndex, inMask);
 }
 
 
@@ -136,16 +136,16 @@ int AABox::dummy = 0;
 bool AABox::culledBy(
     const class Plane*  plane,
     int                 numPlanes,
-	int&				cullingPlane,
-	const uint32		_inMask,
+    int&                cullingPlane,
+    const uint32        _inMask,
     uint32&             childMask) const {
 
-	uint32 inMask = _inMask;
-	assert(numPlanes < 31);
+    uint32 inMask = _inMask;
+    assert(numPlanes < 31);
 
     childMask = 0;
 
-    const bool finite = 
+    const bool finite =
         (abs(lo.x) < G3D::inf()) &&
         (abs(hi.x) < G3D::inf()) &&
         (abs(lo.y) < G3D::inf()) &&
@@ -154,13 +154,13 @@ bool AABox::culledBy(
         (abs(hi.z) < G3D::inf());
 
     // See if there is one plane for which all of the
-	// vertices are in the negative half space.
+    // vertices are in the negative half space.
     for (int p = 0; p < numPlanes; p++) {
 
-		// Only test planes that are not masked
-		if ((inMask & 1) != 0) {
-		
-			Vector3 corner;
+        // Only test planes that are not masked
+        if ((inMask & 1) != 0) {
+
+            Vector3 corner;
 
             int numContained = 0;
             int v = 0;
@@ -168,13 +168,13 @@ bool AABox::culledBy(
             // We can early-out only if we have found one point on each
             // side of the plane (i.e. if we are straddling).  That
             // occurs when (numContained < v) && (numContained > 0)
-			for (v = 0; (v < 8) && ((numContained == v) || (numContained == 0)); ++v) {
+            for (v = 0; (v < 8) && ((numContained == v) || (numContained == 0)); ++v) {
                 // Unrolling these 3 if's into a switch decreases performance
                 // by about 2x
-				corner.x = (v & 1) ? hi.x : lo.x;
-				corner.y = (v & 2) ? hi.y : lo.y;
-				corner.z = (v & 4) ? hi.z : lo.z;
-        
+                corner.x = (v & 1) ? hi.x : lo.x;
+                corner.y = (v & 2) ? hi.y : lo.y;
+                corner.z = (v & 4) ? hi.z : lo.z;
+
                 if (finite) { // this branch is highly predictable
                     if (plane[p].halfSpaceContainsFinite(corner)) {
                         ++numContained;
@@ -184,32 +184,32 @@ bool AABox::culledBy(
                         ++numContained;
                     }
                 }
-			}
+            }
 
-			if (numContained == 0) {
-				// Plane p culled the box
-				cullingPlane = p;
+            if (numContained == 0) {
+                // Plane p culled the box
+                cullingPlane = p;
 
                 // The caller should not recurse into the children,
                 // since the parent is culled.  If they do recurse,
                 // make them only test against this one plane, which
                 // will immediately cull the volume.
                 childMask = 1 << p;
-				return true;
+                return true;
 
             } else if (numContained < v) {
                 // The bounding volume straddled the plane; we have
                 // to keep testing against this plane
                 childMask |= (1 << p);
             }
-		}
+        }
 
         // Move on to the next bit.
-		inMask = inMask >> 1;
+        inMask = inMask >> 1;
     }
 
     // None of the planes could cull this box
-	cullingPlane = -1;
+    cullingPlane = -1;
     return false;
 }
 
@@ -217,13 +217,13 @@ bool AABox::culledBy(
 bool AABox::culledBy(
     const class Plane*  plane,
     int                 numPlanes,
-	int&				cullingPlane,
-	const uint32		_inMask) const {
+    int&                cullingPlane,
+    const uint32        _inMask) const {
 
-	uint32 inMask = _inMask;
-	assert(numPlanes < 31);
-    
-    const bool finite = 
+    uint32 inMask = _inMask;
+    assert(numPlanes < 31);
+
+    const bool finite =
         (abs(lo.x) < G3D::inf()) &&
         (abs(hi.x) < G3D::inf()) &&
         (abs(lo.y) < G3D::inf()) &&
@@ -232,55 +232,55 @@ bool AABox::culledBy(
         (abs(hi.z) < G3D::inf());
 
     // See if there is one plane for which all of the
-	// vertices are in the negative half space.
+    // vertices are in the negative half space.
     for (int p = 0; p < numPlanes; p++) {
 
-		// Only test planes that are not masked
-		if ((inMask & 1) != 0) {
-		
-			bool culled = true;
-			Vector3 corner;
+        // Only test planes that are not masked
+        if ((inMask & 1) != 0) {
+
+            bool culled = true;
+            Vector3 corner;
 
             int v;
 
-			// Assume this plane culls all points.  See if there is a point
-			// not culled by the plane... early out when at least one point
+            // Assume this plane culls all points.  See if there is a point
+            // not culled by the plane... early out when at least one point
             // is in the positive half space.
-			for (v = 0; (v < 8) && culled; ++v) {
+            for (v = 0; (v < 8) && culled; ++v) {
 
                 // Unrolling these 3 if's into a switch decreases performance
                 // by about 2x
-				corner.x = (v & 1) ? hi.x : lo.x;
-				corner.y = (v & 2) ? hi.y : lo.y;
-				corner.z = (v & 4) ? hi.z : lo.z;
-        
+                corner.x = (v & 1) ? hi.x : lo.x;
+                corner.y = (v & 2) ? hi.y : lo.y;
+                corner.z = (v & 4) ? hi.z : lo.z;
+
                 if (finite) { // this branch is highly predictable
                     culled = ! plane[p].halfSpaceContainsFinite(corner);
                 } else {
                     culled = ! plane[p].halfSpaceContains(corner);
                 }
-			}
-
-			if (culled) {
-				// Plane p culled the box
-				cullingPlane = p;
-
-				return true;
             }
-		}
+
+            if (culled) {
+                // Plane p culled the box
+                cullingPlane = p;
+
+                return true;
+            }
+        }
 
         // Move on to the next bit.
-		inMask = inMask >> 1;
+        inMask = inMask >> 1;
     }
 
     // None of the planes could cull this box
-	cullingPlane = -1;
+    cullingPlane = -1;
     return false;
 }
 
 
 bool AABox::intersects(const class Sphere& sphere) const {
-    double d = 0; 
+    double d = 0;
 
     //find the square of the distance
     //from the sphere to the box

@@ -275,9 +275,9 @@ public:
     uint32 Event_Timer;
     uint32 checkPlayer_Timer;
 
-	uint64 PlayerGUID;
+    uint64 PlayerGUID;
 
-	bool Event_onWait;
+    bool Event_onWait;
 
     void Reset()
     {
@@ -481,7 +481,7 @@ public:
                         case 0:
                             m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, 2);
                             DoScriptText(CLINTAR_SPIRIT_SAY_GET_FINAL, m_creature, player);
-							player->CompleteQuest(10965);
+                            player->CompleteQuest(10965);
                             Event_Timer = 1500;
                             Step = 1;
                             break;
@@ -563,7 +563,7 @@ void AddSC_moonglade()
     newscript->pGossipSelect = &GossipSelect_npc_silva_filnaveth;
     newscript->RegisterSelf();
 
-	newscript = new Script;
+    newscript = new Script;
     newscript->Name="npc_clintar_dreamwalker";
     newscript->pQuestAccept = &QuestAccept_npc_clintar_dreamwalker;
     newscript->RegisterSelf();

@@ -44,7 +44,7 @@ struct TRINITY_DLL_DECL npc_calvin_montagueAI : public ScriptedAI
     void Reset()
     {
         m_creature->setFaction(FACTION_FRIENDLY);
-		m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
     }
 
     void Aggro(Unit* who) { }
@@ -74,7 +74,7 @@ bool QuestAccept_npc_calvin_montague(Player* player, Creature* creature, Quest c
     if( quest->GetQuestId() == QUEST_590 )
     {
         creature->setFaction(FACTION_HOSTILE);
-		creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+        creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
         ((npc_calvin_montagueAI*)creature->AI())->AttackStart(player);
     }
     return true;
@@ -150,7 +150,7 @@ void AddSC_tirisfal_glades()
     newscript->pQuestAccept = &QuestAccept_npc_calvin_montague;
     newscript->RegisterSelf();
 
-	newscript = new Script;
+    newscript = new Script;
     newscript->Name = "go_mausoleum_door";
     newscript->pGOHello = &GOHello_go_mausoleum_door;
     newscript->RegisterSelf();

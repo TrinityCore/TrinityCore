@@ -1,6 +1,6 @@
 /** \file ResolvServer.cpp
- **	\date  2005-03-24
- **	\author grymse@alhem.net
+ ** \date  2005-03-24
+ ** \author grymse@alhem.net
 **/
 /*
 Copyright (C) 2004-2007  Anders Hedstrom
@@ -8,7 +8,7 @@ Copyright (C) 2004-2007  Anders Hedstrom
 This library is made available under the terms of the GNU GPL.
 
 If you would like to use this library in a closed-source application,
-a separate license agreement is available. For information about 
+a separate license agreement is available. For information about
 the closed-source license agreement for the C++ sockets library,
 please visit http://www.alhem.net/Sockets/license.html and/or
 email license@alhem.net.
@@ -58,34 +58,34 @@ ResolvServer::~ResolvServer()
 
 void ResolvServer::Run()
 {
-//	StdoutLog log;
-	SocketHandler h;
-	ListenSocket<ResolvSocket> l(h);
+//  StdoutLog log;
+    SocketHandler h;
+    ListenSocket<ResolvSocket> l(h);
 
-	if (l.Bind("127.0.0.1", m_port))
-	{
-		return;
-	}
-	h.Add(&l);
+    if (l.Bind("127.0.0.1", m_port))
+    {
+        return;
+    }
+    h.Add(&l);
 
-	m_ready = true;
-	while (!m_quit && IsRunning() )
-	{
-		h.Select(0, 500000);
-	}
-	SetRunning(false);
+    m_ready = true;
+    while (!m_quit && IsRunning() )
+    {
+        h.Select(0, 500000);
+    }
+    SetRunning(false);
 }
 
 
 void ResolvServer::Quit()
 {
-	m_quit = true;
+    m_quit = true;
 }
 
 
 bool ResolvServer::Ready()
 {
-	return m_ready;
+    return m_ready;
 }
 
 

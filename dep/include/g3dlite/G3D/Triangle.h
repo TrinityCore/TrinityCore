@@ -1,8 +1,8 @@
 /**
  @file Triangle.h
-  
+
  @maintainer Morgan McGuire, matrix@graphics3d.com
- 
+
  @created 2003-04-05
  @edited  2004-03-14
 
@@ -52,11 +52,11 @@ private:
     void init(const Vector3& v0, const Vector3& v1, const Vector3& v2);
 
 public:
-	
+
     Triangle();
-    
+
     Triangle(const Vector3& v0, const Vector3& v1, const Vector3& v2);
-    
+
     ~Triangle();
 
     /** 0, 1, or 2 */
@@ -110,7 +110,7 @@ public:
 } // namespace
 
 inline unsigned int hashCode(const G3D::Triangle& t) {
-	return t.hashCode();
+    return t.hashCode();
 }
 
 #endif

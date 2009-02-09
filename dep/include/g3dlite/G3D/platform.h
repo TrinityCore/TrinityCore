@@ -13,7 +13,7 @@
 #define G3D_PLATFORM_H
 
 /**
- The version number of G3D in the form: MmmBB -> 
+ The version number of G3D in the form: MmmBB ->
  version M.mm [beta BB]
  */
 #define G3D_VER 61000
@@ -30,11 +30,11 @@
 #   define G3D_DEBUG
 #endif
 
-#ifdef _MSC_VER 
+#ifdef _MSC_VER
     #define G3D_WIN32
 #elif defined(__MINGW32__)
-    #define G3D_WIN32 
-    #define G3D_MINGW32 
+    #define G3D_WIN32
+    #define G3D_MINGW32
 #elif defined(__linux__)
     #define G3D_LINUX
 #elif defined(__OpenBSD__)
@@ -46,11 +46,11 @@
 #elif defined(__APPLE__)
     #define G3D_OSX
 #else
-    #error Unknown platform 
+    #error Unknown platform
 #endif
 
 
-// Default to compiling with SSE, but if you want to compile 
+// Default to compiling with SSE, but if you want to compile
 // without installing SP5.0 and the Processor Pack on Windows, compile with NO_SSE
 // defined (can be passed to the compiler command line with /D "NO_SSE")
 #if !defined(NO_SSE)
@@ -59,7 +59,7 @@
 
 #ifdef G3D_WIN32
 // Turn off warnings about deprecated C routines (TODO: revisit)
-#	pragma warning (disable : 4996)
+#   pragma warning (disable : 4996)
 #endif
 
 // On g++, recognize cases where the -msse2 flag was not specified
@@ -107,14 +107,14 @@
     #ifndef __GNUC__
         #error G3D only supports the gcc compiler on OS X.
     #endif
-	
-	#if defined(__i386__)
-		#define G3D_OSX_INTEL
-	#elif defined(__PPC__)
-		#define G3D_OSX_PPC
-	#else
-		#define G3D_OSX_UNKNOWN
-	#endif
+
+    #if defined(__i386__)
+        #define G3D_OSX_INTEL
+    #elif defined(__PPC__)
+        #define G3D_OSX_PPC
+    #else
+        #define G3D_OSX_UNKNOWN
+    #endif
 
 #   ifndef __cdecl
 #       define __cdecl __attribute__((cdecl))
@@ -134,10 +134,10 @@
 
 
 #ifdef G3D_WIN32
-// Microsoft Visual C++ 7.1	_MSC_VER = 1310
-// Microsoft Visual C++ 7.0	_MSC_VER = 1300
-// Microsoft Visual C++ 6.0	_MSC_VER = 1200
-// Microsoft Visual C++ 5.0	_MSC_VER = 1100
+// Microsoft Visual C++ 7.1 _MSC_VER = 1310
+// Microsoft Visual C++ 7.0 _MSC_VER = 1300
+// Microsoft Visual C++ 6.0 _MSC_VER = 1200
+// Microsoft Visual C++ 5.0 _MSC_VER = 1100
 
     // Old versions of MSVC (6.0 and previous) don't
     // support C99 for loop scoping rules.  This fixes them.
@@ -165,10 +165,10 @@
 // TODO: remove
 #   pragma warning (disable : 4244)
 
-#	if defined(_MSC_VER) && (_MSC_VER <= 1200)
-		//	VC6 std:: has signed problems in it	
-#		pragma warning (disable : 4018)
-#	endif
+#   if defined(_MSC_VER) && (_MSC_VER <= 1200)
+        //  VC6 std:: has signed problems in it
+#       pragma warning (disable : 4018)
+#   endif
 
 #   define ZLIB_WINAPI
 
@@ -177,15 +177,15 @@
 #          define restrict
 #   endif
 
-#   define G3D_CHECK_PRINTF_ARGS 
+#   define G3D_CHECK_PRINTF_ARGS
 #   define G3D_CHECK_VPRINTF_ARGS
-#   define G3D_CHECK_PRINTF_METHOD_ARGS 
+#   define G3D_CHECK_PRINTF_METHOD_ARGS
 #   define G3D_CHECK_VPRINTF_METHOD_ARGS
 
     // On MSVC, we need to link against the multithreaded DLL version of
     // the C++ runtime because that is what SDL and ZLIB are compiled
     // against.  This is not the default for MSVC, so we set the following
-    // defines to force correct linking.  
+    // defines to force correct linking.
     //
     // For documentation on compiler options, see:
     //  http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vccore/html/_core_.2f.md.2c_2f.ml.2c_2f.mt.2c_2f.ld.asp
@@ -195,16 +195,16 @@
 #if 0 //ignore that for Trinity
     // DLL runtime
     #ifndef _DLL
-	    #define _DLL
+        #define _DLL
     #endif
 
     // Multithreaded runtime
     #ifndef _MT
-	    #define _MT 1
+        #define _MT 1
     #endif
     // Ensure that we aren't forced into the static lib
     #ifdef _STATIC_CPPLIB
-	    #undef _STATIC_CPPLIB
+        #undef _STATIC_CPPLIB
     #endif
 #endif
 
@@ -228,7 +228,7 @@
         // zlib and SDL were linked against the release MSVCRT; force
         // the debug version.
         #pragma comment(linker, "/NODEFAULTLIB:MSVCRT.LIB")
-#	endif
+#   endif
 
 #   ifndef WIN32_LEAN_AND_MEAN
 #       define WIN32_LEAN_AND_MEAN 1
@@ -252,11 +252,11 @@
 #       pragma warning (disable : 4018)
 #   endif
 
-/** 
+/**
   @def STR(expression)
 
   Creates a string from the expression.  Frequently used with G3D::Shader
-  to express shading programs inline.  
+  to express shading programs inline.
 
   <CODE>STR(this becomes a string)<PRE> evaluates the same as <CODE>"this becomes a string"</CODE>
  */

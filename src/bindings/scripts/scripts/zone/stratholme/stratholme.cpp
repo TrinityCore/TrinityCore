@@ -204,13 +204,13 @@ struct TRINITY_DLL_DECL mobs_spectral_ghostly_citizenAI : public ScriptedAI
                 float x,y,z;
                  m_creature->GetRandomPoint(m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),20.0f,x,y,z);
 
-				 //100%, 50%, 33%, 25% chance to spawn
-				 uint32 j = urand(1,i);
-				 if (j==1)
-					 m_creature->SummonCreature(ENTRY_RESTLESS,x,y,z,0,TEMPSUMMON_CORPSE_DESPAWN,600000);
-			}
-		}
-	}
+                 //100%, 50%, 33%, 25% chance to spawn
+                 uint32 j = urand(1,i);
+                 if (j==1)
+                     m_creature->SummonCreature(ENTRY_RESTLESS,x,y,z,0,TEMPSUMMON_CORPSE_DESPAWN,600000);
+            }
+        }
+    }
 
     void UpdateAI(const uint32 diff)
     {

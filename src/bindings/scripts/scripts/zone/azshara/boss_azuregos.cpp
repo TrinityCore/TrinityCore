@@ -70,7 +70,7 @@ struct TRINITY_DLL_DECL boss_azuregosAI : public ScriptedAI
 
         if(Teleport_Timer < diff)
         {
-			DoScriptText(SAY_TELEPORT, m_creature);
+            DoScriptText(SAY_TELEPORT, m_creature);
             std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
             std::list<HostilReference*>::iterator i = m_threatlist.begin();
             for (i = m_threatlist.begin(); i!= m_threatlist.end();++i)
@@ -110,7 +110,7 @@ struct TRINITY_DLL_DECL boss_azuregosAI : public ScriptedAI
         //ManaStorm_Timer
         if (ManaStorm_Timer < diff)
         {
-			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target,SPELL_MANASTORM);
             ManaStorm_Timer = 7500 + rand()%5000;
         }else ManaStorm_Timer -= diff;

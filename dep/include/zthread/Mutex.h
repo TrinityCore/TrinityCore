@@ -26,8 +26,8 @@
 #include "zthread/Lockable.h"
 #include "zthread/NonCopyable.h"
 
-namespace ZThread { 
-  
+namespace ZThread {
+
   class FifoMutexImpl;
 
   /**
@@ -39,7 +39,7 @@ namespace ZThread {
    * A Mutex is used to provide serialized (one thread at a time) access to some portion
    * of code. This is accomplished by attempting to acquire the Mutex before entering that
    * piece of code, and by releasing the Mutex when leaving that region. It is a non-reentrant,
-   * MUTual EXclusion Lockable object. 
+   * MUTual EXclusion Lockable object.
    *
    * @see Guard
    *
@@ -49,26 +49,26 @@ namespace ZThread {
    *
    * <b>Error Checking</b>
    *
-   * A Mutex will throw a Deadlock_Exception if an attempt to acquire a Mutex more 
+   * A Mutex will throw a Deadlock_Exception if an attempt to acquire a Mutex more
    * than once is made from the context of the same thread.
    *
-   * A Mutex will throw an InvalidOp_Exception if an attempt to release a Mutex is 
+   * A Mutex will throw an InvalidOp_Exception if an attempt to release a Mutex is
    * made from the context of a thread that does not currently own that Mutex.
    */
   class ZTHREAD_API Mutex : public Lockable, private NonCopyable {
-  
+
     FifoMutexImpl* _impl;
-  
+
   public:
 
     //! Create a new Mutex.
-    Mutex(); 
+    Mutex();
 
     //! Destroy this Mutex.
     virtual ~Mutex();
-  
+
     /**
-     * Acquire a Mutex, possibly blocking until either the current owner of the 
+     * Acquire a Mutex, possibly blocking until either the current owner of the
      * Mutex releases it or until an exception is thrown.
      *
      * Only one thread may acquire() the Mutex at any given time.
@@ -88,14 +88,14 @@ namespace ZThread {
     virtual void acquire();
 
     /**
-     * Acquire a Mutex, possibly blocking until the current owner of the 
+     * Acquire a Mutex, possibly blocking until the current owner of the
      * Mutex releases it, until an exception is thrown or until the given amount
      * of time expires.
      *
      * Only one thread may acquire the Mutex at any given time.
      *
      * @param timeout maximum amount of time (milliseconds) this method could block
-     * @return 
+     * @return
      * - <em>true</em> if the lock was acquired
      * - <em>false</em> if the lock was acquired
      *
@@ -112,7 +112,7 @@ namespace ZThread {
      * @see Lockable::tryAcquire(unsigned long timeout)
      */
     virtual bool tryAcquire(unsigned long timeout);
-  
+
     /**
      * Release a Mutex allowing another thread to acquire it.
      *
@@ -126,7 +126,7 @@ namespace ZThread {
      * @see Lockable::release()
      */
     virtual void release();
-  
+
   };
 
 

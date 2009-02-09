@@ -56,42 +56,42 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
             Encounter[i] = NOT_STARTED;
     }
 
-	Player* GetPlayerInMap()
-	{
-		Map::PlayerList const& players = instance->GetPlayers();
+    Player* GetPlayerInMap()
+    {
+        Map::PlayerList const& players = instance->GetPlayers();
 
-		if (!players.isEmpty())
-		{
-			for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-			{
-				if (Player* plr = itr->getSource())
-					return plr;
-			}
-		}
+        if (!players.isEmpty())
+        {
+            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            {
+                if (Player* plr = itr->getSource())
+                    return plr;
+            }
+        }
 
-		debug_log("SD2: Instance Old Hillsbrad: GetPlayerInMap, but PlayerList is empty!");
-		return NULL;
-	}
+        debug_log("SD2: Instance Old Hillsbrad: GetPlayerInMap, but PlayerList is empty!");
+        return NULL;
+    }
 
-	void UpdateOHWorldState()
-	{
-		Map::PlayerList const& players = instance->GetPlayers();
+    void UpdateOHWorldState()
+    {
+        Map::PlayerList const& players = instance->GetPlayers();
 
-		if (!players.isEmpty())
-		{
-			for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-			{
-				if (Player* player = itr->getSource())
-				{
-					player->SendUpdateWorldState(WORLD_STATE_OH,mBarrelCount);
+        if (!players.isEmpty())
+        {
+            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            {
+                if (Player* player = itr->getSource())
+                {
+                    player->SendUpdateWorldState(WORLD_STATE_OH,mBarrelCount);
 
-					if (mBarrelCount == 5)
-						player->KilledMonster(LODGE_QUEST_TRIGGER,0);
-				}
-			}
-		}else
-			debug_log("SD2: Instance Old Hillsbrad: UpdateOHWorldState, but PlayerList is empty!");
-	}
+                    if (mBarrelCount == 5)
+                        player->KilledMonster(LODGE_QUEST_TRIGGER,0);
+                }
+            }
+        }else
+            debug_log("SD2: Instance Old Hillsbrad: UpdateOHWorldState, but PlayerList is empty!");
+    }
 
     void OnCreatureCreate(Creature *creature, uint32 creature_entry)
     {
@@ -108,36 +108,36 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
 
     void SetData(uint32 type, uint32 data)
     {
-		Player *player = GetPlayerInMap();
+        Player *player = GetPlayerInMap();
 
-		if (!player)
-		{
-			debug_log("SD2: Instance Old Hillsbrad: SetData (Type: %u Data %u) cannot find any player.", type, data);
-			return;
-		}
+        if (!player)
+        {
+            debug_log("SD2: Instance Old Hillsbrad: SetData (Type: %u Data %u) cannot find any player.", type, data);
+            return;
+        }
 
         switch(type)
         {
             case TYPE_BARREL_DIVERSION:
             {
-				if (data == IN_PROGRESS)
-				{
-					if (mBarrelCount >= 5)
-						return;
+                if (data == IN_PROGRESS)
+                {
+                    if (mBarrelCount >= 5)
+                        return;
 
-					++mBarrelCount;
-					UpdateOHWorldState();
+                    ++mBarrelCount;
+                    UpdateOHWorldState();
 
-					debug_log("SD2: Instance Old Hillsbrad: go_barrel_old_hillsbrad count %u",mBarrelCount);
+                    debug_log("SD2: Instance Old Hillsbrad: go_barrel_old_hillsbrad count %u",mBarrelCount);
 
-					Encounter[0] = IN_PROGRESS;
+                    Encounter[0] = IN_PROGRESS;
 
-					if (mBarrelCount == 5)
-					{
-					player->SummonCreature(DRAKE_ENTRY,2128.43,71.01,64.42,1.74,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1800000);
-					Encounter[0] = DONE;
-					}
-				}
+                    if (mBarrelCount == 5)
+                    {
+                    player->SummonCreature(DRAKE_ENTRY,2128.43,71.01,64.42,1.74,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1800000);
+                    Encounter[0] = DONE;
+                    }
+                }
                 break;
             }
             case TYPE_THRALL_EVENT:

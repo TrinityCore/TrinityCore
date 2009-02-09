@@ -26,8 +26,8 @@
 #include "zthread/Lockable.h"
 #include "zthread/NonCopyable.h"
 
-namespace ZThread { 
-  
+namespace ZThread {
+
   class PriorityMutexImpl;
 
   /**
@@ -36,9 +36,9 @@ namespace ZThread {
    * @date <2003-07-16T17:35:46-0400>
    * @version 2.2.1
    *
-   * A PriorityMutex is similar to a Mutex, with exception that a PriorityMutex 
-   * has a difference scheduling policy. It is a non-reentrant, priority sensitive 
-   * MUTual EXclusion Lockable object. 
+   * A PriorityMutex is similar to a Mutex, with exception that a PriorityMutex
+   * has a difference scheduling policy. It is a non-reentrant, priority sensitive
+   * MUTual EXclusion Lockable object.
    *
    * @see Mutex
    *
@@ -48,9 +48,9 @@ namespace ZThread {
    * with a higher priority will be given access first.
    */
   class ZTHREAD_API PriorityMutex : public Lockable, private NonCopyable {
-  
+
     PriorityMutexImpl* _impl;
-  
+
   public:
 
     /**
@@ -62,23 +62,23 @@ namespace ZThread {
      * @see Mutex::~Mutex()
      */
     virtual ~PriorityMutex();
-  
+
     /**
      * @see Mutex::acquire()
      */
-    virtual void acquire(); 
+    virtual void acquire();
 
     /**
      * @see Mutex::tryAcquire(unsigned long timeout)
      */
-    virtual bool tryAcquire(unsigned long timeout); 
-  
+    virtual bool tryAcquire(unsigned long timeout);
+
     /**
      * @see Mutex::release()
      */
     virtual void release();
-  
-  }; 
+
+  };
 
 
 } // namespace ZThread

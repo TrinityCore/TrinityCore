@@ -41,7 +41,7 @@ EndScriptData */
 #define SPELL_SUMMON_PURE_ENERGY    44322                   //not-working, this script summon this creatures without this spell
 #define SPELL_OVERLOAD              44353
 #define SPELL_ARCANE_SHOCK          44319
-#define ASTRAL_FLARE_VISUAL			30237
+#define ASTRAL_FLARE_VISUAL         30237
 
 //Creatures
 #define CREATURE_PURE_ENERGY        24745
@@ -76,16 +76,16 @@ struct TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
         Enraged = false;
 
         if(pInstance)
-		{
-			if (m_creature->isDead())
-				pInstance->SetData(DATA_VEXALLUS_EVENT, DONE);
-			else pInstance->SetData(DATA_VEXALLUS_EVENT, NOT_STARTED);
-		}
+        {
+            if (m_creature->isDead())
+                pInstance->SetData(DATA_VEXALLUS_EVENT, DONE);
+            else pInstance->SetData(DATA_VEXALLUS_EVENT, NOT_STARTED);
+        }
     }
 
     void KilledUnit(Unit *victim)
     {
-		DoScriptText(SAY_KILL, m_creature);
+        DoScriptText(SAY_KILL, m_creature);
     }
 
     void JustDied(Unit *victim)
@@ -124,8 +124,8 @@ struct TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
             //used for check, when Vexallus cast adds 85%, 70%, 55%, 40%, 25%
             if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < (100-(SpawnAddInterval*(AlreadySpawnedAmount+1))))
             {
-				DoScriptText(SAY_ENERGY, m_creature);
-				DoScriptText(EMOTE_DISCHARGE_ENERGY, m_creature);
+                DoScriptText(SAY_ENERGY, m_creature);
+                DoScriptText(EMOTE_DISCHARGE_ENERGY, m_creature);
                 Creature* PureEnergyCreature = NULL;
                 PureEnergyCreature = DoSpawnCreature(CREATURE_PURE_ENERGY, 10, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                 Unit* target = NULL;
@@ -146,7 +146,7 @@ struct TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
 
             if(ChainLightningTimer < diff)
             {
-				if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(target, SPELL_CHAIN_LIGHTNING);
                 ChainLightningTimer = 10000;
             }else ChainLightningTimer -= diff;
@@ -162,7 +162,7 @@ struct TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
         {
             if(OverloadTimer < diff)
             {
-				if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(target, SPELL_OVERLOAD);
                 OverloadTimer = 2200;
             }else OverloadTimer -= diff;
@@ -181,14 +181,14 @@ struct TRINITY_DLL_DECL mob_pure_energyAI : public ScriptedAI
     mob_pure_energyAI(Creature *c) : ScriptedAI(c) {Reset();}
 
     uint32 EnergyBoltTimer;
-	uint32 VisualTimer;
+    uint32 VisualTimer;
 
     void Reset()
     {
         EnergyBoltTimer = 1700;
-		VisualTimer = 1000;
-		m_creature->SetSpeed(MOVE_RUN, 0.5f);
-		m_creature->SetSpeed(MOVE_WALK, 0.5f);
+        VisualTimer = 1000;
+        m_creature->SetSpeed(MOVE_RUN, 0.5f);
+        m_creature->SetSpeed(MOVE_WALK, 0.5f);
     }
 
     void JustDied(Unit* slayer)
@@ -208,7 +208,7 @@ struct TRINITY_DLL_DECL mob_pure_energyAI : public ScriptedAI
             DoCast(m_creature->getVictim(), SPELL_ENERGY_BOLT);
             EnergyBoltTimer = 1700;
         }else   EnergyBoltTimer -= diff;
-		if(VisualTimer < diff)
+        if(VisualTimer < diff)
         {
             DoCast(m_creature->getVictim(), ASTRAL_FLARE_VISUAL, true);
             VisualTimer = 1000;

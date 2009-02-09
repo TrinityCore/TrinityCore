@@ -141,52 +141,52 @@ bool GossipSelect_npc_unrestrained_dragonhawk(Player *player, Creature *_Creatur
 ## npc_greengill_slave
 ######*/
 
-#define ENRAGE	45111
-#define ORB		45109
-#define QUESTG	11541
-#define DM		25060
+#define ENRAGE  45111
+#define ORB     45109
+#define QUESTG  11541
+#define DM      25060
 
 struct TRINITY_DLL_DECL npc_greengill_slaveAI : public ScriptedAI
 {
-	npc_greengill_slaveAI(Creature* c) : ScriptedAI(c) {Reset();}
+    npc_greengill_slaveAI(Creature* c) : ScriptedAI(c) {Reset();}
 
-	uint64 PlayerGUID;
+    uint64 PlayerGUID;
 
-	void Aggro(Unit* who){}
+    void Aggro(Unit* who){}
 
-	void Reset()
-	{
-	PlayerGUID = 0;
-	}
+    void Reset()
+    {
+    PlayerGUID = 0;
+    }
 
-	void SpellHit(Unit* caster, const SpellEntry* spell)
-	{
-		if(!caster)
+    void SpellHit(Unit* caster, const SpellEntry* spell)
+    {
+        if(!caster)
             return;
 
-		if(caster->GetTypeId() == TYPEID_PLAYER && spell->Id == ORB && !m_creature->HasAura(ENRAGE, 0))
-		{
-			PlayerGUID = caster->GetGUID();
-			if(PlayerGUID)
+        if(caster->GetTypeId() == TYPEID_PLAYER && spell->Id == ORB && !m_creature->HasAura(ENRAGE, 0))
+        {
+            PlayerGUID = caster->GetGUID();
+            if(PlayerGUID)
             {
                 Unit* plr = Unit::GetUnit((*m_creature), PlayerGUID);
                 if(plr && ((Player*)plr)->GetQuestStatus(QUESTG) == QUEST_STATUS_INCOMPLETE)
-					((Player*)plr)->KilledMonster(25086, m_creature->GetGUID());
-			}
-			DoCast(m_creature, ENRAGE);
-			Unit* Myrmidon = FindCreature(DM, 70, m_creature);
-			if(Myrmidon)
-			{
-				m_creature->AddThreat(Myrmidon, 100000.0f);
+                    ((Player*)plr)->KilledMonster(25086, m_creature->GetGUID());
+            }
+            DoCast(m_creature, ENRAGE);
+            Unit* Myrmidon = FindCreature(DM, 70, m_creature);
+            if(Myrmidon)
+            {
+                m_creature->AddThreat(Myrmidon, 100000.0f);
                 AttackStart(Myrmidon);
-			}
-		}
-	}
+            }
+        }
+    }
 
-	void UpdateAI(const uint32 diff)
-	{
-		DoMeleeAttackIfReady();
-	}
+    void UpdateAI(const uint32 diff)
+    {
+        DoMeleeAttackIfReady();
+    }
 };
 
 CreatureAI* GetAI_npc_greengill_slaveAI(Creature* _Creature)
@@ -215,8 +215,8 @@ void AddSC_isle_of_queldanas()
     newscript->pGossipSelect = &GossipSelect_npc_unrestrained_dragonhawk;
     newscript->RegisterSelf();
 
-	newscript = new Script;
-	newscript->Name="npc_greengill_slave";
-	newscript->GetAI = &GetAI_npc_greengill_slaveAI;
-	newscript->RegisterSelf();
+    newscript = new Script;
+    newscript->Name="npc_greengill_slave";
+    newscript->GetAI = &GetAI_npc_greengill_slaveAI;
+    newscript->RegisterSelf();
 }

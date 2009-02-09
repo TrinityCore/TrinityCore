@@ -42,55 +42,55 @@ EndContentData */
 
 bool GossipHello_npc_highlord_demitrian(Player *player, Creature *_Creature)
 {
-	if (_Creature->isQuestGiver())
-		player->PrepareQuestMenu(_Creature->GetGUID());
+    if (_Creature->isQuestGiver())
+        player->PrepareQuestMenu(_Creature->GetGUID());
 
-	if (player->GetQuestStatus(7785) == QUEST_STATUS_NONE &&
-		(player->HasItemCount(18563,1,false) || player->HasItemCount(18564,1,false)))
-		player->ADD_GOSSIP_ITEM(0, GOSSIP_DEMITRIAN1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+    if (player->GetQuestStatus(7785) == QUEST_STATUS_NONE &&
+        (player->HasItemCount(18563,1,false) || player->HasItemCount(18564,1,false)))
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_DEMITRIAN1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-	player->SEND_GOSSIP_MENU(6812, _Creature->GetGUID());
- 	 	return true;
+    player->SEND_GOSSIP_MENU(6812, _Creature->GetGUID());
+        return true;
 }
 
 bool GossipSelect_npc_highlord_demitrian(Player *player, Creature *_Creature, uint32 sender, uint32 action)
 {
-	switch (action)
-	{
-	case GOSSIP_ACTION_INFO_DEF:
-		player->ADD_GOSSIP_ITEM(0, GOSSIP_DEMITRIAN2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-		player->SEND_GOSSIP_MENU(6842, _Creature->GetGUID());
-		break;
-	case GOSSIP_ACTION_INFO_DEF+1:
-		player->ADD_GOSSIP_ITEM(0, GOSSIP_DEMITRIAN3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-		player->SEND_GOSSIP_MENU(6843, _Creature->GetGUID());
-		break;
-	case GOSSIP_ACTION_INFO_DEF+2:
-		player->ADD_GOSSIP_ITEM(0, GOSSIP_DEMITRIAN4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-		player->SEND_GOSSIP_MENU(6844, _Creature->GetGUID());
-		break;
-	case GOSSIP_ACTION_INFO_DEF+3:
-		player->ADD_GOSSIP_ITEM(0, GOSSIP_DEMITRIAN5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-		player->SEND_GOSSIP_MENU(6867, _Creature->GetGUID());
-		break;
-	case GOSSIP_ACTION_INFO_DEF+4:
-		player->ADD_GOSSIP_ITEM(0, GOSSIP_DEMITRIAN6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-		player->SEND_GOSSIP_MENU(6868, _Creature->GetGUID());
-		break;
-	case GOSSIP_ACTION_INFO_DEF+5:
-		player->ADD_GOSSIP_ITEM(0, GOSSIP_DEMITRIAN7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
-		player->SEND_GOSSIP_MENU(6869, _Creature->GetGUID());
-		break;
-	case GOSSIP_ACTION_INFO_DEF+6:
-		player->SEND_GOSSIP_MENU(6870, _Creature->GetGUID());
+    switch (action)
+    {
+    case GOSSIP_ACTION_INFO_DEF:
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_DEMITRIAN2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->SEND_GOSSIP_MENU(6842, _Creature->GetGUID());
+        break;
+    case GOSSIP_ACTION_INFO_DEF+1:
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_DEMITRIAN3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+        player->SEND_GOSSIP_MENU(6843, _Creature->GetGUID());
+        break;
+    case GOSSIP_ACTION_INFO_DEF+2:
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_DEMITRIAN4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+        player->SEND_GOSSIP_MENU(6844, _Creature->GetGUID());
+        break;
+    case GOSSIP_ACTION_INFO_DEF+3:
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_DEMITRIAN5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+        player->SEND_GOSSIP_MENU(6867, _Creature->GetGUID());
+        break;
+    case GOSSIP_ACTION_INFO_DEF+4:
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_DEMITRIAN6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+        player->SEND_GOSSIP_MENU(6868, _Creature->GetGUID());
+        break;
+    case GOSSIP_ACTION_INFO_DEF+5:
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_DEMITRIAN7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
+        player->SEND_GOSSIP_MENU(6869, _Creature->GetGUID());
+        break;
+    case GOSSIP_ACTION_INFO_DEF+6:
+        player->SEND_GOSSIP_MENU(6870, _Creature->GetGUID());
 
-		ItemPosCountVec dest;
-		uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 19016, 1);
-		if (msg == EQUIP_ERR_OK)
-			player->StoreNewItem(dest, 19016, true);
-		break;
-	}
-	return true;
+        ItemPosCountVec dest;
+        uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 19016, 1);
+        if (msg == EQUIP_ERR_OK)
+            player->StoreNewItem(dest, 19016, true);
+        break;
+    }
+    return true;
 }
 
 /*###
@@ -208,13 +208,13 @@ void AddSC_silithus()
 {
     Script *newscript;
 
-	newscript = new Script;
-	newscript->Name = "npc_highlord_demitrian";
-	newscript->pGossipHello =  &GossipHello_npc_highlord_demitrian;
-	newscript->pGossipSelect = &GossipSelect_npc_highlord_demitrian;
-	newscript->RegisterSelf();
+    newscript = new Script;
+    newscript->Name = "npc_highlord_demitrian";
+    newscript->pGossipHello =  &GossipHello_npc_highlord_demitrian;
+    newscript->pGossipSelect = &GossipSelect_npc_highlord_demitrian;
+    newscript->RegisterSelf();
 
-	newscript = new Script;
+    newscript = new Script;
     newscript->Name="npcs_rutgar_and_frankal";
     newscript->pGossipHello =   &GossipHello_npcs_rutgar_and_frankal;
     newscript->pGossipSelect =  &GossipSelect_npcs_rutgar_and_frankal;

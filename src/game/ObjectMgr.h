@@ -107,7 +107,7 @@ struct AreaTrigger
     uint32 requiredItem2;
     uint32 heroicKey;
     uint32 heroicKey2;
-	uint32 heroicQuest;
+    uint32 heroicQuest;
     std::string heroicQuestFailedText;
     uint32 requiredQuest;
     std::string requiredFailedText;
@@ -323,9 +323,9 @@ class ObjectMgr
 
         typedef std::vector<std::string> ScriptNameMap;
 
-		UNORDERED_MAP<uint32, uint32> TransportEventMap;
+        UNORDERED_MAP<uint32, uint32> TransportEventMap;
 
-		Player* GetPlayer(const char* name) const { return ObjectAccessor::Instance().FindPlayerByName(name);}
+        Player* GetPlayer(const char* name) const { return ObjectAccessor::Instance().FindPlayerByName(name);}
         Player* GetPlayer(uint64 guid) const { return ObjectAccessor::FindPlayer(guid); }
 
         static GameObjectInfo const *GetGameObjectInfo(uint32 id) { return sGOStorage.LookupEntry<GameObjectInfo>(id); }
@@ -536,13 +536,13 @@ class ObjectMgr
         void LoadQuestStartScripts();
         void LoadEventScripts();
         void LoadSpellScripts();
-		void LoadWaypointScripts();
+        void LoadWaypointScripts();
 
-		void LoadTransportEvents();
+        void LoadTransportEvents();
 
         bool LoadTrinityStrings(DatabaseType& db, char const* table, int32 min_value, int32 max_value);
         bool LoadTrinityStrings() { return LoadTrinityStrings(WorldDatabase,"trinity_string",MIN_TRINITY_STRING_ID,MAX_TRINITY_STRING_ID); }
-	void LoadDbScriptStrings();
+    void LoadDbScriptStrings();
         void LoadPetCreateSpells();
         void LoadCreatureLocales();
         void LoadCreatureTemplates();
@@ -714,7 +714,7 @@ class ObjectMgr
         }
         const char *GetTrinityString(int32 entry, int locale_idx) const;
         const char *GetTrinityStringForDBCLocale(int32 entry) const { return GetTrinityString(entry,DBCLocaleIndex); }
-	int32 GetDBCLocaleIndex() const { return DBCLocaleIndex; }
+    int32 GetDBCLocaleIndex() const { return DBCLocaleIndex; }
         void SetDBCLocaleIndex(uint32 lang) { DBCLocaleIndex = GetIndexForLocale(LocaleConstant(lang)); }
 
         void AddCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_guid, uint32 instance);

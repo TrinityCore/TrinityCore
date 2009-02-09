@@ -26,7 +26,7 @@
 #include "zthread/CountedPtr.h"
 #include "zthread/Mutex.h"
 
-namespace ZThread { 
+namespace ZThread {
 
   /**
    * @class ClassLockable
@@ -43,25 +43,25 @@ namespace ZThread {
     static CountedPtr<LockType> _instance;
     CountedPtr<LockType> _lock;
 
-    public:  
-  
+    public:
+
     //! Create a ClassLockable
-    ClassLockable() 
-      : _lock(_instance) {} 
-  
+    ClassLockable()
+      : _lock(_instance) {}
+
     //! acquire() the ClassLockable
-    virtual void acquire() { 
-      _lock->acquire(); 
+    virtual void acquire() {
+      _lock->acquire();
     }
 
     //! tryAcquire() the ClassLockable
     virtual bool tryAcquire(unsigned long timeout) {
-      return _lock->tryAcquire(timeout); 
+      return _lock->tryAcquire(timeout);
     }
 
     //! release() the ClassLockable
     virtual void release() {
-      _lock->release(); 
+      _lock->release();
     }
 
   };

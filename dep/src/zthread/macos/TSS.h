@@ -38,7 +38,7 @@ namespace ZThread {
    * @date <2003-07-27T14:19:10-0400>
    * @version 2.1.6
    *
-   * An abstraction for dealing with POSIX thread specific storage (tss). 
+   * An abstraction for dealing with POSIX thread specific storage (tss).
    * Provides get/set and creation/destruction.
    */
   template <typename T>
@@ -49,13 +49,13 @@ namespace ZThread {
     public:
 
     /**
-     * Create a new object for accessing tss. 
+     * Create a new object for accessing tss.
      */
     TSS() {
 
       // Apple TN1071
       static bool init = MPLibraryIsLoaded();
-    
+
       if(!init || MPAllocateTaskStorageIndex(&_key) != noErr) {
         assert(0);
         throw Initialization_Exception();
@@ -64,17 +64,17 @@ namespace ZThread {
     }
 
     /**
-     * Destroy the underlying supoprt for accessing tss with this 
+     * Destroy the underlying supoprt for accessing tss with this
      * object.
      */
     ~TSS() {
-  
+
       OSStatus status = MPDeallocateTaskStorageIndex(_key);
-      if(status != noErr) 
+      if(status != noErr)
         assert(0);
 
     }
- 
+
     /**
      * Get the value stored in tss.
      *
@@ -85,8 +85,8 @@ namespace ZThread {
     T get() const {
       return reinterpret_cast<T>(MPGetTaskStorageValue(_key));
     }
-  
- 
+
+
     /**
      * Store a value in tss.
      *
@@ -99,18 +99,18 @@ namespace ZThread {
 
       T oldValue = get();
 
-      OSStatus status = 
+      OSStatus status =
         MPSetTaskStorageValue(_key, reinterpret_cast<TaskStorageValue>(value));
-    
+
       if(status != noErr) {
         assert(0);
         throw Synchronization_Exception();
       }
 
       return oldValue;
-    
+
     }
-   
+
   };
 
 }

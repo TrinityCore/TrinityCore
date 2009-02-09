@@ -1028,12 +1028,12 @@ ACE_Message_Queue<ACE_SYNCH_USE>::ACE_Message_Queue (size_t hwm,
   char pid_buf[sizeof (int) + 1];
   ACE_OS::sprintf (pid_buf, "%d", ACE_OS::getpid ());
   pid_buf[sizeof (int)] = '\0';
-  
+
   const int addr_nibbles = 2 * sizeof (ptrdiff_t);
   char addr_buf[addr_nibbles + 1];
   ACE_OS::sprintf (addr_buf, "%p", this);
   addr_buf[addr_nibbles] = '\0';
-  
+
   ACE_CString name_str ("Message_Queue_");
   name_str += pid_buf;
   name_str += '_';
@@ -2255,7 +2255,7 @@ ACE_Dynamic_Message_Queue<ACE_SYNCH_USE>::enqueue_i (ACE_Message_Block *new_item
   // Refresh priority status boundaries in the queue.
 
   result = this->refresh_queue (current_time);
-  
+
   if (result < 0)
     {
       return result;

@@ -510,7 +510,7 @@ bool ChatHandler::HandleReloadAllScriptsCommand(const char*)
     SendGlobalGMSysMessage("DB tables `*_scripts` reloaded.");
     HandleReloadDbScriptStringCommand("a");
     HandleReloadWpScriptsCommand("a");
-	return true;
+    return true;
 }
 
 bool ChatHandler::HandleReloadAllSpellCommand(const char*)
@@ -928,9 +928,9 @@ bool ChatHandler::HandleReloadWpScriptsCommand(const char* arg)
     if(*arg!='a')
         sLog.outString( "Re-Loading Scripts from `waypoint_scripts`...");
 
-	objmgr.LoadWaypointScripts();
+    objmgr.LoadWaypointScripts();
 
-	if(*arg!='a')
+    if(*arg!='a')
         SendGlobalGMSysMessage("DB table `waypoint_scripts` reloaded.");
 
     return true;

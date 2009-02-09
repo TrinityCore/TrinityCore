@@ -157,7 +157,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-		DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, m_creature);
 
         if(pInstance)
             pInstance->SetData(DATA_JANALAIEVENT, DONE);
@@ -167,8 +167,8 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-		case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
-		case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
+        case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
+        case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
         }
     }
 
@@ -177,7 +177,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
         if(pInstance)
             pInstance->SetData(DATA_JANALAIEVENT, IN_PROGRESS);
 
-		DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, m_creature);
 //        DoZoneInCombat();
     }
 
@@ -353,7 +353,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
             }
             else
             {
-				DoScriptText(SAY_BERSERK, m_creature);
+                DoScriptText(SAY_BERSERK, m_creature);
                 m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
                 EnrageTimer = 300000;
             }
@@ -361,7 +361,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
 
         if(BombTimer < diff)
         {
-			DoScriptText(SAY_FIRE_BOMBS, m_creature);
+            DoScriptText(SAY_FIRE_BOMBS, m_creature);
 
             m_creature->AttackStop();
             m_creature->GetMotionMaster()->Clear();
@@ -395,7 +395,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
         {
             if(100 * m_creature->GetHealth() < 35 * m_creature->GetMaxHealth())
             {
-				DoScriptText(SAY_ALL_EGGS, m_creature);
+                DoScriptText(SAY_ALL_EGGS, m_creature);
 
                 m_creature->AttackStop();
                 m_creature->GetMotionMaster()->Clear();
@@ -410,7 +410,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
             {
                 if(HatchAllEggs(0))
                 {
-					DoScriptText(SAY_SUMMON_HATCHER, m_creature);
+                    DoScriptText(SAY_SUMMON_HATCHER, m_creature);
                     m_creature->SummonCreature(MOB_AMANI_HATCHER,hatcherway[0][0][0],hatcherway[0][0][1],hatcherway[0][0][2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,10000);
                     m_creature->SummonCreature(MOB_AMANI_HATCHER,hatcherway[1][0][0],hatcherway[1][0][1],hatcherway[1][0][2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,10000);
                     HatcherTimer = 90000;

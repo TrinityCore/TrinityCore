@@ -34,7 +34,7 @@ enum BattleGroundSounds
     SOUND_HORDE_WINS                = 8454,
     SOUND_ALLIANCE_WINS             = 8455,
     SOUND_BG_START                  = 3439,
-    SOUND_BG_START_L70ETC			= 11803,
+    SOUND_BG_START_L70ETC           = 11803,
 };
 
 enum BattleGroundQuests

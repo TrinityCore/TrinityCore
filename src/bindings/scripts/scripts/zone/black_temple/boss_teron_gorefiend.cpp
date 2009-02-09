@@ -143,7 +143,7 @@ struct TRINITY_DLL_DECL mob_shadowy_constructAI : public ScriptedAI
         if(!who || (!who->isAlive()) || (who->GetGUID() == GhostGUID))
             return;
 
-		ScriptedAI::MoveInLineOfSight(who);
+        ScriptedAI::MoveInLineOfSight(who);
     }
 
 /* Comment it out for now. NOTE TO FUTURE DEV: UNCOMMENT THIS OUT ONLY AFTER MIND CONTROL IS IMPLEMENTED
@@ -265,7 +265,7 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
 
                 m_creature->GetMotionMaster()->Clear(false);
                 m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-				DoScriptText(SAY_INTRO, m_creature);
+                DoScriptText(SAY_INTRO, m_creature);
                 m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
                 AggroTargetGUID = who->GetGUID();
                 Intro = true;
@@ -277,8 +277,8 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
-		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+        case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+        case 1: DoScriptText(SAY_SLAY2, m_creature); break;
         }
     }
 
@@ -287,7 +287,7 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
         if(pInstance)
             pInstance->SetData(DATA_TERONGOREFIENDEVENT, DONE);
 
-		DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, m_creature);
     }
 
     float CalculateRandomLocation(float Loc, uint32 radius)
@@ -375,7 +375,7 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
             {
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-				DoScriptText(SAY_AGGRO, m_creature);
+                DoScriptText(SAY_AGGRO, m_creature);
                 m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
                 Intro = false;
                 if(AggroTargetGUID)
@@ -417,7 +417,7 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
 
         if(SummonDoomBlossomTimer < diff)
         {
-			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
                 float X = CalculateRandomLocation(target->GetPositionX(), 20);
                 float Y = CalculateRandomLocation(target->GetPositionY(), 20);
@@ -445,8 +445,8 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
             {
                 switch(rand()%2)
                 {
-				case 0: DoScriptText(SAY_SPECIAL1, m_creature); break;
-				case 1: DoScriptText(SAY_SPECIAL2, m_creature); break;
+                case 0: DoScriptText(SAY_SPECIAL1, m_creature); break;
+                case 1: DoScriptText(SAY_SPECIAL2, m_creature); break;
                 }
                 DoCast(target, SPELL_INCINERATE);
                 IncinerateTimer = 20000 + rand()%31 * 1000;
@@ -482,20 +482,20 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
         {
             switch(rand()%2)
             {
-			case 0: DoScriptText(SAY_SPELL1, m_creature); break;
-			case 1: DoScriptText(SAY_SPELL2, m_creature); break;
+            case 0: DoScriptText(SAY_SPELL1, m_creature); break;
+            case 1: DoScriptText(SAY_SPELL2, m_creature); break;
             }
             RandomYellTimer = 50000 + rand()%51 * 1000;
         }else RandomYellTimer -= diff;
 
         if(!m_creature->HasAura(SPELL_BERSERK, 0))
-		{
+        {
             if(EnrageTimer < diff)
         {
             DoCast(m_creature, SPELL_BERSERK);
-			DoScriptText(SAY_ENRAGE, m_creature);
+            DoScriptText(SAY_ENRAGE, m_creature);
         }else EnrageTimer -= diff;
-		}
+        }
 
         DoMeleeAttackIfReady();
     }

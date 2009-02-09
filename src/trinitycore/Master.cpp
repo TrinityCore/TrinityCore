@@ -458,7 +458,7 @@ bool Master::_StartDB()
     ///- Clean the database before starting
     clearOnlineAccounts();
 
-	///- Insert version info into DB
+    ///- Insert version info into DB
     WorldDatabase.PExecute("UPDATE `version` SET `core_version` = '%s', `core_revision` = '%s'", _FULLVERSION, _REVISION);
 
     sWorld.LoadDBVersion();

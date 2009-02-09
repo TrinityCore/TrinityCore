@@ -30,14 +30,14 @@
 #include <deque>
 
 namespace ZThread {
- 
+
   /**
    * @class BlockingQueue
    * @author Eric Crahen <http://www.code-foo.com>
    * @date <2003-07-16T12:01:43-0400>
    * @version 2.3.0
    *
-   * Like a LockedQueue, a BlockingQueue is a Queue implementation that provides 
+   * Like a LockedQueue, a BlockingQueue is a Queue implementation that provides
    * serialized access to the items added to it. It differs by causing threads
    * accessing the next() methods to block until a value becomes available.
    */
@@ -70,12 +70,12 @@ namespace ZThread {
       virtual void add(const T& item) {
 
         Guard<LockType> g(_lock);
-    
+
         if(_canceled)
           throw Cancellation_Exception();
-        
+
         _queue.push_back(item);
-        
+
         _notEmpty.signal();
 
       }
@@ -88,17 +88,17 @@ namespace ZThread {
         try {
 
           Guard<LockType> g(_lock, timeout);
-      
+
           if(_canceled)
             throw Cancellation_Exception();
-      
+
           _queue.push_back(item);
 
           _notEmpty.signal();
 
         } catch(Timeout_Exception&) { return false; }
- 
-        return true;    
+
+        return true;
 
       }
 
@@ -106,7 +106,7 @@ namespace ZThread {
        * Get a value from this Queue. The calling thread may block indefinitely.
        *
        * @return <em>T</em> next available value
-       * 
+       *
        * @exception Cancellation_Exception thrown if this Queue has been canceled.
        *
        * @exception Interrupted_Exception thrown if the calling thread is interrupted
@@ -126,10 +126,10 @@ namespace ZThread {
 
         if( _queue.empty() )
           throw Cancellation_Exception();
-        
+
         T item = _queue.front();
         _queue.pop_front();
-    
+
         return item;
 
       }
@@ -142,7 +142,7 @@ namespace ZThread {
        *        the calling thread.
        *
        * @return <em>T</em> next available value
-       * 
+       *
        * @exception Cancellation_Exception thrown if this Queue has been canceled.
        * @exception Timeout_Exception thrown if the timeout expires before a value
        *            can be retrieved.
@@ -165,10 +165,10 @@ namespace ZThread {
 
         if(_queue.empty() )
           throw Cancellation_Exception();
-  
+
         T item = _queue.front();
         _queue.pop_front();
-    
+
         return item;
 
       }
@@ -177,7 +177,7 @@ namespace ZThread {
       /**
        * @see Queue::cancel()
        *
-       * @post If threads are blocked on one of the next() functions then 
+       * @post If threads are blocked on one of the next() functions then
        *       they will be awakened with a Cancellation_Exception.
        */
       virtual void cancel() {
@@ -197,7 +197,7 @@ namespace ZThread {
         // Faster check since the queue will not become un-canceled
         if(_canceled)
           return true;
-        
+
         Guard<LockType> g(_lock);
 
         return _canceled;

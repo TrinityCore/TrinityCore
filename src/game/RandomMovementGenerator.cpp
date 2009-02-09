@@ -123,9 +123,9 @@ RandomMovementGenerator<Creature>::Initialize(Creature &creature)
     if(!creature.isAlive())
         return;
 
-	wander_distance = creature.GetRespawnRadius();
+    wander_distance = creature.GetRespawnRadius();
 
-	if (creature.canFly())
+    if (creature.canFly())
         creature.AddUnitMovementFlag(MOVEMENTFLAG_FLYING2);
     else
         creature.SetUnitMovementFlags(irand(0,RUNNING_CHANCE_RANDOMMV) > 0 ? MOVEMENTFLAG_WALK_MODE : MOVEMENTFLAG_NONE );

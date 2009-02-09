@@ -23,13 +23,13 @@ ACE_SizeCDR::write_wchar (ACE_CDR::WChar x)
       errno = EACCES;
       return (this->good_bit_ = false);
     }
-    
+
   if (static_cast<ACE_CDR::Short> (major_version_) == 1
           && static_cast<ACE_CDR::Short> (minor_version_) == 2)
     {
       ACE_CDR::Octet len =
         static_cast<ACE_CDR::Octet> (ACE_OutputCDR::wchar_maxbytes ());
-        
+
       if (this->write_1 (&len))
         {
           if (ACE_OutputCDR::wchar_maxbytes () == sizeof(ACE_CDR::WChar))
@@ -65,7 +65,7 @@ ACE_SizeCDR::write_wchar (ACE_CDR::WChar x)
       errno = EINVAL;
       return (this->good_bit_ = false);
     }
-    
+
   if (ACE_OutputCDR::wchar_maxbytes () == sizeof (ACE_CDR::WChar))
     {
       const void *temp = &x;
@@ -76,7 +76,7 @@ ACE_SizeCDR::write_wchar (ACE_CDR::WChar x)
       ACE_CDR::Short sx = static_cast<ACE_CDR::Short> (x);
       return this->write_2 (reinterpret_cast<const ACE_CDR::UShort *> (&sx));
     }
-    
+
   ACE_CDR::Octet ox = static_cast<ACE_CDR::Octet> (x);
   return this->write_1 (reinterpret_cast<const ACE_CDR::Octet *> (&ox));
 }
@@ -138,9 +138,9 @@ ACE_SizeCDR::write_wstring (ACE_CDR::ULong len,
             this->write_ulong (
               ACE_Utils::truncate_cast<ACE_CDR::ULong> (
                 ACE_OutputCDR::wchar_maxbytes () * len));
-          
+
           if (good_ulong)
-            {      
+            {
               return this->write_wchar_array (x, len);
             }
         }

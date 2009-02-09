@@ -6,7 +6,7 @@
  * are met:
  *
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer. 
+ *    notice, this list of conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in
@@ -76,76 +76,76 @@ STACK_OF(type) \
 /* SKM_sk_... stack macros are internal to safestack.h:
  * never use them directly, use sk_<type>_... instead */
 #define SKM_sk_new(type, cmp) \
-	((STACK_OF(type) * (*)(int (*)(const type * const *, const type * const *)))openssl_fcast(sk_new))(cmp)
+    ((STACK_OF(type) * (*)(int (*)(const type * const *, const type * const *)))openssl_fcast(sk_new))(cmp)
 #define SKM_sk_new_null(type) \
-	((STACK_OF(type) * (*)(void))openssl_fcast(sk_new_null))()
+    ((STACK_OF(type) * (*)(void))openssl_fcast(sk_new_null))()
 #define SKM_sk_free(type, st) \
-	((void (*)(STACK_OF(type) *))openssl_fcast(sk_free))(st)
+    ((void (*)(STACK_OF(type) *))openssl_fcast(sk_free))(st)
 #define SKM_sk_num(type, st) \
-	((int (*)(const STACK_OF(type) *))openssl_fcast(sk_num))(st)
+    ((int (*)(const STACK_OF(type) *))openssl_fcast(sk_num))(st)
 #define SKM_sk_value(type, st,i) \
-	((type * (*)(const STACK_OF(type) *, int))openssl_fcast(sk_value))(st, i)
+    ((type * (*)(const STACK_OF(type) *, int))openssl_fcast(sk_value))(st, i)
 #define SKM_sk_set(type, st,i,val) \
-	((type * (*)(STACK_OF(type) *, int, type *))openssl_fcast(sk_set))(st, i, val)
+    ((type * (*)(STACK_OF(type) *, int, type *))openssl_fcast(sk_set))(st, i, val)
 #define SKM_sk_zero(type, st) \
-	((void (*)(STACK_OF(type) *))openssl_fcast(sk_zero))(st)
+    ((void (*)(STACK_OF(type) *))openssl_fcast(sk_zero))(st)
 #define SKM_sk_push(type, st,val) \
-	((int (*)(STACK_OF(type) *, type *))openssl_fcast(sk_push))(st, val)
+    ((int (*)(STACK_OF(type) *, type *))openssl_fcast(sk_push))(st, val)
 #define SKM_sk_unshift(type, st,val) \
-	((int (*)(STACK_OF(type) *, type *))openssl_fcast(sk_unshift))(st, val)
+    ((int (*)(STACK_OF(type) *, type *))openssl_fcast(sk_unshift))(st, val)
 #define SKM_sk_find(type, st,val) \
-	((int (*)(STACK_OF(type) *, type *))openssl_fcast(sk_find))(st, val)
+    ((int (*)(STACK_OF(type) *, type *))openssl_fcast(sk_find))(st, val)
 #define SKM_sk_delete(type, st,i) \
-	((type * (*)(STACK_OF(type) *, int))openssl_fcast(sk_delete))(st, i)
+    ((type * (*)(STACK_OF(type) *, int))openssl_fcast(sk_delete))(st, i)
 #define SKM_sk_delete_ptr(type, st,ptr) \
-	((type * (*)(STACK_OF(type) *, type *))openssl_fcast(sk_delete_ptr))(st, ptr)
+    ((type * (*)(STACK_OF(type) *, type *))openssl_fcast(sk_delete_ptr))(st, ptr)
 #define SKM_sk_insert(type, st,val,i) \
-	((int (*)(STACK_OF(type) *, type *, int))openssl_fcast(sk_insert))(st, val, i)
+    ((int (*)(STACK_OF(type) *, type *, int))openssl_fcast(sk_insert))(st, val, i)
 #define SKM_sk_set_cmp_func(type, st,cmp) \
-	((int (*(*)(STACK_OF(type) *, int (*)(const type * const *, const type * const *))) \
-	  (const type * const *, const type * const *))openssl_fcast(sk_set_cmp_func))\
-	(st, cmp)
+    ((int (*(*)(STACK_OF(type) *, int (*)(const type * const *, const type * const *))) \
+      (const type * const *, const type * const *))openssl_fcast(sk_set_cmp_func))\
+    (st, cmp)
 #define SKM_sk_dup(type, st) \
-	((STACK_OF(type) *(*)(STACK_OF(type) *))openssl_fcast(sk_dup))(st)
+    ((STACK_OF(type) *(*)(STACK_OF(type) *))openssl_fcast(sk_dup))(st)
 #define SKM_sk_pop_free(type, st,free_func) \
-	((void (*)(STACK_OF(type) *, void (*)(type *)))openssl_fcast(sk_pop_free))\
-	(st, free_func)
+    ((void (*)(STACK_OF(type) *, void (*)(type *)))openssl_fcast(sk_pop_free))\
+    (st, free_func)
 #define SKM_sk_shift(type, st) \
-	((type * (*)(STACK_OF(type) *))openssl_fcast(sk_shift))(st)
+    ((type * (*)(STACK_OF(type) *))openssl_fcast(sk_shift))(st)
 #define SKM_sk_pop(type, st) \
-	((type * (*)(STACK_OF(type) *))openssl_fcast(sk_pop))(st)
+    ((type * (*)(STACK_OF(type) *))openssl_fcast(sk_pop))(st)
 #define SKM_sk_sort(type, st) \
-	((void (*)(STACK_OF(type) *))openssl_fcast(sk_sort))(st)
+    ((void (*)(STACK_OF(type) *))openssl_fcast(sk_sort))(st)
 #define SKM_sk_is_sorted(type, st) \
-	((int (*)(const STACK_OF(type) *))openssl_fcast(sk_is_sorted))(st)
+    ((int (*)(const STACK_OF(type) *))openssl_fcast(sk_is_sorted))(st)
 
-#define	SKM_ASN1_SET_OF_d2i(type, st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
+#define SKM_ASN1_SET_OF_d2i(type, st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
 ((STACK_OF(type) * (*) (STACK_OF(type) **,const unsigned char **, long , \
                          type *(*)(type **, const unsigned char **,long), \
                                 void (*)(type *), int ,int )) openssl_fcast(d2i_ASN1_SET)) \
-			(st,pp,length, d2i_func, free_func, ex_tag,ex_class)
-#define	SKM_ASN1_SET_OF_i2d(type, st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	((int (*)(STACK_OF(type) *,unsigned char **, \
+            (st,pp,length, d2i_func, free_func, ex_tag,ex_class)
+#define SKM_ASN1_SET_OF_i2d(type, st, pp, i2d_func, ex_tag, ex_class, is_set) \
+    ((int (*)(STACK_OF(type) *,unsigned char **, \
         int (*)(type *,unsigned char **), int , int , int)) openssl_fcast(i2d_ASN1_SET)) \
-						(st,pp,i2d_func,ex_tag,ex_class,is_set)
+                        (st,pp,i2d_func,ex_tag,ex_class,is_set)
 
-#define	SKM_ASN1_seq_pack(type, st, i2d_func, buf, len) \
-	((unsigned char *(*)(STACK_OF(type) *, \
+#define SKM_ASN1_seq_pack(type, st, i2d_func, buf, len) \
+    ((unsigned char *(*)(STACK_OF(type) *, \
         int (*)(type *,unsigned char **), unsigned char **,int *)) openssl_fcast(ASN1_seq_pack)) \
-				(st, i2d_func, buf, len)
-#define	SKM_ASN1_seq_unpack(type, buf, len, d2i_func, free_func) \
-	((STACK_OF(type) * (*)(const unsigned char *,int, \
+                (st, i2d_func, buf, len)
+#define SKM_ASN1_seq_unpack(type, buf, len, d2i_func, free_func) \
+    ((STACK_OF(type) * (*)(const unsigned char *,int, \
                               type *(*)(type **,const unsigned char **, long), \
                               void (*)(type *)))openssl_fcast(ASN1_seq_unpack)) \
-					(buf,len,d2i_func, free_func)
+                    (buf,len,d2i_func, free_func)
 
 #define SKM_PKCS12_decrypt_d2i(type, algor, d2i_func, free_func, pass, passlen, oct, seq) \
-	((STACK_OF(type) * (*)(X509_ALGOR *, \
-            		type *(*)(type **, const unsigned char **, long), \
-				void (*)(type *), \
+    ((STACK_OF(type) * (*)(X509_ALGOR *, \
+                    type *(*)(type **, const unsigned char **, long), \
+                void (*)(type *), \
                                 const char *, int, \
                                 ASN1_STRING *, int))PKCS12_decrypt_d2i) \
-				(algor,d2i_func,free_func,pass,passlen,oct,seq)
+                (algor,d2i_func,free_func,pass,passlen,oct,seq)
 
 #else
 
@@ -155,59 +155,59 @@ STACK_OF(type) \
 #define IMPLEMENT_STACK_OF(type)  /* nada */
 
 #define SKM_sk_new(type, cmp) \
-	sk_new((int (*)(const char * const *, const char * const *))(cmp))
+    sk_new((int (*)(const char * const *, const char * const *))(cmp))
 #define SKM_sk_new_null(type) \
-	sk_new_null()
+    sk_new_null()
 #define SKM_sk_free(type, st) \
-	sk_free(st)
+    sk_free(st)
 #define SKM_sk_num(type, st) \
-	sk_num(st)
+    sk_num(st)
 #define SKM_sk_value(type, st,i) \
-	((type *)sk_value(st, i))
+    ((type *)sk_value(st, i))
 #define SKM_sk_set(type, st,i,val) \
-	((type *)sk_set(st, i,(char *)val))
+    ((type *)sk_set(st, i,(char *)val))
 #define SKM_sk_zero(type, st) \
-	sk_zero(st)
+    sk_zero(st)
 #define SKM_sk_push(type, st,val) \
-	sk_push(st, (char *)val)
+    sk_push(st, (char *)val)
 #define SKM_sk_unshift(type, st,val) \
-	sk_unshift(st, val)
+    sk_unshift(st, val)
 #define SKM_sk_find(type, st,val) \
-	sk_find(st, (char *)val)
+    sk_find(st, (char *)val)
 #define SKM_sk_delete(type, st,i) \
-	((type *)sk_delete(st, i))
+    ((type *)sk_delete(st, i))
 #define SKM_sk_delete_ptr(type, st,ptr) \
-	((type *)sk_delete_ptr(st,(char *)ptr))
+    ((type *)sk_delete_ptr(st,(char *)ptr))
 #define SKM_sk_insert(type, st,val,i) \
-	sk_insert(st, (char *)val, i)
+    sk_insert(st, (char *)val, i)
 #define SKM_sk_set_cmp_func(type, st,cmp) \
-	((int (*)(const type * const *,const type * const *)) \
-	sk_set_cmp_func(st, (int (*)(const char * const *, const char * const *))(cmp)))
+    ((int (*)(const type * const *,const type * const *)) \
+    sk_set_cmp_func(st, (int (*)(const char * const *, const char * const *))(cmp)))
 #define SKM_sk_dup(type, st) \
-	sk_dup(st)
+    sk_dup(st)
 #define SKM_sk_pop_free(type, st,free_func) \
-	sk_pop_free(st, (void (*)(void *))free_func)
+    sk_pop_free(st, (void (*)(void *))free_func)
 #define SKM_sk_shift(type, st) \
-	((type *)sk_shift(st))
+    ((type *)sk_shift(st))
 #define SKM_sk_pop(type, st) \
-	((type *)sk_pop(st))
+    ((type *)sk_pop(st))
 #define SKM_sk_sort(type, st) \
-	sk_sort(st)
+    sk_sort(st)
 #define SKM_sk_is_sorted(type, st) \
-	sk_is_sorted(st)
+    sk_is_sorted(st)
 
-#define	SKM_ASN1_SET_OF_d2i(type, st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
-	d2i_ASN1_SET(st,pp,length, (void *(*)(void ** ,const unsigned char ** ,long))d2i_func, (void (*)(void *))free_func, ex_tag,ex_class)
-#define	SKM_ASN1_SET_OF_i2d(type, st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	i2d_ASN1_SET(st,pp,(int (*)(void *, unsigned char **))i2d_func,ex_tag,ex_class,is_set)
+#define SKM_ASN1_SET_OF_d2i(type, st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
+    d2i_ASN1_SET(st,pp,length, (void *(*)(void ** ,const unsigned char ** ,long))d2i_func, (void (*)(void *))free_func, ex_tag,ex_class)
+#define SKM_ASN1_SET_OF_i2d(type, st, pp, i2d_func, ex_tag, ex_class, is_set) \
+    i2d_ASN1_SET(st,pp,(int (*)(void *, unsigned char **))i2d_func,ex_tag,ex_class,is_set)
 
-#define	SKM_ASN1_seq_pack(type, st, i2d_func, buf, len) \
-	ASN1_seq_pack(st, (int (*)(void *, unsigned char **))i2d_func, buf, len)
-#define	SKM_ASN1_seq_unpack(type, buf, len, d2i_func, free_func) \
-	ASN1_seq_unpack(buf,len,(void *(*)(void **,const unsigned char **,long))d2i_func, (void(*)(void *))free_func)
+#define SKM_ASN1_seq_pack(type, st, i2d_func, buf, len) \
+    ASN1_seq_pack(st, (int (*)(void *, unsigned char **))i2d_func, buf, len)
+#define SKM_ASN1_seq_unpack(type, buf, len, d2i_func, free_func) \
+    ASN1_seq_unpack(buf,len,(void *(*)(void **,const unsigned char **,long))d2i_func, (void(*)(void *))free_func)
 
 #define SKM_PKCS12_decrypt_d2i(type, algor, d2i_func, free_func, pass, passlen, oct, seq) \
-	((STACK *)PKCS12_decrypt_d2i(algor,(char *(*)())d2i_func, (void(*)(void *))free_func,pass,passlen,oct,seq))
+    ((STACK *)PKCS12_decrypt_d2i(algor,(char *(*)())d2i_func, (void(*)(void *))free_func,pass,passlen,oct,seq))
 
 #endif
 
@@ -1643,208 +1643,208 @@ STACK_OF(type) \
 #define sk_X509_VERIFY_PARAM_is_sorted(st) SKM_sk_is_sorted(X509_VERIFY_PARAM, (st))
 
 #define d2i_ASN1_SET_OF_ACCESS_DESCRIPTION(st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
-	SKM_ASN1_SET_OF_d2i(ACCESS_DESCRIPTION, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class)) 
+    SKM_ASN1_SET_OF_d2i(ACCESS_DESCRIPTION, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class))
 #define i2d_ASN1_SET_OF_ACCESS_DESCRIPTION(st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	SKM_ASN1_SET_OF_i2d(ACCESS_DESCRIPTION, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
+    SKM_ASN1_SET_OF_i2d(ACCESS_DESCRIPTION, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
 #define ASN1_seq_pack_ACCESS_DESCRIPTION(st, i2d_func, buf, len) \
-	SKM_ASN1_seq_pack(ACCESS_DESCRIPTION, (st), (i2d_func), (buf), (len))
+    SKM_ASN1_seq_pack(ACCESS_DESCRIPTION, (st), (i2d_func), (buf), (len))
 #define ASN1_seq_unpack_ACCESS_DESCRIPTION(buf, len, d2i_func, free_func) \
-	SKM_ASN1_seq_unpack(ACCESS_DESCRIPTION, (buf), (len), (d2i_func), (free_func))
+    SKM_ASN1_seq_unpack(ACCESS_DESCRIPTION, (buf), (len), (d2i_func), (free_func))
 
 #define d2i_ASN1_SET_OF_ASN1_INTEGER(st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
-	SKM_ASN1_SET_OF_d2i(ASN1_INTEGER, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class)) 
+    SKM_ASN1_SET_OF_d2i(ASN1_INTEGER, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class))
 #define i2d_ASN1_SET_OF_ASN1_INTEGER(st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	SKM_ASN1_SET_OF_i2d(ASN1_INTEGER, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
+    SKM_ASN1_SET_OF_i2d(ASN1_INTEGER, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
 #define ASN1_seq_pack_ASN1_INTEGER(st, i2d_func, buf, len) \
-	SKM_ASN1_seq_pack(ASN1_INTEGER, (st), (i2d_func), (buf), (len))
+    SKM_ASN1_seq_pack(ASN1_INTEGER, (st), (i2d_func), (buf), (len))
 #define ASN1_seq_unpack_ASN1_INTEGER(buf, len, d2i_func, free_func) \
-	SKM_ASN1_seq_unpack(ASN1_INTEGER, (buf), (len), (d2i_func), (free_func))
+    SKM_ASN1_seq_unpack(ASN1_INTEGER, (buf), (len), (d2i_func), (free_func))
 
 #define d2i_ASN1_SET_OF_ASN1_OBJECT(st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
-	SKM_ASN1_SET_OF_d2i(ASN1_OBJECT, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class)) 
+    SKM_ASN1_SET_OF_d2i(ASN1_OBJECT, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class))
 #define i2d_ASN1_SET_OF_ASN1_OBJECT(st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	SKM_ASN1_SET_OF_i2d(ASN1_OBJECT, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
+    SKM_ASN1_SET_OF_i2d(ASN1_OBJECT, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
 #define ASN1_seq_pack_ASN1_OBJECT(st, i2d_func, buf, len) \
-	SKM_ASN1_seq_pack(ASN1_OBJECT, (st), (i2d_func), (buf), (len))
+    SKM_ASN1_seq_pack(ASN1_OBJECT, (st), (i2d_func), (buf), (len))
 #define ASN1_seq_unpack_ASN1_OBJECT(buf, len, d2i_func, free_func) \
-	SKM_ASN1_seq_unpack(ASN1_OBJECT, (buf), (len), (d2i_func), (free_func))
+    SKM_ASN1_seq_unpack(ASN1_OBJECT, (buf), (len), (d2i_func), (free_func))
 
 #define d2i_ASN1_SET_OF_ASN1_TYPE(st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
-	SKM_ASN1_SET_OF_d2i(ASN1_TYPE, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class)) 
+    SKM_ASN1_SET_OF_d2i(ASN1_TYPE, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class))
 #define i2d_ASN1_SET_OF_ASN1_TYPE(st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	SKM_ASN1_SET_OF_i2d(ASN1_TYPE, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
+    SKM_ASN1_SET_OF_i2d(ASN1_TYPE, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
 #define ASN1_seq_pack_ASN1_TYPE(st, i2d_func, buf, len) \
-	SKM_ASN1_seq_pack(ASN1_TYPE, (st), (i2d_func), (buf), (len))
+    SKM_ASN1_seq_pack(ASN1_TYPE, (st), (i2d_func), (buf), (len))
 #define ASN1_seq_unpack_ASN1_TYPE(buf, len, d2i_func, free_func) \
-	SKM_ASN1_seq_unpack(ASN1_TYPE, (buf), (len), (d2i_func), (free_func))
+    SKM_ASN1_seq_unpack(ASN1_TYPE, (buf), (len), (d2i_func), (free_func))
 
 #define d2i_ASN1_SET_OF_DIST_POINT(st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
-	SKM_ASN1_SET_OF_d2i(DIST_POINT, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class)) 
+    SKM_ASN1_SET_OF_d2i(DIST_POINT, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class))
 #define i2d_ASN1_SET_OF_DIST_POINT(st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	SKM_ASN1_SET_OF_i2d(DIST_POINT, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
+    SKM_ASN1_SET_OF_i2d(DIST_POINT, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
 #define ASN1_seq_pack_DIST_POINT(st, i2d_func, buf, len) \
-	SKM_ASN1_seq_pack(DIST_POINT, (st), (i2d_func), (buf), (len))
+    SKM_ASN1_seq_pack(DIST_POINT, (st), (i2d_func), (buf), (len))
 #define ASN1_seq_unpack_DIST_POINT(buf, len, d2i_func, free_func) \
-	SKM_ASN1_seq_unpack(DIST_POINT, (buf), (len), (d2i_func), (free_func))
+    SKM_ASN1_seq_unpack(DIST_POINT, (buf), (len), (d2i_func), (free_func))
 
 #define d2i_ASN1_SET_OF_GENERAL_NAME(st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
-	SKM_ASN1_SET_OF_d2i(GENERAL_NAME, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class)) 
+    SKM_ASN1_SET_OF_d2i(GENERAL_NAME, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class))
 #define i2d_ASN1_SET_OF_GENERAL_NAME(st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	SKM_ASN1_SET_OF_i2d(GENERAL_NAME, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
+    SKM_ASN1_SET_OF_i2d(GENERAL_NAME, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
 #define ASN1_seq_pack_GENERAL_NAME(st, i2d_func, buf, len) \
-	SKM_ASN1_seq_pack(GENERAL_NAME, (st), (i2d_func), (buf), (len))
+    SKM_ASN1_seq_pack(GENERAL_NAME, (st), (i2d_func), (buf), (len))
 #define ASN1_seq_unpack_GENERAL_NAME(buf, len, d2i_func, free_func) \
-	SKM_ASN1_seq_unpack(GENERAL_NAME, (buf), (len), (d2i_func), (free_func))
+    SKM_ASN1_seq_unpack(GENERAL_NAME, (buf), (len), (d2i_func), (free_func))
 
 #define d2i_ASN1_SET_OF_OCSP_ONEREQ(st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
-	SKM_ASN1_SET_OF_d2i(OCSP_ONEREQ, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class)) 
+    SKM_ASN1_SET_OF_d2i(OCSP_ONEREQ, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class))
 #define i2d_ASN1_SET_OF_OCSP_ONEREQ(st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	SKM_ASN1_SET_OF_i2d(OCSP_ONEREQ, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
+    SKM_ASN1_SET_OF_i2d(OCSP_ONEREQ, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
 #define ASN1_seq_pack_OCSP_ONEREQ(st, i2d_func, buf, len) \
-	SKM_ASN1_seq_pack(OCSP_ONEREQ, (st), (i2d_func), (buf), (len))
+    SKM_ASN1_seq_pack(OCSP_ONEREQ, (st), (i2d_func), (buf), (len))
 #define ASN1_seq_unpack_OCSP_ONEREQ(buf, len, d2i_func, free_func) \
-	SKM_ASN1_seq_unpack(OCSP_ONEREQ, (buf), (len), (d2i_func), (free_func))
+    SKM_ASN1_seq_unpack(OCSP_ONEREQ, (buf), (len), (d2i_func), (free_func))
 
 #define d2i_ASN1_SET_OF_OCSP_SINGLERESP(st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
-	SKM_ASN1_SET_OF_d2i(OCSP_SINGLERESP, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class)) 
+    SKM_ASN1_SET_OF_d2i(OCSP_SINGLERESP, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class))
 #define i2d_ASN1_SET_OF_OCSP_SINGLERESP(st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	SKM_ASN1_SET_OF_i2d(OCSP_SINGLERESP, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
+    SKM_ASN1_SET_OF_i2d(OCSP_SINGLERESP, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
 #define ASN1_seq_pack_OCSP_SINGLERESP(st, i2d_func, buf, len) \
-	SKM_ASN1_seq_pack(OCSP_SINGLERESP, (st), (i2d_func), (buf), (len))
+    SKM_ASN1_seq_pack(OCSP_SINGLERESP, (st), (i2d_func), (buf), (len))
 #define ASN1_seq_unpack_OCSP_SINGLERESP(buf, len, d2i_func, free_func) \
-	SKM_ASN1_seq_unpack(OCSP_SINGLERESP, (buf), (len), (d2i_func), (free_func))
+    SKM_ASN1_seq_unpack(OCSP_SINGLERESP, (buf), (len), (d2i_func), (free_func))
 
 #define d2i_ASN1_SET_OF_PKCS12_SAFEBAG(st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
-	SKM_ASN1_SET_OF_d2i(PKCS12_SAFEBAG, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class)) 
+    SKM_ASN1_SET_OF_d2i(PKCS12_SAFEBAG, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class))
 #define i2d_ASN1_SET_OF_PKCS12_SAFEBAG(st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	SKM_ASN1_SET_OF_i2d(PKCS12_SAFEBAG, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
+    SKM_ASN1_SET_OF_i2d(PKCS12_SAFEBAG, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
 #define ASN1_seq_pack_PKCS12_SAFEBAG(st, i2d_func, buf, len) \
-	SKM_ASN1_seq_pack(PKCS12_SAFEBAG, (st), (i2d_func), (buf), (len))
+    SKM_ASN1_seq_pack(PKCS12_SAFEBAG, (st), (i2d_func), (buf), (len))
 #define ASN1_seq_unpack_PKCS12_SAFEBAG(buf, len, d2i_func, free_func) \
-	SKM_ASN1_seq_unpack(PKCS12_SAFEBAG, (buf), (len), (d2i_func), (free_func))
+    SKM_ASN1_seq_unpack(PKCS12_SAFEBAG, (buf), (len), (d2i_func), (free_func))
 
 #define d2i_ASN1_SET_OF_PKCS7(st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
-	SKM_ASN1_SET_OF_d2i(PKCS7, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class)) 
+    SKM_ASN1_SET_OF_d2i(PKCS7, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class))
 #define i2d_ASN1_SET_OF_PKCS7(st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	SKM_ASN1_SET_OF_i2d(PKCS7, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
+    SKM_ASN1_SET_OF_i2d(PKCS7, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
 #define ASN1_seq_pack_PKCS7(st, i2d_func, buf, len) \
-	SKM_ASN1_seq_pack(PKCS7, (st), (i2d_func), (buf), (len))
+    SKM_ASN1_seq_pack(PKCS7, (st), (i2d_func), (buf), (len))
 #define ASN1_seq_unpack_PKCS7(buf, len, d2i_func, free_func) \
-	SKM_ASN1_seq_unpack(PKCS7, (buf), (len), (d2i_func), (free_func))
+    SKM_ASN1_seq_unpack(PKCS7, (buf), (len), (d2i_func), (free_func))
 
 #define d2i_ASN1_SET_OF_PKCS7_RECIP_INFO(st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
-	SKM_ASN1_SET_OF_d2i(PKCS7_RECIP_INFO, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class)) 
+    SKM_ASN1_SET_OF_d2i(PKCS7_RECIP_INFO, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class))
 #define i2d_ASN1_SET_OF_PKCS7_RECIP_INFO(st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	SKM_ASN1_SET_OF_i2d(PKCS7_RECIP_INFO, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
+    SKM_ASN1_SET_OF_i2d(PKCS7_RECIP_INFO, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
 #define ASN1_seq_pack_PKCS7_RECIP_INFO(st, i2d_func, buf, len) \
-	SKM_ASN1_seq_pack(PKCS7_RECIP_INFO, (st), (i2d_func), (buf), (len))
+    SKM_ASN1_seq_pack(PKCS7_RECIP_INFO, (st), (i2d_func), (buf), (len))
 #define ASN1_seq_unpack_PKCS7_RECIP_INFO(buf, len, d2i_func, free_func) \
-	SKM_ASN1_seq_unpack(PKCS7_RECIP_INFO, (buf), (len), (d2i_func), (free_func))
+    SKM_ASN1_seq_unpack(PKCS7_RECIP_INFO, (buf), (len), (d2i_func), (free_func))
 
 #define d2i_ASN1_SET_OF_PKCS7_SIGNER_INFO(st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
-	SKM_ASN1_SET_OF_d2i(PKCS7_SIGNER_INFO, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class)) 
+    SKM_ASN1_SET_OF_d2i(PKCS7_SIGNER_INFO, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class))
 #define i2d_ASN1_SET_OF_PKCS7_SIGNER_INFO(st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	SKM_ASN1_SET_OF_i2d(PKCS7_SIGNER_INFO, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
+    SKM_ASN1_SET_OF_i2d(PKCS7_SIGNER_INFO, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
 #define ASN1_seq_pack_PKCS7_SIGNER_INFO(st, i2d_func, buf, len) \
-	SKM_ASN1_seq_pack(PKCS7_SIGNER_INFO, (st), (i2d_func), (buf), (len))
+    SKM_ASN1_seq_pack(PKCS7_SIGNER_INFO, (st), (i2d_func), (buf), (len))
 #define ASN1_seq_unpack_PKCS7_SIGNER_INFO(buf, len, d2i_func, free_func) \
-	SKM_ASN1_seq_unpack(PKCS7_SIGNER_INFO, (buf), (len), (d2i_func), (free_func))
+    SKM_ASN1_seq_unpack(PKCS7_SIGNER_INFO, (buf), (len), (d2i_func), (free_func))
 
 #define d2i_ASN1_SET_OF_POLICYINFO(st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
-	SKM_ASN1_SET_OF_d2i(POLICYINFO, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class)) 
+    SKM_ASN1_SET_OF_d2i(POLICYINFO, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class))
 #define i2d_ASN1_SET_OF_POLICYINFO(st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	SKM_ASN1_SET_OF_i2d(POLICYINFO, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
+    SKM_ASN1_SET_OF_i2d(POLICYINFO, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
 #define ASN1_seq_pack_POLICYINFO(st, i2d_func, buf, len) \
-	SKM_ASN1_seq_pack(POLICYINFO, (st), (i2d_func), (buf), (len))
+    SKM_ASN1_seq_pack(POLICYINFO, (st), (i2d_func), (buf), (len))
 #define ASN1_seq_unpack_POLICYINFO(buf, len, d2i_func, free_func) \
-	SKM_ASN1_seq_unpack(POLICYINFO, (buf), (len), (d2i_func), (free_func))
+    SKM_ASN1_seq_unpack(POLICYINFO, (buf), (len), (d2i_func), (free_func))
 
 #define d2i_ASN1_SET_OF_POLICYQUALINFO(st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
-	SKM_ASN1_SET_OF_d2i(POLICYQUALINFO, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class)) 
+    SKM_ASN1_SET_OF_d2i(POLICYQUALINFO, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class))
 #define i2d_ASN1_SET_OF_POLICYQUALINFO(st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	SKM_ASN1_SET_OF_i2d(POLICYQUALINFO, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
+    SKM_ASN1_SET_OF_i2d(POLICYQUALINFO, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
 #define ASN1_seq_pack_POLICYQUALINFO(st, i2d_func, buf, len) \
-	SKM_ASN1_seq_pack(POLICYQUALINFO, (st), (i2d_func), (buf), (len))
+    SKM_ASN1_seq_pack(POLICYQUALINFO, (st), (i2d_func), (buf), (len))
 #define ASN1_seq_unpack_POLICYQUALINFO(buf, len, d2i_func, free_func) \
-	SKM_ASN1_seq_unpack(POLICYQUALINFO, (buf), (len), (d2i_func), (free_func))
+    SKM_ASN1_seq_unpack(POLICYQUALINFO, (buf), (len), (d2i_func), (free_func))
 
 #define d2i_ASN1_SET_OF_SXNETID(st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
-	SKM_ASN1_SET_OF_d2i(SXNETID, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class)) 
+    SKM_ASN1_SET_OF_d2i(SXNETID, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class))
 #define i2d_ASN1_SET_OF_SXNETID(st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	SKM_ASN1_SET_OF_i2d(SXNETID, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
+    SKM_ASN1_SET_OF_i2d(SXNETID, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
 #define ASN1_seq_pack_SXNETID(st, i2d_func, buf, len) \
-	SKM_ASN1_seq_pack(SXNETID, (st), (i2d_func), (buf), (len))
+    SKM_ASN1_seq_pack(SXNETID, (st), (i2d_func), (buf), (len))
 #define ASN1_seq_unpack_SXNETID(buf, len, d2i_func, free_func) \
-	SKM_ASN1_seq_unpack(SXNETID, (buf), (len), (d2i_func), (free_func))
+    SKM_ASN1_seq_unpack(SXNETID, (buf), (len), (d2i_func), (free_func))
 
 #define d2i_ASN1_SET_OF_X509(st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
-	SKM_ASN1_SET_OF_d2i(X509, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class)) 
+    SKM_ASN1_SET_OF_d2i(X509, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class))
 #define i2d_ASN1_SET_OF_X509(st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	SKM_ASN1_SET_OF_i2d(X509, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
+    SKM_ASN1_SET_OF_i2d(X509, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
 #define ASN1_seq_pack_X509(st, i2d_func, buf, len) \
-	SKM_ASN1_seq_pack(X509, (st), (i2d_func), (buf), (len))
+    SKM_ASN1_seq_pack(X509, (st), (i2d_func), (buf), (len))
 #define ASN1_seq_unpack_X509(buf, len, d2i_func, free_func) \
-	SKM_ASN1_seq_unpack(X509, (buf), (len), (d2i_func), (free_func))
+    SKM_ASN1_seq_unpack(X509, (buf), (len), (d2i_func), (free_func))
 
 #define d2i_ASN1_SET_OF_X509_ALGOR(st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
-	SKM_ASN1_SET_OF_d2i(X509_ALGOR, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class)) 
+    SKM_ASN1_SET_OF_d2i(X509_ALGOR, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class))
 #define i2d_ASN1_SET_OF_X509_ALGOR(st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	SKM_ASN1_SET_OF_i2d(X509_ALGOR, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
+    SKM_ASN1_SET_OF_i2d(X509_ALGOR, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
 #define ASN1_seq_pack_X509_ALGOR(st, i2d_func, buf, len) \
-	SKM_ASN1_seq_pack(X509_ALGOR, (st), (i2d_func), (buf), (len))
+    SKM_ASN1_seq_pack(X509_ALGOR, (st), (i2d_func), (buf), (len))
 #define ASN1_seq_unpack_X509_ALGOR(buf, len, d2i_func, free_func) \
-	SKM_ASN1_seq_unpack(X509_ALGOR, (buf), (len), (d2i_func), (free_func))
+    SKM_ASN1_seq_unpack(X509_ALGOR, (buf), (len), (d2i_func), (free_func))
 
 #define d2i_ASN1_SET_OF_X509_ATTRIBUTE(st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
-	SKM_ASN1_SET_OF_d2i(X509_ATTRIBUTE, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class)) 
+    SKM_ASN1_SET_OF_d2i(X509_ATTRIBUTE, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class))
 #define i2d_ASN1_SET_OF_X509_ATTRIBUTE(st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	SKM_ASN1_SET_OF_i2d(X509_ATTRIBUTE, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
+    SKM_ASN1_SET_OF_i2d(X509_ATTRIBUTE, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
 #define ASN1_seq_pack_X509_ATTRIBUTE(st, i2d_func, buf, len) \
-	SKM_ASN1_seq_pack(X509_ATTRIBUTE, (st), (i2d_func), (buf), (len))
+    SKM_ASN1_seq_pack(X509_ATTRIBUTE, (st), (i2d_func), (buf), (len))
 #define ASN1_seq_unpack_X509_ATTRIBUTE(buf, len, d2i_func, free_func) \
-	SKM_ASN1_seq_unpack(X509_ATTRIBUTE, (buf), (len), (d2i_func), (free_func))
+    SKM_ASN1_seq_unpack(X509_ATTRIBUTE, (buf), (len), (d2i_func), (free_func))
 
 #define d2i_ASN1_SET_OF_X509_CRL(st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
-	SKM_ASN1_SET_OF_d2i(X509_CRL, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class)) 
+    SKM_ASN1_SET_OF_d2i(X509_CRL, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class))
 #define i2d_ASN1_SET_OF_X509_CRL(st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	SKM_ASN1_SET_OF_i2d(X509_CRL, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
+    SKM_ASN1_SET_OF_i2d(X509_CRL, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
 #define ASN1_seq_pack_X509_CRL(st, i2d_func, buf, len) \
-	SKM_ASN1_seq_pack(X509_CRL, (st), (i2d_func), (buf), (len))
+    SKM_ASN1_seq_pack(X509_CRL, (st), (i2d_func), (buf), (len))
 #define ASN1_seq_unpack_X509_CRL(buf, len, d2i_func, free_func) \
-	SKM_ASN1_seq_unpack(X509_CRL, (buf), (len), (d2i_func), (free_func))
+    SKM_ASN1_seq_unpack(X509_CRL, (buf), (len), (d2i_func), (free_func))
 
 #define d2i_ASN1_SET_OF_X509_EXTENSION(st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
-	SKM_ASN1_SET_OF_d2i(X509_EXTENSION, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class)) 
+    SKM_ASN1_SET_OF_d2i(X509_EXTENSION, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class))
 #define i2d_ASN1_SET_OF_X509_EXTENSION(st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	SKM_ASN1_SET_OF_i2d(X509_EXTENSION, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
+    SKM_ASN1_SET_OF_i2d(X509_EXTENSION, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
 #define ASN1_seq_pack_X509_EXTENSION(st, i2d_func, buf, len) \
-	SKM_ASN1_seq_pack(X509_EXTENSION, (st), (i2d_func), (buf), (len))
+    SKM_ASN1_seq_pack(X509_EXTENSION, (st), (i2d_func), (buf), (len))
 #define ASN1_seq_unpack_X509_EXTENSION(buf, len, d2i_func, free_func) \
-	SKM_ASN1_seq_unpack(X509_EXTENSION, (buf), (len), (d2i_func), (free_func))
+    SKM_ASN1_seq_unpack(X509_EXTENSION, (buf), (len), (d2i_func), (free_func))
 
 #define d2i_ASN1_SET_OF_X509_NAME_ENTRY(st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
-	SKM_ASN1_SET_OF_d2i(X509_NAME_ENTRY, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class)) 
+    SKM_ASN1_SET_OF_d2i(X509_NAME_ENTRY, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class))
 #define i2d_ASN1_SET_OF_X509_NAME_ENTRY(st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	SKM_ASN1_SET_OF_i2d(X509_NAME_ENTRY, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
+    SKM_ASN1_SET_OF_i2d(X509_NAME_ENTRY, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
 #define ASN1_seq_pack_X509_NAME_ENTRY(st, i2d_func, buf, len) \
-	SKM_ASN1_seq_pack(X509_NAME_ENTRY, (st), (i2d_func), (buf), (len))
+    SKM_ASN1_seq_pack(X509_NAME_ENTRY, (st), (i2d_func), (buf), (len))
 #define ASN1_seq_unpack_X509_NAME_ENTRY(buf, len, d2i_func, free_func) \
-	SKM_ASN1_seq_unpack(X509_NAME_ENTRY, (buf), (len), (d2i_func), (free_func))
+    SKM_ASN1_seq_unpack(X509_NAME_ENTRY, (buf), (len), (d2i_func), (free_func))
 
 #define d2i_ASN1_SET_OF_X509_REVOKED(st, pp, length, d2i_func, free_func, ex_tag, ex_class) \
-	SKM_ASN1_SET_OF_d2i(X509_REVOKED, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class)) 
+    SKM_ASN1_SET_OF_d2i(X509_REVOKED, (st), (pp), (length), (d2i_func), (free_func), (ex_tag), (ex_class))
 #define i2d_ASN1_SET_OF_X509_REVOKED(st, pp, i2d_func, ex_tag, ex_class, is_set) \
-	SKM_ASN1_SET_OF_i2d(X509_REVOKED, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
+    SKM_ASN1_SET_OF_i2d(X509_REVOKED, (st), (pp), (i2d_func), (ex_tag), (ex_class), (is_set))
 #define ASN1_seq_pack_X509_REVOKED(st, i2d_func, buf, len) \
-	SKM_ASN1_seq_pack(X509_REVOKED, (st), (i2d_func), (buf), (len))
+    SKM_ASN1_seq_pack(X509_REVOKED, (st), (i2d_func), (buf), (len))
 #define ASN1_seq_unpack_X509_REVOKED(buf, len, d2i_func, free_func) \
-	SKM_ASN1_seq_unpack(X509_REVOKED, (buf), (len), (d2i_func), (free_func))
+    SKM_ASN1_seq_unpack(X509_REVOKED, (buf), (len), (d2i_func), (free_func))
 
 #define PKCS12_decrypt_d2i_PKCS12_SAFEBAG(algor, d2i_func, free_func, pass, passlen, oct, seq) \
-	SKM_PKCS12_decrypt_d2i(PKCS12_SAFEBAG, (algor), (d2i_func), (free_func), (pass), (passlen), (oct), (seq))
+    SKM_PKCS12_decrypt_d2i(PKCS12_SAFEBAG, (algor), (d2i_func), (free_func), (pass), (passlen), (oct), (seq))
 
 #define PKCS12_decrypt_d2i_PKCS7(algor, d2i_func, free_func, pass, passlen, oct, seq) \
-	SKM_PKCS12_decrypt_d2i(PKCS7, (algor), (d2i_func), (free_func), (pass), (passlen), (oct), (seq))
+    SKM_PKCS12_decrypt_d2i(PKCS7, (algor), (d2i_func), (free_func), (pass), (passlen), (oct), (seq))
 /* End of util/mkstack.pl block, you may now edit :-) */
 
 #endif /* !defined HEADER_SAFESTACK_H */

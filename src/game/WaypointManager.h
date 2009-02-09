@@ -25,7 +25,7 @@
 
 struct WaypointData
 {
-	uint32 id;
+    uint32 id;
     float x,y,z;
     bool run;
     uint32 delay;
@@ -39,21 +39,21 @@ extern UNORDERED_MAP<uint32, WaypointPath*> waypoint_map;
 class WaypointStore
 {
     private :
-		uint32	records;
+        uint32  records;
 
-	public:
+    public:
         void UpdatePath(uint32 id);
-		void Load();
+        void Load();
         void Free();
 
         WaypointPath* GetPath(uint32 id)
         {
-			if(waypoint_map.find(id) != waypoint_map.end())
+            if(waypoint_map.find(id) != waypoint_map.end())
                 return waypoint_map[id];
-			else return 0;
-		}
+            else return 0;
+        }
 
-		inline uint32 GetRecordsCount() { return records; }
+        inline uint32 GetRecordsCount() { return records; }
 };
 
 extern WaypointStore WaypointMgr;

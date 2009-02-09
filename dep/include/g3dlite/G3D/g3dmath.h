@@ -1,11 +1,11 @@
 /**
  @file g3dmath.h
- 
+
  Math util class.
- 
+
  @maintainer Morgan McGuire, matrix@graphics3d.com
  @cite highestBit by Jukka Liimatta
- 
+
  @created 2001-06-02
  @edited  2006-01-16
 
@@ -32,7 +32,7 @@
 
 /*These defines enable functionality introduced with the 1999 ISO C
 **standard. They must be defined before the inclusion of math.h to
-**engage them. If optimisation is enabled, these functions will be 
+**engage them. If optimisation is enabled, these functions will be
 **inlined. With optimisation switched off, you have to link in the
 **maths library using -lm.
 */
@@ -52,19 +52,19 @@
 namespace G3D {
 
 #if defined(_MSC_VER)
-    
+
 #if !defined(_WIN64)
 
 /**
    Win32 implementation of the C99 fast rounding routines.
-   
+
    @cite routines are
    Copyright (C) 2001 Erik de Castro Lopo <erikd AT mega-nerd DOT com>
-   
-   Permission to use, copy, modify, distribute, and sell this file for any 
-   purpose is hereby granted without fee, provided that the above copyright 
+
+   Permission to use, copy, modify, distribute, and sell this file for any
+   purpose is hereby granted without fee, provided that the above copyright
    and this permission notice appear in all copies.  No representations are
-   made about the suitability of this software for any purpose.  It is 
+   made about the suitability of this software for any purpose.  It is
    provided "as is" without express or implied warranty.
 */
 
@@ -115,13 +115,13 @@ inline const double& inf() {
 
 // We already have <limits> included but
 // not using it in older gcc for safe compilations
-#if (__GNUC__ == 2)    
+#if (__GNUC__ == 2)
     static const double i = 1.0/sin(0.0);
 #else
     // double is a standard type and should have infinity
     static const double i = std::numeric_limits<double>::infinity();
 #endif
-	return i;
+    return i;
 }
 
 /** Returns a reference to a static double.
@@ -137,7 +137,7 @@ inline const double& nan() {
     // double is a standard type and should have quiet NaN
     static const double n = std::numeric_limits<double>::quiet_NaN();
 #endif
-	return n;
+    return n;
 }
 
 /** Returns a reference to a static double. Use instead of G3D_PI. */
@@ -168,24 +168,24 @@ inline const double& twoPi() {
     @deprecated Use G3D::twoPi() instead. */
 #define G3D_TWO_PI  (6.283185)
 
-typedef signed char		int8;
-typedef unsigned char	uint8;
-typedef short			int16;
-typedef unsigned short	uint16;
-typedef int				int32;
-typedef unsigned int	uint32;
+typedef signed char     int8;
+typedef unsigned char   uint8;
+typedef short           int16;
+typedef unsigned short  uint16;
+typedef int             int32;
+typedef unsigned int    uint32;
 
 #ifdef _MSC_EXTENSIONS
-    typedef __int64			   int64;
+    typedef __int64            int64;
     typedef unsigned __int64   uint64;
 #else
-    typedef long long		   int64;
+    typedef long long          int64;
     typedef unsigned long long uint64;
 #endif
 typedef unsigned int uint;
 
-typedef float			float32;
-typedef double			float64;
+typedef float           float32;
+typedef double          float64;
 
 int iAbs(int iValue);
 int iCeil(double fValue);
@@ -226,7 +226,7 @@ inline int iSign(float f) {
 }
 
 
-/** 
+/**
     Fast round to integer using the lrint routine.
     Typically 6x faster than casting to integer.
  */
@@ -234,7 +234,7 @@ inline int iRound(double fValue) {
     return lrint(fValue);
 }
 
-/** 
+/**
     Fast round to integer using the lrint routine.
     Typically 6x faster than casting to integer.
  */
@@ -273,7 +273,7 @@ bool isNaN(double x);
  */
 int iMod3(int x);
 
-/** 
+/**
  [0, 1]
  @deprecated use uniformRandom()
  */
@@ -297,7 +297,7 @@ double symmetricRandom ();
 float uniformRandom(float low = 0.0f, float hi = 1.0f);
 
 /**
- Normally distributed random number. 
+ Normally distributed random number.
  */
 float gaussRandom(float mean = 0.0f, float stdev = 1.0f);
 
@@ -360,7 +360,7 @@ double distance(double x, double y, double z);
   the left.  -1 means the number was 0.
 
   @cite Based on code by jukka@liimatta.org
- */ 
+ */
 int highestBit(uint32 x);
 
 /**
@@ -370,8 +370,8 @@ int highestBit(uint32 x);
  */
 bool fuzzyEq(double a, double b);
 
-/** True if a is definitely not equal to b.  
-    Guaranteed false if a == b. 
+/** True if a is definitely not equal to b.
+    Guaranteed false if a == b.
     Possibly false when a != b.*/
 bool fuzzyNe(double a, double b);
 
@@ -415,7 +415,7 @@ inline float SSErsq(float x) {
 
 /**
  Return the next power of 2 higher than the input
- If the input is already a power of 2, the output will be the same 
+ If the input is already a power of 2, the output will be the same
  as the input.
  */
 int ceilPow2(unsigned int in);

@@ -57,9 +57,9 @@ struct TRINITY_DLL_DECL boss_baron_geddonAI : public ScriptedAI
         //If we are <2% hp cast Armageddom
         if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 2)
         {
-			m_creature->InterruptNonMeleeSpells(true);
+            m_creature->InterruptNonMeleeSpells(true);
             DoCast(m_creature,SPELL_ARMAGEDDOM);
-			DoScriptText(EMOTE_SERVICE, m_creature);
+            DoScriptText(EMOTE_SERVICE, m_creature);
             return;
         }
 
@@ -74,7 +74,7 @@ struct TRINITY_DLL_DECL boss_baron_geddonAI : public ScriptedAI
         if (IgniteMana_Timer < diff)
         {
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-				DoCast(target,SPELL_IGNITEMANA);
+                DoCast(target,SPELL_IGNITEMANA);
 
             IgniteMana_Timer = 30000;
         }else IgniteMana_Timer -= diff;
@@ -83,7 +83,7 @@ struct TRINITY_DLL_DECL boss_baron_geddonAI : public ScriptedAI
         if (LivingBomb_Timer < diff)
         {
            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-			   DoCast(target,SPELL_LIVINGBOMB);
+               DoCast(target,SPELL_LIVINGBOMB);
 
             LivingBomb_Timer = 35000;
         }else LivingBomb_Timer -= diff;

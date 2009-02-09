@@ -47,7 +47,7 @@ struct TRINITY_DLL_DECL boss_jindoAI : public ScriptedAI
         Reset();
     }
 
-	ScriptedInstance *pInstance;
+    ScriptedInstance *pInstance;
 
     uint32 BrainWashTotem_Timer;
     uint32 HealingWard_Timer;
@@ -70,7 +70,7 @@ struct TRINITY_DLL_DECL boss_jindoAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-		DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -107,13 +107,13 @@ struct TRINITY_DLL_DECL boss_jindoAI : public ScriptedAI
         //Casting the delusion curse with a shade. So shade will attack the same target with the curse.
         if (Delusions_Timer < diff)
         {
-			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-			{
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+            {
             DoCast(target, SPELL_DELUSIONSOFJINDO);
 
             Shade = m_creature->SummonCreature(14986, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
             Shade->AI()->AttackStart(target);
-			}
+            }
 
             Delusions_Timer = 4000 + rand()%8000;
         }else Delusions_Timer -= diff;

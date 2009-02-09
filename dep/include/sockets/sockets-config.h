@@ -1,7 +1,7 @@
 /**
- **	\file sockets-config.h
- **	\date  2007-04-14
- **	\author grymse@alhem.net
+ ** \file sockets-config.h
+ ** \date  2007-04-14
+ ** \author grymse@alhem.net
 **/
 /*
 Copyright (C) 2007  Anders Hedstrom
@@ -73,8 +73,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 /* Enable TCP reconnect on lost connection.
-	Socket::OnReconnect
-	Socket::OnDisconnect
+    Socket::OnReconnect
+    Socket::OnDisconnect
 */
 #define ENABLE_RECONNECT
 

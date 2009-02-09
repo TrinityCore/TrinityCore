@@ -32,23 +32,23 @@ private:
     /**
     Vertical field of view (in radians)
     */
-    float						fieldOfView;
+    float                       fieldOfView;
 
-    /** 
-     The image plane depth corresponding to a vertical field of 
-     view, where the film size is 1x1.  
+    /**
+     The image plane depth corresponding to a vertical field of
+     view, where the film size is 1x1.
      */
-    float						imagePlaneDepth;
+    float                       imagePlaneDepth;
 
     /**
      Clipping plane, *not* imaging plane.  Positive numbers.
      */
-    float						nearPlane;
+    float                       nearPlane;
 
     /**
-     Positive 
+     Positive
      */
-    float						farPlane;
+    float                       farPlane;
 
     CoordinateFrame             cframe;
 
@@ -64,7 +64,7 @@ public:
             /** The plane containing the face. */
             Plane           plane;
         };
-        
+
         /** The vertices, in homogeneous space.  If w == 0,
             a vertex is at infinity. */
         Array<Vector4>      vertexPos;
@@ -77,42 +77,42 @@ public:
         Array<Face>         faceArray;
     };
 
-	GCamera();
+    GCamera();
 
     virtual ~GCamera();
 
 
-	CoordinateFrame getCoordinateFrame() const;
-	void getCoordinateFrame(CoordinateFrame& c) const;
-	void setCoordinateFrame(const CoordinateFrame& c);
-           
-   /**
-	 Sets the horizontal field of view, in radians.  The 
-     initial angle is toRadians(55).
-	 <UL>
-	  <LI> toRadians(50) - Telephoto
-	  <LI> toRadians(110) - Normal
-	  <LI> toRadians(140) - Wide angle
-	 </UL>
- 	*/
-	void setFieldOfView(float angle);
+    CoordinateFrame getCoordinateFrame() const;
+    void getCoordinateFrame(CoordinateFrame& c) const;
+    void setCoordinateFrame(const CoordinateFrame& c);
 
-	/**
-	Sets the field of view based on a desired image plane depth
-	(<I>s'</I>) and film dimensions in world space.  Depth must be positive.  Width,
-	depth, and height are measured in the same units (meters are
-	recommended).  The field of view will span the diagonal to the
-	image.<P> <I>Note</I>: to simulate a 35mm GCamera, set width =
-	0.36 mm and height = 0.24 mm.  The width and height used are
-	generally not the pixel dimensions of the image.  
-	*/
-	void setImagePlaneDepth(
+   /**
+     Sets the horizontal field of view, in radians.  The
+     initial angle is toRadians(55).
+     <UL>
+      <LI> toRadians(50) - Telephoto
+      <LI> toRadians(110) - Normal
+      <LI> toRadians(140) - Wide angle
+     </UL>
+    */
+    void setFieldOfView(float angle);
+
+    /**
+    Sets the field of view based on a desired image plane depth
+    (<I>s'</I>) and film dimensions in world space.  Depth must be positive.  Width,
+    depth, and height are measured in the same units (meters are
+    recommended).  The field of view will span the diagonal to the
+    image.<P> <I>Note</I>: to simulate a 35mm GCamera, set width =
+    0.36 mm and height = 0.24 mm.  The width and height used are
+    generally not the pixel dimensions of the image.
+    */
+    void setImagePlaneDepth(
         float                                   depth,
         const class Rect2D&                     viewport);
 
-	inline double getFieldOfView() const {
-		return fieldOfView;
-	}
+    inline double getFieldOfView() const {
+        return fieldOfView;
+    }
 
     /**
      Projects a world space point onto a width x height screen.  The
@@ -147,7 +147,7 @@ public:
     /**
      Returns the image plane depth, <I>s'</I>, given the current field
      of view for film of dimensions width x height.  See
-     setImagePlaneDepth for a discussion of worldspace values width and height. 
+     setImagePlaneDepth for a discussion of worldspace values width and height.
     */
     float getImagePlaneDepth(
         const class Rect2D&                     viewport) const;
@@ -162,7 +162,7 @@ public:
 
       Integer (x, y) values correspond to
       the upper left corners of pixels.  If you want to cast rays
-      through pixel centers, add 0.5 to x and y.        
+      through pixel centers, add 0.5 to x and y.
     */
     Ray worldRay(
         float                                  x,
@@ -184,15 +184,15 @@ public:
         return -farPlane;
     }
 
-	inline void setFarPlaneZ(float z) {
-		debugAssert(z < 0);
-		farPlane = -z;
-	}
+    inline void setFarPlaneZ(float z) {
+        debugAssert(z < 0);
+        farPlane = -z;
+    }
 
-	inline void setNearPlaneZ(float z) {
-		debugAssert(z < 0);
-		nearPlane = -z;
-	}
+    inline void setNearPlaneZ(float z) {
+        debugAssert(z < 0);
+        nearPlane = -z;
+    }
 
     /**
      Returns the GCamera space width of the viewport.
@@ -203,16 +203,16 @@ public:
     /**
      Returns the GCamera space height of the viewport.
      */
-    float getViewportHeight(       
+    float getViewportHeight(
         const class Rect2D&                     viewport) const;
 
     /**
      Read back a GCamera space z-value at pixel (x, y) from the depth buffer.
     double getZValue(
-        double			x,
-        double			y,
+        double          x,
+        double          y,
         const class Rect2D&                     viewport,
-        double			polygonOffset = 0) const;
+        double          polygonOffset = 0) const;
      */
 
     void setPosition(const Vector3& t);
@@ -220,13 +220,13 @@ public:
     void lookAt(const Vector3& position, const Vector3& up = Vector3::unitY());
 
    /**
-    Returns the clipping planes of the frustum, in world space.  
+    Returns the clipping planes of the frustum, in world space.
     The planes have normals facing <B>into</B> the view frustum.
 
     The plane order is guaranteed to be:
       Near, Right, Left, Top, Bottom, [Far]
 
-    If the far plane is at infinity, the resulting array will have 
+    If the far plane is at infinity, the resulting array will have
     5 planes, otherwise there will be 6.
 
     The viewport is used only to determine the aspect ratio of the screen; the

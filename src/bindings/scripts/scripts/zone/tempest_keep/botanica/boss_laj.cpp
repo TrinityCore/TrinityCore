@@ -159,7 +159,7 @@ struct TRINITY_DLL_DECL boss_lajAI : public ScriptedAI
         {
             if( Summon_Timer < diff )
             {
-				DoScriptText(EMOTE_SUMMON, m_creature);
+                DoScriptText(EMOTE_SUMMON, m_creature);
                 DoSummons();
                 Summon_Timer = 2500;
             }else Summon_Timer -= diff;

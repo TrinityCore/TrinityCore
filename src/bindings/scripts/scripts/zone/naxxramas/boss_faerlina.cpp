@@ -59,22 +59,22 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public ScriptedAI
     {
         switch (rand()%4)
         {
-		case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
-		case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
-		case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
-		case 3: DoScriptText(SAY_AGGRO4, m_creature); break;
+        case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
+        case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
+        case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
+        case 3: DoScriptText(SAY_AGGRO4, m_creature); break;
         }
     }
 
     void MoveInLineOfSight(Unit *who)
     {
          if (!HasTaunted && m_creature->IsWithinDistInMap(who, 60.0f))
-		 {
+         {
                 DoScriptText(SAY_GREET, m_creature);
                 HasTaunted = true;
 
         }
-		 ScriptedAI::MoveInLineOfSight(who);
+         ScriptedAI::MoveInLineOfSight(who);
     }
 
     void KilledUnit(Unit* victim)
@@ -88,7 +88,7 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-		DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -106,8 +106,8 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public ScriptedAI
         //RainOfFire_Timer
         if (RainOfFire_Timer < diff)
         {
-			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-				DoCast(target,SPELL_RAINOFFIRE);
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+                DoCast(target,SPELL_RAINOFFIRE);
             RainOfFire_Timer = 16000;
         }else RainOfFire_Timer -= diff;
 
