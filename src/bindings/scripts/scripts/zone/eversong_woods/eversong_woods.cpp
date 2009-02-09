@@ -554,79 +554,79 @@ bool GOHello_go_second_trial(Player *player, GameObject* _GO)
 ## npc_apprentice_mirveda
 ######*/
 
-#define QUEST_UNEXPECTED_RESULT	8488
-#define MOB_GHARZUL		15958
-#define MOB_ANGERSHADE	15656
+#define QUEST_UNEXPECTED_RESULT 8488
+#define MOB_GHARZUL     15958
+#define MOB_ANGERSHADE  15656
 
 struct TRINITY_DLL_DECL npc_apprentice_mirvedaAI : public ScriptedAI
 {
-	npc_apprentice_mirvedaAI(Creature* c) : ScriptedAI(c), Summons(m_creature) {Reset();}
+    npc_apprentice_mirvedaAI(Creature* c) : ScriptedAI(c), Summons(m_creature) {Reset();}
 
-	uint32 KillCount;
-	uint64 PlayerGUID;
-	bool Summon;
-	SummonList Summons;
+    uint32 KillCount;
+    uint64 PlayerGUID;
+    bool Summon;
+    SummonList Summons;
 
-	void Reset()
-	{
-		KillCount = 0;
-		PlayerGUID = 0;
-		Summons.DespawnAll();
-		Summon = false;
-	}
+    void Reset()
+    {
+        KillCount = 0;
+        PlayerGUID = 0;
+        Summons.DespawnAll();
+        Summon = false;
+    }
 
-	void Aggro(Unit* who){}
+    void Aggro(Unit* who){}
 
-	void JustSummoned(Creature *summoned)
-	{
-		summoned->AI()->AttackStart(m_creature);
-		Summons.Summon(summoned);
-	}
+    void JustSummoned(Creature *summoned)
+    {
+        summoned->AI()->AttackStart(m_creature);
+        Summons.Summon(summoned);
+    }
 
-	void SummonedCreatureDespawn(Creature* summoned)
-	{
-		Summons.Despawn(summoned);
-		++KillCount;
-	}
+    void SummonedCreatureDespawn(Creature* summoned)
+    {
+        Summons.Despawn(summoned);
+        ++KillCount;
+    }
 
-	void JustDied(Unit* killer)
-	{
-		if (PlayerGUID)
-		{
-			Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
-			if (player)
-				((Player*)player)->FailQuest(QUEST_UNEXPECTED_RESULT);
-		}
-	}
+    void JustDied(Unit* killer)
+    {
+        if (PlayerGUID)
+        {
+            Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+            if (player)
+                ((Player*)player)->FailQuest(QUEST_UNEXPECTED_RESULT);
+        }
+    }
 
-	void UpdateAI(const uint32 diff)
-	{
-		if(KillCount >= 3)
-		{
-			if (PlayerGUID)
-			{
-				Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
-				if(player)
-					((Player*)player)->CompleteQuest(QUEST_UNEXPECTED_RESULT);
-			}
-		}
+    void UpdateAI(const uint32 diff)
+    {
+        if(KillCount >= 3)
+        {
+            if (PlayerGUID)
+            {
+                Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+                if(player)
+                    ((Player*)player)->CompleteQuest(QUEST_UNEXPECTED_RESULT);
+            }
+        }
 
-		if(Summon)
-		{
-			m_creature->SummonCreature(MOB_GHARZUL, 8745, -7134.32, 35.22, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
-			m_creature->SummonCreature(MOB_ANGERSHADE, 8745, -7134.32, 35.22, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
-			m_creature->SummonCreature(MOB_ANGERSHADE, 8745, -7134.32, 35.22, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
-			Summon = false;
-		}
-	}
+        if(Summon)
+        {
+            m_creature->SummonCreature(MOB_GHARZUL, 8745, -7134.32, 35.22, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
+            m_creature->SummonCreature(MOB_ANGERSHADE, 8745, -7134.32, 35.22, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
+            m_creature->SummonCreature(MOB_ANGERSHADE, 8745, -7134.32, 35.22, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
+            Summon = false;
+        }
+    }
 };
 
 bool QuestAccept_npc_apprentice_mirveda(Player* player, Creature* creature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_UNEXPECTED_RESULT)
     {
-		((npc_apprentice_mirvedaAI*)creature->AI())->Summon = true;
-		((npc_apprentice_mirvedaAI*)creature->AI())->PlayerGUID = player->GetGUID();
+        ((npc_apprentice_mirvedaAI*)creature->AI())->Summon = true;
+        ((npc_apprentice_mirvedaAI*)creature->AI())->PlayerGUID = player->GetGUID();
     }
     return true;
 }
@@ -640,9 +640,9 @@ CreatureAI* GetAI_npc_apprentice_mirvedaAI(Creature *_Creature)
 ## npc_infused_crystal
 ######*/
 
-#define MOB_ENRAGED_WRAITH	17086
-#define EMOTE	-1000283
-#define QUEST_POWERING_OUR_DEFENSES	8490
+#define MOB_ENRAGED_WRAITH  17086
+#define EMOTE   -1000283
+#define QUEST_POWERING_OUR_DEFENSES 8490
 
 struct Location
 {
@@ -651,97 +651,97 @@ struct Location
 
 static Location SpawnLocations[]=
 {
-	{8270.68, -7188.53, 139.619},
-	{8284.27, -7187.78, 139.603},
-	{8297.43, -7193.53, 139.603},
-	{8303.5, -7201.96, 139.577},
-	{8273.22, -7241.82, 139.382},
-	{8254.89, -7222.12, 139.603},
-	{8278.51, -7242.13, 139.162},
-	{8267.97, -7239.17, 139.517}
+    {8270.68, -7188.53, 139.619},
+    {8284.27, -7187.78, 139.603},
+    {8297.43, -7193.53, 139.603},
+    {8303.5, -7201.96, 139.577},
+    {8273.22, -7241.82, 139.382},
+    {8254.89, -7222.12, 139.603},
+    {8278.51, -7242.13, 139.162},
+    {8267.97, -7239.17, 139.517}
 };
 
 struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
 {
-	npc_infused_crystalAI(Creature* c) : Scripted_NoMovementAI(c) {Reset();}
+    npc_infused_crystalAI(Creature* c) : Scripted_NoMovementAI(c) {Reset();}
 
-	uint32 EndTimer;
-	uint32 WaveTimer;
-	bool Completed;
-	bool Progress;
-	uint64 PlayerGUID;
+    uint32 EndTimer;
+    uint32 WaveTimer;
+    bool Completed;
+    bool Progress;
+    uint64 PlayerGUID;
 
-	void Reset()
-	{
-		EndTimer = 0;
-		Completed = false;
-		Progress = false;
-		PlayerGUID = 0;
-		WaveTimer = 0;
-	}
+    void Reset()
+    {
+        EndTimer = 0;
+        Completed = false;
+        Progress = false;
+        PlayerGUID = 0;
+        WaveTimer = 0;
+    }
 
-	void Aggro(Unit* who){}
+    void Aggro(Unit* who){}
 
-	void MoveInLineOfSight(Unit* who)
-	{
-		if( who->GetTypeId() == TYPEID_PLAYER && !m_creature->canStartAttack(who) && !Progress)
-		{
-			if( ((Player*)who)->GetQuestStatus(QUEST_POWERING_OUR_DEFENSES) == QUEST_STATUS_INCOMPLETE )
-			{
-				float Radius = 10.0;
-				if( m_creature->IsWithinDistInMap(who, Radius) )
-				{
-					PlayerGUID = who->GetGUID();
-					WaveTimer = 1000;
-					EndTimer = 60000;
-					Progress = true;
-				}
-			}
-		}
- 	}
+    void MoveInLineOfSight(Unit* who)
+    {
+        if( who->GetTypeId() == TYPEID_PLAYER && !m_creature->canStartAttack(who) && !Progress)
+        {
+            if( ((Player*)who)->GetQuestStatus(QUEST_POWERING_OUR_DEFENSES) == QUEST_STATUS_INCOMPLETE )
+            {
+                float Radius = 10.0;
+                if( m_creature->IsWithinDistInMap(who, Radius) )
+                {
+                    PlayerGUID = who->GetGUID();
+                    WaveTimer = 1000;
+                    EndTimer = 60000;
+                    Progress = true;
+                }
+            }
+        }
+    }
 
-	void JustSummoned(Creature *summoned)
-	{
-		summoned->AI()->AttackStart(m_creature);
-	}
+    void JustSummoned(Creature *summoned)
+    {
+        summoned->AI()->AttackStart(m_creature);
+    }
 
-	void JustDied(Unit* killer)
-	{
-		if (PlayerGUID && !Completed)
-		{
-			Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
-			if (player)
-				((Player*)player)->FailQuest(QUEST_POWERING_OUR_DEFENSES);
-		}
-	}
+    void JustDied(Unit* killer)
+    {
+        if (PlayerGUID && !Completed)
+        {
+            Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+            if (player)
+                ((Player*)player)->FailQuest(QUEST_POWERING_OUR_DEFENSES);
+        }
+    }
 
-	void UpdateAI(const uint32 diff)
-	{
-		if(EndTimer < diff && Progress)
-		{
-			DoScriptText(EMOTE, m_creature);
-			Completed = true;
-			if (PlayerGUID)
-			{
-				Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
-				if(player)
-					((Player*)player)->CompleteQuest(QUEST_POWERING_OUR_DEFENSES);
-			}
-			m_creature->DealDamage(m_creature,m_creature->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-			m_creature->RemoveCorpse();
-		}else EndTimer -= diff;
+    void UpdateAI(const uint32 diff)
+    {
+        if(EndTimer < diff && Progress)
+        {
+            DoScriptText(EMOTE, m_creature);
+            Completed = true;
+            if (PlayerGUID)
+            {
+                Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+                if(player)
+                    ((Player*)player)->CompleteQuest(QUEST_POWERING_OUR_DEFENSES);
+            }
+            m_creature->DealDamage(m_creature,m_creature->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            m_creature->RemoveCorpse();
+        }else EndTimer -= diff;
 
-		if(WaveTimer < diff && !Completed && Progress)
-		{
-			uint32 ran1 = rand()%8;
-			uint32 ran2 = rand()%8;
-			uint32 ran3 = rand()%8;
-			m_creature->SummonCreature(MOB_ENRAGED_WRAITH, SpawnLocations[ran1].x, SpawnLocations[ran1].y, SpawnLocations[ran1].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
-			m_creature->SummonCreature(MOB_ENRAGED_WRAITH, SpawnLocations[ran2].x, SpawnLocations[ran2].y, SpawnLocations[ran2].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
-			m_creature->SummonCreature(MOB_ENRAGED_WRAITH, SpawnLocations[ran3].x, SpawnLocations[ran3].y, SpawnLocations[ran3].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
-			WaveTimer = 30000;
-		}else WaveTimer -= diff;
-	}
+        if(WaveTimer < diff && !Completed && Progress)
+        {
+            uint32 ran1 = rand()%8;
+            uint32 ran2 = rand()%8;
+            uint32 ran3 = rand()%8;
+            m_creature->SummonCreature(MOB_ENRAGED_WRAITH, SpawnLocations[ran1].x, SpawnLocations[ran1].y, SpawnLocations[ran1].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
+            m_creature->SummonCreature(MOB_ENRAGED_WRAITH, SpawnLocations[ran2].x, SpawnLocations[ran2].y, SpawnLocations[ran2].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
+            m_creature->SummonCreature(MOB_ENRAGED_WRAITH, SpawnLocations[ran3].x, SpawnLocations[ran3].y, SpawnLocations[ran3].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
+            WaveTimer = 30000;
+        }else WaveTimer -= diff;
+    }
 };
 
 CreatureAI* GetAI_npc_infused_crystalAI(Creature *_Creature)
@@ -782,14 +782,14 @@ void AddSC_eversong_woods()
     newscript->pGOHello =  &GOHello_go_second_trial;
     newscript->RegisterSelf();
 
-	newscript = new Script;
-	newscript->Name = "npc_apprentice_mirveda";
-	newscript->GetAI = &GetAI_npc_apprentice_mirvedaAI;
-	newscript->pQuestAccept = &QuestAccept_npc_apprentice_mirveda;
-	newscript->RegisterSelf();
+    newscript = new Script;
+    newscript->Name = "npc_apprentice_mirveda";
+    newscript->GetAI = &GetAI_npc_apprentice_mirvedaAI;
+    newscript->pQuestAccept = &QuestAccept_npc_apprentice_mirveda;
+    newscript->RegisterSelf();
 
-	newscript = new Script;
-	newscript->Name = "npc_infused_crystal";
-	newscript->GetAI = &GetAI_npc_infused_crystalAI;
-	newscript->RegisterSelf();
+    newscript = new Script;
+    newscript->Name = "npc_infused_crystal";
+    newscript->GetAI = &GetAI_npc_infused_crystalAI;
+    newscript->RegisterSelf();
 }

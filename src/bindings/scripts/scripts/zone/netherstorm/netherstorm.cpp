@@ -356,323 +356,323 @@ bool GOHello_go_manaforge_control_console(Player *player, GameObject* _GO)
 // Entries of Arcanist Ardonis, Commander Dawnforge, Pathaleon the Curators Image
 int CreatureEntry[3][1] =
 {
-	{19830},                                                // Ardonis
-	{19831},                                                // Dawnforge
-	{21504}                                                 // Pathaleon
+    {19830},                                                // Ardonis
+    {19831},                                                // Dawnforge
+    {21504}                                                 // Pathaleon
 };
 
 struct TRINITY_DLL_DECL npc_commander_dawnforgeAI : public ScriptedAI
 {
-	npc_commander_dawnforgeAI(Creature *c) : ScriptedAI(c) { Reset (); }
+    npc_commander_dawnforgeAI(Creature *c) : ScriptedAI(c) { Reset (); }
 
 
-	uint64 playerGUID;
-	uint64 ardonisGUID;
-	uint64 pathaleonGUID;
+    uint64 playerGUID;
+    uint64 ardonisGUID;
+    uint64 pathaleonGUID;
 
 
-	uint32 Phase;
-	uint32 PhaseSubphase;
-	uint32 Phase_Timer;
-	bool isEvent;
+    uint32 Phase;
+    uint32 PhaseSubphase;
+    uint32 Phase_Timer;
+    bool isEvent;
 
-	float angle_dawnforge;
-	float angle_ardonis;
+    float angle_dawnforge;
+    float angle_ardonis;
 
-	void Reset()
-	{
-		playerGUID = 0;
-		ardonisGUID = 0;
-		pathaleonGUID = 0;
+    void Reset()
+    {
+        playerGUID = 0;
+        ardonisGUID = 0;
+        pathaleonGUID = 0;
 
-		Phase = 1;
-		PhaseSubphase = 0;
-		Phase_Timer = 4000;
-		isEvent = false;
-	}
+        Phase = 1;
+        PhaseSubphase = 0;
+        Phase_Timer = 4000;
+        isEvent = false;
+    }
 
-	void Aggro(Unit *who) { }
+    void Aggro(Unit *who) { }
 
-	//Select any creature in a grid
-	Creature* SelectCreatureInGrid(uint32 entry, float range)
-	{
-		Creature* pCreature = NULL;
+    //Select any creature in a grid
+    Creature* SelectCreatureInGrid(uint32 entry, float range)
+    {
+        Creature* pCreature = NULL;
 
-		CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
-		Cell cell(pair);
-		cell.data.Part.reserved = ALL_DISTRICT;
-		cell.SetNoCreate();
+        CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
+        Cell cell(pair);
+        cell.data.Part.reserved = ALL_DISTRICT;
+        cell.SetNoCreate();
 
-		Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck creature_check(*m_creature, entry, true, range);
-		Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(pCreature, creature_check);
+        Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck creature_check(*m_creature, entry, true, range);
+        Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(pCreature, creature_check);
 
-		TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer> creature_searcher(searcher);
+        TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer> creature_searcher(searcher);
 
-		CellLock<GridReadGuard> cell_lock(cell, pair);
-		cell_lock->Visit(cell_lock, creature_searcher,*(m_creature->GetMap()));
+        CellLock<GridReadGuard> cell_lock(cell, pair);
+        cell_lock->Visit(cell_lock, creature_searcher,*(m_creature->GetMap()));
 
-		return pCreature;
-	}
+        return pCreature;
+    }
 
-	void JustSummoned(Creature *summoned)
-	{
-		pathaleonGUID = summoned->GetGUID();
-	}
+    void JustSummoned(Creature *summoned)
+    {
+        pathaleonGUID = summoned->GetGUID();
+    }
 
-	// Emote Ardonis and Pathaleon
-	void Turn_to_Pathaleons_Image()
-	{
-		Unit *ardonis = Unit::GetUnit(*m_creature,ardonisGUID);
-		Unit *pathaleon = Unit::GetUnit(*m_creature,pathaleonGUID);
-		Player *player = (Player*)Unit::GetUnit(*m_creature,playerGUID);
+    // Emote Ardonis and Pathaleon
+    void Turn_to_Pathaleons_Image()
+    {
+        Unit *ardonis = Unit::GetUnit(*m_creature,ardonisGUID);
+        Unit *pathaleon = Unit::GetUnit(*m_creature,pathaleonGUID);
+        Player *player = (Player*)Unit::GetUnit(*m_creature,playerGUID);
 
-		if (!ardonis || !pathaleon || !player)
-			return;
+        if (!ardonis || !pathaleon || !player)
+            return;
 
-		//Calculate the angle to Pathaleon
-		angle_dawnforge = m_creature->GetAngle(pathaleon->GetPositionX(), pathaleon->GetPositionY());
-		angle_ardonis = ardonis->GetAngle(pathaleon->GetPositionX(), pathaleon->GetPositionY());
+        //Calculate the angle to Pathaleon
+        angle_dawnforge = m_creature->GetAngle(pathaleon->GetPositionX(), pathaleon->GetPositionY());
+        angle_ardonis = ardonis->GetAngle(pathaleon->GetPositionX(), pathaleon->GetPositionY());
 
-		//Turn Dawnforge and update
-		m_creature->SetOrientation(angle_dawnforge);
-		m_creature->SendUpdateToPlayer(player);
-		//Turn Ardonis and update
-		ardonis->SetOrientation(angle_ardonis);
-		ardonis->SendUpdateToPlayer(player);
+        //Turn Dawnforge and update
+        m_creature->SetOrientation(angle_dawnforge);
+        m_creature->SendUpdateToPlayer(player);
+        //Turn Ardonis and update
+        ardonis->SetOrientation(angle_ardonis);
+        ardonis->SendUpdateToPlayer(player);
 
-		//Set them to kneel
-		m_creature->SetStandState(PLAYER_STATE_KNEEL);
-		ardonis->SetStandState(PLAYER_STATE_KNEEL);
-	}
+        //Set them to kneel
+        m_creature->SetStandState(PLAYER_STATE_KNEEL);
+        ardonis->SetStandState(PLAYER_STATE_KNEEL);
+    }
 
-	//Set them back to each other
-	void Turn_to_eachother()
-	{
-		if (Unit *ardonis = Unit::GetUnit(*m_creature,ardonisGUID))
-		{
-			Player *player = (Player*)Unit::GetUnit(*m_creature,playerGUID);
+    //Set them back to each other
+    void Turn_to_eachother()
+    {
+        if (Unit *ardonis = Unit::GetUnit(*m_creature,ardonisGUID))
+        {
+            Player *player = (Player*)Unit::GetUnit(*m_creature,playerGUID);
 
-			if (!player)
-				return;
+            if (!player)
+                return;
 
-			angle_dawnforge = m_creature->GetAngle(ardonis->GetPositionX(), ardonis->GetPositionY());
-			angle_ardonis = ardonis->GetAngle(m_creature->GetPositionX(), m_creature->GetPositionY());
+            angle_dawnforge = m_creature->GetAngle(ardonis->GetPositionX(), ardonis->GetPositionY());
+            angle_ardonis = ardonis->GetAngle(m_creature->GetPositionX(), m_creature->GetPositionY());
 
-			//Turn Dawnforge and update
-			m_creature->SetOrientation(angle_dawnforge);
-			m_creature->SendUpdateToPlayer(player);
-			//Turn Ardonis and update
-			ardonis->SetOrientation(angle_ardonis);
-			ardonis->SendUpdateToPlayer(player);
+            //Turn Dawnforge and update
+            m_creature->SetOrientation(angle_dawnforge);
+            m_creature->SendUpdateToPlayer(player);
+            //Turn Ardonis and update
+            ardonis->SetOrientation(angle_ardonis);
+            ardonis->SendUpdateToPlayer(player);
 
-			//Set state
-			m_creature->SetStandState(PLAYER_STATE_NONE);
-			ardonis->SetStandState(PLAYER_STATE_NONE);
-		}
-	}
+            //Set state
+            m_creature->SetStandState(PLAYER_STATE_NONE);
+            ardonis->SetStandState(PLAYER_STATE_NONE);
+        }
+    }
 
-	bool CanStartEvent(Player *player)
-	{
-		if (!isEvent)
-		{
-			Creature *ardonis = SelectCreatureInGrid(CreatureEntry[0][0], 10.0f);
-			if (!ardonis)
-				return false;
+    bool CanStartEvent(Player *player)
+    {
+        if (!isEvent)
+        {
+            Creature *ardonis = SelectCreatureInGrid(CreatureEntry[0][0], 10.0f);
+            if (!ardonis)
+                return false;
 
-			ardonisGUID = ardonis->GetGUID();
-			playerGUID = player->GetGUID();
+            ardonisGUID = ardonis->GetGUID();
+            playerGUID = player->GetGUID();
 
-			isEvent = true;
+            isEvent = true;
 
-			Turn_to_eachother();
-			return true;
-		}
+            Turn_to_eachother();
+            return true;
+        }
 
-		debug_log("TSCR: npc_commander_dawnforge event already in progress, need to wait.");
-		return false;
-	}
+        debug_log("TSCR: npc_commander_dawnforge event already in progress, need to wait.");
+        return false;
+    }
 
-	void UpdateAI(const uint32 diff)
-	{
-		//Is event even running?
-		if (!isEvent)
-			return;
+    void UpdateAI(const uint32 diff)
+    {
+        //Is event even running?
+        if (!isEvent)
+            return;
 
-		//Phase timing
-		if (Phase_Timer >= diff)
-		{
-			Phase_Timer -= diff;
-			return;
-		}
+        //Phase timing
+        if (Phase_Timer >= diff)
+        {
+            Phase_Timer -= diff;
+            return;
+        }
 
-		Unit *ardonis = Unit::GetUnit(*m_creature,ardonisGUID);
-		Unit *pathaleon = Unit::GetUnit(*m_creature,pathaleonGUID);
-		Player *player = (Player*)Unit::GetUnit(*m_creature,playerGUID);
+        Unit *ardonis = Unit::GetUnit(*m_creature,ardonisGUID);
+        Unit *pathaleon = Unit::GetUnit(*m_creature,pathaleonGUID);
+        Player *player = (Player*)Unit::GetUnit(*m_creature,playerGUID);
 
-		if (!ardonis || !player)
-		{
-			Reset();
-			return;
-		}
+        if (!ardonis || !player)
+        {
+            Reset();
+            return;
+        }
 
-		if (Phase > 4 && !pathaleon)
-		{
-			Reset();
-			return;
-		}
+        if (Phase > 4 && !pathaleon)
+        {
+            Reset();
+            return;
+        }
 
-		//Phase 1 Dawnforge say
-		switch (Phase)
-		{
-		case 1:
-			DoScriptText(SAY_COMMANDER_DAWNFORGE_1, m_creature);
-			++Phase;
-			Phase_Timer = 16000;
-			break;
-			//Phase 2 Ardonis say
-		case 2:
-			DoScriptText(SAY_ARCANIST_ARDONIS_1, ardonis);
-			++Phase;
-			Phase_Timer = 16000;
-			break;
-			//Phase 3 Dawnforge say
-		case 3:
-			DoScriptText(SAY_COMMANDER_DAWNFORGE_2, m_creature);
-			++Phase;
-			Phase_Timer = 16000;
-			break;
-			//Phase 4 Pathaleon spawns up to phase 9
-		case 4:
-			//spawn pathaleon's image
-			m_creature->SummonCreature(CreatureEntry[2][0], 2325.851563, 2799.534668, 133.084229, 6.038996, TEMPSUMMON_TIMED_DESPAWN, 90000);
-			++Phase;
-			Phase_Timer = 500;
-			break;
-			//Phase 5 Pathaleon say
-		case 5:
-			DoScriptText(SAY_PATHALEON_CULATOR_IMAGE_1, pathaleon);
-			++Phase;
-			Phase_Timer = 6000;
-			break;
-			//Phase 6
-		case 6:
-			switch(PhaseSubphase)
-			{
-				//Subphase 1: Turn Dawnforge and Ardonis
-			case 0:
-				Turn_to_Pathaleons_Image();
-				++PhaseSubphase;
-				Phase_Timer = 8000;
-				break;
-				//Subphase 2 Dawnforge say
-			case 1:
-				DoScriptText(SAY_COMMANDER_DAWNFORGE_3, m_creature);
-				PhaseSubphase = 0;
-				++Phase;
-				Phase_Timer = 8000;
-				break;
-			}
-			break;
-			//Phase 7 Pathaleons say 3 Sentence, every sentence need a subphase
-		case 7:
-			switch(PhaseSubphase)
-			{
-				//Subphase 1
-			case 0:
-				DoScriptText(SAY_PATHALEON_CULATOR_IMAGE_2, pathaleon);
-				++PhaseSubphase;
-				Phase_Timer = 12000;
-				break;
-				//Subphase 2
-			case 1:
-				DoScriptText(SAY_PATHALEON_CULATOR_IMAGE_2_1, pathaleon);
-				++PhaseSubphase;
-				Phase_Timer = 16000;
-				break;
-				//Subphase 3
-			case 2:
-				DoScriptText(SAY_PATHALEON_CULATOR_IMAGE_2_2, pathaleon);
-				PhaseSubphase = 0;
-				++Phase;
-				Phase_Timer = 10000;
-				break;
-			}
-			break;
-			//Phase 8 Dawnforge & Ardonis say
-		case 8:
-			DoScriptText(SAY_COMMANDER_DAWNFORGE_4, m_creature);
-			DoScriptText(SAY_ARCANIST_ARDONIS_2, ardonis);
-			++Phase;
-			Phase_Timer = 4000;
-			break;
-			//Phase 9 Pathaleons Despawn, Reset Dawnforge & Ardonis angle
-		case 9:
-			Turn_to_eachother();
-			//hide pathaleon, unit will despawn shortly
-			pathaleon->SetVisibility(VISIBILITY_OFF);
-			PhaseSubphase = 0;
-			++Phase;
-			Phase_Timer = 3000;
-			break;
-			//Phase 10 Dawnforge say
-		case 10:
-			DoScriptText(SAY_COMMANDER_DAWNFORGE_5, m_creature);
-			player->AreaExploredOrEventHappens(QUEST_INFO_GATHERING);
-			Reset();
-			break;
-		}
-	 }
+        //Phase 1 Dawnforge say
+        switch (Phase)
+        {
+        case 1:
+            DoScriptText(SAY_COMMANDER_DAWNFORGE_1, m_creature);
+            ++Phase;
+            Phase_Timer = 16000;
+            break;
+            //Phase 2 Ardonis say
+        case 2:
+            DoScriptText(SAY_ARCANIST_ARDONIS_1, ardonis);
+            ++Phase;
+            Phase_Timer = 16000;
+            break;
+            //Phase 3 Dawnforge say
+        case 3:
+            DoScriptText(SAY_COMMANDER_DAWNFORGE_2, m_creature);
+            ++Phase;
+            Phase_Timer = 16000;
+            break;
+            //Phase 4 Pathaleon spawns up to phase 9
+        case 4:
+            //spawn pathaleon's image
+            m_creature->SummonCreature(CreatureEntry[2][0], 2325.851563, 2799.534668, 133.084229, 6.038996, TEMPSUMMON_TIMED_DESPAWN, 90000);
+            ++Phase;
+            Phase_Timer = 500;
+            break;
+            //Phase 5 Pathaleon say
+        case 5:
+            DoScriptText(SAY_PATHALEON_CULATOR_IMAGE_1, pathaleon);
+            ++Phase;
+            Phase_Timer = 6000;
+            break;
+            //Phase 6
+        case 6:
+            switch(PhaseSubphase)
+            {
+                //Subphase 1: Turn Dawnforge and Ardonis
+            case 0:
+                Turn_to_Pathaleons_Image();
+                ++PhaseSubphase;
+                Phase_Timer = 8000;
+                break;
+                //Subphase 2 Dawnforge say
+            case 1:
+                DoScriptText(SAY_COMMANDER_DAWNFORGE_3, m_creature);
+                PhaseSubphase = 0;
+                ++Phase;
+                Phase_Timer = 8000;
+                break;
+            }
+            break;
+            //Phase 7 Pathaleons say 3 Sentence, every sentence need a subphase
+        case 7:
+            switch(PhaseSubphase)
+            {
+                //Subphase 1
+            case 0:
+                DoScriptText(SAY_PATHALEON_CULATOR_IMAGE_2, pathaleon);
+                ++PhaseSubphase;
+                Phase_Timer = 12000;
+                break;
+                //Subphase 2
+            case 1:
+                DoScriptText(SAY_PATHALEON_CULATOR_IMAGE_2_1, pathaleon);
+                ++PhaseSubphase;
+                Phase_Timer = 16000;
+                break;
+                //Subphase 3
+            case 2:
+                DoScriptText(SAY_PATHALEON_CULATOR_IMAGE_2_2, pathaleon);
+                PhaseSubphase = 0;
+                ++Phase;
+                Phase_Timer = 10000;
+                break;
+            }
+            break;
+            //Phase 8 Dawnforge & Ardonis say
+        case 8:
+            DoScriptText(SAY_COMMANDER_DAWNFORGE_4, m_creature);
+            DoScriptText(SAY_ARCANIST_ARDONIS_2, ardonis);
+            ++Phase;
+            Phase_Timer = 4000;
+            break;
+            //Phase 9 Pathaleons Despawn, Reset Dawnforge & Ardonis angle
+        case 9:
+            Turn_to_eachother();
+            //hide pathaleon, unit will despawn shortly
+            pathaleon->SetVisibility(VISIBILITY_OFF);
+            PhaseSubphase = 0;
+            ++Phase;
+            Phase_Timer = 3000;
+            break;
+            //Phase 10 Dawnforge say
+        case 10:
+            DoScriptText(SAY_COMMANDER_DAWNFORGE_5, m_creature);
+            player->AreaExploredOrEventHappens(QUEST_INFO_GATHERING);
+            Reset();
+            break;
+        }
+     }
 };
 
 CreatureAI* GetAI_npc_commander_dawnforge(Creature* _Creature)
 {
-	return new npc_commander_dawnforgeAI(_Creature);
+    return new npc_commander_dawnforgeAI(_Creature);
 }
 
 Creature* SearchDawnforge(Player *source, uint32 entry, float range)
 {
-	Creature* pCreature = NULL;
+    Creature* pCreature = NULL;
 
-	CellPair pair(Trinity::ComputeCellPair(source->GetPositionX(), source->GetPositionY()));
-	Cell cell(pair);
-	cell.data.Part.reserved = ALL_DISTRICT;
-	cell.SetNoCreate();
+    CellPair pair(Trinity::ComputeCellPair(source->GetPositionX(), source->GetPositionY()));
+    Cell cell(pair);
+    cell.data.Part.reserved = ALL_DISTRICT;
+    cell.SetNoCreate();
 
-	Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck creature_check(*source, entry, true, range);
-	Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(pCreature, creature_check);
+    Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck creature_check(*source, entry, true, range);
+    Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(pCreature, creature_check);
 
-	TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer> creature_searcher(searcher);
+    TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer> creature_searcher(searcher);
 
-	CellLock<GridReadGuard> cell_lock(cell, pair);
-	cell_lock->Visit(cell_lock, creature_searcher,*(source->GetMap()));
+    CellLock<GridReadGuard> cell_lock(cell, pair);
+    cell_lock->Visit(cell_lock, creature_searcher,*(source->GetMap()));
 
-	return pCreature;
+    return pCreature;
 }
 
 bool AreaTrigger_at_commander_dawnforge(Player *player, AreaTriggerEntry *at)
 {
-	//if player lost aura or not have at all, we should not try start event.
-	if (!player->HasAura(SPELL_SUNFURY_DISGUISE,0))
-		return false;
+    //if player lost aura or not have at all, we should not try start event.
+    if (!player->HasAura(SPELL_SUNFURY_DISGUISE,0))
+        return false;
 
-	if (player->isAlive() && player->GetQuestStatus(QUEST_INFO_GATHERING) == QUEST_STATUS_INCOMPLETE)
-	{
-		Creature* Dawnforge = SearchDawnforge(player, CreatureEntry[1][0], 30.0f);
+    if (player->isAlive() && player->GetQuestStatus(QUEST_INFO_GATHERING) == QUEST_STATUS_INCOMPLETE)
+    {
+        Creature* Dawnforge = SearchDawnforge(player, CreatureEntry[1][0], 30.0f);
 
-		if (!Dawnforge)
-			return false;
+        if (!Dawnforge)
+            return false;
 
-		if (((npc_commander_dawnforgeAI*)Dawnforge->AI())->CanStartEvent(player))
-			return true;
-	}
-	return false;
+        if (((npc_commander_dawnforgeAI*)Dawnforge->AI())->CanStartEvent(player))
+            return true;
+    }
+    return false;
 }
 
 /*######
 ## npc_protectorate_nether_drake
 ######*/
 
-#define GOSSIP_ITEM	"I'm ready to fly! Take me up, dragon!"
+#define GOSSIP_ITEM "I'm ready to fly! Take me up, dragon!"
 
 bool GossipHello_npc_protectorate_nether_drake(Player *player, Creature *_Creature)
 {
@@ -705,43 +705,43 @@ bool GossipSelect_npc_protectorate_nether_drake(Player *player, Creature *_Creat
 ## npc_professor_dabiri
 ######*/
 
-#define SPELL_PHASE_DISTRUPTOR	35780
-#define GOSSIP_ITEM	"I need a new phase distruptor, Professor"
+#define SPELL_PHASE_DISTRUPTOR  35780
+#define GOSSIP_ITEM "I need a new phase distruptor, Professor"
 #define WHISPER_DABIRI -1000302
 
-#define QUEST_DIMENSIUS	10439
+#define QUEST_DIMENSIUS 10439
 #define QUEST_ON_NETHERY_WINGS 10438
 
 bool GossipHello_npc_professor_dabiri(Player *player, Creature *_Creature)
 {
-	if (_Creature->isQuestGiver())
+    if (_Creature->isQuestGiver())
         player->PrepareQuestMenu( _Creature->GetGUID() );
 
-	if(player->GetQuestStatus(QUEST_ON_NETHERY_WINGS) == QUEST_STATUS_INCOMPLETE && !player->HasItemCount(29778, 1))
-		player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+    if(player->GetQuestStatus(QUEST_ON_NETHERY_WINGS) == QUEST_STATUS_INCOMPLETE && !player->HasItemCount(29778, 1))
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-	player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
 
-	return true;
+    return true;
 }
 
 bool GossipSelect_npc_professor_dabiri(Player *player, Creature *_Creature, uint32 sender, uint32 action )
 {
-	if (action == GOSSIP_ACTION_INFO_DEF+1)
-	{
-		_Creature->CastSpell(player, SPELL_PHASE_DISTRUPTOR, false);
-		player->CLOSE_GOSSIP_MENU();
-	}
+    if (action == GOSSIP_ACTION_INFO_DEF+1)
+    {
+        _Creature->CastSpell(player, SPELL_PHASE_DISTRUPTOR, false);
+        player->CLOSE_GOSSIP_MENU();
+    }
 
-	return true;
+    return true;
 }
 
 bool QuestAccept_npc_professor_dabiri(Player *player, Creature *creature, Quest const *quest )
 {
-	if(quest->GetQuestId() == QUEST_DIMENSIUS)
-		DoScriptText(WHISPER_DABIRI, creature, player);
+    if(quest->GetQuestId() == QUEST_DIMENSIUS)
+        DoScriptText(WHISPER_DABIRI, creature, player);
 
-	return true;
+    return true;
 }
 
 /*######
@@ -911,7 +911,7 @@ struct TRINITY_DLL_DECL npc_bessyAI : public npc_escortAI
 
     bool Completed;
 
-	void JustDied(Unit* killer)
+    void JustDied(Unit* killer)
     {
         if (PlayerGUID)
         {
@@ -928,12 +928,12 @@ struct TRINITY_DLL_DECL npc_bessyAI : public npc_escortAI
             return;
 
         switch(i)
-		{
+        {
             case 3: //first spawn
                 m_creature->SummonCreature(SPAWN_FIRST, 2449.67, 2183.11, 96.85, 6.20, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                 m_creature->SummonCreature(SPAWN_FIRST, 2449.53, 2184.43, 96.36, 6.27, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                 m_creature->SummonCreature(SPAWN_FIRST, 2449.85, 2186.34, 97.57, 6.08, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-				break;
+                break;
 
             case 7:
                 m_creature->SummonCreature(SPAWN_SECOND, 2309.64, 2186.24, 92.25, 6.06, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
@@ -947,16 +947,16 @@ struct TRINITY_DLL_DECL npc_bessyAI : public npc_escortAI
                     Completed = true;
                 }
                 {Unit* Thadell = FindCreature(N_THADELL, 30, m_creature);
-				if(Thadell)
+                if(Thadell)
                     DoScriptText(SAY_THADELL_1, m_creature);}break;
-			case 13:
-				{Unit* Thadell = FindCreature(N_THADELL, 30, m_creature);
-				if(Thadell)
+            case 13:
+                {Unit* Thadell = FindCreature(N_THADELL, 30, m_creature);
+                if(Thadell)
                     DoScriptText(SAY_THADELL_2, m_creature, player);}break;
-		}
+        }
     }
 
-	void JustSummoned(Creature* summoned)
+    void JustSummoned(Creature* summoned)
     {
         summoned->AI()->AttackStart(m_creature);
     }
@@ -980,8 +980,8 @@ bool QuestAccept_npc_bessy(Player* player, Creature* creature, Quest const* ques
 {
     if (quest->GetQuestId() == Q_ALMABTRIEB)
     {
-		creature->setFaction(113);
-		creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        creature->setFaction(113);
+        creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
     }
     return true;
@@ -1004,7 +1004,7 @@ CreatureAI* GetAI_npc_bessy(Creature *_Creature)
     bessyAI->AddWaypoint(10, 2304.58, 2272.23, 96.67);
     bessyAI->AddWaypoint(11, 2297.09, 2271.40, 95.16);
     bessyAI->AddWaypoint(12, 2297.68, 2266.79, 95.07,4000);
-	bessyAI->AddWaypoint(13, 2297.67, 2266.76, 95.07,4000);
+    bessyAI->AddWaypoint(13, 2297.67, 2266.76, 95.07,4000);
 
     return (CreatureAI*)bessyAI;
 }
@@ -1027,15 +1027,15 @@ void AddSC_netherstorm()
     newscript->GetAI = &GetAI_npc_manaforge_control_console;
     newscript->RegisterSelf();
 
-	newscript = new Script;
-	newscript->Name = "npc_commander_dawnforge";
-	newscript->GetAI = &GetAI_npc_commander_dawnforge;
-	newscript->RegisterSelf();
+    newscript = new Script;
+    newscript->Name = "npc_commander_dawnforge";
+    newscript->GetAI = &GetAI_npc_commander_dawnforge;
+    newscript->RegisterSelf();
 
-	newscript = new Script;
-	newscript->Name = "at_commander_dawnforge";
-	newscript->pAreaTrigger = &AreaTrigger_at_commander_dawnforge;
-	newscript->RegisterSelf();
+    newscript = new Script;
+    newscript->Name = "at_commander_dawnforge";
+    newscript->pAreaTrigger = &AreaTrigger_at_commander_dawnforge;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_protectorate_nether_drake";
@@ -1043,12 +1043,12 @@ void AddSC_netherstorm()
     newscript->pGossipSelect =  &GossipSelect_npc_protectorate_nether_drake;
     newscript->RegisterSelf();
 
-	newscript = new Script;
-	newscript->Name = "npc_professor_dabiri";
-	newscript->pGossipHello =   &GossipHello_npc_professor_dabiri;
+    newscript = new Script;
+    newscript->Name = "npc_professor_dabiri";
+    newscript->pGossipHello =   &GossipHello_npc_professor_dabiri;
     newscript->pGossipSelect =  &GossipSelect_npc_professor_dabiri;
-	newscript->pQuestAccept = &QuestAccept_npc_professor_dabiri;
-	newscript->RegisterSelf();
+    newscript->pQuestAccept = &QuestAccept_npc_professor_dabiri;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_veronia";
@@ -1061,7 +1061,7 @@ void AddSC_netherstorm()
     newscript->GetAI = &GetAI_mob_phase_hunter;
     newscript->RegisterSelf();
 
-	newscript = new Script;
+    newscript = new Script;
     newscript->Name = "npc_bessy";
     newscript->GetAI = &GetAI_npc_bessy;
     newscript->pQuestAccept = &QuestAccept_npc_bessy;

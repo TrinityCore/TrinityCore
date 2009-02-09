@@ -55,7 +55,7 @@ bool Matrix3::isOrthonormal() const {
     Vector3 Y = getColumn(1);
     Vector3 Z = getColumn(2);
 
-    return 
+    return
         (G3D::fuzzyEq(X.dot(Y), 0.0f) &&
          G3D::fuzzyEq(Y.dot(Z), 0.0f) &&
          G3D::fuzzyEq(X.dot(Z), 0.0f) &&
@@ -67,7 +67,7 @@ bool Matrix3::isOrthonormal() const {
 //----------------------------------------------------------------------------
 Matrix3::Matrix3(const Quat& _q) {
     // Implementation from Watt and Watt, pg 362
-	// See also http://www.flipcode.com/documents/matrfaq.html#Q54
+    // See also http://www.flipcode.com/documents/matrfaq.html#Q54
     Quat q = _q.unitize();
     float xx = 2.0f * q.x * q.x;
     float xy = 2.0f * q.x * q.y;
@@ -109,7 +109,7 @@ Matrix3::Matrix3(
 
 void Matrix3::set(
           float fEntry00, float fEntry01, float fEntry02,
-          float fEntry10, float fEntry11, float fEntry12, 
+          float fEntry10, float fEntry11, float fEntry12,
           float fEntry20, float fEntry21, float fEntry22) {
 
     elt[0][0] = fEntry00;
@@ -1340,10 +1340,10 @@ Matrix3 Matrix3::fromEulerAnglesXZY (float fYAngle, float fPAngle,
 
 //----------------------------------------------------------------------------
 Matrix3 Matrix3::fromEulerAnglesYXZ(
-    float fYAngle, 
+    float fYAngle,
     float fPAngle,
     float fRAngle) {
-    
+
     float fCos, fSin;
 
     fCos = cos(fYAngle);
@@ -1363,7 +1363,7 @@ Matrix3 Matrix3::fromEulerAnglesYXZ(
 
 //----------------------------------------------------------------------------
 Matrix3 Matrix3::fromEulerAnglesYZX(
-    float fYAngle, 
+    float fYAngle,
     float fPAngle,
     float fRAngle) {
 
@@ -1605,9 +1605,9 @@ void Matrix3::tensorProduct (const Vector3& rkU, const Vector3& rkV,
 
 // Runs in 52 cycles on AMD, 76 cycles on Intel Centrino
 //
-// The loop unrolling is necessary for performance. 
+// The loop unrolling is necessary for performance.
 // I was unable to improve performance further by flattening the matrices
-// into float*'s instead of 2D arrays.  
+// into float*'s instead of 2D arrays.
 //
 // -morgan
 void Matrix3::_mul(const Matrix3& A, const Matrix3& B, Matrix3& out) {
@@ -1674,10 +1674,10 @@ void Matrix3::_transpose(const Matrix3& A, Matrix3& out) {
 
 //-----------------------------------------------------------------------------
 std::string Matrix3::toString() const {
-    return G3D::format("[%g, %g, %g; %g, %g, %g; %g, %g, %g]", 
-			elt[0][0], elt[0][1], elt[0][2],
-			elt[1][0], elt[1][1], elt[1][2],
-			elt[2][0], elt[2][1], elt[2][2]);
+    return G3D::format("[%g, %g, %g; %g, %g, %g; %g, %g, %g]",
+            elt[0][0], elt[0][1], elt[0][2],
+            elt[1][0], elt[1][1], elt[1][2],
+            elt[2][0], elt[2][1], elt[2][2]);
 }
 
 

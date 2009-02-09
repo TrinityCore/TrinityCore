@@ -36,24 +36,24 @@ void guardAI::Reset()
 
 void guardAI::Aggro(Unit *who)
 {
-	if (m_creature->GetEntry() == 15184)
-	{
-		switch(rand()%3)
-		{
-		case 0:
-			DoSay("Taste blade, mongrel!", LANG_UNIVERSAL,NULL);
-			break;
-		case 1:
-			DoSay("Please tell me that you didn't just do what I think you just did. Please tell me that I'm not going to have to hurt you...", LANG_UNIVERSAL,NULL);
-			break;
-		case 2:
-			DoSay("As if we don't have enough problems, you go and create more!", LANG_UNIVERSAL,NULL);
-			break;
-		}
-	}
+    if (m_creature->GetEntry() == 15184)
+    {
+        switch(rand()%3)
+        {
+        case 0:
+            DoSay("Taste blade, mongrel!", LANG_UNIVERSAL,NULL);
+            break;
+        case 1:
+            DoSay("Please tell me that you didn't just do what I think you just did. Please tell me that I'm not going to have to hurt you...", LANG_UNIVERSAL,NULL);
+            break;
+        case 2:
+            DoSay("As if we don't have enough problems, you go and create more!", LANG_UNIVERSAL,NULL);
+            break;
+        }
+    }
 
-	if (SpellEntry const *spell = m_creature->reachWithSpellAttack(who))
-		DoCastSpell(who, spell);
+    if (SpellEntry const *spell = m_creature->reachWithSpellAttack(who))
+        DoCastSpell(who, spell);
 }
 
 void guardAI::JustDied(Unit *Killer)

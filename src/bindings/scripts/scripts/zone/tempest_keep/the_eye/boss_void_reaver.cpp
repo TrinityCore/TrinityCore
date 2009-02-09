@@ -57,12 +57,12 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
         m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
         m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
 
-		Pounding_Timer = 15000;
+        Pounding_Timer = 15000;
         ArcaneOrb_Timer = 3000;
         KnockAway_Timer = 30000;
         Berserk_Timer = 600000;
 
-		if (pInstance && m_creature->isAlive())
+        if (pInstance && m_creature->isAlive())
             pInstance->SetData(DATA_VOIDREAVEREVENT, NOT_STARTED);
     }
 
@@ -70,9 +70,9 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
-		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
-		case 2: DoScriptText(SAY_SLAY3, m_creature); break;
+        case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+        case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+        case 2: DoScriptText(SAY_SLAY3, m_creature); break;
         }
     }
 
@@ -104,8 +104,8 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
 
             switch(rand()%2)
             {
-			case 0: DoScriptText(SAY_POUNDING1, m_creature); break;
-			case 1: DoScriptText(SAY_POUNDING2, m_creature); break;
+            case 0: DoScriptText(SAY_POUNDING1, m_creature); break;
+            case 1: DoScriptText(SAY_POUNDING2, m_creature); break;
             }
              Pounding_Timer = 15000;                         //cast time(3000) + cooldown time(12000)
         }else Pounding_Timer -= diff;
@@ -113,7 +113,7 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
         // Arcane Orb
         if(ArcaneOrb_Timer < diff)
         {
-			Unit *target = NULL;
+            Unit *target = NULL;
             std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();
             std::vector<Unit *> target_list;
             for(std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
@@ -128,7 +128,7 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
                 target = *(target_list.begin()+rand()%target_list.size());
 
             if (target)
-				m_creature->CastSpell(target->GetPositionX(),target->GetPositionY(),target->GetPositionZ(), SPELL_ARCANE_ORB, false);
+                m_creature->CastSpell(target->GetPositionX(),target->GetPositionY(),target->GetPositionZ(), SPELL_ARCANE_ORB, false);
 
             ArcaneOrb_Timer = 3000;
         }else ArcaneOrb_Timer -= diff;

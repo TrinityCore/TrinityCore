@@ -55,27 +55,27 @@ EndScriptData */
 #define WATERY_GRAVE_Y4             -690.96
 #define WATERY_GRAVE_Z4             -14.44
 
-#define SPELL_WATERY_GRAVE_1	38023
-#define SPELL_WATERY_GRAVE_2	38024
-#define SPELL_WATERY_GRAVE_3	38025
-#define SPELL_WATERY_GRAVE_4	37850
+#define SPELL_WATERY_GRAVE_1    38023
+#define SPELL_WATERY_GRAVE_2    38024
+#define SPELL_WATERY_GRAVE_3    38025
+#define SPELL_WATERY_GRAVE_4    37850
 
-#define SPELL_SUMMON_WATER_GLOBULE_1	37854
-#define SPELL_SUMMON_WATER_GLOBULE_2	37858
-#define SPELL_SUMMON_WATER_GLOBULE_3	37860
-#define SPELL_SUMMON_WATER_GLOBULE_4	37861
+#define SPELL_SUMMON_WATER_GLOBULE_1    37854
+#define SPELL_SUMMON_WATER_GLOBULE_2    37858
+#define SPELL_SUMMON_WATER_GLOBULE_3    37860
+#define SPELL_SUMMON_WATER_GLOBULE_4    37861
 
-/*#define SPELL_SUMMON_MURLOC_A6	39813
-#define SPELL_SUMMON_MURLOC_A7	39814
-#define SPELL_SUMMON_MURLOC_A8	39815
-#define SPELL_SUMMON_MURLOC_A9	39816
-#define SPELL_SUMMON_MURLOC_A10	39817
+/*#define SPELL_SUMMON_MURLOC_A6    39813
+#define SPELL_SUMMON_MURLOC_A7  39814
+#define SPELL_SUMMON_MURLOC_A8  39815
+#define SPELL_SUMMON_MURLOC_A9  39816
+#define SPELL_SUMMON_MURLOC_A10 39817
 
-#define SPELL_SUMMON_MURLOC_B6	39818
-#define SPELL_SUMMON_MURLOC_B7	39819
-#define SPELL_SUMMON_MURLOC_B8	39820
-#define SPELL_SUMMON_MURLOC_B9	39821
-#define SPELL_SUMMON_MURLOC_B10	39822*/
+#define SPELL_SUMMON_MURLOC_B6  39818
+#define SPELL_SUMMON_MURLOC_B7  39819
+#define SPELL_SUMMON_MURLOC_B8  39820
+#define SPELL_SUMMON_MURLOC_B9  39821
+#define SPELL_SUMMON_MURLOC_B10 39822*/
 
 float MurlocCords[10][5] =
 {
@@ -105,7 +105,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
     }
 
     ScriptedInstance* pInstance;
-	Map::PlayerList const *PlayerList;
+    Map::PlayerList const *PlayerList;
 
     uint32 TidalWave_Timer;
     uint32 WateryGrave_Timer;
@@ -124,7 +124,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
         WateryGrave_Timer = 30000;
         Earthquake_Timer = 40000;
         WateryGlobules_Timer = 0;
-		globulespell[0] = SPELL_SUMMON_WATER_GLOBULE_1;
+        globulespell[0] = SPELL_SUMMON_WATER_GLOBULE_1;
         globulespell[1] = SPELL_SUMMON_WATER_GLOBULE_2;
         globulespell[2] = SPELL_SUMMON_WATER_GLOBULE_3;
         globulespell[3] = SPELL_SUMMON_WATER_GLOBULE_4;
@@ -148,9 +148,9 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
-		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
-		case 2: DoScriptText(SAY_SLAY3, m_creature); break;
+        case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+        case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+        case 2: DoScriptText(SAY_SLAY3, m_creature); break;
         }
     }
 
@@ -162,18 +162,18 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
             pInstance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, NOT_STARTED);
     }
 
-	void Aggro(Unit *who)
-	{
+    void Aggro(Unit *who)
+    {
         PlayerList = &((InstanceMap*)m_creature->GetMap())->GetPlayers();
         Playercount = PlayerList->getSize();
         StartEvent();
-	}
+    }
 
     void ApplyWateryGrave(Unit *player, uint8 i)
     {
-		switch(i)
+        switch(i)
         {
-		case 0: player->CastSpell(player, SPELL_WATERY_GRAVE_1, true); break;
+        case 0: player->CastSpell(player, SPELL_WATERY_GRAVE_1, true); break;
         case 1: player->CastSpell(player, SPELL_WATERY_GRAVE_2, true); break;
         case 2: player->CastSpell(player, SPELL_WATERY_GRAVE_3, true); break;
         case 3: player->CastSpell(player, SPELL_WATERY_GRAVE_4, true); break;
@@ -203,17 +203,17 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
                     case 1: DoScriptText(SAY_SUMMON2, m_creature); break;
                 }
 
-				for(uint8 i = 0; i < 10; i++)
-				{
-					Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-					Creature* Murloc = m_creature->SummonCreature(MurlocCords[i][0],MurlocCords[i][1],MurlocCords[i][2],MurlocCords[i][3],MurlocCords[i][4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-					Murloc->AI()->AttackStart(target);
-				}
-				DoScriptText(EMOTE_EARTHQUAKE, m_creature);
-				Earthquake = false;
-				Earthquake_Timer = 40000+rand()%5000;
-			}
-		}else Earthquake_Timer -= diff;
+                for(uint8 i = 0; i < 10; i++)
+                {
+                    Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                    Creature* Murloc = m_creature->SummonCreature(MurlocCords[i][0],MurlocCords[i][1],MurlocCords[i][2],MurlocCords[i][3],MurlocCords[i][4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+                    Murloc->AI()->AttackStart(target);
+                }
+                DoScriptText(EMOTE_EARTHQUAKE, m_creature);
+                Earthquake = false;
+                Earthquake_Timer = 40000+rand()%5000;
+            }
+        }else Earthquake_Timer -= diff;
 
         //TidalWave_Timer
         if (TidalWave_Timer < diff)
@@ -229,21 +229,21 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
             {
                 //Teleport 4 players under the waterfalls
                 Unit *target;
-				using std::set;
+                using std::set;
                 set<int>list;
                 set<int>::iterator itr;
                 for(uint8 i = 0; i < 4; i++)
                 {
-					counter = 0;
-					do{target = SelectUnit(SELECT_TARGET_RANDOM, 1, 50, true);    //target players only
-					if(counter < Playercount)
-						break;
-					if(target) itr = list.find(target->GetGUID());
-					counter++;
-					}while(itr != list.end());
-					if(target){list.insert(target->GetGUID());
-					ApplyWateryGrave(target, i);
-					}
+                    counter = 0;
+                    do{target = SelectUnit(SELECT_TARGET_RANDOM, 1, 50, true);    //target players only
+                    if(counter < Playercount)
+                        break;
+                    if(target) itr = list.find(target->GetGUID());
+                    counter++;
+                    }while(itr != list.end());
+                    if(target){list.insert(target->GetGUID());
+                    ApplyWateryGrave(target, i);
+                    }
                 }
 
                 switch(rand()%2)
@@ -265,7 +265,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
             //WateryGlobules_Timer
             if (WateryGlobules_Timer < diff)
             {
-				Unit* globuletarget;
+                Unit* globuletarget;
                 using std::set;
                 set<int>globulelist;
                 set<int>::iterator itr;
@@ -333,7 +333,7 @@ struct TRINITY_DLL_DECL mob_water_globuleAI : public ScriptedAI
         {
             if (m_creature->IsWithinDistInMap(m_creature->getVictim(), 5))
             {
-				DoCast(m_creature->getVictim(), SPELL_GLOBULE_EXPLOSION);
+                DoCast(m_creature->getVictim(), SPELL_GLOBULE_EXPLOSION);
 
                 //despawn
                 m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);

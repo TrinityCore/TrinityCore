@@ -43,13 +43,13 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
 {
-	boss_jeklikAI(Creature *c) : ScriptedAI(c)
-	{
-		pInstance = ((ScriptedInstance*)c->GetInstanceData());
-		Reset();
-	}
+    boss_jeklikAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        Reset();
+    }
 
-	ScriptedInstance *pInstance;
+    ScriptedInstance *pInstance;
 
     uint32 Charge_Timer;
     uint32 SonicBurst_Timer;
@@ -94,8 +94,8 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-		if (!UpdateVictim())
-			return;
+        if (!UpdateVictim())
+            return;
 
         if( m_creature->getVictim() && m_creature->isAlive())
         {
@@ -158,7 +158,7 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
                 {
                     if(PhaseTwo && ShadowWordPain_Timer < diff)
                     {
-						if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+                        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                         {
                             DoCast(target, SPELL_SHADOW_WORD_PAIN);
                             ShadowWordPain_Timer = 12000 + rand()%6000;
@@ -244,7 +244,7 @@ struct TRINITY_DLL_DECL mob_batriderAI : public ScriptedAI
         //Bomb_Timer
         if(Bomb_Timer < diff)
         {
-			if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
                 DoCast(target, SPELL_BOMB);
                 Bomb_Timer = 5000;

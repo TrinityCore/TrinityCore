@@ -489,7 +489,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
 
     Player* pCurrChar = new Player(this);
     pCurrChar->GetMotionMaster()->Initialize();
-	 // for send server info and strings (config)
+     // for send server info and strings (config)
     ChatHandler chH = ChatHandler(pCurrChar);
 
     // "GetAccountId()==db stored account id" checked in LoadFromDB (prevent login not own character using cheating tools)
@@ -555,7 +555,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
         SendPacket( &data );
         DEBUG_LOG( "WORLD: Sent motd (SMSG_MOTD)" );
 
-		// send server info
+        // send server info
         if(sWorld.getConfig(CONFIG_ENABLE_SINFO_LOGIN) == 1)
             chH.PSendSysMessage(_FULLVERSION);
 
@@ -626,7 +626,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
             data << uint32(rEntry->startmovie);
             SendPacket( &data );
 
-			// send new char string if not empty
+            // send new char string if not empty
             if (!sWorld.GetNewCharString().empty())
                 chH.PSendSysMessage(sWorld.GetNewCharString().c_str());
         }

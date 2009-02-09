@@ -52,7 +52,7 @@ namespace ZThread {
    * @struct priority_order
    */
   struct priority_order : public std::binary_function<ThreadImpl*, ThreadImpl*, bool> {
-   
+
     std::less<const ThreadImpl*> id;
 
     bool operator()(const ThreadImpl* t0, const ThreadImpl* t1) const {
@@ -66,7 +66,7 @@ namespace ZThread {
       return id(t0, t1);
 
     }
-  
+
   };
 
 
@@ -76,15 +76,15 @@ namespace ZThread {
    * @version 2.2.0
    * @class priority_list
    */
-  class priority_list : public std::deque<ThreadImpl*> { 
+  class priority_list : public std::deque<ThreadImpl*> {
 
     priority_order comp;
 
   public:
 
-    void insert(const value_type& val) { 
+    void insert(const value_type& val) {
 
-      push_back(val); 
+      push_back(val);
       std::sort(begin(), end(), comp);
 
     }

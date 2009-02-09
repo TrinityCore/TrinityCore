@@ -39,9 +39,9 @@
 #elif defined(ZT_WIN32) || defined(ZT_WIN9X)
 
 // Visual C provides the _beginthreadex function, other compilers
-// might not have this if they don't use Microsoft's C runtime. 
-// _beginthreadex is similar to in effect defining REENTRANT on a 
-// POSIX system. CreateThreadEx doesn't use reentrant parts of the  
+// might not have this if they don't use Microsoft's C runtime.
+// _beginthreadex is similar to in effect defining REENTRANT on a
+// POSIX system. CreateThreadEx doesn't use reentrant parts of the
 // Microsfot C runtime, but if your not using that runtime, no problem.
 
 #  if !defined(HAVE_BEGINTHREADEX)

@@ -478,9 +478,9 @@ void Unit::GetRandomContactPoint( const Unit* obj, float &x, float &y, float &z,
           //  sLog.outError("Creature entry %u has invalid combat_reach", ((Creature*)this)->GetEntry());
         combat_reach = DEFAULT_COMBAT_REACH;
     }
-	uint32 attacker_number = getAttackers().size();
+    uint32 attacker_number = getAttackers().size();
     if(attacker_number > 0) --attacker_number;
-	GetNearPoint(obj,x,y,z,obj->GetCombatReach(), distance2dMin+(distance2dMax-distance2dMin)*rand_norm()
+    GetNearPoint(obj,x,y,z,obj->GetCombatReach(), distance2dMin+(distance2dMax-distance2dMin)*rand_norm()
         , GetAngle(obj) + (attacker_number ? (M_PI/2 - M_PI * rand_norm()) * (float)attacker_number / combat_reach / 3 : 0));
 }
 
@@ -600,34 +600,34 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
 
     //Script Event damage taken
     if( pVictim->GetTypeId()== TYPEID_UNIT && ((Creature *)pVictim)->AI() )
-	{
-		((Creature *)pVictim)->AI()->DamageTaken(this, damage);
+    {
+        ((Creature *)pVictim)->AI()->DamageTaken(this, damage);
 
-		// Set tagging
-		if(!pVictim->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER) && !((Creature*)pVictim)->isPet())
-		{
-			//Set Loot
-			switch(GetTypeId())
-			{
-				case TYPEID_PLAYER:
-				{
-					((Creature *)pVictim)->SetLootRecipient(this);
-					//Set tagged
-					((Creature *)pVictim)->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER);
-					break;
-				}
-				case TYPEID_UNIT:
-				{
-					if(((Creature*)this)->isPet())
-					{
-						((Creature *)pVictim)->SetLootRecipient(this->GetOwner());
-						((Creature *)pVictim)->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER);
-					}
-					break;
-				}
-			}
-		}
-	}
+        // Set tagging
+        if(!pVictim->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER) && !((Creature*)pVictim)->isPet())
+        {
+            //Set Loot
+            switch(GetTypeId())
+            {
+                case TYPEID_PLAYER:
+                {
+                    ((Creature *)pVictim)->SetLootRecipient(this);
+                    //Set tagged
+                    ((Creature *)pVictim)->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER);
+                    break;
+                }
+                case TYPEID_UNIT:
+                {
+                    if(((Creature*)this)->isPet())
+                    {
+                        ((Creature *)pVictim)->SetLootRecipient(this->GetOwner());
+                        ((Creature *)pVictim)->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER);
+                    }
+                    break;
+                }
+            }
+        }
+    }
 
     if (damagetype != NODAMAGE)
     {
@@ -3578,7 +3578,7 @@ uint32 Unit::GetWeaponSkillValue (WeaponAttackType attType, Unit const* target) 
         if(attType != BASE_ATTACK && !item )
         {
             if(attType == RANGED_ATTACK && getClass() == CLASS_PALADIN) //hammer
-                return GetMaxSkillValueForLevel(); 
+                return GetMaxSkillValueForLevel();
             return 0;
         }
 
@@ -4096,7 +4096,7 @@ int32 Unit::GetMaxNegativeAuraModifierByMiscValue(AuraType auratype, int32 misc_
     for(AuraList::const_iterator i = mTotalAuraList.begin();i != mTotalAuraList.end(); ++i)
     {
         Modifier* mod = (*i)->GetModifier();
-		int32 amount = (*i)->GetModifierValue();
+        int32 amount = (*i)->GetModifierValue();
         if (mod->m_miscvalue == misc_value && amount < modifier)
             modifier = amount;
     }
@@ -4137,9 +4137,9 @@ bool Unit::AddAura(Aura *Aur)
             // replace aura if next will > spell StackAmount
             if(aurSpellInfo->StackAmount)
             {
-				Aur->SetStackAmount(i->second->GetStackAmount());
-				if(Aur->GetStackAmount() < aurSpellInfo->StackAmount)
-					Aur->SetStackAmount(Aur->GetStackAmount()+1);
+                Aur->SetStackAmount(i->second->GetStackAmount());
+                if(Aur->GetStackAmount() < aurSpellInfo->StackAmount)
+                    Aur->SetStackAmount(Aur->GetStackAmount()+1);
                 RemoveAura(i,AURA_REMOVE_BY_STACK);
             }
             // if StackAmount==0 not allow auras from same caster
@@ -4509,27 +4509,27 @@ void Unit::RemoveAurasWithDispelType( DispelType type )
 
 void Unit::RemoveSingleAuraFromStackByDispel(uint32 spellId)
 {
-	for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end(); )
+    for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end(); )
     {
         Aura *aur = iter->second;
         if (aur->GetId() == spellId)
         {
-			if(iter->second->GetStackAmount() > 1)
+            if(iter->second->GetStackAmount() > 1)
             {
                 // reapply modifier with reduced stack amount
                 iter->second->ApplyModifier(false,true);
-			    iter->second->SetStackAmount(iter->second->GetStackAmount()-1);
+                iter->second->SetStackAmount(iter->second->GetStackAmount()-1);
                 iter->second->ApplyModifier(true,true);
 
                 iter->second->UpdateSlotCounterAndDuration();
                 return; // not remove aura if stack amount > 1
             }
-			else
+            else
                 RemoveAura(iter,AURA_REMOVE_BY_DISPEL);
-		}
-		else
-			++iter;
-	}
+        }
+        else
+            ++iter;
+    }
 }
 
 void Unit::RemoveSingleAuraFromStack(uint32 spellId, uint32 effindex)
@@ -4537,18 +4537,18 @@ void Unit::RemoveSingleAuraFromStack(uint32 spellId, uint32 effindex)
     AuraMap::iterator iter = m_Auras.find(spellEffectPair(spellId, effindex));
     if(iter != m_Auras.end())
     {
-		if(iter->second->GetStackAmount() > 1)
+        if(iter->second->GetStackAmount() > 1)
         {
             // reapply modifier with reduced stack amount
             iter->second->ApplyModifier(false,true);
-			iter->second->SetStackAmount(iter->second->GetStackAmount()-1);
+            iter->second->SetStackAmount(iter->second->GetStackAmount()-1);
             iter->second->ApplyModifier(true,true);
 
             iter->second->UpdateSlotCounterAndDuration();
             return; // not remove aura if stack amount > 1
         }
         RemoveAura(iter);
-	}
+    }
 }
 
 void Unit::RemoveAurasDueToSpell(uint32 spellId, Aura* except)
@@ -4704,7 +4704,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     assert(!Aur->IsInUse());
     Aur->ApplyModifier(false,true);
 
-	Aur->SetStackAmount(0);
+    Aur->SetStackAmount(0);
 
     Aur->_RemoveAura();
 
@@ -8693,22 +8693,22 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
 
     switch(spellProto->SpellFamilyName)
     {
-		case SPELLFAMILY_GENERIC:
-			// Siphon Essence - 0%
-			if(spellProto->AttributesEx == 268435456 && spellProto->SpellIconID == 2027)
-			{
-				CastingTime = 0;
-			}
-			// Goblin Rocket Launcher - 0%
-			else if (spellProto->SpellIconID == 184 && spellProto->Attributes == 4259840)
-			{
-				CastingTime = 0;
-			}
-			// Darkmoon Card: Vengeance - 0.1%
-			else if (spellProto->SpellVisual == 9850 && spellProto->SpellIconID == 2230)
-			{
-				CastingTime = 3.5;
-			}
+        case SPELLFAMILY_GENERIC:
+            // Siphon Essence - 0%
+            if(spellProto->AttributesEx == 268435456 && spellProto->SpellIconID == 2027)
+            {
+                CastingTime = 0;
+            }
+            // Goblin Rocket Launcher - 0%
+            else if (spellProto->SpellIconID == 184 && spellProto->Attributes == 4259840)
+            {
+                CastingTime = 0;
+            }
+            // Darkmoon Card: Vengeance - 0.1%
+            else if (spellProto->SpellVisual == 9850 && spellProto->SpellIconID == 2230)
+            {
+                CastingTime = 3.5;
+            }
         case SPELLFAMILY_MAGE:
             // Ignite - do not modify, it is (8*Rank)% damage of procing Spell
             if(spellProto->Id==12654)
@@ -9139,7 +9139,7 @@ uint32 Unit::SpellHealingBonus(SpellEntry const *spellProto, uint32 healamount, 
     if (spellProto->Id == 15290 || spellProto->Id == 39373 ||
         spellProto->Id == 33778 || spellProto->Id == 379   ||
         spellProto->Id == 38395 || spellProto->Id == 40972 ||
-		spellProto->Id == 22845 || spellProto->Id == 33504 ||
+        spellProto->Id == 22845 || spellProto->Id == 33504 ||
         spellProto->Id == 34299)
         return healamount;
 
@@ -9244,12 +9244,12 @@ uint32 Unit::SpellHealingBonus(SpellEntry const *spellProto, uint32 healamount, 
                     DotFactor = damagetype == DOT ? 0.705f : 1.0f;
                     CastingTime = damagetype == DOT ? 3500 : 1010;
                 }
-				// Improved Leader of the Pack
-				else if (spellProto->AttributesEx2 == 536870912 && spellProto->SpellIconID == 312
-					&& spellProto->AttributesEx3 == 33554432)
-				{
-					CastingTime = 0;
-				}
+                // Improved Leader of the Pack
+                else if (spellProto->AttributesEx2 == 536870912 && spellProto->SpellIconID == 312
+                    && spellProto->AttributesEx3 == 33554432)
+                {
+                    CastingTime = 0;
+                }
                 break;
             case SPELLFAMILY_PRIEST:
                 // Holy Nova - 14%

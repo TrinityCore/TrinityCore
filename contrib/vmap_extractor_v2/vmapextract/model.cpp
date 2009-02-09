@@ -16,7 +16,7 @@ bool Model::open()
 
     ok = !f.isEof();
 
-    if (!ok) 
+    if (!ok)
     {
         f.close();
         printf("Error loading model %s\n", filename.c_str());
@@ -40,12 +40,12 @@ bool Model::open()
         vertices = new Vec3D[header.nVertices];
         normals = new Vec3D[header.nVertices];
 
-        for (size_t i=0; i<header.nVertices; i++) 
+        for (size_t i=0; i<header.nVertices; i++)
         {
             origVertices[i].pos = fixCoordSystem(origVertices[i].pos);
             origVertices[i].normal = fixCoordSystem(origVertices[i].normal);
             vertices[i] = origVertices[i].pos;
-            normals[i] = origVertices[i].normal.normalize();	
+            normals[i] = origVertices[i].normal.normalize();
         }
 
         ModelView *view = (ModelView*)(f.getBuffer() + header.ofsViews);
@@ -55,7 +55,7 @@ bool Model::open()
 
         nIndices = view->nTris;
         indices = new uint16[nIndices];
-        for (size_t i = 0; i<nIndices; i++) 
+        for (size_t i = 0; i<nIndices; i++)
         {
             indices[i] = indexLookup[triangles[i]];
         }
@@ -168,7 +168,7 @@ bool Model::ConvertToVMAPModel(char * outfilename)
     wsize = sizeof(uint32) + sizeof(unsigned short) * nIdexes;
     fwrite(&wsize, sizeof(int), 1, output);
     fwrite(&nIdexes, sizeof(uint32), 1, output);
-    if(nIdexes >0) 
+    if(nIdexes >0)
     {
         fwrite(indices, sizeof(unsigned short), nIdexes, output);
     }
@@ -176,9 +176,9 @@ bool Model::ConvertToVMAPModel(char * outfilename)
     wsize = sizeof(int) + sizeof(float) * 3 * nVertices;
     fwrite(&wsize, sizeof(int), 1, output);
     fwrite(&nVertices, sizeof(int), 1, output);
-    if(nVertices >0) 
+    if(nVertices >0)
     {
-        for(int vpos=0; vpos <nVertices; ++vpos) 
+        for(int vpos=0; vpos <nVertices; ++vpos)
         {
             float sy = vertices[vpos].y;
             vertices[vpos].y = vertices[vpos].z;
@@ -231,15 +231,15 @@ ModelInstance::ModelInstance(MPQFile &f,const char* ModelInstName,const char*Map
         return;
     }
     fseek(input, 8, SEEK_SET); // get the correct no of vertices
-	int nVertices;
-	fread(&nVertices, sizeof (int), 1, input);
-	fclose(input);
+    int nVertices;
+    fread(&nVertices, sizeof (int), 1, input);
+    fclose(input);
     if(nVertices == 0)
     {
         return;
     }
 
-    if(pDirfile) 
+    if(pDirfile)
     {
         int realx1 = (int) ((float) pos.x / 533.333333f);
         int realy1 = (int) ((float) pos.z / 533.333333f);
@@ -256,6 +256,6 @@ ModelInstance::ModelInstance(MPQFile &f,const char* ModelInstName,const char*Map
             nVertices,
             realx1, realy1,
             realx2, realy2
-            );				
+            );
     }
 }

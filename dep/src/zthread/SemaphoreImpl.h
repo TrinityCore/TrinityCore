@@ -44,7 +44,7 @@ namespace ZThread {
    * The SemaphoreImpl template allows how waiter lists are sorted
    * to be parameteized
    */
-  template <typename List> 
+  template <typename List>
     class SemaphoreImpl {
 
     //! List of waiting events
@@ -58,7 +58,7 @@ namespace ZThread {
 
     //! Maximum count if any
     volatile int _maxCount;
-  
+
     //! Flag for bounded or unbounded count
     volatile bool _checked;
 
@@ -66,41 +66,41 @@ namespace ZThread {
     volatile int _entryCount;
 
     public:
-   
- 
+
+
     /**
-     * Create a new SemaphoreImpl. Initialzes one pthreads mutex for 
+     * Create a new SemaphoreImpl. Initialzes one pthreads mutex for
      * internal use.
      *
      * @exception Initialization_Exception thrown if resources could not be
      * properly allocated
      */
-    SemaphoreImpl(int count, unsigned int maxCount, bool checked) 
+    SemaphoreImpl(int count, unsigned int maxCount, bool checked)
       : _count(count), _maxCount(maxCount), _checked(checked), _entryCount(0) { }
 
 
     ~SemaphoreImpl();
 
     void acquire();
-  
+
     void release();
 
     bool tryAcquire(unsigned long timeout);
- 
+
     int count();
 
-  }; 
+  };
 
 
   /**
-   * Destroy this SemaphoreImpl and release its resources. 
+   * Destroy this SemaphoreImpl and release its resources.
    */
-  template <typename List> 
+  template <typename List>
     SemaphoreImpl<List>::~SemaphoreImpl() {
 
 #ifndef NDEBUG
 
-    if(!_waiters.empty()) { 
+    if(!_waiters.empty()) {
 
       ZTDEBUG("** You are destroying a semaphore which is blocking %d threads. **\n", _waiters.size());
       assert(0); // Destroyed semaphore while in use
@@ -117,21 +117,21 @@ namespace ZThread {
    *
    * @return int
    */
-  template <typename List> 
+  template <typename List>
     int SemaphoreImpl<List>::count() {
 
     Guard<FastLock> g(_lock);
     return _count;
-  
+
   }
 
   /**
    * Decrement the count, blocking when that count becomes 0 or less.
-   * 
+   *
    * @exception Interrupted_Exception thrown when the caller status is interrupted
    * @exception Synchronization_Exception thrown if there is some other error.
    */
-  template <typename List> 
+  template <typename List>
     void SemaphoreImpl<List>::acquire() {
 
     // Get the monitor for the current thread
@@ -155,14 +155,14 @@ namespace ZThread {
       m.acquire();
 
       {
-      
+
         Guard<FastLock, UnlockedScope> g2(g1);
         state = m.wait();
-      
+
       }
 
       m.release();
-        
+
       // Remove from waiter list, regarless of weather release() is called or
       // not. The monitor is sticky, so its possible a state 'stuck' from a
       // previous operation and will leave the wait() w/o release() having
@@ -170,38 +170,38 @@ namespace ZThread {
       typename List::iterator i = std::find(_waiters.begin(), _waiters.end(), self);
       if(i != _waiters.end())
         _waiters.erase(i);
-    
+
       --_entryCount;
 
       switch(state) {
         // If awoke due to a notify(), update the count
         case Monitor::SIGNALED:
-            
-          _count--;           
+
+          _count--;
           break;
-           
+
         case Monitor::INTERRUPTED:
           throw Interrupted_Exception();
-            
+
         default:
           throw Synchronization_Exception();
-      } 
-    
+      }
+
     }
 
   }
 
   /**
    * Decrement the count, blocking when it that count is 0 or less. If the timeout
-   * expires before the count is raise above 0, the thread will stop blocking 
+   * expires before the count is raise above 0, the thread will stop blocking
    * and return.
-   * 
+   *
    * @exception Interrupted_Exception thrown when the caller status is interrupted
    * @exception Synchronization_Exception thrown if there is some other error.
    */
-  template <typename List> 
+  template <typename List>
     bool SemaphoreImpl<List>::tryAcquire(unsigned long timeout) {
- 
+
     // Get the monitor for the current thread
     ThreadImpl* self = ThreadImpl::current();
     Monitor& m = self->getMonitor();
@@ -214,7 +214,7 @@ namespace ZThread {
 
     // Otherwise, wait() for the lock by placing the waiter in the list
     else {
-    
+
       ++_entryCount;
       _waiters.push_back(self);
 
@@ -222,20 +222,20 @@ namespace ZThread {
 
       // Don't bother waiting if the timeout is 0
       if(timeout) {
-        
+
         m.acquire();
 
         {
-        
+
           Guard<FastLock, UnlockedScope> g2(g1);
           state = m.wait(timeout);
-        
+
         }
 
         m.release();
-        
+
       }
-        
+
       // Remove from waiter list, regarless of weather release() is called or
       // not. The monitor is sticky, so its possible a state 'stuck' from a
       // previous operation and will leave the wait() w/o release() having
@@ -243,26 +243,26 @@ namespace ZThread {
       typename List::iterator i = std::find(_waiters.begin(), _waiters.end(), self);
       if(i != _waiters.end())
         _waiters.erase(i);
-    
+
       --_entryCount;
 
       switch(state) {
         // If awoke due to a notify(), update the count
         case Monitor::SIGNALED:
-            
-          _count--;           
+
+          _count--;
           break;
-           
+
         case Monitor::INTERRUPTED:
           throw Interrupted_Exception();
-            
+
         case Monitor::TIMEDOUT:
           return false;
 
         default:
           throw Synchronization_Exception();
-      } 
-    
+      }
+
     }
 
     return true;
@@ -272,18 +272,18 @@ namespace ZThread {
   /**
    * Increment the count and release a waiter if there are any. If the semaphore
    * is checked, then an exception will be raised if the maximum count is about to
-   * be exceeded. 
+   * be exceeded.
    *
    * @exception InvalidOp_Exception thrown if the maximum count is exceeded while
    * the checked flag is set.
    */
-  template <typename List> 
+  template <typename List>
     void SemaphoreImpl<List>::release()  {
 
     Guard<FastLock> g1(_lock);
 
     // Make sure the operation is valid
-    if(_checked && _count == _maxCount) 
+    if(_checked && _count == _maxCount)
       throw InvalidOp_Exception();
 
     // Increment the count
@@ -291,7 +291,7 @@ namespace ZThread {
 
     // Try to find a waiter with a backoff & retry scheme
     for(;;) {
-    
+
       // Go through the list, attempt to notify() a waiter.
       for(typename List::iterator i = _waiters.begin(); i != _waiters.end();) {
 
@@ -300,43 +300,43 @@ namespace ZThread {
         Monitor& m = impl->getMonitor();
 
         if(m.tryAcquire()) {
-        
+
           // Notify the monitor & remove from the waiter list so time isn't
           // wasted checking it again.
           i = _waiters.erase(i);
-        
-          // If notify() is not sucessful, it is because the wait() has already 
+
+          // If notify() is not sucessful, it is because the wait() has already
           // been ended (killed/interrupted/notify'd)
           bool woke = m.notify();
-        
+
           m.release();
-        
+
           // Once notify() succeeds, return
-          if(woke) 
+          if(woke)
             return;
-        
+
         } else ++i;
-      
+
       }
-    
+
       if(_waiters.empty())
         return;
-    
+
       { // Backoff and try again
-      
+
         Guard<FastLock, UnlockedScope> g2(g1);
         ThreadImpl::yield();
 
       }
 
     }
-  
+
   }
 
-  class FifoSemaphoreImpl : public SemaphoreImpl<fifo_list> { 
+  class FifoSemaphoreImpl : public SemaphoreImpl<fifo_list> {
   public:
 
-    FifoSemaphoreImpl(int count, unsigned int maxCount, bool checked) 
+    FifoSemaphoreImpl(int count, unsigned int maxCount, bool checked)
       /* throw(Synchronization_Exception) */
       : SemaphoreImpl<fifo_list>(count, maxCount, checked) { }
 

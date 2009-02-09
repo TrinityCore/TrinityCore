@@ -54,7 +54,7 @@ struct TRINITY_DLL_DECL boss_moamAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-		DoScriptText(EMOTE_AGGRO, m_creature);
+        DoScriptText(EMOTE_AGGRO, m_creature);
         pTarget = who;
     }
 
@@ -67,7 +67,7 @@ struct TRINITY_DLL_DECL boss_moamAI : public ScriptedAI
         //if (j==1 && m_creature->GetMana()*100 / m_creature->GetMaxMana() == 100 && !m_creature->IsNonMeleeSpellCasted(false))
         {
             DoCast(m_creature->getVictim(),SPELL_ARCANEERUPTION);
-			DoScriptText(EMOTE_MANA_FULL, m_creature);
+            DoScriptText(EMOTE_MANA_FULL, m_creature);
         }
 
         //If we are <50%HP cast MANA FIEND (Summon Mana) and Sleep

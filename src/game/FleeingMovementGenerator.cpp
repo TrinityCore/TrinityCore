@@ -62,7 +62,7 @@ bool FleeingMovementGenerator<Creature>::GetDestination(float &x, float &y, floa
 template<>
 bool FleeingMovementGenerator<Player>::GetDestination(float &x, float &y, float &z) const
 {
-	return false;
+    return false;
 }
 
 template<class T>

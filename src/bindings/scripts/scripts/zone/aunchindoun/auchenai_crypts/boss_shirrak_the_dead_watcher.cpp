@@ -79,7 +79,7 @@ struct TRINITY_DLL_DECL boss_shirrak_the_dead_watcherAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-		//Inhibitmagic_Timer
+        //Inhibitmagic_Timer
         if (Inhibitmagic_Timer < diff)
         {
             float dist;
@@ -110,7 +110,7 @@ struct TRINITY_DLL_DECL boss_shirrak_the_dead_watcherAI : public ScriptedAI
         {
             DoCast(m_creature,SPELL_ATTRACTMAGIC);
             Attractmagic_Timer = 30000;
-			Carnivorousbite_Timer = 1500;
+            Carnivorousbite_Timer = 1500;
         }else Attractmagic_Timer -= diff;
 
         //Carnivorousbite_Timer
@@ -133,11 +133,11 @@ struct TRINITY_DLL_DECL boss_shirrak_the_dead_watcherAI : public ScriptedAI
                 // Emote
                 std::string *emote = new std::string("focuses on ");
                 emote->append(target->GetName());
-				emote->append("!");
+                emote->append("!");
                 DoTextEmote(emote->c_str(),NULL,true);
                 delete emote;
             }
-			FocusFire_Timer = 15000+(rand()%5000);
+            FocusFire_Timer = 15000+(rand()%5000);
         }else FocusFire_Timer -= diff;
 
         DoMeleeAttackIfReady();

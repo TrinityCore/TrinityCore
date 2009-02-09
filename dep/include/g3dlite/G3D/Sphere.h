@@ -1,10 +1,10 @@
 /**
  @file Sphere.h
- 
+
  Sphere class
- 
+
  @maintainer Morgan McGuire, matrix@graphics3d.com
- 
+
  @created 2001-06-02
  @edited  2004-07-05
  */
@@ -61,40 +61,40 @@ public:
     bool contains(const Vector3& point) const;
 
 /**
-	 @deprecated Use culledBy(Array<Plane>&)
+     @deprecated Use culledBy(Array<Plane>&)
      */
     bool culledBy(
         const class Plane*  plane,
         int                 numPlanes,
-		int32&				cullingPlaneIndex,
-		const uint32  		testMask,
+        int32&              cullingPlaneIndex,
+        const uint32        testMask,
         uint32&             childMask) const;
 
     /**
-	 @deprecated Use culledBy(Array<Plane>&)
+     @deprecated Use culledBy(Array<Plane>&)
      */
     bool culledBy(
         const class Plane*  plane,
         int                 numPlanes,
-		int32&				cullingPlaneIndex = dummy,
-		const uint32  		testMask = -1) const;
+        int32&              cullingPlaneIndex = dummy,
+        const uint32        testMask = -1) const;
 
-	/**
+    /**
       See AABox::culledBy
-	 */
-	bool culledBy(
-		const Array<Plane>&		plane,
-		int32&					cullingPlaneIndex,
-		const uint32  			testMask,
+     */
+    bool culledBy(
+        const Array<Plane>&     plane,
+        int32&                  cullingPlaneIndex,
+        const uint32            testMask,
         uint32&                 childMask) const;
 
     /**
      Conservative culling test that does not produce a mask for children.
      */
-	bool culledBy(
-		const Array<Plane>&		plane,
-		int32&					cullingPlaneIndex = dummy,
-		const uint32  			testMask		  = -1) const;
+    bool culledBy(
+        const Array<Plane>&     plane,
+        int32&                  cullingPlaneIndex = dummy,
+        const uint32            testMask          = -1) const;
     virtual std::string toString() const;
 
     float volume() const;

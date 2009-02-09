@@ -2,7 +2,7 @@
  @file CoordinateFrame.h
 
  @maintainer Morgan McGuire, matrix@graphics3d.com
- 
+
  @created 2001-03-04
  @edited  2006-04-07
 
@@ -28,21 +28,21 @@ namespace G3D {
 
 /**
  A rigid body RT (rotation-translation) transformation.
-    
+
 CoordinateFrame abstracts a 4x4 matrix that maps object space to world space:
-  
+
   v_world = C * v_object
 
 CoordinateFrame::rotation is the upper 3x3 submatrix, CoordinateFrame::translation
-is the right 3x1 column.  The 4th row is always [0 0 0 1], so it isn't stored.  
+is the right 3x1 column.  The 4th row is always [0 0 0 1], so it isn't stored.
 So you don't have to remember which way the multiplication and transformation work,
-it provides explicit toWorldSpace and toObjectSpace methods.  Also, points, vectors 
+it provides explicit toWorldSpace and toObjectSpace methods.  Also, points, vectors
 (directions), and surface normals transform differently, so they have separate methods.
- 
+
 Some helper functions transform whole primitives like boxes in and out of object space.
 
 Convert to Matrix4 using CoordinateFrame::toMatrix4.  You <I>can</I> construct a CoordinateFrame
-from a Matrix4 using Matrix4::approxCoordinateFrame, however, because a Matrix4 is more 
+from a Matrix4 using Matrix4::approxCoordinateFrame, however, because a Matrix4 is more
 general than a CoordinateFrame, some information may be lost.
 
 See also: G3D::Matrix4, G3D::Quat
@@ -53,18 +53,18 @@ public:
     /**
      Takes object space points to world space.
      */
-    Matrix3							rotation;
+    Matrix3                         rotation;
 
     /**
      Takes object space points to world space.
      */
-    Vector3							translation;
+    Vector3                         translation;
 
     /**
      The direction an object "looks" relative to its own axes.
      @deprecated This is always -1 and will be fixed at that value in future releases.
      */
-    static const float				zLookDirection;
+    static const float              zLookDirection;
 
     inline bool operator==(const CoordinateFrame& other) const {
         return (translation == other.translation) && (rotation == other.rotation);
@@ -83,13 +83,13 @@ public:
     /**
      Initializes to the identity coordinate frame.
      */
-    inline CoordinateFrame() : 
+    inline CoordinateFrame() :
         rotation(Matrix3::identity()), translation(Vector3::zero()) {
     }
 
-	CoordinateFrame(const Vector3& _translation) :
+    CoordinateFrame(const Vector3& _translation) :
         rotation(Matrix3::identity()), translation(_translation) {
-	}
+    }
 
     CoordinateFrame(const Matrix3 &rotation, const Vector3 &translation) :
         rotation(rotation), translation(translation) {
@@ -124,7 +124,7 @@ public:
 
     /**
      Returns the heading of the lookVector as an angle in radians relative to
-     the world -z axis.  That is, a counter-clockwise heading where north (-z) 
+     the world -z axis.  That is, a counter-clockwise heading where north (-z)
      is 0 and west (-x) is PI/2.
 
      Note that the heading ignores the Y axis, so an inverted
@@ -157,23 +157,23 @@ public:
      */
     inline Vector3 pointToWorldSpace(const Vector3& v) const {
         return Vector3(
-			rotation[0][0] * v[0] + rotation[0][1] * v[1] + rotation[0][2] * v[2] + translation[0],
-			rotation[1][0] * v[0] + rotation[1][1] * v[1] + rotation[1][2] * v[2] + translation[1],
-			rotation[2][0] * v[0] + rotation[2][1] * v[1] + rotation[2][2] * v[2] + translation[2]);
+            rotation[0][0] * v[0] + rotation[0][1] * v[1] + rotation[0][2] * v[2] + translation[0],
+            rotation[1][0] * v[0] + rotation[1][1] * v[1] + rotation[1][2] * v[2] + translation[1],
+            rotation[2][0] * v[0] + rotation[2][1] * v[1] + rotation[2][2] * v[2] + translation[2]);
     }
 
     /**
      Transforms the point into object space.
      */
-	inline Vector3 pointToObjectSpace(const Vector3& v) const {
-		float p[3];
-		p[0] = v[0] - translation[0];
-		p[1] = v[1] - translation[1];
-		p[2] = v[2] - translation[2];
-		return Vector3(
-			rotation[0][0] * p[0] + rotation[1][0] * p[1] + rotation[2][0] * p[2],
-			rotation[0][1] * p[0] + rotation[1][1] * p[1] + rotation[2][1] * p[2],
-			rotation[0][2] * p[0] + rotation[1][2] * p[1] + rotation[2][2] * p[2]);
+    inline Vector3 pointToObjectSpace(const Vector3& v) const {
+        float p[3];
+        p[0] = v[0] - translation[0];
+        p[1] = v[1] - translation[1];
+        p[2] = v[2] - translation[2];
+        return Vector3(
+            rotation[0][0] * p[0] + rotation[1][0] * p[1] + rotation[2][0] * p[2],
+            rotation[0][1] * p[0] + rotation[1][1] * p[1] + rotation[2][1] * p[2],
+            rotation[0][2] * p[0] + rotation[1][2] * p[1] + rotation[2][2] * p[2]);
     }
 
     /**
@@ -235,7 +235,7 @@ public:
     class Box toObjectSpace(const Box& b) const;
 
     class Plane toObjectSpace(const Plane& p) const;
- 
+
     class Sphere toObjectSpace(const Sphere& b) const;
 
     Triangle toObjectSpace(const Triangle& t) const;
@@ -261,14 +261,14 @@ public:
         Vector3         up);
 
     /** @deprecated See lookVector */
-	inline Vector3 getLookVector() const {
-		return rotation.getColumn(2) * zLookDirection;
-	}
+    inline Vector3 getLookVector() const {
+        return rotation.getColumn(2) * zLookDirection;
+    }
 
     /** The direction this camera is looking (its negative z axis)*/
-	inline Vector3 lookVector() const {
-		return rotation.getColumn(2) * zLookDirection;
-	}
+    inline Vector3 lookVector() const {
+        return rotation.getColumn(2) * zLookDirection;
+    }
 
     /** Returns the ray starting at the camera origin travelling in direction CoordinateFrame::lookVector. */
     class Ray lookRay() const;
@@ -283,24 +283,24 @@ public:
      @deprecated leftVector
      */
     inline Vector3 getLeftVector() const {
-		return -rotation.getColumn(0);
-	}
+        return -rotation.getColumn(0);
+    }
 
     /** @deprecated See rightVector */
     inline Vector3 getRightVector() const {
-		return rotation.getColumn(0);
-	}
+        return rotation.getColumn(0);
+    }
 
     /**
      If a viewer looks along the look vector, this is the viewer's "left".
      Useful for strafing motions and building alternative coordinate frames.
      */
     inline Vector3 leftVector() const {
-		return -rotation.getColumn(0);
+        return -rotation.getColumn(0);
     }
 
     inline Vector3 rightVector() const {
-		return rotation.getColumn(0);
+        return rotation.getColumn(0);
     }
 
     /**

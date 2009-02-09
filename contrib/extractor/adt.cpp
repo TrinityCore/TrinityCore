@@ -192,7 +192,7 @@ bool isHole(int holes, int i, int j)
     int testj = j/4;
     if(testi>3) testi = 3;
     if(testj>3) testj = 3;
-	return (holes & holetab_h[testi] & holetab_v[testj])!=0;
+    return (holes & holetab_h[testi] & holetab_v[testj])!=0;
 }
 
 inline

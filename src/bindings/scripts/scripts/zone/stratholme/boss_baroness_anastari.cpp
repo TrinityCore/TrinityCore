@@ -31,13 +31,13 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_baroness_anastariAI : public ScriptedAI
 {
-	boss_baroness_anastariAI(Creature *c) : ScriptedAI(c)
-	{
-		pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
-		Reset();
-	}
+    boss_baroness_anastariAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
+        Reset();
+    }
 
-	ScriptedInstance* pInstance;
+    ScriptedInstance* pInstance;
 
     uint32 BansheeWail_Timer;
     uint32 BansheeCurse_Timer;
@@ -56,11 +56,11 @@ struct TRINITY_DLL_DECL boss_baroness_anastariAI : public ScriptedAI
     {
     }
 
-	 void JustDied(Unit* Killer)
-	 {
-		 if (pInstance)
-			 pInstance->SetData(TYPE_BARONESS,IN_PROGRESS);
-	 }
+     void JustDied(Unit* Killer)
+     {
+         if (pInstance)
+             pInstance->SetData(TYPE_BARONESS,IN_PROGRESS);
+     }
 
     void UpdateAI(const uint32 diff)
     {
@@ -70,8 +70,8 @@ struct TRINITY_DLL_DECL boss_baroness_anastariAI : public ScriptedAI
         //BansheeWail
         if (BansheeWail_Timer < diff)
         {
-			if (rand()%100 < 95)
-				DoCast(m_creature->getVictim(),SPELL_BANSHEEWAIL);
+            if (rand()%100 < 95)
+                DoCast(m_creature->getVictim(),SPELL_BANSHEEWAIL);
             //4 seconds until we should cast this again
             BansheeWail_Timer = 4000;
         }else BansheeWail_Timer -= diff;
@@ -88,8 +88,8 @@ struct TRINITY_DLL_DECL boss_baroness_anastariAI : public ScriptedAI
         //Silence
         if (Silence_Timer < diff)
         {
-			if (rand()%100 < 80)
-				DoCast(m_creature->getVictim(),SPELL_SILENCE);
+            if (rand()%100 < 80)
+                DoCast(m_creature->getVictim(),SPELL_SILENCE);
             //13 seconds until we should cast this again
             Silence_Timer = 13000;
         }else Silence_Timer -= diff;

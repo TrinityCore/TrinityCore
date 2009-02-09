@@ -1,8 +1,8 @@
 /**
  @file Triangle.cpp
- 
+
  @maintainer Morgan McGuire, graphics3d.com
- 
+
  @created 2001-04-06
  @edited  2006-01-20
 
@@ -17,7 +17,7 @@
 
 namespace G3D {
 
-    
+
 void Triangle::init(const Vector3& v0, const Vector3& v1, const Vector3& v2) {
 
     _plane = Plane(v0, v1, v2);
@@ -50,13 +50,13 @@ void Triangle::init(const Vector3& v0, const Vector3& v1, const Vector3& v2) {
 Triangle::Triangle() {
     init(Vector3::zero(), Vector3::zero(), Vector3::zero());
 }
-    
+
 
 Triangle::Triangle(const Vector3& v0, const Vector3& v1, const Vector3& v2) {
     init(v0, v1, v2);
 }
 
-    
+
 Triangle::~Triangle() {
 }
 

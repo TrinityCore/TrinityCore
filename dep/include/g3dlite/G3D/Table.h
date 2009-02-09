@@ -81,7 +81,7 @@ namespace G3D {
  An unordered data structure mapping keys to values.
 
  Key must be a pointer, an int, a std::string, a class with a hashCode() method,
- or provide overloads for: 
+ or provide overloads for:
 
   <PRE>
     template<> struct GHashCode<class Key> {
@@ -108,7 +108,7 @@ namespace G3D {
   1.0 your hash function is badly designed and maps too many inputs to
   the same output.
  */
-template<class Key, class Value, class HashFunc = GHashCode<Key> > 
+template<class Key, class Value, class HashFunc = GHashCode<Key> >
 class Table {
 public:
 
@@ -131,12 +131,12 @@ private:
         Entry       entry;
         Node*       next;
 
-        
+
         /** Provide pooled allocation for speed. */
         inline void* operator new (size_t size) {
             return System::malloc(size);
         }
-        
+
         inline void operator delete (void* p) {
             System::free(p);
         }
@@ -165,12 +165,12 @@ private:
     size_t  _size;
 
     /**
-     Array of Node*. 
+     Array of Node*.
      We don't use Array<Node*> because Table is lower level.
      Some elements may be NULL.
      */
     Node**  bucket;
-    
+
     /**
      Length of the bucket array.
      */
@@ -187,15 +187,15 @@ private:
 
         for (size_t b = 0; b < this->numBuckets; b++) {
             Node* node = oldBucket[b];
-         
+
             while (node != NULL) {
                 Node* nextNode = node->next;
-        
+
                 // insert at the head of the list for bucket[i]
                 size_t i = node->hashCode % numBuckets;
                 node->next = bucket[i];
                 bucket[i] = node;
-        
+
                 node = nextNode;
             }
         }
@@ -294,7 +294,7 @@ public:
 
     /**
      A small load (close to zero) means the hash table is acting very
-     efficiently most of the time.  A large load (close to 1) means 
+     efficiently most of the time.  A large load (close to 1) means
      the hash table is acting poorly-- all operations will be very slow.
      A large load will result from a bad hash function that maps too
      many keys to the same code.
@@ -342,7 +342,7 @@ public:
             table(const_cast<Table<Key, Value>*>(table)),
             numBuckets(numBuckets),
             bucket(bucket) {
-            
+
             if (numBuckets == 0) {
                 // Empty table
                 isDone = true;
@@ -383,7 +383,7 @@ public:
             } else {
                 return
                     (table == other.table) &&
-                    (node == other.node) && 
+                    (node == other.node) &&
                     (index == other.index);
             }
         }
@@ -421,7 +421,7 @@ public:
 
 
     /**
-     C++ STL style iterator method.  Returns the first Entry, which 
+     C++ STL style iterator method.  Returns the first Entry, which
      contains a key and value.  Use preincrement (++entry) to get to
      the next element.  Do not modify the table while iterating.
      */
@@ -448,7 +448,7 @@ public:
          System::memset(bucket, 0, sizeof(Node*) * numBuckets);
     }
 
-   
+
     /**
      Returns the number of keys.
      */
@@ -459,13 +459,13 @@ public:
 
     /**
      If you insert a pointer into the key or value of a table, you are
-     responsible for deallocating the object eventually.  Inserting 
+     responsible for deallocating the object eventually.  Inserting
      key into a table is O(1), but may cause a potentially slow rehashing.
      */
     void set(const Key& key, const Value& value) {
         size_t code = m_HashFunc(key);
         size_t b = code % numBuckets;
-        
+
         // Go to the bucket
         Node* n = bucket[b];
 
@@ -479,7 +479,7 @@ public:
         size_t bucketLength = 1;
 
         // Sometimes a bad hash code will cause all elements
-        // to collide.  Detect this case and don't rehash when 
+        // to collide.  Detect this case and don't rehash when
         // it occurs; nothing good will come from the rehashing.
         bool allSameCode = true;
 
@@ -515,7 +515,7 @@ public:
     to remove an element that isn't present.
     */
    void remove(const Key& key) {
-      
+
       size_t code = m_HashFunc(key);
       size_t b = code % numBuckets;
 
@@ -552,7 +552,7 @@ public:
 
    /**
     Returns the value associated with key.
-    @deprecated Use get(key, val) or 
+    @deprecated Use get(key, val) or
     */
    Value& get(const Key& key) const {
 
@@ -647,7 +647,7 @@ public:
    }
 
    /**
-    Calls delete on all of the keys.  Does not clear the table, 
+    Calls delete on all of the keys.  Does not clear the table,
     however, so you are left with a table of dangling pointers.
 
     Same as <CODE>getKeys().deleteAll();</CODE>

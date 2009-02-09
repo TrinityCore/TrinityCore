@@ -51,7 +51,7 @@ class TRINITY_DLL_SPEC HomeMovementGenerator<Creature>
         void _setTargetLocation(Creature &);
         DestinationHolder< Traveller<Creature> > i_destinationHolder;
 
-		float ori;
+        float ori;
         uint32 i_travel_timer;
 };
 #endif

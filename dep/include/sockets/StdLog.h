@@ -1,6 +1,6 @@
 /** \file StdLog.h
- **	\date  2004-06-01
- **	\author grymse@alhem.net
+ ** \date  2004-06-01
+ ** \author grymse@alhem.net
 **/
 /*
 Copyright (C) 2004-2007  Anders Hedstrom
@@ -8,7 +8,7 @@ Copyright (C) 2004-2007  Anders Hedstrom
 This library is made available under the terms of the GNU GPL.
 
 If you would like to use this library in a closed-source application,
-a separate license agreement is available. For information about 
+a separate license agreement is available. For information about
 the closed-source license agreement for the C++ sockets library,
 please visit http://www.alhem.net/Sockets/license.html and/or
 email license@alhem.net.
@@ -40,10 +40,10 @@ namespace SOCKETS_NAMESPACE {
 /** error level enum. */
 typedef enum
 {
-	LOG_LEVEL_WARNING = 0,
-	LOG_LEVEL_ERROR,
-	LOG_LEVEL_FATAL,
-	LOG_LEVEL_INFO
+    LOG_LEVEL_WARNING = 0,
+    LOG_LEVEL_ERROR,
+    LOG_LEVEL_FATAL,
+    LOG_LEVEL_INFO
 } loglevel_t;
 
 
@@ -51,18 +51,18 @@ class ISocketHandler;
 class Socket;
 
 /** \defgroup logging Log help classes */
-/** Log class interface. 
-	\ingroup logging */
+/** Log class interface.
+    \ingroup logging */
 class StdLog
 {
 public:
-	virtual ~StdLog() {}
+    virtual ~StdLog() {}
 
-	virtual void error(ISocketHandler *,Socket *,
-		const std::string& user_text,
-		int err,
-		const std::string& sys_err,
-		loglevel_t = LOG_LEVEL_WARNING) = 0;
+    virtual void error(ISocketHandler *,Socket *,
+        const std::string& user_text,
+        int err,
+        const std::string& sys_err,
+        loglevel_t = LOG_LEVEL_WARNING) = 0;
 };
 
 

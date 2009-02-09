@@ -42,7 +42,7 @@ EndScriptData */
 #define SPELL_BERSERKER_C       26561
 #define SPELL_ROAR              16508
 #define SPELL_FLURRY            33232
-#define SPELL_DUAL_WIELD		29651 //used in phase
+#define SPELL_DUAL_WIELD        29651 //used in phase
 
 // Olm the Summoner
 #define SPELL_DARK_DECAY        33129
@@ -50,14 +50,14 @@ EndScriptData */
 #define SPELL_SUMMON_WFH        33131
 
 //Kiggler the Craed
-#define SPELL_GREATER_POLYMORPH 	33173
-#define SPELL_LIGHTNING_BOLT    	36152
-#define SPELL_ARCANE_SHOCK      	33175
-#define SPELL_ARCANE_EXPLOSION  	33237
+#define SPELL_GREATER_POLYMORPH     33173
+#define SPELL_LIGHTNING_BOLT        36152
+#define SPELL_ARCANE_SHOCK          33175
+#define SPELL_ARCANE_EXPLOSION      33237
 
 //Blindeye the Seer
-#define SPELL_GREATER_PW_SHIELD 		33147
-#define SPELL_HEAL              		33144
+#define SPELL_GREATER_PW_SHIELD         33147
+#define SPELL_HEAL                      33144
 #define SPELL_PRAYER_OH                 33152
 
 //Krosh Firehand
@@ -94,9 +94,9 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
         MightyBlow_Timer = 40000;
         Whirlwind_Timer = 30000;
         Charging_Timer = 0;
-		Roar_Timer = 0;
+        Roar_Timer = 0;
 
-		m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, false);
+        m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, false);
 
         Phase2 = false;
 
@@ -134,25 +134,25 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
 
         if (pInstance)
-		{
-			pInstance->SetData(DATA_MAULGAREVENT, DONE);
+        {
+            pInstance->SetData(DATA_MAULGAREVENT, DONE);
 
-			GameObject* Door = NULL;
-			Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_MAULGARDOOR));
-			if(Door)
-				Door->SetGoState(0);
-		}
-	}
+            GameObject* Door = NULL;
+            Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_MAULGARDOOR));
+            if(Door)
+                Door->SetGoState(0);
+        }
+    }
 
        void AddDeath()
        {
             switch(rand()%4)
-			{
-				case 0: DoScriptText(SAY_OGRE_DEATH1, m_creature);break;
-				case 1: DoScriptText(SAY_OGRE_DEATH2, m_creature);break;
-				case 2: DoScriptText(SAY_OGRE_DEATH3, m_creature);break;
-				case 3: DoScriptText(SAY_OGRE_DEATH4, m_creature);break;
-			}
+            {
+                case 0: DoScriptText(SAY_OGRE_DEATH1, m_creature);break;
+                case 1: DoScriptText(SAY_OGRE_DEATH2, m_creature);break;
+                case 2: DoScriptText(SAY_OGRE_DEATH3, m_creature);break;
+                case 3: DoScriptText(SAY_OGRE_DEATH4, m_creature);break;
+            }
        }
 
 
@@ -182,7 +182,7 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
         pInstance->SetData64(DATA_MAULGAREVENT_TANK, who->GetGUID());
         pInstance->SetData(DATA_MAULGAREVENT, IN_PROGRESS);
 
-		DoZoneInCombat();
+        DoZoneInCombat();
     }
 
     void UpdateAI(const uint32 diff)
@@ -234,10 +234,10 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
         //Entering Phase 2
         if(!Phase2 && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 50)
         {
-			Phase2 = true;
-			DoScriptText(SAY_ENRAGE, m_creature);
+            Phase2 = true;
+            DoScriptText(SAY_ENRAGE, m_creature);
 
-			m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);
+            m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);
             m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, 0);
             m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY+1, 0);
         }

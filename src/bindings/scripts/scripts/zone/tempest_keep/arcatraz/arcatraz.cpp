@@ -94,7 +94,7 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
 
             if( pInstance->GetData(TYPE_HARBINGERSKYRISS) == DONE )
             {
-				DoScriptText(SAY_COMPLETE, m_creature);
+                DoScriptText(SAY_COMPLETE, m_creature);
             }
         }
     }
@@ -124,14 +124,14 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-		case 0: DoScriptText(SAY_KILL_1, m_creature); break;
-		case 1: DoScriptText(SAY_KILL_2, m_creature); break;
+        case 0: DoScriptText(SAY_KILL_1, m_creature); break;
+        case 1: DoScriptText(SAY_KILL_2, m_creature); break;
         }
     }
 
     void JustDied(Unit *victim)
     {
-		DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, m_creature);
 
         /*for questId 10886 (heroic mode only)
         if( pInstance && pInstance->GetData(TYPE_HARBINGERSKYRISS) != DONE )
@@ -315,13 +315,13 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
         if( pInstance )
         {
             pInstance->SetData(TYPE_HARBINGERSKYRISS,IN_PROGRESS);
-			if (GameObject* Sphere = GameObject::GetGameObject(*m_creature,pInstance->GetData64(DATA_SPHERE_SHIELD)))
-				Sphere->SetGoState(1);
+            if (GameObject* Sphere = GameObject::GetGameObject(*m_creature,pInstance->GetData64(DATA_SPHERE_SHIELD)))
+                Sphere->SetGoState(1);
             IsRunning = true;
         }
     }
 
-	bool CanProgress()
+    bool CanProgress()
     {
         if( pInstance )
         {
@@ -356,8 +356,8 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
                 case 2:
                     DoCast(m_creature,SPELL_TARGET_ALPHA);
                     pInstance->SetData(TYPE_WARDEN_1,IN_PROGRESS);
-					if (GameObject *Sphere = GameObject::GetGameObject(*m_creature,pInstance->GetData64(DATA_SPHERE_SHIELD)))
-						Sphere->SetGoState(1);
+                    if (GameObject *Sphere = GameObject::GetGameObject(*m_creature,pInstance->GetData64(DATA_SPHERE_SHIELD)))
+                        Sphere->SetGoState(1);
                     break;
                 case 3:
                     DoCast(m_creature,SPELL_TARGET_BETA);

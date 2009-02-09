@@ -113,35 +113,35 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
     }
 
     Player* GetPlayerInMap()
-	{
-		Map::PlayerList const& players = instance->GetPlayers();
+    {
+        Map::PlayerList const& players = instance->GetPlayers();
 
-		if (!players.isEmpty())
-		{
-			for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-			{
-				if (Player* plr = itr->getSource())
-					return plr;
-			}
-		}
+        if (!players.isEmpty())
+        {
+            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            {
+                if (Player* plr = itr->getSource())
+                    return plr;
+            }
+        }
 
-		debug_log("TSCR: Instance Black Temple: GetPlayerInMap, but PlayerList is empty!");
-		return NULL;
-	}
+        debug_log("TSCR: Instance Black Temple: GetPlayerInMap, but PlayerList is empty!");
+        return NULL;
+    }
 
-	void HandleGameObject(uint64 guid, uint32 state)
-	{
-		Player *player = GetPlayerInMap();
+    void HandleGameObject(uint64 guid, uint32 state)
+    {
+        Player *player = GetPlayerInMap();
 
-		if (!player || !guid)
-		{
-			debug_log("TSCR: Black Temple: HandleGameObject fail");
-			return;
-		}
+        if (!player || !guid)
+        {
+            debug_log("TSCR: Black Temple: HandleGameObject fail");
+            return;
+        }
 
-		if (GameObject *go = GameObject::GetGameObject(*player,guid))
-			go->SetGoState(state);
-	}
+        if (GameObject *go = GameObject::GetGameObject(*player,guid))
+            go->SetGoState(state);
+    }
 
     void OnCreatureCreate(Creature *creature, uint32 creature_entry)
     {
@@ -274,20 +274,20 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
         }
 
         if (data == DONE)
-		{
+        {
             OUT_SAVE_INST_DATA;
 
-			std::ostringstream saveStream;
-			saveStream << Encounters[0] << " " << Encounters[1] << " "
-				<< Encounters[2] << " " << Encounters[3] << " " << Encounters[4]
+            std::ostringstream saveStream;
+            saveStream << Encounters[0] << " " << Encounters[1] << " "
+                << Encounters[2] << " " << Encounters[3] << " " << Encounters[4]
             << " " << Encounters[5] << " " << Encounters[6] << " " << Encounters[7]
             << " " << Encounters[8];
 
-			str_data = saveStream.str();
+            str_data = saveStream.str();
 
-			SaveToDB();
-			OUT_SAVE_INST_DATA_COMPLETE;
-		}
+            SaveToDB();
+            OUT_SAVE_INST_DATA_COMPLETE;
+        }
     }
 
     uint32 GetData(uint32 type)
@@ -309,31 +309,31 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
     }
 
    const char* Save()
-	{
-		return str_data.c_str();
-	}
+    {
+        return str_data.c_str();
+    }
 
-	void Load(const char* in)
-	{
-		if (!in)
-		{
-			OUT_LOAD_INST_DATA_FAIL;
-			return;
-		}
+    void Load(const char* in)
+    {
+        if (!in)
+        {
+            OUT_LOAD_INST_DATA_FAIL;
+            return;
+        }
 
-		OUT_LOAD_INST_DATA(in);
+        OUT_LOAD_INST_DATA(in);
 
-		std::istringstream loadStream(in);
-		loadStream >> Encounters[0] >> Encounters[1] >> Encounters[2]
+        std::istringstream loadStream(in);
+        loadStream >> Encounters[0] >> Encounters[1] >> Encounters[2]
         >> Encounters[3] >> Encounters[4] >> Encounters[5] >> Encounters[6]
         >> Encounters[7] >> Encounters[8];
 
-		for(uint8 i = 0; i < ENCOUNTERS; ++i)
-			if (Encounters[i] == IN_PROGRESS)
-				Encounters[i] = NOT_STARTED;
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
+            if (Encounters[i] == IN_PROGRESS)
+                Encounters[i] = NOT_STARTED;
 
-		OUT_LOAD_INST_DATA_COMPLETE;
-	}
+        OUT_LOAD_INST_DATA_COMPLETE;
+    }
 };
 
 InstanceData* GetInstanceData_instance_black_temple(Map* map)

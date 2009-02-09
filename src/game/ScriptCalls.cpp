@@ -58,7 +58,7 @@ bool LoadScriptingModule(char const* libName)
 
     if(   !(testScript->ScriptsInit         =(scriptCallScriptsInit         )TRINITY_GET_PROC_ADDR(testScript->hScriptsLib,"ScriptsInit"         ))
         ||!(testScript->ScriptsFree         =(scriptCallScriptsFree         )TRINITY_GET_PROC_ADDR(testScript->hScriptsLib,"ScriptsFree"         ))
-		||!(testScript->ScriptsVersion      =(scriptCallScriptsVersion      )TRINITY_GET_PROC_ADDR(testScript->hScriptsLib,"ScriptsVersion"      ))
+        ||!(testScript->ScriptsVersion      =(scriptCallScriptsVersion      )TRINITY_GET_PROC_ADDR(testScript->hScriptsLib,"ScriptsVersion"      ))
         ||!(testScript->GossipHello         =(scriptCallGossipHello         )TRINITY_GET_PROC_ADDR(testScript->hScriptsLib,"GossipHello"         ))
         ||!(testScript->GOChooseReward      =(scriptCallGOChooseReward      )TRINITY_GET_PROC_ADDR(testScript->hScriptsLib,"GOChooseReward"      ))
         ||!(testScript->QuestAccept         =(scriptCallQuestAccept         )TRINITY_GET_PROC_ADDR(testScript->hScriptsLib,"QuestAccept"         ))
@@ -95,7 +95,7 @@ bool LoadScriptingModule(char const* libName)
     Script=testScript;
     Script->ScriptsInit();
 
-	sWorld.SetScriptsVersion(Script->ScriptsVersion());
+    sWorld.SetScriptsVersion(Script->ScriptsVersion());
 
     return true;
 }

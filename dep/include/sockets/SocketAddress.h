@@ -1,7 +1,7 @@
 /**
- **	\file SocketAddress.h
- **	\date  2006-09-21
- **	\author grymse@alhem.net
+ ** \file SocketAddress.h
+ ** \date  2006-09-21
+ ** \author grymse@alhem.net
 **/
 /*
 Copyright (C) 2007  Anders Hedstrom
@@ -46,43 +46,43 @@ namespace SOCKETS_NAMESPACE {
 class SocketAddress
 {
 public:
-	virtual ~SocketAddress() {}
+    virtual ~SocketAddress() {}
 
-	/** Get a pointer to the address struct. */
-	virtual operator struct sockaddr *() = 0;
+    /** Get a pointer to the address struct. */
+    virtual operator struct sockaddr *() = 0;
 
-	/** Get length of address struct. */
-	virtual operator socklen_t() = 0;
+    /** Get length of address struct. */
+    virtual operator socklen_t() = 0;
 
-	/** Compare two addresses. */
-	virtual bool operator==(SocketAddress&) = 0;
+    /** Compare two addresses. */
+    virtual bool operator==(SocketAddress&) = 0;
 
-	/** Set port number.
-		\param port Port number in host byte order */
-	virtual void SetPort(port_t port) = 0;
+    /** Set port number.
+        \param port Port number in host byte order */
+    virtual void SetPort(port_t port) = 0;
 
-	/** Get port number.
-		\return Port number in host byte order. */
-	virtual port_t GetPort() = 0;
+    /** Get port number.
+        \return Port number in host byte order. */
+    virtual port_t GetPort() = 0;
 
-	/** Set socket address.
-		\param sa Pointer to either 'struct sockaddr_in' or 'struct sockaddr_in6'. */
-	virtual void SetAddress(struct sockaddr *sa) = 0;
+    /** Set socket address.
+        \param sa Pointer to either 'struct sockaddr_in' or 'struct sockaddr_in6'. */
+    virtual void SetAddress(struct sockaddr *sa) = 0;
 
-	/** Convert address to text. */
-	virtual std::string Convert(bool include_port) = 0;
+    /** Convert address to text. */
+    virtual std::string Convert(bool include_port) = 0;
 
-	/** Reverse lookup of address. */
-	virtual std::string Reverse() = 0;
+    /** Reverse lookup of address. */
+    virtual std::string Reverse() = 0;
 
-	/** Get address family. */
-	virtual int GetFamily() = 0;
+    /** Get address family. */
+    virtual int GetFamily() = 0;
 
-	/** Address structure is valid. */
-	virtual bool IsValid() = 0;
+    /** Address structure is valid. */
+    virtual bool IsValid() = 0;
 
-	/** Get a copy of this SocketAddress object. */
-	virtual std::auto_ptr<SocketAddress> GetCopy() = 0;
+    /** Get a copy of this SocketAddress object. */
+    virtual std::auto_ptr<SocketAddress> GetCopy() = 0;
 };
 
 

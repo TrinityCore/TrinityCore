@@ -40,13 +40,13 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
 {
-	boss_marliAI(Creature *c) : ScriptedAI(c)
-	{
-		pInstance = ((ScriptedInstance*)c->GetInstanceData());
-		Reset();
-	}
+    boss_marliAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        Reset();
+    }
 
-	ScriptedInstance *pInstance;
+    ScriptedInstance *pInstance;
 
     uint32 SpawnStartSpiders_Timer;
     uint32 PoisonVolley_Timer;
@@ -79,12 +79,12 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-		DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void JustDied(Unit* Killer)
     {
-		DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, m_creature);
         if(pInstance)
             pInstance->SetData(DATA_MARLI_DEATH, 0);
     }
@@ -110,9 +110,9 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
 
             if (!Spawned && SpawnStartSpiders_Timer < diff)
             {
-				DoScriptText(SAY_SPIDER_SPAWN, m_creature);
+                DoScriptText(SAY_SPIDER_SPAWN, m_creature);
 
-				Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
+                Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
 
                 Spider = m_creature->SummonCreature(15041,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                 if(target && Spider ) Spider ->AI()->AttackStart(target);
@@ -128,17 +128,17 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
 
             if (SpawnSpider_Timer < diff)
             {
-				Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
+                Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
 
                 Spider = m_creature->SummonCreature(15041,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-				if (target && Spider )
-					Spider ->AI()->AttackStart(target);
+                if (target && Spider )
+                    Spider ->AI()->AttackStart(target);
                 SpawnSpider_Timer = 12000 + rand()%5000;
             }else SpawnSpider_Timer -= diff;
 
             if(!PhaseTwo && Transform_Timer < diff)
             {
-				DoScriptText(SAY_TRANSFORM, m_creature);
+                DoScriptText(SAY_TRANSFORM, m_creature);
                 DoCast(m_creature,SPELL_SPIDER_FORM);
                 const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
                 m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));

@@ -44,14 +44,14 @@ struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
 {
 boss_nethermancer_sepethreaAI(Creature *c) : ScriptedAI(c)
 {
-	pInstance = ((ScriptedInstance*)c->GetInstanceData());
-	HeroicMode = m_creature->GetMap()->IsHeroic();
-	Reset();
+    pInstance = ((ScriptedInstance*)c->GetInstanceData());
+    HeroicMode = m_creature->GetMap()->IsHeroic();
+    Reset();
 }
 
-	ScriptedInstance *pInstance;
+    ScriptedInstance *pInstance;
 
-	bool HeroicMode;
+    bool HeroicMode;
 
     uint32 frost_attack_Timer;
     uint32 arcane_blast_Timer;
@@ -70,25 +70,25 @@ boss_nethermancer_sepethreaAI(Creature *c) : ScriptedAI(c)
 
     void Aggro(Unit *who)
     {
-		DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, m_creature);
 
-		//Summon two guards, three in heroic
-		uint8 am = (HeroicMode ? 1 : 2);
-		for(int i = 0; i < am; i++)
-		{
-			DoCast(who,SPELL_SUMMON_RAGIN_FLAMES);
-		}
-		DoScriptText(SAY_SUMMON, m_creature);
+        //Summon two guards, three in heroic
+        uint8 am = (HeroicMode ? 1 : 2);
+        for(int i = 0; i < am; i++)
+        {
+            DoCast(who,SPELL_SUMMON_RAGIN_FLAMES);
+        }
+        DoScriptText(SAY_SUMMON, m_creature);
     }
 
     void KilledUnit(Unit* victim)
     {
-		switch(rand()%2)
-		{
-		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
-		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
-		}
-	}
+        switch(rand()%2)
+        {
+        case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+        case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+        }
+    }
 
     void JustDied(Unit* Killer)
     {
@@ -128,8 +128,8 @@ boss_nethermancer_sepethreaAI(Creature *c) : ScriptedAI(c)
 
                 switch(rand()%2)
                 {
-				case 0: DoScriptText(SAY_DRAGONS_BREATH_1, m_creature); break;
-				case 1: DoScriptText(SAY_DRAGONS_BREATH_2, m_creature); break;
+                case 0: DoScriptText(SAY_DRAGONS_BREATH_1, m_creature); break;
+                case 1: DoScriptText(SAY_DRAGONS_BREATH_2, m_creature); break;
                 }
             }
             dragons_breath_Timer = 12000 + rand()%10000;
@@ -169,12 +169,12 @@ struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Reset();
-		HeroicMode = m_creature->GetMap()->IsHeroic();
+        HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 
     ScriptedInstance *pInstance;
 
-	bool HeroicMode;
+    bool HeroicMode;
 
     uint32 inferno_Timer;
     uint32 flame_timer;
@@ -203,8 +203,8 @@ struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
 
         if (!onlyonce)
         {
-			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-				m_creature->GetMotionMaster()->MoveChase(target);
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+                m_creature->GetMotionMaster()->MoveChase(target);
             onlyonce = true;
         }
 

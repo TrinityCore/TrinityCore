@@ -39,13 +39,13 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
 {
-	boss_venoxisAI(Creature *c) : ScriptedAI(c)
-	{
-		pInstance = ((ScriptedInstance*)c->GetInstanceData());
-		Reset();
-	}
+    boss_venoxisAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        Reset();
+    }
 
-	ScriptedInstance *pInstance;
+    ScriptedInstance *pInstance;
 
     uint32 HolyFire_Timer;
     uint32 HolyWrath_Timer;
@@ -80,9 +80,9 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-		DoScriptText(SAY_DEATH, m_creature);
-		if(pInstance)
-			pInstance->SetData(DATA_VENOXIS_DEATH, 0);
+        DoScriptText(SAY_DEATH, m_creature);
+        if(pInstance)
+            pInstance->SetData(DATA_VENOXIS_DEATH, 0);
     }
 
     void UpdateAI(const uint32 diff)
@@ -115,7 +115,7 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
                     TargetInRange = 0;
                     for(int i=0; i<10; i++)
                     {
-						if (Unit* target = SelectUnit(SELECT_TARGET_TOPAGGRO,i))
+                        if (Unit* target = SelectUnit(SELECT_TARGET_TOPAGGRO,i))
                             if(m_creature->IsWithinMeleeRange(target))
                                 TargetInRange++;
                     }
@@ -134,7 +134,7 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
 
                 if (HolyFire_Timer < diff && TargetInRange < 3)
                 {
-					if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                     DoCast(target, SPELL_HOLY_FIRE);
 
                     HolyFire_Timer = 8000;
@@ -144,7 +144,7 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
             {
                 if(!PhaseTwo)
                 {
-					DoScriptText(SAY_TRANSFORM, m_creature);
+                    DoScriptText(SAY_TRANSFORM, m_creature);
                     m_creature->InterruptNonMeleeSpells(false);
                     DoCast(m_creature,SPELL_SNAKE_FORM);
                     m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.00f);

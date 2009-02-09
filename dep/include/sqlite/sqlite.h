@@ -59,15 +59,15 @@ extern const char sqlite_encoding[];
 typedef struct sqlite sqlite;
 
 /*
-** A function to open a new sqlite database.  
+** A function to open a new sqlite database.
 **
 ** If the database does not exist and mode indicates write
 ** permission, then a new database is created.  If the database
 ** does not exist and mode does not indicate write permission,
 ** then the open fails, an error message generated (if errmsg!=0)
 ** and the function returns 0.
-** 
-** If mode does not indicates user write permission, then the 
+**
+** If mode does not indicates user write permission, then the
 ** database is opened read-only.
 **
 ** The Truth:  As currently implemented, all databases are opened
@@ -123,7 +123,7 @@ typedef int (*sqlite_callback)(void*,int,char**, char**);
 **
 ** The return value is is SQLITE_OK if there are no errors and
 ** some other return code if there is an error.  The particular
-** return value depends on the type of error. 
+** return value depends on the type of error.
 **
 ** If the query could not be executed because a database file is
 ** locked or busy, then this function returns SQLITE_BUSY.  (This
@@ -270,18 +270,18 @@ int sqlite_complete(const char *sql);
 **
 ** The default busy callback is NULL.
 **
-** Sqlite is re-entrant, so the busy handler may start a new query. 
+** Sqlite is re-entrant, so the busy handler may start a new query.
 ** (It is not clear why anyone would every want to do this, but it
 ** is allowed, in theory.)  But the busy handler may not close the
-** database.  Closing the database from a busy handler will delete 
-** data structures out from under the executing query and will 
+** database.  Closing the database from a busy handler will delete
+** data structures out from under the executing query and will
 ** probably result in a coredump.
 */
 void sqlite_busy_handler(sqlite*, int(*)(void*,const char*,int), void*);
 
 /*
 ** This routine sets a busy handler that sleeps for a while when a
-** table is locked.  The handler will sleep multiple times until 
+** table is locked.  The handler will sleep multiple times until
 ** at least "ms" milleseconds of sleeping have been done.  After
 ** "ms" milleseconds of sleeping, the handler returns 0 which
 ** causes sqlite_exec() to return SQLITE_BUSY.
@@ -296,7 +296,7 @@ void sqlite_busy_timeout(sqlite*, int ms);
 ** Instead of invoking a user-supplied callback for each row of the
 ** result, this routine remembers each row of the result in memory
 ** obtained from malloc(), then returns all of the result after the
-** query has finished. 
+** query has finished.
 **
 ** As an example, suppose the query result where this table:
 **
@@ -323,11 +323,11 @@ void sqlite_busy_timeout(sqlite*, int ms);
 ** set to 2.  In general, the number of values inserted into azResult
 ** will be ((*nrow) + 1)*(*ncolumn).
 **
-** After the calling function has finished using the result, it should 
-** pass the result data pointer to sqlite_free_table() in order to 
-** release the memory that was malloc-ed.  Because of the way the 
-** malloc() happens, the calling function must not try to call 
-** malloc() directly.  Only sqlite_free_table() is able to release 
+** After the calling function has finished using the result, it should
+** pass the result data pointer to sqlite_free_table() in order to
+** release the memory that was malloc-ed.  Because of the way the
+** malloc() happens, the calling function must not try to call
+** malloc() directly.  Only sqlite_free_table() is able to release
 ** the memory properly and safely.
 **
 ** The return value of this routine is the same as from sqlite_exec().
@@ -349,7 +349,7 @@ void sqlite_free_table(char **result);
 /*
 ** The following routines are wrappers around sqlite_exec() and
 ** sqlite_get_table().  The only difference between the routines that
-** follow and the originals is that the second argument to the 
+** follow and the originals is that the second argument to the
 ** routines that follow is really a printf()-style format
 ** string describing the SQL to be executed.  Arguments to the format
 ** string appear at the end of the argument list.
@@ -381,7 +381,7 @@ void sqlite_free_table(char **result);
 **      INSERT INTO table1 VALUES('It's a happy day!');
 **
 ** This second example is an SQL syntax error.  As a general rule you
-** should always use %q instead of %s when inserting text into a string 
+** should always use %q instead of %s when inserting text into a string
 ** literal.
 */
 int sqlite_exec_printf(
@@ -553,7 +553,7 @@ int sqlite_set_authorizer(
 ** codes is used as the second parameter.  The 5th parameter is the name
 ** of the database ("main", "temp", etc.) if applicable.  The 6th parameter
 ** is the name of the inner-most trigger or view that is responsible for
-** the access attempt or NULL if this access attempt is directly from 
+** the access attempt or NULL if this access attempt is directly from
 ** input SQL code.
 **
 **                                          Arg-3           Arg-4
@@ -602,7 +602,7 @@ int sqlite_set_authorizer(
 void *sqlite_trace(sqlite*, void(*xTrace)(void*,const char*), void*);
 
 /*** The Callback-Free API
-** 
+**
 ** The following routines implement a new way to access SQLite that does not
 ** involve the use of callbacks.
 **
@@ -767,18 +767,18 @@ int sqlite_bind(sqlite_vm*, int idx, const char *value, int len, int copy);
 ** argument to this function is a void pointer passed to the progress callback
 ** function each time it is invoked.
 **
-** If a call to sqlite_exec(), sqlite_step() or sqlite_get_table() results 
+** If a call to sqlite_exec(), sqlite_step() or sqlite_get_table() results
 ** in less than N opcodes being executed, then the progress callback is not
 ** invoked.
-** 
+**
 ** Calling this routine overwrites any previously installed progress callback.
 ** To remove the progress callback altogether, pass NULL as the third
 ** argument to this function.
 **
-** If the progress callback returns a result other than 0, then the current 
+** If the progress callback returns a result other than 0, then the current
 ** query is immediately terminated and any database changes rolled back. If the
 ** query was part of a larger transaction, then the transaction is not rolled
-** back and remains active. The sqlite_exec() call returns SQLITE_ABORT. 
+** back and remains active. The sqlite_exec() call returns SQLITE_ABORT.
 **
 ******* THIS IS AN EXPERIMENTAL API AND IS SUBJECT TO CHANGE ******
 */

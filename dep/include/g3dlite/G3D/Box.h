@@ -1,10 +1,10 @@
 /**
   @file Box.h
- 
+
   Box class
- 
+
   @maintainer Morgan McGuire, matrix@graphics3d.com
- 
+
   @cite Portions based on Dave Eberly's Magic Software Library at <A HREF="http://www.magic-software.com">http://www.magic-software.com</A>
   @created 2001-06-02
   @edited  2006-01-05
@@ -26,7 +26,7 @@ namespace G3D {
 class CoordinateFrame;
 
 /**
- An arbitrary 3D box, useful as a bounding box. 
+ An arbitrary 3D box, useful as a bounding box.
 
 
   To construct a box from a coordinate frame, center and extent, use the idiom:
@@ -43,7 +43,7 @@ private:
     /**
       <PRE>
        3    2       7    6
-    
+
        0    1       4    5
 
        front    back (seen through front)
@@ -55,7 +55,7 @@ private:
      Unit axes.
      */
     Vector3 _axis[3];
-   
+
     Vector3 _center;
 
     /**
@@ -88,7 +88,7 @@ public:
 
 
     /**
-     Returns the object to world transformation for 
+     Returns the object to world transformation for
      this box.  localFrame().worldToObject(...) takes
      objects into the space where the box axes are
      (1,0,0), (0,1,0), (0,0,1).  Note that there
@@ -156,40 +156,40 @@ public:
         Vector3&            v3) const;
 
 /**
-	 @deprecated Use culledBy(Array<Plane>&)
+     @deprecated Use culledBy(Array<Plane>&)
      */
     bool culledBy(
         const class Plane*  plane,
         int                 numPlanes,
-	int32&              cullingPlaneIndex,
-	const uint32        testMask,
+    int32&              cullingPlaneIndex,
+    const uint32        testMask,
         uint32&             childMask) const;
 
     /**
-	 @deprecated Use culledBy(Array<Plane>&)
+     @deprecated Use culledBy(Array<Plane>&)
      */
     bool culledBy(
         const class Plane*  plane,
         int                 numPlanes,
-	int32&		cullingPlaneIndex = dummy,
-	const uint32  	testMask = -1) const;
+    int32&      cullingPlaneIndex = dummy,
+    const uint32    testMask = -1) const;
 
-	/**
+    /**
       See AABox::culledBy
-	 */
-	bool culledBy(
-		const Array<Plane>&		plane,
-		int32&					cullingPlaneIndex,
-		const uint32  			testMask,
+     */
+    bool culledBy(
+        const Array<Plane>&     plane,
+        int32&                  cullingPlaneIndex,
+        const uint32            testMask,
         uint32&                 childMask) const;
 
     /**
      Conservative culling test that does not produce a mask for children.
      */
-	bool culledBy(
-		const Array<Plane>&		plane,
-		int32&					cullingPlaneIndex = dummy,
-		const uint32  			testMask		  = -1) const;
+    bool culledBy(
+        const Array<Plane>&     plane,
+        int32&                  cullingPlaneIndex = dummy,
+        const uint32            testMask          = -1) const;
 
     bool contains(
         const Vector3&      point) const;

@@ -100,7 +100,7 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
 
     void Reset()
     {
-		if(pInstance)
+        if(pInstance)
             pInstance->SetData(DATA_HALAZZIEVENT, NOT_STARTED);
 
         TransformCount = 0;
@@ -115,7 +115,7 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-		if(pInstance)
+        if(pInstance)
             pInstance->SetData(DATA_HALAZZIEVENT, IN_PROGRESS);
 
         DoYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
@@ -282,18 +282,18 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
             if(CheckTimer < diff)
             {
                 Unit *Lynx = Unit::GetUnit(*m_creature, LynxGUID);
-				if(Lynx)
-				{
-					Lynx->GetMotionMaster()->MoveFollow(m_creature, 0, 0);
-					m_creature->GetMotionMaster()->MoveFollow(Lynx, 0, 0);
-					if(m_creature->IsWithinDistInMap(Lynx, 6.0f))
-					{
-						if(TransformCount < 3)
-							EnterPhase(PHASE_LYNX);
-						else
-							EnterPhase(PHASE_ENRAGE);
-					}
-				}
+                if(Lynx)
+                {
+                    Lynx->GetMotionMaster()->MoveFollow(m_creature, 0, 0);
+                    m_creature->GetMotionMaster()->MoveFollow(Lynx, 0, 0);
+                    if(m_creature->IsWithinDistInMap(Lynx, 6.0f))
+                    {
+                        if(TransformCount < 3)
+                            EnterPhase(PHASE_LYNX);
+                        else
+                            EnterPhase(PHASE_ENRAGE);
+                    }
+                }
                 CheckTimer = 1000;
             }else CheckTimer -= diff;
         }
@@ -319,7 +319,7 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-		if(pInstance)
+        if(pInstance)
             pInstance->SetData(DATA_HALAZZIEVENT, DONE);
 
         DoYell(YELL_DEATH, LANG_UNIVERSAL, NULL);

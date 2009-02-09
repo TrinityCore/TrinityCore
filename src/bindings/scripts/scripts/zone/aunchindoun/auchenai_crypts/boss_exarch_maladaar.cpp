@@ -143,11 +143,11 @@ CreatureAI* GetAI_mob_stolen_soul(Creature *_Creature)
 
 struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
 {
-	boss_exarch_maladaarAI(Creature *c) : ScriptedAI(c)
-	{
-		HasTaunted = false;
-		Reset();
-	}
+    boss_exarch_maladaarAI(Creature *c) : ScriptedAI(c)
+    {
+        HasTaunted = false;
+        Reset();
+    }
 
     uint32 soulmodel;
     uint64 soulholder;
@@ -175,14 +175,14 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-		if (!HasTaunted && m_creature->IsWithinDistInMap(who, 150.0))
-		{
-			DoScriptText(SAY_INTRO, m_creature);
-			HasTaunted = true;
-		}
+        if (!HasTaunted && m_creature->IsWithinDistInMap(who, 150.0))
+        {
+            DoScriptText(SAY_INTRO, m_creature);
+            HasTaunted = true;
+        }
 
-		ScriptedAI::MoveInLineOfSight(who);
-	}
+        ScriptedAI::MoveInLineOfSight(who);
+    }
 
 
     void Aggro(Unit *who)
@@ -201,15 +201,15 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
         {
             //SPELL_STOLEN_SOUL_VISUAL has shapeshift effect, but not implemented feature in Trinity for this spell.
             summoned->CastSpell(summoned,SPELL_STOLEN_SOUL_VISUAL,false);
-			summoned->SetDisplayId(soulmodel);
-			summoned->setFaction(m_creature->getFaction());
+            summoned->SetDisplayId(soulmodel);
+            summoned->setFaction(m_creature->getFaction());
 
             if (Unit *target = Unit::GetUnit(*m_creature,soulholder))
-			{
+            {
 
             ((mob_stolen_soulAI*)summoned->AI())->SetMyClass(soulclass);
-			 summoned->AI()->AttackStart(target);
-			}
+             summoned->AI()->AttackStart(target);
+            }
         }
     }
 
