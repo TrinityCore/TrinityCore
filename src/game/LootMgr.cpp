@@ -646,6 +646,12 @@ LootItem* Loot::LootItemInSlot(uint32 lootSlot, Player* player, QuestItem **qite
     return item;
 }
 
+uint32 Loot::GetMaxSlotInLootFor(Player* player) const
+{
+    QuestItemMap::const_iterator itr = PlayerQuestItems.find(player->GetGUIDLow());
+    return items.size() + (itr != PlayerQuestItems.end() ?  itr->second->size() : 0);
+}
+
 ByteBuffer& operator<<(ByteBuffer& b, LootItem const& li)
 {
     b << uint32(li.itemid);

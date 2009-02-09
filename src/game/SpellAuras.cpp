@@ -1369,26 +1369,10 @@ void Aura::TriggerSpell()
                             Creature* creature = (Creature*)target;
                             // missing lootid has been reported on startup - just return
                             if (!creature->GetCreatureInfo()->SkinLootId)
-                            {
                                 return;
-                            }
-                            Loot *loot = &creature->loot;
-                            loot->clear();
-                            loot->FillLoot(creature->GetCreatureInfo()->SkinLootId, LootTemplates_Skinning, player, true);
-                            for(uint8 i=0;i<loot->items.size();i++)
-                            {
-                                LootItem *item = loot->LootItemInSlot(i,player);
-                                ItemPosCountVec dest;
-                                uint8 msg = player->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, item->itemid, item->count );
-                                if ( msg == EQUIP_ERR_OK )
-                                {
-                                    Item * newitem = player->StoreNewItem( dest, item->itemid, true, item->randomPropertyId);
 
-                                    player->SendNewItem(newitem, uint32(item->count), false, false, true);
-                                }
-                                else
-                                    player->SendEquipError( msg, NULL, NULL );
-                            }
+                            player->AutoStoreLoot(creature->GetCreatureInfo()->SkinLootId,LootTemplates_Skinning,true);
+
                             creature->setDeathState(JUST_DIED);
                             creature->RemoveCorpse();
                             creature->SetHealth(0);         // just for nice GM-mode view
