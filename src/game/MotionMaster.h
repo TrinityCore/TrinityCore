@@ -22,7 +22,7 @@
 #define TRINITY_MOTIONMASTER_H
 
 #include "Common.h"
-#include <stack>
+#include <vector>
 
 class MovementGenerator;
 class Unit;
@@ -55,12 +55,20 @@ enum MovementSlot
     MAX_MOTION_SLOT,
 };
 
+enum MMCleanFlag
+{
+    MMCF_NONE   = 0,
+    MMCF_UPDATE = 1, // Clear or Expire called from update
+    MMCF_RESET  = 2  // Flag if need top()->Reset()
+};
+
 class TRINITY_DLL_SPEC MotionMaster //: private std::stack<MovementGenerator *>
 {
     private:
         //typedef std::stack<MovementGenerator *> Impl;
         typedef MovementGenerator* _Ty;
         _Ty Impl[MAX_MOTION_SLOT];
+        typedef std::vector<_Ty> ExpireList;
         int i_top;
 
         bool empty() const { return i_top < 0; }
@@ -68,7 +76,7 @@ class TRINITY_DLL_SPEC MotionMaster //: private std::stack<MovementGenerator *>
         void push(_Ty _Val) { ++i_top; Impl[i_top] = _Val; }
     public:
 
-        explicit MotionMaster(Unit *unit) : i_owner(unit), i_top(-1)
+        explicit MotionMaster(Unit *unit) : i_owner(unit), m_expList(NULL), m_cleanFlag(MMCF_NONE), i_top(-1)
         {
             for(int i = 0; i < MAX_MOTION_SLOT; ++i)
                 Impl[i] = NULL;
@@ -77,21 +85,40 @@ class TRINITY_DLL_SPEC MotionMaster //: private std::stack<MovementGenerator *>
 
         void Initialize();
 
-        //MovementGenerator* operator->(void) { return top(); }
-
         int size() const { return i_top + 1; }
         _Ty top() const { return Impl[i_top]; }
         _Ty GetMotionSlot(int slot) { return Impl[slot]; }
-        /*using Impl::top;
-        using Impl::empty;
 
-        typedef Impl::container_type::const_iterator const_iterator;
-        const_iterator begin() const { return Impl::c.begin(); }
-        const_iterator end() const { return Impl::c.end(); }*/
+        void DirectDelete(_Ty curr);
+        void DelayedDelete(_Ty curr);
 
-        void UpdateMotion(const uint32 &diff);
-        void Clear(bool reset = true);
-        void MovementExpired(bool reset = true);
+        void UpdateMotion(uint32 diff);
+        void Clear(bool reset = true)
+        {
+            if (m_cleanFlag & MMCF_UPDATE)
+            {
+                if(reset)
+                    m_cleanFlag |= MMCF_RESET;
+                else
+                    m_cleanFlag &= ~MMCF_RESET;
+                DelayedClean();
+            }
+            else
+                DirectClean(reset);
+        }
+        void MovementExpired(bool reset = true)
+        {
+            if (m_cleanFlag & MMCF_UPDATE)
+            {
+                if(reset)
+                    m_cleanFlag |= MMCF_RESET;
+                else
+                    m_cleanFlag &= ~MMCF_RESET;
+                DelayedExpire();
+            }
+            else
+                DirectExpire(reset);
+        }
 
         void MoveIdle(MovementSlot slot = MOTION_SLOT_ACTIVE);
         void MoveTargetedHome();
@@ -114,6 +141,14 @@ class TRINITY_DLL_SPEC MotionMaster //: private std::stack<MovementGenerator *>
     private:
         void Mutate(MovementGenerator *m, MovementSlot slot);                  // use Move* functions instead
 
-        Unit *i_owner;
+        void DirectClean(bool reset);
+        void DelayedClean();
+
+        void DirectExpire(bool reset);
+        void DelayedExpire();
+
+        Unit       *i_owner;
+        ExpireList *m_expList;
+        uint8       m_cleanFlag;
 };
 #endif
