@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
- * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,11 +47,7 @@ MotionMaster::Initialize()
     {
         MovementGenerator *curr = top();
         pop();
-        if(!curr)
-            continue;
-        curr->Finalize(*i_owner);
-        if( !isStatic( curr ) )
-            delete curr;
+        if(curr) DirectDelete(curr);
     }
 
     // set new default movement generator
@@ -72,43 +68,111 @@ MotionMaster::~MotionMaster()
     {
         MovementGenerator *curr = top();
         pop();
-        if(!curr)
-            continue;
-        curr->Finalize(*i_owner);
-        if( !isStatic( curr ) )
-            delete curr;
+        if(curr) DirectDelete(curr);
     }
 }
 
 void
-MotionMaster::UpdateMotion(const uint32 &diff)
+MotionMaster::UpdateMotion(uint32 diff)
 {
     if( i_owner->hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED) )
         return;
     assert( !empty() );
+    m_cleanFlag |= MMCF_UPDATE;
     if (!top()->Update(*i_owner, diff))
+    {
+        m_cleanFlag &= ~MMCF_UPDATE;
         MovementExpired();
+    }
+    else
+        m_cleanFlag &= ~MMCF_UPDATE;
+
+    if (m_expList)
+    {
+        for (int i = 0; i < m_expList->size(); ++i)
+        {
+            MovementGenerator* mg = (*m_expList)[i];
+            DirectDelete(mg);
+        }
+
+        delete m_expList;
+        m_expList = NULL;
+
+        if (empty())
+            Initialize();
+
+        if (m_cleanFlag & MMCF_RESET)
+        {
+            top()->Reset(*i_owner);
+            m_cleanFlag &= ~MMCF_RESET;
+        }
+    }
 }
 
 void
-MotionMaster::Clear(bool reset)
+MotionMaster::DirectClean(bool reset)
 {
     while( !empty() && size() > 1 )
     {
         MovementGenerator *curr = top();
         pop();
-        if(!curr)
-            continue;
-        curr->Finalize(*i_owner);
-        if( !isStatic( curr ) )
-            delete curr;
+        if(curr) DirectDelete(curr);
     }
 
-    if (reset)
-    {
-        assert( !empty() );
+    if(reset)
         top()->Reset(*i_owner);
+}
+
+void
+MotionMaster::DelayedClean()
+{
+    while( !empty() && size() > 1 )
+    {
+        MovementGenerator *curr = top();
+        pop();
+        if(curr) DelayedDelete(curr);
     }
+}
+
+void
+MotionMaster::DirectExpire(bool reset)
+{
+    if( empty() || size() == 1 )
+        return;
+
+    MovementGenerator *curr = top();
+    pop();
+    DirectDelete(curr);
+
+    while(!top())
+        --i_top;
+
+    if(empty())
+        Initialize();
+    if(reset)
+        top()->Reset(*i_owner);
+}
+
+void
+MotionMaster::DelayedExpire()
+{
+    if( empty() || size() == 1 )
+        return;
+
+    MovementGenerator *curr = top();
+    pop();
+    DelayedDelete(curr);
+
+    while(!top())
+        --i_top;
+}
+
+void MotionMaster::MoveIdle(MovementSlot slot)
+{
+    //if( empty() || !isStatic( top() ) )
+    //    push( &si_idleMovement );
+    if(!isStatic(Impl[slot]))
+        Mutate(&si_idleMovement, slot);
 }
 
 void
@@ -122,47 +186,10 @@ MotionMaster::MoveRandom(float spawndist)
 }
 
 void
-MotionMaster::MovementExpired(bool reset)
-{
-    if( empty() || size() == 1 )
-        return;
-
-    MovementGenerator *curr = top();
-    curr->Finalize(*i_owner);
-    pop();
-
-    if( !isStatic(curr) )
-        delete curr;
-
-    assert( !empty() );
-    while(!top())
-        --i_top;
-    /*while( !empty() && top()->GetMovementGeneratorType() == TARGETED_MOTION_TYPE )
-    {
-        // Should check if target is still valid? If not valid it will crash.
-        curr = top();
-        curr->Finalize(*i_owner);
-        pop();
-        delete curr;
-    }*/
-    if( empty() )
-        Initialize();
-    if (reset) top()->Reset(*i_owner);
-}
-
-void MotionMaster::MoveIdle(MovementSlot slot)
-{
-    //if( empty() || !isStatic( top() ) )
-    //    push( &si_idleMovement );
-    if(!isStatic(Impl[slot]))
-        Mutate(&si_idleMovement, slot);
-}
-
-void
 MotionMaster::MoveTargetedHome()
 {
-    if(i_owner->hasUnitState(UNIT_STAT_FLEEING))
-        return;
+    //if(i_owner->hasUnitState(UNIT_STAT_FLEEING))
+    //    return;
 
     Clear(false);
 
@@ -360,9 +387,10 @@ void MotionMaster::Mutate(MovementGenerator *m, MovementSlot slot)
 {
     if(MovementGenerator *curr = Impl[slot])
     {
-        curr->Finalize(*i_owner);
-        if( !isStatic( curr ) )
-            delete curr;
+        if(i_top == slot && (m_cleanFlag & MMCF_UPDATE))
+            DelayedDelete(curr);
+        else
+            DirectDelete(curr);
     }
     else if(i_top < slot)
     {
@@ -370,20 +398,6 @@ void MotionMaster::Mutate(MovementGenerator *m, MovementSlot slot)
     }
     m->Initialize(*i_owner);
     Impl[slot] = m;
-
-    /*if (!empty())
-    {
-        switch(top()->GetMovementGeneratorType())
-        {
-            // HomeMovement is not that important, delete it if meanwhile a new comes
-            case HOME_MOTION_TYPE:
-            // DistractMovement interrupted by any other movement
-            case DISTRACT_MOTION_TYPE:
-                MovementExpired(false);
-        }
-    }
-    m->Initialize(*i_owner);
-    push(m);*/
 }
 
 void MotionMaster::MovePath(uint32 path_id, bool repeatable)
@@ -430,6 +444,24 @@ MovementGeneratorType MotionMaster::GetCurrentMovementGeneratorType() const
        return IDLE_MOTION_TYPE;
 
    return top()->GetMovementGeneratorType();
+}
+
+void MotionMaster::DirectDelete(_Ty curr)
+{
+    if(isStatic(curr))
+        return;
+    curr->Finalize(*i_owner);
+    delete curr;
+}
+
+void MotionMaster::DelayedDelete(_Ty curr)
+{
+    sLog.outError("CRASH ALARM! Unit (Entry %u) is trying to delete its updating MG (Type %u)!", i_owner->GetEntry(), curr->GetMovementGeneratorType());
+    if(isStatic(curr))
+        return;
+    if(!m_expList)
+        m_expList = new ExpireList();
+    m_expList->push_back(curr);
 }
 
 bool MotionMaster::GetDestination(float &x, float &y, float &z)
