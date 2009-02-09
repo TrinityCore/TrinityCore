@@ -24,4 +24,7 @@ INSTALL(FILES
 1207_world_scripts.sql
 1237_mangos_7230_01_world_spell_bonus_data
 1248_mangos_7235_01_world_command
+1018_world.sql
+1026_world.sql
+1028_world_scripts.sql
 DESTINATION share/trinity/sql/updates)
