@@ -224,7 +224,6 @@ struct Loot
     QuestItemMap const& GetPlayerNonQuestNonFFAConditionalItems() const { return PlayerNonQuestNonFFAConditionalItems; }
 
     std::vector<LootItem> items;
-    std::vector<LootItem> quest_items;
     uint32 gold;
     uint8 unlootedCount;
 
@@ -275,6 +274,7 @@ struct Loot
     void AddItem(LootStoreItem const & item);
 
     LootItem* LootItemInSlot(uint32 lootslot, Player* player, QuestItem** qitem = NULL, QuestItem** ffaitem = NULL, QuestItem** conditem = NULL);
+    uint32 GetMaxSlotInLootFor(Player* player) const;
 
     private:
         void FillNotNormalLootFor(Player* player);
@@ -282,6 +282,7 @@ struct Loot
         QuestItemList* FillQuestLoot(Player* player);
         QuestItemList* FillNonQuestNonFFAConditionalLoot(Player* player);
 
+        std::vector<LootItem> quest_items;
         std::set<uint64> PlayersLooting;
         QuestItemMap PlayerQuestItems;
         QuestItemMap PlayerFFAItems;
