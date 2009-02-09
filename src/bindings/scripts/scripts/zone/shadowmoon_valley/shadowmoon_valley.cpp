@@ -1522,7 +1522,9 @@ struct TRINITY_DLL_DECL npc_lord_illidan_stormrageAI : public ScriptedAI
             for(Group::member_citerator itr = members.begin(); itr!= members.end(); itr++)
             {
                 GroupMember = ((Player*)Unit::GetUnit((*m_creature), itr->guid));
-                if(GroupMember && !GroupMember->IsWithinDistInMap(m_creature, EVENT_AREA_RADIUS) && GroupMember->GetQuestStatus(QUEST_BATTLE_OF_THE_CRIMSON_WATCH) == QUEST_STATUS_INCOMPLETE)
+                if(!GroupMember)
+                    continue;
+                if(!GroupMember->IsWithinDistInMap(m_creature, EVENT_AREA_RADIUS) && GroupMember->GetQuestStatus(QUEST_BATTLE_OF_THE_CRIMSON_WATCH) == QUEST_STATUS_INCOMPLETE)
                 {
                     GroupMember->FailQuest(QUEST_BATTLE_OF_THE_CRIMSON_WATCH);
                     GroupMember->SetQuestStatus(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, QUEST_STATUS_NONE);
