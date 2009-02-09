@@ -274,7 +274,7 @@ void AchievementMgr::LoadFromDB(QueryResult *achievementResult, QueryResult *cri
 
 void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement)
 {
-    sLog.outString("AchievementMgr::SendAchievementEarned(%u)", achievement->ID);
+    sLog.outDebug("AchievementMgr::SendAchievementEarned(%u)", achievement->ID);
 
     const char *msg = "|Hplayer:$N|h[$N]|h has earned the achievement $a!";
     if(Guild* guild = objmgr.GetGuildById(GetPlayer()->GetGuildId()))
