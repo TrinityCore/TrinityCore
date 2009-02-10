@@ -1,4 +1,4 @@
-ALTER TABLE db_version CHANGE COLUMN required_7252_01_mangos_command required_7252_02_mangos_mangos_string bit;
+/*ALTER TABLE db_version CHANGE COLUMN required_7252_01_mangos_command required_7252_02_mangos_mangos_string bit;*/
 
 DELETE FROM `mangos_string` WHERE entry IN (737,738,739,740,741,742,743,744,745,746);
 INSERT INTO `mangos_string` VALUES
