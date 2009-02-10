@@ -569,6 +569,11 @@ extern void AddSC_undercity();
 extern void AddSC_ungoro_crater();
 
 //Upper blackrock spire
+
+//Utgarde Keep
+extern void AddSC_boss_keleseth();
+extern void AddSC_instance_utgarde_keep()
+
 //Wailing caverns
 
 //Western plaguelands
@@ -1779,6 +1784,11 @@ void ScriptsInit()
 	AddSC_ungoro_crater();
 
     //Upper blackrock spire
+
+    //Utgarde Keep
+    AddSC_boss_keleseth();
+    AddSC_instance_utgarde_keep()
+	
     //Wailing caverns
 
     //Western plaguelands
