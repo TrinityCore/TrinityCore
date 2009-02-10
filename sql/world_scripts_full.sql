@@ -742,6 +742,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_bartleby' WHERE `entry`=6090;
 UPDATE `creature_template` SET `ScriptName`='npc_dashel_stonefist' WHERE `entry`=4961;
 UPDATE `creature_template` SET `ScriptName`='npc_general_marcus_jonathan' WHERE `entry`=466;
 UPDATE `creature_template` SET `ScriptName`='npc_lady_katrana_prestor' WHERE `entry`=1749;
+UPDATE `creature_template` SET `ScriptName`='npc_stormwind_harbor_taxi' WHERE `entry`=29154;
 
 /* STRANGLETHORN VALE */
 UPDATE `creature_template` SET `ScriptName`='mob_yenniku' WHERE `entry`=2530;
