@@ -7427,6 +7427,11 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
 
     if(meleeAttack)
         addUnitState(UNIT_STAT_MELEE_ATTACKING);
+
+    // set position before any AI calls/assistance
+    //if(GetTypeId()==TYPEID_UNIT)
+    //    ((Creature*)this)->SetCombatStartPosition(GetPositionX(), GetPositionY(), GetPositionZ());
+
     m_attacking = victim;
     m_attacking->_addAttacker(this);
 
@@ -7435,18 +7440,18 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
 
     if(GetTypeId()==TYPEID_UNIT)
     {
+        // should not let player enter combat by right clicking target
+        SetInCombatWith(victim);
+        if(victim->GetTypeId() == TYPEID_PLAYER)
+            victim->SetInCombatWith(this);
+        AddThreat(victim, 0.0f);
+
         WorldPacket data(SMSG_AI_REACTION, 12);
         data << uint64(GetGUID());
         data << uint32(AI_REACTION_AGGRO);                  // Aggro sound
         ((WorldObject*)this)->SendMessageToSet(&data, true);
 
         ((Creature*)this)->CallAssistance();
-
-        // should not let player enter combat by right clicking target
-        SetInCombatWith(victim);
-        if(victim->GetTypeId() == TYPEID_PLAYER)
-            victim->SetInCombatWith(this);
-        AddThreat(victim, 0.0f);
     }
 
     // delay offhand weapon attack to next attack time
