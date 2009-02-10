@@ -314,10 +314,6 @@ void WorldSession::LogoutPlayer(bool Save)
             _player->RepopAtGraveyard();
         }
 
-        ///- Remove player from battleground (teleport to entrance)
-        if(_player->InBattleGround())
-            _player->LeaveBattleground();
-
         ///- Teleport to home if the player is in an invalid instance
         if(!_player->m_InstanceValid && !_player->isGameMaster())
             _player->TeleportTo(_player->m_homebindMapId, _player->m_homebindX, _player->m_homebindY, _player->m_homebindZ, _player->GetOrientation());

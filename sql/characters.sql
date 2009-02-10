@@ -21,7 +21,7 @@
 
 DROP TABLE IF EXISTS `character_db_version`;
 CREATE TABLE `character_db_version` (
-  `required_7251_02_characters_character_spell` bit(1) default NULL
+  `required_7255_01_characters_characters` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Last applied sql update to DB';
 
 --
@@ -285,6 +285,13 @@ CREATE TABLE `characters` (
   `taxi_path` text,
   `arena_pending_points` int(10) UNSIGNED NOT NULL default '0',
   `latency` int(11) unsigned NOT NULL default '0',
+  `bgid` int(10) unsigned NOT NULL default '0',
+  `bgteam` int(10) unsigned NOT NULL default '0',
+  `bgmap` int(10) unsigned NOT NULL default '0',
+  `bgx` float NOT NULL default '0',
+  `bgy` float NOT NULL default '0',
+  `bgz` float NOT NULL default '0',
+  `bgo` float NOT NULL default '0',
   PRIMARY KEY  (`guid`),
   KEY `idx_account` (`account`),
   KEY `idx_online` (`online`),

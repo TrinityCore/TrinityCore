@@ -474,6 +474,9 @@ void Master::clearOnlineAccounts()
         "AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = '%d')",realmID);
 
     CharacterDatabase.Execute("UPDATE characters SET online = 0 WHERE online<>0");
+
+    // Battleground instance ids reset at server restart
+    CharacterDatabase.Execute("UPDATE characters SET bgid = 0 WHERE bgid<>0");
 }
 
 /// Handle termination signals
