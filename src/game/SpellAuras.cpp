@@ -5564,6 +5564,7 @@ void Aura::PeriodicTick()
             Unit* target = m_target;                        // aura can be deleted in DealDamage
             SpellEntry const* spellProto = GetSpellProto();
             float multiplier = spellProto->EffectMultipleValue[GetEffIndex()] > 0 ? spellProto->EffectMultipleValue[GetEffIndex()] : 1;
+            int32 stackAmount = GetStackAmount();
 
             // Set trigger flag
             uint32 procAttacker = PROC_FLAG_ON_DO_PERIODIC;//   | PROC_FLAG_SUCCESSFUL_HARMFUL_SPELL_HIT;
@@ -5587,7 +5588,7 @@ void Aura::PeriodicTick()
             if(Player *modOwner = pCaster->GetSpellModOwner())
                 modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_MULTIPLE_VALUE, multiplier);
 
-            uint32 heal = pCaster->SpellHealingBonus(pCaster, spellProto, uint32(new_damage * multiplier), DOT, GetStackAmount());
+            uint32 heal = pCaster->SpellHealingBonus(pCaster, spellProto, uint32(new_damage * multiplier), DOT, stackAmount);
 
             int32 gain = pCaster->ModifyHealth(heal);
             pCaster->getHostilRefManager().threatAssist(pCaster, gain * 0.5f, spellProto);
