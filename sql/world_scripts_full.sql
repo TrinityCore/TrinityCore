@@ -900,6 +900,11 @@ UPDATE `creature_template` SET `ScriptName`='npc_lady_sylvanas_windrunner' WHERE
 UPDATE `creature_template` SET `ScriptName`='npc_highborne_lamenter' WHERE `entry`=21628;
 UPDATE `creature_template` SET `ScriptName`='npc_parqual_fintallas' WHERE `entry`=4488;
 
+/* UTGARDE KEEP */
+UPDATE `creature_template` SET `scriptname` = 'boss_keleseth' WHERE `entry` = '23953';
+UPDATE `creature_template` SET `scriptname` = 'mob_frost_tomb' WHERE `entry` = '23965';
+UPDATE `instance_template` SET `script`='instance_utgarde_keep' WHERE `map`= '574';
+
 /* WAILING CAVERNS */
 
 /* WESTERN PLAGUELANDS */
