@@ -18,6 +18,7 @@
 
 #include "BattleGround.h"
 #include "BattleGroundSA.h"
+#include "Player.h"
 
 BattleGroundSA::BattleGroundSA()
 {
