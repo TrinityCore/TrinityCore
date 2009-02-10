@@ -166,25 +166,25 @@ void WorldSession::SendTrainerList( uint64 guid, const std::string& strTitle )
     {
         TrainerSpell const* tSpell = *itr;
 
-        if(!_player->IsSpellFitByClassAndRace(tSpell->learned_spell))
+        if(!_player->IsSpellFitByClassAndRace(tSpell->learnedSpell))
             continue;
 
         ++count;
 
-        bool primary_prof_first_rank = spellmgr.IsPrimaryProfessionFirstRankSpell(tSpell->learned_spell);
+        bool primary_prof_first_rank = spellmgr.IsPrimaryProfessionFirstRankSpell(tSpell->learnedSpell);
 
-        SpellChainNode const* chain_node = spellmgr.GetSpellChainNode(tSpell->learned_spell);
+        SpellChainNode const* chain_node = spellmgr.GetSpellChainNode(tSpell->learnedSpell);
         uint32 req_spell = spellmgr.GetSpellRequired(tSpell->spell);
 
         data << uint32(tSpell->spell);                      // learned spell (or cast-spell in profession case)
         data << uint8(_player->GetTrainerSpellState(tSpell));
-        data << uint32(floor(tSpell->spellcost * fDiscountMod));
+        data << uint32(floor(tSpell->spellCost * fDiscountMod));
 
         data << uint32(primary_prof_first_rank ? 1 : 0);    // primary prof. learn confirmation dialog
         data << uint32(primary_prof_first_rank ? 1 : 0);    // must be equal prev. field to have learn button in enabled state
-        data << uint8(tSpell->reqlevel);
-        data << uint32(tSpell->reqskill);
-        data << uint32(tSpell->reqskillvalue);
+        data << uint8(tSpell->reqLevel);
+        data << uint32(tSpell->reqSkill);
+        data << uint32(tSpell->reqSkillValue);
         data << uint32(chain_node && chain_node->prev ? chain_node->prev : req_spell);
         data << uint32(chain_node && chain_node->prev ? req_spell : 0);
         data << uint32(0);
@@ -235,7 +235,7 @@ void WorldSession::HandleTrainerBuySpellOpcode( WorldPacket & recv_data )
         return;
 
     // apply reputation discount
-    uint32 nSpellCost = uint32(floor(trainer_spell->spellcost * _player->GetReputationPriceDiscount(unit)));
+    uint32 nSpellCost = uint32(floor(trainer_spell->spellCost * _player->GetReputationPriceDiscount(unit)));
 
     // check money requirement
     if(_player->GetMoney() < nSpellCost )

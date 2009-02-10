@@ -3674,22 +3674,22 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
     if (!trainer_spell)
         return TRAINER_SPELL_RED;
 
-    if (!trainer_spell->learned_spell)
+    if (!trainer_spell->learnedSpell)
         return TRAINER_SPELL_RED;
 
     // known spell
-    if(HasSpell(trainer_spell->learned_spell))
+    if(HasSpell(trainer_spell->learnedSpell))
         return TRAINER_SPELL_GRAY;
 
     // check race/class requirement
-    if(!IsSpellFitByClassAndRace(trainer_spell->learned_spell))
+    if(!IsSpellFitByClassAndRace(trainer_spell->learnedSpell))
         return TRAINER_SPELL_RED;
 
     // check level requirement
-    if(getLevel() < trainer_spell->reqlevel)
+    if(getLevel() < trainer_spell->reqLevel)
         return TRAINER_SPELL_RED;
 
-    if(SpellChainNode const* spell_chain = spellmgr.GetSpellChainNode(trainer_spell->learned_spell))
+    if(SpellChainNode const* spell_chain = spellmgr.GetSpellChainNode(trainer_spell->learnedSpell))
     {
         // check prev.rank requirement
         if(spell_chain->prev && !HasSpell(spell_chain->prev))
@@ -3704,11 +3704,11 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
     }
 
     // check skill requirement
-    if(trainer_spell->reqskill && GetBaseSkillValue(trainer_spell->reqskill) < trainer_spell->reqskillvalue)
+    if(trainer_spell->reqSkill && GetBaseSkillValue(trainer_spell->reqSkill) < trainer_spell->reqSkillValue)
         return TRAINER_SPELL_RED;
 
     // exist, already checked at loading
-    SpellEntry const* spell = sSpellStore.LookupEntry(trainer_spell->learned_spell);
+    SpellEntry const* spell = sSpellStore.LookupEntry(trainer_spell->learnedSpell);
 
     // secondary prof. or not prof. spell
     uint32 skill = spell->EffectMiscValue[1];
