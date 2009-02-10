@@ -1044,16 +1044,25 @@ BattleGroundMgr::BattleGroundMgr() : m_AutoDistributionTimeChecker(0), m_ArenaTe
 
 BattleGroundMgr::~BattleGroundMgr()
 {
-    BattleGroundSet::iterator itr, next;
-    for(itr = m_BattleGrounds.begin(); itr != m_BattleGrounds.end(); itr = next)
+    DeleteAlllBattleGrounds();
+}
+
+void BattleGroundMgr::DeleteAlllBattleGrounds()
+{
+    for(BattleGroundSet::iterator itr = m_BattleGrounds.begin(); itr != m_BattleGrounds.end();)
     {
-        next = itr;
-        ++next;
         BattleGround * bg = itr->second;
-        m_BattleGrounds.erase(itr);
+        m_BattleGrounds.erase(itr++);
         delete bg;
     }
-    m_BattleGrounds.clear();
+
+    // destroy template battlegrounds that listed only in queues (other already terminated)
+    for(uint32 bgTypeId = 0; bgTypeId < MAX_BATTLEGROUND_TYPE_ID; ++bgTypeId)
+    {
+        // ~BattleGround call unregistring BG from queue
+        while(!BGFreeSlotQueue[bgTypeId].empty())
+            delete BGFreeSlotQueue[bgTypeId].front();
+    }
 }
 
 // used to update running battlegrounds, and delete finished ones
