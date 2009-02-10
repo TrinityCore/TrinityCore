@@ -1,7 +1,7 @@
 add_subdirectory(2.4.3_updates)
 
 INSTALL(FILES
-805_world_scripts
+805_world_scripts.sql
 875_mangos_7047_01_characters_character_spell.sql
 875_mangos_7059_01_characters_pet_spell.sql
 1026_mangos_7113_01_characters_character_achievement_progress.sql
@@ -22,15 +22,15 @@ INSTALL(FILES
 1185_mangos_7214_03_world_spell_proc_event.sql
 1206_world_scripts.sql
 1207_world_scripts.sql
-1237_mangos_7230_01_world_spell_bonus_data
-1248_mangos_7235_01_world_command
+1237_mangos_7230_01_world_spell_bonus_data.sql
+1248_mangos_7235_01_world_command.sql
 1018_world.sql
 1026_world.sql
 1028_world_scripts.sql
-1288_mangos_7242_01_world_spell_bonus_data
-1293_mangos_7249_01_world_spell_proc_event
-1296_mangos_7252_01_world_command
-1296_mangos_7252_02_world_trinity_string
-1299_mangos_7255_01_characters_characters
+1288_mangos_7242_01_world_spell_bonus_data.sql
+1293_mangos_7249_01_world_spell_proc_event.sql
+1296_mangos_7252_01_world_command.sql
+1296_mangos_7252_02_world_trinity_string.sql
+1299_mangos_7255_01_characters_characters.sql
 1307_world.sql
 DESTINATION share/trinity/sql/updates)
