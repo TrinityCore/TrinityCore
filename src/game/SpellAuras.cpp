@@ -832,6 +832,8 @@ void Aura::_AddAura()
 
     AuraSlotEntry * entry;
     entry=m_target->GetVisibleAura(slot);
+    if(!entry)
+        return;
 
     entry->m_Flags |= (1 << GetEffIndex());
     entry->m_slotAuras[GetEffIndex()]=this;
