@@ -22,7 +22,7 @@
 DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
-  `required_7249_01_mangos_spell_proc_event` bit(1) default NULL
+  `required_7251_01_mangos_spell_chain` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -15934,11 +15934,11 @@ INSERT INTO spell_chain VALUES
 (49937,49936,43265,3,0),
 (49938,49937,43265,4,0),
 /*DeathCoil*/
-(52375,0,52375,1,0),
-(49892,52375,52375,2,0),
-(49893,49892,52375,3,0),
-(49894,49893,52375,4,0),
-(49895,49894,52375,5,0),
+(47541,0,47541,1,0),
+(49892,47541,47541,2,0),
+(49893,49892,47541,3,0),
+(49894,49893,47541,4,0),
+(49895,49894,47541,5,0),
 /*DeathStrike*/
 (49998,0,49998,1,0),
 (49999,49998,49998,2,0),
