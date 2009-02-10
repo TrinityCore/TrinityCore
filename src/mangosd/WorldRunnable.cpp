@@ -29,6 +29,7 @@
 #include "Timer.h"
 #include "ObjectAccessor.h"
 #include "MapManager.h"
+#include "BattleGroundMgr.h"
 
 #include "Database/DatabaseEnv.h"
 
@@ -76,6 +77,9 @@ void WorldRunnable::run()
 
     sWorld.KickAll();                                       // save and kick all players
     sWorld.UpdateSessions( 1 );                             // real players unload required UpdateSessions call
+
+    // unload battleground templates before different singletons destroyed
+    sBattleGroundMgr.DeleteAlllBattleGrounds();
 
     sWorldSocketMgr->StopNetwork();
 
