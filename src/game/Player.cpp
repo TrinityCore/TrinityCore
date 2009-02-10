@@ -932,7 +932,7 @@ void Player::HandleDrowning()
         return;
     }
 
-    uint32 UnderWaterTime = 1*MINUTE*1000;                  // default length 1 min
+    uint32 UnderWaterTime = 3*MINUTE*1000;                  // default length 1 min
 
     AuraList const& mModWaterBreathing = GetAurasByType(SPELL_AURA_MOD_WATER_BREATHING);
     for(AuraList::const_iterator i = mModWaterBreathing.begin(); i != mModWaterBreathing.end(); ++i)
