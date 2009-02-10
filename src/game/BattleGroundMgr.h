@@ -224,6 +224,7 @@ class BattleGroundMgr
         void InitAutomaticArenaPointDistribution();
         void DistributeArenaPoints();
         void ToggleArenaTesting();
+        void ToggleTesting();
 
         void SetHolidayWeekends(uint32 mask);
         void LoadBattleMastersEntry();
@@ -236,6 +237,7 @@ class BattleGroundMgr
         }
 
         bool isArenaTesting() const { return m_ArenaTesting; }
+        bool isTesting() const { return m_Testing; }
 
         static bool IsArenaType(BattleGroundTypeId bgTypeId);
         static bool IsBattleGroundType(BattleGroundTypeId bgTypeId) { return !BattleGroundMgr::IsArenaType(bgTypeId); }
@@ -251,6 +253,7 @@ class BattleGroundMgr
         uint64 m_NextAutoDistributionTime;
         uint32 m_AutoDistributionTimeChecker;
         bool   m_ArenaTesting;
+        bool   m_Testing;
 };
 
 #define sBattleGroundMgr Trinity::Singleton<BattleGroundMgr>::Instance()

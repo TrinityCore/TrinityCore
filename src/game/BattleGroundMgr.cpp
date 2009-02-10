@@ -675,7 +675,7 @@ void BattleGroundQueue::Update(BattleGroundTypeId bgTypeId, uint32 queue_id, uin
         sLog.outDebug("Battleground: horde pool wasn't created");
 
     // if selection pools are ready, create the new bg
-    if (bAllyOK && bHordeOK)
+    if ((bAllyOK && bHordeOK) || ( sBattleGroundMgr.isTesting() && (bAllyOK || bHordeOK)))
     {
         BattleGround * bg2 = 0;
         // special handling for arenas
@@ -1031,6 +1031,7 @@ BattleGroundMgr::BattleGroundMgr() : m_AutoDistributionTimeChecker(0), m_ArenaTe
 {
     m_BattleGrounds.clear();
     m_NextRatingDiscardUpdate = sWorld.getConfig(CONFIG_ARENA_RATING_DISCARD_TIMER);
+    m_Testing=false;
 }
 
 BattleGroundMgr::~BattleGroundMgr()
@@ -1846,6 +1847,15 @@ uint8 BattleGroundMgr::BGArenaType(uint32 bgQueueTypeId)
         default:
             return 0;
     }
+}
+
+void BattleGroundMgr::ToggleTesting()
+{
+    m_Testing = !m_Testing;
+    if(m_Testing)
+        sWorld.SendGlobalText("Battlegrounds are set to 1v0 for debugging.", NULL);
+    else
+        sWorld.SendGlobalText("Battlegrounds are set to normal playercount.", NULL);
 }
 
 void BattleGroundMgr::ToggleArenaTesting()

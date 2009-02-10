@@ -535,6 +535,12 @@ bool ChatHandler::HandleGetItemState(const char* args)
     return true;
 }
 
+bool ChatHandler::HandleDebugBattlegroundCommand(const char * /*args*/)
+{
+    sBattleGroundMgr.ToggleTesting();
+    return true;
+}
+
 bool ChatHandler::HandleDebugArenaCommand(const char * /*args*/)
 {
     sBattleGroundMgr.ToggleArenaTesting();
