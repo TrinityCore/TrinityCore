@@ -14576,7 +14576,8 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
         SetBattleGroundEntryPoint(fields[36].GetUInt32(),fields[37].GetFloat(),fields[38].GetFloat(),fields[39].GetFloat(),fields[40].GetFloat());
 
         // check entry point and fix to homebind if need
-        if(!MapManager::IsValidMapCoord(m_bgEntryPoint))
+        MapEntry const* mapEntry = sMapStore.LookupEntry(m_bgEntryPoint.mapid);
+        if(!mapEntry || mapEntry->Instanceable() || !MapManager::IsValidMapCoord(m_bgEntryPoint))
             SetBattleGroundEntryPoint(m_homebindMapId,m_homebindX,m_homebindY,m_homebindZ,0.0f);
 
         BattleGround *currentBg = sBattleGroundMgr.GetBattleGround(bgid);
@@ -14607,8 +14608,10 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
             // return to BG master
             SetMapId(fields[36].GetUInt32());
             Relocate(fields[37].GetFloat(),fields[38].GetFloat(),fields[39].GetFloat(),fields[40].GetFloat());
+
             // check entry point and fix to homebind if need
-            if(!IsPositionValid())
+            mapEntry = sMapStore.LookupEntry(GetMapId());
+            if(!mapEntry || mapEntry->IsBattleGroundOrArena() || !IsPositionValid())
                 RelocateToHomebind();
         }
     }
