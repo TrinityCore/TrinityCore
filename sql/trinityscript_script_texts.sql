@@ -301,6 +301,14 @@ INSERT INTO `script_texts` (`entry`,`content_default`,`sound`,`type`,`language`,
 -- -1 034 000 STOCKADES
 -- -1 036 000 DEADMINES
 
+-- -1 574 000 UTGARDE KEEP
+INSERT INTO `script_texts` (`entry`,`content_default`,`sound`,`type`,`language`,`comment`) VALUES
+(-1574000, 'Your blood is mine!',13221,1,0,'keleseth SAY_AGGRO'),
+(-1574001, 'Darkness waits',13223,1,0, 'keleseth SAY_KILL'),
+(-1574002, 'I join... the night.',13225,1,0, 'keleseth SAY_DEATH'),
+(-1574003, 'Not so fast.',13222,1,0, 'keleseth SAY_FROST_TOMB'),
+(-1574004, 'Aranal, lidel! Their fate shall be yours!',13224,1,0, 'keleseth SAY_SKELETONS');
+
 -- -1 043 000 WAILING CAVERNS
 
 -- -1 047 000 RAZORFEN KRAUL
