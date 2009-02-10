@@ -3752,6 +3752,12 @@ bool ChatHandler::HandleDieCommand(const char* /*args*/)
         return false;
     }
 
+    if(target->GetTypeId()==TYPEID_PLAYER)
+    {
+        if(HasLowerSecurity((Player*)target,0,false))
+            return false;
+    }
+
     if( target->isAlive() )
     {
         //m_session->GetPlayer()->DealDamage(target, target->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
