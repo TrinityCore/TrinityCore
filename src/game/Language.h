@@ -645,6 +645,39 @@ enum TrinityStrings
     LANG_YOUR_BG_LEVEL_REQ_ERROR        = 715,
 
 //    LANG_YOUR_ARENA_TEAM_FULL           = 716, an opcode exists for this
+    LANG_BG_STARTED_ANNOUNCE_WORLD      = 717,
+    LANG_ARENA_QUEUE_ANNOUNCE_WORLD_JOIN= 718,
+    LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT= 719,
+
+    LANG_BG_GROUP_TOO_LARGE             = 720,              // "Your group is too large for this battleground. Please regroup to join."
+    LANG_ARENA_GROUP_TOO_LARGE          = 721,              // "Your group is too large for this arena. Please regroup to join."
+    LANG_ARENA_YOUR_TEAM_ONLY           = 722,              // "Your group has members not in your arena team. Please regroup to join."
+    LANG_ARENA_NOT_ENOUGH_PLAYERS       = 723,              // "Your group does not have enough players to join this match."
+    LANG_ARENA_GOLD_WINS                = 724,              // "The Gold Team wins!"
+    LANG_ARENA_GREEN_WINS               = 725,              // "The Green Team wins!"
+    LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING = 726,       // The battleground will end soon, because there aren't enough players. Get more ppl or win already!
+    LANG_BG_GROUP_OFFLINE_MEMBER        = 727,              // "Your group has an offline member. Please remove him before joining."
+    LANG_BG_GROUP_MIXED_FACTION         = 728,              // "Your group has players from the opposing faction. You can't join the battleground as a group."
+    LANG_BG_GROUP_MIXED_LEVELS          = 729,              // "Your group has players from different battleground brakets. You can't join as group."
+    LANG_BG_GROUP_MEMBER_ALREADY_IN_QUEUE = 730,            // "Someone in your party is already in this battleground queue. (S)he must leave it before joining as group."
+    LANG_BG_GROUP_MEMBER_DESERTER       = 731,              // "Someone in your party is Deserter. You can't join as group."
+    LANG_BG_GROUP_MEMBER_NO_FREE_QUEUE_SLOTS = 732,         // "Someone in your party is already in three battleground queues. You cannot join as group."
+
+    LANG_CANNOT_TELE_TO_BG              = 733,              // "You cannot teleport to a battleground or arena map."
+    LANG_CANNOT_SUMMON_TO_BG            = 734,              // "You cannot summon players to a battleground or arena map."
+    LANG_CANNOT_GO_TO_BG_GM             = 735,              // "You must be in GM mode to teleport to a player in a battleground."
+    LANG_CANNOT_GO_TO_BG_FROM_BG        = 736,              // "You cannot teleport to a battleground from another battleground. Please leave the current battleground first."
+    LANG_DEBUG_ARENA_ON                 = 737,
+    LANG_DEBUG_ARENA_OFF                = 738,
+    LANG_DEBUG_BG_ON                    = 739,
+    LANG_DEBUG_BG_OFF                   = 740,
+    LANG_DIST_ARENA_POINTS_START        = 741,
+    LANG_DIST_ARENA_POINTS_ONLINE_START = 742,
+    LANG_DIST_ARENA_POINTS_ONLINE_END   = 743,
+    LANG_DIST_ARENA_POINTS_TEAM_START   = 744,
+    LANG_DIST_ARENA_POINTS_TEAM_END     = 745,
+    LANG_DIST_ARENA_POINTS_END          = 746,
+    // Room for batleground/arena strings 747-799 not used
 
     LANG_BG_AV_ALLY                     = 717,
     LANG_BG_AV_HORDE                    = 718,
@@ -689,50 +722,6 @@ enum TrinityStrings
 
     LANG_AUTO_ANN                       = 786,
     LANG_ANNOUNCE_COLOR                 = 787,
-
-    LANG_BG_GROUP_TOO_LARGE             = 1122, // "Your group is too large for this battleground. Please regroup to join."
-    LANG_ARENA_GROUP_TOO_LARGE          = 1123, // "Your group is too large for this arena. Please regroup to join."
-    LANG_ARENA_YOUR_TEAM_ONLY           = 1124, // "Your group has members not in your arena team. Please regroup to join."
-    LANG_ARENA_NOT_ENOUGH_PLAYERS       = 1125, // "Your group does not have enough players to join this match."
-    LANG_ARENA_GOLD_WINS                = 1126, // "The Gold Team wins!"
-    LANG_ARENA_GREEN_WINS               = 1127, // "The Green Team wins!"
-    LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING = 1128,   // The battleground will end soon, because there aren't enough players. Get more ppl or win already!
-    LANG_BG_GROUP_OFFLINE_MEMBER        = 1129, // "Your group has an offline member. Please remove him before joining."
-    LANG_BG_GROUP_MIXED_FACTION         = 1130, // "Your group has players from the opposing faction. You can't join the battleground as a group."
-    LANG_BG_GROUP_MIXED_LEVELS          = 1131, // "Your group has players from different battleground brakets. You can't join as group."
-    LANG_BG_GROUP_MEMBER_ALREADY_IN_QUEUE = 1132, // "Someone in your party is already in this battleground queue. (S)he must leave it before joining as group."
-    LANG_BG_GROUP_MEMBER_DESERTER       = 1133, // "Someone in your party is Deserter. You can't join as group."
-    LANG_BG_GROUP_MEMBER_NO_FREE_QUEUE_SLOTS = 1134, // "Someone in your party is already in three battleground queues. You cannot join as group."
-
-    LANG_CANNOT_TELE_TO_BG              = 1135, // "You cannot teleport to a battleground or arena map."
-    LANG_CANNOT_SUMMON_TO_BG            = 1136, // "You cannot summon players to a battleground or arena map."
-    LANG_CANNOT_GO_TO_BG_GM             = 1137, // "You must be in GM mode to teleport to a player in a battleground."
-    LANG_CANNOT_GO_TO_BG_FROM_BG        = 1138, // "You cannot teleport to a battleground from another battleground. Please leave the current battleground first."
-
-//                                      = 716, not used
-    LANG_BG_STARTED_ANNOUNCE_WORLD      = 717,
-    LANG_ARENA_QUEUE_ANNOUNCE_WORLD_JOIN= 718,
-    LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT= 719,
-
-    /*LANG_BG_GROUP_TOO_LARGE             = 720,              // "Your group is too large for this battleground. Please regroup to join."
-    LANG_ARENA_GROUP_TOO_LARGE          = 721,              // "Your group is too large for this arena. Please regroup to join."
-    LANG_ARENA_YOUR_TEAM_ONLY           = 722,              // "Your group has members not in your arena team. Please regroup to join."
-    LANG_ARENA_NOT_ENOUGH_PLAYERS       = 723,              // "Your group does not have enough players to join this match."
-    LANG_ARENA_GOLD_WINS                = 724,              // "The Gold Team wins!"
-    LANG_ARENA_GREEN_WINS               = 725,              // "The Green Team wins!"
-    LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING = 726,       // The battleground will end soon, because there aren't enough players. Get more ppl or win already!
-    LANG_BG_GROUP_OFFLINE_MEMBER        = 727,              // "Your group has an offline member. Please remove him before joining."
-    LANG_BG_GROUP_MIXED_FACTION         = 728,              // "Your group has players from the opposing faction. You can't join the battleground as a group."
-    LANG_BG_GROUP_MIXED_LEVELS          = 729,              // "Your group has players from different battleground brakets. You can't join as group."
-    LANG_BG_GROUP_MEMBER_ALREADY_IN_QUEUE = 730,            // "Someone in your party is already in this battleground queue. (S)he must leave it before joining as group."
-    LANG_BG_GROUP_MEMBER_DESERTER       = 731,              // "Someone in your party is Deserter. You can't join as group."
-    LANG_BG_GROUP_MEMBER_NO_FREE_QUEUE_SLOTS = 732,         // "Someone in your party is already in three battleground queues. You cannot join as group."
-
-    LANG_CANNOT_TELE_TO_BG              = 733,              // "You cannot teleport to a battleground or arena map."
-    LANG_CANNOT_SUMMON_TO_BG            = 734,              // "You cannot summon players to a battleground or arena map."
-    LANG_CANNOT_GO_TO_BG_GM             = 735,              // "You must be in GM mode to teleport to a player in a battleground."
-    LANG_CANNOT_GO_TO_BG_FROM_BG        = 736,              // "You cannot teleport to a battleground from another battleground. Please leave the current battleground first."*/
-    // Room for batleground/arena strings 737-799 not used
 
     // in game strings
     LANG_PET_INVALID_NAME               = 800,
@@ -787,6 +776,25 @@ enum TrinityStrings
     LANG_YOUR_GENDER_CHANGED            = 1121,
     LANG_SKILL_VALUES                   = 1122,
     // Room for more level 3              1123-1199 not used
+
+    /*LANG_BG_GROUP_TOO_LARGE             = 1122, // "Your group is too large for this battleground. Please regroup to join."
+    LANG_ARENA_GROUP_TOO_LARGE          = 1123, // "Your group is too large for this arena. Please regroup to join."
+    LANG_ARENA_YOUR_TEAM_ONLY           = 1124, // "Your group has members not in your arena team. Please regroup to join."
+    LANG_ARENA_NOT_ENOUGH_PLAYERS       = 1125, // "Your group does not have enough players to join this match."
+    LANG_ARENA_GOLD_WINS                = 1126, // "The Gold Team wins!"
+    LANG_ARENA_GREEN_WINS               = 1127, // "The Green Team wins!"
+    LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING = 1128,   // The battleground will end soon, because there aren't enough players. Get more ppl or win already!
+    LANG_BG_GROUP_OFFLINE_MEMBER        = 1129, // "Your group has an offline member. Please remove him before joining."
+    LANG_BG_GROUP_MIXED_FACTION         = 1130, // "Your group has players from the opposing faction. You can't join the battleground as a group."
+    LANG_BG_GROUP_MIXED_LEVELS          = 1131, // "Your group has players from different battleground brakets. You can't join as group."
+    LANG_BG_GROUP_MEMBER_ALREADY_IN_QUEUE = 1132, // "Someone in your party is already in this battleground queue. (S)he must leave it before joining as group."
+    LANG_BG_GROUP_MEMBER_DESERTER       = 1133, // "Someone in your party is Deserter. You can't join as group."
+    LANG_BG_GROUP_MEMBER_NO_FREE_QUEUE_SLOTS = 1134, // "Someone in your party is already in three battleground queues. You cannot join as group."
+
+    LANG_CANNOT_TELE_TO_BG              = 1135, // "You cannot teleport to a battleground or arena map."
+    LANG_CANNOT_SUMMON_TO_BG            = 1136, // "You cannot summon players to a battleground or arena map."
+    LANG_CANNOT_GO_TO_BG_GM             = 1137, // "You must be in GM mode to teleport to a player in a battleground."
+    LANG_CANNOT_GO_TO_BG_FROM_BG        = 1138, // "You cannot teleport to a battleground from another battleground. Please leave the current battleground first."*/
 
     // FREE IDS                           1200-9999
 
