@@ -3,6 +3,7 @@
 #include "Common.h"
 #include "Log.h"
 #include "Config/ConfigEnv.h"
+#include "AuctionHouseObject.h"
 #define AHB_GREY        0
 #define AHB_WHITE       1
 #define AHB_GREEN       2
@@ -27,7 +28,7 @@
 class AHBConfig
 {
    private:
-     uint32 AHID;
+     AuctionLocation AHID;
      uint32 minItems;
      uint32 maxItems;
      uint32 minTime;
@@ -78,14 +79,14 @@ class AHBConfig
      uint32 bip;
      uint32 pip;
     public:
-    AHBConfig(uint32 ahid)
+     AHBConfig(AuctionLocation ahid)
      {
          AHID = ahid;
      }
      AHBConfig()
      {
      }
-     uint32 GetAHID()
+     AuctionLocation GetAHID()
      {
          return AHID;
      }
@@ -683,5 +684,5 @@ class AHBConfig
 void AuctionHouseBot();
 void AuctionHouseBotInit();
 void AuctionHouseBotLoadValues(AHBConfig*);
-void AuctionHouseBotCommands(uint32, uint32, uint32, char*);
+void AuctionHouseBotCommands(uint32, AuctionLocation, uint32, char*);
 #endif

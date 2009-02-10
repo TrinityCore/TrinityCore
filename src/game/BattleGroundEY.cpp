@@ -27,7 +27,8 @@
 #include "ObjectMgr.h"
 #include "MapManager.h"
 #include "Language.h"
-#include "World.h"
+#include "World.h" //music
+#include "WorldPacket.h"
 #include "Util.h"
 
 // these variables aren't used outside of this file, so declare them only here

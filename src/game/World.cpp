@@ -1338,7 +1338,7 @@ void World::SetInitialWorldSettings()
     objmgr.LoadGameObjectForQuests();
 
     sLog.outString( "Loading BattleMasters..." );
-    objmgr.LoadBattleMastersEntry();
+    sBattleGroundMgr.LoadBattleMastersEntry();
 
     sLog.outString( "Loading GameTeleports..." );
     objmgr.LoadGameTele();
@@ -1585,13 +1585,13 @@ void World::Update(uint32 diff)
             switch (i)
             {
                 case 0:
-                    AuctionMap = objmgr.GetAuctionsMap( 6 );//horde
+                    AuctionMap = objmgr.GetAuctionsMap(AUCTION_HORDE);
                     break;
                 case 1:
-                    AuctionMap = objmgr.GetAuctionsMap( 2 );//alliance
+                    AuctionMap = objmgr.GetAuctionsMap(AUCTION_ALLIANCE);
                     break;
                 case 2:
-                    AuctionMap = objmgr.GetAuctionsMap( 7 );//neutral
+                    AuctionMap = objmgr.GetAuctionsMap(AUCTION_NEUTRAL);
                     break;
             }
 
