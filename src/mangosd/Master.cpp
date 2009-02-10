@@ -473,7 +473,6 @@ void Master::clearOnlineAccounts()
         "UPDATE account SET online = 0 WHERE online > 0 "
         "AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = '%d')",realmID);
 
-
     CharacterDatabase.Execute("UPDATE characters SET online = 0 WHERE online<>0");
 }
 

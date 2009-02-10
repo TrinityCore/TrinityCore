@@ -26,6 +26,7 @@
 #include "World.h"
 #include "Chat.h"
 #include "Spell.h"
+#include "BattleGroundMgr.h"
 
 bool IsAreaEffectTarget[TOTAL_SPELL_TARGETS];
 
@@ -2640,7 +2641,7 @@ bool SpellMgr::IsSpellValid(SpellEntry const* spellInfo, Player* pl, bool msg)
     return true;
 }
 
-uint8 GetSpellAllowedInLocationError(SpellEntry const *spellInfo,uint32 map_id,uint32 zone_id,uint32 area_id)
+uint8 GetSpellAllowedInLocationError(SpellEntry const *spellInfo,uint32 map_id,uint32 zone_id,uint32 area_id, uint32 bgInstanceId)
 {
     // normal case
     if( spellInfo->AreaGroupId > 0)
@@ -2725,27 +2726,40 @@ uint8 GetSpellAllowedInLocationError(SpellEntry const *spellInfo,uint32 map_id,u
             return area_id == 4028 || area_id == 4029 || area_id == 4106 || area_id == 4031 ? 0 : SPELL_FAILED_INCORRECT_AREA;
         case 23333:                                         // Warsong Flag
         case 23335:                                         // Silverwing Flag
-            return map_id == 489 ? 0 : SPELL_FAILED_REQUIRES_AREA;
+            return map_id == 489 && bgInstanceId ? 0 : SPELL_FAILED_REQUIRES_AREA;
         case 34976:                                         // Netherstorm Flag
-            return map_id == 566 ? 0 : SPELL_FAILED_REQUIRES_AREA;
+            return map_id == 566 && bgInstanceId ? 0 : SPELL_FAILED_REQUIRES_AREA;
         case 2584:                                          // Waiting to Resurrect
         case 22011:                                         // Spirit Heal Channel
         case 22012:                                         // Spirit Heal
         case 24171:                                         // Resurrection Impact Visual
         case 42792:                                         // Recently Dropped Flag
         case 43681:                                         // Inactive
-        case 44521:                                         // Preparation
         case 44535:                                         // Spirit Heal (mana)
         {
             MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
             if(!mapEntry)
                 return SPELL_FAILED_INCORRECT_AREA;
 
-            return mapEntry->IsBattleGround() ? 0 : SPELL_FAILED_REQUIRES_AREA;
+            return mapEntry->IsBattleGround() && bgInstanceId ? 0 : SPELL_FAILED_REQUIRES_AREA;
+        }
+        case 44521:                                         // Preparation
+        {
+            if(!bgInstanceId)
+                return SPELL_FAILED_REQUIRES_AREA;
+
+            MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
+            if(!mapEntry)
+                return SPELL_FAILED_INCORRECT_AREA;
+
+            if(!mapEntry->IsBattleGround())
+                return SPELL_FAILED_REQUIRES_AREA;
+
+            BattleGround* bg = sBattleGroundMgr.GetBattleGround(bgInstanceId);
+            return bg && bg->GetStatus()==STATUS_WAIT_JOIN ? 0 : SPELL_FAILED_REQUIRES_AREA;
         }
         case 32724:                                         // Gold Team (Alliance)
         case 32725:                                         // Green Team (Alliance)
-        case 32727:                                         // Arena Preparation
         case 35774:                                         // Gold Team (Horde)
         case 35775:                                         // Green Team (Horde)
         {
@@ -2753,7 +2767,22 @@ uint8 GetSpellAllowedInLocationError(SpellEntry const *spellInfo,uint32 map_id,u
             if(!mapEntry)
                 return SPELL_FAILED_INCORRECT_AREA;
 
-            return mapEntry->IsBattleArena() ? 0 : SPELL_FAILED_REQUIRES_AREA;
+            return mapEntry->IsBattleArena() && bgInstanceId ? 0 : SPELL_FAILED_REQUIRES_AREA;
+        }
+        case 32727:                                         // Arena Preparation
+        {
+            if(!bgInstanceId)
+                return SPELL_FAILED_REQUIRES_AREA;
+
+            MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
+            if(!mapEntry)
+                return SPELL_FAILED_INCORRECT_AREA;
+
+            if(!mapEntry->IsBattleArena())
+                return SPELL_FAILED_REQUIRES_AREA;
+
+            BattleGround* bg = sBattleGroundMgr.GetBattleGround(bgInstanceId);
+            return bg && bg->GetStatus()==STATUS_WAIT_JOIN ? 0 : SPELL_FAILED_REQUIRES_AREA;
         }
     }
 
