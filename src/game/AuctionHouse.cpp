@@ -582,7 +582,7 @@ void WorldSession::HandleAuctionListBidderItems( WorldPacket & recv_data )
             ++count;
         }
     }
-    for (AuctionHouseObject::AuctionEntryMap::iterator itr = mAuctions->GetAuctionsBegin();itr != mAuctions->GetAuctionsEnd();++itr)
+    for (AuctionHouseObject::AuctionEntryMap::const_iterator itr = mAuctions->GetAuctionsBegin();itr != mAuctions->GetAuctionsEnd();++itr)
     {
         AuctionEntry *Aentry = itr->second;
         if( Aentry && Aentry->bidder == pl->GetGUIDLow() )
@@ -629,7 +629,7 @@ void WorldSession::HandleAuctionListOwnerItems( WorldPacket & recv_data )
 
     uint32 count = 0;
     uint32 totalcount = 0;
-    for (AuctionHouseObject::AuctionEntryMap::iterator itr = mAuctions->GetAuctionsBegin();itr != mAuctions->GetAuctionsEnd();++itr)
+    for (AuctionHouseObject::AuctionEntryMap::const_iterator itr = mAuctions->GetAuctionsBegin();itr != mAuctions->GetAuctionsEnd();++itr)
     {
         AuctionEntry *Aentry = itr->second;
         if( Aentry && Aentry->owner == _player->GetGUIDLow() )
@@ -695,7 +695,7 @@ void WorldSession::HandleAuctionListItems( WorldPacket & recv_data )
 
     wstrToLower(wsearchedname);
 
-    for (AuctionHouseObject::AuctionEntryMap::iterator itr = mAuctions->GetAuctionsBegin();itr != mAuctions->GetAuctionsEnd();++itr)
+    for (AuctionHouseObject::AuctionEntryMap::const_iterator itr = mAuctions->GetAuctionsBegin();itr != mAuctions->GetAuctionsEnd();++itr)
     {
         AuctionEntry *Aentry = itr->second;
         Item *item = objmgr.GetAItem(Aentry->item_guidlow);

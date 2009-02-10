@@ -270,7 +270,7 @@ void InstanceSaveManager::CleanupInstances()
 
     // creature_respawn and gameobject_respawn are in another database
     // first, obtain total instance set
-    std::set< uint32 > InstanceSet;
+    std::set<uint32> InstanceSet;
     QueryResult *result = CharacterDatabase.Query("SELECT id FROM instance");
     if( result )
     {
@@ -322,7 +322,7 @@ void InstanceSaveManager::PackInstances()
     // TODO: this can be done a LOT more efficiently
 
     // obtain set of all associations
-    std::set< uint32 > InstanceSet;
+    std::set<uint32> InstanceSet;
 
     // all valid ids are in the instance table
     // any associations to ids not in this table are assumed to be
@@ -344,7 +344,7 @@ void InstanceSaveManager::PackInstances()
 
     uint32 InstanceNumber = 1;
     // we do assume std::set is sorted properly on integer value
-    for (std::set< uint32 >::iterator i = InstanceSet.begin(); i != InstanceSet.end(); ++i)
+    for (std::set<uint32>::iterator i = InstanceSet.begin(); i != InstanceSet.end(); ++i)
     {
         if (*i != InstanceNumber)
         {

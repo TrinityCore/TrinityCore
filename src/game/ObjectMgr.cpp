@@ -46,6 +46,7 @@
 #include "Util.h"
 #include "WaypointManager.h"
 #include "InstanceData.h" //for condition_instance_data
+#include "BattleGround.h"
 
 INSTANTIATE_SINGLETON_1(ObjectMgr);
 
@@ -6749,6 +6750,11 @@ void ObjectMgr::LoadBattleMastersEntry()
 
         uint32 entry = fields[0].GetUInt32();
         uint32 bgTypeId  = fields[1].GetUInt32();
+        if (bgTypeId >= MAX_BATTLEGROUND_TYPE_ID)
+        {
+            sLog.outErrorDb("Table `battlemaster_entry` contain entry %u for not existed battleground type %u, ignored.",entry,bgTypeId);
+            continue;
+        }
 
         mBattleMastersMap[entry] = bgTypeId;
 
@@ -7501,16 +7507,16 @@ void ObjectMgr::LoadTrainerSpell()
 
         TrainerSpell* pTrainerSpell = new TrainerSpell();
         pTrainerSpell->spell         = spell;
-        pTrainerSpell->spellcost     = fields[2].GetUInt32();
-        pTrainerSpell->reqskill      = fields[3].GetUInt32();
-        pTrainerSpell->reqskillvalue = fields[4].GetUInt32();
-        pTrainerSpell->reqlevel      = fields[5].GetUInt32();
+        pTrainerSpell->spellCost     = fields[2].GetUInt32();
+        pTrainerSpell->reqSkill      = fields[3].GetUInt32();
+        pTrainerSpell->reqSkillValue = fields[4].GetUInt32();
+        pTrainerSpell->reqLevel      = fields[5].GetUInt32();
 
-        if(!pTrainerSpell->reqlevel)
-            pTrainerSpell->reqlevel = spellinfo->spellLevel;
+        if(!pTrainerSpell->reqLevel)
+            pTrainerSpell->reqLevel = spellinfo->spellLevel;
 
         // calculate learned spell for profession case when stored cast-spell
-        pTrainerSpell->learned_spell = spell;
+        pTrainerSpell->learnedSpell = spell;
         for(int i = 0; i <3; ++i)
         {
             if(spellinfo->Effect[i]!=SPELL_EFFECT_LEARN_SPELL)
@@ -7518,7 +7524,7 @@ void ObjectMgr::LoadTrainerSpell()
 
             if(SpellMgr::IsProfessionOrRidingSpell(spellinfo->EffectTriggerSpell[i]))
             {
-                pTrainerSpell->learned_spell = spellinfo->EffectTriggerSpell[i];
+                pTrainerSpell->learnedSpell = spellinfo->EffectTriggerSpell[i];
                 break;
             }
         }

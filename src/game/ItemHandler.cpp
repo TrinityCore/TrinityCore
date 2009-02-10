@@ -742,7 +742,7 @@ void WorldSession::SendListInventory( uint64 vendorguid )
 
     float discountMod = _player->GetReputationPriceDiscount(pCreature);
 
-    for(int i = 0; i < numitems; i++ )
+    for(int i = 0; i < numitems; ++i )
     {
         if(VendorItem const* crItem = vItems->GetItem(i))
         {
