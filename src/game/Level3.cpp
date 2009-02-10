@@ -56,12 +56,12 @@
 
 bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
 {
-    uint32 ahMapID = 0;
+    AuctionLocation ahMapID = AUCTION_NEUTRAL;
     char * opt = strtok((char*)args, " ");
     char * ahMapIdStr = strtok(NULL, " ");
     if (ahMapIdStr)
     {
-        ahMapID = (uint32) strtoul(ahMapIdStr, NULL, 0);
+        ahMapID = (AuctionLocation) strtoul(ahMapIdStr, NULL, 0);
     }
     if (!opt)
     {

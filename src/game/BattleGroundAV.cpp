@@ -30,6 +30,7 @@
 #include "Language.h"
 #include "SpellAuras.h"
 #include "Formulas.h"
+#include "WorldPacket.h"
 
 BattleGroundAV::BattleGroundAV()
 {

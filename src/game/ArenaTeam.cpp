@@ -650,6 +650,19 @@ void ArenaTeam::FinishWeek()
     }
 }
 
+bool ArenaTeam::IsFighting() const
+{
+    for (MemberList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
+    {
+        if (Player *p = objmgr.GetPlayer(itr->guid))
+        {
+            if (p->GetMap()->IsBattleArena())
+                return true;
+        }
+    }
+    return false;
+}
+
 /*
 arenateam fields (id from 2.3.3 client):
 1414 - arena team id 2v2

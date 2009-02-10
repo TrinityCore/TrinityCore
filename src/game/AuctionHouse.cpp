@@ -55,21 +55,21 @@ void WorldSession::HandleAuctionHelloOpcode( WorldPacket & recv_data )
     SendAuctionHello(guid, unit);
 }
 
-static uint8 AuctioneerFactionToLocation(uint32 faction)
+static AuctionLocation AuctioneerFactionToLocation(uint32 faction)
 {
     if(sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
-        return 7;                                           // neutral
+        return AUCTION_NEUTRAL;
 
     FactionTemplateEntry const* u_entry = sFactionTemplateStore.LookupEntry(faction);
     if(!u_entry)
-        return 7;                                           // neutral
+        return AUCTION_NEUTRAL;
 
     if(u_entry->ourMask & FACTION_MASK_ALLIANCE)
-        return 2;
+        return AUCTION_ALLIANCE;
     else if(u_entry->ourMask & FACTION_MASK_HORDE)
-        return 6;
+        return AUCTION_HORDE;
     else
-        return 7;
+        return AUCTION_NEUTRAL;
 }
 
 //this void causes that auction window is opened
@@ -132,13 +132,13 @@ void WorldSession::SendAuctionCommandResult(uint32 auctionId, uint32 Action, uin
 void WorldSession::SendAuctionBidderNotification( uint32 location, uint32 auctionId, uint64 bidder, uint32 bidSum, uint32 diff, uint32 item_template)
 {
     WorldPacket data(SMSG_AUCTION_BIDDER_NOTIFICATION, (8*4));
-    data << location;
-    data << auctionId;
-    data << (uint64) bidder;
-    data << bidSum;
-    data << (uint32) diff;
-    data << item_template;
-    data << (uint32) 0;
+    data << uint32(location);
+    data << uint32(auctionId);
+    data << uint64(bidder);
+    data << uint32(bidSum);
+    data << uint32(diff);
+    data << uint32(item_template);
+    data << uint32(0);
     SendPacket(&data);
 }
 
@@ -268,7 +268,7 @@ void WorldSession::HandleAuctionSellItem( WorldPacket & recv_data )
         return;
     }
 
-    uint32 location = AuctioneerFactionToLocation(pCreature->getFaction());
+    AuctionLocation location = AuctioneerFactionToLocation(pCreature->getFaction());
     AuctionHouseObject * mAuctions;
     mAuctions = objmgr.GetAuctionsMap( location );
 
@@ -347,7 +347,7 @@ void WorldSession::HandleAuctionPlaceBid( WorldPacket & recv_data )
     if(GetPlayer()->hasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
 
-    uint32 location = AuctioneerFactionToLocation(pCreature->getFaction());
+    AuctionLocation location = AuctioneerFactionToLocation(pCreature->getFaction());
 
     AuctionHouseObject * mAuctions;
     mAuctions = objmgr.GetAuctionsMap( location );
@@ -474,7 +474,7 @@ void WorldSession::HandleAuctionRemoveItem( WorldPacket & recv_data )
     if(GetPlayer()->hasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
 
-    uint32 location = AuctioneerFactionToLocation(pCreature->getFaction());
+    AuctionLocation location = AuctioneerFactionToLocation(pCreature->getFaction());
 
     AuctionHouseObject * mAuctions;
     mAuctions = objmgr.GetAuctionsMap( location );
@@ -562,7 +562,7 @@ void WorldSession::HandleAuctionListBidderItems( WorldPacket & recv_data )
     if(GetPlayer()->hasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
 
-    uint32 location = AuctioneerFactionToLocation(pCreature->getFaction());
+    AuctionLocation location = AuctioneerFactionToLocation(pCreature->getFaction());
     AuctionHouseObject* mAuctions = objmgr.GetAuctionsMap( location );
 
     WorldPacket data( SMSG_AUCTION_BIDDER_LIST_RESULT, (4+4+4) );
@@ -620,7 +620,7 @@ void WorldSession::HandleAuctionListOwnerItems( WorldPacket & recv_data )
     if(GetPlayer()->hasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
 
-    uint32 location = AuctioneerFactionToLocation(pCreature->getFaction());
+    AuctionLocation location = AuctioneerFactionToLocation(pCreature->getFaction());
 
     AuctionHouseObject* mAuctions = objmgr.GetAuctionsMap( location );
 
@@ -650,9 +650,9 @@ void WorldSession::HandleAuctionListItems( WorldPacket & recv_data )
 {
     CHECK_PACKET_SIZE(recv_data,8+4+1+1+1+4+4+4+4+1);
 
-    std::string searchedname, name;
-    uint8 levelmin, levelmax, usable, location;
-    uint32 count, totalcount, listfrom, auctionSlotID, auctionMainCategory, auctionSubCategory, quality;
+    std::string searchedname;
+    uint8 levelmin, levelmax, usable;
+    uint32 listfrom, auctionSlotID, auctionMainCategory, auctionSubCategory, quality;
     uint64 guid;
 
     recv_data >> guid;
@@ -677,15 +677,14 @@ void WorldSession::HandleAuctionListItems( WorldPacket & recv_data )
     if(GetPlayer()->hasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
 
-    location = AuctioneerFactionToLocation(pCreature->getFaction());
-    AuctionHouseObject * mAuctions;
-    mAuctions = objmgr.GetAuctionsMap( location );
+    AuctionLocation location = AuctioneerFactionToLocation(pCreature->getFaction());
+    AuctionHouseObject * mAuctions = objmgr.GetAuctionsMap( location );
 
     //sLog.outDebug("Auctionhouse search guid: " I64FMTD ", list from: %u, searchedname: %s, levelmin: %u, levelmax: %u, auctionSlotID: %u, auctionMainCategory: %u, auctionSubCategory: %u, quality: %u, usable: %u", guid, listfrom, searchedname.c_str(), levelmin, levelmax, auctionSlotID, auctionMainCategory, auctionSubCategory, quality, usable);
 
     WorldPacket data( SMSG_AUCTION_LIST_RESULT, (4+4+4) );
-    count = 0;
-    totalcount = 0;
+    uint32 count = 0;
+    uint32 totalcount = 0;
     data << (uint32) 0;
 
     // converting string that we try to find to lower case
@@ -716,7 +715,7 @@ void WorldSession::HandleAuctionListItems( WorldPacket & recv_data )
                                 {
                                     if( ( levelmin == (0x00) || proto->RequiredLevel >= levelmin ) && ( levelmax == (0x00) || proto->RequiredLevel <= levelmax ) )
                                     {
-                                        name = proto->Name1;
+                                        std::string name = proto->Name1;
 
                                         // local name
                                         int loc_idx = GetSessionDbLocaleIndex();

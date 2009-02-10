@@ -399,15 +399,15 @@ class ObjectMgr
             mAitems.erase(i);
             return true;
         }
-        AuctionHouseObject * GetAuctionsMap( uint32 location );
+        AuctionHouseObject * GetAuctionsMap( AuctionLocation location );
 
         //auction messages
         void SendAuctionWonMail( AuctionEntry * auction );
         void SendAuctionSalePendingMail( AuctionEntry * auction );
         void SendAuctionSuccessfulMail( AuctionEntry * auction );
         void SendAuctionExpiredMail( AuctionEntry * auction );
-        static uint32 GetAuctionCut( uint32 location, uint32 highBid );
-        static uint32 GetAuctionDeposit(uint32 location, uint32 time, Item *pItem);
+        static uint32 GetAuctionCut( AuctionLocation location, uint32 highBid );
+        static uint32 GetAuctionDeposit(AuctionLocation location, uint32 time, Item *pItem);
         static uint32 GetAuctionOutBid(uint32 currentBid);
 
         PetLevelInfo const* GetPetLevelInfo(uint32 creature_id, uint32 level) const;
@@ -463,14 +463,6 @@ class ObjectMgr
                 if(go->GetGoType() == GAMEOBJECT_TYPE_GUILD_BANK)
                     return true;
             return false;
-        }
-
-        uint32 GetBattleMasterBG(uint32 entry) const
-        {
-            BattleMastersMap::const_iterator itr = mBattleMastersMap.find(entry);
-            if(itr != mBattleMastersMap.end())
-                return itr->second;
-            return 2;                                       //BATTLEGROUND_WS - i will not add include only for constant usage!
         }
 
         void AddGossipText(GossipText *pGText);
@@ -569,7 +561,6 @@ class ObjectMgr
         void LoadQuestAreaTriggers();
         void LoadAreaTriggerScripts();
         void LoadTavernAreaTriggers();
-        void LoadBattleMastersEntry();
         void LoadGameObjectForQuests();
 
         void LoadItemTexts();
@@ -836,7 +827,6 @@ class ObjectMgr
 
         typedef UNORDERED_MAP<uint32, GossipText*> GossipTextMap;
         typedef UNORDERED_MAP<uint32, uint32> QuestAreaTriggerMap;
-        typedef UNORDERED_MAP<uint32, uint32> BattleMastersMap;
         typedef UNORDERED_MAP<uint32, std::string> ItemTextMap;
         typedef std::set<uint32> TavernAreaTriggerSet;
         typedef std::set<uint32> GameObjectForQuestSet;
@@ -855,7 +845,6 @@ class ObjectMgr
         AuctionHouseObject  mNeutralAuctions;
 
         QuestAreaTriggerMap mQuestAreaTriggerMap;
-        BattleMastersMap    mBattleMastersMap;
         TavernAreaTriggerSet mTavernAreaTriggerSet;
         GameObjectForQuestSet mGameObjectForQuestSet;
         GossipTextMap       mGossipText;

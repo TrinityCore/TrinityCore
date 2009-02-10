@@ -1,4 +1,3 @@
-#include "AuctionHouseBot.h"
 #include "Bag.h"
 #include "Config/ConfigEnv.h"
 #include "Database/DatabaseEnv.h"
@@ -9,6 +8,7 @@
 #include "World.h"
 #include "WorldSession.h"
 #include "time.h"
+#include "AuctionHouseBot.h"
 #include <vector>
 #include <iostream>
 
@@ -40,9 +40,9 @@ static bool Bind_When_Equipped = 0;
 static bool Bind_When_Use = 0;
 static bool Bind_Quest_Item = 0;
 
-static AHBConfig AllianceConfig = AHBConfig(2);
-static AHBConfig HordeConfig = AHBConfig(6);
-static AHBConfig NeutralConfig = AHBConfig(7);
+static AHBConfig AllianceConfig = AHBConfig(AUCTION_ALLIANCE);
+static AHBConfig HordeConfig    = AHBConfig(AUCTION_HORDE);
+static AHBConfig NeutralConfig  = AHBConfig(AUCTION_NEUTRAL);
 time_t _lastrun_a;
 time_t _lastrun_h;
 time_t _lastrun_n;
@@ -905,18 +905,18 @@ void AuctionHouseBotInit()
     sLog.outString("AuctionHouseBot now includes AHBuyer by Kerbe and Paradox");
 
 }
-void AuctionHouseBotCommands(uint32 command, uint32 ahMapID, uint32 col, char* args)
+void AuctionHouseBotCommands(uint32 command, AuctionLocation ahMapID, uint32 col, char* args)
 {
     AHBConfig *config;
     switch (ahMapID)
     {
-    case 2:
+    case AUCTION_ALLIANCE:
         config = &AllianceConfig;
         break;
-    case 6:
+    case AUCTION_HORDE:
         config = &HordeConfig;
         break;
-    case 7:
+    case AUCTION_NEUTRAL:
         config = &NeutralConfig;
         break;
     }

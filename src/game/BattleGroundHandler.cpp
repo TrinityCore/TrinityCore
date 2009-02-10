@@ -53,7 +53,7 @@ void WorldSession::HandleBattleGroundHelloOpcode( WorldPacket & recv_data )
     // Stop the npc if moving
     unit->StopMoving();
 
-    uint32 bgTypeId = objmgr.GetBattleMasterBG(unit->GetEntry());
+    BattleGroundTypeId bgTypeId = sBattleGroundMgr.GetBattleMasterBG(unit->GetEntry());
 
     if(!_player->GetBGAccessByLevel(bgTypeId))
     {
@@ -65,7 +65,7 @@ void WorldSession::HandleBattleGroundHelloOpcode( WorldPacket & recv_data )
     SendBattlegGroundList(guid, bgTypeId);
 }
 
-void WorldSession::SendBattlegGroundList( uint64 guid, uint32 bgTypeId )
+void WorldSession::SendBattlegGroundList( uint64 guid, BattleGroundTypeId bgTypeId )
 {
     WorldPacket data;
     sBattleGroundMgr.BuildBattleGroundListPacket(&data, guid, _player, bgTypeId);
@@ -77,21 +77,23 @@ void WorldSession::HandleBattleGroundJoinOpcode( WorldPacket & recv_data )
     CHECK_PACKET_SIZE(recv_data, 8+4+4+1);
 
     uint64 guid;
-    uint32 bgTypeId;
+    uint32 bgTypeId_;
     uint32 instanceId;
     uint8 joinAsGroup;
     Group * grp;
 
     recv_data >> guid;                                      // battlemaster guid
-    recv_data >> bgTypeId;                                  // battleground type id (DBC id)
+    recv_data >> bgTypeId_;                                 // battleground type id (DBC id)
     recv_data >> instanceId;                                // instance id, 0 if First Available selected
     recv_data >> joinAsGroup;                               // join as group
 
-    if(bgTypeId >= MAX_BATTLEGROUND_TYPES)
+    if(!sBattlemasterListStore.LookupEntry(bgTypeId_))
     {
-        sLog.outError("Battleground: invalid bgtype received. possible cheater? player guid %u",_player->GetGUIDLow());
+        sLog.outError("Battleground: invalid bgtype (%u) received. possible cheater? player guid %u",bgTypeId_,_player->GetGUIDLow());
         return;
     }
+
+    BattleGroundTypeId bgTypeId = BattleGroundTypeId(bgTypeId_);
 
     sLog.outDebug( "WORLD: Recvd CMSG_BATTLEMASTER_JOIN Message from: " I64FMT, guid);
 
@@ -274,19 +276,15 @@ void WorldSession::HandleBattleGroundListOpcode( WorldPacket &recv_data )
     uint32 bgTypeId;
     recv_data >> bgTypeId;                                  // id from DBC
 
-    if(bgTypeId >= MAX_BATTLEGROUND_TYPES)
+    BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(bgTypeId);
+    if(!bl)
     {
         sLog.outError("Battleground: invalid bgtype received.");
         return;
     }
 
-    BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(bgTypeId);
-
-    if(!bl)
-        return;
-
     WorldPacket data;
-    sBattleGroundMgr.BuildBattleGroundListPacket(&data, _player->GetGUID(), _player, bgTypeId);
+    sBattleGroundMgr.BuildBattleGroundListPacket(&data, _player->GetGUID(), _player, BattleGroundTypeId(bgTypeId));
     SendPacket( &data );
 }
 
@@ -299,15 +297,15 @@ void WorldSession::HandleBattleGroundPlayerPortOpcode( WorldPacket &recv_data )
     uint8 type;                                             // arenatype if arena
     uint8 unk2;                                             // unk, can be 0x0 (may be if was invited?) and 0x1
     uint32 instanceId;
-    uint32 bgTypeId;                                        // type id from dbc
+    uint32 bgTypeId_;                                       // type id from dbc
     uint16 unk;                                             // 0x1F90 constant?
     uint8 action;                                           // enter battle 0x1, leave queue 0x0
 
-    recv_data >> type >> unk2 >> bgTypeId >> unk >> action;
+    recv_data >> type >> unk2 >> bgTypeId_ >> unk >> action;
 
-    if(bgTypeId >= MAX_BATTLEGROUND_TYPES)
+    if(!sBattlemasterListStore.LookupEntry(bgTypeId_))
     {
-        sLog.outError("Battleground: invalid bgtype received.");
+        sLog.outError("Battleground: invalid bgtype (%u) received.",bgTypeId_);
         // update battleground slots for the player to fix his UI and sent data.
         // this is a HACK, I don't know why the client starts sending invalid packets in the first place.
         // it usually happens with extremely high latency (if debugging / stepping in the code for example)
@@ -331,7 +329,7 @@ void WorldSession::HandleBattleGroundPlayerPortOpcode( WorldPacket &recv_data )
                 BattleGround * bg = NULL;
 
                 // get possibly needed data from groupinfo
-                bgTypeId = itrPlayerStatus->second.GroupInfo->BgTypeId;
+                BattleGroundTypeId bgTypeId = itrPlayerStatus->second.GroupInfo->BgTypeId;
                 uint8 arenatype = itrPlayerStatus->second.GroupInfo->ArenaType;
                 uint8 israted = itrPlayerStatus->second.GroupInfo->IsRated;
                 uint8 status = 0;
@@ -367,6 +365,8 @@ void WorldSession::HandleBattleGroundPlayerPortOpcode( WorldPacket &recv_data )
         return;
     }
 
+    BattleGroundTypeId bgTypeId = BattleGroundTypeId(bgTypeId_);
+
     uint32 bgQueueTypeId = 0;
     // get the bg what we were invited to
     BattleGroundQueue::QueuedPlayersMap::iterator itrPlayerStatus;
@@ -395,7 +395,7 @@ void WorldSession::HandleBattleGroundPlayerPortOpcode( WorldPacket &recv_data )
 
     if(!bg)
     {
-        sLog.outError("Battleground: bg not found.");
+        sLog.outError("Battleground: bg not found for type id %u.",bgTypeId);
         return;
     }
 
@@ -572,7 +572,7 @@ void WorldSession::HandleBattlefieldStatusOpcode( WorldPacket & /*recv_data*/ )
             uint32 queue_id = _player->GetBattleGroundQueueId(i);
             if(!queue_id)
                 continue;
-            uint32 bgTypeId = BattleGroundMgr::BGTemplateId(queue_id);
+            BattleGroundTypeId bgTypeId = BattleGroundMgr::BGTemplateId(queue_id);
             uint8 arenatype = BattleGroundMgr::BGArenaType(queue_id);
             uint8 isRated = 0;
             BattleGround *bg = sBattleGroundMgr.GetBattleGroundTemplate(bgTypeId);
@@ -700,7 +700,7 @@ void WorldSession::HandleBattleGroundArenaJoin( WorldPacket & recv_data )
         return;
     }
 
-    uint8 bgTypeId = bg->GetTypeID();
+    BattleGroundTypeId bgTypeId = bg->GetTypeID();
     uint32 bgQueueTypeId = BattleGroundMgr::BGQueueTypeId(bgTypeId, arenatype);
 
     // check queueing conditions
