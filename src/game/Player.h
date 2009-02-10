@@ -1939,18 +1939,10 @@ class TRINITY_DLL_SPEC Player : public Unit
                     return true;
             return false;
         }
-        uint32 GetBattleGroundEntryPointMap() const { return m_bgEntryPointMap; }
-        float GetBattleGroundEntryPointX() const { return m_bgEntryPointX; }
-        float GetBattleGroundEntryPointY() const { return m_bgEntryPointY; }
-        float GetBattleGroundEntryPointZ() const { return m_bgEntryPointZ; }
-        float GetBattleGroundEntryPointO() const { return m_bgEntryPointO; }
+        WorldLocation const& GetBattleGroundEntryPoint() const { return m_bgEntryPoint; }
         void SetBattleGroundEntryPoint(uint32 Map, float PosX, float PosY, float PosZ, float PosO )
         {
-            m_bgEntryPointMap = Map;
-            m_bgEntryPointX = PosX;
-            m_bgEntryPointY = PosY;
-            m_bgEntryPointZ = PosZ;
-            m_bgEntryPointO = PosO;
+            m_bgEntryPoint = WorldLocation(Map,PosX,PosY,PosZ,PosO);
         }
 
         void SetBGTeam(uint32 team) { m_bgTeam = team; }
@@ -2075,6 +2067,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         float m_homebindX;
         float m_homebindY;
         float m_homebindZ;
+        void RelocateToHomebind() { SetMapId(m_homebindMapId); Relocate(m_homebindX,m_homebindY,m_homebindZ); }
 
         // currently visible objects at player client
         typedef std::set<uint64> ClientGUIDs;
@@ -2188,11 +2181,7 @@ class TRINITY_DLL_SPEC Player : public Unit
             uint32 invitedToInstance;
         };
         BgBattleGroundQueueID_Rec m_bgBattleGroundQueueID[PLAYER_MAX_BATTLEGROUND_QUEUES];
-        uint32 m_bgEntryPointMap;
-        float m_bgEntryPointX;
-        float m_bgEntryPointY;
-        float m_bgEntryPointZ;
-        float m_bgEntryPointO;
+        WorldLocation m_bgEntryPoint;
 
         std::set<uint32> m_bgAfkReporter;
         uint8 m_bgAfkReportedCount;
