@@ -27,5 +27,10 @@ INSTALL(FILES
 1018_world.sql
 1026_world.sql
 1028_world_scripts.sql
+1288_mangos_7242_01_world_spell_bonus_data
+1293_mangos_7249_01_world_spell_proc_event
+1296_mangos_7252_01_world_command
+1296_mangos_7252_02_world_trinity_string
+1299_mangos_7255_01_characters_characters
 1307_world.sql
 DESTINATION share/trinity/sql/updates)
