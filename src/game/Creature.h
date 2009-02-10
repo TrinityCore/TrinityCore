@@ -369,14 +369,14 @@ typedef std::list<VendorItemCount> VendorItemCounts;
 struct TrainerSpell
 {
     uint32 spell;
-    uint32 spellcost;
-    uint32 reqskill;
-    uint32 reqskillvalue;
-    uint32 reqlevel;
-    uint32 learned_spell;
+    uint32 spellCost;
+    uint32 reqSkill;
+    uint32 reqSkillValue;
+    uint32 reqLevel;
+    uint32 learnedSpell;
 
     // helpers
-    bool IsCastable() const { return learned_spell != spell; }
+    bool IsCastable() const { return learnedSpell != spell; }
 };
 
 typedef std::vector<TrainerSpell*> TrainerSpellList;
