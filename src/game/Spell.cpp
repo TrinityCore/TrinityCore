@@ -2236,6 +2236,24 @@ void Spell::cast(bool skipCheck)
     if(m_customAttr & SPELL_ATTR_CU_DIRECT_DAMAGE)
         CalculateDamageDoneForAllTargets();
 
+    //handle SPELL_AURA_ADD_TARGET_TRIGGER auras
+    //are there any spells need to be triggered after hit?
+    Unit::AuraList const& targetTriggers = m_caster->GetAurasByType(SPELL_AURA_ADD_TARGET_TRIGGER);
+    for(Unit::AuraList::const_iterator i = targetTriggers.begin(); i != targetTriggers.end(); ++i)
+    {
+        SpellEntry const *auraSpellInfo = (*i)->GetSpellProto();
+        uint32 auraSpellIdx = (*i)->GetEffIndex();
+        if (IsAffectedBy(auraSpellInfo, auraSpellIdx))
+        {
+            if(SpellEntry const *spellInfo = sSpellStore.LookupEntry(auraSpellInfo->EffectTriggerSpell[auraSpellIdx]))
+            {            
+                // Calculate chance at that moment (can be depend for example from combo points)
+                int32 chance = m_caster->CalculateSpellDamage(auraSpellInfo, auraSpellIdx, (*i)->GetBasePoints(), NULL);
+                m_ChanceTriggerSpells.push_back(std::make_pair(spellInfo, chance * (*i)->GetStackAmount()));
+            }
+        }
+    }
+
     if(m_customAttr & SPELL_ATTR_CU_CHARGE)
         EffectCharge(0);
 
@@ -2255,24 +2273,6 @@ void Spell::cast(bool skipCheck)
     {
         // Immediate spell, no big deal
         handle_immediate();
-    }
-
-    //handle SPELL_AURA_ADD_TARGET_TRIGGER auras
-    //are there any spells need to be triggered after hit?
-    Unit::AuraList const& targetTriggers = m_caster->GetAurasByType(SPELL_AURA_ADD_TARGET_TRIGGER);
-    for(Unit::AuraList::const_iterator i = targetTriggers.begin(); i != targetTriggers.end(); ++i)
-    {
-        SpellEntry const *auraSpellInfo = (*i)->GetSpellProto();
-        uint32 auraSpellIdx = (*i)->GetEffIndex();
-        if (IsAffectedBy(auraSpellInfo, auraSpellIdx))
-        {
-            if(SpellEntry const *spellInfo = sSpellStore.LookupEntry(auraSpellInfo->EffectTriggerSpell[auraSpellIdx]))
-            {            
-                // Calculate chance at that moment (can be depend for example from combo points)
-                int32 chance = m_caster->CalculateSpellDamage(auraSpellInfo, auraSpellIdx, (*i)->GetBasePoints(), NULL);
-                m_ChanceTriggerSpells.push_back(std::make_pair(spellInfo, chance * (*i)->GetStackAmount()));
-            }
-        }
     }
 
     // combo points should not be taken before SPELL_AURA_ADD_TARGET_TRIGGER auras are handled
