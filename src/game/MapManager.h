@@ -96,6 +96,11 @@ class TRINITY_DLL_DECL MapManager : public Trinity::Singleton<MapManager, Trinit
             return IsValidMAP(mapid) && Trinity::IsValidMapCoord(x,y,z,o);
         }
 
+        static bool IsValidMapCoord(WorldLocation const& loc)
+        {
+            return IsValidMapCoord(loc.mapid,loc.x,loc.y,loc.z,loc.o);
+        }
+
         void DoDelayedMovesAndRemoves();
 
         void LoadTransports();
