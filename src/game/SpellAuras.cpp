@@ -828,8 +828,6 @@ void Aura::_AddAura()
         m_target->SetVisibleAura(slot, t_entry);
     }
 
-    sLog.outError("aura::_addaura slot:%d", slot);
-
     AuraSlotEntry * entry;
     entry=m_target->GetVisibleAura(slot);
     if(!entry)
