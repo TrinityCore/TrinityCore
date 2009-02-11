@@ -8126,12 +8126,17 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     else if (DoneAdvertisedBenefit || TakenAdvertisedBenefit)
     {
         // Damage Done from spell damage bonus
-        uint32 CastingTime = !IsChanneledSpell(spellProto) ? GetSpellCastTime(spellProto) : GetSpellDuration(spellProto);
+        int32 CastingTime = !IsChanneledSpell(spellProto) ? GetSpellCastTime(spellProto) : GetSpellDuration(spellProto);
+        if (IsChanneledSpell(spellProto))
+            ModSpellCastTime(spellProto, CastingTime);
         // Damage over Time spells bonus calculation
         float DotFactor = 1.0f;
         if(damagetype == DOT)
         {
             int32 DotDuration = GetSpellDuration(spellProto);
+            //apply casting time mods for channeled spells
+            if (IsChanneledSpell(spellProto))
+                ModSpellCastTime(spellProto, DotDuration);
             // 200% limit
             if(DotDuration > 0)
             {
@@ -8614,12 +8619,17 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
     else if (DoneAdvertisedBenefit || TakenAdvertisedBenefit)
     {
         // Damage Done from spell damage bonus
-        uint32 CastingTime = !IsChanneledSpell(spellProto) ? GetSpellCastTime(spellProto) : GetSpellDuration(spellProto);
+        int32 CastingTime = !IsChanneledSpell(spellProto) ? GetSpellCastTime(spellProto) : GetSpellDuration(spellProto);
+        if (IsChanneledSpell(spellProto))
+            ModSpellCastTime(spellProto, CastingTime);
         // Damage over Time spells bonus calculation
         float DotFactor = 1.0f;
         if(damagetype == DOT)
         {
             int32 DotDuration = GetSpellDuration(spellProto);
+            //apply casting time mods for channeled spells
+            if (IsChanneledSpell(spellProto))
+                ModSpellCastTime(spellProto, DotDuration);
             // 200% limit
             if(DotDuration > 0)
             {
@@ -10082,6 +10092,23 @@ int32 Unit::ModSpellDuration(SpellEntry const* spellProto, uint8 effect_index, U
     //else positive mods here, there are no currently
     //when there will be, change GetTotalAuraModifierByMiscValue to GetTotalPositiveAuraModifierByMiscValue
     return duration>0 ? duration : 0;
+}
+
+void Unit::ModSpellCastTime(SpellEntry const* spellProto, int32 & castTime)
+{
+    if (!spellProto || castTime<0)
+        return;
+    //called from caster
+    if(Player* modOwner = GetSpellModOwner())
+        modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CASTING_TIME, castTime);
+
+    if( !(spellProto->Attributes & (SPELL_ATTR_UNK4|SPELL_ATTR_UNK5)) )
+        castTime = float(castTime) * GetFloatValue(UNIT_MOD_CAST_SPEED);
+    else
+    {
+        if (spellProto->Attributes & SPELL_ATTR_RANGED && !(spellProto->AttributesEx2 & SPELL_ATTR_EX2_AUTOREPEAT_FLAG))
+            castTime = float(castTime) * m_modAttackSpeedPct[RANGED_ATTACK];
+    }
 }
 
 DiminishingLevels Unit::GetDiminishing(DiminishingGroup group)
@@ -11586,6 +11613,8 @@ uint32 Unit::GetCastingTimeForBonus( SpellEntry const *spellProto, DamageEffectT
                     case SPELL_AURA_PERIODIC_LEECH:
                         if ( GetSpellDuration(spellProto) )
                             overTime = GetSpellDuration(spellProto);
+                        if (IsChanneledSpell(spellProto))
+                            ModSpellCastTime(spellProto, overTime);
                         break;
                     default:
                         // -5% per additional effect
