@@ -43,10 +43,10 @@ bool GOHello_go_main_chambers_access_panel(Player *player, GameObject* _GO)
     if (!pInstance)
         return false;
 
-    if (_GO->GetEntry() == ACCESS_PANEL_HYDRO && pInstance->GetData(TYPE_HYDROMANCER_THESPIA) == DONE)
+    if (_GO->GetEntry() == ACCESS_PANEL_HYDRO && (pInstance->GetData(TYPE_HYDROMANCER_THESPIA) == DONE || pInstance->GetData(TYPE_HYDROMANCER_THESPIA) == SPECIAL))
         pInstance->SetData(TYPE_HYDROMANCER_THESPIA,SPECIAL);
 
-    if (_GO->GetEntry() == ACCESS_PANEL_MEK && pInstance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == DONE)
+    if (_GO->GetEntry() == ACCESS_PANEL_MEK && (pInstance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == DONE || pInstance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == SPECIAL))
         pInstance->SetData(TYPE_MEKGINEER_STEAMRIGGER,SPECIAL);
 
     return true;
@@ -174,6 +174,9 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
                 Encounter[3] = data;
                 break;
         }
+
+        if(data == DONE || data == SPECIAL)
+            SaveToDB();
     }
 
     uint32 GetData(uint32 type)
@@ -204,6 +207,37 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
                 return KalithreshGUID;
         }
         return 0;
+    }
+
+    const char* Save()
+    {
+        OUT_SAVE_INST_DATA;
+        std::ostringstream stream;
+        stream << Encounter[0] << " " << Encounter[1] << " " << Encounter[2] << " " << Encounter[3];
+        char* out = new char[stream.str().length() + 1];
+        strcpy(out, stream.str().c_str());
+        if(out)
+        {
+            OUT_SAVE_INST_DATA_COMPLETE;
+            return out;
+        }
+        return NULL;
+    }
+
+    void Load(const char* in)
+    {
+        if(!in)
+        {
+            OUT_LOAD_INST_DATA_FAIL;
+            return;
+        }
+        OUT_LOAD_INST_DATA(in);
+        std::istringstream stream(in);
+        stream >> Encounter[0] >> Encounter[1] >> Encounter[2] >> Encounter[3];
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
+            if(Encounter[i] == IN_PROGRESS)
+                Encounter[i] = NOT_STARTED;
+        OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
 
