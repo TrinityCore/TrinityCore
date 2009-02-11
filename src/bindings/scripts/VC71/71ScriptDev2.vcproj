@@ -2051,6 +2051,18 @@
 	 	                                         Name="Utgarde Keep">
 	 	                                         <Filter
 	 	                                                 Name="Utgarde Keep">
+														 	<File
+														 	RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\boss_keleseth.cpp"
+														 	>
+														 	</File>
+														 	<File
+														 	RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\def_keep.h"
+														 	>
+														 	</File>
+														 	<File
+														 	RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\instance_utgarde_keep.cpp"
+														 	>
+														 	</File>
 	 	                                         </Filter>
 	 	                                         <Filter
 	 	                                                 Name="Utgarde Pinnacle">
