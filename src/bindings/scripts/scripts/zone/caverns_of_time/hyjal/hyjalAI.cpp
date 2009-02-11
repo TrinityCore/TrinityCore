@@ -158,7 +158,7 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
         AttackLoc[i] = AttackArea[Faction][i];
     }
 
-    Creature* pCreature = m_creature->SummonCreature(entry, SpawnLoc[0], SpawnLoc[1], SpawnLoc[2], 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
+    Creature* pCreature = m_creature->SummonCreature(entry, SpawnLoc[0], SpawnLoc[1], SpawnLoc[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000);
     if(pCreature)
     {
         // Increment Enemy Count to be used in World States and instance script
@@ -167,6 +167,7 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
         pCreature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
         pCreature->GetMotionMaster()->MovePoint(0, AttackLoc[0],AttackLoc[1],AttackLoc[2]);
         pCreature->AddThreat(m_creature, 0.0f);
+        pCreature->setActive(true);
         DoZoneInCombat(pCreature);
 
         // Check if creature is a boss.

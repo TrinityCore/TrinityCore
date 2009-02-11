@@ -118,6 +118,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
 
         DoScriptText(SAY_AGGRO, m_creature);
         AddsAttack();
+        DoZoneInCombat();
     }
 
     void KilledUnit(Unit* victim)
@@ -251,8 +252,10 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
             {
                 Temp = Unit::GetUnit((*m_creature),AddGUID[i]);
                 if (Temp && Temp->isAlive())
+                {
                     ((Creature*)Temp)->AI()->AttackStart(m_creature->getVictim());
-                else
+                    DoZoneInCombat(Temp);
+                }else
                     EnterEvadeMode();
             }
         }
