@@ -153,7 +153,7 @@ m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),m_creatureInfo(NULL), m_DBTabl
     m_regenTimer = 200;
     m_valuesCount = UNIT_END;
 
-    for(int i =0; i<4; ++i)
+    for(int i =0; i<CREATURE_MAX_SPELLS; ++i)
         m_spells[i] = 0;
 
     m_CreatureSpellCooldowns.clear();

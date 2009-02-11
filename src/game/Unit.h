@@ -219,7 +219,7 @@ enum UnitRename
     UNIT_RENAME_ALLOWED     = 0x03
 };
 
-#define CREATURE_MAX_SPELLS     4
+#define CREATURE_MAX_SPELLS     8
 
 enum Swing
 {
