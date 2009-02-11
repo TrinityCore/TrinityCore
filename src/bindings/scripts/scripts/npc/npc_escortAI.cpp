@@ -73,8 +73,7 @@ void npc_escortAI::JustRespawned()
     IsBeingEscorted = false;
     IsOnHold = false;
 
-    //Re-Enable gossip
-    m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+    //Re-Enable questgiver flag
     m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
 
     Reset();
@@ -298,7 +297,6 @@ void npc_escortAI::Start(bool bAttack, bool bDefend, bool bRun, uint64 pGUID)
     Returning = false;
     IsOnHold = false;
 
-    //Disable gossip
-    m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+    //Disable questgiver flag
     m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
 }
