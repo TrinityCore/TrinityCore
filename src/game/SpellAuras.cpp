@@ -3697,6 +3697,12 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool Real)
         // Cast Wrath of the Plaguebringer if not dispelled
         m_target->CastSpell(m_target, 29214, true, 0, this);
     }
+
+    // Wrath of the Astromancer
+    if(!apply && m_spellProto->Id == 42783)
+    {
+        m_target->CastSpell(m_target, 42787, true, 0, this);
+    }
 }
 
 void Aura::HandlePeriodicEnergize(bool apply, bool Real)
