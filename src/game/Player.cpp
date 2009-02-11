@@ -6920,6 +6920,7 @@ void Player::_ApplyItemBonuses(ItemPrototype const *proto, uint8 slot, bool appl
                 break;
             case ITEM_MOD_ATTACK_POWER:
                 HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(val), apply);
+                HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(val), apply);
                 break;
             case ITEM_MOD_RANGED_ATTACK_POWER:
                 HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(val), apply);
@@ -6997,7 +6998,19 @@ void Player::_ApplyItemBonuses(ItemPrototype const *proto, uint8 slot, bool appl
         SetBaseWeaponDamage(attType, MAXDAMAGE, damage);
     }
 
-    if(IsInFeralForm())
+    if (proto->Class == ITEM_CLASS_WEAPON && proto->Delay)
+    {
+        // Druids get feral AP bonus from weapon dps
+        if(getClass() == CLASS_DRUID && (slot==EQUIPMENT_SLOT_MAINHAND || slot==EQUIPMENT_SLOT_OFFHAND))
+        {
+            float dps = (proto->Damage[0].DamageMin + proto->Damage[0].DamageMax)/(2*proto->Delay/1000.0f);
+            int32 feral_bonus = int32(dps*14.0f) - 767;
+            if (feral_bonus > 0)
+                ApplyFeralAPBonus(feral_bonus, apply);
+        }
+    }
+
+    if(!IsUseEquipedWeapon(slot==EQUIPMENT_SLOT_MAINHAND))
         return;
 
     if (proto->Delay)
@@ -12377,6 +12390,7 @@ void Player::ApplyEnchantment(Item *item,EnchantmentSlot slot,bool apply, bool a
                         break;
                     case ITEM_MOD_ATTACK_POWER:
                         HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(enchant_amount), apply);
+                        HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(enchant_amount), apply);
                         sLog.outDebug("+ %u ATTACK_POWER", enchant_amount);
                         break;
                     case ITEM_MOD_RANGED_ATTACK_POWER:
