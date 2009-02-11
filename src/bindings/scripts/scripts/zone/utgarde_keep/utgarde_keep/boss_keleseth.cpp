@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Boss_Prince_Keleseth
 SD%Complete: 80
-SDComment: Normal and Heroic Support. Needs Prince Movements, Needs skeletons resurrection, Needs adjustments to blizzlike timers, Needs adjustments to use spell though. Needs Shadowbolt 
+SDComment: Normal and Heroic Support. Needs Prince Movements, Needs skeletons resurrection, Needs adjustments to blizzlike timers, Needs adjustments to use spell though. Needs Shadowbolt castbar
 SDCategory: Utgarde Keep
 EndScriptData */
 
@@ -49,6 +49,8 @@ float SkeletonSpawnPoint[5][5]=
 	{156.2559, 259.2093},
 	{156.2559, 259.2093},
 };
+
+float AttackLoc[3]={197.636, 194.046, 40.8164};
 
 struct TRINITY_DLL_DECL mob_frost_tombAI : public ScriptedAI
 {
@@ -92,9 +94,12 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
 
     uint32 FrostTombTimer;
     uint32 SummonSkeletonsTimer;
+	uint32 RespawnSkeletonsTimer;
 	uint32 ShadowboltTimer;
+	uint64 SkeletonGUID[5];
 	bool Skeletons;
 	bool Heroic;
+	bool RespawnSkeletons;
 	
     void Reset()
 	{
@@ -153,10 +158,18 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
 
         if((SummonSkeletonsTimer < diff) && !Skeletons)
         {
-		    DoScriptText(SAY_SKELETONS, m_creature);
+            Creature* Skeleton;
+            DoScriptText(SAY_SKELETONS, m_creature);
             for(uint8 i = 0; i < 5; ++i)
             {
-                Creature* Skeleton = m_creature->SummonCreature(CREATURE_SKELETON, SkeletonSpawnPoint[i][0], SkeletonSpawnPoint[i][1] , SKELETONSPAWN_Z, 0, TEMPSUMMON_MANUAL_DESPAWN,0);
+                Skeleton = m_creature->SummonCreature(CREATURE_SKELETON, SkeletonSpawnPoint[i][0], SkeletonSpawnPoint[i][1] , SKELETONSPAWN_Z, 0, TEMPSUMMON_MANUAL_DESPAWN,0);
+                if(Skeleton)
+                {
+                    Skeleton->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                    Skeleton->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY() , m_creature->GetPositionZ());
+                    Skeleton->AddThreat(m_creature, 0.0f);
+                    DoZoneInCombat(Skeleton);
+                }
             }				
             Skeletons = true;
         }else SummonSkeletonsTimer -= diff;

@@ -572,7 +572,7 @@ extern void AddSC_ungoro_crater();
 
 //Utgarde Keep
 extern void AddSC_boss_keleseth();
-extern void AddSC_instance_utgarde_keep()
+extern void AddSC_instance_utgarde_keep();
 
 //Wailing caverns
 
@@ -1787,7 +1787,7 @@ void ScriptsInit()
 
     //Utgarde Keep
     AddSC_boss_keleseth();
-    AddSC_instance_utgarde_keep()
+    AddSC_instance_utgarde_keep();
 	
     //Wailing caverns
 
