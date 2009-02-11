@@ -57,11 +57,11 @@ struct TRINITY_DLL_DECL mob_frost_tombAI : public ScriptedAI
         Reset();
     }
 
-    uint64 SacrificeGUID;
+    uint64 FrostTombGUID;
 
     void Reset()
     {
-        SacrificeGUID = 0;
+        FrostTombGUID = 0;
     }
 
     void Aggro(Unit* who) {}
@@ -70,11 +70,11 @@ struct TRINITY_DLL_DECL mob_frost_tombAI : public ScriptedAI
 
     void JustDied(Unit *killer)
     {
-        if(SacrificeGUID)
+        if(FrostTombGUID)
         {
-            Unit* Sacrifice = Unit::GetUnit((*m_creature),SacrificeGUID);
-            if(Sacrifice)
-                Sacrifice->RemoveAurasDueToSpell(SPELL_FROST_TOMB);
+            Unit* FrostTomb = Unit::GetUnit((*m_creature),FrostTombGUID);
+            if(FrostTomb)
+                FrostTomb->RemoveAurasDueToSpell(SPELL_FROST_TOMB);
         }
     }
 };
@@ -170,7 +170,7 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
                 Creature* Chains = m_creature->SummonCreature(CREATURE_FROSTTOMB, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 20000);
                 if(Chains)
                 {
-                    ((mob_frost_tombAI*)Chains->AI())->SacrificeGUID = target->GetGUID();
+                    ((mob_frost_tombAI*)Chains->AI())->FrostTombGUID = target->GetGUID();
                     Chains->CastSpell(target, SPELL_FROST_TOMB, true);
                     
 					DoScriptText(SAY_FROST_TOMB, m_creature);
