@@ -4968,7 +4968,24 @@ void Spell::EffectScriptEffect(uint32 effIndex)
             unitTarget->CastSpell(unitTarget, spellId, true);
             break;
         }
+        case 48025:                                     // Headless Horseman's Mount
+        {
+                if(!unitTarget)                  
+                    return;
 
+                if(unitTarget)
+                {
+                    switch(((Player*)unitTarget)->GetBaseSkillValue(762))
+                    {
+                    case 75: unitTarget->CastSpell(unitTarget, 51621, true); break;;
+                    case 150: unitTarget->CastSpell(unitTarget, 48024, true); break;
+                    case 225: unitTarget->CastSpell(unitTarget, 51617, true); break;                
+                    case 300: unitTarget->CastSpell(unitTarget, 48023, true); break;
+                    default: break;
+                    }
+                }
+                break;
+        }
     }
 
     if(!unitTarget || !unitTarget->isAlive()) // can we remove this check?
