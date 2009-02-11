@@ -4222,11 +4222,8 @@ void Unit::DelayAura(uint32 spellId, uint32 effindex, int32 delaytime)
             iter->second->SetAuraDuration(0);
         else
             iter->second->SetAuraDuration(iter->second->GetAuraDuration() - delaytime);
-        if(iter->second->GetAuraSlot() < MAX_AURAS)                        // slot found send data to client
-        {
-            // update for out of range group members (on 1 slot use)
-            UpdateAuraForGroup(iter->second->GetAuraSlot());
-        }
+        // update for out of range group members (on 1 slot use)
+        UpdateAuraForGroup(iter->second->GetAuraSlot());
         sLog.outDebug("Aura %u partially interrupted on unit %u, new duration: %u ms",iter->second->GetModifier()->m_auraname, GetGUIDLow(), iter->second->GetAuraDuration());
     }
 }
@@ -11647,6 +11644,8 @@ uint32 Unit::GetCastingTimeForBonus( SpellEntry const *spellProto, DamageEffectT
 
 void Unit::UpdateAuraForGroup(uint8 slot)
 {
+    if(slot >= MAX_AURAS)                        // slot not found, return
+        return;
     if(GetTypeId() == TYPEID_PLAYER)
     {
         Player* player = (Player*)this;
