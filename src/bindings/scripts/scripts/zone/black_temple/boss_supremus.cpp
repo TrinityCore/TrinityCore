@@ -44,8 +44,8 @@ struct TRINITY_DLL_DECL molten_flameAI : public NullCreatureAI
     molten_flameAI(Creature *c) : NullCreatureAI(c)
     {
         float x, y, z;
-        m_creature->GetNearPoint(m_creature, x, y, z, 1, 50, M_PI*2*rand_norm());
-        m_creature->GetMotionMaster()->MovePoint(0, x, y, z);
+        me->GetNearPoint(me, x, y, z, 1, 50, M_PI*2*rand_norm());
+        me->GetMotionMaster()->MovePoint(0, x, y, z);
     }
 };
 
