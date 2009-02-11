@@ -276,7 +276,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleModManaRegen,                              //219 SPELL_AURA_MOD_MANA_REGEN_FROM_STAT
     &Aura::HandleModRatingFromStat,                         //220 SPELL_AURA_MOD_RATING_FROM_STAT
     &Aura::HandleNULL,                                      //221 ignored
-    &Aura::HandleUnused,                                    //222 unused
+    &Aura::HandleNULL,                                      //222 unused
     &Aura::HandleNULL,                                      //223 Cold Stare
     &Aura::HandleUnused,                                    //224 unused
     &Aura::HandleNoImmediateEffect,                         //225 SPELL_AURA_PRAYER_OF_MENDING
@@ -334,7 +334,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNoImmediateEffect,                         //277 SPELL_AURA_MOD_ABILITY_AFFECTED_TARGETS implemented in spell::settargetmap
     &Aura::HandleAuraModDisarm,                             //278 SPELL_AURA_MOD_DISARM_RANGED disarm ranged weapon
     &Aura::HandleNULL,                                      //279
-    &Aura::HandleNULL,                                      //280 SPELL_AURA_MOD_TARGET_ARMOR_PCT
+    &Aura::HandleNoImmediateEffect,                         //280 SPELL_AURA_MOD_WEAPONTYPE_IGNORE_TARGET_RESISTANCE
     &Aura::HandleNoImmediateEffect,                         //281 SPELL_AURA_MOD_HONOR_GAIN_PCT implemented in Player::RewardHonor
     &Aura::HandleAuraIncreaseBaseHealthPercent,             //282 SPELL_AURA_INCREASE_BASE_HEALTH_PERCENT
     &Aura::HandleNoImmediateEffect                          //283 SPELL_AURA_MOD_HEALING_RECEIVED       implemented in Unit::SpellHealingBonus
@@ -840,11 +840,8 @@ void Aura::_AddAura()
 
     SetAuraSlot( slot );
 
-    if(slot < MAX_AURAS)                        // slot found send data to client
-    {
-        // update for out of range group members (on 1 slot use)
-        m_target->UpdateAuraForGroup(slot);
-    }
+    // update for out of range group members (on 1 slot use)
+    m_target->UpdateAuraForGroup(slot);
 
     //*****************************************************
     // Update target aura state flag (at 1 aura apply)
@@ -1055,11 +1052,8 @@ bool Aura::modStackAmount(int32 num)
 void Aura::RefreshAura()
 {
     m_duration = m_maxduration;
-    if(GetAuraSlot() < MAX_AURAS)                        // slot found send data to client
-    {
-        // update for out of range group members (on 1 slot use)
-        m_target->UpdateAuraForGroup(GetAuraSlot());
-    }
+    // update for out of range group members (on 1 slot use)
+    m_target->UpdateAuraForGroup(GetAuraSlot());
 }
 
 bool Aura::isAffectedOnSpell(SpellEntry const *spell) const

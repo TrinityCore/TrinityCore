@@ -18940,7 +18940,7 @@ void Player::learnSkillRewardedSpells(uint32 skill_id, uint32 skill_value )
 
 void Player::SendAurasForTarget(Unit *target)
 {
-    if(target->GetVisibleAuras()->empty())                  // speedup things
+    if(!target || target->GetVisibleAuras()->empty())                  // speedup things
         return;
 
     WorldPacket data(SMSG_AURA_UPDATE_ALL);
