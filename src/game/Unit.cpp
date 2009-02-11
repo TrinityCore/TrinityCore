@@ -10393,23 +10393,16 @@ Powers Unit::GetPowerTypeByAuraGroup(UnitMods unitMod) const
 
 float Unit::GetTotalAttackPowerValue(WeaponAttackType attType) const
 {
-//get value from unit field instead of calculating from mods-because mods from stat are not added to unit_mods
-    int32 index, index_mod, index_mult;
     if (attType == RANGED_ATTACK)
     {
-        index=UNIT_FIELD_RANGED_ATTACK_POWER;
-        index_mod=UNIT_FIELD_RANGED_ATTACK_POWER_MODS;
-        index_mult=UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER;
+        uint32 ap = GetInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER) + GetInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER_MODS);
+        return ap * (1.0f + GetFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER));
     }
-    else //meele
+    else
     {
-        index=UNIT_FIELD_ATTACK_POWER;
-        index_mod=UNIT_FIELD_ATTACK_POWER_MODS;
-        index_mult=UNIT_FIELD_ATTACK_POWER_MULTIPLIER;
+        uint32 ap = GetInt32Value(UNIT_FIELD_ATTACK_POWER) + GetInt32Value(UNIT_FIELD_ATTACK_POWER_MODS);
+        return ap * (1.0f + GetFloatValue(UNIT_FIELD_ATTACK_POWER_MULTIPLIER));
     }
-
-    float val = float(GetUInt32Value(index) + GetUInt32Value(index_mod)) * float(GetFloatValue(index_mult)+1);
-    return (val < 0.0f)? 0.0f : val;
 }
 
 float Unit::GetWeaponDamageRange(WeaponAttackType attType ,WeaponDamageRange type) const
