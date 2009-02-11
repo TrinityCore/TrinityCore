@@ -40,7 +40,8 @@ EndScriptData */
 #define SPELL_BLINDING_LIGHT                  33009
 #define SPELL_FEAR                            29321
 #define SPELL_VOID_BOLT                       39329
-
+#define SPELL_SPOTLIGHT                       25824
+       
 #define CENTER_X                             432.909f
 #define CENTER_Y                             -373.424f
 #define CENTER_Z                             17.9608f
@@ -52,7 +53,7 @@ EndScriptData */
 #define SOLARIUM_AGENT                       18925
 #define SOLARIUM_PRIEST                      18806
 #define ASTROMANCER_SOLARIAN_SPOTLIGHT       18928
-#define SPELL_SPOTLIGHT                      25824
+
 #define MODEL_HUMAN                          18239
 #define MODEL_VOIDWALKER                     18988
 
@@ -63,18 +64,24 @@ EndScriptData */
 #define WV_ARMOR                    31000
 #define MIN_RANGE_FOR_DOT_JUMP      20.0f
 
+                             // x,          y,      z,         o
+static float SolarianPos[4] = {432.909, -373.424, 17.9608, 1.06421};
+
 struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
 {
-    boss_high_astromancer_solarianAI(Creature *c) : ScriptedAI(c)
+    boss_high_astromancer_solarianAI(Creature *c) : ScriptedAI(c), Summons(m_creature)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
 
-        defaultarmor=m_creature->GetArmor();
-        defaultsize=m_creature->GetFloatValue(OBJECT_FIELD_SCALE_X);
+        defaultarmor = m_creature->GetArmor();
+        defaultsize = m_creature->GetFloatValue(OBJECT_FIELD_SCALE_X);
         Reset();
     }
 
     ScriptedInstance *pInstance;
+    SummonList Summons;
+
+    uint8 Phase;
 
     uint32 ArcaneMissiles_Timer;
     uint32 MarkOfTheAstromancer_Timer;
@@ -90,18 +97,13 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
     uint32 defaultarmor;
 
     float defaultsize;
+    float Portals[3][3];
 
     bool AppearDelay;
-
-    uint8 Phase;
-
-    uint64 WrathTarget;
-
-    float Portals[3][3];
+    bool BlindingLight;    
 
     void Reset()
     {
-        WrathTarget=0;
         ArcaneMissiles_Timer = 2000;
         MarkOfTheAstromancer_Timer = 15000;
         BlindingLight_Timer = 41000;
@@ -111,6 +113,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
         Phase2_Timer = 10000;
         Phase3_Timer = 15000;
         AppearDelay_Timer = 2000;
+        BlindingLight = false;
         AppearDelay = false;
         MarkOfTheSolarian_Timer=45000;
         Jump_Timer=8000;
@@ -124,12 +127,14 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
         m_creature->SetVisibility(VISIBILITY_ON);
         m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize);
         m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_HUMAN);
+
+        Summons.DespawnAll();
     }
 
     void StartEvent()
     {
         DoScriptText(SAY_AGGRO, m_creature);
-
+          
         if(pInstance)
             pInstance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, IN_PROGRESS);
     }
@@ -166,6 +171,8 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
         {
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 Summoned->AI()->AttackStart(target);
+            
+            Summons.Summon(Summoned);
         }
     }
 
@@ -206,90 +213,49 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
                     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     m_creature->SetVisibility(VISIBILITY_OFF);
                 }
-
                 AppearDelay_Timer = 2000;
             }else AppearDelay_Timer -= diff;
-        }
-
-        //the jumping of the dot part of the wrath of the astromancer
-        if(WrathTarget)
-        {
-            if(Jump_Timer< diff)
-            {
-                std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
-                bool hasJumped = false;
-
-                Unit* target = Unit::GetUnit((*m_creature),WrathTarget);
-                if(target && target->isAlive())
-                {
-                    for(std::list<HostilReference*>::iterator iter = m_threatlist.begin();iter!=m_threatlist.end();++iter)
-                    {
-                        Unit* currentUnit=Unit::GetUnit((*m_creature),(*iter)->getUnitGuid());
-                        if(currentUnit)
-                        {
-                            if(currentUnit->IsWithinDistInMap(target,MIN_RANGE_FOR_DOT_JUMP)&&currentUnit->isAlive()&&currentUnit!=target)
-                            {
-                                m_creature->CastSpell(currentUnit,SPELL_MARK_OF_THE_ASTROMANCER, false,0,0,m_creature->GetGUID());
-
-                                Jump_Timer=8000;
-                                WrathTarget=currentUnit->GetGUID();
-                                hasJumped = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if(!hasJumped)
-                    WrathTarget = 0;
-            }else Jump_Timer -= diff;
-        }
+        }      
 
         if (Phase == 1)
         {
-            //ArcaneMissiles_Timer
-            if (ArcaneMissiles_Timer < diff)
-            {
-                //Solarian casts Arcane Missiles on on random targets in the raid.
-                Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                if (!m_creature->HasInArc(2.5f, target))
-                    target = m_creature->getVictim();
-                if (target)
-                    DoCast(target, SPELL_ARCANE_MISSILES);
-
-                ArcaneMissiles_Timer = 3000;
-            }else ArcaneMissiles_Timer -= diff;
-
-            //MarkOfTheSolarian_Timer
-            if (MarkOfTheSolarian_Timer < diff)
-            {
-                DoCast(m_creature->getVictim(), MARK_OF_SOLARIAN);
-                MarkOfTheSolarian_Timer = 45000;
-            }else MarkOfTheSolarian_Timer -= diff;
-
-            //MarkOfTheAstromancer_Timer
-            if (MarkOfTheAstromancer_Timer < diff)
-            {
-                //A debuff that lasts for 5 seconds, cast several times each phase on a random raid member, but not the main tank
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1))
-                {
-                    DoCast(target, SPELL_MARK_OF_THE_ASTROMANCER);
-
-                    WrathTarget=target->GetGUID();
-                    Jump_Timer=8000;
-                }
-
-                MarkOfTheAstromancer_Timer = 15000;
-            }else MarkOfTheAstromancer_Timer -= diff;
-
-            //BlindingLight_Timer
-            if (BlindingLight_Timer < diff)
-            {
-                //She casts this spell every 45 seconds. It is a kind of Moonfire spell, which she strikes down on the whole raid simultaneously. It hits everyone in the raid for 2280 to 2520 arcane damage.
-                DoCast(m_creature->getVictim(), SPELL_BLINDING_LIGHT);
-
+            if (BlindingLight_Timer < diff){
+                BlindingLight = true;
                 BlindingLight_Timer = 45000;
             }else BlindingLight_Timer -= diff;
+
+             if (ArcaneMissiles_Timer < diff)
+             {
+                 if(BlindingLight)
+                 {
+                     DoCast(m_creature->getVictim(), SPELL_BLINDING_LIGHT);
+                     BlindingLight = false;
+                 }else{
+                     Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+
+                     if(!m_creature->HasInArc(2.5f, target))
+                         target = m_creature->getVictim();
+
+                if(target) 
+                    DoCast(target, SPELL_ARCANE_MISSILES);
+                 }
+                 ArcaneMissiles_Timer = 3000;
+             }else ArcaneMissiles_Timer -= diff;
+ 
+             if (MarkOfTheSolarian_Timer < diff)
+             {
+                 DoCast(m_creature->getVictim(), MARK_OF_SOLARIAN);
+                 MarkOfTheSolarian_Timer = 45000;
+             }else MarkOfTheSolarian_Timer -= diff;
+
+             if (MarkOfTheAstromancer_Timer < diff) //A debuff that lasts for 5 seconds, cast several times each phase on a random raid member, but not the main tank
+             {
+                 Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1, 100, true);
+                 if(target)
+                     DoCast(target, SPELL_MARK_OF_THE_ASTROMANCER);
+                 else DoCast(m_creature->getVictim(), SPELL_MARK_OF_THE_ASTROMANCER);
+                 MarkOfTheAstromancer_Timer = 15000;
+             }else MarkOfTheAstromancer_Timer -= diff;
 
             //Phase1_Timer
             if (Phase1_Timer < diff)
@@ -298,8 +264,8 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
                 Phase1_Timer = 50000;
                 //After these 50 seconds she portals to the middle of the room and disappears, leaving 3 light portals behind.
                 m_creature->GetMotionMaster()->Clear();
-                m_creature->Relocate(CENTER_X, CENTER_Y, CENTER_Z, CENTER_O);
-                for(int i=0; i<=2; i++)
+                m_creature->Relocate(SolarianPos[0], SolarianPos[1], SolarianPos[2], SolarianPos[3]);
+                for(int i=0; i<=2; ++i)
                 {
                     if (!i)
                     {
