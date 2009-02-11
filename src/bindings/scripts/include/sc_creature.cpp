@@ -464,7 +464,7 @@ SpellEntry const* ScriptedAI::SelectSpell(Unit* Target, int32 School, int32 Mech
     SpellRangeEntry const* TempRange;
 
     //Check if each spell is viable(set it to null if not)
-    for (uint32 i = 0; i < 4; i++)
+    for (uint32 i = 0; i < CREATURE_MAX_SPELLS; i++)
     {
         TempSpell = GetSpellStore()->LookupEntry(m_creature->m_spells[i]);
 
