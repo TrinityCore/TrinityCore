@@ -5680,12 +5680,27 @@ void Aura::PeriodicTick()
                 int32 gain = pCaster->ModifyPower(power,gain_amount);
                 m_target->AddThreat(pCaster, float(gain) * 0.5f, GetSpellSchoolMask(GetSpellProto()), GetSpellProto());
             }
+            
             // Mark of Kaz'rogal
             if(GetId() == 31447 && m_target->GetPower(power) == 0)
             {
                 m_target->CastSpell(m_target, 31463, true, 0, this);
                 // Remove aura
                 SetAuraDuration(0);
+            }
+
+            // Mark of Kazzak
+            if(GetId() == 32960)
+            {
+                int32 modifier = (m_target->GetPower(power) * 0.05f);
+                m_target->ModifyPower(power, -modifier);
+
+                if(m_target->GetPower(power) == 0)
+                {
+                    m_target->CastSpell(m_target, 32961, true, 0, this);
+                    // Remove aura
+                    SetAuraDuration(0);
+                }
             }
             break;
         }
