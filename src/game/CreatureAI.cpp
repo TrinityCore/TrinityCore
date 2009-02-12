@@ -40,6 +40,20 @@ void CreatureAI::MoveInLineOfSight(Unit *who)
 {
     if(!me->getVictim() && me->canStartAttack(who))
         AttackStart(who);
+
+    if (who->isInCombat() && who->getVictim() && me->GetCreatureType()==CREATURE_TYPE_HUMANOID && me->IsFriendlyTo(who))
+        {
+        if (me->GetDistanceZ(who) <= 2 && me->IsWithinLOSInMap(who))
+            {
+            float attackRadius = (me->GetAttackDistance(who) *0.5);
+            if (me->IsWithinDistInMap(who, attackRadius))
+                {
+                Unit* target = NULL;
+                target = who->getVictim();
+                AttackStart(target);
+                }
+            }
+        }
 }
 
 bool CreatureAI::UpdateVictim()
