@@ -40,11 +40,4 @@ SQL files to create the database can be found in the sql directory. Files
 to update your database from an older revision/version can be found in the
 sql/updates directory.
 
-See the INSTALL file for installation instructions under Linux.
-
-If you are using the SVN (unstable) version of Trinity Core, run this
-command prior to building:
-
-autoreconf --install --force
-
-You can then continue to build the source.
+See the INSTALL.Linux file for installation instructions under Linux.
