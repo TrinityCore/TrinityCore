@@ -451,9 +451,9 @@ CreatureAI* GetAI_boss_janalaiAI(Creature *_Creature)
     return new boss_janalaiAI(_Creature);
 }
 
-struct TRINITY_DLL_DECL mob_jandalai_firebombAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_janalai_firebombAI : public ScriptedAI
 {
-    mob_jandalai_firebombAI(Creature *c) : ScriptedAI(c){Reset();}
+    mob_janalai_firebombAI(Creature *c) : ScriptedAI(c){Reset();}
 
     void Reset() {}
 
@@ -472,9 +472,9 @@ struct TRINITY_DLL_DECL mob_jandalai_firebombAI : public ScriptedAI
     void UpdateAI(const uint32 diff) {}
 };
 
-CreatureAI* GetAI_mob_jandalai_firebombAI(Creature *_Creature)
+CreatureAI* GetAI_mob_janalai_firebombAI(Creature *_Creature)
 {
-    return new mob_jandalai_firebombAI(_Creature);
+    return new mob_janalai_firebombAI(_Creature);
 }
 
 struct TRINITY_DLL_DECL mob_amanishi_hatcherAI : public ScriptedAI
@@ -694,7 +694,7 @@ void AddSC_boss_janalai()
 
     newscript = new Script;
     newscript->Name="mob_janalai_firebomb";
-    newscript->GetAI = &GetAI_mob_jandalai_firebombAI;
+    newscript->GetAI = &GetAI_mob_janalai_firebombAI;
     newscript->RegisterSelf();
 
     newscript = new Script;
