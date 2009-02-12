@@ -10,6 +10,6 @@
 #define DATA_WHITEMANE                  3
 #define DATA_DOOR_WHITEMANE             4
 
-#define DATA_HORSEMAN_EVENT			5
-#define GAMEOBJECT_PUMPKIN_SHRINE	6
+#define DATA_HORSEMAN_EVENT         5
+#define GAMEOBJECT_PUMPKIN_SHRINE   6
 #endif
