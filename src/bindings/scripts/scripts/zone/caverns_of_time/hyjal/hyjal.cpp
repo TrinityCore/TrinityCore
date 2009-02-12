@@ -134,13 +134,13 @@ bool GossipHello_npc_thrall(Player *player, Creature *_Creature)
 {
     hyjalAI* ai = ((hyjalAI*)_Creature->AI());
 
-	if (ai->EventBegun)
-		return false;
+    if (ai->EventBegun)
+        return false;
 
     uint32 AnetheronEvent = ai->GetInstanceData(DATA_ANETHERONEVENT);
 
-	// Only let them start the Horde phases if Anetheron is dead.
-	if (AnetheronEvent == DONE)
+    // Only let them start the Horde phases if Anetheron is dead.
+    if (AnetheronEvent == DONE)
     {
         uint32 KazrogalEvent = ai->GetInstanceData(DATA_KAZROGALEVENT);
         uint32 AzgalorEvent  = ai->GetInstanceData(DATA_AZGALOREVENT);
@@ -187,37 +187,37 @@ bool GossipSelect_npc_thrall(Player *player, Creature *_Creature, uint32 sender,
 
 CreatureAI* GetAI_npc_tyrande_whisperwind(Creature *_Creature)
 {
-	hyjalAI* ai = new hyjalAI(_Creature);
-	ai->Reset();
-	ai->EnterEvadeMode();
+    hyjalAI* ai = new hyjalAI(_Creature);
+    ai->Reset();
+    ai->EnterEvadeMode();
 
-	return ai;
+    return ai;
 }
 
 bool GossipHello_npc_tyrande_whisperwind(Player* player, Creature* _Creature)
 {
-	hyjalAI* ai = ((hyjalAI*)_Creature->AI());
-	uint32 AzgalorEvent = ai->GetInstanceData(DATA_AZGALOREVENT);
+    hyjalAI* ai = ((hyjalAI*)_Creature->AI());
+    uint32 AzgalorEvent = ai->GetInstanceData(DATA_AZGALOREVENT);
 
-	// Only let them get item if Azgalor is dead.
-	if (AzgalorEvent == DONE && !player->HasItemCount(ITEM_TEAR_OF_GODDESS,1))
-		player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_TYRANDE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-	player->SEND_GOSSIP_MENU(907, _Creature->GetGUID());
-	return true;
+    // Only let them get item if Azgalor is dead.
+    if (AzgalorEvent == DONE && !player->HasItemCount(ITEM_TEAR_OF_GODDESS,1))
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_TYRANDE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+    player->SEND_GOSSIP_MENU(907, _Creature->GetGUID());
+    return true;
 }
 
 bool GossipSelect_npc_tyrande_whisperwind(Player *player, Creature *_Creature, uint32 sender, uint32 action)
 {
-	if (action == GOSSIP_ACTION_INFO_DEF)
-	{
-			ItemPosCountVec dest;
-			uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, ITEM_TEAR_OF_GODDESS, 1);
-			if (msg == EQUIP_ERR_OK)
-			{
-				player->StoreNewItem(dest, ITEM_TEAR_OF_GODDESS, true);
-			}
-			player->SEND_GOSSIP_MENU(907, _Creature->GetGUID());
-	}
+    if (action == GOSSIP_ACTION_INFO_DEF)
+    {
+            ItemPosCountVec dest;
+            uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, ITEM_TEAR_OF_GODDESS, 1);
+            if (msg == EQUIP_ERR_OK)
+            {
+                player->StoreNewItem(dest, ITEM_TEAR_OF_GODDESS, true);
+            }
+            player->SEND_GOSSIP_MENU(907, _Creature->GetGUID());
+    }
 
     return true;
 }
@@ -244,6 +244,6 @@ void AddSC_hyjal()
     newscript->Name = "npc_tyrande_whisperwind";
     newscript->pGossipHello = &GossipHello_npc_tyrande_whisperwind;
     newscript->pGossipSelect = &GossipSelect_npc_tyrande_whisperwind;
-	newscript->GetAI = &GetAI_npc_tyrande_whisperwind;
+    newscript->GetAI = &GetAI_npc_tyrande_whisperwind;
     newscript->RegisterSelf();
 }

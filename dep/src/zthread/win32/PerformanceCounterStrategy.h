@@ -31,19 +31,19 @@ namespace ZThread {
 /**
  * @class PerformanceCounterStrategy
  *
- * Implement a strategy for time operatons based on 
- * Windows QueryPerformanceXXX() functions. 
+ * Implement a strategy for time operatons based on
+ * Windows QueryPerformanceXXX() functions.
  * This only (erroneously) considers the lower 32 bits.
  */
 class TimeStrategy {
 
   unsigned long _secs;
   unsigned long _millis;
-    
+
 public:
 
   TimeStrategy() {
-    
+
     // Keep track of the relative time the program started
     static LARGE_INTEGER i;
     static BOOL valid(::QueryPerformanceCounter(&i));
@@ -52,22 +52,22 @@ public:
 
     LARGE_INTEGER j;
     ::QueryPerformanceCounter(&j);
-  
+
     j.LowPart -= i.LowPart;
     j.LowPart /= frequency();
 
-    // Mask off the high bits        
+    // Mask off the high bits
     _millis = (unsigned long)j.LowPart / 1000;
     _secs   = (unsigned long)j.LowPart - _millis;
 
   }
-  
+
   unsigned long seconds() const {
     return _secs;
   }
 
-  unsigned long milliseconds() const {  
-    return _millis;    
+  unsigned long milliseconds() const {
+    return _millis;
   }
 
   unsigned long seconds(unsigned long s) {

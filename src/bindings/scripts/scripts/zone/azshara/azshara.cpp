@@ -251,7 +251,7 @@ struct TRINITY_DLL_DECL mob_rizzle_sprysprocketAI : public ScriptedAI
     bool Must_Die;
     bool Escape;
     bool ContinueWP;
-	bool Reached;
+    bool Reached;
 
     void Reset()
     {
@@ -267,7 +267,7 @@ struct TRINITY_DLL_DECL mob_rizzle_sprysprocketAI : public ScriptedAI
         Must_Die = false;
         Escape = false;
         ContinueWP = false;
-		Reached = false;
+        Reached = false;
     }
 
     void Despawn()
@@ -306,8 +306,8 @@ struct TRINITY_DLL_DECL mob_rizzle_sprysprocketAI : public ScriptedAI
                     m_creature->AI_SendMoveToPacket(3706.39, -3969.15, 35.9118, 0, 0, 0);
                 }
                 //begin swimming and summon depth charges
-				Player* player = ((Player*)Unit::GetUnit((*m_creature), PlayerGUID));
-				SendText(MSG_ESCAPE_NOTICE, player);
+                Player* player = ((Player*)Unit::GetUnit((*m_creature), PlayerGUID));
+                SendText(MSG_ESCAPE_NOTICE, player);
                 DoCast(m_creature, SPELL_PERIODIC_DEPTH_CHARGE);
                 m_creature->SetUnitMovementFlags(MOVEMENTFLAG_FLYING2 | MOVEMENTFLAG_SWIMMING);
                 m_creature->SetSpeed(MOVE_RUN, 0.85f, true);
@@ -336,7 +336,7 @@ struct TRINITY_DLL_DECL mob_rizzle_sprysprocketAI : public ScriptedAI
             Grenade_Timer = 30000;
         } else Grenade_Timer -= diff;
 
-		if(Check_Timer < diff)
+        if(Check_Timer < diff)
         {
             Player *player = (Player *)Unit::GetUnit((*m_creature), PlayerGUID);
             if(!player)
@@ -345,16 +345,16 @@ struct TRINITY_DLL_DECL mob_rizzle_sprysprocketAI : public ScriptedAI
                 return;
             }
             float dist = m_creature->GetDistance(player);
-			if(dist < 10 && m_creature->GetPositionX() > player->GetPositionX() && !Reached)
+            if(dist < 10 && m_creature->GetPositionX() > player->GetPositionX() && !Reached)
             {
                 DoScriptText(SAY_RIZZLE_FINAL, m_creature);
                 m_creature->SetUInt32Value(UNIT_NPC_FLAGS, 1);
-				m_creature->setFaction(35);
+                m_creature->setFaction(35);
                 m_creature->StopMoving();
                 m_creature->GetMotionMaster()->MovementExpired();
-				m_creature->GetMotionMaster()->Clear(true);
+                m_creature->GetMotionMaster()->Clear(true);
                 m_creature->RemoveAurasDueToSpell(SPELL_PERIODIC_DEPTH_CHARGE);
-				Reached = true;
+                Reached = true;
             }
 
             Check_Timer = 1000;
@@ -362,13 +362,13 @@ struct TRINITY_DLL_DECL mob_rizzle_sprysprocketAI : public ScriptedAI
 
     }
 
-	void SendText(const char *text, Player* player)
-	{
-		WorldPacket data(SMSG_SERVER_MESSAGE, 0);              // guess size
-		data << text;
-		if(player)
-			player->GetSession()->SendPacket(&data);
-	}
+    void SendText(const char *text, Player* player)
+    {
+        WorldPacket data(SMSG_SERVER_MESSAGE, 0);              // guess size
+        data << text;
+        if(player)
+            player->GetSession()->SendPacket(&data);
+    }
 
     void AttackStart(Unit *who)
     {
@@ -443,7 +443,7 @@ struct TRINITY_DLL_DECL mob_depth_chargeAI : public ScriptedAI
     void Reset()
     {
         m_creature->SetUnitMovementFlags(MOVEMENTFLAG_FLYING2 | MOVEMENTFLAG_SWIMMING);
-		m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         we_must_die = false;
         must_die_timer = 1000;
     }
@@ -478,9 +478,9 @@ struct TRINITY_DLL_DECL mob_depth_chargeAI : public ScriptedAI
     }
 
     void Aggro(Unit* who)
-	{
+    {
         return;
-	}
+    }
 };
 
 CreatureAI* GetAI_mob_depth_charge(Creature *_Creature)
@@ -503,7 +503,7 @@ void AddSC_azshara()
     newscript->pGossipSelect = &GossipSelect_npc_loramus_thalipedes;
     newscript->RegisterSelf();
 
-	newscript = new Script;
+    newscript = new Script;
     newscript->Name="mob_rizzle_sprysprocket";
     newscript->GetAI = &GetAI_mob_rizzle_sprysprocket;
     newscript->pGossipHello =  &GossipHello_mob_rizzle_sprysprocket;

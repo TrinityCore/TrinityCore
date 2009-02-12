@@ -84,7 +84,7 @@ bool LoadADT(char* filename)
         //if(fourcc == 0x4d4f4446)                          // MODF
         if(fourcc == 0x4d48324f)                            // MH2O new in WotLK
         {
-            // здесь надо запомнить базовую позицию в файле тк все смещения будут от него
+            // здес?надо запомнит?базову?позици??файл?тк вс?смещен? буду?от него
             uint32 base_pos = mf.getPos();
             uint32 header_pos = 0;
             MH2O_offsData *LiqOffsData = new MH2O_offsData;
@@ -94,24 +94,24 @@ bool LoadADT(char* filename)
             {
                 mf.read(LiqOffsData, 0x0C);
                 header_pos = mf.getPos();
-                if(LiqOffsData->offsData1 != 0)             // если данные в Data1 о воде есть, то их надо конвертировать
+                if(LiqOffsData->offsData1 != 0)             // если данные ?Data1 ?воде есть, то их надо конвертировать
                 {
-                    // переходим по смещению из offsData1 ОТ НАЧАЛА куска
+                    // перехоим по смещению из offsData1 ОТ НАЧАЛА куск?
                     mf.seek(base_pos + LiqOffsData->offsData1);
-                    mf.read(LiqChunkData1, 0x18);           // считываем сами данные в структуру типа MH2O_Data1
-                    // заносим данные флага для куска
+                    mf.read(LiqChunkData1, 0x18);           // считывае?сами данные ?структур?типа MH2O_Data1
+                    // заноси?данные флаг?для куск?
                     if(LiqType[LiqChunkData1->LiquidTypeId] == 0xffff)
                         printf("\nCan't find Liquid type for map %s\nchunk %d\n", filename, chunk_num);
                     else if(LiqType[LiqChunkData1->LiquidTypeId] == LIQUID_TYPE_WATER || LiqType[LiqChunkData1->LiquidTypeId] == LIQUID_TYPE_OCEAN)
                         MapLiqFlag[chunk_num] |= 1;         // water/ocean
                     else if(LiqType[LiqChunkData1->LiquidTypeId] == LIQUID_TYPE_MAGMA || LiqType[LiqChunkData1->LiquidTypeId] == LIQUID_TYPE_SLIME)
                         MapLiqFlag[chunk_num] |= 2;         // magma/slime
-                    // предварительно заполняем весь кусок данными - нет воды
+                    // предварительно заполняем весь кусо?данным?- не?воды
                     for(int j = 0; j < 81; ++j)
                     {
                         ChunkLiqHeight[j] = -999999;        // no liquid/water
                     }
-                    // теперь вычисляем те что с водой и перезаписываем их в куске 
+                    // теперь вычисляем те чт??водо??перезаписываем их ?куск?
                     for(int b = 0; b <= LiqChunkData1->height; ++b)
                     {
                         for(int c = LiqChunkData1->xOffset; c <= (LiqChunkData1->xOffset + LiqChunkData1->width); ++c)
@@ -120,22 +120,22 @@ bool LoadADT(char* filename)
                             ChunkLiqHeight[n] = LiqChunkData1->heightLevel1;
                         }
                     }
-                    mf.seek(header_pos);                    // и не забыть вернуться на исходную позицию именно В ХИДЕРЕ
+                    mf.seek(header_pos);                    // ?не забыть вернуться на исходную позици?именно ?ХИДЕРЕ
                 }
-                else                                        // если данных в Data1 нет, то надо заполнить весь кусок, но данными - нет воды
+                else                                        // если данных ?Data1 не? то надо заполнит?весь кусо? но данным?- не?воды
                 {
                     for(int j = 0; j < 81; ++j)
                         ChunkLiqHeight[j] = -999999;        // no liquid/water
                 }
 
                 if(!(chunk_num % 16))
-                    m = 1024 * (chunk_num / 16);            // смещение по рядам кусков с перекрытием = 1024
-                k = m + (chunk_num % 16) * 8;               // устанавливаемся на начальный индекс для заполнения ряда
-                // заносим данные куска в массив для карты, с перекрытием и обрезанием кусков тк данных 81
-                // это аналог старого обрезания граничных правых-боковых и нижних данных
-                for(int p = 0; p < 72; p += 9)              // нижние 8 не заносим тк они дублируется след куском
+                    m = 1024 * (chunk_num / 16);            // смещение по ?да?кусков ?перекрытие?= 1024
+                k = m + (chunk_num % 16) * 8;               // устанавливаемся на начальны?индекс для заполнен? ?да
+                // заноси?данные куск??массив для карт? ?перекрытие??обрезанием кусков тк данных 81
+                // эт?аналог старог?обрезания граничны?правых-боковы??нижних данных
+                for(int p = 0; p < 72; p += 9)              // нижние 8 не заноси?тк он?дублируется след куском
                 {
-                    for(int s = 0; s < 8; ++s)              // 9 значение в строке не заносим тк оно дублируется след куском, а в правых-боковых обрезается для 128х128
+                    for(int s = 0; s < 8; ++s)              // 9 значение ?строке не заноси?тк он?дублируется след куском, ??правых-боковы?обрезает? для 128?28
                     {
                         MapLiqHeight[k] = ChunkLiqHeight[p + s];
                         ++k;
@@ -244,7 +244,7 @@ inline void LoadMapChunk(MPQFile &mf, chunk *_chunk)
         {
             nextpos = mf.getPos() + 0x1C0;                  // size fix
         }
-        else if(fourcc == 0x4d434c51)                       // не будем учитывать если уже были данные в MH2O, перестраховка :)                      // MCLQ
+        else if(fourcc == 0x4d434c51)                       // не буде?учитыват?если уж?были данные ?MH2O, перестраховк?:)                      // MCLQ
         {
             // liquid / water level
             char fcc1[5];
@@ -280,7 +280,7 @@ inline void LoadMapChunk(MPQFile &mf, chunk *_chunk)
                 if(chunkflags & 16)
                     MapLiqFlag[chunk_num] |= 2;             // magma/slime
             }
-            // заполнем так же как в MH2O
+            // заполнем та?же ка??MH2O
             if(!(chunk_num % 16))
                 m = 1024 * (chunk_num / 16);
             k = m + (chunk_num % 16) * 8;

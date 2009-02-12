@@ -205,7 +205,7 @@ struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
     {
         HeroicMode = m_creature->GetMap()->IsHeroic();
         Reset();
-		CanEvade = false;
+        CanEvade = false;
     }
 
     bool HeroicMode;
@@ -241,10 +241,10 @@ struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
         {
             DoCast(m_creature->getVictim(),SPELL_ARCANE_BOLT);
             ArcaneBolt_Timer = 2000 + rand()%2500;
-			Unit *shaffar = FindCreature(ENTRY_SHAFFAR, 100, m_creature);
+            Unit *shaffar = FindCreature(ENTRY_SHAFFAR, 100, m_creature);
             if(!shaffar || shaffar->isDead())
             {
-				m_creature->SetVisibility(VISIBILITY_OFF);
+                m_creature->SetVisibility(VISIBILITY_OFF);
                 m_creature->SetLootRecipient(NULL);
                 m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             }

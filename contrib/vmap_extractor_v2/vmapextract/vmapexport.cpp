@@ -24,7 +24,7 @@
 #define __STORMLIB_SELF__               // Don't use StormLib.lib
 #include "StormLib.h"
 
-#pragma warning(disable : 4505) 
+#pragma warning(disable : 4505)
 #pragma comment(lib, "Winmm.lib")
 
 //From Extractor
@@ -58,7 +58,7 @@ char input_path[1024]=".";
 bool hasInputPathParam = false;
 char tmp[512];
 bool preciseVectorData = false;
-//char gamepath[1024];	
+//char gamepath[1024];
 
 //Convert function
 //bool ConvertADT(char*,char*);
@@ -106,9 +106,9 @@ static void ShowProcessedFile(const char * szFileName)
 int ExtractWmo(const std::vector<std::string>& pArchiveNames)
 {
 
-    char* szListFile = ""; 
+    char* szListFile = "";
     char   szLocalFile[MAX_PATH] = "";
-    HANDLE hMpq = ""; 
+    HANDLE hMpq = "";
     BOOL bResult = FALSE;
 
     //const char* ParsArchiveNames[] = {"patch-2.MPQ", "patch.MPQ", "common.MPQ", "expansion.MPQ"};
@@ -128,7 +128,7 @@ int ExtractWmo(const std::vector<std::string>& pArchiveNames)
 
         // Copy files from archive
         if(nError == ERROR_SUCCESS)
-        {	
+        {
             SFILE_FIND_DATA wf;
             HANDLE hFind = SFileFindFirstFile(hMpq,"*.wmo*", &wf, szListFile);
             bResult = TRUE;
@@ -153,7 +153,7 @@ int ExtractWmo(const std::vector<std::string>& pArchiveNames)
                         {
                             int m = cpy[i];
                             if(isdigit(m))
-                                p++;	
+                                p++;
                         }
                     }
                     if(p != 3)
@@ -189,12 +189,12 @@ int ExtractWmo(const std::vector<std::string>& pArchiveNames)
                                     bResult = SFileFindNextFile(hFind, &wf);
                                     break;
                                 }
-								Wmo_nVertices += fgroup->ConvertToVMAPGroupWmo(output, preciseVectorData);	
+                                Wmo_nVertices += fgroup->ConvertToVMAPGroupWmo(output, preciseVectorData);
                             }
                         }
                         fseek(output, 8, SEEK_SET); // store the correct no of vertices
                         fwrite(&Wmo_nVertices,sizeof(int),1,output);
-                        fclose(output);	
+                        fclose(output);
                     }
                 } else {
                     fclose(n);
@@ -269,7 +269,7 @@ void ParsMapFiles()
         {
             for (int x=0; x<64; x++)
             {
-                for (int y=0; y<64; y++) 
+                for (int y=0; y<64; y++)
                 {
                     if (ADTFile*ADT = WDT.GetMap(x,y))
                     {
@@ -297,10 +297,10 @@ void getGamePath()
     //l = RegOpenKeyEx(HKEY_LOCAL_MACHINE,"SOFTWARE\\Blizzard Entertainment\\Burning Crusade Closed Beta",0,KEY_QUERY_VALUE,&key);
     l = RegQueryValueEx(key,"InstallPath",0,&t,(LPBYTE)input_path,&s);
     RegCloseKey(key);
-	if (strlen(input_path) > 0)
-	{
-		if (input_path[strlen(input_path) - 1] != '\\') strcat(input_path, "\\");
-	}
+    if (strlen(input_path) > 0)
+    {
+        if (input_path[strlen(input_path) - 1] != '\\') strcat(input_path, "\\");
+    }
     strcat(input_path,"Data\\");
 #else
     strcpy(input_path,"data/");
@@ -456,9 +456,9 @@ bool processArgv(int argc, char ** argv, char*versionString)
     bool preciseVectorData = false;
 
     for(int i=1; i< argc; ++i) {
-		if(strcmp("-s",argv[i]) == 0) {
-			preciseVectorData = false;
-		} else if(strcmp("-d",argv[i]) == 0) {
+        if(strcmp("-s",argv[i]) == 0) {
+            preciseVectorData = false;
+        } else if(strcmp("-d",argv[i]) == 0) {
             if((i+1)<argc) {
                 hasInputPathParam = true;
                 strcpy(input_path, argv[i+1]);
@@ -468,10 +468,10 @@ bool processArgv(int argc, char ** argv, char*versionString)
             } else {
                 result = false;
             }
-		} else if(strcmp("-?",argv[1]) == 0) {
+        } else if(strcmp("-?",argv[1]) == 0) {
             result = false;
-		} else if(strcmp("-l",argv[i]) == 0) {
-			preciseVectorData = true;
+        } else if(strcmp("-l",argv[i]) == 0) {
+            preciseVectorData = true;
         } else {
             result = false;
             break;
@@ -490,7 +490,7 @@ bool processArgv(int argc, char ** argv, char*versionString)
 
 //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 // Main
-// 
+//
 // The program must be run with two command line arguments
 //
 // Arg1 - The source MPQ name (for testing reading and file find)
@@ -512,9 +512,9 @@ int main(int argc, char ** argv)
     char *versionString = "V2.4 2007_07_12";
 
     // Use command line arguments, when some
-    if(!processArgv(argc, argv, versionString)) 
+    if(!processArgv(argc, argv, versionString))
         return 1;
- 
+
     printf("Extract %s. Beginning work ....\n",versionString);
     // Set the lowest priority to allow running in the background
     SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_BELOW_NORMAL);
@@ -528,7 +528,7 @@ int main(int argc, char ** argv)
             nError = GetLastError();
         if(nError == ERROR_ALREADY_EXISTS)
             nError = ERROR_SUCCESS;
-    } 
+    }
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     // patch goes first -> fake priority handling
     std::vector<MPQArchive*> archives;
@@ -554,7 +554,7 @@ int main(int argc, char ** argv)
         {
             map_ids[x].id=dbc->getRecord (x).getUInt(0);
             strcpy(map_ids[x].name,dbc->getRecord(x).getString(1));
-            printf("Map - %s\n",map_ids[x].name);		 
+            printf("Map - %s\n",map_ids[x].name);
         }
 
         delete dbc;

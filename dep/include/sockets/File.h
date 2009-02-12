@@ -1,6 +1,6 @@
 /** \file File.h
- **	\date  2005-04-25
- **	\author grymse@alhem.net
+ ** \date  2005-04-25
+ ** \author grymse@alhem.net
 **/
 /*
 Copyright (C) 2004-2007  Anders Hedstrom
@@ -8,7 +8,7 @@ Copyright (C) 2004-2007  Anders Hedstrom
 This library is made available under the terms of the GNU GPL.
 
 If you would like to use this library in a closed-source application,
-a separate license agreement is available. For information about 
+a separate license agreement is available. For information about
 the closed-source license agreement for the C++ sockets library,
 please visit http://www.alhem.net/Sockets/license.html and/or
 email license@alhem.net.
@@ -39,38 +39,38 @@ namespace SOCKETS_NAMESPACE {
 #endif
 
 
-/** IFile implementation of a disk file. 
-	\ingroup file */
+/** IFile implementation of a disk file.
+    \ingroup file */
 class File : public IFile
 {
 public:
-	File();
-	~File();
+    File();
+    ~File();
 
-	bool fopen(const std::string&, const std::string&);
-	void fclose();
+    bool fopen(const std::string&, const std::string&);
+    void fclose();
 
-	size_t fread(char *, size_t, size_t) const;
-	size_t fwrite(const char *, size_t, size_t);
+    size_t fread(char *, size_t, size_t) const;
+    size_t fwrite(const char *, size_t, size_t);
 
-	char *fgets(char *, int) const;
-	void fprintf(const char *format, ...);
+    char *fgets(char *, int) const;
+    void fprintf(const char *format, ...);
 
-	off_t size() const;
-	bool eof() const;
+    off_t size() const;
+    bool eof() const;
 
-	void reset_read() const;
-	void reset_write();
+    void reset_read() const;
+    void reset_write();
 
 private:
-	File(const File& ) {} // copy constructor
-	File& operator=(const File& ) { return *this; } // assignment operator
+    File(const File& ) {} // copy constructor
+    File& operator=(const File& ) { return *this; } // assignment operator
 
-	std::string m_path;
-	std::string m_mode;
-	FILE *m_fil;
-	mutable long m_rptr;
-	long m_wptr;
+    std::string m_path;
+    std::string m_mode;
+    FILE *m_fil;
+    mutable long m_rptr;
+    long m_wptr;
 };
 
 

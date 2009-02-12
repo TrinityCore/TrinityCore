@@ -54,12 +54,12 @@ EndScriptData */
 struct TRINITY_DLL_DECL boss_majordomoAI : public ScriptedAI
 {
     boss_majordomoAI(Creature *c) : ScriptedAI(c)
-	{
-		pInstance = ((ScriptedInstance*)c->GetInstanceData());
-		Reset();
-	}
+    {
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        Reset();
+    }
 
-	ScriptedInstance* pInstance;
+    ScriptedInstance* pInstance;
 
     uint32 MagicReflection_Timer;
     uint32 DamageReflection_Timer;
@@ -77,12 +77,12 @@ struct TRINITY_DLL_DECL boss_majordomoAI : public ScriptedAI
         if (rand()%5)
             return;
 
-		DoScriptText(SAY_SLAY, m_creature);
+        DoScriptText(SAY_SLAY, m_creature);
     }
 
     void Aggro(Unit *who)
     {
-		DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void UpdateAI(const uint32 diff)

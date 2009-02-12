@@ -36,17 +36,17 @@
 
 bool ChatHandler::HandleHelpCommand(const char* args)
 {
-	char* cmd = strtok((char*)args, " ");
+    char* cmd = strtok((char*)args, " ");
     if(!cmd)
-	{
-		ShowHelpForCommand(getCommandTable(), "help");
-		ShowHelpForCommand(getCommandTable(), "");
-	}
-	else
-	{
-		if(!ShowHelpForCommand(getCommandTable(), cmd))
-			SendSysMessage(LANG_NO_HELP_CMD);
-	}
+    {
+        ShowHelpForCommand(getCommandTable(), "help");
+        ShowHelpForCommand(getCommandTable(), "");
+    }
+    else
+    {
+        if(!ShowHelpForCommand(getCommandTable(), cmd))
+            SendSysMessage(LANG_NO_HELP_CMD);
+    }
 
     return true;
 }
@@ -163,8 +163,8 @@ bool ChatHandler::HandleGMListIngameCommand(const char* /*args*/)
     for(; itr != m.end(); ++itr)
     {
         if (itr->second->GetSession()->GetSecurity() &&
-			(itr->second->isGameMaster() || sWorld.getConfig(CONFIG_GM_IN_GM_LIST)) &&
-			(!m_session || itr->second->IsVisibleGloballyFor(m_session->GetPlayer())) )
+            (itr->second->isGameMaster() || sWorld.getConfig(CONFIG_GM_IN_GM_LIST)) &&
+            (!m_session || itr->second->IsVisibleGloballyFor(m_session->GetPlayer())) )
         {
             if(first)
             {
@@ -201,14 +201,14 @@ bool ChatHandler::HandlePasswordCommand(const char* args)
     if (strcmp(new_pass, new_pass_c) != 0)
     {
         SendSysMessage (LANG_NEW_PASSWORDS_NOT_MATCH);
-		SetSentErrorMessage (true);
-		return false;
-	}
+        SetSentErrorMessage (true);
+        return false;
+    }
 
-	if (!accmgr.CheckPassword (m_session->GetAccountId(), password_old))
-	{
-		SendSysMessage (LANG_COMMAND_WRONGOLDPASSWORD);
-		SetSentErrorMessage (true);
+    if (!accmgr.CheckPassword (m_session->GetAccountId(), password_old))
+    {
+        SendSysMessage (LANG_COMMAND_WRONGOLDPASSWORD);
+        SetSentErrorMessage (true);
         return false;
     }
 
@@ -219,11 +219,11 @@ bool ChatHandler::HandlePasswordCommand(const char* args)
         case AOR_OK:
             SendSysMessage(LANG_COMMAND_PASSWORD);
             break;
-		case AOR_PASS_TOO_LONG:
-			SendSysMessage(LANG_PASSWORD_TOO_LONG);
-			SetSentErrorMessage(true);
-			return false;
-		case AOR_NAME_NOT_EXIST:                            // not possible case, don't want get account name for output
+        case AOR_PASS_TOO_LONG:
+            SendSysMessage(LANG_PASSWORD_TOO_LONG);
+            SetSentErrorMessage(true);
+            return false;
+        case AOR_NAME_NOT_EXIST:                            // not possible case, don't want get account name for output
         default:
             SendSysMessage(LANG_COMMAND_NOTCHANGEPASSWORD);
             SetSentErrorMessage(true);
@@ -263,6 +263,6 @@ bool ChatHandler::HandleLockAccountCommand(const char* args)
 /// Display the 'Message of the day' for the realm
 bool ChatHandler::HandleServerMotdCommand(const char* /*args*/)
 {
-	PSendSysMessage(LANG_MOTD_CURRENT, sWorld.GetMotd());
-	return true;
+    PSendSysMessage(LANG_MOTD_CURRENT, sWorld.GetMotd());
+    return true;
 }

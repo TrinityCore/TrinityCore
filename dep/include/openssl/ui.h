@@ -10,7 +10,7 @@
  * are met:
  *
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer. 
+ *    notice, this list of conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in
@@ -89,18 +89,18 @@ void UI_free(UI *ui);
    and UI_{add,dup}_input_boolean.
 
    UI_{add,dup}_<function>_string have the following meanings:
-	add	add a text or prompt string.  The pointers given to these
-		functions are used verbatim, no copying is done.
-	dup	make a copy of the text or prompt string, then add the copy
-		to the collection of strings in the user interface.
-	<function>
-		The function is a name for the functionality that the given
-		string shall be used for.  It can be one of:
-			input	use the string as data prompt.
-			verify	use the string as verification prompt.  This
-				is used to verify a previous input.
-			info	use the string for informational output.
-			error	use the string for error output.
+    add add a text or prompt string.  The pointers given to these
+        functions are used verbatim, no copying is done.
+    dup make a copy of the text or prompt string, then add the copy
+        to the collection of strings in the user interface.
+    <function>
+        The function is a name for the functionality that the given
+        string shall be used for.  It can be one of:
+            input   use the string as data prompt.
+            verify  use the string as verification prompt.  This
+                is used to verify a previous input.
+            info    use the string for informational output.
+            error   use the string for error output.
    Honestly, there's currently no difference between info and error for the
    moment.
 
@@ -128,19 +128,19 @@ void UI_free(UI *ui);
    On success, the all return an index of the added information.  That index
    is usefull when retrieving results with UI_get0_result(). */
 int UI_add_input_string(UI *ui, const char *prompt, int flags,
-	char *result_buf, int minsize, int maxsize);
+    char *result_buf, int minsize, int maxsize);
 int UI_dup_input_string(UI *ui, const char *prompt, int flags,
-	char *result_buf, int minsize, int maxsize);
+    char *result_buf, int minsize, int maxsize);
 int UI_add_verify_string(UI *ui, const char *prompt, int flags,
-	char *result_buf, int minsize, int maxsize, const char *test_buf);
+    char *result_buf, int minsize, int maxsize, const char *test_buf);
 int UI_dup_verify_string(UI *ui, const char *prompt, int flags,
-	char *result_buf, int minsize, int maxsize, const char *test_buf);
+    char *result_buf, int minsize, int maxsize, const char *test_buf);
 int UI_add_input_boolean(UI *ui, const char *prompt, const char *action_desc,
-	const char *ok_chars, const char *cancel_chars,
-	int flags, char *result_buf);
+    const char *ok_chars, const char *cancel_chars,
+    int flags, char *result_buf);
 int UI_dup_input_boolean(UI *ui, const char *prompt, const char *action_desc,
-	const char *ok_chars, const char *cancel_chars,
-	int flags, char *result_buf);
+    const char *ok_chars, const char *cancel_chars,
+    int flags, char *result_buf);
 int UI_add_info_string(UI *ui, const char *text);
 int UI_dup_info_string(UI *ui, const char *text);
 int UI_add_error_string(UI *ui, const char *text);
@@ -148,13 +148,13 @@ int UI_dup_error_string(UI *ui, const char *text);
 
 /* These are the possible flags.  They can be or'ed together. */
 /* Use to have echoing of input */
-#define UI_INPUT_FLAG_ECHO		0x01
+#define UI_INPUT_FLAG_ECHO      0x01
 /* Use a default password.  Where that password is found is completely
    up to the application, it might for example be in the user data set
    with UI_add_user_data().  It is not recommended to have more than
    one input in each UI being marked with this flag, or the application
    might get confused. */
-#define UI_INPUT_FLAG_DEFAULT_PWD	0x02
+#define UI_INPUT_FLAG_DEFAULT_PWD   0x02
 
 /* The user of these routines may want to define flags of their own.  The core
    UI won't look at those, but will pass them on to the method routines.  They
@@ -162,10 +162,10 @@ int UI_dup_error_string(UI *ui, const char *text);
    UI_INPUT_FLAG_USER_BASE tells which is the lowest bit to use.  A good
    example of use is this:
 
-	#define MY_UI_FLAG1	(0x01 << UI_INPUT_FLAG_USER_BASE)
+    #define MY_UI_FLAG1 (0x01 << UI_INPUT_FLAG_USER_BASE)
 
 */
-#define UI_INPUT_FLAG_USER_BASE	16
+#define UI_INPUT_FLAG_USER_BASE 16
 
 
 /* The following function helps construct a prompt.  object_desc is a
@@ -178,15 +178,15 @@ int UI_dup_error_string(UI *ui, const char *text);
    If the ui_method doesn't contain a pointer to a user-defined prompt
    constructor, a default string is built, looking like this:
 
-	"Enter {object_desc} for {object_name}:"
+    "Enter {object_desc} for {object_name}:"
 
    So, if object_desc has the value "pass phrase" and object_name has
    the value "foo.key", the resulting string is:
 
-	"Enter pass phrase for foo.key:"
+    "Enter pass phrase for foo.key:"
 */
 char *UI_construct_prompt(UI *ui_method,
-	const char *object_desc, const char *object_name);
+    const char *object_desc, const char *object_name);
 
 
 /* The following function is used to store a pointer to user-specific data.
@@ -217,18 +217,18 @@ int UI_ctrl(UI *ui, int cmd, long i, void *p, void (*f)(void));
 /* Use UI_CONTROL_PRINT_ERRORS with the value 1 to have UI_process print the
    OpenSSL error stack before printing any info or added error messages and
    before any prompting. */
-#define UI_CTRL_PRINT_ERRORS		1
+#define UI_CTRL_PRINT_ERRORS        1
 /* Check if a UI_process() is possible to do again with the same instance of
    a user interface.  This makes UI_ctrl() return 1 if it is redoable, and 0
    if not. */
-#define UI_CTRL_IS_REDOABLE		2
+#define UI_CTRL_IS_REDOABLE     2
 
 
 /* Some methods may use extra data */
 #define UI_set_app_data(s,arg)         UI_set_ex_data(s,0,arg)
 #define UI_get_app_data(s)             UI_get_ex_data(s,0)
 int UI_get_ex_new_index(long argl, void *argp, CRYPTO_EX_new *new_func,
-	CRYPTO_EX_dup *dup_func, CRYPTO_EX_free *free_func);
+    CRYPTO_EX_dup *dup_func, CRYPTO_EX_free *free_func);
 int UI_set_ex_data(UI *r,int idx,void *arg);
 void *UI_get_ex_data(UI *r, int idx);
 
@@ -246,29 +246,29 @@ UI_METHOD *UI_OpenSSL(void);
 /* A method contains a number of functions that implement the low level
    of the User Interface.  The functions are:
 
-	an opener	This function starts a session, maybe by opening
-			a channel to a tty, or by opening a window.
-	a writer	This function is called to write a given string,
-			maybe to the tty, maybe as a field label in a
-			window.
-	a flusher	This function is called to flush everything that
-			has been output so far.  It can be used to actually
-			display a dialog box after it has been built.
-	a reader	This function is called to read a given prompt,
-			maybe from the tty, maybe from a field in a
-			window.  Note that it's called wth all string
-			structures, not only the prompt ones, so it must
-			check such things itself.
-	a closer	This function closes the session, maybe by closing
-			the channel to the tty, or closing the window.
+    an opener   This function starts a session, maybe by opening
+            a channel to a tty, or by opening a window.
+    a writer    This function is called to write a given string,
+            maybe to the tty, maybe as a field label in a
+            window.
+    a flusher   This function is called to flush everything that
+            has been output so far.  It can be used to actually
+            display a dialog box after it has been built.
+    a reader    This function is called to read a given prompt,
+            maybe from the tty, maybe from a field in a
+            window.  Note that it's called wth all string
+            structures, not only the prompt ones, so it must
+            check such things itself.
+    a closer    This function closes the session, maybe by closing
+            the channel to the tty, or closing the window.
 
    All these functions are expected to return:
 
-	0	on error.
-	1	on success.
-	-1	on out-of-band events, for example if some prompting has
-		been canceled (by pressing Ctrl-C, for example).  This is
-		only checked when returned by the flusher or the reader.
+    0   on error.
+    1   on success.
+    -1  on out-of-band events, for example if some prompting has
+        been canceled (by pressing Ctrl-C, for example).  This is
+        only checked when returned by the flusher or the reader.
 
    The way this is used, the opener is first called, then the writer for all
    strings, then the flusher, then the reader for all strings and finally the
@@ -293,14 +293,14 @@ typedef struct ui_string_st UI_STRING;
 /* The different types of strings that are currently supported.
    This is only needed by method authors. */
 enum UI_string_types
-	{
-	UIT_NONE=0,
-	UIT_PROMPT,		/* Prompt for a string */
-	UIT_VERIFY,		/* Prompt for a string and verify */
-	UIT_BOOLEAN,		/* Prompt for a yes/no response */
-	UIT_INFO,		/* Send info to the user */
-	UIT_ERROR		/* Send an error message to the user */
-	};
+    {
+    UIT_NONE=0,
+    UIT_PROMPT,     /* Prompt for a string */
+    UIT_VERIFY,     /* Prompt for a string and verify */
+    UIT_BOOLEAN,        /* Prompt for a yes/no response */
+    UIT_INFO,       /* Send info to the user */
+    UIT_ERROR       /* Send an error message to the user */
+    };
 
 /* Create and manipulate methods */
 UI_METHOD *UI_create_method(char *name);
@@ -353,27 +353,27 @@ void ERR_load_UI_strings(void);
 /* Error codes for the UI functions. */
 
 /* Function codes. */
-#define UI_F_GENERAL_ALLOCATE_BOOLEAN			 108
-#define UI_F_GENERAL_ALLOCATE_PROMPT			 109
-#define UI_F_GENERAL_ALLOCATE_STRING			 100
-#define UI_F_UI_CTRL					 111
-#define UI_F_UI_DUP_ERROR_STRING			 101
-#define UI_F_UI_DUP_INFO_STRING				 102
-#define UI_F_UI_DUP_INPUT_BOOLEAN			 110
-#define UI_F_UI_DUP_INPUT_STRING			 103
-#define UI_F_UI_DUP_VERIFY_STRING			 106
-#define UI_F_UI_GET0_RESULT				 107
-#define UI_F_UI_NEW_METHOD				 104
-#define UI_F_UI_SET_RESULT				 105
+#define UI_F_GENERAL_ALLOCATE_BOOLEAN            108
+#define UI_F_GENERAL_ALLOCATE_PROMPT             109
+#define UI_F_GENERAL_ALLOCATE_STRING             100
+#define UI_F_UI_CTRL                     111
+#define UI_F_UI_DUP_ERROR_STRING             101
+#define UI_F_UI_DUP_INFO_STRING              102
+#define UI_F_UI_DUP_INPUT_BOOLEAN            110
+#define UI_F_UI_DUP_INPUT_STRING             103
+#define UI_F_UI_DUP_VERIFY_STRING            106
+#define UI_F_UI_GET0_RESULT              107
+#define UI_F_UI_NEW_METHOD               104
+#define UI_F_UI_SET_RESULT               105
 
 /* Reason codes. */
-#define UI_R_COMMON_OK_AND_CANCEL_CHARACTERS		 104
-#define UI_R_INDEX_TOO_LARGE				 102
-#define UI_R_INDEX_TOO_SMALL				 103
-#define UI_R_NO_RESULT_BUFFER				 105
-#define UI_R_RESULT_TOO_LARGE				 100
-#define UI_R_RESULT_TOO_SMALL				 101
-#define UI_R_UNKNOWN_CONTROL_COMMAND			 106
+#define UI_R_COMMON_OK_AND_CANCEL_CHARACTERS         104
+#define UI_R_INDEX_TOO_LARGE                 102
+#define UI_R_INDEX_TOO_SMALL                 103
+#define UI_R_NO_RESULT_BUFFER                105
+#define UI_R_RESULT_TOO_LARGE                100
+#define UI_R_RESULT_TOO_SMALL                101
+#define UI_R_UNKNOWN_CONTROL_COMMAND             106
 
 #ifdef  __cplusplus
 }

@@ -26,7 +26,7 @@
 namespace ZThread {
 
 /**
- * @class State 
+ * @class State
  * @author Eric Crahen <http://www.code-foo.com>
  * @date <2003-07-16T20:04:01-0400>
  * @version 2.2.1
@@ -52,7 +52,7 @@ class State {
   }
 
   /**
-   * Test for the JOINED state. A task has completed and 
+   * Test for the JOINED state. A task has completed and
    * the thread is join()ed.
    *
    * @return bool

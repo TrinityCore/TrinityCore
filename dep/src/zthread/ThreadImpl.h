@@ -53,7 +53,7 @@ class ThreadImpl : public IntrusivePtr<ThreadImpl, FastLock>, public ThreadOps {
 
   //! The Monitor for controlling this thread
   Monitor _monitor;
-  
+
   //! Current state for the thread
   State _state;
 
@@ -61,11 +61,11 @@ class ThreadImpl : public IntrusivePtr<ThreadImpl, FastLock>, public ThreadOps {
   List _joiners;
 
  public:
-  
+
   typedef std::map<const ThreadLocalImpl*, ThreadLocalImpl::ValuePtr > ThreadLocalMap;
 
  private:
-  
+
   ThreadLocalMap _tls;
 
   //! Cached thread priority
@@ -73,7 +73,7 @@ class ThreadImpl : public IntrusivePtr<ThreadImpl, FastLock>, public ThreadOps {
 
   //! Request cancel() when main() goes out of scope
   bool _autoCancel;
-  
+
   void start(const Task& task);
 
  public:
@@ -82,7 +82,7 @@ class ThreadImpl : public IntrusivePtr<ThreadImpl, FastLock>, public ThreadOps {
 
   ThreadImpl(const Task&, bool);
 
-  ~ThreadImpl();  
+  ~ThreadImpl();
 
   Monitor& getMonitor();
 
@@ -99,24 +99,24 @@ class ThreadImpl : public IntrusivePtr<ThreadImpl, FastLock>, public ThreadOps {
   //  ThreadLocalMap& getThreadLocalMap();
   ThreadLocalMap& getThreadLocalMap() { return _tls; }
 
-  bool join(unsigned long); 
-  
+  bool join(unsigned long);
+
   void setPriority(Priority);
 
   bool isActive();
 
   bool isReference();
 
-  static void sleep(unsigned long); 
+  static void sleep(unsigned long);
 
   static void yield();
-  
+
   static ThreadImpl* current();
 
   static void dispatch(ThreadImpl*, ThreadImpl*, Task);
 
 };
 
-} // namespace ZThread 
+} // namespace ZThread
 
 #endif // __ZTTHREADIMPL_H__

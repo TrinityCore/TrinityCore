@@ -50,7 +50,7 @@ class Monitor : public Status, private NonCopyable {
   pthread_t _owner;
 
   //! Waiting flag, to avoid uneccessary signals
-  volatile bool _waiting; 
+  volatile bool _waiting;
 
  public:
 
@@ -62,12 +62,12 @@ class Monitor : public Status, private NonCopyable {
   //! Destroy the monitor.
   ~Monitor();
 
-  //! Acquire the lock for this monitor. 
+  //! Acquire the lock for this monitor.
   inline void acquire() {
     _lock.acquire();
   }
 
-  //! Acquire the lock for this monitor. 
+  //! Acquire the lock for this monitor.
   inline bool tryAcquire() {
     return _lock.tryAcquire();
   }
@@ -79,7 +79,7 @@ class Monitor : public Status, private NonCopyable {
 
   /**
    * Wait for a state change and atomically unlock the external lock.
-   * Blocks for an indefinent amount of time. 
+   * Blocks for an indefinent amount of time.
    *
    * @return INTERRUPTED if the wait was ended by a interrupt()
    *         or SIGNALED if the wait was ended by a notify()
@@ -92,11 +92,11 @@ class Monitor : public Status, private NonCopyable {
 
   /**
    * Wait for a state change and atomically unlock the external lock.
-   * May blocks for an indefinent amount of time. 
+   * May blocks for an indefinent amount of time.
    *
    * @param timeout - maximum time to block (milliseconds) or 0 to
    * block indefinently
-   * 
+   *
    * @return INTERRUPTED if the wait was ended by a interrupt()
    *         or TIMEDOUT if the maximum wait time expired.
    *         or SIGNALED if the wait was ended by a notify()
@@ -116,9 +116,9 @@ class Monitor : public Status, private NonCopyable {
 
   /**
    * Notify this monitor. If there is a thread blocked on this monitor object
-   * it will be signaled and released. If there is no waiter, a flag is set and 
-   * the next attempt to wait() will return SIGNALED w/o blocking, if no other 
-   * flag is set. 
+   * it will be signaled and released. If there is no waiter, a flag is set and
+   * the next attempt to wait() will return SIGNALED w/o blocking, if no other
+   * flag is set.
    *
    * @return false if the thread was previously INTERRUPTED.
    */

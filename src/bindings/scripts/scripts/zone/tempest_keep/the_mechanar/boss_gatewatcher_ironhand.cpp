@@ -32,26 +32,26 @@ EndScriptData */
 #define EMOTE_HAMMER                    -1554012
 
 // Spells to be casted
-#define SPELL_SHADOW_POWER				35322
+#define SPELL_SHADOW_POWER              35322
 #define H_SPELL_SHADOW_POWER            39193
 #define SPELL_HAMMER_PUNCH              35326
 #define SPELL_JACKHAMMER                35327
 #define H_SPELL_JACKHAMMER              39194
-#define SPELL_STREAM_OF_MACHINE_FLUID	35311
+#define SPELL_STREAM_OF_MACHINE_FLUID   35311
 
 // Gatewatcher Iron-Hand AI
 struct TRINITY_DLL_DECL boss_gatewatcher_iron_handAI : public ScriptedAI
 {
 boss_gatewatcher_iron_handAI(Creature *c) : ScriptedAI(c)
 {
-	pInstance = ((ScriptedInstance*)c->GetInstanceData());
-	HeroicMode = m_creature->GetMap()->IsHeroic();
-	Reset();
+    pInstance = ((ScriptedInstance*)c->GetInstanceData());
+    HeroicMode = m_creature->GetMap()->IsHeroic();
+    Reset();
 }
 
-	ScriptedInstance *pInstance;
+    ScriptedInstance *pInstance;
 
-	bool HeroicMode;
+    bool HeroicMode;
 
     uint32 Shadow_Power_Timer;
     uint32 Jackhammer_Timer;
@@ -66,7 +66,7 @@ boss_gatewatcher_iron_handAI(Creature *c) : ScriptedAI(c)
     }
     void Aggro(Unit *who)
     {
-		DoScriptText(SAY_AGGRO_1, m_creature);
+        DoScriptText(SAY_AGGRO_1, m_creature);
     }
 
     void KilledUnit(Unit* victim)
@@ -76,20 +76,20 @@ boss_gatewatcher_iron_handAI(Creature *c) : ScriptedAI(c)
 
         switch(rand()%2)
         {
-		case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
-		case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
+        case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
+        case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
         }
     }
 
     void JustDied(Unit* Killer)
     {
-		DoScriptText(SAY_DEATH_1, m_creature);
+        DoScriptText(SAY_DEATH_1, m_creature);
 
-		if (!pInstance)
-			return;
+        if (!pInstance)
+            return;
 
-		//TODO: Add door check/open code
-	}
+        //TODO: Add door check/open code
+    }
 
     void UpdateAI(const uint32 diff)
     {
@@ -100,25 +100,25 @@ boss_gatewatcher_iron_handAI(Creature *c) : ScriptedAI(c)
         //Shadow Power
         if(Shadow_Power_Timer < diff)
         {
-			DoCast(m_creature,HeroicMode ? H_SPELL_SHADOW_POWER : SPELL_SHADOW_POWER);
+            DoCast(m_creature,HeroicMode ? H_SPELL_SHADOW_POWER : SPELL_SHADOW_POWER);
             Shadow_Power_Timer = 20000 + rand()%8000;
         }else Shadow_Power_Timer -= diff;
 
         //Jack Hammer
         if(Jackhammer_Timer < diff)
         {
-			//TODO: expect cast this about 5 times in a row (?), announce it by emote only once
-			DoScriptText(EMOTE_HAMMER, m_creature);
-			DoCast(m_creature->getVictim(),HeroicMode ? H_SPELL_JACKHAMMER : SPELL_JACKHAMMER);
+            //TODO: expect cast this about 5 times in a row (?), announce it by emote only once
+            DoScriptText(EMOTE_HAMMER, m_creature);
+            DoCast(m_creature->getVictim(),HeroicMode ? H_SPELL_JACKHAMMER : SPELL_JACKHAMMER);
 
-			//chance to yell, but not same time as emote (after spell in fact casted)
-			if (rand()%2)
+            //chance to yell, but not same time as emote (after spell in fact casted)
+            if (rand()%2)
                 return;
 
             switch(rand()%2)
             {
-			case 0: DoScriptText(SAY_HAMMER_1, m_creature); break;
-			case 1: DoScriptText(SAY_HAMMER_2, m_creature); break;
+            case 0: DoScriptText(SAY_HAMMER_1, m_creature); break;
+            case 1: DoScriptText(SAY_HAMMER_2, m_creature); break;
             }
             Jackhammer_Timer = 30000;
         }else Jackhammer_Timer -= diff;
@@ -131,7 +131,7 @@ boss_gatewatcher_iron_handAI(Creature *c) : ScriptedAI(c)
         }else Stream_of_Machine_Fluid_Timer -= diff;
 
         DoMeleeAttackIfReady();
-	}
+    }
 };
 CreatureAI* GetAI_boss_gatewatcher_iron_hand(Creature *_Creature)
 {

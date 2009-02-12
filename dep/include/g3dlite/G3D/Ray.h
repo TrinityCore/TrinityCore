@@ -1,10 +1,10 @@
 /**
  @file Ray.h
- 
+
  Ray class
- 
+
  @maintainer Morgan McGuire, matrix@graphics3d.com
- 
+
  @created 2002-07-12
  @edited  2006-02-21
  */
@@ -142,7 +142,7 @@ public:
         return intersectionTime(vert0, vert1, vert2, vert1 - vert0, vert2 - vert0, w0, w1, w2);
     }
 
-    /* One-sided triangle 
+    /* One-sided triangle
        */
     inline float intersectionTime(const Triangle& triangle) const {
         return intersectionTime(
@@ -189,7 +189,7 @@ public:
 #define SUB(dest,v1,v2) \
           dest[0]=v1[0]-v2[0]; \
           dest[1]=v1[1]-v2[1]; \
-          dest[2]=v1[2]-v2[2]; 
+          dest[2]=v1[2]-v2[2];
 
 inline float Ray::intersectionTime(
     const Vector3& vert0,
@@ -205,41 +205,41 @@ inline float Ray::intersectionTime(
     float u, v;
 
     float tvec[3], pvec[3], qvec[3];
-    
+
     // begin calculating determinant - also used to calculate U parameter
     CROSS(pvec, direction, edge2);
-    
+
     // if determinant is near zero, ray lies in plane of triangle
     const float det = DOT(edge1, pvec);
-    
+
     if (det < EPSILON) {
         return (float)inf();
     }
-    
+
     // calculate distance from vert0 to ray origin
     SUB(tvec, origin, vert0);
-    
+
     // calculate U parameter and test bounds
     u = DOT(tvec, pvec);
     if ((u < 0.0f) || (u > det)) {
         // Hit the plane outside the triangle
         return (float)inf();
     }
-    
+
     // prepare to test V parameter
     CROSS(qvec, tvec, edge1);
-    
+
     // calculate V parameter and test bounds
     v = DOT(direction, qvec);
     if ((v < 0.0f) || (u + v > det)) {
         // Hit the plane outside the triangle
         return (float)inf();
     }
-    
+
 
     // Case where we don't need correct (u, v):
     const float t = DOT(edge2, qvec);
-    
+
     if (t >= 0.0f) {
         // Note that det must be positive
         return t / det;
@@ -270,36 +270,36 @@ inline float Ray::intersectionTime(
 
     // begin calculating determinant - also used to calculate U parameter
     CROSS(pvec, direction, edge2);
-    
+
     // if determinant is near zero, ray lies in plane of triangle
     const float det = DOT(edge1, pvec);
-    
+
     if (det < EPSILON) {
         return (float)inf();
     }
-    
+
     // calculate distance from vert0 to ray origin
     SUB(tvec, origin, vert0);
-    
+
     // calculate U parameter and test bounds
     u = DOT(tvec, pvec);
     if ((u < 0.0f) || (u > det)) {
         // Hit the plane outside the triangle
         return (float)inf();
     }
-    
+
     // prepare to test V parameter
     CROSS(qvec, tvec, edge1);
-    
+
     // calculate V parameter and test bounds
     v = DOT(direction, qvec);
     if ((v < 0.0f) || (u + v > det)) {
         // Hit the plane outside the triangle
         return (float)inf();
     }
-    
+
     float t = DOT(edge2, qvec);
-    
+
     if (t >= 0) {
         const float inv_det = 1.0f / det;
         t *= inv_det;

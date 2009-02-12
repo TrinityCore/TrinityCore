@@ -576,7 +576,7 @@ struct TRINITY_DLL_DECL cthunAI : public Scripted_NoMovementAI
                     if (Player* i_pl = i->getSource())
                     {
                         //Play random sound to the zone
-						i_pl->SendPlaySound(RANDOM_SOUND_WHISPER, true);
+                        i_pl->SendPlaySound(RANDOM_SOUND_WHISPER, true);
                     }
                 }
 

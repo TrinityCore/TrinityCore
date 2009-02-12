@@ -81,8 +81,8 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
-		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+        case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+        case 1: DoScriptText(SAY_SLAY2, m_creature); break;
         }
     }
 
@@ -91,7 +91,7 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
         if(pInstance)
             pInstance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, DONE);
 
-		DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, m_creature);
     }
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
@@ -143,7 +143,7 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 
         if(EnrageTimer < diff)
         {
-			DoScriptText(SAY_ENRAGE2, m_creature);
+            DoScriptText(SAY_ENRAGE2, m_creature);
             m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
             EnrageTimer = 600000;
         }else EnrageTimer -= diff;
@@ -162,8 +162,8 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
         {
             switch(rand()%2)
             {
-			case 0: DoScriptText(SAY_SPECIAL1, m_creature); break;
-			case 1: DoScriptText(SAY_SPECIAL2, m_creature); break;
+            case 0: DoScriptText(SAY_SPECIAL1, m_creature); break;
+            case 1: DoScriptText(SAY_SPECIAL2, m_creature); break;
             }
             SpecialYellTimer = 25000 + (rand()%76)*1000;
         }else SpecialYellTimer -= diff;
@@ -181,8 +181,8 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 
                 switch(rand()%2)
                 {
-				case 0: DoScriptText(SAY_NEEDLE1, m_creature); break;
-				case 1: DoScriptText(SAY_NEEDLE2, m_creature); break;
+                case 0: DoScriptText(SAY_NEEDLE1, m_creature); break;
+                case 1: DoScriptText(SAY_NEEDLE2, m_creature); break;
                 }
                 ImpalingSpineTimer = 21000;
             }

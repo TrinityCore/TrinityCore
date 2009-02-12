@@ -34,15 +34,15 @@ namespace ZThread {
  * @date <2003-07-16T23:30:00-0400>
  * @version 2.2.0
  *
- * This class is an abstraction used to perform various operations on a 
+ * This class is an abstraction used to perform various operations on a
  * native POSIX thread.
  */
 class PriorityOps {
-  
+
 
 public:
 
-  
+
 };
 
 

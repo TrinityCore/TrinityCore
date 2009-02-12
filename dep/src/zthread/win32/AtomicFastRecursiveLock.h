@@ -37,36 +37,36 @@ namespace ZThread {
  * @date <2003-07-16T23:32:34-0400>
  * @version 2.1.6
  *
- * This is the smaller and faster implementation of a RecursiveLock. 
+ * This is the smaller and faster implementation of a RecursiveLock.
  * A single thread can acquire the mutex any number of times, but it
  * must perform a release for each acquire(). Other threads are blocked
  * until a thread has released all of its locks on the mutex.
- * 
- * This particular implementation performs fewer safety checks. Like 
- * the FastLock implementation, any waiting caused by an acquire() request 
+ *
+ * This particular implementation performs fewer safety checks. Like
+ * the FastLock implementation, any waiting caused by an acquire() request
  * is not interruptable. This is so that the mutex can have the fastest
  * response time for a time critical application while still having a good
  * degree of reliability.
  *
- * TryEnterCriticalSection() does not work at all on some systems, so its 
+ * TryEnterCriticalSection() does not work at all on some systems, so its
  * not used.
  *
  *
  * The current Platform SDK defines:
  *
  *   LONG InterlockedExchange(LPLONG, LONG)
- *   LONG InterlockedCompareExchange(LPLONG, LONG, LONG, LONG) 
+ *   LONG InterlockedCompareExchange(LPLONG, LONG, LONG, LONG)
  *
  * If your compiler complains about LPLONG not being implicitly casted to
- * a PVOID, then you should get the SDK update from microsoft or use the 
+ * a PVOID, then you should get the SDK update from microsoft or use the
  * WIN9X implementation of this class.
  *
  * ----
  * Because Windows 95 and earlier can run on processors prior to the 486, they
  * don't all support the CMPXCHG function, and so Windows 95 an earlier dont support
- * InterlockedCompareExchange. If you define ZT_WIN9X, you'll get a version of the 
+ * InterlockedCompareExchange. If you define ZT_WIN9X, you'll get a version of the
  * FastLock that uses the XCHG instruction
- */ 
+ */
 class FastRecursiveLock : private NonCopyable {
 
 // Add def for mingw32 or other non-ms compiler to align on 64-bit
@@ -75,15 +75,15 @@ class FastRecursiveLock : private NonCopyable {
   LONG volatile _lock;
 #pragma pack(pop)
   LONG _count;
-  
+
   public:
-  
+
   /**
    * Create a new FastRecursiveLock
    */
   inline FastRecursiveLock() : _lock(0), _count(0) { }
 
-  
+
   /**
    * Destroy FastLock
    */
@@ -93,9 +93,9 @@ class FastRecursiveLock : private NonCopyable {
 
   /**
    * Lock the fast Lock, no error check.
-   * 
+   *
    * @exception None
-   */ 
+   */
   inline void acquire() {
 
     DWORD id = ::GetCurrentThreadId();
@@ -110,24 +110,24 @@ class FastRecursiveLock : private NonCopyable {
       ::Sleep(0);
 
     } while(1);
-        
+
     _count++;
 
   }
 
-  
+
   /**
    * Release the fast Lock, no error check.
-   * 
+   *
    * @exception None
-   */ 
+   */
   inline void release() {
 
     if(--_count == 0)
       ::InterlockedExchange(const_cast<LPLONG>(&_lock), 0);
 
   }
-    
+
   /**
    * Try to acquire an exclusive lock. No safety or state checks are performed.
    * This function returns immediately regardless of the value of the timeout
@@ -137,20 +137,20 @@ class FastRecursiveLock : private NonCopyable {
    * @exception Synchronization_Exception - not thrown
    */
   inline bool tryAcquire(unsigned long timeout=0) {
-    
+
     DWORD id = ::GetCurrentThreadId();
     DWORD owner = (DWORD)::InterlockedCompareExchange(const_cast<LPLONG>(&_lock), id, 0);
-    
+
     if(owner == 0 || owner == id) {
       _count++;
       return true;
     }
-    
+
     return false;
-    
+
   }
-  
-  
+
+
 }; /* FastRecursiveLock */
 
 

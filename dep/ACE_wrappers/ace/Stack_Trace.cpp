@@ -108,7 +108,7 @@ struct ACE_Stack_Trace_stackstate
   size_t starting_frame;
 };
 
-//@TODO: Replace with a TSS-based pointer to avoid problems in multithreaded environs, 
+//@TODO: Replace with a TSS-based pointer to avoid problems in multithreaded environs,
 //       or use a mutex to serialize access to this.
 static ACE_Stack_Trace_stackstate* ACE_Stack_Trace_stateptr = 0;
 
@@ -495,7 +495,7 @@ typedef struct _dbghelp_functions
 
 
 #  pragma warning (push)
-#  pragma warning (disable:4706)  
+#  pragma warning (disable:4706)
 static bool load_dbghelp_library_if_needed (dbghelp_functions *pDbg)
 {
   //@TODO: See codeproject's StackWalker.cpp for the list of locations to
@@ -587,7 +587,7 @@ cs_operate(int (*func)(struct frame_state const *, void *), void *usrarg,
   ZeroMemory (&fs.sf, sizeof (fs.sf));
   fs.pDbg = &dbg;
   emptyStack ();   //Not sure what this should do, Chad?
-  
+
   CONTEXT c;
   ZeroMemory (&c, sizeof (CONTEXT));
   c.ContextFlags = CONTEXT_FULL;
@@ -684,7 +684,7 @@ ACE_Stack_Trace::generate_trace (ssize_t starting_frame_offset,
 void
 ACE_Stack_Trace::generate_trace (ssize_t, size_t)
 {
-// Call determine_starting_frame() on HP aCC build to resolve declared 
+// Call determine_starting_frame() on HP aCC build to resolve declared
 // method never referenced warning.
 #if defined (__HP_aCC)
   size_t starting_frame = determine_starting_frame (0, 0);

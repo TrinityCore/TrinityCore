@@ -1,12 +1,12 @@
 /**
   @file Matrix3.h
- 
+
   3x3 matrix class
- 
+
   @maintainer Morgan McGuire, matrix@graphics3d.com
- 
+
   @cite Portions based on Dave Eberly's Magic Software Library at <A HREF="http://www.magic-software.com">http://www.magic-software.com</A>
- 
+
   @created 2001-06-02
   @edited  2006-04-05
  */
@@ -37,7 +37,7 @@ private:
 
 public:
 
-    /** Initial values are undefined for performance.  See also 
+    /** Initial values are undefined for performance.  See also
         Matrix3::zero(), Matrix3::identity(), Matrix3::fromAxisAngle, etc.*/
     inline Matrix3() {}
 
@@ -51,7 +51,7 @@ public:
 
     /** Constructs a matrix from a quaternion.
         @cite Graphics Gems II, p. 351--354
- 	    @cite Implementation from Watt and Watt, pg 362*/
+        @cite Implementation from Watt and Watt, pg 362*/
     Matrix3(const class Quat& q);
 
 
@@ -148,7 +148,7 @@ private:
     static void _mul(const Matrix3& A, const Matrix3& B, Matrix3& out);
 public:
 
-    /** Optimized implementation of out = A * B.  It is safe (but slow) to call 
+    /** Optimized implementation of out = A * B.  It is safe (but slow) to call
         with A, B, and out possibly pointer equal to one another.*/
     // This is a static method so that it is not ambiguous whether "this"
     // is an input or output argument.
@@ -166,10 +166,10 @@ private:
     static void _transpose(const Matrix3& A, Matrix3& out);
 public:
 
-    /** Optimized implementation of out = A.transpose().  It is safe (but slow) to call 
+    /** Optimized implementation of out = A.transpose().  It is safe (but slow) to call
         with A and out possibly pointer equal to one another.
-    
-        Note that <CODE>A.transpose() * v</CODE> can be computed 
+
+        Note that <CODE>A.transpose() * v</CODE> can be computed
         more efficiently as <CODE>v * A</CODE>.
     */
     inline static void transpose(const Matrix3& A, Matrix3& out) {
@@ -239,32 +239,32 @@ public:
 
     static void tensorProduct (const Vector3& rkU, const Vector3& rkV,
                                Matrix3& rkProduct);
-	std::string toString() const;
+    std::string toString() const;
 
-    static const float EPSILON; 
+    static const float EPSILON;
 
     // Special values.
-    // The unguaranteed order of initialization of static variables across 
+    // The unguaranteed order of initialization of static variables across
     // translation units can be a source of annoying bugs, so now the static
     // special values (like Vector3::ZERO, Color3::WHITE, ...) are wrapped
-    // inside static functions that return references to them. 
-    // These functions are intentionally not inlined, because: 
-    // "You might be tempted to write [...] them as inline functions 
-    // inside their respective header files, but this is something you 
-    // must definitely not do. An inline function can be duplicated 
-    // in every file in which it appears – and this duplication 
-    // includes the static object definition. Because inline functions 
-    // automatically default to internal linkage, this would result in 
-    // having multiple static objects across the various translation 
-    // units, which would certainly cause problems. So you must 
-    // ensure that there is only one definition of each wrapping 
+    // inside static functions that return references to them.
+    // These functions are intentionally not inlined, because:
+    // "You might be tempted to write [...] them as inline functions
+    // inside their respective header files, but this is something you
+    // must definitely not do. An inline function can be duplicated
+    // in every file in which it appears – and this duplication
+    // includes the static object definition. Because inline functions
+    // automatically default to internal linkage, this would result in
+    // having multiple static objects across the various translation
+    // units, which would certainly cause problems. So you must
+    // ensure that there is only one definition of each wrapping
     // function, and this means not making the wrapping functions inline",
-    // according to Chapter 10 of "Thinking in C++, 2nd ed. Volume 1" by Bruce Eckel, 
+    // according to Chapter 10 of "Thinking in C++, 2nd ed. Volume 1" by Bruce Eckel,
     // http://www.mindview.net/
     static const Matrix3& zero();
-    static const Matrix3& identity(); 
+    static const Matrix3& identity();
 
-    // Deprecated. 
+    // Deprecated.
     /** @deprecated Use Matrix3::zero() */
     static const Matrix3 ZERO;
     /** @deprecated Use Matrix3::identity() */

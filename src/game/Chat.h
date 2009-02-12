@@ -46,7 +46,7 @@ class ChatHandler
     public:
         explicit ChatHandler(WorldSession* session) : m_session(session) {}
         explicit ChatHandler(Player* player) : m_session(player->GetSession()) {}
-	     ~ChatHandler() {}
+         ~ChatHandler() {}
 
         static void FillMessageData( WorldPacket *data, WorldSession* session, uint8 type, uint32 language, const char *channelName, uint64 target_guid, const char *message, Unit *speaker);
 
@@ -207,7 +207,7 @@ class ChatHandler
         bool HandleNpcUnFollowCommand(const char* args);
         bool HandleNpcWhisperCommand(const char* args);
         bool HandleNpcYellCommand(const char* args);
-		bool HandleNpcAddFormationCommand(const char* args);
+        bool HandleNpcAddFormationCommand(const char* args);
 
         bool HandleReloadAllCommand(const char* args);
         bool HandleReloadAllAreaCommand(const char* args);
@@ -222,7 +222,7 @@ class ChatHandler
         bool HandleReloadConfigCommand(const char* args);
 
         bool HandleReloadWpScriptsCommand(const char* args);
-		bool HandleReloadAreaTriggerTavernCommand(const char* args);
+        bool HandleReloadAreaTriggerTavernCommand(const char* args);
         bool HandleReloadAreaTriggerTeleportCommand(const char* args);
         bool HandleReloadEventScriptsCommand(const char* args);
         bool HandleReloadCommandCommand(const char* args);
@@ -418,18 +418,18 @@ class ChatHandler
         bool HandleResetAllCommand(const char * args);
 
 
-		// GM ticket command handlers
-		bool HandleGMTicketListCommand(const char* args);
-		bool HandleGMTicketListOnlineCommand(const char* args);
-		bool HandleGMTicketListClosedCommand(const char* args);
-		bool HandleGMTicketGetByIdCommand(const char* args);
-		bool HandleGMTicketGetByNameCommand(const char* args);
-		bool HandleGMTicketCloseByIdCommand(const char* args);
-		bool HandleGMTicketAssignToCommand(const char* args);
-		bool HandleGMTicketUnAssignCommand(const char* args);
-		bool HandleGMTicketCommentCommand(const char* args);
-		bool HandleGMTicketDeleteByIdCommand(const char* args);
-		bool HandleGMTicketReloadCommand(const char*);
+        // GM ticket command handlers
+        bool HandleGMTicketListCommand(const char* args);
+        bool HandleGMTicketListOnlineCommand(const char* args);
+        bool HandleGMTicketListClosedCommand(const char* args);
+        bool HandleGMTicketGetByIdCommand(const char* args);
+        bool HandleGMTicketGetByNameCommand(const char* args);
+        bool HandleGMTicketCloseByIdCommand(const char* args);
+        bool HandleGMTicketAssignToCommand(const char* args);
+        bool HandleGMTicketUnAssignCommand(const char* args);
+        bool HandleGMTicketCommentCommand(const char* args);
+        bool HandleGMTicketDeleteByIdCommand(const char* args);
+        bool HandleGMTicketReloadCommand(const char*);
 
         bool HandleMaxSkillCommand(const char* args);
         bool HandleSetSkillCommand(const char* args);
@@ -441,13 +441,13 @@ class ChatHandler
         bool HandleLockAccountCommand(const char* args);
         bool HandleRespawnCommand(const char* args);
 
-		//New Wp Commands
-		bool HandleWpAddCommand(const char* args);
+        //New Wp Commands
+        bool HandleWpAddCommand(const char* args);
         bool HandleWpLoadPathCommand(const char* args);
-		bool HandleWpUnLoadPathCommand(const char* args);
-		bool HandleWpModifyCommand(const char* args);
+        bool HandleWpUnLoadPathCommand(const char* args);
+        bool HandleWpModifyCommand(const char* args);
         bool HandleWpEventCommand(const char* args);
-		bool HandleWpShowCommand(const char* args);
+        bool HandleWpShowCommand(const char* args);
         bool HandleReloadAllPaths(const char *args);
 
         bool HandleFlyModeCommand(const char* args);
@@ -470,12 +470,12 @@ class ChatHandler
         bool HandleComeToMeCommand(const char *args);
         bool HandleCombatStopCommand(const char *args);
         bool HandleCharDeleteCommand(const char *args);
-		bool HandleSendMessageCommand(const char * args);
+        bool HandleSendMessageCommand(const char * args);
         bool HandleFlushArenaPointsCommand(const char *args);
         bool HandlePlayAllCommand(const char* args);
         bool HandleRepairitemsCommand(const char* args);
 
-		bool HandleTempGameObjectCommand(const char* args);
+        bool HandleTempGameObjectCommand(const char* args);
         bool HandleTempAddSpwCommand(const char* args);
 
         //! Development Commands

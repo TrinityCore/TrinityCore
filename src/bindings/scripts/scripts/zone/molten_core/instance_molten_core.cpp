@@ -40,15 +40,15 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
 {
-	 instance_molten_core(Map *map) : ScriptedInstance(map) {Initialize();};
+     instance_molten_core(Map *map) : ScriptedInstance(map) {Initialize();};
 
         uint64 Lucifron, Magmadar, Gehennas, Garr, Geddon, Shazzrah, Sulfuron, Golemagg, Domo, Ragnaros, FlamewakerPriest;
-		uint64 RuneKoro, RuneZeth, RuneMazj, RuneTheri, RuneBlaz, RuneKress, RuneMohn;
+        uint64 RuneKoro, RuneZeth, RuneMazj, RuneTheri, RuneBlaz, RuneKress, RuneMohn;
 
         //If all Bosses are dead.
         bool IsBossDied[9];
 
-		uint32 Encounter[ENCOUNTERS];
+        uint32 Encounter[ENCOUNTERS];
 
         void Initialize()
         {
@@ -64,13 +64,13 @@ struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
             Ragnaros = 0;
             FlamewakerPriest = 0;
 
-			RuneKoro = 0;
-			RuneZeth = 0;
-			RuneMazj = 0;
-			RuneTheri = 0;
-			RuneBlaz = 0;
-			RuneKress = 0;
-			RuneMohn = 0;
+            RuneKoro = 0;
+            RuneZeth = 0;
+            RuneMazj = 0;
+            RuneTheri = 0;
+            RuneBlaz = 0;
+            RuneKress = 0;
+            RuneMohn = 0;
 
             IsBossDied[0] = false;
             IsBossDied[1] = false;
@@ -84,7 +84,7 @@ struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
             IsBossDied[8] = false;
 
              for(uint8 i = 0; i < ENCOUNTERS; i++)
-				  Encounter[i] = NOT_STARTED;
+                  Encounter[i] = NOT_STARTED;
 
 
         }
@@ -98,29 +98,29 @@ struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
        void OnObjectCreate(GameObject *go)
         {
              switch(go->GetEntry())
-			 {
-			 case 176951:                                    //Sulfuron
-				 RuneKoro = go->GetGUID();
-				 break;
-			 case 176952:                                    //Geddon
-				 RuneZeth = go->GetGUID();
-				 break;
-			 case 176953:                                    //Shazzrah
-				 RuneMazj = go->GetGUID();
-				 break;
-			 case 176954:                                    //Golemagg
-				 RuneTheri = go->GetGUID();
-				 break;
-			 case 176955:                                    //Garr
-				 RuneBlaz = go->GetGUID();
-				 break;
-			 case 176956:                                    //Magmadar
-				 RuneKress = go->GetGUID();
-				 break;
-			 case 176957:                                    //Gehennas
-				 RuneMohn = go->GetGUID();
-				 break;
-	 	         }
+             {
+             case 176951:                                    //Sulfuron
+                 RuneKoro = go->GetGUID();
+                 break;
+             case 176952:                                    //Geddon
+                 RuneZeth = go->GetGUID();
+                 break;
+             case 176953:                                    //Shazzrah
+                 RuneMazj = go->GetGUID();
+                 break;
+             case 176954:                                    //Golemagg
+                 RuneTheri = go->GetGUID();
+                 break;
+             case 176955:                                    //Garr
+                 RuneBlaz = go->GetGUID();
+                 break;
+             case 176956:                                    //Magmadar
+                 RuneKress = go->GetGUID();
+                 break;
+             case 176957:                                    //Gehennas
+                 RuneMohn = go->GetGUID();
+                 break;
+                 }
         }
 
 
@@ -243,11 +243,11 @@ struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
             return 0;
         }
 
-		void SetData(uint32 type, uint32 data)
-		{
-			if (type == DATA_GOLEMAGG_DEATH)
-				IsBossDied[7] = true;
-		}
+        void SetData(uint32 type, uint32 data)
+        {
+            if (type == DATA_GOLEMAGG_DEATH)
+                IsBossDied[7] = true;
+        }
 };
 
 InstanceData* GetInstance_instance_molten_core(Map *map)

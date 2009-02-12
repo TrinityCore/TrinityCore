@@ -35,7 +35,7 @@ namespace ZThread {
    * @version 2.3.0
    *
    * A Queue defines an interface for a value-oriented collection objects (similar to
-   * STL collections). 
+   * STL collections).
    */
   template <typename T>
     class Queue : public Cancelable, private NonCopyable {
@@ -48,7 +48,7 @@ namespace ZThread {
      * Add an object to this Queue.
      *
      * @param item value to be added to the Queue
-     * 
+     *
      * @exception Cancellation_Exception thrown if this Queue has been canceled.
      *
      * @pre  The Queue should not have been canceled prior to the invocation of this function.
@@ -63,8 +63,8 @@ namespace ZThread {
      * @param timeout maximum amount of time (milliseconds) this method may block
      *        the calling thread.
      *
-     * @return 
-     *   - <em>true</em> if a copy of <i>item</i> can be added before <i>timeout</i> 
+     * @return
+     *   - <em>true</em> if a copy of <i>item</i> can be added before <i>timeout</i>
      *     milliseconds elapse.
      *   - <em>false</em> otherwise.
      *
@@ -79,7 +79,7 @@ namespace ZThread {
      * Retrieve and remove a value from this Queue.
      *
      * @return <em>T</em> next available value
-     * 
+     *
      * @exception Cancellation_Exception thrown if this Queue has been canceled.
      *
      * @pre  The Queue should not have been canceled prior to the invocation of this function.
@@ -94,7 +94,7 @@ namespace ZThread {
      *        the calling thread.
      *
      * @return <em>T</em> next available value
-     * 
+     *
      * @exception Cancellation_Exception thrown if this Queue has been canceled.
      * @exception Timeout_Exception thrown if the timeout expires before a value
      *            can be retrieved.
@@ -110,28 +110,28 @@ namespace ZThread {
      * the next() methods.
      *
      * Canceling a Queue more than once has no effect.
-     * 
-     * @post The next() methods will continue to return objects until 
-     *       the Queue has been emptied. 
+     *
+     * @post The next() methods will continue to return objects until
+     *       the Queue has been emptied.
      * @post Once emptied, the next() methods will throw a Cancellation_Exception.
      * @post The add() methods will throw a Cancellation_Exceptions from this point on.
      */
     virtual void cancel() = 0;
 
     /**
-     * Count the values present in this Queue. 
+     * Count the values present in this Queue.
      *
-     * @return <em>size_t</em> number of elements available in the Queue. 
+     * @return <em>size_t</em> number of elements available in the Queue.
      */
     virtual size_t size() = 0;
 
     /**
-     * Count the values present in this Queue. 
+     * Count the values present in this Queue.
      *
      * @param timeout maximum amount of time (milliseconds) this method may block
      *        the calling thread.
      *
-     * @return <em>size_t</em> number of elements available in the Queue. 
+     * @return <em>size_t</em> number of elements available in the Queue.
      *
      * @exception Timeout_Exception thrown if <i>timeout</i> milliseconds
      *            expire before a value becomes available
@@ -141,7 +141,7 @@ namespace ZThread {
     /**
      * Test whether any values are available in this Queue.
      *
-     * @return 
+     * @return
      *  - <em>true</em> if there are no values available.
      *  - <em>false</em> if there <i>are</i> values available.
      */
@@ -163,7 +163,7 @@ namespace ZThread {
      * @param timeout maximum amount of time (milliseconds) this method may block
      *        the calling thread.
      *
-     * @return 
+     * @return
      *  - <em>true</em> if there are no values available.
      *  - <em>false</em> if there <i>are</i> values available.
      *

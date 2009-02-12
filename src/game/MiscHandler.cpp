@@ -862,7 +862,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
             missingItem = at->requiredItem2;
 
         uint32 missingKey = 0;
-		uint32 missingHeroicQuest = 0;
+        uint32 missingHeroicQuest = 0;
         if(GetPlayer()->GetDifficulty() == DIFFICULTY_HEROIC)
         {
             if(at->heroicKey)
@@ -874,7 +874,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
             else if(at->heroicKey2 && !GetPlayer()->HasItemCount(at->heroicKey2, 1))
                 missingKey = at->heroicKey2;
 
-			if(at->heroicQuest && !GetPlayer()->GetQuestRewardStatus(at->heroicQuest))
+            if(at->heroicQuest && !GetPlayer()->GetQuestRewardStatus(at->heroicQuest))
                 missingHeroicQuest = at->heroicQuest;
         }
 
@@ -889,7 +889,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
                 SendAreaTriggerMessage(GetTrinityString(LANG_LEVEL_MINREQUIRED_AND_ITEM), at->requiredLevel, objmgr.GetItemPrototype(missingItem)->Name1);
             else if(missingKey)
                 GetPlayer()->SendTransferAborted(at->target_mapId, TRANSFER_ABORT_DIFFICULTY, DIFFICULTY_HEROIC);
-			else if(missingHeroicQuest)
+            else if(missingHeroicQuest)
                 SendAreaTriggerMessage(at->heroicQuestFailedText.c_str());
             else if(missingQuest)
                 SendAreaTriggerMessage(at->requiredFailedText.c_str());

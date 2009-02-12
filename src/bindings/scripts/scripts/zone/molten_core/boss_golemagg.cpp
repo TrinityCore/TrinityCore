@@ -43,7 +43,7 @@ struct TRINITY_DLL_DECL boss_golemaggAI : public ScriptedAI
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Reset();
     }
-	ScriptedInstance *pInstance;
+    ScriptedInstance *pInstance;
 
     uint32 Pyroblast_Timer;
     uint32 EarthQuake_Timer;
@@ -79,7 +79,7 @@ struct TRINITY_DLL_DECL boss_golemaggAI : public ScriptedAI
         if (Pyroblast_Timer < diff)
         {
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-				DoCast(target,SPELL_PYROBLAST);
+                DoCast(target,SPELL_PYROBLAST);
 
             Pyroblast_Timer = 7000;
         }else Pyroblast_Timer -= diff;
@@ -153,7 +153,7 @@ struct TRINITY_DLL_DECL mob_core_ragerAI : public ScriptedAI
         if ( m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 50 )
         {
             DoCast(m_creature,SPELL_AEGIS);
-			DoScriptText(EMOTE_AEGIS, m_creature);
+            DoScriptText(EMOTE_AEGIS, m_creature);
         }
 
         //Check_Timer

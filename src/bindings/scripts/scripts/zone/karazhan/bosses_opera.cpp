@@ -135,7 +135,7 @@ struct TRINITY_DLL_DECL boss_dorotheeAI : public ScriptedAI
 
     void Aggro(Unit* who)
     {
-		DoScriptText(SAY_DOROTHEE_AGGRO, m_creature);
+        DoScriptText(SAY_DOROTHEE_AGGRO, m_creature);
     }
 
     void SummonTito();                                      // See below
@@ -167,13 +167,13 @@ struct TRINITY_DLL_DECL boss_dorotheeAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         if(AggroTimer)
-		{
-			if(AggroTimer <= diff)
-			{
-				m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-				AggroTimer = 0;
-			}else AggroTimer -= diff;
-		}
+        {
+            if(AggroTimer <= diff)
+            {
+                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                AggroTimer = 0;
+            }else AggroTimer -= diff;
+        }
 
         if(!UpdateVictim())
             return;
@@ -229,7 +229,7 @@ struct TRINITY_DLL_DECL mob_titoAI : public ScriptedAI
             if(Dorothee && Dorothee->isAlive())
             {
                 ((boss_dorotheeAI*)Dorothee->AI())->TitoDied = true;
-				DoScriptText(SAY_DOROTHEE_TITO_DEATH, Dorothee);
+                DoScriptText(SAY_DOROTHEE_TITO_DEATH, Dorothee);
             }
         }
     }
@@ -254,7 +254,7 @@ void boss_dorotheeAI::SummonTito()
     Creature* Tito = DoSpawnCreature(CREATURE_TITO, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
     if(Tito)
     {
-		DoScriptText(SAY_DOROTHEE_SUMMON, m_creature);
+        DoScriptText(SAY_DOROTHEE_SUMMON, m_creature);
         ((mob_titoAI*)Tito->AI())->DorotheeGUID = m_creature->GetGUID();
         Tito->AI()->AttackStart(m_creature->getVictim());
         SummonedTito = true;
@@ -301,7 +301,7 @@ struct TRINITY_DLL_DECL boss_strawmanAI : public ScriptedAI
 
     void Aggro(Unit* who)
     {
-		DoScriptText(SAY_STRAWMAN_AGGRO, m_creature);
+        DoScriptText(SAY_STRAWMAN_AGGRO, m_creature);
     }
 
     void SpellHit(Unit* caster, const SpellEntry *Spell)
@@ -312,7 +312,7 @@ struct TRINITY_DLL_DECL boss_strawmanAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-		DoScriptText(SAY_STRAWMAN_DEATH, m_creature);
+        DoScriptText(SAY_STRAWMAN_DEATH, m_creature);
 
         if(pInstance)
             SummonCroneIfReady(pInstance, m_creature);
@@ -320,19 +320,19 @@ struct TRINITY_DLL_DECL boss_strawmanAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-		DoScriptText(SAY_STRAWMAN_SLAY, m_creature);
+        DoScriptText(SAY_STRAWMAN_SLAY, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
     {
         if(AggroTimer)
-		{
-			if(AggroTimer <= diff)
-			{
-				m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-				AggroTimer = 0;
-			}else AggroTimer -= diff;
-		}
+        {
+            if(AggroTimer <= diff)
+            {
+                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                AggroTimer = 0;
+            }else AggroTimer -= diff;
+        }
 
         if(!UpdateVictim())
             return;
@@ -380,7 +380,7 @@ struct TRINITY_DLL_DECL boss_tinheadAI : public ScriptedAI
 
     void Aggro(Unit* who)
     {
-		DoScriptText(SAY_TINHEAD_AGGRO, m_creature);
+        DoScriptText(SAY_TINHEAD_AGGRO, m_creature);
     }
 
     void AttackStart(Unit* who)
@@ -401,7 +401,7 @@ struct TRINITY_DLL_DECL boss_tinheadAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-		DoScriptText(SAY_TINHEAD_DEATH, m_creature);
+        DoScriptText(SAY_TINHEAD_DEATH, m_creature);
 
         if(pInstance)
             SummonCroneIfReady(pInstance, m_creature);
@@ -409,19 +409,19 @@ struct TRINITY_DLL_DECL boss_tinheadAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-		DoScriptText(SAY_TINHEAD_SLAY, m_creature);
+        DoScriptText(SAY_TINHEAD_SLAY, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
     {
         if(AggroTimer)
-		{
+        {
             if(AggroTimer < diff)
-			{
-				m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-				AggroTimer = 0;
-			}else AggroTimer -= diff;
-		}
+            {
+                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                AggroTimer = 0;
+            }else AggroTimer -= diff;
+        }
 
         if(!UpdateVictim())
             return;
@@ -488,12 +488,12 @@ struct TRINITY_DLL_DECL boss_roarAI : public ScriptedAI
 
     void Aggro(Unit* who)
     {
-		DoScriptText(SAY_ROAR_AGGRO, m_creature);
+        DoScriptText(SAY_ROAR_AGGRO, m_creature);
     }
 
     void JustDied(Unit* killer)
     {
-		DoScriptText(SAY_ROAR_DEATH, m_creature);
+        DoScriptText(SAY_ROAR_DEATH, m_creature);
 
         if(pInstance)
             SummonCroneIfReady(pInstance, m_creature);
@@ -501,19 +501,19 @@ struct TRINITY_DLL_DECL boss_roarAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-		DoScriptText(SAY_ROAR_SLAY, m_creature);
+        DoScriptText(SAY_ROAR_SLAY, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
     {
         if(AggroTimer)
-		{
+        {
             if(AggroTimer <= diff)
-			{
-				m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-				AggroTimer = 0;
-			}else AggroTimer -= diff;
-		}
+            {
+                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                AggroTimer = 0;
+            }else AggroTimer -= diff;
+        }
 
         if(!UpdateVictim())
             return;
@@ -563,11 +563,11 @@ struct TRINITY_DLL_DECL boss_croneAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-		case 0: DoScriptText(SAY_CRONE_AGGRO, m_creature); break;
-		case 1: DoScriptText(SAY_CRONE_AGGRO2, m_creature); break;
+        case 0: DoScriptText(SAY_CRONE_AGGRO, m_creature); break;
+        case 1: DoScriptText(SAY_CRONE_AGGRO2, m_creature); break;
         }
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-		m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
     }
 
     void JustDied(Unit* killer)
@@ -1088,12 +1088,12 @@ struct TRINITY_DLL_DECL boss_romuloAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-		DoScriptText(SAY_ROMULO_DEATH, m_creature);
+        DoScriptText(SAY_ROMULO_DEATH, m_creature);
     }
 
     void KilledUnit(Unit* victim)
     {
-		DoScriptText(SAY_ROMULO_SLAY, m_creature);
+        DoScriptText(SAY_ROMULO_SLAY, m_creature);
     }
 
     void UpdateAI(const uint32 diff);
@@ -1106,7 +1106,7 @@ void boss_julianneAI::DamageTaken(Unit* done_by, uint32 &damage)
 
     if(Phase == PHASE_JULIANNE)
     {
-		DoScriptText(SAY_JULIANNE_DEATH01, m_creature);
+        DoScriptText(SAY_JULIANNE_DEATH01, m_creature);
         m_creature->InterruptNonMeleeSpells(true);
         DoCast(m_creature, SPELL_DRINK_POISON);
         PretendToDie(m_creature);
@@ -1200,23 +1200,23 @@ void boss_romuloAI::DamageTaken(Unit* done_by, uint32 &damage)
 void boss_julianneAI::UpdateAI(const uint32 diff)
 {
     if(EntryYellTimer)
-	{
-		if(EntryYellTimer < diff)
-		{
-			DoScriptText(SAY_JULIANNE_ENTER, m_creature);
-			m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-			EntryYellTimer = 0;
-		}else EntryYellTimer -= diff;
-	}
+    {
+        if(EntryYellTimer < diff)
+        {
+            DoScriptText(SAY_JULIANNE_ENTER, m_creature);
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            EntryYellTimer = 0;
+        }else EntryYellTimer -= diff;
+    }
 
     if(AggroYellTimer)
-	{
-		if(AggroYellTimer < diff)
-		{
-			DoScriptText(SAY_JULIANNE_AGGRO, m_creature);
-			AggroYellTimer = 0;
-		}else AggroYellTimer -= diff;
-	}
+    {
+        if(AggroYellTimer < diff)
+        {
+            DoScriptText(SAY_JULIANNE_AGGRO, m_creature);
+            AggroYellTimer = 0;
+        }else AggroYellTimer -= diff;
+    }
 
     if(Phase == PHASE_ROMULO && !SummonedRomulo)
     {
@@ -1243,20 +1243,20 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
         return;
 
     if(RomuloDead)
-	{
+    {
         if(ResurrectTimer < diff)
-		{
-			Creature* Romulo = ((Creature*)Unit::GetUnit((*m_creature), RomuloGUID));
-			if(Romulo && ((boss_romuloAI*)Romulo->AI())->IsFakingDeath)
-			{
-				DoScriptText(SAY_JULIANNE_RESURRECT, m_creature);
-				Resurrect(Romulo);
-				((boss_romuloAI*)Romulo->AI())->IsFakingDeath = false;
-				ResurrectTimer = 10000;
-			}
-			RomuloDead = false;
-		}else ResurrectTimer -= diff;
-	}
+        {
+            Creature* Romulo = ((Creature*)Unit::GetUnit((*m_creature), RomuloGUID));
+            if(Romulo && ((boss_romuloAI*)Romulo->AI())->IsFakingDeath)
+            {
+                DoScriptText(SAY_JULIANNE_RESURRECT, m_creature);
+                Resurrect(Romulo);
+                ((boss_romuloAI*)Romulo->AI())->IsFakingDeath = false;
+                ResurrectTimer = 10000;
+            }
+            RomuloDead = false;
+        }else ResurrectTimer -= diff;
+    }
 
     if(BlindingPassionTimer < diff)
     {
@@ -1299,20 +1299,20 @@ void boss_romuloAI::UpdateAI(const uint32 diff)
         return;
 
     if(JulianneDead)
-	{
+    {
         if(ResurrectTimer < diff)
-		{
-			Creature* Julianne = ((Creature*)Unit::GetUnit((*m_creature), JulianneGUID));
-			if(Julianne && ((boss_julianneAI*)Julianne->AI())->IsFakingDeath)
-			{
-				DoScriptText(SAY_ROMULO_RESURRECT, m_creature);
-				Resurrect(Julianne);
-				((boss_julianneAI*)Julianne->AI())->IsFakingDeath = false;
-				ResurrectTimer = 10000;
-			}
-			JulianneDead = false;
-		}else ResurrectTimer -= diff;
-	}
+        {
+            Creature* Julianne = ((Creature*)Unit::GetUnit((*m_creature), JulianneGUID));
+            if(Julianne && ((boss_julianneAI*)Julianne->AI())->IsFakingDeath)
+            {
+                DoScriptText(SAY_ROMULO_RESURRECT, m_creature);
+                Resurrect(Julianne);
+                ((boss_julianneAI*)Julianne->AI())->IsFakingDeath = false;
+                ResurrectTimer = 10000;
+            }
+            JulianneDead = false;
+        }else ResurrectTimer -= diff;
+    }
 
     if(BackwardLungeTimer < diff)
     {

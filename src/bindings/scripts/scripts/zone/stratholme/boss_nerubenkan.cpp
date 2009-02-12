@@ -31,13 +31,13 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_nerubenkanAI : public ScriptedAI
 {
-	boss_nerubenkanAI(Creature *c) : ScriptedAI(c)
-	{
-		pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
-		Reset();
-	}
+    boss_nerubenkanAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
+        Reset();
+    }
 
-	ScriptedInstance* pInstance;
+    ScriptedInstance* pInstance;
 
     uint32 EncasingWebs_Timer;
     uint32 PierceArmor_Timer;
@@ -60,11 +60,11 @@ struct TRINITY_DLL_DECL boss_nerubenkanAI : public ScriptedAI
     {
     }
 
-	void JustDied(Unit* Killer)
-	{
-		if (pInstance)
-			pInstance->SetData(TYPE_NERUB,IN_PROGRESS);
-	}
+    void JustDied(Unit* Killer)
+    {
+        if (pInstance)
+            pInstance->SetData(TYPE_NERUB,IN_PROGRESS);
+    }
 
     void RaiseUndeadScarab(Unit* victim)
     {

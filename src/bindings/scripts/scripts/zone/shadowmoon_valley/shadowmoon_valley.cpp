@@ -826,13 +826,13 @@ return new npc_overlord_morghorAI(_Creature);
 
 bool QuestAccept_npc_overlord_morghor(Player *player, Creature *_Creature, const Quest *_Quest )
 {
-	if(_Quest->GetQuestId() == QUEST_LORD_ILLIDAN_STORMRAGE)
-	{
+    if(_Quest->GetQuestId() == QUEST_LORD_ILLIDAN_STORMRAGE)
+    {
         ((npc_overlord_morghorAI*)_Creature->AI())->PlayerGUID = player->GetGUID();
         ((npc_overlord_morghorAI*)_Creature->AI())->StartEvent();
-		return true;
-	}
-	return false;
+        return true;
+    }
+    return false;
 }
 
 /*####
@@ -1771,10 +1771,10 @@ void AddSC_shadowmoon_valley()
     newscript->GetAI = &GetAI_mob_enslaved_netherwing_drake;
     newscript->RegisterSelf();
 
-	newscript = new Script;
-	newscript->Name = "mob_dragonmaw_peon";
-	newscript->GetAI = &GetAI_mob_dragonmaw_peon;
-	newscript->RegisterSelf();
+    newscript = new Script;
+    newscript->Name = "mob_dragonmaw_peon";
+    newscript->GetAI = &GetAI_mob_dragonmaw_peon;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_drake_dealer_hurlunk";
@@ -1811,13 +1811,13 @@ void AddSC_shadowmoon_valley()
     newscript->pGossipSelect = &GossipSelect_npc_oronok_tornheart;
     newscript->RegisterSelf();
 
-	newscript = new Script;
-	newscript->Name = "npc_overlord_morghor";
-	newscript->GetAI = &GetAI_npc_overlord_morghorAI;
-	newscript->pQuestAccept = &QuestAccept_npc_overlord_morghor;
-	newscript->RegisterSelf();
+    newscript = new Script;
+    newscript->Name = "npc_overlord_morghor";
+    newscript->GetAI = &GetAI_npc_overlord_morghorAI;
+    newscript->pQuestAccept = &QuestAccept_npc_overlord_morghor;
+    newscript->RegisterSelf();
 
-	newscript = new Script;
+    newscript = new Script;
     newscript->Name = "npc_earthmender_wilda";
     newscript->GetAI = &GetAI_npc_earthmender_wildaAI;
     newscript->pQuestAccept = &QuestAccept_npc_earthmender_wilda;

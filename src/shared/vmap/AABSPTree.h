@@ -279,11 +279,11 @@ public:
     /** Compares centers */
     class CenterComparator {
     public:
-	    Vector3::Axis sortAxis;
+        Vector3::Axis sortAxis;
 
-	    CenterComparator(Vector3::Axis a) : sortAxis(a) {}
+        CenterComparator(Vector3::Axis a) : sortAxis(a) {}
 
-	    inline int operator()(_AABSPTree::Handle<T>* A, const _AABSPTree::Handle<T>* B) const {
+        inline int operator()(_AABSPTree::Handle<T>* A, const _AABSPTree::Handle<T>* B) const {
             float a = A->center[sortAxis];
             float b = B->center[sortAxis];
 
@@ -294,18 +294,18 @@ public:
             } else {
                 return 0;
             }
-	    }
+        }
     };
 
 
     /** Compares bounds for strict >, <, or overlap*/
     class BoundsComparator {
     public:
-	    Vector3::Axis sortAxis;
+        Vector3::Axis sortAxis;
 
-	    BoundsComparator(Vector3::Axis a) : sortAxis(a) {}
+        BoundsComparator(Vector3::Axis a) : sortAxis(a) {}
 
-	    inline int operator()(_AABSPTree::Handle<T>* A, const _AABSPTree::Handle<T>* B) const {
+        inline int operator()(_AABSPTree::Handle<T>* A, const _AABSPTree::Handle<T>* B) const {
             const AABox& a = A->bounds;
             const AABox& b = B->bounds;
 
@@ -316,33 +316,33 @@ public:
             } else {
                 return 0;
             }
-	    }
+        }
     };
 
 
     /** Compares bounds to the sort location */
     class Comparator {
     public:
-	    Vector3::Axis sortAxis;
-	    float sortLocation;
+        Vector3::Axis sortAxis;
+        float sortLocation;
 
-	    Comparator(Vector3::Axis a, float l) : sortAxis(a), sortLocation(l) {}
+        Comparator(Vector3::Axis a, float l) : sortAxis(a), sortLocation(l) {}
 
-	    inline int operator()(_AABSPTree::Handle<T>* /*ignore*/, const _AABSPTree::Handle<T>* handle) const {
+        inline int operator()(_AABSPTree::Handle<T>* /*ignore*/, const _AABSPTree::Handle<T>* handle) const {
             const AABox& box = handle->bounds;
             debugAssert(ignore == NULL);
 
-		    if (box.high()[sortAxis] < sortLocation) {
+            if (box.high()[sortAxis] < sortLocation) {
                 // Box is strictly below the sort location
                 return -1;
-		    } else if (box.low()[sortAxis] > sortLocation) {
+            } else if (box.low()[sortAxis] > sortLocation) {
                 // Box is strictly above the sort location
-			    return 1;
-		    } else {
+                return 1;
+            } else {
                 // Box overlaps the sort location
-			    return 0;
-		    }
-	    }
+                return 0;
+            }
+        }
     };
 
     // Using System::malloc with this class provided no speed improvement.
@@ -450,42 +450,42 @@ public:
             }
         }
 
-	    void verifyNode(const Vector3& lo, const Vector3& hi) {
-            //		debugPrintf("Verifying: split %d @ %f [%f, %f, %f], [%f, %f, %f]\n",
-            //			    splitAxis, splitLocation, lo.x, lo.y, lo.z, hi.x, hi.y, hi.z);
+        void verifyNode(const Vector3& lo, const Vector3& hi) {
+            //      debugPrintf("Verifying: split %d @ %f [%f, %f, %f], [%f, %f, %f]\n",
+            //              splitAxis, splitLocation, lo.x, lo.y, lo.z, hi.x, hi.y, hi.z);
 
             debugAssert(lo == splitBounds.low());
             debugAssert(hi == splitBounds.high());
 
-		    for (int i = 0; i < valueArray.length(); ++i) {
-			    const AABox& b = valueArray[i]->bounds;
+            for (int i = 0; i < valueArray.length(); ++i) {
+                const AABox& b = valueArray[i]->bounds;
                 debugAssert(b == boundsArray[i]);
 
-			    for(int axis = 0; axis < 3; ++axis) {
-				    debugAssert(b.low()[axis] <= b.high()[axis]);
-				    debugAssert(b.low()[axis] >= lo[axis]);
-				    debugAssert(b.high()[axis] <= hi[axis]);
-			    }
-		    }
+                for(int axis = 0; axis < 3; ++axis) {
+                    debugAssert(b.low()[axis] <= b.high()[axis]);
+                    debugAssert(b.low()[axis] >= lo[axis]);
+                    debugAssert(b.high()[axis] <= hi[axis]);
+                }
+            }
 
-		    if (child[0] || child[1]) {
-			    debugAssert(lo[splitAxis] < splitLocation);
-			    debugAssert(hi[splitAxis] > splitLocation);
-		    }
+            if (child[0] || child[1]) {
+                debugAssert(lo[splitAxis] < splitLocation);
+                debugAssert(hi[splitAxis] > splitLocation);
+            }
 
-		    Vector3 newLo = lo;
-		    newLo[splitAxis] = splitLocation;
-		    Vector3 newHi = hi;
-		    newHi[splitAxis] = splitLocation;
+            Vector3 newLo = lo;
+            newLo[splitAxis] = splitLocation;
+            Vector3 newHi = hi;
+            newHi[splitAxis] = splitLocation;
 
-		    if (child[0] != NULL) {
-			    child[0]->verifyNode(lo, newHi);
-		    }
+            if (child[0] != NULL) {
+                child[0]->verifyNode(lo, newHi);
+            }
 
-		    if (child[1] != NULL) {
-			    child[1]->verifyNode(newLo, hi);
-		    }
-	    }
+            if (child[1] != NULL) {
+                child[1]->verifyNode(newLo, hi);
+            }
+        }
 
 #if 0
         /**
@@ -735,26 +735,26 @@ public:
         int numMeanSplits,
         Array<_AABSPTree::Handle<T> * >& temp)  {
 
-	    Node* node = NULL;
+        Node* node = NULL;
 
-	    if (source.size() <= valuesPerNode) {
-		    // Make a new leaf node
-		    node = new Node(source);
+        if (source.size() <= valuesPerNode) {
+            // Make a new leaf node
+            node = new Node(source);
 
-		    // Set the pointers in the memberTable
-		    for (int i = 0; i < source.size(); ++i) {
-			    memberTable.set(Member(source[i]), node);
-		    }
+            // Set the pointers in the memberTable
+            for (int i = 0; i < source.size(); ++i) {
+                memberTable.set(Member(source[i]), node);
+            }
             source.clear();
 
         } else {
-		    // Make a new internal node
-		    node = new Node();
+            // Make a new internal node
+            node = new Node();
 
             const AABox bounds = computeBounds(source, 0, source.size() - 1);
-		    const Vector3 extent = bounds.high() - bounds.low();
+            const Vector3 extent = bounds.high() - bounds.low();
 
-		    Vector3::Axis splitAxis = extent.primaryAxis();
+            Vector3::Axis splitAxis = extent.primaryAxis();
 
             float splitLocation;
 
@@ -846,20 +846,20 @@ public:
             for (int i = 0; i < node->valueArray.size(); ++i) {
                 _AABSPTree::Handle<T> * v = node->valueArray[i];
                 node->boundsArray[i] = v->bounds;
-			    memberTable.set(Member(v), node);
+                memberTable.set(Member(v), node);
             }
 
             if (lt.size() > 0) {
-			    node->child[0] = makeNode(lt, valuesPerNode, numMeanSplits - 1, temp);
-		    }
+                node->child[0] = makeNode(lt, valuesPerNode, numMeanSplits - 1, temp);
+            }
 
-		    if (gt.size() > 0) {
-			    node->child[1] = makeNode(gt, valuesPerNode, numMeanSplits - 1, temp);
-		    }
+            if (gt.size() > 0) {
+                node->child[1] = makeNode(gt, valuesPerNode, numMeanSplits - 1, temp);
+            }
 
-	    }
+        }
 
-	    return node;
+        return node;
     }
 
     /**
@@ -1317,51 +1317,51 @@ public:
         BoxIntersectionIterator& operator++() {
             ++nextValueArrayIndex;
 
-			bool foundIntersection = false;
+            bool foundIntersection = false;
             while (! isEnd && ! foundIntersection) {
 
-				// Search for the next node if we've exhausted this one
+                // Search for the next node if we've exhausted this one
                 while ((! isEnd) &&  (nextValueArrayIndex >= node->valueArray.length())) {
-					// If we entered this loop, then the iterator has exhausted the elements at
-					// node (possibly because it just switched to a child node with no members).
-					// This loop continues until it finds a node with members or reaches
-					// the end of the whole intersection search.
+                    // If we entered this loop, then the iterator has exhausted the elements at
+                    // node (possibly because it just switched to a child node with no members).
+                    // This loop continues until it finds a node with members or reaches
+                    // the end of the whole intersection search.
 
-					// If the right child overlaps the box, push it onto the stack for
-					// processing.
-					if ((node->child[1] != NULL) &&
-						(box.high()[node->splitAxis] > node->splitLocation)) {
-						stack.push(node->child[1]);
-					}
+                    // If the right child overlaps the box, push it onto the stack for
+                    // processing.
+                    if ((node->child[1] != NULL) &&
+                        (box.high()[node->splitAxis] > node->splitLocation)) {
+                        stack.push(node->child[1]);
+                    }
 
-					// If the left child overlaps the box, push it onto the stack for
-					// processing.
-					if ((node->child[0] != NULL) &&
-						(box.low()[node->splitAxis] < node->splitLocation)) {
-						stack.push(node->child[0]);
-					}
+                    // If the left child overlaps the box, push it onto the stack for
+                    // processing.
+                    if ((node->child[0] != NULL) &&
+                        (box.low()[node->splitAxis] < node->splitLocation)) {
+                        stack.push(node->child[0]);
+                    }
 
-					if (stack.length() > 0) {
-						// Go on to the next node (which may be either one of the ones we
-						// just pushed, or one from farther back the tree).
-						node = stack.pop();
-						nextValueArrayIndex = 0;
-					} else {
-						// That was the last node; we're done iterating
-						isEnd = true;
-					}
-				}
+                    if (stack.length() > 0) {
+                        // Go on to the next node (which may be either one of the ones we
+                        // just pushed, or one from farther back the tree).
+                        node = stack.pop();
+                        nextValueArrayIndex = 0;
+                    } else {
+                        // That was the last node; we're done iterating
+                        isEnd = true;
+                    }
+                }
 
-				// Search for the next intersection at this node until we run out of children
-				while (! isEnd && ! foundIntersection && (nextValueArrayIndex < node->valueArray.length())) {
-					if (box.intersects(node->boundsArray[nextValueArrayIndex])) {
-						foundIntersection = true;
-					} else {
-						++nextValueArrayIndex;
-						// If we exhaust this node, we'll loop around the master loop
-						// to find a new node.
-					}
-				}
+                // Search for the next intersection at this node until we run out of children
+                while (! isEnd && ! foundIntersection && (nextValueArrayIndex < node->valueArray.length())) {
+                    if (box.intersects(node->boundsArray[nextValueArrayIndex])) {
+                        foundIntersection = true;
+                    } else {
+                        ++nextValueArrayIndex;
+                        // If we exhaust this node, we'll loop around the master loop
+                        // to find a new node.
+                    }
+                }
             }
 
             return *this;

@@ -25,7 +25,7 @@
 
 #include "zthread/Exceptions.h"
 
-namespace ZThread { 
+namespace ZThread {
 
   /**
    * @class Waitable
@@ -35,21 +35,21 @@ namespace ZThread {
    * @version 2.3.0
    *
    * The Waitable interface defines a common method of adding generic <i>wait</i> semantics
-   * to a class. 
+   * to a class.
    *
    * <b>Waiting</b>
    *
    * An object implementing the Waitable interface externalizes a mechanism for testing
-   * some internal condition. Another object may <i>wait()</i>s for a Waitable object; 
-   * in doing so, it wait()s for that condition to become true by blocking the caller 
+   * some internal condition. Another object may <i>wait()</i>s for a Waitable object;
+   * in doing so, it wait()s for that condition to become true by blocking the caller
    * while the condition is false.
    *
    * For example, a Condition is Waitable object that extends <i>wait</i> semantics
-   * so that wait()ing means a thread is blocked until some external stimulus 
-   * specifically performs an operation on the Condition to make its internal condition true. 
+   * so that wait()ing means a thread is blocked until some external stimulus
+   * specifically performs an operation on the Condition to make its internal condition true.
    * (serialization aside)
    *
-   * A Barrier extends <i>wait</i> semantics so that wait()ing mean waiting for other 
+   * A Barrier extends <i>wait</i> semantics so that wait()ing mean waiting for other
    * waiters, and may include automatically resetting the condition once a wait is complete.
    *
    * @see Condition
@@ -57,9 +57,9 @@ namespace ZThread {
    * @see Executor
    */
   class Waitable {
-  public:  
-  
-    //! Destroy a Waitable object.  
+  public:
+
+    //! Destroy a Waitable object.
     virtual ~Waitable() {}
 
     /**
@@ -78,14 +78,14 @@ namespace ZThread {
      *
      * @param timeout maximum amount of time, in milliseconds, to spend waiting.
      *
-     * @return 
-     *   - <em>true</em> if the set of tasks being wait for complete before 
+     * @return
+     *   - <em>true</em> if the set of tasks being wait for complete before
      *                   <i>timeout</i> milliseconds elapse.
      *   - <em>false</em> othewise.
      */
     virtual bool wait(unsigned long timeout) = 0;
 
-  
+
   }; /* Waitable */
 
 

@@ -187,7 +187,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
         GuardiansOfIcecrown_Timer = 5000;                   //5 seconds for summoning each Guardian of Icecrown in phase 3
 
         for(int i=0; i<5; i++)
-		{
+        {
             if(GuardiansOfIcecrown[i])
         {
             //delete creature
@@ -196,7 +196,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                 pUnit->DealDamage(pUnit, pUnit->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             GuardiansOfIcecrown[i] = 0;
         }
-		}
+        }
 
         Phase1_Timer = 310000;                              //Phase 1 lasts 5 minutes and 10 seconds
         Phase2 = false;
@@ -205,10 +205,10 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
 
     void KilledUnit()
     {
-		if (rand()%2)
-			DoScriptText(SAY_SLAY1, m_creature);
-		else
-			DoScriptText(SAY_SLAY2, m_creature);
+        if (rand()%2)
+            DoScriptText(SAY_SLAY1, m_creature);
+        else
+            DoScriptText(SAY_SLAY2, m_creature);
     }
 
     void JustDied(Unit* Killer)
@@ -266,9 +266,9 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-		case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
-		case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
-		case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
+        case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
+        case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
+        case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
         }
     }
 
@@ -299,7 +299,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             {
                 //DoCast(m_creature->getVictim(),SPELL_CHAINS_OF_KELTHUZAD);
 
-				//if(rand()%2 == 0)
+                //if(rand()%2 == 0)
                    //DoScriptText(SAY_CHAIN1, m_creature);
                 //else
                     //DoScriptText(SAY_CHAIN2, m_creature);
@@ -313,7 +313,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                 DoCast(m_creature->getVictim(),SPELL_MANA_DETONATION);
 
                  if (rand()%2)
-					 DoScriptText(SAY_SPECIAL1_MANA_DET, m_creature);
+                     DoScriptText(SAY_SPECIAL1_MANA_DET, m_creature);
                 ManaDetonation_Timer = 20000;
             }else ManaDetonation_Timer -= diff;
 
@@ -323,7 +323,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                 DoCast(m_creature->getVictim(),SPELL_SHADOW_FISURE);
 
                if (rand()%2)
-				   DoScriptText(SAY_SPECIAL3_MANA_DET, m_creature);
+                   DoScriptText(SAY_SPECIAL3_MANA_DET, m_creature);
                 ShadowFisure_Timer = 25000;
             }else ShadowFisure_Timer -= diff;
 
@@ -334,7 +334,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                 DoCast(m_creature->getVictim(),SPELL_FROST_BLAST);
 
                 if(rand()%2 == 0)
-					DoScriptText(SAY_FROST_BLAST, m_creature);
+                    DoScriptText(SAY_FROST_BLAST, m_creature);
                 FrostBlast_Timer = (rand()%30+30)*1000;
             }else FrostBlast_Timer -= diff;
 
@@ -342,7 +342,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             if(!Phase3 && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 40)
             {
                 Phase3 = true;
-					DoScriptText(SAY_REQUEST_AID, m_creature);
+                    DoScriptText(SAY_REQUEST_AID, m_creature);
                 //here Lich King should respond to KelThuzad but I don't know which creature to make talk
                 //so for now just make Kelthuzad says it.
                 DoScriptText(SAY_ANSWER_REQUEST, m_creature);

@@ -178,7 +178,7 @@ void MotionMaster::MoveIdle(MovementSlot slot)
 void
 MotionMaster::MoveRandom(float spawndist)
 {
-	if(i_owner->GetTypeId()==TYPEID_UNIT)
+    if(i_owner->GetTypeId()==TYPEID_UNIT)
     {
         DEBUG_LOG("Creature (GUID: %u) start moving random", i_owner->GetGUIDLow() );
         Mutate(new RandomMovementGenerator<Creature>(spawndist), MOTION_SLOT_IDLE);
@@ -402,10 +402,10 @@ void MotionMaster::Mutate(MovementGenerator *m, MovementSlot slot)
 
 void MotionMaster::MovePath(uint32 path_id, bool repeatable)
 {
-	if(!path_id)
-		return;
-	//We set waypoint movement as new default movement generator
-	// clear ALL movement generators (including default)
+    if(!path_id)
+        return;
+    //We set waypoint movement as new default movement generator
+    // clear ALL movement generators (including default)
     /*while(!empty())
     {
         MovementGenerator *curr = top();
@@ -415,13 +415,13 @@ void MotionMaster::MovePath(uint32 path_id, bool repeatable)
             delete curr;
     }*/
 
-	//i_owner->GetTypeId()==TYPEID_PLAYER ?
-		//Mutate(new WaypointMovementGenerator<Player>(path_id, repeatable)):
-		Mutate(new WaypointMovementGenerator<Creature>(path_id, repeatable), MOTION_SLOT_IDLE);
+    //i_owner->GetTypeId()==TYPEID_PLAYER ?
+        //Mutate(new WaypointMovementGenerator<Player>(path_id, repeatable)):
+        Mutate(new WaypointMovementGenerator<Creature>(path_id, repeatable), MOTION_SLOT_IDLE);
 
-	DEBUG_LOG("%s (GUID: %u) start moving over path(Id:%u, repeatable: %s)",
-		i_owner->GetTypeId()==TYPEID_PLAYER ? "Player" : "Creature",
-		i_owner->GetGUIDLow(), path_id, repeatable ? "YES" : "NO" );
+    DEBUG_LOG("%s (GUID: %u) start moving over path(Id:%u, repeatable: %s)",
+        i_owner->GetTypeId()==TYPEID_PLAYER ? "Player" : "Creature",
+        i_owner->GetGUIDLow(), path_id, repeatable ? "YES" : "NO" );
 }
 
 void MotionMaster::propagateSpeedChange()

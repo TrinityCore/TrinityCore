@@ -28,7 +28,7 @@
 
 namespace ZThread {
 
- 
+
   /**
    * @class Executor
    *
@@ -41,27 +41,27 @@ namespace ZThread {
    * be found in the proceedings of the 2002 VikingPLOP conference.
    *
    * <b>Executing</b>
-   * 
+   *
    * - <em>execute</em>()ing task with an Executor will submit the task, scheduling
    *   it for execution at some future time depending on the Executor being used.
    *
    * <b>Disabling</b>
    *
-   * - <em>cancel</em>()ing an Executor will cause it to stop accepting 
-   *   new tasks. 
+   * - <em>cancel</em>()ing an Executor will cause it to stop accepting
+   *   new tasks.
    *
    * <b>Interrupting</b>
    *
-   * - <em>interrupt</em>()ing an Executor will cause the any thread running 
-   *   a task which was submitted prior to the invocation of this function to 
+   * - <em>interrupt</em>()ing an Executor will cause the any thread running
+   *   a task which was submitted prior to the invocation of this function to
    *   be interrupted during the execution of that task.
    *
    * <b>Waiting</b>
    *
-   * - <em>wait</em>()ing on a PoolExecutor will block the calling thread 
+   * - <em>wait</em>()ing on a PoolExecutor will block the calling thread
    *   until all tasks that were submitted prior to the invocation of this function
    *   have completed.
-   * 
+   *
    * @see Cancelable
    * @see Waitable
    */
@@ -69,15 +69,15 @@ namespace ZThread {
   public:
 
     /**
-     * If supported by the Executor, interrupt all tasks submitted prior to 
+     * If supported by the Executor, interrupt all tasks submitted prior to
      * the invocation of this function.
-     */    
+     */
     virtual void interrupt() = 0;
 
     /**
-     * Submit a task to this Executor. 
+     * Submit a task to this Executor.
      *
-     * @param task Task to be run by a thread managed by this executor 
+     * @param task Task to be run by a thread managed by this executor
      *
      * @pre  The Executor should have been canceled prior to this invocation.
      * @post The submitted task will be run at some point in the future by this Executor.
@@ -86,7 +86,7 @@ namespace ZThread {
      *            the invocation of this function.
      */
     virtual void execute(const Task& task) = 0;
-  
+
   };
 
 } // namespace ZThread

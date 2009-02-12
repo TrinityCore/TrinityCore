@@ -270,11 +270,11 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
             case 5:
                 if(Phase == 1)
                 {
-					DoScriptText(SUFF_SAY_AFTER, Essence);
+                    DoScriptText(SUFF_SAY_AFTER, Essence);
                 }
                 else
                 {
-					DoScriptText(DESI_SAY_AFTER, Essence);
+                    DoScriptText(DESI_SAY_AFTER, Essence);
                 }
                 Essence->SetVisibility(VISIBILITY_OFF);
                 Essence->setDeathState(DEAD);
@@ -356,7 +356,7 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-		DoScriptText(SUFF_SAY_FREED, m_creature);
+        DoScriptText(SUFF_SAY_FREED, m_creature);
         DoZoneInCombat();
         m_creature->CastSpell(m_creature, AURA_OF_SUFFERING, true); // linked aura need core support
         m_creature->CastSpell(m_creature, ESSENCE_OF_SUFFERING_PASSIVE, true);
@@ -367,9 +367,9 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-		case 0: DoScriptText(SUFF_SAY_SLAY1, m_creature); break;
-		case 1: DoScriptText(SUFF_SAY_SLAY2, m_creature); break;
-		case 2: DoScriptText(SUFF_SAY_SLAY3, m_creature); break;
+        case 0: DoScriptText(SUFF_SAY_SLAY1, m_creature); break;
+        case 1: DoScriptText(SUFF_SAY_SLAY2, m_creature); break;
+        case 2: DoScriptText(SUFF_SAY_SLAY3, m_creature); break;
         }
     }
 
@@ -407,7 +407,7 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
             FixateTimer = 5000;
             if(!(rand()%16))
             {
-				DoScriptText(SUFF_SAY_AGGRO, m_creature);
+                DoScriptText(SUFF_SAY_AGGRO, m_creature);
             }
         }else FixateTimer -= diff;
 
@@ -415,7 +415,7 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
         {
             DoCast(m_creature, SPELL_ENRAGE);
             EnrageTimer = 60000;
-			DoScriptText(SUFF_EMOTE_ENRAGE, m_creature);
+            DoScriptText(SUFF_EMOTE_ENRAGE, m_creature);
         }else EnrageTimer -= diff;
 
         if(SoulDrainTimer < diff)
@@ -453,7 +453,7 @@ struct TRINITY_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
         {
             damage = 0;
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-			DoScriptText(SUFF_SAY_RECAP, m_creature);
+            DoScriptText(SUFF_SAY_RECAP, m_creature);
         }
         else
         {
@@ -474,7 +474,7 @@ struct TRINITY_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-		DoScriptText(DESI_SAY_FREED, m_creature);
+        DoScriptText(DESI_SAY_FREED, m_creature);
         DoZoneInCombat();
         DoCast(m_creature, AURA_OF_DESIRE, true);
     }
@@ -516,7 +516,7 @@ struct TRINITY_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
             DeadenTimer = 25000 + rand()%10000;
             if(!(rand()%2))
             {
-				DoScriptText(DESI_SAY_SPEC, m_creature);
+                DoScriptText(DESI_SAY_SPEC, m_creature);
             }
         }else DeadenTimer -= diff;
 
@@ -553,11 +553,11 @@ struct TRINITY_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-		switch(rand()%2)
-		{
-		case 0: DoScriptText(ANGER_SAY_FREED, m_creature); break;
-		case 1: DoScriptText(ANGER_SAY_FREED2, m_creature); break;
-		}
+        switch(rand()%2)
+        {
+        case 0: DoScriptText(ANGER_SAY_FREED, m_creature); break;
+        case 1: DoScriptText(ANGER_SAY_FREED2, m_creature); break;
+        }
 
         DoZoneInCombat();
         DoCast(m_creature, AURA_OF_ANGER, true);
@@ -565,7 +565,7 @@ struct TRINITY_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
 
     void JustDied(Unit *victim)
     {
-		DoScriptText(ANGER_SAY_DEATH, m_creature);
+        DoScriptText(ANGER_SAY_DEATH, m_creature);
     }
 
     void KilledUnit(Unit *victim)
@@ -593,7 +593,7 @@ struct TRINITY_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
         {
             if(m_creature->getVictim()->GetGUID() != AggroTargetGUID)
             {
-				DoScriptText(ANGER_SAY_BEFORE, m_creature);
+                DoScriptText(ANGER_SAY_BEFORE, m_creature);
                 DoCast(m_creature, SPELL_SELF_SEETHE, true);
                 AggroTargetGUID = m_creature->getVictim()->GetGUID();
             }
@@ -606,7 +606,7 @@ struct TRINITY_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
             SoulScreamTimer = 9000 + rand()%2000;
             if(!(rand()%3))
             {
-				DoScriptText(ANGER_SAY_SPEC, m_creature);
+                DoScriptText(ANGER_SAY_SPEC, m_creature);
             }
         }else SoulScreamTimer -= diff;
 
@@ -614,7 +614,7 @@ struct TRINITY_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
         {
             DoCast(m_creature, SPELL_SPITE_TARGET);
             SpiteTimer = 30000;
-			DoScriptText(ANGER_SAY_SPEC, m_creature);
+            DoScriptText(ANGER_SAY_SPEC, m_creature);
         }else SpiteTimer -= diff;
 
         DoMeleeAttackIfReady();

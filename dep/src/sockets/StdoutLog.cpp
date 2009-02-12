@@ -1,6 +1,6 @@
 /** \file StdoutLog.cpp
- **	\date  2004-06-01
- **	\author grymse@alhem.net
+ ** \date  2004-06-01
+ ** \author grymse@alhem.net
 **/
 /*
 Copyright (C) 2004-2007  Anders Hedstrom
@@ -8,7 +8,7 @@ Copyright (C) 2004-2007  Anders Hedstrom
 This library is made available under the terms of the GNU GPL.
 
 If you would like to use this library in a closed-source application,
-a separate license agreement is available. For information about 
+a separate license agreement is available. For information about
 the closed-source license agreement for the C++ sockets library,
 please visit http://www.alhem.net/Sockets/license.html and/or
 email license@alhem.net.
@@ -43,49 +43,49 @@ namespace SOCKETS_NAMESPACE {
 
 void StdoutLog::error(ISocketHandler *,Socket *sock,const std::string& call,int err,const std::string& sys_err,loglevel_t lvl)
 {
-	time_t t = time(NULL);
-	struct tm tp;
+    time_t t = time(NULL);
+    struct tm tp;
 #ifdef _WIN32
-	memcpy(&tp, localtime(&t), sizeof(tp));
+    memcpy(&tp, localtime(&t), sizeof(tp));
 #else
-	localtime_r(&t, &tp);
+    localtime_r(&t, &tp);
 #endif
-	std::string level;
-	
-	switch (lvl)
-	{
-	case LOG_LEVEL_WARNING:
-		level = "Warning";
-		break;
-	case LOG_LEVEL_ERROR:
-		level = "Error";
-		break;
-	case LOG_LEVEL_FATAL:
-		level = "Fatal";
-		break;
-	case LOG_LEVEL_INFO:
-		level = "Info";
-		break;
-	}
-	if (sock)
-	{
-		printf("%d-%02d-%02d %02d:%02d:%02d :: fd %d :: %s: %d %s (%s)\n",
-			tp.tm_year + 1900,
-			tp.tm_mon + 1,
-			tp.tm_mday,
-			tp.tm_hour,tp.tm_min,tp.tm_sec,
-			sock -> GetSocket(),
-			call.c_str(),err,sys_err.c_str(),level.c_str());
-	}
-	else
-	{
-		printf("%d-%02d-%02d %02d:%02d:%02d :: %s: %d %s (%s)\n",
-			tp.tm_year + 1900,
-			tp.tm_mon + 1,
-			tp.tm_mday,
-			tp.tm_hour,tp.tm_min,tp.tm_sec,
-			call.c_str(),err,sys_err.c_str(),level.c_str());
-	}
+    std::string level;
+
+    switch (lvl)
+    {
+    case LOG_LEVEL_WARNING:
+        level = "Warning";
+        break;
+    case LOG_LEVEL_ERROR:
+        level = "Error";
+        break;
+    case LOG_LEVEL_FATAL:
+        level = "Fatal";
+        break;
+    case LOG_LEVEL_INFO:
+        level = "Info";
+        break;
+    }
+    if (sock)
+    {
+        printf("%d-%02d-%02d %02d:%02d:%02d :: fd %d :: %s: %d %s (%s)\n",
+            tp.tm_year + 1900,
+            tp.tm_mon + 1,
+            tp.tm_mday,
+            tp.tm_hour,tp.tm_min,tp.tm_sec,
+            sock -> GetSocket(),
+            call.c_str(),err,sys_err.c_str(),level.c_str());
+    }
+    else
+    {
+        printf("%d-%02d-%02d %02d:%02d:%02d :: %s: %d %s (%s)\n",
+            tp.tm_year + 1900,
+            tp.tm_mon + 1,
+            tp.tm_mday,
+            tp.tm_hour,tp.tm_min,tp.tm_sec,
+            call.c_str(),err,sys_err.c_str(),level.c_str());
+    }
 }
 
 

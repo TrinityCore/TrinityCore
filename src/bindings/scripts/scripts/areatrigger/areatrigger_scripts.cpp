@@ -37,23 +37,23 @@ EndContentData */
 
 bool AreaTrigger_at_legion_teleporter(Player *player, AreaTriggerEntry *at)
 {
-	if (player->isAlive() && !player->isInCombat())
-	{
-		if (player->GetTeam()== ALLIANCE && player->GetQuestRewardStatus(10589))
-		{
-			player->CastSpell(player,SPELL_TELE_A_TO,false);
-			return true;
-		}
+    if (player->isAlive() && !player->isInCombat())
+    {
+        if (player->GetTeam()== ALLIANCE && player->GetQuestRewardStatus(10589))
+        {
+            player->CastSpell(player,SPELL_TELE_A_TO,false);
+            return true;
+        }
 
-		if (player->GetTeam()== HORDE && player->GetQuestRewardStatus(10604))
-		{
-			player->CastSpell(player,SPELL_TELE_H_TO,false);
-			return true;
-		}
+        if (player->GetTeam()== HORDE && player->GetQuestRewardStatus(10604))
+        {
+            player->CastSpell(player,SPELL_TELE_H_TO,false);
+            return true;
+        }
 
-		return false;
-	}
-	return false;
+        return false;
+    }
+    return false;
 }
 
 bool ATtest(Player *player, AreaTriggerEntry *at)
@@ -66,10 +66,10 @@ void AddSC_areatrigger_scripts()
 {
     Script *newscript;
 
-	newscript = new Script;
-	newscript->Name = "at_legion_teleporter";
-	newscript->pAreaTrigger = &AreaTrigger_at_legion_teleporter;
-	newscript->RegisterSelf();
+    newscript = new Script;
+    newscript->Name = "at_legion_teleporter";
+    newscript->pAreaTrigger = &AreaTrigger_at_legion_teleporter;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="at_test";

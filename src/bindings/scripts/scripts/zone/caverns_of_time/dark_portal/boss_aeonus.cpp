@@ -40,15 +40,15 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_aeonusAI : public ScriptedAI
 {
-	boss_aeonusAI(Creature *c) : ScriptedAI(c)
-	{
-		pInstance = ((ScriptedInstance*)c->GetInstanceData());
-		HeroicMode = m_creature->GetMap()->IsHeroic();
-		Reset();
-	}
+    boss_aeonusAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        HeroicMode = m_creature->GetMap()->IsHeroic();
+        Reset();
+    }
 
-	ScriptedInstance *pInstance;
-	bool HeroicMode;
+    ScriptedInstance *pInstance;
+    bool HeroicMode;
 
     uint32 SandBreath_Timer;
     uint32 TimeStop_Timer;
@@ -66,28 +66,28 @@ struct TRINITY_DLL_DECL boss_aeonusAI : public ScriptedAI
         DoScriptText(SAY_AGGRO, m_creature);
     }
 
-	void MoveInLineOfSight(Unit *who)
-	{
-		//Despawn Time Keeper
-		if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == C_TIME_KEEPER)
-		{
-			if (m_creature->IsWithinDistInMap(who,20.0f))
-			{
-				DoScriptText(SAY_BANISH, m_creature);
-				m_creature->DealDamage(who, who->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-			}
-		}
+    void MoveInLineOfSight(Unit *who)
+    {
+        //Despawn Time Keeper
+        if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == C_TIME_KEEPER)
+        {
+            if (m_creature->IsWithinDistInMap(who,20.0f))
+            {
+                DoScriptText(SAY_BANISH, m_creature);
+                m_creature->DealDamage(who, who->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            }
+        }
 
-		ScriptedAI::MoveInLineOfSight(who);
-	}
+        ScriptedAI::MoveInLineOfSight(who);
+    }
 
     void JustDied(Unit *victim)
     {
         DoScriptText(SAY_DEATH, m_creature);
 
-		 if (pInstance)
+         if (pInstance)
          {
-			 pInstance->SetData(TYPE_RIFT,DONE);
+             pInstance->SetData(TYPE_RIFT,DONE);
              pInstance->SetData(TYPE_MEDIVH,DONE);//FIXME: later should be removed
          }
     }
@@ -110,7 +110,7 @@ struct TRINITY_DLL_DECL boss_aeonusAI : public ScriptedAI
         //Sand Breath
         if (SandBreath_Timer < diff)
         {
-			DoCast(m_creature->getVictim(), SPELL_SAND_BREATH);
+            DoCast(m_creature->getVictim(), SPELL_SAND_BREATH);
             SandBreath_Timer = 30000;
         }else SandBreath_Timer -= diff;
 
@@ -124,7 +124,7 @@ struct TRINITY_DLL_DECL boss_aeonusAI : public ScriptedAI
         //Frenzy
         if (Frenzy_Timer < diff)
         {
-			DoScriptText(EMOTE_FRENZY, m_creature);
+            DoScriptText(EMOTE_FRENZY, m_creature);
             DoCast(m_creature, SPELL_ENRAGE);
             Frenzy_Timer = 120000;
         }else Frenzy_Timer -= diff;

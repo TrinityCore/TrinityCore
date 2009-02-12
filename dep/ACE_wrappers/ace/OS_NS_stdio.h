@@ -516,7 +516,7 @@ namespace ACE_OS {
 
 #if !defined (ACE_HAS_VASPRINTF)
   extern ACE_Export
-  int vasprintf_emulation (char **bufp, const char *format, va_list argptr); 
+  int vasprintf_emulation (char **bufp, const char *format, va_list argptr);
 #endif /* !ACE_HAS_VASPRINTF */
 
 #if defined (ACE_HAS_WCHAR)

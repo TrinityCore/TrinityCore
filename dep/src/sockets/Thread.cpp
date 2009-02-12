@@ -1,6 +1,6 @@
 /** \file Thread.cpp
- **	\date  2004-10-30
- **	\author grymse@alhem.net
+ ** \date  2004-10-30
+ ** \author grymse@alhem.net
 **/
 /*
 Copyright (C) 2004-2007  Anders Hedstrom
@@ -51,111 +51,111 @@ Thread::Thread(bool release)
 ,m_b_destructor(false)
 {
 #ifdef _WIN32
-//	m_thread = ::CreateThread(NULL, 0, StartThread, this, 0, &m_dwThreadId);
-	m_thread = (HANDLE)_beginthreadex(NULL, 0, &StartThread, this, 0, &m_dwThreadId);
+//  m_thread = ::CreateThread(NULL, 0, StartThread, this, 0, &m_dwThreadId);
+    m_thread = (HANDLE)_beginthreadex(NULL, 0, &StartThread, this, 0, &m_dwThreadId);
 #else
-	pthread_attr_t attr;
+    pthread_attr_t attr;
 
-	pthread_attr_init(&attr);
-	pthread_attr_setdetachstate(&attr,PTHREAD_CREATE_DETACHED);
-	if (pthread_create(&m_thread,&attr, StartThread,this) == -1)
-	{
-		perror("Thread: create failed");
-		SetRunning(false);
-	}
-//	pthread_attr_destroy(&attr);
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr,PTHREAD_CREATE_DETACHED);
+    if (pthread_create(&m_thread,&attr, StartThread,this) == -1)
+    {
+        perror("Thread: create failed");
+        SetRunning(false);
+    }
+//  pthread_attr_destroy(&attr);
 #endif
-	m_release = release;
+    m_release = release;
 }
 
 
 Thread::~Thread()
 {
-	m_b_destructor = true;
-	if (m_running)
-	{
-		SetRelease(true);
-		SetRunning(false);
+    m_b_destructor = true;
+    if (m_running)
+    {
+        SetRelease(true);
+        SetRunning(false);
 #ifdef _WIN32
-		Sleep(1000);
+        Sleep(1000);
 #else
-		sleep(1);
+        sleep(1);
 #endif
-	}
+    }
 #ifdef _WIN32
-	if (m_thread)
-		::CloseHandle(m_thread);
+    if (m_thread)
+        ::CloseHandle(m_thread);
 #endif
 }
 
 
 threadfunc_t STDPREFIX Thread::StartThread(threadparam_t zz)
 {
-	Thread *p = (Thread *)zz;
+    Thread *p = (Thread *)zz;
 
-	while (p -> m_running && !p -> m_release)
-	{
+    while (p -> m_running && !p -> m_release)
+    {
 #ifdef _WIN32
-		Sleep(1000);
+        Sleep(1000);
 #else
-		sleep(1);
+        sleep(1);
 #endif
-	}
-	if (p -> m_running)
-	{
-		p -> Run();
-	}
-	p -> SetRunning(false); // if return
-	if (p -> DeleteOnExit() && !p -> IsDestructor())
-	{
-		delete p;
-	}
+    }
+    if (p -> m_running)
+    {
+        p -> Run();
+    }
+    p -> SetRunning(false); // if return
+    if (p -> DeleteOnExit() && !p -> IsDestructor())
+    {
+        delete p;
+    }
 #ifdef _WIN32
-	_endthreadex(0);
+    _endthreadex(0);
 #endif
-	return (threadfunc_t)NULL;
+    return (threadfunc_t)NULL;
 }
 
 
 bool Thread::IsRunning()
 {
- 	return m_running;
+    return m_running;
 }
 
 
 void Thread::SetRunning(bool x)
 {
- 	m_running = x;
+    m_running = x;
 }
 
 
 bool Thread::IsReleased()
 {
- 	return m_release;
+    return m_release;
 }
 
 
 void Thread::SetRelease(bool x)
 {
- 	m_release = x;
+    m_release = x;
 }
 
 
 bool Thread::DeleteOnExit()
 {
-	return m_b_delete_on_exit;
+    return m_b_delete_on_exit;
 }
 
 
 void Thread::SetDeleteOnExit(bool x)
 {
-	m_b_delete_on_exit = x;
+    m_b_delete_on_exit = x;
 }
 
 
 bool Thread::IsDestructor()
 {
-	return m_b_destructor;
+    return m_b_destructor;
 }
 
 
