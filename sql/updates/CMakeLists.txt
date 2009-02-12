@@ -33,4 +33,5 @@ INSTALL(FILES
 1296_mangos_7252_02_world_trinity_string.sql
 1299_mangos_7255_01_characters_characters.sql
 1307_world.sql
+1351_world.sql
 DESTINATION share/trinity/sql/updates)
