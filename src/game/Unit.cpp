@@ -1733,14 +1733,14 @@ uint32 Unit::CalcArmorReducedDamage(Unit* pVictim, const uint32 damage, SpellEnt
     {
         if( (*j)->GetModifier()->m_miscvalue & SPELL_SCHOOL_MASK_NORMAL
             && (*j)->isAffectedOnSpell(spellInfo))
-            armor= float(armor) * (float(100-(*j)->GetModifier()->m_amount)/100.0f);
+            armor= int32(float(armor) * (float(100-(*j)->GetModifier()->m_amount)/100.0f));
     }
 
     AuraList const& ResIgnoreAuras = GetAurasByType(SPELL_AURA_MOD_IGNORE_TARGET_RESIST);
     for(AuraList::const_iterator j = ResIgnoreAuras.begin();j != ResIgnoreAuras.end(); ++j)
     {
         if( (*j)->GetModifier()->m_miscvalue & SPELL_SCHOOL_MASK_NORMAL)
-            armor= float(armor) * (float(100-(*j)->GetModifier()->m_amount)/100.0f);
+            armor= int32(float(armor) * (float(100-(*j)->GetModifier()->m_amount)/100.0f));
     }
 
     // Apply Player CR_ARMOR_PENETRATION rating
@@ -1807,14 +1807,14 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
         {
             if( (*j)->GetModifier()->m_miscvalue & schoolMask
                 && (*j)->isAffectedOnSpell(spellInfo))
-                *resist= float(*resist) * (float(100-(*j)->GetModifier()->m_amount)/100.0f);
+                *resist= int32(float(*resist) * (float(100-(*j)->GetModifier()->m_amount)/100.0f));
         }
 
         AuraList const& ResIgnoreAuras = GetAurasByType(SPELL_AURA_MOD_IGNORE_TARGET_RESIST);
         for(AuraList::const_iterator j = ResIgnoreAuras.begin();j != ResIgnoreAuras.end(); ++j)
         {
             if( (*j)->GetModifier()->m_miscvalue & schoolMask)
-                *resist= float(*resist) * (float(100-(*j)->GetModifier()->m_amount)/100.0f);
+                *resist= int32(float(*resist) * (float(100-(*j)->GetModifier()->m_amount)/100.0f));
         }
     }
     else
@@ -2031,14 +2031,14 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
         {
             if( (*j)->GetModifier()->m_miscvalue & (*i)->GetModifier()->m_miscvalue
                 && (*j)->isAffectedOnSpell(spellInfo))
-                currentAbsorb= float(currentAbsorb) * (float(100-(*j)->GetModifier()->m_amount)/100.0f);
+                currentAbsorb= int32(float(currentAbsorb) * (float(100-(*j)->GetModifier()->m_amount)/100.0f));
         }
 
         AuraList const& AbsIgnoreAuras = GetAurasByType(SPELL_AURA_MOD_TARGET_ABSORB_SCHOOL);
         for(AuraList::const_iterator j = AbsIgnoreAuras.begin();j != AbsIgnoreAuras.end(); ++j)
         {
             if( (*j)->GetModifier()->m_miscvalue & (*i)->GetModifier()->m_miscvalue)
-                currentAbsorb= float(currentAbsorb) * (float(100-(*j)->GetModifier()->m_amount)/100.0f);
+                currentAbsorb= int32(float(currentAbsorb) * (float(100-(*j)->GetModifier()->m_amount)/100.0f));
         }
 
         RemainingDamage -= currentAbsorb;
@@ -2302,7 +2302,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit *pVictim, WeaponAttack
 
         // Modify dodge chance by attacker SPELL_AURA_MOD_COMBAT_RESULT_CHANCE
         dodge_chance+= GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_COMBAT_RESULT_CHANCE, VICTIMSTATE_DODGE);
-        dodge_chance*= GetTotalAuraMultiplier(SPELL_AURA_MOD_ENEMY_DODGE);
+        dodge_chance = int32 (float (dodge_chance) * GetTotalAuraMultiplier(SPELL_AURA_MOD_ENEMY_DODGE));
 
         tmp = dodge_chance;
         if (   (tmp > 0)                                        // check if unit _can_ dodge
@@ -2664,7 +2664,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
         int32 dodgeChance = int32(pVictim->GetUnitDodgeChance()*100.0f) - skillDiff * 4;
         // Reduce enemy dodge chance by SPELL_AURA_MOD_COMBAT_RESULT_CHANCE
         dodgeChance+= GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_COMBAT_RESULT_CHANCE, VICTIMSTATE_DODGE);
-        dodgeChance*= GetTotalAuraMultiplier(SPELL_AURA_MOD_ENEMY_DODGE);
+        dodgeChance = int32 (float (dodgeChance) * GetTotalAuraMultiplier(SPELL_AURA_MOD_ENEMY_DODGE));
         // Reduce dodge chance by attacker expertise rating
         if (GetTypeId() == TYPEID_PLAYER)
             dodgeChance-=int32(((Player*)this)->GetExpertiseDodgeOrParryReduction(attType) * 100.0f);
@@ -8444,7 +8444,7 @@ uint32 Unit::SpellCriticalHealingBonus(SpellEntry const *spellProto, uint32 dama
     if(crit_bonus > 0)
         damage += crit_bonus;
 
-    damage = int32(damage * GetTotalAuraMultiplier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT));
+    damage = int32(float(damage) * GetTotalAuraMultiplier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT));
 
     return damage;
 }
@@ -10074,7 +10074,7 @@ int32 Unit::ModSpellDuration(SpellEntry const* spellProto, uint8 effect_index, U
             durationMod = durationMod_always;
 
         if (durationMod != 0)
-            duration *= float(100.0f+durationMod) /100.0f;
+            duration = int32( float (duration) * float(100.0f+durationMod) /100.0f);
 
         // there are only negative mods currently
         durationMod_always =target->GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_AURA_DURATION_BY_DISPEL, spellProto->Dispel);
@@ -10087,7 +10087,7 @@ int32 Unit::ModSpellDuration(SpellEntry const* spellProto, uint8 effect_index, U
             durationMod += durationMod_always;
 
         if (durationMod != 0)
-            duration *= float(100.0f+durationMod) /100.0f;
+            duration = int32( float (duration) * float(100.0f+durationMod) /100.0f);
     }
     //else positive mods here, there are no currently
     //when there will be, change GetTotalAuraModifierByMiscValue to GetTotalPositiveAuraModifierByMiscValue
@@ -10103,11 +10103,11 @@ void Unit::ModSpellCastTime(SpellEntry const* spellProto, int32 & castTime)
         modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CASTING_TIME, castTime);
 
     if( !(spellProto->Attributes & (SPELL_ATTR_UNK4|SPELL_ATTR_UNK5)) )
-        castTime = float(castTime) * GetFloatValue(UNIT_MOD_CAST_SPEED);
+        castTime = int32( float(castTime) * GetFloatValue(UNIT_MOD_CAST_SPEED));
     else
     {
         if (spellProto->Attributes & SPELL_ATTR_RANGED && !(spellProto->AttributesEx2 & SPELL_ATTR_EX2_AUTOREPEAT_FLAG))
-            castTime = float(castTime) * m_modAttackSpeedPct[RANGED_ATTACK];
+            castTime = int32 (float(castTime) * m_modAttackSpeedPct[RANGED_ATTACK]);
     }
 }
 
