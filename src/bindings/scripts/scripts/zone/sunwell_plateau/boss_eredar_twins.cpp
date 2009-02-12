@@ -420,17 +420,17 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
         {
             Unit* Temp =  Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SACROLASH));
             if (Temp && Temp->isAlive() && !(Temp->getVictim()))
-				((Creature*)Temp)->AI()->AttackStart(who);
-		}
-	}
+                ((Creature*)Temp)->AI()->AttackStart(who);
+        }
+    }
 
-	void AttackStart(Unit *who)
-	{
-		if (!InCombat)
-		{
-			Scripted_NoMovementAI::AttackStart(who);
-		}
-	}
+    void AttackStart(Unit *who)
+    {
+        if (!InCombat)
+        {
+            Scripted_NoMovementAI::AttackStart(who);
+        }
+    }
 
     void MoveInLineOfSight(Unit *who)
     {

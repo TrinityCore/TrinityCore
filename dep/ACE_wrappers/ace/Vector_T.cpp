@@ -40,7 +40,7 @@ void ACE_Vector<T, DEFAULT_SIZE>::push_back (const T& elem)
     }
   else
     ACE_Array<T>::size (length_ + 1);
-  
+
   ++length_;
   (*this)[length_-1] = elem;
 }

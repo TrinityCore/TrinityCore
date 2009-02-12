@@ -84,7 +84,7 @@ Script* GetScriptByName(std::string Name)
 TRINITY_DLL_EXPORT
 char const* ScriptsVersion()
 {
-	return "Default Trinity scripting library";
+    return "Default Trinity scripting library";
 }
 TRINITY_DLL_EXPORT
 bool GossipHello ( Player * player, Creature *_Creature )

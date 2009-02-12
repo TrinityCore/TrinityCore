@@ -211,7 +211,7 @@ enum WorldConfigs
     CONFIG_SHOW_KICK_IN_WORLD,
     CONFIG_INTERVAL_LOG_UPDATE,
     CONFIG_MIN_LOG_UPDATE,
-	CONFIG_ENABLE_SINFO_LOGIN,
+    CONFIG_ENABLE_SINFO_LOGIN,
 
     CONFIG_VALUE_COUNT
 };
@@ -339,9 +339,9 @@ enum RealmZone
 #define SCRIPT_COMMAND_ACTIVATE_OBJECT      13              // source = unit, target=GO
 #define SCRIPT_COMMAND_REMOVE_AURA          14              // source (datalong2!=0) or target (datalong==0) unit, datalong = spell_id
 #define SCRIPT_COMMAND_CAST_SPELL           15              // source (datalong2!=0) or target (datalong==0) unit, datalong = spell_id
-#define SCRIPT_COMMAND_LOAD_PATH			16				// source = unit, path = datalong, repeatable datalong2
-#define SCRIPT_COMMAND_CALLSCRIPT_TO_UNIT	17				// datalong scriptid, lowguid datalong2, dataint table
-#define SCRIPT_COMMAND_PLAYSOUND			18				// datalong soundid, datalong2 play only self
+#define SCRIPT_COMMAND_LOAD_PATH            16              // source = unit, path = datalong, repeatable datalong2
+#define SCRIPT_COMMAND_CALLSCRIPT_TO_UNIT   17              // datalong scriptid, lowguid datalong2, dataint table
+#define SCRIPT_COMMAND_PLAYSOUND            18              // datalong soundid, datalong2 play only self
 
 
 /// Storage class for commands issued for delayed execution
@@ -414,7 +414,7 @@ class World
         /// Get the current Message of the Day
         const char* GetMotd() const { return m_motd.c_str(); }
 
-		/// Set the string for new characters (first login)
+        /// Set the string for new characters (first login)
         void SetNewCharString(std::string str) { m_newCharString = str; }
         /// Get the string for new characters (first login)
         const std::string& GetNewCharString() const { return m_newCharString; }
@@ -564,7 +564,7 @@ class World
 
         std::multimap<time_t, ScriptAction> m_scriptSchedule;
 
-		std::string m_newCharString;
+        std::string m_newCharString;
 
         float rate_values[MAX_RATES];
         uint32 m_configs[CONFIG_VALUE_COUNT];

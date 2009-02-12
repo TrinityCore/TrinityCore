@@ -35,13 +35,13 @@ namespace ZThread {
  * @date <2003-07-16T23:31:23-0400>
  * @version 2.2.0
  *
- * This FastRecursiveLock implementation uses pthreads mutex attribute 
- * functions to create a recursive lock. This implementation is not 
- * specific to solaris and will work on any system that supports 
- * pthread_mutexattr_settype().  
- */ 
+ * This FastRecursiveLock implementation uses pthreads mutex attribute
+ * functions to create a recursive lock. This implementation is not
+ * specific to solaris and will work on any system that supports
+ * pthread_mutexattr_settype().
+ */
 class FastRecursiveLock : private NonCopyable {
-    
+
   pthread_mutex_t _mtx;
 
   /**
@@ -50,7 +50,7 @@ class FastRecursiveLock : private NonCopyable {
    * Utility class to maintain the attribute as long as it is needed.
    */
   class Attribute {
-    
+
     pthread_mutexattr_t _attr;
 
   public:
@@ -60,13 +60,13 @@ class FastRecursiveLock : private NonCopyable {
       if(pthread_mutexattr_init(&_attr) != 0) {
         assert(0);
       }
-      
+
       if(pthread_mutexattr_settype(&_attr, PTHREAD_MUTEX_RECURSIVE) != 0) {
         assert(0);
       }
 
     }
-    
+
     ~Attribute() {
 
       if(pthread_mutexattr_destroy(&_attr) != 0) {
@@ -84,36 +84,36 @@ class FastRecursiveLock : private NonCopyable {
 public:
 
   inline FastRecursiveLock() {
-    
+
     static Attribute attr;
     pthread_mutex_init(&_mtx, (pthread_mutexattr_t*)attr);
 
   }
-  
+
   inline ~FastRecursiveLock() {
 
     pthread_mutex_destroy(&_mtx);
 
   }
-  
+
   inline void acquire() {
-    
+
     pthread_mutex_lock(&_mtx);
 
   }
 
   inline void release() {
-    
+
     pthread_mutex_unlock(&_mtx);
-    
+
   }
-  
+
   inline bool tryAcquire(unsigned long timeout=0) {
 
     return (pthread_mutex_trylock(&_mtx) == 0);
 
   }
-  
+
 }; /* FastRecursiveLock */
 
 

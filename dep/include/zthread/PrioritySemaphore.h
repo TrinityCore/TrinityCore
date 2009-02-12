@@ -28,16 +28,16 @@
 #include "zthread/NonCopyable.h"
 
 namespace ZThread {
-  
+
   class PrioritySemaphoreImpl;
- 
+
   /**
    * @class PrioritySemaphore
    * @author Eric Crahen <http://www.code-foo.com>
    * @date <2003-07-16T15:36:07-0400>
    * @version 2.2.1
    *
-   * A PrioritySemaphore operates in the same way as a Semaphore. Its an owner-less 
+   * A PrioritySemaphore operates in the same way as a Semaphore. Its an owner-less
    * Lockable object that is sensitive to priority.
    *
    * <b>Scheduling</b>
@@ -47,17 +47,17 @@ namespace ZThread {
    *
    * <b>Error Checking</b>
    *
-   * An attempt to increase a PrioritySemaphore beyond its maximum value will result in 
+   * An attempt to increase a PrioritySemaphore beyond its maximum value will result in
    * an InvalidOp_Exception.
    *
    * @see Semaphore
    */
   class ZTHREAD_API PrioritySemaphore : public Lockable, private NonCopyable {
-  
+
     PrioritySemaphoreImpl* _impl;
-  
+
   public:
-  
+
     /**
      * @see Semaphore::Semaphore(int count, unsigned int maxCount)
      */
@@ -70,19 +70,19 @@ namespace ZThread {
 
     /**
      * @see Semaphore::wait()
-     */ 
+     */
     void wait();
 
     /**
      * @see Semaphore::tryWait(unsigned long)
-     */ 
+     */
     bool tryWait(unsigned long);
 
     /**
      * @see Semaphore::post()
      */
     void post();
-  
+
     /**
      * @see Semaphore::count()
      */
@@ -102,8 +102,8 @@ namespace ZThread {
      * @see Semaphore::release()
      */
     virtual void release();
-      
-  }; 
+
+  };
 
 
 } // namespace ZThread

@@ -40,7 +40,7 @@ class TimeStrategy {
   unsigned long _s;
 
  public:
-  
+
   TimeStrategy() {
 
     // Get the absolute time in milliseconds relative to the program startup
@@ -53,12 +53,12 @@ class TimeStrategy {
     _ms = now % 1000;
 
   }
-  
+
   inline unsigned long seconds() const {
     return _s;
   }
 
-  inline unsigned long milliseconds() const {  
+  inline unsigned long milliseconds() const {
     return _ms;
   }
 

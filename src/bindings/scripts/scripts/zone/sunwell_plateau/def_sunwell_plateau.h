@@ -18,7 +18,7 @@
 #define DATA_KALECGOS_HUMAN         7
 #define DATA_SATHROVARR             8
 #define DATA_BRUTALLUS              9
-#define DATA_MADRIGOSA				24
+#define DATA_MADRIGOSA              24
 #define DATA_FELMYST                10
 #define DATA_ALYTHESS               11
 #define DATA_SACROLASH              12

@@ -439,7 +439,7 @@ protected:
   ACE_TCHAR process_name_[MAXPATHLEN + 1];
 
   /// Indicate if a Unicode environment should be used
-  bool use_unicode_environment_;  
+  bool use_unicode_environment_;
 };
 
 //class ACE_Process_Manager;

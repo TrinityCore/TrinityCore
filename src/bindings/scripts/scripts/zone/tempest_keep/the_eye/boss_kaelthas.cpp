@@ -248,23 +248,23 @@ struct TRINITY_DLL_DECL advisorbase_ai : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         if (DelayRes_Timer)
-		{
+        {
             if (DelayRes_Timer <= diff)
-			{
-				DelayRes_Timer = 0;
-				FakeDeath = false;
+            {
+                DelayRes_Timer = 0;
+                FakeDeath = false;
 
-				Unit* Target = Unit::GetUnit((*m_creature), DelayRes_Target);
-				if (!Target)
-					Target = m_creature->getVictim();
-				DoResetThreat();
-				AttackStart(Target);
-				m_creature->GetMotionMaster()->Clear();
-				m_creature->GetMotionMaster()->MoveChase(Target);
-				m_creature->AddThreat(Target, 0.0f);
-			}else DelayRes_Timer -= diff;
-		}
-	}
+                Unit* Target = Unit::GetUnit((*m_creature), DelayRes_Target);
+                if (!Target)
+                    Target = m_creature->getVictim();
+                DoResetThreat();
+                AttackStart(Target);
+                m_creature->GetMotionMaster()->Clear();
+                m_creature->GetMotionMaster()->MoveChase(Target);
+                m_creature->AddThreat(Target, 0.0f);
+            }else DelayRes_Timer -= diff;
+        }
+    }
 };
 
 //Kael'thas AI
@@ -282,7 +282,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
     ScriptedInstance* pInstance;
 
-	std::list<uint64> Phoenix;
+    std::list<uint64> Phoenix;
 
     uint32 Fireball_Timer;
     uint32 ArcaneDisruption_Timer;
@@ -294,7 +294,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
     uint32 NetherVapor_Timer;
     uint32 FlameStrike_Timer;
     uint32 MindControl_Timer;
-	uint32 Check_Timer;
+    uint32 Check_Timer;
     uint32 Phase;
     uint32 PhaseSubphase;                                   //generic
     uint32 Phase_Timer;                                     //generic timer
@@ -305,37 +305,37 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
     bool ChainPyros;
 
     uint64 AdvisorGuid[4];
-	uint64 WeaponGuid[7];
+    uint64 WeaponGuid[7];
 
-	void DeleteLegs()
-	{
-		InstanceMap::PlayerList const &playerliste = ((InstanceMap*)m_creature->GetMap())->GetPlayers();
-		InstanceMap::PlayerList::const_iterator it;
+    void DeleteLegs()
+    {
+        InstanceMap::PlayerList const &playerliste = ((InstanceMap*)m_creature->GetMap())->GetPlayers();
+        InstanceMap::PlayerList::const_iterator it;
 
-		Map::PlayerList const &PlayerList = ((InstanceMap*)m_creature->GetMap())->GetPlayers();
-		for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-		{
-			Player* i_pl = i->getSource();
-			i_pl->DestroyItemCount(30312, 1, true);
-			i_pl->DestroyItemCount(30311, 1, true);
-			i_pl->DestroyItemCount(30317, 1, true);
-			i_pl->DestroyItemCount(30316, 1, true);
-			i_pl->DestroyItemCount(30313, 1, true);
-			i_pl->DestroyItemCount(30314, 1, true);
-			i_pl->DestroyItemCount(30318, 1, true);
-			i_pl->DestroyItemCount(30319, 1, true);
-			i_pl->DestroyItemCount(30320, 1, true);
-		}
-		if(pInstance) {
-			for(uint32 i = 0; i < 7; i++) {
-				Creature* weapon = (Creature*)(Unit::GetUnit((*m_creature), WeaponGuid[i]));;
-				delete weapon;
-			}
-		}
-	}
+        Map::PlayerList const &PlayerList = ((InstanceMap*)m_creature->GetMap())->GetPlayers();
+        for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+        {
+            Player* i_pl = i->getSource();
+            i_pl->DestroyItemCount(30312, 1, true);
+            i_pl->DestroyItemCount(30311, 1, true);
+            i_pl->DestroyItemCount(30317, 1, true);
+            i_pl->DestroyItemCount(30316, 1, true);
+            i_pl->DestroyItemCount(30313, 1, true);
+            i_pl->DestroyItemCount(30314, 1, true);
+            i_pl->DestroyItemCount(30318, 1, true);
+            i_pl->DestroyItemCount(30319, 1, true);
+            i_pl->DestroyItemCount(30320, 1, true);
+        }
+        if(pInstance) {
+            for(uint32 i = 0; i < 7; i++) {
+                Creature* weapon = (Creature*)(Unit::GetUnit((*m_creature), WeaponGuid[i]));;
+                delete weapon;
+            }
+        }
+    }
 
-	void CleanPhoenix()
-	{
+    void CleanPhoenix()
+    {
         CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
         Cell cell(pair);
         cell.data.Part.reserved = ALL_DISTRICT;
@@ -354,10 +354,10 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
         {
             for(std::list<Creature*>::iterator itr = PhoenixList.begin(); itr != PhoenixList.end(); ++itr)
             {
-				(*itr)->RemoveFromWorld();
+                (*itr)->RemoveFromWorld();
             }
-		}
-	}
+        }
+    }
 
     void Reset()
     {
@@ -371,7 +371,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
         GravityLapse_Phase = 0;
         NetherBeam_Timer = 8000;
         NetherVapor_Timer = 10000;
-		Check_Timer = 4000;
+        Check_Timer = 4000;
         PyrosCasted = 0;
         Phase = 0;
         InGravityLapse = false;
@@ -381,13 +381,13 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
         if(InCombat)
             PrepareAdvisors();
 
-		DeleteLegs();
-		CleanPhoenix();
+        DeleteLegs();
+        CleanPhoenix();
 
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-		m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-		m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
+        m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+        m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
 
 
         if(pInstance)
@@ -419,7 +419,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
         AdvisorGuid[1] = pInstance->GetData64(DATA_LORDSANGUINAR);
         AdvisorGuid[2] = pInstance->GetData64(DATA_GRANDASTROMANCERCAPERNIAN);
         AdvisorGuid[3] = pInstance->GetData64(DATA_MASTERENGINEERTELONICUS);
-		m_creature->addUnitState(UNIT_STAT_STUNNED);
+        m_creature->addUnitState(UNIT_STAT_STUNNED);
 
         if(!AdvisorGuid[0] || !AdvisorGuid[1] || !AdvisorGuid[2] || !AdvisorGuid[3])
         {
@@ -456,32 +456,32 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
     void KilledUnit()
     {
-		switch(rand()%3)
+        switch(rand()%3)
         {
-		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
-		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
-		case 2: DoScriptText(SAY_SLAY3, m_creature); break;
+        case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+        case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+        case 2: DoScriptText(SAY_SLAY3, m_creature); break;
         }
     }
 
-	void JustSummoned(Creature* summoned)
-	{
-		if(summoned->GetEntry() == PHOENIX)
-		{
-			summoned->setFaction(m_creature->getFaction());
-			Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-			summoned->AI()->AttackStart(target);
-		}
-	}
+    void JustSummoned(Creature* summoned)
+    {
+        if(summoned->GetEntry() == PHOENIX)
+        {
+            summoned->setFaction(m_creature->getFaction());
+            Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+            summoned->AI()->AttackStart(target);
+        }
+    }
 
     void JustDied(Unit* Killer)
     {
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-		DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, m_creature);
 
-		DeleteLegs();
+        DeleteLegs();
 
         if(pInstance)
             pInstance->SetData(DATA_KAELTHASEVENT, DONE);
@@ -577,7 +577,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         Advisor = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[0]));
                         if(Advisor && (Advisor->GetUInt32Value(UNIT_FIELD_BYTES_1) == UNIT_STAND_STATE_DEAD))
                         {
-							DoScriptText(SAY_INTRO_SANGUINAR, m_creature);
+                            DoScriptText(SAY_INTRO_SANGUINAR, m_creature);
 
                             //start advisor within 12.5 seconds
                             Phase_Timer = 12500;
@@ -645,7 +645,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         Advisor = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[2]));
                         if(Advisor && (Advisor->GetUInt32Value(UNIT_FIELD_BYTES_1) == UNIT_STAND_STATE_DEAD))
                         {
-							DoScriptText(SAY_INTRO_TELONICUS, m_creature);
+                            DoScriptText(SAY_INTRO_TELONICUS, m_creature);
 
                             //start advisor within 8.4 seconds
                             Phase_Timer = 8400;
@@ -709,7 +709,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                     Creature* Weapon;
                     for (uint32 i = 0; i < 7; ++i)
                     {
-						Unit* Target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                        Unit* Target = SelectUnit(SELECT_TARGET_RANDOM, 0);
                         Weapon = m_creature->SummonCreature(((uint32)KaelthasWeapons[i][0]),KaelthasWeapons[i][1],KaelthasWeapons[i][2],KaelthasWeapons[i][3],0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
 
                         if (!Weapon)
@@ -719,7 +719,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                             Weapon->setFaction(m_creature->getFaction());
                             Weapon->AI()->AttackStart(Target);
                             Weapon->CastSpell(Weapon, SPELL_WEAPON_SPAWN, false);
-							WeaponGuid[i] = Weapon->GetGUID();
+                            WeaponGuid[i] = Weapon->GetGUID();
                         }
                     }
 
@@ -735,7 +735,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                     Phase = 3;
                     PhaseSubphase = 0;
                 }else Phase_Timer -= diff;
-				 //missing Resetcheck
+                 //missing Resetcheck
             }break;
 
             case 3:
@@ -770,7 +770,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
                     if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     {
-						m_creature->clearUnitState(UNIT_STAT_STUNNED);
+                        m_creature->clearUnitState(UNIT_STAT_STUNNED);
                         AttackStart(target);
                     }
                     Phase_Timer = 30000;
@@ -821,8 +821,8 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
                     if (FlameStrike_Timer < diff)
                     {
-						if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0, 70, true))
-							DoCast(pUnit, SPELL_FLAME_STRIKE);
+                        if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0, 70, true))
+                            DoCast(pUnit, SPELL_FLAME_STRIKE);
 
                         FlameStrike_Timer = 30000;
                     }FlameStrike_Timer -= diff;
@@ -833,10 +833,10 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         for (uint32 i = 0; i < 3; i++)
                         {
 
-							Unit* target =SelectUnit(SELECT_TARGET_RANDOM, 1, 70, true);
-							if(!target) target = m_creature->getVictim();
-							debug_log("TSCR: Kael'Thas mind control not supported.");
-							DoCast(target, SPELL_MIND_CONTROL);
+                            Unit* target =SelectUnit(SELECT_TARGET_RANDOM, 1, 70, true);
+                            if(!target) target = m_creature->getVictim();
+                            debug_log("TSCR: Kael'Thas mind control not supported.");
+                            DoCast(target, SPELL_MIND_CONTROL);
                         }
 
                         MindControl_Timer = 60000;
@@ -846,11 +846,11 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                 //Phoenix_Timer
                 if(Phoenix_Timer < diff)
                 {
-					DoCast(m_creature, SPELL_SUMMON_PHOENIX);
-					switch(rand()%2)
-					{
-					case 0: DoScriptText(SAY_SUMMON_PHOENIX1, m_creature); break;
-					case 1: DoScriptText(SAY_SUMMON_PHOENIX2, m_creature); break;
+                    DoCast(m_creature, SPELL_SUMMON_PHOENIX);
+                    switch(rand()%2)
+                    {
+                    case 0: DoScriptText(SAY_SUMMON_PHOENIX1, m_creature); break;
+                    case 1: DoScriptText(SAY_SUMMON_PHOENIX2, m_creature); break;
                     }
 
                     Phoenix_Timer = 60000;
@@ -865,7 +865,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         Phase = 5;
                         Phase_Timer = 10000;
 
-						DoScriptText(SAY_PHASE5_NUTS, m_creature);
+                        DoScriptText(SAY_PHASE5_NUTS, m_creature);
 
                         m_creature->StopMoving();
                         m_creature->GetMotionMaster()->Clear();
@@ -884,22 +884,22 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         DoCast(m_creature, SPELL_SHOCK_BARRIER);
                         ChainPyros = true;
                         PyrosCasted = 0;
-						Check_Timer = 0;
+                        Check_Timer = 0;
 
                         ShockBarrier_Timer = 60000;
                     }else ShockBarrier_Timer -= diff;
 
                     //Chain Pyros (3 of them max)
-					if (ChainPyros){
-						if (PyrosCasted < 3 && Check_Timer < diff)
+                    if (ChainPyros){
+                        if (PyrosCasted < 3 && Check_Timer < diff)
                         {
                             DoCast(m_creature->getVictim(), SPELL_PYROBLAST);
                             ++PyrosCasted;
 
-							Check_Timer = 4400;
-						}else Check_Timer -= diff;
-						if(PyrosCasted > 3)
-						{
+                            Check_Timer = 4400;
+                        }else Check_Timer -= diff;
+                        if(PyrosCasted > 3)
+                        {
                             ChainPyros = false;
                             Fireball_Timer = 2500;
                             ArcaneDisruption_Timer = 60000;
@@ -916,7 +916,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         DoCast(m_creature, SPELL_EXPLODE);
                         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         Phase = 6;
-						DoStartMovement(m_creature->getVictim());
+                        DoStartMovement(m_creature->getVictim());
                         AttackStart(m_creature->getVictim());
                     }else Phase_Timer -= diff;
                 }
@@ -957,8 +957,8 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                             case 1:
                                 switch(rand()%2)
                                 {
-								case 0: DoScriptText(SAY_GRAVITYLAPSE1, m_creature); break;
-								case 1: DoScriptText(SAY_GRAVITYLAPSE2, m_creature); break;
+                                case 0: DoScriptText(SAY_GRAVITYLAPSE1, m_creature); break;
+                                case 1: DoScriptText(SAY_GRAVITYLAPSE2, m_creature); break;
                                 }
 
                                 // 2) At that point he will put a Gravity Lapse debuff on everyone
@@ -1013,7 +1013,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                 InGravityLapse = false;
                                 GravityLapse_Timer = 60000;
                                 GravityLapse_Phase = 0;
-								DoStartMovement(m_creature->getVictim());
+                                DoStartMovement(m_creature->getVictim());
                                 AttackStart(m_creature->getVictim());
                                 DoResetThreat();
                                 break;
@@ -1032,8 +1032,8 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         //NetherBeam_Timer
                         if(NetherBeam_Timer < diff)
                         {
-							if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
-								DoCast(pUnit, SPELL_NETHER_BEAM);
+                            if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                                DoCast(pUnit, SPELL_NETHER_BEAM);
 
                             NetherBeam_Timer = 4000;
                         }else NetherBeam_Timer -= diff;
@@ -1067,8 +1067,8 @@ struct TRINITY_DLL_DECL boss_thaladred_the_darkenerAI : public advisorbase_ai
 
     void JustDied(Unit* pKiller)
     {
-		DoScriptText(SAY_THALADRED_DEATH, m_creature);
-	}
+        DoScriptText(SAY_THALADRED_DEATH, m_creature);
+    }
 
     void Aggro(Unit *who)
     {
@@ -1101,7 +1101,7 @@ struct TRINITY_DLL_DECL boss_thaladred_the_darkenerAI : public advisorbase_ai
             {
                 DoResetThreat();
                 m_creature->AddThreat(target, 5000000.0f);
-				DoScriptText(EMOTE_THALADRED_GAZE, m_creature, target);
+                DoScriptText(EMOTE_THALADRED_GAZE, m_creature, target);
                 Gaze_Timer = 8500;
             }
         }else Gaze_Timer -= diff;
@@ -1139,7 +1139,7 @@ struct TRINITY_DLL_DECL boss_lord_sanguinarAI : public advisorbase_ai
 
     void JustDied(Unit* Killer)
     {
-		DoScriptText(SAY_SANGUINAR_DEATH, m_creature);
+        DoScriptText(SAY_SANGUINAR_DEATH, m_creature);
     }
 
     void Aggro(Unit *who)
@@ -1150,7 +1150,7 @@ struct TRINITY_DLL_DECL boss_lord_sanguinarAI : public advisorbase_ai
         if (!who || FakeDeath)
             return;
 
-		DoScriptText(SAY_SANGUINAR_AGGRO, m_creature);
+        DoScriptText(SAY_SANGUINAR_AGGRO, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -1245,14 +1245,14 @@ struct TRINITY_DLL_DECL boss_grand_astromancer_capernianAI : public advisorbase_
 
         //Yell_Timer
         if(!Yell)
-		{
+        {
             if(Yell_Timer < diff)
-			{
-				DoScriptText(SAY_CAPERNIAN_AGGRO, m_creature);
+            {
+                DoScriptText(SAY_CAPERNIAN_AGGRO, m_creature);
 
-				Yell = true;
-			}else Yell_Timer -= diff;
-		}
+                Yell = true;
+            }else Yell_Timer -= diff;
+        }
 
         //Fireball_Timer
         if(Fireball_Timer < diff)
@@ -1562,7 +1562,7 @@ CreatureAI* GetAI_mob_phoenix_tk(Creature *_Creature)
 
 CreatureAI* GetAI_mob_phoenix_egg_tk(Creature *_Creature)
 {
-	return new mob_phoenix_egg_tkAI (_Creature);
+    return new mob_phoenix_egg_tkAI (_Creature);
 }
 void AddSC_boss_kaelthas()
 {
@@ -1602,8 +1602,8 @@ void AddSC_boss_kaelthas()
     newscript->GetAI = &GetAI_mob_phoenix_tk;
     newscript->RegisterSelf();
 
-	newscript = new Script;
-	newscript->Name = "mob_phoenix_egg_tk";
-	newscript->GetAI = &GetAI_mob_phoenix_egg_tk;
-	newscript->RegisterSelf();
+    newscript = new Script;
+    newscript->Name = "mob_phoenix_egg_tk";
+    newscript->GetAI = &GetAI_mob_phoenix_egg_tk;
+    newscript->RegisterSelf();
 }

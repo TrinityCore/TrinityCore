@@ -45,9 +45,9 @@ EndContentData */
 
 struct TRINITY_DLL_DECL npc_ameAI : public npc_escortAI
 {
-	npc_ameAI(Creature *c) : npc_escortAI(c) {Reset();}
+    npc_ameAI(Creature *c) : npc_escortAI(c) {Reset();}
 
-	uint32 DEMORALIZINGSHOUT_Timer;
+    uint32 DEMORALIZINGSHOUT_Timer;
 
     void WaypointReached(uint32 i)
     {
@@ -126,7 +126,7 @@ bool QuestAccept_npc_ame(Player* player, Creature* creature, Quest const* quest)
     {
         ((npc_escortAI*)(creature->AI()))->Start(false, true, false, player->GetGUID());
         DoScriptText(SAY_READY, creature, player);
-		creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
+        creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
         // Change faction so mobs attack
         creature->setFaction(113);
     }

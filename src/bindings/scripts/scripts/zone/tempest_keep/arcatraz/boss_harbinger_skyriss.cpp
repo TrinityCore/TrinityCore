@@ -59,7 +59,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         HeroicMode = m_creature->GetMap()->IsHeroic();
-		Intro = false;
+        Intro = false;
         Reset();
     }
 
@@ -80,7 +80,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
     void Reset()
     {
         if(!Intro)
-			m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_ATTACKABLE_2);
+            m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_ATTACKABLE_2);
 
         IsImage33 = false;
         IsImage66 = false;
@@ -96,9 +96,9 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
     void MoveInLineOfSight(Unit *who)
     {
         if(!Intro)
-		{
-			return;
-		}
+        {
+            return;
+        }
         ScriptedAI::MoveInLineOfSight(who);
     }
 
@@ -126,14 +126,14 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-		//won't yell killing pet/other unit
-		if( victim->GetEntry() == 21436 )
+        //won't yell killing pet/other unit
+        if( victim->GetEntry() == 21436 )
             return;
 
         switch(rand()%2)
         {
-		case 0: DoScriptText(SAY_KILL_1, m_creature); break;
-		case 1: DoScriptText(SAY_KILL_2, m_creature); break;
+        case 0: DoScriptText(SAY_KILL_1, m_creature); break;
+        case 1: DoScriptText(SAY_KILL_2, m_creature); break;
         }
     }
 
@@ -163,8 +163,8 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
                 {
                     case 1:
                          DoScriptText(SAY_INTRO, m_creature);
-						if (GameObject* Sphere = GameObject::GetGameObject(*m_creature,pInstance->GetData64(DATA_SPHERE_SHIELD)))
-							Sphere->SetGoState(0);
+                        if (GameObject* Sphere = GameObject::GetGameObject(*m_creature,pInstance->GetData64(DATA_SPHERE_SHIELD)))
+                            Sphere->SetGoState(0);
                         ++Intro_Phase;
                         Intro_Timer = 25000;
                         break;
@@ -175,13 +175,13 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
                             //should have a better way to do this. possibly spell exist.
                             mellic->setDeathState(JUST_DIED);
                             mellic->SetHealth(0);
-							pInstance->SetData(TYPE_SHIELD_OPEN,IN_PROGRESS);
+                            pInstance->SetData(TYPE_SHIELD_OPEN,IN_PROGRESS);
                         }
                         ++Intro_Phase;
                         Intro_Timer = 3000;
                         break;
                     case 3:
-						m_creature->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_ATTACKABLE_2);
+                        m_creature->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_ATTACKABLE_2);
                         Intro = true;
                         break;
                 }
@@ -219,8 +219,8 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
 
             switch(rand()%2)
             {
-			case 0: DoScriptText(SAY_FEAR_1, m_creature); break;
-			case 1: DoScriptText(SAY_FEAR_2, m_creature); break;
+            case 0: DoScriptText(SAY_FEAR_1, m_creature); break;
+            case 1: DoScriptText(SAY_FEAR_2, m_creature); break;
             }
 
             if( Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1) )
@@ -238,8 +238,8 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
 
             switch(rand()%2)
             {
-			case 0: DoScriptText(SAY_MIND_1, m_creature); break;
-			case 1: DoScriptText(SAY_MIND_2, m_creature); break;
+            case 0: DoScriptText(SAY_MIND_1, m_creature); break;
+            case 1: DoScriptText(SAY_MIND_2, m_creature); break;
             }
 
             if( Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1) )

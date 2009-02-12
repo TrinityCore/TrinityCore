@@ -2280,17 +2280,17 @@ enum ResponseCodes
 /// Ban function modes
 enum BanMode
 {
-	BAN_ACCOUNT,
-	BAN_CHARACTER,
-	BAN_IP
+    BAN_ACCOUNT,
+    BAN_CHARACTER,
+    BAN_IP
 };
 
 /// Ban function return codes
 enum BanReturn
 {
-	BAN_SUCCESS,
-	BAN_SYNTAX_ERROR,
-	BAN_NOTFOUND
+    BAN_SUCCESS,
+    BAN_SYNTAX_ERROR,
+    BAN_NOTFOUND
 };
 
 // indexes of BattlemasterList.dbc

@@ -69,9 +69,9 @@ struct TRINITY_DLL_DECL boss_curatorAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-		case 0: DoScriptText(SAY_KILL1, m_creature); break;
-		case 1: DoScriptText(SAY_KILL2, m_creature); break;
-		}
+        case 0: DoScriptText(SAY_KILL1, m_creature); break;
+        case 1: DoScriptText(SAY_KILL2, m_creature); break;
+        }
     }
 
     void JustDied(Unit *victim)

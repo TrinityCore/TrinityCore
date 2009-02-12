@@ -81,21 +81,21 @@ struct TRINITY_DLL_DECL boss_pathaleon_the_calculatorAI : public ScriptedAI
     }
     void Aggro(Unit *who)
     {
-		DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void KilledUnit(Unit* victim)
     {
-		switch(rand()%2)
-		{
-		case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
-		case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
-		}
-	}
+        switch(rand()%2)
+        {
+        case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
+        case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
+        }
+    }
 
     void JustDied(Unit* Killer)
     {
-		DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -108,14 +108,14 @@ struct TRINITY_DLL_DECL boss_pathaleon_the_calculatorAI : public ScriptedAI
         {
             for(int i = 0; i < 3;i++)
             {
-				Unit* target = NULL;
-				target = SelectUnit(SELECT_TARGET_RANDOM,0);
-				Creature* Wraith = m_creature->SummonCreature(21062,m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-				if (target && Wraith)
-					Wraith->AI()->AttackStart(target);
+                Unit* target = NULL;
+                target = SelectUnit(SELECT_TARGET_RANDOM,0);
+                Creature* Wraith = m_creature->SummonCreature(21062,m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                if (target && Wraith)
+                    Wraith->AI()->AttackStart(target);
             }
-			DoScriptText(SAY_SUMMON, m_creature);
-			Summon_Timer = 30000 + rand()%15000;
+            DoScriptText(SAY_SUMMON, m_creature);
+            Summon_Timer = 30000 + rand()%15000;
         }else Summon_Timer -= diff;
 
         if(ManaTap_Timer < diff)
@@ -132,18 +132,18 @@ struct TRINITY_DLL_DECL boss_pathaleon_the_calculatorAI : public ScriptedAI
 
         if(Domination_Timer < diff)
         {
-			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
-			{
-				switch(rand()%2)
-				{
-				case 0: DoScriptText(SAY_DOMINATION_1, m_creature); break;
-				case 1: DoScriptText(SAY_DOMINATION_2, m_creature); break;
-				}
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
+            {
+                switch(rand()%2)
+                {
+                case 0: DoScriptText(SAY_DOMINATION_1, m_creature); break;
+                case 1: DoScriptText(SAY_DOMINATION_2, m_creature); break;
+                }
 
-				DoCast(target,SPELL_DOMINATION);
-			}
-				Domination_Timer = 25000 + rand()%5000;
-			}else Domination_Timer -= diff;
+                DoCast(target,SPELL_DOMINATION);
+            }
+                Domination_Timer = 25000 + rand()%5000;
+            }else Domination_Timer -= diff;
 
         //Only casting if Heroic Mode is used
         if (HeroicMode)
@@ -157,8 +157,8 @@ struct TRINITY_DLL_DECL boss_pathaleon_the_calculatorAI : public ScriptedAI
 
         if (!Enraged && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 21)
         {
-			DoCast(m_creature, SPELL_FRENZY);
-			DoScriptText(SAY_ENRAGE, m_creature);
+            DoCast(m_creature, SPELL_FRENZY);
+            DoScriptText(SAY_ENRAGE, m_creature);
             Enraged = true;
 
         }
@@ -202,13 +202,13 @@ struct TRINITY_DLL_DECL mob_nether_wraithAI : public ScriptedAI
 
         if(ArcaneMissiles_Timer < diff)
         {
-			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
-				DoCast(target,SPELL_ARCANE_MISSILES);
-			else
-				DoCast(m_creature->getVictim(),SPELL_ARCANE_MISSILES);
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
+                DoCast(target,SPELL_ARCANE_MISSILES);
+            else
+                DoCast(m_creature->getVictim(),SPELL_ARCANE_MISSILES);
 
-			ArcaneMissiles_Timer = 5000 + rand()%5000;
-		}else ArcaneMissiles_Timer -=diff;
+            ArcaneMissiles_Timer = 5000 + rand()%5000;
+        }else ArcaneMissiles_Timer -=diff;
 
         if (!Detonation)
         {

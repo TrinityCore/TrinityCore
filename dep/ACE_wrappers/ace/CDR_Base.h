@@ -124,7 +124,7 @@ public:
     /// Use whichever byte order is native to this machine.
     BYTE_ORDER_NATIVE = ACE_CDR_BYTE_ORDER
   };
-    
+
   /**
    * Do byte swapping for each basic IDL type size.  There exist only
    * routines to put byte, halfword (2 bytes), word (4 bytes),

@@ -57,16 +57,16 @@ extern "C" {
 
   bool is_raid(File fd);
   File my_raid_create(const char *FileName, int CreateFlags, int access_flags,
-		      uint raid_type, uint raid_chunks, ulong raid_chunksize,
-		      myf MyFlags);
+              uint raid_type, uint raid_chunks, ulong raid_chunksize,
+              myf MyFlags);
   File my_raid_open(const char *FileName, int Flags,
-		    uint raid_type, uint raid_chunks, ulong raid_chunksize,
-		    myf MyFlags);
+            uint raid_type, uint raid_chunks, ulong raid_chunksize,
+            myf MyFlags);
   int my_raid_rename(const char *from, const char *to, uint raid_chunks,
-		     myf MyFlags);
+             myf MyFlags);
   int my_raid_delete(const char *from, uint raid_chunks, myf MyFlags);
   int my_raid_redel(const char *old_name, const char *new_name,
-		    uint raid_chunks, myf MyFlags);
+            uint raid_chunks, myf MyFlags);
 
   my_off_t my_raid_seek(File fd, my_off_t pos, int whence, myf MyFlags);
   my_off_t my_raid_tell(File fd, myf MyFlags);
@@ -75,12 +75,12 @@ extern "C" {
   uint my_raid_read(File Filedes, byte *Buffer, uint Count, myf MyFlags);
 
   uint my_raid_pread(File Filedes, byte *Buffer, uint Count, my_off_t offset,
-		     myf MyFlags);
+             myf MyFlags);
   uint my_raid_pwrite(int Filedes, const byte *Buffer, uint Count,
-		      my_off_t offset, myf MyFlags);
+              my_off_t offset, myf MyFlags);
 
   int my_raid_lock(File,int locktype, my_off_t start, my_off_t length,
-		   myf MyFlags);
+           myf MyFlags);
   int my_raid_chsize(File fd, my_off_t newlength, int filler, myf MyFlags);
   int my_raid_close(File, myf MyFlags);
   int my_raid_fstat(int Filedes, struct stat *buf,  myf MyFlags);
@@ -89,7 +89,7 @@ extern "C" {
 }
 
 #ifdef USE_PRAGMA_INTERFACE
-#pragma interface			/* gcc class implementation */
+#pragma interface           /* gcc class implementation */
 #endif
 
 class RaidName {
@@ -109,7 +109,7 @@ class RaidFd {
     RaidFd(uint raid_type, uint raid_chunks , ulong raid_chunksize);
     ~RaidFd();
     File Create(const char *FileName, int CreateFlags, int access_flags,
-		myf MyFlags);
+        myf MyFlags);
     File Open(const char *FileName, int Flags, myf MyFlags);
     my_off_t Seek(my_off_t pos,int whence,myf MyFlags);
     my_off_t Tell(myf MyFlags);
@@ -120,7 +120,7 @@ class RaidFd {
     int Fstat(int fd, MY_STAT *stat_area, myf MyFlags );
     int Close(myf MyFlags);
     static bool IsRaid(File fd);
-    static DYNAMIC_ARRAY _raid_map;		/* Map of RaidFD* */
+    static DYNAMIC_ARRAY _raid_map;     /* Map of RaidFD* */
   private:
 
     uint _raid_type;       /* RAID_TYPE_0 or RAID_TYPE_1 or RAID_TYPE_5 */
@@ -134,22 +134,22 @@ class RaidFd {
     my_off_t _position;
     my_off_t _size;        /* Cached file size for faster seek(SEEK_END) */
     File _fd;
-    File *_fd_vector;		/* Array of File */
-    off_t *_seek_vector;	/* Array of cached seek positions */
+    File *_fd_vector;       /* Array of File */
+    off_t *_seek_vector;    /* Array of cached seek positions */
 
     inline void Calculate()
     {
       DBUG_ENTER("RaidFd::_Calculate");
       DBUG_PRINT("info",("_position: %lu  _raid_chunksize: %lu  _size: %lu",
-			 (ulong) _position, _raid_chunksize, (ulong) _size));
+             (ulong) _position, _raid_chunksize, (ulong) _size));
 
       _total_block = (ulong) (_position / _raid_chunksize);
       _this_block = _total_block % _raid_chunks;    /* can be 0.._raid_chunks */
       _remaining_bytes = (uint) (_raid_chunksize -
-				 (_position - _total_block * _raid_chunksize));
+                 (_position - _total_block * _raid_chunksize));
       DBUG_PRINT("info",
-		 ("_total_block: %lu  this_block: %d  _remaining_bytes: %d",
-		  _total_block, _this_block, _remaining_bytes));
+         ("_total_block: %lu  this_block: %d  _remaining_bytes: %d",
+          _total_block, _this_block, _remaining_bytes));
       DBUG_VOID_RETURN;
     }
 };

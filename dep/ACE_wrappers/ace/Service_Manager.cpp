@@ -68,7 +68,7 @@ ACE_Service_Manager::open (const ACE_INET_Addr &sia)
     {
       return -1;
     }
-    
+
   return 0;
 }
 
@@ -89,7 +89,7 @@ ACE_Service_Manager::info (ACE_TCHAR **strp, size_t length) const
                    sa.get_port_number (),
                    ACE_TEXT ("tcp"),
                    ACE_TEXT ("# lists all services in the daemon\n"));
-                   
+
   if (*strp == 0 && (*strp = ACE_OS::strdup (buf)) == 0)
     {
       return -1;
@@ -98,7 +98,7 @@ ACE_Service_Manager::info (ACE_TCHAR **strp, size_t length) const
     {
       ACE_OS::strsncpy (*strp, buf, length);
     }
-    
+
   return static_cast<int> (ACE_OS::strlen (buf));
 }
 
@@ -143,7 +143,7 @@ ACE_Service_Manager::init (int argc, ACE_TCHAR *argv[])
                          ACE_TEXT ("registering service with ACE_Reactor\n")),
                         -1);
     }
-    
+
   return 0;
 }
 
@@ -160,18 +160,18 @@ ACE_Service_Manager::fini (void)
   ACE_TRACE ("ACE_Service_Manager::fini");
 
   int retv = 0;
-  
+
   if (this->get_handle () != ACE_INVALID_HANDLE)
     {
       retv =
         ACE_Reactor::instance ()->remove_handler (
           this,
           ACE_Event_Handler::ACCEPT_MASK | ACE_Event_Handler::DONT_CALL);
-          
+
       this->handle_close (ACE_INVALID_HANDLE,
                           ACE_Event_Handler::NULL_MASK);
     }
-    
+
   return retv;
 }
 
@@ -227,7 +227,7 @@ ACE_Service_Manager::list_services (void)
       if (len > 0)
         {
           ssize_t n = this->client_stream_.send_n (buf, len);
-          
+
           if (n <= 0 && errno != EPIPE)
             {
               ACE_ERROR ((LM_ERROR,
@@ -334,7 +334,7 @@ ACE_Service_Manager::handle_input (ACE_HANDLE)
                   ACE_TEXT ("client_stream fd = %d\n"),
                  this->client_stream_.get_handle ()));
       ACE_INET_Addr sa;
-      
+
       if (this->client_stream_.get_remote_addr (sa) == -1)
         {
           return -1;
@@ -361,12 +361,12 @@ ACE_Service_Manager::handle_input (ACE_HANDLE)
   // contains an incomplete string.
 
   int error;
-  
+
   do
     {
       result = client_stream_.recv (offset, remaining);
       error = errno;
-      
+
       if (result == 0 && error != EWOULDBLOCK)
         {
           remaining = 0;
@@ -403,7 +403,7 @@ ACE_Service_Manager::handle_input (ACE_HANDLE)
                       ACE_TEXT ("%p\n"),
                       ACE_TEXT ("recv")));
         }
-        
+
       break;
     case 0:
       return 0;
@@ -430,7 +430,7 @@ ACE_Service_Manager::handle_input (ACE_HANDLE)
                   ACE_TEXT ("%p\n"),
                   ACE_TEXT ("close")));
     }
-    
+
   return 0;
 }
 

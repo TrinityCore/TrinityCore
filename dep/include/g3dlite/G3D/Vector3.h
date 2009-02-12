@@ -1,8 +1,8 @@
 /**
   @file Vector3.h
- 
+
   3D vector class
- 
+
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2001-06-02
@@ -22,14 +22,14 @@
 
 namespace G3D {
 
-class Vector2;    
+class Vector2;
 class Vector3;
 class Vector4;
 
 /**
   <B>Swizzles</B>
  Vector classes have swizzle operators, e.g. <CODE>v.xy()</CODE>, that
- allow selection of arbitrary sub-fields.  These cannot be used as write 
+ allow selection of arbitrary sub-fields.  These cannot be used as write
  masks.  Examples
 
   <PRE>
@@ -57,7 +57,7 @@ private:
 
      <PRE>
        V'    N      V
-                 
+
          r   ^   -,
           \  |  /
             \|/
@@ -126,7 +126,7 @@ public:
 
     /** Returns true if this vector has length ~= 1 */
     bool isUnit() const;
-    
+
     // arithmetic operations
     Vector3 operator+ (const Vector3& v) const;
     Vector3 operator- (const Vector3& v) const;
@@ -145,10 +145,10 @@ public:
     Vector3& operator/= (const Vector3& v);
 
     /** @deprecated Use magnitude */
-	float G3D_DEPRECATED length() const;
+    float G3D_DEPRECATED length() const;
 
     float magnitude() const;
-    
+
     /**
      The result is a nan vector if the length is almost zero.
      */
@@ -163,17 +163,17 @@ public:
 
     /**
       See also G3D::Ray::reflect.
-      The length is 1. 
+      The length is 1.
      <PRE>
        V'    N       V
-                 
+
          r   ^    /
           \  |  /
             \|'-
      </PRE>
      */
     Vector3 reflectionDirection(const Vector3& normal) const;
-    
+
 
     /**
      Returns Vector3::zero() if the length is nearly zero, otherwise
@@ -195,7 +195,7 @@ public:
      where iExit is the index of refraction for the
      previous material and iEnter is the index of refraction
      for the new material.  Like Vector3::reflectionDirection,
-     the result has length 1 and is 
+     the result has length 1 and is
      pointed <I>away</I> from the intersection.
 
      Returns Vector3::zero() in the case of total internal refraction.
@@ -209,7 +209,7 @@ public:
      See also G3D::Ray::refract.
      <PRE>
               N      V
-                  
+
               ^    /
               |  /
               |'-
@@ -236,14 +236,14 @@ public:
     float G3D_DEPRECATED squaredLength() const;
 
     float squaredMagnitude () const;
-	
+
     /** @deprecated Use squaredMagnitude */
     inline float G3D_DEPRECATED norm() const {
         return squaredMagnitude();
     }
 
     float dot(const Vector3& rkVector) const;
-    
+
     float G3D_DEPRECATED unitize(float fTolerance = 1e-06);
 
     /** Cross product.  Note that two cross products in a row
@@ -285,7 +285,7 @@ public:
      Linear interpolation
      */
     inline Vector3 lerp(const Vector3& v, float alpha) const {
-        return (*this) + (v - *this) * alpha; 
+        return (*this) + (v - *this) * alpha;
     }
 
     /** Gram-Schmidt orthonormalization. */
@@ -295,7 +295,7 @@ public:
     static Vector3 random();
 
     /** Random unit vector, distributed
-        so that the probability of V is proportional 
+        so that the probability of V is proportional
         to max(V dot Normal, 0).
 
         @cite Henrik Wann Jensen, Realistic Image Synthesis using Photon Mapping eqn 2.24

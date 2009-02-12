@@ -1578,15 +1578,15 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     if(!InBattleGround() && mEntry->IsBattleGroundOrArena())
         return false;
 
-	// 449 - Champions' Hall (Alliance) // 450 - Hall of Legends (Horde)
-	if(mapid == 449 && GetTeam()==HORDE)
+    // 449 - Champions' Hall (Alliance) // 450 - Hall of Legends (Horde)
+    if(mapid == 449 && GetTeam()==HORDE)
     {
         GetSession()->SendNotification(LANG_NO_ENTER_CHAMPIONS_HALL);
         return false;
     }
 
-	if(mapid == 450 && GetTeam() == ALLIANCE)
-	{
+    if(mapid == 450 && GetTeam() == ALLIANCE)
+    {
         GetSession()->SendNotification(LANG_NO_ENTER_HALL_OF_LEGENDS);
         return false;
     }
@@ -16079,8 +16079,8 @@ void Player::SaveToDB()
     ss << ", '";
     ss << m_taxi.SaveTaxiDestinationsToString();
 
-	ss << "', '0', ";
-	ss << GetSession()->GetLatency();
+    ss << "', '0', ";
+    ss << GetSession()->GetLatency();
     ss << ", ";
     ss << GetBattleGroundId();
     ss << ", ";

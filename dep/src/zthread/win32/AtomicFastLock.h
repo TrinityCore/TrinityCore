@@ -39,17 +39,17 @@ namespace ZThread {
  *
  * This is the smallest and fastest synchronization object in the library.
  * It is an implementation of fast mutex, an all or nothing exclusive
- * lock. It should be used only where you need speed and are willing 
+ * lock. It should be used only where you need speed and are willing
  * to sacrifice all the state & safety checking provided by the framework
  * for speed.
  *
  * The current Platform SDK defines:
  *
  *   LONG InterlockedExchange(LPLONG, LONG)
- *   LONG InterlockedCompareExchange(LPLONG, LONG, LONG, LONG) 
+ *   LONG InterlockedCompareExchange(LPLONG, LONG, LONG, LONG)
  *
  * If your compiler complains about LPLONG not being implicitly casted to
- * a PVOID, then you should get the SDK update from microsoft or use the 
+ * a PVOID, then you should get the SDK update from microsoft or use the
  * WIN9X implementation of this class.
  *
  * ----
@@ -57,21 +57,21 @@ namespace ZThread {
  * don't all support the CMPXCHG function, and so Windows 95 an earlier dont support
  * InterlockedCompareExchange. For this, you should use the win9x implementation
  * of this class
- */ 
+ */
 class FastLock : private NonCopyable {
 
 #pragma pack(push, 8)
   LONG volatile _lock;
 #pragma pack(pop)
-  
+
   public:
-  
+
   /**
    * Create a new FastLock
    */
   inline FastLock() : _lock(0) { }
 
-  
+
   /**
    * Destroy FastLock
    */
@@ -79,9 +79,9 @@ class FastLock : private NonCopyable {
 
   /**
    * Lock the fast Lock, no error check.
-   * 
+   *
    * @exception None
-   */ 
+   */
   inline void acquire() {
 
     while (::InterlockedCompareExchange(const_cast<LPLONG>(&_lock), 1, 0) != 0)
@@ -89,18 +89,18 @@ class FastLock : private NonCopyable {
 
   }
 
-  
+
   /**
    * Release the fast Lock, no error check.
-   * 
+   *
    * @exception None
-   */ 
+   */
   inline void release() {
 
     ::InterlockedExchange(const_cast<LPLONG>(&_lock), (LONG)0);
 
   }
-    
+
   /**
    * Try to acquire an exclusive lock. No safety or state checks are performed.
    * This function returns immediately regardless of the value of the timeout
@@ -110,11 +110,11 @@ class FastLock : private NonCopyable {
    * @exception Synchronization_Exception - not thrown
    */
  inline bool tryAcquire(unsigned long timeout=0) {
- 
+
    return ::InterlockedCompareExchange(const_cast<LPLONG>(&_lock), 1, 0) == 0;
 
  }
-  
+
 }; /* FastLock */
 
 

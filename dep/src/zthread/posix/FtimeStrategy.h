@@ -55,8 +55,8 @@ public:
     return (unsigned long)_value.time;
   }
 
-  inline unsigned long milliseconds() const {  
-    return _value.millitm;    
+  inline unsigned long milliseconds() const {
+    return _value.millitm;
   }
 
   unsigned long seconds(unsigned long s) {

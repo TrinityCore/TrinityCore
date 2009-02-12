@@ -493,7 +493,7 @@ CreatureAI* GetAI_guard_bluffwatcher(Creature *_Creature)
 
 CreatureAI* GetAI_guard_contested(Creature *_Creature)
 {
-	 return new guardAI (_Creature);
+     return new guardAI (_Creature);
 }
 /*******************************************************
  * guard_contested end

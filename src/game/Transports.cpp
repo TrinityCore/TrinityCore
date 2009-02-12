@@ -404,8 +404,8 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids)
 
         //        sLog.outString("T: %d, x: %f, y: %f, z: %f, t:%d", t, pos.x, pos.y, pos.z, teleport);
 /*
-		if(keyFrames[i+1].delay > 5)
-			pos.delayed = true;
+        if(keyFrames[i+1].delay > 5)
+            pos.delayed = true;
 */
         //if (teleport)
         m_WayPoints[t] = pos;
@@ -488,9 +488,9 @@ bool Transport::RemovePassenger(Player* passenger)
 
 void Transport::CheckForEvent(uint32 entry, uint32 wp_id)
 {
-	uint32 key = entry*100+wp_id;
-	if(objmgr.TransportEventMap.find(key) != objmgr.TransportEventMap.end())
-		sWorld.ScriptsStart(sEventScripts, objmgr.TransportEventMap[key], this, NULL);
+    uint32 key = entry*100+wp_id;
+    if(objmgr.TransportEventMap.find(key) != objmgr.TransportEventMap.end())
+        sWorld.ScriptsStart(sEventScripts, objmgr.TransportEventMap[key], this, NULL);
 }
 
 void Transport::Update(uint32 /*p_time*/)
@@ -515,25 +515,25 @@ void Transport::Update(uint32 /*p_time*/)
             Relocate(m_curr->second.x, m_curr->second.y, m_curr->second.z);
         }
 /*
-		if(m_curr->second.delayed)
-		{
-			switch (GetEntry())
-			{
-				case 176495:
-				case 164871:
-				case 175080:
-					SendPlaySound(11804, false); break;		// ZeppelinDocked
-				case 20808:
-				case 181646:
-				case 176231:
-				case 176244:
-				case 176310:
-				case 177233:
-					SendPlaySound(5495, false);break;		// BoatDockingWarning
-				default:
-					SendPlaySound(5154, false); break;		// ShipDocked
-			}
-		}
+        if(m_curr->second.delayed)
+        {
+            switch (GetEntry())
+            {
+                case 176495:
+                case 164871:
+                case 175080:
+                    SendPlaySound(11804, false); break;     // ZeppelinDocked
+                case 20808:
+                case 181646:
+                case 176231:
+                case 176244:
+                case 176310:
+                case 177233:
+                    SendPlaySound(5495, false);break;       // BoatDockingWarning
+                default:
+                    SendPlaySound(5154, false); break;      // ShipDocked
+            }
+        }
 */
         /*
         for(PlayerSet::iterator itr = m_passengers.begin(); itr != m_passengers.end();)
@@ -556,8 +556,8 @@ void Transport::Update(uint32 /*p_time*/)
         if ((sLog.getLogFilter() & LOG_FILTER_TRANSPORT_MOVES)==0)
             sLog.outDetail("%s moved to %f %f %f %d", this->m_name.c_str(), m_curr->second.x, m_curr->second.y, m_curr->second.z, m_curr->second.mapid);
 
-		//Transport Event System
-		CheckForEvent(this->GetEntry(), m_curr->second.id);
-		sLog.outDetail("%s is at wp id: %u", this->m_name.c_str(), m_curr->second.id);
-	}
+        //Transport Event System
+        CheckForEvent(this->GetEntry(), m_curr->second.id);
+        sLog.outDetail("%s is at wp id: %u", this->m_name.c_str(), m_curr->second.id);
+    }
 }

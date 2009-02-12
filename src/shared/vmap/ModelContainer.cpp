@@ -68,7 +68,7 @@ namespace VMAP
         nSubModels += pNode.valueArray.size();
         for(int i=0;i<pNode.valueArray.size(); i++)
         {
-	    G3D::_AABSPTree::Handle<SubModel*>* h= pNode.valueArray[i];
+        G3D::_AABSPTree::Handle<SubModel*>* h= pNode.valueArray[i];
             SubModel *m = h->value;
             // add the internal nodes as well
             nNodes += m->getNNodes();

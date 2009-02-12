@@ -185,7 +185,7 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
             if (target && target->isDead())
             {
                 target->Respawn();
-				target->GetMotionMaster()->MoveTargetedHome();
+                target->GetMotionMaster()->MoveTargetedHome();
                 SetFrozenState(target);
             }
         }
@@ -197,7 +197,7 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
             if (target && target->isDead())
             {
                 target->Respawn();
-				target->GetMotionMaster()->MoveTargetedHome();
+                target->GetMotionMaster()->MoveTargetedHome();
                 SetFrozenState(target);
             }
         }
@@ -209,7 +209,7 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
             if (target && target->isDead())
             {
                 target->Respawn();
-				target->GetMotionMaster()->MoveTargetedHome();
+                target->GetMotionMaster()->MoveTargetedHome();
                 SetFrozenState(target);
             }
         }

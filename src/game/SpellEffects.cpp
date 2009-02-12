@@ -3517,8 +3517,8 @@ void Spell::EffectDispel(uint32 i)
                 SpellEntry const* spellInfo = sSpellStore.LookupEntry(j->first);
                 data << uint32(spellInfo->Id);              // Spell Id
                 data << uint8(0);                           // 0 - dispelled !=0 cleansed
-				//Why are Aura's Removed by EffIndex? Auras should be removed as a whole.....
-				unitTarget->RemoveAurasDueToSpellByDispel(spellInfo->Id, j->second, m_caster);
+                //Why are Aura's Removed by EffIndex? Auras should be removed as a whole.....
+                unitTarget->RemoveAurasDueToSpellByDispel(spellInfo->Id, j->second, m_caster);
              }
             m_caster->SendMessageToSet(&data, true);
 

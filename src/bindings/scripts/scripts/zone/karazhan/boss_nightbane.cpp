@@ -35,7 +35,7 @@ EndScriptData */
 #define SPELL_SMOKING_BLAST         37057
 #define SPELL_FIREBALL_BARRAGE      30282
 #define SPELL_SEARING_CINDERS       30127
-#define SPELL_SUMMON_SKELETON		30170
+#define SPELL_SUMMON_SKELETON       30170
 
 #define EMOTE_SUMMON                "An ancient being awakens in the distance..."
 #define YELL_AGGRO                  "What fools! I shall bring a quick end to your suffering!"
@@ -60,17 +60,17 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 {
     boss_nightbaneAI(Creature* c) : ScriptedAI(c)
     {
-		pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Intro = true;
         Reset();
     }
 
-	ScriptedInstance* pInstance;
+    ScriptedInstance* pInstance;
 
     uint32 Phase;
 
     bool RainBones;
-	bool Skeletons;
+    bool Skeletons;
 
     uint32 BellowingRoarTimer;
     uint32 CharredEarthTimer;
@@ -87,7 +87,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 
     bool Intro;
     bool Flying;
-	bool Movement;
+    bool Movement;
 
     uint32 WaitTimer;
     uint32 MovePhase;
@@ -103,16 +103,16 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
         SmokingBlastTimer = 20000;
         FireballBarrageTimer = 13000;
         SearingCindersTimer = 14000;
-		WaitTimer = 1000;
+        WaitTimer = 1000;
 
-		Phase =1;
+        Phase =1;
         FlyCount = 0;
-		MovePhase = 0;
+        MovePhase = 0;
 
         m_creature->SetSpeed(MOVE_RUN, 2.0f);
         m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
         m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-		m_creature->setActive(true);
+        m_creature->setActive(true);
 
         pInstance->SetData(DATA_NIGHTBANE_EVENT, 6);
         if(pInstance->GetData(DATA_NIGHTBANE_EVENT) > 1)
@@ -121,10 +121,10 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
             m_creature->RemoveCorpse();
         }else pInstance->SetData(DATA_NIGHTBANE_EVENT, NOT_STARTED);
 
-		HandleTerraceDoors(true);
+        HandleTerraceDoors(true);
 
         Flying = false;
-		Movement = false;
+        Movement = false;
 
         if(!Intro)
         {
@@ -133,22 +133,22 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
         }
     }
 
-	void HandleTerraceDoors(bool open)
+    void HandleTerraceDoors(bool open)
     {
-		if(GameObject *Door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(DATA_MASTERS_TERRACE_DOOR_1)))
+        if(GameObject *Door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(DATA_MASTERS_TERRACE_DOOR_1)))
 			Door->SetGoState(open ? 0 : 1);
-		if(GameObject *Door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(DATA_MASTERS_TERRACE_DOOR_2)))
+        if(GameObject *Door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(DATA_MASTERS_TERRACE_DOOR_2)))
 			Door->SetGoState(open ? 0 : 1);
     }
 
     void Aggro(Unit *who)
-	{
-		if(pInstance)
-			pInstance->SetData(DATA_NIGHTBANE_EVENT, IN_PROGRESS);
+    {
+        if(pInstance)
+            pInstance->SetData(DATA_NIGHTBANE_EVENT, IN_PROGRESS);
 
-		HandleTerraceDoors(false);
-		DoYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
-	}
+        HandleTerraceDoors(false);
+        DoYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
+    }
 
     void AttackStart(Unit* who)
     {
@@ -156,13 +156,13 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
             ScriptedAI::AttackStart(who);
     }
 
-	void JustDied(Unit* killer)
-	{
-		if(pInstance)
-			pInstance->SetData(DATA_NIGHTBANE_EVENT, DONE);
+    void JustDied(Unit* killer)
+    {
+        if(pInstance)
+            pInstance->SetData(DATA_NIGHTBANE_EVENT, DONE);
 
-		HandleTerraceDoors(true);
-	}
+        HandleTerraceDoors(true);
+    }
 
     void MoveInLineOfSight(Unit *who)
     {
@@ -194,7 +194,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
         {
             if(id == 0)
             {
-				DoTextEmote(EMOTE_BREATH, NULL, true);
+                DoTextEmote(EMOTE_BREATH, NULL, true);
                 Flying = false;
                 Phase = 2;
                 return;
@@ -211,7 +211,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
             {
                 Flying = false;
                 Phase = 1;
-				Movement = true;
+                Movement = true;
                 return;
             }
 
@@ -219,12 +219,12 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
         }
     }
 
-	void JustSummoned(Creature *summoned)
-	{
-		summoned->AI()->AttackStart(m_creature->getVictim());
-	}
+    void JustSummoned(Creature *summoned)
+    {
+        summoned->AI()->AttackStart(m_creature->getVictim());
+    }
 
-	void TakeOff()
+    void TakeOff()
     {
         DoYell(YELL_FLY_PHASE, LANG_UNIVERSAL, NULL);
 
@@ -234,14 +234,14 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
         (*m_creature).GetMotionMaster()->Clear(false);
         (*m_creature).GetMotionMaster()->MovePoint(0,IntroWay[2][0],IntroWay[2][1],IntroWay[2][2]);
 
-		Flying = true;
+        Flying = true;
 
         FlyTimer = 45000+rand()%15000; //timer wrong between 45 and 60 seconds
         ++FlyCount;
 
         RainofBonesTimer = 5000; //timer wrong (maybe)
         RainBones = false;
-		Skeletons = false;
+        Skeletons = false;
      }
 
     void UpdateAI(const uint32 diff)
@@ -291,44 +291,44 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
         //  Phase 1 "GROUND FIGHT"
         if(Phase == 1)
         {
-			if(Movement)
-			{
-				DoStartMovement(m_creature->getVictim());
-				Movement = false;
-			}
+            if(Movement)
+            {
+                DoStartMovement(m_creature->getVictim());
+                Movement = false;
+            }
 
-			if (BellowingRoarTimer < diff)
-			{
-				DoCast(m_creature->getVictim(),SPELL_BELLOWING_ROAR);
-				BellowingRoarTimer = 30000+rand()%10000 ; //Timer
-			}else BellowingRoarTimer -= diff;
+            if (BellowingRoarTimer < diff)
+            {
+                DoCast(m_creature->getVictim(),SPELL_BELLOWING_ROAR);
+                BellowingRoarTimer = 30000+rand()%10000 ; //Timer
+            }else BellowingRoarTimer -= diff;
 
             if (SmolderingBreathTimer < diff)
-			{
-				DoCast(m_creature->getVictim(),SPELL_SMOLDERING_BREATH);
-				SmolderingBreathTimer = 20000;//timer
+            {
+                DoCast(m_creature->getVictim(),SPELL_SMOLDERING_BREATH);
+                SmolderingBreathTimer = 20000;//timer
             }else SmolderingBreathTimer -= diff;
 
             if (CharredEarthTimer < diff)
-			{
-				if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-					DoCast(target,SPELL_CHARRED_EARTH);
-				CharredEarthTimer = 20000; //timer
+            {
+                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target,SPELL_CHARRED_EARTH);
+                CharredEarthTimer = 20000; //timer
             }else CharredEarthTimer -= diff;
 
             if (TailSweepTimer < diff)
-			{
-				if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-					if (!m_creature->HasInArc( M_PI, target))
-						DoCast(target,SPELL_TAIL_SWEEP);
-				TailSweepTimer = 15000;//timer
-			}else TailSweepTimer -= diff;
+            {
+                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (!m_creature->HasInArc( M_PI, target))
+                        DoCast(target,SPELL_TAIL_SWEEP);
+                TailSweepTimer = 15000;//timer
+            }else TailSweepTimer -= diff;
 
             if (SearingCindersTimer < diff)
             {
-				if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-					DoCast(target,SPELL_SEARING_CINDERS);
-				SearingCindersTimer = 10000; //timer
+                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target,SPELL_SEARING_CINDERS);
+                SearingCindersTimer = 10000; //timer
             }else SearingCindersTimer -= diff;
 
             uint32 Prozent;
@@ -338,10 +338,10 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
                 TakeOff();
 
             if (Prozent < 50 && FlyCount == 1) // secound take off 50%
-				TakeOff();
+                TakeOff();
 
             if (Prozent < 25 && FlyCount == 2) // third take off 25%
-				TakeOff();
+                TakeOff();
 
             DoMeleeAttackIfReady();
         }
@@ -351,13 +351,13 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
         {
             if (!RainBones)
             {
-				if (!Skeletons)
-				{
-					DoCast(m_creature->getVictim(), SPELL_SUMMON_SKELETON);
-					DoCast(m_creature->getVictim(), SPELL_SUMMON_SKELETON);
-					DoCast(m_creature->getVictim(), SPELL_SUMMON_SKELETON);
-					Skeletons = true;
-				}
+                if (!Skeletons)
+                {
+                    DoCast(m_creature->getVictim(), SPELL_SUMMON_SKELETON);
+                    DoCast(m_creature->getVictim(), SPELL_SUMMON_SKELETON);
+                    DoCast(m_creature->getVictim(), SPELL_SUMMON_SKELETON);
+                    Skeletons = true;
+                }
 
                 if (RainofBonesTimer < diff && !RainBones) // only once at the beginning of phase 2
                 {
@@ -368,8 +368,8 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 
                 if (DistractingAshTimer < diff)
                 {
-					if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-						DoCast(target,SPELL_DISTRACTING_ASH);
+                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target,SPELL_DISTRACTING_ASH);
                     DistractingAshTimer = 2000;//timer wrong
                 }else DistractingAshTimer -= diff;
             }
@@ -385,17 +385,17 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 
             if (FireballBarrageTimer < diff)
             {
-				if (Unit* target = SelectUnit(SELECT_TARGET_FARTHEST, 0))
-					DoCast(target,SPELL_FIREBALL_BARRAGE);
-				FireballBarrageTimer = 20000; //Timer
+                if (Unit* target = SelectUnit(SELECT_TARGET_FARTHEST, 0))
+                    DoCast(target,SPELL_FIREBALL_BARRAGE);
+                FireballBarrageTimer = 20000; //Timer
             }else FireballBarrageTimer -= diff;
 
             if (FlyTimer < diff) //landing
             {
-				if(rand()%2 == 0)
-					DoYell(YELL_LAND_PHASE_1, LANG_UNIVERSAL, NULL);
-				else
-					DoYell(YELL_LAND_PHASE_2, LANG_UNIVERSAL, NULL);
+                if(rand()%2 == 0)
+                    DoYell(YELL_LAND_PHASE_1, LANG_UNIVERSAL, NULL);
+                else
+                    DoYell(YELL_LAND_PHASE_2, LANG_UNIVERSAL, NULL);
 
                 (*m_creature).GetMotionMaster()->Clear(false);
                 m_creature->GetMotionMaster()->MovePoint(3,IntroWay[3][0],IntroWay[3][1],IntroWay[3][2]);
@@ -416,6 +416,6 @@ void AddSC_boss_nightbane()
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_nightbane";
-	newscript->GetAI = &GetAI_boss_nightbane;
+    newscript->GetAI = &GetAI_boss_nightbane;
     newscript->RegisterSelf();
 }

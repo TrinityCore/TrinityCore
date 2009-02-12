@@ -326,110 +326,110 @@ CreatureAI* GetAI_npc_injured_draenei(Creature *_Creature)
 
 struct TRINITY_DLL_DECL npc_magwinAI : public npc_escortAI
 {
-	npc_magwinAI(Creature *c) : npc_escortAI(c) {Reset();}
+    npc_magwinAI(Creature *c) : npc_escortAI(c) {Reset();}
 
 
-	void WaypointReached(uint32 i)
-	{
-		Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+    void WaypointReached(uint32 i)
+    {
+        Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
 
-		if (!player)
-			return;
+        if (!player)
+            return;
 
-		switch(i)
-		{
-		case 0:
-			DoScriptText(SAY_START, m_creature, player);
-			break;
-		case 17:
-			DoScriptText(SAY_PROGRESS, m_creature, player);
-			break;
-		case 28:
-			DoScriptText(SAY_END1, m_creature, player);
-			break;
-		case 29:
-			DoScriptText(EMOTE_HUG, m_creature, player);
-			DoScriptText(SAY_END2, m_creature, player);
-			if (player && player->GetTypeId() == TYPEID_PLAYER)
-				((Player*)player)->GroupEventHappens(QUEST_A_CRY_FOR_HELP,m_creature);
-			break;
-		}
-	}
+        switch(i)
+        {
+        case 0:
+            DoScriptText(SAY_START, m_creature, player);
+            break;
+        case 17:
+            DoScriptText(SAY_PROGRESS, m_creature, player);
+            break;
+        case 28:
+            DoScriptText(SAY_END1, m_creature, player);
+            break;
+        case 29:
+            DoScriptText(EMOTE_HUG, m_creature, player);
+            DoScriptText(SAY_END2, m_creature, player);
+            if (player && player->GetTypeId() == TYPEID_PLAYER)
+                ((Player*)player)->GroupEventHappens(QUEST_A_CRY_FOR_HELP,m_creature);
+            break;
+        }
+    }
 
-	void Aggro(Unit* who)
-	{
-		DoScriptText(SAY_AGGRO, m_creature, who);
-	}
+    void Aggro(Unit* who)
+    {
+        DoScriptText(SAY_AGGRO, m_creature, who);
+    }
 
-	void Reset()
-	{
-		if (!IsBeingEscorted)
-			m_creature->setFaction(80);
-	}
+    void Reset()
+    {
+        if (!IsBeingEscorted)
+            m_creature->setFaction(80);
+    }
 
-	void JustDied(Unit* killer)
-	{
-		if (PlayerGUID)
-		{
-			Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
-			if (player)
-				((Player*)player)->FailQuest(QUEST_A_CRY_FOR_HELP);
-		}
-	}
+    void JustDied(Unit* killer)
+    {
+        if (PlayerGUID)
+        {
+            Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+            if (player)
+                ((Player*)player)->FailQuest(QUEST_A_CRY_FOR_HELP);
+        }
+    }
 
-	void UpdateAI(const uint32 diff)
-	{
-		npc_escortAI::UpdateAI(diff);
-	}
+    void UpdateAI(const uint32 diff)
+    {
+        npc_escortAI::UpdateAI(diff);
+    }
 };
 
 bool QuestAccept_npc_magwin(Player* player, Creature* creature, Quest const* quest)
 {
-	if (quest->GetQuestId() == QUEST_A_CRY_FOR_HELP)
-	{
-		creature->setFaction(113);
-		((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
-	}
-	return true;
+    if (quest->GetQuestId() == QUEST_A_CRY_FOR_HELP)
+    {
+        creature->setFaction(113);
+        ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
+    }
+    return true;
 }
 
 CreatureAI* GetAI_npc_magwinAI(Creature *_Creature)
 {
-	npc_magwinAI* magwinAI = new npc_magwinAI(_Creature);
+    npc_magwinAI* magwinAI = new npc_magwinAI(_Creature);
 
-	magwinAI->AddWaypoint(0, -4784.532227, -11051.060547, 3.484263);
-	magwinAI->AddWaypoint(1, -4805.509277, -11037.293945, 3.043942);
-	magwinAI->AddWaypoint(2, -4827.826172, -11034.398438, 1.741959);
-	magwinAI->AddWaypoint(3, -4852.630859, -11033.695313, 2.208656);
-	magwinAI->AddWaypoint(4, -4876.791992, -11034.517578, 3.175228);
-	magwinAI->AddWaypoint(5, -4895.486816, -11038.306641, 9.390890);
-	magwinAI->AddWaypoint(6, -4915.464844, -11048.402344, 12.369793);
-	magwinAI->AddWaypoint(7, -4937.288086, -11067.041992, 13.857983);
-	magwinAI->AddWaypoint(8, -4966.577637, -11067.507813, 15.754786);
-	magwinAI->AddWaypoint(9, -4993.799805, -11056.544922, 19.175295);
-	magwinAI->AddWaypoint(10, -5017.836426, -11052.569336, 22.476587);
-	magwinAI->AddWaypoint(11, -5039.706543, -11058.459961, 25.831593);
-	magwinAI->AddWaypoint(12, -5057.289063, -11045.474609, 26.972496);
-	magwinAI->AddWaypoint(13, -5078.828125, -11037.601563, 29.053417);
-	magwinAI->AddWaypoint(14, -5104.158691, -11039.195313, 29.440195);
-	magwinAI->AddWaypoint(15, -5120.780273, -11039.518555, 30.142139);
-	magwinAI->AddWaypoint(16, -5140.833008, -11039.810547, 28.788074);
-	magwinAI->AddWaypoint(17, -5161.201660, -11040.050781, 27.879545, 4000);
-	magwinAI->AddWaypoint(18, -5171.842285, -11046.803711, 27.183821);
-	magwinAI->AddWaypoint(19, -5185.995117, -11056.359375, 20.234867);
-	magwinAI->AddWaypoint(20, -5198.485840, -11065.065430, 18.872593);
-	magwinAI->AddWaypoint(21, -5214.062500, -11074.653320, 19.215731);
-	magwinAI->AddWaypoint(22, -5220.157227, -11088.377930, 19.818476);
-	magwinAI->AddWaypoint(23, -5233.652832, -11098.846680, 18.349432);
-	magwinAI->AddWaypoint(24, -5250.163086, -11111.653320, 16.438959);
-	magwinAI->AddWaypoint(25, -5268.194336, -11125.639648, 12.668313);
-	magwinAI->AddWaypoint(26, -5286.270508, -11130.669922, 6.912246);
-	magwinAI->AddWaypoint(27, -5317.449707, -11137.392578, 4.963446);
-	magwinAI->AddWaypoint(28, -5334.854492, -11154.384766, 6.742664);
-	magwinAI->AddWaypoint(29, -5353.874512, -11171.595703, 6.903912, 20000);
-	magwinAI->AddWaypoint(30, -5354.240000, -11171.940000, 6.890000);
+    magwinAI->AddWaypoint(0, -4784.532227, -11051.060547, 3.484263);
+    magwinAI->AddWaypoint(1, -4805.509277, -11037.293945, 3.043942);
+    magwinAI->AddWaypoint(2, -4827.826172, -11034.398438, 1.741959);
+    magwinAI->AddWaypoint(3, -4852.630859, -11033.695313, 2.208656);
+    magwinAI->AddWaypoint(4, -4876.791992, -11034.517578, 3.175228);
+    magwinAI->AddWaypoint(5, -4895.486816, -11038.306641, 9.390890);
+    magwinAI->AddWaypoint(6, -4915.464844, -11048.402344, 12.369793);
+    magwinAI->AddWaypoint(7, -4937.288086, -11067.041992, 13.857983);
+    magwinAI->AddWaypoint(8, -4966.577637, -11067.507813, 15.754786);
+    magwinAI->AddWaypoint(9, -4993.799805, -11056.544922, 19.175295);
+    magwinAI->AddWaypoint(10, -5017.836426, -11052.569336, 22.476587);
+    magwinAI->AddWaypoint(11, -5039.706543, -11058.459961, 25.831593);
+    magwinAI->AddWaypoint(12, -5057.289063, -11045.474609, 26.972496);
+    magwinAI->AddWaypoint(13, -5078.828125, -11037.601563, 29.053417);
+    magwinAI->AddWaypoint(14, -5104.158691, -11039.195313, 29.440195);
+    magwinAI->AddWaypoint(15, -5120.780273, -11039.518555, 30.142139);
+    magwinAI->AddWaypoint(16, -5140.833008, -11039.810547, 28.788074);
+    magwinAI->AddWaypoint(17, -5161.201660, -11040.050781, 27.879545, 4000);
+    magwinAI->AddWaypoint(18, -5171.842285, -11046.803711, 27.183821);
+    magwinAI->AddWaypoint(19, -5185.995117, -11056.359375, 20.234867);
+    magwinAI->AddWaypoint(20, -5198.485840, -11065.065430, 18.872593);
+    magwinAI->AddWaypoint(21, -5214.062500, -11074.653320, 19.215731);
+    magwinAI->AddWaypoint(22, -5220.157227, -11088.377930, 19.818476);
+    magwinAI->AddWaypoint(23, -5233.652832, -11098.846680, 18.349432);
+    magwinAI->AddWaypoint(24, -5250.163086, -11111.653320, 16.438959);
+    magwinAI->AddWaypoint(25, -5268.194336, -11125.639648, 12.668313);
+    magwinAI->AddWaypoint(26, -5286.270508, -11130.669922, 6.912246);
+    magwinAI->AddWaypoint(27, -5317.449707, -11137.392578, 4.963446);
+    magwinAI->AddWaypoint(28, -5334.854492, -11154.384766, 6.742664);
+    magwinAI->AddWaypoint(29, -5353.874512, -11171.595703, 6.903912, 20000);
+    magwinAI->AddWaypoint(30, -5354.240000, -11171.940000, 6.890000);
 
-	return (CreatureAI*)magwinAI;
+    return (CreatureAI*)magwinAI;
 }
 
 /*######
@@ -470,155 +470,155 @@ bool GossipSelect_npc_susurrus(Player *player, Creature *_Creature, uint32 sende
 ## npc_geezle
 ######*/
 
-#define GEEZLE_SAY_1	-1000259
-#define SPARK_SAY_2		-1000260
-#define SPARK_SAY_3		-1000261
-#define GEEZLE_SAY_4	-1000262
-#define SPARK_SAY_5		-1000263
-#define SPARK_SAY_6		-1000264
-#define GEEZLE_SAY_7	-1000265
+#define GEEZLE_SAY_1    -1000259
+#define SPARK_SAY_2     -1000260
+#define SPARK_SAY_3     -1000261
+#define GEEZLE_SAY_4    -1000262
+#define SPARK_SAY_5     -1000263
+#define SPARK_SAY_6     -1000264
+#define GEEZLE_SAY_7    -1000265
 
-#define EMOTE_SPARK		-1000266
+#define EMOTE_SPARK     -1000266
 
-#define MOB_SPARK		17243
-#define GO_NAGA_FLAG	181694
+#define MOB_SPARK       17243
+#define GO_NAGA_FLAG    181694
 
 static float SparkPos[4] = {-5030.95, -11291.99, 7.97};
 
 struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
 {
-	npc_geezleAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_geezleAI(Creature *c) : ScriptedAI(c) {Reset();}
 
-	std::list<GameObject*> FlagList;
+    std::list<GameObject*> FlagList;
 
-	uint64 SparkGUID;
+    uint64 SparkGUID;
 
-	uint32 Step;
-	uint32 SayTimer;
+    uint32 Step;
+    uint32 SayTimer;
 
-	bool EventStarted;
+    bool EventStarted;
 
-	void Reset()
-	{
-		SparkGUID = 0;
-		Step = 0;
-		StartEvent();
-	}
+    void Reset()
+    {
+        SparkGUID = 0;
+        Step = 0;
+        StartEvent();
+    }
 
-	void Aggro(Unit* who){}
+    void Aggro(Unit* who){}
 
-	void StartEvent()
-	{
-		Step = 1;
-		EventStarted = true;
-		Creature* Spark = m_creature->SummonCreature(MOB_SPARK, SparkPos[0], SparkPos[1], SparkPos[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000);
-		SparkGUID = Spark->GetGUID();
-		Spark->setActive(true);
-		Spark->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-		m_creature->GetMotionMaster()->MovePoint(0, -5092.26, -11252, 0.71);
-		Spark->GetMotionMaster()->MovePoint(0, -5080.70, -11253.61, 0.56);
-		SayTimer = 23000;
-	}
+    void StartEvent()
+    {
+        Step = 1;
+        EventStarted = true;
+        Creature* Spark = m_creature->SummonCreature(MOB_SPARK, SparkPos[0], SparkPos[1], SparkPos[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000);
+        SparkGUID = Spark->GetGUID();
+        Spark->setActive(true);
+        Spark->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        m_creature->GetMotionMaster()->MovePoint(0, -5092.26, -11252, 0.71);
+        Spark->GetMotionMaster()->MovePoint(0, -5080.70, -11253.61, 0.56);
+        SayTimer = 23000;
+    }
 
-	uint32 NextStep(uint32 Step)
-	{
-		Unit* Spark = Unit::GetUnit((*m_creature), SparkGUID);
+    uint32 NextStep(uint32 Step)
+    {
+        Unit* Spark = Unit::GetUnit((*m_creature), SparkGUID);
 
-		switch(Step)
-		{
-		case 0: return 99999;
-		case 1:
-			//DespawnNagaFlag(true);
-			DoScriptText(EMOTE_SPARK, Spark);
-			return 1000;
-		case 2:
-			DoScriptText(GEEZLE_SAY_1, m_creature, Spark);
-			Spark->SetInFront(m_creature);
-			m_creature->SetInFront(Spark);
-			return 5000;
-		case 3: DoScriptText(SPARK_SAY_2, Spark); return 7000;
-		case 4: DoScriptText(SPARK_SAY_3, Spark); return 8000;
-		case 5: DoScriptText(GEEZLE_SAY_4, m_creature, Spark); return 8000;
-		case 6: DoScriptText(SPARK_SAY_5, Spark); return 9000;
-		case 7: DoScriptText(SPARK_SAY_6, Spark); return 8000;
-		case 8: DoScriptText(GEEZLE_SAY_7, m_creature, Spark); return 2000;
-		case 9:
-			m_creature->GetMotionMaster()->MoveTargetedHome();
-			Spark->GetMotionMaster()->MovePoint(0, -5030.95, -11291.99, 7.97);
-			return 20000;
-		case 10:
-			Spark->DealDamage(Spark,Spark->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-			//DespawnNagaFlag(false);
-			m_creature->SetVisibility(VISIBILITY_OFF);
-		default: return 99999999;
-		}
-	}
+        switch(Step)
+        {
+        case 0: return 99999;
+        case 1:
+            //DespawnNagaFlag(true);
+            DoScriptText(EMOTE_SPARK, Spark);
+            return 1000;
+        case 2:
+            DoScriptText(GEEZLE_SAY_1, m_creature, Spark);
+            Spark->SetInFront(m_creature);
+            m_creature->SetInFront(Spark);
+            return 5000;
+        case 3: DoScriptText(SPARK_SAY_2, Spark); return 7000;
+        case 4: DoScriptText(SPARK_SAY_3, Spark); return 8000;
+        case 5: DoScriptText(GEEZLE_SAY_4, m_creature, Spark); return 8000;
+        case 6: DoScriptText(SPARK_SAY_5, Spark); return 9000;
+        case 7: DoScriptText(SPARK_SAY_6, Spark); return 8000;
+        case 8: DoScriptText(GEEZLE_SAY_7, m_creature, Spark); return 2000;
+        case 9:
+            m_creature->GetMotionMaster()->MoveTargetedHome();
+            Spark->GetMotionMaster()->MovePoint(0, -5030.95, -11291.99, 7.97);
+            return 20000;
+        case 10:
+            Spark->DealDamage(Spark,Spark->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            //DespawnNagaFlag(false);
+            m_creature->SetVisibility(VISIBILITY_OFF);
+        default: return 99999999;
+        }
+    }
 
-	void DespawnNagaFlag(bool despawn)
-	{
-		CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
-		Cell cell(pair);
-		cell.data.Part.reserved = ALL_DISTRICT;
-		cell.SetNoCreate();
+    void DespawnNagaFlag(bool despawn)
+    {
+        CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
+        Cell cell(pair);
+        cell.data.Part.reserved = ALL_DISTRICT;
+        cell.SetNoCreate();
 
-		Trinity::AllGameObjectsWithEntryInGrid go_check(GO_NAGA_FLAG);
+        Trinity::AllGameObjectsWithEntryInGrid go_check(GO_NAGA_FLAG);
 		Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInGrid> go_search(m_creature, FlagList, go_check);
-		TypeContainerVisitor
-			<Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInGrid>, GridTypeMapContainer> go_visit(go_search);
-		CellLock<GridReadGuard> cell_lock(cell, pair);
-		cell_lock->Visit(cell_lock, go_visit, *(m_creature->GetMap()));
+        TypeContainerVisitor
+            <Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInGrid>, GridTypeMapContainer> go_visit(go_search);
+        CellLock<GridReadGuard> cell_lock(cell, pair);
+        cell_lock->Visit(cell_lock, go_visit, *(m_creature->GetMap()));
 
-		Player* player = NULL;
-		if (!FlagList.empty())
-		{
-			for(std::list<GameObject*>::iterator itr = FlagList.begin(); itr != FlagList.end(); ++itr)
-			{
-				//TODO: Found how to despawn and respawn
-				if(despawn)
-					(*itr)->RemoveFromWorld();
-				else
-					(*itr)->Respawn();
-			}
-		} else error_log("SD2 ERROR: FlagList is empty!");
-	}
+        Player* player = NULL;
+        if (!FlagList.empty())
+        {
+            for(std::list<GameObject*>::iterator itr = FlagList.begin(); itr != FlagList.end(); ++itr)
+            {
+                //TODO: Found how to despawn and respawn
+                if(despawn)
+                    (*itr)->RemoveFromWorld();
+                else
+                    (*itr)->Respawn();
+            }
+        } else error_log("SD2 ERROR: FlagList is empty!");
+    }
 
-	void UpdateAI(const uint32 diff)
-	{
-		if(SayTimer < diff)
-		{
-			if(EventStarted)
-			{
-				SayTimer = NextStep(++Step);
-			}
-		}else SayTimer -= diff;
-	}
+    void UpdateAI(const uint32 diff)
+    {
+        if(SayTimer < diff)
+        {
+            if(EventStarted)
+            {
+                SayTimer = NextStep(++Step);
+            }
+        }else SayTimer -= diff;
+    }
 };
 
 CreatureAI* GetAI_npc_geezleAI(Creature *_Creature)
 {
-	return new npc_geezleAI(_Creature);
+    return new npc_geezleAI(_Creature);
 }
 
 /*######
 ## mob_nestlewood_owlkin
 ######*/
 
-#define INOCULATION_CHANNEL	29528
-#define INOCULATED_OWLKIN	16534
+#define INOCULATION_CHANNEL 29528
+#define INOCULATED_OWLKIN   16534
 
 struct TRINITY_DLL_DECL mob_nestlewood_owlkinAI : public ScriptedAI
 {
     mob_nestlewood_owlkinAI(Creature *c) : ScriptedAI(c) {Reset();}
 
-	uint32 ChannelTimer;
-	bool Channeled;
-	bool Hitted;
+    uint32 ChannelTimer;
+    bool Channeled;
+    bool Hitted;
 
     void Reset()
     {
-		ChannelTimer = 0;
-		Channeled = false;
-		Hitted = false;
+        ChannelTimer = 0;
+        Channeled = false;
+        Hitted = false;
     }
 
     void Aggro(Unit *who){}
@@ -629,23 +629,23 @@ struct TRINITY_DLL_DECL mob_nestlewood_owlkinAI : public ScriptedAI
             return;
 
         if(caster->GetTypeId() == TYPEID_PLAYER && spell->Id == INOCULATION_CHANNEL)
-		{
-			ChannelTimer = 3000;
-			Hitted = true;
-		}
+        {
+            ChannelTimer = 3000;
+            Hitted = true;
+        }
     }
 
     void UpdateAI(const uint32 diff)
     {
-		if(ChannelTimer < diff && !Channeled && Hitted)
-		{
-			m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-			m_creature->RemoveCorpse();
-			m_creature->SummonCreature(INOCULATED_OWLKIN, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 180000);
-			Channeled = true;
-		}else ChannelTimer -= diff;
+        if(ChannelTimer < diff && !Channeled && Hitted)
+        {
+            m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            m_creature->RemoveCorpse();
+            m_creature->SummonCreature(INOCULATED_OWLKIN, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 180000);
+            Channeled = true;
+        }else ChannelTimer -= diff;
 
-		DoMeleeAttackIfReady();
+        DoMeleeAttackIfReady();
     }
 };
 
@@ -675,11 +675,11 @@ void AddSC_azuremyst_isle()
     newscript->GetAI = &GetAI_npc_injured_draenei;
     newscript->RegisterSelf();
 
-	newscript = new Script;
-	newscript->Name = "npc_magwin";
-	newscript->GetAI = &GetAI_npc_magwinAI;
-	newscript->pQuestAccept = &QuestAccept_npc_magwin;
-	newscript->RegisterSelf();
+    newscript = new Script;
+    newscript->Name = "npc_magwin";
+    newscript->GetAI = &GetAI_npc_magwinAI;
+    newscript->pQuestAccept = &QuestAccept_npc_magwin;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_susurrus";
@@ -687,14 +687,14 @@ void AddSC_azuremyst_isle()
     newscript->pGossipSelect = &GossipSelect_npc_susurrus;
     newscript->RegisterSelf();
 
-	newscript = new Script;
-	newscript->Name="npc_geezle";
-	newscript->GetAI = &GetAI_npc_geezleAI;
-	newscript->RegisterSelf();
+    newscript = new Script;
+    newscript->Name="npc_geezle";
+    newscript->GetAI = &GetAI_npc_geezleAI;
+    newscript->RegisterSelf();
 
-	newscript = new Script;
-	newscript->Name="mob_nestlewood_owlkin";
-	newscript->GetAI = &GetAI_mob_nestlewood_owlkinAI;
-	newscript->RegisterSelf();
+    newscript = new Script;
+    newscript->Name="mob_nestlewood_owlkin";
+    newscript->GetAI = &GetAI_mob_nestlewood_owlkinAI;
+    newscript->RegisterSelf();
 
 }

@@ -38,11 +38,11 @@ namespace ZThread {
  *
  * This is a vanilla FastRecursiveLock implementation for a
  * system that doesn't provide recurisve locks. This implementation
- * is based on using a pair of mutexes, because of this, it performs 
+ * is based on using a pair of mutexes, because of this, it performs
  * roughly the same as a spin lock would.
- */ 
+ */
 class FastRecursiveLock : private NonCopyable {
-    
+
   //! Lock for blocking
   FastLock _blockingLock;
 
@@ -58,14 +58,14 @@ class FastRecursiveLock : private NonCopyable {
  public:
 
   inline FastRecursiveLock() : _owner(ThreadOps::INVALID), _count(0) { }
-  
+
   inline ~FastRecursiveLock() {
 
     assert(_owner == ThreadOps::INVALID);
     assert(_count == 0);
 
   }
-  
+
   void acquire() {
 
     ThreadOps self(ThreadOps::self());
@@ -73,7 +73,7 @@ class FastRecursiveLock : private NonCopyable {
     // Try to lock the blocking mutex first
     bool wasLocked = _blockingLock.tryAcquire();
     if(!wasLocked) {
-    
+
       // Otherwise, grab the lock for the state
       _stateLock.acquire();
 
@@ -82,30 +82,30 @@ class FastRecursiveLock : private NonCopyable {
         _count++;
 
       _stateLock.release();
-      
+
       if(wasLocked)
         return;
 
       // Try to be cooperative
       ThreadOps::yield();
       _blockingLock.acquire();
-      
+
     }
 
-    // Serialze access to the state 
+    // Serialze access to the state
     _stateLock.acquire();
-    
-    // Take ownership    
+
+    // Take ownership
     assert(_owner == ThreadOps::INVALID || _owner == self);
 
     _owner = self;
     _count++;
-      
+
     _stateLock.release();
 
   }
-  
-  
+
+
   bool tryAcquire(unsigned long timeout = 0) {
 
     ThreadOps self(ThreadOps::self());
@@ -113,7 +113,7 @@ class FastRecursiveLock : private NonCopyable {
     // Try to lock the blocking mutex first
     bool wasLocked = _blockingLock.tryAcquire();
     if(!wasLocked) {
-    
+
       // Otherwise, grab the lock for the state
       _stateLock.acquire();
 
@@ -122,52 +122,52 @@ class FastRecursiveLock : private NonCopyable {
         _count++;
 
       _stateLock.release();
-      
+
       return wasLocked;
-      
+
     }
 
-    // Serialze access to the state 
+    // Serialze access to the state
     _stateLock.acquire();
-    
-    // Take ownership    
+
+    // Take ownership
     assert(_owner == ThreadOps::INVALID || _owner == self);
 
     _owner = self;
     _count++;
-      
+
     _stateLock.release();
-    
+
     return true;
 
   }
 
-    
+
   void release() {
 
-    // Assume that release is only used by the owning thread, as it 
+    // Assume that release is only used by the owning thread, as it
     // should be.
     assert(_count != 0);
     assert(_owner == ThreadOps::self());
-    
+
     _stateLock.acquire();
-    
+
     // If the lock was owned and the count has reached 0, give up
     // ownership and release the blocking lock
     if(--_count == 0) {
-      
+
       _owner = ThreadOps::INVALID;
       _blockingLock.release();
-      
+
     }
-    
+
     _stateLock.release();
 
   }
-  
+
 
 }; /* FastRecursiveLock */
 
-} // namespace ZThread 
+} // namespace ZThread
 
 #endif

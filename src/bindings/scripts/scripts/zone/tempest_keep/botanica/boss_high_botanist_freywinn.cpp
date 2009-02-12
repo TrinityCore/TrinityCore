@@ -66,7 +66,7 @@ struct TRINITY_DLL_DECL boss_high_botanist_freywinnAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-		DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void JustSummoned(Creature *summoned)
@@ -90,15 +90,15 @@ struct TRINITY_DLL_DECL boss_high_botanist_freywinnAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-		case 0: DoScriptText(SAY_KILL_1, m_creature); break;
-		case 1: DoScriptText(SAY_KILL_2, m_creature); break;
+        case 0: DoScriptText(SAY_KILL_1, m_creature); break;
+        case 1: DoScriptText(SAY_KILL_2, m_creature); break;
         }
     }
 
-	void JustDied(Unit* Killer)
-	{
-		DoScriptText(SAY_DEATH, m_creature);
-	}
+    void JustDied(Unit* Killer)
+    {
+        DoScriptText(SAY_DEATH, m_creature);
+    }
 
     void UpdateAI(const uint32 diff)
     {
@@ -109,8 +109,8 @@ struct TRINITY_DLL_DECL boss_high_botanist_freywinnAI : public ScriptedAI
         {
             switch(rand()%2)
             {
-			case 0: DoScriptText(SAY_TREE_1, m_creature); break;
-			case 1: DoScriptText(SAY_TREE_2, m_creature); break;
+            case 0: DoScriptText(SAY_TREE_1, m_creature); break;
+            case 1: DoScriptText(SAY_TREE_2, m_creature); break;
             }
 
             if( m_creature->IsNonMeleeSpellCasted(false) )

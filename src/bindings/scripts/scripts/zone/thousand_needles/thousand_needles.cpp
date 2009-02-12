@@ -53,12 +53,12 @@ npc_swiftmountainAI(Creature *c) : npc_escortAI(c) {Reset();}
         case 46:
             DoScriptText(SAY_AGGRO, m_creature, player);
             break;
-		 case 47:
+         case 47:
             m_creature->SummonCreature(ENTRY_WYVERN, -5016.45, -935.01, -5.46, 5.36,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
             m_creature->SummonCreature(ENTRY_WYVERN, -5001.98, -934.96, -5.55, 3.18,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
             m_creature->SummonCreature(ENTRY_WYVERN, -4999.06, -949.61, -5.42, 2.04,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
             break;
-		 case 70:
+         case 70:
             DoScriptText(SAY_FINISH, m_creature, player);
             if (player && player->GetTypeId() == TYPEID_PLAYER)
                 ((Player*)player)->GroupEventHappens(QUEST_HOMEWARD_BOUND,m_creature);

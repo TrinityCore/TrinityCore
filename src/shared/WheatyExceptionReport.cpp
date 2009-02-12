@@ -606,7 +606,7 @@ bool bWriteVariables, HANDLE pThreadHandle)                                     
 {
     _tprintf( _T("\r\nCall stack:\r\n") );
 
-    _tprintf( _T("Address   Frame     Function		SourceFile\r\n") );
+    _tprintf( _T("Address   Frame     Function      SourceFile\r\n") );
 
     DWORD dwMachineType = 0;
     // Could use SymSetOptions here to add the SYMOPT_DEFERRED_LOADS flag
@@ -908,10 +908,10 @@ char* Name)
 
             //             BasicType basicType = GetBasicType(children.ChildId[i], modBase );
             //
-            // 			pszCurrBuffer += sprintf( pszCurrBuffer, rgBaseType[basicType]);
+            //          pszCurrBuffer += sprintf( pszCurrBuffer, rgBaseType[basicType]);
             //
             // Emit the variable name
-            //			pszCurrBuffer += sprintf( pszCurrBuffer, "\'%s\'", Name );
+            //          pszCurrBuffer += sprintf( pszCurrBuffer, "\'%s\'", Name );
 
             pszCurrBuffer = FormatOutputValue( pszCurrBuffer, basicType,
                 length, (PVOID)dwFinalOffset );

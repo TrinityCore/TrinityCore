@@ -27,9 +27,9 @@
 #include "zthread/Runnable.h"
 
 namespace ZThread {
-  
+
   class ThreadImpl;
-  
+
   /**
    * @class Task
    *
@@ -37,9 +37,9 @@ namespace ZThread {
    * @date <2003-07-20T05:22:38-0400>
    * @version 2.3.0
    *
-   * A Task provides a CountedPtr wrapper for Runnable objects. 
-   * This wrapper enables an implicit conversion from a 
-   * <i>Runnable*</i> to a <i>Task</i> adding some syntactic sugar 
+   * A Task provides a CountedPtr wrapper for Runnable objects.
+   * This wrapper enables an implicit conversion from a
+   * <i>Runnable*</i> to a <i>Task</i> adding some syntactic sugar
    * to the interface.
    */
   class ZTHREAD_API Task : public CountedPtr<Runnable, AtomicCount> {
@@ -47,29 +47,29 @@ namespace ZThread {
 
 
 #if !defined(_MSC_VER) || (_MSC_VER > 1200)
-	  
+
     Task(Runnable* raw)
-      : CountedPtr<Runnable, AtomicCount>(raw) { } 
+      : CountedPtr<Runnable, AtomicCount>(raw) { }
 
 #endif
-    
+
     template <typename U>
       Task(U* raw)
-      : CountedPtr<Runnable, AtomicCount>(raw) { } 
-    
-    Task(const CountedPtr<Runnable, AtomicCount>& ptr) 
-      : CountedPtr<Runnable, AtomicCount>(ptr) { } 
-    
+      : CountedPtr<Runnable, AtomicCount>(raw) { }
+
+    Task(const CountedPtr<Runnable, AtomicCount>& ptr)
+      : CountedPtr<Runnable, AtomicCount>(ptr) { }
+
     template <typename U, typename V>
-      Task(const CountedPtr<U, V>& ptr) 
-      : CountedPtr<Runnable, AtomicCount>(ptr) { } 
-    
+      Task(const CountedPtr<U, V>& ptr)
+      : CountedPtr<Runnable, AtomicCount>(ptr) { }
+
     void operator()() {
       (*this)->run();
     }
-    
+
   }; /* Task */
-  
+
 } // namespace ZThread
 
 #endif // __ZTTASK_H__

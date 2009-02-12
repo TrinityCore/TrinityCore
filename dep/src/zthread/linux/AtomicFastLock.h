@@ -44,31 +44,31 @@ namespace ZThread {
  * This implementation of a FastLock uses the atomic operations that
  * linux provides with its kernel sources. This demonstrates how to implement
  * a spinlock with a decrement and test primative.
- */ 
+ */
 class FastLock : private NonCopyable {
-  
+
   atomic_t _value;
-  
+
 #if !defined(NDEBUG)
   pthread_t _owner;
 #endif
 
 public:
-  
+
   inline FastLock() {
-  
+
     atomic_t tmp =  ATOMIC_INIT(1);
     _value = tmp;
 
   }
-  
+
   inline ~FastLock() {
 
     assert(atomic_read(&_value) == 1);
     assert(_owner == 0);
 
   }
-  
+
   inline void acquire() {
 
     while(!atomic_dec_and_test(&_value)) {
@@ -77,14 +77,14 @@ public:
       ThreadOps::yield();
 
     }
-        
+
 #if !defined(NDEBUG)
     _owner = pthread_self();
 #endif
   }
 
   inline void release() {
-    
+
 #if !defined(NDEBUG)
     assert(pthread_equal(_owner, pthread_self()) != 0);
 #endif
@@ -93,9 +93,9 @@ public:
     _owner = 0;
 
   }
-  
+
   inline bool tryAcquire(unsigned long timeout=0) {
-    
+
     bool wasLocked = atomic_dec_and_test(&_value);
     if(!wasLocked)
       atomic_inc(&_value);
@@ -106,9 +106,9 @@ public:
 #endif
 
     return wasLocked;
-    
+
   }
-  
+
 }; /* FastLock */
 
 

@@ -215,7 +215,7 @@ ACE_UPIPE_Stream::recv_n (char *buf,
       len = this->recv (buf + bytes_read,
                         n - bytes_read,
                         timeout);
-                        
+
       if (len == -1)
         {
           return -1;

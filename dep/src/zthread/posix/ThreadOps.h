@@ -31,7 +31,7 @@
 namespace ZThread {
 
 class Runnable;
- 
+
 //! Dispatch function for native pthreads required extern C
 //! linkage.
 extern "C" void* _dispatch(void*);
@@ -42,7 +42,7 @@ extern "C" void* _dispatch(void*);
  * @date <2003-07-16T23:30:25-0400>
  * @version 2.2.8
  *
- * This class is an abstraction used to perform various operations on a 
+ * This class is an abstraction used to perform various operations on a
  * native POSIX thread.
  */
 class ThreadOps {
@@ -54,10 +54,10 @@ class ThreadOps {
 
 public:
 
-  const static ThreadOps INVALID; 
+  const static ThreadOps INVALID;
 
   /**
-   * Create a new ThreadOps to manipulate a native thread. 
+   * Create a new ThreadOps to manipulate a native thread.
    */
   ThreadOps() : _tid(0) { }
 
@@ -66,26 +66,26 @@ public:
     return pthread_equal(_tid, ops._tid);
   }
 
-  
+
   static ThreadOps self() {
     return ThreadOps(pthread_self());
   }
 
   /**
-   * Activating an instance of ThreadOps will map it onto the currently  
+   * Activating an instance of ThreadOps will map it onto the currently
    * executing thread.
-   */ 
+   */
   static void activate(ThreadOps* ops) {
 
     assert(ops);
     assert(ops->_tid == 0);
 
     ops->_tid = pthread_self();
-    
+
   }
 
   /**
-   * Test if this object represents the currently executing 
+   * Test if this object represents the currently executing
    * native thread.
    *
    * @return bool true if successful
@@ -107,7 +107,7 @@ public:
   static bool join(ThreadOps*);
 
   /**
-   * Force the current native thread to yield, letting the scheduler 
+   * Force the current native thread to yield, letting the scheduler
    * give the CPU time to another thread.
    *
    * @return bool true if successful, false if the operation can't
@@ -116,7 +116,7 @@ public:
   static bool yield();
 
   /**
-   * Set the priority for the native thread if supported by the 
+   * Set the priority for the native thread if supported by the
    * system.
    *
    * @param PRIORITY requested priority
@@ -125,7 +125,7 @@ public:
   static bool setPriority(ThreadOps*, Priority);
 
   /**
-   * Set the priority for the native thread if supported by the 
+   * Set the priority for the native thread if supported by the
    * system.
    *
    * @param Thread::PRIORITY& current priority

@@ -41,7 +41,7 @@ item_voodoo_charm                   Provide proper error message and target(q256
 item_vorenthals_presence(i30259)    Prevents abuse of this item
 item_yehkinyas_bramble(i10699)      Allow cast spell on vale screecher only and remove corpse if cast sucessful (q3520)
 item_zezzak_shard(i31463)           Quest The eyes of Grillok (q10813). Prevents abuse
-item_inoculating_crystal			Quest Inoculating. Prevent abuse
+item_inoculating_crystal            Quest Inoculating. Prevent abuse
 EndContentData */
 
 #include "precompiled.h"
@@ -105,11 +105,11 @@ bool ItemUse_item_attuned_crystal_cores(Player *player, Item* _Item, SpellCastTa
 {
     if( targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId()==TYPEID_UNIT &&
         targets.getUnitTarget()->GetEntry() == 24972 && targets.getUnitTarget()->isDead() &&
-		(player->GetQuestStatus(11524) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(11525) == QUEST_STATUS_INCOMPLETE) )
-	{
-		((Creature*)targets.getUnitTarget())->RemoveCorpse();
-		return false;
-	}
+        (player->GetQuestStatus(11524) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(11525) == QUEST_STATUS_INCOMPLETE) )
+    {
+        ((Creature*)targets.getUnitTarget())->RemoveCorpse();
+        return false;
+    }
 
     player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,_Item,NULL);
     return true;

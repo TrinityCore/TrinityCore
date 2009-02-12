@@ -159,7 +159,7 @@ public:
   /// Return @c true if the map is empty, else @c false.
   bool is_empty (void) const;  // ACE style
 
-  /** 
+  /**
    * Return @c true if the map is empty, else @c false.  We recommend
    * using @c is_empty() instead since it's more consistent with the
    * ACE container naming conventions.

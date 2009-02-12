@@ -48,22 +48,22 @@ namespace ZThread {
  * This is asm inlined for microsoft visual c, it needs to be changed in order to
  * compile with gcc, or another win32 compiler - but more likely than not you'll
  * be using the Win32 version on those compilers and this won't be a problem.
- */ 
+ */
 class FastLock : private NonCopyable {
 
 // Add def for mingw32 or other non-ms compiler to align on 32-bit boundary
 #pragma pack(push, 4)
   unsigned char volatile _lock;
 #pragma pack(pop)
-  
+
   public:
-  
+
   /**
    * Create a new FastLock
    */
   inline FastLock() : _lock(0) { }
 
-  
+
   inline ~FastLock() {
     assert(_lock == 0);
   }
@@ -77,7 +77,7 @@ class FastLock : private NonCopyable {
 
       mov  al, 1
       mov  esi, dw
-      xchg [esi], al       
+      xchg [esi], al
       and  al,al
       jz   spin_locked
     }
@@ -95,15 +95,15 @@ class FastLock : private NonCopyable {
 
     DWORD dw = (DWORD)&_lock;
 
-    _asm { 
+    _asm {
       mov  al, 0
       mov  esi, dw
-      xchg [esi], al       
+      xchg [esi], al
     }
 
 
   }
-    
+
  inline bool tryAcquire(unsigned long timeout=0) {
 
     volatile DWORD dw = (DWORD)&_lock;
@@ -113,16 +113,16 @@ class FastLock : private NonCopyable {
 
       mov  al, 1
       mov  esi, dw
-      xchg [esi], al       
+      xchg [esi], al
       and  al,al
       mov  esi, result
-      xchg [esi], al       
+      xchg [esi], al
     }
 
     return result == 0;
 
  }
-  
+
 }; /* Fast Lock */
 
 } // namespace ZThread

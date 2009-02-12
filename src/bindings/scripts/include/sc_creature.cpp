@@ -221,12 +221,12 @@ void ScriptedAI::DoCastSpell(Unit* who,SpellEntry const *spellInfo, bool trigger
 
 void ScriptedAI::DoSay(const char* text, uint32 language, Unit* target, bool SayEmote)
 {
-	if (target)
-	{
-		m_creature->Say(text, language, target->GetGUID());
-		if(SayEmote)
-			m_creature->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
-	}
+    if (target)
+    {
+        m_creature->Say(text, language, target->GetGUID());
+        if(SayEmote)
+            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+    }
     else m_creature->Say(text, language, 0);
 }
 
@@ -749,7 +749,7 @@ Unit* FindCreature(uint32 entry, float range, Unit* Finder)
     if(!Finder)
         return NULL;
     Creature* target = NULL;
-	Trinity::AllCreaturesOfEntryInRange check(Finder, entry, range);
+    Trinity::AllCreaturesOfEntryInRange check(Finder, entry, range);
 	Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(Finder, target, check);
     Finder->VisitNearbyObject(range, searcher);
     return target;
@@ -760,7 +760,7 @@ GameObject* FindGameObject(uint32 entry, float range, Unit* Finder)
     if(!Finder)
         return NULL;
     GameObject* target = NULL;
-	Trinity::AllGameObjectsWithEntryInGrid go_check(entry);
+    Trinity::AllGameObjectsWithEntryInGrid go_check(entry);
     Trinity::GameObjectSearcher<Trinity::AllGameObjectsWithEntryInGrid> searcher(Finder, target, go_check);
     Finder->VisitNearbyGridObject(range, searcher);
     return target;

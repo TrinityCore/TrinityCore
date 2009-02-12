@@ -516,7 +516,7 @@ public:
    *
    * fast_resize just adjusts the buffer if needed and sets the length,
    * it doesn't fill the buffer, so is much faster.
-   * 
+   *
    * @param len The number of CHARs to reserve
    * @param c The CHAR to use when filling the string.
    */
@@ -528,7 +528,7 @@ public:
    * @note This is non-throwing operation.
    */
   void swap (ACE_String_Base<CHAR> & str);
-  
+
   /**
    *  Declare the dynamic allocation hooks.
    */

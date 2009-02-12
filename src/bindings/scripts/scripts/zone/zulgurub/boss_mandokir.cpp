@@ -50,7 +50,7 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
         Reset();
     }
 
-	uint32 KillCount;
+    uint32 KillCount;
     uint32 Watch_Timer;
     uint32 TargetInRange;
     uint32 Cleave_Timer;
@@ -73,7 +73,7 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
 
     void Reset()
     {
-		KillCount = 0;
+        KillCount = 0;
         Watch_Timer = 33000;
         Cleave_Timer = 7000;
         Whirlwind_Timer = 20000;
@@ -100,34 +100,34 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
     {
         if(victim->GetTypeId() == TYPEID_PLAYER)
         {
-			++KillCount;
+            ++KillCount;
 
-			if (KillCount == 3)
-			{
-				DoScriptText(SAY_DING_KILL, m_creature);
+            if (KillCount == 3)
+            {
+                DoScriptText(SAY_DING_KILL, m_creature);
 
-				if (pInstance)
-				{
-					uint64 JindoGUID = pInstance->GetData64(DATA_JINDO);
-					if (JindoGUID)
-					{
-						if (Unit* jTemp = Unit::GetUnit(*m_creature,JindoGUID))
-						{
-							if (jTemp->isAlive())
-								DoScriptText(SAY_GRATS_JINDO, jTemp);
-						}
-					}
-				}
+                if (pInstance)
+                {
+                    uint64 JindoGUID = pInstance->GetData64(DATA_JINDO);
+                    if (JindoGUID)
+                    {
+                        if (Unit* jTemp = Unit::GetUnit(*m_creature,JindoGUID))
+                        {
+                            if (jTemp->isAlive())
+                                DoScriptText(SAY_GRATS_JINDO, jTemp);
+                        }
+                    }
+                }
             DoCast(m_creature, SPELL_LEVEL_UP, true);
-			 KillCount = 0;
-			}
-		}
-	}
+             KillCount = 0;
+            }
+        }
+    }
 
     void Aggro(Unit *who)
-	{
-	 DoScriptText(SAY_AGGRO, m_creature);
-	}
+    {
+     DoScriptText(SAY_AGGRO, m_creature);
+    }
 
     void UpdateAI(const uint32 diff)
     {

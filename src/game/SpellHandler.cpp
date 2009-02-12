@@ -328,27 +328,27 @@ void WorldSession::HandleCancelAuraOpcode( WorldPacket& recvPacket)
     if(!IsPositiveSpell(spellId) || (spellInfo->Attributes & SPELL_ATTR_CANT_CANCEL))
         return;
 
-	// lifebloom must delete final heal effect
-	if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && (spellInfo->SpellFamilyFlags[1] & 0x10) )
-	{
-		Unit::AuraMap::iterator iter;
-		while((iter = _player->m_Auras.find(Unit::spellEffectPair(spellId, 1))) != _player->m_Auras.end())
-		{
-			_player->m_modAuras[SPELL_AURA_DUMMY].remove(iter->second);
+    // lifebloom must delete final heal effect
+    if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && (spellInfo->SpellFamilyFlags[1] & 0x10) )
+    {
+        Unit::AuraMap::iterator iter;
+        while((iter = _player->m_Auras.find(Unit::spellEffectPair(spellId, 1))) != _player->m_Auras.end())
+        {
+            _player->m_modAuras[SPELL_AURA_DUMMY].remove(iter->second);
 
-			Aura* Aur = iter->second;
-			_player->m_Auras.erase(iter);
-			++_player->m_removedAuras; // internal count used by unit update
+            Aura* Aur = iter->second;
+            _player->m_Auras.erase(iter);
+            ++_player->m_removedAuras; // internal count used by unit update
 
-			delete Aur;
+            delete Aur;
 
-			if( _player->m_Auras.empty() )
-				iter = _player->m_Auras.end();
-			else
-				iter = _player->m_Auras.begin();
+            if( _player->m_Auras.empty() )
+                iter = _player->m_Auras.end();
+            else
+                iter = _player->m_Auras.begin();
 
-		}
-	}
+        }
+    }
 
     // channeled spell case (it currently casted then)
     if(IsChanneledSpell(spellInfo))
