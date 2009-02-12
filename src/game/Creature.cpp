@@ -796,6 +796,11 @@ bool Creature::isCanTrainingAndResetTalentsOf(Player* pPlayer) const
 
 void Creature::prepareGossipMenu( Player *pPlayer,uint32 gossipid )
 {
+    //Prevent gossip from NPCs that are possessed.
+    Unit* Charmed = Unit::GetCharmer();
+    if (Charmed)
+        return;
+
     PlayerMenu* pm=pPlayer->PlayerTalkClass;
     pm->ClearMenus();
 
