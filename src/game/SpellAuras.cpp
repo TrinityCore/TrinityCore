@@ -448,6 +448,12 @@ m_updated(false), m_isRemovedOnShapeLost(true), m_in_use(false)
 
 Aura::~Aura()
 {
+    //Delete references to aura
+    if(GetAuraSlot() < MAX_AURAS && m_target && m_target->GetVisibleAura(GetAuraSlot()))
+    {
+        AuraSlotEntry * entry = m_target->GetVisibleAura(GetAuraSlot());
+        entry->m_slotAuras[GetEffIndex()]=NULL;
+    }
 }
 
 AreaAura::AreaAura(SpellEntry const* spellproto, uint32 eff, int32 *currentBasePoints, Unit *target,
