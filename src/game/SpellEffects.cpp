@@ -682,6 +682,28 @@ void Spell::EffectDummy(uint32 i)
         {
             switch(m_spellInfo->Id )
             {
+                // Wrath of the Astromancer
+                case 42784:
+                {
+                    uint32 count = 0;
+                    for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
+                        if(ihit->effectMask & (1<<i))
+                            ++count;
+
+                    damage = 12000; // maybe wrong value
+                    damage /= count;
+
+                    SpellEntry const *spellInfo = sSpellStore.LookupEntry(42784);
+
+                     // now deal the damage
+                    for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
+                        if(ihit->effectMask & (1<<i))
+                            {
+                                Unit* casttarget = Unit::GetUnit((*unitTarget), ihit->targetGUID);
+                                if(casttarget) 
+                                    m_caster->DealDamage(casttarget, damage, NULL, SPELL_DIRECT_DAMAGE, SPELL_SCHOOL_MASK_ARCANE, spellInfo, false);
+                            }
+                }
                 // Encapsulate Voidwalker
                 case 29364:
                 {
@@ -5003,6 +5025,21 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         return;
 
                     unitTarget->CastSpell(m_caster, 40903, true);
+                    break;
+                }
+                case 48025:                                     // Headless Horseman's Mount
+                {
+                    if(!unitTarget)
+                        return;
+                
+                    switch(((Player*)unitTarget)->GetBaseSkillValue(762))
+                    {
+                    case 75: unitTarget->CastSpell(unitTarget, 51621, true); break;;
+                    case 150: unitTarget->CastSpell(unitTarget, 48024, true); break;
+                    case 225: unitTarget->CastSpell(unitTarget, 51617, true); break;                
+                    case 300: unitTarget->CastSpell(unitTarget, 48023, true); break;
+                    default: break;
+                    }
                     break;
                 }
                 case 41931:
