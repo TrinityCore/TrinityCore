@@ -929,14 +929,30 @@ UPDATE `creature_template` SET `ScriptName`='npc_mortog_steamhead' WHERE `entry`
 UPDATE `creature_template` SET `ScriptName`='npc_kayra_longmane' WHERE `entry`=17969;
 
 /* ZUL'AMAN */
-UPDATE `instance_template` SET `script`='instance_zulaman' WHERE `map`=568;
-UPDATE `creature_template` SET `ScriptName`='boss_janalai' WHERE `entry`=23578;
-UPDATE `creature_template` SET `ScriptName`='boss_nalorakk' WHERE `entry`=23576;
-UPDATE `creature_template` SET `ScriptName`='mob_jandalai_firebomb' WHERE `entry`=23920;
-UPDATE `creature_template` SET `ScriptName`='mob_amanishi_hatcher' WHERE `entry`=23818;
-UPDATE `creature_template` SET `ScriptName`='mob_hatchling' WHERE `entry`=23598;
-UPDATE `creature_template` SET `ScriptName`='npc_forest_frog' WHERE `entry`=24396;
-UPDATE `creature_template` SET `ScriptName`='boss_akilzon' WHERE `entry`=23574;
+UPDATE `instance_template` SET `script` = 'instance_zulaman' WHERE `map`=568;
+UPDATE `creature_template` SET `ScriptName` = 'boss_janalai' WHERE `entry`=23578;
+UPDATE `creature_template` SET `ScriptName` = 'boss_nalorakk' WHERE `entry`=23576;
+UPDATE `creature_template` SET `ScriptName` = 'mob_janalai_firebomb' WHERE `entry`=23920;
+UPDATE `creature_template` SET `ScriptName` = 'mob_janalai_hatcher' WHERE `entry`=23818;
+UPDATE `creature_template` SET `ScriptName` = 'mob_janalai_hatchling' WHERE `entry`=23598;
+UPDATE `creature_template` SET `ScriptName` = 'mob_janalai_egg' WHERE `entry`=23817;
+UPDATE `creature_template` SET `ScriptName` = 'npc_forest_frog' WHERE `entry`=24396;
+UPDATE `creature_template` SET `ScriptName` = 'boss_akilzon' where entry = 23574;
+UPDATE `creature_template` SET `ScriptName` = 'mob_akilzon_eagle' where `entry`=24858;
+UPDATE `creature_template` SET `ScriptName` = 'boss_halazzi' WHERE `entry` = '23577';
+UPDATE `creature_template` SET `ScriptName` = 'mob_halazzi_lynx' WHERE `entry` = '24143';
+UPDATE `creature_template` SET `ScriptName` = 'boss_hexlord_malacrass' WHERE `entry` =24239;
+UPDATE `creature_template` SET `ScriptName` = 'boss_alyson_antille' WHERE `entry` =24240;
+UPDATE `creature_template` SET `ScriptName` = 'boss_thurg' WHERE `entry` =24241;
+UPDATE `creature_template` SET `ScriptName` = 'boss_slither' WHERE `entry` =24242;
+UPDATE `creature_template` SET `ScriptName` = 'boss_lord_raadan' WHERE `entry` =24243;
+UPDATE `creature_template` SET `ScriptName` = 'boss_gazakroth' WHERE `entry` =24244;
+UPDATE `creature_template` SET `ScriptName` = 'boss_fenstalker' WHERE `entry` =24245;
+UPDATE `creature_template` SET `ScriptName` = 'boss_darkheart' WHERE `entry` =24246;
+UPDATE `creature_template` SET `ScriptName` = 'boss_koragg' WHERE `entry` =24247;
+UPDATE `creature_template` SET `ScriptName` = 'boss_zuljin' WHERE `entry` =23863;
+UPDATE `creature_template` SET `ScriptName` = 'do_nothing' WHERE `entry` = '24187';
+UPDATE `creature_template` SET `ScriptName` = 'mob_zuljin_vortex' WHERE `entry` = '24136';
 
 /* ZUL'FARRAK */
 UPDATE `creature_template` SET `ScriptName`='npc_sergeant_bly' WHERE `entry`=7604;

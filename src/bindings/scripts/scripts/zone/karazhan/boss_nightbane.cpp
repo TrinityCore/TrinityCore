@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Nightbane
 SD%Complete: 80
-SDComment: SDComment: skelleton adds need 2 more, timers,
+SDComment: SDComment: Timers may incorrect
 SDCategory: Karazhan
 EndScriptData */
 
@@ -353,10 +353,11 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
             {
                 if (!Skeletons)
                 {
-                    DoCast(m_creature->getVictim(), SPELL_SUMMON_SKELETON);
-                    DoCast(m_creature->getVictim(), SPELL_SUMMON_SKELETON);
-                    DoCast(m_creature->getVictim(), SPELL_SUMMON_SKELETON);
-                    Skeletons = true;
+                    for (uint8 i = 0; i <= 3; ++i)
+                    {
+                        DoCast(m_creature->getVictim(), SPELL_SUMMON_SKELETON);
+                        Skeletons = true;
+                    }
                 }
 
                 if (RainofBonesTimer < diff && !RainBones) // only once at the beginning of phase 2

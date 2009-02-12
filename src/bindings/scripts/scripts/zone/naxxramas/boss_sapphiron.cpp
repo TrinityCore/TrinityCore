@@ -50,7 +50,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
     uint32 Fly2_Timer;
     uint32 Beserk_Timer;
     uint32 phase;
-    bool landoff;
+    bool IsInFly;
     uint32 land_Timer;
 
     void Reset()
@@ -60,13 +60,13 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
         Blizzard_Timer = 20000;
         Fly_Timer = 45000;
         Icebolt_Timer = 4000;
-        land_Timer = 2000;
+        land_Timer = 0;
         Beserk_Timer = 0;
         phase = 1;
         Icebolt_Count = 0;
-        landoff = false;
+        IsInFly = false;
 
-        //m_creature->ApplySpellMod(SPELL_FROST_AURA, SPELLMOD_DURATION, -1);
+        m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING + MOVEMENTFLAG_ONTRANSPORT);
     }
 
     void Aggro(Unit *who)
@@ -105,16 +105,14 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
                     if(Fly_Timer < diff)
                     {
                         phase = 2;
-                        m_creature->InterruptNonMeleeSpells(false);
                         m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-                        (*m_creature).GetMotionMaster()->Clear(false);
-                        (*m_creature).GetMotionMaster()->MoveIdle();
-                        DoCast(m_creature,11010);
+                        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING + MOVEMENTFLAG_ONTRANSPORT);
+                        m_creature->GetMotionMaster()->Clear(false);
+                        m_creature->GetMotionMaster()->MoveIdle();  
                         m_creature->SetHover(true);
-                        DoCast(m_creature,18430);
                         Icebolt_Timer = 4000;
                         Icebolt_Count = 0;
-                        landoff = false;
+                        IsInFly = true;
                     }else Fly_Timer -= diff;
                 }
             }
@@ -124,36 +122,35 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
                     if(Icebolt_Timer < diff && Icebolt_Count < 5)
                     {
                         if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+                        {
                             DoCast(target,SPELL_ICEBOLT);
-                        Icebolt_Count ++;
+                            ++Icebolt_Count;
+                            error_log("Count incremented");
+                        }
+                        FrostBreath_Timer = 6000;
                         Icebolt_Timer = 4000;
                     }else Icebolt_Timer -= diff;
 
-                    if(Icebolt_Count == 5 && !landoff)
-                    {
-                        if(FrostBreath_Timer < diff )
-                        {
-                            DoScriptText(EMOTE_BREATH, m_creature);
-                            DoCast(m_creature->getVictim(),SPELL_FROST_BREATH);
-                            land_Timer = 2000;
-                            landoff = true;
-                            FrostBreath_Timer = 6000;
-                        }else FrostBreath_Timer -= diff;
-                    }
+                    if(Icebolt_Count == 5 && IsInFly && FrostBreath_Timer < diff )
+                    {                        
+                        DoScriptText(EMOTE_BREATH, m_creature);
+                        DoCast(m_creature->getVictim(),SPELL_FROST_BREATH);
+                        land_Timer = 2000;
+                        IsInFly = false;
+                        FrostBreath_Timer = 6000;
+                    }else FrostBreath_Timer -= diff;                    
 
-                    if(landoff)
-                    {
-                        if(land_Timer < diff)
-                        {
-                            phase = 1;
-                            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
-                            m_creature->SetHover(false);
-                            (*m_creature).GetMotionMaster()->Clear(false);
-                            (*m_creature).GetMotionMaster()->MoveChase(m_creature->getVictim());
-                            Fly_Timer = 67000;
-                        }else land_Timer -= diff;
-                    }
-
+                    if(!IsInFly && land_Timer < diff)
+                    {                        
+                        phase = 1;
+                        m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
+                        m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING + MOVEMENTFLAG_ONTRANSPORT);
+                        m_creature->GetMotionMaster()->Clear(false);
+                        m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+                        m_creature->SetHover(true);
+                        land_Timer = 0;
+                        Fly_Timer = 67000;
+                    }else land_Timer -= diff;
                 }
 
                 if ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() <= 10)

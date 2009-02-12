@@ -3878,6 +3878,12 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool Real)
 void Aura::HandlePeriodicTriggerSpellWithValue(bool apply, bool Real)
 {
     m_isPeriodic = apply;
+
+    // Wrath of the Astromancer
+    if(!apply && m_spellProto->Id == 42783)
+    {
+        m_target->CastSpell(m_target, 42787, true, 0, this);
+    }
 }
 
 void Aura::HandlePeriodicEnergize(bool apply, bool Real)
