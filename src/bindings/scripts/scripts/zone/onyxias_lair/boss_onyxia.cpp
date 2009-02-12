@@ -306,5 +306,5 @@ void AddSC_boss_onyxia()
     newscript = new Script;
     newscript->Name="boss_onyxia";
     newscript->GetAI = &GetAI_boss_onyxiaAI;
-	newscript->RegisterSelf();
+    newscript->RegisterSelf();
 }

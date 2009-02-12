@@ -353,53 +353,53 @@ CreatureAI* GetAI_npc_time_rift(Creature *_Creature)
 
 bool GossipHello_npc_saat(Player *player, Creature *_Creature)
 {
-	if (_Creature->isQuestGiver())
-		player->PrepareQuestMenu(_Creature->GetGUID());
+    if (_Creature->isQuestGiver())
+        player->PrepareQuestMenu(_Creature->GetGUID());
 
-	if (player->GetQuestStatus(QUEST_OPENING_PORTAL) == QUEST_STATUS_INCOMPLETE && !player->HasItemCount(ITEM_CHRONO_BEACON,1))
-	{
-		player->ADD_GOSSIP_ITEM(0,GOSSIP_ITEM_OBTAIN,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
-		player->SEND_GOSSIP_MENU(10000,_Creature->GetGUID());
-		return true;
-	}
-	else if (player->GetQuestRewardStatus(QUEST_OPENING_PORTAL) && !player->HasItemCount(ITEM_CHRONO_BEACON,1))
-	{
-		player->ADD_GOSSIP_ITEM(0,GOSSIP_ITEM_OBTAIN,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
-		player->SEND_GOSSIP_MENU(10001,_Creature->GetGUID());
-		return true;
-	}
+    if (player->GetQuestStatus(QUEST_OPENING_PORTAL) == QUEST_STATUS_INCOMPLETE && !player->HasItemCount(ITEM_CHRONO_BEACON,1))
+    {
+        player->ADD_GOSSIP_ITEM(0,GOSSIP_ITEM_OBTAIN,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
+        player->SEND_GOSSIP_MENU(10000,_Creature->GetGUID());
+        return true;
+    }
+    else if (player->GetQuestRewardStatus(QUEST_OPENING_PORTAL) && !player->HasItemCount(ITEM_CHRONO_BEACON,1))
+    {
+        player->ADD_GOSSIP_ITEM(0,GOSSIP_ITEM_OBTAIN,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
+        player->SEND_GOSSIP_MENU(10001,_Creature->GetGUID());
+        return true;
+    }
 
-	player->SEND_GOSSIP_MENU(10002,_Creature->GetGUID());
-	return true;
+    player->SEND_GOSSIP_MENU(10002,_Creature->GetGUID());
+    return true;
 }
 
 bool GossipSelect_npc_saat(Player *player, Creature *_Creature, uint32 sender, uint32 action)
 {
-	if (action == GOSSIP_ACTION_INFO_DEF+1)
-	{
-		player->CLOSE_GOSSIP_MENU();
-		_Creature->CastSpell(player,SPELL_CHRONO_BEACON,false);
-	}
-	return true;
+    if (action == GOSSIP_ACTION_INFO_DEF+1)
+    {
+        player->CLOSE_GOSSIP_MENU();
+        _Creature->CastSpell(player,SPELL_CHRONO_BEACON,false);
+    }
+    return true;
 }
 
 void AddSC_dark_portal()
 {
-	Script *newscript;
+    Script *newscript;
 
-	newscript = new Script;
-	newscript->Name = "npc_medivh_bm";
-	newscript->GetAI = &GetAI_npc_medivh_bm;
-	newscript->RegisterSelf();
+    newscript = new Script;
+    newscript->Name = "npc_medivh_bm";
+    newscript->GetAI = &GetAI_npc_medivh_bm;
+    newscript->RegisterSelf();
 
-	newscript = new Script;
-	newscript->Name = "npc_time_rift";
-	newscript->GetAI = &GetAI_npc_time_rift;
-	newscript->RegisterSelf();
+    newscript = new Script;
+    newscript->Name = "npc_time_rift";
+    newscript->GetAI = &GetAI_npc_time_rift;
+    newscript->RegisterSelf();
 
-	newscript = new Script;
-	newscript->Name = "npc_saat";
-	newscript->pGossipHello = &GossipHello_npc_saat;
-	newscript->pGossipSelect = &GossipSelect_npc_saat;
-	newscript->RegisterSelf();
+    newscript = new Script;
+    newscript->Name = "npc_saat";
+    newscript->pGossipHello = &GossipHello_npc_saat;
+    newscript->pGossipSelect = &GossipSelect_npc_saat;
+    newscript->RegisterSelf();
 }
