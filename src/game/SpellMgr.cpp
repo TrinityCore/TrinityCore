@@ -2187,7 +2187,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 41635: // Prayer of Mending
         case 44869: // Spectral Blast
         case 45027: // Revitalize
-        case 45976: // Muru Portal Channel        
+        case 45976: // Muru Portal Channel
             spellInfo->MaxAffectedTargets = 1;
             break;
         case 41376: // Spite
