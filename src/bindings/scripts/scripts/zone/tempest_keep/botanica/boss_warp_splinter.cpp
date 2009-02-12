@@ -95,7 +95,7 @@ struct TRINITY_DLL_DECL mob_treantAI  : public ScriptedAI
 
 #define TREANT_SPAWN_DIST   50                              //50 yards from Warp Splinter's spawn point
 
-float treant_pos[6][3] = 
+float treant_pos[6][3] =
 {
     {24.301233, 427.221100, -27.060635},
     {16.795492, 359.678802, -27.355425},
@@ -134,27 +134,27 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-		DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void KilledUnit(Unit* victim)
     {
         switch(rand()%2)
         {
-		case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
-		case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
+        case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
+        case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
         }
     }
 
     void JustDied(Unit* Killer)
     {
-		DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, m_creature);
     }
 
     void SummonTreants()
     {
         for(int i = 0; i < 6; ++i)
-        {            
+        {
             float angle = (M_PI / 3) * i;
 
             float X = Treant_Spawn_Pos_X + TREANT_SPAWN_DIST * cos(angle);
@@ -165,9 +165,9 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
                 ((mob_treantAI*)pTreant->AI())->WarpGuid = m_creature->GetGUID();
         }
         switch(rand()%2)
-        { 
-		case 0: DoScriptText(SAY_SUMMON_1, m_creature); break;
-		case 1: DoScriptText(SAY_SUMMON_2, m_creature); break;
+        {
+        case 0: DoScriptText(SAY_SUMMON_1, m_creature); break;
+        case 1: DoScriptText(SAY_SUMMON_2, m_creature); break;
         }
     }
 
@@ -180,21 +180,21 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
         if(War_Stomp_Timer < diff)
         {
             DoCast(m_creature->getVictim(),WAR_STOMP);
-            War_Stomp_Timer = 25000 + rand()%15000;        
+            War_Stomp_Timer = 25000 + rand()%15000;
         }else War_Stomp_Timer -= diff;
 
         //Check for Arcane Volley
         if(Arcane_Volley_Timer < diff)
         {
             DoCast(m_creature->getVictim(),ARCANE_VOLLEY);
-            Arcane_Volley_Timer = 20000 + rand()%15000; 
+            Arcane_Volley_Timer = 20000 + rand()%15000;
         }else Arcane_Volley_Timer -= diff;
 
         //Check for Summon Treants
         if(Summon_Treants_Timer < diff)
         {
             SummonTreants();
-            Summon_Treants_Timer = 45000;        
+            Summon_Treants_Timer = 45000;
         }else Summon_Treants_Timer -= diff;
 
         DoMeleeAttackIfReady();

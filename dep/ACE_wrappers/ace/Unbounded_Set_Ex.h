@@ -163,7 +163,7 @@ private:
  * allow duplicates, but it maintains FIFO ordering of insertions.
  *
  * This implementation may also be parameterized with a comparator
- * functor, which must implement bool operator () (const T&, const T&) const, 
+ * functor, which must implement bool operator () (const T&, const T&) const,
  * returning true if the given items are equivalent.  The default comparator
  * is sufficient for objects reliably compared with operator==.
  *
@@ -205,7 +205,7 @@ public:
   typedef ACE_Unbounded_Set_Ex_Const_Iterator<T, C> const_iterator;
   typedef C COMP;
   typedef ACE_Node<T, C> NODE;
-  
+
   // = Initialization and termination methods.
   /// Constructor.  Use user specified allocation strategy
   /// if specified.
@@ -324,7 +324,7 @@ private:
 
   /// Allocation strategy of the set.
   ACE_Allocator *allocator_;
-  
+
   /// Comparator to be used
   COMP comp_;
 };

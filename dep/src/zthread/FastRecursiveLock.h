@@ -33,11 +33,11 @@
 // Select the correct FastRecusriveLock implementation based on
 // what the compilation environment has defined
 
-#if defined(ZTHREAD_DUAL_LOCKS) 
+#if defined(ZTHREAD_DUAL_LOCKS)
 #  include "vanilla/DualMutexRecursiveLock.h"
 #else
 
-#  ifndef ZT_VANILLA 
+#  ifndef ZT_VANILLA
 
 #  if defined(ZT_POSIX)
 
@@ -50,7 +50,7 @@
 #      include "linux/FastRecursiveLock.h"
 #    elif defined(HAVE_MUTEXATTR_SETTYPE)
 #      include "solaris/FastRecursiveLock.h"
-#    elif defined(ZTHREAD_CONDITION_LOCKS) 
+#    elif defined(ZTHREAD_CONDITION_LOCKS)
 #      include "posix/ConditionRecursiveLock.h"
 #    endif
 

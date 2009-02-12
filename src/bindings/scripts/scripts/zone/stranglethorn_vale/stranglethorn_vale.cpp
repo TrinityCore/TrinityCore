@@ -72,8 +72,8 @@ struct TRINITY_DLL_DECL mob_yennikuAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         if (bReset)
-		{
-			if(Reset_Timer < diff)
+        {
+            if(Reset_Timer < diff)
             {
                 EnterEvadeMode();
                 bReset = false;

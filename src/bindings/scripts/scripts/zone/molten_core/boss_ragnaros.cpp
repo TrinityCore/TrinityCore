@@ -124,7 +124,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
         if (rand()%5)
             return;
 
-		DoScriptText(SAY_KILL, m_creature);
+        DoScriptText(SAY_KILL, m_creature);
     }
 
     void Aggro(Unit *who)
@@ -158,7 +158,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
 
             if (rand()%2 == 0)
             {
-				DoScriptText(SAY_WRATH, m_creature);
+                DoScriptText(SAY_WRATH, m_creature);
             }
 
             WrathOfRagnaros_Timer = 30000;
@@ -171,7 +171,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
 
             if (rand()%2==0)
             {
-				DoScriptText(SAY_HAND, m_creature);
+                DoScriptText(SAY_HAND, m_creature);
             }
 
             HandOfRagnaros_Timer = 25000;
@@ -217,7 +217,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
 
             if (!HasSubmergedOnce)
             {
-				DoScriptText(SAY_REINFORCEMENTS1, m_creature);
+                DoScriptText(SAY_REINFORCEMENTS1, m_creature);
 
                 // summon 10 elementals
                 Unit* target = NULL;
@@ -235,7 +235,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
 
             }else
             {
-				DoScriptText(SAY_REINFORCEMENTS2, m_creature);
+                DoScriptText(SAY_REINFORCEMENTS2, m_creature);
 
                 Unit* target = NULL;
                 for(int i = 0; i < 9;i++)
@@ -272,7 +272,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
                 if (!HasYelledMagmaBurst)
                 {
                     //Say our dialog
-					DoScriptText(SAY_MAGMABURST, m_creature);
+                    DoScriptText(SAY_MAGMABURST, m_creature);
                     HasYelledMagmaBurst = true;
                 }
 

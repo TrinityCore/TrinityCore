@@ -36,45 +36,45 @@ namespace ZThread {
  * @version 2.2.0
  *
  * This implementation of a FastRecursiveLock uses the recursive mutex
- * that linux pthreads provides.  
- */ 
+ * that linux pthreads provides.
+ */
 class FastRecursiveLock : private NonCopyable {
-    
+
   pthread_mutex_t _mtx;
-  
+
 public:
-  
+
   inline FastRecursiveLock() {
-    
+
     static const pthread_mutexattr_t attr = { PTHREAD_MUTEX_RECURSIVE_NP };
     pthread_mutex_init(&_mtx, &attr);
 
   }
-  
+
   inline ~FastRecursiveLock() {
 
     pthread_mutex_destroy(&_mtx);
 
   }
-  
+
   inline void acquire() {
-    
+
     pthread_mutex_lock(&_mtx);
 
   }
 
   inline void release() {
-    
+
     pthread_mutex_unlock(&_mtx);
-    
+
   }
-  
+
   inline bool tryAcquire(unsigned long timeout=0) {
 
     return (pthread_mutex_trylock(&_mtx) == 0);
 
   }
-  
+
 }; /* FastRecursiveLock */
 
 

@@ -1,6 +1,6 @@
 /** \file Socket.cpp
- **	\date  2004-02-13
- **	\author grymse@alhem.net
+ ** \date  2004-02-13
+ ** \author grymse@alhem.net
 **/
 /*
 Copyright (C) 2004-2007  Anders Hedstrom
@@ -114,15 +114,15 @@ Socket::Socket(ISocketHandler& h)
 
 Socket::~Socket()
 {
-	Handler().Remove(this);
-	if (m_socket != INVALID_SOCKET
+    Handler().Remove(this);
+    if (m_socket != INVALID_SOCKET
 #ifdef ENABLE_POOL
-		 && !m_bRetain
+         && !m_bRetain
 #endif
-		)
-	{
-		Close();
-	}
+        )
+    {
+        Close();
+    }
 }
 
 
@@ -143,11 +143,11 @@ void Socket::OnWrite()
 
 void Socket::OnException()
 {
-	// %! exception doesn't always mean something bad happened, this code should be reworked
-	// errno valid here?
-	int err = SoError();
-	Handler().LogError(this, "exception on select", err, StrError(err), LOG_LEVEL_FATAL);
-	SetCloseAndDelete();
+    // %! exception doesn't always mean something bad happened, this code should be reworked
+    // errno valid here?
+    int err = SoError();
+    Handler().LogError(this, "exception on select", err, StrError(err), LOG_LEVEL_FATAL);
+    SetCloseAndDelete();
 }
 
 
@@ -168,159 +168,159 @@ void Socket::OnAccept()
 
 int Socket::Close()
 {
-	if (m_socket == INVALID_SOCKET) // this could happen
-	{
-		Handler().LogError(this, "Socket::Close", 0, "file descriptor invalid", LOG_LEVEL_WARNING);
-		return 0;
-	}
-	int n;
-	if ((n = closesocket(m_socket)) == -1)
-	{
-		// failed...
-		Handler().LogError(this, "close", Errno, StrError(Errno), LOG_LEVEL_ERROR);
-	}
-	Handler().Set(m_socket, false, false, false); // remove from fd_set's
-	Handler().AddList(m_socket, LIST_CALLONCONNECT, false);
+    if (m_socket == INVALID_SOCKET) // this could happen
+    {
+        Handler().LogError(this, "Socket::Close", 0, "file descriptor invalid", LOG_LEVEL_WARNING);
+        return 0;
+    }
+    int n;
+    if ((n = closesocket(m_socket)) == -1)
+    {
+        // failed...
+        Handler().LogError(this, "close", Errno, StrError(Errno), LOG_LEVEL_ERROR);
+    }
+    Handler().Set(m_socket, false, false, false); // remove from fd_set's
+    Handler().AddList(m_socket, LIST_CALLONCONNECT, false);
 #ifdef ENABLE_DETACH
-	Handler().AddList(m_socket, LIST_DETACH, false);
+    Handler().AddList(m_socket, LIST_DETACH, false);
 #endif
-	Handler().AddList(m_socket, LIST_TIMEOUT, false);
-	Handler().AddList(m_socket, LIST_RETRY, false);
-	Handler().AddList(m_socket, LIST_CLOSE, false);
-	m_socket = INVALID_SOCKET;
-	return n;
+    Handler().AddList(m_socket, LIST_TIMEOUT, false);
+    Handler().AddList(m_socket, LIST_RETRY, false);
+    Handler().AddList(m_socket, LIST_CLOSE, false);
+    m_socket = INVALID_SOCKET;
+    return n;
 }
 
 
 SOCKET Socket::CreateSocket(int af,int type, const std::string& protocol)
 {
-	struct protoent *p = NULL;
-	SOCKET s;
+    struct protoent *p = NULL;
+    SOCKET s;
 
 #ifdef ENABLE_POOL
-	m_socket_type = type;
-	m_socket_protocol = protocol;
+    m_socket_type = type;
+    m_socket_protocol = protocol;
 #endif
-	if (!protocol.empty())
-	{
-		p = getprotobyname( protocol.c_str() );
-		if (!p)
-		{
-			Handler().LogError(this, "getprotobyname", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-			SetCloseAndDelete();
+    if (!protocol.empty())
+    {
+        p = getprotobyname( protocol.c_str() );
+        if (!p)
+        {
+            Handler().LogError(this, "getprotobyname", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+            SetCloseAndDelete();
 #ifdef ENABLE_EXCEPTIONS
-			throw Exception(std::string("getprotobyname() failed: ") + StrError(Errno));
+            throw Exception(std::string("getprotobyname() failed: ") + StrError(Errno));
 #endif
-			return INVALID_SOCKET;
-		}
-	}
-	int protno = p ? p -> p_proto : 0;
+            return INVALID_SOCKET;
+        }
+    }
+    int protno = p ? p -> p_proto : 0;
 
-	s = socket(af, type, protno);
-	if (s == INVALID_SOCKET)
-	{
-		Handler().LogError(this, "socket", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		SetCloseAndDelete();
+    s = socket(af, type, protno);
+    if (s == INVALID_SOCKET)
+    {
+        Handler().LogError(this, "socket", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        SetCloseAndDelete();
 #ifdef ENABLE_EXCEPTIONS
-		throw Exception(std::string("socket() failed: ") + StrError(Errno));
+        throw Exception(std::string("socket() failed: ") + StrError(Errno));
 #endif
-		return INVALID_SOCKET;
-	}
-	Attach(s);
-	OnOptions(af, type, protno, s);
-	Attach(INVALID_SOCKET);
-	return s;
+        return INVALID_SOCKET;
+    }
+    Attach(s);
+    OnOptions(af, type, protno, s);
+    Attach(INVALID_SOCKET);
+    return s;
 }
 
 
 void Socket::Attach(SOCKET s)
 {
-	m_socket = s;
+    m_socket = s;
 }
 
 
 SOCKET Socket::GetSocket()
 {
-	return m_socket;
+    return m_socket;
 }
 
 
 void Socket::SetDeleteByHandler(bool x)
 {
-	m_bDel = x;
+    m_bDel = x;
 }
 
 
 bool Socket::DeleteByHandler()
 {
-	return m_bDel;
+    return m_bDel;
 }
 
 
 void Socket::SetCloseAndDelete(bool x)
 {
-	if (x != m_bClose)
-	{
-		Handler().AddList(m_socket, LIST_CLOSE, x);
-		m_bClose = x;
-		if (x)
-		{
-			m_tClose = time(NULL);
-		}
-	}
+    if (x != m_bClose)
+    {
+        Handler().AddList(m_socket, LIST_CLOSE, x);
+        m_bClose = x;
+        if (x)
+        {
+            m_tClose = time(NULL);
+        }
+    }
 }
 
 
 bool Socket::CloseAndDelete()
 {
-	return m_bClose;
+    return m_bClose;
 }
 
 
 void Socket::SetRemoteAddress(SocketAddress& ad) //struct sockaddr* sa, socklen_t l)
 {
-	m_remote_address = ad.GetCopy();
+    m_remote_address = ad.GetCopy();
 }
 
 
 std::auto_ptr<SocketAddress> Socket::GetRemoteSocketAddress()
 {
-	return m_remote_address -> GetCopy();
+    return m_remote_address -> GetCopy();
 }
 
 
 ISocketHandler& Socket::Handler() const
 {
 #ifdef ENABLE_DETACH
-	if (IsDetached())
-		return *m_slave_handler;
+    if (IsDetached())
+        return *m_slave_handler;
 #endif
-	return m_handler;
+    return m_handler;
 }
 
 
 ISocketHandler& Socket::MasterHandler() const
 {
-	return m_handler;
+    return m_handler;
 }
 
 
 ipaddr_t Socket::GetRemoteIP4()
 {
-	ipaddr_t l = 0;
+    ipaddr_t l = 0;
 #ifdef ENABLE_IPV6
-	if (m_ipv6)
-	{
-		Handler().LogError(this, "GetRemoteIP4", 0, "get ipv4 address for ipv6 socket", LOG_LEVEL_WARNING);
-	}
+    if (m_ipv6)
+    {
+        Handler().LogError(this, "GetRemoteIP4", 0, "get ipv4 address for ipv6 socket", LOG_LEVEL_WARNING);
+    }
 #endif
-	if (m_remote_address.get() != NULL)
-	{
-		struct sockaddr *p = *m_remote_address;
-		struct sockaddr_in *sa = (struct sockaddr_in *)p;
-		memcpy(&l, &sa -> sin_addr, sizeof(struct in_addr));
-	}
-	return l;
+    if (m_remote_address.get() != NULL)
+    {
+        struct sockaddr *p = *m_remote_address;
+        struct sockaddr_in *sa = (struct sockaddr_in *)p;
+        memcpy(&l, &sa -> sin_addr, sizeof(struct in_addr));
+    }
+    return l;
 }
 
 
@@ -328,21 +328,21 @@ ipaddr_t Socket::GetRemoteIP4()
 #ifdef IPPROTO_IPV6
 struct in6_addr Socket::GetRemoteIP6()
 {
-	if (!m_ipv6)
-	{
-		Handler().LogError(this, "GetRemoteIP6", 0, "get ipv6 address for ipv4 socket", LOG_LEVEL_WARNING);
-	}
-	struct sockaddr_in6 fail;
-	if (m_remote_address.get() != NULL)
-	{
-		struct sockaddr *p = *m_remote_address;
-		memcpy(&fail, p, sizeof(struct sockaddr_in6));
-	}
-	else
-	{
-		memset(&fail, 0, sizeof(struct sockaddr_in6));
-	}
-	return fail.sin6_addr;
+    if (!m_ipv6)
+    {
+        Handler().LogError(this, "GetRemoteIP6", 0, "get ipv6 address for ipv4 socket", LOG_LEVEL_WARNING);
+    }
+    struct sockaddr_in6 fail;
+    if (m_remote_address.get() != NULL)
+    {
+        struct sockaddr *p = *m_remote_address;
+        memcpy(&fail, p, sizeof(struct sockaddr_in6));
+    }
+    else
+    {
+        memset(&fail, 0, sizeof(struct sockaddr_in6));
+    }
+    return fail.sin6_addr;
 }
 #endif
 #endif
@@ -350,63 +350,63 @@ struct in6_addr Socket::GetRemoteIP6()
 
 port_t Socket::GetRemotePort()
 {
-	if (!m_remote_address.get())
-	{
-		return 0;
-	}
-	return m_remote_address -> GetPort();
+    if (!m_remote_address.get())
+    {
+        return 0;
+    }
+    return m_remote_address -> GetPort();
 }
 
 
 std::string Socket::GetRemoteAddress()
 {
-	if (!m_remote_address.get())
-	{
-		return "";
-	}
-	return m_remote_address -> Convert(false);
+    if (!m_remote_address.get())
+    {
+        return "";
+    }
+    return m_remote_address -> Convert(false);
 }
 
 
 std::string Socket::GetRemoteHostname()
 {
-	if (!m_remote_address.get())
-	{
-		return "";
-	}
-	return m_remote_address -> Reverse();
+    if (!m_remote_address.get())
+    {
+        return "";
+    }
+    return m_remote_address -> Reverse();
 }
 
 
 bool Socket::SetNonblocking(bool bNb)
 {
 #ifdef _WIN32
-	unsigned long l = bNb ? 1 : 0;
-	int n = ioctlsocket(m_socket, FIONBIO, &l);
-	if (n != 0)
-	{
-		Handler().LogError(this, "ioctlsocket(FIONBIO)", Errno, "");
-		return false;
-	}
-	return true;
+    unsigned long l = bNb ? 1 : 0;
+    int n = ioctlsocket(m_socket, FIONBIO, &l);
+    if (n != 0)
+    {
+        Handler().LogError(this, "ioctlsocket(FIONBIO)", Errno, "");
+        return false;
+    }
+    return true;
 #else
-	if (bNb)
-	{
-		if (fcntl(m_socket, F_SETFL, O_NONBLOCK) == -1)
-		{
-			Handler().LogError(this, "fcntl(F_SETFL, O_NONBLOCK)", Errno, StrError(Errno), LOG_LEVEL_ERROR);
-			return false;
-		}
-	}
-	else
-	{
-		if (fcntl(m_socket, F_SETFL, 0) == -1)
-		{
-			Handler().LogError(this, "fcntl(F_SETFL, 0)", Errno, StrError(Errno), LOG_LEVEL_ERROR);
-			return false;
-		}
-	}
-	return true;
+    if (bNb)
+    {
+        if (fcntl(m_socket, F_SETFL, O_NONBLOCK) == -1)
+        {
+            Handler().LogError(this, "fcntl(F_SETFL, O_NONBLOCK)", Errno, StrError(Errno), LOG_LEVEL_ERROR);
+            return false;
+        }
+    }
+    else
+    {
+        if (fcntl(m_socket, F_SETFL, 0) == -1)
+        {
+            Handler().LogError(this, "fcntl(F_SETFL, 0)", Errno, StrError(Errno), LOG_LEVEL_ERROR);
+            return false;
+        }
+    }
+    return true;
 #endif
 }
 
@@ -414,47 +414,47 @@ bool Socket::SetNonblocking(bool bNb)
 bool Socket::SetNonblocking(bool bNb, SOCKET s)
 {
 #ifdef _WIN32
-	unsigned long l = bNb ? 1 : 0;
-	int n = ioctlsocket(s, FIONBIO, &l);
-	if (n != 0)
-	{
-		Handler().LogError(this, "ioctlsocket(FIONBIO)", Errno, "");
-		return false;
-	}
-	return true;
+    unsigned long l = bNb ? 1 : 0;
+    int n = ioctlsocket(s, FIONBIO, &l);
+    if (n != 0)
+    {
+        Handler().LogError(this, "ioctlsocket(FIONBIO)", Errno, "");
+        return false;
+    }
+    return true;
 #else
-	if (bNb)
-	{
-		if (fcntl(s, F_SETFL, O_NONBLOCK) == -1)
-		{
-			Handler().LogError(this, "fcntl(F_SETFL, O_NONBLOCK)", Errno, StrError(Errno), LOG_LEVEL_ERROR);
-			return false;
-		}
-	}
-	else
-	{
-		if (fcntl(s, F_SETFL, 0) == -1)
-		{
-			Handler().LogError(this, "fcntl(F_SETFL, 0)", Errno, StrError(Errno), LOG_LEVEL_ERROR);
-			return false;
-		}
-	}
-	return true;
+    if (bNb)
+    {
+        if (fcntl(s, F_SETFL, O_NONBLOCK) == -1)
+        {
+            Handler().LogError(this, "fcntl(F_SETFL, O_NONBLOCK)", Errno, StrError(Errno), LOG_LEVEL_ERROR);
+            return false;
+        }
+    }
+    else
+    {
+        if (fcntl(s, F_SETFL, 0) == -1)
+        {
+            Handler().LogError(this, "fcntl(F_SETFL, 0)", Errno, StrError(Errno), LOG_LEVEL_ERROR);
+            return false;
+        }
+    }
+    return true;
 #endif
 }
 
 
 void Socket::Set(bool bRead, bool bWrite, bool bException)
 {
-	Handler().Set(m_socket, bRead, bWrite, bException);
+    Handler().Set(m_socket, bRead, bWrite, bException);
 }
 
 
 bool Socket::Ready()
 {
-	if (m_socket != INVALID_SOCKET && !CloseAndDelete())
-		return true;
-	return false;
+    if (m_socket != INVALID_SOCKET && !CloseAndDelete())
+        return true;
+    return false;
 }
 
 
@@ -470,26 +470,26 @@ void Socket::OnConnectFailed()
 
 Socket *Socket::GetParent()
 {
-	return m_parent;
+    return m_parent;
 }
 
 
 void Socket::SetParent(Socket *x)
 {
-	m_parent = x;
+    m_parent = x;
 }
 
 
 port_t Socket::GetPort()
 {
-	Handler().LogError(this, "GetPort", 0, "GetPort only implemented for ListenSocket", LOG_LEVEL_WARNING);
-	return 0;
+    Handler().LogError(this, "GetPort", 0, "GetPort only implemented for ListenSocket", LOG_LEVEL_WARNING);
+    return 0;
 }
 
 
 bool Socket::OnConnectRetry()
 {
-	return true;
+    return true;
 }
 
 
@@ -502,33 +502,33 @@ void Socket::OnReconnect()
 
 time_t Socket::Uptime()
 {
-	return time(NULL) - m_tCreate;
+    return time(NULL) - m_tCreate;
 }
 
 
 #ifdef ENABLE_IPV6
 void Socket::SetIpv6(bool x)
 {
-	m_ipv6 = x;
+    m_ipv6 = x;
 }
 
 
 bool Socket::IsIpv6()
 {
-	return m_ipv6;
+    return m_ipv6;
 }
 #endif
 
 
 void Socket::DisableRead(bool x)
 {
-	m_b_disable_read = x;
+    m_b_disable_read = x;
 }
 
 
 bool Socket::IsDisableRead()
 {
-	return m_b_disable_read;
+    return m_b_disable_read;
 }
 
 
@@ -544,13 +544,13 @@ void Socket::Send(const std::string&,int)
 
 void Socket::SetConnected(bool x)
 {
-	m_connected = x;
+    m_connected = x;
 }
 
 
 bool Socket::IsConnected()
 {
-	return m_connected;
+    return m_connected;
 }
 
 
@@ -561,63 +561,63 @@ void Socket::OnDisconnect()
 
 void Socket::SetLost()
 {
-	m_bLost = true;
+    m_bLost = true;
 }
 
 
 bool Socket::Lost()
 {
-	return m_bLost;
+    return m_bLost;
 }
 
 
 void Socket::SetErasedByHandler(bool x)
 {
-	m_b_erased_by_handler = x;
+    m_b_erased_by_handler = x;
 }
 
 
 bool Socket::ErasedByHandler()
 {
-	return m_b_erased_by_handler;
+    return m_b_erased_by_handler;
 }
 
 
 time_t Socket::TimeSinceClose()
 {
-	return time(NULL) - m_tClose;
+    return time(NULL) - m_tClose;
 }
 
 
 void Socket::SetClientRemoteAddress(SocketAddress& ad)
 {
-	if (!ad.IsValid())
-	{
-		Handler().LogError(this, "SetClientRemoteAddress", 0, "remote address not valid", LOG_LEVEL_ERROR);
-	}
-	m_client_remote_address = ad.GetCopy();
+    if (!ad.IsValid())
+    {
+        Handler().LogError(this, "SetClientRemoteAddress", 0, "remote address not valid", LOG_LEVEL_ERROR);
+    }
+    m_client_remote_address = ad.GetCopy();
 }
 
 
 std::auto_ptr<SocketAddress> Socket::GetClientRemoteAddress()
 {
-	if (!m_client_remote_address.get())
-	{
-		Handler().LogError(this, "GetClientRemoteAddress", 0, "remote address not yet set", LOG_LEVEL_ERROR);
-	}
-	return m_client_remote_address -> GetCopy();
+    if (!m_client_remote_address.get())
+    {
+        Handler().LogError(this, "GetClientRemoteAddress", 0, "remote address not yet set", LOG_LEVEL_ERROR);
+    }
+    return m_client_remote_address -> GetCopy();
 }
 
 
 uint64_t Socket::GetBytesSent(bool)
 {
-	return 0;
+    return 0;
 }
 
 
 uint64_t Socket::GetBytesReceived(bool)
 {
-	return 0;
+    return 0;
 }
 
 
@@ -634,43 +634,43 @@ void Socket::OnSSLAccept()
 
 bool Socket::SSLNegotiate()
 {
-	return false;
+    return false;
 }
 
 
 bool Socket::IsSSL()
 {
-	return m_b_enable_ssl;
+    return m_b_enable_ssl;
 }
 
 
 void Socket::EnableSSL(bool x)
 {
-	m_b_enable_ssl = x;
+    m_b_enable_ssl = x;
 }
 
 
 bool Socket::IsSSLNegotiate()
 {
-	return m_b_ssl;
+    return m_b_ssl;
 }
 
 
 void Socket::SetSSLNegotiate(bool x)
 {
-	m_b_ssl = x;
+    m_b_ssl = x;
 }
 
 
 bool Socket::IsSSLServer()
 {
-	return m_b_ssl_server;
+    return m_b_ssl_server;
 }
 
 
 void Socket::SetSSLServer(bool x)
 {
-	m_b_ssl_server = x;
+    m_b_ssl_server = x;
 }
 
 
@@ -688,57 +688,57 @@ void Socket::OnSSLAcceptFailed()
 #ifdef ENABLE_POOL
 void Socket::CopyConnection(Socket *sock)
 {
-	Attach( sock -> GetSocket() );
+    Attach( sock -> GetSocket() );
 #ifdef ENABLE_IPV6
-	SetIpv6( sock -> IsIpv6() );
+    SetIpv6( sock -> IsIpv6() );
 #endif
-	SetSocketType( sock -> GetSocketType() );
-	SetSocketProtocol( sock -> GetSocketProtocol() );
+    SetSocketType( sock -> GetSocketType() );
+    SetSocketProtocol( sock -> GetSocketProtocol() );
 
-	SetClientRemoteAddress( *sock -> GetClientRemoteAddress() );
-	SetRemoteAddress( *sock -> GetRemoteSocketAddress() );
+    SetClientRemoteAddress( *sock -> GetClientRemoteAddress() );
+    SetRemoteAddress( *sock -> GetRemoteSocketAddress() );
 }
 
 
 void Socket::SetIsClient()
 {
-	m_bClient = true;
+    m_bClient = true;
 }
 
 
 void Socket::SetSocketType(int x)
 {
-	m_socket_type = x;
+    m_socket_type = x;
 }
 
 
 int Socket::GetSocketType()
 {
-	return m_socket_type;
+    return m_socket_type;
 }
 
 
 void Socket::SetSocketProtocol(const std::string& x)
 {
-	m_socket_protocol = x;
+    m_socket_protocol = x;
 }
 
 
 const std::string& Socket::GetSocketProtocol()
 {
-	return m_socket_protocol;
+    return m_socket_protocol;
 }
 
 
 void Socket::SetRetain()
 {
-	if (m_bClient) m_bRetain = true;
+    if (m_bClient) m_bRetain = true;
 }
 
 
 bool Socket::Retain()
 {
-	return m_bRetain;
+    return m_bRetain;
 }
 
 
@@ -748,74 +748,74 @@ bool Socket::Retain()
 #ifdef ENABLE_SOCKS4
 void Socket::OnSocks4Connect()
 {
-	Handler().LogError(this, "OnSocks4Connect", 0, "Use with TcpSocket only");
+    Handler().LogError(this, "OnSocks4Connect", 0, "Use with TcpSocket only");
 }
 
 
 void Socket::OnSocks4ConnectFailed()
 {
-	Handler().LogError(this, "OnSocks4ConnectFailed", 0, "Use with TcpSocket only");
+    Handler().LogError(this, "OnSocks4ConnectFailed", 0, "Use with TcpSocket only");
 }
 
 
 bool Socket::OnSocks4Read()
 {
-	Handler().LogError(this, "OnSocks4Read", 0, "Use with TcpSocket only");
-	return true;
+    Handler().LogError(this, "OnSocks4Read", 0, "Use with TcpSocket only");
+    return true;
 }
 
 
 void Socket::SetSocks4Host(const std::string& host)
 {
-	Utility::u2ip(host, m_socks4_host);
+    Utility::u2ip(host, m_socks4_host);
 }
 
 
 bool Socket::Socks4()
 {
-	return m_bSocks4;
+    return m_bSocks4;
 }
 
 
 void Socket::SetSocks4(bool x)
 {
-	m_bSocks4 = x;
+    m_bSocks4 = x;
 }
 
 
 void Socket::SetSocks4Host(ipaddr_t a)
 {
-	m_socks4_host = a;
+    m_socks4_host = a;
 }
 
 
 void Socket::SetSocks4Port(port_t p)
 {
-	m_socks4_port = p;
+    m_socks4_port = p;
 }
 
 
 void Socket::SetSocks4Userid(const std::string& x)
 {
-	m_socks4_userid = x;
+    m_socks4_userid = x;
 }
 
 
 ipaddr_t Socket::GetSocks4Host()
 {
-	return m_socks4_host;
+    return m_socks4_host;
 }
 
 
 port_t Socket::GetSocks4Port()
 {
-	return m_socks4_port;
+    return m_socks4_port;
 }
 
 
 const std::string& Socket::GetSocks4Userid()
 {
-	return m_socks4_userid;
+    return m_socks4_userid;
 }
 #endif // ENABLE_SOCKS4
 
@@ -823,22 +823,22 @@ const std::string& Socket::GetSocks4Userid()
 #ifdef ENABLE_DETACH
 bool Socket::Detach()
 {
-	if (!DeleteByHandler())
-		return false;
-	if (m_pThread)
-		return false;
-	if (m_detached)
-		return false;
-	SetDetach();
-	return true;
+    if (!DeleteByHandler())
+        return false;
+    if (m_pThread)
+        return false;
+    if (m_detached)
+        return false;
+    SetDetach();
+    return true;
 }
 
 
 void Socket::DetachSocket()
 {
-	SetDetached();
-	m_pThread = new SocketThread(this);
-	m_pThread -> SetRelease(true);
+    SetDetached();
+    m_pThread = new SocketThread(this);
+    m_pThread -> SetRelease(true);
 }
 
 
@@ -849,32 +849,32 @@ void Socket::OnDetached()
 
 void Socket::SetDetach(bool x)
 {
-	Handler().AddList(m_socket, LIST_DETACH, x);
-	m_detach = x;
+    Handler().AddList(m_socket, LIST_DETACH, x);
+    m_detach = x;
 }
 
 
 bool Socket::IsDetach()
 {
-	return m_detach;
+    return m_detach;
 }
 
 
 void Socket::SetDetached(bool x)
 {
-	m_detached = x;
+    m_detached = x;
 }
 
 
 const bool Socket::IsDetached() const
 {
-	return m_detached;
+    return m_detached;
 }
 
 
 void Socket::SetSlaveHandler(ISocketHandler *p)
 {
-	m_slave_handler = p;
+    m_slave_handler = p;
 }
 
 
@@ -882,40 +882,40 @@ Socket::SocketThread::SocketThread(Socket *p)
 :Thread(false)
 ,m_socket(p)
 {
-	// Creator will release
+    // Creator will release
 }
 
 
 Socket::SocketThread::~SocketThread()
 {
-	if (IsRunning())
-	{
-		SetRelease(true);
-		SetRunning(false);
+    if (IsRunning())
+    {
+        SetRelease(true);
+        SetRunning(false);
 #ifdef _WIN32
-		Sleep(1000);
+        Sleep(1000);
 #else
-		sleep(1);
+        sleep(1);
 #endif
-	}
+    }
 }
 
 
 void Socket::SocketThread::Run()
 {
-	SocketHandler h;
-	h.SetSlave();
-	h.Add(m_socket);
-	m_socket -> SetSlaveHandler(&h);
-	m_socket -> OnDetached();
-	while (h.GetCount() && IsRunning())
-	{
-		h.Select(0, 500000);
-	}
-	// m_socket now deleted oops
-	// yeah oops m_socket delete its socket thread, that means this
-	// so Socket will no longer delete its socket thread, instead we do this:
-	SetDeleteOnExit();
+    SocketHandler h;
+    h.SetSlave();
+    h.Add(m_socket);
+    m_socket -> SetSlaveHandler(&h);
+    m_socket -> OnDetached();
+    while (h.GetCount() && IsRunning())
+    {
+        h.Select(0, 500000);
+    }
+    // m_socket now deleted oops
+    // yeah oops m_socket delete its socket thread, that means this
+    // so Socket will no longer delete its socket thread, instead we do this:
+    SetDeleteOnExit();
 }
 #endif // ENABLE_DETACH
 
@@ -923,28 +923,28 @@ void Socket::SocketThread::Run()
 #ifdef ENABLE_RESOLVER
 int Socket::Resolve(const std::string& host,port_t port)
 {
-	return Handler().Resolve(this, host, port);
+    return Handler().Resolve(this, host, port);
 }
 
 
 #ifdef ENABLE_IPV6
 int Socket::Resolve6(const std::string& host,port_t port)
 {
-	return Handler().Resolve6(this, host, port);
+    return Handler().Resolve6(this, host, port);
 }
 #endif
 
 
 int Socket::Resolve(ipaddr_t a)
 {
-	return Handler().Resolve(this, a);
+    return Handler().Resolve(this, a);
 }
 
 
 #ifdef ENABLE_IPV6
 int Socket::Resolve(in6_addr& a)
 {
-	return Handler().Resolve(this, a);
+    return Handler().Resolve(this, a);
 }
 #endif
 
@@ -978,15 +978,15 @@ void Socket::OnResolveFailed(int)
 bool Socket::SetIpOptions(const void *p, socklen_t len)
 {
 #ifdef IP_OPTIONS
-	if (setsockopt(GetSocket(), IPPROTO_IP, IP_OPTIONS, (char *)p, len) == -1)
-	{
-		Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_OPTIONS)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    if (setsockopt(GetSocket(), IPPROTO_IP, IP_OPTIONS, (char *)p, len) == -1)
+    {
+        Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_OPTIONS)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 #else
-	Handler().LogError(this, "ip option not available", 0, "IP_OPTIONS", LOG_LEVEL_INFO);
-	return false;
+    Handler().LogError(this, "ip option not available", 0, "IP_OPTIONS", LOG_LEVEL_INFO);
+    return false;
 #endif
 }
 
@@ -994,13 +994,13 @@ bool Socket::SetIpOptions(const void *p, socklen_t len)
 #ifdef IP_PKTINFO
 bool Socket::SetIpPktinfo(bool x)
 {
-	int optval = x ? 1 : 0;
-	if (setsockopt(GetSocket(), IPPROTO_IP, IP_PKTINFO, (char *)&optval, sizeof(optval)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_PKTINFO)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    int optval = x ? 1 : 0;
+    if (setsockopt(GetSocket(), IPPROTO_IP, IP_PKTINFO, (char *)&optval, sizeof(optval)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_PKTINFO)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 }
 #endif
 
@@ -1008,13 +1008,13 @@ bool Socket::SetIpPktinfo(bool x)
 #ifdef IP_RECVTOS
 bool Socket::SetIpRecvTOS(bool x)
 {
-	int optval = x ? 1 : 0;
-	if (setsockopt(GetSocket(), IPPROTO_IP, IP_RECVTOS, (char *)&optval, sizeof(optval)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_RECVTOS)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    int optval = x ? 1 : 0;
+    if (setsockopt(GetSocket(), IPPROTO_IP, IP_RECVTOS, (char *)&optval, sizeof(optval)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_RECVTOS)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 }
 #endif
 
@@ -1022,13 +1022,13 @@ bool Socket::SetIpRecvTOS(bool x)
 #ifdef IP_RECVTTL
 bool Socket::SetIpRecvTTL(bool x)
 {
-	int optval = x ? 1 : 0;
-	if (setsockopt(GetSocket(), IPPROTO_IP, IP_RECVTTL, (char *)&optval, sizeof(optval)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_RECVTTL)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    int optval = x ? 1 : 0;
+    if (setsockopt(GetSocket(), IPPROTO_IP, IP_RECVTTL, (char *)&optval, sizeof(optval)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_RECVTTL)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 }
 #endif
 
@@ -1036,13 +1036,13 @@ bool Socket::SetIpRecvTTL(bool x)
 #ifdef IP_RECVOPTS
 bool Socket::SetIpRecvopts(bool x)
 {
-	int optval = x ? 1 : 0;
-	if (setsockopt(GetSocket(), IPPROTO_IP, IP_RECVOPTS, (char *)&optval, sizeof(optval)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_RECVOPTS)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    int optval = x ? 1 : 0;
+    if (setsockopt(GetSocket(), IPPROTO_IP, IP_RECVOPTS, (char *)&optval, sizeof(optval)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_RECVOPTS)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 }
 #endif
 
@@ -1050,13 +1050,13 @@ bool Socket::SetIpRecvopts(bool x)
 #ifdef IP_RETOPTS
 bool Socket::SetIpRetopts(bool x)
 {
-	int optval = x ? 1 : 0;
-	if (setsockopt(GetSocket(), IPPROTO_IP, IP_RETOPTS, (char *)&optval, sizeof(optval)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_RETOPTS)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    int optval = x ? 1 : 0;
+    if (setsockopt(GetSocket(), IPPROTO_IP, IP_RETOPTS, (char *)&optval, sizeof(optval)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_RETOPTS)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 }
 #endif
 
@@ -1064,80 +1064,80 @@ bool Socket::SetIpRetopts(bool x)
 bool Socket::SetIpTOS(unsigned char tos)
 {
 #ifdef IP_TOS
-	if (setsockopt(GetSocket(), IPPROTO_IP, IP_TOS, (char *)&tos, sizeof(tos)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_TOS)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    if (setsockopt(GetSocket(), IPPROTO_IP, IP_TOS, (char *)&tos, sizeof(tos)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_TOS)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 #else
-	Handler().LogError(this, "ip option not available", 0, "IP_TOS", LOG_LEVEL_INFO);
-	return false;
+    Handler().LogError(this, "ip option not available", 0, "IP_TOS", LOG_LEVEL_INFO);
+    return false;
 #endif
 }
 
 
 unsigned char Socket::IpTOS()
 {
-	unsigned char tos = 0;
+    unsigned char tos = 0;
 #ifdef IP_TOS
-	socklen_t len = sizeof(tos);
-	if (getsockopt(GetSocket(), IPPROTO_IP, IP_TOS, (char *)&tos, &len) == -1)
-	{
-		Handler().LogError(this, "getsockopt(IPPROTO_IP, IP_TOS)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-	}
+    socklen_t len = sizeof(tos);
+    if (getsockopt(GetSocket(), IPPROTO_IP, IP_TOS, (char *)&tos, &len) == -1)
+    {
+        Handler().LogError(this, "getsockopt(IPPROTO_IP, IP_TOS)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+    }
 #else
-	Handler().LogError(this, "ip option not available", 0, "IP_TOS", LOG_LEVEL_INFO);
+    Handler().LogError(this, "ip option not available", 0, "IP_TOS", LOG_LEVEL_INFO);
 #endif
-	return tos;
+    return tos;
 }
 
 
 bool Socket::SetIpTTL(int ttl)
 {
 #ifdef IP_TTL
-	if (setsockopt(GetSocket(), IPPROTO_IP, IP_TTL, (char *)&ttl, sizeof(ttl)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_TTL)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    if (setsockopt(GetSocket(), IPPROTO_IP, IP_TTL, (char *)&ttl, sizeof(ttl)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_TTL)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 #else
-	Handler().LogError(this, "ip option not available", 0, "IP_TTL", LOG_LEVEL_INFO);
-	return false;
+    Handler().LogError(this, "ip option not available", 0, "IP_TTL", LOG_LEVEL_INFO);
+    return false;
 #endif
 }
 
 
 int Socket::IpTTL()
 {
-	int ttl = 0;
+    int ttl = 0;
 #ifdef IP_TTL
-	socklen_t len = sizeof(ttl);
-	if (getsockopt(GetSocket(), IPPROTO_IP, IP_TTL, (char *)&ttl, &len) == -1)
-	{
-		Handler().LogError(this, "getsockopt(IPPROTO_IP, IP_TTL)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-	}
+    socklen_t len = sizeof(ttl);
+    if (getsockopt(GetSocket(), IPPROTO_IP, IP_TTL, (char *)&ttl, &len) == -1)
+    {
+        Handler().LogError(this, "getsockopt(IPPROTO_IP, IP_TTL)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+    }
 #else
-	Handler().LogError(this, "ip option not available", 0, "IP_TTL", LOG_LEVEL_INFO);
+    Handler().LogError(this, "ip option not available", 0, "IP_TTL", LOG_LEVEL_INFO);
 #endif
-	return ttl;
+    return ttl;
 }
 
 
 bool Socket::SetIpHdrincl(bool x)
 {
 #ifdef IP_HDRINCL
-	int optval = x ? 1 : 0;
-	if (setsockopt(GetSocket(), IPPROTO_IP, IP_HDRINCL, (char *)&optval, sizeof(optval)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_HDRINCL)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    int optval = x ? 1 : 0;
+    if (setsockopt(GetSocket(), IPPROTO_IP, IP_HDRINCL, (char *)&optval, sizeof(optval)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_HDRINCL)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 #else
-	Handler().LogError(this, "ip option not available", 0, "IP_HDRINCL", LOG_LEVEL_INFO);
-	return false;
+    Handler().LogError(this, "ip option not available", 0, "IP_HDRINCL", LOG_LEVEL_INFO);
+    return false;
 #endif
 }
 
@@ -1145,13 +1145,13 @@ bool Socket::SetIpHdrincl(bool x)
 #ifdef IP_RECVERR
 bool Socket::SetIpRecverr(bool x)
 {
-	int optval = x ? 1 : 0;
-	if (setsockopt(GetSocket(), IPPROTO_IP, IP_RECVERR, (char *)&optval, sizeof(optval)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_RECVERR)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    int optval = x ? 1 : 0;
+    if (setsockopt(GetSocket(), IPPROTO_IP, IP_RECVERR, (char *)&optval, sizeof(optval)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_RECVERR)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 }
 #endif
 
@@ -1159,13 +1159,13 @@ bool Socket::SetIpRecverr(bool x)
 #ifdef IP_MTU_DISCOVER
 bool Socket::SetIpMtudiscover(bool x)
 {
-	int optval = x ? 1 : 0;
-	if (setsockopt(GetSocket(), IPPROTO_IP, IP_MTU_DISCOVER, (char *)&optval, sizeof(optval)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_MTU_DISCOVER)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    int optval = x ? 1 : 0;
+    if (setsockopt(GetSocket(), IPPROTO_IP, IP_MTU_DISCOVER, (char *)&optval, sizeof(optval)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_MTU_DISCOVER)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 }
 #endif
 
@@ -1173,13 +1173,13 @@ bool Socket::SetIpMtudiscover(bool x)
 #ifdef IP_MTU
 int Socket::IpMtu()
 {
-	int mtu = 0;
-	socklen_t len = sizeof(mtu);
-	if (getsockopt(GetSocket(), IPPROTO_IP, IP_MTU, (char *)&mtu, &len) == -1)
-	{
-		Handler().LogError(this, "getsockopt(IPPROTO_IP, IP_MTU)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-	}
-	return mtu;
+    int mtu = 0;
+    socklen_t len = sizeof(mtu);
+    if (getsockopt(GetSocket(), IPPROTO_IP, IP_MTU, (char *)&mtu, &len) == -1)
+    {
+        Handler().LogError(this, "getsockopt(IPPROTO_IP, IP_MTU)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+    }
+    return mtu;
 }
 #endif
 
@@ -1187,13 +1187,13 @@ int Socket::IpMtu()
 #ifdef IP_ROUTER_ALERT
 bool Socket::SetIpRouterAlert(bool x)
 {
-	int optval = x ? 1 : 0;
-	if (setsockopt(GetSocket(), IPPROTO_IP, IP_ROUTER_ALERT, (char *)&optval, sizeof(optval)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_ROUTER_ALERT)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    int optval = x ? 1 : 0;
+    if (setsockopt(GetSocket(), IPPROTO_IP, IP_ROUTER_ALERT, (char *)&optval, sizeof(optval)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_ROUTER_ALERT)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 }
 #endif
 
@@ -1201,48 +1201,48 @@ bool Socket::SetIpRouterAlert(bool x)
 bool Socket::SetIpMulticastTTL(int ttl)
 {
 #ifdef IP_MULTICAST_TTL
-	if (setsockopt(GetSocket(), IPPROTO_IP, IP_MULTICAST_TTL, (char *)&ttl, sizeof(ttl)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_MULTICAST_TTL)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    if (setsockopt(GetSocket(), IPPROTO_IP, IP_MULTICAST_TTL, (char *)&ttl, sizeof(ttl)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_MULTICAST_TTL)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 #else
-	Handler().LogError(this, "ip option not available", 0, "IP_MULTICAST_TTL", LOG_LEVEL_INFO);
-	return false;
+    Handler().LogError(this, "ip option not available", 0, "IP_MULTICAST_TTL", LOG_LEVEL_INFO);
+    return false;
 #endif
 }
 
 
 int Socket::IpMulticastTTL()
 {
-	int ttl = 0;
+    int ttl = 0;
 #ifdef IP_MULTICAST_TTL
-	socklen_t len = sizeof(ttl);
-	if (getsockopt(GetSocket(), IPPROTO_IP, IP_MULTICAST_TTL, (char *)&ttl, &len) == -1)
-	{
-		Handler().LogError(this, "getsockopt(IPPROTO_IP, IP_MULTICAST_TTL)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-	}
+    socklen_t len = sizeof(ttl);
+    if (getsockopt(GetSocket(), IPPROTO_IP, IP_MULTICAST_TTL, (char *)&ttl, &len) == -1)
+    {
+        Handler().LogError(this, "getsockopt(IPPROTO_IP, IP_MULTICAST_TTL)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+    }
 #else
-	Handler().LogError(this, "ip option not available", 0, "IP_MULTICAST_TTL", LOG_LEVEL_INFO);
+    Handler().LogError(this, "ip option not available", 0, "IP_MULTICAST_TTL", LOG_LEVEL_INFO);
 #endif
-	return ttl;
+    return ttl;
 }
 
 
 bool Socket::SetMulticastLoop(bool x)
 {
 #ifdef IP_MULTICAST_LOOP
-	int optval = x ? 1 : 0;
-	if (setsockopt(GetSocket(), IPPROTO_IP, IP_MULTICAST_LOOP, (char *)&optval, sizeof(optval)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_MULTICAST_LOOP)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    int optval = x ? 1 : 0;
+    if (setsockopt(GetSocket(), IPPROTO_IP, IP_MULTICAST_LOOP, (char *)&optval, sizeof(optval)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_MULTICAST_LOOP)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 #else
-	Handler().LogError(this, "ip option not available", 0, "IP_MULTICAST_LOOP", LOG_LEVEL_INFO);
-	return false;
+    Handler().LogError(this, "ip option not available", 0, "IP_MULTICAST_LOOP", LOG_LEVEL_INFO);
+    return false;
 #endif
 }
 
@@ -1251,15 +1251,15 @@ bool Socket::SetMulticastLoop(bool x)
 bool Socket::IpAddMembership(struct ip_mreqn& ref)
 {
 #ifdef IP_ADD_MEMBERSHIP
-	if (setsockopt(GetSocket(), IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&ref, sizeof(struct ip_mreqn)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_ADD_MEMBERSHIP)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    if (setsockopt(GetSocket(), IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&ref, sizeof(struct ip_mreqn)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_ADD_MEMBERSHIP)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 #else
-	Handler().LogError(this, "ip option not available", 0, "IP_ADD_MEMBERSHIP", LOG_LEVEL_INFO);
-	return false;
+    Handler().LogError(this, "ip option not available", 0, "IP_ADD_MEMBERSHIP", LOG_LEVEL_INFO);
+    return false;
 #endif
 }
 #endif
@@ -1268,15 +1268,15 @@ bool Socket::IpAddMembership(struct ip_mreqn& ref)
 bool Socket::IpAddMembership(struct ip_mreq& ref)
 {
 #ifdef IP_ADD_MEMBERSHIP
-	if (setsockopt(GetSocket(), IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&ref, sizeof(struct ip_mreq)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_ADD_MEMBERSHIP)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    if (setsockopt(GetSocket(), IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&ref, sizeof(struct ip_mreq)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_ADD_MEMBERSHIP)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 #else
-	Handler().LogError(this, "ip option not available", 0, "IP_ADD_MEMBERSHIP", LOG_LEVEL_INFO);
-	return false;
+    Handler().LogError(this, "ip option not available", 0, "IP_ADD_MEMBERSHIP", LOG_LEVEL_INFO);
+    return false;
 #endif
 }
 
@@ -1285,15 +1285,15 @@ bool Socket::IpAddMembership(struct ip_mreq& ref)
 bool Socket::IpDropMembership(struct ip_mreqn& ref)
 {
 #ifdef IP_DROP_MEMBERSHIP
-	if (setsockopt(GetSocket(), IPPROTO_IP, IP_DROP_MEMBERSHIP, (char *)&ref, sizeof(struct ip_mreqn)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_DROP_MEMBERSHIP)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    if (setsockopt(GetSocket(), IPPROTO_IP, IP_DROP_MEMBERSHIP, (char *)&ref, sizeof(struct ip_mreqn)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_DROP_MEMBERSHIP)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 #else
-	Handler().LogError(this, "ip option not available", 0, "IP_DROP_MEMBERSHIP", LOG_LEVEL_INFO);
-	return false;
+    Handler().LogError(this, "ip option not available", 0, "IP_DROP_MEMBERSHIP", LOG_LEVEL_INFO);
+    return false;
 #endif
 }
 #endif
@@ -1302,15 +1302,15 @@ bool Socket::IpDropMembership(struct ip_mreqn& ref)
 bool Socket::IpDropMembership(struct ip_mreq& ref)
 {
 #ifdef IP_DROP_MEMBERSHIP
-	if (setsockopt(GetSocket(), IPPROTO_IP, IP_DROP_MEMBERSHIP, (char *)&ref, sizeof(struct ip_mreq)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_DROP_MEMBERSHIP)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    if (setsockopt(GetSocket(), IPPROTO_IP, IP_DROP_MEMBERSHIP, (char *)&ref, sizeof(struct ip_mreq)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(IPPROTO_IP, IP_DROP_MEMBERSHIP)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 #else
-	Handler().LogError(this, "ip option not available", 0, "IP_DROP_MEMBERSHIP", LOG_LEVEL_INFO);
-	return false;
+    Handler().LogError(this, "ip option not available", 0, "IP_DROP_MEMBERSHIP", LOG_LEVEL_INFO);
+    return false;
 #endif
 }
 
@@ -1321,16 +1321,16 @@ bool Socket::IpDropMembership(struct ip_mreq& ref)
 bool Socket::SetSoReuseaddr(bool x)
 {
 #ifdef SO_REUSEADDR
-	int optval = x ? 1 : 0;
-	if (setsockopt(GetSocket(), SOL_SOCKET, SO_REUSEADDR, (char *)&optval, sizeof(optval)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_REUSEADDR)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    int optval = x ? 1 : 0;
+    if (setsockopt(GetSocket(), SOL_SOCKET, SO_REUSEADDR, (char *)&optval, sizeof(optval)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_REUSEADDR)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 #else
-	Handler().LogError(this, "socket option not available", 0, "SO_REUSEADDR", LOG_LEVEL_INFO);
-	return false;
+    Handler().LogError(this, "socket option not available", 0, "SO_REUSEADDR", LOG_LEVEL_INFO);
+    return false;
 #endif
 }
 
@@ -1338,16 +1338,16 @@ bool Socket::SetSoReuseaddr(bool x)
 bool Socket::SetSoKeepalive(bool x)
 {
 #ifdef SO_KEEPALIVE
-	int optval = x ? 1 : 0;
-	if (setsockopt(GetSocket(), SOL_SOCKET, SO_KEEPALIVE, (char *)&optval, sizeof(optval)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_KEEPALIVE)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    int optval = x ? 1 : 0;
+    if (setsockopt(GetSocket(), SOL_SOCKET, SO_KEEPALIVE, (char *)&optval, sizeof(optval)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_KEEPALIVE)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 #else
-	Handler().LogError(this, "socket option not available", 0, "SO_KEEPALIVE", LOG_LEVEL_INFO);
-	return false;
+    Handler().LogError(this, "socket option not available", 0, "SO_KEEPALIVE", LOG_LEVEL_INFO);
+    return false;
 #endif
 }
 
@@ -1355,43 +1355,43 @@ bool Socket::SetSoKeepalive(bool x)
 #ifdef SO_NOSIGPIPE
 bool Socket::SetSoNosigpipe(bool x)
 {
-	int optval = x ? 1 : 0;
-	if (setsockopt(GetSocket(), SOL_SOCKET, SO_NOSIGPIPE, (char *)&optval, sizeof(optval)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_NOSIGPIPE)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    int optval = x ? 1 : 0;
+    if (setsockopt(GetSocket(), SOL_SOCKET, SO_NOSIGPIPE, (char *)&optval, sizeof(optval)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_NOSIGPIPE)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 }
 #endif
 
 
 bool Socket::SoAcceptconn()
 {
-	int value = 0;
+    int value = 0;
 #ifdef SO_ACCEPTCONN
-	socklen_t len = sizeof(value);
-	if (getsockopt(GetSocket(), SOL_SOCKET, SO_ACCEPTCONN, (char *)&value, &len) == -1)
-	{
-		Handler().LogError(this, "getsockopt(SOL_SOCKET, SO_ACCEPTCONN)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-	}
+    socklen_t len = sizeof(value);
+    if (getsockopt(GetSocket(), SOL_SOCKET, SO_ACCEPTCONN, (char *)&value, &len) == -1)
+    {
+        Handler().LogError(this, "getsockopt(SOL_SOCKET, SO_ACCEPTCONN)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+    }
 #else
-	Handler().LogError(this, "socket option not available", 0, "SO_ACCEPTCONN", LOG_LEVEL_INFO);
+    Handler().LogError(this, "socket option not available", 0, "SO_ACCEPTCONN", LOG_LEVEL_INFO);
 #endif
-	return value ? true : false;
+    return value ? true : false;
 }
 
 
 #ifdef SO_BSDCOMPAT
 bool Socket::SetSoBsdcompat(bool x)
 {
-	int optval = x ? 1 : 0;
-	if (setsockopt(GetSocket(), SOL_SOCKET, SO_BSDCOMPAT, (char *)&optval, sizeof(optval)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_BSDCOMPAT)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    int optval = x ? 1 : 0;
+    if (setsockopt(GetSocket(), SOL_SOCKET, SO_BSDCOMPAT, (char *)&optval, sizeof(optval)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_BSDCOMPAT)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 }
 #endif
 
@@ -1399,12 +1399,12 @@ bool Socket::SetSoBsdcompat(bool x)
 #ifdef SO_BINDTODEVICE
 bool Socket::SetSoBindtodevice(const std::string& intf)
 {
-	if (setsockopt(GetSocket(), SOL_SOCKET, SO_BINDTODEVICE, (char *)intf.c_str(), intf.size()) == -1)
-	{
-		Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_BINDTODEVICE)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    if (setsockopt(GetSocket(), SOL_SOCKET, SO_BINDTODEVICE, (char *)intf.c_str(), intf.size()) == -1)
+    {
+        Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_BINDTODEVICE)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 }
 #endif
 
@@ -1412,16 +1412,16 @@ bool Socket::SetSoBindtodevice(const std::string& intf)
 bool Socket::SetSoBroadcast(bool x)
 {
 #ifdef SO_BROADCAST
-	int optval = x ? 1 : 0;
-	if (setsockopt(GetSocket(), SOL_SOCKET, SO_BROADCAST, (char *)&optval, sizeof(optval)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_BROADCAST)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    int optval = x ? 1 : 0;
+    if (setsockopt(GetSocket(), SOL_SOCKET, SO_BROADCAST, (char *)&optval, sizeof(optval)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_BROADCAST)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 #else
-	Handler().LogError(this, "socket option not available", 0, "SO_BROADCAST", LOG_LEVEL_INFO);
-	return false;
+    Handler().LogError(this, "socket option not available", 0, "SO_BROADCAST", LOG_LEVEL_INFO);
+    return false;
 #endif
 }
 
@@ -1429,49 +1429,49 @@ bool Socket::SetSoBroadcast(bool x)
 bool Socket::SetSoDebug(bool x)
 {
 #ifdef SO_DEBUG
-	int optval = x ? 1 : 0;
-	if (setsockopt(GetSocket(), SOL_SOCKET, SO_DEBUG, (char *)&optval, sizeof(optval)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_DEBUG)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    int optval = x ? 1 : 0;
+    if (setsockopt(GetSocket(), SOL_SOCKET, SO_DEBUG, (char *)&optval, sizeof(optval)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_DEBUG)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 #else
-	Handler().LogError(this, "socket option not available", 0, "SO_DEBUG", LOG_LEVEL_INFO);
-	return false;
+    Handler().LogError(this, "socket option not available", 0, "SO_DEBUG", LOG_LEVEL_INFO);
+    return false;
 #endif
 }
 
 
 int Socket::SoError()
 {
-	int value = 0;
+    int value = 0;
 #ifdef SO_ERROR
-	socklen_t len = sizeof(value);
-	if (getsockopt(GetSocket(), SOL_SOCKET, SO_ERROR, (char *)&value, &len) == -1)
-	{
-		Handler().LogError(this, "getsockopt(SOL_SOCKET, SO_ERROR)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-	}
+    socklen_t len = sizeof(value);
+    if (getsockopt(GetSocket(), SOL_SOCKET, SO_ERROR, (char *)&value, &len) == -1)
+    {
+        Handler().LogError(this, "getsockopt(SOL_SOCKET, SO_ERROR)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+    }
 #else
-	Handler().LogError(this, "socket option not available", 0, "SO_ERROR", LOG_LEVEL_INFO);
+    Handler().LogError(this, "socket option not available", 0, "SO_ERROR", LOG_LEVEL_INFO);
 #endif
-	return value;
+    return value;
 }
 
 
 bool Socket::SetSoDontroute(bool x)
 {
 #ifdef SO_DONTROUTE
-	int optval = x ? 1 : 0;
-	if (setsockopt(GetSocket(), SOL_SOCKET, SO_DONTROUTE, (char *)&optval, sizeof(optval)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_DONTROUTE)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    int optval = x ? 1 : 0;
+    if (setsockopt(GetSocket(), SOL_SOCKET, SO_DONTROUTE, (char *)&optval, sizeof(optval)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_DONTROUTE)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 #else
-	Handler().LogError(this, "socket option not available", 0, "SO_DONTROUTE", LOG_LEVEL_INFO);
-	return false;
+    Handler().LogError(this, "socket option not available", 0, "SO_DONTROUTE", LOG_LEVEL_INFO);
+    return false;
 #endif
 }
 
@@ -1479,18 +1479,18 @@ bool Socket::SetSoDontroute(bool x)
 bool Socket::SetSoLinger(int onoff, int linger)
 {
 #ifdef SO_LINGER
-	struct linger stl;
-	stl.l_onoff = onoff;
-	stl.l_linger = linger;
-	if (setsockopt(GetSocket(), SOL_SOCKET, SO_LINGER, (char *)&stl, sizeof(stl)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_LINGER)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    struct linger stl;
+    stl.l_onoff = onoff;
+    stl.l_linger = linger;
+    if (setsockopt(GetSocket(), SOL_SOCKET, SO_LINGER, (char *)&stl, sizeof(stl)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_LINGER)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 #else
-	Handler().LogError(this, "socket option not available", 0, "SO_LINGER", LOG_LEVEL_INFO);
-	return false;
+    Handler().LogError(this, "socket option not available", 0, "SO_LINGER", LOG_LEVEL_INFO);
+    return false;
 #endif
 }
 
@@ -1498,16 +1498,16 @@ bool Socket::SetSoLinger(int onoff, int linger)
 bool Socket::SetSoOobinline(bool x)
 {
 #ifdef SO_OOBINLINE
-	int optval = x ? 1 : 0;
-	if (setsockopt(GetSocket(), SOL_SOCKET, SO_OOBINLINE, (char *)&optval, sizeof(optval)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_OOBINLINE)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    int optval = x ? 1 : 0;
+    if (setsockopt(GetSocket(), SOL_SOCKET, SO_OOBINLINE, (char *)&optval, sizeof(optval)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_OOBINLINE)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 #else
-	Handler().LogError(this, "socket option not available", 0, "SO_OOBINLINE", LOG_LEVEL_INFO);
-	return false;
+    Handler().LogError(this, "socket option not available", 0, "SO_OOBINLINE", LOG_LEVEL_INFO);
+    return false;
 #endif
 }
 
@@ -1515,13 +1515,13 @@ bool Socket::SetSoOobinline(bool x)
 #ifdef SO_PASSCRED
 bool Socket::SetSoPasscred(bool x)
 {
-	int optval = x ? 1 : 0;
-	if (setsockopt(GetSocket(), SOL_SOCKET, SO_PASSCRED, (char *)&optval, sizeof(optval)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_PASSCRED)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    int optval = x ? 1 : 0;
+    if (setsockopt(GetSocket(), SOL_SOCKET, SO_PASSCRED, (char *)&optval, sizeof(optval)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_PASSCRED)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 }
 #endif
 
@@ -1529,12 +1529,12 @@ bool Socket::SetSoPasscred(bool x)
 #ifdef SO_PEERCRED
 bool Socket::SoPeercred(struct ucred& ucr)
 {
-	if (setsockopt(GetSocket(), SOL_SOCKET, SO_PEERCRED, (char *)&ucr, sizeof(ucr)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_PEERCRED)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    if (setsockopt(GetSocket(), SOL_SOCKET, SO_PEERCRED, (char *)&ucr, sizeof(ucr)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_PEERCRED)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 }
 #endif
 
@@ -1542,12 +1542,12 @@ bool Socket::SoPeercred(struct ucred& ucr)
 #ifdef SO_PRIORITY
 bool Socket::SetSoPriority(int x)
 {
-	if (setsockopt(GetSocket(), SOL_SOCKET, SO_PRIORITY, (char *)&x, sizeof(x)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_PRIORITY)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    if (setsockopt(GetSocket(), SOL_SOCKET, SO_PRIORITY, (char *)&x, sizeof(x)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_PRIORITY)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 }
 #endif
 
@@ -1555,15 +1555,15 @@ bool Socket::SetSoPriority(int x)
 bool Socket::SetSoRcvlowat(int x)
 {
 #ifdef SO_RCVLOWAT
-	if (setsockopt(GetSocket(), SOL_SOCKET, SO_RCVLOWAT, (char *)&x, sizeof(x)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_RCVLOWAT)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    if (setsockopt(GetSocket(), SOL_SOCKET, SO_RCVLOWAT, (char *)&x, sizeof(x)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_RCVLOWAT)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 #else
-	Handler().LogError(this, "socket option not available", 0, "SO_RCVLOWAT", LOG_LEVEL_INFO);
-	return false;
+    Handler().LogError(this, "socket option not available", 0, "SO_RCVLOWAT", LOG_LEVEL_INFO);
+    return false;
 #endif
 }
 
@@ -1571,15 +1571,15 @@ bool Socket::SetSoRcvlowat(int x)
 bool Socket::SetSoSndlowat(int x)
 {
 #ifdef SO_SNDLOWAT
-	if (setsockopt(GetSocket(), SOL_SOCKET, SO_SNDLOWAT, (char *)&x, sizeof(x)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_SNDLOWAT)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    if (setsockopt(GetSocket(), SOL_SOCKET, SO_SNDLOWAT, (char *)&x, sizeof(x)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_SNDLOWAT)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 #else
-	Handler().LogError(this, "socket option not available", 0, "SO_SNDLOWAT", LOG_LEVEL_INFO);
-	return false;
+    Handler().LogError(this, "socket option not available", 0, "SO_SNDLOWAT", LOG_LEVEL_INFO);
+    return false;
 #endif
 }
 
@@ -1587,15 +1587,15 @@ bool Socket::SetSoSndlowat(int x)
 bool Socket::SetSoRcvtimeo(struct timeval& tv)
 {
 #ifdef SO_RCVTIMEO
-	if (setsockopt(GetSocket(), SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(tv)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_RCVTIMEO)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    if (setsockopt(GetSocket(), SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(tv)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_RCVTIMEO)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 #else
-	Handler().LogError(this, "socket option not available", 0, "SO_RCVTIMEO", LOG_LEVEL_INFO);
-	return false;
+    Handler().LogError(this, "socket option not available", 0, "SO_RCVTIMEO", LOG_LEVEL_INFO);
+    return false;
 #endif
 }
 
@@ -1603,15 +1603,15 @@ bool Socket::SetSoRcvtimeo(struct timeval& tv)
 bool Socket::SetSoSndtimeo(struct timeval& tv)
 {
 #ifdef SO_SNDTIMEO
-	if (setsockopt(GetSocket(), SOL_SOCKET, SO_SNDTIMEO, (char *)&tv, sizeof(tv)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_SNDTIMEO)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    if (setsockopt(GetSocket(), SOL_SOCKET, SO_SNDTIMEO, (char *)&tv, sizeof(tv)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_SNDTIMEO)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 #else
-	Handler().LogError(this, "socket option not available", 0, "SO_SNDTIMEO", LOG_LEVEL_INFO);
-	return false;
+    Handler().LogError(this, "socket option not available", 0, "SO_SNDTIMEO", LOG_LEVEL_INFO);
+    return false;
 #endif
 }
 
@@ -1619,44 +1619,44 @@ bool Socket::SetSoSndtimeo(struct timeval& tv)
 bool Socket::SetSoRcvbuf(int x)
 {
 #ifdef SO_RCVBUF
-	if (setsockopt(GetSocket(), SOL_SOCKET, SO_RCVBUF, (char *)&x, sizeof(x)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_RCVBUF)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    if (setsockopt(GetSocket(), SOL_SOCKET, SO_RCVBUF, (char *)&x, sizeof(x)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_RCVBUF)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 #else
-	Handler().LogError(this, "socket option not available", 0, "SO_RCVBUF", LOG_LEVEL_INFO);
-	return false;
+    Handler().LogError(this, "socket option not available", 0, "SO_RCVBUF", LOG_LEVEL_INFO);
+    return false;
 #endif
 }
 
 
 int Socket::SoRcvbuf()
 {
-	int value = 0;
+    int value = 0;
 #ifdef SO_RCVBUF
-	socklen_t len = sizeof(value);
-	if (getsockopt(GetSocket(), SOL_SOCKET, SO_RCVBUF, (char *)&value, &len) == -1)
-	{
-		Handler().LogError(this, "getsockopt(SOL_SOCKET, SO_RCVBUF)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-	}
+    socklen_t len = sizeof(value);
+    if (getsockopt(GetSocket(), SOL_SOCKET, SO_RCVBUF, (char *)&value, &len) == -1)
+    {
+        Handler().LogError(this, "getsockopt(SOL_SOCKET, SO_RCVBUF)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+    }
 #else
-	Handler().LogError(this, "socket option not available", 0, "SO_RCVBUF", LOG_LEVEL_INFO);
+    Handler().LogError(this, "socket option not available", 0, "SO_RCVBUF", LOG_LEVEL_INFO);
 #endif
-	return value;
+    return value;
 }
 
 
 #ifdef SO_RCVBUFFORCE
 bool Socket::SetSoRcvbufforce(int x)
 {
-	if (setsockopt(GetSocket(), SOL_SOCKET, SO_RCVBUFFORCE, (char *)&x, sizeof(x)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_RCVBUFFORCE)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    if (setsockopt(GetSocket(), SOL_SOCKET, SO_RCVBUFFORCE, (char *)&x, sizeof(x)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_RCVBUFFORCE)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 }
 #endif
 
@@ -1664,44 +1664,44 @@ bool Socket::SetSoRcvbufforce(int x)
 bool Socket::SetSoSndbuf(int x)
 {
 #ifdef SO_SNDBUF
-	if (setsockopt(GetSocket(), SOL_SOCKET, SO_SNDBUF, (char *)&x, sizeof(x)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_SNDBUF)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    if (setsockopt(GetSocket(), SOL_SOCKET, SO_SNDBUF, (char *)&x, sizeof(x)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_SNDBUF)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 #else
-	Handler().LogError(this, "socket option not available", 0, "SO_SNDBUF", LOG_LEVEL_INFO);
-	return false;
+    Handler().LogError(this, "socket option not available", 0, "SO_SNDBUF", LOG_LEVEL_INFO);
+    return false;
 #endif
 }
 
 
 int Socket::SoSndbuf()
 {
-	int value = 0;
+    int value = 0;
 #ifdef SO_SNDBUF
-	socklen_t len = sizeof(value);
-	if (getsockopt(GetSocket(), SOL_SOCKET, SO_SNDBUF, (char *)&value, &len) == -1)
-	{
-		Handler().LogError(this, "getsockopt(SOL_SOCKET, SO_SNDBUF)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-	}
+    socklen_t len = sizeof(value);
+    if (getsockopt(GetSocket(), SOL_SOCKET, SO_SNDBUF, (char *)&value, &len) == -1)
+    {
+        Handler().LogError(this, "getsockopt(SOL_SOCKET, SO_SNDBUF)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+    }
 #else
-	Handler().LogError(this, "socket option not available", 0, "SO_SNDBUF", LOG_LEVEL_INFO);
+    Handler().LogError(this, "socket option not available", 0, "SO_SNDBUF", LOG_LEVEL_INFO);
 #endif
-	return value;
+    return value;
 }
 
 
 #ifdef SO_SNDBUFFORCE
 bool Socket::SetSoSndbufforce(int x)
 {
-	if (setsockopt(GetSocket(), SOL_SOCKET, SO_SNDBUFFORCE, (char *)&x, sizeof(x)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_SNDBUFFORCE)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    if (setsockopt(GetSocket(), SOL_SOCKET, SO_SNDBUFFORCE, (char *)&x, sizeof(x)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_SNDBUFFORCE)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 }
 #endif
 
@@ -1709,43 +1709,43 @@ bool Socket::SetSoSndbufforce(int x)
 #ifdef SO_TIMESTAMP
 bool Socket::SetSoTimestamp(bool x)
 {
-	int optval = x ? 1 : 0;
-	if (setsockopt(GetSocket(), SOL_SOCKET, SO_TIMESTAMP, (char *)&optval, sizeof(optval)) == -1)
-	{
-		Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_TIMESTAMP)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-		return false;
-	}
-	return true;
+    int optval = x ? 1 : 0;
+    if (setsockopt(GetSocket(), SOL_SOCKET, SO_TIMESTAMP, (char *)&optval, sizeof(optval)) == -1)
+    {
+        Handler().LogError(this, "setsockopt(SOL_SOCKET, SO_TIMESTAMP)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+        return false;
+    }
+    return true;
 }
 #endif
 
 
 int Socket::SoType()
 {
-	int value = 0;
+    int value = 0;
 #ifdef SO_TYPE
-	socklen_t len = sizeof(value);
-	if (getsockopt(GetSocket(), SOL_SOCKET, SO_TYPE, (char *)&value, &len) == -1)
-	{
-		Handler().LogError(this, "getsockopt(SOL_SOCKET, SO_TYPE)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
-	}
+    socklen_t len = sizeof(value);
+    if (getsockopt(GetSocket(), SOL_SOCKET, SO_TYPE, (char *)&value, &len) == -1)
+    {
+        Handler().LogError(this, "getsockopt(SOL_SOCKET, SO_TYPE)", Errno, StrError(Errno), LOG_LEVEL_FATAL);
+    }
 #else
-	Handler().LogError(this, "socket option not available", 0, "SO_TYPE", LOG_LEVEL_INFO);
+    Handler().LogError(this, "socket option not available", 0, "SO_TYPE", LOG_LEVEL_INFO);
 #endif
-	return value;
+    return value;
 }
 
 
 #ifdef ENABLE_TRIGGERS
 void Socket::Subscribe(int id)
 {
-	Handler().Subscribe(id, this);
+    Handler().Subscribe(id, this);
 }
 
 
 void Socket::Unsubscribe(int id)
 {
-	Handler().Unsubscribe(id, this);
+    Handler().Unsubscribe(id, this);
 }
 
 
@@ -1762,14 +1762,14 @@ void Socket::OnCancelled(int)
 
 void Socket::SetTimeout(time_t secs)
 {
-	if (!secs)
-	{
-		Handler().AddList(m_socket, LIST_TIMEOUT, false);
-		return;
-	}
-	Handler().AddList(m_socket, LIST_TIMEOUT, true);
-	m_timeout_start = time(NULL);
-	m_timeout_limit = secs;
+    if (!secs)
+    {
+        Handler().AddList(m_socket, LIST_TIMEOUT, false);
+        return;
+    }
+    Handler().AddList(m_socket, LIST_TIMEOUT, true);
+    m_timeout_start = time(NULL);
+    m_timeout_limit = secs;
 }
 
 
@@ -1785,9 +1785,9 @@ void Socket::OnConnectTimeout()
 
 bool Socket::Timeout(time_t tnow)
 {
-	if (tnow - m_timeout_start > m_timeout_limit)
-		return true;
-	return false;
+    if (tnow - m_timeout_start > m_timeout_limit)
+        return true;
+    return false;
 }
 
 
@@ -1796,21 +1796,21 @@ port_t Socket::GetSockPort()
 {
 #ifdef ENABLE_IPV6
 #ifdef IPPROTO_IPV6
-	if (IsIpv6())
-	{
-		struct sockaddr_in6 sa;
-		socklen_t sockaddr_length = sizeof(struct sockaddr_in6);
-		if (getsockname(GetSocket(), (struct sockaddr *)&sa, (socklen_t*)&sockaddr_length) == -1)
-			memset(&sa, 0, sizeof(sa));
-		return ntohs(sa.sin6_port);
-	}
+    if (IsIpv6())
+    {
+        struct sockaddr_in6 sa;
+        socklen_t sockaddr_length = sizeof(struct sockaddr_in6);
+        if (getsockname(GetSocket(), (struct sockaddr *)&sa, (socklen_t*)&sockaddr_length) == -1)
+            memset(&sa, 0, sizeof(sa));
+        return ntohs(sa.sin6_port);
+    }
 #endif
 #endif
-	struct sockaddr_in sa;
-	socklen_t sockaddr_length = sizeof(struct sockaddr_in);
-	if (getsockname(GetSocket(), (struct sockaddr *)&sa, (socklen_t*)&sockaddr_length) == -1)
-		memset(&sa, 0, sizeof(sa));
-	return ntohs(sa.sin_port);
+    struct sockaddr_in sa;
+    socklen_t sockaddr_length = sizeof(struct sockaddr_in);
+    if (getsockname(GetSocket(), (struct sockaddr *)&sa, (socklen_t*)&sockaddr_length) == -1)
+        memset(&sa, 0, sizeof(sa));
+    return ntohs(sa.sin_port);
 }
 
 
@@ -1819,19 +1819,19 @@ ipaddr_t Socket::GetSockIP4()
 {
 #ifdef ENABLE_IPV6
 #ifdef IPPROTO_IPV6
-	if (IsIpv6())
-	{
-		return 0;
-	}
+    if (IsIpv6())
+    {
+        return 0;
+    }
 #endif
 #endif
-	struct sockaddr_in sa;
-	socklen_t sockaddr_length = sizeof(struct sockaddr_in);
-	if (getsockname(GetSocket(), (struct sockaddr *)&sa, (socklen_t*)&sockaddr_length) == -1)
-		memset(&sa, 0, sizeof(sa));
-	ipaddr_t a;
-	memcpy(&a, &sa.sin_addr, 4);
-	return a;
+    struct sockaddr_in sa;
+    socklen_t sockaddr_length = sizeof(struct sockaddr_in);
+    if (getsockname(GetSocket(), (struct sockaddr *)&sa, (socklen_t*)&sockaddr_length) == -1)
+        memset(&sa, 0, sizeof(sa));
+    ipaddr_t a;
+    memcpy(&a, &sa.sin_addr, 4);
+    return a;
 }
 
 
@@ -1840,18 +1840,18 @@ std::string Socket::GetSockAddress()
 {
 #ifdef ENABLE_IPV6
 #ifdef IPPROTO_IPV6
-	if (IsIpv6())
-	{
-		return "";
-	}
+    if (IsIpv6())
+    {
+        return "";
+    }
 #endif
 #endif
-	struct sockaddr_in sa;
-	socklen_t sockaddr_length = sizeof(struct sockaddr_in);
-	if (getsockname(GetSocket(), (struct sockaddr *)&sa, (socklen_t*)&sockaddr_length) == -1)
-		memset(&sa, 0, sizeof(sa));
-	Ipv4Address addr( sa );
-	return addr.Convert();
+    struct sockaddr_in sa;
+    socklen_t sockaddr_length = sizeof(struct sockaddr_in);
+    if (getsockname(GetSocket(), (struct sockaddr *)&sa, (socklen_t*)&sockaddr_length) == -1)
+        memset(&sa, 0, sizeof(sa));
+    Ipv4Address addr( sa );
+    return addr.Convert();
 }
 
 
@@ -1860,33 +1860,33 @@ std::string Socket::GetSockAddress()
 /** Returns local ipv6 address for bound socket file descriptor. */
 struct in6_addr Socket::GetSockIP6()
 {
-	if (IsIpv6())
-	{
-		struct sockaddr_in6 sa;
-		socklen_t sockaddr_length = sizeof(struct sockaddr_in6);
-		if (getsockname(GetSocket(), (struct sockaddr *)&sa, (socklen_t*)&sockaddr_length) == -1)
-			memset(&sa, 0, sizeof(sa));
-		return sa.sin6_addr;
-	}
-	struct in6_addr a;
-	memset(&a, 0, sizeof(a));
-	return a;
+    if (IsIpv6())
+    {
+        struct sockaddr_in6 sa;
+        socklen_t sockaddr_length = sizeof(struct sockaddr_in6);
+        if (getsockname(GetSocket(), (struct sockaddr *)&sa, (socklen_t*)&sockaddr_length) == -1)
+            memset(&sa, 0, sizeof(sa));
+        return sa.sin6_addr;
+    }
+    struct in6_addr a;
+    memset(&a, 0, sizeof(a));
+    return a;
 }
 
 
 /** Returns local ipv6 address as text for bound socket file descriptor. */
 std::string Socket::GetSockAddress6()
 {
-	if (IsIpv6())
-	{
-		struct sockaddr_in6 sa;
-		socklen_t sockaddr_length = sizeof(struct sockaddr_in6);
-		if (getsockname(GetSocket(), (struct sockaddr *)&sa, (socklen_t*)&sockaddr_length) == -1)
-			memset(&sa, 0, sizeof(sa));
-		Ipv6Address addr( sa );
-		return addr.Convert();
-	}
-	return "";
+    if (IsIpv6())
+    {
+        struct sockaddr_in6 sa;
+        socklen_t sockaddr_length = sizeof(struct sockaddr_in6);
+        if (getsockname(GetSocket(), (struct sockaddr *)&sa, (socklen_t*)&sockaddr_length) == -1)
+            memset(&sa, 0, sizeof(sa));
+        Ipv6Address addr( sa );
+        return addr.Convert();
+    }
+    return "";
 }
 #endif
 #endif

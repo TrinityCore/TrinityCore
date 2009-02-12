@@ -45,8 +45,8 @@ struct Wave
 };
 
 static Wave AllianceWaves[]=                                // Waves that will be summoned in the Alliance Base
-{	// Rage Winterchill Wave 1-8
-	{GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, 0, 0, 0, 0, 0, 0, 0, 0, 120000, false},
+{   // Rage Winterchill Wave 1-8
+    {GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, 0, 0, 0, 0, 0, 0, 0, 0, 120000, false},
     {GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, CRYPT_FIEND, CRYPT_FIEND, 0, 0, 0, 0, 0, 0, 120000, false},
     {GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, CRYPT_FIEND, CRYPT_FIEND, CRYPT_FIEND, CRYPT_FIEND, CRYPT_FIEND, CRYPT_FIEND, 0, 0, 0, 0, 0, 0, 120000, false},
     {GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, CRYPT_FIEND, CRYPT_FIEND, CRYPT_FIEND, CRYPT_FIEND, NECROMANCER, NECROMANCER, 0, 0, 0, 0, 0, 0, 120000, false},
@@ -55,8 +55,8 @@ static Wave AllianceWaves[]=                                // Waves that will b
     {GHOUL, GHOUL, GHOUL, GHOUL, NECROMANCER, NECROMANCER, NECROMANCER, NECROMANCER, ABOMINATION, ABOMINATION, ABOMINATION, ABOMINATION, 0, 0, 0, 0, 0, 0, 120000, false},
     {GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, CRYPT_FIEND, CRYPT_FIEND, CRYPT_FIEND, CRYPT_FIEND, ABOMINATION, ABOMINATION, NECROMANCER, NECROMANCER, 0, 0, 0, 0, 180000, false},
     // All 8 Waves are summoned, summon Rage Winterchill, next few waves are for Anetheron
-	{RAGE_WINTERCHILL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, true},
-	// Anetheron Wave 1-8
+    {RAGE_WINTERCHILL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, true},
+    // Anetheron Wave 1-8
     {GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, 0, 0, 0, 0, 0, 0, 0, 0, 120000, false},
     {GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, ABOMINATION, ABOMINATION, ABOMINATION, ABOMINATION, 0, 0, 0, 0, 0, 0, 120000, false},
     {GHOUL, GHOUL, GHOUL, GHOUL, CRYPT_FIEND, CRYPT_FIEND, CRYPT_FIEND, CRYPT_FIEND, NECROMANCER, NECROMANCER, NECROMANCER, NECROMANCER, 0, 0, 0, 0, 0, 0, 120000, false},
@@ -66,11 +66,11 @@ static Wave AllianceWaves[]=                                // Waves that will b
     {CRYPT_FIEND, CRYPT_FIEND, CRYPT_FIEND, CRYPT_FIEND, BANSHEE, BANSHEE, BANSHEE, BANSHEE, ABOMINATION, ABOMINATION, ABOMINATION, ABOMINATION, 0, 0, 0, 0, 0, 0, 120000, false},
     {GHOUL, GHOUL, GHOUL, ABOMINATION, ABOMINATION, ABOMINATION, ABOMINATION, CRYPT_FIEND, CRYPT_FIEND, CRYPT_FIEND, BANSHEE, BANSHEE, NECROMANCER, NECROMANCER, 0, 0, 0, 0, 180000, false},
     // All 8 Waves are summoned, summon Anatheron
-	{ANETHERON, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, true}
+    {ANETHERON, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, true}
 };
 
 static Wave HordeWaves[]=                                   // Waves that are summoned in the Horde base
-{	// Kaz'Rogal Wave 1-8
+{   // Kaz'Rogal Wave 1-8
     {GHOUL, GHOUL, GHOUL, GHOUL, ABOMINATION, ABOMINATION, ABOMINATION, ABOMINATION, BANSHEE, BANSHEE, NECROMANCER, NECROMANCER, 0, 0, 0, 0, 0, 0, 120000, false},
     {GHOUL, GHOUL, GHOUL, GHOUL, GARGOYLE, GARGOYLE, GARGOYLE, GARGOYLE, GARGOYLE, GARGOYLE, GARGOYLE, GARGOYLE, GARGOYLE, GARGOYLE, 0, 0, 0, 0, 120000, false},
     {GHOUL, GHOUL, GHOUL, GHOUL, CRYPT_FIEND, CRYPT_FIEND, CRYPT_FIEND, CRYPT_FIEND, CRYPT_FIEND, CRYPT_FIEND, NECROMANCER, NECROMANCER, NECROMANCER, NECROMANCER, 0, 0, 0, 0, 120000, false},
@@ -80,8 +80,8 @@ static Wave HordeWaves[]=                                   // Waves that are su
     {GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, ABOMINATION, ABOMINATION, ABOMINATION, ABOMINATION, ABOMINATION, ABOMINATION, NECROMANCER, NECROMANCER, NECROMANCER, FROST_WYRM, 0, 0, 120000, false},
     {GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, CRYPT_FIEND, CRYPT_FIEND, ABOMINATION, ABOMINATION, ABOMINATION, ABOMINATION, ABOMINATION, ABOMINATION, NECROMANCER, NECROMANCER, BANSHEE, BANSHEE, 180000, false},
     // All 8 Waves are summoned, summon Kaz'Rogal, next few waves are for Azgalor
-	{KAZROGAL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, true},
-	// Azgalor Wave 1-8
+    {KAZROGAL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, true},
+    // Azgalor Wave 1-8
     {ABOMINATION, ABOMINATION, ABOMINATION, ABOMINATION, ABOMINATION, ABOMINATION, NECROMANCER, NECROMANCER, NECROMANCER, NECROMANCER, NECROMANCER, NECROMANCER, 0, 0, 0, 0, 0, 0, 120000, false},
     {GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, FROST_WYRM, GARGOYLE, GARGOYLE, GARGOYLE, GARGOYLE, GARGOYLE, GARGOYLE, GARGOYLE, GARGOYLE, 0, 0, 0, 0, 120000, false},
     {GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GHOUL, GIANT_INFERNAL, GIANT_INFERNAL, GIANT_INFERNAL, GIANT_INFERNAL, GIANT_INFERNAL, GIANT_INFERNAL, GIANT_INFERNAL, GIANT_INFERNAL, 0, 0, 0, 0, 120000, false},
@@ -90,7 +90,7 @@ static Wave HordeWaves[]=                                   // Waves that are su
     {NECROMANCER, NECROMANCER, NECROMANCER, NECROMANCER, NECROMANCER, NECROMANCER, NECROMANCER, NECROMANCER, BANSHEE, BANSHEE, BANSHEE, BANSHEE, BANSHEE, BANSHEE, 0, 0, 0, 0, 120000, false},
     {GHOUL, GHOUL, CRYPT_FIEND, CRYPT_FIEND, FEL_STALKER, FEL_STALKER, GIANT_INFERNAL, GIANT_INFERNAL, GIANT_INFERNAL, GIANT_INFERNAL, GIANT_INFERNAL, GIANT_INFERNAL, 0, 0, 0, 0, 0, 0, 120000, false},
     {CRYPT_FIEND, CRYPT_FIEND, CRYPT_FIEND, CRYPT_FIEND, FEL_STALKER, FEL_STALKER, ABOMINATION, ABOMINATION, ABOMINATION, ABOMINATION, BANSHEE, BANSHEE, BANSHEE, BANSHEE, NECROMANCER, NECROMANCER, 0, 0, 180000, false},
-	// All 8 Waves are summoned, summon Azgalor
+    // All 8 Waves are summoned, summon Azgalor
     {AZGALOR, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, true}
 };
 
@@ -104,7 +104,7 @@ enum TargetType                                             // Used in the spell
 struct Yells
 {
     uint32 id;                                              // Used to determine the type of yell (attack, rally, etc)
-	int32 textid;                                           // The text id to be yelled
+    int32 textid;                                           // The text id to be yelled
 };
 
 enum YellId
@@ -120,28 +120,28 @@ enum YellId
 
 static Yells JainaQuotes[]=
 {
-	{ATTACKED, -1534000},
-	{ATTACKED, -1534001},
-	{INCOMING, -1534002},
-	{BEGIN, -1534003},
-	{RALLY, -1534004},
-	{RALLY, -1534005},
-	{FAILURE, -1534006},
-	{SUCCESS, -1534007},
-	{DEATH, -1534008},
+    {ATTACKED, -1534000},
+    {ATTACKED, -1534001},
+    {INCOMING, -1534002},
+    {BEGIN, -1534003},
+    {RALLY, -1534004},
+    {RALLY, -1534005},
+    {FAILURE, -1534006},
+    {SUCCESS, -1534007},
+    {DEATH, -1534008},
 };
 
 static Yells ThrallQuotes[]=
 {
-	{ATTACKED, -1534009},
-	{ATTACKED, -1534010},
-	{INCOMING, -1534011},
-	{BEGIN, -1534012},
-	{RALLY, -1534013},
-	{RALLY, -1534014},
-	{FAILURE, -1534015},
-	{SUCCESS, -1534016},
-	{DEATH, -1534017},
+    {ATTACKED, -1534009},
+    {ATTACKED, -1534010},
+    {INCOMING, -1534011},
+    {BEGIN, -1534012},
+    {RALLY, -1534013},
+    {RALLY, -1534014},
+    {FAILURE, -1534015},
+    {SUCCESS, -1534016},
+    {DEATH, -1534017},
 };
 
 struct TRINITY_DLL_DECL hyjalAI : public ScriptedAI

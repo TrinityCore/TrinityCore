@@ -41,10 +41,10 @@ namespace ZThread {
    * A BoundedQueue provides serialized access to a set of values. It differs from other
    * Queues by adding a maximum capacity, giving it the following properties:
    *
-   * - Threads calling the empty() methods will be blocked until the BoundedQueue becomes empty. 
+   * - Threads calling the empty() methods will be blocked until the BoundedQueue becomes empty.
    * - Threads calling the next() methods will be blocked until the BoundedQueue has a value to
-   *   return. 
-   * - Threads calling the add() methods will be blocked until the number of values in the 
+   *   return.
+   * - Threads calling the add() methods will be blocked until the number of values in the
    *   Queue drops below the maximum capacity.
    *
    * @see Queue
@@ -76,36 +76,36 @@ namespace ZThread {
       public:
 
       /**
-       * Create a BoundedQueue with the given capacity. 
-       * 
+       * Create a BoundedQueue with the given capacity.
+       *
        * @param capacity maximum number of values to allow in the Queue at
        *        at any time
        */
       BoundedQueue(size_t capacity)
-        : _notFull(_lock), _notEmpty(_lock), _isEmpty(_lock), 
+        : _notFull(_lock), _notEmpty(_lock), _isEmpty(_lock),
           _capacity(capacity), _canceled(false) {}
-  
+
       //! Destroy this Queue
       virtual ~BoundedQueue() { }
-    
+
       /**
-       * Get the maximum capacity of this Queue. 
+       * Get the maximum capacity of this Queue.
        *
        * @return <i>size_t</i> maximum capacity
        */
-      size_t capacity() { 
-        return _capacity; 
+      size_t capacity() {
+        return _capacity;
       }
 
       /**
-       * Add a value to this Queue. 
+       * Add a value to this Queue.
        *
-       * If the number of values in the queue matches the value returned by <i>capacity</i>() 
-       * then the calling thread will be blocked until at least one value is removed from 
+       * If the number of values in the queue matches the value returned by <i>capacity</i>()
+       * then the calling thread will be blocked until at least one value is removed from
        * the Queue.
        *
        * @param item value to be added to the Queue
-       * 
+       *
        * @exception Cancellation_Exception thrown if this Queue has been canceled.
        * @exception Interrupted_Exception thrown if the thread was interrupted while waiting
        *            to add a value
@@ -116,35 +116,35 @@ namespace ZThread {
        * @see Queue::add(const T& item)
        */
       virtual void add(const T& item) {
-        
+
         Guard<LockType> g(_lock);
-        
-        // Wait for the capacity of the Queue to drop 
+
+        // Wait for the capacity of the Queue to drop
         while ((_queue.size() == _capacity) && !_canceled)
           _notFull.wait();
-      
+
         if(_canceled)
           throw Cancellation_Exception();
 
         _queue.push_back(item);
         _notEmpty.signal(); // Wake any waiters
-      
-    
+
+
       }
-    
+
       /**
-       * Add a value to this Queue. 
+       * Add a value to this Queue.
        *
-       * If the number of values in the queue matches the value returned by <i>capacity</i>() 
-       * then the calling thread will be blocked until at least one value is removed from 
+       * If the number of values in the queue matches the value returned by <i>capacity</i>()
+       * then the calling thread will be blocked until at least one value is removed from
        * the Queue.
        *
        * @param item value to be added to the Queue
        * @param timeout maximum amount of time (milliseconds) this method may block
        *        the calling thread.
        *
-       * @return 
-       *   - <em>true</em> if a copy of <i>item</i> can be added before <i>timeout</i> 
+       * @return
+       *   - <em>true</em> if a copy of <i>item</i> can be added before <i>timeout</i>
        *     milliseconds elapse.
        *   - <em>false</em> otherwise.
        *
@@ -158,24 +158,24 @@ namespace ZThread {
        * @see Queue::add(const T& item, unsigned long timeout)
        */
       virtual bool add(const T& item, unsigned long timeout) {
-    
+
         try {
 
           Guard<LockType> g(_lock, timeout);
-      
-          // Wait for the capacity of the Queue to drop 
+
+          // Wait for the capacity of the Queue to drop
           while ((_queue.size() == _capacity) && !_canceled)
             if(!_notFull.wait(timeout))
               return false;
-      
+
           if(_canceled)
             throw Cancellation_Exception();
-      
+
           _queue.push_back(item);
           _notEmpty.signal(); // Wake any waiters
-      
+
         } catch(Timeout_Exception&) { return false; }
-    
+
         return true;
 
       }
@@ -183,11 +183,11 @@ namespace ZThread {
       /**
        * Retrieve and remove a value from this Queue.
        *
-       * If invoked when there are no values present to return then the calling thread 
+       * If invoked when there are no values present to return then the calling thread
        * will be blocked until a value arrives in the Queue.
        *
        * @return <em>T</em> next available value
-       * 
+       *
        * @exception Cancellation_Exception thrown if this Queue has been canceled.
        * @exception Interrupted_Exception thrown if the thread was interrupted while waiting
        *            to retrieve a value
@@ -196,18 +196,18 @@ namespace ZThread {
        * @post The value returned will have been removed from the Queue.
        */
       virtual T next() {
-    
+
         Guard<LockType> g(_lock);
-      
+
         while ( _queue.empty() && !_canceled)
           _notEmpty.wait();
-    
+
         if( _queue.empty()) // Queue canceled
-          throw Cancellation_Exception();  
+          throw Cancellation_Exception();
 
         T item = _queue.front();
         _queue.pop_front();
-      
+
         _notFull.signal(); // Wake any thread trying to add
 
         if(_queue.empty()) // Wake empty waiters
@@ -220,14 +220,14 @@ namespace ZThread {
       /**
        * Retrieve and remove a value from this Queue.
        *
-       * If invoked when there are no values present to return then the calling thread 
+       * If invoked when there are no values present to return then the calling thread
        * will be blocked until a value arrives in the Queue.
        *
        * @param timeout maximum amount of time (milliseconds) this method may block
        *        the calling thread.
        *
        * @return <em>T</em> next available value
-       * 
+       *
        * @exception Cancellation_Exception thrown if this Queue has been canceled.
        * @exception Timeout_Exception thrown if the timeout expires before a value
        *            can be retrieved.
@@ -236,9 +236,9 @@ namespace ZThread {
        * @post The value returned will have been removed from the Queue.
        */
       virtual T next(unsigned long timeout) {
-      
+
         Guard<LockType> g(_lock, timeout);
-    
+
         // Wait for items to be added
         while (_queue.empty() && !_canceled) {
           if(!_notEmpty.wait(timeout))
@@ -246,7 +246,7 @@ namespace ZThread {
         }
 
         if(_queue.empty())  // Queue canceled
-          throw Cancellation_Exception();  
+          throw Cancellation_Exception();
 
         T item = _queue.front();
         _queue.pop_front();
@@ -255,21 +255,21 @@ namespace ZThread {
 
         if(_queue.empty()) // Wake empty() waiters
           _isEmpty.broadcast();
-    
+
         return item;
-    
+
       }
 
       /**
-       * Cancel this queue. 
-       * 
+       * Cancel this queue.
+       *
        * @post Any threads blocked by an add() function will throw a Cancellation_Exception.
        * @post Any threads blocked by a next() function will throw a Cancellation_Exception.
-       * 
+       *
        * @see Queue::cancel()
        */
       virtual void cancel() {
-    
+
         Guard<LockType> g(_lock);
 
         _canceled = true;
@@ -285,7 +285,7 @@ namespace ZThread {
         // Faster check since the Queue will not become un-canceled
         if(_canceled)
           return true;
-    
+
         Guard<LockType> g(_lock);
 
         return _canceled;
@@ -296,7 +296,7 @@ namespace ZThread {
        * @see Queue::size()
        */
       virtual size_t size() {
-  
+
         Guard<LockType> g(_lock);
         return _queue.size();
 
@@ -315,10 +315,10 @@ namespace ZThread {
       /**
        * Test whether any values are available in this Queue.
        *
-       * The calling thread is blocked until there are no values present 
+       * The calling thread is blocked until there are no values present
        * in the Queue.
-       * 
-       * @return 
+       *
+       * @return
        *  - <em>true</em> if there are no values available.
        *  - <em>false</em> if there <i>are</i> values available.
        *
@@ -330,7 +330,7 @@ namespace ZThread {
 
         while(!_queue.empty()) // Wait for an empty signal
           _isEmpty.wait();
-    
+
         return true;
 
 
@@ -340,13 +340,13 @@ namespace ZThread {
       /**
        * Test whether any values are available in this Queue.
        *
-       * The calling thread is blocked until there are no values present 
+       * The calling thread is blocked until there are no values present
        * in the Queue.
-       * 
+       *
        * @param timeout maximum amount of time (milliseconds) this method may block
        *        the calling thread.
        *
-       * @return 
+       * @return
        *  - <em>true</em> if there are no values available.
        *  - <em>false</em> if there <i>are</i> values available.
        *
@@ -361,7 +361,7 @@ namespace ZThread {
 
         while(!_queue.empty()) // Wait for an empty signal
           _isEmpty.wait(timeout);
-    
+
         return true;
 
       }

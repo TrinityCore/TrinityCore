@@ -39,48 +39,48 @@ namespace ZThread {
  * @date <2003-07-16T23:25:31-0400>
  * @version 2.1.6
  *
- */ 
+ */
 class FastLock : private NonCopyable {
-    
+
   MPCriticalRegionID _mtx;
 
  public:
-  
+
   /**
    * Create a new FastLock. No safety or state checks are performed.
    *
    * @exception Initialization_Exception - not thrown
    */
   inline FastLock() {
-    
+
     // Apple TN1071
     static bool init = MPLibraryIsLoaded();
-    
+
     if(!init || MPCreateCriticalRegion(&_mtx) != noErr) {
       assert(0);
       throw Initialization_Exception();
     }
 
   }
-  
+
   /**
    * Destroy a FastLock. No safety or state checks are performed.
    */
   inline ~FastLock() throw () {
 
     OSStatus status = MPDeleteCriticalRegion(_mtx);
-    if(status != noErr) 
+    if(status != noErr)
       assert(false);
 
   }
-  
+
   /**
    * Acquire an exclusive lock. No safety or state checks are performed.
    *
    * @exception Synchronization_Exception - not thrown
    */
   inline void acquire() {
-    
+
     if(MPEnterCriticalRegion(_mtx, kDurationForever) != noErr)
       throw Synchronization_Exception();
 
@@ -96,38 +96,38 @@ class FastLock : private NonCopyable {
    */
   inline bool tryAcquire(unsigned long timeout=0) {
 
-    OSStatus status = 
+    OSStatus status =
       MPEnterCriticalRegion(_mtx, kDurationMillisecond * timeout);
 
     switch(status) {
       case kMPTimeoutErr:
         return false;
-        
+
       case noErr:
         return true;
-        
-    } 
-    
+
+    }
+
     assert(0);
     throw Synchronization_Exception();
 
   }
-  
+
   /**
    * Release an exclusive lock. No safety or state checks are performed.
-   * The caller should have already acquired the lock, and release it 
+   * The caller should have already acquired the lock, and release it
    * only once.
-   * 
+   *
    * @exception Synchronization_Exception - not thrown
    */
   inline void release() {
-    
+
     if(MPExitCriticalRegion(_mtx) != noErr)
       throw Synchronization_Exception();
 
   }
-  
-  
+
+
 }; /* FastLock */
 
 

@@ -158,7 +158,7 @@ struct TRINITY_DLL_DECL npc_custodian_of_timeAI : public npc_escortAI
 
         switch( i )
         {
-			case 2: DoScriptText(WHISPER_CUSTODIAN_1, m_creature, pTemp); break;
+            case 2: DoScriptText(WHISPER_CUSTODIAN_1, m_creature, pTemp); break;
             case 3: DoScriptText(WHISPER_CUSTODIAN_2, m_creature, pTemp); break;
             case 4: DoScriptText(WHISPER_CUSTODIAN_3, m_creature, pTemp); break;
             case 5: DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pTemp); break;
@@ -370,20 +370,20 @@ bool GossipSelect_npc_stone_watcher_of_norgannon(Player *player, Creature *_Crea
 ## npc_OOX17
 ######*/
 
-#define Q_OOX17				648
-#define SPAWN_FIRST			7803
-#define SPAWN_SECOND_1		5617
-#define SPAWN_SECOND_2		7805
-#define SAY_SCOFF			-1060004
-#define SAY_CHICKEN_ACC		-1060000
-#define SAY_CHICKEN_AGGRO_1	-1060001
+#define Q_OOX17             648
+#define SPAWN_FIRST         7803
+#define SPAWN_SECOND_1      5617
+#define SPAWN_SECOND_2      7805
+#define SAY_SCOFF           -1060004
+#define SAY_CHICKEN_ACC     -1060000
+#define SAY_CHICKEN_AGGRO_1 -1060001
 #define SAY_CHICKEN_AGGRO_2 -1060002
-#define SAY_CHICKEN_AMB		-1060003
-#define SAY_CHICKEN_COMP	-1060005
+#define SAY_CHICKEN_AMB     -1060003
+#define SAY_CHICKEN_COMP    -1060005
 
 struct TRINITY_DLL_DECL npc_OOX17AI : public npc_escortAI
 {
-	npc_OOX17AI(Creature *c) : npc_escortAI(c) {Reset();}
+    npc_OOX17AI(Creature *c) : npc_escortAI(c) {Reset();}
 
     void WaypointReached(uint32 i)
     {
@@ -393,50 +393,50 @@ struct TRINITY_DLL_DECL npc_OOX17AI : public npc_escortAI
             return;
 
         switch(i) {
-			case 23:
+            case 23:
                 m_creature->SummonCreature(SPAWN_FIRST, -8350.96, -4445.79, 10.10, 6.20, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                 m_creature->SummonCreature(SPAWN_FIRST, -8355.96, -4447.79, 10.10, 6.27, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                 m_creature->SummonCreature(SPAWN_FIRST, -8353.96, -4442.79, 10.10, 6.08, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-				DoScriptText(SAY_CHICKEN_AMB, m_creature);
-				break;
+                DoScriptText(SAY_CHICKEN_AMB, m_creature);
+                break;
 
             case 56:
                 m_creature->SummonCreature(SPAWN_SECOND_1, -7510.07, -4795.50, 9.35, 6.06, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                 m_creature->SummonCreature(SPAWN_SECOND_2, -7515.07, -4797.50, 9.35, 6.22, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-				m_creature->SummonCreature(SPAWN_SECOND_2, -7518.07, -4792.50, 9.35, 6.22, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-				DoScriptText(SAY_CHICKEN_AMB, m_creature);
-				{Unit* scoff = FindCreature(SPAWN_SECOND_2, 30, m_creature);
-				if(scoff)
-				DoScriptText(SAY_SCOFF, scoff);}break;
+                m_creature->SummonCreature(SPAWN_SECOND_2, -7518.07, -4792.50, 9.35, 6.22, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                DoScriptText(SAY_CHICKEN_AMB, m_creature);
+                {Unit* scoff = FindCreature(SPAWN_SECOND_2, 30, m_creature);
+                if(scoff)
+                DoScriptText(SAY_SCOFF, scoff);}break;
                 break;
 
             case 86:
                 if (player)
                 {
-					DoScriptText(SAY_CHICKEN_COMP, m_creature);
+                    DoScriptText(SAY_CHICKEN_COMP, m_creature);
                     ((Player*)player)->GroupEventHappens(Q_OOX17, m_creature);
                 }
-				break;
+                break;
         }
     }
 
-	void Reset(){}
+    void Reset(){}
 
-	void Aggro(Unit* who)
+    void Aggro(Unit* who)
     {
-		switch (rand()%2)
+        switch (rand()%2)
         {
-        case 0:	DoScriptText(SAY_CHICKEN_AGGRO_1, m_creature); break;
+        case 0: DoScriptText(SAY_CHICKEN_AGGRO_1, m_creature); break;
         case 1: DoScriptText(SAY_CHICKEN_AGGRO_2, m_creature); break;
-		}
+        }
     }
 
-	void JustSummoned(Creature* summoned)
+    void JustSummoned(Creature* summoned)
     {
         summoned->AI()->AttackStart(m_creature);
     }
 
-	void JustDied(Unit* killer)
+    void JustDied(Unit* killer)
     {
         if (PlayerGUID)
         {
@@ -449,20 +449,20 @@ struct TRINITY_DLL_DECL npc_OOX17AI : public npc_escortAI
     void UpdateAI(const uint32 diff)
     {
         npc_escortAI::UpdateAI(diff);
-		if (!UpdateVictim())
-			return;
+        if (!UpdateVictim())
+            return;
     }
-	};
+    };
 
 bool QuestAccept_npc_OOX17(Player* player, Creature* creature, Quest const* quest)
 {
     if (quest->GetQuestId() == Q_OOX17)
     {
-		creature->setFaction(113);
-		creature->SetHealth(creature->GetMaxHealth());
-		creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
-		creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
-		DoScriptText(SAY_CHICKEN_ACC, creature);
+        creature->setFaction(113);
+        creature->SetHealth(creature->GetMaxHealth());
+        creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
+        creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+        DoScriptText(SAY_CHICKEN_ACC, creature);
         ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
 
     }
@@ -601,7 +601,7 @@ void AddSC_tanaris()
     newscript->pGossipSelect = &GossipSelect_npc_stone_watcher_of_norgannon;
     newscript->RegisterSelf();
 
-	newscript = new Script;
+    newscript = new Script;
     newscript->Name = "npc_OOX17";
     newscript->GetAI = &GetAI_npc_OOX17;
     newscript->pQuestAccept = &QuestAccept_npc_OOX17;

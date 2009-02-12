@@ -94,7 +94,7 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
     uint32 FatalAttractionTimer;
     uint32 FatalAttractionExplodeTimer;
     uint32 ShriekTimer;
-	uint32 SaberTimer;
+    uint32 SaberTimer;
     uint32 RandomYellTimer;
     uint32 EnrageTimer;
     uint32 ExplosionCount;
@@ -116,7 +116,7 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
         FatalAttractionTimer = 60000;
         FatalAttractionExplodeTimer = 70000;
         ShriekTimer = 30000;
-		SaberTimer = 35000;
+        SaberTimer = 35000;
         RandomYellTimer = 70000 + rand()%41 * 1000;
         EnrageTimer = 600000;
         ExplosionCount = 0;
@@ -130,15 +130,15 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
             pInstance->SetData(DATA_MOTHERSHAHRAZEVENT, IN_PROGRESS);
 
         DoZoneInCombat();
-		DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void KilledUnit(Unit *victim)
     {
         switch(rand()%2)
         {
-		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
-		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+        case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+        case 1: DoScriptText(SAY_SLAY2, m_creature); break;
         }
     }
 
@@ -230,8 +230,8 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
 
             switch(rand()%2)
             {
-			case 0: DoScriptText(SAY_SPELL2, m_creature); break;
-			case 1: DoScriptText(SAY_SPELL3, m_creature); break;
+            case 0: DoScriptText(SAY_SPELL2, m_creature); break;
+            case 1: DoScriptText(SAY_SPELL3, m_creature); break;
             }
             FatalAttractionExplodeTimer = 2000;
             FatalAttractionTimer = 40000 + rand()%31 * 1000;
@@ -270,7 +270,7 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
             ShriekTimer = 25000+rand()%10 * 1000;
         }else ShriekTimer -= diff;
 
-		if(SaberTimer < diff)
+        if(SaberTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_SABER_LASH);
             SaberTimer = 25000+rand()%10 * 1000;
@@ -281,7 +281,7 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
             if(EnrageTimer < diff)
         {
             DoCast(m_creature, SPELL_BERSERK);
-			DoScriptText(SAY_ENRAGE, m_creature);
+            DoScriptText(SAY_ENRAGE, m_creature);
         }else EnrageTimer -= diff;
 
         //Random taunts
@@ -289,9 +289,9 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
         {
             switch(rand()%3)
             {
-			case 0: DoScriptText(SAY_TAUNT1, m_creature); break;
-			case 1: DoScriptText(SAY_TAUNT2, m_creature); break;
-			case 2: DoScriptText(SAY_TAUNT3, m_creature); break;
+            case 0: DoScriptText(SAY_TAUNT1, m_creature); break;
+            case 1: DoScriptText(SAY_TAUNT2, m_creature); break;
+            case 2: DoScriptText(SAY_TAUNT3, m_creature); break;
             }
             RandomYellTimer = 60000 + rand()%91 * 1000;
         }else RandomYellTimer -= diff;

@@ -39,56 +39,56 @@
 /* Default socket */
 #define MYSQL_UNIX_ADDR "\\socket\\MySQL"
 
-#define FN_LIBCHAR		 '\\'
-#define FN_ROOTDIR		 "\\"
-#define MY_NFILE		1024  /* This is only used to save filenames */
+#define FN_LIBCHAR       '\\'
+#define FN_ROOTDIR       "\\"
+#define MY_NFILE        1024  /* This is only used to save filenames */
 
 #define HAVE_ACCESS
 
-#define DEFAULT_MYSQL_HOME	"c:\\mysql"
-#define DEFAULT_BASEDIR		"C:\\"
-#define SHAREDIR		"share"
-#define DEFAULT_CHARSET_HOME	"C:/mysql/"
-#define _POSIX_PATH_MAX		255
-#define DWORD			ULONG
+#define DEFAULT_MYSQL_HOME  "c:\\mysql"
+#define DEFAULT_BASEDIR     "C:\\"
+#define SHAREDIR        "share"
+#define DEFAULT_CHARSET_HOME    "C:/mysql/"
+#define _POSIX_PATH_MAX     255
+#define DWORD           ULONG
 
-#define O_SHARE		0x1000		/* Open file in sharing mode */
-#define FILE_BINARY	O_BINARY	/* my_fopen in binary mode */
-#define S_IROTH		S_IREAD		/* for my_lib */
+#define O_SHARE     0x1000      /* Open file in sharing mode */
+#define FILE_BINARY O_BINARY    /* my_fopen in binary mode */
+#define S_IROTH     S_IREAD     /* for my_lib */
 
-#define CANT_DELETE_OPEN_FILES		/* saves open files in a list, for delayed delete */
+#define CANT_DELETE_OPEN_FILES      /* saves open files in a list, for delayed delete */
 
-#define O_NONBLOCK	0x10
+#define O_NONBLOCK  0x10
 
-#define NO_OPEN_3			/* For my_create() */
-#define SIGQUIT		SIGTERM		/* No SIGQUIT */
-#define SIGALRM		14		/* Alarm */
+#define NO_OPEN_3           /* For my_create() */
+#define SIGQUIT     SIGTERM     /* No SIGQUIT */
+#define SIGALRM     14      /* Alarm */
 
 #define NO_FCNTL_NONBLOCK
 
-#define EFBIG			   E2BIG
-/*#define ENFILE		  EMFILE    */
-/*#define ENAMETOOLONG		(EOS2ERR+2) */
-/*#define ETIMEDOUT		  145       */
-/*#define EPIPE			  146       */
-#define EROFS			147
+#define EFBIG              E2BIG
+/*#define ENFILE          EMFILE    */
+/*#define ENAMETOOLONG      (EOS2ERR+2) */
+/*#define ETIMEDOUT       145       */
+/*#define EPIPE           146       */
+#define EROFS           147
 
-#define sleep(A)	DosSleep((A)*1000)
-#define closesocket(A)	soclose(A)
+#define sleep(A)    DosSleep((A)*1000)
+#define closesocket(A)  soclose(A)
 
-#define F_OK		0
-#define W_OK		2
+#define F_OK        0
+#define W_OK        2
 
-#define bzero(x,y)	memset((x),'\0',(y))
-#define bcopy(x,y,z)	memcpy((y),(x),(z))
-#define bcmp(x,y,z)	memcmp((y),(x),(z))
+#define bzero(x,y)  memset((x),'\0',(y))
+#define bcopy(x,y,z)    memcpy((y),(x),(z))
+#define bcmp(x,y,z) memcmp((y),(x),(z))
 
-#define F_RDLCK		4	    /* Read lock.  */
-#define F_WRLCK		2	    /* Write lock.  */
-#define F_UNLCK		0	    /* Remove lock.  */
+#define F_RDLCK     4       /* Read lock.  */
+#define F_WRLCK     2       /* Write lock.  */
+#define F_UNLCK     0       /* Remove lock.  */
 
-#define S_IFMT		0x17000	    /* Mask for file type */
-#define F_TO_EOF	0L	    /* Param to lockf() to lock rest of file */
+#define S_IFMT      0x17000     /* Mask for file type */
+#define F_TO_EOF    0L      /* Param to lockf() to lock rest of file */
 
 #define HUGE_PTR
 
@@ -97,15 +97,15 @@ extern "C"
 #endif
 double _cdecl rint( double nr);
 
-DWORD	 TlsAlloc( void);
-BOOL	 TlsFree( DWORD);
-PVOID	 TlsGetValue( DWORD);
-BOOL	 TlsSetValue( DWORD, PVOID);
+DWORD    TlsAlloc( void);
+BOOL     TlsFree( DWORD);
+PVOID    TlsGetValue( DWORD);
+BOOL     TlsSetValue( DWORD, PVOID);
 
 /* support for > 2GB file size */
-#define SIZEOF_OFF_T	8
-#define lseek(A,B,C)	_lseek64( A, B, C)
-#define tell(A)		_lseek64( A, 0, SEEK_CUR)
+#define SIZEOF_OFF_T    8
+#define lseek(A,B,C)    _lseek64( A, B, C)
+#define tell(A)     _lseek64( A, 0, SEEK_CUR)
 
 void* dlopen( char* path, int flag);
 char* dlerror( void);
@@ -147,7 +147,7 @@ typedef unsigned long long os_off_t;
 /* Define if your struct stat has st_rdev.  */
 #define HAVE_ST_RDEV 1
 
-/* Define if you have <sys/wait.h> that is POSIX.1 compatible.	*/
+/* Define if you have <sys/wait.h> that is POSIX.1 compatible.  */
 /* #define HAVE_SYS_WAIT_H 1 */
 
 /* Define if you don't have tm_zone but do have the external array
@@ -166,7 +166,7 @@ typedef unsigned long long os_off_t;
 /* Define to `long' if <sys/types.h> doesn't define.  */
 /* #undef off_t */
 
-/* Define as the return type of signal handlers (int or void).	*/
+/* Define as the return type of signal handlers (int or void).  */
 #define RETSIGTYPE void
 
 /* Define to `unsigned' if <sys/types.h> doesn't define.  */
@@ -184,7 +184,7 @@ typedef unsigned long long os_off_t;
 /* Define if the `S_IS*' macros in <sys/stat.h> do not work properly.  */
 /* #undef STAT_MACROS_BROKEN */
 
-/* Define if you have the ANSI C header files.	*/
+/* Define if you have the ANSI C header files.  */
 #define STDC_HEADERS 1
 
 /* Define if you can safely include both <sys/time.h> and <time.h>.  */
@@ -194,7 +194,7 @@ typedef unsigned long long os_off_t;
 /* #undef TM_IN_SYS_TIME */
 
 /* Define if your processor stores words with the most significant
-   byte first (like Motorola and SPARC, unlike Intel and VAX).	*/
+   byte first (like Motorola and SPARC, unlike Intel and VAX).  */
 /* #undef WORDS_BIGENDIAN */
 
 /* Version of .frm files */
@@ -373,7 +373,7 @@ typedef unsigned long long os_off_t;
 /* The number of bytes in a long.  */
 #define SIZEOF_LONG 4
 
-/* The number of bytes in a long long.	*/
+/* The number of bytes in a long long.  */
 #define SIZEOF_LONG_LONG 8
 
 /* Define if you have the alarm function.  */
@@ -469,7 +469,7 @@ typedef unsigned long long os_off_t;
 /* Define if you have the index function.  */
 #define HAVE_INDEX 1
 
-/* Define if you have the initgroups function.	*/
+/* Define if you have the initgroups function.  */
 /* #undef HAVE_INITGROUPS */
 
 /* Define if you have the localtime_r function.  */
@@ -517,7 +517,7 @@ typedef unsigned long long os_off_t;
 /* Define if you have the pthread_attr_setprio function.  */
 #define HAVE_PTHREAD_ATTR_SETPRIO 1
 
-/* Define if you have the pthread_attr_setschedparam function.	*/
+/* Define if you have the pthread_attr_setschedparam function.  */
 /* #undef HAVE_PTHREAD_ATTR_SETSCHEDPARAM */
 
 /* Define if you have the pthread_attr_setstacksize function.  */
@@ -538,7 +538,7 @@ typedef unsigned long long os_off_t;
 /* Define if you have the pthread_setprio function.  */
 #define HAVE_PTHREAD_SETPRIO 1
 
-/* Define if you have the pthread_setprio_np function.	*/
+/* Define if you have the pthread_setprio_np function.  */
 /* #undef HAVE_PTHREAD_SETPRIO_NP */
 
 /* Define if you have the pthread_setschedparam function.  */
@@ -595,7 +595,7 @@ typedef unsigned long long os_off_t;
 /* Define if you have the stpcpy function.  */
 /* #undef HAVE_STPCPY */
 
-/* Define if you have the strcasecmp function.	*/
+/* Define if you have the strcasecmp function.  */
 /* #undef HAVE_STRCASECMP */
 
 /* Define if you have the strcoll function.  */
@@ -634,7 +634,7 @@ typedef unsigned long long os_off_t;
 /* Define if you have the tempnam function.  */
 #define HAVE_TEMPNAM 1
 
-/* Define if you have the thr_setconcurrency function.	*/
+/* Define if you have the thr_setconcurrency function.  */
 /* #undef HAVE_THR_SETCONCURRENCY */
 
 /* Define if you have the vidattr function.  */
@@ -667,7 +667,7 @@ typedef unsigned long long os_off_t;
 /* Define if you have the <floatingpoint.h> header file.  */
 /* #undef HAVE_FLOATINGPOINT_H */
 
-/* Define if you have the <grp.h> header file.	*/
+/* Define if you have the <grp.h> header file.  */
 /* #define HAVE_GRP_H 1 */
 
 /* Define if you have the <ieeefp.h> header file.  */
@@ -691,7 +691,7 @@ typedef unsigned long long os_off_t;
 /* Define if you have the <paths.h> header file.  */
 /* #undef HAVE_PATHS_H */
 
-/* Define if you have the <pwd.h> header file.	*/
+/* Define if you have the <pwd.h> header file.  */
 /* #define HAVE_PWD_H 1 */
 
 /* Define if you have the <sched.h> header file.  */
@@ -760,7 +760,7 @@ typedef unsigned long long os_off_t;
 /* Define if you have the <sys/utime.h> header file.  */
 #define HAVE_SYS_UTIME_H 1
 
-/* Define if you have the <sys/vadvise.h> header file.	*/
+/* Define if you have the <sys/vadvise.h> header file.  */
 /* #undef HAVE_SYS_VADVISE_H */
 
 /* Define if you have the <sys/wait.h> header file.  */
@@ -793,7 +793,7 @@ typedef unsigned long long os_off_t;
 /* Define if you have the bind library (-lbind).  */
 /* #undef HAVE_LIBBIND */
 
-/* Define if you have the c_r library (-lc_r).	*/
+/* Define if you have the c_r library (-lc_r).  */
 /* #undef HAVE_LIBC_R */
 
 /* Define if you have the compat library (-lcompat).  */
@@ -805,19 +805,19 @@ typedef unsigned long long os_off_t;
 /* Define if you have the dl library (-ldl).  */
 #define HAVE_LIBDL 1
 
-/* Define if you have the gen library (-lgen).	*/
+/* Define if you have the gen library (-lgen).  */
 /* #undef HAVE_LIBGEN */
 
 /* Define if you have the m library (-lm).  */
 #define HAVE_LIBM 1
 
-/* Define if you have the nsl library (-lnsl).	*/
+/* Define if you have the nsl library (-lnsl).  */
 /* #undef HAVE_LIBNSL */
 
 /* Define if you have the nsl_r library (-lnsl_r).  */
 /* #undef HAVE_LIBNSL_R */
 
-/* Define if you have the pthread library (-lpthread).	*/
+/* Define if you have the pthread library (-lpthread).  */
 /* #undef HAVE_LIBPTHREAD */
 
 /* Define if you have the socket library (-lsocket).  */

@@ -36,7 +36,7 @@ DEALINGS IN THE SOFTWARE.
 namespace utf8
 {
     // The typedefs for 8-bit, 16-bit and 32-bit unsigned integers
-    // You may need to change them to match your system. 
+    // You may need to change them to match your system.
     // These typedefs have the same names as ones from cstdint, or boost/cstdint
 
     /* use Trinity alternatives
@@ -50,7 +50,7 @@ namespace utf8
 
 // Helper code - not intended to be directly called by the library users. May be changed at any time
 namespace internal
-{    
+{
     // Unicode constants
     // Leading (high) surrogates: 0xd800 - 0xdbff
     // Trailing (low) surrogates: 0xdc00 - 0xdfff
@@ -90,14 +90,14 @@ namespace internal
     inline bool is_code_point_valid(u32 cp)
     {
         return (cp <= CODE_POINT_MAX && !is_surrogate(cp) && cp != 0xfffe && cp != 0xffff);
-    }  
+    }
 
     template <typename octet_iterator>
     inline typename std::iterator_traits<octet_iterator>::difference_type
     sequence_length(octet_iterator lead_it)
     {
         uint8_t lead = mask8(*lead_it);
-        if (lead < 0x80) 
+        if (lead < 0x80)
             return 1;
         else if ((lead >> 5) == 0x6)
             return 2;
@@ -105,7 +105,7 @@ namespace internal
             return 3;
         else if ((lead >> 3) == 0x1e)
             return 4;
-        else 
+        else
             return 0;
     }
 
@@ -131,17 +131,17 @@ namespace internal
                 return NOT_ENOUGH_ROOM;
         }
 
-        // Do we have enough memory?     
+        // Do we have enough memory?
         if (std::distance(it, end) < length)
             return NOT_ENOUGH_ROOM;
-        
+
         // Check trail octets and calculate the code point
         switch (length) {
             case 0:
                 return INVALID_LEAD;
                 break;
             case 2:
-                if (is_trail(*(++it))) { 
+                if (is_trail(*(++it))) {
                     cp = ((cp << 6) & 0x7ff) + ((*it) & 0x3f);
                 }
                 else {
@@ -167,11 +167,11 @@ namespace internal
             break;
             case 4:
                 if (is_trail(*(++it))) {
-                    cp = ((cp << 18) & 0x1fffff) + ((mask8(*it) << 12) & 0x3ffff);                
+                    cp = ((cp << 18) & 0x1fffff) + ((mask8(*it) << 12) & 0x3ffff);
                     if (is_trail(*(++it))) {
                         cp += (mask8(*it) << 6) & 0xfff;
                         if (is_trail(*(++it))) {
-                            cp += (*it) & 0x3f; 
+                            cp += (*it) & 0x3f;
                         }
                         else {
                             std::advance(it, -3);
@@ -191,14 +191,14 @@ namespace internal
         }
         // Is the code point valid?
         if (!is_code_point_valid(cp)) {
-            for (octet_difference_type i = 0; i < length - 1; ++i) 
+            for (octet_difference_type i = 0; i < length - 1; ++i)
                 --it;
             return INVALID_CODE_POINT;
         }
-            
+
         if (code_point)
             *code_point = cp;
-            
+
         if (cp < 0x80) {
             if (length != 1) {
                 std::advance(it, -(length-1));
@@ -217,9 +217,9 @@ namespace internal
                 return OVERLONG_SEQUENCE;
             }
         }
-           
+
         ++it;
-        return OK;    
+        return OK;
     }
 
     template <typename octet_iterator>
@@ -227,12 +227,12 @@ namespace internal
         return validate_next(it, end, 0);
     }
 
-} // namespace internal 
+} // namespace internal
 
     /// The library API - functions intended to be called by the users
 
     // Byte order mark
-    const uint8_t bom[] = {0xef, 0xbb, 0xbf}; 
+    const uint8_t bom[] = {0xef, 0xbb, 0xbf};
 
     template <typename octet_iterator>
     octet_iterator find_invalid(octet_iterator start, octet_iterator end)

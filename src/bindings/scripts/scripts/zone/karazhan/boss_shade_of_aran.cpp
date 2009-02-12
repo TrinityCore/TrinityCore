@@ -152,14 +152,14 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-		case 0: DoScriptText(SAY_KILL1, m_creature); break;
-		case 1: DoScriptText(SAY_KILL2, m_creature); break;
+        case 0: DoScriptText(SAY_KILL1, m_creature); break;
+        case 1: DoScriptText(SAY_KILL2, m_creature); break;
         }
     }
 
     void JustDied(Unit *victim)
     {
-		DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, m_creature);
 
         if(pInstance)
         {
@@ -174,9 +174,9 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-		case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
-		case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
-		case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
+        case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
+        case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
+        case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
         }
 
         if(pInstance)
@@ -228,39 +228,39 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
             return;
 
         if(CloseDoorTimer)
-		{
-			if(CloseDoorTimer <= diff)
-			{
-				if(pInstance)
-				{
-					if(GameObject* Door = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DATA_GAMEOBJECT_LIBRARY_DOOR)))
-						Door->SetGoState(1);
-					CloseDoorTimer = 0;
-				}
-			}else CloseDoorTimer -= diff;
-		}
+        {
+            if(CloseDoorTimer <= diff)
+            {
+                if(pInstance)
+                {
+                    if(GameObject* Door = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DATA_GAMEOBJECT_LIBRARY_DOOR)))
+                        Door->SetGoState(1);
+                    CloseDoorTimer = 0;
+                }
+            }else CloseDoorTimer -= diff;
+        }
 
         //Cooldowns for casts
         if (ArcaneCooldown)
-		{
+        {
             if (ArcaneCooldown >= diff)
                 ArcaneCooldown -= diff;
         else ArcaneCooldown = 0;
-		}
+        }
 
         if (FireCooldown)
-		{
+        {
             if (FireCooldown >= diff)
                 FireCooldown -= diff;
         else FireCooldown = 0;
-		}
+        }
 
         if (FrostCooldown)
-		{
-			if (FrostCooldown >= diff)
+        {
+            if (FrostCooldown >= diff)
                 FrostCooldown -= diff;
         else FrostCooldown = 0;
-		}
+        }
 
         if(!Drinking && m_creature->GetMaxPower(POWER_MANA) && (m_creature->GetPower(POWER_MANA)*100 / m_creature->GetMaxPower(POWER_MANA)) < 20)
         {
@@ -356,8 +356,8 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
                     DoCast(m_creature, SPELL_AOE_CS);
                     break;
                 case 1:
-					if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
-						DoCast(pUnit, SPELL_CHAINSOFICE);
+                    if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        DoCast(pUnit, SPELL_CHAINSOFICE);
                     break;
             }
             SecondarySpellTimer = 5000 + (rand()%15000);
@@ -390,9 +390,9 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
                 case SUPER_AE:
 
                     if (rand()%2)
-						DoScriptText(SAY_EXPLOSION1, m_creature);
-					else
-						DoScriptText(SAY_EXPLOSION2, m_creature);
+                        DoScriptText(SAY_EXPLOSION1, m_creature);
+                    else
+                        DoScriptText(SAY_EXPLOSION2, m_creature);
 
                     m_creature->CastSpell(m_creature, SPELL_BLINK_CENTER, true);
                     m_creature->CastSpell(m_creature, SPELL_PLAYERPULL, true);
@@ -402,9 +402,9 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
 
                 case SUPER_FLAME:
                     if (rand()%2)
-						DoScriptText(SAY_FLAMEWREATH1, m_creature);
-					else
-						DoScriptText(SAY_FLAMEWREATH2, m_creature);
+                        DoScriptText(SAY_FLAMEWREATH1, m_creature);
+                    else
+                        DoScriptText(SAY_FLAMEWREATH2, m_creature);
 
                     FlameWreathTimer = 20000;
                     FlameWreathCheckTime = 500;
@@ -419,9 +419,9 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
                 case SUPER_BLIZZARD:
 
                     if (rand()%2)
-						DoScriptText(SAY_BLIZZARD1, m_creature);
-					else
-						DoScriptText(SAY_BLIZZARD2, m_creature);
+                        DoScriptText(SAY_BLIZZARD1, m_creature);
+                    else
+                        DoScriptText(SAY_BLIZZARD2, m_creature);
 
                     Creature* Spawn = NULL;
                     Spawn = DoSpawnCreature(CREATURE_ARAN_BLIZZARD, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 25000);

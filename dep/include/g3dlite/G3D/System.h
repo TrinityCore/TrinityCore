@@ -1,8 +1,8 @@
-/** 
+/**
   @file System.h
- 
+
   @maintainer Morgan McGuire, matrix@graphics3d.com
- 
+
   @cite Rob Wyatt http://www.gamasutra.com/features/wyatts_world/19990709/processor_detection_01.htm
   @cite Benjamin Jurke http://www.flipcode.com/cgi-bin/msg.cgi?showThread=COTD-ProcessorDetectionClass&forum=cotd&id=-1
   @cite Michael Herf http://www.stereopsis.com/memcpy.html
@@ -19,7 +19,7 @@
 #include <string>
 
 #ifdef G3D_OSX
-#	include <CoreServices/CoreServices.h>
+#   include <CoreServices/CoreServices.h>
 #endif
 
 
@@ -34,13 +34,13 @@ public:
     static void init();
 
     /**
-     Guarantees that the start of the array is aligned to the 
+     Guarantees that the start of the array is aligned to the
      specified number of bytes.
      */
     static void* alignedMalloc(size_t bytes, size_t alignment);
 
     /**
-     Uses pooled storage to optimize small allocations (1 byte to 5 kilobytes).  
+     Uses pooled storage to optimize small allocations (1 byte to 5 kilobytes).
      Can be 10x to 100x faster than calling ::malloc or new.
 
      The result must be freed with free.
@@ -56,7 +56,7 @@ public:
     /**
      @param size Size of memory that the system was trying to allocate
      @param recoverable If true, the system will attempt to allocate again
-            if the callback returns true.  If false, malloc is going to return 
+            if the callback returns true.  If false, malloc is going to return
             NULL and this invocation is just to notify the application.
      @return Return true to force malloc to attempt allocation again if the
             error was recoverable.
@@ -71,7 +71,7 @@ public:
      true, System::malloc will attempt to allocate the memory again.
      If the callback returns false, then System::malloc will return NULL.
 
-     You can use outOfMemoryCallback to free data structures or to 
+     You can use outOfMemoryCallback to free data structures or to
      register the failure.
      */
     static OutOfMemoryCallback outOfMemoryCallback;
@@ -86,7 +86,7 @@ public:
     static std::string mallocPerformance();
     static void resetMallocPerformanceCounters();
 
-    /** 
+    /**
        Returns a string describing the current usage of the buffer pools used for
        optimizing System::malloc.
      */
@@ -105,13 +105,13 @@ public:
     static void alignedFree(void* ptr);
 
     /** An implementation of memcpy that may be up to 2x as fast as the C library
-	one on some processors.  Guaranteed to have the same behavior as memcpy
-	in all cases. */
+    one on some processors.  Guaranteed to have the same behavior as memcpy
+    in all cases. */
     static void memcpy(void* dst, const void* src, size_t numBytes);
 
     /** An implementation of memset that may be up to 2x as fast as the C library
-	one on some processors.  Guaranteed to have the same behavior as memset
-	in all cases. */
+    one on some processors.  Guaranteed to have the same behavior as memset
+    in all cases. */
     static void memset(void* dst, uint8 value, size_t numBytes);
 
 };

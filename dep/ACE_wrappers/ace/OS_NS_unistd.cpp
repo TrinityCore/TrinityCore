@@ -851,7 +851,7 @@ ACE_OS::string_to_argv (ACE_TCHAR *buf,
                 {
                   delete [] argp;
                 }
-                
+
               errno = ENOMEM;
               return -1;
             }

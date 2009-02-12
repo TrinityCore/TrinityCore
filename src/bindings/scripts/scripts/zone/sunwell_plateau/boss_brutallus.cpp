@@ -59,20 +59,20 @@ EndScriptData */
 struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
 {
     boss_brutallusAI(Creature *c) : ScriptedAI(c)
-	{
-		pInstance = ((ScriptedInstance*)c->GetInstanceData());
-		Reset();
-	}
+    {
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        Reset();
+    }
 
-	ScriptedInstance* pInstance;
+    ScriptedInstance* pInstance;
 
     uint32 SlashTimer;
     uint32 BurnTimer;
     uint32 StompTimer;
     uint32 BerserkTimer;
 
-	uint32 ConversationTimer;
-	bool Intro;
+    uint32 ConversationTimer;
+    bool Intro;
 
     void Reset()
     {
@@ -82,34 +82,34 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
         BerserkTimer = 360000;
         m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);
 
-		if(pInstance)
-			pInstance->SetData(DATA_BRUTALLUS, NOT_STARTED);
+        if(pInstance)
+            pInstance->SetData(DATA_BRUTALLUS, NOT_STARTED);
     }
 
     void Aggro(Unit *who)
     {
-		DoScriptText(YELL_AGGRO, m_creature);
+        DoScriptText(YELL_AGGRO, m_creature);
 
-		if(pInstance)
-			pInstance->SetData(DATA_BRUTALLUS, IN_PROGRESS);
+        if(pInstance)
+            pInstance->SetData(DATA_BRUTALLUS, IN_PROGRESS);
     }
 
     void KilledUnit(Unit* victim)
     {
         switch(rand()%3)
         {
-		case 0: DoScriptText(YELL_KILL1, m_creature); break;
-		case 1: DoScriptText(YELL_KILL2, m_creature); break;
-		case 2: DoScriptText(YELL_KILL3, m_creature); break;
+        case 0: DoScriptText(YELL_KILL1, m_creature); break;
+        case 1: DoScriptText(YELL_KILL2, m_creature); break;
+        case 2: DoScriptText(YELL_KILL3, m_creature); break;
         }
     }
 
     void JustDied(Unit* Killer)
     {
-		DoScriptText(YELL_DEATH, m_creature);
+        DoScriptText(YELL_DEATH, m_creature);
 
-		if(pInstance)
-			pInstance->SetData(DATA_BRUTALLUS, DONE);
+        if(pInstance)
+            pInstance->SetData(DATA_BRUTALLUS, DONE);
     }
 
     void UpdateAI(const uint32 diff)
@@ -119,20 +119,20 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
 
         if(SlashTimer < diff)
         {
-			DoCast(m_creature->getVictim(),SPELL_METEOR_SLASH);
+            DoCast(m_creature->getVictim(),SPELL_METEOR_SLASH);
             SlashTimer = 11000;
         }else SlashTimer -= diff;
 
         if(StompTimer < diff)
         {
-			switch(rand()%3)
-			{
-			case 0: DoScriptText(YELL_LOVE1, m_creature); break;
-			case 1: DoScriptText(YELL_LOVE2, m_creature); break;
-			case 2: DoScriptText(YELL_LOVE3, m_creature); break;
-			}
+            switch(rand()%3)
+            {
+            case 0: DoScriptText(YELL_LOVE1, m_creature); break;
+            case 1: DoScriptText(YELL_LOVE2, m_creature); break;
+            case 2: DoScriptText(YELL_LOVE3, m_creature); break;
+            }
 
-			Unit *Target = m_creature->getVictim();
+            Unit *Target = m_creature->getVictim();
             DoCast(Target,SPELL_STOMP);
             if(Target->HasAura(45151,0)) Target->RemoveAura(45151,0);
             StompTimer = 30000;
@@ -142,19 +142,19 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
         {
             if(Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 target->CastSpell(target,SPELL_BURN,true);
-			BurnTimer = 60000;
+            BurnTimer = 60000;
         }
         else BurnTimer -= diff;
 
         if(BerserkTimer < diff)
         {
-			DoScriptText(YELL_BERSERK, m_creature);
+            DoScriptText(YELL_BERSERK, m_creature);
             DoCast(m_creature,SPELL_BERSERK);
             BerserkTimer = 20000;
         }
         else BerserkTimer -= diff;
 
-		DoMeleeAttackIfReady();
+        DoMeleeAttackIfReady();
     }
 
 };

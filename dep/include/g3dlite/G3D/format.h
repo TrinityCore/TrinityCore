@@ -1,8 +1,8 @@
 /**
  @file format.h
- 
+
  @maintainer Morgan McGuire, matrix@graphics3d.com
- 
+
  @author  2000-09-09
  @edited  2005-11-03
 

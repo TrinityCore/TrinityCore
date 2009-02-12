@@ -230,8 +230,8 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
-		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+        case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+        case 1: DoScriptText(SAY_SLAY2, m_creature); break;
         }
     }
 
@@ -298,8 +298,8 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
                     Chains->CastSpell(Chains, SPELL_DEMON_CHAINS, true);
                     switch(rand()%2)
                     {
-					case 0: DoScriptText(SAY_SACRIFICE1, m_creature); break;
-					case 1: DoScriptText(SAY_SACRIFICE2, m_creature); break;
+                    case 0: DoScriptText(SAY_SACRIFICE1, m_creature); break;
+                    case 1: DoScriptText(SAY_SACRIFICE2, m_creature); break;
                     }
                     SacrificeTimer = 30000;
                 }
@@ -325,8 +325,8 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
                 SummonedPortals = true;
                 switch(rand()%2)
                 {
-				case 0: DoScriptText(SAY_SUMMON1, m_creature); break;
-				case 1: DoScriptText(SAY_SUMMON2, m_creature); break;
+                case 0: DoScriptText(SAY_SUMMON1, m_creature); break;
+                case 1: DoScriptText(SAY_SUMMON2, m_creature); break;
                 }
             }
             uint32 random = rand()%2;
@@ -340,13 +340,13 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
         }else SummonTimer -= diff;
 
         if(!Berserk)
-		{
-			if(BerserkTimer < diff)
-			{
-				DoCast(m_creature, SPELL_BERSERK);
-				Berserk = true;
-			}else BerserkTimer -= diff;
-		}
+        {
+            if(BerserkTimer < diff)
+            {
+                DoCast(m_creature, SPELL_BERSERK);
+                Berserk = true;
+            }else BerserkTimer -= diff;
+        }
 
         DoMeleeAttackIfReady();
     }

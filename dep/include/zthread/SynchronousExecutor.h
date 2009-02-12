@@ -37,14 +37,14 @@ namespace ZThread {
    * @date <2003-07-16T22:33:51-0400>
    * @version 2.3.0
    *
-   * A SynchronousExecutor is an Executor which runs tasks using the thread that 
+   * A SynchronousExecutor is an Executor which runs tasks using the thread that
    * submits the task. It runs tasks serially, one at a time, in the order they
    * were submitted to the executor.
    *
    * @see Executor.
    */
   class SynchronousExecutor : public Executor {
-    
+
     //! Serialize access
     Mutex _lock;
 
@@ -65,10 +65,10 @@ namespace ZThread {
     virtual void interrupt();
 
     /**
-     * Submit a task to this Executor, blocking the calling thread until the 
-     * task is executed. 
+     * Submit a task to this Executor, blocking the calling thread until the
+     * task is executed.
      *
-     * @param task Task to be run by a thread managed by this executor 
+     * @param task Task to be run by a thread managed by this executor
      *
      * @pre  The Executor should have been canceled prior to this invocation.
      * @post The submitted task will be run at some point in the future by this Executor.
@@ -84,12 +84,12 @@ namespace ZThread {
      * @see Cancelable::cancel()
      */
     virtual void cancel();
-  
+
     /**
      * @see Cancelable::cancel()
      */
     virtual bool isCanceled();
- 
+
     /**
      * Block the calling thread until all tasks submitted prior to this invocation
      * complete.
@@ -105,14 +105,14 @@ namespace ZThread {
      * Block the calling thread until all tasks submitted prior to this invocation
      * complete or until the calling thread is interrupted.
      *
-     * @param timeout - maximum amount of time, in milliseconds, to wait for the 
+     * @param timeout - maximum amount of time, in milliseconds, to wait for the
      * currently submitted set of Tasks to complete.
      *
      * @exception Interrupted_Exception thrown if the calling thread is interrupted
      *            before the set of tasks being wait for can complete.
      *
-     * @return 
-     *   - <em>true</em> if the set of tasks being wait for complete before 
+     * @return
+     *   - <em>true</em> if the set of tasks being wait for complete before
      *                   <i>timeout</i> milliseconds elapse.
      *   - <em>false</em> othewise.
      */

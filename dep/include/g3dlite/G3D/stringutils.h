@@ -1,8 +1,8 @@
 /**
  @file stringutils.h
- 
+
  @maintainer Morgan McGuire, matrix@graphics3d.com
- 
+
  @author  2000-09-09
  @edited  2002-11-30
  */

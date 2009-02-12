@@ -219,15 +219,15 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-		case 0: DoScriptText(SAY_SLAY1, m_creature); break;
-		case 1: DoScriptText(SAY_SLAY2, m_creature); break;
-		case 2: DoScriptText(SAY_SLAY3, m_creature); break;
+        case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+        case 1: DoScriptText(SAY_SLAY2, m_creature); break;
+        case 2: DoScriptText(SAY_SLAY3, m_creature); break;
         }
     }
 
     void JustDied(Unit *victim)
     {
-		DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, m_creature);
 
         AxesCleanup();
         ClearWeapons();
@@ -249,7 +249,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-		DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, m_creature);
 
         if(pInstance)
         {
@@ -392,8 +392,8 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
         switch(rand()%2)
         {
-		case 0: DoScriptText(SAY_SUMMON1, m_creature); break;
-		case 1: DoScriptText(SAY_SUMMON2, m_creature); break;
+        case 0: DoScriptText(SAY_SUMMON1, m_creature); break;
+        case 1: DoScriptText(SAY_SUMMON2, m_creature); break;
         }
     }
 
@@ -451,7 +451,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                 m_creature->SetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, cinfo->mindmg);
                 m_creature->SetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE, cinfo->maxdmg);
 
-				m_creature->SetAttackTime(OFF_ATTACK, (m_creature->GetAttackTime(BASE_ATTACK)*150)/100);
+                m_creature->SetAttackTime(OFF_ATTACK, (m_creature->GetAttackTime(BASE_ATTACK)*150)/100);
             }
         }
         else if(phase == 2)
@@ -557,16 +557,16 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         {
             if(SWPainTimer < diff)
             {
-				Unit* target = NULL;
+                Unit* target = NULL;
                 if(phase == 1)
                     target = m_creature->getVictim();       // the tank
                 else                                        //anyone but the tank
                     target = SelectUnit(SELECT_TARGET_RANDOM, 1);
 
-				if (target)
-					DoCast(target, SPELL_SW_PAIN);
+                if (target)
+                    DoCast(target, SPELL_SW_PAIN);
 
-				SWPainTimer = 20000;
+                SWPainTimer = 20000;
             }else SWPainTimer -= diff;
         }
 

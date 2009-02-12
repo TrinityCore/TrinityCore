@@ -47,7 +47,7 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public ScriptedAI
     boss_ambassador_hellmawAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-		HeroicMode = m_creature->GetMap()->IsHeroic();
+        HeroicMode = m_creature->GetMap()->IsHeroic();
         Reset();
     }
 
@@ -88,13 +88,13 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public ScriptedAI
         }
     }
 
-	void MoveInLineOfSight(Unit *who)
-	{
-		if (m_creature->HasAura(SPELL_BANISH,0))
-			return;
+    void MoveInLineOfSight(Unit *who)
+    {
+        if (m_creature->HasAura(SPELL_BANISH,0))
+            return;
 
-		ScriptedAI::MoveInLineOfSight(who);
-	}
+        ScriptedAI::MoveInLineOfSight(who);
+    }
 
     void MovementInform(uint32 type, uint32 id)
     {

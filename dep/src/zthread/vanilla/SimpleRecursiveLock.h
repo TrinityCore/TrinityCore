@@ -37,49 +37,49 @@ namespace ZThread {
  * @version 2.2.8
  *
  * This implementation of a FastRecursiveLock uses the which ever FastLock
- * that is selected to create a recursive spin lock. 
- */ 
+ * that is selected to create a recursive spin lock.
+ */
 class FastRecursiveLock : private NonCopyable {
-  
+
   FastLock _lock;
 
   ThreadOps _owner;
 
   volatile unsigned int _count;
-  
+
 public:
-  
+
   inline FastRecursiveLock() : _owner(ThreadOps::INVALID), _count(0) {}
-  
+
   inline ~FastRecursiveLock() {
 
     assert(_owner == ThreadOps::INVALID);
     assert(_count == 0);
 
   }
-  
+
   inline void acquire() {
 
     ThreadOps self(ThreadOps::self());
     bool wasLocked = false;
 
     do {
-      
+
       _lock.acquire();
-      
+
       // If there is no owner, or the owner is the caller
       // update the count
       if(_owner == ThreadOps::INVALID || _owner == self) {
 
         _owner = self;
         _count++;
-        
+
         wasLocked = true;
-  
+
       }
 
       _lock.release();
-      
+
     } while(!wasLocked);
 
     assert(_owner == ThreadOps::self());
@@ -96,32 +96,32 @@ public:
       _owner = ThreadOps::INVALID;
 
     _lock.release();
-    
+
   }
-  
+
   inline bool tryAcquire(unsigned long timeout=0) {
 
     ThreadOps self(ThreadOps::self());
     bool wasLocked = false;
 
     _lock.acquire();
-    
+
     if(_owner == ThreadOps::INVALID || _owner == self) {
-    
+
       _owner = self;
       _count++;
-      
+
       wasLocked = true;
 
     }
-    
+
     _lock.release();
 
     assert(!wasLocked || _owner == ThreadOps::self());
-    return wasLocked;    
-    
+    return wasLocked;
+
   }
-  
+
 }; /* FastRecursiveLock */
 
 

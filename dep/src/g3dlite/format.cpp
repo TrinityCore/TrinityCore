@@ -52,7 +52,7 @@ std::string vformat(const char *fmt, va_list argPtr) {
     // allocate it on the stack because this saves
     // the malloc/free time.
     const int bufSize = 161;
-	char stackBuffer[bufSize];
+    char stackBuffer[bufSize];
 
     int actualSize = _vscprintf(fmt, argPtr) + 1;
 
@@ -68,7 +68,7 @@ std::string vformat(const char *fmt, va_list argPtr) {
             heapBuffer[maxSize] = '\0';
         } else {
             heapBuffer = (char*)System::malloc(actualSize);
-            vsprintf(heapBuffer, fmt, argPtr);            
+            vsprintf(heapBuffer, fmt, argPtr);
         }
 
         std::string formattedString(heapBuffer);
@@ -91,7 +91,7 @@ std::string vformat(const char *fmt, va_list argPtr) {
     // allocate it on the stack because this saves
     // the malloc/free time.
     const int bufSize = 161;
-	char stackBuffer[bufSize];
+    char stackBuffer[bufSize];
 
     int actualWritten = vsnprintf(stackBuffer, bufSize, fmt, argPtr);
 
@@ -101,7 +101,7 @@ std::string vformat(const char *fmt, va_list argPtr) {
         int heapSize = 512;
         double powSize = 1.0;
         char* heapBuffer = (char*)System::malloc(heapSize);
-        
+
         while ((vsnprintf(heapBuffer, heapSize, fmt, argPtr) == -1) &&
             (heapSize  < maxSize)) {
 
@@ -144,7 +144,7 @@ std::string vformat(const char* fmt, va_list argPtr) {
       assert(numChars2 == numChars);
 
       std::string result(heapBuffer);
-      
+
       System::free(heapBuffer);
 
       return result;

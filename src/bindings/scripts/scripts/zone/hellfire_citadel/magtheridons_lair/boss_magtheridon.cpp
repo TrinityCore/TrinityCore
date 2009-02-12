@@ -62,15 +62,15 @@ static Yell RandomTaunt[]=
 #define SPELL_BLAZE_TARGET          30541 // core bug, does not support target 7
 #define SPELL_BLAZE_TRAP            30542
 #define SPELL_DEBRIS_KNOCKDOWN      36449
-#define SPELL_DEBRIS_VISUAL			30632
-#define SPELL_DEBRIS_DAMAGE			30631 // core bug, does not support target 8
+#define SPELL_DEBRIS_VISUAL         30632
+#define SPELL_DEBRIS_DAMAGE         30631 // core bug, does not support target 8
 #define SPELL_CAMERA_SHAKE          36455
 #define SPELL_BERSERK               27680
 
 #define SPELL_SHADOW_CAGE           30168
 #define SPELL_SHADOW_GRASP          30410
 #define SPELL_SHADOW_GRASP_VISUAL   30166
-#define SPELL_MIND_EXHAUSTION		44032   //Casted by the cubes when channeling ends
+#define SPELL_MIND_EXHAUSTION       44032   //Casted by the cubes when channeling ends
 
 #define SPELL_SHADOW_CAGE_C         30205
 #define SPELL_SHADOW_GRASP_C        30207
@@ -81,10 +81,10 @@ static Yell RandomTaunt[]=
 #define SPELL_BURNING_ABYSSAL       30511
 #define SPELL_SOUL_TRANSFER         30531 // core bug, does not support target 7
 
-#define SPELL_FIRE_BLAST			37110
+#define SPELL_FIRE_BLAST            37110
 
 // count of clickers needed to interrupt blast nova
-#define CLICKERS_COUNT				5
+#define CLICKERS_COUNT              5
 
 typedef std::map<uint64, uint64> CubeMap;
 
@@ -202,7 +202,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
     uint32 BlastNova_Timer;
     uint32 Blaze_Timer;
     uint32 Debris_Timer;
-	uint32 RandChat_Timer;
+    uint32 RandChat_Timer;
 
     bool Phase3;
     bool NeedCheckCube;

@@ -35,16 +35,16 @@ namespace ZThread {
  * @version 2.2.0
  *
  * This template creates an intrusively reference counted object
- * an IntrusivePtr starts out with a 1 count, which is updated as references are 
- * added and removed. When the reference count drops to 0, the 
- * IntrusivePtr will delete itself. 
+ * an IntrusivePtr starts out with a 1 count, which is updated as references are
+ * added and removed. When the reference count drops to 0, the
+ * IntrusivePtr will delete itself.
  */
 template <typename T, class LockType>
 class IntrusivePtr : NonCopyable {
-  
+
   //! Intrusive reference count
   size_t _count;
-  
+
   //! Synchornization object
   LockType _lock;
 
@@ -54,7 +54,7 @@ public:
    * Create an IntrusivePtr with a count.
    */
   IntrusivePtr(size_t InitialCount=1) : _count(InitialCount) { }
-  
+
   /**
    * Destroy an IntrusivePtr
    */
@@ -67,7 +67,7 @@ public:
   void addReference() {
 
     Guard<LockType, LockedScope> g(_lock);
-    _count++;  
+    _count++;
 
   }
 

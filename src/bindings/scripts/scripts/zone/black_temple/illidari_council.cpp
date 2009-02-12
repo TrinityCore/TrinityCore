@@ -53,25 +53,25 @@ EndScriptData */
 
 struct CouncilYells
 {
-	int32 entry;
-	uint32 timer;
+    int32 entry;
+    uint32 timer;
 };
 
 static CouncilYells CouncilAggro[]=
 {
-	{-1564069, 5000},                                       // Gathios
-	{-1564070, 5500},                                       // Veras
-	{-1564071, 5000},                                       // Malande
-	{-1564072, 0},                                          // Zerevor
+    {-1564069, 5000},                                       // Gathios
+    {-1564070, 5500},                                       // Veras
+    {-1564071, 5000},                                       // Malande
+    {-1564072, 0},                                          // Zerevor
 };
 
 // Need to get proper timers for this later
 static CouncilYells CouncilEnrage[]=
 {
-	{-1564073, 2000},                                       // Gathios
-	{-1564074, 6000},                                       // Veras
-	{-1564075, 5000},                                       // Malande
-	{-1564076, 0},                                          // Zerevor
+    {-1564073, 2000},                                       // Gathios
+    {-1564074, 6000},                                       // Veras
+    {-1564075, 5000},                                       // Malande
+    {-1564076, 0},                                          // Zerevor
 };
 
 // High Nethermancer Zerevor's spells
@@ -159,33 +159,33 @@ struct TRINITY_DLL_DECL mob_blood_elf_council_voice_triggerAI : public ScriptedA
             return;
 
         if(AggroYellTimer)
-		{
+        {
             if(AggroYellTimer <= diff)
         {
             if(Unit* pMember = Unit::GetUnit(*m_creature, Council[YellCounter]))
             {
-				DoScriptText(CouncilAggro[YellCounter].entry, pMember);
+                DoScriptText(CouncilAggro[YellCounter].entry, pMember);
                 AggroYellTimer = CouncilAggro[YellCounter].timer;
             }
             ++YellCounter;
             if(YellCounter > 3)
                 YellCounter = 0;                            // Reuse for Enrage Yells
         }else AggroYellTimer -= diff;
-		}
+        }
 
         if(EnrageTimer)
-		{
+        {
             if(EnrageTimer <= diff)
         {
             if(Unit* pMember = Unit::GetUnit(*m_creature, Council[YellCounter]))
             {
                 pMember->CastSpell(pMember, SPELL_BERSERK, true);
-				DoScriptText(CouncilEnrage[YellCounter].entry, pMember);
+                DoScriptText(CouncilEnrage[YellCounter].entry, pMember);
                 EnrageTimer = CouncilEnrage[YellCounter].timer;
             }
             ++YellCounter;
         }else EnrageTimer -= diff;
-		}
+        }
     }
 };
 
@@ -451,12 +451,12 @@ struct TRINITY_DLL_DECL boss_gathios_the_shattererAI : public boss_illidari_coun
 
     void KilledUnit(Unit *victim)
     {
-		DoScriptText(SAY_GATH_SLAY, m_creature);
+        DoScriptText(SAY_GATH_SLAY, m_creature);
     }
 
     void JustDied(Unit *victim)
     {
-		DoScriptText(SAY_GATH_DEATH, m_creature);
+        DoScriptText(SAY_GATH_DEATH, m_creature);
     }
 
     Unit* SelectCouncilMember()
@@ -568,12 +568,12 @@ struct TRINITY_DLL_DECL boss_high_nethermancer_zerevorAI : public boss_illidari_
 
     void KilledUnit(Unit *victim)
     {
-		DoScriptText(SAY_ZERE_SLAY, m_creature);
+        DoScriptText(SAY_ZERE_SLAY, m_creature);
     }
 
     void JustDied(Unit *victim)
     {
-		DoScriptText(SAY_ZERE_DEATH, m_creature);
+        DoScriptText(SAY_ZERE_DEATH, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -656,12 +656,12 @@ struct TRINITY_DLL_DECL boss_lady_malandeAI : public boss_illidari_councilAI
 
     void KilledUnit(Unit *victim)
     {
-		DoScriptText(SAY_MALA_SLAY, m_creature);
+        DoScriptText(SAY_MALA_SLAY, m_creature);
     }
 
     void JustDied(Unit *victim)
     {
-		DoScriptText(SAY_MALA_DEATH, m_creature);
+        DoScriptText(SAY_MALA_DEATH, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -730,12 +730,12 @@ struct TRINITY_DLL_DECL boss_veras_darkshadowAI : public boss_illidari_councilAI
 
     void KilledUnit(Unit *victim)
     {
-		DoScriptText(SAY_VERA_SLAY, m_creature);
+        DoScriptText(SAY_VERA_SLAY, m_creature);
     }
 
     void JustDied(Unit *victim)
     {
-		DoScriptText(SAY_VERA_DEATH, m_creature);
+        DoScriptText(SAY_VERA_DEATH, m_creature);
     }
 
     void UpdateAI(const uint32 diff)

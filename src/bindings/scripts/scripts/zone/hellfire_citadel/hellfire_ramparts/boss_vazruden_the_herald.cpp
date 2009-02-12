@@ -114,7 +114,7 @@ struct TRINITY_DLL_DECL boss_nazanAI : public ScriptedAI
                 m_creature->SetLootRecipient(NULL);
                 m_creature->SetVisibility(VISIBILITY_OFF);
                 m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-				m_creature->RemoveCorpse();
+                m_creature->RemoveCorpse();
             }else UnsummonCheck -= diff;
             return;
         }

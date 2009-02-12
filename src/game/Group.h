@@ -226,10 +226,10 @@ class TRINITY_DLL_SPEC Group
             return (mslot1->group==slot2->group);
         }
 
-		bool HasFreeSlotSubGroup(uint8 subgroup) const
-		{
-			return (m_subGroupsCounts && m_subGroupsCounts[subgroup] < MAXGROUPSIZE);
-		}
+        bool HasFreeSlotSubGroup(uint8 subgroup) const
+        {
+            return (m_subGroupsCounts && m_subGroupsCounts[subgroup] < MAXGROUPSIZE);
+        }
 
         bool SameSubGroup(Player const* member1, Player const* member2) const;
 
@@ -305,8 +305,8 @@ class TRINITY_DLL_SPEC Group
         void SendLootRollWon(const uint64& SourceGuid, const uint64& TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
         void SendLootAllPassed(uint32 NumberOfPlayers, const Roll &r);
         void GroupLoot(const uint64& playerGUID, Loot *loot, Creature *creature);
-		void NeedBeforeGreed(const uint64& playerGUID, Loot *loot, Creature *creature);
-		void MasterLoot(const uint64& playerGUID, Loot *loot, Creature *creature);
+        void NeedBeforeGreed(const uint64& playerGUID, Loot *loot, Creature *creature);
+        void MasterLoot(const uint64& playerGUID, Loot *loot, Creature *creature);
         Rolls::iterator GetRoll(uint64 Guid)
         {
             Rolls::iterator iter;
@@ -349,17 +349,17 @@ class TRINITY_DLL_SPEC Group
 
         void _homebindIfInstance(Player *player);
 
-		void _initRaidSubGroupsCounter()
-		{
-			// Sub group counters initialization
-			if (!m_subGroupsCounts)
-				m_subGroupsCounts = new uint8[MAXRAIDSIZE / MAXGROUPSIZE];
+        void _initRaidSubGroupsCounter()
+        {
+            // Sub group counters initialization
+            if (!m_subGroupsCounts)
+                m_subGroupsCounts = new uint8[MAXRAIDSIZE / MAXGROUPSIZE];
 
-			memset((void*)m_subGroupsCounts, 0, (MAXRAIDSIZE / MAXGROUPSIZE)*sizeof(uint8));
+            memset((void*)m_subGroupsCounts, 0, (MAXRAIDSIZE / MAXGROUPSIZE)*sizeof(uint8));
 
-			for (member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
-				++m_subGroupsCounts[itr->group];
-		}
+            for (member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+                ++m_subGroupsCounts[itr->group];
+        }
 
         member_citerator _getMemberCSlot(uint64 Guid) const
         {
@@ -381,17 +381,17 @@ class TRINITY_DLL_SPEC Group
             return m_memberSlots.end();
         }
 
-		void SubGroupCounterIncrease(uint8 subgroup)
-		{
-			if (m_subGroupsCounts)
-				++m_subGroupsCounts[subgroup];
-		}
+        void SubGroupCounterIncrease(uint8 subgroup)
+        {
+            if (m_subGroupsCounts)
+                ++m_subGroupsCounts[subgroup];
+        }
 
-		void SubGroupCounterDecrease(uint8 subgroup)
-		{
-			if (m_subGroupsCounts)
-				--m_subGroupsCounts[subgroup];
-		}
+        void SubGroupCounterDecrease(uint8 subgroup)
+        {
+            if (m_subGroupsCounts)
+                --m_subGroupsCounts[subgroup];
+        }
 
         MemberSlotList      m_memberSlots;
         GroupRefManager     m_memberMgr;
@@ -409,6 +409,6 @@ class TRINITY_DLL_SPEC Group
         uint64              m_looterGuid;
         Rolls               RollId;
         BoundInstancesMap   m_boundInstances[TOTAL_DIFFICULTIES];
-		uint8*              m_subGroupsCounts;
+        uint8*              m_subGroupsCounts;
 };
 #endif

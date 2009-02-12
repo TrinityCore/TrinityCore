@@ -50,7 +50,7 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
         Reset();
     }
 
-	ScriptedInstance *pInstance;
+    ScriptedInstance *pInstance;
 
     uint32 BloodSiphon_Timer;
     uint32 CorruptedBlood_Timer;
@@ -97,7 +97,7 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-		DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -120,21 +120,21 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
         }else CorruptedBlood_Timer -= diff;
 
         //CauseInsanity_Timer
-		/*if (CauseInsanity_Timer < diff)
-		{
-		if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-		DoCast(target,SPELL_CAUSEINSANITY);
+        /*if (CauseInsanity_Timer < diff)
+        {
+        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+        DoCast(target,SPELL_CAUSEINSANITY);
 
-		CauseInsanity_Timer = 35000 + rand()%8000;
-		}else CauseInsanity_Timer -= diff;*/
+        CauseInsanity_Timer = 35000 + rand()%8000;
+        }else CauseInsanity_Timer -= diff;*/
 
         //WillOfHakkar_Timer
         if (WillOfHakkar_Timer < diff)
         {
-			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-				DoCast(target,SPELL_WILLOFHAKKAR);
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+                DoCast(target,SPELL_WILLOFHAKKAR);
 
-			WillOfHakkar_Timer = 25000 + rand()%10000;
+            WillOfHakkar_Timer = 25000 + rand()%10000;
         }else WillOfHakkar_Timer -= diff;
 
         if (!Enraged && Enrage_Timer < diff)

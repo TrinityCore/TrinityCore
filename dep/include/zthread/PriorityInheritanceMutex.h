@@ -26,8 +26,8 @@
 #include "zthread/Lockable.h"
 #include "zthread/NonCopyable.h"
 
-namespace ZThread { 
-  
+namespace ZThread {
+
   class PriorityInheritanceMutexImpl;
 
   /**
@@ -37,27 +37,27 @@ namespace ZThread {
    * @date <2003-07-16T19:37:36-0400>
    * @version 2.2.1
    *
-   * A PriorityInheritanceMutex is similar to a PriorityMutex, it is a non-reentrant, 
-   * priority sensitive MUTual EXclusion Lockable object. It differs only in its 
+   * A PriorityInheritanceMutex is similar to a PriorityMutex, it is a non-reentrant,
+   * priority sensitive MUTual EXclusion Lockable object. It differs only in its
    * scheduling policy.
    *
    * @see PriorityMutex
    *
    * <b>Scheduling</b>
    *
-   * Threads competing to acquire() a PriorityInheritanceMutex are granted access in 
+   * Threads competing to acquire() a PriorityInheritanceMutex are granted access in
    * order of priority. Threads with a higher priority will be given access first.
    *
-   * When a higher priority thread tries to acquire() a PriorityInheritanceMutex and is 
+   * When a higher priority thread tries to acquire() a PriorityInheritanceMutex and is
    * about to be blocked by a lower priority thread that has already acquire()d it, the
-   * lower priority thread will temporarily have its effective priority raised to that 
-   * of the higher priority thread until it release()s the mutex; at which point its 
-   * previous priority will be restored. 
+   * lower priority thread will temporarily have its effective priority raised to that
+   * of the higher priority thread until it release()s the mutex; at which point its
+   * previous priority will be restored.
    */
   class ZTHREAD_API PriorityInheritanceMutex : public Lockable, private NonCopyable {
-  
+
     PriorityInheritanceMutexImpl* _impl;
-  
+
   public:
 
     /**
@@ -69,23 +69,23 @@ namespace ZThread {
      * @see Mutex::~Mutex()
      */
     virtual ~PriorityInheritanceMutex();
-  
+
     /**
      * @see Mutex::acquire()
      */
-    virtual void acquire(); 
+    virtual void acquire();
 
     /**
      * @see Mutex::tryAcquire(unsigned long timeout)
      */
-    virtual bool tryAcquire(unsigned long timeout); 
-  
+    virtual bool tryAcquire(unsigned long timeout);
+
     /**
      * @see Mutex::release()
      */
     virtual void release();
-  
-  }; 
+
+  };
 
 
 } // namespace ZThread

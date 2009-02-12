@@ -5,21 +5,21 @@
  * This package is an SSL implementation written
  * by Eric Young (eay@cryptsoft.com).
  * The implementation was written so as to conform with Netscapes SSL.
- * 
+ *
  * This library is free for commercial and non-commercial use as long as
  * the following conditions are aheared to.  The following conditions
  * apply to all code found in this distribution, be it the RC4, RSA,
  * lhash, DES, etc., code; not just the SSL code.  The SSL documentation
  * included with this distribution is covered by the same copyright terms
  * except that the holder is Tim Hudson (tjh@cryptsoft.com).
- * 
+ *
  * Copyright remains Eric Young's, and as such any Copyright notices in
  * the code are not to be removed.
  * If this package is used in a product, Eric Young should be given attribution
  * as the author of the parts of the library used.
  * This can be in the form of a textual message at program startup or
  * in documentation (online or textual) provided with the package.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -34,10 +34,10 @@
  *     Eric Young (eay@cryptsoft.com)"
  *    The word 'cryptographic' can be left out if the rouines from the library
  *    being used are not cryptographic related :-).
- * 4. If you include any Windows specific code (or a derivative thereof) from 
+ * 4. If you include any Windows specific code (or a derivative thereof) from
  *    the apps directory (application code) you must include an acknowledgement:
  *    "This product includes software written by Tim Hudson (tjh@cryptsoft.com)"
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY ERIC YOUNG ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -49,7 +49,7 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- * 
+ *
  * The licence and distribution terms for any publically available version or
  * derivative of this code cannot be changed.  i.e. this code cannot simply be
  * copied and put under another distribution licence
@@ -58,7 +58,7 @@
 /* ====================================================================
  * Copyright 2002 Sun Microsystems, Inc. ALL RIGHTS RESERVED.
  *
- * Portions of the attached software ("Contribution") are developed by 
+ * Portions of the attached software ("Contribution") are developed by
  * SUN MICROSYSTEMS, INC., and are contributed to the OpenSSL project.
  *
  * The Contribution is licensed pursuant to the OpenSSL open source
@@ -69,8 +69,8 @@
  *
  */
 
-#ifndef HEADER_TLS1_H 
-#define HEADER_TLS1_H 
+#ifndef HEADER_TLS1_H
+#define HEADER_TLS1_H
 
 #include <openssl/buffer.h>
 
@@ -78,67 +78,67 @@
 extern "C" {
 #endif
 
-#define TLS1_ALLOW_EXPERIMENTAL_CIPHERSUITES	0
+#define TLS1_ALLOW_EXPERIMENTAL_CIPHERSUITES    0
 
-#define TLS1_VERSION			0x0301
-#define TLS1_VERSION_MAJOR		0x03
-#define TLS1_VERSION_MINOR		0x01
+#define TLS1_VERSION            0x0301
+#define TLS1_VERSION_MAJOR      0x03
+#define TLS1_VERSION_MINOR      0x01
 
-#define TLS1_AD_DECRYPTION_FAILED	21
-#define TLS1_AD_RECORD_OVERFLOW		22
-#define TLS1_AD_UNKNOWN_CA		48	/* fatal */
-#define TLS1_AD_ACCESS_DENIED		49	/* fatal */
-#define TLS1_AD_DECODE_ERROR		50	/* fatal */
-#define TLS1_AD_DECRYPT_ERROR		51
-#define TLS1_AD_EXPORT_RESTRICTION	60	/* fatal */
-#define TLS1_AD_PROTOCOL_VERSION	70	/* fatal */
-#define TLS1_AD_INSUFFICIENT_SECURITY	71	/* fatal */
-#define TLS1_AD_INTERNAL_ERROR		80	/* fatal */
-#define TLS1_AD_USER_CANCELLED		90
-#define TLS1_AD_NO_RENEGOTIATION	100
+#define TLS1_AD_DECRYPTION_FAILED   21
+#define TLS1_AD_RECORD_OVERFLOW     22
+#define TLS1_AD_UNKNOWN_CA      48  /* fatal */
+#define TLS1_AD_ACCESS_DENIED       49  /* fatal */
+#define TLS1_AD_DECODE_ERROR        50  /* fatal */
+#define TLS1_AD_DECRYPT_ERROR       51
+#define TLS1_AD_EXPORT_RESTRICTION  60  /* fatal */
+#define TLS1_AD_PROTOCOL_VERSION    70  /* fatal */
+#define TLS1_AD_INSUFFICIENT_SECURITY   71  /* fatal */
+#define TLS1_AD_INTERNAL_ERROR      80  /* fatal */
+#define TLS1_AD_USER_CANCELLED      90
+#define TLS1_AD_NO_RENEGOTIATION    100
 
 /* Additional TLS ciphersuites from draft-ietf-tls-56-bit-ciphersuites-00.txt
  * (available if TLS1_ALLOW_EXPERIMENTAL_CIPHERSUITES is defined, see
  * s3_lib.c).  We actually treat them like SSL 3.0 ciphers, which we probably
  * shouldn't. */
-#define TLS1_CK_RSA_EXPORT1024_WITH_RC4_56_MD5		0x03000060
-#define TLS1_CK_RSA_EXPORT1024_WITH_RC2_CBC_56_MD5	0x03000061
-#define TLS1_CK_RSA_EXPORT1024_WITH_DES_CBC_SHA		0x03000062
-#define TLS1_CK_DHE_DSS_EXPORT1024_WITH_DES_CBC_SHA	0x03000063
-#define TLS1_CK_RSA_EXPORT1024_WITH_RC4_56_SHA		0x03000064
-#define TLS1_CK_DHE_DSS_EXPORT1024_WITH_RC4_56_SHA	0x03000065
-#define TLS1_CK_DHE_DSS_WITH_RC4_128_SHA		0x03000066
+#define TLS1_CK_RSA_EXPORT1024_WITH_RC4_56_MD5      0x03000060
+#define TLS1_CK_RSA_EXPORT1024_WITH_RC2_CBC_56_MD5  0x03000061
+#define TLS1_CK_RSA_EXPORT1024_WITH_DES_CBC_SHA     0x03000062
+#define TLS1_CK_DHE_DSS_EXPORT1024_WITH_DES_CBC_SHA 0x03000063
+#define TLS1_CK_RSA_EXPORT1024_WITH_RC4_56_SHA      0x03000064
+#define TLS1_CK_DHE_DSS_EXPORT1024_WITH_RC4_56_SHA  0x03000065
+#define TLS1_CK_DHE_DSS_WITH_RC4_128_SHA        0x03000066
 
 /* AES ciphersuites from RFC3268 */
 
-#define TLS1_CK_RSA_WITH_AES_128_SHA			0x0300002F
-#define TLS1_CK_DH_DSS_WITH_AES_128_SHA			0x03000030
-#define TLS1_CK_DH_RSA_WITH_AES_128_SHA			0x03000031
-#define TLS1_CK_DHE_DSS_WITH_AES_128_SHA		0x03000032
-#define TLS1_CK_DHE_RSA_WITH_AES_128_SHA		0x03000033
-#define TLS1_CK_ADH_WITH_AES_128_SHA			0x03000034
+#define TLS1_CK_RSA_WITH_AES_128_SHA            0x0300002F
+#define TLS1_CK_DH_DSS_WITH_AES_128_SHA         0x03000030
+#define TLS1_CK_DH_RSA_WITH_AES_128_SHA         0x03000031
+#define TLS1_CK_DHE_DSS_WITH_AES_128_SHA        0x03000032
+#define TLS1_CK_DHE_RSA_WITH_AES_128_SHA        0x03000033
+#define TLS1_CK_ADH_WITH_AES_128_SHA            0x03000034
 
-#define TLS1_CK_RSA_WITH_AES_256_SHA			0x03000035
-#define TLS1_CK_DH_DSS_WITH_AES_256_SHA			0x03000036
-#define TLS1_CK_DH_RSA_WITH_AES_256_SHA			0x03000037
-#define TLS1_CK_DHE_DSS_WITH_AES_256_SHA		0x03000038
-#define TLS1_CK_DHE_RSA_WITH_AES_256_SHA		0x03000039
-#define TLS1_CK_ADH_WITH_AES_256_SHA			0x0300003A
+#define TLS1_CK_RSA_WITH_AES_256_SHA            0x03000035
+#define TLS1_CK_DH_DSS_WITH_AES_256_SHA         0x03000036
+#define TLS1_CK_DH_RSA_WITH_AES_256_SHA         0x03000037
+#define TLS1_CK_DHE_DSS_WITH_AES_256_SHA        0x03000038
+#define TLS1_CK_DHE_RSA_WITH_AES_256_SHA        0x03000039
+#define TLS1_CK_ADH_WITH_AES_256_SHA            0x0300003A
 
 /* Camellia ciphersuites from RFC4132 */
-#define TLS1_CK_RSA_WITH_CAMELLIA_128_CBC_SHA		0x03000041
-#define TLS1_CK_DH_DSS_WITH_CAMELLIA_128_CBC_SHA	0x03000042
-#define TLS1_CK_DH_RSA_WITH_CAMELLIA_128_CBC_SHA	0x03000043
-#define TLS1_CK_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA	0x03000044
-#define TLS1_CK_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA	0x03000045
-#define TLS1_CK_ADH_WITH_CAMELLIA_128_CBC_SHA		0x03000046
+#define TLS1_CK_RSA_WITH_CAMELLIA_128_CBC_SHA       0x03000041
+#define TLS1_CK_DH_DSS_WITH_CAMELLIA_128_CBC_SHA    0x03000042
+#define TLS1_CK_DH_RSA_WITH_CAMELLIA_128_CBC_SHA    0x03000043
+#define TLS1_CK_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA   0x03000044
+#define TLS1_CK_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA   0x03000045
+#define TLS1_CK_ADH_WITH_CAMELLIA_128_CBC_SHA       0x03000046
 
-#define TLS1_CK_RSA_WITH_CAMELLIA_256_CBC_SHA		0x03000084
-#define TLS1_CK_DH_DSS_WITH_CAMELLIA_256_CBC_SHA	0x03000085
-#define TLS1_CK_DH_RSA_WITH_CAMELLIA_256_CBC_SHA	0x03000086
-#define TLS1_CK_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA	0x03000087
-#define TLS1_CK_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA	0x03000088
-#define TLS1_CK_ADH_WITH_CAMELLIA_256_CBC_SHA		0x03000089
+#define TLS1_CK_RSA_WITH_CAMELLIA_256_CBC_SHA       0x03000084
+#define TLS1_CK_DH_DSS_WITH_CAMELLIA_256_CBC_SHA    0x03000085
+#define TLS1_CK_DH_RSA_WITH_CAMELLIA_256_CBC_SHA    0x03000086
+#define TLS1_CK_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA   0x03000087
+#define TLS1_CK_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA   0x03000088
+#define TLS1_CK_ADH_WITH_CAMELLIA_256_CBC_SHA       0x03000089
 
 /* ECC ciphersuites from draft-ietf-tls-ecc-12.txt with changes soon to be in draft 13 */
 #define TLS1_CK_ECDH_ECDSA_WITH_NULL_SHA                0x0300C001
@@ -178,28 +178,28 @@ extern "C" {
  * (The alias for the list of all such ciphers also is "EDH".)
  * The specifications speak of "EDH"; maybe we should allow both forms
  * for everything. */
-#define TLS1_TXT_RSA_EXPORT1024_WITH_RC4_56_MD5		"EXP1024-RC4-MD5"
-#define TLS1_TXT_RSA_EXPORT1024_WITH_RC2_CBC_56_MD5	"EXP1024-RC2-CBC-MD5"
-#define TLS1_TXT_RSA_EXPORT1024_WITH_DES_CBC_SHA	"EXP1024-DES-CBC-SHA"
-#define TLS1_TXT_DHE_DSS_EXPORT1024_WITH_DES_CBC_SHA	"EXP1024-DHE-DSS-DES-CBC-SHA"
-#define TLS1_TXT_RSA_EXPORT1024_WITH_RC4_56_SHA		"EXP1024-RC4-SHA"
-#define TLS1_TXT_DHE_DSS_EXPORT1024_WITH_RC4_56_SHA	"EXP1024-DHE-DSS-RC4-SHA"
-#define TLS1_TXT_DHE_DSS_WITH_RC4_128_SHA		"DHE-DSS-RC4-SHA"
+#define TLS1_TXT_RSA_EXPORT1024_WITH_RC4_56_MD5     "EXP1024-RC4-MD5"
+#define TLS1_TXT_RSA_EXPORT1024_WITH_RC2_CBC_56_MD5 "EXP1024-RC2-CBC-MD5"
+#define TLS1_TXT_RSA_EXPORT1024_WITH_DES_CBC_SHA    "EXP1024-DES-CBC-SHA"
+#define TLS1_TXT_DHE_DSS_EXPORT1024_WITH_DES_CBC_SHA    "EXP1024-DHE-DSS-DES-CBC-SHA"
+#define TLS1_TXT_RSA_EXPORT1024_WITH_RC4_56_SHA     "EXP1024-RC4-SHA"
+#define TLS1_TXT_DHE_DSS_EXPORT1024_WITH_RC4_56_SHA "EXP1024-DHE-DSS-RC4-SHA"
+#define TLS1_TXT_DHE_DSS_WITH_RC4_128_SHA       "DHE-DSS-RC4-SHA"
 
 /* AES ciphersuites from RFC3268 */
-#define TLS1_TXT_RSA_WITH_AES_128_SHA			"AES128-SHA"
-#define TLS1_TXT_DH_DSS_WITH_AES_128_SHA		"DH-DSS-AES128-SHA"
-#define TLS1_TXT_DH_RSA_WITH_AES_128_SHA		"DH-RSA-AES128-SHA"
-#define TLS1_TXT_DHE_DSS_WITH_AES_128_SHA		"DHE-DSS-AES128-SHA"
-#define TLS1_TXT_DHE_RSA_WITH_AES_128_SHA		"DHE-RSA-AES128-SHA"
-#define TLS1_TXT_ADH_WITH_AES_128_SHA			"ADH-AES128-SHA"
+#define TLS1_TXT_RSA_WITH_AES_128_SHA           "AES128-SHA"
+#define TLS1_TXT_DH_DSS_WITH_AES_128_SHA        "DH-DSS-AES128-SHA"
+#define TLS1_TXT_DH_RSA_WITH_AES_128_SHA        "DH-RSA-AES128-SHA"
+#define TLS1_TXT_DHE_DSS_WITH_AES_128_SHA       "DHE-DSS-AES128-SHA"
+#define TLS1_TXT_DHE_RSA_WITH_AES_128_SHA       "DHE-RSA-AES128-SHA"
+#define TLS1_TXT_ADH_WITH_AES_128_SHA           "ADH-AES128-SHA"
 
-#define TLS1_TXT_RSA_WITH_AES_256_SHA			"AES256-SHA"
-#define TLS1_TXT_DH_DSS_WITH_AES_256_SHA		"DH-DSS-AES256-SHA"
-#define TLS1_TXT_DH_RSA_WITH_AES_256_SHA		"DH-RSA-AES256-SHA"
-#define TLS1_TXT_DHE_DSS_WITH_AES_256_SHA		"DHE-DSS-AES256-SHA"
-#define TLS1_TXT_DHE_RSA_WITH_AES_256_SHA		"DHE-RSA-AES256-SHA"
-#define TLS1_TXT_ADH_WITH_AES_256_SHA			"ADH-AES256-SHA"
+#define TLS1_TXT_RSA_WITH_AES_256_SHA           "AES256-SHA"
+#define TLS1_TXT_DH_DSS_WITH_AES_256_SHA        "DH-DSS-AES256-SHA"
+#define TLS1_TXT_DH_RSA_WITH_AES_256_SHA        "DH-RSA-AES256-SHA"
+#define TLS1_TXT_DHE_DSS_WITH_AES_256_SHA       "DHE-DSS-AES256-SHA"
+#define TLS1_TXT_DHE_RSA_WITH_AES_256_SHA       "DHE-RSA-AES256-SHA"
+#define TLS1_TXT_ADH_WITH_AES_256_SHA           "ADH-AES256-SHA"
 
 /* ECC ciphersuites from draft-ietf-tls-ecc-01.txt (Mar 15, 2001) */
 #define TLS1_TXT_ECDH_ECDSA_WITH_NULL_SHA               "ECDH-ECDSA-NULL-SHA"
@@ -233,49 +233,49 @@ extern "C" {
 #define TLS1_TXT_ECDH_anon_WITH_AES_256_CBC_SHA         "AECDH-AES256-SHA"
 
 /* Camellia ciphersuites form RFC4132 */
-#define TLS1_TXT_RSA_WITH_CAMELLIA_128_CBC_SHA		"CAMELLIA128-SHA"
-#define TLS1_TXT_DH_DSS_WITH_CAMELLIA_128_CBC_SHA	"DH-DSS-CAMELLIA128-SHA"
-#define TLS1_TXT_DH_RSA_WITH_CAMELLIA_128_CBC_SHA	"DH-RSA-CAMELLIA128-SHA"
-#define TLS1_TXT_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA	"DHE-DSS-CAMELLIA128-SHA"
-#define TLS1_TXT_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA	"DHE-RSA-CAMELLIA128-SHA"
-#define TLS1_TXT_ADH_WITH_CAMELLIA_128_CBC_SHA		"ADH-CAMELLIA128-SHA"
+#define TLS1_TXT_RSA_WITH_CAMELLIA_128_CBC_SHA      "CAMELLIA128-SHA"
+#define TLS1_TXT_DH_DSS_WITH_CAMELLIA_128_CBC_SHA   "DH-DSS-CAMELLIA128-SHA"
+#define TLS1_TXT_DH_RSA_WITH_CAMELLIA_128_CBC_SHA   "DH-RSA-CAMELLIA128-SHA"
+#define TLS1_TXT_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA  "DHE-DSS-CAMELLIA128-SHA"
+#define TLS1_TXT_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA  "DHE-RSA-CAMELLIA128-SHA"
+#define TLS1_TXT_ADH_WITH_CAMELLIA_128_CBC_SHA      "ADH-CAMELLIA128-SHA"
 
-#define TLS1_TXT_RSA_WITH_CAMELLIA_256_CBC_SHA		"CAMELLIA256-SHA"
-#define TLS1_TXT_DH_DSS_WITH_CAMELLIA_256_CBC_SHA	"DH-DSS-CAMELLIA256-SHA"
-#define TLS1_TXT_DH_RSA_WITH_CAMELLIA_256_CBC_SHA	"DH-RSA-CAMELLIA256-SHA"
-#define TLS1_TXT_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA	"DHE-DSS-CAMELLIA256-SHA"
-#define TLS1_TXT_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA	"DHE-RSA-CAMELLIA256-SHA"
-#define TLS1_TXT_ADH_WITH_CAMELLIA_256_CBC_SHA		"ADH-CAMELLIA256-SHA"
+#define TLS1_TXT_RSA_WITH_CAMELLIA_256_CBC_SHA      "CAMELLIA256-SHA"
+#define TLS1_TXT_DH_DSS_WITH_CAMELLIA_256_CBC_SHA   "DH-DSS-CAMELLIA256-SHA"
+#define TLS1_TXT_DH_RSA_WITH_CAMELLIA_256_CBC_SHA   "DH-RSA-CAMELLIA256-SHA"
+#define TLS1_TXT_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA  "DHE-DSS-CAMELLIA256-SHA"
+#define TLS1_TXT_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA  "DHE-RSA-CAMELLIA256-SHA"
+#define TLS1_TXT_ADH_WITH_CAMELLIA_256_CBC_SHA      "ADH-CAMELLIA256-SHA"
 
 
-#define TLS_CT_RSA_SIGN			1
-#define TLS_CT_DSS_SIGN			2
-#define TLS_CT_RSA_FIXED_DH		3
-#define TLS_CT_DSS_FIXED_DH		4
-#define TLS_CT_ECDSA_SIGN		64
-#define TLS_CT_RSA_FIXED_ECDH		65
-#define TLS_CT_ECDSA_FIXED_ECDH 	66
-#define TLS_CT_NUMBER			7
+#define TLS_CT_RSA_SIGN         1
+#define TLS_CT_DSS_SIGN         2
+#define TLS_CT_RSA_FIXED_DH     3
+#define TLS_CT_DSS_FIXED_DH     4
+#define TLS_CT_ECDSA_SIGN       64
+#define TLS_CT_RSA_FIXED_ECDH       65
+#define TLS_CT_ECDSA_FIXED_ECDH     66
+#define TLS_CT_NUMBER           7
 
-#define TLS1_FINISH_MAC_LENGTH		12
+#define TLS1_FINISH_MAC_LENGTH      12
 
-#define TLS_MD_MAX_CONST_SIZE			20
-#define TLS_MD_CLIENT_FINISH_CONST		"client finished"
-#define TLS_MD_CLIENT_FINISH_CONST_SIZE		15
-#define TLS_MD_SERVER_FINISH_CONST		"server finished"
-#define TLS_MD_SERVER_FINISH_CONST_SIZE		15
-#define TLS_MD_SERVER_WRITE_KEY_CONST		"server write key"
-#define TLS_MD_SERVER_WRITE_KEY_CONST_SIZE	16
-#define TLS_MD_KEY_EXPANSION_CONST		"key expansion"
-#define TLS_MD_KEY_EXPANSION_CONST_SIZE		13
-#define TLS_MD_CLIENT_WRITE_KEY_CONST		"client write key"
-#define TLS_MD_CLIENT_WRITE_KEY_CONST_SIZE	16
-#define TLS_MD_SERVER_WRITE_KEY_CONST		"server write key"
-#define TLS_MD_SERVER_WRITE_KEY_CONST_SIZE	16
-#define TLS_MD_IV_BLOCK_CONST			"IV block"
-#define TLS_MD_IV_BLOCK_CONST_SIZE		8
-#define TLS_MD_MASTER_SECRET_CONST		"master secret"
-#define TLS_MD_MASTER_SECRET_CONST_SIZE		13
+#define TLS_MD_MAX_CONST_SIZE           20
+#define TLS_MD_CLIENT_FINISH_CONST      "client finished"
+#define TLS_MD_CLIENT_FINISH_CONST_SIZE     15
+#define TLS_MD_SERVER_FINISH_CONST      "server finished"
+#define TLS_MD_SERVER_FINISH_CONST_SIZE     15
+#define TLS_MD_SERVER_WRITE_KEY_CONST       "server write key"
+#define TLS_MD_SERVER_WRITE_KEY_CONST_SIZE  16
+#define TLS_MD_KEY_EXPANSION_CONST      "key expansion"
+#define TLS_MD_KEY_EXPANSION_CONST_SIZE     13
+#define TLS_MD_CLIENT_WRITE_KEY_CONST       "client write key"
+#define TLS_MD_CLIENT_WRITE_KEY_CONST_SIZE  16
+#define TLS_MD_SERVER_WRITE_KEY_CONST       "server write key"
+#define TLS_MD_SERVER_WRITE_KEY_CONST_SIZE  16
+#define TLS_MD_IV_BLOCK_CONST           "IV block"
+#define TLS_MD_IV_BLOCK_CONST_SIZE      8
+#define TLS_MD_MASTER_SECRET_CONST      "master secret"
+#define TLS_MD_MASTER_SECRET_CONST_SIZE     13
 
 #ifdef CHARSET_EBCDIC
 #undef TLS_MD_CLIENT_FINISH_CONST

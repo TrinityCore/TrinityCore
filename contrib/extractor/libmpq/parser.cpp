@@ -34,21 +34,21 @@
  *  deleted but \" would not.
  */
 char *libmpq_conf_delete_char(char *buf, char *chars) {
-	static char *temp;
-	char ch;
+    static char *temp;
+    char ch;
 
-	temp = buf;
+    temp = buf;
 
-	/* strip out special chars like " */
-	while (temp = strpbrk(temp, chars)) {
-		ch = temp[0];
-		memmove(&temp[0], &temp[1], strlen(temp));
-		if (ch == '\\') {
-			temp++;
-		}
-	}
+    /* strip out special chars like " */
+    while (temp = strpbrk(temp, chars)) {
+        ch = temp[0];
+        memmove(&temp[0], &temp[1], strlen(temp));
+        if (ch == '\\') {
+            temp++;
+        }
+    }
 
-	return buf;
+    return buf;
 }
 
 /*
@@ -56,65 +56,65 @@ char *libmpq_conf_delete_char(char *buf, char *chars) {
  *  return 1 on success and the byte array or 0 and null.
  */
 int libmpq_conf_parse_line(char *line, char *search_value, char *return_value, int size) {
-	int level = 0;
-	int found = 0;
-	int i = 0;
-	int pos = 0;
+    int level = 0;
+    int found = 0;
+    int i = 0;
+    int pos = 0;
 
-	/* search value */
-	while (*(++line)) {
+    /* search value */
+    while (*(++line)) {
 
-		/* check for spaces */
-		if (!isspace(*line) && level == 1) {
+        /* check for spaces */
+        if (!isspace(*line) && level == 1) {
 
-			/* we found our value so break */
-			found = 1;
-			break;
-		}
+            /* we found our value so break */
+            found = 1;
+            break;
+        }
 
-		/* check for '=' so the value follows as next parameter */
-		if (*line == '=' && level == 0) {
-			level = 1;
-		}
-	}
+        /* check for '=' so the value follows as next parameter */
+        if (*line == '=' && level == 0) {
+            level = 1;
+        }
+    }
 
-	/* now search for comment in this line */
-	for (i = 0; i < int(strlen(line)); i++) {
-		if (line[i] == '#') {
-			pos = i - 1;
-			break;
-		}
-	}
+    /* now search for comment in this line */
+    for (i = 0; i < int(strlen(line)); i++) {
+        if (line[i] == '#') {
+            pos = i - 1;
+            break;
+        }
+    }
 
-	/* now set end of byte array behind value, but only if comment was found */
-	if (pos != 0) {
-		for (i = pos; i >= 0; i--) {
-			if (line[i] != ' ' && line[i] != '\t') {
-				line[i + 1] = '\0';
-				break;
-			}
-		}
-	}
+    /* now set end of byte array behind value, but only if comment was found */
+    if (pos != 0) {
+        for (i = pos; i >= 0; i--) {
+            if (line[i] != ' ' && line[i] != '\t') {
+                line[i + 1] = '\0';
+                break;
+            }
+        }
+    }
 
-	/* now check if line has trailing spaces */
-	for (i = strlen(line); i >= 0; i--) {
-		if (line[i] != ' ' && line[i] != '\t') {
-			line[i + 1] = '\0';
-			break;
-		}
-	}
+    /* now check if line has trailing spaces */
+    for (i = strlen(line); i >= 0; i--) {
+        if (line[i] != ' ' && line[i] != '\t') {
+            line[i + 1] = '\0';
+            break;
+        }
+    }
 
-	/* now check if value is quoted with "" and if there is a char behind. */
-	for (i = strlen(line); i >= 0; i--) {
-		if (line[i] == '"') {
-			line[i + 1] = '\0';
-			break;
-		}
-	}
+    /* now check if value is quoted with "" and if there is a char behind. */
+    for (i = strlen(line); i >= 0; i--) {
+        if (line[i] == '"') {
+            line[i + 1] = '\0';
+            break;
+        }
+    }
 
-	/* return the values */
-	strncpy(return_value, line, size);
-	return found;
+    /* return the values */
+    strncpy(return_value, line, size);
+    return found;
 }
 
 /*
@@ -122,70 +122,70 @@ int libmpq_conf_parse_line(char *line, char *search_value, char *return_value, i
  *  listdb or config file. On success it returns 1, otherwise 0.
  */
 int libmpq_conf_get_value(FILE *fp, char *search_value, void *return_value, int type, int size) {
-	char buf[LIBMPQ_CONF_BUFSIZE];
-	int found = 0;
-	int result = LIBMPQ_TOOLS_SUCCESS;
+    char buf[LIBMPQ_CONF_BUFSIZE];
+    int found = 0;
+    int result = LIBMPQ_TOOLS_SUCCESS;
 
-	while (fgets(buf, LIBMPQ_CONF_BUFSIZE, fp) != NULL) {
-		char *line;
+    while (fgets(buf, LIBMPQ_CONF_BUFSIZE, fp) != NULL) {
+        char *line;
 
-		buf[strlen(buf) - 1] = '\0';
+        buf[strlen(buf) - 1] = '\0';
 
-		/* skip whitespace */
-		for (line = buf; isspace(*line); line++) {
-			continue;
-		}
+        /* skip whitespace */
+        for (line = buf; isspace(*line); line++) {
+            continue;
+        }
 
-		/* skip empty line */
-		if (line[0] == '\0') {
-			continue;
-		}
+        /* skip empty line */
+        if (line[0] == '\0') {
+            continue;
+        }
 
-		/* skip comments */
-		if (line[0] == '#') {
-			continue;
-		}
+        /* skip comments */
+        if (line[0] == '#') {
+            continue;
+        }
 
-		/* process the line */
-		//if (!strncasecmp(line, search_value, strlen(search_value))) {
+        /* process the line */
+        //if (!strncasecmp(line, search_value, strlen(search_value))) {
         if (!strcmp(line, search_value)) {
-			found = libmpq_conf_parse_line(line, search_value, line, LIBMPQ_CONF_BUFSIZE);
-			if (found == 1) {
-				libmpq_conf_delete_char(line, "\"\\");
+            found = libmpq_conf_parse_line(line, search_value, line, LIBMPQ_CONF_BUFSIZE);
+            if (found == 1) {
+                libmpq_conf_delete_char(line, "\"\\");
 
-				switch (type) {
-					case LIBMPQ_CONF_TYPE_INT:
+                switch (type) {
+                    case LIBMPQ_CONF_TYPE_INT:
 
-						/* if it is no valid number it is safe to return 0 */
-						*(int *)return_value = atoi(line);
-						break;
-					default:
-						strncpy((char *)return_value, line, size);
-						break;
-				}
+                        /* if it is no valid number it is safe to return 0 */
+                        *(int *)return_value = atoi(line);
+                        break;
+                    default:
+                        strncpy((char *)return_value, line, size);
+                        break;
+                }
 
-				/* value found, so rewind stream */
-				break;
-			}
-		}
-	}
+                /* value found, so rewind stream */
+                break;
+            }
+        }
+    }
 
-	/* if value was not found */
-	if (found == 0) {
-		switch (type) {
-			case LIBMPQ_CONF_TYPE_INT:
-				*(int *)return_value = 0;
-				result = LIBMPQ_CONF_EVALUE_NOT_FOUND;
-				break;
-			default:
-				strncpy((char *)return_value, "", size);
-				result = LIBMPQ_CONF_EVALUE_NOT_FOUND;
-				break;
-		}
-	}
-	fseek(fp, 0L, SEEK_SET);
+    /* if value was not found */
+    if (found == 0) {
+        switch (type) {
+            case LIBMPQ_CONF_TYPE_INT:
+                *(int *)return_value = 0;
+                result = LIBMPQ_CONF_EVALUE_NOT_FOUND;
+                break;
+            default:
+                strncpy((char *)return_value, "", size);
+                result = LIBMPQ_CONF_EVALUE_NOT_FOUND;
+                break;
+        }
+    }
+    fseek(fp, 0L, SEEK_SET);
 
-	return result;
+    return result;
 }
 
 /*
@@ -194,101 +194,101 @@ int libmpq_conf_get_value(FILE *fp, char *search_value, void *return_value, int 
  *  entries in the byte array. On success it returns 1, otherwise 0.
  */
 int libmpq_conf_get_array(FILE *fp, char *search_value, char ***filelist, int *entries) {
-	char buf[LIBMPQ_CONF_BUFSIZE];
-	char temp[LIBMPQ_CONF_BUFSIZE];
-	int level = 0;
-	int array_start = 0;
-	int array_end = 0;
-	int fl_count;
-	int fl_size;
-	int found = 0;
-	int i = 0;
+    char buf[LIBMPQ_CONF_BUFSIZE];
+    char temp[LIBMPQ_CONF_BUFSIZE];
+    int level = 0;
+    int array_start = 0;
+    int array_end = 0;
+    int fl_count;
+    int fl_size;
+    int found = 0;
+    int i = 0;
 
-	*entries = 0;
+    *entries = 0;
 
-	/* allocate memory for the file list */
-	(*filelist) = (char **)malloc(LIBMPQ_CONF_FL_INCREMENT * sizeof(char *));
-	fl_count = 0;
-	fl_size = LIBMPQ_CONF_FL_INCREMENT;
+    /* allocate memory for the file list */
+    (*filelist) = (char **)malloc(LIBMPQ_CONF_FL_INCREMENT * sizeof(char *));
+    fl_count = 0;
+    fl_size = LIBMPQ_CONF_FL_INCREMENT;
 
-	while (fgets(buf, LIBMPQ_CONF_BUFSIZE, fp) != NULL) {
-		char *line;
+    while (fgets(buf, LIBMPQ_CONF_BUFSIZE, fp) != NULL) {
+        char *line;
 
-		buf[strlen(buf) - 1] = '\0';
+        buf[strlen(buf) - 1] = '\0';
 
-		/* skip whitespace */
-		for (line = buf; isspace(*line); line++) {
-			continue;
-		}
+        /* skip whitespace */
+        for (line = buf; isspace(*line); line++) {
+            continue;
+        }
 
-		/* skip empty line */
-		if (line[0] == '\0') {
-			continue;
-		}
+        /* skip empty line */
+        if (line[0] == '\0') {
+            continue;
+        }
 
-		/* skip comments */
-		if (line[0] == '#') {
-			continue;
-		}
+        /* skip comments */
+        if (line[0] == '#') {
+            continue;
+        }
 
-		/* check for array end ) */
-		if (*line == ')') {
-			array_end = 1;
-			break;
-		}
+        /* check for array end ) */
+        if (*line == ')') {
+            array_end = 1;
+            break;
+        }
 
-		/* process entries between () */
-		if (array_start == 1 && array_end == 0) {
+        /* process entries between () */
+        if (array_start == 1 && array_end == 0) {
 
-			/* add dummy option to use with libmpq_conf_parse_line() */
-			strncpy(temp, "MPQ_BUFFER = ", LIBMPQ_CONF_BUFSIZE);
-			strncat(temp, line, LIBMPQ_CONF_BUFSIZE);
-			found = libmpq_conf_parse_line(temp, "MPQ_BUFFER", temp, LIBMPQ_CONF_BUFSIZE);
+            /* add dummy option to use with libmpq_conf_parse_line() */
+            strncpy(temp, "MPQ_BUFFER = ", LIBMPQ_CONF_BUFSIZE);
+            strncat(temp, line, LIBMPQ_CONF_BUFSIZE);
+            found = libmpq_conf_parse_line(temp, "MPQ_BUFFER", temp, LIBMPQ_CONF_BUFSIZE);
 
-			if (found == 1) {
-				libmpq_conf_delete_char(temp, "\"\\");
+            if (found == 1) {
+                libmpq_conf_delete_char(temp, "\"\\");
 
-				/* set the next filelist entry to a copy of the file */
-				(*filelist)[fl_count++] = _strdup(temp);
+                /* set the next filelist entry to a copy of the file */
+                (*filelist)[fl_count++] = _strdup(temp);
 
-				/* increase the array size */
-				if (fl_count == fl_size) {
-					(*filelist) = (char **)realloc((*filelist), (fl_size + LIBMPQ_CONF_FL_INCREMENT) * sizeof(char *));
-					fl_size += LIBMPQ_CONF_FL_INCREMENT;
-				}
+                /* increase the array size */
+                if (fl_count == fl_size) {
+                    (*filelist) = (char **)realloc((*filelist), (fl_size + LIBMPQ_CONF_FL_INCREMENT) * sizeof(char *));
+                    fl_size += LIBMPQ_CONF_FL_INCREMENT;
+                }
 
-				/* increase number of entries */
-				(*entries)++;
-			}
-		}
+                /* increase number of entries */
+                (*entries)++;
+            }
+        }
 
-		/* process the line and search array start */
-		//if (!strncasecmp(line, search_value, strlen(search_value))) {
+        /* process the line and search array start */
+        //if (!strncasecmp(line, search_value, strlen(search_value))) {
         if (!strcmp(line, search_value)) {
 
-			/* search value */
-			while (*(++line)) {
+            /* search value */
+            while (*(++line)) {
 
-				/* check for array start ( */
-				if (*line == '(' && level == 1) {
+                /* check for array start ( */
+                if (*line == '(' && level == 1) {
 
-					/* we found our value so break */
-					array_start = 1;
-					break;
-				}
+                    /* we found our value so break */
+                    array_start = 1;
+                    break;
+                }
 
-				/* check for '=' so the value follows as next parameter */
-				if (*line == '=' && level == 0) {
-					level = 1;
-				}
-			}
-		}
-	}
+                /* check for '=' so the value follows as next parameter */
+                if (*line == '=' && level == 0) {
+                    level = 1;
+                }
+            }
+        }
+    }
 
-	/* we got all files, so rewind stream */
-	fseek(fp, 0L, SEEK_SET);
+    /* we got all files, so rewind stream */
+    fseek(fp, 0L, SEEK_SET);
 
-	(*filelist)[fl_count] = NULL;
+    (*filelist)[fl_count] = NULL;
 
-	return found;
+    return found;
 }

@@ -124,7 +124,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
                 break;
         }
 
-		 debug_log("SD2: Instance Hyjal: Instance data updated for event %u (Data=%u)",type,data);
+         debug_log("SD2: Instance Hyjal: Instance data updated for event %u (Data=%u)",type,data);
 
         if(data == DONE)
             SaveToDB();
@@ -162,8 +162,8 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
     {
         OUT_SAVE_INST_DATA;
         std::ostringstream stream;
-		stream << Encounters[0] << " " << Encounters[1] << " " << Encounters[2] << " "
-			<< Encounters[3] << " " << Encounters[4];
+        stream << Encounters[0] << " " << Encounters[1] << " " << Encounters[2] << " "
+            << Encounters[3] << " " << Encounters[4];
         char* out = new char[stream.str().length() + 1];
         strcpy(out, stream.str().c_str());
         if(out)
@@ -183,11 +183,11 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
             return;
         }
 
-		OUT_LOAD_INST_DATA(in);
-		std::istringstream loadStream;
-		loadStream.str(in);
-		loadStream >> Encounters[0] >> Encounters[1] >> Encounters[2] >> Encounters[3] >> Encounters[4];
-		for(uint8 i = 0; i < ENCOUNTERS; ++i)
+        OUT_LOAD_INST_DATA(in);
+        std::istringstream loadStream;
+        loadStream.str(in);
+        loadStream >> Encounters[0] >> Encounters[1] >> Encounters[2] >> Encounters[3] >> Encounters[4];
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
             if(Encounters[i] == IN_PROGRESS)                // Do not load an encounter as IN_PROGRESS - reset it instead.
                 Encounters[i] = NOT_STARTED;
         OUT_LOAD_INST_DATA_COMPLETE;

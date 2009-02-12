@@ -88,15 +88,15 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
 
                 if(LifeDrain_Timer < diff)
                 {
-					if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-						DoCast(target,SPELL_LIFE_DRAIN);
+                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+                        DoCast(target,SPELL_LIFE_DRAIN);
                     LifeDrain_Timer = 24000;
                 }else LifeDrain_Timer -= diff;
 
                 if(Blizzard_Timer < diff)
                 {
- 					if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-						DoCast(target,SPELL_BLIZZARD);
+                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+                        DoCast(target,SPELL_BLIZZARD);
                     Blizzard_Timer = 20000;
                 }else Blizzard_Timer -= diff;
 
@@ -117,14 +117,14 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
                         landoff = false;
                     }else Fly_Timer -= diff;
                 }
-			}
+            }
 
                 if (phase == 2)
                 {
                     if(Icebolt_Timer < diff && Icebolt_Count < 5)
                     {
-						if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-							DoCast(target,SPELL_ICEBOLT);
+                        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+                            DoCast(target,SPELL_ICEBOLT);
                         Icebolt_Count ++;
                         Icebolt_Timer = 4000;
                     }else Icebolt_Timer -= diff;
@@ -167,7 +167,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
                 }
 
                  if (phase!=2)
-					 DoMeleeAttackIfReady();
+                     DoMeleeAttackIfReady();
     }
 };
 

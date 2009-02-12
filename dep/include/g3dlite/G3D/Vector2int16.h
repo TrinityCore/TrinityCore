@@ -1,6 +1,6 @@
 /**
   @file Vector2int16.h
-  
+
   @maintainer Morgan McGuire, matrix@brown.edu
 
   @created 2003-08-09

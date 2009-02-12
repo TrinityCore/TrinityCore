@@ -75,24 +75,24 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public ScriptedAI
     {
         switch(rand()%3)
         {
-		case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
-		case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
-		case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
+        case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
+        case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
+        case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
         }
     }
 
     void MoveInLineOfSight(Unit *who)
     {
 
-			if (!HasTaunted && m_creature->IsWithinDistInMap(who, 60.0f))
-			{
+            if (!HasTaunted && m_creature->IsWithinDistInMap(who, 60.0f))
+            {
                 switch(rand()%5)
                 {
-				case 0: DoScriptText(SAY_GREET, m_creature); break;
-				case 1: DoScriptText(SAY_TAUNT1, m_creature); break;
-				case 2: DoScriptText(SAY_TAUNT2, m_creature); break;
-				case 3: DoScriptText(SAY_TAUNT3, m_creature); break;
-				case 4: DoScriptText(SAY_TAUNT4, m_creature); break;
+                case 0: DoScriptText(SAY_GREET, m_creature); break;
+                case 1: DoScriptText(SAY_TAUNT1, m_creature); break;
+                case 2: DoScriptText(SAY_TAUNT2, m_creature); break;
+                case 3: DoScriptText(SAY_TAUNT3, m_creature); break;
+                case 4: DoScriptText(SAY_TAUNT4, m_creature); break;
                 }
                 HasTaunted = true;
             }
@@ -111,8 +111,8 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public ScriptedAI
             //Do NOT cast it when we are afflicted by locust swarm
             if (!m_creature->HasAura(SPELL_LOCUSTSWARM,1))
             {
-				if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-					DoCast(target,SPELL_IMPALE);
+                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    DoCast(target,SPELL_IMPALE);
             }
 
             Impale_Timer = 15000;

@@ -36,18 +36,18 @@ namespace ZThread {
    * @author Eric Crahen <http://www.code-foo.com>
    * @date <2003-07-16T10:26:25-0400>
    * @version 2.2.7
-   *  
-   * A FairReadWriteLock maintains a balance between the order read-only access 
+   *
+   * A FairReadWriteLock maintains a balance between the order read-only access
    * and read-write access is allowed. Threads contending for the pair of Lockable
    * objects this ReadWriteLock provides will gain access to the locks in FIFO order.
    *
-   * @see ReadWriteLock 
+   * @see ReadWriteLock
    */
   class FairReadWriteLock : public ReadWriteLock {
 
     Mutex _lock;
     Condition _cond;
-  
+
     volatile int _readers;
 
     //! @class ReadLock
@@ -64,16 +64,16 @@ namespace ZThread {
       virtual void acquire() {
 
         Guard<Mutex> g(_rwlock._lock);
-        ++_rwlock._readers; 
+        ++_rwlock._readers;
 
       }
 
       virtual bool tryAcquire(unsigned long timeout) {
-      
+
         if(!_rwlock._lock.tryAcquire(timeout))
           return false;
 
-        ++_rwlock._readers; 
+        ++_rwlock._readers;
         _rwlock._lock.release();
 
         return true;
@@ -82,7 +82,7 @@ namespace ZThread {
       virtual void release() {
 
         Guard<Mutex> g(_rwlock._lock);
-        --_rwlock._readers; 
+        --_rwlock._readers;
 
         if(_rwlock._readers == 0)
           _rwlock._cond.signal();
@@ -121,7 +121,7 @@ namespace ZThread {
       }
 
       virtual bool tryAcquire(unsigned long timeout) {
-      
+
         if(!_rwlock._lock.tryAcquire(timeout))
           return false;
 
@@ -154,11 +154,11 @@ namespace ZThread {
     WriteLock _wlock;
 
   public:
-  
+
     /**
      * Create a BiasedReadWriteLock
      *
-     * @exception Initialization_Exception thrown if resources could not be 
+     * @exception Initialization_Exception thrown if resources could not be
      *            allocated for this object.
      */
     FairReadWriteLock() : _cond(_lock), _readers(0), _rlock(*this), _wlock(*this) {}
@@ -175,7 +175,7 @@ namespace ZThread {
      * @see ReadWriteLock::getWriteLock()
      */
     virtual Lockable& getWriteLock() { return _wlock; }
-  
+
   };
 
 }; // __ZTFAIRREADWRITELOCK_H__

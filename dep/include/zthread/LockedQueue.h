@@ -36,7 +36,7 @@ namespace ZThread {
    * @date <2003-07-16T11:42:33-0400>
    * @version 2.3.0
    *
-   * A LockedQueue is the simple Queue implementation that provides 
+   * A LockedQueue is the simple Queue implementation that provides
    * serialized access to the values added to it.
    */
   template <class T, class LockType, typename StorageType=std::deque<T> >
@@ -65,7 +65,7 @@ namespace ZThread {
       virtual void add(const T& item) {
 
         Guard<LockType> g(_lock);
-    
+
         if(_canceled)
           throw Cancellation_Exception();
 
@@ -77,18 +77,18 @@ namespace ZThread {
        * @see Queue::add(const T& item, unsigned long timeout)
        */
       virtual bool add(const T& item, unsigned long timeout) {
-      
+
         try {
 
           Guard<LockType> g(_lock, timeout);
-      
+
           if(_canceled)
             throw Cancellation_Exception();
-      
+
           _queue.push_back(item);
 
         } catch(Timeout_Exception&) { return false; }
- 
+
         return true;
 
       }
@@ -97,23 +97,23 @@ namespace ZThread {
        * @see Queue::next()
        */
       virtual T next() {
-    
+
         Guard<LockType> g(_lock);
 
         if(_queue.empty() && _canceled)
           throw Cancellation_Exception();
-    
+
         if(_queue.empty())
           throw NoSuchElement_Exception();
 
         T item = _queue.front();
         _queue.pop_front();
-    
+
         return item;
 
       }
 
-      
+
       /**
        * @see Queue::next(unsigned long timeout)
        */
@@ -123,15 +123,15 @@ namespace ZThread {
 
         if(_queue.empty() && _canceled)
           throw Cancellation_Exception();
-    
+
         if(_queue.empty())
           throw NoSuchElement_Exception();
 
         T item = _queue.front();
         _queue.pop_front();
-      
+
         return item;
-      
+
       }
 
       virtual T front()
@@ -148,7 +148,7 @@ namespace ZThread {
        * @see Queue::cancel()
        */
       virtual void cancel() {
- 
+
         Guard<LockType> g(_lock);
 
         _canceled = true;
@@ -159,11 +159,11 @@ namespace ZThread {
        * @see Queue::isCanceled()
        */
       virtual bool isCanceled() {
-    
+
         // Faster check since the queue will not become un-canceled
         if(_canceled)
           return true;
-      
+
         Guard<LockType> g(_lock);
 
         return _canceled;

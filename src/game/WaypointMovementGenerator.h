@@ -65,23 +65,23 @@ template<class T>
 class TRINITY_DLL_SPEC WaypointMovementGenerator
     : public MovementGeneratorMedium< T, WaypointMovementGenerator<T> >, public PathMovementBase<T>
 {
-	public:
-		WaypointMovementGenerator(uint32 _path_id = 0, bool _repeating = true) :
-		  i_nextMoveTime(0), path_id(_path_id), repeating(_repeating), StopedByPlayer(false), node(NULL) {}
+    public:
+        WaypointMovementGenerator(uint32 _path_id = 0, bool _repeating = true) :
+          i_nextMoveTime(0), path_id(_path_id), repeating(_repeating), StopedByPlayer(false), node(NULL) {}
 
-		void Initialize(T &);
+        void Initialize(T &);
         void Finalize(T &);
-		void MovementInform(T &);
-		void InitTraveller(T &, const WaypointData &);
-		void GeneratePathId(T &);
-		void Reset(T &unit);
+        void MovementInform(T &);
+        void InitTraveller(T &, const WaypointData &);
+        void GeneratePathId(T &);
+        void Reset(T &unit);
         bool Update(T &, const uint32 &);
-		bool GetDestination(float &x, float &y, float &z) const;
-		MovementGeneratorType GetMovementGeneratorType() { return WAYPOINT_MOTION_TYPE; }
+        bool GetDestination(float &x, float &y, float &z) const;
+        MovementGeneratorType GetMovementGeneratorType() { return WAYPOINT_MOTION_TYPE; }
 
-	private:
-		WaypointData *node;
-		uint32 path_id;
+    private:
+        WaypointData *node;
+        uint32 path_id;
         TimeTrackerSmall i_nextMoveTime;
         WaypointPath *waypoints;
         bool repeating, StopedByPlayer;
@@ -112,7 +112,7 @@ public PathMovementBase<Player>
         bool HasArrived() const { return (i_currentNode >= i_path.Size()); }
         void SetCurrentNodeAfterTeleport();
         void SkipCurrentNode() { ++i_currentNode; }
-		bool GetDestination(float& x, float& y, float& z) const { i_destinationHolder.GetDestination(x,y,z); return true; }
+        bool GetDestination(float& x, float& y, float& z) const { i_destinationHolder.GetDestination(x,y,z); return true; }
 
 };
 #endif

@@ -183,28 +183,28 @@ void Creature::AddToWorld()
     ///- Register the creature for guid lookup
     if(!IsInWorld()) ObjectAccessor::Instance().AddObject(this);
     Unit::AddToWorld();
-	SearchFormation();
+    SearchFormation();
 }
 
 void Creature::RemoveFromWorld()
 {
     if(m_formationID)
-		formation_mgr.DestroyGroup(m_formationID, GetGUID());
+        formation_mgr.DestroyGroup(m_formationID, GetGUID());
 
-	///- Remove the creature from the accessor
+    ///- Remove the creature from the accessor
     if(IsInWorld()) ObjectAccessor::Instance().RemoveObject(this);
     Unit::RemoveFromWorld();
 }
 
 void Creature::SearchFormation()
 {
-	uint32 lowguid = GetDBTableGUIDLow();
+    uint32 lowguid = GetDBTableGUIDLow();
 
-	if(CreatureGroupMap.find(lowguid) != CreatureGroupMap.end())
-	{
-		m_formationID = CreatureGroupMap[lowguid]->leaderGUID;
-		formation_mgr.UpdateCreatureGroup(m_formationID, this);
-	}
+    if(CreatureGroupMap.find(lowguid) != CreatureGroupMap.end())
+    {
+        m_formationID = CreatureGroupMap[lowguid]->leaderGUID;
+        formation_mgr.UpdateCreatureGroup(m_formationID, this);
+    }
 }
 
 void Creature::RemoveCorpse()
@@ -220,8 +220,8 @@ void Creature::RemoveCorpse()
 
     float x,y,z,o;
     GetRespawnCoord(x, y, z, &o);
-	SetHomePosition(x,y,z,o);
-	GetMap()->CreatureRelocation(this,x,y,z,o);
+    SetHomePosition(x,y,z,o);
+    GetMap()->CreatureRelocation(this,x,y,z,o);
 }
 
 /**
@@ -414,7 +414,7 @@ void Creature::Update(uint32 diff)
                     UpdateEntry(m_originalEntry);
 
                 CreatureInfo const *cinfo = GetCreatureInfo();
-				SelectLevel(cinfo);
+                SelectLevel(cinfo);
 
                 if (m_isDeadByDefault)
                 {
@@ -510,14 +510,14 @@ void Creature::Update(uint32 diff)
             if (m_regenTimer != 0)
                 break;
 
-			if (!isInCombat())
-			{
-				if(HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER))
-					SetUInt32Value(UNIT_DYNAMIC_FLAGS, GetCreatureInfo()->dynamicflags);
-				RegenerateHealth();
-			}
-			else if(IsPolymorphed())
-					RegenerateHealth();
+            if (!isInCombat())
+            {
+                if(HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER))
+                    SetUInt32Value(UNIT_DYNAMIC_FLAGS, GetCreatureInfo()->dynamicflags);
+                RegenerateHealth();
+            }
+            else if(IsPolymorphed())
+                    RegenerateHealth();
 
             RegenerateMana();
 
@@ -973,7 +973,7 @@ void Creature::OnGossipSelect(Player* player, uint32 option)
             player->PlayerTalkClass->CloseGossip();
             player->PlayerTalkClass->SendTalking(textid);
             break;
-		}
+        }
         case GOSSIP_OPTION_OUTDOORPVP:
             sOutdoorPvPMgr.HandleGossipOption(player, GetGUID(), option);
             break;
@@ -1428,10 +1428,10 @@ bool Creature::LoadFromDB(uint32 guid, Map *map)
         sLog.outError("ERROR: Creature (guidlow %d, entry %d) not loaded. Suggested coordinates isn't valid (X: %f Y: %f)",GetGUIDLow(),GetEntry(),GetPositionX(),GetPositionY());
         return false;
     }
-	//We should set first home position, because then AI calls home movement
-	SetHomePosition(data->posX,data->posY,data->posZ,data->orientation);
+    //We should set first home position, because then AI calls home movement
+    SetHomePosition(data->posX,data->posY,data->posZ,data->orientation);
 
-	m_respawnradius = data->spawndist;
+    m_respawnradius = data->spawndist;
 
     m_respawnDelay = data->spawntimesecs;
     m_isDeadByDefault = data->is_dead;
@@ -1676,11 +1676,11 @@ void Creature::setDeathState(DeathState s)
         SetLootRecipient(NULL);
         Unit::setDeathState(ALIVE);
         CreatureInfo const *cinfo = GetCreatureInfo();
-		RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
+        RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
         AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
         SetUInt32Value(UNIT_NPC_FLAGS, cinfo->npcflag);
         clearUnitState(UNIT_STAT_ALL_STATE);
-		i_motionMaster.Initialize();
+        i_motionMaster.Initialize();
         SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
         LoadCreaturesAddon(true);
     }
@@ -1692,9 +1692,9 @@ bool Creature::FallGround()
     if (getDeathState() == DEAD_FALLING)
         return false;
 
-	float x, y, z;
-	GetPosition(x, y, z);
-	float ground_Z = GetMap()->GetVmapHeight(x, y, z, true);
+    float x, y, z;
+    GetPosition(x, y, z);
+    float ground_Z = GetMap()->GetVmapHeight(x, y, z, true);
     if (fabs(ground_Z - z) < 0.1f)
         return false;
 
@@ -2056,8 +2056,8 @@ bool Creature::LoadCreaturesAddon(bool reload)
         SetUnitMovementFlags(cainfo->move_flags);
 
     //Load Path
-	if (cainfo->path_id != 0)
-		m_path_id = cainfo->path_id;
+    if (cainfo->path_id != 0)
+        m_path_id = cainfo->path_id;
 
     if(cainfo->auras)
     {

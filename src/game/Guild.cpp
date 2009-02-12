@@ -361,7 +361,7 @@ bool Guild::FillPlayerData(uint64 guid, MemberSlot* memslot)
     }
     else
     {
-		PCachePlayerInfo pInfo = objmgr.GetPlayerInfoFromCache(GUID_LOPART(guid));
+        PCachePlayerInfo pInfo = objmgr.GetPlayerInfoFromCache(GUID_LOPART(guid));
         if(pInfo)
         {
             plName = pInfo->sPlayerName;
@@ -412,7 +412,7 @@ bool Guild::FillPlayerData(uint64 guid, MemberSlot* memslot)
             return false;
         }
     }
-	}
+    }
 
     memslot->name = plName;
     memslot->level = plLevel;

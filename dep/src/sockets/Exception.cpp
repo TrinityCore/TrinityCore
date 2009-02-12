@@ -1,7 +1,7 @@
 /**
- **	\file Exception.cpp
- **	\date  2007-09-28
- **	\author grymse@alhem.net
+ ** \file Exception.cpp
+ ** \date  2007-09-28
+ ** \author grymse@alhem.net
 **/
 /*
 Copyright (C) 2007  Anders Hedstrom
@@ -38,7 +38,7 @@ Exception::Exception(const std::string& description) : m_description(description
 
 const std::string Exception::ToString() const
 {
-	return m_description;
+    return m_description;
 }
 
 
