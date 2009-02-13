@@ -108,7 +108,17 @@ void hyjalAI::Reset()
     else error_log(ERROR_INST_DATA);
 
     //Visibility
-    m_creature->SetVisibility(VISIBILITY_ON);
+    switch(m_creature->GetEntry())
+    {
+    case 17772: if(pInstance->GetData(DATA_ANETHERONEVENT) == DONE)
+                    m_creature->SetVisibility(VISIBILITY_OFF);
+                else m_creature->SetVisibility(VISIBILITY_ON);
+        break;
+    case 17852: if(pInstance->GetData(DATA_AZGALOREVENT) == DONE)
+                    m_creature->SetVisibility(VISIBILITY_OFF);
+                else m_creature->SetVisibility(VISIBILITY_ON);
+        break;
+    }
 
     //If Jaina evades, reset the visibility of all other creatures in the grid.
     if(CreatureList.empty())
