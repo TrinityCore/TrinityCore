@@ -24,14 +24,14 @@ INSTALL(FILES
 1207_world_scripts.sql
 1237_mangos_7230_01_world_spell_bonus_data.sql
 1248_mangos_7235_01_world_command.sql
-1018_world.sql
-1026_world.sql
-1028_world_scripts.sql
 1288_mangos_7242_01_world_spell_bonus_data.sql
 1293_mangos_7249_01_world_spell_proc_event.sql
 1296_mangos_7252_01_world_command.sql
 1296_mangos_7252_02_world_trinity_string.sql
 1299_mangos_7255_01_characters_characters.sql
 1307_world.sql
+1312_world.sql
+1325_world.sql
+1327_world.sql
 1351_world.sql
 DESTINATION share/trinity/sql/updates)
