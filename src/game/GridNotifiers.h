@@ -596,6 +596,23 @@ namespace Trinity
             float i_range;
     };
 
+    class AnyUnfriendlyNoTotemUnitInObjectRangeCheck
+    {
+        public:
+            AnyUnfriendlyNoTotemUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range) : i_obj(obj), i_funit(funit), i_range(range) {}
+            bool operator()(Unit* u)
+            {
+                if(u->isAlive() && i_obj->IsWithinDistInMap(u, i_range) && !i_funit->IsFriendlyTo(u) && !((Creature*)u)->isTotem())
+                    return true;
+                else
+                    return false;
+            }
+        private:
+            WorldObject const* i_obj;
+            Unit const* i_funit;
+            float i_range;
+    };
+
     class CreatureWithDbGUIDCheck
     {
         public:
