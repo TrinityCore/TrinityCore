@@ -266,3 +266,11 @@ void MapInstanced::DestroyInstance(InstancedMaps::iterator &itr)
     delete itr->second;
     m_InstancedMaps.erase(itr++);
 }
+
+bool MapInstanced::CanEnter(Player *player)
+{
+    if(Map* map = GetInstance(player))
+        return map->CanEnter(player);
+
+    return false;
+}
