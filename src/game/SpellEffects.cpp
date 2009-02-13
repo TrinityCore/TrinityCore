@@ -331,9 +331,17 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
 
                 switch(m_spellInfo->Id)                     // better way to check unknown
                 {
-                    case 35354://hand of death
+                    case 35354: //Hand of Death
                     {
-                        if(unitTarget && unitTarget->HasAura(38528,0))//protection of elune
+                        if(unitTarget && unitTarget->HasAura(38528,0)) //Protection of Elune
+                        {
+                            damage = 0;
+                        }
+                        break;
+                    }
+                    case 43648: //Electrical Storm
+                    {
+                        if(unitTarget && unitTarget->HasAura(44007, 0)) // Immune Aura
                         {
                             damage = 0;
                         }
