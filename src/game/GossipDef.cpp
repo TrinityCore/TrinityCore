@@ -153,7 +153,7 @@ void PlayerMenu::SendGossipMenu( uint32 TitleTextId, uint64 npcGUID )
 
         data << uint32(questID);
         data << uint32( qItem.m_qIcon );
-        data << uint32( pQuest ? pQuest->GetQuestLevel() : 0 );
+        data << uint32(pQuest && pQuest->GetQuestLevel() ? pQuest->GetQuestLevel() : pSession->GetPlayer()->getLevel());
         std::string Title = pQuest->GetTitle();
 
         int loc_idx = pSession->GetSessionDbLocaleIndex();
