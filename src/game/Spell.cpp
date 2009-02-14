@@ -474,7 +474,7 @@ void Spell::FillTargetMap()
                         {
                             // non-standard target selection
                             SpellRangeEntry const* srange = sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex);
-                            float max_range = GetSpellMaxRange(srange);
+                            float max_range = GetSpellMaxRangeForHostile(srange);
                             WorldObject* result = NULL;
 
                             Trinity::CannibalizeObjectCheck u_check(m_caster, max_range);
@@ -1438,11 +1438,17 @@ Unit* Spell::SearchNearbyTarget(float radius, SpellTargets TargetType, uint32 en
 
 void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
 {
-    float radius;
+    float radius_h, radius_f;
     if (m_spellInfo->EffectRadiusIndex[i])
-        radius = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+    {
+        radius_h = GetSpellRadiusForHostile(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+        radius_f = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+    }
     else
-        radius = GetSpellMaxRange(sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex));
+    {
+        radius_h = GetSpellMaxRangeForHostile(sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex));
+        radius_f = GetSpellMaxRangeForFriend(sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex));
+    }
 
     //Chain: 2, 6, 22, 25, 45, 77
     uint32 EffectChainTarget = m_spellInfo->EffectChainTarget[i];
@@ -1459,7 +1465,8 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
     {
         if(Player* modOwner = m_originalCaster->GetSpellModOwner())
         {
-            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius,this);
+            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius_f,this);
+            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius_h,this);
             modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_JUMP_TARGETS, EffectChainTarget, this);
         }
     }
@@ -1490,13 +1497,13 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                         TagUnitMap.push_back(pet);
                     break;
                 case TARGET_UNIT_PARTY_CASTER:
-                    m_caster->GetPartyMember(TagUnitMap, radius);
+                    m_caster->GetPartyMember(TagUnitMap, radius_f);
                     break;
                 case TARGET_UNIT_RAID:
                     //if(Unit *target = m_targets.getUnitTarget())
                     //    TagUnitMap.push_back(target);
                     //else
-                    m_caster->GetRaidMember(TagUnitMap, radius);
+                    m_caster->GetRaidMember(TagUnitMap, radius_f);
                     TagUnitMap.push_back(m_caster);
                     break;
             }
@@ -1524,19 +1531,19 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                     TagUnitMap.push_back(target);
                     break;
                 case TARGET_UNIT_PARTY_TARGET:
-                    target->GetPartyMember(TagUnitMap, radius);
+                    target->GetPartyMember(TagUnitMap, radius_f);
                     break;
                 case TARGET_UNIT_TARGET_ENEMY:
                     if(EffectChainTarget <= 1)
                         TagUnitMap.push_back(SelectMagnetTarget());
                     else if(SelectMagnetTarget())   //TODO: chain target should also use magnet target
-                        SearchChainTarget(TagUnitMap, radius, EffectChainTarget, SPELL_TARGETS_ENEMY);
+                        SearchChainTarget(TagUnitMap, radius_h, EffectChainTarget, SPELL_TARGETS_ENEMY);
                     break;
                 case TARGET_UNIT_CHAINHEAL:
                     if(EffectChainTarget <= 1)
                         TagUnitMap.push_back(target);
                     else
-                        SearchChainTarget(TagUnitMap, radius, EffectChainTarget, SPELL_TARGETS_CHAINHEAL);
+                        SearchChainTarget(TagUnitMap, radius_f, EffectChainTarget, SPELL_TARGETS_CHAINHEAL);
                     break;
             }
         }break;
@@ -1583,17 +1590,17 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 case TARGET_UNIT_AREA_ENEMY_GROUND:
                     m_targets.m_targetMask |= TARGET_FLAG_DEST_LOCATION;
                 case TARGET_UNIT_AREA_ENEMY:
-                    SearchAreaTarget(TagUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_ENEMY);
+                    SearchAreaTarget(TagUnitMap, radius_h, PUSH_DEST_CENTER, SPELL_TARGETS_ENEMY);
                     break;
                 case TARGET_UNIT_AREA_ALLY_GROUND:
                     m_targets.m_targetMask |= TARGET_FLAG_DEST_LOCATION;
                 case TARGET_UNIT_AREA_ALLY:
-                    SearchAreaTarget(TagUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_ALLY);
+                    SearchAreaTarget(TagUnitMap, radius_f, PUSH_DEST_CENTER, SPELL_TARGETS_ALLY);
                     break;
                 case TARGET_UNIT_AREA_PARTY_GROUND:
                     m_targets.m_targetMask |= TARGET_FLAG_DEST_LOCATION;
                 case TARGET_UNIT_AREA_PARTY:
-                    m_caster->GetPartyMember(TagUnitMap, radius);
+                    m_caster->GetPartyMember(TagUnitMap, radius_f);
                     break;
                 case TARGET_UNIT_AREA_ENTRY_GROUND:
                     m_targets.m_targetMask |= TARGET_FLAG_DEST_LOCATION;
@@ -1603,7 +1610,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                     SpellScriptTarget::const_iterator upper = spellmgr.GetEndSpellScriptTarget(m_spellInfo->Id);
                     if(lower==upper)
                     {
-                        SearchAreaTarget(TagUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_ENEMY);
+                        SearchAreaTarget(TagUnitMap, radius_h, PUSH_DEST_CENTER, SPELL_TARGETS_ENEMY);
                         sLog.outErrorDb("Spell (ID: %u) (caster Entry: %u) does not have record in `spell_script_target`", m_spellInfo->Id, m_caster->GetEntry());
                         break;
                     }
@@ -1615,7 +1622,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                             sLog.outError( "SPELL: spell ID %u requires non-creature target\n", m_spellInfo->Id );
                             continue;
                         }
-                        SearchAreaTarget(TagUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_ENTRY, i_spellST->second.targetEntry);
+                        SearchAreaTarget(TagUnitMap, radius_f, PUSH_DEST_CENTER, SPELL_TARGETS_ENTRY, i_spellST->second.targetEntry);
                     }
                 }
                 break;
@@ -1662,38 +1669,38 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
         case TARGET_IN_FRONT_OF_CASTER:
         case TARGET_UNIT_CONE_ENEMY_UNKNOWN:
             if(m_customAttr & SPELL_ATTR_CU_CONE_BACK)
-                SearchAreaTarget(TagUnitMap, radius, PUSH_IN_BACK, SPELL_TARGETS_ENEMY);
+                SearchAreaTarget(TagUnitMap, radius_h, PUSH_IN_BACK, SPELL_TARGETS_ENEMY);
             else if(m_customAttr & SPELL_ATTR_CU_CONE_LINE)
-                SearchAreaTarget(TagUnitMap, radius, PUSH_IN_LINE, SPELL_TARGETS_ENEMY);
+                SearchAreaTarget(TagUnitMap, radius_h, PUSH_IN_LINE, SPELL_TARGETS_ENEMY);
             else
-                SearchAreaTarget(TagUnitMap, radius, PUSH_IN_FRONT, SPELL_TARGETS_ENEMY);
+                SearchAreaTarget(TagUnitMap, radius_h, PUSH_IN_FRONT, SPELL_TARGETS_ENEMY);
             break;
         case TARGET_UNIT_CONE_ALLY:
-            SearchAreaTarget(TagUnitMap, radius, PUSH_IN_FRONT, SPELL_TARGETS_ALLY);
+            SearchAreaTarget(TagUnitMap, radius_f, PUSH_IN_FRONT, SPELL_TARGETS_ALLY);
             break;
 
         // nearby target
         case TARGET_UNIT_NEARBY_ALLY:
         case TARGET_UNIT_NEARBY_ALLY_UNK:
             if(!m_targets.getUnitTarget())
-                m_targets.setUnitTarget(SearchNearbyTarget(radius, SPELL_TARGETS_ALLY));
+                m_targets.setUnitTarget(SearchNearbyTarget(radius_f, SPELL_TARGETS_ALLY));
             if(m_targets.getUnitTarget())
             {
                 if(EffectChainTarget <= 1)
                     TagUnitMap.push_back(m_targets.getUnitTarget());
                 else
-                    SearchChainTarget(TagUnitMap, radius, EffectChainTarget, SPELL_TARGETS_ALLY);
+                    SearchChainTarget(TagUnitMap, radius_f, EffectChainTarget, SPELL_TARGETS_ALLY);
             }
             break;
         case TARGET_UNIT_NEARBY_ENEMY:
             if(!m_targets.getUnitTarget())
-                m_targets.setUnitTarget(SearchNearbyTarget(radius, SPELL_TARGETS_ENEMY));
+                m_targets.setUnitTarget(SearchNearbyTarget(radius_h, SPELL_TARGETS_ENEMY));
             if(m_targets.getUnitTarget())
             {
                 if(EffectChainTarget <= 1)
                     TagUnitMap.push_back(m_targets.getUnitTarget());
                 else
-                    SearchChainTarget(TagUnitMap, radius, EffectChainTarget, SPELL_TARGETS_ENEMY);
+                    SearchChainTarget(TagUnitMap, radius_h, EffectChainTarget, SPELL_TARGETS_ENEMY);
             }
             break;
         case TARGET_SCRIPT:
@@ -1710,7 +1717,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             }
 
             SpellRangeEntry const* srange = sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex);
-            float range = GetSpellMaxRange(srange);
+            float range = GetSpellMaxRangeForHostile(srange);
 
             Creature* creatureScriptTarget = NULL;
             GameObject* goScriptTarget = NULL;
@@ -1805,7 +1812,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                     Player* Target = itr->getSource();
 
                     // IsHostileTo check duel and controlled by enemy
-                    if( Target && targetPlayer->IsWithinDistInMap(Target, radius) &&
+                    if( Target && targetPlayer->IsWithinDistInMap(Target, radius_f) &&
                         targetPlayer->getClass() == Target->getClass() &&
                         !m_caster->IsHostileTo(Target) )
                     {
@@ -1836,7 +1843,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             float x, y, z, angle, dist;
 
             float objSize = m_caster->GetObjectSize();
-            dist = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+            dist = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
             if(dist < objSize)
                 dist = objSize;
             else if(cur == TARGET_DEST_CASTER_RANDOM)
@@ -1884,7 +1891,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             float x, y, z, angle, dist;
 
             float objSize = target->GetObjectSize();
-            dist = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+            dist = target->GetSpellRadiusForTarget(target, sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
             if(dist < objSize)
                 dist = objSize;
             else if(cur == TARGET_DEST_CASTER_RANDOM)
@@ -1920,7 +1927,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
 
             float x, y, z, angle, dist;
 
-            dist = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+            dist = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
             if (cur == TARGET_DEST_DEST_RANDOM)
                 dist *= rand_norm();
 
@@ -4325,7 +4332,7 @@ uint8 Spell::CanCast(bool strict)
             case SPELL_EFFECT_LEAP:
             case SPELL_EFFECT_TELEPORT_UNITS_FACE_CASTER:
             {
-                float dis = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+                float dis = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
                 float fx = m_caster->GetPositionX() + dis * cos(m_caster->GetOrientation());
                 float fy = m_caster->GetPositionY() + dis * sin(m_caster->GetOrientation());
                 // teleport a bit above terrain level to avoid falling below it
@@ -4674,14 +4681,14 @@ uint8 Spell::CheckRange(bool strict)
         range_mod = 6.25;*/
 
     SpellRangeEntry const* srange = sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex);
-    float max_range = GetSpellMaxRange(srange); // + range_mod;
-    float min_range = GetSpellMinRange(srange);
+
+    Unit *target = m_targets.getUnitTarget();
+    float max_range = m_caster->GetSpellMaxRangeForTarget(target, srange); // + range_mod;
+    float min_range = m_caster->GetSpellMinRangeForTarget(target, srange);
     uint32 range_type = GetSpellRangeType(srange);
 
     if(Player* modOwner = m_caster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, max_range, this);
-
-    Unit *target = m_targets.getUnitTarget();
 
     if(target && target != m_caster)
     {

@@ -333,7 +333,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
 
             if(Charge_Timer < diff)
             {
-                Unit *target= SelectUnit(SELECT_TARGET_RANDOM, 1, GetSpellMaxRange(SPELL_CHARGE), true);
+                Unit *target= SelectUnit(SELECT_TARGET_RANDOM, 1, GetSpellMaxRangeForHostile(SPELL_CHARGE), true);
                 DoCast(target, SPELL_CHARGE);
                 Charge_Timer = 30000;
             }else Charge_Timer -= diff;
