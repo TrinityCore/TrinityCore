@@ -258,10 +258,7 @@ class BattleGround
         {
             return true;
         }
-        void Reset();                                       // resets all common properties for battlegrounds
-        virtual void ResetBGSubclass()                      // must be implemented in BG subclass
-        {
-        }
+        virtual void Reset();                               // resets all common properties for battlegrounds, must be implemented and called in BG subclass
 
         /* Battleground */
         // Get methods:
@@ -424,6 +421,8 @@ class BattleGround
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(float /*x*/, float /*y*/, float /*z*/, uint32 /*team*/)  { return NULL; }
 
         virtual void AddPlayer(Player *plr);                // must be implemented in BG subclass
+
+        void AddOrSetPlayerToCorrectBgGroup(Player *plr, uint64 plr_guid, uint32 team);
 
         virtual void RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPacket);
                                                             // can be extended in in BG subclass

@@ -1605,7 +1605,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     }
     else
     {
-        sLog.outDebug("Player %s will teleported to map %u", GetName(), mapid);
+        sLog.outDebug("Player %s is being teleported to map %u", GetName(), mapid);
     }
 
     // if we were on a transport, leave
@@ -14600,6 +14600,10 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
             SetBattleGroundId(currentBg->GetInstanceID());
             SetBGTeam(bgteam);
 
+            //join player to battleground group
+            currentBg->PlayerRelogin(this);
+            currentBg->AddOrSetPlayerToCorrectBgGroup(this, GetGUID(), bgteam);
+
             SetInviteForBattleGroundQueueType(bgQueueTypeId,currentBg->GetInstanceID());
         }
         else
@@ -18683,40 +18687,6 @@ void Player::SendInitialPacketsAfterAddToMap()
         data.append(GetPackGUID());
         data << (uint32)2;
         SendMessageToSet(&data,true);
-    }
-
-    // setup BG group membership if need
-    if(BattleGround* currentBg = GetBattleGround())
-    {
-        // call for invited (join) or listed (relogin) and avoid other cases (GM teleport)
-        if (IsInvitedForBattleGroundInstance(GetBattleGroundId()) ||
-            currentBg->IsPlayerInBattleGround(GetGUID()))
-        {
-            currentBg->PlayerRelogin(this);
-            if(currentBg->GetMapId() == GetMapId())             // we teleported/login to/in bg
-            {
-                uint32 team = currentBg->GetPlayerTeam(GetGUID());
-                if(!team)
-                    team = GetTeam();
-                Group* group = currentBg->GetBgRaid(team);
-                if(!group)                                      // first player joined
-                {
-                    group = new Group;
-                    currentBg->SetBgRaid(team, group);
-                    group->Create(GetGUIDLow(), GetName());
-                }
-                else                                            // raid already exist
-                {
-                    if(group->IsMember(GetGUID()))
-                    {
-                        uint8 subgroup = group->GetMemberGroup(GetGUID());
-                        SetGroup(group, subgroup);
-                    }
-                    else
-                        currentBg->GetBgRaid(team)->AddMember(GetGUID(), GetName());
-                }
-            }
-        }
     }
 
     SendAurasForTarget(this);

@@ -654,8 +654,11 @@ bool BattleGroundWS::SetupBattleGround()
     return true;
 }
 
-void BattleGroundWS::ResetBGSubclass()
+void BattleGroundWS::Reset()
 {
+    //call parent's class reset
+    BattleGround::Reset();
+
     m_FlagKeepers[BG_TEAM_ALLIANCE]     = 0;
     m_FlagKeepers[BG_TEAM_HORDE]        = 0;
     m_DroppedFlagGUID[BG_TEAM_ALLIANCE] = 0;
