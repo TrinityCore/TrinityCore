@@ -541,6 +541,7 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
                 ((Creature*)Creepjack)->AI()->EnterEvadeMode();
                 Creepjack->setFaction(1194);
                 Creepjack->GetMotionMaster()->MoveTargetedHome();
+                Creepjack->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
             Unit* Malone = FindCreature(NPC_MALONE, 20, m_creature);
             if(Malone)
@@ -548,7 +549,9 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
                 ((Creature*)Malone)->AI()->EnterEvadeMode();
                 Malone->setFaction(1194);
                 Malone->GetMotionMaster()->MoveTargetedHome();
+                Malone->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             m_creature->setFaction(1194);
             Done = true;
             DoScriptText(SAY_GIVEUP, m_creature, NULL);
