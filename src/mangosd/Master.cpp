@@ -118,72 +118,74 @@ public:
 class RARunnable : public ZThread::Runnable
 {
 public:
-  uint32 numLoops, loopCounter;
+    uint32 numLoops, loopCounter;
 
-  RARunnable ()
-  {
-    uint32 socketSelecttime = sWorld.getConfig (CONFIG_SOCKET_SELECTTIME);
-    numLoops = (sConfig.GetIntDefault ("MaxPingTime", 30) * (MINUTE * 1000000 / socketSelecttime));
-    loopCounter = 0;
-  }
-
-  void
-  checkping ()
-  {
-    // ping if need
-    if ((++loopCounter) == numLoops)
-      {
+    RARunnable ()
+    {
+        uint32 socketSelecttime = sWorld.getConfig (CONFIG_SOCKET_SELECTTIME);
+        numLoops = (sConfig.GetIntDefault ("MaxPingTime", 30) * (MINUTE * 1000000 / socketSelecttime));
         loopCounter = 0;
-        sLog.outDetail ("Ping MySQL to keep connection alive");
-        delete WorldDatabase.Query ("SELECT 1 FROM command LIMIT 1");
-        delete LoginDatabase.Query ("SELECT 1 FROM realmlist LIMIT 1");
-        delete CharacterDatabase.Query ("SELECT 1 FROM bugreport LIMIT 1");
-      }
-  }
+    }
 
-  void
-  run (void)
-  {
-    SocketHandler h;
+    void checkping ()
+    {
+        // ping if need
+        if ((++loopCounter) == numLoops)
+        {
+            loopCounter = 0;
+            sLog.outDetail ("Ping MySQL to keep connection alive");
+            delete WorldDatabase.Query ("SELECT 1 FROM command LIMIT 1");
+            delete loginDatabase.Query ("SELECT 1 FROM realmlist LIMIT 1");
+            delete CharacterDatabase.Query ("SELECT 1 FROM bugreport LIMIT 1");
+        }
+    }
 
-    // Launch the RA listener socket
-    ListenSocket<RASocket> RAListenSocket (h);
-    bool usera = sConfig.GetBoolDefault ("Ra.Enable", false);
+    void run ()
+    {
+        SocketHandler h;
 
-    if (usera)
-      {
-        port_t raport = sConfig.GetIntDefault ("Ra.Port", 3443);
-        std::string stringip = sConfig.GetStringDefault ("Ra.IP", "0.0.0.0");
-        ipaddr_t raip;
-        if (!Utility::u2ip (stringip, raip))
-          sLog.outError ("Trinity RA can not bind to ip %s", stringip.c_str ());
-        else if (RAListenSocket.Bind (raip, raport))
-          sLog.outError ("Trinity RA can not bind to port %d on %s", raport, stringip.c_str ());
+        // Launch the RA listener socket
+        ListenSocket<RASocket> RAListenSocket (h);
+        bool usera = sConfig.GetBoolDefault ("Ra.Enable", false);
+
+        if (usera)
+        {
+            port_t raport = sConfig.GetIntDefault ("Ra.Port", 3443);
+            std::string stringip = sConfig.GetStringDefault ("Ra.IP", "0.0.0.0");
+            ipaddr_t raip;
+            if (!Utility::u2ip (stringip, raip))
+                sLog.outError ("MaNGOS RA can not bind to ip %s", stringip.c_str ());
+            else if (RAListenSocket.Bind (raip, raport))
+                sLog.outError ("MaNGOS RA can not bind to port %d on %s", raport, stringip.c_str ());
+            else
+            {
+                h.Add (&RAListenSocket);
+
+                sLog.outString ("Starting Remote access listner on port %d on %s", raport, stringip.c_str ());
+            }
+        }
+
+        // Socket Selet time is in microseconds , not miliseconds!!
+        uint32 socketSelecttime = sWorld.getConfig (CONFIG_SOCKET_SELECTTIME);
+
+        // if use ra spend time waiting for io, if not use ra ,just sleep
+        if (usera)
+        {
+            while (!World::IsStopped())
+            {
+                h.Select (0, socketSelecttime);
+                checkping ();
+            }
+        }
         else
-          {
-            h.Add (&RAListenSocket);
-
-            sLog.outString ("Starting Remote access listner on port %d on %s", raport, stringip.c_str ());
-          }
-      }
-
-    // Socket Selet time is in microseconds , not miliseconds!!
-    uint32 socketSelecttime = sWorld.getConfig (CONFIG_SOCKET_SELECTTIME);
-
-    // if use ra spend time waiting for io, if not use ra ,just sleep
-    if (usera)
-      while (!World::IsStopped())
         {
-          h.Select (0, socketSelecttime);
-          checkping ();
+            while (!World::IsStopped())
+            {
+                ZThread::Thread::sleep (static_cast<unsigned long> (socketSelecttime / 1000));
+                checkping ();
+            }
         }
-    else
-      while (!World::IsStopped())
-        {
-          ZThread::Thread::sleep (static_cast<unsigned long> (socketSelecttime / 1000));
-          checkping ();
-        }
-  }
+    }
 };
 
 Master::Master()
@@ -317,14 +319,14 @@ int Master::Run()
     }
 
     ///- Launch the world listener socket
-  port_t wsport = sWorld.getConfig (CONFIG_PORT_WORLD);
-  std::string bind_ip = sConfig.GetStringDefault ("BindIP", "0.0.0.0");
+    port_t wsport = sWorld.getConfig (CONFIG_PORT_WORLD);
+    std::string bind_ip = sConfig.GetStringDefault ("BindIP", "0.0.0.0");
 
-  if (sWorldSocketMgr->StartNetwork (wsport, bind_ip.c_str ()) == -1)
+    if (sWorldSocketMgr->StartNetwork (wsport, bind_ip.c_str ()) == -1)
     {
-      sLog.outError ("Failed to start network");
-      World::StopNow(ERROR_EXIT_CODE);
-      // go down and shutdown the server
+        sLog.outError ("Failed to start network");
+        World::StopNow(ERROR_EXIT_CODE);
+        // go down and shutdown the server
     }
 
     sWorldSocketMgr->Wait ();
