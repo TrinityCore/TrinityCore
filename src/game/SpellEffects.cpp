@@ -4994,6 +4994,22 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 }
                 break;
         }
+        case 47977:                                     // Magic Broom
+        {
+            if(!unitTarget)                  
+                return;
+
+            if(unitTarget)
+            {
+                switch(((Player*)unitTarget)->GetBaseSkillValue(762))
+                {
+                case 75: unitTarget->CastSpell(unitTarget, 42680, true); break;;
+                case 150: case 225: case 300: unitTarget->CastSpell(unitTarget, 42683, true); break;
+                default: break;
+                }
+            }
+            break;
+        }
     }
 
     if(!unitTarget || !unitTarget->isAlive()) // can we remove this check?
