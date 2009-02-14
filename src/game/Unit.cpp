@@ -421,9 +421,9 @@ void Unit::GetRandomContactPoint( const Unit* obj, float &x, float &y, float &z,
           //  sLog.outError("Creature entry %u has invalid combat_reach", ((Creature*)this)->GetEntry());
         combat_reach = DEFAULT_COMBAT_REACH;
     }
-    uint32 attacker_number = getAttackers().size();
+	uint32 attacker_number = getAttackers().size();
     if(attacker_number > 0) --attacker_number;
-    GetNearPoint(obj,x,y,z,obj->GetCombatReach(), distance2dMin+(distance2dMax-distance2dMin)*rand_norm()
+	GetNearPoint(obj,x,y,z,obj->GetCombatReach(), distance2dMin+(distance2dMax-distance2dMin)*rand_norm()
         , GetAngle(obj) + (attacker_number ? (M_PI/2 - M_PI * rand_norm()) * (float)attacker_number / combat_reach / 3 : 0));
 }
 
@@ -543,34 +543,34 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
 
     //Script Event damage taken
     if( pVictim->GetTypeId()== TYPEID_UNIT && ((Creature *)pVictim)->AI() )
-    {
-        ((Creature *)pVictim)->AI()->DamageTaken(this, damage);
+	{
+		((Creature *)pVictim)->AI()->DamageTaken(this, damage);
 
-        // Set tagging
-        if(!pVictim->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER) && !((Creature*)pVictim)->isPet())
-        {
-            //Set Loot
-            switch(GetTypeId())
-            {
-                case TYPEID_PLAYER:
-                {
-                    ((Creature *)pVictim)->SetLootRecipient(this);
-                    //Set tagged
-                    ((Creature *)pVictim)->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER);
-                    break;
-                }
-                case TYPEID_UNIT:
-                {
-                    if(((Creature*)this)->isPet())
-                    {
-                        ((Creature *)pVictim)->SetLootRecipient(this->GetOwner());
-                        ((Creature *)pVictim)->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER);
-                    }
-                    break;
-                }
-            }
-        }
-    }
+		// Set tagging
+		if(!pVictim->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER) && !((Creature*)pVictim)->isPet())
+		{
+			//Set Loot
+			switch(GetTypeId())
+			{
+				case TYPEID_PLAYER:
+				{
+					((Creature *)pVictim)->SetLootRecipient(this);
+					//Set tagged
+					((Creature *)pVictim)->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER);
+					break;
+				}
+				case TYPEID_UNIT:
+				{
+					if(((Creature*)this)->isPet())
+					{
+						((Creature *)pVictim)->SetLootRecipient(this->GetOwner());
+						((Creature *)pVictim)->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER);
+					}
+					break;
+				}
+			}
+		}
+	}
 
     if (damagetype != NODAMAGE)
     {
@@ -3064,7 +3064,7 @@ uint32 Unit::GetWeaponSkillValue (WeaponAttackType attType, Unit const* target) 
         if(attType != BASE_ATTACK && !item )
         {
             if(attType == RANGED_ATTACK && getClass() == CLASS_PALADIN) //hammer
-                return GetMaxSkillValueForLevel();
+                return GetMaxSkillValueForLevel(); 
             return 0;
         }
 
@@ -7132,6 +7132,8 @@ FactionTemplateEntry const* Unit::getFactionTemplateEntry() const
 
 bool Unit::IsHostileTo(Unit const* unit) const
 {
+    if(!unit)
+        return false;
     // always non-hostile to self
     if(unit==this)
         return false;
@@ -7868,22 +7870,22 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
 
     /*switch(spellProto->SpellFamilyName)
     {
-        case SPELLFAMILY_GENERIC:
-            // Siphon Essence - 0%
-            if(spellProto->AttributesEx == 268435456 && spellProto->SpellIconID == 2027)
-            {
-                CastingTime = 0;
-            }
-            // Goblin Rocket Launcher - 0%
-            else if (spellProto->SpellIconID == 184 && spellProto->Attributes == 4259840)
-            {
-                CastingTime = 0;
-            }
-            // Darkmoon Card: Vengeance - 0.1%
-            else if (spellProto->SpellVisual[0] == 9850 && spellProto->SpellIconID == 2230)
-            {
-                CastingTime = 3.5;
-            }
+		case SPELLFAMILY_GENERIC:
+			// Siphon Essence - 0%
+			if(spellProto->AttributesEx == 268435456 && spellProto->SpellIconID == 2027)
+			{
+				CastingTime = 0;
+			}
+			// Goblin Rocket Launcher - 0%
+			else if (spellProto->SpellIconID == 184 && spellProto->Attributes == 4259840)
+			{
+				CastingTime = 0;
+			}
+			// Darkmoon Card: Vengeance - 0.1%
+			else if (spellProto->SpellVisual[0] == 9850 && spellProto->SpellIconID == 2230)
+			{
+				CastingTime = 3.5;
+			}
         case SPELLFAMILY_MAGE:
             // Ignite - do not modify, it is (8*Rank)% damage of procing Spell
             if(spellProto->Id==12654)
@@ -8465,7 +8467,7 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
     if (spellProto->Id == 15290 || spellProto->Id == 39373 ||
         spellProto->Id == 33778 || spellProto->Id == 379   ||
         spellProto->Id == 38395 || spellProto->Id == 40972 ||
-        spellProto->Id == 22845 || spellProto->Id == 33504 ||
+		spellProto->Id == 22845 || spellProto->Id == 33504 ||
         spellProto->Id == 34299)
         return healamount;
 
@@ -8575,12 +8577,12 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
                     DotFactor = damagetype == DOT ? 0.705f : 1.0f;
                     CastingTime = damagetype == DOT ? 3500 : 1010;
                 }
-                // Improved Leader of the Pack
-                else if (spellProto->AttributesEx2 == 536870912 && spellProto->SpellIconID == 312
-                    && spellProto->AttributesEx3 == 33554432)
-                {
-                    CastingTime = 0;
-                }
+				// Improved Leader of the Pack
+				else if (spellProto->AttributesEx2 == 536870912 && spellProto->SpellIconID == 312
+					&& spellProto->AttributesEx3 == 33554432)
+				{
+					CastingTime = 0;
+				}
                 break;
             case SPELLFAMILY_PRIEST:
                 // Holy Nova - 14%
@@ -10158,13 +10160,13 @@ void Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration,Un
     if(duration == -1 || group == DIMINISHING_NONE || caster->IsFriendlyTo(this) )
         return;
 
-        // test pet/charm masters instead pets/charmeds
-    Unit const* targetOwner = GetCharmerOrOwner();
-    Unit const* casterOwner = caster->GetCharmerOrOwner();
-
     // Duration of crowd control abilities on pvp target is limited by 10 sec. (2.2.0)
     if(duration > 10000 && IsDiminishingReturnsGroupDurationLimited(group))
     {
+        // test pet/charm masters instead pets/charmeds
+        Unit const* targetOwner = GetCharmerOrOwner();
+        Unit const* casterOwner = caster->GetCharmerOrOwner();
+
         Unit const* target = targetOwner ? targetOwner : this;
         Unit const* source = casterOwner ? casterOwner : caster;
 
@@ -10175,7 +10177,7 @@ void Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration,Un
     float mod = 1.0f;
 
     // Some diminishings applies to mobs too (for example, Stun)
-    if((GetDiminishingReturnsGroupType(group) == DRTYPE_PLAYER && (targetOwner ? targetOwner->GetTypeId():GetTypeId())  == TYPEID_PLAYER) || GetDiminishingReturnsGroupType(group) == DRTYPE_ALL)
+    if((GetDiminishingReturnsGroupType(group) == DRTYPE_PLAYER && GetTypeId() == TYPEID_PLAYER) || GetDiminishingReturnsGroupType(group) == DRTYPE_ALL)
     {
         DiminishingLevels diminish = Level;
         switch(diminish)
@@ -10211,6 +10213,31 @@ void Unit::ApplyDiminishingAura( DiminishingGroup group, bool apply )
         break;
     }
 }
+
+uint32 Unit::GetSpellMaxRangeForTarget(Unit* target,const SpellRangeEntry * rangeEntry)
+{
+    if (rangeEntry->maxRangeHostile == rangeEntry->maxRangeFriend)
+        return rangeEntry->maxRangeFriend;
+    if (IsHostileTo(target))
+        return rangeEntry->maxRangeHostile;
+    return rangeEntry->maxRangeFriend;
+};
+uint32 Unit::GetSpellMinRangeForTarget(Unit* target,const SpellRangeEntry * rangeEntry)
+{
+    if (rangeEntry->minRangeHostile == rangeEntry->minRangeFriend)
+        return rangeEntry->minRangeFriend;
+    if (IsHostileTo(target))
+        return rangeEntry->minRangeHostile;
+    return rangeEntry->minRangeFriend;
+};
+uint32 Unit::GetSpellRadiusForTarget(Unit* target,const SpellRadiusEntry * radiusEntry)
+{
+    if (radiusEntry->radiusHostile == radiusEntry->radiusFriend)
+        return radiusEntry->radiusFriend;
+    if (IsHostileTo(target))
+        return radiusEntry->radiusHostile;
+    return radiusEntry->radiusFriend;
+};
 
 Unit* Unit::GetUnit(WorldObject& object, uint64 guid)
 {
@@ -11923,9 +11950,9 @@ bool Unit::HandleMeandingAuraProc( Aura* triggeredByAura )
     {
         float radius;
         if (spellProto->EffectRadiusIndex[effIdx])
-            radius = GetSpellRadius(sSpellRadiusStore.LookupEntry(spellProto->EffectRadiusIndex[effIdx]));
+            radius = GetSpellRadiusForTarget(triggeredByAura->GetCaster(), sSpellRadiusStore.LookupEntry(spellProto->EffectRadiusIndex[effIdx]));
         else
-            radius = GetSpellMaxRange(sSpellRangeStore.LookupEntry(spellProto->rangeIndex));
+            radius = GetSpellMaxRangeForTarget(triggeredByAura->GetCaster() ,sSpellRangeStore.LookupEntry(spellProto->rangeIndex));
 
         if(Player* caster = ((Player*)triggeredByAura->GetCaster()))
         {

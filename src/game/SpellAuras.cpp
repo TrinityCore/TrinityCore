@@ -464,7 +464,11 @@ Unit *caster, Item* castItem) : Aura(spellproto, eff, currentBasePoints, target,
     // caster==NULL in constructor args if target==caster in fact
     Unit* caster_ptr = caster ? caster : target;
 
-    m_radius = GetSpellRadius(sSpellRadiusStore.LookupEntry(GetSpellProto()->EffectRadiusIndex[m_effIndex]));
+    if (spellproto->Effect[eff]==SPELL_EFFECT_APPLY_AREA_AURA_ENEMY)
+        m_radius = GetSpellRadiusForHostile(sSpellRadiusStore.LookupEntry(GetSpellProto()->EffectRadiusIndex[m_effIndex]));
+    else 
+        m_radius = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(GetSpellProto()->EffectRadiusIndex[m_effIndex]));
+
     if(Player* modOwner = caster_ptr->GetSpellModOwner())
         modOwner->ApplySpellMod(GetId(), SPELLMOD_RADIUS, m_radius);
 
@@ -588,12 +592,12 @@ void Aura::Update(uint32 diff)
         SpellModOp mod;
         if (m_spellProto->EffectRadiusIndex[GetEffIndex()])
         {
-            radius = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellProto->EffectRadiusIndex[GetEffIndex()]));
+            radius = caster->GetSpellRadiusForTarget(m_target, sSpellRadiusStore.LookupEntry(m_spellProto->EffectRadiusIndex[GetEffIndex()]));
             mod = SPELLMOD_RADIUS;
         }
         else
         {
-            radius = GetSpellMaxRange(sSpellRangeStore.LookupEntry(m_spellProto->rangeIndex));
+            radius = caster->GetSpellMaxRangeForTarget(m_target, sSpellRangeStore.LookupEntry(m_spellProto->rangeIndex)) ;
             mod = SPELLMOD_RANGE;
         }
 
@@ -1833,7 +1837,7 @@ void Aura::TriggerSpell()
             }
         }
     }
-    if(!GetSpellMaxRange(sSpellRangeStore.LookupEntry(triggeredSpellInfo->rangeIndex)))
+    if(!caster->GetSpellMaxRangeForTarget(m_target,sSpellRangeStore.LookupEntry(triggeredSpellInfo->rangeIndex)))
         target = m_target;    //for druid dispel poison
     m_target->CastSpell(target, triggeredSpellInfo, true, 0, this, GetCasterGUID());
 }

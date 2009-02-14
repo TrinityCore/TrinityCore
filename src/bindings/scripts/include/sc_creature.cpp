@@ -508,13 +508,13 @@ SpellEntry const* ScriptedAI::SelectSpell(Unit* Target, int32 School, int32 Mech
             continue;
 
         //Check if the spell meets our range requirements
-        if (RangeMin && TempRange->maxRange < RangeMin)
+        if (RangeMin && m_creature->GetSpellMinRangeForTarget(Target, TempRange) < RangeMin)
             continue;
-        if (RangeMax && TempRange->maxRange > RangeMax)
+        if (RangeMax && m_creature->GetSpellMaxRangeForTarget(Target, TempRange) > RangeMax)
             continue;
 
         //Check if our target is in range
-        if (m_creature->IsWithinDistInMap(Target, TempRange->minRange) || !m_creature->IsWithinDistInMap(Target, TempRange->maxRange))
+        if (m_creature->IsWithinDistInMap(Target, m_creature->GetSpellMinRangeForTarget(Target, TempRange)) || !m_creature->IsWithinDistInMap(Target, m_creature->GetSpellMaxRangeForTarget(Target, TempRange)))
             continue;
 
         //All good so lets add it to the spell list
@@ -552,20 +552,20 @@ bool ScriptedAI::CanCast(Unit* Target, SpellEntry const *Spell, bool Triggered)
         return false;
 
     //Unit is out of range of this spell
-    if (m_creature->GetDistance(Target) > TempRange->maxRange || m_creature->GetDistance(Target) < TempRange->minRange)
+    if (m_creature->GetDistance(Target) > m_creature->GetSpellMaxRangeForTarget(Target, TempRange) || m_creature->GetDistance(Target) < m_creature->GetSpellMinRangeForTarget(Target, TempRange))
         return false;
 
     return true;
 }
 
 
-float GetSpellMaxRange(uint32 id)
+float GetSpellMaxRangeForHostile(uint32 id)
 {
     SpellEntry const *spellInfo = GetSpellStore()->LookupEntry(id);
     if(!spellInfo) return 0;
     SpellRangeEntry const *range = GetSpellRangeStore()->LookupEntry(spellInfo->rangeIndex);
     if(!range) return 0;
-    return range->maxRange;
+    return range->maxRangeHostile;
 }
 
 void FillSpellSummary()
