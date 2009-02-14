@@ -590,6 +590,9 @@
 				RelativePath="..\..\src\game\ArenaTeam.h">
 			</File>
 			<File
+				RelativePath="..\..\src\game\AuctionHouseMgr.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\game\AuctionHouseMgr.h">
 			</File>
 			<File
