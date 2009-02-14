@@ -39,6 +39,7 @@ class TRINITY_DLL_DECL MapInstanced : public Map
         void RemoveAllObjectsInRemoveList();
         bool RemoveBones(uint64 guid, float x, float y);
         void UnloadAll(bool pForce);
+        bool CanEnter(Player* player);
 
         Map* GetInstance(const WorldObject* obj);
         Map* FindMap(uint32 InstanceId) { return _FindMap(InstanceId); }

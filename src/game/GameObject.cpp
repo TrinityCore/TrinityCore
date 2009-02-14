@@ -326,18 +326,18 @@ void GameObject::Update(uint32 /*p_time*/)
                 // search unfriendly creature
                 if(owner && NeedDespawn)                    // hunter trap
                 {
-                    MaNGOS::AnyUnfriendlyUnitInObjectRangeCheck u_check(this, owner, radius);
-                    MaNGOS::UnitSearcher<MaNGOS::AnyUnfriendlyUnitInObjectRangeCheck> checker(this,ok, u_check);
+                    Trinity::AnyUnfriendlyNoTotemUnitInObjectRangeCheck u_check(this, owner, radius);
+                    Trinity::UnitSearcher<Trinity::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> checker(this, ok, u_check);
 
                     CellLock<GridReadGuard> cell_lock(cell, p);
 
-                    TypeContainerVisitor<Trinity::UnitSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck>, GridTypeMapContainer > grid_object_checker(checker);
+                    TypeContainerVisitor<Trinity::UnitSearcher<Trinity::AnyUnfriendlyNoTotemUnitInObjectRangeCheck>, GridTypeMapContainer > grid_object_checker(checker);
                     cell_lock->Visit(cell_lock, grid_object_checker, *MapManager::Instance().GetMap(GetMapId(), this));
 
                     // or unfriendly player/pet
                     if(!ok)
                     {
-                        TypeContainerVisitor<Trinity::UnitSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck>, WorldTypeMapContainer > world_object_checker(checker);
+                        TypeContainerVisitor<Trinity::UnitSearcher<Trinity::AnyUnfriendlyNoTotemUnitInObjectRangeCheck>, WorldTypeMapContainer > world_object_checker(checker);
                         cell_lock->Visit(cell_lock, world_object_checker, *MapManager::Instance().GetMap(GetMapId(), this));
                     }
                 }
