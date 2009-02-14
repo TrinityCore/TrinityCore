@@ -55,12 +55,6 @@ INSTANTIATE_SINGLETON_1( BattleGroundMgr );
 BattleGroundQueue::BattleGroundQueue()
 {
     //queues are empty, we don't have to call clear()
-/*    for (int i = 0; i < MAX_BATTLEGROUND_QUEUES; i++)
-    {
-        //m_QueuedPlayers[i].Horde = 0;
-        //m_QueuedPlayers[i].Alliance = 0;
-        //m_QueuedPlayers[i].AverageTime = 0;
-    }*/
 }
 
 BattleGroundQueue::~BattleGroundQueue()
@@ -87,17 +81,17 @@ void BattleGroundQueue::EligibleGroups::Init(BattleGroundQueue::QueuedGroupsList
     {
         next = itr;
         ++next;
-        if( (*itr)->BgTypeId == BgTypeId &&     // bg type must match
-            (*itr)->ArenaType == ArenaType &&   // arena type must match
-            (*itr)->IsRated == IsRated &&       // israted must match
-            (*itr)->IsInvitedToBGInstanceGUID == 0 && // leave out already invited groups
-            (*itr)->Team == side &&             // match side
-            (*itr)->Players.size() <= MaxPlayers &&   // the group must fit in the bg
+        if( (*itr)->BgTypeId == BgTypeId &&                // bg type must match
+            (*itr)->ArenaType == ArenaType &&              // arena type must match
+            (*itr)->IsRated == IsRated &&                  // israted must match
+            (*itr)->IsInvitedToBGInstanceGUID == 0 &&      // leave out already invited groups
+            (*itr)->Team == side &&                        // match side
+            (*itr)->Players.size() <= MaxPlayers &&        // the group must fit in the bg
             ( !excludeTeam || (*itr)->ArenaTeamId != excludeTeam ) && // if excludeTeam is specified, leave out those arena team ids
             ( !IsRated || (*itr)->Players.size() == MaxPlayers ) &&   // if rated, then pass only if the player count is exact NEEDS TESTING! (but now this should never happen)
-            ( !DisregardTime || (*itr)->JoinTime <= DisregardTime              // pass if disregard time is greater than join time
-               || (*itr)->ArenaTeamRating == 0                 // pass if no rating info
-               || ( (*itr)->ArenaTeamRating >= MinRating       // pass if matches the rating range
+            ( !DisregardTime || (*itr)->JoinTime <= DisregardTime           // pass if disregard time is greater than join time
+               || (*itr)->ArenaTeamRating == 0             // pass if no rating info
+               || ( (*itr)->ArenaTeamRating >= MinRating   // pass if matches the rating range
                      && (*itr)->ArenaTeamRating <= MaxRating ) ) )
         {
             // the group matches the conditions
@@ -1433,9 +1427,8 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
             bg = new BattleGroundRV(*(BattleGroundRV*)bg_template);
             break;
         default:
-            //bg = new BattleGround;
+            //error, but it is handled few lines above
             return 0;
-            break;             // placeholder for non implemented BG
     }
 
     // generate a new instance id
@@ -1463,11 +1456,10 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
 }
 
 // used to create the BG templates
-uint32 BattleGroundMgr::CreateBattleGround(BattleGroundTypeId bgTypeId, uint32 MinPlayersPerTeam, uint32 MaxPlayersPerTeam, uint32 LevelMin, uint32 LevelMax, char* BattleGroundName, uint32 MapID, float Team1StartLocX, float Team1StartLocY, float Team1StartLocZ, float Team1StartLocO, float Team2StartLocX, float Team2StartLocY, float Team2StartLocZ, float Team2StartLocO)
+uint32 BattleGroundMgr::CreateBattleGround(BattleGroundTypeId bgTypeId, bool IsArena, uint32 MinPlayersPerTeam, uint32 MaxPlayersPerTeam, uint32 LevelMin, uint32 LevelMax, char* BattleGroundName, uint32 MapID, float Team1StartLocX, float Team1StartLocY, float Team1StartLocZ, float Team1StartLocO, float Team2StartLocX, float Team2StartLocY, float Team2StartLocZ, float Team2StartLocO)
 {
     // Create the BG
     BattleGround *bg = NULL;
-
     switch(bgTypeId)
     {
         case BATTLEGROUND_AV: bg = new BattleGroundAV; break;
@@ -1488,19 +1480,13 @@ uint32 BattleGroundMgr::CreateBattleGround(BattleGroundTypeId bgTypeId, uint32 M
 
     bg->Reset();
 
-    BattlemasterListEntry const *bl = sBattlemasterListStore.LookupEntry(bgTypeId);
-    //in previous method is checked if exists entry in sBattlemasterListStore, so no check needed
-    if (bl)
-    {
-        bg->SetArenaorBGType(bl->type == TYPE_ARENA);
-    }
-
     bg->SetTypeID(bgTypeId);
-    bg->SetInstanceID(0);                               // template bg, instance id is 0
+    bg->SetInstanceID(0);
+    bg->SetArenaorBGType(IsArena);
     bg->SetMinPlayersPerTeam(MinPlayersPerTeam);
     bg->SetMaxPlayersPerTeam(MaxPlayersPerTeam);
-    bg->SetMinPlayers(MinPlayersPerTeam*2);
-    bg->SetMaxPlayers(MaxPlayersPerTeam*2);
+    bg->SetMinPlayers(MinPlayersPerTeam * 2);
+    bg->SetMaxPlayers(MaxPlayersPerTeam * 2);
     bg->SetName(BattleGroundName);
     bg->SetTeamStartLoc(ALLIANCE, Team1StartLocX, Team1StartLocY, Team1StartLocZ, Team1StartLocO);
     bg->SetTeamStartLoc(HORDE,    Team2StartLocX, Team2StartLocY, Team2StartLocZ, Team2StartLocO);
@@ -1522,6 +1508,7 @@ void BattleGroundMgr::CreateInitialBattleGrounds()
     uint32 MaxPlayersPerTeam, MinPlayersPerTeam, MinLvl, MaxLvl, start1, start2;
     BattlemasterListEntry const *bl;
     WorldSafeLocsEntry const *start;
+    bool IsArena;
 
     uint32 count = 0;
 
@@ -1552,28 +1539,28 @@ void BattleGroundMgr::CreateInitialBattleGrounds()
         bl = sBattlemasterListStore.LookupEntry(bgTypeID_);
         if(!bl)
         {
-            sLog.outError("Battleground ID %u not found in BattlemasterList.dbc. Battleground not created.",bgTypeID_);
+            sLog.outError("Battleground ID %u not found in BattlemasterList.dbc. Battleground not created.", bgTypeID_);
             continue;
         }
 
         BattleGroundTypeId bgTypeID = BattleGroundTypeId(bgTypeID_);
 
-        MaxPlayersPerTeam = bl->maxplayersperteam;
-        MinPlayersPerTeam = bl->maxplayersperteam/2;
-        MinLvl = bl->minlvl;
-        MaxLvl = bl->maxlvl;
-
-        if(fields[1].GetUInt32())
-            MinPlayersPerTeam = fields[1].GetUInt32();
-
-        if(fields[2].GetUInt32())
-            MaxPlayersPerTeam = fields[2].GetUInt32();
-
-        if(fields[3].GetUInt32())
-            MinLvl = fields[3].GetUInt32();
-
-        if(fields[4].GetUInt32())
-            MaxLvl = fields[4].GetUInt32();
+        IsArena = (bl->type == TYPE_ARENA);
+        MinPlayersPerTeam = fields[1].GetUInt32();
+        MaxPlayersPerTeam = fields[2].GetUInt32();
+        MinLvl = fields[3].GetUInt32();
+        MaxLvl = fields[4].GetUInt32();
+        //check values from DB
+        if( MaxPlayersPerTeam == 0 || MinPlayersPerTeam == 0 || MinPlayersPerTeam > MaxPlayersPerTeam )
+        {
+            MaxPlayersPerTeam = bl->maxplayersperteam;
+            MinPlayersPerTeam = bl->maxplayersperteam / 2;
+        }
+        if( MinLvl == 0 || MaxLvl == 0 || MinLvl > MaxLvl )
+        {
+            MinLvl = bl->minlvl;
+            MaxLvl = bl->maxlvl;
+        }
 
         start1 = fields[5].GetUInt32();
 
@@ -1594,7 +1581,7 @@ void BattleGroundMgr::CreateInitialBattleGrounds()
         }
         else
         {
-            sLog.outErrorDb("Table `battleground_template` for id %u have non-existed WorldSafeLocs.dbc id %u in field `AllianceStartLoc`. BG not created.",bgTypeID,start1);
+            sLog.outErrorDb("Table `battleground_template` for id %u have non-existed WorldSafeLocs.dbc id %u in field `AllianceStartLoc`. BG not created.", bgTypeID, start1);
             continue;
         }
 
@@ -1617,12 +1604,12 @@ void BattleGroundMgr::CreateInitialBattleGrounds()
         }
         else
         {
-            sLog.outErrorDb("Table `battleground_template` for id %u have non-existed WorldSafeLocs.dbc id %u in field `HordeStartLoc`. BG not created.",bgTypeID,start2);
+            sLog.outErrorDb("Table `battleground_template` for id %u have non-existed WorldSafeLocs.dbc id %u in field `HordeStartLoc`. BG not created.", bgTypeID, start2);
             continue;
         }
 
         //sLog.outDetail("Creating battleground %s, %u-%u", bl->name[sWorld.GetDBClang()], MinLvl, MaxLvl);
-        if(!CreateBattleGround(bgTypeID, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, bl->name[sWorld.GetDefaultDbcLocale()], bl->mapid[0], AStartLoc[0], AStartLoc[1], AStartLoc[2], AStartLoc[3], HStartLoc[0], HStartLoc[1], HStartLoc[2], HStartLoc[3]))
+        if(!CreateBattleGround(bgTypeID, IsArena, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, bl->name[sWorld.GetDefaultDbcLocale()], bl->mapid[0], AStartLoc[0], AStartLoc[1], AStartLoc[2], AStartLoc[3], HStartLoc[0], HStartLoc[1], HStartLoc[2], HStartLoc[3]))
             continue;
 
         ++count;
