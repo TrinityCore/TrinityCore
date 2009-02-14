@@ -1224,7 +1224,6 @@ void BattleGroundMgr::BuildPvpLogDataPacket(WorldPacket *data, BattleGround *bg)
         {
             *data << uint32(bg->m_ArenaTeamRatingChanges[i]);
             *data << uint32(3999);  // huge thanks for TOM_RUS for this!
-            *data << uint32(0);     // unknown - new in 3.0.3
             sLog.outDebug("rating change: %d", bg->m_ArenaTeamRatingChanges[i]);
         }
         for(int i = 1; i >= 0; --i)
@@ -1233,7 +1232,7 @@ void BattleGroundMgr::BuildPvpLogDataPacket(WorldPacket *data, BattleGround *bg)
             ArenaTeam * at = objmgr.GetArenaTeamById(at_id);
             if(at)
                 *data << at->GetName();
-            else//*/
+            else
                 *data << (uint8)0;
         }
     }
