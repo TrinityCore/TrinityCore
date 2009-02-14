@@ -19053,40 +19053,34 @@ bool Player::GetBGAccessByLevel(BattleGroundTypeId bgTypeId) const
     return true;
 }
 
-uint32 Player::GetMinLevelForBattleGroundQueueId(uint32 queue_id)
+uint32 Player::GetMinLevelForBattleGroundQueueId(uint32 queue_id, BattleGroundTypeId bgTypeId)
 {
-    if(queue_id < 1)
-        return 0;
-
-    if(queue_id >=7)
-        queue_id = 7;
-
-    return 10*(queue_id+1);
-}
-
-uint32 Player::GetMaxLevelForBattleGroundQueueId(uint32 queue_id)
-{
-    if(queue_id >=7)
-        return 255;                                         // hardcoded max level
-
-    return 10*(queue_id+2)-1;
-}
-
-//TODO make this more generic - current implementation is wrong
-uint32 Player::GetBattleGroundQueueIdFromLevel() const
-{
-    uint32 level = getLevel();
-    if(level <= 19)
-        return 0;
-    else if (level > 79)
-        return 7;
-    else
-        return level/10 - 1;                                // 20..29 -> 1, 30-39 -> 2, ...
-    /*
-    assert(bgTypeId < MAX_BATTLEGROUND_TYPES);
     BattleGround *bg = sBattleGroundMgr.GetBattleGroundTemplate(bgTypeId);
     assert(bg);
-    return (getLevel() - bg->GetMinLevel()) / 10;*/
+    return (queue_id*10)+bg->GetMinLevel();
+}
+
+uint32 Player::GetMaxLevelForBattleGroundQueueId(uint32 queue_id, BattleGroundTypeId bgTypeId)
+{
+    return GetMinLevelForBattleGroundQueueId(queue_id, bgTypeId)+10;
+}
+
+uint32 Player::GetBattleGroundQueueIdFromLevel(BattleGroundTypeId bgTypeId) const
+{
+    BattleGround *bg = sBattleGroundMgr.GetBattleGroundTemplate(bgTypeId);
+    assert(bg);
+    if(getLevel()<bg->GetMinLevel())
+    {
+        sLog.outError("getting queue_id for player who doesn't meet the requirements - this shouldn't happen");
+        return 0;
+    }
+    uint32 queue_id = (getLevel() - bg->GetMinLevel()) / 10;
+    if(queue_id>MAX_BATTLEGROUND_QUEUES)
+    {
+        sLog.outError("to high queue_id %u this shouldn't happen",queue_id);
+        return 0;
+    }
+    return queue_id;
 }
 
 float Player::GetReputationPriceDiscount( Creature const* pCreature ) const
