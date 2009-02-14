@@ -20287,27 +20287,8 @@ bool Player::IsAllowUseFlyMountsHere() const
     if (isGameMaster())
         return true;
 
-    switch(GetVirtualMapForMapAndZone(GetMapId(), GetZoneId()))
-    {
-        case 0:
-        case 1:
-            //if (!sWorld.getConfig(CONFIG_FLYING_MOUNTS_AZEROTH))
-                return false;
-            break;
-        case 530:
-            //if (!sWorld.getConfig(CONFIG_FLYING_MOUNTS_OUTLAND))
-                return false;
-            break;
-        case 571:
-            if(!HasSpell(54197))
-                return false;
-            break;
-        default:
-            //if (!sWorld.getConfig(CONFIG_FLYING_MOUNTS_OTHERS))
-                return false;
-            break;
-    }
-    return true;
+    uint32 v_map = GetVirtualMapForMapAndZone(GetMapId(), GetZoneId());
+    return v_map == 530 || v_map == 571 && HasSpell(54197);
 }
 
 void Player::learnSpellHighRank(uint32 spellid)
