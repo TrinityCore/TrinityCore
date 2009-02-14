@@ -810,7 +810,7 @@ class SpellMgr
         SpellMgr();
         ~SpellMgr();
 
-        // Accessors (const or static functions)
+    // Accessors (const or static functions)
     public:
         // Spell affects
         flag96 const*GetSpellAffect(uint16 spellId, uint8 effectId) const
@@ -1073,7 +1073,7 @@ class SpellMgr
                 return NULL;
         }
 
-        // Modifiers
+    // Modifiers
     public:
         static SpellMgr& Instance();
 
