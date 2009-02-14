@@ -1228,16 +1228,23 @@ struct SpellThreatEntry
 struct SpellRadiusEntry
 {
     uint32    ID;
-    float     Radius;
-    float     Radius2;
+    float     radiusHostile;
+    //uint32    Unk    //always 0
+    float     radiusFriend;
 };
 
 struct SpellRangeEntry
 {
     uint32    ID;
-    float     minRange;
-    float     maxRange;
+    float     minRangeHostile;
+    float     minRangeFriend;
+    float     maxRangeHostile;
+    float     maxRangeFriend;                               //friend means unattackable unit here
     uint32    type;
+    //char*     Name[16];                                   // 7-23 unused
+                                                            // 24 string flags, unused
+    //char*     Name2[16];                                  // 25-40 unused
+                                                            // 41 string flags, unused
 };
 
 struct SpellRuneCostEntry
