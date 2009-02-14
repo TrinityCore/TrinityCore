@@ -3,7 +3,7 @@
 #include "Common.h"
 #include "Log.h"
 #include "Config/ConfigEnv.h"
-#include "AuctionHouseObject.h"
+#include "AuctionHouseMgr.h"
 #define AHB_GREY        0
 #define AHB_WHITE       1
 #define AHB_GREEN       2
