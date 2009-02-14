@@ -372,7 +372,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this)
     m_bgBattleGroundID = 0;
     for (int j=0; j < PLAYER_MAX_BATTLEGROUND_QUEUES; j++)
     {
-        m_bgBattleGroundQueueID[j].bgQueueType  = 0;
+        m_bgBattleGroundQueueID[j].bgQueueTypeId  = BATTLEGROUND_QUEUE_NONE;
         m_bgBattleGroundQueueID[j].invitedToInstance = 0;
     }
     m_bgTeam = 0;
@@ -14594,7 +14594,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
 
         if(currentBg && currentBg->IsPlayerInBattleGround(GetGUID()))
         {
-            uint32 bgQueueTypeId = sBattleGroundMgr.BGQueueTypeId(currentBg->GetTypeID(), currentBg->GetArenaType());
+            BattleGroundQueueTypeId bgQueueTypeId = sBattleGroundMgr.BGQueueTypeId(currentBg->GetTypeID(), currentBg->GetArenaType());
             uint32 queueSlot = AddBattleGroundQueueId(bgQueueTypeId);
 
             SetBattleGroundId(currentBg->GetInstanceID());

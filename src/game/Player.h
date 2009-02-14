@@ -36,6 +36,7 @@
 #include "MapReference.h"
 #include "Util.h"                                           // for Tokens typedef
 #include "AchievementMgr.h"
+#include "BattleGround.h"
 
 #include<string>
 #include<vector>
@@ -1868,39 +1869,39 @@ class TRINITY_DLL_SPEC Player : public Unit
         bool InBattleGroundQueue() const
         {
             for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
-                if (m_bgBattleGroundQueueID[i].bgQueueType != 0)
+                if (m_bgBattleGroundQueueID[i].bgQueueTypeId != BATTLEGROUND_QUEUE_NONE)
                     return true;
             return false;
         }
 
-        uint32 GetBattleGroundQueueId(uint32 index) const { return m_bgBattleGroundQueueID[index].bgQueueType; }
-        uint32 GetBattleGroundQueueIndex(uint32 bgQueueType) const
+        BattleGroundQueueTypeId GetBattleGroundQueueTypeId(uint32 index) const { return m_bgBattleGroundQueueID[index].bgQueueTypeId; }
+        uint32 GetBattleGroundQueueIndex(BattleGroundQueueTypeId bgQueueTypeId) const
         {
             for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
-                if (m_bgBattleGroundQueueID[i].bgQueueType == bgQueueType)
+                if (m_bgBattleGroundQueueID[i].bgQueueTypeId == bgQueueTypeId)
                     return i;
             return PLAYER_MAX_BATTLEGROUND_QUEUES;
         }
-        bool IsInvitedForBattleGroundQueueType(uint32 bgQueueType) const
+        bool IsInvitedForBattleGroundQueueType(BattleGroundQueueTypeId bgQueueTypeId) const
         {
             for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
-                if (m_bgBattleGroundQueueID[i].bgQueueType == bgQueueType)
+                if (m_bgBattleGroundQueueID[i].bgQueueTypeId == bgQueueTypeId)
                     return m_bgBattleGroundQueueID[i].invitedToInstance != 0;
             return PLAYER_MAX_BATTLEGROUND_QUEUES;
         }
-        bool InBattleGroundQueueForBattleGroundQueueType(uint32 bgQueueType) const
+        bool InBattleGroundQueueForBattleGroundQueueType(BattleGroundQueueTypeId bgQueueTypeId) const
         {
-            return GetBattleGroundQueueIndex(bgQueueType) < PLAYER_MAX_BATTLEGROUND_QUEUES;
+            return GetBattleGroundQueueIndex(bgQueueTypeId) < PLAYER_MAX_BATTLEGROUND_QUEUES;
         }
 
         void SetBattleGroundId(uint32 val)  { m_bgBattleGroundID = val; }
-        uint32 AddBattleGroundQueueId(uint32 val)
+        uint32 AddBattleGroundQueueId(BattleGroundQueueTypeId val)
         {
             for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
             {
-                if (m_bgBattleGroundQueueID[i].bgQueueType == 0 || m_bgBattleGroundQueueID[i].bgQueueType == val)
+                if (m_bgBattleGroundQueueID[i].bgQueueTypeId == BATTLEGROUND_QUEUE_NONE || m_bgBattleGroundQueueID[i].bgQueueTypeId == val)
                 {
-                    m_bgBattleGroundQueueID[i].bgQueueType = val;
+                    m_bgBattleGroundQueueID[i].bgQueueTypeId = val;
                     m_bgBattleGroundQueueID[i].invitedToInstance = 0;
                     return i;
                 }
@@ -1910,26 +1911,26 @@ class TRINITY_DLL_SPEC Player : public Unit
         bool HasFreeBattleGroundQueueId()
         {
             for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
-                if (m_bgBattleGroundQueueID[i].bgQueueType == 0)
+                if (m_bgBattleGroundQueueID[i].bgQueueTypeId == BATTLEGROUND_QUEUE_NONE)
                     return true;
             return false;
         }
-        void RemoveBattleGroundQueueId(uint32 val)
+        void RemoveBattleGroundQueueId(BattleGroundQueueTypeId val)
         {
             for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
             {
-                if (m_bgBattleGroundQueueID[i].bgQueueType == val)
+                if (m_bgBattleGroundQueueID[i].bgQueueTypeId == val)
                 {
-                    m_bgBattleGroundQueueID[i].bgQueueType = 0;
+                    m_bgBattleGroundQueueID[i].bgQueueTypeId = BATTLEGROUND_QUEUE_NONE;
                     m_bgBattleGroundQueueID[i].invitedToInstance = 0;
                     return;
                 }
             }
         }
-        void SetInviteForBattleGroundQueueType(uint32 bgQueueType, uint32 instanceId)
+        void SetInviteForBattleGroundQueueType(BattleGroundQueueTypeId bgQueueTypeId, uint32 instanceId)
         {
             for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
-                if (m_bgBattleGroundQueueID[i].bgQueueType == bgQueueType)
+                if (m_bgBattleGroundQueueID[i].bgQueueTypeId == bgQueueTypeId)
                     m_bgBattleGroundQueueID[i].invitedToInstance = instanceId;
         }
         bool IsInvitedForBattleGroundInstance(uint32 instanceId) const
@@ -2177,7 +2178,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         */
         struct BgBattleGroundQueueID_Rec
         {
-            uint32 bgQueueType;
+            BattleGroundQueueTypeId bgQueueTypeId;
             uint32 invitedToInstance;
         };
         BgBattleGroundQueueID_Rec m_bgBattleGroundQueueID[PLAYER_MAX_BATTLEGROUND_QUEUES];
