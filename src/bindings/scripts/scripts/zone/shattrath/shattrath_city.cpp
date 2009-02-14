@@ -452,18 +452,21 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
         SayTimer = 0;
         Step = 0;
 
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->setFaction(1194);
         Unit* Creepjack = FindCreature(NPC_CREEPJACK, 20, m_creature);
         if(Creepjack)
         {
             ((Creature*)Creepjack)->AI()->EnterEvadeMode();
             Creepjack->setFaction(1194);
+            Creepjack->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
         Unit* Malone = FindCreature(NPC_MALONE, 20, m_creature);
         if(Malone)
         {
             ((Creature*)Malone)->AI()->EnterEvadeMode();
             Malone->setFaction(1194);
+            Malone->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
     }
 
@@ -514,6 +517,7 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
                 Creepjack->Attack(player, true);
                 Creepjack->setFaction(14);
                 Creepjack->GetMotionMaster()->MoveChase(player);
+                Creepjack->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
             Unit* Malone = FindCreature(NPC_MALONE, 20, m_creature);
             if(Malone)
@@ -521,6 +525,7 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
                 Malone->Attack(player, true);
                 Malone->setFaction(14);
                 Malone->GetMotionMaster()->MoveChase(player);
+                Malone->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
                 DoStartMovement(player);
                 AttackStart(player);
@@ -535,12 +540,14 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
             {
                 ((Creature*)Creepjack)->AI()->EnterEvadeMode();
                 Creepjack->setFaction(1194);
+                Creepjack->GetMotionMaster()->MoveTargetedHome();
             }
             Unit* Malone = FindCreature(NPC_MALONE, 20, m_creature);
             if(Malone)
             {
                 ((Creature*)Malone)->AI()->EnterEvadeMode();
                 Malone->setFaction(1194);
+                Malone->GetMotionMaster()->MoveTargetedHome();
             }
             m_creature->setFaction(1194);
             Done = true;
