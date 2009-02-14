@@ -42,8 +42,8 @@ libmangosgame_a_SOURCES = \
     ArenaTeam.cpp \
     ArenaTeam.h \
     ArenaTeamHandler.cpp \
-    AuctionHouse.cpp \
-    AuctionHouseObject.h \
+    AuctionHouseHandler.cpp \
+    AuctionHouseMgr.h \
     Bag.cpp \
     Bag.h \
     BattleGround.cpp \
