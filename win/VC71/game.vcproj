@@ -153,7 +153,7 @@
 				RelativePath="..\..\src\game\ArenaTeamHandler.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\game\AuctionHouse.cpp">
+				RelativePath="..\..\src\game\AuctionHouseHandler.cpp">
 			</File>
 			<File
 				RelativePath="..\..\src\game\BattleGround.cpp">
@@ -590,7 +590,7 @@
 				RelativePath="..\..\src\game\ArenaTeam.h">
 			</File>
 			<File
-				RelativePath="..\..\src\game\AuctionHouseObject.h">
+				RelativePath="..\..\src\game\AuctionHouseMgr.h">
 			</File>
 			<File
 				RelativePath="..\..\src\game\Bag.cpp">

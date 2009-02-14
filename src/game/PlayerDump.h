@@ -34,7 +34,7 @@
 #include "ItemPrototype.h"
 #include "NPCHandler.h"
 #include "Database/DatabaseEnv.h"
-#include "AuctionHouseObject.h"
+#include "AuctionHouseMgr.h"
 #include "Mail.h"
 #include "Map.h"
 #include "ObjectAccessor.h"

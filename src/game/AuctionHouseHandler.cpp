@@ -26,7 +26,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "UpdateMask.h"
-#include "AuctionHouseObject.h"
+#include "AuctionHouseMgr.h"
 #include "Util.h"
 #include "AuctionHouseBot.h"
 
