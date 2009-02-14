@@ -38,6 +38,7 @@
 #include "World.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
+#include "AuctionHouseMgr.h"
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
 #include "Chat.h"
@@ -609,7 +610,7 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL] = sConfig.GetBoolDefault("AllowTwoSide.Interaction.Channel",false);
     m_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP]   = sConfig.GetBoolDefault("AllowTwoSide.Interaction.Group",false);
     m_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD]   = sConfig.GetBoolDefault("AllowTwoSide.Interaction.Guild",false);
-    m_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION]   = sConfig.GetBoolDefault("AllowTwoSide.Interaction.Auction",false);
+    m_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION] = sConfig.GetBoolDefault("AllowTwoSide.Interaction.Auction",false);
     m_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_MAIL]    = sConfig.GetBoolDefault("AllowTwoSide.Interaction.Mail",false);
     m_configs[CONFIG_ALLOW_TWO_SIDE_WHO_LIST] = sConfig.GetBoolDefault("AllowTwoSide.WhoList", false);
     m_configs[CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND] = sConfig.GetBoolDefault("AllowTwoSide.AddFriend", false);
@@ -1317,8 +1318,8 @@ void World::SetInitialWorldSettings()
     ///- Load dynamic data tables from the database
     sLog.outString( "Loading Auctions..." );
     sLog.outString();
-    objmgr.LoadAuctionItems();
-    objmgr.LoadAuctions();
+    auctionmgr.LoadAuctionItems();
+    auctionmgr.LoadAuctions();
     sLog.outString( ">>> Auctions loaded" );
     sLog.outString();
 
@@ -1579,54 +1580,8 @@ void World::Update(uint32 diff)
             objmgr.ReturnOrDeleteOldMails(true);
         }
 
-        AuctionHouseObject* AuctionMap;
-        for (int i = 0; i < 3; i++)
-        {
-            switch (i)
-            {
-                case 0:
-                    AuctionMap = objmgr.GetAuctionsMap(AUCTION_HORDE);
-                    break;
-                case 1:
-                    AuctionMap = objmgr.GetAuctionsMap(AUCTION_ALLIANCE);
-                    break;
-                case 2:
-                    AuctionMap = objmgr.GetAuctionsMap(AUCTION_NEUTRAL);
-                    break;
-            }
-
-            ///- Handle expired auctions
-            AuctionHouseObject::AuctionEntryMap::iterator itr,next;
-            for (itr = AuctionMap->GetAuctionsBegin(); itr != AuctionMap->GetAuctionsEnd();itr = next)
-            {
-                next = itr;
-                ++next;
-                if (m_gameTime > (itr->second->time))
-                {
-                    ///- Either cancel the auction if there was no bidder
-                    if (itr->second->bidder == 0)
-                    {
-                        objmgr.SendAuctionExpiredMail( itr->second );
-                    }
-                    ///- Or perform the transaction
-                    else
-                    {
-                        //we should send an "item sold" message if the seller is online
-                        //we send the item to the winner
-                        //we send the money to the seller
-                        objmgr.SendAuctionSuccessfulMail( itr->second );
-                        objmgr.SendAuctionWonMail( itr->second );
-                    }
-
-                    ///- In any case clear the auction
-                    //No SQL injection (Id is integer)
-                    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE id = '%u'",itr->second->Id);
-                    objmgr.RemoveAItem(itr->second->item_guidlow);
-                    delete itr->second;
-                    AuctionMap->RemoveAuction(itr->first);
-                }
-            }
-        }
+        ///- Handle expired auctions
+        auctionmgr.Update();
     }
 
     RecordTimeDiff(NULL);

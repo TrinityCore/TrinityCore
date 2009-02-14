@@ -926,6 +926,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\game\AuctionHouseMgr.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\game\AuctionHouseMgr.h"
 				>
 			</File>

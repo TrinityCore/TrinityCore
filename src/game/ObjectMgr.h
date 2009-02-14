@@ -34,7 +34,6 @@
 #include "ItemPrototype.h"
 #include "NPCHandler.h"
 #include "Database/DatabaseEnv.h"
-#include "AuctionHouseMgr.h"
 #include "Mail.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
@@ -374,42 +373,6 @@ class ObjectMgr
             return sInstanceTemplate.LookupEntry<InstanceTemplate>(map);
         }
 
-        Item* GetAItem(uint32 id)
-        {
-            ItemMap::const_iterator itr = mAitems.find(id);
-            if (itr != mAitems.end())
-            {
-                return itr->second;
-            }
-            return NULL;
-        }
-        void AddAItem(Item* it)
-        {
-            ASSERT( it );
-            ASSERT( mAitems.find(it->GetGUIDLow()) == mAitems.end());
-            mAitems[it->GetGUIDLow()] = it;
-        }
-        bool RemoveAItem(uint32 id)
-        {
-            ItemMap::iterator i = mAitems.find(id);
-            if (i == mAitems.end())
-            {
-                return false;
-            }
-            mAitems.erase(i);
-            return true;
-        }
-        AuctionHouseObject * GetAuctionsMap( AuctionLocation location );
-
-        //auction messages
-        void SendAuctionWonMail( AuctionEntry * auction );
-        void SendAuctionSalePendingMail( AuctionEntry * auction );
-        void SendAuctionSuccessfulMail( AuctionEntry * auction );
-        void SendAuctionExpiredMail( AuctionEntry * auction );
-        static uint32 GetAuctionCut( AuctionLocation location, uint32 highBid );
-        static uint32 GetAuctionDeposit(AuctionLocation location, uint32 time, Item *pItem);
-        static uint32 GetAuctionOutBid(uint32 currentBid);
-
         PetLevelInfo const* GetPetLevelInfo(uint32 creature_id, uint32 level) const;
 
         PlayerClassInfo const* GetPlayerClassInfo(uint32 class_) const
@@ -566,9 +529,6 @@ class ObjectMgr
         void LoadItemTexts();
         void LoadPageTexts();
 
-        //load first auction items, because of check if item exists, when loading
-        void LoadAuctionItems();
-        void LoadAuctions();
         void LoadPlayerInfo();
         void LoadPetLevelInfo();
         void LoadExplorationBaseXP();
@@ -601,12 +561,12 @@ class ObjectMgr
 
         void SetHighestGuids();
         uint32 GenerateLowGuid(HighGuid guidhigh);
-        uint32 GenerateAuctionID();
-        uint32 GenerateMailID();
-        uint32 GenerateItemTextID();
-        uint32 GeneratePetNumber();
         uint32 GenerateArenaTeamId();
+        uint32 GenerateAuctionID();
         uint32 GenerateGuildId();
+        uint32 GenerateItemTextID();
+        uint32 GenerateMailID();
+        uint32 GeneratePetNumber();
 
         void LoadPlayerInfoInCache();
         PCachePlayerInfo GetPlayerInfoFromCache(uint32 unPlayerGuid) const;
@@ -806,11 +766,11 @@ class ObjectMgr
     protected:
 
         // first free id for selected id type
-        uint32 m_auctionid;
-        uint32 m_mailid;
-        uint32 m_ItemTextId;
         uint32 m_arenaTeamId;
+        uint32 m_auctionid;
         uint32 m_guildId;
+        uint32 m_ItemTextId;
+        uint32 m_mailid;
         uint32 m_hiPetNumber;
 
         // first free low guid for seelcted guid type
@@ -836,13 +796,8 @@ class ObjectMgr
         ArenaTeamMap        mArenaTeamMap;
 
         ItemMap             mItems;
-        ItemMap             mAitems;
 
         ItemTextMap         mItemTexts;
-
-        AuctionHouseObject  mHordeAuctions;
-        AuctionHouseObject  mAllianceAuctions;
-        AuctionHouseObject  mNeutralAuctions;
 
         QuestAreaTriggerMap mQuestAreaTriggerMap;
         TavernAreaTriggerSet mTavernAreaTriggerSet;
