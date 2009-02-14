@@ -524,8 +524,11 @@ bool BattleGroundEY::SetupBattleGround()
     return true;
 }
 
-void BattleGroundEY::ResetBGSubclass()
+void BattleGroundEY::Reset()
 {
+    //call parent's class reset
+    BattleGround::Reset();
+
     m_TeamScores[BG_TEAM_ALLIANCE] = 0;
     m_TeamScores[BG_TEAM_HORDE] = 0;
     m_TeamPointsCount[BG_TEAM_ALLIANCE] = 0;
