@@ -1163,7 +1163,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recv_data)
             if(i!=0 && !itemProto->Socket[i-1].Color && (i+1 >= MAX_GEM_SOCKETS || itemProto->Socket[i+1].Color))
                 return;
 
-            // ok, this is first not colored socket for item with prismatic socket 
+            // ok, this is first not colored socket for item with prismatic socket
         }
 
         // tried to put normal gem in meta socket

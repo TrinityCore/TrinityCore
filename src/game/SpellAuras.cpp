@@ -440,9 +440,9 @@ m_updated(false), m_isRemovedOnShapeLost(true), m_in_use(false)
     if(modOwner)
         modOwner->ApplySpellMod(GetId(), SPELLMOD_CHARGES, m_procCharges);
 
-    m_isRemovedOnShapeLost = (m_caster_guid==m_target->GetGUID() && 
+    m_isRemovedOnShapeLost = (m_caster_guid==m_target->GetGUID() &&
                               m_spellProto->Stances &&
-                            !(m_spellProto->AttributesEx2 & SPELL_ATTR_EX2_NOT_NEED_SHAPESHIFT) && 
+                            !(m_spellProto->AttributesEx2 & SPELL_ATTR_EX2_NOT_NEED_SHAPESHIFT) &&
                             !(m_spellProto->Attributes & SPELL_ATTR_NOT_SHAPESHIFT));
 }
 
@@ -5893,7 +5893,7 @@ void Aura::PeriodicTick()
             Powers pt = m_target->getPowerType();
             if(int32(pt) != m_modifier.m_miscvalue)
                 return;
-            
+
             if ( GetSpellProto()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED )
             {
                 // eating anim
@@ -5904,7 +5904,7 @@ void Aura::PeriodicTick()
                 // cannibalize anim
                 m_target->HandleEmoteCommand(EMOTE_STATE_CANNIBALIZE);
             }
-            
+
             // Warrior talent, gain 1 rage every 3 seconds while in combat
             if(pt == POWER_RAGE && m_target->isInCombat())
                 m_target->ModifyPower(pt, m_modifier.m_amount*10/17);
