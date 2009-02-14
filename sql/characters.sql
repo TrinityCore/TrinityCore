@@ -21,7 +21,7 @@
 
 DROP TABLE IF EXISTS `character_db_version`;
 CREATE TABLE `character_db_version` (
-  `required_7255_01_characters_characters` bit(1) default NULL
+  `required_7267_01_characters_auctionhouse` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Last applied sql update to DB';
 
 --
@@ -150,7 +150,6 @@ CREATE TABLE `auctionhouse` (
   `lastbid` int(11) NOT NULL default '0',
   `startbid` int(11) NOT NULL default '0',
   `deposit` int(11) NOT NULL default '0',
-  `location` tinyint(3) unsigned NOT NULL default '3',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `item_guid` (`itemguid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
