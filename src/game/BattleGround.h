@@ -138,6 +138,7 @@ struct BattleGroundObjectInfo
 // handle the queue types and bg types separately to enable joining queue for different sized arenas at the same time
 enum BattleGroundQueueTypeId
 {
+    BATTLEGROUND_QUEUE_NONE   = 0,
     BATTLEGROUND_QUEUE_AV     = 1,
     BATTLEGROUND_QUEUE_WS     = 2,
     BATTLEGROUND_QUEUE_AB     = 3,
@@ -266,7 +267,7 @@ class BattleGround
         // Get methods:
         char const* GetName() const         { return m_Name; }
         BattleGroundTypeId GetTypeID() const { return m_TypeID; }
-        uint32 GetQueueType() const         { return m_Queue_type; }
+        uint32 GetQueueId() const           { return m_QueueId; }
         uint32 GetInstanceID() const        { return m_InstanceID; }
         uint32 GetStatus() const            { return m_Status; }
         uint32 GetStartTime() const         { return m_StartTime; }
@@ -289,7 +290,7 @@ class BattleGround
         // Set methods:
         void SetName(char const* Name)      { m_Name = Name; }
         void SetTypeID(BattleGroundTypeId TypeID) { m_TypeID = TypeID; }
-        void SetQueueType(uint32 ID)        { m_Queue_type = ID; }
+        void SetQueueId(uint32 ID)          { m_QueueId = ID; }
         void SetInstanceID(uint32 InstanceID) { m_InstanceID = InstanceID; }
         void SetStatus(uint32 Status)       { m_Status = Status; }
         void SetStartTime(uint32 Time)      { m_StartTime = Time; }
@@ -488,7 +489,7 @@ class BattleGround
         uint32 m_StartTime;
         uint32 m_EndTime;
         uint32 m_LastResurrectTime;
-        uint32 m_Queue_type;
+        uint32 m_QueueId;
         uint8  m_ArenaType;                                 // 2=2v2, 3=3v3, 5=5v5
         bool   m_InBGFreeSlotQueue;                         // used to make sure that BG is only once inserted into the BattleGroundMgr.BGFreeSlotQueue[bgTypeId] deque
         bool   m_SetDeleteThis;                             // used for safe deletion of the bg after end / all players leave
