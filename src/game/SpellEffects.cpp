@@ -5950,8 +5950,8 @@ void Spell::EffectKnockBack(uint32 i)
     float dy = unitTarget->GetPositionY() - y;
     float dist = sqrt((dx*dx) + (dy*dy));
 
-    float vsin = dx / dist;
-    float vcos = dy / dist;
+    float vcos = dx / dist;
+    float vsin = dy / dist;
 
     WorldPacket data(SMSG_MOVE_KNOCK_BACK, (8+4+4+4+4+4));
     data.append(unitTarget->GetPackGUID());
