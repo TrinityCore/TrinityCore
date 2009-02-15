@@ -2191,6 +2191,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 44869: // Spectral Blast
         case 45027: // Revitalize
         case 45976: // Muru Portal Channel
+        case 39365: // Thundering Storm
             spellInfo->MaxAffectedTargets = 1;
             break;
         case 41376: // Spite
