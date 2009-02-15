@@ -1186,41 +1186,91 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recv_data)
     // check unique-equipped conditions
     for(int i = 0; i < MAX_GEM_SOCKETS; ++i)
     {
-        if (Gems[i] && (Gems[i]->GetProto()->Flags & ITEM_FLAGS_UNIQUE_EQUIPPED))
+        if(!Gems[i])
+            continue;
+
+        // continue check for case when attempt add 2 similar unique equipped gems in one item.
+        ItemPrototype const* iGemProto = Gems[i]->GetProto();
+
+        // unique item (for new and already placed bit removed enchantments
+        if (iGemProto->Flags & ITEM_FLAGS_UNIQUE_EQUIPPED)
         {
-            // for equipped item check all equipment for duplicate equipped gems
-            if(itemTarget->IsEquipped())
-            {
-                if(GetPlayer()->GetItemOrItemWithGemEquipped(Gems[i]->GetEntry()))
-                {
-                    _player->SendEquipError( EQUIP_ERR_ITEM_UNIQUE_EQUIPABLE, itemTarget, NULL );
-                    return;
-                }
-            }
-
-            // continue check for case when attempt add 2 similar unique equipped gems in one item.
             for (int j = 0; j < MAX_GEM_SOCKETS; ++j)
             {
-                if ((i != j) && (Gems[j]) && (Gems[i]->GetProto()->ItemId == Gems[j]->GetProto()->ItemId))
-                {
-                    _player->SendEquipError( EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE_SOCKETED, itemTarget, NULL );
-                    return;
-                }
-            }
-            for (int j = 0; j < MAX_GEM_SOCKETS; ++j)
-            {
-                if (OldEnchants[j])
-                {
-                    SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(OldEnchants[j]);
-                    if(!enchantEntry)
-                        continue;
+                if(i==j)                                    // skip self
+                    continue;
 
-                    if ((enchantEntry->GemID == Gems[i]->GetProto()->ItemId) && (i != j))
+                if (Gems[j])
+                {
+                    if (iGemProto->ItemId == Gems[j]->GetEntry())
                     {
                         _player->SendEquipError( EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE_SOCKETED, itemTarget, NULL );
                         return;
                     }
                 }
+                else if(OldEnchants[j])
+                {
+                    if(SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(OldEnchants[j]))
+                    {
+                        if (iGemProto->ItemId == enchantEntry->GemID)
+                        {
+                            _player->SendEquipError( EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE_SOCKETED, itemTarget, NULL );
+                            return;
+                        }
+                    }
+                }
+
+            }
+        }
+
+        // unique limit type item
+        int32 limit_newcount = 0;
+        if (iGemProto->ItemLimitCategory)
+        {
+            if(ItemLimitCategoryEntry const* limitEntry = sItemLimitCategoryStore.LookupEntry(iGemProto->ItemLimitCategory))
+            {
+                for (int j = 0; j < MAX_GEM_SOCKETS; ++j)
+                {
+                    if (Gems[j])
+                    {
+                        // destroyed gem
+                        if (OldEnchants[j])
+                        {
+                            if(SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(OldEnchants[j]))
+                                if(ItemPrototype const* jProto = ObjectMgr::GetItemPrototype(enchantEntry->GemID))
+                                    if (iGemProto->ItemLimitCategory == jProto->ItemLimitCategory)
+                                        --limit_newcount;
+                        }
+
+                        // new gem
+                        if (iGemProto->ItemLimitCategory == Gems[j]->GetProto()->ItemLimitCategory)
+                            ++limit_newcount;
+                    }
+                    // existed gem
+                    else if(OldEnchants[j])
+                    {
+                        if(SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(OldEnchants[j]))
+                            if(ItemPrototype const* jProto = ObjectMgr::GetItemPrototype(enchantEntry->GemID))
+                                if (iGemProto->ItemLimitCategory == jProto->ItemLimitCategory)
+                                    ++limit_newcount;
+                    }
+                }
+
+                if(limit_newcount > 0 && uint32(limit_newcount) > limitEntry->maxCount)
+                {
+                    _player->SendEquipError( EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE_SOCKETED, itemTarget, NULL );
+                    return;
+                }
+            }
+        }
+
+        // for equipped item check all equipment for duplicate equipped gems
+        if(itemTarget->IsEquipped())
+        {
+            if(uint8 res = _player->CanEquipUniqueItem(Gems[i],slot,limit_newcount >= 0 ? limit_newcount : 0))
+            {
+                _player->SendEquipError( res, itemTarget, NULL );
+                return;
             }
         }
     }

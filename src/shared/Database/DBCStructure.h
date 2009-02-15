@@ -877,6 +877,15 @@ struct ItemExtendedCostEntry
     uint32      reqpersonalarenarating;                     // 13 required personal arena rating
 };
 
+struct ItemLimitCategoryEntry
+{
+    uint32      ID;                                         // 0 Id
+    //char*     name[16]                                    // 1-16     m_name_lang
+                                                            // 17 name flags
+    uint32      maxCount;                                  // max allowed equipped as item or in gem slot
+    //uint32      unk;                                        // 1 for prismatic gems only...
+};
+
 struct ItemRandomPropertiesEntry
 {
     uint32    ID;                                           // 0        m_ID

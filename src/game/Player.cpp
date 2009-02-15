@@ -9099,31 +9099,76 @@ bool Player::HasItemCount( uint32 item, uint32 count, bool inBankAlso ) const
     return false;
 }
 
-Item* Player::GetItemOrItemWithGemEquipped( uint32 item ) const
+bool Player::HasItemOrGemWithIdEquipped( uint32 item, uint32 count, uint8 except_slot ) const
 {
-    Item *pItem;
-    for(int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
+    uint32 tempcount = 0;
+    for(int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
     {
-        pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, i );
-        if( pItem && pItem->GetEntry() == item )
-            return pItem;
+        if(i==int(except_slot))
+            continue;
+
+        Item *pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, i );
+        if( pItem && pItem->GetEntry() == item)
+        {
+            tempcount += pItem->GetCount();
+            if( tempcount >= count )
+                return true;
+        }
     }
 
     ItemPrototype const *pProto = objmgr.GetItemPrototype(item);
     if (pProto && pProto->GemProperties)
     {
-        for(int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
+        for(int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
         {
-            pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, i );
-            if( pItem && pItem->GetProto()->Socket[0].Color )
+            if(i==int(except_slot))
+                continue;
+
+            Item *pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, i );
+            if( pItem && pItem->GetProto()->Socket[0].Color)
             {
-                if (pItem->GetGemCountWithID(item) > 0 )
-                    return pItem;
+                tempcount += pItem->GetGemCountWithID(item);
+                if( tempcount >= count )
+                    return true;
             }
         }
     }
 
-    return NULL;
+    return false;
+}
+
+bool Player::HasItemOrGemWithLimitCategoryEquipped( uint32 limitCategory, uint32 count, uint8 except_slot ) const
+{
+    uint32 tempcount = 0;
+    for(int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
+    {
+        if(i==int(except_slot))
+            continue;
+
+        Item *pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, i );
+        if (!pItem)
+            continue;
+
+        ItemPrototype const *pProto = pItem->GetProto();
+        if (!pProto)
+            continue;
+
+        if (pProto->ItemLimitCategory == limitCategory)
+        {
+            tempcount += pItem->GetCount();
+            if( tempcount >= count )
+                return true;
+        }
+
+        if( pProto->Socket[0].Color)
+        {
+            tempcount += pItem->GetGemCountWithLimitCategory(limitCategory);
+            if( tempcount >= count )
+                return true;
+        }
+    }
+
+    return false;
 }
 
 uint8 Player::_CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count ) const
@@ -10210,33 +10255,9 @@ uint8 Player::CanEquipItem( uint8 slot, uint16 &dest, Item *pItem, bool swap, bo
             if( !swap && GetItemByPos( INVENTORY_SLOT_BAG_0, eslot ) )
                 return EQUIP_ERR_NO_EQUIPMENT_SLOT_AVAILABLE;
 
-            // check unique-equipped on item
-            if (pProto->Flags & ITEM_FLAGS_UNIQUE_EQUIPPED)
-            {
-                // there is an equip limit on this item
-                Item* tItem = GetItemOrItemWithGemEquipped(pProto->ItemId);
-                if (tItem && (!swap || tItem->GetSlot() != eslot ) )
-                    return EQUIP_ERR_ITEM_UNIQUE_EQUIPABLE;
-            }
-
-            // check unique-equipped on gems
-            for(uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+3; ++enchant_slot)
-            {
-                uint32 enchant_id = pItem->GetEnchantmentId(EnchantmentSlot(enchant_slot));
-                if(!enchant_id)
-                    continue;
-                SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
-                if(!enchantEntry)
-                    continue;
-
-                ItemPrototype const* pGem = objmgr.GetItemPrototype(enchantEntry->GemID);
-                if(pGem && (pGem->Flags & ITEM_FLAGS_UNIQUE_EQUIPPED))
-                {
-                    Item* tItem = GetItemOrItemWithGemEquipped(enchantEntry->GemID);
-                    if(tItem && (!swap || tItem->GetSlot() != eslot ))
-                        return EQUIP_ERR_ITEM_UNIQUE_EQUIPABLE;
-                }
-            }
+            // if swap ignore item (equipped also)
+            if(uint8 res = CanEquipUniqueItem(pItem, swap ? eslot : NULL_SLOT))
+                return res;
 
             // check unique-equipped special item classes
             if (pProto->Class == ITEM_CLASS_QUIVER)
@@ -20372,4 +20393,65 @@ uint32 Player::GetPhaseMaskForSpawn() const
         return n_phase;
 
     return PHASEMASK_NORMAL;
+}
+
+uint8 Player::CanEquipUniqueItem(Item* pItem, uint8 eslot, uint32 limit_count) const
+{
+    ItemPrototype const* pProto = pItem->GetProto();
+
+    // proto based limitations
+    if(uint8 res = CanEquipUniqueItem(pProto,eslot,limit_count))
+        return res;
+
+    // check unique-equipped on gems
+    for(uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+3; ++enchant_slot)
+    {
+        uint32 enchant_id = pItem->GetEnchantmentId(EnchantmentSlot(enchant_slot));
+        if(!enchant_id)
+            continue;
+        SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
+        if(!enchantEntry)
+            continue;
+
+        ItemPrototype const* pGem = objmgr.GetItemPrototype(enchantEntry->GemID);
+        if(!pGem)
+            continue;
+
+        // include for check equip another gems with same limit category for not equipped item (and then not counted)
+        uint32 gem_limit_count = !pItem->IsEquipped() && pGem->ItemLimitCategory
+            ? pItem->GetGemCountWithLimitCategory(pGem->ItemLimitCategory) : 1;
+
+        if(uint8 res = CanEquipUniqueItem(pGem, eslot,gem_limit_count))
+            return res;
+    }
+
+    return EQUIP_ERR_OK;
+}
+
+uint8 Player::CanEquipUniqueItem( ItemPrototype const* itemProto, uint8 except_slot, uint32 limit_count) const
+{
+    // check unique-equipped on item
+    if (itemProto->Flags & ITEM_FLAGS_UNIQUE_EQUIPPED)
+    {
+        // there is an equip limit on this item
+        if(HasItemOrGemWithIdEquipped(itemProto->ItemId,1,except_slot))
+            return EQUIP_ERR_ITEM_UNIQUE_EQUIPABLE;
+    }
+
+    // check unique-equipped limit
+    if (itemProto->ItemLimitCategory)
+    {
+        ItemLimitCategoryEntry const* limitEntry = sItemLimitCategoryStore.LookupEntry(itemProto->ItemLimitCategory);
+        if(!limitEntry)
+            return EQUIP_ERR_ITEM_UNIQUE_EQUIPABLE;
+
+        if(limit_count > limitEntry->maxCount)
+            return EQUIP_ERR_ITEM_UNIQUE_EQUIPABLE;         // attempt add too many limit category items (gems)
+
+        // there is an equip limit on this item
+        if(HasItemOrGemWithLimitCategoryEquipped(itemProto->ItemLimitCategory,limitEntry->maxCount-limit_count+1,except_slot))
+            return EQUIP_ERR_ITEM_UNIQUE_EQUIPABLE;
+    }
+
+    return EQUIP_ERR_OK;
 }

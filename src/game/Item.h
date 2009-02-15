@@ -236,6 +236,7 @@ class TRINITY_DLL_SPEC Item : public Object
         void SetCount(uint32 value) { SetUInt32Value (ITEM_FIELD_STACK_COUNT, value); }
         uint32 GetMaxStackCount() const { return GetProto()->GetMaxStackSize(); }
         uint8 GetGemCountWithID(uint32 GemID) const;
+        uint8 GetGemCountWithLimitCategory(uint32 limitCategory) const;
 
         uint8 GetSlot() const {return m_slot;}
         Bag *GetContainer() { return m_container; }
