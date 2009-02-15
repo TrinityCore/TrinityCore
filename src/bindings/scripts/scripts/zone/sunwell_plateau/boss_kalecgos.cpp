@@ -69,7 +69,7 @@ EndScriptData */
 
 #define SPELL_BANISH                    44836
 #define SPELL_TRANSFORM_KALEC           44670
-#define SPELL_ENRAGE                    44806
+#define SPELL_ENRAGE                    44807
 
 #define SPELL_CORRUPTION_STRIKE         45029
 #define SPELL_AGONY_CURSE               45032
@@ -351,8 +351,11 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
             if (((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 10) && !isEnraged)
             {
                 Unit* Kalecgos = Unit::GetUnit(*m_creature, KalecgosGUID);
-                if (Kalecgos)
+                if(Kalecgos)
+                {
                     Kalecgos->CastSpell(Kalecgos, SPELL_ENRAGE, true);
+                    ((boss_kalecgosAI*)((Creature*)Kalecgos)->AI())->isEnraged = true;
+                }
                 DoCast(m_creature, SPELL_ENRAGE, true);
                 isEnraged = true;
             }
@@ -548,8 +551,11 @@ void boss_kalecgosAI::UpdateAI(const uint32 diff)
              if (((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 10) && !isEnraged)
              {
                  Unit* Sath = Unit::GetUnit(*m_creature, SathGUID);
-                 if (Sath)
+                 if(Sath)
+                 {
                      Sath->CastSpell(Sath, SPELL_ENRAGE, true);
+                     ((boss_sathrovarrAI*)((Creature*)Sath)->AI())->isEnraged = true;
+                 }
                  DoCast(m_creature, SPELL_ENRAGE, true);
                  isEnraged = true;
              }
