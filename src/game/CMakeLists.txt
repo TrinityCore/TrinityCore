@@ -17,6 +17,7 @@ SET(game_STAT_SRCS
    AuctionHouseHandler.cpp
    AuctionHouseBot.cpp
    AuctionHouseBot.h
+   AuctionHouseMgr.cpp
    AuctionHouseMgr.h
    Bag.cpp
    Bag.h
