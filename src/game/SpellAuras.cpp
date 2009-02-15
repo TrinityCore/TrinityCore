@@ -2172,11 +2172,11 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     {
                         Creature *totem = ObjectAccessor::GetCreature(*caster, guid);
                         if (totem && totem->isTotem())
-                            totem->AddPlayerToVision((Player*)caster);
+                            ((Player*)caster)->CastSpell(totem, 6277, true);
                     }
                 }
                 else
-                    ((Player*)caster)->RemoveFarsightTarget();
+                    ((Player*)caster)->StopCastingBindSight();
                 return;
             }
             break;

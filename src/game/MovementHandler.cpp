@@ -350,7 +350,7 @@ void WorldSession::HandlePossessedMovement(WorldPacket& recv_data, MovementInfo&
     // Remove possession if possessed unit enters a transport
     if (MovementFlags & MOVEMENTFLAG_ONTRANSPORT)
     {
-        GetPlayer()->RemovePossess(true);
+        GetPlayer()->Uncharm();
         return;
     }
 
@@ -383,7 +383,7 @@ void WorldSession::HandlePossessedMovement(WorldPacket& recv_data, MovementInfo&
 
         if(movementInfo.z < -500.0f)
         {
-            GetPlayer()->RemovePossess(false);
+            GetPlayer()->Uncharm();
             plr->HandleFallUnderMap();
         }
     }

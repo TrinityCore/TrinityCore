@@ -471,9 +471,6 @@ Player::~Player ()
         for(BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
             itr->second.save->RemovePlayer(this);
 
-    if (m_uint32Values && isPossessing())
-        RemovePossess(false);
-
     delete m_declinedname;
 }
 
@@ -1351,12 +1348,6 @@ void Player::setDeathState(DeathState s)
         RemoveMiniPet();
         RemoveGuardians();
 
-        // remove possession
-        if(isPossessing())
-            RemovePossess(false);
-        else
-            RemoveFarsightTarget();
-
         // save value before aura remove in Unit::setDeathState
         ressSpellId = GetUInt32Value(PLAYER_SELF_RES_SPELL);
 
@@ -1619,18 +1610,6 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
     SetSemaphoreTeleport(true);
 
-    // Remove any possession on the player before teleporting
-    if (isPossessedByPlayer())
-        ((Player*)GetCharmer())->RemovePossess();
-
-    // Remove player's possession before teleporting
-    if (isPossessing())
-        RemovePossess(false);
-
-    // Empty vision list and clear farsight (if it hasn't already been cleared by RemovePossess) before teleporting
-    RemoveAllFromVision();
-    RemoveFarsightTarget();
-
     // The player was ported to another map and looses the duel immediatly.
     // We have to perform this check before the teleport, otherwise the
     // ObjectAccessor won't find the flag.
@@ -1857,12 +1836,13 @@ void Player::RemoveFromWorld()
     if(IsInWorld())
     {
         ///- Release charmed creatures, unsummon totems and remove pets/guardians
-        RemovePossess(false);
-        Uncharm();
+        StopCastingCharm();
+        StopCastingBindSight();
+        RemoveCharmAuras();
+        RemoveBindSightAuras();
         UnsummonAllTotems();
         RemoveMiniPet();
         RemoveGuardians();
-        RemoveFarsightTarget();
     }
 
     for(int i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; i++)
@@ -16270,6 +16250,8 @@ void Player::Uncharm()
         return;
 
     charm->RemoveSpellsCausingAura(SPELL_AURA_MOD_CHARM);
+    charm->RemoveSpellsCausingAura(SPELL_AURA_MOD_POSSESS_PET);
+    charm->RemoveSpellsCausingAura(SPELL_AURA_MOD_POSSESS);
 }
 
 void Player::BuildPlayerChat(WorldPacket *data, uint8 msgtype, const std::string& text, uint32 language) const
@@ -19054,41 +19036,6 @@ void Player::HandleFallUnderMap()
     }
 }
 
-void Player::RemovePossess(bool attack)
-{
-    if(Unit *u = GetCharm())
-        u->RemoveCharmedOrPossessedBy(this);
-
-        /*else if (target->isAlive())
-        {
-            // If we're still hostile to our target, continue attacking otherwise reset threat and go home
-            if (Unit* victim = target->getVictim())
-            {
-                FactionTemplateEntry const* t_faction = target->getFactionTemplateEntry();
-                FactionTemplateEntry const* v_faction = victim->getFactionTemplateEntry();
-                // Unit::IsHostileTo will always return true since the unit is always hostile to its victim
-                if (t_faction && v_faction && !t_faction->IsHostileTo(*v_faction))
-                {
-                    // Stop combat and remove the target from the threat lists of all its victims
-                    target->CombatStop();
-                    target->getHostilRefManager().deleteReferences();
-                    target->DeleteThreatList();
-                    target->GetMotionMaster()->Clear();
-                    target->GetMotionMaster()->MoveTargetedHome();
-                }
-            }
-            else
-            {
-                target->GetMotionMaster()->Clear();
-                target->GetMotionMaster()->MoveTargetedHome();
-            }
-
-            // Add high amount of threat on the player
-            if(attack)
-                target->AddThreat(this, 1000000.0f);
-        }*/
-}
-
 void Player::SetViewport(uint64 guid, bool moveable)
 {
     WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE, 8+1);
@@ -19106,14 +19053,13 @@ WorldObject* Player::GetFarsightTarget() const
     return NULL;
 }
 
-void Player::RemoveFarsightTarget()
+void Player::StopCastingBindSight()
 {
     if (WorldObject* fTarget = GetFarsightTarget())
     {
         if (fTarget->isType(TYPEMASK_PLAYER | TYPEMASK_UNIT))
-            ((Unit*)fTarget)->RemovePlayerFromVision(this);
+            ((Unit*)fTarget)->RemoveSpellsCausingAura(SPELL_AURA_BIND_SIGHT);
     }
-    ClearFarsight();
 }
 
 void Player::ClearFarsight()
@@ -19132,7 +19078,7 @@ void Player::SetFarsightTarget(WorldObject* obj)
         return;
 
     // Remove the current target if there is one
-    RemoveFarsightTarget();
+    StopCastingBindSight();
 
     SetUInt64Value(PLAYER_FARSIGHT, obj->GetGUID());
 }

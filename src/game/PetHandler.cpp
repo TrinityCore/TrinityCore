@@ -153,12 +153,7 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
                             p->setDeathState(CORPSE);
                     }
                     else                                    // charmed or possessed
-                    {
-                        if (_player->isPossessing())
-                            _player->RemovePossess(true);
-                        else
-                            _player->Uncharm();
-                    }
+                        _player->Uncharm();
                     break;
                 default:
                     sLog.outError("WORLD: unknown PET flag Action %i and spellid %i.\n", flag, spellid);
@@ -495,12 +490,7 @@ void WorldSession::HandlePetAbandon( WorldPacket & recv_data )
             _player->RemovePet((Pet*)pet,PET_SAVE_AS_DELETED);
         }
         else if(pet->GetGUID() == _player->GetCharmGUID())
-        {
-            if (_player->isPossessing())
-                _player->RemovePossess(true);
-            else
-                _player->Uncharm();
-        }
+            _player->Uncharm();
     }
 }
 
