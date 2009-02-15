@@ -1777,6 +1777,12 @@ void ObjectMgr::LoadItemPrototypes()
             sLog.outErrorDb("Item (Entry: %u) has wrong FoodType value (%u)",i,proto->FoodType);
             const_cast<ItemPrototype*>(proto)->FoodType = 0;
         }
+
+        if(proto->ItemLimitCategory && !sItemLimitCategoryStore.LookupEntry(proto->ItemLimitCategory))
+        {
+            sLog.outErrorDb("Item (Entry: %u) has wrong LimitCategory value (%u)",i,proto->ItemLimitCategory);
+            const_cast<ItemPrototype*>(proto)->ItemLimitCategory = 0;
+        }
     }
 }
 
@@ -6668,7 +6674,7 @@ bool PlayerCondition::Meets(Player const * player) const
         case CONDITION_ITEM:
             return player->HasItemCount(value1, value2);
         case CONDITION_ITEM_EQUIPPED:
-            return player->GetItemOrItemWithGemEquipped(value1) != NULL;
+            return player->HasItemOrGemWithIdEquipped(value1,1);
         case CONDITION_ZONEID:
             return player->GetZoneId() == value1;
         case CONDITION_REPUTATION_RANK:
