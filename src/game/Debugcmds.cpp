@@ -649,3 +649,13 @@ bool ChatHandler::HandleSendLargePacketCommand(const char* args)
     SendSysMessage(ss.str().c_str());
     return true;
 }
+
+bool ChatHandler::HandleSendSetPhaseShiftCommand(const char* args)
+{
+    if(!args)
+        return false;
+
+    uint32 PhaseShift = atoi(args);
+    m_session->SendSetPhaseShift(PhaseShift);
+    return true;
+}

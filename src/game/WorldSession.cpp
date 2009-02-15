@@ -477,6 +477,13 @@ void WorldSession::SendNotification(int32 string_id,...)
     }
 }
 
+void WorldSession::SendSetPhaseShift(uint32 PhaseShift)
+{
+    WorldPacket data(SMSG_SET_PHASE_SHIFT, 4);
+    data << uint32(PhaseShift);
+    SendPacket(&data);
+}
+
 const char * WorldSession::GetTrinityString( int32 entry ) const
 {
     return objmgr.GetTrinityString(entry,GetSessionDbLocaleIndex());
