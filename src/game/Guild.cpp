@@ -709,7 +709,7 @@ void Guild::Disband()
     CharacterDatabase.PExecute("DELETE FROM guild_bank_eventlog WHERE guildid = '%u'",Id);
     CharacterDatabase.PExecute("DELETE FROM guild_eventlog WHERE guildid = '%u'",Id);
     CharacterDatabase.CommitTransaction();
-    objmgr.RemoveGuild(this);
+    objmgr.RemoveGuild(Id);
 }
 
 void Guild::Roster(WorldSession *session)
@@ -721,7 +721,7 @@ void Guild::Roster(WorldSession *session)
     data << GINFO;
 
     data << (uint32)m_ranks.size();
-    for (RankList::iterator ritr = m_ranks.begin(); ritr != m_ranks.end();++ritr)
+    for (RankList::const_iterator ritr = m_ranks.begin(); ritr != m_ranks.end(); ++ritr)
     {
         data << (uint32)ritr->rights;
         data << (uint32)ritr->BankMoneyPerDay;              // count of: withdraw gold(gold/day) Note: in game set gold, in packet set bronze.
@@ -731,7 +731,7 @@ void Guild::Roster(WorldSession *session)
             data << (uint32)ritr->TabSlotPerDay[i];         // for TAB_i count of: withdraw items(stack/day)
         }
     }
-    for (MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
+    for (MemberList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
     {
         if (Player *pl = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER)))
         {
@@ -771,7 +771,7 @@ void Guild::Query(WorldSession *session)
 
     data << Id;
     data << name;
-    RankList::iterator itr;
+
     for (size_t i = 0 ; i < 10; ++i)                        // show always 10 ranks
     {
         if(i < m_ranks.size())
@@ -1023,7 +1023,7 @@ void Guild::DisplayGuildBankContentUpdate(uint8 TabId, int32 slot1, int32 slot2)
         AppendDisplayGuildBankSlot(data, tab, slot2);
     }
 
-    for(MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
+    for(MemberList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
     {
         Player *player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER));
         if(!player)
@@ -1061,7 +1061,7 @@ void Guild::DisplayGuildBankContentUpdate(uint8 TabId, GuildItemPosCountVec cons
     for(GuildItemPosCountVec::const_iterator itr = slots.begin(); itr != slots.end(); ++itr)
         AppendDisplayGuildBankSlot(data, tab, itr->slot);
 
-    for(MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
+    for(MemberList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
     {
         Player *player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER));
         if(!player)
