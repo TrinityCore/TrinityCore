@@ -203,11 +203,19 @@ void ScriptedAI::DoStopAttack()
 
 void ScriptedAI::DoCast(Unit* victim, uint32 spellId, bool triggered)
 {
-    if (!victim || m_creature->hasUnitState(UNIT_STAT_CASTING))
+    if (!victim || m_creature->hasUnitState(UNIT_STAT_CASTING) && !triggered)
         return;
 
     //m_creature->StopMoving();
     m_creature->CastSpell(victim, spellId, triggered);
+}
+
+void ScriptedAI::DoCastAOE(uint32 spellId, bool triggered)
+{
+    if(!triggered && m_creature->hasUnitState(UNIT_STAT_CASTING))
+        return;
+
+    m_creature->CastSpell((Unit*)NULL, spellId, triggered);
 }
 
 void ScriptedAI::DoCastSpell(Unit* who,SpellEntry const *spellInfo, bool triggered)
