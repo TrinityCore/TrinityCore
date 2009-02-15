@@ -8480,22 +8480,25 @@ void Unit::RemovePlayerFromVision(Player* plr)
     plr->ClearFarsight();
 }
 
-void Unit::RemoveAllFromVision()
+void Unit::RemoveBindSightAuras()
 {
-    while (!m_sharedVision.empty())
+    /*while (!m_sharedVision.empty())
     {
         Player* plr = *m_sharedVision.begin();
         m_sharedVision.erase(m_sharedVision.begin());
         plr->ClearFarsight();
-    }
+    }*/
+    RemoveSpellsCausingAura(SPELL_AURA_BIND_SIGHT);
 }
 
-void Unit::UncharmSelf()
+void Unit::RemoveCharmAuras()
 {
     if (!GetCharmer())
         return;
 
     RemoveSpellsCausingAura(SPELL_AURA_MOD_CHARM);
+    RemoveSpellsCausingAura(SPELL_AURA_MOD_POSSESS_PET);
+    RemoveSpellsCausingAura(SPELL_AURA_MOD_POSSESS);
 }
 
 void Unit::UnsummonAllTotems()
@@ -10298,10 +10301,6 @@ void Unit::setDeathState(DeathState s)
         RemoveAllAurasOnDeath();
         UnsummonAllTotems();
 
-        // Possessed unit died, restore control to possessor
-        RemoveCharmedOrPossessedBy(NULL);
-        RemoveAllFromVision();
-
         ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
         ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
         // remove aurastates allowing special moves
@@ -11152,15 +11151,13 @@ void Unit::CleanupsBeforeDelete()
 {
     if(m_uint32Values)                                      // only for fully created object
     {
-        RemoveCharmedOrPossessedBy(NULL);
-        RemoveAllFromVision();
+        RemoveAllAuras();
         InterruptNonMeleeSpells(true);
         m_Events.KillAllEvents(false);                      // non-delatable (currently casted spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
         CombatStop();
         ClearComboPointHolders();
         DeleteThreatList();
         getHostilRefManager().setOnlineOfflineState(false);
-        RemoveAllAuras();
         RemoveAllGameObjects();
         RemoveAllDynObjects();
         GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
@@ -12982,14 +12979,14 @@ void Unit::SetCharmedOrPossessedBy(Unit* charmer, bool possess)
 
     // Charmer stop charming
     if(charmer->GetTypeId() == TYPEID_PLAYER)
-        ((Player*)charmer)->StopCharmOrPossess();
+        ((Player*)charmer)->StopCastingCharm();
 
     // Charmed stop charming
     if(GetTypeId() == TYPEID_PLAYER)
-        ((Player*)this)->StopCharmOrPossess();
+        ((Player*)this)->StopCastingCharm();
 
     // Charmed stop being charmed
-    RemoveCharmedOrPossessedBy(NULL);
+    RemoveCharmAuras();
 
     // Set charmed
     charmer->SetCharm(this);
