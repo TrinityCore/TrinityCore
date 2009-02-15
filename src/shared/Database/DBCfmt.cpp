@@ -59,6 +59,7 @@ const char Itemfmt[]="nixiiiii";
 //const char ItemDisplayTemplateEntryfmt[]="nxxxxxxxxxxixxxxxxxxxxx";
 //const char ItemCondExtCostsEntryfmt[]="xiii";
 const char ItemExtendedCostEntryfmt[]="niiiiiiiiiiiiix";
+const char ItemLimitCategoryEntryfmt[]="nxxxxxxxxxxxxxxxxxix";
 const char ItemRandomPropertiesfmt[]="nxiiiiixxxxxxxxxxxxxxxxx";
 const char ItemRandomSuffixfmt[]="nxxxxxxxxxxxxxxxxxxiiiiiiiiii";
 const char ItemSetEntryfmt[]="dssssssssssssssssxxxxxxxxxxxxxxxxxxiiiiiiiiiiiiiiiiii";
