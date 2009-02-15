@@ -1987,6 +1987,9 @@ void Guild::SetGuildBankTabText(uint8 TabId, std::string text)
 
     CharacterDatabase.escape_string(text);
     CharacterDatabase.PExecute("UPDATE guild_bank_tab SET TabText='%s' WHERE guildid='%u' AND TabId='%u'", text.c_str(), Id, uint32(TabId));
+
+    // announce
+    SendGuildBankTabText(NULL,TabId);
 }
 
 void Guild::SendGuildBankTabText(WorldSession *session, uint8 TabId)
@@ -2001,7 +2004,12 @@ void Guild::SendGuildBankTabText(WorldSession *session, uint8 TabId)
     WorldPacket data(MSG_QUERY_GUILD_BANK_TEXT, 1+tab->Text.size()+1);
     data << uint8(TabId);
     data << tab->Text;
-    session->SendPacket(&data);
+
+    if(session)
+        session->SendPacket(&data);
+    else
+        BroadcastPacket(&data);
+
 }
 
 bool GuildItemPosCount::isContainedIn(GuildItemPosCountVec const &vec) const
