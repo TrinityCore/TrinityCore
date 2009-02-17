@@ -401,6 +401,26 @@
 				</File>
 			</Filter>
 			<Filter
+				Name="examples"
+				>
+				<File
+					RelativePath="..\scripts\examples\example_creature.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\examples\example_escort.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\examples\example_gossip_codebox.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\examples\example_misc.cpp"
+					>
+				</File>
+			</Filter>
+			<Filter
 				Name="guard"
 				>
 				<File
@@ -451,18 +471,6 @@
 			<Filter
 				Name="custom"
 				>
-				<File
-					RelativePath="..\scripts\custom\custom_example.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\custom\custom_gossip_codebox.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\custom\test.cpp"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="areatrigger"
@@ -485,10 +493,6 @@
 				>
 				<File
 					RelativePath="..\scripts\item\item_scripts.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\item\item_test.cpp"
 					>
 				</File>
 			</Filter>
@@ -2211,6 +2215,10 @@
 						>
 					</Filter>
 					<Filter
+						Name="Culling of Stratholme"
+						>
+					</Filter>
+					<Filter
 						Name="Old Hillsbrad"
 						>
 						<File
@@ -2462,6 +2470,118 @@
 						RelativePath="..\scripts\zone\loch_modan\loch_modan.cpp"
 						>
 					</File>
+				</Filter>
+				<Filter
+					Name="Borean Tundra"
+					>
+				</Filter>
+				<Filter
+					Name="Howling Fjord"
+					>
+				</Filter>
+				<Filter
+					Name="Crystalsong Forest"
+					>
+				</Filter>
+				<Filter
+					Name="Dalaran"
+					>
+				</Filter>
+				<Filter
+					Name="Dragonblight"
+					>
+				</Filter>
+				<Filter
+					Name="Grizzly Hills"
+					>
+				</Filter>
+				<Filter
+					Name="Icecrown"
+					>
+				</Filter>
+				<Filter
+					Name="Sholazar Basin"
+					>
+				</Filter>
+				<Filter
+					Name="The Storm Peaks"
+					>
+				</Filter>
+				<Filter
+					Name="Zul&apos;Drak"
+					>
+				</Filter>
+				<Filter
+					Name="Azjol-Nerub"
+					>
+					<Filter
+						Name="Ahn&apos;kahet"
+						>
+					</Filter>
+					<Filter
+						Name="Azjol-Nerub"
+						>
+					</Filter>
+				</Filter>
+				<Filter
+					Name="Drak&apos;Tharon Keep"
+					>
+				</Filter>
+				<Filter
+					Name="Gundrak"
+					>
+				</Filter>
+				<Filter
+					Name="Nexus"
+					>
+					<Filter
+						Name="Nexus"
+						>
+					</Filter>
+					<Filter
+						Name="Oculus"
+						>
+					</Filter>
+					<Filter
+						Name="Eye of Eternity"
+						>
+					</Filter>
+				</Filter>
+				<Filter
+					Name="Violet Hold"
+					>
+				</Filter>
+				<Filter
+					Name="Ulduar"
+					>
+					<Filter
+						Name="Halls of Stone"
+						>
+					</Filter>
+					<Filter
+						Name="Halls of Lightning"
+						>
+					</Filter>
+				</Filter>
+				<Filter
+					Name="Utgarde Keep"
+					>
+					<Filter
+						Name="Utgarde Keep"
+						>
+					</Filter>
+					<Filter
+						Name="Utgarde Pinnacle"
+						>
+					</Filter>
+				</Filter>
+				<Filter
+					Name="Obsidian Sanctum"
+					>
+				</Filter>
+				<Filter
+					Name="Vault of Archavon"
+					>
 				</Filter>
 			</Filter>
 		</Filter>

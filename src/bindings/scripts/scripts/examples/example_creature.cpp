@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -6,16 +6,16 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 /* ScriptData
-SDName: Custom_Example
+SDName: Example_Creature
 SD%Complete: 100
 SDComment: Short custom scripting example
 SDCategory: Script Examples
@@ -35,6 +35,24 @@ EndScriptData */
 // Functions with Handled Function marked above them are functions that are called automatically by the core
 // Functions that are marked Custom Function are functions I've created to simplify code
 
+//List of text id's. The text is stored in database, also in a localized version
+//(if translation not exist for the textId, default english text will be used)
+//Not required to define in this way, but simplify if changes are needed.
+#define SAY_AGGRO       -1999900
+#define SAY_RANDOM_0    -1999901
+#define SAY_RANDOM_1    -1999902
+#define SAY_RANDOM_2    -1999903
+#define SAY_RANDOM_3    -1999904
+#define SAY_RANDOM_4    -1999905
+#define SAY_BESERK      -1999906
+#define SAY_PHASE       -1999907
+#define SAY_DANCE       -1999908
+#define SAY_SALUTE      -1999909
+
+//List of gossip item texts. Items will appear in the gossip window.
+#define GOSSIP_ITEM     "I'm looking for a fight"
+
+//List of spells. Not required to define them in this way, but will make it easier to maintain in case spellId change
 #define SPELL_BUFF      25661
 #define SPELL_ONE       12555
 #define SPELL_ONE_ALT   24099
@@ -43,24 +61,11 @@ EndScriptData */
 #define SPELL_ENRAGE    23537
 #define SPELL_BESERK    32309
 
-#define SAY_AGGRO       "Let the games begin."
-#define SAY_RANDOM_0    "I see endless suffering. I see torment. I see rage. I see everything."
-#define SAY_RANDOM_1    "Muahahahaha"
-#define SAY_RANDOM_2    "These mortal infedels my lord, they have invaded your sanctum and seek to steal your secrets."
-#define SAY_RANDOM_3    "You are already dead."
-#define SAY_RANDOM_4    "Where to go? What to do? So many choices that all end in pain, end in death."
-#define SAY_BESERK      "$N, I sentance you to death!"
-#define SAY_PHASE       "The suffering has just begun!"
-
-#define GOSSIP_ITEM     "I'm looking for a fight"
-#define SAY_DANCE       "I always thought I was a good dancer"
-#define SAY_SALUTE      "Move out Soldier!"
-
-struct TRINITY_DLL_DECL custom_exampleAI : public ScriptedAI
+struct TRINITY_DLL_DECL example_creatureAI : public ScriptedAI
 {
     //*** HANDLED FUNCTION ***
     //This is the constructor, called only once when the creature is first created
-    custom_exampleAI(Creature *c) : ScriptedAI(c) {Reset();}
+    example_creatureAI(Creature *c) : ScriptedAI(c) {Reset();}
 
     //*** CUSTOM VARIABLES ****
     //These variables are for use only by this individual script.
@@ -92,8 +97,7 @@ struct TRINITY_DLL_DECL custom_exampleAI : public ScriptedAI
     void Aggro(Unit *who)
     {
         //Say some stuff
-        DoSay(SAY_AGGRO,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,8280);
+        DoScriptText(SAY_AGGRO, m_creature, who);
     }
 
     //*** HANDLED FUNCTION ***
@@ -109,30 +113,11 @@ struct TRINITY_DLL_DECL custom_exampleAI : public ScriptedAI
                 //Random switch between 5 outcomes
                 switch (rand()%5)
                 {
-                    case 0:
-                        DoYell(SAY_RANDOM_0,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,8831);  //8831 is the index of the sound we are playing. You find these numbers in SoundEntries.dbc
-                        break;
-
-                    case 1:
-                        DoYell(SAY_RANDOM_1,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,8818);
-                        break;
-
-                    case 2:
-                        DoYell(SAY_RANDOM_2,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,8041);
-                        break;
-
-                    case 3:
-                        DoYell(SAY_RANDOM_3,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,8581);
-                        break;
-
-                    case 4:
-                        DoYell(SAY_RANDOM_4,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,8791);
-                        break;
+                    case 0: DoScriptText(SAY_RANDOM_0, m_creature); break;
+                    case 1: DoScriptText(SAY_RANDOM_1, m_creature); break;
+                    case 2: DoScriptText(SAY_RANDOM_2, m_creature); break;
+                    case 3: DoScriptText(SAY_RANDOM_3, m_creature); break;
+                    case 4: DoScriptText(SAY_RANDOM_4, m_creature); break;
                 }
 
                 Say_Timer = 45000;                          //Say something agian in 45 seconds
@@ -186,8 +171,7 @@ struct TRINITY_DLL_DECL custom_exampleAI : public ScriptedAI
             if (Beserk_Timer < diff)
         {
             //Say our line then cast uber death spell
-            DoPlaySoundToSet(m_creature,8588);
-            DoYell(SAY_BESERK,LANG_UNIVERSAL,m_creature->getVictim());
+            DoScriptText(SAY_BESERK, m_creature, m_creature->getVictim());
             DoCast(m_creature->getVictim(),SPELL_BESERK);
 
             //Cast our beserk spell agian in 12 seconds if we didn't kill everyone
@@ -200,7 +184,7 @@ struct TRINITY_DLL_DECL custom_exampleAI : public ScriptedAI
         {
             //Go to next phase
             Phase++;
-            DoYell(SAY_PHASE,LANG_UNIVERSAL,NULL);
+            DoScriptText(SAY_PHASE, m_creature);
             DoCast(m_creature,SPELL_ENRAGE);
         }else Phase_Timer -= diff;
 
@@ -210,13 +194,13 @@ struct TRINITY_DLL_DECL custom_exampleAI : public ScriptedAI
 
 //This is the GetAI method used by all scripts that involve AI
 //It is called every time a new creature using this script is created
-CreatureAI* GetAI_custom_example(Creature *_Creature)
+CreatureAI* GetAI_example_creature(Creature *_Creature)
 {
-    return new custom_exampleAI (_Creature);
+    return new example_creatureAI (_Creature);
 }
 
 //This function is called when the player clicks an option on the gossip menu
-void SendDefaultMenu_custom_example(Player *player, Creature *_Creature, uint32 action)
+void SendDefaultMenu_example_creature(Player *player, Creature *_Creature, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
     {
@@ -228,16 +212,16 @@ void SendDefaultMenu_custom_example(Player *player, Creature *_Creature, uint32 
 }
 
 //This function is called when the player clicks an option on the gossip menu
-bool GossipSelect_custom_example(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+bool GossipSelect_example_creature(Player *player, Creature *_Creature, uint32 sender, uint32 action )
 {
     if (sender == GOSSIP_SENDER_MAIN)
-        SendDefaultMenu_custom_example(player, _Creature, action);
+        SendDefaultMenu_example_creature(player, _Creature, action);
 
     return true;
 }
 
 //This function is called when the player opens the gossip menu
-bool GossipHello_custom_example(Player *player, Creature *_Creature)
+bool GossipHello_example_creature(Player *player, Creature *_Creature)
 {
     player->ADD_GOSSIP_ITEM( 0, GOSSIP_ITEM        , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
     player->PlayerTalkClass->SendGossipMenu(907,_Creature->GetGUID());
@@ -246,15 +230,15 @@ bool GossipHello_custom_example(Player *player, Creature *_Creature)
 }
 
 //Our Recive emote function
-bool ReceiveEmote_custom_example(Player *player, Creature *_Creature, uint32 emote)
+bool ReceiveEmote_example_creature(Player *player, Creature *_Creature, uint32 emote)
 {
     _Creature->HandleEmoteCommand(emote);
 
     if (emote == TEXTEMOTE_DANCE)
-        ((custom_exampleAI*)_Creature->AI())->DoSay(SAY_DANCE,LANG_UNIVERSAL,NULL);
+        DoScriptText(SAY_DANCE, _Creature);
 
     if (emote == TEXTEMOTE_SALUTE)
-        ((custom_exampleAI*)_Creature->AI())->DoSay(SAY_SALUTE,LANG_UNIVERSAL,NULL);
+        DoScriptText(SAY_SALUTE, _Creature);
 
     return true;
 }
@@ -263,15 +247,15 @@ bool ReceiveEmote_custom_example(Player *player, Creature *_Creature, uint32 emo
 //It must define all handled functions that are to be run in this script
 //For example if you want this Script to handle Emotes you must include
 //newscript->ReciveEmote = My_Emote_Function;
-void AddSC_custom_example()
+void AddSC_example_creature()
 {
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="custom_example";
-    newscript->GetAI = &GetAI_custom_example;
-    newscript->pGossipHello = &GossipHello_custom_example;
-    newscript->pGossipSelect = &GossipSelect_custom_example;
-    newscript->pReceiveEmote = &ReceiveEmote_custom_example;
+    newscript->Name = "example_creature";
+    newscript->GetAI = &GetAI_example_creature;
+    newscript->pGossipHello = &GossipHello_example_creature;
+    newscript->pGossipSelect = &GossipSelect_example_creature;
+    newscript->pReceiveEmote = &ReceiveEmote_example_creature;
     newscript->RegisterSelf();
 }

@@ -82,9 +82,12 @@ extern void AddSC_mob_event();
 extern void AddSC_generic_creature();
 
 // -- Custom --
-extern void AddSC_custom_example();
-extern void AddSC_custom_gossip_codebox();
-extern void AddSC_test();
+
+// -- Examples --
+extern void AddSC_example_creature();
+extern void AddSC_example_escort();
+extern void AddSC_example_gossip_codebox();
+extern void AddSC_example_misc();
 
 // -- GO --
 extern void AddSC_go_scripts();
@@ -96,7 +99,6 @@ extern void AddSC_guards();
 
 // -- Item --
 extern void AddSC_item_scripts();
-extern void AddSC_item_test();
 
 // -- NPC --
 extern void AddSC_npc_professions();
@@ -666,8 +668,7 @@ void LoadDatabase()
     LoadTrinityStrings(TScriptDB,"eventai_texts",-1,1+(TEXT_SOURCE_RANGE));
 
     // Gather Additional data from EventAI Texts
-    //result = TScriptDB.PQuery("SELECT entry, sound, type, language, emote FROM eventai_texts");
-    result = TScriptDB.PQuery("SELECT entry, sound, type, language FROM eventai_texts");
+    result = TScriptDB.PQuery("SELECT entry, sound, type, language, emote FROM eventai_texts");
 
     outstring_log("TSCR: Loading EventAI Texts additional data...");
     if (result)
@@ -685,7 +686,7 @@ void LoadDatabase()
             temp.SoundId        = fields[1].GetInt32();
             temp.Type           = fields[2].GetInt32();
             temp.Language       = fields[3].GetInt32();
-            temp.Emote          = 0;//fields[4].GetInt32();
+            temp.Emote          = fields[4].GetInt32();
 
             if (i >= 0)
             {
@@ -1146,6 +1147,8 @@ void LoadDatabase()
 
                     //3rd param target
                     case ACTION_T_SET_UNIT_FIELD:
+                        if (temp.action[j].param1 < OBJECT_END || temp.action[j].param1 >= UNIT_END)
+                            error_db_log("TSCR: Event %u Action %u param1 (UNIT_FIELD*). Index out of range for intended use.", i, j+1);
                         if (temp.action[j].param3 >= TARGET_T_END)
                             error_db_log("TSCR: Event %u Action %u uses incorrect Target type", i, j+1);
                         break;
@@ -1298,9 +1301,12 @@ void ScriptsInit()
     AddSC_generic_creature();
 
     // -- Custom --
-    AddSC_custom_example();
-    AddSC_custom_gossip_codebox();
-    AddSC_test();
+
+    // -- Examples --
+    AddSC_example_creature();
+    AddSC_example_escort();
+    AddSC_example_gossip_codebox();
+    AddSC_example_misc();
 
     // -- GO --
     AddSC_go_scripts();
@@ -1312,7 +1318,6 @@ void ScriptsInit()
 
     // -- Item --
     AddSC_item_scripts();
-    AddSC_item_test();
 
     // -- NPC --
     AddSC_npc_professions();
