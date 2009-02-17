@@ -70,7 +70,7 @@ bool FileExists( const char* FileName )
 
 void Usage(char* prg)
 {
-    printf("Usage:\n%s -[var] [value]\n-i set input path\n-o set output path\n-r set resolution\n-e extract only MAP(1)/DBC(2) - standard: both(3)\nExample: %s -r 256 -i \"c:\\games\\game\"", prg, prg);
+    printf("Usage:\n%s -[var] [value]\n-i set input path\n-o set output path\n-e extract only MAP(1)/DBC(2) - standard: both(3)\nExample: %s -r 256 -i \"c:\\games\\game\"", prg, prg);
     exit(1);
 }
 
@@ -96,12 +96,6 @@ void HandleArgs(int argc, char * arg[])
             case 'o':
                 if(c + 1 < argc)                            // all ok
                     strcpy(output_path, arg[(c++) + 1]);
-                else
-                    Usage(arg[0]);
-                break;
-            case 'r':
-                if(c + 1 < argc)                            // all ok
-                    iRes=atoi(arg[(c++) + 1]);
                 else
                     Usage(arg[0]);
                 break;
