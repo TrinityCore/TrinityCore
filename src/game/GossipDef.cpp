@@ -181,6 +181,7 @@ void PlayerMenu::CloseGossip()
     //sLog.outDebug( "WORLD: Sent SMSG_GOSSIP_COMPLETE" );
 }
 
+// Outdated
 void PlayerMenu::SendPointOfInterest( float X, float Y, uint32 Icon, uint32 Flags, uint32 Data, char const * locName )
 {
     WorldPacket data( SMSG_GOSSIP_POI, (4+4+4+4+4+10) );    // guess size
@@ -189,6 +190,40 @@ void PlayerMenu::SendPointOfInterest( float X, float Y, uint32 Icon, uint32 Flag
     data << uint32(Icon);
     data << uint32(Data);
     data << locName;
+
+    pSession->SendPacket( &data );
+    //sLog.outDebug("WORLD: Sent SMSG_GOSSIP_POI");
+}
+
+void PlayerMenu::SendPointOfInterest( uint32 poi_id )
+{
+    PointOfInterest const* poi = objmgr.GetPointOfInterest(poi_id);
+    if(!poi)
+    {
+        sLog.outErrorDb("Requested send not existed POI (Id: %u), ignore.");
+        return;
+    }
+
+    std::string icon_name = poi->icon_name;
+
+    int loc_idx = pSession->GetSessionDbLocaleIndex();
+    if (loc_idx >= 0)
+    {
+        PointOfInterestLocale const *pl = objmgr.GetPointOfInterestLocale(poi_id);
+        if (pl)
+        {
+            if (pl->IconName.size() > size_t(loc_idx) && !pl->IconName[loc_idx].empty())
+                icon_name = pl->IconName[loc_idx];
+        }
+    }
+
+    WorldPacket data( SMSG_GOSSIP_POI, (4+4+4+4+4+10) );    // guess size
+    data << uint32(poi->flags);
+    data << float(poi->x);
+    data << float(poi->y);
+    data << uint32(poi->icon);
+    data << uint32(poi->data);
+    data << icon_name;
 
     pSession->SendPacket( &data );
     //sLog.outDebug("WORLD: Sent SMSG_GOSSIP_POI");

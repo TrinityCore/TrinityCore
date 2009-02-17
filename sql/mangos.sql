@@ -22,7 +22,7 @@
 DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
-  `required_7290_01_mangos_command` bit(1) default NULL
+  `required_7292_02_mangos_locales_points_of_interest` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -2150,6 +2150,33 @@ CREATE TABLE `locales_page_text` (
 LOCK TABLES `locales_page_text` WRITE;
 /*!40000 ALTER TABLE `locales_page_text` DISABLE KEYS */;
 /*!40000 ALTER TABLE `locales_page_text` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `locales_points_of_interest`
+--
+
+DROP TABLE IF EXISTS `locales_points_of_interest`; 
+CREATE TABLE `locales_points_of_interest` (
+  `entry` mediumint(8) unsigned NOT NULL default '0',
+  `icon_name_loc1` text,
+  `icon_name_loc2` text,
+  `icon_name_loc3` text,
+  `icon_name_loc4` text,
+  `icon_name_loc5` text,
+  `icon_name_loc6` text,
+  `icon_name_loc7` text,
+  `icon_name_loc8` text,
+  PRIMARY KEY  (`entry`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `locales_points_of_interest`
+--
+
+LOCK TABLES `locales_points_of_interest` WRITE;
+/*!40000 ALTER TABLE `locales_points_of_interest` DISABLE KEYS */;
+/*!40000 ALTER TABLE `locales_points_of_interest` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -12718,6 +12745,31 @@ INSERT INTO `playercreateinfo_spell` VALUES
 (11,8,59548,'Gift of the Naaru'),
 (11,8,61437,'Opening');
 /*!40000 ALTER TABLE `playercreateinfo_spell` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `points_of_interest`
+--
+
+DROP TABLE IF EXISTS `points_of_interest`; 
+CREATE TABLE `points_of_interest` (
+  `entry` mediumint(8) unsigned NOT NULL default '0',
+  `x` float NOT NULL default '0',
+  `y` float NOT NULL default '0',
+  `icon` mediumint(8) unsigned NOT NULL default '0',
+  `flags` mediumint(8) unsigned NOT NULL default '0',
+  `data` mediumint(8) unsigned NOT NULL default '0',
+  `icon_name` text NOT NULL,
+  PRIMARY KEY  (`entry`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `points_of_interest`
+--
+
+LOCK TABLES `points_of_interest` WRITE;
+/*!40000 ALTER TABLE `points_of_interest` DISABLE KEYS */;
+/*!40000 ALTER TABLE `points_of_interest` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

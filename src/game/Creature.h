@@ -242,6 +242,11 @@ struct NpcOptionLocale
     std::vector<std::string> BoxText;
 };
 
+struct PointOfInterestLocale
+{
+    std::vector<std::string> IconName;
+};
+
 struct EquipmentInfo
 {
     uint32  entry;

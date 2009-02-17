@@ -189,6 +189,7 @@ class TRINITY_DLL_SPEC PlayerMenu
         void SendGossipMenu( uint32 TitleTextId, uint64 npcGUID );
         void CloseGossip();
         void SendPointOfInterest( float X, float Y, uint32 Icon, uint32 Flags, uint32 Data, const char * locName );
+        void SendPointOfInterest( uint32 poi_id );
         void SendTalking( uint32 textID );
         void SendTalking( char const * title, char const * text );
 
