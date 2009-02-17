@@ -14547,42 +14547,6 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
         m_movementInfo.t_o = 0.0f;
     }
 
-    /*// load the player's map here if it's not already loaded
-    Map *map = GetMap();
-    if (!map)
-    {
-        AreaTrigger const* at = objmgr.GetGoBackTrigger(GetMapId());
-        if(at)
-        {
-            SetMapId(at->target_mapId);
-            Relocate(at->target_X, at->target_Y, at->target_Z, GetOrientation());
-            sLog.outError("Player (guidlow %d) is teleported to gobacktrigger (Map: %u X: %f Y: %f Z: %f O: %f).",guid,GetMapId(),GetPositionX(),GetPositionY(),GetPositionZ(),GetOrientation());
-        }
-        else
-        {
-            SetMapId(m_homebindMapId);
-            Relocate(m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
-            sLog.outError("Player (guidlow %d) is teleported to home (Map: %u X: %f Y: %f Z: %f O: %f).",guid,GetMapId(),GetPositionX(),GetPositionY(),GetPositionZ(),GetOrientation());
-        }
-
-        map = GetMap();
-        if(!map)
-        {
-            sLog.outError("ERROR: Player (guidlow %d) have invalid coordinates (X: %f Y: %f Z: %f O: %f). Teleport to default race/class locations.",guid,GetPositionX(),GetPositionY(),GetPositionZ(),GetOrientation());
-
-            SetMapId(info->mapId);
-            Relocate(info->positionX,info->positionY,info->positionZ,0.0f);
-
-            map = GetMap();
-            if(!map)
-            {
-                sLog.outError("ERROR: Player (guidlow %d) have invalid coordinates (X: %f Y: %f Z: %f O: %f). Teleport to default race/class locations.",guid,GetPositionX(),GetPositionY(),GetPositionZ(),GetOrientation());
-                sLog.outError("CRASH.");
-                assert(false);
-            }
-        }
-    }*/
-
     uint32 bgid = fields[34].GetUInt32();
     uint32 bgteam = fields[35].GetUInt32();
 
@@ -14695,6 +14659,41 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     // NOW player must have valid map
     // load the player's map here if it's not already loaded
     Map *map = GetMap();
+
+    if (!map)
+    {
+        AreaTrigger const* at = objmgr.GetGoBackTrigger(GetMapId());
+        if(at)
+        {
+            SetMapId(at->target_mapId);
+            Relocate(at->target_X, at->target_Y, at->target_Z, GetOrientation());
+            sLog.outError("Player (guidlow %d) is teleported to gobacktrigger (Map: %u X: %f Y: %f Z: %f O: %f).",guid,GetMapId(),GetPositionX(),GetPositionY(),GetPositionZ(),GetOrientation());
+        }
+        else
+        {
+            RelocateToHomebind();
+            sLog.outError("Player (guidlow %d) is teleported to home (Map: %u X: %f Y: %f Z: %f O: %f).",guid,GetMapId(),GetPositionX(),GetPositionY(),GetPositionZ(),GetOrientation());
+        }
+
+        map = GetMap();
+        if(!map)
+        {
+            sLog.outError("ERROR: Player (guidlow %d) have invalid coordinates (X: %f Y: %f Z: %f O: %f). Teleport to default race/class locations.",guid,GetPositionX(),GetPositionY(),GetPositionZ(),GetOrientation());
+            delete result;
+            return false;
+
+            /*SetMapId(info->mapId);
+            Relocate(info->positionX,info->positionY,info->positionZ,0.0f);
+
+            map = GetMap();
+            if(!map)
+            {
+                sLog.outError("ERROR: Player (guidlow %d) have invalid coordinates (X: %f Y: %f Z: %f O: %f). Teleport to default race/class locations.",guid,GetPositionX(),GetPositionY(),GetPositionZ(),GetOrientation());
+                sLog.outError("CRASH.");
+                assert(false);
+            }*/
+        }
+    }
 
     // since the player may not be bound to the map yet, make sure subsequent
     // getmap calls won't create new maps
