@@ -15,7 +15,6 @@
 #include "adt.h"
 #include "mpq_libmpq.h"
 
-uint32 iRes = 256;
 extern uint16 *areas;
 extern uint16 *LiqType;
 extern uint32 maxAreaId;
@@ -301,68 +300,6 @@ inline void LoadMapChunk(MPQFile &mf, chunk *_chunk)
     }
 }
 
-double solve (vec *v,vec *p)
-{
-    double a = v[0].y * (v[1].z - v[2].z) + v[1].y * (v[2].z - v[0].z) + v[2].y * (v[0].z - v[1].z);
-    double b = v[0].z * (v[1].x - v[2].x) + v[1].z * (v[2].x - v[0].x) + v[2].z * (v[0].x - v[1].x);
-    double c = v[0].x * (v[1].y - v[2].y) + v[1].x * (v[2].y - v[0].y) + v[2].x * (v[0].y - v[1].y);
-    double d = v[0].x * (v[1].y * v[2].z - v[2].y * v[1].z) + v[1].x * (v[2].y * v[0].z - v[0].y * v[2].z) + v[2].x * (v[0].y * v[1].z - v[1].y * v[0].z);
-    // -d
-
-    // plane equation ax+by+cz+d=0
-    return ((a*p->x+c*p->z-d)/b);
-}
-
-inline double GetZ(double x, double z)
-{
-    vec v[3];
-    vec p;
-    {
-        // find out quadrant
-        int xc = (int)(x / UNITSIZE);
-        int zc = (int)(z / UNITSIZE);
-        if(xc > 127) xc = 127;
-        if(zc > 127) zc = 127;
-
-        double lx = x - xc * UNITSIZE;
-        double lz = z - zc * UNITSIZE;
-        p.x = lx;
-        p.z = lz;
-
-        v[0].x = UNITSIZE / 2;
-        v[0].y = cell->v8[xc][zc];
-        v[0].z = UNITSIZE / 2;
-
-        if(lx > lz)
-        {
-            v[1].x = UNITSIZE;
-            v[1].y = cell->v9[xc + 1][zc];
-            v[1].z = 0.0f;
-        }
-        else
-        {
-            v[1].x = 0.0f;
-            v[1].y = cell->v9[xc][zc + 1];
-            v[1].z = UNITSIZE;
-        }
-
-        if(lz > UNITSIZE - lx)
-        {
-            v[2].x = UNITSIZE;
-            v[2].y = cell->v9[xc + 1][zc + 1];
-            v[2].z = UNITSIZE;
-        }
-        else
-        {
-            v[2].x = 0.0f;
-            v[2].y = cell->v9[xc][zc];
-            v[2].z = 0.0f;
-        }
-
-        return -solve(v, &p);
-    }
-}
-
 inline void TransformData()
 {
     cell = new Cell;
@@ -371,14 +308,14 @@ inline void TransformData()
     {
         for(uint32 y = 0; y < 128; ++y)
         {
-            cell->v8[x][y] = (float)mcells->ch[x / 8][y / 8].v8[x % 8][y % 8];
-            cell->v9[x][y] = (float)mcells->ch[x / 8][y / 8].v9[x % 8][y % 8];
+            cell->v8[y][x] = (float)mcells->ch[x / 8][y / 8].v8[x % 8][y % 8];
+            cell->v9[y][x] = (float)mcells->ch[x / 8][y / 8].v9[x % 8][y % 8];
         }
 
         // extra 1 point on bounds
-        cell->v9[x][128] = (float)mcells->ch[x / 8][15].v9[x % 8][8];
+        cell->v9[128][x] = (float)mcells->ch[x / 8][15].v9[x % 8][8];
         // x == y
-        cell->v9[128][x] = (float)mcells->ch[15][x / 8].v9[8][x % 8];
+        cell->v9[x][128] = (float)mcells->ch[15][x / 8].v9[8][x % 8];
 
     }
 
@@ -388,7 +325,7 @@ inline void TransformData()
     delete mcells;
 }
 
-const char MAP_MAGIC[] = "MAP_2.01";
+const char MAP_MAGIC[] = "MAP_3.00";
 
 bool ConvertADT(char *filename, char *filename2)
 {
@@ -434,18 +371,8 @@ bool ConvertADT(char *filename, char *filename2)
 
     TransformData();
 
-    for(uint32 x = 0; x < iRes; ++x)
-    {
-        for(uint32 y = 0; y < iRes; ++y)
-        {
-            float z = (float)GetZ(
-                (((double)(y)) * TILESIZE) / ((double)(iRes - 1)),
-                (((double)(x)) * TILESIZE) / ((double)(iRes - 1)));
-
-            fwrite(&z, 1, sizeof(z), output);
-        }
-    }
-
+    fwrite(&cell->v9, 1, sizeof(cell->v9), output);
+    fwrite(&cell->v8, 1, sizeof(cell->v8), output);
     fclose(output);
     delete cell;
     
