@@ -7100,36 +7100,34 @@ void ObjectMgr::LoadTrainerSpell()
             continue;
         }
 
-        TrainerSpell* pTrainerSpell = new TrainerSpell();
-        pTrainerSpell->spell         = spell;
-        pTrainerSpell->spellCost     = fields[2].GetUInt32();
-        pTrainerSpell->reqSkill      = fields[3].GetUInt32();
-        pTrainerSpell->reqSkillValue = fields[4].GetUInt32();
-        pTrainerSpell->reqLevel      = fields[5].GetUInt32();
-
-        if(!pTrainerSpell->reqLevel)
-            pTrainerSpell->reqLevel = spellinfo->spellLevel;
-
-        // calculate learned spell for profession case when stored cast-spell
-        pTrainerSpell->learnedSpell = spell;
-        for(int i = 0; i <3; ++i)
-        {
-            if(spellinfo->Effect[i]!=SPELL_EFFECT_LEARN_SPELL)
-                continue;
-
-            if(SpellMgr::IsProfessionOrRidingSpell(spellinfo->EffectTriggerSpell[i]))
-            {
-                pTrainerSpell->learnedSpell = spellinfo->EffectTriggerSpell[i];
-                break;
-            }
-        }
-
         TrainerSpellData& data = m_mCacheTrainerSpellMap[entry];
 
         if(SpellMgr::IsProfessionSpell(spell))
             data.trainerType = 2;
 
-        data.spellList.push_back(pTrainerSpell);
+        TrainerSpell& trainerSpell = data.spellList[spell];
+        trainerSpell.spell         = spell;
+        trainerSpell.spellCost     = fields[2].GetUInt32();
+        trainerSpell.reqSkill      = fields[3].GetUInt32();
+        trainerSpell.reqSkillValue = fields[4].GetUInt32();
+        trainerSpell.reqLevel      = fields[5].GetUInt32();
+
+        if(!trainerSpell.reqLevel)
+            trainerSpell.reqLevel = spellinfo->spellLevel;
+
+        // calculate learned spell for profession case when stored cast-spell
+        trainerSpell.learnedSpell = spell;
+        for(int i = 0; i <3; ++i)
+        {
+            if(spellinfo->Effect[i] != SPELL_EFFECT_LEARN_SPELL)
+                continue;
+            if(SpellMgr::IsProfessionOrRidingSpell(spellinfo->EffectTriggerSpell[i]))
+            {
+                trainerSpell.learnedSpell = spellinfo->EffectTriggerSpell[i];
+                break;
+            }
+        }
+
         ++count;
 
     } while (result->NextRow());
