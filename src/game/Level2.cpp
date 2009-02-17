@@ -4495,3 +4495,34 @@ bool ChatHandler::HandleGOPhaseCommand(const char* args)
     obj->SaveToDB();
     return true;
 }
+
+bool ChatHandler::HandleNpcSetDeathStateCommand(const char* args)
+{
+    if (!*args)
+        return false;
+
+    Creature* pCreature = getSelectedCreature();
+    if(!pCreature || pCreature->isPet())
+    {
+        SendSysMessage(LANG_SELECT_CREATURE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    if (strncmp(args, "on", 3) == 0)
+        pCreature->SetDeadByDefault(true);
+    else if (strncmp(args, "off", 4) == 0)
+        pCreature->SetDeadByDefault(false);
+    else
+    {
+        SendSysMessage(LANG_USE_BOL);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    pCreature->SaveToDB();
+    pCreature->Respawn();
+
+    return true;
+}
+
