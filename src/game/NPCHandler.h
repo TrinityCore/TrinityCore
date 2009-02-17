@@ -60,7 +60,6 @@ struct GossipTextOption
 
 struct GossipText
 {
-    uint32 Text_ID;
     GossipTextOption Options[8];
 };
 

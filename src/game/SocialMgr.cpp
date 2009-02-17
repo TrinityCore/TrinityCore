@@ -275,7 +275,7 @@ void SocialMgr::BroadcastToFriendListers(Player *player, WorldPacket *packet)
 
     for(SocialMap::iterator itr = m_socialMap.begin(); itr != m_socialMap.end(); ++itr)
     {
-        PlayerSocialMap::iterator itr2 = itr->second.m_playerSocialMap.find(guid);
+        PlayerSocialMap::const_iterator itr2 = itr->second.m_playerSocialMap.find(guid);
         if(itr2 != itr->second.m_playerSocialMap.end() && (itr2->second.Flags & SOCIAL_FLAG_FRIEND))
         {
             Player *pFriend = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER));
