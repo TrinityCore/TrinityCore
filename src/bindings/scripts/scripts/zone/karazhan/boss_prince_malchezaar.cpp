@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -37,7 +37,7 @@ EndScriptData */
 #define SAY_SUMMON2         -1532101
 #define SAY_DEATH           -1532102
 
-// 19 Coordinates for Infernal spawns
+// 18 Coordinates for Infernal spawns
 struct InfernalPoint
 {
     float x,y;
@@ -64,11 +64,10 @@ static InfernalPoint InfernalPoints[] =
     {-10948.8, -2005.1},
     {-10984.0, -2019.3},
     {-10932.8, -1979.6},
-    {-10932.8, -1979.6},
     {-10935.7, -1996.0}
 };
 
-#define TOTAL_INFERNAL_POINTS 19
+#define TOTAL_INFERNAL_POINTS 18
 
 //Enfeeble is supposed to reduce hp to 1 and then heal player back to full when it ends
 //Along with reducing healing and regen while enfeebled to 0%
@@ -81,9 +80,10 @@ static InfernalPoint InfernalPoints[] =
 #define SPELL_SW_PAIN           30854                       //Shadow word pain during phase 1 and 3 (different targeting rules though)
 #define SPELL_THRASH_PASSIVE    12787                       //Extra attack chance during phase 2
 #define SPELL_SUNDER_ARMOR      30901                       //Sunder armor during phase 2
-#define SPELL_THRASH_AURA       3417                        //Passive proc chance for thrash
+#define SPELL_THRASH_AURA       12787                       //Passive proc chance for thrash
 #define SPELL_EQUIP_AXES        30857                       //Visual for axe equiping
-#define SPELL_AMPLIFY_DAMAGE    12738                       //Amplifiy during phase 3
+#define SPELL_AMPLIFY_DAMAGE    39095                       //Amplifiy during phase 3
+#define SPELL_CLEAVE            30131                       //Same as Nightbane.
 #define SPELL_HELLFIRE          30859                       //Infenals' hellfire aura
 #define NETHERSPITE_INFERNAL    17646                       //The netherspite infernal creature
 #define MALCHEZARS_AXE          17650                       //Malchezar's axes (creatures), summoned during phase 3
@@ -169,6 +169,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
     uint32 SWPainTimer;
     uint32 SunderArmorTimer;
     uint32 AmplifyDamageTimer;
+    uint32 Cleave_Timer;
     uint32 InfernalTimer;
     uint32 AxesTargetSwitchTimer;
     uint32 InfernalCleanupTimer;
@@ -197,12 +198,14 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
         EnfeebleTimer = 30000;
         EnfeebleResetTimer = 38000;
-        ShadowNovaTimer = 35000;
+        ShadowNovaTimer = 35500;
         SWPainTimer = 20000;
-        AmplifyDamageTimer = 10000;
+        AmplifyDamageTimer = 5000;
+        Cleave_Timer = 8000;
         InfernalTimer = 45000;
         InfernalCleanupTimer = 47000;
         AxesTargetSwitchTimer = 7500 + rand()%12500;
+        SunderArmorTimer = 5000 + rand()%5000;
         phase = 1;
 
         if(pInstance)
@@ -500,9 +503,16 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
             if(SunderArmorTimer < diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_SUNDER_ARMOR);
-                SunderArmorTimer = 15000;
+                SunderArmorTimer = 10000 + rand()%8000;
 
             }else SunderArmorTimer -= diff;
+
+            if (Cleave_Timer < diff)
+            {
+                DoCast(m_creature->getVictim(), SPELL_CLEAVE);
+                Cleave_Timer = 6000 + rand()%6000;
+
+            }else Cleave_Timer -= diff;
         }
         else
         {
@@ -544,13 +554,13 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         if(InfernalTimer < diff)
         {
             SummonInfernal(diff);
-            InfernalTimer =  phase == 3 ? 15000 : 45000;    //15 secs in phase 3, 45 otherwise
+            InfernalTimer =  phase == 3 ? 14500 : 44500;    //15 secs in phase 3, 45 otherwise
         }else InfernalTimer -= diff;
 
         if(ShadowNovaTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_SHADOWNOVA);
-            ShadowNovaTimer = phase == 3 ? 35000 : -1;
+            ShadowNovaTimer = phase == 3 ? 31000 : -1;
         }else ShadowNovaTimer -= diff;
 
         if(phase != 2)

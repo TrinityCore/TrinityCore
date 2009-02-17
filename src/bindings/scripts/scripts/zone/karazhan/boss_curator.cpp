@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -113,6 +113,8 @@ struct TRINITY_DLL_DECL boss_curatorAI : public ScriptedAI
                 {
                     AstralFlare->CastSpell(AstralFlare, SPELL_ASTRAL_FLARE_PASSIVE, false);
                     AstralFlare->AI()->AttackStart(target);
+                    AstralFlare->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+                    AstralFlare->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
                 }
 
                 //Reduce Mana by 10%
@@ -132,10 +134,11 @@ struct TRINITY_DLL_DECL boss_curatorAI : public ScriptedAI
                 target = SelectUnit(SELECT_TARGET_TOPAGGRO, 1);
                 DoCast(target, SPELL_HATEFUL_BOLT);
 
-                HatefulBoltTimer = 15000;
+                if (!Enraged) { HatefulBoltTimer = 15000; }
+                if (Enraged) { HatefulBoltTimer = 7000; }
             }else HatefulBoltTimer -= diff;
 
-            if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 15)
+            if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 16)
             {
                 Enraged = true;
                 DoCast(m_creature, SPELL_ENRAGE);

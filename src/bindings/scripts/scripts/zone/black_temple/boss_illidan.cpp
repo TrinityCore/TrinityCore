@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation; either version 2 of the License, or
@@ -368,6 +368,10 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);
         Reset();
+
+        SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_SHADOWFIEND_PASSIVE);
+        if(TempSpell)
+            TempSpell->EffectApplyAuraName[0] = 4; // proc debuff, and summon infinite fiends
     }
 
     ScriptedInstance* pInstance;
@@ -1789,7 +1793,7 @@ struct TRINITY_DLL_DECL blade_of_azzinothAI : public NullCreatureAI
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
         if(spell->Id == SPELL_THROW_GLAIVE2 || spell->Id == SPELL_THROW_GLAIVE)
-            me->SetUInt32Value(UNIT_FIELD_DISPLAYID, 21431);//appear when hit by Illidan's glaive
+            m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, 21431);//appear when hit by Illidan's glaive
     }
 };
 
