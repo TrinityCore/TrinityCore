@@ -322,8 +322,6 @@ void WorldSession::HandleNpcTextQueryOpcode( WorldPacket & recv_data )
 
     uint32 textID;
     uint64 guid;
-    GossipText *pGossip;
-    std::string GossipStr;
 
     recv_data >> textID;
     sLog.outDetail("WORLD: CMSG_NPC_TEXT_QUERY ID '%u'", textID);
@@ -331,7 +329,7 @@ void WorldSession::HandleNpcTextQueryOpcode( WorldPacket & recv_data )
     recv_data >> guid;
     GetPlayer()->SetUInt64Value(UNIT_FIELD_TARGET, guid);
 
-    pGossip = objmgr.GetGossipText(textID);
+    GossipText const* pGossip = objmgr.GetGossipText(textID);
 
     WorldPacket data( SMSG_NPC_TEXT_UPDATE, 100 );          // guess size
     data << textID;
@@ -393,14 +391,11 @@ void WorldSession::HandleNpcTextQueryOpcode( WorldPacket & recv_data )
 
             data << pGossip->Options[i].Language;
 
-            data << pGossip->Options[i].Emotes[0]._Delay;
-            data << pGossip->Options[i].Emotes[0]._Emote;
-
-            data << pGossip->Options[i].Emotes[1]._Delay;
-            data << pGossip->Options[i].Emotes[1]._Emote;
-
-            data << pGossip->Options[i].Emotes[2]._Delay;
-            data << pGossip->Options[i].Emotes[2]._Emote;
+            for(int j = 0; j < 3; ++j)
+            {
+                data << pGossip->Options[i].Emotes[j]._Delay;
+                data << pGossip->Options[i].Emotes[j]._Emote;
+            }
         }
     }
 
