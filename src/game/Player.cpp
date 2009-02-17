@@ -13705,7 +13705,7 @@ void Player::AdjustQuestReqItemCount( Quest const* pQuest, QuestStatusData& ques
 
 uint16 Player::FindQuestSlot( uint32 quest_id ) const
 {
-    for ( uint16 i = 0; i < MAX_QUEST_LOG_SIZE; i++ )
+    for ( uint16 i = 0; i < MAX_QUEST_LOG_SIZE; ++i )
         if ( GetQuestSlotQuestId(i) == quest_id )
             return i;
 
@@ -14045,13 +14045,21 @@ void Player::MoneyChanged( uint32 count )
 
 bool Player::HasQuestForItem( uint32 itemid ) const
 {
-    for( QuestStatusMap::const_iterator i = mQuestStatus.begin( ); i != mQuestStatus.end( ); ++i )
+    for( int i = 0; i < MAX_QUEST_LOG_SIZE; ++i )
     {
-        QuestStatusData const& q_status = i->second;
+        uint32 questid = GetQuestSlotQuestId(i);
+        if ( questid == 0 )
+            continue;
+
+        QuestStatusMap::const_iterator qs_itr = mQuestStatus.find(questid);
+        if(qs_itr == mQuestStatus.end())
+            continue;
+
+        QuestStatusData const& q_status = qs_itr->second;
 
         if (q_status.m_status == QUEST_STATUS_INCOMPLETE)
         {
-            Quest const* qinfo = objmgr.GetQuestTemplate(i->first);
+            Quest const* qinfo = objmgr.GetQuestTemplate(questid);
             if(!qinfo)
                 continue;
 
@@ -19081,14 +19089,23 @@ bool Player::IsSpellFitByClassAndRace( uint32 spell_id ) const
     return false;
 }
 
-bool Player::HasQuestForGO(int32 GOId)
+bool Player::HasQuestForGO(int32 GOId) const
 {
-    for( QuestStatusMap::iterator i = mQuestStatus.begin( ); i != mQuestStatus.end( ); ++i )
+    for( int i = 0; i < MAX_QUEST_LOG_SIZE; ++i )
     {
-        QuestStatusData qs=i->second;
+        uint32 questid = GetQuestSlotQuestId(i);
+        if ( questid == 0 )
+            continue;
+
+        QuestStatusMap::const_iterator qs_itr = mQuestStatus.find(questid);
+        if(qs_itr == mQuestStatus.end())
+            continue;
+
+        QuestStatusData const& qs = qs_itr->second;
+
         if (qs.m_status == QUEST_STATUS_INCOMPLETE)
         {
-            Quest const* qinfo = objmgr.GetQuestTemplate(i->first);
+            Quest const* qinfo = objmgr.GetQuestTemplate(questid);
             if(!qinfo)
                 continue;
 
