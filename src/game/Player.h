@@ -1274,7 +1274,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         void TalkedToCreature( uint32 entry, uint64 guid );
         void MoneyChanged( uint32 value );
         bool HasQuestForItem( uint32 itemid ) const;
-        bool HasQuestForGO(int32 GOId);
+        bool HasQuestForGO(int32 GOId) const;
         void UpdateForQuestsGO();
         bool CanShareQuest(uint32 quest_id) const;
 
