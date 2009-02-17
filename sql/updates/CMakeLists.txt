@@ -34,4 +34,5 @@ INSTALL(FILES
 1325_world.sql
 1327_world.sql
 1351_world.sql
+1069_world_scripts.sql
 DESTINATION share/trinity/sql/updates)

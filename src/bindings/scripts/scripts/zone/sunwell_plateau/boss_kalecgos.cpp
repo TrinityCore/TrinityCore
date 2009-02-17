@@ -586,32 +586,31 @@ void boss_kalecgosAI::UpdateAI(const uint32 diff)
 
         if(ArcaneBuffetTimer < diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_ARCANE_BUFFET);
+            DoCastAOE(SPELL_ARCANE_BUFFET);
             ArcaneBuffetTimer = 8000;
         }else ArcaneBuffetTimer -= diff;
 
         if(FrostBreathTimer < diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FROST_BREATH);
+            DoCastAOE(SPELL_FROST_BREATH);
             FrostBreathTimer = 15000;
         }else FrostBreathTimer -= diff;
 
         if(TailLashTimer < diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_TAIL_LASH);
+            DoCastAOE(SPELL_TAIL_LASH);
             TailLashTimer = 15000;
         }else TailLashTimer -= diff;
 
         if(WildMagicTimer < diff)
         {
-            Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if(target && target->isAlive())
-               DoCast(target, WildMagic[rand()%6]);
+            DoCastAOE(WildMagic[rand()%6]);
             WildMagicTimer = 20000;
         }else WildMagicTimer -= diff;
 
         if(SpectralBlastTimer < diff)
         {
+            //this is a hack. we need to find a victim without aura in core
             Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
             if( ( target != m_creature->getVictim() ) && target->isAlive() && !(target->HasAura(AURA_SPECTRAL_EXHAUSTION, 0)) )
             {
