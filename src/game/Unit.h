@@ -1347,7 +1347,6 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         HostilRefManager& getHostilRefManager() { return m_HostilRefManager; }
 
         VisibleAuraMap const *GetVisibleAuras() { return &m_visibleAuras; }
-        uint8 GetVisibleAurasCount() { return m_visibleAuras.size(); }
         AuraSlotEntry * GetVisibleAura(uint8 slot)
         {
             VisibleAuraMap::iterator itr = m_visibleAuras.find(slot);
