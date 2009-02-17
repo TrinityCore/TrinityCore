@@ -142,6 +142,9 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
 
         // Called when AI is temporarily replaced or put back when possess is applied or removed
         virtual void OnPossess(bool apply) {}
+
+        // Called at reaching home after evade
+        virtual void JustReachedHome() {}
 };
 
 struct SelectableAI : public FactoryHolder<CreatureAI>, public Permissible<Creature>
