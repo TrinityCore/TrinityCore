@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -94,8 +94,12 @@ struct TRINITY_DLL_DECL boss_sarturaAI : public ScriptedAI
             if (WhirlWindRandom_Timer < diff)
             {
                 //Attack random Gamers
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
-                    AttackStart(target);
+                Unit* target = NULL;
+                target = SelectUnit(SELECT_TARGET_RANDOM,1);
+                if (target)
+                m_creature->AddThreat(target, 1.0f);
+                m_creature->TauntApply(target);
+                AttackStart(target);
 
                 WhirlWindRandom_Timer = 3000 + rand()%4000;
             }else WhirlWindRandom_Timer -= diff;
@@ -119,8 +123,12 @@ struct TRINITY_DLL_DECL boss_sarturaAI : public ScriptedAI
             if (AggroReset_Timer < diff)
             {
                 //Attack random Gamers
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
-                    m_creature->TauntApply(target);
+                Unit* target = NULL;
+                target = SelectUnit(SELECT_TARGET_RANDOM,1);
+                if (target)
+                m_creature->AddThreat(target, 1.0f);
+                m_creature->TauntApply(target);
+                AttackStart(target);
 
                     AggroReset = true;
                     AggroReset_Timer = 2000 + rand()%3000;
@@ -213,8 +221,12 @@ struct TRINITY_DLL_DECL mob_sartura_royal_guardAI : public ScriptedAI
             if (WhirlWindRandom_Timer < diff)
             {
                 //Attack random Gamers
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
-                    m_creature->TauntApply(target);
+                Unit* target = NULL;
+                target = SelectUnit(SELECT_TARGET_RANDOM,1);
+                if (target)
+                m_creature->AddThreat(target, 1.0f);
+                m_creature->TauntApply(target);
+                AttackStart(target);
 
                 WhirlWindRandom_Timer = 3000 + rand()%4000;
             }else WhirlWindRandom_Timer -= diff;
@@ -230,8 +242,12 @@ struct TRINITY_DLL_DECL mob_sartura_royal_guardAI : public ScriptedAI
             if (AggroReset_Timer < diff)
             {
                 //Attack random Gamers
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
-                    AttackStart(target);
+                Unit* target = NULL;
+                target = SelectUnit(SELECT_TARGET_RANDOM,1);
+                if (target)
+                m_creature->AddThreat(target, 1.0f);
+                m_creature->TauntApply(target);
+                AttackStart(target);
 
                 AggroReset = true;
                 AggroReset_Timer = 2000 + rand()%3000;

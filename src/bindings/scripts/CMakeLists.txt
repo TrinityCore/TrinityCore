@@ -20,15 +20,15 @@ SET(trinityscript_LIB_SRCS
    scripts/creature/mob_generic_creature.cpp
    scripts/creature/simple_ai.cpp
    scripts/creature/simple_ai.h
-   scripts/custom/custom_example.cpp
-   scripts/custom/custom_gossip_codebox.cpp
-   scripts/custom/test.cpp
+   scripts/examples/example_creature.cpp
+   scripts/examples/example_escort.cpp
+   scripts/examples/example_gossip_codebox.cpp
+   scripts/examples/example_misc.cpp
    scripts/go/go_scripts.cpp
    scripts/guard/guard_ai.cpp
    scripts/guard/guard_ai.h
    scripts/guard/guards.cpp
    scripts/item/item_scripts.cpp
-   scripts/item/item_test.cpp
    scripts/npc/npc_escortAI.cpp
    scripts/npc/npc_escortAI.h
    scripts/npc/npc_innkeeper.cpp

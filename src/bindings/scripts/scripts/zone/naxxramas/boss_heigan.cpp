@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -21,19 +21,18 @@ SDComment: Place Holder
 SDCategory: Naxxramas
 EndScriptData */
 
-//Lotheb or Heigan?
-//8825 aggro1 - You are mine now!
-//8826 aggro2 - I see you!
-//8827 aggro3 - You...are next!
-//8828 death -
-//8829 slay - close your eyes... sleep
-//8830 taunt1 - The races of the world will perish. It is only a matter of time.
-//8831 taunt2 - I see endless suffering, I see torment, I see rage. I see... everything!
-//8832 taunt3 - Soon... the world will tremble!
-//8833 taunt4 - The end is upon you.
-//8834 taunt5 - Hungry worms will feast on your rotten flesh!
-
 #include "precompiled.h"
+
+#define SAY_AGGRO1          -1533109
+#define SAY_AGGRO2          -1533110
+#define SAY_AGGRO3          -1533111
+#define SAY_SLAY            -1533112
+#define SAY_TAUNT1          -1533113
+#define SAY_TAUNT2          -1533114
+#define SAY_TAUNT3          -1533115
+#define SAY_TAUNT4          -1533116
+#define SAY_TAUNT5          -1533117
+#define SAY_DEATH           -1533118
 
 //Spell used by floor peices to cause damage to players
 #define SPELL_ERUPTION      29371

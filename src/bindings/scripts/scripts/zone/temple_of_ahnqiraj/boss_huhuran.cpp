@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -22,6 +22,9 @@ SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
 #include "precompiled.h"
+
+#define EMOTE_GENERIC_FRENZY_KILL   -1000001
+#define EMOTE_GENERIC_BERSERK       -1000004
 
 #define SPELL_FRENZY 26051
 #define SPELL_BERSERK 26068
@@ -71,6 +74,7 @@ struct TRINITY_DLL_DECL boss_huhuranAI : public ScriptedAI
         if (!Frenzy && Frenzy_Timer < diff)
         {
             DoCast(m_creature, SPELL_FRENZY);
+			DoScriptText(EMOTE_GENERIC_FRENZY_KILL, m_creature);
             Frenzy = true;
             PoisonBolt_Timer = 3000;
             Frenzy_Timer = 25000 + rand()%10000;
@@ -119,7 +123,7 @@ struct TRINITY_DLL_DECL boss_huhuranAI : public ScriptedAI
         if ( !Berserk && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 31 )
         {
             m_creature->InterruptNonMeleeSpells(false);
-            DoTextEmote("is going berserk", NULL);
+            DoScriptText(EMOTE_GENERIC_BERSERK, m_creature);
             DoCast(m_creature, SPELL_BERSERK);
             Berserk = true;
         }

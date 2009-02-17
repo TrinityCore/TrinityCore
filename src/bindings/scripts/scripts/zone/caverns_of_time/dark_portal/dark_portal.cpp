@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation; either version 2 of the License, or
@@ -157,7 +157,7 @@ struct TRINITY_DLL_DECL npc_medivh_bmAI : public ScriptedAI
 
         if (SpellCorrupt_Timer)
         {
-            if (SpellCorrupt_Timer < diff)
+            if (SpellCorrupt_Timer <= diff)
             {
                     pInstance->SetData(TYPE_MEDIVH,SPECIAL);
 
@@ -172,7 +172,7 @@ struct TRINITY_DLL_DECL npc_medivh_bmAI : public ScriptedAI
 
         if (Check_Timer)
         {
-            if (Check_Timer < diff)
+            if (Check_Timer <= diff)
             {
                 uint32 pct = pInstance->GetData(DATA_SHIELD);
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -184,10 +184,11 @@ struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (!m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessiblePlaceFor(m_creature) )
-        {
-            if (!IntroOnce && m_creature->IsWithinDistInMap(who, 75))
+        if (!IntroOnce && m_creature->IsWithinDistInMap(who, 50.0f))
             {
+            if (who->GetTypeId() != TYPEID_PLAYER)
+                return;
+	
                 DoScriptText(SAY_INTRO, m_creature);
                 IntroOnce = true;
                 IsIntroEvent = true;
@@ -196,19 +197,10 @@ struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
                     pInstance->SetData(TYPE_NETHEKURSE,IN_PROGRESS);
             }
 
-            if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE )
-                return;
-
             if (IsIntroEvent || !IsMainEvent)
                 return;
 
-            float attackRadius = m_creature->GetAttackDistance(who);
-            if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who) )
-            {
-                //who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-                AttackStart(who);
-            }
-        }
+            ScriptedAI::MoveInLineOfSight(who);
     }
 
     void Aggro(Unit *who)
@@ -342,20 +334,24 @@ struct TRINITY_DLL_DECL mob_fel_orc_convertAI : public ScriptedAI
             if (pInstance->GetData64(DATA_NETHEKURSE))
             {
                 Creature *pKurse = (Creature*)Unit::GetUnit(*m_creature,pInstance->GetData64(DATA_NETHEKURSE));
-                if (pKurse)
+                if (pKurse && m_creature->GetDistance(pKurse) < 45.0f)
+                {
                     ((boss_grand_warlock_nethekurseAI*)pKurse->AI())->DoYellForPeonAggro();
-            }
 
-            if (pInstance->GetData(TYPE_NETHEKURSE) == IN_PROGRESS )
-                return;
-            else pInstance->SetData(TYPE_NETHEKURSE,IN_PROGRESS);
-        }
+                    if (pInstance->GetData(TYPE_NETHEKURSE) == IN_PROGRESS )
+                        return;
+                    else pInstance->SetData(TYPE_NETHEKURSE,IN_PROGRESS);
+                }
+            }
+	    }
     }
 
     void JustDied(Unit* Killer)
     {
         if (pInstance)
         {
+            if (pInstance->GetData(TYPE_NETHEKURSE) != IN_PROGRESS)
+                return;
             if (pInstance->GetData64(DATA_NETHEKURSE))
             {
                 Creature *pKurse = (Creature*)Unit::GetUnit(*m_creature,pInstance->GetData64(DATA_NETHEKURSE));

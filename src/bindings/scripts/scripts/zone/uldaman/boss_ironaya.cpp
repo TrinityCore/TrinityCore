@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -23,12 +23,11 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SPELL_ARCINGSMASH           39144
-#define SPELL_KNOCKAWAY             22893
-#define SPELL_WSTOMP                16727
+#define SAY_AGGRO                   -1070000
 
-#define SAY_AGGRO           "None may steal the secrets of the makers!"
-#define SOUND_AGGRO         5851
+#define SPELL_ARCINGSMASH           8374
+#define SPELL_KNOCKAWAY             10101
+#define SPELL_WSTOMP                11876
 
 struct TRINITY_DLL_DECL boss_ironayaAI : public ScriptedAI
 {
@@ -47,8 +46,7 @@ struct TRINITY_DLL_DECL boss_ironayaAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_AGGRO,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_AGGRO);
+        DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
