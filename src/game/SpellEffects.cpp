@@ -677,7 +677,7 @@ void Spell::EffectDummy(uint32 i)
 
                     pGameObj->SetRespawnTime(0);
                     pGameObj->SetOwnerGUID(m_caster->GetGUID());
-                    pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
+                    //pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
                     pGameObj->SetSpellId(m_spellInfo->Id);
 
                     MapManager::Instance().GetMap(creatureTarget->GetMapId(), pGameObj)->Add(pGameObj);
@@ -5576,7 +5576,7 @@ void Spell::EffectSummonObject(uint32 i)
         return;
     }
 
-    pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL,m_caster->getLevel());
+    //pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL,m_caster->getLevel());
     int32 duration = GetSpellDuration(m_spellInfo);
     pGameObj->SetRespawnTime(duration > 0 ? duration/1000 : 0);
     pGameObj->SetSpellId(m_spellInfo->Id);
@@ -6268,7 +6268,7 @@ void Spell::EffectTransmitted(uint32 effIndex)
 
     pGameObj->SetOwnerGUID(m_caster->GetGUID() );
 
-    pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel() );
+    //pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel() );
     pGameObj->SetSpellId(m_spellInfo->Id);
 
     DEBUG_LOG("AddObject at SpellEfects.cpp EffectTransmitted\n");
@@ -6288,7 +6288,7 @@ void Spell::EffectTransmitted(uint32 effIndex)
             fx, fy, fz, m_caster->GetOrientation(), 0, 0, 0, 0, 100, 1))
         {
             linkedGO->SetRespawnTime(duration > 0 ? duration/1000 : 0);
-            linkedGO->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel() );
+            //linkedGO->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel() );
             linkedGO->SetSpellId(m_spellInfo->Id);
             linkedGO->SetOwnerGUID(m_caster->GetGUID() );
 
