@@ -698,16 +698,8 @@ void PlayerMenu::SendQuestGiverRequestItems( Quest const *pQuest, uint64 npcGUID
     // We can always call to RequestItems, but this packet only goes out if there are actually
     // items.  Otherwise, we'll skip straight to the OfferReward
 
-    // We may wish a better check, perhaps checking the real quest requirements
-    if (pQuest->GetRequestItemsText().empty())
-    {
-        SendQuestGiverOfferReward(pQuest, npcGUID, true);
-        return;
-    }
-
-    std::string Title,RequestItemsText;
-    Title = pQuest->GetTitle();
-    RequestItemsText = pQuest->GetRequestItemsText();
+    std::string Title = pQuest->GetTitle();
+    std::string RequestItemsText = pQuest->GetRequestItemsText();
 
     int loc_idx = pSession->GetSessionDbLocaleIndex();
     if (loc_idx >= 0)
@@ -720,6 +712,13 @@ void PlayerMenu::SendQuestGiverRequestItems( Quest const *pQuest, uint64 npcGUID
             if (ql->RequestItemsText.size() > loc_idx && !ql->RequestItemsText[loc_idx].empty())
                 RequestItemsText=ql->RequestItemsText[loc_idx];
         }
+    }
+
+    // We may wish a better check, perhaps checking the real quest requirements
+    if (RequestItemsText.empty())
+    {
+        SendQuestGiverOfferReward(pQuest, npcGUID, true);
+        return;
     }
 
     WorldPacket data( SMSG_QUESTGIVER_REQUEST_ITEMS, 50 );  // guess size
