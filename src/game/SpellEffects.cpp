@@ -6296,8 +6296,8 @@ void Spell::EffectKnockBack(uint32 i)
     float dy = unitTarget->GetPositionY() - y;
     float dist = sqrt((dx*dx) + (dy*dy));
 
-    float vsin = dx / dist;
-    float vcos = dy / dist;
+    float vcos = dx / dist;
+    float vsin = dy / dist;
     float speedxy = float(m_spellInfo->EffectMiscValue[i])/10;
     float speedz = float(damage/-10);   
 

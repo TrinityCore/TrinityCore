@@ -2022,23 +2022,14 @@ class TRINITY_DLL_SPEC Player : public Unit
         void EnterVehicle(Vehicle *vehicle);
         void ExitVehicle(Vehicle *vehicle);
 
-        //void SetViewport(uint64 guid, bool movable);
         void SetMover(Unit* target) { m_mover = target ? target : this; }
-        void RemovePossess(bool attack = true);
-        void StopCharmOrPossess()
-        {
-            if(isPossessing())
-                RemovePossess(true);
-            else if(GetCharm())
-                Uncharm();
-        }
-
-        uint64 GetFarSight() const { return GetUInt64Value(PLAYER_FARSIGHT); }
+        void StopCastingCharm() { Uncharm(); }
+        void StopCastingBindSight();
+        uint64 GetFarSightGUID() const { return GetUInt64Value(PLAYER_FARSIGHT); }
         void SetFarSightGUID(uint64 guid) { SetUInt64Value(PLAYER_FARSIGHT, guid); }
         void SetBindSight(Unit *target);
         WorldObject* GetFarsightTarget() const;
         void ClearFarsight();
-        void RemoveFarsightTarget();
         void SetFarsightTarget(WorldObject* target);
         // Controls if vision is currently on farsight object, updated in FAR_SIGHT opcode
         void SetFarsightVision(bool apply) { m_farsightVision = apply; }

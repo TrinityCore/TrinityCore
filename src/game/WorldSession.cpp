@@ -249,14 +249,6 @@ void WorldSession::LogoutPlayer(bool Save)
 
     if (_player)
     {
-        // Unpossess the current possessed unit of player
-        _player->StopCharmOrPossess();
-
-        // Remove any possession of this player on logout
-        _player->RemoveCharmedOrPossessedBy(NULL);
-
-        //_player->DestroyForNearbyPlayers();
-
         if (uint64 lguid = GetPlayer()->GetLootGUID())
             DoLootRelease(lguid);
 

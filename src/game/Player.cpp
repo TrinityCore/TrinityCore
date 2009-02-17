@@ -506,9 +506,6 @@ Player::~Player ()
         for(BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
             itr->second.save->RemovePlayer(this);
 
-    if (m_uint32Values && isPossessing())
-        RemovePossess(false);
-
     delete m_declinedname;
     delete m_runes;
 }
@@ -1378,12 +1375,6 @@ void Player::setDeathState(DeathState s)
         RemoveMiniPet();
         RemoveGuardians();
 
-        // remove possession
-        if(isPossessing())
-            RemovePossess(false);
-        else
-            RemoveFarsightTarget();
-
         // save value before aura remove in Unit::setDeathState
         ressSpellId = GetUInt32Value(PLAYER_SELF_RES_SPELL);
 
@@ -1622,18 +1613,6 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
     SetSemaphoreTeleport(true);
 
-    // Remove any possession on the player before teleporting
-    if (isPossessedByPlayer())
-        ((Player*)GetCharmer())->RemovePossess();
-
-    // Remove player's possession before teleporting
-    if (isPossessing())
-        RemovePossess(false);
-
-    // Empty vision list and clear farsight (if it hasn't already been cleared by RemovePossess) before teleporting
-    RemoveAllFromVision();
-    RemoveFarsightTarget();
-
     // The player was ported to another map and looses the duel immediatly.
     // We have to perform this check before the teleport, otherwise the
     // ObjectAccessor won't find the flag.
@@ -1860,12 +1839,13 @@ void Player::RemoveFromWorld()
     if(IsInWorld())
     {
         ///- Release charmed creatures, unsummon totems and remove pets/guardians
-        RemovePossess(false);
-        Uncharm();
+        StopCastingCharm();
+        StopCastingBindSight();
+        RemoveCharmAuras();
+        RemoveBindSightAuras();
         UnsummonAllTotems();
         RemoveMiniPet();
         RemoveGuardians();
-        RemoveFarsightTarget();
     }
 
     for(int i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; i++)
@@ -5520,17 +5500,17 @@ void Player::SaveRecallPosition()
 
 void Player::SendMessageToSet(WorldPacket *data, bool self, bool to_possessor)
 {
-    MapManager::Instance().GetMap(GetMapId(), this)->MessageBroadcast(this, data, self, to_possessor);
+    GetMap()->MessageBroadcast(this, data, self, to_possessor);
 }
 
 void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self, bool to_possessor)
 {
-    MapManager::Instance().GetMap(GetMapId(), this)->MessageDistBroadcast(this, data, dist, self, to_possessor);
+    GetMap()->MessageDistBroadcast(this, data, dist, self, to_possessor);
 }
 
 void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self, bool to_possessor, bool own_team_only)
 {
-    MapManager::Instance().GetMap(GetMapId(), this)->MessageDistBroadcast(this, data, dist, self, to_possessor, own_team_only);
+    GetMap()->MessageDistBroadcast(this, data, dist, self, to_possessor, own_team_only);
 }
 
 void Player::SendDirectMessage(WorldPacket *data)
@@ -5972,7 +5952,7 @@ bool Player::ModifyOneFactionReputation(FactionEntry const* factionEntry, int32 
 
         SetFactionVisible(&itr->second);
 
-        for( int i = 0; i < MAX_QUEST_LOG_SIZE; i++ )
+        for( int i = 0; i < MAX_QUEST_LOG_SIZE; ++i )
         {
             if(uint32 questid = GetQuestSlotQuestId(i))
             {
@@ -12643,7 +12623,7 @@ void Player::SendPreparedQuest( uint64 guid )
         if( pCreature )
         {
             uint32 textid = pCreature->GetNpcTextId();
-            GossipText * gossiptext = objmgr.GetGossipText(textid);
+            GossipText const* gossiptext = objmgr.GetGossipText(textid);
             if( !gossiptext )
             {
                 qe._Delay = 0;                              //TEXTEMOTE_MESSAGE;              //zyg: player emote
@@ -13773,7 +13753,7 @@ void Player::GroupEventHappens( uint32 questId, WorldObject const* pEventObject 
 
 void Player::ItemAddedQuestCheck( uint32 entry, uint32 count )
 {
-    for( int i = 0; i < MAX_QUEST_LOG_SIZE; i++ )
+    for( int i = 0; i < MAX_QUEST_LOG_SIZE; ++i )
     {
         uint32 questid = GetQuestSlotQuestId(i);
         if ( questid == 0 )
@@ -13815,7 +13795,7 @@ void Player::ItemAddedQuestCheck( uint32 entry, uint32 count )
 
 void Player::ItemRemovedQuestCheck( uint32 entry, uint32 count )
 {
-    for( int i = 0; i < MAX_QUEST_LOG_SIZE; i++ )
+    for( int i = 0; i < MAX_QUEST_LOG_SIZE; ++i )
     {
         uint32 questid = GetQuestSlotQuestId(i);
         if(!questid)
@@ -13858,7 +13838,7 @@ void Player::KilledMonster( uint32 entry, uint64 guid )
 {
     uint32 addkillcount = 1;
     GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, entry, addkillcount);
-    for( int i = 0; i < MAX_QUEST_LOG_SIZE; i++ )
+    for( int i = 0; i < MAX_QUEST_LOG_SIZE; ++i )
     {
         uint32 questid = GetQuestSlotQuestId(i);
         if(!questid)
@@ -13913,7 +13893,7 @@ void Player::CastedCreatureOrGO( uint32 entry, uint64 guid, uint32 spell_id )
     bool isCreature = IS_CREATURE_GUID(guid);
 
     uint32 addCastCount = 1;
-    for( int i = 0; i < MAX_QUEST_LOG_SIZE; i++ )
+    for( int i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
         uint32 questid = GetQuestSlotQuestId(i);
         if(!questid)
@@ -13980,7 +13960,7 @@ void Player::CastedCreatureOrGO( uint32 entry, uint64 guid, uint32 spell_id )
 void Player::TalkedToCreature( uint32 entry, uint64 guid )
 {
     uint32 addTalkCount = 1;
-    for( int i = 0; i < MAX_QUEST_LOG_SIZE; i++ )
+    for( int i = 0; i < MAX_QUEST_LOG_SIZE; ++i )
     {
         uint32 questid = GetQuestSlotQuestId(i);
         if(!questid)
@@ -14035,7 +14015,7 @@ void Player::TalkedToCreature( uint32 entry, uint64 guid )
 
 void Player::MoneyChanged( uint32 count )
 {
-    for( int i = 0; i < MAX_QUEST_LOG_SIZE; i++ )
+    for( int i = 0; i < MAX_QUEST_LOG_SIZE; ++i )
     {
         uint32 questid = GetQuestSlotQuestId(i);
         if (!questid)
@@ -16149,23 +16129,6 @@ void Player::SaveToDB()
     // save pet (hunter pet level and experience and all type pets health/mana).
     if(Pet* pet = GetPet())
         pet->SavePetToDB(PET_SAVE_AS_CURRENT);
-
-    //to prevent access to DB we should cache some data, which is used very often
-    /*CachePlayerInfoMap::iterator _iter = objmgr.m_mPlayerInfoMap.find(GetGUIDLow());
-    if(_iter != objmgr.m_mPlayerInfoMap.end())//skip new players
-    {
-        _iter->second->unLevel = getLevel();
-
-        _iter->second->unArenaInfoSlot0 = GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 0 * 6 + 5);
-        _iter->second->unArenaInfoSlot1 = GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 1 * 6 + 5);
-        _iter->second->unArenaInfoSlot2 = GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 2 * 6 + 5);
-
-        _iter->second->unfield = GetUInt32Value(UNIT_FIELD_BYTES_0);
-
-        _iter->second->unArenaInfoId0 = GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (0 * 6));
-        _iter->second->unArenaInfoId1 = GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (1 * 6));
-        _iter->second->unArenaInfoId2 = GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (2 * 6));
-    }*/
     m_achievementMgr.SaveToDB();
 }
 
@@ -16988,6 +16951,8 @@ void Player::Uncharm()
         return;
 
     charm->RemoveSpellsCausingAura(SPELL_AURA_MOD_CHARM);
+    charm->RemoveSpellsCausingAura(SPELL_AURA_MOD_POSSESS_PET);
+    charm->RemoveSpellsCausingAura(SPELL_AURA_MOD_POSSESS);
 }
 
 void Player::BuildPlayerChat(WorldPacket *data, uint8 msgtype, const std::string& text, uint32 language) const
@@ -19884,41 +19849,6 @@ void Player::HandleFallUnderMap()
     }
 }
 
-void Player::RemovePossess(bool attack)
-{
-    if(Unit *u = GetCharm())
-        u->RemoveCharmedOrPossessedBy(this);
-
-        /*else if (target->isAlive())
-        {
-            // If we're still hostile to our target, continue attacking otherwise reset threat and go home
-            if (Unit* victim = target->getVictim())
-            {
-                FactionTemplateEntry const* t_faction = target->getFactionTemplateEntry();
-                FactionTemplateEntry const* v_faction = victim->getFactionTemplateEntry();
-                // Unit::IsHostileTo will always return true since the unit is always hostile to its victim
-                if (t_faction && v_faction && !t_faction->IsHostileTo(*v_faction))
-                {
-                    // Stop combat and remove the target from the threat lists of all its victims
-                    target->CombatStop();
-                    target->getHostilRefManager().deleteReferences();
-                    target->DeleteThreatList();
-                    target->GetMotionMaster()->Clear();
-                    target->GetMotionMaster()->MoveTargetedHome();
-                }
-            }
-            else
-            {
-                target->GetMotionMaster()->Clear();
-                target->GetMotionMaster()->MoveTargetedHome();
-            }
-
-            // Add high amount of threat on the player
-            if(attack)
-                target->AddThreat(this, 1000000.0f);
-        }*/
-}
-
 /*void Player::SetViewport(uint64 guid, bool moveable)
 {
     WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE, 8+1);
@@ -19939,24 +19869,23 @@ void Player::SetBindSight(Unit *target)
 WorldObject* Player::GetFarsightTarget() const
 {
     // Players can have in farsight field another player's guid, a creature's guid, or a dynamic object's guid
-    if(uint64 guid = GetFarSight())
+    if(uint64 guid = GetFarSightGUID())
         return (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*this, guid, TYPEMASK_FARSIGHTOBJ);
     return NULL;
 }
 
-void Player::RemoveFarsightTarget()
+void Player::StopCastingBindSight()
 {
     if (WorldObject* target = GetFarsightTarget())
     {
         if (target->isType(TYPEMASK_PLAYER | TYPEMASK_UNIT))
-            ((Unit*)target)->RemovePlayerFromVision(this);
+            ((Unit*)target)->RemoveSpellsCausingAura(SPELL_AURA_BIND_SIGHT);
     }
-    ClearFarsight();
 }
 
 void Player::ClearFarsight()
 {
-    if(GetFarSight())
+    if(GetFarSightGUID())
     {
         SetFarSightGUID(0);
         WorldPacket data(SMSG_CLEAR_FAR_SIGHT_IMMEDIATE, 0);
@@ -19970,7 +19899,7 @@ void Player::SetFarsightTarget(WorldObject* obj)
         return;
 
     // Remove the current target if there is one
-    RemoveFarsightTarget();
+    StopCastingBindSight();
 
     SetFarSightGUID(obj->GetGUID());
 }

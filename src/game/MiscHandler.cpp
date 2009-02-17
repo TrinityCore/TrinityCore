@@ -1490,7 +1490,7 @@ void WorldSession::HandleFarSightOpcode( WorldPacket & recv_data )
                 pair = Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
             else
                 return;
-            sLog.outDebug("Added FarSight " I64FMT " to player %u", _player->GetFarSight(), _player->GetGUIDLow());
+            sLog.outDebug("Added FarSight " I64FMT " to player %u", _player->GetFarSightGUID(), _player->GetGUIDLow());
             break;
         default:
             sLog.outDebug("Unhandled mode in CMSG_FAR_SIGHT: %u", apply);
