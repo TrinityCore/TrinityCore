@@ -109,12 +109,16 @@ BattleGround::~BattleGround()
         DelObject(i);
     }
 
-    // delete creature and go respawn times
-    WorldDatabase.PExecute("DELETE FROM creature_respawn WHERE instance = '%u'",GetInstanceID());
-    WorldDatabase.PExecute("DELETE FROM gameobject_respawn WHERE instance = '%u'",GetInstanceID());
-    // delete instance from db
-    CharacterDatabase.PExecute("DELETE FROM instance WHERE id = '%u'",GetInstanceID());
-    // remove from battlegrounds
+    if(GetInstanceID())                                     // not spam by useless queries in case BG templates
+    {
+        // delete creature and go respawn times
+        WorldDatabase.PExecute("DELETE FROM creature_respawn WHERE instance = '%u'",GetInstanceID());
+        WorldDatabase.PExecute("DELETE FROM gameobject_respawn WHERE instance = '%u'",GetInstanceID());
+        // delete instance from db
+        CharacterDatabase.PExecute("DELETE FROM instance WHERE id = '%u'",GetInstanceID());
+        // remove from battlegrounds
+    }
+
     sBattleGroundMgr.RemoveBattleGround(GetInstanceID());
     // unload map
     if(Map * map = MapManager::Instance().FindMap(GetMapId(), GetInstanceID()))
