@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -72,10 +72,10 @@ bool GOHello_go_gauntlet_gate(Player *player, GameObject* _GO)
 ######*/
 
 //Possibly more of these quotes around.
-#define SAY_ZAPPED0 "Thanks to Egan"
-#define SAY_ZAPPED1 "Rivendare must die"
-#define SAY_ZAPPED2 "Who you gonna call?"
-#define SAY_ZAPPED3 "Don't cross those beams!"
+#define SAY_ZAPPED0 -1329000
+#define SAY_ZAPPED1 -1329001
+#define SAY_ZAPPED2 -1329002
+#define SAY_ZAPPED3 -1329003
 
 struct TRINITY_DLL_DECL mob_freed_soulAI : public ScriptedAI
 {
@@ -85,10 +85,10 @@ struct TRINITY_DLL_DECL mob_freed_soulAI : public ScriptedAI
     {
         switch (rand()%4)
         {
-            case 0: DoSay(SAY_ZAPPED0,LANG_UNIVERSAL,NULL); break;
-            case 1: DoSay(SAY_ZAPPED1,LANG_UNIVERSAL,NULL); break;
-            case 2: DoSay(SAY_ZAPPED2,LANG_UNIVERSAL,NULL); break;
-            case 3: DoSay(SAY_ZAPPED3,LANG_UNIVERSAL,NULL); break;
+            case 0: DoScriptText(SAY_ZAPPED0, m_creature); break;
+            case 1: DoScriptText(SAY_ZAPPED1, m_creature); break;
+            case 2: DoScriptText(SAY_ZAPPED2, m_creature); break;
+            case 3: DoScriptText(SAY_ZAPPED3, m_creature); break;
         }
     }
 

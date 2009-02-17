@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -634,8 +634,6 @@ void SendActionMenu_npc_prof_blacksmith(Player *player, Creature *_Creature, uin
             {
                                                             //unknown textID (TALK_MUST_UNLEARN_WEAPON)
                 player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
-                                                            //Temporary, not offilike
-                _Creature->MonsterSay(TALK_MUST_UNLEARN_WEAPON,0,player->GetGUID());
             }
             else if( EquippedOk(player,S_UNLEARN_WEAPON) )
             {

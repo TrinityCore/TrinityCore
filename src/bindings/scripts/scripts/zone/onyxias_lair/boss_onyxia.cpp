@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -125,7 +125,6 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
         if(((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 60) && (Phase == 1))
         {
             Phase = 2;
-            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
             m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING + MOVEMENTFLAG_ONTRANSPORT);
             m_creature->SetHover(true);
             m_creature->GetMotionMaster()->Clear(false);
@@ -137,7 +136,6 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
         {
             Phase = 3;
             m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING + MOVEMENTFLAG_ONTRANSPORT);
-            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
             m_creature->SetHover(false);
             m_creature->GetMotionMaster()->MovePoint(0, -10.6155, -219.357, -87.7344);
             DoStartMovement(m_creature->getVictim());

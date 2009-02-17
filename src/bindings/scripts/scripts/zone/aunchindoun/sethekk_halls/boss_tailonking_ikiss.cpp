@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -148,7 +148,7 @@ struct TRINITY_DLL_DECL boss_talon_king_ikissAI : public ScriptedAI
         if (ArcaneVolley_Timer < diff)
         {
             DoCast(m_creature,HeroicMode ? H_SPELL_ARCANE_VOLLEY : SPELL_ARCANE_VOLLEY);
-            ArcaneVolley_Timer = 10000+rand()%5000;
+            ArcaneVolley_Timer = 7000+rand()%5000;
         }else ArcaneVolley_Timer -= diff;
 
         if (Sheep_Timer < diff)

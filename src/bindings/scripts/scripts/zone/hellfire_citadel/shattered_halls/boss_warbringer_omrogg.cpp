@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -157,8 +157,6 @@ struct TRINITY_DLL_DECL boss_warbringer_omroggAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-        m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
 
         LeftHead = 0;
         RightHead = 0;
@@ -175,6 +173,9 @@ struct TRINITY_DLL_DECL boss_warbringer_omroggAI : public ScriptedAI
         BurningMaul_Timer = 25000;
         ThunderClap_Timer = 15000;
         ResetThreat_Timer = 30000;
+
+        m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+        m_creature->ApplySpellImmune(1, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
 
         if (pInstance)
             pInstance->SetData(TYPE_OMROGG, NOT_STARTED);   //End boss can use this later. O'mrogg must be defeated(DONE) or he will come to aid.
@@ -203,8 +204,8 @@ struct TRINITY_DLL_DECL boss_warbringer_omroggAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoSpawnCreature(ENTRY_LEFT_HEAD,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN,1800000);
-        DoSpawnCreature(ENTRY_RIGHT_HEAD,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN,1800000);
+        DoSpawnCreature(ENTRY_LEFT_HEAD,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN,90000);
+        DoSpawnCreature(ENTRY_RIGHT_HEAD,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,90000);
 
         if (Unit *Left = Unit::GetUnit(*m_creature,LeftHead))
         {
@@ -358,19 +359,19 @@ struct TRINITY_DLL_DECL boss_warbringer_omroggAI : public ScriptedAI
                 DoResetThreat();
                 m_creature->AddThreat(target, 0.0f);
             }
-            ResetThreat_Timer = 35000+rand()%10000;
+            ResetThreat_Timer = 25000+rand()%15000;
         }else ResetThreat_Timer -= diff;
 
         if (Fear_Timer < diff)
         {
             DoCast(m_creature,SPELL_FEAR);
-            Fear_Timer = 15000+rand()%25000;
+            Fear_Timer = 15000+rand()%20000;
         }else Fear_Timer -= diff;
 
         if (ThunderClap_Timer < diff)
         {
             DoCast(m_creature,SPELL_THUNDERCLAP);
-            ThunderClap_Timer = 25000+rand()%15000;
+            ThunderClap_Timer = 15000+rand()%15000;
         }else ThunderClap_Timer -= diff;
 
         DoMeleeAttackIfReady();

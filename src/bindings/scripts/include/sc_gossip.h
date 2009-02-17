@@ -16,29 +16,38 @@
 #define GOSSIP_TEXT_BROWSE_GOODS        "I'd like to browse your goods."
 #define GOSSIP_TEXT_TRAIN               "Train me!"
 
-#define GOSSIP_TEXT_BANK                "The Bank"
-#define GOSSIP_TEXT_WINDRIDER           "Wind rider master"
-#define GOSSIP_TEXT_GRYPHON             "Gryphon Master"
-#define GOSSIP_TEXT_BATHANDLER          "Bat Handler"
-#define GOSSIP_TEXT_HIPPOGRYPH          "Hippogryph Master"
-#define GOSSIP_TEXT_FLIGHTMASTER        "Flight Master"
-#define GOSSIP_TEXT_AUCTIONHOUSE        "Auction House"
-#define GOSSIP_TEXT_GUILDMASTER         "Guild Master"
-#define GOSSIP_TEXT_INN                 "The Inn"
-#define GOSSIP_TEXT_MAILBOX             "Mailbox"
-#define GOSSIP_TEXT_STABLEMASTER        "Stable Master"
-#define GOSSIP_TEXT_WEAPONMASTER        "Weapons Trainer"
-#define GOSSIP_TEXT_BATTLEMASTER        "Battlemaster"
-#define GOSSIP_TEXT_CLASSTRAINER        "Class Trainer"
-#define GOSSIP_TEXT_PROFTRAINER         "Profession Trainer"
-#define GOSSIP_TEXT_OFFICERS            "The officers` lounge"
+#define GOSSIP_TEXT_BANK                "The bank"
+#define GOSSIP_TEXT_IRONFORGE_BANK      "The bank of Ironforge"
+#define GOSSIP_TEXT_STORMWIND_BANK      "The bank of Stormwind"
+#define GOSSIP_TEXT_WINDRIDER           "The wind rider master"
+#define GOSSIP_TEXT_GRYPHON             "The gryphon master"
+#define GOSSIP_TEXT_BATHANDLER          "The bat handler"
+#define GOSSIP_TEXT_HIPPOGRYPH          "The hippogryph master"
+#define GOSSIP_TEXT_ZEPPLINMASTER       "The zeppelin master"
+#define GOSSIP_TEXT_DEEPRUNTRAM         "The Deeprun Tram"
+#define GOSSIP_TEXT_FERRY               "The Rut'theran Ferry"
+#define GOSSIP_TEXT_FLIGHTMASTER        "The flight master"
+#define GOSSIP_TEXT_AUCTIONHOUSE        "The auction house"
+#define GOSSIP_TEXT_GUILDMASTER         "The guild master"
+#define GOSSIP_TEXT_INN                 "The inn"
+#define GOSSIP_TEXT_MAILBOX             "The mailbox"
+#define GOSSIP_TEXT_STABLEMASTER        "The stable master"
+#define GOSSIP_TEXT_WEAPONMASTER        "The weapon master"
+#define GOSSIP_TEXT_OFFICERS            "The officers' lounge"
+#define GOSSIP_TEXT_BATTLEMASTER        "The battlemaster"
+#define GOSSIP_TEXT_BARBER              "Barber"
+#define GOSSIP_TEXT_CLASSTRAINER        "A class trainer"
+#define GOSSIP_TEXT_PROFTRAINER         "A profession trainer"
+#define GOSSIP_TEXT_LEXICON             "Lexicon of Power"
 
 #define GOSSIP_TEXT_ALTERACVALLEY       "Alterac Valley"
 #define GOSSIP_TEXT_ARATHIBASIN         "Arathi Basin"
 #define GOSSIP_TEXT_WARSONGULCH         "Warsong Gulch"
 #define GOSSIP_TEXT_ARENA               "Arena"
 #define GOSSIP_TEXT_EYEOFTHESTORM       "Eye of The Storm"
-
+#define GOSSIP_TEXT_STRANDOFANCIENT     "Strand of the Ancients"
+ 
+#define GOSSIP_TEXT_DEATH_KNIGHT        "Death Knight"
 #define GOSSIP_TEXT_DRUID               "Druid"
 #define GOSSIP_TEXT_HUNTER              "Hunter"
 #define GOSSIP_TEXT_PRIEST              "Priest"
@@ -57,18 +66,12 @@
 #define GOSSIP_TEXT_FIRSTAID            "First Aid"
 #define GOSSIP_TEXT_HERBALISM           "Herbalism"
 #define GOSSIP_TEXT_LEATHERWORKING      "Leatherworking"
-#define GOSSIP_TEXT_POISONS             "Poisons"
 #define GOSSIP_TEXT_TAILORING           "Tailoring"
 #define GOSSIP_TEXT_MINING              "Mining"
 #define GOSSIP_TEXT_FISHING             "Fishing"
 #define GOSSIP_TEXT_SKINNING            "Skinning"
 #define GOSSIP_TEXT_JEWELCRAFTING       "Jewelcrafting"
-
-#define GOSSIP_TEXT_IRONFORGE_BANK      "Bank of Ironforge"
-#define GOSSIP_TEXT_STORMWIND_BANK      "Bank of Stormwind"
-#define GOSSIP_TEXT_DEEPRUNTRAM         "Deeprun Tram"
-#define GOSSIP_TEXT_ZEPPLINMASTER       "Zeppelin master"
-#define GOSSIP_TEXT_FERRY               "Rut'theran Ferry"
+#define GOSSIP_TEXT_INSCRIPTION         "Inscription"
 
 // Skill defines
 
@@ -86,6 +89,7 @@
 #define TRADESKILL_FISHING                  12
 #define TRADESKILL_SKINNING                 13
 #define TRADESKILL_JEWLCRAFTING             14
+#define TRADESKILL_INSCRIPTION              15
 
 #define TRADESKILL_LEVEL_NONE               0
 #define TRADESKILL_LEVEL_APPRENTICE         1
@@ -93,6 +97,7 @@
 #define TRADESKILL_LEVEL_EXPERT             3
 #define TRADESKILL_LEVEL_ARTISAN            4
 #define TRADESKILL_LEVEL_MASTER             5
+#define TRADESKILL_LEVEL_GRAND_MASTER       6
 
 // Gossip defines
 

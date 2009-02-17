@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -22,28 +22,6 @@ SDCategory: Naxxramas
 EndScriptData */
 
 #include "precompiled.h"
-
-#define SAY_AGGRO1          "You are mine now!"
-#define SAY_AGGRO2          "I see you!"
-#define SAY_AGGRO3          "You...are next!"
-#define SAY_SLAY1           "Close your eyes... sleep!"
-#define SAY_SLAY2           "The races of the world will perish. It is only a matter of time."
-#define SAY_SLAY3           "I see endless suffering, I see torment, I see rage. I see... everything!"
-#define SAY_SLAY4           "Soon... the world will tremble!"
-#define SAY_SLAY5           "The end is upon you."
-#define SAY_SLAY6           "Hungry worms will feast on your rotten flesh!"
-#define SAY_DEATH           ""
-
-#define SOUND_AGGRO1        8825
-#define SOUND_AGGRO2        8826
-#define SOUND_AGGRO3        8827
-#define SOUND_SLAY1         8829
-#define SOUND_SLAY2         8830
-#define SOUND_SLAY3         8831
-#define SOUND_SLAY4         8832
-#define SOUND_SLAY5         8833
-#define SOUND_SLAY6         8834
-#define SOUND_DEATH         8828
 
 #define SPELL_CORRUPTED_MIND        29198
 #define SPELL_POISON_AURA           29865
@@ -85,58 +63,10 @@ struct TRINITY_DLL_DECL boss_loathebAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        switch (rand()%3)
-        {
-            case 0:
-                DoYell(SAY_AGGRO1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO1);
-                break;
-            case 1:
-                DoYell(SAY_AGGRO2,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO2);
-                break;
-            case 2:
-                DoYell(SAY_AGGRO3,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_AGGRO3);
-                break;
-        }
-    }
-
-    void KilledUnit(Unit* victim)
-    {
-        switch (rand()%6)
-        {
-            case 0:
-                DoYell(SAY_SLAY1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY1);
-                break;
-            case 1:
-                DoYell(SAY_SLAY2,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY2);
-                break;
-            case 2:
-                DoYell(SAY_SLAY3,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY3);
-                break;
-            case 3:
-                DoYell(SAY_SLAY4,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY4);
-                break;
-            case 4:
-                DoYell(SAY_SLAY5,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY5);
-                break;
-            case 5:
-                DoYell(SAY_SLAY6,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY6);
-                break;
-        }
     }
 
     void JustDied(Unit* Killer)
     {
-        DoYell(SAY_DEATH,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_DEATH);
     }
 
     void UpdateAI(const uint32 diff)

@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -186,6 +186,9 @@ struct TRINITY_DLL_DECL boss_attumenAI : public ScriptedAI
     void Reset()
     {
         ResetTimer = 2000;
+
+        m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+        m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
     }
 
     void Aggro(Unit* who) {}
@@ -284,6 +287,7 @@ struct TRINITY_DLL_DECL boss_attumenAI : public ScriptedAI
                 {
                     ((boss_midnightAI*)(pMidnight->AI()))->Mount(m_creature);
                     m_creature->SetHealth(pMidnight->GetHealth());
+                    DoResetThreat();
                 }
             }
         }

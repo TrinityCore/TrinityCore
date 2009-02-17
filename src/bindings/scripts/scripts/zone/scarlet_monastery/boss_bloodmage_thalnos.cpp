@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -23,34 +23,29 @@ EndScriptData */
 
 #include "precompiled.h"
 
+#define SAY_AGGRO                       -1189016
+#define SAY_HEALTH                      -1189017
+#define SAY_KILL                        -1189018
+
 #define SPELL_FROSTNOVA2                865
 #define SPELL_FLAMESHOCK3               8053
 #define SPELL_SHADOWBOLT5               1106
 #define SPELL_FLAMESPIKE                8814
 #define SPELL_FIRENOVA                  16079
 
-#define SAY_AGGRO                       "We hunger for vengeance."
-#define SAY_HEALTH                      "No rest... for the angry dead!"
-#define SAY_DEATH                       "More... More souls!"
-
-#define SOUND_AGGRO                     5844
-#define SOUND_HEALTH                    5846
-#define SOUND_DEATH                     5845
-
 struct TRINITY_DLL_DECL boss_bloodmage_thalnosAI : public ScriptedAI
 {
     boss_bloodmage_thalnosAI(Creature *c) : ScriptedAI(c) {Reset();}
 
+    bool HpYell;
     uint32 FrostNova2_Timer;
     uint32 FlameShock3_Timer;
     uint32 ShadowBolt5_Timer;
     uint32 FlameSpike_Timer;
     uint32 FireNova_Timer;
-    uint32 Yell_Timer;
 
     void Reset()
     {
-        Yell_Timer = 1;
         FrostNova2_Timer = 10000;
         FlameShock3_Timer = 15000;
         ShadowBolt5_Timer = 20000;
@@ -60,8 +55,12 @@ struct TRINITY_DLL_DECL boss_bloodmage_thalnosAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_AGGRO,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_AGGRO);
+        DoScriptText(SAY_AGGRO, m_creature);
+    }
+
+    void KilledUnit(Unit* Victim)
+    {
+        DoScriptText(SAY_KILL, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -70,16 +69,10 @@ struct TRINITY_DLL_DECL boss_bloodmage_thalnosAI : public ScriptedAI
             return;
 
         //If we are <35% hp
-        if ( m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 35)
+        if (!HpYell && ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() <= 35))
         {
-            Yell_Timer -= diff;
-
-            if (Yell_Timer < diff)
-            {
-                DoYell(SAY_HEALTH,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_HEALTH);
-                Yell_Timer = 900000;
-            }
+            DoScriptText(SAY_HEALTH, m_creature);
+            HpYell = true;
         }
 
         //FrostNova2_Timer

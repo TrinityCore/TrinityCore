@@ -152,7 +152,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
 
     void Reset()
     {
-        ShadowBoltVolley_Timer = 15000;
+        ShadowBoltVolley_Timer = 7000 + rand()%7000;
         DrawShadows_Timer = 45000;
         summonTraveler_Timer = 90000;
         banish_Timer = 17000;
@@ -260,7 +260,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
         if (ShadowBoltVolley_Timer < diff)
         {
             DoCast(m_creature,SPELL_SHADOWBOLT_VOLLEY);
-            ShadowBoltVolley_Timer = 15000;
+            ShadowBoltVolley_Timer = 15000 + rand()%15000;;
         }else ShadowBoltVolley_Timer -= diff;
 
         if (HeroicMode && banish_Timer < diff)
@@ -288,7 +288,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
             DoCast(m_creature,HeroicMode?H_SPELL_RAIN_OF_FIRE:SPELL_RAIN_OF_FIRE);
 
             ShadowBoltVolley_Timer = 6000;
-            DrawShadows_Timer = 30000;
+            DrawShadows_Timer = 3000;
         }else DrawShadows_Timer -= diff;
 
         if ( summonTraveler_Timer < diff)

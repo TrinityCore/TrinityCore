@@ -1,5 +1,38 @@
-/* Copyright (C) 2008 - 2009 BroodWyrm */
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+/* ScriptData
+SDName: Boss_Warchief_Kargath_Bladefist
+SD%Complete: 90
+SDComment: 
+SDCategory: Hellfire Citadel, Shattered Halls
+EndScriptData */
+
+/* ContentData
+boss_warchief_kargath_bladefist
+EndContentData */
+
 #include "precompiled.h"
+
+#define SAY_AGGRO1                      -1540042
+#define SAY_AGGRO2                      -1540043
+#define SAY_AGGRO3                      -1540044
+#define SAY_SLAY1                       -1540045
+#define SAY_SLAY2                       -1540046
+#define SAY_DEATH                       -1540047
 
 #define SPELL_BLADE_DANCE               30739
 #define H_SPELL_CHARGE                  25821
@@ -11,22 +44,9 @@
 #define MOB_SHARPSHOOTER_GUARD          17622
 #define MOB_REAVER_GUARD                17623
 
-float AssassEntrance[3] = {275.136,-84.29,2.3}; // y +-8
-float AssassExit[3] = {184.233,-84.29,2.3}; // y +-8
+float AssassEntrance[3] = {275.136,-84.29,2.3}; // y -8
+float AssassExit[3] = {184.233,-84.29,2.3}; // y -8
 float AddsEntrance[3] = {306.036,-84.29,1.93};
-
-#define SOUND_AGGRO1                    10323
-#define SAY_AGGRO1                      "Ours is the true Horde! The only Horde!"
-#define SOUND_AGGRO2                    10324
-#define SAY_AGGRO2                      "I'll carve the meat from your bones!"
-#define SOUND_AGGRO3                    10325
-#define SAY_AGGRO3                      "I am called Bladefist for a reason, as you will see!"
-#define SOUND_SLAY1                     10326
-#define SAY_SLAY1                       "For the real Horde!"
-#define SOUND_SLAY2                     10327
-#define SAY_SLAY2                       "I am the only Warchief!"
-#define SOUND_DEATH                     10328
-#define SAY_DEATH                       "The true Horde... will.. prevail.."
 
 struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
 {
@@ -51,11 +71,11 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
 
     uint32 Assassins_Timer;
 
-    uint32 summoned;
+    uint32 summoned; 
     bool InBlade;
 
     uint32 target_num;
-
+ 
     void Reset()
     {
         removeAdds();
@@ -68,8 +88,8 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
         Wait_Timer = 0;
 
         Charge_timer = 0;
-        Blade_Dance_Timer = 30000;
-        Summon_Assistant_Timer = 15000;
+        Blade_Dance_Timer = 45000;
+        Summon_Assistant_Timer = 30000;
         Assassins_Timer = 5000;
         resetcheck_timer = 5000;
     }
@@ -78,18 +98,9 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
     {
         switch (rand()%3)
         {
-        case 0:
-            DoPlaySoundToSet(m_creature,SOUND_AGGRO1);
-            DoYell(SAY_AGGRO1,LANG_UNIVERSAL,NULL);
-            break;
-        case 1:
-            DoPlaySoundToSet(m_creature,SOUND_AGGRO2);
-            DoYell(SAY_AGGRO2,LANG_UNIVERSAL,NULL);
-            break;
-        case 2:
-            DoPlaySoundToSet(m_creature,SOUND_AGGRO3);
-            DoYell(SAY_AGGRO3,LANG_UNIVERSAL,NULL);
-            break;
+            case 0:DoScriptText(SAY_AGGRO1, m_creature);break;
+            case 1:DoScriptText(SAY_AGGRO2, m_creature);break;
+            case 2:DoScriptText(SAY_AGGRO3, m_creature);break;
         }
     }
 
@@ -115,22 +126,15 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
         {
             switch(rand()%2)
             {
-            case 0:
-                DoPlaySoundToSet(m_creature, SOUND_SLAY1);
-                DoYell(SAY_SLAY1,LANG_UNIVERSAL,NULL);
-                break;
-            case 1:
-                DoPlaySoundToSet(m_creature, SOUND_SLAY2);
-                DoYell(SAY_SLAY2,LANG_UNIVERSAL,NULL);
-                break;
+                case 0: DoScriptText(SAY_SLAY1, m_creature); break;
+                case 1: DoScriptText(SAY_SLAY2, m_creature); break;
             }
         }
     }
 
     void JustDied(Unit* Killer)
     {
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
-        DoYell(SAY_DEATH,LANG_UNIVERSAL,NULL);
+        DoScriptText(SAY_DEATH, m_creature);
         removeAdds();
     }
 
@@ -143,7 +147,7 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
 
             if(id != 1)
                 return;
-
+     
             if(target_num > 0) // to prevent loops
             {
                 Wait_Timer = 1;
@@ -159,8 +163,8 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
         {
             Unit* temp = Unit::GetUnit((*m_creature),*itr);
             if(temp && temp->isAlive())
-            {
-                (*temp).GetMotionMaster()->Clear(true);
+            {                
+                (*temp).GetMotionMaster()->Clear(true); 
                 m_creature->DealDamage(temp,temp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 ((Creature*)temp)->RemoveCorpse();
             }
@@ -181,15 +185,16 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
     }
     void SpawnAssassin()
     {
-        m_creature->SummonCreature(MOB_SHATTERED_ASSASSIN,AssassEntrance[0],AssassEntrance[1]+8, AssassEntrance[2], 0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,10000);
-        m_creature->SummonCreature(MOB_SHATTERED_ASSASSIN,AssassEntrance[0],AssassEntrance[1]-8, AssassEntrance[2], 0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,10000);
-        m_creature->SummonCreature(MOB_SHATTERED_ASSASSIN,AssassExit[0],AssassExit[1]+8, AssassExit[2], 0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,10000);
-        m_creature->SummonCreature(MOB_SHATTERED_ASSASSIN,AssassExit[0],AssassExit[1]-8, AssassExit[2], 0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,10000);
+        m_creature->SummonCreature(MOB_SHATTERED_ASSASSIN,AssassEntrance[0],AssassEntrance[1]+8, AssassEntrance[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000); 
+        m_creature->SummonCreature(MOB_SHATTERED_ASSASSIN,AssassEntrance[0],AssassEntrance[1]-8, AssassEntrance[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000); 
+        m_creature->SummonCreature(MOB_SHATTERED_ASSASSIN,AssassExit[0],AssassExit[1]+8, AssassExit[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000);
+        m_creature->SummonCreature(MOB_SHATTERED_ASSASSIN,AssassExit[0],AssassExit[1]-8, AssassExit[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000); 
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim() )
+        //Return since we have no target
+        if (!UpdateVictim())
             return;
 
         if(Assassins_Timer)
@@ -251,48 +256,48 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
             if (Summon_Assistant_Timer < diff)
             {
                 Unit* target = NULL;
-                Creature* Summoned;
+                Creature* Assistance;
 
                 for(int i = 0; i < summoned; i++)
                 {
                     switch(rand()%3)
                     {
-                        case 0: Summoned = m_creature->SummonCreature(MOB_HEARTHEN_GUARD,AddsEntrance[0],AddsEntrance[1], AddsEntrance[2], 0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,10000); break;
-                        case 1: Summoned = m_creature->SummonCreature(MOB_SHARPSHOOTER_GUARD,AddsEntrance[0],AddsEntrance[1], AddsEntrance[2], 0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,10000); break;
-                        case 2: Summoned = m_creature->SummonCreature(MOB_REAVER_GUARD,AddsEntrance[0],AddsEntrance[1], AddsEntrance[2], 0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,10000); break;
+                        case 0: Assistance = m_creature->SummonCreature(MOB_HEARTHEN_GUARD,AddsEntrance[0],AddsEntrance[1], AddsEntrance[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000); break;
+                        case 1: Assistance = m_creature->SummonCreature(MOB_SHARPSHOOTER_GUARD,AddsEntrance[0],AddsEntrance[1], AddsEntrance[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000); break;
+                        case 2: Assistance = m_creature->SummonCreature(MOB_REAVER_GUARD,AddsEntrance[0],AddsEntrance[1], AddsEntrance[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000); break;
                     }
                 }
                 if(rand()%100 < 20) summoned++;
-                    Summon_Assistant_Timer = 15000 + (rand()%5000) ;
+                    Summon_Assistant_Timer = 25000 + (rand()%10000) ;
             }else Summon_Assistant_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }
 
-        if(resetcheck_timer < diff)
+        if (resetcheck_timer < diff)
         {
             uint32 tempx,tempy;
-            tempx = m_creature->GetPositionX();
-            tempy = m_creature->GetPositionY();
-            if ( tempx > 255 || tempx < 205)
+            tempx = uint32(m_creature->GetPositionX());
+            tempy = uint32(m_creature->GetPositionY());
+            if (tempx > 255 || tempx < 205)
             {
-                EnterEvadeMode();
+                EnterEvadeMode(); 
             }
             resetcheck_timer = 5000;
-        }else resetcheck_timer -= diff;
+        }else resetcheck_timer -= diff; 
     }
 };
-
+ 
 CreatureAI* GetAI_boss_warchief_kargath_bladefist(Creature *_Creature)
 {
     return new boss_warchief_kargath_bladefistAI (_Creature);
-}
-
+} 
+ 
 void AddSC_boss_warchief_kargath_bladefist()
 {
     Script *newscript;
     newscript = new Script;
     newscript->Name="boss_warchief_kargath_bladefist";
-    newscript->GetAI = &GetAI_boss_warchief_kargath_bladefist;
+    newscript->GetAI = GetAI_boss_warchief_kargath_bladefist;
     newscript->RegisterSelf();
 }

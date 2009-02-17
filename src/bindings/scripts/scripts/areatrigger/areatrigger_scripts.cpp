@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -23,7 +23,6 @@ EndScriptData */
 
 /* ContentData
 at_legion_teleporter    4560 Teleporter TO Invasion Point: Cataclysm
-at_test                 script test only
 EndContentData */
 
 #include "precompiled.h"
@@ -56,12 +55,6 @@ bool AreaTrigger_at_legion_teleporter(Player *player, AreaTriggerEntry *at)
     return false;
 }
 
-bool ATtest(Player *player, AreaTriggerEntry *at)
-{
-    player->Say("Hi!",LANG_UNIVERSAL);
-    return true;
-}
-
 void AddSC_areatrigger_scripts()
 {
     Script *newscript;
@@ -69,10 +62,5 @@ void AddSC_areatrigger_scripts()
     newscript = new Script;
     newscript->Name = "at_legion_teleporter";
     newscript->pAreaTrigger = &AreaTrigger_at_legion_teleporter;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name="at_test";
-    newscript->pAreaTrigger = &ATtest;
     newscript->RegisterSelf();
 }

@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -51,9 +51,9 @@ struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
 
     void Reset()
     {
-        Repentance_Timer    = 30000+(rand()%15000);
+        Repentance_Timer    = 25000+(rand()%15000);
         Holyfire_Timer      = 8000+(rand()%17000);
-        Holywrath_Timer     = 20000+(rand()%10000);
+        Holywrath_Timer     = 15000+(rand()%10000);
         Holyground_Timer    = 3000;
         Enrage_Timer        = 600000;
 
@@ -112,7 +112,7 @@ struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
             case 0: DoScriptText(SAY_REPENTANCE1, m_creature);break;
             case 1: DoScriptText(SAY_REPENTANCE2, m_creature);break;
             }
-            Repentance_Timer = 30000 + rand()%15000;        //A little randomness on that spell
+            Repentance_Timer = 25000 + rand()%10000;        //A little randomness on that spell
         }else Repentance_Timer -= diff;
 
         if (Holyfire_Timer < diff)
@@ -120,7 +120,7 @@ struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target,SPELL_HOLYFIRE);
 
-                Holyfire_Timer = 8000 + rand()%17000; //Anywhere from 8 to 25 seconds, good luck having several of those in a row!
+                Holyfire_Timer = 8000 + rand()%15000;           //Anywhere from 8 to 23 seconds, good luck having several of those in a row!
         }else Holyfire_Timer -= diff;
 
         if (Holywrath_Timer < diff)
@@ -128,7 +128,7 @@ struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target,SPELL_HOLYWRATH);
 
-            Holywrath_Timer = 20000+(rand()%10000);     //20-30 secs sounds nice
+            Holywrath_Timer = 20000+(rand()%5000);     //20-30 secs sounds nice
 
         }else Holywrath_Timer -= diff;
 
