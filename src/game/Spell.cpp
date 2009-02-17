@@ -2071,7 +2071,7 @@ void Spell::prepare(SpellCastTargets const* targets, Aura* triggeredByAura)
     }
 }
 
-void Spell::cancel(bool report)
+void Spell::cancel()
 {
     if(m_spellState == SPELL_STATE_FINISHED)
         return;
@@ -2101,7 +2101,7 @@ void Spell::cancel(bool report)
             m_caster->RemoveAurasByCasterSpell(m_spellInfo->Id, m_caster->GetGUID());
             SendChannelUpdate(0);
             SendInterrupted(0);
-            SendCastResult(report ? SPELL_FAILED_INTERRUPTED : SPELL_FAILED_DONT_REPORT);
+            SendCastResult(SPELL_FAILED_INTERRUPTED);
         } break;
 
         default:
@@ -5580,6 +5580,9 @@ bool SpellEvent::Execute(uint64 e_time, uint32 p_time)
                         // another non-melee non-delayed spell is casted now, abort
                         m_Spell->cancel();
                     }
+                    // Check if target of channeled spell still in range
+                    else if (m_Spell->CheckRange(false))
+                        m_Spell->cancel();
                     else
                     {
                         // do the action (pass spell to channeling state)

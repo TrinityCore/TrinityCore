@@ -1260,9 +1260,13 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                     switch ((*i).Event.event_type)
                     {
                         case EVENT_T_RANGE:
-                            float dist = m_creature->GetDistance(m_creature->getVictim());
-                            if (dist > (*i).Event.event_param1 && dist < (*i).Event.event_param2)
-                                ProcessEvent(*i);
+                            // in some cases this is called twice and victim may not exist in the second time
+                            if(m_creature->getVictim())
+                            {
+                                float dist = m_creature->GetDistance(m_creature->getVictim());
+                                if (dist > (*i).Event.event_param1 && dist < (*i).Event.event_param2)
+                                    ProcessEvent(*i);
+                            }
                             break;
                     }
                 }

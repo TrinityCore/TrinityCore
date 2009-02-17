@@ -121,6 +121,7 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 
     //Cast spell by Id
     void DoCast(Unit* victim, uint32 spellId, bool triggered = false);
+    void DoCastAOE(uint32 spellId, bool triggered = false);
 
     //Cast spell by spell info
     void DoCastSpell(Unit* who,SpellEntry const *spellInfo, bool triggered = false);
