@@ -45,7 +45,7 @@
 #define MAX_GRID_LOAD_TIME      50
 
 // magic *.map header
-const char MAP_MAGIC[] = "MAP_2.01";
+const char MAP_MAGIC[] = "MAP_3.00";
 
 GridState* si_GridStates[MAX_GRID_STATE];
 
@@ -1193,26 +1193,77 @@ float Map::GetHeight(float x, float y, float z, bool pUseVmaps) const
         int ly_int = (int)ly;
 
         // In some very rare case this will happen. Need find a better way.
-        if(lx_int == MAP_RESOLUTION) --lx_int;
-        if(ly_int == MAP_RESOLUTION) --ly_int;
+        //if(lx_int == MAP_RESOLUTION) --lx_int;
+        //if(ly_int == MAP_RESOLUTION) --ly_int;
 
-        float zi[4];
-        // Probe 4 nearest points (except border cases)
-        zi[0] = gmap->Z[lx_int][ly_int];
-        zi[1] = lx < MAP_RESOLUTION-1 ? gmap->Z[lx_int+1][ly_int] : zi[0];
-        zi[2] = ly < MAP_RESOLUTION-1 ? gmap->Z[lx_int][ly_int+1] : zi[0];
-        zi[3] = lx < MAP_RESOLUTION-1 && ly < MAP_RESOLUTION-1 ? gmap->Z[lx_int+1][ly_int+1] : zi[0];
-        // Recalculate them like if their x,y positions were in the range 0,1
-        float b[4];
-        b[0] = zi[0];
-        b[1] = zi[1]-zi[0];
-        b[2] = zi[2]-zi[0];
-        b[3] = zi[0]-zi[1]-zi[2]+zi[3];
-        // Normalize the dx and dy to be in range 0..1
-        float fact_x = lx - lx_int;
-        float fact_y = ly - ly_int;
-        // Use the simplified bilinear equation, as described in [url="http://en.wikipedia.org/wiki/Bilinear_interpolation"]http://en.wikipedia.org/wiki/Bilinear_interpolation[/url]
-        float _mapheight = b[0] + (b[1]*fact_x) + (b[2]*fact_y) + (b[3]*fact_x*fact_y);
+        lx -= lx_int;
+        ly -= ly_int;
+
+        // Height stored as: h5 - its v8 grid, h1-h4 - its v9 grid
+        // +--------------> X
+        // | h1-------h2     Coordinates is:
+        // | | \  1  / |     h1 0,0
+        // | |  \   /  |     h2 0,1
+        // | | 2  h5 3 |     h3 1,0
+        // | |  /   \  |     h4 1,1
+        // | | /  4  \ |     h5 1/2,1/2
+        // | h3-------h4
+        // V Y
+        // For find height need
+        // 1 - detect triangle
+        // 2 - solve linear equation from triangle points
+
+        // Calculate coefficients for solve h = a*x + b*y + c
+        float a,b,c;
+        // Select triangle:
+        if (lx+ly < 1)
+        {
+            if (lx > ly)
+            {
+                // 1 triangle (h1, h2, h5 points)
+                float h1 = gmap->v9[lx_int][ly_int];
+                float h2 = gmap->v9[lx_int+1][ly_int];
+                float h5 = 2 * gmap->v8[lx_int][ly_int];
+                a = h2-h1;
+                b = h5-h1-h2;
+                c = h1;
+            }
+            else
+            {
+                // 2 triangle (h1, h3, h5 points)
+                float h1 = gmap->v9[lx_int][ly_int];
+                float h3 = gmap->v9[lx_int][ly_int+1];
+                float h5 = 2 * gmap->v8[lx_int][ly_int];
+                a = h5 - h1 - h3;
+                b = h3 - h1;
+                c = h1;
+            }
+        }
+        else
+        {
+            if (lx > ly)
+            {
+                // 3 triangle (h2, h4, h5 points)
+                float h2 = gmap->v9[lx_int+1][ly_int];
+                float h4 = gmap->v9[lx_int+1][ly_int+1];
+                float h5 = 2 * gmap->v8[lx_int][ly_int];
+                a = h2 + h4 - h5;
+                b = h4 - h2;
+                c = h5 - h4;
+            }
+            else
+            {
+                // 4 triangle (h3, h4, h5 points)
+                float h3 = gmap->v9[lx_int][ly_int+1];
+                float h4 = gmap->v9[lx_int+1][ly_int+1];
+                float h5 = 2 * gmap->v8[lx_int][ly_int];
+                a = h4 - h3;
+                b = h3 + h4 - h5;
+                c = h5 - h4;
+            }
+        }
+        // Calculate height
+        float _mapheight = a * lx + b * ly + c;
 
         // look from a bit higher pos to find the floor, ignore under surface case
         if(z + 2.0f > _mapheight)
