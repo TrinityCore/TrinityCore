@@ -162,9 +162,9 @@ void WorldSession::SendTrainerList( uint64 guid, const std::string& strTitle )
     float fDiscountMod = _player->GetReputationPriceDiscount(unit);
 
     uint32 count = 0;
-    for(TrainerSpellList::const_iterator itr = trainer_spells->spellList.begin(); itr != trainer_spells->spellList.end(); ++itr)
+    for(TrainerSpellMap::const_iterator itr = trainer_spells->spellList.begin(); itr != trainer_spells->spellList.end(); ++itr)
     {
-        TrainerSpell const* tSpell = *itr;
+        TrainerSpell const* tSpell = &itr->second;
 
         if(!_player->IsSpellFitByClassAndRace(tSpell->learnedSpell))
             continue;
