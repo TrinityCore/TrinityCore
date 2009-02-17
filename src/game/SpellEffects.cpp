@@ -1155,36 +1155,6 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastSpell(m_caster,42337,true,NULL);
                     return;
                 }
-                case 37573:                                 //Temporal Phase Modulator
-                {
-                    if(!unitTarget)
-                        return;
-
-                    TemporarySummon* tempSummon = dynamic_cast<TemporarySummon*>(unitTarget);
-                    if(!tempSummon)
-                        return;
-
-                    uint32 health = tempSummon->GetHealth();
-                    const uint32 entry_list[6] = {21821, 21820, 21817};
-
-                    float x = tempSummon->GetPositionX();
-                    float y = tempSummon->GetPositionY();
-                    float z = tempSummon->GetPositionZ();
-                    float o = tempSummon->GetOrientation();
-
-                    tempSummon->UnSummon();
-
-                    Creature* pCreature = m_caster->SummonCreature(entry_list[urand(0, 2)], x, y, z, o,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,180000);
-                    if (!pCreature)
-                        return;
-
-                    pCreature->SetHealth(health);
-
-                    if(pCreature->AI())
-                        pCreature->AI()->AttackStart(m_caster);
-
-                    return;
-                }
                 case 34665:                                 //Administer Antidote
                 {
                     if(!unitTarget || m_caster->GetTypeId() != TYPEID_PLAYER )
