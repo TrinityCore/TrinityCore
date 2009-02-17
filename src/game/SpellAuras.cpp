@@ -806,6 +806,8 @@ void Aura::_AddAura()
             if(itr->second->GetCasterGUID()==GetCasterGUID())
             {
                 slot = itr->second->GetAuraSlot();
+                if(slot >= MAX_AURAS)
+                    return;
                 secondaura = true;
                 break;
             }
@@ -813,23 +815,25 @@ void Aura::_AddAura()
         if (secondaura)
             break;
     }
+
     // Lookup free slot
-    if (!secondaura && m_target->GetVisibleAurasCount() < MAX_AURAS )
+    if (!secondaura)
     {
         Unit::VisibleAuraMap const *visibleAuras = m_target->GetVisibleAuras();
-        for(uint8 i = 0; i < MAX_AURAS; ++i)
+        if(visibleAuras->size() >= MAX_AURAS)       // no free slot
+            return;
+
+        Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin();
+        for(int freeSlot = 0; freeSlot < MAX_AURAS; ++itr, ++freeSlot)
         {
-            Unit::VisibleAuraMap::const_iterator itr = visibleAuras->find(i);
-            if(itr == visibleAuras->end())
+            if(itr == visibleAuras->end() || itr->first != freeSlot)
             {
-                slot = i;
+                slot = freeSlot;
                 break;
             }
         }
-    }
+        assert(slot < MAX_AURAS);      // assert that we find a slot and it is valid
 
-    if (!secondaura)
-    {
         AuraSlotEntry t_entry;
         t_entry.m_Flags=(IsPositive() ? AFLAG_POSITIVE : AFLAG_NEGATIVE) | AFLAG_NOT_CASTER | ((GetAuraMaxDuration() > 0) ? AFLAG_DURATION : AFLAG_NONE);
         t_entry.m_Level=(caster ? caster->getLevel() : sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL));
@@ -838,12 +842,10 @@ void Aura::_AddAura()
         for(uint8 i = 0; i < 3; i++)
             t_entry.m_slotAuras[i]=NULL;
 
-        t_entry.m_Level=(caster ? caster->getLevel() : sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL));
         m_target->SetVisibleAura(slot, t_entry);
     }
 
-    AuraSlotEntry * entry;
-    entry=m_target->GetVisibleAura(slot);
+    AuraSlotEntry *entry = m_target->GetVisibleAura(slot);
     if(!entry)
         return;
 
@@ -921,30 +923,27 @@ void Aura::_RemoveAura()
     //    return;
 
     uint8 slot = GetAuraSlot();
-
     if(slot >= MAX_AURAS)                                   // slot not set
         return;
 
-    if(!m_target->GetVisibleAura(slot))                     //slot already removed-shouldn't happen
+    AuraSlotEntry *entry = m_target->GetVisibleAura(slot);
+    if(!entry)                                              //slot already removed-shouldn't happen
         return;
 
+    entry->m_slotAuras[GetEffIndex()]=NULL;                 //unregister aura
+
     bool lastaura = true;
-
-    AuraSlotEntry * entry=m_target->GetVisibleAura(slot);
-
-    entry->m_slotAuras[GetEffIndex()]=NULL;            //unregister aura
-    Aura * ptr= NULL;
-    for (uint8 i=0 ; i<3; i++)                              //check slot for more auras of the spell
+    for(uint8 i = 0; i < 3; ++i)                              //check slot for more auras of the spell
     {
-        if (entry->m_slotAuras[i])
+        if(entry->m_slotAuras[i])
         {
-            ptr=entry->m_slotAuras[i];
+            lastaura = false;
             break;
         }
     }
 
     // only remove icon when the last aura of the spell is removed (current aura already removed from list)
-    if(!ptr)
+    if(lastaura)
     {
         // unregister aura diminishing (and store last time)
         if (getDiminishGroup() != DIMINISHING_NONE )
