@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -719,6 +719,9 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
         case ACTION_T_SET_UNIT_FIELD:
             {
                 Unit* target = GetTargetByType(param3, pActionInvoker);
+
+                if (param1 < OBJECT_END || param1 >= UNIT_END)
+                    return;
 
                 if (target)
                     target->SetUInt32Value(param1, param2);

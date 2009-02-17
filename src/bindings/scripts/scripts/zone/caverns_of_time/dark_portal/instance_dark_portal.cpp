@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation; either version 2 of the License, or
@@ -302,11 +302,10 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 
         if (Unit *medivh = Unit::GetUnit(*player,MedivhGUID))
         {
-            for(uint8 i = 0; i < 4; i++)
-            {
-                int tmp = rand()%4;
-                if (tmp != CurrentRiftId)
-                {
+            int tmp = rand()%(4-1);
+
+            if (tmp >= CurrentRiftId)
+                tmp++;
                     debug_log("SD2: Instance Dark Portal: Creating Time Rift at locationId %i (old locationId was %u).",tmp,CurrentRiftId);
 
                     CurrentRiftId = tmp;
@@ -334,9 +333,6 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
                             }
                         }
                     }
-                    break;
-                }
-            }
         }
     }
 
@@ -354,7 +350,7 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 
         if (NextPortal_Timer)
         {
-            if (NextPortal_Timer < diff)
+            if (NextPortal_Timer <= diff)
             {
                 ++mRiftPortalCount;
                 UpdateBMWorldState(WORLD_STATE_BM_RIFT,mRiftPortalCount);

@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -357,7 +357,6 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                             //pCreature->GetMotionMaster()->MovePoint(0, -1693, -4343, 4.32);
                             //pCreature->GetMotionMaster()->MovePoint(1, -1684, -4333, 2.78);
                             pCreature->GetMotionMaster()->MovePoint(2, -1682, -4329, 2.79);
-                            //pCreature->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
                             pCreature->HandleEmoteCommand(EMOTE_STATE_READYUNARMED);
                             EventBigWill = true;
                             Wave_Timer = 1000;
