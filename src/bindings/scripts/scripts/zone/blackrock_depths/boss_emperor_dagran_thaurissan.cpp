@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -23,11 +23,11 @@ EndScriptData */
 
 #include "precompiled.h"
 
+#define SAY_AGGRO                       -1230001
+#define SAY_SLAY                        -1230002
+
 #define SPELL_HANDOFTHAURISSAN          17492
 #define SPELL_AVATAROFFLAME             15636
-
-#define SAY_AGGRO                       "Come to aid the Throne!"
-#define SAY_SLAY                        "Hail to the king, baby!"
 
 struct TRINITY_DLL_DECL boss_draganthaurissanAI : public ScriptedAI
 {
@@ -46,12 +46,12 @@ struct TRINITY_DLL_DECL boss_draganthaurissanAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoYell(SAY_AGGRO,LANG_UNIVERSAL,NULL);
+        DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void KilledUnit(Unit* victim)
     {
-        DoYell(SAY_SLAY, LANG_UNIVERSAL, NULL);
+        DoScriptText(SAY_SLAY, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -62,9 +62,8 @@ struct TRINITY_DLL_DECL boss_draganthaurissanAI : public ScriptedAI
 
         if (HandOfThaurissan_Timer < diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (target) DoCast(target,SPELL_HANDOFTHAURISSAN);
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+                DoCast(target,SPELL_HANDOFTHAURISSAN);
 
             //3 Hands of Thaurissan will be casted
             //if (Counter < 3)
@@ -89,6 +88,7 @@ struct TRINITY_DLL_DECL boss_draganthaurissanAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_boss_draganthaurissan(Creature *_Creature)
 {
     return new boss_draganthaurissanAI (_Creature);

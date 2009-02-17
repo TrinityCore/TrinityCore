@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -174,6 +174,8 @@ CreatureAI* GetAI_npc_dashel_stonefist(Creature *_creature)
 ## npc_general_marcus_jonathan
 ######*/
 
+#define SAY_GREETING    -1000005
+
 bool ReceiveEmote_npc_general_marcus_jonathan(Player *player, Creature *_Creature, uint32 emote)
 {
     if(player->GetTeam() == ALLIANCE)
@@ -185,7 +187,7 @@ bool ReceiveEmote_npc_general_marcus_jonathan(Player *player, Creature *_Creatur
         }
         if (emote == TEXTEMOTE_WAVE)
         {
-            _Creature->MonsterSay("Greetings citizen",LANG_COMMON,0);
+            DoScriptText(SAY_GREETING, _Creature, player);
         }
     }
     return true;

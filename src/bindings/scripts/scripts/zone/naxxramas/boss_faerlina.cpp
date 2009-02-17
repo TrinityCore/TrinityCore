@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Faerlina
 SD%Complete: 50
-SDComment: Without Mindcontrol boss cannot be defeated
+SDComment:
 SDCategory: Naxxramas
 EndScriptData */
 
@@ -31,6 +31,8 @@ EndScriptData */
 #define SAY_SLAY1                   -1533014
 #define SAY_SLAY2                   -1533015
 #define SAY_DEATH                   -1533016
+
+//#define SOUND_RANDOM_AGGRO  8955                            //soundId containing the 4 aggro sounds, we not using this
 
 #define SPELL_POSIONBOLT_VOLLEY     28796
 #define H_SPELL_POSIONBOLT_VOLLEY   54098

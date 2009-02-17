@@ -53,9 +53,9 @@ struct TRINITY_DLL_DECL boss_murmurAI : public Scripted_NoMovementAI
     void Reset()
     {
         SonicBoom_Timer = 30000;
-        MurmursTouch_Timer = 20000;
-        Resonance_Timer = 10000;
-        MagneticPull_Timer = 20000;
+        MurmursTouch_Timer = 8000 + rand()%12000;
+        Resonance_Timer = 5000;
+        MagneticPull_Timer = 15000 + rand()%15000;
         ThunderingStorm_Timer = 15000;
         SonicShock_Timer = 10000;
         SonicBoom = false;
@@ -65,6 +65,23 @@ struct TRINITY_DLL_DECL boss_murmurAI : public Scripted_NoMovementAI
         if (hp) m_creature->SetHealth(hp);
     }
 
+    void SonicBoomEffect()
+    {
+        std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();
+        for( std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr )
+        {
+           Unit* target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+           if (target && target->GetTypeId() == TYPEID_PLAYER)
+           {
+               if (m_creature->IsWithinDistInMap(target, 34))
+               {
+                   target->SetHealth(target->GetMaxHealth() - target->GetMaxHealth() * 0.8);
+               }
+           }
+        }
+    
+    }
+	
     void Aggro(Unit *who) { }
 
     // Sonic Boom instant damage (needs core fix instead of this)
@@ -84,6 +101,8 @@ struct TRINITY_DLL_DECL boss_murmurAI : public Scripted_NoMovementAI
         if(SonicBoom)
         {
             DoCast(m_creature, SPELL_SONIC_BOOM_EFFECT, true);
+			SonicBoomEffect();
+
             SonicBoom = false;
             Resonance_Timer = 1500;
         }
@@ -101,16 +120,18 @@ struct TRINITY_DLL_DECL boss_murmurAI : public Scripted_NoMovementAI
         {
             if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0,80,true))
                 DoCast(target, SPELL_MURMURS_TOUCH);
-            MurmursTouch_Timer = 30000;
+            MurmursTouch_Timer = 25000 + rand()%10000;
         }else MurmursTouch_Timer -= diff;
 
         // Resonance
-        if (Resonance_Timer < diff)
+        if (!SonicBoom && !(m_creature->IsWithinMeleeRange(m_creature->getVictim())))
         {
-            if (!m_creature->IsWithinMeleeRange(SelectUnit(SELECT_TARGET_NEAREST,0,20,true)))
+            if (Resonance_Timer < diff)
+            {
                 DoCast(m_creature, SPELL_RESONANCE);
-            Resonance_Timer = 5000;
-        }else Resonance_Timer -= diff;
+                Resonance_Timer = 5000;
+            }else Resonance_Timer -= diff;
+        }
 
         // Magnetic Pull
         if (MagneticPull_Timer < diff)
@@ -119,7 +140,7 @@ struct TRINITY_DLL_DECL boss_murmurAI : public Scripted_NoMovementAI
                 if (target->GetTypeId() == TYPEID_PLAYER && target->isAlive())
                 {
                     DoCast(target, SPELL_MAGNETIC_PULL);
-                    MagneticPull_Timer = 20000+rand()%15000;
+                    MagneticPull_Timer = 15000+rand()%15000;
                     return;
                 }
             MagneticPull_Timer = 500;

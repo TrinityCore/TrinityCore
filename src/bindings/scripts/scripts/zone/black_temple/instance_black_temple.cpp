@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation; either version 2 of the License, or
@@ -42,6 +42,9 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
 {
     instance_black_temple(Map *map) : ScriptedInstance(map) {Initialize();};
 
+    uint32 Encounters[ENCOUNTERS];
+    std::string str_data;
+	
     uint64 Najentus;
     uint64 Akama;                                           // This is the Akama that starts the Illidan encounter.
     uint64 Akama_Shade;                                     // This is the Akama that starts the Shade of Akama encounter.
@@ -67,9 +70,6 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
     uint64 SimpleDoor;//council
     uint64 IllidanGate;
     uint64 IllidanDoor[2];
-
-    uint32 Encounters[ENCOUNTERS];
-    std::string str_data;
 
     void Initialize()
     {
@@ -145,7 +145,7 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
 
     void OnCreatureCreate(Creature *creature, uint32 creature_entry)
     {
-        switch(creature_entry)
+        switch(creature->GetEntry())
         {
         case 22887:    Najentus = creature->GetGUID();                  break;
         case 23089:    Akama = creature->GetGUID();                     break;
