@@ -10229,6 +10229,8 @@ void Unit::ApplyDiminishingAura( DiminishingGroup group, bool apply )
 
 uint32 Unit::GetSpellMaxRangeForTarget(Unit* target,const SpellRangeEntry * rangeEntry)
 {
+    if (!rangeEntry)
+        return 0;
     if (rangeEntry->maxRangeHostile == rangeEntry->maxRangeFriend)
         return rangeEntry->maxRangeFriend;
     if (IsHostileTo(target))
@@ -10237,6 +10239,8 @@ uint32 Unit::GetSpellMaxRangeForTarget(Unit* target,const SpellRangeEntry * rang
 };
 uint32 Unit::GetSpellMinRangeForTarget(Unit* target,const SpellRangeEntry * rangeEntry)
 {
+    if (!rangeEntry)
+        return 0;
     if (rangeEntry->minRangeHostile == rangeEntry->minRangeFriend)
         return rangeEntry->minRangeFriend;
     if (IsHostileTo(target))
@@ -10245,6 +10249,8 @@ uint32 Unit::GetSpellMinRangeForTarget(Unit* target,const SpellRangeEntry * rang
 };
 uint32 Unit::GetSpellRadiusForTarget(Unit* target,const SpellRadiusEntry * radiusEntry)
 {
+    if (!radiusEntry)
+        return 0;
     if (radiusEntry->radiusHostile == radiusEntry->radiusFriend)
         return radiusEntry->radiusFriend;
     if (IsHostileTo(target))
