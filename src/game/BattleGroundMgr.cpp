@@ -1926,3 +1926,4 @@ void BattleGroundMgr::LoadBattleMastersEntry()
 
     sLog.outString();
     sLog.outString( ">> Loaded %u battlemaster entries", count );
+}

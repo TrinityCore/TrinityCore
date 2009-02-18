@@ -20393,3 +20393,4 @@ uint8 Player::CanEquipUniqueItem( ItemPrototype const* itemProto, uint8 except_s
     }
 
     return EQUIP_ERR_OK;
+}

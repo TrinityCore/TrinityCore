@@ -1635,3 +1635,4 @@ void BattleGround::SetBgRaid( uint32 TeamID, Group *bg_raid )
     if(old_raid) old_raid->SetBattlegroundGroup(NULL);
     if(bg_raid) bg_raid->SetBattlegroundGroup(this);
     old_raid = bg_raid;
+}

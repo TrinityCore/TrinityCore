@@ -1326,3 +1326,4 @@ void WorldSession::HandleCharCustomize(WorldPacket& recv_data)
     data << uint8(hairStyle);
     data << uint8(hairColor);
     data << uint8(facialHair);
+}
