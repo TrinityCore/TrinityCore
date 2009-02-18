@@ -80,3 +80,4 @@ void barGoLink::step( void )
         rec_pos = n;
     }
 }
+

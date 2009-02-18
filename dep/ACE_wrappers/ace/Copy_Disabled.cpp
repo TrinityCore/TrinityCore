@@ -21,3 +21,4 @@ ACE_Copy_Disabled::ACE_Copy_Disabled (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

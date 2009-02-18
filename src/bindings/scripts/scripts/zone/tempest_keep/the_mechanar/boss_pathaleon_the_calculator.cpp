@@ -252,3 +252,4 @@ void AddSC_boss_pathaleon_the_calculator()
     newscript->GetAI = &GetAI_mob_nether_wraith;
     newscript->RegisterSelf();
 }
+

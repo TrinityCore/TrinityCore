@@ -748,3 +748,4 @@ ACE_SOCK_Dgram::make_multicast_ifaddr6 (ipv6_mreq *ret_mreq,
 #endif /* __linux__ && ACE_HAS_IPV6 */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

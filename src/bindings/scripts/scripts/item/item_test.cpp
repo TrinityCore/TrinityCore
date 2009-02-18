@@ -40,3 +40,4 @@ void AddSC_item_test()
     newscript->pItemUse = &ItemUse_item_test;
     newscript->RegisterSelf();
 }
+

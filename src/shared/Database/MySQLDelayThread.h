@@ -30,3 +30,4 @@ class MySQLDelayThread : public SqlDelayThread
         void Stop() { SqlDelayThread::Stop(); }
 };
 #endif                                                      //__MYSQLDELAYTHREAD_H
+

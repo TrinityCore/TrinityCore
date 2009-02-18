@@ -36,3 +36,4 @@ ACE_Reactor_Notification_Strategy::notify (ACE_Event_Handler *eh,
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

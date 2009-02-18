@@ -57,3 +57,4 @@ typedef unsigned int Oid;
 #define PG_DIAG_SOURCE_FUNCTION 'R'
 
 #endif
+

@@ -380,3 +380,4 @@ namespace ZThread {
 } // namespace ZThread
 
 #endif // __ZTTHREADLOCAL_H__
+

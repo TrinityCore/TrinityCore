@@ -127,3 +127,4 @@ template<class T, class MUTEX> MUTEX Trinity::ClassLevelLockable<T, MUTEX>::si_m
 #define INSTANTIATE_CLASS_MUTEX(CTYPE,MUTEX) \
     template class TRINITY_DLL_DECL Trinity::ClassLevelLockable<CTYPE, MUTEX >
 #endif
+

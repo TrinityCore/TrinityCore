@@ -85,3 +85,4 @@ void AddSC_feralas()
     newscript->pGossipHello = &GossipHello_npc_screecher_spirit;
     newscript->RegisterSelf();
 }
+

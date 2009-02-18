@@ -277,3 +277,4 @@ ACE_Framework_Repository::ACE_Framework_Repository (int size)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

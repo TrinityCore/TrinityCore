@@ -97,3 +97,4 @@ void AddSC_boss_moira_bronzebeard()
     newscript->GetAI = &GetAI_boss_moira_bronzebeard;
     newscript->RegisterSelf();
 }
+

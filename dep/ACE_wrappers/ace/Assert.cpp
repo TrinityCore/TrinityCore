@@ -22,3 +22,4 @@ __ace_assert(const char *file, int line, const ACE_TCHAR *expression)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

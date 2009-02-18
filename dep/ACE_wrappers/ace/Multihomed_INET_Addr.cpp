@@ -298,3 +298,4 @@ ACE_Multihomed_INET_Addr::~ACE_Multihomed_INET_Addr (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

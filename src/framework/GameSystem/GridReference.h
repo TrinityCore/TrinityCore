@@ -52,3 +52,4 @@ class TRINITY_DLL_SPEC GridReference : public Reference<GridRefManager<OBJECT>, 
         GridReference *next() { return (GridReference*)Reference<GridRefManager<OBJECT>, OBJECT>::next(); }
 };
 #endif
+

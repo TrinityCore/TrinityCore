@@ -313,3 +313,4 @@ void AddSC_boss_mother_shahraz()
     newscript->GetAI = &GetAI_boss_shahraz;
     newscript->RegisterSelf();
 }
+

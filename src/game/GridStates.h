@@ -73,3 +73,4 @@ class TRINITY_DLL_DECL RemovalState : public GridState
         void Update(Map &, NGridType &, GridInfo &, const uint32 &x, const uint32 &y, const uint32 &t_diff) const;
 };
 #endif
+

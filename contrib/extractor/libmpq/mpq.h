@@ -223,3 +223,4 @@ static decompress_table dcmp_table[] = {
 int libmpq_file_extract(mpq_archive *mpq_a, const int number, const char *filename);
 int libmpq_file_getdata(mpq_archive *mpq_a, mpq_hash mpq_h, const int number, unsigned char *dest);
 #endif                  /* _MPQ_H */
+

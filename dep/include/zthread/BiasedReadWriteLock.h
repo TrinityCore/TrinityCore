@@ -317,3 +317,4 @@ namespace ZThread {
 }; // __ZTBIASEDREADWRITELOCK_H__
 
 #endif
+

@@ -287,3 +287,4 @@ namespace ZThread {
 
 
 #endif // __ZTCOUNTEDPTR_H__
+

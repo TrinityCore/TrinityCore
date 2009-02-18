@@ -964,3 +964,4 @@ ACE_Local_Name_Space<ACE_MEM_POOL_2, ACE_LOCK>::dump (void) const
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_LOCAL_NAME_SPACE_T_CPP */
+

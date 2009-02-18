@@ -43,3 +43,4 @@ ACE_TSS_C_cleanup (void *object)
       delete tss_adapter;
     }
 }
+

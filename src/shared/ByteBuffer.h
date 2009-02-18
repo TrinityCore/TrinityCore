@@ -479,3 +479,4 @@ template <typename K, typename V> ByteBuffer &operator>>(ByteBuffer &b, std::map
     return b;
 }
 #endif
+

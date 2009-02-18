@@ -104,3 +104,4 @@ void AddSC_boss_ambassador_flamelash()
     newscript->GetAI = &GetAI_boss_ambassador_flamelash;
     newscript->RegisterSelf();
 }
+

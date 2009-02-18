@@ -233,3 +233,4 @@ ACE_Array_Iterator<T>::next (T *&item)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_ARRAY_BASE_CPP */
+

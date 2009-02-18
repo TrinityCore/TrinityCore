@@ -110,3 +110,4 @@ void AddSC_instance_blood_furnace()
     newscript->GetInstanceData = &GetInstanceData_instance_blood_furnace;
     newscript->RegisterSelf();
 }
+

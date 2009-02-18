@@ -66,3 +66,4 @@ extern UNORDERED_MAP<uint32, FormationMember*> CreatureGroupMap;
 #define formation_mgr Trinity::Singleton<CreatureGroupManager>::Instance()
 
 #endif
+

@@ -106,3 +106,4 @@ void AddSC_boss_theolenkrastinov()
     newscript->GetAI = &GetAI_boss_theolenkrastinov;
     newscript->RegisterSelf();
 }
+

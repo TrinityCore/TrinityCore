@@ -149,3 +149,4 @@ ACE_UNIX_Addr::ACE_UNIX_Addr (const char rendezvous_point[])
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_LACKS_UNIX_DOMAIN_SOCKETS */
+

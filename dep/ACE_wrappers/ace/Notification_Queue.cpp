@@ -226,3 +226,4 @@ ACE_Notification_Queue::pop_next_notification(
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

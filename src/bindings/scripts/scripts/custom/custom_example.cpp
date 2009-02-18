@@ -275,3 +275,4 @@ void AddSC_custom_example()
     newscript->pReceiveEmote = &ReceiveEmote_custom_example;
     newscript->RegisterSelf();
 }
+

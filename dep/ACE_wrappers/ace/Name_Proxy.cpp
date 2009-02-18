@@ -207,3 +207,4 @@ ACE_Name_Proxy::~ACE_Name_Proxy (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

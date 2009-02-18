@@ -488,3 +488,4 @@ void AddSC_boss_vazruden_the_herald()
     newscript->GetAI = &GetAI_mob_hellfire_sentry;
     newscript->RegisterSelf();
 }
+

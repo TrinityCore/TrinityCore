@@ -410,3 +410,4 @@ ACE_Log_Record::print (const ACE_TCHAR host_name[],
 #endif /* ! ACE_LACKS_IOSTREAM_TOTALLY */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

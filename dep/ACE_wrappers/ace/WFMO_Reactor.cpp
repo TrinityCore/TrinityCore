@@ -2746,3 +2746,4 @@ WSAEnumNetworkEvents (SOCKET /* s */,
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_WIN32 */
+

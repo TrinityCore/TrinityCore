@@ -13,3 +13,4 @@
 #define DATA_HORSEMAN_EVENT         5
 #define GAMEOBJECT_PUMPKIN_SHRINE   6
 #endif
+

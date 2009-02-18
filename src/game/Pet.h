@@ -264,3 +264,4 @@ class Pet : public Creature
         }
 };
 #endif
+

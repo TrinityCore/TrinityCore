@@ -551,3 +551,4 @@ ACE_TLI_Acceptor::accept (ACE_TLI_Stream &new_tli_sap,
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_HAS_TLI */
+

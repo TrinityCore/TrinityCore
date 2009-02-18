@@ -236,3 +236,4 @@ void AddSC_instance_zulgurub()
     newscript->GetInstanceData = &GetInstanceData_instance_zulgurub;
     newscript->RegisterSelf();
 }
+

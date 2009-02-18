@@ -205,3 +205,4 @@ struct TRINITY_DLL_DECL NullCreatureAI : public ScriptedAI
 };
 
 #endif
+

@@ -685,3 +685,4 @@ void AuctionHouseBotInit();
 void AuctionHouseBotLoadValues(AHBConfig*);
 void AuctionHouseBotCommands(uint32, uint32, uint32, char*);
 #endif
+

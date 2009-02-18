@@ -98,3 +98,4 @@ void AddSC_loch_modan()
     newscript->pGossipSelect = &GossipSelect_npc_mountaineer_pebblebitty;
     newscript->RegisterSelf();
 }
+

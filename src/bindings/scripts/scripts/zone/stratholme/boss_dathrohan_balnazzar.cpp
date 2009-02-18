@@ -314,3 +314,4 @@ void AddSC_boss_dathrohan_balnazzar()
     newscript->GetAI = &GetAI_boss_dathrohan_balnazzar;
     newscript->RegisterSelf();
 }
+

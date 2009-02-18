@@ -451,3 +451,4 @@ ACE_Stream_Type::find (const ACE_TCHAR *mod_name) const
 // @@@ Eliminated ommented out explicit template instantiation code
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

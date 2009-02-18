@@ -73,3 +73,4 @@ class DynamicObject : public WorldObject
         GridReference<DynamicObject> m_gridRef;
 };
 #endif
+

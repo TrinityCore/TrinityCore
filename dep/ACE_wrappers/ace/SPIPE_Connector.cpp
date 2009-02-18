@@ -158,3 +158,4 @@ ACE_SPIPE_Connector::connect (ACE_SPIPE_Stream &new_io,
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

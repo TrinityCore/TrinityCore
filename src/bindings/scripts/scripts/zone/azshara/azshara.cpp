@@ -515,3 +515,4 @@ void AddSC_azshara()
     newscript->GetAI = &GetAI_mob_depth_charge;
     newscript->RegisterSelf();
 }
+

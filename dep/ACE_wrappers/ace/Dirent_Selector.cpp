@@ -57,3 +57,4 @@ ACE_Dirent_Selector::close (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

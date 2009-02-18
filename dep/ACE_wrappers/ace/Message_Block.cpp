@@ -1271,3 +1271,4 @@ ACE_Data_Block::base (char *msg_data,
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

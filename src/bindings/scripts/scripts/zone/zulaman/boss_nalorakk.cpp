@@ -450,3 +450,4 @@ void AddSC_boss_nalorakk()
     newscript->GetAI = &GetAI_boss_nalorakk;
     newscript->RegisterSelf();
 }
+

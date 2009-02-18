@@ -18,3 +18,4 @@ ACE_String_Base_Const::size_type const ACE_String_Base_Const::npos =
 #endif  /* AIX */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

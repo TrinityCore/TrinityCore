@@ -198,3 +198,4 @@ void AddSC_test()
     newscript->pGossipSelect         = &GossipSelect_npc_test;
     newscript->RegisterSelf();
 }
+

@@ -63,3 +63,4 @@ class TRINITY_DLL_SPEC FleeingMovementGenerator
         DestinationHolder< Traveller<T> > i_destinationHolder;
 };
 #endif
+

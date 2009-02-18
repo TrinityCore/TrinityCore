@@ -1030,3 +1030,4 @@ void Pet::UpdateDamagePhysical(WeaponAttackType attType)
     SetStatFloatValue(UNIT_FIELD_MINDAMAGE, mindamage);
     SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, maxdamage);
 }
+

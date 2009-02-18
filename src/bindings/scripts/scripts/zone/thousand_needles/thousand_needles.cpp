@@ -321,3 +321,4 @@ void AddSC_thousand_needles()
     newscript->pGossipSelect = &GossipSelect_npc_plucky;
     newscript->RegisterSelf();
 }
+

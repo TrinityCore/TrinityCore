@@ -149,3 +149,4 @@ void AddSC_boss_renataki()
     newscript->GetAI = &GetAI_boss_renataki;
     newscript->RegisterSelf();
 }
+

@@ -650,3 +650,4 @@ uint32 InstanceSaveManager::GetNumBoundGroupsTotal()
         ret += itr->second->GetGroupCount();
     return ret;
 }
+
