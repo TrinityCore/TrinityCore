@@ -12377,9 +12377,6 @@ void Unit::SetCharmedOrPossessedBy(Unit* charmer, bool possess)
     if(GetTypeId() == TYPEID_PLAYER)
         ((Player*)this)->StopCastingCharm();
 
-    // Charmed stop being charmed
-    RemoveCharmAuras();
-
     // Set charmed
     charmer->SetCharm(this);
     SetCharmerGUID(charmer->GetGUID());
