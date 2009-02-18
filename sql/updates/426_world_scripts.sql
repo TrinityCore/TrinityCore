@@ -11,3 +11,4 @@ UPDATE `creature_template` SET `ScriptName`='mob_archaedas_minions' WHERE `entry
 
 -- Stone keepers
 UPDATE `creature_template` SET `ScriptName`='mob_stonekeepers' WHERE `entry`=4857;
+

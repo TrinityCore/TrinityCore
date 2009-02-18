@@ -3442,3 +3442,4 @@ ACE::wild_match(const char* str, const char* pat, bool case_sensitive)
 
 // Close versioned namespace, if enabled by the user.
 ACE_END_VERSIONED_NAMESPACE_DECL
+

@@ -56,3 +56,4 @@ extern int inflate_trees_fixed OF((
     inflate_huft * FAR *,       /* literal/length tree result */
     inflate_huft * FAR *,       /* distance tree result */
     z_streamp));                /* for memory allocation */
+

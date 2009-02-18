@@ -399,3 +399,4 @@
        newscript->GetAI = &GetAI_boss_sir_zeliek;
       newscript->RegisterSelf();
    }
+

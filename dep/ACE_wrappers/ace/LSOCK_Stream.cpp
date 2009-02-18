@@ -135,3 +135,4 @@ ACE_LSOCK_Stream::recv_msg (iovec iov[],
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_LACKS_UNIX_DOMAIN_SOCKETS */
+

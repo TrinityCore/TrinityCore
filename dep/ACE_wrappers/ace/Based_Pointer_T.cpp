@@ -119,3 +119,4 @@ ACE_Based_Pointer<CONCRETE>::ACE_Based_Pointer (const ACE_Based_Pointer<CONCRETE
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_BASED_POINTER_T_CPP */
+

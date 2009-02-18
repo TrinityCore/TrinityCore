@@ -2524,3 +2524,4 @@ ACE_Log_Msg::inherit_hook (ACE_OS_Thread_Descriptor *thr_desc,
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

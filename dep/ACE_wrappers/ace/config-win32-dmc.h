@@ -108,3 +108,4 @@ typedef long o_gid_t;
 
 #include /**/ "ace/post.h"
 #endif /* ACE_CONFIG_WIN32_DMC_H */
+

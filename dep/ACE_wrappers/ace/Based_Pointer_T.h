@@ -203,3 +203,4 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 #include /**/ "ace/post.h"
 
 #endif /* ACE_BASED_POINTER_T_H */
+

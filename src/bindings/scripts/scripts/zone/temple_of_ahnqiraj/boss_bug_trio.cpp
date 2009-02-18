@@ -346,3 +346,4 @@ void AddSC_bug_trio()
     newscript->GetAI = &GetAI_boss_yauj;
     newscript->RegisterSelf();
 }
+

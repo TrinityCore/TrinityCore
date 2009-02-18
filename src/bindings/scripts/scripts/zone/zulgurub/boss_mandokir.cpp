@@ -332,3 +332,4 @@ void AddSC_boss_mandokir()
     newscript->GetAI = &GetAI_mob_ohgan;
     newscript->RegisterSelf();
 }
+

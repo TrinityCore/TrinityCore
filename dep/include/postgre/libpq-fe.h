@@ -523,3 +523,4 @@ extern int  pg_valid_server_encoding_id(int encoding);
 #endif
 
 #endif   /* LIBPQ_FE_H */
+

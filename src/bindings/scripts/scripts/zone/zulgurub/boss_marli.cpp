@@ -254,3 +254,4 @@ void AddSC_boss_marli()
     newscript->GetAI = &GetAI_mob_spawn_of_marli;
     newscript->RegisterSelf();
 }
+

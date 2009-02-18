@@ -55,3 +55,4 @@ class TRINITY_DLL_DECL CritterAI : public PassiveAI
 };
 
 #endif
+

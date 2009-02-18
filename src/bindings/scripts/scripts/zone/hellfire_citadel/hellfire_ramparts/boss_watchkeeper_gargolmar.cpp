@@ -166,3 +166,4 @@ void AddSC_boss_watchkeeper_gargolmar()
     newscript->GetAI = &GetAI_boss_watchkeeper_gargolmarAI;
     newscript->RegisterSelf();
 }
+

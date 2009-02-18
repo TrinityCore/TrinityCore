@@ -190,3 +190,4 @@ ACE_OS_Exit_Info::call_hooks (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

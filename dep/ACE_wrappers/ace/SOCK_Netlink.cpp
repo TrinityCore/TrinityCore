@@ -111,3 +111,4 @@ ACE_SOCK_Netlink::recv (iovec iov[],
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_HAS_NETLINK */
+

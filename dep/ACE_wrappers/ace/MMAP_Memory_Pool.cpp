@@ -592,3 +592,4 @@ ACE_Lite_MMAP_Memory_Pool::sync (void *, size_t, int)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

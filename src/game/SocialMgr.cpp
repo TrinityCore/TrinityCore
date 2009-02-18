@@ -330,3 +330,4 @@ PlayerSocial *SocialMgr::LoadFromDB(QueryResult *result, uint32 guid)
     delete result;
     return social;
 }
+

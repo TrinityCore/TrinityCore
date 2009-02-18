@@ -54,3 +54,4 @@ ACE_Typed_SV_Message_Queue<T>::~ACE_Typed_SV_Message_Queue (void)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_TYPED_SV_MESSAGE_QUEUE_CPP */
+

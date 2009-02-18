@@ -857,3 +857,4 @@ void LoadOverridenDBCData()
     if(spellInfo)
         spellInfo->EffectApplyAuraName[0] = 4; // proc debuff, and summon infinite fiends
 }
+

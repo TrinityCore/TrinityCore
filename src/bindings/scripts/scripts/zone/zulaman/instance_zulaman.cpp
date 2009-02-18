@@ -330,3 +330,4 @@ void AddSC_instance_zulaman()
     newscript->GetInstanceData = &GetInstanceData_instance_zulaman;
     newscript->RegisterSelf();
 }
+

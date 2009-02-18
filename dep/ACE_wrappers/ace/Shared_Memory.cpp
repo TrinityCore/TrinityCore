@@ -11,3 +11,4 @@ ACE_Shared_Memory::~ACE_Shared_Memory (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

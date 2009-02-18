@@ -345,3 +345,4 @@ void DatabasePostgre::HaltDelayThread()
     m_threadBody = NULL;
 }
 #endif
+

@@ -710,3 +710,4 @@ void AddSC_nagrand()
     newscript->GetAI = &GetAI_mob_sparrowhawk;
     newscript->RegisterSelf();
 }
+

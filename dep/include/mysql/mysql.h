@@ -869,3 +869,4 @@ int     STDCALL mysql_drop_db(MYSQL *mysql, const char *DB);
 #endif
 
 #endif /* _mysql_h */
+

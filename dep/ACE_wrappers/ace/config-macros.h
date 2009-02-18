@@ -634,3 +634,4 @@ extern "C" u_long CLS##_Export _get_dll_unload_policy (void) \
 // -------------------------------------------------------------------
 
 #endif /* ACE_CONFIG_MACROS_H */
+

@@ -29,12 +29,12 @@
 namespace ZThread {
 
 typedef struct atomic_count_t {
-  
+
   CRITICAL_SECTION cs;
   size_t count;
 
   atomic_count_t() : count(0) {}
-  
+
 } ATOMIC_COUNT;
 
 AtomicCount::AtomicCount() {
@@ -42,13 +42,13 @@ AtomicCount::AtomicCount() {
   ATOMIC_COUNT* c = new ATOMIC_COUNT;
   _value = reinterpret_cast<void*>(c);
   ::InitializeCriticalSection(&c->cs);
-  
+
 }
 
 AtomicCount::~AtomicCount() {
 
   ATOMIC_COUNT* c = reinterpret_cast<ATOMIC_COUNT*>(_value);
-  assert(c->count == 0);  
+  assert(c->count == 0);
   ::DeleteCriticalSection(&c->cs);
   delete c;
 
@@ -58,8 +58,8 @@ AtomicCount::~AtomicCount() {
 size_t AtomicCount::operator--(int) {
 
   ATOMIC_COUNT* c = reinterpret_cast<ATOMIC_COUNT*>(_value);
-  size_t value; 
-  
+  size_t value;
+
   ::EnterCriticalSection(&c->cs);
   value = c->count--;
   ::LeaveCriticalSection(&c->cs);
@@ -67,13 +67,13 @@ size_t AtomicCount::operator--(int) {
   return value;
 
 }
-  
+
 //! Postfix increment and return the current value
 size_t AtomicCount::operator++(int) {
 
   ATOMIC_COUNT* c = reinterpret_cast<ATOMIC_COUNT*>(_value);
-  size_t value; 
-  
+  size_t value;
+
   ::EnterCriticalSection(&c->cs);
   value = c->count++;
   ::LeaveCriticalSection(&c->cs);
@@ -86,8 +86,8 @@ size_t AtomicCount::operator++(int) {
 size_t AtomicCount::operator--() {
 
   ATOMIC_COUNT* c = reinterpret_cast<ATOMIC_COUNT*>(_value);
-  size_t value; 
-  
+  size_t value;
+
   ::EnterCriticalSection(&c->cs);
   value = --c->count;
   ::LeaveCriticalSection(&c->cs);
@@ -95,13 +95,13 @@ size_t AtomicCount::operator--() {
   return value;
 
 }
-  
+
 //! Prefix increment and return the current value
 size_t AtomicCount::operator++() {
-  
+
   ATOMIC_COUNT* c = reinterpret_cast<ATOMIC_COUNT*>(_value);
-  size_t value; 
-  
+  size_t value;
+
   ::EnterCriticalSection(&c->cs);
   value = ++c->count;
   ::LeaveCriticalSection(&c->cs);

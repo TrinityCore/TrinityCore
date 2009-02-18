@@ -33,3 +33,4 @@ ACE_Hash_Map_With_Allocator<EXT_ID, INT_ID>::ACE_Hash_Map_With_Allocator (size_t
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_HASH_MAP_WITH_ALLOCATOR_T_CPP */
+

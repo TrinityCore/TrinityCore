@@ -436,3 +436,4 @@ inline unsigned int hashCode(const G3D::Vector2& v);
 
 
 #endif
+

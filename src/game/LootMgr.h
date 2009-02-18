@@ -331,3 +331,4 @@ inline void LoadLootTables()
 ByteBuffer& operator<<(ByteBuffer& b, LootItem const& li);
 ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv);
 #endif
+

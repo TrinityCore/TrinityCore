@@ -835,3 +835,4 @@ void WorldSession::HandleRepairItemOpcode( WorldPacket & recv_data )
         pGuild->SendMoneyInfo(this, _player->GetGUIDLow());
     }
 }
+

@@ -247,3 +247,4 @@ void AddSC_hyjal()
     newscript->GetAI = &GetAI_npc_tyrande_whisperwind;
     newscript->RegisterSelf();
 }
+

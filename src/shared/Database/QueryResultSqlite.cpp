@@ -96,3 +96,4 @@ enum Field::DataTypes QueryResultSqlite::ConvertNativeType(const char* sqliteTyp
     return Field::DB_TYPE_UNKNOWN;
 }
 #endif
+

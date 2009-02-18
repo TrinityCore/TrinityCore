@@ -91,3 +91,4 @@ ACE_Reverse_Lock<ACE_LOCKING_MECHANISM>::tryacquire_write_upgrade (void)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_REVERSE_LOCK_T_CPP */
+

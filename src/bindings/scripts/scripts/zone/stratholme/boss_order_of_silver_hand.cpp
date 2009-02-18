@@ -159,3 +159,4 @@ void AddSC_boss_order_of_silver_hand()
     newscript->GetAI = &GetAI_boss_silver_hand_bossesAI;
     newscript->RegisterSelf();
 }
+

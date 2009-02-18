@@ -368,3 +368,4 @@ void AddSC_boss_morogrim_tidewalker()
     newscript->GetAI = &GetAI_mob_water_globule;
     newscript->RegisterSelf();
 }
+

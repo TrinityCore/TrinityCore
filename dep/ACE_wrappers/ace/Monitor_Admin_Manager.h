@@ -68,3 +68,4 @@ ACE_FACTORY_DECLARE (ACE, MC_ADMINMANAGER)
 #include /**/ "ace/post.h"
 
 #endif // MONITOR_ADMIN_MANAGER_H
+

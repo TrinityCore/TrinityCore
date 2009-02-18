@@ -197,3 +197,4 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 #include /**/ "ace/post.h"
 
 #endif /* ACE_REFCOUNTED_AUTO_PTR_H */
+

@@ -24,3 +24,4 @@
 #define DATA_GO_BAR_KEG_TRAP    17
 #define DATA_GO_BAR_DOOR        18
 #endif
+

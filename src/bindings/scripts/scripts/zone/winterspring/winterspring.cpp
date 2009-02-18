@@ -165,3 +165,4 @@ void AddSC_winterspring()
     newscript->pGossipSelect = &GossipSelect_npc_witch_doctor_mauari;
     newscript->RegisterSelf();
 }
+

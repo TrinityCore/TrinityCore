@@ -510,3 +510,4 @@ ACE_Reactor::cancel_timer (long timer_id,
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

@@ -49,3 +49,4 @@ ACE_Test_and_Set<ACE_LOCK, TYPE>::handle_signal (int, siginfo_t *, ucontext_t *)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_TEST_AND_SET_CPP */
+

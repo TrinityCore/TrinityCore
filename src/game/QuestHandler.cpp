@@ -660,3 +660,4 @@ void WorldSession::HandleQuestgiverStatusQueryMultipleOpcode(WorldPacket& /*recv
     data.put<uint32>(0, count);                             // write real count
     SendPacket(&data);
 }
+

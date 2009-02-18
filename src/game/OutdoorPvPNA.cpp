@@ -722,3 +722,4 @@ bool OutdoorPvPObjectiveNA::HandleCapturePointEvent(Player *plr, uint32 eventId)
     }
     return false;
 }
+

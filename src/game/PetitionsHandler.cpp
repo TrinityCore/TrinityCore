@@ -972,3 +972,4 @@ void WorldSession::SendPetitionShowList(uint64 guid)
     SendPacket(&data);
     sLog.outDebug("Sent SMSG_PETITION_SHOWLIST");
 }
+

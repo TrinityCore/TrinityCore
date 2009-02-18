@@ -451,3 +451,4 @@ enum ECorpseFields
     CORPSE_END                                = OBJECT_END + 0x0022,
 };
 #endif
+

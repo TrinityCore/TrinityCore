@@ -307,3 +307,4 @@ ACE_ISO8859_IBM1047::write_char_array (ACE_OutputCDR &out,
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_HAS_EBCDIC */
+

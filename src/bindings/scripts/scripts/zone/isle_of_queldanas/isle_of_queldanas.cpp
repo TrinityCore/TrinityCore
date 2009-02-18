@@ -220,3 +220,4 @@ void AddSC_isle_of_queldanas()
     newscript->GetAI = &GetAI_npc_greengill_slaveAI;
     newscript->RegisterSelf();
 }
+

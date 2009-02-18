@@ -522,3 +522,4 @@ unsigned int hashCode(const G3D::Vector4& v);
 #include "Vector4.inl"
 
 #endif
+

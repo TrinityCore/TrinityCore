@@ -207,3 +207,4 @@ void AddSC_go_scripts()
     newscript->pGOHello =           &GOHello_go_teleporter;
     newscript->RegisterSelf();
 }
+

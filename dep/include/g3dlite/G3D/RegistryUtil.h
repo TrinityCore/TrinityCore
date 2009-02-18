@@ -84,3 +84,4 @@ public:
 #endif // G3D_WIN32
 
 #endif // G3D_REGISTRYTUIL_H
+

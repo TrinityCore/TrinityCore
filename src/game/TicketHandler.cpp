@@ -188,3 +188,4 @@ void WorldSession::HandleGMTicketSystemStatusOpcode( WorldPacket & /*recv_data*/
     // Send Packet
     SendPacket(&data);
 }
+

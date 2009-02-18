@@ -41,3 +41,4 @@ class TemporarySummon : public Creature
         uint64 m_summoner;
 };
 #endif
+

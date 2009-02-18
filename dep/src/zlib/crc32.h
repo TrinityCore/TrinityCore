@@ -439,3 +439,4 @@ local const unsigned long FAR crc_table[TBLS][256] =
 #endif
   }
 };
+

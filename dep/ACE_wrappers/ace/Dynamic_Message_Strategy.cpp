@@ -203,3 +203,4 @@ ACE_Laxity_Message_Strategy::dump (void) const
   // Dump the state of the strategy.
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

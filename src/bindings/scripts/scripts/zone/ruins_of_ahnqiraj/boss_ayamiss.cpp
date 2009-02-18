@@ -105,3 +105,4 @@ void AddSC_boss_ayamiss()
     newscript->GetAI = &GetAI_boss_ayamiss;
     newscript->RegisterSelf();
 }
+

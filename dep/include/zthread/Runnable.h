@@ -56,3 +56,4 @@ namespace ZThread {
 }
 
 #endif // __ZTRUNNABLE_H__
+

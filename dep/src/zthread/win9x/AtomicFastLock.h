@@ -128,3 +128,4 @@ class FastLock : private NonCopyable {
 } // namespace ZThread
 
 #endif
+

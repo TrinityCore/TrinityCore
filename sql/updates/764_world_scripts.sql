@@ -121,3 +121,4 @@ DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533108 AND -1533075;
 	
 	UPDATE `script_texts` SET `sound`=8902 WHERE `entry`=-1533055;
     UPDATE `script_texts` SET `sound`=8901 WHERE `entry`=-1533056;
+

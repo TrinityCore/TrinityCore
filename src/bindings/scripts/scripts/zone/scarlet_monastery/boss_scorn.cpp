@@ -98,3 +98,4 @@ void AddSC_boss_scorn()
     newscript->GetAI = &GetAI_boss_scorn;
     newscript->RegisterSelf();
 }
+

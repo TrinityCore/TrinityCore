@@ -394,3 +394,4 @@ ACE_Notification_Buffer::ACE_Notification_Buffer (ACE_Event_Handler *eh,
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

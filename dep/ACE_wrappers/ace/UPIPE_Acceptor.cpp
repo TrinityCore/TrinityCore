@@ -127,3 +127,4 @@ ACE_UPIPE_Acceptor::accept (ACE_UPIPE_Stream &new_stream,
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_HAS_THREADS */
+

@@ -71,3 +71,4 @@ ACE_Name_Space::~ACE_Name_Space (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

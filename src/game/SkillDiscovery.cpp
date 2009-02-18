@@ -165,3 +165,4 @@ uint32 GetSkillDiscoverySpell(uint32 skillId, uint32 spellId, Player* player)
 
     return 0;
 }
+

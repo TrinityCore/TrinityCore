@@ -144,3 +144,4 @@ uint32 Crypto::crc32(const void* byte, size_t numBytes) {
 }
 
 } // G3D
+

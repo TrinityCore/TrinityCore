@@ -154,3 +154,4 @@ bool DynamicObject::isVisibleForInState(Player const* u, bool inVisibleList) con
         && (IsWithinDistInMap(u,World::GetMaxVisibleDistanceForObject()+(inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f), false)
         || GetCasterGUID() == u->GetGUID());
 }
+

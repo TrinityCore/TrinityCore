@@ -180,3 +180,4 @@ void AddSC_boss_doomlordkazzak()
     newscript->GetAI = &GetAI_boss_doomlordkazzak;
     newscript->RegisterSelf();
 }
+

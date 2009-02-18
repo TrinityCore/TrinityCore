@@ -543,3 +543,4 @@ ACE_Token::wakeup_next_waiter (void)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_HAS_THREADS */
+

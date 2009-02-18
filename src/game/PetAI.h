@@ -58,3 +58,4 @@ class TRINITY_DLL_DECL PetAI : public CreatureAI
         std::vector<TargetSpellPair> m_targetSpellStore;
 };
 #endif
+

@@ -247,3 +247,4 @@ void AddSC_boss_hakkar()
     newscript->GetAI = &GetAI_boss_hakkar;
     newscript->RegisterSelf();
 }
+

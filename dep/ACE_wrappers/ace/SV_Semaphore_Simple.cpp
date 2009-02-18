@@ -235,3 +235,4 @@ ACE_SV_Semaphore_Simple::remove (void) const
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

@@ -188,3 +188,4 @@ void AddSC_boss_fankriss()
     newscript->GetAI = &GetAI_boss_fankriss;
     newscript->RegisterSelf();
 }
+

@@ -181,3 +181,4 @@ namespace ZThread {
 }; // __ZTFAIRREADWRITELOCK_H__
 
 #endif
+

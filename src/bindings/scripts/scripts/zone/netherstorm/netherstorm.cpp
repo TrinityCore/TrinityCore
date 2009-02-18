@@ -1067,3 +1067,4 @@ void AddSC_netherstorm()
     newscript->pQuestAccept = &QuestAccept_npc_bessy;
     newscript->RegisterSelf();
 }
+

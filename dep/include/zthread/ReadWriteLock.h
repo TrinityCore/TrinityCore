@@ -78,3 +78,4 @@ namespace ZThread {
 }; // __ZTREADWRITELOCK_H__
 
 #endif
+

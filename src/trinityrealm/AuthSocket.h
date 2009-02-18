@@ -84,3 +84,4 @@ class AuthSocket: public TcpSocket
 };
 #endif
 /// @}
+

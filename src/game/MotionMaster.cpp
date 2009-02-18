@@ -471,3 +471,4 @@ bool MotionMaster::GetDestination(float &x, float &y, float &z)
 
    return top()->GetDestination(x,y,z);
 }
+

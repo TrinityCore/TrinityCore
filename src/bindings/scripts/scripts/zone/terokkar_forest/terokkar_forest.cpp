@@ -533,3 +533,4 @@ void AddSC_terokkar_forest()
     newscript->pQuestAccept = &QuestAccept_npc_isla_starmane;
     newscript->RegisterSelf();
 }
+

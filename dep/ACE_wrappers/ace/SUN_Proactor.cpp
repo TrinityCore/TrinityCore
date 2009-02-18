@@ -322,3 +322,4 @@ ACE_SUN_Proactor::get_impl_type (void)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_HAS_AIO_CALLS && sun */
+

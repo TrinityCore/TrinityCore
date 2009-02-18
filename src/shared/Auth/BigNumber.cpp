@@ -207,3 +207,4 @@ const char *BigNumber::AsDecStr()
 {
     return BN_bn2dec(_bn);
 }
+

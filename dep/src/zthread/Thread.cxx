@@ -27,20 +27,20 @@
 namespace ZThread {
 
 
-  Thread::Thread() 
-    : _impl( ThreadImpl::current() ) { 
+  Thread::Thread()
+    : _impl( ThreadImpl::current() ) {
 
-    // ThreadImpl's start out life with a reference count 
+    // ThreadImpl's start out life with a reference count
     // of one, and the they are added to the ThreadQueue.
     _impl->addReference();
-    
+
   }
 
   Thread::Thread(const Task& task, bool autoCancel)
-    : _impl( new ThreadImpl(task, autoCancel) ) { 
-    
+    : _impl( new ThreadImpl(task, autoCancel) ) {
+
     _impl->addReference();
-    
+
   }
 
   bool Thread::operator==(const Thread& t) const {
@@ -94,7 +94,7 @@ namespace ZThread {
     return _impl->interrupt();
 
   }
-  
+
   void Thread::cancel() {
 
     if(ThreadImpl::current() == _impl)
@@ -102,7 +102,7 @@ namespace ZThread {
 
     _impl->cancel();
 
-  } 
+  }
 
   bool Thread::isCanceled() {
 
@@ -124,4 +124,4 @@ namespace ZThread {
 
   }
 
-} // namespace ZThread 
+} // namespace ZThread

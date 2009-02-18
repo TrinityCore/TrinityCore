@@ -1486,3 +1486,4 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         uint64 m_misdirectionTargetGUID;
 };
 #endif
+

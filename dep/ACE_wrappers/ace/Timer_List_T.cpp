@@ -416,3 +416,4 @@ ACE_Timer_List_T<TYPE, FUNCTOR, ACE_LOCK>::remove_first (void)
 }
 
 #endif /* ACE_TIMER_LIST_T_C */
+

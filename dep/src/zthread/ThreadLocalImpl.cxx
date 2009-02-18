@@ -27,13 +27,13 @@ namespace ZThread {
 
   ThreadLocalImpl::ThreadLocalImpl() {}
 
-  ThreadLocalImpl::~ThreadLocalImpl() {} 
-  
+  ThreadLocalImpl::~ThreadLocalImpl() {}
+
   void ThreadLocalImpl::clearAll() {
 
     typedef ThreadImpl::ThreadLocalMap Map;
     Map& m = ThreadImpl::current()->getThreadLocalMap();
-    
+
     m.clear();
 
   }
@@ -42,25 +42,25 @@ namespace ZThread {
 
     typedef ThreadImpl::ThreadLocalMap Map;
     Map& m = ThreadImpl::current()->getThreadLocalMap();
-    
+
     Map::iterator i = m.find(this);
-    if(i != m.end()) 
+    if(i != m.end())
       m.erase(i);
 
-  } 
+  }
 
   ThreadLocalImpl::ValuePtr ThreadLocalImpl::value( ValuePtr(*pfn)() ) const {
-     
+
     typedef ThreadImpl::ThreadLocalMap Map;
     Map& m = ThreadImpl::current()->getThreadLocalMap();
-    
+
     Map::iterator i = m.find(this);
-    if(i != m.end()) 
+    if(i != m.end())
       return i->second;
-    
+
     m[ this ] = ValuePtr( pfn() );
     return m[ this ];
 
   }
 
-} // namespace ZThread 
+} // namespace ZThread

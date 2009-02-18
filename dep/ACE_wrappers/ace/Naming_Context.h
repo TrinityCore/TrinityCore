@@ -385,3 +385,4 @@ ACE_STATIC_SVC_DECLARE_EXPORT (ACE, ACE_Naming_Context)
 
 #include /**/ "ace/post.h"
 #endif /* ACE_NAMING_CONTEXT_H */
+

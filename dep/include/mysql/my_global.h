@@ -1352,3 +1352,4 @@ do { doubleget_union _tmp; \
 #define MY_INT64_NUM_DECIMAL_DIGITS 21
 
 #endif /* my_global_h */
+
