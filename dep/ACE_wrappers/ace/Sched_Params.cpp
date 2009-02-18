@@ -330,3 +330,4 @@ ACE_Sched_Params::previous_priority (const Policy policy,
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

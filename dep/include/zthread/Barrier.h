@@ -326,3 +326,4 @@ namespace ZThread {
 } // namespace ZThread
 
 #endif // __ZTBARRIER_H__
+

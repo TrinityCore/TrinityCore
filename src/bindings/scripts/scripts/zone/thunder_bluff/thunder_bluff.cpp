@@ -135,3 +135,4 @@ void AddSC_thunder_bluff()
     newscript->pGossipSelect = &GossipSelect_npc_cairne_bloodhoof;
     newscript->RegisterSelf();
 }
+

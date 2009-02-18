@@ -1331,3 +1331,4 @@ const char* GameObject::GetNameForLocaleIdx(int32 loc_idx) const
 
     return GetName();
 }
+

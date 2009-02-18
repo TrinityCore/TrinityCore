@@ -411,3 +411,4 @@ class TRINITY_DLL_SPEC Group
         uint8*              m_subGroupsCounts;
 };
 #endif
+

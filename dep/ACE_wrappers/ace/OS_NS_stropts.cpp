@@ -193,3 +193,4 @@ ACE_OS::ioctl (ACE_HANDLE socket,
 #endif /* !(defined (ACE_HAS_WINCE) && (UNDER_CE < 500)) */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

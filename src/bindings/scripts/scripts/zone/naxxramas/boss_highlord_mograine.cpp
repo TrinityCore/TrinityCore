@@ -176,3 +176,4 @@ void AddSC_boss_highlord_mograine()
     newscript->GetAI = &GetAI_boss_highlord_mograine;
     newscript->RegisterSelf();
 }
+

@@ -134,3 +134,4 @@ char* MPQFile::getPointer()
     return buffer + pointer;
 }
 
+

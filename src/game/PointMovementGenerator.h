@@ -51,3 +51,4 @@ class TRINITY_DLL_SPEC PointMovementGenerator
         DestinationHolder< Traveller<T> > i_destinationHolder;
 };
 #endif
+

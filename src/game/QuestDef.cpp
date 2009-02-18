@@ -201,3 +201,4 @@ int32  Quest::GetRewOrReqMoney() const
 
     return int32(RewOrReqMoney * sWorld.getRate(RATE_DROP_MONEY));
 }
+

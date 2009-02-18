@@ -756,3 +756,4 @@ void WorldSession::HandleAuctionListItems( WorldPacket & recv_data )
     data << (uint32) 300;                                   // unk 2.3.0 const?
     SendPacket(&data);
 }
+

@@ -392,3 +392,4 @@ void AddSC_boss_victor_nefarius()
     newscript->pGossipSelect = &GossipSelect_boss_victor_nefarius;
     newscript->RegisterSelf();
 }
+

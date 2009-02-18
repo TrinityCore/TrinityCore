@@ -104,3 +104,4 @@ class AuctionHouseObject
         AuctionEntryMap AuctionsMap;
 };
 #endif
+

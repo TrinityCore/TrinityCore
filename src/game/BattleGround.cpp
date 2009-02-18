@@ -1564,3 +1564,4 @@ int32 BattleGround::GetObjectType(uint64 guid)
 void BattleGround::HandleKillUnit(Creature *creature, Player *killer)
 {
 }
+

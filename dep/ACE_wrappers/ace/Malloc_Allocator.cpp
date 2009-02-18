@@ -359,3 +359,4 @@ ACE_Static_Allocator_Base::dump (void) const
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

@@ -146,3 +146,4 @@ void AddSC_boss_gatewatcher_iron_hand()
     newscript->GetAI = &GetAI_boss_gatewatcher_iron_hand;
     newscript->RegisterSelf();
 }
+

@@ -247,3 +247,4 @@ T* Singleton<T, InstantiationPolicy, LockType>::instance() {
 #endif
 
 
+

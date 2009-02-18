@@ -1601,3 +1601,4 @@ void WorldSession::HandleSetTaxiBenchmarkOpcode( WorldPacket & recv_data )
 
     sLog.outDebug("Client used \"/timetest %d\" command", mode);
 }
+

@@ -2062,3 +2062,4 @@ ACE_POSIX_Wakeup_Completion::complete (size_t       /* bytes_transferred */,
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_HAS_AIO_CALLS */
+

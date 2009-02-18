@@ -357,3 +357,4 @@ ACE_SOCK_Connector::ACE_SOCK_Connector (ACE_SOCK_Stream &new_stream,
 #endif  // ACE_HAS_WINCE
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

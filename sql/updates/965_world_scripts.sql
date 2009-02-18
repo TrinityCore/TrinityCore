@@ -15,3 +15,4 @@ REPLACE INTO `spell_script_target` VALUES
 (43144,1,23817),
 (12613,1,5843),
 (9095,1,1200);
+

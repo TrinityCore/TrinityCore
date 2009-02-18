@@ -76,3 +76,4 @@ void AddSC_areatrigger_scripts()
     newscript->pAreaTrigger = &ATtest;
     newscript->RegisterSelf();
 }
+

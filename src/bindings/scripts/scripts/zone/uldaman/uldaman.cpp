@@ -185,3 +185,4 @@ void AddSC_uldaman()
     newscript->pGossipSelect = &GossipSelect_npc_lore_keeper_of_norgannon;
     newscript->RegisterSelf();
 }
+

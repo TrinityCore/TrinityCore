@@ -109,3 +109,4 @@ ACE_Shared_Memory_MM::free (void *p)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

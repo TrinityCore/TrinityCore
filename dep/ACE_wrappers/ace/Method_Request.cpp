@@ -28,3 +28,4 @@ ACE_Method_Request::priority (unsigned long prio)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

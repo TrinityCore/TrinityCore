@@ -109,3 +109,4 @@ ACE_Malloc_Lock_Adapter_T<ACE_Process_Semaphore>::operator () (const ACE_TCHAR *
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

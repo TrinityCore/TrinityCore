@@ -269,3 +269,4 @@ void AddSC_stormwind_city()
     newscript->pGossipSelect = &GossipSelect_npc_lady_katrana_prestor;
     newscript->RegisterSelf();
 }
+

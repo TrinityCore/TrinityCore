@@ -311,3 +311,4 @@ void AddSC_boss_supremus()
     newscript->GetAI = &GetAI_npc_volcano;
     newscript->RegisterSelf();
 }
+

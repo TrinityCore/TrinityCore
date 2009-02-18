@@ -136,3 +136,4 @@ ACE_Activation_Queue::enqueue (ACE_Method_Request *mr,
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

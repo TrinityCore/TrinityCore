@@ -1607,3 +1607,4 @@ void AddSC_boss_kaelthas()
     newscript->GetAI = &GetAI_mob_phoenix_egg_tk;
     newscript->RegisterSelf();
 }
+

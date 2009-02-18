@@ -866,3 +866,4 @@ void AddSC_old_hillsbrad()
     newscript->GetAI = &GetAI_npc_taretha;
     newscript->RegisterSelf();
 }
+

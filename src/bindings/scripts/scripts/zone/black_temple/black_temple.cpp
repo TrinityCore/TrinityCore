@@ -66,3 +66,4 @@ void AddSC_black_temple()
     newscript->pGossipSelect = &GossipSelect_npc_spirit_of_olum;
     newscript->RegisterSelf();
 }
+

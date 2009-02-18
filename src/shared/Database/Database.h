@@ -135,3 +135,4 @@ class TRINITY_DLL_SPEC Database
         std::string m_logsDir;
 };
 #endif
+

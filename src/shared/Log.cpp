@@ -796,3 +796,4 @@ void error_db_log(const char * str, ...)
 
     Trinity::Singleton<Log>::Instance().outErrorDb(buf);
 }
+

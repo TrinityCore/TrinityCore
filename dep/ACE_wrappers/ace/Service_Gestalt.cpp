@@ -1294,3 +1294,4 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 
 // Allocate a Service Manager.
 ACE_FACTORY_DEFINE (ACE, ACE_Service_Manager)
+

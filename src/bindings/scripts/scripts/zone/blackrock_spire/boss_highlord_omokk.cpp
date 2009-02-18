@@ -129,3 +129,4 @@ void AddSC_boss_highlordomokk()
     newscript->GetAI = &GetAI_boss_highlordomokk;
     newscript->RegisterSelf();
 }
+

@@ -2514,3 +2514,4 @@ ACE_Dev_Poll_Reactor::Token_Guard::acquire (ACE_Time_Value *max_wait)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif  /* ACE_HAS_EVENT_POLL || ACE_HAS_DEV_POLL */
+

@@ -134,3 +134,4 @@ void AddSC_boss_faerlina()
     newscript->GetAI = &GetAI_boss_faerlina;
     newscript->RegisterSelf();
 }
+

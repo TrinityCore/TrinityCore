@@ -500,3 +500,4 @@ bool ThreatManager::processThreatEvent(const UnitBaseEvent* pUnitBaseEvent)
     }
     return consumed;
 }
+

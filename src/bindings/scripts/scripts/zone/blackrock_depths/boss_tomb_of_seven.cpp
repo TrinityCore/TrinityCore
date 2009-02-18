@@ -641,3 +641,4 @@ void AddSC_boss_tomb_of_seven()
     newscript->pGossipSelect = &GossipSelect_boss_doomrel;
     newscript->RegisterSelf();
 }
+

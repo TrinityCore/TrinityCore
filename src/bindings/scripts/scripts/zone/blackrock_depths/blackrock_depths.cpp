@@ -1322,3 +1322,4 @@ void AddSC_blackrock_depths()
      newscript->pChooseReward = &ChooseReward_npc_rocknot;
      newscript->RegisterSelf();
 }
+

@@ -125,3 +125,4 @@ void AddSC_boss_overlordwyrmthalak()
     newscript->GetAI = &GetAI_boss_overlordwyrmthalak;
     newscript->RegisterSelf();
 }
+

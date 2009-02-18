@@ -235,3 +235,4 @@ void AddSC_boss_vexallus()
     newscript->GetAI = &GetAI_mob_pure_energy;
     newscript->RegisterSelf();
 }
+

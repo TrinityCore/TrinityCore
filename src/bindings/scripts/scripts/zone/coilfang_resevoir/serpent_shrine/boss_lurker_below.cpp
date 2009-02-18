@@ -487,3 +487,4 @@ void AddSC_boss_the_lurker_below()
     newscript->RegisterSelf();
 }
 
+

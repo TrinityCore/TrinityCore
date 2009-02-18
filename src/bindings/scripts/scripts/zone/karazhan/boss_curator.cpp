@@ -166,3 +166,4 @@ void AddSC_boss_curator()
     newscript->GetAI = &GetAI_boss_curator;
     newscript->RegisterSelf();
 }
+

@@ -82,3 +82,4 @@ template void PointMovementGenerator<Player>::MovementInform(Player&);
 
 template void PointMovementGenerator<Creature>::Initialize(Creature&);
 template bool PointMovementGenerator<Creature>::Update(Creature&, const uint32 &diff);
+

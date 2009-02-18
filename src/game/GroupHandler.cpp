@@ -943,3 +943,4 @@ void WorldSession::HandleGroupPassOnLootOpcode( WorldPacket & recv_data )
     if(unkn!=0)
         sLog.outError("CMSG_GROUP_PASS_ON_LOOT: activation not implemented!");
 }
+

@@ -98,3 +98,4 @@ void AddSC_boss_ramstein_the_gorger()
     newscript->GetAI = &GetAI_boss_ramstein_the_gorger;
     newscript->RegisterSelf();
 }
+

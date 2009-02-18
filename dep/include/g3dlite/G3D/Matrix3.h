@@ -309,3 +309,4 @@ inline Vector3 operator* (const Vector3& rkPoint, const Matrix3& rkMatrix) {
 
 #endif
 
+

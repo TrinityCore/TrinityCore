@@ -559,3 +559,4 @@ BOOL SListFileFindClose(HANDLE hFind)
     return FALSE;
 }
 
+

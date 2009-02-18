@@ -249,3 +249,4 @@ void AddSC_boss_maexxna()
     newscript->GetAI = &GetAI_mob_webwrap;
     newscript->RegisterSelf();
 }
+

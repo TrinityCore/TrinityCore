@@ -700,3 +700,4 @@ inline G3D::Quat pow(const G3D::Quat& q, double x) {
 #include "Quat.inl"
 
 #endif
+

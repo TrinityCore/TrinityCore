@@ -77,3 +77,4 @@ void AddSC_boss_ghazan()
     newscript->GetAI = GetAI_boss_ghazan;
     m_scripts[nrscripts++] = newscript;
 }
+

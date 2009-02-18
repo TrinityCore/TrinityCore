@@ -356,3 +356,4 @@ void AddSC_boss_exarch_maladaar()
     newscript->GetAI = &GetAI_mob_stolen_soul;
     newscript->RegisterSelf();
 }
+

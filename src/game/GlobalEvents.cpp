@@ -86,3 +86,4 @@ void CorpsesErase()
     CorpsesErase(true, 20*MINUTE);
     CorpsesErase(false,3*DAY);
 }
+

@@ -6486,3 +6486,4 @@ void Spell::EffectRedirectThreat(uint32 /*i*/)
     if(unitTarget)
         m_caster->SetReducedThreatPercent((uint32)damage, unitTarget->GetGUID());
 }
+

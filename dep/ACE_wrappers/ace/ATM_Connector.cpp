@@ -136,3 +136,4 @@ ACE_ATM_Connector::connect (ACE_ATM_Stream &new_stream,
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_HAS_ATM */
+

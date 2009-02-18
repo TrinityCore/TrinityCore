@@ -529,3 +529,4 @@ WMOInstance::WMOInstance(MPQFile &f,const char* WmoInstName,const char*MapName, 
 
 
 
+

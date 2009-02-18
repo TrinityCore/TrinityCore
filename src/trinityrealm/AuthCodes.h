@@ -73,3 +73,4 @@ enum LoginResult
 #define EXPECTED_TRINITY_CLIENT_BUILD        {8606, 0}
 
 #endif
+

@@ -1072,3 +1072,4 @@ void FreeMPQArchive(TMPQArchive *& ha)
         ha = NULL;
     }
 }
+

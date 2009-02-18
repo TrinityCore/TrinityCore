@@ -243,3 +243,4 @@ char* DBCFile::AutoProduceStrings(const char* format, char* dataTable)
 
     return stringPool;
 }
+

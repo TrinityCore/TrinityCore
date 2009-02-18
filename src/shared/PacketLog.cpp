@@ -157,3 +157,4 @@ void PacketLog::WorldHexDump(WorldPacket* data, uint32 socket, bool direction)
     HexDump((char *)data->contents(), data->size(), "world.log");
 
 }
+

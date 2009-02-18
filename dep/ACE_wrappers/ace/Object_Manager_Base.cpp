@@ -504,3 +504,4 @@ static ACE_OS_Object_Manager_Manager ACE_OS_Object_Manager_Manager_instance;
 #endif /* ! ACE_HAS_NONSTATIC_OBJECT_MANAGER */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

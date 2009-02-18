@@ -797,3 +797,4 @@ ACE_CDR::Float::operator!= (const ACE_CDR::Float & /* rhs */) const
 #endif /* _UNICOS */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

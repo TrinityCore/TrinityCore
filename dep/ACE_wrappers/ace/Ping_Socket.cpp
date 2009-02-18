@@ -375,3 +375,4 @@ ACE_Ping_Socket::make_echo_check (ACE_INET_Addr & remote_addr,
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif  /* ACE_HAS_ICMP_SUPPORT == 1 */
+

@@ -159,3 +159,4 @@ ACE::crc32 (const iovec *iov, int len, ACE_UINT32 crc)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #undef COMPUTE
+

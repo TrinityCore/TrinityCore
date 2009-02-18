@@ -940,3 +940,4 @@ WorldSafeLocsEntry const *BattleGroundEY::GetClosestGraveYard(float x, float y, 
 
     return nearestEntry;
 }
+

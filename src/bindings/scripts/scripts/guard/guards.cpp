@@ -4071,3 +4071,4 @@ void AddSC_guards()
     newscript->GetAI = &GetAI_guard_undercity;
     newscript->RegisterSelf();
 }
+

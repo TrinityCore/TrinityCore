@@ -77,3 +77,4 @@ struct NpcTextLocale
     std::vector<std::vector<std::string> > Text_1;
 };
 #endif
+

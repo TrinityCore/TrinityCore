@@ -2214,3 +2214,4 @@ void AddSC_boss_illidan()
     newscript->GetAI = &GetAI_parasitic_shadowfiend;
     newscript->RegisterSelf();
 }
+

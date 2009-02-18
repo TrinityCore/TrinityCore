@@ -135,3 +135,4 @@ ACE_Trace::~ACE_Trace (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

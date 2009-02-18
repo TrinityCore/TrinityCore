@@ -244,3 +244,4 @@ void AddSC_boss_ysondre()
     newscript->GetAI = &GetAI_mob_dementeddruids;
     newscript->RegisterSelf();
 }
+

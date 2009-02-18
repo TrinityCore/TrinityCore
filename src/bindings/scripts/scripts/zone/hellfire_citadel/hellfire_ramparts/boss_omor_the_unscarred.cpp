@@ -211,3 +211,4 @@ void AddSC_boss_omor_the_unscarred()
     newscript->GetAI = &GetAI_boss_omor_the_unscarredAI;
     newscript->RegisterSelf();
 }
+

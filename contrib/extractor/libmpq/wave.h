@@ -35,3 +35,4 @@ typedef union {
 int libmpq_wave_decompress(unsigned char *out_buf, int out_length, unsigned char *in_buf, int in_length, int channels);
 
 #endif                  /* _WAVE_H */
+

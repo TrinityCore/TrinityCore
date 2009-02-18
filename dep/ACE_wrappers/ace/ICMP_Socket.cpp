@@ -184,3 +184,4 @@ ACE_ICMP_Socket::calculate_checksum (unsigned short * paddress,
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif  /* ACE_HAS_ICMP_SUPPORT == 1 */
+

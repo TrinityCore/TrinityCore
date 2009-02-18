@@ -175,3 +175,4 @@ void AddSC_boss_blackheart_the_inciter()
     newscript->GetAI = &GetAI_boss_blackheart_the_inciter;
     newscript->RegisterSelf();
 }
+

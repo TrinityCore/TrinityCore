@@ -6128,3 +6128,4 @@ void Aura::HandleArenaPreparation(bool apply, bool Real)
     else
         m_target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PREPARATION);
 }
+

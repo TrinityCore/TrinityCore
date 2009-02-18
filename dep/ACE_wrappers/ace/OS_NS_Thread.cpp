@@ -5331,3 +5331,4 @@ vx_execae (FUNCPTR entry, char* arg, int prio, int opt, int stacksz, ...)
   return ret > 0 ? _vx_call_rc : 255;
 }
 #endif /* ACE_VXWORKS && !__RTP__ */
+

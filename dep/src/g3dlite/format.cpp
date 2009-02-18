@@ -169,3 +169,4 @@ std::string vformat(const char* fmt, va_list argPtr) {
 #endif
 
 #undef NEWLINE
+

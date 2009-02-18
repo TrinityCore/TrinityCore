@@ -364,3 +364,4 @@ bool OutdoorPvPObjectiveTF::Update(uint32 diff)
     }
     return false;
 }
+

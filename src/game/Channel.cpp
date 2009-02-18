@@ -989,3 +989,4 @@ void Channel::LeaveNotify(uint64 guid)
     data << GetName();
     SendToAll(&data);
 }
+

@@ -48,3 +48,4 @@ class QueryResultMysql : public QueryResult
 };
 #endif
 #endif
+

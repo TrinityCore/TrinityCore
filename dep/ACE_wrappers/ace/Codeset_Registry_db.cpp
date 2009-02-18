@@ -31,3 +31,4 @@ ACE_Codeset_Registry::registry_db_[] =
 size_t const ACE_Codeset_Registry::num_registry_entries_ = 9;
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

@@ -140,3 +140,4 @@ class THuffmannTree
 };
 
 #endif // __HUFFMAN_H__
+

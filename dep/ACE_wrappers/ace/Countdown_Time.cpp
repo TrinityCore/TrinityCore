@@ -64,3 +64,4 @@ ACE_Countdown_Time::update (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

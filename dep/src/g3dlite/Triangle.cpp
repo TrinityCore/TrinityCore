@@ -110,3 +110,4 @@ void Triangle::getBounds(AABox& out) const {
 }
 
 } // G3D
+

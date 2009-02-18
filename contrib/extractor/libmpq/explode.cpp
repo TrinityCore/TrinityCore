@@ -426,3 +426,4 @@ unsigned int libmpq_pkzip_explode(
     }
     return LIBMPQ_PKZIP_CMP_ABORT;
 }
+

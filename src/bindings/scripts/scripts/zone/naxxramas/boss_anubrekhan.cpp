@@ -148,3 +148,4 @@ void AddSC_boss_anubrekhan()
     newscript->GetAI = &GetAI_boss_anubrekhan;
     newscript->RegisterSelf();
 }
+

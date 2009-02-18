@@ -695,3 +695,4 @@ BYTE * WINAPI pcxGetData(BYTE *pFileBuf, DWORD uFileSize, BYTE uTransColor, WORD
 
     return data;
 }
+

@@ -151,3 +151,4 @@ ACE_Intrusive_List<T>::check_invariants (void)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_INTRUSIVE_LIST_CPP */
+

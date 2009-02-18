@@ -15,3 +15,4 @@ iconv_t ACE_Ascii_To_Wide::ACE_Ascii_To_Wide_iconv_env = 0;
 #endif
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

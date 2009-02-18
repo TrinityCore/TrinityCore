@@ -126,3 +126,4 @@ ACE::crc_ccitt (const iovec *iov, int len, ACE_UINT16 crc)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #undef COMPUTE
+

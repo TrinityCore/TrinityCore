@@ -19169,3 +19169,4 @@ void Player::UpdateCharmedAI()
         Attack(target, true);
     }
 }
+

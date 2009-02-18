@@ -101,3 +101,4 @@ namespace ZThread {
 } // namespace ZThread
 
 #endif // __ZTGUARDEDCLASS_H__
+

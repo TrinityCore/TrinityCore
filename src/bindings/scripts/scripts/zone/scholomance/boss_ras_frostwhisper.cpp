@@ -123,3 +123,4 @@ void AddSC_boss_rasfrost()
     newscript->GetAI = &GetAI_boss_rasfrost;
     newscript->RegisterSelf();
 }
+

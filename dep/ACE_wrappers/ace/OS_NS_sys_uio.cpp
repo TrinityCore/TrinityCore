@@ -128,3 +128,4 @@ ACE_OS::writev_emulation (ACE_HANDLE handle, const iovec *iov, int n)
 # endif /* ACE_LACKS_WRITEV */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

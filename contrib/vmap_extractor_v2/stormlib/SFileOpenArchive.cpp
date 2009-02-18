@@ -495,3 +495,4 @@ BOOL WINAPI SFileCloseArchive(HANDLE hMPQ)
     return TRUE;
 }
 
+

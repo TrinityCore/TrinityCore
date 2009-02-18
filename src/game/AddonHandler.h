@@ -37,3 +37,4 @@ class AddonHandler
 };
 #define sAddOnHandler Trinity::Singleton<AddonHandler>::Instance()
 #endif
+

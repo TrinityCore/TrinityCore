@@ -223,3 +223,4 @@ void AddSC_boss_najentus()
     newscript->pGOHello = &GOHello_go_najentus_spine;
     newscript->RegisterSelf();
 }
+
