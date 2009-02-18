@@ -2832,7 +2832,10 @@ void Aura::HandleBindSight(bool apply, bool Real)
     if(!caster || caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    ((Player*)caster)->SetBindSight(apply ? m_target : NULL);
+    if(apply)
+        m_target->AddPlayerToVision((Player*)caster);
+    else
+        m_target->RemovePlayerFromVision((Player*)caster);
 }
 
 void Aura::HandleFarSight(bool apply, bool Real)
