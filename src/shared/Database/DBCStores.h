@@ -220,5 +220,8 @@ void LoadDBCStores(const std::string& dataPath);
 TRINITY_DLL_SPEC DBCStorage <SoundEntriesEntry>  const* GetSoundEntriesStore();
 TRINITY_DLL_SPEC DBCStorage <SpellEntry>         const* GetSpellStore();
 TRINITY_DLL_SPEC DBCStorage <SpellRangeEntry>    const* GetSpellRangeStore();
+TRINITY_DLL_SPEC DBCStorage <FactionEntry>               const* GetFactionStore();
+TRINITY_DLL_SPEC DBCStorage <ItemEntry>                  const* GetItemDisplayStore();
+TRINITY_DLL_SPEC DBCStorage <CreatureDisplayInfoEntry>   const* GetCreatureDisplayStore();
 #endif
 

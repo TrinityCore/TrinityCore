@@ -924,6 +924,8 @@ TRINITY_DLL_SPEC uint32 GetScriptId(const char *name);
 TRINITY_DLL_SPEC ObjectMgr::ScriptNameMap& GetScriptNames();
 TRINITY_DLL_SPEC GameObjectInfo const *GetGameObjectInfo(uint32 id);
 TRINITY_DLL_SPEC CreatureInfo const *GetCreatureInfo(uint32 id);
+TRINITY_DLL_SPEC CreatureInfo const* GetCreatureTemplateStore(uint32 entry);
+TRINITY_DLL_SPEC Quest const* GetQuestTemplateStore(uint32 entry);
 
 #endif
 
