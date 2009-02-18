@@ -1691,3 +1691,4 @@ void WorldSession::HandleInspectAchievements( WorldPacket & recv_data )
         return;
 
     player->GetAchievementMgr().SendRespondInspectAchievements(_player);
+}
