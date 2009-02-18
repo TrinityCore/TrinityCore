@@ -52,3 +52,4 @@ class Base
 
 };
 #endif                                                      // __BASE_H__
+

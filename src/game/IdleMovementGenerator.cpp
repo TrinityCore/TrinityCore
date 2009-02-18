@@ -49,3 +49,4 @@ DistractMovementGenerator::Update(Unit& owner, const uint32& time_diff)
     m_timer -= time_diff;
     return true;
 }
+

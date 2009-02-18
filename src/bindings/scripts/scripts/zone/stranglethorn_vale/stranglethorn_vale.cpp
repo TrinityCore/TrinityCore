@@ -120,3 +120,4 @@ void AddSC_stranglethorn_vale()
     newscript->GetAI = &GetAI_mob_yenniku;
     newscript->RegisterSelf();
 }
+

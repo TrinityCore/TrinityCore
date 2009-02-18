@@ -184,3 +184,4 @@ void AddSC_boss_herod()
     newscript->GetAI = &GetAI_mob_scarlet_trainee;
     newscript->RegisterSelf();
 }
+

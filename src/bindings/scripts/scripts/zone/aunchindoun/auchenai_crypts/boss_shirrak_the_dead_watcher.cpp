@@ -209,3 +209,4 @@ void AddSC_boss_shirrak_the_dead_watcher()
     newscript->GetAI = &GetAI_mob_focus_fire;
     newscript->RegisterSelf();
 }
+

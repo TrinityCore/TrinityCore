@@ -86,3 +86,4 @@ ACE_FIFO_Recv::ACE_FIFO_Recv (const ACE_TCHAR *fifo_name,
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

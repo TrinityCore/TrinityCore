@@ -60,3 +60,4 @@ void AddSC_alterac_mountains()
     newscript->GetAI = &GetAI_npc_ravenholdt;
     newscript->RegisterSelf();
 }
+

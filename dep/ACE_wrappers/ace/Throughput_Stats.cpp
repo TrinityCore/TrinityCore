@@ -200,3 +200,4 @@ ACE_Throughput_Stats::dump_throughput (const ACE_TCHAR *msg,
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

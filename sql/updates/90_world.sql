@@ -5,3 +5,4 @@ CREATE TABLE `spell_disabled` (
   `comment` varchar(64) NOT NULL default '',
   PRIMARY KEY  (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Disabled Spell System';
+

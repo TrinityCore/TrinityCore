@@ -607,3 +607,4 @@ void AddSC_tanaris()
     newscript->pQuestAccept = &QuestAccept_npc_OOX17;
     newscript->RegisterSelf();
 }
+

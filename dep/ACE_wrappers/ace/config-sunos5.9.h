@@ -16,3 +16,4 @@
 #define ACE_LACKS_THR_CONCURRENCY_FUNCS
 
 #endif /* ACE_CONFIG_H */
+

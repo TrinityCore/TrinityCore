@@ -519,3 +519,4 @@ my_bool my_charset_is_8bit_pure_ascii(CHARSET_INFO *cs);
 #endif
 
 #endif /* _m_ctype_h */
+

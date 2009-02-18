@@ -603,3 +603,4 @@ ACE_Hash_Multi_Map_Const_Iterator_Base<EXT_ID, INT_ID, HASH_KEY, COMPARE_KEYS, A
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_Hash_Multi_Map_Manager_T_CPP */
+

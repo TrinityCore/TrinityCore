@@ -30,3 +30,4 @@
 
 #include /**/ "ace/post.h"
 #endif /* ACE_OS_STRING_H */
+

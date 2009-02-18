@@ -1119,3 +1119,4 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 #endif /* __ACE_INLINE__ */
 #include /**/ "ace/post.h"
 #endif /* ACE_LOCAL_MUTEX_H */
+

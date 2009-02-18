@@ -464,3 +464,4 @@ ACE_FACTORY_DECLARE (ACE, ACE_Service_Manager)
 
 #include /**/ "ace/post.h"
 #endif /* ACE_OBJECT_MANAGER_H */
+

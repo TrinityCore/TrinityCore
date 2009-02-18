@@ -82,3 +82,4 @@ ACE_FILE_Connector::connect (ACE_FILE_IO &new_io,
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

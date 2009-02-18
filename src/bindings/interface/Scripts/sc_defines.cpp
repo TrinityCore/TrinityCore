@@ -152,3 +152,4 @@ uint32 GetSkillLevel(Player *player,uint32 trskill)
 
     return TRADESKILL_LEVEL_NONE;
 }
+

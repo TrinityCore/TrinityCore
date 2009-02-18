@@ -291,3 +291,4 @@ void AddSC_mulgore()
     newscript->GetAI = &GetAI_npc_plains_vision;
     newscript->RegisterSelf();
 }
+

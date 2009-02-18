@@ -93,3 +93,4 @@ void AddSC_boss_halycon()
     newscript->GetAI = &GetAI_boss_halycon;
     newscript->RegisterSelf();
 }
+

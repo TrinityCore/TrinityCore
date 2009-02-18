@@ -361,3 +361,4 @@ void AddSC_boss_kelidan_the_breaker()
     newscript->GetAI = &GetAI_mob_shadowmoon_channeler;
     newscript->RegisterSelf();
 }
+

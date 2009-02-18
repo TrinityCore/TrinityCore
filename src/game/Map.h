@@ -469,3 +469,4 @@ Map::VisitGrid(const float &x, const float &y, float radius, NOTIFIER &notifier)
     cell_lock->Visit(cell_lock, grid_object_notifier, *this, radius, x_off, y_off);
 }
 #endif
+

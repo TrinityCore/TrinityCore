@@ -116,3 +116,4 @@ void AddSC_boss_theravenian()
     newscript->GetAI = &GetAI_boss_theravenian;
     newscript->RegisterSelf();
 }
+

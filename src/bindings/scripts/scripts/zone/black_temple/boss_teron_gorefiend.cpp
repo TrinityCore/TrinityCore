@@ -534,3 +534,4 @@ void AddSC_boss_teron_gorefiend()
     newscript->GetAI = &GetAI_boss_teron_gorefiend;
     newscript->RegisterSelf();
 }
+

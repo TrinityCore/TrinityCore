@@ -113,3 +113,4 @@ void AddSC_boss_anubshiah()
     newscript->GetAI = &GetAI_boss_anubshiah;
     newscript->RegisterSelf();
 }
+

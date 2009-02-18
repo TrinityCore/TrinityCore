@@ -1686,3 +1686,4 @@ void WorldObject::GetGroundPoint(float &x, float &y, float &z, float dist, float
 }
 
 
+

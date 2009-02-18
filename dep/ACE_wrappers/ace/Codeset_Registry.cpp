@@ -109,3 +109,4 @@ ACE_Codeset_Registry::get_max_bytes_i (ACE_CDR::ULong codeset_id)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

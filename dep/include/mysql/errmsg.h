@@ -100,3 +100,4 @@ extern const char *client_errors[]; /* Error messages */
 #define CR_ERROR_LAST  /*Copy last error nr:*/  2055
 /* Add error numbers before CR_ERROR_LAST and change it accordingly. */
 
+

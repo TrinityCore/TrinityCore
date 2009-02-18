@@ -436,3 +436,4 @@ Vector4 Vector4::wwww() const  { return Vector4       (w, w, w, w); }
 
 
 }; // namespace
+

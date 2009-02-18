@@ -289,3 +289,4 @@ void AddSC_instance_serpentshrine_cavern()
     newscript->pGOHello = &GOHello_go_bridge_console;
     newscript->RegisterSelf();
 }
+

@@ -870,3 +870,4 @@ ACE_OS::setprogname_emulation (const char* progname)
 #endif /* !ACE_HAS_SETPROGNAME */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

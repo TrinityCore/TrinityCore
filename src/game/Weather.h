@@ -72,3 +72,4 @@ class Weather
         WeatherZoneChances const* m_weatherChances;
 };
 #endif
+

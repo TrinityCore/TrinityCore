@@ -207,3 +207,4 @@ void AddSC_ungoro_crater()
     newscript->pQuestAccept = &QuestAccept_npc_ame;
     newscript->RegisterSelf();
 }
+

@@ -268,3 +268,4 @@ bool CannibalizeObjectCheck::operator()(Corpse* u)
 
     return false;
 }
+

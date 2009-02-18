@@ -767,3 +767,4 @@ ACE::strrepl (wchar_t *s, wchar_t search, wchar_t replace)
 #endif /* ACE_HAS_WCHAR */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

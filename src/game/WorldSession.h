@@ -657,3 +657,4 @@ class TRINITY_DLL_SPEC WorldSession
 };
 #endif
 /// @}
+

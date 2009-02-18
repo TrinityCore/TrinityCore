@@ -570,3 +570,4 @@ bool ChatHandler::HandleDebugHostilRefList(const char * /*args*/)
     SendSysMessage("End of hostil reference list.");
     return true;
 }
+

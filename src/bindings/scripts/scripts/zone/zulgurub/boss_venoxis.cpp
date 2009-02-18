@@ -197,3 +197,4 @@ void AddSC_boss_venoxis()
     newscript->GetAI = &GetAI_boss_venoxis;
     newscript->RegisterSelf();
 }
+

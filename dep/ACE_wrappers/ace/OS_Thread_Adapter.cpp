@@ -151,3 +151,4 @@ ACE_OS_Thread_Adapter::invoke (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

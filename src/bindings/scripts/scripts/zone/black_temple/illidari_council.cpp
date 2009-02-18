@@ -865,3 +865,4 @@ void AddSC_boss_illidari_council()
     newscript->GetAI = &GetAI_boss_high_nethermancer_zerevor;
     newscript->RegisterSelf();
 }
+

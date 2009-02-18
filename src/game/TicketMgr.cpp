@@ -206,3 +206,4 @@ uint64 TicketMgr::GenerateTicketID()
 {
     return ++m_ticketid;
 }
+

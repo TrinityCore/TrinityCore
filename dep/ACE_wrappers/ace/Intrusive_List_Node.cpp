@@ -25,3 +25,4 @@ ACE_Intrusive_List_Node<T>::ACE_Intrusive_List_Node (void)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_INTRUSIVE_LIST_NODE_CPP */
+

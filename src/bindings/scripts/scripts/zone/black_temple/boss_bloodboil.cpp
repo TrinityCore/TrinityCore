@@ -345,3 +345,4 @@ void AddSC_boss_gurtogg_bloodboil()
     newscript->GetAI = &GetAI_boss_gurtogg_bloodboil;
     newscript->RegisterSelf();
 }
+

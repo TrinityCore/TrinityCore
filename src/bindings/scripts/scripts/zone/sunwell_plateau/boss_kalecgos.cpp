@@ -674,3 +674,4 @@ void AddSC_boss_kalecgos()
     newscript->pGOHello = &GOkalocegos_teleporter;
     newscript->RegisterSelf();
 }
+

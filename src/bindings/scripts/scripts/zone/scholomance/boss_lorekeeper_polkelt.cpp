@@ -111,3 +111,4 @@ void AddSC_boss_lorekeeperpolkelt()
     newscript->GetAI = &GetAI_boss_lorekeeperpolkelt;
     newscript->RegisterSelf();
 }
+

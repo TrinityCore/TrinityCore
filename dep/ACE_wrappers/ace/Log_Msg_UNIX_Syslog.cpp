@@ -205,3 +205,4 @@ ACE_Log_Msg_UNIX_Syslog::convert_log_mask (int lm_mask)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* !ACE_LACKS_UNIX_SYSLOG */
+

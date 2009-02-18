@@ -62,3 +62,4 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 #include /**/ "ace/post.h"
 
 #endif // SIZE_MONITOR_H
+

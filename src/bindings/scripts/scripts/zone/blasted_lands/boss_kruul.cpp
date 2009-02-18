@@ -180,3 +180,4 @@ void AddSC_boss_kruul()
     newscript->GetAI = &GetAI_boss_kruul;
     newscript->RegisterSelf();
 }
+

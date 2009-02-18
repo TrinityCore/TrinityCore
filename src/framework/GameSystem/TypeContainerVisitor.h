@@ -116,3 +116,4 @@ class TRINITY_DLL_DECL TypeContainerVisitor
         VISITOR &i_visitor;
 };
 #endif
+

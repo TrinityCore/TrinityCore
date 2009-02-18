@@ -28,3 +28,4 @@ ACE_Typed_SV_Message<T>::dump (void) const
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_TYPED_SV_MESSAGE_CPP */
+

@@ -123,3 +123,4 @@ ACE_Mutex::~ACE_Mutex (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

@@ -171,3 +171,4 @@ void guardAI::UpdateAI(const uint32 diff)
         }
     }
 }
+

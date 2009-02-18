@@ -58,3 +58,4 @@ class TRINITY_DLL_SPEC Config
 #define sConfig Trinity::Singleton<Config>::Instance()
 
 #endif
+

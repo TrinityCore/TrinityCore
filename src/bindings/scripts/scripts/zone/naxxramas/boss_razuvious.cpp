@@ -165,3 +165,4 @@ void AddSC_boss_razuvious()
     newscript->GetAI = &GetAI_boss_razuvious;
     newscript->RegisterSelf();
 }
+

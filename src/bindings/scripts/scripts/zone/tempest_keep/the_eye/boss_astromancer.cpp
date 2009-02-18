@@ -469,3 +469,4 @@ void AddSC_boss_high_astromancer_solarian()
     newscript->GetAI = &GetAI_mob_solarium_priest;
     newscript->RegisterSelf();
 }
+

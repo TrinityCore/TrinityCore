@@ -385,3 +385,4 @@ namespace ZThread {
 } // namespace ZThread
 
 #endif // __ZTBOUNDEDQUEUE_H__
+

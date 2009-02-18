@@ -65,3 +65,4 @@ void Sha1Hash::Finalize(void)
 {
     SHA1_Final(mDigest, &mC);
 }
+

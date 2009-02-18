@@ -263,3 +263,4 @@ void AddSC_instance_molten_core()
     newscript->GetInstanceData = &GetInstance_instance_molten_core;
     newscript->RegisterSelf();
 }
+

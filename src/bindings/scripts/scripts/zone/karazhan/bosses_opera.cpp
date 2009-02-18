@@ -1418,3 +1418,4 @@ void AddSC_bosses_opera()
     newscript->Name = "boss_romulo";
     newscript->RegisterSelf();
 }
+

@@ -321,3 +321,4 @@ void AddSC_boss_grandmaster_vorpil()
     newscript->GetAI = &GetAI_mob_voidtraveler;
     newscript->RegisterSelf();
 }
+

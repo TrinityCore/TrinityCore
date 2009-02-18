@@ -699,3 +699,4 @@ ACE_Map_Reverse_Iterator<EXT_ID, INT_ID, ACE_LOCK>::dump (void) const
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_MAP_MANAGER_CPP */
+

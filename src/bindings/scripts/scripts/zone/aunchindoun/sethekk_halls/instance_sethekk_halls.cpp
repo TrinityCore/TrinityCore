@@ -72,3 +72,4 @@ void AddSC_instance_sethekk_halls()
     newscript->GetInstanceData = &GetInstanceData_instance_sethekk_halls;
     newscript->RegisterSelf();
 }
+

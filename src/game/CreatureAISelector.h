@@ -31,3 +31,4 @@ namespace FactorySelector
     MovementGenerator* selectMovementGenerator(Creature *);
 }
 #endif
+

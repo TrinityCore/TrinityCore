@@ -375,3 +375,4 @@ ACE_OS::strtok_r_emulation (ACE_WCHAR_T *s,
 # endif  /* ACE_HAS_WCHAR && ACE_LACKS_WCSTOK */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

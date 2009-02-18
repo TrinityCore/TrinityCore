@@ -302,3 +302,4 @@ struct ModelRibbonEmitterDef {
 
 
 #endif
+

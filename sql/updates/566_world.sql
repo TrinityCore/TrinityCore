@@ -22,3 +22,4 @@ INSERT INTO spell_script_target VALUES
 (39011,1,20885),
 (40106,1,22883),
 (40105,1,22883);
+

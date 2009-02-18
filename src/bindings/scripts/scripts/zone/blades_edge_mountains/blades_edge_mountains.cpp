@@ -432,3 +432,4 @@ void AddSC_blades_edge_mountains()
     newscript->pGossipSelect = &GossipSelect_npc_skyguard_handler_irena;
     newscript->RegisterSelf();
 }
+

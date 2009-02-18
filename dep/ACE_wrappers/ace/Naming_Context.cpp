@@ -647,3 +647,4 @@ ACE_STATIC_SVC_DEFINE (ACE_Naming_Context,
                        ACE_Service_Type::DELETE_OBJ,
                        0)
 ACE_STATIC_SVC_REQUIRE (ACE_Naming_Context)
+

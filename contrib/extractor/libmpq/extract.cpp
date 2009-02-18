@@ -260,3 +260,4 @@ int libmpq_multi_decompress(char *out_buf, int *pout_length, char *in_buf, int i
     }
     return 1;
 }
+

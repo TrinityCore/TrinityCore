@@ -761,3 +761,4 @@ void AddSC_boss_fathomlord_karathress()
     newscript->GetAI = &GetAI_boss_fathomguard_caribdis;
     newscript->RegisterSelf();
 }
+

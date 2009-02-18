@@ -48,3 +48,4 @@ class QueryResultPostgre : public QueryResult
         uint32 mTableIndex;
 };
 #endif
+

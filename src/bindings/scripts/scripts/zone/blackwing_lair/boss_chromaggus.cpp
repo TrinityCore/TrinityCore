@@ -312,3 +312,4 @@ void AddSC_boss_chromaggus()
     newscript->GetAI = &GetAI_boss_chromaggus;
     newscript->RegisterSelf();
 }
+

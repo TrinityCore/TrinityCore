@@ -348,3 +348,4 @@ uint32 MapManager::GetNumPlayersInInstances()
     }
     return ret;
 }
+

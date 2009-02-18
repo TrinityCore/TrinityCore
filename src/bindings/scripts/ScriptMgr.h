@@ -82,3 +82,4 @@ void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target = NULL);
 #endif
 
 #endif
+

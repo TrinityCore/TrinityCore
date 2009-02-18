@@ -156,3 +156,4 @@ ACE_CE_Screen_Output& ACE_CE_Screen_Output::operator << (FILE* pFile)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif  // ACE_HAS_WINCE
+

@@ -60,3 +60,4 @@ class MMutex :  public Base
         virtual void Unlock ();
 };
 #endif                                                      // MTHREAD_H
+

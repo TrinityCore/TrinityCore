@@ -40,3 +40,4 @@ class TRINITY_DLL_SPEC barGoLink
         ~barGoLink();
 };
 #endif
+

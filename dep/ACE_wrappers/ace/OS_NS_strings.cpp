@@ -82,3 +82,4 @@ ACE_OS::strncasecmp_emulation (const char *s,
 #endif /* ACE_LACKS_STRCASECMP */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

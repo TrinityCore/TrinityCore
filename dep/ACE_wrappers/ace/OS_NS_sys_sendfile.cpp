@@ -51,3 +51,4 @@ ACE_OS::sendfile_emulation (ACE_HANDLE out_fd,
 #endif  /* !ACE_HAS_SENDFILE */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

@@ -66,3 +66,4 @@ class HostilRefManager : public RefManager<Unit, ThreatManager>
 };
 //=================================================
 #endif
+

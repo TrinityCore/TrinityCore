@@ -79,3 +79,4 @@ void AddSC_custom_gossip_codebox()
     newscript->pGossipSelectWithCode =  &GossipSelectWithCode_custom_gossip_codebox;
     newscript->RegisterSelf();
 }
+

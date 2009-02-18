@@ -497,3 +497,4 @@ ACE_Unbounded_Set_Ex_Const_Iterator<T, C>::operator!= (const ACE_Unbounded_Set_E
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_UNBOUNDED_SET_EX_CPP */
+

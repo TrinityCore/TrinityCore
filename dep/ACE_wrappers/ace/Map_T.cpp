@@ -1341,3 +1341,4 @@ ACE_Map_Manager_Adapter<KEY, VALUE, KEY_GENERATOR>::rend_impl (void)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_MAP_T_CPP */
+

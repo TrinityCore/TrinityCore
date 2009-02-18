@@ -60,3 +60,4 @@ ACE_Semaphore::~ACE_Semaphore (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

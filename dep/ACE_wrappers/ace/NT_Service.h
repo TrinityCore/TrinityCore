@@ -437,3 +437,4 @@ extern VOID WINAPI ace_nt_svc_main_##SVCNAME (DWORD dwArgc,                \
 #include /**/ "ace/post.h"
 
 #endif /* ACE_SERVICE_OBJECT_H */
+

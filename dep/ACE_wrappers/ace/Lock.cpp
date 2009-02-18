@@ -86,3 +86,4 @@ ACE_Adaptive_Lock::dump (void) const
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

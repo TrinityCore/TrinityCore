@@ -157,3 +157,4 @@ void AddSC_searing_gorge()
     newscript->pGossipSelect = &GossipSelect_npc_zamael_lunthistle;
     newscript->RegisterSelf();
 }
+

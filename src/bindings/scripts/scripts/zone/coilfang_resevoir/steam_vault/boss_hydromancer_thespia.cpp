@@ -195,3 +195,4 @@ void AddSC_boss_hydromancer_thespia()
     newscript->GetAI = &GetAI_mob_coilfang_waterelementalAI;
     newscript->RegisterSelf();
 }
+

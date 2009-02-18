@@ -97,3 +97,4 @@ void AddSC_boss_magmadar()
     newscript->GetAI = &GetAI_boss_magmadar;
     newscript->RegisterSelf();
 }
+

@@ -202,3 +202,4 @@ ACE_Argv_Type_Converter::cleanup (void)
 #endif  // ACE_USES_WCHAR
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

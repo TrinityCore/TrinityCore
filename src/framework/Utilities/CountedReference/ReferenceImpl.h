@@ -130,3 +130,4 @@ Referencer<T, THREADING_MODEL>::addReference(ReferenceHolder<T, THREADING_MODEL>
     ++holder->i_referenceCount;
 }
 #endif
+
