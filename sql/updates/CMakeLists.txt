@@ -34,5 +34,9 @@ INSTALL(FILES
 1312_world.sql
 1327_world.sql
 1351_world.sql
+1396_mangos_7267_01_characters_auctionhouse.sql
 1414_world_scripts.sql
+1423_mangos_7290_01_world_command.sql
+1426_mangos_7292_01_world_points_of_interest.sql
+1426_mangos_7292_02_world_locales_points_of_interest.sql
 DESTINATION share/trinity/sql/updates)
