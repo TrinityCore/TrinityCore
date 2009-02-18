@@ -808,3 +808,4 @@ void WorldSession::HandlePetLearnTalent( WorldPacket & recv_data )
     // learn! (other talent ranks will unlearned at learning)
     pet->learnSpell(spellid);
     sLog.outDetail("TalentID: %u Rank: %u Spell: %u\n", talent_id, requested_rank, spellid);
+}
