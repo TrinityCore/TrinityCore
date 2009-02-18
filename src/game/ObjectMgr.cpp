@@ -7179,9 +7179,6 @@ void ObjectMgr::LoadTrainerSpell()
 
         TrainerSpellData& data = m_mCacheTrainerSpellMap[entry];
 
-        if(SpellMgr::IsProfessionSpell(spell))
-            data.trainerType = 2;
-
         TrainerSpell& trainerSpell = data.spellList[spell];
         trainerSpell.spell         = spell;
         trainerSpell.spellCost     = fields[2].GetUInt32();
@@ -7204,6 +7201,9 @@ void ObjectMgr::LoadTrainerSpell()
                 break;
             }
         }
+
+        if(SpellMgr::IsProfessionSpell(trainerSpell.learnedSpell))
+            data.trainerType = 2;
 
         ++count;
 
