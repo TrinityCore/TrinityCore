@@ -254,8 +254,9 @@ bool Utf8toWStr(char const* utf8str, size_t csize, wchar_t* wstr, size_t& wsize)
         size_t len = utf8::distance(utf8str,utf8str+csize);
         if(len > wsize)
         {
+            if(wsize > 0)
+                wstr[0] = L'\0';
             wsize = 0;
-            wstr = L"";
             return false;
         }
 
@@ -265,8 +266,9 @@ bool Utf8toWStr(char const* utf8str, size_t csize, wchar_t* wstr, size_t& wsize)
     }
     catch(std::exception)
     {
+        if(wsize > 0)
+            wstr[0] = L'\0';
         wsize = 0;
-        wstr = L"";
         return false;
     }
 
