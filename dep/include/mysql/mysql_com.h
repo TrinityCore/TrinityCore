@@ -465,3 +465,4 @@ char *net_store_length(char *pkg, ulonglong length);
 #define MYSQL_LONG_DATA_HEADER  6
 
 #endif
+

@@ -109,3 +109,4 @@ ACE_Log_Msg_IPC::log (ACE_Log_Record &log_record)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

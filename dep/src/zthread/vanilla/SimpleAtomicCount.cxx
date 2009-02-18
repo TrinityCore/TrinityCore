@@ -34,7 +34,7 @@ typedef struct atomic_count_t {
 
   FastLock lock;
   unsigned long count;
-  
+
   atomic_count_t() : count(0) {}
 
 } ATOMIC_COUNT;
@@ -43,7 +43,7 @@ AtomicCount::AtomicCount() {
 
   ATOMIC_COUNT* c = new ATOMIC_COUNT;
   _value = reinterpret_cast<void*>(c);
-  
+
 }
 
 AtomicCount::~AtomicCount() {
@@ -54,22 +54,22 @@ AtomicCount::~AtomicCount() {
   delete c;
 
 }
-  
+
 //! Postfix decrement and return the current value
 size_t AtomicCount::operator--(int) {
 
   ATOMIC_COUNT* c = reinterpret_cast<ATOMIC_COUNT*>(_value);
-  
+
   Guard<FastLock> g(c->lock);
   return c->count--;
 
 }
-  
+
 //! Postfix increment and return the current value
 size_t AtomicCount::operator++(int) {
 
   ATOMIC_COUNT* c = reinterpret_cast<ATOMIC_COUNT*>(_value);
-  
+
   Guard<FastLock> g(c->lock);
   return c->count++;
 
@@ -79,17 +79,17 @@ size_t AtomicCount::operator++(int) {
 size_t AtomicCount::operator--() {
 
   ATOMIC_COUNT* c = reinterpret_cast<ATOMIC_COUNT*>(_value);
-  
+
   Guard<FastLock> g(c->lock);
   return --c->count;
 
 }
-  
+
 //! Prefix increment and return the current value
 size_t AtomicCount::operator++() {
-  
+
   ATOMIC_COUNT* c = reinterpret_cast<ATOMIC_COUNT*>(_value);
-  
+
   Guard<FastLock> g(c->lock);
   return ++c->count;
 

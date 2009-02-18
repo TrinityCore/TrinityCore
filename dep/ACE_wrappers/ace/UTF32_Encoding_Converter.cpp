@@ -252,3 +252,4 @@ ACE_UTF32_Encoding_Converter::encoded (const ACE_Byte* source,
 
 ACE_END_VERSIONED_NAMESPACE_DECL
 #endif /* ACE_USES_WCHAR */
+

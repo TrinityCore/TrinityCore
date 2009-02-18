@@ -586,3 +586,4 @@ void DOTCONFDocument::setRequiredOptionNames(const char ** requiredOptionNames)
         ++requiredOptionNames;
     }
 }
+

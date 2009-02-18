@@ -141,3 +141,4 @@ void AddSC_boss_nerubenkan()
     newscript->GetAI = &GetAI_boss_nerubenkan;
     newscript->RegisterSelf();
 }
+

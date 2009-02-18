@@ -435,3 +435,4 @@ ACE_Service_Manager::handle_input (ACE_HANDLE)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

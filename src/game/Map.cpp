@@ -1990,3 +1990,4 @@ void Map::AddUnitToNotify(Unit* u)
         u->m_IsInNotifyList = true;
     }
 }
+

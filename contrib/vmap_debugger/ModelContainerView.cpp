@@ -568,3 +568,4 @@ int main(int argc, char** argv) {
         printf("%s <data dir> <vmapcmd.log file>\n",argv[0]);
     }
 }
+

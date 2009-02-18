@@ -1537,4 +1537,5 @@ void Group::BroadcastGroupUpdate(void)
             DEBUG_LOG("-- Forced group value update for '%s'", pp->GetName());
         }
     }
-}
+}
+

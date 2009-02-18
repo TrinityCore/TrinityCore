@@ -84,3 +84,4 @@ void AddSC_boss_grizzle()
     newscript->GetAI = &GetAI_boss_grizzle;
     newscript->RegisterSelf();
 }
+

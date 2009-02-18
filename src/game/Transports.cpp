@@ -562,3 +562,4 @@ void Transport::Update(uint32 /*p_time*/)
         sLog.outDetail("%s is at wp id: %u", this->m_name.c_str(), m_curr->second.id);
     }
 }
+

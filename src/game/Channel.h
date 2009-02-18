@@ -285,3 +285,4 @@ class Channel
         void LeaveNotify(uint64 guid);                                          // invisible notify
 };
 #endif
+

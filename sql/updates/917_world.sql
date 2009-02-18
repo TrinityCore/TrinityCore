@@ -6,3 +6,4 @@ CREATE TABLE `version` (
 INSERT INTO version (core_version, db_version, script_version) VALUES ("",(SELECT version FROM db_version),(SELECT version FROM script_db_version));
 DROP TABLE IF EXISTS db_version;
 DROP TABLE IF EXISTS script_db_version;
+

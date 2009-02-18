@@ -213,3 +213,4 @@ void AddSC_boss_sulfuron()
     newscript->GetAI = &GetAI_mob_flamewaker_priest;
     newscript->RegisterSelf();
 }
+

@@ -96,3 +96,4 @@ void AddSC_elwynn_forest()
     newscript->GetAI = &GetAI_npc_henze_faulk;
     newscript->RegisterSelf();
 }
+

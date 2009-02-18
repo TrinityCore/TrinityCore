@@ -25,3 +25,4 @@ UPDATE `creature_template` SET
 
 DELETE FROM `quest_start_scripts` WHERE `id`='10211';
 UPDATE `quest_template` SET `StartScript`='0' WHERE entry=10211;
+

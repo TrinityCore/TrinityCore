@@ -534,3 +534,4 @@ void AddSC_boss_thekal()
     newscript->GetAI = &GetAI_mob_zealot_zath;
     newscript->RegisterSelf();
 }
+

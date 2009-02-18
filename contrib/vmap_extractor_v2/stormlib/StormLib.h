@@ -577,3 +577,4 @@ BYTE ** WINAPI cl2GetDirData(BYTE *fileBuf, BYTE *palette, USHORT xsize, USHORT 
 BYTE  * WINAPI pcxGetData(BYTE *filebuf, DWORD filesize, BYTE transcol, USHORT *xsize, USHORT *ysize);
 
 #endif  // __STORMLIB_H_
+

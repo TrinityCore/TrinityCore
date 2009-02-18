@@ -212,3 +212,4 @@ struct TRINITY_DLL_DECL hyjalAI : public ScriptedAI
         std::list<uint64> CreatureList;
 };
 #endif
+

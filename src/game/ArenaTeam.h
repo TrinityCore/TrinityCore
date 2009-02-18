@@ -235,3 +235,4 @@ class ArenaTeam
         ArenaTeamStats stats;
 };
 #endif
+

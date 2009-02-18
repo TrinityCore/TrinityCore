@@ -254,3 +254,4 @@ ACE_TLI_Connector::complete (ACE_TLI_Stream &new_stream,
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_HAS_TLI */
+

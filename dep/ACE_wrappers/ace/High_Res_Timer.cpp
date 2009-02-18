@@ -533,3 +533,4 @@ ACE_High_Res_Timer::get_env_global_scale_factor (const ACE_TCHAR *env)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

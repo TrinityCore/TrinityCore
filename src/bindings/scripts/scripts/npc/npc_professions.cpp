@@ -1203,3 +1203,4 @@ void AddSC_npc_professions()
     //newscript->pGossipSelect = &GossipSelect_go_soothsaying_for_dummies;
     newscript->RegisterSelf();*/
 }
+

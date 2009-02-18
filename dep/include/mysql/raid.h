@@ -156,3 +156,4 @@ class RaidFd {
 
 #endif /* __cplusplus */
 #endif /* USE_RAID */
+

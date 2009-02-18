@@ -92,3 +92,4 @@ void AddSC_boss_broggok()
     newscript->GetAI = &GetAI_boss_broggokAI;
     newscript->RegisterSelf();
 }
+

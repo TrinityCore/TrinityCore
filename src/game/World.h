@@ -598,3 +598,4 @@ extern uint32 realmID;
 #define sWorld Trinity::Singleton<World>::Instance()
 #endif
 /// @}
+

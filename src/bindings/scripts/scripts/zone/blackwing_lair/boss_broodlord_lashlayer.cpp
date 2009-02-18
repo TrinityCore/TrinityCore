@@ -126,3 +126,4 @@ void AddSC_boss_broodlord()
     newscript->GetAI = &GetAI_boss_broodlord;
     newscript->RegisterSelf();
 }
+

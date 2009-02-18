@@ -235,3 +235,4 @@ ACE_OS::uname (ACE_utsname *name)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

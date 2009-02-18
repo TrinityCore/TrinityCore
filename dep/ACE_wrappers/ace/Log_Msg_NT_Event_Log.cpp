@@ -160,3 +160,4 @@ ACE_Log_Msg_NT_Event_Log::log (ACE_Log_Record &log_record)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_HAS_LOG_MSG_NT_EVENT_LOG */
+

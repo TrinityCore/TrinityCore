@@ -849,3 +849,4 @@ void AddSC_boss_headless_horseman()
     newscript->pGOHello = &GOHello_go_loosely_turned_soil;
     newscript->RegisterSelf();
 }
+

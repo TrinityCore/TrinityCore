@@ -259,3 +259,4 @@ void AddSC_boss_vael()
     newscript->pGossipSelect = &GossipSelect_boss_vael;
     newscript->RegisterSelf();
 }
+

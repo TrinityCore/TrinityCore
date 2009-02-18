@@ -412,3 +412,4 @@ inline std::istream& operator>>( std::istream& is, MTRand& mtrand )
 //      - Fixed out-of-range number generation on 64-bit machines
 //      - Improved portability by substituting literal constants for long enum's
 //      - Changed license from GNU LGPL to BSD
+

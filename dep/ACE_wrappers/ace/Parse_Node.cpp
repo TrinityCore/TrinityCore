@@ -883,3 +883,4 @@ ACE_Service_Type_Factory::name (void) const
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_USES_CLASSIC_SVC_CONF == 1 */
+

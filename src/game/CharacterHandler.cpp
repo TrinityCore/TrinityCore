@@ -1087,3 +1087,4 @@ void WorldSession::HandleDeclinedPlayerNameOpcode(WorldPacket& recv_data)
     data << uint64(guid);
     SendPacket(&data);
 }
+

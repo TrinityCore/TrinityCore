@@ -177,3 +177,4 @@ void AddSC_westfall()
     newscript->pQuestAccept = &QuestAccept_npc_defias_traitor;
     newscript->RegisterSelf();
 }
+

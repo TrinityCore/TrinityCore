@@ -294,3 +294,4 @@ void AddSC_boss_ragnaros()
     newscript->GetAI = &GetAI_boss_ragnaros;
     newscript->RegisterSelf();
 }
+

@@ -425,3 +425,4 @@ bool Utf8FitTo(const std::string& str, std::wstring search)
 
     return true;
 }
+

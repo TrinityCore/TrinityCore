@@ -138,3 +138,4 @@ void AddSC_boss_amnennar_the_coldbringer()
     newscript->GetAI = &GetAI_boss_amnennar_the_coldbringer;
     newscript->RegisterSelf();
 }
+

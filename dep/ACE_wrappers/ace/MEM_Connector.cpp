@@ -147,3 +147,4 @@ ACE_MEM_Connector::connect (ACE_MEM_Stream &new_stream,
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_HAS_POSITION_INDEPENDENT_POINTERS == 1 */
+

@@ -424,3 +424,4 @@ ACE_Stats::square_root (const ACE_UINT64 n,
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

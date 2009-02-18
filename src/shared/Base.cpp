@@ -65,3 +65,4 @@ int Base::GetRefCount ()
 {
     return RefCount;
 }
+

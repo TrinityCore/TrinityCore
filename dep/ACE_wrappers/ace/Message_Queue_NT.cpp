@@ -235,3 +235,4 @@ ACE_Message_Queue_NT::dump (void) const
 #endif /* ACE_HAS_WIN32_OVERLAPPED_IO */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

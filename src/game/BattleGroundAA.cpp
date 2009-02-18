@@ -63,3 +63,4 @@ bool BattleGroundAA::SetupBattleGround()
 {
     return true;
 }
+

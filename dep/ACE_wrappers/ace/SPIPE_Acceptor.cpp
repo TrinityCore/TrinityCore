@@ -335,3 +335,4 @@ ACE_SPIPE_Acceptor::accept (ACE_SPIPE_Stream &new_io,
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

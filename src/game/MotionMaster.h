@@ -152,3 +152,4 @@ class TRINITY_DLL_SPEC MotionMaster //: private std::stack<MovementGenerator *>
         uint8       m_cleanFlag;
 };
 #endif
+

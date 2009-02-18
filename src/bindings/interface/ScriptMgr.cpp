@@ -320,3 +320,4 @@ void ScriptedAI::DoGoHome()
         m_creature->GetMotionMaster()->MoveTargetedHome();
 }
 */
+

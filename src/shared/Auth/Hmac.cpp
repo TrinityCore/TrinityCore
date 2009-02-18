@@ -56,3 +56,4 @@ void HmacHash::Finalize()
     HMAC_Final(&m_ctx, m_digest, &length);
     ASSERT(length == SHA_DIGEST_LENGTH)
 }
+

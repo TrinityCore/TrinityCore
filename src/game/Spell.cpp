@@ -5422,3 +5422,4 @@ int32 Spell::CalculateDamageDone(Unit *unit, const uint32 effectMask, float *mul
 
     return damageDone;
 }
+

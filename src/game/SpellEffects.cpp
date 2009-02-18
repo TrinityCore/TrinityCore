@@ -653,7 +653,7 @@ void Spell::EffectDummy(uint32 i)
                         if(ihit->effectMask & (1<<i))
                             {
                                 Unit* casttarget = Unit::GetUnit((*unitTarget), ihit->targetGUID);
-                                if(casttarget) 
+                                if(casttarget)
                                     m_caster->DealDamage(casttarget, damage, NULL, SPELL_DIRECT_DAMAGE, SPELL_SCHOOL_MASK_ARCANE, spellInfo, false);
                             }
                 }
@@ -4978,7 +4978,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
         }
         case 48025:                                     // Headless Horseman's Mount
         {
-                if(!unitTarget)                  
+                if(!unitTarget)
                     return;
 
                 if(unitTarget)
@@ -4987,7 +4987,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     {
                     case 75: unitTarget->CastSpell(unitTarget, 51621, true); break;;
                     case 150: unitTarget->CastSpell(unitTarget, 48024, true); break;
-                    case 225: unitTarget->CastSpell(unitTarget, 51617, true); break;                
+                    case 225: unitTarget->CastSpell(unitTarget, 51617, true); break;
                     case 300: unitTarget->CastSpell(unitTarget, 48023, true); break;
                     default: break;
                     }
@@ -6486,3 +6486,4 @@ void Spell::EffectRedirectThreat(uint32 /*i*/)
     if(unitTarget)
         m_caster->SetReducedThreatPercent((uint32)damage, unitTarget->GetGUID());
 }
+

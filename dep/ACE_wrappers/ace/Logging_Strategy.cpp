@@ -564,3 +564,4 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 // Logging_Strategy.
 
 ACE_FACTORY_DEFINE (ACE, ACE_Logging_Strategy)
+

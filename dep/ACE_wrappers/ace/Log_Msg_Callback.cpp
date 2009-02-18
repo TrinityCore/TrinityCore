@@ -11,3 +11,4 @@ ACE_Log_Msg_Callback::~ACE_Log_Msg_Callback (void)
 {
 }
 ACE_END_VERSIONED_NAMESPACE_DECL
+

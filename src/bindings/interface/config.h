@@ -31,3 +31,4 @@
 #else
 #define TRINITY_DLL_EXPORT extern "C" export
 #endif
+

@@ -98,3 +98,4 @@ char * AsyncDNSMemPool::strdup(const char *str)
 {
     return ::strcpy((char*)this->alloc(strlen(str)+1), str);
 }
+

@@ -831,3 +831,4 @@ int libmpq_huff_init_tree(struct huffman_tree *ht, struct huffman_tree_item *hi,
 
     return 0;
 }
+

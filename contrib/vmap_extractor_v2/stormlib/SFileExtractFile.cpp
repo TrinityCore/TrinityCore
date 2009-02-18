@@ -61,3 +61,4 @@ BOOL WINAPI SFileExtractFile(HANDLE hMpq, const char * szToExtract, const char *
         SetLastError(nError);
     return (BOOL)(nError == ERROR_SUCCESS);
 }
+

@@ -127,3 +127,4 @@ ACE_Condition_Recursive_Thread_Mutex::ACE_Condition_Recursive_Thread_Mutex (
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_HAS_THREADS */
+

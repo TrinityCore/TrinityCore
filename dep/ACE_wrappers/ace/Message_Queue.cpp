@@ -26,3 +26,4 @@ ACE_Message_Queue_Base::state (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

@@ -89,3 +89,4 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 
 #include /**/ "ace/post.h"
 #endif /* ACE_FIFO_SEND_MSG_H */
+

@@ -185,3 +185,4 @@ void TemporarySummon::UnSummon()
 void TemporarySummon::SaveToDB()
 {
 }
+

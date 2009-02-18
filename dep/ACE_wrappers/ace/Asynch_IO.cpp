@@ -1412,3 +1412,4 @@ ACE_Asynch_Write_Dgram::Result::~Result (void)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_HAS_WIN32_OVERLAPPED_IO || ACE_HAS_AIO_CALLS */
+

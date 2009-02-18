@@ -479,3 +479,4 @@ ACE_Event_Handler_Handle_Timeout_Upcall<ACE_LOCK>::deletion (TIMER_QUEUE &timer_
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_TIMER_QUEUE_T_CPP */
+

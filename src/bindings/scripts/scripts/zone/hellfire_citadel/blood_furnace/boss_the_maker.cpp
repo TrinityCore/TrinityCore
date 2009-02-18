@@ -129,3 +129,4 @@ void AddSC_boss_the_maker()
     newscript->GetAI = &GetAI_boss_the_makerAI;
     newscript->RegisterSelf();
 }
+

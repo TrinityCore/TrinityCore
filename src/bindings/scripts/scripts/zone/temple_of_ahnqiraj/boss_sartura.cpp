@@ -281,3 +281,4 @@ void AddSC_boss_sartura()
     newscript->GetAI = &GetAI_mob_sartura_royal_guard;
     newscript->RegisterSelf();
 }
+

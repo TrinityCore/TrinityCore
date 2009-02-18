@@ -41,7 +41,7 @@ EndScriptData */
 #define SPELL_FEAR                            29321
 #define SPELL_VOID_BOLT                       39329
 #define SPELL_SPOTLIGHT                       25824
-       
+
 #define CENTER_X                             432.909f
 #define CENTER_Y                             -373.424f
 #define CENTER_Z                             17.9608f
@@ -100,7 +100,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
     float Portals[3][3];
 
     bool AppearDelay;
-    bool BlindingLight;    
+    bool BlindingLight;
 
     void Reset()
     {
@@ -134,7 +134,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
     void StartEvent()
     {
         DoScriptText(SAY_AGGRO, m_creature);
-          
+
         if(pInstance)
             pInstance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, IN_PROGRESS);
     }
@@ -171,7 +171,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
         {
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 Summoned->AI()->AttackStart(target);
-            
+
             Summons.Summon(Summoned);
         }
     }
@@ -215,7 +215,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
                 }
                 AppearDelay_Timer = 2000;
             }else AppearDelay_Timer -= diff;
-        }      
+        }
 
         if (Phase == 1)
         {
@@ -236,12 +236,12 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
                      if(!m_creature->HasInArc(2.5f, target))
                          target = m_creature->getVictim();
 
-                if(target) 
+                if(target)
                     DoCast(target, SPELL_ARCANE_MISSILES);
                  }
                  ArcaneMissiles_Timer = 3000;
              }else ArcaneMissiles_Timer -= diff;
- 
+
              if (MarkOfTheSolarian_Timer < diff)
              {
                  DoCast(m_creature->getVictim(), MARK_OF_SOLARIAN);
@@ -469,3 +469,4 @@ void AddSC_boss_high_astromancer_solarian()
     newscript->GetAI = &GetAI_mob_solarium_priest;
     newscript->RegisterSelf();
 }
+

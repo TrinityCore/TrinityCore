@@ -174,3 +174,4 @@ float Config::GetFloatDefault(const char* name, const float def)
     float val;
     return (GetFloat(name, &val) ? val : def);
 }
+

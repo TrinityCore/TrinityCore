@@ -50,3 +50,4 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 
 #include /**/ "ace/post.h"
 #endif /* ACE_STRING_BASE_CONST_H */
+

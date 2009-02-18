@@ -78,3 +78,4 @@ ACE_Sig_Adapter::handle_signal (int signum,
     }
   return 0;
 }
+

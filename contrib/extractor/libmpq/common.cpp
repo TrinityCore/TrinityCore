@@ -799,3 +799,4 @@ int libmpq_file_read_file(mpq_archive *mpq_a, mpq_file *mpq_f, unsigned int file
     /* Return what we've read */
     return bytesread;
 }
+

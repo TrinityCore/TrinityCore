@@ -103,3 +103,4 @@ struct huffman_tree {
 int libmpq_huff_init_tree(struct huffman_tree *ht, struct huffman_tree_item *hi, unsigned int cmp);
 int libmpq_huff_do_decompress(struct huffman_tree *ht, struct huffman_input_stream *is, unsigned char *out_buf, unsigned int out_length);
 #endif          /* _HUFFMAN_H */
+

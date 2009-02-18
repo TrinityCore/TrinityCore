@@ -511,3 +511,4 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         uint32 m_InstanceId;
 };
 #endif
+

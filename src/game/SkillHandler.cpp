@@ -179,3 +179,4 @@ void WorldSession::HandleUnlearnSkillOpcode(WorldPacket & recv_data)
     recv_data >> skill_id;
     GetPlayer()->SetSkill(skill_id, 0, 0);
 }
+

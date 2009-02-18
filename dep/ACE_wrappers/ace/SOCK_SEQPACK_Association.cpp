@@ -337,3 +337,4 @@ ACE_SOCK_SEQPACK_Association::get_remote_addrs (ACE_INET_Addr *addrs, size_t &si
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

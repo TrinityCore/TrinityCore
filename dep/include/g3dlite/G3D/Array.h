@@ -1154,3 +1154,4 @@ template<class T> bool contains(const T* array, int len, const T& e) {
 #ifdef G3D_WIN32
 #   pragma warning (push)
 #endif
+

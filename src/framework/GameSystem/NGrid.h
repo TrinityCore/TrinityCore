@@ -160,3 +160,4 @@ class TRINITY_DLL_DECL NGrid
         bool i_GridObjectDataLoaded;
 };
 #endif
+

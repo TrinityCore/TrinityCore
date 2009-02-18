@@ -387,3 +387,4 @@ void WorldSession::HandleChannelJoinNotify(WorldPacket &recvPacket)
         if(Channel *chn = cMgr->GetChannel(channelname, _player))
             chn->JoinNotify(_player->GetGUID());*/
 }
+

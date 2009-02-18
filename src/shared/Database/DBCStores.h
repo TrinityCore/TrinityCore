@@ -204,3 +204,4 @@ TRINITY_DLL_SPEC DBCStorage <SoundEntriesEntry>  const* GetSoundEntriesStore();
 TRINITY_DLL_SPEC DBCStorage <SpellEntry>         const* GetSpellStore();
 TRINITY_DLL_SPEC DBCStorage <SpellRangeEntry>    const* GetSpellRangeStore();
 #endif
+

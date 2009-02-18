@@ -271,3 +271,4 @@ ACE_TLI::get_option (int level, int option, void *optval, int &optlen)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_HAS_TLI */
+

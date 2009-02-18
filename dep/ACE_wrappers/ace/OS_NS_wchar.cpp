@@ -375,3 +375,4 @@ ACE_OS::wcsstr_emulation (const wchar_t *string,
 #endif /* ACE_HAS_WCHAR && ACE_LACKS_WCSSTR */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

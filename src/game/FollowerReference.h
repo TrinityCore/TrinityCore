@@ -34,3 +34,4 @@ class TRINITY_DLL_SPEC FollowerReference : public Reference<Unit, TargetedMoveme
         void sourceObjectDestroyLink();
 };
 #endif
+

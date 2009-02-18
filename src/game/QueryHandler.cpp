@@ -432,3 +432,4 @@ void WorldSession::HandlePageQueryOpcode( WorldPacket & recv_data )
         sLog.outDebug(  "WORLD: Sent SMSG_PAGE_TEXT_QUERY_RESPONSE " );
     }
 }
+

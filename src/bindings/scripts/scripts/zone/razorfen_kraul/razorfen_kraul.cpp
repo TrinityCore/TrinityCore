@@ -202,3 +202,4 @@ void AddSC_razorfen_kraul()
     newscript->pQuestAccept = &QuestAccept_npc_willix;
     newscript->RegisterSelf();
 }
+

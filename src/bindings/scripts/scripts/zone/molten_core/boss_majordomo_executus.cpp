@@ -137,3 +137,4 @@ void AddSC_boss_majordomo()
     newscript->GetAI = &GetAI_boss_majordomo;
     newscript->RegisterSelf();
 }
+

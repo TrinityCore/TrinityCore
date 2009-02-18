@@ -38,3 +38,4 @@ EndScriptData */
 #define SPELL_PERSEVERANCE_SELF     30466
 #define SPELL_SERENITY_ENEMY        30422
 #define SPELL_SERENITY_SELF         30467
+
