@@ -2027,7 +2027,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         void StopCastingBindSight();
         uint64 GetFarSightGUID() const { return GetUInt64Value(PLAYER_FARSIGHT); }
         void SetFarSightGUID(uint64 guid) { SetUInt64Value(PLAYER_FARSIGHT, guid); }
-        void SetBindSight(Unit *target);
         WorldObject* GetFarsightTarget() const;
         void ClearFarsight();
         void SetFarsightTarget(WorldObject* target);
