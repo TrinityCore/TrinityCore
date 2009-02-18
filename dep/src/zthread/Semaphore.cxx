@@ -32,9 +32,9 @@ namespace ZThread {
    * @param maxCount maximum size of the semaphore count
    */
   Semaphore::Semaphore(int count, unsigned int maxCount) {
-  
+
     _impl = new FifoSemaphoreImpl(count, maxCount, true);
-  
+
   }
 
   Semaphore::~Semaphore() {

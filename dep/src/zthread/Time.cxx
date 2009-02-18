@@ -27,7 +27,7 @@
 using namespace ZThread;
 
 Time::Time() {
-  
+
   // System startup time
   static TimeStrategy firstHelper;
   TimeStrategy helper;
@@ -37,7 +37,7 @@ Time::Time() {
 
   now -= then;
 
-  _seconds = now.seconds(); 
+  _seconds = now.seconds();
   _milliseconds = now.milliseconds();
 
 }

@@ -32,7 +32,7 @@ namespace ZThread {
 AtomicCount::AtomicCount() {
 
   _value = reinterpret_cast<void*>(new LONG(0));
-  
+
 }
 
 AtomicCount::~AtomicCount() {
@@ -41,20 +41,20 @@ AtomicCount::~AtomicCount() {
   delete reinterpret_cast<LPLONG>(_value);
 
 }
-  
+
 void AtomicCount::increment() {
 
   ::InterlockedIncrement(reinterpret_cast<LPLONG>(_value));
-  
+
 }
-  
+
 bool AtomicCount::decrement() {
 
   LONG v = ::InterlockedDecrement(reinterpret_cast<LPLONG>(_value));
   return static_cast<unsigned long>(v) == 0;
-  
+
 }
- 
+
 };
 
 #endif // __ZTATOMICCOUNTIMPL_H__
