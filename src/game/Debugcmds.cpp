@@ -657,5 +657,3 @@ bool ChatHandler::HandleSendSetPhaseShiftCommand(const char* args)
 
     uint32 PhaseShift = atoi(args);
     m_session->SendSetPhaseShift(PhaseShift);
-    return true;
-}

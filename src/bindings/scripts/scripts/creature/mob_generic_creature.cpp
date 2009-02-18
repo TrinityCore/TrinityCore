@@ -170,3 +170,4 @@ void AddSC_generic_creature()
     newscript->GetAI = &GetAI_generic_creature;
     newscript->RegisterSelf();
 }
+

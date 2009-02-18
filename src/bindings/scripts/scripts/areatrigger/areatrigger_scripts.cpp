@@ -64,3 +64,4 @@ void AddSC_areatrigger_scripts()
     newscript->pAreaTrigger = &AreaTrigger_at_legion_teleporter;
     newscript->RegisterSelf();
 }
+

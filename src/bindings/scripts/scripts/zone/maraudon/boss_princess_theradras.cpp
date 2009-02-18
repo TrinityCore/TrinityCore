@@ -106,3 +106,4 @@ void AddSC_boss_ptheradras()
     newscript->GetAI = &GetAI_boss_ptheradras;
     newscript->RegisterSelf();
 }
+

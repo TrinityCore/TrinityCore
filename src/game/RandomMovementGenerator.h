@@ -52,3 +52,4 @@ class TRINITY_DLL_SPEC RandomMovementGenerator
         uint32 i_nextMove;
 };
 #endif
+

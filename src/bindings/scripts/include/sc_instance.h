@@ -43,3 +43,4 @@ class TRINITY_DLL_DECL ScriptedInstance : public InstanceData
 };
 
 #endif
+

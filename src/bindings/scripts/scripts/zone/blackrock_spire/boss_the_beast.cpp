@@ -91,3 +91,4 @@ void AddSC_boss_thebeast()
     newscript->GetAI = &GetAI_boss_thebeast;
     newscript->RegisterSelf();
 }
+

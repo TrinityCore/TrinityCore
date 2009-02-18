@@ -561,3 +561,4 @@ ACE_String_Base<CHAR>::operator+= (const CHAR c)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif  /* ACE_STRING_BASE_CPP */
+

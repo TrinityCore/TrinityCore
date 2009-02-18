@@ -55,3 +55,4 @@ class TRINITY_DLL_SPEC ConfusedMovementGenerator
         uint32 i_nextMove;
 };
 #endif
+

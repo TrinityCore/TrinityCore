@@ -172,3 +172,4 @@ void AddSC_boss_gluth()
     newscript->GetAI = &GetAI_boss_gluth;
     newscript->RegisterSelf();
 }
+

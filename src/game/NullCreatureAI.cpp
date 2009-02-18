@@ -39,3 +39,4 @@ void CritterAI::EnterEvadeMode()
         me->SetControlled(false, UNIT_STAT_FLEEING);
     CreatureAI::EnterEvadeMode();
 }
+

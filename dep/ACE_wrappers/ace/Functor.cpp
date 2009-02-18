@@ -41,3 +41,4 @@ ACE_Command_Base::~ACE_Command_Base (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

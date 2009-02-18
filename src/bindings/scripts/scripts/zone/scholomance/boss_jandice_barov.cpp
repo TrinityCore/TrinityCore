@@ -219,3 +219,4 @@ void AddSC_boss_jandicebarov()
     newscript->GetAI = &GetAI_mob_illusionofjandicebarov;
     newscript->RegisterSelf();
 }
+

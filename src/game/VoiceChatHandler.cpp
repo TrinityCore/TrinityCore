@@ -45,3 +45,4 @@ void WorldSession::HandleChannelVoiceChatQuery( WorldPacket & recv_data )
     // uint32, string
     recv_data.hexlike();
 }
+

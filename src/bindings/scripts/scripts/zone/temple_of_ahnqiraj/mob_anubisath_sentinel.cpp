@@ -342,3 +342,4 @@ SentinelAbilityAura::SentinelAbilityAura(aqsentinelAI *abilityOwner, SpellEntry 
     abilityId = ability;
     currentBasePoints = 0;
 }
+

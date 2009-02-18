@@ -305,3 +305,4 @@ InstanceData* GetInstanceData_instance_blackrock_depths(Map* map)
        newscript->GetInstanceData = &GetInstanceData_instance_blackrock_depths;
        newscript->RegisterSelf();
    }
+

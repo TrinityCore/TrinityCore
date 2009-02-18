@@ -30,3 +30,4 @@ CreatureAIFactory<REAL_AI>::Create(void *data) const
     return (new REAL_AI(creature));
 }
 #endif
+

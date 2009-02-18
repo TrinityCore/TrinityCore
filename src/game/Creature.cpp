@@ -2329,3 +2329,4 @@ const char* Creature::GetNameForLocaleIdx(int32 loc_idx) const
 
     return GetName();
 }
+

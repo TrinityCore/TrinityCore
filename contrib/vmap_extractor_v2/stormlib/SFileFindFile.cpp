@@ -289,3 +289,4 @@ BOOL WINAPI SFileFindClose(HANDLE hFind)
     FreeMPQSearch(hs);
     return TRUE;
 }
+

@@ -33,3 +33,4 @@ namespace Trinity
         external_wrapper((void*)func);
     }
 }
+

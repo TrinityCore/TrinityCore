@@ -19,3 +19,4 @@ ACE_Proactor_Impl::~ACE_Proactor_Impl (void)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif
+

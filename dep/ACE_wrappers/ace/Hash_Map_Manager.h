@@ -29,3 +29,4 @@
 #include /**/ "ace/post.h"
 
 #endif /* ACE_HASH_MAP_MANAGER_H */
+

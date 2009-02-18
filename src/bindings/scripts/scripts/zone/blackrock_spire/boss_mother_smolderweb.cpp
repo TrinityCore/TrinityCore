@@ -84,3 +84,4 @@ void AddSC_boss_mothersmolderweb()
     newscript->GetAI = &GetAI_boss_mothersmolderweb;
     newscript->RegisterSelf();
 }
+

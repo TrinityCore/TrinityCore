@@ -684,3 +684,4 @@ ACE_TP_Reactor::get_notify_handle (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

@@ -185,3 +185,4 @@ class BattleGroundWS : public BattleGround
         int32 m_FlagsDropTimer[2];
 };
 #endif
+

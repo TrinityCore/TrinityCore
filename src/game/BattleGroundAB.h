@@ -284,3 +284,4 @@ class BattleGroundAB : public BattleGround
         bool              m_IsInformedNearVictory;
 };
 #endif
+

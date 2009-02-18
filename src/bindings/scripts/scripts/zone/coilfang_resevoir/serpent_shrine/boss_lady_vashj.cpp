@@ -1075,3 +1075,4 @@ void AddSC_boss_lady_vashj()
     newscript->pItemUse = &ItemUse_item_tainted_core;
     newscript->RegisterSelf();
 }
+

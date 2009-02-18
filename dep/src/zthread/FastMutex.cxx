@@ -28,7 +28,7 @@ namespace ZThread {
   FastMutex::FastMutex() : _lock(new FastLock) { }
 
   FastMutex::~FastMutex() {
-    delete _lock; 
+    delete _lock;
   }
 
 
@@ -39,7 +39,7 @@ namespace ZThread {
   }
 
   bool FastMutex::tryAcquire(unsigned long timeout) {
-  
+
     return _lock->tryAcquire(timeout);
 
   }

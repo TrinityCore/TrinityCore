@@ -103,3 +103,4 @@ void AddSC_boss_ironaya()
     newscript->GetAI = &GetAI_boss_ironaya;
     newscript->RegisterSelf();
 }
+

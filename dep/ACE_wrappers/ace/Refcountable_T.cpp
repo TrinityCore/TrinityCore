@@ -23,3 +23,4 @@ ACE_Refcountable_T<ACE_LOCK>::~ACE_Refcountable_T (void)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif  /* !ACE_REFCOUNTABLE_T_CPP */
+

@@ -56,3 +56,4 @@ ACE_FIFO_Send::ACE_FIFO_Send (const ACE_TCHAR *fifo_name,
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

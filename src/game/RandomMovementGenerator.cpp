@@ -182,3 +182,4 @@ RandomMovementGenerator<Creature>::Update(Creature &creature, const uint32 &diff
     }
     return true;
 }
+

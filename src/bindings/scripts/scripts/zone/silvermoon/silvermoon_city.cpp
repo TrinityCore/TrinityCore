@@ -101,3 +101,4 @@ void AddSC_silvermoon_city()
     newscript->GetAI = &GetAI_npc_blood_knight_stillblade;
     newscript->RegisterSelf();
 }
+

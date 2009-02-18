@@ -46,3 +46,4 @@ class PacketLog
 
 #define sPacketLog Trinity::Singleton<PacketLog>::Instance()
 #endif
+

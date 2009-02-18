@@ -8,3 +8,4 @@ ACE_RCSID(ace, OS_NS_sys_time, "$Id: OS_NS_sys_time.cpp 80826 2008-03-04 14:51:2
 # include "ace/OS_NS_sys_time.inl"
 #endif /* ACE_HAS_INLINED_OSCALLS */
 
+

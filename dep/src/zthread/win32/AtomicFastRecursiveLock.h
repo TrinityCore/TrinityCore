@@ -156,3 +156,4 @@ class FastRecursiveLock : private NonCopyable {
 
 };
 #endif
+

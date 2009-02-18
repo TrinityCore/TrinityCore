@@ -70,3 +70,4 @@ char *libmpq_conf_delete_char(char *buf, char *chars);
 int libmpq_conf_get_array(FILE *fp, char *search_value, char ***filelist, int *entries);
 int libmpq_free_listfile(char **filelist);
 int libmpq_read_listfile(mpq_archive *mpq_a, FILE *fp);
+

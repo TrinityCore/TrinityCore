@@ -293,3 +293,4 @@ void AddSC_boss_jeklik()
     newscript->GetAI = &GetAI_mob_batrider;
     newscript->RegisterSelf();
 }
+

@@ -635,3 +635,4 @@ ACE_OS::strptime_getnum (const char *buf,
 #endif /* ACE_LACKS_STRPTIME && !ACE_REFUSE_STRPTIME_EMULATION */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

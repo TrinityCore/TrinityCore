@@ -166,3 +166,4 @@ ModelInstance::ModelInstance(MPQFile &f,const char* ModelInstName,const char*Map
             );				
     }
 }
+

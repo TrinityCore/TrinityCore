@@ -18,3 +18,4 @@
 #define TYPE_SHIELD_OPEN        11
 #define DATA_SPHERE_SHIELD      12
 #endif
+

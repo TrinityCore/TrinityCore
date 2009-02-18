@@ -174,3 +174,4 @@ void AddSC_instance_the_eye()
     newscript->GetInstanceData = &GetInstanceData_instance_the_eye;
     newscript->RegisterSelf();
 }
+

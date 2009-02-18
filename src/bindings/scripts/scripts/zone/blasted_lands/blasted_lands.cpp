@@ -159,3 +159,4 @@ void AddSC_blasted_lands()
     newscript->pGossipSelect = &GossipSelect_npc_fallen_hero_of_horde;
     newscript->RegisterSelf();
 }
+

@@ -207,3 +207,4 @@ void AddSC_boss_arlokk()
     newscript->GetAI = &GetAI_boss_arlokk;
     newscript->RegisterSelf();
 }
+

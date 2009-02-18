@@ -24,3 +24,4 @@ EndScriptData */
 #include "precompiled.h"
 
  #define EMOTE_TARGET        -1509002
+

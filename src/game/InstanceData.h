@@ -70,3 +70,4 @@ class TRINITY_DLL_SPEC InstanceData
         virtual void SetData(uint32, uint32 data) {}
 };
 #endif
+

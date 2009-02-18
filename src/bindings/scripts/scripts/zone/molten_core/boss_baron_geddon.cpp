@@ -104,3 +104,4 @@ void AddSC_boss_baron_geddon()
     newscript->GetAI = &GetAI_boss_baron_geddon;
     newscript->RegisterSelf();
 }
+

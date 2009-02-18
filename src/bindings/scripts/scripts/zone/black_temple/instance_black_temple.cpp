@@ -349,3 +349,4 @@ void AddSC_instance_black_temple()
     newscript->GetInstanceData = &GetInstanceData_instance_black_temple;
     newscript->RegisterSelf();
 }
+

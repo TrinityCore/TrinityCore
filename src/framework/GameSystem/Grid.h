@@ -129,3 +129,4 @@ class TRINITY_DLL_DECL Grid
         TypeMapContainer<WORLD_OBJECT_TYPES> i_objects;
 };
 #endif
+

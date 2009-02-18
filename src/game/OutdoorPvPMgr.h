@@ -79,3 +79,4 @@ private:
 #define sOutdoorPvPMgr Trinity::Singleton<OutdoorPvPMgr>::Instance()
 
 #endif /*OUTDOOR_PVP_MGR_H_*/
+

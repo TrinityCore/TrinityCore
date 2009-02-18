@@ -95,3 +95,4 @@ void AddSC_boss_azshir_the_sleepless()
     newscript->GetAI = &GetAI_boss_azshir_the_sleepless;
     newscript->RegisterSelf();
 }
+

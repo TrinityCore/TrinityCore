@@ -29,9 +29,9 @@ namespace ZThread {
 
 
   CountingSemaphore::CountingSemaphore(int initialCount) {
-  
+
     _impl = new FifoSemaphoreImpl(initialCount, 0 , false);
-  
+
   }
 
 

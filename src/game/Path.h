@@ -85,3 +85,4 @@ class Path
         std::vector<PathNode> i_nodes;
 };
 #endif
+

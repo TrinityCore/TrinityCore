@@ -50,3 +50,4 @@ class TRINITY_DLL_DECL PossessedAI : public CreatureAI
         uint64 i_victimGuid;
 };
 #endif
+

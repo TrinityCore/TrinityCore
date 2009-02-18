@@ -193,3 +193,4 @@ bool Totem::IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index) co
     }
     return Creature::IsImmunedToSpellEffect(spellInfo, index);
 }
+

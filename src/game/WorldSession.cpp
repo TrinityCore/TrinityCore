@@ -613,5 +613,3 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo *mi)
     {
         CHECK_PACKET_SIZE(data, data.rpos()+4);
         data >> mi->u_unk1;
-    }
-}

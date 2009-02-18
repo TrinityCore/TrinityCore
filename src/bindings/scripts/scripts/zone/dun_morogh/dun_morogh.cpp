@@ -96,3 +96,4 @@ void AddSC_dun_morogh()
     newscript->GetAI = &GetAI_npc_narm_faulk;
     newscript->RegisterSelf();
 }
+

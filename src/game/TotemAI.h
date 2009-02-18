@@ -46,3 +46,4 @@ class TRINITY_DLL_DECL TotemAI : public CreatureAI
         uint64 i_victimGuid;
 };
 #endif
+

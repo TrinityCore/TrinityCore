@@ -139,3 +139,4 @@ enum Field::DataTypes QueryResultPostgre::ConvertNativeType(Oid  pOid ) const
     return Field::DB_TYPE_UNKNOWN;
 }
 #endif
+

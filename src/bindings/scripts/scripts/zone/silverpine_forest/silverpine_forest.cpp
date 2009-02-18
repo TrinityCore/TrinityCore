@@ -231,3 +231,4 @@ void AddSC_silverpine_forest()
     newscript->pQuestAccept = &QuestAccept_npc_deathstalker_erland;
     newscript->RegisterSelf();
 }
+

@@ -233,3 +233,4 @@ void AddSC_boss_warlord_kalithresh()
     newscript->GetAI = &GetAI_boss_warlord_kalithresh;
     newscript->RegisterSelf();
 }
+

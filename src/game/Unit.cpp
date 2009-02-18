@@ -4305,7 +4305,7 @@ void Unit::RemoveDynObject(uint32 spellid)
     for (DynObjectGUIDs::iterator i = m_dynObjGUIDs.begin(); i != m_dynObjGUIDs.end();)
     {
         DynamicObject* dynObj = ObjectAccessor::GetDynamicObject(*this, *i);
-        if(!dynObj)
+        if(!dynObj) // may happen if a dynobj is removed when grid unload
         {
             i = m_dynObjGUIDs.erase(i);
         }
@@ -7670,20 +7670,11 @@ void Unit::RemovePlayerFromVision(Player* plr)
 
 void Unit::RemoveBindSightAuras()
 {
-    /*while (!m_sharedVision.empty())
-    {
-        Player* plr = *m_sharedVision.begin();
-        m_sharedVision.erase(m_sharedVision.begin());
-        plr->ClearFarsight();
-    }*/
     RemoveSpellsCausingAura(SPELL_AURA_BIND_SIGHT);
 }
 
 void Unit::RemoveCharmAuras()
 {
-    if (!GetCharmer())
-        return;
-
     RemoveSpellsCausingAura(SPELL_AURA_MOD_CHARM);
     RemoveSpellsCausingAura(SPELL_AURA_MOD_POSSESS_PET);
     RemoveSpellsCausingAura(SPELL_AURA_MOD_POSSESS);
@@ -10702,6 +10693,8 @@ void Unit::RemoveFromWorld()
     // cleanup
     if(IsInWorld())
     {
+        RemoveCharmAuras();
+        RemoveBindSightAuras();
         RemoveNotOwnSingleTargetAuras();
     }
 

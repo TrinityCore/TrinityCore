@@ -118,3 +118,4 @@ ADTFile* WDTFile::GetMap(int x, int z)
     sprintf(name,"World\\Maps\\%s\\%s_%d_%d.adt", filename.c_str(), filename.c_str(), x, z);
     return new ADTFile(name);
 }
+

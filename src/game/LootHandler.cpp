@@ -514,3 +514,4 @@ void WorldSession::HandleLootMasterGiveOpcode( WorldPacket & recv_data )
     pLoot->NotifyItemRemoved(slotid);
     --pLoot->unlootedCount;
 }
+

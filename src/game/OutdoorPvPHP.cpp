@@ -396,3 +396,4 @@ bool OutdoorPvPObjectiveHP::HandleCapturePointEvent(Player *plr, uint32 eventId)
     }
     return false;
 }
+

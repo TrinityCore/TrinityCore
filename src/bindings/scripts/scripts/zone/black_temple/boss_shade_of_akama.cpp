@@ -836,3 +836,4 @@ void AddSC_boss_shade_of_akama()
     newscript->pGossipSelect = &GossipSelect_npc_akama;
     newscript->RegisterSelf();
 }
+

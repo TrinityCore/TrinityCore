@@ -189,3 +189,4 @@ extern uint32 GetSkillLevel(Player *player,uint32 skill);
 
 #define QUEST_DIALOG_STATUS(a,b,c)   GetSession()->getDialogStatus(a,b,c)
 #endif
+

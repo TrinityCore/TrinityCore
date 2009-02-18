@@ -198,3 +198,4 @@ void AddSC_boss_golemagg()
     newscript->GetAI = &GetAI_mob_core_rager;
     newscript->RegisterSelf();
 }
+

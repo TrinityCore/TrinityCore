@@ -2136,3 +2136,4 @@ InstanceData* CreateInstanceData(Map *map)
 
     return tmpscript->GetInstanceData(map);
 }
+

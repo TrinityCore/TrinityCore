@@ -403,3 +403,4 @@ void AddSC_dark_portal()
     newscript->pGossipSelect = &GossipSelect_npc_saat;
     newscript->RegisterSelf();
 }
+

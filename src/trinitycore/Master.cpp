@@ -518,3 +518,4 @@ void Master::_UnhookSignals()
     signal(SIGBREAK, 0);
     #endif
 }
+

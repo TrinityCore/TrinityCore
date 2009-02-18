@@ -55,3 +55,4 @@ LONG __cdecl _InterlockedExchangeAdd (LONG volatile *Addend, LONG Value);
 
 #include /**/ "ace/post.h"
 #endif /* ACE_OS_INCLUDE_OS_INTRIN_H */
+

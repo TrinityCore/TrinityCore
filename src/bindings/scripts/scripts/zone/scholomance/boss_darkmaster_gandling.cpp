@@ -190,3 +190,4 @@ void AddSC_boss_darkmaster_gandling()
     newscript->GetAI = &GetAI_boss_darkmaster_gandling;
     newscript->RegisterSelf();
 }
+

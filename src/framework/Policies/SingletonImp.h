@@ -90,3 +90,4 @@ Trinity::Singleton<T, ThreadingModel, CreatePolicy, LifeTimePolicy>::DestroySing
     template<> TYPE* Trinity::Singleton<TYPE, THREADINGMODEL, CREATIONPOLICY, OBJECTLIFETIME >::si_instance = 0; \
     template<> bool Trinity::Singleton<TYPE, THREADINGMODEL, CREATIONPOLICY, OBJECTLIFETIME >::si_destroyed = false
 #endif
+

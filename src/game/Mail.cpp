@@ -862,3 +862,4 @@ void WorldSession::SendMailTo(Player* receiver, uint8 messageType, uint8 station
     }
     CharacterDatabase.CommitTransaction();
 }
+

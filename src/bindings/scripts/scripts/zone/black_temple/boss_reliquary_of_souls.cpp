@@ -685,3 +685,4 @@ void AddSC_boss_reliquary_of_souls()
     newscript->GetAI = &GetAI_npc_enslaved_soul;
     newscript->RegisterSelf();
 }
+

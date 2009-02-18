@@ -108,3 +108,4 @@ class TRINITY_DLL_DECL ObjectRegistry
         }
 };
 #endif
+

@@ -109,3 +109,4 @@ namespace ZThread {
 };
 
 #endif // __ZTFASTMUTEX_H__
+

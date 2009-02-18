@@ -366,3 +366,4 @@ WorldSocketMgr::Instance ()
 {
     return ACE_Singleton<WorldSocketMgr,ACE_Thread_Mutex>::instance();
 }
+

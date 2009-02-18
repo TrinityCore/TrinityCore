@@ -34,3 +34,4 @@ ACE_Hashable::hash (void) const
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

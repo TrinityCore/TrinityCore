@@ -382,3 +382,4 @@ void AddSC_boss_selin_fireheart()
     newscript->GetAI = &GetAI_mob_fel_crystal;
     newscript->RegisterSelf();
 }
+

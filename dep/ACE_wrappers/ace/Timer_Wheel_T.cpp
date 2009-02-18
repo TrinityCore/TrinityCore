@@ -965,3 +965,4 @@ ACE_Timer_Wheel_Iterator_T<TYPE, FUNCTOR, ACE_LOCK>::item (void)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_TIMER_WHEEL_T_CPP */
+

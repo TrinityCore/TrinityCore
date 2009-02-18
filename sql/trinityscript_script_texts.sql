@@ -1547,3 +1547,4 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 -- 
 
 -- ALTER TABLE `script_texts` ORDER BY `entry` desc;
+

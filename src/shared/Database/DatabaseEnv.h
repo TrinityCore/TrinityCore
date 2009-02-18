@@ -56,3 +56,4 @@ extern DatabaseType CharacterDatabase;
 extern DatabaseType LoginDatabase;
 
 #endif
+

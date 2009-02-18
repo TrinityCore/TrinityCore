@@ -745,3 +745,4 @@ void AddSC_boss_archimonde()
     newscript->GetAI = &GetAI_mob_ancient_wisp;
     newscript->RegisterSelf();
 }
+

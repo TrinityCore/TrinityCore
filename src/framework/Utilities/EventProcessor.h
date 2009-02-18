@@ -70,3 +70,4 @@ class EventProcessor
         bool m_aborting;
 };
 #endif
+

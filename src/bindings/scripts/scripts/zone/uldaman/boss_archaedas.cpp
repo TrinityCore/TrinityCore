@@ -494,3 +494,4 @@ void AddSC_boss_archaedas()
     newscript->GetAI = &GetAI_mob_stonekeepers;
     newscript->RegisterSelf();
 }
+

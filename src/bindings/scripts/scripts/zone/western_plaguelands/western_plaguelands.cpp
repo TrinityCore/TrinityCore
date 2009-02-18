@@ -181,3 +181,4 @@ void AddSC_western_plaguelands()
     newscript->GetAI = &GetAI_npc_the_scourge_cauldron;
     newscript->RegisterSelf();
 }
+

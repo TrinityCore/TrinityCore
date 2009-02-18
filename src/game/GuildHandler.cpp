@@ -1702,3 +1702,4 @@ void WorldSession::SendSaveGuildEmblem( uint32 msg )
     data << uint32(msg);                                    // not part of guild
     SendPacket( &data );
 }
+

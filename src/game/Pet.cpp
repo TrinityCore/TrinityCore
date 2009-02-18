@@ -1795,3 +1795,4 @@ void Pet::CastPetAura(PetAura const* aura)
     else
         CastSpell(this, auraId, true);
 }
+

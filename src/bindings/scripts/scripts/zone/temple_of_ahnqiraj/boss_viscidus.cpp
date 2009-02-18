@@ -27,3 +27,4 @@ EndScriptData */
 #define SPELL_POISONBOLT_VOLLEY     25991
 
 #define SPELL_TOXIN_CLOUD           25989
+

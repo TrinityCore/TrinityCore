@@ -147,3 +147,4 @@ void AddSC_boss_noxxion()
     newscript->GetAI = &GetAI_boss_noxxion;
     newscript->RegisterSelf();
 }
+

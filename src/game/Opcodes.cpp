@@ -1226,3 +1226,4 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x4AB*/ { "UMSG_UNKNOWN_1195",                            STATUS_NEVER,    &WorldSession::Handle_NULL                     },
     /*0x4AC*/ { "UMSG_UNKNOWN_1196",                            STATUS_NEVER,    &WorldSession::Handle_NULL                     },
 };
+

@@ -53,3 +53,4 @@ ACE_RW_Mutex::~ACE_RW_Mutex (void)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_HAS_THREADS */
+

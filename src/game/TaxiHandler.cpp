@@ -278,3 +278,4 @@ void WorldSession::HandleActivateTaxiOpcode( WorldPacket & recv_data )
 
     GetPlayer()->ActivateTaxiPathTo(nodes, 0, npc);
 }
+

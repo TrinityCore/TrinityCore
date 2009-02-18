@@ -3057,3 +3057,4 @@ void World::LoadDBVersion()
     else
         m_DBVersion = "unknown world database";
 }
+

@@ -160,3 +160,4 @@ void AddSC_tirisfal_glades()
     newscript->pGOHello = &GOHello_go_mausoleum_trigger;
     newscript->RegisterSelf();
 }
+

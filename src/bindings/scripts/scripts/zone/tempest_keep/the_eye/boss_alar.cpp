@@ -502,3 +502,4 @@ void AddSC_boss_alar()
     newscript->GetAI = &GetAI_mob_flame_patch_alar;
     newscript->RegisterSelf();
 }
+

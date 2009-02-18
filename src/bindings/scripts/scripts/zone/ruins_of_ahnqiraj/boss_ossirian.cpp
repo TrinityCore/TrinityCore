@@ -35,3 +35,4 @@ EndScriptData */
 
 #define SAY_SLAY        -1509026
 #define SAY_DEATH       -1509027
+

@@ -68,3 +68,4 @@ EndScriptData */
 
  //generic
 #define C_TESLA_COIL                        16218           //the coils (emotes "Tesla Coil overloads!")
+

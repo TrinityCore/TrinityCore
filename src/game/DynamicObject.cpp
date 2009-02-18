@@ -52,6 +52,13 @@ void DynamicObject::AddToWorld()
 
 void DynamicObject::RemoveFromWorld()
 {
+    // Make sure the object is back to grid container for removal as farsight targets
+    // are switched to world container on creation and they are also set to active
+    if (isActive())
+    {
+        GetMap()->SwitchGridContainers(this, false);
+        setActive(false);
+    }
     ///- Remove the dynamicObject from the accessor
     if(IsInWorld()) ObjectAccessor::Instance().RemoveObject(this);
     WorldObject::RemoveFromWorld();
@@ -129,19 +136,6 @@ void DynamicObject::Update(uint32 p_time)
 
 void DynamicObject::Delete()
 {
-    // Make sure the object is back to grid container for removal as farsight targets
-    // are switched to world container on creation and they are also set to active
-    if (isActive())
-    {
-        Map* map = GetMap();
-        if(!map)
-        {
-            sLog.outError("DynamicObject (TypeId: %u Entry: %u GUID: %u) at attempt add to move list not have valid map (Id: %u).",GetTypeId(),GetEntry(),GetGUIDLow(),GetMapId());
-            return;
-        }
-        map->SwitchGridContainers(this, false);
-        setActive(false);
-    }
     SendObjectDeSpawnAnim(GetGUID());
     AddObjectToRemoveList();
 }
@@ -160,3 +154,4 @@ bool DynamicObject::isVisibleForInState(Player const* u, bool inVisibleList) con
         && (IsWithinDistInMap(u,World::GetMaxVisibleDistanceForObject()+(inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f), false)
         || GetCasterGUID() == u->GetGUID());
 }
+

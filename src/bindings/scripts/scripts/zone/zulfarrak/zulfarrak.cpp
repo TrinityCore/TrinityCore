@@ -222,3 +222,4 @@ void AddSC_zulfarrak()
     newscript->pGossipSelect = &GossipSelect_npc_weegli_blastfuse;
     newscript->RegisterSelf();
 }
+

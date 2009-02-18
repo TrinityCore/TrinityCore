@@ -139,3 +139,4 @@ void AddSC_bloodmyst_isle()
     newscript->pGossipSelect = &GossipSelect_npc_captured_sunhawk_agent;
     newscript->RegisterSelf();
 }
+

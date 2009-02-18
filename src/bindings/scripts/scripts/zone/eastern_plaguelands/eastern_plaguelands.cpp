@@ -177,3 +177,4 @@ void AddSC_eastern_plaguelands()
     newscript->pGossipSelect = &GossipSelect_npc_tirion_fordring;
     newscript->RegisterSelf();
 }
+

@@ -832,3 +832,4 @@ int sqlite_rekey(
 #endif
 
 #endif /* _SQLITE_H_ */
+

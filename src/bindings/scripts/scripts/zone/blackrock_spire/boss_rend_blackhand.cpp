@@ -89,3 +89,4 @@ void AddSC_boss_rend_blackhand()
     newscript->GetAI = &GetAI_boss_rend_blackhand;
     newscript->RegisterSelf();
 }
+

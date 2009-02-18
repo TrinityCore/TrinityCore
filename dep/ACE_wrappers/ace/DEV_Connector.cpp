@@ -51,3 +51,4 @@ ACE_DEV_Connector::connect (ACE_DEV_IO &new_io,
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

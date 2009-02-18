@@ -150,3 +150,4 @@ void AddSC_boss_instructormalicia()
     newscript->GetAI = &GetAI_boss_instructormalicia;
     newscript->RegisterSelf();
 }
+

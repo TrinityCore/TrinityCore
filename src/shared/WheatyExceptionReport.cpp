@@ -1013,3 +1013,4 @@ int __cdecl WheatyExceptionReport::_tprintf(const TCHAR * format, ...)
 
     return retValue;
 }
+

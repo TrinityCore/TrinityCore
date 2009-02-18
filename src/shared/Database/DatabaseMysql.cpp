@@ -408,3 +408,4 @@ void DatabaseMysql::HaltDelayThread()
     m_threadBody = NULL;
 }
 #endif
+

@@ -74,3 +74,4 @@ class TicketMgr
 #endif
 #define ticketmgr Trinity::Singleton<TicketMgr>::Instance()
 
+

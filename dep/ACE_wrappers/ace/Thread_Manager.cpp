@@ -2219,3 +2219,4 @@ ACE_Thread_Manager::get_grp (ACE_Task_Base *task, int &grp_id)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

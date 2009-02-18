@@ -366,3 +366,4 @@ ACE_Message_Queue_Vx::peek_dequeue_head (ACE_Message_Block *&,
 #endif /* ACE_VXWORKS */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

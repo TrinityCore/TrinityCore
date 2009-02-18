@@ -943,3 +943,4 @@ Item* Item::CloneItem( uint32 count, Player const* player ) const
     newItem->SetItemRandomProperties(GetItemRandomPropertyId());
     return newItem;
 }
+

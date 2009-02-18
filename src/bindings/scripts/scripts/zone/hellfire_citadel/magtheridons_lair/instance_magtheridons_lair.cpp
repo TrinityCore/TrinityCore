@@ -255,3 +255,4 @@ void AddSC_instance_magtheridons_lair()
     newscript->GetInstanceData = &GetInstanceData_instance_magtheridons_lair;
     newscript->RegisterSelf();
 }
+

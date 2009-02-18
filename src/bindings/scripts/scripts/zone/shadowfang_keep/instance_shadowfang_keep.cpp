@@ -180,3 +180,4 @@ void AddSC_instance_shadowfang_keep()
     newscript->GetInstanceData = &GetInstanceData_instance_shadowfang_keep;
     newscript->RegisterSelf();
 }
+

@@ -58,3 +58,4 @@ ACE_GETHRTIME_NAME (void)
 #endif /* ! ACE_HAS_PENTIUM */
 }
 #endif /* ghs */
+

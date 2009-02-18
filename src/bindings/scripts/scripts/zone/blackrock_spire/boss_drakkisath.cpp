@@ -99,3 +99,4 @@ void AddSC_boss_drakkisath()
     newscript->GetAI = &GetAI_boss_drakkisath;
     newscript->RegisterSelf();
 }
+

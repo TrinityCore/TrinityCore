@@ -71,3 +71,4 @@
 #endif /* _POSIX_MESSAGE_PASSING */
 
 #endif /* ACE_CONFIG_POSIX_H */
+

@@ -100,3 +100,4 @@ void AddSC_instance_scholomance()
     newscript->GetInstanceData = &GetInstanceData_instance_scholomance;
     newscript->RegisterSelf();
 }
+

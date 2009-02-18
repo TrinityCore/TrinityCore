@@ -532,3 +532,4 @@ ACE_DLL_Singleton_Adapter_T<TYPE>::dll_name (void)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_SINGLETON_CPP */
+

@@ -95,3 +95,4 @@ void AddSC_boss_flamegor()
     newscript->GetAI = &GetAI_boss_flamegor;
     newscript->RegisterSelf();
 }
+

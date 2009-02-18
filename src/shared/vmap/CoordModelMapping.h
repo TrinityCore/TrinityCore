@@ -144,3 +144,4 @@ namespace VMAP
     };
 }
 #endif                                                      /*_COORDMODELMAPPING_H_*/
+

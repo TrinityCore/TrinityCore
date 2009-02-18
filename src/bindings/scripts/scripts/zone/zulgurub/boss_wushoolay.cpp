@@ -82,3 +82,4 @@ void AddSC_boss_wushoolay()
     newscript->GetAI = &GetAI_boss_wushoolay;
     newscript->RegisterSelf();
 }
+

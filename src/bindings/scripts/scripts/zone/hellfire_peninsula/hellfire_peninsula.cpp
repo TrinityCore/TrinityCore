@@ -437,3 +437,4 @@ void AddSC_hellfire_peninsula()
     newscript->pQuestAccept = &QuestAccept_npc_wounded_blood_elf;
     newscript->RegisterSelf();
 }
+

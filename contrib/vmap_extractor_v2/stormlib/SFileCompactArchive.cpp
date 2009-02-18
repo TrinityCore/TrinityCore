@@ -689,3 +689,4 @@ BOOL WINAPI SFileCompactArchive(HANDLE hMPQ, const char * szListFile, BOOL /* bR
     CompactCB = NULL;
     return (nError == ERROR_SUCCESS);
 }
+

@@ -73,3 +73,4 @@ DBCFile::Iterator DBCFile::end()
     return Iterator(*this, stringTable);
 }
 
+

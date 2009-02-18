@@ -193,3 +193,4 @@ void AddSC_boss_lieutenant_drake()
     newscript->GetAI = &GetAI_boss_lieutenant_drake;
     newscript->RegisterSelf();
 }
+

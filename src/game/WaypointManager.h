@@ -59,3 +59,4 @@ class WaypointStore
 extern WaypointStore WaypointMgr;
 
 #endif
+

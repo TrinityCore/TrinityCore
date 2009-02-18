@@ -2066,3 +2066,4 @@ operator<< (std::ostream &os, ACE_OutputCDR::from_octet x)
 #endif /* GEN_OSTREAM_OPS */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

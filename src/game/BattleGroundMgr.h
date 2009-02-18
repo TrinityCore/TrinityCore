@@ -259,3 +259,4 @@ class BattleGroundMgr
 
 #define sBattleGroundMgr Trinity::Singleton<BattleGroundMgr>::Instance()
 #endif
+

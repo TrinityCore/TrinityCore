@@ -321,3 +321,4 @@ void AddSC_boss_mograine_and_whitemane()
     newscript->GetAI = &GetAI_boss_high_inquisitor_whitemane;
     newscript->RegisterSelf();
 }
+

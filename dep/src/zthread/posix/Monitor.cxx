@@ -31,19 +31,19 @@
 namespace ZThread {
 
 Monitor::Monitor() : _owner(0), _waiting(false) {
-  
+
   pthread_cond_init(&_waitCond, 0);
   pthread_mutex_init(&_waitLock, 0);
 
 }
- 
+
 Monitor::~Monitor() {
-  
+
   assert(!_waiting);
 
   pthread_cond_destroy(&_waitCond);
   pthread_mutex_destroy(&_waitLock);
-  
+
 }
 
 Monitor::STATE Monitor::wait(unsigned long ms) {
@@ -55,14 +55,14 @@ Monitor::STATE Monitor::wait(unsigned long ms) {
     _owner = pthread_self();
 
   STATE state(INVALID);
-  
+
   // Serialize access to the state of the Monitor
   // and test the state to determine if a wait is needed.
-  
+
   pthread_mutex_lock(&_waitLock);
-  
+
   if(pending(ANYTHING)) {
-    
+
     // Return without waiting when possible
     state = next();
 
@@ -70,13 +70,13 @@ Monitor::STATE Monitor::wait(unsigned long ms) {
     return state;
 
   }
-     
-  // Unlock the external lock if a wait() is probably needed. 
+
+  // Unlock the external lock if a wait() is probably needed.
   // Access to the state is still serial.
   _lock.release();
-  
+
   // Wait for a transition in the state that is of interest, this
-  // allows waits to exclude certain flags (e.g. INTERRUPTED) 
+  // allows waits to exclude certain flags (e.g. INTERRUPTED)
   // for a single wait() w/o actually discarding those flags -
   // they will remain set until a wait interested in those flags
   // occurs.
@@ -85,20 +85,20 @@ Monitor::STATE Monitor::wait(unsigned long ms) {
   // Wait, ignoring signals
   _waiting = true;
   int status = 0;
-  
-  if(ms == 0) { // Wait forever 
-    
-    do { // ignore signals unless the state is interesting  
+
+  if(ms == 0) { // Wait forever
+
+    do { // ignore signals unless the state is interesting
       status = pthread_cond_wait(&_waitCond, &_waitLock);
     } while(status == EINTR && !pending(ANYTHING));
-    
+
     // Akwaken only when a state is pending
     assert(status == 0);
-    
+
   } else {
-    
+
     // Find the target time
-    TimeStrategy t; 
+    TimeStrategy t;
 
     ms += t.milliseconds();
 
@@ -106,34 +106,34 @@ Monitor::STATE Monitor::wait(unsigned long ms) {
     ms %= 1000;
 
     // Convert to a timespec
-    struct ::timespec timeout;   
-    
-    timeout.tv_sec = s; 
+    struct ::timespec timeout;
+
+    timeout.tv_sec = s;
     timeout.tv_nsec = ms*1000000;
-    
-    // Wait ignoring signals until the state is interesting    
-    do { 
-      
+
+    // Wait ignoring signals until the state is interesting
+    do {
+
       // When a timeout occurs, update the state to reflect that.
       status = pthread_cond_timedwait(&_waitCond, &_waitLock, &timeout);
-      
+
     } while(status == EINTR && !pending(ANYTHING));
- 
+
     // Akwaken only when a state is pending or when the timeout expired
     assert(status == 0 || status == ETIMEDOUT);
-   
+
     if(status == ETIMEDOUT)
       push(TIMEDOUT);
 
   }
-  
+
   // Get the next available STATE
-  state = next();  
-  _waiting = false;  
-    
+  state = next();
+  _waiting = false;
+
   pthread_mutex_unlock(&_waitLock);
-    
-  // Reaquire the external lock, keep from deadlocking threads calling 
+
+  // Reaquire the external lock, keep from deadlocking threads calling
   // notify(), interrupt(), etc.
 
   _lock.acquire();
@@ -147,17 +147,17 @@ bool Monitor::interrupt() {
 
   // Serialize access to the state
   pthread_mutex_lock(&_waitLock);
-  
+
   bool wasInterruptable = !pending(INTERRUPTED);
   bool hadWaiter = _waiting;
- 
+
   if(wasInterruptable) {
- 
+
     // Update the state & wake the waiter if there is one
     push(INTERRUPTED);
 
     wasInterruptable = false;
-    
+
     if(hadWaiter && !masked(Monitor::INTERRUPTED))
       pthread_cond_signal(&_waitCond);
     else
@@ -180,7 +180,7 @@ bool Monitor::isInterrupted() {
   bool wasInterrupted = pending(INTERRUPTED);
 
   clear(INTERRUPTED);
-    
+
   pthread_mutex_unlock(&_waitLock);
 
   return wasInterrupted;
@@ -193,7 +193,7 @@ bool Monitor::isCanceled() {
   pthread_mutex_lock(&_waitLock);
 
   bool wasCanceled = examine(CANCELED);
-    
+
   if(pthread_equal(_owner, pthread_self()))
     clear(INTERRUPTED);
 
@@ -210,17 +210,17 @@ bool Monitor::cancel() {
 
   bool wasInterrupted = !pending(INTERRUPTED);
   bool hadWaiter = _waiting;
- 
+
   push(CANCELED);
 
   if(wasInterrupted) {
- 
+
     // Update the state & wake the waiter if there is one
     push(INTERRUPTED);
-    
+
     if(hadWaiter && !masked(Monitor::INTERRUPTED))
       pthread_cond_signal(&_waitCond);
-    
+
   }
 
   pthread_mutex_unlock(&_waitLock);
@@ -235,16 +235,16 @@ bool Monitor::notify() {
   pthread_mutex_lock(&_waitLock);
 
   bool wasNotifyable = !pending(INTERRUPTED);
- 
+
   if(wasNotifyable) {
-  
+
     // Set the flag and wake the waiter if there
     // is one
     push(SIGNALED);
-    
-    if(_waiting) 
+
+    if(_waiting)
       pthread_cond_signal(&_waitCond);
-    
+
   }
 
   pthread_mutex_unlock(&_waitLock);

@@ -17,16 +17,21 @@
 /* ScriptData
 SDName: Thousand Needles
 SD%Complete: 100
-SDComment: Support for Quest: 4770
+SDComment: Support for Quest: 4770, 1950
 SDCategory: Thousand Needles
 EndScriptData */
 
 /* ContentData
 npc_swiftmountain
+npc_plucky
 EndContentData */
 
 #include "precompiled.h"
 #include "../../npc/npc_escortAI.h"
+
+/*#####
+# npc_swiftmountain
+######*/
 
 #define SAY_READY -1000147
 #define SAY_AGGRO -1000148
@@ -34,8 +39,6 @@ EndContentData */
 
 #define QUEST_HOMEWARD_BOUND 4770
 #define ENTRY_WYVERN 4107
-
-
 
 struct TRINITY_DLL_DECL npc_swiftmountainAI : public npc_escortAI
 {
@@ -69,11 +72,10 @@ npc_swiftmountainAI(Creature *c) : npc_escortAI(c) {Reset();}
 
     void Reset()
     {
-
+        m_creature->setFaction(104);
     }
 
-    void Aggro(Unit* who)
-    {}
+    void Aggro(Unit* who){}
 
     void JustSummoned(Creature* summoned)
     {
@@ -101,7 +103,6 @@ bool QuestAccept_npc_swiftmountain(Player* player, Creature* creature, Quest con
     {
         ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
         DoScriptText(SAY_READY, creature, player);
-        // Change faction so mobs attack
         creature->setFaction(113);
     }
 
@@ -188,6 +189,120 @@ CreatureAI* GetAI_npc_swiftmountain(Creature *_Creature)
     return (CreatureAI*)thisAI;
 }
 
+/*#####
+# npc_plucky
+######*/
+
+#define GOSSIP_P    "<Learn Secret phrase>"
+
+#define SPELL_TRANSFORM_HUMAN 9192
+#define QUEST_GET_THE_SCOOP 1950
+
+struct TRINITY_DLL_DECL npc_pluckyAI : public ScriptedAI
+{
+    npc_pluckyAI(Creature *c) : ScriptedAI(c) {Reset();}
+
+    bool Transformed;
+    bool Chicken;
+
+    uint32 Timer;
+    uint32 ChickenTimer;
+
+    void Reset()   {
+
+       Transformed = false;
+       Chicken     = false;
+       m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+       Timer        = 0;
+       ChickenTimer = 0;
+       }
+
+    void Aggro(Unit *who){}
+
+    void TransformHuman(uint32 emoteid)
+    {
+         if (!Transformed)
+         {
+             Transformed = true;
+             DoCast(m_creature, SPELL_TRANSFORM_HUMAN);
+             Timer = 120000;
+             if (emoteid == TEXTEMOTE_BECKON)
+                 m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+             else
+             {
+                 ChickenTimer = 1500;
+                 Chicken = true;
+             }
+         }
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (Transformed)
+        {
+            if (Timer < diff)
+                Reset();
+            else Timer-=diff;
+        }
+
+       if(Chicken)
+       {
+           if (ChickenTimer < diff)
+           {
+               m_creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
+               Chicken = false;
+           }else ChickenTimer-=diff;
+       }
+
+        if(!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+   }
+};
+
+bool ReceiveEmote_npc_plucky( Player *player, Creature *_Creature, uint32 emote )
+{
+    if( (emote == TEXTEMOTE_BECKON || emote == TEXTEMOTE_CHICKEN &&
+        player->GetQuestStatus(QUEST_GET_THE_SCOOP) == QUEST_STATUS_INCOMPLETE) )
+    {
+        _Creature->SetInFront(player);
+        ((npc_pluckyAI*)((Creature*)_Creature)->AI())->TransformHuman(emote);
+    }
+
+    return true;
+}
+
+bool GossipHello_npc_plucky(Player *player, Creature *_Creature)
+{
+    if(player->GetQuestStatus(QUEST_GET_THE_SCOOP) == QUEST_STATUS_INCOMPLETE)
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_P, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+    player->SEND_GOSSIP_MENU(738, _Creature->GetGUID());
+
+    return true;
+}
+
+bool GossipSelect_npc_plucky(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+{
+    switch( action )
+    {
+        case GOSSIP_ACTION_INFO_DEF+1:
+            player->CLOSE_GOSSIP_MENU();
+            player->CompleteQuest(QUEST_GET_THE_SCOOP);
+        break;
+    }
+    return true;
+}
+
+CreatureAI* GetAI_npc_plucky(Creature *_Creature)
+{
+return new npc_pluckyAI(_Creature);
+}
+
+/*#####
+#
+######*/
+
 void AddSC_thousand_needles()
 {
     Script *newscript;
@@ -197,4 +312,13 @@ void AddSC_thousand_needles()
     newscript->GetAI = &GetAI_npc_swiftmountain;
     newscript->pQuestAccept = &QuestAccept_npc_swiftmountain;
     newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_plucky";
+    newscript->GetAI = &GetAI_npc_plucky;
+    newscript->pReceiveEmote =  &ReceiveEmote_npc_plucky;
+    newscript->pGossipHello =   &GossipHello_npc_plucky;
+    newscript->pGossipSelect = &GossipSelect_npc_plucky;
+    newscript->RegisterSelf();
 }
+

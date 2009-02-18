@@ -1334,3 +1334,4 @@ void WorldSession::HandleCancelTempItemEnchantmentOpcode(WorldPacket& recv_data)
     GetPlayer()->ApplyEnchantment(item,TEMP_ENCHANTMENT_SLOT,false);
     item->ClearEnchantment(TEMP_ENCHANTMENT_SLOT);
 }
+

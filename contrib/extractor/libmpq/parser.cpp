@@ -292,3 +292,4 @@ int libmpq_conf_get_array(FILE *fp, char *search_value, char ***filelist, int *e
 
     return found;
 }
+

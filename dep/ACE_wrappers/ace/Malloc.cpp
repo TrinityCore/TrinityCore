@@ -185,3 +185,4 @@ ACE_Malloc_Stats::dump (void) const
 #endif /*ACE_HAS_MALLOC_STATS*/
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

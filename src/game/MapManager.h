@@ -75,7 +75,7 @@ class TRINITY_DLL_DECL MapManager : public Trinity::Singleton<MapManager, Trinit
             i_timer.Reset();
         }
 
-        void LoadGrid(int mapid, float x, float y, const WorldObject* obj, bool no_unload = false);
+        //void LoadGrid(int mapid, float x, float y, const WorldObject* obj, bool no_unload = false);
         void UnloadAll();
 
         static bool ExistMapAndVMap(uint32 mapid, float x, float y);
@@ -147,3 +147,4 @@ class TRINITY_DLL_DECL MapManager : public Trinity::Singleton<MapManager, Trinit
         uint32 i_MaxInstanceId;
 };
 #endif
+

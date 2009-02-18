@@ -96,3 +96,4 @@ extern int inflate_flush OF((
 struct internal_state      {int dummy;}; /* for buggy compilers */
 
 #endif
+
