@@ -398,6 +398,19 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
             break;
     }
 
+    for(int i = 0; i < 3; ++i)
+    {
+        if(spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA)
+        {
+            switch(spellInfo->EffectApplyAuraName[i])
+            {
+                case SPELL_AURA_MOD_CHARM:
+                case SPELL_AURA_MOD_POSSESS_PET:
+                case SPELL_AURA_MOD_POSSESS:
+                    return SPELL_CHARM;
+            }
+        }
+    }
     // elixirs can have different families, but potion most ofc.
     if(SpellSpecific sp = spellmgr.GetSpellElixirSpecific(spellInfo->Id))
         return sp;
@@ -437,6 +450,7 @@ bool IsSingleFromSpellSpecificPerTarget(uint32 spellSpec1,uint32 spellSpec2)
         case SPELL_WELL_FED:
         case SPELL_DRINK:
         case SPELL_FOOD:
+        case SPELL_CHARM:
             return spellSpec1==spellSpec2;
         case SPELL_BATTLE_ELIXIR:
             return spellSpec2==SPELL_BATTLE_ELIXIR
