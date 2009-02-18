@@ -288,7 +288,8 @@ enum SpellSpecific
     SPELL_WARLOCK_CORRUPTION= 17,
     SPELL_WELL_FED          = 18,
     SPELL_DRINK             = 19,
-    SPELL_FOOD              = 20
+    SPELL_FOOD              = 20,
+    SPELL_CHARM             = 21,
 };
 
 #define SPELL_LINKED_MAX_SPELLS  200000
