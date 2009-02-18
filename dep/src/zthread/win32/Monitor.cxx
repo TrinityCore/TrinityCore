@@ -29,24 +29,24 @@
 using namespace ZThread;
 
 Monitor::Monitor() : _owner(0), _waiting(false) {
-  
-  _handle = ::CreateEvent(0, TRUE, FALSE, 0);  
+
+  _handle = ::CreateEvent(0, TRUE, FALSE, 0);
   if(_handle == NULL) {
     assert(0);
   }
 
 }
- 
+
 Monitor::~Monitor() {
-  
+
   assert(!_waiting);
 
-  ::CloseHandle(_handle);  
+  ::CloseHandle(_handle);
 
 }
 
 Monitor::STATE Monitor::wait(unsigned long ms) {
-  
+
   // Update the owner on first use. The owner will not change, each
   // thread waits only on a single Monitor and a Monitor is never
   // shared
@@ -54,13 +54,13 @@ Monitor::STATE Monitor::wait(unsigned long ms) {
     _owner = ::GetCurrentThreadId();
 
   STATE state; //(INVALID);
-  
+
   // Serialize access to the state of the Monitor
   // and test the state to determine if a wait is needed.
   _waitLock.acquire();
 
   if(pending(ANYTHING)) {
-    
+
     // Return without waiting when possible
     state = next();
 
@@ -68,12 +68,12 @@ Monitor::STATE Monitor::wait(unsigned long ms) {
     return state;
 
   }
-  // Unlock the external lock if a wait() is probably needed. 
+  // Unlock the external lock if a wait() is probably needed.
   // Access to the state is still serial.
   _lock.release();
 
   // Wait for a transition in the state that is of interest, this
-  // allows waits to exclude certain flags (e.g. INTERRUPTED) 
+  // allows waits to exclude certain flags (e.g. INTERRUPTED)
   // for a single wait() w/o actually discarding those flags -
   // they will remain set until a wait interested in those flags
   // occurs.
@@ -82,13 +82,13 @@ Monitor::STATE Monitor::wait(unsigned long ms) {
   // Wait, ignoring signals
   _waiting = true;
 
-  // Block until the event is set.  
+  // Block until the event is set.
   _waitLock.release();
 
   // The event is manual reset so this lack of atmoicity will not
   // be an issue
 
-  DWORD dwResult = 
+  DWORD dwResult =
     ::WaitForSingleObject(_handle, ((ms == 0) ? INFINITE : (DWORD)ms));
 
   // Reacquire serialized access to the state
@@ -99,20 +99,20 @@ Monitor::STATE Monitor::wait(unsigned long ms) {
 
   if(dwResult == WAIT_TIMEOUT)
     push(TIMEDOUT);
-  
+
   // Get the next available STATE
-  state = next();  
-  _waiting = false;  
+  state = next();
+  _waiting = false;
 
   ::ResetEvent(_handle);
 
   // Acquire the internal lock & release the external lock
   _waitLock.release();
-    
-  // Reaquire the external lock, keep from deadlocking threads calling 
+
+  // Reaquire the external lock, keep from deadlocking threads calling
   // notify(), interrupt(), etc.
   _lock.acquire();
-  
+
   return state;
 
 }
@@ -122,12 +122,12 @@ bool Monitor::interrupt() {
 
   // Serialize access to the state
   _waitLock.acquire();
-  
+
   bool wasInterruptable = !pending(INTERRUPTED);
   bool hadWaiter = _waiting;
- 
+
   if(wasInterruptable) {
- 
+
     // Update the state & wake the waiter if there is one
     push(INTERRUPTED);
 
@@ -140,9 +140,9 @@ bool Monitor::interrupt() {
         assert(0);
       }
 
-    } else 
+    } else
       wasInterruptable = !(_owner == ::GetCurrentThreadId());
-            
+
   }
 
   _waitLock.release();
@@ -159,7 +159,7 @@ bool Monitor::isInterrupted() {
 
   bool wasInterrupted = pending(INTERRUPTED);
   clear(INTERRUPTED);
-    
+
   _waitLock.release();
 
   return wasInterrupted;
@@ -173,15 +173,15 @@ bool Monitor::notify() {
   _waitLock.acquire();
 
   bool wasNotifyable = !pending(INTERRUPTED);
- 
+
   if(wasNotifyable) {
-  
+
     // Set the flag and wake the waiter if there
     // is one
     push(SIGNALED);
-    
+
     // If there is a waiter then send the signal.
-    if(_waiting) 
+    if(_waiting)
       if(::SetEvent(_handle) == FALSE) {
         assert(0);
       }
@@ -202,20 +202,20 @@ bool Monitor::cancel() {
 
   bool wasInterrupted = !pending(INTERRUPTED);
   bool hadWaiter = _waiting;
- 
+
   push(CANCELED);
 
   if(wasInterrupted) {
- 
+
     // Update the state & wake the waiter if there is one
     push(INTERRUPTED);
-    
+
     // If there is a waiter then send the signal.
-    if(hadWaiter && !masked(Monitor::INTERRUPTED)) 
+    if(hadWaiter && !masked(Monitor::INTERRUPTED))
       if(::SetEvent(_handle) == FALSE) {
         assert(0);
       }
-    
+
   }
 
   _waitLock.release();
@@ -230,7 +230,7 @@ bool Monitor::isCanceled() {
   _waitLock.acquire();
 
   bool wasCanceled = examine(CANCELED);
-    
+
   if(_owner == ::GetCurrentThreadId())
     clear(INTERRUPTED);
 

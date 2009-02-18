@@ -26,10 +26,10 @@
 #include "Monitor.h"
 
 // This file will select an implementation for a Monitor based on
-// what Monitor.h selects. This method is for selecting the 
+// what Monitor.h selects. This method is for selecting the
 // source files, to improve portability. Currently, the project is
 // based on the autoconf tool-set, which doesn't support conditional
-// compilation well. Additionally, this should make the library 
+// compilation well. Additionally, this should make the library
 // easier to port since its working around conditional compilation
 // by using C++ features and people won't have to fiddle around with
 // their make tool as much to compile the source
