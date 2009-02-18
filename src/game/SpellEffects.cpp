@@ -4996,7 +4996,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
         }
         case 47977:                                     // Magic Broom
         {
-            if(!unitTarget)                  
+            if(!unitTarget)
                 return;
 
             if(unitTarget)
