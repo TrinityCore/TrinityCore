@@ -310,6 +310,7 @@ enum SpellSpecific
     SPELL_DRINK             = 19,
     SPELL_FOOD              = 20,
     SPELL_PRESENCE          = 21,
+    SPELL_CHARM             = 22,
 };
 
 #define SPELL_LINKED_MAX_SPELLS  200000
