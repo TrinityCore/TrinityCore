@@ -28,28 +28,28 @@
 namespace ZThread {
 
   class InheritPriorityBehavior : public NullBehavior {
-  
+
     ThreadImpl* owner;
     Priority p;
 
   protected:
 
-    // Temporarily raise the effective priority of the owner 
-    inline void waiterArrived(ThreadImpl* impl) {  
-    
+    // Temporarily raise the effective priority of the owner
+    inline void waiterArrived(ThreadImpl* impl) {
+
       Priority q = impl->getPriority();
       if((int)q > (int)p) {
 
         ThreadOps::setPriority(impl, p);
         p = q;
-      
+
       }
 
     }
 
 
     // Note the owners priority
-    inline void ownerAcquired(ThreadImpl* impl) {  
+    inline void ownerAcquired(ThreadImpl* impl) {
 
       p = impl->getPriority();
       owner = impl;
@@ -57,7 +57,7 @@ namespace ZThread {
     }
 
     // Restore its original priority
-    inline void ownerReleased(ThreadImpl* impl) {  
+    inline void ownerReleased(ThreadImpl* impl) {
 
       if(p > owner->getPriority())
         ThreadOps::setPriority(impl, impl->getPriority());
@@ -66,18 +66,18 @@ namespace ZThread {
 
   };
 
-  class PriorityInheritanceMutexImpl : 
+  class PriorityInheritanceMutexImpl :
     public MutexImpl<priority_list, InheritPriorityBehavior> { };
 
   PriorityInheritanceMutex::PriorityInheritanceMutex() {
-  
+
     _impl = new PriorityInheritanceMutexImpl();
-  
+
   }
 
   PriorityInheritanceMutex::~PriorityInheritanceMutex() {
 
-    if(_impl != 0) 
+    if(_impl != 0)
       delete _impl;
 
   }
@@ -85,7 +85,7 @@ namespace ZThread {
   // P
   void PriorityInheritanceMutex::acquire() {
 
-    _impl->acquire(); 
+    _impl->acquire();
 
   }
 
@@ -93,14 +93,14 @@ namespace ZThread {
   // P
   bool PriorityInheritanceMutex::tryAcquire(unsigned long ms) {
 
-    return _impl->tryAcquire(ms); 
+    return _impl->tryAcquire(ms);
 
   }
 
   // V
   void PriorityInheritanceMutex::release() {
 
-    _impl->release(); 
+    _impl->release();
 
   }
 

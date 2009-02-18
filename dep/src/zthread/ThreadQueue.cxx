@@ -29,9 +29,9 @@
 #include <deque>
 
 namespace ZThread {
-  
-  ThreadQueue::ThreadQueue() 
-    : _waiter(0) { 
+
+  ThreadQueue::ThreadQueue()
+    : _waiter(0) {
 
     ZTDEBUG("ThreadQueue created\n");
 
@@ -52,36 +52,36 @@ namespace ZThread {
       TaskList shutdownTasks;
 
       { // Check the queue to for pending user threads
-        
+
         Guard<FastLock> g(_lock);
-        
+
         waitRequired = (_waiter != (ThreadImpl*)1);
         _waiter = impl;
-        
+
         threadsWaiting = !_userThreads.empty() || !_pendingThreads.empty();
-        
+
         //ZTDEBUG("Wait required:   %d\n", waitRequired);
         //ZTDEBUG("Threads waiting: %d\n", threadsWaiting);
-        
+
         // Auto-cancel any active threads at the time main() goes out of scope
-        // "force" a gentle exit from the executing tasks; eventually the user- 
+        // "force" a gentle exit from the executing tasks; eventually the user-
         // threads will transition into pending-threads
         pollUserThreads();
-        
+
         // Remove all the tasks about to be run from the task list so an indication
         // can be given to threads calling removeShutdownTask() too late.
-        std::remove_copy(_shutdownTasks.begin(), 
-                         _shutdownTasks.end(), 
-                         std::back_inserter(shutdownTasks), 
-                         Task((Runnable*)0)); 
-        
+        std::remove_copy(_shutdownTasks.begin(),
+                         _shutdownTasks.end(),
+                         std::back_inserter(shutdownTasks),
+                         Task((Runnable*)0));
+
         //ZTDEBUG("Threads waiting: %d\n", threadsWaiting);
-        
+
       }
 
       // Execute the shutdown tasks
       for(TaskList::iterator i = shutdownTasks.begin(); i != shutdownTasks.end(); ++i) {
-        try { 
+        try {
           (*i)->run();
         } catch(...) { }
       }
@@ -93,20 +93,20 @@ namespace ZThread {
 
 
       Monitor& m = _waiter->getMonitor();
-      
+
       // Defer interruption while this thread waits for a signal from
       // the last pending user thread
       Guard<Monitor, CompoundScope<DeferredInterruptionScope, LockedScope> > g(m);
       //ZTDEBUG("Threads waiting: %d %d\n", _userThreads.size(), _pendingThreads.size());
 
       // Avoid race-condition where the last threads are done with thier tasks, but
-      // only begin the final part of the clean up phase after this destructor begins 
+      // only begin the final part of the clean up phase after this destructor begins
       // to run. Takes advantage of the fact that if all remaining threads have transitioned
       // into a pending state by the time execution reaches this point, then there is no
       // need to wait.
       waitRequired = waitRequired && !(_userThreads.empty() && !_pendingThreads.empty());
 
-      // Reference threads can't be interrupted or otherwise 
+      // Reference threads can't be interrupted or otherwise
       // manipulated. The only signal this monitor will receive
       // at this point will be from the last pending thread.
       if(waitRequired && m.wait() != Monitor::SIGNALED) {
@@ -115,16 +115,16 @@ namespace ZThread {
 
       // Join those pending threads
       pollPendingThreads();
-      
+
     }
-      
+
     // Clean up the reference threads
-    pollReferenceThreads(); 
-    
+    pollReferenceThreads();
+
     ZTDEBUG("ThreadQueue destroyed\n");
 
   }
-  
+
 
   void ThreadQueue::insertPendingThread(ThreadImpl* impl) {
     ZTDEBUG("insertPendingThread()\n");
@@ -136,7 +136,7 @@ namespace ZThread {
       _userThreads.erase(i);
 
     _pendingThreads.push_back(impl);
-    
+
     // Wake the main thread,if its waiting, when the last pending-thread becomes available;
     // Otherwise, take note that no wait for pending threads to finish is needed
     if(_userThreads.empty())
@@ -171,7 +171,7 @@ namespace ZThread {
       impl->cancel(true);
 
     ZTDEBUG("1 user-thread added.\n");
-    
+
   }
 
 
@@ -183,9 +183,9 @@ namespace ZThread {
 
       ThreadImpl* impl = (ThreadImpl*)*i;
       ThreadOps::join(impl);
-      
+
       impl->delReference();
-           
+
       i = _pendingThreads.erase(i);
 
       ZTDEBUG("1 pending-thread reclaimed.\n");
@@ -199,14 +199,14 @@ namespace ZThread {
     ZTDEBUG("pollReferenceThreads()\n");
 
     for(ThreadList::iterator i = _referenceThreads.begin(); i != _referenceThreads.end(); ++i) {
-      
+
       ThreadImpl* impl = (ThreadImpl*)*i;
       impl->delReference();
-      
+
       ZTDEBUG("1 reference-thread reclaimed.\n");
 
     }
-    
+
   }
 
   void ThreadQueue::pollUserThreads() {
@@ -219,11 +219,11 @@ namespace ZThread {
       impl->cancel(true);
 
       ZTDEBUG("1 user-thread reclaimed.\n");
-      
+
     }
 
   }
-  
+
   void ThreadQueue::insertShutdownTask(Task& task) {
 
     bool hasWaiter = false;
@@ -231,34 +231,34 @@ namespace ZThread {
     {
 
       Guard<FastLock> g(_lock);
-    
-      // Execute later when the ThreadQueue is destroyed  
+
+      // Execute later when the ThreadQueue is destroyed
       if( !(hasWaiter = (_waiter != 0)) ) {
 
         _shutdownTasks.push_back(task);
         //ZTDEBUG("1 shutdown task added. %d\n", _shutdownTasks.size());
-        
+
       }
 
     }
-    
+
     // Execute immediately if things are shutting down
     if(hasWaiter)
       task->run();
-    
+
   }
-  
+
   bool ThreadQueue::removeShutdownTask(const Task& task) {
-    
+
     Guard<FastLock> g(_lock);
-    
+
     TaskList::iterator i = std::find(_shutdownTasks.begin(), _shutdownTasks.end(), task);
     bool removed = (i != _shutdownTasks.end());
     if(removed)
       _shutdownTasks.erase(i);
 
     //ZTDEBUG("1 shutdown task removed (%d)-%d\n", removed, _shutdownTasks.size());
-    
+
     return removed;
 
   }

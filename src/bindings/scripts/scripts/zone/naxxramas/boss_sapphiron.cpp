@@ -108,7 +108,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
                         m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                         m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING + MOVEMENTFLAG_ONTRANSPORT);
                         m_creature->GetMotionMaster()->Clear(false);
-                        m_creature->GetMotionMaster()->MoveIdle();  
+                        m_creature->GetMotionMaster()->MoveIdle();
                         m_creature->SetHover(true);
                         Icebolt_Timer = 4000;
                         Icebolt_Count = 0;
@@ -132,16 +132,16 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
                     }else Icebolt_Timer -= diff;
 
                     if(Icebolt_Count == 5 && IsInFly && FrostBreath_Timer < diff )
-                    {                        
+                    {
                         DoScriptText(EMOTE_BREATH, m_creature);
                         DoCast(m_creature->getVictim(),SPELL_FROST_BREATH);
                         land_Timer = 2000;
                         IsInFly = false;
                         FrostBreath_Timer = 6000;
-                    }else FrostBreath_Timer -= diff;                    
+                    }else FrostBreath_Timer -= diff;
 
                     if(!IsInFly && land_Timer < diff)
-                    {                        
+                    {
                         phase = 1;
                         m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
                         m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING + MOVEMENTFLAG_ONTRANSPORT);
