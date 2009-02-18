@@ -102,7 +102,7 @@ bool QuestAccept_npc_swiftmountain(Player* player, Creature* creature, Quest con
     if (quest->GetQuestId() == QUEST_HOMEWARD_BOUND)
     {
         ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
-        DoScriptText(SAY_READY, creature, player);        
+        DoScriptText(SAY_READY, creature, player);
         creature->setFaction(113);
     }
 
@@ -193,9 +193,9 @@ CreatureAI* GetAI_npc_swiftmountain(Creature *_Creature)
 # npc_plucky
 ######*/
 
-#define GOSSIP_P    "<Learn Secret phrase>"    
+#define GOSSIP_P    "<Learn Secret phrase>"
 
-#define SPELL_TRANSFORM_HUMAN 9192   
+#define SPELL_TRANSFORM_HUMAN 9192
 #define QUEST_GET_THE_SCOOP 1950
 
 struct TRINITY_DLL_DECL npc_pluckyAI : public ScriptedAI
@@ -209,45 +209,45 @@ struct TRINITY_DLL_DECL npc_pluckyAI : public ScriptedAI
     uint32 ChickenTimer;
 
     void Reset()   {
-       
+
        Transformed = false;
        Chicken     = false;
        m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
        Timer        = 0;
        ChickenTimer = 0;
        }
-       
+
     void Aggro(Unit *who){}
-  
-    void TransformHuman(uint32 emoteid) 
-    {        
-         if (!Transformed) 
+
+    void TransformHuman(uint32 emoteid)
+    {
+         if (!Transformed)
          {
              Transformed = true;
              DoCast(m_creature, SPELL_TRANSFORM_HUMAN);
              Timer = 120000;
              if (emoteid == TEXTEMOTE_BECKON)
                  m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-             else 
+             else
              {
                  ChickenTimer = 1500;
                  Chicken = true;
              }
-         }           
+         }
     }
-  
-    void UpdateAI(const uint32 diff) 
-    {        
-        if (Transformed) 
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (Transformed)
         {
-            if (Timer < diff)     
+            if (Timer < diff)
                 Reset();
             else Timer-=diff;
         }
-      
-       if(Chicken) 
+
+       if(Chicken)
        {
-           if (ChickenTimer < diff) 
+           if (ChickenTimer < diff)
            {
                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
                Chicken = false;
@@ -269,7 +269,7 @@ bool ReceiveEmote_npc_plucky( Player *player, Creature *_Creature, uint32 emote 
         _Creature->SetInFront(player);
         ((npc_pluckyAI*)((Creature*)_Creature)->AI())->TransformHuman(emote);
     }
-      
+
     return true;
 }
 
@@ -278,7 +278,7 @@ bool GossipHello_npc_plucky(Player *player, Creature *_Creature)
     if(player->GetQuestStatus(QUEST_GET_THE_SCOOP) == QUEST_STATUS_INCOMPLETE)
         player->ADD_GOSSIP_ITEM(0, GOSSIP_P, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
     player->SEND_GOSSIP_MENU(738, _Creature->GetGUID());
-    
+
     return true;
 }
 
@@ -300,7 +300,7 @@ return new npc_pluckyAI(_Creature);
 }
 
 /*#####
-# 
+#
 ######*/
 
 void AddSC_thousand_needles()
