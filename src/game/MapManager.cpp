@@ -289,12 +289,12 @@ bool MapManager::IsValidMAP(uint32 mapid)
     return mEntry && (!mEntry->Instanceable() || objmgr.GetInstanceTemplate(mapid));
 }
 
-void MapManager::LoadGrid(int mapid, float x, float y, const WorldObject* obj, bool no_unload)
+/*void MapManager::LoadGrid(int mapid, float x, float y, const WorldObject* obj, bool no_unload)
 {
     CellPair p = Trinity::ComputeCellPair(x,y);
     Cell cell(p);
     GetMap(mapid, obj)->LoadGrid(cell,no_unload);
-}
+}*/
 
 void MapManager::UnloadAll()
 {
