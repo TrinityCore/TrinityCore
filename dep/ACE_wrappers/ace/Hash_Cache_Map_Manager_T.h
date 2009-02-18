@@ -212,3 +212,4 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 #include /**/ "ace/post.h"
 
 #endif /* HASH_CACHE_MAP_MANAGER_T_H */
+

@@ -793,3 +793,4 @@ void AddSC_eversong_woods()
     newscript->GetAI = &GetAI_npc_infused_crystalAI;
     newscript->RegisterSelf();
 }
+

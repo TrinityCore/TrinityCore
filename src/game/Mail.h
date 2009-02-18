@@ -212,3 +212,4 @@ struct Mail
     bool HasItems() const { return !items.empty(); }
 };
 #endif
+

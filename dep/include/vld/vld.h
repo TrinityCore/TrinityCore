@@ -102,3 +102,4 @@ __declspec(dllimport) void VLDEnable ();
 #endif // _DEBUG
 
 #endif // _VLD_H_
+

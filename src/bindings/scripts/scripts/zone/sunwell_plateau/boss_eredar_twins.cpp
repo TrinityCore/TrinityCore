@@ -786,3 +786,4 @@ void AddSC_boss_eredar_twins()
     newscript->GetAI = &GetAI_mob_shadow_image;
     newscript->RegisterSelf();
 }
+

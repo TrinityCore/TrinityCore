@@ -163,3 +163,4 @@ struct TRINITY_DLL_DECL CellLock
     }
 };
 #endif
+

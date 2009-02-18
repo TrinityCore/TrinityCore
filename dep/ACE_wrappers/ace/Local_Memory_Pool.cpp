@@ -142,3 +142,4 @@ ACE_Local_Memory_Pool::round_up (size_t nbytes)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

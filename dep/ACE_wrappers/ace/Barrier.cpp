@@ -195,3 +195,4 @@ ACE_Process_Barrier::dump (void) const
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_HAS_THREADS */
+

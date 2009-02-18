@@ -71,3 +71,4 @@ class TRINITY_DLL_DECL MapInstanced : public Map
         uint16 GridMapReference[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
 };
 #endif
+

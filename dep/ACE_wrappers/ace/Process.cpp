@@ -1389,3 +1389,4 @@ ACE_Managed_Process::unmanage (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

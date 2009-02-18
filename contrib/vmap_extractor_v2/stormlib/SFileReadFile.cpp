@@ -824,3 +824,4 @@ DWORD_PTR WINAPI SFileGetFileInfo(HANDLE hMpqOrFile, DWORD dwInfoType)
     SetLastError(ERROR_INVALID_PARAMETER);
     return 0xFFFFFFFF;
 }
+

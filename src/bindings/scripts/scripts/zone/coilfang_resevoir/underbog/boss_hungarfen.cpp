@@ -154,3 +154,4 @@ void AddSC_boss_hungarfen()
     newscript->GetAI = &GetAI_mob_underbog_mushroom;
     newscript->RegisterSelf();
 }
+

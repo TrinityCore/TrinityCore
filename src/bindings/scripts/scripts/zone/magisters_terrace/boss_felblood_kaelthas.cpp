@@ -769,3 +769,4 @@ void AddSC_boss_felblood_kaelthas()
     newscript->pGOHello = &GOHello_go_movie_orb;
     newscript->RegisterSelf();
 }
+

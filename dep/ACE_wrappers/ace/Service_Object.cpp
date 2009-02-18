@@ -178,3 +178,4 @@ ACE_Dynamic_Svc_Registrar::ACE_Dynamic_Svc_Registrar (const ACE_TCHAR* alloc_nam
 #endif
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

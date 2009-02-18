@@ -381,3 +381,4 @@ ACE_ARGV_T<CHAR_TYPE>::create_buf_from_queue (void)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_ARGV_CPP */
+

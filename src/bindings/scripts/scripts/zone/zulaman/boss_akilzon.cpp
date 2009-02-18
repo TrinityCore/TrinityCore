@@ -466,3 +466,4 @@ void AddSC_boss_akilzon()
     newscript->GetAI = &GetAI_mob_soaring_eagle;
     newscript->RegisterSelf();
 }
+

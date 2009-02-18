@@ -99,3 +99,4 @@ ACE_Dynamic_Service_Base::instance (const ACE_Service_Gestalt* repo,
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

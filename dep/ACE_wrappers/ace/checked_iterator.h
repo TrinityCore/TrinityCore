@@ -56,3 +56,4 @@ ACE_make_checked_array_iterator (PTR buf, size_t /* len */)
 # endif  /* _MSC_VER >= 1400 */
 
 #endif  /* ACE_CHECKED_ITERATOR_H */
+

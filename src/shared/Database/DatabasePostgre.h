@@ -75,3 +75,4 @@ class DatabasePostgre : public Database
         bool _TransactionCmd(const char *sql);
 };
 #endif
+

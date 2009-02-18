@@ -304,3 +304,4 @@ ObjectGridStoper::Visit(CreatureMapType &m)
 
 template void ObjectGridUnloader::Visit(GameObjectMapType &);
 template void ObjectGridUnloader::Visit(DynamicObjectMapType &);
+

@@ -114,3 +114,4 @@ inline char const* GetLogNameForGuid(uint64 guid)
     }
 }
 #endif
+

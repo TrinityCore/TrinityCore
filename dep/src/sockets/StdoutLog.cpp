@@ -94,3 +94,4 @@ void StdoutLog::error(ISocketHandler *,Socket *sock,const std::string& call,int 
 #endif
 
 
+

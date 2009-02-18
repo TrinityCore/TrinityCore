@@ -785,3 +785,4 @@ ACE_DLL_Manager::unload_dll (ACE_DLL_Handle *dll_handle, int force_unload)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

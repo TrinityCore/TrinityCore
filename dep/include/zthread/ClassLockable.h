@@ -72,3 +72,4 @@ namespace ZThread {
 } // namespace ZThread
 
 #endif // __ZTCLASSLOCKABLE_H__
+

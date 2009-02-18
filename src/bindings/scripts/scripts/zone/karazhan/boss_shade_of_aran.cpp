@@ -600,3 +600,4 @@ void AddSC_boss_shade_of_aran()
     newscript->GetAI = &GetAI_water_elemental;
     newscript->RegisterSelf();
 }
+

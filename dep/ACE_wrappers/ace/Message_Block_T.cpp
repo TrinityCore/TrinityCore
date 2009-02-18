@@ -52,3 +52,4 @@ ACE_Locked_Data_Block<ACE_LOCK>::clone_nocopy (ACE_Message_Block::Message_Flags 
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_MESSAGE_BLOCK_T_CPP */
+

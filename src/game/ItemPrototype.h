@@ -578,3 +578,4 @@ struct ItemLocale
 #pragma pack(pop)
 #endif
 #endif
+

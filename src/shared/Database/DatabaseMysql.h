@@ -77,3 +77,4 @@ class TRINITY_DLL_SPEC DatabaseMysql : public Database
 };
 #endif
 #endif
+

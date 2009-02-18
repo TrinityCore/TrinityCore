@@ -63,3 +63,4 @@ void AddSC_boss_rokmar_the_crackler()
     newscript->GetAI = GetAI_boss_rokmar_the_crackler;
     m_scripts[nrscripts++] = newscript;
 }
+

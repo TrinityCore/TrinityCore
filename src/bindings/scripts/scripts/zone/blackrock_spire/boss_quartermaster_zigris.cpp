@@ -83,3 +83,4 @@ void AddSC_boss_quatermasterzigris()
     newscript->GetAI = &GetAI_boss_quatermasterzigris;
     newscript->RegisterSelf();
 }
+

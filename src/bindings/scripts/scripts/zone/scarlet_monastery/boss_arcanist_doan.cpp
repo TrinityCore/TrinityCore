@@ -169,3 +169,4 @@ void AddSC_boss_arcanist_doan()
     newscript->GetAI = &GetAI_boss_arcanist_doan;
     newscript->RegisterSelf();
 }
+

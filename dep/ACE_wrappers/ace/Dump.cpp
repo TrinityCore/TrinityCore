@@ -139,3 +139,4 @@ ACE_ODB::remove_object (const void *this_ptr)
 ACE_ODB *ACE_ODB::instance_ = 0;
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

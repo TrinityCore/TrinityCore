@@ -84,3 +84,4 @@ namespace ZThread {
 } // namespace ZThread
 
 #endif // __ZTCANCELABLE_H__
+

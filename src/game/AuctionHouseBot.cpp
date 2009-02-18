@@ -1196,3 +1196,4 @@ void AuctionHouseBotLoadValues(AHBConfig *config)
         {sLog.outError("buyerBidsPerInterval = %u", config->GetBidsPerInterval());}
     }
 }
+

@@ -121,3 +121,4 @@ void AddSC_shadowfang_keep()
     newscript->GetAI = &GetAI_npc_shadowfang_prisoner;
     newscript->RegisterSelf();
 }
+

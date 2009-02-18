@@ -20,3 +20,4 @@ ACE_Notification_Strategy::~ACE_Notification_Strategy (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

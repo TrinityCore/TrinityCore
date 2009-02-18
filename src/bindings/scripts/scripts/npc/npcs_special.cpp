@@ -1207,3 +1207,4 @@ void AddSC_npcs_special()
     newscript->GetAI = &GetAI_npc_snake_trap_serpents;
     newscript->RegisterSelf();
 }
+

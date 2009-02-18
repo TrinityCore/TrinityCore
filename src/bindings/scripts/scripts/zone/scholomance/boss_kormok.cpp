@@ -153,3 +153,4 @@ void AddSC_boss_kormok()
     newscript->GetAI = &GetAI_boss_kormok;
     newscript->RegisterSelf();
 }
+

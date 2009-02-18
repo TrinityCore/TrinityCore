@@ -96,3 +96,4 @@ extern uint32 GetSkillLevel(Player *player,uint32 skill);
 
 // -----------------------------------
 #endif
+

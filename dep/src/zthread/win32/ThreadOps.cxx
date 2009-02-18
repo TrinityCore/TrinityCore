@@ -26,7 +26,7 @@
 
 namespace ZThread {
 
-const ThreadOps ThreadOps::INVALID(0); 
+const ThreadOps ThreadOps::INVALID(0);
 
 /**
  * Detect OS at runtime and attempt to locate the SwitchToThread
@@ -46,10 +46,10 @@ public:
     v.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 
     if(::GetVersionEx(&v) && (v.dwPlatformId == VER_PLATFORM_WIN32_NT)) {
-    
+
        // Uses GetModuleHandle() so the reference count on the dll is
        // not affected. There is a warning about race conditions involving
-       // this function being called as FreeLibrary() completes; however 
+       // this function being called as FreeLibrary() completes; however
        // nearly all win32 applications load this particular and will keep it
        // in memory until the process exits.
        HINSTANCE hInst = ::GetModuleHandle("Kernel32.dll");
@@ -62,10 +62,10 @@ public:
   }
 
   bool operator()() {
-  
+
     // Attempt to yield using the best function available
-    if(!_fnYield || !_fnYield()) 
-      ::Sleep(0);  
+    if(!_fnYield || !_fnYield())
+      ::Sleep(0);
 
     return true;
 
@@ -78,8 +78,8 @@ bool ThreadOps::join(ThreadOps* ops) {
   assert(ops);
   assert(ops->_tid != 0);
   assert(ops->_hThread != NULL);
-  
-  if(::WaitForSingleObjectEx(ops->_hThread, INFINITE, FALSE) != WAIT_OBJECT_0) 
+
+  if(::WaitForSingleObjectEx(ops->_hThread, INFINITE, FALSE) != WAIT_OBJECT_0)
     return false;
 
   ::CloseHandle(ops->_hThread);
@@ -102,11 +102,11 @@ bool ThreadOps::yield() {
 bool ThreadOps::setPriority(ThreadOps* impl, Priority p) {
 
   assert(impl);
- 
+
 #if !defined(ZTHREAD_DISABLE_PRIORITY)
 
   bool result;
-  
+
   // Convert
   int n;
   switch(p) {
@@ -121,7 +121,7 @@ bool ThreadOps::setPriority(ThreadOps* impl, Priority p) {
     n = THREAD_PRIORITY_NORMAL;
   }
 
-  
+
   result = (::SetThreadPriority(impl->_hThread, n) != THREAD_PRIORITY_ERROR_RETURN);
   return result;
 
@@ -137,7 +137,7 @@ bool ThreadOps::getPriority(ThreadOps* impl, Priority& p) {
 
   assert(impl);
   bool result = true;
-  
+
 #if !defined(ZTHREAD_DISABLE_PRIORITY)
 
   // Convert to one of the PRIORITY values
@@ -154,7 +154,7 @@ bool ThreadOps::getPriority(ThreadOps* impl, Priority& p) {
     default:
       p = Medium;
   }
-  
+
 #endif
 
   return result;
@@ -191,7 +191,7 @@ unsigned int __stdcall ThreadOps::_dispatch(void *arg) {
 #endif
 
   return 0;
-  
+
 }
 
 }

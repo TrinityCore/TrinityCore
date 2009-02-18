@@ -440,3 +440,4 @@ void AddSC_boss_darkweaver_syth()
     newscript->GetAI = &GetAI_mob_syth_shadow;
     newscript->RegisterSelf();
 }
+

@@ -152,3 +152,4 @@ ACE_Vector_Iterator<T, DEFAULT_SIZE>::next (T *&item)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_VECTOR_T_CPP */
+

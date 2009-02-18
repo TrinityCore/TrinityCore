@@ -287,3 +287,4 @@ void AddSC_stratholme()
     newscript->pReceiveEmote = &ReciveEmote_mobs_spectral_ghostly_citizen;
     newscript->RegisterSelf();
 }
+

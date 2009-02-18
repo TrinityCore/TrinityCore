@@ -76,3 +76,4 @@ class TRINITY_DLL_DECL WorldLog : public Trinity::Singleton<WorldLog, Trinity::C
 #define sWorldLog WorldLog::Instance()
 #endif
 /// @}
+

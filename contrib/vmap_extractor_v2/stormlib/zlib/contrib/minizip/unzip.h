@@ -273,3 +273,4 @@ extern int ZEXPORT unzGetLocalExtrafield OF((unzFile file,
 #endif
 
 #endif /* _unz_H */
+

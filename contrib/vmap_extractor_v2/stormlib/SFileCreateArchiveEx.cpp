@@ -528,3 +528,4 @@ BOOL WINAPI SFileRenameFile(HANDLE hMPQ, const char * szFileName, const char * s
     return (nError == ERROR_SUCCESS);
 }
 
+

@@ -203,3 +203,4 @@ void AddSC_boss_ambassador_hellmaw()
     newscript->GetAI = &GetAI_boss_ambassador_hellmaw;
     newscript->RegisterSelf();
 }
+

@@ -23,3 +23,4 @@
 MovementGenerator::~MovementGenerator()
 {
 }
+

@@ -930,3 +930,4 @@ ACE_SOCK_Dgram_Mcast::clear_subs_list (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

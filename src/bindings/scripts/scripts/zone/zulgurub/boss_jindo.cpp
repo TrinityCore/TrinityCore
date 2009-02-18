@@ -267,3 +267,4 @@ void AddSC_boss_jindo()
     newscript->GetAI = &GetAI_mob_shade_of_jindo;
     newscript->RegisterSelf();
 }
+

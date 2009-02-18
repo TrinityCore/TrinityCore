@@ -147,7 +147,7 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
         TalkSequence = 0;
         isFriendly = false;
         isEnraged = false;
-        isBanished = false;        
+        isBanished = false;
     }
 
     void DamageTaken(Unit *done_by, uint32 &damage)
@@ -191,7 +191,7 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
         switch(TalkSequence)
         {
         case 1:
-            m_creature->setFaction(35);            
+            m_creature->setFaction(35);
             TalkTimer = 1000;
             break;
         case 2:
@@ -276,7 +276,7 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
         CheckTimer = 1000;
         ResetThreat = 1000;
         isEnraged = false;
-        isBanished = false;        
+        isBanished = false;
     }
 
     void Aggro(Unit* who)
@@ -339,7 +339,7 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
             if(Player* i_pl = i->getSource())
                 if(i_pl->HasAura(AURA_SPECTRAL_REALM,0))
                     i_pl->RemoveAurasDueToSpell(AURA_SPECTRAL_REALM);
-    }    
+    }
 
     void UpdateAI(const uint32 diff)
     {
@@ -471,7 +471,7 @@ struct TRINITY_DLL_DECL boss_kalecAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
-            return; 
+            return;
 
         if(YellTimer < diff)
         {
@@ -559,7 +559,7 @@ void boss_kalecgosAI::UpdateAI(const uint32 diff)
                  DoCast(m_creature, SPELL_ENRAGE, true);
                  isEnraged = true;
              }
- 
+
              if(!isBanished && (m_creature->GetHealth()*100)/m_creature->GetMaxHealth() < 1)
              {
                  if(Unit *Sath = Unit::GetUnit(*m_creature, SathGUID))
@@ -674,3 +674,4 @@ void AddSC_boss_kalecgos()
     newscript->pGOHello = &GOkalocegos_teleporter;
     newscript->RegisterSelf();
 }
+

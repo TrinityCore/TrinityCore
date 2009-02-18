@@ -225,3 +225,4 @@ void AddSC_boss_warp_splinter()
     newscript->GetAI = &GetAI_mob_treant;
     newscript->RegisterSelf();
 }
+

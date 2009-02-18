@@ -272,3 +272,4 @@ ACE_OS::scandir_emulation (const ACE_TCHAR *dirname,
 #endif /* !ACE_HAS_SCANDIR */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

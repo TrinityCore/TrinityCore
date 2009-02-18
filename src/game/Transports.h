@@ -117,3 +117,4 @@ class Transport : private GameObject
         WayPointMap::iterator GetNextWayPoint();
 };
 #endif
+

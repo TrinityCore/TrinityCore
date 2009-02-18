@@ -41,3 +41,4 @@ class TRINITY_DLL_SPEC GroupReference : public Reference<Group, Player>
         void setSubGroup(uint8 pSubGroup) { iSubGroup = pSubGroup; }
 };
 #endif
+

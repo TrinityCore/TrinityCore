@@ -89,3 +89,4 @@ void AddSC_boss_gehennas()
     newscript->GetAI = &GetAI_boss_gehennas;
     newscript->RegisterSelf();
 }
+

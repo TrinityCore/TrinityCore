@@ -86,3 +86,4 @@ ACE_SV_Shared_Memory::ACE_SV_Shared_Memory (ACE_HANDLE int_id,
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

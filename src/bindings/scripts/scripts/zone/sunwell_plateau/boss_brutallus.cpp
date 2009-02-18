@@ -172,3 +172,4 @@ void AddSC_boss_brutallus()
     newscript->GetAI = &GetAI_boss_brutallus;
     newscript->RegisterSelf();
 }
+

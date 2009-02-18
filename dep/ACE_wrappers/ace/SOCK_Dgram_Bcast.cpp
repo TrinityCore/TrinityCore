@@ -378,3 +378,4 @@ ACE_SOCK_Dgram_Bcast::send (const iovec iov[],
 #endif /* ACE_HAS_MSG */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

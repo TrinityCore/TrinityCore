@@ -157,3 +157,4 @@ class SocialMgr
 
 #define sSocialMgr Trinity::Singleton<SocialMgr>::Instance()
 #endif
+

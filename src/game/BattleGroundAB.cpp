@@ -671,3 +671,4 @@ void BattleGroundAB::UpdatePlayerScore(Player *Source, uint32 type, uint32 value
             break;
     }
 }
+

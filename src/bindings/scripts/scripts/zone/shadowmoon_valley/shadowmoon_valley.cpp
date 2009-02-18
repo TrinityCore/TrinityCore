@@ -1848,3 +1848,4 @@ void AddSC_shadowmoon_valley()
     newscript->GetAI = &GetAI_npc_enraged_spirit;
     newscript->RegisterSelf();
 }
+

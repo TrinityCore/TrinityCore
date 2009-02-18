@@ -76,3 +76,4 @@ void AddSC_boss_houndmaster_loksey()
     newscript->GetAI = &GetAI_boss_houndmaster_loksey;
     newscript->RegisterSelf();
 }
+

@@ -612,3 +612,4 @@ ACE_Sig_Handlers::handler (int signum, ACE_Event_Handler *new_sh)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

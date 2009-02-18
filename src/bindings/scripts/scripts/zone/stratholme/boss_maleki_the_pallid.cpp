@@ -107,3 +107,4 @@ void AddSC_boss_maleki_the_pallid()
     newscript->GetAI = &GetAI_boss_maleki_the_pallid;
     newscript->RegisterSelf();
 }
+

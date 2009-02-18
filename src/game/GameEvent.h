@@ -160,3 +160,4 @@ class GameEvent
 
 #define gameeventmgr Trinity::Singleton<GameEvent>::Instance()
 #endif
+

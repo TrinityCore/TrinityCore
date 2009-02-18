@@ -35,3 +35,4 @@ EndScriptData */
 #define H_SPELL_SAW_BLADE               39192
 #define SPELL_SHADOW_POWER              35322
 #define H_SPELL_SHADOW_POWER            39193
+

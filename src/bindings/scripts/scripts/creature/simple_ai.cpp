@@ -292,3 +292,4 @@ void SimpleAI::UpdateAI(const uint32 diff)
 
     DoMeleeAttackIfReady();
 }
+

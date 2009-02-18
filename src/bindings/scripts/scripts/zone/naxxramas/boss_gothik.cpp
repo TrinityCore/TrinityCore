@@ -59,3 +59,4 @@ EndScriptData */
 
 //Spectral Horse
 #define SPELL_STOMP                 27993
+

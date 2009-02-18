@@ -70,3 +70,4 @@ ACE_File_Lock::~ACE_File_Lock (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

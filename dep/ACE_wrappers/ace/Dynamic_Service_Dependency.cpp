@@ -49,3 +49,4 @@ ACE_Dynamic_Service_Dependency::init (const ACE_Service_Gestalt *cfg,
 
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

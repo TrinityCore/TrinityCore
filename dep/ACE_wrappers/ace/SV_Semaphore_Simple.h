@@ -195,3 +195,4 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 #include /**/ "ace/post.h"
 
 #endif /* _SV_SEMAPHORE_SIMPLE_H */
+
