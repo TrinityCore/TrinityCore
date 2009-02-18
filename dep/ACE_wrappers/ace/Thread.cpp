@@ -97,3 +97,4 @@ ACE_Thread::spawn_n (ACE_thread_t thread_ids[],
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_HAS_THREADS */
+

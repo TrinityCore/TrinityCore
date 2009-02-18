@@ -120,3 +120,4 @@ class ThreadImpl : public IntrusivePtr<ThreadImpl, FastLock>, public ThreadOps {
 } // namespace ZThread
 
 #endif // __ZTTHREADIMPL_H__
+

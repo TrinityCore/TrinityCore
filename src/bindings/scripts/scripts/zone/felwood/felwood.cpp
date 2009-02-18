@@ -87,3 +87,4 @@ void AddSC_felwood()
     newscript->pGossipSelect = &GossipSelect_npcs_riverbreeze_and_silversky;
     newscript->RegisterSelf();
 }
+

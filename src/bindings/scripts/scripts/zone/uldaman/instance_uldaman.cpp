@@ -303,3 +303,4 @@ void AddSC_instance_uldaman()
     newscript->GetInstanceData = &GetInstanceData_instance_uldaman;
     newscript->RegisterSelf();
 }
+

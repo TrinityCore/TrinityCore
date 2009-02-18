@@ -201,3 +201,4 @@ void AddSC_boss_murmur()
     newscript->GetAI = &GetAI_boss_murmur;
     newscript->RegisterSelf();
 }
+

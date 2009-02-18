@@ -65,3 +65,4 @@ ACE_FIFO_Recv_Msg::ACE_FIFO_Recv_Msg (const ACE_TCHAR *fifo_name,
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

@@ -93,3 +93,4 @@ void AddSC_boss_shadowvosh()
     newscript->GetAI = &GetAI_boss_shadowvosh;
     newscript->RegisterSelf();
 }
+

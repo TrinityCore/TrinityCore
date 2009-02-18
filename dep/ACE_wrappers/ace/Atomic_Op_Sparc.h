@@ -12,3 +12,4 @@ extern "C"
 }
 
 #endif /* ACE_ATOMIC_OP_SPARC_H */
+

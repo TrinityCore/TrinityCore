@@ -50,3 +50,4 @@ class TRINITY_DLL_DECL AggressorAI : public CreatureAI
         TimeTracker i_tracker;
 };
 #endif
+

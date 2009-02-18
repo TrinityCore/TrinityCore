@@ -129,3 +129,4 @@ void AddSC_boss_razorgore()
     newscript->GetAI = &GetAI_boss_razorgore;
     newscript->RegisterSelf();
 }
+

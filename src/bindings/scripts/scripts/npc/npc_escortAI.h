@@ -85,3 +85,4 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
         bool Run;
 };
 #endif
+

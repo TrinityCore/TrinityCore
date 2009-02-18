@@ -47,7 +47,7 @@ typedef struct atomic_count_t {
 AtomicCount::AtomicCount() {
 
   _value = reinterpret_cast<void*>(new ATOMIC_COUNT);
-  
+
 }
 
 AtomicCount::~AtomicCount() {
@@ -55,19 +55,19 @@ AtomicCount::~AtomicCount() {
   delete reinterpret_cast<ATOMIC_COUNT*>(_value);
 
 }
-  
+
 void AtomicCount::increment() {
 
   atomic_inc(&reinterpret_cast<ATOMIC_COUNT*>(_value)->count);
-  
+
 }
-  
+
 bool AtomicCount::decrement() {
 
   return atomic_dec_and_test(&reinterpret_cast<ATOMIC_COUNT*>(_value)->count);
-  
+
 }
- 
+
 };
 
 #endif // __ZTATOMICCOUNTIMPL_H__

@@ -208,3 +208,4 @@ void AddSC_instance_mount_hyjal()
     newscript->GetInstanceData = &GetInstanceData_instance_mount_hyjal;
     newscript->RegisterSelf();
 }
+

@@ -321,3 +321,4 @@ void AddSC_ghostlands()
     newscript->pQuestAccept = &QuestAccept_npc_ranger_lilatha;
     newscript->RegisterSelf();
 }
+

@@ -224,3 +224,4 @@ ACE_Obstack_T<CHAR>::freeze (void)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_OBSTACK_T_CPP */
+

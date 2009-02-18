@@ -145,3 +145,4 @@
                                               *(x) |= mask; \
                                           } while(0)
 #endif /* OPENSSL_SYS_VMS */
+

@@ -235,3 +235,4 @@ class TRINITY_DLL_DECL ObjectAccessor : public Trinity::Singleton<ObjectAccessor
         LockType i_petGuard;
 };
 #endif
+

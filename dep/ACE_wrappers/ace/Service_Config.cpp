@@ -617,3 +617,4 @@ ACE_Service_Config::reconfig_occurred (int config_occurred)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

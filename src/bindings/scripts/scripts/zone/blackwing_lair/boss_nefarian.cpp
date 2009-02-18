@@ -225,3 +225,4 @@ void AddSC_boss_nefarian()
     newscript->GetAI = &GetAI_boss_nefarian;
     newscript->RegisterSelf();
 }
+

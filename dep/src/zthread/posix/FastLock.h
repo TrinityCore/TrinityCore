@@ -119,3 +119,4 @@ class FastLock : private NonCopyable {
 };
 
 #endif
+

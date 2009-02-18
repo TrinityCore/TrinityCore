@@ -32,14 +32,14 @@ namespace ZThread {
   };
 
   PriorityCondition::PriorityCondition(Lockable& lock) {
-  
+
     _impl = new PriorityConditionImpl(lock);
 
   }
 
 
   PriorityCondition::~PriorityCondition() {
-  
+
     if(_impl != 0)
       delete _impl;
 

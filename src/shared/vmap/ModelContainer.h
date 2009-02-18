@@ -108,3 +108,4 @@ namespace VMAP
     void getBounds(const ModelContainer* pMc, G3D::AABox& pAABox);
 }
 #endif
+

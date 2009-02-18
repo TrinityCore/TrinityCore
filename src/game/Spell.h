@@ -737,3 +737,4 @@ class SpellEvent : public BasicEvent
         Spell* m_Spell;
 };
 #endif
+

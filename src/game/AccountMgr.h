@@ -58,3 +58,4 @@ class AccountMgr
 
 #define accmgr Trinity::Singleton<AccountMgr>::Instance()
 #endif
+

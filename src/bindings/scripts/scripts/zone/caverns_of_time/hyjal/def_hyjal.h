@@ -27,3 +27,4 @@
 
 #define ERROR_INST_DATA     "TSCR: Instance data not set properly for Mount Hyjal. Encounters will be buggy"
 #endif
+

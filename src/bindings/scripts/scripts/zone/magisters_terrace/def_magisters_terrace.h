@@ -28,3 +28,4 @@
 
 #define ERROR_INST_DATA      "TSCR Error: Instance Data not set properly for Magister's Terrace instance (map 585). Encounters will be buggy."
 #endif
+

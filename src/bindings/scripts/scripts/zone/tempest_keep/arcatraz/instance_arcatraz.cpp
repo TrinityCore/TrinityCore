@@ -236,3 +236,4 @@ void AddSC_instance_arcatraz()
     newscript->GetInstanceData = &GetInstanceData_instance_arcatraz;
     newscript->RegisterSelf();
 }
+

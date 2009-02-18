@@ -411,3 +411,4 @@ void AddSC_zangarmarsh()
     newscript->pQuestAccept = &QuestAccept_npc_kayra_longmane;
     newscript->RegisterSelf();
 }
+

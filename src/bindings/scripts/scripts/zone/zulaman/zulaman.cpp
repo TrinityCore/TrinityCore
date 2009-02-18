@@ -190,3 +190,4 @@ void AddSC_zulaman()
     newscript->pGossipSelect = &GossipSelect_npc_zulaman_hostage;
     newscript->RegisterSelf();
 }
+

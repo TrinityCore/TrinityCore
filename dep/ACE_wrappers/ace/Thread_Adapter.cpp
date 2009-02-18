@@ -226,3 +226,4 @@ ACE_Thread_Adapter::invoke_i (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

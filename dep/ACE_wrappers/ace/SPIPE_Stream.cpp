@@ -102,3 +102,4 @@ ACE_SPIPE_Stream::recv (size_t n, ...) const
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

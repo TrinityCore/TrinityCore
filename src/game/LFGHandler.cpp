@@ -337,3 +337,4 @@ void WorldSession::HandleSetLfgOpcode( WorldPacket & recv_data )
 
     SendLfgResult(type, entry, 0);
 }
+

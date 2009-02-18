@@ -52,3 +52,4 @@ class TRINITY_DLL_SPEC DistractMovementGenerator : public MovementGenerator
 };
 
 #endif
+

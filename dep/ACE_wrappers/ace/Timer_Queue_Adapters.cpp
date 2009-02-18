@@ -359,3 +359,4 @@ ACE_Thread_Timer_Queue_Adapter<TQ>::dispatch_commands (void)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_TIMER_QUEUE_ADAPTERS_CPP */
+

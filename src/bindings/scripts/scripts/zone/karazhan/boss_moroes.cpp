@@ -855,3 +855,4 @@ void AddSC_boss_moroes()
     newscript->GetAI = &GetAI_lord_crispin_ference;
     newscript->RegisterSelf();
 }
+

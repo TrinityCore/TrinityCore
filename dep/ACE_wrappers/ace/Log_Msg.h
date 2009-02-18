@@ -745,3 +745,4 @@ ACE_TSS_CLEANUP_NAME (void *ptr);
 
 #include /**/ "ace/post.h"
 #endif /* ACE_LOG_MSG_H */
+

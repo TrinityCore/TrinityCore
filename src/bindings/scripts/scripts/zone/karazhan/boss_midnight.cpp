@@ -325,3 +325,4 @@ void AddSC_boss_attumen()
     newscript->GetAI = &GetAI_boss_midnight;
     newscript->RegisterSelf();
 }
+

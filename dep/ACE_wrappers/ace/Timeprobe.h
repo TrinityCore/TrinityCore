@@ -199,3 +199,4 @@ static int ace_timeprobe_##descriptions##_return = \
 #endif /* ACE_ENABLE_TIMEPROBES && ACE_COMPILE_TIMEPROBES */
 #include /**/ "ace/post.h"
 #endif /* ACE_TIMEPROBE_H */
+

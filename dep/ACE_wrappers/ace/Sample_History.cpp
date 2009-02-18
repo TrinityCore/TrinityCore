@@ -71,3 +71,4 @@ ACE_Sample_History::collect_basic_stats (ACE_Basic_Stats &stats) const
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

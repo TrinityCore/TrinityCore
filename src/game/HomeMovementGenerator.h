@@ -55,3 +55,4 @@ class TRINITY_DLL_SPEC HomeMovementGenerator<Creature>
         uint32 i_travel_timer;
 };
 #endif
+

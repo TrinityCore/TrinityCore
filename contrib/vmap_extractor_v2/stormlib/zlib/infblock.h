@@ -37,3 +37,4 @@ extern void inflate_set_dictionary OF((
 
 extern int inflate_blocks_sync_point OF((
     inflate_blocks_statef *s));
+

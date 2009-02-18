@@ -102,3 +102,4 @@ void RIPEMD160_Transform(RIPEMD160_CTX *c, const unsigned char *b);
 #endif
 
 #endif
+

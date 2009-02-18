@@ -2146,3 +2146,4 @@ ACE_Configuration_Heap::remove_value (const ACE_Configuration_Section_Key& key,
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

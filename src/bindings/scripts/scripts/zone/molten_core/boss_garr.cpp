@@ -140,3 +140,4 @@ void AddSC_boss_garr()
     newscript->GetAI = &GetAI_mob_firesworn;
     newscript->RegisterSelf();
 }
+

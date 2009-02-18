@@ -928,3 +928,4 @@ void OutdoorPvPEP::SendRemoveWorldStates(Player *plr)
     plr->SendUpdateWorldState(EP_CGT_N_A,0);
     plr->SendUpdateWorldState(EP_CGT_N_H,0);
 }
+

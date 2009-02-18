@@ -81,3 +81,4 @@ void SQLStorage::Load()
     SQLStorageLoader loader;
     loader.Load(*this);
 }
+

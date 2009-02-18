@@ -964,3 +964,4 @@ ACE_Strategy_Connector<SVC_HANDLER, ACE_PEER_CONNECTOR_2>::concurrency_strategy 
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_CONNECTOR_C */
+

@@ -345,3 +345,4 @@ enum AreaAuraType
     AREA_AURA_OWNER
 };
 #endif
+

@@ -2991,3 +2991,4 @@ bool ChatHandler::HandleDrunkCommand(const char* args)
 
     return true;
 }
+

@@ -18,3 +18,4 @@
 
 #define ERROR_INST_DATA "TSCR Error: Instance Data not set properly for Gruul's Lair instance (map 565). Encounters will be buggy."
 #endif
+

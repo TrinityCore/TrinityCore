@@ -190,3 +190,4 @@ void AddSC_instance_magisters_terrace()
     newscript->GetInstanceData = &GetInstanceData_instance_magisters_terrace;
     newscript->RegisterSelf();
 }
+

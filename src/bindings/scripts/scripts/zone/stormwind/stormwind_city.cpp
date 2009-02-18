@@ -300,3 +300,4 @@ void AddSC_stormwind_city()
     newscript->pGossipSelect = &GossipSelect_npc_stormwind_harbor_taxi;
     newscript->RegisterSelf();
 }
+

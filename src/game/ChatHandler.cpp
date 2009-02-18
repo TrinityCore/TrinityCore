@@ -588,3 +588,4 @@ void WorldSession::HandleChannelDeclineInvite(WorldPacket &recvPacket)
 {
     sLog.outDebug("Opcode %u", recvPacket.GetOpcode());
 }
+

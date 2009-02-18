@@ -324,3 +324,4 @@ void AddSC_boss_gruul()
     newscript->GetAI = &GetAI_boss_gruul;
     newscript->RegisterSelf();
 }
+

@@ -353,3 +353,4 @@ ACE_Capabilities::getent (const ACE_TCHAR *fname, const ACE_TCHAR *name)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

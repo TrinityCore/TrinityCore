@@ -132,3 +132,4 @@ void AddSC_boss_magistrate_barthilas()
     newscript->GetAI = &GetAI_boss_magistrate_barthilas;
     newscript->RegisterSelf();
 }
+

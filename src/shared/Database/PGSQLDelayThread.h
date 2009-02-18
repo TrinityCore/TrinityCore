@@ -30,3 +30,4 @@ class PGSQLDelayThread : public SqlDelayThread
         void Stop() { SqlDelayThread::Stop(); }
 };
 #endif                                                      //__PGSQLDELAYTHREAD_H
+

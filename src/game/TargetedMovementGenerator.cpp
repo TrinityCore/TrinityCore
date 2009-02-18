@@ -211,3 +211,4 @@ template bool TargetedMovementGenerator<Player>::Update(Player &, const uint32 &
 template bool TargetedMovementGenerator<Creature>::Update(Creature &, const uint32 &);
 template Unit* TargetedMovementGenerator<Player>::GetTarget() const;
 template Unit* TargetedMovementGenerator<Creature>::GetTarget() const;
+

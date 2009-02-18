@@ -151,3 +151,4 @@ void AddSC_burning_steppes()
     newscript->pGossipSelect = &GossipSelect_npc_ragged_john;
     newscript->RegisterSelf();
 }
+

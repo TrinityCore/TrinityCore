@@ -560,3 +560,4 @@ class CliHandler : public ChatHandler
 char const *fmtstring( char const *format, ... );
 
 #endif
+

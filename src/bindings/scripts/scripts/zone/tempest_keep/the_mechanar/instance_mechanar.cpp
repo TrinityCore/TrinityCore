@@ -88,3 +88,4 @@ void AddSC_instance_mechanar()
     newscript->GetInstanceData = &GetInstanceData_instance_mechanar;
     newscript->RegisterSelf();
 }
+

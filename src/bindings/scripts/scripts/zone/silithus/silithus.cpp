@@ -220,3 +220,4 @@ void AddSC_silithus()
     newscript->pGossipSelect =  &GossipSelect_npcs_rutgar_and_frankal;
     newscript->RegisterSelf();
 }
+

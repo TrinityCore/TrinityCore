@@ -2311,3 +2311,4 @@ enum BattleGroundTypeId
 #define MAX_BATTLEGROUND_TYPE_ID 12
 
 #endif
+

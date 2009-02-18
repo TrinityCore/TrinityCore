@@ -267,3 +267,4 @@ void   zcfree  OF((voidpf opaque, voidpf ptr));
 #define TRY_FREE(s, p) {if (p) ZFREE(s, p);}
 
 #endif /* ZUTIL_H */
+

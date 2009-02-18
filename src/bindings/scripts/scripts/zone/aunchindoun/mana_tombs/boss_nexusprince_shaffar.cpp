@@ -287,3 +287,4 @@ void AddSC_boss_nexusprince_shaffar()
     newscript->GetAI = &GetAI_mob_ethereal_beacon;
     newscript->RegisterSelf();
 }
+

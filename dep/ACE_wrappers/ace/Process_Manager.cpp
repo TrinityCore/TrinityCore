@@ -1021,3 +1021,4 @@ ACE_Process_Manager::notify_proc_handler (size_t i,
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

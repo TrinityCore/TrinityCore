@@ -114,3 +114,4 @@ ReactorAI::EnterEvadeMode()
     else if (i_creature.GetOwner() && i_creature.GetOwner()->isAlive())
         i_creature.GetMotionMaster()->MoveFollow(i_creature.GetOwner(),PET_FOLLOW_DIST,PET_FOLLOW_ANGLE);
 }
+

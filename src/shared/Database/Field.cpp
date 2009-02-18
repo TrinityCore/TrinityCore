@@ -65,3 +65,4 @@ void Field::SetValue(const char *value)
     else
         mValue = NULL;
 }
+

@@ -224,3 +224,4 @@ Item* Bag::GetItemByPos( uint8 slot ) const
 
     return NULL;
 }
+

@@ -123,3 +123,4 @@ typedef uint32      DWORD;
 typedef uint64 OBJECT_HANDLE;
 
 #endif //TRINITY_DEFINE_H
+

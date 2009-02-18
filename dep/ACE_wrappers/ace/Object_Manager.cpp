@@ -887,3 +887,4 @@ ACE_Static_Object_Lock::cleanup_lock (void)
 #endif /* ACE_HAS_THREADS */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

@@ -138,3 +138,4 @@ ACE_System_Time::sync_local_system_time (ACE_System_Time::Sync_Mode)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

@@ -492,3 +492,4 @@ void OutdoorPvPZM::SendRemoveWorldStates(Player *plr)
     plr->SendUpdateWorldState(ZM_MAP_ALLIANCE_FLAG_NOT_READY,0);
     plr->SendUpdateWorldState(ZM_MAP_ALLIANCE_FLAG_READY,0);
 }
+

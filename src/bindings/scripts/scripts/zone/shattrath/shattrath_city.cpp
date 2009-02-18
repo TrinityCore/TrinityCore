@@ -737,3 +737,4 @@ void AddSC_shattrath_city()
     newscript->pGossipSelect = &GossipSelect_npc_khadgar;
     newscript->RegisterSelf();
 }
+

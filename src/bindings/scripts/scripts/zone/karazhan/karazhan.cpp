@@ -658,3 +658,4 @@ void AddSC_karazhan()
     newscript->GetAI = &GetAI_npc_image_of_medivh;
     newscript->RegisterSelf();
 }
+

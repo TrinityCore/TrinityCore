@@ -98,3 +98,4 @@ void AddSC_boss_hazzarah()
     newscript->GetAI = &GetAI_boss_hazzarah;
     newscript->RegisterSelf();
 }
+

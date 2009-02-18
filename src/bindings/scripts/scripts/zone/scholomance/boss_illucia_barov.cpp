@@ -114,3 +114,4 @@ void AddSC_boss_illuciabarov()
     newscript->GetAI = &GetAI_boss_illuciabarov;
     newscript->RegisterSelf();
 }
+

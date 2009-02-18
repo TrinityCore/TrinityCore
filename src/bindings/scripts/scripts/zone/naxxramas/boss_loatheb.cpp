@@ -144,3 +144,4 @@ void AddSC_boss_loatheb()
     newscript->GetAI = &GetAI_boss_loatheb;
     newscript->RegisterSelf();
 }
+

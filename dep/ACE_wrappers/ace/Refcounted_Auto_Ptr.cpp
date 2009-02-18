@@ -16,3 +16,4 @@ ACE_Refcounted_Auto_Ptr<X, ACE_LOCK>::~ACE_Refcounted_Auto_Ptr (void)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif  /* !ACE_REFCOUNTED_AUTO_PTR_CPP */
+

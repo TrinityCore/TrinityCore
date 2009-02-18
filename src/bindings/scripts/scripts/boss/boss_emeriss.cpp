@@ -154,3 +154,4 @@ void AddSC_boss_emeriss()
     newscript->GetAI = &GetAI_boss_emeriss;
     newscript->RegisterSelf();
 }
+

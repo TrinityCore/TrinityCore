@@ -101,3 +101,4 @@ void AddSC_boss_ebonroc()
     newscript->GetAI = &GetAI_boss_ebonroc;
     newscript->RegisterSelf();
 }
+

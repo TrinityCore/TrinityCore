@@ -291,3 +291,4 @@ ACE_Registry_Name_Space::dump (void) const
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_WIN32 && ACE_USES_WCHAR */
+

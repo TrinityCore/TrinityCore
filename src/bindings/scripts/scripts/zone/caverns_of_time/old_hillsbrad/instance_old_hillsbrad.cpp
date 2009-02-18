@@ -233,3 +233,4 @@ void AddSC_instance_old_hillsbrad()
     newscript->GetInstanceData = &GetInstanceData_instance_old_hillsbrad;
     newscript->RegisterSelf();
 }
+

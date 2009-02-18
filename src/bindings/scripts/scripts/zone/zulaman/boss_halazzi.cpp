@@ -401,3 +401,4 @@ void AddSC_boss_halazzi()
     newscript->GetAI = &GetAI_boss_spiritlynxAI;
     newscript->RegisterSelf();
 }
+

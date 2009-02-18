@@ -402,3 +402,4 @@ void AddSC_boss_warbringer_omrogg()
     newscript->GetAI = &GetAI_mob_omrogg_heads;
     newscript->RegisterSelf();
 }
+

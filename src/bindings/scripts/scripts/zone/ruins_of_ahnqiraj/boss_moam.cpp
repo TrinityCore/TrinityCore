@@ -117,3 +117,4 @@ void AddSC_boss_moam()
     newscript->GetAI = &GetAI_boss_moam;
     newscript->RegisterSelf();
 }
+

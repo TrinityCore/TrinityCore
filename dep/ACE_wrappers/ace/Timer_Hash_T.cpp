@@ -871,3 +871,4 @@ ACE_Timer_Hash_T<TYPE, FUNCTOR, ACE_LOCK, BUCKET>::expire (const ACE_Time_Value 
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_TIMER_HASH_T_CPP */
+

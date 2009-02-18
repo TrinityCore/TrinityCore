@@ -219,3 +219,4 @@ void AddSC_boss_talon_king_ikiss()
     newscript->GetAI = &GetAI_boss_talon_king_ikiss;
     newscript->RegisterSelf();
 }
+

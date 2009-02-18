@@ -346,3 +346,4 @@ namespace ZThread {
 } // namespace ZThread
 
 #endif //  __ZTSEMAPHOREIMPL_H__
+

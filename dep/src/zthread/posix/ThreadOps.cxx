@@ -31,7 +31,7 @@
 
 namespace ZThread {
 
-const ThreadOps ThreadOps::INVALID(0); 
+const ThreadOps ThreadOps::INVALID(0);
 
 bool ThreadOps::join(ThreadOps* ops) {
 
@@ -57,7 +57,7 @@ bool ThreadOps::yield() {
 #if defined(HAVE_SCHED_YIELD)
   result = sched_yield() == 0;
 #endif
-  
+
   return result;
 
 }
@@ -67,11 +67,11 @@ bool ThreadOps::setPriority(ThreadOps* impl, Priority p) {
   assert(impl);
 
   bool result = true;
-  
+
 #if !defined(ZTHREAD_DISABLE_PRIORITY)
-  
+
   struct sched_param param;
-  
+
   switch(p) {
     case Low:
       param.sched_priority = 0;
@@ -83,7 +83,7 @@ bool ThreadOps::setPriority(ThreadOps* impl, Priority p) {
     default:
       param.sched_priority = 5;
   }
-  
+
   result = pthread_setschedparam(impl->_tid, SCHED_OTHER, &param) == 0;
 
 #endif
@@ -97,14 +97,14 @@ bool ThreadOps::getPriority(ThreadOps* impl, Priority& p) {
   assert(impl);
 
   bool result = true;
-  
+
 #if !defined(ZTHREAD_DISABLE_PRIORITY)
 
   struct sched_param param;
   int policy = SCHED_OTHER;
-  
+
   if(result = (pthread_getschedparam(impl->_tid, &policy, &param) == 0)) {
-    
+
     // Convert to one of the PRIORITY values
     if(param.sched_priority < 10)
       p = Low;
@@ -112,9 +112,9 @@ bool ThreadOps::getPriority(ThreadOps* impl, Priority& p) {
       p = Medium;
     else
       p = High;
-    
+
   }
-  
+
 #endif
 
   return result;
@@ -132,16 +132,16 @@ extern "C" void *_dispatch(void *arg) {
 
   Runnable* task = reinterpret_cast<Runnable*>(arg);
   assert(task);
-  
+
   // Run the task from the correct context
   task->run();
-  
+
   // Exit the thread
   pthread_exit((void**)0);
   return (void*)0;
-  
+
 }
-  
+
 } // namespace ZThread
 
 

@@ -103,3 +103,4 @@ void AddSC_boss_high_interrogator_gerstahn()
     newscript->GetAI = &GetAI_boss_high_interrogator_gerstahn;
     newscript->RegisterSelf();
 }
+

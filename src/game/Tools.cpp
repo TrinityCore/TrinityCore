@@ -114,3 +114,4 @@ void  writeGUID(WorldPacket & data, uint64 & guid)
 
     data.append(PackedGuid,j);
 }
+

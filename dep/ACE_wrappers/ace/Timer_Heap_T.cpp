@@ -887,3 +887,4 @@ ACE_Timer_Heap_T<TYPE, FUNCTOR, ACE_LOCK>::get_first (void)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_TIMER_HEAP_T_CPP */
+

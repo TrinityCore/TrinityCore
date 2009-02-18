@@ -147,3 +147,4 @@ void HostilRefManager::setOnlineOfflineState(Unit *pCreature,bool pIsOnline)
 }
 
 //=================================================
+

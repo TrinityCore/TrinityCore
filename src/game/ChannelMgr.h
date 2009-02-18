@@ -101,3 +101,4 @@ inline ChannelMgr* channelMgr(uint32 team)
     return NULL;
 }
 #endif
+

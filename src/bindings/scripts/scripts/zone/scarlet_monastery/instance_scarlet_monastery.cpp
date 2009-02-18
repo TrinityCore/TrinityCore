@@ -152,3 +152,4 @@ void AddSC_instance_scarlet_monastery()
     newscript->GetInstanceData = &GetInstanceData_instance_scarlet_monastery;
     newscript->RegisterSelf();
 }
+

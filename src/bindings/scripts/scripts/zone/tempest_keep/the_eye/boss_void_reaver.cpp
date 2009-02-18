@@ -172,3 +172,4 @@ void AddSC_boss_void_reaver()
     newscript->GetAI = &GetAI_boss_void_reaver;
     newscript->RegisterSelf();
 }
+

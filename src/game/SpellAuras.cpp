@@ -5770,7 +5770,7 @@ void Aura::PeriodicTick()
                 int32 gain = pCaster->ModifyPower(power,gain_amount);
                 m_target->AddThreat(pCaster, float(gain) * 0.5f, GetSpellSchoolMask(GetSpellProto()), GetSpellProto());
             }
-            
+
             // Mark of Kaz'rogal
             if(GetId() == 31447 && m_target->GetPower(power) == 0)
             {

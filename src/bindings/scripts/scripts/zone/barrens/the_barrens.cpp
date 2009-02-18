@@ -556,3 +556,4 @@ void AddSC_the_barrens()
     newscript->pQuestAccept = &QuestAccept_npc_wizzlecrank_shredder;
     newscript->RegisterSelf();
 }
+

@@ -110,3 +110,4 @@ enum Field::DataTypes QueryResultMysql::ConvertNativeType(enum_field_types mysql
     }
 }
 #endif
+

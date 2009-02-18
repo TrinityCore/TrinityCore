@@ -191,3 +191,4 @@ void AddSC_go_scripts()
     newscript->pGOHello =           &GOHello_go_tablet_of_the_seven;
     newscript->RegisterSelf();
 }
+

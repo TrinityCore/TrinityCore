@@ -83,3 +83,4 @@ ACE_Msg_WFMO_Reactor::poll_remaining_handles (DWORD slot)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_WIN32 && !ACE_LACKS_MSG_WFMO */
+

@@ -271,3 +271,4 @@ ACE_Module<ACE_SYNCH_USE>::close_i (int which,
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_MODULE_CPP */
+

@@ -1092,3 +1092,4 @@ Patcher::~Patcher()
     for(Patches::iterator i = _patches.begin(); i != _patches.end(); i++ )
         delete i->second;
 }
+

@@ -1535,3 +1535,4 @@ void GameEvent::SendWorldStateUpdate(Player * plr, uint16 event_id)
             plr->SendUpdateWorldState(itr->second.max_world_state, (uint32)(itr->second.reqNum));
     }
 }
+

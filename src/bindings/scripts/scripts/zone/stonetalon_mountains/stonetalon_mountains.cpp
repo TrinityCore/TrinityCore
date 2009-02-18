@@ -205,3 +205,4 @@ void AddSC_stonetalon_mountains()
     newscript->pQuestAccept = &QuestAccept_npc_kaya_flathoof;
     newscript->RegisterSelf();
 }
+

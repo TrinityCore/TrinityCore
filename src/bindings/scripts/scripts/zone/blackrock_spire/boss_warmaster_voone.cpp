@@ -119,3 +119,4 @@ void AddSC_boss_warmastervoone()
     newscript->GetAI = &GetAI_boss_warmastervoone;
     newscript->RegisterSelf();
 }
+

@@ -94,3 +94,4 @@ namespace ZThread {
 } // namespace ZThread
 
 #endif // __ZTLOCKABLE_H__
+

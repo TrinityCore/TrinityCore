@@ -384,3 +384,4 @@ void AddSC_boss_hydross_the_unstable()
     newscript->GetAI = &GetAI_boss_hydross_the_unstable;
     newscript->RegisterSelf();
 }
+

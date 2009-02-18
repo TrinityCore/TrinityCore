@@ -438,3 +438,4 @@ ERR_ARENA_TEAM_TOO_MANY_MEMBERS_S "%s is full"
 
 ERR_ARENA_TEAM_LEVEL_TOO_LOW_I "You must be level %d to form an arena team"
 */
+

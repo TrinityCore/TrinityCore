@@ -97,3 +97,4 @@ class TRINITY_DLL_DECL Referencer
         ReferenceeHolder *i_holder;
 };
 #endif
+

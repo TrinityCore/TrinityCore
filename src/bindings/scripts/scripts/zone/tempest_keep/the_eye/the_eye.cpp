@@ -96,3 +96,4 @@ void AddSC_the_eye()
     newscript->GetAI = &GetAI_mob_crystalcore_devastator;
     newscript->RegisterSelf();
 }
+

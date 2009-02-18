@@ -297,3 +297,4 @@ operator< (ACE_Array_Map<Key, Value, EqualTo> const & lhs,
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif  /* ACE_ARRAY_MAP_CPP */
+

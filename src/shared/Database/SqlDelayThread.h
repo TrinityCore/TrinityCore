@@ -48,3 +48,4 @@ class SqlDelayThread : public ZThread::Runnable
         virtual void run();                                 ///< Main Thread loop
 };
 #endif                                                      //__SQLDELAYTHREAD_H
+

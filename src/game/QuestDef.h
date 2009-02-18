@@ -341,3 +341,4 @@ struct QuestStatusData
     uint32 m_creatureOrGOcount[ QUEST_OBJECTIVES_COUNT ];
 };
 #endif
+

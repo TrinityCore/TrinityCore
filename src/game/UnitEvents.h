@@ -136,3 +136,4 @@ class TRINITY_DLL_SPEC ThreatManagerEvent : public ThreatRefStatusChangeEvent
 
 //==============================================================
 #endif
+

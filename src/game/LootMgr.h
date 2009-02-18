@@ -346,3 +346,4 @@ inline void LoadLootTables()
 }
 
 #endif
+

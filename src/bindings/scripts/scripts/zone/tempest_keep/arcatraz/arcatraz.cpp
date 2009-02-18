@@ -527,3 +527,4 @@ void AddSC_arcatraz()
     newscript->GetAI = &GetAI_mob_zerekethvoidzoneAI;
     newscript->RegisterSelf();
 }
+

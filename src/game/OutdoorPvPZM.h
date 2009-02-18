@@ -213,3 +213,4 @@ private:
 
 // todo: flag carrier death/leave/mount/activitychange should give back the gossip options
 #endif
+

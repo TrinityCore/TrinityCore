@@ -34,3 +34,4 @@ extern TYPELIB *copy_typelib(MEM_ROOT *root, TYPELIB *from);
 extern TYPELIB sql_protocol_typelib;
 
 #endif /* _typelib_h */
+

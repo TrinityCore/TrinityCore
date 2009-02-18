@@ -698,3 +698,4 @@ void AddSC_azuremyst_isle()
     newscript->RegisterSelf();
 
 }
+

@@ -1841,8 +1841,6 @@ void Player::RemoveFromWorld()
         ///- Release charmed creatures, unsummon totems and remove pets/guardians
         StopCastingCharm();
         StopCastingBindSight();
-        RemoveCharmAuras();
-        RemoveBindSightAuras();
         UnsummonAllTotems();
         RemoveMiniPet();
         RemoveGuardians();
@@ -20395,4 +20393,3 @@ uint8 Player::CanEquipUniqueItem( ItemPrototype const* itemProto, uint8 except_s
     }
 
     return EQUIP_ERR_OK;
-}

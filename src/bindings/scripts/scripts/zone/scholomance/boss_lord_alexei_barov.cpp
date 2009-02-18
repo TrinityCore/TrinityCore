@@ -96,3 +96,4 @@ void AddSC_boss_lordalexeibarov()
     newscript->GetAI = &GetAI_boss_lordalexeibarov;
     newscript->RegisterSelf();
 }
+

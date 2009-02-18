@@ -1158,3 +1158,4 @@ ACE_INET_Addr::get_ip_address (void) const
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

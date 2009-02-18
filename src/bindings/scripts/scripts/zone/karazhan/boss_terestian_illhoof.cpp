@@ -434,3 +434,4 @@ void AddSC_boss_terestian_illhoof()
     newscript->GetAI = &GetAI_mob_demon_chain;
     newscript->RegisterSelf();
 }
+

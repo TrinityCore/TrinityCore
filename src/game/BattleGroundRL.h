@@ -68,3 +68,4 @@ class BattleGroundRL : public BattleGround
         bool HandlePlayerUnderMap(Player * plr);
 };
 #endif
+

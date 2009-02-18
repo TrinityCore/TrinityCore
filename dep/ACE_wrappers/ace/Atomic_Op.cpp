@@ -308,3 +308,4 @@ ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long>::dump (void) const
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_HAS_BUILTIN_ATOMIC_OP */
+

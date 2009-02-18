@@ -113,3 +113,4 @@ AggressorAI::UpdateAI(const uint32 /*diff*/)
         }
     }
 }
+

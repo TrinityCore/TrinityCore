@@ -189,3 +189,4 @@ void AddSC_boss_the_black_stalker()
     newscript->GetAI = &GetAI_boss_the_black_stalker;
     newscript->RegisterSelf();
 }
+
