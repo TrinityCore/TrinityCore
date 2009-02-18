@@ -8,6 +8,7 @@ INSTALL(FILES
 1028_mangos_7141_01_world_instance_template.sql
 1028_mangos_7147_01_world_creature_template.sql
 1028_mangos_7150_01_world_playercreateinfo_spell.sql
+1069_world_scripts.sql
 1084_mangos_7168_01_world_command.sql
 1094_mangos_7193_01_world_trinity_string.sql
 1108_mangos_7196_02_world_spell_bonus_data.sql
@@ -31,8 +32,7 @@ INSTALL(FILES
 1299_mangos_7255_01_characters_characters.sql
 1307_world.sql
 1312_world.sql
-1325_world.sql
 1327_world.sql
 1351_world.sql
-1069_world_scripts.sql
+1414_world_scripts.sql
 DESTINATION share/trinity/sql/updates)
