@@ -540,3 +540,4 @@ void Trinity::PlayerSearcher<Check>::Visit(PlayerMapType &m)
 }
 
 #endif                                                      // TRINITY_GRIDNOTIFIERSIMPL_H
+

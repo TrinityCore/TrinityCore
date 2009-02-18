@@ -568,3 +568,4 @@ ACE_Handle_Set_Iterator::reset_state (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

@@ -258,3 +258,4 @@ void AddSC_boss_nethermancer_sepethrea()
     newscript->GetAI = &GetAI_mob_ragin_flames;
     newscript->RegisterSelf();
 }
+

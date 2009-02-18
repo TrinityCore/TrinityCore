@@ -173,3 +173,4 @@ class TRINITY_DLL_DECL InstanceSaveManager : public Trinity::Singleton<InstanceS
 
 #define sInstanceSaveManager Trinity::Singleton<InstanceSaveManager>::Instance()
 #endif
+

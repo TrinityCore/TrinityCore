@@ -80,3 +80,4 @@ void AuthCrypt::GenerateKey(uint8 *key, BigNumber *bn)
     hash.Finalize();
     memcpy(key, hash.GetDigest(), SHA_DIGEST_LENGTH);
 }
+

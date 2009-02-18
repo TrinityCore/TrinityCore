@@ -43,3 +43,4 @@ class DatabaseSqlite : public Database
 };
 #endif
 #endif
+

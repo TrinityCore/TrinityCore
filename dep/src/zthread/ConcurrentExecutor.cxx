@@ -24,7 +24,7 @@
 
 namespace ZThread {
 
-  ConcurrentExecutor::ConcurrentExecutor() 
+  ConcurrentExecutor::ConcurrentExecutor()
     : _executor(1) {}
 
   void ConcurrentExecutor::interrupt() {
@@ -34,21 +34,21 @@ namespace ZThread {
   void ConcurrentExecutor::execute(const Task& task) {
     _executor.execute(task);
   }
-    
+
   void ConcurrentExecutor::cancel() {
     _executor.cancel();
   }
-    
+
   bool ConcurrentExecutor::isCanceled() {
-    return _executor.isCanceled(); 
+    return _executor.isCanceled();
   }
-    
+
   void ConcurrentExecutor::wait() {
     _executor.wait();
   }
-    
+
   bool ConcurrentExecutor::wait(unsigned long timeout) {
-    return _executor.wait(timeout);      
+    return _executor.wait(timeout);
   }
 
 }

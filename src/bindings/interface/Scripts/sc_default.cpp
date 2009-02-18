@@ -119,3 +119,4 @@ void AddSC_default()
 
     m_scripts[nrscripts++] = newscript;
 }
+

@@ -815,3 +815,4 @@ void AddSC_boss_leotheras_the_blind()
     newscript->GetAI = &GetAI_mob_inner_demon;
     newscript->RegisterSelf();
 }
+

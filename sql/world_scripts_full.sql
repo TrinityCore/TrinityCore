@@ -579,7 +579,8 @@ UPDATE `creature_template` SET `ScriptName`='npc_clintar_spirit' WHERE `entry`=2
 
 /* MULGORE */
 UPDATE `creature_template` SET `ScriptName`='npc_skorn_whitecloud' WHERE `entry`=3052;
-UPDATE `creature_template` SET `ScriptName`='npc_kyle_frenzied' where `entry`=23616;
+UPDATE `creature_template` SET `ScriptName`='npc_kyle_frenzied' WHERE `entry`='23616';
+UPDATE `creature_template` SET `ScriptName`='npc_plains_vision' WHERE `entry`='2983';
 
 /* NAGRAND */
 UPDATE `creature_template` SET `ScriptName`='mob_lump' WHERE `entry`=18351;
@@ -874,6 +875,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_isla_starmane' WHERE `entry`=18
 
 /* THOUSAND NEEDLES */
 UPDATE `creature_template` SET `ScriptName`='npc_swiftmountain' WHERE `entry`=10427;
+UPDATE `creature_template` SET `ScriptName` = 'npc_plucky' WHERE `entry` = '6626';
 
 /* THUNDER BLUFF */
 UPDATE `creature_template` SET `ScriptName`='npc_cairne_bloodhoof' WHERE `entry`=3057;
@@ -981,3 +983,4 @@ UPDATE `creature_template` SET `ScriptName`='mob_batrider' WHERE `entry`=14965;
 UPDATE `creature_template` SET `ScriptName`='mob_shade_of_jindo' WHERE `entry`=14986;
 
 /* EOF */
+

@@ -404,3 +404,4 @@ ACE_SOCK_Acceptor::close (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

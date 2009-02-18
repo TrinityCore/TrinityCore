@@ -136,3 +136,4 @@ void AddSC_boss_pandemonius()
     newscript->GetAI = &GetAI_boss_pandemonius;
     newscript->RegisterSelf();
 }
+

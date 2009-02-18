@@ -7640,3 +7640,4 @@ void ObjectMgr::LoadTransportEvents()
 
     delete result;
 }
+

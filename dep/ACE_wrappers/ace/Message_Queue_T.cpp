@@ -2964,3 +2964,4 @@ ACE_Message_Queue_Factory<ACE_SYNCH_USE>::create_NT_message_queue (size_t max_th
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* !ACE_MESSAGE_QUEUE_T_CPP */
+

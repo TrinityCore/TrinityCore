@@ -312,3 +312,4 @@ void AddSC_boss_harbinger_skyriss()
     newscript->GetAI = &GetAI_boss_harbinger_skyriss_illusion;
     newscript->RegisterSelf();
 }
+

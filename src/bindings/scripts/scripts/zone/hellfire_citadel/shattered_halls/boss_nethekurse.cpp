@@ -450,3 +450,4 @@ void AddSC_boss_grand_warlock_nethekurse()
     newscript->GetAI = &GetAI_mob_lesser_shadow_fissure;
     newscript->RegisterSelf();
 }
+

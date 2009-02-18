@@ -738,3 +738,4 @@ void AddSC_boss_high_king_maulgar()
     newscript->GetAI = &GetAI_boss_krosh_firehand;
     newscript->RegisterSelf();
 }
+

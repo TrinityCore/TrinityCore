@@ -1192,10 +1192,11 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         CharmInfo* GetCharmInfo() { return m_charmInfo; }
         CharmInfo* InitCharmInfo(Unit* charm);
         SharedVisionList const& GetSharedVisionList() { return m_sharedVision; }
-        void RemoveBindSightAuras();
-        void RemoveCharmAuras();
         void AddPlayerToVision(Player* plr);
         void RemovePlayerFromVision(Player* plr);
+        bool HasSharedVision() const { return !m_sharedVision.empty(); }
+        void RemoveBindSightAuras();
+        void RemoveCharmAuras();
 
         Pet* CreateTamedPetFrom(Creature* creatureTarget,uint32 spell_id = 0);
 
@@ -1611,3 +1612,4 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         uint64 m_misdirectionTargetGUID;
 };
 #endif
+

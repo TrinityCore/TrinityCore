@@ -617,3 +617,4 @@ ACE_Stream_Iterator<ACE_SYNCH_USE>::ACE_Stream_Iterator (const ACE_Stream<ACE_SY
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_STREAM_CPP */
+

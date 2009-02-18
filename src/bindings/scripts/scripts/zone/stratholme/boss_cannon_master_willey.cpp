@@ -219,3 +219,4 @@ void AddSC_boss_cannon_master_willey()
     newscript->GetAI = &GetAI_boss_cannon_master_willey;
     newscript->RegisterSelf();
 }
+

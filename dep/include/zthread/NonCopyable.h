@@ -58,3 +58,4 @@ namespace ZThread {
 } // namespace ZThread
 
 #endif // __ZTNONCOPYABLE_H__
+

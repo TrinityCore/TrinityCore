@@ -49,3 +49,4 @@ public:
 } // namespace ZThread
 
 #endif // __ZTPRIORITYOPS_H__
+

@@ -362,3 +362,4 @@ ACE_UTF16_Encoding_Converter::get_offsets_from_utf8 (void)
 
 ACE_END_VERSIONED_NAMESPACE_DECL
 #endif /* ACE_USES_WCHAR */
+

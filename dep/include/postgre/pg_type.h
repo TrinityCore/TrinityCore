@@ -71,3 +71,4 @@
 #define NUMERICOID      1700
 
 #endif   /* PG_TYPE_H */
+

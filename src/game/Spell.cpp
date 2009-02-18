@@ -1254,9 +1254,9 @@ struct ChainHealingOrder : public std::binary_function<const Unit*, const Unit*,
 
     int32 ChainHealingHash(Unit const* Target) const
     {
-        if (Target == MainTarget)
+        /*if (Target == MainTarget)
             return 0;
-        else if (Target->GetTypeId() == TYPEID_PLAYER && MainTarget->GetTypeId() == TYPEID_PLAYER &&
+        else*/ if (Target->GetTypeId() == TYPEID_PLAYER && MainTarget->GetTypeId() == TYPEID_PLAYER &&
             ((Player const*)Target)->IsInSameRaidWith((Player const*)MainTarget))
         {
             if (Target->GetHealth() == Target->GetMaxHealth())
@@ -5784,3 +5784,4 @@ int32 Spell::CalculateDamageDone(Unit *unit, const uint32 effectMask, float *mul
 
     return damageDone;
 }
+

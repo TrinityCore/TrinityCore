@@ -647,3 +647,4 @@ void AddSC_boss_twinemperors()
     newscript->GetAI = &GetAI_boss_veklor;
     newscript->RegisterSelf();
 }
+

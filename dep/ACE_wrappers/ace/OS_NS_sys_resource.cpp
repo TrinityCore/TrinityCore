@@ -8,3 +8,4 @@ ACE_RCSID(ace, OS_NS_sys_resource, "$Id: OS_NS_sys_resource.cpp 80826 2008-03-04
 # include "ace/OS_NS_sys_resource.inl"
 #endif /* ACE_HAS_INLINED_OSCALLS */
 
+

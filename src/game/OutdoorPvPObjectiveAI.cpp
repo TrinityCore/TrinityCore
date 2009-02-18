@@ -45,3 +45,4 @@ int OutdoorPvPObjectiveAI::Permissible(const Creature * c)
     return PERMIT_BASE_NO;
 }
 
+

@@ -441,3 +441,4 @@ Vector4 Vector3::zzzz() const  { return Vector4       (z, z, z, z); }
 
 
 } // namespace
+

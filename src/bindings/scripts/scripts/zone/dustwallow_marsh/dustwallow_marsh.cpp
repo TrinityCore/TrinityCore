@@ -229,3 +229,4 @@ void AddSC_dustwallow_marsh()
     newscript->pGossipSelect = &GossipSelect_npc_nat_pagle;
     newscript->RegisterSelf();
 }
+

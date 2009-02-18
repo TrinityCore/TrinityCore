@@ -593,3 +593,4 @@ void AddSC_item_scripts()
     newscript->pItemUse = &ItemUse_item_zezzak_shard;
     newscript->RegisterSelf();
 }
+

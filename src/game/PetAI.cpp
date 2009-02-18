@@ -332,3 +332,4 @@ void PetAI::UpdateAllies()
         (!i_pet.GetCharmInfo()->HasCommandState(COMMAND_STAY) || i_pet.IsWithinMeleeRange(attacker)))
         AttackStart(attacker);
 }*/
+

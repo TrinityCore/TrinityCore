@@ -910,3 +910,4 @@ void AddSC_boss_hex_lord_malacrass()
     newscript->GetAI = &GetAI_boss_alyson_antille;
     newscript->RegisterSelf();
 }
+

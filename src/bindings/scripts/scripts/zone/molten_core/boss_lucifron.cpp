@@ -88,3 +88,4 @@ void AddSC_boss_lucifron()
     newscript->GetAI = &GetAI_boss_lucifron;
     newscript->RegisterSelf();
 }
+

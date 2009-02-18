@@ -121,3 +121,4 @@ class SqlQueryHolderEx : public SqlOperation
         void Execute(Database *db);
 };
 #endif                                                      //__SQLOPERATIONS_H
+

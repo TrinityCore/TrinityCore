@@ -76,3 +76,4 @@ class TRINITY_DLL_DECL GridLoader
         }
 };
 #endif
+

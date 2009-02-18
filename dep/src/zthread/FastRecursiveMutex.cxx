@@ -25,10 +25,10 @@
 
 namespace ZThread {
 
-  FastRecursiveMutex::FastRecursiveMutex() 
+  FastRecursiveMutex::FastRecursiveMutex()
     : _lock(new FastRecursiveLock) { }
 
-  FastRecursiveMutex::~FastRecursiveMutex() 
+  FastRecursiveMutex::~FastRecursiveMutex()
   { delete _lock; }
 
 
@@ -39,7 +39,7 @@ namespace ZThread {
   }
 
   bool FastRecursiveMutex::tryAcquire(unsigned long timeout) {
-  
+
     return _lock->tryAcquire(timeout);
 
   }

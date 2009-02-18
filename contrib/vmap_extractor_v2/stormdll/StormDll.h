@@ -65,3 +65,4 @@ BOOL  WINAPI SCOMP(Decompress)(char * pbOutBuffer, int * pdwOutLength, char * pb
 #endif
 
 #endif // __STORM_H__
+

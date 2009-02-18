@@ -843,7 +843,7 @@ void LoadOverridenSQLData()
     // Sunwell Plateau : Kalecgos : Spectral Rift
     goInfo = const_cast<GameObjectInfo*>(GetGameObjectInfo(187055));
     if(goInfo && goInfo->type == GAMEOBJECT_TYPE_GOOBER)
-        goInfo->type = GAMEOBJECT_TYPE_SPELLCASTER;
+        goInfo->goober.lockId = 57; // need LOCKTYPE_QUICK_OPEN
 }
 
 void LoadOverridenDBCData()
@@ -855,3 +855,4 @@ void LoadOverridenDBCData()
     if(spellInfo)
         spellInfo->EffectApplyAuraName[0] = 4; // proc debuff, and summon infinite fiends
 }
+

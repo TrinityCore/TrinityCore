@@ -128,3 +128,4 @@ class TRINITY_DLL_DECL TypeMapContainer
         ContainerMapList<OBJECT_TYPES> i_elements;
 };
 #endif
+

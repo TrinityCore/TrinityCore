@@ -1364,3 +1364,4 @@ void AddSC_boss_priestess_delrissa()
     newscript->GetAI = &GetAI_mob_sliver;
     newscript->RegisterSelf();*/
 }
+

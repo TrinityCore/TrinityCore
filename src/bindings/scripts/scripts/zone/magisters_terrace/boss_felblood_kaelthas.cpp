@@ -688,3 +688,4 @@ void AddSC_boss_felblood_kaelthas()
     newscript->GetAI = &GetAI_mob_felkael_flamestrike;
     newscript->RegisterSelf();
 }
+

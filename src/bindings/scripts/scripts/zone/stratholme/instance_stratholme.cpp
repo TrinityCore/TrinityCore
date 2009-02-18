@@ -393,3 +393,4 @@ void AddSC_instance_stratholme()
     newscript->GetInstanceData = &GetInstanceData_instance_stratholme;
     newscript->RegisterSelf();
 }
+

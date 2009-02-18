@@ -563,3 +563,4 @@ void AddSC_boss_magtheridon()
     newscript->RegisterSelf();
 
 }
+

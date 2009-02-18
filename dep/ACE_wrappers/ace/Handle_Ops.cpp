@@ -46,3 +46,4 @@ ACE::handle_timed_open (ACE_Time_Value *timeout,
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

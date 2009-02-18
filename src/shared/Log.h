@@ -165,3 +165,4 @@ void TRINITY_DLL_SPEC debug_log(const char * str, ...) ATTR_PRINTF(1,2);
 void TRINITY_DLL_SPEC error_log(const char * str, ...) ATTR_PRINTF(1,2);
 void TRINITY_DLL_SPEC error_db_log(const char * str, ...) ATTR_PRINTF(1,2);
 #endif
+

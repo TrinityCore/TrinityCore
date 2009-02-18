@@ -121,3 +121,4 @@ TotemAI::AttackStart(Unit *)
         ((Player*)i_totem.GetOwner())->GetSession()->SendPacket(&data);
     }
 }
+

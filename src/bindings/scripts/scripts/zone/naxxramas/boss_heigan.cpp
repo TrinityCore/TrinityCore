@@ -43,3 +43,4 @@ EndScriptData */
 
 //Spell by eye stalks
 #define SPELL_MIND_FLAY     26143
+

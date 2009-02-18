@@ -136,3 +136,4 @@ void AddSC_boss_temporus()
     newscript->GetAI = &GetAI_boss_temporus;
     newscript->RegisterSelf();
 }
+

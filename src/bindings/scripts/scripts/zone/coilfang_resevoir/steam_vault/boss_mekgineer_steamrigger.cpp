@@ -278,3 +278,4 @@ void AddSC_boss_mekgineer_steamrigger()
     newscript->GetAI = &GetAI_mob_steamrigger_mechanic;
     newscript->RegisterSelf();
 }
+

@@ -119,3 +119,4 @@ void PossessedAI::KilledUnit(Unit* victim)
     if (victim->GetTypeId() == TYPEID_UNIT)
         victim->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 }
+

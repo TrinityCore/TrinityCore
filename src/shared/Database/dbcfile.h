@@ -107,3 +107,4 @@ class DBCFile
         unsigned char *stringTable;
 };
 #endif
+

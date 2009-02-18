@@ -121,3 +121,4 @@ ACE_Thread_Exit_Maybe::instance (void) const
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

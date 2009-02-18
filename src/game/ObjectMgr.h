@@ -926,3 +926,4 @@ TRINITY_DLL_SPEC GameObjectInfo const *GetGameObjectInfo(uint32 id);
 TRINITY_DLL_SPEC CreatureInfo const *GetCreatureInfo(uint32 id);
 
 #endif
+

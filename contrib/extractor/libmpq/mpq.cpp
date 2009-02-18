@@ -624,3 +624,4 @@ int libmpq_file_getdata(mpq_archive *mpq_a, mpq_hash mpq_h, const int number, un
     free(mpq_f);
     return success?LIBMPQ_TOOLS_SUCCESS:LIBMPQ_EFILE_CORRUPT;
 }
+

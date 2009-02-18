@@ -510,3 +510,4 @@ typedef ostream& (*__omanip_)(ostream&);
 
 #include /**/ "ace/post.h"
 #endif /* ACE_IOSTREAM_H */
+

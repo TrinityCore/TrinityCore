@@ -73,3 +73,4 @@ class TRINITY_DLL_SPEC TargetedMovementGenerator
         bool i_recalculateTravel;
 };
 #endif
+

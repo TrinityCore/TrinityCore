@@ -43,3 +43,4 @@ class TRINITY_DLL_DECL ReactorAI : public CreatureAI
         uint64 i_victimGuid;
 };
 #endif
+

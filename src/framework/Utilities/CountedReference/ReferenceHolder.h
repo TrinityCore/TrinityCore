@@ -39,3 +39,4 @@ struct ReferenceHolder : public THREADING_MODEL
     typedef typename THREADING_MODEL::Lock Lock;
 };
 #endif
+

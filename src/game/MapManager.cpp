@@ -291,12 +291,12 @@ bool MapManager::IsValidMAP(uint32 mapid)
     // TODO: add check for battleground template
 }
 
-void MapManager::LoadGrid(int mapid, float x, float y, const WorldObject* obj, bool no_unload)
+/*void MapManager::LoadGrid(int mapid, float x, float y, const WorldObject* obj, bool no_unload)
 {
     CellPair p = Trinity::ComputeCellPair(x,y);
     Cell cell(p);
     GetMap(mapid, obj)->LoadGrid(cell,no_unload);
-}
+}*/
 
 void MapManager::UnloadAll()
 {
@@ -350,3 +350,4 @@ uint32 MapManager::GetNumPlayersInInstances()
     }
     return ret;
 }
+

@@ -1398,3 +1398,4 @@ void AddSC_mob_event()
     newscript->GetAI = &GetAI_Mob_EventAI;
     newscript->RegisterSelf();
 }
+

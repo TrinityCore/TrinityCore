@@ -72,3 +72,4 @@ namespace ZThread {
 } // namespace ZThread
 
 #endif // __ZTATOMICCOUNT_H__
+

@@ -126,3 +126,4 @@ inline unsigned int hashCode(const G3D::Sphere& sphere) {
 }
 
 #endif
+

@@ -142,3 +142,4 @@ void AddSC_boss_postmaster_malown()
     newscript->GetAI = &GetAI_boss_postmaster_malown;
     newscript->RegisterSelf();
 }
+

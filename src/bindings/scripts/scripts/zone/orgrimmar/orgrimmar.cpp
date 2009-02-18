@@ -273,3 +273,4 @@ void AddSC_orgrimmar()
     newscript->pGossipSelect = &GossipSelect_npc_thrall_warchief;
     newscript->RegisterSelf();
 }
+

@@ -401,3 +401,4 @@ BOOL WINAPI SFileCloseFile(HANDLE hFile)
     FreeMPQFile(hf);
     return TRUE;
 }
+

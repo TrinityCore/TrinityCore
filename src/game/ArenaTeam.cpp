@@ -684,3 +684,4 @@ arenateam fields (id from 2.3.3 client):
 1430 - unk - rank?
 1431 - personal arena rating
 */
+

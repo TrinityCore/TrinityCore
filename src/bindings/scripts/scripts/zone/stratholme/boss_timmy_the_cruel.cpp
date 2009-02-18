@@ -81,3 +81,4 @@ void AddSC_boss_timmy_the_cruel()
     newscript->GetAI = &GetAI_boss_timmy_the_cruel;
     newscript->RegisterSelf();
 }
+

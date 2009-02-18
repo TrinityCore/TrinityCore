@@ -378,3 +378,4 @@ ACE_Remote_Name_Space::dump (void) const
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

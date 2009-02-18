@@ -573,3 +573,4 @@ void AddSC_moonglade()
     newscript->GetAI = &GetAI_npc_clintar_spirit;
     newscript->RegisterSelf();
 }
+

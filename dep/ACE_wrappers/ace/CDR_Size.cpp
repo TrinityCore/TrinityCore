@@ -260,3 +260,4 @@ operator<< (ACE_SizeCDR &ss, const ACE_CString &x)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

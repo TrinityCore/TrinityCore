@@ -137,3 +137,4 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 
 #include /**/ "ace/post.h"
 #endif /* ACE_REVERSE_LOCK_T_H */
+

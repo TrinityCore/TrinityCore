@@ -27,25 +27,25 @@
 
 namespace ZThread {
 
-const ThreadOps ThreadOps::INVALID(0); 
+const ThreadOps ThreadOps::INVALID(0);
 
-ThreadOps::ThreadOps()  : _queue(0), _tid(0) { 
-  
+ThreadOps::ThreadOps()  : _queue(0), _tid(0) {
+
   if(MPCreateQueue(&_queue) != noErr)
     throw Initialization_Exception();
 
 }
 
 ThreadOps::~ThreadOps() throw() {
-  
+
   if(_queue != 0) {
 
     OSStatus status = MPDeleteQueue(_queue);
-    if(status != noErr) 
+    if(status != noErr)
       assert(0);
 
   }
-    
+
 }
 
 bool ThreadOps::join(ThreadOps* ops) {
@@ -56,7 +56,7 @@ bool ThreadOps::join(ThreadOps* ops) {
   OSStatus status = MPWaitOnQueue(ops->_queue, NULL, NULL, NULL, kDurationForever);
 
   return status == noErr;
- 
+
 }
 
 bool ThreadOps::yield() {
@@ -91,13 +91,13 @@ OSStatus ThreadOps::_dispatch(void *arg) {
 
   // Run the task from the correct context
   task->run();
-  
+
   // Exit the thread
   MPExit(noErr);
   return noErr;
 
 }
-  
+
 } // namespace ZThread
 
 

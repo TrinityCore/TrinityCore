@@ -7398,3 +7398,4 @@ bool ChatHandler::HandleUnbindSightCommand(const char* args)
     m_session->GetPlayer()->StopCastingBindSight();
     return true;
 }
+

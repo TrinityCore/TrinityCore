@@ -776,3 +776,4 @@ bool OutdoorPvP::HandleAreaTrigger(Player *plr, uint32 trigger)
 {
     return false;
 }
+

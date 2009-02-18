@@ -162,3 +162,4 @@ void AddSC_arathi_highlands()
     newscript->pQuestAccept = &QuestAccept_npc_professor_phizzlethorpe;
     newscript->RegisterSelf();
 }
+

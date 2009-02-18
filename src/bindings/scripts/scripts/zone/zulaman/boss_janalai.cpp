@@ -712,3 +712,4 @@ void AddSC_boss_janalai()
     newscript->GetAI = &GetAI_mob_eggAI;
     newscript->RegisterSelf();
 }
+

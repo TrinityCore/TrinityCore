@@ -142,3 +142,4 @@ void AddSC_boss_noth()
     newscript->GetAI = &GetAI_boss_noth;
     newscript->RegisterSelf();
 }
+

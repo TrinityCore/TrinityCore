@@ -96,3 +96,4 @@ class PlayerDumpReader : public PlayerDump
 };
 
 #endif
+

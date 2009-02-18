@@ -540,3 +540,4 @@ class BattleGround
         float m_TeamStartLocO[2];
 };
 #endif
+

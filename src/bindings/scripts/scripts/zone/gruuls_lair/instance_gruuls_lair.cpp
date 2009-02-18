@@ -186,3 +186,4 @@ void AddSC_instance_gruuls_lair()
     newscript->GetInstanceData = &GetInstanceData_instance_gruuls_lair;
     newscript->RegisterSelf();
 }
+

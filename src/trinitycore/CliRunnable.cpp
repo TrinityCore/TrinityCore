@@ -373,3 +373,4 @@ void CliRunnable::run()
     ///- End the database thread
     WorldDatabase.ThreadEnd();                                  // free mySQL thread resources
 }
+

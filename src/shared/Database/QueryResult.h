@@ -64,3 +64,4 @@ class TRINITY_DLL_SPEC QueryResult
         FieldNames mFieldNames;
 };
 #endif
+

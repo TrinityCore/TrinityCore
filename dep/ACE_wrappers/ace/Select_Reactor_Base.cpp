@@ -1114,3 +1114,4 @@ ACE_Select_Reactor_Impl::resumable_handler (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

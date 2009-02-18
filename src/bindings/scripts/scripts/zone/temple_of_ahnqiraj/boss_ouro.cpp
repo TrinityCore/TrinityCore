@@ -138,3 +138,4 @@ void AddSC_boss_ouro()
     newscript->GetAI = &GetAI_boss_ouro;
     newscript->RegisterSelf();
 }
+

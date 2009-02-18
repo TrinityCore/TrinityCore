@@ -205,3 +205,4 @@ Database::DelayQueryHolder(Class *object, void (Class::*method)(QueryResult*, Sq
 #undef ASYNC_QUERY_BODY
 #undef ASYNC_PQUERY_BODY
 #undef ASYNC_DELAYHOLDER_BODY
+

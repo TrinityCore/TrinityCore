@@ -1579,3 +1579,4 @@ class BattleGroundAV : public BattleGround
 };
 
 #endif
+

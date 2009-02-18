@@ -216,3 +216,4 @@ class TRINITY_DLL_SPEC ThreatManager
 
 //=================================================
 #endif
+

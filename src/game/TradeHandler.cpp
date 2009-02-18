@@ -642,3 +642,4 @@ void WorldSession::HandleClearTradeItemOpcode(WorldPacket& recvPacket)
 
     _player->pTrader->GetSession()->SendUpdateTrade();
 }
+

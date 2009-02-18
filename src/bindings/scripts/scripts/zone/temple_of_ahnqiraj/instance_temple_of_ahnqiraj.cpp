@@ -163,3 +163,4 @@ void AddSC_instance_temple_of_ahnqiraj()
     newscript->GetInstanceData = &GetInstanceData_instance_temple_of_ahnqiraj;
     newscript->RegisterSelf();
 }
+

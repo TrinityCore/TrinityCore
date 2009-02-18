@@ -177,3 +177,4 @@ unsigned char   *kssl_skip_confound(krb5_enctype enctype, unsigned char *authn);
 #endif
 #endif  /* OPENSSL_NO_KRB5  */
 #endif  /* KSSL_H   */
+

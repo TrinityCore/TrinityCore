@@ -32,14 +32,14 @@ namespace ZThread {
   };
 
   Condition::Condition(Lockable& lock) {
-  
+
     _impl = new FifoConditionImpl(lock);
 
   }
 
 
   Condition::~Condition() {
-  
+
     if(_impl != 0)
       delete _impl;
 
@@ -64,7 +64,7 @@ namespace ZThread {
 
 
   void Condition::signal() {
-  
+
     _impl->signal();
 
   }

@@ -13,3 +13,4 @@ ACE_Reactor_Impl::~ACE_Reactor_Impl (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

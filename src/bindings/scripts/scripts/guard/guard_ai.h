@@ -23,3 +23,4 @@ struct TRINITY_DLL_DECL guardAI : public ScriptedAI
     void UpdateAI(const uint32 diff);
 };
 #endif
+

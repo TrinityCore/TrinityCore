@@ -43,3 +43,4 @@ class QueryResultSqlite : public QueryResult
 };
 #endif
 #endif
+

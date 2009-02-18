@@ -217,3 +217,4 @@ bool AccountMgr::normilizeString(std::string& utf8str)
 
     return WStrToUtf8(wstr_buf,wstr_len,utf8str);
 }
+

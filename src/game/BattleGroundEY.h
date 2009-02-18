@@ -372,3 +372,4 @@ class BattleGroundEY : public BattleGround
         int32 m_PointAddingTimer;
 };
 #endif
+

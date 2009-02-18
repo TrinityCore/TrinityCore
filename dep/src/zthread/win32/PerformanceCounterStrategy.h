@@ -106,3 +106,4 @@ private:
 };
 
 #endif // __ZTTIMESTRATEGY_H__
+

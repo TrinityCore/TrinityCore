@@ -1344,3 +1344,4 @@ void AddSC_boss_cthun()
     newscript->GetAI = &GetAI_flesh_tentacle;
     newscript->RegisterSelf();
 }
+

@@ -212,3 +212,4 @@ void CreatureGroup::SetMemberDestination(Creature *member)
         member->GetMotionMaster()->MovePoint(0, x, y, z);
     }
 }
+

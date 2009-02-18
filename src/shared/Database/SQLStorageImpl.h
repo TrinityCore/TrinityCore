@@ -212,3 +212,4 @@ void SQLStorageLoaderBase<T>::Load(SQLStorage &store)
     store.MaxEntry = maxi;
     store.data = _data;
 }
+

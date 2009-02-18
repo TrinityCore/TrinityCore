@@ -263,3 +263,4 @@ void AddSC_undercity()
     newscript->pGossipSelect = &GossipSelect_npc_parqual_fintallas;
     newscript->RegisterSelf();
 }
+

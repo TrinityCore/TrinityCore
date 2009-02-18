@@ -90,3 +90,4 @@ void AddSC_boss_gahzranka()
     newscript->GetAI = &GetAI_boss_gahzranka;
     newscript->RegisterSelf();
 }
+

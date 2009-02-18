@@ -420,3 +420,4 @@ void AddSC_boss_nightbane()
     newscript->GetAI = &GetAI_boss_nightbane;
     newscript->RegisterSelf();
 }
+

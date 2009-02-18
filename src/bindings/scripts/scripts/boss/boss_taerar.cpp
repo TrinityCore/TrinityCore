@@ -304,3 +304,4 @@ void AddSC_boss_taerar()
     newscript->GetAI = &GetAI_boss_shadeoftaerar;
     newscript->RegisterSelf();
 }
+

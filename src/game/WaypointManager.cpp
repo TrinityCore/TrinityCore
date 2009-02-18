@@ -149,3 +149,4 @@ void WaypointStore::UpdatePath(uint32 id)
 
     delete result;
 }
+

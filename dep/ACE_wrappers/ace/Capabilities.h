@@ -219,3 +219,4 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 
 #include /**/ "ace/post.h"
 #endif /* __ACE_CAPABILITIES_H__ */
+

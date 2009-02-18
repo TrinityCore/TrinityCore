@@ -376,3 +376,4 @@ void AddSC_instance_dark_portal()
     newscript->GetInstanceData = &GetInstanceData_instance_dark_portal;
     newscript->RegisterSelf();
 }
+

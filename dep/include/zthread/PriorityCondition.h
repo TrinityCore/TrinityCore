@@ -87,3 +87,4 @@ namespace ZThread {
 } // namespace ZThread
 
 #endif // __ZTPRIORITYCONDITION_H__
+

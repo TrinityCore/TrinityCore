@@ -159,3 +159,4 @@ ACE_OS::socket_fini (void)
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

@@ -33,3 +33,4 @@ class TRINITY_DLL_DECL OutdoorPvPObjectiveAI : public NullCreatureAI
         static int Permissible(const Creature *);
 };
 #endif
+

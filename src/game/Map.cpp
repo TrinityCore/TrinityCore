@@ -257,17 +257,16 @@ template<>
 void Map::AddToGrid(Creature* obj, NGridType *grid, Cell const& cell)
 {
     // add to world object registry in grid
-    if(obj->isPet() || obj->isPossessedByPlayer() || obj->isVehicle())
+    if(obj->isPet() || obj->HasSharedVision() || obj->isVehicle())
     {
         (*grid)(cell.CellX(), cell.CellY()).AddWorldObject<Creature>(obj, obj->GetGUID());
-        obj->SetCurrentCell(cell);
     }
     // add to grid object store
     else
     {
         (*grid)(cell.CellX(), cell.CellY()).AddGridObject<Creature>(obj, obj->GetGUID());
-        obj->SetCurrentCell(cell);
     }
+    obj->SetCurrentCell(cell);
 }
 
 template<class T>
@@ -301,7 +300,7 @@ template<>
 void Map::RemoveFromGrid(Creature* obj, NGridType *grid, Cell const& cell)
 {
     // remove from world object registry in grid
-    if(obj->isPet() || obj->isPossessedByPlayer() || obj->isVehicle())
+    if(obj->isPet() || obj->HasSharedVision() || obj->isVehicle())
     {
         (*grid)(cell.CellX(), cell.CellY()).RemoveWorldObject<Creature>(obj, obj->GetGUID());
     }
@@ -327,7 +326,8 @@ void Map::SwitchGridContainers(T* obj, bool active)
             grid.RemoveGridObject<T>(obj, obj->GetGUID());
             grid.AddWorldObject<T>(obj, obj->GetGUID());
         }
-    } else
+    }
+    else
     {
         if (!grid.GetGridObject(obj->GetGUID(), obj))
         {
@@ -338,7 +338,6 @@ void Map::SwitchGridContainers(T* obj, bool active)
 }
 
 template void Map::SwitchGridContainers(Creature *, bool);
-template void Map::SwitchGridContainers(Corpse *, bool);
 template void Map::SwitchGridContainers(DynamicObject *, bool);
 
 template<class T>
@@ -349,20 +348,20 @@ void Map::DeleteFromWorld(T* obj)
 }
 
 template<class T>
-void Map::AddNotifier(T* , Cell const& , CellPair const& )
+void Map::AddNotifier(T*)
 {
 }
 
 template<>
-void Map::AddNotifier(Player* obj, Cell const& cell, CellPair const& cellpair)
+void Map::AddNotifier(Player* obj)
 {
-    PlayerRelocationNotify(obj,cell,cellpair);
+    AddUnitToNotify(obj);
 }
 
 template<>
-void Map::AddNotifier(Creature* obj, Cell const& cell, CellPair const& cellpair)
+void Map::AddNotifier(Creature* obj)
 {
-    CreatureRelocationNotify(obj,cell,cellpair);
+    AddUnitToNotify(obj);
 }
 
 void
@@ -427,33 +426,6 @@ Map::EnsureGridLoadedForPlayer(const Cell &cell, Player *player, bool add_player
         AddToGrid(player,grid,cell);
 }
 
-void
-Map::LoadGrid(const Cell& cell, bool no_unload)
-{
-    EnsureGridCreated(GridPair(cell.GridX(), cell.GridY()));
-    NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
-
-    assert(grid != NULL);
-    if( !isGridObjectDataLoaded(cell.GridX(), cell.GridY()) )
-    {
-        ObjectGridLoader loader(*grid, this, cell);
-        loader.LoadN();
-        setGridObjectDataLoaded(true,cell.GridX(), cell.GridY());
-
-        // Add resurrectable corpses to world object list in grid
-        ObjectAccessor::Instance().AddCorpsesToGrid(GridPair(cell.GridX(),cell.GridY()),(*grid)(cell.CellX(), cell.CellY()), this);
-
-        // Not sure if this is the reason that far sight cause crash
-        // Seems crash happens when trying to delete a far sight dynobj from an unopened grid
-        ResetGridExpiry(*getNGrid(cell.GridX(), cell.GridY()), 1.0f);
-        grid->SetGridState(GRID_STATE_ACTIVE);
-
-        if(no_unload)
-            getNGrid(cell.GridX(), cell.GridY())->setUnloadFlag(false);
-    }
-    //LoadVMap(63-cell.GridX(),63-cell.GridY());
-}
-
 void Map::LoadGrid(float x, float y)
 {
     CellPair pair = Trinity::ComputeCellPair(x, y);
@@ -476,11 +448,8 @@ bool Map::Add(Player *player)
     SendInitSelf(player);
     SendInitTransports(player);
 
-    //UpdatePlayerVisibility(player,cell,p);
-    //UpdateObjectsVisibilityFor(player,cell,p);
+    AddNotifier(player);
 
-    //AddNotifier(player,cell,p);
-    AddUnitToNotify(player);
     return true;
 }
 
@@ -510,9 +479,7 @@ Map::Add(T *obj)
 
     UpdateObjectVisibility(obj,cell,p);
 
-    //AddNotifier(obj,cell,p);
-    if(obj->GetTypeId() == TYPEID_UNIT || obj->GetTypeId() == TYPEID_PLAYER)
-        AddUnitToNotify((Unit*)obj);
+    AddNotifier(obj);
 }
 
 void Map::MessageBroadcast(Player *player, WorldPacket *msg, bool to_self, bool to_possessor)
@@ -609,49 +576,6 @@ bool Map::loaded(const GridPair &p) const
 {
     return ( getNGrid(p.x_coord, p.y_coord) && isGridObjectDataLoaded(p.x_coord, p.y_coord) );
 }
-
-/*void Map::UpdateActiveCells(const float &x, const float &y, const uint32 &t_diff)
-{
-    CellPair standing_cell(Trinity::ComputeCellPair(x, y));
-
-    // Check for correctness of standing_cell, it also avoids problems with update_cell
-    if (standing_cell.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || standing_cell.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
-        return;
-
-    // will this reduce the speed?
-    Trinity::ObjectUpdater updater(t_diff);
-    // for creature
-    TypeContainerVisitor<Trinity::ObjectUpdater, GridTypeMapContainer  > grid_object_update(updater);
-    // for pets
-    TypeContainerVisitor<Trinity::ObjectUpdater, WorldTypeMapContainer > world_object_update(updater);
-
-    // the overloaded operators handle range checking
-    // so ther's no need for range checking inside the loop
-    CellPair begin_cell(standing_cell), end_cell(standing_cell);
-    begin_cell << 1; begin_cell -= 1;               // upper left
-    end_cell >> 1; end_cell += 1;                   // lower right
-
-    for(uint32 x = begin_cell.x_coord; x <= end_cell.x_coord; ++x)
-    {
-        for(uint32 y = begin_cell.y_coord; y <= end_cell.y_coord; ++y)
-        {
-            // marked cells are those that have been visited
-            // don't visit the same cell twice
-            uint32 cell_id = (y * TOTAL_NUMBER_OF_CELLS_PER_MAP) + x;
-            if(!isCellMarked(cell_id))
-            {
-                markCell(cell_id);
-                CellPair pair(x,y);
-                Cell cell(pair);
-                cell.data.Part.reserved = CENTER_DISTRICT;
-                cell.SetNoCreate();
-                CellLock<NullGuard> cell_lock(cell, pair);
-                cell_lock->Visit(cell_lock, grid_object_update,  *this);
-                cell_lock->Visit(cell_lock, world_object_update, *this);
-            }
-        }
-    }
-}*/
 
 void Map::RelocationNotify()
 {
@@ -838,9 +762,6 @@ void Map::Remove(Player *player, bool remove)
 
     SendRemoveTransports(player);
 
-    //UpdateObjectsVisibilityFor(player,cell,p);
-    //AddUnitToNotify(player);
-
     if( remove )
         DeleteFromWorld(player);
 }
@@ -918,21 +839,12 @@ Map::PlayerRelocation(Player *player, float x, float y, float z, float orientati
         RemoveFromGrid(player, oldGrid,old_cell);
         if( !old_cell.DiffGrid(new_cell) )
             AddToGrid(player, oldGrid,new_cell);
-
-        if( old_cell.DiffGrid(new_cell) )
+        else
             EnsureGridLoadedForPlayer(new_cell, player, true);
     }
 
-    // if move then update what player see and who seen
-    //UpdatePlayerVisibility(player,new_cell,new_val);
-    //UpdateObjectsVisibilityFor(player,new_cell,new_val);
-
-    // also update what possessing player sees
-    //if(player->isPossessedByPlayer())
-    //    UpdateObjectsVisibilityFor((Player*)player->GetCharmer(), new_cell, new_val);
-
-    //PlayerRelocationNotify(player,new_cell,new_val);
     AddUnitToNotify(player);
+
     NGridType* newGrid = getNGrid(new_cell.GridX(), new_cell.GridY());
     if( !same_cell && newGrid->GetGridState()!= GRID_STATE_ACTIVE )
     {
@@ -971,11 +883,6 @@ Map::CreatureRelocation(Creature *creature, float x, float y, float z, float ang
     else
     {
         creature->Relocate(x, y, z, ang);
-        // Update visibility back to player who is controlling the creature
-        //if(creature->isPossessedByPlayer())
-        //    UpdateObjectsVisibilityFor((Player*)creature->GetCharmer(), new_cell, new_val);
-
-        //CreatureRelocationNotify(creature,new_cell,new_val);
         AddUnitToNotify(creature);
     }
     assert(CheckGridIntegrity(creature,true));
@@ -1042,12 +949,8 @@ bool Map::CreatureCellRelocation(Creature *c, Cell new_cell)
                 sLog.outDebug("Creature (GUID: %u Entry: %u) moved in grid[%u,%u] from cell[%u,%u] to cell[%u,%u].", c->GetGUIDLow(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.CellX(), new_cell.CellY());
             #endif
 
-            if( !old_cell.DiffGrid(new_cell) )
-            {
-                RemoveFromGrid(c,getNGrid(old_cell.GridX(), old_cell.GridY()),old_cell);
-                AddToGrid(c,getNGrid(new_cell.GridX(), new_cell.GridY()),new_cell);
-                c->SetCurrentCell(new_cell);
-            }
+            RemoveFromGrid(c,getNGrid(old_cell.GridX(), old_cell.GridY()),old_cell);
+            AddToGrid(c,getNGrid(new_cell.GridX(), new_cell.GridY()),new_cell);
         }
         else
         {
@@ -1502,60 +1405,6 @@ void Map::UpdateObjectVisibility( WorldObject* obj, Cell cell, CellPair cellpair
     TypeContainerVisitor<Trinity::VisibleChangesNotifier, WorldTypeMapContainer > player_notifier(notifier);
     CellLock<GridReadGuard> cell_lock(cell, cellpair);
     cell_lock->Visit(cell_lock, player_notifier, *this);
-}
-
-/*void Map::UpdatePlayerVisibility( Player* player, Cell cell, CellPair cellpair )
-{
-    cell.data.Part.reserved = ALL_DISTRICT;
-
-    Trinity::PlayerNotifier pl_notifier(*player);
-    TypeContainerVisitor<Trinity::PlayerNotifier, WorldTypeMapContainer > player_notifier(pl_notifier);
-
-    CellLock<ReadGuard> cell_lock(cell, cellpair);
-    cell_lock->Visit(cell_lock, player_notifier, *this);
-}*/
-
-void Map::UpdateObjectsVisibilityFor( Player* player, Cell cell, CellPair cellpair )
-{
-    Trinity::VisibleNotifier notifier(*player);
-
-    cell.data.Part.reserved = ALL_DISTRICT;
-    cell.SetNoCreate();
-    TypeContainerVisitor<Trinity::VisibleNotifier, WorldTypeMapContainer > world_notifier(notifier);
-    TypeContainerVisitor<Trinity::VisibleNotifier, GridTypeMapContainer  > grid_notifier(notifier);
-    CellLock<GridReadGuard> cell_lock(cell, cellpair);
-    cell_lock->Visit(cell_lock, world_notifier, *this);
-    cell_lock->Visit(cell_lock, grid_notifier,  *this);
-
-    // send data
-    notifier.Notify();
-}
-
-void Map::PlayerRelocationNotify( Player* player, Cell cell, CellPair cellpair )
-{
-    CellLock<ReadGuard> cell_lock(cell, cellpair);
-    Trinity::PlayerRelocationNotifier relocationNotifier(*player);
-    cell.data.Part.reserved = ALL_DISTRICT;
-
-    TypeContainerVisitor<Trinity::PlayerRelocationNotifier, GridTypeMapContainer >  p2grid_relocation(relocationNotifier);
-    TypeContainerVisitor<Trinity::PlayerRelocationNotifier, WorldTypeMapContainer > p2world_relocation(relocationNotifier);
-
-    cell_lock->Visit(cell_lock, p2grid_relocation, *this);
-    cell_lock->Visit(cell_lock, p2world_relocation, *this);
-}
-
-void Map::CreatureRelocationNotify(Creature *creature, Cell cell, CellPair cellpair)
-{
-    CellLock<ReadGuard> cell_lock(cell, cellpair);
-    Trinity::CreatureRelocationNotifier relocationNotifier(*creature);
-    cell.data.Part.reserved = ALL_DISTRICT;
-    cell.SetNoCreate();                                     // not trigger load unloaded grids at notifier call
-
-    TypeContainerVisitor<Trinity::CreatureRelocationNotifier, WorldTypeMapContainer > c2world_relocation(relocationNotifier);
-    TypeContainerVisitor<Trinity::CreatureRelocationNotifier, GridTypeMapContainer >  c2grid_relocation(relocationNotifier);
-
-    cell_lock->Visit(cell_lock, c2world_relocation, *this);
-    cell_lock->Visit(cell_lock, c2grid_relocation, *this);
 }
 
 void Map::SendInitSelf( Player * player )
@@ -2221,3 +2070,4 @@ void Map::AddUnitToNotify(Unit* u)
         u->m_IsInNotifyList = true;
     }
 }
+

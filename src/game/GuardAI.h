@@ -53,3 +53,4 @@ class TRINITY_DLL_DECL GuardAI : public CreatureAI
         TimeTracker i_tracker;
 };
 #endif
+

@@ -708,7 +708,7 @@ void Spell::EffectDummy(uint32 i)
                         if(ihit->effectMask & (1<<i))
                             {
                                 Unit* casttarget = Unit::GetUnit((*unitTarget), ihit->targetGUID);
-                                if(casttarget) 
+                                if(casttarget)
                                     m_caster->DealDamage(casttarget, damage, NULL, SPELL_DIRECT_DAMAGE, SPELL_SCHOOL_MASK_ARCANE, spellInfo, false);
                             }
                 }
@@ -732,7 +732,7 @@ void Spell::EffectDummy(uint32 i)
 
                     pGameObj->SetRespawnTime(0);
                     pGameObj->SetOwnerGUID(m_caster->GetGUID());
-                    pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
+                    //pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
                     pGameObj->SetSpellId(m_spellInfo->Id);
 
                     MapManager::Instance().GetMap(creatureTarget->GetMapId(), pGameObj)->Add(pGameObj);
@@ -5005,14 +5005,14 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 }
                 case 48025:                                     // Headless Horseman's Mount
                 {
-                    if(!unitTarget)
+                if(!unitTarget)
                         return;
                 
                     switch(((Player*)unitTarget)->GetBaseSkillValue(762))
                     {
                     case 75: unitTarget->CastSpell(unitTarget, 51621, true); break;;
                     case 150: unitTarget->CastSpell(unitTarget, 48024, true); break;
-                    case 225: unitTarget->CastSpell(unitTarget, 51617, true); break;                
+                    case 225: unitTarget->CastSpell(unitTarget, 51617, true); break;
                     case 300: unitTarget->CastSpell(unitTarget, 48023, true); break;
                     default: break;
                     }
@@ -5020,7 +5020,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 }
                 case 47977:                                     // Magic Broom
                 {
-                    if(!unitTarget)                  
+                    if(!unitTarget)
                         return;
 
                     if(unitTarget)
@@ -5894,7 +5894,7 @@ void Spell::EffectSummonObject(uint32 i)
         return;
     }
 
-    pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL,m_caster->getLevel());
+    //pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL,m_caster->getLevel());
     int32 duration = GetSpellDuration(m_spellInfo);
     pGameObj->SetRespawnTime(duration > 0 ? duration/1000 : 0);
     pGameObj->SetSpellId(m_spellInfo->Id);
@@ -6249,7 +6249,7 @@ void Spell::EffectKnockBack(uint32 i)
         return;
 
     float x, y;
-    if(m_targets.HasDest())
+    if(m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
     {
         x = m_targets.m_destX;
         y = m_targets.m_destY;
@@ -6262,10 +6262,19 @@ void Spell::EffectKnockBack(uint32 i)
 
     float dx = unitTarget->GetPositionX() - x;
     float dy = unitTarget->GetPositionY() - y;
-    float dist = sqrt((dx*dx) + (dy*dy));
-
-    float vcos = dx / dist;
-    float vsin = dy / dist;
+    float vcos, vsin;
+    if(dx < 0.001f && dy < 0.001f)
+    {
+        float angle = rand_norm()*2*M_PI;
+        vcos = cos(angle);
+        vsin = sin(angle);
+    }
+    else
+    {
+        float dist = sqrt((dx*dx) + (dy*dy));
+        vcos = dx / dist;
+        vsin = dy / dist;
+    }
     float speedxy = float(m_spellInfo->EffectMiscValue[i])/10;
     float speedz = float(damage/-10);   
 
@@ -6594,7 +6603,7 @@ void Spell::EffectTransmitted(uint32 effIndex)
 
     pGameObj->SetOwnerGUID(m_caster->GetGUID() );
 
-    pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel() );
+    //pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel() );
     pGameObj->SetSpellId(m_spellInfo->Id);
 
     DEBUG_LOG("AddObject at SpellEfects.cpp EffectTransmitted\n");
@@ -6614,7 +6623,7 @@ void Spell::EffectTransmitted(uint32 effIndex)
             m_caster->GetPhaseMask(), fx, fy, fz, m_caster->GetOrientation(), 0, 0, 0, 0, 100, 1))
         {
             linkedGO->SetRespawnTime(duration > 0 ? duration/1000 : 0);
-            linkedGO->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel() );
+            //linkedGO->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel() );
             linkedGO->SetSpellId(m_spellInfo->Id);
             linkedGO->SetOwnerGUID(m_caster->GetGUID() );
 
@@ -6858,4 +6867,3 @@ void Spell::EffectRenamePet(uint32 /*eff_idx*/)
         return;
 
     unitTarget->SetByteValue(UNIT_FIELD_BYTES_2, 2, UNIT_RENAME_ALLOWED);
-}

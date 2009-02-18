@@ -1119,3 +1119,4 @@ class SpellMgr
 
 #define spellmgr SpellMgr::Instance()
 #endif
+

@@ -467,3 +467,4 @@ void WorldSession::HandleSelfResOpcode( WorldPacket & /*recv_data*/ )
         _player->SetUInt32Value(PLAYER_SELF_RES_SPELL, 0);
     }
 }
+

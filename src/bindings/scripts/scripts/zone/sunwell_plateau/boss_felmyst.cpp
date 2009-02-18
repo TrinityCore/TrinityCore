@@ -586,3 +586,4 @@ void AddSC_boss_felmyst()
     newscript->GetAI = &GetAI_mob_felmyst_trail;
     newscript->RegisterSelf();
 }
+

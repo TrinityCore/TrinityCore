@@ -1560,3 +1560,4 @@ void Group::BroadcastGroupUpdate(void)
         }
     }
 }
+

@@ -457,3 +457,4 @@ class Guild
         Item* _StoreItem( uint8 tab, uint8 slot, Item *pItem, uint32 count, bool clone );
 };
 #endif
+

@@ -288,3 +288,4 @@ ACE_ATM_Stream::get_vpi_vci (ACE_UINT16 &vpi,
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_HAS_ATM */
+

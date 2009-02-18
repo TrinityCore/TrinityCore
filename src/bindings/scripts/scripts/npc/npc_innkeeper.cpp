@@ -142,3 +142,4 @@ void AddSC_npc_innkeeper()
     newscript->pGossipSelect = &GossipSelect_npc_innkeeper;
     newscript->RegisterSelf();
 }
+

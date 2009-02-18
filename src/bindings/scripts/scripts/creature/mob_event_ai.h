@@ -218,3 +218,4 @@ extern UNORDERED_MAP<uint32, EventAI_CreatureError> EventAI_CreatureErrorPrevent
 #define EVENTAI_EMPTY_EVENTLIST         "SD2: Eventlist for Creature %i is empty but creature is using Mob_EventAI. Preventing EventAI on this creature."
 */
 #endif
+

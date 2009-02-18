@@ -741,3 +741,4 @@ void BattleGroundWS::FillInitialWorldStates(WorldPacket& data)
         data << uint32(BG_WS_FLAG_STATE_HORDE) << uint32(1);
 
 }
+

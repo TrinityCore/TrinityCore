@@ -306,3 +306,4 @@ void AddSC_boss_skeram()
     newscript->GetAI = &GetAI_boss_skeram;
     newscript->RegisterSelf();
 }
+

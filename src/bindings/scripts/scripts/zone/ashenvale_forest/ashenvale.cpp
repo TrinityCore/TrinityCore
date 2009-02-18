@@ -317,3 +317,4 @@ void AddSC_ashenvale()
     newscript->pQuestAccept = &QuestAccept_npc_ruul_snowhoof;
     newscript->RegisterSelf();
 }
+

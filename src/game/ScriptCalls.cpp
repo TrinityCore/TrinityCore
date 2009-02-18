@@ -100,3 +100,4 @@ bool LoadScriptingModule(char const* libName)
 
     return true;
 }
+

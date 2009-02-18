@@ -358,3 +358,4 @@ ACE_Pipe::recv (size_t n, ...) const
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+

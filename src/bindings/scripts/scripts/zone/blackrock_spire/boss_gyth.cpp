@@ -203,3 +203,4 @@ void AddSC_boss_gyth()
     newscript->GetAI = &GetAI_boss_gyth;
     newscript->RegisterSelf();
 }
+

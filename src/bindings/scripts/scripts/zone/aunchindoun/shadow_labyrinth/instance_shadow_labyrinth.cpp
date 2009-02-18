@@ -244,3 +244,4 @@ void AddSC_instance_shadow_labyrinth()
     newscript->GetInstanceData = &GetInstanceData_instance_shadow_labyrinth;
     newscript->RegisterSelf();
 }
+

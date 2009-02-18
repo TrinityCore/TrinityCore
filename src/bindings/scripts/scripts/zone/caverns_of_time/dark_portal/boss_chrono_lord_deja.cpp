@@ -134,3 +134,4 @@ void AddSC_boss_chrono_lord_deja()
     newscript->GetAI = &GetAI_boss_chrono_lord_deja;
     newscript->RegisterSelf();
 }
+

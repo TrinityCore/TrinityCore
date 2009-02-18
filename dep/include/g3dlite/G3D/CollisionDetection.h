@@ -1155,3 +1155,4 @@ public:
 } // namespace
 
 #endif // G3D_COLLISIONDETECTION_H
+

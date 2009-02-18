@@ -31,3 +31,4 @@ ACE_Framework_Component_T<Concrete>::close_singleton (void)
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* ACE_FRAMEWORK_COMPONENT_T_CPP */
+
