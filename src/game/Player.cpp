@@ -19874,14 +19874,6 @@ void Player::HandleFallUnderMap()
     sLog.outDetail("Viewport for "I64FMT" (%s) changed to "I64FMT, GetGUID(), GetName(), guid);
 }*/
 
-void Player::SetBindSight(Unit *target)
-{
-    if(target)
-        target->AddPlayerToVision(this);
-    else
-        target->RemovePlayerFromVision(this);
-}
-
 WorldObject* Player::GetFarsightTarget() const
 {
     // Players can have in farsight field another player's guid, a creature's guid, or a dynamic object's guid
