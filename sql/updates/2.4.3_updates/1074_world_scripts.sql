@@ -1,2 +1,1 @@
-update creature_template set scriptname = 'npc_plucky' where entry in (6626);
-
+UPDATE `creature_template` SET `ScriptName` = 'npc_plucky' WHERE `entry` = '6626';
