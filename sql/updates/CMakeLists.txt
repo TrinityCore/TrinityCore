@@ -8,7 +8,6 @@ INSTALL(FILES
 1028_mangos_7141_01_world_instance_template.sql
 1028_mangos_7147_01_world_creature_template.sql
 1028_mangos_7150_01_world_playercreateinfo_spell.sql
-1069_world_scripts.sql
 1084_mangos_7168_01_world_command.sql
 1094_mangos_7193_01_world_trinity_string.sql
 1108_mangos_7196_02_world_spell_bonus_data.sql
