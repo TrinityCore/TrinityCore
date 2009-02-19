@@ -194,7 +194,7 @@ void BattleGroundQueue::RemovePlayer(const uint64& guid, bool decreaseInvitedCou
     }
 
     // couldn't find the player in bg queue, return
-    if(itr == m_QueuedPlayers[queue_id].end())
+    if(queue_id == -1)
     {
         sLog.outError("Battleground: couldn't find player to remove.");
         return;
