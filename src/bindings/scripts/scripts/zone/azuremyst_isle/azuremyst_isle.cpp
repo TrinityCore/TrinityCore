@@ -104,8 +104,7 @@ struct TRINITY_DLL_DECL npc_draenei_survivorAI : public ScriptedAI
 
     void SpellHit(Unit *Caster, const SpellEntry *Spell)
     {
-	// error: âconst struct SpellEntryâ has no member named âSpellFamilyFlags2â
-        /*if (Spell->SpellFamilyFlags2 & 0x080000000)
+        if (Spell->SpellFamilyFlags[2] & 0x080000000)
         {
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
             m_creature->SetStandState(UNIT_STAND_STATE_STAND);
@@ -115,7 +114,7 @@ struct TRINITY_DLL_DECL npc_draenei_survivorAI : public ScriptedAI
             pCaster = Caster->GetGUID();
 
             SayThanksTimer = 5000;
-        }*/
+        }
     }
 
     void UpdateAI(const uint32 diff)
