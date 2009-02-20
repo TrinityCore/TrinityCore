@@ -1606,7 +1606,6 @@ Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, floa
 {
     TemporarySummon* pCreature = new TemporarySummon(GetGUID());
 
-    //pCreature->SetInstanceId(GetInstanceId());
     uint32 team = 0;
     if (GetTypeId()==TYPEID_PLAYER)
         team = ((Player*)this)->GetTeam();
@@ -1643,6 +1642,46 @@ Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, floa
     }
 
     //return the creature therewith the summoner has access to it
+    return pCreature;
+}
+
+Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 duration)
+{
+    Pet* pCreature = new Pet(petType);
+
+    Map *map = GetMap();
+    uint32 pet_number = objmgr.GeneratePetNumber();
+    if(!pCreature->Create(objmgr.GenerateLowGuid(HIGHGUID_PET), map, GetPhaseMask(), entry, pet_number))
+    {
+        sLog.outError("no such creature entry %u", entry);
+        delete pCreature;
+        return NULL;
+    }
+
+    pCreature->Relocate(x, y, z, ang);
+
+    if(!pCreature->IsPositionValid())
+    {
+        sLog.outError("ERROR: Pet (guidlow %d, entry %d) not summoned. Suggested coordinates isn't valid (X: %f Y: %f)",pCreature->GetGUIDLow(),pCreature->GetEntry(),pCreature->GetPositionX(),pCreature->GetPositionY());
+        delete pCreature;
+        return NULL;
+    }
+
+    if(duration > 0)
+        pCreature->SetDuration(duration);
+
+    pCreature->SetOwnerGUID(GetGUID());
+    pCreature->SetCreatorGUID(GetGUID());
+    pCreature->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, getFaction());
+
+    pCreature->GetCharmInfo()->SetPetNumber(pet_number, false);
+
+    pCreature->AIM_Initialize();
+
+    map->Add((Creature*)pCreature);
+
+    AddGuardian(pCreature);
+
     return pCreature;
 }
 
