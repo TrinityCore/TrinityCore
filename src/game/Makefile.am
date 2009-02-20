@@ -227,6 +227,8 @@ libmangosgame_a_SOURCES = \
     PossessedAI.h \
     PointMovementGenerator.cpp \
     PointMovementGenerator.h \
+    PoolHandler.cpp \
+    PoolHandler.h \
     QueryHandler.cpp \
     QuestDef.cpp \
     QuestDef.h \
