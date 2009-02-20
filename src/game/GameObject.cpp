@@ -22,6 +22,7 @@
 #include "QuestDef.h"
 #include "GameObject.h"
 #include "ObjectMgr.h"
+#include "PoolHandler.h"
 #include "SpellMgr.h"
 #include "Spell.h"
 #include "UpdateMask.h"
@@ -66,7 +67,7 @@ GameObject::~GameObject()
 {
     if(m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
     {
-        // crash possible at access to deleted GO in Unit::m_gameobj
+        // Possible crash at access to deleted GO in Unit::m_gameobj
         uint64 owner_guid = GetOwnerGUID();
         if(owner_guid)
         {
@@ -281,7 +282,11 @@ void GameObject::Update(uint32 /*p_time*/)
                                 return;
                             }
                                                             // respawn timer
-                            GetMap()->Add(this);
+                            uint16 poolid = poolhandler.IsPartOfAPool(GetGUIDLow(), TYPEID_GAMEOBJECT);
+                            if (poolid)
+                                poolhandler.UpdatePool(poolid, GetGUIDLow(), TYPEID_GAMEOBJECT);
+                            else
+                                GetMap()->Add(this);
                             break;
                     }
                 }
@@ -484,7 +489,11 @@ void GameObject::Delete()
     SetGoState(1);
     SetUInt32Value(GAMEOBJECT_FLAGS, GetGOInfo()->flags);
 
-    AddObjectToRemoveList();
+    uint16 poolid = poolhandler.IsPartOfAPool(GetGUIDLow(), TYPEID_GAMEOBJECT);
+    if (poolid)
+        poolhandler.UpdatePool(poolid, GetGUIDLow(), TYPEID_GAMEOBJECT);
+    else
+        AddObjectToRemoveList();
 }
 
 void GameObject::getFishLoot(Loot *fishloot, Player* loot_owner)

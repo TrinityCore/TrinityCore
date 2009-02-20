@@ -29,6 +29,7 @@
 #include "QuestDef.h"
 #include "GossipDef.h"
 #include "Player.h"
+#include "PoolHandler.h"
 #include "Opcodes.h"
 #include "Log.h"
 #include "LootMgr.h"
@@ -423,7 +424,11 @@ void Creature::Update(uint32 diff)
                 //Call AI respawn virtual function
                 i_AI->JustRespawned();
 
-                GetMap()->Add(this);
+                uint16 poolid = poolhandler.IsPartOfAPool(GetGUIDLow(), GetTypeId());
+                if (poolid)
+                    poolhandler.UpdatePool(poolid, GetGUIDLow(), GetTypeId());
+                else
+                    GetMap()->Add(this);
             }
             break;
         }
