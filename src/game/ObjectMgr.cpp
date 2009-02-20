@@ -3895,12 +3895,33 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
             }
 
             case SCRIPT_COMMAND_REMOVE_AURA:
+            {
+                if(!sSpellStore.LookupEntry(tmp.datalong))
+                {
+                    sLog.outErrorDb("Table `%s` using non-existent spell (id: %u) in SCRIPT_COMMAND_REMOVE_AURA or SCRIPT_COMMAND_CAST_SPELL for script id %u",
+                        tablename,tmp.datalong,tmp.id);
+                    continue;
+                }
+                if(tmp.datalong2 & ~0x1)                    // 1 bits (0,1)
+                {
+                    sLog.outErrorDb("Table `%s` using unknown flags in datalong2 (%u)i n SCRIPT_COMMAND_CAST_SPELL for script id %u",
+                        tablename,tmp.datalong2,tmp.id);
+                    continue;
+                }
+                break;
+            }
             case SCRIPT_COMMAND_CAST_SPELL:
             {
                 if(!sSpellStore.LookupEntry(tmp.datalong))
                 {
                     sLog.outErrorDb("Table `%s` using non-existent spell (id: %u) in SCRIPT_COMMAND_REMOVE_AURA or SCRIPT_COMMAND_CAST_SPELL for script id %u",
                         tablename,tmp.datalong,tmp.id);
+                    continue;
+                }
+                if(tmp.datalong2 & ~0x3)                    // 2 bits
+                {
+                    sLog.outErrorDb("Table `%s` using unknown flags in datalong2 (%u)i n SCRIPT_COMMAND_CAST_SPELL for script id %u",
+                        tablename,tmp.datalong2,tmp.id);
                     continue;
                 }
                 break;
