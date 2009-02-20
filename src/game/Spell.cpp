@@ -2109,21 +2109,27 @@ void Spell::cancel()
         } break;
     }
 
+    finish(false);
+
     // Unsummon summon as possessed creatures on spell cancel
-    for (int i = 0; i < 3; i++)
+    if(m_caster->GetTypeId() == TYPEID_PLAYER)
     {
-        if (m_spellInfo->Effect[i] == SPELL_EFFECT_SUMMON &&
-            (m_spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED ||
-             m_spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED2 ||
-             m_spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED3))
+        for(int i = 0; i < 3; ++i)
         {
-            // Possession is removed in the UnSummon function
-            if (m_caster->GetCharm())
-                ((TemporarySummon*)m_caster->GetCharm())->UnSummon();
+            if(m_spellInfo->Effect[i] == SPELL_EFFECT_SUMMON &&
+                (m_spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED ||
+                 m_spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED2 ||
+                 m_spellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED3))
+            {
+                ((Player*)m_caster)->StopCastingCharm();
+                break;
+                // Possession is removed in the UnSummon function
+                //if (m_caster->GetCharm())
+                //    ((TemporarySummon*)m_caster->GetCharm())->UnSummon();
+            }
         }
     }
 
-    finish(false);
     m_caster->RemoveDynObject(m_spellInfo->Id);
     m_caster->RemoveGameObject(m_spellInfo->Id,true);
 }

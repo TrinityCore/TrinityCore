@@ -7648,7 +7648,8 @@ void Unit::SetCharm(Unit* pet)
 
 void Unit::AddPlayerToVision(Player* plr)
 {
-    if (m_sharedVision.empty() && GetTypeId() == TYPEID_UNIT)
+    if (m_sharedVision.empty() && GetTypeId() == TYPEID_UNIT
+        && !((Creature*)this)->isPet() && !((Creature*)this)->isVehicle())
     {
         setActive(true);
         GetMap()->SwitchGridContainers((Creature*)this, true);
@@ -7660,7 +7661,8 @@ void Unit::AddPlayerToVision(Player* plr)
 void Unit::RemovePlayerFromVision(Player* plr)
 {
     m_sharedVision.remove(plr);
-    if (m_sharedVision.empty() && GetTypeId() == TYPEID_UNIT)
+    if (m_sharedVision.empty() && GetTypeId() == TYPEID_UNIT
+        && !((Creature*)this)->isPet() && !((Creature*)this)->isVehicle())
     {
         setActive(false);
         GetMap()->SwitchGridContainers((Creature*)this, false);
@@ -12382,6 +12384,10 @@ void Unit::SetCharmedOrPossessedBy(Unit* charmer, bool possess)
     // Charmed stop charming
     if(GetTypeId() == TYPEID_PLAYER)
         ((Player*)this)->StopCastingCharm();
+
+    // StopCastingCharm may remove a possessed pet?
+    if(!IsInWorld())
+        return;
 
     // Set charmed
     charmer->SetCharm(this);

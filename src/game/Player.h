@@ -1033,6 +1033,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         int GetTimeInnEnter() const { return time_inn_enter; };
         void UpdateInnerTime (int time) { time_inn_enter = time; };
 
+        Pet* SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 despwtime);
         void RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent = false);
         void RemoveMiniPet();
         Pet* GetMiniPet();
