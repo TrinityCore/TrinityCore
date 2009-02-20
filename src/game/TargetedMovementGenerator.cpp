@@ -53,8 +53,8 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
         return;
 
     // prevent redundant micro-movement for pets, other followers.
-    if(i_offset && i_target->IsWithinDistInMap(&owner,2*i_offset))
-        return;
+    //if(i_offset && i_target->IsWithinDistInMap(&owner,2*i_offset))
+    //    return;
 
     float x, y, z;
     if(!i_offset)
@@ -164,12 +164,14 @@ TargetedMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
         if (owner.GetObjectSize())
             i_destinationHolder.ResetUpdate(50);
 
-        float dist = owner.GetCombatReach() + i_target.getTarget()->GetCombatReach() + sWorld.getRate(RATE_TARGET_POS_RECALCULATION_RANGE);
+        //float dist = owner.GetCombatReach() + i_target.getTarget()->GetCombatReach() + sWorld.getRate(RATE_TARGET_POS_RECALCULATION_RANGE);
 
         //More distance let have better performance, less distance let have more sensitive reaction at target move.
 
         // try to counter precision differences
-        if( i_destinationHolder.GetDistance2dFromDestSq(*i_target.getTarget()) >= dist * dist)
+        //if( i_destinationHolder.GetDistance2dFromDestSq(*i_target.getTarget()) >= dist * dist)
+        if(i_offset ? !i_target->IsWithinDistInMap(&owner,2*i_offset)
+            : !i_target->IsWithinMeleeRange(&owner))
         {
             owner.SetInFront(i_target.getTarget());         // Set new Angle For Map::
             _setTargetLocation(owner);                      //Calculate New Dest and Send data To Player
