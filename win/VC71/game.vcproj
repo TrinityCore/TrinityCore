@@ -476,6 +476,12 @@
 				RelativePath="..\..\src\game\PetitionsHandler.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\game\PoolHandler.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\game\PoolHandler.h">
+			</File>
+			<File
 				RelativePath="..\..\src\game\QueryHandler.cpp">
 			</File>
 			<File
