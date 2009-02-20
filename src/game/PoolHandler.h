@@ -36,47 +36,8 @@ struct PoolObject
     PoolObject(uint32 _guid, float _chance): guid(_guid), chance(fabs(_chance)), spawned(false) {}
 };
 
-class PoolHandler
-{
-    template <class T> class  PoolGroup;
-    class Pool;
-
-    public:
-        PoolHandler();
-        ~PoolHandler() {};
-        void LoadFromDB();
-        uint16 IsPartOfAPool(uint32 guid, uint32 type);
-        bool IsSpawnedObject(uint16 pool_id, uint32 guid, uint32 type);
-        bool CheckPool(uint16 pool_id);
-        void SpawnPool(uint16 pool_id, bool cache=false);
-        void DespawnPool(uint16 pool_id);
-        void UpdatePool(uint16 pool_id, uint32 guid, uint32 type);
-        void Initialize();
-
-    private:
-
-    protected:
-        bool isSystemInit;
-        uint16 max_pool_id;
-        typedef std::vector<PoolTemplateData> PoolTemplateDataMap;
-        typedef std::vector<PoolGroup<Creature> > PoolGroupCreatureMap;
-        typedef std::vector<PoolGroup<GameObject> > PoolGroupGameObjectMap;
-        typedef std::vector<PoolGroup<Pool> > PoolGroupPoolMap;
-        typedef std::pair<uint32, uint16> SearchPair;
-        typedef std::map<uint32, uint16> SearchMap;
-
-        PoolTemplateDataMap mPoolTemplate;
-        PoolGroupCreatureMap mPoolCreatureGroups;
-        PoolGroupGameObjectMap mPoolGameobjectGroups;
-        PoolGroupPoolMap mPoolPoolGroups;
-        SearchMap mCreatureSearchMap;
-        SearchMap mGameobjectSearchMap;
-        SearchMap mPoolSearchMap;
-
-};
-
 template <class T>
-class PoolHandler::PoolGroup
+class PoolGroup
 {
     public:
         PoolGroup();
@@ -94,15 +55,48 @@ class PoolHandler::PoolGroup
         void RemoveOneRelation(uint16 child_pool_id);
     private:
         typedef std::vector<PoolObject> PoolObjectList;
-        uint32 CacheValue;                                      // Store the guid of the removed creature/gameobject during a pool update
+        uint32 CacheValue;                                  // Store the guid of the removed creature/gameobject during a pool update
         PoolObjectList ExplicitlyChanced;
         PoolObjectList EqualChanced;
-        uint32 Spawned;                                         // Used to know the number of spawned objects
-
+        uint32 Spawned;                                     // Used to know the number of spawned objects
 };
 
-class PoolHandler::Pool
+class Pool                                                  // for Pool of Pool case
 {
+};
+
+class PoolHandler
+{
+    public:
+        PoolHandler();
+        ~PoolHandler() {};
+        void LoadFromDB();
+        uint16 IsPartOfAPool(uint32 guid, uint32 type);
+        bool IsSpawnedObject(uint16 pool_id, uint32 guid, uint32 type);
+        bool CheckPool(uint16 pool_id);
+        void SpawnPool(uint16 pool_id, bool cache=false);
+        void DespawnPool(uint16 pool_id);
+        void UpdatePool(uint16 pool_id, uint32 guid, uint32 type);
+        void Initialize();
+
+    protected:
+        bool isSystemInit;
+        uint16 max_pool_id;
+        typedef std::vector<PoolTemplateData> PoolTemplateDataMap;
+        typedef std::vector<PoolGroup<Creature> >   PoolGroupCreatureMap;
+        typedef std::vector<PoolGroup<GameObject> > PoolGroupGameObjectMap;
+        typedef std::vector<PoolGroup<Pool> >       PoolGroupPoolMap;
+        typedef std::pair<uint32, uint16> SearchPair;
+        typedef std::map<uint32, uint16> SearchMap;
+
+        PoolTemplateDataMap mPoolTemplate;
+        PoolGroupCreatureMap mPoolCreatureGroups;
+        PoolGroupGameObjectMap mPoolGameobjectGroups;
+        PoolGroupPoolMap mPoolPoolGroups;
+        SearchMap mCreatureSearchMap;
+        SearchMap mGameobjectSearchMap;
+        SearchMap mPoolSearchMap;
+
 };
 
 #define poolhandler MaNGOS::Singleton<PoolHandler>::Instance()
