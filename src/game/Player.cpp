@@ -3165,10 +3165,12 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool update_action_bar_
         SpellEntry const *spellInfo = sSpellStore.LookupEntry(spell_id);
 
             // if talent then lesser rank also talent and need learn
-        /*if(talentCosts)
-            learnSpell (prev_id,false);
+        if(talentCosts)
+        {
+            //learnSpell (prev_id,false);
+        }
             // if ranked non-stackable spell: need activate lesser rank and update dendence state
-        else*/ if(cur_active && !SpellMgr::canStackSpellRanks(spellInfo) && spellmgr.GetSpellRank(spellInfo->Id) != 0)
+        else if(cur_active && !SpellMgr::canStackSpellRanks(spellInfo) && spellmgr.GetSpellRank(spellInfo->Id) != 0)
         {
                 // need manually update dependence state (learn spell ignore like attempts)
             PlayerSpellMap::iterator prev_itr = m_spells.find(prev_id);
