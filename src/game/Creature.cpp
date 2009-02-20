@@ -1045,12 +1045,12 @@ void Creature::OnPoiSelect(Player* player, GossipOption const *gossip)
 {
     if(gossip->GossipId==GOSSIP_GUARD_SPELLTRAINER || gossip->GossipId==GOSSIP_GUARD_SKILLTRAINER)
     {
-        Poi_Icon icon = ICON_POI_0;
+        Poi_Icon icon = ICON_POI_BLANK;
         //need add more case.
         switch(gossip->Action)
         {
             case GOSSIP_GUARD_BANK:
-                icon=ICON_POI_HOUSE;
+                icon=ICON_POI_SMALL_HOUSE;
                 break;
             case GOSSIP_GUARD_RIDE:
                 icon=ICON_POI_RWHORSE;
@@ -1059,7 +1059,7 @@ void Creature::OnPoiSelect(Player* player, GossipOption const *gossip)
                 icon=ICON_POI_BLUETOWER;
                 break;
             default:
-                icon=ICON_POI_TOWER;
+                icon=ICON_POI_GREYTOWER;
                 break;
         }
         uint32 textid = GetGossipTextId( gossip->Action, GetZoneId() );
