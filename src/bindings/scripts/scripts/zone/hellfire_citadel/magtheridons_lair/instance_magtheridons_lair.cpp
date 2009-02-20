@@ -166,7 +166,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                     Creature *Magtheridon = instance->GetCreatureInMap(MagtheridonGUID);
                     if(Magtheridon && Magtheridon->isAlive())
                     {
-                        Magtheridon->TextEmote("'s bonds begin to weaken!", 0);
+                        Magtheridon->MonsterTextEmote("'s bonds begin to weaken!", 0);
                         CageTimer = 120000;
                     }
                     if(GameObject *Door = instance->GetGameObjectInMap(DoorGUID))
