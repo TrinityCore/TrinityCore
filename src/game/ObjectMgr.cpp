@@ -1055,37 +1055,10 @@ void ObjectMgr::LoadCreatures()
             sLog.outErrorDb("Table `creature` have creature (GUID: %u Entry: %u) with `phaseMask`=0 (not visible for anyone), set to 1.",guid,data.id );
             data.phaseMask = 1;
         }
-        else
-        {
-            int count = 0;
-            for(int i=0; i < sizeof(data.phaseMask)*8; ++i)
-                if(data.phaseMask & (1 << i))
-                    ++count;
-
-            if(count > 1)
-            {
-                uint32 phaseMask = data.phaseMask & ~PHASEMASK_NORMAL;
-                count = 0;
-                for(int i=0; i < sizeof(phaseMask)*8; ++i)
-                    if(phaseMask & (1 << i))
-                        ++count;
-
-                if(count > 1)
-                {
-                    sLog.outErrorDb("Table `creature` have creature (GUID: %u Entry: %u) with more single bit set in `phaseMask` (not visible for anyone), set to 1.",guid,data.id );
-                    data.phaseMask = phaseMask;
-                }
-                else
-                {
-                    sLog.outErrorDb("Table `creature` have creature (GUID: %u Entry: %u) with more single bit set in `phaseMask` (not visible for anyone), set to %u (possible expected).",guid,data.id,phaseMask);
-                    data.phaseMask = 1;
-                }
-
-            }
-        }
 
         if (gameEvent==0 && PoolId==0)                      // if not this is to be managed by GameEvent System or Pool system
             AddCreatureToGrid(guid, &data);
+
         ++count;
 
     } while (result->NextRow());
