@@ -1,0 +1,108 @@
+/*
+ * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+#ifndef MANGOS_POOLHANDLER_H
+#define MANGOS_POOLHANDLER_H
+
+#include "Platform/Define.h"
+#include "Creature.h"
+#include "GameObject.h"
+
+struct PoolTemplateData
+{
+    uint32  MaxLimit;
+};
+
+struct PoolObject
+{
+    uint32  guid;
+    float   chance;
+    bool    spawned;
+    PoolObject(uint32 _guid, float _chance): guid(_guid), chance(fabs(_chance)), spawned(false) {}
+};
+
+class PoolHandler
+{
+    template <class T> class  PoolGroup;
+    class Pool;
+
+    public:
+        PoolHandler();
+        ~PoolHandler() {};
+        void LoadFromDB();
+        uint16 IsPartOfAPool(uint32 guid, uint32 type);
+        bool IsSpawnedObject(uint16 pool_id, uint32 guid, uint32 type);
+        bool CheckPool(uint16 pool_id);
+        void SpawnPool(uint16 pool_id, bool cache=false);
+        void DespawnPool(uint16 pool_id);
+        void UpdatePool(uint16 pool_id, uint32 guid, uint32 type);
+        void Initialize();
+
+    private:
+
+    protected:
+        bool isSystemInit;
+        uint16 max_pool_id;
+        typedef std::vector<PoolTemplateData> PoolTemplateDataMap;
+        typedef std::vector<PoolGroup<Creature>> PoolGroupCreatureMap;
+        typedef std::vector<PoolGroup<GameObject>> PoolGroupGameObjectMap;
+        typedef std::vector<PoolGroup<Pool>> PoolGroupPoolMap;
+        typedef std::pair<uint32, uint16> SearchPair;
+        typedef std::map<uint32, uint16> SearchMap;
+
+        PoolTemplateDataMap mPoolTemplate;
+        PoolGroupCreatureMap mPoolCreatureGroups;
+        PoolGroupGameObjectMap mPoolGameobjectGroups;
+        PoolGroupPoolMap mPoolPoolGroups;
+        SearchMap mCreatureSearchMap;
+        SearchMap mGameobjectSearchMap;
+        SearchMap mPoolSearchMap;
+
+};
+
+template <class T>
+class PoolHandler::PoolGroup
+{
+    public:
+        PoolGroup();
+        ~PoolGroup() {};
+        bool isEmpty() { return ExplicitlyChanced.size()==0 && EqualChanced.size()==0; }
+        void AddEntry(PoolObject& poolitem, uint32 maxentries);
+        bool CheckPool(void);
+        uint32 RollOne(void);
+        bool IsSpawnedObject(uint32 guid);
+        void DespawnObject(uint32 guid=0);
+        void Despawn1Object(uint32 guid);
+        void SpawnObject(uint32 limit, bool cache=false);
+        bool Spawn1Object(uint32 guid);
+        bool ReSpawn1Object(uint32 guid);
+    private:
+        typedef std::vector<PoolObject> PoolObjectList;
+        uint32 CacheValue;                                      // Store the guid of the removed creature/gameobject during a pool update
+        PoolObjectList ExplicitlyChanced;
+        PoolObjectList EqualChanced;
+        uint32 Spawned;                                         // Used to know the number of spawned objects
+
+};
+
+class PoolHandler::Pool
+{
+};
+
+#define poolhandler MaNGOS::Singleton<PoolHandler>::Instance()
+#endif
