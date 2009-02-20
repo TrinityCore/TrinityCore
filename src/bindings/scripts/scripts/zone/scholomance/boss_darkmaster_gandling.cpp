@@ -16,12 +16,13 @@
 
 /* ScriptData
 SDName: Boss_Darkmaster_Gandling
-SD%Complete: 99
+SD%Complete: 75
 SDComment: Doors missing in instance script.
 SDCategory: Scholomance
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_scholomance.h"
 
 #define SPELL_ARCANEMISSILES           22272
 #define SPELL_SHADOWSHIELD             22417                //Not right ID. But 12040 is wrong either.
@@ -49,12 +50,19 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_darkmaster_gandlingAI : public ScriptedAI
 {
-    boss_darkmaster_gandlingAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_darkmaster_gandlingAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
+        Reset();
+    }
+
+    ScriptedInstance* pInstance;
 
     uint32 ArcaneMissiles_Timer;
     uint32 ShadowShield_Timer;
     uint32 Curse_Timer;
     uint32 Teleport_Timer;
+
     Creature *Summoned;
 
     void Reset()
@@ -67,6 +75,12 @@ struct TRINITY_DLL_DECL boss_darkmaster_gandlingAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
+    }
+
+    void JustDied(Unit *killer)
+    {
+        if (pInstance)
+            pInstance->SetData(TYPE_GANDLING, DONE);
     }
 
     void UpdateAI(const uint32 diff)

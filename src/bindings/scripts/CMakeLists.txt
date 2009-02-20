@@ -222,7 +222,6 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/naxxramas/boss_gothik.cpp
    scripts/zone/naxxramas/boss_grobbulus.cpp
    scripts/zone/naxxramas/boss_heigan.cpp
-   scripts/zone/naxxramas/boss_highlord_mograine.cpp
    scripts/zone/naxxramas/boss_kelthuzad.cpp
    scripts/zone/naxxramas/boss_four_horsemen.cpp
    scripts/zone/naxxramas/boss_loatheb.cpp

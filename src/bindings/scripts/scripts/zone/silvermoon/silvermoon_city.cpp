@@ -47,7 +47,7 @@ struct TRINITY_DLL_DECL npc_blood_knight_stillbladeAI : public ScriptedAI
     void Reset()
     {
         lifeTimer = 120000;
-        m_creature->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 32);
+        m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
         m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,7);   // lay down
         spellHit = false;
     }
@@ -63,7 +63,7 @@ struct TRINITY_DLL_DECL npc_blood_knight_stillbladeAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->GetUInt32Value(UNIT_FIELD_BYTES_1))
+        if (m_creature->IsStandState())
         {
             if(lifeTimer < diff)
                 m_creature->AI()->EnterEvadeMode();
@@ -79,7 +79,7 @@ struct TRINITY_DLL_DECL npc_blood_knight_stillbladeAI : public ScriptedAI
         {
             ((Player*)Hitter)->AreaExploredOrEventHappens(QUEST_REDEEMING_THE_DEAD);
             DoCast(m_creature,SPELL_REVIVE_SELF);
-            m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
+            m_creature->SetStandState(UNIT_STAND_STATE_STAND);
             m_creature->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
             //m_creature->RemoveAllAuras();
             DoScriptText(SAY_HEAL, m_creature);

@@ -46,6 +46,10 @@ EndContentData */
 #define SAY_RAJ_INTRO1      "The romantic plays are really tough, but you'll do better this time. You have TALENT. Ready?"
 #define RAJ_GOSSIP1         "I've never been more ready."
 
+#define OZ_GM_GOSSIP1       "[GM] Change event to EVENT_OZ"
+#define OZ_GM_GOSSIP2       "[GM] Change event to EVENT_HOOD"
+#define OZ_GM_GOSSIP3       "[GM] Change event to EVENT_RAJ"
+
 struct Dialogue
 {
     int32 textid;
@@ -182,6 +186,7 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
                 }
                 IsBeingEscorted = false;
                 PerformanceReady = true;
+                m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 break;
         }
     }
@@ -378,6 +383,13 @@ bool GossipHello_npc_barnes(Player* player, Creature* _Creature)
     {
         player->ADD_GOSSIP_ITEM(0, OZ_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
+        if (player->isGameMaster())
+        {
+            player->ADD_GOSSIP_ITEM(5, OZ_GM_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+            player->ADD_GOSSIP_ITEM(5, OZ_GM_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+            player->ADD_GOSSIP_ITEM(5, OZ_GM_GOSSIP3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+        }
+
         if(!((npc_barnesAI*)_Creature->AI())->RaidWiped)
             player->SEND_GOSSIP_MENU(8970, _Creature->GetGUID());
         else
@@ -395,10 +407,24 @@ bool GossipSelect_npc_barnes(Player *player, Creature *_Creature, uint32 sender,
             player->ADD_GOSSIP_ITEM(0, OZ_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
             player->SEND_GOSSIP_MENU(8971, _Creature->GetGUID());
             break;
-
         case GOSSIP_ACTION_INFO_DEF+2:
             player->CLOSE_GOSSIP_MENU();
             ((npc_barnesAI*)_Creature->AI())->StartEvent();
+            break;
+        case GOSSIP_ACTION_INFO_DEF+3:
+            player->CLOSE_GOSSIP_MENU();
+            ((npc_barnesAI*)_Creature->AI())->Event = EVENT_OZ;
+            outstring_log("TSCR: player (GUID %i) manually set Opera event to EVENT_OZ",player->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+4:
+            player->CLOSE_GOSSIP_MENU();
+            ((npc_barnesAI*)_Creature->AI())->Event = EVENT_HOOD;
+            outstring_log("TSCR: player (GUID %i) manually set Opera event to EVENT_HOOD",player->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+5:
+            player->CLOSE_GOSSIP_MENU();
+            ((npc_barnesAI*)_Creature->AI())->Event = EVENT_RAJ;
+            outstring_log("TSCR: player (GUID %i) manually set Opera event to EVENT_RAJ",player->GetGUID());
             break;
     }
 

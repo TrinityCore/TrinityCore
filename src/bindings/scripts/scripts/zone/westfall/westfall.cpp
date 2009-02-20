@@ -38,7 +38,11 @@ EndContentData */
 
 struct TRINITY_DLL_DECL npc_defias_traitorAI : public npc_escortAI
 {
-    npc_defias_traitorAI(Creature *c) : npc_escortAI(c) {Reset();}
+    npc_defias_traitorAI(Creature *c) : npc_escortAI(c)
+    {
+        IsWalking = false;
+        Reset();
+    }
 
     bool IsWalking;
 
