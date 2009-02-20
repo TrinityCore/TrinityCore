@@ -27,6 +27,312 @@
 
 INSTANTIATE_SINGLETON_1(PoolHandler);
 
+////////////////////////////////////////////////////////////
+// Methods of template class PoolGroup
+
+template <class T>
+PoolHandler::PoolGroup<T>::PoolGroup()
+{
+    Spawned = 0;
+}
+
+// Method to add a gameobject/creature guid to the proper list depending on pool type and chance value
+template <class T>
+void PoolHandler::PoolGroup<T>::AddEntry(PoolObject& poolitem, uint32 maxentries)
+{
+    if (poolitem.chance != 0 && maxentries == 1)
+        ExplicitlyChanced.push_back(poolitem);
+    else
+        EqualChanced.push_back(poolitem);
+}
+
+// Method to check the chances are proper in this object pool
+template <class T>
+bool PoolHandler::PoolGroup<T>::CheckPool(void)
+{
+    if (EqualChanced.size() == 0)
+    {
+        float chance = 0;
+        for (uint32 i=0; i<ExplicitlyChanced.size(); ++i)
+            chance += ExplicitlyChanced[i].chance;
+        if (chance != 100 && chance != 0)
+            return false;
+    }
+    return true;
+}
+
+// Method that tell if the gameobject, creature or pool is spawned currently
+template <class T>
+bool PoolHandler::PoolGroup<T>::IsSpawnedObject(uint32 guid)
+{
+    for (uint32 i=0; i<ExplicitlyChanced.size(); ++i)
+        if (ExplicitlyChanced[i].guid == guid)
+            return ExplicitlyChanced[i].spawned;
+    for (uint32 i=0; i<EqualChanced.size(); ++i)
+        if (EqualChanced[i].guid == guid)
+            return EqualChanced[i].spawned;
+    return false;
+}
+
+// Method that return a guid of a rolled creature or gameobject
+// Note: Copy from loot system because it's very similar and only few things change
+template <class T>
+uint32 PoolHandler::PoolGroup<T>::RollOne(void)
+{
+    if (!ExplicitlyChanced.empty())                         // First explicitly chanced entries are checked
+    {
+        float roll = rand_chance();
+
+        for (uint32 i=0; i<ExplicitlyChanced.size(); ++i)
+        {
+            roll -= ExplicitlyChanced[i].chance;
+            if (roll < 0)
+                return ExplicitlyChanced[i].guid;
+        }
+    }
+    if (!EqualChanced.empty())
+        return EqualChanced[irand(0, EqualChanced.size()-1)].guid;
+
+    return 0;                                               // None found
+}
+
+// Main method to despawn a creature or gameobject in a pool
+// If no guid is passed, the pool is just removed (event end case)
+// If guid is filled, cache will be used and no removal will occur, it just fill the cache
+template<class T>
+void PoolHandler::PoolGroup<T>::DespawnObject(uint32 guid)
+{
+    for (int i=0; i<EqualChanced.size(); ++i)
+    {
+        if (EqualChanced[i].spawned)
+        {
+            if (!guid || EqualChanced[i].guid == guid)
+            {
+                if (guid)
+                    CacheValue = EqualChanced[i].guid;
+                else
+                    Despawn1Object(EqualChanced[i].guid);
+
+                EqualChanced[i].spawned = false;
+                Spawned--;
+            }
+        }
+    }
+}
+
+// Method that is actualy doing the removal job on one creature
+template<>
+void PoolHandler::PoolGroup<Creature>::Despawn1Object(uint32 guid)
+{
+    if (CreatureData const* data = objmgr.GetCreatureData(guid))
+    {
+        objmgr.RemoveCreatureFromGrid(guid, data);
+
+        if (Creature* pCreature = ObjectAccessor::Instance().GetObjectInWorld(MAKE_NEW_GUID(guid, data->id, HIGHGUID_UNIT), (Creature*)NULL))
+        {
+            pCreature->CleanupsBeforeDelete();
+            pCreature->AddObjectToRemoveList();
+        }
+    }
+}
+
+// Same on one gameobject
+template<>
+void PoolHandler::PoolGroup<GameObject>::Despawn1Object(uint32 guid)
+{
+    if (GameObjectData const* data = objmgr.GetGOData(guid))
+    {
+        objmgr.RemoveGameobjectFromGrid(guid, data);
+
+        if (GameObject* pGameobject = ObjectAccessor::Instance().GetObjectInWorld(MAKE_NEW_GUID(guid, data->id, HIGHGUID_GAMEOBJECT), (GameObject*)NULL))
+            pGameobject->AddObjectToRemoveList();
+    }
+}
+
+// Same on one pool
+template<>
+void PoolHandler::PoolGroup<PoolHandler::Pool>::Despawn1Object(uint32 child_pool_id)
+{
+    poolhandler.DespawnPool(child_pool_id);
+}
+
+// Method for a pool only to remove any found record causing a circular dependency loop
+template<>
+void PoolHandler::PoolGroup<PoolHandler::Pool>::RemoveOneRelation(uint16 child_pool_id)
+{
+    for (PoolObjectList::iterator itr = ExplicitlyChanced.begin(); itr != ExplicitlyChanced.end(); ++itr)
+    {
+        if(itr->guid == child_pool_id)
+        {
+            ExplicitlyChanced.erase(itr);
+            break;
+        }
+    }
+    for (PoolObjectList::iterator itr = EqualChanced.begin(); itr != EqualChanced.end(); ++itr)
+    {
+        if(itr->guid == child_pool_id)
+        {
+            EqualChanced.erase(itr);
+            break;
+        }
+    }
+}
+
+// Method that Spawn 1+ creatures or gameobject
+// if cache is false (initialization or event start), X creatures are spawned with X <= limit (< if limit higher that the number of creatures in pool)
+// if cache is true, this means only one has to be spawned (or respawned if the rolled one is same as cached one)
+template <class T>
+void PoolHandler::PoolGroup<T>::SpawnObject(uint32 limit, bool cache)
+{
+    if (limit == 1)                                         // This is the only case where explicit chance is used
+    {
+        uint32 roll = RollOne();
+        if (cache && CacheValue != roll)
+            Despawn1Object(CacheValue);
+        CacheValue = Spawn1Object(roll);
+    }
+    else if (limit < EqualChanced.size() && Spawned < limit)
+    {
+        std::vector<uint32> IndexList;
+        for (int i=0; i<EqualChanced.size(); ++i)
+            if (!EqualChanced[i].spawned)
+                IndexList.push_back(i);
+
+        while (Spawned < limit && IndexList.size() > 0)
+        {
+            uint32 roll = urand(1, IndexList.size()) - 1;
+            uint32 index = IndexList[roll];
+            if (!cache || (cache && EqualChanced[index].guid != CacheValue))
+            {
+                if (cache)
+                    Despawn1Object(CacheValue);
+                EqualChanced[index].spawned = Spawn1Object(EqualChanced[index].guid);
+            }
+            else
+                EqualChanced[index].spawned = ReSpawn1Object(EqualChanced[index].guid);
+
+            if (EqualChanced[index].spawned)
+                ++Spawned;                                  // limited group use the Spawned variable to store the number of actualy spawned creatures
+            std::vector<uint32>::iterator itr = IndexList.begin()+roll;
+            IndexList.erase(itr);
+        }
+        CacheValue = 0;
+    }
+    else  // Not enough objects in pool, so spawn all
+    {
+        for (int i=0; i<EqualChanced.size(); ++i)
+            EqualChanced[i].spawned = Spawn1Object(EqualChanced[i].guid);
+    }
+}
+
+// Method that is actualy doing the spawn job on 1 creature
+template <>
+bool PoolHandler::PoolGroup<Creature>::Spawn1Object(uint32 guid)
+{
+    CreatureData const* data = objmgr.GetCreatureData(guid);
+    if (data)
+    {
+        objmgr.AddCreatureToGrid(guid, data);
+
+        // Spawn if necessary (loaded grids only)
+        Map* map = const_cast<Map*>(MapManager::Instance().GetBaseMap(data->mapid));
+        // We use spawn coords to spawn
+        if (!map->Instanceable() && !map->IsRemovalGrid(data->posX, data->posY))
+        {
+            Creature* pCreature = new Creature;
+            //sLog.outDebug("Spawning creature %u",guid);
+            if (!pCreature->LoadFromDB(guid, map))
+            {
+                delete pCreature;
+            }
+            else
+            {
+                map->Add(pCreature);
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
+// Same for 1 gameobject
+template <>
+bool PoolHandler::PoolGroup<GameObject>::Spawn1Object(uint32 guid)
+{
+    GameObjectData const* data = objmgr.GetGOData(guid);
+    if (data)
+    {
+        objmgr.AddGameobjectToGrid(guid, data);
+        // Spawn if necessary (loaded grids only)
+        // this base map checked as non-instanced and then only existed
+        Map* map = const_cast<Map*>(MapManager::Instance().GetBaseMap(data->mapid));
+        // We use current coords to unspawn, not spawn coords since creature can have changed grid
+        if (!map->Instanceable() && !map->IsRemovalGrid(data->posX, data->posY))
+        {
+            GameObject* pGameobject = new GameObject;
+            //sLog.outDebug("Spawning gameobject %u", guid);
+            if (!pGameobject->LoadFromDB(guid, map))
+            {
+                delete pGameobject;
+            }
+            else
+            {
+                if (pGameobject->isSpawnedByDefault())
+                    map->Add(pGameobject);
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
+// Same for 1 pool
+template <>
+bool PoolHandler::PoolGroup<PoolHandler::Pool>::Spawn1Object(uint32 child_pool_id)
+{
+    poolhandler.SpawnPool(child_pool_id);
+    return true;
+}
+
+// Method that does the respawn job on the specified creature
+template <>
+bool PoolHandler::PoolGroup<Creature>::ReSpawn1Object(uint32 guid)
+{
+    CreatureData const* data = objmgr.GetCreatureData(guid);
+    if (data)
+    {
+        if (Creature* pCreature = ObjectAccessor::Instance().GetObjectInWorld(MAKE_NEW_GUID(guid, data->id, HIGHGUID_UNIT), (Creature*)NULL))
+            pCreature->GetMap()->Add(pCreature);
+        return true;
+    }
+    return false;
+}
+
+// Same for 1 gameobject
+template <>
+bool PoolHandler::PoolGroup<GameObject>::ReSpawn1Object(uint32 guid)
+{
+    GameObjectData const* data = objmgr.GetGOData(guid);
+    if (data)
+    {
+        if (GameObject* pGameobject = ObjectAccessor::Instance().GetObjectInWorld(MAKE_NEW_GUID(guid, data->id, HIGHGUID_GAMEOBJECT), (GameObject*)NULL))
+            pGameobject->GetMap()->Add(pGameobject);
+        return true;
+    }
+    return false;
+}
+
+// Nothing to do for a child Pool
+template <>
+bool PoolHandler::PoolGroup<PoolHandler::Pool>::ReSpawn1Object(uint32 guid)
+{
+    return true;
+}
+
+
+////////////////////////////////////////////////////////////
+// Methods of class PoolHandler
+
 PoolHandler::PoolHandler()
 {
     isSystemInit = false;
@@ -411,306 +717,4 @@ bool PoolHandler::IsSpawnedObject(uint16 pool_id, uint32 guid, uint32 type)
         return mPoolGameobjectGroups[pool_id].IsSpawnedObject(guid);
     else
         return mPoolCreatureGroups[pool_id].IsSpawnedObject(guid);
-}
-
-////////////////////////////////////////////////////////////
-// Methods of templated Pool Group class above
-
-template <class T>
-PoolHandler::PoolGroup<T>::PoolGroup()
-{
-    Spawned = 0;
-}
-
-// Method to add a gameobject/creature guid to the proper list depending on pool type and chance value
-template <class T>
-void PoolHandler::PoolGroup<T>::AddEntry(PoolObject& poolitem, uint32 maxentries)
-{
-    if (poolitem.chance != 0 && maxentries == 1)
-        ExplicitlyChanced.push_back(poolitem);
-    else
-        EqualChanced.push_back(poolitem);
-}
-
-// Method to check the chances are proper in this object pool
-template <class T>
-bool PoolHandler::PoolGroup<T>::CheckPool(void)
-{
-    if (EqualChanced.size() == 0)
-    {
-        float chance = 0;
-        for (uint32 i=0; i<ExplicitlyChanced.size(); ++i)
-            chance += ExplicitlyChanced[i].chance;
-        if (chance != 100 && chance != 0)
-            return false;
-    }
-    return true;
-}
-
-// Method that tell if the gameobject, creature or pool is spawned currently
-template <class T>
-bool PoolHandler::PoolGroup<T>::IsSpawnedObject(uint32 guid)
-{
-    for (uint32 i=0; i<ExplicitlyChanced.size(); ++i)
-        if (ExplicitlyChanced[i].guid == guid)
-            return ExplicitlyChanced[i].spawned;
-    for (uint32 i=0; i<EqualChanced.size(); ++i)
-        if (EqualChanced[i].guid == guid)
-            return EqualChanced[i].spawned;
-    return false;
-}
-
-// Method that return a guid of a rolled creature or gameobject
-// Note: Copy from loot system because it's very similar and only few things change
-template <class T>
-uint32 PoolHandler::PoolGroup<T>::RollOne(void)
-{
-    if (!ExplicitlyChanced.empty())                         // First explicitly chanced entries are checked
-    {
-        float roll = rand_chance();
-
-        for (uint32 i=0; i<ExplicitlyChanced.size(); ++i)
-        {
-            roll -= ExplicitlyChanced[i].chance;
-            if (roll < 0)
-                return ExplicitlyChanced[i].guid;
-        }
-    }
-    if (!EqualChanced.empty())
-        return EqualChanced[irand(0, EqualChanced.size()-1)].guid;
-
-    return 0;                                               // None found
-}
-
-// Main method to despawn a creature or gameobject in a pool
-// If no guid is passed, the pool is just removed (event end case)
-// If guid is filled, cache will be used and no removal will occur, it just fill the cache
-template<class T>
-void PoolHandler::PoolGroup<T>::DespawnObject(uint32 guid)
-{
-    for (int i=0; i<EqualChanced.size(); ++i)
-    {
-        if (EqualChanced[i].spawned)
-        {
-            if (!guid || EqualChanced[i].guid == guid)
-            {
-                if (guid)
-                    CacheValue = EqualChanced[i].guid;
-                else
-                    Despawn1Object(EqualChanced[i].guid);
-
-                EqualChanced[i].spawned = false;
-                Spawned--;
-            }
-        }
-    }
-}
-
-// Method that is actualy doing the removal job on one creature
-template<>
-void PoolHandler::PoolGroup<Creature>::Despawn1Object(uint32 guid)
-{
-    if (CreatureData const* data = objmgr.GetCreatureData(guid))
-    {
-        objmgr.RemoveCreatureFromGrid(guid, data);
-
-        if (Creature* pCreature = ObjectAccessor::Instance().GetObjectInWorld(MAKE_NEW_GUID(guid, data->id, HIGHGUID_UNIT), (Creature*)NULL))
-        {
-            pCreature->CleanupsBeforeDelete();
-            pCreature->AddObjectToRemoveList();
-        }
-    }
-}
-
-// Same on one gameobject
-template<>
-void PoolHandler::PoolGroup<GameObject>::Despawn1Object(uint32 guid)
-{
-    if (GameObjectData const* data = objmgr.GetGOData(guid))
-    {
-        objmgr.RemoveGameobjectFromGrid(guid, data);
-
-        if (GameObject* pGameobject = ObjectAccessor::Instance().GetObjectInWorld(MAKE_NEW_GUID(guid, data->id, HIGHGUID_GAMEOBJECT), (GameObject*)NULL))
-            pGameobject->AddObjectToRemoveList();
-    }
-}
-
-// Same on one pool
-template<>
-void PoolHandler::PoolGroup<PoolHandler::Pool>::Despawn1Object(uint32 child_pool_id)
-{
-    poolhandler.DespawnPool(child_pool_id);
-}
-
-// Method for a pool only to remove any found record causing a circular dependency loop
-template<>
-void PoolHandler::PoolGroup<PoolHandler::Pool>::RemoveOneRelation(uint16 child_pool_id)
-{
-    for (PoolObjectList::iterator itr = ExplicitlyChanced.begin(); itr != ExplicitlyChanced.end(); ++itr)
-    {
-        if(itr->guid == child_pool_id)
-        {
-            ExplicitlyChanced.erase(itr);
-            break;
-        }
-    }
-    for (PoolObjectList::iterator itr = EqualChanced.begin(); itr != EqualChanced.end(); ++itr)
-    {
-        if(itr->guid == child_pool_id)
-        {
-            EqualChanced.erase(itr);
-            break;
-        }
-    }
-}
-
-// Method that Spawn 1+ creatures or gameobject
-// if cache is false (initialization or event start), X creatures are spawned with X <= limit (< if limit higher that the number of creatures in pool)
-// if cache is true, this means only one has to be spawned (or respawned if the rolled one is same as cached one)
-template <class T>
-void PoolHandler::PoolGroup<T>::SpawnObject(uint32 limit, bool cache)
-{
-    if (limit == 1)                                         // This is the only case where explicit chance is used
-    {
-        uint32 roll = RollOne();
-        if (cache && CacheValue != roll)
-            Despawn1Object(CacheValue);
-        CacheValue = Spawn1Object(roll);
-    }
-    else if (limit < EqualChanced.size() && Spawned < limit)
-    {
-        std::vector<uint32> IndexList;
-        for (int i=0; i<EqualChanced.size(); ++i)
-            if (!EqualChanced[i].spawned)
-                IndexList.push_back(i);
-
-        while (Spawned < limit && IndexList.size() > 0)
-        {
-            uint32 roll = urand(1, IndexList.size()) - 1;
-            uint32 index = IndexList[roll];
-            if (!cache || (cache && EqualChanced[index].guid != CacheValue))
-            {
-                if (cache)
-                    Despawn1Object(CacheValue);
-                EqualChanced[index].spawned = Spawn1Object(EqualChanced[index].guid);
-            }
-            else
-                EqualChanced[index].spawned = ReSpawn1Object(EqualChanced[index].guid);
-
-            if (EqualChanced[index].spawned)
-                ++Spawned;                                  // limited group use the Spawned variable to store the number of actualy spawned creatures
-            std::vector<uint32>::iterator itr = IndexList.begin()+roll;
-            IndexList.erase(itr);
-        }
-        CacheValue = 0;
-    }
-    else  // Not enough objects in pool, so spawn all
-    {
-        for (int i=0; i<EqualChanced.size(); ++i)
-            EqualChanced[i].spawned = Spawn1Object(EqualChanced[i].guid);
-    }
-}
-
-// Method that is actualy doing the spawn job on 1 creature
-template <>
-bool PoolHandler::PoolGroup<Creature>::Spawn1Object(uint32 guid)
-{
-    CreatureData const* data = objmgr.GetCreatureData(guid);
-    if (data)
-    {
-        objmgr.AddCreatureToGrid(guid, data);
-
-        // Spawn if necessary (loaded grids only)
-        Map* map = const_cast<Map*>(MapManager::Instance().GetBaseMap(data->mapid));
-        // We use spawn coords to spawn
-        if (!map->Instanceable() && !map->IsRemovalGrid(data->posX, data->posY))
-        {
-            Creature* pCreature = new Creature;
-            //sLog.outDebug("Spawning creature %u",guid);
-            if (!pCreature->LoadFromDB(guid, map))
-            {
-                delete pCreature;
-            }
-            else
-            {
-                map->Add(pCreature);
-            }
-        }
-        return true;
-    }
-    return false;
-}
-
-// Same for 1 gameobject
-template <>
-bool PoolHandler::PoolGroup<GameObject>::Spawn1Object(uint32 guid)
-{
-    GameObjectData const* data = objmgr.GetGOData(guid);
-    if (data)
-    {
-        objmgr.AddGameobjectToGrid(guid, data);
-        // Spawn if necessary (loaded grids only)
-        // this base map checked as non-instanced and then only existed
-        Map* map = const_cast<Map*>(MapManager::Instance().GetBaseMap(data->mapid));
-        // We use current coords to unspawn, not spawn coords since creature can have changed grid
-        if (!map->Instanceable() && !map->IsRemovalGrid(data->posX, data->posY))
-        {
-            GameObject* pGameobject = new GameObject;
-            //sLog.outDebug("Spawning gameobject %u", guid);
-            if (!pGameobject->LoadFromDB(guid, map))
-            {
-                delete pGameobject;
-            }
-            else
-            {
-                if (pGameobject->isSpawnedByDefault())
-                    map->Add(pGameobject);
-            }
-        }
-        return true;
-    }
-    return false;
-}
-
-// Same for 1 pool
-template <>
-bool PoolHandler::PoolGroup<PoolHandler::Pool>::Spawn1Object(uint32 child_pool_id)
-{
-    poolhandler.SpawnPool(child_pool_id);
-    return true;
-}
-
-// Method that does the respawn job on the specified creature
-template <>
-bool PoolHandler::PoolGroup<Creature>::ReSpawn1Object(uint32 guid)
-{
-    CreatureData const* data = objmgr.GetCreatureData(guid);
-    if (data)
-    {
-        if (Creature* pCreature = ObjectAccessor::Instance().GetObjectInWorld(MAKE_NEW_GUID(guid, data->id, HIGHGUID_UNIT), (Creature*)NULL))
-            pCreature->GetMap()->Add(pCreature);
-        return true;
-    }
-    return false;
-}
-
-// Same for 1 gameobject
-template <>
-bool PoolHandler::PoolGroup<GameObject>::ReSpawn1Object(uint32 guid)
-{
-    GameObjectData const* data = objmgr.GetGOData(guid);
-    if (data)
-    {
-        if (GameObject* pGameobject = ObjectAccessor::Instance().GetObjectInWorld(MAKE_NEW_GUID(guid, data->id, HIGHGUID_GAMEOBJECT), (GameObject*)NULL))
-            pGameobject->GetMap()->Add(pGameobject);
-        return true;
-    }
-    return false;
-}
-
-// Nothing to do for a child Pool
-template <>
-bool PoolHandler::PoolGroup<PoolHandler::Pool>::ReSpawn1Object(uint32 guid)
-{
-    return true;
 }
