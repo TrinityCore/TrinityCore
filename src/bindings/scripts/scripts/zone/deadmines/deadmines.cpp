@@ -69,7 +69,7 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
                 CannonBlast_Timer = CANNON_BLAST_TIMER;
                 // it's a hack - Mr. Smite should do that but his too far away
                 IronCladDoor->SetName("Mr. Smite");
-                IronCladDoor->Yell(SAY_MR_SMITE_ALARM1, LANG_UNIVERSAL, 0);
+                IronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM1, LANG_UNIVERSAL, 0);
                 DoPlaySound(IronCladDoor, SOUND_MR_SMITE_ALARM1);
                 State=CANNON_BLAST_INITIATED;
                 break;
@@ -81,7 +81,7 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
                     ShootCannon();
                     BlastOutDoor();
                     LeverStucked();
-                    IronCladDoor->Yell(SAY_MR_SMITE_ALARM2, LANG_UNIVERSAL, 0);
+                    IronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM2, LANG_UNIVERSAL, 0);
                     DoPlaySound(IronCladDoor, SOUND_MR_SMITE_ALARM2);
                     State = PIRATES_ATTACK;
                 }else

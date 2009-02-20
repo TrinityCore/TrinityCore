@@ -546,31 +546,31 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
         case 0: DoPlaySoundToSet(m_creature,SOUND_INTRO); return 0;
         case 1:
             if(Sacrolash)
-                Sacrolash->Yell(YELL_INTRO_SAC_1, LANG_UNIVERSAL,NULL);
+                Sacrolash->MonsterYell(YELL_INTRO_SAC_1, LANG_UNIVERSAL,NULL);
             return 1000;
         case 2:
-            m_creature->Yell(YELL_INTRO_ALY_2, LANG_UNIVERSAL,NULL);
+            m_creature->MonsterYell(YELL_INTRO_ALY_2, LANG_UNIVERSAL,NULL);
             return 1000;
         case 3:
             if(Sacrolash)
-                Sacrolash->Yell(YELL_INTRO_SAC_3, LANG_UNIVERSAL,NULL);
+                Sacrolash->MonsterYell(YELL_INTRO_SAC_3, LANG_UNIVERSAL,NULL);
             return 2000;
         case 4:
-            m_creature->Yell(YELL_INTRO_ALY_4, LANG_UNIVERSAL,NULL);
+            m_creature->MonsterYell(YELL_INTRO_ALY_4, LANG_UNIVERSAL,NULL);
             return 1000;
         case 5:
             if(Sacrolash)
-                Sacrolash->Yell(YELL_INTRO_SAC_5, LANG_UNIVERSAL,NULL);
+                Sacrolash->MonsterYell(YELL_INTRO_SAC_5, LANG_UNIVERSAL,NULL);
             return 2000;
         case 6:
-            m_creature->Yell(YELL_INTRO_ALY_6, LANG_UNIVERSAL,NULL);
+            m_creature->MonsterYell(YELL_INTRO_ALY_6, LANG_UNIVERSAL,NULL);
             return 1000;
         case 7:
             if(Sacrolash)
-                Sacrolash->Yell(YELL_INTRO_SAC_7, LANG_UNIVERSAL,NULL);
+                Sacrolash->MonsterYell(YELL_INTRO_SAC_7, LANG_UNIVERSAL,NULL);
             return 3000;
         case 8:
-            m_creature->Yell(YELL_INTRO_ALY_8, LANG_UNIVERSAL,NULL);
+            m_creature->MonsterYell(YELL_INTRO_ALY_8, LANG_UNIVERSAL,NULL);
             return 900000;
         }
         return 10000;
