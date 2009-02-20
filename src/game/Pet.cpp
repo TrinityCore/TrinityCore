@@ -85,7 +85,7 @@ Pet::Pet(PetType type) : Creature()
     // pets always have a charminfo, even if they are not actually charmed
     CharmInfo* charmInfo = InitCharmInfo(this);
 
-    if(type == MINI_PET)                                    // always passive
+    if(type == MINI_PET || type == POSSESSED_PET)                                    // always passive
         charmInfo->SetReactState(REACT_PASSIVE);
     else if(type == GUARDIAN_PET)                           // always aggressive
         charmInfo->SetReactState(REACT_AGGRESSIVE);
