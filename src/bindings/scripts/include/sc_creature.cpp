@@ -231,23 +231,23 @@ void ScriptedAI::DoSay(const char* text, uint32 language, Unit* target, bool Say
 {
     if (target)
     {
-        m_creature->Say(text, language, target->GetGUID());
+        m_creature->MonsterSay(text, language, target->GetGUID());
         if(SayEmote)
             m_creature->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
     }
-    else m_creature->Say(text, language, 0);
+    else m_creature->MonsterSay(text, language, 0);
 }
 
 void ScriptedAI::DoYell(const char* text, uint32 language, Unit* target)
 {
-    if (target) m_creature->Yell(text, language, target->GetGUID());
-    else m_creature->Yell(text, language, 0);
+    if (target) m_creature->MonsterYell(text, language, target->GetGUID());
+    else m_creature->MonsterYell(text, language, 0);
 }
 
 void ScriptedAI::DoTextEmote(const char* text, Unit* target, bool IsBossEmote)
 {
-    if (target) m_creature->TextEmote(text, target->GetGUID(), IsBossEmote);
-    else m_creature->TextEmote(text, 0, IsBossEmote);
+    if (target) m_creature->MonsterTextEmote(text, target->GetGUID(), IsBossEmote);
+    else m_creature->MonsterTextEmote(text, 0, IsBossEmote);
 }
 
 void ScriptedAI::DoWhisper(const char* text, Unit* reciever, bool IsBossWhisper)
@@ -255,7 +255,7 @@ void ScriptedAI::DoWhisper(const char* text, Unit* reciever, bool IsBossWhisper)
     if (!reciever || reciever->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    m_creature->Whisper(text, reciever->GetGUID(), IsBossWhisper);
+    m_creature->MonsterWhisper(text, reciever->GetGUID(), IsBossWhisper);
 }
 
 void ScriptedAI::DoPlaySoundToSet(Unit* unit, uint32 sound)

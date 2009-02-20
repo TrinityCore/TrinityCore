@@ -531,7 +531,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             if(Conversation[count].emote)
                 creature->HandleEmoteCommand(Conversation[count].emote); // Make the creature do some animation!
             if(Conversation[count].text)
-                creature->Yell(Conversation[count].text, LANG_UNIVERSAL, 0); // Have the creature yell out some text
+                creature->MonsterYell(Conversation[count].text, LANG_UNIVERSAL, 0); // Have the creature yell out some text
             if(Conversation[count].sound)
                 DoPlaySoundToSet(creature, Conversation[count].sound); // Play some sound on the creature
         }
@@ -1194,7 +1194,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             if(GETCRE(Illidan, IllidanGUID))
             {
                 ((boss_illidan_stormrageAI*)Illidan->AI())->Timer[EVENT_TAUNT] += 30000;
-                Illidan->Yell(SAY_AKAMA_MINION, LANG_UNIVERSAL, 0);
+                Illidan->MonsterYell(SAY_AKAMA_MINION, LANG_UNIVERSAL, 0);
                 DoPlaySoundToSet(Illidan, SOUND_AKAMA_MINION);
             }
             Timer = 8000;
