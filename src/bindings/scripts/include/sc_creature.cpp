@@ -108,9 +108,9 @@ void ScriptedAI::AttackStart(Unit* who)
 void ScriptedAI::UpdateAI(const uint32 diff)
 {
     //Check if we have a current target
-    if (m_creature->isAlive() && UpdateVictim())
+    if (UpdateVictim())
     {
-        if (m_creature->isAttackReady() )
+        if (m_creature->isAttackReady())
         {
             //If we are within range melee the target
             if (m_creature->IsWithinMeleeRange(m_creature->getVictim()))
@@ -169,11 +169,10 @@ void ScriptedAI::DoStartNoMovement(Unit* victim)
     m_creature->StopMoving();
 }
 
-
 void ScriptedAI::DoMeleeAttackIfReady()
 {
-    //Make sure our attack is ready and we aren't currently casting before checking distance
-    if (m_creature->isAttackReady() && !m_creature->hasUnitState(UNIT_STAT_CASTING))
+    //Make sure our attack is ready before checking distance
+    if (m_creature->isAttackReady())
     {
         //If we are within range melee the target
         if (m_creature->IsWithinMeleeRange(m_creature->getVictim()))

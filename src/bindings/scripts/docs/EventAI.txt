@@ -71,7 +71,9 @@ Events will not repeat until the creature exits combat unless EFLAG_REPEATABLE i
 14   EVENT_T_FRIENDLY_HP         HPDeficit, Radius, RepeatMin, RepeatMax                 Expires when a friendly unit in radius has at least (param1) hp missing. Will repeat every (Param3) and (Param4) .
 15   EVENT_T_FRIENDLY_IS_CC      DispelType, Radius, RepeatMin, RepeatMax                Expires when a friendly unit is Crowd controlled within the given radius (param2). Will repeat every (Param3) and (Param4) .
 16   EVENT_T_MISSING_BUFF        SpellId, Radius, RepeatMin, RepeatMax                   Expires when a friendly unit is missing aura's given by spell (param1) within radius (param2). Will repeat every (Param3) and (Param4) .
-17   EVENT_T_SUMMONED_UNIT       CreatureId, RepeatMin, RepeatMax                        Expires after creature with entry = (param1) is spawned or for all spawns if param1 = 0. Will repeat every (Param2) and (Param3) .
+17   EVENT_T_SUMMONED_UNIT       CreatureId, RepeatMin, RepeatMax                        Expires after creature with entry = (param1) is spawned or for all spawns if param1 = 0. Will repeat every (Param2) and (Param3).
+18   EVENT_T_TARGET_MANA         ManaMax%, ManaMin%, RepeatMin, RepeatMax
+21   EVENT_T_REACHED_HOME        NONE                                                    Expires when creature reach it's home(spawn) location after Evade.
 
 =========================================
 Action Types
@@ -83,8 +85,8 @@ Params are always read from Param1, then Param2, then Param3.
 (#   Internal Name                     Param usage                     Discription)
 0    ACTION_T_NONE                     No Action                       Does Nothing
 1    ACTION_T_TEXT                     -TextId1, -TextId2, -TextId3    Displays the -TextId as defined. In case -TextId2 and optionally -TextId3, the output will be randomized. Type text are defined in the text table itself(say, yell, whisper, etc) along with other options for the text. All values are required to be negative.
-2    ACTION_T_YELL                                                     UNUSED
-3    ACTION_T_TEXTEMOTE                                                UNUSED
+2    ACTION_T_SET_FACTION              FactionId                       Change faction for creature. If param1==0, creature will revert to default faction.
+3    ACTION_T_MORPH_TO_ENTRY_OR_MODEL  CreatureEntry, ModelId          Set model from creature_template.entry(param1) OR set explicit modelId(param2). If param1 AND param2 both 0, demorph and revert to default model for creature.
 4    ACTION_T_SOUND                    SoundId                         Plays Sound
 5    ACTION_T_EMOTE                    EmoteId                         Does emote
 6    ACTION_T_RANDOM_SAY                                               UNUSED
@@ -305,6 +307,12 @@ Parameter 3: RepeatMax - Maximum Time used to calculate Random Repeat Expire
 BOTH - Expires after creature with entry(Param1) is spawned or for all spawns if param1 = 0. Will repeat every (Param2) and (Param3) . 
 This is commonly used for NPC's who will do something special once another NPC is summoned. Usually used is Complex Scripts or Special Events.
 
+---------------------------
+21 = EVENT_T_REACHED_HOME:
+---------------------------
+Expires only when creature has returned to it's home location after Evade. Out of combat event.
+Most commonly used to cast spells that can not be casted in EVENT_T_EVADE and other effects that does not fit in while still running back to spawn/home location.
+
 
 =========================================
 Action Types
@@ -321,15 +329,20 @@ Parameter 1: The entry of the text that the NPC should use from eventai_texts ta
 Parameter 2: Optional. TextId can be defined in addition. The same apply to this as explained above, however eventAI will randomize between the two.
 Parameter 3: Optional, if Parameter 2 exist. In this case, eventAI will randomize between three.
 
+See Text-tables.txt for documentation of eventai_texts-table.
+
 ------------------
-2 = ACTION_T_YELL:
+2 = ACTION_T_SET_FACTION:
 ------------------
-UNUSED       Can be reused to create new action type
+Parameter 1: FactionId from Faction.dbc OR 0. Changes faction for creature. If 0, creature will revert to it's default faction if previously changed.
 
 -----------------------
-3 = ACTION_T_TEXTEMOTE:
+3 = ACTION_T_MORPH_TO_ENTRY_OR_MODEL:
 -----------------------
-UNUSED       Can be reused to create new action type
+Parameter 1: Creature entry from creature_template. Action will then change to the model this creature are using.
+Parameter 2: If parameter 1 is 0, then this modelId will be used (in case parameter 1 exist, parameter 2 will not be used)
+
+If both parameter 1 and 2 is 0, the creature will DeMorph, and use it's default model.
 
 -------------------
 4 = ACTION_T_SOUND:

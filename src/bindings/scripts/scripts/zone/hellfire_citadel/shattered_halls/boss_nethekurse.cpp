@@ -215,9 +215,13 @@ struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
 
     void JustSummoned(Creature *summoned)
     {
-        summoned->setFaction(14);
+        summoned->setFaction(16);
         summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+		
+        //triggered spell of consumption does not properly show it's SpellVisual, wrong spellid?
+        summoned->CastSpell(summoned,SPELL_TEMPORARY_VISUAL,true);
+        summoned->CastSpell(summoned,SPELL_CONSUMPTION,false,0,0,m_creature->GetGUID());
     }
 
     void KilledUnit(Unit* victim)
@@ -381,39 +385,10 @@ struct TRINITY_DLL_DECL mob_lesser_shadow_fissureAI : public ScriptedAI
 {
     mob_lesser_shadow_fissureAI(Creature *c) : ScriptedAI(c) {Reset();}
 
-    bool Start;
-    uint32 Stop_Timer;
-
-    void Reset()
-    {
-        Start = false;
-        Stop_Timer = 30000;
-    }
-
+    void Reset() { }
+    void MoveInLineOfSight(Unit *who) { }
+    void AttackStart(Unit* who) { }
     void Aggro(Unit* who) { }
-
-    void MoveInLineOfSight(Unit *who) { return; }
-
-    void AttackStart(Unit* who) { return; }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!Start)
-        {
-            //triggered spell of consumption does not properly show it's SpellVisual, hack it a bit
-            m_creature->CastSpell(m_creature,SPELL_TEMPORARY_VISUAL,true);
-            m_creature->CastSpell(m_creature,SPELL_CONSUMPTION,false);
-            Start = true;
-        }
-
-        if (Stop_Timer < diff)
-        {
-            m_creature->setDeathState(JUST_DIED);
-            m_creature->SetHealth(0);
-            m_creature->CombatStop();
-            m_creature->DeleteThreatList();
-        }else Stop_Timer -= diff;
-    }
 };
 
 CreatureAI* GetAI_boss_grand_warlock_nethekurse(Creature *_Creature)

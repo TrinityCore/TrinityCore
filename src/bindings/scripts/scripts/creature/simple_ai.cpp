@@ -27,34 +27,25 @@ EndScriptData */
 SimpleAI::SimpleAI(Creature *c) : ScriptedAI(c)
 {
     //Clear all data
-    Aggro_Text[0] = NULL;
-    Aggro_Text[1] = NULL;
-    Aggro_Text[2] = NULL;
-    Aggro_Say[0] = false;
-    Aggro_Say[1] = false;
-    Aggro_Say[2] = false;
+    Aggro_TextId[0] = 0;
+    Aggro_TextId[1] = 0;
+    Aggro_TextId[2] = 0;
     Aggro_Sound[0] = 0;
     Aggro_Sound[1] = 0;
     Aggro_Sound[2] = 0;
 
-    Death_Text[0] = NULL;
-    Death_Text[1] = NULL;
-    Death_Text[2] = NULL;
-    Death_Say[0] = false;
-    Death_Say[1] = false;
-    Death_Say[2] = false;
+    Death_TextId[0] = 0;
+    Death_TextId[1] = 0;
+    Death_TextId[2] = 0;
     Death_Sound[0] = 0;
     Death_Sound[1] = 0;
     Death_Sound[2] = 0;
     Death_Spell = 0;
     Death_Target_Type = 0;
 
-    Kill_Text[0] = NULL;
-    Kill_Text[1] = NULL;
-    Kill_Text[2] = NULL;
-    Kill_Say[0] = false;
-    Kill_Say[1] = false;
-    Kill_Say[2] = false;
+    Kill_TextId[0] = 0;
+    Kill_TextId[1] = 0;
+    Kill_TextId[2] = 0;
     Kill_Sound[0] = 0;
     Kill_Sound[1] = 0;
     Kill_Sound[2] = 0;
@@ -106,11 +97,9 @@ void SimpleAI::Aggro(Unit *who)
 
             uint32 random_text = rand()%3;
 
-            //Random yell
-            if (Aggro_Text[random_text])
-                if (Aggro_Say[random_text])
-                    DoSay(Aggro_Text[random_text], LANG_UNIVERSAL, who);
-                else DoYell(Aggro_Text[random_text], LANG_UNIVERSAL, who);
+            //Random text
+            if (Aggro_TextId[random_text])
+                DoScriptText(Aggro_TextId[random_text], m_creature, who);
 
             //Random sound
             if (Aggro_Sound[random_text])
@@ -122,10 +111,8 @@ void SimpleAI::KilledUnit(Unit *victim)
     uint32 random_text = rand()%3;
 
     //Random yell
-    if (Kill_Text[random_text])
-        if (Kill_Say[random_text])
-            DoSay(Kill_Text[random_text], LANG_UNIVERSAL, victim);
-        else DoYell(Kill_Text[random_text], LANG_UNIVERSAL, victim);
+    if (Kill_TextId[random_text])
+        DoScriptText(Kill_TextId[random_text], m_creature, victim);
 
     //Random sound
     if (Kill_Sound[random_text])
@@ -172,10 +159,8 @@ void SimpleAI::DamageTaken(Unit *killer, uint32 &damage)
     uint32 random_text = rand()%3;
 
     //Random yell
-    if (Death_Text[random_text])
-        if (Death_Say[random_text])
-            DoSay(Death_Text[random_text], LANG_UNIVERSAL, killer);
-        else DoYell(Death_Text[random_text], LANG_UNIVERSAL, killer);
+    if (Death_TextId[random_text])
+        DoScriptText(Death_TextId[random_text], m_creature, killer);
 
     //Random sound
     if (Death_Sound[random_text])
@@ -269,10 +254,8 @@ void SimpleAI::UpdateAI(const uint32 diff)
                     uint32 random_text = rand()%3;
 
                     //Random yell
-                    if (Spell[i].Text[random_text])
-                        if (Spell[i].Say[random_text])
-                            DoSay(Spell[i].Text[random_text], LANG_UNIVERSAL, target);
-                        else DoYell(Spell[i].Text[random_text], LANG_UNIVERSAL, target);
+                    if (Spell[i].TextId[random_text])
+                        DoScriptText(Spell[i].TextId[random_text], m_creature, target);
 
                     //Random sound
                     if (Spell[i].Text_Sound[random_text])

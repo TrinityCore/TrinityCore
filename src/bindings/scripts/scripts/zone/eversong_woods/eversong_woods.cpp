@@ -17,12 +17,11 @@
 /* ScriptData
 SDName: Eversong_Woods
 SD%Complete: 100
-SDComment: Quest support: 8346, 8483, 8488, 8490
+SDComment: Quest support: 8483, 8488, 8490
 SDCategory: Eversong Woods
 EndScriptData */
 
 /* ContentData
-mobs_mana_tapped
 npc_prospector_anvilward
 npc_apprentice_mirveda
 npc_infused_crystal
@@ -30,31 +29,6 @@ EndContentData */
 
 #include "precompiled.h"
 #include "../../npc/npc_escortAI.h"
-
-/*######
-## mobs_mana_tapped
-######*/
-
-struct TRINITY_DLL_DECL mobs_mana_tappedAI : public ScriptedAI
-{
-    mobs_mana_tappedAI(Creature *c) : ScriptedAI(c) {Reset();}
-
-    void Reset() { }
-
-    void Aggro(Unit *who) { }
-
-    void SpellHit(Unit *caster, const SpellEntry *spell)
-    {
-        if( caster->GetTypeId() == TYPEID_PLAYER)
-            if( ((Player*)caster)->GetQuestStatus(8346) == QUEST_STATUS_INCOMPLETE && !((Player*)caster)->GetReqKillOrCastCurrentCount(8346, m_creature->GetEntry()) && spell->Id == 28734)
-                ((Player*)caster)->CastedCreatureOrGO(15468, m_creature->GetGUID(), spell->Id);
-        return;
-    }
-};
-CreatureAI* GetAI_mobs_mana_tapped(Creature *_Creature)
-{
-    return new mobs_mana_tappedAI (_Creature);
-}
 
 /*######
 ## npc_prospector_anvilward
@@ -752,11 +726,6 @@ CreatureAI* GetAI_npc_infused_crystalAI(Creature *_Creature)
 void AddSC_eversong_woods()
 {
     Script *newscript;
-
-    newscript = new Script;
-    newscript->Name="mobs_mana_tapped";
-    newscript->GetAI = &GetAI_mobs_mana_tapped;
-    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name= "npc_prospector_anvilward";
