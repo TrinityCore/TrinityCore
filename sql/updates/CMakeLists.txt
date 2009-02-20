@@ -38,4 +38,6 @@ INSTALL(FILES
 1423_mangos_7290_01_world_command.sql
 1426_mangos_7292_01_world_points_of_interest.sql
 1426_mangos_7292_02_world_locales_points_of_interest.sql
+1463_mangos_7303_01_world_pools.sql
+1470_world_scripts.sql
 DESTINATION share/trinity/sql/updates)

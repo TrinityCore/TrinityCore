@@ -1,4 +1,4 @@
---ALTER TABLE db_version CHANGE COLUMN required_7292_02_mangos_locales_points_of_interest required_7303_01_mangos_pools bit;
+/*ALTER TABLE db_version CHANGE COLUMN required_7292_02_mangos_locales_points_of_interest required_7303_01_mangos_pools bit;*/
 
 DROP TABLE IF EXISTS `pool_creature`;
 CREATE TABLE `pool_creature` (
