@@ -461,8 +461,8 @@ Aura::~Aura()
     //Delete references to aura
     if(GetAuraSlot() < MAX_AURAS && m_target && m_target->GetVisibleAura(GetAuraSlot()))
     {
-        if (AuraSlotEntry * entry = m_target->GetVisibleAura(GetAuraSlot()));
-            entry->m_slotAuras[GetEffIndex()]=NULL;
+        AuraSlotEntry * entry = m_target->GetVisibleAura(GetAuraSlot());
+        entry->m_slotAuras[GetEffIndex()]=NULL;
     }
 }
 
