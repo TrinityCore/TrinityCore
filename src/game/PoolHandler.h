@@ -91,6 +91,7 @@ class PoolHandler::PoolGroup
         void SpawnObject(uint32 limit, bool cache=false);
         bool Spawn1Object(uint32 guid);
         bool ReSpawn1Object(uint32 guid);
+        void RemoveOneRelation(uint16 child_pool_id);
     private:
         typedef std::vector<PoolObject> PoolObjectList;
         uint32 CacheValue;                                      // Store the guid of the removed creature/gameobject during a pool update

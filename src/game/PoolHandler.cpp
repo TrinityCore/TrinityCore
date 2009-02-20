@@ -270,6 +270,30 @@ void PoolHandler::LoadFromDB()
             mPoolSearchMap.insert(p);
 
         } while( result->NextRow() );
+
+        // Now check for circular reference
+        for(uint16 i=0; i<max_pool_id; ++i)
+        {
+            std::set<uint16> checkedPools;
+            for(SearchMap::iterator poolItr = mPoolSearchMap.find(i); poolItr != mPoolSearchMap.end(); poolItr = mPoolSearchMap.find(poolItr->second))
+            {
+                checkedPools.insert(poolItr->first);
+                if(checkedPools.find(poolItr->second) != checkedPools.end())
+                {
+                    std::ostringstream ss;
+                    ss<< "The pool(s) ";
+                    for (std::set<uint16>::const_iterator itr=checkedPools.begin(); itr!=checkedPools.end(); ++itr)
+                        ss << *itr << " ";
+                    ss << "create(s) a circular reference, which can cause the server to freeze.\nRemoving the last link between mother pool "
+                        << poolItr->first << " and child pool " << poolItr->second;
+                    sLog.outErrorDb(ss.str().c_str());
+                    mPoolPoolGroups[poolItr->second].RemoveOneRelation(poolItr->first);
+                    mPoolSearchMap.erase(poolItr);
+                    --count;
+                    break;
+                }
+            }
+        }
         sLog.outString();
         sLog.outString( ">> Loaded %u pools in mother pools", count );
         delete result;
@@ -516,6 +540,28 @@ template<>
 void PoolHandler::PoolGroup<PoolHandler::Pool>::Despawn1Object(uint32 child_pool_id)
 {
     poolhandler.DespawnPool(child_pool_id);
+}
+
+// Method for a pool only to remove any found record causing a circular dependency loop
+template<>
+void PoolHandler::PoolGroup<PoolHandler::Pool>::RemoveOneRelation(uint16 child_pool_id)
+{
+    for (PoolObjectList::iterator itr = ExplicitlyChanced.begin(); itr != ExplicitlyChanced.end(); ++itr)
+    {
+        if(itr->guid == child_pool_id)
+        {
+            ExplicitlyChanced.erase(itr);
+            break;
+        }
+    }
+    for (PoolObjectList::iterator itr = EqualChanced.begin(); itr != EqualChanced.end(); ++itr)
+    {
+        if(itr->guid == child_pool_id)
+        {
+            EqualChanced.erase(itr);
+            break;
+        }
+    }
 }
 
 // Method that Spawn 1+ creatures or gameobject
