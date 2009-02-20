@@ -41,6 +41,7 @@ EndScriptData */
 #define SPELL_FEAR                            29321
 #define SPELL_VOID_BOLT                       39329
 #define SPELL_SPOTLIGHT                       25824
+#define SPELL_WRATH_OF_THE_ASTROMANCER        42783
 
 #define CENTER_X                             432.909f
 #define CENTER_Y                             -373.424f
@@ -95,6 +96,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
     uint32 MarkOfTheSolarian_Timer;
     uint32 Jump_Timer;
     uint32 defaultarmor;
+    uint32 Wrath_Timer;
 
     float defaultsize;
     float Portals[3][3];
@@ -118,6 +120,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
         MarkOfTheSolarian_Timer=45000;
         Jump_Timer=8000;
         Phase = 1;
+        Wrath_Timer = 20000+rand()%5000;//twice in phase one
 
         if(pInstance)
             pInstance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, NOT_STARTED);
@@ -223,6 +226,13 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
                 BlindingLight = true;
                 BlindingLight_Timer = 45000;
             }else BlindingLight_Timer -= diff;
+
+            if( Wrath_Timer < diff)
+            {
+                m_creature->InterruptNonMeleeSpells(false);
+                DoCast(SelectUnit(SELECT_TARGET_RANDOM,1,100,true), SPELL_WRATH_OF_THE_ASTROMANCER, true);
+                Wrath_Timer = 20000+rand()%5000;
+            }else Wrath_Timer -= diff;
 
              if (ArcaneMissiles_Timer < diff)
              {
