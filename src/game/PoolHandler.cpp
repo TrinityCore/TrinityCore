@@ -31,14 +31,14 @@ INSTANTIATE_SINGLETON_1(PoolHandler);
 // Methods of template class PoolGroup
 
 template <class T>
-PoolHandler::PoolGroup<T>::PoolGroup()
+PoolGroup<T>::PoolGroup()
 {
     Spawned = 0;
 }
 
 // Method to add a gameobject/creature guid to the proper list depending on pool type and chance value
 template <class T>
-void PoolHandler::PoolGroup<T>::AddEntry(PoolObject& poolitem, uint32 maxentries)
+void PoolGroup<T>::AddEntry(PoolObject& poolitem, uint32 maxentries)
 {
     if (poolitem.chance != 0 && maxentries == 1)
         ExplicitlyChanced.push_back(poolitem);
@@ -48,7 +48,7 @@ void PoolHandler::PoolGroup<T>::AddEntry(PoolObject& poolitem, uint32 maxentries
 
 // Method to check the chances are proper in this object pool
 template <class T>
-bool PoolHandler::PoolGroup<T>::CheckPool(void)
+bool PoolGroup<T>::CheckPool(void)
 {
     if (EqualChanced.size() == 0)
     {
@@ -63,7 +63,7 @@ bool PoolHandler::PoolGroup<T>::CheckPool(void)
 
 // Method that tell if the gameobject, creature or pool is spawned currently
 template <class T>
-bool PoolHandler::PoolGroup<T>::IsSpawnedObject(uint32 guid)
+bool PoolGroup<T>::IsSpawnedObject(uint32 guid)
 {
     for (uint32 i=0; i<ExplicitlyChanced.size(); ++i)
         if (ExplicitlyChanced[i].guid == guid)
@@ -77,7 +77,7 @@ bool PoolHandler::PoolGroup<T>::IsSpawnedObject(uint32 guid)
 // Method that return a guid of a rolled creature or gameobject
 // Note: Copy from loot system because it's very similar and only few things change
 template <class T>
-uint32 PoolHandler::PoolGroup<T>::RollOne(void)
+uint32 PoolGroup<T>::RollOne(void)
 {
     if (!ExplicitlyChanced.empty())                         // First explicitly chanced entries are checked
     {
@@ -100,7 +100,7 @@ uint32 PoolHandler::PoolGroup<T>::RollOne(void)
 // If no guid is passed, the pool is just removed (event end case)
 // If guid is filled, cache will be used and no removal will occur, it just fill the cache
 template<class T>
-void PoolHandler::PoolGroup<T>::DespawnObject(uint32 guid)
+void PoolGroup<T>::DespawnObject(uint32 guid)
 {
     for (int i=0; i<EqualChanced.size(); ++i)
     {
@@ -122,7 +122,7 @@ void PoolHandler::PoolGroup<T>::DespawnObject(uint32 guid)
 
 // Method that is actualy doing the removal job on one creature
 template<>
-void PoolHandler::PoolGroup<Creature>::Despawn1Object(uint32 guid)
+void PoolGroup<Creature>::Despawn1Object(uint32 guid)
 {
     if (CreatureData const* data = objmgr.GetCreatureData(guid))
     {
@@ -138,7 +138,7 @@ void PoolHandler::PoolGroup<Creature>::Despawn1Object(uint32 guid)
 
 // Same on one gameobject
 template<>
-void PoolHandler::PoolGroup<GameObject>::Despawn1Object(uint32 guid)
+void PoolGroup<GameObject>::Despawn1Object(uint32 guid)
 {
     if (GameObjectData const* data = objmgr.GetGOData(guid))
     {
@@ -151,14 +151,14 @@ void PoolHandler::PoolGroup<GameObject>::Despawn1Object(uint32 guid)
 
 // Same on one pool
 template<>
-void PoolHandler::PoolGroup<PoolHandler::Pool>::Despawn1Object(uint32 child_pool_id)
+void PoolGroup<Pool>::Despawn1Object(uint32 child_pool_id)
 {
     poolhandler.DespawnPool(child_pool_id);
 }
 
 // Method for a pool only to remove any found record causing a circular dependency loop
 template<>
-void PoolHandler::PoolGroup<PoolHandler::Pool>::RemoveOneRelation(uint16 child_pool_id)
+void PoolGroup<Pool>::RemoveOneRelation(uint16 child_pool_id)
 {
     for (PoolObjectList::iterator itr = ExplicitlyChanced.begin(); itr != ExplicitlyChanced.end(); ++itr)
     {
@@ -182,7 +182,7 @@ void PoolHandler::PoolGroup<PoolHandler::Pool>::RemoveOneRelation(uint16 child_p
 // if cache is false (initialization or event start), X creatures are spawned with X <= limit (< if limit higher that the number of creatures in pool)
 // if cache is true, this means only one has to be spawned (or respawned if the rolled one is same as cached one)
 template <class T>
-void PoolHandler::PoolGroup<T>::SpawnObject(uint32 limit, bool cache)
+void PoolGroup<T>::SpawnObject(uint32 limit, bool cache)
 {
     if (limit == 1)                                         // This is the only case where explicit chance is used
     {
@@ -227,7 +227,7 @@ void PoolHandler::PoolGroup<T>::SpawnObject(uint32 limit, bool cache)
 
 // Method that is actualy doing the spawn job on 1 creature
 template <>
-bool PoolHandler::PoolGroup<Creature>::Spawn1Object(uint32 guid)
+bool PoolGroup<Creature>::Spawn1Object(uint32 guid)
 {
     CreatureData const* data = objmgr.GetCreatureData(guid);
     if (data)
@@ -257,7 +257,7 @@ bool PoolHandler::PoolGroup<Creature>::Spawn1Object(uint32 guid)
 
 // Same for 1 gameobject
 template <>
-bool PoolHandler::PoolGroup<GameObject>::Spawn1Object(uint32 guid)
+bool PoolGroup<GameObject>::Spawn1Object(uint32 guid)
 {
     GameObjectData const* data = objmgr.GetGOData(guid);
     if (data)
@@ -288,7 +288,7 @@ bool PoolHandler::PoolGroup<GameObject>::Spawn1Object(uint32 guid)
 
 // Same for 1 pool
 template <>
-bool PoolHandler::PoolGroup<PoolHandler::Pool>::Spawn1Object(uint32 child_pool_id)
+bool PoolGroup<Pool>::Spawn1Object(uint32 child_pool_id)
 {
     poolhandler.SpawnPool(child_pool_id);
     return true;
@@ -296,7 +296,7 @@ bool PoolHandler::PoolGroup<PoolHandler::Pool>::Spawn1Object(uint32 child_pool_i
 
 // Method that does the respawn job on the specified creature
 template <>
-bool PoolHandler::PoolGroup<Creature>::ReSpawn1Object(uint32 guid)
+bool PoolGroup<Creature>::ReSpawn1Object(uint32 guid)
 {
     CreatureData const* data = objmgr.GetCreatureData(guid);
     if (data)
@@ -310,7 +310,7 @@ bool PoolHandler::PoolGroup<Creature>::ReSpawn1Object(uint32 guid)
 
 // Same for 1 gameobject
 template <>
-bool PoolHandler::PoolGroup<GameObject>::ReSpawn1Object(uint32 guid)
+bool PoolGroup<GameObject>::ReSpawn1Object(uint32 guid)
 {
     GameObjectData const* data = objmgr.GetGOData(guid);
     if (data)
@@ -324,7 +324,7 @@ bool PoolHandler::PoolGroup<GameObject>::ReSpawn1Object(uint32 guid)
 
 // Nothing to do for a child Pool
 template <>
-bool PoolHandler::PoolGroup<PoolHandler::Pool>::ReSpawn1Object(uint32 guid)
+bool PoolGroup<Pool>::ReSpawn1Object(uint32 guid)
 {
     return true;
 }
