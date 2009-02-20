@@ -12971,6 +12971,10 @@ void Unit::SetCharmedOrPossessedBy(Unit* charmer, bool possess)
     if(GetTypeId() == TYPEID_PLAYER)
         ((Player*)this)->StopCastingCharm();
 
+    // StopCastingCharm may remove a possessed pet?
+    if(!IsInWorld())
+        return;
+
     // Set charmed
     charmer->SetCharm(this);
     SetCharmerGUID(charmer->GetGUID());

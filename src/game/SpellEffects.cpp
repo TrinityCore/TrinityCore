@@ -3683,18 +3683,6 @@ void Spell::EffectSummonGuardian(uint32 i)
 
     for(int32 count = 0; count < amount; ++count)
     {
-        Pet* spawnCreature = new Pet(GUARDIAN_PET);
-        spawnCreature->setActive(m_caster->isActive());
-
-        Map *map = m_caster->GetMap();
-        uint32 pet_number = objmgr.GeneratePetNumber();
-        if(!spawnCreature->Create(objmgr.GenerateLowGuid(HIGHGUID_PET), map,m_spellInfo->EffectMiscValue[i], pet_number))
-        {
-            sLog.outError("no such creature entry %u",m_spellInfo->EffectMiscValue[i]);
-            delete spawnCreature;
-            return;
-        }
-
         float px, py, pz;
         // If dest location if present
         if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
@@ -3712,47 +3700,27 @@ void Spell::EffectSummonGuardian(uint32 i)
         }
         // Summon if dest location not present near caster
         else
-            m_caster->GetClosePoint(px,py,pz,spawnCreature->GetObjectSize());
+            m_caster->GetClosePoint(px,py,pz,m_caster->GetObjectSize());
 
-        spawnCreature->Relocate(px,py,pz,m_caster->GetOrientation());
-
-        if(!spawnCreature->IsPositionValid())
-        {
-            sLog.outError("ERROR: Pet (guidlow %d, entry %d) not created base at creature. Suggested coordinates isn't valid (X: %f Y: %f)",
-                spawnCreature->GetGUIDLow(), spawnCreature->GetEntry(), spawnCreature->GetPositionX(), spawnCreature->GetPositionY());
-            delete spawnCreature;
+        Pet *spawnCreature = ((Player*)m_originalCaster)->SummonPet(m_spellInfo->EffectMiscValue[i], px, py, pz, m_caster->GetOrientation(), GUARDIAN_PET, duration);
+        if(!spawnCreature)
             return;
-        }
 
-        if(duration > 0)
-            spawnCreature->SetDuration(duration);
-
-        spawnCreature->SetOwnerGUID(m_originalCaster->GetGUID());
         spawnCreature->setPowerType(POWER_MANA);
         spawnCreature->SetUInt32Value(UNIT_NPC_FLAGS , 0);
-        spawnCreature->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE,m_originalCaster->getFaction());
         spawnCreature->SetUInt32Value(UNIT_FIELD_FLAGS,0);
         spawnCreature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
         spawnCreature->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP,0);
-        spawnCreature->SetCreatorGUID(m_originalCaster->GetGUID());
         spawnCreature->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
 
         spawnCreature->InitStatsForLevel(level);
-        spawnCreature->GetCharmInfo()->SetPetNumber(pet_number, false);
-
-        spawnCreature->AIM_Initialize();
-
-        if(m_originalCaster->GetTypeId()==TYPEID_PLAYER)
-            ((Player*)m_originalCaster)->AddGuardian(spawnCreature);
-
-        map->Add((Creature*)spawnCreature);
     }
 }
 
 void Spell::EffectSummonPossessed(uint32 i)
 {
-    uint32 creatureEntry = m_spellInfo->EffectMiscValue[i];
-    if(!creatureEntry)
+    uint32 entry = m_spellInfo->EffectMiscValue[i];
+    if(!entry)
         return;
 
     if(m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -3760,15 +3728,17 @@ void Spell::EffectSummonPossessed(uint32 i)
 
     uint32 level = m_caster->getLevel();
 
-    float px, py, pz;
-    m_caster->GetClosePoint(px, py, pz, DEFAULT_WORLD_OBJECT_SIZE);
+    float x, y, z;
+    m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
 
     int32 duration = GetSpellDuration(m_spellInfo);
 
-    TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_OR_DEAD_DESPAWN;
+    Pet* pet = ((Player*)m_caster)->SummonPet(entry, x, y, z, m_caster->GetOrientation(), POSSESSED_PET, duration);
+    if(!pet)
+        return;
 
-    Creature* c = m_caster->SummonCreature(creatureEntry, px, py, pz, m_caster->GetOrientation(), summonType, duration);
-    if(c) c->SetCharmedOrPossessedBy(m_caster, true);
+    pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
+    pet->SetCharmedOrPossessedBy(m_caster, true);
 }
 
 void Spell::EffectTeleUnitsFaceCaster(uint32 i)
