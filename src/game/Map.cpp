@@ -1082,8 +1082,8 @@ float Map::GetHeight(float x, float y, float z, bool pUseVmaps) const
     int gx=(int)(32-x/SIZE_OF_GRIDS);                       //grid x
     int gy=(int)(32-y/SIZE_OF_GRIDS);                       //grid y
 
-    float lx=MAP_RESOLUTION*(32 -x/SIZE_OF_GRIDS - gx);
-    float ly=MAP_RESOLUTION*(32 -y/SIZE_OF_GRIDS - gy);
+    float lx=128*(32 -x/SIZE_OF_GRIDS - gx);
+    float ly=128*(32 -y/SIZE_OF_GRIDS - gy);
 
     // ensure GridMap is loaded
     const_cast<Map*>(this)->EnsureGridCreated(GridPair(63-gx,63-gy));
@@ -1095,10 +1095,63 @@ float Map::GetHeight(float x, float y, float z, bool pUseVmaps) const
         int lx_int = (int)lx;
         int ly_int = (int)ly;
 
+        lx -= lx_int;
+        ly -= ly_int;
+
+        float a,b,c;
+        if (lx+ly < 1)
+        {
+            if (lx > ly)
+            {
+                // 1
+                float h1 = gmap->v9[lx_int][ly_int];
+                float h2 = gmap->v9[lx_int+1][ly_int];
+                float h5 = 2 * gmap->v8[lx_int][ly_int];
+                a = h2-h1;
+                b = h5-h1-h2;
+                c = h1;
+            }
+            else
+            {
+                // 2
+                float h1 = gmap->v9[lx_int][ly_int];
+                float h3 = gmap->v9[lx_int][ly_int+1];
+                float h5 = 2 * gmap->v8[lx_int][ly_int];
+                a = h5 - h1 - h3;
+                b = h3 - h1;
+                c = h1;
+            }
+        }
+        else
+        {
+            if (lx > ly)
+            {
+                // 3
+                float h2 = gmap->v9[lx_int+1][ly_int];
+                float h4 = gmap->v9[lx_int+1][ly_int+1];
+                float h5 = 2 * gmap->v8[lx_int][ly_int];
+                a = h2 + h4 - h5;
+                b = h4 - h2;
+                c = h5 - h4;
+            }
+            else
+            {
+                // 4
+                float h3 = gmap->v9[lx_int][ly_int+1];
+                float h4 = gmap->v9[lx_int+1][ly_int+1];
+                float h5 = 2 * gmap->v8[lx_int][ly_int];
+                a = h4 - h3;
+                b = h3 + h4 - h5;
+                c = h5 - h4;
+            }
+        }
+        float _mapheight = a * lx + b * ly + c;
+
         // In some very rare case this will happen. Need find a better way.
         if(lx_int == MAP_RESOLUTION) --lx_int;
         if(ly_int == MAP_RESOLUTION) --ly_int;
 
+        /*
         float zi[4];
         // Probe 4 nearest points (except border cases)
         zi[0] = gmap->Z[lx_int][ly_int];
@@ -1117,6 +1170,7 @@ float Map::GetHeight(float x, float y, float z, bool pUseVmaps) const
         // Use the simplified bilinear equation, as described in [url="http://en.wikipedia.org/wiki/Bilinear_interpolation"]http://en.wikipedia.org/wiki/Bilinear_interpolation[/url]
         float _mapheight = b[0] + (b[1]*fact_x) + (b[2]*fact_y) + (b[3]*fact_x*fact_y);
 
+        */
         // look from a bit higher pos to find the floor, ignore under surface case
         if(z + 2.0f > _mapheight)
             mapHeight = _mapheight;

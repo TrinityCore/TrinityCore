@@ -403,15 +403,14 @@ void TransformData()
     {
         for(int y=0;y<128;y++)
         {
-            cell->v8[x][y] = (float)mcells->ch[x/8][y/8].v8[x%8][y%8];
-            cell->v9[x][y] = (float)mcells->ch[x/8][y/8].v9[x%8][y%8];
+            cell->v8[y][x] = (float)mcells->ch[x/8][y/8].v8[x%8][y%8];
+            cell->v9[y][x] = (float)mcells->ch[x/8][y/8].v9[x%8][y%8];
         }
 
         //extra 1 point on bounds
-        cell->v9[x][128] = (float)mcells->ch[x/8][15].v9[x%8][8];
+        cell->v9[128][x] = (float)mcells->ch[x/8][15].v9[x%8][8];
         //x==y
-        cell->v9[128][x] = (float)mcells->ch[15][x/8].v9[8][x%8];
-
+        cell->v9[x][128] = (float)mcells->ch[15][x/8].v9[8][x%8];
     }
 
     //and the last 1
@@ -470,6 +469,7 @@ bool ConvertADT(char * filename,char * filename2)
     delete cell;
     TransformData();
 
+    /*
     for(unsigned int x=0;x<iRes;x++)
     for(unsigned int y=0;y<iRes;y++)
     {
@@ -478,8 +478,10 @@ bool ConvertADT(char * filename,char * filename2)
                     (((double)(x))*TILESIZE)/((double)(iRes-1)));
 
         fwrite(&z,1,sizeof(z),output);
-    }
+    }*/
 
+    fwrite(&cell->v9, 1, sizeof(cell->v9), output);
+    fwrite(&cell->v8, 1, sizeof(cell->v8), output);
     fclose(output);
     delete cell;
 /*
