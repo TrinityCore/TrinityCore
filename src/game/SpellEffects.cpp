@@ -3637,9 +3637,16 @@ void Spell::EffectSummonGuardian(uint32 i)
         return;
     }
 
-    // trigger
-    if(!m_originalCaster || m_originalCaster->GetTypeId() != TYPEID_PLAYER
-        && !((Creature*)m_originalCaster)->isTotem()/*m_spellInfo->Id == 40276*/)
+    Player *caster = NULL;
+    if(m_originalCaster)
+    {
+        if(m_originalCaster->GetTypeId() == TYPEID_PLAYER)
+            caster = (Player*)m_originalCaster;
+        else if(((Creature*)m_originalCaster)->isTotem())
+            caster = m_originalCaster->GetCharmerOrOwnerPlayerOrPlayerItself();
+    }
+
+    if(!caster)
     {
         EffectSummonWild(i);
         return;
@@ -3651,20 +3658,20 @@ void Spell::EffectSummonGuardian(uint32 i)
     // Search old Guardian only for players (if casted spell not have duration or cooldown)
     // FIXME: some guardians have control spell applied and controlled by player and anyway player can't summon in this time
     //        so this code hack in fact
-    if( m_originalCaster->GetTypeId() == TYPEID_PLAYER && (duration <= 0 || GetSpellRecoveryTime(m_spellInfo)==0) )
-        if(((Player*)m_originalCaster)->HasGuardianWithEntry(pet_entry))
+    if(duration <= 0 || GetSpellRecoveryTime(m_spellInfo)==0)
+        if(caster->HasGuardianWithEntry(pet_entry))
             return;                                         // find old guardian, ignore summon
 
     // in another case summon new
-    uint32 level = m_originalCaster->getLevel();
+    uint32 level = caster->getLevel();
 
     // level of pet summoned using engineering item based at engineering skill level
-    if(m_originalCaster->GetTypeId()==TYPEID_PLAYER && m_CastItem)
+    if(m_CastItem)
     {
         ItemPrototype const *proto = m_CastItem->GetProto();
         if(proto && proto->RequiredSkill == SKILL_ENGINERING)
         {
-            uint16 skill202 = ((Player*)m_originalCaster)->GetSkillValue(SKILL_ENGINERING);
+            uint16 skill202 = caster->GetSkillValue(SKILL_ENGINERING);
             if(skill202)
             {
                 level = skill202/5;
@@ -3702,7 +3709,7 @@ void Spell::EffectSummonGuardian(uint32 i)
         else
             m_caster->GetClosePoint(px,py,pz,m_caster->GetObjectSize());
 
-        Pet *spawnCreature = ((Player*)m_originalCaster)->SummonPet(m_spellInfo->EffectMiscValue[i], px, py, pz, m_caster->GetOrientation(), GUARDIAN_PET, duration);
+        Pet *spawnCreature = caster->SummonPet(m_spellInfo->EffectMiscValue[i], px, py, pz, m_caster->GetOrientation(), GUARDIAN_PET, duration);
         if(!spawnCreature)
             return;
 
