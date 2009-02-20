@@ -6,18 +6,18 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 /* ScriptData
 SDName: Boss_Broggok
-SD%Complete: 100
-SDComment:
+SD%Complete: 70
+SDComment: pre-event not made
 SDCategory: Hellfire Citadel, Blood Furnace
 EndScriptData */
 
@@ -51,25 +51,32 @@ struct TRINITY_DLL_DECL boss_broggokAI : public ScriptedAI
         DoScriptText(SAY_AGGRO, m_creature);
     }
 
+    void JustSummoned(Creature *summoned)
+    {
+        summoned->setFaction(16);
+        summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        summoned->CastSpell(summoned,SPELL_POISON,false,0,0,m_creature->GetGUID());
+    }
+
     void UpdateAI(const uint32 diff)
     {
-
-        if (!UpdateVictim())
+        if (!UpdateVictim() )
             return;
 
-        if(AcidSpray_Timer < diff)
+        if (AcidSpray_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SLIME_SPRAY);
             AcidSpray_Timer = 4000+rand()%8000;
         }else AcidSpray_Timer -=diff;
 
-        if(PoisonBolt_Timer < diff)
+        if (PoisonBolt_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_POISON_BOLT);
             PoisonBolt_Timer = 4000+rand()%8000;
         }else PoisonBolt_Timer -=diff;
 
-        if(PoisonSpawn_Timer < diff)
+        if (PoisonSpawn_Timer < diff)
         {
             DoCast(m_creature,SPELL_POISON_CLOUD);
             PoisonSpawn_Timer = 20000;
@@ -79,17 +86,36 @@ struct TRINITY_DLL_DECL boss_broggokAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_broggokAI(Creature *_Creature)
+struct TRINITY_DLL_DECL mob_broggok_poisoncloudAI : public ScriptedAI
+{
+    mob_broggok_poisoncloudAI(Creature *c) : ScriptedAI(c) {Reset();}
+
+    void Reset() { }
+    void MoveInLineOfSight(Unit *who) { }
+    void AttackStart(Unit *who) { }
+    void Aggro(Unit* who) { }
+};
+
+CreatureAI* GetAI_boss_broggok(Creature *_Creature)
 {
     return new boss_broggokAI (_Creature);
+}
+
+CreatureAI* GetAI_mob_broggok_poisoncloud(Creature *_Creature)
+{
+    return new mob_broggok_poisoncloudAI (_Creature);
 }
 
 void AddSC_boss_broggok()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_broggok";
-    newscript->GetAI = &GetAI_boss_broggokAI;
+    newscript->Name = "boss_broggok";
+    newscript->GetAI = &GetAI_boss_broggok;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_broggok_poisoncloud";
+    newscript->GetAI = &GetAI_mob_broggok_poisoncloud;
     newscript->RegisterSelf();
 }
-

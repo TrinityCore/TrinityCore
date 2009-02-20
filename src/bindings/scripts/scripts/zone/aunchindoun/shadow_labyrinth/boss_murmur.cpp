@@ -73,13 +73,14 @@ struct TRINITY_DLL_DECL boss_murmurAI : public Scripted_NoMovementAI
            Unit* target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
            if (target && target->GetTypeId() == TYPEID_PLAYER)
            {
-               if (m_creature->IsWithinDistInMap(target, 34))
+               //Not do anything without aura, spell can be resisted!
+               if (target->HasAura(SPELL_SONIC_BOOM_CAST,1) && m_creature->IsWithinDistInMap(target, 34.0f))
                {
-                   target->SetHealth(target->GetMaxHealth() - target->GetMaxHealth() * 0.8);
+                   //This will be wrong calculation. Also, comments suggest it must deal damage
+                   target->SetHealth(uint32(target->GetMaxHealth() - target->GetMaxHealth() * 0.8));
                }
            }
         }
-    
     }
 	
     void Aggro(Unit *who) { }

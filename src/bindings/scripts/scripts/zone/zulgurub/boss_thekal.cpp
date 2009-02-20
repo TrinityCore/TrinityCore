@@ -119,7 +119,7 @@ struct TRINITY_DLL_DECL boss_thekalAI : public ScriptedAI
                     {
                         //Resurrect LorKhan
                         Unit *pLorKhan = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_LORKHAN));
-                        pLorKhan->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                        pLorKhan->SetStandState(UNIT_STAND_STATE_STAND);
                         pLorKhan->setFaction(14);
                         pLorKhan->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         pLorKhan->SetHealth(int(pLorKhan->GetMaxHealth()*1.0));
@@ -129,7 +129,7 @@ struct TRINITY_DLL_DECL boss_thekalAI : public ScriptedAI
                     {
                         //Resurrect Zath
                         Unit *pZath = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_ZATH));
-                        pZath->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                        pZath->SetStandState(UNIT_STAND_STATE_STAND);
                         pZath->setFaction(14);
                         pZath->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         pZath->SetHealth(int(pZath->GetMaxHealth()*1.0));
@@ -154,7 +154,7 @@ struct TRINITY_DLL_DECL boss_thekalAI : public ScriptedAI
             if (!PhaseTwo && !WasDead && m_creature->GetHealth() <= m_creature->GetMaxHealth() * 0.05)
             {
                 m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 3);
+                m_creature->SetStandState(UNIT_STAND_STATE_SLEEP);
                 m_creature->AttackStop();
 
                 if(pInstance)
@@ -170,7 +170,7 @@ struct TRINITY_DLL_DECL boss_thekalAI : public ScriptedAI
                 {
                     DoCast(m_creature,SPELL_TIGER_FORM);
                     m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.00f);
-                    m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                    m_creature->SetStandState(UNIT_STAND_STATE_STAND);
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     m_creature->SetHealth(int(m_creature->GetMaxHealth()*1.0));
                     const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
@@ -331,7 +331,7 @@ struct TRINITY_DLL_DECL mob_zealot_lorkhanAI : public ScriptedAI
                 {
                     //Resurrect Thekal
                     Unit *pThekal = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_THEKAL));
-                    pThekal->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                    pThekal->SetStandState(UNIT_STAND_STATE_STAND);
                     pThekal->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     pThekal->setFaction(14);
                     pThekal->SetHealth(int(pThekal->GetMaxHealth()*1.0));
@@ -341,7 +341,7 @@ struct TRINITY_DLL_DECL mob_zealot_lorkhanAI : public ScriptedAI
                 {
                     //Resurrect Zath
                     Unit *pZath = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_ZATH));
-                    pZath->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                    pZath->SetStandState(UNIT_STAND_STATE_STAND);
                     pZath->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     pZath->setFaction(14);
                     pZath->SetHealth(int(pZath->GetMaxHealth()*1.0));
@@ -354,7 +354,7 @@ struct TRINITY_DLL_DECL mob_zealot_lorkhanAI : public ScriptedAI
         if (m_creature->GetHealth() <= m_creature->GetMaxHealth() * 0.05)
         {
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 3);
+            m_creature->SetStandState(UNIT_STAND_STATE_SLEEP);
             m_creature->setFaction(35);
             m_creature->AttackStop();
 
@@ -402,7 +402,7 @@ struct TRINITY_DLL_DECL mob_zealot_zathAI : public ScriptedAI
         if(pInstance)
             pInstance->SetData(DATA_ZATH_ALIVE, 0);
 
-        m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+        m_creature->SetStandState(UNIT_STAND_STATE_STAND);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
@@ -463,7 +463,7 @@ struct TRINITY_DLL_DECL mob_zealot_zathAI : public ScriptedAI
                 {
                     //Resurrect LorKhan
                     Unit *pLorKhan = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_LORKHAN));
-                    pLorKhan->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                    pLorKhan->SetStandState(UNIT_STAND_STATE_STAND);
                     pLorKhan->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     pLorKhan->setFaction(14);
                     pLorKhan->SetHealth(int(pLorKhan->GetMaxHealth()*1.0));
@@ -473,7 +473,7 @@ struct TRINITY_DLL_DECL mob_zealot_zathAI : public ScriptedAI
                 {
                     //Resurrect Thekal
                     Unit *pThekal = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_THEKAL));
-                    pThekal->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                    pThekal->SetStandState(UNIT_STAND_STATE_STAND);
                     pThekal->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     pThekal->setFaction(14);
                     pThekal->SetHealth(int(pThekal->GetMaxHealth()*1.0));
@@ -486,7 +486,7 @@ struct TRINITY_DLL_DECL mob_zealot_zathAI : public ScriptedAI
         if (m_creature->GetHealth() <= m_creature->GetMaxHealth() * 0.05)
         {
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 3);
+            m_creature->SetStandState(UNIT_STAND_STATE_SLEEP);
             m_creature->setFaction(35);
             m_creature->AttackStop();
 

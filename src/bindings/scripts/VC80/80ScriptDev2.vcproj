@@ -1030,10 +1030,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\zone\naxxramas\boss_highlord_mograine.cpp"
-						>
-					</File>
-					<File
 						RelativePath="..\scripts\zone\naxxramas\boss_kelthuzad.cpp"
 						>
 					</File>

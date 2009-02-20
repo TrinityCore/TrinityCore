@@ -56,8 +56,8 @@ struct TRINITY_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
 {
     mob_mature_netherwing_drakeAI(Creature* c) : ScriptedAI(c)
     {
-        Reset();
         PlayerGUID = 0;
+        Reset();
     }
 
     uint64 PlayerGUID;
@@ -179,9 +179,9 @@ struct TRINITY_DLL_DECL mob_enslaved_netherwing_drakeAI : public ScriptedAI
 {
     mob_enslaved_netherwing_drakeAI(Creature* c) : ScriptedAI(c)
     {
-        Reset();
         PlayerGUID = 0;
         Tapped = false;
+        Reset();
     }
 
     uint64 PlayerGUID;

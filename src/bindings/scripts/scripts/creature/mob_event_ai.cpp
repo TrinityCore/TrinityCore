@@ -23,6 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 #include "mob_event_ai.h"
+#include "ObjectMgr.h"
 
 #define EVENT_UPDATE_TIME               500
 #define SPELL_RUN_AWAY                  8225
@@ -454,6 +455,10 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 }
             }
             break;
+        case EVENT_T_REACHED_HOME:
+            {
+            }
+            break;
         default:
             if (EAI_ErrorLevel > 0)
                 error_db_log("SD2: Creature %u using Event %u has invalid Event Type(%u), missing from ProcessEvent() Switch.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
@@ -541,7 +546,8 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 }else if ( param2 && urand(0,1) )
                 {
                     temp = param2;
-                }else
+                }
+                else
                 {
                     temp = param1;
                 }
@@ -575,6 +581,45 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
 
                     DoScriptText(temp, m_creature, target);
                 }
+            }
+            break;
+        case ACTION_T_SET_FACTION:
+            {
+                if (param1)
+                    m_creature->setFaction(param1);
+                else
+                {
+                    if (CreatureInfo const* ci = GetCreatureTemplateStore(m_creature->GetEntry()))
+                    {
+                        //if no id provided, assume reset and then use default
+                        if (m_creature->getFaction() != ci->faction_A)
+                            m_creature->setFaction(ci->faction_A);
+                    }
+                }
+            }
+            break;
+        case ACTION_T_MORPH_TO_ENTRY_OR_MODEL:
+            {
+                if (param1 || param2)
+                {
+                    //set model based on entry from creature_template
+                    if (param1)
+                    {
+                        if (CreatureInfo const* ci = GetCreatureTemplateStore(param1))
+                        {
+                            //use default display
+							//TODO FIX DisplayID_A in core
+							/*
+                            if (ci->DisplayID_A)
+                                m_creature->SetDisplayId(ci->DisplayID_A);*/
+                        }
+                    }
+                    //if no param1, then use value from param2 (modelId)
+                    else
+                        m_creature->SetDisplayId(param2);
+                }
+                else
+                    m_creature->DeMorph();
             }
             break;
         case ACTION_T_SOUND:
@@ -639,14 +684,18 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                             //Melee current victim if flag not set
                             if (!(param3 & CAST_NO_MELEE_IF_OOM))
                             {
-                                AttackDistance = 0;
-                                AttackAngle = 0;
+                                if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
+                                {
+                                    AttackDistance = 0;
+                                    AttackAngle = 0;
 
-                                m_creature->GetMotionMaster()->Clear(false);
-                                m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim(), AttackDistance, AttackAngle);
+                                    m_creature->GetMotionMaster()->Clear(false);
+                                    m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim(), AttackDistance, AttackAngle);
+                                }
                             }
 
-                        }else
+                        }
+                        else
                         {
                             //Interrupt any previous spell
                             if (caster->IsNonMeleeSpellCasted(false) && param3 & CAST_INTURRUPT_PREVIOUS)
@@ -754,10 +803,10 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
             {
                 CombatMovementEnabled = param1;
 
-                //Allow movement (create new targeted movement gen if none exist already)
+                //Allow movement (create new targeted movement gen only if idle)
                 if (CombatMovementEnabled)
                 {
-                    if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != TARGETED_MOTION_TYPE)
+                    if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == IDLE_MOTION_TYPE)
                     {
                         m_creature->GetMotionMaster()->Clear(false);
                         m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim(), AttackDistance, AttackAngle);
@@ -839,9 +888,12 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
 
                 if (CombatMovementEnabled)
                 {
-                    //Drop current movement gen
-                    m_creature->GetMotionMaster()->Clear(false);
-                    m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim(), AttackDistance, AttackAngle);
+                    if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
+                    {
+                        //Drop current movement gen
+                        m_creature->GetMotionMaster()->Clear(false);
+                        m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim(), AttackDistance, AttackAngle);
+                    }
                 }
             }
             break;
@@ -1007,7 +1059,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
         EventUpdateTime = EVENT_UPDATE_TIME;
         EventDiff = 0;
 
-        //Handle Evade events and reset all events to enabled
+        //Reset all events to enabled
         for (std::list<EventHolder>::iterator i = EventList.begin(); i != EventList.end(); ++i)
         {
             switch ((*i).Event.event_type)
@@ -1036,22 +1088,39 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
         }
     }
 
+    //when creature reach home after EnterEvadeMode
+    void JustReachedHome()
+    {
+        m_creature->LoadCreaturesAddon();
+
+        for (std::list<EventHolder>::iterator i = EventList.begin(); i != EventList.end(); ++i)
+        {
+            if ((*i).Event.event_type == EVENT_T_REACHED_HOME)
+                ProcessEvent(*i);
+        }
+
+        Reset();
+    }
+	
     void EnterEvadeMode()
     {
-        ScriptedAI::EnterEvadeMode();
+        m_creature->InterruptNonMeleeSpells(true);
+        m_creature->RemoveAllAuras();
+        m_creature->DeleteThreatList();
+        m_creature->CombatStop();
 
-        IsFleeing = false;
+        if (m_creature->isAlive())
+            m_creature->GetMotionMaster()->MoveTargetedHome();
+
+        m_creature->SetLootRecipient(NULL);
+
+        InCombat = false;
 
         //Handle Evade events
         for (std::list<EventHolder>::iterator i = EventList.begin(); i != EventList.end(); ++i)
         {
-            switch ((*i).Event.event_type)
-            {
-                //Evade
-                case EVENT_T_EVADE:
-                    ProcessEvent(*i);
-                    break;
-            }
+            if ((*i).Event.event_type == EVENT_T_EVADE)
+                ProcessEvent(*i);
         }
     }
 
@@ -1254,27 +1323,6 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
         {
             EventDiff += diff;
 
-            //Check for range based events
-            //if (m_creature->GetDistance(m_creature->getVictim()) >
-            if (Combat)
-            {
-                for (std::list<EventHolder>::iterator i = EventList.begin(); i != EventList.end(); ++i)
-                {
-                    switch ((*i).Event.event_type)
-                    {
-                        case EVENT_T_RANGE:
-                            // in some cases this is called twice and victim may not exist in the second time
-                            if(m_creature->getVictim())
-                            {
-                                float dist = m_creature->GetDistance(m_creature->getVictim());
-                                if (dist > (*i).Event.event_param1 && dist < (*i).Event.event_param2)
-                                    ProcessEvent(*i);
-                            }
-                            break;
-                    }
-                }
-            }
-
             //Check for time based events
             for (std::list<EventHolder>::iterator i = EventList.begin(); i != EventList.end(); ++i)
             {
@@ -1293,9 +1341,9 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                     else (*i).Time = 0;
                 }
 
+                //Events that are updated every EVENT_UPDATE_TIME
                 switch ((*i).Event.event_type)
                 {
-                    //Events that are updated every EVENT_UPDATE_TIME
                     case EVENT_T_TIMER_OOC:
                         ProcessEvent(*i);
                         break;
@@ -1305,8 +1353,18 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                     case EVENT_T_TARGET_HP:
                     case EVENT_T_TARGET_CASTING:
                     case EVENT_T_FRIENDLY_HP:
-                        if( Combat )
+                        if (Combat)
                             ProcessEvent(*i);
+                        break;
+                    case EVENT_T_RANGE:
+                        if (Combat)
+                        {
+                            if (m_creature->IsWithinDistInMap(m_creature->getVictim(),(float)(*i).Event.event_param2))
+                            {
+                                if (m_creature->GetDistance(m_creature->getVictim()) >= (float)(*i).Event.event_param1)
+                                    ProcessEvent(*i);
+                            }
+                        }
                         break;
                 }
             }

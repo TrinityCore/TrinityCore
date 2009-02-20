@@ -108,7 +108,7 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
             }
         }
 
-        debug_log("SD2: Instance Black Portal: GetPlayerInMap, but PlayerList is empty!");
+        debug_log("TSCR: Instance Black Portal: GetPlayerInMap, but PlayerList is empty!");
         return NULL;
     }
 
@@ -123,7 +123,7 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
                 if (Player* player = itr->getSource())
                     player->SendUpdateWorldState(id,state);
             }
-        }else debug_log("SD2: Instance Black Portal: UpdateBMWorldState, but PlayerList is empty!");
+        }else debug_log("TSCR: Instance Black Portal: UpdateBMWorldState, but PlayerList is empty!");
     }
 
     void InitWorldState(bool Enable = true)
@@ -187,7 +187,7 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 
         if (!player)
         {
-            debug_log("SD2: Instance Black Portal: SetData (Type: %u Data %u) cannot find any player.", type, data);
+            debug_log("TSCR: Instance Black Portal: SetData (Type: %u Data %u) cannot find any player.", type, data);
             return;
         }
 
@@ -216,7 +216,7 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
             {
                 if (data == IN_PROGRESS)
                 {
-                    debug_log("SD2: Instance Dark Portal: Starting event.");
+                    debug_log("TSCR: Instance Dark Portal: Starting event.");
                     InitWorldState();
                     Encounter[1] = IN_PROGRESS;
                     NextPortal_Timer = 15000;
@@ -227,6 +227,7 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
                     //this may be completed further out in the post-event
                     if (Unit *medivh = Unit::GetUnit(*player,MedivhGUID))
                     {
+                        debug_log("TSCR: Instance Dark Portal: Event completed.");
                         player->GroupEventHappens(QUEST_OPENING_PORTAL,medivh);
                         player->GroupEventHappens(QUEST_MASTER_TOUCH,medivh);
                     }
@@ -282,7 +283,7 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
         //normalize Z-level if we can, if rift is not at ground level.
         z = std::max(instance->GetHeight(x, y, MAX_HEIGHT), instance->GetWaterLevel(x, y));
 
-        debug_log("SD2: Instance Dark Portal: Summoning rift boss entry %u.",entry);
+        debug_log("TSCR: Instance Dark Portal: Summoning rift boss entry %u.",entry);
 
         Unit *Summon = source->SummonCreature(entry,x,y,z,source->GetOrientation(),
             TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
@@ -290,7 +291,7 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
         if (Summon)
             return Summon;
 
-        debug_log("SD2: Instance Dark Portal: what just happened there? No boss, no loot, no fun...");
+        debug_log("TSCR: Instance Dark Portal: what just happened there? No boss, no loot, no fun...");
         return NULL;
     }
 
@@ -306,7 +307,7 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 
             if (tmp >= CurrentRiftId)
                 tmp++;
-                    debug_log("SD2: Instance Dark Portal: Creating Time Rift at locationId %i (old locationId was %u).",tmp,CurrentRiftId);
+                    debug_log("TSCR: Instance Dark Portal: Creating Time Rift at locationId %i (old locationId was %u).",tmp,CurrentRiftId);
 
                     CurrentRiftId = tmp;
 

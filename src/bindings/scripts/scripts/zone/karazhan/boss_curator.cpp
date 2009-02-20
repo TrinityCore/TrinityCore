@@ -6,18 +6,18 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 /* ScriptData
 SDName: Boss_Curator
 SD%Complete: 100
-SDComment: Evocation may cause client crash (Core related)
+SDComment:
 SDCategory: Karazhan
 EndScriptData */
 
@@ -34,10 +34,6 @@ EndScriptData */
 
 //Flare spell info
 #define SPELL_ASTRAL_FLARE_PASSIVE      30234               //Visual effect + Flare damage
-#define SPELL_ASTRAL_FLARE_NE           30236
-#define SPELL_ASTRAL_FLARE_NW           30239
-#define SPELL_ASTRAL_FLARE_SE           30240
-#define SPELL_ASTRAL_FLARE_SW           30241
 
 //Curator spell info
 #define SPELL_HATEFUL_BOLT              30383
@@ -45,7 +41,7 @@ EndScriptData */
 #define SPELL_ENRAGE                    30403               //Arcane Infusion: Transforms Curator and adds damage.
 #define SPELL_BERSERK                   26662
 
-struct TRINITY_DLL_DECL boss_curatorAI : public ScriptedAI
+struct  TRINITY_DLL_DECL boss_curatorAI : public ScriptedAI
 {
     boss_curatorAI(Creature *c) : ScriptedAI(c) {Reset();}
 
@@ -69,8 +65,8 @@ struct TRINITY_DLL_DECL boss_curatorAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-        case 0: DoScriptText(SAY_KILL1, m_creature); break;
-        case 1: DoScriptText(SAY_KILL2, m_creature); break;
+            case 0: DoScriptText(SAY_KILL1, m_creature); break;
+            case 1: DoScriptText(SAY_KILL2, m_creature); break;
         }
     }
 
@@ -89,18 +85,38 @@ struct TRINITY_DLL_DECL boss_curatorAI : public ScriptedAI
         if (!UpdateVictim() )
             return;
 
-        if (Evocating && !m_creature->HasAura(SPELL_EVOCATION, 0))
-            Evocating = false;
-
-        if (m_creature->GetPower(POWER_MANA) <= 1000 && !Evocating)
+        //always decrease BerserkTimer
+        if (BerserkTimer < diff)
         {
-            DoScriptText(SAY_EVOCATE, m_creature);
-            m_creature->InterruptNonMeleeSpells(false);
-            DoCast(m_creature, SPELL_EVOCATION);
-            Evocating = true;
-        }
+            //if evocate, then break evocate
+            if (Evocating)
+            {
+                if (m_creature->HasAura(SPELL_EVOCATION))
+                    m_creature->RemoveAurasDueToSpell(SPELL_EVOCATION);
 
-        if (!Enraged && !Evocating)
+                Evocating = false;
+            }
+
+            //may not be correct SAY (generic hard enrage)
+            DoScriptText(SAY_ENRAGE, m_creature);
+
+            m_creature->InterruptNonMeleeSpells(true);
+            DoCast(m_creature, SPELL_BERSERK);
+
+            //don't know if he's supposed to do summon/evocate after hard enrage (probably not)
+            Enraged = true;
+        }else BerserkTimer -= diff;
+
+        if (Evocating)
+        {
+            //not supposed to do anything while evocate
+            if (m_creature->HasAura(SPELL_EVOCATION))
+                return;
+            else
+                Evocating = false;
+        }            
+
+        if (!Enraged)
         {
             if (AddTimer < diff)
             {
@@ -117,28 +133,36 @@ struct TRINITY_DLL_DECL boss_curatorAI : public ScriptedAI
                     AstralFlare->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
                 }
 
-                //Reduce Mana by 10%
-                int32 mana = (int32)(0.1f*(m_creature->GetMaxPower(POWER_MANA)));
-                m_creature->ModifyPower(POWER_MANA, -mana);
-                switch(rand()%4)
+                //Reduce Mana by 10% of max health
+                if (int32 mana = m_creature->GetMaxPower(POWER_MANA))
                 {
-                    case 0: DoScriptText(SAY_SUMMON1, m_creature);break;
-                    case 1: DoScriptText(SAY_SUMMON2, m_creature);break;
+                    mana /= 10;
+                    m_creature->ModifyPower(POWER_MANA, -mana);
+
+                    //if this get's us below 10%, then we evocate (the 10th should be summoned now)
+                    if (m_creature->GetPower(POWER_MANA)*100 / m_creature->GetMaxPower(POWER_MANA) < 10)
+                    {
+                        DoScriptText(SAY_EVOCATE, m_creature);
+                        m_creature->InterruptNonMeleeSpells(false);
+                        DoCast(m_creature, SPELL_EVOCATION);
+                        Evocating = true;
+                        //no AddTimer cooldown, this will make first flare appear instantly after evocate end, like expected
+                        return;
+                    }
+                    else
+                    {
+                        switch(rand()%4)
+                        {
+                            case 0: DoScriptText(SAY_SUMMON1, m_creature); break;
+                            case 1: DoScriptText(SAY_SUMMON2, m_creature); break;
+                        }
+                    }
                 }
+
                 AddTimer = 10000;
             }else AddTimer -= diff;
 
-            if (HatefulBoltTimer < diff)
-            {
-                Unit* target = NULL;
-                target = SelectUnit(SELECT_TARGET_TOPAGGRO, 1);
-                DoCast(target, SPELL_HATEFUL_BOLT);
-
-                if (!Enraged) { HatefulBoltTimer = 15000; }
-                if (Enraged) { HatefulBoltTimer = 7000; }
-            }else HatefulBoltTimer -= diff;
-
-            if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 16)
+            if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 15)
             {
                 Enraged = true;
                 DoCast(m_creature, SPELL_ENRAGE);
@@ -146,11 +170,17 @@ struct TRINITY_DLL_DECL boss_curatorAI : public ScriptedAI
             }
         }
 
-        if (BerserkTimer < diff)
+        if (HatefulBoltTimer < diff)
         {
-            DoCast(m_creature, SPELL_BERSERK);
-            DoScriptText(SAY_ENRAGE, m_creature);
-        }else BerserkTimer -= diff;
+            if (Enraged)
+                HatefulBoltTimer = 7000;
+            else
+                HatefulBoltTimer = 15000;
+
+            if (Unit* target = SelectUnit(SELECT_TARGET_TOPAGGRO, 1))
+                DoCast(target, SPELL_HATEFUL_BOLT);
+
+        }else HatefulBoltTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -165,8 +195,7 @@ void AddSC_boss_curator()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_curator";
+    newscript->Name = "boss_curator";
     newscript->GetAI = &GetAI_boss_curator;
     newscript->RegisterSelf();
 }
-
