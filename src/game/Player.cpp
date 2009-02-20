@@ -16870,6 +16870,10 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
         case GUARDIAN_PET:
             m_guardianPets.erase(pet->GetGUID());
             break;
+        case POSSESSED_PET:
+            m_guardianPets.erase(pet->GetGUID());
+            pet->RemoveCharmedOrPossessedBy(NULL);
+            break;
         default:
             if(GetPetGUID() == pet->GetGUID())
                 SetPet(NULL);
@@ -16955,9 +16959,19 @@ void Player::Uncharm()
     if(!charm)
         return;
 
-    charm->RemoveSpellsCausingAura(SPELL_AURA_MOD_CHARM);
-    charm->RemoveSpellsCausingAura(SPELL_AURA_MOD_POSSESS_PET);
-    charm->RemoveSpellsCausingAura(SPELL_AURA_MOD_POSSESS);
+    if(charm->GetTypeId() == TYPEID_UNIT && ((Creature*)charm)->isPet()
+        && ((Pet*)charm)->getPetType() == POSSESSED_PET)
+    {
+        ((Pet*)charm)->Remove(PET_SAVE_AS_DELETED);
+    }
+    else
+    {
+        charm->RemoveSpellsCausingAura(SPELL_AURA_MOD_CHARM);
+        charm->RemoveSpellsCausingAura(SPELL_AURA_MOD_POSSESS_PET);
+        charm->RemoveSpellsCausingAura(SPELL_AURA_MOD_POSSESS);
+    }
+
+    assert(!GetCharmGUID());
 }
 
 void Player::BuildPlayerChat(WorldPacket *data, uint8 msgtype, const std::string& text, uint32 language) const
