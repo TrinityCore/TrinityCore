@@ -8133,8 +8133,10 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
             DoneTotal+=bonus->ap_bonus * GetTotalAttackPowerValue(BASE_ATTACK) * stack;
     }
     // Default calculation
-    else if (DoneAdvertisedBenefit || TakenAdvertisedBenefit)
+    if (DoneAdvertisedBenefit || TakenAdvertisedBenefit)
     {
+        if(!bonus)
+        {
         // Damage Done from spell damage bonus
         int32 CastingTime = !IsChanneledSpell(spellProto) ? GetSpellCastTime(spellProto) : GetSpellDuration(spellProto);
         if (IsChanneledSpell(spellProto))
@@ -8190,18 +8192,19 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
             coeff = (CastingTime / 3500.0f) * DotFactor;
         else
             coeff = DotFactor;
-    }
+        }
 
-    float coeff2 = CalculateLevelPenalty(spellProto) * stack;
-    if(spellProto->SpellFamilyName) //TODO: fix this
-        TakenTotal+= TakenAdvertisedBenefit * coeff * coeff2;
-    if(Player* modOwner = GetSpellModOwner())
-    {
-        coeff *= 100.0f;
-        modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_SPELL_BONUS_DAMAGE, coeff);
-        coeff /= 100.0f;
+        float coeff2 = CalculateLevelPenalty(spellProto) * stack;
+        if(spellProto->SpellFamilyName) //TODO: fix this
+            TakenTotal+= TakenAdvertisedBenefit * coeff * coeff2;
+        if(Player* modOwner = GetSpellModOwner())
+        {
+            coeff *= 100.0f;
+            modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_SPELL_BONUS_DAMAGE, coeff);
+            coeff /= 100.0f;
+        }
+        DoneTotal += DoneAdvertisedBenefit * coeff * coeff2;
     }
-    DoneTotal += DoneAdvertisedBenefit * coeff * coeff2;
 
     float tmpDamage = (pdamage + DoneTotal) * DoneTotalMod;
     // apply spellmod to Done damage (flat and pct)
@@ -8626,8 +8629,10 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
             DoneTotal+=bonus->ap_bonus * GetTotalAttackPowerValue(BASE_ATTACK) * stack;
     }
     // Default calculation
-    else if (DoneAdvertisedBenefit || TakenAdvertisedBenefit)
+    if (DoneAdvertisedBenefit || TakenAdvertisedBenefit)
     {
+        if(!bonus)
+        {
         // Damage Done from spell damage bonus
         int32 CastingTime = !IsChanneledSpell(spellProto) ? GetSpellCastTime(spellProto) : GetSpellDuration(spellProto);
         if (IsChanneledSpell(spellProto))
@@ -8679,17 +8684,18 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
             }
         }
         coeff = (CastingTime / 3500.0f) * DotFactor;
-    }
+        }
 
-    float coeff2 = CalculateLevelPenalty(spellProto) * 1.88f * stack;
-    TakenTotal+= TakenAdvertisedBenefit * coeff * coeff2;
-    if(Player* modOwner = GetSpellModOwner())
-    {
-        coeff *= 100.0f;
-        modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_SPELL_BONUS_DAMAGE, coeff);
-        coeff /= 100.0f;
+        float coeff2 = CalculateLevelPenalty(spellProto) * 1.88f * stack;
+        TakenTotal += TakenAdvertisedBenefit * coeff * coeff2;
+        if(Player* modOwner = GetSpellModOwner())
+        {
+            coeff *= 100.0f;
+            modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_SPELL_BONUS_DAMAGE, coeff);
+            coeff /= 100.0f;
+        }
+        DoneTotal += DoneAdvertisedBenefit * coeff * coeff2;
     }
-    DoneTotal += DoneAdvertisedBenefit * coeff * coeff2;
 
     // use float as more appropriate for negative values and percent applying
     float heal = (healamount + DoneTotal)*DoneTotalMod;
@@ -10459,13 +10465,17 @@ float Unit::GetTotalAttackPowerValue(WeaponAttackType attType) const
 {
     if (attType == RANGED_ATTACK)
     {
-        float ap = (1.0f + GetFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER)) * float(GetInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER) + GetInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER_MODS));
-        return ap < 0.0f ? 0.0f : ap ;
+        int32 ap = GetInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER) + GetInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER_MODS);
+        if (ap < 0)
+            return 0.0f;
+        return ap * (1.0f + GetFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER));
     }
     else
     {
-        float ap = (1.0f + GetFloatValue(UNIT_FIELD_ATTACK_POWER_MULTIPLIER)) * float(GetInt32Value(UNIT_FIELD_ATTACK_POWER) + GetInt32Value(UNIT_FIELD_ATTACK_POWER_MODS));
-        return ap < 0.0f ? 0.0f : ap ;
+        int32 ap = GetInt32Value(UNIT_FIELD_ATTACK_POWER) + GetInt32Value(UNIT_FIELD_ATTACK_POWER_MODS);
+        if (ap < 0)
+            return 0.0f;
+        return ap * (1.0f + GetFloatValue(UNIT_FIELD_ATTACK_POWER_MULTIPLIER));
     }
 }
 
