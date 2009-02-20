@@ -314,25 +314,26 @@ enum AuraType
     SPELL_AURA_MOD_IMMUNE_AURA_APPLY_SCHOOL = 267,
     SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT = 268,
     SPELL_AURA_MOD_IGNORE_TARGET_RESIST = 269,
-    SPELL_AURA_MOD_ABILITY_IGNORE_TARGET_RESIST = 270,                   // Possibly need swap vs 195 aura used only in 1 spell Chaos Bolt Passive
+    SPELL_AURA_MOD_ABILITY_IGNORE_TARGET_RESIST = 270,      // Possibly need swap vs 195 aura used only in 1 spell Chaos Bolt Passive
     SPELL_AURA_MOD_DAMAGE_FROM_CASTER = 271,
     SPELL_AURA_272 = 272,
     SPELL_AURA_273 = 273,
     SPELL_AURA_ABILITY_CONSUME_NO_AMMO = 274,
     SPELL_AURA_MOD_IGNORE_SHAPESHIFT = 275,
     SPELL_AURA_276 = 276,                    // Only "Test Mod Damage % Mechanic" spell, possible mod damage done
-    SPELL_AURA_MOD_ABILITY_AFFECTED_TARGETS = 277,
+    SPELL_AURA_MOD_MAX_AFFECTED_TARGETS = 277,
     SPELL_AURA_MOD_DISARM_RANGED = 278,
     SPELL_AURA_279 = 279,
     SPELL_AURA_MOD_WEAPONTYPE_IGNORE_TARGET_RESISTANCE = 280,
     SPELL_AURA_MOD_HONOR_GAIN_PCT = 281,
     SPELL_AURA_MOD_BASE_HEALTH_PCT = 282,
-    SPELL_AURA_MOD_HEALING_RECEIVED = 283,   // Possibly only for some spell family class spells
+    SPELL_AURA_MOD_HEALING_RECEIVED = 283,                  // Possibly only for some spell family class spells
     SPELL_AURA_284,
     SPELL_AURA_285,
     SPELL_AURA_286,
     SPELL_AURA_DEFLECT_SPELLS,
-    TOTAL_AURAS = 288
+    SPELL_AURA_288,
+    TOTAL_AURAS = 289
 };
 
 enum AreaAuraType
