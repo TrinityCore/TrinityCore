@@ -40,7 +40,7 @@ class ChannelMgr
         }
         Channel *GetJoinChannel(const std::string& name, uint32 channel_id)
         {
-            if(channels.count(name) == 0)
+            if (channels.find(name) == channels.end())
             {
                 Channel *nchan = new Channel(name,channel_id);
                 channels[name] = nchan;
