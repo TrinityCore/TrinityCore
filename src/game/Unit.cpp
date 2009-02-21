@@ -11978,9 +11978,6 @@ bool Unit::HandleAuraRaidProcFromChargeWithValue( Aura* triggeredByAura )
     // current aura expire
     triggeredByAura->SetAuraCharges(1);             // will removed at next charges decrease
 
-    //Get max possible jumps for aura to get proper charges amount for target
-    int32 maxJumps = spellProto->procCharges;
-
     // next target selection
     if(jumps > 0 && IS_PLAYER_GUID(caster_guid))
     {
@@ -11989,6 +11986,9 @@ bool Unit::HandleAuraRaidProcFromChargeWithValue( Aura* triggeredByAura )
             radius = GetSpellRadiusForTarget(triggeredByAura->GetCaster(), sSpellRadiusStore.LookupEntry(spellProto->EffectRadiusIndex[effIdx]));
         else
             radius = GetSpellMaxRangeForTarget(triggeredByAura->GetCaster() ,sSpellRangeStore.LookupEntry(spellProto->rangeIndex));
+
+        //Get max possible jumps for aura to get proper charges amount for target
+        int32 maxJumps = spellProto->procCharges;
 
         if(Player* caster = ((Player*)triggeredByAura->GetCaster()))
         {
@@ -12001,8 +12001,8 @@ bool Unit::HandleAuraRaidProcFromChargeWithValue( Aura* triggeredByAura )
                 player = (Player*)this;
             else if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->isPet())
                 player=(Player*)GetOwner();
-
-            if (Player* target = player->GetNextRandomRaidMember(radius))
+            Player* target= player ? player->GetNextRandomRaidMember(radius): NULL;
+            if (target)
             {
                 // aura will applied from caster, but spell casted from current aura holder
                 SpellModifier *mod = new SpellModifier;
@@ -12058,9 +12058,6 @@ bool Unit::HandleAuraRaidProcFromCharge( Aura* triggeredByAura )
     // current aura expire
     triggeredByAura->SetAuraCharges(1);             // will removed at next charges decrease
 
-    //Get max possible jumps for aura to get proper charges amount for target
-    int32 maxJumps = spellProto->procCharges;
-
     // next target selection
     if(jumps > 0 && IS_PLAYER_GUID(caster_guid))
     {
@@ -12069,6 +12066,9 @@ bool Unit::HandleAuraRaidProcFromCharge( Aura* triggeredByAura )
             radius = GetSpellRadiusForTarget(triggeredByAura->GetCaster(), sSpellRadiusStore.LookupEntry(spellProto->EffectRadiusIndex[effIdx]));
         else
             radius = GetSpellMaxRangeForTarget(triggeredByAura->GetCaster() ,sSpellRangeStore.LookupEntry(spellProto->rangeIndex));
+
+        //Get max possible jumps for aura to get proper charges amount for target
+        int32 maxJumps = spellProto->procCharges;
 
         if(Player* caster = ((Player*)triggeredByAura->GetCaster()))
         {
@@ -12081,8 +12081,8 @@ bool Unit::HandleAuraRaidProcFromCharge( Aura* triggeredByAura )
                 player = (Player*)this;
             else if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->isPet())
                 player=(Player*)GetOwner();
-
-            if (Player* target = player->GetNextRandomRaidMember(radius))
+            Player* target= player ? player->GetNextRandomRaidMember(radius): NULL;
+            if (target)
             {
                 // aura will applied from caster, but spell casted from current aura holder
                 SpellModifier *mod = new SpellModifier;
