@@ -663,7 +663,7 @@ void WorldSession::HandleGuildRankOpcode(WorldPacket& recvPacket)
     guild->SetRankName(rankId, rankname);
 
     if(rankId==GR_GUILDMASTER)                              // prevent loss leader rights
-        rights |= GR_RIGHT_ALL;
+        rights = GR_RIGHT_ALL;
 
     guild->SetRankRights(rankId, rights);
 
