@@ -383,6 +383,10 @@ add_library(trinityscript SHARED ${trinityscript_LIB_SRCS})
 
 add_definitions(-D_TRINITY_SCRIPT_CONFIG='"${CONF_DIR}/trinitycore.conf"')
 
+IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+    SET_TARGET_PROPERTIES(trinityscript PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress")
+ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+
 target_link_libraries(trinityscript)
 
 set_target_properties(trinityscript PROPERTIES VERSION 4.2.0 SOVERSION 4)
