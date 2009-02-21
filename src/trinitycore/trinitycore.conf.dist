@@ -127,6 +127,10 @@ EAIErrorLevel = 2
 #        Player save interval (in milliseconds)
 #        Default: 900000 (15 min)
 #
+#    DisconnectToleranceInterval
+#        Tolerance for disconnected players before putting in the queue. (in seconds)
+#        Default: 0 (disabled)
+#
 #    vmap.enableLOS
 #    vmap.enableHeight
 #        Enable/Disable VMmap support for line of sight and height calculation
@@ -184,6 +188,7 @@ GridCleanUpDelay = 300000
 MapUpdateInterval = 100
 ChangeWeatherInterval = 600000
 PlayerSaveInterval = 900000
+DisconnectToleranceInterval = 0
 vmap.enableLOS = 0
 vmap.enableHeight = 0
 vmap.ignoreMapIds = "369"

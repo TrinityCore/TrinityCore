@@ -244,7 +244,7 @@ World::AddSession_ (WorldSession* s)
     if(decrease_session)
         --Sessions;
 
-    if (pLimit > 0 && Sessions >= pLimit && s->GetSecurity () == SEC_PLAYER )
+    if (pLimit > 0 && Sessions >= pLimit && s->GetSecurity () == SEC_PLAYER && !HasRecentlyDisconnected(s) )
     {
         AddQueuedPlayer (s);
         UpdateMaxSessionCounters ();
@@ -272,6 +272,26 @@ World::AddSession_ (WorldSession* s)
         sLog.outDetail ("Server Population (%f).", popu);
     }
 }
+
+bool World::HasRecentlyDisconnected(WorldSession* session)
+{
+    if(!session) return false;
+
+    if(uint32 tolerance = getConfig(CONFIG_INTERVAL_DISCONNECT_TOLERANCE))
+    {        
+        for(DisconnectMap::iterator i = m_disconnects.begin(); i != m_disconnects.end(); ++i)
+        {
+            if(difftime(i->second, time(NULL)) < tolerance)
+            {
+                if(i->first == session->GetAccountId())
+                    return true;
+            }
+            else
+                m_disconnects.erase(i);
+        }
+    }
+    return false;
+ }
 
 int32 World::GetQueuePos(WorldSession* sess)
 {
@@ -536,6 +556,7 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_ADDON_CHANNEL] = sConfig.GetBoolDefault("AddonChannel", true);
     m_configs[CONFIG_GRID_UNLOAD] = sConfig.GetBoolDefault("GridUnload", true);
     m_configs[CONFIG_INTERVAL_SAVE] = sConfig.GetIntDefault("PlayerSaveInterval", 900000);
+    m_configs[CONFIG_INTERVAL_DISCONNECT_TOLERANCE] = sConfig.GetIntDefault("DisconnectToleranceInterval", 0);
 
     m_configs[CONFIG_INTERVAL_GRIDCLEAN] = sConfig.GetIntDefault("GridCleanUpDelay", 300000);
     if(m_configs[CONFIG_INTERVAL_GRIDCLEAN] < MIN_GRID_DELAY)
@@ -2871,7 +2892,8 @@ void World::UpdateSessions( time_t diff )
         ///- and remove not active sessions from the list
         if(!itr->second->Update(diff))                      // As interval = 0
         {
-            RemoveQueuedPlayer (itr->second);
+            if(!RemoveQueuedPlayer(itr->second) && itr->second && getConfig(CONFIG_INTERVAL_DISCONNECT_TOLERANCE))
+                m_disconnects[itr->second->GetAccountId()] = time(NULL);
             delete itr->second;
             m_sessions.erase(itr);
         }
