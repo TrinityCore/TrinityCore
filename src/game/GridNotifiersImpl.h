@@ -539,5 +539,30 @@ void Trinity::PlayerSearcher<Check>::Visit(PlayerMapType &m)
     }
 }
 
+template<class Builder>
+void MaNGOS::LocalizedPacketDo<Builder>::operator()( Player* p )
+{
+    uint32 loc_idx = p->GetSession()->GetSessionDbLocaleIndex();
+    uint32 cache_idx = loc_idx+1;
+    WorldPacket* data;
+
+    // create if not cached yet
+    if(i_data_cache.size() < cache_idx+1 || !i_data_cache[cache_idx])
+    {
+        if(i_data_cache.size() < cache_idx+1)
+            i_data_cache.resize(cache_idx+1);
+
+        data = new WorldPacket(SMSG_MESSAGECHAT, 200);
+
+        i_builder(*data,loc_idx);
+
+        i_data_cache[cache_idx] = data;
+    }
+    else
+        data = i_data_cache[cache_idx];
+
+    p->SendDirectMessage(data);
+}
+
 #endif                                                      // TRINITY_GRIDNOTIFIERSIMPL_H
 
