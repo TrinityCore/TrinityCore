@@ -60,8 +60,13 @@
 #  else
 #    define TRINITY_IMPORT __attribute__ ((cdecl))
 #  endif //__APPLE_CC__ && BIG_ENDIAN
-#  define TRINITY_SCRIPT_EXT ".so"
-#  define TRINITY_SCRIPT_NAME "libtrinityscript"
+#  if defined(__APPLE_CC__)
+#    define TRINITY_SCRIPT_EXT ".dylib"
+#    define TRINITY_SCRIPT_NAME "../lib/libtrinityscript"
+#  else
+#    define TRINITY_SCRIPT_EXT ".so"
+#    define TRINITY_SCRIPT_NAME "libtrinityscript"
+#  endif //__APPLE_CC__
 #  define TRINITY_PATH_MAX PATH_MAX
 #endif //PLATFORM
 
