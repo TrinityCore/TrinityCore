@@ -765,6 +765,32 @@ LOCK TABLES `game_event_save` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `gm_tickets`
+--
+
+DROP TABLE IF EXISTS `gm_tickets`;
+CREATE TABLE `gm_tickets` (
+  `guid` int(10) NOT NULL auto_increment,
+  `playerGuid` int(11) unsigned NOT NULL default '0',
+  `name` varchar(15) NOT NULL,
+  `message` text NOT NULL,
+  `timestamp` int(10) NOT NULL default '0',
+  `closed` tinyint(1) NOT NULL default '0',
+  `assignedto` int(10) NOT NULL default '0',
+  `comment` text NOT NULL,
+  PRIMARY KEY  (`guid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Player System';
+
+--
+-- Dumping data for table `gm_tickets`
+--
+
+LOCK TABLES `gm_tickets` WRITE;
+/*!40000 ALTER TABLE `gm_tickets` DISABLE KEYS */;
+/*!40000 ALTER TABLE `gm_tickets` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `group_instance`
 --
 
