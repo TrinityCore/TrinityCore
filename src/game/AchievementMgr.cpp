@@ -28,6 +28,9 @@
 #include "World.h"
 #include "SpellMgr.h"
 #include "ProgressBar.h"
+#include "GridNotifiersImpl.h"
+#include "CellImpl.h"
+#include "Language.h"
 
 #include "Policies/SingletonImp.h"
 
@@ -82,6 +85,37 @@ const CriteriaCastSpellRequirement AchievementGlobalMgr::m_criteriaCastSpellRequ
         {6321, 0, CLASS_HUNTER, RACE_DWARF},
         {6662, 31261, 0, 0}
     };
+
+
+namespace MaNGOS
+{
+    class AchievementChatBuilder
+    {
+        public:
+            AchievementChatBuilder(Player const& pl, ChatMsg msgtype, int32 textId, uint32 ach_id)
+                : i_player(pl), i_msgtype(msgtype), i_textId(textId), i_achievementId(ach_id) {}
+            void operator()(WorldPacket& data, int32 loc_idx)
+            {
+                char const* text = objmgr.GetMangosString(i_textId,loc_idx);
+
+                data << uint8(i_msgtype);
+                data << uint32(LANG_UNIVERSAL);
+                data << uint64(i_player.GetGUID());
+                data << uint32(5);
+                data << uint64(i_player.GetGUID());
+                data << uint32(strlen(text)+1);
+                data << text;
+                data << uint8(0);
+                data << uint32(i_achievementId);
+            }
+
+        private:
+            Player const& i_player;
+            ChatMsg i_msgtype;
+            int32 i_textId;
+            uint32 i_achievementId;
+    };
+}                                                           // namespace MaNGOS
 
 AchievementMgr::AchievementMgr(Player *player)
 {
@@ -276,20 +310,11 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement)
 {
     sLog.outDebug("AchievementMgr::SendAchievementEarned(%u)", achievement->ID);
 
-    const char *msg = "|Hplayer:$N|h[$N]|h has earned the achievement $a!";
     if(Guild* guild = objmgr.GetGuildById(GetPlayer()->GetGuildId()))
     {
-        WorldPacket data(SMSG_MESSAGECHAT, 200);
-        data << uint8(CHAT_MSG_GUILD_ACHIEVEMENT);
-        data << uint32(LANG_UNIVERSAL);
-        data << uint64(GetPlayer()->GetGUID());
-        data << uint32(5);
-        data << uint64(GetPlayer()->GetGUID());
-        data << uint32(strlen(msg)+1);
-        data << msg;
-        data << uint8(0);
-        data << uint32(achievement->ID);
-        guild->BroadcastPacket(&data);
+        MaNGOS::AchievementChatBuilder say_builder(*GetPlayer(), CHAT_MSG_GUILD_ACHIEVEMENT, LANG_ACHIEVEMENT_EARNED,achievement->ID);
+        MaNGOS::LocalizedPacketDo<MaNGOS::AchievementChatBuilder> say_do(say_builder);
+        guild->BroadcastWorker(say_do,GetPlayer());
     }
     if(achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_KILL|ACHIEVEMENT_FLAG_REALM_FIRST_REACH))
     {
@@ -298,23 +323,23 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement)
         data << GetPlayer()->GetName();
         data << uint64(GetPlayer()->GetGUID());
         data << uint32(achievement->ID);
-        data << uint32(0);  // 1=link supplied string as player name, 0=display plain string
+        data << uint32(0);                                  // 1=link supplied string as player name, 0=display plain string
         sWorld.SendGlobalMessage(&data);
     }
     else
     {
-        WorldPacket data(SMSG_MESSAGECHAT, 200);
-        data << uint8(CHAT_MSG_ACHIEVEMENT);
-        data << uint32(LANG_UNIVERSAL);
-        data << uint64(GetPlayer()->GetGUID());
-        data << uint32(5);
-        data << uint64(GetPlayer()->GetGUID());
-        data << uint32(strlen(msg)+1);
-        data << msg;
-        data << uint8(0);
-        data << uint32(achievement->ID);
-        GetPlayer()->SendMessageToSet(&data, true);
+        CellPair p = MaNGOS::ComputeCellPair(GetPlayer()->GetPositionX(), GetPlayer()->GetPositionY());
 
+        Cell cell(p);
+        cell.data.Part.reserved = ALL_DISTRICT;
+        cell.SetNoCreate();
+
+        MaNGOS::AchievementChatBuilder say_builder(*GetPlayer(), CHAT_MSG_GUILD_ACHIEVEMENT, LANG_ACHIEVEMENT_EARNED,achievement->ID);
+        MaNGOS::LocalizedPacketDo<MaNGOS::AchievementChatBuilder> say_do(say_builder);
+        MaNGOS::PlayerDistWorker<MaNGOS::LocalizedPacketDo<MaNGOS::AchievementChatBuilder> > say_worker(GetPlayer(),sWorld.getConfig(CONFIG_LISTEN_RANGE_SAY),say_do);
+        TypeContainerVisitor<MaNGOS::PlayerDistWorker<MaNGOS::LocalizedPacketDo<MaNGOS::AchievementChatBuilder> >, WorldTypeMapContainer > message(say_worker);
+        CellLock<GridReadGuard> cell_lock(cell, p);
+        cell_lock->Visit(cell_lock, message, *GetPlayer()->GetMap());
     }
     WorldPacket data(SMSG_ACHIEVEMENT_EARNED, 8+4+8);
     data.append(GetPlayer()->GetPackGUID());

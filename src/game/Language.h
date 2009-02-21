@@ -695,7 +695,8 @@ enum TrinityStrings
     LANG_NEED_CHARACTER_NAME            = 807,
     LANG_PLAYER_NOT_EXIST_OR_OFFLINE    = 808,
     LANG_ACCOUNT_FOR_PLAYER_NOT_FOUND   = 809,
-    // Room for in-game strings           810-999 not used
+    LANG_ACHIEVEMENT_EARNED             = 810,
+    // Room for in-game strings           811-999 not used
 
     // Level 4 (CLI only commands)
     LANG_COMMAND_EXIT                   = 1000,
