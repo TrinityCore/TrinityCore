@@ -212,6 +212,8 @@ class TRINITY_DLL_SPEC Aura
         void HandleNoReagentUseAura(bool Apply, bool Real);
         void HandlePhase(bool Apply, bool Real);
 
+        void HandleAuraStateFrozen(bool apply);
+
         virtual ~Aura();
 
         void SetModifier(AuraType t, int32 a, uint32 pt, int32 miscValue);

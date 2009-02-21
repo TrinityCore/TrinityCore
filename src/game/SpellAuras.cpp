@@ -3248,14 +3248,6 @@ void Aura::HandleAuraModDisarm(bool apply, bool Real)
         m_target->UpdateDamagePhysical(attType);
 }
 
-void Aura::HandleAuraModStun(bool apply, bool Real)
-{
-    if(!Real)
-        return;
-
-    m_target->SetControlled(apply, UNIT_STAT_STUNNED);
-}
-
 void Aura::HandleModStealth(bool apply, bool Real)
 {
     if(apply)
@@ -3408,19 +3400,6 @@ void Aura::HandleInvisibilityDetect(bool apply, bool Real)
     if(Real && m_target->GetTypeId()==TYPEID_PLAYER)
         //ObjectAccessor::UpdateVisibilityForPlayer((Player*)m_target);
         m_target->SetToNotify();
-}
-
-void Aura::HandleAuraModRoot(bool apply, bool Real)
-{
-    // only at real add/remove aura
-    if(!Real)
-        return;
-
-    // Frost root aura -> freeze/unfreeze target
-    if (GetSpellSchoolMask(m_spellProto) & SPELL_SCHOOL_MASK_FROST)
-        m_target->ModifyAuraState(AURA_STATE_FROZEN, apply);
-
-    m_target->SetControlled(apply, UNIT_STAT_ROOT);
 }
 
 void Aura::HandleAuraModSilence(bool apply, bool Real)
@@ -6453,6 +6432,61 @@ void Aura::HandleAuraConvertRune(bool apply, bool Real)
         }
     }
 }
+
+// Control Auras
+
+void Aura::HandleAuraModStun(bool apply, bool Real)
+{
+    if(!Real)
+        return;
+
+    m_target->SetControlled(apply, UNIT_STAT_STUNNED);
+    if(GetSpellSchoolMask(m_spellProto) & SPELL_SCHOOL_MASK_FROST)
+        HandleAuraStateFrozen(apply);
+}
+
+void Aura::HandleAuraModRoot(bool apply, bool Real)
+{
+    if(!Real)
+        return;
+
+    m_target->SetControlled(apply, UNIT_STAT_ROOT);
+    if(GetSpellSchoolMask(m_spellProto) & SPELL_SCHOOL_MASK_FROST)
+        HandleAuraStateFrozen(apply);
+}
+
+static AuraType const frozenAuraTypes[] = { SPELL_AURA_MOD_ROOT, SPELL_AURA_MOD_STUN, SPELL_AURA_NONE };
+
+void Aura::HandleAuraStateFrozen(bool apply)
+{
+    if(apply)
+    {
+        m_target->ModifyAuraState(AURA_STATE_FROZEN, true);
+    }
+    else
+    {
+        bool found_another = false;
+        for(AuraType const* itr = &frozenAuraTypes[0]; *itr != SPELL_AURA_NONE; ++itr)
+        {
+            Unit::AuraList const& auras = m_target->GetAurasByType(*itr);
+            for(Unit::AuraList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+            {
+                if( GetSpellSchoolMask((*i)->GetSpellProto()) & SPELL_SCHOOL_MASK_FROST)
+                {
+                    found_another = true;
+                    break;
+                }
+            }
+            if(found_another)
+                break;
+        }
+
+        if(!found_another)
+            m_target->ModifyAuraState(AURA_STATE_FROZEN, false);
+    }
+}
+
+// Charm Auras
 
 void Aura::HandleModPossess(bool apply, bool Real)
 {
