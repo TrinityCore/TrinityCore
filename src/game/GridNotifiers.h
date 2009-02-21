@@ -1032,7 +1032,7 @@ namespace Trinity
         public:
             explicit LocalizedPacketDo(Builder& builder) : i_builder(builder) {}
 
-            LocalizedPacketDo::~LocalizedPacketDo()
+            ~LocalizedPacketDo()
             {
                 for(int i = 0; i < i_data_cache.size(); ++i)
                     delete i_data_cache[i];
