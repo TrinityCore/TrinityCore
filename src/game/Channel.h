@@ -204,11 +204,8 @@ class Channel
         void SendToAllButOne(WorldPacket *data, uint64 who);
         void SendToOne(WorldPacket *data, uint64 who);
 
-        bool IsOn(uint64 who) const { return players.count(who) != 0; }
-
-        bool IsBanned(const uint64 guid) const {return banned.count(guid) != 0; }
-
-        bool IsFirst() const { return !(players.size() > 1); }
+        bool IsOn(uint64 who) const { return players.find(who) != players.end(); }
+        bool IsBanned(uint64 guid) const { return banned.find(guid) != banned.end(); }
 
         uint8 GetPlayerFlags(uint64 p) const
         {

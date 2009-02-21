@@ -432,8 +432,16 @@ class ObjectMgr
                 return itr->second;
             return 0;
         }
-        bool IsTavernAreaTrigger(uint32 Trigger_ID) const { return mTavernAreaTriggerSet.count(Trigger_ID) != 0; }
-        bool IsGameObjectForQuests(uint32 entry) const { return mGameObjectForQuestSet.count(entry) != 0; }
+        bool IsTavernAreaTrigger(uint32 Trigger_ID) const
+        {
+            return mTavernAreaTriggerSet.find(Trigger_ID) != mTavernAreaTriggerSet.end();
+        }
+
+        bool IsGameObjectForQuests(uint32 entry) const
+        {
+            return mGameObjectForQuestSet.find(entry) != mGameObjectForQuestSet.end();
+        }
+
         bool IsGuildVaultGameObject(Player *player, uint64 guid) const
         {
             if(GameObject *go = ObjectAccessor::GetGameObject(*player, guid))
