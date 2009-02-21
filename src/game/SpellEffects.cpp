@@ -4525,7 +4525,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                 }
 
                 if(found)
-                    totalDamagePercentMod *= 1.5f;          // 150% if poisoned
+                    totalDamagePercentMod *= 1.2f;          // 120% if poisoned
             }
             break;
         }
