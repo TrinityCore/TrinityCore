@@ -24,12 +24,14 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_mechanar.h"
 
+#define ENCOUNTERS      1
+
 struct TRINITY_DLL_DECL instance_mechanar : public ScriptedInstance
 {
     instance_mechanar(Map *map) : ScriptedInstance(map) {Initialize();};
 
 
-    bool IsBossDied[1];
+    uint32 Encounters[ENCOUNTERS];
 
     void OnCreatureCreate (Creature *creature, uint32 creature_entry)
     {
@@ -37,12 +39,15 @@ struct TRINITY_DLL_DECL instance_mechanar : public ScriptedInstance
 
     void Initialize()
     {
-        IsBossDied[0] = false;
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
+            Encounters[i] = NOT_STARTED;
     }
 
     bool IsEncounterInProgress() const
     {
-        //not active
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
+            if(Encounters[i]) return true;
+
         return false;
     }
 
@@ -50,13 +55,10 @@ struct TRINITY_DLL_DECL instance_mechanar : public ScriptedInstance
     {
         switch(type)
         {
-            case DATA_SEPETHREAISDEAD:
-                if(IsBossDied[0])
-                    return 1;
-                break;
+        case DATA_NETHERMANCER_EVENT:   return Encounters[0];         
         }
 
-        return 0;
+        return false;
     }
 
     uint64 GetData64 (uint32 identifier)
@@ -68,9 +70,7 @@ struct TRINITY_DLL_DECL instance_mechanar : public ScriptedInstance
     {
         switch(type)
         {
-            case DATA_SEPETHREA_DEATH:
-                IsBossDied[0] = true;
-                break;
+        case DATA_NETHERMANCER_EVENT:   Encounters[0] = data;   break;
         }
     }
 };
