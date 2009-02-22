@@ -1172,6 +1172,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         void SetPet(Pet* pet);
         void SetCharm(Unit* pet);
+        Unit* GetNextRandomRaidMemberOrPet(float radius);
         void SetCharmedOrPossessedBy(Unit* charmer, bool possess);
         void RemoveCharmedOrPossessedBy(Unit* charmer);
         void RestoreFaction();
