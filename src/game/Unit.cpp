@@ -4241,7 +4241,8 @@ bool Unit::AddAura(Aura *Aur)
             m_interruptableAuras.push_back(Aur);
             AddInterruptMask(Aur->GetSpellProto()->AuraInterruptFlags);
         }
-        if(Aur->GetSpellProto()->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE)
+        if((Aur->GetSpellProto()->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE)
+            && (Aur->GetModifier()->m_auraname != SPELL_AURA_MOD_POSSESS)) //only dummy aura is breakable
         {
             m_ccAuras.push_back(Aur);
         }
@@ -4659,8 +4660,11 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
             UpdateInterruptMask();
         }
 
-        if(Aur->GetSpellProto()->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE)
+        if((Aur->GetSpellProto()->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE)
+            && (Aur->GetModifier()->m_auraname != SPELL_AURA_MOD_POSSESS)) //only dummy aura is breakable
+        {
             m_ccAuras.remove(Aur);
+        }
     }
 
     // Set remove mode
