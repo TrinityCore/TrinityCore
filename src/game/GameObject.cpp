@@ -1231,7 +1231,10 @@ void GameObject::Use(Unit* user)
             if (level < info->meetingstone.minLevel || level > info->meetingstone.maxLevel)
                 return;
 
-            spellId = 23598;
+            if(info->id==194097)
+                spellId = 61994;                            // Ritual of Summoning
+            else
+                spellId = 59782;                            // Summoning Stone Effect
 
             break;
         }
