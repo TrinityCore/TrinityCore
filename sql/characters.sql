@@ -16,26 +16,6 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `character_db_version`
---
-
-DROP TABLE IF EXISTS `character_db_version`;
-CREATE TABLE `character_db_version` (
-  `required_7314_01_characters_guild_rank` bit(1) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Last applied sql update to DB';
-
---
--- Dumping data for table `character_db_version`
---
-
-LOCK TABLES `character_db_version` WRITE;
-/*!40000 ALTER TABLE `character_db_version` DISABLE KEYS */;
-INSERT INTO `character_db_version` VALUES
-(NULL);
-/*!40000 ALTER TABLE `character_db_version` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `account_data`
 --
 
@@ -730,28 +710,6 @@ LOCK TABLES `character_spell_cooldown` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `character_ticket`
---
-
-DROP TABLE IF EXISTS `character_ticket`;
-CREATE TABLE `character_ticket` (
-  `ticket_id` int(11) unsigned NOT NULL auto_increment,
-  `guid` int(11) unsigned NOT NULL default '0',
-  `ticket_text` text,
-  `ticket_lastchange` TIMESTAMP ON  UPDATE  CURRENT_TIMESTAMP  NOT  NULL  DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`ticket_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Player System';
-
---
--- Dumping data for table `character_ticket`
---
-
-LOCK TABLES `character_ticket` WRITE;
-/*!40000 ALTER TABLE `character_ticket` DISABLE KEYS */;
-/*!40000 ALTER TABLE `character_ticket` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `character_tutorial`
 --
 
@@ -814,6 +772,74 @@ LOCK TABLES `corpse` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `game_event_condition_save`
+--
+
+DROP TABLE IF EXISTS `game_event_condition_save`;
+CREATE TABLE `game_event_condition_save` (
+  `event_id` mediumint(8) unsigned NOT NULL,
+  `condition_id` mediumint(8) unsigned NOT NULL default '0',
+  `done` float default '0',
+  PRIMARY KEY  (`event_id`,`condition_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `game_event_condition_save`
+--
+
+LOCK TABLES `game_event_condition_save` WRITE;
+/*!40000 ALTER TABLE `game_event_condition_save` DISABLE KEYS */;
+/*!40000 ALTER TABLE `game_event_condition_save` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `game_event_save`
+--
+
+DROP TABLE IF EXISTS `game_event_save`;
+CREATE TABLE `game_event_save` (
+  `event_id` mediumint(8) unsigned NOT NULL,
+  `state` tinyint(3) unsigned NOT NULL default '1',
+  `next_start` timestamp NOT NULL default '0000-00-00 00:00:00',
+  PRIMARY KEY  (`event_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `game_event_save`
+--
+
+LOCK TABLES `game_event_save` WRITE;
+/*!40000 ALTER TABLE `game_event_save` DISABLE KEYS */;
+/*!40000 ALTER TABLE `game_event_save` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `gm_tickets`
+--
+
+DROP TABLE IF EXISTS `gm_tickets`;
+CREATE TABLE `gm_tickets` (
+  `guid` int(10) NOT NULL auto_increment,
+  `playerGuid` int(11) unsigned NOT NULL default '0',
+  `name` varchar(15) NOT NULL,
+  `message` text NOT NULL,
+  `timestamp` int(10) NOT NULL default '0',
+  `closed` int(10) NOT NULL default '0',
+  `assignedto` int(10) NOT NULL default '0',
+  `comment` text NOT NULL,
+  PRIMARY KEY  (`guid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Player System';
+
+--
+-- Dumping data for table `gm_tickets`
+--
+
+LOCK TABLES `gm_tickets` WRITE;
+/*!40000 ALTER TABLE `gm_tickets` DISABLE KEYS */;
+/*!40000 ALTER TABLE `gm_tickets` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `groups`
 --
 
@@ -847,9 +873,10 @@ LOCK TABLES `groups` WRITE;
 /*!40000 ALTER TABLE `groups` ENABLE KEYS */;
 UNLOCK TABLES;
 
--- ----------------------------
--- Table structure for group_instance
--- ----------------------------
+--
+-- Table structure for table `group_instance`
+--
+
 DROP TABLE IF EXISTS `group_instance`;
 CREATE TABLE `group_instance` (
   `leaderGuid` int(11) unsigned NOT NULL default '0',
@@ -1131,9 +1158,10 @@ LOCK TABLES `instance` WRITE;
 /*!40000 ALTER TABLE `instance` ENABLE KEYS */;
 UNLOCK TABLES;
 
--- ----------------------------
--- Table structure for instance_reset
--- ----------------------------
+--
+-- Table structure for table `instance_reset`
+--
+
 DROP TABLE IF EXISTS `instance_reset`;
 CREATE TABLE `instance_reset` (
   `mapid` int(11) unsigned NOT NULL default '0',
@@ -1383,66 +1411,6 @@ LOCK TABLES `saved_variables` WRITE;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
---
--- Table structure for table `game_event_condition_save`
---
-
-DROP TABLE IF EXISTS `game_event_condition_save`;
-CREATE TABLE `game_event_condition_save` (
-  `event_id` mediumint(8) unsigned NOT NULL,
-  `condition_id` mediumint(8) unsigned NOT NULL default '0',
-  `done` float default '0',
-  PRIMARY KEY  (`event_id`,`condition_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `game_event_condition_save`
---
-
-LOCK TABLES `game_event_condition_save` WRITE;
-/*!40000 ALTER TABLE `game_event_condition_save` DISABLE KEYS */;
-/*!40000 ALTER TABLE `game_event_condition_save` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `game_event_save`
---
-
-DROP TABLE IF EXISTS `game_event_save`;
-CREATE TABLE `game_event_save` (
-  `event_id` mediumint(8) unsigned NOT NULL,
-  `state` tinyint(3) unsigned NOT NULL default '1',
-  `next_start` timestamp NOT NULL default '0000-00-00 00:00:00',
-  PRIMARY KEY  (`event_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `game_event_save`
---
-
-LOCK TABLES `game_event_save` WRITE;
-/*!40000 ALTER TABLE `game_event_save` DISABLE KEYS */;
-/*!40000 ALTER TABLE `game_event_save` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `has_logged_in_before`
---
-
-DROP TABLE IF EXISTS `has_logged_in_before`;
-CREATE TABLE `has_logged_in_before` (
-  `guid` int(11) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='ImpConfig check';
-
---
--- Dumping data for table `has_logged_in_before`
---
-
-LOCK TABLES `has_logged_in_before` WRITE;
-/*!40000 ALTER TABLE `has_logged_in_before` DISABLE KEYS */;
-/*!40000 ALTER TABLE `has_logged_in_before` ENABLE KEYS */;
-UNLOCK TABLES;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
@@ -1454,3 +1422,4 @@ UNLOCK TABLES;
 
 -- Dump completed on 2008-01-10 11:37:06
 
+-- Updated on 2003-02-22 01:44:45
