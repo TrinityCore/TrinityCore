@@ -718,6 +718,12 @@ struct TRINITY_DLL_DECL npc_overlord_morghorAI : public ScriptedAI
 
         Unit* Illi = Unit::GetUnit((*m_creature), IllidanGUID);
 
+        if(!plr || !Illi)
+        {
+            EnterEvadeMode();
+            return;
+        }
+
         switch(Step)
         {
         case 0: return 0; break;

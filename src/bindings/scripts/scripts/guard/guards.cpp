@@ -3286,7 +3286,7 @@ void SendClassTrainerMenu_guard_stormwind(Player *player, Creature *_Creature, u
             player->SEND_GOSSIP_MENU(900,_Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF + 3:                    //Warrior
-            player->SEND_POI(-8624.54, 402.61, 7, 6, 0, "Pig and Whistle Tavern");
+            player->SEND_POI(-8690.11, 324.85, 7, 6, 0, "Command Center");
             player->SEND_GOSSIP_MENU(901,_Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF + 4:                    //Druid
