@@ -10252,8 +10252,7 @@ uint8 Player::CanEquipItem( uint8 slot, uint16 &dest, Item *pItem, bool swap, bo
                     {
                         if( ItemPrototype const* pBagProto = pBag->GetProto() )
                         {
-                            if( pBagProto->Class==pProto->Class && pBagProto->SubClass==pProto->SubClass &&
-                                (!swap || pBag->GetSlot() != eslot ) )
+                            if( pBagProto->Class==pProto->Class && (!swap || pBag->GetSlot() != eslot ) )
                             {
                                 if(pBagProto->SubClass == ITEM_SUBCLASS_AMMO_POUCH)
                                     return EQUIP_ERR_CAN_EQUIP_ONLY1_AMMOPOUCH;
