@@ -18,18 +18,20 @@
 
 /* ScriptData
 SDName: Boss_Prince_Keleseth
-SD%Complete: 80
-SDComment: Normal and Heroic Support. Needs Prince Movements, Needs skeletons resurrection, Needs adjustments to blizzlike timers, Needs adjustments to use spell though. Needs Shadowbolt castbar
+SD%Complete: 90
+SDComment:  Needs Prince Movements, Needs adjustments to blizzlike timers, Needs Shadowbolt castbar, Needs right Ressurect Visual, Needs Some Heroic Spells
 SDCategory: Utgarde Keep
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_keep.h"
+#include "def_utgarde_keep.h"
 
 #define SPELL_SHADOWBOLT                         43667
 #define SPELL_SHADOWBOLT_HEROIC                  59389
 #define SPELL_FROST_TOMB                         48400
 #define SPELL_FROST_TOMB_SUMMON                  42714
+#define SPELL_DECREPIFY                          42702
+#define SPELL_SCOURGE_RESSURRECTION              42704
 #define CREATURE_FROSTTOMB                       23965
 #define CREATURE_SKELETON                        23970
 
@@ -44,10 +46,10 @@ EndScriptData */
 float SkeletonSpawnPoint[5][5]=
 {
     {156.2559, 259.2093},
-	{156.2559, 259.2093},
-	{156.2559, 259.2093},
-	{156.2559, 259.2093},
-	{156.2559, 259.2093},
+    {156.2559, 259.2093},
+    {156.2559, 259.2093},
+    {156.2559, 259.2093},
+    {156.2559, 259.2093},
 };
 
 float AttackLoc[3]={197.636, 194.046, 40.8164};
@@ -56,16 +58,18 @@ struct TRINITY_DLL_DECL mob_frost_tombAI : public ScriptedAI
 {
     mob_frost_tombAI(Creature *c) : ScriptedAI(c)
     {
+        FrostTombGUID = 0;
         Reset();
     }
 
     uint64 FrostTombGUID;
 
-    void Reset()
+    void SetPrisoner(Unit* uPrisoner)
     {
-        FrostTombGUID = 0;
+        FrostTombGUID = uPrisoner->GetGUID();
     }
 
+    void Reset(){ FrostTombGUID = 0; }
     void Aggro(Unit* who) {}
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
@@ -79,6 +83,13 @@ struct TRINITY_DLL_DECL mob_frost_tombAI : public ScriptedAI
                 FrostTomb->RemoveAurasDueToSpell(SPELL_FROST_TOMB);
         }
     }
+
+    void UpdateAI(const uint32 diff)
+    {
+        Unit* temp = Unit::GetUnit((*m_creature),FrostTombGUID);
+        if((temp && temp->isAlive() && !temp->HasAura(SPELL_FROST_TOMB,0)) || !temp )
+            m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+    } 
 };
 
 struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
@@ -87,47 +98,47 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Reset();
-		Heroic = c->GetMap()->IsHeroic();
+        Heroic = c->GetMap()->IsHeroic();
     }
-	
+    
     ScriptedInstance* pInstance;
 
     uint32 FrostTombTimer;
     uint32 SummonSkeletonsTimer;
-	uint32 RespawnSkeletonsTimer;
-	uint32 ShadowboltTimer;
-	uint64 SkeletonGUID[5];
-	bool Skeletons;
-	bool Heroic;
-	bool RespawnSkeletons;
-	
+    uint32 RespawnSkeletonsTimer;
+    uint32 ShadowboltTimer;
+    uint64 SkeletonGUID[5];
+    bool Skeletons;
+    bool Heroic;
+    bool RespawnSkeletons;
+    
     void Reset()
-	{
-		ShadowboltTimer = 0;
-		Skeletons = false;
+    {
+        ShadowboltTimer = 0;
+        Skeletons = false;
 
         ResetTimer();
 
         if(pInstance)
             pInstance->SetData(DATA_PRINCEKELESETH, NOT_STARTED);
-	}
-	
+    }
+
     void KilledUnit(Unit *victim)
     {
         if(victim == m_creature)
             return;
-			
+
         DoScriptText(SAY_KILL, m_creature);
     }
-	
+
     void JustDied(Unit* killer)  
     {
         if(pInstance)
             pInstance->SetData(DATA_PRINCEKELESETH, DONE);
-			
+
         DoScriptText(SAY_DEATH, m_creature);
     }
-	
+
     void Aggro(Unit* who) 
     {
         if(pInstance)
@@ -136,64 +147,161 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
         DoScriptText(SAY_AGGRO, m_creature);
         DoZoneInCombat();
     }
-	
+
     void ResetTimer(uint32 inc = 0)
     {
         SummonSkeletonsTimer = 5000 + inc;
         FrostTombTimer = 28000 + inc;
     }
-	
+
     void UpdateAI(const uint32 diff) 
     {
         if (!UpdateVictim())
             return;
-		
+
         if(ShadowboltTimer < diff)
         {
             Unit* target = SelectUnit(SELECT_TARGET_TOPAGGRO, 0);
             if(target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
-				m_creature->CastSpell(target, Heroic ? SPELL_SHADOWBOLT:SPELL_SHADOWBOLT_HEROIC, true);
-            ShadowboltTimer = 2000;
+                m_creature->CastSpell(target, Heroic ? SPELL_SHADOWBOLT_HEROIC : SPELL_SHADOWBOLT, true);
+            ShadowboltTimer = 10000;
         }else ShadowboltTimer -= diff;
 
-        if((SummonSkeletonsTimer < diff) && !Skeletons)
-        {
-            Creature* Skeleton;
-            DoScriptText(SAY_SKELETONS, m_creature);
-            for(uint8 i = 0; i < 5; ++i)
+        if(!Skeletons)
+            if((SummonSkeletonsTimer < diff))
             {
-                Skeleton = m_creature->SummonCreature(CREATURE_SKELETON, SkeletonSpawnPoint[i][0], SkeletonSpawnPoint[i][1] , SKELETONSPAWN_Z, 0, TEMPSUMMON_MANUAL_DESPAWN,0);
-                if(Skeleton)
+                Creature* Skeleton;
+                DoScriptText(SAY_SKELETONS, m_creature);
+                for(uint8 i = 0; i < 5; ++i)
                 {
-                    Skeleton->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-                    Skeleton->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY() , m_creature->GetPositionZ());
-                    Skeleton->AddThreat(m_creature, 0.0f);
-                    DoZoneInCombat(Skeleton);
+                    Skeleton = m_creature->SummonCreature(CREATURE_SKELETON, SkeletonSpawnPoint[i][0], SkeletonSpawnPoint[i][1] , SKELETONSPAWN_Z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
+                    if(Skeleton)
+                    {
+                        Skeleton->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                        Skeleton->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY() , m_creature->GetPositionZ());
+                        Skeleton->AddThreat(m_creature->getVictim(), 0.0f);
+                        DoZoneInCombat(Skeleton);
+                    }
                 }
-            }				
-            Skeletons = true;
-        }else SummonSkeletonsTimer -= diff;
+                Skeletons = true;
+            }else SummonSkeletonsTimer -= diff;
 
         if(FrostTombTimer < diff)
         {
             Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
             if(target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
             {
-                DoCast(target, SAY_FROST_TOMB, true);
-                Creature* Chains = m_creature->SummonCreature(CREATURE_FROSTTOMB, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 20000);
+                //DoCast(target, SPELL_FROST_TOMB_SUMMON, true);
+                Creature* Chains = m_creature->SummonCreature(CREATURE_FROSTTOMB, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000);
                 if(Chains)
                 {
-                    ((mob_frost_tombAI*)Chains->AI())->FrostTombGUID = target->GetGUID();
+                    ((mob_frost_tombAI*)Chains->AI())->SetPrisoner(target);
                     Chains->CastSpell(target, SPELL_FROST_TOMB, true);
-                    
-					DoScriptText(SAY_FROST_TOMB, m_creature);
 
-                    FrostTombTimer = 15000;
+                    DoScriptText(SAY_FROST_TOMB, m_creature);
                 }
             }
+            FrostTombTimer = 15000;
         }else FrostTombTimer -= diff;
 
         DoMeleeAttackIfReady();
+    }
+};
+
+struct TRINITY_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
+{
+    mob_vrykul_skeletonAI(Creature *c) : ScriptedAI(c) 
+    {
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        Reset();
+    }
+
+    ScriptedInstance *pInstance;
+    uint32 Respawn_Time;
+    uint64 Target_Guid;
+    uint32 Decrepify_Timer;
+
+    bool isDead;
+
+    void Reset()
+    {
+        Respawn_Time = 12000;
+        Decrepify_Timer = 10000 + rand()%20000;
+        isDead = false;
+    }
+
+    void Aggro(Unit *who){}
+    void DamageTaken(Unit *done_by, uint32 &damage)
+    {
+        if(done_by->GetGUID() == m_creature->GetGUID())
+            return;
+
+        if(damage >= m_creature->GetHealth())
+        {
+            PretendToDie();
+            damage = 0;
+        }
+    }
+
+    
+    void PretendToDie()
+    {
+        isDead = true;
+        m_creature->InterruptNonMeleeSpells(true);
+        m_creature->RemoveAllAuras();
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        m_creature->GetMotionMaster()->MovementExpired(false);
+        m_creature->GetMotionMaster()->MoveIdle();
+        m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
+    };
+
+    void Resurrect()
+    {   
+        isDead = false;
+        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+        m_creature->CastSpell(m_creature,SPELL_SCOURGE_RESSURRECTION,true);
+
+        if(m_creature->getVictim())
+        {
+            m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+            m_creature->AI()->AttackStart(m_creature->getVictim());
+        }
+        else
+            m_creature->GetMotionMaster()->Initialize();
+    };
+
+    void UpdateAI(const uint32 diff)
+    {
+        if(pInstance->GetData(DATA_PRINCEKELESETH) == IN_PROGRESS)
+        {
+            if(isDead)
+            {
+                if(Respawn_Time < diff)
+                {
+                    Resurrect();
+                    Respawn_Time = 12000;
+                }else Respawn_Time -= diff;
+            }
+            else
+            {
+                if(!UpdateVictim())
+                    return;
+
+                if(Decrepify_Timer < diff)
+                {
+                    DoCast(m_creature->getVictim(),SPELL_DECREPIFY);
+                    Decrepify_Timer = 30000;
+                }else Decrepify_Timer -= diff;
+
+                DoMeleeAttackIfReady();
+            }
+        }else
+        {
+            if(m_creature->isAlive())
+                m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+        }
+
     }
 };
 
@@ -207,6 +315,11 @@ CreatureAI* GetAI_boss_keleseth(Creature *_Creature)
     return new boss_kelesethAI (_Creature);
 }
 
+CreatureAI* GetAI_mob_vrykul_skeleton(Creature *_Creature)
+{
+    return new mob_vrykul_skeletonAI (_Creature);
+}
+
 void AddSC_boss_keleseth()
 {
     Script *newscript;
@@ -215,9 +328,14 @@ void AddSC_boss_keleseth()
     newscript->Name="boss_keleseth";
     newscript->GetAI = &GetAI_boss_keleseth;
     newscript->RegisterSelf();
-	
+
     newscript = new Script;
     newscript->Name = "mob_frost_tomb";
     newscript->GetAI = &GetAI_mob_frost_tomb;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="mob_vrykul_skeleton";
+    newscript->GetAI = GetAI_mob_vrykul_skeleton;
     newscript->RegisterSelf();
 }

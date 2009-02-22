@@ -18,47 +18,46 @@
 
 /* ScriptData
 SDName: Instance_Utgarde_Keep
-SD%Complete: 0
+SD%Complete: 90
 SDComment: Instance Data Scripts and functions to acquire mobs and set encounter status for use in various Utgarde Keep Scripts
 SDCategory: Utgarde Keep
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_keep.h"
+#include "def_utgarde_keep.h"
 
-#define ENCOUNTERS     4
+#define ENCOUNTERS     3
 
 /* Utgarde Keep encounters:
 0 - Prince Keleseth
-1 - Skarvald
-2 - Dalronn
-3 - Ingvar the Plunderer	
+1 - Skarvald Dalronn
+2 - Ingvar the Plunderer
 */
 
 struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
 {
     instance_utgarde_keep(Map *Map) : ScriptedInstance(Map) {Initialize();};
-	
+
     uint64 Keleseth;
     uint64 Skarvald;
     uint64 Dalronn;
     uint64 Ingvar;
-	
+
     bool   IsBossDied[2];
-	
+
     uint32 Encounters[ENCOUNTERS];
     std::string str_data;
-		   
+
    void Initialize()
    {
         Keleseth = 0;
-		Skarvald = 0;
-		Dalronn =0;
-		Ingvar =0;
-		
+        Skarvald = 0;
+        Dalronn =0;
+        Ingvar =0;
+
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
             Encounters[i] = NOT_STARTED;
-	}
+    }
 
     bool IsEncounterInProgress() const
     {
@@ -67,65 +66,65 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
 
         return false;
     }
-	
+
     Player* GetPlayerInMap()
-	{
-		Map::PlayerList const& players = instance->GetPlayers();
+    {
+        Map::PlayerList const& players = instance->GetPlayers();
 
-		if (!players.isEmpty())
-		{
-			for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-			{
-				if (Player* plr = itr->getSource())
-					return plr;
-			}
-		}
+        if (!players.isEmpty())
+        {
+            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            {
+                if (Player* plr = itr->getSource())
+                return plr;
+            }
+        }
 
-		debug_log("TSCR: Instance Utgarde Keep: GetPlayerInMap, but PlayerList is empty!");
-		return NULL;
-	}
+        debug_log("TSCR: Instance Utgarde Keep: GetPlayerInMap, but PlayerList is empty!");
+        return NULL;
+    }
 
-	void HandleGameObject(uint64 guid, uint32 state)
-	{
-		Player *player = GetPlayerInMap();
+    void HandleGameObject(uint64 guid, uint32 state)
+    {
+        Player *player = GetPlayerInMap();
 
-		if (!player || !guid)
-		{
-			debug_log("TSCR: Utgarde Keep: HandleGameObject fail");
-			return;
-		}
+        if (!player || !guid)
+        {
+            debug_log("TSCR: Utgarde Keep: HandleGameObject fail");
+            return;
+        }
 
-		if (GameObject *go = GameObject::GetGameObject(*player,guid))
-			go->SetGoState(state);
-	}
+        if (GameObject *go = GameObject::GetGameObject(*player,guid))
+            go->SetGoState(state);
+    }
 
     void OnCreatureCreate(Creature *creature, uint32 creature_entry)
     {
         switch(creature->GetEntry())
         { 
-		    case 23953:    Keleseth = creature->GetGUID();             break;
+            case 23953:    Keleseth = creature->GetGUID();             break;
             case 24200:    Dalronn = creature->GetGUID();              break;
             case 24201:    Skarvald = creature->GetGUID();             break;
             case 23954:    Ingvar = creature->GetGUID();               break;
         }
     }
-	
+
     void OnObjectCreate(GameObject* go)
     {
-        switch(go->GetEntry())
-        {
+        //switch(go->GetEntry())
+        //{
         //door and object id
-        }
+        //}
     }
-	
+
     uint64 GetData64(uint32 identifier)
     {
         switch(identifier)
         {
         case DATA_PRINCEKELESETH:         return Keleseth;
-        case DATA_DALRON:                 return Dalronn;
+        case DATA_DALRONN:                 return Dalronn;
         case DATA_SKARVALD:               return Skarvald;
-		case DATA_INGVAR:                 return Ingvar;
+        case DATA_INGVAR:                 return Ingvar;
         }
 
         return 0;
@@ -141,18 +140,12 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
                 //HandleGameObject(doorname, 0);
             }
             Encounters[0] = data;break;
-        case DATA_DALRON:
+        case DATA_SKARVALD_DALRONN_EVENT:
             if(data == DONE)
             {
                 //HandleGameObject(doorname, 0);
             }
             Encounters[1] = data; break;
-        case DATA_SKARVALD:
-            if(data == DONE)
-            {
-                //HandleGameObject(doorname, 0);
-            }
-            Encounters[2] = data; break;
         case DATA_INGVAR:
             if(data == DONE)
             {
@@ -162,18 +155,18 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
         }
 
         if (data == DONE)
-		{
+        {
             OUT_SAVE_INST_DATA;
 
-			std::ostringstream saveStream;
-			saveStream << Encounters[0] << " " << Encounters[1] << " "
-				<< Encounters[2] << " " << Encounters[3];
+            std::ostringstream saveStream;
+            saveStream << "U K " << Encounters[0] << " " << Encounters[1] << " "
+                << Encounters[2];
 
-			str_data = saveStream.str();
+            str_data = saveStream.str();
 
-			SaveToDB();
-			OUT_SAVE_INST_DATA_COMPLETE;
-		}
+            SaveToDB();
+            OUT_SAVE_INST_DATA_COMPLETE;
+        }
     }
 
     uint32 GetData(uint32 type)
@@ -181,7 +174,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
         switch(type)
         {
         case DATA_PRINCEKELESETH:            return Encounters[0];
-        case DATA_DALRON:                    return Encounters[1];
+        case DATA_DALRONN:                   return Encounters[1];
         case DATA_SKARVALD:                  return Encounters[2];
         case DATA_INGVAR:                    return Encounters[3];
         }
@@ -190,32 +183,42 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
     }
 
    const char* Save()
-	{
-		return str_data.c_str();
-	}
+    {
+        return str_data.c_str();
+    }
 
-	void Load(const char* in)
-	{
-		if (!in)
-		{
-			OUT_LOAD_INST_DATA_FAIL;
-			return;
-		}
+    void Load(const char* in)
+    {
+        if (!in)
+        {
+            OUT_LOAD_INST_DATA_FAIL;
+            return;
+        }
 
-		OUT_LOAD_INST_DATA(in);
+        OUT_LOAD_INST_DATA(in);
 
-		std::istringstream loadStream(in);
-		loadStream >> Encounters[0] >> Encounters[1] >> Encounters[2]
-        >> Encounters[3];
+        char dataHead1, dataHead2;
+        uint16 data0,data1,data2;
 
-		for(uint8 i = 0; i < ENCOUNTERS; ++i)
-			if (Encounters[i] == IN_PROGRESS)
-				Encounters[i] = NOT_STARTED;
+        std::istringstream loadStream(in);
+        loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2;
 
-		OUT_LOAD_INST_DATA_COMPLETE;
-	}
+        if( dataHead1 == 'U' && dataHead2 == 'K')
+        {
+            Encounters[0] = data0;
+            Encounters[1] = data1;
+            Encounters[2] = data2;
+
+            for(uint8 i = 0; i < ENCOUNTERS; ++i)
+                if (Encounters[i] == IN_PROGRESS)
+                    Encounters[i] = NOT_STARTED;
+
+        }else OUT_LOAD_INST_DATA_FAIL;
+
+        OUT_LOAD_INST_DATA_COMPLETE;
+    }
 };
-	
+
 InstanceData* GetInstanceData_instance_utgarde_keep(Map* map)
 {
    return new instance_utgarde_keep(map);
