@@ -33,6 +33,7 @@ EndScriptData */
 #define SAY_DEATH                       -1554019
 
 #define SPELL_SUMMON_RAGIN_FLAMES       35275
+#define H_SPELL_SUMMON_RAGIN_FLAMES     39084
 
 #define SPELL_FROST_ATTACK              35263
 #define SPELL_ARCANE_BLAST              35314
@@ -66,18 +67,18 @@ boss_nethermancer_sepethreaAI(Creature *c) : ScriptedAI(c)
         dragons_breath_Timer = 18000 + rand()%4000;
         knockback_Timer = 22000 + rand()%6000;
         solarburn_Timer = 30000;
+
+        if(pInstance)
+            pInstance->SetData(DATA_NETHERMANCER_EVENT, NOT_STARTED);
     }
 
     void Aggro(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        if(pInstance)
+            pInstance->SetData(DATA_NETHERMANCER_EVENT, IN_PROGRESS);
 
-        //Summon two guards, three in heroic
-        uint8 am = (HeroicMode ? 1 : 2);
-        for(int i = 0; i < am; i++)
-        {
-            DoCast(who,SPELL_SUMMON_RAGIN_FLAMES);
-        }
+        DoScriptText(SAY_AGGRO, m_creature);
+        DoCast(who, HeroicMode ? H_SPELL_SUMMON_RAGIN_FLAMES : SPELL_SUMMON_RAGIN_FLAMES);
         DoScriptText(SAY_SUMMON, m_creature);
     }
 
@@ -93,8 +94,9 @@ boss_nethermancer_sepethreaAI(Creature *c) : ScriptedAI(c)
     void JustDied(Unit* Killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
+
         if(pInstance)
-            pInstance->SetData(DATA_SEPETHREA_DEATH, 0);
+            pInstance->SetData(DATA_NETHERMANCER_EVENT, DONE);
     }
 
     void UpdateAI(const uint32 diff)
@@ -190,6 +192,7 @@ struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
         onlyonce = false;
         m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
         m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
+        m_creature->SetSpeed(MOVE_RUN, HeroicMode ? 0.7f : 0.5f);
     }
 
     void Aggro(Unit* who)
@@ -200,6 +203,21 @@ struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
     {
         if (!UpdateVictim())
             return;
+
+         //Check_Timer
+        if(Check_Timer < diff)
+        {
+            if(pInstance)
+            {
+                if(pInstance->GetData(DATA_NETHERMANCER_EVENT) != IN_PROGRESS)
+                {
+                    //remove
+                    m_creature->setDeathState(JUST_DIED);
+                    m_creature->RemoveCorpse();
+                }
+            }
+            Check_Timer = 1000;
+        }else Check_Timer -= diff;
 
         if (!onlyonce)
         {
@@ -220,22 +238,6 @@ struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
             DoCast(m_creature,SPELL_FIRE_TAIL);
             flame_timer = 500;
         }else flame_timer -=diff;
-
-        //Check_Timer
-        if(Check_Timer < diff)
-        {
-            if(pInstance)
-            {
-                if(pInstance->GetData(DATA_SEPETHREAISDEAD))
-                {
-                    //remove
-                    m_creature->setDeathState(JUST_DIED);
-                    m_creature->RemoveCorpse();
-                }
-            }
-
-            Check_Timer = 1000;
-        }else Check_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

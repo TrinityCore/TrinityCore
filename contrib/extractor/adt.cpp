@@ -95,7 +95,7 @@ bool LoadADT(char* filename)
                 header_pos = mf.getPos();
                 if(LiqOffsData->offsData1 != 0)             // если данные ?Data1 ?воде есть, то их надо конвертировать
                 {
-                    // перехоим по смещению из offsData1 ОТ НАЧАЛА куск?
+                    // перехо?по смещению из offsData1 ОТ АЧАЛ?куск?
                     mf.seek(base_pos + LiqOffsData->offsData1);
                     mf.read(LiqChunkData1, 0x18);           // считывае?сами данные ?структур?типа MH2O_Data1
                     // заноси?данные флаг?для куск?
@@ -134,7 +134,7 @@ bool LoadADT(char* filename)
                 // эт?аналог старог?обрезания граничны?правых-боковы??нижних данных
                 for(int p = 0; p < 72; p += 9)              // нижние 8 не заноси?тк он?дублируется след куском
                 {
-                    for(int s = 0; s < 8; ++s)              // 9 значение ?строке не заноси?тк он?дублируется след куском, ??правых-боковы?обрезает? для 128?28
+                    for(int s = 0; s < 8; ++s)              // 9 значение ?строке не заноси?тк он?дублируется след куском, ??првы?боковы?обрезает? для 128?28
                     {
                         MapLiqHeight[k] = ChunkLiqHeight[p + s];
                         ++k;
@@ -279,7 +279,7 @@ inline void LoadMapChunk(MPQFile &mf, chunk *_chunk)
                 if(chunkflags & 16)
                     MapLiqFlag[chunk_num] |= 2;             // magma/slime
             }
-            // заполнем та?же ка??MH2O
+            // аполне?та?же ка??MH2O
             if(!(chunk_num % 16))
                 m = 1024 * (chunk_num / 16);
             k = m + (chunk_num % 16) * 8;
@@ -316,7 +316,6 @@ inline void TransformData()
         cell->v9[128][x] = (float)mcells->ch[x / 8][15].v9[x % 8][8];
         // x == y
         cell->v9[x][128] = (float)mcells->ch[15][x / 8].v9[8][x % 8];
-
     }
 
     // and the last 1
@@ -370,6 +369,7 @@ bool ConvertADT(char *filename, char *filename2)
     delete [] MapLiqHeight;
 
     TransformData();
+
 
     fwrite(&cell->v9, 1, sizeof(cell->v9), output);
     fwrite(&cell->v8, 1, sizeof(cell->v8), output);
