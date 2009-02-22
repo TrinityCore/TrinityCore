@@ -80,6 +80,7 @@ enum WorldConfigs
     CONFIG_INTERVAL_GRIDCLEAN,
     CONFIG_INTERVAL_MAPUPDATE,
     CONFIG_INTERVAL_CHANGEWEATHER,
+    CONFIG_INTERVAL_DISCONNECT_TOLERANCE,
     CONFIG_PORT_WORLD,
     CONFIG_SOCKET_SELECTTIME,
     CONFIG_GROUP_XP_DISTANCE,
@@ -400,6 +401,7 @@ class World
         void AddQueuedPlayer(WorldSession*);
         bool RemoveQueuedPlayer(WorldSession* session);
         int32 GetQueuePos(WorldSession*);
+        bool HasRecentlyDisconnected(WorldSession*);
         uint32 GetQueueSize() const { return m_QueuedPlayer.size(); }
 
         /// \todo Actions on m_allowMovement still to be implemented
@@ -558,6 +560,8 @@ class World
         WeatherMap m_weathers;
         typedef UNORDERED_MAP<uint32, WorldSession*> SessionMap;
         SessionMap m_sessions;
+        typedef UNORDERED_MAP<uint32, time_t> DisconnectMap;
+        DisconnectMap m_disconnects;
         uint32 m_maxActiveSessionCount;
         uint32 m_maxQueuedSessionCount;
 

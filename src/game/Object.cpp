@@ -1134,7 +1134,7 @@ void WorldObject::AddToWorld()
 
 void WorldObject::RemoveFromWorld()
 {
-    if(m_isActive && !isType(TYPEMASK_PLAYER))
+    if(m_isActive && IsInWorld() && !isType(TYPEMASK_PLAYER))
         GetMap()->RemoveActiveObject(this);
     Object::RemoveFromWorld();
 }

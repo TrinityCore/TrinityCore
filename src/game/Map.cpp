@@ -312,16 +312,16 @@ void Map::RemoveFromGrid(Creature* obj, NGridType *grid, Cell const& cell)
 }
 
 template<class T>
-void Map::SwitchGridContainers(T* obj, bool active)
+void Map::SwitchGridContainers(T* obj, bool apply)
 {
     CellPair pair = Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
     Cell cell(pair);
     NGridType *ngrid = getNGrid(cell.GridX(), cell.GridY());
     GridType &grid = (*ngrid)(cell.CellX(), cell.CellY());
 
-    if (active)
+    if(apply)
     {
-        if (!grid.GetWorldObject(obj->GetGUID(), obj))
+        assert(!grid.GetWorldObject(obj->GetGUID(), obj))
         {
             grid.RemoveGridObject<T>(obj, obj->GetGUID());
             grid.AddWorldObject<T>(obj, obj->GetGUID());
@@ -329,7 +329,7 @@ void Map::SwitchGridContainers(T* obj, bool active)
     }
     else
     {
-        if (!grid.GetGridObject(obj->GetGUID(), obj))
+        assert(!grid.GetGridObject(obj->GetGUID(), obj))
         {
             grid.RemoveWorldObject<T>(obj, obj->GetGUID());
             grid.AddGridObject<T>(obj, obj->GetGUID());
