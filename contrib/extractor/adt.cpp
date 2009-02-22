@@ -95,7 +95,7 @@ bool LoadADT(char* filename)
                 header_pos = mf.getPos();
                 if(LiqOffsData->offsData1 != 0)             // если данные ?Data1 ?воде есть, то их надо конвертировать
                 {
-                    // перехо?по смещению из offsData1 ОТ АЧАЛ?куск?
+                    // перехо?по смещению из offsData1 ОТ ЧА?куск?
                     mf.seek(base_pos + LiqOffsData->offsData1);
                     mf.read(LiqChunkData1, 0x18);           // считывае?сами данные ?структур?типа MH2O_Data1
                     // заноси?данные флаг?для куск?
