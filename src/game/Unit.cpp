@@ -7646,6 +7646,59 @@ void Unit::SetCharm(Unit* pet)
         SetUInt64Value(UNIT_FIELD_CHARM, pet ? pet->GetGUID() : 0);
 }
 
+Unit* Unit::GetNextRandomRaidMemberOrPet(float radius)
+{
+    Player* player = NULL;
+    if(GetTypeId() == TYPEID_PLAYER)
+        player = (Player*)this;
+    // Should we enable this also for charmed units?
+    else if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->isPet())
+        player=(Player*)GetOwner();
+
+    if (!player)
+        return NULL;
+    Group *pGroup = player->GetGroup();
+    //When there is no group check pet presence
+    if (!pGroup)
+    {
+        // We are pet now, return owner
+        if(player!=this)
+            return IsWithinDistInMap(player, radius) ? player : NULL;
+        Unit * pet = GetPet();
+        //No pet, no group, nothing to return
+        if (!pet)
+            return NULL;
+        // We are owner now, return pet
+        return IsWithinDistInMap(pet, radius) ? pet : NULL;
+    }
+
+    std::vector<Unit*> nearMembers;
+    //reserve place for players and pets because resizing vector every unit push is unefficient (vector is reallocated then)
+    nearMembers.reserve(pGroup->GetMembersCount()*2);
+
+    for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+    {
+        Player* Target = itr->getSource();
+
+        // IsHostileTo check duel and controlled by enemy
+        if( Target && Target !=this && IsWithinDistInMap(Target, radius) &&
+            !IsHostileTo(Target) )
+            nearMembers.push_back(Target);
+
+        // Push player's pet to vector
+        Unit * pet = Target->GetPet();
+        if (pet && pet !=this && IsWithinDistInMap(pet, radius) &&
+            !IsHostileTo(pet) )
+            nearMembers.push_back(pet);
+    }
+
+    if (nearMembers.empty())
+        return NULL;
+
+    uint32 randTarget = urand(0,nearMembers.size()-1);
+    return nearMembers[randTarget];
+}
+
 void Unit::AddPlayerToVision(Player* plr)
 {
     if (m_sharedVision.empty() && GetTypeId() == TYPEID_UNIT
@@ -11996,13 +12049,7 @@ bool Unit::HandleAuraRaidProcFromChargeWithValue( Aura* triggeredByAura )
 
             caster->ApplySpellMod(spellProto->Id, SPELLMOD_CHARGES, maxJumps, NULL);
 
-            Player* player = NULL;
-            if(GetTypeId() == TYPEID_PLAYER)
-                player = (Player*)this;
-            else if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->isPet())
-                player=(Player*)GetOwner();
-            Player* target= player ? player->GetNextRandomRaidMember(radius): NULL;
-            if (target)
+            if (Unit* target= GetNextRandomRaidMemberOrPet(radius))
             {
                 // aura will applied from caster, but spell casted from current aura holder
                 SpellModifier *mod = new SpellModifier;
@@ -12076,13 +12123,7 @@ bool Unit::HandleAuraRaidProcFromCharge( Aura* triggeredByAura )
 
             caster->ApplySpellMod(spellProto->Id, SPELLMOD_CHARGES, maxJumps, NULL);
 
-            Player* player = NULL;
-            if(GetTypeId() == TYPEID_PLAYER)
-                player = (Player*)this;
-            else if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->isPet())
-                player=(Player*)GetOwner();
-            Player* target= player ? player->GetNextRandomRaidMember(radius): NULL;
-            if (target)
+            if (Unit* target= GetNextRandomRaidMemberOrPet(radius))
             {
                 // aura will applied from caster, but spell casted from current aura holder
                 SpellModifier *mod = new SpellModifier;
