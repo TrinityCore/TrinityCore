@@ -4959,6 +4959,9 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     // Get Scryers reputation rank
                     if (((Player *)this)->GetReputationRank(934) == REP_EXALTED)
                     {
+                        if(this->IsFriendlyTo(target))
+                            return false;
+
                         triggered_spell_id = 45429;
                         break;
                     }

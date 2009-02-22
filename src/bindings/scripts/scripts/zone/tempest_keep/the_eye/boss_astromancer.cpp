@@ -119,6 +119,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
         AppearDelay = false;
         MarkOfTheSolarian_Timer=45000;
         Jump_Timer=8000;
+        Wrath_Timer = 20000+rand()%5000;//twice in phase one
         Phase = 1;
         Wrath_Timer = 20000+rand()%5000;//twice in phase one
 
