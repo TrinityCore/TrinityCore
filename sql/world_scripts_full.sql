@@ -493,7 +493,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_romulo' WHERE `entry`=17533;
 UPDATE `creature_template` SET `ScriptName`='boss_dorothee' WHERE `entry`=17535;
 UPDATE `creature_template` SET `ScriptName`='boss_strawman' WHERE `entry`=17543;
 UPDATE `creature_template` SET `ScriptName`='boss_tinhead' WHERE `entry`=17547;
-UPDATE `creature_template` SET `ScriptName`='boss_tito' WHERE `entry`=17548;
+UPDATE `creature_template` SET `ScriptName`='mob_tito' WHERE `entry`=17548;
 UPDATE `creature_template` SET `ScriptName`='boss_roar' WHERE `entry`=17546;
 UPDATE `creature_template` SET `ScriptName`='boss_crone' WHERE `entry`=18168;
 UPDATE `creature_template` SET `ScriptName`='boss_terestian_illhoof' WHERE `entry`=15688;

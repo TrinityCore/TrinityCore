@@ -36,6 +36,9 @@
     #define PATH_MAX 260
 #endif
 
+#if defined(__APPLE_CC__)
+    #define lseek64 lseek
+#endif
 
 #define LIBMPQ_MAJOR_VERSION        0       /* Major version number... maybe sometimes we reach version 1 :) */
 #define LIBMPQ_MINOR_VERSION        3       /* Minor version number - increased only for small changes */
