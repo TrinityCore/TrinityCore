@@ -375,6 +375,7 @@ m_updated(false), m_isRemovedOnShapeLost(true), m_in_use(false)
 
     m_isPassive = IsPassiveSpell(GetId());
     m_positive = IsPositiveEffect(GetId(), m_effIndex);
+    m_auraStateMask = 0;
 
     m_applyTime = time(NULL);
 
@@ -782,6 +783,8 @@ void Aura::ApplyModifier(bool apply, bool Real)
     m_in_use = false;
 }
 
+static AuraType const frozenAuraTypes[] = { SPELL_AURA_MOD_ROOT, SPELL_AURA_MOD_STUN, SPELL_AURA_NONE };
+
 void Aura::_AddAura()
 {
     if (!GetId())
@@ -879,31 +882,45 @@ void Aura::_AddAura()
 
         // Update Seals information
         if (IsSealSpell(m_spellProto))
-            m_target->ModifyAuraState(AURA_STATE_JUDGEMENT, true);
+            SetAuraState(AURA_STATE_JUDGEMENT);
 
         // Conflagrate aura state on Immolate
         if (m_spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellProto->SpellFamilyFlags[0] & 4)
-            m_target->ModifyAuraState(AURA_STATE_IMMOLATE, true);
+            SetAuraState(AURA_STATE_IMMOLATE);
 
         // Faerie Fire (druid versions)
         if (m_spellProto->SpellFamilyName == SPELLFAMILY_DRUID && m_spellProto->SpellFamilyFlags[0] & 0x400)
-            m_target->ModifyAuraState(AURA_STATE_FAERIE_FIRE, true);
+            SetAuraState(AURA_STATE_FAERIE_FIRE);
 
         // Victorious
         if (m_spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR &&  m_spellProto->SpellFamilyFlags[1] & 0x00040000)
-            m_target->ModifyAuraState(AURA_STATE_WARRIOR_VICTORY_RUSH, true);
+            SetAuraState(AURA_STATE_WARRIOR_VICTORY_RUSH);
 
         // Swiftmend state on Regrowth & Rejuvenation
         if (m_spellProto->SpellFamilyName == SPELLFAMILY_DRUID && m_spellProto->SpellFamilyFlags[0] & 0x50 )
-            m_target->ModifyAuraState(AURA_STATE_SWIFTMEND, true);
+            SetAuraState(AURA_STATE_SWIFTMEND);
 
         // Deadly poison aura state
         if(m_spellProto->SpellFamilyName == SPELLFAMILY_ROGUE && m_spellProto->SpellFamilyFlags[0] & 0x10000)
-            m_target->ModifyAuraState(AURA_STATE_DEADLY_POISON, true);
+            SetAuraState(AURA_STATE_DEADLY_POISON);
 
         // Enrage aura state
         if(m_spellProto->Dispel == DISPEL_ENRAGE)
-            m_target->ModifyAuraState(AURA_STATE_ENRAGE, true);
+            SetAuraState(AURA_STATE_ENRAGE);
+
+        if(GetSpellSchoolMask(m_spellProto) & SPELL_SCHOOL_MASK_FROST)
+        {
+            for(AuraType const* itr = &frozenAuraTypes[0]; *itr != SPELL_AURA_NONE; ++itr)
+            {
+                if(m_spellProto->EffectApplyAuraName[GetEffIndex()]== *itr)
+                {
+                    SetAuraState(AURA_STATE_FROZEN);
+                    break;
+                }
+            }
+        }
+
+        m_target->ApplyModFlag(UNIT_FIELD_AURASTATE, GetAuraStateMask(), true);
     }
 }
 
@@ -958,61 +975,20 @@ void Aura::_RemoveAura()
         // update for out of range group members
         m_target->UpdateAuraForGroup(slot);
 
-        //*****************************************************
-        // Update target aura state flag (at last aura remove)
-        //*****************************************************
-        // Enrage aura state
-        if(m_spellProto->Dispel == DISPEL_ENRAGE)
-            m_target->ModifyAuraState(AURA_STATE_ENRAGE, false);
-
-        uint32 removeState = 0;
-        switch(m_spellProto->SpellFamilyName)
+        // Check needed only if aura applies aurastate
+        if(GetAuraStateMask())
         {
-            case SPELLFAMILY_PALADIN:
-                if (IsSealSpell(m_spellProto))
-                    removeState = AURA_STATE_JUDGEMENT;     // Update Seals information
-                break;
-            case SPELLFAMILY_WARLOCK:
-                if(m_spellProto->SpellFamilyFlags[0] & 4)
-                    removeState = AURA_STATE_IMMOLATE;      // Conflagrate aura state
-                break;
-            case SPELLFAMILY_DRUID:
-                if(m_spellProto->SpellFamilyFlags[0] & 0x400)
-                    removeState = AURA_STATE_FAERIE_FIRE;   // Faerie Fire (druid versions)
-                else if(m_spellProto->SpellFamilyFlags[0] & 0x50)
-                    removeState = AURA_STATE_SWIFTMEND;     // Swiftmend aura state
-                break;
-            case SPELLFAMILY_WARRIOR:
-                if(m_spellProto->SpellFamilyFlags[1] & 0x00040000)
-                    removeState = AURA_STATE_WARRIOR_VICTORY_RUSH; // Victorious
-                break;
-            case SPELLFAMILY_ROGUE:
-                if(m_spellProto->SpellFamilyFlags[0] & 0x10000)
-                    removeState = AURA_STATE_DEADLY_POISON; // Deadly poison aura state
-                break;
-            case SPELLFAMILY_HUNTER:
-                if(m_spellProto->SpellFamilyFlags[1] & 0x10000000)
-                    removeState = AURA_STATE_FAERIE_FIRE;   // Sting (hunter versions)
-
-        }
-        // Remove state (but need check other auras for it)
-        if (removeState)
-        {
-            bool found = false;
+            uint32 foundMask = 0;
             Unit::AuraMap& Auras = m_target->GetAuras();
+            // Get mask of all aurastates from remaining auras
             for(Unit::AuraMap::iterator i = Auras.begin(); i != Auras.end(); ++i)
             {
-                SpellEntry const *auraSpellInfo = (*i).second->GetSpellProto();
-                if(auraSpellInfo->SpellFamilyName  == m_spellProto->SpellFamilyName &&
-                   auraSpellInfo->SpellFamilyFlags == m_spellProto->SpellFamilyFlags )
-                {
-                    found = true;
-                    break;
-                }
+                foundMask|=(*i).second->GetAuraStateMask();
             }
-            // this has been last aura
-            if(!found)
-                m_target->ModifyAuraState(AuraState(removeState), false);
+            // Remove only aurastates which were not found
+            foundMask&=~GetAuraStateMask();
+            if (foundMask)
+                m_target->ApplyModFlag(UNIT_FIELD_AURASTATE, foundMask, false);
         }
 
         // reset cooldown state for spells
@@ -6441,8 +6417,6 @@ void Aura::HandleAuraModStun(bool apply, bool Real)
         return;
 
     m_target->SetControlled(apply, UNIT_STAT_STUNNED);
-    if(GetSpellSchoolMask(m_spellProto) & SPELL_SCHOOL_MASK_FROST)
-        HandleAuraStateFrozen(apply);
 }
 
 void Aura::HandleAuraModRoot(bool apply, bool Real)
@@ -6451,39 +6425,6 @@ void Aura::HandleAuraModRoot(bool apply, bool Real)
         return;
 
     m_target->SetControlled(apply, UNIT_STAT_ROOT);
-    if(GetSpellSchoolMask(m_spellProto) & SPELL_SCHOOL_MASK_FROST)
-        HandleAuraStateFrozen(apply);
-}
-
-static AuraType const frozenAuraTypes[] = { SPELL_AURA_MOD_ROOT, SPELL_AURA_MOD_STUN, SPELL_AURA_NONE };
-
-void Aura::HandleAuraStateFrozen(bool apply)
-{
-    if(apply)
-    {
-        m_target->ModifyAuraState(AURA_STATE_FROZEN, true);
-    }
-    else
-    {
-        bool found_another = false;
-        for(AuraType const* itr = &frozenAuraTypes[0]; *itr != SPELL_AURA_NONE; ++itr)
-        {
-            Unit::AuraList const& auras = m_target->GetAurasByType(*itr);
-            for(Unit::AuraList::const_iterator i = auras.begin(); i != auras.end(); ++i)
-            {
-                if( GetSpellSchoolMask((*i)->GetSpellProto()) & SPELL_SCHOOL_MASK_FROST)
-                {
-                    found_another = true;
-                    break;
-                }
-            }
-            if(found_another)
-                break;
-        }
-
-        if(!found_another)
-            m_target->ModifyAuraState(AURA_STATE_FROZEN, false);
-    }
 }
 
 // Charm Auras
