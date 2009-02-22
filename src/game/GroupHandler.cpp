@@ -556,7 +556,7 @@ void WorldSession::HandleGroupChangeSubGroupOpcode( WorldPacket & recv_data )
     /********************/
 
     Player *movedPlayer=objmgr.GetPlayer(name.c_str());
-    if(!movePlayer)
+    if(!movedPlayer)
         return;
 
     //Do not allow leader to change group of player in combat
