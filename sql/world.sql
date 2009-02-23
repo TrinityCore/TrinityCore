@@ -269,6 +269,29 @@ LOCK TABLES `creature_equip_template` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `creature_formations`
+--
+
+DROP TABLE IF EXISTS `creature_formations`;
+CREATE TABLE `creature_formations` (
+  `leader` int(11) unsigned NOT NULL,
+  `follower` int(11) unsigned NOT NULL,
+  `dist` float unsigned NOT NULL,
+  `angle` float unsigned NOT NULL,
+  `groupAI` int(11) unsigned NOT NULL,
+  PRIMARY KEY  (`follower`));
+
+--
+-- Dumping data for table `creature_formations`
+--
+
+LOCK TABLES `creature_formations` WRITE;
+/*!40000 ALTER TABLE `creature_formations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `creature_formations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+--
 -- Table structure for table `creature_involvedrelation`
 --
 
@@ -336,64 +359,6 @@ CREATE TABLE `creature_model_info` (
 LOCK TABLES `creature_model_info` WRITE;
 /*!40000 ALTER TABLE `creature_model_info` DISABLE KEYS */;
 /*!40000 ALTER TABLE `creature_model_info` ENABLE KEYS */;
-UNLOCK TABLES;
-
-
---
--- Table structure for table `waypoint_data`
---
-
-DROP TABLE IF EXISTS `waypoint_data`;
-CREATE TABLE `waypoint_data` (
-  `id` int(10) unsigned NOT NULL default '0' COMMENT 'Creature GUID',
-  `point` mediumint(8) unsigned NOT NULL default '0',
-  `position_x` float NOT NULL default '0',
-  `position_y` float NOT NULL default '0',
-  `position_z` float NOT NULL default '0',
-  `delay` int(10) unsigned NOT NULL default '0',
-  `move_flag` tinyint(1) NOT NULL default '0',
-  `action` int(11) NOT NULL default '0',
-  `action_chance` smallint(3) NOT NULL default '100',
-  `wpguid` int(11) NOT NULL default '0'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `creature_movement`
---
-
-LOCK TABLES `waypoint_data` WRITE;
-/*!40000 ALTER TABLE `waypoint_data` DISABLE KEYS */;
-/*!40000 ALTER TABLE `waypoint_data` ENABLE KEYS */;
-UNLOCK TABLES;
-
-
---
--- Table structure for table `waypoint_scripts`
---
-
-DROP TABLE IF EXISTS `waypoint_scripts`;
-CREATE TABLE `waypoint_scripts` (
-  `id` int(11) unsigned NOT NULL default '0',
-  `delay` int(11) unsigned NOT NULL default '0',
-  `command` int(11) unsigned NOT NULL default '0',
-  `datalong` int(11) unsigned NOT NULL default '0',
-  `datalong2` int(11) unsigned NOT NULL default '0',
-  `dataint` int(11) unsigned NOT NULL default '0',
-  `x` float NOT NULL default '0',
-  `y` float NOT NULL default '0',
-  `z` float NOT NULL default '0',
-  `o` float NOT NULL default '0',
-  `guid` int(11) NOT NULL default '0',
-  PRIMARY KEY  (`guid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `creature_movement`
---
-
-LOCK TABLES `waypoint_scripts` WRITE;
-/*!40000 ALTER TABLE `waypoint_scripts` DISABLE KEYS */;
-/*!40000 ALTER TABLE `waypoint_scripts` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -596,6 +561,7 @@ CREATE TABLE `custom_texts` (
   `sound` mediumint(8) unsigned NOT NULL default '0',
   `type` tinyint unsigned NOT NULL default '0',
   `language` tinyint unsigned NOT NULL default '0',
+  `emote` smallint(5) UNSIGNED NOT NULL default '0',
   `comment` text,
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Custom Texts';
@@ -607,24 +573,6 @@ CREATE TABLE `custom_texts` (
 LOCK TABLES `custom_texts` WRITE;
 /*!40000 ALTER TABLE `custom_texts` DISABLE KEYS */;
 /*!40000 ALTER TABLE `custom_texts` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `db_version`
---
-
-DROP TABLE IF EXISTS `db_version`;
-CREATE TABLE `db_version` (
-  `version` varchar(120) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
-
---
--- Dumping data for table `db_version`
---
-
-LOCK TABLES `db_version` WRITE;
-/*!40000 ALTER TABLE `db_version` DISABLE KEYS */;
-/*!40000 ALTER TABLE `db_version` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -808,38 +756,6 @@ LOCK TABLES `eventai_texts` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `script_texts`
---
-
-DROP TABLE IF EXISTS `script_texts`;
-CREATE TABLE `script_texts` (
-  `entry` mediumint(8) NOT NULL,
-  `content_default` text NOT NULL,
-  `content_loc1` text,
-  `content_loc2` text,
-  `content_loc3` text,
-  `content_loc4` text,
-  `content_loc5` text,
-  `content_loc6` text,
-  `content_loc7` text,
-  `content_loc8` text,
-  `sound` mediumint(8) unsigned NOT NULL default '0',
-  `type` tinyint unsigned NOT NULL default '0',
-  `language` tinyint unsigned NOT NULL default '0',
-  `comment` text,
-  PRIMARY KEY  (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Script Texts';
-
---
--- Dumping data for table `script_texts`
---
-
-LOCK TABLES `script_texts` WRITE;
-/*!40000 ALTER TABLE `script_texts` DISABLE KEYS */;
-/*!40000 ALTER TABLE `script_texts` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `exploration_basexp`
 --
 
@@ -909,6 +825,26 @@ CREATE TABLE `game_event` (
 LOCK TABLES `game_event` WRITE;
 /*!40000 ALTER TABLE `game_event` DISABLE KEYS */;
 /*!40000 ALTER TABLE `game_event` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `game_event_battleground_holiday`
+--
+
+DROP TABLE IF EXISTS `game_event_battleground_holiday`;
+CREATE TABLE `game_event_battleground_holiday` (
+ `event` int(10) unsigned NOT NULL,
+ `bgflag` int(10) unsigned NOT NULL default '0',
+ PRIMARY KEY  (`event`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `game_event_battleground_holiday`
+--
+
+LOCK TABLES `game_event_battleground_holiday` WRITE;
+/*!40000 ALTER TABLE `game_event_battleground_holiday` DISABLE KEYS */;
+/*!40000 ALTER TABLE `game_event_battleground_holiday` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2832,24 +2768,6 @@ LOCK TABLES `reserved_name` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `script_db_version`
---
-
-DROP TABLE IF EXISTS `script_db_version`;
-CREATE TABLE `script_db_version` (
-  `version` varchar(255) NOT NULL default '' COMMENT 'Database version string'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `script_db_version`
---
-
-LOCK TABLES `script_db_version` WRITE;
-/*!40000 ALTER TABLE `script_db_version` DISABLE KEYS */;
-/*!40000 ALTER TABLE `script_db_version` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `script_texts`
 --
 
@@ -2865,9 +2783,10 @@ CREATE TABLE `script_texts` (
   `content_loc6` text,
   `content_loc7` text,
   `content_loc8` text,
-  `sound` tinyint(3) unsigned NOT NULL default '0',
+  `sound` mediumint(8) unsigned NOT NULL default '0',
   `type` tinyint(3) unsigned NOT NULL default '0',
-  `language` tinyint(3) unsigned NOT NULL default '0',
+  `language` smallint(5) unsigned NOT NULL default '0',
+  `emote` smallint(5) UNSIGNED NOT NULL default '0',
   `comment` text,
   PRIMARY KEY  (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Script Texts';
@@ -3266,6 +3185,26 @@ LOCK TABLES `trinity_string` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `transport_events`
+--
+
+DROP TABLE IF EXISTS `transport_events`;
+CREATE TABLE `transport_events` (
+ 	`entry` int(11) unsigned NOT NULL default '0',
+	`waypoint_id` int(11) unsigned NOT NULL default '0',	
+  	`event_id` int(11) unsigned NOT NULL default '0'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `transport_events`
+--
+
+LOCK TABLES `trinity_string` WRITE;
+/*!40000 ALTER TABLE `transport_events` DISABLE KEYS */;
+/*!40000 ALTER TABLE `transport_events` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `uptime`
 --
 
@@ -3286,6 +3225,83 @@ LOCK TABLES `uptime` WRITE;
 /*!40000 ALTER TABLE `uptime` DISABLE KEYS */;
 /*!40000 ALTER TABLE `uptime` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `version`
+--
+
+DROP TABLE IF EXISTS `version`;
+CREATE TABLE `version` (
+    `core_version` varchar(120) default NULL COMMENT 'Core revision dumped at startup.',
+    `db_version` varchar(120) default NULL COMMENT 'Version of world DB.',
+    `script_version` varchar(120) default NULL COMMENT 'Version of scripts DB.'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Version Notes';
+
+--
+-- Dumping data for table `version`
+--
+
+LOCK TABLES `version` WRITE;
+/*!40000 ALTER TABLE `version` DISABLE KEYS */;
+/*!40000 ALTER TABLE `version` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `waypoint_data`
+--
+
+DROP TABLE IF EXISTS `waypoint_data`;
+CREATE TABLE `waypoint_data` (
+  `id` int(10) unsigned NOT NULL default '0' COMMENT 'Creature GUID',
+  `point` mediumint(8) unsigned NOT NULL default '0',
+  `position_x` float NOT NULL default '0',
+  `position_y` float NOT NULL default '0',
+  `position_z` float NOT NULL default '0',
+  `delay` int(10) unsigned NOT NULL default '0',
+  `move_flag` tinyint(1) NOT NULL default '0',
+  `action` int(11) NOT NULL default '0',
+  `action_chance` smallint(3) NOT NULL default '100',
+  `wpguid` int(11) NOT NULL default '0'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `waypoint_data`
+--
+
+LOCK TABLES `waypoint_scripts` WRITE;
+/*!40000 ALTER TABLE `waypoint_scripts` DISABLE KEYS */;
+/*!40000 ALTER TABLE `waypoint_scripts` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `waypoint_scripts`
+--
+
+DROP TABLE IF EXISTS `waypoint_scripts`;
+CREATE TABLE `waypoint_scripts` (
+  `id` int(11) unsigned NOT NULL default '0',
+  `delay` int(11) unsigned NOT NULL default '0',
+  `command` int(11) unsigned NOT NULL default '0',
+  `datalong` int(11) unsigned NOT NULL default '0',
+  `datalong2` int(11) unsigned NOT NULL default '0',
+  `dataint` int(11) unsigned NOT NULL default '0',
+  `x` float NOT NULL default '0',
+  `y` float NOT NULL default '0',
+  `z` float NOT NULL default '0',
+  `o` float NOT NULL default '0',
+  `guid` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`guid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `waypoint_scripts`
+--
+
+LOCK TABLES `waypoint_scripts` WRITE;
+/*!40000 ALTER TABLE `waypoint_scripts` DISABLE KEYS */;
+/*!40000 ALTER TABLE `waypoint_scripts` ENABLE KEYS */;
+UNLOCK TABLES;
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
