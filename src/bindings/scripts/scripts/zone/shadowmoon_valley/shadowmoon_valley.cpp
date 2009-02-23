@@ -721,7 +721,7 @@ struct TRINITY_DLL_DECL npc_overlord_morghorAI : public ScriptedAI
         if(!plr || !Illi)
         {
             EnterEvadeMode();
-            return;
+            return 0;
         }
 
         switch(Step)
@@ -809,13 +809,16 @@ struct TRINITY_DLL_DECL npc_overlord_morghorAI : public ScriptedAI
         case 32: m_creature->GetMotionMaster()->MovePoint(0, -5085.77, 577.231, 86.6719); return 5000; break;
         case 33: Reset(); return 100; break;
 
-        default : return 9999999;
+        default : return 0;
         }
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if(ConversationTimer < diff)
+        if(!ConversationTimer)
+            return;
+
+        if(ConversationTimer <= diff)
         {
             if(Event && IllidanGUID && PlayerGUID)
             {
