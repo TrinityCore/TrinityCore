@@ -12808,6 +12808,7 @@ void Unit::SendAuraUpdate(uint8 slot)
 
     if(!ptr)
     {
+        RemoveVisibleAura(slot);
         SendMessageToSet(&data, true);
         return;
     }

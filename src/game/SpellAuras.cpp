@@ -464,18 +464,6 @@ Aura::~Aura()
     {
         AuraSlotEntry * entry = m_target->GetVisibleAura(GetAuraSlot());
         entry->m_slotAuras[GetEffIndex()]=NULL;
-        //Check if there any aura in slot still exists
-        bool remove=true;
-        for (uint8 i=0 ; i<3; i++)
-        {
-            if (entry->m_slotAuras[i])
-            {
-                remove=false;
-                break;
-            }
-        }
-        if (remove)
-            m_target->RemoveVisibleAura(GetAuraSlot());
     }
 }
 
