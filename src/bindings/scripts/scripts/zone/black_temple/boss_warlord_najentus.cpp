@@ -155,7 +155,7 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
             SelectUnitList(target, 3, SELECT_TARGET_RANDOM, 80, true);
             for(std::list<Unit*>::iterator i = target.begin(); i != target.end(); ++i)
                 m_creature->CastSpell(*i, 39835, true);
-            NeedleSpineTimer = 20000+rand()%5000;
+            NeedleSpineTimer = 2000+rand()%1000;
         }else NeedleSpineTimer -= diff;
 
         if(SpecialYellTimer < diff)
@@ -200,7 +200,7 @@ bool GOHello_go_najentus_spine(Player *player, GameObject* _GO)
             {
                 player->CastSpell(player, SPELL_CREATE_NAJENTUS_SPINE, true);
                 _GO->SetLootState(GO_NOT_READY);
-                _GO->SetRespawnTime(0);
+                _GO->Delete();
             }
     return true;
 }
