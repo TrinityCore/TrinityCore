@@ -815,8 +815,7 @@ struct TRINITY_DLL_DECL boss_yazzaiAI : public boss_priestess_guestAI
                 m_creature->GetPosition(x,y,z);
                 x = rand()%2 ? x+10+rand()%10 : x-10-rand()%10;
                 y = rand()%2 ? y+10+rand()%10 : y-10-rand()%10;
-                m_creature->Relocate(x,y,z);
-                m_creature->SendMonsterMove(x, y, m_creature->GetPositionZ(), 0,0,0);
+                DoTeleportTo(x, y, z);
             }
             Blink_Timer = 8000;
         }else Blink_Timer -= diff;

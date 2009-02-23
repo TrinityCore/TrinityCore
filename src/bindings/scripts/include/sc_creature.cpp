@@ -729,6 +729,12 @@ void ScriptedAI::DoModifyThreatPercent(Unit *pUnit, int32 pct)
     m_creature->getThreatManager().modifyThreatPercent(pUnit, pct);
 }
 
+void ScriptedAI::DoTeleportTo(float x, float y, float z, uint32 time)
+{
+    m_creature->Relocate(x,y,z);
+    m_creature->SendMonsterMove(x, y, z, time);
+}
+
 void ScriptedAI::DoTeleportPlayer(Unit* pUnit, float x, float y, float z, float o)
 {
     if(!pUnit || pUnit->GetTypeId() != TYPEID_PLAYER)

@@ -107,7 +107,7 @@ template<>
 inline void Traveller<Player>::MoveTo(float x, float y, float z, uint32 t)
 {
     //Only send MOVEMENTFLAG_WALK_MODE, client has strange issues with other move flags
-    i_traveller.SendMonsterMove(x, y, z, 0, MOVEMENTFLAG_WALK_MODE, t);
+    i_traveller.SendMonsterMove(x, y, z, t);
 }
 
 typedef Traveller<Creature> CreatureTraveller;

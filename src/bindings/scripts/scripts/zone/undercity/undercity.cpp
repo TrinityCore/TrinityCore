@@ -86,7 +86,7 @@ struct TRINITY_DLL_DECL npc_lady_sylvanas_windrunnerAI : public ScriptedAI
         {
             if( Unit* target = Unit::GetUnit(*summoned,targetGUID) )
             {
-                target->SendMonsterMove(target->GetPositionX(), target->GetPositionY(), myZ+15.0,0,0,0);
+                target->SendMonsterMove(target->GetPositionX(), target->GetPositionY(), myZ+15.0,0);
                 target->Relocate(target->GetPositionX(), target->GetPositionY(), myZ+15.0);
                 summoned->CastSpell(target, SPELL_RIBBON_OF_SOULS, false);
             }

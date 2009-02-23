@@ -106,9 +106,6 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
                     if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                     {
                         DoCast(target,SPELL_CHARGE);
-
-                        m_creature->Relocate(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0);
-                        m_creature->SendMonsterMove(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, true,1);
                         AttackStart(target);
                     }
 
