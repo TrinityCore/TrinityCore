@@ -338,8 +338,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
         case 2:
         case 3:
         case 4:
-            m_creature->Relocate(CENTER_X, CENTER_Y, CENTER_Z,0);
-            m_creature->SendMonsterMove(CENTER_X, CENTER_Y, CENTER_Z,0,0,100);
+            DoTeleportTo(CENTER_X, CENTER_Y, CENTER_Z, 100);
             DoResetThreat();
             m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, 0);
             m_creature->RemoveAurasDueToSpell(Transform[Phase].unaura);
