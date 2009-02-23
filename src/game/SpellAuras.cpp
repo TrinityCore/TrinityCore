@@ -6441,10 +6441,10 @@ void Aura::HandleAuraStateFrozen(bool apply)
     else
     {
         bool found_another = false;
-        for(AuraType const* itr = &frozenAuraTypes[0]; *itr != SPELL_AURA_NONE; itr)
+        for(AuraType const* itr = &frozenAuraTypes[0]; *itr != SPELL_AURA_NONE; itr++)
         {
             Unit::AuraList const& auras = m_target->GetAurasByType(*itr);
-            for(Unit::AuraList::const_iterator i = auras.begin(); i != auras.end(); i)
+            for(Unit::AuraList::const_iterator i = auras.begin(); i != auras.end(); i++)
             {
                 if( GetSpellSchoolMask((*i)->GetSpellProto()) & SPELL_SCHOOL_MASK_FROST)
                 {
