@@ -4673,7 +4673,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     // Statue unsummoned at aura remove
     Totem* statue = NULL;
     bool channeled = false;
-    if(IsChanneledSpell(AurSpellInfo))
+    if(Aur->GetAuraDuration() && IsChanneledSpell(AurSpellInfo))
     {
         if(!caster)                                         // can be already located for IsSingleTargetSpell case
             caster = Aur->GetCaster();
@@ -4697,6 +4697,22 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
                         //don't stop channeling of scripted spells (this is actually a hack)
                     {
                         caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->cancel();
+                    }
+                }
+            }
+
+            // Unsummon summon as possessed creatures on spell cancel
+            if(caster->GetTypeId() == TYPEID_PLAYER)
+            {
+                for(int i = 0; i < 3; ++i)
+                {
+                    if(AurSpellInfo->Effect[i] == SPELL_EFFECT_SUMMON &&
+                        (AurSpellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED ||
+                         AurSpellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED2 ||
+                         AurSpellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED3))
+                    {
+                        ((Player*)caster)->StopCastingCharm();
+                        break;
                     }
                 }
             }
