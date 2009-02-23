@@ -365,8 +365,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
 
             m_creature->AttackStop();
             m_creature->GetMotionMaster()->Clear();
-            m_creature->Relocate(JanalainPos[0][0],JanalainPos[0][1],JanalainPos[0][2],0);
-            m_creature->SendMonsterMove(JanalainPos[0][0], JanalainPos[0][1],JanalainPos[0][2],0,0,0);
+            DoTeleportTo(JanalainPos[0][0],JanalainPos[0][1],JanalainPos[0][2]);
             m_creature->StopMoving();
             m_creature->CastSpell(m_creature, SPELL_FIRE_BOMB_CHANNEL, false);
             //DoTeleportPlayer(m_creature, JanalainPos[0][0], JanalainPos[0][1],JanalainPos[0][2], 0);
@@ -399,8 +398,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
 
                 m_creature->AttackStop();
                 m_creature->GetMotionMaster()->Clear();
-                m_creature->Relocate(JanalainPos[0][0],JanalainPos[0][1],JanalainPos[0][2],0);
-                m_creature->SendMonsterMove(JanalainPos[0][0], JanalainPos[0][1],JanalainPos[0][2],0,0,0);
+                DoTeleportTo(JanalainPos[0][0],JanalainPos[0][1],JanalainPos[0][2]);                
                 m_creature->StopMoving();
                 m_creature->CastSpell(m_creature, SPELL_HATCH_ALL, false);
                 HatchAllEggs(2);

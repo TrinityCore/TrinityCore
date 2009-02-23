@@ -311,7 +311,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
             if (target)
             {
                 target->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
-                target->SendMonsterMove(x,y,m_creature->GetPositionZ()+15,0,0,0);
+                target->SendMonsterMove(x,y,m_creature->GetPositionZ()+15,0);
             }
             Unit *Cloud = m_creature->SummonTrigger(x, y, m_creature->GetPositionZ()+16, 0, 15000);
             if(Cloud)
