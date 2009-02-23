@@ -1151,7 +1151,7 @@ void Creature::AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint3
 
         m_startMove = getMSTime();
         m_moveTime = time;*/
-    SendMonsterMove(x, y, z, type, MovementFlags, time);
+    SendMonsterMove(x, y, z, time);
 }
 
 Player *Creature::GetLootRecipient() const
