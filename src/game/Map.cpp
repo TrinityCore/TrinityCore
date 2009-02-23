@@ -321,7 +321,7 @@ void Map::SwitchGridContainers(T* obj, bool apply)
 
     if(apply)
     {
-        assert(!grid.GetWorldObject(obj->GetGUID(), obj))
+        assert(!grid.GetWorldObject(obj->GetGUID(), obj));
         {
             grid.RemoveGridObject<T>(obj, obj->GetGUID());
             grid.AddWorldObject<T>(obj, obj->GetGUID());
@@ -329,7 +329,7 @@ void Map::SwitchGridContainers(T* obj, bool apply)
     }
     else
     {
-        assert(!grid.GetGridObject(obj->GetGUID(), obj))
+        assert(!grid.GetGridObject(obj->GetGUID(), obj));
         {
             grid.RemoveWorldObject<T>(obj, obj->GetGUID());
             grid.AddGridObject<T>(obj, obj->GetGUID());
