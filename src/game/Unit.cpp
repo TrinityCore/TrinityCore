@@ -367,7 +367,7 @@ void Unit::SendMonsterMoveWithSpeed(float x, float y, float z, uint32 MovementFl
 
 void Unit::SendMonsterStop()
 {
-    WorldPacket data( SMSG_MONSTER_MOVE, (41 + GetPackGUID().size()) );
+    WorldPacket data( SMSG_MONSTER_MOVE, (17 + GetPackGUID().size()) );
     data.append(GetPackGUID());
     data << GetPositionX() << GetPositionY() << GetPositionZ();
     data << getMSTime();
@@ -452,7 +452,7 @@ void Unit::SendMonsterMoveByPath(Path const& path, uint32 start, uint32 end)
     data << getMSTime();
 
     data << uint8( 0 );
-    data << uint32((GetUnitMovementFlags() & MOVEMENTFLAG_LEVITATING) ? MOVEFLAG_FLY : MOVEFLAG_WALK);
+    data << uint32(((GetUnitMovementFlags() & MOVEMENTFLAG_LEVITATING) || isInFlight())? MOVEFLAG_FLY : MOVEFLAG_WALK);
     data << uint32( traveltime );
     data << uint32( pathSize );
     data.append( (char*)path.GetNodes(start), pathSize * 4 * 3 );
