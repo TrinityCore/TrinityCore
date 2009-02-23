@@ -582,6 +582,17 @@ enum NPCFlags
     UNIT_NPC_FLAG_OUTDOORPVP            = 0x20000000,       // custom flag for outdoor pvp creatures
 };
 
+enum MoveFlags
+{
+    MOVEFLAG_NONE               = 0x00000000,
+    MOVEFLAG_SLIDE              = 0x00000002,
+    MOVEFLAG_MARCH_ON_SPOT      = 0x00000004,
+    MOVEFLAG_JUMP               = 0x00000008,
+    MOVEFLAG_WALK               = 0x00000100,
+    MOVEFLAG_FLY                = 0x00000200,   //For dragon (+walk = glide)
+    MOVEFLAG_ORIENTATION        = 0x00000400,   //Fix orientation
+};
+
 enum MovementFlags
 {
     MOVEMENTFLAG_NONE           = 0x00000000,
@@ -593,8 +604,8 @@ enum MovementFlags
     MOVEMENTFLAG_RIGHT          = 0x00000020,
     MOVEMENTFLAG_PITCH_UP       = 0x00000040,
     MOVEMENTFLAG_PITCH_DOWN     = 0x00000080,
-    MOVEMENTFLAG_WALK_MODE      = 0x00000100,               // Walking
-    MOVEMENTFLAG_ONTRANSPORT    = 0x00000200,               // Used for flying on some creatures
+    MOVEMENTFLAG_WALK_MODE      = 0x00000100,
+    MOVEMENTFLAG_ONTRANSPORT    = 0x00000200,
     MOVEMENTFLAG_LEVITATING     = 0x00000400,
     MOVEMENTFLAG_FLY_UNK1       = 0x00000800,
     MOVEMENTFLAG_JUMPING        = 0x00001000,
@@ -1124,8 +1135,10 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void SendSpellNonMeleeDamageLog(Unit *target,uint32 SpellID,uint32 Damage, SpellSchoolMask damageSchoolMask,uint32 AbsorbedDamage, uint32 Resist,bool PhysicalDamage, uint32 Blocked, bool CriticalHit = false);
         void SendSpellMiss(Unit *target, uint32 spellID, SpellMissInfo missInfo);
 
-        void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint8 type, uint32 MovementFlags, uint32 Time, Player* player = NULL);
-        void SendMonsterMoveByPath(Path const& path, uint32 start, uint32 end, uint32 MovementFlags);
+        void SendMonsterStop();
+        void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 Time, Player* player = NULL);
+        //void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint8 type, uint32 MovementFlags, uint32 Time, Player* player = NULL);
+        void SendMonsterMoveByPath(Path const& path, uint32 start, uint32 end);
         void SendMonsterMoveWithSpeed(float x, float y, float z, uint32 MovementFlags, uint32 transitTime = 0, Player* player = NULL);
         void SendMonsterMoveWithSpeedToCurrentDestination(Player* player = NULL);
 

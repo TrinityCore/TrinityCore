@@ -1470,8 +1470,7 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
         m_creature->AttackStop();
         m_creature->InterruptNonMeleeSpells(false);
         m_creature->GetMotionMaster()->Clear(false);
-        m_creature->Relocate(x, y, z);
-        m_creature->SendMonsterMove(x, y, z, 0, 0, 0);
+        DoTeleportTo(x, y, z);
         DoCast(m_creature, SPELL_TELEPORT_VISUAL, true);
     }
 
@@ -1947,7 +1946,7 @@ void boss_illidan_stormrageAI::HandleTalkSequence()
                 Akama->GetMotionMaster()->Clear(false);
                 //Akama->GetMotionMaster()->MoveIdle();
                 Akama->Relocate(x, y, z);
-                Akama->SendMonsterMove(x, y, z, 0, 0, 0);//Illidan must not die until Akama arrives.
+                Akama->SendMonsterMove(x, y, z, 0);//Illidan must not die until Akama arrives.
                 Akama->GetMotionMaster()->MoveChase(m_creature);
             }
         }

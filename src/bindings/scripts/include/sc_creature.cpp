@@ -684,7 +684,7 @@ void ScriptedAI::DoZoneInCombat(Unit* pUnit)
     for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
     {
         if (Player* i_pl = i->getSource())
-            if (!i_pl->isAlive())
+            if (i_pl->isAlive())
             {
                 pUnit->SetInCombatWith(i_pl);
                 i_pl->SetInCombatWith(pUnit);
@@ -724,6 +724,12 @@ void ScriptedAI::DoModifyThreatPercent(Unit *pUnit, int32 pct)
 {
     if(!pUnit) return;
     m_creature->getThreatManager().modifyThreatPercent(pUnit, pct);
+}
+
+void ScriptedAI::DoTeleportTo(float x, float y, float z, uint32 time)
+{
+    m_creature->Relocate(x,y,z);
+    m_creature->SendMonsterMove(x, y, z, time);
 }
 
 void ScriptedAI::DoTeleportPlayer(Unit* pUnit, float x, float y, float z, float o)

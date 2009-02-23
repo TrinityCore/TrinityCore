@@ -192,8 +192,7 @@ struct TRINITY_DLL_DECL boss_talon_king_ikissAI : public ScriptedAI
                 float Y = target->GetPositionY();
                 float Z = target->GetPositionZ();
 
-                m_creature->Relocate(X,Y,Z);
-                m_creature->SendMonsterMove(X, Y, Z, 0, 0, 0);
+                DoTeleportTo(X,Y,Z);
 
                 DoCast(target,SPELL_BLINK_TELEPORT);
                 Blink = true;
