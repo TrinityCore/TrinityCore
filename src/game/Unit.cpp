@@ -7688,13 +7688,13 @@ Unit* Unit::GetNextRandomRaidMemberOrPet(float radius)
         Player* Target = itr->getSource();
 
         // IsHostileTo check duel and controlled by enemy
-        if( Target && Target !=this && IsWithinDistInMap(Target, radius) &&
+        if( Target && Target !=this && Target->isAlive() && IsWithinDistInMap(Target, radius) &&
             !IsHostileTo(Target) )
             nearMembers.push_back(Target);
 
         // Push player's pet to vector
         Unit * pet = Target->GetPet();
-        if (pet && pet !=this && IsWithinDistInMap(pet, radius) &&
+        if (pet && pet !=this &&  pet->isAlive() && IsWithinDistInMap(pet, radius) &&
             !IsHostileTo(pet) )
             nearMembers.push_back(pet);
     }
@@ -12808,7 +12808,6 @@ void Unit::SendAuraUpdate(uint8 slot)
 
     if(!ptr)
     {
-        RemoveVisibleAura(slot);
         SendMessageToSet(&data, true);
         return;
     }
