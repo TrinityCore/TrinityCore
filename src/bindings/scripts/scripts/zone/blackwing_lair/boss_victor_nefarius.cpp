@@ -306,8 +306,7 @@ struct TRINITY_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
                     DoCast(m_creature,8149);
 
                     //Teleport self to a hiding spot (this causes errors in the Trinity log but no real issues)
-                    m_creature->Relocate(HIDE_X,HIDE_Y,HIDE_Z,0);
-                    m_creature->SendMonsterMove(HIDE_X,HIDE_Y,HIDE_Z,0,true,0);
+                    DoTeleportTo(HIDE_X,HIDE_Y,HIDE_Z);
                     m_creature->addUnitState(UNIT_STAT_FLEEING);
 
                     //Spawn nef and have him attack a random target
