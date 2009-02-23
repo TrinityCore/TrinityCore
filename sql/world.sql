@@ -274,8 +274,8 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `creature_formations`;
 CREATE TABLE `creature_formations` (
-  `leader` int(11) unsigned NOT NULL,
-  `follower` int(11) unsigned NOT NULL,
+  `leaderGUID` int(11) unsigned NOT NULL,
+  `memberGUID` int(11) unsigned NOT NULL,
   `dist` float unsigned NOT NULL,
   `angle` float unsigned NOT NULL,
   `groupAI` int(11) unsigned NOT NULL,
@@ -2912,26 +2912,24 @@ LOCK TABLES `spell_affect` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `spell_chain`
+-- Table structure for table `spell_required`
 --
 
-DROP TABLE IF EXISTS `spell_chain`;
-CREATE TABLE `spell_chain` (
+DROP TABLE IF EXISTS `spell_required`;
+CREATE TABLE `spell_required` (
   `spell_id` mediumint(9) NOT NULL default '0',
   `prev_spell` mediumint(9) NOT NULL default '0',
-  `first_spell` mediumint(9) NOT NULL default '0',
-  `rank` tinyint(4) NOT NULL default '0',
   `req_spell` mediumint(9) NOT NULL default '0',
   PRIMARY KEY  (`spell_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Spell Additinal Data';
 
 --
--- Dumping data for table `spell_chain`
+-- Dumping data for table `spell_required`
 --
 
-LOCK TABLES `spell_chain` WRITE;
-/*!40000 ALTER TABLE `spell_chain` DISABLE KEYS */;
-/*!40000 ALTER TABLE `spell_chain` ENABLE KEYS */;
+LOCK TABLES `spell_required` WRITE;
+/*!40000 ALTER TABLE `spell_required` DISABLE KEYS */;
+/*!40000 ALTER TABLE `spell_required` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -3233,6 +3231,7 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `version`;
 CREATE TABLE `version` (
     `core_version` varchar(120) default NULL COMMENT 'Core revision dumped at startup.',
+    `core_revision` BIGINT UNSIGNED default '0',
     `db_version` varchar(120) default NULL COMMENT 'Version of world DB.',
     `script_version` varchar(120) default NULL COMMENT 'Version of scripts DB.'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Version Notes';
