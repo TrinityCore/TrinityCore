@@ -218,10 +218,11 @@ enum BattleGroundJoinError
 class BattleGroundScore
 {
     public:
-        BattleGroundScore() : KillingBlows(0), HonorableKills(0), Deaths(0), DamageDone(0), HealingDone(0), BonusHonor(0) {};
-        virtual ~BattleGroundScore()                        //virtual destructor is used when deleting score from scores map
-        {
-        };
+        BattleGroundScore() : KillingBlows(0), Deaths(0), HonorableKills(0),
+            BonusHonor(0), DamageDone(0), HealingDone(0)
+        {}
+        virtual ~BattleGroundScore() {}                     //virtual destructor is used when deleting score from scores map
+
         uint32 KillingBlows;
         uint32 Deaths;
         uint32 HonorableKills;
@@ -448,7 +449,7 @@ class BattleGround
         void DoorClose(uint32 type);
         const char *GetTrinityString(int32 entry);
 
-        virtual bool HandlePlayerUnderMap(Player * plr) {return false;}
+        virtual bool HandlePlayerUnderMap(Player * /*plr*/) { return false; }
 
         // since arenas can be AvA or Hvh, we have to get the "temporary" team of a player
         uint32 GetPlayerTeam(uint64 guid);

@@ -350,14 +350,14 @@ void WorldSession::HandleItemQuerySingleOpcode( WorldPacket & recv_data )
         data << int32(pProto->Stackable);
         data << pProto->ContainerSlots;
         data << pProto->StatsCount;                         // item stats count
-        for(int i = 0; i < pProto->StatsCount; i++)
+        for(uint32 i = 0; i < pProto->StatsCount; ++i)
         {
             data << pProto->ItemStat[i].ItemStatType;
             data << pProto->ItemStat[i].ItemStatValue;
         }
         data << pProto->ScalingStatDistribution;            // scaling stats distribution
         data << pProto->ScalingStatValue;                   // some kind of flags used to determine stat values column
-        for(int i = 0; i < 5; i++)
+        for(int i = 0; i < 5; ++i)
         {
             data << pProto->Damage[i].DamageMin;
             data << pProto->Damage[i].DamageMax;
@@ -1137,7 +1137,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recv_data)
         return;
 
     //this slot is excepted when applying / removing meta gem bonus
-    uint8 slot = itemTarget->IsEquipped() ? itemTarget->GetSlot() : NULL_SLOT;
+    uint8 slot = itemTarget->IsEquipped() ? itemTarget->GetSlot() : uint8(NULL_SLOT);
 
     Item *Gems[MAX_GEM_SOCKETS];
     for(int i = 0; i < MAX_GEM_SOCKETS; ++i)

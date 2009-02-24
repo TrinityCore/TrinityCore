@@ -1034,7 +1034,7 @@ namespace Trinity
 
             ~LocalizedPacketDo()
             {
-                for(int i = 0; i < i_data_cache.size(); ++i)
+                for(size_t i = 0; i < i_data_cache.size(); ++i)
                     delete i_data_cache[i];
             }
             void operator()( Player* p );

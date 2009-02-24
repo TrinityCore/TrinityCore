@@ -67,11 +67,11 @@ class TRINITY_DLL_DECL NGrid
     public:
 
         typedef Grid<ACTIVE_OBJECT, WORLD_OBJECT_TYPES, GRID_OBJECT_TYPES, ThreadModel> GridType;
-        NGrid(uint32 id, int32 x, int32 y, time_t expiry, bool unload = true) :
-            i_gridId(id), i_cellstate(GRID_STATE_INVALID), i_x(x), i_y(y), i_GridObjectDataLoaded(false)
-            {
-                i_GridInfo = GridInfo(expiry, unload);
-            }
+        NGrid(uint32 id, int32 x, int32 y, time_t expiry, bool unload = true)
+            : i_gridId(id), i_x(x), i_y(y), i_cellstate(GRID_STATE_INVALID), i_GridObjectDataLoaded(false)
+        {
+            i_GridInfo = GridInfo(expiry, unload);
+        }
 
         const GridType& operator()(unsigned short x, unsigned short y) const { return i_cells[x][y]; }
         GridType& operator()(unsigned short x, unsigned short y) { return i_cells[x][y]; }

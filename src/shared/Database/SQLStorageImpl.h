@@ -22,13 +22,13 @@
 
 template<class T>
 template<class S, class D>
-void SQLStorageLoaderBase<T>::convert(uint32 field_pos, S src, D &dst)
+void SQLStorageLoaderBase<T>::convert(uint32 /*field_pos*/, S src, D &dst)
 {
     dst = D(src);
 }
 
 template<class T>
-void SQLStorageLoaderBase<T>::convert_str_to_str(uint32 field_pos, char *src, char *&dst)
+void SQLStorageLoaderBase<T>::convert_str_to_str(uint32 /*field_pos*/, char *src, char *&dst)
 {
     if(!src)
     {
@@ -45,7 +45,7 @@ void SQLStorageLoaderBase<T>::convert_str_to_str(uint32 field_pos, char *src, ch
 
 template<class T>
 template<class S>
-void SQLStorageLoaderBase<T>::convert_to_str(uint32 field_pos, S src, char * & dst)
+void SQLStorageLoaderBase<T>::convert_to_str(uint32 /*field_pos*/, S /*src*/, char * & dst)
 {
     dst = new char[1];
     *dst = 0;
@@ -53,7 +53,7 @@ void SQLStorageLoaderBase<T>::convert_to_str(uint32 field_pos, S src, char * & d
 
 template<class T>
 template<class D>
-void SQLStorageLoaderBase<T>::convert_from_str(uint32 field_pos, char * src, D& dst)
+void SQLStorageLoaderBase<T>::convert_from_str(uint32 /*field_pos*/, char * /*src*/, D& dst)
 {
     dst = 0;
 }

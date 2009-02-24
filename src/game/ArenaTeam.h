@@ -98,7 +98,7 @@ struct ArenaTeamMember
 
     void ModifyPersonalRating(Player* plr, int32 mod, uint32 slot)
     {
-        if (personal_rating + mod < 0)
+        if (int32(personal_rating) + mod < 0)
             personal_rating = 0;
         else
             personal_rating += mod;

@@ -210,9 +210,9 @@ void Map::DeleteStateMachine()
 }
 
 Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode)
-  : i_id(id), i_gridExpiry(expiry), i_mapEntry (sMapStore.LookupEntry(id)),
- i_InstanceId(InstanceId), i_spawnMode(SpawnMode), m_unloadTimer(0)
- , i_lock(false)
+  : i_mapEntry (sMapStore.LookupEntry(id)), i_spawnMode(SpawnMode),
+  i_id(id), i_InstanceId(InstanceId), m_unloadTimer(0), i_gridExpiry(expiry)
+  , i_lock(false)
 {
     for(unsigned int idx=0; idx < MAX_NUMBER_OF_GRIDS; ++idx)
     {
@@ -1641,8 +1641,9 @@ template void Map::Remove(DynamicObject *, bool);
 /* ******* Dungeon Instance Maps ******* */
 
 InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode)
-  : Map(id, expiry, InstanceId, SpawnMode), i_data(NULL),
-    m_resetAfterUnload(false), m_unloadWhenEmpty(false)
+  : Map(id, expiry, InstanceId, SpawnMode),
+    m_resetAfterUnload(false), m_unloadWhenEmpty(false),
+    i_data(NULL), i_script_id(0)
 {
     // the timer is started by default, and stopped when the first player joins
     // this make sure it gets unloaded if for some reason no player joins

@@ -341,7 +341,7 @@ int32 GetSpellMaxDuration(SpellEntry const *spellInfo);
 inline bool IsSpellHaveEffect(SpellEntry const *spellInfo, SpellEffects effect)
 {
     for(int i= 0; i < 3; ++i)
-        if(spellInfo->Effect[i]==effect)
+        if(SpellEffects(spellInfo->Effect[i])==effect)
             return true;
     return false;
 }
