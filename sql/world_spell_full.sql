@@ -74,7 +74,9 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 (45342,  45348,  1, 'Apply Flame Touched'),
 (46771,  45348,  1, 'Apply Flame Touched'),
 (45271,  45347,  1, 'Apply Dark Touched'),
-(45246,  45348,  1, 'Apply Flame Touched');
+(45246,  45348,  1, 'Apply Flame Touched'),
+(44869, -45018,  1, 'Remove Arcane Buffet'),
+(46019, -45018,  1, 'Remove Arcane Buffet');
 
 
 -- --------
