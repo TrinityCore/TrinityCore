@@ -290,7 +290,7 @@ void AuctionHouseMgr::LoadAuctionItems()
     {
         barGoLink bar(1);
         bar.step();
-        sLog.outString("");
+        sLog.outString();
         sLog.outString(">> Loaded 0 auction items");
         return;
     }
@@ -341,7 +341,7 @@ void AuctionHouseMgr::LoadAuctions()
     {
         barGoLink bar(1);
         bar.step();
-        sLog.outString("");
+        sLog.outString();
         sLog.outString(">> Loaded 0 auctions. DB table `auctionhouse` is empty.");
         return;
     }
@@ -354,7 +354,7 @@ void AuctionHouseMgr::LoadAuctions()
     {
         barGoLink bar(1);
         bar.step();
-        sLog.outString("");
+        sLog.outString();
         sLog.outString(">> Loaded 0 auctions. DB table `auctionhouse` is empty.");
         return;
     }
@@ -364,7 +364,7 @@ void AuctionHouseMgr::LoadAuctions()
     {
         barGoLink bar(1);
         bar.step();
-        sLog.outString("");
+        sLog.outString();
         sLog.outString(">> Loaded 0 auctions. DB table `auctionhouse` is empty.");
         return;
     }
@@ -583,22 +583,22 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
 
         ItemPrototype const *proto = item->GetProto();
 
-        if (itemClass != (0xffffffff) && proto->Class != itemClass)
+        if (itemClass != 0xffffffff && proto->Class != itemClass)
             continue;
 
-        if (itemSubClass != (0xffffffff) && proto->SubClass != itemSubClass)
+        if (itemSubClass != 0xffffffff && proto->SubClass != itemSubClass)
             continue;
 
-        if (inventoryType != (0xffffffff) && proto->InventoryType != inventoryType)
+        if (inventoryType != 0xffffffff && proto->InventoryType != inventoryType)
             continue;
 
-        if (quality != (0xffffffff) && proto->Quality != quality)
+        if (quality != 0xffffffff && proto->Quality != quality)
             continue;
 
-        if( levelmin != (0x00) && (proto->RequiredLevel < levelmin || levelmax != (0x00) && proto->RequiredLevel > levelmax ) )
+        if (levelmin != 0x00 && (proto->RequiredLevel < levelmin || (levelmax != 0x00 && proto->RequiredLevel > levelmax)))
             continue;
 
-        if( usable != (0x00) && player->CanUseItem( item ) != EQUIP_ERR_OK )
+        if (usable != 0x00 && player->CanUseItem( item ) != EQUIP_ERR_OK)
             continue;
 
         std::string name = proto->Name1;
@@ -616,10 +616,10 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
             }
         }
 
-        if( !wsearchedname.empty() && !Utf8FitTo(name, wsearchedname) )
+        if (!wsearchedname.empty() && !Utf8FitTo(name, wsearchedname) )
             continue;
 
-        if ((count < 50) && (totalcount >= listfrom))
+        if (count < 50 && totalcount >= listfrom)
         {
             ++count;
             Aentry->BuildAuctionInfo(data);

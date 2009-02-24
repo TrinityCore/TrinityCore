@@ -489,8 +489,7 @@ int WorldSocket::handle_input_header (void)
     EndianConvertReverse(header.size);
     EndianConvert(header.cmd);
 
-    if ((header.size < 4) || (header.size > 10240) ||
-        (header.cmd  < 0) || (header.cmd  > 10240) )
+    if ((header.size < 4) || (header.size > 10240) || (header.cmd  > 10240))
     {
         sLog.outError ("WorldSocket::handle_input_header: client sent mailformed packet size = %d , cmd = %d",
                        header.size, header.cmd);
@@ -734,7 +733,7 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
         }
         else
         {
-            sLog.outError ("WorldSocket::ProcessIncoming: Client not authed opcode = ", opcode);
+            sLog.outError ("WorldSocket::ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
             return -1;
         }
     }
