@@ -599,11 +599,7 @@ void World::LoadConfigSettings(bool reload)
     {
         uint32 val = sConfig.GetIntDefault("SocketSelectTime", DEFAULT_SOCKET_SELECT_TIME);
         if(val!=m_configs[CONFIG_SOCKET_SELECTTIME])
-<<<<<<< HEAD:src/game/World.cpp
-            sLog.outError("SocketSelectTime option can't be changed at Trinityd.conf reload, using current value (%u).",m_configs[DEFAULT_SOCKET_SELECT_TIME]);
-=======
-            sLog.outError("SocketSelectTime option can't be changed at mangosd.conf reload, using current value (%u).",m_configs[CONFIG_SOCKET_SELECTTIME]);
->>>>>>> 76028880380c6f08320a1b55c2c9882741bf877a:src/game/World.cpp
+            sLog.outError("SocketSelectTime option can't be changed at Trinityd.conf reload, using current value (%u).",m_configs[CONFIG_SOCKET_SELECTTIME]);
     }
     else
         m_configs[CONFIG_SOCKET_SELECTTIME] = sConfig.GetIntDefault("SocketSelectTime", DEFAULT_SOCKET_SELECT_TIME);
@@ -1111,15 +1107,9 @@ void World::SetInitialWorldSettings()
     }
 
     ///- Loading strings. Getting no records means core load has to be canceled because no error message can be output.
-<<<<<<< HEAD:src/game/World.cpp
-    sLog.outString( "" );
+    sLog.outString();
     sLog.outString( "Loading Trinity strings..." );
     if (!objmgr.LoadTrinityStrings())
-=======
-    sLog.outString();
-    sLog.outString("Loading MaNGOS strings...");
-    if (!objmgr.LoadMangosStrings())
->>>>>>> 76028880380c6f08320a1b55c2c9882741bf877a:src/game/World.cpp
         exit(1);                                            // Error message displayed in function already
 
     ///- Update the realm entry in the database with the realm type from the config file
