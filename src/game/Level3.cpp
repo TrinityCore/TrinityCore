@@ -3553,7 +3553,7 @@ bool ChatHandler::HandleGuildInviteCommand(const char *args)
         plGuid = objmgr.GetPlayerGUIDByName (plName);
 
     if (!plGuid)
-        false;
+        return false;
 
     // player's guild membership checked in AddMember before add
     if (!targetGuild->AddMember (plGuid,targetGuild->GetLowestRank ()))
@@ -6984,8 +6984,6 @@ bool ChatHandler::HandleSendMoneyCommand(const char* args)
         SetSentErrorMessage(true);
         return false;
     }
-
-    uint32 mailId = objmgr.GenerateMailID();
 
     // from console show not existed sender
     uint32 sender_guidlo = m_session ? m_session->GetPlayer()->GetGUIDLow() : 0;

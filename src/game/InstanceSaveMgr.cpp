@@ -142,9 +142,8 @@ void InstanceSaveManager::RemoveInstanceSave(uint32 InstanceId)
     }
 }
 
-InstanceSave::InstanceSave(uint16 MapId, uint32 InstanceId, uint8 difficulty,
-                           time_t resetTime, bool canReset)
-: m_mapid(MapId), m_instanceid(InstanceId), m_resetTime(resetTime),
+InstanceSave::InstanceSave(uint16 MapId, uint32 InstanceId, uint8 difficulty, time_t resetTime, bool canReset)
+: m_resetTime(resetTime), m_instanceid(InstanceId), m_mapid(MapId),
   m_difficulty(difficulty), m_canReset(canReset)
 {
 }
@@ -375,14 +374,14 @@ void InstanceSaveManager::LoadResetTimes()
     // get the current reset times for normal instances (these may need to be updated)
     // these are only kept in memory for InstanceSaves that are loaded later
     // resettime = 0 in the DB for raid/heroic instances so those are skipped
-    typedef std::map<uint32, std::pair<uint32, uint64> > ResetTimeMapType;
+    typedef std::map<uint32, std::pair<uint32, time_t> > ResetTimeMapType;
     ResetTimeMapType InstResetTime;
     QueryResult *result = CharacterDatabase.Query("SELECT id, map, resettime FROM instance WHERE resettime > 0");
     if( result )
     {
         do
         {
-            if(uint64 resettime = (*result)[2].GetUInt64())
+            if(time_t resettime = time_t((*result)[2].GetUInt64()))
             {
                 uint32 id = (*result)[0].GetUInt32();
                 uint32 mapid = (*result)[1].GetUInt32();
@@ -400,11 +399,11 @@ void InstanceSaveManager::LoadResetTimes()
             {
                 Field *fields = result->Fetch();
                 uint32 instance = fields[1].GetUInt32();
-                uint64 resettime = fields[0].GetUInt64() + 2 * HOUR;
+                time_t resettime = time_t(fields[0].GetUInt64() + 2 * HOUR);
                 ResetTimeMapType::iterator itr = InstResetTime.find(instance);
                 if(itr != InstResetTime.end() && itr->second.second != resettime)
                 {
-                    CharacterDatabase.DirectPExecute("UPDATE instance SET resettime = '"I64FMTD"' WHERE id = '%u'", resettime, instance);
+                    CharacterDatabase.DirectPExecute("UPDATE instance SET resettime = '"I64FMTD"' WHERE id = '%u'", uint64(resettime), instance);
                     itr->second.second = resettime;
                 }
             }

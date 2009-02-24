@@ -200,7 +200,7 @@ void PlayerMenu::SendPointOfInterest( uint32 poi_id )
     PointOfInterest const* poi = objmgr.GetPointOfInterest(poi_id);
     if(!poi)
     {
-        sLog.outErrorDb("Requested send not existed POI (Id: %u), ignore.");
+        sLog.outErrorDb("Requested send not existed POI (Id: %u), ignore.",poi_id);
         return;
     }
 
