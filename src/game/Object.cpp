@@ -1597,8 +1597,29 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 
     if(petType == SUMMON_PET && pet->LoadPetFromDB(this, entry))
     {
+        // Remove Demonic Sacrifice auras (known pet)
+        Unit::AuraList const& auraClassScripts = GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
+        for(Unit::AuraList::const_iterator itr = auraClassScripts.begin();itr!=auraClassScripts.end();)
+        {
+            if((*itr)->GetModifier()->m_miscvalue==2228)
+            {
+                RemoveAurasDueToSpell((*itr)->GetId());
+                itr = auraClassScripts.begin();
+            }
+            else
+                ++itr;
+        }
+
         if(duration > 0)
             pet->SetDuration(duration);
+
+        return NULL;
+    }
+
+    // petentry==0 for hunter "call pet" (current pet summoned if any)
+    if(!entry)
+    {
+        delete pet;
         return NULL;
     }
 
@@ -1620,26 +1641,60 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
         return NULL;
     }
 
-    if(duration > 0)
-        pet->SetDuration(duration);
-
     pet->SetOwnerGUID(GetGUID());
     pet->SetCreatorGUID(GetGUID());
     pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, getFaction());
 
+    // this enables pet details window (Shift+P)
     pet->GetCharmInfo()->SetPetNumber(pet_number, false);
 
     pet->AIM_Initialize();
 
     map->Add((Creature*)pet);
 
+    pet->setPowerType(POWER_MANA);
+    pet->SetUInt32Value(UNIT_NPC_FLAGS , 0);
+    pet->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
+    pet->InitStatsForLevel(getLevel());
+
     switch(petType)
     {
         case GUARDIAN_PET:
         case POSSESSED_PET:
+            pet->SetUInt32Value(UNIT_FIELD_FLAGS,0);
             AddGuardian(pet);
             break;
+        case SUMMON_PET:
+            pet->SetUInt32Value(UNIT_FIELD_BYTES_0, 2048);
+            pet->SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
+            pet->SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
+            pet->SetHealth(pet->GetMaxHealth());
+            pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
+            pet->InitPetCreateSpells();
+            pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+            SetPet(pet);
+            PetSpellInitialize();
+            break;
     }
+
+    if(petType == SUMMON_PET)
+    {
+        // Remove Demonic Sacrifice auras (known pet)
+        Unit::AuraList const& auraClassScripts = GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
+        for(Unit::AuraList::const_iterator itr = auraClassScripts.begin();itr!=auraClassScripts.end();)
+        {
+            if((*itr)->GetModifier()->m_miscvalue==2228)
+            {
+                RemoveAurasDueToSpell((*itr)->GetId());
+                itr = auraClassScripts.begin();
+            }
+            else
+                ++itr;
+        }
+    }
+
+    if(duration > 0)
+        pet->SetDuration(duration);
 
     return pet;
 }
