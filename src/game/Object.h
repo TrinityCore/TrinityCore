@@ -358,11 +358,7 @@ class TRINITY_DLL_SPEC Object
 class TRINITY_DLL_SPEC WorldObject : public Object
 {
     public:
-        virtual ~WorldObject ( );
-
-        virtual void AddToWorld();
-
-        virtual void RemoveFromWorld();
+        virtual ~WorldObject ( ) {}
 
         virtual void Update ( uint32 /*time_diff*/ ) { }
 
