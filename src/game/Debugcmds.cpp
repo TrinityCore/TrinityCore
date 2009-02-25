@@ -195,12 +195,20 @@ bool ChatHandler::HandleSendOpcodeCommand(const char* /*args*/)
             data.append(unit->GetPackGUID());
         }
         else if(type == "myguid")
+        {
             data.append(player->GetPackGUID());
+        }
         else if(type == "pos")
         {
             data << unit->GetPositionX();
             data << unit->GetPositionY();
             data << unit->GetPositionZ();
+        }
+        else if(type == "mypos")
+        {
+            data << player->GetPositionX();
+            data << player->GetPositionY();
+            data << player->GetPositionZ();
         }
         else
         {

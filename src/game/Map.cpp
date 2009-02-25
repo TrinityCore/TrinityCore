@@ -474,6 +474,8 @@ Map::Add(T *obj)
 
     AddToGrid(obj,grid,cell);
     obj->AddToWorld();
+    if(obj->isActive())
+        AddActiveObject(obj);
 
     DEBUG_LOG("Object %u enters grid[%u,%u]", GUID_LOPART(obj->GetGUID()), cell.GridX(), cell.GridY());
 
@@ -799,6 +801,8 @@ Map::Remove(T *obj, bool remove)
     assert( grid != NULL );
 
     obj->RemoveFromWorld();
+    if(obj->isActive())
+        RemoveActiveObject(obj);
     RemoveFromGrid(obj,grid,cell);
 
     UpdateObjectVisibility(obj,cell,p);
