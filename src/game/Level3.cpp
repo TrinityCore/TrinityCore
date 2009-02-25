@@ -3672,18 +3672,36 @@ bool ChatHandler::HandleGuildDeleteCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleGetDistanceCommand(const char* /*args*/)
+bool ChatHandler::HandleGetDistanceCommand(const char* args)
 {
-    Unit* pUnit = getSelectedUnit();
+    WorldObject* obj;
 
-    if(!pUnit)
+    if (*args)
     {
-        SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
-        SetSentErrorMessage(true);
-        return false;
+        uint64 guid = extractGuidFromLink((char*)args);
+        if(guid)
+            obj = (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*m_session->GetPlayer(),guid,TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
+
+        if(!obj)
+        {
+            SendSysMessage(LANG_PLAYER_NOT_FOUND);
+            SetSentErrorMessage(true);
+            return false;
+        }
+    }
+    else
+    {
+        obj = getSelectedUnit();
+
+        if(!obj)
+        {
+            SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+            SetSentErrorMessage(true);
+            return false;
+        }
     }
 
-    PSendSysMessage(LANG_DISTANCE, m_session->GetPlayer()->GetDistance(pUnit),m_session->GetPlayer()->GetDistance2d(pUnit));
+    PSendSysMessage(LANG_DISTANCE, m_session->GetPlayer()->GetDistance(obj),m_session->GetPlayer()->GetDistance2d(obj));
 
     return true;
 }

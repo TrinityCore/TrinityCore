@@ -22,7 +22,7 @@
 DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
-  `required_7331_01_mangos_command` bit(1) default NULL
+  `required_7332_01_mangos_command` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -275,7 +275,7 @@ INSERT INTO `command` VALUES
 ('demorph',2,'Syntax: .demorph\r\n\r\nDemorph the selected player.'),
 ('die',3,'Syntax: .die\r\n\r\nKill the selected player. If no player is selected, it will kill you.'),
 ('dismount',0,'Syntax: .dismount\r\n\r\nDismount you, if you are mounted.'),
-('distance',3,'Syntax: .distance\r\n\r\nDisplay the distance from your character to the selected creature.'),
+('distance',3,'Syntax: .distance [$name/$link]\r\n\r\nDisplay the distance from your character to the selected creature/player, or player with name $name, or player/creature/gameobject pointed to shift-link with guid.'),
 ('event',2,'Syntax: .event #event_id\r\nShow details about event with #event_id.'),
 ('event activelist',2,'Syntax: .event activelist\r\nShow list of currently active events.'),
 ('event start',2,'Syntax: .event start #event_id\r\nStart event #event_id. Set start time for event to current moment (change not saved in DB).'),
