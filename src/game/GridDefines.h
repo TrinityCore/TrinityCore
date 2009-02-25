@@ -96,24 +96,32 @@ struct TRINITY_DLL_DECL CoordPair
     {
         if( x_coord >= val )
             x_coord -= val;
+        else
+            x_coord = 0;
     }
 
     void operator>>(const uint32 val)
     {
         if( x_coord+val < LIMIT )
             x_coord += val;
+        else
+            x_coord = LIMIT - 1;
     }
 
     void operator-=(const uint32 val)
     {
         if( y_coord >= val )
             y_coord -= val;
+        else
+            y_coord = 0;
     }
 
     void operator+=(const uint32 val)
     {
         if( y_coord+val < LIMIT )
             y_coord += val;
+        else
+            y_coord = LIMIT - 1;
     }
 
     uint32 x_coord;
