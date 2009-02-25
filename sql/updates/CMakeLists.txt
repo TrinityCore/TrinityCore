@@ -43,4 +43,5 @@ INSTALL(FILES
 1484_mangos_7307_01_characters_arena_team_member.sql
 1495_mangos_7312_01_world_trinity_string.sql
 1497_mangos_7314_01_characters_guild_rank.sql
+1558_world_spell_linked_spell.sql
 DESTINATION share/trinity/sql/updates)
