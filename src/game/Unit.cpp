@@ -12635,6 +12635,8 @@ bool Unit::HandleMeandingAuraProc( Aura* triggeredByAura )
                 caster->AddSpellMod(mod, true);
                 CastCustomSpell(target,spellProto->Id,&heal,NULL,NULL,true,NULL,triggeredByAura,caster->GetGUID());
                 caster->AddSpellMod(mod, false);
+
+                heal = caster->SpellHealingBonus(spellProto, heal, HEAL, this);
             }
         }
     }
