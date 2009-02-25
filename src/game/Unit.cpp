@@ -5502,7 +5502,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 // 41409 Dementia: Every 5 seconds either gives you -5% damage/healing. (Druid, Shaman, Priest, Warlock, Mage, Paladin)
                 case 39446:
                 {
-                    if(GetTypeId() != TYPEID_PLAYER)
+                    if(GetTypeId() != TYPEID_PLAYER || !this->isAlive())
                         return false;
 
                     // Select class defined buff
