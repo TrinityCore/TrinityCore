@@ -4332,6 +4332,9 @@ Aura* Unit::GetAura(AuraType type, uint32 family, uint32 familyFlag1, uint32 fam
 
 bool Unit::HasAura(uint32 spellId) const
 {
+    //Special case for non existing spell
+    if (spellId==61988)
+        return HasAura(61987) || HasAura(25771);
     for (int i = 0; i < 3 ; ++i)
     {
         AuraMap::const_iterator iter = m_Auras.find(spellEffectPair(spellId, i));
