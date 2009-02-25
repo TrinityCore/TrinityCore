@@ -6937,7 +6937,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
         // Bloodthirst (($m/100)% of max health)
         case 23880:
         {
-            basepoints0 = int32(GetMaxHealth() * triggerAmount / 10000);
+            basepoints0 = int32(GetMaxHealth() * triggerAmount / 100);
             break;
         }
         // Shamanistic Rage triggered spell
