@@ -1070,12 +1070,6 @@ WorldObject::WorldObject()
     m_isActive          = false;
 }
 
-WorldObject::~WorldObject()
-{
-    if(m_isActive && !isType(TYPEMASK_PLAYER) && IsInWorld())
-        GetMap()->RemoveActiveObject(this);
-}
-
 void WorldObject::setActive(bool isActive)
 {
     // if already in the same activity state as we try to set, do nothing
@@ -1090,20 +1084,6 @@ void WorldObject::setActive(bool isActive)
         else
             GetMap()->RemoveActiveObject(this);
     }
-}
-
-void WorldObject::AddToWorld()
-{
-    Object::AddToWorld();
-    if(m_isActive && !isType(TYPEMASK_PLAYER))
-        GetMap()->AddActiveObject(this);
-}
-
-void WorldObject::RemoveFromWorld()
-{
-    if(m_isActive && IsInWorld() && !isType(TYPEMASK_PLAYER))
-        GetMap()->RemoveActiveObject(this);
-    Object::RemoveFromWorld();
 }
 
 void WorldObject::_Create( uint32 guidlow, HighGuid guidhigh, uint32 mapid )
@@ -1613,42 +1593,55 @@ Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, floa
 
 Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 duration)
 {
-    Pet* pCreature = new Pet(petType);
+    Pet* pet = new Pet(petType);
 
-    Map *map = GetMap();
-    uint32 pet_number = objmgr.GeneratePetNumber();
-    if(!pCreature->Create(objmgr.GenerateLowGuid(HIGHGUID_PET), map, entry, pet_number))
+    if(petType == SUMMON_PET && pet->LoadPetFromDB(this, entry))
     {
-        sLog.outError("no such creature entry %u", entry);
-        delete pCreature;
+        if(duration > 0)
+            pet->SetDuration(duration);
         return NULL;
     }
 
-    pCreature->Relocate(x, y, z, ang);
-
-    if(!pCreature->IsPositionValid())
+    Map *map = GetMap();
+    uint32 pet_number = objmgr.GeneratePetNumber();
+    if(!pet->Create(objmgr.GenerateLowGuid(HIGHGUID_PET), map, entry, pet_number))
     {
-        sLog.outError("ERROR: Pet (guidlow %d, entry %d) not summoned. Suggested coordinates isn't valid (X: %f Y: %f)",pCreature->GetGUIDLow(),pCreature->GetEntry(),pCreature->GetPositionX(),pCreature->GetPositionY());
-        delete pCreature;
+        sLog.outError("no such creature entry %u", entry);
+        delete pet;
+        return NULL;
+    }
+
+    pet->Relocate(x, y, z, ang);
+
+    if(!pet->IsPositionValid())
+    {
+        sLog.outError("ERROR: Pet (guidlow %d, entry %d) not summoned. Suggested coordinates isn't valid (X: %f Y: %f)",pet->GetGUIDLow(),pet->GetEntry(),pet->GetPositionX(),pet->GetPositionY());
+        delete pet;
         return NULL;
     }
 
     if(duration > 0)
-        pCreature->SetDuration(duration);
+        pet->SetDuration(duration);
 
-    pCreature->SetOwnerGUID(GetGUID());
-    pCreature->SetCreatorGUID(GetGUID());
-    pCreature->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, getFaction());
+    pet->SetOwnerGUID(GetGUID());
+    pet->SetCreatorGUID(GetGUID());
+    pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, getFaction());
 
-    pCreature->GetCharmInfo()->SetPetNumber(pet_number, false);
+    pet->GetCharmInfo()->SetPetNumber(pet_number, false);
 
-    pCreature->AIM_Initialize();
+    pet->AIM_Initialize();
 
-    map->Add((Creature*)pCreature);
+    map->Add((Creature*)pet);
 
-    AddGuardian(pCreature);
+    switch(petType)
+    {
+        case GUARDIAN_PET:
+        case POSSESSED_PET:
+            AddGuardian(pet);
+            break;
+    }
 
-    return pCreature;
+    return pet;
 }
 
 GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime)
