@@ -172,7 +172,7 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         void SetUnloadFlag(const GridPair &p, bool unload) { getNGrid(p.x_coord, p.y_coord)->setUnloadFlag(unload); }
         void LoadGrid(float x, float y);
         bool UnloadGrid(const uint32 &x, const uint32 &y, bool pForce);
-        virtual void UnloadAll(bool pForce);
+        virtual void UnloadAll();
 
         void ResetGridExpiry(NGridType &grid, float factor = 1) const
         {
@@ -367,7 +367,7 @@ class TRINITY_DLL_SPEC InstanceMap : public Map
         InstanceData* GetInstanceData() { return i_data; }
         void PermBindAllPlayers(Player *player);
         time_t GetResetTime();
-        void UnloadAll(bool pForce);
+        void UnloadAll();
         bool CanEnter(Player* player);
         void SendResetWarnings(uint32 timeLeft) const;
         void SetResetSchedule(bool on);
@@ -388,7 +388,7 @@ class TRINITY_DLL_SPEC BattleGroundMap : public Map
         void Remove(Player *, bool);
         bool CanEnter(Player* player);
         void SetUnload();
-        void UnloadAll(bool pForce);
+        void UnloadAll();
 };
 
 /*inline

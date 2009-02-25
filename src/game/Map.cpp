@@ -51,7 +51,7 @@ GridState* si_GridStates[MAX_GRID_STATE];
 
 Map::~Map()
 {
-    UnloadAll(true);
+    UnloadAll();
 }
 
 bool Map::ExistMap(uint32 mapid,int x,int y)
@@ -1019,30 +1019,43 @@ bool Map::CreatureRespawnRelocation(Creature *c)
         return false;
 }
 
-bool Map::UnloadGrid(const uint32 &x, const uint32 &y, bool pForce)
+bool Map::UnloadGrid(const uint32 &x, const uint32 &y, bool unloadAll)
 {
     NGridType *grid = getNGrid(x, y);
     assert( grid != NULL);
 
     {
-        if(!pForce && PlayersNearGrid(x, y) )
-            return false;
+        if(!unloadAll)
+        {
+            if(ActiveObjectsNearGrid(x, y))
+                return false;
+        }
+        else
+            assert(!PlayersNearGrid(x, y));
 
         DEBUG_LOG("Unloading grid[%u,%u] for map %u", x,y, i_id);
         ObjectGridUnloader unloader(*grid);
 
-        // Finish creature moves, remove and delete all creatures with delayed remove before moving to respawn grids
-        // Must know real mob position before move
-        DoDelayedMovesAndRemoves();
+        if(!unloadAll)
+        {
+            // Finish creature moves, remove and delete all creatures with delayed remove before moving to respawn grids
+            // Must know real mob position before move
+            DoDelayedMovesAndRemoves();
 
-        // move creatures to respawn grids if this is diff.grid or to remove list
-        unloader.MoveToRespawnN();
+            // move creatures to respawn grids if this is diff.grid or to remove list
+            unloader.MoveToRespawnN();
 
-        // Finish creature moves, remove and delete all creatures with delayed remove before unload
-        DoDelayedMovesAndRemoves();
+            // Finish creature moves, remove and delete all creatures with delayed remove before unload
+            DoDelayedMovesAndRemoves();
+        }
+        else
+            RemoveAllObjectsInRemoveList();
 
+        assert(grid.NoWorldObjectInGrid());
         unloader.UnloadN();
-        delete getNGrid(x, y);
+        assert(grid.NoWorldObjectInGrid());
+        assert(grid.NoGridObjectInGrid());
+        delete grid;
         setNGrid(NULL, x, y);
     }
     int gx=63-x;
@@ -1065,7 +1078,7 @@ bool Map::UnloadGrid(const uint32 &x, const uint32 &y, bool pForce)
     return true;
 }
 
-void Map::UnloadAll(bool pForce)
+void Map::UnloadAll()
 {
     // clear all delayed moves, useless anyway do this moves before map unload.
     i_creaturesToMove.clear();
@@ -1074,7 +1087,7 @@ void Map::UnloadAll(bool pForce)
     {
         NGridType &grid(*i->getSource());
         ++i;
-        UnloadGrid(grid.getX(), grid.getY(), pForce);       // deletes the grid and removes it from the GridRefManager
+        UnloadGrid(grid.getX(), grid.getY(), true);       // deletes the grid and removes it from the GridRefManager
     }
 }
 
@@ -1935,7 +1948,7 @@ time_t InstanceMap::GetResetTime()
     return save ? save->GetDifficulty() : DIFFICULTY_NORMAL;
 }
 
-void InstanceMap::UnloadAll(bool pForce)
+void InstanceMap::UnloadAll()
 {
     if(HavePlayers())
     {
@@ -1950,7 +1963,7 @@ void InstanceMap::UnloadAll(bool pForce)
     if(m_resetAfterUnload == true)
         objmgr.DeleteRespawnTimeForInstance(GetInstanceId());
 
-    Map::UnloadAll(pForce);
+    Map::UnloadAll();
 }
 
 void InstanceMap::SendResetWarnings(uint32 timeLeft) const
@@ -2023,7 +2036,7 @@ void BattleGroundMap::SetUnload()
     m_unloadTimer = MIN_UNLOAD_DELAY;
 }
 
-void BattleGroundMap::UnloadAll(bool pForce)
+void BattleGroundMap::UnloadAll()
 {
     while(HavePlayers())
     {
@@ -2035,7 +2048,7 @@ void BattleGroundMap::UnloadAll(bool pForce)
         plr->GetMapRef().unlink();
     }
 
-    Map::UnloadAll(pForce);
+    Map::UnloadAll();
 }
 
 /*--------------------------TRINITY-------------------------*/
