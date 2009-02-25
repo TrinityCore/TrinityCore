@@ -1675,6 +1675,8 @@ void Creature::setDeathState(DeathState s)
     }
     if(s == JUST_ALIVED)
     {
+        if(isPet())
+            setActive(true);
         SetHealth(GetMaxHealth());
         SetLootRecipient(NULL);
         Unit::setDeathState(ALIVE);
