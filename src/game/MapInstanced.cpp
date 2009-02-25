@@ -89,11 +89,11 @@ bool MapInstanced::RemoveBones(uint64 guid, float x, float y)
     return remove_result || Map::RemoveBones(guid,x,y);
 }
 
-void MapInstanced::UnloadAll(bool pForce)
+void MapInstanced::UnloadAll()
 {
     // Unload instanced maps
     for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
-        i->second->UnloadAll(pForce);
+        i->second->UnloadAll();
 
     // Delete the maps only after everything is unloaded to prevent crashes
     for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
@@ -102,7 +102,7 @@ void MapInstanced::UnloadAll(bool pForce)
     m_InstancedMaps.clear();
 
     // Unload own grids (just dummy(placeholder) grids, neccesary to unload GridMaps!)
-    Map::UnloadAll(pForce);
+    Map::UnloadAll();
 }
 
 /*
@@ -259,14 +259,14 @@ void MapInstanced::DestroyInstance(uint32 InstanceId)
 // increments the iterator after erase
 void MapInstanced::DestroyInstance(InstancedMaps::iterator &itr)
 {
-    itr->second->UnloadAll(true);
+    itr->second->UnloadAll();
     // should only unload VMaps if this is the last instance and grid unloading is enabled
     if(m_InstancedMaps.size() <= 1 && sWorld.getConfig(CONFIG_GRID_UNLOAD))
     {
         VMAP::VMapFactory::createOrGetVMapManager()->unloadMap(itr->second->GetId());
         // in that case, unload grids of the base map, too
         // so in the next map creation, (EnsureGridCreated actually) VMaps will be reloaded
-        Map::UnloadAll(true);
+        Map::UnloadAll();
     }
     // erase map
     delete itr->second;

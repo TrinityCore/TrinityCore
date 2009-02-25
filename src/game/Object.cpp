@@ -1538,7 +1538,7 @@ Map const* WorldObject::GetBaseMap() const
 
 void WorldObject::AddObjectToRemoveList()
 {
-    Map* map = GetMap();
+    Map* map = MapManager::Instance().FindMap(GetMapId(), GetInstanceId());
     if(!map)
     {
         sLog.outError("Object (TypeId: %u Entry: %u GUID: %u) at attempt add to move list not have valid map (Id: %u).",GetTypeId(),GetEntry(),GetGUIDLow(),GetMapId());
