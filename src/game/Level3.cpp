@@ -6433,21 +6433,21 @@ when attempting to use the PointMovementGenerator
 */
 bool ChatHandler::HandleComeToMeCommand(const char *args)
 {
-    Creature* caster = getSelectedCreature();
-
-    if(!caster)
-    {
-        SendSysMessage(LANG_SELECT_CREATURE);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
     char* newFlagStr = strtok((char*)args, " ");
 
     if(!newFlagStr)
         return false;
 
-    uint32 newFlags = atoi(newFlagStr);
+    uint32 newFlags = (uint32)strtoul(newFlagStr, NULL, 0);
+
+    Creature* caster = getSelectedCreature();
+    if(!caster)
+    {
+        m_session->GetPlayer()->SetUnitMovementFlags(newFlags);
+        SendSysMessage(LANG_SELECT_CREATURE);
+        SetSentErrorMessage(true);
+        return false;
+    }
 
     caster->SetUnitMovementFlags(newFlags);
 

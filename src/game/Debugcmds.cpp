@@ -132,8 +132,12 @@ bool ChatHandler::HandleBuyErrorCommand(const char* args)
 bool ChatHandler::HandleSendOpcodeCommand(const char* /*args*/)
 {
     Unit *unit = getSelectedUnit();
+    Player *player = NULL;
     if (!unit || (unit->GetTypeId() != TYPEID_PLAYER))
-        unit = m_session->GetPlayer();
+        player = m_session->GetPlayer();
+    else
+        player = (Player*)unit;
+    if(!unit) unit = player;
 
     std::ifstream ifs("opcode.txt");
     if(ifs.bad())
@@ -191,6 +195,22 @@ bool ChatHandler::HandleSendOpcodeCommand(const char* /*args*/)
         else if(type == "pguid")
         {
             data.append(unit->GetPackGUID());
+        }
+        else if(type == "myguid")
+        {
+            data.append(player->GetPackGUID());
+        }
+        else if(type == "pos")
+        {
+            data << unit->GetPositionX();
+            data << unit->GetPositionY();
+            data << unit->GetPositionZ();
+        }
+        else if(type == "mypos")
+        {
+            data << player->GetPositionX();
+            data << player->GetPositionY();
+            data << player->GetPositionZ();
         }
         else
         {
