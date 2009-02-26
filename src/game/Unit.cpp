@@ -8502,25 +8502,19 @@ void Unit::SetCharm(Unit* pet)
 
 void Unit::AddPlayerToVision(Player* plr)
 {
-    if (m_sharedVision.empty() && GetTypeId() == TYPEID_UNIT
-        && !((Creature*)this)->isPet())
-    {
-        setActive(true);
-        GetMap()->SwitchGridContainers((Creature*)this, true);
-    }
+    setActive(true);
+    if(m_sharedVision.empty())
+        SetWorldObject(true);
     m_sharedVision.push_back(plr);
     plr->SetFarsightTarget(this);
 }
 
 void Unit::RemovePlayerFromVision(Player* plr)
 {
+    setActive(false);
     m_sharedVision.remove(plr);
-    if (m_sharedVision.empty() && GetTypeId() == TYPEID_UNIT
-        && !((Creature*)this)->isPet())
-    {
-        GetMap()->SwitchGridContainers((Creature*)this, false);
-        setActive(false);
-    }
+    if(m_sharedVision.empty())
+        SetWorldObject(false);
     plr->ClearFarsight();
 }
 
