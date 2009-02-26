@@ -1173,7 +1173,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             if(unit->hasUnitState(UNIT_STAT_ATTACK_PLAYER))
             {
                 m_caster->SetContestedPvP();
-                if m_caster->UpdatePvP(true);
+                m_caster->UpdatePvP(true);
             }
             if( unit->isInCombat() && !(m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_NO_INITIAL_AGGRO) )
             {
