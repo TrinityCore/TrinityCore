@@ -844,10 +844,9 @@ Map::Remove(T *obj, bool remove)
     NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
     assert( grid != NULL );
 
+    obj->RemoveFromWorld();
     if(obj->isActiveObject())
         RemoveFromActive(obj);
-
-    obj->RemoveFromWorld();
     RemoveFromGrid(obj,grid,cell);
 
     UpdateObjectVisibility(obj,cell,p);

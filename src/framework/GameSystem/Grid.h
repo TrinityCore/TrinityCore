@@ -105,7 +105,7 @@ class TRINITY_DLL_DECL Grid
 
         /** Returns the number of object within the grid.
          */
-        unsigned int ActiveObjectsInGrid(void) const { return m_activeGridObjects.size()+i_objects.template Count<ACTIVE_OBJECT>(); }
+        unsigned int ActiveObjectsInGrid(void) const { return /*m_activeGridObjects.size()+*/i_objects.template Count<ACTIVE_OBJECT>(); }
 
         /** Accessors: Returns a specific type of object in the GRID_OBJECT_TYPES
          */
@@ -116,8 +116,8 @@ class TRINITY_DLL_DECL Grid
          */
         template<class SPECIFIC_OBJECT> bool AddGridObject(SPECIFIC_OBJECT *obj, OBJECT_HANDLE hdl)
         {
-            if(obj->isActiveObject())
-                m_activeGridObjects.insert(obj);
+            //if(obj->isActiveObject())
+            //    m_activeGridObjects.insert(obj);
             return i_container.template insert<SPECIFIC_OBJECT>(hdl, obj);
         }
 
@@ -125,8 +125,8 @@ class TRINITY_DLL_DECL Grid
          */
         template<class SPECIFIC_OBJECT> bool RemoveGridObject(SPECIFIC_OBJECT *obj, OBJECT_HANDLE hdl)
         {
-            if(obj->isActiveObject())
-                m_activeGridObjects.erase(obj);
+            //if(obj->isActiveObject())
+            //    m_activeGridObjects.erase(obj);
             return i_container.template remove<SPECIFIC_OBJECT>(obj, hdl);
         }
 
@@ -146,8 +146,8 @@ class TRINITY_DLL_DECL Grid
 
         TypeMapContainer<GRID_OBJECT_TYPES> i_container;
         TypeMapContainer<WORLD_OBJECT_TYPES> i_objects;
-        typedef std::set<void*> ActiveGridObjects;
-        ActiveGridObjects m_activeGridObjects;
+        //typedef std::set<void*> ActiveGridObjects;
+        //ActiveGridObjects m_activeGridObjects;
 };
 #endif
 
