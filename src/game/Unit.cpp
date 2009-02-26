@@ -253,7 +253,7 @@ void Unit::Update( uint32 p_time )
     i_motionMaster.UpdateMotion(p_time);
 }
 
-void UpdateAuras()
+void Unit::UpdateAuras()
 {
     const uint64& auramask = GetAuraUpdateMask();
     if (auramask)
