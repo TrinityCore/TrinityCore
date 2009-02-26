@@ -52,15 +52,16 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
     uint32 KnockAway_Timer;
     uint32 Berserk_Timer;
 
+    bool Enraged;
+
     void Reset()
     {
-        m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-        m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
-
         Pounding_Timer = 15000;
         ArcaneOrb_Timer = 3000;
         KnockAway_Timer = 30000;
         Berserk_Timer = 600000;
+
+        Enraged = false;
 
         if (pInstance && m_creature->isAlive())
             pInstance->SetData(DATA_VOIDREAVEREVENT, NOT_STARTED);
@@ -120,7 +121,7 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
             {
                 target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                                                             //18 yard radius minimum
-                if(target && target->GetTypeId() == TYPEID_PLAYER && target->isAlive() && target->GetDistance2d(m_creature) > 18)
+                if(target && target->GetTypeId() == TYPEID_PLAYER && target->isAlive() && target->GetDistance2d(m_creature) >= 18)
                     target_list.push_back(target);
                 target = NULL;
             }
@@ -146,13 +147,10 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
         }else KnockAway_Timer -= diff;
 
         //Berserk
-        if(Berserk_Timer < diff)
+        if(Berserk_Timer < diff && !Enraged)
         {
-            if (m_creature->IsNonMeleeSpellCasted(false))
-                m_creature->InterruptNonMeleeSpells(false);
-
             DoCast(m_creature,SPELL_BERSERK);
-            Berserk_Timer = 600000;
+            Enraged = true;
         }else Berserk_Timer -= diff;
 
         DoMeleeAttackIfReady();
