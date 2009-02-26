@@ -5502,7 +5502,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 // 41409 Dementia: Every 5 seconds either gives you -5% damage/healing. (Druid, Shaman, Priest, Warlock, Mage, Paladin)
                 case 39446:
                 {
-                    if(GetTypeId() != TYPEID_PLAYER)
+                    if(GetTypeId() != TYPEID_PLAYER || !this->isAlive())
                         return false;
 
                     // Select class defined buff
@@ -12635,6 +12635,8 @@ bool Unit::HandleMeandingAuraProc( Aura* triggeredByAura )
                 caster->AddSpellMod(mod, true);
                 CastCustomSpell(target,spellProto->Id,&heal,NULL,NULL,true,NULL,triggeredByAura,caster->GetGUID());
                 caster->AddSpellMod(mod, false);
+
+                heal = caster->SpellHealingBonus(spellProto, heal, HEAL, this);
             }
         }
     }
