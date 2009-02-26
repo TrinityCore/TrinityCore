@@ -1082,9 +1082,9 @@ void WorldObject::setActive( bool on )
     {
         map = GetMap();
         if(GetTypeId() == TYPEID_UNIT)
-            map->Remove((Creature*)this,false);
+            map->RemoveFromActive((Creature*)this);
         else if(GetTypeId() == TYPEID_DYNAMICOBJECT)
-            map->Remove((DynamicObject*)this,false);
+            map->RemoveFromActive((DynamicObject*)this);
     }
 
     m_isActive = on;
@@ -1092,9 +1092,9 @@ void WorldObject::setActive( bool on )
     if(world)
     {
         if(GetTypeId() == TYPEID_UNIT)
-            map->Add((Creature*)this);
+            map->AddToActive((Creature*)this);
         else if(GetTypeId() == TYPEID_DYNAMICOBJECT)
-            map->Add((DynamicObject*)this);
+            map->AddToActive((DynamicObject*)this);
     }
 }
 
