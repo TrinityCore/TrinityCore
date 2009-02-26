@@ -168,8 +168,8 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
             return( !getNGrid(p.x_coord, p.y_coord) || getNGrid(p.x_coord, p.y_coord)->GetGridState() == GRID_STATE_REMOVAL );
         }
 
-        bool GetUnloadFlag(const GridPair &p) const { return getNGrid(p.x_coord, p.y_coord)->getUnloadFlag(); }
-        void SetUnloadFlag(const GridPair &p, bool unload) { getNGrid(p.x_coord, p.y_coord)->setUnloadFlag(unload); }
+        bool GetUnloadLock(const GridPair &p) const { return getNGrid(p.x_coord, p.y_coord)->getUnloadLock(); }
+        void SetUnloadLock(const GridPair &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadExplicitLock(on); }
         void LoadGrid(float x, float y);
         bool UnloadGrid(const uint32 &x, const uint32 &y, bool pForce);
         virtual void UnloadAll();
@@ -250,11 +250,8 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
 
         bool HavePlayers() const { return !m_mapRefManager.isEmpty(); }
         uint32 GetPlayersCountExceptGMs() const;
-        bool PlayersNearGrid(uint32 x,uint32 y) const;
         bool ActiveObjectsNearGrid(uint32 x, uint32 y) const;
 
-        void AddActiveObject(WorldObject* obj) { i_activeObjects.insert(obj); }
-        void RemoveActiveObject(WorldObject* obj) { i_activeObjects.erase(obj); }
         void AddUnitToNotify(Unit* unit);
         void RelocationNotify();
 
@@ -262,6 +259,19 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
 
         typedef MapRefManager PlayerList;
         PlayerList const& GetPlayers() const { return m_mapRefManager; }
+
+        // must called with AddToWorld
+        template<class T>
+        void AddToActive(T* obj) { AddToActiveHelper(obj); }
+
+        void AddToActive(Creature* obj);
+
+        // must called with RemoveFromWorld
+        template<class T>
+        void RemoveFromActive(T* obj) { RemoveFromActiveHelper(obj); }
+
+        void RemoveFromActive(Creature* obj);
+
         template<class T> void SwitchGridContainers(T* obj, bool active);
         template<class NOTIFIER> void VisitAll(const float &x, const float &y, float radius, NOTIFIER &notifier);
         template<class NOTIFIER> void VisitWorld(const float &x, const float &y, float radius, NOTIFIER &notifier);
@@ -284,7 +294,7 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         CreatureMoveList i_creaturesToMove;
 
         bool loaded(const GridPair &) const;
-        void EnsureGridLoadedForPlayer(const Cell&, Player*, bool add_player);
+        void EnsureGridLoaded(const Cell&, Player* player = NULL);
         void  EnsureGridCreated(const GridPair &);
 
         void buildNGridLinkage(NGridType* pNGridType) { pNGridType->link(this); }
@@ -304,6 +314,8 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
 
         void UpdateActiveCells(const float &x, const float &y, const uint32 &t_diff);
     protected:
+        void SetUnloadReferenceLock(const GridPair &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadReferenceLock(on); }
+
         typedef Trinity::ObjectLevelLockable<Map, ZThread::Mutex>::Lock Guard;
 
         MapEntry const* i_mapEntry;
@@ -314,6 +326,10 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
 
         MapRefManager m_mapRefManager;
         MapRefManager::iterator m_mapRefIter;
+
+        typedef std::set<WorldObject*> ActiveNonPlayers;
+        ActiveNonPlayers m_activeNonPlayers;
+        ActiveNonPlayers::iterator m_activeNonPlayersIter;
     private:
         typedef GridReadGuard ReadGuard;
         typedef GridWriteGuard WriteGuard;
@@ -325,7 +341,6 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         time_t i_gridExpiry;
 
         bool i_lock;
-        std::set<WorldObject *> i_activeObjects;
         std::vector<uint64> i_unitsToNotify;
         std::set<WorldObject *> i_objectsToRemove;
 
@@ -341,6 +356,27 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
 
         template<class T>
             void DeleteFromWorld(T*);
+
+        template<class T>
+        void AddToActiveHelper(T* obj)
+        {
+            m_activeNonPlayers.insert(obj);
+        }
+
+        template<class T>
+        void RemoveFromActiveHelper(T* obj)
+        {
+            // Map::Update for active object in proccess
+            if(m_activeNonPlayersIter != m_activeNonPlayers.end())
+            {
+                ActiveNonPlayers::iterator itr = m_activeNonPlayers.find(obj);
+                if(itr==m_activeNonPlayersIter)
+                    ++m_activeNonPlayersIter;
+                m_activeNonPlayers.erase(itr);
+            }
+            else
+                m_activeNonPlayers.erase(obj);
+        }
 };
 
 enum InstanceResetMethod
@@ -412,7 +448,7 @@ Map::Visit(const CellLock<LOCK_TYPE> &cell, TypeContainerVisitor<T, CONTAINER> &
 
     if( !cell->NoCreate() || loaded(GridPair(x,y)) )
     {
-        EnsureGridLoadedForPlayer(cell, NULL, false);
+        EnsureGridLoaded(cell);
         //LOCK_TYPE guard(i_info[x][y]->i_lock);
         getNGrid(x, y)->Visit(cell_x, cell_y, visitor);
     }

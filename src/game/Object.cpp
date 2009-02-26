@@ -1070,19 +1070,31 @@ WorldObject::WorldObject()
     m_isActive          = false;
 }
 
-void WorldObject::setActive(bool isActive)
+void WorldObject::setActive( bool on )
 {
-    // if already in the same activity state as we try to set, do nothing
-    if(isActive == m_isActive || isType(TYPEMASK_PLAYER))
+    if(m_isActive==on)
         return;
 
-    m_isActive = isActive;
-    if(IsInWorld())
+    bool world = IsInWorld();
+
+    Map* map;
+    if(world)
     {
-        if(isActive)
-            GetMap()->AddActiveObject(this);
-        else
-            GetMap()->RemoveActiveObject(this);
+        map = GetMap();
+        if(GetTypeId() == TYPEID_UNIT)
+            map->Remove((Creature*)this,false);
+        else if(GetTypeId() == TYPEID_DYNAMICOBJECT)
+            map->Remove((DynamicObject*)this,false);
+    }
+
+    m_isActive = on;
+
+    if(world)
+    {
+        if(GetTypeId() == TYPEID_UNIT)
+            map->Add((Creature*)this);
+        else if(GetTypeId() == TYPEID_DYNAMICOBJECT)
+            map->Add((DynamicObject*)this);
     }
 }
 

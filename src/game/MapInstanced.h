@@ -45,11 +45,18 @@ class TRINITY_DLL_DECL MapInstanced : public Map
         Map* FindMap(uint32 InstanceId) { return _FindMap(InstanceId); }
         void DestroyInstance(uint32 InstanceId);
         void DestroyInstance(InstancedMaps::iterator &itr);
-        void AddGridMapReference(const GridPair &p) { ++GridMapReference[p.x_coord][p.y_coord]; }
+
+        void AddGridMapReference(const GridPair &p)
+        {
+            ++GridMapReference[p.x_coord][p.y_coord];
+            SetUnloadReferenceLock(GridPair(63-p.x_coord, 63-p.y_coord), true);
+        }
+
         void RemoveGridMapReference(const GridPair &p)
         {
             --GridMapReference[p.x_coord][p.y_coord];
-            if (!GridMapReference[p.x_coord][p.y_coord]) { SetUnloadFlag(GridPair(63-p.x_coord,63-p.y_coord), true); }
+            if (!GridMapReference[p.x_coord][p.y_coord])
+                SetUnloadReferenceLock(GridPair(63-p.x_coord, 63-p.y_coord), false);
         }
 
         InstancedMaps &GetInstancedMaps() { return m_InstancedMaps; }
