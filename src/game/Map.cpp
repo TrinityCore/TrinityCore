@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2005-2008 Trinity <http://www.mangosproject.org/>
  *
  * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
  *
@@ -140,7 +140,6 @@ void Map::LoadMap(uint32 mapid, uint32 instanceid, int x,int y)
 //            return;
 
         ((MapInstanced*)(baseMap))->AddGridMapReference(GridPair(x,y));
-        baseMap->SetUnloadFlag(GridPair(63-x,63-y), false);
         GridMaps[x][y] = baseMap->GridMaps[x][y];
         return;
     }
@@ -210,9 +209,10 @@ void Map::DeleteStateMachine()
 }
 
 Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode)
-  : i_id(id), i_gridExpiry(expiry), i_mapEntry (sMapStore.LookupEntry(id)),
- i_InstanceId(InstanceId), i_spawnMode(SpawnMode), m_unloadTimer(0)
- , i_lock(false)
+   : i_mapEntry (sMapStore.LookupEntry(id)), i_spawnMode(SpawnMode),
+   i_id(id), i_InstanceId(InstanceId), m_unloadTimer(0), i_gridExpiry(expiry),
+   m_activeNonPlayersIter(m_activeNonPlayers.end())
+   , i_lock(false)
 {
     for(unsigned int idx=0; idx < MAX_NUMBER_OF_GRIDS; ++idx)
     {
@@ -391,22 +391,22 @@ Map::EnsureGridCreated(const GridPair &p)
 }
 
 void
-Map::EnsureGridLoadedForPlayer(const Cell &cell, Player *player, bool add_player)
+Map::EnsureGridLoaded(const Cell &cell, Player *player)
 {
     EnsureGridCreated(GridPair(cell.GridX(), cell.GridY()));
     NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
 
     assert(grid != NULL);
-    if( !isGridObjectDataLoaded(cell.GridX(), cell.GridY()) )
+    if (!isGridObjectDataLoaded(cell.GridX(), cell.GridY()))
     {
-        if( player != NULL )
+        if (player)
         {
             player->SendDelayResponse(MAX_GRID_LOAD_TIME);
             DEBUG_LOG("Player %s enter cell[%u,%u] triggers of loading grid[%u,%u] on map %u", player->GetName(), cell.CellX(), cell.CellY(), cell.GridX(), cell.GridY(), i_id);
         }
         else
         {
-            DEBUG_LOG("Player nearby triggers of loading grid [%u,%u] on map %u", cell.GridX(), cell.GridY(), i_id);
+            DEBUG_LOG("Active object nearby triggers of loading grid [%u,%u] on map %u", cell.GridX(), cell.GridY(), i_id);
         }
 
         ObjectGridLoader loader(*grid, this, cell);
@@ -418,11 +418,9 @@ Map::EnsureGridLoadedForPlayer(const Cell &cell, Player *player, bool add_player
 
         ResetGridExpiry(*getNGrid(cell.GridX(), cell.GridY()), 0.1f);
         grid->SetGridState(GRID_STATE_ACTIVE);
-
-        if( add_player && player != NULL )
-            (*grid)(cell.CellX(), cell.CellY()).AddWorldObject(player, player->GetGUID());
     }
-    else if( player && add_player )
+    
+    if(player)
         AddToGrid(player,grid,cell);
 }
 
@@ -430,7 +428,7 @@ void Map::LoadGrid(float x, float y)
 {
     CellPair pair = Trinity::ComputeCellPair(x, y);
     Cell cell(pair);
-    EnsureGridLoadedForPlayer(cell, NULL, false);
+    EnsureGridLoaded(cell, NULL);
 }
 
 bool Map::Add(Player *player)
@@ -442,7 +440,7 @@ bool Map::Add(Player *player)
     // update player state for other player and visa-versa
     CellPair p = Trinity::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
     Cell cell(p);
-    EnsureGridLoadedForPlayer(cell, player, true);
+    EnsureGridLoaded(cell, player);
     player->AddToWorld();
 
     SendInitSelf(player);
@@ -468,14 +466,19 @@ Map::Add(T *obj)
     }
 
     Cell cell(p);
-    EnsureGridCreated(GridPair(cell.GridX(), cell.GridY()));
+    if(obj->isActiveObject())
+        EnsureGridLoaded(cell);
+    else
+        EnsureGridCreated(GridPair(cell.GridX(), cell.GridY()));
+
     NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
     assert( grid != NULL );
 
     AddToGrid(obj,grid,cell);
     obj->AddToWorld();
-    if(obj->isActive())
-        AddActiveObject(obj);
+    
+    if(obj->isActiveObject())
+        AddToActive(obj);
 
     DEBUG_LOG("Object %u enters grid[%u,%u]", GUID_LOPART(obj->GetGUID()), cell.GridX(), cell.GridY());
 
@@ -646,29 +649,22 @@ void Map::Update(const uint32 &t_diff)
 {
     resetMarkedCells();
 
-    //TODO: is there a better way to update activeobjects?
-    std::vector<WorldObject*> activeObjects;
-    for(MapRefManager::iterator iter = m_mapRefManager.begin(); iter != m_mapRefManager.end(); ++iter)
-    {
-        Player* plr = iter->getSource();
-        if(plr->IsInWorld())
-            activeObjects.push_back(plr);
-    }
-    for(std::set<WorldObject *>::iterator iter = i_activeObjects.begin(); iter != i_activeObjects.end(); ++iter)
-    {
-        if((*iter)->IsInWorld())
-            activeObjects.push_back(*iter);
-    }
-
     Trinity::ObjectUpdater updater(t_diff);
     // for creature
     TypeContainerVisitor<Trinity::ObjectUpdater, GridTypeMapContainer  > grid_object_update(updater);
     // for pets
     TypeContainerVisitor<Trinity::ObjectUpdater, WorldTypeMapContainer > world_object_update(updater);
 
-    for(std::vector<WorldObject*>::iterator iter = activeObjects.begin(); iter != activeObjects.end(); ++iter)
+    // the player iterator is stored in the map object
+    // to make sure calls to Map::Remove don't invalidate it
+    for(m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
     {
-        CellPair standing_cell(Trinity::ComputeCellPair((*iter)->GetPositionX(), (*iter)->GetPositionY()));
+        Player* plr = m_mapRefIter->getSource();
+
+        if(!plr->IsInWorld())
+            continue;
+
+        CellPair standing_cell(Trinity::ComputeCellPair(plr->GetPositionX(), plr->GetPositionY()));
 
         // Check for correctness of standing_cell, it also avoids problems with update_cell
         if (standing_cell.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || standing_cell.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
@@ -700,8 +696,56 @@ void Map::Update(const uint32 &t_diff)
                 }
             }
         }
+    }
 
-        //   UpdateActiveCells((*iter)->GetPositionX(), (*iter)->GetPositionY(), t_diff);
+    // non-player active objects
+    if(!m_activeNonPlayers.empty())
+    {
+        for(m_activeNonPlayersIter = m_activeNonPlayers.begin(); m_activeNonPlayersIter != m_activeNonPlayers.end(); )
+        {
+            // skip not in world
+            WorldObject* obj = *m_activeNonPlayersIter;
+
+            // step before processing, in this case if Map::Remove remove next object we correctly
+            // step to next-next, and if we step to end() then newly added objects can wait next update.
+            ++m_activeNonPlayersIter;
+
+            if(!obj->IsInWorld())
+                continue;
+
+            CellPair standing_cell(Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY()));
+
+            // Check for correctness of standing_cell, it also avoids problems with update_cell
+            if (standing_cell.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || standing_cell.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
+                continue;
+
+            // the overloaded operators handle range checking
+            // so ther's no need for range checking inside the loop
+            CellPair begin_cell(standing_cell), end_cell(standing_cell);
+            begin_cell << 1; begin_cell -= 1;               // upper left
+            end_cell >> 1; end_cell += 1;                   // lower right
+
+            for(uint32 x = begin_cell.x_coord; x <= end_cell.x_coord; ++x)
+            {
+                for(uint32 y = begin_cell.y_coord; y <= end_cell.y_coord; ++y)
+                {
+                    // marked cells are those that have been visited
+                    // don't visit the same cell twice
+                    uint32 cell_id = (y * TOTAL_NUMBER_OF_CELLS_PER_MAP) + x;
+                    if(!isCellMarked(cell_id))
+                    {
+                        markCell(cell_id);
+                        CellPair pair(x,y);
+                        Cell cell(pair);
+                        cell.data.Part.reserved = CENTER_DISTRICT;
+                        //cell.SetNoCreate();
+                        CellLock<NullGuard> cell_lock(cell, pair);
+                        cell_lock->Visit(cell_lock, grid_object_update,  *this);
+                        cell_lock->Visit(cell_lock, world_object_update, *this);
+                    }
+                }
+            }
+        }
     }
 
     RelocationNotify();
@@ -800,9 +844,10 @@ Map::Remove(T *obj, bool remove)
     NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
     assert( grid != NULL );
 
+    if(obj->isActiveObject())
+        RemoveFromActive(obj);
+
     obj->RemoveFromWorld();
-    if(obj->isActive())
-        RemoveActiveObject(obj);
     RemoveFromGrid(obj,grid,cell);
 
     UpdateObjectVisibility(obj,cell,p);
@@ -844,7 +889,7 @@ Map::PlayerRelocation(Player *player, float x, float y, float z, float orientati
         if( !old_cell.DiffGrid(new_cell) )
             AddToGrid(player, oldGrid,new_cell);
         else
-            EnsureGridLoadedForPlayer(new_cell, player, true);
+            EnsureGridLoaded(new_cell, player);
     }
 
     AddUnitToNotify(player);
@@ -876,13 +921,6 @@ Map::CreatureRelocation(Creature *creature, float x, float y, float z, float ang
         #endif
         AddCreatureToMoveList(creature,x,y,z,ang);
         // in diffcell/diffgrid case notifiers called at finishing move creature in Map::MoveAllCreaturesInMoveList
-        if(creature->isActive())
-        {
-            if(creature->isPossessedByPlayer())
-                EnsureGridLoadedForPlayer(new_cell, (Player*)creature->GetCharmer(), false);
-            else
-                EnsureGridLoadedForPlayer(new_cell, NULL, false);
-        }
     }
     else
     {
@@ -955,6 +993,7 @@ bool Map::CreatureCellRelocation(Creature *c, Cell new_cell)
 
             RemoveFromGrid(c,getNGrid(old_cell.GridX(), old_cell.GridY()),old_cell);
             AddToGrid(c,getNGrid(new_cell.GridX(), new_cell.GridY()),new_cell);
+            c->SetCurrentCell(new_cell);
         }
         else
         {
@@ -963,8 +1002,27 @@ bool Map::CreatureCellRelocation(Creature *c, Cell new_cell)
                 sLog.outDebug("Creature (GUID: %u Entry: %u) move in same grid[%u,%u]cell[%u,%u].", c->GetGUIDLow(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY());
             #endif
         }
+
+        return true;
     }
-    else                                                    // in diff. grids
+
+    // in diff. grids but active creature
+    if(c->isActiveObject())
+    {
+        EnsureGridLoaded(new_cell);
+
+        #ifdef TRINITY_DEBUG
+        if((sLog.getLogFilter() & LOG_FILTER_CREATURE_MOVES)==0)
+            sLog.outDebug("Active creature (GUID: %u Entry: %u) moved from grid[%u,%u]cell[%u,%u] to grid[%u,%u]cell[%u,%u].", c->GetGUIDLow(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
+        #endif
+
+        RemoveFromGrid(c,getNGrid(old_cell.GridX(), old_cell.GridY()),old_cell);
+        AddToGrid(c,getNGrid(new_cell.GridX(), new_cell.GridY()),new_cell);
+
+        return true;
+    }
+
+    // in diff. loaded grid normal creature
     if(loaded(GridPair(new_cell.GridX(), new_cell.GridY())))
     {
         #ifdef TRINITY_DEBUG
@@ -977,17 +1035,16 @@ bool Map::CreatureCellRelocation(Creature *c, Cell new_cell)
             EnsureGridCreated(GridPair(new_cell.GridX(), new_cell.GridY()));
             AddToGrid(c,getNGrid(new_cell.GridX(), new_cell.GridY()),new_cell);
         }
-    }
-    else
-    {
-        #ifdef TRINITY_DEBUG
-        if((sLog.getLogFilter() & LOG_FILTER_CREATURE_MOVES)==0)
-            sLog.outDebug("Creature (GUID: %u Entry: %u) attempt move from grid[%u,%u]cell[%u,%u] to unloaded grid[%u,%u]cell[%u,%u].", c->GetGUIDLow(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
-        #endif
-        return false;
+
+        return true;
     }
 
-    return true;
+    // fail to move: normal creature attempt move to unloaded grid
+    #ifdef TRINITY_DEBUG
+    if((sLog.getLogFilter() & LOG_FILTER_CREATURE_MOVES)==0)
+        sLog.outDebug("Creature (GUID: %u Entry: %u) attempt move from grid[%u,%u]cell[%u,%u] to unloaded grid[%u,%u]cell[%u,%u].", c->GetGUIDLow(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
+    #endif
+    return false;
 }
 
 bool Map::CreatureRespawnRelocation(Creature *c)
@@ -1025,13 +1082,8 @@ bool Map::UnloadGrid(const uint32 &x, const uint32 &y, bool unloadAll)
     assert( grid != NULL);
 
     {
-        if(!unloadAll)
-        {
-            if(ActiveObjectsNearGrid(x, y))
-                return false;
-        }
-        else
-            assert(!PlayersNearGrid(x, y));
+        if(!unloadAll && ActiveObjectsNearGrid(x, y) )
+             return false;
 
         DEBUG_LOG("Unloading grid[%u,%u] for map %u", x,y, i_id);
         ObjectGridUnloader unloader(*grid);
@@ -1577,28 +1629,6 @@ void Map::SendToPlayers(WorldPacket const* data) const
         itr->getSource()->GetSession()->SendPacket(data);
 }
 
-bool Map::PlayersNearGrid(uint32 x, uint32 y) const
-{
-    CellPair cell_min(x*MAX_NUMBER_OF_CELLS, y*MAX_NUMBER_OF_CELLS);
-    CellPair cell_max(cell_min.x_coord + MAX_NUMBER_OF_CELLS, cell_min.y_coord+MAX_NUMBER_OF_CELLS);
-    cell_min << 2;
-    cell_min -= 2;
-    cell_max >> 2;
-    cell_max += 2;
-
-    for(MapRefManager::const_iterator iter = m_mapRefManager.begin(); iter != m_mapRefManager.end(); ++iter)
-    {
-        Player* plr = iter->getSource();
-
-        CellPair p = Trinity::ComputeCellPair(plr->GetPositionX(), plr->GetPositionY());
-        if( (cell_min.x_coord <= p.x_coord && p.x_coord <= cell_max.x_coord) &&
-            (cell_min.y_coord <= p.y_coord && p.y_coord <= cell_max.y_coord) )
-            return true;
-    }
-
-    return false;
-}
-
 bool Map::ActiveObjectsNearGrid(uint32 x, uint32 y) const
 {
     CellPair cell_min(x*MAX_NUMBER_OF_CELLS, y*MAX_NUMBER_OF_CELLS);
@@ -1618,15 +1648,59 @@ bool Map::ActiveObjectsNearGrid(uint32 x, uint32 y) const
             return true;
     }
 
-    for(std::set<WorldObject*>::const_iterator itr = i_activeObjects.begin(); itr != i_activeObjects.end(); ++itr)
+    for(ActiveNonPlayers::const_iterator iter = m_activeNonPlayers.begin(); iter != m_activeNonPlayers.end(); ++iter)
     {
-        CellPair p = Trinity::ComputeCellPair((*itr)->GetPositionX(), (*itr)->GetPositionY());
+        WorldObject* obj = *iter;
+
+        CellPair p = Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
         if( (cell_min.x_coord <= p.x_coord && p.x_coord <= cell_max.x_coord) &&
             (cell_min.y_coord <= p.y_coord && p.y_coord <= cell_max.y_coord) )
             return true;
     }
 
     return false;
+}
+
+void Map::AddToActive( Creature* c )
+{
+    AddToActiveHelper(c);
+
+    // also not allow unloading spawn grid to prevent creating creature clone at load
+    if(c->GetDBTableGUIDLow())
+    {
+        float x,y,z;
+        c->GetRespawnCoord(x,y,z);
+        GridPair p = Trinity::ComputeGridPair(x, y);
+        if(getNGrid(p.x_coord, p.y_coord))
+            getNGrid(p.x_coord, p.y_coord)->incUnloadActiveLock();
+        else
+        {
+            GridPair p2 = Trinity::ComputeGridPair(c->GetPositionX(), c->GetPositionY());
+            sLog.outError("Active creature (GUID: %u Entry: %u) added to grid[%u,%u] but spawn grid[%u,%u] not loaded.",
+                c->GetGUIDLow(), c->GetEntry(), p.x_coord, p.y_coord, p2.x_coord, p2.y_coord);
+        }
+    }
+}
+
+void Map::RemoveFromActive( Creature* c )
+{
+    RemoveFromActiveHelper(c);
+
+    // also allow unloading spawn grid
+    if(c->GetDBTableGUIDLow())
+    {
+        float x,y,z;
+        c->GetRespawnCoord(x,y,z);
+        GridPair p = Trinity::ComputeGridPair(x, y);
+        if(getNGrid(p.x_coord, p.y_coord))
+            getNGrid(p.x_coord, p.y_coord)->decUnloadActiveLock();
+        else
+        {
+            GridPair p2 = Trinity::ComputeGridPair(c->GetPositionX(), c->GetPositionY());
+            sLog.outError("Active creature (GUID: %u Entry: %u) removed from grid[%u,%u] but spawn grid[%u,%u] not loaded.",
+                c->GetGUIDLow(), c->GetEntry(), p.x_coord, p.y_coord, p2.x_coord, p2.y_coord);
+        }
+    }
 }
 
 template void Map::Add(Corpse *);

@@ -57,7 +57,7 @@ void DynamicObject::RemoveFromWorld()
     {
         // Make sure the object is back to grid container for removal as farsight targets
         // are switched to world container on creation and they are also set to active
-        if (isActive())
+        if (isActiveObject())
         {
             GetMap()->SwitchGridContainers(this, false);
             setActive(false);
