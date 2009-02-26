@@ -954,6 +954,7 @@ UPDATE `creature_template` SET `ScriptName` = 'boss_koragg' WHERE `entry` =24247
 UPDATE `creature_template` SET `ScriptName` = 'boss_zuljin' WHERE `entry` =23863;
 UPDATE `creature_template` SET `ScriptName` = 'do_nothing' WHERE `entry` = '24187';
 UPDATE `creature_template` SET `ScriptName` = 'mob_zuljin_vortex' WHERE `entry` = '24136';
+UPDATE `creature_template` SET `ScriptName` = 'npc_zulaman_hostage' WHERE `entry` IN (23790, 23999, 24024, 24001);
 
 /* ZUL'FARRAK */
 UPDATE `creature_template` SET `ScriptName`='npc_sergeant_bly' WHERE `entry`=7604;
