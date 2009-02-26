@@ -905,6 +905,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_parqual_fintallas' WHERE `entry
 UPDATE `creature_template` SET `scriptname` = 'boss_keleseth' WHERE `entry` = '23953';
 UPDATE `creature_template` SET `scriptname` = 'mob_frost_tomb' WHERE `entry` = '23965';
 UPDATE `instance_template` SET `script`='instance_utgarde_keep' WHERE `map`= '574';
+UPDATE `creature_template` SET `ScriptName`='mob_vrykul_skeleton' WHERE `entry`=23970;
 
 /* WAILING CAVERNS */
 
