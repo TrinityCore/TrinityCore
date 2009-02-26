@@ -313,6 +313,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_saat' WHERE `entry`=20201;
 /* THE UNDERBOG */
 UPDATE `creature_template` SET `ScriptName`='mob_underbog_mushroom' WHERE `entry`=17990;
 UPDATE `creature_template` SET `ScriptName`='boss_hungarfen' WHERE `entry`=17770;
+UPDATE `creature_template` SET `ScriptName`='boss_the_black_stalker' WHERE `entry`='17882';
 
 /* THE STEAMVAULT */
 UPDATE `instance_template` SET `script`='instance_steam_vault' WHERE `map`=545;
@@ -330,6 +331,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_toxic_sporebat' WHERE `entry`=2
 /* Leotheras the Blind event */
 UPDATE `creature_template` SET `ScriptName`='boss_leotheras_the_blind' WHERE `entry`=21215;
 UPDATE `creature_template` SET `ScriptName`='boss_leotheras_the_blind_demonform' WHERE `entry`=21845;
+UPDATE `creature_template` SET `ScriptName`='mob_greyheart_spellbinder' WHERE `entry` = '21806';
 /* Fathom-lord Karathress event */
 UPDATE `creature_template` SET `ScriptName`='boss_fathomlord_karathress' WHERE `entry`=21214;
 UPDATE `creature_template` SET `ScriptName`='boss_fathomguard_sharkkis' WHERE `entry`=21966;
