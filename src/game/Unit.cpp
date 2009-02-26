@@ -8518,8 +8518,8 @@ void Unit::RemovePlayerFromVision(Player* plr)
     if (m_sharedVision.empty() && GetTypeId() == TYPEID_UNIT
         && !((Creature*)this)->isPet())
     {
-        setActive(false);
         GetMap()->SwitchGridContainers((Creature*)this, false);
+        setActive(false);
     }
     plr->ClearFarsight();
 }

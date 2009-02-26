@@ -127,6 +127,9 @@ void LoadHelper(CellGuidSet const& guid_set, CellPair &cell, GridRefManager<T> &
 
         addUnitState(obj,cell);
         obj->AddToWorld();
+        if(obj->isActiveObject())
+            map->AddToActive(obj);
+
         ++count;
 
     }
@@ -152,6 +155,9 @@ void LoadHelper(CellCorpseSet const& cell_corpses, CellPair &cell, CorpseMapType
 
         addUnitState(obj,cell);
         obj->AddToWorld();
+        if(obj->isActiveObject())
+            map->AddToActive(obj);
+
         ++count;
     }
 }
