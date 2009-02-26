@@ -208,18 +208,7 @@ void Unit::Update( uint32 p_time )
     _UpdateAura();
     }else
     m_AurasCheck -= p_time;*/
-    const uint64& auramask = GetAuraUpdateMask();
-    if (auramask)
-    {
-        for(uint32 i = 0; i < MAX_AURAS; ++i)
-        {
-            if(auramask & (uint64(1) << i))
-            {
-                SendAuraUpdate(i);
-            }
-        }
-        ResetAuraUpdateMask();
-    }
+    UpdateAuras();
 
     // WARNING! Order of execution here is important, do not change.
     // Spells must be processed with event system BEFORE they go to _UpdateSpells.
@@ -262,6 +251,22 @@ void Unit::Update( uint32 p_time )
     ModifyAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT, GetHealth() > GetMaxHealth()*0.75f);
 
     i_motionMaster.UpdateMotion(p_time);
+}
+
+void UpdateAuras()
+{
+    const uint64& auramask = GetAuraUpdateMask();
+    if (auramask)
+    {
+        for(uint32 i = 0; i < MAX_AURAS; ++i)
+        {
+            if(auramask & (uint64(1) << i))
+            {
+                SendAuraUpdate(i);
+            }
+        }
+        ResetAuraUpdateMask();
+    }
 }
 
 bool Unit::haveOffhandWeapon() const
@@ -9855,6 +9860,8 @@ void Unit::setDeathState(DeathState s)
     {
         RemoveAllAurasOnDeath();
         UnsummonAllTotems();
+        //This is needed to clear visible auras after unit dies
+        UpdateAuras();
 
         ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
         ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
