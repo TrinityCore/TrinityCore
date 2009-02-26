@@ -130,7 +130,7 @@ class TRINITY_DLL_DECL Grid
             return i_container.template remove<SPECIFIC_OBJECT>(obj, hdl);
         }
 
-        bool NoWorldObjectInGrid() const
+        /*bool NoWorldObjectInGrid() const
         {
             return i_objects.GetElements().isEmpty();
         }
@@ -138,7 +138,7 @@ class TRINITY_DLL_DECL Grid
         bool NoGridObjectInGrid() const
         {
             return i_container.GetElements().isEmpty();
-        }
+        }*/
     private:
 
         typedef typename ThreadModel::Lock Guard;

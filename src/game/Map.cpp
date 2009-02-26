@@ -1102,10 +1102,10 @@ bool Map::UnloadGrid(const uint32 &x, const uint32 &y, bool unloadAll)
         else
             RemoveAllObjectsInRemoveList();
 
-        assert(grid.NoWorldObjectInGrid());
+        //assert(grid.NoWorldObjectInGrid());
         unloader.UnloadN();
-        assert(grid.NoWorldObjectInGrid());
-        assert(grid.NoGridObjectInGrid());
+        //assert(grid.NoWorldObjectInGrid());
+        //assert(grid.NoGridObjectInGrid());
         delete grid;
         setNGrid(NULL, x, y);
     }
