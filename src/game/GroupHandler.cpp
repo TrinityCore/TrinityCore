@@ -722,7 +722,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player *player, WorldPacke
         {
             if(auramask & (uint64(1) << i))
             {
-                uint32 updatedAura=player->GetUInt32Value(UNIT_FIELD_AURA + i);
+                uint32 updatedAura=player->GetUInt32Value(uint16(UNIT_FIELD_AURA + i));
                 *data << uint16(updatedAura);
                 *data << uint8(1);
                 //TODO: find a safe place to do this cleanup
@@ -807,7 +807,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player *player, WorldPacke
             {
                 if(auramask & (uint64(1) << i))
                 {
-                    uint32 updatedAura=pet->GetUInt32Value(UNIT_FIELD_AURA + i);
+                    uint32 updatedAura=pet->GetUInt32Value(uint16(UNIT_FIELD_AURA + i));
                     *data << uint16(updatedAura);
                     *data << uint8(1);
                 //TODO: find a safe place to do this cleanup
