@@ -316,6 +316,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_saat' WHERE `entry`=20201;
 /* THE UNDERBOG */
 UPDATE `creature_template` SET `ScriptName`='mob_underbog_mushroom' WHERE `entry`=17990;
 UPDATE `creature_template` SET `ScriptName`='boss_hungarfen' WHERE `entry`=17770;
+UPDATE `creature_template` SET `ScriptName`='boss_the_black_stalker' WHERE `entry`='17882';
 
 /* THE STEAMVAULT */
 UPDATE `instance_template` SET `script`='instance_steam_vault' WHERE `map`=545;
@@ -333,6 +334,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_toxic_sporebat' WHERE entry=221
 /* Leotheras the Blind event */
 UPDATE `creature_template` SET `ScriptName`='boss_leotheras_the_blind' WHERE `entry`=21215;
 UPDATE `creature_template` SET `ScriptName`='boss_leotheras_the_blind_demonform' WHERE `entry`=21845;
+UPDATE `creature_template` SET `ScriptName`='mob_greyheart_spellbinder' WHERE `entry` = '21806';
 /* Fathom-lord Karathress event */
 UPDATE `creature_template` SET `ScriptName`='boss_fathomlord_karathress' WHERE `entry`=21214;
 UPDATE `creature_template` SET `ScriptName`='boss_fathomguard_sharkkis' WHERE `entry`=21966;
@@ -970,6 +972,7 @@ UPDATE `creature_template` SET `ScriptName` = 'boss_koragg' WHERE `entry` =24247
 UPDATE `creature_template` SET `ScriptName` = 'boss_zuljin' WHERE `entry` =23863;
 UPDATE `creature_template` SET `ScriptName` = 'do_nothing' WHERE `entry` = '24187';
 UPDATE `creature_template` SET `ScriptName` = 'mob_zuljin_vortex' WHERE `entry` = '24136';
+UPDATE `creature_template` SET `ScriptName`='npc_zulaman_hostage' WHERE entry IN ('24001','23790','23999','24024');
 
 /* ZUL'FARRAK */
 UPDATE `creature_template` SET `ScriptName`='npc_sergeant_bly' WHERE `entry`=7604;
