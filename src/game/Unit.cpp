@@ -5795,6 +5795,15 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     triggered_spell_id = 31803;
                     break;
                 }
+                // Seal of Corruption
+                case 53736:
+                {
+                    if(effIndex != 0)                       // effect 1,2 used by seal unleashing code
+                        return false;
+
+                    triggered_spell_id = 53742;
+                    break;
+                }
                 // Spiritual Attunement
                 case 31785:
                 case 33776:
