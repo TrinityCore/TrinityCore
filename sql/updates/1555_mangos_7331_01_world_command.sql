@@ -1,4 +1,4 @@
-ALTER TABLE db_version CHANGE COLUMN required_7312_01_mangos_mangos_string required_7331_01_mangos_command bit;
+/*ALTER TABLE db_version CHANGE COLUMN required_7312_01_mangos_mangos_string required_7331_01_mangos_command bit;*/
 
 DELETE FROM `command` WHERE `name` = 'account set addon';
 DELETE FROM `command` WHERE `name` = 'ban account';
