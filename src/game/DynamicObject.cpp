@@ -53,17 +53,7 @@ void DynamicObject::AddToWorld()
 void DynamicObject::RemoveFromWorld()
 {
     ///- Remove the dynamicObject from the accessor
-    if(IsInWorld())
-    {
-        // Make sure the object is back to grid container for removal as farsight targets
-        // are switched to world container on creation and they are also set to active
-        if (isActiveObject())
-        {
-            GetMap()->SwitchGridContainers(this, false);
-            setActive(false);
-        }
-        ObjectAccessor::Instance().RemoveObject(this);
-    }
+    if(IsInWorld()) ObjectAccessor::Instance().RemoveObject(this);
     WorldObject::RemoveFromWorld();
 }
 

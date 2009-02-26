@@ -269,6 +269,15 @@ void Map::AddToGrid(Creature* obj, NGridType *grid, Cell const& cell)
     obj->SetCurrentCell(cell);
 }
 
+template<>
+void Map::AddToGrid(DynamicObject* obj, NGridType *grid, Cell const& cell)
+{
+    if(obj->isActiveObject()) // only farsight
+        (*grid)(cell.CellX(), cell.CellY()).AddWorldObject<DynamicObject>(obj, obj->GetGUID());
+    else
+        (*grid)(cell.CellX(), cell.CellY()).AddGridObject<DynamicObject>(obj, obj->GetGUID());
+}
+
 template<class T>
 void Map::RemoveFromGrid(T* obj, NGridType *grid, Cell const& cell)
 {
@@ -311,6 +320,15 @@ void Map::RemoveFromGrid(Creature* obj, NGridType *grid, Cell const& cell)
     }
 }
 
+template<>
+void Map::RemoveFromGrid(DynamicObject* obj, NGridType *grid, Cell const& cell)
+{
+    if(obj->isActiveObject()) // only farsight
+        (*grid)(cell.CellX(), cell.CellY()).RemoveWorldObject<DynamicObject>(obj, obj->GetGUID());
+    else
+        (*grid)(cell.CellX(), cell.CellY()).RemoveGridObject<DynamicObject>(obj, obj->GetGUID());
+}
+
 template<class T>
 void Map::SwitchGridContainers(T* obj, bool apply)
 {
@@ -321,18 +339,18 @@ void Map::SwitchGridContainers(T* obj, bool apply)
 
     if(apply)
     {
-        assert(!grid.GetWorldObject(obj->GetGUID(), obj));
+        if(!grid.RemoveGridObject<T>(obj, obj->GetGUID())
+            || !grid.AddWorldObject<T>(obj, obj->GetGUID()))
         {
-            grid.RemoveGridObject<T>(obj, obj->GetGUID());
-            grid.AddWorldObject<T>(obj, obj->GetGUID());
+            assert(false);
         }
     }
     else
     {
-        assert(!grid.GetGridObject(obj->GetGUID(), obj));
+        if(!grid.RemoveWorldObject<T>(obj, obj->GetGUID())
+            || !grid.AddGridObject<T>(obj, obj->GetGUID()))
         {
-            grid.RemoveWorldObject<T>(obj, obj->GetGUID());
-            grid.AddGridObject<T>(obj, obj->GetGUID());
+            assert(false);
         }
     }
 }
@@ -428,7 +446,7 @@ void Map::LoadGrid(float x, float y)
 {
     CellPair pair = Trinity::ComputeCellPair(x, y);
     Cell cell(pair);
-    EnsureGridLoaded(cell, NULL);
+    EnsureGridLoaded(cell);
 }
 
 bool Map::Add(Player *player)

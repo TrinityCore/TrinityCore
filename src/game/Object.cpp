@@ -1070,9 +1070,28 @@ WorldObject::WorldObject()
     m_isActive          = false;
 }
 
+void WorldObject::SetWorldObject(bool on)
+{
+    if(!IsInWorld())
+        return;
+    
+    if(GetTypeId() == TYPEID_UNIT)
+    {
+        if(!((Creature*)this)->isPet())
+            GetMap()->SwitchGridContainers((Creature*)this, on);
+    }
+    /*else if(GetTypeId() == TYPEID_DYNAMICOBJECT)
+    {
+        GetMap()->SwitchGridContainers((DynamicObject*)this, on);
+    }*/    
+}
+
 void WorldObject::setActive( bool on )
 {
     if(m_isActive==on)
+        return;
+
+    if(GetTypeId() == TYPEID_PLAYER)
         return;
 
     bool world = IsInWorld();
