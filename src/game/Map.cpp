@@ -330,14 +330,14 @@ void Map::RemoveFromGrid(DynamicObject* obj, NGridType *grid, Cell const& cell)
 }
 
 template<class T>
-void Map::SwitchGridContainers(T* obj, bool apply)
+void Map::SwitchGridContainers(T* obj, bool on)
 {
     CellPair pair = Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
     Cell cell(pair);
     NGridType *ngrid = getNGrid(cell.GridX(), cell.GridY());
     GridType &grid = (*ngrid)(cell.CellX(), cell.CellY());
 
-    if(apply)
+    if(on)
     {
         if(!grid.RemoveGridObject<T>(obj, obj->GetGUID())
             || !grid.AddWorldObject<T>(obj, obj->GetGUID()))
@@ -1589,10 +1589,36 @@ void Map::AddObjectToRemoveList(WorldObject *obj)
     //sLog.outDebug("Object (GUID: %u TypeId: %u ) added to removing list.",obj->GetGUIDLow(),obj->GetTypeId());
 }
 
+void Map::AddObjectToSwitchList(WorldObject *obj, bool on)
+{
+    assert(obj->GetMapId()==GetId() && obj->GetInstanceId()==GetInstanceId());
+
+    std::map<WorldObject*, bool>::iterator itr = i_objectsToSwitch.find(obj);
+    if(itr == i_objectsToSwitch.end())
+        i_objectsToSwitch.insert(itr, std::make_pair(obj, on));
+    else if(itr->second != on)
+        i_objectsToSwitch.erase(itr);
+    else
+        assert(false);
+}
+
 void Map::RemoveAllObjectsInRemoveList()
 {
-    if(i_objectsToRemove.empty())
-        return;
+    while(!i_objectsToSwitch.empty())
+    {
+        std::map<WorldObject*, bool>::iterator itr = i_objectsToSwitch.begin();
+        WorldObject *obj = itr->first;
+        bool on = itr->second;
+        i_objectsToSwitch.erase(itr);
+
+        switch(obj->GetTypeId())
+        {
+        case TYPEID_UNIT:
+            if(!((Creature*)obj)->isPet())
+                SwitchGridContainers((Creature*)obj, on);
+            break;
+        }
+    }
 
     //sLog.outDebug("Object remover 1 check.");
     while(!i_objectsToRemove.empty())

@@ -236,6 +236,7 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         bool IsBattleGroundOrArena() const { return i_mapEntry && i_mapEntry->IsBattleGroundOrArena(); }
 
         void AddObjectToRemoveList(WorldObject *obj);
+        void AddObjectToSwitchList(WorldObject *obj, bool on);
         void DoDelayedMovesAndRemoves();
 
         virtual bool RemoveBones(uint64 guid, float x, float y);
@@ -343,6 +344,7 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         bool i_lock;
         std::vector<uint64> i_unitsToNotify;
         std::set<WorldObject *> i_objectsToRemove;
+        std::map<WorldObject*, bool> i_objectsToSwitch;
 
         // Type specific code for add/remove to/from grid
         template<class T>
