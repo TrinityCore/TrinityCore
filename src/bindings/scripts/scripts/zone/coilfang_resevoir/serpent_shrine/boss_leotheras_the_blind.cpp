@@ -195,8 +195,6 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
         EnrageUsed = false;
         InnderDemon_Count = 0;
         m_creature->SetSpeed( MOVE_RUN, 2.0f, true);
-        m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-        m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
         m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_NIGHTELF);
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY  , 0);
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY+1, 0);
