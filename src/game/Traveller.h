@@ -53,10 +53,26 @@ struct TRINITY_DLL_DECL Traveller
     T& GetTraveller(void) { return i_traveller; }
 
     float Speed(void) { assert(false); return 0.0f; }
+    float GetMoveDestinationTo(float x, float y, float z);
+    uint32 GetTotalTrevelTimeTo(float x, float y, float z);
+
     void Relocation(float x, float y, float z, float orientation) {}
     void Relocation(float x, float y, float z) { Relocation(x, y, z, i_traveller.GetOrientation()); }
     void MoveTo(float x, float y, float z, uint32 t) {}
 };
+
+template<class T>
+inline uint32 Traveller<T>::GetTotalTrevelTimeTo(float x, float y, float z)
+{
+    float dist = GetMoveDestinationTo(x,y,z);
+    float speed = 0.001f;
+    if(GetTraveller().hasUnitState(UNIT_STAT_CHARGING))
+        speed *= SPEED_CHARGE;
+    else
+        speed *= Speed();   // speed is in seconds so convert from second to millisecond
+
+    return static_cast<uint32>(dist/speed);
+}
 
 // specialization for creatures
 template<>
@@ -77,6 +93,20 @@ inline void Traveller<Creature>::Relocation(float x, float y, float z, float ori
 }
 
 template<>
+inline float Traveller<Creature>::GetMoveDestinationTo(float x, float y, float z)
+{
+    float dx = x - GetPositionX();
+    float dy = y - GetPositionY();
+    float dz = z - GetPositionZ();
+
+    if(i_traveller.hasUnitState(UNIT_STAT_IN_FLIGHT))
+        return sqrt((dx*dx) + (dy*dy) + (dz*dz));
+    else                                                    //Walking on the ground
+        return sqrt((dx*dx) + (dy*dy));
+}
+
+
+template<>
 inline void Traveller<Creature>::MoveTo(float x, float y, float z, uint32 t)
 {
     //Call for creature group update
@@ -95,6 +125,19 @@ inline float Traveller<Player>::Speed()
         return PLAYER_FLIGHT_SPEED;
     else
         return i_traveller.GetSpeed(i_traveller.HasUnitMovementFlag(MOVEMENTFLAG_WALK_MODE) ? MOVE_WALK : MOVE_RUN);
+}
+
+template<>
+inline float Traveller<Player>::GetMoveDestinationTo(float x, float y, float z)
+{
+    float dx = x - GetPositionX();
+    float dy = y - GetPositionY();
+    float dz = z - GetPositionZ();
+
+    if (i_traveller.isInFlight())
+        return sqrt((dx*dx) + (dy*dy) + (dz*dz));
+    else                                                    //Walking on the ground
+        return sqrt((dx*dx) + (dy*dy));
 }
 
 template<>
