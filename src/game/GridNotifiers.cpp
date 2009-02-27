@@ -142,11 +142,17 @@ VisibleNotifier::Notify()
 
     // Now do operations that required done at object visibility change to visible
 
-    // target aura duration for caster show only if target exist at caster client
     // send data at target visibility change (adding to client)
     for(std::set<WorldObject*>::const_iterator vItr = i_visibleNow.begin(); vItr != i_visibleNow.end(); ++vItr)
+    {
+        // target aura duration for caster show only if target exist at caster client
         if((*vItr)!=&i_player && (*vItr)->isType(TYPEMASK_UNIT))
             i_player.SendAurasForTarget((Unit*)(*vItr));
+
+        // non finished movements show to player
+        if((*vItr)->GetTypeId()==TYPEID_UNIT && ((Creature*)(*vItr))->isAlive())
+            ((Creature*)(*vItr))->SendMonsterMoveWithSpeedToCurrentDestination(&i_player);
+    }
 }
 
 void
