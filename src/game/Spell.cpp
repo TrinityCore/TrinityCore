@@ -1127,7 +1127,20 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
 
     // Apply additional spell effects to target
     if (m_preCastSpell)
-        m_caster->CastSpell(unit,m_preCastSpell, true, m_CastItem);
+    {
+        // Special spell id
+        // TODO: Handle all of special spells in one place?
+        if(m_preCastSpell==61988)
+        {
+            //Cast forbearance
+            m_caster->CastSpell(unit,25771, true, m_CastItem);
+            // Cast Avenging Wrath Marker
+            m_caster->CastSpell(unit,61987, true, m_CastItem);
+        }
+        else
+            m_caster->CastSpell(unit,m_preCastSpell, true, m_CastItem);
+    }
+
 
     for(uint32 effectNumber=0;effectNumber<3;effectNumber++)
     {
@@ -2177,13 +2190,6 @@ void Spell::cast(bool skipCheck)
                 m_preCastSpell = 11196;                                // Recently Bandaged
             else if(m_spellInfo->SpellIconID == 1662 && m_spellInfo->AttributesEx & 0x20)
                 m_preCastSpell = 23230;                                // Blood Fury - Healing Reduction
-            break;
-        }
-
-        case SPELLFAMILY_PRIEST:
-        {
-            if (m_spellInfo->Id == 47585)                              // Dispersion (transform)
-                m_preCastSpell = 60069;                                // Dispersion (mana regen)
             break;
         }
     }
