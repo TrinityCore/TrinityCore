@@ -96,7 +96,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         // cleanup seting if outdated
         if(!mEntry->IsBattleGroundOrArena())
         {
-            _player->SetBattleGroundId(0);                          // We're not in BG.
+            _player->SetBattleGroundId(0, BATTLEGROUND_TYPE_NONE); // We're not in BG.
             // reset destination bg team
             _player->SetBGTeam(0);
         }
