@@ -15985,8 +15985,7 @@ void Player::SaveToDB()
     uint32 tmp_displayid = GetDisplayId();
 
     // Set player sit state to standing on save, also stealth and shifted form
-    SetStandState(UNIT_STAND_STATE_STAND);                  // stand state
-    RemoveStandFlags(UNIT_STAND_FLAGS_ALL);                 // stand flags?
+    SetByteValue(UNIT_FIELD_BYTES_1, 0, UNIT_STAND_STATE_STAND);
     SetByteValue(UNIT_FIELD_BYTES_2, 3, 0);                 // shapeshift
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
     SetDisplayId(GetNativeDisplayId());
