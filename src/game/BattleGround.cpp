@@ -119,7 +119,7 @@ BattleGround::~BattleGround()
         // remove from battlegrounds
     }
 
-    sBattleGroundMgr.RemoveBattleGround(GetInstanceID());
+    sBattleGroundMgr.RemoveBattleGround(GetInstanceID(), GetTypeID());
     // unload map
     if(Map * map = MapManager::Instance().FindMap(GetMapId(), GetInstanceID()))
         if(map->IsBattleGroundOrArena())
@@ -856,7 +856,7 @@ void BattleGround::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         }
 
         // Do next only if found in battleground
-        plr->SetBattleGroundId(0);                          // We're not in BG.
+        plr->SetBattleGroundId(0, BATTLEGROUND_TYPE_NONE);      // We're not in BG.
         // reset destination bg team
         plr->SetBGTeam(0);
 
@@ -1031,7 +1031,7 @@ void BattleGround::RemoveFromBGFreeSlotQueue()
     // set to be able to re-add if needed
     m_InBGFreeSlotQueue = false;
     // uncomment this code when battlegrounds will work like instances
-    for (std::deque<BattleGround*>::iterator itr = sBattleGroundMgr.BGFreeSlotQueue[m_TypeID].begin(); itr != sBattleGroundMgr.BGFreeSlotQueue[m_TypeID].end(); ++itr)
+    for (BGFreeSlotQueueType::iterator itr = sBattleGroundMgr.BGFreeSlotQueue[m_TypeID].begin(); itr != sBattleGroundMgr.BGFreeSlotQueue[m_TypeID].end(); ++itr)
     {
         if ((*itr)->GetInstanceID() == m_InstanceID)
         {

@@ -115,7 +115,7 @@ void WorldSession::HandleBattleGroundJoinOpcode( WorldPacket & recv_data )
     // get bg instance or bg template if instance not found
     BattleGround * bg = 0;
     if(instanceId)
-        BattleGround *bg = sBattleGroundMgr.GetBattleGround(instanceId);
+        BattleGround *bg = sBattleGroundMgr.GetBattleGround(instanceId, bgTypeId);
 
     if(!bg && !(bg = sBattleGroundMgr.GetBattleGroundTemplate(bgTypeId)))
     {
@@ -347,7 +347,7 @@ void WorldSession::HandleBattleGroundPlayerPortOpcode( WorldPacket &recv_data )
                 else
                 {
                     // get the bg we're invited to
-                    BattleGround * bg = sBattleGroundMgr.GetBattleGround(itrPlayerStatus->second.GroupInfo->IsInvitedToBGInstanceGUID);
+                    BattleGround * bg = sBattleGroundMgr.GetBattleGround(itrPlayerStatus->second.GroupInfo->IsInvitedToBGInstanceGUID, bgTypeId);
                     status = STATUS_WAIT_JOIN;
                 }
 
@@ -389,7 +389,7 @@ void WorldSession::HandleBattleGroundPlayerPortOpcode( WorldPacket &recv_data )
         return;
     }
 
-    BattleGround *bg = sBattleGroundMgr.GetBattleGround(instanceId);
+    BattleGround *bg = sBattleGroundMgr.GetBattleGround(instanceId, bgTypeId);
 
     // bg template might and must be used in case of leaving queue, when instance is not created yet
     if(!bg && action == 0)
@@ -458,11 +458,11 @@ void WorldSession::HandleBattleGroundPlayerPortOpcode( WorldPacket &recv_data )
                     currentBg->RemovePlayerAtLeave(_player->GetGUID(), false, true);
 
                 // set the destination instance id
-                _player->SetBattleGroundId(bg->GetInstanceID());
+                _player->SetBattleGroundId(bg->GetInstanceID(), bgTypeId);
                 // set the destination team
                 _player->SetBGTeam(team);
                 // bg->HandleBeforeTeleportToBattleGround(_player);
-                sBattleGroundMgr.SendToBattleGround(_player, instanceId);
+                sBattleGroundMgr.SendToBattleGround(_player, instanceId, bgTypeId);
                 // add only in HandleMoveWorldPortAck()
                 // bg->AddPlayer(_player,team);
                 sLog.outDebug("Battleground: player %s (%u) joined battle for bg %u, bgtype %u, queue type %u.",_player->GetName(),_player->GetGUIDLow(),bg->GetInstanceID(),bg->GetTypeID(),bgQueueTypeId);

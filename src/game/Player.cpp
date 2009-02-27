@@ -370,6 +370,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this)
     m_DetectInvTimer = 1000;
 
     m_bgBattleGroundID = 0;
+    m_bgTypeID = BATTLEGROUND_TYPE_NONE;
     for (int j=0; j < PLAYER_MAX_BATTLEGROUND_QUEUES; j++)
     {
         m_bgBattleGroundQueueID[j].bgQueueTypeId  = BATTLEGROUND_QUEUE_NONE;
@@ -4347,7 +4348,7 @@ void Player::RepopAtGraveyard()
     WorldSafeLocsEntry const *ClosestGrave = NULL;
 
     // Special handle for battleground maps
-    BattleGround *bg = sBattleGroundMgr.GetBattleGround(GetBattleGroundId());
+    BattleGround *bg = sBattleGroundMgr.GetBattleGround(GetBattleGroundId(), m_bgTypeID);
 
     if(bg && (bg->GetTypeID() == BATTLEGROUND_AB || bg->GetTypeID() == BATTLEGROUND_EY || bg->GetTypeID() == BATTLEGROUND_AV))
         ClosestGrave = bg->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetTeam());
@@ -14609,14 +14610,14 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
         if(!mapEntry || mapEntry->Instanceable() || !MapManager::IsValidMapCoord(m_bgEntryPoint))
             SetBattleGroundEntryPoint(m_homebindMapId,m_homebindX,m_homebindY,m_homebindZ,0.0f);
 
-        BattleGround *currentBg = sBattleGroundMgr.GetBattleGround(bgid);
+        BattleGround *currentBg = sBattleGroundMgr.GetBattleGround(bgid, BATTLEGROUND_TYPE_NONE);
 
         if(currentBg && currentBg->IsPlayerInBattleGround(GetGUID()))
         {
             BattleGroundQueueTypeId bgQueueTypeId = sBattleGroundMgr.BGQueueTypeId(currentBg->GetTypeID(), currentBg->GetArenaType());
             uint32 queueSlot = AddBattleGroundQueueId(bgQueueTypeId);
 
-            SetBattleGroundId(currentBg->GetInstanceID());
+            SetBattleGroundId(currentBg->GetInstanceID(), currentBg->GetTypeID());
             SetBGTeam(bgteam);
 
             //join player to battleground group
@@ -19050,7 +19051,7 @@ BattleGround* Player::GetBattleGround() const
     if(GetBattleGroundId()==0)
         return NULL;
 
-    return sBattleGroundMgr.GetBattleGround(GetBattleGroundId());
+    return sBattleGroundMgr.GetBattleGround(GetBattleGroundId(), m_bgTypeID);
 }
 
 bool Player::InArena() const
