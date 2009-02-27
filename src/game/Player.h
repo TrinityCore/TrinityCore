@@ -1199,6 +1199,8 @@ class TRINITY_DLL_SPEC Player : public Unit
         /***                    QUEST SYSTEM                   ***/
         /*********************************************************/
 
+        uint32 GetQuestLevel( Quest const* pQuest ) const { return pQuest && pQuest->GetQuestLevel() ? pQuest->GetQuestLevel() : getLevel(); }
+
         void PrepareQuestMenu( uint64 guid );
         void SendPreparedQuest( uint64 guid );
         bool IsActiveQuest( uint32 quest_id ) const;
