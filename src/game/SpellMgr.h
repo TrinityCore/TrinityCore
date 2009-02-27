@@ -408,8 +408,6 @@ bool IsSingleTargetSpells(SpellEntry const *spellInfo1, SpellEntry const *spellI
 
 bool IsAuraAddedBySpell(uint32 auraType, uint32 spellId);
 
-uint8 GetSpellAllowedInLocationError(SpellEntry const *spellInfo,uint32 map_id,uint32 zone_id,uint32 area_id,uint32 bgInstanceId);
-
 extern bool IsAreaEffectTarget[TOTAL_SPELL_TARGETS];
 
 inline bool IsAreaOfEffectSpell(SpellEntry const *spellInfo)
@@ -714,6 +712,32 @@ class PetAura
         int32 damage;
 };
 typedef std::map<uint16, PetAura> SpellPetAuraMap;
+
+struct SpellArea
+{
+    uint32 spellId;
+    uint32 areaId;                                          // zone/subzone/or 0 is not limited to zone
+    uint32 questStart;                                      // quest start (quest must be active or rewarded for spell apply)
+    uint32 questEnd;                                        // quest end (quest don't must be rewarded for spell apply)
+    uint32 auraSpell;                                       // spell aura must be applied for spell apply
+    uint32 raceMask;                                        // can be applied only to races
+    Gender gender;                                          // can be applied only to gender
+    bool questStartCanActive;                               // if true then quest start can be active (not only rewarded)
+    bool autocast;                                          // if true then auto applied at area enter, in other case just allowed to cast
+
+    // helpers
+    bool IsFitToRequirements(Player const* player, uint32 newZone, uint32 newArea) const;
+};
+
+typedef std::multimap<uint32,SpellArea> SpellAreaMap;
+typedef std::multimap<uint32,SpellArea const*> SpellAreaForQuestMap;
+typedef std::multimap<uint32,SpellArea const*> SpellAreaForAuraMap;
+typedef std::multimap<uint32,SpellArea const*> SpellAreaForAreaMap;
+typedef std::pair<SpellAreaMap::const_iterator,SpellAreaMap::const_iterator> SpellAreaMapBounds;
+typedef std::pair<SpellAreaForQuestMap::const_iterator,SpellAreaForQuestMap::const_iterator> SpellAreaForQuestMapBounds;
+typedef std::pair<SpellAreaForAuraMap::const_iterator, SpellAreaForAuraMap::const_iterator>  SpellAreaForAuraMapBounds;
+typedef std::pair<SpellAreaForAreaMap::const_iterator, SpellAreaForAreaMap::const_iterator>  SpellAreaForAreaMapBounds;
+
 
 // Spell rank chain  (accessed using SpellMgr functions)
 struct SpellChainNode
@@ -1068,6 +1092,36 @@ class SpellMgr
                 return NULL;
         }
 
+        uint8 GetSpellAllowedInLocationError(SpellEntry const *spellInfo, uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player = NULL);
+
+        SpellAreaMapBounds GetSpellAreaMapBounds(uint32 spell_id) const
+        {
+            return SpellAreaMapBounds(mSpellAreaMap.lower_bound(spell_id),mSpellAreaMap.upper_bound(spell_id));
+        }
+
+        SpellAreaForQuestMapBounds GetSpellAreaForQuestMapBounds(uint32 quest_id, bool active) const
+        {
+            if(active)
+                return SpellAreaForQuestMapBounds(mSpellAreaForActiveQuestMap.lower_bound(quest_id),mSpellAreaForActiveQuestMap.upper_bound(quest_id));
+            else
+                return SpellAreaForQuestMapBounds(mSpellAreaForQuestMap.lower_bound(quest_id),mSpellAreaForQuestMap.upper_bound(quest_id));
+        }
+
+        SpellAreaForQuestMapBounds GetSpellAreaForQuestEndMapBounds(uint32 quest_id) const
+        {
+            return SpellAreaForQuestMapBounds(mSpellAreaForQuestEndMap.lower_bound(quest_id),mSpellAreaForQuestEndMap.upper_bound(quest_id));
+        }
+
+        SpellAreaForAuraMapBounds GetSpellAreaForAuraMapBounds(uint32 spell_id) const
+        {
+            return SpellAreaForAuraMapBounds(mSpellAreaForAuraMap.lower_bound(spell_id),mSpellAreaForAuraMap.upper_bound(spell_id));
+        }
+
+        SpellAreaForAreaMapBounds GetSpellAreaForAreaMapBounds(uint32 area_id) const
+        {
+            return SpellAreaForAreaMapBounds(mSpellAreaForAreaMap.lower_bound(area_id),mSpellAreaForAreaMap.upper_bound(area_id));
+        }
+
     // Modifiers
     public:
         static SpellMgr& Instance();
@@ -1089,6 +1143,7 @@ class SpellMgr
         void LoadSpellCustomAttr();
         void LoadSpellLinked();
         void LoadPetLevelupSpellMap();
+        void LoadSpellAreas();
 
     private:
         SpellScriptTarget  mSpellScriptTarget;
@@ -1107,6 +1162,12 @@ class SpellMgr
         SpellCustomAttribute  mSpellCustomAttr;
         SpellLinkedMap      mSpellLinkedMap;
         PetLevelupSpellMap  mPetLevelupSpellMap;
+        SpellAreaMap         mSpellAreaMap;
+        SpellAreaForQuestMap mSpellAreaForQuestMap;
+        SpellAreaForQuestMap mSpellAreaForActiveQuestMap;
+        SpellAreaForQuestMap mSpellAreaForQuestEndMap;
+        SpellAreaForAuraMap  mSpellAreaForAuraMap;
+        SpellAreaForAreaMap  mSpellAreaForAreaMap;
 };
 
 #define spellmgr SpellMgr::Instance()
