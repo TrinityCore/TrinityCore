@@ -1348,7 +1348,7 @@ uint32 Group::CanJoinBattleGroundQueue(BattleGroundTypeId bgTypeId, BattleGround
     if(!reference)
         return BG_JOIN_ERR_OFFLINE_MEMBER;
 
-    uint32 queue_id = reference->GetBattleGroundQueueIdFromLevel(bgTypeId);
+    BGQueueIdBasedOnLevel queue_id = reference->GetBattleGroundQueueIdFromLevel(bgTypeId);
     uint32 arenaTeamId = reference->GetArenaTeamId(arenaSlot);
     uint32 team = reference->GetTeam();
 

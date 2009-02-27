@@ -1862,14 +1862,13 @@ class TRINITY_DLL_SPEC Player : public Unit
         /***               BATTLEGROUND SYSTEM                 ***/
         /*********************************************************/
 
-        bool InBattleGround() const { return m_bgBattleGroundID != 0; }
-        uint32 GetBattleGroundId() const    { return m_bgBattleGroundID; }
-        BattleGround* GetBattleGround() const;
+        bool InBattleGround()       const   { return m_bgBattleGroundID != 0; }
         bool InArena() const;
+        uint32 GetBattleGroundId()  const   { return m_bgBattleGroundID; }
+        BattleGround* GetBattleGround() const;
 
-        static uint32 GetMinLevelForBattleGroundQueueId(uint32 queue_id, BattleGroundTypeId bgTypeId);
-        static uint32 GetMaxLevelForBattleGroundQueueId(uint32 queue_id, BattleGroundTypeId bgTypeId);
-        uint32 GetBattleGroundQueueIdFromLevel(BattleGroundTypeId bgTypeId) const;
+
+        BGQueueIdBasedOnLevel GetBattleGroundQueueIdFromLevel(BattleGroundTypeId bgTypeId) const;
 
         bool InBattleGroundQueue() const
         {
