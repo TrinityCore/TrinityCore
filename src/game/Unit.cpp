@@ -209,18 +209,7 @@ void Unit::Update( uint32 p_time )
     _UpdateAura();
     }else
     m_AurasCheck -= p_time;*/
-    const uint64& auramask = GetAuraUpdateMask();
-    if (auramask)
-    {
-        for(uint32 i = 0; i < MAX_AURAS; ++i)
-        {
-            if(auramask & (uint64(1) << i))
-            {
-                SendAuraUpdate(i);
-            }
-        }
-        ResetAuraUpdateMask();
-    }
+    UpdateAuras();
 
     // WARNING! Order of execution here is important, do not change.
     // Spells must be processed with event system BEFORE they go to _UpdateSpells.
@@ -263,6 +252,22 @@ void Unit::Update( uint32 p_time )
     ModifyAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT, GetHealth() > GetMaxHealth()*0.75f);
 
     i_motionMaster.UpdateMotion(p_time);
+}
+
+void Unit::UpdateAuras()
+{
+    const uint64& auramask = GetAuraUpdateMask();
+    if (auramask)
+    {
+        for(uint32 i = 0; i < MAX_AURAS; ++i)
+        {
+            if(auramask & (uint64(1) << i))
+            {
+                SendAuraUpdate(i);
+            }
+        }
+        ResetAuraUpdateMask();
+    }
 }
 
 bool Unit::haveOffhandWeapon() const
@@ -4328,6 +4333,9 @@ Aura* Unit::GetAura(AuraType type, uint32 family, uint32 familyFlag1, uint32 fam
 
 bool Unit::HasAura(uint32 spellId) const
 {
+    //Special case for non existing spell
+    if (spellId==61988)
+        return HasAura(61987) || HasAura(25771);
     for (int i = 0; i < 3 ; ++i)
     {
         AuraMap::const_iterator iter = m_Auras.find(spellEffectPair(spellId, i));
@@ -5783,6 +5791,15 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     triggered_spell_id = 31803;
                     break;
                 }
+                // Seal of Corruption
+                case 53736:
+                {
+                    if(effIndex != 0)                       // effect 1,2 used by seal unleashing code
+                        return false;
+
+                    triggered_spell_id = 53742;
+                    break;
+                }
                 // Spiritual Attunement
                 case 31785:
                 case 33776:
@@ -6930,7 +6947,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
         // Bloodthirst (($m/100)% of max health)
         case 23880:
         {
-            basepoints0 = int32(GetMaxHealth() * triggerAmount / 10000);
+            basepoints0 = int32(GetMaxHealth() * triggerAmount / 100);
             break;
         }
         // Shamanistic Rage triggered spell
@@ -9848,6 +9865,8 @@ void Unit::setDeathState(DeathState s)
     {
         RemoveAllAurasOnDeath();
         UnsummonAllTotems();
+        //This is needed to clear visible auras after unit dies
+        UpdateAuras();
 
         ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
         ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);

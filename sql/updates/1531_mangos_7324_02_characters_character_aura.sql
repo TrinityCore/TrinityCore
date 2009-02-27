@@ -1,4 +1,4 @@
-ALTER TABLE character_db_version CHANGE COLUMN required_7324_01_characters_character_spell required_7324_02_characters_character_aura bit;
+/*ALTER TABLE character_db_version CHANGE COLUMN required_7324_01_characters_character_spell required_7324_02_characters_character_aura bit;*/
 
 /* remove some deleted spells or ranks from characters auras */
 /* Mana Tap no longer Blood Elf Racial */
