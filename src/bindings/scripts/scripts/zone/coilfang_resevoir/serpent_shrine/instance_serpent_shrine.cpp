@@ -129,7 +129,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
             break;
             case 184956:
                 StrangePool = go->GetGUID();
-                if(go->isActive())
+                if(go->isActiveObject())
                     SetData(DATA_STRANGE_POOL, DONE);
         }
     }

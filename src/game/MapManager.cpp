@@ -301,7 +301,7 @@ bool MapManager::IsValidMAP(uint32 mapid)
 void MapManager::UnloadAll()
 {
     for(MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
-        iter->second->UnloadAll(true);
+        iter->second->UnloadAll();
 
     while(!i_maps.empty())
     {

@@ -396,7 +396,7 @@ void Unit::SendMonsterMoveByPath(Path const& path, uint32 start, uint32 end)
     data << getMSTime();
 
     data << uint8( 0 );
-    data << uint32(((GetUnitMovementFlags() & MOVEMENTFLAG_LEVITATING) || isInFlight())? MOVEFLAG_FLY : MOVEFLAG_WALK);
+    data << uint32(((GetUnitMovementFlags() & MOVEMENTFLAG_LEVITATING) || isInFlight())? (MOVEFLAG_FLY|MOVEFLAG_WALK) : MOVEFLAG_WALK);
     data << uint32( traveltime );
     data << uint32( pathSize );
     data.append( (char*)path.GetNodes(start), pathSize * 4 * 3 );
@@ -4922,7 +4922,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 // 41409 Dementia: Every 5 seconds either gives you -5% damage/healing. (Druid, Shaman, Priest, Warlock, Mage, Paladin)
                 case 39446:
                 {
-                    if(GetTypeId() != TYPEID_PLAYER)
+                    if(GetTypeId() != TYPEID_PLAYER || !this->isAlive())
                         return false;
 
                     // Select class defined buff
@@ -7765,25 +7765,19 @@ Unit* Unit::GetNextRandomRaidMemberOrPet(float radius)
 
 void Unit::AddPlayerToVision(Player* plr)
 {
-    if (m_sharedVision.empty() && GetTypeId() == TYPEID_UNIT
-        && !((Creature*)this)->isPet() && !((Creature*)this)->isVehicle())
-    {
-        setActive(true);
-        GetMap()->SwitchGridContainers((Creature*)this, true);
-    }
+    setActive(true);
+    if(m_sharedVision.empty())
+        SetWorldObject(true);
     m_sharedVision.push_back(plr);
     plr->SetFarsightTarget(this);
 }
 
 void Unit::RemovePlayerFromVision(Player* plr)
 {
+    setActive(false);
     m_sharedVision.remove(plr);
-    if (m_sharedVision.empty() && GetTypeId() == TYPEID_UNIT
-        && !((Creature*)this)->isPet() && !((Creature*)this)->isVehicle())
-    {
-        setActive(false);
-        GetMap()->SwitchGridContainers((Creature*)this, false);
-    }
+    if(m_sharedVision.empty())
+        SetWorldObject(false);
     plr->ClearFarsight();
 }
 

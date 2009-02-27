@@ -58,7 +58,7 @@ m_declinedname(NULL)
     else if(type == GUARDIAN_PET)                           // always aggressive
         charmInfo->SetReactState(REACT_AGGRESSIVE);
 
-    m_isActive = true;
+    //m_isActive = true;
 }
 
 Pet::~Pet()
