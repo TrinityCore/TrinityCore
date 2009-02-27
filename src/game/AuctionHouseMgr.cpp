@@ -466,7 +466,7 @@ void AuctionHouseMgr::Update()
 
 AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTemplateId)
 {
-    uint32 houseid = 1;                                     // human auction house
+    uint32 houseid = 7;                                     // goblin auction house
 
     if(!sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
     {
