@@ -1103,19 +1103,42 @@ WorldObject::WorldObject()
     m_isActive          = false;
 }
 
-void WorldObject::setActive(bool isActive)
+void WorldObject::SetWorldObject(bool on)
 {
-    // if already in the same activity state as we try to set, do nothing
-    if(isActive == m_isActive || isType(TYPEMASK_PLAYER))
+    if(!IsInWorld())
+        return;
+    
+    GetMap()->AddObjectToSwitchList(this, on); 
+}
+
+void WorldObject::setActive( bool on )
+{
+    if(m_isActive==on)
         return;
 
-    m_isActive = isActive;
-    if(IsInWorld())
+    if(GetTypeId() == TYPEID_PLAYER)
+        return;
+
+    bool world = IsInWorld();
+
+    Map* map;
+    if(world)
     {
-        if(isActive)
-            GetMap()->AddActiveObject(this);
-        else
-            GetMap()->RemoveActiveObject(this);
+        map = GetMap();
+        if(GetTypeId() == TYPEID_UNIT)
+            map->RemoveFromActive((Creature*)this);
+        else if(GetTypeId() == TYPEID_DYNAMICOBJECT)
+            map->RemoveFromActive((DynamicObject*)this);
+    }
+
+    m_isActive = on;
+
+    if(world)
+    {
+        if(GetTypeId() == TYPEID_UNIT)
+            map->AddToActive((Creature*)this);
+        else if(GetTypeId() == TYPEID_DYNAMICOBJECT)
+            map->AddToActive((DynamicObject*)this);
     }
 }
 
@@ -1540,7 +1563,7 @@ Map const* WorldObject::GetBaseMap() const
 
 void WorldObject::AddObjectToRemoveList()
 {
-    Map* map = GetMap();
+    Map* map = MapManager::Instance().FindMap(GetMapId(), GetInstanceId());
     if(!map)
     {
         sLog.outError("Object (TypeId: %u Entry: %u GUID: %u) at attempt add to move list not have valid map (Id: %u).",GetTypeId(),GetEntry(),GetGUIDLow(),GetMapId());
