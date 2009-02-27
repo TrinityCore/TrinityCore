@@ -24,8 +24,6 @@
 #include "Common.h"
 #include "BattleGround.h"
 
-//TODO it is not possible to have this structure, because we should have BattlegroundSet for each queue
-//so i propose to change this type to array 1..MAX_BATTLEGROUND_TYPES of sets or maps..
 typedef std::map<uint32, BattleGround*> BattleGroundSet;
 
 typedef std::deque<BattleGround*> BGFreeSlotQueueType;
@@ -131,7 +129,10 @@ class BattleGroundQueue
 class BGQueueInviteEvent : public BasicEvent
 {
     public:
-        BGQueueInviteEvent(const uint64& pl_guid, uint32 BgInstanceGUID) : m_PlayerGuid(pl_guid), m_BgInstanceGUID(BgInstanceGUID) {};
+        BGQueueInviteEvent(const uint64& pl_guid, uint32 BgInstanceGUID, BattleGroundTypeId BgTypeId) :
+          m_PlayerGuid(pl_guid), m_BgInstanceGUID(BgInstanceGUID), m_BgTypeId(BgTypeId)
+          {
+          };
         virtual ~BGQueueInviteEvent() {};
 
         virtual bool Execute(uint64 e_time, uint32 p_time);
@@ -139,6 +140,7 @@ class BGQueueInviteEvent : public BasicEvent
     private:
         uint64 m_PlayerGuid;
         uint32 m_BgInstanceGUID;
+        BattleGroundTypeId m_BgTypeId;
 };
 
 /*
@@ -147,8 +149,8 @@ class BGQueueInviteEvent : public BasicEvent
 class BGQueueRemoveEvent : public BasicEvent
 {
     public:
-        BGQueueRemoveEvent(const uint64& pl_guid, uint32 bgInstanceGUID, uint32 playersTeam) :
-          m_PlayerGuid(pl_guid), m_BgInstanceGUID(bgInstanceGUID), m_PlayersTeam(playersTeam)
+        BGQueueRemoveEvent(const uint64& pl_guid, uint32 bgInstanceGUID, BattleGroundTypeId BgTypeId, uint32 playersTeam) :
+          m_PlayerGuid(pl_guid), m_BgInstanceGUID(bgInstanceGUID), m_BgTypeId(BgTypeId), m_PlayersTeam(playersTeam)
           {
           };
         virtual ~BGQueueRemoveEvent() {};
@@ -159,6 +161,7 @@ class BGQueueRemoveEvent : public BasicEvent
         uint64 m_PlayerGuid;
         uint32 m_BgInstanceGUID;
         uint32 m_PlayersTeam;
+        BattleGroundTypeId m_BgTypeId;
 };
 
 class BattleGroundMgr
@@ -182,30 +185,23 @@ class BattleGroundMgr
 
         /* Player invitation */
         // called from Queue update, or from Addplayer to queue
-        void InvitePlayer(Player* plr, uint32 bgInstanceGUID, uint32 team);
+        void InvitePlayer(Player* plr, uint32 bgInstanceGUID, BattleGroundTypeId bgTypeId, uint32 team);
 
         /* Battlegrounds */
-        BattleGroundSet::iterator GetBattleGroundsBegin() { return m_BattleGrounds.begin(); };
-        BattleGroundSet::iterator GetBattleGroundsEnd()   { return m_BattleGrounds.end(); };
-
-        BattleGround* GetBattleGround(uint32 InstanceID)
-        {
-            BattleGroundSet::iterator i = m_BattleGrounds.find(InstanceID);
-            return ( (i != m_BattleGrounds.end()) ? i->second : NULL );
-        };
+        BattleGround* GetBattleGround(uint32 InstanceID, BattleGroundTypeId bgTypeId); //there must be uint32 because MAX_BATTLEGROUND_TYPE_ID means unknown
 
         BattleGround * GetBattleGroundTemplate(BattleGroundTypeId bgTypeId);
         BattleGround * CreateNewBattleGround(BattleGroundTypeId bgTypeId, BGQueueIdBasedOnLevel queue_id, uint8 arenaType, bool isRated);
 
         uint32 CreateBattleGround(BattleGroundTypeId bgTypeId, bool IsArena, uint32 MinPlayersPerTeam, uint32 MaxPlayersPerTeam, uint32 LevelMin, uint32 LevelMax, char* BattleGroundName, uint32 MapID, float Team1StartLocX, float Team1StartLocY, float Team1StartLocZ, float Team1StartLocO, float Team2StartLocX, float Team2StartLocY, float Team2StartLocZ, float Team2StartLocO);
 
-        void AddBattleGround(uint32 InstanceID, BattleGround* BG) { m_BattleGrounds[InstanceID] = BG; };
-        void RemoveBattleGround(uint32 instanceID) { m_BattleGrounds.erase(instanceID); }
+        void AddBattleGround(uint32 InstanceID, BattleGroundTypeId bgTypeId, BattleGround* BG) { m_BattleGrounds[bgTypeId][InstanceID] = BG; };
+        void RemoveBattleGround(uint32 instanceID, BattleGroundTypeId bgTypeId) { m_BattleGrounds[bgTypeId].erase(instanceID); }
 
         void CreateInitialBattleGrounds();
         void DeleteAlllBattleGrounds();
 
-        void SendToBattleGround(Player *pl, uint32 InstanceID);
+        void SendToBattleGround(Player *pl, uint32 InstanceID, BattleGroundTypeId bgTypeId);
 
         /* Battleground queues */
         //these queues are instantiated when creating BattlegroundMrg
@@ -244,7 +240,7 @@ class BattleGroundMgr
         BattleMastersMap    mBattleMastersMap;
 
         /* Battlegrounds */
-        BattleGroundSet m_BattleGrounds;
+        BattleGroundSet m_BattleGrounds[MAX_BATTLEGROUND_TYPE_ID];
         uint32 m_NextRatingDiscardUpdate;
         uint64 m_NextAutoDistributionTime;
         uint32 m_AutoDistributionTimeChecker;
