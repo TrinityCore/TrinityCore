@@ -836,7 +836,7 @@ void BattleGround::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
 
             DecreaseInvitedCount(team);
             //we should update battleground queue, but only if bg isn't ending
-            if (GetQueueId() < MAX_BATTLEGROUND_QUEUES)
+            if (GetStatus() < STATUS_WAIT_LEAVE)
                 sBattleGroundMgr.m_BattleGroundQueues[bgQueueTypeId].Update(bgTypeId, GetQueueId());
 
             Group * group = plr->GetGroup();
