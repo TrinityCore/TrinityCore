@@ -59,6 +59,9 @@ AuctionHouseObject * AuctionHouseMgr::GetAuctionsMapByLocation( AuctionLocation 
 
 AuctionHouseObject * AuctionHouseMgr::GetAuctionsMap( uint32 factionTemplateId )
 {
+    if(sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
+        return &mNeutralAuctions;
+
     // team have linked auction houses
     FactionTemplateEntry const* u_entry = sFactionTemplateStore.LookupEntry(factionTemplateId);
     if(!u_entry)
@@ -466,7 +469,7 @@ void AuctionHouseMgr::Update()
 
 AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTemplateId)
 {
-    uint32 houseid = 7;                                     // goblin auction house
+    uint32 houseid = 1;                                     // dwarf auction house (used for normal cut/etc percents)
 
     if(!sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
     {
