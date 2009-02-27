@@ -105,7 +105,7 @@ class TRINITY_DLL_DECL Grid
 
         /** Returns the number of object within the grid.
          */
-        unsigned int ActiveObjectsInGrid(void) const { return i_objects.template Count<ACTIVE_OBJECT>(); }
+        unsigned int ActiveObjectsInGrid(void) const { return /*m_activeGridObjects.size()+*/i_objects.template Count<ACTIVE_OBJECT>(); }
 
         /** Accessors: Returns a specific type of object in the GRID_OBJECT_TYPES
          */
@@ -114,12 +114,31 @@ class TRINITY_DLL_DECL Grid
 
         /** Inserts a container type object into the grid.
          */
-        template<class SPECIFIC_OBJECT> bool AddGridObject(SPECIFIC_OBJECT *obj, OBJECT_HANDLE hdl) { return i_container.template insert<SPECIFIC_OBJECT>(hdl, obj); }
+        template<class SPECIFIC_OBJECT> bool AddGridObject(SPECIFIC_OBJECT *obj, OBJECT_HANDLE hdl)
+        {
+            //if(obj->isActiveObject())
+            //    m_activeGridObjects.insert(obj);
+            return i_container.template insert<SPECIFIC_OBJECT>(hdl, obj);
+        }
 
         /** Removes a containter type object from the grid
          */
-        template<class SPECIFIC_OBJECT> bool RemoveGridObject(SPECIFIC_OBJECT *obj, OBJECT_HANDLE hdl) { return i_container.template remove<SPECIFIC_OBJECT>(obj, hdl); }
+        template<class SPECIFIC_OBJECT> bool RemoveGridObject(SPECIFIC_OBJECT *obj, OBJECT_HANDLE hdl)
+        {
+            //if(obj->isActiveObject())
+            //    m_activeGridObjects.erase(obj);
+            return i_container.template remove<SPECIFIC_OBJECT>(obj, hdl);
+        }
 
+        /*bool NoWorldObjectInGrid() const
+        {
+            return i_objects.GetElements().isEmpty();
+        }
+
+        bool NoGridObjectInGrid() const
+        {
+            return i_container.GetElements().isEmpty();
+        }*/
     private:
 
         typedef typename ThreadModel::Lock Guard;
@@ -127,6 +146,8 @@ class TRINITY_DLL_DECL Grid
 
         TypeMapContainer<GRID_OBJECT_TYPES> i_container;
         TypeMapContainer<WORLD_OBJECT_TYPES> i_objects;
+        //typedef std::set<void*> ActiveGridObjects;
+        //ActiveGridObjects m_activeGridObjects;
 };
 #endif
 

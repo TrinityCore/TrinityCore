@@ -3591,11 +3591,8 @@ void Spell::EffectAddFarsight(uint32 i)
     dynObj->SetUInt32Value(DYNAMICOBJECT_BYTES, 0x80000002);
     m_caster->AddDynObject(dynObj);
 
-    Map* map = dynObj->GetMap();
-    map->LoadGrid(dynObj->GetPositionX(), dynObj->GetPositionY());  // In case the spell is casted into a different grid by player
-    map->Add(dynObj);
-    map->SwitchGridContainers(dynObj, true);    // Needed for forwarding player packets
-    dynObj->setActive(true);                    // Keep the grid updated even if there are no players in it
+    dynObj->setActive(true);    //must before add to map to be put in world container
+    dynObj->GetMap()->Add(dynObj); //grid will also be loaded
 
     // Need to update visibility of object for client to accept farsight guid
     ((Player*)m_caster)->UpdateVisibilityOf(dynObj);
