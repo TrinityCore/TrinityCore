@@ -1245,8 +1245,8 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
         << m_DBTableGuid << ","
         << GetEntry() << ","
         << mapid <<","
-        << (uint32)spawnMask << ","
-        << (uint32)GetPhaseMask() << ","
+        << uint32(spawnMask) << ","                         // cast to prevent save as symbol
+        << uint16(GetPhaseMask()) << ","                    // prevent out of range error
         << displayId <<","
         << GetEquipmentId() <<","
         << GetPositionX() << ","
