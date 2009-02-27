@@ -86,7 +86,6 @@ const CriteriaCastSpellRequirement AchievementGlobalMgr::m_criteriaCastSpellRequ
         {6662, 31261, 0, 0}
     };
 
-
 namespace MaNGOS
 {
     class AchievementChatBuilder
@@ -727,6 +726,9 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
     }
 }
 
+static const uint32 achievIdByClass[MAX_CLASSES] = { 0, 459, 465 , 462, 458, 464, 461, 467, 460, 463, 0, 466 };
+static const uint32 achievIdByRace[MAX_RACES]    = { 0, 1408, 1410, 1407, 1409, 1413, 1411, 1404, 1412, 0, 1405, 1406 };
+
 bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achievementCriteria)
 {
     AchievementEntry const* achievement = sAchievementStore.LookupEntry(achievementCriteria->referredAchievement);
@@ -753,29 +755,12 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
     switch(achievementCriteria->requiredType)
     {
         case ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL:
-            if ((achievement->ID == 467 && GetPlayer()->getClass() != CLASS_SHAMAN     ) ||
-                (achievement->ID == 466 && GetPlayer()->getClass() != CLASS_DRUID      ) ||
-                (achievement->ID == 465 && GetPlayer()->getClass() != CLASS_PALADIN    ) ||
-                (achievement->ID == 464 && GetPlayer()->getClass() != CLASS_PRIEST     ) ||
-                (achievement->ID == 463 && GetPlayer()->getClass() != CLASS_WARLOCK    ) ||
-                (achievement->ID == 462 && GetPlayer()->getClass() != CLASS_HUNTER     ) ||
-                (achievement->ID == 461 && GetPlayer()->getClass() != CLASS_DEATH_KNIGHT)||
-                (achievement->ID == 460 && GetPlayer()->getClass() != CLASS_MAGE       ) ||
-                (achievement->ID == 459 && GetPlayer()->getClass() != CLASS_WARRIOR    ) ||
-                (achievement->ID == 458 && GetPlayer()->getClass() != CLASS_ROGUE      ) ||
-
-                (achievement->ID == 1404 && GetPlayer()->getRace() != RACE_GNOME       ) ||
-                (achievement->ID == 1405 && GetPlayer()->getRace() != RACE_BLOODELF    ) ||
-                (achievement->ID == 1406 && GetPlayer()->getRace() != RACE_DRAENEI     ) ||
-                (achievement->ID == 1407 && GetPlayer()->getRace() != RACE_DWARF       ) ||
-                (achievement->ID == 1408 && GetPlayer()->getRace() != RACE_HUMAN       ) ||
-                (achievement->ID == 1409 && GetPlayer()->getRace() != RACE_NIGHTELF    ) ||
-                (achievement->ID == 1410 && GetPlayer()->getRace() != RACE_ORC         ) ||
-                (achievement->ID == 1411 && GetPlayer()->getRace() != RACE_TAUREN      ) ||
-                (achievement->ID == 1412 && GetPlayer()->getRace() != RACE_TROLL       ) ||
-                (achievement->ID == 1413 && GetPlayer()->getRace() != RACE_UNDEAD_PLAYER) )
-                return false;
-            return progress->counter >= achievementCriteria->reach_level.level;
+        {
+            if (achievIdByClass[GetPlayer()->getClass()] == achievement->ID ||
+                achievIdByRace[GetPlayer()->getRace()]   == achievement->ID)
+                return progress->counter >= achievementCriteria->reach_level.level;
+            return false;
+        }
         case ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT:
             return progress->counter >= achievementCriteria->buy_bank_slot.numberOfSlots;
         case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE:
