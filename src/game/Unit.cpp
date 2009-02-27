@@ -452,7 +452,7 @@ void Unit::SendMonsterMoveByPath(Path const& path, uint32 start, uint32 end)
     data << getMSTime();
 
     data << uint8( 0 );
-    data << uint32(((GetUnitMovementFlags() & MOVEMENTFLAG_LEVITATING) || isInFlight())? MOVEFLAG_FLY : MOVEFLAG_WALK);
+    data << uint32(((GetUnitMovementFlags() & MOVEMENTFLAG_LEVITATING) || isInFlight())? (MOVEFLAG_FLY|MOVEFLAG_WALK) : MOVEFLAG_WALK);
     data << uint32( traveltime );
     data << uint32( pathSize );
     data.append( (char*)path.GetNodes(start), pathSize * 4 * 3 );
