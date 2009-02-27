@@ -27,14 +27,10 @@
 //TODO it is not possible to have this structure, because we should have BattlegroundSet for each queue
 //so i propose to change this type to array 1..MAX_BATTLEGROUND_TYPES of sets or maps..
 typedef std::map<uint32, BattleGround*> BattleGroundSet;
-//typedef std::map<uint32, BattleGroundQueue*> BattleGroundQueueSet;
+
 typedef std::deque<BattleGround*> BGFreeSlotQueueType;
 
 typedef UNORDERED_MAP<uint32, BattleGroundTypeId> BattleMastersMap;
-
-#define MAX_BATTLEGROUND_QUEUES 8                           // for level ranges 10-19, 20-29, 30-39, 40-49, 50-59, 60-69, 70-79, 80+
-
-#define MAX_BATTLEGROUND_QUEUE_TYPES 9
 
 #define BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY 86400     // seconds in a day
 
@@ -61,6 +57,15 @@ struct GroupQueueInfo                                       // stores informatio
     uint32  OpponentsTeamRating;                            // for rated arena matches
 };
 
+enum BattleGroundQueueGroupTypes
+{
+    BG_QUEUE_PREMADE_ALLIANCE   = 0,
+    BG_QUEUE_PREMADE_HORDE      = 1,
+    BG_QUEUE_NORMAL_ALLIANCE    = 2,
+    BG_QUEUE_NORMAL_HORDE       = 3
+};
+#define BG_QUEUE_GROUP_TYPES_COUNT 4
+
 class BattleGround;
 class BattleGroundQueue
 {
@@ -68,9 +73,12 @@ class BattleGroundQueue
         BattleGroundQueue();
         ~BattleGroundQueue();
 
-        void Update(BattleGroundTypeId bgTypeId, uint32 queue_id, uint8 arenatype = 0, bool isRated = false, uint32 minRating = 0);
+        void Update(BattleGroundTypeId bgTypeId, BGQueueIdBasedOnLevel queue_id, uint8 arenaType = 0, bool isRated = false, uint32 minRating = 0);
 
-        GroupQueueInfo * AddGroup(Player * leader, BattleGroundTypeId bgTypeId, uint8 ArenaType, bool isRated, uint32 ArenaRating, uint32 ArenaTeamId = 0);
+        void FillPlayersToBG(BattleGround* bg, BGQueueIdBasedOnLevel queue_id);
+        bool CheckPremadeMatch(BGQueueIdBasedOnLevel queue_id, uint32 MaxPlayersPerTeam, uint32 MinPlayersPerTeam);
+        bool CheckNormalMatch(BattleGround* bg_template, BGQueueIdBasedOnLevel queue_id, uint32 MinPlayersPerTeam);
+        GroupQueueInfo * AddGroup(Player * leader, BattleGroundTypeId bgTypeId, uint8 ArenaType, bool isRated, bool isPremade, uint32 ArenaRating, uint32 ArenaTeamId = 0);
         void AddPlayer(Player *plr, GroupQueueInfo *ginfo);
         void RemovePlayer(const uint64& guid, bool decreaseInvitedCount);
         void DecreaseGroupLength(uint32 queueId, uint32 AsGroup);
@@ -78,51 +86,38 @@ class BattleGroundQueue
         void AnnounceWorld(GroupQueueInfo *ginfo, const uint64& playerGUID, bool isAddedToQueue);
 
         typedef std::map<uint64, PlayerQueueInfo> QueuedPlayersMap;
-        QueuedPlayersMap m_QueuedPlayers[MAX_BATTLEGROUND_QUEUES];
+        QueuedPlayersMap m_QueuedPlayers;
 
-        typedef std::list<GroupQueueInfo*> QueuedGroupsList;
-        QueuedGroupsList m_QueuedGroups[MAX_BATTLEGROUND_QUEUES];
+        //we need constant add to begin and constant remove / add from the end, therefore deque suits our problem well
+        typedef std::deque<GroupQueueInfo*> GroupsQueueType;
 
-        // class to hold pointers to the groups eligible for a specific selection pool building mode
-        class EligibleGroups : public std::list<GroupQueueInfo *>
-        {
-        public:
-            void Init(QueuedGroupsList * source, BattleGroundTypeId BgTypeId, uint32 side, uint32 MaxPlayers, uint8 ArenaType = 0, bool IsRated = false, uint32 MinRating = 0, uint32 MaxRating = 0, uint32 DisregardTime = 0, uint32 excludeTeam = 0);
-        };
-
-        EligibleGroups m_EligibleGroups;
+        /*
+        This two dimensional array is used to store All queued groups
+        First dimension specifies the bgTypeId
+        Second dimension specifies the player's group types -
+             BG_QUEUE_PREMADE_ALLIANCE  is used for premade alliance groups and alliance rated arena teams
+             BG_QUEUE_PREMADE_HORDE     is used for premade horde groups and horde rated arena teams
+             BG_QUEUE_NORMAL_ALLIANCE   is used for normal (or small) alliance groups or non-rated arena matches
+             BG_QUEUE_NORMAL_HORDE      is used for normal (or small) horde groups or non-rated arena matches
+        */
+        GroupsQueueType m_QueuedGroups[MAX_BATTLEGROUND_QUEUES][BG_QUEUE_GROUP_TYPES_COUNT];
 
         // class to select and invite groups to bg
         class SelectionPool
         {
         public:
-            void Init(EligibleGroups * curr);
-            void AddGroup(GroupQueueInfo * group);
-            void RemoveGroup(GroupQueueInfo * group);
+            void Init();
+            bool AddGroup(GroupQueueInfo *ginfo, uint32 desiredCount);
+            bool KickGroup(uint32 size);
             uint32 GetPlayerCount() const {return PlayerCount;}
-            bool Build(uint32 MinPlayers, uint32 MaxPlayers, EligibleGroups::iterator startitr);
         public:
-            std::list<GroupQueueInfo *> SelectedGroups;
+            GroupsQueueType SelectedGroups;
         private:
             uint32 PlayerCount;
-            EligibleGroups * m_CurrEligGroups;
         };
 
-        enum SelectionPoolBuildMode
-        {
-            NORMAL_ALLIANCE,
-            NORMAL_HORDE,
-            ONESIDE_ALLIANCE_TEAM1,
-            ONESIDE_ALLIANCE_TEAM2,
-            ONESIDE_HORDE_TEAM1,
-            ONESIDE_HORDE_TEAM2,
-
-            NUM_SELECTION_POOL_TYPES
-        };
-
-        SelectionPool m_SelectionPools[NUM_SELECTION_POOL_TYPES];
-
-        bool BuildSelectionPool(BattleGroundTypeId bgTypeId, uint32 queue_id, uint32 MinPlayers, uint32 MaxPlayers, SelectionPoolBuildMode mode, uint8 ArenaType = 0, bool isRated = false, uint32 MinRating = 0, uint32 MaxRating = 0, uint32 DisregardTime = 0, uint32 excludeTeam = 0);
+        //one selection pool for horde, other one for alliance
+        SelectionPool m_SelectionPools[BG_TEAMS_COUNT];
 
     private:
 
@@ -183,8 +178,8 @@ class BattleGroundMgr
         void BuildPvpLogDataPacket(WorldPacket *data, BattleGround *bg);
         void BuildBattleGroundStatusPacket(WorldPacket *data, BattleGround *bg, uint32 team, uint8 QueueSlot, uint8 StatusID, uint32 Time1, uint32 Time2, uint32 arenatype = 0, uint8 israted = 0);
         void BuildPlaySoundPacket(WorldPacket *data, uint32 soundid);
-
         void SendAreaSpiritHealerQueryOpcode(Player *pl, BattleGround *bg, const uint64& guid);
+
         /* Player invitation */
         // called from Queue update, or from Addplayer to queue
         void InvitePlayer(Player* plr, uint32 bgInstanceGUID, uint32 team);
@@ -200,7 +195,7 @@ class BattleGroundMgr
         };
 
         BattleGround * GetBattleGroundTemplate(BattleGroundTypeId bgTypeId);
-        BattleGround * CreateNewBattleGround(BattleGroundTypeId bgTypeId);
+        BattleGround * CreateNewBattleGround(BattleGroundTypeId bgTypeId, BGQueueIdBasedOnLevel queue_id, uint8 arenaType, bool isRated);
 
         uint32 CreateBattleGround(BattleGroundTypeId bgTypeId, bool IsArena, uint32 MinPlayersPerTeam, uint32 MaxPlayersPerTeam, uint32 LevelMin, uint32 LevelMax, char* BattleGroundName, uint32 MapID, float Team1StartLocX, float Team1StartLocY, float Team1StartLocZ, float Team1StartLocO, float Team2StartLocX, float Team2StartLocY, float Team2StartLocZ, float Team2StartLocO);
 

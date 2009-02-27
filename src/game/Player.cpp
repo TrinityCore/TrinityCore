@@ -19035,34 +19035,20 @@ bool Player::GetBGAccessByLevel(BattleGroundTypeId bgTypeId) const
     return true;
 }
 
-uint32 Player::GetMinLevelForBattleGroundQueueId(uint32 queue_id, BattleGroundTypeId bgTypeId)
+BGQueueIdBasedOnLevel Player::GetBattleGroundQueueIdFromLevel(BattleGroundTypeId bgTypeId) const
 {
-    BattleGround *bg = sBattleGroundMgr.GetBattleGroundTemplate(bgTypeId);
-    assert(bg);
-    return (queue_id*10)+bg->GetMinLevel();
-}
+    //returned to hardcoded version of this function, because there is no way to code it dynamic
+    uint32 level = getLevel();
+    if( bgTypeId == BATTLEGROUND_QUEUE_AV )
+        level--;
 
-uint32 Player::GetMaxLevelForBattleGroundQueueId(uint32 queue_id, BattleGroundTypeId bgTypeId)
-{
-    return GetMinLevelForBattleGroundQueueId(queue_id, bgTypeId)+10;
-}
-
-uint32 Player::GetBattleGroundQueueIdFromLevel(BattleGroundTypeId bgTypeId) const
-{
-    BattleGround *bg = sBattleGroundMgr.GetBattleGroundTemplate(bgTypeId);
-    assert(bg);
-    if(getLevel()<bg->GetMinLevel())
+    uint32 queue_id = (level / 10) - 1; // for ranges 0 - 19, 20 - 29, 30 - 39, 40 - 49, 50 - 59, 60 - 69, 70 -79, 80
+    if( queue_id >= MAX_BATTLEGROUND_QUEUES )
     {
-        sLog.outError("getting queue_id for player who doesn't meet the requirements - this shouldn't happen");
-        return 0;
+        sLog.outError("BattleGround: too high queue_id %u this shouldn't happen", queue_id);
+        return QUEUE_ID_MAX_LEVEL_80;
     }
-    uint32 queue_id = (getLevel() - bg->GetMinLevel()) / 10;
-    if(queue_id>MAX_BATTLEGROUND_QUEUES)
-    {
-        sLog.outError("to high queue_id %u this shouldn't happen",queue_id);
-        return 0;
-    }
-    return queue_id;
+    return BGQueueIdBasedOnLevel(queue_id);
 }
 
 float Player::GetReputationPriceDiscount( Creature const* pCreature ) const

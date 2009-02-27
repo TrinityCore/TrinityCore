@@ -163,7 +163,8 @@ enum TimeConstants
     MINUTE = 60,
     HOUR   = MINUTE*60,
     DAY    = HOUR*24,
-    MONTH  = DAY*30
+    MONTH  = DAY*30,
+    IN_MILISECONDS = 1000
 };
 
 enum AccountTypes
