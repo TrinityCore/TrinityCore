@@ -210,7 +210,7 @@ void BattleGroundQueue::RemovePlayer(const uint64& guid, bool decreaseInvitedCou
     {
         //we must check premade and normal team's queue - because when players from premade are joining bg,
         //they leave groupinfo so we can't use its players size to find out index
-        for (uint32 j = index; j < BG_QUEUE_GROUP_TYPES_COUNT - 1; j += BG_QUEUE_NORMAL_ALLIANCE)
+        for (uint32 j = index; j < BG_QUEUE_GROUP_TYPES_COUNT; j += BG_QUEUE_NORMAL_ALLIANCE)
         {
             for(group_itr_tmp = m_QueuedGroups[queue_id_tmp][j].begin(); group_itr_tmp != m_QueuedGroups[queue_id_tmp][j].end(); ++group_itr_tmp)
             {
@@ -630,11 +630,7 @@ should be called from BattleGround::RemovePlayer function in some cases
 */
 void BattleGroundQueue::Update(BattleGroundTypeId bgTypeId, BGQueueIdBasedOnLevel queue_id, uint8 arenaType, bool isRated, uint32 arenaRating)
 {
-    // this can happen when removing last player from battleground
-    if( queue_id == MAX_BATTLEGROUND_QUEUES )
-        return;
-
-    //if no players in queue ... do nothing
+    //if no players in queue - do nothing
     if( m_QueuedGroups[queue_id][BG_QUEUE_PREMADE_ALLIANCE].empty() &&
         m_QueuedGroups[queue_id][BG_QUEUE_PREMADE_HORDE].empty() &&
         m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE].empty() &&
