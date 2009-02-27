@@ -58,7 +58,7 @@ class LootTemplate::LootGroup                               // A set of loot def
         bool HasQuestDrop() const;                          // True if group includes at least 1 quest drop entry
         bool HasQuestDropForPlayer(Player const * player) const;
                                                             // The same for active quests of the player
-        void Process(Loot& loot, bool rate) const;          // Rolls an item from the group (if any) and adds the item to the loot
+        void Process(Loot& loot) const;                     // Rolls an item from the group (if any) and adds the item to the loot
         float RawTotalChance() const;                       // Overall chance for the group (without equal chanced items)
         float TotalChance() const;                          // Overall chance for the group
 
@@ -69,7 +69,7 @@ class LootTemplate::LootGroup                               // A set of loot def
         LootStoreItemList ExplicitlyChanced;                // Entries with chances defined in DB
         LootStoreItemList EqualChanced;                     // Zero chances - every entry takes the same chance
 
-        LootStoreItem const * Roll(bool rate) const;        // Rolls an item from the group, returns NULL if all miss their chances
+        LootStoreItem const * Roll() const;                 // Rolls an item from the group, returns NULL if all miss their chances
 };
 
 //Remove all data and free all memory
@@ -792,7 +792,7 @@ void LootTemplate::LootGroup::AddEntry(LootStoreItem& item)
 }
 
 // Rolls an item from the group, returns NULL if all miss their chances
-LootStoreItem const * LootTemplate::LootGroup::Roll(bool rate) const
+LootStoreItem const * LootTemplate::LootGroup::Roll() const
 {
     if (!ExplicitlyChanced.empty())                         // First explicitly chanced entries are checked
     {
@@ -803,9 +803,7 @@ LootStoreItem const * LootTemplate::LootGroup::Roll(bool rate) const
             if(ExplicitlyChanced[i].chance>=100.f)
                 return &ExplicitlyChanced[i];
 
-            ItemPrototype const *pProto = objmgr.GetItemPrototype(ExplicitlyChanced[i].itemid);
-            //float qualityMultiplier = pProto && rate ? sWorld.getRate(qualityToRate[pProto->Quality]) : 1.0f;
-            Roll -= ExplicitlyChanced[i].chance;// * qualityMultiplier;
+            Roll -= ExplicitlyChanced[i].chance;
             if (Roll < 0)
                 return &ExplicitlyChanced[i];
         }
@@ -841,9 +839,9 @@ bool LootTemplate::LootGroup::HasQuestDropForPlayer(Player const * player) const
 }
 
 // Rolls an item from the group (if any takes its chance) and adds the item to the loot
-void LootTemplate::LootGroup::Process(Loot& loot, bool rate) const
+void LootTemplate::LootGroup::Process(Loot& loot) const
 {
-    LootStoreItem const * item = Roll(rate);
+    LootStoreItem const * item = Roll();
     if (item != NULL)
         loot.AddItem(*item);
 }
@@ -935,7 +933,7 @@ void LootTemplate::Process(Loot& loot, LootStore const& store, bool rate, uint8 
         if (groupId > Groups.size())
             return;                                         // Error message already printed at loading stage
 
-        Groups[groupId-1].Process(loot,rate);
+        Groups[groupId-1].Process(loot);
         return;
     }
 
@@ -961,7 +959,7 @@ void LootTemplate::Process(Loot& loot, LootStore const& store, bool rate, uint8 
 
     // Now processing groups
     for (LootGroups::const_iterator i = Groups.begin( ) ; i != Groups.end( ) ; ++i )
-        i->Process(loot,rate);
+        i->Process(loot);
 }
 
 // True if template includes at least 1 quest drop entry
