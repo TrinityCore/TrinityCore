@@ -106,12 +106,21 @@ void Corpse::SaveToDB()
 
     std::ostringstream ss;
     ss  << "INSERT INTO corpse (guid,player,position_x,position_y,position_z,orientation,zone,map,data,time,corpse_type,instance,phaseMask) VALUES ("
-        << GetGUIDLow() << ", " << GUID_LOPART(GetOwnerGUID()) << ", " << GetPositionX() << ", " << GetPositionY() << ", " << GetPositionZ() << ", "
-        << GetOrientation() << ", "  << GetZoneId() << ", "  << GetMapId() << ", '";
+        << GetGUIDLow() << ", "
+        << GUID_LOPART(GetOwnerGUID()) << ", "
+        << GetPositionX() << ", "
+        << GetPositionY() << ", "
+        << GetPositionZ() << ", "
+        << GetOrientation() << ", "
+        << GetZoneId() << ", "
+        << GetMapId() << ", '";
     for(uint16 i = 0; i < m_valuesCount; i++ )
         ss << GetUInt32Value(i) << " ";
-    ss  << "'," << uint64(m_time) <<", " << uint32(GetType())
-        << ", " << int(GetInstanceId()) << ", " << int(GetPhaseMask()) << ")";
+    ss  << "',"
+        << uint64(m_time) <<", "
+        << uint32(GetType()) << ", "
+        << int(GetInstanceId()) << ", "
+        << uint16(GetPhaseMask()) << ")";           // prevent out of range error
     CharacterDatabase.Execute( ss.str().c_str() );
     CharacterDatabase.CommitTransaction();
 }
