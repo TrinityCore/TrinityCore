@@ -1044,8 +1044,9 @@ void SpellMgr::LoadSpellProcEvents()
 
         spe.schoolMask      = fields[1].GetUInt32();
         spe.spellFamilyName = fields[2].GetUInt32();
-        spe.spellFamilyMask = (uint64)fields[3].GetUInt32()|((uint64)fields[4].GetUInt32()<<32);
-        spe.spellFamilyMask2= fields[5].GetUInt32();
+        spe.spellFamilyMask[0] = fields[3].GetUInt32();
+        spe.spellFamilyMask[1] = fields[4].GetUInt32();
+        spe.spellFamilyMask[2] = fields[5].GetUInt32();
         spe.procFlags       = fields[6].GetUInt32();
         spe.procEx          = fields[7].GetUInt32();
         spe.ppmRate         = fields[8].GetFloat();
@@ -1155,7 +1156,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const * spellP
                 return false;
 
             // spellFamilyName is Ok need check for spellFamilyMask if present
-            if(spellProcEvent->spellFamilyMask || spellProcEvent->spellFamilyMask2)
+            if(spellProcEvent->spellFamilyMask)
             {
                 if ((spellProcEvent->spellFamilyMask  & procSpell->SpellFamilyFlags ) == 0)
                     return false;
@@ -2883,7 +2884,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
     if (mechanic & (1<<MECHANIC_FEAR))      return DIMINISHING_FEAR;
     if (mechanic & (1<<MECHANIC_CHARM))     return DIMINISHING_CHARM;
     if (mechanic & (1<<MECHANIC_SILENCE))   return DIMINISHING_SILENCE;
-    if (mechanic & (1<<DIMINISHING_DISARM)) return DIMINISHING_DISARM;
+    if (mechanic & (1<<MECHANIC_DISARM))    return DIMINISHING_DISARM;
     if (mechanic & (1<<MECHANIC_FREEZE))    return DIMINISHING_FREEZE;
     if (mechanic & ((1<<MECHANIC_KNOCKOUT) | (1<<MECHANIC_SAPPED)))    return DIMINISHING_KNOCKOUT;
     if (mechanic & (1<<MECHANIC_BANISH))    return DIMINISHING_BANISH;
