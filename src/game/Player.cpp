@@ -19079,7 +19079,7 @@ BGQueueIdBasedOnLevel Player::GetBattleGroundQueueIdFromLevel(BattleGroundTypeId
 {
     //returned to hardcoded version of this function, because there is no way to code it dynamic
     uint32 level = getLevel();
-    if( bgTypeId == BATTLEGROUND_QUEUE_AV )
+    if( bgTypeId == BATTLEGROUND_AV )
         level--;
 
     uint32 queue_id = (level / 10) - 1; // for ranges 0 - 19, 20 - 29, 30 - 39, 40 - 49, 50 - 59, 60 - 69, 70 -79, 80
