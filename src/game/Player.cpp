@@ -12976,6 +12976,19 @@ void Player::AddQuest( Quest const *pQuest, Object *questGiver )
     if(questGiver && pQuest->GetQuestStartScript()!=0)
         sWorld.ScriptsStart(sQuestStartScripts, pQuest->GetQuestStartScript(), questGiver, this);
 
+    // Some spells applied at quest activation
+    SpellAreaForQuestMapBounds saBounds = spellmgr.GetSpellAreaForQuestMapBounds(quest_id,true);
+    if(saBounds.first != saBounds.second)
+    {
+        uint32 zone = GetZoneId();
+        uint32 area = GetAreaId();
+
+        for(SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
+            if(itr->second->autocast && itr->second->IsFitToRequirements(this,zone,area))
+                if( !HasAura(itr->second->spellId,0) )
+                    CastSpell(this,itr->second->spellId,true);
+    }
+
     UpdateForQuestsGO();
 }
 
@@ -13166,6 +13179,34 @@ void Player::RewardQuest( Quest const *pQuest, uint32 reward, Object* questGiver
     if (q_status.uState != QUEST_NEW) q_status.uState = QUEST_CHANGED;
     GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST_COUNT);
     GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST);
+
+    uint32 zone = 0;
+    uint32 area = 0;
+
+    // remove auras from spells with quest reward state limitations
+    SpellAreaForQuestMapBounds saEndBounds = spellmgr.GetSpellAreaForQuestEndMapBounds(quest_id);
+    if(saEndBounds.first != saEndBounds.second)
+    {
+        uint32 zone = GetZoneId();
+        uint32 area = GetAreaId();
+
+        for(SpellAreaForAreaMap::const_iterator itr = saEndBounds.first; itr != saEndBounds.second; ++itr)
+            if(!itr->second->IsFitToRequirements(this,zone,area))
+                RemoveAurasDueToSpell(itr->second->spellId);
+    }
+
+    // Some spells applied at quest reward
+    SpellAreaForQuestMapBounds saBounds = spellmgr.GetSpellAreaForQuestMapBounds(quest_id,false);
+    if(saBounds.first != saBounds.second)
+    {
+        if(!zone) zone = GetZoneId();
+        if(!area) area = GetAreaId();
+
+        for(SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
+            if(itr->second->autocast && itr->second->IsFitToRequirements(this,zone,area))
+                if( !HasAura(itr->second->spellId,0) )
+                    CastSpell(this,itr->second->spellId,true);
+    }
 }
 
 void Player::FailQuest( uint32 quest_id )
@@ -19549,26 +19590,12 @@ void Player::UpdateZoneDependentAuras( uint32 newZone )
         RemoveSpellsCausingAura(SPELL_AURA_FLY);
     }
 
-    // Some spells applied at enter into zone (with subzones)
-    switch(newZone)
-    {
-        case 2367:                                          // Old Hillsbrad Foothills
-        {
-            // Human Illusion
-            // NOTE: these are removed by RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CHANGE_MAP);
-            uint32 spellid = 0;
-            // all horde races
-            if( GetTeam() == HORDE )
-                spellid = getGender() == GENDER_FEMALE ? 35481 : 35480;
-            // and some alliance races
-            else if( getRace() == RACE_NIGHTELF || getRace() == RACE_DRAENEI )
-                spellid = getGender() == GENDER_FEMALE ? 35483 : 35482;
-
-            if(spellid && !HasAura(spellid,0) )
-                CastSpell(this,spellid,true);
-            break;
-        }
-    }
+    // Some spells applied at enter into zone (with subzones), aura removed in UpdateAreaDependentAuras that called always at zone->area update
+    SpellAreaForAreaMapBounds saBounds = spellmgr.GetSpellAreaForAreaMapBounds(newZone);
+    for(SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
+        if(itr->second->autocast && itr->second->IsFitToRequirements(this,newZone,0))
+            if( !HasAura(itr->second->spellId,0) )
+                CastSpell(this,itr->second->spellId,true);
 }
 
 void Player::UpdateAreaDependentAuras( uint32 newArea )
@@ -19577,42 +19604,18 @@ void Player::UpdateAreaDependentAuras( uint32 newArea )
     for(AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end();)
     {
         // use m_zoneUpdateId for speed: UpdateArea called from UpdateZone or instead UpdateZone in both cases m_zoneUpdateId up-to-date
-        if(GetSpellAllowedInLocationError(iter->second->GetSpellProto(),GetMapId(),m_zoneUpdateId,newArea,GetBattleGroundId())!=0)
+        if(spellmgr.GetSpellAllowedInLocationError(iter->second->GetSpellProto(),GetMapId(),m_zoneUpdateId,newArea,this)!=0)
             RemoveAura(iter);
         else
             ++iter;
     }
 
     // some auras applied at subzone enter
-    switch(newArea)
-    {
-        // Dragonmaw Illusion
-        case 3759:                                          // Netherwing Ledge
-        case 3939:                                          // Dragonmaw Fortress
-        case 3966:                                          // Dragonmaw Base Camp
-            if( GetDummyAura(40214) )
-            {
-                if( !HasAura(40216,0) )
-                    CastSpell(this,40216,true);
-                if( !HasAura(42016,0) )
-                    CastSpell(this,42016,true);
-            }
-            break;
-        // Dominion Over Acherus
-        case 4281:                                          // Acherus: The Ebon Hold
-        case 4342:                                          // Acherus: The Ebon Hold
-            if( HasSpell(51721) )
-                if( !HasAura(51721,0) )
-                    CastSpell(this,51721,true);
-            break;
-        // Mist of the Kvaldir
-        case 4028:                                          //Riplash Strand
-        case 4029:                                          //Riplash Ruins
-        case 4106:                                          //Garrosh's Landing
-        case 4031:                                          //Pal'ea
-            CastSpell(this,54119,true);
-            break;
-    }
+    SpellAreaForAreaMapBounds saBounds = spellmgr.GetSpellAreaForAreaMapBounds(newArea);
+    for(SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
+        if(itr->second->autocast && itr->second->IsFitToRequirements(this,m_zoneUpdateId,newArea))
+            if( !HasAura(itr->second->spellId,0) )
+                CastSpell(this,itr->second->spellId,true);
 }
 
 uint32 Player::GetCorpseReclaimDelay(bool pvp) const

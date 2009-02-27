@@ -22,7 +22,7 @@
 DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
-  `required_7332_01_mangos_command` bit(1) default NULL
+  `required_7349_01_mangos_spell_area` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -13286,6 +13286,33 @@ CREATE TABLE `spell_affect` (
 LOCK TABLES `spell_affect` WRITE;
 /*!40000 ALTER TABLE `spell_affect` DISABLE KEYS */;
 /*!40000 ALTER TABLE `spell_affect` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `spell_area`
+--
+
+DROP TABLE IF EXISTS `spell_area`;
+CREATE TABLE `spell_area` (
+  `spell`              mediumint(8) unsigned NOT NULL default '0',
+  `area`               mediumint(8) unsigned NOT NULL default '0',
+  `quest_start`        mediumint(8) unsigned NOT NULL default '0',
+  `quest_start_active` tinyint(1) unsigned NOT NULL default '0',
+  `quest_end`          mediumint(8) unsigned NOT NULL default '0',
+  `aura_spell`         mediumint(8) unsigned NOT NULL default '0',
+  `racemask`           mediumint(8) unsigned NOT NULL default '0',
+  `gender`             tinyint(1) unsigned NOT NULL default '2',
+  `autocast`           tinyint(1) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`spell`,`area`,`quest_start`,`quest_start_active`,`aura_spell`,`racemask`,`gender`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `spell_area`
+--
+
+LOCK TABLES `spell_area` WRITE;
+/*!40000 ALTER TABLE `spell_area` DISABLE KEYS */;
+/*!40000 ALTER TABLE `spell_area` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
