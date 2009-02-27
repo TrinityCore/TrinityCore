@@ -573,11 +573,11 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 uint32 spellCount = 0;
                 for (PlayerSpellMap::const_iterator spellIter = GetPlayer()->GetSpellMap().begin();
                         spellIter != GetPlayer()->GetSpellMap().end();
-                        spellIter++)
+                        ++spellIter)
                 {
                     for(SkillLineAbilityMap::const_iterator skillIter = spellmgr.GetBeginSkillLineAbilityMap(spellIter->first);
                             skillIter != spellmgr.GetEndSkillLineAbilityMap(spellIter->first);
-                            skillIter++)
+                            ++skillIter)
                     {
                         if(skillIter->second->skillId == achievementCriteria->learn_skilline_spell.skillLine)
                             spellCount++;
@@ -605,7 +605,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             {
                 uint32 counter = 0;
                 const FactionStateList factionStateList = GetPlayer()->GetFactionStateList();
-                for (FactionStateList::const_iterator iter = factionStateList.begin(); iter!= factionStateList.end(); iter++)
+                for (FactionStateList::const_iterator iter = factionStateList.begin(); iter!= factionStateList.end(); ++iter)
                 {
                     if(GetPlayer()->ReputationToRank(iter->second.Standing) >= REP_EXALTED)
                         ++counter;
