@@ -497,9 +497,11 @@ void BattleGroundQueue::FillPlayersToBG(BattleGround* bg, BGQueueIdBasedOnLevel 
             }
             //if ali selection is already empty, then kick horde group, but if there are less horde than ali in bg - break;
             if( !m_SelectionPools[BG_TEAM_ALLIANCE].GetPlayerCount() )
+            {
                 if( aliFree <= diffHorde - 1 )
                     break;
                 m_SelectionPools[BG_TEAM_HORDE].KickGroup(diffHorde - diffAli);
+            }
         }
         else
         {
@@ -510,9 +512,11 @@ void BattleGroundQueue::FillPlayersToBG(BattleGround* bg, BGQueueIdBasedOnLevel 
                     ++Horde_itr;
             }
             if( !m_SelectionPools[BG_TEAM_HORDE].GetPlayerCount() )
+            {
                 if( hordeFree <= diffAli - 1 )
                     break;
                 m_SelectionPools[BG_TEAM_ALLIANCE].KickGroup(diffAli - diffHorde);
+            }
         }
         //count diffs after small update
         diffAli = aliFree - m_SelectionPools[BG_TEAM_ALLIANCE].GetPlayerCount();
