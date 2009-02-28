@@ -1161,6 +1161,10 @@
 														 	>
 														 	</File>
 														 	<File
+															RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\boss_skarvald_dalronn.cpp"
+															>
+															</File>
+															<File
 														 	RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\def_utgarde_keep.h"
 														 	>
 														 	</File>
