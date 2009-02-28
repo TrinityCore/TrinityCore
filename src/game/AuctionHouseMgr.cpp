@@ -47,16 +47,6 @@ AuctionHouseMgr::~AuctionHouseMgr()
         delete itr->second;
 }
 
-AuctionHouseObject * AuctionHouseMgr::GetAuctionsMapByLocation( AuctionLocation location )
-{
-    switch(location)
-    {
-        case AUCTION_ALLIANCE:  return &mAllianceAuctions;
-        case AUCTION_HORDE:     return &mHordeAuctions;
-        default:                return &mNeutralAuctions;
-    }
-}
-
 AuctionHouseObject * AuctionHouseMgr::GetAuctionsMap( uint32 factionTemplateId )
 {
     if(sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
@@ -109,7 +99,7 @@ void AuctionHouseMgr::SendAuctionWonMail( AuctionEntry *auction )
             bidder_accId = objmgr.GetPlayerAccountIdByGUID(bidder_guid);
             bidder_security = accmgr.GetSecurity(bidder_accId);
 
-            if(bidder_security > SEC_PLAYER )               // not do redundant DB requests
+            if(bidder_security > SEC_PLAYER ) // not do redundant DB requests
             {
                 if(!objmgr.GetPlayerNameByGUID(bidder_guid,bidder_name))
                     bidder_name = objmgr.GetTrinityStringForDBCLocale(LANG_UNKNOWN);
@@ -157,7 +147,7 @@ void AuctionHouseMgr::SendAuctionWonMail( AuctionEntry *auction )
         if (bidder)
             bidder->GetSession()->SendAuctionBidderNotification( auction->GetHouseId(), auction->Id, bidder_guid, 0, 0, auction->item_template);
         else
-            RemoveAItem(pItem->GetGUIDLow());               // we have to remove the item, before we delete it !!
+            RemoveAItem(pItem->GetGUIDLow()); // we have to remove the item, before we delete it !!
 
         // will delete item or place to receiver mail list
         WorldSession::SendMailTo(bidder, MAIL_AUCTION, MAIL_STATIONERY_AUCTION, auction->GetHouseId(), auction->bidder, msgAuctionWonSubject.str(), itemTextId, &mi, 0, 0, MAIL_CHECK_MASK_AUCTION);
@@ -166,7 +156,7 @@ void AuctionHouseMgr::SendAuctionWonMail( AuctionEntry *auction )
     else
     {
         CharacterDatabase.PExecute("DELETE FROM item_instance WHERE guid='%u'", pItem->GetGUIDLow());
-        RemoveAItem(pItem->GetGUIDLow());                   // we have to remove the item, before we delete it !!
+        RemoveAItem(pItem->GetGUIDLow()); // we have to remove the item, before we delete it !!
         delete pItem;
     }
 }
@@ -243,7 +233,7 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail( AuctionEntry * auction )
 
 //does not clear ram
 void AuctionHouseMgr::SendAuctionExpiredMail( AuctionEntry * auction )
-{                                                           //return an item in auction to its owner by mail
+{ //return an item in auction to its owner by mail
     Item *pItem = GetAItem(auction->item_guidlow);
     if(!pItem)
     {
@@ -279,7 +269,7 @@ void AuctionHouseMgr::SendAuctionExpiredMail( AuctionEntry * auction )
     else
     {
         CharacterDatabase.PExecute("DELETE FROM item_instance WHERE guid='%u'",pItem->GetGUIDLow());
-        RemoveAItem(pItem->GetGUIDLow());                   // we have to remove the item, before we delete it !!
+        RemoveAItem(pItem->GetGUIDLow()); // we have to remove the item, before we delete it !!
         delete pItem;
     }
 }
@@ -469,36 +459,36 @@ void AuctionHouseMgr::Update()
 
 AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTemplateId)
 {
-    uint32 houseid = 1;                                     // dwarf auction house (used for normal cut/etc percents)
+    uint32 houseid = 7; // goblin auction house
 
     if(!sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
     {
         //FIXME: found way for proper auctionhouse selection by another way
-        // AuctionHo use.dbc have faction field with _player_ factions associated with auction house races.
+        // AuctionHouse.dbc have faction field with _player_ factions associated with auction house races.
         // but no easy way convert creature faction to player race faction for specific city
         switch(factionTemplateId)
         {
-            case   12: houseid = 1; break;                  // human
-            case   29: houseid = 6; break;                  // orc, and generic for horde
-            case   55: houseid = 2; break;                  // dwarf, and generic for alliance
-            case   68: houseid = 4; break;                  // undead
-            case   80: houseid = 3; break;                  // n-elf
-            case  104: houseid = 5; break;                  // trolls
-            case  120: houseid = 7; break;                  // booty bay, neutral
-            case  474: houseid = 7; break;                  // gadgetzan, neutral
-            case  855: houseid = 7; break;                  // everlook, neutral
-            case 1604: houseid = 6; break;                  // b-elfs,
-            default:                                        // for unknown case
+            case   12: houseid = 1; break; // human
+            case   29: houseid = 6; break; // orc, and generic for horde
+            case   55: houseid = 2; break; // dwarf, and generic for alliance
+            case   68: houseid = 4; break; // undead
+            case   80: houseid = 3; break; // n-elf
+            case  104: houseid = 5; break; // trolls
+            case  120: houseid = 7; break; // booty bay, neutral
+            case  474: houseid = 7; break; // gadgetzan, neutral
+            case  855: houseid = 7; break; // everlook, neutral
+            case 1604: houseid = 6; break; // b-elfs,
+            default:                       // for unknown case
             {
                 FactionTemplateEntry const* u_entry = sFactionTemplateStore.LookupEntry(factionTemplateId);
                 if(!u_entry)
-                    houseid = 7;                            // goblin auction house
+                    houseid = 7; // goblin auction house
                 else if(u_entry->ourMask & FACTION_MASK_ALLIANCE)
-                    houseid = 1;                            // human auction house
+                    houseid = 1; // human auction house
                 else if(u_entry->ourMask & FACTION_MASK_HORDE)
-                    houseid = 6;                            // orc auction house
+                    houseid = 6; // orc auction house
                 else
-                    houseid = 7;                            // goblin auction house
+                    houseid = 7; // goblin auction house
                 break;
             }
         }

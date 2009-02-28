@@ -281,7 +281,7 @@ bool World::HasRecentlyDisconnected(WorldSession* session)
     if(!session) return false;
 
     if(uint32 tolerance = getConfig(CONFIG_INTERVAL_DISCONNECT_TOLERANCE))
-    {        
+    {
         for(DisconnectMap::iterator i = m_disconnects.begin(); i != m_disconnects.end(); ++i)
         {
             if(difftime(i->second, time(NULL)) < tolerance)
@@ -1606,7 +1606,7 @@ void World::Update(uint32 diff)
     if (m_timers[WUPDATE_AUCTIONS].Passed())
     {
         AuctionHouseBot();
-       m_timers[WUPDATE_AUCTIONS].Reset();
+        m_timers[WUPDATE_AUCTIONS].Reset();
 
         ///- Update mails (return old mails with item, or delete them)
         //(tested... works on win)
