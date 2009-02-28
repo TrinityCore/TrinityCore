@@ -24,6 +24,7 @@
 #include "WorldSession.h"
 #include "World.h"
 #include "ObjectMgr.h"
+#include "AuctionHouseMgr.h"
 #include "AccountMgr.h"
 #include "PlayerDump.h"
 #include "SpellMgr.h"
@@ -56,12 +57,12 @@
 
 bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
 {
-    AuctionLocation ahMapID = AUCTION_NEUTRAL;
+    uint32 ahMapID = 0;
     char * opt = strtok((char*)args, " ");
     char * ahMapIdStr = strtok(NULL, " ");
     if (ahMapIdStr)
     {
-        ahMapID = (AuctionLocation) strtoul(ahMapIdStr, NULL, 0);
+        ahMapID = (uint32) strtoul(ahMapIdStr, NULL, 0);
     }
     if (!opt)
     {
@@ -149,28 +150,42 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
         char * param6 = strtok(NULL, " ");
         char * param7 = strtok(NULL, " ");
         char * param8 = strtok(NULL, " ");
-        if ((!ahMapIdStr) || (!param1) || (!param2) || (!param3) || (!param4) || (!param5) || (!param6) || (!param7) || (!param8))
+        char * param9 = strtok(NULL, " ");
+        char * param10 = strtok(NULL, " ");
+        char * param11 = strtok(NULL, " ");
+        char * param12 = strtok(NULL, " ");
+        char * param13 = strtok(NULL, " ");
+        char * param14 = strtok(NULL, " ");
+        if ((!ahMapIdStr) || (!param14))
         {
-            PSendSysMessage("Syntax is: ahbotoptions percentages $ahMapID (2, 6 or 7) $1 $2 $3 $4 $5 $6 $7 $8");
-            PSendSysMessage("1 WhiteTradeGoods 2 GreenTradeGoods 3 BlueTradeGoods 4 PurpleTradeGoods");
-            PSendSysMessage("5 WhiteItems 6 GreenItems 7 BlueItems 8 PurpleItems");
+            PSendSysMessage("Syntax is: ahbotoptions percentages $ahMapID (2, 6 or 7) $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14");
+            PSendSysMessage("1 GreyTradeGoods 2 WhiteTradeGoods 3 GreenTradeGoods 4 BlueTradeGoods 5 PurpleTradeGoods");
+            PSendSysMessage("6 OrangeTradeGoods 7 YellowTradeGoods 8 GreyItems 9 WhiteItems 10 GreenItems 11 BlueItems");
+            PSendSysMessage("12 PurpleItems 13 OrangeItems 14 YellowItems");
             PSendSysMessage("The total must add up to 100%");
             return false;
         }
-        uint32 wtg = (uint32) strtoul(param1, NULL, 0);
-        uint32 gtg = (uint32) strtoul(param2, NULL, 0);
-        uint32 btg = (uint32) strtoul(param3, NULL, 0);
-        uint32 ptg = (uint32) strtoul(param4, NULL, 0);
-        uint32 wi = (uint32) strtoul(param5, NULL, 0);
-        uint32 gi = (uint32) strtoul(param6, NULL, 0);
-        uint32 bi = (uint32) strtoul(param7, NULL, 0);
-        uint32 pi = (uint32) strtoul(param8, NULL, 0);
-        uint32 totalPercent = wtg + gtg + btg + ptg + wi + gi + bi + pi;
+        uint32 greytg = (uint32) strtoul(param1, NULL, 0);
+        uint32 whitetg = (uint32) strtoul(param2, NULL, 0);
+        uint32 greentg = (uint32) strtoul(param3, NULL, 0);
+        uint32 bluetg = (uint32) strtoul(param3, NULL, 0);
+        uint32 purpletg = (uint32) strtoul(param5, NULL, 0);
+        uint32 orangetg = (uint32) strtoul(param6, NULL, 0);
+        uint32 yellowtg = (uint32) strtoul(param7, NULL, 0);
+        uint32 greyi = (uint32) strtoul(param8, NULL, 0);
+        uint32 whitei = (uint32) strtoul(param9, NULL, 0);
+        uint32 greeni = (uint32) strtoul(param10, NULL, 0);
+        uint32 bluei = (uint32) strtoul(param11, NULL, 0);
+        uint32 purplei = (uint32) strtoul(param12, NULL, 0);
+        uint32 orangei = (uint32) strtoul(param13, NULL, 0);
+        uint32 yellowi = (uint32) strtoul(param14, NULL, 0);
+        uint32 totalPercent = greytg + whitetg + greentg + bluetg + purpletg + orangetg + yellowtg + greyi + whitei + greeni + bluei + purplei + orangei + yellowi;
         if ((totalPercent == 0) || (totalPercent != 100))
         {
-            PSendSysMessage("Syntax is: ahbotoptions percentages $ahMapID (2, 6 or 7) $1 $2 $3 $4 $5 $6 $7 $8");
-            PSendSysMessage("1 WhiteTradeGoods 2 GreenTradeGoods 3 BlueTradeGoods 4 PurpleTradeGoods");
-            PSendSysMessage("5 WhiteItems 6 GreenItems 7 BlueItems 8 PurpleItems");
+            PSendSysMessage("Syntax is: ahbotoptions percentages $ahMapID (2, 6 or 7) $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14");
+            PSendSysMessage("1 GreyTradeGoods 2 WhiteTradeGoods 3 GreenTradeGoods 4 BlueTradeGoods 5 PurpleTradeGoods");
+            PSendSysMessage("6 OrangeTradeGoods 7 YellowTradeGoods 8 GreyItems 9 WhiteItems 10 GreenItems 11 BlueItems");
+            PSendSysMessage("12 PurpleItems 13 OrangeItems 14 YellowItems");
             PSendSysMessage("The total must add up to 100%");
             return false;
         }
@@ -191,6 +206,18 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
         strcat(param, param7);
         strcat(param, " ");
         strcat(param, param8);
+        strcat(param, " ");
+        strcat(param, param9);
+        strcat(param, " ");
+        strcat(param, param10);
+        strcat(param, " ");
+        strcat(param, param11);
+        strcat(param, " ");
+        strcat(param, param12);
+        strcat(param, " ");
+        strcat(param, param13);
+        strcat(param, " ");
+        strcat(param, param14);
         AuctionHouseBotCommands(5, ahMapID, NULL, param);
     }
     else if (strncmp(opt,"minprice",l) == 0)
@@ -199,10 +226,14 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
         char * param2 = strtok(NULL, " ");
         if ((!ahMapIdStr) || (!param1) || (!param2))
         {
-            PSendSysMessage("Syntax is: ahbotoptions minprice $ahMapID (2, 6 or 7) $color (white, green, blue or purple) $price");
+            PSendSysMessage("Syntax is: ahbotoptions minprice $ahMapID (2, 6 or 7) $color (grey, white, green, blue, purple, orange or yellow) $price");
             return false;
         }
-        if (strncmp(param1,"white",l) == 0)
+        if (strncmp(param1,"grey",l) == 0)
+        {
+            AuctionHouseBotCommands(6, ahMapID, AHB_GREY, param2);
+        }
+        else if (strncmp(param1,"white",l) == 0)
         {
             AuctionHouseBotCommands(6, ahMapID, AHB_WHITE, param2);
         }
@@ -214,13 +245,21 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
         {
             AuctionHouseBotCommands(6, ahMapID, AHB_BLUE, param2);
         }
-        else if    (strncmp(param1,"purple",l) == 0)
+        else if (strncmp(param1,"purple",l) == 0)
         {
             AuctionHouseBotCommands(6, ahMapID, AHB_PURPLE, param2);
         }
+        else if (strncmp(param1,"orange",l) == 0)
+        {
+            AuctionHouseBotCommands(6, ahMapID, AHB_ORANGE, param2);
+        }
+        else if (strncmp(param1,"yellow",l) == 0)
+        {
+            AuctionHouseBotCommands(6, ahMapID, AHB_YELLOW, param2);
+        }
         else
         {
-            PSendSysMessage("Syntax is: ahbotoptions minprice $ahMapID (2, 6 or 7) $color (white, green, blue or purple) $price");
+            PSendSysMessage("Syntax is: ahbotoptions minprice $ahMapID (2, 6 or 7) $color (grey, white, green, blue, purple, orange or yellow) $price");
             return false;
         }
     }
@@ -230,10 +269,14 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
         char * param2 = strtok(NULL, " ");
         if ((!ahMapIdStr) || (!param1) || (!param2))
         {
-            PSendSysMessage("Syntax is: ahbotoptions maxprice $ahMapID (2, 6 or 7) $color (white, green, blue or purple) $price");
+            PSendSysMessage("Syntax is: ahbotoptions maxprice $ahMapID (2, 6 or 7) $color (grey, white, green, blue, purple, orange or yellow) $price");
             return false;
         }
-        if (strncmp(param1,"white",l) == 0)
+        if (strncmp(param1,"grey",l) == 0)
+        {
+            AuctionHouseBotCommands(7, ahMapID, AHB_GREY, param2);
+        }
+        else if (strncmp(param1,"white",l) == 0)
         {
             AuctionHouseBotCommands(7, ahMapID, AHB_WHITE, param2);
         }
@@ -245,13 +288,21 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
         {
             AuctionHouseBotCommands(7, ahMapID, AHB_BLUE, param2);
         }
-        else if    (strncmp(param1,"purple",l) == 0)
+        else if (strncmp(param1,"purple",l) == 0)
         {
             AuctionHouseBotCommands(7, ahMapID, AHB_PURPLE, param2);
         }
+        else if (strncmp(param1,"orange",l) == 0)
+        {
+            AuctionHouseBotCommands(7, ahMapID, AHB_ORANGE, param2);
+        }
+        else if (strncmp(param1,"yellow",l) == 0)
+        {
+            AuctionHouseBotCommands(7, ahMapID, AHB_YELLOW, param2);
+        }
         else
         {
-            PSendSysMessage("Syntax is: ahbotoptions maxprice $ahMapID (2, 6 or 7) $color (white, green, blue or purple) $price");
+            PSendSysMessage("Syntax is: ahbotoptions maxprice $ahMapID (2, 6 or 7) $color (grey, white, green, blue, purple, orange or yellow) $price");
             return false;
         }
     }
@@ -261,7 +312,7 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
         char * param2 = strtok(NULL, " ");
         if ((!ahMapIdStr) || (!param1) || (!param2))
         {
-            PSendSysMessage("Syntax is: ahbotoptions minbidprice $ahMapID (2, 6 or 7) $color (white, green, blue or purple) $price");
+            PSendSysMessage("Syntax is: ahbotoptions minbidprice $ahMapID (2, 6 or 7) $color (grey, white, green, blue, purple, orange or yellow) $price");
             return false;
         }
         uint32 minBidPrice = (uint32) strtoul(param2, NULL, 0);
@@ -270,7 +321,11 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
             PSendSysMessage("The min bid price multiplier must be between 1 and 100");
             return false;
         }
-        if (strncmp(param1,"white",l) == 0)
+        if (strncmp(param1,"grey",l) == 0)
+        {
+            AuctionHouseBotCommands(8, ahMapID, AHB_GREY, param2);
+        }
+        else if (strncmp(param1,"white",l) == 0)
         {
             AuctionHouseBotCommands(8, ahMapID, AHB_WHITE, param2);
         }
@@ -282,13 +337,21 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
         {
             AuctionHouseBotCommands(8, ahMapID, AHB_BLUE, param2);
         }
-        else if    (strncmp(param1,"purple",l) == 0)
+        else if (strncmp(param1,"purple",l) == 0)
         {
             AuctionHouseBotCommands(8, ahMapID, AHB_PURPLE, param2);
         }
+        else if (strncmp(param1,"orange",l) == 0)
+        {
+            AuctionHouseBotCommands(8, ahMapID, AHB_ORANGE, param2);
+        }
+        else if (strncmp(param1,"yellow",l) == 0)
+        {
+            AuctionHouseBotCommands(8, ahMapID, AHB_YELLOW, param2);
+        }
         else
         {
-            PSendSysMessage("Syntax is: ahbotoptions minbidprice $ahMapID (2, 6 or 7) $color (white, green, blue or purple) $price");
+            PSendSysMessage("Syntax is: ahbotoptions minbidprice $ahMapID (2, 6 or 7) $color (grey, white, green, blue, purple, orange or yellow) $price");
             return false;
         }
     }
@@ -298,7 +361,7 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
         char * param2 = strtok(NULL, " ");
         if ((!ahMapIdStr) || (!param1) || (!param2))
         {
-            PSendSysMessage("Syntax is: ahbotoptions maxbidprice $ahMapID (2, 6 or 7) $color (white, green, blue or purple) $price");
+            PSendSysMessage("Syntax is: ahbotoptions maxbidprice $ahMapID (2, 6 or 7) $color (grey, white, green, blue, purple, orange or yellow) $price");
             return false;
         }
         uint32 maxBidPrice = (uint32) strtoul(param2, NULL, 0);
@@ -307,7 +370,11 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
             PSendSysMessage("The max bid price multiplier must be between 1 and 100");
             return false;
         }
-        if (strncmp(param1,"white",l) == 0)
+        if (strncmp(param1,"grey",l) == 0)
+        {
+            AuctionHouseBotCommands(9, ahMapID, AHB_GREY, param2);
+        }
+        else if (strncmp(param1,"white",l) == 0)
         {
             AuctionHouseBotCommands(9, ahMapID, AHB_WHITE, param2);
         }
@@ -319,13 +386,21 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
         {
             AuctionHouseBotCommands(9, ahMapID, AHB_BLUE, param2);
         }
-        else if    (strncmp(param1,"purple",l) == 0)
+        else if (strncmp(param1,"purple",l) == 0)
         {
             AuctionHouseBotCommands(9, ahMapID, AHB_PURPLE, param2);
         }
+        else if (strncmp(param1,"orange",l) == 0)
+        {
+            AuctionHouseBotCommands(9, ahMapID, AHB_ORANGE, param2);
+        }
+        else if (strncmp(param1,"yellow",l) == 0)
+        {
+            AuctionHouseBotCommands(9, ahMapID, AHB_YELLOW, param2);
+        }
         else
         {
-            PSendSysMessage("Syntax is: ahbotoptions max bidprice $ahMapID (2, 6 or 7) $color (white, green, blue or purple) $price");
+            PSendSysMessage("Syntax is: ahbotoptions max bidprice $ahMapID (2, 6 or 7) $color (grey, white, green, blue, purple, orange or yellow) $price");
             return false;
         }
     }
@@ -335,7 +410,7 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
         char * param2 = strtok(NULL, " ");
         if ((!ahMapIdStr) || (!param1) || (!param2))
         {
-            PSendSysMessage("Syntax is: ahbotoptions maxstack $ahMapID (2, 6 or 7) $color (white, green, blue or purple) $value");
+            PSendSysMessage("Syntax is: ahbotoptions maxstack $ahMapID (2, 6 or 7) $color (grey, white, green, blue, purple, orange or yellow) $value");
             return false;
         }
         uint32 maxStack = (uint32) strtoul(param2, NULL, 0);
@@ -344,7 +419,11 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
             PSendSysMessage("maxstack can't be a negative number.");
             return false;
         }
-        if (strncmp(param1,"white",l) == 0)
+        if (strncmp(param1,"grey",l) == 0)
+        {
+            AuctionHouseBotCommands(10, ahMapID, AHB_GREY, param2);
+        }
+        else if (strncmp(param1,"white",l) == 0)
         {
             AuctionHouseBotCommands(10, ahMapID, AHB_WHITE, param2);
         }
@@ -356,13 +435,21 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
         {
             AuctionHouseBotCommands(10, ahMapID, AHB_BLUE, param2);
         }
-        else if    (strncmp(param1,"purple",l) == 0)
+        else if (strncmp(param1,"purple",l) == 0)
         {
             AuctionHouseBotCommands(10, ahMapID, AHB_PURPLE, param2);
         }
+        else if (strncmp(param1,"orange",l) == 0)
+        {
+            AuctionHouseBotCommands(10, ahMapID, AHB_ORANGE, param2);
+        }
+        else if (strncmp(param1,"yellow",l) == 0)
+        {
+            AuctionHouseBotCommands(10, ahMapID, AHB_YELLOW, param2);
+        }
         else
         {
-            PSendSysMessage("Syntax is: ahbotoptions maxstack $ahMapID (2, 6 or 7) $color (white, green, blue or purple) $value");
+            PSendSysMessage("Syntax is: ahbotoptions maxstack $ahMapID (2, 6 or 7) $color (grey, white, green, blue, purple, orange or yellow) $value");
             return false;
         }
     }
@@ -375,7 +462,11 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
             PSendSysMessage("Syntax is: ahbotoptions buyerprice $ahMapID (2, 6 or 7) $color (grey, white, green, blue or purple) $price");
             return false;
         }
-        if (strncmp(param1,"white",l) == 0)
+        if (strncmp(param1,"grey",l) == 0)
+        {
+            AuctionHouseBotCommands(11, ahMapID, AHB_GREY, param2);
+        }
+        else if (strncmp(param1,"white",l) == 0)
         {
             AuctionHouseBotCommands(11, ahMapID, AHB_WHITE, param2);
         }
@@ -387,9 +478,17 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
         {
             AuctionHouseBotCommands(11, ahMapID, AHB_BLUE, param2);
         }
-        else if    (strncmp(param1,"purple",l) == 0)
+        else if (strncmp(param1,"purple",l) == 0)
         {
             AuctionHouseBotCommands(11, ahMapID, AHB_PURPLE, param2);
+        }
+        else if (strncmp(param1,"orange",l) == 0)
+        {
+            AuctionHouseBotCommands(11, ahMapID, AHB_ORANGE, param2);
+        }
+        else if (strncmp(param1,"yellow",l) == 0)
+        {
+            AuctionHouseBotCommands(11, ahMapID, AHB_YELLOW, param2);
         }
         else
         {
@@ -1142,7 +1241,17 @@ bool ChatHandler::HandleLoadScriptsCommand(const char* args)
     sWorld.SendGMText(LANG_SCRIPTS_RELOADED);
     return true;
 }
-
+/*
+bool ChatHandler::HandleReloadAuctionsCommand(const char* args)
+{
+    ///- Reload dynamic data tables from the database
+    sLog.outString( "Re-Loading Auctions..." );
+    auctionmgr.LoadAuctionItems();
+    auctionmgr.LoadAuctions();
+    SendGlobalGMSysMessage("Auctions reloaded.");
+    return true;
+}
+*/
 bool ChatHandler::HandleAccountSetGmLevelCommand(const char* args)
 {
     if(!*args)

@@ -243,6 +243,7 @@ class ChatHandler
         bool HandleReloadLocalesPageTextCommand(const char* args);
         bool HandleReloadLocalesPointsOfInterestCommand(const char* args);
         bool HandleReloadLocalesQuestCommand(const char* args);
+//        bool HandleReloadAuctionsCommand(const char* args);
         bool HandleReloadLootTemplatesCreatureCommand(const char* args);
         bool HandleReloadLootTemplatesDisenchantCommand(const char* args);
         bool HandleReloadLootTemplatesFishingCommand(const char* args);

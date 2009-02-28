@@ -167,9 +167,6 @@ ObjectMgr::~ObjectMgr()
     for (CachePlayerInfoMap::iterator itr = m_mPlayerInfoMap.begin(); itr != m_mPlayerInfoMap.end(); ++itr)
         delete itr->second;
 
-    //for(ItemMap::iterator itr = mAitems.begin(); itr != mAitems.end(); ++itr)
-    //    delete itr->second;
-
     for (CacheVendorItemMap::iterator itr = m_mCacheVendorItemMap.begin(); itr != m_mCacheVendorItemMap.end(); ++itr)
         itr->second.Clear();
 
