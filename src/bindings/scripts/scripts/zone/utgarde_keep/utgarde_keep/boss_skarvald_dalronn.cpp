@@ -19,22 +19,22 @@
 /* ScriptData
 SDName: Boss_Skarvald_Dalronn
 SD%Complete: 95
-SDComment: Needs adjustments to blizzlike timers, 2 Missing Yell Textes, Yell Text + Sound to DB
+SDComment: Needs adjustments to blizzlike timers, Yell Text + Sound to DB
 SDCategory: Utgarde Keep
 EndScriptData */
 
 #include "precompiled.h"
 #include "def_utgarde_keep.h"
 
-/*
-13202,10,"A_DalronnKill","DalronKill.wav","","","","","","","","","",1,1,1,1,1,1,1,1,1,1,"Sound\Creature\DalronnTheController",0.800000,0,8.000000,45.000000,0,
-13232,10,"A_SkarvaldKill","SkarvaldKill.wav","","","","","","","","","",1,1,1,1,1,1,1,1,1,1,"Sound\Creature\SkarvaldTheConstructor",0.800000,0,8.000000,45.000000,0,
-*/
-
 #define YELL_SKARVALD_AGGRO                         "Dalronn! See if you can muster the nerve to join my attack!"
 #define SOUND_SKARVALD_AGGRO                        13229
 #define YELL_DALRONN_AGGRO                          "By all means, don't assess the situation, you halfwit! Just jump into the fray!"
 #define SOUND_DALRONN_AGGRO                         13199
+
+#define YELL_SKARVALD_KILL                          "Jarggn olkt!"
+#define SOUND_SKARVALD_KILL                         13232
+#define YELL_DALRONN_KILL                           "You may serve me yet."
+#define SOUND_DALRONN_KILL                          13202
 
 #define YELL_DALRONN_DAL_DIEDFIRST                  "See... you... soon."
 #define SOUND_DALRONN_DAL_DIEDFIRST                 13200
@@ -141,6 +141,15 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
                     temp->AI()->AttackStart(Killer);
                 }
             }
+        }
+    }
+
+    void KilledUnit(Unit *victim)
+    {
+        if(!ghost)
+        {
+            DoYell(YELL_SKARVALD_KILL,LANG_UNIVERSAL,NULL);
+            DoPlaySoundToSet(m_creature,SOUND_SKARVALD_KILL);
         }
     }
 
@@ -282,6 +291,15 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
                     Creature* temp = m_creature->SummonCreature(MOB_DALRONN_GHOST,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),0,TEMPSUMMON_CORPSE_DESPAWN,5000);
                     temp->AI()->AttackStart(Killer);
                 }
+        }
+    }
+
+    void KilledUnit(Unit *victim)
+    {
+        if(!ghost)
+        {
+            DoYell(YELL_DALRONN_KILL,LANG_UNIVERSAL,NULL);
+            DoPlaySoundToSet(m_creature,SOUND_DALRONN_KILL);
         }
     }
 
