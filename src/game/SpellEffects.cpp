@@ -2859,6 +2859,10 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
                 if(uint32 trapEntry = gameObjTarget->GetGOInfo()->goober.linkedTrapId)
                     gameObjTarget->TriggeringLinkedGameObject(trapEntry,m_caster);
 
+                // activate GO scripts
+                Script->GOHello(player, gameObjTarget);
+                sWorld.ScriptsStart(sGameObjectScripts, gameObjTarget->GetDBTableGUIDLow(), player, gameObjTarget);
+
                 return;
 
             case GAMEOBJECT_TYPE_CHEST:
