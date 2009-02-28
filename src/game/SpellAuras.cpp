@@ -3918,7 +3918,7 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
         {
             // Explosive Shot
             if (apply && !loading && caster)
-                m_modifier.m_amount +=caster->GetTotalAttackPowerValue(RANGED_ATTACK) * 8 / 100;
+                m_modifier.m_amount +=caster->GetTotalAttackPowerValue(RANGED_ATTACK) * 16 / 100;
             break;
         }
     }
@@ -6214,14 +6214,7 @@ void Aura::PeriodicDummyTick()
                 if (!caster)
                     return;
                 int32 damage = m_modifier.m_amount;
-                // Full damage to target at 0 tick
-                if (m_duration > m_modifier.periodictime)
-                {
-                    caster->CastCustomSpell(m_target, 53352, &damage, 0, 0, true, 0, this);
-                    return;
-                }
-                damage/=4;
-                caster->CastCustomSpell(m_target, 56298, &damage, 0, 0, true, 0, this);
+                caster->CastCustomSpell(m_target, 53352, &damage, 0, 0, true, 0, this);
                 return;
             }
             switch (spell->Id)
