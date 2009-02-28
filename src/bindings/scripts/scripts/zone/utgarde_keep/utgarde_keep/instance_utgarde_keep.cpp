@@ -103,8 +103,8 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
         switch(creature->GetEntry())
         { 
             case 23953:    Keleseth = creature->GetGUID();             break;
-            case 24200:    Dalronn = creature->GetGUID();              break;
-            case 24201:    Skarvald = creature->GetGUID();             break;
+            case 24201:    Dalronn = creature->GetGUID();              break;
+            case 24200:    Skarvald = creature->GetGUID();             break;
             case 23954:    Ingvar = creature->GetGUID();               break;
         }
     }
@@ -122,7 +122,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
         switch(identifier)
         {
         case DATA_PRINCEKELESETH:         return Keleseth;
-        case DATA_DALRONN:                 return Dalronn;
+        case DATA_DALRONN:                return Dalronn;
         case DATA_SKARVALD:               return Skarvald;
         case DATA_INGVAR:                 return Ingvar;
         }
@@ -174,8 +174,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
         switch(type)
         {
         case DATA_PRINCEKELESETH:            return Encounters[0];
-        case DATA_DALRONN:                   return Encounters[1];
-        case DATA_SKARVALD:                  return Encounters[2];
+        case DATA_SKARVALD_DALRONN_EVENT:    return Encounters[1];
         case DATA_INGVAR:                    return Encounters[3];
         }
 
