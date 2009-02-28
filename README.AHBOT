@@ -53,21 +53,53 @@ AuctionHouseBot.UseBuyPriceForBuyer Use SellPrice (0) or BuyPrice (1) for determ
 
 #These are the settings in the Database:
 #Each Auctionhouse has it's own set of these
-MinItems = 0
-MaxItems = 0
-MinTime = 8
-MaxTime = 24
 
+MinItems = 0
+#The Minimum number of items you want to keep in the auction houses.
+#(default 0 - minimum will be the same as maximum).
+#If it is higher than the value of the corresponding maxItems setting,
+#it will be set down to match the maxItems setting.
+
+MaxItems = 0
+#The Maximum number of items you want to keep in the auction houses.
+
+MinTime = 8
+#The minimum number of hours for an auction.
+
+MaxTime = 24
+#The maximum number of hours for an auction.
+
+#These must add up to 100 each one is the percentage
+#of the auction items that should be trade goods of
+#that quality. A value of 0 will disable.
+
+PercentGreyTradeGoods = 0
 PercentWhiteTradeGoods = 27
 PercentGreenTradeGoods = 12
 PercentBlueTradeGoods = 10
 PercentPurpleTradeGoods = 1
+PercentOrangeTradeGoods = 0
+PercentYellowTradeGoods = 0
 
+PercentGreyItems = 0
 PercentWhiteItems = 10
 PercentGreenItems = 30
 PercentBlueItems = 8
 PercentPurpleItems = 2
+PercentOrangeItems = 0
+PercentYellowItems = 0
 
+#MinPrice(Color)    is the minimum price adjustment for items. For example the default is 150, which means 150%. So if an item vendors for 1g it would go to auction for a minimum of 1.5g.
+#MaxPrice(Color)    is the maximum price adjustment for items.
+#MinBidPrice(Color) these two control the starting bid as a percent of the buyout price. For example, if MinBidPrice is 30 and MaxBidPrice is 80 the starting bid for the auction will randomly be between 30-80% of the randomly chosen buyout price.
+#MaxBidPrice(Color) these two control the starting bid as a percent of the buyout price. For example, if MinBidPrice is 30 and MaxBidPrice is 80 the starting bid for the auction will randomly be between 30-80% of the randomly chosen buyout price.
+#MaxStack(Color)    is maximum stack size to create for this quality type. A value of zero will disable the maximum stack size for this quality allowing the bot to create stacks (of random size) of items as big as the item type allows.
+
+MinPriceGrey = 100
+MaxPriceGrey = 150
+MinBidPriceGrey = 70
+MaxBidPriceGrey = 100
+MaxStackGrey = 0
 MinPriceWhite = 150
 MaxPriceWhite = 250
 MinBidPriceWhite = 70
@@ -88,62 +120,35 @@ MaxPricePurple = 4550
 MinBidPricePurple = 80
 MaxBidPricePurple = 100
 MaxStackPurple = 1
+MinPriceOrange = 4250
+MaxPriceOrange = 5550
+MinBidPriceOrange = 80
+MaxBidPriceOrange = 100
+MaxStackOrange = 0
+MinPriceYellow = 5250
+MaxPriceYellow = 6550
+MinBidPriceYellow = 80
+MaxBidPriceYellow = 100
+MaxStackYellow = 0
+
+#These are the multipliers that are applied to the vendor price for an item, that determines if AHBot will buy it or not.
+#1 means AHBot will pay the same as (or less than) a vendor would pay, 2 means up to twice as much, etc.
 
 BuyerPriceGrey = 1
 BuyerPriceWhite = 1
 BuyerPriceGreen = 5
 BuyerPriceBlue = 12
 BuyerPricePurple = 15
+BuyerPriceOrange = 20
+BuyerPriceYellow = 22
+
+#BuyerBiddingInterval is the time (in minutes) between bids.
+#BuyerBidsPerInterval is the number of bids the buyer will make in a cycle
+
 BuyerBiddingInterval = 1
 BuyerBidsPerInterval = 1
 
-MaxItems is the number of items you want to keep in the auction houses.
-MinItems Minimum items in auctionhouses (default 0 - minimum will be the same as maximum).  If it is higher than the value of the corresponding maxItems setting, it will be set down to match the maxItems setting.
-MinTime is the minimum number of hours for an auction.
-MaxTime is the maximum number of hours for an auction.
 
-#These must add up to 100
-PercentWhiteTradeGoods is the percentage of the auction items that should be trade goods of white quality. A value of 0 will disable.
-PercentGreenTradeGoods  is the percentage of the auction items that should be trade goods of green quality. A value of 0 will disable.
-PercentBlueTradeGoods  is the percentage of the auction items that should be trade goods of blue quality. A value of 0 will disable.
-PercentPurpleTradeGoods  is the percentage of the auction items that should be trade goods of purple quality. A value of 0 will disable.
-PercentWhiteItems  is the percentage of the auction items that should be items of white quality. A value of 0 will disable.
-PercentGreenItems  is the percentage of the auction items that should be items of green quality. A value of 0 will disable.
-PercentBlueItems  is the percentage of the auction items that should be items of blue quality. A value of 0 will disable.
-PercentPurpleItems  is the percentage of the auction items that should be items of purple quality. A value of 0 will disable.
-
-MinPriceWhite is the minimum price adjustment for white items. For example the default is 150, which means 150%. So if an item vendors for 1g it would go to auction for a minimum of 1.5g.
-MaxPriceWhite is the maximum price adjustment for white items.
-MinBidPriceWhite these two control the starting bid as a percent of the buyout price. For example, if MinBidPrice is 30 and MaxBidPrice is 80 the starting bid for the auction will randomly be between 30-80% of the randomly chosen buyout price.
-MaxBidPriceWhite  these two control the starting bid as a percent of the buyout price. For example, if MinBidPrice is 30 and MaxBidPrice is 80 the starting bid for the auction will randomly be between 30-80% of the randomly chosen buyout price.
-MaxStackWhite is maximum stack size to create for this quality type. A value of zero will disable the maximum stack size for this quality allowing the bot to create stacks (of random size) of items as big as the item type allows.
-
-MinPriceGreen - see above
-MaxPriceGreen - see above
-MinBidPriceGreen - see above
-MaxBidPriceGreen - see above
-MaxStackGreen - see above
-MinPriceBlue - see above
-MaxPriceBlue - see above
-MinBidPriceBlue - see above
-MaxBidPriceBlue - see above
-MaxStackBlue - see above
-MinPricePurple - see above
-MaxPricePurple - see above
-MinBidPricePurple - see above
-MaxBidPricePurple - see above
-MaxStackPurple - see above
-
-#These are the multipliers that are applied to the vendor price for an item, that determines if AHBot will buy it or not.
-#1 means AHBot will pay the same as (or less than) a vendor would pay, 2 means up to twice as much, etc.
-BuyerPriceGrey 
-BuyerPriceWhite
-BuyerPriceGreen
-BuyerPriceBlue
-BuyerPricePurple
-
-BuyerBiddingInterval is the time (in minutes) between bids.
-BuyerBidsPerInterval is the number of bids the buyer will make in a cycle
 
 How to use ahcommands from the console (CLI) or in game with GM level 3 players:
 ahbotoptions - will display usage instructions

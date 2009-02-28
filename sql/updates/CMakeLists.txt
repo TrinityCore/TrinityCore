@@ -50,4 +50,6 @@ INSTALL(FILES
 1558_world_spell_linked_spell.sql
 1559_world.sql
 1570_world.sql
+1613_world_scripts.sql
+1614_characters_auctionhouse.sql
 DESTINATION share/trinity/sql/updates)

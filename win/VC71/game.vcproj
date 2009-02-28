@@ -202,12 +202,6 @@
 				RelativePath="..\..\src\game\BattleGroundDS.h">
 			</File>
 			<File
-				RelativePath="..\..\src\game\AuctionHouseBot.cpp">
-			</File>
-			<File
-				RelativePath="..\..\src\game\AuctionHouseBot.h">
-			</File>
-			<File
 				RelativePath="..\..\src\game\BattleGroundEY.cpp">
 			</File>
 			<File
