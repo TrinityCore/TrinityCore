@@ -351,7 +351,7 @@ class TRINITY_DLL_SPEC Aura
         uint8 m_auraLevel;                                  // Aura level (store caster level for correct show level dep amount)
         uint8 m_procCharges;                                // Aura charges (0 for infinite)
         uint8 m_stackAmount;                                // Aura stack amount
-        uint8 m_auraStateMask;
+        uint32 m_auraStateMask;
 
         bool m_positive:1;
         bool m_permanent:1;
