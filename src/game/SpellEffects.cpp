@@ -2420,13 +2420,6 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
                 sLog.outError("Target(GUID:" I64FMTD ") has aurastate AURA_STATE_SWIFTMEND but no matching aura.", unitTarget->GetGUID());
                 return;
             }
-            int idx = 0;
-            while(idx < 3)
-            {
-                if(targetAura->GetSpellProto()->EffectApplyAuraName[idx] == SPELL_AURA_PERIODIC_HEAL)
-                    break;
-                idx++;
-            }
 
             int32 tickheal = targetAura->GetModifierValuePerStack();
             if(Unit* auraCaster = targetAura->GetCaster())
@@ -2434,7 +2427,15 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
             //int32 tickheal = targetAura->GetSpellProto()->EffectBasePoints[idx] + 1;
             //It is said that talent bonus should not be included
             //int32 tickheal = targetAura->GetModifierValue();
-            int32 tickcount = GetSpellDuration(targetAura->GetSpellProto()) / targetAura->GetSpellProto()->EffectAmplitude[idx];
+            int32 tickcount = 0;
+            if(targetAura->GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID)
+            {
+                switch(targetAura->GetSpellProto()->SpellFamilyFlags)//TODO: proper spellfamily for 3.0.x
+                {
+                    case 0x10:  tickcount = 4;  break; // Rejuvenation
+                    case 0x40:  tickcount = 6;  break; // Regrowth
+                }
+            }
             addhealth += tickheal * tickcount;
             unitTarget->RemoveAurasDueToCasterSpell(targetAura->GetId(), targetAura->GetCasterGUID());
 
