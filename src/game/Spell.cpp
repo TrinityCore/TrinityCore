@@ -2066,8 +2066,9 @@ void Spell::prepare(SpellCastTargets const* targets, Aura* triggeredByAura)
 
     // set timer base at cast time
     ReSetTimer();
-
-    if(m_IsTriggeredSpell)
+                             //Containers for channeled spells have to be set
+                             //TODO:Apply this to all casted spells if needed
+    if(m_IsTriggeredSpell && !IsChanneledSpell(m_spellInfo))
         cast(true);
     else
     {

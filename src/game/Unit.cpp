@@ -4174,7 +4174,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
                         && AurSpellInfo->EffectApplyAuraName[Aur->GetEffIndex()]!= SPELL_AURA_DUMMY)
                         //don't stop channeling of scripted spells (this is actually a hack)
                     {
-                        caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->cancel();
+                        caster->InterruptSpell(CURRENT_CHANNELED_SPELL);
                     }
                 }
             }

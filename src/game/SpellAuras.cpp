@@ -1975,25 +1975,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             return;
         }
 
-        if (caster && m_removeMode == AURA_REMOVE_BY_DEATH)
-        {
-            // Stop caster Arcane Missle chanelling on death
-            if (m_spellProto->SpellFamilyName == SPELLFAMILY_MAGE &&
-                m_spellProto->SpellFamilyFlags[0] & 0x800)
-            {
-                caster->InterruptSpell(CURRENT_CHANNELED_SPELL);
-                return;
-            }
-            // Stop caster Penance chanelling on death
-            if (m_spellProto->SpellFamilyName == SPELLFAMILY_PRIEST &&
-                m_spellProto->SpellFamilyFlags[2] & 0x00000080)
-            {
-                caster->InterruptSpell(CURRENT_CHANNELED_SPELL);
-                return;
-            }
-
-        }
-
         // some auras remove at aura remove
         if(GetEffIndex()==0 && m_target->GetTypeId()==TYPEID_PLAYER)
         {
