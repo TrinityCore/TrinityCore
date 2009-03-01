@@ -3434,18 +3434,10 @@ void Spell::EffectDispel(uint32 i)
             SpellEntry const* spellInfo = aur->GetSpellProto();
             // Base dispel chance
             // TODO: possible chance depend from spell level??
-            int32 miss_chance = 0;
-            // Apply dispel mod from aura caster
-            if (Unit *caster = aur->GetCaster())
-            {
-                if ( Player* modOwner = caster->GetSpellModOwner() )
-                    modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_RESIST_DISPEL_CHANCE, miss_chance, this);
-            }
-            // Try dispel
-            if (roll_chance_i(miss_chance))
-                fail_list.push_back(aur->GetId());
-            else
+            if (aur->GetDispelChance(this))
                 success_list.push_back(std::pair<uint32,uint64>(aur->GetId(),aur->GetCasterGUID()));
+            else
+                fail_list.push_back(aur->GetId());
             // Remove buff from list for prevent doubles
             for (std::vector<Aura *>::iterator j = dispel_list.begin(); j != dispel_list.end(); )
             {
@@ -4773,6 +4765,15 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         return;
                     unitTarget->HandleEmoteCommand(EMOTE_STATE_DANCE);
                     break;
+                }
+                // Escape artist
+                case 20589:
+                {
+                    if(!unitTarget)
+                        return;
+                    // It is said that removing effects by script should include dispel resist mods
+                    unitTarget->RemoveSpellsCausingAuraWithDispel(SPELL_AURA_MOD_ROOT, this);
+                    unitTarget->RemoveSpellsCausingAuraWithDispel(SPELL_AURA_MOD_DECREASE_SPEED, this);
                 }
                 // Mirren's Drinking Hat
                 case 29830:
@@ -6205,6 +6206,8 @@ void Spell::EffectDispelMechanic(uint32 i)
         next = iter;
         ++next;
         SpellEntry const *spell = sSpellStore.LookupEntry(iter->second->GetSpellProto()->Id);
+        if (!iter->second->GetDispelChance(this))
+            continue;
         if(spell->Mechanic == mechanic || spell->EffectMechanic[iter->second->GetEffIndex()] == mechanic)
         {
             unitTarget->RemoveAurasDueToSpell(spell->Id);
