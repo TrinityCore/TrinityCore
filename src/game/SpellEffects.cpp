@@ -1894,8 +1894,8 @@ void Spell::EffectTriggerRitualOfSummoning(uint32 i)
     targets.setUnitTarget( unitTarget);
     spell->prepare(&targets);
 
-    m_caster->SetCurrentCastedSpell(spell);
-    spell->m_selfContainer = &(m_caster->m_currentSpells[spell->GetCurrentContainer()]);
+    //m_caster->SetCurrentCastedSpell(spell);
+    //spell->m_selfContainer = &(m_caster->m_currentSpells[spell->GetCurrentContainer()]);
 
 }
 
