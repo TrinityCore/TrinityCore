@@ -2440,16 +2440,15 @@ void Spell::EffectPowerBurn(uint32 i)
 
     int32 curPower = int32(unitTarget->GetPower(powertype));
 
-
     uint32 power = damage;
-    // Priest's Mana Burn, burn max amount of 26% of caster's mana
+    //Mana burn take mana % amount from target, but not bigger than amount*2 of caster mana
     if ( m_spellInfo->SpellFamilyName==SPELLFAMILY_PRIEST && m_spellInfo->SpellFamilyFlags[0] & 0x10)
     {
         // Burn percentage of target's mana
         power = damage * curPower / 100;
         if (caster)
         {
-            casterPower = caster->GetPower(powertype)*0.26f
+            uint32 casterPower = damage * caster->GetPower(powertype) / 50;
             if (casterPower<curPower)
                 curPower = casterPower;
         }
@@ -3494,6 +3493,7 @@ void Spell::EffectDispel(uint32 i)
                     case 19736: heal_spell = 19735; break;
                     case 27276: heal_spell = 27278; break;
                     case 27277: heal_spell = 27279; break;
+                    case 48011: heal_spell = 48010; break;
                     default:
                         sLog.outDebug("Spell for Devour Magic %d not handled in Spell::EffectDispel", m_spellInfo->Id);
                         break;
