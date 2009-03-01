@@ -411,7 +411,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     damage = uint32(damage * (m_caster->GetTotalAttackPowerValue(BASE_ATTACK)) / 100);
                 }
                 // Shield Slam
-                else if(m_spellInfo->SpellFamilyFlags[1] & 0x1)
+                else if(m_spellInfo->SpellFamilyFlags[1] & 0x200)
                     damage += int32(m_caster->GetShieldBlockValue());
                 // Victory Rush
                 else if(m_spellInfo->SpellFamilyFlags[1] & 0x100)
