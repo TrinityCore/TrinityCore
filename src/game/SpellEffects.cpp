@@ -339,14 +339,6 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         }
                         break;
                     }
-                    case 43648: //Electrical Storm
-                    {
-                        if(unitTarget && unitTarget->HasAura(44007, 0)) // Immune Aura
-                        {
-                            damage = 0;
-                        }
-                        break;
-                    }
                     // percent from health with min
                     case 25599:                             // Thundercrash
                     {
@@ -1234,7 +1226,7 @@ void Spell::EffectDummy(uint32 i)
 
                     m_caster->CastSpell(m_caster, 30452, true, NULL);
                     return;
-                }
+                }                
             }
 
             //All IconID Check in there
