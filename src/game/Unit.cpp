@@ -476,6 +476,28 @@ void Unit::RemoveSpellsCausingAura(AuraType auraType)
     }
 }
 
+void Unit::RemoveSpellsCausingAuraWithDispel(AuraType auraType, Spell * spell)
+{
+    if (auraType >= TOTAL_AURAS) return;
+    AuraList::iterator iter, next;
+    for (iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end(); iter = next)
+    {
+        next = iter;
+        ++next;
+
+        if (*iter)
+        {
+            if (!(*iter)->GetDispelChance(spell))
+                continue;
+            RemoveAurasDueToSpell((*iter)->GetId());
+            if (!m_modAuras[auraType].empty())
+                next = m_modAuras[auraType].begin();
+            else
+                return;
+        }
+    }
+}
+
 void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
 {
     if(!(m_interruptMask & flag))

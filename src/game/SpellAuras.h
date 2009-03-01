@@ -312,6 +312,8 @@ class TRINITY_DLL_SPEC Aura
         void HandleAuraAllowOnlyAbility(bool apply, bool Real);
         void HandleShapeshiftBoosts(bool apply);
 
+        bool GetDispelChance(Spell* spell);
+
         // Allow Apply Aura Handler to modify and access m_AuraDRGroup
         void setDiminishGroup(DiminishingGroup group) { m_AuraDRGroup = group; }
         DiminishingGroup getDiminishGroup() const { return m_AuraDRGroup; }
