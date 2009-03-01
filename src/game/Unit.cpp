@@ -1973,6 +1973,8 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                     AuraList const& vOverRideCS = caster->GetAurasByType(SPELL_AURA_DUMMY);
                     for(AuraList::const_iterator k = vOverRideCS.begin(); k != vOverRideCS.end(); ++k)
                     {
+                        if((*k)->GetSpellProto()->SpellFamilyName != SPELLFAMILY_PRIEST)
+                            continue;
                         switch((*k)->GetModifier()->m_miscvalue)
                         {
                             case 5065:                          // Rank 1
@@ -1985,7 +1987,6 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                                     reflectDamage = (*k)->GetModifier()->m_amount * RemainingDamage/100;
                                 reflectSpell = 33619;
                             } break;
-                            default: break;
                         }
                     }
                     break;
@@ -5453,6 +5454,13 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                         return false;
 
                     target = this;
+                    break;
+                }
+                // Glyph of Power Word: Shield
+                case 55672:
+                {
+                    basepoints0 = damage * triggerAmount/100;
+                    triggered_spell_id = 56160;
                     break;
                 }
                 // Oracle Healing Bonus ("Garments of the Oracle" set)
