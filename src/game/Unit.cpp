@@ -4445,6 +4445,15 @@ void Unit::AddGameObject(GameObject* gameObj)
     assert(gameObj && gameObj->GetOwnerGUID()==0);
     m_gameObj.push_back(gameObj);
     gameObj->SetOwnerGUID(GetGUID());
+
+    if ( GetTypeId()==TYPEID_PLAYER && gameObj->GetSpellId() )
+    {
+        SpellEntry const* createBySpell = sSpellStore.LookupEntry(gameObj->GetSpellId());
+        // Need disable spell use for owner
+        if (createBySpell && createBySpell->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE)
+            // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
+            ((Player*)this)->AddSpellAndCategoryCooldowns(createBySpell,0,NULL,true);
+    }
 }
 
 void Unit::RemoveGameObject(GameObject* gameObj, bool del)
