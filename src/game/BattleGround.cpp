@@ -971,7 +971,9 @@ void BattleGround::AddPlayer(Player *plr)
 
         if(GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
         {
-            plr->CastSpell(plr, SPELL_ARENA_PREPARATION, true);
+            if(GetStatus() == STATUS_IN_PROGRESS)
+                plr->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
+            else plr->CastSpell(plr, SPELL_ARENA_PREPARATION, true);
 
             plr->SetHealth(plr->GetMaxHealth());
             plr->SetPower(POWER_MANA, plr->GetMaxPower(POWER_MANA));

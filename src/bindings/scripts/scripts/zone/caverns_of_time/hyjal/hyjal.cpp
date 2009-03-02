@@ -54,7 +54,7 @@ CreatureAI* GetAI_npc_jaina_proudmoore(Creature *_Creature)
     ai->Spell[0].TargetType = TARGETTYPE_RANDOM;
 
     ai->Spell[1].SpellId = SPELL_PYROBLAST;
-    ai->Spell[1].Cooldown = 2000 + rand()%7000;
+    ai->Spell[1].Cooldown = 5500 + rand()%4000;
     ai->Spell[1].TargetType = TARGETTYPE_RANDOM;
 
     ai->Spell[2].SpellId = SPELL_SUMMON_ELEMENTALS;
