@@ -493,6 +493,11 @@ struct _Socket
     uint32 Content;
 };
 
+#define MAX_ITEM_PROTO_DAMAGES 5
+#define MAX_ITEM_PROTO_SOCKETS 3
+#define MAX_ITEM_PROTO_SPELLS  5
+#define MAX_ITEM_PROTO_STATS  10
+
 struct ItemPrototype
 {
     uint32 ItemId;
@@ -522,10 +527,10 @@ struct ItemPrototype
     int32  Stackable;                                       // 0: not allowed, -1: put in player coin info tab and don't limit stacking (so 1 slot)
     uint32 ContainerSlots;
     uint32 StatsCount;
-    _ItemStat ItemStat[10];
+    _ItemStat ItemStat[MAX_ITEM_PROTO_STATS];
     uint32 ScalingStatDistribution;                         // id from ScalingStatDistribution.dbc
     uint32 ScalingStatValue;                                // mask for selecting column in ScalingStatValues.dbc
-    _Damage Damage[5];
+    _Damage Damage[MAX_ITEM_PROTO_DAMAGES];
     uint32 Armor;
     uint32 HolyRes;
     uint32 FireRes;
@@ -536,7 +541,7 @@ struct ItemPrototype
     uint32 Delay;
     uint32 AmmoType;
     float  RangedModRange;
-    _Spell Spells[5];
+    _Spell Spells[MAX_ITEM_PROTO_SPELLS];
     uint32 Bonding;
     char*  Description;
     uint32 PageText;
@@ -555,7 +560,7 @@ struct ItemPrototype
     uint32 Map;                                             // id from Map.dbc
     uint32 BagFamily;                                       // id from ItemBagFamily.dbc
     uint32 TotemCategory;                                   // id from TotemCategory.dbc
-    _Socket Socket[3];
+    _Socket Socket[MAX_ITEM_PROTO_SOCKETS];
     uint32 socketBonus;                                     // id from SpellItemEnchantment.dbc
     uint32 GemProperties;                                   // id from GemProperties.dbc
     uint32 RequiredDisenchantSkill;
@@ -636,7 +641,7 @@ struct ItemPrototype
         if (Delay == 0)
             return 0;
         float temp = 0;
-        for (int i=0;i<5;++i)
+        for (int i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
             temp+=Damage[i].DamageMin + Damage[i].DamageMax;
         return temp*500/Delay;
     }
