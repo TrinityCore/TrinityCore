@@ -653,7 +653,8 @@ bool BattleGroundQueue::CheckSkirmishForSameFaction(BGQueueIdBasedOnLevel queue_
             break;
     if( itr_team == m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE + teamIndex].end() )
         return false;
-    GroupsQueueType::iterator itr_team2 = ++itr_team;
+    GroupsQueueType::iterator itr_team2 = itr_team;
+    ++itr_team2;
     //invite players to other selection pool
     for(; itr_team2 != m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE + teamIndex].end(); ++itr_team2)
     {
@@ -675,7 +676,9 @@ bool BattleGroundQueue::CheckSkirmishForSameFaction(BGQueueIdBasedOnLevel queue_
         //add team to other queue
         m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE + otherTeam].push_front(*itr);
         //remove team from old queue
-        for(GroupsQueueType::iterator itr2 = itr_team; itr2 != m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE + teamIndex].end(); ++itr2)
+        GroupsQueueType::iterator itr2 = itr_team;
+        ++itr2;
+        for(; itr2 != m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE + teamIndex].end(); ++itr2)
         {
             if( *itr2 == *itr )
             {
@@ -705,9 +708,8 @@ void BattleGroundQueue::Update(BattleGroundTypeId bgTypeId, BGQueueIdBasedOnLeve
 
     //battleground with free slot for player should be always in the beggining of the queue
     // maybe it would be better to create bgfreeslotqueue for each queue_id_based_on_level
-    bool continueAdding = true;
     BGFreeSlotQueueType::iterator itr, next;
-    for (itr = sBattleGroundMgr.BGFreeSlotQueue[bgTypeId].begin(); continueAdding && itr != sBattleGroundMgr.BGFreeSlotQueue[bgTypeId].end(); itr = next)
+    for (itr = sBattleGroundMgr.BGFreeSlotQueue[bgTypeId].begin(); itr != sBattleGroundMgr.BGFreeSlotQueue[bgTypeId].end(); itr = next)
     {
         next = itr;
         ++next;
@@ -733,8 +735,6 @@ void BattleGroundQueue::Update(BattleGroundTypeId bgTypeId, BGQueueIdBasedOnLeve
 
             if( !bg->HasFreeSlots() )
             {
-                if( next == sBattleGroundMgr.BGFreeSlotQueue[bgTypeId].end() )
-                    continueAdding = false;
                 // remove BG from BGFreeSlotQueue
                 bg->RemoveFromBGFreeSlotQueue();
             }
