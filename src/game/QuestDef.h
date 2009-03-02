@@ -231,7 +231,6 @@ class Quest
         uint32 ReqItemCount[QUEST_OBJECTIVES_COUNT];
         uint32 ReqSourceId[QUEST_SOURCE_ITEM_IDS_COUNT];
         uint32 ReqSourceCount[QUEST_SOURCE_ITEM_IDS_COUNT];
-        uint32 ReqSourceRef[QUEST_SOURCE_ITEM_IDS_COUNT];
         int32  ReqCreatureOrGOId[QUEST_OBJECTIVES_COUNT];   // >0 Creature <0 Gameobject
         uint32 ReqCreatureOrGOCount[QUEST_OBJECTIVES_COUNT];
         uint32 ReqSpell[QUEST_OBJECTIVES_COUNT];
