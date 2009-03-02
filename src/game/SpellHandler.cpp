@@ -97,7 +97,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 
     if (pUser->isInCombat())
     {
-        for(int i = 0; i < 5; ++i)
+        for(int i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
         {
             if (SpellEntry const *spellInfo = sSpellStore.LookupEntry(proto->Spells[i].SpellId))
             {
