@@ -896,16 +896,16 @@ void BattleGroundEY::FillInitialWorldStates(WorldPacket& data)
     data << uint32(0xc0d) << uint32(0x17b);
 }
 
-WorldSafeLocsEntry const *BattleGroundEY::GetClosestGraveYard(float x, float y, float z, uint32 team)
+WorldSafeLocsEntry const *BattleGroundEY::GetClosestGraveYard(Player* player)
 {
     uint32 g_id = 0;
 
-    if(team == ALLIANCE)
-        g_id = EY_GRAVEYARD_MAIN_ALLIANCE;
-    else if(team == HORDE)
-        g_id = EY_GRAVEYARD_MAIN_HORDE;
-    else
-        return NULL;
+    switch(player->GetTeam())
+    {
+        case ALLIANCE: g_id = EY_GRAVEYARD_MAIN_ALLIANCE; break;
+        case HORDE:    g_id = EY_GRAVEYARD_MAIN_HORDE;    break;
+        default:       return NULL;
+    }
 
     float distance, nearestDistance;
 
@@ -920,19 +920,24 @@ WorldSafeLocsEntry const *BattleGroundEY::GetClosestGraveYard(float x, float y, 
         return NULL;
     }
 
-    distance = (entry->x - x)*(entry->x - x) + (entry->y - y)*(entry->y - y) + (entry->z - z)*(entry->z - z);
+    float plr_x = player->GetPositionX();
+    float plr_y = player->GetPositionY();
+    float plr_z = player->GetPositionZ();
+
+
+    distance = (entry->x - plr_x)*(entry->x - plr_x) + (entry->y - plr_y)*(entry->y - plr_y) + (entry->z - plr_z)*(entry->z - plr_z);
     nearestDistance = distance;
 
     for(uint8 i = 0; i < EY_POINTS_MAX; ++i)
     {
-        if(m_PointOwnedByTeam[i]==team && m_PointState[i]==EY_POINT_UNDER_CONTROL)
+        if(m_PointOwnedByTeam[i]==player->GetTeam() && m_PointState[i]==EY_POINT_UNDER_CONTROL)
         {
             entry = sWorldSafeLocsStore.LookupEntry(m_CapturingPointTypes[i].GraveYardId);
             if(!entry)
                 sLog.outError("BattleGroundEY: Not found graveyard: %u",m_CapturingPointTypes[i].GraveYardId);
             else
             {
-                distance = (entry->x - x)*(entry->x - x) + (entry->y - y)*(entry->y - y) + (entry->z - z)*(entry->z - z);
+                distance = (entry->x - plr_x)*(entry->x - plr_x) + (entry->y - plr_y)*(entry->y - plr_y) + (entry->z - plr_z)*(entry->z - plr_z);
                 if(distance < nearestDistance)
                 {
                     nearestDistance = distance;

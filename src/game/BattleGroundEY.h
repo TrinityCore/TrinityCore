@@ -317,7 +317,7 @@ class BattleGroundEY : public BattleGround
         void HandleBuffUse(uint64 const& buff_guid);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
         void HandleKillPlayer(Player *player, Player *killer);
-        virtual WorldSafeLocsEntry const* GetClosestGraveYard(float x, float y, float z, uint32 team);
+        virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
         virtual bool SetupBattleGround();
         virtual void Reset();
         void UpdateTeamScore(uint32 Team);
