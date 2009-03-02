@@ -347,14 +347,6 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         }
                         break;
                     }
-                    case 43648: //Electrical Storm
-                    {
-                        if(unitTarget && unitTarget->HasAura(44007, 0)) // Immune Aura
-                        {
-                            damage = 0;
-                        }
-                        break;
-                    }
                     // percent from health with min
                     case 25599:                             // Thundercrash
                     {
@@ -1230,7 +1222,7 @@ void Spell::EffectDummy(uint32 i)
 
                     m_caster->CastSpell(m_caster, 30452, true, NULL);
                     return;
-                }
+                }                
                 case 53341:
                 case 53343:
                 {
@@ -2525,13 +2517,6 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
                 sLog.outError("Target(GUID:" I64FMTD ") has aurastate AURA_STATE_SWIFTMEND but no matching aura.", unitTarget->GetGUID());
                 return;
             }
-            int idx = 0;
-            while(idx < 3)
-            {
-                if(targetAura->GetSpellProto()->EffectApplyAuraName[idx] == SPELL_AURA_PERIODIC_HEAL)
-                    break;
-                idx++;
-            }
 
             int32 tickheal = targetAura->GetModifier()->m_amount;
             if(Unit* auraCaster = targetAura->GetCaster())
@@ -2539,7 +2524,15 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
             //int32 tickheal = targetAura->GetSpellProto()->EffectBasePoints[idx] + 1;
             //It is said that talent bonus should not be included
 
-            int32 tickcount = GetSpellDuration(targetAura->GetSpellProto()) / targetAura->GetSpellProto()->EffectAmplitude[idx];
+            int32 tickcount = 0;
+            if(targetAura->GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID)
+            {
+                switch(targetAura->GetSpellProto()->SpellFamilyFlags)//TODO: proper spellfamily for 3.0.x
+                {
+                    case 0x10:  tickcount = 4;  break; // Rejuvenation
+                    case 0x40:  tickcount = 6;  break; // Regrowth
+                }
+            }
             addhealth += tickheal * tickcount;
             unitTarget->RemoveAurasByCasterSpell(targetAura->GetId(), targetAura->GetCasterGUID());
 
@@ -2970,6 +2963,10 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
                 // triggering linked GO
                 if(uint32 trapEntry = gameObjTarget->GetGOInfo()->goober.linkedTrapId)
                     gameObjTarget->TriggeringLinkedGameObject(trapEntry,m_caster);
+
+                // activate GO scripts
+                Script->GOHello(player, gameObjTarget);
+                sWorld.ScriptsStart(sGameObjectScripts, gameObjTarget->GetDBTableGUIDLow(), player, gameObjTarget);
 
                 return;
 
