@@ -440,7 +440,7 @@ class BattleGround
         virtual void EventPlayerCapturedFlag(Player* /*player*/) {}
 
         /* Death related */
-        virtual WorldSafeLocsEntry const* GetClosestGraveYard(float /*x*/, float /*y*/, float /*z*/, uint32 /*team*/)  { return NULL; }
+        virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
         virtual void AddPlayer(Player *plr);                // must be implemented in BG subclass
 
