@@ -2289,7 +2289,7 @@ void Spell::handle_immediate()
         if (duration)
         {
             //apply haste mods
-            m_caster->ModSpellCastTime(m_spellInfo, duration);
+            m_caster->ModSpellCastTime(m_spellInfo, duration, this);
             // Apply duration mod
             if(Player* modOwner = m_caster->GetSpellModOwner())
                 modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);

@@ -245,7 +245,7 @@ uint32 GetSpellCastTime(SpellEntry const* spellInfo, Spell const* spell)
     int32 castTime = spellCastTimeEntry->CastTime;
 
     if (spell && spell->GetCaster())
-        spell->GetCaster()->ModSpellCastTime(spellInfo, castTime);
+        spell->GetCaster()->ModSpellCastTime(spellInfo, castTime, spell);
 
     if (spellInfo->Attributes & SPELL_ATTR_RANGED && (!spell || !(spell->IsAutoRepeat())))
         castTime += 500;
