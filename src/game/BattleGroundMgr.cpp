@@ -585,7 +585,7 @@ bool BattleGroundQueue::CheckPremadeMatch(BGQueueIdBasedOnLevel queue_id, uint32
     return false;
 }
 
-//this function tries to create battleground or arena with MinPlayersPerTeam against MinPlayersPerTeam
+// this method tries to create battleground or arena with MinPlayersPerTeam against MinPlayersPerTeam
 bool BattleGroundQueue::CheckNormalMatch(BattleGround* bg_template, BGQueueIdBasedOnLevel queue_id, uint32 minPlayers, uint32 maxPlayers)
 {
     GroupsQueueType::const_iterator itr_team[BG_TEAMS_COUNT];
@@ -626,6 +626,65 @@ bool BattleGroundQueue::CheckNormalMatch(BattleGround* bg_template, BGQueueIdBas
         return true;
     //return true if there are enough players in selection pools - enable to work .debug bg command correctly
     return m_SelectionPools[BG_TEAM_ALLIANCE].GetPlayerCount() >= minPlayers && m_SelectionPools[BG_TEAM_HORDE].GetPlayerCount() >= minPlayers;
+}
+
+// this method will check if we can invite players to same faction skirmish match
+bool BattleGroundQueue::CheckSkirmishForSameFaction(BGQueueIdBasedOnLevel queue_id, uint32 minPlayersPerTeam)
+{
+    if( m_SelectionPools[BG_TEAM_ALLIANCE].GetPlayerCount() < minPlayersPerTeam && m_SelectionPools[BG_TEAM_HORDE].GetPlayerCount() < minPlayersPerTeam )
+        return false;
+    uint32 teamIndex = BG_TEAM_ALLIANCE;
+    uint32 otherTeam = BG_TEAM_HORDE;
+    uint32 otherTeamId = HORDE;
+    if ( m_SelectionPools[BG_TEAM_HORDE].GetPlayerCount() == minPlayersPerTeam )
+    {
+        teamIndex = BG_TEAM_HORDE;
+        otherTeam = BG_TEAM_ALLIANCE;
+        otherTeamId = ALLIANCE;
+    }
+    //clear other team's selection
+    m_SelectionPools[otherTeam].Init();
+    //store last ginfo pointer
+    GroupQueueInfo* ginfo = m_SelectionPools[teamIndex].SelectedGroups.back();
+    //set itr_team to group that was added to selection pool latest
+    GroupsQueueType::iterator itr_team = m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE + teamIndex].begin();
+    for(; itr_team != m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE + teamIndex].end(); ++itr_team)
+        if( ginfo == *itr_team )
+            break;
+    if( itr_team == m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE + teamIndex].end() )
+        return false;
+    GroupsQueueType::iterator itr_team2 = ++itr_team;
+    //invite players to other selection pool
+    for(; itr_team2 != m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE + teamIndex].end(); ++itr_team2)
+    {
+        if( !(*itr_team2)->IsInvitedToBGInstanceGUID )
+        {
+            m_SelectionPools[otherTeam].AddGroup(*itr_team2, minPlayersPerTeam);
+            if( m_SelectionPools[otherTeam].GetPlayerCount() == minPlayersPerTeam )
+                break;
+        }
+    }
+    if( m_SelectionPools[otherTeam].GetPlayerCount() != minPlayersPerTeam )
+        return false;
+
+    //here we have correct 2 selections and we need to change one teams team and move selection pool teams to other team's queue
+    for(GroupsQueueType::iterator itr = m_SelectionPools[otherTeam].SelectedGroups.begin(); itr != m_SelectionPools[otherTeam].SelectedGroups.end(); ++itr)
+    {
+        //set correct team
+        (*itr)->Team = otherTeamId;
+        //add team to other queue
+        m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE + otherTeam].push_front(*itr);
+        //remove team from old queue
+        for(GroupsQueueType::iterator itr2 = itr_team; itr2 != m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE + teamIndex].end(); ++itr2)
+        {
+            if( *itr2 == *itr )
+            {
+                m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE + teamIndex].erase(itr2);
+                break;
+            }
+        }
+    }
+    return true;
 }
 
 /*
@@ -756,7 +815,8 @@ void BattleGroundQueue::Update(BattleGroundTypeId bgTypeId, BGQueueIdBasedOnLeve
     if( !isRated )
     {
         // if there are enough players in pools, start new battleground or non rated arena
-        if( CheckNormalMatch(bg_template, queue_id, MinPlayersPerTeam, MaxPlayersPerTeam) )
+        if( CheckNormalMatch(bg_template, queue_id, MinPlayersPerTeam, MaxPlayersPerTeam)
+            || (bg_template->isArena() && CheckSkirmishForSameFaction(queue_id, MinPlayersPerTeam)) )
         {
             // we successfully created a pool
             BattleGround * bg2 = NULL;
