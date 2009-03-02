@@ -487,7 +487,7 @@ void Unit::RemoveSpellsCausingAuraWithDispel(AuraType auraType, Spell * spell)
 
         if (*iter)
         {
-            if (!(*iter)->GetDispelChance(spell))
+            if (!(*iter)->GetDispelChance( spell))
                 continue;
             RemoveAurasDueToSpell((*iter)->GetId());
             if (!m_modAuras[auraType].empty())
@@ -4197,7 +4197,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
                         && AurSpellInfo->EffectApplyAuraName[Aur->GetEffIndex()]!= SPELL_AURA_DUMMY)
                         //don't stop channeling of scripted spells (this is actually a hack)
                     {
-                        caster->InterruptSpell(CURRENT_CHANNELED_SPELL);
+                        caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->cancel();
                     }
                 }
             }
@@ -6329,6 +6329,35 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 break;
             }
             break;
+        }
+        case SPELLFAMILY_POTION:
+        {
+            sLog.outError("It Procs!");
+            if (dummySpell->Id == 17619)
+            {
+                if (procSpell->Category==4)   //potion category
+                {
+                    for (uint8 i=0;i<3;i++)
+                    {
+                        if (procSpell->Effect[i]==SPELL_EFFECT_HEAL)
+                        {
+                            basepoints0 = damage * 0.4f;
+                            triggered_spell_id = 21399;
+                        }
+                        else if (procSpell->Effect[i]==SPELL_EFFECT_ENERGIZE)
+                        {
+                            basepoints0 = CalculateSpellDamage(procSpell,i,procSpell->EffectBasePoints[i],this) * 0.4f;
+                             triggered_spell_id = 21400;
+                        }
+                        else continue;
+
+                        CastCustomSpell(this,triggered_spell_id,&basepoints0,NULL,NULL,true,castItem,triggeredByAura);
+                    }
+                    if (triggered_spell_id)
+                        return true;
+                    return false;
+                }
+            }
         }
         default:
             break;
@@ -10272,13 +10301,13 @@ int32 Unit::ModSpellDuration(SpellEntry const* spellProto, uint8 effect_index, U
     return duration>0 ? duration : 0;
 }
 
-void Unit::ModSpellCastTime(SpellEntry const* spellProto, int32 & castTime)
+void Unit::ModSpellCastTime(SpellEntry const* spellProto, int32 & castTime, Spell const * spell)
 {
     if (!spellProto || castTime<0)
         return;
     //called from caster
     if(Player* modOwner = GetSpellModOwner())
-        modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CASTING_TIME, castTime);
+        modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CASTING_TIME, castTime, spell);
 
     if( !(spellProto->Attributes & (SPELL_ATTR_UNK4|SPELL_ATTR_UNK5)) )
         castTime = int32( float(castTime) * GetFloatValue(UNIT_MOD_CAST_SPEED));
@@ -11244,12 +11273,11 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
            continue;
 
         procTriggered.push_back( ProcTriggeredData(spellProcEvent, itr->second) );
-    }
+    } 
 
     // Nothing found
     if (procTriggered.empty())
         return;
-
     // Handle effects proceed this time
     for(ProcTriggeredList::iterator i = procTriggered.begin(); i != procTriggered.end(); ++i)
     {
