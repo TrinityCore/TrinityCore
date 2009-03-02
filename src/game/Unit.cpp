@@ -4457,6 +4457,7 @@ void Unit::RemoveGameObject(GameObject* gameObj, bool del)
         SpellEntry const* createBySpell = sSpellStore.LookupEntry(gameObj->GetSpellId());
         // Need activate spell use for owner
         if (createBySpell && createBySpell->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE)
+            // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
             ((Player*)this)->SendCooldownEvent(createBySpell);
     }
     gameObj->SetOwnerGUID(0);
