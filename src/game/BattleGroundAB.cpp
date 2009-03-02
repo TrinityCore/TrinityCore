@@ -425,20 +425,21 @@ void BattleGroundAB::_NodeDeOccupied(uint8 node)
     if( !ghost_list.empty() )
     {
         WorldSafeLocsEntry const *ClosestGrave = NULL;
-        Player *plr;
         for (std::vector<uint64>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
         {
-            plr = objmgr.GetPlayer(*itr);
-            if( !plr )
+            Player* plr = objmgr.GetPlayer(*itr);
+            if (!plr)
                 continue;
-            if( !ClosestGrave )
-                ClosestGrave = GetClosestGraveYard(plr->GetPositionX(), plr->GetPositionY(), plr->GetPositionZ(), plr->GetTeam());
 
-            plr->TeleportTo(GetMapId(), ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, plr->GetOrientation());
+            if (!ClosestGrave)                              // cache
+                ClosestGrave = GetClosestGraveYard(plr);
+
+            if (ClosestGrave)
+                plr->TeleportTo(GetMapId(), ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, plr->GetOrientation());
         }
     }
 
-     if( m_BgCreatures[node] )
+    if( m_BgCreatures[node] )
         DelCreature(node);
 
     // buff object isn't despawned
@@ -619,9 +620,9 @@ void BattleGroundAB::Reset()
             DelCreature(i);
 }
 
-WorldSafeLocsEntry const* BattleGroundAB::GetClosestGraveYard(float x, float y, float /*z*/, uint32 team)
+WorldSafeLocsEntry const* BattleGroundAB::GetClosestGraveYard(Player* player)
 {
-    uint8 teamIndex = GetTeamIndexByTeamId(team);
+    uint8 teamIndex = GetTeamIndexByTeamId(player->GetTeam());
 
     // Is there any occupied node for this team?
     std::vector<uint8> nodes;
@@ -633,13 +634,16 @@ WorldSafeLocsEntry const* BattleGroundAB::GetClosestGraveYard(float x, float y, 
     // If so, select the closest node to place ghost on
     if( !nodes.empty() )
     {
+        float plr_x = player->GetPositionX();
+        float plr_y = player->GetPositionY();
+
         float mindist = 999999.0f;
         for (uint8 i = 0; i < nodes.size(); ++i)
         {
             WorldSafeLocsEntry const*entry = sWorldSafeLocsStore.LookupEntry( BG_AB_GraveyardIds[nodes[i]] );
             if( !entry )
                 continue;
-            float dist = (entry->x - x)*(entry->x - x)+(entry->y - y)*(entry->y - y);
+            float dist = (entry->x - plr_x)*(entry->x - plr_x)+(entry->y - plr_y)*(entry->y - plr_y);
             if( mindist > dist )
             {
                 mindist = dist;
