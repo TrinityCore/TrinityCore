@@ -1500,6 +1500,8 @@ class TRINITY_DLL_SPEC Player : public Unit
         void RemoveAllSpellCooldown();
         void _LoadSpellCooldowns(QueryResult *result);
         void _SaveSpellCooldowns();
+        void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
+        void UpdatePotionCooldown(Spell* spell = NULL);
 
         void setResurrectRequestData(uint64 guid, uint32 mapId, float X, float Y, float Z, uint32 health, uint32 mana)
         {
@@ -2293,6 +2295,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         PlayerMails m_mail;
         PlayerSpellMap m_spells;
         SpellCooldowns m_spellCooldowns;
+        uint32 m_lastPotionId;                              // last used health/mana potion in combat, that block next potion use
 
         ActionButtonList m_actionButtons;
 
