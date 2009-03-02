@@ -337,7 +337,7 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
         if((m_caster->getClassMask() & CLASSMASK_WAND_USERS) != 0 && m_caster->GetTypeId()==TYPEID_PLAYER)
         {
             if(Item* pItem = ((Player*)m_caster)->GetWeaponForAttack(RANGED_ATTACK))
-                m_spellSchoolMask = SpellSchoolMask(1 << pItem->GetProto()->Damage->DamageType);
+                m_spellSchoolMask = SpellSchoolMask(1 << pItem->GetProto()->Damage[0].DamageType);
         }
     }
     // Set health leech amount to zero
@@ -2454,7 +2454,7 @@ void Spell::SendSpellCooldown()
         ItemPrototype const* proto = m_CastItem->GetProto();
         if(proto)
         {
-            for(int idx = 0; idx < 5; ++idx)
+            for(int idx = 0; idx < MAX_ITEM_PROTO_SPELLS; ++idx)
             {
                 if(proto->Spells[idx].SpellId == m_spellInfo->Id)
                 {
@@ -3201,7 +3201,7 @@ void Spell::TakeCastItem()
     bool expendable = false;
     bool withoutCharges = false;
 
-    for (int i = 0; i<5; i++)
+    for (int i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
     {
         if (proto->Spells[i].SpellId)
         {

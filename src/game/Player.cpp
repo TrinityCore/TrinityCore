@@ -6752,7 +6752,7 @@ void Player::_ApplyItemBonuses(ItemPrototype const *proto, uint8 slot, bool appl
     if(slot >= INVENTORY_SLOT_BAG_END || !proto)
         return;
 
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
     {
         uint32 statType = 0;
         int32 val = 0;
@@ -7085,7 +7085,7 @@ void Player::ApplyItemEquipSpell(Item *item, bool apply, bool form_change)
     if(!proto)
         return;
 
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
     {
         _Spell const& spellData = proto->Spells[i];
 
@@ -7198,7 +7198,7 @@ void Player::CastItemCombatSpell(Item *item,Unit* Target, WeaponAttackType attTy
     if (!Target || Target == this )
         return;
 
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
     {
         _Spell const& spellData = proto->Spells[i];
 
@@ -7296,7 +7296,7 @@ void Player::CastItemUseSpell(Item *item,SpellCastTargets const& targets,uint8 c
     int count = 0;
 
     // item spells casted at use
-    for(int i = 0; i < 5; ++i)
+    for(int i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
     {
         _Spell const& spellData = proto->Spells[i];
 
@@ -18797,7 +18797,7 @@ void Player::SendInstanceResetWarning(uint32 mapid, uint32 time)
 
 void Player::ApplyEquipCooldown( Item * pItem )
 {
-    for(int i = 0; i <5; ++i)
+    for(int i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
     {
         _Spell const& spellData = pItem->GetProto()->Spells[i];
 
