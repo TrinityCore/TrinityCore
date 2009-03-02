@@ -1147,7 +1147,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket&/* recv_data*/)
         recv_data >> guid;
         recv_data >> flags >> time;
         DEBUG_LOG("Guid " I64FMTD,guid);
-        DEBUG_LOG("Flags %u, time %u",flags, time/1000);
+        DEBUG_LOG("Flags %u, time %u",flags, time/IN_MILISECONDS);
     */
 }
 
