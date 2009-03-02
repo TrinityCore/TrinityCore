@@ -22,7 +22,7 @@
 DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
-  `required_7349_01_mangos_spell_area` bit(1) default NULL
+  `required_7369_01_mangos_quest_template` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -13047,10 +13047,6 @@ CREATE TABLE `quest_template` (
   `ReqSourceCount2` smallint(5) unsigned NOT NULL default '0',
   `ReqSourceCount3` smallint(5) unsigned NOT NULL default '0',
   `ReqSourceCount4` smallint(5) unsigned NOT NULL default '0',
-  `ReqSourceRef1` tinyint(3) unsigned NOT NULL default '0',
-  `ReqSourceRef2` tinyint(3) unsigned NOT NULL default '0',
-  `ReqSourceRef3` tinyint(3) unsigned NOT NULL default '0',
-  `ReqSourceRef4` tinyint(3) unsigned NOT NULL default '0',
   `ReqCreatureOrGOId1` mediumint(9) NOT NULL default '0',
   `ReqCreatureOrGOId2` mediumint(9) NOT NULL default '0',
   `ReqCreatureOrGOId3` mediumint(9) NOT NULL default '0',

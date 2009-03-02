@@ -2830,25 +2830,25 @@ void ObjectMgr::LoadQuests()
         "Title, Details, Objectives, OfferRewardText, RequestItemsText, EndText, ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4,"
     //   39          40          41          42          43             44             45             46
         "ReqItemId1, ReqItemId2, ReqItemId3, ReqItemId4, ReqItemCount1, ReqItemCount2, ReqItemCount3, ReqItemCount4,"
-    //   47            48            49            50            51               52               53               54               55             56             57             58
-        "ReqSourceId1, ReqSourceId2, ReqSourceId3, ReqSourceId4, ReqSourceCount1, ReqSourceCount2, ReqSourceCount3, ReqSourceCount4, ReqSourceRef1, ReqSourceRef2, ReqSourceRef3, ReqSourceRef4,"
-    //   59                  60                  61                  62                  63                     64                     65                     66
+    //   47            48            49            50            51               52               53               54
+        "ReqSourceId1, ReqSourceId2, ReqSourceId3, ReqSourceId4, ReqSourceCount1, ReqSourceCount2, ReqSourceCount3, ReqSourceCount4,"
+    //   55                  56                  57                  58                  59                     60                     61                     62
         "ReqCreatureOrGOId1, ReqCreatureOrGOId2, ReqCreatureOrGOId3, ReqCreatureOrGOId4, ReqCreatureOrGOCount1, ReqCreatureOrGOCount2, ReqCreatureOrGOCount3, ReqCreatureOrGOCount4,"
-    //   67             68             69             70
+    //   63             64             65             66
         "ReqSpellCast1, ReqSpellCast2, ReqSpellCast3, ReqSpellCast4,"
-    //   71                72                73                74                75                76
+    //   67                68                69                70                71                72
         "RewChoiceItemId1, RewChoiceItemId2, RewChoiceItemId3, RewChoiceItemId4, RewChoiceItemId5, RewChoiceItemId6,"
-    //   77                   78                   79                   80                   81                   82
+    //   73                   74                   75                   76                   77                   78
         "RewChoiceItemCount1, RewChoiceItemCount2, RewChoiceItemCount3, RewChoiceItemCount4, RewChoiceItemCount5, RewChoiceItemCount6,"
-    //   83          84          85          86          87             88             89             90
+    //   79          80          81          82          83             84             85             86
         "RewItemId1, RewItemId2, RewItemId3, RewItemId4, RewItemCount1, RewItemCount2, RewItemCount3, RewItemCount4,"
-    //   91              92              93              94              95              96            97            98            99            100
+    //   87              88              89              90              91              92            93            94            95            96
         "RewRepFaction1, RewRepFaction2, RewRepFaction3, RewRepFaction4, RewRepFaction5, RewRepValue1, RewRepValue2, RewRepValue3, RewRepValue4, RewRepValue5,"
-    //   101                102            103               104       105           106                107               108         109     110     111
+    //   97                 98             99                100       101           102                103               104         105     106     107
         "RewHonorableKills, RewOrReqMoney, RewMoneyMaxLevel, RewSpell, RewSpellCast, RewMailTemplateId, RewMailDelaySecs, PointMapId, PointX, PointY, PointOpt,"
-    //   112            113            114            115           116              117            118                119                120                121
-        "DetailsEmote1, DetailsEmote2, DetailsEmote3, DetailsEmote4,IncompleteEmote, CompleteEmote, OfferRewardEmote1, OfferRewardEmote2, OfferRewardEmote3, OfferRewardEmote4,"
-    //   122          123
+    //   108            109            110            111            112              113            114                115                116                117
+        "DetailsEmote1, DetailsEmote2, DetailsEmote3, DetailsEmote4, IncompleteEmote, CompleteEmote, OfferRewardEmote1, OfferRewardEmote2, OfferRewardEmote3, OfferRewardEmote4,"
+    //   118          119
         "StartScript, CompleteScript"
         " FROM quest_template");
     if(result == NULL)
@@ -3142,20 +3142,6 @@ void ObjectMgr::LoadQuests()
                         qinfo->GetQuestId(),j+1,id,id);
                     // no changes, quest can't be done for this requirement
                 }
-
-                if(!qinfo->ReqSourceCount[j])
-                {
-                    sLog.outErrorDb("Quest %u has `ReqSourceId%d` = %u but `ReqSourceCount%d` = 0, quest can't be done.",
-                        qinfo->GetQuestId(),j+1,id,j+1);
-                    qinfo->ReqSourceId[j] = 0;              // prevent incorrect work of quest
-                }
-
-                if(!qinfo->ReqSourceRef[j])
-                {
-                    sLog.outErrorDb("Quest %u has `ReqSourceId%d` = %u but `ReqSourceRef%d` = 0, quest can't be done.",
-                        qinfo->GetQuestId(),j+1,id,j+1);
-                    qinfo->ReqSourceId[j] = 0;              // prevent incorrect work of quest
-                }
             }
             else
             {
@@ -3164,41 +3150,6 @@ void ObjectMgr::LoadQuests()
                     sLog.outErrorDb("Quest %u has `ReqSourceId%d` = 0 but `ReqSourceCount%d` = %u.",
                         qinfo->GetQuestId(),j+1,j+1,qinfo->ReqSourceCount[j]);
                     // no changes, quest ignore this data
-                }
-
-                if(qinfo->ReqSourceRef[j]>0)
-                {
-                    sLog.outErrorDb("Quest %u has `ReqSourceId%d` = 0 but `ReqSourceRef%d` = %u.",
-                        qinfo->GetQuestId(),j+1,j+1,qinfo->ReqSourceRef[j]);
-                    // no changes, quest ignore this data
-                }
-            }
-        }
-
-        for(int j = 0; j < QUEST_SOURCE_ITEM_IDS_COUNT; ++j )
-        {
-            uint32 ref = qinfo->ReqSourceRef[j];
-            if(ref)
-            {
-                if(ref > QUEST_OBJECTIVES_COUNT)
-                {
-                    sLog.outErrorDb("Quest %u has `ReqSourceRef%d` = %u but max value in `ReqSourceRef%d` is %u, quest can't be done.",
-                        qinfo->GetQuestId(),j+1,ref,j+1,QUEST_OBJECTIVES_COUNT);
-                    // no changes, quest can't be done for this requirement
-                }
-                else
-                if(!qinfo->ReqItemId[ref-1] && !qinfo->ReqSpell[ref-1])
-                {
-                    sLog.outErrorDb("Quest %u has `ReqSourceRef%d` = %u but `ReqItemId%u` = 0 and `ReqSpellCast%u` = 0, quest can't be done.",
-                        qinfo->GetQuestId(),j+1,ref,ref,ref);
-                    // no changes, quest can't be done for this requirement
-                }
-                else if(qinfo->ReqItemId[ref-1] && qinfo->ReqSpell[ref-1])
-                {
-                    sLog.outErrorDb("Quest %u has `ReqItemId%u` = %u and `ReqSpellCast%u` = %u, quest can't have both fields <> 0, then can't be done.",
-                        qinfo->GetQuestId(),ref,qinfo->ReqItemId[ref-1],ref,qinfo->ReqSpell[ref-1]);
-                    // no changes, quest can't be done for this requirement
-                    qinfo->ReqSourceId[j] = 0;              // prevent incorrect work of quest
                 }
             }
         }
