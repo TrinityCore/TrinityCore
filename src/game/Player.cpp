@@ -3443,6 +3443,13 @@ bool Player::resetTalents(bool no_cost)
     //FIXME: remove pet before or after unlearn spells? for now after unlearn to allow removing of talent related, pet affecting auras
     RemovePet(NULL,PET_SAVE_NOT_IN_SLOT, true);
 
+    if(m_canTitanGrip)
+    {
+        m_canTitanGrip = false;
+        if(sWorld.getConfig(CONFIG_OFFHAND_CHECK_AT_TALENTS_RESET))
+            AutoUnequipOffhandIfNeed();
+    }
+
     return true;
 }
 
@@ -6574,6 +6581,9 @@ void Player::UpdateZone(uint32 newZone)
     // if player resurrected at teleport this will be applied in resurrect code
     if(isAlive())
         DestroyZoneLimitedItem( true, newZone );
+
+    // check some item equip limitations (in result lost CanTitanGrip at talent reset, for example)
+    AutoUnequipOffhandIfNeed();
 
     // recent client version not send leave/join channel packets for built-in local channels
     UpdateLocalChannels( newZone );
@@ -19366,8 +19376,8 @@ void Player::AutoUnequipOffhandIfNeed()
     if(!offItem)
         return;
 
-    // need unequip for 2h-weapon without TitanGrip
-    if (!IsTwoHandUsed())
+    // need unequip offhand for 2h-weapon without TitanGrip (in any from hands)
+    if (CanTitanGrip() || (offItem->GetProto()->InventoryType != INVTYPE_2HWEAPON && !IsTwoHandUsed()))
         return;
 
     ItemPosCountVec off_dest;
@@ -19379,7 +19389,16 @@ void Player::AutoUnequipOffhandIfNeed()
     }
     else
     {
-        sLog.outError("Player::EquipItem: Can's store offhand item at 2hand item equip for player (GUID: %u).",GetGUIDLow());
+        MailItemsInfo mi;
+        mi.AddItem(offItem->GetGUIDLow(), offItem->GetEntry(), offItem);
+        MoveItemFromInventory(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND, true);
+        CharacterDatabase.BeginTransaction();
+        offItem->DeleteFromInventoryDB();                   // deletes item from character's inventory
+        offItem->SaveToDB();                                // recursive and not have transaction guard into self, item not in inventory and can be save standalone
+        CharacterDatabase.CommitTransaction();
+
+        std::string subject = GetSession()->GetMangosString(LANG_NOT_EQUIPPED_ITEM);
+        WorldSession::SendMailTo(this, MAIL_NORMAL, MAIL_STATIONERY_GM, GetGUIDLow(), GetGUIDLow(), subject, 0, &mi, 0, 0, MAIL_CHECK_MASK_NONE);
     }
 }
 
