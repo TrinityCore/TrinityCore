@@ -2496,6 +2496,9 @@ void Player::InitStatsForLevel(bool reapplyMods)
 
 void Player::SendInitialSpells()
 {
+    time_t curTime = time(NULL);
+    time_t infTime = curTime + MONTH/2;
+
     uint16 spellCount = 0;
 
     WorldPacket data(SMSG_INITIAL_SPELLS, (1+2+4*m_spells.size()+2+m_spellCooldowns.size()*(2+2+2+4+4)));
@@ -2528,10 +2531,13 @@ void Player::SendInitialSpells()
         if(!sEntry)
             continue;
 
+        // not send infinity cooldown
+        if(itr->second.end > infTime)
+            continue;
+
         data << uint16(itr->first);
 
         time_t cooldown = 0;
-        time_t curTime = time(NULL);
         if(itr->second.end > curTime)
             cooldown = (itr->second.end-curTime)*IN_MILISECONDS;
 
@@ -3258,7 +3264,7 @@ void Player::RemoveAllSpellCooldown()
 
 void Player::_LoadSpellCooldowns(QueryResult *result)
 {
-    m_spellCooldowns.clear();
+    // some cooldowns can be already set at aura loading...
 
     //QueryResult *result = CharacterDatabase.PQuery("SELECT spell,item,time FROM character_spell_cooldown WHERE guid = '%u'",GetGUIDLow());
 
@@ -3299,17 +3305,20 @@ void Player::_SaveSpellCooldowns()
     CharacterDatabase.PExecute("DELETE FROM character_spell_cooldown WHERE guid = '%u'", GetGUIDLow());
 
     time_t curTime = time(NULL);
+    time_t infTime = curTime + MONTH/2;
 
     // remove outdated and save active
     for(SpellCooldowns::iterator itr = m_spellCooldowns.begin();itr != m_spellCooldowns.end();)
     {
         if(itr->second.end <= curTime)
             m_spellCooldowns.erase(itr++);
-        else
+        else if(itr->second.end <= infTime)                 // not save locked cooldowns, it will be reset or set at reload
         {
             CharacterDatabase.PExecute("INSERT INTO character_spell_cooldown (guid,spell,item,time) VALUES ('%u', '%u', '%u', '" I64FMTD "')", GetGUIDLow(), itr->first, itr->second.itemid, uint64(itr->second.end));
             ++itr;
         }
+        else
+            ++itr;
     }
 }
 
@@ -18030,7 +18039,7 @@ void Player::UpdatePvP(bool state, bool ovrride)
     }
 }
 
-void Player::AddSpellAndCategoryCooldowns(SpellEntry const* spellInfo, uint32 itemId, Spell* spell)
+void Player::AddSpellAndCategoryCooldowns(SpellEntry const* spellInfo, uint32 itemId, Spell* spell, bool infinityCooldown)
 {
     // init cooldown values
     uint32 cat   = 0;
@@ -18066,37 +18075,51 @@ void Player::AddSpellAndCategoryCooldowns(SpellEntry const* spellInfo, uint32 it
         catrec = spellInfo->CategoryRecoveryTime;
     }
 
-    // shoot spells used equipped item cooldown values already assigned in GetAttackTime(RANGED_ATTACK)
-    // prevent 0 cooldowns set by another way
-    if (rec <= 0 && catrec <= 0 && (cat == 76 || IsAutoRepeatRangedSpell(spellInfo) && spellInfo->Id != SPELL_ID_AUTOSHOT))
-        rec = GetAttackTime(RANGED_ATTACK);
-
-    // Now we have cooldown data (if found any), time to apply mods
-    if(rec > 0)
-        ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, rec, spell);
-
-    if(catrec > 0)
-        ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, catrec, spell);
-
-    // replace negative cooldowns by 0
-    if (rec < 0) rec = 0;
-    if (catrec < 0) catrec = 0;
-
-    // no cooldown after applying spell mods
-    if( rec == 0 && catrec == 0)
-        return;
-
     time_t curTime = time(NULL);
 
-    time_t catrecTime = catrec ? curTime+catrec/IN_MILISECONDS : 0;   // in secs
-    time_t recTime    = rec ? curTime+rec/IN_MILISECONDS : catrecTime;// in secs
+    time_t catrecTime;
+    time_t recTime;
+
+    // overwrite time for selected category
+    if(infinityCooldown)
+    {
+        // use +MONTH as infinity mark for spell cooldown (will checked as MONTH/2 at save ans skipped)
+        // but not allow ignore until reset or re-login
+        catrecTime = catrec > 0 ? curTime+MONTH : 0;
+        recTime    = rec    > 0 ? curTime+MONTH : catrecTime;
+    }
+    else
+    {
+        // shoot spells used equipped item cooldown values already assigned in GetAttackTime(RANGED_ATTACK)
+        // prevent 0 cooldowns set by another way
+        if (rec <= 0 && catrec <= 0 && (cat == 76 || IsAutoRepeatRangedSpell(spellInfo) && spellInfo->Id != SPELL_ID_AUTOSHOT))
+            rec = GetAttackTime(RANGED_ATTACK);
+
+        // Now we have cooldown data (if found any), time to apply mods
+        if(rec > 0)
+            ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, rec, spell);
+
+        if(catrec > 0)
+            ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, catrec, spell);
+
+        // replace negative cooldowns by 0
+        if (rec < 0) rec = 0;
+        if (catrec < 0) catrec = 0;
+
+        // no cooldown after applying spell mods
+        if( rec == 0 && catrec == 0)
+            return;
+
+        catrecTime = catrec ? curTime+catrec/IN_MILISECONDS : 0;
+        recTime    = rec ? curTime+rec/IN_MILISECONDS : catrecTime;
+    }
 
     // self spell cooldown
     if(recTime > 0)
         AddSpellCooldown(spellInfo->Id, itemId, recTime);
 
     // category spells
-    if (catrec > 0)
+    if (cat && catrec > 0)
     {
         SpellCategoryStore::const_iterator i_scstore = sSpellCategoryStore.find(cat);
         if(i_scstore != sSpellCategoryStore.end())

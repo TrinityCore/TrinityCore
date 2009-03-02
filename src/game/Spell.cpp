@@ -2432,13 +2432,10 @@ void Spell::SendSpellCooldown()
         return;
 
     Player* _player = (Player*)m_caster;
-    // Add cooldown for max (disable spell)
-    // Cooldown started on SendCooldownEvent call
-    if (m_spellInfo->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE)
-    {
-        _player->AddSpellCooldown(m_spellInfo->Id, 0, time(NULL) - 1);
+
+    // have infinity cooldown but set at aura apply
+    if(m_spellInfo->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE)
         return;
-    }
 
     _player->AddSpellAndCategoryCooldowns(m_spellInfo,m_CastItem ? m_CastItem->GetEntry() : 0, this);
 }
