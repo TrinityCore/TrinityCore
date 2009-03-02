@@ -32,24 +32,24 @@ noinst_LIBRARIES = libmangosshared.a
 
 #  libmangosshared library will later be reused by ...
 libmangosshared_a_SOURCES = \
-    Base.cpp \
-    Base.h \
-    ByteBuffer.h \
-    Common.cpp \
-    Common.h \
-    Errors.h \
-    Log.cpp \
-    Log.h \
-    MemoryLeaks.cpp \
-    MemoryLeaks.h \
-    ProgressBar.cpp \
-    ProgressBar.h \
-    Timer.h \
-    Util.cpp \
-    Util.h \
-    WorldPacket.h \
-    revision_nr.h \
-    revision.h
+	Base.cpp \
+	Base.h \
+	ByteBuffer.h \
+	Common.cpp \
+	Common.h \
+	Errors.h \
+	Log.cpp \
+	Log.h \
+	MemoryLeaks.cpp \
+	MemoryLeaks.h \
+	ProgressBar.cpp \
+	ProgressBar.h \
+	Timer.h \
+	Util.cpp \
+	Util.h \
+	WorldPacket.h \
+	revision_nr.h \
+	revision.h
 
 # Get revision (git or svn)
 # Get HG revision
@@ -67,16 +67,16 @@ $(REVISION_FILE) : $(top_builddir)/src/tools/genrevision/genrevision FORCE
 ## Additional files to include when running 'make dist'
 #  Disabled packet logger
 EXTRA_DIST = \
-    PacketLog.cpp \
-    PacketLog.h
+	PacketLog.cpp \
+	PacketLog.h
 
 # System configuration
 EXTRA_DIST += \
-    SystemConfig.h
+	SystemConfig.h
 
 # System Win32 files
 EXTRA_DIST += \
-    ServiceWin32.cpp \
-    ServiceWin32.h \
-    WheatyExceptionReport.cpp \
-    WheatyExceptionReport.h
+	ServiceWin32.cpp \
+	ServiceWin32.h \
+	WheatyExceptionReport.cpp \
+	WheatyExceptionReport.h
