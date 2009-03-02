@@ -291,7 +291,7 @@ void PetAI::UpdateAllies()
     Unit* owner = i_pet.GetCharmerOrOwner();
     Group *pGroup = NULL;
 
-    m_updateAlliesTimer = 10000;                            //update friendly targets every 10 seconds, lesser checks increase performance
+    m_updateAlliesTimer = 10*IN_MILISECONDS;                //update friendly targets every 10 seconds, lesser checks increase performance
 
     if(!owner)
         return;

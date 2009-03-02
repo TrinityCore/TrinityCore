@@ -1054,7 +1054,7 @@ void Pet::_LoadSpellCooldowns()
                 continue;
 
             data << uint32(spell_id);
-            data << uint32(uint32(db_time-curTime)*1000);   // in m.secs
+            data << uint32(uint32(db_time-curTime)*IN_MILISECONDS);
 
             _AddCreatureSpellCooldown(spell_id,db_time);
 
