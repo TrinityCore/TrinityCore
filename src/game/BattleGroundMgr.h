@@ -74,8 +74,8 @@ class BattleGroundQueue
         void Update(BattleGroundTypeId bgTypeId, BGQueueIdBasedOnLevel queue_id, uint8 arenaType = 0, bool isRated = false, uint32 minRating = 0);
 
         void FillPlayersToBG(BattleGround* bg, BGQueueIdBasedOnLevel queue_id);
-        bool CheckPremadeMatch(BGQueueIdBasedOnLevel queue_id, uint32 MaxPlayersPerTeam, uint32 MinPlayersPerTeam);
-        bool CheckNormalMatch(BattleGround* bg_template, BGQueueIdBasedOnLevel queue_id);
+        bool CheckPremadeMatch(BGQueueIdBasedOnLevel queue_id, uint32 MinPlayersPerTeam, uint32 MaxPlayersPerTeam);
+        bool CheckNormalMatch(BattleGround* bg_template, BGQueueIdBasedOnLevel queue_id, uint32 minPlayers, uint32 maxPlayers);
         GroupQueueInfo * AddGroup(Player * leader, BattleGroundTypeId bgTypeId, uint8 ArenaType, bool isRated, bool isPremade, uint32 ArenaRating, uint32 ArenaTeamId = 0);
         void AddPlayer(Player *plr, GroupQueueInfo *ginfo);
         void RemovePlayer(const uint64& guid, bool decreaseInvitedCount);
@@ -87,7 +87,7 @@ class BattleGroundQueue
         QueuedPlayersMap m_QueuedPlayers;
 
         //we need constant add to begin and constant remove / add from the end, therefore deque suits our problem well
-        typedef std::deque<GroupQueueInfo*> GroupsQueueType;
+        typedef std::list<GroupQueueInfo*> GroupsQueueType;
 
         /*
         This two dimensional array is used to store All queued groups

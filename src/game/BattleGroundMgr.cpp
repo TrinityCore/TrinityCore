@@ -398,12 +398,14 @@ void BattleGroundQueue::BGEndedRemoveInvites(BattleGround *bg)
     GroupsQueueType::iterator itr, next;
     for(uint32 i = 0; i < BG_QUEUE_GROUP_TYPES_COUNT; i++)
     {
-        for(itr = m_QueuedGroups[queue_id][i].begin(); itr != m_QueuedGroups[queue_id][i].end(); itr = next)
+        itr = m_QueuedGroups[queue_id][i].begin();
+        next = itr;
+        while (next != m_QueuedGroups[queue_id][i].end())
         {
             // must do this way, because the groupinfo will be deleted when all playerinfos are removed
-            GroupQueueInfo * ginfo = (*itr);
-            next = itr;
+            itr = next;
             ++next;
+            GroupQueueInfo * ginfo = (*itr);
             // if group was invited to this bg instance, then remove all references
             if( ginfo->IsInvitedToBGInstanceGUID == bgInstanceId )
             {
@@ -527,7 +529,7 @@ void BattleGroundQueue::FillPlayersToBG(BattleGround* bg, BGQueueIdBasedOnLevel 
 // this method checks if premade versus premade battleground is possible
 // then after 30 mins (default) in queue it moves premade group to normal queue
 // it tries to invite as much players as it can - to MaxPlayersPerTeam, because premade groups have more than MinPlayersPerTeam players
-bool BattleGroundQueue::CheckPremadeMatch(BGQueueIdBasedOnLevel queue_id, uint32 MaxPlayersPerTeam, uint32 MinPlayersPerTeam)
+bool BattleGroundQueue::CheckPremadeMatch(BGQueueIdBasedOnLevel queue_id, uint32 MinPlayersPerTeam, uint32 MaxPlayersPerTeam)
 {
     //check match
     if(!m_QueuedGroups[queue_id][BG_QUEUE_PREMADE_ALLIANCE].empty() && !m_QueuedGroups[queue_id][BG_QUEUE_PREMADE_HORDE].empty())
@@ -584,11 +586,8 @@ bool BattleGroundQueue::CheckPremadeMatch(BGQueueIdBasedOnLevel queue_id, uint32
 }
 
 //this function tries to create battleground or arena with MinPlayersPerTeam against MinPlayersPerTeam
-bool BattleGroundQueue::CheckNormalMatch(BattleGround* bg_template, BGQueueIdBasedOnLevel queue_id)
+bool BattleGroundQueue::CheckNormalMatch(BattleGround* bg_template, BGQueueIdBasedOnLevel queue_id, uint32 minPlayers, uint32 maxPlayers)
 {
-    uint32 minPlayers = bg_template->GetMinPlayersPerTeam();
-    uint32 maxPlayers = bg_template->GetMaxPlayersPerTeam();
-
     GroupsQueueType::const_iterator itr_team[BG_TEAMS_COUNT];
     for(uint32 i = 0; i < BG_TEAMS_COUNT; i++)
     {
@@ -729,7 +728,7 @@ void BattleGroundQueue::Update(BattleGroundTypeId bgTypeId, BGQueueIdBasedOnLeve
     if( bg_template->isBattleGround() )
     {
         //check if there is premade against premade match
-        if( CheckPremadeMatch(queue_id, bg_template->GetMaxPlayersPerTeam(), bg_template->GetMinPlayersPerTeam()) )
+        if( CheckPremadeMatch(queue_id, MinPlayersPerTeam, MaxPlayersPerTeam) )
         {
             //create new battleground
             BattleGround * bg2 = NULL;
@@ -754,7 +753,7 @@ void BattleGroundQueue::Update(BattleGroundTypeId bgTypeId, BGQueueIdBasedOnLeve
     if( !isRated )
     {
         // if there are enough players in pools, start new battleground or non rated arena
-        if( CheckNormalMatch(bg_template, queue_id) )
+        if( CheckNormalMatch(bg_template, queue_id, MinPlayersPerTeam, MaxPlayersPerTeam) )
         {
             // we successfully created a pool
             BattleGround * bg2 = NULL;
@@ -889,11 +888,13 @@ void BattleGroundQueue::Update(BattleGroundTypeId bgTypeId, BGQueueIdBasedOnLeve
                 m_QueuedGroups[queue_id][BG_QUEUE_PREMADE_ALLIANCE].push_front(*(itr_team[BG_TEAM_ALLIANCE]));
                 // erase from horde queue
                 m_QueuedGroups[queue_id][BG_QUEUE_PREMADE_HORDE].erase(itr_team[BG_TEAM_ALLIANCE]);
+                itr_team[BG_TEAM_ALLIANCE] = m_QueuedGroups[queue_id][BG_QUEUE_PREMADE_ALLIANCE].begin();
             }
             if( (*(itr_team[BG_TEAM_HORDE]))->Team != HORDE )
             {
                 m_QueuedGroups[queue_id][BG_QUEUE_PREMADE_HORDE].push_front(*(itr_team[BG_TEAM_HORDE]));
                 m_QueuedGroups[queue_id][BG_QUEUE_PREMADE_ALLIANCE].erase(itr_team[BG_TEAM_HORDE]);
+                itr_team[BG_TEAM_HORDE] = m_QueuedGroups[queue_id][BG_QUEUE_PREMADE_HORDE].begin();
             }
 
             InviteGroupToBG(*(itr_team[BG_TEAM_ALLIANCE]), arena, ALLIANCE);
