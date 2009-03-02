@@ -27,39 +27,39 @@ AM_CPPFLAGS = $(TRINI_INCLUDES) -I$(srcdir)
 #  libMaNGOSScript shared library will later be reused by world server daemon.
 noinst_LIBRARIES = libmangosframework.a
 libmangosframework_a_SOURCES = \
-    Policies/ObjectLifeTime.cpp \
-    Utilities/EventProcessor.cpp
+	Policies/ObjectLifeTime.cpp \
+	Utilities/EventProcessor.cpp
 
 ## Additional files to include when running 'make dist'
 #  Source and header files for the Framework.
 EXTRA_DIST = \
-    Dynamic/FactoryHolder.h \
-    Dynamic/ObjectRegistry.h \
-    GameSystem/Grid.h \
-    GameSystem/GridLoader.h \
-    GameSystem/GridRefManager.h \
-    GameSystem/GridReference.h \
-    GameSystem/NGrid.h \
-    GameSystem/TypeContainer.h \
-    GameSystem/TypeContainerFunctions.h \
-    GameSystem/TypeContainerFunctionsPtr.h \
-    GameSystem/TypeContainerVisitor.h \
-    Network/SocketDefines.h \
-    Platform/CompilerDefs.h \
-    Platform/Define.h \
-    Policies/CreationPolicy.h \
-    Policies/ObjectLifeTime.h \
-    Policies/Singleton.h \
-    Policies/SingletonImp.h \
-    Policies/ThreadingModel.h \
-    Utilities/CountedReference/Reference.h \
-    Utilities/CountedReference/ReferenceHolder.h \
-    Utilities/CountedReference/ReferenceImpl.h \
-    Utilities/LinkedReference/RefManager.h \
-    Utilities/LinkedReference/Reference.h \
-    Utilities/ByteConverter.h \
-    Utilities/Callback.h \
-    Utilities/EventProcessor.h \
-    Utilities/UnorderedMap.h \
-    Utilities/LinkedList.h \
-    Utilities/TypeList.h
+	Dynamic/FactoryHolder.h \
+	Dynamic/ObjectRegistry.h \
+	GameSystem/Grid.h \
+	GameSystem/GridLoader.h \
+	GameSystem/GridRefManager.h \
+	GameSystem/GridReference.h \
+	GameSystem/NGrid.h \
+	GameSystem/TypeContainer.h \
+	GameSystem/TypeContainerFunctions.h \
+	GameSystem/TypeContainerFunctionsPtr.h \
+	GameSystem/TypeContainerVisitor.h \
+	Network/SocketDefines.h \
+	Platform/CompilerDefs.h \
+	Platform/Define.h \
+	Policies/CreationPolicy.h \
+	Policies/ObjectLifeTime.h \
+	Policies/Singleton.h \
+	Policies/SingletonImp.h \
+	Policies/ThreadingModel.h \
+	Utilities/CountedReference/Reference.h \
+	Utilities/CountedReference/ReferenceHolder.h \
+	Utilities/CountedReference/ReferenceImpl.h \
+	Utilities/LinkedReference/RefManager.h \
+	Utilities/LinkedReference/Reference.h \
+	Utilities/ByteConverter.h \
+	Utilities/Callback.h \
+	Utilities/EventProcessor.h \
+	Utilities/UnorderedMap.h \
+	Utilities/LinkedList.h \
+	Utilities/TypeList.h
