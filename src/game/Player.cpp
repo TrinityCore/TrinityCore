@@ -424,6 +424,8 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this)
     m_InstanceValid = true;
     m_dungeonDifficulty = DIFFICULTY_NORMAL;
 
+    m_lastPotionId = 0;
+
     for (int i = 0; i < BASEMOD_END; i++)
     {
         m_auraBaseMod[i][FLAT_MOD] = 0.0f;
@@ -18154,6 +18156,30 @@ void Player::SendCooldownEvent(SpellEntry const *spellInfo, uint32 itemId, Spell
     data << GetGUID();
     SendDirectMessage(&data);
 }
+
+void Player::UpdatePotionCooldown(Spell* spell)
+{
+    // no potion used i combat or still in combat
+    if(!m_lastPotionId || isInCombat())
+        return;
+
+    // Call not from spell cast, send cooldown event for item spells if no in combat
+    if(!spell)
+    {
+        // spell/item pair let set proper cooldown (except not existed charged spell cooldown spellmods for potions)
+        if(ItemPrototype const* proto = ObjectMgr::GetItemPrototype(m_lastPotionId))
+            for(int idx = 0; idx < 5; ++idx)
+                if(proto->Spells[idx].SpellId && proto->Spells[idx].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE)
+                    if(SpellEntry const* spellInfo = sSpellStore.LookupEntry(proto->Spells[idx].SpellId))
+                        SendCooldownEvent(spellInfo,m_lastPotionId);
+    }
+    // from spell cases (m_lastPotionId set in Spell::SendSpellCooldown)
+    else
+        SendCooldownEvent(spell->m_spellInfo,m_lastPotionId,spell);
+
+    m_lastPotionId = 0;
+}
+
                                                            //slot to be excluded while counting
 bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
 {

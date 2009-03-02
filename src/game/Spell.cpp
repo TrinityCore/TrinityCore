@@ -2433,6 +2433,15 @@ void Spell::SendSpellCooldown()
 
     Player* _player = (Player*)m_caster;
 
+    // mana/health potions, disabled by client
+    if (m_spellInfo->Category==SPELLCATEGORY_HEALTH_MANA_POTIONS)
+    {
+        // need in some way provided data for Spell::finish SendCooldownEvent
+        if(m_CastItem)
+            _player->SetLastPotionId(m_CastItem->GetEntry());
+        return;
+    }
+
     // have infinity cooldown but set at aura apply
     if(m_spellInfo->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE)
         return;
@@ -2590,6 +2599,10 @@ void Spell::finish(bool ok)
         if(!(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_NOT_RESET_AUTOSHOT))
             m_caster->resetAttackTimer(RANGED_ATTACK);
     }
+
+    // mana/health potions, disabled by client, send event "not in combat"
+    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->Category == SPELLCATEGORY_HEALTH_MANA_POTIONS)
+        ((Player*)m_caster)->UpdatePotionCooldown(this);
 
     // call triggered spell only at successful cast (after clear combo points -> for add some if need)
     // I assume what he means is that some triggered spells may add combo points
