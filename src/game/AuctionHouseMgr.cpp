@@ -645,7 +645,7 @@ bool AuctionEntry::BuildAuctionInfo(WorldPacket & data) const
     data << uint32(pItem->GetCount());                      //item->count
     data << uint32(pItem->GetSpellCharges());               //item->charge FFFFFFF
     data << uint32(0);                                      //Unknown
-    data << uint32(owner);                                  //Auction->owner
+    data << uint64(owner);                                  //Auction->owner
     data << uint32(startbid);                               //Auction->startbid (not sure if useful)
     data << uint32(bid ? GetAuctionOutBid() : 0);
     //minimal outbid
