@@ -233,7 +233,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
 
     // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
     if (opcode == MSG_MOVE_FALL_LAND && !GetPlayer()->isInFlight())
-        GetPlayer()->HandleFallDamage(movementInfo);
+        GetPlayer()->HandleFall(movementInfo);
 
     if(((movementInfo.flags & MOVEMENTFLAG_SWIMMING) != 0) != GetPlayer()->IsInWater())
     {

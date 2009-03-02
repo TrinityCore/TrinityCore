@@ -2016,6 +2016,8 @@ class TRINITY_DLL_SPEC Player : public Unit
             m_lastFallTime = time;
             m_lastFallZ = z;
         }
+        void HandleFall(MovementInfo const& movementInfo);
+
         bool isMoving() const { return HasUnitMovementFlag(movementFlagsMask); }
         bool isMovingOrTurning() const { return HasUnitMovementFlag(movementOrTurningFlagsMask); }
 
@@ -2024,7 +2026,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         bool IsAllowUseFlyMountsHere() const;
 
         void HandleDrowning();
-        void HandleFallDamage(MovementInfo& movementInfo);
         void HandleFallUnderMap();
 
         void SetClientControl(Unit* target, uint8 allowMove);
