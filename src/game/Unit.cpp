@@ -6344,27 +6344,25 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
         {
             if (dummySpell->Id == 17619)
             {
-                if (procSpell->Category==4)   //potion category
+                if (procSpell->SpellFamilyName == SPELLFAMILY_POTION)
                 {
                     for (uint8 i=0;i<3;i++)
                     {
                         if (procSpell->Effect[i]==SPELL_EFFECT_HEAL)
                         {
-                            basepoints0 = damage * 0.4f;
                             triggered_spell_id = 21399;
                         }
                         else if (procSpell->Effect[i]==SPELL_EFFECT_ENERGIZE)
                         {
-                            basepoints0 = CalculateSpellDamage(procSpell,i,procSpell->EffectBasePoints[i],this) * 0.4f;
-                             triggered_spell_id = 21400;
+                            triggered_spell_id = 21400;
                         }
-                        else continue;
+                        else
+                            continue;
 
+                        basepoints0 = CalculateSpellDamage(procSpell,i,procSpell->EffectBasePoints[i],this) * 0.4f;
                         CastCustomSpell(this,triggered_spell_id,&basepoints0,NULL,NULL,true,castItem,triggeredByAura);
                     }
-                    if (triggered_spell_id)
-                        return true;
-                    return false;
+                    return true;
                 }
             }
         }
