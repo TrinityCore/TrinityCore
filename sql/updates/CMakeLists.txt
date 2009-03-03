@@ -56,4 +56,5 @@ INSTALL(FILES
 1618_world.sql
 1646_mangos_7369_01_world_quest_template.sql
 1654_world.sql
+1657_world.sql
 DESTINATION share/trinity/sql/updates)
