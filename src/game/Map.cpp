@@ -257,7 +257,7 @@ template<>
 void Map::AddToGrid(Creature* obj, NGridType *grid, Cell const& cell)
 {
     // add to world object registry in grid
-    if(obj->isPet() || obj->HasSharedVision())
+    if(obj->isPet() || obj->IsTempWorldObject)
     {
         (*grid)(cell.CellX(), cell.CellY()).AddWorldObject<Creature>(obj, obj->GetGUID());
     }
@@ -309,7 +309,7 @@ template<>
 void Map::RemoveFromGrid(Creature* obj, NGridType *grid, Cell const& cell)
 {
     // remove from world object registry in grid
-    if(obj->isPet() || obj->HasSharedVision())
+    if(obj->isPet() || obj->IsTempWorldObject)
     {
         (*grid)(cell.CellX(), cell.CellY()).RemoveWorldObject<Creature>(obj, obj->GetGUID());
     }
@@ -353,6 +353,7 @@ void Map::SwitchGridContainers(T* obj, bool on)
             assert(false);
         }
     }
+    obj->IsTempWorldObject = on;
 }
 
 template void Map::SwitchGridContainers(Creature *, bool);
