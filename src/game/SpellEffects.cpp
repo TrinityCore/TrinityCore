@@ -584,7 +584,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 else if(m_spellInfo->SpellFamilyFlags[1] & 0x1)
                 {
                     int32 base = irand((int32)m_caster->GetWeaponDamageRange(RANGED_ATTACK, MINDAMAGE),(int32)m_caster->GetWeaponDamageRange(RANGED_ATTACK, MAXDAMAGE));
-                    damage += int32(float(base)/m_caster->GetAttackTime(RANGED_ATTACK)*2800 + m_caster->GetTotalAttackPowerValue(RANGED_ATTACK)*0.2f);
+                    damage += int32(float(base)/m_caster->GetAttackTime(RANGED_ATTACK)*2800 + m_caster->GetTotalAttackPowerValue(RANGED_ATTACK)*0.1f);
 
                     bool found = false;
 
@@ -2838,6 +2838,15 @@ void Spell::EffectEnergize(uint32 i)
 
     if (level_diff > 0)
         damage -= multiplier * level_diff;
+
+    //Judgement of wisdom energize effect
+    if(m_spellInfo->Id == 20268)
+    {
+        if(unitTarget->GetTypeId() == TYPEID_PLAYER)
+        {
+            damage = unitTarget->GetCreateMana() * damage / 100;
+        }
+    }
 
     if(damage < 0)
         return;
