@@ -1313,6 +1313,7 @@ void Spell::EffectDummy(uint32 i)
 			{
 				int32 bp0 = damage;
 				m_caster->CastCustomSpell(unitTarget, 50783, &bp0, NULL, NULL, true, 0);
+                return;
 			}
             // Execute
             if(m_spellInfo->SpellFamilyFlags[0] & 0x20000000)
@@ -1473,6 +1474,12 @@ void Spell::EffectDummy(uint32 i)
             }
             break;
         case SPELLFAMILY_DRUID:
+            // Starfall
+            if (m_spellInfo->SpellFamilyFlags[2] & 0x100)
+            {
+                m_caster->CastSpell(unitTarget, damage, true, NULL);
+                return;
+            }
             break;
         case SPELLFAMILY_ROGUE:
             switch(m_spellInfo->Id )
