@@ -1,4 +1,4 @@
-ALTER TABLE db_version CHANGE COLUMN required_7332_01_mangos_command required_7349_01_mangos_spell_area bit;
+/*ALTER TABLE db_version CHANGE COLUMN required_7332_01_mangos_command required_7349_01_mangos_spell_area bit;*/
 
 DROP TABLE IF EXISTS `spell_area`;
 CREATE TABLE `spell_area` (
