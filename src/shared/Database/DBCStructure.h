@@ -735,24 +735,40 @@ struct FactionTemplateEntry
     {
         if(ID == entry.ID)
             return true;
-        if(enemyFaction[0]  == entry.faction || enemyFaction[1]  == entry.faction || enemyFaction[2] == entry.faction || enemyFaction[3] == entry.faction )
-            return false;
-        if(friendFaction[0] == entry.faction || friendFaction[1] == entry.faction || friendFaction[2] == entry.faction || friendFaction[3] == entry.faction )
-            return true;
+        if(entry.faction)
+        {
+            for(int i = 0; i < 4; ++i)
+                if (enemyFaction[i]  == entry.faction)
+                    return false;
+            for(int i = 0; i < 4; ++i)
+                if (friendFaction[i] == entry.faction)
+                    return true;
+        }
         return (friendlyMask & entry.ourMask) || (ourMask & entry.friendlyMask);
     }
     bool IsHostileTo(FactionTemplateEntry const& entry) const
     {
         if(ID == entry.ID)
             return false;
-        if(enemyFaction[0]  == entry.faction || enemyFaction[1]  == entry.faction || enemyFaction[2] == entry.faction || enemyFaction[3] == entry.faction )
-            return true;
-        if(friendFaction[0] == entry.faction || friendFaction[1] == entry.faction || friendFaction[2] == entry.faction || friendFaction[3] == entry.faction )
-            return false;
+        if(entry.faction)
+        {
+            for(int i = 0; i < 4; ++i)
+                if (enemyFaction[i]  == entry.faction)
+                    return true;
+            for(int i = 0; i < 4; ++i)
+                if (friendFaction[i] == entry.faction)
+                    return false;
+        }
         return (hostileMask & entry.ourMask) != 0;
     }
     bool IsHostileToPlayers() const { return (hostileMask & FACTION_MASK_PLAYER) !=0; }
-    bool IsNeutralToAll() const { return hostileMask == 0 && friendlyMask == 0 && enemyFaction[0]==0 && enemyFaction[1]==0 && enemyFaction[2]==0 && enemyFaction[3]==0; }
+    bool IsNeutralToAll() const
+    {
+        for(int i = 0; i < 4; ++i)
+            if (enemyFaction[i] != 0)
+                return false;
+        return hostileMask == 0 && friendlyMask == 0;
+    }
     bool IsContestedGuardFaction() const { return (factionFlags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD)!=0; }
 };
 
