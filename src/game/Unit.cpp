@@ -6333,6 +6333,24 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 triggered_spell_id = 50526;
                 break;
             }
+            // Death Strike healing effect
+            if (dummySpell->Id == 45469)
+            {
+                uint8 n=0;
+                Unit::AuraList const& decSpeedList = pVictim->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
+                for(Unit::AuraList::const_iterator iter = decSpeedList.begin(); iter != decSpeedList.end(); ++iter)
+                {
+                    if((*iter)->GetSpellProto()->SpellFamilyName==SPELLFAMILY_DEATHKNIGHT 
+                        && (*iter)->GetCasterGUID() == GetGUID()
+                        && (*iter)->GetSpellProto()->Dispel == DISPEL_DISEASE)
+                    {
+                       n++;
+                    }
+                }
+                int32 heal=0.5f*n*damage+damage;
+                CastCustomSpell(this,45470,&heal,NULL,NULL,true);
+                return true;
+            }
             break;
         }
         case SPELLFAMILY_POTION:
