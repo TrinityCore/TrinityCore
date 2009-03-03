@@ -2072,6 +2072,14 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
         }
         case SPELLFAMILY_MAGE:
         {
+            // Living Bomb
+            if (m_spellProto->SpellFamilyFlags[1] & 0x20000)
+            {
+                if(!m_target || !caster || m_removeMode == AURA_REMOVE_BY_DISPEL || m_removeMode == AURA_REMOVE_BY_DEFAULT)
+                    return;
+                caster->CastSpell(m_target, GetModifier()->m_amount, true, NULL, NULL, GetCasterGUID());
+                return;
+            }
             break;
         }
         case SPELLFAMILY_PRIEST:
@@ -3688,6 +3696,17 @@ void Aura::HandleModMechanicImmunity(bool apply, bool Real)
             m_target->RemoveAurasDueToSpell(24397);
             m_target->RemoveAurasDueToSpell(26592);
         }
+    }
+
+    // Heroic Fury (remove Intercept cooldown)
+    if( apply && GetId() == 60970 && m_target->GetTypeId() == TYPEID_PLAYER )
+    {
+        ((Player*)m_target)->RemoveSpellCooldown(20252);
+
+        WorldPacket data(SMSG_CLEAR_COOLDOWN, (4+8));
+        data << uint32(20252);
+        data << uint64(m_target->GetGUID());
+        ((Player*)m_target)->GetSession()->SendPacket(&data);
     }
 }
 
