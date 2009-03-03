@@ -908,6 +908,8 @@ UPDATE `creature_template` SET `scriptname` = 'boss_keleseth' WHERE `entry` = '2
 UPDATE `creature_template` SET `scriptname` = 'mob_frost_tomb' WHERE `entry` = '23965';
 UPDATE `instance_template` SET `script`='instance_utgarde_keep' WHERE `map`= '574';
 UPDATE `creature_template` SET `ScriptName`='mob_vrykul_skeleton' WHERE `entry`=23970;
+UPDATE `creature_template` SET `ScriptName`= 'boss_skarvald_the_constructor' WHERE `entry` IN (24200,27390);
+UPDATE `creature_template` SET `ScriptName`= 'boss_dalronn_the_controller' WHERE `entry` IN (24201,27389);
 
 /* WAILING CAVERNS */
 
