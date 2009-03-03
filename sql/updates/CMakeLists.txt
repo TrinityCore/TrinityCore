@@ -50,7 +50,7 @@ INSTALL(FILES
 1558_world_spell_linked_spell.sql
 1559_world.sql
 1576_mangos_7332_01_world_command.sql
-1605_mangos_7349_01_world_spell_area
+1605_mangos_7349_01_world_spell_area.sql
 1613_world_scripts.sql
 1614_characters_auctionhouse.sql
 1618_world.sql
