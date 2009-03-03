@@ -86,7 +86,7 @@ ObjectAccessor::GetNPCIfCanInteractWith(Player const &player, uint64 guid, uint3
     if(factionTemplate)
     {
         FactionEntry const* faction = sFactionStore.LookupEntry(factionTemplate->faction);
-        if( faction->reputationListID >= 0 && player.GetReputationRank(faction) <= REP_UNFRIENDLY)
+        if( faction && faction->reputationListID >= 0 && player.GetReputationRank(faction) <= REP_UNFRIENDLY)
             return NULL;
     }
 

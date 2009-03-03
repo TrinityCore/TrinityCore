@@ -5757,7 +5757,8 @@ void Player::SetFactionVisibleForFactionTemplateId(uint32 FactionTemplateId)
     if(!factionTemplateEntry)
         return;
 
-    SetFactionVisibleForFactionId(factionTemplateEntry->faction);
+    if(factionTemplateEntry->faction)
+        SetFactionVisibleForFactionId(factionTemplateEntry->faction);
 }
 
 void Player::SetFactionVisibleForFactionId(uint32 FactionId)
@@ -10172,6 +10173,12 @@ uint8 Player::CanStoreItems( Item **pItems,int count) const
             pBag = (Bag*)GetItemByPos( INVENTORY_SLOT_BAG_0, t );
             if( pBag )
             {
+                pBagProto = pBag->GetProto();
+
+                // special bag already checked
+                if( pBagProto && (pBagProto->Class != ITEM_CLASS_CONTAINER || pBagProto->SubClass != ITEM_SUBCLASS_CONTAINER))
+                    continue;
+
                 for(uint32 j = 0; j < pBag->GetBagSize(); j++)
                 {
                     if( inv_bags[t-INVENTORY_SLOT_BAG_START][j] == 0 )
@@ -19241,7 +19248,7 @@ BGQueueIdBasedOnLevel Player::GetBattleGroundQueueIdFromLevel(BattleGroundTypeId
 float Player::GetReputationPriceDiscount( Creature const* pCreature ) const
 {
     FactionTemplateEntry const* vendor_faction = pCreature->getFactionTemplateEntry();
-    if(!vendor_faction)
+    if(!vendor_faction || !vendor_faction->faction)
         return 1.0f;
 
     ReputationRank rank = GetReputationRank(vendor_faction->faction);
