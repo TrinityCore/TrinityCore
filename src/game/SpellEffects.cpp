@@ -1830,6 +1830,16 @@ void Spell::EffectDummy(uint32 i)
                 return;
             }
             break;
+        case SPELLFAMILY_DEATHKNIGHT:
+            // Death strike dummy aura apply
+            // Used to proc healing later
+            if (m_spellInfo->SpellFamilyFlags[0] & 0x00000010)
+            {
+                spell_id=45469;
+                m_caster->CastSpell(m_caster,spell_id,true);
+                return;
+            }
+
     }
 
     //spells triggered by dummy effect should not miss
