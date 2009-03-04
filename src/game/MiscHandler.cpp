@@ -485,42 +485,48 @@ void WorldSession::HandleAddFriendOpcode( WorldPacket & recv_data )
 
 void WorldSession::HandleAddFriendOpcodeCallBack(QueryResult *result, uint32 accountId, std::string friendNote)
 {
-    if(!result)
-        return;
-
-    uint64 friendGuid = MAKE_NEW_GUID((*result)[0].GetUInt32(), 0, HIGHGUID_PLAYER);
-    uint32 team = Player::TeamForRace((*result)[1].GetUInt8());
-
-    delete result;
-
+    uint64 friendGuid;
+    uint32 team;
+    FriendsResult friendResult;
+ 
     WorldSession * session = sWorld.FindSession(accountId);
+
     if(!session || !session->GetPlayer())
         return;
+ 
+    friendResult = FRIEND_NOT_FOUND;
+    friendGuid = 0;
 
-    FriendsResult friendResult = FRIEND_NOT_FOUND;
-    if(friendGuid)
+    if(result)
     {
-        if(friendGuid==session->GetPlayer()->GetGUID())
-            friendResult = FRIEND_SELF;
-        else if(session->GetPlayer()->GetTeam() != team && !sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND) && session->GetSecurity() < SEC_MODERATOR)
-            friendResult = FRIEND_ENEMY;
-        else if(session->GetPlayer()->GetSocial()->HasFriend(GUID_LOPART(friendGuid)))
-            friendResult = FRIEND_ALREADY;
-        else
+        friendGuid = MAKE_NEW_GUID((*result)[0].GetUInt32(), 0, HIGHGUID_PLAYER);
+        team = Player::TeamForRace((*result)[1].GetUInt8());
+
+        delete result;
+
+        if(friendGuid)
         {
-            Player* pFriend = ObjectAccessor::FindPlayer(friendGuid);
-            if( pFriend && pFriend->IsInWorld() && pFriend->IsVisibleGloballyFor(session->GetPlayer()))
-                friendResult = FRIEND_ADDED_ONLINE;
+            if(friendGuid==session->GetPlayer()->GetGUID())
+                friendResult = FRIEND_SELF;
+            else if(session->GetPlayer()->GetTeam() != team && !sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND) && session->GetSecurity() < SEC_MODERATOR)
+                friendResult = FRIEND_ENEMY;
+            else if(session->GetPlayer()->GetSocial()->HasFriend(GUID_LOPART(friendGuid)))
+                friendResult = FRIEND_ALREADY;
             else
-                friendResult = FRIEND_ADDED_OFFLINE;
-
-            if(!session->GetPlayer()->GetSocial()->AddToSocialList(GUID_LOPART(friendGuid), false))
             {
-                friendResult = FRIEND_LIST_FULL;
-                sLog.outDebug( "WORLD: %s's friend list is full.", session->GetPlayer()->GetName());
-            }
+                Player* pFriend = ObjectAccessor::FindPlayer(friendGuid);
+                if( pFriend && pFriend->IsInWorld() && pFriend->IsVisibleGloballyFor(session->GetPlayer()))
+                    friendResult = FRIEND_ADDED_ONLINE;
+                else
+                    friendResult = FRIEND_ADDED_OFFLINE;
+                if(!session->GetPlayer()->GetSocial()->AddToSocialList(GUID_LOPART(friendGuid), false))
+                {
+                    friendResult = FRIEND_LIST_FULL;
+                    sLog.outDebug( "WORLD: %s's friend list is full.", session->GetPlayer()->GetName());
+                }
 
-            session->GetPlayer()->GetSocial()->SetFriendNote(GUID_LOPART(friendGuid), friendNote);
+                session->GetPlayer()->GetSocial()->SetFriendNote(GUID_LOPART(friendGuid), friendNote);
+            }
         }
     }
 
@@ -569,31 +575,37 @@ void WorldSession::HandleAddIgnoreOpcode( WorldPacket & recv_data )
 
 void WorldSession::HandleAddIgnoreOpcodeCallBack(QueryResult *result, uint32 accountId)
 {
-    if(!result)
-        return;
-
-    uint64 IgnoreGuid = MAKE_NEW_GUID((*result)[0].GetUInt32(), 0, HIGHGUID_PLAYER);
-
-    delete result;
-
+    uint64 IgnoreGuid;
+    FriendsResult ignoreResult;
+ 
     WorldSession * session = sWorld.FindSession(accountId);
+
     if(!session || !session->GetPlayer())
         return;
+ 
+    ignoreResult = FRIEND_IGNORE_NOT_FOUND;
+    IgnoreGuid = 0;
 
-    FriendsResult ignoreResult = FRIEND_IGNORE_NOT_FOUND;
-    if(IgnoreGuid)
+    if(result)
     {
-        if(IgnoreGuid==session->GetPlayer()->GetGUID())              //not add yourself
-            ignoreResult = FRIEND_IGNORE_SELF;
-        else if( session->GetPlayer()->GetSocial()->HasIgnore(GUID_LOPART(IgnoreGuid)) )
-            ignoreResult = FRIEND_IGNORE_ALREADY;
-        else
-        {
-            ignoreResult = FRIEND_IGNORE_ADDED;
+        IgnoreGuid = MAKE_NEW_GUID((*result)[0].GetUInt32(), 0, HIGHGUID_PLAYER);
 
-            // ignore list full
-            if(!session->GetPlayer()->GetSocial()->AddToSocialList(GUID_LOPART(IgnoreGuid), true))
-                ignoreResult = FRIEND_IGNORE_FULL;
+        delete result;
+
+        if(IgnoreGuid)
+        {
+            if(IgnoreGuid==session->GetPlayer()->GetGUID())              //not add yourself
+                ignoreResult = FRIEND_IGNORE_SELF;
+            else if( session->GetPlayer()->GetSocial()->HasIgnore(GUID_LOPART(IgnoreGuid)) )
+                ignoreResult = FRIEND_IGNORE_ALREADY;
+            else
+            {
+                ignoreResult = FRIEND_IGNORE_ADDED;
+ 
+                // ignore list full
+                if(!session->GetPlayer()->GetSocial()->AddToSocialList(GUID_LOPART(IgnoreGuid), true))
+                    ignoreResult = FRIEND_IGNORE_FULL;
+            }
         }
     }
 
