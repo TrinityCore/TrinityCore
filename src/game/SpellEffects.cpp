@@ -1228,7 +1228,23 @@ void Spell::EffectDummy(uint32 i)
                 {
                     m_caster->CastSpell(m_caster,54586,true);
                     return;
-                 }
+                }
+                case 58418:                                 // Portal to Orgrimmar
+                {
+                    if(!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, 58419, true);
+                    break;
+                }
+                case 58420:                                 // Portal to Stormwind
+                {
+                    if(!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, 58421, true);
+                    break;
+                }
             }
 
             //All IconID Check in there
