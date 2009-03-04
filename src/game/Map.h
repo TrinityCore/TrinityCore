@@ -372,6 +372,8 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
             if(m_activeNonPlayersIter != m_activeNonPlayers.end())
             {
                 ActiveNonPlayers::iterator itr = m_activeNonPlayers.find(obj);
+                if(itr == m_activeNonPlayers.end())
+                    return;
                 if(itr==m_activeNonPlayersIter)
                     ++m_activeNonPlayersIter;
                 m_activeNonPlayers.erase(itr);
