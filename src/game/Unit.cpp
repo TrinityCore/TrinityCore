@@ -8526,19 +8526,23 @@ void Unit::SetCharm(Unit* pet)
 
 void Unit::AddPlayerToVision(Player* plr)
 {
-    setActive(true);
     if(m_sharedVision.empty())
+    {
+        setActive(true);
         SetWorldObject(true);
+    }
     m_sharedVision.push_back(plr);
     plr->SetFarsightTarget(this);
 }
 
 void Unit::RemovePlayerFromVision(Player* plr)
 {
-    setActive(false);
     m_sharedVision.remove(plr);
     if(m_sharedVision.empty())
+    {
+        setActive(false);
         SetWorldObject(false);
+    }
     plr->ClearFarsight();
 }
 

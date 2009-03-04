@@ -339,19 +339,23 @@ void Map::SwitchGridContainers(T* obj, bool on)
 
     if(on)
     {
-        if(!grid.RemoveGridObject<T>(obj, obj->GetGUID())
+        grid.RemoveGridObject<T>(obj, obj->GetGUID());
+        grid.AddWorldObject<T>(obj, obj->GetGUID());
+        /*if(!grid.RemoveGridObject<T>(obj, obj->GetGUID())
             || !grid.AddWorldObject<T>(obj, obj->GetGUID()))
         {
             assert(false);
-        }
+        }*/
     }
     else
     {
-        if(!grid.RemoveWorldObject<T>(obj, obj->GetGUID())
+        grid.RemoveWorldObject<T>(obj, obj->GetGUID());
+        grid.AddGridObject<T>(obj, obj->GetGUID());
+        /*if(!grid.RemoveWorldObject<T>(obj, obj->GetGUID())
             || !grid.AddGridObject<T>(obj, obj->GetGUID()))
         {
             assert(false);
-        }
+        }*/
     }
     obj->IsTempWorldObject = on;
 }
