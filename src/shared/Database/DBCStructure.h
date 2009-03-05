@@ -372,6 +372,13 @@ struct AchievementCriteriaEntry
             uint32  itemID;                                 // 3
         } equip_item;
 
+        // ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_QUEST_REWARD = 62
+        struct
+        {
+            uint32  unused;                                 // 3
+            uint32  goldInCopper;                           // 4
+        } quest_reward_money;
+
 
         // ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY = 67
         struct

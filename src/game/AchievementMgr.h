@@ -104,9 +104,10 @@ class AchievementMgr
         Player* GetPlayer() { return m_player;}
 
     private:
+        enum ProgressType { PROGRESS_SET, PROGRESS_ACCUMULATE, PROGRESS_HIGHEST };
         void SendAchievementEarned(AchievementEntry const* achievement);
         void SendCriteriaUpdate(uint32 id, CriteriaProgress const* progress);
-        void SetCriteriaProgress(AchievementCriteriaEntry const* entry, uint32 newValue, bool relative=false);
+        void SetCriteriaProgress(AchievementCriteriaEntry const* entry, uint32 changeValue, ProgressType ptype = PROGRESS_SET);
         void CompletedCriteria(AchievementCriteriaEntry const* entry);
         void CompletedAchievement(AchievementEntry const* entry);
         bool IsCompletedCriteria(AchievementCriteriaEntry const* entry);

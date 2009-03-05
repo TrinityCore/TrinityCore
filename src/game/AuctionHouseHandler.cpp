@@ -367,6 +367,7 @@ void WorldSession::HandleAuctionPlaceBid( WorldPacket & recv_data )
         }
         auction->bidder = pl->GetGUIDLow();
         auction->bid = price;
+        GetPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID, price);
 
         // after this update we should save player's money ...
         CharacterDatabase.PExecute("UPDATE auctionhouse SET buyguid = '%u',lastbid = '%u' WHERE id = '%u'", auction->bidder, auction->bid, auction->Id);
@@ -390,6 +391,7 @@ void WorldSession::HandleAuctionPlaceBid( WorldPacket & recv_data )
         }
         auction->bidder = pl->GetGUIDLow();
         auction->bid = auction->buyout;
+        GetPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID, auction->buyout);
 
         auctionmgr.SendAuctionSalePendingMail( auction );
         auctionmgr.SendAuctionSuccessfulMail( auction );
