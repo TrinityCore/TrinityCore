@@ -15227,6 +15227,70 @@ void Player::ConvertInstancesToGroup(Player *player, Group *group, uint64 player
     if(!player || has_solo) CharacterDatabase.PExecute("DELETE FROM character_instance WHERE guid = '%d' AND permanent = 0", GUID_LOPART(player_guid));
 }
 
+bool Player::Satisfy(AccessRequirement const *ar, uint32 target_map, bool report)
+{
+    if(!isGameMaster() && ar)
+    {
+        uint32 LevelMin = 0;
+        if(getLevel() < ar->levelMin && !sWorld.getConfig(CONFIG_INSTANCE_IGNORE_LEVEL))
+            LevelMin = ar->levelMin;
+
+        uint32 LevelMax = 0;
+        if(ar->levelMax >= ar->levelMin && getLevel() > ar->levelMax && !sWorld.getConfig(CONFIG_INSTANCE_IGNORE_LEVEL))
+            LevelMax = ar->levelMax;
+
+        uint32 missingItem = 0;
+        if(ar->item)
+        {
+            if(!HasItemCount(ar->item, 1) &&
+                (!ar->item2 || !HasItemCount(ar->item2, 1)))
+                missingItem = ar->item;
+        }
+        else if(ar->item2 && !HasItemCount(ar->item2, 1))
+            missingItem = ar->item2;
+
+        uint32 missingKey = 0;
+		uint32 missingHeroicQuest = 0;
+        if(GetDifficulty() == DIFFICULTY_HEROIC)
+        {
+            if(ar->heroicKey)
+            {
+                if(!HasItemCount(ar->heroicKey, 1) &&
+                    (!ar->heroicKey2 || !HasItemCount(ar->heroicKey2, 1)))
+                    missingKey = ar->heroicKey;
+            }
+            else if(ar->heroicKey2 && !HasItemCount(ar->heroicKey2, 1))
+                missingKey = ar->heroicKey2;
+
+			if(ar->heroicQuest && !GetQuestRewardStatus(ar->heroicQuest))
+                missingHeroicQuest = ar->heroicQuest;
+        }
+
+        uint32 missingQuest = 0;
+        if(ar->quest && !GetQuestRewardStatus(ar->quest))
+            missingQuest = ar->quest;
+
+        if(LevelMin || LevelMax || missingItem || missingKey || missingQuest || missingHeroicQuest)
+        {
+            if(report)
+            {
+                if(missingItem)
+                    GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_LEVEL_MINREQUIRED_AND_ITEM), ar->levelMin, objmgr.GetItemPrototype(missingItem)->Name1);
+                else if(missingKey)
+                    SendTransferAborted(target_map, TRANSFER_ABORT_DIFFICULTY2);
+			    else if(missingHeroicQuest)
+                    GetSession()->SendAreaTriggerMessage(ar->heroicQuestFailedText.c_str());
+                else if(missingQuest)
+                    GetSession()->SendAreaTriggerMessage(ar->questFailedText.c_str());
+                else if(LevelMin)
+                    GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_LEVEL_MINREQUIRED), LevelMin);
+            }
+            return false;
+        }
+    }
+    return true;
+}
+
 bool Player::_LoadHomeBind(QueryResult *result)
 {
     bool ok = false;

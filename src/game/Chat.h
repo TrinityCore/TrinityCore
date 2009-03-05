@@ -222,6 +222,7 @@ class ChatHandler
         bool HandleReloadWpScriptsCommand(const char* args);
         bool HandleReloadAreaTriggerTavernCommand(const char* args);
         bool HandleReloadAreaTriggerTeleportCommand(const char* args);
+        bool HandleReloadAccessRequirementCommand(const char* args);
         bool HandleReloadEventScriptsCommand(const char* args);
         bool HandleReloadCommandCommand(const char* args);
         bool HandleReloadCreatureQuestRelationsCommand(const char* args);

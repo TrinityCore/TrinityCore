@@ -854,60 +854,8 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
     if(!at)
         return;
 
-    if(!GetPlayer()->isGameMaster())
-    {
-        uint32 missingLevel = 0;
-        if(GetPlayer()->getLevel() < at->requiredLevel && !sWorld.getConfig(CONFIG_INSTANCE_IGNORE_LEVEL))
-            missingLevel = at->requiredLevel;
-
-        // must have one or the other, report the first one that's missing
-        uint32 missingItem = 0;
-        if(at->requiredItem)
-        {
-            if(!GetPlayer()->HasItemCount(at->requiredItem, 1) &&
-                (!at->requiredItem2 || !GetPlayer()->HasItemCount(at->requiredItem2, 1)))
-                missingItem = at->requiredItem;
-        }
-        else if(at->requiredItem2 && !GetPlayer()->HasItemCount(at->requiredItem2, 1))
-            missingItem = at->requiredItem2;
-
-        uint32 missingKey = 0;
-        uint32 missingHeroicQuest = 0;
-        if(GetPlayer()->GetDifficulty() == DIFFICULTY_HEROIC)
-        {
-            if(at->heroicKey)
-            {
-                if(!GetPlayer()->HasItemCount(at->heroicKey, 1) &&
-                    (!at->heroicKey2 || !GetPlayer()->HasItemCount(at->heroicKey2, 1)))
-                    missingKey = at->heroicKey;
-            }
-            else if(at->heroicKey2 && !GetPlayer()->HasItemCount(at->heroicKey2, 1))
-                missingKey = at->heroicKey2;
-
-            if(at->heroicQuest && !GetPlayer()->GetQuestRewardStatus(at->heroicQuest))
-                missingHeroicQuest = at->heroicQuest;
-        }
-
-        uint32 missingQuest = 0;
-        if(at->requiredQuest && !GetPlayer()->GetQuestRewardStatus(at->requiredQuest))
-            missingQuest = at->requiredQuest;
-
-        if(missingLevel || missingItem || missingKey || missingQuest || missingHeroicQuest)
-        {
-            // TODO: all this is probably wrong
-            if(missingItem)
-                SendAreaTriggerMessage(GetTrinityString(LANG_LEVEL_MINREQUIRED_AND_ITEM), at->requiredLevel, objmgr.GetItemPrototype(missingItem)->Name1);
-            else if(missingKey)
-                GetPlayer()->SendTransferAborted(at->target_mapId, TRANSFER_ABORT_DIFFICULTY2);
-            else if(missingHeroicQuest)
-                SendAreaTriggerMessage(at->heroicQuestFailedText.c_str());
-            else if(missingQuest)
-                SendAreaTriggerMessage(at->requiredFailedText.c_str());
-            else if(missingLevel)
-                SendAreaTriggerMessage(GetTrinityString(LANG_LEVEL_MINREQUIRED), missingLevel);
-            return;
-        }
-    }
+    if(!GetPlayer()->Satisfy(objmgr.GetAccessRequirement(at->access_id), at->target_mapId, true))
+        return;
 
     GetPlayer()->TeleportTo(at->target_mapId,at->target_X,at->target_Y,at->target_Z,at->target_Orientation,TELE_TO_NOT_LEAVE_TRANSPORT);
 }
