@@ -733,6 +733,7 @@ bool IsSingleTargetSpells(SpellEntry const *spellInfo1, SpellEntry const *spellI
     switch(spec1)
     {
         case SPELL_JUDGEMENT:
+        case SPELL_MAGE_POLYMORPH:
             if(GetSpellSpecific(spellInfo2->Id) == spec1)
                 return true;
             break;
