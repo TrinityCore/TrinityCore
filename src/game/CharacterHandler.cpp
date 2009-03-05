@@ -1204,7 +1204,8 @@ void WorldSession::HandleAlterAppearance( WorldPacket & recv_data )
         SendPacket(&data);
     }
 
-    _player->SetMoney(_player->GetMoney() - Cost);          // it isn't free
+    _player->ModifyMoney(-int32(Cost));                     // it isn't free
+    _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER, Cost);
 
     _player->SetByteValue(PLAYER_BYTES, 2, uint8(bs_hair->hair_id));
     _player->SetByteValue(PLAYER_BYTES, 3, uint8(Color));
