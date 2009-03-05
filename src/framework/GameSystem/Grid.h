@@ -60,16 +60,18 @@ class TRINITY_DLL_DECL Grid
 
         /** an object of interested enters the grid
          */
-        template<class SPECIFIC_OBJECT> bool AddWorldObject(SPECIFIC_OBJECT *obj, OBJECT_HANDLE hdl)
+        template<class SPECIFIC_OBJECT> void AddWorldObject(SPECIFIC_OBJECT *obj, OBJECT_HANDLE hdl)
         {
-            return i_objects.template insert<SPECIFIC_OBJECT>(hdl, obj);
+            if(!i_objects.template insert<SPECIFIC_OBJECT>(hdl, obj))
+                assert(false);
         }
 
         /** an object of interested exits the grid
          */
-        template<class SPECIFIC_OBJECT> bool RemoveWorldObject(SPECIFIC_OBJECT *obj, OBJECT_HANDLE hdl)
+        template<class SPECIFIC_OBJECT> void RemoveWorldObject(SPECIFIC_OBJECT *obj, OBJECT_HANDLE hdl)
         {
-            return i_objects.template remove<SPECIFIC_OBJECT>(obj, hdl);
+            if(!i_objects.template remove<SPECIFIC_OBJECT>(obj, hdl))
+                assert(false);
         }
 
         /** Accessors: Returns a specific type of object in the WORDL_OBJECT_TYPES
@@ -114,20 +116,18 @@ class TRINITY_DLL_DECL Grid
 
         /** Inserts a container type object into the grid.
          */
-        template<class SPECIFIC_OBJECT> bool AddGridObject(SPECIFIC_OBJECT *obj, OBJECT_HANDLE hdl)
+        template<class SPECIFIC_OBJECT> void AddGridObject(SPECIFIC_OBJECT *obj, OBJECT_HANDLE hdl)
         {
-            //if(obj->isActiveObject())
-            //    m_activeGridObjects.insert(obj);
-            return i_container.template insert<SPECIFIC_OBJECT>(hdl, obj);
+            if(!i_container.template insert<SPECIFIC_OBJECT>(hdl, obj))
+                assert(false);
         }
 
         /** Removes a containter type object from the grid
          */
-        template<class SPECIFIC_OBJECT> bool RemoveGridObject(SPECIFIC_OBJECT *obj, OBJECT_HANDLE hdl)
+        template<class SPECIFIC_OBJECT> void RemoveGridObject(SPECIFIC_OBJECT *obj, OBJECT_HANDLE hdl)
         {
-            //if(obj->isActiveObject())
-            //    m_activeGridObjects.erase(obj);
-            return i_container.template remove<SPECIFIC_OBJECT>(obj, hdl);
+            if(!i_container.template remove<SPECIFIC_OBJECT>(obj, hdl))
+                assert(false);
         }
 
         /*bool NoWorldObjectInGrid() const
