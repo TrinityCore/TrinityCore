@@ -2223,6 +2223,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 38296: //Spitfire Totem
         case 37676: //Insidious Whisper
         case 46009: //Negative Energy
+        case 45641: //Fire Bloom
             spellInfo->MaxAffectedTargets = 5;
             break;
         case 40827: //Sinful Beam
