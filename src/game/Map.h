@@ -98,11 +98,10 @@ struct CreatureMover
 struct InstanceTemplate
 {
     uint32 map;
-    uint32 parent;
-    uint32 levelMin;
-    uint32 levelMax;
+    uint32 parent;    
     uint32 maxPlayers;
     uint32 reset_delay;
+    uint32 access_id;
     float startLocX;
     float startLocY;
     float startLocZ;
