@@ -257,7 +257,7 @@ template<>
 void Map::AddToGrid(Creature* obj, NGridType *grid, Cell const& cell)
 {
     // add to world object registry in grid
-    if(obj->isPet() || obj->HasSharedVision() || obj->isVehicle())
+    if(obj->isPet() || obj->isVehicle() || obj->IsTempWorldObject)
     {
         (*grid)(cell.CellX(), cell.CellY()).AddWorldObject<Creature>(obj, obj->GetGUID());
     }
@@ -309,7 +309,7 @@ template<>
 void Map::RemoveFromGrid(Creature* obj, NGridType *grid, Cell const& cell)
 {
     // remove from world object registry in grid
-    if(obj->isPet() || obj->HasSharedVision() || obj->isVehicle())
+    if(obj->isPet() || obj->isVehicle() || obj->IsTempWorldObject)
     {
         (*grid)(cell.CellX(), cell.CellY()).RemoveWorldObject<Creature>(obj, obj->GetGUID());
     }
@@ -339,20 +339,25 @@ void Map::SwitchGridContainers(T* obj, bool on)
 
     if(on)
     {
-        if(!grid.RemoveGridObject<T>(obj, obj->GetGUID())
+        grid.RemoveGridObject<T>(obj, obj->GetGUID());
+        grid.AddWorldObject<T>(obj, obj->GetGUID());
+        /*if(!grid.RemoveGridObject<T>(obj, obj->GetGUID())
             || !grid.AddWorldObject<T>(obj, obj->GetGUID()))
         {
             assert(false);
-        }
+        }*/
     }
     else
     {
-        if(!grid.RemoveWorldObject<T>(obj, obj->GetGUID())
+        grid.RemoveWorldObject<T>(obj, obj->GetGUID());
+        grid.AddGridObject<T>(obj, obj->GetGUID());
+        /*if(!grid.RemoveWorldObject<T>(obj, obj->GetGUID())
             || !grid.AddGridObject<T>(obj, obj->GetGUID()))
         {
             assert(false);
-        }
+        }*/
     }
+    obj->IsTempWorldObject = on;
 }
 
 template void Map::SwitchGridContainers(Creature *, bool);
@@ -1035,6 +1040,7 @@ bool Map::CreatureCellRelocation(Creature *c, Cell new_cell)
 
         RemoveFromGrid(c,getNGrid(old_cell.GridX(), old_cell.GridY()),old_cell);
         AddToGrid(c,getNGrid(new_cell.GridX(), new_cell.GridY()),new_cell);
+        c->SetCurrentCell(new_cell);
 
         return true;
     }
@@ -1048,10 +1054,9 @@ bool Map::CreatureCellRelocation(Creature *c, Cell new_cell)
         #endif
 
         RemoveFromGrid(c,getNGrid(old_cell.GridX(), old_cell.GridY()),old_cell);
-        {
-            EnsureGridCreated(GridPair(new_cell.GridX(), new_cell.GridY()));
-            AddToGrid(c,getNGrid(new_cell.GridX(), new_cell.GridY()),new_cell);
-        }
+        EnsureGridCreated(GridPair(new_cell.GridX(), new_cell.GridY()));
+        AddToGrid(c,getNGrid(new_cell.GridX(), new_cell.GridY()),new_cell);
+        c->SetCurrentCell(new_cell);
 
         return true;
     }

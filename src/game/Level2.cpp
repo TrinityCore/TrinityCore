@@ -2325,7 +2325,7 @@ bool ChatHandler::HandleWpLoadPathCommand(const char *args)
         return true;
     }
 
-    guidlow = target->GetGUIDLow();
+    guidlow = target->GetDBTableGUIDLow();
     QueryResult *result = WorldDatabase.PQuery( "SELECT guid FROM creature_addon WHERE guid = '%u'",guidlow);
 
     if( result )
