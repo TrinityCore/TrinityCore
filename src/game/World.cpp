@@ -1201,7 +1201,10 @@ void World::SetInitialWorldSettings()
     objmgr.LoadQuestRelations();                            // must be after quest load
 
     sLog.outString( "Loading AreaTrigger definitions..." );
-    objmgr.LoadAreaTriggerTeleports();                      // must be after item template load
+    objmgr.LoadAreaTriggerTeleports();
+
+    sLog.outString( "Loading Access Requirements..." );
+    objmgr.LoadAccessRequirements();                        // must be after item template load
 
     sLog.outString( "Loading Quest Area Triggers..." );
     objmgr.LoadQuestAreaTriggers();                         // must be after LoadQuests
