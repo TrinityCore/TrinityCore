@@ -1101,6 +1101,7 @@ WorldObject::WorldObject()
     mSemaphoreTeleport  = false;
 
     m_isActive          = false;
+    IsTempWorldObject   = false;
 }
 
 void WorldObject::SetWorldObject(bool on)

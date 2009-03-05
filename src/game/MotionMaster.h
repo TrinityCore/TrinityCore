@@ -68,18 +68,25 @@ class TRINITY_DLL_SPEC MotionMaster //: private std::stack<MovementGenerator *>
         //typedef std::stack<MovementGenerator *> Impl;
         typedef MovementGenerator* _Ty;
         _Ty Impl[MAX_MOTION_SLOT];
+        bool needInit[MAX_MOTION_SLOT];
         typedef std::vector<_Ty> ExpireList;
         int i_top;
 
         bool empty() const { return i_top < 0; }
         void pop() { Impl[i_top] = NULL; --i_top; }
         void push(_Ty _Val) { ++i_top; Impl[i_top] = _Val; }
+
+        bool needInitTop() const { return needInit[i_top]; }
+        void InitTop();
     public:
 
         explicit MotionMaster(Unit *unit) : i_owner(unit), m_expList(NULL), m_cleanFlag(MMCF_NONE), i_top(-1)
         {
             for(int i = 0; i < MAX_MOTION_SLOT; ++i)
+            {
                 Impl[i] = NULL;
+                needInit[i] = true;
+            }
         }
         ~MotionMaster();
 

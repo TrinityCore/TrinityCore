@@ -7868,19 +7868,23 @@ Unit* Unit::GetNextRandomRaidMemberOrPet(float radius)
 
 void Unit::AddPlayerToVision(Player* plr)
 {
-    setActive(true);
     if(m_sharedVision.empty())
+    {
+        setActive(true);
         SetWorldObject(true);
+    }
     m_sharedVision.push_back(plr);
     plr->SetFarsightTarget(this);
 }
 
 void Unit::RemovePlayerFromVision(Player* plr)
 {
-    setActive(false);
     m_sharedVision.remove(plr);
     if(m_sharedVision.empty())
+    {
+        setActive(false);
         SetWorldObject(false);
+    }
     plr->ClearFarsight();
 }
 
@@ -8695,7 +8699,8 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
         spellProto->Id == 33778 || spellProto->Id == 379   ||
         spellProto->Id == 38395 || spellProto->Id == 40972 ||
         spellProto->Id == 22845 || spellProto->Id == 33504 ||
-        spellProto->Id == 34299)
+        spellProto->Id == 34299 || spellProto->Id == 27813 ||
+        spellProto->Id == 27817 || spellProto->Id == 27818)
         return healamount;
 
     // Healing Done
@@ -12364,7 +12369,6 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
 
                 // FORM_SPIRITOFREDEMPTION and related auras
                 pVictim->CastSpell(pVictim,27827,true,NULL,*itr);
-                pVictim->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); // should not be attackable
                 SpiritOfRedemption = true;
                 break;
             }
@@ -12375,7 +12379,6 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
     {
         DEBUG_LOG("SET JUST_DIED");
         pVictim->setDeathState(JUST_DIED);
-        pVictim->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); // reactive attackable flag
     }
 
     // 10% durability loss on death

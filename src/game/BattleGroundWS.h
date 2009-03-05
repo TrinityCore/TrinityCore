@@ -23,9 +23,14 @@
 
 #include "BattleGround.h"
 
-#define BG_WS_MAX_TEAM_SCORE      3
-#define BG_WS_FLAG_RESPAWN_TIME   (23*IN_MILISECONDS)
-#define BG_WS_FLAG_DROP_TIME      (10*IN_MILISECONDS)
+enum BG_WS_TimerOrScore
+{
+    BG_WS_MAX_TEAM_SCORE    = 3,
+    BG_WS_FLAG_RESPAWN_TIME = 23000,
+    BG_WS_FLAG_DROP_TIME    = 10000,
+    BG_WS_SPELL_FORCE_TIME  = 600000,
+    BG_WS_SPELL_BRUTAL_TIME = 900000 
+};
 
 enum BG_WS_Sound
 {
@@ -43,7 +48,9 @@ enum BG_WS_SpellId
     BG_WS_SPELL_WARSONG_FLAG            = 23333,
     BG_WS_SPELL_WARSONG_FLAG_DROPPED    = 23334,
     BG_WS_SPELL_SILVERWING_FLAG         = 23335,
-    BG_WS_SPELL_SILVERWING_FLAG_DROPPED = 23336
+    BG_WS_SPELL_SILVERWING_FLAG_DROPPED = 23336,
+    BG_WS_SPELL_FOCUSED_ASSAULT         = 46392,
+    BG_WS_SPELL_BRUTAL_ASSAULT          = 46393
 };
 
 enum BG_WS_WorldStates
@@ -151,6 +158,10 @@ class BattleGroundWS : public BattleGround
         void RespawnFlag(uint32 Team, bool captured);
         void RespawnFlagAfterDrop(uint32 Team);
         uint8 GetFlagState(uint32 team)             { return m_FlagState[GetTeamIndexByTeamId(team)]; }
+        void AddTimedAura(uint32 aura);
+        void RemoveTimedAura(uint32 aura);
+        bool IsBrutalTimerDone;
+        bool IsForceTimerDone;
 
         /* Battleground Events */
         virtual void EventPlayerDroppedFlag(Player *Source);
@@ -183,6 +194,9 @@ class BattleGroundWS : public BattleGround
         uint32 m_TeamScores[2];
         int32 m_FlagsTimer[2];
         int32 m_FlagsDropTimer[2];
+
+        int32 m_FlagSpellForceTimer;
+        int32 m_FlagSpellBrutalTimer;
 };
 #endif
 
