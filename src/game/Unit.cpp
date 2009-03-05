@@ -5539,6 +5539,14 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
         {
             switch(dummySpell->Id)
             {
+                // Leader of the Pack
+                case 24932:
+                {
+                    if (triggerAmount == 0)
+                        return false;
+                    basepoints0 = triggerAmount * GetMaxHealth() / 100;
+                    trigger_spell_id = 34299;
+                }
                 // Healing Touch (Dreamwalker Raiment set)
                 case 28719:
                 {
@@ -5635,6 +5643,12 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 triggered_spell_id = 48504;
                 basepoints0 = triggerAmount * damage / 100;
                 break;
+            }
+            // Improved leader of the pack
+            else if (dummySpell->SpellIconID == 312 && !dummySpell->SpellFamilyFlags)
+            {
+                triggered_spell_id = 60889;
+                basepoints0 = triggerAmount * GetMaxPower(POWER_MANA) / 100;
             }
             break;
         }
@@ -6705,14 +6719,6 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
                 }
                 //else if (auraSpellInfo->Id==40363)// Entangling Roots ()
                 //    trigger_spell_id = ????;
-                // Leader of the Pack
-                else if (auraSpellInfo->Id == 24932)
-                {
-                    if (triggerAmount == 0)
-                        return false;
-                    basepoints0 = triggerAmount * GetMaxHealth() / 100;
-                    trigger_spell_id = 34299;
-                }
                 break;
             }
             case SPELLFAMILY_HUNTER:

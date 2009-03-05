@@ -1969,6 +1969,12 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             m_target->SetReducedThreatPercent(0, 0);
             return;
         }
+        // Haunt
+        if(caster && m_spellProto->SpellFamilyName=SPELLFAMILY_WARLOCK && m_spellProto->SpellFamilyFlags[1] & 0x40000)
+        {
+            caster->CastCustomSpell(caster, 48210, &m_currentBasePoints, 0, 0, true);
+            return;
+        }
     }
 
     // AT APPLY & REMOVE
@@ -2064,7 +2070,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     mod->value = m_modifier.m_amount;
                     mod->type = SPELLMOD_PCT;
                     mod->spellId = GetId();
-                    mod->mask[1] = 0x00000002;
+                    mod->mask[1] = 0x00002000;
                     m_spellmod = mod;
                 }
                 ((Player*)m_target)->AddSpellMod(m_spellmod, apply);
