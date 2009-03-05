@@ -234,6 +234,7 @@ void WorldSession::HandleLootMoneyOpcode( WorldPacket & /*recv_data*/ )
             for (std::vector<Player*>::iterator i = playersNear.begin(); i != playersNear.end(); ++i)
             {
                 (*i)->ModifyMoney( money_per_player );
+                (*i)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, money_per_player);
                 //Offset surely incorrect, but works
                 WorldPacket data( SMSG_LOOT_MONEY_NOTIFY, 4 );
                 data << uint32(money_per_player);
@@ -241,7 +242,10 @@ void WorldSession::HandleLootMoneyOpcode( WorldPacket & /*recv_data*/ )
             }
         }
         else
+        {
             player->ModifyMoney( pLoot->gold );
+            player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, pLoot->gold);
+        }
         pLoot->gold = 0;
         pLoot->NotifyMoneyRemoved();
     }

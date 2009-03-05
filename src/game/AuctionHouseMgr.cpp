@@ -223,6 +223,8 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail( AuctionEntry * auction )
 
         if (owner)
         {
+            //FIXME: what do if owner offline
+            owner->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_SOLD, auction->bid);
             //send auction owner notification, bidder must be current!
             owner->GetSession()->SendAuctionOwnerNotification( auction );
         }

@@ -3436,6 +3436,7 @@ bool Player::resetTalents(bool no_cost)
     if(!no_cost)
     {
         ModifyMoney(-(int32)cost);
+        GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS, cost);
 
         m_resetTalentsCost = cost;
         m_resetTalentsTime = time(NULL);
@@ -13114,10 +13115,18 @@ void Player::RewardQuest( Quest const *pQuest, uint32 reward, Object* questGiver
     if ( getLevel() < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL) )
         GiveXP( XP , NULL );
     else
-        ModifyMoney( int32(pQuest->GetRewMoneyMaxLevel() * sWorld.getRate(RATE_DROP_MONEY)) );
+    {
+        int32 money = int32(pQuest->GetRewMoneyMaxLevel() * sWorld.getRate(RATE_DROP_MONEY));
+        ModifyMoney( money );
+        GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_QUEST_REWARD, money);
+    }
 
     // Give player extra money if GetRewOrReqMoney > 0 and get ReqMoney if negative
-    ModifyMoney( pQuest->GetRewOrReqMoney() );
+    if(pQuest->GetRewOrReqMoney())
+    {
+        ModifyMoney( pQuest->GetRewOrReqMoney() );
+        GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_QUEST_REWARD, pQuest->GetRewOrReqMoney());
+    }
 
     // honor reward
     if(pQuest->GetRewHonorableKills())
@@ -17661,6 +17670,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, uint32 mount_i
 
     //Checks and preparations done, DO FLIGHT
     ModifyMoney(-(int32)totalcost);
+    GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING, totalcost);
 
     // prevent stealth flight
     //RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
