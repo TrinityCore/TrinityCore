@@ -1146,7 +1146,7 @@ void Spell::EffectDummy(uint32 i)
 
                     pCreature->SetHealth(health);
 
-                    if(pCreature->AI())
+                    if(pCreature->IsAIEnabled)
                         pCreature->AI()->AttackStart(m_caster);
 
                     return;
@@ -1178,7 +1178,7 @@ void Spell::EffectDummy(uint32 i)
                     pCreature->SetHealth(health);
                     ((Player*)m_caster)->KilledMonster(16992,pCreature->GetGUID());
 
-                    if (pCreature->AI())
+                    if (pCreature->IsAIEnabled)
                         pCreature->AI()->AttackStart(m_caster);
 
                     return;
@@ -3244,7 +3244,7 @@ void Spell::EffectSummon(uint32 i)
     name.append(petTypeSuffix[spawnCreature->getPetType()]);
     spawnCreature->SetName( name );
 
-    spawnCreature->GetCharmInfo()->SetReactState( REACT_DEFENSIVE );
+    spawnCreature->SetReactState( REACT_DEFENSIVE );
 }
 
 void Spell::EffectLearnSpell(uint32 i)
@@ -3471,7 +3471,7 @@ void Spell::EffectPickPocket(uint32 /*i*/)
         {
             // Reveal action + get attack
             m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
-            if (((Creature*)unitTarget)->AI())
+            if (((Creature*)unitTarget)->IsAIEnabled)
                 ((Creature*)unitTarget)->AI()->AttackStart(m_caster);
         }
     }
@@ -4022,9 +4022,9 @@ void Spell::EffectSummonPet(uint32 i)
     if(m_caster->GetTypeId() == TYPEID_UNIT)
     {
         if ( ((Creature*)m_caster)->isTotem() )
-            pet->GetCharmInfo()->SetReactState(REACT_AGGRESSIVE);
+            pet->SetReactState(REACT_AGGRESSIVE);
         else
-            pet->GetCharmInfo()->SetReactState(REACT_DEFENSIVE);
+            pet->SetReactState(REACT_DEFENSIVE);
     }
 
     pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
