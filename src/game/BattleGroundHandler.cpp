@@ -372,7 +372,7 @@ void WorldSession::HandleBattleGroundPlayerPortOpcode( WorldPacket &recv_data )
 
     BattleGroundQueueTypeId bgQueueTypeId = BATTLEGROUND_QUEUE_NONE;
     // get the bg what we were invited to
-    bgQueueTypeId = BattleGroundMgr::BGQueueTypeId(bgTypeId,type);
+    bgQueueTypeId = BattleGroundMgr::BGQueueTypeId(bgTypeId, type);
     BattleGroundQueue::QueuedPlayersMap& qpMap = sBattleGroundMgr.m_BattleGroundQueues[bgQueueTypeId].m_QueuedPlayers;
     BattleGroundQueue::QueuedPlayersMap::iterator itrPlayerStatus = qpMap.find(_player->GetGUID());
     if(itrPlayerStatus == qpMap.end())
