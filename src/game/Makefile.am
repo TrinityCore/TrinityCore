@@ -49,10 +49,11 @@ $(srcdir)/AnimalRandomMovementGenerator.h \
 $(srcdir)/ArenaTeam.cpp \
 $(srcdir)/ArenaTeam.h \
 $(srcdir)/ArenaTeamHandler.cpp \
-$(srcdir)/AuctionHouse.cpp \
+$(srcdir)/AuctionHouseHandler.cpp \
 $(srcdir)/AuctionHouseBot.cpp \
 $(srcdir)/AuctionHouseBot.h \
-$(srcdir)/AuctionHouseObject.h \
+$(srcdir)/AuctionHouseMgr.cpp \
+$(srcdir)/AuctionHouseMgr.h \
 $(srcdir)/Bag.cpp \
 $(srcdir)/Bag.h \
 $(srcdir)/BattleGround.cpp \
