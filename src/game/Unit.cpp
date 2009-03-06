@@ -5545,7 +5545,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     if (triggerAmount == 0)
                         return false;
                     basepoints0 = triggerAmount * GetMaxHealth() / 100;
-                    trigger_spell_id = 34299;
+                    triggered_spell_id = 34299;
                 }
                 // Healing Touch (Dreamwalker Raiment set)
                 case 28719:
