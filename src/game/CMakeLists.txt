@@ -12,10 +12,11 @@ SET(game_STAT_SRCS
    ArenaTeam.cpp
    ArenaTeam.h
    ArenaTeamHandler.cpp
-   AuctionHouse.cpp
    AuctionHouseBot.cpp
    AuctionHouseBot.h
-   AuctionHouseObject.h
+   AuctionHouseHandler.cpp
+   AuctionHouseMgr.cpp
+   AuctionHouseMgr.h
    Bag.cpp
    Bag.h
    BattleGround.cpp
