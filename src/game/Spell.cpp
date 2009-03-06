@@ -1212,10 +1212,10 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
         }
     }
 
-    if(unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->AI())
+    if(unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->IsAIEnabled)
         ((Creature*)unit)->AI()->SpellHit(m_caster, m_spellInfo);
 
-    if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->AI())
+    if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->IsAIEnabled)
         ((Creature*)m_caster)->AI()->SpellHitTarget(unit, m_spellInfo);
 
     for(ChanceTriggerSpells::const_iterator i = m_ChanceTriggerSpells.begin(); i != m_ChanceTriggerSpells.end(); ++i)

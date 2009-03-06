@@ -56,7 +56,7 @@ void OutdoorPvPObjective::HandlePlayerActivityChanged(Player * plr)
 {
     if(m_CapturePointCreature)
         if(Creature * c = HashMapHolder<Creature>::Find(m_CapturePointCreature))
-            if(c->AI())
+            if(c->IsAIEnabled)
                 c->AI()->MoveInLineOfSight(plr);
 }
 
