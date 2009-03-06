@@ -16429,7 +16429,7 @@ void Player::PetSpellInitialize()
         CharmInfo *charmInfo = pet->GetCharmInfo();
 
                                                             //16
-        data << (uint64)pet->GetGUID() << uint32(0x00000000) << uint8(charmInfo->GetReactState()) << uint8(charmInfo->GetCommandState()) << uint16(0);
+        data << (uint64)pet->GetGUID() << uint32(0x00000000) << uint8(pet->GetReactState()) << uint8(charmInfo->GetCommandState()) << uint16(0);
 
         for(uint32 i = 0; i < 10; i++)                      //40
         {
@@ -16538,7 +16538,7 @@ void Player::CharmSpellInitialize()
     data << (uint64)charm->GetGUID() << uint32(0x00000000);
 
     if(charm->GetTypeId() != TYPEID_PLAYER)
-        data << uint8(charmInfo->GetReactState()) << uint8(charmInfo->GetCommandState());
+        data << uint8(((Creature*)charm)->GetReactState()) << uint8(charmInfo->GetCommandState());
     else
         data << uint8(0) << uint8(0);
 
