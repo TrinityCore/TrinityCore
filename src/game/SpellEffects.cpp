@@ -437,7 +437,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         damage += int32(damage*0.25f);
                 }
                 // Haunt
-                else if (m_spellProto->SpellFamilyFlags[1] & 0x40000)
+                else if (m_spellInfo->SpellFamilyFlags[1] & 0x40000)
                 {
                     // Save damage for future healing
                     // TODO: Implement spell proc on aura expire
