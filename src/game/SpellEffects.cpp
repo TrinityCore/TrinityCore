@@ -620,7 +620,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
             case SPELLFAMILY_PALADIN:
             {
                 // Judgement of Vengeance/Corruption ${1+0.22*$SPH+0.14*$AP} + 10% for each application of Holy Vengeance/Blood Corruption on the target
-                if((m_spellInfo->SpellFamilyFlags[1] & 0x800) && m_spellInfo->SpellIconID==2292)
+                if((m_spellInfo->SpellFamilyFlags[1] & 0x400000) && m_spellInfo->SpellIconID==2292)
                 {
                     float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
                     int32 holy = m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo)) +
@@ -639,21 +639,17 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     if(stacks)
                         damage += damage * stacks * 10 /100;
                 }
-                // Avenger's Shield ($m1+0.07*$SPH+0.07*$AP) - ranged sdb for future
+                // Avenger's Shield ($m1+0.07*$SPH+0.07*$AP)
                 else if(m_spellInfo->SpellFamilyFlags[0] & 0x4000)
                 {
                     float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                    int32 holy = m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo)) +
-                                 m_caster->SpellBaseDamageBonusForVictim(GetSpellSchoolMask(m_spellInfo), unitTarget);
-                    damage += int32(ap * 0.07f) + int32(holy * 7 / 100);
+                    damage += int32(ap * 0.07f);
                 }
-                // Hammer of Wrath ($m1+0.15*$SPH+0.15*$AP) - ranged type sdb future fix
+                // Hammer of Wrath ($m1+0.15*$SPH+0.15*$AP)
                 else if(m_spellInfo->SpellFamilyFlags[1] & 0x00000080)
                 {
                     float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                    int32 holy = m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo)) +
-                                 m_caster->SpellBaseDamageBonusForVictim(GetSpellSchoolMask(m_spellInfo), unitTarget);
-                    damage += int32(ap * 0.15f) + int32(holy * 15 / 100);
+                    damage += int32(ap * 0.15f);
                 }
                 // Hammer of the Righteous
                 else if(m_spellInfo->SpellFamilyFlags[1]&0x00040000)
@@ -5148,26 +5144,26 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         if (aura->GetCasterGUID() != m_caster->GetGUID())
                             continue;
                         // Search only Serpent Sting, Viper Sting, Scorpid Sting auras
-                        uint64 familyFlag = aura->GetSpellProto()->SpellFamilyFlags;
-                        if (!(familyFlag & 0x000000800000C000LL))
+                        flag96 familyFlag = aura->GetSpellProto()->SpellFamilyFlags;
+                        if (!(familyFlag[1] & 0x00000080 || familyFlag[0] & 0x0000C000))
                             continue;
                         // Refresh aura duration
                         aura->RefreshAura();
 
                         // Serpent Sting - Instantly deals 40% of the damage done by your Serpent Sting.
-                        if (familyFlag & 0x0000000000004000LL && aura->GetEffIndex() == 0)
+                        if (familyFlag[0] & 0x4000 && aura->GetEffIndex() == 0)
                         {
                             spellId = 53353; // 53353 Chimera Shot - Serpent
                             basePoint = aura->GetModifier()->m_amount * 5 * 40 / 100;
                         }
                         // Viper Sting - Instantly restores mana to you equal to 60% of the total amount drained by your Viper Sting.
-                        if (familyFlag & 0x0000008000000000LL && aura->GetEffIndex() == 0)
+                        if (familyFlag[1] & 0x00000080 && aura->GetEffIndex() == 0)
                         {
                             spellId = 53358; // 53358 Chimera Shot - Viper
                             basePoint = aura->GetModifier()->m_amount * 4 * 60 / 100;
                         }
                         // Scorpid Sting - Attempts to Disarm the target for 10 sec. This effect cannot occur more than once per 1 minute.
-                        if (familyFlag & 0x0000000000008000LL)
+                        if (familyFlag[0] & 0x00008000)
                             spellId = 53359; // 53359 Chimera Shot - Scorpid
                         // ?? nothing say in spell desc (possibly need addition check)
                         //if (familyFlag & 0x0000010000000000LL || // dot
