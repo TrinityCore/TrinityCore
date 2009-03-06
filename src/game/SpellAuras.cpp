@@ -1970,7 +1970,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             return;
         }
         // Haunt
-        if(caster && m_spellProto->SpellFamilyName=SPELLFAMILY_WARLOCK && m_spellProto->SpellFamilyFlags[1] & 0x40000)
+        if(caster && m_spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellProto->SpellFamilyFlags[1] & 0x40000)
         {
             caster->CastCustomSpell(caster, 48210, &m_currentBasePoints, 0, 0, true);
             return;
