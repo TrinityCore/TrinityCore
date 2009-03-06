@@ -38,7 +38,7 @@ BattleGround::BattleGround()
 {
     m_TypeID            = BattleGroundTypeId(0);
     m_InstanceID        = 0;
-    m_Status            = 0;
+    m_Status            = STATUS_NONE;
     m_EndTime           = 0;
     m_LastResurrectTime = 0;
     m_QueueId           = QUEUE_ID_MAX_LEVEL_19;

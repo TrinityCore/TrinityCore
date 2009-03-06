@@ -109,7 +109,7 @@ EAIErrorLevel = 2
 #
 #    SocketSelectTime
 #        Socket select time (in milliseconds)
-#        Default: 10000
+#        Default: 10000 (10 secs)
 #
 #    GridCleanUpDelay
 #        Grid clean up delay (in milliseconds)
@@ -130,8 +130,8 @@ EAIErrorLevel = 2
 #    vmap.enableLOS
 #    vmap.enableHeight
 #        Enable/Disable VMmap support for line of sight and height calculation
-#        Default: 1 (true)
-#                 0 (false)
+#        Default: 0 (disable)
+#                 1 (enable)
 #
 #    vmap.ignoreMapIds
 #        Map id that will be ignored by VMaps
@@ -524,7 +524,7 @@ LogColors = ""
 #
 #    Instance.UnloadDelay
 #        Unload the instance map from memory after some time if no players are inside.
-#        Default: 1800000 (miliseconds, i.e 30 minutes)
+#        Default: 1800000 (miliseconds 30 minutes)
 #                 0 (instance maps are kept in memory until they are reset)
 #
 #    Quests.LowLevelHideDiff
@@ -874,7 +874,7 @@ Channel.SilentlyGMJoin = 0
 #                 1 (enable)
 #
 #    GM.InGMList
-#        Is GM showed in GM list (if visible) in non-GM state (.gmoff)
+#        Is GM showed in GM list (if visible) in non-GM state (.gm off)
 #        Default: 0 (false)
 #                 1 (true)
 #
@@ -899,8 +899,8 @@ Channel.SilentlyGMJoin = 0
 #
 #    GM.AllowAchievementGain
 #        If enabled it allows gaining achievements for GM characters
-#        Default: 0 (disable)
-#                 1 (enable) (default)
+#        Default: 1 (enable)
+#                 0 (disable)
 #
 ###################################################################################################################
 
@@ -1090,7 +1090,7 @@ Visibility.Distance.Grey.Object = 10
 #
 #    Death.Bones.World
 #    Death.Bones.BattlegroundOrArena
-#         Enabled/disabled creating bones instead corpse at resurrection (in normal zones/instacnes, or battleground/arenas)
+#         Enable/disable creating bones instead corpse at resurrection (in normal zones/instacnes, or battleground/arenas)
 #         Default: 1 (enabled)
 #                  0 (disabled)
 #
@@ -1156,19 +1156,19 @@ Death.Bones.BattlegroundOrArena = 1
 # BATTLEGROUND CONFIG
 #
 #    Battleground.CastDeserter
-#        Cast or not Deserter spell at player who leave battleground in progress
-#        Default: 1 (true)
-#                 0 (false)
+#        Cast Deserter spell at player who leave battleground in progress
+#        Default: 1 (enable)
+#                 0 (disable)
 #
 #    Battleground.QueueAnnouncer.Enable
 #        Enable queue announcer posting to chat
-#        Default: 0 (false)
-#                 1 (true)
+#        Default: 0 (disable)
+#                 1 (enable)
 #
 #    Battleground.QueueAnnouncer.PlayerOnly
 #        Enable queue announcer posting to chat
-#        Default: 0 (false)
-#                 1 (true)
+#        Default: 0 (disable)
+#                 1 (enable)
 #
 #    Battleground.InvitationType
 #        Set Battleground invitation type
@@ -1200,7 +1200,7 @@ BattleGround.PremadeGroupWaitForMatch = 1800000
 #
 #    Arena.MaxRatingDifference
 #        The maximum rating difference between two groups in rated matches
-#        Default: 100 (enable, recommended)
+#        Default: 150 (enable, recommended)
 #                 0 (disable, rating difference is discarded)
 #
 #    Arena.RatingDiscardTimer
@@ -1208,7 +1208,7 @@ BattleGround.PremadeGroupWaitForMatch = 1800000
 #        rating information will be discarded when selecting teams for matches
 #        also initiates an update by this timer
 #        Default: 600000 (10 minutes, recommended)
-#                 0 (disable, DO NOT USE - it will cause lags)
+#                 0 (disable)
 #
 #    Arena.AutoDistributePoints
 #        Set if arena points should be distributed automatically, or by GM command
@@ -1222,8 +1222,8 @@ BattleGround.PremadeGroupWaitForMatch = 1800000
 #
 #    Arena.QueueAnnouncer.Enable
 #        Enable bg queue announcer posting to chat
-#        Default: 0 (false)
-#                 1 (true)
+#        Default: 0 (disable)
+#                 1 (enable)
 #
 #    Arena.ArenaSeason.ID
 #        Current area season id show in client
@@ -1236,7 +1236,7 @@ BattleGround.PremadeGroupWaitForMatch = 1800000
 #
 ###################################################################################################################
 
-Arena.MaxRatingDifference = 100
+Arena.MaxRatingDifference = 150
 Arena.RatingDiscardTimer = 600000
 Arena.AutoDistributePoints = 0
 Arena.AutoDistributeInterval = 7
