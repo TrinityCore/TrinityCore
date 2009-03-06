@@ -114,11 +114,11 @@ const uint32 Buff_Entries[3] = { BG_OBJECTID_SPEEDBUFF_ENTRY, BG_OBJECTID_REGENB
 
 enum BattleGroundStatus
 {
-    STATUS_NONE         = 0,
-    STATUS_WAIT_QUEUE   = 1,
-    STATUS_WAIT_JOIN    = 2,
-    STATUS_IN_PROGRESS  = 3,
-    STATUS_WAIT_LEAVE   = 4                                 // custom
+    STATUS_NONE         = 0,                                // first status, should mean bg is not instance
+    STATUS_WAIT_QUEUE   = 1,                                // means bg is empty and waiting for queue
+    STATUS_WAIT_JOIN    = 2,                                // this means, that BG has already started and it is waiting for more players
+    STATUS_IN_PROGRESS  = 3,                                // means bg is running
+    STATUS_WAIT_LEAVE   = 4                                 // means some faction has won BG and it is ending
 };
 
 struct BattleGroundPlayer
@@ -283,7 +283,7 @@ class BattleGround
         BattleGroundTypeId GetTypeID() const { return m_TypeID; }
         BGQueueIdBasedOnLevel GetQueueId() const { return m_QueueId; }
         uint32 GetInstanceID() const        { return m_InstanceID; }
-        uint32 GetStatus() const            { return m_Status; }
+        BattleGroundStatus GetStatus() const { return m_Status; }
         uint32 GetStartTime() const         { return m_StartTime; }
         uint32 GetEndTime() const           { return m_EndTime; }
         uint32 GetLastResurrectTime() const { return m_LastResurrectTime; }
@@ -296,7 +296,7 @@ class BattleGround
         uint32 GetMaxPlayersPerTeam() const { return m_MaxPlayersPerTeam; }
         uint32 GetMinPlayersPerTeam() const { return m_MinPlayersPerTeam; }
 
-        int GetStartDelayTime() const       { return m_StartDelayTime; }
+        int32 GetStartDelayTime() const     { return m_StartDelayTime; }
         uint8 GetArenaType() const          { return m_ArenaType; }
         uint8 GetWinner() const             { return m_Winner; }
         uint32 GetBattlemasterEntry() const;
@@ -312,7 +312,7 @@ class BattleGround
             this->SetLevelRange((ID + 1) * 10 + diff, (ID + 2) * 10 - ((diff + 1) % 2));
         }
         void SetInstanceID(uint32 InstanceID) { m_InstanceID = InstanceID; }
-        void SetStatus(uint32 Status)       { m_Status = Status; }
+        void SetStatus(BattleGroundStatus Status) { m_Status = Status; }
         void SetStartTime(uint32 Time)      { m_StartTime = Time; }
         void SetEndTime(uint32 Time)        { m_EndTime = Time; }
         void SetLastResurrectTime(uint32 Time) { m_LastResurrectTime = Time; }
@@ -506,7 +506,7 @@ class BattleGround
         /* Battleground */
         BattleGroundTypeId m_TypeID;
         uint32 m_InstanceID;                                //BattleGround Instance's GUID!
-        uint32 m_Status;
+        BattleGroundStatus m_Status;
         uint32 m_StartTime;
         uint32 m_EndTime;
         uint32 m_LastResurrectTime;
@@ -514,9 +514,6 @@ class BattleGround
         uint8  m_ArenaType;                                 // 2=2v2, 3=3v3, 5=5v5
         bool   m_InBGFreeSlotQueue;                         // used to make sure that BG is only once inserted into the BattleGroundMgr.BGFreeSlotQueue[bgTypeId] deque
         bool   m_SetDeleteThis;                             // used for safe deletion of the bg after end / all players leave
-        // this variable is not used .... it can be found in many other ways... but to store it in BG object instance is useless
-        //uint8  m_BattleGroundType;                        // 3=BG, 4=arena
-        //instead of uint8 (in previous line) is bool used
         bool   m_IsArena;
         uint8  m_Winner;                                    // 0=alliance, 1=horde, 2=none
         int32  m_StartDelayTime;
@@ -554,7 +551,7 @@ class BattleGround
         uint32 m_MinPlayersPerTeam;
         uint32 m_MinPlayers;
 
-        /* Location */
+        /* Start location */
         uint32 m_MapId;
         float m_TeamStartLocX[BG_TEAMS_COUNT];
         float m_TeamStartLocY[BG_TEAMS_COUNT];

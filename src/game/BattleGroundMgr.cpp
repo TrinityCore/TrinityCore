@@ -115,17 +115,18 @@ bool BattleGroundQueue::SelectionPool::KickGroup(uint32 size)
 
 // add group to selection pool
 // used when building selection pools
-// returns true if we can invite more players, otherwise return false - (selection pool is set that time)
+// returns true if we can invite more players
+// returns false when selection pool is set
 bool BattleGroundQueue::SelectionPool::AddGroup(GroupQueueInfo *ginfo, uint32 desiredCount)
 {
     //if group is larger than desired count - don't allow to add it to pool
-    if (!ginfo->IsInvitedToBGInstanceGUID && desiredCount >= PlayerCount + ginfo->Players.size())
+    if( !ginfo->IsInvitedToBGInstanceGUID && desiredCount >= PlayerCount + ginfo->Players.size() )
     {
         SelectedGroups.push_back(ginfo);
         // increase selected players count
         PlayerCount += ginfo->Players.size();
     }
-    if (PlayerCount == desiredCount)
+    if( PlayerCount < desiredCount )
         return true;
     return false;
 }
@@ -555,7 +556,8 @@ bool BattleGroundQueue::CheckPremadeMatch(BGQueueIdBasedOnLevel queue_id, uint32
             {
                 for(itr = m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE + i].begin(); itr != m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE + i].end(); ++itr)
                 {
-                    if( !(*itr)->IsInvitedToBGInstanceGUID && m_SelectionPools[i].AddGroup((*itr), maxPlayers) )
+                    //if itr can join BG and player count is less that maxPlayers, then add group to selectionpool
+                    if( !(*itr)->IsInvitedToBGInstanceGUID && !m_SelectionPools[i].AddGroup((*itr), maxPlayers) )
                         break;
                 }
             }
@@ -577,7 +579,7 @@ bool BattleGroundQueue::CheckPremadeMatch(BGQueueIdBasedOnLevel queue_id, uint32
             {
                 //we must insert group to normal queue and erase pointer from premade queue
                 m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE + i].push_front((*itr));
-                m_QueuedGroups[queue_id][BG_QUEUE_PREMADE_ALLIANCE + i].erase(itr); //pop_front();
+                m_QueuedGroups[queue_id][BG_QUEUE_PREMADE_ALLIANCE + i].erase(itr);
             }
         }
     }
@@ -614,7 +616,7 @@ bool BattleGroundQueue::CheckNormalMatch(BattleGround* bg_template, BGQueueIdBas
         for(; itr_team[j] != m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE + j].end(); ++(itr_team[j]))
         {
             if( !(*(itr_team[j]))->IsInvitedToBGInstanceGUID )
-                if( m_SelectionPools[j].AddGroup(*(itr_team[j]), m_SelectionPools[(j + 1) % BG_TEAMS_COUNT].GetPlayerCount()) )
+                if( !m_SelectionPools[j].AddGroup(*(itr_team[j]), m_SelectionPools[(j + 1) % BG_TEAMS_COUNT].GetPlayerCount()) )
                     break;
         }
         // do not allow to start bg with more than 2 players more on 1 faction
@@ -658,12 +660,9 @@ bool BattleGroundQueue::CheckSkirmishForSameFaction(BGQueueIdBasedOnLevel queue_
     //invite players to other selection pool
     for(; itr_team2 != m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE + teamIndex].end(); ++itr_team2)
     {
-        if( !(*itr_team2)->IsInvitedToBGInstanceGUID )
-        {
-            m_SelectionPools[otherTeam].AddGroup(*itr_team2, minPlayersPerTeam);
-            if( m_SelectionPools[otherTeam].GetPlayerCount() == minPlayersPerTeam )
-                break;
-        }
+        //if selection pool is full then break;
+        if( !(*itr_team2)->IsInvitedToBGInstanceGUID && !m_SelectionPools[otherTeam].AddGroup(*itr_team2, minPlayersPerTeam) )
+            break;
     }
     if( m_SelectionPools[otherTeam].GetPlayerCount() != minPlayersPerTeam )
         return false;
@@ -1534,11 +1533,6 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
 
     // reset the new bg (set status to status_wait_queue from status_none)
     bg->Reset();
-
-    if( bg->isBattleGround() && sWorld.getConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE) )
-    {
-        sWorld.SendWorldText(LANG_BG_STARTED_ANNOUNCE_WORLD, bg->GetName(), bg->GetMinLevel(), bg->GetMaxLevel());
-    }
 
     // start the joining of the bg
     bg->SetStatus(STATUS_WAIT_JOIN);
