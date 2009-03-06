@@ -83,12 +83,12 @@ Pet::Pet(PetType type) : Creature()
     m_auraUpdateMask = 0;
 
     // pets always have a charminfo, even if they are not actually charmed
-    CharmInfo* charmInfo = InitCharmInfo(this);
+    CharmInfo* charmInfo = InitCharmInfo();
 
     if(type == MINI_PET || type == POSSESSED_PET)                                    // always passive
-        charmInfo->SetReactState(REACT_PASSIVE);
+        SetReactState(REACT_PASSIVE);
     else if(type == GUARDIAN_PET)                           // always aggressive
-        charmInfo->SetReactState(REACT_AGGRESSIVE);
+        SetReactState(REACT_AGGRESSIVE);
 
     m_spells.clear();
     m_Auras.clear();
@@ -253,7 +253,7 @@ bool Pet::LoadPetFromDB( Unit* owner, uint32 petentry, uint32 petnumber, bool cu
     SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, fields[5].GetUInt32());
     SetUInt64Value(UNIT_FIELD_CREATEDBY, owner->GetGUID());
 
-    m_charmInfo->SetReactState( ReactStates( fields[6].GetUInt8() ));
+    SetReactState( ReactStates( fields[6].GetUInt8() ));
     m_loyaltyPoints = fields[7].GetInt32();
 
     uint32 savedhealth = fields[13].GetUInt32();
@@ -445,7 +445,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
                 << GetNativeDisplayId() << ", "
                 << getLevel() << ", "
                 << GetUInt32Value(UNIT_FIELD_PETEXPERIENCE) << ", "
-                << uint32(m_charmInfo->GetReactState()) << ", "
+                << uint32(GetReactState()) << ", "
                 << m_loyaltyPoints << ", "
                 << GetLoyaltyLevel() << ", "
                 << m_TrainingPoints << ", "

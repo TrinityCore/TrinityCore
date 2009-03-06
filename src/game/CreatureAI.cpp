@@ -36,6 +36,12 @@ void UnitAI::AttackStart(Unit *victim)
     }
 }
 
+//Enable PlayerAI when charmed
+void PlayerAI::OnCharmed(bool apply) { me->IsAIEnabled = apply; }
+
+//Disable CreatureAI when charmed
+void CreatureAI::OnCharmed(bool apply) { me->IsAIEnabled = !apply; }
+
 void CreatureAI::MoveInLineOfSight(Unit *who)
 {
     if(!me->getVictim() && me->canStartAttack(who))
