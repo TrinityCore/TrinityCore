@@ -27,6 +27,7 @@
 #include "GameEvent.h"
 #include "World.h"
 #include "SpellMgr.h"
+#include "ArenaTeam.h"
 #include "ProgressBar.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
@@ -374,6 +375,18 @@ void AchievementMgr::CheckAllAchievementCriteria()
         UpdateAchievementCriteria(AchievementCriteriaTypes(i));
 }
 
+static const uint32 achievIdByArenaSlot[MAX_ARENA_SLOT] = { 1057, 1107, 1108 };
+static const uint32 achievIdForDangeon[][4] =
+{
+    // ach_cr_id,is_dungeon,is_raid,is_heroic_dungeon
+    { 321,       true,      true,   true  },
+    { 916,       false,     true,   false },
+    { 917,       false,     true,   false },
+    { 918,       true,      false,  false },
+    { 2219,      false,     false,  true  },
+    { 0,         false,     false,  false }
+};
+
 /**
  * this function will be called whenever the user might have done a criteria relevant action
  */
@@ -408,7 +421,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
         {
             // std. case: increment at 1
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST:
-            case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_PLAYER:
                 // AchievementMgr::UpdateAchievementCriteria might also be called on login - skip in this case
                 if(!miscvalue1)
                     continue;
@@ -493,12 +505,96 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     continue;
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
+            case ACHIEVEMENT_CRITERIA_TYPE_DEATH:
+            {
+                // AchievementMgr::UpdateAchievementCriteria might also be called on login - skip in this case
+                if(!miscvalue1)
+                    continue;
+                // skip wrong arena achievements, if not achievIdByArenaSlot then normal totla death counter
+                bool notfit = false;
+                for(int i = 0; i < MAX_ARENA_SLOT; ++i)
+                {
+                    if(achievIdByArenaSlot[i] == achievement->ID)
+                    {
+                        BattleGround* bg = GetPlayer()->GetBattleGround();
+                        if(!bg || ArenaTeam::GetSlotByType(bg->GetArenaType())!=i)
+                            notfit = true;
+
+                        break;
+                    }
+                }
+                if(notfit)
+                    continue;
+
+                SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
+                break;
+            }
+            case ACHIEVEMENT_CRITERIA_TYPE_DEATH_IN_DUNGEON:
+            {
+                // AchievementMgr::UpdateAchievementCriteria might also be called on login - skip in this case
+                if(!miscvalue1)
+                    continue;
+
+                Map const* map = GetPlayer()->GetMap();
+                if(!map->IsDungeon())
+                    continue;
+
+                // search case
+                bool found = false;
+                for(int i = 0; achievIdForDangeon[i][0]; ++i)
+                {
+                    if(achievIdForDangeon[i][0] == achievement->ID)
+                    {
+                        if(map->IsRaid())
+                        {
+                            // if raid accepted (ignore difficulty)
+                            if(!achievIdForDangeon[i][2])
+                                break;                      // for
+                        }
+                        else if(GetPlayer()->GetDifficulty()==DIFFICULTY_NORMAL)
+                        {
+                            // dungeon in normal mode accepted
+                            if(!achievIdForDangeon[i][1])
+                                break;                      // for
+                        }
+                        else
+                        {
+                            // dungeon in heroic mode accepted
+                            if(!achievIdForDangeon[i][3])
+                                break;                      // for
+                        }
+
+                        found = true;
+                        break;                              // for
+                    }
+                }
+                if(!found)
+                    continue;
+
+                //FIXME: work only for instances where max==min for players
+                if(((InstanceMap*)map)->GetMaxPlayers() != achievementCriteria->death_in_dungeon.manLimit)
+                    continue;
+                SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
+                break;
+
+            }
             case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE:
                 // AchievementMgr::UpdateAchievementCriteria might also be called on login - skip in this case
                 if(!miscvalue1)
                     continue;
                 if(miscvalue1 != achievementCriteria->killed_by_creature.creatureEntry)
                     continue;
+                SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_PLAYER:
+                // AchievementMgr::UpdateAchievementCriteria might also be called on login - skip in this case
+                if(!miscvalue1)
+                    continue;
+
+                // if team check required: must kill by opposition faction
+                if(achievement->ID==318 && miscvalue2==GetPlayer()->GetTeam())
+                    continue;
+
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_FALL_WITHOUT_DYING:
@@ -518,6 +614,14 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 SetCriteriaProgress(achievementCriteria, miscvalue1);
                 break;
             }
+            case ACHIEVEMENT_CRITERIA_TYPE_DEATHS_FROM:
+                // AchievementMgr::UpdateAchievementCriteria might also be called on login - skip in this case
+                if(!miscvalue1)
+                    continue;
+                if(miscvalue2 != achievementCriteria->death_from.type)
+                    continue;
+                SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
+                break;
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
                 if(GetPlayer()->GetQuestRewardStatus(achievementCriteria->complete_quest.questID))
                     SetCriteriaProgress(achievementCriteria, 1);
@@ -680,10 +784,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST_DAILY:
             case ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE:
-            case ACHIEVEMENT_CRITERIA_TYPE_DEATH:
-            case ACHIEVEMENT_CRITERIA_TYPE_DEATH_IN_DUNGEON:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID:
-            case ACHIEVEMENT_CRITERIA_TYPE_DEATHS_FROM:
             case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
             case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
@@ -836,8 +937,11 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
         // handle all statistic-only criteria here
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
         case ACHIEVEMENT_CRITERIA_TYPE_DEATH_AT_MAP:
+        case ACHIEVEMENT_CRITERIA_TYPE_DEATH:
+        case ACHIEVEMENT_CRITERIA_TYPE_DEATH_IN_DUNGEON:
         case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE:
         case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_PLAYER:
+        case ACHIEVEMENT_CRITERIA_TYPE_DEATHS_FROM:
         case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS:
         case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER:
         case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL:
