@@ -59,4 +59,6 @@ INSTALL(FILES
 1657_world.sql
 1661_world.sql
 1663_mangos_7376_01_world_spell_area.sql
+1679_world.sql
+1688_mangos_7382_01_world_creature_template.sql
 DESTINATION share/trinity/sql/updates)
