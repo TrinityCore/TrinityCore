@@ -22,7 +22,7 @@
 DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
-  `required_7382_01_mangos_creature_template` bit(1) default NULL
+  `required_7388_01_mangos_mangos_string` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -1472,36 +1472,6 @@ CREATE TABLE `instance_template` (
 
 LOCK TABLES `instance_template` WRITE;
 /*!40000 ALTER TABLE `instance_template` DISABLE KEYS */;
-INSERT INTO `instance_template` VALUES
-(33,0,22,30,10,10,7200,NULL,NULL,NULL,NULL,''),
-(34,0,24,32,10,10,7200,NULL,NULL,NULL,NULL,''),
-(36,0,15,20,10,10,7200,NULL,NULL,NULL,NULL,''),
-(43,0,15,21,10,10,7200,NULL,NULL,NULL,NULL,''),
-(47,0,29,38,10,10,7200,NULL,NULL,NULL,NULL,''),
-(48,0,24,32,10,10,7200,NULL,NULL,NULL,NULL,''),
-(70,0,35,47,10,10,7200,NULL,NULL,NULL,NULL,''),
-(90,0,29,38,10,10,7200,NULL,NULL,NULL,NULL,''),
-(109,0,45,55,10,10,7200,NULL,NULL,NULL,NULL,''),
-(129,0,37,46,10,10,7200,NULL,NULL,NULL,NULL,''),
-(189,0,34,45,10,10,7200,NULL,NULL,NULL,NULL,''),
-(209,0,44,54,10,10,7200,NULL,NULL,NULL,NULL,''),
-(229,0,58,0,10,10,120000,78.5083,-225.044,49.839,5.1,''),
-(230,0,52,0,5,5,7200,NULL,NULL,NULL,NULL,''),
-(249,0,60,0,40,40,432000,NULL,NULL,NULL,NULL,''),
-(289,0,57,0,5,5,7200,NULL,NULL,NULL,NULL,''),
-(309,0,60,0,20,20,259200,NULL,NULL,NULL,NULL,''),
-(329,0,58,60,5,5,7200,NULL,NULL,NULL,NULL,''),
-(349,0,46,55,10,10,7200,NULL,NULL,NULL,NULL,''),
-(389,0,13,18,10,10,7200,NULL,NULL,NULL,NULL,''),
-(409,0,60,0,40,40,604800,NULL,NULL,NULL,NULL,''),
-(429,0,55,60,5,5,7200,NULL,NULL,NULL,NULL,''),
-(469,0,60,0,40,40,604800,NULL,NULL,NULL,NULL,''),
-(509,0,60,0,20,20,259200,NULL,NULL,NULL,NULL,''),
-(531,0,60,0,40,40,604800,NULL,NULL,NULL,NULL,''),
-(533,0,80,0,10,25,0,NULL,NULL,NULL,NULL,''),
-(615,0,80,0,10,25,0,NULL,NULL,NULL,NULL,''),
-(616,0,80,0,10,25,0,NULL,NULL,NULL,NULL,''),
-(624,0,80,0,10,25,0,NULL,NULL,NULL,NULL,'');
 /*!40000 ALTER TABLE `instance_template` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2842,7 +2812,6 @@ INSERT INTO `mangos_string` VALUES
 (723,'Your group does not have enough players to join this match.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (724,'The Gold Team wins!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (725,'The Green Team wins!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
-(726,'There aren\'t enough players in this battleground. It will end soon unless some more players join to balance the fight.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (727,'Your group has an offline member. Please remove him before joining.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (728,'Your group has players from the opposing faction. You can\'t join the battleground as a group.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (729,'Your group has players from different battleground brakets. You can\'t join as group.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
@@ -2863,6 +2832,8 @@ INSERT INTO `mangos_string` VALUES
 (744,'Modifying played count, arena points etc. for loaded arena teams, sending updated stats to online players...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (745,'Modification done.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (746,'Done flushing Arena points.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(750,'Not enough players. This game will close in %u mins.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(751,'Not enough players. This game will close in %u seconds.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (801,'You do not have enough gold',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (802,'You do not have enough free slots',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (803,'Your partner does not have enough free bag slots',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),

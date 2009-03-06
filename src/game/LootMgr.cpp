@@ -278,6 +278,13 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
                 store.GetName(), entry, itemid, chance);
             return false;
         }
+
+        if( maxcount < mincountOrRef)                       // wrong max count
+        {
+            sLog.outErrorDb("Table '%s' entry %d item %d: max count (%u) less that min count (%i) - skipped", store.GetName(), entry, itemid, uint32(maxcount), mincountOrRef);
+            return false;
+        }
+
     }
     else                                                    // mincountOrRef < 0
     {

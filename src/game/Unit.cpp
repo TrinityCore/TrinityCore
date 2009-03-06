@@ -743,6 +743,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
 
     if (pVictim->GetTypeId() == TYPEID_UNIT && !((Creature*)pVictim)->isPet() && !((Creature*)pVictim)->hasLootRecipient())
         ((Creature*)pVictim)->SetLootRecipient(this);
+
     if (health <= damage)
     {
         DEBUG_LOG("DealDamage: victim just died");
@@ -820,12 +821,12 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             ((Creature*)this)->AI()->KilledUnit(pVictim);
 
         // achievement stuff
-        if ( pVictim->GetTypeId() == TYPEID_PLAYER)
+        if (pVictim->GetTypeId() == TYPEID_PLAYER)
         {
-            if(GetTypeId() == TYPEID_UNIT)
+            if (GetTypeId() == TYPEID_UNIT)
                 ((Player*)pVictim)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE, GetEntry());
-            else if(GetTypeId() == TYPEID_PLAYER)
-                ((Player*)pVictim)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_PLAYER, 1);
+            else if(GetTypeId() == TYPEID_PLAYER && pVictim != this)
+                ((Player*)pVictim)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_PLAYER, 1, ((Player*)this)->GetTeam());
         }
 
         // 10% durability loss on death
@@ -5561,6 +5562,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                         return false;
                     basepoints0 = triggerAmount * GetMaxHealth() / 100;
                     triggered_spell_id = 34299;
+                    break;
                 }
                 // Healing Touch (Dreamwalker Raiment set)
                 case 28719:
@@ -5664,6 +5666,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
             {
                 triggered_spell_id = 60889;
                 basepoints0 = triggerAmount * GetMaxPower(POWER_MANA) / 100;
+                break;
             }
             break;
         }
@@ -12506,14 +12509,14 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
         }
     }
 
-        // achievement stuff
-        if ( pVictim->GetTypeId() == TYPEID_PLAYER)
-        {
-            if(GetTypeId() == TYPEID_UNIT)
-                ((Player*)pVictim)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE, GetEntry());
-            else if(GetTypeId() == TYPEID_PLAYER)
-                ((Player*)pVictim)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_PLAYER, 1);
-        }
+    // achievement stuff
+    if (pVictim->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (GetTypeId() == TYPEID_UNIT)
+            ((Player*)pVictim)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE, GetEntry());
+        else if(GetTypeId() == TYPEID_PLAYER && pVictim != this)
+            ((Player*)pVictim)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_PLAYER, 1, ((Player*)this)->GetTeam());
+    }
 }
 
 void Unit::SetControlled(bool apply, UnitState state)
