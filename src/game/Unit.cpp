@@ -8703,6 +8703,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         }
     }
 
+    bool hasmangle=false;
     // .. taken pct: dummy auras
     AuraList const& mDummyAuras = pVictim->GetAurasByType(SPELL_AURA_DUMMY);
     for(AuraList::const_iterator i = mDummyAuras.begin(); i != mDummyAuras.end(); ++i)
@@ -8725,6 +8726,10 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
             //Mangle
             case 2312:
             case 44955:
+                // don't apply mod twice
+                if (hasmangle)
+                    break;
+                hasmangle=true;
                 for(int j=0;j<3;j++)
                 {
                     if(GetEffectMechanic(spellProto, j)==MECHANIC_BLEED)
