@@ -940,19 +940,20 @@ void Aura::_RemoveAura()
     if(slot >= MAX_AURAS)                                   // slot not set
         return;
 
+    bool lastaura=true;
+
     AuraSlotEntry *entry = m_target->GetVisibleAura(slot);
-    if(!entry)                                              //slot already removed-shouldn't happen
-        return;
-
-    entry->m_slotAuras[GetEffIndex()]=NULL;                 //unregister aura
-
-    bool lastaura = true;
-    for(uint8 i = 0; i < 3; ++i)                              //check slot for more auras of the spell
+    if (entry)
     {
-        if(entry->m_slotAuras[i])
+        entry->m_slotAuras[GetEffIndex()]=NULL;                 //unregister aura
+        for(uint8 i = 0; i < 3; ++i)                              //check slot for more auras of the spell
         {
-            lastaura = false;
-            break;
+            if(entry->m_slotAuras[i])
+            {
+                lastaura = false;
+                break;
+            }
+
         }
     }
 
@@ -977,7 +978,7 @@ void Aura::_RemoveAura()
                 foundMask|=(*i).second->GetAuraStateMask();
             }
             // Remove only aurastates which were not found
-            foundMask&=~GetAuraStateMask();
+            foundMask = GetAuraStateMask() &~foundMask;
             if (foundMask)
                 m_target->ApplyModFlag(UNIT_FIELD_AURASTATE, foundMask, false);
         }
