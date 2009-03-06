@@ -3331,6 +3331,7 @@ void Spell::EffectSummonType(uint32 i)
             EffectSummonGuardian(i);
             break;
         case SUMMON_TYPE_WILD:
+        case SUMMON_TYPE_WILD2:
             EffectSummonWild(i);
             break;
         case SUMMON_TYPE_DEMON:
@@ -6242,24 +6243,22 @@ void Spell::EffectDispelMechanic(uint32 i)
 
     uint32 mechanic = m_spellInfo->EffectMiscValue[i];
 
+    std::deque <Aura *> dispel_list;
+
     Unit::AuraMap& Auras = unitTarget->GetAuras();
-    for(Unit::AuraMap::iterator iter = Auras.begin(), next; iter != Auras.end(); iter = next)
+    for(Unit::AuraMap::iterator iter = Auras.begin(), next; iter != Auras.end(); iter++)
     {
-        next = iter;
-        ++next;
-        SpellEntry const *spell = sSpellStore.LookupEntry(iter->second->GetSpellProto()->Id);
         if (!iter->second->GetDispelChance(this))
             continue;
+        SpellEntry const *spell = iter->second->GetSpellProto();
         if(spell->Mechanic == mechanic || spell->EffectMechanic[iter->second->GetEffIndex()] == mechanic)
-        {
-            unitTarget->RemoveAurasDueToSpell(spell->Id);
-            if(Auras.empty())
-                break;
-            else
-                next = Auras.begin();
-        }
+            dispel_list.push_back(iter->second);
     }
-    return;
+    for(;!dispel_list.empty();)
+    {
+        unitTarget->RemoveAurasDueToSpell(dispel_list.front()->GetId());
+        dispel_list.pop_front();
+    }
 }
 
 void Spell::EffectSummonDeadPet(uint32 /*i*/)

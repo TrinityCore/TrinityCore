@@ -496,6 +496,21 @@ void Unit::RemoveSpellsCausingAuraWithDispel(AuraType auraType, Spell * spell)
                 return;
         }
     }
+
+    std::deque <Aura *> dispel_list;
+
+    AuraList const& dispelAuras = GetAurasByType(auraType);
+    for(AuraList::const_iterator itr = dispelAuras.begin(); itr != dispelAuras.end(); ++itr)
+    {
+        if (!(*iter)->GetDispelChance( spell))
+            continue;
+        dispel_list.push_back(*iter);
+    }
+    for(;!dispel_list.empty();)
+    {
+        RemoveAurasDueToSpell(dispel_list.front()->GetId());
+        dispel_list.pop_front();
+    }
 }
 
 void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
@@ -5767,6 +5782,15 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                              SpellBaseDamageBonusForVictim(SPELL_SCHOOL_MASK_HOLY, pVictim);
                 basepoints0 = GetAttackTime(BASE_ATTACK) * int32(ap*0.022f + 0.044f * holy) / 1000;
                 break;
+            }
+            // Sanctified Wrath
+            if (dummySpell->SpellIconID == 3029)
+            {
+                triggered_spell_id = 57318;
+                target = this;
+                basepoints0 = triggerAmount;
+                CastCustomSpell(target,triggered_spell_id,&basepoints0,&basepoints0,NULL,true,castItem,triggeredByAura);
+                return true;
             }
             // Sacred Shield
             if (dummySpell->SpellFamilyFlags[1]&0x00080000)

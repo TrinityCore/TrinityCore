@@ -3295,20 +3295,23 @@ void Aura::HandleModStealth(bool apply, bool Real)
         }
     }
 
-    // Master of Subtlety
-    Unit::AuraList const& mDummyAuras = m_target->GetAurasByType(SPELL_AURA_DUMMY);
-    for(Unit::AuraList::const_iterator i = mDummyAuras.begin();i != mDummyAuras.end(); ++i)
+    if (Real)
     {
-        if ((*i)->GetSpellProto()->SpellIconID == 2114 && Real)
+        // Master of Subtlety
+        Unit::AuraList const& mDummyAuras = m_target->GetAurasByType(SPELL_AURA_DUMMY);
+        for(Unit::AuraList::const_iterator i = mDummyAuras.begin();i != mDummyAuras.end(); ++i)
         {
-            if (apply)
+            if ((*i)->GetSpellProto()->SpellIconID == 2114)
             {
-                int32 bp = (*i)->GetModifier()->m_amount;
-                m_target->CastCustomSpell(m_target,31665,&bp,NULL,NULL,true);
+                if (apply)
+                {
+                    int32 bp = (*i)->GetModifier()->m_amount;
+                    m_target->CastCustomSpell(m_target,31665,&bp,NULL,NULL,true);
+                }
+                else
+                    m_target->CastSpell(m_target,31666,true);
+                break;
             }
-            else
-                m_target->CastSpell(m_target,31666,true);
-            break;
         }
     }
 }
