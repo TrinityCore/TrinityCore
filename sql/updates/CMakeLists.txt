@@ -1,4 +1,5 @@
 INSTALL(FILES
+XXX_characters_auctionhouse.sql
 11_characters.sql
 45_characters.sql
 54_world.sql

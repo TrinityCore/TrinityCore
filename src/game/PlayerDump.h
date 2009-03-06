@@ -20,28 +20,6 @@
 
 #ifndef _PLAYER_DUMP_H
 #define _PLAYER_DUMP_H
-/*
-#include "Log.h"
-#include "Object.h"
-#include "Bag.h"
-#include "Creature.h"
-#include "Player.h"
-#include "DynamicObject.h"
-#include "GameObject.h"
-#include "Corpse.h"
-#include "QuestDef.h"
-#include "Path.h"
-#include "ItemPrototype.h"
-#include "NPCHandler.h"
-#include "Database/DatabaseEnv.h"
-#include "AuctionHouseObject.h"
-#include "Mail.h"
-#include "Map.h"
-#include "ObjectAccessor.h"
-#include "ObjectDefines.h"
-#include "Policies/Singleton.h"
-#include "Database/SQLStorage.h"
-*/
 #include <string>
 #include <map>
 #include <set>

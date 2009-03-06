@@ -65,6 +65,16 @@ struct AreaTriggerEntry
     float     box_orientation;                              // 9 extent rotation by about z axis
 };
 
+struct AuctionHouseEntry
+{
+    uint32 houseId; // 0 index
+    uint32 faction; // 1 id of faction.dbc for player factions associated with city
+    uint32 depositPercent; // 2 1/3 from real
+    uint32 cutPercent; // 3
+    //char* name[16]; // 4-19
+                                                            // 20 string flag, unused
+};
+
 struct BankBagSlotPricesEntry
 {
     uint32      ID;
