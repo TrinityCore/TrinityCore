@@ -1,5 +1,4 @@
 INSTALL(FILES
-XXX_characters_auctionhouse.sql
 11_characters.sql
 45_characters.sql
 54_world.sql
@@ -173,4 +172,5 @@ XXX_characters_auctionhouse.sql
 1142_world.sql
 1159_world.sql
 1160_world.sql
+1164_characters.sql
 DESTINATION share/trinity/sql/updates)
