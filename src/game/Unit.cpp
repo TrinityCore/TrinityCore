@@ -75,7 +75,7 @@ static bool procPrepared = InitTriggerAuraData();
 
 Unit::Unit()
 : WorldObject(), i_motionMaster(this), m_ThreatManager(this), m_HostilRefManager(this)
-, m_IsInNotifyList(false), m_Notified(false), m_AI_enabled(false)
+, m_IsInNotifyList(false), m_Notified(false), IsAIEnabled(false)
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
@@ -608,7 +608,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
     }
 
     //Script Event damage taken
-    if( pVictim->GetTypeId()== TYPEID_UNIT && ((Creature *)pVictim)->AI() )
+    if( pVictim->GetTypeId()== TYPEID_UNIT && ((Creature *)pVictim)->IsAIEnabled )
     {
         ((Creature *)pVictim)->AI()->DamageTaken(this, damage);
 
@@ -920,7 +920,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             if(!getVictim())
             /*{
                 // if have target and damage pVictim just call AI reaction
-                if(pVictim != getVictim() && pVictim->GetTypeId()==TYPEID_UNIT && ((Creature*)pVictim)->AI())
+                if(pVictim != getVictim() && pVictim->GetTypeId()==TYPEID_UNIT && ((Creature*)pVictim)->IsAIEnabled)
                     ((Creature*)pVictim)->AI()->AttackedBy(this);
             }
             else*/
@@ -7645,7 +7645,7 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
     m_attacking = victim;
     m_attacking->_addAttacker(this);
 
-    //if(m_attacking->GetTypeId()==TYPEID_UNIT && ((Creature*)m_attacking)->AI())
+    //if(m_attacking->GetTypeId()==TYPEID_UNIT && ((Creature*)m_attacking)->IsAIEnabled)
     //    ((Creature*)m_attacking)->AI()->AttackedBy(this);
 
     if(GetTypeId()==TYPEID_UNIT)
@@ -9472,7 +9472,7 @@ void Unit::CombatStart(Unit* target)
         target->SetStandState(UNIT_STAND_STATE_STAND);
 
     if(!target->isInCombat() && target->GetTypeId() != TYPEID_PLAYER
-        && !((Creature*)target)->HasReactState(REACT_PASSIVE) && ((Creature*)target)->AI())
+        && !((Creature*)target)->HasReactState(REACT_PASSIVE) && ((Creature*)target)->IsAIEnabled)
         ((Creature*)target)->AI()->AttackStart(this);
 
     SetInCombatWith(target);
@@ -10109,7 +10109,7 @@ void Unit::TauntApply(Unit* taunter)
         return;
 
     SetInFront(taunter);
-    if (((Creature*)this)->AI())
+    if (((Creature*)this)->IsAIEnabled)
         ((Creature*)this)->AI()->AttackStart(taunter);
 
     m_ThreatManager.tauntApply(taunter);
@@ -10133,7 +10133,7 @@ void Unit::TauntFadeOut(Unit *taunter)
 
     if(m_ThreatManager.isThreatListEmpty())
     {
-        if(((Creature*)this)->AI())
+        if(((Creature*)this)->IsAIEnabled)
             ((Creature*)this)->AI()->EnterEvadeMode();
         return;
     }
@@ -10144,7 +10144,7 @@ void Unit::TauntFadeOut(Unit *taunter)
     if (target && target != taunter)
     {
         SetInFront(target);
-        if (((Creature*)this)->AI())
+        if (((Creature*)this)->IsAIEnabled)
             ((Creature*)this)->AI()->AttackStart(target);
     }
 }
@@ -10988,20 +10988,42 @@ void Unit::CleanupsBeforeDelete()
     RemoveFromWorld();
 }
 
-CharmInfo* Unit::InitCharmInfo(Unit *charm)
+CharmInfo* Unit::InitCharmInfo()
 {
     if(!m_charmInfo)
-        m_charmInfo = new CharmInfo(charm);
+        m_charmInfo = new CharmInfo(this);
     return m_charmInfo;
 }
 
+void Unit::DeleteCharmInfo()
+{
+    if(!m_charmInfo)
+        return;
+
+    delete m_charmInfo;
+    m_charmInfo = NULL;
+}
+
 CharmInfo::CharmInfo(Unit* unit)
-: m_unit(unit), m_CommandState(COMMAND_FOLLOW), m_reactState(REACT_PASSIVE), m_petnumber(0), m_barInit(false)
+: m_unit(unit), m_CommandState(COMMAND_FOLLOW), m_petnumber(0), m_barInit(false)
 {
     for(int i =0; i<4; ++i)
     {
         m_charmspells[i].spellId = 0;
         m_charmspells[i].active = ACT_DISABLED;
+    }
+    if(m_unit->GetTypeId() == TYPEID_UNIT)
+    {
+        m_oldReactState = ((Creature*)m_unit)->GetReactState();
+        ((Creature*)m_unit)->SetReactState(REACT_PASSIVE);
+    }
+}
+
+CharmInfo::~CharmInfo()
+{
+    if(m_unit->GetTypeId() == TYPEID_UNIT)
+    {
+        ((Creature*)m_unit)->SetReactState(m_oldReactState);
     }
 }
 
@@ -11666,7 +11688,7 @@ void Unit::SetFeared(bool apply, uint64 casterGUID, uint32 spellID)
 
             // attack caster if can
             Unit* caster = ObjectAccessor::GetObjectInWorld(casterGUID, (Unit*)NULL);
-            if(caster && caster != getVictim() && ((Creature*)this)->AI())
+            if(caster && caster != getVictim() && ((Creature*)this)->IsAIEnabled)
                 ((Creature*)this)->AI()->AttackStart(caster);
         }
     }
@@ -12428,7 +12450,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
             ((Player*)pVictim)->GetSession()->SendPacket(&data);
         }
         // Call KilledUnit for creatures
-        if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->AI())
+        if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->IsAIEnabled)
             ((Creature*)this)->AI()->KilledUnit(pVictim);
 
         // last damage from non duel opponent or opponent controlled creature
@@ -12451,11 +12473,11 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
         }
 
         // Call KilledUnit for creatures, this needs to be called after the lootable flag is set
-        if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->AI())
+        if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->IsAIEnabled)
             ((Creature*)this)->AI()->KilledUnit(pVictim);
 
         // Call creature just died function
-        if (cVictim->AI())
+        if (cVictim->IsAIEnabled)
             cVictim->AI()->JustDied(this);
 
         // Dungeon specific stuff, only applies to players killing creatures
@@ -12728,7 +12750,7 @@ void Unit::SetCharmedOrPossessedBy(Unit* charmer, bool possess)
 
     if(GetTypeId() == TYPEID_UNIT)
     {
-        ((Creature*)this)->InitPossessedAI();
+        ((Creature*)this)->AI()->OnCharmed(true);
         StopMoving();
         GetMotionMaster()->Clear(false);
         GetMotionMaster()->MoveIdle();
@@ -12743,8 +12765,7 @@ void Unit::SetCharmedOrPossessedBy(Unit* charmer, bool possess)
     // Pets already have a properly initialized CharmInfo, don't overwrite it.
     if(GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT && !((Creature*)this)->isPet())
     {
-        CharmInfo *charmInfo = InitCharmInfo(this);
-        charmInfo->SetReactState(REACT_DEFENSIVE);
+        CharmInfo *charmInfo = InitCharmInfo();
         if(possess)
             charmInfo->InitPossessCreateSpells();
         else
@@ -12815,8 +12836,8 @@ void Unit::RemoveCharmedOrPossessedBy(Unit *charmer)
         if(!((Creature*)this)->isPet())
             RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
 
-        ((Creature*)this)->DisablePossessedAI();
-        if(isAlive() && ((Creature*)this)->AI())
+        ((Creature*)this)->AI()->OnCharmed(false);
+        if(isAlive() && ((Creature*)this)->IsAIEnabled)
         {
             if(charmer && !IsFriendlyTo(charmer))
             {
@@ -12861,6 +12882,11 @@ void Unit::RemoveCharmedOrPossessedBy(Unit *charmer)
             else
                 sLog.outError("Aura::HandleModCharm: target="I64FMTD" with typeid=%d has a charm aura but no charm info!", GetGUID(), GetTypeId());
         }
+    }
+
+    if(GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT && !((Creature*)this)->isPet())
+    {
+        DeleteCharmInfo();
     }
 
     if(possess || charmer->GetTypeId() == TYPEID_PLAYER)

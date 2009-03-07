@@ -21,10 +21,10 @@
 #include "Player.h"
 #include "WorldPacket.h"
 #include "Database/DBCEnums.h"
+#include "GameEventMgr.h"
 #include "ObjectMgr.h"
 #include "Guild.h"
 #include "Database/DatabaseEnv.h"
-#include "GameEvent.h"
 #include "World.h"
 #include "SpellMgr.h"
 #include "ArenaTeam.h"
@@ -606,8 +606,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 {
                     if(Player::GetDrunkenstateByValue(GetPlayer()->GetDrunkValue()) != DRUNKEN_SMASHED)
                         continue;
-                    // TODO: hardcoding eventid is bad, it can differ from DB to DB - maye implement something using HolidayNames.dbc?
-                    if(!gameeventmgr.IsActiveEvent(26))
+                    if(!IsHolidayActive(HOLIDAY_BREWFEST))
                         continue;
                 }
                 // miscvalue1 is the ingame fallheight*100 as stored in dbc
@@ -730,6 +729,31 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
             }
+            case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:
+            {
+                // miscvalue1 = emote
+                // miscvalue2 = achievement->ID for special requirement
+                if(!miscvalue1)
+                    continue;
+                if(miscvalue1 != achievementCriteria->do_emote.emoteID)
+                    continue;
+                if(achievementCriteria->do_emote.count)
+                {
+                    // harcoded case
+                    if(achievement->ID==247)
+                    {
+                        if (!unit || unit->GetTypeId() != TYPEID_PLAYER ||
+                            unit->isAlive() || ((Player*)unit)->GetDeathTimer() == 0)
+                            continue;
+                    }
+                    // expected as scripted case
+                    else if(!miscvalue2 || !achievement->ID != miscvalue2)
+                        continue;
+                }
+
+                SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
+                break;
+            }
             case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
                 {
                     uint32 spellCount = 0;
@@ -798,7 +822,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
             case ACHIEVEMENT_CRITERIA_TYPE_HK_CLASS:
             case ACHIEVEMENT_CRITERIA_TYPE_HK_RACE:
-            case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:
             case ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE:
             case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
             case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM:
@@ -927,6 +950,8 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
         case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
         case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT:
             return progress->counter >= achievementCriteria->roll_greed_on_loot.count;
+        case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:
+            return progress->counter >= achievementCriteria->do_emote.count;
         case ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_QUEST_REWARD:
             return progress->counter >= achievementCriteria->quest_reward_money.goldInCopper;
         case ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY:
@@ -1024,8 +1049,12 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, 
                 newValue = changeValue;
                 break; 
             case PROGRESS_ACCUMULATE:
-                newValue = progress->counter + changeValue;
+            {
+                // avoid overflow
+                uint32 max_value = std::numeric_limits<uint32>::max();
+                newValue = max_value - progress->counter > changeValue ? progress->counter + changeValue : max_value;
                 break; 
+            }
             case PROGRESS_HIGHEST:
                 newValue = progress->counter < changeValue ? changeValue : progress->counter;
                 break; 
