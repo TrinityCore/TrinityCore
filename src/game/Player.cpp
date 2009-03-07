@@ -2165,7 +2165,7 @@ void Player::UninviteFromGroup()
 
     group->RemoveInvite(this);
 
-    if(group->GetMembersCount() <= 1)                   // group has just 1 member => disband
+    if(group->GetMembersCount() <= 1)                       // group has just 1 member => disband
     {
         if(group->IsCreated())
         {
