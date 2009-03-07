@@ -249,7 +249,8 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
             // patch for old data where some spells have ACT_DECIDE but should have ACT_CAST
             // so overwrite old state
             SpellEntry const *spellInfo = sSpellStore.LookupEntry(m_charmInfo->GetActionBarEntry(index)->SpellOrAction);
-            if (spellInfo && spellInfo->AttributesEx & SPELL_ATTR_EX_UNAUTOCASTABLE_BY_PET) m_charmInfo->GetActionBarEntry(index)->Type = ACT_ENABLED;
+            if (spellInfo && spellInfo->AttributesEx & SPELL_ATTR_EX_UNAUTOCASTABLE_BY_PET)
+                m_charmInfo->GetActionBarEntry(index)->Type = ACT_DISABLED;
         }
 
         //init teach spells
@@ -1272,7 +1273,7 @@ bool Pet::addSpell(uint32 spell_id, uint16 active, PetSpellState state, PetSpell
 
     // same spells don't have autocast option
     if (spellInfo->AttributesEx & SPELL_ATTR_EX_UNAUTOCASTABLE_BY_PET)
-        active = ACT_ENABLED;
+        active = ACT_DISABLED;
 
     PetSpellMap::iterator itr = m_spells.find(spell_id);
     if (itr != m_spells.end())
