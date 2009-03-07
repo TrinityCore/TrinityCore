@@ -1370,6 +1370,11 @@ uint16 Map::GetAreaFlag(float x, float y, float z) const
         case 856:                                           // The Noxious Glade (Eastern Plaguelands)
         case 2456:                                          // Death's Breach (Eastern Plaguelands)
             if(z > 350.0f) areaflag = 1950; break;
+        // Dalaran
+        case 1593:
+        case 2484:
+        case 2492:
+            if( (x < 6116 && x > 5568) && (y < 982 && y > 282) && z > 563.0f) areaflag = 2153; break;
     }
 
     return areaflag;
