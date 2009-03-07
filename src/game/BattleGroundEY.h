@@ -304,6 +304,8 @@ class BattleGroundEY : public BattleGround
 
         /* inherited from BattlegroundClass */
         virtual void AddPlayer(Player *plr);
+        virtual void StartingEventCloseDoors();
+        virtual void StartingEventOpenDoors();
 
         /* BG Flags */
         uint64 GetFlagPickerGUID() const    { return m_FlagKeeper; }

@@ -46,6 +46,11 @@ BattleGroundEY::BattleGroundEY()
     m_Points_Trigger[BLOOD_ELF] = TR_BLOOD_ELF_BUFF;
     m_Points_Trigger[DRAENEI_RUINS] = TR_DRAENEI_RUINS_BUFF;
     m_Points_Trigger[MAGE_TOWER] = TR_MAGE_TOWER_BUFF;
+
+    m_StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_EY_START_TWO_MINUTES;
+    m_StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_EY_START_ONE_MINUTE;
+    m_StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_EY_START_HALF_MINUTE;
+    m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_EY_HAS_BEGUN;
 }
 
 BattleGroundEY::~BattleGroundEY()
@@ -55,73 +60,8 @@ BattleGroundEY::~BattleGroundEY()
 void BattleGroundEY::Update(uint32 diff)
 {
     BattleGround::Update(diff);
-    // after bg start we get there (once)
-    if (GetStatus() == STATUS_WAIT_JOIN && GetPlayersSize())
-    {
-        ModifyStartDelayTime(diff);
 
-        if(!(m_Events & 0x01))
-        {
-            m_Events |= 0x01;
-
-            // setup here, only when at least one player has ported to the map
-            if(!SetupBattleGround())
-            {
-                EndNow();
-                return;
-            }
-
-            SpawnBGObject(BG_EY_OBJECT_DOOR_A, RESPAWN_IMMEDIATELY);
-            SpawnBGObject(BG_EY_OBJECT_DOOR_H, RESPAWN_IMMEDIATELY);
-
-//            SpawnBGCreature(EY_SPIRIT_MAIN_ALLIANCE, RESPAWN_IMMEDIATELY);
-//            SpawnBGCreature(EY_SPIRIT_MAIN_HORDE, RESPAWN_IMMEDIATELY);
-            for(uint32 i = BG_EY_OBJECT_A_BANNER_FEL_REALVER_CENTER; i < BG_EY_OBJECT_MAX; ++i)
-                SpawnBGObject(i, RESPAWN_ONE_DAY);
-
-            SetStartDelayTime(START_DELAY0);
-        }
-        // After 1 minute, warning is signalled
-        else if(GetStartDelayTime() <= START_DELAY1 && !(m_Events & 0x04))
-        {
-            m_Events |= 0x04;
-            SendMessageToAll(GetTrinityString(LANG_BG_EY_ONE_MINUTE));
-        }
-        // After 1,5 minute, warning is signalled
-        else if(GetStartDelayTime() <= START_DELAY2 && !(m_Events & 0x08))
-        {
-            m_Events |= 0x08;
-            SendMessageToAll(GetTrinityString(LANG_BG_EY_HALF_MINUTE));
-        }
-        // After 2 minutes, gates OPEN ! x)
-        else if(GetStartDelayTime() < 0 && !(m_Events & 0x10))
-        {
-            m_Events |= 0x10;
-            SpawnBGObject(BG_EY_OBJECT_DOOR_A, RESPAWN_ONE_DAY);
-            SpawnBGObject(BG_EY_OBJECT_DOOR_H, RESPAWN_ONE_DAY);
-
-            for(uint32 i = BG_EY_OBJECT_N_BANNER_FEL_REALVER_CENTER; i <= BG_EY_OBJECT_FLAG_NETHERSTORM; ++i)
-                SpawnBGObject(i, RESPAWN_IMMEDIATELY);
-            for(uint32 i = 0; i < EY_POINTS_MAX; ++i)
-            {
-                //randomly spawn buff
-                uint8 buff = urand(0, 2);
-                SpawnBGObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REALVER + buff + i * 3, RESPAWN_IMMEDIATELY);
-            }
-
-            SendMessageToAll(GetTrinityString(LANG_BG_EY_BEGIN));
-
-            PlaySoundToAll(SOUND_BG_START);
-            if(sWorld.getConfig(CONFIG_BG_START_MUSIC))
-                PlaySoundToAll(SOUND_BG_START_L70ETC); //MUSIC
-            SetStatus(STATUS_IN_PROGRESS);
-
-            for(BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-                if(Player *plr = objmgr.GetPlayer(itr->first))
-                    plr->RemoveAurasDueToSpell(SPELL_PREPARATION);
-        }
-    }
-    else if(GetStatus() == STATUS_IN_PROGRESS)
+    if( GetStatus() == STATUS_IN_PROGRESS )
     {
         m_PointAddingTimer -= diff;
         if(m_PointAddingTimer <= 0)
@@ -160,6 +100,30 @@ void BattleGroundEY::Update(uint32 diff)
             this->UpdatePointStatuses();
             m_TowerCapCheckTimer = BG_EY_FPOINTS_TICK_TIME;
         }
+    }
+}
+
+void BattleGroundEY::StartingEventCloseDoors()
+{
+    SpawnBGObject(BG_EY_OBJECT_DOOR_A, RESPAWN_IMMEDIATELY);
+    SpawnBGObject(BG_EY_OBJECT_DOOR_H, RESPAWN_IMMEDIATELY);
+
+    for(uint32 i = BG_EY_OBJECT_A_BANNER_FEL_REALVER_CENTER; i < BG_EY_OBJECT_MAX; ++i)
+        SpawnBGObject(i, RESPAWN_ONE_DAY);
+}
+
+void BattleGroundEY::StartingEventOpenDoors()
+{
+    SpawnBGObject(BG_EY_OBJECT_DOOR_A, RESPAWN_ONE_DAY);
+    SpawnBGObject(BG_EY_OBJECT_DOOR_H, RESPAWN_ONE_DAY);
+
+    for(uint32 i = BG_EY_OBJECT_N_BANNER_FEL_REALVER_CENTER; i <= BG_EY_OBJECT_FLAG_NETHERSTORM; ++i)
+        SpawnBGObject(i, RESPAWN_IMMEDIATELY);
+    for(uint32 i = 0; i < EY_POINTS_MAX; ++i)
+    {
+        //randomly spawn buff
+        uint8 buff = urand(0, 2);
+        SpawnBGObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REALVER + buff + i * 3, RESPAWN_IMMEDIATELY);
     }
 }
 
@@ -565,7 +529,7 @@ void BattleGroundEY::RespawnFlag(bool send_message)
 
     if(send_message)
     {
-        SendMessageToAll(GetTrinityString(LANG_BG_EY_RESETED_FLAG));
+        SendMessageToAll(GetMangosString(LANG_BG_EY_RESETED_FLAG), CHAT_MSG_BG_SYSTEM_NEUTRAL);
         PlaySoundToAll(BG_EY_SOUND_FLAG_RESET);             // flags respawned sound...
     }
 
