@@ -87,8 +87,8 @@ SET(game_STAT_SRCS
    FleeingMovementGenerator.cpp
    FleeingMovementGenerator.h
    Formulas.h
-   GameEvent.cpp
-   GameEvent.h
+   GameEventMgr.cpp
+   GameEventMgr.h
    GameObject.cpp
    GameObject.h
    GlobalEvents.cpp
