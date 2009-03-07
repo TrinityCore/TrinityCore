@@ -778,15 +778,16 @@ struct TRINITY_DLL_SPEC CharmInfo
 {
     public:
         explicit CharmInfo(Unit* unit);
+        ~CharmInfo();
         uint32 GetPetNumber() const { return m_petnumber; }
         void SetPetNumber(uint32 petnumber, bool statwindow);
 
         void SetCommandState(CommandStates st) { m_CommandState = st; }
         CommandStates GetCommandState() { return m_CommandState; }
         bool HasCommandState(CommandStates state) { return (m_CommandState == state); }
-        void SetReactState(ReactStates st) { m_reactState = st; }
-        ReactStates GetReactState() { return m_reactState; }
-        bool HasReactState(ReactStates state) { return (m_reactState == state); }
+        //void SetReactState(ReactStates st) { m_reactState = st; }
+        //ReactStates GetReactState() { return m_reactState; }
+        //bool HasReactState(ReactStates state) { return (m_reactState == state); }
 
         void InitPossessCreateSpells();
         void InitCharmCreateSpells();
@@ -803,9 +804,12 @@ struct TRINITY_DLL_SPEC CharmInfo
         UnitActionBarEntry PetActionBar[10];
         CharmSpellEntry m_charmspells[4];
         CommandStates   m_CommandState;
-        ReactStates     m_reactState;
+        //ReactStates     m_reactState;
         uint32          m_petnumber;
         bool            m_barInit;
+
+        //for restoration after charmed
+        ReactStates     m_oldReactState;
 };
 
 // for clearing special attacks
@@ -1208,7 +1212,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool isPossessing(Unit* u) const { return u->isPossessed() && GetCharmGUID() == u->GetGUID(); }
 
         CharmInfo* GetCharmInfo() { return m_charmInfo; }
-        CharmInfo* InitCharmInfo(Unit* charm);
+        CharmInfo* InitCharmInfo();
+        void       DeleteCharmInfo();
         SharedVisionList const& GetSharedVisionList() { return m_sharedVision; }
         void AddPlayerToVision(Player* plr);
         void RemovePlayerFromVision(Player* plr);
@@ -1539,6 +1544,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         }
         uint32 GetReducedThreatPercent() { return m_reducedThreatPercent; }
         Unit *GetMisdirectionTarget() { return m_misdirectionTargetGUID ? GetUnit(*this, m_misdirectionTargetGUID) : NULL; }
+
+        bool IsAIEnabled;
     protected:
         explicit Unit ();
 
@@ -1594,7 +1601,6 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         ThreatManager m_ThreatManager;
 
-        bool m_AI_enabled;
     private:
         void SendAttackStop(Unit* victim);                  // only from AttackStop(Unit*)
         //void SendAttackStart(Unit* pVictim);                // only from Unit::AttackStart(Unit*)

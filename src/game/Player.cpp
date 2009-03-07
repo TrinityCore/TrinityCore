@@ -63,7 +63,7 @@
 #include "Database/DatabaseImpl.h"
 #include "Spell.h"
 #include "SocialMgr.h"
-#include "GameEvent.h"
+#include "GameEventMgr.h"
 #include "AchievementMgr.h"
 
 #include <cmath>
@@ -16008,6 +16008,70 @@ void Player::ConvertInstancesToGroup(Player *player, Group *group, uint64 player
     if(!player || has_solo) CharacterDatabase.PExecute("DELETE FROM character_instance WHERE guid = '%d' AND permanent = 0", GUID_LOPART(player_guid));
 }
 
+bool Player::Satisfy(AccessRequirement const *ar, uint32 target_map, bool report)
+{
+    if(!isGameMaster() && ar)
+    {
+        uint32 LevelMin = 0;
+        if(getLevel() < ar->levelMin && !sWorld.getConfig(CONFIG_INSTANCE_IGNORE_LEVEL))
+            LevelMin = ar->levelMin;
+
+        uint32 LevelMax = 0;
+        if(ar->levelMax >= ar->levelMin && getLevel() > ar->levelMax && !sWorld.getConfig(CONFIG_INSTANCE_IGNORE_LEVEL))
+            LevelMax = ar->levelMax;
+
+        uint32 missingItem = 0;
+        if(ar->item)
+        {
+            if(!HasItemCount(ar->item, 1) &&
+                (!ar->item2 || !HasItemCount(ar->item2, 1)))
+                missingItem = ar->item;
+        }
+        else if(ar->item2 && !HasItemCount(ar->item2, 1))
+            missingItem = ar->item2;
+
+        uint32 missingKey = 0;
+		uint32 missingHeroicQuest = 0;
+        if(GetDifficulty() == DIFFICULTY_HEROIC)
+        {
+            if(ar->heroicKey)
+            {
+                if(!HasItemCount(ar->heroicKey, 1) &&
+                    (!ar->heroicKey2 || !HasItemCount(ar->heroicKey2, 1)))
+                    missingKey = ar->heroicKey;
+            }
+            else if(ar->heroicKey2 && !HasItemCount(ar->heroicKey2, 1))
+                missingKey = ar->heroicKey2;
+
+			if(ar->heroicQuest && !GetQuestRewardStatus(ar->heroicQuest))
+                missingHeroicQuest = ar->heroicQuest;
+        }
+
+        uint32 missingQuest = 0;
+        if(ar->quest && !GetQuestRewardStatus(ar->quest))
+            missingQuest = ar->quest;
+
+        if(LevelMin || LevelMax || missingItem || missingKey || missingQuest || missingHeroicQuest)
+        {
+            if(report)
+            {
+                if(missingItem)
+                    GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_LEVEL_MINREQUIRED_AND_ITEM), ar->levelMin, objmgr.GetItemPrototype(missingItem)->Name1);
+                else if(missingKey)
+                    SendTransferAborted(target_map, TRANSFER_ABORT_DIFFICULTY);
+                else if(missingHeroicQuest)
+                    GetSession()->SendAreaTriggerMessage(ar->heroicQuestFailedText.c_str());
+                else if(missingQuest)
+                    GetSession()->SendAreaTriggerMessage(ar->questFailedText.c_str());
+                else if(LevelMin)
+                    GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_LEVEL_MINREQUIRED), LevelMin);
+            }
+            return false;
+        }
+    }
+    return true;
+}
+
 bool Player::_LoadHomeBind(QueryResult *result)
 {
     PlayerInfo const *info = objmgr.GetPlayerInfo(getRace(), getClass());
@@ -17163,7 +17227,7 @@ void Player::PetSpellInitialize()
     data << uint64(pet->GetGUID());
     data << uint32(pet->GetCreatureInfo()->family);         // creature family (required for pet talents)
     data << uint32(0);
-    data << uint8(charmInfo->GetReactState()) << uint8(charmInfo->GetCommandState()) << uint16(0);
+    data << uint8(pet->GetReactState()) << uint8(charmInfo->GetCommandState()) << uint16(0);
 
     // action bar loop
     for(uint32 i = 0; i < 10; i++)
@@ -17300,7 +17364,7 @@ void Player::CharmSpellInitialize()
     data << uint32(0x00000000);
     data << uint32(0);
     if(charm->GetTypeId() != TYPEID_PLAYER)
-        data << uint8(charmInfo->GetReactState()) << uint8(charmInfo->GetCommandState());
+        data << uint8(((Creature*)charm)->GetReactState()) << uint8(charmInfo->GetCommandState());
     else
         data << uint8(0) << uint8(0);
     data << uint16(0);
@@ -20580,4 +20644,9 @@ void Player::HandleFall(MovementInfo const& movementInfo)
             DEBUG_LOG("FALLDAMAGE z=%f sz=%f pZ=%f FallTime=%d mZ=%f damage=%d SF=%d" , movementInfo.z, height, GetPositionZ(), movementInfo.fallTime, height, damage, safe_fall);
         }
     }
+}
+
+void Player::UpdateAchievementCriteria( AchievementCriteriaTypes type, uint32 miscvalue1/*=0*/, uint32 miscvalue2/*=0*/, Unit *unit/*=NULL*/, uint32 time/*=0*/ )
+{
+    GetAchievementMgr().UpdateAchievementCriteria(type, miscvalue1,miscvalue2,unit,time);
 }

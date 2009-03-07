@@ -22,7 +22,11 @@
 DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
+<<<<<<< HEAD:sql/mangos.sql
   `required_7388_01_mangos_mangos_string` bit(1) default NULL
+=======
+  `required_7393_01_mangos_game_event` bit(1) default NULL
+>>>>>>> a19b2511e943073ffad0bf7c9bc0efad5614d6bf:sql/mangos.sql
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -1071,6 +1075,7 @@ CREATE TABLE `game_event` (
   `end_time` timestamp NOT NULL default '0000-00-00 00:00:00' COMMENT 'Absolute end date, the event will never start afler',
   `occurence` bigint(20) unsigned NOT NULL default '86400' COMMENT 'Delay in hours between occurences of the event',
   `length` bigint(20) unsigned NOT NULL default '43200' COMMENT 'Length in hours of the event',
+  `holiday` mediumint(8) unsigned NOT NULL default '0' COMMENT 'Client side holiday id',
   `description` varchar(255) default NULL COMMENT 'Description of the event displayed in console',
   PRIMARY KEY  (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;

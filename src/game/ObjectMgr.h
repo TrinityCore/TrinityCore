@@ -101,15 +101,7 @@ extern ScriptMapMap sWaypointScripts;
 
 struct AreaTrigger
 {
-    uint8  requiredLevel;
-    uint32 requiredItem;
-    uint32 requiredItem2;
-    uint32 heroicKey;
-    uint32 heroicKey2;
-    uint32 heroicQuest;
-    std::string heroicQuestFailedText;
-    uint32 requiredQuest;
-    std::string requiredFailedText;
+    uint32 access_id;
     uint32 target_mapId;
     float  target_X;
     float  target_Y;
@@ -327,6 +319,8 @@ class ObjectMgr
 
         typedef UNORDERED_MAP<uint32, uint32> AreaTriggerScriptMap;
 
+        typedef UNORDERED_MAP<uint32, AccessRequirement> AccessRequirementMap;
+
         typedef UNORDERED_MAP<uint32, ReputationOnKillEntry> RepOnKillMap;
         typedef UNORDERED_MAP<uint32, PointOfInterest> PointOfInterestMap;
 
@@ -466,6 +460,14 @@ class ObjectMgr
             return NULL;
         }
 
+        AccessRequirement const* GetAccessRequirement(uint32 requirement) const
+        {
+            AccessRequirementMap::const_iterator itr = mAccessRequirements.find( requirement );
+            if( itr != mAccessRequirements.end( ) )
+                return &itr->second;
+            return NULL;
+        }
+
         AreaTrigger const* GetGoBackTrigger(uint32 Map) const;
         AreaTrigger const* GetMapEntranceTrigger(uint32 Map) const;
 
@@ -551,6 +553,7 @@ class ObjectMgr
         void LoadGossipText();
 
         void LoadAreaTriggerTeleports();
+        void LoadAccessRequirements();
         void LoadQuestAreaTriggers();
         void LoadAreaTriggerScripts();
         void LoadTavernAreaTriggers();
@@ -840,6 +843,7 @@ class ObjectMgr
         GossipTextMap       mGossipText;
         AreaTriggerMap      mAreaTriggers;
         AreaTriggerScriptMap  mAreaTriggerScripts;
+        AccessRequirementMap  mAccessRequirements;
 
         RepOnKillMap        mRepOnKill;
 

@@ -117,10 +117,17 @@ void LootStore::LoadLootTable()
             float  chanceOrQuestChance = fields[2].GetFloat();
             uint8  group               = fields[3].GetUInt8();
             int32  mincountOrRef       = fields[4].GetInt32();
-            uint8  maxcount            = fields[5].GetUInt8();
+            uint32 maxcount            = fields[5].GetUInt32();
             ConditionType condition    = (ConditionType)fields[6].GetUInt8();
             uint32 cond_value1         = fields[7].GetUInt32();
             uint32 cond_value2         = fields[8].GetUInt32();
+
+            if(maxcount > std::numeric_limits<uint8>::max())
+            {
+                sLog.outErrorDb("Table '%s' entry %d item %d: maxcount value (%u) to large. must be less %u - skipped", GetName(), entry, maxcount,std::numeric_limits<uint8>::max());
+                continue;                                   // error already printed to log/console.
+            }
+
 
             if(!PlayerCondition::IsValid(condition,cond_value1, cond_value2))
             {
@@ -251,6 +258,12 @@ bool LootStoreItem::Roll(bool rate) const
 // Checks correctness of values
 bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
 {
+    if(group >= 1 << 7)                                     // it stored in 7 bit field
+    {
+        sLog.outErrorDb("Table '%s' entry %d item %d: group (%u) must be less %u - skipped", store.GetName(), entry, itemid, group, 1 << 7);
+        return false;
+    }
+
     if (mincountOrRef == 0)
     {
         sLog.outErrorDb("Table '%s' entry %d item %d: wrong mincountOrRef (%d) - skipped", store.GetName(), entry, itemid, mincountOrRef);
