@@ -6289,6 +6289,7 @@ void ObjectMgr::LoadSpellDisabledEntrys()
 {
     m_DisabledPlayerSpells.clear();                                // need for reload case
     m_DisabledCreatureSpells.clear();
+    m_DisabledPetSpells.clear();
     QueryResult *result = WorldDatabase.Query("SELECT entry, disable_mask FROM spell_disabled");
 
     uint32 total_count = 0;
@@ -6321,6 +6322,8 @@ void ObjectMgr::LoadSpellDisabledEntrys()
             m_DisabledPlayerSpells.insert(spellid);
         if(disable_mask & SPELL_DISABLE_CREATURE)
             m_DisabledCreatureSpells.insert(spellid);
+        if(disable_mask & SPELL_DISABLE_PET)
+            m_DisabledPetSpells.insert(spellid);
         ++total_count;
    } while ( result->NextRow() );
 
