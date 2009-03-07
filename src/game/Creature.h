@@ -132,7 +132,7 @@ enum CreatureFlagsExtra
     CREATURE_FLAG_EXTRA_NO_XP_AT_KILL   = 0x00000040,       // creature kill not provide XP
     CREATURE_FLAG_EXTRA_TRIGGER         = 0x00000080,       // trigger creature
     CREATURE_FLAG_EXTRA_WORLDEVENT      = 0x00004000,       // custom flag for world event creatures (left room for merging)
-    CREATURE_FLAG_EXTRA_CHARM_AI        = 0x00008000,       // use ai when charmed
+    //CREATURE_FLAG_EXTRA_CHARM_AI        = 0x00008000,       // use ai when charmed
     CREATURE_FLAG_EXTRA_NO_TAUNT        = 0x00010000,       // cannot be taunted
 };
 
@@ -417,7 +417,6 @@ typedef std::map<uint32,time_t> CreatureSpellCooldowns;
 class TRINITY_DLL_SPEC Creature : public Unit
 {
     CreatureAI *i_AI;
-    CreatureAI *i_AI_possessed;
 
     public:
 
@@ -483,11 +482,9 @@ class TRINITY_DLL_SPEC Creature : public Unit
         bool IsInEvadeMode() const;
 
         bool AIM_Initialize(CreatureAI* ai = NULL);
-        void InitPossessedAI();
-        void DisablePossessedAI();
 
         void AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint32 MovementFlags, uint8 type);
-        CreatureAI* AI() { return isPossessed() && i_AI_possessed ? i_AI_possessed : i_AI; }
+        CreatureAI* AI() { return i_AI; }
 
         uint32 GetShieldBlockValue() const                  //dunno mob block value
         {
