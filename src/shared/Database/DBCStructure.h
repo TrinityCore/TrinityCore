@@ -359,7 +359,8 @@ struct AchievementCriteriaEntry
         // TODO: where is the information about the target stored?
         struct
         {
-            uint32  emoteID;                                // 3
+            uint32  emoteID;                                // 3 enum TextEmotes
+            uint32  count;                                  // 4 count of emotes, always required special target or requirements
         } do_emote;
         // ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE            = 13
         // ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE           = 55

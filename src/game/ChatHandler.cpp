@@ -524,44 +524,42 @@ void WorldSession::HandleTextEmoteOpcode( WorldPacket & recv_data )
     }
 
     EmotesTextEntry const *em = sEmotesTextStore.LookupEntry(text_emote);
-    if (em)
+    if (!em)
+        return;
+
+    GetPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE, text_emote, 0, unit);
+
+    uint32 emote_anim = em->textid;
+
+    WorldPacket data;
+
+    switch(emote_anim)
     {
-        uint32 emote_anim = em->textid;
-
-        WorldPacket data;
-
-        switch(emote_anim)
-        {
-            case EMOTE_STATE_SLEEP:
-            case EMOTE_STATE_SIT:
-            case EMOTE_STATE_KNEEL:
-            case EMOTE_ONESHOT_NONE:
-                break;
-            default:
-                GetPlayer()->HandleEmoteCommand(emote_anim);
-                break;
-        }
-
-        data.Initialize(SMSG_TEXT_EMOTE, (20+namlen));
-        data << GetPlayer()->GetGUID();
-        data << (uint32)text_emote;
-        data << emoteNum;
-        data << (uint32)namlen;
-        if( namlen > 1 )
-        {
-            data.append(nam, namlen);
-        }
-        else
-        {
-            data << (uint8)0x00;
-        }
-
-        GetPlayer()->SendMessageToSetInRange(&data,sWorld.getConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE),true);
-
-        //Send scripted event call
-        if (pCreature && Script)
-            Script->ReceiveEmote(GetPlayer(),pCreature,text_emote);
+        case EMOTE_STATE_SLEEP:
+        case EMOTE_STATE_SIT:
+        case EMOTE_STATE_KNEEL:
+        case EMOTE_ONESHOT_NONE:
+            break;
+        default:
+            GetPlayer()->HandleEmoteCommand(emote_anim);
+            break;
     }
+
+    data.Initialize(SMSG_TEXT_EMOTE, (20+namlen));
+    data << GetPlayer()->GetGUID();
+    data << (uint32)text_emote;
+    data << emoteNum;
+    data << (uint32)namlen;
+    if( namlen > 1 )
+        data.append(nam, namlen);
+    else
+        data << (uint8)0x00;
+
+    GetPlayer()->SendMessageToSetInRange(&data,sWorld.getConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE),true);
+
+    //Send scripted event call
+    if (pCreature && Script)
+        Script->ReceiveEmote(GetPlayer(),pCreature,text_emote);
 }
 
 void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recv_data )
