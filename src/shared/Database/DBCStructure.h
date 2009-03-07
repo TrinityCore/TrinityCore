@@ -861,6 +861,40 @@ struct GtRegenMPPerSptEntry
     float    ratio;
 };
 
+/* no used
+struct HolidayDescriptionsEntry
+{
+    uint32 ID;                                              // 0, this is NOT holiday id
+    //char*     name[16]                                    // 1-16 m_name_lang
+                                                            // 17 name flags
+};
+*/
+
+/* no used
+struct HolidayNamesEntry
+{
+    uint32 ID;                                              // 0, this is NOT holiday id
+    //char*     name[16]                                    // 1-16 m_name_lang
+    // 17 name flags
+};
+*/
+
+struct HolidaysEntry
+{
+    uint32 ID;                                              // 0, holiday id
+    //uint32 unk1;                                          // 1
+    //uint32 unk2;                                          // 2
+    //uint32 unk3[8]                                        // 3-10, empty fields
+    //uint32 unk11[13]                                      // 11-23, some unknown data (bit strings?)
+    //uint32 unk11[13]                                      // 24-36, some empty fields (continue prev?)
+    //uint32 unk11[12]                                      // 37-48, counters?
+    //uint32 holidayNameId;                                 // 49, id for HolidayNames.dbc
+    //uint32 holidayDescriptionId;                          // 50, id for HolidayDescriptions.dbc
+    //uint32 unk51;                                         // 51
+    //uint32 unk52;                                         // 52
+    //uint32 unk53;                                         // 53
+};
+
 struct ItemEntry
 {
    uint32   ID;                                             // 0

@@ -63,7 +63,7 @@
 #include "Database/DatabaseImpl.h"
 #include "Spell.h"
 #include "SocialMgr.h"
-#include "GameEvent.h"
+#include "GameEventMgr.h"
 #include "AchievementMgr.h"
 
 #include <cmath>
