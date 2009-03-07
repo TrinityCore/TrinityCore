@@ -47,7 +47,7 @@ INSTALL(FILES
 1531_mangos_7324_01_characters_character_spell.sql
 1531_mangos_7324_02_characters_character_aura.sql
 1555_mangos_7331_01_world_command.sql
-1558_world_spell_linked_spell.sql
+1558_world.sql
 1559_world.sql
 1576_mangos_7332_01_world_command.sql
 1605_mangos_7349_01_world_spell_area.sql
@@ -59,11 +59,11 @@ INSTALL(FILES
 1657_world.sql
 1661_world.sql
 1663_mangos_7376_01_world_spell_area.sql
-1679_world.sql
 1688_mangos_7382_01_world_creature_template.sql
 1693_world.sql
-1138_world.sql
-1142_world.sql
-1159_world.sql
-1160_world.sql
+1694_world.sql
+1697_mangos_7388_01_world_trinity_string.sql
+1703_world.sql
+1709_mangos_7393_01_world_game_event.sql
+1724_mangos_7399_01_world_trinity_string.sql
 DESTINATION share/trinity/sql/updates)
