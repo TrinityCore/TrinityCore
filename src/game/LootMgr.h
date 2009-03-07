@@ -65,17 +65,17 @@ struct LootStoreItem
     uint32  itemid;                                         // id of the item
     float   chance;                                         // always positive, chance to drop for both quest and non-quest items, chance to be used for refs
     int32   mincountOrRef;                                  // mincount for drop items (positive) or minus referenced TemplateleId (negative)
-    uint8   group       :8;
+    uint8   group       :7;
+    bool    needs_quest :1;                                 // quest drop (negative ChanceOrQuestChance in DB)
     uint8   maxcount    :8;                                 // max drop count for the item (mincountOrRef positive) or Ref multiplicator (mincountOrRef negative)
     uint16  conditionId :16;                                // additional loot condition Id
-    bool    needs_quest :1;                                 // quest drop (negative ChanceOrQuestChance in DB)
 
     // Constructor, converting ChanceOrQuestChance -> (chance, needs_quest)
     // displayid is filled in IsValid() which must be called after
     LootStoreItem(uint32 _itemid, float _chanceOrQuestChance, int8 _group, uint8 _conditionId, int32 _mincountOrRef, uint8 _maxcount)
         : itemid(_itemid), chance(fabs(_chanceOrQuestChance)), mincountOrRef(_mincountOrRef),
-        group(_group), maxcount(_maxcount), conditionId(_conditionId),
-        needs_quest(_chanceOrQuestChance < 0) {}
+        group(_group), needs_quest(_chanceOrQuestChance < 0), maxcount(_maxcount), conditionId(_conditionId)
+         {}
 
     bool Roll(bool rate) const;                             // Checks if the entry takes it's chance (at loot generation)
     bool IsValid(LootStore const& store, uint32 entry) const;
