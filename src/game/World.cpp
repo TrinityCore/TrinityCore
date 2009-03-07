@@ -56,7 +56,7 @@
 #include "WaypointMovementGenerator.h"
 #include "VMapFactory.h"
 #include "GlobalEvents.h"
-#include "GameEvent.h"
+#include "GameEventMgr.h"
 #include "PoolHandler.h"
 #include "Database/DatabaseImpl.h"
 #include "GridNotifiersImpl.h"
@@ -1270,7 +1270,10 @@ void World::SetInitialWorldSettings()
     spellmgr.LoadSpellAreas();
 
     sLog.outString( "Loading AreaTrigger definitions..." );
-    objmgr.LoadAreaTriggerTeleports();                      // must be after item template load
+    objmgr.LoadAreaTriggerTeleports();
+
+    sLog.outString( "Loading Access Requirements..." );
+    objmgr.LoadAccessRequirements();                        // must be after item template load
 
     sLog.outString( "Loading Quest Area Triggers..." );
     objmgr.LoadQuestAreaTriggers();                         // must be after LoadQuests

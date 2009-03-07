@@ -864,6 +864,20 @@ struct InstancePlayerBind
     InstancePlayerBind() : save(NULL), perm(false) {}
 };
 
+struct AccessRequirement
+{
+    uint8  levelMin;
+    uint8  levelMax;
+    uint32 item;
+    uint32 item2;
+    uint32 heroicKey;
+    uint32 heroicKey2;
+    uint32 quest;
+    std::string questFailedText;
+	uint32 heroicQuest;
+    std::string heroicQuestFailedText;
+ };
+
 class TRINITY_DLL_SPEC PlayerTaxi
 {
     public:
@@ -2127,6 +2141,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         void SendRaidInfo();
         void SendSavedInstances();
         static void ConvertInstancesToGroup(Player *player, Group *group = NULL, uint64 player_guid = 0);
+        bool Satisfy(AccessRequirement const*, uint32 target_map, bool report = false);
 
         /*********************************************************/
         /***                   GROUP SYSTEM                    ***/
@@ -2166,6 +2181,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         void AddRunePower(uint8 index);
         void InitRunes();
         AchievementMgr& GetAchievementMgr() { return m_achievementMgr; }
+        void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1=0, uint32 miscvalue2=0, Unit *unit=NULL, uint32 time=0);
         bool HasTitle(uint32 bitIndex);
         bool HasTitle(CharTitlesEntry const* title) { return HasTitle(title->bit_index); }
         void SetTitle(CharTitlesEntry const* title);

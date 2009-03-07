@@ -901,7 +901,7 @@ struct TRINITY_DLL_DECL npc_steam_tonkAI : public ScriptedAI
         if (apply)
         {
             // Initialize the action bar without the melee attack command
-            m_creature->InitCharmInfo(m_creature);
+            m_creature->InitCharmInfo();
             m_creature->GetCharmInfo()->InitEmptyActionBar(false);
 
             m_creature->SetReactState(REACT_PASSIVE);
