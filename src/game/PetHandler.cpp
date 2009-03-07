@@ -118,10 +118,9 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
                     //if(!pet->IsWithinLOSInMap(TargetUnit))
                     //    return;
 
-                    if(pet->GetTypeId() != TYPEID_PLAYER)
+                    if(pet->GetTypeId() != TYPEID_PLAYER && ((Creature*)pet)->IsAIEnabled)
                     {
-                        if (((Creature*)pet)->IsAIEnabled)
-                            ((Creature*)pet)->AI()->AttackStart(TargetUnit);
+                        ((Creature*)pet)->AI()->AttackStart(TargetUnit);
 
                         //10% chance to play special pet attack talk, else growl
                         if(((Creature*)pet)->isPet() && ((Pet*)pet)->getPetType() == SUMMON_PET && pet != TargetUnit && urand(0, 100) < 10)
