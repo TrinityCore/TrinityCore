@@ -1015,7 +1015,6 @@ bool Map::CreatureCellRelocation(Creature *c, Cell new_cell)
 
             RemoveFromGrid(c,getNGrid(old_cell.GridX(), old_cell.GridY()),old_cell);
             AddToGrid(c,getNGrid(new_cell.GridX(), new_cell.GridY()),new_cell);
-            c->SetCurrentCell(new_cell);
         }
         else
         {
@@ -1040,7 +1039,6 @@ bool Map::CreatureCellRelocation(Creature *c, Cell new_cell)
 
         RemoveFromGrid(c,getNGrid(old_cell.GridX(), old_cell.GridY()),old_cell);
         AddToGrid(c,getNGrid(new_cell.GridX(), new_cell.GridY()),new_cell);
-        c->SetCurrentCell(new_cell);
 
         return true;
     }
@@ -1056,7 +1054,6 @@ bool Map::CreatureCellRelocation(Creature *c, Cell new_cell)
         RemoveFromGrid(c,getNGrid(old_cell.GridX(), old_cell.GridY()),old_cell);
         EnsureGridCreated(GridPair(new_cell.GridX(), new_cell.GridY()));
         AddToGrid(c,getNGrid(new_cell.GridX(), new_cell.GridY()),new_cell);
-        c->SetCurrentCell(new_cell);
 
         return true;
     }
@@ -1730,7 +1727,7 @@ void Map::AddToActive( Creature* c )
     AddToActiveHelper(c);
 
     // also not allow unloading spawn grid to prevent creating creature clone at load
-    if(c->GetDBTableGUIDLow())
+    if(!c->isPet() && c->GetDBTableGUIDLow())
     {
         float x,y,z;
         c->GetRespawnCoord(x,y,z);
@@ -1751,7 +1748,7 @@ void Map::RemoveFromActive( Creature* c )
     RemoveFromActiveHelper(c);
 
     // also allow unloading spawn grid
-    if(c->GetDBTableGUIDLow())
+    if(!c->isPet() && c->GetDBTableGUIDLow())
     {
         float x,y,z;
         c->GetRespawnCoord(x,y,z);
