@@ -56,7 +56,7 @@
 #include "WaypointMovementGenerator.h"
 #include "VMapFactory.h"
 #include "GlobalEvents.h"
-#include "GameEvent.h"
+#include "GameEventMgr.h"
 #include "PoolHandler.h"
 #include "Database/DatabaseImpl.h"
 #include "GridNotifiersImpl.h"

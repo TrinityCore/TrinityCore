@@ -21,10 +21,10 @@
 #include "Player.h"
 #include "WorldPacket.h"
 #include "Database/DBCEnums.h"
+#include "GameEventMgr.h"
 #include "ObjectMgr.h"
 #include "Guild.h"
 #include "Database/DatabaseEnv.h"
-#include "GameEvent.h"
 #include "World.h"
 #include "SpellMgr.h"
 #include "ArenaTeam.h"
@@ -607,7 +607,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     if(Player::GetDrunkenstateByValue(GetPlayer()->GetDrunkValue()) != DRUNKEN_SMASHED)
                         continue;
                     // TODO: hardcoding eventid is bad, it can differ from DB to DB - maye implement something using HolidayNames.dbc?
-                    if(!gameeventmgr.IsActiveEvent(26))
+                    if(!IsHolidayActive(HOLIDAY_BREWFEST))
                         continue;
                 }
                 // miscvalue1 is the ingame fallheight*100 as stored in dbc
