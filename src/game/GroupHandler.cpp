@@ -225,26 +225,16 @@ void WorldSession::HandleGroupDeclineOpcode( WorldPacket & /*recv_data*/ )
     Group  *group  = GetPlayer()->GetGroupInvite();
     if (!group) return;
 
+    // remember leader if online
     Player *leader = objmgr.GetPlayer(group->GetLeaderGUID());
 
-    /** error handling **/
+    // uninvite, group can be deleted
+    GetPlayer()->UninviteFromGroup();
+
     if(!leader || !leader->GetSession())
         return;
-    /********************/
 
-    // everything's fine, do it
-    if(!group->IsCreated())
-    {
-        // note: this means that if you invite more than one person
-        // and one of them declines before the first one accepts
-        // all invites will be cleared
-        // fixme: is that ok ?
-        group->RemoveAllInvites();
-        delete group;
-    }
-
-    GetPlayer()->SetGroupInvite(NULL);
-
+    // report
     WorldPacket data( SMSG_GROUP_DECLINE, 10 );             // guess size
     data << GetPlayer()->GetName();
     leader->GetSession()->SendPacket( &data );
