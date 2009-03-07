@@ -2250,6 +2250,14 @@ void SpellMgr::LoadSpellCustomAttr()
                         spellInfo->Effect[j] = SPELL_EFFECT_TRIGGER_MISSILE;
                     break;
             }
+
+            switch(SpellTargetType[spellInfo->EffectImplicitTargetA[j]])
+            {
+                case TARGET_TYPE_UNIT_TARGET:
+                case TARGET_TYPE_DEST_TARGET:
+                    spellInfo->Targets |= TARGET_FLAG_UNIT;
+                    break;
+            }
         }
 
         if(spellInfo->SpellVisual[0] == 3879)

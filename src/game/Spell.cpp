@@ -408,6 +408,13 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
         }
     }
 
+    if(!m_targets.getUnitTargetGUID() && m_spellInfo->Targets & TARGET_FLAG_UNIT)
+    {
+        if(Unit *target = ObjectAccessor::GetUnit(*m_caster, m_caster->GetUInt64Value(UNIT_FIELD_TARGET)))
+            if(IsValidSingleTargetSpell(target))
+                m_targets.setUnitTarget(target);
+    }
+
     CleanupTargetList();
 }
 
