@@ -127,7 +127,7 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
                         if(pet->GetTypeId() != TYPEID_PLAYER)
                         {
                             pet->GetMotionMaster()->Clear();
-                            if (((Creature*)pet)->AI())
+                            if (((Creature*)pet)->IsAIEnabled)
                                 ((Creature*)pet)->AI()->AttackStart(TargetUnit);
 
                             //10% chance to play special pet attack talk, else growl
@@ -173,7 +173,8 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
                 case REACT_PASSIVE:                         //passive
                 case REACT_DEFENSIVE:                       //recovery
                 case REACT_AGGRESSIVE:                      //activete
-                    charmInfo->SetReactState( ReactStates(spellid) );
+                    if(pet->GetTypeId() == TYPEID_UNIT)
+                        ((Creature*)pet)->SetReactState( ReactStates(spellid) );
                     break;
             }
             break;
@@ -249,7 +250,7 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
                         if (pet->getVictim())
                             pet->AttackStop();
                         pet->GetMotionMaster()->Clear();
-                        if (((Creature*)pet)->AI())
+                        if (((Creature*)pet)->IsAIEnabled)
                             ((Creature*)pet)->AI()->AttackStart(unit_target);
                     }
                 }

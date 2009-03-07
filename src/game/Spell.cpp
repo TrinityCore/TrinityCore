@@ -1164,10 +1164,10 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
         }
     }
 
-    if(unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->AI())
+    if(unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->IsAIEnabled)
         ((Creature*)unit)->AI()->SpellHit(m_caster, m_spellInfo);
 
-    if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->AI())
+    if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->IsAIEnabled)
         ((Creature*)m_caster)->AI()->SpellHitTarget(unit, m_spellInfo);
 
     for(ChanceTriggerSpells::const_iterator i = m_ChanceTriggerSpells.begin(); i != m_ChanceTriggerSpells.end(); ++i)
@@ -4251,10 +4251,8 @@ uint8 Spell::CanCast(bool strict)
                     InstanceTemplate const* instance = ObjectMgr::GetInstanceTemplate(m_caster->GetMapId());
                     if(!instance)
                         return SPELL_FAILED_TARGET_NOT_IN_INSTANCE;
-                    if ( instance->levelMin > target->getLevel() )
-                        return SPELL_FAILED_LOWLEVEL;
-                    if ( instance->levelMax && instance->levelMax < target->getLevel() )
-                        return SPELL_FAILED_HIGHLEVEL;
+                    if(!target->Satisfy(objmgr.GetAccessRequirement(instance->access_id), m_caster->GetMapId()))
+                        return SPELL_FAILED_BAD_TARGETS;
                 }
                 break;
             }

@@ -78,6 +78,9 @@ class TRINITY_DLL_SPEC UnitAI
         UnitAI(Unit *u) : me(u) {}
         virtual void AttackStart(Unit *);
         virtual void UpdateAI(const uint32 diff) = 0;
+
+        // Called when unit is charmed
+        virtual void OnCharmed(bool apply) = 0;
 };
 
 class TRINITY_DLL_SPEC PlayerAI : public UnitAI
@@ -86,6 +89,8 @@ class TRINITY_DLL_SPEC PlayerAI : public UnitAI
         Player *me;
     public:
         PlayerAI(Player *p) : UnitAI((Unit*)p), me(p) {}
+
+        void OnCharmed(bool apply);
 };
 
 class TRINITY_DLL_SPEC SimpleCharmedAI : public PlayerAI
@@ -140,8 +145,7 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
         // Called at waypoint reached or point movement finished
         virtual void MovementInform(uint32 /*MovementType*/, uint32 /*Data*/) {}
 
-        // Called when AI is temporarily replaced or put back when possess is applied or removed
-        virtual void OnPossess(bool apply) {}
+        void OnCharmed(bool apply);
 
         // Called at reaching home after evade
         virtual void JustReachedHome() {}

@@ -4119,7 +4119,7 @@ bool ChatHandler::HandleNpcTameCommand(const char* /*args*/)
     pet->Relocate (x,y,z,M_PI-player->GetOrientation ());
 
     // set pet to defensive mode by default (some classes can't control controlled pets in fact).
-    pet->GetCharmInfo()->SetReactState(REACT_DEFENSIVE);
+    pet->SetReactState(REACT_DEFENSIVE);
 
     // calculate proper level
     uint32 level = (creatureTarget->getLevel() < (player->getLevel() - 5)) ? (player->getLevel() - 5) : creatureTarget->getLevel();
