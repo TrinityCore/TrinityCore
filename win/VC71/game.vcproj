@@ -131,10 +131,6 @@
 			Name="World/Others"
 			>
 			<File
-				RelativePath="..\..\src\game\AuctionHouse.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\game\Channel.cpp"
 				>
 			</File>
@@ -219,16 +215,6 @@
 			<File
 				RelativePath="..\..\src\game\ArenaTeam.h"
 				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\AuctionHouseObject.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\AuctionHouseBot.cpp">
-			</File>
-			<File
-				RelativePath="..\..\src\game\AuctionHouseBot.h">
 			</File>
 			<File
 				RelativePath="..\..\src\game\Bag.cpp"
@@ -1087,6 +1073,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\game\AuctionHouseHandler.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\game\ChannelHandler.cpp"
 				>
 			</File>
@@ -1192,6 +1182,14 @@
 			</File>
 			<File
 				RelativePath="..\..\src\game\AccountMgr.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\AuctionHouseMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\AuctionHouseMgr.h"
 				>
 			</File>
 			<File
