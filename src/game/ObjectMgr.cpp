@@ -5009,8 +5009,8 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 
     uint32 count = 0;
 
-    //                                                0   1               2              3               4           5            6                           7                                  8                    9                     10          11                          12        13
-    QueryResult *result = WorldDatabase.Query("SELECT id, required_level, required_item, required_item2, heroic_key, heroic_key2, heroic_required_quest_done, heroic_required_failed_quest_text, required_quest_done, required_failed_text, target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM areatrigger_teleport");
+    //                                                0       1           2              3               4                   5                   6  
+    QueryResult *result = WorldDatabase.Query("SELECT id, access_id, target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM areatrigger_teleport");
     if( !result )
     {
 
@@ -5037,20 +5037,12 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 
         AreaTrigger at;
 
-        at.requiredLevel            = fields[1].GetUInt8();
-        at.requiredItem             = fields[2].GetUInt32();
-        at.requiredItem2            = fields[3].GetUInt32();
-        at.heroicKey                = fields[4].GetUInt32();
-        at.heroicKey2               = fields[5].GetUInt32();
-        at.heroicQuest              = fields[6].GetUInt32();
-        at.heroicQuestFailedText    = fields[7].GetCppString();
-        at.requiredQuest            = fields[8].GetUInt32();
-        at.requiredFailedText       = fields[9].GetCppString();
-        at.target_mapId             = fields[10].GetUInt32();
-        at.target_X                 = fields[11].GetFloat();
-        at.target_Y                 = fields[12].GetFloat();
-        at.target_Z                 = fields[13].GetFloat();
-        at.target_Orientation       = fields[14].GetFloat();
+        at.access_id                = fields[1].GetUInt32();
+        at.target_mapId             = fields[2].GetUInt32();
+        at.target_X                 = fields[3].GetFloat();
+        at.target_Y                 = fields[4].GetFloat();
+        at.target_Z                 = fields[5].GetFloat();
+        at.target_Orientation       = fields[6].GetFloat();
 
         AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(Trigger_ID);
         if(!atEntry)
@@ -5058,64 +5050,7 @@ void ObjectMgr::LoadAreaTriggerTeleports()
             sLog.outErrorDb("Area trigger (ID:%u) does not exist in `AreaTrigger.dbc`.",Trigger_ID);
             continue;
         }
-
-        if(at.requiredItem)
-        {
-            ItemPrototype const *pProto = GetItemPrototype(at.requiredItem);
-            if(!pProto)
-            {
-                sLog.outError("Key item %u does not exist for trigger %u, removing key requirement.", at.requiredItem, Trigger_ID);
-                at.requiredItem = 0;
-            }
-        }
-        if(at.requiredItem2)
-        {
-            ItemPrototype const *pProto = GetItemPrototype(at.requiredItem2);
-            if(!pProto)
-            {
-                sLog.outError("Second item %u not exist for trigger %u, remove key requirement.", at.requiredItem2, Trigger_ID);
-                at.requiredItem2 = 0;
-            }
-        }
-
-        if(at.heroicKey)
-        {
-            ItemPrototype const *pProto = GetItemPrototype(at.heroicKey);
-            if(!pProto)
-            {
-                sLog.outError("Heroic key item %u not exist for trigger %u, remove key requirement.", at.heroicKey, Trigger_ID);
-                at.heroicKey = 0;
-            }
-        }
-
-        if(at.heroicKey2)
-        {
-            ItemPrototype const *pProto = GetItemPrototype(at.heroicKey2);
-            if(!pProto)
-            {
-                sLog.outError("Heroic second key item %u not exist for trigger %u, remove key requirement.", at.heroicKey2, Trigger_ID);
-                at.heroicKey2 = 0;
-            }
-        }
-
-        if(at.heroicQuest)
-        {
-            if(!mQuestTemplates[at.heroicQuest])
-            {
-                sLog.outErrorDb("Required Heroic Quest %u not exist for trigger %u, remove heroic quest done requirement.",at.heroicQuest,Trigger_ID);
-                at.heroicQuest = 0;
-            }
-        }
-
-        if(at.requiredQuest)
-        {
-            if(!mQuestTemplates[at.requiredQuest])
-            {
-                sLog.outErrorDb("Required Quest %u not exist for trigger %u, remove quest done requirement.",at.requiredQuest,Trigger_ID);
-                at.requiredQuest = 0;
-            }
-        }
-
+        
         MapEntry const* mapEntry = sMapStore.LookupEntry(at.target_mapId);
         if(!mapEntry)
         {
@@ -5137,6 +5072,119 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 
     sLog.outString();
     sLog.outString( ">> Loaded %u area trigger teleport definitions", count );
+}
+
+void ObjectMgr::LoadAccessRequirements()
+{
+    mAccessRequirements.clear();                                  // need for reload case
+
+    uint32 count = 0;
+
+	//                                                0       1          2       3      4        5           6             7              8                   9                  10
+    QueryResult *result = WorldDatabase.Query("SELECT id, level_min, level_max, item, item2, heroic_key, heroic_key2, quest_done, quest_failed_text, heroic_quest_done, heroic_quest_failed_text FROM access_requirement");
+	if( !result )
+    {
+
+        barGoLink bar( 1 );
+
+        bar.step();
+
+        sLog.outString();
+        sLog.outString( ">> Loaded %u access requirement definitions", count );
+        return;
+    }
+
+    barGoLink bar( result->GetRowCount() );
+
+    do
+    {
+        Field *fields = result->Fetch();
+
+        bar.step();
+
+        ++count;
+
+        uint32 requiremt_ID = fields[0].GetUInt32();
+
+        AccessRequirement ar;
+
+        ar.levelMin                 = fields[1].GetUInt8();
+        ar.levelMax                 = fields[2].GetUInt32();
+        ar.item                     = fields[3].GetUInt32();
+        ar.item2                    = fields[4].GetUInt32();
+        ar.heroicKey                = fields[5].GetUInt32();
+        ar.heroicKey2               = fields[6].GetUInt32();
+        ar.quest                    = fields[7].GetUInt32();
+        ar.questFailedText          = fields[8].GetCppString();
+        ar.heroicQuest              = fields[9].GetUInt32();
+        ar.heroicQuestFailedText    = fields[10].GetCppString();
+
+        if(ar.item)
+        {
+            ItemPrototype const *pProto = GetItemPrototype(ar.item);
+            if(!pProto)
+            {
+                sLog.outError("Key item %u does not exist for requirement %u, removing key requirement.", ar.item, requiremt_ID);
+                ar.item = 0;
+            }
+        }
+
+        if(ar.item2)
+        {
+            ItemPrototype const *pProto = GetItemPrototype(ar.item2);
+            if(!pProto)
+            {
+                sLog.outError("Second item %u does not exist for requirement %u, removing key requirement.", ar.item2, requiremt_ID);
+                ar.item2 = 0;
+            }
+        }
+
+        if(ar.heroicKey)
+        {
+            ItemPrototype const *pProto = GetItemPrototype(ar.heroicKey);
+            if(!pProto)
+            {
+                sLog.outError("Heroic key %u not exist for trigger %u, remove key requirement.", ar.heroicKey, requiremt_ID);
+                ar.heroicKey = 0;
+            }
+        }
+
+        if(ar.heroicKey2)
+        {
+            ItemPrototype const *pProto = GetItemPrototype(ar.heroicKey2);
+            if(!pProto)
+            {
+                sLog.outError("Second heroic key %u not exist for trigger %u, remove key requirement.", ar.heroicKey2, requiremt_ID);
+                ar.heroicKey2 = 0;
+            }
+        }
+
+		if(ar.heroicQuest)
+ 		{
+			if(!mQuestTemplates[ar.heroicQuest])
+			{
+				sLog.outErrorDb("Required Heroic Quest %u not exist for trigger %u, remove heroic quest done requirement.",ar.heroicQuest,requiremt_ID);
+				ar.heroicQuest = 0;
+ 			}
+ 		}
+ 
+        if(ar.quest)
+        {
+            if(!mQuestTemplates[ar.quest])
+            {
+                sLog.outErrorDb("Required Quest %u not exist for trigger %u, remove quest done requirement.",ar.quest,requiremt_ID);
+                ar.quest = 0;
+            }
+        }
+
+        mAccessRequirements[requiremt_ID] = ar;
+
+    } while( result->NextRow() );
+
+    delete result;
+
+    sLog.outString();
+    sLog.outString( ">> Loaded %u access requirement definitions", count );
 }
 
 /*

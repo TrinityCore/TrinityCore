@@ -82,14 +82,8 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `areatrigger_teleport`;
 CREATE TABLE `areatrigger_teleport` (
   `id` mediumint(8) unsigned NOT NULL default '0' COMMENT 'Identifier',
-  `name` text,
-  `required_level` tinyint(3) unsigned NOT NULL default '0',
-  `required_item` mediumint(8) unsigned NOT NULL default '0',
-  `required_item2` mediumint(8) unsigned NOT NULL default '0',
-  `heroic_key` mediumint(8) unsigned NOT NULL default '0',
-  `heroic_key2` mediumint(8) unsigned NOT NULL default '0',
-  `required_quest_done` int(11) unsigned NOT NULL default '0',
-  `required_failed_text` text,
+  `name` text,            
+  `access_id` bigint(20) unsigned NOT NULL DEFAULT '0',
   `target_map` smallint(5) unsigned NOT NULL default '0',
   `target_position_x` float NOT NULL default '0',
   `target_position_y` float NOT NULL default '0',
@@ -105,6 +99,36 @@ CREATE TABLE `areatrigger_teleport` (
 LOCK TABLES `areatrigger_teleport` WRITE;
 /*!40000 ALTER TABLE `areatrigger_teleport` DISABLE KEYS */;
 /*!40000 ALTER TABLE `areatrigger_teleport` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `access_requirement`
+--
+
+DROP TABLE IF EXISTS `access_requirement`;
+CREATE TABLE `access_requirement` (
+  `id` bigint(20) unsigned NOT NULL COMMENT 'Identifier',
+  `level_min` tinyint(3) unsigned NOT NULL default '0',
+  `level_max` tinyint(3) unsigned NOT NULL default '0',
+  `item` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  `item2` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  `heroic_key` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  `heroic_key2` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  `quest_done` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  `quest_failed_text` TEXT NULL DEFAULT NULL,
+  `heroic_quest_done` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  `heroic_quest_failed_text` TEXT NULL DEFAULT NULL,
+  `comment` TEXT NULL DEFAULT NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Access Requirements';
+
+--
+-- Dumping data for table `access_requirement`
+--
+
+LOCK TABLES `access_requirement` WRITE;
+/*!40000 ALTER TABLE `access_requirement` DISABLE KEYS */;
+/*!40000 ALTER TABLE `access_requirement` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -1688,10 +1712,9 @@ DROP TABLE IF EXISTS `instance_template`;
 CREATE TABLE `instance_template` (
   `map` smallint(5) unsigned NOT NULL,
   `parent` int(10) unsigned NOT NULL,
-  `levelMin` tinyint(3) unsigned NOT NULL default '0',
-  `levelMax` tinyint(3) unsigned NOT NULL default '0',
   `maxPlayers` tinyint(3) unsigned NOT NULL default '0',
   `reset_delay` int(10) unsigned NOT NULL default '0',
+  `access_id` bigint(20) unsigned NOT NULL DEFAULT '0',
   `startLocX` float default NULL,
   `startLocY` float default NULL,
   `startLocZ` float default NULL,

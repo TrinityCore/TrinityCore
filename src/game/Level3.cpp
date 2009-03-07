@@ -666,6 +666,14 @@ bool ChatHandler::HandleReloadAreaTriggerTeleportCommand(const char*)
     return true;
 }
 
+bool ChatHandler::HandleReloadAccessRequirementCommand(const char*)
+{
+    sLog.outString( "Re-Loading Access Requirement definitions..." );
+    objmgr.LoadAccessRequirements();
+    SendGlobalGMSysMessage("DB table `access_requirement` reloaded.");
+     return true;
+ }
+
 bool ChatHandler::HandleReloadCommandCommand(const char*)
 {
     load_command_table = true;
