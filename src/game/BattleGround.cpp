@@ -621,42 +621,29 @@ void BattleGround::RewardMark(Player *plr,uint32 count)
     if(plr->GetDummyAura(SPELL_AURA_PLAYER_INACTIVE))
         return;
 
-    BattleGroundMarks mark;
-    bool IsSpell;
+    if(!plr || !count)
+        return;
+
+    BattleGroundMarks mark;    
     switch(GetTypeID())
     {
         case BATTLEGROUND_AV:
-            IsSpell = true;
-            if(count == ITEM_WINNER_COUNT)
-                mark = SPELL_AV_MARK_WINNER;
-            else
-                mark = SPELL_AV_MARK_LOSER;
+            mark = ITEM_AV_MARK_OF_HONOR;
             break;
         case BATTLEGROUND_WS:
-            IsSpell = true;
-            if(count == ITEM_WINNER_COUNT)
-                mark = SPELL_WS_MARK_WINNER;
-            else
-                mark = SPELL_WS_MARK_LOSER;
+            mark = ITEM_WS_MARK_OF_HONOR;
             break;
         case BATTLEGROUND_AB:
-            IsSpell = true;
-            if(count == ITEM_WINNER_COUNT)
-                mark = SPELL_AB_MARK_WINNER;
-            else
-                mark = SPELL_AB_MARK_LOSER;
+            mark = ITEM_AB_MARK_OF_HONOR;
             break;
-        case BATTLEGROUND_EY:
-            IsSpell = false;
+        case BATTLEGROUND_EY:            
             mark = ITEM_EY_MARK_OF_HONOR;
             break;
         default:
             return;
     }
 
-    if(IsSpell)
-        plr->CastSpell(plr, mark, true);
-    else if ( objmgr.GetItemPrototype( mark ) )
+    if ( objmgr.GetItemPrototype( mark ) )
     {
         ItemPosCountVec dest;
         uint32 no_space_count = 0;
@@ -664,7 +651,7 @@ void BattleGround::RewardMark(Player *plr,uint32 count)
         if( msg != EQUIP_ERR_OK )                       // convert to possible store amount
             count -= no_space_count;
 
-        if( count != 0 && !dest.empty())                // can add some
+        if(!dest.empty())                // can add some
             if(Item* item = plr->StoreNewItem( dest, mark, true, 0))
                 plr->SendNewItem(item,count,false,true);
 
