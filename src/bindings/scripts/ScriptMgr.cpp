@@ -574,6 +574,7 @@ extern void AddSC_ungoro_crater();
 //Utgarde Keep
 extern void AddSC_boss_keleseth();
 extern void AddSC_boss_skarvald_dalronn();
+extern void AddSC_boss_ingvar_the_plunderer();
 extern void AddSC_instance_utgarde_keep();
 
 //Wailing caverns
@@ -1710,7 +1711,7 @@ void ScriptsInit()
 
     //Naxxramas
     AddSC_boss_anubrekhan();
-	AddSC_boss_faerlina();
+    AddSC_boss_faerlina();
     AddSC_boss_maexxna();
     AddSC_boss_patchwerk();
     AddSC_boss_razuvious();
@@ -1892,6 +1893,7 @@ void ScriptsInit()
     //Utgarde Keep
     AddSC_boss_keleseth();
     AddSC_boss_skarvald_dalronn();
+    AddSC_boss_ingvar_the_plunderer();
     AddSC_instance_utgarde_keep();
 
     //Wailing caverns
