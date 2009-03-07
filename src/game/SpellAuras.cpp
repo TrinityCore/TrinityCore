@@ -6536,11 +6536,14 @@ void Aura::HandleModPossessPet(bool apply, bool Real)
     Unit* caster = GetCaster();
     if(!caster || caster->GetTypeId() != TYPEID_PLAYER)
         return;
-    if(caster->GetPet() != m_target)
-        return;
 
     if(apply)
+    {
+        if(caster->GetPet() != m_target)
+            return;    
+    
         m_target->SetCharmedOrPossessedBy(caster, true);
+    }
     else
     {
         m_target->RemoveCharmedOrPossessedBy(caster);
