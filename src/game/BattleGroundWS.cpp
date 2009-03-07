@@ -54,6 +54,11 @@ BattleGroundWS::BattleGroundWS()
 {
     m_BgObjects.resize(BG_WS_OBJECT_MAX);
     m_BgCreatures.resize(BG_CREATURES_MAX_WS);
+
+    m_StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_WS_START_TWO_MINUTES;
+    m_StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_WS_START_ONE_MINUTE;
+    m_StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_WS_START_HALF_MINUTE;
+    m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_WS_HAS_BEGUN;
 }
 
 BattleGroundWS::~BattleGroundWS()
@@ -64,77 +69,7 @@ void BattleGroundWS::Update(uint32 diff)
 {
     BattleGround::Update(diff);
 
-    // after bg start we get there (once)
-    if (GetStatus() == STATUS_WAIT_JOIN && GetPlayersSize())
-    {
-        ModifyStartDelayTime(diff);
-
-        if(!(m_Events & 0x01))
-        {
-            m_Events |= 0x01;
-
-            // setup here, only when at least one player has ported to the map
-            if(!SetupBattleGround())
-            {
-                EndNow();
-                return;
-            }
-
-//            for(uint32 i = WS_SPIRIT_MAIN_ALLIANCE; i <= WS_SPIRIT_MAIN_HORDE; i++)
-//                SpawnBGCreature(i, RESPAWN_IMMEDIATELY);
-
-            for(uint32 i = BG_WS_OBJECT_DOOR_A_1; i <= BG_WS_OBJECT_DOOR_H_4; i++)
-            {
-                SpawnBGObject(i, RESPAWN_IMMEDIATELY);
-                DoorClose(i);
-            }
-            for(uint32 i = BG_WS_OBJECT_A_FLAG; i <= BG_WS_OBJECT_BERSERKBUFF_2; i++)
-                SpawnBGObject(i, RESPAWN_ONE_DAY);
-
-            SetStartDelayTime(START_DELAY0);
-        }
-        // After 1 minute, warning is signalled
-        else if(GetStartDelayTime() <= START_DELAY1 && !(m_Events & 0x04))
-        {
-            m_Events |= 0x04;
-            SendMessageToAll(GetTrinityString(LANG_BG_WS_ONE_MINUTE));
-        }
-        // After 1,5 minute, warning is signalled
-        else if(GetStartDelayTime() <= START_DELAY2 && !(m_Events & 0x08))
-        {
-            m_Events |= 0x08;
-            SendMessageToAll(GetTrinityString(LANG_BG_WS_HALF_MINUTE));
-        }
-        // After 2 minutes, gates OPEN ! x)
-        else if(GetStartDelayTime() < 0 && !(m_Events & 0x10))
-        {
-            m_Events |= 0x10;
-            for(uint32 i = BG_WS_OBJECT_DOOR_A_1; i <= BG_WS_OBJECT_DOOR_A_4; i++)
-                DoorOpen(i);
-            for(uint32 i = BG_WS_OBJECT_DOOR_H_1; i <= BG_WS_OBJECT_DOOR_H_2; i++)
-                DoorOpen(i);
-
-            SpawnBGObject(BG_WS_OBJECT_DOOR_A_5, RESPAWN_ONE_DAY);
-            SpawnBGObject(BG_WS_OBJECT_DOOR_A_6, RESPAWN_ONE_DAY);
-            SpawnBGObject(BG_WS_OBJECT_DOOR_H_3, RESPAWN_ONE_DAY);
-            SpawnBGObject(BG_WS_OBJECT_DOOR_H_4, RESPAWN_ONE_DAY);
-
-            for(uint32 i = BG_WS_OBJECT_A_FLAG; i <= BG_WS_OBJECT_BERSERKBUFF_2; i++)
-                SpawnBGObject(i, RESPAWN_IMMEDIATELY);
-
-            SendMessageToAll(GetTrinityString(LANG_BG_WS_BEGIN));
-
-            PlaySoundToAll(SOUND_BG_START);
-            if(sWorld.getConfig(CONFIG_BG_START_MUSIC))
-                PlaySoundToAll(SOUND_BG_START_L70ETC); //MUSIC - Custom config
-            SetStatus(STATUS_IN_PROGRESS);
-
-            for(BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-                if(Player* plr = objmgr.GetPlayer(itr->first))
-                    plr->RemoveAurasDueToSpell(SPELL_PREPARATION);
-        }
-    }
-    else if(GetStatus() == STATUS_IN_PROGRESS)
+    if(GetStatus() == STATUS_IN_PROGRESS)
     {
         if(m_FlagState[BG_TEAM_ALLIANCE] == BG_WS_FLAG_STATE_WAIT_RESPAWN)
         {
@@ -179,6 +114,33 @@ void BattleGroundWS::Update(uint32 diff)
     }
 }
 
+void BattleGroundWS::StartingEventCloseDoors()
+{
+    for(uint32 i = BG_WS_OBJECT_DOOR_A_1; i <= BG_WS_OBJECT_DOOR_H_4; i++)
+    {
+        DoorClose(i);
+        SpawnBGObject(i, RESPAWN_IMMEDIATELY);
+    }
+    for(uint32 i = BG_WS_OBJECT_A_FLAG; i <= BG_WS_OBJECT_BERSERKBUFF_2; i++)
+        SpawnBGObject(i, RESPAWN_ONE_DAY);
+}
+
+void BattleGroundWS::StartingEventOpenDoors()
+{
+    for(uint32 i = BG_WS_OBJECT_DOOR_A_1; i <= BG_WS_OBJECT_DOOR_A_4; i++)
+        DoorOpen(i);
+    for(uint32 i = BG_WS_OBJECT_DOOR_H_1; i <= BG_WS_OBJECT_DOOR_H_2; i++)
+        DoorOpen(i);
+
+    SpawnBGObject(BG_WS_OBJECT_DOOR_A_5, RESPAWN_ONE_DAY);
+    SpawnBGObject(BG_WS_OBJECT_DOOR_A_6, RESPAWN_ONE_DAY);
+    SpawnBGObject(BG_WS_OBJECT_DOOR_H_3, RESPAWN_ONE_DAY);
+    SpawnBGObject(BG_WS_OBJECT_DOOR_H_4, RESPAWN_ONE_DAY);
+
+    for(uint32 i = BG_WS_OBJECT_A_FLAG; i <= BG_WS_OBJECT_BERSERKBUFF_2; i++)
+        SpawnBGObject(i, RESPAWN_IMMEDIATELY);
+}
+
 void BattleGroundWS::AddPlayer(Player *plr)
 {
     BattleGround::AddPlayer(plr);
@@ -206,7 +168,7 @@ void BattleGroundWS::RespawnFlag(uint32 Team, bool captured)
         //when map_update will be allowed for battlegrounds this code will be useless
         SpawnBGObject(BG_WS_OBJECT_H_FLAG, RESPAWN_IMMEDIATELY);
         SpawnBGObject(BG_WS_OBJECT_A_FLAG, RESPAWN_IMMEDIATELY);
-        SendMessageToAll(GetTrinityString(LANG_BG_WS_F_PLACED));
+        SendMessageToAll(GetMangosString(LANG_BG_WS_F_PLACED), CHAT_MSG_BG_SYSTEM_NEUTRAL);
         PlaySoundToAll(BG_WS_SOUND_FLAGS_RESPAWNED);        // flag respawned sound...
     }
 }
@@ -220,12 +182,12 @@ void BattleGroundWS::RespawnFlagAfterDrop(uint32 team)
     if(team == ALLIANCE)
     {
         SpawnBGObject(BG_WS_OBJECT_A_FLAG, RESPAWN_IMMEDIATELY);
-        SendMessageToAll(GetTrinityString(LANG_BG_WS_ALLIANCE_FLAG_RESPAWNED));
+        SendMessageToAll(GetMangosString(LANG_BG_WS_ALLIANCE_FLAG_RESPAWNED), CHAT_MSG_BG_SYSTEM_NEUTRAL);
     }
     else
     {
         SpawnBGObject(BG_WS_OBJECT_H_FLAG, RESPAWN_IMMEDIATELY);
-        SendMessageToAll(GetTrinityString(LANG_BG_WS_HORDE_FLAG_RESPAWNED));
+        SendMessageToAll(GetMangosString(LANG_BG_WS_HORDE_FLAG_RESPAWNED), CHAT_MSG_BG_SYSTEM_NEUTRAL);
     }
 
     PlaySoundToAll(BG_WS_SOUND_FLAGS_RESPAWNED);

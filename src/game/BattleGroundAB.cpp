@@ -47,6 +47,11 @@ BattleGroundAB::BattleGroundAB()
     m_BuffChange = true;
     m_BgObjects.resize(BG_AB_OBJECT_MAX);
     m_BgCreatures.resize(BG_AB_ALL_NODES_COUNT);
+
+    m_StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_AB_START_TWO_MINUTES;
+    m_StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_AB_START_ONE_MINUTE;
+    m_StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_AB_START_HALF_MINUTE;
+    m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_AB_HAS_BEGUN;
 }
 
 BattleGroundAB::~BattleGroundAB()
@@ -57,83 +62,7 @@ void BattleGroundAB::Update(uint32 diff)
 {
     BattleGround::Update(diff);
 
-    if( GetStatus() == STATUS_WAIT_JOIN && GetPlayersSize() )
-    {
-        ModifyStartDelayTime(diff);
-
-        if( !(m_Events & 0x01) )
-        {
-            m_Events |= 0x01;
-
-            // setup here, only when at least one player has ported to the map
-            if(!SetupBattleGround())
-            {
-                EndNow();
-                return;
-            }
-
-            sLog.outDebug("Arathi Basin: entering state STATUS_WAIT_JOIN ...");
-
-            // despawn banners, auras and buffs
-            for (int obj = BG_AB_OBJECT_BANNER_NEUTRAL; obj < BG_AB_DYNAMIC_NODES_COUNT * 8; ++obj)
-                SpawnBGObject(obj, RESPAWN_ONE_DAY);
-            for (int i = 0; i < BG_AB_DYNAMIC_NODES_COUNT * 3; ++i)
-                SpawnBGObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + i, RESPAWN_ONE_DAY);
-
-            // Starting doors
-            SpawnBGObject(BG_AB_OBJECT_GATE_A, RESPAWN_IMMEDIATELY);
-            SpawnBGObject(BG_AB_OBJECT_GATE_H, RESPAWN_IMMEDIATELY);
-            DoorClose(BG_AB_OBJECT_GATE_A);
-            DoorClose(BG_AB_OBJECT_GATE_H);
-
-            // Starting base spirit guides
-            _NodeOccupied(BG_AB_SPIRIT_ALIANCE,ALLIANCE);
-            _NodeOccupied(BG_AB_SPIRIT_HORDE,HORDE);
-
-            SetStartDelayTime(START_DELAY0);
-        }
-        // After 1 minute, warning is signalled
-        else if( GetStartDelayTime() <= START_DELAY1 && !(m_Events & 0x04) )
-        {
-            m_Events |= 0x04;
-            SendMessageToAll(GetTrinityString(LANG_BG_AB_ONEMINTOSTART));
-        }
-        // After 1,5 minute, warning is signalled
-        else if( GetStartDelayTime() <= START_DELAY2 && !(m_Events & 0x08) )
-        {
-            m_Events |= 0x08;
-            SendMessageToAll(GetTrinityString(LANG_BG_AB_HALFMINTOSTART));
-        }
-        // After 2 minutes, gates OPEN ! x)
-        else if( GetStartDelayTime() < 0 && !(m_Events & 0x10) )
-        {
-            m_Events |= 0x10;
-            SendMessageToAll(GetTrinityString(LANG_BG_AB_STARTED));
-
-            // spawn neutral banners
-            for (int banner = BG_AB_OBJECT_BANNER_NEUTRAL, i = 0; i < 5; banner += 8, ++i)
-                SpawnBGObject(banner, RESPAWN_IMMEDIATELY);
-            for (int i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
-            {
-                //randomly select buff to spawn
-                uint8 buff = urand(0, 2);
-                SpawnBGObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + buff + i * 3, RESPAWN_IMMEDIATELY);
-            }
-            DoorOpen(BG_AB_OBJECT_GATE_A);
-            DoorOpen(BG_AB_OBJECT_GATE_H);
-
-            PlaySoundToAll(SOUND_BG_START);
-            if(sWorld.getConfig(CONFIG_BG_START_MUSIC))
-                PlaySoundToAll(SOUND_BG_START_L70ETC); //MUSIC
-            SetStatus(STATUS_IN_PROGRESS);
-
-            for(BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-                if(Player* plr = objmgr.GetPlayer(itr->first))
-                    plr->RemoveAurasDueToSpell(SPELL_PREPARATION);
-        }
-
-    }
-    else if( GetStatus() == STATUS_IN_PROGRESS )
+    if( GetStatus() == STATUS_IN_PROGRESS )
     {
         int team_points[2] = { 0, 0 };
 
@@ -211,9 +140,9 @@ void BattleGroundAB::Update(uint32 diff)
                 if( !m_IsInformedNearVictory && m_TeamScores[team] > 1800 )
                 {
                     if( team == BG_TEAM_ALLIANCE )
-                        SendMessageToAll(GetTrinityString(LANG_BG_AB_A_NEAR_VICTORY));
+                        SendMessageToAll(GetMangosString(LANG_BG_AB_A_NEAR_VICTORY), CHAT_MSG_BG_SYSTEM_NEUTRAL);
                     else
-                        SendMessageToAll(GetTrinityString(LANG_BG_AB_H_NEAR_VICTORY));
+                        SendMessageToAll(GetMangosString(LANG_BG_AB_H_NEAR_VICTORY), CHAT_MSG_BG_SYSTEM_NEUTRAL);
                     PlaySoundToAll(SOUND_NEAR_VICTORY);
                     m_IsInformedNearVictory = true;
                 }
@@ -233,6 +162,40 @@ void BattleGroundAB::Update(uint32 diff)
         if( m_TeamScores[BG_TEAM_HORDE] >= 2000 )
             EndBattleGround(HORDE);
     }
+}
+
+void BattleGroundAB::StartingEventCloseDoors()
+{
+    // despawn banners, auras and buffs
+    for (int obj = BG_AB_OBJECT_BANNER_NEUTRAL; obj < BG_AB_DYNAMIC_NODES_COUNT * 8; ++obj)
+        SpawnBGObject(obj, RESPAWN_ONE_DAY);
+    for (int i = 0; i < BG_AB_DYNAMIC_NODES_COUNT * 3; ++i)
+        SpawnBGObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + i, RESPAWN_ONE_DAY);
+
+    // Starting doors
+    DoorClose(BG_AB_OBJECT_GATE_A);
+    DoorClose(BG_AB_OBJECT_GATE_H);
+    SpawnBGObject(BG_AB_OBJECT_GATE_A, RESPAWN_IMMEDIATELY);
+    SpawnBGObject(BG_AB_OBJECT_GATE_H, RESPAWN_IMMEDIATELY);
+
+    // Starting base spirit guides
+    _NodeOccupied(BG_AB_SPIRIT_ALIANCE,ALLIANCE);
+    _NodeOccupied(BG_AB_SPIRIT_HORDE,HORDE);
+}
+
+void BattleGroundAB::StartingEventOpenDoors()
+{
+    // spawn neutral banners
+    for (int banner = BG_AB_OBJECT_BANNER_NEUTRAL, i = 0; i < 5; banner += 8, ++i)
+        SpawnBGObject(banner, RESPAWN_IMMEDIATELY);
+    for (int i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
+    {
+        //randomly select buff to spawn
+        uint8 buff = urand(0, 2);
+        SpawnBGObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + buff + i * 3, RESPAWN_IMMEDIATELY);
+    }
+    DoorOpen(BG_AB_OBJECT_GATE_A);
+    DoorOpen(BG_AB_OBJECT_GATE_H);
 }
 
 void BattleGroundAB::AddPlayer(Player *plr)

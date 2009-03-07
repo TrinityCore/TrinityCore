@@ -16,13 +16,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "Player.h"
 #include "BattleGround.h"
 #include "BattleGroundSA.h"
-#include "Player.h"
+#include "Language.h"
 
 BattleGroundSA::BattleGroundSA()
 {
-
+    //TODO FIX ME!
+    m_StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_WS_START_TWO_MINUTES;
+    m_StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_WS_START_ONE_MINUTE;
+    m_StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_WS_START_HALF_MINUTE;
+    m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_WS_HAS_BEGUN;
 }
 
 BattleGroundSA::~BattleGroundSA()
@@ -33,6 +38,14 @@ BattleGroundSA::~BattleGroundSA()
 void BattleGroundSA::Update(uint32 diff)
 {
     BattleGround::Update(diff);
+}
+
+void BattleGroundSA::StartingEventCloseDoors()
+{
+}
+
+void BattleGroundSA::StartingEventOpenDoors()
+{
 }
 
 void BattleGroundSA::AddPlayer(Player *plr)
