@@ -743,7 +743,6 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
 
     if (pVictim->GetTypeId() == TYPEID_UNIT && !((Creature*)pVictim)->isPet() && !((Creature*)pVictim)->hasLootRecipient())
         ((Creature*)pVictim)->SetLootRecipient(this);
-
     if (health <= damage)
     {
         DEBUG_LOG("DealDamage: victim just died");
@@ -5561,7 +5560,12 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     if (triggerAmount == 0)
                         return false;
                     basepoints0 = triggerAmount * GetMaxHealth() / 100;
+                    target = this;
                     triggered_spell_id = 34299;
+                    if (triggeredByAura->GetCaster() != this)
+                        break;
+                    int32 basepoints1 = triggerAmount * 2 *GetMaxPower(POWER_MANA)/100;
+                    CastCustomSpell(this,60889,&basepoints1,0,0,true,0,triggeredByAura);
                     break;
                 }
                 // Healing Touch (Dreamwalker Raiment set)
@@ -5659,13 +5663,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
             {
                 triggered_spell_id = 48504;
                 basepoints0 = triggerAmount * damage / 100;
-                break;
-            }
-            // Improved leader of the pack
-            else if (dummySpell->SpellIconID == 312 && !dummySpell->SpellFamilyFlags)
-            {
-                triggered_spell_id = 60889;
-                basepoints0 = triggerAmount * GetMaxPower(POWER_MANA) / 100;
                 break;
             }
             break;
