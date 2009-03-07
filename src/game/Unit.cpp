@@ -4706,13 +4706,10 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
         if(!caster)                                         // can be already located for IsSingleTargetSpell case
             caster = Aur->GetCaster();
 
-        if(caster)
+        if(caster && caster->isAlive())
         {
-            if(caster->GetTypeId()==TYPEID_UNIT && ((Creature*)caster)->isTotem() && ((Totem*)caster)->GetTotemType()==TOTEM_STATUE)
-                statue = ((Totem*)caster);
-
             // stop caster chanelling state
-            else if(caster->m_currentSpells[CURRENT_CHANNELED_SPELL]
+            if(caster->m_currentSpells[CURRENT_CHANNELED_SPELL]
                 //prevent recurential call
                 && caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->getState() != SPELL_STATE_FINISHED)
             {
@@ -4727,6 +4724,9 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
                         caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->cancel();
                     }
                 }
+
+                if(caster->GetTypeId()==TYPEID_UNIT && ((Creature*)caster)->isTotem() && ((Totem*)caster)->GetTotemType()==TOTEM_STATUE)
+                    statue = ((Totem*)caster);
             }
 
             // Unsummon summon as possessed creatures on spell cancel
