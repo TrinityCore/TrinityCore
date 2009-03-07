@@ -2048,9 +2048,18 @@ void Spell::prepare(SpellCastTargets * targets, Aura* triggeredByAura)
         return;
     }
 
-    if(m_caster->GetTypeId() == TYPEID_PLAYER || (m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->isPet()))
+    if(m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         if(objmgr.IsPlayerSpellDisabled(m_spellInfo->Id))
+        {
+            SendCastResult(SPELL_FAILED_SPELL_UNAVAILABLE);
+            finish(false);
+            return;
+        }
+    }
+    else if (m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->isPet())
+    {
+        if(objmgr.IsPetSpellDisabled(m_spellInfo->Id))
         {
             SendCastResult(SPELL_FAILED_SPELL_UNAVAILABLE);
             finish(false);
