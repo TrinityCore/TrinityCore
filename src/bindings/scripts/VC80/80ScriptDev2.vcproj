@@ -1165,6 +1165,10 @@
 															>
 															</File>
 															<File
+															RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\boss_ingvar_the_plunderer.cpp"
+															>
+															</File>
+															<File
 														 	RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\def_utgarde_keep.h"
 														 	>
 														 	</File>

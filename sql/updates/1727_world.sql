@@ -1,0 +1,1 @@
+insert into spell_script_target values (42857,1,23954);

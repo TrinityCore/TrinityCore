@@ -156,16 +156,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
 
         if (data == DONE)
         {
-            OUT_SAVE_INST_DATA;
-
-            std::ostringstream saveStream;
-            saveStream << "U K " << Encounters[0] << " " << Encounters[1] << " "
-                << Encounters[2];
-
-            str_data = saveStream.str();
-
             SaveToDB();
-            OUT_SAVE_INST_DATA_COMPLETE;
         }
     }
 
@@ -183,6 +174,15 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
 
    const char* Save()
     {
+        OUT_SAVE_INST_DATA;
+
+        std::ostringstream saveStream;
+        saveStream << "U K " << Encounters[0] << " " << Encounters[1] << " "
+            << Encounters[2];
+
+        str_data = saveStream.str();
+
+        OUT_SAVE_INST_DATA_COMPLETE;
         return str_data.c_str();
     }
 

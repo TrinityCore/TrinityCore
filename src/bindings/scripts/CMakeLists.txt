@@ -349,6 +349,7 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/utgarde_keep/utgarde_keep/instance_utgarde_keep.cpp
    scripts/zone/utgarde_keep/utgarde_keep/boss_keleseth.cpp
    scripts/zone/utgarde_keep/utgarde_keep/boss_skarvald_dalronn.cpp
+   scripts/zone/utgarde_keep/utgarde_keep/boss_ingvar_the_plunderer.cpp
    scripts/zone/wailing_caverns/instance_wailing_caverns.cpp
    scripts/zone/western_plaguelands/western_plaguelands.cpp
    scripts/zone/westfall/westfall.cpp
