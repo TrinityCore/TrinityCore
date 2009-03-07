@@ -408,13 +408,6 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
         }
     }
 
-    if(!m_targets.getUnitTargetGUID() && m_spellInfo->Targets & TARGET_FLAG_UNIT)
-    {
-        if(Unit *target = ObjectAccessor::GetUnit(*m_caster, m_caster->GetUInt64Value(UNIT_FIELD_TARGET)))
-            if(IsValidSingleTargetSpell(target))
-                m_targets.setUnitTarget(target);
-    }
-
     CleanupTargetList();
 }
 
@@ -2011,6 +2004,13 @@ void Spell::prepare(SpellCastTargets const* targets, Aura* triggeredByAura)
 
     m_targets = *targets;
 
+    if(!m_targets.getUnitTargetGUID() && m_spellInfo->Targets & TARGET_FLAG_UNIT)
+    {
+        if(Unit *target = ObjectAccessor::GetUnit(*m_caster, m_caster->GetUInt64Value(UNIT_FIELD_TARGET)))
+            if(IsValidSingleTargetSpell(target))
+                m_targets.setUnitTarget(target);
+    }
+
     m_spellState = SPELL_STATE_PREPARING;
 
     m_caster->GetPosition(m_castPositionX, m_castPositionY, m_castPositionZ);
@@ -2100,8 +2100,11 @@ void Spell::cancel()
     if(m_spellState == SPELL_STATE_FINISHED)
         return;
 
+    uint32 oldState = m_spellState;
+    m_spellState = SPELL_STATE_FINISHED;
+
     m_autoRepeat = false;
-    switch (m_spellState)
+    switch (oldState)
     {
         case SPELL_STATE_PREPARING:
         case SPELL_STATE_DELAYED:
@@ -2133,10 +2136,13 @@ void Spell::cancel()
         } break;
     }
 
-    finish(false);
-
     m_caster->RemoveDynObject(m_spellInfo->Id);
     m_caster->RemoveGameObject(m_spellInfo->Id,true);
+
+    //set state back so finish will be processed
+    m_spellState = oldState;
+
+    finish(false);
 }
 
 void Spell::cast(bool skipCheck)
