@@ -286,10 +286,10 @@
 				RelativePath="..\..\src\game\DuelHandler.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\game\GameEvent.cpp">
+				RelativePath="..\..\src\game\GameEventMgr.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\game\GameEvent.h">
+				RelativePath="..\..\src\game\GameEventMgr.h">
 			</File>
 			<File
 				RelativePath="..\..\src\game\GossipDef.cpp">
