@@ -4332,9 +4332,12 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
         case SPELLFAMILY_WARRIOR:
         {
             // Devastate bonus and sunder armor refresh
-            if(m_spellInfo->SpellVisual[0] == 671 && m_spellInfo->SpellIconID == 1508)
+            if(m_spellInfo->SpellFamilyFlags[1] & 0x40)
             {
+                if (m_caster->GetTypeId()!=TYPEID_PLAYER)
+                    return;
                 uint32 stack = 0;
+                int32 maxStack = 0;
                 Unit::AuraList const& list = unitTarget->GetAurasByType(SPELL_AURA_MOD_RESISTANCE);
                 for(Unit::AuraList::const_iterator itr=list.begin();itr!=list.end();++itr)
                 {
@@ -4345,6 +4348,9 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                     {
                         (*itr)->RefreshAura();
                         stack = (*itr)->GetStackAmount();
+                        maxStack = proto->StackAmount;
+
+                        ((Player*)m_caster)->ApplySpellMod(proto->Id, SPELLMOD_CHARGES, maxStack, this); 
                         break;
                     }
                 }
@@ -4358,7 +4364,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                     }
                 }
 
-                if(stack < 5)
+                if(stack < maxStack)
                 {
                     // get highest rank of the Sunder Armor spell
                     const PlayerSpellMap& sp_list = ((Player*)m_caster)->GetSpellMap();
