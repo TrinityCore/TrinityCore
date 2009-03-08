@@ -16785,19 +16785,7 @@ void Player::HandleStealthedUnitsDetection()
                 sLog.outDebug("Object %u (Type: %u) is detected in stealth by player %u. Distance = %f",(*i)->GetGUIDLow(),(*i)->GetTypeId(),GetGUIDLow(),GetDistance(*i));
             #endif
 
-            // target aura duration for caster show only if target exist at caster client
-            // send data at target visibility change (adding to client)
-            if((*i)!=this && (*i)->isType(TYPEMASK_UNIT))
-            {
-                SendAuraDurationsForTarget(*i);
-                //if(((Unit*)(*i))->isAlive()) //should be always alive
-                {
-                    if((*i)->GetTypeId()==TYPEID_UNIT)
-                        ((Creature*)(*i))->SendMonsterMoveWithSpeedToCurrentDestination(this);
-                    if(((Unit*)(*i))->getVictim())
-                        ((Unit*)(*i))->SendAttackStart(((Unit*)(*i))->getVictim());
-                }
-            }
+            SendInitialVisiblePackets(*i);
         }
     }
 }
@@ -17781,18 +17769,21 @@ void Player::UpdateVisibilityOf(WorldObject* target)
 
             // target aura duration for caster show only if target exist at caster client
             // send data at target visibility change (adding to client)
-            if(target!=this && target->isType(TYPEMASK_UNIT))
-            {
-                SendAuraDurationsForTarget((Unit*)target);
-                if(((Unit*)target)->isAlive())
-                {
-                    if(target->GetTypeId()==TYPEID_UNIT)
-                        ((Creature*)target)->SendMonsterMoveWithSpeedToCurrentDestination(this);
-                    if(((Unit*)target)->getVictim())
-                        ((Unit*)target)->SendAttackStart(((Unit*)target)->getVictim());
-                }
-            }
+            if(target->isType(TYPEMASK_UNIT))
+                SendInitialVisiblePackets((Unit*)target);
         }
+    }
+}
+
+void Player::SendInitialVisiblePackets(Unit* target)
+{
+    SendAuraDurationsForTarget(target);
+    if(target->isAlive())
+    {
+        if(target->GetMotionMaster()->GetCurrentMovementGeneratorType() != IDLE_MOTION_TYPE)
+            target->SendMonsterMoveWithSpeedToCurrentDestination(this);
+        if(target->hasUnitState(UNIT_STAT_MELEE_ATTACKING) && target->getVictim())
+            target->SendAttackStart(target->getVictim());
     }
 }
 
@@ -17842,7 +17833,7 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, UpdateDataMapType& 
     }
 }
 
-template<>
+/*template<>
 void Player::UpdateVisibilityOf<Creature>(Creature* target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow)
 {
     if(HaveAtClient(target))
@@ -17875,10 +17866,10 @@ void Player::UpdateVisibilityOf<Creature>(Creature* target, UpdateData& data, Up
             #endif
         }
     }
-}
+}*/
 
 template void Player::UpdateVisibilityOf(Player*        target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow);
-//template void Player::UpdateVisibilityOf(Creature*      target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow);
+template void Player::UpdateVisibilityOf(Creature*      target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow);
 template void Player::UpdateVisibilityOf(Corpse*        target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow);
 template void Player::UpdateVisibilityOf(GameObject*    target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow);
 template void Player::UpdateVisibilityOf(DynamicObject* target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow);
