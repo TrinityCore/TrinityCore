@@ -72,5 +72,5 @@ INSTALL(FILES
 1730_world.sql
 1732_world.sql
 1733_world.sql
-1164_characters.sql
+1755_world.sql
 DESTINATION share/trinity/sql/updates)
