@@ -30,23 +30,6 @@
 
 using namespace Trinity;
 
-/*void
-Trinity::PlayerNotifier::Visit(PlayerMapType &m)
-{
-    for(PlayerMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
-    {
-        if( iter->getSource() == &i_player )
-            continue;
-
-        iter->getSource()->UpdateVisibilityOf(&i_player);
-        i_player.UpdateVisibilityOf(iter->getSource());
-
-        if (!i_player.GetSharedVisionList().empty())
-            for (SharedVisionList::const_iterator it = i_player.GetSharedVisionList().begin(); it != i_player.GetSharedVisionList().end(); ++it)
-                (*it)->UpdateVisibilityOf(iter->getSource());
-    }
-}*/
-
 void
 VisibleChangesNotifier::Visit(PlayerMapType &m)
 {
@@ -60,27 +43,7 @@ VisibleChangesNotifier::Visit(PlayerMapType &m)
 }
 
 void
-VisibleNotifier::Visit(PlayerMapType &m)
-{
-    for(PlayerMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
-    {
-        if( iter->getSource() == &i_player )
-            continue;
-
-        iter->getSource()->UpdateVisibilityOf(&i_player);
-        //i_player.UpdateVisibilityOf(iter->getSource());
-
-        //if (!i_player.GetSharedVisionList().empty())
-        //    for (SharedVisionList::const_iterator it = i_player.GetSharedVisionList().begin(); it != i_player.GetSharedVisionList().end(); ++it)
-        //        (*it)->UpdateVisibilityOf(iter->getSource());
-
-        i_player.UpdateVisibilityOf(iter->getSource(),i_data,i_data_updates,i_visibleNow);
-        i_clientGUIDs.erase(iter->getSource()->GetGUID());
-    }
-}
-
-void
-VisibleNotifier::Notify()
+PlayerRelocationNotifier::Notify()
 {
     // at this moment i_clientGUIDs have guids that not iterate at grid level checks
     // but exist one case when this possible and object not out of range: transports
@@ -144,15 +107,9 @@ VisibleNotifier::Notify()
 
     // send data at target visibility change (adding to client)
     for(std::set<WorldObject*>::const_iterator vItr = i_visibleNow.begin(); vItr != i_visibleNow.end(); ++vItr)
-    {
         // target aura duration for caster show only if target exist at caster client
         if((*vItr)!=&i_player && (*vItr)->isType(TYPEMASK_UNIT))
-            i_player.SendAurasForTarget((Unit*)(*vItr));
-
-        // non finished movements show to player
-        if((*vItr)->GetTypeId()==TYPEID_UNIT && ((Creature*)(*vItr))->isAlive())
-            ((Creature*)(*vItr))->SendMonsterMoveWithSpeedToCurrentDestination(&i_player);
-    }
+            i_player.SendInitialVisiblePackets((Unit*)(*vItr));
 }
 
 void

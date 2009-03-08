@@ -114,8 +114,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
         m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
         m_creature->setActive(true);
 
-        pInstance->SetData(DATA_NIGHTBANE_EVENT, 6);
-        if(pInstance->GetData(DATA_NIGHTBANE_EVENT) > 1)
+        if(pInstance->GetData(DATA_NIGHTBANE_EVENT) == DONE || pInstance->GetData(DATA_NIGHTBANE_EVENT) == IN_PROGRESS)
         {
             m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             m_creature->RemoveCorpse();

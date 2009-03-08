@@ -739,6 +739,7 @@ class ObjectMgr
         void LoadSpellDisabledEntrys();
         bool IsPlayerSpellDisabled(uint32 spellid) { return (m_DisabledPlayerSpells.count(spellid) != 0); }
         bool IsCreatureSpellDisabled(uint32 spellid) { return (m_DisabledCreatureSpells.count(spellid) != 0); }
+        bool IsPetSpellDisabled(uint32 spellid) { return (m_DisabledPetSpells.count(spellid) != 0); }
 
         int GetIndexForLocale(LocaleConstant loc);
         LocaleConstant GetLocaleForIndex(int i);
@@ -859,6 +860,7 @@ class ObjectMgr
 
         std::set<uint32>    m_DisabledPlayerSpells;
         std::set<uint32>    m_DisabledCreatureSpells;
+        std::set<uint32>    m_DisabledPetSpells;
 
         GraveYardMap        mGraveYardMap;
 
