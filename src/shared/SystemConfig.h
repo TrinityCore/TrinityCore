@@ -28,7 +28,7 @@
 #include "revision.h"
 
 
-#define _PACKAGENAME "TC&MaNGOS "
+#define _PACKAGENAME "TrinityCore2 "
 #define _CODENAME "YUME"
 
 #if TRINITY_ENDIAN == TRINITY_BIGENDIAN
