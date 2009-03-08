@@ -3320,24 +3320,14 @@ void Aura::HandleModStealth(bool apply, bool Real)
         }
     }
 
-    if (Real)
+    if (Real && !apply)
     {
         // Master of Subtlety
-        Unit::AuraList const& mDummyAuras = m_target->GetAurasByType(SPELL_AURA_DUMMY);
-        for(Unit::AuraList::const_iterator i = mDummyAuras.begin();i != mDummyAuras.end(); ++i)
-        {
-            if ((*i)->GetSpellProto()->SpellIconID == 2114)
-            {
-                if (apply)
-                {
-                    int32 bp = (*i)->GetModifier()->m_amount;
-                    m_target->CastCustomSpell(m_target,31665,&bp,NULL,NULL,true);
-                }
-                else
-                    m_target->CastSpell(m_target,31666,true);
-                break;
-            }
-        }
+        if (m_target->HasAura(31665))
+            m_target->CastSpell(m_target,31666,true);
+        // Overkill
+        if (m_target->HasAura(58427))
+            m_target->CastSpell(m_target,58428,true);
     }
 }
 
@@ -3942,16 +3932,6 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
     SpellEntry const*spell = GetSpellProto();
     switch( spell->SpellFamilyName)
     {
-        case SPELLFAMILY_ROGUE:
-        {
-            // Master of Subtlety
-            if (spell->Id==31666 && !apply)
-            {
-                m_target->RemoveAurasDueToSpell(31665);
-                break;
-            }
-            break;
-        }
         case SPELLFAMILY_HUNTER:
         {
             // Explosive Shot
@@ -6235,17 +6215,21 @@ void Aura::PeriodicDummyTick()
         }
         case SPELLFAMILY_ROGUE:
         {
-//            switch (spell->Id)
-//            {
-                // Master of Subtlety
-//                case 31666: break;
+            switch (spell->Id)
+            {
                 // Killing Spree
 //                case 51690: break;
                 // Overkill
-//                case 58428: break;
-//                default:
-//                    break;
-//            }
+                case 58428:
+                    m_target->RemoveAurasDueToSpell(58427);
+                    break;
+                // Master of Subtlety
+                case 31666:
+                    m_target->RemoveAurasDueToSpell(31665);
+                    break;
+                default:
+                    break;
+            }
             break;
         }
         case SPELLFAMILY_HUNTER:
