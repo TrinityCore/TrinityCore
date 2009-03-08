@@ -2125,8 +2125,11 @@ void Spell::cancel()
     if(m_spellState == SPELL_STATE_FINISHED)
         return;
 
+    uint32 oldState = m_spellState;
+    m_spellState = SPELL_STATE_FINISHED;
+
     m_autoRepeat = false;
-    switch (m_spellState)
+    switch (oldState)
     {
         case SPELL_STATE_PREPARING:
         case SPELL_STATE_DELAYED:
@@ -2158,10 +2161,13 @@ void Spell::cancel()
         } break;
     }
 
-    finish(false);
-
     m_caster->RemoveDynObject(m_spellInfo->Id);
     m_caster->RemoveGameObject(m_spellInfo->Id,true);
+
+    //set state back so finish will be processed
+    m_spellState = oldState;
+
+    finish(false);
 }
 
 void Spell::cast(bool skipCheck)
