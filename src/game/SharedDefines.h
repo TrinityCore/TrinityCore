@@ -893,7 +893,7 @@ enum Targets
     TARGET_UNIT_CLASS_TARGET           = 61,
     TARGET_TEST                        = 62, // for a test spell
     TARGET_DUELVSPLAYER_COORDINATES    = 63,
-    TARGET_DEST_TARGET_ENEMY_UNKNOWN   = 63,
+    TARGET_DEST_TARGET_FRIEND          = 63,
     TARGET_DEST_TARGET_FRONT           = 64,
     TARGET_DEST_TARGET_BACK            = 65,                // uses in teleport behind spells
     TARGET_DEST_TARGET_RIGHT           = 66,

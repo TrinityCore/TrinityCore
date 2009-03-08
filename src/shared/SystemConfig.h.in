@@ -23,7 +23,7 @@
 #define TRINITY_SYSTEMCONFIG_H
 
 #ifndef _PACKAGENAME
-#define _PACKAGENAME "TC&Mangos "
+#define _PACKAGENAME "TrinityCore2 "
 #endif
 
 #include "Platform/Define.h"

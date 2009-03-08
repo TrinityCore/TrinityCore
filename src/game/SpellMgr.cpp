@@ -129,6 +129,7 @@ SpellMgr::SpellMgr()
                 SpellTargetType[i] = TARGET_TYPE_AREA_DEST;
                 break;
             case TARGET_DEST_TARGET_ENEMY:
+            case TARGET_DEST_TARGET_FRIEND:
             case TARGET_DEST_TARGET_FRONT:
             case TARGET_DEST_TARGET_BACK:
             case TARGET_DEST_TARGET_RIGHT:
