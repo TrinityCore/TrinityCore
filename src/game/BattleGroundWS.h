@@ -101,7 +101,9 @@ enum BG_WS_ObjectEntry
     BG_OBJECT_DOOR_H_3_WS_ENTRY          = 180322,
     BG_OBJECT_DOOR_H_4_WS_ENTRY          = 180322,
     BG_OBJECT_A_FLAG_WS_ENTRY            = 179830,
-    BG_OBJECT_H_FLAG_WS_ENTRY            = 179831
+    BG_OBJECT_H_FLAG_WS_ENTRY            = 179831,
+    BG_OBJECT_A_FLAG_GROUND_WS_ENTRY     = 179785,
+    BG_OBJECT_H_FLAG_GROUND_WS_ENTRY     = 179786
 };
 
 enum BG_WS_FlagState
