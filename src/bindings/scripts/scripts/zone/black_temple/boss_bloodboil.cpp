@@ -111,6 +111,9 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
         PhaseChangeTimer = 60000;
 
         Phase1 = true;
+
+        m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
+        m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, false);
     }
 
     void Aggro(Unit *who)
@@ -292,6 +295,8 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
                     if(DoGetThreat(target))
                         DoModifyThreatPercent(target, -100);
                     m_creature->AddThreat(target, 50000000.0f);
+                    m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+                    m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
                                                             // If VMaps are disabled, this spell can call the whole instance
                     DoCast(m_creature, SPELL_INSIGNIFIGANCE, true);
                     DoCast(target, SPELL_FEL_RAGE_TARGET, true);
@@ -325,6 +330,8 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
                 FelAcidTimer += 2000;
                 EjectTimer += 2000;
                 PhaseChangeTimer = 60000;
+                m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
+                m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, false);
             }
         }else PhaseChangeTimer -= diff;
 
