@@ -1,3 +1,3 @@
-update creature_template set scriptname = 'boss_ingvar_the_plunderer' where entry = 23954;
-update creature_template set scriptname = 'mob_annhylde_the_caller' where entry = 24068;
-update creature_template set scriptname = 'mob_ingvar_throw_dummy' where entry = 23997;
+UPDATE `creature_template` SET `ScriptName`='boss_ingvar_the_plunderer' WHERE `entry`=23954;
+UPDATE `creature_template` SET `ScriptName`='mob_annhylde_the_caller' WHERE `entry`=24068;
+UPDATE `creature_template` SET `ScriptName`='mob_ingvar_throw_dummy' WHERE `entry`=23997;
