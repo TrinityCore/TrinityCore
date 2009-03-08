@@ -30,7 +30,6 @@
 #include "SpellMgr.h"
 #include "UpdateMask.h"
 #include "World.h"
-#include "WorldSession.h"
 #include "Group.h"
 #include "Guild.h"
 #include "ArenaTeam.h"
@@ -46,7 +45,6 @@
 #include "Util.h"
 #include "WaypointManager.h"
 #include "InstanceData.h" //for condition_instance_data
-#include "BattleGround.h"
 
 INSTANTIATE_SINGLETON_1(ObjectMgr);
 

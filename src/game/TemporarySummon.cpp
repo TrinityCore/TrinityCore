@@ -19,8 +19,6 @@
  */
 
 #include "TemporarySummon.h"
-#include "WorldPacket.h"
-#include "MapManager.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "CreatureAI.h"
@@ -165,7 +163,7 @@ void TemporarySummon::Summon(TempSummonType type, uint32 lifetime)
     m_timer = lifetime;
     m_lifetime = lifetime;
 
-    MapManager::Instance().GetMap(GetMapId(), this)->Add((Creature*)this);
+    GetMap()->Add((Creature*)this);
 
     AIM_Initialize();
 }

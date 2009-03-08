@@ -19,7 +19,7 @@
  */
 
 #include "IdleMovementGenerator.h"
-#include "Creature.h"
+#include "Unit.h"
 
 IdleMovementGenerator si_idleMovement;
 

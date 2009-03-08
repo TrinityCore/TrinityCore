@@ -24,7 +24,6 @@
 #include "MovementGenerator.h"
 #include "DestinationHolder.h"
 #include "Traveller.h"
-#include "MapManager.h"
 
 template<class T>
 class TRINITY_DLL_SPEC FleeingMovementGenerator

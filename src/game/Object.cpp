@@ -28,7 +28,6 @@
 #include "Creature.h"
 #include "Player.h"
 #include "ObjectMgr.h"
-#include "WorldSession.h"
 #include "UpdateData.h"
 #include "UpdateMask.h"
 #include "Util.h"

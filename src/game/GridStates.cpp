@@ -20,7 +20,6 @@
 
 #include "GridStates.h"
 #include "GridNotifiers.h"
-#include "ObjectAccessor.h"
 #include "GameSystem/Grid.h"
 #include "Log.h"
 

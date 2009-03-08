@@ -22,9 +22,7 @@
 #include "Player.h"
 #include "BattleGround.h"
 #include "BattleGroundBE.h"
-#include "Creature.h"
 #include "ObjectMgr.h"
-#include "MapManager.h"
 #include "WorldPacket.h"
 #include "Language.h"
 

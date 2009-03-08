@@ -19,10 +19,8 @@
  */
 
 #include "Common.h"
-#include "SharedDefines.h"
 #include "Database/DatabaseEnv.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 #include "Opcodes.h"
 #include "Log.h"
 #include "UpdateMask.h"
@@ -32,7 +30,6 @@
 #include "Player.h"
 #include "SkillExtraItems.h"
 #include "Unit.h"
-#include "CreatureAI.h"
 #include "Spell.h"
 #include "DynamicObject.h"
 #include "SpellAuras.h"

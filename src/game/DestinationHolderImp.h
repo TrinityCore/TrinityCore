@@ -21,7 +21,6 @@
 #ifndef TRINITY_DESTINATIONHOLDERIMP_H
 #define TRINITY_DESTINATIONHOLDERIMP_H
 
-#include "Creature.h"
 #include "MapManager.h"
 #include "DestinationHolder.h"
 

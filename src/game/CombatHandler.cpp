@@ -22,7 +22,6 @@
 #include "Log.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "World.h"
 #include "ObjectAccessor.h"
 #include "CreatureAI.h"
 #include "ObjectDefines.h"

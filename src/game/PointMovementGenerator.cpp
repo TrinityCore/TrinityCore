@@ -22,7 +22,6 @@
 #include "Errors.h"
 #include "Creature.h"
 #include "CreatureAI.h"
-#include "MapManager.h"
 #include "DestinationHolderImp.h"
 
 //----- Point Movement Generator

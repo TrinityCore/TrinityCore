@@ -24,7 +24,6 @@
 
 #include "Weather.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 #include "Player.h"
 #include "World.h"
 #include "Log.h"

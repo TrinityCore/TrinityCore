@@ -23,7 +23,6 @@
 #include "Database/DatabaseEnv.h"
 #include "Opcodes.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 #include "Player.h"
 #include "ObjectMgr.h"
 #include "World.h"
