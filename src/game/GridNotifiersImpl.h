@@ -82,12 +82,12 @@ Trinity::PlayerRelocationNotifier::Visit(PlayerMapType &m)
 {
     for(PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
+        i_clientGUIDs.erase(iter->getSource()->GetGUID());
+
         if(iter->getSource()->m_Notified) //self is also skipped in this check
             continue;
 
         i_player.UpdateVisibilityOf(iter->getSource(),i_data,i_data_updates,i_visibleNow);
-        i_clientGUIDs.erase(iter->getSource()->GetGUID());
-
         iter->getSource()->UpdateVisibilityOf(&i_player);
 
         //if (!i_player.GetSharedVisionList().empty())
@@ -107,11 +107,12 @@ Trinity::PlayerRelocationNotifier::Visit(CreatureMapType &m)
 {
     for(CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
+        i_clientGUIDs.erase(iter->getSource()->GetGUID());
+
         if(iter->getSource()->m_Notified)
             continue;
 
         i_player.UpdateVisibilityOf(iter->getSource(),i_data,i_data_updates,i_visibleNow);
-        i_clientGUIDs.erase(iter->getSource()->GetGUID());
 
         PlayerCreatureRelocationWorker(&i_player, iter->getSource());
     }
