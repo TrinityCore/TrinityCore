@@ -46,7 +46,8 @@ struct TRINITY_DLL_DECL instance_mechanar : public ScriptedInstance
     bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if(Encounters[i]) return true;
+            if(Encounters[i] == IN_PROGRESS)
+                return true;
 
         return false;
     }

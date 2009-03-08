@@ -201,9 +201,6 @@ struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim())
-            return;
-
          //Check_Timer
         if(Check_Timer < diff)
         {
@@ -218,6 +215,9 @@ struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
             }
             Check_Timer = 1000;
         }else Check_Timer -= diff;
+
+        if (!UpdateVictim())
+            return;
 
         if (!onlyonce)
         {
