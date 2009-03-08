@@ -1909,6 +1909,15 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 m_modifier.m_amount = caster->SpellHealingBonus(m_target, GetSpellProto(), m_modifier.m_amount, SPELL_DIRECT_DAMAGE);
             return;
         }
+        //Druid, Survival Instincts
+        if(GetSpellProto()->SpellFamilyName==SPELLFAMILY_DRUID && GetSpellProto()->SpellFamilyFlags[2]& 0x40 )
+        {
+            if(!m_target)
+                return;
+
+               int32 bp0 = int32(m_target->GetMaxHealth() * m_modifier.m_amount / 100);
+               m_target->CastCustomSpell(m_target, 50322, &bp0, NULL, NULL, true);
+        }
     }
     // AT REMOVE
     else
@@ -5820,7 +5829,6 @@ void Aura::PeriodicTick()
         {
             // ignore non positive values (can be result apply spellmods to aura damage
             uint32 pdamage = m_modifier.m_amount > 0 ? m_modifier.m_amount : 0;
-
             sLog.outDetail("PeriodicTick: %u (TypeId: %u) energize %u (TypeId: %u) for %u dmg inflicted by %u",
                 GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), m_target->GetGUIDLow(), m_target->GetTypeId(), pdamage, GetId());
 
@@ -5831,6 +5839,10 @@ void Aura::PeriodicTick()
 
             if(m_target->GetMaxPower(power) == 0)
                 break;
+
+            // Replenishment (Judgements of the Wise)
+            if (m_spellProto->SpellIconID == 3184 && m_spellProto->SpellVisual[0] == 12495)
+                pdamage = 0.25f * m_target->GetMaxPower(POWER_MANA);
 
             WorldPacket data(SMSG_PERIODICAURALOG, (21+16));// we guess size
             data.append(m_target->GetPackGUID());
