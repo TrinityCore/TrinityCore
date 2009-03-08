@@ -2003,16 +2003,15 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
             case SPELLFAMILY_PRIEST:
             {
                 // Guardian Spirit
-                if (spellProto->SpellFamilyFlags.IsEqual(0x400, 0, 0xC0000000))
+                if (spellProto->Id==47788)
                 {
                     if (pVictim->GetHealth() <= RemainingDamage)        // Killing Blow
                     {
-                        healAmount = pVictim->GetMaxHealth();
+                        healAmount = pVictim->GetMaxHealth()/2;
                         healCaster = pVictim;
                         healSpell = 48153;
                         currentAbsorb = mod->m_amount;
                         RemainingDamage=0;
-                        break;
                     }
                 }
 
