@@ -1887,7 +1887,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
         *resist = 0;
 
     int32 RemainingDamage = damage - *resist;
-
+    int32 TotalAbsorb = RemainingDamage;
     // Get unit state (need for some absorb check)
     uint32 unitflag = pVictim->GetUInt32Value(UNIT_FIELD_FLAGS);
     // Reflect damage spells (not cast any damage spell in aura lookup)
@@ -1908,7 +1908,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
         // Max Amount can be absorbed by this aura
         int32  currentAbsorb = mod->m_amount;
 
-        // Found empty aura (umpossible but..)
+        // Found empty aura (impossible but..)
         if (currentAbsorb <=0)
         {
             existExpired = true;
@@ -2092,21 +2092,6 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
         if (RemainingDamage < currentAbsorb)
             currentAbsorb = RemainingDamage;
 
-        AuraList const& AbsIgnoreAurasAb = GetAurasByType(SPELL_AURA_MOD_TARGET_ABILITY_ABSORB_SCHOOL);
-        for(AuraList::const_iterator j = AbsIgnoreAurasAb.begin();j != AbsIgnoreAurasAb.end(); ++j)
-        {
-            if( (*j)->GetModifier()->m_miscvalue & (*i)->GetModifier()->m_miscvalue
-                && (*j)->isAffectedOnSpell(spellInfo))
-                currentAbsorb= int32(float(currentAbsorb) * (float(100-(*j)->GetModifier()->m_amount)/100.0f));
-        }
-
-        AuraList const& AbsIgnoreAuras = GetAurasByType(SPELL_AURA_MOD_TARGET_ABSORB_SCHOOL);
-        for(AuraList::const_iterator j = AbsIgnoreAuras.begin();j != AbsIgnoreAuras.end(); ++j)
-        {
-            if( (*j)->GetModifier()->m_miscvalue & (*i)->GetModifier()->m_miscvalue)
-                currentAbsorb= int32(float(currentAbsorb) * (float(100-(*j)->GetModifier()->m_amount)/100.0f));
-        }
-
         RemainingDamage -= currentAbsorb;
 
         // Reduce shield amount
@@ -2227,7 +2212,51 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
         }
     }
 
+    TotalAbsorb -= RemainingDamage;
+    // TODO: School should be checked for absorbing auras or for attacks?
+    int32 auraAbsorbMod = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_TARGET_ABSORB_SCHOOL);
+    AuraList const& AbsIgnoreAurasAb = GetAurasByType(SPELL_AURA_MOD_TARGET_ABILITY_ABSORB_SCHOOL);
+    for(AuraList::const_iterator i = AbsIgnoreAurasAb.begin();i != AbsIgnoreAurasAb.end(); ++i)
+    {
+        if ((*i)->GetModifier()->m_amount > auraAbsorbMod
+            && (*i)->isAffectedOnSpell(spellInfo))
+            auraAbsorbMod = (*i)->GetModifier()->m_amount;
+    }
+
+    RemainingDamage += auraAbsorbMod * TotalAbsorb / 100;
+
+    // Ignore absorb - add reduced amount again to damage
+    RemainingDamage += auraAbsorbMod * TotalAbsorb / 100;
+
     *absorb = damage - RemainingDamage - *resist;
+
+    if (*absorb)
+    {
+        // Incanter's Absorption
+        AuraList const& DummmyAuras = pVictim->GetAurasByType(SPELL_AURA_DUMMY);
+        for(AuraList::const_iterator i = DummmyAuras.begin(); i != DummmyAuras.end(); ++i)
+        {
+            SpellEntry const* spellInfo = (*i)->GetSpellProto();
+            if (spellmgr.GetFirstSpellInChain(spellInfo->Id) == 44394)
+            {
+                int32 total_dmg=0;
+                AuraList const& ignore = GetAurasByType(SPELL_AURA_MOD_DAMAGE_DONE);
+                for(AuraList::const_iterator j = ignore.begin(); i != ignore.end(); ++i)
+                {
+                    if ((*j)->GetId()!=44413)
+                        continue;
+                    total_dmg += (*j)->GetModifier()->m_miscvalue;
+                }
+                int32 spell_dmg = int32(*absorb * (*i)->GetModifier()->m_amount / 100);
+                // Do not apply more auras if more than 5% hp
+                if(total_dmg+spell_dmg > int32(GetMaxHealth() * 5 / 100))
+                    break;
+
+                pVictim->CastCustomSpell(pVictim, 44413, &spell_dmg, NULL, NULL, false);
+                break;
+             }
+        }
+    }
 }
 
 void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool extra )
@@ -3707,7 +3736,8 @@ bool Unit::AddAura(Aura *Aur)
     if (i != m_Auras.end())
     {
         // passive and persistent auras can stack with themselves any number of times
-        if (!Aur->IsPassive() && !Aur->IsPersistent())
+        // hack for Incanter's Absorption
+        if (!Aur->IsPassive() && !Aur->IsPersistent() && aurSpellInfo->Id!=44396)
         {
             for(AuraMap::iterator i2 = m_Auras.lower_bound(spair); i2 != m_Auras.upper_bound(spair); ++i2)
             {
@@ -3746,8 +3776,8 @@ bool Unit::AddAura(Aura *Aur)
                         break;
                 }
 
-                if(stop)
-                    break;
+            if(stop)
+                break;
             }
         }
     }
@@ -5308,6 +5338,36 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
 
                 triggered_spell_id = 22858;
                 break;
+            }
+            // Glyph of Devastate
+            if(dummySpell->Id==58388)
+            {
+                // get highest rank of the Sunder Armor spell
+                if (GetTypeId()!=TYPEID_PLAYER)
+                    return false;
+                const PlayerSpellMap& sp_list = ((Player*)this)->GetSpellMap();
+                for (PlayerSpellMap::const_iterator itr = sp_list.begin(); itr != sp_list.end(); ++itr)
+                {
+                    // only highest rank is shown in spell book, so simply check if shown in spell book
+                    if(!itr->second->active || itr->second->disabled || itr->second->state == PLAYERSPELL_REMOVED)
+                        continue;
+
+                    SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
+                    if (!spellInfo)
+                        continue;
+
+                    if (spellInfo->SpellFamilyFlags.IsEqual(SPELLFAMILYFLAG_WARRIOR_SUNDERARMOR)
+                        && spellInfo->SpellFamilyName == SPELLFAMILY_WARRIOR)
+                    {
+                        triggered_spell_id = spellInfo->Id;
+                        break;
+                    }
+                }
+                if (!triggered_spell_id)
+                    return false;
+                for (int32 value = CalculateSpellDamage(dummySpell, 0 , dummySpell->EffectBasePoints[0], pVictim);value>0;value--)
+                    CastSpell(target,triggered_spell_id,true);
+                return true;
             }
             // Second Wind
             if (dummySpell->SpellIconID == 1697)
