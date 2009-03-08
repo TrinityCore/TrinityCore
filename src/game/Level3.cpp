@@ -1249,7 +1249,7 @@ bool ChatHandler::HandleLoadScriptsCommand(const char* args)
     sWorld.SendGMText(LANG_SCRIPTS_RELOADED);
     return true;
 }
-/*
+
 bool ChatHandler::HandleReloadAuctionsCommand(const char* args)
 {
     ///- Reload dynamic data tables from the database
@@ -1259,7 +1259,7 @@ bool ChatHandler::HandleReloadAuctionsCommand(const char* args)
     SendGlobalGMSysMessage("Auctions reloaded.");
     return true;
 }
-*/
+
 bool ChatHandler::HandleAccountSetGmLevelCommand(const char* args)
 {
     if(!*args)
