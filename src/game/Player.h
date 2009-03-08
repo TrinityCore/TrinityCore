@@ -2024,6 +2024,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         bool IsVisibleGloballyFor(Player* pl) const;
 
         void UpdateVisibilityOf(WorldObject* target);
+        void SendInitialVisiblePackets(Unit* target);
 
         template<class T>
             void UpdateVisibilityOf(T* target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow);
