@@ -370,7 +370,7 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
             if (spellInfo->SpellFamilyFlags[0] & 0x11010002)
                 return SPELL_BLESSING;
 
-            if ((spellInfo->SpellFamilyFlags[1] & 0x000008 || spellInfo->SpellFamilyFlags[0] & 20180400) && (spellInfo->AttributesEx3 & 0x200))
+            if ((spellInfo->SpellFamilyFlags[1] & 0x000008 || spellInfo->SpellFamilyFlags[0] & 0x20180400) && (spellInfo->AttributesEx3 & 0x200))
                 return SPELL_JUDGEMENT;
 
             for (int i = 0; i < 3; i++)
@@ -498,9 +498,6 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex)
         case 23333:                                         // BG spell
         case 23335:                                         // BG spell
         case 34976:                                         // BG spell
-        case 31579:                                         // Arcane Empowerment Rank1 talent aura with one positive and one negative (check not needed in wotlk)
-        case 31582:                                         // Arcane Empowerment Rank2
-        case 31583:                                         // Arcane Empowerment Rank3
             return true;
         case 28441:                                         // not positive dummy spell
         case 37675:                                         // Chaos Blast

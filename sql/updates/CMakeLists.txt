@@ -66,4 +66,5 @@ INSTALL(FILES
 1703_world.sql
 1709_mangos_7393_01_world_game_event.sql
 1724_mangos_7399_01_world_trinity_string.sql
+1729_world.sql
 DESTINATION share/trinity/sql/updates)

@@ -425,6 +425,12 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         damage+= int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * pct / 100);
                     break;
                 }
+                // Thunder Clap
+                else if(m_spellInfo->SpellFamilyFlags[0] & 0x80)
+                {
+                    damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 12 / 100);
+                    break;
+                }
                 break;
             }
             case SPELLFAMILY_WARLOCK:
@@ -1858,7 +1864,27 @@ void Spell::EffectDummy(uint32 i)
                 m_caster->CastSpell(m_caster,spell_id,true);
                 return;
             }
+            // Death Coil
+            if(m_spellInfo->SpellFamilyFlags[0] & 0x002000)
+            {
+                uint32 spell_id = NULL;
+                damage += m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.15f;
+                if(m_caster->IsFriendlyTo(unitTarget))
+                {
+                    if(unitTarget->GetCreatureType() != CREATURE_TYPE_UNDEAD)
+                        return;
 
+                    spell_id = 47633;
+                    damage *= 1.5f;
+                }
+                else
+                    spell_id = 47632;
+
+                bp = int32(damage);
+                m_caster->CastCustomSpell(unitTarget,spell_id,&bp,NULL,NULL,true);
+                return;
+            }
+            break;
     }
 
     //spells triggered by dummy effect should not miss
