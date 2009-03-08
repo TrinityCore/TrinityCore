@@ -65,9 +65,6 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
     uint64 MastersTerraceDoor[2];
     uint64 ImageGUID;
 
-    uint8 Nightbane;
-    bool CheckNightbane;
-
     void Initialize()
     {
         for (uint8 i = 0; i < ENCOUNTERS; ++i)
@@ -92,10 +89,6 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
         MastersTerraceDoor[0]= 0;
         MastersTerraceDoor[1]= 0;
         ImageGUID = 0;
-
-        Nightbane = 0;
-
-        CheckNightbane = false;
     }
 
     bool IsEncounterInProgress() const
@@ -122,12 +115,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
             case DATA_NETHERSPITE_EVENT:      return Encounters[8];
             case DATA_CHESS_EVENT:            return Encounters[9];
             case DATA_MALCHEZZAR_EVENT:       return Encounters[10];
-            case DATA_NIGHTBANE_EVENT:
-                if(CheckNightbane)
-                {
-                    CheckNightbane = false;
-                    return Nightbane;
-                }else return Encounters[11];
+            case DATA_NIGHTBANE_EVENT:        return Encounters[11];
             case DATA_OPERA_PERFORMANCE:      return OperaEvent;
             case DATA_OPERA_OZ_DEATHCOUNT:    return OzDeathCount;
             case DATA_IMAGE_OF_MEDIVH:             return ImageGUID;
@@ -188,11 +176,9 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
             case DATA_CHESS_EVENT:             Encounters[9]  = data; break;
             case DATA_MALCHEZZAR_EVENT:        Encounters[10] = data; break;
             case DATA_NIGHTBANE_EVENT:
-                if(data == 6)
-                {
-                    Nightbane;
-                    CheckNightbane = true;
-                }else Encounters[11] = data;
+                if (Encounters[11] == DONE)
+                    break;
+                Encounters[11] = data;
                 break;
             case DATA_OPERA_OZ_DEATHCOUNT:     ++OzDeathCount;        break;
         }
@@ -268,7 +254,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
         std::istringstream loadStream(in);
         loadStream >> Encounters[0] >> Encounters[1] >> Encounters[2] >> Encounters[3]
             >> Encounters[4] >> Encounters[5] >> Encounters[6] >> Encounters[7]
-            >> Encounters[8] >> Encounters[9] >> Encounters[10];
+            >> Encounters[8] >> Encounters[9] >> Encounters[10] >> Encounters[11];
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
             if(Encounters[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
                 Encounters[i] = NOT_STARTED;
