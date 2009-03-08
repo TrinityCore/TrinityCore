@@ -2002,6 +2002,20 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
             }
             case SPELLFAMILY_PRIEST:
             {
+                // Guardian Spirit
+                if (spellProto->SpellFamilyFlags.IsEqual(0x400, 0, 0xC0000000))
+                {
+                    if (pVictim->GetHealth() <= RemainingDamage)        // Killing Blow
+                    {
+                        healAmount = pVictim->GetMaxHealth();
+                        healCaster = pVictim;
+                        healSpell = 48153;
+                        currentAbsorb = mod->m_amount;
+                        RemainingDamage=0;
+                        break;
+                    }
+                }
+
                 // Reflective Shield
                 if (spellProto->SpellFamilyFlags.IsEqual(0x1))
                 {
@@ -2246,7 +2260,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
         }
     }
 
-    TotalAbsorb -= RemainingDamage;
+    TotalAbsorb = (TotalAbsorb - RemainingDamage > 0) ? TotalAbsorb - RemainingDamage : 0;
     // TODO: School should be checked for absorbing auras or for attacks?
     int32 auraAbsorbMod = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_TARGET_ABSORB_SCHOOL);
     AuraList const& AbsIgnoreAurasAb = GetAurasByType(SPELL_AURA_MOD_TARGET_ABILITY_ABSORB_SCHOOL);

@@ -3908,8 +3908,7 @@ void Aura::HandlePeriodicEnergize(bool apply, bool Real)
 
     // Replenishment (0.25% from max)
     // Infinite Replenishment
-    if (GetId() == 57669 ||
-        GetId() == 61782)
+    if (m_spellProto->SpellIconID == 3184 && m_spellProto->SpellVisual[0] == 12495)
         m_modifier.m_amount = m_target->GetMaxPower(POWER_MANA) * 25 / 10000;
 }
 
@@ -5818,10 +5817,7 @@ void Aura::PeriodicTick()
             uint32 amount = m_modifier.m_amount < 0 ? 0 : m_modifier.m_amount;
             uint32 pdamage;
 
-            // Replenishment (Judgements of the Wise)
-            if (m_spellProto->SpellIconID == 3184 && m_spellProto->SpellVisual[0] == 12495)
-                pdamage = 0.25f * m_target->GetMaxPower(POWER_MANA);
-            else if( m_modifier.m_auraname == SPELL_AURA_OBS_MOD_ENERGY )
+            if( m_modifier.m_auraname == SPELL_AURA_OBS_MOD_ENERGY )
                 pdamage = uint32(m_target->GetMaxPower(power) * amount/100);
             else
                 pdamage = amount;
