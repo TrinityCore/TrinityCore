@@ -28,10 +28,8 @@
 #include "UpdateMask.h"
 #include "Opcodes.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 #include "World.h"
 #include "Database/DatabaseEnv.h"
-#include "MapManager.h"
 #include "LootMgr.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -337,13 +335,13 @@ void GameObject::Update(uint32 /*p_time*/)
                     CellLock<GridReadGuard> cell_lock(cell, p);
 
                     TypeContainerVisitor<Trinity::UnitSearcher<Trinity::AnyUnfriendlyNoTotemUnitInObjectRangeCheck>, GridTypeMapContainer > grid_object_checker(checker);
-                    cell_lock->Visit(cell_lock, grid_object_checker, *MapManager::Instance().GetMap(GetMapId(), this));
+                    cell_lock->Visit(cell_lock, grid_object_checker, *GetMap());
 
                     // or unfriendly player/pet
                     if(!ok)
                     {
                         TypeContainerVisitor<Trinity::UnitSearcher<Trinity::AnyUnfriendlyNoTotemUnitInObjectRangeCheck>, WorldTypeMapContainer > world_object_checker(checker);
-                        cell_lock->Visit(cell_lock, world_object_checker, *MapManager::Instance().GetMap(GetMapId(), this));
+                        cell_lock->Visit(cell_lock, world_object_checker, *GetMap());
                     }
                 }
                 else                                        // environmental trap
@@ -358,7 +356,7 @@ void GameObject::Update(uint32 /*p_time*/)
                     CellLock<GridReadGuard> cell_lock(cell, p);
 
                     TypeContainerVisitor<Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck>, WorldTypeMapContainer > world_object_checker(checker);
-                    cell_lock->Visit(cell_lock, world_object_checker, *MapManager::Instance().GetMap(GetMapId(), this));
+                    cell_lock->Visit(cell_lock, world_object_checker, *GetMap());
                     ok = p_ok;
                 }
 
@@ -863,7 +861,7 @@ void GameObject::TriggeringLinkedGameObject( uint32 trapEntry, Unit* target)
 
         TypeContainerVisitor<Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck>, GridTypeMapContainer > object_checker(checker);
         CellLock<GridReadGuard> cell_lock(cell, p);
-        cell_lock->Visit(cell_lock, object_checker, *MapManager::Instance().GetMap(GetMapId(), this));
+        cell_lock->Visit(cell_lock, object_checker, *GetMap());
     }
 
     // found correct GO
@@ -885,7 +883,7 @@ GameObject* GameObject::LookupFishingHoleAround(float range)
     CellLock<GridReadGuard> cell_lock(cell, p);
 
     TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::NearestGameObjectFishingHole>, GridTypeMapContainer > grid_object_checker(checker);
-    cell_lock->Visit(cell_lock, grid_object_checker, *MapManager::Instance().GetMap(GetMapId(), this));
+    cell_lock->Visit(cell_lock, grid_object_checker, *GetMap());
 
     return ok;
 }

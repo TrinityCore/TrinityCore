@@ -35,7 +35,6 @@
 #include "Unit.h"
 #include "Spell.h"
 #include "DynamicObject.h"
-#include "SpellAuras.h"
 #include "Group.h"
 #include "UpdateData.h"
 #include "MapManager.h"

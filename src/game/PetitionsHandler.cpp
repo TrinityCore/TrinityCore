@@ -28,7 +28,6 @@
 #include "Opcodes.h"
 #include "Guild.h"
 #include "ArenaTeam.h"
-#include "MapManager.h"
 #include "GossipDef.h"
 #include "SocialMgr.h"
 

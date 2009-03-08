@@ -22,12 +22,11 @@
     \ingroup u2w
 */
 
-#include "WorldSocket.h"
+#include "WorldSocket.h"                                    // must be first to make ACE happy with ACE includes in it
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
 #include "Log.h"
 #include "Opcodes.h"
-#include "WorldSocket.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "Player.h"
@@ -35,12 +34,10 @@
 #include "Group.h"
 #include "Guild.h"
 #include "World.h"
-#include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "BattleGroundMgr.h"
 #include "OutdoorPvPMgr.h"
-#include "Language.h"                                       // for CMSG_CANCEL_MOUNT_AURA handler
-#include "Chat.h"
+//#include "Language.h"                                       // for CMSG_CANCEL_MOUNT_AURA handler
 #include "SocialMgr.h"
 
 /// WorldSession constructor
@@ -377,7 +374,7 @@ void WorldSession::LogoutPlayer(bool Save)
         // the player may not be in the world when logging out
         // e.g if he got disconnected during a transfer to another map
         // calls to GetMap in this case may cause crashes
-        if(_player->IsInWorld()) MapManager::Instance().GetMap(_player->GetMapId(), _player)->Remove(_player, false);
+        if(_player->IsInWorld()) _player->GetMap()->Remove(_player, false);
         // RemoveFromWorld does cleanup that requires the player to be in the accessor
         ObjectAccessor::Instance().RemoveObject(_player);
 

@@ -27,7 +27,6 @@
 #include "ArenaTeam.h"
 #include "World.h"
 #include "SocialMgr.h"
-#include "Language.h"
 
 void WorldSession::HandleInspectArenaStatsOpcode(WorldPacket & recv_data)
 {

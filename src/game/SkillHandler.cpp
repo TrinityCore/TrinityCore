@@ -23,12 +23,10 @@
 #include "Opcodes.h"
 #include "Log.h"
 #include "Player.h"
-#include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "ObjectAccessor.h"
 #include "UpdateMask.h"
-#include "SpellAuras.h"
 
 void WorldSession::HandleLearnTalentOpcode( WorldPacket & recv_data )
 {
