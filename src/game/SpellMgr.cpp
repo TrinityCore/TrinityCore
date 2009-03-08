@@ -1321,6 +1321,9 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
     // generic spells
     if(!spellInfo_1->SpellFamilyName)
     {
+        // hack for Incanter's Absorption
+        if (spellInfo_1->Id==44413 && spellInfo_2->Id==44413)
+            return false;
         if(!spellInfo_1->SpellIconID
             || spellInfo_1->SpellIconID == 1
             || spellInfo_1->SpellIconID != spellInfo_2->SpellIconID)
