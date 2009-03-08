@@ -945,15 +945,18 @@ void Aura::_RemoveAura()
     AuraSlotEntry *entry = m_target->GetVisibleAura(slot);
     if (entry)
     {
-        entry->m_slotAuras[GetEffIndex()]=NULL;                 //unregister aura
-        for(uint8 i = 0; i < 3; ++i)                              //check slot for more auras of the spell
+        // we have more auras, do not clear slot
+        if (entry->m_slotAuras[GetEffIndex()]==this)
         {
-            if(entry->m_slotAuras[i])
+            entry->m_slotAuras[GetEffIndex()]=NULL;                 //unregister aura
+            for(uint8 i = 0; i < 3; ++i)                              //check slot for more auras of the spell
             {
-                lastaura = false;
-                break;
+                if(entry->m_slotAuras[i])
+                {
+                    lastaura = false;
+                    break;
+                }
             }
-
         }
     }
 
@@ -3112,6 +3115,21 @@ void Aura::HandleModFear(bool apply, bool Real)
 
     //m_target->SetFeared(apply, GetCasterGUID(), GetId());
     m_target->SetControlled(apply, UNIT_STAT_FLEEING);
+
+    // Improved Fear
+   if(!apply && m_spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK)
+     {
+       Unit* caster = GetCaster();
+       if(!caster || caster->GetTypeId() != TYPEID_PLAYER)
+          return;
+       uint32 spell_id = 0;
+       if(caster->HasAura(53754, 0))
+          spell_id = 60946;
+       else if(caster->HasAura(53759, 0))
+          spell_id = 60947;
+       if(spell_id)
+          m_target->CastSpell(m_target, spell_id, true);
+    }
 }
 
 void Aura::HandleFeignDeath(bool apply, bool Real)
