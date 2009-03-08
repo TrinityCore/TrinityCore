@@ -5843,6 +5843,17 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 basepoints0 = GetAttackTime(BASE_ATTACK) * int32(ap*0.022f + 0.044f * holy) / 1000;
                 break;
             }
+            // Judgements of the Wise
+            if (dummySpell->SpellIconID == 3017)
+            {
+                // hardcoded amount
+                basepoints0 = 15 * GetMaxPower(POWER_MANA)/100;
+                target = this;
+                triggered_spell_id = 57669;
+                // replenishment
+                CastCustomSpell(this,31930,&basepoints0,0,0,true,0,triggeredByAura);
+                break;
+            }
             // Sanctified Wrath
             if (dummySpell->SpellIconID == 3029)
             {
