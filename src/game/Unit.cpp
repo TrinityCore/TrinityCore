@@ -2223,8 +2223,6 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
             auraAbsorbMod = (*i)->GetModifier()->m_amount;
     }
 
-    RemainingDamage += auraAbsorbMod * TotalAbsorb / 100;
-
     // Ignore absorb - add reduced amount again to damage
     RemainingDamage += auraAbsorbMod * TotalAbsorb / 100;
 
@@ -2232,6 +2230,8 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
 
     if (*absorb)
     {
+        bool found = false;
+        int32 spell_dmg=0;
         // Incanter's Absorption
         AuraList const& DummmyAuras = pVictim->GetAurasByType(SPELL_AURA_DUMMY);
         for(AuraList::const_iterator i = DummmyAuras.begin(); i != DummmyAuras.end(); ++i)
@@ -2240,22 +2240,22 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
             if (spellmgr.GetFirstSpellInChain(spellInfo->Id) == 44394)
             {
                 int32 total_dmg=0;
-                AuraList const& ignore = GetAurasByType(SPELL_AURA_MOD_DAMAGE_DONE);
-                for(AuraList::const_iterator j = ignore.begin(); i != ignore.end(); ++i)
+                // Get total bonus from auras
+                spellEffectPair spair = spellEffectPair(44413, 0);
+                for(AuraMap::const_iterator itr = pVictim->GetAuras().lower_bound(spair); itr != pVictim->GetAuras().upper_bound(spair); ++itr)
                 {
-                    if ((*j)->GetId()!=44413)
-                        continue;
-                    total_dmg += (*j)->GetModifier()->m_miscvalue;
+                    total_dmg += itr->second->GetModifier()->m_miscvalue;
                 }
-                int32 spell_dmg = int32(*absorb * (*i)->GetModifier()->m_amount / 100);
+                spell_dmg = int32(*absorb * (*i)->GetModifier()->m_amount / 100);
                 // Do not apply more auras if more than 5% hp
                 if(total_dmg+spell_dmg > int32(GetMaxHealth() * 5 / 100))
                     break;
-
-                pVictim->CastCustomSpell(pVictim, 44413, &spell_dmg, NULL, NULL, false);
+                found=true;
                 break;
              }
         }
+        if (found)
+            pVictim->CastCustomSpell(pVictim, 44413, &spell_dmg, NULL, NULL, false);
     }
 }
 
@@ -3766,7 +3766,7 @@ bool Unit::AddAura(Aura *Aur)
                     case SPELL_AURA_OBS_MOD_HEALTH:
                     case SPELL_AURA_PERIODIC_MANA_LEECH:
                     case SPELL_AURA_PERIODIC_ENERGIZE:
-                    case SPELL_AURA_OBS_MOD_MANA:
+                    case SPELL_AURA_OBS_MOD_ENERGY:
                     case SPELL_AURA_POWER_BURN_MANA:
                         break;
                     default:                            // not allow
@@ -6487,6 +6487,26 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     return true;
                 }
             }
+            break;
+        }
+         case SPELLFAMILY_PET:
+        {
+            // improved cower
+            if (dummySpell->SpellIconID == 958 && procSpell->SpellIconID == 958)
+            {
+                triggered_spell_id = dummySpell->Id == 53180 ? 54200 : 54201;
+                target = this;
+                break;
+            }
+            // guard dog
+            if (dummySpell->SpellIconID == 201 && procSpell->SpellIconID == 201)
+            {
+                triggered_spell_id = 54445;
+                target = this;
+                pVictim->AddThreat(this,procSpell->EffectBasePoints[0]*triggerAmount/100);
+                break;
+            }
+            break;
         }
         default:
             break;

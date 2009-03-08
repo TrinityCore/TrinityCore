@@ -75,7 +75,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleInvisibility,                              // 18 SPELL_AURA_MOD_INVISIBILITY
     &Aura::HandleInvisibilityDetect,                        // 19 SPELL_AURA_MOD_INVISIBILITY_DETECTION
     &Aura::HandleAuraModTotalHealthPercentRegen,            // 20 SPELL_AURA_OBS_MOD_HEALTH
-    &Aura::HandleAuraModTotalManaPercentRegen,              // 21 SPELL_AURA_OBS_MOD_MANA
+    &Aura::HandleAuraModTotalEnergyPercentRegen,              // 21 SPELL_AURA_OBS_MOD_ENERGY
     &Aura::HandleAuraModResistance,                         // 22 SPELL_AURA_MOD_RESISTANCE
     &Aura::HandlePeriodicTriggerSpell,                      // 23 SPELL_AURA_PERIODIC_TRIGGER_SPELL
     &Aura::HandlePeriodicEnergize,                          // 24 SPELL_AURA_PERIODIC_ENERGIZE
@@ -4386,7 +4386,7 @@ void Aura::HandleAuraModTotalHealthPercentRegen(bool apply, bool Real)
     m_isPeriodic = apply;
 }
 
-void Aura::HandleAuraModTotalManaPercentRegen(bool apply, bool Real)
+void Aura::HandleAuraModTotalEnergyPercentRegen(bool apply, bool Real)
 {
     if(m_modifier.periodictime == 0)
         m_modifier.periodictime = 1000;
@@ -5825,13 +5825,10 @@ void Aura::PeriodicTick()
             }
             break;
         }
+        case SPELL_AURA_OBS_MOD_ENERGY:
         case SPELL_AURA_PERIODIC_ENERGIZE:
         {
             // ignore non positive values (can be result apply spellmods to aura damage
-            uint32 pdamage = m_modifier.m_amount > 0 ? m_modifier.m_amount : 0;
-            sLog.outDetail("PeriodicTick: %u (TypeId: %u) energize %u (TypeId: %u) for %u dmg inflicted by %u",
-                GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), m_target->GetGUIDLow(), m_target->GetTypeId(), pdamage, GetId());
-
             if(m_modifier.m_miscvalue < 0 || m_modifier.m_miscvalue >= MAX_POWERS)
                 break;
 
@@ -5840,9 +5837,16 @@ void Aura::PeriodicTick()
             if(m_target->GetMaxPower(power) == 0)
                 break;
 
+            uint32 amount = m_modifier.m_amount < 0 ? 0 : m_modifier.m_amount;
+            uint32 pdamage;
+
             // Replenishment (Judgements of the Wise)
             if (m_spellProto->SpellIconID == 3184 && m_spellProto->SpellVisual[0] == 12495)
                 pdamage = 0.25f * m_target->GetMaxPower(POWER_MANA);
+            else if( m_modifier.m_auraname == SPELL_AURA_OBS_MOD_ENERGY )
+                pdamage = uint32(m_target->GetMaxPower(power) * amount/100);
+            else
+                pdamage = amount;
 
             WorldPacket data(SMSG_PERIODICAURALOG, (21+16));// we guess size
             data.append(m_target->GetPackGUID());
@@ -5854,36 +5858,10 @@ void Aura::PeriodicTick()
             data << (uint32)pdamage;
             m_target->SendMessageToSet(&data,true);
 
-            int32 gain = m_target->ModifyPower(power,pdamage);
-
-            if(Unit* pCaster = GetCaster())
-                m_target->getHostilRefManager().threatAssist(pCaster, float(gain) * 0.5f, GetSpellProto());
-            break;
-        }
-        case SPELL_AURA_OBS_MOD_MANA:
-        {
-            // ignore non positive values (can be result apply spellmods to aura damage
-            uint32 amount = m_modifier.m_amount > 0 ? m_modifier.m_amount : 0;
-
-            uint32 pdamage = uint32(m_target->GetMaxPower(POWER_MANA) * amount/100);
-
-            sLog.outDetail("PeriodicTick: %u (TypeId: %u) energize %u (TypeId: %u) for %u mana inflicted by %u",
+            sLog.outDetail("PeriodicTick: %u (TypeId: %u) energize %u (TypeId: %u) for %u dmg inflicted by %u",
                 GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), m_target->GetGUIDLow(), m_target->GetTypeId(), pdamage, GetId());
 
-            if(m_target->GetMaxPower(POWER_MANA) == 0)
-                break;
-
-            WorldPacket data(SMSG_PERIODICAURALOG, (21+16));// we guess size
-            data.append(m_target->GetPackGUID());
-            data.appendPackGUID(GetCasterGUID());
-            data << uint32(GetId());
-            data << uint32(1);
-            data << uint32(m_modifier.m_auraname);
-            data << (uint32)0;                              // ?
-            data << (uint32)pdamage;
-            m_target->SendMessageToSet(&data,true);
-
-            int32 gain = m_target->ModifyPower(POWER_MANA, pdamage);
+            int32 gain = m_target->ModifyPower(power,pdamage);
 
             if(Unit* pCaster = GetCaster())
                 m_target->getHostilRefManager().threatAssist(pCaster, float(gain) * 0.5f, GetSpellProto());
