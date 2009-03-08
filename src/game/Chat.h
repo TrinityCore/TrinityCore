@@ -285,6 +285,7 @@ class ChatHandler
         bool HandleReloadSpellThreatsCommand(const char* args);
         bool HandleReloadSpellPetAurasCommand(const char* args);
         bool HandleReloadSpellDisabledCommand(const char* args);
+        bool HandleReloadAuctionsCommand(const char* args);
 
         bool HandleInstanceListBindsCommand(const char* args);
         bool HandleInstanceUnbindCommand(const char* args);
