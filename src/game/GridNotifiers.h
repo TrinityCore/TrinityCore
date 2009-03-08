@@ -48,8 +48,8 @@ namespace Trinity
 
         PlayerRelocationNotifier(Player &player) : i_player(player),i_clientGUIDs(player.m_clientGUIDs) {}
 
-        #ifdef WIN32
         template<class T> inline void Visit(GridRefManager<T> &);
+        #ifdef WIN32
         template<> inline void Visit(PlayerMapType &);
         template<> inline void Visit(CreatureMapType &);
         #endif
@@ -956,7 +956,6 @@ namespace Trinity
     };
 
     #ifndef WIN32
-    template<class T> inline void PlayerRelocationNotifier::Visit(GridRefManager<T> &);
     template<> inline void PlayerRelocationNotifier::Visit<Creature>(CreatureMapType &);
     template<> inline void PlayerRelocationNotifier::Visit<Player>(PlayerMapType &);
     template<> inline void CreatureRelocationNotifier::Visit<Player>(PlayerMapType &);
