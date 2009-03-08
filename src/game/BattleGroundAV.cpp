@@ -21,16 +21,12 @@
 #include "Player.h"
 #include "BattleGround.h"
 #include "BattleGroundAV.h"
-#include "Creature.h"
-#include "Chat.h"
-#include "Object.h"
-#include "ObjectMgr.h"
-#include "ObjectAccessor.h"
-#include "MapManager.h"
 #include "Language.h"
 #include "SpellAuras.h"
 #include "Formulas.h"
 #include "WorldPacket.h"
+#include "ObjectMgr.h"
+#include "GameObject.h"
 
 BattleGroundAV::BattleGroundAV()
 {

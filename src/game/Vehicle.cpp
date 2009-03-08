@@ -18,13 +18,8 @@
 
 #include "Common.h"
 #include "Log.h"
-#include "WorldSession.h"
-#include "WorldPacket.h"
 #include "ObjectMgr.h"
-#include "SpellMgr.h"
 #include "Vehicle.h"
-#include "MapManager.h"
-#include "SpellAuras.h"
 #include "Unit.h"
 #include "Util.h"
 

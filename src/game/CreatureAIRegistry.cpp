@@ -18,7 +18,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "CreatureAIRegistry.h"
 #include "NullCreatureAI.h"
 #include "ReactorAI.h"
 #include "AggressorAI.h"
@@ -30,7 +29,6 @@
 #include "RandomMovementGenerator.h"
 #include "CreatureAIImpl.h"
 #include "MovementGeneratorImpl.h"
-#include "MapManager.h"
 #include "CreatureAIRegistry.h"
 #include "WaypointMovementGenerator.h"
 

@@ -24,7 +24,6 @@
 #include "UpdateData.h"
 #include "Item.h"
 #include "Map.h"
-#include "MapManager.h"
 #include "Transports.h"
 #include "ObjectAccessor.h"
 

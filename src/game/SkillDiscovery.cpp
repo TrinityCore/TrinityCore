@@ -22,7 +22,6 @@
 #include "Log.h"
 #include "ProgressBar.h"
 #include "Policies/SingletonImp.h"
-#include "ObjectAccessor.h"
 #include "World.h"
 #include "Util.h"
 #include "SkillDiscovery.h"

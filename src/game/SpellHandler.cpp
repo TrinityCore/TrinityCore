@@ -22,18 +22,15 @@
 #include "Database/DBCStores.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "World.h"
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "Spell.h"
-#include "SpellAuras.h"
-#include "BattleGround.h"
-#include "MapManager.h"
 #include "ScriptCalls.h"
 #include "Totem.h"
 #include "TemporarySummon.h"
+#include "SpellAuras.h"
 
 void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 {

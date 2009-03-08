@@ -20,13 +20,10 @@
 
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
 #include "World.h"
 #include "Player.h"
 #include "Opcodes.h"
 #include "Chat.h"
-#include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "Language.h"
 #include "AccountMgr.h"

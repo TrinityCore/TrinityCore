@@ -23,9 +23,7 @@
 #include "ObjectMgr.h"
 #include "Database/DatabaseEnv.h"
 #include "Log.h"
-#include "WorldPacket.h"
 #include "UpdateData.h"
-#include "WorldSession.h"
 
 Bag::Bag( ): Item()
 {

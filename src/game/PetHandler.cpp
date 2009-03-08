@@ -21,18 +21,15 @@
 #include "Common.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "World.h"
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "Spell.h"
 #include "ObjectAccessor.h"
-#include "MapManager.h"
 #include "CreatureAI.h"
 #include "Util.h"
 #include "Pet.h"
-#include "Language.h"
 
 void WorldSession::HandlePetAction( WorldPacket & recv_data )
 {

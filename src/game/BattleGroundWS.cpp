@@ -25,7 +25,6 @@
 #include "Creature.h"
 #include "GameObject.h"
 #include "Chat.h"
-#include "MapManager.h"
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
 #include "Language.h"

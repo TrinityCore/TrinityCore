@@ -21,7 +21,6 @@
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 #include "World.h"
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
@@ -37,7 +36,6 @@
 #include "CreatureAI.h"
 #include "CreatureAISelector.h"
 #include "Formulas.h"
-#include "SpellAuras.h"
 #include "WaypointMovementGenerator.h"
 #include "InstanceData.h"
 #include "BattleGroundMgr.h"
@@ -2305,4 +2303,3 @@ const char* Creature::GetNameForLocaleIdx(int32 loc_idx) const
 
     return GetName();
 }
-
