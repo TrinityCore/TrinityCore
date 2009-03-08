@@ -624,33 +624,14 @@ void Map::RelocationNotify()
 
         if(unit->GetTypeId() == TYPEID_PLAYER)
         {
-            //UpdatePlayerVisibility((Player*)unit, cell, val);
-            //Trinity::PlayerNotifier pl_notifier(*player);
-            //VisitWorld(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), pl_notifier);
-
-            //UpdateObjectsVisibilityFor((Player*)unit, cell, val);
-            Trinity::VisibleNotifier ob_notifier(*((Player*)unit));
-            VisitAll(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), ob_notifier);
-            ob_notifier.Notify();
-
             Trinity::PlayerRelocationNotifier notifier(*((Player*)unit));
             VisitAll(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
+            notifier.Notify();
         }
         else
         {
             Trinity::CreatureRelocationNotifier notifier(*((Creature*)unit));
             VisitAll(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
-        }
-
-        // Update visibility back to player who is controlling the unit
-        if(unit->GetSharedVisionList().size())
-        {
-            for(SharedVisionList::const_iterator it = unit->GetSharedVisionList().begin(); it != unit->GetSharedVisionList().end(); ++it)
-            {
-                Trinity::VisibleNotifier ob_notifier(**it);
-                VisitAll(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), ob_notifier);
-                ob_notifier.Notify();
-            }
         }
     }
 
@@ -767,6 +748,28 @@ void Map::Update(const uint32 &t_diff)
                         cell_lock->Visit(cell_lock, world_object_update, *this);
                     }
                 }
+            }
+
+            // Update bindsight players
+            if(obj->isType(TYPEMASK_UNIT))
+            {
+                if(!((Unit*)obj)->GetSharedVisionList().empty())
+                    for(SharedVisionList::const_iterator it = ((Unit*)obj)->GetSharedVisionList().begin(); it != ((Unit*)obj)->GetSharedVisionList().end(); ++it)
+                    {
+                        Trinity::PlayerRelocationNotifier notifier(**it);
+                        VisitAll(obj->GetPositionX(), obj->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
+                        notifier.Notify();
+                    }
+            }
+            else if(obj->GetTypeId() == TYPEID_DYNAMICOBJECT)
+            {
+                if(Unit *caster = ((DynamicObject*)obj)->GetCaster())
+                    if(caster->GetTypeId() == TYPEID_PLAYER && caster->GetUInt64Value(PLAYER_FARSIGHT) == obj->GetGUID())
+                    {
+                        Trinity::PlayerRelocationNotifier notifier(*((Player*)caster));
+                        VisitAll(obj->GetPositionX(), obj->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
+                        notifier.Notify();
+                    }
             }
         }
     }
