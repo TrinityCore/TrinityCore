@@ -2013,6 +2013,8 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                         currentAbsorb = mod->m_amount;
                         RemainingDamage=0;
                     }
+                    else
+                        continue;
                 }
 
                 // Reflective Shield
@@ -5919,7 +5921,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
             if (dummySpell->SpellIconID == 3017)
             {
                 // hardcoded amount
-                basepoints0 = 15 * GetMaxPower(POWER_MANA)/100;
+                basepoints0 = 15 * GetCreatePowers(POWER_MANA)/100;
                 target = this;
                 triggered_spell_id = 57669;
                 // replenishment
@@ -11539,7 +11541,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
            continue;
 
         procTriggered.push_back( ProcTriggeredData(spellProcEvent, itr->second) );
-    } 
+    }
 
     // Nothing found
     if (procTriggered.empty())
