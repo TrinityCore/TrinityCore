@@ -91,6 +91,9 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
 
         Phase1 = true;
         summons.DespawnAll();
+
+        m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
+        m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, false);
     }
 
     void Aggro(Unit *who)
@@ -212,6 +215,8 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
                 PhaseSwitchTimer = 60000;
                 m_creature->SetSpeed(MOVE_RUN, 1.2f);
                 DoZoneInCombat();
+                m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
+                m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, false);
             }
             else
             {
@@ -222,6 +227,8 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
                 PhaseSwitchTimer = 60000;
                 m_creature->SetSpeed(MOVE_RUN, 0.9f);
                 DoZoneInCombat();
+                m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+                m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
             }
         }else PhaseSwitchTimer -= diff;
 
