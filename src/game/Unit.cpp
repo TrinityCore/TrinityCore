@@ -4154,59 +4154,50 @@ bool Unit::AddAura(Aura *Aur)
     SpellEntry const* aurSpellInfo = Aur->GetSpellProto();
 
     spellEffectPair spair = spellEffectPair(Aur->GetId(), Aur->GetEffIndex());
-    AuraMap::iterator i = m_Auras.find( spair );
 
-    // take out same spell
-    if (i != m_Auras.end())
+    // passive and persistent auras can stack with themselves any number of times
+    if (!Aur->IsPassive() && !Aur->IsPersistent())
     {
-        // passive and persistent auras can stack with themselves any number of times
-        if (!Aur->IsPassive() && !Aur->IsPersistent())
+        // if StackAmount==0 not allow auras from same caster
+        for(AuraMap::iterator i2 = m_Auras.lower_bound(spair); i2 != m_Auras.upper_bound(spair); ++i2)
         {
-            // replace aura if next will > spell StackAmount
-            if(aurSpellInfo->StackAmount)
+            if(i2->second->GetCasterGUID()==Aur->GetCasterGUID())
             {
-                Aur->SetStackAmount(i->second->GetStackAmount());
-                if(Aur->GetStackAmount() < aurSpellInfo->StackAmount)
-                    Aur->SetStackAmount(Aur->GetStackAmount()+1);
-                RemoveAura(i,AURA_REMOVE_BY_STACK);
-            }
-            // if StackAmount==0 not allow auras from same caster
-            else
-            {
-                for(AuraMap::iterator i2 = m_Auras.lower_bound(spair); i2 != m_Auras.upper_bound(spair); ++i2)
+                // replace aura if next will > spell StackAmount
+                if(aurSpellInfo->StackAmount)
                 {
-                    if(i2->second->GetCasterGUID()==Aur->GetCasterGUID())
-                    {
-                        // can be only single (this check done at _each_ aura add
-                        RemoveAura(i2,AURA_REMOVE_BY_STACK);
-                        break;
-                    }
-
-                    bool stop = false;
-                    switch(aurSpellInfo->EffectApplyAuraName[Aur->GetEffIndex()])
-                    {
-                        // DoT/HoT/etc
-                        case SPELL_AURA_PERIODIC_DAMAGE:    // allow stack
-                        case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
-                        case SPELL_AURA_PERIODIC_LEECH:
-                        case SPELL_AURA_PERIODIC_HEAL:
-                        case SPELL_AURA_OBS_MOD_HEALTH:
-                        case SPELL_AURA_PERIODIC_MANA_LEECH:
-                        case SPELL_AURA_PERIODIC_ENERGIZE:
-                        case SPELL_AURA_OBS_MOD_MANA:
-                        case SPELL_AURA_POWER_BURN_MANA:
-                            break;
-                        default:                            // not allow
-                            // can be only single (this check done at _each_ aura add
-                            RemoveAura(i2,AURA_REMOVE_BY_STACK);
-                            stop = true;
-                            break;
-                    }
-
-                    if(stop)
-                        break;
+                    Aur->SetStackAmount(i2->second->GetStackAmount());
+                    if(Aur->GetStackAmount() < aurSpellInfo->StackAmount)
+                        Aur->SetStackAmount(Aur->GetStackAmount()+1);
                 }
+                // can be only single (this check done at _each_ aura add
+                RemoveAura(i2,AURA_REMOVE_BY_STACK);
+                break;
             }
+
+            bool stop = false;
+            switch(aurSpellInfo->EffectApplyAuraName[Aur->GetEffIndex()])
+            {
+                // DoT/HoT/etc
+                case SPELL_AURA_PERIODIC_DAMAGE:    // allow stack
+                case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
+                case SPELL_AURA_PERIODIC_LEECH:
+                case SPELL_AURA_PERIODIC_HEAL:
+                case SPELL_AURA_OBS_MOD_HEALTH:
+                case SPELL_AURA_PERIODIC_MANA_LEECH:
+                case SPELL_AURA_PERIODIC_ENERGIZE:
+                case SPELL_AURA_OBS_MOD_MANA:
+                case SPELL_AURA_POWER_BURN_MANA:
+                    break;
+                default:                            // not allow
+                    // can be only single (this check done at _each_ aura add
+                    RemoveAura(i2,AURA_REMOVE_BY_STACK);
+                    stop = true;
+                    break;
+            }
+
+            if(stop)
+                break;
         }
     }
 
