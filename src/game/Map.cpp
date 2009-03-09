@@ -754,9 +754,11 @@ void Map::Update(const uint32 &t_diff)
             if(obj->isType(TYPEMASK_UNIT))
             {
                 if(!((Unit*)obj)->GetSharedVisionList().empty())
-                    for(SharedVisionList::const_iterator it = ((Unit*)obj)->GetSharedVisionList().begin(); it != ((Unit*)obj)->GetSharedVisionList().end(); ++it)
+                    for(SharedVisionList::const_iterator itr = ((Unit*)obj)->GetSharedVisionList().begin(); itr != ((Unit*)obj)->GetSharedVisionList().end();)
                     {
-                        Trinity::PlayerRelocationNotifier notifier(**it);
+                        Player *player = *itr;
+                        ++itr;
+                        Trinity::PlayerRelocationNotifier notifier(*player);
                         VisitAll(obj->GetPositionX(), obj->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
                         notifier.Notify();
                     }
