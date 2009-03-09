@@ -39,23 +39,35 @@ bool DBCFile::Load(const char *filename, const char *fmt)
         delete [] data;
         data=NULL;
     }
+
     FILE * f=fopen(filename,"rb");
     if(!f)return false;
 
-    fread(&header,4,1,f);                                   // Number of records
+    if(fread(&header,4,1,f)!=1)                             // Number of records
+        return false;
+
     EndianConvert(header);
     if(header!=0x43424457)
-    {
-        //printf("not dbc file");
         return false;                                       //'WDBC'
-    }
-    fread(&recordCount,4,1,f);                              // Number of records
+
+    if(fread(&recordCount,4,1,f)!=1)                        // Number of records
+        return false;
+
     EndianConvert(recordCount);
-    fread(&fieldCount,4,1,f);                               // Number of fields
+
+    if(fread(&fieldCount,4,1,f)!=1)                         // Number of fields
+        return false;
+
     EndianConvert(fieldCount);
-    fread(&recordSize,4,1,f);                               // Size of a record
+
+    if(fread(&recordSize,4,1,f)!=1)                         // Size of a record
+        return false;
+
     EndianConvert(recordSize);
-    fread(&stringSize,4,1,f);                               // String size
+
+    if(fread(&stringSize,4,1,f)!=1)                         // String size
+        return false;
+
     EndianConvert(stringSize);
 
     fieldsOffset = new uint32[fieldCount];
@@ -71,7 +83,10 @@ bool DBCFile::Load(const char *filename, const char *fmt)
 
     data = new unsigned char[recordSize*recordCount+stringSize];
     stringTable = data + recordSize*recordCount;
-    fread(data,recordSize*recordCount+stringSize,1,f);
+
+    if(fread(data,recordSize*recordCount+stringSize,1,f)!=1)
+        return false;
+
     fclose(f);
     return true;
 }
