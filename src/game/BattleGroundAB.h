@@ -267,7 +267,7 @@ class BattleGroundAB : public BattleGround
         void _NodeOccupied(uint8 node,Team team);
         void _NodeDeOccupied(uint8 node);
 
-        const char* _GetNodeName(uint8 node);
+        int32 _GetNodeNameId(uint8 node);
 
         /* Nodes info:
             0: neutral
