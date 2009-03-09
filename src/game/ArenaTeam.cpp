@@ -575,6 +575,28 @@ void ArenaTeam::MemberLost(Player * plr, uint32 againstRating)
     }
 }
 
+void ArenaTeam::OfflineMemberLost(uint64 guid, uint32 againstRating)
+{
+    // called for offline player after ending rated arena match!
+    for(MemberList::iterator itr = members.begin(); itr !=  members.end(); ++itr)
+    {
+        if(itr->guid == guid)
+        {
+            // update personal rating
+            float chance = GetChanceAgainst(itr->personal_rating, againstRating);
+            int32 mod = (int32)ceil(32.0f * (0.0f - chance));
+            if (int32(itr->personal_rating) + mod < 0)
+                itr->personal_rating = 0;
+            else
+                itr->personal_rating += mod;
+            // update personal played stats
+            itr->games_week +=1;
+            itr->games_season +=1;
+            return;
+        }
+    }
+}
+
 void ArenaTeam::MemberWon(Player * plr, uint32 againstRating)
 {
     // called for each participant after winning a match

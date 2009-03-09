@@ -200,6 +200,7 @@ class ArenaTeam
         void MemberWon(Player * plr, uint32 againstRating);
         int32 LostAgainst(uint32 againstRating);
         void MemberLost(Player * plr, uint32 againstRating);
+        void OfflineMemberLost(uint64 guid, uint32 againstRating);
 
         void UpdateArenaPointsHelper(std::map<uint32, uint32> & PlayerPoints);
 
