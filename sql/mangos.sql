@@ -22,7 +22,7 @@
 DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
-  `required_7399_01_mangos_mangos_string` bit(1) default NULL
+  `required_7422_01_mangos_mangos_string` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -2848,6 +2848,11 @@ INSERT INTO `mangos_string` VALUES
 (808,'Player %s not found or offline',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (809,'Account for character %s not found',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (810,'|Hplayer:$N|h[$N]|h has earned the achievement $a!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(811,'Guild Master',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(812,'Officer',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(813,'Veteran',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(814,'Member',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(815,'Initiate',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (1000,'Exiting daemon...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (1001,'Account deleted: %s',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (1002,'Account %s NOT deleted (probably sql file format was updated)',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
