@@ -317,7 +317,7 @@ int WorldSocket::handle_input (ACE_HANDLE)
         }
         case 0:
         {
-            DEBUG_LOG ("WorldSocket::handle_input: Peer has closed connection\n");
+            DEBUG_LOG ("WorldSocket::handle_input: Peer has closed connection");
 
             errno = ECONNRESET;
             return -1;
