@@ -25,6 +25,7 @@
 #include "Log.h"
 #include "Corpse.h"
 #include "Player.h"
+#include "Vehicle.h"
 #include "MapManager.h"
 #include "Transports.h"
 #include "BattleGround.h"
