@@ -201,7 +201,7 @@ class BattleGroundMgr
         void RemoveBattleGround(uint32 instanceID, BattleGroundTypeId bgTypeId) { m_BattleGrounds[bgTypeId].erase(instanceID); }
 
         void CreateInitialBattleGrounds();
-        void DeleteAlllBattleGrounds();
+        void DeleteAllBattleGrounds();
 
         void SendToBattleGround(Player *pl, uint32 InstanceID, BattleGroundTypeId bgTypeId);
 
