@@ -271,6 +271,7 @@ class TRINITY_DLL_SPEC Aura
         bool IsDeathPersistent() const { return m_isDeathPersist; }
         bool IsRemovedOnShapeLost() const { return m_isRemovedOnShapeLost; }
         bool IsInUse() const { return m_in_use;}
+        void CleanupTriggeredSpells();
 
         virtual void Update(uint32 diff);
         void ApplyModifier(bool apply, bool Real = false);
@@ -339,7 +340,6 @@ class TRINITY_DLL_SPEC Aura
 
         int32 m_stackAmount;
     private:
-        void CleanupTriggeredSpells();
         void SetAura(uint32 slot, bool remove) { m_target->SetUInt32Value(UNIT_FIELD_AURA + slot, remove ? 0 : GetId()); }
         void SetAuraFlag(uint32 slot, bool add);
         void SetAuraLevel(uint32 slot, uint32 level);
