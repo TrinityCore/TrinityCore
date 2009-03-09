@@ -4746,7 +4746,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     if (!stack)
     {
         // Remove all triggered by aura spells vs unlimited duration
-        CleanupTriggeredSpells();
+        Aur->CleanupTriggeredSpells();
 
         // Remove Linked Auras
         uint32 id = Aur->GetId();
