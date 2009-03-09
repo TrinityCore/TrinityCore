@@ -4886,6 +4886,28 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
         {
             switch (dummySpell->Id)
             {
+                // Improved Divine Spirit
+                case 33174:
+                case 33182:
+                {
+                    // Tricky thing here, we find current aura from spell by caster and change its modifier value
+                    int32 spelldmg = CalculateSpellDamage(procSpell, 0, procSpell->EffectBasePoints[0],pVictim);
+                    Aura * Aur = NULL;
+                    spellEffectPair spair = spellEffectPair(procSpell->Id, effIndex);
+                    for(AuraMap::const_iterator itr = pVictim->GetAuras().lower_bound(spair); itr != pVictim->GetAuras().upper_bound(spair); ++itr)
+                    {
+                        if (itr->second->GetCasterGUID()==GetGUID())
+                            Aur = itr->second;
+                    }
+                    if (!Aur)
+                        return false;
+                    // Remove aura mods
+                    Aur->ApplyModifier(false,true);
+                    Aur->GetModifier()->m_amount += spelldmg * triggerAmount / 100;
+                    // Apply extended aura mods
+                    Aur->ApplyModifier(true,true);
+                    break;
+                }
                 // Eye for an Eye
                 case 9799:
                 case 25988:
@@ -5011,7 +5033,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 // Overkill
                 case 58426:
                 {
-                    basepoints0 = 1000;
+                    basepoints0 = -triggerAmount;
                     triggered_spell_id = 58425;
                     target=this;
                     break;
@@ -5821,7 +5843,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
             // Master of subtlety
             else if( dummySpell->SpellIconID == 2285 )
             {
-                basepoints0 = triggeredAmount;
+                basepoints0 = triggerAmount;
                 triggered_spell_id = 31665;
                 target=this;
                 break;
