@@ -308,7 +308,10 @@ void AchievementMgr::LoadFromDB(QueryResult *achievementResult, QueryResult *cri
 
 void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement)
 {
-    sLog.outDebug("AchievementMgr::SendAchievementEarned(%u)", achievement->ID);
+    #ifdef MANGOS_DEBUG
+    if((sLog.getLogFilter() & LOG_FILTER_ACHIEVEMENT_UPDATES)==0)
+        sLog.outDebug("AchievementMgr::SendAchievementEarned(%u)", achievement->ID);
+    #endif
 
     if(Guild* guild = objmgr.GetGuildById(GetPlayer()->GetGuildId()))
     {
@@ -392,7 +395,8 @@ static const uint32 achievIdForDangeon[][4] =
  */
 void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1, uint32 miscvalue2, Unit *unit, uint32 time)
 {
-    sLog.outDetail("AchievementMgr::UpdateAchievementCriteria(%u, %u, %u, %u)", type, miscvalue1, miscvalue2, time);
+    if((sLog.getLogFilter() & LOG_FILTER_ACHIEVEMENT_UPDATES)==0)
+        sLog.outDetail("AchievementMgr::UpdateAchievementCriteria(%u, %u, %u, %u)", type, miscvalue1, miscvalue2, time);
 
     if (!sWorld.getConfig(CONFIG_GM_ALLOW_ACHIEVEMENT_GAINS) && m_player->GetSession()->GetSecurity() > SEC_PLAYER)
         return;
@@ -1023,7 +1027,9 @@ AchievementCompletionState AchievementMgr::GetAchievementCompletionState(Achieve
 
 void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, uint32 changeValue, ProgressType ptype)
 {
-    sLog.outDetail("AchievementMgr::SetCriteriaProgress(%u, %u) for (GUID:%u)", entry->ID, changeValue);
+    if((sLog.getLogFilter() & LOG_FILTER_ACHIEVEMENT_UPDATES)==0)
+        sLog.outDetail("AchievementMgr::SetCriteriaProgress(%u, %u) for (GUID:%u)", entry->ID, changeValue);
+
     CriteriaProgress *progress = NULL;
 
     CriteriaProgressMap::iterator iter = m_criteriaProgress.find(entry->ID);
