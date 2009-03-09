@@ -2018,7 +2018,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                 }
 
                 // Reflective Shield
-                if (spellProto->SpellFamilyFlags.IsEqual(0x1))
+                if (spellProto->SpellFamilyFlags.IsEqual(0x1, 0, 0x400))
                 {
                     if (pVictim == this)
                         break;
@@ -4893,7 +4893,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     // Tricky thing here, we find current aura from spell by caster and change its modifier value
                     int32 spelldmg = CalculateSpellDamage(procSpell, 0, procSpell->EffectBasePoints[0],pVictim);
                     Aura * Aur = NULL;
-                    spellEffectPair spair = spellEffectPair(procSpell->Id, effIndex);
+                    spellEffectPair spair = spellEffectPair(procSpell->Id, effIndex+1);
                     for(AuraMap::const_iterator itr = pVictim->GetAuras().lower_bound(spair); itr != pVictim->GetAuras().upper_bound(spair); ++itr)
                     {
                         if (itr->second->GetCasterGUID()==GetGUID())
