@@ -3831,77 +3831,6 @@ bool ChatHandler::HandleGetDistanceCommand(const char* args)
     return true;
 }
 
-// FIX-ME!!!
-
-bool ChatHandler::HandleAddWeaponCommand(const char* /*args*/)
-{
-    /*if (!*args)
-        return false;
-
-    uint64 guid = m_session->GetPlayer()->GetSelection();
-    if (guid == 0)
-    {
-        SendSysMessage(LANG_NO_SELECTION);
-        return true;
-    }
-
-    Creature *pCreature = ObjectAccessor::GetCreature(*m_session->GetPlayer(), guid);
-
-    if(!pCreature)
-    {
-        SendSysMessage(LANG_SELECT_CREATURE);
-        return true;
-    }
-
-    char* pSlotID = strtok((char*)args, " ");
-    if (!pSlotID)
-        return false;
-
-    char* pItemID = strtok(NULL, " ");
-    if (!pItemID)
-        return false;
-
-    uint32 ItemID = atoi(pItemID);
-    uint32 SlotID = atoi(pSlotID);
-
-    ItemPrototype* tmpItem = objmgr.GetItemPrototype(ItemID);
-
-    bool added = false;
-    if(tmpItem)
-    {
-        switch(SlotID)
-        {
-            case 1:
-                pCreature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, ItemID);
-                added = true;
-                break;
-            case 2:
-                pCreature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY_01, ItemID);
-                added = true;
-                break;
-            case 3:
-                pCreature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY_02, ItemID);
-                added = true;
-                break;
-            default:
-                PSendSysMessage(LANG_ITEM_SLOT_NOT_EXIST,SlotID);
-                added = false;
-                break;
-        }
-        if(added)
-        {
-            PSendSysMessage(LANG_ITEM_ADDED_TO_SLOT,ItemID,tmpItem->Name1,SlotID);
-        }
-    }
-    else
-    {
-        PSendSysMessage(LANG_ITEM_NOT_FOUND,ItemID);
-        return true;
-    }
-    */
-    return true;
-}
-
 bool ChatHandler::HandleDieCommand(const char* /*args*/)
 {
     Unit* target = getSelectedUnit();
@@ -4236,21 +4165,28 @@ bool ChatHandler::HandleNearGraveCommand(const char* args)
     return true;
 }
 
-//play npc emote
-bool ChatHandler::HandleNpcPlayEmoteCommand(const char* args)
+//-----------------------Npc Commands-----------------------
+bool ChatHandler::HandleNpcChangeEntryCommand(const char *args)
 {
-    uint32 emote = atoi((char*)args);
+    if(!args)
+        return false;
 
-    Creature* target = getSelectedCreature();
-    if(!target)
+    uint32 newEntryNum = atoi(args);
+    if(!newEntryNum)
+        return false;
+
+    Unit* unit = getSelectedUnit();
+    if(!unit || unit->GetTypeId() != TYPEID_UNIT)
     {
         SendSysMessage(LANG_SELECT_CREATURE);
         SetSentErrorMessage(true);
         return false;
     }
-
-    target->SetUInt32Value(UNIT_NPC_EMOTESTATE,emote);
-
+    Creature* creature = (Creature*)unit;
+    if(creature->UpdateEntry(newEntryNum))
+        SendSysMessage(LANG_DONE);
+    else
+        SendSysMessage(LANG_ERROR);
     return true;
 }
 
@@ -4298,6 +4234,95 @@ bool ChatHandler::HandleNpcInfoCommand(const char* /*args*/)
 
     return true;
 }
+
+//play npc emote
+bool ChatHandler::HandleNpcPlayEmoteCommand(const char* args)
+{
+    uint32 emote = atoi((char*)args);
+
+    Creature* target = getSelectedCreature();
+    if(!target)
+    {
+        SendSysMessage(LANG_SELECT_CREATURE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    target->SetUInt32Value(UNIT_NPC_EMOTESTATE,emote);
+
+    return true;
+}
+
+//TODO: NpcCommands that needs to be fixed :
+
+bool ChatHandler::HandleNpcAddWeaponCommand(const char* /*args*/)
+{
+    /*if (!*args)
+    return false;
+
+    uint64 guid = m_session->GetPlayer()->GetSelection();
+    if (guid == 0)
+    {
+        SendSysMessage(LANG_NO_SELECTION);
+        return true;
+    }
+
+    Creature *pCreature = ObjectAccessor::GetCreature(*m_session->GetPlayer(), guid);
+
+    if(!pCreature)
+    {
+        SendSysMessage(LANG_SELECT_CREATURE);
+        return true;
+    }
+
+    char* pSlotID = strtok((char*)args, " ");
+    if (!pSlotID)
+        return false;
+
+    char* pItemID = strtok(NULL, " ");
+    if (!pItemID)
+        return false;
+
+    uint32 ItemID = atoi(pItemID);
+    uint32 SlotID = atoi(pSlotID);
+
+    ItemPrototype* tmpItem = objmgr.GetItemPrototype(ItemID);
+
+    bool added = false;
+    if(tmpItem)
+    {
+        switch(SlotID)
+        {
+            case 1:
+                pCreature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, ItemID);
+                added = true;
+                break;
+            case 2:
+                pCreature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY_01, ItemID);
+                added = true;
+                break;
+            case 3:
+                pCreature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY_02, ItemID);
+                added = true;
+                break;
+            default:
+                PSendSysMessage(LANG_ITEM_SLOT_NOT_EXIST,SlotID);
+                added = false;
+                break;
+        }
+
+        if(added)
+            PSendSysMessage(LANG_ITEM_ADDED_TO_SLOT,ItemID,tmpItem->Name1,SlotID);
+    }
+    else
+    {
+        PSendSysMessage(LANG_ITEM_NOT_FOUND,ItemID);
+        return true;
+    }
+    */
+    return true;
+}
+//----------------------------------------------------------
 
 bool ChatHandler::HandleExploreCheatCommand(const char* args)
 {
@@ -6254,30 +6279,6 @@ bool ChatHandler::HandleLoadPDumpCommand(const char *args)
             return false;
     }
 
-    return true;
-}
-
-bool ChatHandler::HandleNpcChangeEntryCommand(const char *args)
-{
-    if(!args)
-        return false;
-
-    uint32 newEntryNum = atoi(args);
-    if(!newEntryNum)
-        return false;
-
-    Unit* unit = getSelectedUnit();
-    if(!unit || unit->GetTypeId() != TYPEID_UNIT)
-    {
-        SendSysMessage(LANG_SELECT_CREATURE);
-        SetSentErrorMessage(true);
-        return false;
-    }
-    Creature* creature = (Creature*)unit;
-    if(creature->UpdateEntry(newEntryNum))
-        SendSysMessage(LANG_DONE);
-    else
-        SendSysMessage(LANG_ERROR);
     return true;
 }
 
