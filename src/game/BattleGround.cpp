@@ -244,6 +244,7 @@ void BattleGround::Update(uint32 diff)
             {
                 RemovePlayerAtLeave(itr->first, true, true);// remove player from BG
                 m_OfflineQueue.pop_front();                 // remove from offline queue
+                //do not use itr for anything, because it is erased in RemovePlayerAtLeave()
             }
         }
     }
@@ -426,9 +427,15 @@ void BattleGround::Update(uint32 diff)
         m_EndTime += diff;
         if(m_EndTime >= TIME_TO_AUTOREMOVE)                 // 2 minutes
         {
-            for(BattleGroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+            BattleGroundPlayerMap::iterator itr, next;
+            for(itr = m_Players.begin(); itr != m_Players.end(); itr = next)
+            {
+                next = itr;
+                ++next;
+                //itr is erased here!
                 RemovePlayerAtLeave(itr->first, true, true);// remove player from BG
-            // do not change any battleground's private variables
+                // do not change any battleground's private variables
+            }
         }
     }
 
