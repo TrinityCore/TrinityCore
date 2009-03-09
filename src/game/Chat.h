@@ -186,10 +186,14 @@ class ChatHandler
         bool HandleModifyPhaseCommand(const char* args);
         bool HandleModifyGenderCommand(const char* args);
 
+        //-----------------------Npc Commands-----------------------
         bool HandleNpcAddCommand(const char* args);
         bool HandleNpcAddMoveCommand(const char* args);
+        bool HandleNpcAddVendorItemCommand(const char* args);
         bool HandleNpcChangeEntryCommand(const char *args);
+        bool HandleNpcChangeLevelCommand(const char* args);
         bool HandleNpcDeleteCommand(const char* args);
+        bool HandleNpcDelVendorItemCommand(const char* args);
         bool HandleNpcFactionIdCommand(const char* args);
         bool HandleNpcFlagCommand(const char* args);
         bool HandleNpcFollowCommand(const char* args);
@@ -197,6 +201,7 @@ class ChatHandler
         bool HandleNpcMoveCommand(const char* args);
         bool HandleNpcPlayEmoteCommand(const char* args);
         bool HandleNpcSayCommand(const char* args);
+        bool HandleNpcSetDeathStateCommand(const char* args);
         bool HandleNpcSetModelCommand(const char* args);
         bool HandleNpcSetMoveTypeCommand(const char* args);
         bool HandleNpcSetPhaseCommand(const char* args);
@@ -208,7 +213,12 @@ class ChatHandler
         bool HandleNpcWhisperCommand(const char* args);
         bool HandleNpcYellCommand(const char* args);
         bool HandleNpcAddFormationCommand(const char* args);
-        bool HandleNpcSetDeathStateCommand(const char* args);
+
+        //TODO: NpcCommands that needs to be fixed :
+        bool HandleNpcAddWeaponCommand(const char* args);
+        bool HandleNpcNameCommand(const char* args);
+        bool HandleNpcSubNameCommand(const char* args);
+        //----------------------------------------------------------
 
         bool HandleReloadAllCommand(const char* args);
         bool HandleReloadAllAreaCommand(const char* args);
@@ -317,13 +327,8 @@ class ChatHandler
         bool HandleDebugSpellFailCommand(const char* args);
 
         bool HandleGUIDCommand(const char* args);
-        bool HandleNameCommand(const char* args);
-        bool HandleSubNameCommand(const char* args);
         bool HandleItemMoveCommand(const char* args);
         bool HandleDeMorphCommand(const char* args);
-        bool HandleAddVendorItemCommand(const char* args);
-        bool HandleDelVendorItemCommand(const char* args);
-        bool HandleChangeLevelCommand(const char* args);
         bool HandleSetPoiCommand(const char* args);
         bool HandleEquipErrorCommand(const char* args);
         bool HandleGoCreatureCommand(const char* args);
@@ -362,7 +367,6 @@ class ChatHandler
         bool HandleGoXYZCommand(const char* args);
         bool HandleGoZoneXYCommand(const char* args);
         bool HandleGoGridCommand(const char* args);
-        bool HandleAddWeaponCommand(const char* args);
         bool HandleAllowMovementCommand(const char* args);
         bool HandleGoCommand(const char* args);
 
