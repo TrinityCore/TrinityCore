@@ -826,7 +826,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
     if(type == 9)                                           // create guild
     {
         Guild* guild = new Guild;
-        if(!guild->create(_player->GetGUID(), name))
+        if(!guild->create(_player, name))
         {
             delete guild;
             delete result;

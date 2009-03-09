@@ -28,6 +28,7 @@
 #include "Chat.h"
 #include "SocialMgr.h"
 #include "Util.h"
+#include "Language.h"
 
 Guild::Guild()
 {
@@ -51,26 +52,24 @@ Guild::~Guild()
 
 }
 
-bool Guild::create(uint64 lGuid, std::string gname)
+bool Guild::create(Player* leader, std::string gname)
 {
-    std::string rname;
-    std::string lName;
-
-    if(!objmgr.GetPlayerNameByGUID(lGuid, lName))
-        return false;
     if(objmgr.GetGuildByName(gname))
         return false;
 
-    sLog.outDebug("GUILD: creating guild %s to leader: %u", gname.c_str(), GUID_LOPART(lGuid));
+    WorldSession* lSession = leader->GetSession();
+    if(!lSession)
+        return false;
 
-    leaderGuid = lGuid;
+    leaderGuid = leader->GetGUID();
     name = gname;
     GINFO = "";
     MOTD = "No message set.";
     guildbank_money = 0;
     purchased_tabs = 0;
-
     Id = objmgr.GenerateGuildId();
+
+    sLog.outDebug("GUILD: creating guild %s to leader: %u", gname.c_str(), GUID_LOPART(leaderGuid));
 
     // gname already assigned to Guild::name, use it to encode string for DB
     CharacterDatabase.escape_string(gname);
@@ -89,18 +88,13 @@ bool Guild::create(uint64 lGuid, std::string gname)
         Id, gname.c_str(), GUID_LOPART(leaderGuid), dbGINFO.c_str(), dbMOTD.c_str(), EmblemStyle, EmblemColor, BorderStyle, BorderColor, BackgroundColor, guildbank_money);
     CharacterDatabase.CommitTransaction();
 
-    rname = "Guild Master";
-    CreateRank(rname,GR_RIGHT_ALL);
-    rname = "Officer";
-    CreateRank(rname,GR_RIGHT_ALL);
-    rname = "Veteran";
-    CreateRank(rname,GR_RIGHT_GCHATLISTEN | GR_RIGHT_GCHATSPEAK);
-    rname = "Member";
-    CreateRank(rname,GR_RIGHT_GCHATLISTEN | GR_RIGHT_GCHATSPEAK);
-    rname = "Initiate";
-    CreateRank(rname,GR_RIGHT_GCHATLISTEN | GR_RIGHT_GCHATSPEAK);
+    CreateRank(lSession->GetMangosString(LANG_GUILD_MASTER),  GR_RIGHT_ALL);
+    CreateRank(lSession->GetMangosString(LANG_GUILD_OFFICER), GR_RIGHT_ALL);
+    CreateRank(lSession->GetMangosString(LANG_GUILD_VETERAN), GR_RIGHT_GCHATLISTEN | GR_RIGHT_GCHATSPEAK);
+    CreateRank(lSession->GetMangosString(LANG_GUILD_MEMBER),  GR_RIGHT_GCHATLISTEN | GR_RIGHT_GCHATSPEAK);
+    CreateRank(lSession->GetMangosString(LANG_GUILD_INITIATE),GR_RIGHT_GCHATLISTEN | GR_RIGHT_GCHATSPEAK);
 
-    return AddMember(lGuid, (uint32)GR_GUILDMASTER);
+    return AddMember(leaderGuid, (uint32)GR_GUILDMASTER);
 }
 
 bool Guild::AddMember(uint64 plGuid, uint32 plRank)
