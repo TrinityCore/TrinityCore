@@ -5012,7 +5012,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 case 58426:
                 {
                     basepoints0 = 1000;
-                    triggered_spell_id = 31665;
+                    triggered_spell_id = 58425;
                     target=this;
                     break;
                 }
@@ -5818,10 +5818,11 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 }
                 return false;
             }
+            // Master of subtlety
             else if( dummySpell->SpellIconID == 2285 )
             {
-                basepoints0 = 1000;
-                triggered_spell_id = 58427;
+                basepoints0 = triggeredAmount;
+                triggered_spell_id = 31665;
                 target=this;
                 break;
             }
