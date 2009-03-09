@@ -167,7 +167,7 @@ void BattleGround::Update(uint32 diff)
         m_RemovedPlayers.clear();
     }
 
-    // remove offline players from bg after ~5 minutes
+    // remove offline players from bg after 5 minutes
     if(GetPlayersSize())
     {
         for(std::map<uint64, BattleGroundPlayer>::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
@@ -176,19 +176,18 @@ void BattleGround::Update(uint32 diff)
             itr->second.LastOnlineTime += diff;
 
             if(plr)
-                itr->second.LastOnlineTime = 0;   // update last online time
+                itr->second.LastOnlineTime = 0;                 // update last online time
             else
-                if(itr->second.LastOnlineTime >= MAX_OFFLINE_TIME)                   // 5 minutes
-                    m_RemovedPlayers[itr->first] = 1;       // add to remove list (BG)
+                if(itr->second.LastOnlineTime >= MAX_OFFLINE_TIME)
+                    m_RemovedPlayers[itr->first] = 1;           // add to remove list (BG)
         }
     }
 
-    //TODO: move this system to spell system and ressurect players correclt there!
     /*********************************************************/
     /***        BATTLEGROUND RESSURECTION SYSTEM           ***/
     /*********************************************************/
 
-    //this should be handled by spell system:
+    //this should be handled by spell system
     m_LastResurrectTime += diff;
     if (m_LastResurrectTime >= RESURRECTION_INTERVAL)
     {
@@ -327,16 +326,13 @@ void BattleGround::Update(uint32 diff)
             //remove preparation
             if( isArena() )
             {
-                //TODO : add arena sound (PlaySoundToAll(SOUND_ARENA_START);
+                //TODO : add arena sound PlaySoundToAll(SOUND_ARENA_START);
 
                 for(BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                     if(Player *plr = objmgr.GetPlayer(itr->first))
                         plr->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
 
-                if(!GetPlayersCountByTeam(ALLIANCE) && GetPlayersCountByTeam(HORDE))
-                    EndBattleGround(HORDE);
-                else if(GetPlayersCountByTeam(ALLIANCE) && !GetPlayersCountByTeam(HORDE))
-                    EndBattleGround(ALLIANCE);
+                CheckArenaWinConditions();
             }
             else
             {
@@ -346,7 +342,7 @@ void BattleGround::Update(uint32 diff)
                 for(BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                     if(Player* plr = objmgr.GetPlayer(itr->first))
                         plr->RemoveAurasDueToSpell(SPELL_PREPARATION);
-                //Announce BG starting:
+                //Announce BG starting
                 if( sWorld.getConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE) )
                 {
                     sWorld.SendWorldText(LANG_BG_STARTED_ANNOUNCE_WORLD, GetName(), GetMinLevel(), GetMaxLevel());
@@ -1112,6 +1108,17 @@ void BattleGround::AddOrSetPlayerToCorrectBgGroup(Player *plr, uint64 plr_guid, 
     }
 }
 
+// This method should be called when player logs out from running battleground
+void BattleGround::EventPlayerLoggedOut(Player* player)
+{
+    if( GetStatus() == STATUS_IN_PROGRESS )
+    {
+        if( isBattleGround() )
+            EventPlayerDroppedFlag(player);
+        else
+            CheckArenaWinConditions();
+    }
+}
 
 /* This method should be called only once ... it adds pointer to queue */
 void BattleGround::AddToBGFreeSlotQueue()
@@ -1677,6 +1684,14 @@ int32 BattleGround::GetObjectType(uint64 guid)
 
 void BattleGround::HandleKillUnit(Creature *creature, Player *killer)
 {
+}
+
+void BattleGround::CheckArenaWinConditions()
+{
+    if( !GetAlivePlayersCountByTeam(ALLIANCE) && GetPlayersCountByTeam(HORDE) )
+        EndBattleGround(HORDE);
+    else if( GetPlayersCountByTeam(ALLIANCE) && !GetAlivePlayersCountByTeam(HORDE) )
+        EndBattleGround(ALLIANCE);
 }
 
 void BattleGround::SetBgRaid( uint32 TeamID, Group *bg_raid )
