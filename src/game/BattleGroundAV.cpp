@@ -241,7 +241,7 @@ void BattleGroundAV::UpdateScore(uint16 team, int16 points )
         }
         else if(!m_IsInformedNearVictory[teamindex] && m_Team_Scores[teamindex] < SEND_MSG_NEAR_LOSE)
         {
-            SendMessageToAll(GetTrinityString((teamindex==BG_TEAM_HORDE)?LANG_BG_AV_H_NEAR_LOSE:LANG_BG_AV_A_NEAR_LOSE), teamindex==BG_TEAM_HORDE ? CHAT_MSG_BG_SYSTEM_HORDE : CHAT_MSG_BG_SYSTEM_ALLIANCE);
+            SendMessageToAll(teamindex==BG_TEAM_HORDE?LANG_BG_AV_H_NEAR_LOSE:LANG_BG_AV_A_NEAR_LOSE, teamindex==BG_TEAM_HORDE ? CHAT_MSG_BG_SYSTEM_HORDE : CHAT_MSG_BG_SYSTEM_ALLIANCE);
             PlaySoundToAll(AV_SOUND_NEAR_VICTORY);
             m_IsInformedNearVictory[teamindex] = true;
         }
@@ -374,13 +374,13 @@ void BattleGroundAV::Update(uint32 diff)
         else if (GetStartDelayTime() <= BG_START_DELAY_1M && !(m_Events & 0x04))
         {
             m_Events |= 0x04;
-            SendMessageToAll(GetTrinityString(LANG_BG_AV_ONEMINTOSTART), CHAT_MSG_BG_SYSTEM_NEUTRAL);
+            SendMessageToAll(LANG_BG_AV_ONEMINTOSTART, CHAT_MSG_BG_SYSTEM_NEUTRAL);
         }
         // After 1,5 minute, warning is signalled
         else if (GetStartDelayTime() <= BG_START_DELAY_1M + BG_START_DELAY_30S && !(m_Events & 0x08))
         {
             m_Events |= 0x08;
-            SendMessageToAll(GetTrinityString(LANG_BG_AV_HALFMINTOSTART), CHAT_MSG_BG_SYSTEM_NEUTRAL);
+            SendMessageToAll(LANG_BG_AV_HALFMINTOSTART, CHAT_MSG_BG_SYSTEM_NEUTRAL);
         }
         // After 2 minutes, gates OPEN ! x)
         else if (GetStartDelayTime() <= 0 && !(m_Events & 0x10))
@@ -389,7 +389,7 @@ void BattleGroundAV::Update(uint32 diff)
             UpdateWorldState(AV_SHOW_A_SCORE, 1);
             m_Events |= 0x10;
 
-            SendMessageToAll(GetTrinityString(LANG_BG_AV_STARTED), CHAT_MSG_BG_SYSTEM_NEUTRAL);
+            SendMessageToAll(LANG_BG_AV_STARTED, CHAT_MSG_BG_SYSTEM_NEUTRAL);
             PlaySoundToAll(SOUND_BG_START);
             SetStatus(STATUS_IN_PROGRESS);
 
