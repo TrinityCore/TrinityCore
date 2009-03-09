@@ -6129,6 +6129,17 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
 
                     break;
                 }
+                // Glyph of Spiritual Attunement
+                case 54924:
+                {
+                    // if healed by another unit (pVictim)
+                    if(this == pVictim)
+                        return false;
+                    target = this;
+                    triggered_spell_id = 55111;
+                    basepoints0 = triggerAmount*damage/100;
+                    break;
+                }
                 // Glyph of Divinity
                 case 54939:
                 {
