@@ -14657,7 +14657,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
             SetBGTeam(bgteam);
 
             //join player to battleground group
-            currentBg->PlayerRelogin(this);
+            currentBg->EventPlayerLoggedIn(this, GetGUID());
             currentBg->AddOrSetPlayerToCorrectBgGroup(this, GetGUID(), bgteam);
 
             SetInviteForBattleGroundQueueType(bgQueueTypeId,currentBg->GetInstanceID());

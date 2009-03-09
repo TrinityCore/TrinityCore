@@ -119,7 +119,7 @@ namespace MaNGOS
 template<class Do>
 void BattleGround::BroadcastWorker(Do& _do)
 {
-    for(std::map<uint64, BattleGroundPlayer>::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    for(BattleGroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
         if(Player *plr = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER)))
             _do(plr);
 }
@@ -258,18 +258,16 @@ void BattleGround::Update(uint32 diff)
     }
 
     // remove offline players from bg after 5 minutes
-    if(GetPlayersSize())
+    if( !m_OfflineQueue.empty() )
     {
-        for(std::map<uint64, BattleGroundPlayer>::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+        BattleGroundPlayerMap::iterator itr = m_Players.find(*(m_OfflineQueue.begin()));
+        if( itr != m_Players.end() )
         {
-            Player *plr = objmgr.GetPlayer(itr->first);
-            itr->second.LastOnlineTime += diff;
-
-            if(plr)
-                itr->second.LastOnlineTime = 0;                 // update last online time
-            else
-                if(itr->second.LastOnlineTime >= MAX_OFFLINE_TIME)
-                    m_RemovedPlayers[itr->first] = 1;           // add to remove list (BG)
+            if( itr->second.OfflineRemoveTime <= sWorld.GetGameTime() )
+            {
+                m_RemovedPlayers[itr->first] = 1;           // add to remove list (BG)
+                m_OfflineQueue.pop_front();                 // remove from offline queue
+            }
         }
     }
 
@@ -451,7 +449,7 @@ void BattleGround::Update(uint32 diff)
         m_EndTime += diff;
         if(m_EndTime >= TIME_TO_AUTOREMOVE)                 // 2 minutes
         {
-            for(std::map<uint64, BattleGroundPlayer>::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+            for(BattleGroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
             {
                 m_RemovedPlayers[itr->first] = 1;           // add to remove list (BG)
             }
@@ -472,7 +470,7 @@ void BattleGround::SetTeamStartLoc(uint32 TeamID, float X, float Y, float Z, flo
 
 void BattleGround::SendPacketToAll(WorldPacket *packet)
 {
-    for(std::map<uint64, BattleGroundPlayer>::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    for(BattleGroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
         Player *plr = objmgr.GetPlayer(itr->first);
         if(plr)
@@ -484,7 +482,7 @@ void BattleGround::SendPacketToAll(WorldPacket *packet)
 
 void BattleGround::SendPacketToTeam(uint32 TeamID, WorldPacket *packet, Player *sender, bool self)
 {
-    for(std::map<uint64, BattleGroundPlayer>::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    for(BattleGroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
         Player *plr = objmgr.GetPlayer(itr->first);
 
@@ -516,7 +514,7 @@ void BattleGround::PlaySoundToTeam(uint32 SoundID, uint32 TeamID)
 {
     WorldPacket data;
 
-    for(std::map<uint64, BattleGroundPlayer>::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    for(BattleGroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
         Player *plr = objmgr.GetPlayer(itr->first);
 
@@ -539,7 +537,7 @@ void BattleGround::PlaySoundToTeam(uint32 SoundID, uint32 TeamID)
 
 void BattleGround::CastSpellOnTeam(uint32 SpellID, uint32 TeamID)
 {
-    for(std::map<uint64, BattleGroundPlayer>::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    for(BattleGroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
         Player *plr = objmgr.GetPlayer(itr->first);
 
@@ -576,7 +574,7 @@ void BattleGround::YellToAll(Creature* creature, const char* text, uint32 langua
 
 void BattleGround::RewardHonorToTeam(uint32 Honor, uint32 TeamID)
 {
-    for(std::map<uint64, BattleGroundPlayer>::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    for(BattleGroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
         Player *plr = objmgr.GetPlayer(itr->first);
 
@@ -601,7 +599,7 @@ void BattleGround::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, 
     if(!factionEntry)
         return;
 
-    for(std::map<uint64, BattleGroundPlayer>::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    for(BattleGroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
         Player *plr = objmgr.GetPlayer(itr->first);
 
@@ -706,7 +704,7 @@ void BattleGround::EndBattleGround(uint32 winner)
         }
     }
 
-    for(std::map<uint64, BattleGroundPlayer>::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    for(BattleGroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
         Player *plr = objmgr.GetPlayer(itr->first);
         if(!plr)
@@ -915,7 +913,7 @@ void BattleGround::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
     uint32 team = GetPlayerTeam(guid);
     bool participant = false;
     // Remove from lists/maps
-    std::map<uint64, BattleGroundPlayer>::iterator itr = m_Players.find(guid);
+    BattleGroundPlayerMap::iterator itr = m_Players.find(guid);
     if(itr != m_Players.end())
     {
         UpdatePlayersCountByTeam(team, true);   // -1 player
@@ -1092,7 +1090,7 @@ void BattleGround::AddPlayer(Player *plr)
     uint32 team = plr->GetBGTeam();
 
     BattleGroundPlayer bp;
-    bp.LastOnlineTime = 0;
+    bp.OfflineRemoveTime = 0;
     bp.Team = team;
 
     // Add to list/maps
@@ -1157,7 +1155,7 @@ void BattleGround::AddPlayer(Player *plr)
     }
 
     // setup BG group membership
-    PlayerRelogin(plr);
+    PlayerAddedToBGCheckIfBGIsRunning(plr);
     AddOrSetPlayerToCorrectBgGroup(plr, guid, team);
 
     // Log
@@ -1186,9 +1184,28 @@ void BattleGround::AddOrSetPlayerToCorrectBgGroup(Player *plr, uint64 plr_guid, 
     }
 }
 
+// This method should be called when player logs into running battleground
+void BattleGround::EventPlayerLoggedIn(Player* player, uint64 plr_guid)
+{
+    // player is correct pointer
+    for(std::deque<uint64>::iterator itr = m_OfflineQueue.begin(); itr != m_OfflineQueue.end(); ++itr)
+    {
+        if( *itr == plr_guid )
+        {
+            m_OfflineQueue.erase(itr);
+            break;
+        }
+    }
+    m_Players[plr_guid].OfflineRemoveTime = 0;
+    PlayerAddedToBGCheckIfBGIsRunning(player);
+}
+
 // This method should be called when player logs out from running battleground
 void BattleGround::EventPlayerLoggedOut(Player* player)
 {
+    // player is correct pointer, it is checked in WorldSession::LogoutPlayer()
+    m_OfflineQueue.push_back(player->GetGUID());
+    m_Players[player->GetGUID()].OfflineRemoveTime = sWorld.GetGameTime() + MAX_OFFLINE_TIME;
     if( GetStatus() == STATUS_IN_PROGRESS )
     {
         if( isBattleGround() )
@@ -1591,7 +1608,7 @@ void BattleGround::SendMessageToAll(int32 entry, ChatMsg type, Player const* sou
 void BattleGround::PSendMessageToAll(int32 entry, ChatMsg type, Player const* source, ...)
 {
     va_list ap;
-    va_start(ap, type);
+    va_start(ap, source);
 
     MaNGOS::BattleGroundChatBuilder bg_builder(type, entry, source, &ap);
     MaNGOS::LocalizedPacketDo<MaNGOS::BattleGroundChatBuilder> bg_do(bg_builder);
@@ -1676,7 +1693,7 @@ void BattleGround::HandleKillPlayer( Player *player, Player *killer )
         UpdatePlayerScore(killer, SCORE_HONORABLE_KILLS, 1);
         UpdatePlayerScore(killer, SCORE_KILLING_BLOWS, 1);
 
-        for(std::map<uint64, BattleGroundPlayer>::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+        for(BattleGroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
         {
             Player *plr = objmgr.GetPlayer(itr->first);
 
@@ -1696,7 +1713,7 @@ void BattleGround::HandleKillPlayer( Player *player, Player *killer )
 // used in same faction arena matches mainly
 uint32 BattleGround::GetPlayerTeam(uint64 guid)
 {
-    std::map<uint64, BattleGroundPlayer>::const_iterator itr = m_Players.find(guid);
+    BattleGroundPlayerMap::const_iterator itr = m_Players.find(guid);
     if(itr!=m_Players.end())
         return itr->second.Team;
     return 0;
@@ -1704,13 +1721,13 @@ uint32 BattleGround::GetPlayerTeam(uint64 guid)
 
 bool BattleGround::IsPlayerInBattleGround(uint64 guid)
 {
-    std::map<uint64, BattleGroundPlayer>::const_iterator itr = m_Players.find(guid);
-    if(itr!=m_Players.end())
+    BattleGroundPlayerMap::const_iterator itr = m_Players.find(guid);
+    if(itr != m_Players.end())
         return true;
     return false;
 }
 
-void BattleGround::PlayerRelogin(Player* plr)
+void BattleGround::PlayerAddedToBGCheckIfBGIsRunning(Player* plr)
 {
     if(GetStatus() != STATUS_WAIT_LEAVE)
         return;
@@ -1730,7 +1747,7 @@ void BattleGround::PlayerRelogin(Player* plr)
 uint32 BattleGround::GetAlivePlayersCountByTeam(uint32 Team) const
 {
     int count = 0;
-    for(std::map<uint64, BattleGroundPlayer>::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    for(BattleGroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
         if(itr->second.Team == Team)
         {
