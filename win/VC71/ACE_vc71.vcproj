@@ -45,7 +45,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies=""
 				OutputFile="$(OutDir)\ACEd.dll"
-				LinkIncremental="2"
+				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories=""
 				GenerateDebugInformation="TRUE"
