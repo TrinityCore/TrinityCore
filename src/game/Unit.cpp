@@ -4158,7 +4158,6 @@ bool Unit::AddAura(Aura *Aur)
     // passive and persistent auras can stack with themselves any number of times
     if (!Aur->IsPassive() && !Aur->IsPersistent())
     {
-        // if StackAmount==0 not allow auras from same caster
         for(AuraMap::iterator i2 = m_Auras.lower_bound(spair); i2 != m_Auras.upper_bound(spair); ++i2)
         {
             if(i2->second->GetCasterGUID()==Aur->GetCasterGUID())
@@ -4174,30 +4173,6 @@ bool Unit::AddAura(Aura *Aur)
                 RemoveAura(i2,AURA_REMOVE_BY_STACK);
                 break;
             }
-
-            bool stop = false;
-            switch(aurSpellInfo->EffectApplyAuraName[Aur->GetEffIndex()])
-            {
-                // DoT/HoT/etc
-                case SPELL_AURA_PERIODIC_DAMAGE:    // allow stack
-                case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
-                case SPELL_AURA_PERIODIC_LEECH:
-                case SPELL_AURA_PERIODIC_HEAL:
-                case SPELL_AURA_OBS_MOD_HEALTH:
-                case SPELL_AURA_PERIODIC_MANA_LEECH:
-                case SPELL_AURA_PERIODIC_ENERGIZE:
-                case SPELL_AURA_OBS_MOD_MANA:
-                case SPELL_AURA_POWER_BURN_MANA:
-                    break;
-                default:                            // not allow
-                    // can be only single (this check done at _each_ aura add
-                    RemoveAura(i2,AURA_REMOVE_BY_STACK);
-                    stop = true;
-                    break;
-            }
-
-            if(stop)
-                break;
         }
     }
 
@@ -4350,8 +4325,6 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
 
         uint32 i_effIndex = (*i).second->GetEffIndex();
 
-        if(i_spellId == spellId) continue;
-
         bool is_triggered_by_spell = false;
         // prevent triggered aura of removing aura that triggered it
         for(int j = 0; j < 3; ++j)
@@ -4408,7 +4381,22 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
                     sLog.outError("Aura (Spell %u Effect %u) is in process but attempt removed at aura (Spell %u Effect %u) adding, need add stack rule for Unit::RemoveNoStackAurasDueToAura", i->second->GetId(), i->second->GetEffIndex(),Aur->GetId(), Aur->GetEffIndex());
                     continue;
                 }
-                RemoveAurasDueToSpell(i_spellId);
+
+                // Remove all auras by aura caster
+                for (uint8 a=0;a<3;++a)
+                {
+                    spellEffectPair spair = spellEffectPair((*i).second->GetId(), a);
+                    for(AuraMap::iterator iter = m_Auras.lower_bound(spair); iter != m_Auras.upper_bound(spair);)
+                    {
+                        if(iter->second->GetCasterGUID()==(*i).second->GetCasterGUID())
+                        {
+                            RemoveAura(iter, AURA_REMOVE_BY_STACK);
+                            iter = m_Auras.lower_bound(spair);
+                        }
+                        else
+                            ++iter;
+                    }
+                }
 
                 if( m_Auras.empty() )
                     break;
@@ -4746,8 +4734,21 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
 
     Aur->_RemoveAura();
 
-    if(mode != AURA_REMOVE_BY_STACK)
+    bool stack = false;
+    spellEffectPair spair = spellEffectPair(Aur->GetId(), Aur->GetEffIndex());
+    for(AuraMap::const_iterator itr = GetAuras().lower_bound(spair); itr != GetAuras().upper_bound(spair); ++itr)
     {
+        if (itr->second->GetCasterGUID()==GetGUID())
+        {
+            stack = true;
+        }
+    }
+    if (!stack)
+    {
+        // Remove all triggered by aura spells vs unlimited duration
+        CleanupTriggeredSpells();
+
+        // Remove Linked Auras
         uint32 id = Aur->GetId();
         if(spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_REMOVE)
         {
