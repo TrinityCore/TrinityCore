@@ -46,16 +46,16 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
 
     // used also for charmed creature
     Unit* pet= ObjectAccessor::GetUnit(*_player, guid1);
-    sLog.outDetail("HandlePetAction.Pet %u flag is %u, spellid is %u, target %u.\n", uint32(GUID_LOPART(guid1)), flag, spellid, uint32(GUID_LOPART(guid2)) );
+    sLog.outDetail("HandlePetAction.Pet %u flag is %u, spellid is %u, target %u.", uint32(GUID_LOPART(guid1)), flag, spellid, uint32(GUID_LOPART(guid2)) );
     if(!pet)
     {
-        sLog.outError( "Pet %u not exist.\n", uint32(GUID_LOPART(guid1)) );
+        sLog.outError( "Pet %u not exist.", uint32(GUID_LOPART(guid1)) );
         return;
     }
 
     if(pet != GetPlayer()->GetPet() && pet != GetPlayer()->GetCharm())
     {
-        sLog.outError("HandlePetAction.Pet %u isn't pet of player %s.\n", uint32(GUID_LOPART(guid1)), GetPlayer()->GetName() );
+        sLog.outError("HandlePetAction.Pet %u isn't pet of player %s.", uint32(GUID_LOPART(guid1)), GetPlayer()->GetName() );
         return;
     }
 
@@ -159,7 +159,7 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
                         _player->Uncharm();
                     break;
                 default:
-                    sLog.outError("WORLD: unknown PET flag Action %i and spellid %i.\n", flag, spellid);
+                    sLog.outError("WORLD: unknown PET flag Action %i and spellid %i.", flag, spellid);
             }
             break;
         case ACT_REACTION:                                  // 0x600
@@ -188,7 +188,7 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
             SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellid );
             if(!spellInfo)
             {
-                sLog.outError("WORLD: unknown PET spell id %i\n", spellid);
+                sLog.outError("WORLD: unknown PET spell id %i", spellid);
                 return;
             }
 
@@ -278,7 +278,7 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
             break;
         }
         default:
-            sLog.outError("WORLD: unknown PET flag Action %i and spellid %i.\n", flag, spellid);
+            sLog.outError("WORLD: unknown PET flag Action %i and spellid %i.", flag, spellid);
     }
 }
 
@@ -286,7 +286,7 @@ void WorldSession::HandlePetNameQuery( WorldPacket & recv_data )
 {
     CHECK_PACKET_SIZE(recv_data,4+8);
 
-    sLog.outDetail( "HandlePetNameQuery. CMSG_PET_NAME_QUERY\n" );
+    sLog.outDetail( "HandlePetNameQuery. CMSG_PET_NAME_QUERY" );
 
     uint32 petnumber;
     uint64 petguid;
@@ -326,7 +326,7 @@ void WorldSession::HandlePetSetAction( WorldPacket & recv_data )
 {
     CHECK_PACKET_SIZE(recv_data, 8+4+2+2);
 
-    sLog.outDetail( "HandlePetSetAction. CMSG_PET_SET_ACTION\n" );
+    sLog.outDetail( "HandlePetSetAction. CMSG_PET_SET_ACTION" );
 
     uint64 petguid;
     uint32 position;
@@ -345,7 +345,7 @@ void WorldSession::HandlePetSetAction( WorldPacket & recv_data )
 
     if(!pet || (pet != _player->GetPet() && pet != _player->GetCharm()))
     {
-        sLog.outError( "HandlePetSetAction: Unknown pet or pet owner.\n" );
+        sLog.outError( "HandlePetSetAction: Unknown pet or pet owner." );
         return;
     }
 
@@ -363,7 +363,7 @@ void WorldSession::HandlePetSetAction( WorldPacket & recv_data )
         recv_data >> spell_id;
         recv_data >> act_state;
 
-        sLog.outDetail( "Player %s has changed pet spell action. Position: %u, Spell: %u, State: 0x%X\n", _player->GetName(), position, spell_id, act_state);
+        sLog.outDetail( "Player %s has changed pet spell action. Position: %u, Spell: %u, State: 0x%X", _player->GetName(), position, spell_id, act_state);
 
                                                             //if it's act for spell (en/disable/cast) and there is a spell given (0 = remove spell) which pet doesn't know, don't add
         if(!((act_state == ACT_ENABLED || act_state == ACT_DISABLED || act_state == ACT_PASSIVE) && spell_id && !pet->HasSpell(spell_id)))
@@ -395,7 +395,7 @@ void WorldSession::HandlePetRename( WorldPacket & recv_data )
 {
     CHECK_PACKET_SIZE(recv_data, 8+1);
 
-    sLog.outDetail( "HandlePetRename. CMSG_PET_RENAME\n" );
+    sLog.outDetail( "HandlePetRename. CMSG_PET_RENAME" );
 
     uint64 petguid;
     uint8 isdeclined;
@@ -511,7 +511,7 @@ void WorldSession::HandlePetUnlearnOpcode(WorldPacket& recvPacket)
 
     if(guid != pet->GetGUID())
     {
-        sLog.outError( "HandlePetUnlearnOpcode.Pet %u isn't pet of player %s .\n", uint32(GUID_LOPART(guid)),GetPlayer()->GetName() );
+        sLog.outError( "HandlePetUnlearnOpcode.Pet %u isn't pet of player %s .", uint32(GUID_LOPART(guid)),GetPlayer()->GetName() );
         return;
     }
 
@@ -545,7 +545,7 @@ void WorldSession::HandlePetSpellAutocastOpcode( WorldPacket& recvPacket )
 
     if(!pet || (pet != _player->GetPet() && pet != _player->GetCharm()))
     {
-        sLog.outError( "HandlePetSpellAutocastOpcode.Pet %u isn't pet of player %s .\n", uint32(GUID_LOPART(guid)),GetPlayer()->GetName() );
+        sLog.outError( "HandlePetSpellAutocastOpcode.Pet %u isn't pet of player %s .", uint32(GUID_LOPART(guid)),GetPlayer()->GetName() );
         return;
     }
 
@@ -595,7 +595,7 @@ void WorldSession::HandlePetCastSpellOpcode( WorldPacket& recvPacket )
 
     if(!caster || (caster != _player->GetPet() && caster != _player->GetCharm()))
     {
-        sLog.outError( "HandlePetCastSpellOpcode: Pet %u isn't pet of player %s .\n", uint32(GUID_LOPART(guid)),GetPlayer()->GetName() );
+        sLog.outError( "HandlePetCastSpellOpcode: Pet %u isn't pet of player %s .", uint32(GUID_LOPART(guid)),GetPlayer()->GetName() );
         return;
     }
 
@@ -605,7 +605,7 @@ void WorldSession::HandlePetCastSpellOpcode( WorldPacket& recvPacket )
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellid);
     if(!spellInfo)
     {
-        sLog.outError("WORLD: unknown PET spell id %i\n", spellid);
+        sLog.outError("WORLD: unknown PET spell id %i", spellid);
         return;
     }
 
@@ -803,5 +803,5 @@ void WorldSession::HandlePetLearnTalent( WorldPacket & recv_data )
 
     // learn! (other talent ranks will unlearned at learning)
     pet->learnSpell(spellid);
-    sLog.outDetail("TalentID: %u Rank: %u Spell: %u\n", talent_id, requested_rank, spellid);
+    sLog.outDetail("TalentID: %u Rank: %u Spell: %u", talent_id, requested_rank, spellid);
 }

@@ -3483,7 +3483,7 @@ void Spell::HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTar
             EffectEnchantItemTmp(i);
         else
         {
-            sLog.outError("SPELL: unknown effect %u spell id %u\n",
+            sLog.outError("SPELL: unknown effect %u spell id %u",
                 eff, m_spellInfo->Id);
         }
     }
