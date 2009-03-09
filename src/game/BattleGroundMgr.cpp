@@ -1079,10 +1079,10 @@ BattleGroundMgr::BattleGroundMgr() : m_AutoDistributionTimeChecker(0), m_ArenaTe
 
 BattleGroundMgr::~BattleGroundMgr()
 {
-    DeleteAlllBattleGrounds();
+    DeleteAllBattleGrounds();
 }
 
-void BattleGroundMgr::DeleteAlllBattleGrounds()
+void BattleGroundMgr::DeleteAllBattleGrounds()
 {
     for(uint32 i = BATTLEGROUND_TYPE_NONE; i < MAX_BATTLEGROUND_TYPE_ID; i++)
     {
