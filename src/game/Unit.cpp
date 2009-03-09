@@ -6705,7 +6705,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
                 //else if (auraSpellInfo->Id==47300)        // Dark Flame Aura
                 else if (auraSpellInfo->Id==57345)          // Darkmoon Card: Greatness
                 {
-                    uint32 stat = 0;
+                    float stat = 0.0f;
                     // strength
                     if (GetStat(STAT_STRENGTH) > stat) { trigger_spell_id = 60229;stat = GetStat(STAT_STRENGTH); }
                     // agility
