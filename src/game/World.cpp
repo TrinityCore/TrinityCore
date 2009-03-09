@@ -32,6 +32,7 @@
 #include "WorldPacket.h"
 #include "Weather.h"
 #include "Player.h"
+#include "Vehicle.h"
 #include "SkillExtraItems.h"
 #include "SkillDiscovery.h"
 #include "World.h"
