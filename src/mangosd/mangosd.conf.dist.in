@@ -234,8 +234,9 @@ AddonChannel = 1
 #        0 = Minimum; 1 = Error; 2 = Detail; 3 = Full/Debug
 #        Default: 0
 #
-#    LogFilter_TransportMoves
+#    LogFilter_AchievementUpdates
 #    LogFilter_CreatureMoves
+#    LogFilter_TransportMoves
 #    LogFilter_VisibilityChanges
 #        Log filters
 #        Default: 1 - not include with any log level
@@ -304,8 +305,9 @@ LogTime = 0
 LogFile = "Server.log"
 LogTimestamp = 0
 LogFileLevel = 0
-LogFilter_TransportMoves = 1
+LogFilter_AchievementUpdates = 1
 LogFilter_CreatureMoves = 1
+LogFilter_TransportMoves = 1
 LogFilter_VisibilityChanges = 1
 WorldLogFile = ""
 DBErrorLogFile = "db_errors.log"

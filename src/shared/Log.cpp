@@ -245,6 +245,8 @@ void Log::Initialize()
         m_logFilter |= LOG_FILTER_CREATURE_MOVES;
     if(sConfig.GetBoolDefault("LogFilter_VisibilityChanges", true))
         m_logFilter |= LOG_FILTER_VISIBILITY_CHANGES;
+    if(sConfig.GetBoolDefault("LogFilter_AchievementUpdates", true))
+        m_logFilter |= LOG_FILTER_ACHIEVEMENT_UPDATES;
 
     // Char log settings
     m_charLog_Dump = sConfig.GetBoolDefault("CharLogDump", false);
