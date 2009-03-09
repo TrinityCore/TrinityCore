@@ -23,7 +23,6 @@
 */
 
 #include "Common.h"
-//#include "WorldSocket.h"
 #include "Database/DatabaseEnv.h"
 #include "Config/ConfigEnv.h"
 #include "SystemConfig.h"
@@ -2548,129 +2547,102 @@ void World::SendGlobalMessage(WorldPacket *packet, WorldSession *self, uint32 te
     }
 }
 
-void World::SendGlobalGMMessage(WorldPacket *packet, WorldSession *self, uint32 team)
+namespace MaNGOS
 {
-    SessionMap::iterator itr;
-    for (itr = m_sessions.begin(); itr != m_sessions.end(); itr++)
+    class WorldWorldTextBuilder
     {
-        if (itr->second &&
-            itr->second->GetPlayer() &&
-            itr->second->GetPlayer()->IsInWorld() &&
-            itr->second != self &&
-            itr->second->GetSecurity() >SEC_PLAYER &&
-            (team == 0 || itr->second->GetPlayer()->GetTeam() == team) )
-        {
-            itr->second->SendPacket(packet);
-        }
-    }
-}
+        public:
+            typedef std::vector<WorldPacket*> WorldPacketList;
+            explicit WorldWorldTextBuilder(int32 textId, va_list* args = NULL) : i_textId(textId), i_args(args) {}
+            void operator()(WorldPacketList& data_list, int32 loc_idx)
+            {
+                char const* text = objmgr.GetMangosString(i_textId,loc_idx);
+
+                if(i_args)
+                {
+                    // we need copy va_list before use or original va_list will corrupted
+                    va_list ap;
+                    va_copy(ap,*i_args);
+
+                    char str [2048];
+                    vsnprintf(str,2048,text, ap );
+                    va_end(ap);
+
+                    do_helper(data_list,&str[0]);
+                }
+                else
+                    do_helper(data_list,(char*)text);
+            }
+        private:
+            char* lineFromMessage(char*& pos) { char* start = strtok(pos,"\n"); pos = NULL; return start; }
+            void do_helper(WorldPacketList& data_list, char* text)
+            {
+                char* pos = text;
+
+                while(char* line = lineFromMessage(pos))
+                {
+                    WorldPacket* data = new WorldPacket();
+
+                    uint32 lineLength = (line ? strlen(line) : 0) + 1;
+
+                    data->Initialize(SMSG_MESSAGECHAT, 100);                // guess size
+                    *data << uint8(CHAT_MSG_SYSTEM);
+                    *data << uint32(LANG_UNIVERSAL);
+                    *data << uint64(0);
+                    *data << uint32(0);                                     // can be chat msg group or something
+                    *data << uint64(0);
+                    *data << uint32(lineLength);
+                    *data << line;
+                    *data << uint8(0);
+
+                    data_list.push_back(data);
+                }
+            }
+
+            int32 i_textId;
+            va_list* i_args;
+    };
+}                                                           // namespace MaNGOS
 
 /// Send a System Message to all players (except self if mentioned)
 void World::SendWorldText(int32 string_id, ...)
 {
-    std::vector<std::vector<WorldPacket*> > data_cache;     // 0 = default, i => i-1 locale index
+    va_list ap;
+    va_start(ap, string_id);
 
+    MaNGOS::WorldWorldTextBuilder wt_builder(string_id, &ap);
+    MaNGOS::LocalizedPacketListDo<MaNGOS::WorldWorldTextBuilder> wt_do(wt_builder);
     for(SessionMap::iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
         if(!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld() )
             continue;
 
-        uint32 loc_idx = itr->second->GetSessionDbLocaleIndex();
-        uint32 cache_idx = loc_idx+1;
-
-        std::vector<WorldPacket*>* data_list;
-
-        // create if not cached yet
-        if(data_cache.size() < cache_idx+1 || data_cache[cache_idx].empty())
-        {
-            if(data_cache.size() < cache_idx+1)
-                data_cache.resize(cache_idx+1);
-
-            data_list = &data_cache[cache_idx];
-
-            char const* text = objmgr.GetTrinityString(string_id,loc_idx);
-
-            char buf[1000];
-
-            va_list argptr;
-            va_start( argptr, string_id );
-            vsnprintf( buf,1000, text, argptr );
-            va_end( argptr );
-
-            char* pos = &buf[0];
-
-            while(char* line = ChatHandler::LineFromMessage(pos))
-            {
-                WorldPacket* data = new WorldPacket();
-                ChatHandler::FillMessageData(data, NULL, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, 0, line, NULL);
-                data_list->push_back(data);
-            }
-        }
-        else
-            data_list = &data_cache[cache_idx];
-
-        for(int i = 0; i < data_list->size(); ++i)
-            itr->second->SendPacket((*data_list)[i]);
+        wt_do(itr->second->GetPlayer());
     }
 
-    // free memory
-    for(int i = 0; i < data_cache.size(); ++i)
-        for(int j = 0; j < data_cache[i].size(); ++j)
-            delete data_cache[i][j];
+    va_end(ap);
 }
 
+/// Send a System Message to all GMs (except self if mentioned)
 void World::SendGMText(int32 string_id, ...)
 {
-    std::vector<std::vector<WorldPacket*> > data_cache;     // 0 = default, i => i-1 locale index
+    va_list ap;
+    va_start(ap, string_id);
 
+    MaNGOS::WorldWorldTextBuilder wt_builder(string_id, &ap);
+    MaNGOS::LocalizedPacketListDo<MaNGOS::WorldWorldTextBuilder> wt_do(wt_builder);
     for(SessionMap::iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
         if(!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld() )
             continue;
 
-        uint32 loc_idx = itr->second->GetSessionDbLocaleIndex();
-        uint32 cache_idx = loc_idx+1;
+        if(!itr->second->GetSecurity())
+            continue;
 
-        std::vector<WorldPacket*>* data_list;
-
-        // create if not cached yet
-        if(data_cache.size() < cache_idx+1 || data_cache[cache_idx].empty())
-        {
-            if(data_cache.size() < cache_idx+1)
-                data_cache.resize(cache_idx+1);
-
-            data_list = &data_cache[cache_idx];
-
-            char const* text = objmgr.GetTrinityString(string_id,loc_idx);
-
-            char buf[1000];
-
-            va_list argptr;
-            va_start( argptr, string_id );
-            vsnprintf( buf,1000, text, argptr );
-            va_end( argptr );
-
-            char* pos = &buf[0];
-
-            while(char* line = ChatHandler::LineFromMessage(pos))
-            {
-                WorldPacket* data = new WorldPacket();
-                ChatHandler::FillMessageData(data, NULL, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, 0, line, NULL);
-                data_list->push_back(data);
-            }
-        }
-        else
-            data_list = &data_cache[cache_idx];
-
-        for(int i = 0; i < data_list->size(); ++i)
-            if(itr->second->GetSecurity()>0)
-            itr->second->SendPacket((*data_list)[i]);
+        wt_do(itr->second->GetPlayer());
     }
 
-    // free memory
-    for(int i = 0; i < data_cache.size(); ++i)
-        for(int j = 0; j < data_cache[i].size(); ++j)
-            delete data_cache[i][j];
+    va_end(ap);
 }
 
 /// DEPRICATED, only for debug purpose. Send a System Message to all players (except self if mentioned)
