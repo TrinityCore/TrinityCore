@@ -2168,28 +2168,6 @@ void Spell::EffectTeleportUnits(uint32 i)
     // If not exist data for dest location - return
     if(!m_targets.HasDest())
     {
-<<<<<<< HEAD:src/game/SpellEffects.cpp
-        sLog.outError( "Spell::EffectTeleportUnits - does not have destination for spell ID %u\n", m_spellInfo->Id );
-        return;
-    }
-    // Init dest coordinates
-    int32 mapid = m_targets.m_mapId;
-    if(mapid < 0) mapid = (int32)unitTarget->GetMapId();
-    float x = m_targets.m_destX;
-    float y = m_targets.m_destY;
-    float z = m_targets.m_destZ;
-    float orientation = m_targets.getUnitTarget() ? m_targets.getUnitTarget()->GetOrientation() : unitTarget->GetOrientation();
-    sLog.outDebug("Spell::EffectTeleportUnits - teleport unit to %u %f %f %f\n", mapid, x, y, z);
-    // Teleport
-    if(unitTarget->GetTypeId() == TYPEID_PLAYER)
-        ((Player*)unitTarget)->TeleportTo(mapid, x, y, z, orientation, TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (unitTarget==m_caster ? TELE_TO_SPELL : 0));
-    else
-    {
-        MapManager::Instance().GetMap(mapid, m_caster)->CreatureRelocation((Creature*)unitTarget, x, y, z, orientation);
-        WorldPacket data;
-        unitTarget->BuildTeleportAckMsg(&data, x, y, z, orientation);
-        unitTarget->SendMessageToSet(&data, false);
-=======
         case TARGET_INNKEEPER_COORDINATES:
         {
             // Only players can teleport to innkeeper
@@ -4884,7 +4862,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         unitTarget->CastSpell(unitTarget, 25863, false);
                     else
                         unitTarget->CastSpell(unitTarget, 26655, false);
-                    break;
+                    return;
                 }
                 // Piccolo of the Flaming Fire
                 case 17512:
@@ -4892,7 +4870,14 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
                         return;
                     unitTarget->HandleEmoteCommand(EMOTE_STATE_DANCE);
-                    break;
+                    return;
+                }
+                // Escape artist
+                case 20589:
+                {
+                    m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_ROOT);
+                    m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_DECREASE_SPEED);
+                    return;
                 }
                 // Escape artist
                 case 20589:
