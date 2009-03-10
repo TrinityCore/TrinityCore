@@ -662,6 +662,11 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     int32 count = m_caster->CalculateSpellDamage(m_spellInfo, 2, m_spellInfo->EffectBasePoints[2], unitTarget);
                     damage += count * int32(averange * IN_MILISECONDS) / m_caster->GetAttackTime(BASE_ATTACK);
                 }
+                // Shield of Righteousness
+                else if(m_spellInfo->SpellFamilyFlags&0x0010000000000000LL)
+                {
+                    damage+=int32(m_caster->GetShieldBlockValue());
+                }
                 break;
             }
         }
