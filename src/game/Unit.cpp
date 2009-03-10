@@ -4170,11 +4170,8 @@ bool Unit::AddAura(Aura *Aur)
                     {
                         // prevent adding stack more than once
                         stackModified=true;
-                        int32 amount=aurSpellInfo->StackAmount;
-                        if(Player* caster = ((Player*)Aur->GetCaster()))
-                            caster->ApplySpellMod(aurSpellInfo->Id, SPELLMOD_CHARGES, amount, NULL);
                         Aur->SetStackAmount(i2->second->GetStackAmount());
-                        if(Aur->GetStackAmount() < amount)
+                        if(Aur->GetStackAmount() < aurSpellInfo->StackAmount)
                             Aur->SetStackAmount(Aur->GetStackAmount()+1);
                     }
                     RemoveAura(i2,AURA_REMOVE_BY_STACK);
