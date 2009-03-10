@@ -172,7 +172,8 @@ enum TrinityStrings
     LANG_CONSOLE_COMMAND                = 172,
     LANG_YOU_CHANGE_RUNIC_POWER         = 173,
     LANG_YOURS_RUNIC_POWER_CHANGED      = 174,
-    // Room for more level 1              175-199 not used
+    LANG_LIQUID_STATUS                  = 175,
+    // Room for more level 1              176-199 not used
 
     // level 2 chat
     LANG_NO_SELECTION                   = 200,
