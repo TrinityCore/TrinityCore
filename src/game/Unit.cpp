@@ -4413,7 +4413,7 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
             // Remove all auras by aura caster
             for (uint8 a=0;a<3;++a)
             {
-                spellEffectPair spair = spellEffectPair((*i).second->GetId(), a);
+                spellEffectPair spair = spellEffectPair(i_spellId, a);
                 for(AuraMap::iterator iter = m_Auras.lower_bound(spair); iter != m_Auras.upper_bound(spair);)
                 {
                     if(iter->second->GetCasterGUID()==caster)
