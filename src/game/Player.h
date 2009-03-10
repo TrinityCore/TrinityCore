@@ -1984,8 +1984,9 @@ class TRINITY_DLL_SPEC Player : public Unit
         void ClearAfkReports() { m_bgAfkReporter.clear(); }
 
         bool GetBGAccessByLevel(BattleGroundTypeId bgTypeId) const;
-        bool isAllowUseBattleGroundObject();
         bool isTotalImmunity();
+        bool CanUseBattleGroundObject();
+        bool CanCaptureTowerPoint();
 
         /*********************************************************/
         /***               OUTDOOR PVP SYSTEM                  ***/
