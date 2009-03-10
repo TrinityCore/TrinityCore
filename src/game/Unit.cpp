@@ -3780,24 +3780,51 @@ bool Unit::AddAura(Aura *Aur)
 
     spellEffectPair spair = spellEffectPair(Aur->GetId(), Aur->GetEffIndex());
 
+    bool stackModified=false;
     // passive and persistent auras can stack with themselves any number of times
-    if (!Aur->IsPassive() && !Aur->IsPersistent())
+    if (!Aur->IsPassive() && !Aur->IsPersistent() Aur->GeId()!=44413)
     {
-        for(AuraMap::iterator i2 = m_Auras.lower_bound(spair); i2 != m_Auras.upper_bound(spair); ++i2)
+        for(AuraMap::iterator i2 = m_Auras.lower_bound(spair); i2 != m_Auras.upper_bound(spair);)
         {
             if(i2->second->GetCasterGUID()==Aur->GetCasterGUID())
             {
-                // replace aura if next will > spell StackAmount
-                if(aurSpellInfo->StackAmount)
+                if (!stackModified)
                 {
-                    Aur->SetStackAmount(i2->second->GetStackAmount());
-                    if(Aur->GetStackAmount() < aurSpellInfo->StackAmount)
-                        Aur->SetStackAmount(Aur->GetStackAmount()+1);
+                // replace aura if next will > spell StackAmount
+                    if(aurSpellInfo->StackAmount)
+                    {
+                        // prevent adding stack more than once
+                        stackModified=true;
+                        int32 amount=aurSpellInfo->StackAmount;
+                        if(Player* caster = ((Player*)Aur->GetCaster()))
+                            caster->ApplySpellMod(aurSpellInfo->Id, SPELLMOD_CHARGES, amount, NULL);
+                        Aur->SetStackAmount(i2->second->GetStackAmount());
+                        if(Aur->GetStackAmount() < amount)
+                            Aur->SetStackAmount(Aur->GetStackAmount()+1);
+                    }
+                    RemoveAura(i2,AURA_REMOVE_BY_STACK);
+                    i2=m_Auras.lower_bound(spair);
+                    continue;
                 }
-                // can be only single (this check done at _each_ aura add
-                RemoveAura(i2,AURA_REMOVE_BY_STACK);
-                break;
             }
+            switch(aurSpellInfo->EffectApplyAuraName[Aur->GetEffIndex()])
+            {
+                // DOT or HOT from different casters will stack
+                case SPELL_AURA_PERIODIC_DAMAGE:
+                case SPELL_AURA_PERIODIC_HEAL:
+                case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
+                case SPELL_AURA_PERIODIC_ENERGIZE:
+                case SPELL_AURA_PERIODIC_MANA_LEECH:
+                case SPELL_AURA_PERIODIC_LEECH:
+                case SPELL_AURA_POWER_BURN_MANA:
+                case SPELL_AURA_OBS_MOD_ENERGY:
+                case SPELL_AURA_OBS_MOD_HEALTH:
+                    ++i2;
+                    continue;
+            }
+            RemoveAura(i2,AURA_REMOVE_BY_STACK);
+            i2=m_Auras.lower_bound(spair);
+            continue;
         }
     }
 
@@ -3958,7 +3985,9 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
 
         uint32 i_spellId = i_spellProto->Id;
 
-        // early checks that spellId is passive non stackable spell
+        if (spellId==i_spellId)
+            continue;
+
         if(IsPassiveSpell(i_spellId))
         {
             // passive non-stackable spells not stackable only for same caster
@@ -4001,21 +4030,22 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
             continue;
         }
 
-                // Remove all auras by aura caster
-                for (uint8 a=0;a<3;++a)
+            uint64 caster = (*i).second->GetCasterGUID();
+            // Remove all auras by aura caster
+            for (uint8 a=0;a<3;++a)
+            {
+                spellEffectPair spair = spellEffectPair((*i).second->GetId(), a);
+                for(AuraMap::iterator iter = m_Auras.lower_bound(spair); iter != m_Auras.upper_bound(spair);)
                 {
-                    spellEffectPair spair = spellEffectPair((*i).second->GetId(), a);
-                    for(AuraMap::iterator iter = m_Auras.lower_bound(spair); iter != m_Auras.upper_bound(spair);)
+                    if(iter->second->GetCasterGUID()==caster)
                     {
-                        if(iter->second->GetCasterGUID()==(*i).second->GetCasterGUID())
-                        {
-                            RemoveAura(iter, AURA_REMOVE_BY_STACK);
-                            iter = m_Auras.lower_bound(spair);
-                        }
-                        else
-                            ++iter;
+                        RemoveAura(iter, AURA_REMOVE_BY_STACK);
+                        iter = m_Auras.lower_bound(spair);
                     }
+                    else
+                        ++iter;
                 }
+            }
 
         if( m_Auras.empty() )
             break;
