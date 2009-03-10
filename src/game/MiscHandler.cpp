@@ -1433,21 +1433,15 @@ void WorldSession::HandleFarSightOpcode( WorldPacket & recv_data )
     uint8 apply;
     recv_data >> apply;
 
-    CellPair pair;
 
     switch(apply)
     {
         case 0:
-            _player->SetFarsightVision(false);
-            pair = Trinity::ComputeCellPair(_player->GetPositionX(), _player->GetPositionY());
-            sLog.outDebug("Player %u set vision to himself", _player->GetGUIDLow());
+            _player->SetSeer(_player);
+            sLog.outDebug("Player %u set vision to self", _player->GetGUIDLow());
             break;
         case 1:
-            _player->SetFarsightVision(true);
-            if (WorldObject* obj = _player->GetFarsightTarget())
-                pair = Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
-            else
-                return;
+            _player->SetSeer(_player->GetFarsightTarget());
             sLog.outDebug("Added FarSight " I64FMT " to player %u", _player->GetFarSightGUID(), _player->GetGUIDLow());
             break;
         default:

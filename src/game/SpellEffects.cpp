@@ -3648,8 +3648,8 @@ void Spell::EffectAddFarsight(uint32 i)
     dynObj->GetMap()->Add(dynObj); //grid will also be loaded
 
     // Need to update visibility of object for client to accept farsight guid
-    ((Player*)m_caster)->UpdateVisibilityOf(dynObj);
-    ((Player*)m_caster)->SetFarsightTarget(dynObj);
+    ((Player*)m_caster)->SetSeer(dynObj);
+    //((Player*)m_caster)->UpdateVisibilityOf(dynObj);
 }
 
 void Spell::EffectSummonWild(uint32 i)
