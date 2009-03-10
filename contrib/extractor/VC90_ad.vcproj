@@ -216,7 +216,15 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath=".\adt.cpp"
+				RelativePath=".\loadlib\loadlib.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\loadlib\adt.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\loadlib\wdt.cpp"
 				>
 			</File>
 			<File
