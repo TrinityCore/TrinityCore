@@ -663,7 +663,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     damage += count * int32(averange * IN_MILISECONDS) / m_caster->GetAttackTime(BASE_ATTACK);
                 }
                 // Shield of Righteousness
-                else if(m_spellInfo->SpellFamilyFlags&0x0010000000000000LL)
+                else if(m_spellInfo->SpellFamilyFlags[1]&0x00100000)
                 {
                     damage+=int32(m_caster->GetShieldBlockValue());
                 }
@@ -2173,86 +2173,27 @@ void Spell::EffectTeleportUnits(uint32 i)
     // If not exist data for dest location - return
     if(!m_targets.HasDest())
     {
-        case TARGET_INNKEEPER_COORDINATES:
-        {
-            // Only players can teleport to innkeeper
-            if (unitTarget->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            ((Player*)unitTarget)->TeleportTo(((Player*)unitTarget)->m_homebindMapId,((Player*)unitTarget)->m_homebindX,((Player*)unitTarget)->m_homebindY,((Player*)unitTarget)->m_homebindZ,unitTarget->GetOrientation(),unitTarget==m_caster ? TELE_TO_SPELL : 0);
-            return;
-        }
-        case TARGET_TABLE_X_Y_Z_COORDINATES:
-        {
-            // TODO: Only players can teleport?
-            if (unitTarget->GetTypeId() != TYPEID_PLAYER)
-                return;
-            SpellTargetPosition const* st = spellmgr.GetSpellTargetPosition(m_spellInfo->Id);
-            if(!st)
-            {
-                sLog.outError( "Spell::EffectTeleportUnits - unknown Teleport coordinates for spell ID %u", m_spellInfo->Id );
-                return;
-            }
-            ((Player*)unitTarget)->TeleportTo(st->target_mapId,st->target_X,st->target_Y,st->target_Z,st->target_Orientation,unitTarget==m_caster ? TELE_TO_SPELL : 0);
-            break;
-        }
-        case TARGET_BEHIND_VICTIM:
-        {
-            // Get selected target for player (or victim for units)
-            Unit *pTarget = NULL;
-            if(m_caster->GetTypeId() == TYPEID_PLAYER)
-                pTarget = ObjectAccessor::GetUnit(*m_caster, ((Player*)m_caster)->GetSelection());
-            else
-                pTarget = m_caster->getVictim();
-            // No target present - return
-            if (!pTarget)
-                return;
-            // Init dest coordinates
-            uint32 mapid = m_caster->GetMapId();
-            float x = m_targets.m_destX;
-            float y = m_targets.m_destY;
-            float z = m_targets.m_destZ;
-            float orientation = pTarget->GetOrientation();
-            // Teleport
-            if(unitTarget->GetTypeId() == TYPEID_PLAYER)
-                ((Player*)unitTarget)->TeleportTo(mapid, x, y, z, orientation, TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (unitTarget==m_caster ? TELE_TO_SPELL : 0));
-            else
-            {
-                m_caster->GetMap()->CreatureRelocation((Creature*)unitTarget, x, y, z, orientation);
-                WorldPacket data;
-                unitTarget->BuildTeleportAckMsg(&data, x, y, z, orientation);
-                unitTarget->SendMessageToSet(&data, false);
-            }
-            return;
-        }
-        default:
-        {
-            // If not exist data for dest location - return
-            if(!(m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION))
-            {
-                sLog.outError( "Spell::EffectTeleportUnits - unknown EffectImplicitTargetB[%u] = %u for spell ID %u", i, m_spellInfo->EffectImplicitTargetB[i], m_spellInfo->Id );
-                return;
-            }
-            // Init dest coordinates
-            uint32 mapid = m_caster->GetMapId();
-            float x = m_targets.m_destX;
-            float y = m_targets.m_destY;
-            float z = m_targets.m_destZ;
-            float orientation = unitTarget->GetOrientation();
-            // Teleport
-            if(unitTarget->GetTypeId() == TYPEID_PLAYER)
-                ((Player*)unitTarget)->TeleportTo(mapid, x, y, z, orientation, TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (unitTarget==m_caster ? TELE_TO_SPELL : 0));
-            else
-            {
-                m_caster->GetMap()->CreatureRelocation((Creature*)unitTarget, x, y, z, orientation);
-                WorldPacket data;
-                unitTarget->BuildTeleportAckMsg(&data, x, y, z, orientation);
-                unitTarget->SendMessageToSet(&data, false);
-            }
-            return;
-        }
->>>>>>> 49353326cacc281efc169f4e4e8ccb517157ff23:src/game/SpellEffects.cpp
+        sLog.outError( "Spell::EffectTeleportUnits - does not have destination for spell ID %u\n", m_spellInfo->Id );
+        return;
     }
+    // Init dest coordinates
+    int32 mapid = m_targets.m_mapId;
+    if(mapid < 0) mapid = (int32)unitTarget->GetMapId();
+    float x = m_targets.m_destX;
+    float y = m_targets.m_destY;
+    float z = m_targets.m_destZ;
+    float orientation = m_targets.getUnitTarget() ? m_targets.getUnitTarget()->GetOrientation() : unitTarget->GetOrientation();
+    sLog.outDebug("Spell::EffectTeleportUnits - teleport unit to %u %f %f %f\n", mapid, x, y, z);
+    // Teleport
+    if(unitTarget->GetTypeId() == TYPEID_PLAYER)
+        ((Player*)unitTarget)->TeleportTo(mapid, x, y, z, orientation, TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (unitTarget==m_caster ? TELE_TO_SPELL : 0));
+    else
+    {
+        MapManager::Instance().GetMap(mapid, m_caster)->CreatureRelocation((Creature*)unitTarget, x, y, z, orientation);
+        WorldPacket data;
+        unitTarget->BuildTeleportAckMsg(&data, x, y, z, orientation);
+        unitTarget->SendMessageToSet(&data, false);
+    } 
 
     // post effects for TARGET_TABLE_X_Y_Z_COORDINATES
     switch ( m_spellInfo->Id )
@@ -4875,13 +4816,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
                         return;
                     unitTarget->HandleEmoteCommand(EMOTE_STATE_DANCE);
-                    return;
-                }
-                // Escape artist
-                case 20589:
-                {
-                    m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_ROOT);
-                    m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_DECREASE_SPEED);
                     return;
                 }
                 // Escape artist

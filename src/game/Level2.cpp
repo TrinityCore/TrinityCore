@@ -4530,3 +4530,42 @@ bool ChatHandler::HandleNpcAddFormationCommand(const char* args)
 
     return true;
  }
+
+//set pahsemask for selected object
+bool ChatHandler::HandleGOPhaseCommand(const char* args)
+{
+    // number or [name] Shift-click form |color|Hgameobject:go_id|h[name]|h|r
+    char* cId = extractKeyFromLink((char*)args,"Hgameobject");
+    if(!cId)
+        return false;
+
+    uint32 lowguid = atoi(cId);
+    if(!lowguid)
+        return false;
+
+    GameObject* obj = NULL;
+
+    // by DB guid
+    if (GameObjectData const* go_data = objmgr.GetGOData(lowguid))
+        obj = GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid,go_data->id);
+
+    if(!obj)
+    {
+        PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, lowguid);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    char* phaseStr = strtok (NULL, " ");
+    uint32 phasemask = phaseStr? atoi(phaseStr) : 0;
+    if ( phasemask == 0 )
+    {
+        SendSysMessage(LANG_BAD_VALUE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    obj->SetPhaseMask(phasemask,true);
+    obj->SaveToDB();
+    return true;
+}
