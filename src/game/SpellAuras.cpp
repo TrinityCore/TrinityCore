@@ -2056,7 +2056,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             // Living Bomb
             if (m_spellProto->SpellFamilyFlags[1] & 0x20000)
             {
-                if(!m_target || !caster || m_removeMode == AURA_REMOVE_BY_DISPEL || m_removeMode == AURA_REMOVE_BY_DEFAULT)
+                if(!m_target || !caster || !(m_removeMode == AURA_REMOVE_BY_DISPEL || m_removeMode == AURA_REMOVE_BY_DEFAULT))
                     return;
                 caster->CastSpell(m_target, GetModifier()->m_amount, true, NULL, NULL, GetCasterGUID());
                 return;
