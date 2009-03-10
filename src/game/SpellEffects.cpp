@@ -3135,7 +3135,7 @@ void Spell::EffectOpenLock(uint32 /*i*/)
         if( goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune ||
             goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.losOK )
         {
-            //isAllowUseBattleGroundObject() already called in CanCast()
+            //CanUseBattleGroundObject() already called in CanCast()
             // in battleground check
             if(BattleGround *bg = player->GetBattleGround())
             {
@@ -3147,7 +3147,7 @@ void Spell::EffectOpenLock(uint32 /*i*/)
         }
         else if (goInfo->type == GAMEOBJECT_TYPE_FLAGSTAND)
         {
-            //isAllowUseBattleGroundObject() already called in CanCast()
+            //CanUseBattleGroundObject() already called in CanCast()
             // in battleground check
             if(BattleGround *bg = player->GetBattleGround())
             {
