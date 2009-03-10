@@ -172,6 +172,11 @@ enum BG_AB_Sounds
     SOUND_NEAR_VICTORY                  = 8456
 };
 
+#define BG_AB_NotABBGWeekendHonorTicks 330
+#define BG_AB_ABBGWeekendHonorTicks 200
+#define BG_AB_NotABBGWeekendReputationTicks 200
+#define BG_AB_ABBGWeekendReputationTicks 150
+
 // x, y, z, o
 const float BG_AB_NodePositions[BG_AB_DYNAMIC_NODES_COUNT][4] = {
     {1166.785f, 1200.132f, -56.70859f, 0.9075713f},         // stables
@@ -246,6 +251,7 @@ class BattleGroundAB : public BattleGround
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
         virtual bool SetupBattleGround();
         virtual void Reset();
+        void EndBattleGround(uint32 winner);
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
         /* Scorekeeping */
@@ -275,15 +281,19 @@ class BattleGroundAB : public BattleGround
             2: horde contested
             3: ally occupied
             4: horde occupied     */
-        uint8             m_Nodes[BG_AB_DYNAMIC_NODES_COUNT];
-        uint8             m_prevNodes[BG_AB_DYNAMIC_NODES_COUNT];
-        BG_AB_BannerTimer m_BannerTimers[BG_AB_DYNAMIC_NODES_COUNT];
-        int32             m_NodeTimers[BG_AB_DYNAMIC_NODES_COUNT];
-        uint32            m_TeamScores[2];
-        uint32            m_lastTick[2];
-        uint32            m_HonorScoreTics[2];
-        uint32            m_ReputationScoreTics[2];
-        bool              m_IsInformedNearVictory;
+        uint8               m_Nodes[BG_AB_DYNAMIC_NODES_COUNT];
+        uint8               m_prevNodes[BG_AB_DYNAMIC_NODES_COUNT];
+        BG_AB_BannerTimer   m_BannerTimers[BG_AB_DYNAMIC_NODES_COUNT];
+        int32               m_NodeTimers[BG_AB_DYNAMIC_NODES_COUNT];
+        uint32              m_TeamScores[2];
+        uint32              m_lastTick[2];
+        uint32              m_HonorScoreTics[2];
+        uint32              m_ReputationScoreTics[2];
+        bool                m_IsInformedNearVictory;
+        uint32              m_HonorTics;
+        uint32              m_ReputationTics;
+
+
 };
 #endif
 
