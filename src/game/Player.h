@@ -2030,6 +2030,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         uint32 m_lastFallTime;
         float  m_lastFallZ;
         Unit *m_mover;
+        WorldObject *m_seer;
         void SetFallInformation(uint32 time, float z)
         {
             m_lastFallTime = time;
@@ -2051,14 +2052,13 @@ class TRINITY_DLL_SPEC Player : public Unit
         void EnterVehicle(Vehicle *vehicle);
         void ExitVehicle(Vehicle *vehicle);
 
-        void SetMover(Unit* target) { m_mover = target ? target : this; }
+        void SetMover(Unit* target) { SetSeer(target); m_mover = target; }
+        void SetSeer(WorldObject *target);
         void StopCastingCharm() { Uncharm(); }
         void StopCastingBindSight();
         uint64 GetFarSightGUID() const { return GetUInt64Value(PLAYER_FARSIGHT); }
         void SetFarSightGUID(uint64 guid) { SetUInt64Value(PLAYER_FARSIGHT, guid); }
         WorldObject* GetFarsightTarget() const;
-        void ClearFarsight();
-        void SetFarsightTarget(WorldObject* target);
         // Controls if vision is currently on farsight object, updated in FAR_SIGHT opcode
         void SetFarsightVision(bool apply) { m_farsightVision = apply; }
         bool HasFarsightVision() const { return m_farsightVision; }
