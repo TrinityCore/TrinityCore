@@ -32,12 +32,11 @@ typedef std::list<BattleGround*> BGFreeSlotQueueType;
 typedef UNORDERED_MAP<uint32, BattleGroundTypeId> BattleMastersMap;
 
 #define BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY 86400     // seconds in a day
+#define COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME 10
 
 struct GroupQueueInfo;                                      // type predefinition
 struct PlayerQueueInfo                                      // stores information for players in queue
 {
-    uint32  InviteTime;                                     // first invite time
-    uint32  LastInviteTime;                                 // last invite time
     uint32  LastOnlineTime;                                 // for tracking and removing offline players from queue after 5 minutes
     GroupQueueInfo * GroupInfo;                             // pointer to the associated groupqueueinfo
 };
@@ -81,6 +80,9 @@ class BattleGroundQueue
         GroupQueueInfo * AddGroup(Player * leader, BattleGroundTypeId bgTypeId, uint8 ArenaType, bool isRated, bool isPremade, uint32 ArenaRating, uint32 ArenaTeamId = 0);
         void AddPlayer(Player *plr, GroupQueueInfo *ginfo);
         void RemovePlayer(const uint64& guid, bool decreaseInvitedCount);
+        void PlayerInvitedToBGUpdateAverageWaitTime(GroupQueueInfo* ginfo, BGQueueIdBasedOnLevel queue_id);
+        uint32 GetAverageQueueWaitTime(GroupQueueInfo* ginfo, BGQueueIdBasedOnLevel queue_id);
+
         void DecreaseGroupLength(uint32 queueId, uint32 AsGroup);
         void BGEndedRemoveInvites(BattleGround * bg);
         void AnnounceWorld(GroupQueueInfo *ginfo, const uint64& playerGUID, bool isAddedToQueue);
@@ -122,6 +124,9 @@ class BattleGroundQueue
     private:
 
         bool InviteGroupToBG(GroupQueueInfo * ginfo, BattleGround * bg, uint32 side);
+        uint32 m_WaitTimes[BG_TEAMS_COUNT][MAX_BATTLEGROUND_QUEUES][COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME];
+        uint32 m_WaitTimeLastPlayer[BG_TEAMS_COUNT][MAX_BATTLEGROUND_QUEUES];
+        uint32 m_SumOfWaitTimes[BG_TEAMS_COUNT][MAX_BATTLEGROUND_QUEUES];
 };
 
 /*
