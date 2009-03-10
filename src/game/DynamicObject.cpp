@@ -142,7 +142,6 @@ void DynamicObject::Delay(int32 delaytime)
 bool DynamicObject::isVisibleForInState(Player const* u, bool inVisibleList) const
 {
     return IsInWorld() && u->IsInWorld()
-        && (IsWithinDistInMap(u,World::GetMaxVisibleDistanceForObject()+(inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f), false)
-        || GetCasterGUID() == u->GetGUID());
+        && (IsWithinDistInMap(u->m_seer,World::GetMaxVisibleDistanceForObject()+(inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f), false));
 }
 
