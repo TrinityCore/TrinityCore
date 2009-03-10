@@ -455,7 +455,8 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this)
     //Default movement to run mode
     m_unit_movement_flags = 0;
 
-    m_mover = NULL;
+    m_mover = this;
+    m_seer = this;
 
     m_miniPet = 0;
     m_bgAfkReportedTimer = 0;
@@ -14936,14 +14937,13 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
 
     // clear charm/summon related fields
     SetCharm(NULL);
-    SetMover(NULL);
+    SetMover(this);
     SetPet(NULL);
     SetCharmerGUID(0);
     SetOwnerGUID(0);
     SetCreatorGUID(0);
 
     // reset some aura modifiers before aura apply
-    SetFarSightGUID(0);
     SetUInt32Value(PLAYER_TRACK_CREATURES, 0 );
     SetUInt32Value(PLAYER_TRACK_RESOURCES, 0 );
 
@@ -18571,9 +18571,9 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool
         return false;
 
     // If the player is currently channeling vision, update visibility from the target unit's location
-    const WorldObject* target = GetFarsightTarget();
-    if (!target || !HasFarsightVision()) // Vision needs to be on the farsight target
-        target = this;
+    const WorldObject* target = m_seer;
+    //if (!target || !HasFarsightVision()) // Vision needs to be on the farsight target
+    //    target = this;
 
     // different visible distance checks
     if(isInFlight())                                     // what see player in flight
@@ -18973,6 +18973,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
         AddUnitMovementFlag(MOVEMENTFLAG_FLYING2);
 
     m_mover = this;
+    m_seer = this;
 }
 
 void Player::SendInitialPacketsAfterAddToMap()
@@ -20141,7 +20142,7 @@ WorldObject* Player::GetFarsightTarget() const
 {
     // Players can have in farsight field another player's guid, a creature's guid, or a dynamic object's guid
     if(uint64 guid = GetFarSightGUID())
-        return (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*this, guid, TYPEMASK_FARSIGHTOBJ);
+        return (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*this, guid, TYPEMASK_SEER);
     return NULL;
 }
 
@@ -20149,30 +20150,39 @@ void Player::StopCastingBindSight()
 {
     if (WorldObject* target = GetFarsightTarget())
     {
-        if (target->isType(TYPEMASK_PLAYER | TYPEMASK_UNIT))
+        if (target->isType(TYPEMASK_UNIT))
             ((Unit*)target)->RemoveSpellsCausingAura(SPELL_AURA_BIND_SIGHT);
     }
 }
 
-void Player::ClearFarsight()
+void Player::SetSeer(WorldObject* target)
 {
-    if(GetFarSightGUID())
-    {
-        SetFarSightGUID(0);
-        WorldPacket data(SMSG_CLEAR_FAR_SIGHT_IMMEDIATE, 0);
-        GetSession()->SendPacket(&data);
-    }
-}
-
-void Player::SetFarsightTarget(WorldObject* obj)
-{
-    if (!obj || !obj->isType(TYPEMASK_PLAYER | TYPEMASK_UNIT | TYPEMASK_DYNAMICOBJECT))
+    if(target == m_seer)
         return;
 
-    // Remove the current target if there is one
-    StopCastingBindSight();
+    sLog.outDebug("Player::SetSeer: Player %s set object %u (TypeId: %u) as seer.", GetName(), target->GetEntry(), target->GetTypeId());
 
-    SetFarSightGUID(obj->GetGUID());
+    if(target == this)
+    {
+        if(GetFarSightGUID())
+        {
+            SetFarSightGUID(0);
+            WorldPacket data(SMSG_CLEAR_FAR_SIGHT_IMMEDIATE, 0);
+            GetSession()->SendPacket(&data);
+        }
+
+        if(m_seer->isType(TYPEMASK_UNIT))
+            ((Unit*)m_seer)->RemovePlayerFromVision(this);
+    }
+    else if(target->isType(TYPEMASK_SEER))
+    {
+        StopCastingBindSight();
+        SetFarSightGUID(target->GetGUID());
+
+        if(target->isType(TYPEMASK_UNIT))
+            ((Unit*)target)->AddPlayerToVision(this);
+    }
+    m_seer = target;
 }
 
 bool Player::CanUseBattleGroundObject()
@@ -20270,7 +20280,6 @@ void Player::EnterVehicle(Vehicle *vehicle)
 
     SetCharm(vehicle);                                      // charm
     SetMover(vehicle);
-    SetFarSightGUID(vehicle->GetGUID());                        // set view
 
     SetClientControl(vehicle, 1);                           // redirect controls to vehicle
 
@@ -20321,8 +20330,7 @@ void Player::ExitVehicle(Vehicle *vehicle)
     vehicle->setFaction((GetTeam() == ALLIANCE) ? vehicle->GetCreatureInfo()->faction_A : vehicle->GetCreatureInfo()->faction_H);
 
     SetCharm(NULL);
-    SetMover(NULL);
-    SetFarSightGUID(0);
+    SetMover(this);
 
     SetClientControl(vehicle, 0);
 

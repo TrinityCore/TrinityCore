@@ -8136,6 +8136,7 @@ Unit* Unit::GetNextRandomRaidMemberOrPet(float radius)
     return nearMembers[randTarget];
 }
 
+//only called in Player::SetSeer
 void Unit::AddPlayerToVision(Player* plr)
 {
     if(m_sharedVision.empty())
@@ -8144,9 +8145,9 @@ void Unit::AddPlayerToVision(Player* plr)
         SetWorldObject(true);
     }
     m_sharedVision.push_back(plr);
-    plr->SetFarsightTarget(this);
 }
 
+//only called in Player::SetSeer
 void Unit::RemovePlayerFromVision(Player* plr)
 {
     m_sharedVision.remove(plr);
@@ -8155,7 +8156,6 @@ void Unit::RemovePlayerFromVision(Player* plr)
         setActive(false);
         SetWorldObject(false);
     }
-    plr->ClearFarsight();
 }
 
 void Unit::RemoveBindSightAuras()
@@ -10765,7 +10765,7 @@ Unit* Unit::GetUnit(WorldObject& object, uint64 guid)
 
 bool Unit::isVisibleForInState( Player const* u, bool inVisibleList ) const
 {
-    return isVisibleForOrDetect(u, false, inVisibleList, false);
+    return u->canSeeOrDetect(this, false, inVisibleList, false);
 }
 
 uint32 Unit::GetCreatureType() const
@@ -13018,7 +13018,6 @@ void Unit::SetCharmedOrPossessedBy(Unit* charmer, bool possess)
     {
         addUnitState(UNIT_STAT_POSSESSED);
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
-        AddPlayerToVision((Player*)charmer);
         ((Player*)charmer)->SetClientControl(this, 1);
         ((Player*)charmer)->SetMover(this);
         charmer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
@@ -13101,7 +13100,6 @@ void Unit::RemoveCharmedOrPossessedBy(Unit *charmer)
     charmer->SetCharm(0);
     if(possess)
     {
-        RemovePlayerFromVision((Player*)charmer);
         ((Player*)charmer)->SetClientControl(charmer, 1);
         ((Player*)charmer)->SetMover(charmer);
         charmer->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
