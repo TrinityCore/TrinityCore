@@ -218,11 +218,15 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath=".\adt.cpp"
+				RelativePath=".\loadlib\adt.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\dbcfile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\loadlib\loadlib.cpp"
 				>
 			</File>
 			<File
@@ -252,6 +256,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\loadlib\wdt.cpp"
+				>
 			</File>
 			<Filter
 				Name="libmpq"
