@@ -304,16 +304,39 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
             if (spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED)
             {
                 for(int i = 0; i < 3; i++)
-                    if( spellInfo->EffectApplyAuraName[i]==SPELL_AURA_MOD_POWER_REGEN)
+                    if( spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_POWER_REGEN
+                        || spellInfo->EffectApplyAuraName[i] == SPELL_AURA_OBS_MOD_ENERGY)
                         return SPELL_DRINK;
-                    else if ( spellInfo->EffectApplyAuraName[i]==SPELL_AURA_MOD_REGEN)
+                    else if ( spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_REGEN
+                        || spellInfo->EffectApplyAuraName[i] == SPELL_AURA_OBS_MOD_HEALTH)
                         return SPELL_FOOD;
             }
             // this may be a hack
             else if((spellInfo->AttributesEx2 & SPELL_ATTR_EX2_FOOD)
                 && !spellInfo->Category)
                 return SPELL_WELL_FED;
-            break;
+            // scrolls effects
+            else
+            {
+                uint32 firstSpell = spellmgr.GetFirstSpellInChain(spellInfo->Id);
+                switch (firstSpell)
+                {
+                    // Strength
+                    case 8118:
+                    // Stamina
+                    case 8099:
+                    // Spirit
+                    case 8112:
+                    //Intellect
+                    case 8096:
+                    // Agility
+                    case 8115:
+                    // Armor
+                    case 8091:
+                        return SPELL_SCROLL;
+                }
+                break;
+            }
         }
         case SPELLFAMILY_MAGE:
         {
