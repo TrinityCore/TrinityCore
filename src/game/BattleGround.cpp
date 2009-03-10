@@ -32,6 +32,7 @@
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
 #include "Util.h"
+#include "Formulas.h"
 #include "GridNotifiersImpl.h"
 
 namespace MaNGOS
@@ -318,7 +319,13 @@ void BattleGround::Update(uint32 diff)
         else if(m_PrematureCountDownTimer < diff)
         {
             // time's up!
-            EndBattleGround(0); // noone wins
+            uint32 winner = 0;
+            if( GetPlayersCountByTeam(ALLIANCE) >= GetMinPlayersPerTeam() )
+                winner = ALLIANCE;
+            else if( GetPlayersCountByTeam(HORDE) >= GetMinPlayersPerTeam() )
+                winner = HORDE;
+
+            EndBattleGround(winner);
             m_PrematureCountDown = false;
         }
         else
@@ -714,7 +721,6 @@ void BattleGround::EndBattleGround(uint32 winner)
         if(team == winner)
         {
             RewardMark(plr,ITEM_WINNER_COUNT);
-            UpdatePlayerScore(plr, SCORE_BONUS_HONOR, 20);
             RewardQuest(plr);
         }
         else
@@ -753,7 +759,13 @@ void BattleGround::EndBattleGround(uint32 winner)
     sBattleGroundMgr.m_BattleGroundQueues[BattleGroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType())].BGEndedRemoveInvites(this);
 
     if(winmsg_id)
-        SendMessageToAll(winmsg_id,CHAT_MSG_BG_SYSTEM_NEUTRAL);
+        SendMessageToAll(winmsg_id, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+}
+
+uint32 BattleGround::GetBonusHonorFromKill(uint32 kills) const
+{
+    //variable kills means how many honorable kills you scored (so we need kills * honor_for_one_kill)
+    return MaNGOS::Honor::hk_honor_at_level(GetMaxLevel(), kills);
 }
 
 uint32 BattleGround::GetBattlemasterEntry() const
@@ -892,7 +904,7 @@ void BattleGround::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
     BattleGroundPlayerMap::iterator itr = m_Players.find(guid);
     if(itr != m_Players.end())
     {
-        UpdatePlayersCountByTeam(team, true);   // -1 player
+        UpdatePlayersCountByTeam(team, true);               // -1 player
         m_Players.erase(itr);
         // check if the player was a participant of the match, or only entered through gm command (goname)
         participant = true;
@@ -934,8 +946,8 @@ void BattleGround::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
             // if arena, remove the specific arena auras
             if(isArena())
             {
-                plr->RemoveArenaAuras(true);    // removes debuffs / dots etc., we don't want the player to die after porting out
-                bgTypeId=BATTLEGROUND_AA;       // set the bg type to all arenas (it will be used for queue refreshing)
+                plr->RemoveArenaAuras(true);                // removes debuffs / dots etc., we don't want the player to die after porting out
+                bgTypeId=BATTLEGROUND_AA;                   // set the bg type to all arenas (it will be used for queue refreshing)
 
                 // summon old pet if there was one and there isn't a current pet
                 if(!plr->GetPet() && plr->GetTemporaryUnsummonedPetNumber())
@@ -982,7 +994,7 @@ void BattleGround::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         // remove from raid group if player is member
         if(Group *group = GetBgRaid(team))
         {
-            if( !group->RemoveMember(guid, 0) )               // group was disbanded
+            if( !group->RemoveMember(guid, 0) )             // group was disbanded
             {
                 SetBgRaid(team, NULL);
                 delete group;
@@ -1001,7 +1013,7 @@ void BattleGround::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
     if( plr )
     {
         // Do next only if found in battleground
-        plr->SetBattleGroundId(0, BATTLEGROUND_TYPE_NONE);      // We're not in BG.
+        plr->SetBattleGroundId(0, BATTLEGROUND_TYPE_NONE);  // We're not in BG.
         // reset destination bg team
         plr->SetBGTeam(0);
 

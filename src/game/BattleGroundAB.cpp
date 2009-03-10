@@ -131,15 +131,15 @@ void BattleGroundAB::Update(uint32 diff)
                 m_TeamScores[team] += BG_AB_TickPoints[points];
                 m_HonorScoreTics[team] += BG_AB_TickPoints[points];
                 m_ReputationScoreTics[team] += BG_AB_TickPoints[points];
-                if( m_ReputationScoreTics[team] >= BG_AB_ReputationScoreTicks[m_HonorMode] )
+                if( m_ReputationScoreTics[team] >= m_ReputationTics )
                 {
                     (team == BG_TEAM_ALLIANCE) ? RewardReputationToTeam(509, 10, ALLIANCE) : RewardReputationToTeam(510, 10, HORDE);
-                    m_ReputationScoreTics[team] -= BG_AB_ReputationScoreTicks[m_HonorMode];
+                    m_ReputationScoreTics[team] -= m_ReputationTics;
                 }
-                if( m_HonorScoreTics[team] >= BG_AB_HonorScoreTicks[m_HonorMode] )
+                if( m_HonorScoreTics[team] >= m_HonorTics )
                 {
-                    (team == BG_TEAM_ALLIANCE) ? RewardHonorToTeam(20, ALLIANCE) : RewardHonorToTeam(20, HORDE);
-                    m_HonorScoreTics[team] -= BG_AB_HonorScoreTicks[m_HonorMode];
+                    RewardHonorToTeam(GetBonusHonorFromKill(1), (team == BG_TEAM_ALLIANCE) ? ALLIANCE : HORDE);
+                    m_HonorScoreTics[team] -= m_HonorTics;
                 }
                 if( !m_IsInformedNearVictory && m_TeamScores[team] > 1800 )
                 {
@@ -587,6 +587,10 @@ void BattleGroundAB::Reset()
     m_ReputationScoreTics[BG_TEAM_ALLIANCE] = 0;
     m_ReputationScoreTics[BG_TEAM_HORDE]    = 0;
     m_IsInformedNearVictory                 = false;
+    bool isBGWeekend = false;           //TODO FIXME - call sBattleGroundMgr.IsBGWeekend(m_TypeID); - you must also implement that call!
+    m_HonorTics = (isBGWeekend) ? BG_AB_ABBGWeekendHonorTicks : BG_AB_NotABBGWeekendHonorTicks;
+    m_ReputationTics = (isBGWeekend) ? BG_AB_ABBGWeekendReputationTicks : BG_AB_NotABBGWeekendReputationTicks;
+
     for (uint8 i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
     {
         m_Nodes[i] = 0;
@@ -598,6 +602,20 @@ void BattleGroundAB::Reset()
     for (uint8 i = 0; i < BG_AB_ALL_NODES_COUNT; ++i)
         if(m_BgCreatures[i])
             DelCreature(i);
+}
+
+void BattleGroundAB::EndBattleGround(uint32 winner)
+{
+    //win reward
+    if( winner == ALLIANCE )
+        RewardHonorToTeam(GetBonusHonorFromKill(1), ALLIANCE);
+    if( winner == HORDE )
+        RewardHonorToTeam(GetBonusHonorFromKill(1), HORDE);
+    //complete map_end rewards (even if no team wins)
+    RewardHonorToTeam(GetBonusHonorFromKill(1), HORDE);
+    RewardHonorToTeam(GetBonusHonorFromKill(1), ALLIANCE);
+
+    BattleGround::EndBattleGround(winner);
 }
 
 WorldSafeLocsEntry const* BattleGroundAB::GetClosestGraveYard(Player* player)
