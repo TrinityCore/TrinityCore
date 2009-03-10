@@ -5174,7 +5174,7 @@ void ObjectMgr::LoadAccessRequirements()
 		if(ar.heroicQuest)
  		{
             QuestMap::iterator qReqItr = mQuestTemplates.find(ar.heroicQuest);
-            if(qReqItr != mQuestTemplates.end())
+            if(qReqItr == mQuestTemplates.end())
 			{
 				sLog.outErrorDb("Required Heroic Quest %u not exist for trigger %u, remove heroic quest done requirement.",ar.heroicQuest,requiremt_ID);
 				ar.heroicQuest = 0;
@@ -5184,7 +5184,7 @@ void ObjectMgr::LoadAccessRequirements()
         if(ar.quest)
         {
             QuestMap::iterator qReqItr = mQuestTemplates.find(ar.quest);
-            if(qReqItr != mQuestTemplates.end())
+            if(qReqItr == mQuestTemplates.end())
             {
                 sLog.outErrorDb("Required Quest %u not exist for trigger %u, remove quest done requirement.",ar.quest,requiremt_ID);
                 ar.quest = 0;
