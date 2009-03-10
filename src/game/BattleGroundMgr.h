@@ -195,15 +195,17 @@ class BattleGroundMgr
         void InvitePlayer(Player* plr, uint32 bgInstanceGUID, BattleGroundTypeId bgTypeId, uint32 team);
 
         /* Battlegrounds */
+        BattleGround* GetBattleGroundThroughClientInstance(uint32 instanceId, BattleGroundTypeId bgTypeId, BGQueueIdBasedOnLevel queue_id);
         BattleGround* GetBattleGround(uint32 InstanceID, BattleGroundTypeId bgTypeId); //there must be uint32 because MAX_BATTLEGROUND_TYPE_ID means unknown
 
-        BattleGround * GetBattleGroundTemplate(BattleGroundTypeId bgTypeId);
-        BattleGround * CreateNewBattleGround(BattleGroundTypeId bgTypeId, BGQueueIdBasedOnLevel queue_id, uint8 arenaType, bool isRated);
+        BattleGround* GetBattleGroundTemplate(BattleGroundTypeId bgTypeId);
+        BattleGround* CreateNewBattleGround(BattleGroundTypeId bgTypeId, BGQueueIdBasedOnLevel queue_id, uint8 arenaType, bool isRated);
 
         uint32 CreateBattleGround(BattleGroundTypeId bgTypeId, bool IsArena, uint32 MinPlayersPerTeam, uint32 MaxPlayersPerTeam, uint32 LevelMin, uint32 LevelMax, char* BattleGroundName, uint32 MapID, float Team1StartLocX, float Team1StartLocY, float Team1StartLocZ, float Team1StartLocO, float Team2StartLocX, float Team2StartLocY, float Team2StartLocZ, float Team2StartLocO);
 
         void AddBattleGround(uint32 InstanceID, BattleGroundTypeId bgTypeId, BattleGround* BG) { m_BattleGrounds[bgTypeId][InstanceID] = BG; };
         void RemoveBattleGround(uint32 instanceID, BattleGroundTypeId bgTypeId) { m_BattleGrounds[bgTypeId].erase(instanceID); }
+        uint32 CreateClientVisibleInstanceId(BattleGroundTypeId bgTypeId, BGQueueIdBasedOnLevel queue_id);
 
         void CreateInitialBattleGrounds();
         void DeleteAllBattleGrounds();
@@ -248,6 +250,7 @@ class BattleGroundMgr
 
         /* Battlegrounds */
         BattleGroundSet m_BattleGrounds[MAX_BATTLEGROUND_TYPE_ID];
+        std::set<uint32> m_ClientBattleGroundIds[MAX_BATTLEGROUND_TYPE_ID][MAX_BATTLEGROUND_QUEUES]; //the instanceids just visible for the client
         uint32 m_NextRatingDiscardUpdate;
         uint64 m_NextAutoDistributionTime;
         uint32 m_AutoDistributionTimeChecker;

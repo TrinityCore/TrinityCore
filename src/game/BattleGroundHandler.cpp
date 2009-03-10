@@ -112,9 +112,9 @@ void WorldSession::HandleBattleGroundJoinOpcode( WorldPacket & recv_data )
         return;
 
     // get bg instance or bg template if instance not found
-    BattleGround * bg = 0;
+    BattleGround * bg = NULL;
     if(instanceId)
-        BattleGround *bg = sBattleGroundMgr.GetBattleGround(instanceId, bgTypeId);
+        BattleGround *bg = sBattleGroundMgr.GetBattleGroundThroughClientInstance(instanceId, bgTypeId, _player->GetBattleGroundQueueIdFromLevel(bgTypeId));
 
     if(!bg && !(bg = sBattleGroundMgr.GetBattleGroundTemplate(bgTypeId)))
     {
