@@ -4031,7 +4031,7 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
             // Remove all auras by aura caster
             for (uint8 a=0;a<3;++a)
             {
-                spellEffectPair spair = spellEffectPair((*i).second->GetId(), a);
+                spellEffectPair spair = spellEffectPair(i_spellId, a);
                 for(AuraMap::iterator iter = m_Auras.lower_bound(spair); iter != m_Auras.upper_bound(spair);)
                 {
                     if(iter->second->GetCasterGUID()==caster)
@@ -6202,6 +6202,12 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
         {
             switch(dummySpell->Id)
             {
+                // Improved fire nova totem
+                case 16544:
+                {
+                    triggered_spell_id = 16086;
+                    break;
+                }
                 // Totemic Power (The Earthshatterer set)
                 case 28823:
                 {
