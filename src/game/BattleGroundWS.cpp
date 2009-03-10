@@ -206,8 +206,6 @@ void BattleGroundWS::EventPlayerCapturedFlag(Player *Source)
 
     uint32 winner = 0;
 
-    //TODO FIX reputation and honor gains for low level players!
-
     Source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
     if(Source->GetTeam() == ALLIANCE)
     {
@@ -221,8 +219,7 @@ void BattleGroundWS::EventPlayerCapturedFlag(Player *Source)
         if(GetTeamScore(ALLIANCE) < BG_WS_MAX_TEAM_SCORE)
             AddPoint(ALLIANCE, 1);
         PlaySoundToAll(BG_WS_SOUND_FLAG_CAPTURED_ALLIANCE);
-        RewardReputationToTeam(890, BG_WSG_Reputation[m_HonorMode][BG_WSG_FLAG_CAP], ALLIANCE);          // +35 reputation
-        RewardHonorToTeam(BG_WSG_Honor[m_HonorMode][BG_WSG_FLAG_CAP], ALLIANCE);                    // +40 bonushonor
+        RewardReputationToTeam(890, m_ReputationCapture, ALLIANCE);
     }
     else
     {
@@ -236,9 +233,10 @@ void BattleGroundWS::EventPlayerCapturedFlag(Player *Source)
         if(GetTeamScore(HORDE) < BG_WS_MAX_TEAM_SCORE)
             AddPoint(HORDE, 1);
         PlaySoundToAll(BG_WS_SOUND_FLAG_CAPTURED_HORDE);
-        RewardReputationToTeam(889, BG_WSG_Reputation[m_HonorMode][BG_WSG_FLAG_CAP], HORDE);             // +35 reputation
-        RewardHonorToTeam(BG_WSG_Honor[m_HonorMode][BG_WSG_FLAG_CAP], HORDE);                       // +40 bonushonor
+        RewardReputationToTeam(889, m_ReputationCapture, HORDE);
     }
+    //for flag capture is reward 2 honorable kills
+    RewardHonorToTeam(GetBonusHonorFromKill(2), Source->GetTeam());
 
     SpawnBGObject(BG_WS_OBJECT_H_FLAG, BG_WS_FLAG_RESPAWN_TIME);
     SpawnBGObject(BG_WS_OBJECT_A_FLAG, BG_WS_FLAG_RESPAWN_TIME);
@@ -251,7 +249,7 @@ void BattleGroundWS::EventPlayerCapturedFlag(Player *Source)
     UpdateFlagState(Source->GetTeam(), 1);                  // flag state none
     UpdateTeamScore(Source->GetTeam());
     // only flag capture should be updated
-    UpdatePlayerScore(Source, SCORE_FLAG_CAPTURES, 1);      // +1 flag captures...
+    UpdatePlayerScore(Source, SCORE_FLAG_CAPTURES, 1);      // +1 flag captures
 
     if(GetTeamScore(ALLIANCE) == BG_WS_MAX_TEAM_SCORE)
         winner = ALLIANCE;
@@ -616,14 +614,31 @@ void BattleGroundWS::Reset()
     m_FlagState[BG_TEAM_HORDE]          = BG_WS_FLAG_STATE_ON_BASE;
     m_TeamScores[BG_TEAM_ALLIANCE]      = 0;
     m_TeamScores[BG_TEAM_HORDE]         = 0;
+    bool isBGWeekend = false;           //TODO FIXME - call sBattleGroundMgr.IsBGWeekend(m_TypeID); - you must also implement that call!
+    m_ReputationCapture = (isBGWeekend) ? 45 : 35;
+    m_HonorWinKills = (isBGWeekend) ? 3 : 1;
+    m_HonorEndKills = (isBGWeekend) ? 4 : 2;
 
     /* Spirit nodes is static at this BG and then not required deleting at BG reset.
     if(m_BgCreatures[WS_SPIRIT_MAIN_ALLIANCE])
         DelCreature(WS_SPIRIT_MAIN_ALLIANCE);
-
     if(m_BgCreatures[WS_SPIRIT_MAIN_HORDE])
         DelCreature(WS_SPIRIT_MAIN_HORDE);
     */
+}
+
+void BattleGroundWS::EndBattleGround(uint32 winner)
+{
+    //win reward
+    if( winner == ALLIANCE )
+        RewardHonorToTeam(GetBonusHonorFromKill(m_HonorWinKills), ALLIANCE);
+    if( winner == HORDE )
+        RewardHonorToTeam(GetBonusHonorFromKill(m_HonorWinKills), HORDE);
+    //complete map_end rewards (even if no team wins)
+    RewardHonorToTeam(GetBonusHonorFromKill(m_HonorEndKills), ALLIANCE);
+    RewardHonorToTeam(GetBonusHonorFromKill(m_HonorEndKills), HORDE);
+
+    BattleGround::EndBattleGround(winner);
 }
 
 void BattleGroundWS::HandleKillPlayer(Player *player, Player *killer)
