@@ -54,6 +54,16 @@ INSTANTIATE_SINGLETON_1( BattleGroundMgr );
 
 BattleGroundQueue::BattleGroundQueue()
 {
+    for(uint32 i = 0; i < BG_TEAMS_COUNT; i++)
+    {
+        for(uint32 j = 0; j < MAX_BATTLEGROUND_QUEUES; j++)
+        {
+            m_SumOfWaitTimes[i][j] = 0;
+            m_WaitTimeLastPlayer[i][j] = 0;
+            for(uint32 k = 0; k < COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME; k++)
+                m_WaitTimes[i][j][k] = 0;
+        }
+    }
 }
 
 BattleGroundQueue::~BattleGroundQueue()
@@ -151,7 +161,7 @@ GroupQueueInfo * BattleGroundQueue::AddGroup(Player *leader, BattleGroundTypeId 
     ginfo->ArenaTeamId               = arenateamid;
     ginfo->IsRated                   = isRated;
     ginfo->IsInvitedToBGInstanceGUID = 0;
-    ginfo->JoinTime                  = getMSTime();
+    ginfo->JoinTime                  = sWorld.GetGameTime() * IN_MILISECONDS;
     ginfo->Team                      = leader->GetTeam();
     ginfo->ArenaTeamRating           = arenaRating;
     ginfo->OpponentsTeamRating       = 0;
@@ -177,13 +187,60 @@ void BattleGroundQueue::AddPlayer(Player *plr, GroupQueueInfo *ginfo)
 {
     //if player isn't in queue, he is added, if already is, then values are overwritten, no memory leak
     PlayerQueueInfo& info = m_QueuedPlayers[plr->GetGUID()];
-    info.InviteTime                 = 0;
-    info.LastInviteTime             = 0;
     info.LastOnlineTime             = getMSTime();
     info.GroupInfo                  = ginfo;
 
     // add the pinfo to ginfo's list
     ginfo->Players[plr->GetGUID()]  = &info;
+}
+
+void BattleGroundQueue::PlayerInvitedToBGUpdateAverageWaitTime(GroupQueueInfo* ginfo, BGQueueIdBasedOnLevel queue_id)
+{
+    uint32 timeInQueue = (sWorld.GetGameTime() * IN_MILISECONDS) - ginfo->JoinTime;
+    uint8 team_index = BG_TEAM_ALLIANCE;                    //default set to BG_TEAM_ALLIANCE - or non rated arenas!
+    if( !ginfo->ArenaType )
+    {
+        if( ginfo->Team == HORDE )
+            team_index = BG_TEAM_HORDE;
+    }
+    else
+    {
+        if( ginfo->IsRated )
+            team_index = BG_TEAM_HORDE;                     //for rated arenas use BG_TEAM_HORDE
+    }
+
+    //store pointer to arrayindex of player that was added first
+    uint32* lastPlayerAddedPointer = &(m_WaitTimeLastPlayer[team_index][queue_id]);
+    //remove his time from sum
+    m_SumOfWaitTimes[team_index][queue_id] -= m_WaitTimes[team_index][queue_id][(*lastPlayerAddedPointer)];
+    //set average time to new
+    m_WaitTimes[team_index][queue_id][(*lastPlayerAddedPointer)] = timeInQueue;
+    //add new time to sum
+    m_SumOfWaitTimes[team_index][queue_id] += timeInQueue;
+    //set index of last player added to next one
+    (*lastPlayerAddedPointer)++;
+    (*lastPlayerAddedPointer) %= COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME;
+}
+
+uint32 BattleGroundQueue::GetAverageQueueWaitTime(GroupQueueInfo* ginfo, BGQueueIdBasedOnLevel queue_id)
+{
+    uint8 team_index = BG_TEAM_ALLIANCE;                    //default set to BG_TEAM_ALLIANCE - or non rated arenas!
+    if( !ginfo->ArenaType )
+    {
+        if( ginfo->Team == HORDE )
+            team_index = BG_TEAM_HORDE;
+    }
+    else
+    {
+        if( ginfo->IsRated )
+            team_index = BG_TEAM_HORDE;                     //for rated arenas use BG_TEAM_HORDE
+    }
+    //check if there is enought values(we always add values > 0)
+    if(m_WaitTimes[team_index][queue_id][COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME - 1] )
+        return (m_SumOfWaitTimes[team_index][queue_id] / COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME);
+    else
+        //if there aren't enough values return 0 - not available
+        return 0;
 }
 
 //remove player from queue and from group info, if group info is empty then remove it too
@@ -375,13 +432,10 @@ bool BattleGroundQueue::InviteGroupToBG(GroupQueueInfo * ginfo, BattleGround * b
         // set invitation
         ginfo->IsInvitedToBGInstanceGUID = bg->GetInstanceID();
         BattleGroundQueueTypeId bgQueueTypeId = BattleGroundMgr::BGQueueTypeId(bg->GetTypeID(), bg->GetArenaType());
+        BGQueueIdBasedOnLevel queue_id = bg->GetQueueId();
         // loop through the players
         for(std::map<uint64,PlayerQueueInfo*>::iterator itr = ginfo->Players.begin(); itr != ginfo->Players.end(); ++itr)
         {
-            // set status
-            itr->second->InviteTime = getMSTime();
-            itr->second->LastInviteTime = getMSTime();
-
             // get the player
             Player* plr = objmgr.GetPlayer(itr->first);
             // if offline, skip him, this should not happen - player is removed from queue when he logs out
@@ -389,6 +443,7 @@ bool BattleGroundQueue::InviteGroupToBG(GroupQueueInfo * ginfo, BattleGround * b
                 continue;
 
             // invite the player
+            PlayerInvitedToBGUpdateAverageWaitTime(ginfo, queue_id);
             sBattleGroundMgr.InvitePlayer(plr, bg->GetInstanceID(), bg->GetTypeID(), ginfo->Team);
 
             WorldPacket data;
