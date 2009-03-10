@@ -459,6 +459,54 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     continue;
                 if(achievementCriteria->kill_creature.creatureID != miscvalue1)
                     continue;
+
+                // LOT achievement->ID required special custom checks
+                switch(achievement->ID)
+                {
+                    // Just heroic
+                    case 489: case 490: case 491: case 492: case 493: case 494: case 495:
+                    case 496: case 497: case 498: case 499: case 500: case 563: case 565:
+                    case 567: case 569: case 573: case 575: case 577: case 623: case 625:
+                    case 667: case 668: case 669: case 670: case 671: case 672: case 673:
+                    case 674: case 675: case 676: case 677: case 678: case 679: case 680:
+                    case 681: case 682: case 1367: case 1368: case 1378: case 1379:
+                    case 1380: case 1381: case 1382: case 1383: case 1384: case 1385:
+                    case 1386: case 1387: case 1388: case 1389: case 1390: case 1393:
+                    case 1394: case 1400: case 1402: case 1504: case 1505: case 1506:
+                    case 1507: case 1508: case 1509: case 1510: case 1511: case 1512:
+                    case 1513: case 1514: case 1515: case 1721: case 1754: case 1756:
+                    case 1768: case 1817: case 1865:
+                        if(GetPlayer()->GetDifficulty()!=DIFFICULTY_HEROIC)
+                            continue;
+                        break;
+                    // Heroic + other
+                    case 579: case 1296: case 1297: case 1816: case 1834: case 1857: case 1859:
+                    case 1860: case 1861: case 1862: case 1864: case 1866: case 1867: case 1868:
+                    case 1870: case 1871: case 1872: case 1873: case 1875: case 1877: case 1919:
+                    case 2036: case 2037: case 2038: case 2039: case 2040: case 2041: case 2042:
+                    case 2043: case 2044: case 2045: case 2046: case 2048: case 2052: case 2053:
+                    case 2054: case 2056: case 2057: case 2058: case 2139: case 2140: case 2147:
+                    case 2149: case 2150: case 2151: case 2152: case 2154: case 2155: case 2156:
+                    case 2157: case 2179: case 2181: case 2183: case 2185: case 2186:
+                        if(GetPlayer()->GetDifficulty()!=DIFFICULTY_HEROIC)
+                            continue;
+                        // FIX ME: mark as fail always until implement
+                        continue;
+                    // Normal + other
+                    case 578: case 624: case 1790: case 1856: case 1858: case 1869: case 1874:
+                    case 1996: case 1997: case 2047: case 2049: case 2050: case 2051: case 2146:
+                    case 2148: case 2153: case 2178: case 2180: case 2182: case 2184: case 2187:
+                        if(GetPlayer()->GetDifficulty()!=DIFFICULTY_NORMAL)
+                            continue;
+                        // FIX ME: mark as fail always until implement
+                        continue;
+                    // Just Normal
+                    default:
+                        if(GetPlayer()->GetDifficulty()!=DIFFICULTY_NORMAL)
+                            continue;
+                        break;
+                };
+
                 SetCriteriaProgress(achievementCriteria, miscvalue2, PROGRESS_ACCUMULATE);
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL:
