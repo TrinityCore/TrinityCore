@@ -475,6 +475,7 @@ bool IsSingleFromSpellSpecificPerTarget(uint32 spellSpec1,uint32 spellSpec2)
         case SPELL_DRINK:
         case SPELL_FOOD:
         case SPELL_CHARM:
+        case SPELL_SCROLL:
             return spellSpec1==spellSpec2;
         case SPELL_BATTLE_ELIXIR:
             return spellSpec2==SPELL_BATTLE_ELIXIR
