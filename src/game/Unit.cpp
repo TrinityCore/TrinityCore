@@ -4163,14 +4163,20 @@ bool Unit::AddAura(Aura *Aur)
         {
             if(i2->second->GetCasterGUID()==Aur->GetCasterGUID())
             {
-                // replace aura if next will > spell StackAmount
-                if(aurSpellInfo->StackAmount && !stackModified)
+                if (!stackModified)
                 {
-                    // prevent adding stack more than once
-                    stackModified=true;
-                    Aur->SetStackAmount(i2->second->GetStackAmount());
-                    if(Aur->GetStackAmount() < aurSpellInfo->StackAmount)
-                        Aur->SetStackAmount(Aur->GetStackAmount()+1);
+                // replace aura if next will > spell StackAmount
+                    if(aurSpellInfo->StackAmount)
+                    {
+                        // prevent adding stack more than once
+                        stackModified=true;
+                        int32 amount=aurSpellInfo->StackAmount;
+                        if(Player* caster = ((Player*)Aur->GetCaster()))
+                            caster->ApplySpellMod(aurSpellInfo->Id, SPELLMOD_CHARGES, amount, NULL);
+                        Aur->SetStackAmount(i2->second->GetStackAmount());
+                        if(Aur->GetStackAmount() < amount)
+                            Aur->SetStackAmount(Aur->GetStackAmount()+1);
+                    }
                     RemoveAura(i2,AURA_REMOVE_BY_STACK);
                     i2=m_Auras.lower_bound(spair);
                     continue;
@@ -4190,11 +4196,10 @@ bool Unit::AddAura(Aura *Aur)
                 case SPELL_AURA_OBS_MOD_HEALTH:
                     ++i2;
                     continue;
-                default:
-                    RemoveAura(i2,AURA_REMOVE_BY_STACK);
-                    i2=m_Auras.lower_bound(spair);
-                    continue;
             }
+            RemoveAura(i2,AURA_REMOVE_BY_STACK);
+            i2=m_Auras.lower_bound(spair);
+            continue;
         }
     }
 
@@ -4407,21 +4412,22 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
                     continue;
                 }
 
-                // Remove all auras by aura caster
-                for (uint8 a=0;a<3;++a)
+            uint64 caster = (*i).second->GetCasterGUID();
+            // Remove all auras by aura caster
+            for (uint8 a=0;a<3;++a)
+            {
+                spellEffectPair spair = spellEffectPair((*i).second->GetId(), a);
+                for(AuraMap::iterator iter = m_Auras.lower_bound(spair); iter != m_Auras.upper_bound(spair);)
                 {
-                    spellEffectPair spair = spellEffectPair((*i).second->GetId(), a);
-                    for(AuraMap::iterator iter = m_Auras.lower_bound(spair); iter != m_Auras.upper_bound(spair);)
+                    if(iter->second->GetCasterGUID()==caster)
                     {
-                        if(iter->second->GetCasterGUID()==(*i).second->GetCasterGUID())
-                        {
-                            RemoveAura(iter, AURA_REMOVE_BY_STACK);
-                            iter = m_Auras.lower_bound(spair);
-                        }
-                        else
-                            ++iter;
+                        RemoveAura(iter, AURA_REMOVE_BY_STACK);
+                        iter = m_Auras.lower_bound(spair);
                     }
+                    else
+                        ++iter;
                 }
+            }
 
                 if( m_Auras.empty() )
                     break;
