@@ -513,7 +513,7 @@ bool IsPositiveTarget(uint32 targetA, uint32 targetB)
     return true;
 }
 
-bool IsPositiveEffect(uint32 spellId, uint32 effIndex)
+bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
 {
     SpellEntry const *spellproto = sSpellStore.LookupEntry(spellId);
     if (!spellproto) return false;
@@ -702,11 +702,14 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex)
     if(spellproto->AttributesEx & SPELL_ATTR_EX_NEGATIVE)
         return false;
 
+    if (!deep && spellproto->EffectTriggerSpell[effIndex] && !IsPositiveSpell(spellproto->EffectTriggerSpell[effIndex], true))
+        return false;
+
     // ok, positive
     return true;
 }
 
-bool IsPositiveSpell(uint32 spellId)
+bool IsPositiveSpell(uint32 spellId, bool deep)
 {
     SpellEntry const *spellproto = sSpellStore.LookupEntry(spellId);
     if (!spellproto) return false;
@@ -714,7 +717,7 @@ bool IsPositiveSpell(uint32 spellId)
     // spells with at least one negative effect are considered negative
     // some self-applied spells have negative effects but in self casting case negative check ignored.
     for (int i = 0; i < 3; i++)
-        if (!IsPositiveEffect(spellId, i))
+        if (!IsPositiveEffect(spellId, i, deep))
             return false;
     return true;
 }
