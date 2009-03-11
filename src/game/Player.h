@@ -1550,7 +1550,7 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         PvPInfo pvpInfo;
         void UpdatePvP(bool state, bool ovrride=false);
-        void UpdateZone(uint32 newZone);
+        void UpdateZone(uint32 newZone,uint32 newArea);
         void UpdateArea(uint32 newArea);
 
         void UpdateZoneDependentAuras( uint32 zone_id );    // zones
@@ -1867,7 +1867,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         void CastItemCombatSpell(Item *item,Unit* Target, WeaponAttackType attType);
         void CastItemUseSpell(Item *item,SpellCastTargets const& targets,uint8 cast_count, uint32 glyphIndex);
 
-        void SendInitWorldStates(bool force = false, uint32 forceZoneId = 0);
+        void SendInitWorldStates(uint32 zone, uint32 area);
         void SendUpdateWorldState(uint32 Field, uint32 Value);
         void SendDirectMessage(WorldPacket *data);
 

@@ -687,8 +687,8 @@ bool ChatHandler::HandleGPSCommand(const char* args)
     CellPair cell_val = Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
     Cell cell(cell_val);
 
-    uint32 zone_id = obj->GetZoneId();
-    uint32 area_id = obj->GetAreaId();
+    uint32 zone_id, area_id;
+    obj->GetZoneAndAreaId(zone_id,area_id);
 
     MapEntry const* mapEntry = sMapStore.LookupEntry(obj->GetMapId());
     AreaTableEntry const* zoneEntry = GetAreaEntryByAreaID(zone_id);
