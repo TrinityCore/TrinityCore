@@ -143,7 +143,6 @@ void OutdoorPvPMgr::HandlePlayerEnterZone(Player *plr, uint32 zoneid)
     }
     // add possibly beneficial buffs to plr for zone
     itr->second->HandlePlayerEnterZone(plr, zoneid);
-    plr->SendInitWorldStates();
     sLog.outDebug("Player %u entered outdoorpvp id %u",plr->GetGUIDLow(), itr->second->GetTypeId());
 }
 

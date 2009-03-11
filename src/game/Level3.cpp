@@ -4092,7 +4092,7 @@ bool ChatHandler::HandleLinkGraveCommand(const char* args)
         return false;
     }
 
-    if(objmgr.AddGraveYardLink(g_id,player->GetZoneId(),g_team))
+    if(objmgr.AddGraveYardLink(g_id,zoneId,g_team))
         PSendSysMessage(LANG_COMMAND_GRAVEYARDLINKED, g_id,zoneId);
     else
         PSendSysMessage(LANG_COMMAND_GRAVEYARDALRLINKED, g_id,zoneId);
@@ -4116,6 +4116,7 @@ bool ChatHandler::HandleNearGraveCommand(const char* args)
         return false;
 
     Player* player = m_session->GetPlayer();
+    uint32 zone_id = player->GetZoneId();
 
     WorldSafeLocsEntry const* graveyard = objmgr.GetClosestGraveYard(
         player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(),player->GetMapId(),g_team);
@@ -4124,7 +4125,7 @@ bool ChatHandler::HandleNearGraveCommand(const char* args)
     {
         uint32 g_id = graveyard->ID;
 
-        GraveYardData const* data = objmgr.FindGraveYardData(g_id,player->GetZoneId());
+        GraveYardData const* data = objmgr.FindGraveYardData(g_id,zone_id);
         if (!data)
         {
             PSendSysMessage(LANG_COMMAND_GRAVEYARDERROR,g_id);
@@ -4143,7 +4144,7 @@ bool ChatHandler::HandleNearGraveCommand(const char* args)
         else if(g_team == ALLIANCE)
             team_name = GetTrinityString(LANG_COMMAND_GRAVEYARD_ALLIANCE);
 
-        PSendSysMessage(LANG_COMMAND_GRAVEYARDNEAREST, g_id,team_name.c_str(),player->GetZoneId());
+        PSendSysMessage(LANG_COMMAND_GRAVEYARDNEAREST, g_id,team_name.c_str(),zone_id);
     }
     else
     {
@@ -4157,9 +4158,9 @@ bool ChatHandler::HandleNearGraveCommand(const char* args)
             team_name = GetTrinityString(LANG_COMMAND_GRAVEYARD_ALLIANCE);
 
         if(g_team == ~uint32(0))
-            PSendSysMessage(LANG_COMMAND_ZONENOGRAVEYARDS, player->GetZoneId());
+            PSendSysMessage(LANG_COMMAND_ZONENOGRAVEYARDS, zone_id);
         else
-            PSendSysMessage(LANG_COMMAND_ZONENOGRAFACTION, player->GetZoneId(),team_name.c_str());
+            PSendSysMessage(LANG_COMMAND_ZONENOGRAFACTION, zone_id,team_name.c_str());
     }
 
     return true;

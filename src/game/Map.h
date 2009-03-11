@@ -320,17 +320,23 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         float GetWaterLevel(float x, float y ) const;
         bool IsUnderWater(float x, float y, float z) const;
 
-        static uint32 GetAreaId(uint16 areaflag,uint32 map_id);
-        static uint32 GetZoneId(uint16 areaflag,uint32 map_id);
+        static uint32 GetAreaIdByAreaFlag(uint16 areaflag,uint32 map_id);
+        static uint32 GetZoneIdByAreaFlag(uint16 areaflag,uint32 map_id);
+        static void GetZoneAndAreaIdByAreaFlag(uint32& zoneid, uint32& areaid, uint16 areaflag,uint32 map_id);
 
         uint32 GetAreaId(float x, float y, float z) const
         {
-            return GetAreaId(GetAreaFlag(x,y,z),i_id);
+            return GetAreaIdByAreaFlag(GetAreaFlag(x,y,z),i_id);
         }
 
         uint32 GetZoneId(float x, float y, float z) const
         {
-            return GetZoneId(GetAreaFlag(x,y,z),i_id);
+            return GetZoneIdByAreaFlag(GetAreaFlag(x,y,z),i_id);
+        }
+
+        void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, float x, float y, float z) const
+        {
+            GetZoneAndAreaIdByAreaFlag(zoneid,areaid,GetAreaFlag(x,y,z),i_id);
         }
 
         virtual void MoveAllCreaturesInMoveList();
