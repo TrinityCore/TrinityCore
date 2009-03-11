@@ -279,6 +279,7 @@ class TRINITY_DLL_SPEC Aura
         //int32 GetModifierValuePerStack() {return m_modifier.m_amount / m_stackAmount;}
         void SetStackAmount(uint8 num);
         bool modStackAmount(int32 num); // return true if last charge dropped
+        void InitStackAmount(uint8 stackAmount);
         uint32 GetAuraStateMask(){return m_auraStateMask;}
         void SetAuraState(uint8 num){m_auraStateMask |= 1<<(num-1);}  //modifies aura's aura state (not unit!)
         void RefreshAura();
