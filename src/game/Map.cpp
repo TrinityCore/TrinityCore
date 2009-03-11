@@ -754,11 +754,9 @@ void Map::Update(const uint32 &t_diff)
             if(obj->isType(TYPEMASK_UNIT))
             {
                 if(!((Unit*)obj)->GetSharedVisionList().empty())
-                    for(SharedVisionList::const_iterator itr = ((Unit*)obj)->GetSharedVisionList().begin(); itr != ((Unit*)obj)->GetSharedVisionList().end();)
+                    for(SharedVisionList::const_iterator itr = ((Unit*)obj)->GetSharedVisionList().begin(); itr != ((Unit*)obj)->GetSharedVisionList().end(); ++itr)
                     {
-                        Player *player = *itr;
-                        ++itr;
-                        Trinity::PlayerRelocationNotifier notifier(*player);
+                        Trinity::PlayerVisibilityNotifier notifier(**itr);
                         VisitAll(obj->GetPositionX(), obj->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
                         notifier.Notify();
                     }
@@ -768,7 +766,7 @@ void Map::Update(const uint32 &t_diff)
                 if(Unit *caster = ((DynamicObject*)obj)->GetCaster())
                     if(caster->GetTypeId() == TYPEID_PLAYER && caster->GetUInt64Value(PLAYER_FARSIGHT) == obj->GetGUID())
                     {
-                        Trinity::PlayerRelocationNotifier notifier(*((Player*)caster));
+                        Trinity::PlayerVisibilityNotifier notifier(*((Player*)caster));
                         VisitAll(obj->GetPositionX(), obj->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
                         notifier.Notify();
                     }
