@@ -67,7 +67,7 @@ inline void CreatureCreatureRelocationWorker(Creature* c1, Creature* c2)
 
 template<class T>
 inline void
-Trinity::PlayerRelocationNotifier::Visit(GridRefManager<T> &m)
+Trinity::PlayerVisibilityNotifier::Visit(GridRefManager<T> &m)
 {
     for(typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
     {

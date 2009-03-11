@@ -38,7 +38,7 @@ class Player;
 
 namespace Trinity
 {
-    struct TRINITY_DLL_DECL PlayerRelocationNotifier
+    struct TRINITY_DLL_DECL PlayerVisibilityNotifier
     {
         Player &i_player;
         UpdateData i_data;
@@ -46,15 +46,25 @@ namespace Trinity
         Player::ClientGUIDs i_clientGUIDs;
         std::set<WorldObject*> i_visibleNow;
 
-        PlayerRelocationNotifier(Player &player) : i_player(player),i_clientGUIDs(player.m_clientGUIDs) {}
+        PlayerVisibilityNotifier(Player &player) : i_player(player),i_clientGUIDs(player.m_clientGUIDs) {}
 
         template<class T> inline void Visit(GridRefManager<T> &);
+        /*#ifdef WIN32
+        template<> inline void Visit(PlayerMapType &);
+        template<> inline void Visit(CreatureMapType &);
+        #endif*/
+
+        void Notify(void);
+    };
+
+    struct TRINITY_DLL_DECL PlayerRelocationNotifier : public PlayerVisibilityNotifier
+    {
+        PlayerRelocationNotifier(Player &player) : PlayerVisibilityNotifier(player) {}
+        template<class T> inline void Visit(GridRefManager<T> &m) { PlayerVisibilityNotifier::Visit(m); }
         #ifdef WIN32
         template<> inline void Visit(PlayerMapType &);
         template<> inline void Visit(CreatureMapType &);
         #endif
-
-        void Notify(void);
     };
 
     struct TRINITY_DLL_DECL CreatureRelocationNotifier
