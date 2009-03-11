@@ -52,8 +52,18 @@ class TRINITY_DLL_DECL MapManager : public Trinity::Singleton<MapManager, Trinit
             Map const* m = GetBaseMap(mapid);
             return m->GetAreaFlag(x, y, z);
         }
-        uint32 GetAreaId(uint32 mapid, float x, float y, float z) const { return Map::GetAreaId(GetAreaFlag(mapid, x, y, z),mapid); }
-        uint32 GetZoneId(uint32 mapid, float x, float y, float z) const { return Map::GetZoneId(GetAreaFlag(mapid, x, y, z),mapid); }
+        uint32 GetAreaId(uint32 mapid, float x, float y, float z) const
+        {
+            return Map::GetAreaIdByAreaFlag(GetAreaFlag(mapid, x, y, z),mapid);
+        }
+        uint32 GetZoneId(uint32 mapid, float x, float y, float z) const
+        {
+            return Map::GetZoneIdByAreaFlag(GetAreaFlag(mapid, x, y, z),mapid);
+        }
+        void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, uint32 mapid, float x, float y, float z)
+        {
+            Map::GetZoneAndAreaIdByAreaFlag(zoneid,areaid,GetAreaFlag(mapid, x, y, z),mapid);
+        }
 
         void Initialize(void);
         void Update(uint32);

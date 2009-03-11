@@ -3733,7 +3733,10 @@ uint8 Spell::CanCast(bool strict)
                 return SPELL_FAILED_NOT_IN_ARENA;
 
     // zone check
-    if (uint8 res= spellmgr.GetSpellAllowedInLocationError(m_spellInfo,m_caster->GetMapId(),m_caster->GetZoneId(),m_caster->GetAreaId(),
+    uint32 zone, area;
+    m_caster->GetZoneAndAreaId(zone,area);
+
+    if (uint8 res= spellmgr.GetSpellAllowedInLocationError(m_spellInfo,m_caster->GetMapId(),zone,area,
         m_caster->GetTypeId()==TYPEID_PLAYER ? ((Player*)m_caster) : NULL))
         return res;
 

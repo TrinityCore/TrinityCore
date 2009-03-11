@@ -1161,6 +1161,11 @@ uint32 WorldObject::GetAreaId() const
     return MapManager::Instance().GetBaseMap(m_mapId)->GetAreaId(m_positionX,m_positionY,m_positionZ);
 }
 
+void WorldObject::GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const
+{
+    MapManager::Instance().GetBaseMap(m_mapId)->GetZoneAndAreaId(zoneid,areaid,m_positionX,m_positionY,m_positionZ);
+}
+
 InstanceData* WorldObject::GetInstanceData()
 {
     Map *map = GetMap();
