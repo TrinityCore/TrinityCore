@@ -3795,9 +3795,9 @@ bool Unit::AddAura(Aura *Aur)
                     {
                         // prevent adding stack more than once
                         stackModified=true;
-                        Aur->SetStackAmount(i2->second->GetStackAmount());
+                        Aur->InitStackAmount(i2->second->GetStackAmount());
                         if(Aur->GetStackAmount() < aurSpellInfo->StackAmount)
-                            Aur->SetStackAmount(Aur->GetStackAmount()+1);
+                            Aur->InitStackAmount(Aur->GetStackAmount()+1);
                     }
                     RemoveAura(i2,AURA_REMOVE_BY_STACK);
                     i2=m_Auras.lower_bound(spair);

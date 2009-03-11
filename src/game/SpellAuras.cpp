@@ -1010,6 +1010,11 @@ void Aura::SetStackAmount(uint8 stackAmount)
     RefreshAura();
 }
 
+void Aura::InitStackAmount(uint8 stackAmount)
+{
+    m_stackAmount = stackAmount;
+}
+
 bool Aura::modStackAmount(int32 num)
 {
     // Can`t mod
