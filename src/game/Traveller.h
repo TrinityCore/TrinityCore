@@ -67,9 +67,10 @@ inline uint32 Traveller<T>::GetTotalTrevelTimeTo(float x, float y, float z)
     float speed = 0.001f;
     if(GetTraveller().hasUnitState(UNIT_STAT_CHARGING))
         speed *= SPEED_CHARGE;
+    else if (Speed() <= 0.0f)
+        return 0xfffffffe;  // almost infinity-unit should stop
     else
         speed *= Speed();   // speed is in seconds so convert from second to millisecond
-
     return static_cast<uint32>(dist/speed);
 }
 
