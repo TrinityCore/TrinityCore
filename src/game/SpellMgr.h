@@ -408,8 +408,8 @@ inline bool IsNonCombatSpell(SpellEntry const *spellInfo)
     return (spellInfo->Attributes & SPELL_ATTR_CANT_USED_IN_COMBAT) != 0;
 }
 
-bool IsPositiveSpell(uint32 spellId);
-bool IsPositiveEffect(uint32 spellId, uint32 effIndex);
+bool IsPositiveSpell(uint32 spellId, bool deep = false);
+bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep = false);
 bool IsPositiveTarget(uint32 targetA, uint32 targetB);
 
 bool IsSingleTargetSpell(SpellEntry const *spellInfo);
