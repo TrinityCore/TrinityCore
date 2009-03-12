@@ -2173,7 +2173,7 @@ void Spell::EffectJump(uint32 i)
 
     // Init dest coordinates
     float x,y,z,o;
-    if(m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
+    if(m_targets.HasDest())
     {
         x = m_targets.m_destX;
         y = m_targets.m_destY;
@@ -2185,7 +2185,7 @@ void Spell::EffectJump(uint32 i)
         x = unitTarget->GetPositionX();
         y = unitTarget->GetPositionY();
         z = unitTarget->GetPositionZ();
-        o = m_spellInfo->EffectImplicitTargetA[i] == TARGET_BEHIND_VICTIM
+        o = m_spellInfo->EffectImplicitTargetA[i] == TARGET_DEST_TARGET_BACK
             ? unitTarget->GetOrientation()
             : m_caster->GetOrientation();
     }
