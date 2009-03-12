@@ -1986,6 +1986,19 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             caster->CastCustomSpell(caster, 48210, &m_currentBasePoints, 0, 0, true);
             return;
         }
+        switch(m_spellProto->SpellFamilyName)
+        {
+            case SPELLFAMILY_GENERIC:
+                // Living Bomb
+                if (m_spellProto->SpellFamilyFlags[1] & 0x20000)
+                {
+                    if(!m_target || !caster || !(m_removeMode == AURA_REMOVE_BY_DISPEL || m_removeMode == AURA_REMOVE_BY_DEFAULT))
+                        return;
+                    caster->CastSpell(m_target, GetModifier()->m_amount, true, NULL, NULL, GetCasterGUID());
+                    return;
+                }
+           break;
+        }
     }
 
     // AT APPLY & REMOVE
@@ -2058,14 +2071,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
         }
         case SPELLFAMILY_MAGE:
         {
-            // Living Bomb
-            if (m_spellProto->SpellFamilyFlags[1] & 0x20000)
-            {
-                if(!m_target || !caster || !(m_removeMode == AURA_REMOVE_BY_DISPEL || m_removeMode == AURA_REMOVE_BY_DEFAULT))
-                    return;
-                caster->CastSpell(m_target, GetModifier()->m_amount, true, NULL, NULL, GetCasterGUID());
-                return;
-            }
             break;
         }
         case SPELLFAMILY_PRIEST:
@@ -5795,10 +5800,51 @@ void Aura::PeriodicTick()
             break;
         }
         case SPELL_AURA_OBS_MOD_ENERGY:
+        {
+            if(m_modifier.m_miscvalue < 0)
+                break;
+            uint32 amount = m_modifier.m_amount;
+            if (uint32 modmask = m_modifier.m_miscvalue)
+            {
+                for(uint8 i = 0; i < MAX_POWERS; ++i)
+                {
+                    if(modmask & (uint32(1) << i))
+                    {
+                        if(i >= MAX_POWERS)
+                            continue;
+
+                        Powers power = Powers(i);
+
+                        if(m_target->GetMaxPower(power) == 0)
+                            continue;
+
+                        sLog.outDetail("PeriodicTick: %u (TypeId: %u) energize %u (TypeId: %u) for %u dmg inflicted by %u",
+                            GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), m_target->GetGUIDLow(), m_target->GetTypeId(), amount, GetId());
+
+                        // Warning: this packet may be not blizzlike
+                        WorldPacket data(SMSG_PERIODICAURALOG, (21+16));// we guess size
+                        data.append(m_target->GetPackGUID());
+                        data.appendPackGUID(GetCasterGUID());
+                        data << uint32(GetId());
+                        data << uint32(1);
+                        data << uint32(m_modifier.m_auraname);
+                        data << uint32(power);                          // power type
+                        data << (uint32)amount;
+                        m_target->SendMessageToSet(&data,true);
+
+                        int32 gain = m_target->ModifyPower(power,amount);
+
+                        if(Unit* pCaster = GetCaster())
+                            m_target->getHostilRefManager().threatAssist(pCaster, float(gain) * 0.5f, GetSpellProto());
+                    }
+                }
+            }
+            break;
+        }
         case SPELL_AURA_PERIODIC_ENERGIZE:
         {
             // ignore non positive values (can be result apply spellmods to aura damage
-            if(m_modifier.m_miscvalue < 0 || m_modifier.m_miscvalue >= MAX_POWERS)
+            if(m_modifier.m_amount < 0 || m_modifier.m_miscvalue >= MAX_POWERS)
                 break;
 
             Powers power = Powers(m_modifier.m_miscvalue);
@@ -5807,12 +5853,6 @@ void Aura::PeriodicTick()
                 break;
 
             uint32 amount = m_modifier.m_amount < 0 ? 0 : m_modifier.m_amount;
-            uint32 pdamage;
-
-            if( m_modifier.m_auraname == SPELL_AURA_OBS_MOD_ENERGY )
-                pdamage = uint32(m_target->GetMaxPower(power) * amount/100);
-            else
-                pdamage = amount;
 
             WorldPacket data(SMSG_PERIODICAURALOG, (21+16));// we guess size
             data.append(m_target->GetPackGUID());
@@ -5821,13 +5861,13 @@ void Aura::PeriodicTick()
             data << uint32(1);
             data << uint32(m_modifier.m_auraname);
             data << (uint32)power;                          // power type
-            data << (uint32)pdamage;
+            data << (uint32)amount;
             m_target->SendMessageToSet(&data,true);
 
             sLog.outDetail("PeriodicTick: %u (TypeId: %u) energize %u (TypeId: %u) for %u dmg inflicted by %u",
-                GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), m_target->GetGUIDLow(), m_target->GetTypeId(), pdamage, GetId());
+                GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), m_target->GetGUIDLow(), m_target->GetTypeId(), amount, GetId());
 
-            int32 gain = m_target->ModifyPower(power,pdamage);
+            int32 gain = m_target->ModifyPower(power,amount);
 
             if(Unit* pCaster = GetCaster())
                 m_target->getHostilRefManager().threatAssist(pCaster, float(gain) * 0.5f, GetSpellProto());

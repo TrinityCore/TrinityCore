@@ -3860,7 +3860,7 @@ bool Unit::AddAura(Aura *Aur)
                         sLog.outError("Aura (Spell %u Effect %u) is in process but attempt removed at aura (Spell %u Effect %u) adding, need add stack rule for IsSingleTargetSpell", (*itr)->GetId(), (*itr)->GetEffIndex(),Aur->GetId(), Aur->GetEffIndex());
                         continue;
                     }
-                    (*itr)->GetTarget()->RemoveAura((*itr)->GetId(), (*itr)->GetEffIndex());
+                    (*itr)->GetTarget()->RemoveAurasByCasterSpell((*itr)->GetId(),(*itr)->GetEffIndex(), caster->GetGUID(), AURA_REMOVE_BY_CANCEL);
                     restart = true;
                     break;
                 }
@@ -4070,13 +4070,28 @@ void Unit::RemoveAura(uint32 spellId, uint32 effindex, Aura* except)
     }
 }
 
-void Unit::RemoveAurasByCasterSpell(uint32 spellId, uint64 casterGUID)
+void Unit::RemoveAurasByCasterSpell(uint32 spellId, uint64 casterGUID, AuraRemoveMode removeMode)
 {
     for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end(); )
     {
         Aura *aur = iter->second;
         if (aur->GetId() == spellId && aur->GetCasterGUID() == casterGUID)
-            RemoveAura(iter);
+            RemoveAura(iter, removeMode);
+        else
+            ++iter;
+    }
+}
+
+void Unit::RemoveAurasByCasterSpell(uint32 spellId, uint8 effindex, uint64 casterGUID, AuraRemoveMode removeMode)
+{
+    spellEffectPair spair = spellEffectPair(spellId, effindex);
+    for(AuraMap::iterator iter = m_Auras.lower_bound(spair); iter != m_Auras.upper_bound(spair);)
+    {
+        if (iter->second->GetCasterGUID() == casterGUID)
+        {
+            RemoveAura(iter, removeMode);
+            iter = m_Auras.lower_bound(spair);
+        }
         else
             ++iter;
     }
@@ -4222,7 +4237,7 @@ void Unit::RemoveNotOwnSingleTargetAuras()
     for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end(); )
     {
         if (iter->second->GetCasterGUID()!=GetGUID() && IsSingleTargetSpell(iter->second->GetSpellProto()))
-            RemoveAura(iter);
+            RemoveAura(iter, AURA_REMOVE_BY_CANCEL);
         else
             ++iter;
     }
