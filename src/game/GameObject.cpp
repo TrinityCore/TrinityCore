@@ -129,8 +129,8 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
 
     int64 rotation = 0;
 
-    float f_rot1 = sin(ang / 2.0f);
-    int64 i_rot1 = f_rot1 / atan(pow(2.0f, -20.0f));
+    double f_rot1 = sin(ang / 2.0f);
+    int64 i_rot1 = int64(f_rot1 / atan(pow(2.0f, -20.0f)));
     rotation |= (i_rot1 << 43 >> 43) & 0x00000000001FFFFF;
 
     //float f_rot2 = sin(0.0f / 2.0f);
