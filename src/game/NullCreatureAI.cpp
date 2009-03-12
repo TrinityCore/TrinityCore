@@ -27,6 +27,30 @@ void PassiveAI::UpdateAI(const uint32)
         EnterEvadeMode();
 }
 
+void PossessedAI::UpdateAI(const uint32 diff)
+{
+    if(me->getVictim())
+    {
+        if(!me->canAttack(me->getVictim()))
+            me->AttackStop();
+        else
+            DoMeleeAttackIfReady();
+    }
+}
+
+void PossessedAI::JustDied(Unit *u)
+{
+    // We died while possessed, disable our loot
+    me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+}
+
+void PossessedAI::KilledUnit(Unit* victim)
+{
+    // We killed a creature, disable victim's loot
+    if (victim->GetTypeId() == TYPEID_UNIT)
+        victim->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+}
+
 void CritterAI::DamageTaken(Unit *done_by, uint32 &)
 {
     if(!me->hasUnitState(UNIT_STAT_FLEEING))
@@ -39,4 +63,3 @@ void CritterAI::EnterEvadeMode()
         me->SetControlled(false, UNIT_STAT_FLEEING);
     CreatureAI::EnterEvadeMode();
 }
-

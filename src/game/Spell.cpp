@@ -1892,14 +1892,9 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 break;
             }
 
-            if(cur == TARGET_DEST_TARGET_ENEMY)
+            if(cur == TARGET_DEST_TARGET_ENEMY || cur == TARGET_DEST_TARGET_ANY)
             {
                 m_targets.setDestination(target, true);
-                break;
-            }
-            else if(cur == TARGET_DEST_TARGET_FRIEND) // no ground?
-            {
-                m_targets.setDestination(target, false);
                 break;
             }
 

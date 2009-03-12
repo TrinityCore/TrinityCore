@@ -696,6 +696,33 @@ void Map::Update(const uint32 &t_diff)
             if(!obj->IsInWorld())
                 continue;
 
+            // Update bindsight players
+            /*if(obj->isType(TYPEMASK_UNIT))
+            {
+                if(!((Unit*)obj)->GetSharedVisionList().empty())
+                    for(SharedVisionList::const_iterator itr = ((Unit*)obj)->GetSharedVisionList().begin(); itr != ((Unit*)obj)->GetSharedVisionList().end(); ++itr)
+                    {
+                        if(!*itr)
+                        {
+                            sLog.outError("unit %u has invalid shared vision player, list size %u", obj->GetEntry(), ((Unit*)obj)->GetSharedVisionList().size());
+                            continue;
+                        }
+                        Trinity::PlayerVisibilityNotifier notifier(**itr);
+                        VisitAll(obj->GetPositionX(), obj->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
+                        notifier.Notify();
+                    }
+            }
+            else */if(obj->GetTypeId() == TYPEID_DYNAMICOBJECT)
+            {
+                if(Unit *caster = ((DynamicObject*)obj)->GetCaster())
+                    if(caster->GetTypeId() == TYPEID_PLAYER && caster->GetUInt64Value(PLAYER_FARSIGHT) == obj->GetGUID())
+                    {
+                        Trinity::PlayerVisibilityNotifier notifier(*((Player*)caster));
+                        VisitAll(obj->GetPositionX(), obj->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
+                        notifier.Notify();
+                    }
+            }
+
             CellPair standing_cell(Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY()));
 
             // Check for correctness of standing_cell, it also avoids problems with update_cell
@@ -727,28 +754,6 @@ void Map::Update(const uint32 &t_diff)
                         cell_lock->Visit(cell_lock, world_object_update, *this);
                     }
                 }
-            }
-
-            // Update bindsight players
-            if(obj->isType(TYPEMASK_UNIT))
-            {
-                if(!((Unit*)obj)->GetSharedVisionList().empty())
-                    for(SharedVisionList::const_iterator itr = ((Unit*)obj)->GetSharedVisionList().begin(); itr != ((Unit*)obj)->GetSharedVisionList().end(); ++itr)
-                    {
-                        Trinity::PlayerVisibilityNotifier notifier(**itr);
-                        VisitAll(obj->GetPositionX(), obj->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
-                        notifier.Notify();
-                    }
-            }
-            else if(obj->GetTypeId() == TYPEID_DYNAMICOBJECT)
-            {
-                if(Unit *caster = ((DynamicObject*)obj)->GetCaster())
-                    if(caster->GetTypeId() == TYPEID_PLAYER && caster->GetUInt64Value(PLAYER_FARSIGHT) == obj->GetGUID())
-                    {
-                        Trinity::PlayerVisibilityNotifier notifier(*((Player*)caster));
-                        VisitAll(obj->GetPositionX(), obj->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
-                        notifier.Notify();
-                    }
             }
         }
     }

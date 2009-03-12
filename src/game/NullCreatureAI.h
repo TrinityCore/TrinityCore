@@ -36,6 +36,18 @@ class TRINITY_DLL_DECL PassiveAI : public CreatureAI
         static int Permissible(const Creature *) { return PERMIT_BASE_IDLE;  }
 };
 
+class TRINITY_DLL_DECL PossessedAI : public PassiveAI
+{
+    public:
+        PossessedAI(Creature *c) : PassiveAI(c) {}
+
+        void UpdateAI(const uint32);
+        void EnterEvadeMode() {}
+
+        void JustDied(Unit*);
+        void KilledUnit(Unit* victim);
+};
+
 class TRINITY_DLL_DECL NullCreatureAI : public PassiveAI
 {
     public:
