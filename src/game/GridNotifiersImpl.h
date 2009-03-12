@@ -175,7 +175,18 @@ inline void Trinity::DynamicObjectUpdater::VisitHelper(Unit* target)
     if( target->GetTypeId()==TYPEID_PLAYER && target != i_check && (((Player*)target)->isGameMaster() || ((Player*)target)->GetVisibility()==VISIBILITY_OFF) )
         return;
 
-    if (i_check->GetTypeId()==TYPEID_PLAYER )
+    if (i_dynobject.IsAffecting(target))
+        return;
+
+    SpellEntry const *spellInfo = sSpellStore.LookupEntry(i_dynobject.GetSpellId());
+    uint32 eff_index  = i_dynobject.GetEffIndex();
+    if(spellInfo->EffectImplicitTargetB[eff_index] == TARGET_UNIT_AREA_ALLY_CHANNEL
+        || spellInfo->EffectImplicitTargetB[eff_index] == TARGET_UNIT_AREA_ALLY_GROUND)
+    {
+        if(!i_check->IsFriendlyTo(target))
+            return;
+    }
+    else if( i_check->GetTypeId()==TYPEID_PLAYER )
     {
         if (i_check->IsFriendlyTo( target ))
             return;
@@ -186,11 +197,6 @@ inline void Trinity::DynamicObjectUpdater::VisitHelper(Unit* target)
             return;
     }
 
-    if (i_dynobject.IsAffecting(target))
-        return;
-
-    SpellEntry const *spellInfo = sSpellStore.LookupEntry(i_dynobject.GetSpellId());
-    uint32 eff_index  = i_dynobject.GetEffIndex();
     // Check target immune to spell or aura
     if (target->IsImmunedToSpell(spellInfo) || target->IsImmunedToSpellEffect(spellInfo, eff_index))
         return;

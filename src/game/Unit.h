@@ -1214,6 +1214,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         CharmInfo* GetCharmInfo() { return m_charmInfo; }
         CharmInfo* InitCharmInfo();
         void       DeleteCharmInfo();
+        void UpdateCharmAI();
         SharedVisionList const& GetSharedVisionList() { return m_sharedVision; }
         void AddPlayerToVision(Player* plr);
         void RemovePlayerFromVision(Player* plr);
@@ -1548,6 +1549,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool IsAIEnabled;
     protected:
         explicit Unit ();
+
+        UnitAI *i_AI, *i_disabledAI;
 
         void _UpdateSpells(uint32 time);
 

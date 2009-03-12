@@ -45,7 +45,6 @@
 #include "CellImpl.h"
 #include "OutdoorPvPMgr.h"
 #include "GameEventMgr.h"
-#include "PossessedAI.h"
 #include "CreatureGroups.h"
 // apply implementation of the singletons
 #include "Policies/SingletonImp.h"
@@ -133,7 +132,7 @@ bool AssistDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 }
 
 Creature::Creature() :
-Unit(), i_AI(NULL),
+Unit(),
 lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), lootingGroupLeaderGUID(0),
 m_lootMoney(0), m_lootRecipient(0),
 m_deathTimer(0), m_respawnTime(0), m_respawnDelay(25), m_corpseDelay(60), m_respawnradius(0.0f),
@@ -414,7 +413,7 @@ void Creature::Update(uint32 diff)
                     setDeathState( JUST_ALIVED );
 
                 //Call AI respawn virtual function
-                i_AI->JustRespawned();
+                AI()->JustRespawned();
 
                 uint16 poolid = poolhandler.IsPartOfAPool(GetGUIDLow(), GetTypeId());
                 if (poolid)
@@ -477,6 +476,9 @@ void Creature::Update(uint32 diff)
             // CORPSE/DEAD state will processed at next tick (in other case death timer will be updated unexpectedly)
             if(!isAlive())
                 break;
+
+            // if creature is charmed, switch to charmed AI
+            UpdateCharmAI();
 
             if(!IsInEvadeMode() && IsAIEnabled)
             {
@@ -590,11 +592,9 @@ bool Creature::AIM_Initialize(CreatureAI* ai)
         return false;
     }
 
-    CreatureAI * oldAI = i_AI;
-    i_motionMaster.Initialize();
+    if(i_AI) delete i_AI;
     i_AI = ai ? ai : FactorySelector::selectAI(this);
-    if (oldAI)
-        delete oldAI;
+    i_motionMaster.Initialize();
     IsAIEnabled = true;
     return true;
 }
