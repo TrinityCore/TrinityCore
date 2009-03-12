@@ -5803,7 +5803,6 @@ void Aura::PeriodicTick()
         {
             if(m_modifier.m_miscvalue < 0)
                 break;
-            uint32 amount = m_modifier.m_amount;
             if (uint32 modmask = m_modifier.m_miscvalue)
             {
                 for(uint8 i = 0; i < MAX_POWERS; ++i)
@@ -5818,6 +5817,7 @@ void Aura::PeriodicTick()
                         if(m_target->GetMaxPower(power) == 0)
                             continue;
 
+                        uint32 amount = m_modifier.m_amount * m_target->GetMaxPower(power) /100;
                         sLog.outDetail("PeriodicTick: %u (TypeId: %u) energize %u (TypeId: %u) for %u dmg inflicted by %u",
                             GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), m_target->GetGUIDLow(), m_target->GetTypeId(), amount, GetId());
 
@@ -5852,7 +5852,7 @@ void Aura::PeriodicTick()
             if(m_target->GetMaxPower(power) == 0)
                 break;
 
-            uint32 amount = m_modifier.m_amount < 0 ? 0 : m_modifier.m_amount;
+            uint32 amount = m_modifier.m_amount;
 
             WorldPacket data(SMSG_PERIODICAURALOG, (21+16));// we guess size
             data.append(m_target->GetPackGUID());
