@@ -169,30 +169,6 @@ void ScriptedAI::DoStartNoMovement(Unit* victim)
     m_creature->StopMoving();
 }
 
-
-void ScriptedAI::DoMeleeAttackIfReady()
-{
-    //Make sure our attack is ready and we aren't currently casting before checking distance
-    if (m_creature->isAttackReady() && !m_creature->hasUnitState(UNIT_STAT_CASTING))
-    {
-        //If we are within range melee the target
-        if (m_creature->IsWithinMeleeRange(m_creature->getVictim()))
-        {
-            m_creature->AttackerStateUpdate(m_creature->getVictim());
-            m_creature->resetAttackTimer();
-        }
-    }
-    if (m_creature->haveOffhandWeapon() && m_creature->isAttackReady(OFF_ATTACK) && !m_creature->hasUnitState(UNIT_STAT_CASTING))
-    {
-        //If we are within range melee the target
-        if (m_creature->IsWithinMeleeRange(m_creature->getVictim()))
-        {
-            m_creature->AttackerStateUpdate(m_creature->getVictim(), OFF_ATTACK);
-            m_creature->resetAttackTimer(OFF_ATTACK);
-        }
-    }
-}
-
 void ScriptedAI::DoStopAttack()
 {
     if (m_creature->getVictim() != NULL)

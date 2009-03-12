@@ -36,11 +36,34 @@ void UnitAI::AttackStart(Unit *victim)
     }
 }
 
+void UnitAI::DoMeleeAttackIfReady()
+{
+    //Make sure our attack is ready and we aren't currently casting before checking distance
+    if (me->isAttackReady() && !me->hasUnitState(UNIT_STAT_CASTING))
+    {
+        //If we are within range melee the target
+        if (me->IsWithinMeleeRange(me->getVictim()))
+        {
+            me->AttackerStateUpdate(me->getVictim());
+            me->resetAttackTimer();
+        }
+    }
+    if (me->haveOffhandWeapon() && me->isAttackReady(OFF_ATTACK) && !me->hasUnitState(UNIT_STAT_CASTING))
+    {
+        //If we are within range melee the target
+        if (me->IsWithinMeleeRange(me->getVictim()))
+        {
+            me->AttackerStateUpdate(me->getVictim(), OFF_ATTACK);
+            me->resetAttackTimer(OFF_ATTACK);
+        }
+    }
+}
+
 //Enable PlayerAI when charmed
 void PlayerAI::OnCharmed(bool apply) { me->IsAIEnabled = apply; }
 
 //Disable CreatureAI when charmed
-void CreatureAI::OnCharmed(bool apply) { me->IsAIEnabled = !apply; }
+void CreatureAI::OnCharmed(bool apply) { /*me->IsAIEnabled = !apply;*/ }
 
 void CreatureAI::MoveInLineOfSight(Unit *who)
 {

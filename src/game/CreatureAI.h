@@ -81,6 +81,9 @@ class TRINITY_DLL_SPEC UnitAI
 
         // Called when unit is charmed
         virtual void OnCharmed(bool apply) = 0;
+
+        //Do melee swing of current victim if in rnage and ready and not casting
+        void DoMeleeAttackIfReady();
 };
 
 class TRINITY_DLL_SPEC PlayerAI : public UnitAI
