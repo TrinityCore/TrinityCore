@@ -25,9 +25,8 @@
 
 class BattleGround;
 
-#define EY_MAX_TEAM_SCORE         2000
-#define BG_EY_FLAG_RESPAWN_TIME   (10*IN_MILISECONDS)       //10 seconds
-#define BG_EY_FPOINTS_TICK_TIME   (2*IN_MILISECONDS)        //2 seconds
+#define BG_EY_FLAG_RESPAWN_TIME         (10*IN_MILISECONDS) //10 seconds
+#define BG_EY_FPOINTS_TICK_TIME         (2*IN_MILISECONDS)  //2 seconds
 
 enum BG_EY_WorldStates
 {
@@ -73,11 +72,11 @@ enum BG_EY_ProgressBarConsts
 enum BG_EY_Sounds
 {
     //strange ids, but sure about them
-    BG_EY_SOUND_FLAG_PICKED_UP_ALLIANCE   = 8212,
-    BG_EY_SOUND_FLAG_CAPTURED_HORDE       = 8213,
-    BG_EY_SOUND_FLAG_PICKED_UP_HORDE      = 8174,
-    BG_EY_SOUND_FLAG_CAPTURED_ALLIANCE    = 8173,
-    BG_EY_SOUND_FLAG_RESET                = 8192
+    BG_EY_SOUND_FLAG_PICKED_UP_ALLIANCE = 8212,
+    BG_EY_SOUND_FLAG_CAPTURED_HORDE     = 8213,
+    BG_EY_SOUND_FLAG_PICKED_UP_HORDE    = 8174,
+    BG_EY_SOUND_FLAG_CAPTURED_ALLIANCE  = 8173,
+    BG_EY_SOUND_FLAG_RESET              = 8192
 };
 
 enum BG_EY_Spells
@@ -88,18 +87,18 @@ enum BG_EY_Spells
 
 enum EYBattleGroundObjectEntry
 {
-    BG_OBJECT_A_DOOR_EY_ENTRY         = 184719,             //Alliance door
-    BG_OBJECT_H_DOOR_EY_ENTRY         = 184720,             //Horde door
-    BG_OBJECT_FLAG1_EY_ENTRY          = 184493,             //Netherstorm flag (generic)
-    BG_OBJECT_FLAG2_EY_ENTRY          = 184141,             //Netherstorm flag (flagstand)
-    BG_OBJECT_FLAG3_EY_ENTRY          = 184142,             //Netherstorm flag (flagdrop)
-    BG_OBJECT_A_BANNER_EY_ENTRY       = 184381,             //Visual Banner (Alliance)
-    BG_OBJECT_H_BANNER_EY_ENTRY       = 184380,             //Visual Banner (Horde)
-    BG_OBJECT_N_BANNER_EY_ENTRY       = 184382,             //Visual Banner (Neutral)
-    BG_OBJECT_BE_TOWER_CAP_EY_ENTRY   = 184080,             //BE Tower Cap Pt
-    BG_OBJECT_FR_TOWER_CAP_EY_ENTRY   = 184081,             //Fel Reaver Cap Pt
-    BG_OBJECT_HU_TOWER_CAP_EY_ENTRY   = 184082,             //Human Tower Cap Pt
-    BG_OBJECT_DR_TOWER_CAP_EY_ENTRY   = 184083              //Draenei Tower Cap Pt
+    BG_OBJECT_A_DOOR_EY_ENTRY           = 184719,           //Alliance door
+    BG_OBJECT_H_DOOR_EY_ENTRY           = 184720,           //Horde door
+    BG_OBJECT_FLAG1_EY_ENTRY            = 184493,           //Netherstorm flag (generic)
+    BG_OBJECT_FLAG2_EY_ENTRY            = 184141,           //Netherstorm flag (flagstand)
+    BG_OBJECT_FLAG3_EY_ENTRY            = 184142,           //Netherstorm flag (flagdrop)
+    BG_OBJECT_A_BANNER_EY_ENTRY         = 184381,           //Visual Banner (Alliance)
+    BG_OBJECT_H_BANNER_EY_ENTRY         = 184380,           //Visual Banner (Horde)
+    BG_OBJECT_N_BANNER_EY_ENTRY         = 184382,           //Visual Banner (Neutral)
+    BG_OBJECT_BE_TOWER_CAP_EY_ENTRY     = 184080,           //BE Tower Cap Pt
+    BG_OBJECT_FR_TOWER_CAP_EY_ENTRY     = 184081,           //Fel Reaver Cap Pt
+    BG_OBJECT_HU_TOWER_CAP_EY_ENTRY     = 184082,           //Human Tower Cap Pt
+    BG_OBJECT_DR_TOWER_CAP_EY_ENTRY     = 184083            //Draenei Tower Cap Pt
 };
 
 enum EYBattleGroundPointsTrigger
@@ -131,7 +130,7 @@ enum EYBattleGroundPoints
     DRAENEI_RUINS   = 2,
     MAGE_TOWER      = 3,
 
-    EY_PLAYERS_OUT_OF_POINTS = 4,
+    EY_PLAYERS_OUT_OF_POINTS  = 4,
     EY_POINTS_MAX             = 4
 };
 
@@ -212,8 +211,14 @@ enum EYBattleGroundObjectTypes
     BG_EY_OBJECT_MAX                            = 59
 };
 
-#define BG_EY_NotEYWeekendHonorTicks 330
-#define BG_EY_EYWeekendHonorTicks 200
+#define BG_EY_NotEYWeekendHonorTicks    330
+#define BG_EY_EYWeekendHonorTicks       200
+
+enum BG_EY_Score
+{
+    BG_EY_WARNING_NEAR_VICTORY_SCORE    = 1800,
+    BG_EY_MAX_TEAM_SCORE                = 2000
+};
 
 enum BG_EY_FlagState
 {
