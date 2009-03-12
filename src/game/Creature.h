@@ -401,8 +401,6 @@ typedef std::map<uint32,time_t> CreatureSpellCooldowns;
 
 class TRINITY_DLL_SPEC Creature : public Unit
 {
-    CreatureAI *i_AI;
-
     public:
 
         explicit Creature();
@@ -468,7 +466,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
         bool AIM_Initialize(CreatureAI* ai = NULL);
 
         void AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint32 MovementFlags, uint8 type);
-        CreatureAI* AI() { return i_AI; }
+        CreatureAI* AI() { return (CreatureAI*)i_AI; }
 
         uint32 GetShieldBlockValue() const                  //dunno mob block value
         {

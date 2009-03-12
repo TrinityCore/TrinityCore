@@ -47,6 +47,8 @@
 #include "CellImpl.h"
 #include "Path.h"
 #include "CreatureGroups.h"
+#include "PetAI.h"
+#include "NullCreatureAI.h"
 
 #include <math.h>
 
@@ -150,6 +152,7 @@ bool IsPassiveStackableSpell( uint32 spellId )
 Unit::Unit()
 : WorldObject(), i_motionMaster(this), m_ThreatManager(this), m_HostilRefManager(this)
 , m_IsInNotifyList(false), m_Notified(false), IsAIEnabled(false)
+, i_AI(NULL), i_disabledAI(NULL)
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
@@ -11250,10 +11253,38 @@ void Unit::CleanupsBeforeDelete()
     RemoveFromWorld();
 }
 
+void Unit::UpdateCharmAI()
+{
+    if(GetTypeId() == TYPEID_PLAYER)
+        return;
+
+    if(i_disabledAI) // disabled AI must be primary AI
+    {
+        if(!isCharmed())
+        {
+            if(i_AI) delete i_AI;
+            i_AI = i_disabledAI;
+            i_disabledAI = NULL;
+        }
+    }
+    else
+    {
+        if(isCharmed())
+        {
+            i_disabledAI = i_AI;
+            if(isPossessed())
+                i_AI = new PossessedAI((Creature*)this);
+            else
+                i_AI = new PetAI((Creature*)this);
+        }
+    }
+}
+
 CharmInfo* Unit::InitCharmInfo()
 {
     if(!m_charmInfo)
         m_charmInfo = new CharmInfo(this);
+
     return m_charmInfo;
 }
 

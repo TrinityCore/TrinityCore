@@ -21,33 +21,5 @@
 #ifndef MANGOS_POSSESSEDAI_H
 #define MANGOS_POSSESSEDAI_H
 
-#include "CreatureAI.h"
 
-class Creature;
-
-class TRINITY_DLL_DECL PossessedAI : public CreatureAI
-{
-    public:
-        PossessedAI(Creature *c) : CreatureAI(c), i_pet(*c), i_victimGuid(0) {}
-
-        // Possessed creatures shouldn't aggro by themselves
-        void MoveInLineOfSight(Unit *) {}
-        void AttackStart(Unit *);
-        void EnterEvadeMode() {}
-        void JustDied(Unit*);
-        void KilledUnit(Unit* victim);
-
-        void UpdateAI(const uint32);
-        // Never permit this to be used, it must always be initialized with Creature::InitPossessedAI()
-        static int Permissible(const Creature *) { return PERMIT_BASE_NO; }
-
-    private:
-        bool _isVisible(Unit *) const;
-        bool _needToStop(void) const;
-        void _stopAttack(void);
-
-        Creature &i_pet;
-        uint64 i_victimGuid;
-};
 #endif
-
