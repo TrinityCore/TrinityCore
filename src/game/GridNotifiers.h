@@ -600,14 +600,13 @@ namespace Trinity
             AnyUnfriendlyNoTotemUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range) : i_obj(obj), i_funit(funit), i_range(range) {}
             bool operator()(Unit* u)
             {
-                if(u->isAlive() && i_obj->IsWithinDistInMap(u, i_range) && !i_funit->IsFriendlyTo(u))
-                {
-                    if (u->GetTypeId()==TYPEID_UNIT && !((Creature*)u)->isTotem())
-                        return false;
-                    return true;
-                }
-                else
+                if(!u->isAlive())
                     return false;
+
+                if(u->GetTypeId()==TYPEID_UNIT && ((Creature*)u)->isTotem())
+                    return false;
+
+                return i_obj->IsWithinDistInMap(u, i_range) && !i_funit->IsFriendlyTo(u);
             }
         private:
             WorldObject const* i_obj;
