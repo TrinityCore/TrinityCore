@@ -1,3 +1,4 @@
+
 /* WORLD BOSS */
 UPDATE `creature_template` SET `ScriptName`='boss_ysondre' WHERE `entry`=14887;
 UPDATE `creature_template` SET `ScriptName`='boss_emeriss' WHERE `entry`=14889;
@@ -12,11 +13,11 @@ UPDATE `gameobject_template` SET `ScriptName`='go_northern_crystal_pylon' WHERE 
 UPDATE `gameobject_template` SET `ScriptName`='go_western_crystal_pylon' WHERE `entry`=164956;
 UPDATE `gameobject_template` SET `ScriptName`='go_eastern_crystal_pylon' WHERE `entry`=164957;
 UPDATE `gameobject_template` SET `ScriptName`='go_barov_journal' WHERE `entry`=180794;
-UPDATE `gameobject_template` SET `ScriptName`='go_field_repair_bot_74A' where `entry`=179552;
+UPDATE `gameobject_template` SET `ScriptName`='go_field_repair_bot_74A' WHERE `entry`=179552;
 UPDATE `gameobject_template` SET `ScriptName`='go_orb_of_command' WHERE `entry`=179879;
 UPDATE `gameobject_template` SET `ScriptName`='go_tablet_of_madness' WHERE `entry`=180368;
 UPDATE `gameobject_template` SET `ScriptName`='go_tablet_of_the_seven' WHERE `entry`=169294;
-UPDATE `gameobject_template` set `ScriptName`='go_manticron_cube' WHERE `entry`=181713;
+UPDATE `gameobject_template` SET `ScriptName`='go_manticron_cube' WHERE `entry`=181713;
 UPDATE `gameobject_template` SET `ScriptName`='go_mausoleum_trigger' WHERE `entry`=104593;
 UPDATE `gameobject_template` SET `ScriptName`='go_mausoleum_door' WHERE `entry`=176594;
 UPDATE `gameobject_template` SET `ScriptName`='go_crystal_prison' WHERE `entry`=185126;
@@ -410,7 +411,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_blood_knight_dawnstar' WHERE `e
 UPDATE `creature_template` SET `ScriptName`='npc_budd_nedreck' WHERE `entry`=23559;
 UPDATE `creature_template` SET `ScriptName`='npc_rathis_tomber' WHERE `entry`=16224;
 UPDATE `creature_template` SET `Scriptname`='npc_ranger_lilatha' WHERE `entry`=16295;
-update `gameobject_template` SET `ScriptName`='go_gilded_brazier' WHERE `entry`=181956;
+UPDATE `gameobject_template` SET `ScriptName`='go_gilded_brazier' WHERE `entry`=181956;
 
 /* GNOMEREGAN */
 
@@ -459,7 +460,7 @@ UPDATE `instance_template` SET `script`='instance_magtheridons_lair' WHERE `map`
 UPDATE `gameobject_template` SET `ScriptName`='go_manticron_cube' WHERE `entry`=181713;
 UPDATE `creature_template` SET `ScriptName`='boss_magtheridon' WHERE `entry`=17257;
 UPDATE `creature_template` SET `ScriptName`='mob_hellfire_channeler' WHERE `entry`=17256;
-update `creature_template` SET `ScriptName`='mob_abyssal' WHERE `entry`=17454;
+UPDATE `creature_template` SET `ScriptName`='mob_abyssal' WHERE `entry`=17454;
 
 /* HELLFIRE PENINSULA */
 UPDATE `creature_template` SET `ScriptName`='boss_doomlord_kazzak' WHERE `entry`=18728;
@@ -768,14 +769,14 @@ UPDATE `creature_template` SET `ScriptName`='mob_freed_soul' WHERE `entry`=11136
 /* SUNKEN TEMPLE */
 
 /* SUNWELL PLATEAU */
-update `instance_template` set `script` ='instance_sunwell_plateau' where map =580;
+UPDATE `instance_template` SET `script` ='instance_sunwell_plateau' WHERE map =580;
 UPDATE `creature_template` SET `ScriptName`='boss_brutallus' WHERE `entry` =24882;
 UPDATE `creature_template` SET `ScriptName`='boss_felmyst' WHERE `entry`=25038;
 UPDATE `creature_template` SET `ScriptName`='mob_felmyst_vapor' WHERE `entry`=25265;
 UPDATE `creature_template` SET `ScriptName`='mob_felmyst_trail' WHERE `entry`=25267;
-update `creature_template` set `ScriptName`='boss_sacrolash' WHERE `entry`=25165;
-update `creature_template` set `ScriptName`='boss_alythess' WHERE `entry`=25166;
-update `creature_template` set `ScriptName`='mob_shadow_image' WHERE `entry`=25214;
+UPDATE `creature_template` SET `ScriptName`='boss_sacrolash' WHERE `entry`=25165;
+UPDATE `creature_template` SET `ScriptName`='boss_alythess' WHERE `entry`=25166;
+UPDATE `creature_template` SET `ScriptName`='mob_shadow_image' WHERE `entry`=25214;
 
 /* SWAMP OF SORROWS */
 
@@ -834,9 +835,9 @@ UPDATE `creature_template` SET `ScriptName`='mob_phoenix_tk' WHERE `entry`=21362
 UPDATE `creature_template` SET `ScriptName`='mob_phoenix_egg_tk' WHERE `entry`=21364;
 UPDATE `creature_template` SET `ScriptName`='mob_nether_vapor' WHERE `entry`=21002;
 UPDATE `creature_template` SET `ScriptName`='mob_kael_flamestrike' WHERE `entry`=21369;
-update `creature_template` set `ScriptName`='boss_alar' where `entry`=19514;
-update `creature_template` set `ScriptName`='mob_ember_of_alar' where `entry`=19551;
-update `creature_template` set `ScriptName`='mob_flame_patch_alar' where `entry`=20602;
+UPDATE `creature_template` SET `ScriptName`='boss_alar' WHERE `entry`=19514;
+UPDATE `creature_template` SET `ScriptName`='mob_ember_of_alar' WHERE `entry`=19551;
+UPDATE `creature_template` SET `ScriptName`='mob_flame_patch_alar' WHERE `entry`=20602;
 
 /* TEMPLE OF AHN'QIRAJ */
 UPDATE `instance_template` SET `script`='instance_temple_of_ahnqiraj' WHERE `map`=531;
@@ -944,8 +945,8 @@ UPDATE `creature_template` SET `ScriptName` = 'mob_janalai_hatcher' WHERE `entry
 UPDATE `creature_template` SET `ScriptName` = 'mob_janalai_hatchling' WHERE `entry`=23598;
 UPDATE `creature_template` SET `ScriptName` = 'mob_janalai_egg' WHERE `entry`=23817;
 UPDATE `creature_template` SET `ScriptName` = 'npc_forest_frog' WHERE `entry`=24396;
-UPDATE `creature_template` SET `ScriptName` = 'boss_akilzon' where entry = 23574;
-UPDATE `creature_template` SET `ScriptName` = 'mob_akilzon_eagle' where `entry`=24858;
+UPDATE `creature_template` SET `ScriptName` = 'boss_akilzon' WHERE entry = 23574;
+UPDATE `creature_template` SET `ScriptName` = 'mob_akilzon_eagle' WHERE `entry`=24858;
 UPDATE `creature_template` SET `ScriptName` = 'boss_halazzi' WHERE `entry` = '23577';
 UPDATE `creature_template` SET `ScriptName` = 'mob_halazzi_lynx' WHERE `entry` = '24143';
 UPDATE `creature_template` SET `ScriptName` = 'boss_hexlord_malacrass' WHERE `entry` =24239;
