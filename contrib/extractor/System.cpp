@@ -153,7 +153,12 @@ uint32 ReadMapDBC()
 {
     printf("Read Map.dbc file... ");
     DBCFile dbc("DBFilesClient\\Map.dbc");
-    dbc.open();
+
+    if(!dbc.open())
+    {
+        printf("Fatal error: Invalid Map.dbc file format!\n");
+        exit(1);
+    }
 
     size_t map_count = dbc.getRecordCount();
     map_ids = new map_id[map_count];
@@ -170,7 +175,12 @@ void ReadAreaTableDBC()
 {
     printf("Read AreaTable.dbc file...");
     DBCFile dbc("DBFilesClient\\AreaTable.dbc");
-    dbc.open();
+
+    if(!dbc.open())
+    {
+        printf("Fatal error: Invalid AreaTable.dbc file format!\n");
+        exit(1);
+    }
 
     size_t area_count = dbc.getRecordCount();
     size_t maxid = dbc.getMaxId();
@@ -189,7 +199,12 @@ void ReadLiquidTypeTableDBC()
 {
     printf("Read LiquidType.dbc file...");
     DBCFile dbc("DBFilesClient\\LiquidType.dbc");
-    dbc.open();
+    if(!dbc.open())
+    {
+        printf("Fatal error: Invalid LiquidType.dbc file format!\n");
+        exit(1);
+    }
+
     size_t LiqType_count = dbc.getRecordCount();
     size_t LiqType_maxid = dbc.getMaxId();
     LiqType = new uint16[LiqType_maxid + 1];
