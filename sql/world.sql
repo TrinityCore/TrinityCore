@@ -550,7 +550,7 @@ CREATE TABLE `creature_formations` (
   `dist` float unsigned NOT NULL,
   `angle` float unsigned NOT NULL,
   `groupAI` int(11) unsigned NOT NULL,
-  PRIMARY KEY  (`follower`));
+  PRIMARY KEY  (`memberGUID`));
 
 --
 -- Dumping data for table `creature_formations`
@@ -13707,7 +13707,7 @@ CREATE TABLE `transport_events` (
 -- Dumping data for table `transport_events`
 --
 
-LOCK TABLES `trinity_string` WRITE;
+LOCK TABLES `transport_events` WRITE;
 /*!40000 ALTER TABLE `transport_events` DISABLE KEYS */;
 /*!40000 ALTER TABLE `transport_events` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -13777,9 +13777,9 @@ CREATE TABLE `waypoint_data` (
 -- Dumping data for table `waypoint_data`
 --
 
-LOCK TABLES `waypoint_scripts` WRITE;
-/*!40000 ALTER TABLE `waypoint_scripts` DISABLE KEYS */;
-/*!40000 ALTER TABLE `waypoint_scripts` ENABLE KEYS */;
+LOCK TABLES `waypoint_data` WRITE;
+/*!40000 ALTER TABLE `waypoint_data` DISABLE KEYS */;
+/*!40000 ALTER TABLE `waypoint_data` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
