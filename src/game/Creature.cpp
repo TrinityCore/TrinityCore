@@ -484,7 +484,12 @@ void Creature::Update(uint32 diff)
                 break;
 
             // if creature is charmed, switch to charmed AI
-            UpdateCharmAI();
+            if(NeedChangeAI)
+            {
+                UpdateCharmAI();
+                NeedChangeAI = false;
+                IsAIEnabled = true;
+            }
 
             if(!IsInEvadeMode() && IsAIEnabled)
             {
