@@ -797,7 +797,7 @@ void Aura::_AddAura()
     // passive auras (except totem auras) do not get placed in the slots
     // area auras with SPELL_AURA_NONE are not shown on target
     // all further code applies only to active spells
-    if(!((m_spellProto->Attributes & 0x80 || !m_isPassive || (caster && caster->GetTypeId() == TYPEID_UNIT && ((Creature*)caster)->isTotem())) &&
+    if(!(((m_spellProto->Attributes & 0x80 && GetTalentSpellPos(GetId())) || !m_isPassive || (caster && caster->GetTypeId() == TYPEID_UNIT && ((Creature*)caster)->isTotem())) &&
         (m_spellProto->Effect[GetEffIndex()] != SPELL_EFFECT_APPLY_AREA_AURA_ENEMY || m_target != caster)))
         return;
 
@@ -815,8 +815,6 @@ void Aura::_AddAura()
             if(itr->second->GetCasterGUID()==GetCasterGUID())
             {
                 slot = itr->second->GetAuraSlot();
-                if(slot >= MAX_AURAS)
-                    return;
                 secondaura = true;
                 break;
             }
@@ -825,46 +823,48 @@ void Aura::_AddAura()
             break;
     }
 
-    // Lookup free slot
-    if (!secondaura)
+    Unit::VisibleAuraMap const *visibleAuras = m_target->GetVisibleAuras();
+    if(visibleAuras->size() < MAX_AURAS || slot < MAX_AURAS)       // got free slot
     {
-        Unit::VisibleAuraMap const *visibleAuras = m_target->GetVisibleAuras();
-        if(visibleAuras->size() >= MAX_AURAS)       // no free slot
-            return;
-
-        Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin();
-        for(int freeSlot = 0; freeSlot < MAX_AURAS; ++itr, ++freeSlot)
+        // Lookup free slot
+        if (!secondaura)
         {
-            if(itr == visibleAuras->end() || itr->first != freeSlot)
+            Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin();
+            for(int freeSlot = 0; freeSlot < MAX_AURAS; ++itr, ++freeSlot)
             {
-                slot = freeSlot;
-                break;
+                if(itr == visibleAuras->end() || itr->first != freeSlot)
+                {
+                    slot = freeSlot;
+                    break;
+                }
             }
+            assert(slot < MAX_AURAS);      // assert that we find a slot and it is valid
+
+            AuraSlotEntry t_entry;
+            t_entry.m_Flags=(IsPositive() ? AFLAG_POSITIVE : AFLAG_NEGATIVE) | AFLAG_NOT_CASTER | ((GetAuraMaxDuration() > 0) ? AFLAG_DURATION : AFLAG_NONE);
+            t_entry.m_Level=(caster ? caster->getLevel() : sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL));
+            t_entry.m_spellId = GetId();
+            //init pointers-prevent unexpected behaviour
+            for(uint8 i = 0; i < 3; i++)
+                t_entry.m_slotAuras[i]=NULL;
+
+            m_target->SetVisibleAura(slot, t_entry);
         }
-        assert(slot < MAX_AURAS);      // assert that we find a slot and it is valid
 
-        AuraSlotEntry t_entry;
-        t_entry.m_Flags=(IsPositive() ? AFLAG_POSITIVE : AFLAG_NEGATIVE) | AFLAG_NOT_CASTER | ((GetAuraMaxDuration() > 0) ? AFLAG_DURATION : AFLAG_NONE);
-        t_entry.m_Level=(caster ? caster->getLevel() : sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL));
+        if(AuraSlotEntry *entry = m_target->GetVisibleAura(slot))
+        {
+            entry->m_Flags |= (1 << GetEffIndex());
+            entry->m_slotAuras[GetEffIndex()]=this;
 
-        //init pointers-prevent unexpected behaviour
-        for(uint8 i = 0; i < 3; i++)
-            t_entry.m_slotAuras[i]=NULL;
+            SetAuraSlot( slot );
 
-        m_target->SetVisibleAura(slot, t_entry);
+            // update for out of range group members (on 1 slot use)
+            m_target->UpdateAuraForGroup(slot);
+            sLog.outDebug("Aura: %u Effect: %d put to unit visible auras slot: %u",GetId(), GetEffIndex(), slot);
+        }
     }
-
-    AuraSlotEntry *entry = m_target->GetVisibleAura(slot);
-    if(!entry)
-        return;
-
-    entry->m_Flags |= (1 << GetEffIndex());
-    entry->m_slotAuras[GetEffIndex()]=this;
-
-    SetAuraSlot( slot );
-
-    // update for out of range group members (on 1 slot use)
-    m_target->UpdateAuraForGroup(slot);
+    else
+       sLog.outDebug("Aura: %u Effect: %d could not find empty unit visible slot",GetId(), GetEffIndex());
 
     //*****************************************************
     // Update target aura state flag
@@ -880,6 +880,18 @@ void Aura::_AddAura()
         // register aura diminishing on apply
         if (getDiminishGroup() != DIMINISHING_NONE )
             m_target->ApplyDiminishingAura(getDiminishGroup(),true);
+
+        // Apply linked auras (On first aura apply)
+        uint32 id = GetId();
+        if(spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_AURA)
+        {
+            if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(id + SPELL_LINK_AURA))
+                for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+                    if(*itr < 0)
+                        m_target->ApplySpellImmune(id, IMMUNITY_ID, *itr, m_target);
+                    else if(Unit* caster = GetCaster())
+                        m_target->AddAura(*itr, m_target);
+        }
     }
 
     // Update Seals information
@@ -930,38 +942,43 @@ void Aura::_RemoveAura()
     //    return;
 
     uint8 slot = GetAuraSlot();
-    if(slot >= MAX_AURAS)                                   // slot not set
-        return;
-
-    bool lastaura=true;
-
-    AuraSlotEntry *entry = m_target->GetVisibleAura(slot);
-    if (entry)
+    if(slot < MAX_AURAS)                                   // slot not set
     {
-        // we have more auras, do not clear slot
-        if (entry->m_slotAuras[GetEffIndex()]==this)
+        if (AuraSlotEntry *entry = m_target->GetVisibleAura(slot))
         {
-            entry->m_slotAuras[GetEffIndex()]=NULL;                 //unregister aura
-            for(uint8 i = 0; i < 3; ++i)                              //check slot for more auras of the spell
+            // we have more auras, do not clear slot
+            if (entry->m_slotAuras[GetEffIndex()]==this)
             {
-                if(entry->m_slotAuras[i])
-                {
-                    lastaura = false;
-                    break;
-                }
+                entry->m_slotAuras[GetEffIndex()]=NULL;                 //unregister aura
             }
         }
     }
 
-    // only remove icon when the last aura of the spell is removed (current aura already removed from list)
-    if(lastaura)
+    bool lastaura=true;
+    for(uint8 i = 0; i < 3; i++)
     {
+        Unit::spellEffectPair spair = Unit::spellEffectPair(GetId(), i);
+        for(Unit::AuraMap::const_iterator itr = m_target->GetAuras().lower_bound(spair); itr != m_target->GetAuras().upper_bound(spair); ++itr)
+        {
+            if(itr->second->GetCasterGUID()==GetCasterGUID())
+            {
+                lastaura = false;
+                break;
+            }
+        }
+        if(!lastaura)
+            break;
+    }
+
+    if (lastaura)
+    {
+        // update for out of range group members
+        if (slot < MAX_AURAS)
+            m_target->UpdateAuraForGroup(slot);
+
         // unregister aura diminishing (and store last time)
         if (getDiminishGroup() != DIMINISHING_NONE )
             m_target->ApplyDiminishingAura(getDiminishGroup(),false);
-
-        // update for out of range group members
-        m_target->UpdateAuraForGroup(slot);
 
         // Check needed only if aura applies aurastate
         if(GetAuraStateMask())
@@ -985,6 +1002,27 @@ void Aura::_RemoveAura()
             if ( GetSpellProto()->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE )
                 // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
                 ((Player*)caster)->SendCooldownEvent(GetSpellProto());
+        }
+
+        // Remove Linked Auras (on last aura remove)
+        uint32 id = GetId();
+        if(spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_REMOVE)
+        {
+            if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(-(int32)id))
+                for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+                    if(*itr < 0)
+                        m_target->RemoveAurasDueToSpell(-(*itr));
+                    else if(Unit* caster = GetCaster())
+                        m_target->CastSpell(m_target, *itr, true, 0, 0, caster->GetGUID());
+        }
+        if(spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_AURA)
+        {
+            if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(id + SPELL_LINK_AURA))
+                for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+                    if(*itr < 0)
+                        m_target->ApplySpellImmune(id, IMMUNITY_ID, *itr, false);
+                    else
+                        m_target->RemoveAurasDueToSpell(*itr);
         }
     }
 }
