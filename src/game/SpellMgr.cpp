@@ -567,6 +567,7 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
                 case SPELL_AURA_MOD_STAT:
                 case SPELL_AURA_MOD_DAMAGE_DONE:            // dependent from bas point sign (negative -> negative)
                 case SPELL_AURA_MOD_HEALING_DONE:
+                case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE:
                 {
                     if(spellproto->EffectBasePoints[effIndex]+int32(spellproto->EffectBaseDice[effIndex]) < 0)
                         return false;

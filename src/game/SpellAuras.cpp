@@ -1024,6 +1024,22 @@ void Aura::_RemoveAura()
                     else
                         m_target->RemoveAurasDueToSpell(*itr);
         }
+        // Proc on aura remove (only spell flags for now)
+        if (caster)
+        {
+            uint32 ProcCaster, ProcVictim;
+            if (IsPositiveSpell(GetId()))
+            {
+                ProcCaster = PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL;
+                ProcVictim = PROC_FLAG_TAKEN_POSITIVE_SPELL;
+            }
+            else
+            {
+                ProcCaster = PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT;
+                ProcVictim = PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT;
+            }
+            caster->ProcDamageAndSpell(m_target,ProcCaster, ProcVictim, PROC_EX_AURA_REMOVE, 0, BASE_ATTACK, m_spellProto);
+        }
     }
 }
 
@@ -2026,7 +2042,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
         }
         switch(m_spellProto->SpellFamilyName)
         {
-            case SPELLFAMILY_GENERIC:
+            case SPELLFAMILY_MAGE:
                 // Living Bomb
                 if (m_spellProto->SpellFamilyFlags[1] & 0x20000)
                 {
@@ -3157,21 +3173,6 @@ void Aura::HandleModFear(bool apply, bool Real)
 
     //m_target->SetFeared(apply, GetCasterGUID(), GetId());
     m_target->SetControlled(apply, UNIT_STAT_FLEEING);
-
-    // Improved Fear
-   if(!apply && m_spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK)
-     {
-       Unit* caster = GetCaster();
-       if(!caster || caster->GetTypeId() != TYPEID_PLAYER)
-          return;
-       uint32 spell_id = 0;
-       if(caster->HasAura(53754, 0))
-          spell_id = 60946;
-       else if(caster->HasAura(53759, 0))
-          spell_id = 60947;
-       if(spell_id)
-          m_target->CastSpell(m_target, spell_id, true);
-    }
 }
 
 void Aura::HandleFeignDeath(bool apply, bool Real)
