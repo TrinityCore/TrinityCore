@@ -928,6 +928,10 @@ void LoadDatabase()
             temp.event_param3 = fields[8].GetUInt32();
             temp.event_param4 = fields[9].GetUInt32();
 
+            //Creature does not exist in database
+            if (!GetCreatureTemplateStore(temp.creature_id))
+                error_db_log("TSCR: Event %u has script for non-existing creature.", i);
+
             //Report any errors in event
             if (temp.event_type >= EVENT_T_END)
                 error_db_log("TSCR: Event %u has incorrect event type. Maybe DB requires updated version of SD2.", i);
@@ -1023,6 +1027,7 @@ void LoadDatabase()
                 case EVENT_T_DEATH:
                 case EVENT_T_EVADE:
                 case EVENT_T_SPAWNED:
+                case EVENT_T_REACHED_HOME:
                     {
                         if (temp.event_flags & EFLAG_REPEATABLE)
                         {
@@ -1068,7 +1073,29 @@ void LoadDatabase()
                             }
                         }
                         break;
+                    case ACTION_T_SET_FACTION:
+                        if (temp.action[j].param1 !=0 && !GetFactionStore()->LookupEntry(temp.action[j].param1))
+                        {
+                            error_db_log("SD2: Event %u Action %u uses non-existant FactionId %u.", i, j+1, temp.action[j].param1);
+                            temp.action[j].param1 = 0;
+                        }
+                        break;
+                    case ACTION_T_MORPH_TO_ENTRY_OR_MODEL:
+                        if (temp.action[j].param1 !=0 || temp.action[j].param2 !=0)
+                        {
+                            if (temp.action[j].param1 && !GetCreatureTemplateStore(temp.action[j].param1))
+                            {
+                                error_db_log("TSCR: Event %u Action %u uses non-existant Creature entry %u.", i, j+1, temp.action[j].param1);
+                                temp.action[j].param1 = 0;
+                            }
 
+                            if (temp.action[j].param2 && !GetCreatureDisplayStore()->LookupEntry(temp.action[j].param2))
+                            {
+                                error_db_log("TSCR: Event %u Action %u uses non-existant ModelId %u.", i, j+1, temp.action[j].param2);
+                                temp.action[j].param2 = 0;
+                            }
+                        }
+                        break;
                     case ACTION_T_SOUND:
                         if (!GetSoundEntriesStore()->LookupEntry(temp.action[j].param1))
                             error_db_log("TSCR: Event %u Action %u uses non-existant SoundID %u.", i, j+1, temp.action[j].param1);
@@ -1087,8 +1114,18 @@ void LoadDatabase()
 
                     case ACTION_T_CAST:
                         {
-                            if (!GetSpellStore()->LookupEntry(temp.action[j].param1))
-                                error_db_log("TSCR: Event %u Action %u uses non-existant SpellID %u.", i, j+1, temp.action[j].param1);
+                            const SpellEntry *spell = GetSpellStore()->LookupEntry(temp.action[j].param1);
+                            if (!spell)
+                                error_db_log("SD2: Event %u Action %u uses non-existant SpellID %u.", i, j+1, temp.action[j].param1);
+                            else
+                            {
+                                if (spell->RecoveryTime > 0 && temp.event_flags & EFLAG_REPEATABLE)
+                                {
+                                    //output as debug for now, also because there's no general rule all spells have RecoveryTime
+                                    if (temp.event_param3 < spell->RecoveryTime)
+                                        debug_log("SD2: Event %u Action %u uses SpellID %u but cooldown is longer(%u) than minumum defined in event param3(%u).", i, j+1,temp.action[j].param1, spell->RecoveryTime, temp.event_param3);
+                                }
+                            }
 
                             if (temp.action[j].param2 >= TARGET_T_END)
                                 error_db_log("TSCR: Event %u Action %u uses incorrect Target type", i, j+1);
@@ -1104,20 +1141,59 @@ void LoadDatabase()
                                 error_db_log("TSCR: Event %u Action %u uses incorrect Target type", i, j+1);
                         }
                         break;
+                    case ACTION_T_QUEST_EVENT:
+                        {
+                            if (Quest const* qid = GetQuestTemplateStore(temp.action[j].param1))
+                            {
+                                if (!qid->HasFlag(QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT))
+                                    error_db_log("SD2: Event %u Action %u. SpecialFlags for quest entry %u does not include |2, Action will not have any effect.", i, j+1, temp.action[j].param1);
+                            }
+                            else
+                                error_db_log("SD2: Event %u Action %u uses non-existant Quest entry %u.", i, j+1, temp.action[j].param1);
 
+                            if (temp.action[j].param2 >= TARGET_T_END)
+                                error_db_log("SD2: Event %u Action %u uses incorrect Target type", i, j+1);
+                        }
+                        break;
+                    case ACTION_T_QUEST_EVENT_ALL:
+                        {
+                            if (Quest const* qid = GetQuestTemplateStore(temp.action[j].param1))
+                            {
+                                if (!qid->HasFlag(QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT))
+                                    error_db_log("SD2: Event %u Action %u. SpecialFlags for quest entry %u does not include |2, Action will not have any effect.", i, j+1, temp.action[j].param1);
+                            }
+                            else
+                                error_db_log("SD2: Event %u Action %u uses non-existant Quest entry %u.", i, j+1, temp.action[j].param1);
+                        }
+                        break;
                     case ACTION_T_CASTCREATUREGO:
                         {
+                            if (!GetCreatureTemplateStore(temp.action[j].param1))
+                                error_db_log("SD2: Event %u Action %u uses non-existant creature entry %u.", i, j+1, temp.action[j].param1);
+
                             if (!GetSpellStore()->LookupEntry(temp.action[j].param2))
                                 error_db_log("TSCR: Event %u Action %u uses non-existant SpellID %u.", i, j+1, temp.action[j].param2);
 
                             if (temp.action[j].param3 >= TARGET_T_END)
-                                error_db_log("TSCR: Event %u Action %u uses incorrect Target type", i, j+1);
+                                error_db_log("SD2: Event %u Action %u uses incorrect Target type", i, j+1);
+                        }
+                        break;
+                    case ACTION_T_CASTCREATUREGO_ALL:
+                        {
+                            if (!GetQuestTemplateStore(temp.action[j].param1))
+                                error_db_log("SD2: Event %u Action %u uses non-existant Quest entry %u.", i, j+1, temp.action[j].param1);
+
+                            if (!GetSpellStore()->LookupEntry(temp.action[j].param2))
+                                error_db_log("SD2: Event %u Action %u uses non-existant SpellID %u.", i, j+1, temp.action[j].param2);
                         }
                         break;
 
                     //2nd param target
                     case ACTION_T_SUMMON_ID:
                         {
+                            if (!GetCreatureTemplateStore(temp.action[j].param1))
+                                error_db_log("SD2: Event %u Action %u uses non-existant creature entry %u.", i, j+1, temp.action[j].param1);
+
                             if (EventAI_Summon_Map.find(temp.action[j].param3) == EventAI_Summon_Map.end())
                                 error_db_log("TSCR: Event %u Action %u summons missing EventAI_Summon %u", i, j+1, temp.action[j].param3);
 
@@ -1125,19 +1201,35 @@ void LoadDatabase()
                                 error_db_log("TSCR: Event %u Action %u uses incorrect Target type", i, j+1);
                         }
                         break;
+                    case ACTION_T_KILLED_MONSTER:
+                        {
+                            if (!GetCreatureTemplateStore(temp.action[j].param1))
+                                error_db_log("SD2: Event %u Action %u uses non-existant creature entry %u.", i, j+1, temp.action[j].param1);
 
+                            if (temp.action[j].param2 >= TARGET_T_END)
+                                error_db_log("SD2: Event %u Action %u uses incorrect Target type", i, j+1);
+                        }
+                        break;
                     case ACTION_T_SUMMON:
+                        {
+                            if (!GetCreatureTemplateStore(temp.action[j].param1))
+                                error_db_log("SD2: Event %u Action %u uses non-existant creature entry %u.", i, j+1, temp.action[j].param1);
+
+                            if (temp.action[j].param2 >= TARGET_T_END)
+                                error_db_log("SD2: Event %u Action %u uses incorrect Target type", i, j+1);
+                        }
+                        break;
                     case ACTION_T_THREAT_SINGLE_PCT:
-                    case ACTION_T_QUEST_EVENT:
                     case ACTION_T_SET_UNIT_FLAG:
                     case ACTION_T_REMOVE_UNIT_FLAG:
-                    case ACTION_T_SET_INST_DATA64:
                         if (temp.action[j].param2 >= TARGET_T_END)
                             error_db_log("TSCR: Event %u Action %u uses incorrect Target type", i, j+1);
                         break;
 
                     //3rd param target
                     case ACTION_T_SET_UNIT_FIELD:
+                        if (temp.action[j].param1 < OBJECT_END || temp.action[j].param1 >= UNIT_END)
+                            error_db_log("SD2: Event %u Action %u param1 (UNIT_FIELD*). Index out of range for intended use.", i, j+1);
                         if (temp.action[j].param3 >= TARGET_T_END)
                             error_db_log("TSCR: Event %u Action %u uses incorrect Target type", i, j+1);
                         break;
@@ -1149,21 +1241,33 @@ void LoadDatabase()
 
                     case ACTION_T_INC_PHASE:
                         if (!temp.action[j].param1)
-                            error_db_log("TSCR: Event %u Action %u is incrementing phase by 0. Was this intended?", i, j+1);
-                        break;
-
-                    case ACTION_T_KILLED_MONSTER:
-                        if (temp.event_type != EVENT_T_DEATH)
-                            outstring_log("SD2 WARNING: Event %u Action %u calling ACTION_T_KILLED_MONSTER outside of EVENT_T_DEATH", i, j+1);
+                            error_db_log("SD2: Event %u Action %u is incrementing phase by 0. Was this intended?", i, j+1);
                         break;
 
                     case ACTION_T_SET_INST_DATA:
-                        if (temp.action[j].param2 > SPECIAL)
-                             error_db_log("TSCR2: Event %u Action %u attempts to set instance data above encounter state 4. Custom case?", i, j+1);
-                        break;
+                        {
+                            if (!(temp.event_flags & EFLAG_NORMAL) && !(temp.event_flags & EFLAG_HEROIC))
+                                error_db_log("SD2: Event %u Action %u. Cannot set instance data without event flags (normal/heroic).", i, j+1);
 
-                    case ACTION_T_YELL:
-                    case ACTION_T_TEXTEMOTE:
+                            if (temp.action[j].param2 > SPECIAL)
+                                error_db_log("SD2: Event %u Action %u attempts to set instance data above encounter state 4. Custom case?", i, j+1);
+                        }
+                        break;
+                    case ACTION_T_SET_INST_DATA64:
+                        {
+                            if (!(temp.event_flags & EFLAG_NORMAL) && !(temp.event_flags & EFLAG_HEROIC))
+                                error_db_log("SD2: Event %u Action %u. Cannot set instance data without event flags (normal/heroic).", i, j+1);
+
+                            if (temp.action[j].param2 >= TARGET_T_END)
+                                error_db_log("SD2: Event %u Action %u uses incorrect Target type", i, j+1);
+                        }
+                        break;
+                    case ACTION_T_UPDATE_TEMPLATE:
+                        {
+                            if (!GetCreatureTemplateStore(temp.action[j].param1))
+                                error_db_log("SD2: Event %u Action %u uses non-existant creature entry %u.", i, j+1, temp.action[j].param1);
+                        }
+                        break;
                     case ACTION_T_RANDOM_SAY:
                     case ACTION_T_RANDOM_YELL:
                     case ACTION_T_RANDOM_TEXTEMOTE:

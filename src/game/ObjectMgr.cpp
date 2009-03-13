@@ -7257,6 +7257,16 @@ CreatureInfo const *GetCreatureInfo(uint32 id)
     return objmgr.GetCreatureTemplate(id);
 }
 
+CreatureInfo const* GetCreatureTemplateStore(uint32 entry)
+{
+    return sCreatureStorage.LookupEntry<CreatureInfo>(entry);
+}
+
+Quest const* GetQuestTemplateStore(uint32 entry)
+{
+    return objmgr.GetQuestTemplate(entry);
+}
+
 void ObjectMgr::LoadTransportEvents()
 {
 
