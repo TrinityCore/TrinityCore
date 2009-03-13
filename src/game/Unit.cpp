@@ -5573,6 +5573,22 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     triggered_spell_id = 30294;
                     break;
                 }
+                // Improved Fear
+                case 53754:
+                {
+                    if(!pVictim || !pVictim->isAlive())
+                        return false;
+                    pVictim->CastSpell(pVictim, 60946,true);
+                    return true;
+                }
+                // Improved Fear (Rank 2)
+                case 53759:
+                {
+                    if(!pVictim || !pVictim->isAlive())
+                        return false;
+                    pVictim->CastSpell(pVictim, 60947,true);
+                    return true;
+                }
                 // Shadowflame (Voidheart Raiment set bonus)
                 case 37377:
                 {
@@ -5663,6 +5679,22 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     basepoints0 = damage * triggerAmount/100;
                     triggered_spell_id = 56160;
                     break;
+                }
+                // Psychic Horror
+                case 47571:
+                {
+                    if(!pVictim || !pVictim->isAlive())
+                        return false;
+                    pVictim->CastSpell(pVictim, 59980,true);
+                    return true;
+                }
+                // Psychic Horror (Rank 2)
+                case 47572:
+                {
+                    if(!pVictim || !pVictim->isAlive())
+                        return false;
+                    pVictim->CastSpell(pVictim, 59981,true);
+                    return true;
                 }
                 // Glyph of Dispel Magic
                 case 55677:
