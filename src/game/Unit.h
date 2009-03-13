@@ -1422,7 +1422,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         uint32 GetReducedThreatPercent() { return m_reducedThreatPercent; }
         Unit *GetMisdirectionTarget() { return m_misdirectionTargetGUID ? GetUnit(*this, m_misdirectionTargetGUID) : NULL; }
 
-        bool IsAIEnabled;
+        bool IsAIEnabled, NeedChangeAI;
     protected:
         explicit Unit ();
 
