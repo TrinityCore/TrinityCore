@@ -607,8 +607,8 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                         if (CreatureInfo const* ci = GetCreatureTemplateStore(param1))
                         {
                             //use default display
-                            if (ci->DisplayID_A)
-                                m_creature->SetDisplayId(ci->DisplayID_A);
+                            if (ci->Modelid1)
+                                m_creature->SetDisplayId(ci->Modelid1);
                         }
                     }
                     //if no param1, then use value from param2 (modelId)
