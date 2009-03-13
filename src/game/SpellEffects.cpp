@@ -418,7 +418,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         if( (*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARLOCK && ((*i)->GetSpellProto()->SpellFamilyFlags & 4) &&
                             (*i)->GetCasterGUID()==m_caster->GetGUID() )
                         {
-                            unitTarget->RemoveAurasDueToCasterSpell((*i)->GetId(), m_caster->GetGUID());
+                            unitTarget->RemoveAurasByCasterSpell((*i)->GetId(), m_caster->GetGUID());
                             break;
                         }
                     }
@@ -2437,7 +2437,7 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
                 }
             }
             addhealth += tickheal * tickcount;
-            unitTarget->RemoveAurasDueToCasterSpell(targetAura->GetId(), targetAura->GetCasterGUID());
+            unitTarget->RemoveAurasByCasterSpell(targetAura->GetId(), targetAura->GetCasterGUID());
 
             //addhealth += tickheal * tickcount;
             //addhealth = caster->SpellHealingBonus(m_spellInfo, addhealth,HEAL, unitTarget);
