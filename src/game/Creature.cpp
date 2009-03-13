@@ -1620,9 +1620,6 @@ void Creature::setDeathState(DeathState s)
 
         if (canFly() && FallGround())
             return;
-
-        if(!IsStopped())
-            StopMoving();
     }
     Unit::setDeathState(s);
 
