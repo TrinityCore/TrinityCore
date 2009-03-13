@@ -1074,11 +1074,11 @@ void LoadDatabase()
                         }
                         break;
                     case ACTION_T_SET_FACTION:
-                        if (temp.action[j].param1 !=0 && !GetFactionStore()->LookupEntry(temp.action[j].param1))
+                        /*if (temp.action[j].param1 !=0 && !GetFactionStore()->LookupEntry(temp.action[j].param1))
                         {
                             error_db_log("SD2: Event %u Action %u uses non-existant FactionId %u.", i, j+1, temp.action[j].param1);
                             temp.action[j].param1 = 0;
-                        }
+                        }*/
                         break;
                     case ACTION_T_MORPH_TO_ENTRY_OR_MODEL:
                         if (temp.action[j].param1 !=0 || temp.action[j].param2 !=0)
@@ -1089,11 +1089,11 @@ void LoadDatabase()
                                 temp.action[j].param1 = 0;
                             }
 
-                            if (temp.action[j].param2 && !GetCreatureDisplayStore()->LookupEntry(temp.action[j].param2))
+                            /*if (temp.action[j].param2 && !GetCreatureDisplayStore()->LookupEntry(temp.action[j].param2))
                             {
                                 error_db_log("TSCR: Event %u Action %u uses non-existant ModelId %u.", i, j+1, temp.action[j].param2);
                                 temp.action[j].param2 = 0;
-                            }
+                            }*/
                         }
                         break;
                     case ACTION_T_SOUND:
