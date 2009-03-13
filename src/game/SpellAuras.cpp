@@ -4013,9 +4013,10 @@ void Aura::HandleAuraModResistance(bool apply, bool Real)
     }
 
     // Faerie Fire (druid versions)
-    if( m_spellProto->SpellIconID == 109 &&
+    if( (m_spellProto->SpellIconID == 109 &&
         m_spellProto->SpellFamilyName == SPELLFAMILY_DRUID &&
-        m_spellProto->SpellFamilyFlags & 0x0000000000000400LL )
+        m_spellProto->SpellFamilyFlags & 0x0000000000000400LL)
+        || m_spellProto->Id == 35325)
     {
         m_target->ModifyAuraState(AURA_STATE_FAERIE_FIRE,apply);
     }
