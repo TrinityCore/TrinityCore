@@ -228,7 +228,6 @@ struct TRINITY_DLL_DECL advisorbase_ai : public ScriptedAI
 
             m_creature->InterruptNonMeleeSpells(false);
             m_creature->SetHealth(0);
-            m_creature->StopMoving();
             m_creature->ClearComboPointHolders();
             m_creature->RemoveAllAurasOnDeath();
             m_creature->ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
@@ -864,7 +863,6 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
                         DoScriptText(SAY_PHASE5_NUTS, m_creature);
 
-                        m_creature->StopMoving();
                         m_creature->GetMotionMaster()->Clear();
                         m_creature->GetMotionMaster()->MoveIdle();
                         DoTeleportTo(GRAVITY_X, GRAVITY_Y, GRAVITY_Z);
@@ -928,7 +926,6 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         switch(GravityLapse_Phase)
                         {
                             case 0:
-                                m_creature->StopMoving();
                                 m_creature->GetMotionMaster()->Clear();
                                 m_creature->GetMotionMaster()->MoveIdle();
                                 DoTeleportTo(GRAVITY_X, GRAVITY_Y, GRAVITY_Z);

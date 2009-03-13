@@ -803,7 +803,6 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 else
                 {
                     m_creature->GetMotionMaster()->MoveIdle();
-                    m_creature->StopMoving();
                 }
             }
             break;
@@ -1209,7 +1208,6 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
             else
             {
                 m_creature->GetMotionMaster()->MoveIdle();
-                m_creature->StopMoving();
             }
         }
     }

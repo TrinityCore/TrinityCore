@@ -62,7 +62,6 @@ void GuardAI::EnterEvadeMode()
     if( !i_creature.isAlive() )
     {
         DEBUG_LOG("Creature stopped attacking because he's dead [guid=%u]", i_creature.GetGUIDLow());
-        i_creature.StopMoving();
         i_creature.GetMotionMaster()->MoveIdle();
 
         i_state = STATE_NORMAL;
