@@ -23,6 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 #include "mob_event_ai.h"
+#include "ObjectMgr.h"
 
 #define EVENT_UPDATE_TIME               500
 #define SPELL_RUN_AWAY                  8225
@@ -454,6 +455,10 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 }
             }
             break;
+        case EVENT_T_REACHED_HOME:
+            {
+            }
+            break;
         default:
             if (EAI_ErrorLevel > 0)
                 error_db_log("SD2: Creature %u using Event %u has invalid Event Type(%u), missing from ProcessEvent() Switch.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
@@ -575,6 +580,43 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
 
                     DoScriptText(temp, m_creature, target);
                 }
+            }
+            break;
+        case ACTION_T_SET_FACTION:
+            {
+                if (param1)
+                    m_creature->setFaction(param1);
+                else
+                {
+                    if (CreatureInfo const* ci = GetCreatureTemplateStore(m_creature->GetEntry()))
+                    {
+                        //if no id provided, assume reset and then use default
+                        if (m_creature->getFaction() != ci->faction_A)
+                            m_creature->setFaction(ci->faction_A);
+                    }
+                }
+            }
+            break;
+        case ACTION_T_MORPH_TO_ENTRY_OR_MODEL:
+            {
+                if (param1 || param2)
+                {
+                    //set model based on entry from creature_template
+                    if (param1)
+                    {
+                        if (CreatureInfo const* ci = GetCreatureTemplateStore(param1))
+                        {
+                            //use default display
+                            if (ci->DisplayID_A)
+                                m_creature->SetDisplayId(ci->DisplayID_A);
+                        }
+                    }
+                    //if no param1, then use value from param2 (modelId)
+                    else
+                        m_creature->SetDisplayId(param2);
+                }
+                else
+                    m_creature->DeMorph();
             }
             break;
         case ACTION_T_SOUND:
@@ -719,6 +761,9 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
         case ACTION_T_SET_UNIT_FIELD:
             {
                 Unit* target = GetTargetByType(param3, pActionInvoker);
+
+                if (param1 < OBJECT_END || param1 >= UNIT_END)
+                    return;
 
                 if (target)
                     target->SetUInt32Value(param1, param2);
@@ -1004,7 +1049,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
         EventUpdateTime = EVENT_UPDATE_TIME;
         EventDiff = 0;
 
-        //Handle Evade events and reset all events to enabled
+        //Reset all events to enabled
         for (std::list<EventHolder>::iterator i = EventList.begin(); i != EventList.end(); ++i)
         {
             switch ((*i).Event.event_type)
@@ -1033,6 +1078,20 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
         }
     }
 
+    //when creature reach home after EnterEvadeMode
+    void JustReachedHome()
+    {
+        m_creature->LoadCreaturesAddon();
+
+        for (std::list<EventHolder>::iterator i = EventList.begin(); i != EventList.end(); ++i)
+        {
+            if ((*i).Event.event_type == EVENT_T_REACHED_HOME)
+                ProcessEvent(*i);
+        }
+
+        Reset();
+    }
+
     void EnterEvadeMode()
     {
         ScriptedAI::EnterEvadeMode();
@@ -1042,13 +1101,8 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
         //Handle Evade events
         for (std::list<EventHolder>::iterator i = EventList.begin(); i != EventList.end(); ++i)
         {
-            switch ((*i).Event.event_type)
-            {
-                //Evade
-                case EVENT_T_EVADE:
-                    ProcessEvent(*i);
-                    break;
-            }
+            if ((*i).Event.event_type == EVENT_T_EVADE)
+                ProcessEvent(*i);
         }
     }
 
@@ -1290,9 +1344,9 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                     else (*i).Time = 0;
                 }
 
+                //Events that are updated every EVENT_UPDATE_TIME
                 switch ((*i).Event.event_type)
                 {
-                    //Events that are updated every EVENT_UPDATE_TIME
                     case EVENT_T_TIMER_OOC:
                         ProcessEvent(*i);
                         break;
@@ -1302,8 +1356,18 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                     case EVENT_T_TARGET_HP:
                     case EVENT_T_TARGET_CASTING:
                     case EVENT_T_FRIENDLY_HP:
-                        if( Combat )
+                        if (Combat)
                             ProcessEvent(*i);
+                        break;
+                    case EVENT_T_RANGE:
+                        if (Combat)
+                        {
+                            if (m_creature->IsWithinDistInMap(m_creature->getVictim(),(float)(*i).Event.event_param2))
+                            {
+                                if (m_creature->GetDistance(m_creature->getVictim()) >= (float)(*i).Event.event_param1)
+                                    ProcessEvent(*i);
+                            }
+                        }
                         break;
                 }
             }
@@ -1391,7 +1455,7 @@ void AddSC_mob_event()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="mob_eventai";
+    newscript->Name = "mob_eventai";
     newscript->GetAI = &GetAI_Mob_EventAI;
     newscript->RegisterSelf();
 }
