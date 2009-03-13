@@ -895,7 +895,6 @@ void PretendToDie(Creature* _Creature)
 {
     _Creature->InterruptNonMeleeSpells(false);
     _Creature->SetHealth(0);
-    _Creature->StopMoving();
     _Creature->ClearComboPointHolders();
     _Creature->RemoveAllAurasOnDeath();
     _Creature->ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);

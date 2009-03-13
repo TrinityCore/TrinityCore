@@ -10394,7 +10394,6 @@ void Unit::setDeathState(DeathState s)
         ClearDiminishings();
         GetMotionMaster()->Clear(false);
         GetMotionMaster()->MoveIdle();
-        StopMoving();
         //without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
         //do not why since in IncreaseMaxHealth currenthealth is checked
         SetHealth(0);
@@ -13138,7 +13137,6 @@ void Unit::SetCharmedOrPossessedBy(Unit* charmer, bool possess)
     if(GetTypeId() == TYPEID_UNIT)
     {
         ((Creature*)this)->AI()->OnCharmed(true);
-        StopMoving();
         GetMotionMaster()->Clear(false);
         GetMotionMaster()->MoveIdle();
     }

@@ -23,6 +23,11 @@
 
 IdleMovementGenerator si_idleMovement;
 
+void IdleMovementGenerator::Initialize(Unit &owner)
+{
+    owner.StopMoving();
+}
+
 void
 IdleMovementGenerator::Reset(Unit& /*owner*/)
 {

@@ -87,7 +87,6 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
                 case COMMAND_STAY:                          //flat=1792  //STAY
                     pet->AttackStop();
                     pet->InterruptNonMeleeSpells(false);
-                    pet->StopMoving();
                     pet->GetMotionMaster()->MoveIdle();
                     charmInfo->SetCommandState( COMMAND_STAY );
                     break;
