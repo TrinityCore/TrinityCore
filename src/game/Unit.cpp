@@ -2013,10 +2013,9 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                         healAmount = pVictim->GetMaxHealth()/2;
                         healCaster = pVictim;
                         healSpell = 48153;
-                        currentAbsorb = mod->m_amount;
+                        mod->m_amount=0;
                         RemainingDamage=0;
                     }
-                    else
                         continue;
                 }
 
@@ -3895,17 +3894,6 @@ bool Unit::AddAura(Aura *Aur)
 
     Aur->ApplyModifier(true,true);
 
-    uint32 id = Aur->GetId();
-    if(spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_AURA)
-    {
-        if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(id + SPELL_LINK_AURA))
-            for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
-                if(*itr < 0)
-                    ApplySpellImmune(id, IMMUNITY_ID, *itr, true);
-                else if(Unit* caster = Aur->GetCaster())
-                    caster->AddAura(*itr, this);
-    }
-
     sLog.outDebug("Aura %u now is in use", Aur->GetModifier()->m_auraname);
     return true;
 }
@@ -4360,40 +4348,10 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     Aur->ApplyModifier(false,true);
     Aur->_RemoveAura();
 
-    bool stack = false;
-    spellEffectPair spair = spellEffectPair(Aur->GetId(), Aur->GetEffIndex());
-    for(AuraMap::const_iterator itr = GetAuras().lower_bound(spair); itr != GetAuras().upper_bound(spair); ++itr)
-    {
-        if (itr->second->GetCasterGUID()==GetGUID())
-        {
-            stack = true;
-        }
-    }
-    if (!stack)
+    //if (mode!=AURA_REMOVE_BY_REPLACE)
     {
         // Remove all triggered by aura spells vs unlimited duration
         Aur->CleanupTriggeredSpells();
-
-        // Remove Linked Auras
-        uint32 id = Aur->GetId();
-        if(spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_REMOVE)
-        {
-            if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(-(int32)id))
-                for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
-                    if(*itr < 0)
-                        RemoveAurasDueToSpell(-(*itr));
-                    else if(Unit* caster = Aur->GetCaster())
-                        CastSpell(this, *itr, true, 0, 0, caster->GetGUID());
-        }
-        if(spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_AURA)
-        {
-            if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(id + SPELL_LINK_AURA))
-                for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
-                    if(*itr < 0)
-                        ApplySpellImmune(id, IMMUNITY_ID, *itr, false);
-                    else
-                        RemoveAurasDueToSpell(*itr);
-        }
     }
 
     delete Aur;
@@ -13379,6 +13337,7 @@ void Unit::SendAuraUpdate(uint8 slot)
 
     if(!ptr)
     {
+        sLog.outDebug("Aura %u removed slot %u",entry->m_spellId, slot);
         RemoveVisibleAura(slot);
         SendMessageToSet(&data, true);
         return;
