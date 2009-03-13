@@ -5803,42 +5803,34 @@ void Aura::PeriodicTick()
         {
             if(m_modifier.m_miscvalue < 0)
                 break;
-            if (uint32 modmask = m_modifier.m_miscvalue)
-            {
-                for(uint8 i = 0; i < MAX_POWERS; ++i)
-                {
-                    if(modmask & (uint32(1) << i))
-                    {
-                        if(i >= MAX_POWERS)
-                            continue;
 
-                        Powers power = Powers(i);
+            Powers power;
+            if (m_modifier.m_miscvalue == POWER_ALL)
+                power = m_target->getPowerType();
+            else
+                power = Powers(m_modifier.m_miscvalue);
 
-                        if(m_target->GetMaxPower(power) == 0)
-                            continue;
+            if(m_target->GetMaxPower(power) == 0)
+                break;
 
-                        uint32 amount = m_modifier.m_amount * m_target->GetMaxPower(power) /100;
-                        sLog.outDetail("PeriodicTick: %u (TypeId: %u) energize %u (TypeId: %u) for %u dmg inflicted by %u",
-                            GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), m_target->GetGUIDLow(), m_target->GetTypeId(), amount, GetId());
+            uint32 amount = m_modifier.m_amount * m_target->GetMaxPower(power) /100;
+            sLog.outDetail("PeriodicTick: %u (TypeId: %u) energize %u (TypeId: %u) for %u dmg inflicted by %u",
+                GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), m_target->GetGUIDLow(), m_target->GetTypeId(), amount, GetId());
 
-                        // Warning: this packet may be not blizzlike
-                        WorldPacket data(SMSG_PERIODICAURALOG, (21+16));// we guess size
-                        data.append(m_target->GetPackGUID());
-                        data.appendPackGUID(GetCasterGUID());
-                        data << uint32(GetId());
-                        data << uint32(1);
-                        data << uint32(m_modifier.m_auraname);
-                        data << uint32(power);                          // power type
-                        data << (uint32)amount;
-                        m_target->SendMessageToSet(&data,true);
+            WorldPacket data(SMSG_PERIODICAURALOG, (21+16));// we guess size
+            data.append(m_target->GetPackGUID());
+            data.appendPackGUID(GetCasterGUID());
+            data << uint32(GetId());
+            data << uint32(1);
+            data << uint32(m_modifier.m_auraname);
+            data << uint32(power);                          // power type
+            data << (uint32)amount;
+            m_target->SendMessageToSet(&data,true);
 
-                        int32 gain = m_target->ModifyPower(power,amount);
+            int32 gain = m_target->ModifyPower(power,amount);
 
-                        if(Unit* pCaster = GetCaster())
-                            m_target->getHostilRefManager().threatAssist(pCaster, float(gain) * 0.5f, GetSpellProto());
-                    }
-                }
-            }
+            if(Unit* pCaster = GetCaster())
+                m_target->getHostilRefManager().threatAssist(pCaster, float(gain) * 0.5f, GetSpellProto());
             break;
         }
         case SPELL_AURA_PERIODIC_ENERGIZE:
