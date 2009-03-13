@@ -914,10 +914,9 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         void SetViewport(uint64 guid, bool movable);
         void StopCastingCharm() { Uncharm(); }
-        void StopBindSight();
+        void StopCastingBindSight();
         WorldObject* GetFarsightTarget() const;
         void ClearFarsight();
-        void StopCastingBindSight();
         void SetFarsightTarget(WorldObject* target);
         // Controls if vision is currently on farsight object, updated in FAR_SIGHT opcode
         void SetFarsightVision(bool apply) { m_farsightVision = apply; }

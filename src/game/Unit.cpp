@@ -535,6 +535,26 @@ void Unit::RemoveSpellsCausingAura(AuraType auraType)
     }
 }
 
+void Unit::RemoveAuraTypeByCaster(AuraType auraType, uint64 casterGUID)
+{
+    if (auraType >= TOTAL_AURAS) return;
+    AuraList::iterator iter, next;
+    for(iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end(); ++iter)
+    {
+        next = iter;
+        ++next;
+
+        if (*iter)
+        {
+            RemoveAurasByCasterSpell((*iter)->GetId(), casterGUID);
+            if (!m_modAuras[auraType].empty())
+                next = m_modAuras[auraType].begin();
+            else
+                return;
+        }
+    }
+}
+
 void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
 {
     if(!(m_interruptMask & flag))
@@ -4454,6 +4474,24 @@ void Unit::RemoveAura(uint32 spellId, uint32 effindex, Aura* except)
     }
 }
 
+void Unit::RemoveAurasByCasterSpell(uint32 spellId, uint64 casterGUID)
+{
+    for(int k = 0; k < 3; ++k)
+    {
+        spellEffectPair spair = spellEffectPair(spellId, k);
+        for (AuraMap::iterator iter = m_Auras.lower_bound(spair); iter != m_Auras.upper_bound(spair);)
+        {
+            if (iter->second->GetCasterGUID() == casterGUID)
+            {
+                RemoveAura(iter);
+                iter = m_Auras.upper_bound(spair);          // overwrite by more appropriate
+            }
+            else
+                ++iter;
+        }
+    }
+}
+
 void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit *dispeler)
 {
     for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end(); )
@@ -4594,25 +4632,6 @@ void Unit::RemoveAurasDueToSpell(uint32 spellId, Aura* except)
 {
     for (int i = 0; i < 3; ++i)
         RemoveAura(spellId,i,except);
-}
-
-void Unit::RemoveAurasDueToCasterSpell(uint32 spellId, uint64 guid)
-{
-    for (int k=0; k < 3; ++k)
-    {
-        spellEffectPair spair = spellEffectPair(spellId, k);
-        for (AuraMap::iterator iter = m_Auras.lower_bound(spair); iter != m_Auras.upper_bound(spair);)
-        {
-            if (iter->second->GetCasterGUID() == guid)
-            {
-                RemoveAura(iter);
-                break;
-                //iter = m_Auras.upper_bound(spair);          // overwrite by more appropriate
-            }
-            else
-                ++iter;
-        }
-    }
 }
 
 void Unit::RemoveAurasDueToItemSpell(Item* castItem,uint32 spellId)
