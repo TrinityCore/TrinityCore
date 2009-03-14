@@ -842,7 +842,7 @@ bool Pet::InitStatsForLevel(uint32 petlevel)
                         uint32 fire  = owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE);
                         uint32 shadow = owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW);
                         uint32 val  = (fire > shadow) ? fire : shadow;
-
+                        learnLevelupSpells();
                         SetBonusDamage(int32 (val * 0.15f));
                         //bonusAP += val * 0.57;
                         break;
