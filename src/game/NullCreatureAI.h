@@ -41,6 +41,7 @@ class TRINITY_DLL_DECL PossessedAI : public PassiveAI
     public:
         PossessedAI(Creature *c) : PassiveAI(c) {}
 
+        void AttackStart(Unit *target);
         void UpdateAI(const uint32);
         void EnterEvadeMode() {}
 
