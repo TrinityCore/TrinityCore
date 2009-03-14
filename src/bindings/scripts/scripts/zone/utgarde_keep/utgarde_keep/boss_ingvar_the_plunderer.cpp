@@ -459,16 +459,16 @@ void AddSC_boss_ingvar_the_plunderer()
 
     newscript = new Script;
     newscript->Name="boss_ingvar_the_plunderer";
-    newscript->GetAI = GetAI_boss_ingvar_the_plunderer;
+    newscript->GetAI = &GetAI_boss_ingvar_the_plunderer;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_annhylde_the_caller";
-    newscript->GetAI = GetAI_mob_annhylde_the_caller;
+    newscript->GetAI = &GetAI_mob_annhylde_the_caller;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_ingvar_throw_dummy";
-    newscript->GetAI = GetAI_mob_ingvar_throw_dummy;
+    newscript->GetAI = &GetAI_mob_ingvar_throw_dummy;
     newscript->RegisterSelf();
 }
