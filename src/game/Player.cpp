@@ -5464,12 +5464,12 @@ void Player::SendInitialActionButtons()
     sLog.outDetail( "Action Buttons for '%u' Initialized", GetGUIDLow() );
 }
 
-void Player::addActionButton(const uint8 button, const uint16 action, const uint8 type, const uint8 misc)
+bool Player::addActionButton(const uint8 button, const uint16 action, const uint8 type, const uint8 misc)
 {
     if(button >= MAX_ACTION_BUTTONS)
     {
         sLog.outError( "Action %u not added into button %u for player %s: button must be < 132", action, button, GetName() );
-        return;
+        return false;
     }
 
     // check cheating with adding non-known spells to action bar
@@ -5478,13 +5478,13 @@ void Player::addActionButton(const uint8 button, const uint16 action, const uint
         if(!sSpellStore.LookupEntry(action))
         {
             sLog.outError( "Action %u not added into button %u for player %s: spell not exist", action, button, GetName() );
-            return;
+            return false;
         }
 
         if(!HasSpell(action))
         {
             sLog.outError( "Action %u not added into button %u for player %s: player don't known this spell", action, button, GetName() );
-            return;
+            return false;
         }
     }
 
@@ -5502,6 +5502,7 @@ void Player::addActionButton(const uint8 button, const uint16 action, const uint
     };
 
     sLog.outDetail( "Player '%u' Added Action '%u' to Button '%u'", GetGUIDLow(), action, button );
+    return true;
 }
 
 void Player::removeActionButton(uint8 button)
@@ -15175,9 +15176,15 @@ void Player::_LoadActions(QueryResult *result)
 
             uint8 button = fields[0].GetUInt8();
 
-            addActionButton(button, fields[1].GetUInt16(), fields[2].GetUInt8(), fields[3].GetUInt8());
+            if(addActionButton(button, fields[1].GetUInt16(), fields[2].GetUInt8(), fields[3].GetUInt8()))
+                m_actionButtons[button].uState = ACTIONBUTTON_UNCHANGED;
+            else
+            {
+                sLog.outError( "  ...at loading, and will deleted in DB also");
 
-            m_actionButtons[button].uState = ACTIONBUTTON_UNCHANGED;
+                // Will deleted in DB at next save (it can create data until save but marked as deleted)
+                m_actionButtons[button].uState = ACTIONBUTTON_DELETED;
+            }
         }
         while( result->NextRow() );
 
