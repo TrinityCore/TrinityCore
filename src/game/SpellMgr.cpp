@@ -521,7 +521,6 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
     switch(spellId)
     {
         case 23333: case 23335: case 34976:                 // BG spell                                         
-        case 30482: case 43045: case 43046:                 // Molten armor expection need find the real bug
             return true;
         case 28441:                                         // not positive dummy spell
         case 37675:                                         // Chaos Blast
@@ -702,7 +701,10 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
     if(spellproto->AttributesEx & SPELL_ATTR_EX_NEGATIVE)
         return false;
 
-    if (!deep && spellproto->EffectTriggerSpell[effIndex] && !IsPositiveSpell(spellproto->EffectTriggerSpell[effIndex], true))
+    if (!deep && spellproto->EffectTriggerSpell[effIndex]
+        && !spellproto->procFlags
+        && IsPositiveTarget(spellproto->EffectImplicitTargetA[effIndex],spellproto->EffectImplicitTargetB[effIndex])
+        && !IsPositiveSpell(spellproto->EffectTriggerSpell[effIndex], true))
         return false;
 
     // ok, positive
