@@ -290,6 +290,9 @@ bool Creature::InitEntry(uint32 Entry, uint32 team, const CreatureData *data )
     if(!m_respawnradius && m_defaultMovementType==RANDOM_MOTION_TYPE)
         m_defaultMovementType = IDLE_MOTION_TYPE;
 
+    for(int i=0; i < CREATURE_MAX_SPELLS; ++i)
+        m_spells[i] = GetCreatureInfo()->spells[i];
+
     return true;
 }
 
@@ -344,9 +347,6 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data )
                 (factionEntry->team == ALLIANCE || factionEntry->team == HORDE) )
                 SetPvP(true);
     }
-
-    for(int i=0; i < CREATURE_MAX_SPELLS; ++i)
-        m_spells[i] = GetCreatureInfo()->spells[i];
 
     // HACK: trigger creature is always not selectable
     if(isTrigger())

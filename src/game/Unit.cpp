@@ -483,7 +483,7 @@ void Unit::RemoveAuraTypeByCaster(AuraType auraType, uint64 casterGUID)
 {
     if (auraType >= TOTAL_AURAS) return;
     AuraList::iterator iter, next;
-    for(iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end(); ++iter)
+    for(iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end(); iter = next)
     {
         next = iter;
         ++next;
@@ -3981,6 +3981,8 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
 
     SpellSpecific spellId_spec = GetSpellSpecific(spellId);
 
+    //bool linked = spellmgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_LINK_AURA? true : false;
+
     AuraMap::iterator i,next;
     for (i = m_Auras.begin(); i != m_Auras.end(); i = next)
     {
@@ -4017,11 +4019,29 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
             if (i_spellProto->EffectTriggerSpell[j] == spellProto->Id)
                 is_triggered_by_spell = true;
 
-        if (is_triggered_by_spell)
-            continue;
+        for(int j = 0; j < 3; ++j)
+            if (i_spellProto->EffectTriggerSpell[j] == spellProto->Id)
+                is_triggered_by_spell = true;
 
         // check if they can stack
         bool sameCaster = Aur->GetCasterGUID() == (*i).second->GetCasterGUID();
+
+        /*// Dont remove by stack with linked auras
+        // Not needed for now
+        if(sameCaster && linked)
+        {
+            if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(spellId + SPELL_LINK_AURA))
+                for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+                    if(*itr>0 && *itr==i_spellId)
+                    {
+                        is_triggered_by_spell=true;
+                        break;
+                    }
+        }*/
+
+        if (is_triggered_by_spell)
+            continue;
+
         if(!spellmgr.IsNoStackSpellDueToSpell(spellId, i_spellId, sameCaster))
             continue;
 
@@ -8715,16 +8735,11 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         {
         // Damage Done from spell damage bonus
         int32 CastingTime = !IsChanneledSpell(spellProto) ? GetSpellCastTime(spellProto) : GetSpellDuration(spellProto);
-        if (IsChanneledSpell(spellProto))
-            ModSpellCastTime(spellProto, CastingTime);
         // Damage over Time spells bonus calculation
         float DotFactor = 1.0f;
         if(damagetype == DOT)
         {
             int32 DotDuration = GetSpellDuration(spellProto);
-            //apply casting time mods for channeled spells
-            if (IsChanneledSpell(spellProto))
-                ModSpellCastTime(spellProto, DotDuration);
             // 200% limit
             if(DotDuration > 0)
             {
@@ -9211,16 +9226,11 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
         {
         // Damage Done from spell damage bonus
         int32 CastingTime = !IsChanneledSpell(spellProto) ? GetSpellCastTime(spellProto) : GetSpellDuration(spellProto);
-        if (IsChanneledSpell(spellProto))
-            ModSpellCastTime(spellProto, CastingTime);
         // Damage over Time spells bonus calculation
         float DotFactor = 1.0f;
         if(damagetype == DOT)
         {
             int32 DotDuration = GetSpellDuration(spellProto);
-            //apply casting time mods for channeled spells
-            if (IsChanneledSpell(spellProto))
-                ModSpellCastTime(spellProto, DotDuration);
             // 200% limit
             if(DotDuration > 0)
             {
@@ -11425,20 +11435,13 @@ void CharmInfo::InitPossessCreateSpells()
     InitEmptyActionBar();
     if(m_unit->GetTypeId() == TYPEID_UNIT)
     {
-        /*for(uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+        for(uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
         {
             uint32 spellid = ((Creature*)m_unit)->m_spells[i];
             if(IsPassiveSpell(spellid))
                 m_unit->CastSpell(m_unit, spellid, true);
             else
-                AddSpellToAB(0, spellid, ACT_CAST);
-        }*/
-        for(uint32 x = 0; x < CREATURE_MAX_SPELLS; ++x)
-        {
-            if (IsPassiveSpell(((Creature*)m_unit)->m_spells[x]))
-                m_unit->CastSpell(m_unit, ((Creature*)m_unit)->m_spells[x], true);
-            else
-                AddSpellToAB(0, ((Creature*)m_unit)->m_spells[x], ACT_PASSIVE);
+                AddSpellToAB(0, spellid, ACT_DISABLED);
         }
     }
 }
