@@ -43,8 +43,6 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
     uint64 Dalronn;
     uint64 Ingvar;
 
-    bool   IsBossDied[2];
-
     uint32 Encounters[ENCOUNTERS];
     std::string str_data;
 
@@ -151,7 +149,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
             {
                 //HandleGameObject(doorname, 0);
             }
-            Encounters[3] = data; break;
+            Encounters[2] = data; break;
         }
 
         if (data == DONE)
@@ -166,7 +164,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
         {
         case DATA_PRINCEKELESETH:            return Encounters[0];
         case DATA_SKARVALD_DALRONN_EVENT:    return Encounters[1];
-        case DATA_INGVAR:                    return Encounters[3];
+        case DATA_INGVAR:                    return Encounters[2];
         }
 
         return 0;

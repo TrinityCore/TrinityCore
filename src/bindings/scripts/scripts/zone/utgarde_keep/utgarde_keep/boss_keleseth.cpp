@@ -336,6 +336,6 @@ void AddSC_boss_keleseth()
 
     newscript = new Script;
     newscript->Name="mob_vrykul_skeleton";
-    newscript->GetAI = GetAI_mob_vrykul_skeleton;
+    newscript->GetAI = &GetAI_mob_vrykul_skeleton;
     newscript->RegisterSelf();
 }
