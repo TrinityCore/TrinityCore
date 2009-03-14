@@ -27,7 +27,7 @@ class TRINITY_DLL_SPEC IdleMovementGenerator : public MovementGenerator
 {
     public:
 
-        void Initialize(Unit &) {  }
+        void Initialize(Unit &);
         void Finalize(Unit &) {  }
         void Reset(Unit &);
         bool Update(Unit &, const uint32 &) { return true; }
