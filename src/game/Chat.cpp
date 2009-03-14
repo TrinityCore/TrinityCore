@@ -222,6 +222,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "update",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleUpdate,                     "", NULL },
         { "setvalue",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleSetValue,                   "", NULL },
         { "getvalue",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleGetValue,                   "", NULL },
+        { "setbit",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleSet32Bit,                   "", NULL },
         { "Mod32Value",     SEC_ADMINISTRATOR,  false, &ChatHandler::HandleMod32Value,                 "", NULL },
         { "anim",           SEC_GAMEMASTER,     false, &ChatHandler::HandleAnimCommand,                "", NULL },
         { "lootrecipient",  SEC_GAMEMASTER,     false, &ChatHandler::HandleGetLootRecipient,           "", NULL },
