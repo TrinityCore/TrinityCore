@@ -18566,7 +18566,7 @@ void Player::ReportedAfkBy(Player* reporter)
 bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool is3dDistance) const
 {
     // Always can see self
-    if (m_mover == this)
+    if (m_mover == u)
         return true;
 
     // phased visibility (both must phased in same way)
@@ -20181,34 +20181,25 @@ void Player::StopCastingBindSight()
     }
 }
 
-void Player::SetSeer(WorldObject* target)
+void Player::CreateSeer(WorldObject* target)
 {
-    if(target == m_seer)
-        return;
-
-    sLog.outDebug("Player::SetSeer: Player %s set object %u (TypeId: %u) as seer.", GetName(), target->GetEntry(), target->GetTypeId());
-
-    if(target == this)
+    if(!target || target == this) // remove seer
     {
-        if(GetFarSightGUID())
-        {
-            SetFarSightGUID(0);
-            WorldPacket data(SMSG_CLEAR_FAR_SIGHT_IMMEDIATE, 0);
-            GetSession()->SendPacket(&data);
-        }
-
-        if(m_seer->isType(TYPEMASK_UNIT))
+        sLog.outDebug("Player::CreateSeer: Player %s remove seer", GetName());
+        SetUInt64Value(PLAYER_FARSIGHT, 0);
+        //WorldPacket data(SMSG_CLEAR_FAR_SIGHT_IMMEDIATE, 0);
+        //GetSession()->SendPacket(&data);
+        if(m_seer != this && m_seer->isType(TYPEMASK_UNIT))
             ((Unit*)m_seer)->RemovePlayerFromVision(this);
     }
-    else if(target->isType(TYPEMASK_SEER))
+    else
     {
+        sLog.outDebug("Player::CreateSeer: Player %s create seer %u (TypeId: %u).", GetName(), target->GetEntry(), target->GetTypeId());
         StopCastingBindSight();
-        SetFarSightGUID(target->GetGUID());
-
+        SetUInt64Value(PLAYER_FARSIGHT, target->GetGUID());
         if(target->isType(TYPEMASK_UNIT))
             ((Unit*)target)->AddPlayerToVision(this);
     }
-    m_seer = target;
 }
 
 bool Player::CanUseBattleGroundObject()
