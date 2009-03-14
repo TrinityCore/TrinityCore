@@ -378,7 +378,7 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
                 return SPELL_STING;
 
             // only hunter aspects have this
-            if( spellInfo->SpellFamilyFlags[1] & 0x00440000 || spellInfo->SpellFamilyFlags[0] & 0x00380000 || spellInfo->SpellFamilyFlags[2] & 0x00003010)
+            if( spellInfo->SpellFamilyFlags[1] & 0x00440000 || spellInfo->SpellFamilyFlags[0] & 0x00380000 || spellInfo->SpellFamilyFlags[2] & 0x00001010)
                 return SPELL_ASPECT;
 
             if( spellInfo->SpellFamilyFlags[2] & 0x00000002 )

@@ -2239,6 +2239,25 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 ((Player*)m_target)->AddSpellMod(m_spellmod, apply);
                 return;
             }
+            // Glyph of Aspect of the Monkey
+            if(m_spellProto->Id==56833)
+            {
+                if(apply)
+                {
+                    // Reduce backfire damage (dot damage) from Shadow Word: Death
+                    SpellModifier *mod = new SpellModifier;
+                    mod->op = SPELLMOD_CHANCE_OF_SUCCESS;
+                    mod->value = 100;
+                    mod->type = SPELLMOD_FLAT;
+                    mod->spellId = GetId();
+                    mod->mask[2] = 8192;
+                    mod->mask[1] = 0x00000000;
+                    mod->mask[0] = 524288;
+                    m_spellmod = mod;
+                }
+                ((Player*)m_target)->AddSpellMod(m_spellmod, apply);
+                return;
+            }
             break;
         }
         case SPELLFAMILY_SHAMAN:
@@ -5668,6 +5687,9 @@ void Aura::PeriodicTick()
             if(m_target != pCaster && GetSpellProto()->SpellVisual[0]==163 && !pCaster->isAlive())
                 return;
 
+            if(m_duration ==-1 && m_target->GetHealth()==m_target->GetMaxHealth())
+                return;
+
             // ignore non positive values (can be result apply spellmods to aura damage
             //uint32 amount = GetModifierValuePerStack() > 0 ? GetModifierValuePerStack() : 0;
             uint32 pdamage = GetModifier()->m_amount > 0 ? GetModifier()->m_amount : 0;
@@ -5858,7 +5880,7 @@ void Aura::PeriodicTick()
         case SPELL_AURA_OBS_MOD_ENERGY:
         {
             if(m_modifier.m_miscvalue < 0)
-                break;
+                return;
 
             Powers power;
             if (m_modifier.m_miscvalue == POWER_ALL)
@@ -5867,7 +5889,10 @@ void Aura::PeriodicTick()
                 power = Powers(m_modifier.m_miscvalue);
 
             if(m_target->GetMaxPower(power) == 0)
-                break;
+                return;
+
+            if(m_duration ==-1 && m_target->GetPower(power)==m_target->GetMaxPower(power))
+                return;
 
             uint32 amount = m_modifier.m_amount * m_target->GetMaxPower(power) /100;
             sLog.outDetail("PeriodicTick: %u (TypeId: %u) energize %u (TypeId: %u) for %u dmg inflicted by %u",
@@ -5893,12 +5918,15 @@ void Aura::PeriodicTick()
         {
             // ignore non positive values (can be result apply spellmods to aura damage
             if(m_modifier.m_amount < 0 || m_modifier.m_miscvalue >= MAX_POWERS)
-                break;
+                return;
 
             Powers power = Powers(m_modifier.m_miscvalue);
 
             if(m_target->GetMaxPower(power) == 0)
-                break;
+                return;
+
+            if(m_duration ==-1 && m_target->GetPower(power)==m_target->GetMaxPower(power))
+                return;
 
             uint32 amount = m_modifier.m_amount;
 
@@ -5936,6 +5964,9 @@ void Aura::PeriodicTick()
             Powers powerType = Powers(m_modifier.m_miscvalue);
 
             if(!m_target->isAlive() || m_target->getPowerType() != powerType)
+                return;
+
+            if(m_duration ==-1 && m_target->GetPower(powerType)==m_target->GetMaxPower(powerType))
                 return;
 
             // resilience reduce mana draining effect at spell crit damage reduction (added in 2.4)
