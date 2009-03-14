@@ -79,6 +79,8 @@ INSTALL(FILES
 1825_world.sql
 1828_world.sql
 1857_world.sql
+1877_mangos_7439_01_world_trinity_string.sql
+1881_world.sql
 1884_world.sql
 1886_world.sql
 1895_world.sql
