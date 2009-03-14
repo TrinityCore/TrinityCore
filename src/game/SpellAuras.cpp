@@ -433,7 +433,12 @@ m_updated(false), m_isRemovedOnShapeLost(true), m_in_use(false)
     sLog.outDebug("Aura: construct Spellid : %u, Aura : %u Duration : %d Target : %d Damage : %d", m_spellProto->Id, m_spellProto->EffectApplyAuraName[eff], m_maxduration, m_spellProto->EffectImplicitTargetA[eff],damage);
 
     m_effIndex = eff;
-    SetModifier(AuraType(m_spellProto->EffectApplyAuraName[eff]), damage, m_spellProto->EffectAmplitude[eff], m_spellProto->EffectMiscValue[eff]);
+    int32 periodicTime = m_spellProto->EffectAmplitude[eff];
+    //apply casting time mods for channeled spells
+    if (caster && IsChanneledSpell(m_spellProto))
+        caster->ModSpellCastTime(m_spellProto, periodicTime);
+
+    SetModifier(AuraType(m_spellProto->EffectApplyAuraName[eff]), damage,periodicTime , m_spellProto->EffectMiscValue[eff]);
 
     // Apply periodic time mod
     if(modOwner && m_modifier.periodictime)
