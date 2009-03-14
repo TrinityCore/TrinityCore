@@ -11435,20 +11435,13 @@ void CharmInfo::InitPossessCreateSpells()
     InitEmptyActionBar();
     if(m_unit->GetTypeId() == TYPEID_UNIT)
     {
-        /*for(uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+        for(uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
         {
             uint32 spellid = ((Creature*)m_unit)->m_spells[i];
             if(IsPassiveSpell(spellid))
                 m_unit->CastSpell(m_unit, spellid, true);
             else
-                AddSpellToAB(0, spellid, ACT_CAST);
-        }*/
-        for(uint32 x = 0; x < CREATURE_MAX_SPELLS; ++x)
-        {
-            if (IsPassiveSpell(((Creature*)m_unit)->m_spells[x]))
-                m_unit->CastSpell(m_unit, ((Creature*)m_unit)->m_spells[x], true);
-            else
-                AddSpellToAB(0, ((Creature*)m_unit)->m_spells[x], ACT_PASSIVE);
+                AddSpellToAB(0, spellid, ACT_DISABLED);
         }
     }
 }
