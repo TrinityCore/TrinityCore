@@ -187,7 +187,7 @@ void CreatureGroup::SetMemberDestination(Creature *member)
         return;
 
     float x,y,z;
-    uint32 lowguid = member->GetGUIDLow();
+    uint32 lowguid = member->GetDBTableGUIDLow();
 
     UNORDERED_MAP<uint32, FormationMember*>::iterator itr2 = CreatureGroupMap.find(lowguid);
 
