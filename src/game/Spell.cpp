@@ -3381,7 +3381,7 @@ void Spell::TakeRunePower()
     }
 
     // you can gain some runic power when use runes
-    float rp = src->runePowerGain;;
+    float rp = src->runePowerGain;
     rp *= sWorld.getRate(RATE_POWER_RUNICPOWER_INCOME);
     plr->ModifyPower(POWER_RUNIC_POWER, (int32)rp);
 }
