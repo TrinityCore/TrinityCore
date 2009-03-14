@@ -5737,6 +5737,15 @@ void Aura::PeriodicTick()
         }
         case SPELL_AURA_PERIODIC_MANA_LEECH:
         {
+            if(m_modifier.m_miscvalue < 0 || m_modifier.m_miscvalue >= MAX_POWERS)
+                return;
+
+            Powers power = Powers(m_modifier.m_miscvalue);
+
+            // power type might have changed between aura applying and tick (druid's shapeshift)
+            if(m_target->getPowerType() != power)
+                return;
+
             Unit *pCaster = GetCaster();
             if(!pCaster)
                 return;
@@ -5755,17 +5764,19 @@ void Aura::PeriodicTick()
             // ignore non positive values (can be result apply spellmods to aura damage
             uint32 pdamage = m_modifier.m_amount > 0 ? m_modifier.m_amount : 0;
 
+            // Special case: draining x% of mana (up to a maximum of 2*x% of the caster's maximum mana)
+            // It's mana percent cost spells, m_modifier.m_amount is percent drain from target
+            if (m_spellProto->ManaCostPercentage)
+            {
+                // max value
+                uint32 maxmana = pCaster->GetMaxPower(power)  * pdamage * 2 / 100;
+                pdamage = m_target->GetMaxPower(power) * pdamage / 100;
+                if(pdamage > maxmana)
+                    pdamage = maxmana;
+            }
+
             sLog.outDetail("PeriodicTick: %u (TypeId: %u) power leech of %u (TypeId: %u) for %u dmg inflicted by %u",
                 GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), m_target->GetGUIDLow(), m_target->GetTypeId(), pdamage, GetId());
-
-            if(m_modifier.m_miscvalue < 0 || m_modifier.m_miscvalue >= MAX_POWERS)
-                break;
-
-            Powers power = Powers(m_modifier.m_miscvalue);
-
-            // power type might have changed between aura applying and tick (druid's shapeshift)
-            if(m_target->getPowerType() != power)
-                break;
 
             int32 drain_amount = m_target->GetPower(power) > pdamage ? pdamage : m_target->GetPower(power);
 
