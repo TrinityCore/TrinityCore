@@ -2178,39 +2178,41 @@ void Spell::EffectJump(uint32 i)
         x = m_targets.m_destX;
         y = m_targets.m_destY;
         z = m_targets.m_destZ;
-        o = m_caster->GetOrientation();
+
+        if(m_spellInfo->EffectImplicitTargetA[i] == TARGET_DEST_TARGET_BACK)
+        {
+            // explicit cast data from client or server-side cast
+            // some spell at client send caster
+            Unit* pTarget = NULL;
+            if(m_targets.getUnitTarget() && m_targets.getUnitTarget()!=m_caster)
+                pTarget = m_targets.getUnitTarget();
+            else if(unitTarget->getVictim())
+                pTarget = m_caster->getVictim();
+            else if(m_caster->GetTypeId() == TYPEID_PLAYER)
+                pTarget = ObjectAccessor::GetUnit(*m_caster, ((Player*)m_caster)->GetSelection());
+
+            o = pTarget ? pTarget->GetOrientation() : m_caster->GetOrientation();
+        }
+        else
+            o = m_caster->GetOrientation();
     }
     else if(unitTarget)
     {
-        x = unitTarget->GetPositionX();
-        y = unitTarget->GetPositionY();
-        z = unitTarget->GetPositionZ();
-        o = m_spellInfo->EffectImplicitTargetA[i] == TARGET_DEST_TARGET_BACK
-            ? unitTarget->GetOrientation()
-            : m_caster->GetOrientation();
+        unitTarget->GetContactPoint(m_caster,x,y,z,CONTACT_DISTANCE);
+        o = m_caster->GetOrientation();
     }
     else if(gameObjTarget)
     {
-        x = gameObjTarget->GetPositionX();
-        y = gameObjTarget->GetPositionY();
-        z = gameObjTarget->GetPositionZ();
+        gameObjTarget->GetContactPoint(m_caster,x,y,z,CONTACT_DISTANCE);
         o = m_caster->GetOrientation();
     }
     else
-        return;
-
-
-    // Teleport
-    if(m_caster->GetTypeId() == TYPEID_PLAYER)
-        ((Player*)m_caster)->TeleportTo(m_caster->GetMapId(), x, y, z, o,
-            TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (unitTarget==m_caster ? TELE_TO_SPELL : 0));
-    else
     {
-        m_caster->GetMap()->CreatureRelocation((Creature*)m_caster, x, y, z, o);
-        WorldPacket data;
-        m_caster->BuildTeleportAckMsg(&data, x, y, z, o);
-        m_caster->SendMessageToSet(&data, false);
+        sLog.outError( "Spell::EffectJump - unsupported target mode for spell ID %u", m_spellInfo->Id );
+        return;
     }
+
+    m_caster->NearTeleportTo(x,y,z,o,true);
 }
 
 void Spell::EffectTeleportUnits(uint32 i)
@@ -2224,6 +2226,7 @@ void Spell::EffectTeleportUnits(uint32 i)
         sLog.outError( "Spell::EffectTeleportUnits - does not have destination for spell ID %u\n", m_spellInfo->Id );
         return;
     }
+
     // Init dest coordinates
     int32 mapid = m_targets.m_mapId;
     if(mapid < 0) mapid = (int32)unitTarget->GetMapId();
@@ -2232,16 +2235,11 @@ void Spell::EffectTeleportUnits(uint32 i)
     float z = m_targets.m_destZ;
     float orientation = m_targets.getUnitTarget() ? m_targets.getUnitTarget()->GetOrientation() : unitTarget->GetOrientation();
     sLog.outDebug("Spell::EffectTeleportUnits - teleport unit to %u %f %f %f\n", mapid, x, y, z);
-    // Teleport
-    if(unitTarget->GetTypeId() == TYPEID_PLAYER)
-        ((Player*)unitTarget)->TeleportTo(mapid, x, y, z, orientation, TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (unitTarget==m_caster ? TELE_TO_SPELL : 0));
-    else
-    {
-        MapManager::Instance().GetMap(mapid, m_caster)->CreatureRelocation((Creature*)unitTarget, x, y, z, orientation);
-        WorldPacket data;
-        unitTarget->BuildTeleportAckMsg(&data, x, y, z, orientation);
-        unitTarget->SendMessageToSet(&data, false);
-    } 
+
+    if(mapid == unitTarget->GetMapId())
+        unitTarget->NearTeleportTo(x, y, z, orientation, unitTarget == m_caster);
+    else if(unitTarget->GetTypeId() == TYPEID_PLAYER)
+        ((Player*)unitTarget)->TeleportTo(mapid, x, y, z, orientation, unitTarget==m_caster ? TELE_TO_SPELL : 0);
 
     // post effects for TARGET_TABLE_X_Y_Z_COORDINATES
     switch ( m_spellInfo->Id )
@@ -3891,16 +3889,12 @@ void Spell::EffectTeleUnitsFaceCaster(uint32 i)
     if(unitTarget->isInFlight())
         return;
 
-    uint32 mapid = m_caster->GetMapId();
     float dis = m_caster->GetSpellRadiusForTarget(unitTarget, sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
 
     float fx,fy,fz;
     m_caster->GetClosePoint(fx,fy,fz,unitTarget->GetObjectSize(),dis);
 
-    if(unitTarget->GetTypeId() == TYPEID_PLAYER)
-        ((Player*)unitTarget)->TeleportTo(mapid, fx, fy, fz, -m_caster->GetOrientation(), TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (unitTarget==m_caster ? TELE_TO_SPELL : 0));
-    else
-        m_caster->GetMap()->CreatureRelocation((Creature*)m_caster, fx, fy, fz, -m_caster->GetOrientation());
+    unitTarget->NearTeleportTo(fx,fy,fz,-m_caster->GetOrientation(),unitTarget==m_caster);
 }
 
 void Spell::EffectLearnSkill(uint32 i)
@@ -5973,26 +5967,9 @@ void Spell::EffectMomentMove(uint32 i)
     if (hit == false)
         itr_j = last_valid;
 
-
-    if (unitTarget->GetTypeId() == TYPEID_PLAYER)
-        ((Player*)unitTarget)->TeleportTo(mapid, fx[itr_j], fy[itr_j], fz[itr_j] + 0.07531, orientation, TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (unitTarget == m_caster ? TELE_TO_SPELL : 0));
-    else
-        MapManager::Instance().GetMap(mapid, unitTarget)->CreatureRelocation((Creature*)unitTarget, fx[itr_j], fy[itr_j], fz[itr_j] + 0.07531, orientation);
+    unitTarget->NearTeleportTo(fx[itr_j], fy[itr_j], fz[itr_j] + 0.07531, orientation, unitTarget==m_caster);
 
     delete [] fx; delete [] fy; delete [] fz;
-
-/*    uint32 mapid = unitTarget->GetMapId();
-    float ox,oy,oz;
-    unitTarget->GetPosition(ox,oy,oz);
-
-    float fx,fy,fz;                                  // getObjectHitPos overwrite last args in any result case
-    if(VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(mapid, ox,oy,oz+0.5, m_targets.m_destX,m_targets.m_destY,oz+0.5,fx,fy,fz, -0.5))
-        unitTarget->UpdateGroundPositionZ(fx,fy,fz);
-
-    if(unitTarget->GetTypeId() == TYPEID_PLAYER)
-        ((Player*)unitTarget)->TeleportTo(mapid, fx, fy, fz, unitTarget->GetOrientation(), TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (unitTarget==m_caster ? TELE_TO_SPELL : 0));
-    else
-        MapManager::Instance().GetMap(mapid, unitTarget)->CreatureRelocation((Creature*)unitTarget, fx, fy, fz, unitTarget->GetOrientation());*/
 }
 
 void Spell::EffectReputation(uint32 i)
