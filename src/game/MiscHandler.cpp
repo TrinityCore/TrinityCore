@@ -1435,16 +1435,18 @@ void WorldSession::HandleFarSightOpcode( WorldPacket & recv_data )
     uint8 apply;
     recv_data >> apply;
 
-
     switch(apply)
     {
         case 0:
-            _player->SetSeer(_player);
             sLog.outDebug("Player %u set vision to self", _player->GetGUIDLow());
+            _player->SetSeer(_player);
             break;
         case 1:
-            _player->SetSeer(_player->GetFarsightTarget());
             sLog.outDebug("Added FarSight " I64FMT " to player %u", _player->GetFarSightGUID(), _player->GetGUIDLow());
+            if(WorldObject *target = _player->GetFarsightTarget())
+                _player->SetSeer(target);
+            else
+                sLog.outError("Player %s requests non-existing seer", _player->GetName());
             break;
         default:
             sLog.outDebug("Unhandled mode in CMSG_FAR_SIGHT: %u", apply);
