@@ -17367,6 +17367,38 @@ void Player::PossessSpellInitialize()
     GetSession()->SendPacket(&data);
 }
 
+void Player::VehicleSpellInitialize()
+{
+    Unit* charm = GetCharm();
+    if(!charm || charm->GetTypeId() != TYPEID_UNIT)
+        return;
+
+    WorldPacket data(SMSG_PET_SPELLS, 8+4+4+4+4*10+1+1);
+    data << uint64(charm->GetGUID());
+    data << uint32(0x00000000);
+    data << uint32(0x00000000);
+    data << uint32(0x00000101);
+
+    for(uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+    {
+        uint32 spellId = ((Creature*)charm)->m_spells[i];
+        if(IsPassiveSpell(spellId))
+        {
+            charm->CastSpell(charm, spellId, true);
+            data << uint16(0) << uint8(0) << uint8(i+8);
+        }
+        else
+            data << uint16(spellId) << uint8(0) << uint8(i+8);
+    }
+
+    for(uint32 i = CREATURE_MAX_SPELLS; i < 10; ++i)
+        data << uint16(0) << uint8(0) << uint8(i+8);
+
+    data << uint8(0);
+    data << uint8(0);
+    GetSession()->SendPacket(&data);
+}
+
 void Player::CharmSpellInitialize()
 {
     Unit* charm = GetCharm();
@@ -20302,21 +20334,7 @@ void Player::EnterVehicle(Vehicle *vehicle)
     data << uint32(0);                                      // fall time
     GetSession()->SendPacket(&data);
 
-    data.Initialize(SMSG_PET_SPELLS, 8+4+4+4+4*10+1+1);
-    data << uint64(vehicle->GetGUID());
-    data << uint32(0x00000000);
-    data << uint32(0x00000000);
-    data << uint32(0x00000101);
-
-    for(uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
-        data << uint16(vehicle->m_spells[i]) << uint8(0) << uint8(i+8);
-
-    for(uint32 i = CREATURE_MAX_SPELLS; i < 10; ++i)
-        data << uint16(0) << uint8(0) << uint8(i+8);
-
-    data << uint8(0);
-    data << uint8(0);
-    GetSession()->SendPacket(&data);
+    VehicleSpellInitialize();
 }
 
 void Player::ExitVehicle(Vehicle *vehicle)
