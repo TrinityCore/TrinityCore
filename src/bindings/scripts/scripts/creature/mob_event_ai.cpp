@@ -878,8 +878,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
 
                 if (CombatMovementEnabled)
                 {
-                        m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim(), AttackDistance, AttackAngle);
-                    }
+                    m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim(), AttackDistance, AttackAngle);
                 }
             }
             break;
