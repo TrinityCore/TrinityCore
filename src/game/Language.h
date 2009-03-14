@@ -907,11 +907,7 @@ enum TrinityStrings
     LANG_OPVP_EP_FLIGHT_CGT             = 10053,
     LANG_OPVP_ZM_GOSSIP_ALLIANCE        = 10054,
     LANG_OPVP_ZM_GOSSIP_HORDE           = 10055,
-  	LANG_NO_ENTER_HALL_OF_LEGENDS		    = 10056,
-  	LANG_NO_ENTER_CHAMPIONS_HALL	    	= 10057,
-	
-	
-
+		
     // Use for custom patches             11000-11999
 
     // NOT RESERVED IDS                   12000-1999999999
