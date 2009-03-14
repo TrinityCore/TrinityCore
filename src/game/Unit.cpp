@@ -8715,16 +8715,11 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         {
         // Damage Done from spell damage bonus
         int32 CastingTime = !IsChanneledSpell(spellProto) ? GetSpellCastTime(spellProto) : GetSpellDuration(spellProto);
-        if (IsChanneledSpell(spellProto))
-            ModSpellCastTime(spellProto, CastingTime);
         // Damage over Time spells bonus calculation
         float DotFactor = 1.0f;
         if(damagetype == DOT)
         {
             int32 DotDuration = GetSpellDuration(spellProto);
-            //apply casting time mods for channeled spells
-            if (IsChanneledSpell(spellProto))
-                ModSpellCastTime(spellProto, DotDuration);
             // 200% limit
             if(DotDuration > 0)
             {
@@ -9211,16 +9206,11 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
         {
         // Damage Done from spell damage bonus
         int32 CastingTime = !IsChanneledSpell(spellProto) ? GetSpellCastTime(spellProto) : GetSpellDuration(spellProto);
-        if (IsChanneledSpell(spellProto))
-            ModSpellCastTime(spellProto, CastingTime);
         // Damage over Time spells bonus calculation
         float DotFactor = 1.0f;
         if(damagetype == DOT)
         {
             int32 DotDuration = GetSpellDuration(spellProto);
-            //apply casting time mods for channeled spells
-            if (IsChanneledSpell(spellProto))
-                ModSpellCastTime(spellProto, DotDuration);
             // 200% limit
             if(DotDuration > 0)
             {
