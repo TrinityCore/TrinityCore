@@ -1982,7 +1982,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
         if( m_target->GetTypeId() == TYPEID_PLAYER && GetSpellProto()->Effect[0]==72 )
         {
             // spells with SpellEffect=72 and aura=4: 6196, 6197, 21171, 21425
-            ((Player*)m_target)->SetSeer(m_target);
+            ((Player*)m_target)->CreateSeer(NULL);
             return;
         }
 
@@ -2907,17 +2907,12 @@ void Aura::HandleBindSight(bool apply, bool Real)
     if(!caster || caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    ((Player*)caster)->SetSeer(apply ? m_target : caster);
+    ((Player*)caster)->CreateSeer(apply ? m_target : NULL);
 }
 
 void Aura::HandleFarSight(bool apply, bool Real)
 {
     //Handled by client
-    /*Unit* caster = GetCaster();
-    if(!caster || caster->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    ((Player*)caster)->SetFarSightGUID(apply ? m_target->GetGUID() : 0);*/
 }
 
 void Aura::HandleAuraTrackCreatures(bool apply, bool Real)

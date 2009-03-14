@@ -2053,12 +2053,12 @@ class TRINITY_DLL_SPEC Player : public Unit
         void EnterVehicle(Vehicle *vehicle);
         void ExitVehicle(Vehicle *vehicle);
 
-        void SetMover(Unit* target) { SetSeer(target); m_mover = target; }
-        void SetSeer(WorldObject *target);
+        void SetMover(Unit* target) { CreateSeer(target); m_mover = target; }
+        void CreateSeer(WorldObject *target);
+        void SetSeer(WorldObject *target) { m_seer = target; }
         void StopCastingCharm() { Uncharm(); }
         void StopCastingBindSight();
         uint64 GetFarSightGUID() const { return GetUInt64Value(PLAYER_FARSIGHT); }
-        void SetFarSightGUID(uint64 guid) { SetUInt64Value(PLAYER_FARSIGHT, guid); }
         WorldObject* GetFarsightTarget() const;
         // Controls if vision is currently on farsight object, updated in FAR_SIGHT opcode
         void SetFarsightVision(bool apply) { m_farsightVision = apply; }
