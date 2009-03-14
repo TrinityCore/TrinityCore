@@ -27,6 +27,11 @@ void PassiveAI::UpdateAI(const uint32)
         EnterEvadeMode();
 }
 
+void PossessedAI::AttackStart(Unit *target)
+{
+    me->Attack(target, true);
+}
+
 void PossessedAI::UpdateAI(const uint32 diff)
 {
     if(me->getVictim())
