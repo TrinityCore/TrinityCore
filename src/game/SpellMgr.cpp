@@ -520,9 +520,8 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
 
     switch(spellId)
     {
-        case 23333:                                         // BG spell
-        case 23335:                                         // BG spell
-        case 34976:                                         // BG spell
+        case 23333: case 23335: case 34976:                 // BG spell                                         
+        case 30482: case 43045: case 43046:                 // Molten armor expection need find the real bug
             return true;
         case 28441:                                         // not positive dummy spell
         case 37675:                                         // Chaos Blast
@@ -531,7 +530,7 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
         case 34700:                                         // Allergic Reaction
         case 31719:                                         // Suspension
             return false;
-    }
+    }  
 
     switch(spellproto->Effect[effIndex])
     {
