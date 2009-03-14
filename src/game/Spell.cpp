@@ -177,6 +177,8 @@ bool SpellCastTargets::read ( WorldPacket * data, Unit *caster )
     if(data->rpos()+4 > data->size())
         return false;
 
+    //data->hexlike();
+
     *data >> m_targetMask;
     sLog.outDebug("Spell read, target mask = %u", m_targetMask);
 
@@ -200,7 +202,7 @@ bool SpellCastTargets::read ( WorldPacket * data, Unit *caster )
         if(!data->readPackGUID(m_CorpseTargetGUID))
             return false;
 
-    /*if( m_targetMask & TARGET_FLAG_SOURCE_LOCATION )
+    if( m_targetMask & TARGET_FLAG_SOURCE_LOCATION )
     {
         if(data->rpos()+4+4+4 > data->size())
             return false;
@@ -208,9 +210,11 @@ bool SpellCastTargets::read ( WorldPacket * data, Unit *caster )
         *data >> m_srcX >> m_srcY >> m_srcZ;
         if(!Trinity::IsValidMapCoord(m_srcX, m_srcY, m_srcZ))
             return false;
-    }*/
 
-    if( m_targetMask & (TARGET_FLAG_SOURCE_LOCATION | TARGET_FLAG_DEST_LOCATION) )
+        m_hasDest = true;
+    }
+
+    if( m_targetMask & TARGET_FLAG_DEST_LOCATION )
     {
         if(data->rpos()+1+4+4+4 > data->size())
             return false;
@@ -219,9 +223,10 @@ bool SpellCastTargets::read ( WorldPacket * data, Unit *caster )
             return false;
 
         *data >> m_destX >> m_destY >> m_destZ;
-        m_hasDest = true;
         if(!Trinity::IsValidMapCoord(m_destX, m_destY, m_destZ))
             return false;
+
+        m_hasDest = true;
     }
 
     if( m_targetMask & TARGET_FLAG_STRING )
