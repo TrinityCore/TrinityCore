@@ -166,7 +166,6 @@ void ScriptedAI::DoStartNoMovement(Unit* victim)
         return;
 
     m_creature->GetMotionMaster()->MoveIdle();
-    m_creature->StopMoving();
 }
 
 void ScriptedAI::DoStopAttack()

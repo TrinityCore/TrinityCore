@@ -350,9 +350,7 @@ struct TRINITY_DLL_DECL mob_rizzle_sprysprocketAI : public ScriptedAI
                 DoScriptText(SAY_RIZZLE_FINAL, m_creature);
                 m_creature->SetUInt32Value(UNIT_NPC_FLAGS, 1);
                 m_creature->setFaction(35);
-                m_creature->StopMoving();
-                m_creature->GetMotionMaster()->MovementExpired();
-                m_creature->GetMotionMaster()->Clear(true);
+                m_creature->GetMotionMaster()->MoveIdle();
                 m_creature->RemoveAurasDueToSpell(SPELL_PERIODIC_DEPTH_CHARGE);
                 Reached = true;
             }

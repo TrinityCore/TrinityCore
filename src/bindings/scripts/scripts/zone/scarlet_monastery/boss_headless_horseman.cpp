@@ -709,7 +709,6 @@ void mob_headAI::Disappear()
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             m_creature->GetMotionMaster()->MoveIdle();
-            m_creature->StopMoving();
             ((boss_headless_horsemanAI*)body->AI())->returned = true;
         }
     }

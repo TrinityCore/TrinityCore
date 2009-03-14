@@ -940,7 +940,7 @@ void LoadDatabase()
 
             //Creature does not exist in database
             if (!GetCreatureTemplateStore(temp.creature_id))
-                error_db_log("TSCR: Event %u has script for non-existing creature.", i);			
+                error_db_log("TSCR: Event %u has script for non-existing creature.", i);
 
             //Report any errors in event
             if (temp.event_type >= EVENT_T_END)
@@ -1125,7 +1125,7 @@ void LoadDatabase()
                         {
                             const SpellEntry *spell = GetSpellStore()->LookupEntry(temp.action[j].param1);
                             if (!spell)
-                                error_db_log("TSCR: Event %u Action %u uses non-existant SpellID %u.", i, j+1, temp.action[j].param1);
+                                error_db_log("SD2: Event %u Action %u uses non-existant SpellID %u.", i, j+1, temp.action[j].param1);
                             else
                             {
                                 if (spell->RecoveryTime > 0 && temp.event_flags & EFLAG_REPEATABLE)
@@ -1183,7 +1183,7 @@ void LoadDatabase()
                                 error_db_log("TSCR: Event %u Action %u uses non-existant SpellID %u.", i, j+1, temp.action[j].param2);
 
                             if (temp.action[j].param3 >= TARGET_T_END)
-                                error_db_log("TSCR: Event %u Action %u uses incorrect Target type", i, j+1);
+                                error_db_log("SD2: Event %u Action %u uses incorrect Target type", i, j+1);
                         }
                         break;
                     case ACTION_T_CASTCREATUREGO_ALL:
@@ -1249,7 +1249,7 @@ void LoadDatabase()
 
                     case ACTION_T_INC_PHASE:
                         if (!temp.action[j].param1)
-                            error_db_log("TSCR: Event %u Action %u is incrementing phase by 0. Was this intended?", i, j+1);
+                            error_db_log("SD2: Event %u Action %u is incrementing phase by 0. Was this intended?", i, j+1);
                         break;
 
                     case ACTION_T_SET_INST_DATA:
