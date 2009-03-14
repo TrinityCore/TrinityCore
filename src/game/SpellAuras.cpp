@@ -4187,6 +4187,7 @@ void Aura::HandleAuraModResistance(bool apply, bool Real)
                 m_target->ApplyResistanceBuffModsMod(SpellSchools(x),m_positive,m_modifier.m_amount, apply);
         }
     }
+
 }
 
 void Aura::HandleAuraModBaseResistancePCT(bool apply, bool Real)

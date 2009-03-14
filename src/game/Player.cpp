@@ -20158,7 +20158,7 @@ void Player::StopCastingBindSight()
     if (WorldObject* target = GetFarsightTarget())
     {
         if (target->isType(TYPEMASK_UNIT))
-            ((Unit*)target)->RemoveSpellsCausingAura(SPELL_AURA_BIND_SIGHT);
+            ((Unit*)target)->RemoveAuraTypeByCaster(SPELL_AURA_BIND_SIGHT, GetGUID());
     }
 }
 

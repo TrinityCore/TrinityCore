@@ -1244,6 +1244,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         void RemoveSpellsCausingAura(AuraType auraType);
         void RemoveSpellsCausingAuraWithDispel(AuraType auraType, Spell * spell);
+        void RemoveAuraTypeByCaster(AuraType auraType, uint64 casterGUID);
         void RemoveRankAurasDueToSpell(uint32 spellId);
         bool RemoveNoStackAurasDueToAura(Aura *Aur);
         void RemoveAurasWithInterruptFlags(uint32 flags, uint32 except = 0);
@@ -1549,7 +1550,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         uint32 GetReducedThreatPercent() { return m_reducedThreatPercent; }
         Unit *GetMisdirectionTarget() { return m_misdirectionTargetGUID ? GetUnit(*this, m_misdirectionTargetGUID) : NULL; }
 
-        bool IsAIEnabled;
+        bool IsAIEnabled, NeedChangeAI;
     protected:
         explicit Unit ();
 

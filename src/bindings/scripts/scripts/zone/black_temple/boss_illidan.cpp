@@ -1086,8 +1086,8 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             Illidan->RemoveAurasDueToSpell(SPELL_KNEEL);
             m_creature->SetInFront(Illidan);
             Illidan->SetInFront(m_creature);
-            m_creature->StopMoving();
-            Illidan->StopMoving();
+            m_creature->GetMotionMaster()->MoveIdle();
+            Illidan->GetMotionMaster()->MoveIdle();
             ((boss_illidan_stormrageAI*)Illidan->AI())->AkamaGUID = m_creature->GetGUID();
             ((boss_illidan_stormrageAI*)Illidan->AI())->EnterPhase(PHASE_TALK_SEQUENCE);
         }
@@ -1919,8 +1919,8 @@ void boss_illidan_stormrageAI::HandleTalkSequence()
             Maiev->CastSpell(Maiev, SPELL_TELEPORT_VISUAL, true); // onoz she looks like she teleported!
             Maiev->SetInFront(m_creature); // Have her face us
             m_creature->SetInFront(Maiev); // Face her, so it's not rude =P
-            Maiev->StopMoving();
-            m_creature->StopMoving();
+            Maiev->GetMotionMaster()->MoveIdle();
+            m_creature->GetMotionMaster()->MoveIdle();
         }break;
     case 14:
         if(GETCRE(Maiev, MaievGUID))

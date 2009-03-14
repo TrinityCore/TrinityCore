@@ -77,7 +77,7 @@ static bool procPrepared = InitTriggerAuraData();
 
 Unit::Unit()
 : WorldObject(), i_motionMaster(this), m_ThreatManager(this), m_HostilRefManager(this)
-, m_IsInNotifyList(false), m_Notified(false), IsAIEnabled(false)
+, m_IsInNotifyList(false), m_Notified(false), IsAIEnabled(false), NeedChangeAI(false)
 , i_AI(NULL), i_disabledAI(NULL)
 {
     m_objectType |= TYPEMASK_UNIT;
@@ -479,6 +479,28 @@ void Unit::RemoveSpellsCausingAura(AuraType auraType)
     }
 }
 
+void Unit::RemoveAuraTypeByCaster(AuraType auraType, uint64 casterGUID)
+{
+    if (auraType >= TOTAL_AURAS) return;
+    AuraList::iterator iter, next;
+    for(iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end(); ++iter)
+    {
+        next = iter;
+        ++next;
+
+        if (*iter)
+        {
+            RemoveAurasByCasterSpell((*iter)->GetId(), casterGUID);
+                continue;
+            RemoveAurasDueToSpell((*iter)->GetId());
+            if (!m_modAuras[auraType].empty())
+                next = m_modAuras[auraType].begin();
+            else
+                return;
+        }
+    }
+}
+    
 void Unit::RemoveSpellsCausingAuraWithDispel(AuraType auraType, Spell * spell)
 {
     if (auraType >= TOTAL_AURAS) return;
@@ -498,7 +520,7 @@ void Unit::RemoveSpellsCausingAuraWithDispel(AuraType auraType, Spell * spell)
             else
                 return;
         }
-    }
+    }    
 
     std::deque <Aura *> dispel_list;
 
@@ -10321,7 +10343,6 @@ void Unit::setDeathState(DeathState s)
         ClearDiminishings();
         GetMotionMaster()->Clear(false);
         GetMotionMaster()->MoveIdle();
-        StopMoving();
         //without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
         //do not why since in IncreaseMaxHealth currenthealth is checked
         SetHealth(0);
@@ -13088,7 +13109,6 @@ void Unit::SetCharmedOrPossessedBy(Unit* charmer, bool possess)
     if(GetTypeId() == TYPEID_UNIT)
     {
         ((Creature*)this)->AI()->OnCharmed(true);
-        StopMoving();
         GetMotionMaster()->Clear(false);
         GetMotionMaster()->MoveIdle();
     }

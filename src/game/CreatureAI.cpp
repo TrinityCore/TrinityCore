@@ -63,7 +63,12 @@ void UnitAI::DoMeleeAttackIfReady()
 void PlayerAI::OnCharmed(bool apply) { me->IsAIEnabled = apply; }
 
 //Disable CreatureAI when charmed
-void CreatureAI::OnCharmed(bool apply) { /*me->IsAIEnabled = !apply;*/ }
+void CreatureAI::OnCharmed(bool apply)
+{
+    //me->IsAIEnabled = !apply;*/
+    me->NeedChangeAI = true;
+    me->IsAIEnabled = false;
+}
 
 void CreatureAI::MoveInLineOfSight(Unit *who)
 {

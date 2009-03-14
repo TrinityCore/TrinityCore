@@ -4,6 +4,16 @@
 -- LINKED
 -- --------
 
+# spell1 / spell2 / type
+# + + 0 caster casts 2 when casts 1
+# + - 0 caster removes aura 2 when casts 1
+# + + 1 target casts 2 on self (originalCaster = caster) when 1 casted by caster hits target
+# + - 1 target removes aura 2 when hit by 1
+# + + 2 when aura 1 is applied, aura 2 is also applied; when 1 is removed, 2 is also removed
+# + - 2 when aura 1 is applied, target is immune to spell 2, until 1 is removed
+# - + 0 target casts 2 on self (originalCaster = caster) when aura 1 casted by caster is removed
+# - - 0 aura 2 is removed when aura 1 is removed
+
 DROP TABLE IF EXISTS `spell_linked_spell`;
 CREATE TABLE `spell_linked_spell` (
   `spell_trigger` mediumint(8) NOT NULL,
