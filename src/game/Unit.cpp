@@ -483,7 +483,7 @@ void Unit::RemoveAuraTypeByCaster(AuraType auraType, uint64 casterGUID)
 {
     if (auraType >= TOTAL_AURAS) return;
     AuraList::iterator iter, next;
-    for(iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end(); ++iter)
+    for(iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end(); iter = next)
     {
         next = iter;
         ++next;
