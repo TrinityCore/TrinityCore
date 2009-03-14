@@ -20308,7 +20308,10 @@ void Player::EnterVehicle(Vehicle *vehicle)
     data << uint32(0x00000000);
     data << uint32(0x00000101);
 
-    for(uint32 i = 0; i < 10; ++i)
+    for(uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+        data << uint16(vehicle->m_spells[i]) << uint8(0) << uint8(i+8);
+
+    for(uint32 i = CREATURE_MAX_SPELLS; i < 10; ++i)
         data << uint16(0) << uint8(0) << uint8(i+8);
 
     data << uint8(0);
