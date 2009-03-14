@@ -13491,3 +13491,19 @@ void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
         if(Pet* pet = GetPet())
             pet->SetPhaseMask(newPhaseMask,true);
 }
+
+void Unit::NearTeleportTo( float x, float y, float z, float orientation, bool casting /*= false*/ )
+{
+    if(GetTypeId() == TYPEID_PLAYER)
+        ((Player*)this)->TeleportTo(GetMapId(), x, y, z, orientation, TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (casting ? TELE_TO_SPELL : 0));
+    else
+    {
+        GetMap()->CreatureRelocation((Creature*)this, x, y, z, orientation);
+
+        WorldPacket data;
+        // Work strange for many spells: triggered active mover set for targeted player to creature
+        //BuildTeleportAckMsg(&data, x, y, z, orientation);
+        BuildHeartBeatMsg(&data);
+        SendMessageToSet(&data, false);
+    }
+}
