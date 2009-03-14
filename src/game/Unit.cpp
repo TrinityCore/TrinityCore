@@ -3981,6 +3981,8 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
 
     SpellSpecific spellId_spec = GetSpellSpecific(spellId);
 
+    //bool linked = spellmgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_LINK_AURA? true : false;
+
     AuraMap::iterator i,next;
     for (i = m_Auras.begin(); i != m_Auras.end(); i = next)
     {
@@ -4017,11 +4019,29 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
             if (i_spellProto->EffectTriggerSpell[j] == spellProto->Id)
                 is_triggered_by_spell = true;
 
-        if (is_triggered_by_spell)
-            continue;
+        for(int j = 0; j < 3; ++j)
+            if (i_spellProto->EffectTriggerSpell[j] == spellProto->Id)
+                is_triggered_by_spell = true;
 
         // check if they can stack
         bool sameCaster = Aur->GetCasterGUID() == (*i).second->GetCasterGUID();
+
+        /*// Dont remove by stack with linked auras
+        // Not needed for now
+        if(sameCaster && linked)
+        {
+            if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(spellId + SPELL_LINK_AURA))
+                for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+                    if(*itr>0 && *itr==i_spellId)
+                    {
+                        is_triggered_by_spell=true;
+                        break;
+                    }
+        }*/
+
+        if (is_triggered_by_spell)
+            continue;
+
         if(!spellmgr.IsNoStackSpellDueToSpell(spellId, i_spellId, sameCaster))
             continue;
 
