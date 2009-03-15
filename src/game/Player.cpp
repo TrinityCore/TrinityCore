@@ -19282,9 +19282,10 @@ void Player::SendAurasForTarget(Unit *target)
                 // charges
                 data << uint8(aura->GetAuraCharges());
 
-                if(!(itr->second.m_Flags & AFLAG_NOT_CASTER))
+                if(!(itr->second.m_Flags & AFLAG_CASTER))
                 {
-                    data << uint8(0);                   // packed GUID of someone (caster?)
+                    if (Unit * caster = aura->GetCaster())
+                        data.append(caster->GetPackGUID());
                 }
 
                 if(itr->second.m_Flags & AFLAG_DURATION)          // include aura duration
