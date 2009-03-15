@@ -6099,6 +6099,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 case 20186:
                 {
                     pVictim->CastSpell(pVictim, 20268, true, NULL, triggeredByAura);
+                    return true;
                 }
                 // Holy Power (Redemption Armor set)
                 case 28789:
@@ -13423,6 +13424,8 @@ void Unit::SendAuraUpdate(uint8 slot)
     {
         if (Unit * caster = ptr->GetCaster())
             data.append(caster->GetPackGUID());
+        else
+            data << uint8(0);
     }
 
     if(entry->m_Flags & AFLAG_DURATION)

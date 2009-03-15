@@ -19286,6 +19286,8 @@ void Player::SendAurasForTarget(Unit *target)
                 {
                     if (Unit * caster = aura->GetCaster())
                         data.append(caster->GetPackGUID());
+                    else
+                        data << uint8(0);
                 }
 
                 if(itr->second.m_Flags & AFLAG_DURATION)          // include aura duration
