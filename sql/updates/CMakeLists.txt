@@ -78,7 +78,6 @@ INSTALL(FILES
 1814_world.sql
 1825_world.sql
 1828_world.sql
-1857_world.sql
 1877_mangos_7439_01_world_trinity_string.sql
 1881_world.sql
 1884_world.sql
@@ -86,4 +85,5 @@ INSTALL(FILES
 1895_world.sql
 1905_world.sql
 1906_world.sql
+1910_world.sql
 DESTINATION share/trinity/sql/updates)
