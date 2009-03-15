@@ -4210,8 +4210,8 @@ uint8 Spell::CanCast(bool strict)
                 switch(m_spellInfo->EffectMiscValueB[i])
                 {
                     case SUMMON_TYPE_POSESSED:
-                    case SUMMON_TYPE_POSESSED2:
-                    case SUMMON_TYPE_POSESSED3:
+                    case SUMMON_TYPE_RACE_CONTROLLER:
+                    case SUMMON_TYPE_STEAM_TONK:
                     case SUMMON_TYPE_DEMON:
                     case SUMMON_TYPE_SUMMON:
                     {
