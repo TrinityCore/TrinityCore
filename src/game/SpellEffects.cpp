@@ -443,8 +443,6 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 // Haunt
                 else if (m_spellInfo->SpellFamilyFlags[1] & 0x40000)
                 {
-                    // Save damage for future healing
-                    // TODO: Implement spell proc on aura expire
                     m_currentBasePoints[1] = int32(damage * m_currentBasePoints[1] / 100);
                 }
 
@@ -3391,6 +3389,7 @@ void Spell::EffectSummonType(uint32 i)
             break;
         case SUMMON_TYPE_WILD:
         case SUMMON_TYPE_WILD2:
+        case SUMMON_TYPE_LIGHTWELL:
             EffectSummonWild(i);
             break;
         case SUMMON_TYPE_DEMON:
@@ -3704,7 +3703,7 @@ void Spell::EffectAddFarsight(uint32 i)
     dynObj->GetMap()->Add(dynObj); //grid will also be loaded
 
     // Need to update visibility of object for client to accept farsight guid
-    ((Player*)m_caster)->CreateSeer(dynObj);
+    ((Player*)m_caster)->SetSeer(dynObj);
     //((Player*)m_caster)->UpdateVisibilityOf(dynObj);
 }
 
