@@ -17382,7 +17382,14 @@ void Player::VehicleSpellInitialize()
     for(uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
     {
         uint32 spellId = ((Creature*)charm)->m_spells[i];
-        if(IsPassiveSpell(spellId))
+        if(!spellId)
+            continue;
+
+        SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
+        if(!spellInfo)
+            continue;
+
+        if(IsPassiveSpell(spellId) || spellInfo->activeIconID == 2158) //flight
         {
             charm->CastSpell(charm, spellId, true);
             data << uint16(0) << uint8(0) << uint8(i+8);
