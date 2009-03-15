@@ -831,6 +831,8 @@ void Aura::_AddAura()
     Unit::VisibleAuraMap const *visibleAuras = m_target->GetVisibleAuras();
     if(visibleAuras->size() < MAX_AURAS || slot < MAX_AURAS)       // got free slot
     {
+        AuraSlotEntry * entry;
+
         // Lookup free slot
         if (!secondaura)
         {
@@ -845,18 +847,18 @@ void Aura::_AddAura()
             }
             assert(slot < MAX_AURAS);      // assert that we find a slot and it is valid
 
-            AuraSlotEntry t_entry;
-            t_entry.m_Flags=(IsPositive() ? AFLAG_POSITIVE : AFLAG_NEGATIVE) | ((GetCasterGUID() == m_target->GetGUID()) ? AFLAG_CASTER : AFLAG_NONE) | ((GetAuraMaxDuration() > 0) ? AFLAG_DURATION : AFLAG_NONE);
-            t_entry.m_Level=(caster ? caster->getLevel() : sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL));
-            t_entry.m_spellId = GetId();
+            entry = m_target->GetVisibleAuraSlot(slot);
+            entry->m_Flags=(IsPositive() ? AFLAG_POSITIVE : AFLAG_NEGATIVE) | ((GetCasterGUID() == m_target->GetGUID()) ? AFLAG_CASTER : AFLAG_NONE) | ((GetAuraMaxDuration() > 0) ? AFLAG_DURATION : AFLAG_NONE);
+            entry->m_Level=(caster ? caster->getLevel() : sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL));
+            entry->m_spellId = GetId();
             //init pointers-prevent unexpected behaviour
             for(uint8 i = 0; i < 3; i++)
-                t_entry.m_slotAuras[i]=NULL;
-
-            m_target->SetVisibleAura(slot, t_entry);
+                entry->m_slotAuras[i]=NULL;
         }
+        else
+            entry = m_target->GetVisibleAura(slot);
 
-        if(AuraSlotEntry *entry = m_target->GetVisibleAura(slot))
+        if(entry)
         {
             entry->m_Flags |= (1 << GetEffIndex());
             entry->m_slotAuras[GetEffIndex()]=this;
