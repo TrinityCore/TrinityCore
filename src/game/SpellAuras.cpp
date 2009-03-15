@@ -2066,7 +2066,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     if(!m_target || !(m_removeMode == AURA_REMOVE_BY_DISPEL || m_removeMode == AURA_REMOVE_BY_DEFAULT))
                         return;
                     Unit* target=NULL;
-                    m_target->CastSpell(m_target, GetModifier()->m_amount, true, NULL, NULL, GetCasterGUID());
+                    m_target->CastSpell(target, GetModifier()->m_amount, true, NULL, NULL, GetCasterGUID());
                     return;
                 }
            break;
@@ -5682,7 +5682,8 @@ void Aura::PeriodicTick()
             if(Player *modOwner = pCaster->GetSpellModOwner())
                 modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_MULTIPLE_VALUE, multiplier);
 
-            uint32 heal = pCaster->SpellHealingBonus(pCaster, spellProto, uint32(new_damage * multiplier), DOT, stackAmount);
+            // Don't apply heal mods for this aura
+            uint32 heal = uint32(new_damage * multiplier);//pCaster->SpellHealingBonus(pCaster, spellProto, uint32(new_damage * multiplier), DOT, stackAmount);
 
             int32 gain = pCaster->ModifyHealth(heal);
             pCaster->getHostilRefManager().threatAssist(pCaster, gain * 0.5f, spellProto);

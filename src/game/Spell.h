@@ -634,20 +634,23 @@ namespace Trinity
         Unit* i_caster;
         uint32 i_entry;
         float i_x, i_y, i_z;
+        Unit* i_unitTarget;
+        Unit* i_origCaster;
 
         SpellNotifierCreatureAndPlayer(Spell &spell, std::list<Unit*> &data, float radius, const uint32 &type,
-            SpellTargets TargetType = SPELL_TARGETS_ENEMY, uint32 entry = 0, float x = 0, float y = 0, float z = 0)
+            SpellTargets TargetType = SPELL_TARGETS_ENEMY, uint32 entry = 0, float x = 0, float y = 0, float z = 0, Unit * unitTarget=NULL)
             : i_data(&data), i_spell(spell), i_push_type(type), i_radius(radius), i_radiusSq(radius*radius)
-            , i_TargetType(TargetType), i_entry(entry), i_x(x), i_y(y), i_z(z)
+            , i_TargetType(TargetType), i_entry(entry), i_x(x), i_y(y), i_z(z), i_unitTarget(unitTarget)
         {
             i_caster = spell.GetCaster();
+            i_origCaster = spell.GetOriginalCaster();
         }
 
         template<class T> inline void Visit(GridRefManager<T>  &m)
         {
             assert(i_data);
 
-            if(!i_caster)
+            if(!i_origCaster)
                 return;
 
             for(typename GridRefManager<T>::iterator itr = m.begin(); itr != m.end(); ++itr)
@@ -658,17 +661,20 @@ namespace Trinity
                 switch (i_TargetType)
                 {
                     case SPELL_TARGETS_ALLY:
-                        if (!itr->getSource()->isAttackableByAOE() || !i_caster->IsFriendlyTo( itr->getSource() ))
+                        if (!itr->getSource()->isAttackableByAOE() || !i_origCaster->IsFriendlyTo( itr->getSource() ))
                             continue;
                         break;
                     case SPELL_TARGETS_ENEMY:
                     {
+                        if (itr->getSource() == i_unitTarget)
+                            break;
+
                         if(itr->getSource()->GetTypeId()==TYPEID_UNIT && ((Creature*)itr->getSource())->isTotem())
                             continue;
                         if(!itr->getSource()->isAttackableByAOE())
                             continue;
 
-                        Unit* check = i_caster->GetCharmerOrOwnerOrSelf();
+                        Unit* check = i_origCaster->GetCharmerOrOwnerOrSelf();
 
                         if( check->GetTypeId()==TYPEID_PLAYER )
                         {
