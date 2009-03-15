@@ -287,13 +287,10 @@ class TRINITY_DLL_SPEC Item : public Object
             uState = state;
         }
 
-        bool hasQuest(uint32 quest_id) const
-        {
-            ItemPrototype const *itemProto = GetProto();
-            return itemProto && itemProto->StartQuest == quest_id;
-        }
+        bool hasQuest(uint32 quest_id) const { return GetProto()->StartQuest == quest_id; }
         bool hasInvolvedQuest(uint32 /*quest_id*/) const { return false; }
-
+        bool IsPotion() const { return GetProto()->IsPotion(); }
+        bool IsConjuredConsumable() const { return GetProto()->IsConjuredConsumable(); }
     private:
         uint8 m_slot;
         Bag *m_container;
