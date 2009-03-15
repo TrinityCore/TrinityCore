@@ -1043,7 +1043,13 @@ void Aura::_RemoveAura()
                 ProcCaster = PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT;
                 ProcVictim = PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT;
             }
-            caster->ProcDamageAndSpell(m_target,ProcCaster, ProcVictim, PROC_EX_AURA_REMOVE, 0, BASE_ATTACK, m_spellProto);
+            uint32 procEx=0;
+            if (m_removeMode == AURA_REMOVE_BY_DISPEL)
+                procEx = PROC_EX_AURA_REMOVE_DISPEL;
+            else if (m_removeMode == AURA_REMOVE_BY_DEFAULT)
+                procEx = PROC_EX_AURA_REMOVE_EXPIRE;
+
+            caster->ProcDamageAndSpell(m_target,ProcCaster, ProcVictim, procEx, m_modifier.m_amount, BASE_ATTACK, m_spellProto);
         }
     }
 }
@@ -2051,9 +2057,10 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 // Living Bomb
                 if (m_spellProto->SpellFamilyFlags[1] & 0x20000)
                 {
-                    if(!m_target || !caster || !(m_removeMode == AURA_REMOVE_BY_DISPEL || m_removeMode == AURA_REMOVE_BY_DEFAULT))
+                    if(!m_target || !(m_removeMode == AURA_REMOVE_BY_DISPEL || m_removeMode == AURA_REMOVE_BY_DEFAULT))
                         return;
-                    caster->CastSpell(m_target, GetModifier()->m_amount, true, NULL, NULL, GetCasterGUID());
+                    Unit* target=NULL;
+                    m_target->CastSpell(m_target, GetModifier()->m_amount, true, NULL, NULL, GetCasterGUID());
                     return;
                 }
            break;

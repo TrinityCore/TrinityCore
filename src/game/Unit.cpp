@@ -2181,7 +2181,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
         {
             if ((*i)->GetModifier()->m_amount<=0)
             {
-                pVictim->RemoveAurasDueToSpell((*i)->GetId());
+                pVictim->RemoveAurasByCasterSpell((*i)->GetId(), (*i)->GetCasterGUID());
                 i = vSchoolAbsorb.begin();
             }
             else
@@ -5375,6 +5375,17 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 target = this;
                 triggered_spell_id = 29077;
                 break;
+            }
+            // Shattered Barrier
+            if (dummySpell->SpellIconID == 2945)
+            {
+                // only on dispel/remove aura by sestroy
+                if (procEx & PROC_EX_AURA_REMOVE_EXPIRE && damage)
+                    return false;
+                target = NULL;
+                triggered_spell_id = 55080;
+                CastSpell(target, triggered_spell_id, true);
+                return true;
             }
             // Hot Streak
             if (dummySpell->SpellIconID == 2999)
