@@ -7994,7 +7994,12 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
             }
             return false;
         }
-        AttackStop();
+
+        //switch target
+        m_attacking->_removeAttacker(this);
+        InterruptSpell(CURRENT_MELEE_SPELL);
+        if(!meleeAttack)
+            clearUnitState(UNIT_STAT_MELEE_ATTACKING);
     }
 
     //Set our target
