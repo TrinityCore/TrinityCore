@@ -5232,9 +5232,15 @@ void Aura::HandleAuraAllowFlight(bool apply, bool Real)
     // allow fly
     WorldPacket data;
     if(apply)
+    {
         data.Initialize(SMSG_MOVE_SET_CAN_FLY, 12);
+        m_target->SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
+    }
     else
+    {
         data.Initialize(SMSG_MOVE_UNSET_CAN_FLY, 12);
+        m_target->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
+    }
     data.append(m_target->GetPackGUID());
     data << uint32(0);                                      // unk
     m_target->SendMessageToSet(&data, true);
