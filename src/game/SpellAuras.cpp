@@ -809,7 +809,7 @@ void Aura::_AddAura()
     // Second aura if some spell
     bool secondaura = false;
     // Try find slot for aura
-    uint8 slot = NULL_AURA_SLOT;
+    uint8 slot = MAX_AURAS;
     // Lookup for auras already applied from spell
     for(uint8 i = 0; i < 3; ++i)
     {
@@ -828,14 +828,17 @@ void Aura::_AddAura()
             break;
     }
 
-    Unit::VisibleAuraMap const *visibleAuras = m_target->GetVisibleAuras();
-    if(visibleAuras->size() < MAX_AURAS || slot < MAX_AURAS)       // got free slot
+    // Register Visible Aura
+    AuraSlotEntry *entry = NULL;
+    if(slot < MAX_AURAS)
+        entry = m_target->GetVisibleAura(slot);
+    else
     {
-        AuraSlotEntry *entry = NULL;
-
-        // Lookup free slot
-        if (!secondaura)
+        Unit::VisibleAuraMap const *visibleAuras = m_target->GetVisibleAuras();
+        if(visibleAuras->size() < MAX_AURAS)
         {
+            // Even if this is the second aura and slot == MAX_AURAS,
+            // it is still possible that a free slot can be founded
             Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin();
             for(int freeSlot = 0; freeSlot < MAX_AURAS; ++itr, ++freeSlot)
             {
@@ -845,60 +848,61 @@ void Aura::_AddAura()
                     break;
                 }
             }
-            assert(slot < MAX_AURAS);      // assert that we find a slot and it is valid
 
+            assert(slot < MAX_AURAS);      // assert that we find a slot and it is valid
             entry = m_target->GetVisibleAuraSlot(slot);
-            entry->m_Flags=(IsPositive() ? AFLAG_POSITIVE : AFLAG_NEGATIVE) | ((GetCasterGUID() == m_target->GetGUID()) ? AFLAG_CASTER : AFLAG_NONE) | ((GetAuraMaxDuration() > 0) ? AFLAG_DURATION : AFLAG_NONE);
-            entry->m_Level=(caster ? caster->getLevel() : sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL));
+
+            entry->m_Flags = (IsPositive() ? AFLAG_POSITIVE : AFLAG_NEGATIVE) |
+                (GetCasterGUID() == m_target->GetGUID() ? AFLAG_CASTER : AFLAG_NONE) |
+                (GetAuraMaxDuration() > 0 ? AFLAG_DURATION : AFLAG_NONE);
+            entry->m_Level = (caster ? caster->getLevel() : sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL));
             entry->m_spellId = GetId();
             //init pointers-prevent unexpected behaviour
             for(uint8 i = 0; i < 3; ++i)
                 entry->m_slotAuras[i] = NULL;
         }
-        else
-            entry = m_target->GetVisibleAura(slot);
+    }
 
-        if(entry)
-        {
-            entry->m_Flags |= (1 << GetEffIndex());
-            entry->m_slotAuras[GetEffIndex()]=this;
+    if(entry)
+    {
+        entry->m_Flags |= (1 << GetEffIndex());
+        entry->m_slotAuras[GetEffIndex()] = this;
 
-            SetAuraSlot( slot );
+        SetAuraSlot( slot );
 
-            // update for out of range group members (on 1 slot use)
-            m_target->UpdateAuraForGroup(slot);
-            sLog.outDebug("Aura: %u Effect: %d put to unit visible auras slot: %u",GetId(), GetEffIndex(), slot);
-        }
+        // update for out of range group members (on 1 slot use)
+        m_target->UpdateAuraForGroup(slot);
+        sLog.outDebug("Aura: %u Effect: %d put to unit visible auras slot: %u",GetId(), GetEffIndex(), slot);
     }
     else
-       sLog.outDebug("Aura: %u Effect: %d could not find empty unit visible slot",GetId(), GetEffIndex());
+        sLog.outDebug("Aura: %u Effect: %d could not find empty unit visible slot",GetId(), GetEffIndex());
+
+    if(secondaura)
+        return;
 
     //*****************************************************
     // Update target aura state flag
     // TODO: Make it easer
     //*****************************************************
 
-    if (!secondaura)
+    // Sitdown on apply aura req seated
+    if (m_spellProto->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED && !m_target->IsSitState())
+        m_target->SetStandState(UNIT_STAND_STATE_SIT);
+
+    // register aura diminishing on apply
+    if (getDiminishGroup() != DIMINISHING_NONE )
+        m_target->ApplyDiminishingAura(getDiminishGroup(),true);
+
+    // Apply linked auras (On first aura apply)
+    uint32 id = GetId();
+    if(spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_AURA)
     {
-        // Sitdown on apply aura req seated
-        if (m_spellProto->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED && !m_target->IsSitState())
-            m_target->SetStandState(UNIT_STAND_STATE_SIT);
-
-        // register aura diminishing on apply
-        if (getDiminishGroup() != DIMINISHING_NONE )
-            m_target->ApplyDiminishingAura(getDiminishGroup(),true);
-
-        // Apply linked auras (On first aura apply)
-        uint32 id = GetId();
-        if(spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_AURA)
-        {
-            if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(id + SPELL_LINK_AURA))
-                for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
-                    if(*itr < 0)
-                        m_target->ApplySpellImmune(id, IMMUNITY_ID, *itr, m_target);
-                    else if(Unit* caster = GetCaster())
-                        m_target->AddAura(*itr, m_target);
-        }
+        if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(id + SPELL_LINK_AURA))
+            for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+                if(*itr < 0)
+                    m_target->ApplySpellImmune(id, IMMUNITY_ID, *itr, m_target);
+                else if(Unit* caster = GetCaster())
+                    m_target->AddAura(*itr, m_target);
     }
 
     // Update Seals information
