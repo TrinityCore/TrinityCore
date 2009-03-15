@@ -4332,7 +4332,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
             UpdateInterruptMask();
         }
 
-        if(Aur->GetSpellProto()->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE)
+        if((Aur->GetSpellProto()->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE
             && Aur->GetModifier()->m_auraname != SPELL_AURA_MOD_POSSESS) //only dummy aura is breakable
             || (Aur->GetSpellProto()->Mechanic==MECHANIC_KNOCKOUT && Aur->GetModifier()->m_auraname==SPELL_AURA_MOD_STUN))
         {
