@@ -1384,7 +1384,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
                 return &itr->second;
             return 0;
         }
-        void SetVisibleAura(uint8 slot, AuraSlotEntry entry) { m_visibleAuras[slot] = entry; }
+        AuraSlotEntry * GetVisibleAuraSlot(uint8 slot) { return &m_visibleAuras[slot]; }
         void RemoveVisibleAura(uint8 slot) { m_visibleAuras.erase(slot); }
 
         const uint64& GetAuraUpdateMask() const { return m_auraUpdateMask; }
