@@ -22,6 +22,7 @@
 #define __SPELL_H
 
 #include "GridDefines.h"
+#include "SharedDefines.h"
 
 class WorldSession;
 class Unit;
