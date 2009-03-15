@@ -2620,8 +2620,8 @@ void Spell::finish(bool ok)
             m_caster->resetAttackTimer(RANGED_ATTACK);
     }
 
-    // mana/health potions, disabled by client, send event "not in combat"
-    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->Category == SPELLCATEGORY_HEALTH_MANA_POTIONS)
+    // potions disabled by client, send event "not in combat" if need
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
         ((Player*)m_caster)->UpdatePotionCooldown(this);
 
     // call triggered spell only at successful cast (after clear combo points -> for add some if need)
