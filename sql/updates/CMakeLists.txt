@@ -83,7 +83,6 @@ INSTALL(FILES
 1884_world.sql
 1886_world.sql
 1895_world.sql
-1905_world.sql
 1906_world.sql
 1910_world.sql
 1911_world.sql

@@ -5610,16 +5610,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 basepoints0 = damage * triggerAmount / 100;
                 break;
             }
-            // Haunt
-            if (dummySpell->SpellFamilyFlags[1] & 0x40000)
-            {
-                if(!pVictim || !pVictim->isAlive())
-                    return false;
-
-                basepoints0 = dummySpell->EffectBasePoints[1];
-                triggered_spell_id = 48210;
-                return true;
-            }
             switch(dummySpell->Id)
             {
                 // Nightfall
