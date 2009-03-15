@@ -390,19 +390,16 @@ void Group::Disband(bool hideDestroy)
             continue;
 
         //we cannot call _removeMember because it would invalidate member iterator
-        if (player)
+        //if we are removing player from battleground raid
+        if( isBGGroup() )
+            player->RemoveFromBattleGroundRaid();
+        else
         {
-            //if we are removing player from battleground raid
-            if( isBGGroup() )
-                player->RemoveFromBattleGroundRaid();
+            //we can remove player who is in battleground from his original group
+            if( player->GetOriginalGroup() == this )
+                player->SetOriginalGroup(NULL);
             else
-            {
-                //we can remove player who is in battleground from his original group
-                if( player->GetOriginalGroup() == this )
-                    player->SetOriginalGroup(NULL);
-                else
-                    player->SetGroup(NULL);
-            }
+                player->SetGroup(NULL);
         }
 
         // quest related GO state dependent from raid membership
