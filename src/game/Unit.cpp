@@ -8698,7 +8698,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     {
         if ((*i)->GetSpellProto()->SpellIconID == 3263 && (*i)->isAffectedOnSpell(spellProto))
         {
-            if(pVictim->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED)
+            if(pVictim->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
                 DoneTotalMod *=float((*i)->GetModifier()->m_amount + 100.f) / 100.f;
             break;
         }
