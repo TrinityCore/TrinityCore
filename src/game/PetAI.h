@@ -47,7 +47,6 @@ class TRINITY_DLL_DECL PetAI : public CreatureAI
         void UpdateAllies();
 
         Creature &i_pet;
-        bool inCombat;
         TimeTracker i_tracker;
         std::set<uint64> m_AllySet;
         uint32 m_updateAlliesTimer;
