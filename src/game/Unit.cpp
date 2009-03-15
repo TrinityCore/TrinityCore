@@ -4381,8 +4381,8 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
                 {
                     if(AurSpellInfo->Effect[i] == SPELL_EFFECT_SUMMON &&
                         (AurSpellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED ||
-                         AurSpellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED2 ||
-                         AurSpellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED3))
+                         AurSpellInfo->EffectMiscValueB[i] == SUMMON_TYPE_RACE_CONTROLLER ||
+                         AurSpellInfo->EffectMiscValueB[i] == SUMMON_TYPE_STEAM_TONK))
                     {
                         ((Player*)caster)->StopCastingCharm();
                         break;
@@ -8698,7 +8698,8 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     {
         if ((*i)->GetSpellProto()->SpellIconID == 3263 && (*i)->isAffectedOnSpell(spellProto))
         {
-            DoneTotalMod *=float((*i)->GetModifier()->m_amount + 100.f) / 100.f;
+            if(pVictim->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED)
+                DoneTotalMod *=float((*i)->GetModifier()->m_amount + 100.f) / 100.f;
             break;
         }
     }
