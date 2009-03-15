@@ -595,6 +595,7 @@ class Spell
         void SpellDamageSchoolDmg(uint32 i);
         void SpellDamageWeaponDmg(uint32 i);
         void SpellDamageHeal(uint32 i);
+        SpellCastResult CanOpenLock(uint32 effIndex, uint32 lockid, SkillType& skillid, int32& reqSkillValue, int32& skillValue);
         // -------------------------------------------
 
         //List For Triggered Spells
