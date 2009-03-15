@@ -3083,7 +3083,7 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
     player->SendLoot(guid, loottype);
 }
 
-void Spell::EffectOpenLock(uint32 /*i*/)
+void Spell::EffectOpenLock(uint32 effIndex)
 {
     if(!m_caster || m_caster->GetTypeId() != TYPEID_PLAYER)
     {
@@ -3093,7 +3093,6 @@ void Spell::EffectOpenLock(uint32 /*i*/)
 
     Player* player = (Player*)m_caster;
 
-    LootType loottype = LOOT_CORPSE;
     uint32 lockId = 0;
     uint64 guid = 0;
 
@@ -3146,7 +3145,7 @@ void Spell::EffectOpenLock(uint32 /*i*/)
 
     if(!lockId)                                             // possible case for GO and maybe for items.
     {
-        SendLoot(guid, loottype);
+        SendLoot(guid, LOOT_CORPSE);
         return;
     }
 
@@ -3161,74 +3160,75 @@ void Spell::EffectOpenLock(uint32 /*i*/)
         return;
     }
 
-    // check key
-    for(int i = 0; i < 8; ++i)
+    bool reqKey = false;                                    // some locks not have reqs
+
+    for(int j = 0; j < 8; ++j)
     {
-        // Type==1 This means lockInfo->Index[i] is an item
-        if(lockInfo->Type[i]==LOCK_KEY_ITEM && lockInfo->Index[i] && m_CastItem && m_CastItem->GetEntry()==lockInfo->Index[i])
+        switch(lockInfo->Type[j])
         {
-            SendLoot(guid, loottype);
-            return;
+            // check key item (many fit cases can be)
+            case LOCK_KEY_ITEM:
+                if(lockInfo->Index[j] && m_CastItem && m_CastItem->GetEntry()==lockInfo->Index[j])
+                {
+                    SendLoot(guid, LOOT_CORPSE);
+                    return;
+                }
+                reqKey = true;
+                break;
+            // check key skill (only single first fit case can be)
+            case LOCK_KEY_SKILL:
+            {
+                reqKey = true;
+
+                // wrong locktype, skip
+                if(uint32(m_spellInfo->EffectMiscValue[effIndex]) != lockInfo->Index[j])
+                    continue;
+
+                SkillType skillId = SkillByLockType(LockType(lockInfo->Index[j]));
+
+                if ( skillId != SKILL_NONE )
+                {
+                    // skill bonus provided by casting spell (mostly item spells)
+                    uint32 spellSkillBonus = uint32(damage);
+                    uint32 reqSkillValue = lockInfo->Skill[j];
+
+                    if ( player->GetSkillValue(skillId) + spellSkillBonus < reqSkillValue )
+                    {
+                        SendCastResult(SPELL_FAILED_LOW_CASTLEVEL);
+                        return;
+                    }
+
+                    // update skill if really known
+                    if(uint32 SkillValue = player->GetPureSkillValue(skillId))
+                    {
+                        if(gameObjTarget)
+                        {
+                            // Allow one skill-up until respawned
+                            if ( !gameObjTarget->IsInSkillupList( player->GetGUIDLow() ) &&
+                                player->UpdateGatherSkill(skillId, SkillValue, reqSkillValue) )
+                                gameObjTarget->AddToSkillupList( player->GetGUIDLow() );
+                        }
+                        else if(itemTarget)
+                        {
+                            // Do one skill-up
+                            player->UpdateGatherSkill(skillId, SkillValue, reqSkillValue);
+                        }
+                    }
+                }
+
+                SendLoot(guid, LOOT_SKINNING);
+                return;
+            }
         }
     }
 
-    uint32 SkillId = 0;
-    // Check and skill-up skill
-    if( m_spellInfo->Effect[1] == SPELL_EFFECT_SKILL )
-        SkillId = m_spellInfo->EffectMiscValue[1];
-                                                            // pickpocketing spells
-    else if( m_spellInfo->EffectMiscValue[0] == LOCKTYPE_PICKLOCK )
-        SkillId = SKILL_LOCKPICKING;
-
-    // skill bonus provided by casting spell (mostly item spells)
-    uint32 spellSkillBonus = uint32(damage/*m_currentBasePoints[0]+1*/);
-
-    uint32 reqSkillValue = lockInfo->Skill[0];
-
-    if(lockInfo->Skill[1])                                  // required pick lock skill applying
-    {
-        if(SkillId != SKILL_LOCKPICKING)                    // wrong skill (cheating?)
-        {
-            SendCastResult(SPELL_FAILED_FIZZLE);
-            return;
-        }
-
-        reqSkillValue = lockInfo->Skill[1];
-    }
-    else if(SkillId == SKILL_LOCKPICKING)                   // apply picklock skill to wrong target
+    if(reqKey)
     {
         SendCastResult(SPELL_FAILED_BAD_TARGETS);
         return;
     }
 
-    if ( SkillId )
-    {
-        loottype = LOOT_SKINNING;
-        if ( player->GetSkillValue(SkillId) + spellSkillBonus < reqSkillValue )
-        {
-            SendCastResult(SPELL_FAILED_LOW_CASTLEVEL);
-            return;
-        }
-
-        // update skill if really known
-        if(uint32 SkillValue = player->GetPureSkillValue(SkillId))
-        {
-            if(gameObjTarget)
-            {
-                // Allow one skill-up until respawned
-                if ( !gameObjTarget->IsInSkillupList( player->GetGUIDLow() ) &&
-                    player->UpdateGatherSkill(SkillId, SkillValue, reqSkillValue) )
-                    gameObjTarget->AddToSkillupList( player->GetGUIDLow() );
-            }
-            else if(itemTarget)
-            {
-                // Do one skill-up
-                player->UpdateGatherSkill(SkillId, SkillValue, reqSkillValue);
-            }
-        }
-    }
-
-    SendLoot(guid, loottype);
+    SendLoot(guid, LOOT_SKINNING);
 }
 
 void Spell::EffectSummonChangeItem(uint32 i)
