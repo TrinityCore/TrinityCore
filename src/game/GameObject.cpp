@@ -1364,8 +1364,28 @@ void GameObject::Use(Unit* user)
     spell->prepare(&targets);
 }
 
-void GameObject::CastSpell(Unit* target, uint32 spell)
+void GameObject::CastSpell(Unit* target, uint32 spellId)
 {
+    SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
+    if(!spellInfo)
+        return;
+
+    bool self = false;
+    for(int i = 0; i < 3; ++i)
+    {
+        if(spellInfo->EffectImplicitTargetA[i] == TARGET_UNIT_CASTER)
+        {
+            self = true;
+            break;
+        }
+    }
+
+    if(self)
+    {
+        target->CastSpell(target, spellInfo, true);
+        return;
+    }
+
     //summon world trigger
     Creature *trigger = SummonTrigger(GetPositionX(), GetPositionY(), GetPositionZ(), 0, 1);
     if(!trigger) return;
@@ -1374,12 +1394,12 @@ void GameObject::CastSpell(Unit* target, uint32 spell)
     if(Unit *owner = GetOwner())
     {
         trigger->setFaction(owner->getFaction());
-        trigger->CastSpell(target, spell, true, 0, 0, owner->GetGUID());
+        trigger->CastSpell(target, spellInfo, true, 0, 0, owner->GetGUID());
     }
     else
     {
         trigger->setFaction(14);
-        trigger->CastSpell(target, spell, true, 0, 0, target->GetGUID());
+        trigger->CastSpell(target, spellInfo, true, 0, 0, target->GetGUID());
     }
     //trigger->setDeathState(JUST_DIED);
     //trigger->RemoveCorpse();
