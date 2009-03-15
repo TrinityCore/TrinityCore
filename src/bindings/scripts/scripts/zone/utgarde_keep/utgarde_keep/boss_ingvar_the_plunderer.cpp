@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -96,9 +96,6 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
 
     void Reset()
     {
-        if(pInstance)
-            pInstance->SetData(DATA_INGVAR, NOT_STARTED);
-
         if(undead) // Visual Hack
             m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_INGVAR_HUMAN);
 
@@ -116,6 +113,9 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
         SpawnResTimer = 3000;
 
         wait_Timer = 0;
+
+        if(pInstance)
+            pInstance->SetData(DATA_INGVAR_EVENT, NOT_STARTED);
     }
 
     void DamageTaken(Unit *done_by, uint32 &damage) 
@@ -160,20 +160,20 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        if(pInstance)
-            pInstance->SetData(DATA_INGVAR, IN_PROGRESS);
-
         DoYell(YELL_AGGRO_1,LANG_UNIVERSAL,NULL);
         DoPlaySoundToSet(m_creature,SOUND_AGGRO_1);
+
+        if(pInstance)
+            pInstance->SetData(DATA_INGVAR_EVENT, IN_PROGRESS);
     }
 
     void JustDied(Unit* killer)  
     {
-        if(pInstance)
-            pInstance->SetData(DATA_INGVAR, DONE);
-
         DoYell(YELL_DEAD_2,LANG_UNIVERSAL,NULL);
         DoPlaySoundToSet(m_creature,SOUND_DEAD_2);
+
+        if(pInstance)
+            pInstance->SetData(DATA_INGVAR_EVENT, DONE);
     }
 
     void KilledUnit(Unit *victim)
@@ -189,7 +189,6 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
             DoPlaySoundToSet(m_creature,SOUND_KILL_2);
         }
     }
-
 
     void UpdateAI(const uint32 diff)
     {

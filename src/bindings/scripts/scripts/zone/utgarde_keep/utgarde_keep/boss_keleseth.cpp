@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -120,7 +120,7 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
         ResetTimer();
 
         if(pInstance)
-            pInstance->SetData(DATA_PRINCEKELESETH, NOT_STARTED);
+            pInstance->SetData(DATA_PRINCEKELESETH_EVENT, NOT_STARTED);
     }
 
     void KilledUnit(Unit *victim)
@@ -133,19 +133,19 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
 
     void JustDied(Unit* killer)  
     {
-        if(pInstance)
-            pInstance->SetData(DATA_PRINCEKELESETH, DONE);
-
         DoScriptText(SAY_DEATH, m_creature);
+
+        if(pInstance)
+            pInstance->SetData(DATA_PRINCEKELESETH_EVENT, DONE);
     }
 
     void Aggro(Unit* who) 
     {
-        if(pInstance)
-            pInstance->SetData(DATA_PRINCEKELESETH, IN_PROGRESS);
-
         DoScriptText(SAY_AGGRO, m_creature);
         DoZoneInCombat();
+
+        if(pInstance)
+            pInstance->SetData(DATA_PRINCEKELESETH_EVENT, IN_PROGRESS);
     }
 
     void ResetTimer(uint32 inc = 0)
@@ -273,7 +273,7 @@ struct TRINITY_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(pInstance->GetData(DATA_PRINCEKELESETH) == IN_PROGRESS)
+        if(pInstance->GetData(DATA_PRINCEKELESETH_EVENT) == IN_PROGRESS)
         {
             if(isDead)
             {

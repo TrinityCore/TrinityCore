@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -94,11 +94,12 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
         ghost = (m_creature->GetEntry() == MOB_SKARVALD_GHOST);
         if(!ghost)
         {
-            pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT,NOT_STARTED);
-
             Unit* dalronn = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_DALRONN));
             if(dalronn && dalronn->isDead())
                 ((Creature*)dalronn)->Respawn();
+
+            if(pInstance)
+                pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT, NOT_STARTED);
         }
     }
 
@@ -109,10 +110,12 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
             DoYell(YELL_SKARVALD_AGGRO,LANG_UNIVERSAL,NULL);
             DoPlaySoundToSet(m_creature,SOUND_SKARVALD_AGGRO);
 
-            pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT,IN_PROGRESS);
             Unit* dalronn = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_DALRONN));
             if(dalronn && dalronn->isAlive() && !dalronn->getVictim())
                 dalronn->getThreatManager().addThreat(who,0.0f);
+
+            if(pInstance)
+                pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT, IN_PROGRESS);
         }
     }
 
@@ -128,7 +131,8 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
                     DoYell(YELL_SKARVALD_DAL_DIED,LANG_UNIVERSAL,NULL);
                     DoPlaySoundToSet(m_creature,SOUND_SKARVALD_DAL_DIED);
 
-                    pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT,DONE);
+                    if(pInstance)
+                        pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT, DONE);
                 }
                 else
                 {
@@ -248,23 +252,27 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
         ghost = m_creature->GetEntry() == MOB_DALRONN_GHOST;
         if(!ghost)
         {
-            pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT,NOT_STARTED);
-
             Unit* skarvald = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SKARVALD));
             if(skarvald && skarvald->isDead())
                 ((Creature*)skarvald)->Respawn();
+
+            if(pInstance)
+                pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT, NOT_STARTED);
         }
     }
+
     void Aggro(Unit *who)
     {
         if(!ghost)
         {
-            pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT,IN_PROGRESS);
             Unit* skarvald = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SKARVALD));
             if(skarvald && skarvald->isAlive() && !skarvald->getVictim())
                 skarvald->getThreatManager().addThreat(who,0.0f);
 
             AggroYell_Timer = 5000;
+
+            if(pInstance)
+                pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT, IN_PROGRESS);
         }
     }
 
@@ -279,7 +287,8 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
                     DoYell(YELL_DALRONN_SKA_DIED,LANG_UNIVERSAL,NULL);
                     DoPlaySoundToSet(m_creature,SOUND_DALRONN_SKA_DIED);
 
-                    pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT,DONE);
+                    if(pInstance)
+                        pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT, DONE);
                 }
                 else
                 {
