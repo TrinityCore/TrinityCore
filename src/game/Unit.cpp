@@ -13418,9 +13418,10 @@ void Unit::SendAuraUpdate(uint8 slot)
     data << uint8(entry->m_Level);
     data << uint8(ptr->GetAuraCharges()? ptr->GetAuraCharges() : ptr->GetStackAmount());
 
-    if(!(entry->m_Flags & AFLAG_NOT_CASTER))
+    if(!(entry->m_Flags & AFLAG_CASTER))
     {
-        data << uint8(0);                                   // pguid
+        if (Unit * caster = ptr->GetCaster())
+            data.append(caster->GetPackGUID());
     }
 
     if(entry->m_Flags & AFLAG_DURATION)

@@ -846,7 +846,7 @@ void Aura::_AddAura()
             assert(slot < MAX_AURAS);      // assert that we find a slot and it is valid
 
             AuraSlotEntry t_entry;
-            t_entry.m_Flags=(IsPositive() ? AFLAG_POSITIVE : AFLAG_NEGATIVE) | AFLAG_NOT_CASTER | ((GetAuraMaxDuration() > 0) ? AFLAG_DURATION : AFLAG_NONE);
+            t_entry.m_Flags=(IsPositive() ? AFLAG_POSITIVE : AFLAG_NEGATIVE) | ((GetCasterGUID() == m_target->GetGUID()) ? AFLAG_CASTER : AFLAG_NONE) | ((GetAuraMaxDuration() > 0) ? AFLAG_DURATION : AFLAG_NONE);
             t_entry.m_Level=(caster ? caster->getLevel() : sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL));
             t_entry.m_spellId = GetId();
             //init pointers-prevent unexpected behaviour
@@ -5815,17 +5815,6 @@ void Aura::PeriodicTick()
                 GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), m_target->GetGUIDLow(), m_target->GetTypeId(), pdamage, GetId());
 
             int32 drain_amount = m_target->GetPower(power) > pdamage ? pdamage : m_target->GetPower(power);
-
-            //Viper sting and Drain Life take mana % amount from target, but not bigger than amount*2 of caster mana
-            if ((m_spellProto->SpellFamilyName==SPELLFAMILY_WARLOCK && m_spellProto->SpellFamilyFlags[0]&0x10)
-                || (m_spellProto->SpellFamilyName==SPELLFAMILY_HUNTER && m_spellProto->SpellFamilyFlags[1]&0x80))
-            {
-               uint32 drain = m_target->GetMaxPower(power) * drain_amount /100;
-               if(drain > pCaster->GetMaxPower(power) * drain_amount / 50)
-                  drain_amount = pCaster->GetMaxPower(power) * drain_amount / 50;
-               else
-                  drain_amount = drain;
-            }
 
             // resilience reduce mana draining effect at spell crit damage reduction (added in 2.4)
             if (power == POWER_MANA && m_target->GetTypeId() == TYPEID_PLAYER)
