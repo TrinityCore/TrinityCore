@@ -8,12 +8,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 /* ScriptData
@@ -98,7 +98,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
 
     void OnCreatureCreate(Creature *creature, uint32 creature_entry)
     {
-        switch(creature->GetEntry())
+        switch(creature_entry)
         { 
             case 23953:    Keleseth = creature->GetGUID();             break;
             case 24201:    Dalronn = creature->GetGUID();              break;
@@ -119,10 +119,10 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
     {
         switch(identifier)
         {
-        case DATA_PRINCEKELESETH:         return Keleseth;
-        case DATA_DALRONN:                return Dalronn;
-        case DATA_SKARVALD:               return Skarvald;
-        case DATA_INGVAR:                 return Ingvar;
+            case DATA_PRINCEKELESETH:         return Keleseth;
+            case DATA_DALRONN:                return Dalronn;
+            case DATA_SKARVALD:               return Skarvald;
+            case DATA_INGVAR:                 return Ingvar;
         }
 
         return 0;
@@ -132,7 +132,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
     {
         switch(type)
         {
-        case DATA_PRINCEKELESETH:
+        case DATA_PRINCEKELESETH_EVENT:
             if(data == DONE)
             {
                 //HandleGameObject(doorname, 0);
@@ -144,7 +144,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
                 //HandleGameObject(doorname, 0);
             }
             Encounters[1] = data; break;
-        case DATA_INGVAR:
+        case DATA_INGVAR_EVENT:
             if(data == DONE)
             {
                 //HandleGameObject(doorname, 0);
@@ -162,9 +162,9 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
     {
         switch(type)
         {
-        case DATA_PRINCEKELESETH:            return Encounters[0];
-        case DATA_SKARVALD_DALRONN_EVENT:    return Encounters[1];
-        case DATA_INGVAR:                    return Encounters[2];
+            case DATA_PRINCEKELESETH_EVENT:     return Encounters[0];
+            case DATA_SKARVALD_DALRONN_EVENT:   return Encounters[1];
+            case DATA_INGVAR_EVENT:             return Encounters[2];
         }
 
         return 0;
