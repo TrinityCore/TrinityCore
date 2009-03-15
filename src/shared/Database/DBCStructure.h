@@ -981,13 +981,15 @@ struct ItemSetEntry
     uint32    required_skill_value;                         // 52       m_requiredSkillRank
 };
 
+#define MAX_LOCK_CASE 8
+
 struct LockEntry
 {
     uint32      ID;                                         // 0        m_ID
-    uint32      Type[8];                                    // 1-8      m_Type
-    uint32      Index[8];                                   // 9-16     m_Index
-    uint32      Skill[8];                                   // 17-24    m_Skill
-    //uint32      Action[8];                                // 25-32    m_Action
+    uint32      Type[MAX_LOCK_CASE];                        // 1-8      m_Type
+    uint32      Index[MAX_LOCK_CASE];                       // 9-16     m_Index
+    uint32      Skill[MAX_LOCK_CASE];                       // 17-24    m_Skill
+    //uint32      Action[MAX_LOCK_CASE];                    // 25-32    m_Action
 };
 
 struct MailTemplateEntry

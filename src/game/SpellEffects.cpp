@@ -3143,92 +3143,39 @@ void Spell::EffectOpenLock(uint32 effIndex)
         return;
     }
 
-    if(!lockId)                                             // possible case for GO and maybe for items.
+    SkillType skillId = SKILL_NONE;
+    int32 reqSkillValue = 0;
+    int32 skillValue;
+
+    SpellCastResult res = CanOpenLock(effIndex,lockId,skillId,reqSkillValue,skillValue);
+    if(res != SPELL_CAST_OK)
     {
-        SendLoot(guid, LOOT_CORPSE);
-        return;
-    }
-
-    // Get LockInfo
-    LockEntry const *lockInfo = sLockStore.LookupEntry(lockId);
-
-    if (!lockInfo)
-    {
-        sLog.outError( "Spell::EffectOpenLock: %s [guid = %u] has an unknown lockId: %u!",
-            (gameObjTarget ? "gameobject" : "item"), GUID_LOPART(guid), lockId);
-        SendCastResult(SPELL_FAILED_BAD_TARGETS);
-        return;
-    }
-
-    bool reqKey = false;                                    // some locks not have reqs
-
-    for(int j = 0; j < 8; ++j)
-    {
-        switch(lockInfo->Type[j])
-        {
-            // check key item (many fit cases can be)
-            case LOCK_KEY_ITEM:
-                if(lockInfo->Index[j] && m_CastItem && m_CastItem->GetEntry()==lockInfo->Index[j])
-                {
-                    SendLoot(guid, LOOT_CORPSE);
-                    return;
-                }
-                reqKey = true;
-                break;
-            // check key skill (only single first fit case can be)
-            case LOCK_KEY_SKILL:
-            {
-                reqKey = true;
-
-                // wrong locktype, skip
-                if(uint32(m_spellInfo->EffectMiscValue[effIndex]) != lockInfo->Index[j])
-                    continue;
-
-                SkillType skillId = SkillByLockType(LockType(lockInfo->Index[j]));
-
-                if ( skillId != SKILL_NONE )
-                {
-                    // skill bonus provided by casting spell (mostly item spells)
-                    uint32 spellSkillBonus = uint32(damage);
-                    uint32 reqSkillValue = lockInfo->Skill[j];
-
-                    if ( player->GetSkillValue(skillId) + spellSkillBonus < reqSkillValue )
-                    {
-                        SendCastResult(SPELL_FAILED_LOW_CASTLEVEL);
-                        return;
-                    }
-
-                    // update skill if really known
-                    if(uint32 SkillValue = player->GetPureSkillValue(skillId))
-                    {
-                        if(gameObjTarget)
-                        {
-                            // Allow one skill-up until respawned
-                            if ( !gameObjTarget->IsInSkillupList( player->GetGUIDLow() ) &&
-                                player->UpdateGatherSkill(skillId, SkillValue, reqSkillValue) )
-                                gameObjTarget->AddToSkillupList( player->GetGUIDLow() );
-                        }
-                        else if(itemTarget)
-                        {
-                            // Do one skill-up
-                            player->UpdateGatherSkill(skillId, SkillValue, reqSkillValue);
-                        }
-                    }
-                }
-
-                SendLoot(guid, LOOT_SKINNING);
-                return;
-            }
-        }
-    }
-
-    if(reqKey)
-    {
-        SendCastResult(SPELL_FAILED_BAD_TARGETS);
+        SendCastResult(res);
         return;
     }
 
     SendLoot(guid, LOOT_SKINNING);
+
+    // not allow use skill grou at item base open
+    if(!m_CastItem && skillId != SKILL_NONE)
+    {
+        // update skill if really known
+        if(uint32 pureSkillValue = player->GetPureSkillValue(skillId))
+        {
+            if(gameObjTarget)
+            {
+                // Allow one skill-up until respawned
+                if ( !gameObjTarget->IsInSkillupList( player->GetGUIDLow() ) &&
+                    player->UpdateGatherSkill(skillId, pureSkillValue, reqSkillValue) )
+                    gameObjTarget->AddToSkillupList( player->GetGUIDLow() );
+            }
+            else if(itemTarget)
+            {
+                // Do one skill-up
+                player->UpdateGatherSkill(skillId, pureSkillValue, reqSkillValue);
+            }
+        }
+    }
 }
 
 void Spell::EffectSummonChangeItem(uint32 i)
