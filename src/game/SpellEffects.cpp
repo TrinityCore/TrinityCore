@@ -5043,10 +5043,10 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 // Emblazon Runeblade
                 case 51770:
                 {
-                    if(!unitTarget)
+                    if(!m_originalCaster)
                         return;
 
-                    unitTarget->CastSpell(unitTarget,51771,false);
+                    m_originalCaster->CastSpell(m_originalCaster, damage, false);
                     break;
                 }
                 // Death Gate
