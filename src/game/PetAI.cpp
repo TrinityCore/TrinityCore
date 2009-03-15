@@ -38,7 +38,7 @@ int PetAI::Permissible(const Creature *creature)
     return PERMIT_BASE_NO;
 }
 
-PetAI::PetAI(Creature *c) : CreatureAI(c), i_pet(*c), i_tracker(TIME_INTERVAL_LOOK), inCombat(false)
+PetAI::PetAI(Creature *c) : CreatureAI(c), i_pet(*c), i_tracker(TIME_INTERVAL_LOOK)
 {
     m_AllySet.clear();
     UpdateAllies();
@@ -59,7 +59,6 @@ bool PetAI::_needToStop() const
 
 void PetAI::_stopAttack()
 {
-    inCombat = false;
     if( !i_pet.isAlive() )
     {
         DEBUG_LOG("Creature stoped attacking cuz his dead [guid=%u]", i_pet.GetGUIDLow());
@@ -126,6 +125,8 @@ void PetAI::UpdateAI(const uint32 diff)
 
     if (i_pet.GetGlobalCooldown() == 0 && !i_pet.hasUnitState(UNIT_STAT_CASTING))
     {
+        bool inCombat = me->getVictim();
+
         //Autocast
         for (uint8 i = 0; i < i_pet.GetPetAutoSpellSize(); i++)
         {
