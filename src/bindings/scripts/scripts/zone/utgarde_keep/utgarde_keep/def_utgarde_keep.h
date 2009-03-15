@@ -8,21 +8,24 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #ifndef DEF_UTGARDE_KEEP_H
 #define DEF_UTGARDE_KEEP_H
 
 #define DATA_PRINCEKELESETH             1
-#define DATA_SKARVALD                   2
-#define DATA_DALRONN                    3
-#define DATA_INGVAR                     4
+#define DATA_SKARVALD                   3
+#define DATA_DALRONN                    4
+#define DATA_INGVAR                     6
 
-#define DATA_SKARVALD_DALRONN_EVENT     2
+#define DATA_PRINCEKELESETH_EVENT       2
+#define DATA_SKARVALD_DALRONN_EVENT     5
+#define DATA_INGVAR_EVENT               7
+
 #endif
