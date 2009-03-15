@@ -45,6 +45,7 @@ enum MovementGeneratorType
     POINT_MOTION_TYPE     = 8,                              // PointMovementGenerator.h
     FLEEING_MOTION_TYPE   = 9,                              // FleeingMovementGenerator.h
     DISTRACT_MOTION_TYPE  = 10,                             // IdleMovementGenerator.h
+    NULL_MOTION_TYPE      = 11,
 };
 
 enum MovementSlot
@@ -94,7 +95,7 @@ class TRINITY_DLL_SPEC MotionMaster //: private std::stack<MovementGenerator *>
 
         int size() const { return i_top + 1; }
         _Ty top() const { return Impl[i_top]; }
-        _Ty GetMotionSlot(int slot) { return Impl[slot]; }
+        _Ty GetMotionSlot(int slot) const { return Impl[slot]; }
 
         void DirectDelete(_Ty curr);
         void DelayedDelete(_Ty curr);
@@ -141,6 +142,7 @@ class TRINITY_DLL_SPEC MotionMaster //: private std::stack<MovementGenerator *>
         void MovePath(uint32 path_id, bool repeatable);
 
         MovementGeneratorType GetCurrentMovementGeneratorType() const;
+        MovementGeneratorType GetMotionSlotType(int slot) const;
 
         void propagateSpeedChange();
 
