@@ -811,7 +811,7 @@ void Aura::_AddAura()
     // Try find slot for aura
     uint8 slot = NULL_AURA_SLOT;
     // Lookup for auras already applied from spell
-    for(uint8 i = 0; i < 3; i++)
+    for(uint8 i = 0; i < 3; ++i)
     {
         Unit::spellEffectPair spair = Unit::spellEffectPair(GetId(), i);
         for(Unit::AuraMap::const_iterator itr = m_target->GetAuras().lower_bound(spair); itr != m_target->GetAuras().upper_bound(spair); ++itr)
@@ -831,7 +831,7 @@ void Aura::_AddAura()
     Unit::VisibleAuraMap const *visibleAuras = m_target->GetVisibleAuras();
     if(visibleAuras->size() < MAX_AURAS || slot < MAX_AURAS)       // got free slot
     {
-        AuraSlotEntry * entry;
+        AuraSlotEntry *entry = NULL;
 
         // Lookup free slot
         if (!secondaura)
@@ -852,8 +852,8 @@ void Aura::_AddAura()
             entry->m_Level=(caster ? caster->getLevel() : sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL));
             entry->m_spellId = GetId();
             //init pointers-prevent unexpected behaviour
-            for(uint8 i = 0; i < 3; i++)
-                entry->m_slotAuras[i]=NULL;
+            for(uint8 i = 0; i < 3; ++i)
+                entry->m_slotAuras[i] = NULL;
         }
         else
             entry = m_target->GetVisibleAura(slot);
