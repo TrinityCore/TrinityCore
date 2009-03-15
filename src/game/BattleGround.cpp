@@ -1170,7 +1170,12 @@ void BattleGround::AddOrSetPlayerToCorrectBgGroup(Player *plr, uint64 plr_guid, 
             plr->SetBattleGroundRaid(group, subgroup);
         }
         else
-            GetBgRaid(team)->AddMember(plr_guid, plr->GetName());
+        {
+            group->AddMember(plr_guid, plr->GetName());
+            if( Group* originalGroup = plr->GetOriginalGroup() )
+                if( originalGroup->IsLeader(plr_guid) )
+                    group->ChangeLeader(plr_guid);
+        }
     }
 }
 
