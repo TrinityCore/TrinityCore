@@ -203,7 +203,8 @@ void Group::ConvertToRaid()
 
     _initRaidSubGroupsCounter();
 
-    if(!isBGGroup()) CharacterDatabase.PExecute("UPDATE groups SET isRaid = 1 WHERE leaderGuid='%u'", GUID_LOPART(m_leaderGuid));
+    if(!isBGGroup())
+        CharacterDatabase.PExecute("UPDATE groups SET isRaid = 1 WHERE leaderGuid='%u'", GUID_LOPART(m_leaderGuid));
     SendUpdate();
 
     // update quest related GO states (quest activity dependent from raid membership)
@@ -214,7 +215,12 @@ void Group::ConvertToRaid()
 
 bool Group::AddInvite(Player *player)
 {
-    if(!player || player->GetGroupInvite() || player->GetGroup())
+    if( !player || player->GetGroupInvite() )
+        return false;
+    Group* group = player->GetGroup();
+    if( group && group->isBGGroup() )
+        group = player->GetOriginalGroup();
+    if( group )
         return false;
 
     RemoveInvite(player);
@@ -327,9 +333,17 @@ uint32 Group::RemoveMember(const uint64 &guid, const uint8 &method)
                 player->GetSession()->SendPacket( &data );
             }
 
-            data.Initialize(SMSG_GROUP_LIST, 24);
-            data << uint64(0) << uint64(0) << uint64(0);
-            player->GetSession()->SendPacket(&data);
+            //we already removed player from group and in player->GetGroup() is his original group!
+            if( Group* group = player->GetGroup() )
+            {
+                group->SendUpdate();
+            }
+            else
+            {
+                data.Initialize(SMSG_GROUP_LIST, 24);
+                data << uint64(0) << uint64(0) << uint64(0);
+                player->GetSession()->SendPacket(&data);
+            }
 
             _homebindIfInstance(player);
         }
@@ -338,7 +352,7 @@ uint32 Group::RemoveMember(const uint64 &guid, const uint8 &method)
         {
             WorldPacket data(SMSG_GROUP_SET_LEADER, (m_memberSlots.front().name.size()+1));
             data << m_memberSlots.front().name;
-            BroadcastPacket(&data);
+            BroadcastPacket(&data, true);
         }
 
         SendUpdate();
@@ -361,7 +375,7 @@ void Group::ChangeLeader(const uint64 &guid)
 
     WorldPacket data(SMSG_GROUP_SET_LEADER, slot->name.size()+1);
     data << slot->name;
-    BroadcastPacket(&data);
+    BroadcastPacket(&data, true);
     SendUpdate();
 }
 
@@ -375,12 +389,25 @@ void Group::Disband(bool hideDestroy)
         if(!player)
             continue;
 
-        player->SetGroup(NULL);
+        //we cannot call _removeMember because it would invalidate member iterator
+        if (player)
+        {
+            //if we are removing player from battleground raid
+            if( isBGGroup() )
+                player->RemoveFromBattleGroundRaid();
+            else
+            {
+                //we can remove player who is in battleground from his original group
+                if( player->GetOriginalGroup() == this )
+                    player->SetOriginalGroup(NULL);
+                else
+                    player->SetGroup(NULL);
+            }
+        }
 
         // quest related GO state dependent from raid membership
         if(isRaidGroup())
             player->UpdateForQuestsGO();
-
 
         if(!player->GetSession())
             continue;
@@ -392,9 +419,17 @@ void Group::Disband(bool hideDestroy)
             player->GetSession()->SendPacket(&data);
         }
 
-        data.Initialize(SMSG_GROUP_LIST, 24);
-        data << uint64(0) << uint64(0) << uint64(0);
-        player->GetSession()->SendPacket(&data);
+        //we already removed player from group and in player->GetGroup() is his original group, send update
+        if( Group* group = player->GetGroup() )
+        {
+            group->SendUpdate();
+        }
+        else
+        {
+            data.Initialize(SMSG_GROUP_LIST, 24);
+            data << uint64(0) << uint64(0) << uint64(0);
+            player->GetSession()->SendPacket(&data);
+        }
 
         _homebindIfInstance(player);
     }
@@ -842,7 +877,7 @@ void Group::SetTargetIcon(uint8 id, uint64 guid)
     data << (uint8)0;
     data << id;
     data << guid;
-    BroadcastPacket(&data);
+    BroadcastPacket(&data, true);
 }
 
 void Group::GetDataForXPAtKill(Unit const* victim, uint32& count,uint32& sum_level, Player* & member_with_max_level, Player* & not_gray_member_with_max_level)
@@ -895,7 +930,7 @@ void Group::SendUpdate()
     for(member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
         player = objmgr.GetPlayer(citr->guid);
-        if(!player || !player->GetSession())
+        if(!player || !player->GetSession() || player->GetGroup() != this )
             continue;
                                                             // guess size
         WorldPacket data(SMSG_GROUP_LIST, (1+1+1+1+8+4+GetMembersCount()*20));
@@ -909,11 +944,14 @@ void Group::SendUpdate()
         {
             if(citr->guid == citr2->guid)
                 continue;
+            Player* member = objmgr.GetPlayer(citr2->guid);
+            uint8 onlineState = (member) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
+            onlineState = onlineState | ((isBGGroup()) ? MEMBER_STATUS_PVP : 0);
 
             data << citr2->name;
             data << (uint64)citr2->guid;
                                                             // online-state
-            data << (uint8)(objmgr.GetPlayer(citr2->guid) ? 1 : 0);
+            data << (uint8)(onlineState);
             data << (uint8)(citr2->group);                  // groupid
             data << (uint8)(citr2->assistant?0x01:0);       // 0x2 main assist, 0x4 main tank
         }
@@ -947,12 +985,12 @@ void Group::UpdatePlayerOutOfRange(Player* pPlayer)
     }
 }
 
-void Group::BroadcastPacket(WorldPacket *packet, int group, uint64 ignore)
+void Group::BroadcastPacket(WorldPacket *packet, bool ignorePlayersInBGRaid, int group, uint64 ignore)
 {
     for(GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player *pl = itr->getSource();
-        if(!pl || (ignore != 0 && pl->GetGUID() == ignore))
+        if(!pl || (ignore != 0 && pl->GetGUID() == ignore) || (ignorePlayersInBGRaid && pl->GetGroup() != this) )
             continue;
 
         if (pl->GetSession() && (group==-1 || itr->getSubGroup()==group))
@@ -1031,7 +1069,15 @@ bool Group::_addMember(const uint64 &guid, const char* name, bool isAssistant, u
     if(player)
     {
         player->SetGroupInvite(NULL);
-        player->SetGroup(this, group);
+        //if player is in group and he is being added to BG raid group, then call SetBattleGroundRaid()
+        if( player->GetGroup() && isBGGroup() )
+            player->SetBattleGroundRaid(this, group);
+        //if player is in bg raid and we are adding him to normal group, then call SetOriginalGroup()
+        else if ( player->GetGroup() )
+            player->SetOriginalGroup(this, group);
+        //if player is not in group, then call set group
+        else
+            player->SetGroup(this, group);
         // if the same group invites the player back, cancel the homebind timer
         InstanceGroupBind *bind = GetBoundInstance(player->GetMapId(), player->GetDifficulty());
         if(bind && bind->save->GetInstanceId() == player->GetInstanceId())
@@ -1058,7 +1104,17 @@ bool Group::_removeMember(const uint64 &guid)
     Player *player = objmgr.GetPlayer(guid);
     if (player)
     {
-        player->SetGroup(NULL);
+        //if we are removing player from battleground raid
+        if( isBGGroup() )
+            player->RemoveFromBattleGroundRaid();
+        else
+        {
+            //we can remove player who is in battleground from his original group
+            if( player->GetOriginalGroup() == this )
+                player->SetOriginalGroup(NULL);
+            else
+                player->SetGroup(NULL);
+        }
     }
 
     _removeRolls(guid);
@@ -1250,12 +1306,17 @@ void Group::ChangeMembersGroup(Player *player, const uint8 &group)
         return;
     if(_setMembersGroup(player->GetGUID(), group))
     {
-        uint8 prevSubGroup;
-        prevSubGroup = player->GetSubGroup();
-
+        uint8 prevSubGroup = player->GetSubGroup();
+        if( player->GetGroup() == this )
+            player->GetGroupRef().setSubGroup(group);
+        //if player is in BG raid, it is possible that he is also in normal raid - and that normal raid is stored in m_originalGroup reference
+        else
+        {
+            prevSubGroup = player->GetOriginalSubGroup();
+            player->GetOriginalGroupRef().setSubGroup(group);
+        }
         SubGroupCounterDecrease(prevSubGroup);
 
-        player->GetGroupRef().setSubGroup(group);
         SendUpdate();
     }
 }
