@@ -8691,6 +8691,17 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
             DoneTotalMod *= 3.0f;
     }
 
+    // Torment the weak
+    AuraList const& mDumyAuras = GetAurasByType(SPELL_AURA_DUMMY);
+    for(AuraList::const_iterator i = mDumyAuras.begin(); i != mDumyAuras.end(); ++i)
+    {
+        if ((*i)->GetSpellProto()->SpellIconID == 3263 && (*i)->isAffectedOnSpell(spellProto))
+        {
+            DoneTotalMod *=float((*i)->GetModifier()->m_amount + 100.f) / 100.f;
+            break;
+        }
+    }
+
     // ..taken
     AuraList const& mModDamagePercentTaken = pVictim->GetAurasByType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
     for(AuraList::const_iterator i = mModDamagePercentTaken.begin(); i != mModDamagePercentTaken.end(); ++i)
@@ -9307,6 +9318,15 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
     if(Player* modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spellProto->Id, damagetype == DOT ? SPELLMOD_DOT : SPELLMOD_DAMAGE, heal);
 
+    // Nourish cast
+    if (spellProto->SpellFamilyName == SPELLFAMILY_DRUID && spellProto->SpellFamilyFlags[1] & 0x2000000)
+    {
+        // Rejuvenation, Regrowth, Lifebloom, or Wild Growth
+        if (pVictim->GetAura(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_DRUID, 0x50, 0x4000010, 0))
+            //increase healing by 20%
+            DoneTotalMod *= 1.2f;
+    }
+
     // Taken mods
     // Healing Wave cast
     if (spellProto->SpellFamilyName == SPELLFAMILY_SHAMAN && spellProto->SpellFamilyFlags[0] & 0x40)
@@ -9316,15 +9336,6 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
         for(Unit::AuraList::const_iterator itr = auraDummy.begin(); itr!=auraDummy.end(); ++itr)
             if((*itr)->GetId() == 29203)
                 TakenTotalMod *= ((*itr)->GetModifier()->m_amount+100.0f) / 100.0f;
-    }
-
-    // Nourish cast
-    if (spellProto->SpellFamilyName == SPELLFAMILY_DRUID && spellProto->SpellFamilyFlags[1] & 0x2000000)
-    {
-        // Rejuvenation, Regrowth, Lifebloom, or Wild Growth
-        if (pVictim->GetAura(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_DRUID, 0x50, 0x4000010, 0))
-            //increase healing by 20%
-            TakenTotalMod *= 1.2f;
     }
 
     // Healing taken percent
