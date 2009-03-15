@@ -432,8 +432,6 @@ void WorldSession::HandleBattleGroundPlayerPortOpcode( WorldPacket &recv_data )
                     _player->GetMotionMaster()->MovementExpired();
                     _player->m_taxi.ClearTaxiDestinations();
                 }
-                //TODO FIX ME this call must be removed!
-                _player->RemoveFromGroup();
 
                 sBattleGroundMgr.BuildBattleGroundStatusPacket(&data, bg, queueSlot, STATUS_IN_PROGRESS, 0, bg->GetStartTime(), bg->GetArenaType());
                 _player->GetSession()->SendPacket(&data);
