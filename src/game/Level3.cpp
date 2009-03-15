@@ -4761,6 +4761,14 @@ bool ChatHandler::HandleSet32Bit(const char* args)
     if(!*args)
         return false;
 
+    Unit* target = getSelectedUnit();
+    if(!target)
+    {
+        SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
     char* px = strtok((char*)args, " ");
     char* py = strtok(NULL, " ");
 
@@ -4774,9 +4782,10 @@ bool ChatHandler::HandleSet32Bit(const char* args)
 
     sLog.outDebug(GetTrinityString(LANG_SET_32BIT), Opcode, Value);
 
-    m_session->GetPlayer( )->SetUInt32Value( Opcode , 2^Value );
+    uint32 iValue = Value ? 1 << (Value - 1) : 0;
+    target->SetUInt32Value( Opcode ,  iValue);
 
-    PSendSysMessage(LANG_SET_32BIT_FIELD, Opcode,1);
+    PSendSysMessage(LANG_SET_32BIT_FIELD, Opcode, iValue);
     return true;
 }
 
