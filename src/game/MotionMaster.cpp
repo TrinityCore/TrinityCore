@@ -460,6 +460,14 @@ MovementGeneratorType MotionMaster::GetCurrentMovementGeneratorType() const
    return top()->GetMovementGeneratorType();
 }
 
+MovementGeneratorType MotionMaster::GetMotionSlotType(int slot) const
+{
+    if(!Impl[slot])
+        return NULL_MOTION_TYPE;
+    else
+        return Impl[slot]->GetMovementGeneratorType();
+}
+
 void MotionMaster::InitTop()
 {
     top()->Initialize(*i_owner);

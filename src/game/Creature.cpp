@@ -598,8 +598,8 @@ bool Creature::AIM_Initialize(CreatureAI* ai)
     }
 
     if(i_AI) delete i_AI;
-    i_AI = ai ? ai : FactorySelector::selectAI(this);
     i_motionMaster.Initialize();
+    i_AI = ai ? ai : FactorySelector::selectAI(this);
     IsAIEnabled = true;
     return true;
 }
