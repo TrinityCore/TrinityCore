@@ -2376,7 +2376,9 @@ void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool ex
     CalculateMeleeDamage(pVictim, 0, &damageInfo, attType);
     // Send log damage message to client
     SendAttackStateUpdate(&damageInfo);
-    ProcDamageAndSpell(damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, damageInfo.procEx, damageInfo.damage, damageInfo.attackType);
+    // Send blocked amount to spell_proc event if proc can be only from block (Damage Shield)
+    uint32 ProcAmount = damageInfo.procEx == PROC_EX_BLOCK ? damageInfo.blocked_amount : damageInfo.damage;
+    ProcDamageAndSpell(damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, damageInfo.procEx, ProcAmount, damageInfo.attackType);
     DealMeleeDamage(&damageInfo,true);
 
     if (GetTypeId() == TYPEID_PLAYER)
@@ -5550,7 +5552,8 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
             if (dummySpell->SpellIconID == 3214)
             {
                 triggered_spell_id = 59653;
-                basepoints0 = GetShieldBlockValue() * triggerAmount / 100;
+                // % of amount blocked
+                basepoints0 = damage * triggerAmount / 100;
                 break;
             }
             break;
