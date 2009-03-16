@@ -997,12 +997,9 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         procEx = createProcExtendMask(&damageInfo, missInfo);
         procVictim |= PROC_FLAG_TAKEN_ANY_DAMAGE;
 
-        // Send blocked amount to spell_proc event if proc can be only from block (Damage Shield)
-        uint32 ProcAmount = procEx == PROC_EX_BLOCK ? damageInfo.blocked : damageInfo.damage;
-
         // Do triggers for unit (reflect triggers passed on hit phase for correct drop charge)
         if (m_canTrigger && missInfo != SPELL_MISS_REFLECT)
-            caster->ProcDamageAndSpell(unitTarget, procAttacker, procVictim, procEx, ProcAmount, m_attackType, m_spellInfo);
+            caster->ProcDamageAndSpell(unitTarget, procAttacker, procVictim, procEx, damageInfo.damage, m_attackType, m_spellInfo);
 
         caster->DealSpellDamage(&damageInfo, true);
 
