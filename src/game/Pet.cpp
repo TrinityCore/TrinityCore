@@ -304,7 +304,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     AIM_Initialize();
     map->Add((Creature*)this);
 
-    // Spells should be loaded after pet is added to map, because in CanCast is check on it
+    // Spells should be loaded after pet is added to map, because in CheckCast is check on it
     _LoadSpells();
     _LoadSpellCooldowns();
 
