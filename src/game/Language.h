@@ -688,9 +688,9 @@ enum TrinityStrings
     LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING = 750,       // "Not enough players. This game will close in %u mins."
     LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING_SECS = 751,  // "Not enough players. This game will close in %u seconds."
 //                                      = 752, not used
-//  LANG_BG_WS_START_TWO_MINUTES        = 753,
-//  LANG_BG_AB_START_TWO_MINUTES        = 754,
-//  LANG_BG_EY_START_TWO_MINUTES        = 755,
+//  LANG_BG_WS_START_TWO_MINUTES        = 753, - defined above
+//  LANG_BG_AB_START_TWO_MINUTES        = 754, - defined above
+//  LANG_BG_EY_START_TWO_MINUTES        = 755, - defined above
     // Room for batleground/arena strings 756-799 not used
 
     // Room for BG/ARENA                  750-769 not used
