@@ -1884,11 +1884,12 @@ void Aura::TriggerSpell()
         }
     }
 
-    if(!caster->GetSpellMaxRangeForTarget(m_target,sSpellRangeStore.LookupEntry(triggeredSpellInfo->rangeIndex)))
-        target = m_target;    //for druid dispel poison
-
     if(triggeredSpellInfo)
+    {
+        if(!caster->GetSpellMaxRangeForTarget(m_target,sSpellRangeStore.LookupEntry(triggeredSpellInfo->rangeIndex)))
+            target = m_target;    //for druid dispel poison
         m_target->CastSpell(target, triggeredSpellInfo, true, 0, this, GetCasterGUID());
+    }
     else if(target->GetTypeId()!=TYPEID_UNIT || !Script->EffectDummyCreature(caster, GetId(), GetEffIndex(), (Creature*)target))
         sLog.outError("Aura::TriggerSpell: Spell %u have 0 in EffectTriggered[%d], not handled custom case?",GetId(),GetEffIndex());
 }
