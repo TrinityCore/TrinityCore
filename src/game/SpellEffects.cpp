@@ -3104,7 +3104,7 @@ void Spell::EffectOpenLock(uint32 effIndex)
         if( goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune ||
             goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.losOK )
         {
-            //CanUseBattleGroundObject() already called in CanCast()
+            //CanUseBattleGroundObject() already called in CheckCast()
             // in battleground check
             if(BattleGround *bg = player->GetBattleGround())
             {
@@ -3116,7 +3116,7 @@ void Spell::EffectOpenLock(uint32 effIndex)
         }
         else if (goInfo->type == GAMEOBJECT_TYPE_FLAGSTAND)
         {
-            //CanUseBattleGroundObject() already called in CanCast()
+            //CanUseBattleGroundObject() already called in CheckCast()
             // in battleground check
             if(BattleGround *bg = player->GetBattleGround())
             {
@@ -3156,7 +3156,7 @@ void Spell::EffectOpenLock(uint32 effIndex)
 
     SendLoot(guid, LOOT_SKINNING);
 
-    // not allow use skill grou at item base open
+    // not allow use skill grow at item base open
     if(!m_CastItem && skillId != SKILL_NONE)
     {
         // update skill if really known

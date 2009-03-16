@@ -695,8 +695,7 @@ enum SpellEffects
 
 enum SpellCastResult
 {
-    SPELL_CAST_OK = 0,                                      //FIXME: used as success result currently
-    SPELL_FAILED_AFFECTING_COMBAT = 0,                      //FIXME: used as success result currently
+    SPELL_FAILED_AFFECTING_COMBAT = 0,
     SPELL_FAILED_ALREADY_AT_FULL_HEALTH = 1,
     SPELL_FAILED_ALREADY_AT_FULL_MANA = 2,
     SPELL_FAILED_ALREADY_AT_FULL_POWER = 3,
@@ -877,7 +876,9 @@ enum SpellCastResult
     SPELL_FAILED_ITEM_AT_MAX_CHARGES = 178,
     SPELL_FAILED_NOT_IN_BARBERSHOP = 179,
     SPELL_FAILED_FISHING_TOO_LOW = 180,
-    SPELL_FAILED_UNKNOWN = 181
+    SPELL_FAILED_UNKNOWN = 181,
+
+    SPELL_CAST_OK = 255                                     //custom value, don't must be send to client
 };
 
 // Spell aura states
