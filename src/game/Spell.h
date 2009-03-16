@@ -365,14 +365,14 @@ class Spell
         void finish(bool ok = true);
         void TakePower();
         void TakeAmmo();
-        uint8 CheckRuneCost(uint32 runeCostID);
+
         void TakeRunePower();
         void TakeReagents();
         void TakeCastItem();
         void TriggerSpell();
-        uint8 CanCast(bool strict);
-        int16 PetCanCast(Unit* target);
-        bool CanAutoCast(Unit* target);
+
+        SpellCastResult CheckCast(bool strict);
+        SpellCastResult CheckPetCast(Unit* target);
 
         // handlers
         void handle_immediate();
@@ -381,10 +381,11 @@ class Spell
         void _handle_immediate_phase();
         void _handle_finish_phase();
 
-        uint8 CheckItems();
-        uint8 CheckRange(bool strict);
-        uint8 CheckPower();
-        uint8 CheckCasterAuras() const;
+        SpellCastResult CheckItems();
+        SpellCastResult CheckRange(bool strict);
+        SpellCastResult CheckPower();
+        SpellCastResult CheckRuneCost(uint32 runeCostID);
+        SpellCastResult CheckCasterAuras() const;
 
         int32 CalculateDamage(uint8 i, Unit* target) { return m_caster->CalculateSpellDamage(m_spellInfo,i,m_currentBasePoints[i],target); }
         int32 CalculatePowerCost();
@@ -403,9 +404,10 @@ class Spell
         void SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap);
 
         Unit* SelectMagnetTarget();
-        bool CheckTarget( Unit* target, uint32 eff, bool hitPhase );
+        bool CheckTarget( Unit* target, uint32 eff );
+        bool CanAutoCast(Unit* target);
 
-        void SendCastResult(uint8 result);
+        void SendCastResult(SpellCastResult result);
         void SendSpellStart();
         void SendSpellGo();
         void SendSpellCooldown();
