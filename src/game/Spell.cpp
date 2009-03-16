@@ -1380,9 +1380,6 @@ void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, float max_range, uin
 void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, const uint32 &type, SpellTargets TargetType, uint32 entry)
 {
     float x, y, z;
-
-    Unit *target = m_targets.getUnitTarget();
-
     if(type == PUSH_DEST_CENTER)
     {
         if(!m_targets.HasDest())
@@ -1396,6 +1393,7 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, const u
     }
     else if(type == PUSH_TARGET_CENTER)
     {
+        Unit *target = m_targets.getUnitTarget();
         if(!target)
         {
             sLog.outError( "SPELL: cannot find unit target for spell ID %u\n", m_spellInfo->Id );
@@ -1412,7 +1410,7 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, const u
         z = m_caster->GetPositionZ();
     }
 
-    Trinity::SpellNotifierCreatureAndPlayer notifier(*this, TagUnitMap, radius, type, TargetType, entry, x, y, z, target);
+    Trinity::SpellNotifierCreatureAndPlayer notifier(*this, TagUnitMap, radius, type, TargetType, entry, x, y, z);
     if((m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_PLAYERS_ONLY)
         || TargetType == SPELL_TARGETS_ENTRY && !entry)
         m_caster->GetMap()->VisitWorld(x, y, radius, notifier);
