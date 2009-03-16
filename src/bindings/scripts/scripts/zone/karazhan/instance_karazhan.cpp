@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_karazhan.h"
 
-#define ENCOUNTERS      11
+#define ENCOUNTERS      12
 
 /*
 0  - Attumen + Midnight (optional)

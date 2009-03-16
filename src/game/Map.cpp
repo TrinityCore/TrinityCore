@@ -594,13 +594,13 @@ void Map::RelocationNotify()
     for(std::vector<uint64>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
     {
         Unit *unit = ObjectAccessor::GetObjectInWorld(*iter, (Unit*)NULL);
-        if(!unit)
+        if(!unit || !unit->IsInWorld() || !unit->GetMapId() == GetId())
+        {
+            *iter = 0;
             continue;
+        }
 
         unit->m_Notified = true;
-
-        if(!unit->IsInWorld())
-            continue;
 
         if(unit->GetTypeId() == TYPEID_PLAYER)
         {
