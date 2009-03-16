@@ -631,87 +631,73 @@ namespace Trinity
         const uint32& i_push_type;
         float i_radius, i_radiusSq;
         SpellTargets i_TargetType;
-        Unit* i_caster;
+        Unit* i_source;
         uint32 i_entry;
         float i_x, i_y, i_z;
-        Unit* i_unitTarget;
-        Unit* i_origCaster;
 
         SpellNotifierCreatureAndPlayer(Spell &spell, std::list<Unit*> &data, float radius, const uint32 &type,
-            SpellTargets TargetType = SPELL_TARGETS_ENEMY, uint32 entry = 0, float x = 0, float y = 0, float z = 0, Unit * unitTarget=NULL)
+            SpellTargets TargetType = SPELL_TARGETS_ENEMY, uint32 entry = 0, float x = 0, float y = 0, float z = 0)
             : i_data(&data), i_spell(spell), i_push_type(type), i_radius(radius), i_radiusSq(radius*radius)
-            , i_TargetType(TargetType), i_entry(entry), i_x(x), i_y(y), i_z(z), i_unitTarget(unitTarget)
+            , i_TargetType(TargetType), i_entry(entry), i_x(x), i_y(y), i_z(z)
         {
-            i_caster = spell.GetCaster();
-            i_origCaster = spell.GetOriginalCaster();
+            i_source = spell.GetCaster();
+            assert(i_source);
         }
 
         template<class T> inline void Visit(GridRefManager<T>  &m)
         {
-            assert(i_data);
-
-            if(!i_origCaster)
-                return;
-
             for(typename GridRefManager<T>::iterator itr = m.begin(); itr != m.end(); ++itr)
             {
-                if( !itr->getSource()->isAlive() || (itr->getSource()->GetTypeId() == TYPEID_PLAYER && ((Player*)itr->getSource())->isInFlight()))
-                    continue;
+                Unit *target = (Unit*)itr->getSource();
 
                 switch (i_TargetType)
                 {
-                    case SPELL_TARGETS_ALLY:
-                        if (!itr->getSource()->isAttackableByAOE() || !i_origCaster->IsFriendlyTo( itr->getSource() ))
-                            continue;
-                        break;
                     case SPELL_TARGETS_ENEMY:
-                    {
-                        if (itr->getSource() == i_unitTarget)
-                            break;
-
-                        if(itr->getSource()->GetTypeId()==TYPEID_UNIT && ((Creature*)itr->getSource())->isTotem())
+                        if(target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->isTotem())
                             continue;
-                        if(!itr->getSource()->isAttackableByAOE())
+                        if(!target->isAttackableByAOE())
                             continue;
-
-                        Unit* check = i_origCaster->GetCharmerOrOwnerOrSelf();
-
-                        if( check->GetTypeId()==TYPEID_PLAYER )
+                        if(i_source->GetTypeId()==TYPEID_PLAYER)
                         {
-                            if (check->IsFriendlyTo( itr->getSource() ))
+                            if(i_source->IsFriendlyTo(target))
                                 continue;
                         }
                         else
                         {
-                            if (!check->IsHostileTo( itr->getSource() ))
+                            if(!i_source->IsHostileTo(target))
                                 continue;
                         }
-                    }break;
-                    case SPELL_TARGETS_ENTRY:
-                    {
-                        if(itr->getSource()->GetEntry()!= i_entry)
+                        break;
+                    case SPELL_TARGETS_ALLY:
+                        if(!target->isAttackableByAOE() || !i_source->IsFriendlyTo(target))
                             continue;
-                    }break;
-                    default: continue;
+                        break;
+                    case SPELL_TARGETS_ENTRY:
+                        if(target->GetEntry()!= i_entry)
+                            continue;
+                        break;
+                    default:
+                        continue;
                 }
 
                 switch(i_push_type)
                 {
+                    case PUSH_DEST_CENTER:
+                    case PUSH_TARGET_CENTER:
+                        if((target->GetDistanceSq(i_x, i_y, i_z) < i_radiusSq))
+                            i_data->push_back(target);
+                        break;
                     case PUSH_IN_FRONT:
-                        if(i_caster->isInFront((Unit*)(itr->getSource()), i_radius, M_PI/3 ))
-                            i_data->push_back(itr->getSource());
+                        if(i_source->isInFront(target, i_radius, M_PI/3))
+                            i_data->push_back(target);
                         break;
                     case PUSH_IN_BACK:
-                        if(i_caster->isInBack((Unit*)(itr->getSource()), i_radius, M_PI/3 ))
-                            i_data->push_back(itr->getSource());
+                        if(i_source->isInBack(target, i_radius, M_PI/3))
+                            i_data->push_back(target);
                         break;
                     case PUSH_IN_LINE:
-                        if(i_caster->isInLine((Unit*)(itr->getSource()), i_radius ))
-                            i_data->push_back(itr->getSource());
-                        break;
-                    default:
-                        if((itr->getSource()->GetDistanceSq(i_x, i_y, i_z) < i_radiusSq))
-                            i_data->push_back(itr->getSource());
+                        if(i_source->isInLine(target, i_radius))
+                            i_data->push_back(target);
                         break;
                 }
             }
