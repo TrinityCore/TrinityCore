@@ -2051,25 +2051,27 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             m_target->SetReducedThreatPercent(0, 0);
             return;
         }
-        // Haunt
-        if(caster && m_spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellProto->SpellFamilyFlags[1] & 0x40000)
-        {
-            caster->CastCustomSpell(caster, 48210, &m_currentBasePoints, 0, 0, true);
-            return;
-        }
+
         switch(m_spellProto->SpellFamilyName)
         {
-            case SPELLFAMILY_MAGE:
-                // Living Bomb
-                if (m_spellProto->SpellFamilyFlags[1] & 0x20000)
+            case SPELLFAMILY_WARLOCK:
+                // Haunt
+                if(m_spellProto->SpellFamilyFlags[1] & 0x40000)
                 {
-                    if(!m_target || !(m_removeMode == AURA_REMOVE_BY_DISPEL || m_removeMode == AURA_REMOVE_BY_DEFAULT))
-                        return;
-                    Unit* target=NULL;
-                    m_target->CastSpell(target, GetModifier()->m_amount, true, NULL, NULL, GetCasterGUID());
+                    if(caster)
+                        caster->CastCustomSpell(caster, 48210, &m_currentBasePoints, 0, 0, true);
                     return;
                 }
-           break;
+                break;
+            case SPELLFAMILY_MAGE:
+                // Living Bomb
+                if(m_spellProto->SpellFamilyFlags[1] & 0x20000)
+                {
+                    if(caster && (m_removeMode == AURA_REMOVE_BY_DISPEL || m_removeMode == AURA_REMOVE_BY_DEFAULT))
+                        caster->CastSpell(m_target, GetModifier()->m_amount, true);
+                    return;
+                }
+                break;
         }
     }
 
