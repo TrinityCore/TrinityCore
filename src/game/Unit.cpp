@@ -8701,14 +8701,19 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     }
 
     // Torment the weak
-    AuraList const& mDumyAuras = GetAurasByType(SPELL_AURA_DUMMY);
-    for(AuraList::const_iterator i = mDumyAuras.begin(); i != mDumyAuras.end(); ++i)
+    if (spellProto->SpellFamilyName== SPELLFAMILY_MAGE && (spellProto->SpellFamilyFlags[0]&0x20200021 || spellProto->SpellFamilyFlags[1]& 0x9000))
     {
-        if ((*i)->GetSpellProto()->SpellIconID == 3263 && (*i)->isAffectedOnSpell(spellProto))
+        if(pVictim->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
         {
-            if(pVictim->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
-                DoneTotalMod *=float((*i)->GetModifier()->m_amount + 100.f) / 100.f;
-            break;
+            AuraList const& mDumyAuras = GetAurasByType(SPELL_AURA_DUMMY);
+            for(AuraList::const_iterator i = mDumyAuras.begin(); i != mDumyAuras.end(); ++i)
+            {
+                if ((*i)->GetSpellProto()->SpellIconID == 3263)
+                {
+                    DoneTotalMod *=float((*i)->GetModifier()->m_amount + 100.f) / 100.f;
+                    break;
+                }
+            }
         }
     }
 
