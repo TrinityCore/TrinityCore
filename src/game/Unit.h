@@ -1302,8 +1302,11 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         uint64 m_ObjectSlot[4];
         uint32 m_detectInvisibilityMask;
         uint32 m_invisibilityMask;
+
         uint32 m_ShapeShiftFormSpellId;
         ShapeshiftForm m_form;
+        bool IsInFeralForm() const { return m_form == FORM_CAT || m_form == FORM_BEAR || m_form == FORM_DIREBEAR; }
+
         float m_modMeleeHitChance;
         float m_modRangedHitChance;
         float m_modSpellHitChance;
