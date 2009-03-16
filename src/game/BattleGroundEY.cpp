@@ -614,9 +614,9 @@ void BattleGroundEY::EventPlayerDroppedFlag(Player *Source)
     UpdateWorldState(NETHERSTORM_FLAG_STATE_ALLIANCE, BG_EY_FLAG_STATE_WAIT_RESPAWN);
 
     if(Source->GetTeam() == ALLIANCE)
-        SendMessageToAll(LANG_BG_EY_DROPPED_FLAG,CHAT_MSG_BG_SYSTEM_ALLIANCE, Source);
+        SendMessageToAll(LANG_BG_EY_DROPPED_FLAG, CHAT_MSG_BG_SYSTEM_ALLIANCE, NULL);
     else
-        SendMessageToAll(LANG_BG_EY_DROPPED_FLAG,CHAT_MSG_BG_SYSTEM_HORDE, Source);
+        SendMessageToAll(LANG_BG_EY_DROPPED_FLAG, CHAT_MSG_BG_SYSTEM_HORDE, NULL);
 }
 
 void BattleGroundEY::EventPlayerClickedOnFlag(Player *Source, GameObject* target_obj)
@@ -646,9 +646,9 @@ void BattleGroundEY::EventPlayerClickedOnFlag(Player *Source, GameObject* target
     Source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 
     if(Source->GetTeam() == ALLIANCE)
-        SendMessageToAll(LANG_BG_EY_HAS_TAKEN_FLAG,CHAT_MSG_BG_SYSTEM_ALLIANCE, Source);
+        PSendMessageToAll(LANG_BG_EY_HAS_TAKEN_FLAG, CHAT_MSG_BG_SYSTEM_ALLIANCE, NULL, Source->GetName());
     else
-        SendMessageToAll(LANG_BG_EY_HAS_TAKEN_FLAG,CHAT_MSG_BG_SYSTEM_HORDE, Source);
+        PSendMessageToAll(LANG_BG_EY_HAS_TAKEN_FLAG, CHAT_MSG_BG_SYSTEM_HORDE, NULL, Source->GetName());
 }
 
 void BattleGroundEY::EventTeamLostPoint(Player *Source, uint32 Point)
