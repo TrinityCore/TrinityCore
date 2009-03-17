@@ -377,6 +377,7 @@ struct AchievementCriteriaEntry
         struct
         {
             uint32  itemID;                                 // 3
+            uint32  count;                                  // 4
         } equip_item;
 
         // ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_QUEST_REWARD= 62
