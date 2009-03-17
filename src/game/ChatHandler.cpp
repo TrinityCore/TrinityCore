@@ -36,6 +36,8 @@
 #include "SpellAuras.h"
 #include "Language.h"
 #include "Util.h"
+#include "GridNotifiersImpl.h"
+#include "CellImpl.h"
 
 void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 {
@@ -498,6 +500,38 @@ void WorldSession::HandleEmoteOpcode( WorldPacket & recv_data )
     GetPlayer()->HandleEmoteCommand(emote);
 }
 
+namespace MaNGOS
+{
+    class EmoteChatBuilder
+    {
+        public:
+            EmoteChatBuilder(Player const& pl, uint32 text_emote, uint32 emote_num, Unit const* target)
+                : i_player(pl), i_text_emote(text_emote), i_emote_num(emote_num), i_target(target) {}
+
+            void operator()(WorldPacket& data, int32 loc_idx)
+            {
+                char const* nam = i_target ? i_target->GetNameForLocaleIdx(loc_idx) : NULL;
+                uint32 namlen = (nam ? strlen(nam) : 0) + 1;
+
+                data.Initialize(SMSG_TEXT_EMOTE, (20+namlen));
+                data << i_player.GetGUID();
+                data << (uint32)i_text_emote;
+                data << i_emote_num;
+                data << (uint32)namlen;
+                if( namlen > 1 )
+                    data.append(nam, namlen);
+                else
+                    data << (uint8)0x00;
+            }
+
+        private:
+            Player const& i_player;
+            uint32        i_text_emote;
+            uint32        i_emote_num;
+            Unit const*   i_target;
+    };
+}                                                           // namespace MaNGOS
+
 void WorldSession::HandleTextEmoteOpcode( WorldPacket & recv_data )
 {
     if(!GetPlayer()->isAlive())
@@ -519,26 +553,11 @@ void WorldSession::HandleTextEmoteOpcode( WorldPacket & recv_data )
     recv_data >> emoteNum;
     recv_data >> guid;
 
-    const char *nam = 0;
-    uint32 namlen = 1;
-
-    Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
-    Creature *pCreature = dynamic_cast<Creature *>(unit);
-    if(unit)
-    {
-        nam = unit->GetName();
-        namlen = (nam ? strlen(nam) : 0) + 1;
-    }
-
     EmotesTextEntry const *em = sEmotesTextStore.LookupEntry(text_emote);
     if (!em)
         return;
 
-    GetPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE, text_emote, 0, unit);
-
     uint32 emote_anim = em->textid;
-
-    WorldPacket data;
 
     switch(emote_anim)
     {
@@ -552,21 +571,26 @@ void WorldSession::HandleTextEmoteOpcode( WorldPacket & recv_data )
             break;
     }
 
-    data.Initialize(SMSG_TEXT_EMOTE, (20+namlen));
-    data << GetPlayer()->GetGUID();
-    data << (uint32)text_emote;
-    data << emoteNum;
-    data << (uint32)namlen;
-    if( namlen > 1 )
-        data.append(nam, namlen);
-    else
-        data << (uint8)0x00;
+    Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
 
-    GetPlayer()->SendMessageToSetInRange(&data,sWorld.getConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE),true);
+    CellPair p = MaNGOS::ComputeCellPair(GetPlayer()->GetPositionX(), GetPlayer()->GetPositionY());
+
+    Cell cell(p);
+    cell.data.Part.reserved = ALL_DISTRICT;
+    cell.SetNoCreate();
+
+    MaNGOS::EmoteChatBuilder emote_builder(*GetPlayer(), text_emote, emoteNum, unit);
+    MaNGOS::LocalizedPacketDo<MaNGOS::EmoteChatBuilder > emote_do(emote_builder);
+    MaNGOS::PlayerDistWorker<MaNGOS::LocalizedPacketDo<MaNGOS::EmoteChatBuilder > > emote_worker(GetPlayer(),sWorld.getConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE),emote_do);
+    TypeContainerVisitor<MaNGOS::PlayerDistWorker<MaNGOS::LocalizedPacketDo<MaNGOS::EmoteChatBuilder > >, WorldTypeMapContainer > message(emote_worker);
+    CellLock<GridReadGuard> cell_lock(cell, p);
+    cell_lock->Visit(cell_lock, message, *GetPlayer()->GetMap());
+
+    GetPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE, text_emote, 0, unit);
 
     //Send scripted event call
-    if (pCreature && Script)
-        Script->ReceiveEmote(GetPlayer(),pCreature,text_emote);
+    if (unit->GetTypeId()==TYPEID_UNIT && Script)
+        Script->ReceiveEmote(GetPlayer(),(Creature*)unit,text_emote);
 }
 
 void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recv_data )
