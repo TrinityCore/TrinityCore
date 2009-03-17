@@ -94,8 +94,6 @@ template<class T>
 void
 TargetedMovementGenerator<T>::Initialize(T &owner)
 {
-    if(!&owner)
-        return;
     owner.RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
 
     if (owner.GetTypeId() == TYPEID_UNIT && ((Creature*)&owner)->canFly())
