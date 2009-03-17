@@ -4198,25 +4198,38 @@ SpellCastResult Spell::CheckCast(bool strict)
         {
             case SPELL_AURA_DUMMY:
             {
-                if(m_spellInfo->Id == 1515)
+                //custom check
+                switch(m_spellInfo->Id)
                 {
-                    if (!m_targets.getUnitTarget() || m_targets.getUnitTarget()->GetTypeId() == TYPEID_PLAYER)
-                        return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
+                    case 61336:
+                        if(m_caster->GetTypeId()!=TYPEID_PLAYER || !((Player*)m_caster)->IsInFeralForm())
+                            return SPELL_FAILED_ONLY_SHAPESHIFT;
+                        break;
+                    case 1515:
+                    {
+                        if (!m_targets.getUnitTarget() || m_targets.getUnitTarget()->GetTypeId() == TYPEID_PLAYER)
+                            return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
 
-                    if (m_targets.getUnitTarget()->getLevel() > m_caster->getLevel())
-                        return SPELL_FAILED_HIGHLEVEL;
+                        if (m_targets.getUnitTarget()->getLevel() > m_caster->getLevel())
+                            return SPELL_FAILED_HIGHLEVEL;
 
-                    // use SMSG_PET_TAME_FAILURE?
-                    if (!((Creature*)m_targets.getUnitTarget())->GetCreatureInfo()->isTameable ())
-                        return SPELL_FAILED_BAD_TARGETS;
+                        // use SMSG_PET_TAME_FAILURE?
+                        if (!((Creature*)m_targets.getUnitTarget())->GetCreatureInfo()->isTameable ())
+                            return SPELL_FAILED_BAD_TARGETS;
 
-                    if(m_caster->GetPetGUID())
-                        return SPELL_FAILED_ALREADY_HAVE_SUMMON;
+                        if(m_caster->GetPetGUID())
+                            return SPELL_FAILED_ALREADY_HAVE_SUMMON;
 
-                    if(m_caster->GetCharmGUID())
-                        return SPELL_FAILED_ALREADY_HAVE_CHARM;
+                        if(m_caster->GetCharmGUID())
+                            return SPELL_FAILED_ALREADY_HAVE_CHARM;
+
+                        break;
+                    }
+                    default:
+                        break;
                 }
-            }break;
+                break;
+            }
             case SPELL_AURA_MOD_POSSESS:
             case SPELL_AURA_MOD_CHARM:
             {
