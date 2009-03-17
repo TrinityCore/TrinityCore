@@ -57,13 +57,20 @@ bool PointMovementGenerator<T>::Update(T &unit, const uint32 &diff)
 
     if(i_destinationHolder.HasArrived())
     {
-        //unit.StopMoving();
-        if(!unit.hasUnitState(UNIT_STAT_CHARGING))
-            MovementInform(unit);
+        arrived = true;
         return false;
     }
 
     return true;
+}
+
+template<class T>
+void PointMovementGenerator<T>:: Finalize(T &unit)
+{
+    if(unit.hasUnitState(UNIT_STAT_CHARGING))
+        unit.clearUnitState(UNIT_STAT_CHARGING);
+    else if(arrived)
+        MovementInform(unit);
 }
 
 template<class T>
@@ -79,7 +86,8 @@ template <> void PointMovementGenerator<Creature>::MovementInform(Creature &unit
 template void PointMovementGenerator<Player>::Initialize(Player&);
 template bool PointMovementGenerator<Player>::Update(Player &, const uint32 &diff);
 template void PointMovementGenerator<Player>::MovementInform(Player&);
+template void PointMovementGenerator<Player>::Finalize(Player&);
 
 template void PointMovementGenerator<Creature>::Initialize(Creature&);
 template bool PointMovementGenerator<Creature>::Update(Creature&, const uint32 &diff);
-
+template void PointMovementGenerator<Creature>::Finalize(Creature&);
