@@ -689,12 +689,15 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL:
-                if(GetPlayer()->HasSpell(achievementCriteria->learn_spell.spellID))
+                // spell always provide and at login spell learning.
+                if(miscvalue1 && miscvalue1!=achievementCriteria->learn_spell.spellID)
+                    continue;
+                if(GetPlayer()->HasSpell(miscvalue1))
                     SetCriteriaProgress(achievementCriteria, 1);
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM:
                 // speedup for non-login case
-                if(miscvalue1 && achievementCriteria->own_item.itemID!=miscvalue1)
+                if(miscvalue1 && achievementCriteria->own_item.itemID != miscvalue1)
                     continue;
                 SetCriteriaProgress(achievementCriteria, GetPlayer()->GetItemCount(achievementCriteria->own_item.itemID, true));
                 break;
@@ -736,6 +739,10 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_GAIN_REPUTATION:
             {
+                // skip faction check only at loading
+                if (miscvalue1 && miscvalue1 != achievementCriteria->gain_reputation.factionID)
+                    continue;
+
                 int32 reputation = GetPlayer()->GetReputation(achievementCriteria->gain_reputation.factionID);
                 if (reputation > 0)
                     SetCriteriaProgress(achievementCriteria, reputation);
@@ -743,6 +750,10 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             }
             case ACHIEVEMENT_CRITERIA_TYPE_GAIN_EXALTED_REPUTATION:
             {
+                // skip faction check only at loading
+                if (miscvalue1 && GetPlayer()->GetReputationRank(miscvalue1) < REP_EXALTED)
+                    continue;
+
                 uint32 counter = 0;
                 const FactionStateList factionStateList = GetPlayer()->GetFactionStateList();
                 for (FactionStateList::const_iterator iter = factionStateList.begin(); iter!= factionStateList.end(); ++iter)
@@ -817,6 +828,16 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
             {
+                // spell always provide and at login spell learning.
+                if(!miscvalue1)
+                    continue;
+                // rescan only when change possible
+                SkillLineAbilityMap::const_iterator skillIter0 = spellmgr.GetBeginSkillLineAbilityMap(miscvalue1);
+                if(skillIter0 == spellmgr.GetEndSkillLineAbilityMap(miscvalue1))
+                    continue;
+                if(skillIter0->second->skillId != achievementCriteria->learn_skilline_spell.skillLine)
+                    continue;
+
                 uint32 spellCount = 0;
                 for (PlayerSpellMap::const_iterator spellIter = GetPlayer()->GetSpellMap().begin();
                     spellIter != GetPlayer()->GetSpellMap().end();
