@@ -4536,15 +4536,7 @@ void Aura::HandleAuraModIncreaseHealth(bool apply, bool Real)
 {
     if(Real)
     {
-<<<<<<< HEAD:src/game/SpellAuras.cpp
         if(apply)
-=======
-        case 12976:                                         // Warrior Last Stand triggered spell
-        case 28726:                                         // Nightmare Seed ( Nightmare Seed )
-        case 34511:                                         // Valor (Bulwark of Kings, Bulwark of the Ancient Kings)
-        case 44055:                                         // Tremendous Fortitude (Battlemaster's Alacrity)
-        case 50322:                                         // Survival Instincts
->>>>>>> 9a5e9413cef438edcbfbdc046bfa414b07c229a3:src/game/SpellAuras.cpp
         {
             m_target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, float(m_modifier.m_amount), apply);
             m_target->ModifyHealth(m_modifier.m_amount);
