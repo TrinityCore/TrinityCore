@@ -403,14 +403,15 @@ int Master::Run()
 /// Initialize connection to the databases
 bool Master::_StartDB()
 {
-    ///- Get world database info from configuration file
     std::string dbstring;
-    if(!sConfig.GetString("WorldDatabaseInfo", &dbstring))
+
+    ///- Get world database info from configuration file
+    dbstring = sConfig.GetStringDefault("WorldDatabaseInfo", "");
+    if(dbstring.empty())
     {
         sLog.outError("Database not specified in configuration file");
         return false;
     }
-    sLog.outString("World Database: %s", dbstring.c_str());
 
     ///- Initialise the world database
     if(!WorldDatabase.Initialize(dbstring.c_str()))
@@ -419,12 +420,13 @@ bool Master::_StartDB()
         return false;
     }
 
-    if(!sConfig.GetString("CharacterDatabaseInfo", &dbstring))
+    ///- Get character database info from configuration file
+    dbstring = sConfig.GetStringDefault("CharacterDatabaseInfo", "");
+    if(dbstring.empty())
     {
         sLog.outError("Character Database not specified in configuration file");
         return false;
     }
-    sLog.outString("Character Database: %s", dbstring.c_str());
 
     ///- Initialise the Character database
     if(!CharacterDatabase.Initialize(dbstring.c_str()))
@@ -434,14 +436,14 @@ bool Master::_StartDB()
     }
 
     ///- Get login database info from configuration file
-    if(!sConfig.GetString("LoginDatabaseInfo", &dbstring))
+    dbstring = sConfig.GetStringDefault("LoginDatabaseInfo", "");
+    if(dbstring.empty())
     {
         sLog.outError("Login database not specified in configuration file");
         return false;
     }
 
     ///- Initialise the login database
-    sLog.outString("Login Database: %s", dbstring.c_str() );
     if(!LoginDatabase.Initialize(dbstring.c_str()))
     {
         sLog.outError("Cannot connect to login database %s",dbstring.c_str());

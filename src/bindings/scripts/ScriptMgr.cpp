@@ -625,17 +625,18 @@ extern void AddSC_zulaman();
 void LoadDatabase()
 {
     //Get db string from file
-    char const* dbstring = NULL;
+    std::string dbstring;
+    TScriptConfig.GetStringDefault("WorldDatabaseInfo", "");
 
-    if (!TScriptConfig.GetString("WorldDatabaseInfo", &dbstring) )
+    if (dbstring.empty() )
     {
         error_log("TSCR: Missing world database info from configuration file. Load database aborted.");
         return;
     }
 
     //Initialize connection to DB
-    if (dbstring && TScriptDB.Initialize(dbstring) )
-        outstring_log("TSCR: TrinityScript database: %s",dbstring);
+    if (!dbstring.empty() && TScriptDB.Initialize(dbstring.c_str()) )
+        outstring_log("TSCR: TrinityScript database: %s",dbstring.c_str());
     else
     {
         error_log("TSCR: Unable to connect to Database. Load database aborted.");
