@@ -661,7 +661,6 @@ void Spell::prepareDataForTriggerSystem()
     // Fill flag can spell trigger or not
     // TODO: possible exist spell attribute for this
     m_canTrigger = false;
-    m_canTriggeredTrigger=false;
 
     if (m_CastItem)
         m_canTrigger = false;         // Do not trigger from item cast spell
@@ -670,11 +669,31 @@ void Spell::prepareDataForTriggerSystem()
     else if (!m_triggeredByAuraSpell)
         m_canTrigger = true;          // Triggered from SPELL_EFFECT_TRIGGER_SPELL - can trigger
 
-    if (!m_canTrigger && !m_CastItem)
+    if (!m_canTrigger)                // Exceptions (some periodic triggers)
     {
-        // Triggered spells with spellfamilymask can trigger other spells
-        if (m_spellInfo->SpellFamilyFlags)
-            m_canTriggeredTrigger=true;
+        switch (m_spellInfo->SpellFamilyName)
+        {
+            case SPELLFAMILY_MAGE:    // Arcane Missles / Blizzard triggers need do it
+                if (m_spellInfo->SpellFamilyFlags[0] & 0x200080) m_canTrigger = true;
+            break;
+            case SPELLFAMILY_WARLOCK: // For Hellfire Effect / Rain of Fire / Seed of Corruption triggers need do it
+                if (m_spellInfo->SpellFamilyFlags[1] & 0x00008000 || m_spellInfo->SpellFamilyFlags[0] & 0x00000060) m_canTrigger = true;
+            break;
+            case SPELLFAMILY_PRIEST:  // For Penance heal/damage triggers need do it
+                if (m_spellInfo->SpellFamilyFlags[1] & 0x00018000) m_canTrigger = true;
+            break;
+            case SPELLFAMILY_ROGUE:   // For poisons need do it
+                if (m_spellInfo->SpellFamilyFlags[1] & 0x00000010 || m_spellInfo->SpellFamilyFlags[0] & 0x1001E000) m_canTrigger = true;
+            break;
+            case SPELLFAMILY_HUNTER:  // Hunter Rapid Killing/Explosive Trap Effect/Immolation Trap Effect/Frost Trap Aura/Snake Trap Effect/Explosive Shot
+                if (m_spellInfo->SpellFamilyFlags[1] & 0x01002000 
+                    || m_spellInfo->SpellFamilyFlags[0] & 0x00000214 ||
+                    m_spellInfo->SpellFamilyFlags[2] & 0x200) m_canTrigger = true;
+            break;
+            case SPELLFAMILY_PALADIN: // For Judgements (all) / Holy Shock triggers need do it
+                if (m_spellInfo->SpellFamilyFlags[1] & 0x00010009 || m_spellInfo->SpellFamilyFlags[0] & 0x00B80400) m_canTrigger = true;
+            break;
+        }
     }
 
     // Get data for type of attack and fill base info for trigger
@@ -953,8 +972,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         caster->SendHealSpellLog(unitTarget, m_spellInfo->Id, addhealth, crit);
 
         // Do triggers for unit (reflect triggers passed on hit phase for correct drop charge)
-        if ((m_canTrigger || m_canTriggeredTrigger) && missInfo != SPELL_MISS_REFLECT)
-            caster->ProcDamageAndSpell(unitTarget, procAttacker, procVictim, procEx, addhealth, m_attackType, m_spellInfo, m_canTriggeredTrigger);
+        if (m_canTrigger && missInfo != SPELL_MISS_REFLECT)
+            caster->ProcDamageAndSpell(unitTarget, procAttacker, procVictim, procEx, addhealth, m_attackType, m_spellInfo);
 
         int32 gain = unitTarget->ModifyHealth( int32(addhealth) );
 
@@ -979,8 +998,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         procVictim |= PROC_FLAG_TAKEN_ANY_DAMAGE;
 
         // Do triggers for unit (reflect triggers passed on hit phase for correct drop charge)
-        if ((m_canTrigger || m_canTriggeredTrigger) && missInfo != SPELL_MISS_REFLECT)
-            caster->ProcDamageAndSpell(unitTarget, procAttacker, procVictim, procEx, damageInfo.damage, m_attackType, m_spellInfo, m_canTriggeredTrigger);
+        if (m_canTrigger && missInfo != SPELL_MISS_REFLECT)
+            caster->ProcDamageAndSpell(unitTarget, procAttacker, procVictim, procEx, damageInfo.damage, m_attackType, m_spellInfo);
 
         caster->DealSpellDamage(&damageInfo, true);
 
@@ -998,8 +1017,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         SpellNonMeleeDamage damageInfo(caster, unitTarget, m_spellInfo->Id, m_spellSchoolMask);
         procEx = createProcExtendMask(&damageInfo, missInfo);
         // Do triggers for unit (reflect triggers passed on hit phase for correct drop charge)
-        if ((m_canTrigger || m_canTriggeredTrigger) && missInfo != SPELL_MISS_REFLECT)
-            caster->ProcDamageAndSpell(unit, procAttacker, procVictim, procEx, 0, m_attackType, m_spellInfo, m_canTriggeredTrigger);
+        if (m_canTrigger && missInfo != SPELL_MISS_REFLECT)
+            caster->ProcDamageAndSpell(unit, procAttacker, procVictim, procEx, 0, m_attackType, m_spellInfo);
     }
 
     // Call scripted function for AI if this spell is casted upon a creature (except pets)
