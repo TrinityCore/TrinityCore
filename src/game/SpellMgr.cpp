@@ -74,6 +74,7 @@ SpellMgr::SpellMgr()
             case SPELL_EFFECT_DISENCHANT:
             case SPELL_EFFECT_FEED_PET:
             case SPELL_EFFECT_PROSPECTING:
+            case SPELL_EFFECT_MILLING:
                 EffectTargetType[i] = SPELL_REQUIRE_ITEM;
                 break;
             //caster must be pushed otherwise no sound
@@ -529,7 +530,15 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
         case 34700:                                         // Allergic Reaction
         case 31719:                                         // Suspension
             return false;
-    }  
+    }
+
+    switch(spellproto->Mechanic)
+    {
+        case MECHANIC_SHIELD:
+            return true;
+        default:
+            break;
+    }
 
     switch(spellproto->Effect[effIndex])
     {
