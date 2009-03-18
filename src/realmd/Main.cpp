@@ -57,7 +57,7 @@ char serviceDescription[] = "Massive Network Game Object Server";
 int m_ServiceStatus = -1;
 #endif
 
-bool StartDB(std::string &dbstring);
+bool StartDB();
 void UnhookSignals();
 void HookSignals();
 
@@ -179,8 +179,7 @@ extern int main(int argc, char **argv)
     }
 
     ///- Initialize the database connection
-    std::string dbstring;
-    if(!StartDB(dbstring))
+    if(!StartDB())
         return 1;
 
     ///- Get the list of realms for the server
@@ -304,15 +303,15 @@ void OnSignal(int s)
 }
 
 /// Initialize connection to the database
-bool StartDB(std::string &dbstring)
+bool StartDB()
 {
-    if(!sConfig.GetString("LoginDatabaseInfo", &dbstring))
+    std::string dbstring = sConfig.GetStringDefault("LoginDatabaseInfo", "");
+    if(dbstring.empty())
     {
         sLog.outError("Database not specified");
         return false;
     }
 
-    sLog.outString("Database: %s", dbstring.c_str() );
     if(!LoginDatabase.Initialize(dbstring.c_str()))
     {
         sLog.outError("Cannot connect to database");

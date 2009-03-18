@@ -60,118 +60,48 @@ bool Config::Reload()
     return true;
 }
 
-bool Config::GetString(const char* name, std::string *value)
-{
-    if(!mConf)
-        return false;
-
-    DOTCONFDocumentNode const *node = mConf->findNode(name);
-    if(!node || !node->getValue())
-        return false;
-
-    *value = node->getValue();
-
-    return true;
-}
-
-bool Config::GetString(const char* name, char const **value)
-{
-    if(!mConf)
-        return false;
-
-    DOTCONFDocumentNode const *node = mConf->findNode(name);
-    if(!node || !node->getValue())
-        return false;
-
-    *value = node->getValue();
-
-    return true;
-}
-
-
-std::string Config::GetStringDefault(const char* name, const char* def)
+std::string Config::GetStringDefault(const char * name, std::string def)
 {
     if(!mConf)
         return std::string(def);
-
-    DOTCONFDocumentNode const *node = mConf->findNode(name);
+    const DOTCONFDocumentNode * node = mConf->findNode(name);
     if(!node || !node->getValue())
         return std::string(def);
-
     return std::string(node->getValue());
-}
+};
 
-
-bool Config::GetBool(const char* name, bool *value)
+bool Config::GetBoolDefault(const char * name, const bool def)
 {
     if(!mConf)
         return false;
-
-    DOTCONFDocumentNode const *node = mConf->findNode(name);
+    const DOTCONFDocumentNode * node = mConf->findNode(name);
     if(!node || !node->getValue())
-        return false;
-
-    const char* str = node->getValue();
+        return def;
+    const char * str = node->getValue();
     if(strcmp(str, "true") == 0 || strcmp(str, "TRUE") == 0 ||
         strcmp(str, "yes") == 0 || strcmp(str, "YES") == 0 ||
         strcmp(str, "1") == 0)
-    {
-        *value = true;
-    }
+        return true;
     else
-        *value = false;
+        return false;
+};
 
-    return true;
-}
-
-
-bool Config::GetBoolDefault(const char* name, const bool def)
-{
-    bool val;
-    return GetBool(name, &val) ? val : def;
-}
-
-
-bool Config::GetInt(const char* name, int *value)
+int32 Config::GetIntDefault(const char * name, const int32 def)
 {
     if(!mConf)
-        return false;
-
-    DOTCONFDocumentNode const *node = mConf->findNode(name);
+        return def;
+    const DOTCONFDocumentNode * node = mConf->findNode(name);
     if(!node || !node->getValue())
-        return false;
+        return def;
+    return atoi(node->getValue());
+};
 
-    *value = atoi(node->getValue());
-
-    return true;
-}
-
-
-bool Config::GetFloat(const char* name, float *value)
+float Config::GetFloatDefault(const char * name, const float def)
 {
     if(!mConf)
-        return false;
-
-    DOTCONFDocumentNode const *node = mConf->findNode(name);
+        return def;
+    const DOTCONFDocumentNode * node = mConf->findNode(name);
     if(!node || !node->getValue())
-        return false;
-
-    *value = atof(node->getValue());
-
-    return true;
-}
-
-
-int Config::GetIntDefault(const char* name, const int def)
-{
-    int val;
-    return GetInt(name, &val) ? val : def;
-}
-
-
-float Config::GetFloatDefault(const char* name, const float def)
-{
-    float val;
-    return (GetFloat(name, &val) ? val : def);
-}
-
+        return def;
+    return atof(node->getValue());
+};
