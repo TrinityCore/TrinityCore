@@ -1327,8 +1327,8 @@ void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, float max_range, uin
     {
         SearchAreaTarget(tempUnitMap, max_range, PUSH_TARGET_CENTER, SPELL_TARGETS_ALLY);
         tempUnitMap.sort(ChainHealingOrder(m_caster));
-        if(cur->GetHealth() == cur->GetMaxHealth() && tempUnitMap.size())
-            cur = tempUnitMap.front();
+        //if(cur->GetHealth() == cur->GetMaxHealth() && tempUnitMap.size())
+        //    cur = tempUnitMap.front();
     }
     else
         SearchAreaTarget(tempUnitMap, max_range, PUSH_TARGET_CENTER, TargetType);
@@ -1970,14 +1970,10 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             break;
     }
 
-    if(unMaxTargets && TagUnitMap.size() > 1)
+    if(unMaxTargets && !EffectChainTarget && TagUnitMap.size() > 1)
     {
-        if(m_targets.getUnitTarget())
-        {
+        if(m_spellInfo->Id == 5246) //Intimidating Shout
             TagUnitMap.remove(m_targets.getUnitTarget());
-            if(m_spellInfo->Id != 5246) //Intimidating Shout
-                --unMaxTargets;
-        }
 
         // remove random units from the map
         std::list<Unit*>::iterator itr;
@@ -1987,10 +1983,6 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             advance(itr, urand(0, TagUnitMap.size() - 1));
             TagUnitMap.erase(itr);
         }
-
-        // the player's target will always be added to the map
-        if(m_targets.getUnitTarget() && m_spellInfo->Id != 5246)
-            TagUnitMap.push_back(m_targets.getUnitTarget());
     }
 }
 
