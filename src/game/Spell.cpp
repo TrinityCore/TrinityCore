@@ -3515,34 +3515,33 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
     }
 
-    bool reqAuraState=true;
+    bool reqCombat=true;
     Unit::AuraList const& stateAuras = m_caster->GetAurasByType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
     for(Unit::AuraList::const_iterator j = stateAuras.begin();j != stateAuras.end(); ++j)
     {
         if((*j)->isAffectedOnSpell(m_spellInfo))
         {
-            reqAuraState=false;
-            break;
+            if ((*j)->GetModifier()->m_miscvalue==1)
+            {
+                reqCombat=false;
+                break;
+            }
         }
     }
 
-    if (reqAuraState)
-    {
-        // caster state requirements
-        if(m_spellInfo->CasterAuraState && !m_caster->HasAuraState(AuraState(m_spellInfo->CasterAuraState)))
-            return SPELL_FAILED_CASTER_AURASTATE;
-        if(m_spellInfo->CasterAuraStateNot && m_caster->HasAuraState(AuraState(m_spellInfo->CasterAuraStateNot)))
-            return SPELL_FAILED_CASTER_AURASTATE;
+    // caster state requirements
+    if(m_spellInfo->CasterAuraState && !m_caster->HasAuraState(AuraState(m_spellInfo->CasterAuraState), m_spellInfo, m_caster))
+        return SPELL_FAILED_CASTER_AURASTATE;
+    if(m_spellInfo->CasterAuraStateNot && m_caster->HasAuraState(AuraState(m_spellInfo->CasterAuraStateNot), m_spellInfo, m_caster))
+        return SPELL_FAILED_CASTER_AURASTATE;
 
-        if(m_spellInfo->casterAuraSpell && !m_caster->HasAura(m_spellInfo->casterAuraSpell))
-            return SPELL_FAILED_CASTER_AURASTATE;
-        if(m_spellInfo->excludeCasterAuraSpell && m_caster->HasAura(m_spellInfo->excludeCasterAuraSpell))
-            return SPELL_FAILED_CASTER_AURASTATE;
+    if(m_spellInfo->casterAuraSpell && !m_caster->HasAura(m_spellInfo->casterAuraSpell))
+        return SPELL_FAILED_CASTER_AURASTATE;
+    if(m_spellInfo->excludeCasterAuraSpell && m_caster->HasAura(m_spellInfo->excludeCasterAuraSpell))
+        return SPELL_FAILED_CASTER_AURASTATE;
 
-        if(m_caster->isInCombat() && IsNonCombatSpell(m_spellInfo))
-            return SPELL_FAILED_AFFECTING_COMBAT;
-    }
-
+    if(reqCombat && m_caster->isInCombat() && IsNonCombatSpell(m_spellInfo))
+        return SPELL_FAILED_AFFECTING_COMBAT;
 
     // cancel autorepeat spells if cast start when moving
     // (not wand currently autorepeat cast delayed to moving stop anyway in spell update code)
@@ -3556,23 +3555,21 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     if(Unit *target = m_targets.getUnitTarget())
     {
-        if (reqAuraState)
-        {
-            // target state requirements (not allowed state), apply to self also
-            if(m_spellInfo->TargetAuraStateNot && target->HasAuraState(AuraState(m_spellInfo->TargetAuraStateNot)))
-                return SPELL_FAILED_TARGET_AURASTATE;
 
-            if(m_spellInfo->targetAuraSpell && !target->HasAura(m_spellInfo->targetAuraSpell))
-                return SPELL_FAILED_TARGET_AURASTATE;
+        // target state requirements (not allowed state), apply to self also
+        if(m_spellInfo->TargetAuraStateNot && target->HasAuraState(AuraState(m_spellInfo->TargetAuraStateNot), m_spellInfo, m_caster))
+            return SPELL_FAILED_TARGET_AURASTATE;
 
-            if(m_spellInfo->excludeTargetAuraSpell && target->HasAura(m_spellInfo->excludeTargetAuraSpell))
-                return SPELL_FAILED_TARGET_AURASTATE;
-        }
+        if(m_spellInfo->targetAuraSpell && !target->HasAura(m_spellInfo->targetAuraSpell))
+            return SPELL_FAILED_TARGET_AURASTATE;
+
+        if(m_spellInfo->excludeTargetAuraSpell && target->HasAura(m_spellInfo->excludeTargetAuraSpell))
+            return SPELL_FAILED_TARGET_AURASTATE;
 
         if(target != m_caster)
         {
             // target state requirements (apply to non-self only), to allow cast affects to self like Dirty Deeds
-            if(reqAuraState && m_spellInfo->TargetAuraState && !target->HasAuraState(AuraState(m_spellInfo->TargetAuraState)))
+            if(m_spellInfo->TargetAuraState && !target->HasAuraState(AuraState(m_spellInfo->TargetAuraState), m_spellInfo, m_caster))
                 return SPELL_FAILED_TARGET_AURASTATE;
 
             // Not allow casting on flying player
