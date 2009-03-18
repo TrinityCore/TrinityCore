@@ -1361,8 +1361,8 @@ void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, float max_range, uin
     {
         SearchAreaTarget(tempUnitMap, max_range, PUSH_TARGET_CENTER, SPELL_TARGETS_ALLY);
         tempUnitMap.sort(ChainHealingOrder(m_caster));
-        if(cur->GetHealth() == cur->GetMaxHealth() && tempUnitMap.size())
-            cur = tempUnitMap.front();
+        //if(cur->GetHealth() == cur->GetMaxHealth() && tempUnitMap.size())
+        //    cur = tempUnitMap.front();
     }
     else
         SearchAreaTarget(tempUnitMap, max_range, PUSH_TARGET_CENTER, TargetType);
