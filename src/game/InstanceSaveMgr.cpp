@@ -163,7 +163,7 @@ void InstanceSave::SaveToDB()
     // save instance data too
     std::string data;
 
-    Map *map = MapManager::Instance().FindMap(m_instanceid, GetMapId());
+    Map *map = MapManager::Instance().FindMap(GetMapId(),m_instanceid);
     if(map)
     {
         assert(map->IsDungeon());
