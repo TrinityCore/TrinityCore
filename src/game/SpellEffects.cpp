@@ -437,7 +437,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 if((m_spellInfo->SpellFamilyFlags[1] & 0x000040) && m_spellInfo->SpellIconID==2128)
                 {
                     // Incinerate does more dmg (dmg*0.25) if the target is Immolated.
-                    if(unitTarget->HasAuraState(AURA_STATE_IMMOLATE))
+                    if(unitTarget->HasAuraState(AURA_STATE_IMMOLATE, m_spellInfo, m_caster))
                         damage += int32(damage*0.25f);
                 }
                 // Haunt
@@ -2606,7 +2606,7 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
             addhealth += damageAmount;
         }
         // Swiftmend - consumes Regrowth or Rejuvenation
-        else if (m_spellInfo->TargetAuraState == AURA_STATE_SWIFTMEND && unitTarget->HasAuraState(AURA_STATE_SWIFTMEND))
+        else if (m_spellInfo->TargetAuraState == AURA_STATE_SWIFTMEND && unitTarget->HasAuraState(AURA_STATE_SWIFTMEND, m_spellInfo, m_caster))
         {
             Unit::AuraList const& RejorRegr = unitTarget->GetAurasByType(SPELL_AURA_PERIODIC_HEAL);
             // find most short by duration
@@ -4411,7 +4411,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
             {
                 bool found = false;
                 // fast check
-                if(unitTarget->HasAuraState(AURA_STATE_DEADLY_POISON))
+                if(unitTarget->HasAuraState(AURA_STATE_DEADLY_POISON, m_spellInfo, m_caster))
                     found = true;
                 // full aura scan
                 else

@@ -1443,7 +1443,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         uint32 CalculateDamage(WeaponAttackType attType, bool normalized);
         float GetAPMultiplier(WeaponAttackType attType, bool normalized);
         void ModifyAuraState(AuraState flag, bool apply);
-        bool HasAuraState(AuraState flag) const { return HasFlag(UNIT_FIELD_AURASTATE, 1<<(flag-1)); }
+        bool HasAuraState(AuraState flag, SpellEntry const *spellProto = NULL, Unit * Caster = NULL) const ;
         void UnsummonAllTotems();
         int32 SpellBaseDamageBonus(SpellSchoolMask schoolMask);
         int32 SpellBaseHealingBonus(SpellSchoolMask schoolMask);
