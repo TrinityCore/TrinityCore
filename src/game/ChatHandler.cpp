@@ -589,7 +589,7 @@ void WorldSession::HandleTextEmoteOpcode( WorldPacket & recv_data )
     GetPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE, text_emote, 0, unit);
 
     //Send scripted event call
-    if (unit->GetTypeId()==TYPEID_UNIT && Script)
+    if (unit && unit->GetTypeId()==TYPEID_UNIT && Script)
         Script->ReceiveEmote(GetPlayer(),(Creature*)unit,text_emote);
 }
 
