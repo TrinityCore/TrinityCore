@@ -42,17 +42,12 @@ namespace Trinity
     {
         Player &i_player;
         UpdateData i_data;
-        UpdateDataMapType i_data_updates;
         Player::ClientGUIDs i_clientGUIDs;
         std::set<WorldObject*> i_visibleNow;
 
         PlayerVisibilityNotifier(Player &player) : i_player(player),i_clientGUIDs(player.m_clientGUIDs) {}
 
         template<class T> inline void Visit(GridRefManager<T> &);
-        /*#ifdef WIN32
-        template<> inline void Visit(PlayerMapType &);
-        template<> inline void Visit(CreatureMapType &);
-        #endif*/
 
         void Notify(void);
     };
