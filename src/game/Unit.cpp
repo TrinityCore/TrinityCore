@@ -8145,6 +8145,18 @@ void Unit::ModifyAuraState(AuraState flag, bool apply)
     ApplyModFlag(UNIT_FIELD_AURASTATE, 1<<(flag-1), apply);
 }
 
+bool Unit::HasAuraState(AuraState flag, SpellEntry const *spellProto, Unit * Caster) const
+{
+    if (Caster && spellProto)
+    {
+        AuraList const& stateAuras = Caster->GetAurasByType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
+        for(AuraList::const_iterator j = stateAuras.begin();j != stateAuras.end(); ++j)
+            if((*j)->isAffectedOnSpell(spellProto))
+                return true;
+    }
+    return HasFlag(UNIT_FIELD_AURASTATE, 1<<(flag-1)); 
+}
+
 Unit *Unit::GetOwner() const
 {
     uint64 ownerid = GetOwnerGUID();
@@ -8399,7 +8411,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
             case 6926:
             case 6928:
             {
-                if(pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT))
+                if(pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
                     DoneTotalMod *= (100.0f+(*i)->GetModifier()->m_amount)/100.0f;
                 break;
             }
@@ -8432,7 +8444,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
             case 6916: // Death's Embrace
             case 6925:
             case 6927:
-                if (HasAuraState(AURA_STATE_HEALTHLESS_20_PERCENT))
+                if (HasAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, spellProto, this))
                     DoneTotalMod *= (100.0f+(*i)->GetModifier()->m_amount)/100.0f;
                 break;
             case 5481: // Starfire Bonus
@@ -8459,7 +8471,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 // Merciless Combat
                 if ((*i)->GetSpellProto()->SpellIconID == 2656)
                 {
-                    if(pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT))
+                    if(pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
                         DoneTotalMod *= (100.0f+(*i)->GetModifier()->m_amount)/100.0f;
                 }
                 else // Tundra Stalker
@@ -8694,7 +8706,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     // Ice Lance
     if (spellProto->SpellFamilyName == SPELLFAMILY_MAGE && spellProto->SpellIconID == 186)
     {
-        if (pVictim->isFrozen())
+        if (pVictim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
             DoneTotalMod *= 3.0f;
     }
 
@@ -8954,11 +8966,11 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                         continue;
                     switch((*i)->GetModifier()->m_miscvalue)
                     {
-                        case  849: if (pVictim->isFrozen()) crit_chance+= 17.0f; break; //Shatter Rank 1
-                        case  910: if (pVictim->isFrozen()) crit_chance+= 34.0f; break; //Shatter Rank 2
-                        case  911: if (pVictim->isFrozen()) crit_chance+= 50.0f; break; //Shatter Rank 3
+                        case  849: if (pVictim->HasAuraState(AURA_STATE_FROZEN, spellProto, this)) crit_chance+= 17.0f; break; //Shatter Rank 1
+                        case  910: if (pVictim->HasAuraState(AURA_STATE_FROZEN, spellProto, this)) crit_chance+= 34.0f; break; //Shatter Rank 2
+                        case  911: if (pVictim->HasAuraState(AURA_STATE_FROZEN, spellProto, this)) crit_chance+= 50.0f; break; //Shatter Rank 3
                         case 7917: // Glyph of Shadowburn
-                            if (pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT))
+                            if (pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
                                 crit_chance+=(*i)->GetModifier()->m_amount;
                             break;
                         case 7997: // Renewed Hope
@@ -9666,7 +9678,7 @@ void Unit::MeleeDamageBonus(Unit *pVictim, uint32 *pdamage,WeaponAttackType attT
         switch((*i)->GetMiscValue())
         {
             case 6427: case 6428:                           // Dirty Deeds
-                if(pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT))
+                if(pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
                 {
                     Aura* eff0 = GetAura((*i)->GetId(),0);
                     if(!eff0 || (*i)->GetEffIndex()!=1)
