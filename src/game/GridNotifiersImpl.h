@@ -71,7 +71,7 @@ Trinity::PlayerVisibilityNotifier::Visit(GridRefManager<T> &m)
 {
     for(typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
-        i_player.UpdateVisibilityOf(iter->getSource(),i_data,i_data_updates,i_visibleNow);
+        i_player.UpdateVisibilityOf(iter->getSource(),i_data,i_visibleNow);
         i_clientGUIDs.erase(iter->getSource()->GetGUID());
     }
 }
@@ -87,7 +87,7 @@ Trinity::PlayerRelocationNotifier::Visit(PlayerMapType &m)
         if(iter->getSource()->m_Notified) //self is also skipped in this check
             continue;
 
-        i_player.UpdateVisibilityOf(iter->getSource(),i_data,i_data_updates,i_visibleNow);
+        i_player.UpdateVisibilityOf(iter->getSource(),i_data,i_visibleNow);
         iter->getSource()->UpdateVisibilityOf(&i_player);
 
         //if (!i_player.GetSharedVisionList().empty())
@@ -112,7 +112,7 @@ Trinity::PlayerRelocationNotifier::Visit(CreatureMapType &m)
         if(iter->getSource()->m_Notified)
             continue;
 
-        i_player.UpdateVisibilityOf(iter->getSource(),i_data,i_data_updates,i_visibleNow);
+        i_player.UpdateVisibilityOf(iter->getSource(),i_data,i_visibleNow);
 
         PlayerCreatureRelocationWorker(&i_player, iter->getSource());
     }
