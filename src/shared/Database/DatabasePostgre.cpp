@@ -79,14 +79,14 @@ bool DatabasePostgre::Initialize(const char *infoString)
 
     Tokens::iterator iter;
 
-    std::string host, port_or_socket, user, password, database;
+    std::string host, port_or_socket_dir, user, password, database;
 
     iter = tokens.begin();
 
     if(iter != tokens.end())
         host = *iter++;
     if(iter != tokens.end())
-        port_or_socket = *iter++;
+        port_or_socket_dir = *iter++;
     if(iter != tokens.end())
         user = *iter++;
     if(iter != tokens.end())
@@ -94,7 +94,10 @@ bool DatabasePostgre::Initialize(const char *infoString)
     if(iter != tokens.end())
         database = *iter++;
 
-    mPGconn = PQsetdbLogin(host.c_str(), port_or_socket.c_str(), NULL, NULL, database.c_str(), user.c_str(), password.c_str());
+    if (host == ".")
+        mPGconn = PQsetdbLogin(NULL, port_or_socket_dir == "." ? NULL : port_or_socket_dir.c_str(), NULL, NULL, database.c_str(), user.c_str(), password.c_str());
+    else
+        mPGconn = PQsetdbLogin(host.c_str(), port_or_socket_dir.c_str(), NULL, NULL, database.c_str(), user.c_str(), password.c_str());
 
     /* check to see that the backend connection was successfully made */
     if (PQstatus(mPGconn) != CONNECTION_OK)
