@@ -50,6 +50,7 @@
 #include "PetAI.h"
 #include "NullCreatureAI.h"
 #include "Traveller.h"
+#include "TemporarySummon.h"
 
 #include <math.h>
 
@@ -4381,7 +4382,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
                 {
                     if(AurSpellInfo->Effect[i] == SPELL_EFFECT_SUMMON)
                         if(SummonPropertiesEntry const *SummonProperties = sSummonPropertiesStore.LookupEntry(AurSpellInfo->EffectMiscValueB[i]))
-                            if(SummonProperties->Group == SUMMON_TYPE_POSSESSED)
+                            if(SummonProperties->Category == SUMMON_CATEGORY_POSSESSED)
                             {
                                 ((Player*)caster)->StopCastingCharm();
                                 break;
@@ -8325,8 +8326,8 @@ void Unit::UnsummonAllTotems()
             continue;
 
         Creature *OldTotem = ObjectAccessor::GetCreature(*this, m_TotemSlot[i]);
-        if (OldTotem && OldTotem->isTotem())
-            ((Totem*)OldTotem)->UnSummon();
+        if(OldTotem && OldTotem->isSummon())
+            ((TempSummon*)OldTotem)->UnSummon();
     }
 }
 
@@ -11355,6 +11356,7 @@ void Unit::RemoveFromWorld()
     // cleanup
     if(IsInWorld())
     {
+        UnsummonAllTotems();
         RemoveCharmAuras();
         RemoveBindSightAuras();
         RemoveNotOwnSingleTargetAuras();

@@ -21,7 +21,7 @@
 #ifndef TRINITYCORE_TOTEM_H
 #define TRINITYCORE_TOTEM_H
 
-#include "Creature.h"
+#include "TemporarySummon.h"
 
 enum TotemType
 {
@@ -32,7 +32,7 @@ enum TotemType
 
 #define SENTRY_TOTEM_ENTRY  3968
 
-class Totem : public Creature
+class Totem : public TempSummon
 {
     public:
         explicit Totem();

@@ -12,6 +12,7 @@
 #include "GridNotifiersImpl.h"
 #include "Unit.h"
 #include "GameObject.h"
+#include "TemporarySummon.h"
 #include "sc_creature.h"
 #include "sc_gossip.h"
 #include "sc_instance.h"

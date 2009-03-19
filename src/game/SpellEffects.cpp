@@ -1166,7 +1166,7 @@ void Spell::EffectDummy(uint32 i)
                     if(!unitTarget)
                         return;
 
-                    TemporarySummon* tempSummon = dynamic_cast<TemporarySummon*>(unitTarget);
+                    TempSummon* tempSummon = dynamic_cast<TempSummon*>(unitTarget);
                     if(!tempSummon)
                         return;
 
@@ -3333,11 +3333,6 @@ void Spell::EffectSummonType(uint32 i)
         case SUMMON_TYPE_SUMMON:
             EffectSummon(i);
             break;
-        case SUMMON_TYPE_CRITTER:
-        case SUMMON_TYPE_CRITTER2:
-        case SUMMON_TYPE_CRITTER3:
-            EffectSummonCritter(i);
-            break;
         case SUMMON_TYPE_TOTEM_SLOT1:
         case SUMMON_TYPE_TOTEM_SLOT2:
         case SUMMON_TYPE_TOTEM_SLOT3:
@@ -3358,15 +3353,18 @@ void Spell::EffectSummonType(uint32 i)
                 sLog.outError("EffectSummonType: Unhandled summon type %u", m_spellInfo->EffectMiscValueB[i]);
                 return;
             }
-            switch(SummonProperties->Group)
+            switch(SummonProperties->Category)
             {
                 default:
-                    EffectSummonWild(i);
+                    if(SummonProperties->Type == SUMMON_TYPE_MINIPET)
+                        EffectSummonCritter(i);
+                    else
+                        EffectSummonWild(i);
                     break;
-                case SUMMON_TYPE_POSSESSED:
+                case SUMMON_CATEGORY_POSSESSED:
                     EffectSummonPossessed(i);
                     break;
-                case SUMMON_TYPE_VEHICLE:
+                case SUMMON_CATEGORY_VEHICLE:
                     EffectSummonVehicle(i);
                     break;
             }
@@ -6036,32 +6034,6 @@ void Spell::EffectSummonCritter(uint32 i)
     if(!pet_entry)
         return;
 
-    Pet* old_critter = player->GetMiniPet();
-
-    // for same pet just despawn
-    if(old_critter && old_critter->GetEntry() == pet_entry)
-    {
-        player->RemoveMiniPet();
-        return;
-    }
-
-    // despawn old pet before summon new
-    if(old_critter)
-        player->RemoveMiniPet();
-
-    // summon new pet
-    Pet* critter = new Pet(MINI_PET);
-
-    Map *map = m_caster->GetMap();
-    uint32 pet_number = objmgr.GeneratePetNumber();
-    if(!critter->Create(objmgr.GenerateLowGuid(HIGHGUID_PET), map, m_caster->GetPhaseMask(),
-        pet_entry, pet_number))
-    {
-        sLog.outError("Spell::EffectSummonCritter, spellid %u: no such creature entry %u", m_spellInfo->Id, pet_entry);
-        delete critter;
-        return;
-    }
-
     float x,y,z;
     // If dest location if present
     if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
@@ -6072,40 +6044,32 @@ void Spell::EffectSummonCritter(uint32 i)
      }
      // Summon if dest location not present near caster
      else
-         m_caster->GetClosePoint(x,y,z,critter->GetObjectSize());
+         m_caster->GetClosePoint(x,y,z,m_caster->GetObjectSize());
 
-    critter->Relocate(x,y,z,m_caster->GetOrientation());
-
-    if(!critter->IsPositionValid())
-    {
-        sLog.outError("ERROR: Pet (guidlow %d, entry %d) not summoned. Suggested coordinates isn't valid (X: %f Y: %f)",
-            critter->GetGUIDLow(), critter->GetEntry(), critter->GetPositionX(), critter->GetPositionY());
-        delete critter;
+    int32 duration = GetSpellDuration(m_spellInfo);
+    TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
+    TempSummon *critter = m_caster->SummonCreature(pet_entry, x, y, z, m_caster->GetOrientation(), summonType, duration);
+    if(!critter)
         return;
-    }
 
     critter->SetOwnerGUID(m_caster->GetGUID());
     critter->SetCreatorGUID(m_caster->GetGUID());
     critter->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE,m_caster->getFaction());
     critter->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
 
-    critter->AIM_Initialize();
-    critter->InitPetCreateSpells();                         // e.g. disgusting oozeling has a create spell as critter...
+    //critter->InitPetCreateSpells();                         // e.g. disgusting oozeling has a create spell as critter...
     critter->SetMaxHealth(1);
     critter->SetHealth(1);
     critter->SetLevel(1);
 
-    // set timer for unsummon
-    int32 duration = GetSpellDuration(m_spellInfo);
-    if(duration > 0)
-        critter->SetDuration(duration);
+    critter->SetReactState(REACT_PASSIVE);
+    critter->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
     std::string name = player->GetName();
-    name.append(petTypeSuffix[critter->getPetType()]);
+    name.append(petTypeSuffix[3]);
     critter->SetName( name );
-    player->SetMiniPet(critter);
 
-    map->Add((Creature*)critter);
+    critter->SetSummonProperties(sSummonPropertiesStore.LookupEntry(m_spellInfo->EffectMiscValueB[i]));
 }
 
 void Spell::EffectKnockBack(uint32 i)
@@ -6787,6 +6751,8 @@ void Spell::EffectSummonVehicle(uint32 i)
     float x, y, z;
     m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
     Vehicle *vehicle = m_caster->SummonVehicle(entry, x, y, z, m_caster->GetOrientation());
+    if(!vehicle)
+        return;
 
     vehicle->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
 }
