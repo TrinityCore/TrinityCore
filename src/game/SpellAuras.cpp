@@ -1368,8 +1368,13 @@ void Aura::TriggerSpell()
                     } break;
 //                    // Steam Tank Passive
 //                    case 27747: break;
-//                    // Frost Blast
-//                    case 27808: break;
+                    // Frost Blast
+                    case 27808:
+                    {
+                        int32 bpDamage = target->GetMaxHealth()*26/100;
+                        caster->CastCustomSpell(target,29879,&bpDamage,NULL,NULL,true,NULL,this);
+                        return;
+                    }
 //                    // Detonate Mana
 //                    case 27819: break;
 //                    // Controller Timer
