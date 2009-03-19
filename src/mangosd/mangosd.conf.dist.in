@@ -218,11 +218,6 @@ AddonChannel = 1
 #        0 = Minimum; 1 = Basic&Error; 2 = Detail; 3 = Full/Debug
 #        Default: 3
 #
-#    LogTime
-#        Include time in server console output [hh:mm:ss]
-#        Default: 0 (no time)
-#                 1 (print time)
-#
 #    LogFile
 #        Logfile name
 #        Default: "Server.log"
@@ -293,19 +288,41 @@ AddonChannel = 1
 #        Default: "Ra.log"
 #                 "" - Empty name for disable
 #
-#    LogColors
-#        Color for messages (format "normal_color details_color debug_color error_color")
-#        Colors: 0 - BLACK, 1 - RED, 2 - GREEN,  3 - BROWN, 4 - BLUE, 5 - MAGENTA, 6 -  CYAN, 7 - GREY,
-#                8 - YELLOW, 9 - LRED, 10 - LGREEN, 11 - LBLUE, 12 - LMAGENTA, 13 - LCYAN, 14 - WHITE
-#        Default: "" - none colors
-#        Example: "13 7 11 9"
+#    EnableLogDB
+#        Enable/disable logging to database (LogDatabaseInfo).
+#        Default: 0 - disabled
+#                 1 - enabled
+#
+#    DBLogLevel
+#        Log level of DB logging.
+#        1 = Basic&Error; 2 = Detail; 3 = Full/Debug
+#        Default: 3
+#
+#    LogDB.Char
+#        Enable/disable logging character outputs to DB.
+#        Default: 0 - off
+#                 1 - on
+#
+#    LogDB.GM
+#        Enable/disable logging GM commands to DB.
+#        Default: 0 - off
+#                 1 - on
+#
+#    LogDB.RA
+#        Enable/disable logging remote access events to DB.
+#        Default: 0 - off
+#                 1 - on
+#
+#    LogDB.World
+#        Enable/disable logging world packets to DB.
+#        Default: 0 - off
+#                 1 - on (very heavy)
 #
 ###################################################################################################################
 
 LogSQL = 1
 PidFile = ""
 LogLevel = 1
-LogTime = 0
 LogFile = "Server.log"
 LogTimestamp = 0
 LogFileLevel = 0
@@ -322,7 +339,12 @@ GmLogFile = "gm_commands.log"
 GmLogTimestamp = 0
 GmLogPerAccount = 0
 RaLogFile = "ra_commands.log"
-LogColors = ""
+EnableLogDB = 0
+DBLogLevel = 1
+LogDB.Char   = 0
+LogDB.GM     = 0
+LogDB.RA     = 0
+LogDB.World  = 0
 
 ###################################################################################################################
 # SERVER SETTINGS

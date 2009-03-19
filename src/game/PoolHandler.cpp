@@ -342,7 +342,7 @@ void PoolHandler::LoadFromDB()
     if (!result)
     {
         sLog.outString(">> Table pool_template is empty.");
-        sLog.outString();
+        sLog.outString("");
         return;
     }
     else
@@ -359,7 +359,7 @@ void PoolHandler::LoadFromDB()
     {
         mPoolTemplate.clear();
         sLog.outString(">> Table pool_template is empty:");
-        sLog.outString();
+        sLog.outString("");
         return;
     }
 
@@ -380,7 +380,7 @@ void PoolHandler::LoadFromDB()
 
     } while (result->NextRow());
 
-    sLog.outString();
+    sLog.outString("");
     sLog.outString( ">> Loaded %u objects pools", count );
     delete result;
 
@@ -397,7 +397,7 @@ void PoolHandler::LoadFromDB()
         barGoLink bar2(1);
         bar2.step();
 
-        sLog.outString();
+        sLog.outString("");
         sLog.outString(">> Loaded %u creatures in pools", count );
     }
     else
@@ -440,7 +440,7 @@ void PoolHandler::LoadFromDB()
             mCreatureSearchMap.insert(p);
 
         } while (result->NextRow());
-        sLog.outString();
+        sLog.outString("");
         sLog.outString( ">> Loaded %u creatures in pools", count );
         delete result;
     }
@@ -458,7 +458,7 @@ void PoolHandler::LoadFromDB()
         barGoLink bar2(1);
         bar2.step();
 
-        sLog.outString();
+        sLog.outString("");
         sLog.outString(">> Loaded %u gameobject in pools", count );
     }
     else
@@ -510,7 +510,7 @@ void PoolHandler::LoadFromDB()
             mGameobjectSearchMap.insert(p);
 
         } while( result->NextRow() );
-        sLog.outString();
+        sLog.outString("");
         sLog.outString( ">> Loaded %u gameobject in pools", count );
         delete result;
     }
@@ -526,7 +526,7 @@ void PoolHandler::LoadFromDB()
         barGoLink bar2(1);
         bar2.step();
 
-        sLog.outString();
+        sLog.outString("");
         sLog.outString(">> Loaded %u pools in pools", count );
     }
     else
@@ -598,7 +598,7 @@ void PoolHandler::LoadFromDB()
                 }
             }
         }
-        sLog.outString();
+        sLog.outString("");
         sLog.outString( ">> Loaded %u pools in mother pools", count );
         delete result;
     }

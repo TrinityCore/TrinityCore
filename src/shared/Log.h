@@ -26,101 +26,74 @@
 
 class Config;
 
-// bitmask
 enum LogFilters
 {
-    LOG_FILTER_TRANSPORT_MOVES    = 1,
-    LOG_FILTER_CREATURE_MOVES     = 2,
-    LOG_FILTER_VISIBILITY_CHANGES = 4,
-    LOG_FILTER_ACHIEVEMENT_UPDATES= 8
+    LOG_FILTER_TRANSPORT_MOVES     = 0x1,
+    LOG_FILTER_CREATURE_MOVES      = 0x2,
+    LOG_FILTER_VISIBILITY_CHANGES  = 0x4,
+    LOG_FILTER_ACHIEVEMENT_UPDATES = 0x8
 };
 
-enum Color
+enum LogTypes
 {
-    BLACK,
-    RED,
-    GREEN,
-    BROWN,
-    BLUE,
-    MAGENTA,
-    CYAN,
-    GREY,
-    YELLOW,
-    LRED,
-    LGREEN,
-    LBLUE,
-    LMAGENTA,
-    LCYAN,
-    WHITE
+    LOG_TYPE_STRING = 0,
+    LOG_TYPE_ERROR  = 1,
+    LOG_TYPE_BASIC  = 2,
+    LOG_TYPE_DETAIL = 3,
+    LOG_TYPE_DEBUG  = 4,
+    LOG_TYPE_CHAR   = 5,
+    LOG_TYPE_WORLD  = 6,
+    LOG_TYPE_RA     = 7,
+    LOG_TYPE_GM     = 8,
+    LOG_TYPE_PACKET = 9,
+    LOG_TYPE_DBERR  = 10,
+    MAX_LOG_TYPES
 };
 
-const int Color_count = int(WHITE)+1;
+enum LogLevel
+{
+    LOGL_NORMAL = 0,
+    LOGL_BASIC,
+    LOGL_DETAIL,
+    LOGL_DEBUG
+};
 
 class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThread::FastMutex> >
 {
     friend class Trinity::OperatorNew<Log>;
     Log();
+    ~Log();
 
-    ~Log()
-    {
-        if( logfile != NULL )
-            fclose(logfile);
-        logfile = NULL;
-
-        if( gmLogfile != NULL )
-            fclose(gmLogfile);
-        gmLogfile = NULL;
-
-        if (charLogfile != NULL)
-            fclose(charLogfile);
-        charLogfile = NULL;
-
-        if( dberLogfile != NULL )
-            fclose(dberLogfile);
-        dberLogfile = NULL;
-
-        if (raLogfile != NULL)
-            fclose(raLogfile);
-        raLogfile = NULL;
-    }
     public:
         void Initialize();
-        void InitColors(const std::string& init_str);
-        void outTitle( const char * str);
+
+    	void outDB( uint8 type, const char * str, ... ) ATTR_PRINTF(3,4);
+        void outString( const char * str, ... )         ATTR_PRINTF(2,3);
+        void outError( const char * err, ... )          ATTR_PRINTF(2,3);
+        void outBasic( const char * str, ... )          ATTR_PRINTF(2,3);
+        void outDetail( const char * str, ... )         ATTR_PRINTF(2,3);
+        void outDebug( const char * str, ... )          ATTR_PRINTF(2,3);
+        void outDebugInLine( const char * str, ... )    ATTR_PRINTF(2,3);
+        void outErrorDb( const char * str, ... )        ATTR_PRINTF(2,3);
+        void outChar( const char * str, ... )           ATTR_PRINTF(2,3);
         void outCommand( uint32 account, const char * str, ...) ATTR_PRINTF(3,4);
-        void outString();                                   // any log level
-                                                            // any log level
-        void outString( const char * str, ... )      ATTR_PRINTF(2,3);
-                                                            // any log level
-        void outError( const char * err, ... )       ATTR_PRINTF(2,3);
-                                                            // log level >= 1
-        void outBasic( const char * str, ... )       ATTR_PRINTF(2,3);
-                                                            // log level >= 2
-        void outDetail( const char * str, ... )      ATTR_PRINTF(2,3);
-                                                            // log level >= 3
-        void outDebugInLine( const char * str, ... ) ATTR_PRINTF(2,3);
-                                                            // log level >= 3
-        void outDebug( const char * str, ... )       ATTR_PRINTF(2,3);
-                                                            // any log level
-        void outMenu( const char * str, ... )        ATTR_PRINTF(2,3);
-                                                            // any log level
-        void outErrorDb( const char * str, ... )     ATTR_PRINTF(2,3);
-                                                            // any log level
-        void outChar( const char * str, ... )        ATTR_PRINTF(2,3);
-                                                            // any log level
+        void outRemote( const char * str, ... )         ATTR_PRINTF(2,3);
         void outCharDump( const char * str, uint32 account_id, uint32 guid, const char * name );
-        void outRALog( const char * str, ... )       ATTR_PRINTF(2,3);
+
         void SetLogLevel(char * Level);
         void SetLogFileLevel(char * Level);
-        void SetColor(bool stdout_stream, Color color);
-        void ResetColor(bool stdout_stream);
-        void outTime();
-        static void outTimestamp(FILE* file);
+        void SetDBLogLevel(char * Level);
+        void SetRealmID(uint32 id) { realm = id; }
+
         static std::string GetTimestampStr();
         uint32 getLogFilter() const { return m_logFilter; }
         bool IsOutDebug() const { return m_logLevel > 2 || (m_logFileLevel > 2 && logfile); }
         bool IsOutCharDump() const { return m_charLog_Dump; }
-        bool IsIncludeTime() const { return m_includeTime; }
+
+        bool GetLogDB() { return m_enableLogDB; }
+        bool GetLogDBLater() { return m_enableLogDBLater; }
+        void SetLogDB(bool enable) { m_enableLogDB = enable; }
+        void SetLogDBLater(bool value) { m_enableLogDBLater = value; }
     private:
         FILE* openLogFile(char const* configFileName,char const* configTimeStampFlag, char const* mode);
         FILE* openGmlogPerAccount(uint32 account);
@@ -131,24 +104,28 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThr
         FILE* charLogfile;
         FILE* dberLogfile;
 
-        // log/console control
-        uint32 m_logLevel;
-        uint32 m_logFileLevel;
-        bool m_colored;
-        bool m_includeTime;
-        Color m_colors[4];
-        uint32 m_logFilter;
-
         // cache values for after initilization use (like gm log per account case)
         std::string m_logsDir;
         std::string m_logsTimestamp;
 
-        // char log control
-        bool m_charLog_Dump;
-
         // gm log control
         bool m_gmlog_per_account;
         std::string m_gmlog_filename_format;
+
+		bool m_enableLogDBLater;
+		bool m_enableLogDB;
+        uint32 realm;
+
+		// log levels:
+		// 0 minimum/string, 1 basic/error, 2 detail, 3 full/debug
+		uint8 m_dbLogLevel;
+        uint8 m_logLevel;
+        uint8 m_logFileLevel;
+        uint8 m_logFilter;
+        bool m_dbChar;
+        bool m_dbRA;
+        bool m_dbGM;
+        bool m_charLog_Dump;
 };
 
 #define sLog Trinity::Singleton<Log>::Instance()

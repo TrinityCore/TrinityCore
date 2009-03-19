@@ -89,7 +89,7 @@ bool LoadScriptingModule(char const* libName)
         return false;
     }
 
-    sLog.outString();
+    sLog.outString("");
     sLog.outString( ">>> Scripts Library %s was successfully loaded.\n", name.c_str() );
 
     //heh we are still there :P we have a valid library

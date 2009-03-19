@@ -850,7 +850,7 @@ void SpellMgr::LoadSpellTargetPositions()
 
         bar.step();
 
-        sLog.outString();
+        sLog.outString("");
         sLog.outString( ">> Loaded %u spell target coordinates", count );
         return;
     }
@@ -916,7 +916,7 @@ void SpellMgr::LoadSpellTargetPositions()
 
     delete result;
 
-    sLog.outString();
+    sLog.outString("");
     sLog.outString( ">> Loaded %u spell teleport coordinates", count );
 }
 
@@ -935,7 +935,7 @@ void SpellMgr::LoadSpellAffects()
 
         bar.step();
 
-        sLog.outString();
+        sLog.outString("");
         sLog.outString( ">> Loaded %u spell affect definitions", count );
         return;
     }
@@ -996,7 +996,7 @@ void SpellMgr::LoadSpellAffects()
 
     delete result;
 
-    sLog.outString();
+    sLog.outString("");
     sLog.outString( ">> Loaded %u custom spell affect definitions", count );
 
     for (uint32 id = 0; id < sSpellStore.GetNumRows(); ++id)
@@ -1056,7 +1056,7 @@ void SpellMgr::LoadSpellProcEvents()
     {
         barGoLink bar( 1 );
         bar.step();
-        sLog.outString();
+        sLog.outString("");
         sLog.outString( ">> Loaded %u spell proc event conditions", count  );
         return;
     }
@@ -1107,7 +1107,7 @@ void SpellMgr::LoadSpellProcEvents()
 
     delete result;
 
-    sLog.outString();
+    sLog.outString("");
     if (customProc)
         sLog.outString( ">> Loaded %u extra spell proc event conditions +%u custom",  count, customProc );
     else
@@ -1124,7 +1124,7 @@ void SpellMgr::LoadSpellBonusess()
     {
         barGoLink bar( 1 );
         bar.step();
-        sLog.outString();
+        sLog.outString("");
         sLog.outString( ">> Loaded %u spell bonus data", count);
         return;
     }
@@ -1154,7 +1154,7 @@ void SpellMgr::LoadSpellBonusess()
 
     delete result;
 
-    sLog.outString();
+    sLog.outString("");
     sLog.outString( ">> Loaded %u extra spell bonus data",  count);
 }
 
@@ -1238,7 +1238,7 @@ void SpellMgr::LoadSpellElixirs()
 
         bar.step();
 
-        sLog.outString();
+        sLog.outString("");
         sLog.outString( ">> Loaded %u spell elixir definitions", count );
         return;
     }
@@ -1269,7 +1269,7 @@ void SpellMgr::LoadSpellElixirs()
 
     delete result;
 
-    sLog.outString();
+    sLog.outString("");
     sLog.outString( ">> Loaded %u spell elixir definitions", count );
 }
 
@@ -1280,7 +1280,7 @@ void SpellMgr::LoadSpellThreats()
     sSpellThreatStore.Load();
 
     sLog.outString( ">> Loaded %u aggro generating spells", sSpellThreatStore.RecordCount );
-    sLog.outString();
+    sLog.outString("");
 }
 
 bool SpellMgr::IsRankSpellDueToSpell(SpellEntry const *spellInfo_1,uint32 spellId_2) const
@@ -1542,7 +1542,7 @@ void SpellMgr::LoadSpellRequired()
         barGoLink bar( 1 );
         bar.step();
 
-        sLog.outString();
+        sLog.outString("");
         sLog.outString( ">> Loaded 0 spell required records" );
         sLog.outErrorDb("`spell_required` table is empty!");
         return;
@@ -1564,7 +1564,7 @@ void SpellMgr::LoadSpellRequired()
     } while( result->NextRow() );
     delete result;
 
-    sLog.outString();
+    sLog.outString("");
     sLog.outString( ">> Loaded %u spell required records", rows );
 }
 
@@ -1860,7 +1860,7 @@ void SpellMgr::LoadSpellChains()
     //for (UNORDERED_MAP<uint32, SpellChainNode>::iterator itr=mSpellChains.begin();itr!=mSpellChains.end();itr++)
        //sLog.outString( "Id: %u, Rank: %d , %s, %u, %u, %u, %u",itr->first,itr->second.rank, sSpellStore.LookupEntry(itr->first)->Rank[sWorld.GetDefaultDbcLocale()], itr->second.first, itr->second.last,itr->second.next ,itr->second.prev);
 
-    sLog.outString();
+    sLog.outString("");
     sLog.outString( ">> Loaded %u spell chains",count);
 }
 
@@ -1900,7 +1900,7 @@ void SpellMgr::LoadSpellLearnSkills()
         }
     }
 
-    sLog.outString();
+    sLog.outString("");
     sLog.outString( ">> Loaded %u Spell Learn Skills from DBC", dbc_count );
 }
 
@@ -1915,7 +1915,7 @@ void SpellMgr::LoadSpellLearnSpells()
         barGoLink bar( 1 );
         bar.step();
 
-        sLog.outString();
+        sLog.outString("");
         sLog.outString( ">> Loaded 0 spell learn spells" );
         sLog.outErrorDb("`spell_learn_spell` table is empty!");
         return;
@@ -2005,7 +2005,7 @@ void SpellMgr::LoadSpellLearnSpells()
         }
     }
 
-    sLog.outString();
+    sLog.outString("");
     sLog.outString( ">> Loaded %u spell learn spells + %u found in DBC", count, dbc_count );
 }
 
@@ -2023,7 +2023,7 @@ void SpellMgr::LoadSpellScriptTarget()
 
         bar.step();
 
-        sLog.outString();
+        sLog.outString("");
         sLog.outString( ">> Loaded 0 spell script target" );
         sLog.outErrorDb("`spell_script_target` table is empty!");
         return;
@@ -2142,7 +2142,7 @@ void SpellMgr::LoadSpellScriptTarget()
     }
     */
 
-    sLog.outString();
+    sLog.outString("");
     sLog.outString(">> Loaded %u Spell Script Targets", count);
 }
 
@@ -2161,7 +2161,7 @@ void SpellMgr::LoadSpellPetAuras()
 
         bar.step();
 
-        sLog.outString();
+        sLog.outString("");
         sLog.outString( ">> Loaded %u spell pet auras", count );
         return;
     }
@@ -2220,7 +2220,7 @@ void SpellMgr::LoadSpellPetAuras()
 
     delete result;
 
-    sLog.outString();
+    sLog.outString("");
     sLog.outString( ">> Loaded %u spell pet auras", count );
 }
 
@@ -2387,7 +2387,7 @@ void SpellMgr::LoadSpellLinked()
     {
         barGoLink bar( 1 );
         bar.step();
-        sLog.outString();
+        sLog.outString("");
         sLog.outString( ">> Loaded %u linked spells", count );
         return;
     }
@@ -2445,7 +2445,7 @@ void SpellMgr::LoadSpellLinked()
 
     delete result;
 
-    sLog.outString();
+    sLog.outString("");
     sLog.outString( ">> Loaded %u linked spells", count );
 }
 
@@ -2485,7 +2485,7 @@ void SpellMgr::LoadPetLevelupSpellMap()
         }
     }
 
-    sLog.outString();
+    sLog.outString("");
     sLog.outString( ">> Loaded %u pet levelup spells", count );
 }
 
@@ -2583,7 +2583,7 @@ void SpellMgr::LoadSpellAreas()
 
         bar.step();
 
-        sLog.outString();
+        sLog.outString("");
         sLog.outString( ">> Loaded %u spell area requirements", count );
         return;
     }
@@ -2771,7 +2771,7 @@ void SpellMgr::LoadSpellAreas()
 
     delete result;
 
-    sLog.outString();
+    sLog.outString("");
     sLog.outString( ">> Loaded %u spell area requirements", count );
 }
 
@@ -2892,7 +2892,7 @@ void SpellMgr::LoadSkillLineAbilityMap()
         ++count;
     }
 
-    sLog.outString();
+    sLog.outString("");
     sLog.outString(">> Loaded %u SkillLineAbility MultiMap Data", count);
 }
 
