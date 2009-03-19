@@ -3317,11 +3317,6 @@ void Spell::EffectSummonType(uint32 i)
         case SUMMON_TYPE_GUARDIAN:
             EffectSummonGuardian(i);
             break;
-        case SUMMON_TYPE_POSESSED:
-        case SUMMON_TYPE_STEAM_TONK:
-        case SUMMON_TYPE_RACE_CONTROLLER:
-            EffectSummonPossessed(i);
-            break;
         case SUMMON_TYPE_FORCE_OF_NATURE:
         case SUMMON_TYPE_FERAL_SPIRIT:
             EffectSummonGuardian(i);
@@ -3355,8 +3350,26 @@ void Spell::EffectSummonType(uint32 i)
         case SUMMON_TYPE_UNKNOWN5:
             break;
         default:
-            sLog.outError("EffectSummonType: Unhandled summon type %u", m_spellInfo->EffectMiscValueB[i]);
+        {
+            SummonPropertiesEntry const *SummonProperties = sSummonPropertiesStore.LookupEntry(m_spellInfo->EffectMiscValueB[i]);
+            if(!SummonProperties)
+            {
+                sLog.outError("EffectSummonType: Unhandled summon type %u", m_spellInfo->EffectMiscValueB[i]);
+                return;
+            }
+            switch(SummonProperties->Group)
+            {
+                default:
+                    EffectSummonWild(i);
+                    break;
+                case SUMMON_TYPE_POSSESSED:
+                    EffectSummonPossessed(i);
+                    break;
+                case SUMMON_TYPE_VEHICLE:
+                    break;
+            }
             break;
+        }
     }
 }
 
@@ -3802,30 +3815,6 @@ void Spell::EffectSummonGuardian(uint32 i)
         spawnCreature->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP,0);
         spawnCreature->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
     }
-}
-
-void Spell::EffectSummonPossessed(uint32 i)
-{
-    uint32 entry = m_spellInfo->EffectMiscValue[i];
-    if(!entry)
-        return;
-
-    if(m_caster->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    uint32 level = m_caster->getLevel();
-
-    float x, y, z;
-    m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
-
-    int32 duration = GetSpellDuration(m_spellInfo);
-
-    Pet* pet = ((Player*)m_caster)->SummonPet(entry, x, y, z, m_caster->GetOrientation(), POSSESSED_PET, duration);
-    if(!pet)
-        return;
-
-    pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
-    pet->SetCharmedOrPossessedBy(m_caster, true);
 }
 
 void Spell::EffectTeleUnitsFaceCaster(uint32 i)
@@ -6568,7 +6557,7 @@ void Spell::EffectSummonDemon(uint32 i)
     float center_y = m_targets.m_destY;
     float center_z = m_targets.m_destZ;
 
-    float radius = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+    float radius = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
 
     int32 amount = damage > 0 ? damage : 1;
 
@@ -6761,6 +6750,30 @@ void Spell::EffectRedirectThreat(uint32 /*i*/)
 {
     if(unitTarget)
         m_caster->SetReducedThreatPercent((uint32)damage, unitTarget->GetGUID());
+}
+
+void Spell::EffectSummonPossessed(uint32 i)
+{
+    uint32 entry = m_spellInfo->EffectMiscValue[i];
+    if(!entry)
+        return;
+
+    if(m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    uint32 level = m_caster->getLevel();
+
+    float x, y, z;
+    m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
+
+    int32 duration = GetSpellDuration(m_spellInfo);
+
+    Pet* pet = ((Player*)m_caster)->SummonPet(entry, x, y, z, m_caster->GetOrientation(), POSSESSED_PET, duration);
+    if(!pet)
+        return;
+
+    pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
+    pet->SetCharmedOrPossessedBy(m_caster, true);
 }
 
 void Spell::EffectRenamePet(uint32 /*eff_idx*/)
