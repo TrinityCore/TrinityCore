@@ -285,7 +285,7 @@ void AuctionHouseMgr::LoadAuctionItems()
     {
         barGoLink bar(1);
         bar.step();
-        sLog.outString();
+        sLog.outString("");
         sLog.outString(">> Loaded 0 auction items");
         return;
     }
@@ -325,7 +325,7 @@ void AuctionHouseMgr::LoadAuctionItems()
     while( result->NextRow() );
     delete result;
 
-    sLog.outString();
+    sLog.outString("");
     sLog.outString( ">> Loaded %u auction items", count );
 }
 
@@ -336,7 +336,7 @@ void AuctionHouseMgr::LoadAuctions()
     {
         barGoLink bar(1);
         bar.step();
-        sLog.outString();
+        sLog.outString("");
         sLog.outString(">> Loaded 0 auctions. DB table `auctionhouse` is empty.");
         return;
     }
@@ -349,7 +349,7 @@ void AuctionHouseMgr::LoadAuctions()
     {
         barGoLink bar(1);
         bar.step();
-        sLog.outString();
+        sLog.outString("");
         sLog.outString(">> Loaded 0 auctions. DB table `auctionhouse` is empty.");
         return;
     }
@@ -359,7 +359,7 @@ void AuctionHouseMgr::LoadAuctions()
     {
         barGoLink bar(1);
         bar.step();
-        sLog.outString();
+        sLog.outString("");
         sLog.outString(">> Loaded 0 auctions. DB table `auctionhouse` is empty.");
         return;
     }
@@ -430,7 +430,7 @@ void AuctionHouseMgr::LoadAuctions()
     } while (result->NextRow());
     delete result;
 
-    sLog.outString();
+    sLog.outString("");
     sLog.outString( ">> Loaded %u auctions", AuctionCount );
 }
 

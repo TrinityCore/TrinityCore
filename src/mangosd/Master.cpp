@@ -202,15 +202,15 @@ int Master::Run()
     sLog.outString( "%s (core-daemon)", _FULLVERSION );
     sLog.outString( "<Ctrl-C> to stop.\n" );
 
-    sLog.outTitle( " ______                       __");
-    sLog.outTitle( "/\\__  _\\       __          __/\\ \\__");
-    sLog.outTitle( "\\/_/\\ \\/ _ __ /\\_\\    ___ /\\_\\ \\ ,_\\  __  __");
-    sLog.outTitle( "   \\ \\ \\/\\`'__\\/\\ \\ /' _ `\\/\\ \\ \\ \\/ /\\ \\/\\ \\");
-    sLog.outTitle( "    \\ \\ \\ \\ \\/ \\ \\ \\/\\ \\/\\ \\ \\ \\ \\ \\_\\ \\ \\_\\ \\");
-    sLog.outTitle( "     \\ \\_\\ \\_\\  \\ \\_\\ \\_\\ \\_\\ \\_\\ \\__\\\\/`____ \\");
-    sLog.outTitle( "      \\/_/\\/_/   \\/_/\\/_/\\/_/\\/_/\\/__/ `/___/> \\");
-    sLog.outTitle( "                                 C O R E  /\\___/");
-    sLog.outTitle( "http://TrinityCore.org                    \\/__/\n");
+    sLog.outString( " ______                       __");
+    sLog.outString( "/\\__  _\\       __          __/\\ \\__");
+    sLog.outString( "\\/_/\\ \\/ _ __ /\\_\\    ___ /\\_\\ \\ ,_\\  __  __");
+    sLog.outString( "   \\ \\ \\/\\`'__\\/\\ \\ /' _ `\\/\\ \\ \\ \\/ /\\ \\/\\ \\");
+    sLog.outString( "    \\ \\ \\ \\ \\/ \\ \\ \\/\\ \\/\\ \\ \\ \\ \\ \\_\\ \\ \\_\\ \\");
+    sLog.outString( "     \\ \\_\\ \\_\\  \\ \\_\\ \\_\\ \\_\\ \\_\\ \\__\\\\/`____ \\");
+    sLog.outString( "      \\/_/\\/_/   \\/_/\\/_/\\/_/\\/_/\\/__/ `/___/> \\");
+    sLog.outString( "                                 C O R E  /\\___/");
+    sLog.outString( "http://TrinityCore.org                    \\/__/\n");
 
     /// worldd PID file creation
     std::string pidfile = sConfig.GetStringDefault("PidFile", "");
@@ -282,7 +282,7 @@ int Master::Run()
                         sLog.outError("Can't set used processors (hex): %x",curAff);
                 }
             }
-            sLog.outString();
+            sLog.outString("");
         }
 
         bool Prio = sConfig.GetBoolDefault("ProcessPriority", false);
@@ -294,7 +294,7 @@ int Master::Run()
                 sLog.outString("TrinityCore process priority class set to HIGH");
             else
                 sLog.outError("ERROR: Can't set Trinityd process priority class.");
-            sLog.outString();
+            sLog.outString("");
         }
     }
     #endif
@@ -458,6 +458,14 @@ bool Master::_StartDB()
         return false;
     }
     sLog.outString("Realm running as realm ID %d", realmID);
+
+	///- Initialize the DB logging system
+    if(sConfig.GetBoolDefault("EnableLogDB", false))
+    {
+        // everything successful - set var to enable DB logging once startup finished.
+        sLog.SetLogDBLater(true);
+        sLog.SetRealmID(realmID);
+    }
 
     ///- Clean the database before starting
     clearOnlineAccounts();

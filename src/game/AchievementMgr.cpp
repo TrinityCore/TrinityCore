@@ -1291,7 +1291,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
         barGoLink bar(1);
         bar.step();
 
-        sLog.outString();
+        sLog.outString("");
         sLog.outErrorDb(">> Loaded 0 achievement criteria.");
         return;
     }
@@ -1308,7 +1308,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
         m_AchievementCriteriasByType[criteria->requiredType].push_back(criteria);
     }
 
-    sLog.outString();
+    sLog.outString("");
     sLog.outString(">> Loaded %u achievement criteria.",m_AchievementCriteriasByType->size());
 }
 
@@ -1322,7 +1322,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
         barGoLink bar(1);
         bar.step();
 
-        sLog.outString();
+        sLog.outString("");
         sLog.outString(">> Loaded 0 realm completed achievements . DB table `character_achievement` is empty.");
         return;
     }
@@ -1337,7 +1337,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
 
     delete result;
 
-    sLog.outString();
+    sLog.outString("");
     sLog.outString(">> Loaded %u realm completed achievements.",m_allCompletedAchievements.size());
 }
 
@@ -1354,7 +1354,7 @@ void AchievementGlobalMgr::LoadRewards()
 
         bar.step();
 
-        sLog.outString();
+        sLog.outString("");
         sLog.outErrorDb(">> Loaded 0 achievement rewards. DB table `achievement_reward` is empty.");
         return;
     }
@@ -1447,7 +1447,7 @@ void AchievementGlobalMgr::LoadRewards()
 
     delete result;
 
-    sLog.outString();
+    sLog.outString("");
     sLog.outString( ">> Loaded %u achievement reward locale strings", m_achievementRewardLocales.size() );
 }
 
@@ -1463,7 +1463,7 @@ void AchievementGlobalMgr::LoadRewardLocales()
 
         bar.step();
 
-        sLog.outString();
+        sLog.outString("");
         sLog.outString(">> Loaded 0 achievement reward locale strings. DB table `locales_achievement_reward` is empty.");
         return;
     }
@@ -1516,6 +1516,6 @@ void AchievementGlobalMgr::LoadRewardLocales()
 
     delete result;
 
-    sLog.outString();
+    sLog.outString("");
     sLog.outString( ">> Loaded %u achievement reward locale strings", m_achievementRewardLocales.size() );
 }
