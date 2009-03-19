@@ -21,7 +21,6 @@
 #include "Common.h"
 #include "Log.h"
 #include "Policies/SingletonImp.h"
-#include "Database/DatabaseEnv.h"
 #include "Config/ConfigEnv.h"
 #include "Util.h"
 

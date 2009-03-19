@@ -35,42 +35,25 @@
 class TRINITY_DLL_DECL WorldLog : public Trinity::Singleton<WorldLog, Trinity::ClassLevelLockable<WorldLog, ZThread::FastMutex> >
 {
     friend class Trinity::OperatorNew<WorldLog>;
-    WorldLog() : i_file(NULL) { Initialize(); }
+    WorldLog();
     WorldLog(const WorldLog &);
     WorldLog& operator=(const WorldLog &);
     typedef Trinity::ClassLevelLockable<WorldLog, ZThread::FastMutex>::Lock Guard;
 
     /// Close the file in destructor
-    ~WorldLog()
-    {
-        if( i_file != NULL )
-            fclose(i_file);
-        i_file = NULL;
-    }
+    ~WorldLog();
 
     public:
         void Initialize();
         /// Is the world logger active?
         bool LogWorld(void) const { return (i_file != NULL); }
         /// %Log to the file
-        void Log(char const *fmt, ...)
-        {
-            if( LogWorld() )
-            {
-                Guard guard(*this);
-                ASSERT(i_file);
-
-                va_list args;
-                va_start(args, fmt);
-                vfprintf(i_file, fmt, args);
-                va_end(args);
-
-                fflush(i_file);
-            }
-        }
+        void outLog(char const *fmt, ...);
 
     private:
         FILE *i_file;
+
+        bool m_dbWorld;
 };
 
 #define sWorldLog WorldLog::Instance()
