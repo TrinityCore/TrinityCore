@@ -2976,8 +2976,6 @@ bool ChatHandler::HandleGameObjectStateCommand(const char* args)
         gobj->SetGoState(state);
 
     return true;
-
-    return true;
 }
 
 bool ChatHandler::HandleListCreatureCommand(const char* args)
