@@ -238,12 +238,6 @@
 		<Filter
 			Name="Util">
 			<File
-				RelativePath="..\..\src\shared\Base.cpp">
-			</File>
-			<File
-				RelativePath="..\..\src\shared\Base.h">
-			</File>
-			<File
 				RelativePath="..\..\src\shared\ByteBuffer.h">
 			</File>
 			<File
@@ -251,12 +245,6 @@
 			</File>
 			<File
 				RelativePath="..\..\dep\include\mersennetwister\MersenneTwister.h">
-			</File>
-			<File
-				RelativePath="..\..\src\shared\Mthread.cpp">
-			</File>
-			<File
-				RelativePath="..\..\src\shared\Mthread.h">
 			</File>
 			<File
 				RelativePath="..\..\src\shared\ProgressBar.cpp">
@@ -427,7 +415,7 @@
 		    >
 		    <Tool
 			Name="VCCustomBuildTool"
-			Description="Getting Version... :)"
+			Description="Getting Version..."
 			CommandLine="cd $(InputDir)&#x0D;&#x0A;&quot;$(TargetDir)\..\genrevision__$(PlatformName)_$(ConfigurationName)\genrevision.exe&quot; &quot;..\..&quot;&#x0D;&#x0A;"
 			AdditionalDependencies="$(SolutionDir)../.hg/branch.cache"
 			Outputs="revision.h"
@@ -438,7 +426,7 @@
 		    >
 		    <Tool
 			Name="VCCustomBuildTool"
-			Description="Getting Version... :)"
+			Description="Getting Version..."
 			CommandLine="cd $(InputDir)&#x0D;&#x0A;&quot;$(TargetDir)\..\genrevision__$(PlatformName)_$(ConfigurationName)\genrevision.exe&quot; &quot;..\..&quot;&#x0D;&#x0A;"
 			AdditionalDependencies="$(SolutionDir)../.hg/branch.cache"
 			Outputs="revision.h"
@@ -453,6 +441,14 @@
 		</File>
 		<File
 			RelativePath="..\..\src\shared\SystemConfig.h">
+		</File>
+		<File
+			RelativePath="..\..\src\shared\WheatyExceptionReport.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\src\shared\WheatyExceptionReport.h"
+			>
 		</File>
 	</Files>
 	<Globals>
