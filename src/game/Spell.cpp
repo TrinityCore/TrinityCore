@@ -1983,8 +1983,69 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             advance(itr, urand(0, TagUnitMap.size() - 1));
             TagUnitMap.erase(itr);
         }
+
+        /*if(m_spellInfo->Id==57669)                  //Replenishment (special target selection)
+        {
+            if(pGroup)
+            {
+                typedef std::priority_queue<PrioritizeManaPlayerWraper, std::vector<PrioritizeManaPlayerWraper>, PrioritizeMana> Top10;
+                Top10 manaUsers;
+
+                for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL && manaUsers.size() < 10; itr = itr->next())
+                {
+                    Player* Target = itr->getSource();
+                    if (m_caster->GetGUID() != Target->GetGUID() && Target->getPowerType() == POWER_MANA &&
+                        !Target->isDead() && m_caster->IsWithinDistInMap(Target, radius))
+                    {
+                        PrioritizeManaPlayerWraper  WTarget(Target);
+                        manaUsers.push(WTarget);
+                    }
+                }
+
+                while(!manaUsers.empty())
+                {
+                    TagUnitMap.push_back(manaUsers.top().getPlayer());
+                    manaUsers.pop();
+                }
+            }
+            else
+            {
+                Unit* ownerOrSelf = pTarget ? pTarget : m_caster->GetCharmerOrOwnerOrSelf();
+                if ((ownerOrSelf==m_caster || m_caster->IsWithinDistInMap(ownerOrSelf, radius)) &&
+                    ownerOrSelf->getPowerType() == POWER_MANA)
+                    TagUnitMap.push_back(ownerOrSelf);
+
+                if(Pet* pet = ownerOrSelf->GetPet())
+                    if( m_caster->IsWithinDistInMap(pet, radius) && pet->getPowerType() == POWER_MANA )
+                        TagUnitMap.push_back(pet);
+            }
+        }*/
     }
 }
+
+class PrioritizeManaPlayerWraper
+{
+    friend struct PrioritizeMana;
+
+    public:
+        explicit PrioritizeManaPlayerWraper(Player* player) : player(player)
+        {
+            uint32 maxmana = player->GetMaxPower(POWER_MANA);
+            percentMana = maxmana ? player->GetPower(POWER_MANA) * 100 / maxmana : 101;
+        }
+        Player* getPlayer() const { return player; }
+    private:
+        Player* player;
+        uint32 percentMana;
+};
+
+struct PrioritizeMana
+{
+    int operator()( PrioritizeManaPlayerWraper const& x, PrioritizeManaPlayerWraper const& y ) const
+    {
+        return x.percentMana < y.percentMana;
+    }
+};
 
 void Spell::prepare(SpellCastTargets const* targets, Aura* triggeredByAura)
 {
