@@ -2901,7 +2901,7 @@ bool ChatHandler::HandleListObjectCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleNearObjectCommand(const char* args)
+bool ChatHandler::HandleGameObjectNearCommand(const char* args)
 {
     float distance = (!*args) ? 10 : atol(args);
     uint32 count = 0;
@@ -2942,7 +2942,7 @@ bool ChatHandler::HandleNearObjectCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleObjectStateCommand(const char* args)
+bool ChatHandler::HandleGameObjectStateCommand(const char* args)
 {
     // number or [name] Shift-click form |color|Hgameobject:go_id|h[name]|h|r
     char* cId = extractKeyFromLink((char*)args, "Hgameobject");
@@ -4556,7 +4556,7 @@ bool ChatHandler::HandleHideAreaCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleUpdate(const char* args)
+bool ChatHandler::HandleDebugUpdate(const char* args)
 {
     if(!*args)
         return false;
@@ -4656,7 +4656,7 @@ bool ChatHandler::HandleChangeWeather(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleSetValue(const char* args)
+bool ChatHandler::HandleDebugSetValue(const char* args)
 {
     if(!*args)
         return false;
@@ -4707,7 +4707,7 @@ bool ChatHandler::HandleSetValue(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleGetValue(const char* args)
+bool ChatHandler::HandleDebugGetValue(const char* args)
 {
     if(!*args)
         return false;
@@ -4756,7 +4756,7 @@ bool ChatHandler::HandleGetValue(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleSet32Bit(const char* args)
+bool ChatHandler::HandleDebugSet32Bit(const char* args)
 {
     if(!*args)
         return false;
@@ -4789,7 +4789,7 @@ bool ChatHandler::HandleSet32Bit(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleMod32Value(const char* args)
+bool ChatHandler::HandleDebugMod32Value(const char* args)
 {
     if(!*args)
         return false;
@@ -4821,7 +4821,7 @@ bool ChatHandler::HandleMod32Value(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleAddTeleCommand(const char * args)
+bool ChatHandler::HandleTeleAddCommand(const char * args)
 {
     if(!*args)
         return false;
@@ -4861,7 +4861,7 @@ bool ChatHandler::HandleAddTeleCommand(const char * args)
     return true;
 }
 
-bool ChatHandler::HandleDelTeleCommand(const char * args)
+bool ChatHandler::HandleTeleDelCommand(const char * args)
 {
     if(!*args)
         return false;
@@ -5459,7 +5459,7 @@ bool ChatHandler::HandleServerIdleShutDownCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleAddQuest(const char* args)
+bool ChatHandler::HandleQuestAdd(const char* args)
 {
     Player* player = getSelectedPlayer();
     if(!player)
@@ -5513,7 +5513,7 @@ bool ChatHandler::HandleAddQuest(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleRemoveQuest(const char* args)
+bool ChatHandler::HandleQuestRemove(const char* args)
 {
     Player* player = getSelectedPlayer();
     if(!player)
@@ -5563,7 +5563,7 @@ bool ChatHandler::HandleRemoveQuest(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleCompleteQuest(const char* args)
+bool ChatHandler::HandleQuestComplete(const char* args)
 {
     Player* player = getSelectedPlayer();
     if(!player)
@@ -6155,7 +6155,7 @@ bool ChatHandler::HandleRespawnCommand(const char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleFlyModeCommand(const char* args)
+bool ChatHandler::HandleGMFlyModeCommand(const char* args)
 {
     if(!args)
         return false;
@@ -6181,7 +6181,7 @@ bool ChatHandler::HandleFlyModeCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleLoadPDumpCommand(const char *args)
+bool ChatHandler::HandlePDumpLoadCommand(const char *args)
 {
     if(!args)
         return false;
@@ -6292,7 +6292,7 @@ bool ChatHandler::HandleLoadPDumpCommand(const char *args)
     return true;
 }
 
-bool ChatHandler::HandleWritePDumpCommand(const char *args)
+bool ChatHandler::HandlePDumpWriteCommand(const char *args)
 {
     if(!args)
         return false;

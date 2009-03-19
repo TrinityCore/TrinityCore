@@ -68,7 +68,7 @@ bool ChatHandler::HandleDebugSpellFailCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleSetPoiCommand(const char* args)
+bool ChatHandler::HandleDebugSetPoiCommand(const char* args)
 {
     Player *pPlayer = m_session->GetPlayer();
     Unit* target = getSelectedUnit();
@@ -94,7 +94,7 @@ bool ChatHandler::HandleSetPoiCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleEquipErrorCommand(const char* args)
+bool ChatHandler::HandleDebugEquipErrorCommand(const char* args)
 {
     if(!args)
         return false;
@@ -104,7 +104,7 @@ bool ChatHandler::HandleEquipErrorCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleSellErrorCommand(const char* args)
+bool ChatHandler::HandleDebugSellErrorCommand(const char* args)
 {
     if(!args)
         return false;
@@ -114,7 +114,7 @@ bool ChatHandler::HandleSellErrorCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleBuyErrorCommand(const char* args)
+bool ChatHandler::HandleDebugBuyErrorCommand(const char* args)
 {
     if(!args)
         return false;
@@ -124,7 +124,7 @@ bool ChatHandler::HandleBuyErrorCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleSendOpcodeCommand(const char* /*args*/)
+bool ChatHandler::HandleDebugSendOpcodeCommand(const char* /*args*/)
 {
     Unit *unit = getSelectedUnit();
     Player *player = NULL;
@@ -221,7 +221,7 @@ bool ChatHandler::HandleSendOpcodeCommand(const char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleUpdateWorldStateCommand(const char* args)
+bool ChatHandler::HandleDebugUpdateWorldStateCommand(const char* args)
 {
     char* w = strtok((char*)args, " ");
     char* s = strtok(NULL, " ");
@@ -235,7 +235,7 @@ bool ChatHandler::HandleUpdateWorldStateCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandlePlaySound2Command(const char* args)
+bool ChatHandler::HandleDebugPlaySound2Command(const char* args)
 {
     if(!args)
         return false;
@@ -246,7 +246,7 @@ bool ChatHandler::HandlePlaySound2Command(const char* args)
 }
 
 //Send notification in channel
-bool ChatHandler::HandleSendChannelNotifyCommand(const char* args)
+bool ChatHandler::HandleDebugSendChannelNotifyCommand(const char* args)
 {
     if(!args)
         return false;
@@ -264,7 +264,7 @@ bool ChatHandler::HandleSendChannelNotifyCommand(const char* args)
 }
 
 //Send notification in chat
-bool ChatHandler::HandleSendChatMsgCommand(const char* args)
+bool ChatHandler::HandleDebugSendChatMsgCommand(const char* args)
 {
     if(!args)
         return false;
@@ -277,14 +277,14 @@ bool ChatHandler::HandleSendChatMsgCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleSendQuestPartyMsgCommand(const char* args)
+bool ChatHandler::HandleDebugSendQuestPartyMsgCommand(const char* args)
 {
     uint32 msg = atol((char*)args);
     m_session->GetPlayer()->SendPushToPartyResponse(m_session->GetPlayer(), msg);
     return true;
 }
 
-bool ChatHandler::HandleGetLootRecipient(const char* /*args*/)
+bool ChatHandler::HandleDebugGetLootRecipient(const char* /*args*/)
 {
     Creature* target = getSelectedCreature();
     if(!target)
@@ -294,14 +294,14 @@ bool ChatHandler::HandleGetLootRecipient(const char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleSendQuestInvalidMsgCommand(const char* args)
+bool ChatHandler::HandleDebugSendQuestInvalidMsgCommand(const char* args)
 {
     uint32 msg = atol((char*)args);
     m_session->GetPlayer()->SendCanTakeQuestResponse(msg);
     return true;
 }
 
-bool ChatHandler::HandleGetItemState(const char* args)
+bool ChatHandler::HandleDebugGetItemState(const char* args)
 {
     if (!args)
         return false;
@@ -590,7 +590,7 @@ bool ChatHandler::HandleDebugHostilRefList(const char * /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleSpawnVehicle(const char* args)
+bool ChatHandler::HandleDebugSpawnVehicle(const char* args)
 {
     if(!args)
         return false;
@@ -640,7 +640,7 @@ bool ChatHandler::HandleSpawnVehicle(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleSendLargePacketCommand(const char* /*args*/)
+bool ChatHandler::HandleDebugSendLargePacketCommand(const char* /*args*/)
 {
     const char* stuffingString = "This is a dummy string to push the packet's size beyond 128000 bytes. ";
     std::ostringstream ss;
@@ -650,7 +650,7 @@ bool ChatHandler::HandleSendLargePacketCommand(const char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleSendSetPhaseShiftCommand(const char* args)
+bool ChatHandler::HandleDebugSendSetPhaseShiftCommand(const char* args)
 {
     if(!args)
         return false;
