@@ -1051,9 +1051,9 @@ void Aura::_RemoveAura()
                 ProcVictim = PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT;
             }
             uint32 procEx=0;
-            if (m_removeMode == AURA_REMOVE_BY_DISPEL)
-                procEx = PROC_EX_AURA_REMOVE_DISPEL;
-            else if (m_removeMode == AURA_REMOVE_BY_DEFAULT)
+            if (m_removeMode == AURA_REMOVE_BY_ENEMY_SPELL)
+                procEx = PROC_EX_AURA_REMOVE_DESTROY;
+            else if (m_removeMode == AURA_REMOVE_BY_DEFAULT || m_removeMode == AURA_REMOVE_BY_CANCEL)
                 procEx = PROC_EX_AURA_REMOVE_EXPIRE;
 
             caster->ProcDamageAndSpell(m_target,ProcCaster, ProcVictim, procEx, m_modifier.m_amount, BASE_ATTACK, m_spellProto);
@@ -2074,7 +2074,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 // Living Bomb
                 if(m_spellProto->SpellFamilyFlags[1] & 0x20000)
                 {
-                    if(caster && (m_removeMode == AURA_REMOVE_BY_DISPEL || m_removeMode == AURA_REMOVE_BY_DEFAULT))
+                    if(caster && (m_removeMode == AURA_REMOVE_BY_ENEMY_SPELL || m_removeMode == AURA_REMOVE_BY_DEFAULT))
                         caster->CastSpell(m_target, GetModifier()->m_amount, true);
                     return;
                 }
@@ -2228,7 +2228,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 else
                 {
                     // Final heal only on dispelled or duration end
-                    if ( !(GetAuraDuration() <= 0 || m_removeMode==AURA_REMOVE_BY_DISPEL) )
+                    if ( !(GetAuraDuration() <= 0 || m_removeMode==AURA_REMOVE_BY_ENEMY_SPELL) )
                         return;
 
                     // final heal
@@ -3415,16 +3415,6 @@ void Aura::HandleModStealth(bool apply, bool Real)
                 }
             }
         }
-    }
-
-    if (Real && !apply)
-    {
-        // Master of Subtlety
-        if (m_target->HasAura(31665))
-            m_target->CastSpell(m_target,31666,true);
-        // Overkill
-        if (m_target->HasAura(58427))
-            m_target->CastSpell(m_target,58428,true);
     }
 }
 
@@ -6358,11 +6348,13 @@ void Aura::PeriodicDummyTick()
 //                case 51690: break;
                 // Overkill
                 case 58428:
-                    m_target->RemoveAurasDueToSpell(58427);
+                    if (!m_target->HasAuraType(SPELL_AURA_MOD_STEALTH))
+                        m_target->RemoveAurasDueToSpell(58427);
                     break;
                 // Master of Subtlety
                 case 31666:
-                    m_target->RemoveAurasDueToSpell(31665);
+                    if (!m_target->HasAuraType(SPELL_AURA_MOD_STEALTH))
+                        m_target->RemoveAurasDueToSpell(31665);
                     break;
                 default:
                     break;

@@ -86,4 +86,5 @@ INSTALL(FILES
 1927_world.sql
 1939_word.sql
 1957_word.sql
+2013_world.sql
 DESTINATION share/trinity/sql/updates)
