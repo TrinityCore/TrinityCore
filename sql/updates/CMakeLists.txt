@@ -86,6 +86,9 @@ INSTALL(FILES
 1927_world.sql
 1939_word.sql
 1957_word.sql
+1962_mangos_7472_01_world_trinity_string.sql
 2013_world.sql
 2021_world.sql
+2025_mangos_7493_01_world_command.sql
+2025_mangos_7495_01_world_trinity_string.sql
 DESTINATION share/trinity/sql/updates)
