@@ -651,7 +651,7 @@ void AreaAura::Update(uint32 diff)
                     caster->GetPartyMember(targets, m_radius);
                     break;
                 case AREA_AURA_RAID:
-                    caster->GetRaidMember(targets, m_radius); 
+                    caster->GetRaidMember(targets, m_radius);
                     break;
                 case AREA_AURA_FRIEND:
                 {

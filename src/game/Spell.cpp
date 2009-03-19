@@ -1524,7 +1524,6 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                     //    TagUnitMap.push_back(target);
                     //else
                     m_caster->GetRaidMember(TagUnitMap, radius_f);
-                    TagUnitMap.push_back(m_caster);
                     break;
             }
         }break;

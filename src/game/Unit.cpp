@@ -4134,6 +4134,23 @@ void Unit::RemoveAurasByCasterSpell(uint32 spellId, uint8 effindex, uint64 caste
     }
 }
 
+void Unit::RefreshAurasByCasterSpell(uint32 spellId, uint64 casterGUID)
+{
+    // Lookup for auras already applied from spell
+    for(uint8 i = 0; i < 3; ++i)
+    {
+        spellEffectPair spair = spellEffectPair(spellId, i);
+        for(AuraMap::const_iterator itr = GetAuras().lower_bound(spair); itr != GetAuras().upper_bound(spair); ++itr)
+        {
+            if(itr->second->GetCasterGUID()==casterGUID)
+            {
+                itr->second->RefreshAura();
+                break;
+            }
+        }
+    }
+}
+
 void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit *dispeler)
 {
     for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end(); )
@@ -5641,6 +5658,23 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 case 30295:
                 case 30296:
                 {
+                    // Improved Soul Leech
+                    AuraList const& SoulLeechAuras = GetAurasByType(SPELL_AURA_DUMMY);
+                    for(Unit::AuraList::const_iterator i = SoulLeechAuras.begin();i != SoulLeechAuras.end(); ++i)
+                    {
+                        if ((*i)->GetId()==54117 || (*i)->GetId()==54118)
+                        {
+                            basepoints0 = int32((*i)->GetModifier()->m_amount);
+                            if (target = GetPet())
+                            {
+                                // regen mana for pet
+                                CastCustomSpell(target,54607,&basepoints0,NULL,NULL,true,castItem,triggeredByAura);
+                            }
+                            // regen mana for caster
+                            CastCustomSpell(this,59117,&basepoints0,NULL,NULL,true,castItem,triggeredByAura);
+                            break;
+                        }
+                    }
                     // health
                     basepoints0 = int32(damage*triggerAmount/100);
                     target = this;
@@ -12658,7 +12692,7 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura* aura, SpellEntry con
     if(Player* modOwner = GetSpellModOwner())
     {
         modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_CHANCE_OF_SUCCESS,chance);
-        modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_PROC_CHANCE,chance);
+        modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_PROC_PER_MINUTE,chance);
     }
 
     return roll_chance_f(chance);
@@ -13378,17 +13412,25 @@ void Unit::GetRaidMember(std::list<Unit*> &nearMembers, float radius)
         return;
 
     Group *pGroup = owner->GetGroup();
-    if(!pGroup)
-        return;
-
-    for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+    if(pGroup)
     {
-        Player* Target = itr->getSource();
+        for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+        {
+            Player* Target = itr->getSource();
 
-        // IsHostileTo check duel and controlled by enemy
-        if( Target && Target != this && Target->isAlive()
-            && IsWithinDistInMap(Target, radius) && !IsHostileTo(Target) )
-            nearMembers.push_back(Target);
+            // IsHostileTo check duel and controlled by enemy
+            if( Target && Target != this && Target->isAlive()
+                && IsWithinDistInMap(Target, radius) && !IsHostileTo(Target) )
+                nearMembers.push_back(Target);
+        }
+    }
+    else
+    {
+        if(owner->isAlive() && (owner == this || IsWithinDistInMap(owner, radius)))
+            nearMembers.push_back(owner);
+        if(Pet* pet = owner->GetPet())
+            if(pet->isAlive() && (pet == this && IsWithinDistInMap(pet, radius)))
+                nearMembers.push_back(pet);
     }
 }
 
