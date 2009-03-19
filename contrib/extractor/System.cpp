@@ -33,7 +33,6 @@
 #else
     #define OPEN_FLAGS (O_RDONLY | O_BINARY)
 #endif
-
 extern ArchiveSet gOpenArchives;
 
 typedef struct

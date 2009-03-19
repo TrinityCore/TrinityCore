@@ -1793,17 +1793,11 @@ bool ChatHandler::HandleTurnObjectCommand(const char* args)
         o = chr->GetOrientation();
     }
 
-    float rot2 = sin(o/2);
-    float rot3 = cos(o/2);
-
     Map* map = obj->GetMap();
     map->Remove(obj,false);
 
     obj->Relocate(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), o);
-
-    obj->SetFloatValue(GAMEOBJECT_FACING, o);
-    obj->SetFloatValue(GAMEOBJECT_PARENTROTATION+2, rot2);
-    obj->SetFloatValue(GAMEOBJECT_PARENTROTATION+3, rot3);
+    obj->UpdateRotationFields();
 
     map->Add(obj);
 
@@ -3582,13 +3576,10 @@ bool ChatHandler::HandleGameObjectCommand(const char* args)
     float o = float(chr->GetOrientation());
     Map *map = chr->GetMap();
 
-    float rot2 = sin(o/2);
-    float rot3 = cos(o/2);
-
     GameObject* pGameObj = new GameObject;
     uint32 db_lowGUID = objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT);
 
-    if(!pGameObj->Create(db_lowGUID, goI->id, map, chr->GetPhaseMaskForSpawn(), x, y, z, o, 0, 0, rot2, rot3, 0, 1))
+    if(!pGameObj->Create(db_lowGUID, goI->id, map, chr->GetPhaseMaskForSpawn(), x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, 1))
     {
         delete pGameObj;
         return false;
