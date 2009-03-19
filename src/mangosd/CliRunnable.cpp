@@ -309,7 +309,7 @@ void CliRunnable::run()
     char commandbuf[256];
 
     ///- Display the list of available CLI functions then beep
-    sLog.outString();
+    sLog.outString("");
 
     if(sConfig.GetBoolDefault("BeepAtStart", true))
         printf("\a");                                       // \a = Alert

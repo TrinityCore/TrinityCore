@@ -105,6 +105,27 @@ LOCK TABLES `ip_banned` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `logs`
+--
+
+DROP TABLE IF EXISTS `logs`;
+CREATE TABLE `logs` (
+  `time` int(14) NOT NULL,
+  `realm` int(4) NOT NULL,
+  `type` int(4) NOT NULL,
+  `string` text
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `logs`
+--
+
+LOCK TABLES `logs` WRITE;
+/*!40000 ALTER TABLE `logs` DISABLE KEYS */;
+/*!40000 ALTER TABLE `logs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `realmcharacters`
 --
 

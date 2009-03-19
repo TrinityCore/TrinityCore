@@ -182,6 +182,15 @@ extern int main(int argc, char **argv)
     if(!StartDB())
         return 1;
 
+    ///- Initialize the log database
+    if(sConfig.GetBoolDefault("EnableLogDB", false))
+    {
+        // everything successful - set var to enable DB logging once startup finished.
+        sLog.SetLogDBLater(true);
+        // ensure we've set realm to 0 (realmd realmid)
+        sLog.SetRealmID(0);
+    }
+
     ///- Get the list of realms for the server
     m_realmList.Initialize(sConfig.GetIntDefault("RealmsStateUpdateDelay", 20));
     if (m_realmList.size() == 0)
@@ -234,7 +243,7 @@ extern int main(int argc, char **argv)
                         sLog.outError("Can't set used processors (hex): %x", curAff);
                 }
             }
-            sLog.outString();
+            sLog.outString("");
         }
 
         bool Prio = sConfig.GetBoolDefault("ProcessPriority", false);
@@ -245,7 +254,7 @@ extern int main(int argc, char **argv)
                 sLog.outString("TrinityRealm process priority class set to HIGH");
             else
                 sLog.outError("ERROR: Can't set realmd process priority class.");
-            sLog.outString();
+            sLog.outString("");
         }
     }
     #endif
@@ -253,6 +262,15 @@ extern int main(int argc, char **argv)
     // maximum counter for next ping
     uint32 numLoops = (sConfig.GetIntDefault( "MaxPingTime", 30 ) * (MINUTE * 1000000 / 100000));
     uint32 loopCounter = 0;
+
+    // possibly enable db logging; avoid massive startup spam by doing it here.
+    if (sLog.GetLogDBLater())
+    {
+        sLog.outString("Enabling database logging...");
+        sLog.SetLogDBLater(false);
+        // login db needs thread for logging
+        sLog.SetLogDB(true);
+    }
 
     ///- Wait for termination signal
     while (!stopEvent)
@@ -273,6 +291,7 @@ extern int main(int argc, char **argv)
     }
 
     ///- Wait for the delay thread to exit
+    LoginDatabase.ThreadEnd();
     LoginDatabase.HaltDelayThread();
 
     ///- Remove signal handling before leaving
@@ -317,6 +336,7 @@ bool StartDB()
         sLog.outError("Cannot connect to database");
         return false;
     }
+    LoginDatabase.ThreadStart();
 
     return true;
 }

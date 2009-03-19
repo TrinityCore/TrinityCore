@@ -365,9 +365,6 @@ class ByteBuffer
             uint32 j = 1, k = 1;
             sLog.outDebug("STORAGE_SIZE: %u", size() );
 
-            if(sLog.IsIncludeTime())
-                sLog.outDebugInLine("         ");
-
             for(uint32 i = 0; i < size(); i++)
             {
                 if ((i == (j*8)) && ((i != (k*16))))
@@ -387,16 +384,12 @@ class ByteBuffer
                     if (read<uint8>(i) < 0x0F)
                     {
                         sLog.outDebugInLine("\n");
-                        if(sLog.IsIncludeTime())
-                            sLog.outDebugInLine("         ");
 
                         sLog.outDebugInLine("0%X ", read<uint8>(i) );
                     }
                     else
                     {
                         sLog.outDebugInLine("\n");
-                        if(sLog.IsIncludeTime())
-                            sLog.outDebugInLine("         ");
 
                         sLog.outDebugInLine("%X ", read<uint8>(i) );
                     }
