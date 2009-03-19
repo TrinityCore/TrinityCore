@@ -1,4 +1,4 @@
-ALTER TABLE db_version CHANGE COLUMN required_7472_01_mangos_mangos_string required_7493_01_mangos_command bit;
+/*ALTER TABLE db_version CHANGE COLUMN required_7472_01_mangos_mangos_string required_7493_01_mangos_command bit;*/
 
 DELETE FROM `command` WHERE `name` IN ('gobject near','gobject phase','gobject setphase');
 
