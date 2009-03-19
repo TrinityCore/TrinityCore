@@ -25,11 +25,15 @@ ConfVersion=2008080101
 #    WorldDatabaseInfo
 #    CharacterDatabaseInfo
 #        Database connection settings for the world server.
-#        Default: hostname;port;username;password;database
-#                 .;somenumber;username;password;database - use named pipes at Windows
-#                    Named pipes: mySQL required adding "enable-named-pipe" to [mysqld] section my.ini
-#                .;/path/to/unix_socket;username;password;database - use Unix sockets at Unix/Linux
-#                    Unix sockets: experimental, not tested
+#        Default: 
+#                ---MYSQL---
+#                    hostname;port;username;password;database
+#                    .;somenumber;username;password;database - use named pipes at Windows
+#                        Named pipes: mySQL required adding "enable-named-pipe" to [mysqld] section my.ini
+#                    .;/path/to/unix_socket;username;password;database - use Unix sockets at Unix/Linux
+#                ---PGSQL---
+#                    hostname;port;username;password;database
+#                    .;/path/to/unix_socket/DIRECTORY or . for default path;username;password;database - use Unix sockets at Unix/Linux
 #
 #    MaxPingTime
 #        Settings for maximum database-ping interval (minutes between pings)
