@@ -3681,11 +3681,6 @@ void Spell::EffectSummonWild(uint32 i)
         }
     }
 
-    // select center of summon position
-    float center_x = m_targets.m_destX;
-    float center_y = m_targets.m_destY;
-    float center_z = m_targets.m_destZ;
-
     float radius = GetSpellRadiusForHostile(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
 
     int32 amount = damage > 0 ? damage : 1;
@@ -3693,23 +3688,7 @@ void Spell::EffectSummonWild(uint32 i)
     for(int32 count = 0; count < amount; ++count)
     {
         float px, py, pz;
-        // If dest location if present
-        if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
-        {
-            // Summon 1 unit in dest location
-            if (count == 0)
-            {
-                px = m_targets.m_destX;
-                py = m_targets.m_destY;
-                pz = m_targets.m_destZ;
-            }
-            // Summon in random point all other units if location present
-            else
-                m_caster->GetRandomPoint(center_x,center_y,center_z,radius,px,py,pz);
-        }
-        // Summon if dest location not present near caster
-        else
-            m_caster->GetClosePoint(px,py,pz,3.0f);
+        GetSummonPosition(px, py, pz, radius, count);
 
         int32 duration = GetSpellDuration(m_spellInfo);
 
@@ -5586,10 +5565,8 @@ void Spell::EffectSummonTotem(uint32 i)
         return;
     }
 
-    float angle = slot < MAX_TOTEM ? M_PI/MAX_TOTEM - (slot*2*M_PI/MAX_TOTEM) : 0;
-
     float x,y,z;
-    m_caster->GetClosePoint(x,y,z,pTotem->GetObjectSize(),2.0f,angle);
+    GetSummonPosition(x, y, z);
 
     // totem must be at same Z in case swimming caster and etc.
     if( fabs( z - m_caster->GetPositionZ() ) > 5 )
@@ -6051,16 +6028,7 @@ void Spell::EffectSummonCritter(uint32 i)
         return;
 
     float x,y,z;
-    // If dest location if present
-    if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
-    {
-         x = m_targets.m_destX;
-         y = m_targets.m_destY;
-         z = m_targets.m_destZ;
-     }
-     // Summon if dest location not present near caster
-     else
-         m_caster->GetClosePoint(x,y,z,m_caster->GetObjectSize());
+    GetSummonPosition(x, y, z);
 
     int32 duration = GetSpellDuration(m_spellInfo);
     TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
@@ -6534,11 +6502,6 @@ void Spell::EffectSkill(uint32 /*i*/)
 
 void Spell::EffectSummonDemon(uint32 i)
 {
-    // select center of summon position
-    float center_x = m_targets.m_destX;
-    float center_y = m_targets.m_destY;
-    float center_z = m_targets.m_destZ;
-
     float radius = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
 
     int32 amount = damage > 0 ? damage : 1;
@@ -6546,23 +6509,7 @@ void Spell::EffectSummonDemon(uint32 i)
     for(int32 count = 0; count < amount; ++count)
     {
         float px, py, pz;
-        // If dest location if present
-        if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
-        {
-            // Summon 1 unit in dest location
-            if (count == 0)
-            {
-                px = m_targets.m_destX;
-                py = m_targets.m_destY;
-                pz = m_targets.m_destZ;
-            }
-            // Summon in random point all other units if location present
-            else
-                m_caster->GetRandomPoint(center_x,center_y,center_z,radius,px,py,pz);
-        }
-        // Summon if dest location not present near caster
-        else
-            m_caster->GetClosePoint(px,py,pz,3.0f);
+        GetSummonPosition(px, py, pz, radius, count);
 
         int32 duration = GetSpellDuration(m_spellInfo);
 
@@ -6771,6 +6718,26 @@ void Spell::EffectSummonVehicle(uint32 i)
         return;
 
     vehicle->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
+}
+
+void Spell::GetSummonPosition(float &x, float &y, float &z, float radius, uint32 count)
+{
+    if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
+    {
+        // Summon 1 unit in dest location
+        if (count == 0)
+        {
+            x = m_targets.m_destX;
+            y = m_targets.m_destY;
+            z = m_targets.m_destZ;
+        }
+        // Summon in random point all other units if location present
+        else
+            m_caster->GetRandomPoint(m_targets.m_destX,m_targets.m_destY,m_targets.m_destZ,radius,x,y,z);
+    }
+    // Summon if dest location not present near caster
+    else
+        m_caster->GetClosePoint(x,y,z,3.0f);
 }
 
 void Spell::EffectRenamePet(uint32 /*eff_idx*/)
