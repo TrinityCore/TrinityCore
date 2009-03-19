@@ -26,7 +26,7 @@
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
 
-Totem::Totem() : Creature()
+Totem::Totem() : TempSummon(0)
 {
     m_isTotem = true;
     m_duration = 0;
