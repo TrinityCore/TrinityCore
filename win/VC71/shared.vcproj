@@ -442,14 +442,6 @@
 		<File
 			RelativePath="..\..\src\shared\SystemConfig.h">
 		</File>
-		<File
-			RelativePath="..\..\src\shared\WheatyExceptionReport.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\src\shared\WheatyExceptionReport.h"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>
