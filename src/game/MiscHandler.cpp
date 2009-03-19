@@ -1442,8 +1442,8 @@ void WorldSession::HandleFarSightOpcode( WorldPacket & recv_data )
             _player->SetSeer(_player);
             break;
         case 1:
-            sLog.outDebug("Added FarSight " I64FMT " to player %u", _player->GetFarSightGUID(), _player->GetGUIDLow());
-            if(WorldObject *target = _player->GetFarsightTarget())
+            sLog.outDebug("Added FarSight " I64FMT " to player %u", _player->GetUInt64Value(PLAYER_FARSIGHT), _player->GetGUIDLow());
+            if(WorldObject *target = _player->GetViewpoint())
                 _player->SetSeer(target);
             else
                 sLog.outError("Player %s requests non-existing seer", _player->GetName());
