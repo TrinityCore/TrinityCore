@@ -625,8 +625,7 @@ extern void AddSC_zulaman();
 void LoadDatabase()
 {
     //Get db string from file
-    std::string dbstring;
-    TScriptConfig.GetStringDefault("WorldDatabaseInfo", "");
+    std::string dbstring = TScriptConfig.GetStringDefault("WorldDatabaseInfo", "");
 
     if (dbstring.empty() )
     {
