@@ -1621,6 +1621,43 @@ Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, floa
     return pCreature;
 }
 
+Vehicle* WorldObject::SummonVehicle(uint32 entry, float x, float y, float z, float ang)
+{
+    CreatureInfo const *ci = objmgr.GetCreatureTemplate(entry);
+    if(!ci)
+        return false;
+
+    uint32 id = ci->spells[7]; //temp store id here
+    VehicleEntry const *ve = sVehicleStore.LookupEntry(id);
+    if(!ve)
+        return false;
+
+    Vehicle *v = new Vehicle;
+    Map *map = GetMap();
+    uint32 team = 0;
+    if (GetTypeId()==TYPEID_PLAYER)
+        team = ((Player*)this)->GetTeam();
+    if(!v->Create(objmgr.GenerateLowGuid(HIGHGUID_VEHICLE), map, entry, id, team))
+    {
+        delete v;
+        return NULL;
+    }
+
+    v->Relocate(x, y, z, ang);
+
+    if(!v->IsPositionValid())
+    {
+        sLog.outError("ERROR: Vehicle (guidlow %d, entry %d) not created. Suggested coordinates isn't valid (X: %f Y: %f)",
+            v->GetGUIDLow(), v->GetEntry(), v->GetPositionX(), v->GetPositionY());
+        delete v;
+        return NULL;
+    }
+
+    map->Add((Creature*)v);
+
+    return v;
+}
+
 Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 duration)
 {
     Pet* pet = new Pet(petType);

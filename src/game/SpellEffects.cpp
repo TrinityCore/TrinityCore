@@ -60,6 +60,7 @@
 #include "GridNotifiersImpl.h"
 #include "SkillDiscovery.h"
 #include "Formulas.h"
+#include "Vehicle.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -3366,6 +3367,7 @@ void Spell::EffectSummonType(uint32 i)
                     EffectSummonPossessed(i);
                     break;
                 case SUMMON_TYPE_VEHICLE:
+                    EffectSummonVehicle(i);
                     break;
             }
             break;
@@ -6774,6 +6776,19 @@ void Spell::EffectSummonPossessed(uint32 i)
 
     pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
     pet->SetCharmedOrPossessedBy(m_caster, true);
+}
+
+void Spell::EffectSummonVehicle(uint32 i)
+{
+    uint32 entry = m_spellInfo->EffectMiscValue[i];
+    if(!entry)
+        return;
+
+    float x, y, z;
+    m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
+    Vehicle *vehicle = m_caster->SummonVehicle(entry, x, y, z, m_caster->GetOrientation());
+
+    vehicle->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
 }
 
 void Spell::EffectRenamePet(uint32 /*eff_idx*/)
