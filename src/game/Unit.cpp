@@ -2181,7 +2181,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
         {
             if ((*i)->GetModifier()->m_amount<=0)
             {
-                pVictim->RemoveAurasByCasterSpell((*i)->GetId(), (*i)->GetCasterGUID());
+                pVictim->RemoveAurasByCasterSpell((*i)->GetId(), (*i)->GetCasterGUID(), AURA_REMOVE_BY_ENEMY_SPELL);
                 i = vSchoolAbsorb.begin();
             }
             else
@@ -3886,7 +3886,7 @@ bool Unit::AddAura(Aura *Aur)
                         sLog.outError("Aura (Spell %u Effect %u) is in process but attempt removed at aura (Spell %u Effect %u) adding, need add stack rule for IsSingleTargetSpell", (*itr)->GetId(), (*itr)->GetEffIndex(),Aur->GetId(), Aur->GetEffIndex());
                         continue;
                     }
-                    (*itr)->GetTarget()->RemoveAurasByCasterSpell((*itr)->GetId(),(*itr)->GetEffIndex(), caster->GetGUID(), AURA_REMOVE_BY_CANCEL);
+                    (*itr)->GetTarget()->RemoveAurasByCasterSpell((*itr)->GetId(),(*itr)->GetEffIndex(), caster->GetGUID(), AURA_REMOVE_BY_STACK);
                     restart = true;
                     break;
                 }
@@ -4149,7 +4149,7 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit
 
                 // Remove aura
                 if (iter->second->modStackAmount(-1))
-                    RemoveAura(iter, AURA_REMOVE_BY_DISPEL);
+                    RemoveAura(iter, AURA_REMOVE_BY_ENEMY_SPELL);
 
                 // backfire damage and silence
                 dispeler->CastCustomSpell(dispeler, 31117, &damage, NULL, NULL, true, NULL, NULL,caster_guid);
@@ -4157,7 +4157,7 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit
                 iter = m_Auras.begin();                     // iterator can be invalidate at cast if self-dispel
             }
             else if (iter->second->modStackAmount(-1))
-                RemoveAura(iter, AURA_REMOVE_BY_DISPEL);
+                RemoveAura(iter, AURA_REMOVE_BY_ENEMY_SPELL);
         }
         else
             ++iter;
@@ -4189,7 +4189,7 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit 
 
             // Remove aura as dispel
             if (iter->second->modStackAmount(-1))
-                RemoveAura(iter, AURA_REMOVE_BY_DISPEL);
+                RemoveAura(iter, AURA_REMOVE_BY_ENEMY_SPELL);
         }
         else
             ++iter;
@@ -4273,7 +4273,7 @@ void Unit::RemoveNotOwnSingleTargetAuras()
     for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end(); )
     {
         if (iter->second->GetCasterGUID()!=GetGUID() && IsSingleTargetSpell(iter->second->GetSpellProto()))
-            RemoveAura(iter, AURA_REMOVE_BY_CANCEL);
+            RemoveAura(iter, AURA_REMOVE_BY_STACK);
         else
             ++iter;
     }
@@ -4940,6 +4940,17 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
     Unit* target = pVictim;
     int32 basepoints0 = 0;
 
+    // Master of subtlety (checked here because ranks have different spellfamilynames)
+    if (dummySpell->Id == 31223 || dummySpell->Id == 31221 || dummySpell->Id == 31222)
+    {
+        if (procEx & AURA_REMOVE_PROC_EX_MASK)
+            triggered_spell_id = 31666;
+        else
+        {
+            triggered_spell_id = 31665;
+            basepoints0 = triggerAmount;
+        }
+    }
     switch(dummySpell->SpellFamilyName)
     {
         case SPELLFAMILY_GENERIC:
@@ -5096,9 +5107,13 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 // Overkill
                 case 58426:
                 {
-                    basepoints0 = -triggerAmount;
-                    triggered_spell_id = 58425;
-                    target=this;
+                    if (procEx & AURA_REMOVE_PROC_EX_MASK)
+                        triggered_spell_id = 58428;
+                    else
+                    {
+                        basepoints0 = -triggerAmount;
+                        triggered_spell_id = 58427;
+                    }
                     break;
                 }
                 // Mark of Malice
@@ -5385,9 +5400,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
             // Shattered Barrier
             if (dummySpell->SpellIconID == 2945)
             {
-                // only on dispel/remove aura by sestroy
-                if (procEx & PROC_EX_AURA_REMOVE_EXPIRE && damage)
-                    return false;
+                // only on dispel/remove aura by destroy
                 target = NULL;
                 triggered_spell_id = 55080;
                 CastSpell(target, triggered_spell_id, true);
@@ -5946,14 +5959,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     }
                 }
                 return false;
-            }
-            // Master of subtlety
-            else if( dummySpell->SpellIconID == 2285 )
-            {
-                basepoints0 = triggerAmount;
-                triggered_spell_id = 31665;
-                target=this;
-                break;
             }
             // Deadly Brew
             else if( dummySpell->SpellIconID == 2963 )
@@ -13456,7 +13461,7 @@ void Unit::SendAuraUpdate(uint8 slot)
 
     data << uint8(entry->m_Flags);
     data << uint8(entry->m_Level);
-    data << uint8(ptr->GetAuraCharges()? ptr->GetAuraCharges() : ptr->GetStackAmount());
+    data << uint8(ptr->GetStackAmount() ? ptr->GetStackAmount() : ptr->GetAuraCharges());
 
     if(!(entry->m_Flags & AFLAG_CASTER))
     {

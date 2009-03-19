@@ -417,11 +417,13 @@ enum ProcFlagsEx
    PROC_EX_ABSORB              = 0x0000400,
    PROC_EX_REFLECT             = 0x0000800,
    PROC_EX_INTERRUPT           = 0x0001000,                 // Melee hit result can be Interrupt (not used)
-   PROC_EX_AURA_REMOVE_DISPEL  = 0x0002000,
-   PROC_EX_AURA_REMOVE_EXPIRE  = 0x0004000,
+   PROC_EX_AURA_REMOVE_DESTROY = 0x0002000,                 // aura absorb destroy or dispel
+   PROC_EX_AURA_REMOVE_EXPIRE  = 0x0004000,                 // aura remove by default and by cancel
    PROC_EX_EX_TRIGGER_ALWAYS   = 0x0010000,                 // If set trigger always ( no matter another flags) used for drop charges
    PROC_EX_EX_ONE_TIME_TRIGGER = 0x0020000                  // If set trigger always but only one time (not used)
 };
+#define AURA_REMOVE_PROC_EX_MASK \
+   (PROC_EX_AURA_REMOVE_DESTROY | PROC_EX_AURA_REMOVE_EXPIRE)
 
 struct SpellProcEventEntry
 {
