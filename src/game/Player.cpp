@@ -15842,6 +15842,14 @@ void Player::_LoadBoundInstances(QueryResult *result)
             // so the value read from the DB may be wrong here but only if the InstanceSave is loaded
             // and in that case it is not used
 
+            MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
+            if(!mapEntry || !mapEntry->IsDungeon())
+            {
+                sLog.outError("_LoadBoundInstances: player %s(%d) has bind to not existed or not dungeon map %d", GetName(), GetGUIDLow(), mapId);
+                CharacterDatabase.PExecute("DELETE FROM character_instance WHERE guid = '%d' AND instance = '%d'", GetGUIDLow(), instanceId);
+                continue;
+            }
+
             if(!perm && group)
             {
                 sLog.outError("_LoadBoundInstances: player %s(%d) is in group %d but has a non-permanent character bind to map %d,%d,%d", GetName(), GetGUIDLow(), GUID_LOPART(group->GetLeaderGUID()), mapId, instanceId, difficulty);

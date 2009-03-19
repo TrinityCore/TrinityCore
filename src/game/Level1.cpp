@@ -913,7 +913,7 @@ bool ChatHandler::HandleGonameCommand(const char* args)
             // remember current position as entry point for return at bg end teleportation
             _player->SetBattleGroundEntryPoint(_player->GetMapId(),_player->GetPositionX(),_player->GetPositionY(),_player->GetPositionZ(),_player->GetOrientation());
         }
-        else if(cMap->IsDungeon() && cMap->Instanceable())
+        else if(cMap->IsDungeon())
         {
             Map* pMap = MapManager::Instance().GetMap(_player->GetMapId(),_player);
 
