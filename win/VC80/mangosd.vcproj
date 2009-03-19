@@ -502,6 +502,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\src\shared\WheatyExceptionReport.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\src\shared\WheatyExceptionReport.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\src\mangosd\WorldRunnable.cpp"
 			>
 		</File>
