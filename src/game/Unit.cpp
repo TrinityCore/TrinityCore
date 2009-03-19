@@ -4632,17 +4632,25 @@ void Unit::RemoveGameObject(GameObject* gameObj, bool del)
 {
     assert(gameObj && gameObj->GetOwnerGUID()==GetGUID());
 
-    // GO created by some spell
-    if ( GetTypeId()==TYPEID_PLAYER && gameObj->GetSpellId() )
-    {
-        SpellEntry const* createBySpell = sSpellStore.LookupEntry(gameObj->GetSpellId());
-        // Need activate spell use for owner
-        if (createBySpell && createBySpell->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE)
-            // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
-            ((Player*)this)->SendCooldownEvent(createBySpell);
-    }
     gameObj->SetOwnerGUID(0);
+
+    // GO created by some spell
+    if (uint32 spellid = gameObj->GetSpellId())
+    {
+        RemoveAurasDueToSpell(spellid);
+
+        if (GetTypeId()==TYPEID_PLAYER)
+        {
+            SpellEntry const* createBySpell = sSpellStore.LookupEntry(spellid );
+            // Need activate spell use for owner
+            if (createBySpell && createBySpell->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE)
+                // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
+                ((Player*)this)->SendCooldownEvent(createBySpell);
+        }
+    }
+
     m_gameObj.remove(gameObj);
+
     if(del)
     {
         gameObj->SetRespawnTime(0);
