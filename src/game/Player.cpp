@@ -17150,12 +17150,14 @@ void Player::Uncharm()
     if(!charm)
         return;
 
-    if(charm->GetTypeId() == TYPEID_UNIT && ((Creature*)charm)->isPet()
-        && ((Pet*)charm)->getPetType() == POSSESSED_PET)
+    if(charm->GetTypeId() == TYPEID_UNIT)
     {
-        ((Pet*)charm)->Remove(PET_SAVE_AS_DELETED);
+        if(((Creature*)charm)->isPet() && ((Pet*)charm)->getPetType() == POSSESSED_PET)
+            ((Pet*)charm)->Remove(PET_SAVE_AS_DELETED);
+        else if(((Creature*)charm)->isVehicle())
+            ExitVehicle((Vehicle*)charm);
     }
-    else
+    if(GetCharmGUID())
     {
         charm->RemoveSpellsCausingAura(SPELL_AURA_MOD_CHARM);
         charm->RemoveSpellsCausingAura(SPELL_AURA_MOD_POSSESS_PET);
