@@ -4379,14 +4379,13 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
             {
                 for(int i = 0; i < 3; ++i)
                 {
-                    if(AurSpellInfo->Effect[i] == SPELL_EFFECT_SUMMON &&
-                        (AurSpellInfo->EffectMiscValueB[i] == SUMMON_TYPE_POSESSED ||
-                         AurSpellInfo->EffectMiscValueB[i] == SUMMON_TYPE_RACE_CONTROLLER ||
-                         AurSpellInfo->EffectMiscValueB[i] == SUMMON_TYPE_STEAM_TONK))
-                    {
-                        ((Player*)caster)->StopCastingCharm();
-                        break;
-                    }
+                    if(AurSpellInfo->Effect[i] == SPELL_EFFECT_SUMMON)
+                        if(SummonPropertiesEntry const *SummonProperties = sSummonPropertiesStore.LookupEntry(AurSpellInfo->EffectMiscValueB[i]))
+                            if(SummonProperties->Group == SUMMON_TYPE_POSSESSED)
+                            {
+                                ((Player*)caster)->StopCastingCharm();
+                                break;
+                            }
                 }
             }
         }
