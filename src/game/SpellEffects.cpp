@@ -5099,6 +5099,22 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     DoCreateItem( effIndex, itemtype );
                     return;
                 }
+                // Everlasting Affliction
+                case 47422:
+                    // Refresh corruption on target
+                    Unit::AuraMap& auras = unitTarget->GetAuras();
+                    for(Unit::AuraMap::iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                    {
+                        SpellEntry const *spellInfo = (*itr).second->GetSpellProto();
+                        if( spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK &&
+                            spellInfo->SpellFamilyFlags[0] &  0x2 &&
+                            (*itr).second->GetCasterGUID() == m_caster->GetGUID())
+                        {
+                            unitTarget->RefreshAurasByCasterSpell(spellInfo->Id, m_caster->GetGUID());
+                            return;
+                        }
+                    }
+                break;
             }
             break;
         }
@@ -5120,7 +5136,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                             spellInfo->SpellFamilyFlags[0] &  0x8000 &&
                             (*itr).second->GetCasterGUID() == m_caster->GetGUID())
                         {
-                            (*itr).second->RefreshAura();
+                            unitTarget->RefreshAurasByCasterSpell((*itr).second->GetId(), m_caster->GetGUID());
                             return;
                         }
                     }
