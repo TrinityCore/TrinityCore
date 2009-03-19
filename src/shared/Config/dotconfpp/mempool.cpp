@@ -22,7 +22,7 @@ AsyncDNSMemPool::AsyncDNSMemPool(size_t _defaultSize):
 
 AsyncDNSMemPool::~AsyncDNSMemPool()
 {
-    for(size_t i = 0; i<chunksCount; i++){
+    for(size_t i = 0; i<chunksCount; ++i){
         delete chunks[i];
     }
     ::free(chunks);
@@ -53,7 +53,7 @@ void AsyncDNSMemPool::addNewChunk(size_t size)
 void * AsyncDNSMemPool::alloc(size_t size)
 {
     PoolChunk * chunk = NULL;
-    for(size_t i = 0; i<chunksCount; i++){
+    for(size_t i = 0; i<chunksCount; ++i){
         chunk = chunks[i];
         if((chunk->size - chunk->pos) >= size){
             chunk->pos += size;
@@ -71,7 +71,7 @@ void AsyncDNSMemPool::free()
     size_t psz = 0;
     ++poolUsageCounter;
 
-    for(size_t i = 0; i<chunksCount; i++){
+    for(size_t i = 0; i<chunksCount; ++i){
         pu += chunks[i]->pos;
         psz += chunks[i]->size;
         chunks[i]->pos = 0;
