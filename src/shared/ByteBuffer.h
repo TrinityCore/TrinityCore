@@ -228,12 +228,6 @@ class ByteBuffer
             _rpos += sizeof(T);
             return r;
         };
-        /*template<> std::string read<std::string>()
-        {
-            std::string tmp;
-            *this >> tmp;
-            return tmp;
-        }*/
         template <typename T> T read(size_t pos) const
         {
             ASSERT(pos + sizeof(T) <= size() || PrintPosError(false,pos,sizeof(T)));
@@ -509,6 +503,14 @@ template <typename K, typename V> ByteBuffer &operator>>(ByteBuffer &b, std::map
         m.insert(make_pair(k, v));
     }
     return b;
+}
+
+// TODO: Make a ByteBuffer.cpp and move all this inlining to it.
+template<> inline std::string ByteBuffer::read<std::string>()
+{
+    std::string tmp;
+    *this >> tmp;
+    return tmp;
 }
 #endif
 
