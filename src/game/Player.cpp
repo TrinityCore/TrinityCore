@@ -20191,51 +20191,43 @@ void Player::HandleFallUnderMap()
     }
 }
 
-/*void Player::SetViewport(uint64 guid, bool moveable)
-{
-    WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE, 8+1);
-    data.appendPackGUID(guid); // Packed guid of object to set client's view to
-    data << (moveable ? uint8(0x01) : uint8(0x00)); // 0 - can't move; 1 - can move
-    m_session->SendPacket(&data);
-    sLog.outDetail("Viewport for "I64FMT" (%s) changed to "I64FMT, GetGUID(), GetName(), guid);
-}*/
-
-WorldObject* Player::GetFarsightTarget() const
-{
-    // Players can have in farsight field another player's guid, a creature's guid, or a dynamic object's guid
-    if(uint64 guid = GetFarSightGUID())
-        return (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*this, guid, TYPEMASK_SEER);
-    return NULL;
-}
-
 void Player::StopCastingBindSight()
 {
-    if (WorldObject* target = GetFarsightTarget())
+    if(WorldObject* target = GetViewpoint())
     {
-        if (target->isType(TYPEMASK_UNIT))
+        if(target->isType(TYPEMASK_UNIT))
             ((Unit*)target)->RemoveAuraTypeByCaster(SPELL_AURA_BIND_SIGHT, GetGUID());
     }
 }
 
-void Player::CreateSeer(WorldObject* target)
+void Player::CreateViewpoint(WorldObject* target)
 {
     if(!target || target == this) // remove seer
     {
-        sLog.outDebug("Player::CreateSeer: Player %s remove seer", GetName());
+        sLog.outDebug("Player::CreateViewpoint: Player %s remove seer", GetName());
         SetUInt64Value(PLAYER_FARSIGHT, 0);
         //WorldPacket data(SMSG_CLEAR_FAR_SIGHT_IMMEDIATE, 0);
         //GetSession()->SendPacket(&data);
         if(m_seer != this && m_seer->isType(TYPEMASK_UNIT))
             ((Unit*)m_seer)->RemovePlayerFromVision(this);
+        //must immediately set seer back otherwise may crash
+        m_seer = this;
     }
     else
     {
-        sLog.outDebug("Player::CreateSeer: Player %s create seer %u (TypeId: %u).", GetName(), target->GetEntry(), target->GetTypeId());
+        sLog.outDebug("Player::CreateViewpoint: Player %s create seer %u (TypeId: %u).", GetName(), target->GetEntry(), target->GetTypeId());
         StopCastingBindSight();
         SetUInt64Value(PLAYER_FARSIGHT, target->GetGUID());
         if(target->isType(TYPEMASK_UNIT))
             ((Unit*)target)->AddPlayerToVision(this);
     }
+}
+
+WorldObject* Player::GetViewpoint() const
+{
+    if(uint64 guid = GetUInt64Value(PLAYER_FARSIGHT))
+        return (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*this, guid, TYPEMASK_SEER);
+    return NULL;
 }
 
 bool Player::CanUseBattleGroundObject()
