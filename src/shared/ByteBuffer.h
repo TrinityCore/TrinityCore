@@ -228,12 +228,12 @@ class ByteBuffer
             _rpos += sizeof(T);
             return r;
         };
-        template<> std::string read<std::string>()
+        /*template<> std::string read<std::string>()
         {
             std::string tmp;
             *this >> tmp;
             return tmp;
-        }
+        }*/
         template <typename T> T read(size_t pos) const
         {
             ASSERT(pos + sizeof(T) <= size() || PrintPosError(false,pos,sizeof(T)));
