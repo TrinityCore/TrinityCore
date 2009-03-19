@@ -1052,9 +1052,6 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         Pet* SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 despwtime);
         void RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent = false);
-        void RemoveMiniPet();
-        Pet* GetMiniPet();
-        void SetMiniPet(Pet* pet) { m_miniPet = pet->GetGUID(); }
         void RemoveGuardians();
         bool HasGuardianWithEntry(uint32 entry);
         void AddGuardian(Pet* pet) { m_guardianPets.insert(pet->GetGUID()); }
@@ -2423,7 +2420,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         uint32 m_temporaryUnsummonedPetNumber;
         uint32 m_oldpetspell;
 
-        uint64 m_miniPet;
         GuardianPetList m_guardianPets;
 
         // Player summoning

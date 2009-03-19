@@ -822,7 +822,7 @@ enum ReactiveType
 };
 
 #define MAX_REACTIVE 3
-#define MAX_TOTEM 4
+#define MAX_TOTEM 6
 
 struct AuraSlotEntry
 {

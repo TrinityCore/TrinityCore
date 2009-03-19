@@ -26,6 +26,7 @@
 #include "MovementGenerator.h"
 #include "ScriptCalls.h"
 #include "Pet.h"
+#include "TemporarySummon.h"
 
 INSTANTIATE_SINGLETON_1(CreatureAIRegistry);
 INSTANTIATE_SINGLETON_1(MovementGeneratorRegistry);
@@ -63,6 +64,8 @@ namespace FactorySelector
                 ai_factory = ai_registry.GetRegistryItem("PetAI");
             else if(creature->isTotem())
                 ai_factory = ai_registry.GetRegistryItem("TotemAI");
+            else if(creature->isSummon() && ((TempSummon*)creature)->m_properties && ((TempSummon*)creature)->m_properties->Type == SUMMON_TYPE_MINIPET)
+                ai_factory = ai_registry.GetRegistryItem("CritterAI");
             else if(creature->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
                 ai_factory = ai_registry.GetRegistryItem("NullCreatureAI");
             else if(creature->GetCreatureType() == CREATURE_TYPE_CRITTER)
