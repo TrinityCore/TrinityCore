@@ -5620,7 +5620,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 return true;
             }
             // Seed of Corruption (Mobs cast) - no die req
-            if (dummySpell->SpellFamilyFlags == 0x00LL && dummySpell->SpellIconID == 1932)
+            if (dummySpell->SpellFamilyFlags.IsEqual(0,0,0) && dummySpell->SpellIconID == 1932)
             {
                 Modifier* mod = triggeredByAura->GetModifier();
                 // if damage is more than need deal finish spell
@@ -9820,10 +9820,15 @@ float Unit::GetWeaponProcChance() const
     return 0;
 }
 
-float Unit::GetPPMProcChance(uint32 WeaponSpeed, float PPM) const
+float Unit::GetPPMProcChance(uint32 WeaponSpeed, float PPM, const SpellEntry * spellProto) const
 {
     // proc per minute chance calculation
     if (PPM <= 0) return 0.0f;
+    // Apply chance modifer aura
+    if (spellProto)
+        if(Player* modOwner = GetSpellModOwner())
+            modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_PROC_PER_MINUTE,PPM);
+
     uint32 result = uint32((WeaponSpeed * PPM) / 600.0f);   // result is chance in percents (probability = Speed_in_sec * (PPM / 60))
     return result;
 }
@@ -12694,13 +12699,12 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura* aura, SpellEntry con
     if(!isVictim && spellProcEvent && spellProcEvent->ppmRate != 0)
     {
         uint32 WeaponSpeed = GetAttackTime(attType);
-        chance = GetPPMProcChance(WeaponSpeed, spellProcEvent->ppmRate);
+        chance = GetPPMProcChance(WeaponSpeed, spellProcEvent->ppmRate, spellProto);
     }
     // Apply chance modifer aura
     if(Player* modOwner = GetSpellModOwner())
     {
         modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_CHANCE_OF_SUCCESS,chance);
-        modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_PROC_PER_MINUTE,chance);
     }
 
     return roll_chance_f(chance);

@@ -2252,9 +2252,9 @@ void Spell::cast(bool skipCheck)
 
     if(m_spellInfo->SpellFamilyName)
     {
-        if (m_spellInfo->excludeCasterAuraSpell)
+        if (m_spellInfo->excludeCasterAuraSpell && !IsPositiveSpell(m_spellInfo->excludeCasterAuraSpell))
             m_preCastSpell = m_spellInfo->excludeCasterAuraSpell;
-        else if (m_spellInfo->excludeTargetAuraSpell)
+        else if (m_spellInfo->excludeTargetAuraSpell && !IsPositiveSpell(m_spellInfo->excludeTargetAuraSpell))
             m_preCastSpell = m_spellInfo->excludeTargetAuraSpell;
     }
     switch (m_spellInfo->SpellFamilyName)
