@@ -29,9 +29,8 @@ enum PetType
 {
     SUMMON_PET              = 0,
     HUNTER_PET              = 1,
-    GUARDIAN_PET            = 2,
-    POSSESSED_PET           = 3,
-    MAX_PET_TYPE            = 4
+    POSSESSED_PET           = 2,
+    MAX_PET_TYPE            = 4,
 };
 
 extern char const* petTypeSuffix[MAX_PET_TYPE];

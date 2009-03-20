@@ -106,7 +106,7 @@ Unit::Unit()
 
     m_addDmgOnce = 0;
 
-    for(int i = 0; i < MAX_TOTEM; ++i)
+    for(int i = 0; i < MAX_SUMMON_SLOT; ++i)
         m_TotemSlot[i] = 0;
 
     m_ObjectSlot[0] = m_ObjectSlot[1] = m_ObjectSlot[2] = m_ObjectSlot[3] = 0;
@@ -8139,13 +8139,9 @@ void Unit::CombatStopWithPets(bool cast)
         pet->CombatStop(cast);
     if(Unit* charm = GetCharm())
         charm->CombatStop(cast);
-    if(GetTypeId()==TYPEID_PLAYER)
-    {
-        GuardianPetList const& guardians = ((Player*)this)->GetGuardians();
-        for(GuardianPetList::const_iterator itr = guardians.begin(); itr != guardians.end(); ++itr)
-            if(Unit* guardian = Unit::GetUnit(*this,*itr))
-                guardian->CombatStop(cast);
-    }
+    for(GuardianList::const_iterator itr = m_Guardians.begin(); itr != m_Guardians.end(); ++itr)
+        if(Unit* guardian = Unit::GetUnit(*this,*itr))
+            guardian->CombatStop(cast);
 }
 
 bool Unit::isAttackingPlayer() const
@@ -8362,7 +8358,7 @@ void Unit::RemoveCharmAuras()
 
 void Unit::UnsummonAllTotems()
 {
-    for (int8 i = 0; i < MAX_TOTEM; ++i)
+    for (int8 i = 0; i < MAX_SUMMON_SLOT; ++i)
     {
         if(!m_TotemSlot[i])
             continue;
@@ -10447,8 +10443,9 @@ void Unit::setDeathState(DeathState s)
 
     if (s == JUST_DIED)
     {
-        RemoveAllAurasOnDeath();
         UnsummonAllTotems();
+        RemoveGuardians();
+        RemoveAllAurasOnDeath();
         //This is needed to clear visible auras after unit dies
         UpdateAuras();
 
@@ -11404,6 +11401,7 @@ void Unit::RemoveFromWorld()
     if(IsInWorld())
     {
         UnsummonAllTotems();
+        RemoveGuardians();
         RemoveCharmAuras();
         RemoveBindSightAuras();
         RemoveNotOwnSingleTargetAuras();
@@ -11563,7 +11561,7 @@ void CharmInfo::InitCharmCreateSpells()
 
     InitPetActionBar();
 
-    for(uint32 x = 0; x < CREATURE_MAX_SPELLS; ++x)
+    for(uint32 x = 0; x < 4; ++x)
     {
         uint32 spellId = ((Creature*)m_unit)->m_spells[x];
         m_charmspells[x].spellId = spellId;
@@ -13351,6 +13349,7 @@ void Unit::RemoveCharmedOrPossessedBy(Unit *charmer)
 
     if(GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT && !((Creature*)this)->isPet())
     {
+        //TODO: this will cause crash when a guardian is charmed
         DeleteCharmInfo();
     }
 
@@ -13360,6 +13359,23 @@ void Unit::RemoveCharmedOrPossessedBy(Unit *charmer)
         WorldPacket data(SMSG_PET_SPELLS, 8);
         data << uint64(0);
         ((Player*)charmer)->GetSession()->SendPacket(&data);
+    }
+}
+
+void Unit::RemoveGuardians()
+{
+    while(!m_Guardians.empty())
+    {
+        uint64 guid = *m_Guardians.begin();
+        if(Unit* guardian = ObjectAccessor::GetUnit(*this, guid))
+        {
+            if(guardian->GetTypeId() == TYPEID_UNIT)
+            {
+                if(((Creature*)guardian)->isSummon())
+                    ((TempSummon*)guardian)->UnSummon();
+            }
+        }
+        m_Guardians.erase(guid);
     }
 }
 
