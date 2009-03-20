@@ -12420,8 +12420,6 @@ uint32 Unit::GetCastingTimeForBonus( SpellEntry const *spellProto, DamageEffectT
                     case SPELL_AURA_PERIODIC_LEECH:
                         if ( GetSpellDuration(spellProto) )
                             overTime = GetSpellDuration(spellProto);
-                        if (IsChanneledSpell(spellProto))
-                            ModSpellCastTime(spellProto, overTime);
                         break;
                     default:
                         // -5% per additional effect
