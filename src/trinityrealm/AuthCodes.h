@@ -1,7 +1,7 @@
-/*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+/* 
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
- * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,9 +68,8 @@ enum LoginResult
 
 // we need to stick to 1 version or half of the stuff will work for someone
 // others will not and opposite
-// will only support WoW and WoW:TBC 2.4.3 client build 8606...
+// will only support WoW, WoW:TBC and WoW:WotLK 3.0.9 client build 9551...
 
-#define EXPECTED_TRINITY_CLIENT_BUILD        {8606, 0}
+#define EXPECTED_TRINITY_CLIENT_BUILD        {9551, 0}
 
 #endif
-

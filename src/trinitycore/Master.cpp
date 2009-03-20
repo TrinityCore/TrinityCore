@@ -1,4 +1,4 @@
-/*
+/* 
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
@@ -118,72 +118,74 @@ public:
 class RARunnable : public ZThread::Runnable
 {
 public:
-  uint32 numLoops, loopCounter;
+    uint32 numLoops, loopCounter;
 
-  RARunnable ()
-  {
-    uint32 socketSelecttime = sWorld.getConfig (CONFIG_SOCKET_SELECTTIME);
-    numLoops = (sConfig.GetIntDefault ("MaxPingTime", 30) * (MINUTE * 1000000 / socketSelecttime));
-    loopCounter = 0;
-  }
-
-  void
-  checkping ()
-  {
-    // ping if need
-    if ((++loopCounter) == numLoops)
-      {
+    RARunnable ()
+    {
+        uint32 socketSelecttime = sWorld.getConfig (CONFIG_SOCKET_SELECTTIME);
+        numLoops = (sConfig.GetIntDefault ("MaxPingTime", 30) * (MINUTE * 1000000 / socketSelecttime));
         loopCounter = 0;
-        sLog.outDetail ("Ping MySQL to keep connection alive");
-        delete WorldDatabase.Query ("SELECT 1 FROM command LIMIT 1");
-        delete LoginDatabase.Query ("SELECT 1 FROM realmlist LIMIT 1");
-        delete CharacterDatabase.Query ("SELECT 1 FROM bugreport LIMIT 1");
-      }
-  }
+    }
 
-  void
-  run (void)
-  {
-    SocketHandler h;
+    void checkping ()
+    {
+        // ping if need
+        if ((++loopCounter) == numLoops)
+        {
+            loopCounter = 0;
+            sLog.outDetail ("Ping MySQL to keep connection alive");
+            delete WorldDatabase.Query ("SELECT 1 FROM command LIMIT 1");
+            delete LoginDatabase.Query ("SELECT 1 FROM realmlist LIMIT 1");
+            delete CharacterDatabase.Query ("SELECT 1 FROM bugreport LIMIT 1");
+        }
+    }
 
-    // Launch the RA listener socket
-    ListenSocket<RASocket> RAListenSocket (h);
-    bool usera = sConfig.GetBoolDefault ("Ra.Enable", false);
+    void run ()
+    {
+        SocketHandler h;
 
-    if (usera)
-      {
-        port_t raport = sConfig.GetIntDefault ("Ra.Port", 3443);
-        std::string stringip = sConfig.GetStringDefault ("Ra.IP", "0.0.0.0");
-        ipaddr_t raip;
-        if (!Utility::u2ip (stringip, raip))
-          sLog.outError ("Trinity RA can not bind to ip %s", stringip.c_str ());
-        else if (RAListenSocket.Bind (raip, raport))
-          sLog.outError ("Trinity RA can not bind to port %d on %s", raport, stringip.c_str ());
+        // Launch the RA listener socket
+        ListenSocket<RASocket> RAListenSocket (h);
+        bool usera = sConfig.GetBoolDefault ("Ra.Enable", false);
+
+        if (usera)
+        {
+            port_t raport = sConfig.GetIntDefault ("Ra.Port", 3443);
+            std::string stringip = sConfig.GetStringDefault ("Ra.IP", "0.0.0.0");
+            ipaddr_t raip;
+            if (!Utility::u2ip (stringip, raip))
+                sLog.outError ("MaNGOS RA can not bind to ip %s", stringip.c_str ());
+            else if (RAListenSocket.Bind (raip, raport))
+                sLog.outError ("MaNGOS RA can not bind to port %d on %s", raport, stringip.c_str ());
+            else
+            {
+                h.Add (&RAListenSocket);
+
+                sLog.outString ("Starting Remote access listner on port %d on %s", raport, stringip.c_str ());
+            }
+        }
+
+        // Socket Selet time is in microseconds , not miliseconds!!
+        uint32 socketSelecttime = sWorld.getConfig (CONFIG_SOCKET_SELECTTIME);
+
+        // if use ra spend time waiting for io, if not use ra ,just sleep
+        if (usera)
+        {
+            while (!World::IsStopped())
+            {
+                h.Select (0, socketSelecttime);
+                checkping ();
+            }
+        }
         else
-          {
-            h.Add (&RAListenSocket);
-
-            sLog.outString ("Starting Remote access listner on port %d on %s", raport, stringip.c_str ());
-          }
-      }
-
-    // Socket Selet time is in microseconds , not miliseconds!!
-    uint32 socketSelecttime = sWorld.getConfig (CONFIG_SOCKET_SELECTTIME);
-
-    // if use ra spend time waiting for io, if not use ra ,just sleep
-    if (usera)
-      while (!World::IsStopped())
         {
-          h.Select (0, socketSelecttime);
-          checkping ();
+            while (!World::IsStopped())
+            {
+                ZThread::Thread::sleep (static_cast<unsigned long> (socketSelecttime / 1000));
+                checkping ();
+            }
         }
-    else
-      while (!World::IsStopped())
-        {
-          ZThread::Thread::sleep (static_cast<unsigned long> (socketSelecttime / 1000));
-          checkping ();
-        }
-  }
+    }
 };
 
 Master::Master()
@@ -200,15 +202,15 @@ int Master::Run()
     sLog.outString( "%s (core-daemon)", _FULLVERSION );
     sLog.outString( "<Ctrl-C> to stop.\n" );
 
-    sLog.outTitle( " ______                       __");
-    sLog.outTitle( "/\\__  _\\       __          __/\\ \\__");
-    sLog.outTitle( "\\/_/\\ \\/ _ __ /\\_\\    ___ /\\_\\ \\ ,_\\  __  __");
-    sLog.outTitle( "   \\ \\ \\/\\`'__\\/\\ \\ /' _ `\\/\\ \\ \\ \\/ /\\ \\/\\ \\");
-    sLog.outTitle( "    \\ \\ \\ \\ \\/ \\ \\ \\/\\ \\/\\ \\ \\ \\ \\ \\_\\ \\ \\_\\ \\");
-    sLog.outTitle( "     \\ \\_\\ \\_\\  \\ \\_\\ \\_\\ \\_\\ \\_\\ \\__\\\\/`____ \\");
-    sLog.outTitle( "      \\/_/\\/_/   \\/_/\\/_/\\/_/\\/_/\\/__/ `/___/> \\");
-    sLog.outTitle( "                                 C O R E  /\\___/");
-    sLog.outTitle( "http://TrinityCore.org                    \\/__/\n");
+    sLog.outString( " ______                       __");
+    sLog.outString( "/\\__  _\\       __          __/\\ \\__");
+    sLog.outString( "\\/_/\\ \\/ _ __ /\\_\\    ___ /\\_\\ \\ ,_\\  __  __");
+    sLog.outString( "   \\ \\ \\/\\`'__\\/\\ \\ /' _ `\\/\\ \\ \\ \\/ /\\ \\/\\ \\");
+    sLog.outString( "    \\ \\ \\ \\ \\/ \\ \\ \\/\\ \\/\\ \\ \\ \\ \\ \\_\\ \\ \\_\\ \\");
+    sLog.outString( "     \\ \\_\\ \\_\\  \\ \\_\\ \\_\\ \\_\\ \\_\\ \\__\\\\/`____ \\");
+    sLog.outString( "      \\/_/\\/_/   \\/_/\\/_/\\/_/\\/_/\\/__/ `/___/> \\");
+    sLog.outString( "                                 C O R E  /\\___/");
+    sLog.outString( "http://TrinityCore.org                    \\/__/\n");
 
     /// worldd PID file creation
     std::string pidfile = sConfig.GetStringDefault("PidFile", "");
@@ -280,7 +282,7 @@ int Master::Run()
                         sLog.outError("Can't set used processors (hex): %x",curAff);
                 }
             }
-            sLog.outString();
+            sLog.outString("");
         }
 
         bool Prio = sConfig.GetBoolDefault("ProcessPriority", false);
@@ -292,7 +294,7 @@ int Master::Run()
                 sLog.outString("TrinityCore process priority class set to HIGH");
             else
                 sLog.outError("ERROR: Can't set Trinityd process priority class.");
-            sLog.outString();
+            sLog.outString("");
         }
     }
     #endif
@@ -317,14 +319,14 @@ int Master::Run()
     }
 
     ///- Launch the world listener socket
-  port_t wsport = sWorld.getConfig (CONFIG_PORT_WORLD);
-  std::string bind_ip = sConfig.GetStringDefault ("BindIP", "0.0.0.0");
+    port_t wsport = sWorld.getConfig (CONFIG_PORT_WORLD);
+    std::string bind_ip = sConfig.GetStringDefault ("BindIP", "0.0.0.0");
 
-  if (sWorldSocketMgr->StartNetwork (wsport, bind_ip.c_str ()) == -1)
+    if (sWorldSocketMgr->StartNetwork (wsport, bind_ip.c_str ()) == -1)
     {
-      sLog.outError ("Failed to start network");
-      World::StopNow(ERROR_EXIT_CODE);
-      // go down and shutdown the server
+        sLog.outError ("Failed to start network");
+        World::StopNow(ERROR_EXIT_CODE);
+        // go down and shutdown the server
     }
 
     sWorldSocketMgr->Wait ();
@@ -401,14 +403,15 @@ int Master::Run()
 /// Initialize connection to the databases
 bool Master::_StartDB()
 {
-    ///- Get world database info from configuration file
     std::string dbstring;
-    if(!sConfig.GetString("WorldDatabaseInfo", &dbstring))
+
+    ///- Get world database info from configuration file
+    dbstring = sConfig.GetStringDefault("WorldDatabaseInfo", "");
+    if(dbstring.empty())
     {
         sLog.outError("Database not specified in configuration file");
         return false;
     }
-    sLog.outDetail("World Database: %s", dbstring.c_str());
 
     ///- Initialise the world database
     if(!WorldDatabase.Initialize(dbstring.c_str()))
@@ -417,12 +420,13 @@ bool Master::_StartDB()
         return false;
     }
 
-    if(!sConfig.GetString("CharacterDatabaseInfo", &dbstring))
+    ///- Get character database info from configuration file
+    dbstring = sConfig.GetStringDefault("CharacterDatabaseInfo", "");
+    if(dbstring.empty())
     {
         sLog.outError("Character Database not specified in configuration file");
         return false;
     }
-    sLog.outDetail("Character Database: %s", dbstring.c_str());
 
     ///- Initialise the Character database
     if(!CharacterDatabase.Initialize(dbstring.c_str()))
@@ -432,14 +436,14 @@ bool Master::_StartDB()
     }
 
     ///- Get login database info from configuration file
-    if(!sConfig.GetString("LoginDatabaseInfo", &dbstring))
+    dbstring = sConfig.GetStringDefault("LoginDatabaseInfo", "");
+    if(dbstring.empty())
     {
         sLog.outError("Login database not specified in configuration file");
         return false;
     }
 
     ///- Initialise the login database
-    sLog.outDetail("Login Database: %s", dbstring.c_str() );
     if(!LoginDatabase.Initialize(dbstring.c_str()))
     {
         sLog.outError("Cannot connect to login database %s",dbstring.c_str());
@@ -455,11 +459,16 @@ bool Master::_StartDB()
     }
     sLog.outString("Realm running as realm ID %d", realmID);
 
+	///- Initialize the DB logging system
+    if(sConfig.GetBoolDefault("EnableLogDB", false))
+    {
+        // everything successful - set var to enable DB logging once startup finished.
+        sLog.SetLogDBLater(true);
+        sLog.SetRealmID(realmID);
+    }
+
     ///- Clean the database before starting
     clearOnlineAccounts();
-
-    ///- Insert version info into DB
-    WorldDatabase.PExecute("UPDATE `version` SET `core_version` = '%s', `core_revision` = '%s'", _FULLVERSION, _REVISION);
 
     sWorld.LoadDBVersion();
 
@@ -476,8 +485,10 @@ void Master::clearOnlineAccounts()
         "UPDATE account SET online = 0 WHERE online > 0 "
         "AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = '%d')",realmID);
 
-
     CharacterDatabase.Execute("UPDATE characters SET online = 0 WHERE online<>0");
+
+    // Battleground instance ids reset at server restart
+    CharacterDatabase.Execute("UPDATE characters SET bgid = 0 WHERE bgid<>0");
 }
 
 /// Handle termination signals
@@ -518,4 +529,3 @@ void Master::_UnhookSignals()
     signal(SIGBREAK, 0);
     #endif
 }
-
