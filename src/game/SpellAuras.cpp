@@ -5440,6 +5440,7 @@ void Aura::CleanupTriggeredSpells()
     if(m_spellProto->EffectApplyAuraName[GetEffIndex()] == SPELL_AURA_PERIODIC_TRIGGER_SPELL &&
             GetSpellDuration(m_spellProto) == m_spellProto->EffectAmplitude[GetEffIndex()])
         return;
+
     m_target->RemoveAurasDueToSpell(tSpellId);
 }
 

@@ -35,7 +35,7 @@ enum TotemType
 class Totem : public TempSummon
 {
     public:
-        explicit Totem();
+        explicit Totem(SummonPropertiesEntry const *properties, Unit *owner);
         virtual ~Totem(){};
         void Update( uint32 time );
         void Summon(Unit* owner);

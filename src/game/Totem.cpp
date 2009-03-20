@@ -26,9 +26,9 @@
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
 
-Totem::Totem() : TempSummon(0)
+Totem::Totem(SummonPropertiesEntry const *properties, Unit *owner) : TempSummon(properties, owner)
 {
-    m_isTotem = true;
+    m_summonMask |= SUMMON_MASK_TOTEM;
     m_duration = 0;
     m_type = TOTEM_PASSIVE;
 }
