@@ -551,6 +551,10 @@
 				RelativePath="..\..\src\shared\Util.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\src\shared\WorldPacket.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Config"
