@@ -1251,7 +1251,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recv_data)
     CHECK_PACKET_SIZE(recv_data, recv_data.rpos()+1+1+1+1+1+1);
 
     uint8 gender, skin, face, hairStyle, hairColor, facialHair;
-    recv_data >> gender >> skin >> face >> hairStyle >> hairColor >> facialHair;
+    recv_data >> gender >> skin >> hairColor >> hairStyle >> facialHair >> face;
 
     QueryResult *result = CharacterDatabase.PQuery("SELECT at_login FROM characters WHERE guid ='%u'", GUID_LOPART(guid));
     if (!result)
