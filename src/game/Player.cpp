@@ -7289,7 +7289,7 @@ void Player::CastItemCombatSpell(Item *item,Unit* Target, WeaponAttackType attTy
         if(spellData.SpellPPMRate)
         {
             uint32 WeaponSpeed = GetAttackTime(attType);
-            chance = GetPPMProcChance(WeaponSpeed, spellData.SpellPPMRate);
+            chance = GetPPMProcChance(WeaponSpeed, spellData.SpellPPMRate, spellInfo);
         }
         else if(chance > 100.0f)
         {
