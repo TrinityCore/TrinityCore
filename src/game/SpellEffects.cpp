@@ -6539,7 +6539,7 @@ void Spell::SummonTotem(uint32 entry, SummonPropertiesEntry const *properties)
 
     pTotem->Relocate(x, y, z, m_caster->GetOrientation());
 
-    if(slot < MAX_TOTEM)
+    if(slot >= 0 && slot < MAX_TOTEM)
         m_caster->m_TotemSlot[slot] = pTotem->GetGUID();
 
     pTotem->SetOwner(m_caster->GetGUID());
