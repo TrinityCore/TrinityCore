@@ -25,7 +25,7 @@
 
 Vehicle::Vehicle() : Creature(), m_vehicleId(0)
 {
-    m_isVehicle = true;
+    m_summonMask |= SUMMON_MASK_VEHICLE;
     m_updateFlag = (UPDATEFLAG_LOWGUID | UPDATEFLAG_HIGHGUID | UPDATEFLAG_LIVING | UPDATEFLAG_HAS_POSITION | UPDATEFLAG_VEHICLE);
 }
 

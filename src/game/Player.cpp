@@ -1424,9 +1424,6 @@ void Player::setDeathState(DeathState s)
         //FIXME: is pet dismissed at dying or releasing spirit? if second, add setDeathState(DEAD) to HandleRepopRequestOpcode and define pet unsummon here with (s == DEAD)
         RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
 
-        // remove uncontrolled pets
-        RemoveGuardians();
-
         // save value before aura remove in Unit::setDeathState
         ressSpellId = GetUInt32Value(PLAYER_SELF_RES_SPELL);
 
@@ -1886,7 +1883,6 @@ void Player::RemoveFromWorld()
         ///- Release charmed creatures, unsummon totems and remove pets/guardians
         StopCastingCharm();
         StopCastingBindSight();
-        RemoveGuardians();
     }
 
     for(int i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; i++)
@@ -17051,11 +17047,8 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
     // only if current pet in slot
     switch(pet->getPetType())
     {
-        case GUARDIAN_PET:
-            m_guardianPets.erase(pet->GetGUID());
-            break;
         case POSSESSED_PET:
-            m_guardianPets.erase(pet->GetGUID());
+            m_Guardians.erase(pet->GetGUID());
             pet->RemoveCharmedOrPossessedBy(NULL);
             break;
         default:
@@ -17098,30 +17091,7 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
     }
 }
 
-void Player::RemoveGuardians()
-{
-    while(!m_guardianPets.empty())
-    {
-        uint64 guid = *m_guardianPets.begin();
-        if(Pet* pet = ObjectAccessor::GetPet(guid))
-            pet->Remove(PET_SAVE_AS_DELETED);
-
-        m_guardianPets.erase(guid);
-    }
-}
-
-bool Player::HasGuardianWithEntry(uint32 entry)
-{
-    // pet guid middle part is entry (and creature also)
-    // and in guardian list must be guardians with same entry _always_
-    for(GuardianPetList::const_iterator itr = m_guardianPets.begin(); itr != m_guardianPets.end(); ++itr)
-        if(GUID_ENPART(*itr)==entry)
-            return true;
-
-    return false;
-}
-
-void Player::Uncharm()
+void Player::StopCastingCharm()
 {
     Unit* charm = GetCharm();
     if(!charm)
@@ -17295,13 +17265,14 @@ void Player::PetSpellInitialize()
         data << uint32(itr->second);                        // category cooldown
     }
 
+    data.hexlike();
+
     GetSession()->SendPacket(&data);
 }
 
 void Player::PossessSpellInitialize()
 {
     Unit* charm = GetCharm();
-
     if(!charm)
         return;
 
@@ -17313,24 +17284,23 @@ void Player::PossessSpellInitialize()
         return;
     }
 
-    uint8 addlist = 0;
-    WorldPacket data(SMSG_PET_SPELLS, 16+40+1+4*addlist+25);// first line + actionbar + spellcount + spells + last adds
+    WorldPacket data(SMSG_PET_SPELLS, 20+40+1+1);
 
-                                                            //16
+    //basic info 20
     data << uint64(charm->GetGUID());
-    data << uint32(0x00000000);
-    data << uint32(0);
-    data << uint8(0) << uint8(0) << uint16(0);
+    data << uint32(0);                  //family
+    data << uint32(0);                  //0
+    data << uint8(0) << uint8(0) << uint16(0);  //reactstate, commandstate, 0
 
-    for(uint32 i = 0; i < 10; i++)                          //40
-    {
+    //action bar 40
+    for(uint32 i = 0; i < 10; i++)
         data << uint16(charmInfo->GetActionBarEntry(i)->SpellOrAction) << uint16(charmInfo->GetActionBarEntry(i)->Type);
-    }
 
-    data << uint8(addlist);                                 //1
+    //addlist 1
+    data << uint8(0);
 
-    uint8 count = 0;
-    data << uint8(count);                                   // cooldowns count
+    //cooldown 1
+    data << uint8(0);
 
     GetSession()->SendPacket(&data);
 }
@@ -17377,7 +17347,8 @@ void Player::VehicleSpellInitialize()
 void Player::CharmSpellInitialize()
 {
     Unit* charm = GetCharm();
-
+    if(!charm && GetPetGUID())
+        charm = GetUnit(*this, GetPetGUID());
     if(!charm)
         return;
 
@@ -17389,14 +17360,12 @@ void Player::CharmSpellInitialize()
     }
 
     uint8 addlist = 0;
-
     if(charm->GetTypeId() != TYPEID_PLAYER)
     {
         CreatureInfo const *cinfo = ((Creature*)charm)->GetCreatureInfo();
-
-        if(cinfo && cinfo->type == CREATURE_TYPE_DEMON && getClass() == CLASS_WARLOCK)
+        //if(cinfo && cinfo->type == CREATURE_TYPE_DEMON && getClass() == CLASS_WARLOCK)
         {
-            for(uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+            for(uint32 i = 0; i < 4; ++i)
             {
                 if(charmInfo->GetCharmSpell(i)->spellId)
                     ++addlist;
@@ -17404,10 +17373,11 @@ void Player::CharmSpellInitialize()
         }
     }
 
-    WorldPacket data(SMSG_PET_SPELLS, 16+40+1+4*addlist+25);// first line + actionbar + spellcount + spells + last adds
+    WorldPacket data(SMSG_PET_SPELLS, 20+40+1+4*addlist+1);// first line + actionbar + spellcount + spells + last adds
 
+    //basic info 20
     data << uint64(charm->GetGUID());
-    data << uint32(0x00000000);
+    data << uint32(0);
     data << uint32(0);
     if(charm->GetTypeId() != TYPEID_PLAYER)
         data << uint8(((Creature*)charm)->GetReactState()) << uint8(charmInfo->GetCommandState());
@@ -17415,16 +17385,17 @@ void Player::CharmSpellInitialize()
         data << uint8(0) << uint8(0);
     data << uint16(0);
 
-    for(uint32 i = 0; i < 10; i++)                          //40
+    //action bar 40
+    for(uint32 i = 0; i < 10; ++i)                          //40
     {
         data << uint16(charmInfo->GetActionBarEntry(i)->SpellOrAction) << uint16(charmInfo->GetActionBarEntry(i)->Type);
     }
 
+    //add list
     data << uint8(addlist);                                 //1
-
     if(addlist)
     {
-        for(uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+        for(uint32 i = 0; i < 4; ++i)
         {
             CharmSpellEntry *cspell = charmInfo->GetCharmSpell(i);
             if(cspell->spellId)
@@ -17435,8 +17406,11 @@ void Player::CharmSpellInitialize()
         }
     }
 
+    //cooldown
     uint8 count = 0;
     data << uint8(count);                                   // cooldowns count
+
+    data.hexlike();
 
     GetSession()->SendPacket(&data);
 }

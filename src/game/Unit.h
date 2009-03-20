@@ -838,6 +838,8 @@ struct AuraSlotEntry
 
 struct SpellProcEventEntry;                                 // used only privately
 
+typedef std::set<uint64> GuardianList;
+
 class TRINITY_DLL_SPEC Unit : public WorldObject
 {
     public:
@@ -1303,6 +1305,10 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         uint64 m_ObjectSlot[4];
         uint32 m_detectInvisibilityMask;
         uint32 m_invisibilityMask;
+
+        GuardianList m_Guardians;
+        void RemoveGuardians();
+        void AddGuardian(Unit* pet) { m_Guardians.insert(pet->GetGUID()); }
 
         uint32 m_ShapeShiftFormSpellId;
         ShapeshiftForm m_form;

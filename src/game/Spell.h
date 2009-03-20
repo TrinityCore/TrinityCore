@@ -276,10 +276,7 @@ class Spell
         void EffectDualWield(uint32 i);
         void EffectPickPocket(uint32 i);
         void EffectAddFarsight(uint32 i);
-        void EffectSummonPossessed(uint32 i);
-        void EffectSummonVehicle(uint32 i);
         void EffectSummonWild(uint32 i);
-        void EffectSummonGuardian(uint32 i);
         void EffectHealMechanical(uint32 i);
         void EffectJump(uint32 i);
         void EffectTeleUnitsFaceCaster(uint32 i);
@@ -307,7 +304,6 @@ class Spell
         void EffectSummonPlayer(uint32 i);
         void EffectActivateObject(uint32 i);
         void EffectApplyGlyph(uint32 i);
-        void EffectSummonTotem(uint32 i);
         void EffectEnchantHeldItem(uint32 i);
         void EffectSummonObject(uint32 i);
         void EffectResurrect(uint32 i);
@@ -600,6 +596,10 @@ class Spell
         void SpellDamageHeal(uint32 i);
 
         void GetSummonPosition(float &x, float &y, float &z, float radius = 0.0f, uint32 count = 0);
+        void SummonTotem    (uint32 entry, SummonPropertiesEntry const *properties);
+        void SummonGuardian (uint32 entry, SummonPropertiesEntry const *properties);
+        void SummonPossessed(uint32 entry, SummonPropertiesEntry const *properties);
+        void SummonVehicle  (uint32 entry, SummonPropertiesEntry const *properties);
 
         SpellCastResult CanOpenLock(uint32 effIndex, uint32 lockid, SkillType& skillid, int32& reqSkillValue, int32& skillValue);
         // -------------------------------------------
