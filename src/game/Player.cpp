@@ -17207,7 +17207,7 @@ void Player::PetSpellInitialize()
     data << uint8(pet->GetReactState()) << uint8(charmInfo->GetCommandState()) << uint16(0);
 
     // action bar loop
-    for(uint32 i = 0; i < 10; i++)
+    for(uint32 i = 0; i < MAX_SPELL_CONTROL_BAR; ++i)
     {
         data << uint32(charmInfo->GetActionBarEntry(i)->Raw);
     }
@@ -17336,7 +17336,7 @@ void Player::VehicleSpellInitialize()
             data << uint16(spellId) << uint8(0) << uint8(i+8);
     }
 
-    for(uint32 i = CREATURE_MAX_SPELLS; i < 10; ++i)
+    for(uint32 i = CREATURE_MAX_SPELLS; i < MAX_SPELL_CONTROL_BAR; ++i)
         data << uint16(0) << uint8(0) << uint8(i+8);
 
     data << uint8(0);
@@ -17365,7 +17365,7 @@ void Player::CharmSpellInitialize()
         CreatureInfo const *cinfo = ((Creature*)charm)->GetCreatureInfo();
         //if(cinfo && cinfo->type == CREATURE_TYPE_DEMON && getClass() == CLASS_WARLOCK)
         {
-            for(uint32 i = 0; i < 4; ++i)
+            for(uint32 i = 0; i < MAX_SPELL_CHARM; ++i)
             {
                 if(charmInfo->GetCharmSpell(i)->spellId)
                     ++addlist;
@@ -17386,7 +17386,7 @@ void Player::CharmSpellInitialize()
     data << uint16(0);
 
     //action bar 40
-    for(uint32 i = 0; i < 10; ++i)                          //40
+    for(uint32 i = 0; i < MAX_SPELL_CONTROL_BAR; ++i)                          //40
     {
         data << uint16(charmInfo->GetActionBarEntry(i)->SpellOrAction) << uint16(charmInfo->GetActionBarEntry(i)->Type);
     }
@@ -17395,7 +17395,7 @@ void Player::CharmSpellInitialize()
     data << uint8(addlist);                                 //1
     if(addlist)
     {
-        for(uint32 i = 0; i < 4; ++i)
+        for(uint32 i = 0; i < MAX_SPELL_CHARM; ++i)
         {
             CharmSpellEntry *cspell = charmInfo->GetCharmSpell(i);
             if(cspell->spellId)

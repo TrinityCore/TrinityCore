@@ -219,6 +219,10 @@ enum UnitRename
 };
 
 #define CREATURE_MAX_SPELLS     8
+#define MAX_SPELL_CHARM         4
+#define MAX_SPELL_VEHICLE       6
+#define MAX_SPELL_POSSESS       8
+#define MAX_SPELL_CONTROL_BAR   10
 
 enum Swing
 {
@@ -1301,7 +1305,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         Spell* m_currentSpells[CURRENT_MAX_SPELL];
 
         uint32 m_addDmgOnce;
-        uint64 m_TotemSlot[MAX_TOTEM];
+        uint64 m_TotemSlot[MAX_SUMMON_SLOT];
         uint64 m_ObjectSlot[4];
         uint32 m_detectInvisibilityMask;
         uint32 m_invisibilityMask;
