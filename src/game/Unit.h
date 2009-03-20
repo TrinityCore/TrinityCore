@@ -114,7 +114,7 @@ enum SpellModOp
     SPELLMOD_EFFECT3                = 23,
     SPELLMOD_SPELL_BONUS_DAMAGE     = 24,
     // spellmod 25
-    SPELLMOD_PROC_CHANCE            = 26,
+    SPELLMOD_PROC_PER_MINUTE        = 26,
     SPELLMOD_MULTIPLE_VALUE         = 27,
     SPELLMOD_RESIST_DISPEL_CHANCE   = 28,
     SPELLMOD_CRIT_DAMAGE_BONUS_2    = 29, //one not used spell
@@ -822,7 +822,8 @@ enum ReactiveType
 };
 
 #define MAX_REACTIVE 3
-#define MAX_TOTEM 4
+#define MAX_TOTEM       4
+#define MAX_SUMMON_SLOT 6
 
 struct AuraSlotEntry
 {
@@ -1235,6 +1236,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void RemoveAurasDueToItemSpell(Item* castItem,uint32 spellId);
         void RemoveAurasByCasterSpell(uint32 spellId, uint64 casterGUID, AuraRemoveMode removeMode=AURA_REMOVE_BY_DEFAULT);
         void RemoveAurasByCasterSpell(uint32 spellId, uint8 effindex, uint64 casterGUID, AuraRemoveMode removeMode=AURA_REMOVE_BY_DEFAULT);
+        void RefreshAurasByCasterSpell(uint32 spellId, uint64 casterGUID);
         void RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit *dispeler);
         void RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit *stealer);
         void RemoveAurasDueToSpellByCancel(uint32 spellId);

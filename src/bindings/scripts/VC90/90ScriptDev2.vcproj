@@ -807,10 +807,58 @@
 					<Filter
 						Name="Ahn&apos;kahet"
 						>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\boss_amanitar.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\boss_elder_nadox.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\boss_herald_volazj.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\boss_jedoga_shadowseeker.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\boss_prince_taldaram.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\def_ahnkahet.h"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\instance_ahnkahet.cpp"
+							>
+						</File>
 					</Filter>
 					<Filter
 						Name="Azjol-Nerub"
 						>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\boss_anubarak.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\boss_hadronox.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\boss_krikthir_the_gatewatcher.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\def_azjol_nerub.h"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\instance_azjol_nerub.cpp"
+							>
+						</File>
 					</Filter>
 				</Filter>
 				<Filter
@@ -2219,10 +2267,6 @@
 							RelativePath="..\scripts\zone\caverns_of_time\hyjal\instance_hyjal.cpp"
 							>
 						</File>
-					</Filter>
-					<Filter
-						Name="Culling of Stratholme"
-						>
 					</Filter>
 					<Filter
 						Name="Culling of Stratholme"

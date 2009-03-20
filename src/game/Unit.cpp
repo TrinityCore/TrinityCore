@@ -50,6 +50,7 @@
 #include "PetAI.h"
 #include "NullCreatureAI.h"
 #include "Traveller.h"
+#include "TemporarySummon.h"
 
 #include <math.h>
 
@@ -4133,6 +4134,23 @@ void Unit::RemoveAurasByCasterSpell(uint32 spellId, uint8 effindex, uint64 caste
     }
 }
 
+void Unit::RefreshAurasByCasterSpell(uint32 spellId, uint64 casterGUID)
+{
+    // Lookup for auras already applied from spell
+    for(uint8 i = 0; i < 3; ++i)
+    {
+        spellEffectPair spair = spellEffectPair(spellId, i);
+        for(AuraMap::const_iterator itr = GetAuras().lower_bound(spair); itr != GetAuras().upper_bound(spair); ++itr)
+        {
+            if(itr->second->GetCasterGUID()==casterGUID)
+            {
+                itr->second->RefreshAura();
+                break;
+            }
+        }
+    }
+}
+
 void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit *dispeler)
 {
     for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end(); )
@@ -4381,7 +4399,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
                 {
                     if(AurSpellInfo->Effect[i] == SPELL_EFFECT_SUMMON)
                         if(SummonPropertiesEntry const *SummonProperties = sSummonPropertiesStore.LookupEntry(AurSpellInfo->EffectMiscValueB[i]))
-                            if(SummonProperties->Group == SUMMON_TYPE_POSSESSED)
+                            if(SummonProperties->Category == SUMMON_CATEGORY_POSSESSED)
                             {
                                 ((Player*)caster)->StopCastingCharm();
                                 break;
@@ -4614,17 +4632,25 @@ void Unit::RemoveGameObject(GameObject* gameObj, bool del)
 {
     assert(gameObj && gameObj->GetOwnerGUID()==GetGUID());
 
-    // GO created by some spell
-    if ( GetTypeId()==TYPEID_PLAYER && gameObj->GetSpellId() )
-    {
-        SpellEntry const* createBySpell = sSpellStore.LookupEntry(gameObj->GetSpellId());
-        // Need activate spell use for owner
-        if (createBySpell && createBySpell->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE)
-            // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
-            ((Player*)this)->SendCooldownEvent(createBySpell);
-    }
     gameObj->SetOwnerGUID(0);
+
+    // GO created by some spell
+    if (uint32 spellid = gameObj->GetSpellId())
+    {
+        RemoveAurasDueToSpell(spellid);
+
+        if (GetTypeId()==TYPEID_PLAYER)
+        {
+            SpellEntry const* createBySpell = sSpellStore.LookupEntry(spellid );
+            // Need activate spell use for owner
+            if (createBySpell && createBySpell->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE)
+                // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
+                ((Player*)this)->SendCooldownEvent(createBySpell);
+        }
+    }
+
     m_gameObj.remove(gameObj);
+
     if(del)
     {
         gameObj->SetRespawnTime(0);
@@ -5640,6 +5666,23 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 case 30295:
                 case 30296:
                 {
+                    // Improved Soul Leech
+                    AuraList const& SoulLeechAuras = GetAurasByType(SPELL_AURA_DUMMY);
+                    for(Unit::AuraList::const_iterator i = SoulLeechAuras.begin();i != SoulLeechAuras.end(); ++i)
+                    {
+                        if ((*i)->GetId()==54117 || (*i)->GetId()==54118)
+                        {
+                            basepoints0 = int32((*i)->GetModifier()->m_amount);
+                            if (target = GetPet())
+                            {
+                                // regen mana for pet
+                                CastCustomSpell(target,54607,&basepoints0,NULL,NULL,true,castItem,triggeredByAura);
+                            }
+                            // regen mana for caster
+                            CastCustomSpell(this,59117,&basepoints0,NULL,NULL,true,castItem,triggeredByAura);
+                            break;
+                        }
+                    }
                     // health
                     basepoints0 = int32(damage*triggerAmount/100);
                     target = this;
@@ -8325,8 +8368,8 @@ void Unit::UnsummonAllTotems()
             continue;
 
         Creature *OldTotem = ObjectAccessor::GetCreature(*this, m_TotemSlot[i]);
-        if (OldTotem && OldTotem->isTotem())
-            ((Totem*)OldTotem)->UnSummon();
+        if(OldTotem && OldTotem->isSummon())
+            ((TempSummon*)OldTotem)->UnSummon();
     }
 }
 
@@ -11355,6 +11398,7 @@ void Unit::RemoveFromWorld()
     // cleanup
     if(IsInWorld())
     {
+        UnsummonAllTotems();
         RemoveCharmAuras();
         RemoveBindSightAuras();
         RemoveNotOwnSingleTargetAuras();
@@ -12656,7 +12700,7 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura* aura, SpellEntry con
     if(Player* modOwner = GetSpellModOwner())
     {
         modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_CHANCE_OF_SUCCESS,chance);
-        modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_PROC_CHANCE,chance);
+        modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_PROC_PER_MINUTE,chance);
     }
 
     return roll_chance_f(chance);
@@ -13376,17 +13420,25 @@ void Unit::GetRaidMember(std::list<Unit*> &nearMembers, float radius)
         return;
 
     Group *pGroup = owner->GetGroup();
-    if(!pGroup)
-        return;
-
-    for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+    if(pGroup)
     {
-        Player* Target = itr->getSource();
+        for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+        {
+            Player* Target = itr->getSource();
 
-        // IsHostileTo check duel and controlled by enemy
-        if( Target && Target != this && Target->isAlive()
-            && IsWithinDistInMap(Target, radius) && !IsHostileTo(Target) )
-            nearMembers.push_back(Target);
+            // IsHostileTo check duel and controlled by enemy
+            if( Target && Target != this && Target->isAlive()
+                && IsWithinDistInMap(Target, radius) && !IsHostileTo(Target) )
+                nearMembers.push_back(Target);
+        }
+    }
+    else
+    {
+        if(owner->isAlive() && (owner == this || IsWithinDistInMap(owner, radius)))
+            nearMembers.push_back(owner);
+        if(Pet* pet = owner->GetPet())
+            if(pet->isAlive() && (pet == this && IsWithinDistInMap(pet, radius)))
+                nearMembers.push_back(pet);
     }
 }
 
