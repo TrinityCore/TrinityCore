@@ -109,12 +109,14 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThr
         void outRemote( const char * str, ... )         ATTR_PRINTF(2,3);
         void outCharDump( const char * str, uint32 account_id, uint32 guid, const char * name );
 
+        static void outTimestamp(FILE* file);
+        static std::string GetTimestampStr();
+
         void SetLogLevel(char * Level);
         void SetLogFileLevel(char * Level);
         void SetDBLogLevel(char * Level);
         void SetRealmID(uint32 id) { realm = id; }
 
-        static std::string GetTimestampStr();
         uint32 getLogFilter() const { return m_logFilter; }
         bool IsOutDebug() const { return m_logLevel > 2 || (m_logFileLevel > 2 && logfile); }
         bool IsOutCharDump() const { return m_charLog_Dump; }

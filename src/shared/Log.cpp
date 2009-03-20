@@ -194,6 +194,19 @@ FILE* Log::openGmlogPerAccount(uint32 account)
     return fopen(namebuf, "a");
 }
 
+void Log::outTimestamp(FILE* file)
+{
+    time_t t = time(NULL);
+    tm* aTm = localtime(&t);
+    //       YYYY   year
+    //       MM     month (2 digits 01-12)
+    //       DD     day (2 digits 01-31)
+    //       HH     hour (2 digits 00-23)
+    //       MM     minutes (2 digits 00-59)
+    //       SS     seconds (2 digits 00-59)
+    fprintf(file,"%-4d-%02d-%02d %02d:%02d:%02d ",aTm->tm_year+1900,aTm->tm_mon+1,aTm->tm_mday,aTm->tm_hour,aTm->tm_min,aTm->tm_sec);
+}
+
 void Log::InitColors(const std::string& str)
 {
     if(str.empty())
@@ -374,6 +387,7 @@ void Log::outString( const char * str, ... )
     printf( "\n" );
     if(logfile)
     {
+        outTimestamp(logfile);
         va_list ap;
         va_start(ap, str);
         vfprintf(logfile, str, ap);
@@ -411,6 +425,7 @@ void Log::outError( const char * err, ... )
     fprintf( stderr, "\n" );
     if(logfile)
     {
+        outTimestamp(logfile);
         fprintf(logfile, "ERROR:" );
 
         va_list ap;
@@ -451,6 +466,7 @@ void Log::outErrorDb( const char * err, ... )
 
     if(logfile)
     {
+        outTimestamp(logfile);
         fprintf(logfile, "ERROR:" );
 
         va_list ap;
@@ -464,6 +480,7 @@ void Log::outErrorDb( const char * err, ... )
 
     if(dberLogfile)
     {
+        outTimestamp(dberLogfile);
         va_list ap;
         va_start(ap, err);
         vfprintf(dberLogfile, err, ap);
@@ -505,6 +522,7 @@ void Log::outBasic( const char * str, ... )
 
     if(logfile && m_logFileLevel > LOGL_NORMAL)
     {
+        outTimestamp(logfile);
         va_list ap;
         va_start(ap, str);
         vfprintf(logfile, str, ap);
@@ -544,6 +562,7 @@ void Log::outDetail( const char * str, ... )
     }
     if(logfile && m_logFileLevel > LOGL_BASIC)
     {
+        outTimestamp(logfile);
         va_list ap;
         va_start(ap, str);
         vfprintf(logfile, str, ap);
@@ -602,6 +621,7 @@ void Log::outDebug( const char * str, ... )
     }
     if(logfile && m_logFileLevel > LOGL_DETAIL)
     {
+        outTimestamp(logfile);
         va_list ap;
         va_start(ap, str);
         vfprintf(logfile, str, ap);
@@ -643,6 +663,7 @@ void Log::outCommand( uint32 account, const char * str, ... )
     }
     if(logfile && m_logFileLevel > LOGL_NORMAL)
     {
+        outTimestamp(logfile);
         va_list ap;
         va_start(ap, str);
         vfprintf(logfile, str, ap);
@@ -655,6 +676,7 @@ void Log::outCommand( uint32 account, const char * str, ... )
     {
         if (FILE* per_file = openGmlogPerAccount (account))
         {
+            outTimestamp(per_file);
             va_list ap;
             va_start(ap, str);
             vfprintf(per_file, str, ap);
@@ -665,6 +687,7 @@ void Log::outCommand( uint32 account, const char * str, ... )
     }
     else if (gmLogfile)
     {
+        outTimestamp(gmLogfile);
         va_list ap;
         va_start(ap, str);
         vfprintf(gmLogfile, str, ap);
@@ -693,6 +716,7 @@ void Log::outChar(const char * str, ... )
 
     if(charLogfile)
     {
+        outTimestamp(charLogfile);
         va_list ap;
         va_start(ap, str);
         vfprintf(charLogfile, str, ap);
@@ -728,6 +752,7 @@ void Log::outRemote(    const char * str, ... )
 
     if (raLogfile)
     {
+        outTimestamp(raLogfile);
         va_list ap;
         va_start(ap, str);
         vfprintf(raLogfile, str, ap);
