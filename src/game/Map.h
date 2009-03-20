@@ -43,6 +43,7 @@ class InstanceData;
 class Group;
 class InstanceSave;
 class WorldObject;
+class TempSummon;
 
 namespace ZThread
 {
@@ -414,6 +415,8 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         template<class NOTIFIER> void VisitAll(const float &x, const float &y, float radius, NOTIFIER &notifier);
         template<class NOTIFIER> void VisitWorld(const float &x, const float &y, float radius, NOTIFIER &notifier);
         template<class NOTIFIER> void VisitGrid(const float &x, const float &y, float radius, NOTIFIER &notifier);
+
+        TempSummon *SummonCreature(uint32 entry, float x, float y, float z, float angle, SummonPropertiesEntry const *properties = NULL, uint32 duration = 0, Unit *summoner = NULL);
     private:
         void LoadVMap(int pX, int pY);
         void LoadMap(uint32 mapid, uint32 instanceid, int x,int y);

@@ -136,10 +136,10 @@ Unit(),
 lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), lootingGroupLeaderGUID(0),
 m_lootMoney(0), m_lootRecipient(0),
 m_deathTimer(0), m_respawnTime(0), m_respawnDelay(25), m_corpseDelay(60), m_respawnradius(0.0f),
-m_gossipOptionLoaded(false), m_emoteState(0), m_isPet(false), m_isVehicle(false), m_isTotem(false),
+m_gossipOptionLoaded(false), m_emoteState(0),
 m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0), m_AlreadyCallAssistance(false),
 m_regenHealth(true), m_AI_locked(false), m_isDeadByDefault(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
-m_creatureInfo(NULL), m_reactState(REACT_AGGRESSIVE), m_formationID(0), m_isSummon(false)
+m_creatureInfo(NULL), m_reactState(REACT_AGGRESSIVE), m_formationID(0), m_summonMask(SUMMON_MASK_NONE)
 {
     m_regenTimer = 200;
     m_valuesCount = UNIT_END;
@@ -597,9 +597,10 @@ bool Creature::AIM_Initialize(CreatureAI* ai)
         return false;
     }
 
-    if(i_AI) delete i_AI;
+    UnitAI *oldAI = i_AI;
     i_motionMaster.Initialize();
     i_AI = ai ? ai : FactorySelector::selectAI(this);
+    if(oldAI) delete oldAI;
     IsAIEnabled = true;
     return true;
 }
